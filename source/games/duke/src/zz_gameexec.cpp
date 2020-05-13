@@ -122,7 +122,7 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int con
                                    g_player[playerNum&(MAXPLAYERS-1)].ps,
                                    &actor[spriteNum&(MAXSPRITES-1)] };
 
-    auto &globalReturn = aGameVars[g_returnVarID].global;
+    auto &globalReturn = aaGameVars[g_returnVarID].global;
 
     struct
     {
@@ -2676,8 +2676,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     tw = *insptr++;
                     int const nValue = Gv_GetVar(*insptr++);
 
-                    if ((aGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
-                        aGameVars[tw].global = nValue;
+                    if ((aaGameVars[tw].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                        aaGameVars[tw].global = nValue;
                     else
                         Gv_SetVar(tw, nValue);
                 }
@@ -2738,18 +2738,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                             continue;
                         }
                     }
-                    Bsprintf(tempbuf, "CONLOGVAR: L=%d %s ", VM_DECODE_LINE_NUMBER(g_tw), aGameVars[lVarID].szLabel);
+                    Bsprintf(tempbuf, "CONLOGVAR: L=%d %s ", VM_DECODE_LINE_NUMBER(g_tw), aaGameVars[lVarID].szLabel);
 
-                    if (aGameVars[lVarID].flags & GAMEVAR_READONLY)
+                    if (aaGameVars[lVarID].flags & GAMEVAR_READONLY)
                     {
                         Bsprintf(szBuf, " (read-only)");
                         Bstrcat(tempbuf, szBuf);
                     }
-                    if (aGameVars[lVarID].flags & GAMEVAR_PERPLAYER)
+                    if (aaGameVars[lVarID].flags & GAMEVAR_PERPLAYER)
                     {
                         Bsprintf(szBuf, " (Per Player. Player=%d)", vm.playerNum);
                     }
-                    else if (aGameVars[lVarID].flags & GAMEVAR_PERACTOR)
+                    else if (aaGameVars[lVarID].flags & GAMEVAR_PERACTOR)
                     {
                         Bsprintf(szBuf, " (Per Actor. Actor=%d)", vm.spriteNum);
                     }

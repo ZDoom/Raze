@@ -34,7 +34,7 @@ BEGIN_DUKE_NS
 
 #define gamevars_c_
 
-gamevar_t   aGameVars[MAXGAMEVARS];
+gamevar_t   aaGameVars[MAXGAMEVARS];
 int32_t     g_gameVarCount   = 0;
 
 // pointers to weapon gamevar data
@@ -62,7 +62,7 @@ intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon work
 // Returns: old g_gameVarCount | (g_gameArrayCount<<16).
 int Gv_Free(void)
 {
-    for (auto &gameVar : aGameVars)
+    for (auto &gameVar : aaGameVars)
     {
         if (gameVar.flags & GAMEVAR_USER_MASK)
             ALIGNED_FREE_AND_NULL(gameVar.pValues);
@@ -86,175 +86,23 @@ void Gv_Clear(void)
     Gv_Free();
 
     // Now, only do work that Gv_Free() hasn't done.
-    for (auto & gameVar : aGameVars)
+    for (auto & gameVar : aaGameVars)
         DO_FREE_AND_NULL(gameVar.szLabel);
 }
 
 // Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
 int Gv_ReadSave(FileReader &kFile)
 {
-    char tbuf[12];
-
-    if (kFile.Read(tbuf, 12)!=12) goto corrupt;
-    if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { Printf("BEG ERR\n"); return 2; }
-
-    Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
-
-    if (kFile.Read(&g_gameVarCount,sizeof(g_gameVarCount)) != sizeof(g_gameVarCount)) goto corrupt;
-    for (bssize_t i=0; i<g_gameVarCount; i++)
-    {
-        char *const olabel = aGameVars[i].szLabel;
-
-        if (kFile.Read(&aGameVars[i], sizeof(gamevar_t)) != sizeof(gamevar_t))
-            goto corrupt;
-
-        aGameVars[i].szLabel = (char *)Xrealloc(olabel, MAXVARLABEL * sizeof(uint8_t));
-
-        if (kFile.Read(aGameVars[i].szLabel, MAXVARLABEL) != MAXVARLABEL)
-            goto corrupt;
-        hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
-
-        if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
-        {
-            aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS) goto corrupt;
-        }
-        else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-        {
-            aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            if (kFile.Read(aGameVars[i].pValues,sizeof(intptr_t) * MAXSPRITES) != sizeof(intptr_t) * MAXSPRITES) goto corrupt;
-        }
-    }
-
-    Gv_InitWeaponPointers();
-
-    // Gv_RefreshPointers();
-
-    uint8_t savedstate[MAXVOLUMES*MAXLEVELS];
-    Bmemset(savedstate, 0, sizeof(savedstate));
-
-    if (kFile.Read(savedstate, sizeof(savedstate)) != sizeof(savedstate)) goto corrupt;
-
-    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
-    {
-        G_FreeMapState(i);
-
-        if (!savedstate[i])
-            continue;
-
-        g_mapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, sizeof(mapstate_t));
-        if (kFile.Read(g_mapInfo[i].savedstate, sizeof(mapstate_t)) != sizeof(mapstate_t)) return -8;
-
-        mapstate_t &sv = *g_mapInfo[i].savedstate;
-
-        for (bssize_t j = 0; j < g_gameVarCount; j++)
-        {
-            if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
-            if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-            {
-                sv.vars[j] = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-                if (kFile.Read(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS) != sizeof(intptr_t) * MAXPLAYERS) return -9;
-            }
-            else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-            {
-                sv.vars[j] = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-                if (kFile.Read(sv.vars[j], sizeof(intptr_t) * MAXSPRITES) != sizeof(intptr_t) * MAXSPRITES) return -10;
-            }
-        }
-    }
-
-    if (kFile.Read(tbuf, 12) != 12) return -13;
-    if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { Printf("EOF ERR\n"); return 2; }
-
-    return 0;
-
-corrupt:
     return -7;
 }
 
 // Note that this entire function is totally architecture dependent and needs to be fixed (which won't be easy...)
 void Gv_WriteSave(FileWriter &fil)
 {
-    //   AddLog("Saving Game Vars to File");
-    fil.Write("BEG: EDuke32", 12);
-
-	fil.Write(&g_gameVarCount,sizeof(g_gameVarCount));
-
-    for (bssize_t i = 0; i < g_gameVarCount; i++)
-    {
-		fil.Write(&(aGameVars[i]), sizeof(gamevar_t));
-		fil.Write(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL);
-
-        if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
-			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS);
-        else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-			fil.Write(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES);
-    }
-
-    uint8_t savedstate[MAXVOLUMES * MAXLEVELS];
-    Bmemset(savedstate, 0, sizeof(savedstate));
-
-    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
-        if (g_mapInfo[i].savedstate != NULL)
-            savedstate[i] = 1;
-
-	fil.Write(savedstate, sizeof(savedstate));
-
-    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
-    {
-        if (!savedstate[i]) continue;
-
-        mapstate_t &sv = *g_mapInfo[i].savedstate;
-
-		fil.Write(g_mapInfo[i].savedstate, sizeof(mapstate_t));
-
-        for (bssize_t j = 0; j < g_gameVarCount; j++)
-        {
-            if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
-            if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS);
-            else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-				fil.Write(sv.vars[j], sizeof(intptr_t) * MAXSPRITES);
-        }
-    }
-
-    fil.Write("EOF: EDuke32", 12);
 }
 
 void Gv_DumpValues(void)
 {
-    buildprint("// Current Game Definitions\n\n");
-
-    for (bssize_t i=0; i<g_gameVarCount; i++)
-    {
-        buildprint("gamevar ", aGameVars[i].szLabel, " ");
-
-        if (aGameVars[i].flags & (GAMEVAR_INT32PTR))
-            buildprint(*(int32_t *)aGameVars[i].global);
-        else if (aGameVars[i].flags & (GAMEVAR_INT16PTR))
-            buildprint(*(int16_t *)aGameVars[i].global);
-        else
-            buildprint(aGameVars[i].global);
-
-        if (aGameVars[i].flags & (GAMEVAR_PERPLAYER))
-            buildprint(" GAMEVAR_PERPLAYER");
-        else if (aGameVars[i].flags & (GAMEVAR_PERACTOR))
-            buildprint(" GAMEVAR_PERACTOR");
-        else
-            buildprint(" ", aGameVars[i].flags/* & (GAMEVAR_USER_MASK)*/);
-
-        buildprint(" // ");
-        if (aGameVars[i].flags & (GAMEVAR_SYSTEM))
-            buildprint(" (system)");
-        if (aGameVars[i].flags & (GAMEVAR_PTR_MASK))
-            buildprint(" (pointer)");
-        if (aGameVars[i].flags & (GAMEVAR_READONLY))
-            buildprint(" (read only)");
-        if (aGameVars[i].flags & (GAMEVAR_SPECIAL))
-            buildprint(" (special)");
-        buildprint("\n");
-    }
-    buildprint("\n// end of game definitions\n");
 }
 
 // XXX: This function is very strange.
@@ -262,7 +110,7 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 {
     Gv_Free();
 
-    for (auto &aGameVar : aGameVars)
+    for (auto &aGameVar : aaGameVars)
     {
         if (aGameVar.szLabel != NULL)
             Gv_NewVar(aGameVar.szLabel, (aGameVar.flags & GAMEVAR_NODEFAULT) ? aGameVar.global : aGameVar.defaultValue, aGameVar.flags);
@@ -289,16 +137,16 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 
     int gV = hash_find(&h_gamevars,pszLabel);
 
-    if (gV >= 0 && !(aGameVars[gV].flags & GAMEVAR_RESET))
+    if (gV >= 0 && !(aaGameVars[gV].flags & GAMEVAR_RESET))
     {
         // found it...
-        if (EDUKE32_PREDICT_FALSE(aGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
+        if (EDUKE32_PREDICT_FALSE(aaGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
         {
             ReportError(-1);
             Printf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,line_number,label+(labelcnt<<6));
             return;
         }
-        else if (EDUKE32_PREDICT_FALSE(!(aGameVars[gV].flags & GAMEVAR_SYSTEM)))
+        else if (EDUKE32_PREDICT_FALSE(!(aaGameVars[gV].flags & GAMEVAR_SYSTEM)))
         {
             // it's a duplicate in error
             warningcount++;
@@ -311,55 +159,55 @@ void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         gV = g_gameVarCount;
 
     // If it's a user gamevar...
-    if ((aGameVars[gV].flags & GAMEVAR_SYSTEM) == 0)
+    if ((aaGameVars[gV].flags & GAMEVAR_SYSTEM) == 0)
     {
         // Allocate and set its label
-        if (aGameVars[gV].szLabel == NULL)
-            aGameVars[gV].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
+        if (aaGameVars[gV].szLabel == NULL)
+            aaGameVars[gV].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
 
-        if (aGameVars[gV].szLabel != pszLabel)
-            Bstrcpy(aGameVars[gV].szLabel,pszLabel);
+        if (aaGameVars[gV].szLabel != pszLabel)
+            Bstrcpy(aaGameVars[gV].szLabel,pszLabel);
 
         // and the flags
-        aGameVars[gV].flags=dwFlags;
+        aaGameVars[gV].flags=dwFlags;
 
         // only free if per-{actor,player}
-        if (aGameVars[gV].flags & GAMEVAR_USER_MASK)
-            ALIGNED_FREE_AND_NULL(aGameVars[gV].pValues);
+        if (aaGameVars[gV].flags & GAMEVAR_USER_MASK)
+            ALIGNED_FREE_AND_NULL(aaGameVars[gV].pValues);
     }
 
     // if existing is system, they only get to change default value....
-    aGameVars[gV].defaultValue = lValue;
-    aGameVars[gV].flags &= ~GAMEVAR_RESET;
+    aaGameVars[gV].defaultValue = lValue;
+    aaGameVars[gV].flags &= ~GAMEVAR_RESET;
 
     if (gV == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&h_gamevars, aGameVars[gV].szLabel, g_gameVarCount++, 0);
+        hash_add(&h_gamevars, aaGameVars[gV].szLabel, g_gameVarCount++, 0);
     }
 
     // Set initial values. (Or, override values for system gamevars.)
-    if (aGameVars[gV].flags & GAMEVAR_PERPLAYER)
+    if (aaGameVars[gV].flags & GAMEVAR_PERPLAYER)
     {
-        if (!aGameVars[gV].pValues)
+        if (!aaGameVars[gV].pValues)
         {
-            aGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            Bmemset(aGameVars[gV].pValues, 0, MAXPLAYERS * sizeof(intptr_t));
+            aaGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
+            Bmemset(aaGameVars[gV].pValues, 0, MAXPLAYERS * sizeof(intptr_t));
         }
         for (bssize_t j=MAXPLAYERS-1; j>=0; --j)
-            aGameVars[gV].pValues[j]=lValue;
+            aaGameVars[gV].pValues[j]=lValue;
     }
-    else if (aGameVars[gV].flags & GAMEVAR_PERACTOR)
+    else if (aaGameVars[gV].flags & GAMEVAR_PERACTOR)
     {
-        if (!aGameVars[gV].pValues)
+        if (!aaGameVars[gV].pValues)
         {
-            aGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            Bmemset(aGameVars[gV].pValues, 0, MAXSPRITES * sizeof(intptr_t));
+            aaGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
+            Bmemset(aaGameVars[gV].pValues, 0, MAXSPRITES * sizeof(intptr_t));
         }
         for (bssize_t j=MAXSPRITES-1; j>=0; --j)
-            aGameVars[gV].pValues[j]=lValue;
+            aaGameVars[gV].pValues[j]=lValue;
     }
-    else aGameVars[gV].global = lValue;
+    else aaGameVars[gV].global = lValue;
 }
 
 static int Gv_GetVarIndex(const char *szGameLabel)
@@ -377,7 +225,7 @@ static int Gv_GetVarIndex(const char *szGameLabel)
 
 static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteNum, int const playerNum)
 {
-    auto const &var = aGameVars[gameVar & (MAXGAMEVARS-1)];
+    auto const &var = aaGameVars[gameVar & (MAXGAMEVARS-1)];
 
     int       returnValue  = 0;
     int const varFlags     = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
@@ -389,10 +237,8 @@ static FORCE_INLINE int __fastcall getvar__(int const gameVar, int const spriteN
         returnValue = var.pValues[playerNum & (MAXPLAYERS-1)];
     else switch (varFlags & GAMEVAR_PTR_MASK)
     {
-        case GAMEVAR_RAWQ16PTR:
         case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
         case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
-        case GAMEVAR_Q16PTR:   returnValue = fix16_to_int(*(fix16_t *)var.global); break;
     }
 
     return NEGATE_ON_CONDITION(returnValue, gameVar & GV_FLAG_NEGATIVE);
@@ -409,7 +255,7 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
 
 static FORCE_INLINE void __fastcall setvar__(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
-    gamevar_t &var = aGameVars[gameVar];
+    gamevar_t &var = aaGameVars[gameVar];
     int const varFlags = var.flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
     if (!varFlags) var.global=newValue;
@@ -419,10 +265,8 @@ static FORCE_INLINE void __fastcall setvar__(int const gameVar, int const newVal
         var.pValues[playerNum & (MAXPLAYERS-1)] = newValue;
     else switch (varFlags & GAMEVAR_PTR_MASK)
     {
-        case GAMEVAR_RAWQ16PTR:
         case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
-        case GAMEVAR_Q16PTR:    *(fix16_t *)var.global  = fix16_from_int((int16_t)newValue); break;
     }
     return;
 }
@@ -446,7 +290,7 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
     if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= MAXGAMEVARS))
         return NULL;
 
-    gamevar_t &var = aGameVars[gameVar];
+    gamevar_t &var = aaGameVars[gameVar];
 
     if (var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
         return var.pValues;
@@ -769,7 +613,7 @@ void Gv_Init(void)
 {
 #if !defined LUNATIC
     // already initialized
-    if (aGameVars[0].flags)
+    if (aaGameVars[0].flags)
         return;
 #else
     static int32_t inited=0;
@@ -839,16 +683,16 @@ void Gv_InitWeaponPointers(void)
 
 void Gv_RefreshPointers(void)
 {
-    aGameVars[Gv_GetVarIndex("COOP")].global              = (intptr_t)&ud.coop;
-    aGameVars[Gv_GetVarIndex("FFIRE")].global             = (intptr_t)&ud.ffire;
-    aGameVars[Gv_GetVarIndex("LEVEL")].global             = (intptr_t)&ud.level_number;
-    aGameVars[Gv_GetVarIndex("MARKER")].global            = (intptr_t)&ud.marker;
-    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global      = (intptr_t)&ud.monsters_off;
-    aGameVars[Gv_GetVarIndex("MULTIMODE")].global         = (intptr_t)&ud.multimode;
-    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
-    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global     = (intptr_t)&ud.respawn_items;
-    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
-    aGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
+    aaGameVars[Gv_GetVarIndex("COOP")].global              = (intptr_t)&ud.coop;
+    aaGameVars[Gv_GetVarIndex("FFIRE")].global             = (intptr_t)&ud.ffire;
+    aaGameVars[Gv_GetVarIndex("LEVEL")].global             = (intptr_t)&ud.level_number;
+    aaGameVars[Gv_GetVarIndex("MARKER")].global            = (intptr_t)&ud.marker;
+    aaGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global      = (intptr_t)&ud.monsters_off;
+    aaGameVars[Gv_GetVarIndex("MULTIMODE")].global         = (intptr_t)&ud.multimode;
+    aaGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
+    aaGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global     = (intptr_t)&ud.respawn_items;
+    aaGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
+    aaGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
 }
 #endif
 

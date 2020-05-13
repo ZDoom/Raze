@@ -933,44 +933,12 @@ static uint8_t *svdiff;
 
 #include "gamedef.h"
 
-#define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/ GAMEVAR_READONLY | GAMEVAR_PTR_MASK | /*GAMEVAR_NORESET |*/ GAMEVAR_SPECIAL)
+#define SV_SKIPMASK (GAMEVAR_READONLY | GAMEVAR_PTR_MASK)
 
 static char svgm_vars_string [] = "blK:vars";
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
 {
-    int vcnt = 0;
-
-    for (int i = 0; i < g_gameVarCount; i++)
-        vcnt += (aGameVars[i].flags & SV_SKIPMASK) ? 0 : 1;
-
-    svgm_vars = (dataspec_gv_t *)Xrealloc(svgm_vars, (vcnt + 2) * sizeof(dataspec_gv_t));
-
-    svgm_vars[0].flags = DS_STRING;
-    svgm_vars[0].ptr   = svgm_vars_string;
-    svgm_vars[0].cnt   = 1;
-
-    vcnt = 1;
-
-    for (int i = 0; i < g_gameVarCount; i++)
-    {
-        if (aGameVars[i].flags & SV_SKIPMASK)
-            continue;
-
-        unsigned const per = aGameVars[i].flags & GAMEVAR_USER_MASK;
-
-        svgm_vars[vcnt].flags = 0;
-        svgm_vars[vcnt].ptr   = (per == 0) ? &aGameVars[i].global : aGameVars[i].pValues;
-        svgm_vars[vcnt].size  = sizeof(intptr_t);
-        svgm_vars[vcnt].cnt   = (per == 0) ? 1 : (per == GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
-
-        ++vcnt;
-    }
-
-    svgm_vars[vcnt].flags = DS_END;
-    svgm_vars[vcnt].ptr   = NULL;
-    svgm_vars[vcnt].size  = 0;
-    svgm_vars[vcnt].cnt   = 0;
 }
 
 void sv_freemem()

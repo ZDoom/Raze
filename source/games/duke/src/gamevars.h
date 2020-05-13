@@ -46,17 +46,11 @@ enum GamevarFlags_t
     GAMEVAR_READONLY  = 0x00001000,  // values are read-only (no setvar allowed)
     GAMEVAR_INT32PTR  = 0x00002000,  // plValues is a pointer to an int32_t
     GAMEVAR_INT16PTR  = 0x00008000,  // plValues is a pointer to a short
-    GAMEVAR_NORESET   = 0x00020000,  // var values are not reset when restoring map state
-    GAMEVAR_SPECIAL   = 0x00040000,  // flag for structure member shortcut vars
-    GAMEVAR_NOMULTI   = 0x00080000,  // don't attach to multiplayer packets
-    GAMEVAR_Q16PTR    = 0x00100000,  // plValues is a pointer to a q16.16
-    GAMEVAR_SERIALIZE = 0x00200000,  // write into permasaves
     GAMEVAR_FLAG_DEFAULT = GAMEVAR_DEFAULT,
     GAMEVAR_FLAG_SECRET = 0x200,    // placeholder
     GAMEVAR_FLAG_READONLY = 0x1000,    // placeholder
 
-    GAMEVAR_RAWQ16PTR = GAMEVAR_Q16PTR | GAMEVAR_SPECIAL,  // plValues is a pointer to a q16.16 but we don't want conversion
-    GAMEVAR_PTR_MASK  = GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_Q16PTR | GAMEVAR_RAWQ16PTR,
+    GAMEVAR_PTR_MASK  = GAMEVAR_INT32PTR | GAMEVAR_INT16PTR,
 };
 
 // Alignments for per-player and per-actor variables.
@@ -82,7 +76,7 @@ typedef struct
 } gamevar_t;
 #pragma pack(pop)
 
-extern gamevar_t   aGameVars[MAXGAMEVARS];
+extern gamevar_t   aaGameVars[MAXGAMEVARS];
 extern int32_t     g_gameVarCount;
 
 int __fastcall Gv_GetVar(int const gameVar, int const spriteNum, int const playerNum);
@@ -115,14 +109,6 @@ void Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
 int GetDefID(const char* label);
 
-static FORCE_INLINE void A_ResetVars(int const spriteNum)
-{
-    for (auto &gv : aGameVars)
-    {
-        if ((gv.flags & (GAMEVAR_PERACTOR|GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
-            gv.pValues[spriteNum] = gv.defaultValue;
-    }
-}
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
@@ -138,7 +124,7 @@ void Gv_FinalizeWeaponDefaults(void);
 #define VM_GAMEVAR_OPERATOR(func, operator)                                                            \
     static FORCE_INLINE ATTRIBUTE((flatten)) void __fastcall func(int const id, int32_t const operand) \
     {                                                                                                  \
-        auto &var = aGameVars[id];                                                                     \
+        auto &var = aaGameVars[id];                                                                     \
                                                                                                        \
         switch (var.flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                    \
         {                                                                                              \
@@ -152,13 +138,6 @@ void Gv_FinalizeWeaponDefaults(void);
                 var.pValues[vm.spriteNum & (MAXSPRITES-1)] operator operand;                           \
                 break;                                                                                 \
             case GAMEVAR_INT32PTR: *(int32_t *)var.pValues operator(int32_t) operand; break;           \
-            case GAMEVAR_INT16PTR: *(int16_t *)var.pValues operator(int16_t) operand; break;           \
-            case GAMEVAR_Q16PTR:                                                                       \
-            {                                                                                          \
-                Fix16 *pfix = (Fix16 *)var.global;                                                     \
-                *pfix  operator fix16_from_int(operand);                                               \
-                break;                                                                                 \
-            }                                                                                          \
         }                                                                                              \
     }
 

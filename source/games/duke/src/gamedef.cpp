@@ -1161,7 +1161,7 @@ int parsecommand()
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		if (aaGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
 		{
 			errorcount++;
 			ReportError(ERROR_VARREADONLY);
@@ -1191,7 +1191,7 @@ int parsecommand()
 			ReportError(ERROR_NOTAGAMEDEF);
 			return 0;
 		}
-		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
+		if (aaGameVars[i].dwFlags & GAMEVAR_FLAG_READONLY)
 		{
 			errorcount++;
 			ReportError(ERROR_VARREADONLY);
