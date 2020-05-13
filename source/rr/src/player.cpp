@@ -3205,6 +3205,7 @@ void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3270,11 +3271,13 @@ void P_GetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    pPlayer->lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3509,6 +3512,48 @@ void P_GetInput(int const playerNum)
         }
     }
 
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
+
+        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
+
+        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
+
+        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
+
+        if (thisPlayer.lookLeft)
+        {
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+        if (thisPlayer.lookRight)
+        {
+            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
+        }
+    }
+
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
     if (thisPlayer.horizAngleAdjust)
@@ -3571,6 +3616,7 @@ void P_GetInputMotorcycle(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3612,11 +3658,13 @@ void P_GetInputMotorcycle(int playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    pPlayer->lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3791,6 +3839,27 @@ void P_GetInputMotorcycle(int playerNum)
         }
     }
 
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
+        }
+    }
+
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
         localInput.bits |= 1;
@@ -3801,6 +3870,7 @@ void P_GetInputBoat(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3842,11 +3912,13 @@ void P_GetInputBoat(int playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    pPlayer->lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -4001,6 +4073,27 @@ void P_GetInputBoat(int playerNum)
             pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
         }
     }
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
+        }
+    }
 }
 
 int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
@@ -4026,6 +4119,7 @@ void P_DHGetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -4083,11 +4177,13 @@ void P_DHGetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - pPlayer->lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    pPlayer->lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -4177,6 +4273,31 @@ void P_DHGetInput(int const playerNum)
 
     if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003)
         input.fvel >>= 1;
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
+
+        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
+
+        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
+
+        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
+
+        if (thisPlayer.lookLeft)
+        {
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+        if (thisPlayer.lookRight)
+        {
+            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+    }
 
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
@@ -7816,24 +7937,21 @@ check_enemy_sprite:
         return;
     }
 
-    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)));
-
-    if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)))
-        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16rotscrnang))));
-
-    pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)));
-
-    if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)))
-        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16look_ang))));
-
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && (!RRRA || !pPlayer->on_motorcycle))
     {
         // look_left
         if (VM_OnEvent(EVENT_LOOKLEFT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_int(152));
-            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
+            thisPlayer.lookLeft = true;
         }
+        else
+        {
+            thisPlayer.lookLeft = false;
+        }
+    }
+    else
+    {
+        thisPlayer.lookLeft = false;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && (!RRRA || !pPlayer->on_motorcycle))
@@ -7841,26 +7959,16 @@ check_enemy_sprite:
         // look_right
         if (VM_OnEvent(EVENT_LOOKRIGHT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_int(152));
-            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(24));
+            thisPlayer.lookRight = true;
+        }
+        else
+        {
+            thisPlayer.lookRight = false;
         }
     }
-
-    if (RRRA && pPlayer->sea_sick)
+    else
     {
-        if (pPlayer->sea_sick < 250)
-        {
-            if (pPlayer->sea_sick >= 180)
-                pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
-            else if (pPlayer->sea_sick >= 130)
-                pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(24));
-            else if (pPlayer->sea_sick >= 70)
-                pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
-            else if (pPlayer->sea_sick >= 20)
-                pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
-        }
-        if (pPlayer->sea_sick < 250)
-            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_int((krand2()&255)-128));
+        thisPlayer.lookRight = false;
     }
 
     int                  velocityModifier = TICSPERFRAME;
@@ -9071,28 +9179,24 @@ void P_DHProcessInput(int playerNum)
         return;
     }
 
-    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)));
-
-    if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2)))
-        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16rotscrnang))));
-
-    pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)));
-
-    if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4)))
-        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_int(ksgn(fix16_to_int(pPlayer->q16look_ang))));
-
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && !pPlayer->on_motorcycle)
     {
         // look_left
-        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_int(152));
-        pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_int(24));
+        thisPlayer.lookLeft = true;
+    }
+    else
+    {
+        thisPlayer.lookLeft = false;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && !pPlayer->on_motorcycle)
     {
         // look_right
-        pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_int(152));
-        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_int(24));
+        thisPlayer.lookRight = true;
+    }
+    else
+    {
+        thisPlayer.lookRight = false;
     }
 
     int                  velocityModifier = TICSPERFRAME;
