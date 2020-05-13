@@ -18,7 +18,7 @@ cmd(fall)					// 16
 cmd(state)					// 17
 cmd(ends)					// 18
 cmd(define)					// 19
-cmdx(comment, "//")			// 20
+//cmdx(comment, "//")			// 20
 cmd(ifai)					// 21
 cmd(killit)					// 22
 cmd(addweapon)				// 23
@@ -37,7 +37,7 @@ cmd(ifactioncount)			// 35
 cmd(resetactioncount) 		// 36
 cmd(debris)					// 37
 cmd(pstomp)					// 38
-cmdx(blockcomment, "/*")	// 39
+//cmdx(blockcomment, "/*")	// 39
 cmd(cstat)					// 40
 cmd(ifmove)					// 41
 cmd(resetplayer)			// 42

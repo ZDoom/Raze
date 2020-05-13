@@ -3950,4 +3950,210 @@ void moveeffectors_d(void)   //STATNUM 3
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void move_d(int g_i, int g_p, int g_x)
+{
+	auto g_sp = &sprite[g_i];
+	auto g_t = hittype[g_i].t_data;
+	int l;
+	intptr_t* moveptr;
+	short a, goalang, angdif;
+	int daxvel;
+
+	a = g_sp->hitag;
+
+	if (a == -1) a = 0;
+
+	g_t[0]++;
+
+	if (a & face_player)
+	{
+		if (ps[g_p].newowner >= 0)
+			goalang = getangle(ps[g_p].oposx - g_sp->x, ps[g_p].oposy - g_sp->y);
+		else goalang = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
+		angdif = getincangle(g_sp->ang, goalang) >> 2;
+		if (angdif > -8 && angdif < 0) angdif = 0;
+		g_sp->ang += angdif;
+	}
+
+	if (a & spin)
+		g_sp->ang += sintable[((g_t[0] << 3) & 2047)] >> 6;
+
+	if (a & face_player_slow)
+	{
+		if (ps[g_p].newowner >= 0)
+			goalang = getangle(ps[g_p].oposx - g_sp->x, ps[g_p].oposy - g_sp->y);
+		else goalang = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
+		angdif = ksgn(getincangle(g_sp->ang, goalang)) << 5;
+		if (angdif > -32 && angdif < 0)
+		{
+			angdif = 0;
+			g_sp->ang = goalang;
+		}
+		g_sp->ang += angdif;
+	}
+
+
+	if ((a & jumptoplayer) == jumptoplayer)
+	{
+		if (g_t[0] < 16)
+			g_sp->zvel -= (sintable[(512 + (g_t[0] << 4)) & 2047] >> 5);
+	}
+
+	if (a & face_player_smart)
+	{
+		long newx, newy;
+
+		newx = ps[g_p].posx + (ps[g_p].posxv / 768);
+		newy = ps[g_p].posy + (ps[g_p].posyv / 768);
+		goalang = getangle(newx - g_sp->x, newy - g_sp->y);
+		angdif = getincangle(g_sp->ang, goalang) >> 2;
+		if (angdif > -8 && angdif < 0) angdif = 0;
+		g_sp->ang += angdif;
+	}
+
+	if (g_t[1] == 0 || a == 0)
+	{
+		if ((badguy(g_sp) && g_sp->extra <= 0) || (hittype[g_i].bposx != g_sp->x) || (hittype[g_i].bposy != g_sp->y))
+		{
+			hittype[g_i].bposx = g_sp->x;
+			hittype[g_i].bposy = g_sp->y;
+			setsprite(g_i, g_sp->x, g_sp->y, g_sp->z);
+		}
+		return;
+	}
+
+	moveptr = apScript + g_t[1];
+
+	if (a & geth) g_sp->xvel += (*moveptr - g_sp->xvel) >> 1;
+	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;
+
+	if (a & dodgebullet)
+		dodge(g_sp);
+
+	if (g_sp->picnum != APLAYER)
+		alterang(a, g_i, g_p);
+
+	if (g_sp->xvel > -6 && g_sp->xvel < 6) g_sp->xvel = 0;
+
+	a = badguy(g_sp);
+
+	if (g_sp->xvel || g_sp->zvel)
+	{
+		if (a && g_sp->picnum != ROTATEGUN)
+		{
+			if ((g_sp->picnum == DRONE || g_sp->picnum == COMMANDER) && g_sp->extra > 0)
+			{
+				if (g_sp->picnum == COMMANDER)
+				{
+					hittype[g_i].floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					if (g_sp->z > (l - (8 << 8)))
+					{
+						if (g_sp->z > (l - (8 << 8))) g_sp->z = l - (8 << 8);
+						g_sp->zvel = 0;
+					}
+
+					hittype[g_i].ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					if ((g_sp->z - l) < (80 << 8))
+					{
+						g_sp->z = l + (80 << 8);
+						g_sp->zvel = 0;
+					}
+				}
+				else
+				{
+					if (g_sp->zvel > 0)
+					{
+						hittype[g_i].floorz = l = getflorzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+						if (g_sp->z > (l - (30 << 8)))
+							g_sp->z = l - (30 << 8);
+					}
+					else
+					{
+						hittype[g_i].ceilingz = l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+						if ((g_sp->z - l) < (50 << 8))
+						{
+							g_sp->z = l + (50 << 8);
+							g_sp->zvel = 0;
+						}
+					}
+				}
+			}
+			else if (g_sp->picnum != ORGANTIC)
+			{
+				if (g_sp->zvel > 0 && hittype[g_i].floorz < g_sp->z)
+					g_sp->z = hittype[g_i].floorz;
+				if (g_sp->zvel < 0)
+				{
+					l = getceilzofslope(g_sp->sectnum, g_sp->x, g_sp->y);
+					if ((g_sp->z - l) < (66 << 8))
+					{
+						g_sp->z = l + (66 << 8);
+						g_sp->zvel >>= 1;
+					}
+				}
+			}
+		}
+		else if (g_sp->picnum == APLAYER)
+			if ((g_sp->z - hittype[g_i].ceilingz) < (32 << 8))
+				g_sp->z = hittype[g_i].ceilingz + (32 << 8);
+
+		daxvel = g_sp->xvel;
+		angdif = g_sp->ang;
+
+		if (a && g_sp->picnum != ROTATEGUN)
+		{
+			if (g_x < 960 && g_sp->xrepeat > 16)
+			{
+
+				daxvel = -(1024 - g_x);
+				angdif = getangle(ps[g_p].posx - g_sp->x, ps[g_p].posy - g_sp->y);
+
+				if (g_x < 512)
+				{
+					ps[g_p].posxv = 0;
+					ps[g_p].posyv = 0;
+				}
+				else
+				{
+					ps[g_p].posxv = mulscale(ps[g_p].posxv, dukefriction - 0x2000, 16);
+					ps[g_p].posyv = mulscale(ps[g_p].posyv, dukefriction - 0x2000, 16);
+				}
+			}
+			else if (g_sp->picnum != DRONE && g_sp->picnum != SHARK && g_sp->picnum != COMMANDER)
+			{
+				if (hittype[g_i].bposz != g_sp->z || (ud.multimode < 2 && ud.player_skill < 2))
+				{
+					if ((g_t[0] & 1) || ps[g_p].actorsqu == g_i) return;
+					else daxvel <<= 1;
+				}
+				else
+				{
+					if ((g_t[0] & 3) || ps[g_p].actorsqu == g_i) return;
+					else daxvel <<= 2;
+				}
+			}
+		}
+
+		hittype[g_i].movflag = movesprite(g_i,
+			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
+			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0);
+	}
+
+	if (a)
+	{
+		if (sector[g_sp->sectnum].ceilingstat & 1)
+			g_sp->shade += (sector[g_sp->sectnum].ceilingshade - g_sp->shade) >> 1;
+		else g_sp->shade += (sector[g_sp->sectnum].floorshade - g_sp->shade) >> 1;
+
+		if (sector[g_sp->sectnum].floorpicnum == MIRROR)
+			deletesprite(g_i);
+	}
+}
+
 END_DUKE_NS

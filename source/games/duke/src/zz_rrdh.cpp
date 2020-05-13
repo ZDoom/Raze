@@ -3785,7 +3785,7 @@ void gharrow_move(void)
         }
         else
         {
-            A_GetZLimits(i);
+            getglobalz(i);
             v24 = s->x;
             v28 = s->y;
             v20 = s->y;

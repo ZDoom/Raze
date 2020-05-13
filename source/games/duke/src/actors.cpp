@@ -67,6 +67,7 @@ int ifhitsectors_d(int sectnum);
 int ifhitsectors_r(int sectnum);
 int ifhitbyweapon_r(int sn);
 int ifhitbyweapon_d(int sn);
+int adjustfall(spritetype* s, int c);
 
 bool ceilingspace(int sectnum)
 {
@@ -1111,7 +1112,7 @@ void movetrash(int i)
 	{
 		makeitfall(i);
 		if (krand() & 1) s->zvel -= 256;
-		if (klabs(s->xvel) < 48)
+		if (abs(s->xvel) < 48)
 			s->xvel += (krand() & 3);
 	}
 	else deletesprite(i);
@@ -4725,6 +4726,332 @@ void handle_se130(int i, int countmax, int EXPLOSION2)
 		ssp(k, CLIPMASK0);
 	}
 }
+
+
+//---------------------------------------------------------------------------
+//
+// code fron gameexec/conrun
+//
+//---------------------------------------------------------------------------
+
+int getincangle(int a,int na)
+{
+	a &= 2047;
+	na &= 2047;
+
+	if(abs(a-na) < 1024)
+		return (na-a);
+	else
+	{
+		if(na > 1024) na -= 2048;
+		if(a > 1024) a -= 2048;
+
+		na -= 2048;
+		a -= 2048;
+		return (na-a);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void getglobalz(int i)
+{
+	int hz,lz,zr;
+
+	spritetype *s = &sprite[i];
+
+	if( s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
+	{
+		if(s->statnum == STAT_PROJECTILE)
+			zr = 4;
+		else zr = 127;
+
+		getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[i].ceilingz,&hz,&hittype[i].floorz,&lz,zr,CLIPMASK0);
+
+		if( (lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0 )
+		{
+			lz &= (MAXSPRITES-1);
+			if( badguy(&sprite[lz]) && sprite[lz].pal != 1)
+			{
+				if( s->statnum != 4 )
+				{
+					hittype[i].flags |= SFLAG_NOFLOORSHADOW; 
+					//hittype[i].dispicnum = -4; // No shadows on actors
+					s->xvel = -256;
+					ssp(i,CLIPMASK0);
+				}
+			}
+			else if(sprite[lz].picnum == APLAYER && badguy(s) )
+			{
+				hittype[i].flags |= SFLAG_NOFLOORSHADOW; 
+				//hittype[i].dispicnum = -4; // No shadows on actors
+				s->xvel = -256;
+				ssp(i,CLIPMASK0);
+			}
+			else if(s->statnum == 4 && sprite[lz].picnum == APLAYER)
+				if(s->owner == lz)
+			{
+				hittype[i].ceilingz = sector[s->sectnum].ceilingz;
+				hittype[i].floorz	= sector[s->sectnum].floorz;
+			}
+		}
+	}
+	else
+	{
+		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
+		hittype[i].floorz	= sector[s->sectnum].floorz;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void makeitfall(int i)
+{
+	spritetype *s = &sprite[i];
+	int hz,lz,c;
+
+	if( floorspace(s->sectnum) )
+		c = 0;
+	else
+	{
+		if( ceilingspace(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
+			c = gc/6;
+		else c = gc;
+	}
+	
+	if (isRRRA())
+	{
+		c = adjustfall(s, c); // this accesses sprite indices and cannot be in shared code. Should be done better.
+	}
+
+	if( ( s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE ) )
+		getzrange(s->x,s->y,s->z-(FOURSLEIGHT),s->sectnum,&hittype[i].ceilingz,&hz,&hittype[i].floorz,&lz,127L,CLIPMASK0);
+	else
+	{
+		hittype[i].ceilingz = sector[s->sectnum].ceilingz;
+		hittype[i].floorz	= sector[s->sectnum].floorz;
+	}
+
+	if( s->z < hittype[i].floorz-(FOURSLEIGHT) )
+	{
+		if( sector[s->sectnum].lotag == 2 && s->zvel > 3122 )
+			s->zvel = 3144;
+		if(s->zvel < 6144)
+			s->zvel += c;
+		else s->zvel = 6144;
+		s->z += s->zvel;
+	}
+	if( s->z >= hittype[i].floorz-(FOURSLEIGHT) )
+	{
+		s->z = hittype[i].floorz - FOURSLEIGHT;
+		s->zvel = 0;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int dodge(spritetype* s)
+{
+	short i;
+	long bx, by, mx, my, bxvect, byvect, mxvect, myvect, d;
+
+	mx = s->x;
+	my = s->y;
+	mxvect = sintable[(s->ang + 512) & 2047]; myvect = sintable[s->ang & 2047];
+
+	for (i = headspritestat[4]; i >= 0; i = nextspritestat[i]) //weapons list
+	{
+		if (sprite[i].owner == i || sprite[i].sectnum != s->sectnum)
+			continue;
+
+		bx = sprite[i].x - mx;
+		by = sprite[i].y - my;
+		bxvect = sintable[(sprite[i].ang + 512) & 2047]; byvect = sintable[sprite[i].ang & 2047];
+
+		if (mxvect * bx + myvect * by >= 0)
+			if (bxvect * bx + byvect * by < 0)
+			{
+				d = bxvect * by - byvect * bx;
+				if (abs(d) < 65536 * 64)
+				{
+					s->ang -= 512 + (krand() & 1024);
+					return 1;
+				}
+			}
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int furthestangle(int i, int angs)
+{
+	short j, hitsect, hitwall, hitspr, furthest_angle, angincs;
+	int hx, hy, hz, d, greatestd;
+	spritetype* s = &sprite[i];
+
+	greatestd = -(1 << 30);
+	angincs = 2048 / angs;
+
+	if (s->picnum != APLAYER)
+		if ((hittype[i].t_data[0] & 63) > 2) return(s->ang + 1024);
+
+	for (j = s->ang; j < (2048 + s->ang); j += angincs)
+	{
+		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum,
+			sintable[(j + 512) & 2047],
+			sintable[j & 2047], 0,
+			&hitsect, &hitwall, &hitspr, &hx, &hy, &hz, CLIPMASK1);
+
+		d = abs(hx - s->x) + abs(hy - s->y);
+
+		if (d > greatestd)
+		{
+			greatestd = d;
+			furthest_angle = j;
+		}
+	}
+	return (furthest_angle & 2047);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day)
+{
+	short j, hitsect, hitwall, hitspr, angincs;
+	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+	spritetype* s = &sprite[i];
+
+	if ((hittype[i].t_data[0] & 63)) return -1;
+
+	if (ud.multimode < 2 && ud.player_skill < 3)
+		angincs = 2048 / 2;
+	else angincs = 2048 / (1 + (krand() & 1));
+
+	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
+	{
+		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum,
+			sintable[(j + 512) & 2047],
+			sintable[j & 2047], 16384 - (krand() & 32767),
+			&hitsect, &hitwall, &hitspr, &hx, &hy, &hz, CLIPMASK1);
+
+		d = abs(hx - ts->x) + abs(hy - ts->y);
+		da = abs(hx - s->x) + abs(hy - s->y);
+
+		if (d < da)
+			if (cansee(hx, hy, hz, hitsect, s->x, s->y, s->z - (16 << 8), s->sectnum))
+			{
+				*dax = hx;
+				*day = hy;
+				return hitsect;
+			}
+	}
+	return -1;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void alterang(int a, int g_i, int g_p)
+{
+	short aang, angdif, goalang, j;
+	int ticselapsed;
+	intptr_t *moveptr;
+	int* g_t = hittype[g_i].t_data;
+	auto* g_sp = &sprite[g_i];
+
+	moveptr = apScript + g_t[1];
+
+	ticselapsed = (g_t[0]) & 31;
+
+	aang = g_sp->ang;
+
+	g_sp->xvel += (*moveptr - g_sp->xvel) / 5;
+	if (g_sp->zvel < 648) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) / 5;
+
+	if (isRRRA() && (a & windang))
+		g_sp->ang = WindDir;
+	else if (a & seekplayer)
+	{
+		j = !isRR() && ps[g_p].holoduke_on;
+
+		// NOTE: looks like 'owner' is set to target sprite ID...
+
+		if (j >= 0 && cansee(sprite[j].x, sprite[j].y, sprite[j].z, sprite[j].sectnum, g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum))
+			g_sp->owner = j;
+		else g_sp->owner = ps[g_p].i;
+
+		if (sprite[g_sp->owner].picnum == APLAYER)
+			goalang = getangle(hittype[g_i].lastvx - g_sp->x, hittype[g_i].lastvy - g_sp->y);
+		else
+			goalang = getangle(sprite[g_sp->owner].x - g_sp->x, sprite[g_sp->owner].y - g_sp->y);
+
+		if (g_sp->xvel && g_sp->picnum != TILE_DRONE)
+		{
+			angdif = getincangle(aang, goalang);
+
+			if (ticselapsed < 2)
+			{
+				if (abs(angdif) < 256)
+				{
+					j = 128 - (krand() & 256);
+					g_sp->ang += j;
+					if (hits(g_i) < 844)
+						g_sp->ang -= j;
+				}
+			}
+			else if (ticselapsed > 18 && ticselapsed < 26) // choose
+			{
+				if (abs(angdif >> 2) < 128) g_sp->ang = goalang;
+				else g_sp->ang += angdif >> 2;
+			}
+		}
+		else g_sp->ang = goalang;
+	}
+
+	if (ticselapsed < 1)
+	{
+		j = 2;
+		if (a & furthestdir)
+		{
+			goalang = furthestangle(g_i, j);
+			g_sp->ang = goalang;
+			g_sp->owner = ps[g_p].i;
+		}
+
+		if (a & fleeenemy)
+		{
+			goalang = furthestangle(g_i, j);
+			g_sp->ang = goalang; // += angdif; //  = getincangle(aang,goalang)>>1;
+		}
+	}
+}
+
+
+
 
 
 END_DUKE_NS

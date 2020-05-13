@@ -844,18 +844,20 @@ int parsecommand()
 		}
 		parsebuffer.Push(0);
 
-		auto fn = fileSystem.FindFile(parsebuffer.Data());
-		if (fn < 0)
+		auto fni = fileSystem.FindFile(parsebuffer.Data());
+		if (fni < 0)
 		{
 			errorcount++;
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Could not find '%s'.\n", fn, line_number, parsebuffer.Data());
+
 			ReportError(ERROR_COULDNOTFIND);
 			return 0;
 		}
 
-		auto data = fileSystem.GetFileData(fn, 1);
+		auto data = fileSystem.GetFileData(fni, 1);
 
 		temp_current_file = g_currentSourceFile;
-		g_currentSourceFile = fn;
+		g_currentSourceFile = fni;
 
 		temp_line_number = line_number;
 		line_number = 1;
@@ -872,6 +874,7 @@ int parsecommand()
 		line_number = temp_line_number;
 		checking_ifelse = temp_ifelse_check;
 		g_currentSourceFile = temp_current_file;
+		if (*textptr == '"') textptr++;	// needed for RR.
 
 		return 0;
 	}

@@ -2897,11 +2897,13 @@ void G_InitDynamicTiles(void)
     {
         APLAYER = 3845;
         CAMERA1 = 1134;
+        //DRONE = 1880;
     }
     else
     {
         APLAYER = 1405;
         CAMERA1 = 621;
+        //DRONE = 4916;
     }
 
 

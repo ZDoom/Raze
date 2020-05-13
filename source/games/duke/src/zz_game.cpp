@@ -1565,7 +1565,7 @@ default_case:
                         break;
                     }
 
-                    A_Fall(newSprite);
+                    makeitfall(newSprite);
 
                     if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
                         pActor->actorstayput = pSprite->sectnum;
@@ -2822,7 +2822,7 @@ rrbloodpool_fallthrough:
             }
             else
             {
-                A_Fall(newSprite);
+                makeitfall(newSprite);
 
                 if (pSprite->picnum == TILE_RAT)
                 {
@@ -3142,7 +3142,7 @@ rr_badguy:
             }
             else
             {
-                A_Fall(newSprite);
+                makeitfall(newSprite);
 
                 if (pSprite->picnum == TILE_RAT)
                 {
@@ -3215,7 +3215,7 @@ rr_badguy:
 
             changespritestat(newSprite, STAT_ACTOR);
 
-            A_GetZLimits(newSprite);
+            getglobalz(newSprite);
 
             int const oozSize = (pActor->floorz-pActor->ceilingz)>>9;
 
@@ -3389,7 +3389,7 @@ rr_badguy:
             else
             {
                 changespritestat(newSprite, STAT_ZOMBIEACTOR);
-                A_Fall(newSprite);
+                makeitfall(newSprite);
             }
             if (RR)
             {
@@ -4301,7 +4301,7 @@ rr_badguy:
             if (spriteNum >= 0)
                 pSprite->xrepeat = pSprite->yrepeat = 32;
             pSprite->clipdist = 72;
-            A_Fall(newSprite);
+            makeitfall(newSprite);
             if (spriteNum >= 0)
                 pSprite->owner = spriteNum;
             else pSprite->owner = newSprite;
@@ -4588,7 +4588,7 @@ default_case1:
                 if ((t->cstat&16) || (A_CheckEnemySprite(t) &&
                     (unsigned)t->owner < MAXSPRITES && sprite[t->owner].extra > 0) || t->statnum == STAT_PLAYER)
                 {
-                    if (RR && g_shadedSector[s->sectnum] == 1)
+                    if (RR && shadedsector[s->sectnum] == 1)
                     {
                         s->shade = 16;
                         t->shade = 16;
@@ -4744,7 +4744,7 @@ default_case1:
                                        sprite[pSprite->owner].y - g_player[screenpeek].ps->pos.y);
                 int16_t const sqb = getangle(sprite[pSprite->owner].x - t->x, sprite[pSprite->owner].y - t->y);
 
-                if (klabs(G_GetAngleDelta(sqa,sqb)) > 512)
+                if (klabs(getincangle(sqa,sqb)) > 512)
                     if (ldist(&sprite[pSprite->owner],(const spritetype *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[pSprite->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
@@ -5232,7 +5232,7 @@ PALONLY:
             }
             if (t->pal == 6)
                 t->shade = -120;
-            if (RR && g_shadedSector[pSprite->sectnum] == 1)
+            if (RR && shadedsector[pSprite->sectnum] == 1)
                 t->shade = 16;
             fallthrough__;
         case SCRAP1__STATIC:

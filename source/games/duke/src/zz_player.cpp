@@ -1894,7 +1894,7 @@ void P_DisplayWeapon(void)
     int weaponX       = (160) - 90;
     int weaponY       = klabs(pPlayer->look_ang) / 9;
     int weaponYOffset = 80 - (pPlayer->weapon_pos * pPlayer->weapon_pos);
-    int weaponShade   = (RR && pPlayer->cursectnum >= 0 && g_shadedSector[pPlayer->cursectnum]) ? 16 : (sprite[pPlayer->i].shade <= 24 ? sprite[pPlayer->i].shade : 24);
+    int weaponShade   = (RR && pPlayer->cursectnum >= 0 && shadedsector[pPlayer->cursectnum]) ? 16 : (sprite[pPlayer->i].shade <= 24 ? sprite[pPlayer->i].shade : 24);
 
     int32_t weaponBits = 0;
     UNREFERENCED_PARAMETER(weaponBits);
@@ -4207,7 +4207,7 @@ static int32_t P_DoCounters(int playerNum)
         else if ((krand2() & 127) == 8)
         {
             g_windTime = 120+((krand2()&63)<<2);
-            g_windDir = krand2()&2047;
+            WindDir = krand2()&2047;
         }
 
         if (g_bellTime > 0)
@@ -8480,7 +8480,7 @@ HORIZONLY:;
     if (pPlayer->cursectnum >= 0 && ud.clipping == 0)
     {
         int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, (!RR || pSprite->clipdist == 64) ? 164 : 16, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
-                                 A_GetFurthestAngle(pPlayer->i, 8) < 512);
+                                 furthestangle(pPlayer->i, 8) < 512);
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))
         {
@@ -8641,7 +8641,7 @@ HORIZONLY:;
         }
         else if (pPlayer->actorsqu >= 0)
             pPlayer->q16ang += fix16_from_int(
-            G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),
+            getincangle(fix16_to_int(pPlayer->q16ang),
                             getangle(sprite[pPlayer->actorsqu].x - pPlayer->pos.x, sprite[pPlayer->actorsqu].y - pPlayer->pos.y))
             >> 2);
     }
@@ -9151,7 +9151,7 @@ void P_DHProcessInput(int playerNum)
     if (pPlayer->cursectnum >= 0 && ud.clipping == 0)
     {
         int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, (!RR || pSprite->clipdist == 64) ? 164 : 16, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
-                                 A_GetFurthestAngle(pPlayer->i, 8) < 512);
+                                 furthestangle(pPlayer->i, 8) < 512);
     }
 
     if (pPlayer->return_to_center > 0)

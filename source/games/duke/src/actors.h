@@ -76,7 +76,9 @@ enum amoveflags_t
     face_player_smart = 64,
     fleeenemy         = 128,
     jumptoplayer_only = 256,
+    justjump1 = 256,
     jumptoplayer_bits = 257,  // NOTE: two bits set!
+    jumptoplayer = 257,  // NOTE: two bits set!
     seekplayer        = 512,
     furthestdir       = 1024,
     dodgebullet       = 4096,
@@ -455,6 +457,9 @@ void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 int ifhitbyweapon(int sn);
 int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 void lotsofmoney(spritetype* s, short n);
+
+int dodge(spritetype*);
+void alterang(int a, int g_i, int g_p);
 
 // tile names which are identical for all games.
 enum

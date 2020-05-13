@@ -1164,7 +1164,7 @@ static void resetprestat(int playerNum, int gameMode)
     if (RRRA)
     {
         g_windTime = 0;
-        g_windDir = 0;
+        WindDir = 0;
         g_fakeBubbaCnt = 0;
         RRRA_ExitedLevel = 0;
         g_bellTime = 0;
@@ -1303,7 +1303,7 @@ static void prelevel(char g)
 
     Bmemset(g_spriteExtra, 0, sizeof(g_spriteExtra));
     Bmemset(g_sectorExtra, 0, sizeof(g_sectorExtra));
-    Bmemset(g_shadedSector, 0, sizeof(g_shadedSector));
+    Bmemset(shadedsector, 0, sizeof(shadedsector));
     Bmemset(g_geoSectorWarp, -1, sizeof(g_geoSectorWarp));
     Bmemset(g_geoSectorWarp2, -1, sizeof(g_geoSectorWarp2));
     Bmemset(g_ambientHitag, -1, sizeof(g_ambientHitag));
@@ -1323,7 +1323,7 @@ static void prelevel(char g)
         if (RRRA)
         {
             g_windTime = 0;
-            g_windDir = 0;
+            WindDir = 0;
             g_fakeBubbaCnt = 0;
             RRRA_ExitedLevel = 0;
             g_mamaSpawnCnt = 15; // ???
@@ -1519,7 +1519,7 @@ static void prelevel(char g)
                 break;
 
             case RRTILE68__STATICRR:
-                g_shadedSector[SECT(i)] = 1;
+                shadedsector[SECT(i)] = 1;
                 A_DeleteSprite(i);
                 break;
 

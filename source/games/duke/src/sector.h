@@ -40,7 +40,7 @@ BEGIN_DUKE_NS
 
 #define VIEWSCREEN_ACTIVE_DISTANCE 8192
 
-extern uint8_t g_shadedSector[MAXSECTORS];
+extern uint8_t shadedsector[MAXSECTORS];
 
 typedef struct {
     int16_t wallnum, tag;

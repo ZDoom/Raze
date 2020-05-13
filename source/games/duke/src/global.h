@@ -216,7 +216,7 @@ struct msy_
 G_EXTERN msx_ msx;
 G_EXTERN msy_ msy;
 
-G_EXTERN int32_t g_windTime, g_windDir;
+G_EXTERN int32_t g_windTime, WindDir;
 G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite

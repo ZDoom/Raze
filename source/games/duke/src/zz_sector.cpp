@@ -36,7 +36,7 @@ void operatejaildoors(int hitag);
 
 static int g_haltSoundHack = 0;
 
-uint8_t g_shadedSector[MAXSECTORS];
+uint8_t shadedsector[MAXSECTORS];
 
 int S_FindMusicSFX(int sectNum, int* sndptr)
 {

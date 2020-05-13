@@ -889,9 +889,30 @@ static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+inline void getzrange(int x, int y, int z, int16_t sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
+    int32_t* florhit, int32_t walldist, uint32_t cliptype)
+{
+    vec3_t v = { x, y, z };
+    getzrange(&v, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
+}
 extern vec2_t hitscangoal;
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
+inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+    short* hitsect, short* hitwall, short* hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+{
+    vec3_t v{ x,y,z };
+    hitdata_t hd{};
+    int res = hitscan(&v, sectnum, vx, vy, vz, &hd, cliptype);
+    *hitsect = hd.sect;
+    *hitwall = hd.wall;
+    *hitspr = hd.sprite;
+    *hitx = hd.pos.x;
+    *hity = hd.pos.y;
+    *hitz = hd.pos.z   ;
+    return res;
+}
+
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
                int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,

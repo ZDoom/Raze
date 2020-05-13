@@ -202,103 +202,8 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 }
 
 // wow, this function sucks
-int32_t A_Dodge(spritetype * const);
-int32_t A_Dodge(spritetype * const pSprite)
-{
-    if (DEER)
-    {
-        pSprite->ang += ((rrdh_random() & 255) - 127) * 2;
-        pSprite->ang &= 2047;
-        return 0;
-    }
-    vec2_t const msin = { sintable[(pSprite->ang + 512) & 2047], sintable[pSprite->ang & 2047] };
+int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
 
-    for (native_t nexti, SPRITES_OF_STAT_SAFE(STAT_PROJECTILE, i, nexti)) //weapons list
-    {
-        if (OW(i) == i || SECT(i) != pSprite->sectnum)
-            continue;
-
-        vec2_t const b = { SX(i) - pSprite->x, SY(i) - pSprite->y };
-        vec2_t const v = { sintable[(SA(i) + 512) & 2047], sintable[SA(i) & 2047] };
-
-        if (((msin.x * b.x) + (msin.y * b.y) >= 0) && ((v.x * b.x) + (v.y * b.y) < 0))
-        {
-            if (klabs((v.x * b.y) - (v.y * b.x)) < 65536 << 6)
-            {
-                pSprite->ang -= 512+(krand2()&1024);
-                return 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
-int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
-{
-    uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
-
-    if (pSprite->picnum != TILE_APLAYER && (AC_COUNT(actor[spriteNum].t_data)&63) > 2)
-        return pSprite->ang + 1024;
-
-    int32_t   furthestAngle = 0;
-    int32_t   greatestDist  = INT32_MIN;
-    int const angIncs       = tabledivide32_noinline(2048, angDiv);
-    hitdata_t hit;
-
-    for (native_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
-    {
-        pSprite->z -= ZOFFSET3;
-        hitscan((const vec3_t *)pSprite, pSprite->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 0, &hit, CLIPMASK1);
-        pSprite->z += ZOFFSET3;
-
-        int const hitDist = klabs(hit.pos.x-pSprite->x) + klabs(hit.pos.y-pSprite->y);
-
-        if (hitDist > greatestDist)
-        {
-            greatestDist = hitDist;
-            furthestAngle = j;
-        }
-    }
-
-    return furthestAngle&2047;
-}
-
-int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t * const vect)
-{
-    if (AC_COUNT(actor[spriteNum].t_data)&63)
-        return -1;
-
-    const uspritetype *const pnSprite = (uspritetype *)&sprite[spriteNum];
-
-    hitdata_t hit;
-    int const angincs = ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3) ? 2048 / 2 : tabledivide32_noinline(2048, 1 + (krand2() & 1));
-
-    for (native_t j = ts->ang; j < (2048 + ts->ang); j += (angincs-(krand2()&511)))
-    {
-        ts->z -= ZOFFSET2;
-        hitscan((const vec3_t *)ts, ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047], 16384 - (krand2() & 32767), &hit, CLIPMASK1);
-        ts->z += ZOFFSET2;
-
-        if (hit.sect < 0)
-            continue;
-
-        int const d  = klabs(hit.pos.x - ts->x) + klabs(hit.pos.y - ts->y);
-        int const da = klabs(hit.pos.x - pnSprite->x) + klabs(hit.pos.y - pnSprite->y);
-
-        if (d < da)
-        {
-            if (cansee(hit.pos.x, hit.pos.y, hit.pos.z, hit.sect, pnSprite->x, pnSprite->y, pnSprite->z - ZOFFSET2, pnSprite->sectnum))
-            {
-                vect->x = hit.pos.x;
-                vect->y = hit.pos.y;
-                return hit.sect;
-            }
-        }
-    }
-
-    return -1;
-}
 
 static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
 {
@@ -309,205 +214,9 @@ static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t *
     getzrange(&tempVect, pSprite->sectnum, &actor[spriteNum].ceilingz, ceilhit, &actor[spriteNum].floorz, florhit, wallDist, CLIPMASK0);
 }
 
-void A_GetZLimits(int const spriteNum)
-{
-    spritetype *const pSprite = &sprite[spriteNum];
-    int32_t           ceilhit, florhit;
-
-    if (pSprite->statnum == STAT_PLAYER || pSprite->statnum == STAT_STANDABLE || pSprite->statnum == STAT_ZOMBIEACTOR
-        || pSprite->statnum == STAT_ACTOR || pSprite->statnum == STAT_PROJECTILE)
-    {
-        VM_GetZRange(spriteNum, &ceilhit, &florhit, (pSprite->statnum == STAT_PROJECTILE) ? 4 : 127);
-        actor[spriteNum].flags &= ~SFLAG_NOFLOORSHADOW;
-
-        if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)
-        {
-            uspritetype const * const hitspr = (uspritetype *)&sprite[florhit&(MAXSPRITES-1)];
-
-            florhit &= (MAXSPRITES-1);
-
-            // If a non-projectile would fall onto non-frozen enemy OR an enemy onto a player...
-            if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && pSprite->statnum != STAT_PROJECTILE)
-                    || (hitspr->picnum == TILE_APLAYER && A_CheckEnemySprite(pSprite)))
-            {
-                actor[spriteNum].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
-                pSprite->xvel = -256;  // SLIDE_ABOVE_ENEMY
-                A_SetSprite(spriteNum, CLIPMASK0);
-            }
-            else if (pSprite->statnum == STAT_PROJECTILE && hitspr->picnum == TILE_APLAYER && pSprite->owner==florhit)
-            {
-                actor[spriteNum].ceilingz = sector[pSprite->sectnum].ceilingz;
-                actor[spriteNum].floorz   = sector[pSprite->sectnum].floorz;
-            }
-        }
-    }
-    else
-    {
-        actor[spriteNum].ceilingz = sector[pSprite->sectnum].ceilingz;
-        actor[spriteNum].floorz   = sector[pSprite->sectnum].floorz;
-    }
-}
-
-void A_Fall(int const spriteNum)
-{
-    spritetype *const pSprite = &sprite[spriteNum];
-    int spriteGravity = g_spriteGravity;
-
-    if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(pSprite->sectnum)))
-        spriteGravity = 0;
-    else if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
-        spriteGravity = g_spriteGravity/6;
-    
-    if (RRRA && spriteGravity == g_spriteGravity)
-    {
-        if (pSprite->picnum == TILE_BIKERB || pSprite->picnum == TILE_CHEERB)
-            spriteGravity >>= 2;
-        else if (pSprite->picnum == TILE_BIKERBV2)
-            spriteGravity >>= 3;
-    }
-
-    if (pSprite->statnum == STAT_ACTOR || pSprite->statnum == STAT_PLAYER || pSprite->statnum == STAT_ZOMBIEACTOR
-        || pSprite->statnum == STAT_STANDABLE)
-    {
-        int32_t ceilhit, florhit;
-        VM_GetZRange(spriteNum, &ceilhit, &florhit, 127);
-    }
-    else
-    {
-        actor[spriteNum].ceilingz = sector[pSprite->sectnum].ceilingz;
-        actor[spriteNum].floorz   = sector[pSprite->sectnum].floorz;
-    }
-
-#ifdef YAX_ENABLE
-    int fbunch = (sector[pSprite->sectnum].floorstat&512) ? -1 : yax_getbunch(pSprite->sectnum, YAX_FLOOR);
-#endif
-
-    if (pSprite->z < actor[spriteNum].floorz-ZOFFSET
-#ifdef YAX_ENABLE
-            || fbunch >= 0
-#endif
-       )
-    {
-        if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER && pSprite->zvel > 3122)
-            pSprite->zvel = 3144;
-        if (pSprite->zvel < 6144)
-            pSprite->zvel += spriteGravity;
-        else pSprite->zvel = 6144;
-        pSprite->z += pSprite->zvel;
-    }
-
-#ifdef YAX_ENABLE
-    if (fbunch >= 0)
-        setspritez(spriteNum, (vec3_t *)pSprite);
-    else
-#endif
-        if (pSprite->z >= actor[spriteNum].floorz-ZOFFSET)
-        {
-            pSprite->z = actor[spriteNum].floorz-ZOFFSET;
-            pSprite->zvel = 0;
-        }
-}
-
-int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
-{
-    currAngle &= 2047;
-    newAngle &= 2047;
-
-    if (klabs(currAngle-newAngle) < 1024)
-    {
-//        Printf("G_GetAngleDelta() returning %d\n",na-a);
-        return newAngle-currAngle;
-    }
-
-    if (newAngle > 1024)
-        newAngle -= 2048;
-    if (currAngle > 1024)
-        currAngle -= 2048;
-
-//    Printf("G_GetAngleDelta() returning %d\n",na-a);
-    return newAngle-currAngle;
-}
-
-GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
-{
-    int const elapsedTics = (AC_COUNT(vm.pData))&31;
-
-    const intptr_t *moveptr;
-    if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
-
-    {
-        AC_MOVE_ID(vm.pData) = 0;
-        Printf(TEXTCOLOR_RED "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
-        return;
-    }
-
-    moveptr = apScript + AC_MOVE_ID(vm.pData);
-
-    vm.pSprite->xvel += (moveptr[0] - vm.pSprite->xvel)/5;
-    if (vm.pSprite->zvel < 648)
-        vm.pSprite->zvel += ((moveptr[1]<<4) - vm.pSprite->zvel)/5;
-
-    if (RRRA && (moveFlags&windang))
-        vm.pSprite->ang = g_windDir;
-    else if (moveFlags&seekplayer)
-    {
-        int const spriteAngle    = vm.pSprite->ang;
-        int const holoDukeSprite = vm.pPlayer->holoduke_on;
-
-        // NOTE: looks like 'owner' is set to target sprite ID...
-
-        vm.pSprite->owner = (!RR && holoDukeSprite >= 0
-                             && cansee(sprite[holoDukeSprite].x, sprite[holoDukeSprite].y, sprite[holoDukeSprite].z, sprite[holoDukeSprite].sectnum,
-                                       vm.pSprite->x, vm.pSprite->y, vm.pSprite->z, vm.pSprite->sectnum))
-          ? holoDukeSprite
-          : vm.pPlayer->i;
-
-        int const goalAng = (sprite[vm.pSprite->owner].picnum == TILE_APLAYER)
-                  ? getangle(vm.pActor->lastv.x - vm.pSprite->x, vm.pActor->lastv.y - vm.pSprite->y)
-                  : getangle(sprite[vm.pSprite->owner].x - vm.pSprite->x, sprite[vm.pSprite->owner].y - vm.pSprite->y);
-
-        if (vm.pSprite->xvel && vm.pSprite->picnum != TILE_DRONE)
-        {
-            int const angDiff = G_GetAngleDelta(spriteAngle, goalAng);
-
-            if (elapsedTics < 2)
-            {
-                if (klabs(angDiff) < 256)
-                {
-                    int const angInc = 128-(krand2()&256);
-                    vm.pSprite->ang += angInc;
-                    if (A_GetHitscanRange(vm.spriteNum) < 844)
-                        vm.pSprite->ang -= angInc;
-                }
-            }
-            else if (elapsedTics > 18 && elapsedTics < GAMETICSPERSEC) // choose
-            {
-                if (klabs(angDiff >> 2) < 128)
-                    vm.pSprite->ang = goalAng;
-                else
-                    vm.pSprite->ang += angDiff >> 2;
-            }
-        }
-        else
-            vm.pSprite->ang = goalAng;
-    }
-
-    if (elapsedTics < 1)
-    {
-        if (moveFlags&furthestdir)
-        {
-            vm.pSprite->ang = A_GetFurthestAngle(vm.spriteNum, 2);
-            vm.pSprite->owner = vm.pPlayer->i;
-        }
-
-        if (moveFlags&fleeenemy)
-            vm.pSprite->ang = A_GetFurthestAngle(vm.spriteNum, 2);
-    }
-}
-
 static inline void VM_AddAngle(int const shift, int const goalAng)
 {
-    int angDiff = G_GetAngleDelta(vm.pSprite->ang, goalAng) >> shift;
+    int angDiff = getincangle(vm.pSprite->ang, goalAng) >> shift;
 
     if (angDiff > -8 && angDiff < 0)
         angDiff = 0;
@@ -559,287 +268,12 @@ static int32_t VM_GetFlorZOfSlope(void)
 ////////////////////
 
 static int32_t A_GetWaterZOffset(int spritenum);
+void move_d(int g_i, int g_p, int g_x);
+void move_r(int g_i, int g_p, int g_x);
 
 GAMEEXEC_STATIC void VM_Move(void)
 {
-    auto const movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
-    // NOTE: test against -1 commented out and later revived in source history
-    // XXX: Does its presence/absence break anything? Where are movflags with all bits set created?
-    int const movflags = (*movflagsptr == (std::remove_pointer<decltype(movflagsptr)>::type)-1) ? 0 : *movflagsptr;
-    
-    AC_COUNT(vm.pData)++;
-
-    if (movflags&face_player)
-        VM_FacePlayer(2);
-
-    if (movflags&spin)
-        vm.pSprite->ang += sintable[((AC_COUNT(vm.pData)<<3)&2047)]>>6;
-
-    if (movflags&face_player_slow)
-    {
-        int const goalAng = (vm.pPlayer->newowner >= 0) ? getangle(vm.pPlayer->opos.x - vm.pSprite->x, vm.pPlayer->opos.y - vm.pSprite->y)
-                                                 : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y);
-
-        vm.pSprite->ang += ksgn(G_GetAngleDelta(vm.pSprite->ang, goalAng)) << 5;
-    }
-
-    if (RRRA && (movflags&antifaceplayerslow))
-    {
-        int goalAng = (vm.pPlayer->newowner >= 0) ? getangle(vm.pPlayer->opos.x - vm.pSprite->x, vm.pPlayer->opos.y - vm.pSprite->y)
-                                                 : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y);
-        goalAng = (goalAng+1024)&2047;
-
-        vm.pSprite->ang += ksgn(G_GetAngleDelta(vm.pSprite->ang, goalAng)) << 5;
-    }
-
-    if ((movflags&jumptoplayer_bits) == jumptoplayer_bits)
-    {
-        if (AC_COUNT(vm.pData) < 16)
-            vm.pSprite->zvel -= (!DEER && RRRA && vm.pSprite->picnum == TILE_CHEER) ? (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/40)
-            : (sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]>>5);
-    }
-
-    if (movflags&face_player_smart)
-    {
-        vec2_t const vect = { vm.pPlayer->pos.x + (vm.pPlayer->vel.x / 768), vm.pPlayer->pos.y + (vm.pPlayer->vel.y / 768) };
-        VM_AddAngle(2, getangle(vect.x - vm.pSprite->x, vect.y - vm.pSprite->y));
-    }
-
-    if (RRRA && (vm.pSprite->picnum == TILE_RABBIT || vm.pSprite->picnum == TILE_MAMA))
-    {
-        if(movflags&jumptoplayer_only)
-        {
-            if (AC_COUNT(vm.pData) < 8)
-                vm.pSprite->zvel -= sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/(vm.pSprite->picnum == TILE_RABBIT ? 30 : 35);
-        }
-        if(movflags&justjump2)
-        {
-            if (AC_COUNT(vm.pData) < 8)
-                vm.pSprite->zvel -= sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/(vm.pSprite->picnum == TILE_RABBIT ? 24 : 28);
-        }
-    }
-
-    if (RRRA && (movflags&windang))
-    {
-        if (AC_COUNT(vm.pData) < 8)
-            vm.pSprite->zvel -= sintable[(512+(AC_COUNT(vm.pData)<<4))&2047]/24;
-    }
-    
-    if (AC_MOVE_ID(vm.pData) == 0 || movflags == 0)
-    {
-        if ((A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0) || (vm.pActor->bpos.x != vm.pSprite->x) || (vm.pActor->bpos.y != vm.pSprite->y))
-        {
-            vm.pActor->bpos.x = vm.pSprite->x;
-            vm.pActor->bpos.y = vm.pSprite->y;
-            setsprite(vm.spriteNum, (vec3_t *)vm.pSprite);
-        }
-        if (RR && A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0)
-        {
-            vm.pSprite->shade += (sector[vm.pSprite->sectnum].ceilingstat & 1) ? ((g_shadedSector[vm.pSprite->sectnum] == 1 ? 16 : sector[vm.pSprite->sectnum].ceilingshade) - vm.pSprite->shade) >> 1
-                                                                 : (sector[vm.pSprite->sectnum].floorshade - vm.pSprite->shade) >> 1;
-        }
-        return;
-    }
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
-    {
-        AC_MOVE_ID(vm.pData) = 0;
-        Printf(TEXTCOLOR_RED "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
-        return;
-    }
-
-    intptr_t const * const moveptr = apScript + AC_MOVE_ID(vm.pData);
-
-    if (movflags & geth)
-        vm.pSprite->xvel += ((moveptr[0]) - vm.pSprite->xvel) >> 1;
-    if (movflags & getv)
-        vm.pSprite->zvel += ((moveptr[1] << 4) - vm.pSprite->zvel) >> 1;
-
-    if (movflags&dodgebullet)
-        A_Dodge(vm.pSprite);
-
-    if (vm.pSprite->picnum != TILE_APLAYER)
-        VM_AlterAng(movflags);
-
-    if (vm.pSprite->xvel > -6 && vm.pSprite->xvel < 6)
-        vm.pSprite->xvel = 0;
-
-    int badguyp = A_CheckEnemySprite(vm.pSprite);
-
-    if (vm.pSprite->xvel || vm.pSprite->zvel)
-    {
-        int spriteXvel = vm.pSprite->xvel;
-        int angDiff    = vm.pSprite->ang;
-
-        if (badguyp && (vm.pSprite->picnum != TILE_ROTATEGUN || RR))
-        {
-            if ((vm.pSprite->picnum == TILE_DRONE || (!RR && vm.pSprite->picnum == TILE_COMMANDER)) && vm.pSprite->extra > 0)
-            {
-                if (!RR && vm.pSprite->picnum == TILE_COMMANDER)
-                {
-                    int32_t nSectorZ;
-                    // NOTE: TILE_COMMANDER updates both actor[].floorz and
-                    // .ceilingz regardless of its zvel.
-                    vm.pActor->floorz = nSectorZ = VM_GetFlorZOfSlope();
-                    if (vm.pSprite->z > nSectorZ-ZOFFSET3)
-                    {
-                        vm.pSprite->z = nSectorZ-ZOFFSET3;
-                        vm.pSprite->zvel = 0;
-                    }
-
-                    vm.pActor->ceilingz = nSectorZ = VM_GetCeilZOfSlope();
-                    if (vm.pSprite->z < nSectorZ+(80<<8))
-                    {
-                        vm.pSprite->z = nSectorZ+(80<<8);
-                        vm.pSprite->zvel = 0;
-                    }
-                }
-                else
-                {
-                    int32_t nSectorZ;
-                    // The TILE_DRONE updates either .floorz or .ceilingz, not both.
-                    if (vm.pSprite->zvel > 0)
-                    {
-                        vm.pActor->floorz = nSectorZ = VM_GetFlorZOfSlope();
-                        int const zDiff = RRRA ? (28<<8) : (30<<8);
-                        if (vm.pSprite->z > nSectorZ-zDiff)
-                            vm.pSprite->z = nSectorZ-zDiff;
-                    }
-                    else
-                    {
-                        vm.pActor->ceilingz = nSectorZ = VM_GetCeilZOfSlope();
-                        if (vm.pSprite->z < nSectorZ+(50<<8))
-                        {
-                            vm.pSprite->z = nSectorZ+(50<<8);
-                            vm.pSprite->zvel = 0;
-                        }
-                    }
-                }
-            }
-            else if (vm.pSprite->picnum != TILE_ORGANTIC || RR)
-            {
-                // All other actors besides TILE_ORGANTIC don't update .floorz or
-                // .ceilingz here.
-                if (vm.pSprite->zvel > 0)
-                {
-                    if (vm.pSprite->z > vm.pActor->floorz)
-                        vm.pSprite->z = vm.pActor->floorz;
-                    //vm.pSprite->z += A_GetWaterZOffset(vm.spriteNum);
-                }
-                else if (vm.pSprite->zvel < 0)
-                {
-                    int const l = VM_GetCeilZOfSlope();
-
-                    if (vm.pSprite->z < l+(66<<8))
-                    {
-                        vm.pSprite->z = l+(66<<8);
-                        vm.pSprite->zvel >>= 1;
-                    }
-                }
-            }
-
-            if (vm.playerDist < 960 && vm.pSprite->xrepeat > 16)
-            {
-                spriteXvel = -(1024 - vm.playerDist);
-                angDiff = getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y);
-
-                if (vm.playerDist < 512)
-                {
-                    vm.pPlayer->vel.x = 0;
-                    vm.pPlayer->vel.y = 0;
-                }
-                else
-                {
-                    vm.pPlayer->vel.x = mulscale16(vm.pPlayer->vel.x, vm.pPlayer->runspeed - 0x2000);
-                    vm.pPlayer->vel.y = mulscale16(vm.pPlayer->vel.y, vm.pPlayer->runspeed - 0x2000);
-                }
-            }
-            else if (vm.pSprite->picnum != TILE_DRONE && vm.pSprite->picnum != TILE_SHARK
-                && ((!RR && vm.pSprite->picnum != TILE_COMMANDER)
-                    || (RR && vm.pSprite->picnum != TILE_UFO1)
-                    || (RR && !RRRA && vm.pSprite->picnum != TILE_UFO2 && vm.pSprite->picnum != TILE_UFO3 && vm.pSprite->picnum != TILE_UFO4 && vm.pSprite->picnum != TILE_UFO5)))
-            {
-                if (vm.pPlayer->actorsqu == vm.spriteNum)
-                    return;
-
-                if (vm.pActor->bpos.z != vm.pSprite->z || (!g_netServer && ud.multimode < 2 && ud.player_skill < 2))
-                {
-                    if (AC_COUNT(vm.pData)&1) return;
-                    spriteXvel <<= 1;
-                }
-                else
-                {
-                    if (AC_COUNT(vm.pData)&3) return;
-                    spriteXvel <<= 2;
-                }
-            }
-        }
-        else if (vm.pSprite->picnum == TILE_APLAYER)
-            if (vm.pSprite->z < vm.pActor->ceilingz+ZOFFSET5)
-                vm.pSprite->z = vm.pActor->ceilingz+ZOFFSET5;
-
-        if (RRRA)
-        {
-            if (sector[vm.pSprite->sectnum].lotag != ST_1_ABOVE_WATER)
-            {
-                switch (DYNAMICTILEMAP(vm.pSprite->picnum))
-                {
-                case MINIONBOAT__STATICRR:
-                case HULK__STATICRR:
-                case CHEERBOAT__STATICRR:
-                    spriteXvel >>= 1;
-                    break;
-                }
-            }
-            else
-            {
-                switch (DYNAMICTILEMAP(vm.pSprite->picnum))
-                {
-                case BIKERB__STATICRR:
-                case BIKERBV2__STATICRR:
-                case CHEERB__STATICRR:
-                    spriteXvel >>= 1;
-                    break;
-                }
-            }
-        }
-
-        vec3_t const vect
-        = { (spriteXvel * (sintable[(angDiff + 512) & 2047])) >> 14, (spriteXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
-
-        vm.pActor->movflag = A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
-        if (DEER && vm.pSprite->picnum != TILE_DOGRUN)
-        {
-            if ((vm.pActor->movflag & 49152) == 32768)
-            {
-                int const wallnum = vm.pActor->movflag & (MAXWALLS-1);
-                if (ghcons_isanimalescapewall(wallnum))
-                {
-                    vm.pSprite->z = sector[vm.pSprite->sectnum].ceilingz;
-                    A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
-                    vm.pSprite->z = sector[vm.pSprite->sectnum].floorz;
-                }
-            }
-            else if ((vm.pActor->movflag & 49152) == 16384)
-            {
-                int sectnum = vm.pActor->movflag & (MAXSECTORS-1);
-                if (ghcons_isanimalescapesect(sectnum))
-                {
-                    A_MoveSprite(vm.spriteNum, &vect, CLIPMASK0);
-                    vm.pSprite->z = sector[vm.pSprite->sectnum].floorz;
-                }
-            }
-        }
-    }
-
-    if (!badguyp)
-        return;
-
-    vm.pSprite->shade += (sector[vm.pSprite->sectnum].ceilingstat & 1) ? ((g_shadedSector[vm.pSprite->sectnum] == 1 ? 16 : sector[vm.pSprite->sectnum].ceilingshade) - vm.pSprite->shade) >> 1
-                                                                 : (sector[vm.pSprite->sectnum].floorshade - vm.pSprite->shade) >> 1;
-
-    if (sector[vm.pSprite->sectnum].floorpicnum == TILE_MIRROR)
-        A_DeleteSprite(vm.spriteNum);
+    if (isRR()) move_r(vm.spriteNum, vm.playerNum, vm.playerDist); else move_d(vm.spriteNum, vm.playerNum, vm.playerDist);
 }
 
 static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
@@ -1044,7 +478,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 
     if (actor[spriteNum].cgg <= 0 || (sector[pSprite->sectnum].floorstat&2))
     {
-        A_GetZLimits(spriteNum);
+        getglobalz(spriteNum);
         actor[spriteNum].cgg = 6;
     }
     else actor[spriteNum].cgg--;
@@ -1370,7 +804,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     // also modifies 'target' x&y if found..
 
                     tw = 1;
-                    if (A_FurthestVisiblePoint(vm.spriteNum, pSprite, &vm.pActor->lastv) == -1)
+                    if (furthestcanseepoint(vm.spriteNum, (spritetype*)pSprite, &vm.pActor->lastv.x, &vm.pActor->lastv.y) == -1)
                         tw = 0;
                 }
                 else
@@ -2367,9 +1801,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     nResult
                     = (vm.pSprite->picnum == TILE_APLAYER && (g_netServer || ud.multimode > 1))
-                      ? G_GetAngleDelta(fix16_to_int(g_player[otherp].ps->q16ang),
+                      ? getincangle(fix16_to_int(g_player[otherp].ps->q16ang),
                                         getangle(pPlayer->pos.x - g_player[otherp].ps->pos.x, pPlayer->pos.y - g_player[otherp].ps->pos.y))
-                      : G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), getangle(vm.pSprite->x - pPlayer->pos.x, vm.pSprite->y - pPlayer->pos.y));
+                      : getincangle(fix16_to_int(pPlayer->q16ang), getangle(vm.pSprite->x - pPlayer->pos.x, vm.pSprite->y - pPlayer->pos.y));
 
                     nResult = (nResult > -128 && nResult < 128);
                 }
@@ -2465,7 +1899,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 vm.pSprite->picnum = *insptr++;
                 continue;
 
-            case concmd_ifbulletnear: VM_CONDITIONAL(A_Dodge(vm.pSprite) == 1); continue;
+            case concmd_ifbulletnear: VM_CONDITIONAL(dodge(vm.pSprite) == 1); continue;
 
             case concmd_ifrespawn:
                 if (A_CheckEnemySprite(vm.pSprite))
@@ -2651,7 +2085,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_ifangdiffl:
                 insptr++;
-                tw = klabs(G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), vm.pSprite->ang));
+                tw = klabs(getincangle(fix16_to_int(pPlayer->q16ang), vm.pSprite->ang));
                 VM_CONDITIONAL(tw <= *insptr);
                 continue;
 

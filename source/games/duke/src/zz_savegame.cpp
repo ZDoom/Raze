@@ -874,7 +874,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_spriteExtra[0], sizeof(g_spriteExtra[0]), MAXSPRITES },
     { 0, &g_sectorExtra[0], sizeof(g_sectorExtra[0]), MAXSECTORS },
 
-    { 0, &g_shadedSector[0], sizeof(g_shadedSector[0]), MAXSECTORS },
+    { 0, &shadedsector[0], sizeof(shadedsector[0]), MAXSECTORS },
 
     { 0, &g_ambientCnt, sizeof(g_ambientCnt), 1 },
     { 0, &g_ambientHitag[0], sizeof(g_ambientHitag[0]), ARRAY_SIZE(g_ambientHitag) },
@@ -895,7 +895,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_geoSectorCnt, sizeof(g_geoSectorCnt), 1 },
 
     { 0, &g_windTime, sizeof(g_windTime), 1 },
-    { 0, &g_windDir, sizeof(g_windDir), 1 },
+    { 0, &WindDir, sizeof(WindDir), 1 },
     { 0, &g_fakeBubbaCnt, sizeof(g_fakeBubbaCnt), 1 },
     { 0, &g_mamaSpawnCnt, sizeof(g_mamaSpawnCnt), 1 },
     { 0, &g_banjoSong, sizeof(g_banjoSong), 1 },

@@ -79,22 +79,10 @@ inline void execute(int s, int p, int d)
 {
     A_Execute(s, p, d);
 }
-void A_Fall(int spriteNum);
-inline void makeitfall(int s)
-{
-    A_Fall(s);
-}
-int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
-void A_GetZLimits(int spriteNum);
-inline void getglobalz(int s)
-{
-    A_GetZLimits(s);
-}
-int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
-inline int getincangle(int c, int n)
-{
-    return G_GetAngleDelta(c, n);
-}
+void makeitfall(int s);
+int furthestangle(int spriteNum, int angDiv);
+void getglobalz(int s);
+int getincangle(int c, int n);
 //void G_RestoreMapState();
 //void G_SaveMapState();
 
