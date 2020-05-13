@@ -406,9 +406,10 @@ bool SmackerDecoder::Open(const char *fileName)
 
 	// set nextPos to where we are now, as next data is frame 1
 	nextPos = file.GetPosition();
+    firstFrameFilePos = nextPos;
 
 	// determine max buffer sizes for audio tracks
-	file.Seek(nextPos, SmackerCommon::FileStream::kSeekStart);
+//	file.Seek(nextPos, SmackerCommon::FileStream::kSeekStart);
 
 	uint32_t UNUSED(frameSize) = frameSizes[0] & (~3);
 	uint8_t frameFlag  = frameFlags[0];
@@ -1111,20 +1112,19 @@ float SmackerDecoder::GetFrameRate()
 
 void SmackerDecoder::GotoFrame(uint32_t frameNum)
 {
-	if (frameNum >= nFrames) {
+	if (frameNum > nFrames) {
         Printf("SmackerDecoder::GotoFrame() - Invalid frame number\n");
 		return;
 	}
 
-	
-	// TODO
+//    file.Seek(firstFrameFilePos, SmackerCommon::FileStream::kSeekStart);
 
-	// seek to the desired frame (just set currentFrame)
-//	currentFrame = frameNum;
+    currentFrame = 0;
+    nextPos = firstFrameFilePos;
 
-	// what else? (memset some stuff?)
+    for (int i = 0; i < frameNum + 1; i++)
+        GetNextFrame();
 }
-
 
 SmackerAudioInfo SmackerDecoder::GetAudioTrackDetails(uint32_t trackIndex)
 {

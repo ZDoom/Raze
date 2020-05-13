@@ -152,6 +152,7 @@ class SmackerDecoder
 
 		uint32_t currentFrame;
 		int32_t nextPos;
+        int32_t firstFrameFilePos;
 
 		bool DecodeHeaderTrees();
 		int DecodeHeaderTree(SmackerCommon::BitReader &bits, std::vector<int> &recodes, int *last, int size);
