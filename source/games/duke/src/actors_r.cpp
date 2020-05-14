@@ -4430,7 +4430,7 @@ static int fallspecial(int g_i, int g_p)
 		else if (g_sp->picnum != APLAYER)
 		{
 			if (!g_spriteExtra[g_i])
-				killit_flag = 4;
+				addspritetodelete(g_i);
 			return 0;
 		}
 		hittype[g_i].picnum = SHOTSPARK1;
