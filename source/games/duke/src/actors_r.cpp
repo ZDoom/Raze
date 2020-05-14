@@ -270,7 +270,10 @@ SKIPWALLCHECK:
 					if (dist(s, sj) < r)
 					{
 						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
+						{
+							j = nextj;
 							continue;
+						}
 						fi.checkhitsprite(j, i);
 					}
 			}

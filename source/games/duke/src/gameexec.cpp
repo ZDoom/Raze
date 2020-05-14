@@ -491,7 +491,6 @@ int parse(void)
 			parseifelse(ambienthitag[g_sp->ang] > g_x);
 		else if (*insptr == 1)
 			parseifelse(ambienthitag[g_sp->ang] < g_x);
-		insptr++;
 		break;
 	case concmd_soundtag:
 		insptr++;
