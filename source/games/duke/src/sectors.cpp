@@ -601,7 +601,7 @@ void operatesectors(int sn, int ii)
 
 	case ST_15_WARP_ELEVATOR://Warping elevators
 
-		if (sprite[ii].picnum != APLAYER) return;
+		if (sprite[ii].picnum != TILE_APLAYER) return;
 		//			if(ps[sprite[ii].yvel].select_dir == 1) return;
 
 		i = headspritesect[sn];

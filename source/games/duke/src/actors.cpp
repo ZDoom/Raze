@@ -179,7 +179,7 @@ void clearcamera(player_struct* ps)
 	int k = headspritestat[STAT_ACTOR];
 	while (k >= 0)
 	{
-		if (sprite[k].picnum == CAMERA1)
+		if (sprite[k].picnum == TILE_CAMERA1)
 			sprite[k].yvel = 0;
 		k = nextspritestat[k];
 	}
@@ -1350,7 +1350,7 @@ void movetongue(int i, int tongue, int jaw)
 	s->ang = sprite[s->owner].ang;
 	s->x = sprite[s->owner].x;
 	s->y = sprite[s->owner].y;
-	if (sprite[s->owner].picnum == APLAYER)
+	if (sprite[s->owner].picnum == TILE_APLAYER)
 		s->z = sprite[s->owner].z - (34 << 8);
 	for (int k = 0; k < hittype[i].temp_data[0]; k++)
 	{
@@ -2673,7 +2673,7 @@ void handle_se00(int i, int LASERLINE)
 			if (sprite[p].statnum != 3 && sprite[p].statnum != 4)
 				if (LASERLINE < 0 || sprite[p].picnum != LASERLINE)
 				{
-					if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
+					if (sprite[p].picnum == TILE_APLAYER && sprite[p].owner >= 0)
 					{
 						p = nextspritesect[p];
 						continue;
@@ -4014,7 +4014,7 @@ void handle_se18(int i, bool morecheck)
 					int j = headspritesect[s->sectnum];
 					while (j >= 0)
 					{
-						if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+						if (sprite[j].picnum == TILE_APLAYER && sprite[j].owner >= 0)
 							if (ps[sprite[j].yvel].on_ground == 1)
 								ps[sprite[j].yvel].posz += sc->extra;
 						if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
@@ -4053,7 +4053,7 @@ void handle_se18(int i, bool morecheck)
 					int j = headspritesect[s->sectnum];
 					while (j >= 0)
 					{
-						if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+						if (sprite[j].picnum == TILE_APLAYER && sprite[j].owner >= 0)
 							if (ps[sprite[j].yvel].on_ground == 1)
 								ps[sprite[j].yvel].posz -= sc->extra;
 						if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
@@ -4695,14 +4695,14 @@ void getglobalz(int i)
 					ssp(i,CLIPMASK0);
 				}
 			}
-			else if(sprite[lz].picnum == APLAYER && badguy(s) )
+			else if(sprite[lz].picnum == TILE_APLAYER && badguy(s) )
 			{
 				hittype[i].flags |= SFLAG_NOFLOORSHADOW; 
 				//hittype[i].dispicnum = -4; // No shadows on actors
 				s->xvel = -256;
 				ssp(i,CLIPMASK0);
 			}
-			else if(s->statnum == 4 && sprite[lz].picnum == APLAYER)
+			else if(s->statnum == 4 && sprite[lz].picnum == TILE_APLAYER)
 				if(s->owner == lz)
 			{
 				hittype[i].ceilingz = sector[s->sectnum].ceilingz;
@@ -4819,7 +4819,7 @@ int furthestangle(int i, int angs)
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
 
-	if (s->picnum != APLAYER)
+	if (s->picnum != TILE_APLAYER)
 		if ((hittype[i].t_data[0] & 63) > 2) return(s->ang + 1024);
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
@@ -4914,7 +4914,7 @@ void alterang(int a, int g_i, int g_p)
 			g_sp->owner = j;
 		else g_sp->owner = ps[g_p].i;
 
-		if (sprite[g_sp->owner].picnum == APLAYER)
+		if (sprite[g_sp->owner].picnum == TILE_APLAYER)
 			goalang = getangle(hittype[g_i].lastvx - g_sp->x, hittype[g_i].lastvy - g_sp->y);
 		else
 			goalang = getangle(sprite[g_sp->owner].x - g_sp->x, sprite[g_sp->owner].y - g_sp->y);
@@ -5004,14 +5004,14 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 		{
 			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
 
-			if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+			if (badguy(g_sp) || (g_sp->picnum == TILE_APLAYER && g_sp->owner >= 0))
 			{
 
 				if (g_sp->zvel > 3084 && g_sp->extra <= 1)
 				{
 					if (g_sp->pal != 1 && g_sp->picnum != DRONE)
 					{
-						if (g_sp->picnum == APLAYER && g_sp->extra > 0)
+						if (g_sp->picnum == TILE_APLAYER && g_sp->extra > 0)
 							goto SKIPJIBS;
 						if (sphit)
 						{

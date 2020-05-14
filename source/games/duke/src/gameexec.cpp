@@ -272,7 +272,7 @@ int parse(void)
 	case concmd_ifdead:
 	{
 		j = g_sp->extra;
-		if (g_sp->picnum == APLAYER)
+		if (g_sp->picnum == TILE_APLAYER)
 			j--;
 		parseifelse(j < 0);
 	}
@@ -412,7 +412,7 @@ int parse(void)
 		break;
 	case concmd_getlastpal:
 		insptr++;
-		if (g_sp->picnum == APLAYER)
+		if (g_sp->picnum == TILE_APLAYER)
 			g_sp->pal = ps[g_sp->yvel].palookup;
 		else g_sp->pal = hittype[g_i].tempang;
 		hittype[g_i].tempang = 0;
@@ -432,12 +432,12 @@ int parse(void)
 	case concmd_pkick:
 		insptr++;
 
-		if (ud.multimode > 1 && g_sp->picnum == APLAYER)
+		if (ud.multimode > 1 && g_sp->picnum == TILE_APLAYER)
 		{
 			if (ps[otherp].quick_kick == 0)
 				ps[otherp].quick_kick = 14;
 		}
-		else if (g_sp->picnum != APLAYER && ps[g_p].quick_kick == 0)
+		else if (g_sp->picnum != TILE_APLAYER && ps[g_p].quick_kick == 0)
 			ps[g_p].quick_kick = 14;
 		break;
 	case concmd_sizeto:
@@ -453,7 +453,7 @@ int parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
+		if ((g_sp->picnum == TILE_APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);
@@ -775,9 +775,9 @@ int parse(void)
 			setpal(&ps[g_p]);
 
 			j = headspritestat[1];
-			while(j >= 0)
+			while (j >= 0)
 			{
-				if(sprite[j].picnum==CAMERA1)
+				if (sprite[j].picnum == TILE_CAMERA1)
 					sprite[j].yvel = 0;
 				j = nextspritestat[j];
 			}
@@ -1113,7 +1113,7 @@ int parse(void)
 					j = 1;
 			else if( (l& pfacing) )
 			{
-				if (g_sp->picnum == APLAYER && ud.multimode > 1)
+				if (g_sp->picnum == TILE_APLAYER && ud.multimode > 1)
 					j = getincangle(ps[otherp].getang(), getangle(ps[g_p].posx - ps[otherp].posx, ps[g_p].posy - ps[otherp].posy));
 				else
 					j = getincangle(ps[g_p].getang(), getangle(g_sp->x - ps[g_p].posx, g_sp->y - ps[g_p].posy));
@@ -1198,7 +1198,7 @@ int parse(void)
 
 	case concmd_spritepal:
 		insptr++;
-		if(g_sp->picnum != APLAYER)
+		if(g_sp->picnum != TILE_APLAYER)
 			hittype[g_i].tempang = g_sp->pal;
 		g_sp->pal = *insptr;
 		insptr++;

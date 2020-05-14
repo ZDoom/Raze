@@ -2891,23 +2891,7 @@ void G_InitDynamicTiles(void)
 {
     int32_t i;
 
-    // this cannot include the constant headers so it has to use literal numbers
-    // Not sure yet about the weapons - this should probably be done by using the real RR constants where applicable
-    if (!isRR())
-    {
-        APLAYER = 3845;
-        CAMERA1 = 1134;
-        //DRONE = 1880;
-    }
-    else
-    {
-        APLAYER = 1405;
-        CAMERA1 = 621;
-        //DRONE = 4916;
-    }
-
-
-
+  
     Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
 
     if (RR)

@@ -3595,8 +3595,8 @@ enum redneck_weapon_t
     // These names have been pieced together from RedneckGDX and RedNukem because the reconstructed source recycled Duke's names for the first 11 weapons.
     // Names for 0-2 are the same
     RIFLEGUN_WEAPON = 3,
-    DYNAMITE_WEAPON = 4,
-    CROSSBOW_WEAPON = 5,
+    DYNAMITE_WEAPON = 5,
+    CROSSBOW_WEAPON = 4,
     THROWSAW_WEAPON = 6,
     ALIENBLASTER_WEAPON = 7,
     POWDERKEG_WEAPON = 8,
@@ -3609,8 +3609,6 @@ enum redneck_weapon_t
     SLINGBLADE_WEAPON = 15,
     CHICKEN_WEAPON = 16,
 };
-
-extern int APLAYER, CAMERA1;
 
 #define DYNAMICWEAPONMAP(Weaponnum) Weaponnum
 

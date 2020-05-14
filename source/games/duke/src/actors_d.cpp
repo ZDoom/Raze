@@ -3129,7 +3129,7 @@ void moveactors_d(void)
 			reactor(i, REACTOR, REACTOR2, REACTOR2BURNT, REACTOR2BURNT);
 			continue;
 
-		case DUKE_CAMERA1:
+		case CAMERA1:
 			camera(i);
 			continue;
 		}

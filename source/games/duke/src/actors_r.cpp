@@ -3229,7 +3229,7 @@ void moveactors_r(void)
 				reactor(i, REACTOR, REACTOR2, REACTOR2BURNT, REACTOR2BURNT);
 				continue;
 
-			case RR_CAMERA1:
+			case CAMERA1:
 				camera(i);
 				continue;
 		}
@@ -4589,7 +4589,7 @@ void destroyit(int g_i)
 		case DESTRUCTO:
 		case RRTILE63:
 		case TORNADO:
-		case RR_APLAYER:
+		case APLAYER:
 		case COOT:
 			break;
 		default:
