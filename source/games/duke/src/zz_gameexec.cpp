@@ -86,9 +86,6 @@ int parse();
         }                                                                                                              \
     }
 
-void VM_ScriptInfo(intptr_t const *ptr, int range)
-{
-}
 
 static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 {
@@ -187,11 +184,6 @@ int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int co
 
 bool ifsquished(int i, int p);
 
-static int32_t VM_CheckSquished(void)
-{
-    return ifsquished(vm.spriteNum, vm.playerNum);
-}
-
 void forceplayerangle(DukePlayer_t *pPlayer)
 {
     int const nAngle = 128-(krand2()&255);
@@ -206,65 +198,10 @@ void forceplayerangle(DukePlayer_t *pPlayer)
 int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
 
 
-static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
-{
-    uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
-    vec3_t const tempVect = {
-        pSprite->x, pSprite->y, pSprite->z - ZOFFSET
-    };
-    getzrange(&tempVect, pSprite->sectnum, &actor[spriteNum].ceilingz, ceilhit, &actor[spriteNum].floorz, florhit, wallDist, CLIPMASK0);
-}
-
-static inline void VM_AddAngle(int const shift, int const goalAng)
-{
-    int angDiff = getincangle(vm.pSprite->ang, goalAng) >> shift;
-
-    if (angDiff > -8 && angDiff < 0)
-        angDiff = 0;
-
-    vm.pSprite->ang += angDiff;
-}
-
-static inline void VM_FacePlayer(int const shift)
-{
-    VM_AddAngle(shift, (vm.pPlayer->newowner >= 0) ? getangle(vm.pPlayer->opos.x - vm.pSprite->x, vm.pPlayer->opos.y - vm.pSprite->y)
-                                                 : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y));
-}
-
 ////////// TROR get*zofslope //////////
 // These rather belong into the engine.
 
-static int32_t VM_GetCeilZOfSlope(void)
-{
-    vec2_t const vect     = *(vec2_t *)vm.pSprite;
-    int const    sectnum  = vm.pSprite->sectnum;
 
-#ifdef YAX_ENABLE
-    if ((sector[sectnum].ceilingstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_CEILING);
-        if (nsect >= 0)
-            return getceilzofslope(nsect, vect.x, vect.y);
-    }
-#endif
-    return getceilzofslope(sectnum, vect.x, vect.y);
-}
-
-static int32_t VM_GetFlorZOfSlope(void)
-{
-    vec2_t const vect    = *(vec2_t *)vm.pSprite;
-    int const    sectnum = vm.pSprite->sectnum;
-
-#ifdef YAX_ENABLE
-    if ((sector[sectnum].floorstat&512)==0)
-    {
-        int const nsect = yax_getneighborsect(vect.x, vect.y, sectnum, YAX_FLOOR);
-        if (nsect >= 0)
-            return getflorzofslope(nsect, vect.x, vect.y);
-    }
-#endif
-    return getflorzofslope(sectnum, vect.x, vect.y);
-}
 
 ////////////////////
 
@@ -544,88 +481,6 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
     pSprite->zvel = 0;
 }
 
-static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags)
-{
-    //AddLog("resetplayer");
-    if (!g_netServer && ud.multimode < 2)
-    {
-#if 0
-        if (g_quickload && g_quickload->isValid() && ud.recstat != 2)
-        {
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_ConfirmPlayerReset);
-		}
-        else
-#endif
-            g_player[playerNum].ps->gm = MODE_RESTART;
-        vmFlags |= VM_NOEXECUTE;
-    }
-    else
-    {
-        if (playerNum == myconnectindex)
-        {
-            CAMERADIST = 0;
-            CAMERACLOCK = (int32_t) totalclock;
-        }
-
-        //if (g_fakeMultiMode)
-            P_ResetPlayer(playerNum);
-#ifndef NETCODE_DISABLE
-        //if (g_netServer)
-        //{
-        //    P_ResetPlayer(playerNum);
-        //    Net_SpawnPlayer(playerNum);
-        //}
-#endif
-    }
-
-    P_UpdateScreenPal(g_player[playerNum].ps);
-    //AddLog("EOF: resetplayer");
-
-    return vmFlags;
-}
-
-void G_GetTimeDate(int32_t * const pValues)
-{
-    time_t timeStruct;
-    time(&timeStruct);
-    struct tm *pTime = localtime(&timeStruct);
-
-    // Printf("Time&date: %s\n",asctime (ti));
-
-    pValues[0] = pTime->tm_sec;
-    pValues[1] = pTime->tm_min;
-    pValues[2] = pTime->tm_hour;
-    pValues[3] = pTime->tm_mday;
-    pValues[4] = pTime->tm_mon;
-    pValues[5] = pTime->tm_year+1900;
-    pValues[6] = pTime->tm_wday;
-    pValues[7] = pTime->tm_yday;
-}
-
-void Screen_Play(void)
-{
-    int32_t running = 1;
-
-    inputState.ClearAllInput();
-
-	do
-    {
-        G_HandleAsync();
-
-        ototalclock = totalclock + 1; // pause game like ANMs
-
-        if (!G_FPSLimit())
-            continue;
-
-        videoClearScreen(0);
-        if (inputState.CheckAllInput())
-            running = 0;
-
-        videoNextPage();
-        inputState.ClearAllInput();
-    } while (running);
-}
 
 extern uint8_t killit_flag;
 
@@ -1358,217 +1213,25 @@ void VM_Execute(native_t loop)
                 }
                 continue;
 
-            case concmd_ifinspace:
-                VM_CONDITIONAL(fi.ceilingspace(vm.pSprite->sectnum)); continue;
-
-            case concmd_spritepal:
-                insptr++;
-                if (vm.pSprite->picnum != TILE_APLAYER)
-                    vm.pActor->tempang = vm.pSprite->pal;
-                vm.pSprite->pal        = *insptr++;
-                continue;
-
-            case concmd_cactor:
-                insptr++;
-                vm.pSprite->picnum = *insptr++;
-                continue;
-
-            case concmd_ifbulletnear: 
-                VM_CONDITIONAL(dodge(vm.pSprite) == 1); continue;
-
-            case concmd_ifrespawn:
-                if (A_CheckEnemySprite(vm.pSprite))
-                    VM_CONDITIONAL(ud.respawn_monsters)
-                else if (A_CheckInventorySprite(vm.pSprite))
-                    VM_CONDITIONAL(ud.respawn_inventory)
-                else
-                    VM_CONDITIONAL(ud.respawn_items)
-                continue;
-
-            case concmd_iffloordistl:
-                insptr++;
-                VM_CONDITIONAL((vm.pActor->floorz - vm.pSprite->z) <= ((*insptr) << 8));
-                continue;
-
-            case concmd_ifceilingdistl:
-                insptr++;
-                VM_CONDITIONAL((vm.pSprite->z - vm.pActor->ceilingz) <= ((*insptr) << 8));
-                continue;
-
-            case concmd_palfrom:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
-                {
-                    CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    insptr += 4;
-                }
-                else
-                {
-                    palette_t const pal = { (uint8_t) * (insptr + 1), (uint8_t) * (insptr + 2), (uint8_t) * (insptr + 3), (uint8_t) * (insptr) };
-                    insptr += 4;
-                    P_PalFrom(pPlayer, pal.f, pal.r, pal.g, pal.b);
-                }
-                continue;
-
-            case concmd_ifphealthl:
-                insptr++;
-                VM_CONDITIONAL(sprite[pPlayer->i].extra < *insptr);
-                continue;
-
             case concmd_ifpinventory:
-                insptr++;
-
-                switch (*insptr++)
-                {
-                    case GET_STEROIDS:
-                    case GET_SCUBA:
-                    case GET_HOLODUKE:
-                    case GET_HEATS:
-                    case GET_FIRSTAID:
-                    case GET_BOOTS:
-                    case GET_JETPACK: tw = (pPlayer->inv_amount[*(insptr - 1)] != *insptr); break;
-
-                    case GET_SHIELD:
-                        tw = (pPlayer->inv_amount[GET_SHIELD] != max_player_health); break;
-                    case GET_ACCESS:
-                        if (RR)
-                        {
-                            switch (vm.pSprite->lotag)
-                            {
-                                case 100: tw = pPlayer->keys[1]; break;
-                                case 101: tw = pPlayer->keys[2]; break;
-                                case 102: tw = pPlayer->keys[3]; break;
-                                case 103: tw = pPlayer->keys[4]; break;
-                            }
-                        }
-                        else
-                        {
-                            switch (vm.pSprite->pal)
-                            {
-                                case 0: tw  = (pPlayer->got_access & 1); break;
-                                case 21: tw = (pPlayer->got_access & 2); break;
-                                case 23: tw = (pPlayer->got_access & 4); break;
-                            }
-                        }
-                        break;
-                    default: tw = 0; CON_ERRPRINTF("invalid inventory item %d\n", (int32_t) * (insptr - 1));
-                }
-
-                VM_CONDITIONAL(tw);
-                continue;
-
+            case concmd_ifinspace:
+            case concmd_spritepal:
+            case concmd_cactor:
+            case concmd_ifbulletnear: 
+            case concmd_ifrespawn:
+            case concmd_iffloordistl:
+            case concmd_ifceilingdistl:
+            case concmd_palfrom:
+            case concmd_ifphealthl:
             case concmd_pstomp:
-                insptr++;
-                if (pPlayer->knee_incs == 0 && sprite[pPlayer->i].xrepeat >= (RR ? 9 : 40))
-                    if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, pPlayer->pos.x, pPlayer->pos.y,
-                               pPlayer->pos.z + ZOFFSET2, sprite[pPlayer->i].sectnum))
-                    {
-                        if (pPlayer->weapon_pos == 0)
-                            pPlayer->weapon_pos = -1;
-
-                        pPlayer->actorsqu  = vm.spriteNum;
-                        pPlayer->knee_incs = 1;
-                    }
-                continue;
-
             case concmd_ifawayfromwall:
-            {
-                int16_t otherSectnum = vm.pSprite->sectnum;
-                tw                   = 0;
-
-#define IFAWAYDIST 108
-
-                updatesector(vm.pSprite->x + IFAWAYDIST, vm.pSprite->y + IFAWAYDIST, &otherSectnum);
-                if (otherSectnum == vm.pSprite->sectnum)
-                {
-                    updatesector(vm.pSprite->x - IFAWAYDIST, vm.pSprite->y - IFAWAYDIST, &otherSectnum);
-                    if (otherSectnum == vm.pSprite->sectnum)
-                    {
-                        updatesector(vm.pSprite->x + IFAWAYDIST, vm.pSprite->y - IFAWAYDIST, &otherSectnum);
-                        if (otherSectnum == vm.pSprite->sectnum)
-                        {
-                            updatesector(vm.pSprite->x - IFAWAYDIST, vm.pSprite->y + IFAWAYDIST, &otherSectnum);
-                            if (otherSectnum == vm.pSprite->sectnum)
-                                tw = 1;
-                        }
-                    }
-                }
-
-                VM_CONDITIONAL(tw);
-
-#undef IFAWAYDIST
-            }
-                continue;
-
             case concmd_quote:
-                insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)(*insptr) >= MAXQUOTES))
-                {
-                    CON_ERRPRINTF("invalid quote %d\n", (int32_t)(*insptr));
-                    insptr++;
-                    continue;
-                }
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS))
-                {
-                    CON_ERRPRINTF("invalid player %d\n", vm.playerNum);
-                    insptr++;
-                    continue;
-                }
-
-                P_DoQuote(*(insptr++) | MAXQUOTES, pPlayer);
-                continue;
-
             case concmd_ifinouterspace:
-                VM_CONDITIONAL(fi.floorspace(vm.pSprite->sectnum)); continue;
-
             case concmd_ifnotmoving: 
-                VM_CONDITIONAL((vm.pActor->movflag & 49152) > 16384); continue;
-
             case concmd_respawnhitag:
-                insptr++;
-                switch (DYNAMICTILEMAP(vm.pSprite->picnum))
-                {
-                    case FEM1__STATIC:
-                    case FEM2__STATIC:
-                    case FEM3__STATIC:
-                    case FEM4__STATIC:
-                    case FEM5__STATIC:
-                    case FEM6__STATIC:
-                    case FEM7__STATIC:
-                    case FEM8__STATIC:
-                    case FEM9__STATIC:
-                    case PODFEM1__STATIC:
-                        if (RR) break;
-                        fallthrough__;
-                    case FEM10__STATIC:
-                    case NAKED1__STATIC:
-                    case STATUE__STATIC:
-                        if (vm.pSprite->yvel)
-                            fi.operaterespawns(vm.pSprite->yvel);
-                        break;
-                    default:
-                        if (vm.pSprite->hitag >= 0)
-                            fi.operaterespawns(vm.pSprite->hitag);
-                        break;
-                }
-                continue;
-
             case concmd_ifspritepal:
-                insptr++;
-                VM_CONDITIONAL(vm.pSprite->pal == *insptr);
-                continue;
-
             case concmd_ifangdiffl:
-                insptr++;
-                tw = klabs(getincangle(fix16_to_int(pPlayer->q16ang), vm.pSprite->ang));
-                VM_CONDITIONAL(tw <= *insptr);
-                continue;
-
-            case concmd_ifnosounds: VM_CONDITIONAL(!A_CheckAnySoundPlaying(vm.spriteNum)); continue;
-                
-
+            case concmd_ifnosounds:
             case concmd_ifvarg:
             case concmd_ifvarl:
             case concmd_setvarvar:
@@ -1650,7 +1313,6 @@ void VM_Execute(native_t loop)
                     return;
                 }
                 debug_break();
-                VM_ScriptInfo(insptr, 64);
                 G_GameExit("An error has occurred in the " GAMENAME " virtual machine.\n\n");
                 break;
         }

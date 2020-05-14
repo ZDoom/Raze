@@ -41,7 +41,6 @@ BEGIN_DUKE_NS
 #define VM_DECODE_LINE_NUMBER(xxx) ((int)((xxx) >> 12))
 
 extern intptr_t const * insptr;
-extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 
 extern intptr_t apScriptGameEvent[EVENT_NUMEVENTS];
 

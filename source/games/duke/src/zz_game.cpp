@@ -1302,8 +1302,6 @@ void G_DumpDebugInfo(void)
     int32_t j,x;
     //    FILE * fp=fopen("condebug.log","w");
 
-    VM_ScriptInfo(insptr, 64);
-
     for (x=0; x<MAXSTATUS; x++)
     {
         j = headspritestat[x];
