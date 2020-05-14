@@ -1160,164 +1160,12 @@ void VM_Execute(native_t loop)
                 insptr++;
                 continue;
 
-            case concmd_addphealth:
-                insptr++;
-
-                {
-                    if (!RR && pPlayer->newowner >= 0)
-                        G_ClearCameraView(pPlayer);
-
-                    int newHealth = sprite[pPlayer->i].extra;
-
-                    if (vm.pSprite->picnum != TILE_ATOMICHEALTH)
-                    {
-                        if (newHealth > max_player_health && *insptr > 0)
-                        {
-                            insptr++;
-                            continue;
-                        }
-                        else
-                        {
-                            if (newHealth > 0)
-                                newHealth += *insptr;
-                            if (newHealth > max_player_health && *insptr > 0)
-                                newHealth = max_player_health;
-                        }
-                    }
-                    else
-                    {
-                        if (newHealth > 0)
-                            newHealth += *insptr;
-                        if (newHealth > (max_player_health << 1))
-                            newHealth = (max_player_health << 1);
-                    }
-
-                    if (newHealth < 0)
-                        newHealth = 0;
-
-                    if (ud.god == 0)
-                    {
-                        if (*insptr > 0)
-                        {
-                            if ((newHealth - *insptr) < (max_player_health >> 2) && newHealth >= (max_player_health >> 2))
-                                A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
-                            pPlayer->last_extra = newHealth;
-                        }
-
-                        sprite[pPlayer->i].extra = newHealth;
-                    }
-                }
-
-                insptr++;
-                continue;
-
-            case concmd_move:
-                insptr++;
-                AC_COUNT(vm.pData)   = 0;
-                AC_MOVE_ID(vm.pData) = *insptr++;
-                vm.pSprite->hitag    = *insptr++;
-                if (vm.pSprite->hitag & random_angle)
-                    vm.pSprite->ang = krand2() & 2047;
-                continue;
-
-            case concmd_spawn:
-                insptr++;
-                if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
-                {
-                    CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                    insptr++;
-                    continue;
-                }
-                A_Spawn(vm.spriteNum, *insptr++);
-                continue;
-
-            case concmd_ifwasweapon:
-            case concmd_ifspawnedby:
-                insptr++;
-                VM_CONDITIONAL(vm.pActor->picnum == *insptr);
-                continue;
-
-            case concmd_ifai:
-                insptr++;
-                VM_CONDITIONAL(AC_AI_ID(vm.pData) == *insptr);
-                continue;
-
-            case concmd_ifaction:
-                insptr++;
-                VM_CONDITIONAL(AC_ACTION_ID(vm.pData) == *insptr);
-                continue;
-
-            case concmd_ifactioncount:
-                insptr++;
-                VM_CONDITIONAL(AC_ACTION_COUNT(vm.pData) >= *insptr);
-                continue;
-
-            case concmd_resetactioncount:
-                insptr++;
-                AC_ACTION_COUNT(vm.pData) = 0;
-                continue;
-
-            case concmd_debris:
-                insptr++;
-                {
-                    int debrisTile = *insptr++;
-
-                    if ((unsigned)vm.pSprite->sectnum < MAXSECTORS)
-                        for (native_t cnt = (*insptr) - 1; cnt >= 0; cnt--)
-                        {
-                            int const tileOffset = ((RR || vm.pSprite->picnum == TILE_BLIMP) && debrisTile == TILE_SCRAP1) ? 0 : (krand2() % 3);
-
-                            int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2(), r6 = krand2(), r7 = krand2(), r8 = krand2();
-                            int const spriteNum = A_InsertSprite(vm.pSprite->sectnum, vm.pSprite->x + (r8 & 255) - 128,
-                                                                 vm.pSprite->y + (r7 & 255) - 128, vm.pSprite->z - (8 << 8) - (r6 & 8191),
-                                                                 debrisTile + tileOffset, vm.pSprite->shade, 32 + (r5 & 15), 32 + (r4 & 15),
-                                                                 r3 & 2047, (r2 & 127) + 32, -(r1 & 2047), vm.spriteNum, 5);
-
-                            sprite[spriteNum].yvel = ((RR || vm.pSprite->picnum == TILE_BLIMP) && debrisTile == TILE_SCRAP1) ? weaponsandammosprites[cnt % 14] : -1;
-                            sprite[spriteNum].pal  = vm.pSprite->pal;
-                        }
-                    insptr++;
-                }
-                continue;
-
-            case concmd_count:
-                insptr++;
-                AC_COUNT(vm.pData) = (int16_t)*insptr++;
-                continue;
-
-            case concmd_cstator:
-                insptr++;
-                vm.pSprite->cstat |= (int16_t)*insptr++;
-                continue;
-
-            case concmd_clipdist:
-                insptr++;
-                vm.pSprite->clipdist = (int16_t)*insptr++;
-                continue;
-
-            case concmd_cstat:
-                insptr++;
-                vm.pSprite->cstat = (int16_t)*insptr++;
-                continue;
-
             case concmd_newpic:
                 insptr++;
                 vm.pSprite->picnum = (int16_t)*insptr++;
                 continue;
 
-            case concmd_ifmove:
-                insptr++;
-                VM_CONDITIONAL(AC_MOVE_ID(vm.pData) == *insptr);
-                continue;
 
-            case concmd_resetplayer:
-                insptr++;
-                vm.flags = VM_ResetPlayer(vm.playerNum, vm.flags);
-                continue;
-
-            case concmd_ifcoop:
-                VM_CONDITIONAL(GTFLAGS(GAMETYPE_COOP) || numplayers > 2);
-                continue;
 
             case concmd_ifonmud:
                 VM_CONDITIONAL(sector[vm.pSprite->sectnum].floorpicnum == TILE_RRTILE3073
@@ -1355,11 +1203,6 @@ void VM_Execute(native_t loop)
             case concmd_ifwind:
                 VM_CONDITIONAL(WindTime > 0);
                 continue;
-#if 0 // RRDH only
-            case concmd_ifpupwind:
-                VM_CONDITIONAL(ghtrax_isplrupwind(vm.spriteNum, vm.playerNum));
-                continue;
-#endif
 
             case concmd_ifinwater:
                 if (DEER)
@@ -1727,76 +1570,16 @@ void VM_Execute(native_t loop)
                 
 
             case concmd_ifvarg:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                VM_CONDITIONAL(tw > *insptr);
-                continue;
-
             case concmd_ifvarl:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                VM_CONDITIONAL(tw < *insptr);
-                continue;
-
             case concmd_setvarvar:
-                insptr++;
-                {
-                    tw = *insptr++;
-                    int const nValue = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                    SetGameVarID(tw, nValue, vm.spriteNum, vm.playerNum);
-                }
-                continue;
-
             case concmd_setvar:
-                SetGameVarID(insptr[1], insptr[2], vm.spriteNum, vm.playerNum);
-                insptr += 3;
-                continue;
-
             case concmd_addvarvar:
-                insptr++;
-                tw = *insptr++;
-                SetGameVarID(tw, GetGameVarID(tw, vm.spriteNum, vm.playerNum) + GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum), vm.spriteNum, vm.playerNum);
-                continue;
-
             case concmd_addvar:
-                SetGameVarID(insptr[1], GetGameVarID(insptr[1], vm.spriteNum, vm.playerNum) + insptr[2], vm.spriteNum, vm.playerNum);
-                insptr += 3;
-                continue;
-
             case concmd_ifvarvarl:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                tw = (tw < GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
-                insptr--;
-                VM_CONDITIONAL(tw);
-                continue;
-
             case concmd_ifvarvarg:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                tw = (tw > GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
-                insptr--;
-                VM_CONDITIONAL(tw);
-                continue;
-
             case concmd_addlogvar:
-                insptr++;
-                continue;
-
             case concmd_ifvare:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                VM_CONDITIONAL(tw == *insptr);
-                continue;
-
             case concmd_ifvarvare:
-                insptr++;
-                tw = GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum);
-                tw = (tw == GetGameVarID(*insptr++, vm.spriteNum, vm.playerNum));
-                insptr--;
-                VM_CONDITIONAL(tw);
-                continue;
-
             case concmd_enda:
             case concmd_break:
             case concmd_ends:
@@ -1836,6 +1619,23 @@ void VM_Execute(native_t loop)
             case concmd_pkick:
             case concmd_sizeto:
             case concmd_sizeat:
+            case concmd_addphealth:
+            case concmd_move:
+            case concmd_spawn:
+            case concmd_ifwasweapon:
+            case concmd_ifspawnedby:
+            case concmd_ifai:
+            case concmd_ifaction:
+            case concmd_ifactioncount:
+            case concmd_resetactioncount:
+            case concmd_debris:
+            case concmd_count:
+            case concmd_cstator:
+            case concmd_clipdist:
+            case concmd_cstat:
+            case concmd_ifmove:
+            case concmd_resetplayer:
+            case concmd_ifcoop:
 
                 if (parse()) goto out;
                 if (killit_flag & 1) vm.flags |= VM_KILL;
