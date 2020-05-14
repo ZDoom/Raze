@@ -483,18 +483,6 @@ void VM_Execute(native_t loop)
                     A_PlaySound(ambientlotag[vm.pSprite->ang], vm.spriteNum);
                 continue;
 
-            case concmd_soundonce:
-                if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
-                {
-                    CON_ERRPRINTF("invalid sound %d\n", (int32_t)*insptr++);
-                    continue;
-                }
-
-                if (!S_CheckSoundPlaying(vm.spriteNum, *insptr++))
-                    A_PlaySound(*(insptr - 1), vm.spriteNum);
-
-                continue;
-
             case concmd_stopsound:
                 if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
                 {
@@ -654,6 +642,7 @@ void VM_Execute(native_t loop)
                 ud.eog                   = 1;
                 continue;
 
+            case concmd_soundonce:
             case concmd_isdrunk:
             case concmd_strafeleft:
             case concmd_straferight:

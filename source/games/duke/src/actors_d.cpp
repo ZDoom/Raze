@@ -287,10 +287,16 @@ SKIPWALLCHECK:
 			if (isWorldTour())
 			{
 				if (sprite[s->owner].picnum == APLAYER && sj->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && s->owner != j)
+				{
+					j = nextj;
 					continue;
+				}
 
 				if (s->picnum == FLAMETHROWERFLAME && ((sprite[s->owner].picnum == FIREFLY && sj->picnum == FIREFLY) || (sprite[s->owner].picnum == BOSS5 && sj->picnum == BOSS5)))
+				{
+					j = nextj;
 					continue;
+				}
 			}
 
 			if (x == 0 || x >= 5 || AFLAMABLE(sj->picnum))

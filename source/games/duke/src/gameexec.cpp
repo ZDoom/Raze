@@ -506,7 +506,6 @@ int parse(void)
 		insptr++;
 		if (!S_CheckSoundPlaying(g_i, *insptr++))
 			A_PlaySound(*(insptr - 1), g_i);
-		insptr++;
 		break;
 	case concmd_stopsound:
 		insptr++;
