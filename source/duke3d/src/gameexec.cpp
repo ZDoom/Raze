@@ -627,23 +627,21 @@ static inline void VM_FacePlayer(int const shift)
                                                  : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y));
 }
 
-static int32_t VM_GetCeilZOfSlope(void)
+static inline int32_t VM_GetCeilZOfSlope(void)
 {
-    vec2_t const vect     = vm.pSprite->pos.vec2;
-    int const    sectnum  = vm.pSprite->sectnum;
+    vec2_t const vect    = vm.pSprite->pos.vec2;
+    int const    sectnum = vm.pSprite->sectnum;
 
     return yax_getceilzofslope(sectnum, vect);
-
 }
 
 #ifndef EDUKE32_STANDALONE
-static int32_t VM_GetFlorZOfSlope(void)
+static inline int32_t VM_GetFlorZOfSlope(void)
 {
     vec2_t const vect    = vm.pSprite->pos.vec2;
     int const    sectnum = vm.pSprite->sectnum;
 
     return yax_getflorzofslope(sectnum, vect);
-
 }
 #endif
 
@@ -1063,7 +1061,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         }
     }
 
-    if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER && actor[spriteNum].floorz == getcorrectflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y))
+    if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER && actor[spriteNum].floorz == yax_getflorzofslope(pSprite->sectnum, pSprite->pos.vec2))
     {
         pSprite->z = newZ + A_GetWaterZOffset(spriteNum);
         return;
@@ -4726,7 +4724,7 @@ badindex:
 
                     VM_ASSERT((unsigned)v.sectNum < MAXSECTORS, "invalid sector %d\n", v.sectNum);
 
-                    Gv_SetVar(*insptr++, (VM_DECODE_INST(tw) == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
+                    Gv_SetVar(*insptr++, (VM_DECODE_INST(tw) == CON_GETFLORZOFSLOPE ? yax_getflorzofslope : yax_getceilzofslope)(v.sectNum, v.vect));
                     dispatch();
                 }
 
