@@ -448,6 +448,7 @@ static inline int G_GetMusicIdx(const char *str)
 
 extern void G_PrintCurrentMusic(void);
 
+void addspritetodelete(int spnum);
 
 struct Dispatcher
 {

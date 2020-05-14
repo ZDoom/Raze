@@ -4391,7 +4391,7 @@ static int fallspecial(int g_i, int g_p)
 			{
 				spawn(g_i, ROCK2);
 				spawn(g_i, ROCK2);
-				deletesprite(g_i);
+				addspritetodelete(g_i);
 			}
 			return 0;
 		}
@@ -4401,14 +4401,14 @@ static int fallspecial(int g_i, int g_p)
 			{
 				fi.guts(g_sp, JIBS6, 5, g_p);
 				spritesound(SQUISHED, g_i);
-				deletesprite(g_i);
+				addspritetodelete(g_i);
 			}
 			return 0;
 		}
 		else if (sector[g_sp->sectnum].lotag == 803)
 		{
 			if (g_sp->picnum == ROCK2)
-				deletesprite(g_i);
+				addspritetodelete(g_i);
 			return 0;
 		}
 	}
@@ -4416,7 +4416,7 @@ static int fallspecial(int g_i, int g_p)
 	{
 		if (g_sp->picnum == 40)
 		{
-			deletesprite(g_i);
+			addspritetodelete(g_i);
 			return 0;
 		}
 		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || g_spriteExtra[g_i] < 128))
@@ -4430,7 +4430,7 @@ static int fallspecial(int g_i, int g_p)
 		else if (g_sp->picnum != APLAYER)
 		{
 			if (!g_spriteExtra[g_i])
-				deletesprite(g_i);
+				killit_flag = 4;
 			return 0;
 		}
 		hittype[g_i].picnum = SHOTSPARK1;

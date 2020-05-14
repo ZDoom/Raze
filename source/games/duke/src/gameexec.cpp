@@ -56,6 +56,13 @@ void destroyit(int g_i);
 void mamaspawn(int g_i);
 void forceplayerangle(DukePlayer_t* p);
 
+TArray<int> spritesToDelete; // List of sprites to delete.
+
+void addspritetodelete(int spnum)
+{
+	if (spritesToDelete.Find(spnum) == spritesToDelete.Size()) spritesToDelete.Push(spnum);
+}
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -1588,7 +1595,7 @@ void execute(short i,short p,int x)
 		// if player was set to squish, first stop that...
 		if(ps[g_p].actorsqu == g_i)
 			ps[g_p].actorsqu = -1;
-		deletesprite(g_i);
+		addspritetodelete(g_i);
 	}
 	else
 	{
@@ -1612,6 +1619,7 @@ void execute(short i,short p,int x)
 		else if (g_sp->statnum == STAT_STANDABLE)
 			fi.checktimetosleep(g_i);
 	}
+	for (auto i : spritesToDelete) deletesprite(i);
 }
 
 

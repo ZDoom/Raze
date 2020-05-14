@@ -332,155 +332,6 @@ static int32_t A_GetWaterZOffset(int const spriteNum)
     return 0;
 }
 
-static void VM_Fall(int const spriteNum, spritetype * const pSprite)
-{
-    int spriteGravity = g_spriteGravity;
-    int hitSprite = 0;
-
-    pSprite->xoffset = pSprite->yoffset = 0;
-
-    if (RR)
-    {
-        if (RRRA)
-        {
-            if (sector[vm.pSprite->sectnum].lotag == 801)
-            {
-                if (vm.pSprite->picnum == TILE_ROCK)
-                {
-                    A_Spawn(vm.spriteNum, TILE_ROCK2);
-                    A_Spawn(vm.spriteNum, TILE_ROCK2);
-                    vm.flags |= VM_SAFEDELETE;
-                }
-            }
-            else if (sector[vm.pSprite->sectnum].lotag == 802)
-            {
-                if (vm.pSprite->picnum != TILE_APLAYER && A_CheckEnemySprite(vm.pSprite) && vm.pSprite->z == vm.pActor->floorz - ZOFFSET)
-                {
-                    A_DoGuts(vm.spriteNum, TILE_JIBS6, 5);
-                    A_PlaySound(SQUISHED, vm.spriteNum);
-                    vm.flags |= VM_SAFEDELETE;
-                }
-            }
-            else if (sector[vm.pSprite->sectnum].lotag == 803)
-            {
-                if (vm.pSprite->picnum == TILE_ROCK2)
-                {
-                    vm.flags |= VM_SAFEDELETE;
-                }
-            }
-        }
-        if (sector[vm.pSprite->sectnum].lotag == 800)
-        {
-            if (vm.pSprite->picnum == TILE_AMMO)
-            {
-                vm.flags |= VM_SAFEDELETE;
-                return;
-            }
-            if (vm.pSprite->picnum != TILE_APLAYER && (A_CheckEnemySprite(vm.pSprite) || vm.pSprite->picnum == TILE_COW) && g_spriteExtra[vm.spriteNum] < 128)
-            {
-                vm.pSprite->z = vm.pActor->floorz-ZOFFSET;
-                vm.pSprite->zvel = 8000;
-                vm.pSprite->extra = 0;
-                g_spriteExtra[vm.spriteNum]++;
-                hitSprite = 1;
-            }
-            else if (vm.pSprite->picnum != TILE_APLAYER)
-            {
-                if (!g_spriteExtra[vm.spriteNum])
-                    vm.flags |= VM_SAFEDELETE;
-                return;
-            }
-            vm.pActor->picnum = TILE_SHOTSPARK1;
-            vm.pActor->extra = 1;
-        }
-        if (RRRA && EDUKE32_PREDICT_TRUE(sector[vm.pSprite->sectnum].lotag < 800 || sector[vm.pSprite->sectnum].lotag > 803)
-            && (sector[vm.pSprite->sectnum].floorpicnum == TILE_RRTILE7820 || sector[vm.pSprite->sectnum].floorpicnum == TILE_RRTILE7768))
-        {
-            if (vm.pSprite->picnum != TILE_MINION && vm.pSprite->pal != 19)
-            {
-                if ((krand2()&3) == 1)
-                {
-                    vm.pActor->picnum = TILE_SHOTSPARK1;
-                    vm.pActor->extra = 5;
-                }
-            }
-        }
-    }
-
-    if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(fi.ceilingspace(pSprite->sectnum)))
-        spriteGravity = g_spriteGravity/6;
-    else if (EDUKE32_PREDICT_FALSE(fi.floorspace(pSprite->sectnum)))
-        spriteGravity = 0;
-
-    if (actor[spriteNum].cgg <= 0 || (sector[pSprite->sectnum].floorstat&2))
-    {
-        getglobalz(spriteNum);
-        actor[spriteNum].cgg = 6;
-    }
-    else actor[spriteNum].cgg--;
-
-    if (pSprite->z < actor[spriteNum].floorz-ZOFFSET)
-    {
-        // Free fi.fall.
-        pSprite->zvel += spriteGravity;
-        pSprite->z += pSprite->zvel;
-
-#ifdef YAX_ENABLE
-        if (yax_getbunch(pSprite->sectnum, YAX_FLOOR) >= 0 && (sector[pSprite->sectnum].floorstat & 512) == 0)
-            setspritez(spriteNum, (vec3_t *)pSprite);
-#endif
-
-        if (pSprite->zvel > 6144) pSprite->zvel = 6144;
-        return;
-    }
-
-    pSprite->z = actor[spriteNum].floorz - ZOFFSET;
-
-    if (A_CheckEnemySprite(pSprite) || (pSprite->picnum == TILE_APLAYER && pSprite->owner >= 0))
-    {
-        if (pSprite->zvel > 3084 && pSprite->extra <= 1)
-        {
-            // I'm guessing this TILE_DRONE check is from a beta version of the game
-            // where they crashed into the ground when killed
-            if (!(pSprite->picnum == TILE_APLAYER && pSprite->extra > 0) && pSprite->pal != 1 && pSprite->picnum != TILE_DRONE)
-            {
-                A_PlaySound(SQUISHED,spriteNum);
-                if (hitSprite)
-                {
-                    A_DoGuts(spriteNum,TILE_JIBS6,5);
-                }
-                else
-                {
-                    A_DoGuts(spriteNum,TILE_JIBS6,15);
-                    A_Spawn(spriteNum,TILE_BLOODPOOL);
-                }
-            }
-            actor[spriteNum].picnum = TILE_SHOTSPARK1;
-            actor[spriteNum].extra = 1;
-            pSprite->zvel = 0;
-        }
-        else if (pSprite->zvel > 2048 && sector[pSprite->sectnum].lotag != ST_1_ABOVE_WATER)
-        {
-            int16_t newsect = pSprite->sectnum;
-
-            pushmove((vec3_t *)pSprite, &newsect, 128, 4<<8, 4<<8, CLIPMASK0);
-            if ((unsigned)newsect < MAXSECTORS)
-                changespritesect(spriteNum, newsect);
-
-            if (!DEER)
-                A_PlaySound(THUD, spriteNum);
-        }
-    }
-
-    if (sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
-    {
-        pSprite->z += A_GetWaterZOffset(spriteNum);
-        return;
-    }
-
-    pSprite->zvel = 0;
-}
-
 
 extern uint8_t killit_flag;
 
@@ -749,10 +600,6 @@ void VM_Execute(native_t loop)
                 }
                 continue;
 
-            case concmd_fall:
-                insptr++;
-                VM_Fall(vm.spriteNum, vm.pSprite);
-                continue;
 
             case concmd_addammo:
                 insptr++;
@@ -1213,6 +1060,7 @@ void VM_Execute(native_t loop)
                 }
                 continue;
 
+            case concmd_fall:
             case concmd_ifpinventory:
             case concmd_ifinspace:
             case concmd_spritepal:
