@@ -14,14 +14,14 @@ cmd(break)					// 12
 cmd(shoot)					// 13
 cmd(palfrom)				// 14
 cmd(sound)					// 15
-cmd(fi.fall)					// 16
+cmd(fall)					// 16
 cmd(state)					// 17
 cmd(ends)					// 18
 cmd(define)					// 19
 //cmdx(comment, "//")			// 20
 cmd(ifai)					// 21
 cmd(killit)					// 22
-cmd(fi.addweapon)				// 23
+cmd(addweapon)				// 23
 cmd(ai)						// 24
 cmd(addphealth)				// 25
 cmd(ifdead)					// 26
@@ -48,7 +48,7 @@ cmd(ifcount)				// 46
 cmd(resetcount)				// 47
 cmd(addinventory)			// 48
 cmd(ifactornotstayput)		// 49
-cmd(fi.hitradius)				// 50
+cmd(hitradius)				// 50
 cmd(ifp)					// 51
 cmd(count)					// 52
 cmd(ifactor)				// 53
@@ -56,7 +56,7 @@ cmd(music)					// 54
 cmd(include)				// 55
 cmd(ifstrength)				// 56
 cmd(definesound)			// 57
-cmd(fi.guts)					// 58
+cmd(guts)					// 58
 cmd(ifspawnedby)			// 59
 cmd(gamestartup)			// 60
 cmd(wackplayer)				// 61

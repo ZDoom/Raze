@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define actors_c_
 
-#include "duke3d.h"
+#include "global.h"
 
 BEGIN_DUKE_NS
 
@@ -49,16 +49,6 @@ void G_ClearCameraView(DukePlayer_t *ps)
         if (sprite[k].picnum==TILE_CAMERA1)
             sprite[k].yvel = 0;
 }
-
-void fi.hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-
-void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4)
-{
-    fi.hitradius(spriteNum, blastRadius, dmg1, dmg2, dmg3, dmg4);
-}
-
-
-int fi.movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 
 int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t clipType)
 {
@@ -279,19 +269,6 @@ int G_WakeUp(spritetype *const pSprite, int const playerNum)
 
 
 // sleeping monsters, etc
-
-
-static FORCE_INLINE int G_FindExplosionInSector(int const sectNum)
-{
-    return fi.ifhitsectors(sectNum);
-}
-
-int fi.ifhitbyweapon(int s);
-int A_IncurDamage(int const spriteNum)
-{
-    return fi.ifhitbyweapon(spriteNum);
-}
-
 
  int A_FindLocator(int const tag, int const sectNum)
 {

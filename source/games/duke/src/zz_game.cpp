@@ -64,6 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+void SetDispatcher();
 
 int32_t g_quitDeadline = 0;
 
@@ -7001,6 +7002,7 @@ int GameInterface::app_main()
         }
     }
 
+    SetDispatcher();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     playing_rr = 1;
     g_skillCnt = 4;

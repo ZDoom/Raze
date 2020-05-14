@@ -829,7 +829,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 else
                 {
-                    VM_CONDITIONAL(A_IncurDamage(vm.spriteNum) >= 0);
+                    VM_CONDITIONAL(fi.ifhitbyweapon(vm.spriteNum) >= 0);
                 }
                 continue;
 
@@ -1766,7 +1766,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case concmd_hitradius:
-                A_RadiusDamage(vm.spriteNum, *(insptr + 1), *(insptr + 2), *(insptr + 3), *(insptr + 4), *(insptr + 5));
+                fi.hitradius(vm.spriteNum, *(insptr + 1), *(insptr + 2), *(insptr + 3), *(insptr + 4), *(insptr + 5));
                 insptr += 6;
                 continue;
 

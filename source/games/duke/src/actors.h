@@ -297,7 +297,6 @@ inline void check_fta_sounds(int s)
 {
     A_PlayAlertSound(s);
 }
-void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4);
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 void resetlanepics(void);
 

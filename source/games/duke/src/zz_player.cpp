@@ -110,13 +110,13 @@ static void P_IncurDamage(DukePlayer_t * const pPlayer)
 
     if (RR)
     {
-        int fi.guts = 0;
+        int guts = 0;
         if (pPlayer->drink_amt > 31 && pPlayer->drink_amt < 65)
-            fi.guts++;
+            guts++;
         if (pPlayer->eat > 31 && pPlayer->eat < 65)
-            fi.guts++;
+            guts++;
 
-        switch (fi.guts)
+        switch (guts)
         {
             case 1:
                 playerDamage = (int)(playerDamage*0.75);
@@ -680,7 +680,7 @@ growspark_rr:
                         
                         if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
                         {
-                            fi.checkhitwall(kneeSprite, hitData.wall, &hitData.pos, projecTile);
+                            fi.checkhitwall(kneeSprite, hitData.wall, hitData.pos.x, hitData.pos.y, hitData.pos.z, projecTile);
                             if (playerNum >= 0)
                                 fi.checkhitswitch(playerNum, hitData.wall, 0);
                         }
@@ -823,7 +823,7 @@ growspark_rr:
                 SKIPBULLETHOLE:
 
                     HandleHitWall(&hitData);
-                    fi.checkhitwall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
+                    fi.checkhitwall(spawnedSprite, hitData.wall, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_SHOTSPARK1);
                 }
             }
             else
@@ -843,7 +843,7 @@ growspark_rr:
                     }
                 }
                 else if (hitData.wall >= 0)
-                    fi.checkhitwall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
+                    fi.checkhitwall(spawnedSprite, hitData.wall, hitData.pos.x, hitData.pos.y, hitData.pos.z, TILE_SHOTSPARK1);
             }
 
             if ((krand2() & 255) < (RR ? 10 : 4))
@@ -948,7 +948,7 @@ growspark_rr:
             else if (hitData.sprite >= 0)
                 fi.checkhitsprite(hitData.sprite, otherSprite);
             else if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
-                fi.checkhitwall(otherSprite, hitData.wall, &hitData.pos, projecTile);
+                fi.checkhitwall(otherSprite, hitData.wall, hitData.pos.x, hitData.pos.y, hitData.pos.z, projecTile);
         }
         break;
 
@@ -4707,7 +4707,7 @@ static void DoWallTouchDamage(const DukePlayer_t *pPlayer, int32_t wallNum)
     vec3_t const davect = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 9),
                       pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 9), pPlayer->pos.z };
 
-    fi.checkhitwall(pPlayer->i, wallNum, &davect, -1);
+    fi.checkhitwall(pPlayer->i, wallNum, davect.x, davect.y, davect.z, -1);
 }
 
 static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)

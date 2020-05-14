@@ -1077,7 +1077,7 @@ inline int32_t   setsprite(int16_t spritenum, int x, int y, int z)
     return setsprite(spritenum, &v);
 }
 
-void setspritepos(int spnum, int x, int y, int z)
+inline void setspritepos(int spnum, int x, int y, int z)
 {
     sprite[spnum].pos = { x,y,z };
 }

@@ -4969,13 +4969,12 @@ void alterang(int a, int g_i, int g_p)
 
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*))
 {
-	int j;
 	auto g_sp = &sprite[g_i];
 	g_sp->xoffset = 0;
 	g_sp->yoffset = 0;
 	//			  if(!gotz)
 	{
-		long c;
+		int c;
 
 		int sphit = fallspecial? fallspecial(g_i, g_p) : 0;
 		if (fi.floorspace(g_sp->sectnum))

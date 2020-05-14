@@ -5,7 +5,7 @@ set( PCH_SOURCES
 	src/actors_d.cpp
 	src/actors_lava.cpp
 	src/bowling.cpp
-	src/dispatcher.cpp
+	src/dispatch.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
 	src/gamevar.cpp

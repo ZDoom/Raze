@@ -146,11 +146,16 @@ static int ifcanshoottarget(int g_i, int g_p, int g_x)
 	return j;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static bool ifcansee(int g_i, int g_p)
 {
 	auto g_sp = &sprite[g_i];
 	spritetype* s;
-	short sect;
 	int j;
 
 	// select sprite for monster to target
@@ -500,7 +505,7 @@ char parse(void)
 		break;
 	case concmd_smackbubba:
 		insptr++;
-		if (!isRRRA || g_sp->pal != 105)
+		if (!isRRRA() || g_sp->pal != 105)
 		{
 			ps[myconnectindex].gm = MODE_EOL;
 			ud.level_number++;
@@ -861,6 +866,7 @@ char parse(void)
 		insptr++;
 		g_t[2] = 0;
 		break;
+#if 0
 	case concmd_debris:
 	{
 			short dnum;
@@ -1555,6 +1561,7 @@ char parse(void)
 
 			parseifelse( j == NUM_SOUNDS );
 			break;
+#endif
 		default:
 #ifdef WW2
 sprintf(g_szBuf,"Unrecognized PCode of %ld  in parse.  Killing current sprite.",*insptr);
@@ -1570,6 +1577,7 @@ AddLog(g_szBuf);
 
 void LoadActor(short i,short p,int x)
 {
+#if 0
 	char done;
 
 	g_i = i;	// Sprite ID
@@ -1647,11 +1655,12 @@ void LoadActor(short i,short p,int x)
 			}
 		}
 	}
-
+#endif
 }
 
 void execute(short i,short p,int x)
 {
+#if 0
 	char done;
 
 	g_i = i;	// Sprite ID
@@ -1738,8 +1747,8 @@ void execute(short i,short p,int x)
 					break;
 			}
 	}
+#endif
 }
 
-#endif
 
 END_DUKE_NS
