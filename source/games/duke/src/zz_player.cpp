@@ -4202,11 +4202,11 @@ static int32_t P_DoCounters(int playerNum)
 
     if (RRRA)
     {
-        if (g_windTime > 0)
-            g_windTime--;
+        if (WindTime > 0)
+            WindTime--;
         else if ((krand2() & 127) == 8)
         {
-            g_windTime = 120+((krand2()&63)<<2);
+            WindTime = 120+((krand2()&63)<<2);
             WindDir = krand2()&2047;
         }
 

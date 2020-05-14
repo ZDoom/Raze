@@ -224,6 +224,10 @@ extern int32_t voting;
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 int32_t A_CheckInventorySprite(spritetype *s);
+inline int inventory(spritetype* S)
+{
+    return A_CheckInventorySprite(S);
+}
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
 #define EGS A_InsertSprite
@@ -473,6 +477,12 @@ struct Dispatcher
 	int  (*ifhitsectors)(int sectnum);
 	int  (*ifhitbyweapon)(int sectnum);
 	void (*fall)(int g_i, int g_p);
+    bool (*spawnweapondebris)(int picnum, int dnum);
+    void (*respawnhitag)(spritetype* g_sp);
+    void (*checktimetosleep)(int g_i);
+    void (*move)(int g_i, int g_p, int g_x);
+
+
 };
 
 extern Dispatcher fi;

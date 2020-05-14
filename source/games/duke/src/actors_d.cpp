@@ -4181,4 +4181,61 @@ void fall_d(int g_i, int g_p)
 	fall_common(g_i, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, SQUISHED, THUD, nullptr, falladjustz);
 }
 
+bool spawnweapondebris_d(int picnum, int dnum)
+{
+	return picnum == BLIMP && dnum == SCRAP1;
+}
+
+void respawnhitag_d(spritetype* g_sp)
+{
+	switch (g_sp->picnum)
+	{
+	case FEM1:
+	case FEM2:
+	case FEM3:
+	case FEM4:
+	case FEM5:
+	case FEM6:
+	case FEM7:
+	case FEM8:
+	case FEM9:
+	case FEM10:
+	case PODFEM1:
+	case NAKED1:
+	case STATUE:
+		if (g_sp->yvel) fi.operaterespawns(g_sp->yvel);
+		break;
+	default:
+		if (g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
+		break;
+	}
+}
+
+void checktimetosleep_d(int g_i)
+{
+	auto g_sp = &sprite[g_i];
+	if (g_sp->statnum == 6)
+	{
+		switch (g_sp->picnum)
+		{
+		case RUBBERCAN:
+		case EXPLODINGBARREL:
+		case WOODENHORSE:
+		case HORSEONSIDE:
+		case CANWITHSOMETHING:
+		case FIREBARREL:
+		case NUKEBARREL:
+		case NUKEBARRELDENTED:
+		case NUKEBARRELLEAKED:
+		case TRIPBOMB:
+		case EGG:
+			if (hittype[g_i].timetosleep > 1)
+				hittype[g_i].timetosleep--;
+			else if (hittype[g_i].timetosleep == 1)
+				changespritestat(g_i, 2);
+			break;
+		}
+	}
+}
+
 END_DUKE_NS

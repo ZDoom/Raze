@@ -4614,4 +4614,53 @@ void mamaspawn(int g_i)
 		spawn(g_i, RABBIT);
 	}
 }
+
+bool spawnweapondebris_r(int picnum, int dnum)
+{
+	return dnum == SCRAP1;
+}
+
+void respawnhitag_r(spritetype* g_sp)
+{
+	switch (g_sp->picnum)
+	{
+	case FEM10:
+	case NAKED1:
+	case STATUE:
+		if (g_sp->yvel) fi.operaterespawns(g_sp->yvel);
+		break;
+	default:
+		if (g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
+		break;
+	}
+}
+
+void checktimetosleep_r(int g_i)
+{
+	auto g_sp = &sprite[g_i];
+	if (g_sp->statnum == 6)
+	{
+		switch (g_sp->picnum)
+		{
+		case RUBBERCAN:
+		case EXPLODINGBARREL:
+		case WOODENHORSE:
+		case HORSEONSIDE:
+		case CANWITHSOMETHING:
+		case FIREBARREL:
+		case NUKEBARREL:
+		case NUKEBARRELDENTED:
+		case NUKEBARRELLEAKED:
+		case TRIPBOMB:
+		case EGG:
+			if (hittype[g_i].timetosleep > 1)
+				hittype[g_i].timetosleep--;
+			else if (hittype[g_i].timetosleep == 1)
+				changespritestat(g_i, 2);
+			break;
+		}
+	}
+}
+
+
 END_DUKE_NS

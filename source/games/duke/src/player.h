@@ -278,6 +278,7 @@ typedef struct player_struct {
 #define heat_amount inv_amount[GET_HEATS]
 #define scuba_amount inv_amount[GET_SCUBA]
 #define boot_amount inv_amount[GET_BOOTS]
+#define shield_amount inv_amount[GET_SHIELD]
 #define raat609 MamaEnd
 #define raat5dd sea_sick_stat
 

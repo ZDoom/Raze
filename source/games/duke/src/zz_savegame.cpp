@@ -894,7 +894,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_geoSectorY2[0], sizeof(g_geoSectorY2[0]), ARRAY_SIZE(g_geoSectorY2) },
     { 0, &g_geoSectorCnt, sizeof(g_geoSectorCnt), 1 },
 
-    { 0, &g_windTime, sizeof(g_windTime), 1 },
+    { 0, &WindTime, sizeof(WindTime), 1 },
     { 0, &WindDir, sizeof(WindDir), 1 },
     { 0, &fakebubba_spawn, sizeof(fakebubba_spawn), 1 },
     { 0, &mamaspawn_count, sizeof(mamaspawn_count), 1 },

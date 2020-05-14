@@ -1163,7 +1163,7 @@ static void resetprestat(int playerNum, int gameMode)
 
     if (RRRA)
     {
-        g_windTime = 0;
+        WindTime = 0;
         WindDir = 0;
         fakebubba_spawn = 0;
         RRRA_ExitedLevel = 0;
@@ -1322,7 +1322,7 @@ static void prelevel(char g)
         g_chickenPlant = 0;
         if (RRRA)
         {
-            g_windTime = 0;
+            WindTime = 0;
             WindDir = 0;
             fakebubba_spawn = 0;
             RRRA_ExitedLevel = 0;

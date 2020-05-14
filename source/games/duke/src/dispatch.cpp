@@ -78,6 +78,14 @@ int ifhitbyweapon_r(int sn);
 int ifhitbyweapon_d(int sn);
 void fall_d(int g_i, int g_p);
 void fall_r(int g_i, int g_p);
+bool spawnweapondebris_d(int picnum, int dnum);
+bool spawnweapondebris_r(int picnum, int dnum);
+void respawnhitag_d(spritetype* g_sp);
+void respawnhitag_r(spritetype* g_sp);
+void checktimetosleep_d(int g_i);
+void checktimetosleep_r(int g_i);
+void move_d(int g_i, int g_p, int g_x);
+void move_r(int g_i, int g_p, int g_x);
 
 Dispatcher fi;
 
@@ -110,7 +118,11 @@ void SetDispatcher()
 		gutsdir_d,             
 		ifhitsectors_d,        
 		ifhitbyweapon_d,       
-		fall_d
+		fall_d,
+		spawnweapondebris_d,
+		respawnhitag_d,
+		checktimetosleep_d,
+		move_d
 		};
 	}
 	else	
@@ -140,7 +152,11 @@ void SetDispatcher()
 		gutsdir_r,             
 		ifhitsectors_r,        
 		ifhitbyweapon_r,       
-		fall_r
+		fall_r,
+		spawnweapondebris_r,
+		respawnhitag_r,
+		checktimetosleep_r,
+		move_r,
 		};
 	}
 }

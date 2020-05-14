@@ -47,19 +47,21 @@ int* g_t;
 uint8_t killit_flag;
 spritetype* g_sp;
 
-char parse(void);
+int parse(void);
 int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
 bool ifsquished(int i, int p);
 void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
 void destroyit(int g_i);
 void mamaspawn(int g_i);
+void forceplayerangle(DukePlayer_t* p);
 
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
+void VM_Execute(native_t loop);
 
 void parseifelse(int condition)
 {
@@ -67,7 +69,11 @@ void parseifelse(int condition)
 	{
 		// skip 'else' pointer.. and...
 		insptr+=2;
+#if 0
 		parse();
+#else
+		VM_Execute(0);
+#endif
 	}
 	else
 	{
@@ -79,7 +85,11 @@ void parseifelse(int condition)
 			// skip 'else' and...
 			insptr+=2;
 			
+#if 0
 			parse();
+#else
+			VM_Execute(0);
+#endif
 		}
 	}
 }
@@ -220,7 +230,7 @@ static bool ifcansee(int g_i, int g_p)
 
 // int *it = 0x00589a04;
 
-char parse(void)
+int parse(void)
 {
 	int j, l, s;
 
@@ -827,7 +837,11 @@ char parse(void)
 		break;
 	case concmd_leftbrace:
 		insptr++;
-		while(1) if(parse()) break;
+#if 0
+		while (1) if (parse()) break;
+#else
+		VM_Execute(1);
+#endif
 		break;
 	case concmd_move:
 		g_t[0]=0;
@@ -866,7 +880,6 @@ char parse(void)
 		insptr++;
 		g_t[2] = 0;
 		break;
-#if 0
 	case concmd_debris:
 	{
 			short dnum;
@@ -874,20 +887,20 @@ char parse(void)
 			insptr++;
 			dnum = *insptr;
 			insptr++;
+			bool weap = fi.spawnweapondebris(g_sp->picnum, dnum);
 
 			if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
 				for(j=(*insptr)-1;j>=0;j--)
 			{
-				if(g_sp->picnum == BLIMP && dnum == SCRAP1)
+				if(weap)
 					s = 0;
 				else s = (krand()%3);
 
 				l = EGS(g_sp->sectnum,
-						g_sp->x+(krand()&255)-128,g_sp->y+(krand()&255)-128,g_sp->z-(8<<8)-(krand()&8191),
-						dnum+s,g_sp->shade,32+(krand()&15),32+(krand()&15),
-						krand()&2047,(krand()&127)+32,
-						-(krand()&2047),g_i,5);
-				if(g_sp->picnum == BLIMP && dnum == SCRAP1)
+					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
+					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
+					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_i, 5);
+				if(weap)
 					sprite[l].yvel = weaponsandammosprites[j%14];
 				else sprite[l].yvel = -1;
 				sprite[l].pal = g_sp->pal;
@@ -895,147 +908,103 @@ char parse(void)
 			insptr++;
 		}
 		break;
-	case 52:
+	case concmd_count:
 		insptr++;
 		g_t[0] = (short) *insptr;
 		insptr++;
 		break;
-	case 101:
+	case concmd_cstator:
 		insptr++;
 		g_sp->cstat |= (short)*insptr;
 		insptr++;
 		break;
-	case 110:
+	case concmd_clipdist:
 		insptr++;
 		g_sp->clipdist = (short) *insptr;
 		insptr++;
 		break;
-	case 40:
+	case concmd_cstat:
 		insptr++;
 		g_sp->cstat = (short) *insptr;
 		insptr++;
 		break;
-	case 41:
+	case concmd_newpic:
+		insptr++;
+		g_sp->picnum = (short)*insptr;
+		insptr++;
+		break;
+	case concmd_ifmove:
 		insptr++;
 		parseifelse(g_t[1] == *insptr);
 		break;
-	case 42:
+	case concmd_resetplayer:
 		insptr++;
 
 //AddLog("resetplayer");				
 		if(ud.multimode < 2)
 		{
+#if 0
 			if( lastsavedpos >= 0 && ud.recstat != 2 )
 			{
 				ps[g_p].gm = MODE_MENU;
 				KB_ClearKeyDown(sc_Space);
 				cmenu(15000);
 			}
-			else ps[g_p].gm = MODE_RESTART;
+			else
+#endif
+			ps[g_p].gm = MODE_RESTART;
 			killit_flag = 2;
 		}
 		else
 		{
-			pickrandomspot(g_p);
-			g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-			g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy =ps[g_p].posy;
-			g_sp->z = hittype[g_i].bposy = ps[g_p].oposz =ps[g_p].posz;
-			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-			setsprite(ps[g_p].i,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT);
-			g_sp->cstat = 257;
-
-			g_sp->shade = -12;
-			g_sp->clipdist = 64;
-			g_sp->xrepeat = 42;
-			g_sp->yrepeat = 36;
-			g_sp->owner = g_i;
-			g_sp->xoffset = 0;
-			g_sp->pal = ps[g_p].palookup;
-
-			ps[g_p].last_extra = g_sp->extra = max_player_health;
-			ps[g_p].wantweaponfire = -1;
-			ps[g_p].horiz = 100;
-			ps[g_p].on_crane = -1;
-			ps[g_p].frag_ps = g_p;
-			ps[g_p].horizoff = 0;
-			ps[g_p].opyoff = 0;
-			ps[g_p].wackedbyactor = -1;
-			ps[g_p].shield_amount = max_armour_amount;
-			ps[g_p].dead_flag = 0;
-			ps[g_p].pals_time = 0;
-			ps[g_p].footprintcount = 0;
-			ps[g_p].weapreccnt = 0;
-			ps[g_p].fta = 0;
-			ps[g_p].ftq = 0;
-			ps[g_p].posxv = ps[g_p].posyv = 0;
-			ps[g_p].rotscrnang = 0;
-
-			ps[g_p].falling_counter = 0;
-
-			hittype[g_i].extra = -1;
-			hittype[g_i].owner = g_i;
-
-			hittype[g_i].cgg = 0;
-			hittype[g_i].movflag = 0;
-			hittype[g_i].tempang = 0;
-			hittype[g_i].actorstayput = -1;
-			hittype[g_i].dispicnum = 0;
-			hittype[g_i].owner = ps[g_p].i;
-
-			resetinventory(g_p);
-			resetweapons(g_p);
-
-			cameradist = 0;
-			cameraclock = totalclock;
+			// I am not convinced this is even remotely smart to be executed from here...
+			P_ResetPlayer(g_p);
 		}
 		setpal(&ps[g_p]);
-//AddLog("EOF: resetplayer");
-
 		break;
-	case 130:
+	case concmd_ifcoop:
 		parseifelse(ud.coop || numplayers > 2);
 		break;
-	case 129:
-		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073);
+	case concmd_ifonmud:
+		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers... :?
 		break;
-	case 43:
-		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == 1);
+	case concmd_ifonwater:
+		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER);
 		break;
-#ifdef RRRA
-	case 131:
+	case concmd_ifmotofast:
 		parseifelse(ps[g_p].MotoSpeed > 60);
 		break;
-	case 134:
+	case concmd_ifonmoto:
 		parseifelse(ps[g_p].OnMotorcycle == 1);
 		break;
-	case 135:
+	case concmd_ifonboat:
 		parseifelse(ps[g_p].OnBoat == 1);
 		break;
-	case 145:
+	case concmd_ifsizedown:
 		g_sp->xrepeat--;
 		g_sp->yrepeat--;
 		parseifelse(g_sp->xrepeat <= 5);
 		break;
-	case 132:
+	case concmd_ifwind:
 		parseifelse(WindTime > 0);
 		break;
-#endif
-	case 44:
+
+	case concmd_ifinwater:
 		parseifelse( sector[g_sp->sectnum].lotag == 2);
 		break;
-	case 46:
+	case concmd_ifcount:
 		insptr++;
 		parseifelse(g_t[0] >= *insptr);
 		break;
-	case 53:
+	case concmd_ifactor:
 		insptr++;
 		parseifelse(g_sp->picnum == *insptr);
 		break;
-	case 47:
+	case concmd_resetcount:
 		insptr++;
 		g_t[0] = 0;
 		break;
-	case 48:
+	case concmd_addinventory:
 		insptr+=2;
 		switch(*(insptr-1))
 		{
@@ -1061,11 +1030,24 @@ char parse(void)
 				ps[g_p].inven_icon = 4;
 				break;
 			case 6:
-				switch(g_sp->pal)
+				if (isRR())
 				{
-					case  0: ps[g_p].got_access |= 1;break;
-					case 21: ps[g_p].got_access |= 2;break;
-					case 23: ps[g_p].got_access |= 4;break;
+					switch (g_sp->lotag)
+					{
+					case 100: ps[g_p].keys[1] = 1; break;
+					case 101: ps[g_p].keys[2] = 1; break;
+					case 102: ps[g_p].keys[3] = 1; break;
+					case 103: ps[g_p].keys[4] = 1; break;
+					}
+				}
+				else
+				{
+					switch (g_sp->pal)
+					{
+					case  0: ps[g_p].got_access |= 1; break;
+					case 21: ps[g_p].got_access |= 2; break;
+					case 23: ps[g_p].got_access |= 4; break;
+					}
 				}
 				break;
 			case 7:
@@ -1083,12 +1065,12 @@ char parse(void)
 		}
 		insptr++;
 		break;
-	case 50:
+	case concmd_hitradius:
 		fi.hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
 		insptr+=6;
 		break;
-	case 51:
-		{
+	case concmd_ifp:
+	{
 			insptr++;
 
 			l = *insptr;
@@ -1096,45 +1078,45 @@ char parse(void)
 
 			s = g_sp->xvel;
 
-			if( (l&8) && ps[g_p].on_ground && (sync[g_p].bits&2) )
+			// sigh... this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
+			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SK_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
 					j = 1;
-			else if( (l&16) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&
-				ps[g_p].poszv > 2048 )
+			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
 					j = 1;
-			else if( (l&32) && ps[g_p].jumping_counter > 348 )
+			else if( (l& pjumping) && ps[g_p].jumping_counter > 348 )
 					j = 1;
-			else if( (l&1) && s >= 0 && s < 8)
+			else if( (l& pstanding) && s >= 0 && s < 8)
 					j = 1;
-			else if( (l&2) && s >= 8 && !(sync[g_p].bits&(1<<5)) )
+			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SK_RUN)) )
 					j = 1;
-			else if( (l&4) && s >= 8 && sync[g_p].bits&(1<<5) )
+			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SK_RUN) )
 					j = 1;
-			else if( (l&64) && ps[g_p].posz < (g_sp->z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].posz < (g_sp->z-(48<<8)) )
 					j = 1;
-			else if( (l&128) && s <= -8 && !(sync[g_p].bits&(1<<5)) )
+			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SK_RUN)) )
 					j = 1;
-			else if( (l&256) && s <= -8 && (sync[g_p].bits&(1<<5)) )
+			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SK_RUN)) )
 					j = 1;
-			else if( (l&512) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
+			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
-			else if( (l&1024) && sprite[ps[g_p].i].xrepeat < 32 )
+			else if( (l& pshrunk) && sprite[ps[g_p].i].xrepeat < (isRR() ? 8 : 32))
 					j = 1;
-			else if( (l&2048) && ps[g_p].jetpack_on )
+			else if( (l& pjetpack) && ps[g_p].jetpack_on )
 					j = 1;
-			else if( (l&4096) && ps[g_p].steroids_amount > 0 && ps[g_p].steroids_amount < 400 )
+			else if( (l& ponsteroids) && ps[g_p].steroids_amount > 0 && ps[g_p].steroids_amount < 400 )
 					j = 1;
-			else if( (l&8192) && ps[g_p].on_ground)
+			else if( (l& ponground) && ps[g_p].on_ground)
 					j = 1;
-			else if( (l&16384) && sprite[ps[g_p].i].xrepeat > 32 && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
+			else if( (l& palive) && sprite[ps[g_p].i].xrepeat > (isRR() ? 8 : 32) && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
 					j = 1;
-			else if( (l&32768) && sprite[ps[g_p].i].extra <= 0)
+			else if( (l& pdead) && sprite[ps[g_p].i].extra <= 0)
 					j = 1;
-			else if( (l&65536L) )
+			else if( (l& pfacing) )
 			{
-				if(g_sp->picnum == APLAYER && ud.multimode > 1)
-					j = getincangle(ps[otherp].ang,getangle(ps[g_p].posx-ps[otherp].posx,ps[g_p].posy-ps[otherp].posy));
+				if (g_sp->picnum == APLAYER && ud.multimode > 1)
+					j = getincangle(ps[otherp].getang(), getangle(ps[g_p].posx - ps[otherp].posx, ps[g_p].posy - ps[otherp].posy));
 				else
-					j = getincangle(ps[g_p].ang,getangle(g_sp->x-ps[g_p].posx,g_sp->y-ps[g_p].posy));
+					j = getincangle(ps[g_p].getang(), getangle(g_sp->x - ps[g_p].posx, g_sp->y - ps[g_p].posy));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -1146,522 +1128,413 @@ char parse(void)
 
 		}
 		break;
-	case 56:
+	case concmd_ifstrength:
 		insptr++;
 		parseifelse(g_sp->extra <= *insptr);
 		break;
-		case 58:
-			insptr += 2;
-			fi.guts(g_sp,*(insptr-1),*insptr,g_p);
-			insptr++;
-			break;
-		case 121:
-			insptr++;
+	case concmd_guts:
+		insptr += 2;
+		fi.guts(g_sp,*(insptr-1),*insptr,g_p);
+		insptr++;
+		break;
+	case concmd_slapplayer:
+		insptr++;
+		forceplayerangle(&ps[g_p]);
+		ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 7;
+		ps[g_p].posyv -= sintable[ps[g_p].getang() & 2047] << 7;
+		return 0;
+	case concmd_wackplayer:
+		insptr++;
+		if (!isRR())
 			forceplayerangle(&ps[g_p]);
-			ps[g_p].posxv -= sintable[(ps[g_p].ang + 512) & 2047] << 7;
-			ps[g_p].posyv -= sintable[ps[g_p].ang & 2047] << 7;
-			return 0;
-		case 61:
-			insptr++;
-			if (!isRR())
-				forceplayerangle(&ps[g_p]);
-			else
-			{
-				ps[g_p].posxv -= sintable[(ps[g_p].ang + 512) & 2047] << 10;
-				ps[g_p].posyv -= sintable[ps[g_p].ang & 2047] << 10;
-				ps[g_p].jumping_counter = 767;
-				ps[g_p].jumping_toggle = 1;
-			}
-			return 0;
-		case 62:
-			insptr++;
-			parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
-			break;
-		case 63:
-			parseifelse( sync[g_p].bits&(1<<29));
-			break;
-		case 64:
-			parseifelse(sector[g_sp->sectnum].ceilingstat&1);
-			break;
-		case 65:
-			parseifelse(ud.multimode > 1);
-			break;
-		case 66:
-			insptr++;
-			if( sector[g_sp->sectnum].lotag == 0 )
-			{
-				neartag(g_sp->x,g_sp->y,g_sp->z-(32<<8),g_sp->sectnum,g_sp->ang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,768L,1);
-				if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
-					if( (sector[neartagsector].lotag&0xff) == 23 || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
-						if( (sector[neartagsector].lotag&16384) == 0 )
-							if( (sector[neartagsector].lotag&32768) == 0 )
+		else
+		{
+			ps[g_p].posxv -= sintable[(ps[g_p].getang() + 512) & 2047] << 10;
+			ps[g_p].posyv -= sintable[ps[g_p].getang() & 2047] << 10;
+			ps[g_p].jumping_counter = 767;
+			ps[g_p].jumping_toggle = 1;
+		}
+		return 0;
+	case concmd_ifgapzl:
+		insptr++;
+		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
+		break;
+	case concmd_ifhitspace:
+		parseifelse(PlayerInput(g_p, SK_OPEN));
+		break;
+	case concmd_ifoutside:
+		parseifelse(sector[g_sp->sectnum].ceilingstat & 1);
+		break;
+	case concmd_ifmultiplayer:
+		parseifelse(ud.multimode > 1);
+		break;
+	case concmd_operate:
+		insptr++;
+		if( sector[g_sp->sectnum].lotag == 0 )
+		{
+			int16_t neartagsector, neartagwall, neartagsprite;
+			int32_t neartaghitdist;
+			neartag(g_sp->x,g_sp->y,g_sp->z-(32<<8),g_sp->sectnum,g_sp->ang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,768L,1);
+			if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
+				if( (sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
+					if( (sector[neartagsector].lotag&16384) == 0 )
+						if( (sector[neartagsector].lotag&32768) == 0 )
+					{
+						j = headspritesect[neartagsector];
+						while(j >= 0)
 						{
-							j = headspritesect[neartagsector];
-							while(j >= 0)
-							{
-								if(sprite[j].picnum == ACTIVATOR)
-									break;
-								j = nextspritesect[j];
-							}
-							if(j == -1)
-								operatesectors(neartagsector,g_i);
+							if(sprite[j].picnum == ACTIVATOR)
+								break;
+							j = nextspritesect[j];
 						}
-			}
-			break;
-		case 67:
-			parseifelse(fi.ceilingspace(g_sp->sectnum));
-			break;
+						if(j == -1)
+							operatesectors(neartagsector,g_i);
+					}
+		}
+		break;
+	case concmd_ifinspace:
+		parseifelse(fi.ceilingspace(g_sp->sectnum));
+		break;
 
-		case 74:
-			insptr++;
-			if(g_sp->picnum != APLAYER)
-				hittype[g_i].tempang = g_sp->pal;
-			g_sp->pal = *insptr;
-			insptr++;
-			break;
+	case concmd_spritepal:
+		insptr++;
+		if(g_sp->picnum != APLAYER)
+			hittype[g_i].tempang = g_sp->pal;
+		g_sp->pal = *insptr;
+		insptr++;
+		break;
 
-		case 77:
-			insptr++;
-			g_sp->picnum = *insptr;
-			insptr++;
-			break;
+	case concmd_cactor:
+		insptr++;
+		g_sp->picnum = *insptr;
+		insptr++;
+		break;
 
-		case 70:
-			parseifelse( dodge(g_sp) == 1);
-			break;
-		case 71:
-			if( badguy(g_sp) )
-				parseifelse( ud.respawn_monsters );
-			else if( inventory(g_sp) )
-				parseifelse( ud.respawn_inventory );
-			else
-				parseifelse( ud.respawn_items );
-			break;
-		case 72:
-			insptr++;
-//			  getglobalz(g_i);
-			parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
-			break;
-		case 73:
-			insptr++;
-//			  getglobalz(g_i);
-			parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
-			break;
-		case 14:
-
-			insptr++;
-			ps[g_p].pals_time = *insptr;
-			insptr++;
-			for(j=0;j<3;j++)
-			{
-				ps[g_p].pals[j] = *insptr;
-				insptr++;
-			}
-			break;
+	case concmd_ifbulletnear:
+		parseifelse( dodge(g_sp) == 1);
+		break;
+	case concmd_ifrespawn:
+		if( badguy(g_sp) )
+			parseifelse( ud.respawn_monsters );
+		else if( inventory(g_sp) )
+			parseifelse( ud.respawn_inventory );
+		else
+			parseifelse( ud.respawn_items );
+		break;
+	case concmd_iffloordistl:
+		insptr++;
+		parseifelse( (hittype[g_i].floorz - g_sp->z) <= ((*insptr)<<8));
+		break;
+	case concmd_ifceilingdistl:
+		insptr++;
+		parseifelse( ( g_sp->z - hittype[g_i].ceilingz ) <= ((*insptr)<<8));
+		break;
+	case concmd_palfrom:
+		insptr++;
+		SetPlayerPal(&ps[g_p], PalEntry(insptr[0], insptr[1], insptr[2], insptr[3]));
+		insptr += 4;
+		break;
 
 /*		  case 74:
-			insptr++;
-			getglobalz(g_i);
-			parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
-			break;
+		insptr++;
+		getglobalz(g_i);
+		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
+		break;
 */
-		case CON_ADDLOG:
-		{	int l;
-			int lFile;
+	case concmd_addlog:
+	{	int l;
+		int lFile;
+		insptr++;
+		lFile=*(insptr++);	// file
+		l=*(insptr++);	// line
+		// this was only printing file name and line number as debug output.
+		break;
+	}
+	case concmd_addlogvar:
+	{	int l;
+		int lFile;
+		insptr++;
+		lFile=*(insptr++);	// file
+		l=*(insptr++);	// l=Line number, *instpr=varID
+		if( (*insptr >= iGameVarCount)
+			|| *insptr < 0
+			)
+		{
+			// invalid varID
 			insptr++;
-			lFile=*(insptr++);	// file
-			l=*(insptr++);	// line
-			sprintf(g_szBuf,"ADDLOG: %s L=%ld",g_achSourceFiles[lFile],l);
-			AddLog(g_szBuf);
-			break;
+			break;	// out of switch
 		}
-		case CON_ADDLOGVAR:
-		{	int l;
-			char szBuf[256];
-			int lFile;
-			insptr++;
-			lFile=*(insptr++);	// file
-			l=*(insptr++);	// l=Line number, *instpr=varID
-			if( (*insptr >= iGameVarCount)
-				|| *insptr < 0
-			  )
-			{
-				// invalid varID
-				insptr++;
-				break;	// out of switch
-			}
-			sprintf(szBuf,"ADDLOGVAR: %s L=%ld %s ",g_achSourceFiles[lFile],l, aGameVars[*insptr].szLabel);
-			strcpy(g_szBuf,szBuf);
+		DPrintf(DMSG_NOTIFY, "ADDLOGVAR: ");
 			
-			if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_READONLY)
-			{
-				sprintf(szBuf," (read-only)");
-				strcat(g_szBuf,szBuf);
-			}
-			if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERPLAYER)
-			{
-				sprintf(szBuf," (Per Player. Player=%d)",g_p);
-			}
-			else if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERACTOR)
-			{
-				sprintf(szBuf," (Per Actor. Actor=%d)",g_i);
-			}
-			else
-			{
-				sprintf(szBuf," (Global)");
-			}
-			strcat(g_szBuf,szBuf);
-			sprintf(szBuf," =%ld",	GetGameVarID(*insptr, g_i, g_p));
-			strcat(g_szBuf,szBuf);
-			AddLog(g_szBuf);
-			insptr++;
-			break;
+		if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_READONLY)
+		{
+			DPrintf(DMSG_NOTIFY, " (read-only)");
 		}
-		case CON_SETVAR:
-		{	int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			SetGameVarID(i, *insptr, g_i, g_p );
-			insptr++;
-			break;
+		if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERPLAYER)
+		{
+			DPrintf(DMSG_NOTIFY, " (Per Player. Player=%d)",g_p);
 		}
-		case CON_SETVARVAR:
-		{	int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			SetGameVarID(i, GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		else if( aGameVars[*insptr].dwFlags & GAMEVAR_FLAG_PERACTOR)
+		{
+			DPrintf(DMSG_NOTIFY, " (Per Actor. Actor=%d)",g_i);
+		}
+		else
+		{
+			DPrintf(DMSG_NOTIFY, " (Global)");
+		}
+		DPrintf(DMSG_NOTIFY, " =%ld",	GetGameVarID(*insptr, g_i, g_p));
+		insptr++;
+		break;
+	}
+	case concmd_setvar:
+	{	int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		SetGameVarID(i, *insptr, g_i, g_p );
+		insptr++;
+		break;
+	}
+	case concmd_setvarvar:
+	{	int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		SetGameVarID(i, GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
 //			aGameVars[i].lValue = aGameVars[*insptr].lValue;
-			insptr++;
-			break;
-		}
-		case CON_ADDVAR:
-		{	int i;		
-			insptr++;
-			i=*(insptr++);	// ID of def
+		insptr++;
+		break;
+	}
+	case concmd_addvar:
+	{	int i;		
+		insptr++;
+		i=*(insptr++);	// ID of def
 //sprintf(g_szBuf,"AddVar %d to Var ID=%d, g_i=%d, g_p=%d\n",*insptr, i, g_i, g_p);
 //AddLog(g_szBuf);
-			SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr, g_i, g_p );
-			insptr++;
-			break;
-		}
+		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + *insptr, g_i, g_p );
+		insptr++;
+		break;
+	}
 		
-		case CON_ADDVARVAR:
-		{	int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
-			insptr++;
-			break;
-		}
-		case CON_IFVARVARE:
+	case concmd_addvarvar:
+	{	int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
+		insptr++;
+		break;
+	}
+	case concmd_ifvarvare:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p) )
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) == GetGameVarID(*(insptr), g_i, g_p) )
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case CON_IFVARVARG:
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifvarvarg:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p) )
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) > GetGameVarID(*(insptr), g_i, g_p) )
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case CON_IFVARVARL:
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifvarvarl:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p) )
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) < GetGameVarID(*(insptr), g_i, g_p) )
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case CON_IFVARE:
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifvare:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) == *insptr)
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) == *insptr)
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case CON_IFVARG:
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifvarg:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) > *insptr)
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) > *insptr)
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case CON_IFVARL:
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifvarl:
+	{
+		int i;
+		insptr++;
+		i=*(insptr++);	// ID of def
+		j=0;
+		if(GetGameVarID(i, g_i, g_p) < *insptr)
 		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) < *insptr)
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
+			j=1;
 		}
-		case 78:
-			insptr++;
-			parseifelse( sprite[ps[g_p].i].extra < *insptr);
-			break;
+		parseifelse( j );
+		break;
+	}
+	case concmd_ifphealthl:
+		insptr++;
+		parseifelse( sprite[ps[g_p].i].extra < *insptr);
+		break;
 
-		case 75:
-			{
-				insptr++;
-				j = 0;
-				switch(*(insptr++))
-				{
-					case 0:if( ps[g_p].steroids_amount != *insptr)
-						   j = 1;
-						break;
-					case 1:if(ps[g_p].shield_amount != max_player_health )
-							j = 1;
-						break;
-					case 2:if(ps[g_p].scuba_amount != *insptr) j = 1;break;
-					case 3:if(ps[g_p].holoduke_amount != *insptr) j = 1;break;
-					case 4:if(ps[g_p].jetpack_amount != *insptr) j = 1;break;
-					case 6:
-						switch(g_sp->pal)
-						{
-							case  0: if(ps[g_p].got_access&1) j = 1;break;
-							case 21: if(ps[g_p].got_access&2) j = 1;break;
-							case 23: if(ps[g_p].got_access&4) j = 1;break;
-						}
-						break;
-					case 7:if(ps[g_p].heat_amount != *insptr) j = 1;break;
-					case 9:
-						if(ps[g_p].firstaid_amount != *insptr) j = 1;break;
-					case 10:
-						if(ps[g_p].boot_amount != *insptr) j = 1;break;
-				}
-
-				parseifelse(j);
-				break;
-			}
-		case 38:
+	case concmd_ifpinventory:
+	{
 			insptr++;
-			if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= 40 )
-				if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum) )
+			j = 0;
+			switch(*(insptr++))
 			{
-				ps[g_p].knee_incs = 1;
-				if(ps[g_p].weapon_pos == 0)
-					ps[g_p].weapon_pos = -1;
-				ps[g_p].actorsqu = g_i;
-			}
-			break;
-		case 90:
-			{
-				short s1;
-
-				s1 = g_sp->sectnum;
-
-				j = 0;
-
-					updatesector(g_sp->x+108,g_sp->y+108,&s1);
-					if( s1 == g_sp->sectnum )
+				case 0:if( ps[g_p].steroids_amount != *insptr)
+						j = 1;
+					break;
+				case 1:if(ps[g_p].shield_amount != max_player_health )
+						j = 1;
+					break;
+				case 2:if(ps[g_p].scuba_amount != *insptr) j = 1;break;
+				case 3:if(ps[g_p].holoduke_amount != *insptr) j = 1;break;
+				case 4:if(ps[g_p].jetpack_amount != *insptr) j = 1;break;
+				case 6:
+					if (isRR())
 					{
-						updatesector(g_sp->x-108,g_sp->y-108,&s1);
-						if( s1 == g_sp->sectnum )
+						switch (g_sp->lotag)
 						{
-							updatesector(g_sp->x+108,g_sp->y-108,&s1);
-							if( s1 == g_sp->sectnum )
-							{
-								updatesector(g_sp->x-108,g_sp->y+108,&s1);
-								if( s1 == g_sp->sectnum )
-									j = 1;
-							}
+						case 100: if (ps[g_p].keys[1]) j = 1; break;
+						case 101: if (ps[g_p].keys[2]) j = 1; break;
+						case 102: if (ps[g_p].keys[3]) j = 1; break;
+						case 103: if (ps[g_p].keys[4]) j = 1; break;
 						}
 					}
-					parseifelse( j );
+					else
+					{
+						switch (g_sp->pal)
+						{
+						case  0: if (ps[g_p].got_access & 1) j = 1; break;
+						case 21: if (ps[g_p].got_access & 2) j = 1; break;
+						case 23: if (ps[g_p].got_access & 4) j = 1; break;
+						}
+					}
+					break;
+				case 7:if(ps[g_p].heat_amount != *insptr) j = 1;break;
+				case 9:
+					if(ps[g_p].firstaid_amount != *insptr) j = 1;break;
+				case 10:
+					if(ps[g_p].boot_amount != *insptr) j = 1;break;
 			}
 
+			parseifelse(j);
 			break;
-		case 80:
-			insptr++;
-			FTA(*insptr,&ps[g_p]);
-			insptr++;
-			break;
-		case 81:
-			parseifelse( fi.floorspace(g_sp->sectnum));
-			break;
-		case 82:
-			parseifelse( (hittype[g_i].movflag&49152) > 16384 );
-			break;
-		case 83:
-			insptr++;
-			switch(g_sp->picnum)
+		}
+	case concmd_pstomp:
+		insptr++;
+		if( ps[g_p].knee_incs == 0 && sprite[ps[g_p].i].xrepeat >= (isRR()? 9: 40) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+(16<<8),sprite[ps[g_p].i].sectnum) )
+		{
+			ps[g_p].knee_incs = 1;
+			if(ps[g_p].weapon_pos == 0)
+				ps[g_p].weapon_pos = -1;
+			ps[g_p].actorsqu = g_i;
+		}
+		break;
+	case concmd_ifawayfromwall:
+	{
+		short s1;
+
+		s1 = g_sp->sectnum;
+
+		j = 0;
+
+		updatesector(g_sp->x + 108, g_sp->y + 108, &s1);
+		if (s1 == g_sp->sectnum)
+		{
+			updatesector(g_sp->x - 108, g_sp->y - 108, &s1);
+			if (s1 == g_sp->sectnum)
 			{
-				case FEM1:
-				case FEM2:
-				case FEM3:
-				case FEM4:
-				case FEM5:
-				case FEM6:
-				case FEM7:
-				case FEM8:
-				case FEM9:
-				case FEM10:
-				case PODFEM1:
-				case NAKED1:
-				case STATUE:
-					if(g_sp->yvel) fi.operaterespawns(g_sp->yvel);
-					break;
-				default:
-					if(g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
-					break;
+				updatesector(g_sp->x + 108, g_sp->y - 108, &s1);
+				if (s1 == g_sp->sectnum)
+				{
+					updatesector(g_sp->x - 108, g_sp->y + 108, &s1);
+					if (s1 == g_sp->sectnum)
+						j = 1;
+				}
 			}
-			break;
-		case 85:
-			insptr++;
-			parseifelse( g_sp->pal == *insptr);
-			break;
+		}
+		parseifelse(j);
+		break;
+	}
 
-		case 111:
-			insptr++;
-			j = abs(getincangle(ps[g_p].ang,g_sp->ang));
-			parseifelse( j <= *insptr);
-			break;
+	case concmd_quote:
+		insptr++;
+		FTA(*insptr,&ps[g_p]);
+		insptr++;
+		break;
+	case concmd_ifinouterspace:
+		parseifelse( fi.floorspace(g_sp->sectnum));
+		break;
+	case concmd_ifnotmoving:
+		parseifelse( (hittype[g_i].movflag&49152) > 16384 );
+		break;
+	case concmd_respawnhitag:
+		insptr++;
+		fi.respawnhitag(g_sp);
+		break;
+	case concmd_ifspritepal:
+		insptr++;
+		parseifelse( g_sp->pal == *insptr);
+		break;
 
-		case 109:
+	case concmd_ifangdiffl:
+		insptr++;
+		j = abs(getincangle(ps[g_p].getang(),g_sp->ang));
+		parseifelse( j <= *insptr);
+		break;
 
-			for(j=1;j<NUM_SOUNDS;j++)
-				if( SoundOwner[j][0].i == g_i )
-					break;
+	case concmd_ifnosounds:
+		parseifelse(!A_CheckAnySoundPlaying(vm.spriteNum) );
+		break;
 
-			parseifelse( j == NUM_SOUNDS );
-			break;
-#endif
-		default:
-#ifdef WW2
-sprintf(g_szBuf,"Unrecognized PCode of %ld  in parse.  Killing current sprite.",*insptr);
-AddLog(g_szBuf);
-sprintf(g_szBuf,"Offset=%0lX",scriptptr-script);
-AddLog(g_szBuf);
-#endif
-			killit_flag = 1;
-			break;
+	case concmd_ifplaybackon: //Twentieth Anniversary World Tour
+		parseifelse(false);
+		break;
+
+	default:
+		Printf(TEXTCOLOR_RED "Unrecognized PCode of %ld  in parse.  Killing current sprite.\n",*insptr);
+		Printf(TEXTCOLOR_RED "Offset=%0lX\n",scriptptr-apScript);
+		killit_flag = 1;
+		break;
 	}
 	return 0;
 }
 
-void LoadActor(short i,short p,int x)
-{
-#if 0
-	char done;
-
-	g_i = i;	// Sprite ID
-	g_p = p;	// Player ID
-	g_x = x;	// ??
-	g_sp = &sprite[g_i];	// Pointer to sprite structure
-	g_t = &hittype[g_i].temp_data[0];	// Sprite's 'extra' data
-
-	if( actorLoadEventScrptr[g_sp->picnum] == 0 ) return;
-
-	insptr = 4 + (actorLoadEventScrptr[g_sp->picnum]);
-
-	killit_flag = 0;
-
-	if(g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
-	{
-//		if(badguy(g_sp))
-//			ps[g_p].actors_killed++;
-		deletesprite(g_i);
-		return;
-	}
-	do
-		done = parse();
-	while( done == 0 );
-
-	if(killit_flag == 1)
-	{
-		// if player was set to squish, first stop that...
-		if (g_p >= 0 )
-		{
-			if(ps[g_p].actorsqu == g_i)
-				ps[g_p].actorsqu = -1;
-		}
-		deletesprite(g_i);
-	}
-	else
-	{
-		move();
-
-		if( g_sp->statnum == 1)
-		{
-			if( badguy(g_sp) )
-			{
-				if( g_sp->xrepeat > 60 ) return;
-				if( ud.respawn_monsters == 1 && g_sp->extra <= 0 ) return;
-			}
-			else if( ud.respawn_items == 1 && (g_sp->cstat&32768) ) return;
-
-			if(hittype[g_i].timetosleep > 1)
-				hittype[g_i].timetosleep--;
-			else if(hittype[g_i].timetosleep == 1)
-				 changespritestat(g_i,2);
-		}
-
-		else if(g_sp->statnum == 6)
-		{
-			switch(g_sp->picnum)
-			{
-				case RUBBERCAN:
-				case EXPLODINGBARREL:
-				case WOODENHORSE:
-				case HORSEONSIDE:
-				case CANWITHSOMETHING:
-				case FIREBARREL:
-				case NUKEBARREL:
-				case NUKEBARRELDENTED:
-				case NUKEBARRELLEAKED:
-				case TRIPBOMB:
-				case EGG:
-					if(hittype[g_i].timetosleep > 1)
-						hittype[g_i].timetosleep--;
-					else if(hittype[g_i].timetosleep == 1)
-						changespritestat(g_i,2);
-					break;
-			}
-		}
-	}
-#endif
-}
-
 void execute(short i,short p,int x)
 {
-#if 0
-	char done;
+	int done;
 
 	g_i = i;	// Sprite ID
 	g_p = p;	// Player ID
@@ -1669,9 +1542,13 @@ void execute(short i,short p,int x)
 	g_sp = &sprite[g_i];	// Pointer to sprite structure
 	g_t = &hittype[g_i].temp_data[0];	// Sprite's 'extra' data
 
+#if 1
+	if (!g_tile[vm.pSprite->picnum].execPtr) return;
+	insptr =  4 + (g_tile[vm.pSprite->picnum].execPtr);
+#else
 	if( actorscrptr[g_sp->picnum] == 0 ) return;
-
 	insptr = 4 + (actorscrptr[g_sp->picnum]);
+#endif
 
 	killit_flag = 0;
 
@@ -1683,16 +1560,22 @@ void execute(short i,short p,int x)
 		return;
 	}
 
-	if(g_t[4])
+	if (g_t[4])
 	{
+		// This code was utterly cryptic in the original source.
+		auto ptr = apScript + g_t[4];
+		int numframes = ptr[1];
+		int increment = ptr[3];
+		int delay =  ptr[4];
+
 		g_sp->lotag += TICSPERFRAME;
-		if(g_sp->lotag > *(int *)(g_t[4]+16) )
+		if (g_sp->lotag > delay)
 		{
 			g_t[2]++;
 			g_sp->lotag = 0;
-			g_t[3] +=  *(int *)( g_t[4]+12 );
+			g_t[3] += increment;
 		}
-		if( abs(g_t[3]) >= abs( *(int *)(g_t[4]+4) * *(int *)(g_t[4]+12) ) )
+		if (abs(g_t[3]) >= abs(numframes * delay))
 			g_t[3] = 0;
 	}
 
@@ -1709,45 +1592,26 @@ void execute(short i,short p,int x)
 	}
 	else
 	{
-		move();
+		fi.move(g_i, g_p, g_x);
 
-		if( g_sp->statnum == 1)
+		if (g_sp->statnum == 1)
 		{
-			if( badguy(g_sp) )
+			if (badguy(g_sp))
 			{
-				if( g_sp->xrepeat > 60 ) return;
-				if( ud.respawn_monsters == 1 && g_sp->extra <= 0 ) return;
+				if (g_sp->xrepeat > 60) return;
+				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
 			}
-			else if( ud.respawn_items == 1 && (g_sp->cstat&32768) ) return;
+			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) return;
 
-			if(hittype[g_i].timetosleep > 1)
+			if (hittype[g_i].timetosleep > 1)
 				hittype[g_i].timetosleep--;
-			else if(hittype[g_i].timetosleep == 1)
-				 changespritestat(g_i,2);
+			else if (hittype[g_i].timetosleep == 1)
+				changespritestat(g_i, 2);
 		}
 
-		else if(g_sp->statnum == 6)
-			switch(g_sp->picnum)
-			{
-				case RUBBERCAN:
-				case EXPLODINGBARREL:
-				case WOODENHORSE:
-				case HORSEONSIDE:
-				case CANWITHSOMETHING:
-				case FIREBARREL:
-				case NUKEBARREL:
-				case NUKEBARRELDENTED:
-				case NUKEBARRELLEAKED:
-				case TRIPBOMB:
-				case EGG:
-					if(hittype[g_i].timetosleep > 1)
-						hittype[g_i].timetosleep--;
-					else if(hittype[g_i].timetosleep == 1)
-						changespritestat(g_i,2);
-					break;
-			}
+		else if (g_sp->statnum == STAT_STANDABLE)
+			fi.checktimetosleep(g_i);
 	}
-#endif
 }
 
 
