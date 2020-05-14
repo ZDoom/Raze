@@ -45,104 +45,7 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
-bool ceilingspace_d(int sectnum);
-bool ceilingspace_r(int sectnum);
-bool floorspace_d(int sectnum);
-bool floorspace_r(int sectnum);
-void addweapon_d(struct player_struct *p, int weapon);
-void addweapon_r(struct player_struct *p, int weapon);
-void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-int movesprite_r(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-void lotsofmoney_d(spritetype *s, short n);
-void lotsofmail_d(spritetype *s, short n);
-void lotsofpaper_d(spritetype *s, short n);
-void lotsoffeathers_r(spritetype *s, short n);
-void guts_d(spritetype* s, short gtype, short n, short p);
-void guts_r(spritetype* s, short gtype, short n, short p);
-void gutsdir_d(spritetype* s, short gtype, short n, short p);
-void gutsdir_r(spritetype* s, short gtype, short n, short p);
-int ifhitsectors_d(int sectnum);
-int ifhitsectors_r(int sectnum);
-int ifhitbyweapon_r(int sn);
-int ifhitbyweapon_d(int sn);
 int adjustfall(spritetype* s, int c);
-void fall_d(int g_i, int g_p);
-void fall_r(int g_i, int g_p);
-
-bool ceilingspace(int sectnum)
-{
-	return isRR()? ceilingspace_r(sectnum) : ceilingspace_d(sectnum);
-}
-
-bool floorspace(int sectnum)
-{
-	return isRR()? floorspace_r(sectnum) : floorspace_d(sectnum);
-}
-
-void addweapon(struct player_struct *p, int weapon)
-{
-	if (isRR()) addweapon_r(p, weapon);
-	else addweapon_d(p, weapon);
-}
-
-void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
-{
-	if (isRR()) hitradius_r(i, r, hp1, hp2, hp3, hp4);
-	else hitradius_d(i, r, hp1, hp2, hp3, hp4);
-}
-
-int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype)
-{
-	if (isRR()) return movesprite_r(spritenum, xchange, ychange, zchange, cliptype);
-	else return movesprite_d(spritenum, xchange, ychange, zchange, cliptype);
-}
-
-void lotsofmoney(spritetype *s, short n)
-{
-	if (isRR()) lotsoffeathers_r(s, n);
-	else lotsofmoney_d(s, n);
-}
-
-void lotsofmail(spritetype *s, short n)
-{
-	if (isRR()) lotsoffeathers_r(s, n);
-	else lotsofmail_d(s, n);
-}
-
-void lotsofpaper(spritetype *s, short n)
-{
-	if (isRR()) lotsoffeathers_r(s, n);
-	else lotsofpaper_d(s, n);
-}
-
-void guts(spritetype* s, short gtype, short n, short p)
-{
-	if (isRR()) guts_r(s, gtype, n, p);
-	else guts_d(s, gtype, n, p);
-}
-
-void gutsdir(spritetype* s, short gtype, short n, short p)
-{
-	if (isRR()) gutsdir_r(s, gtype, n, p);
-	else gutsdir_d(s, gtype, n, p);
-}
-
-int ifhitsectors(int sectnum)
-{
-	return isRR()? ifhitsectors_r(sectnum) : ifhitsectors_d(sectnum);
-}
-
-int ifhitbyweapon(int sectnum)
-{
-	return isRR()? ifhitbyweapon_r(sectnum) : ifhitbyweapon_d(sectnum);
-}
-
-void fall(int g_i, int g_p)
-{
-	if (isRR()) fall_r(g_i, g_p); else fall_d(g_i, g_p);
-}
 
 //---------------------------------------------------------------------------
 //
@@ -203,7 +106,7 @@ void checkavailweapon(struct player_struct* p)
 		if (weap == p->curr_weapon) return;
 		else if (p->gotweapon[weap] && p->ammo_amount[weap] > 0)
 		{
-			addweapon(p, weap);
+			fi.addweapon(p, weap);
 			return;
 		}
 	}
@@ -295,7 +198,7 @@ int ssp(short i, unsigned int cliptype) //The set sprite function
 
 	s = &sprite[i];
 
-	movetype = movesprite(i,
+	movetype = fi.movesprite(i,
 		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
 		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel,
 		cliptype);
@@ -542,7 +445,7 @@ void moveplayers(void) //Players
 					hittype[i].owner = i;
 
 					if (ud.god == 0)
-						if (ceilingspace(s->sectnum) || floorspace(s->sectnum))
+						if (fi.ceilingspace(s->sectnum) || fi.floorspace(s->sectnum))
 							quickkill(p);
 				}
 				else
@@ -880,7 +783,7 @@ void movecrane(int i, int crane)
 	{
 		auto p = findplayer(s, &x);
 
-		int j = ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(i);
 		if (j >= 0)
 		{
 			if (s->owner == -2)
@@ -1044,7 +947,7 @@ void detonate(int i, int explosion)
 	{
 		int x = s->extra;
 		spawn(i, explosion);
-		hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		spritesound(PIPEBOMB_EXPLODE, i);
 	}
 
@@ -1285,7 +1188,7 @@ void moveooz(int i, int seenine, int seeninedead, int ooz, int explosion)
 	if (s->shade != -32 && s->shade != -33)
 	{
 		if (s->xrepeat)
-			j = (ifhitbyweapon(i) >= 0);
+			j = (fi.ifhitbyweapon(i) >= 0);
 		else
 			j = 0;
 
@@ -1361,7 +1264,7 @@ void movecanwithsomething(int i)
 {
 	auto s = &sprite[i];
 	makeitfall(i);
-	int j = ifhitbyweapon(i);
+	int j = fi.ifhitbyweapon(i);
 	if (j >= 0)
 	{
 		spritesound(VENT_BUST, i);
@@ -1565,7 +1468,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 			else if ((j & 49152) == 49152)
 			{
 				j &= (MAXSPRITES - 1);
-				checkhitsprite(i, j);
+				fi.checkhitsprite(i, j);
 			}
 		}
 		s->xvel--;
@@ -1712,7 +1615,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 		}
 		else if (actor_tog == 2) s->cstat = 257;
 	}
-	j = ifhitbyweapon(i); if (j >= 0)
+	j = fi.ifhitbyweapon(i); if (j >= 0)
 	{
 		if (s->extra < 0 && t[0] != -1)
 		{
@@ -1981,7 +1884,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 		{
 		case 3:
 			//Turn on all of those flashing sectoreffector.
-			hitradius(i, 4096,
+			fi.hitradius(i, 4096,
 				impact_damage << 2,
 				impact_damage << 2,
 				impact_damage << 2,
@@ -2024,7 +1927,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 	}
 	else
 	{
-		int j = ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(i);
 		if (j >= 0)
 		{
 			for (x = 0; x < 32; x++)
@@ -2050,7 +1953,7 @@ void camera(int i)
 		t[1] += 8;
 		if (camerashitable)
 		{
-			int j = ifhitbyweapon(i);
+			int j = fi.ifhitbyweapon(i);
 			if (j >= 0)
 			{
 				t[0] = 1; // static
@@ -3002,7 +2905,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					updatesector(sprite[j].x, sprite[j].y, &k);
 					if (sprite[j].extra >= 0 && k == s->sectnum)
 					{
-						gutsdir(&sprite[j], JIBS6, 72, myconnectindex);
+						fi.gutsdir(&sprite[j], JIBS6, 72, myconnectindex);
 						spritesound(SQUISHED, i);
 						deletesprite(j);
 					}
@@ -3063,7 +2966,7 @@ void handle_se30(int i, int JIBS6)
 				s->owner = -1;
 				s->ang += 1024;
 				t[4] = 0;
-				operateforcefields(i, s->hitag);
+				fi.operateforcefields(i, s->hitag);
 
 				int j = headspritesect[s->sectnum];
 				while (j >= 0)
@@ -3188,7 +3091,7 @@ void handle_se30(int i, int JIBS6)
 						updatesector(sprite[j].x, sprite[j].y, &k);
 						if (sprite[j].extra >= 0 && k == s->sectnum)
 						{
-							gutsdir_d(&sprite[j], JIBS6, 24, myconnectindex);
+							fi.gutsdir(&sprite[j], JIBS6, 24, myconnectindex);
 							spritesound(SQUISHED, j);
 							deletesprite(j);
 						}
@@ -3478,7 +3381,7 @@ void handle_se05(int i, int FIRELASER)
 			getincangle(t[2] + 512, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
 		sc->ceilingshade = 0;
 	}
-	j = ifhitbyweapon(i);
+	j = fi.ifhitbyweapon(i);
 	if (j >= 0)
 	{
 		t[3]++;
@@ -3620,7 +3523,7 @@ void handle_se10(int i, const int* specialtags)
 						return;
 					}
 				}
-				activatebysector(s->sectnum, i);
+				fi.activatebysector(s->sectnum, i);
 				t[0] = 0;
 			}
 			else t[0]++;
@@ -4241,7 +4144,7 @@ void handle_se19(int i, int BIGFORCE)
 	}
 	else //Not hit yet
 	{
-		j = ifhitsectors(s->sectnum);
+		j = fi.ifhitsectors(s->sectnum);
 		if (j >= 0)
 		{
 			FTA(8, &ps[myconnectindex]);
@@ -4825,11 +4728,11 @@ void makeitfall(int i)
 	spritetype *s = &sprite[i];
 	int hz,lz,c;
 
-	if( floorspace(s->sectnum) )
+	if( fi.floorspace(s->sectnum) )
 		c = 0;
 	else
 	{
-		if( ceilingspace(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
+		if( fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
 			c = gc/6;
 		else c = gc;
 	}
@@ -5075,11 +4978,11 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 		long c;
 
 		int sphit = fallspecial? fallspecial(g_i, g_p) : 0;
-		if (floorspace(g_sp->sectnum))
+		if (fi.floorspace(g_sp->sectnum))
 			c = 0;
 		else
 		{
-			if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
+			if (fi.ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
 				c = gc / 6;
 			else c = gc;
 		}
@@ -5113,12 +5016,12 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 							goto SKIPJIBS;
 						if (sphit)
 						{
-							guts(g_sp, JIBS6, 5, g_p);
+							fi.guts(g_sp, JIBS6, 5, g_p);
 							spritesound(squished, g_i);
 						}
 						else
 						{
-							guts(g_sp, JIBS6, 15, g_p);
+							fi.guts(g_sp, JIBS6, 15, g_p);
 							spritesound(squished, g_i);
 							spawn(g_i, BLOODPOOL);
 						}

@@ -471,9 +471,9 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         }
     }
 
-    if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
+    if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(fi.ceilingspace(pSprite->sectnum)))
         spriteGravity = g_spriteGravity/6;
-    else if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(pSprite->sectnum)))
+    else if (EDUKE32_PREDICT_FALSE(fi.floorspace(pSprite->sectnum)))
         spriteGravity = 0;
 
     if (actor[spriteNum].cgg <= 0 || (sector[pSprite->sectnum].floorstat&2))
@@ -485,7 +485,7 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 
     if (pSprite->z < actor[spriteNum].floorz-ZOFFSET)
     {
-        // Free fall.
+        // Free fi.fall.
         pSprite->zvel += spriteGravity;
         pSprite->z += pSprite->zvel;
 
@@ -689,7 +689,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     int16_t temphit;
 
-                    if ((tw = A_CheckHitSprite(vm.spriteNum, &temphit)) == (1 << 30))
+                    if ((tw = hitasprite(vm.spriteNum, &temphit)) == (1 << 30))
                     {
                         VM_CONDITIONAL(1);
                         continue;
@@ -714,7 +714,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
     do                                                                                                                                               \
     {                                                                                                                                                \
         vm.pSprite->ang += x;                                                                                                                        \
-        tw = A_CheckHitSprite(vm.spriteNum, &temphit);                                                                                               \
+        tw = hitasprite(vm.spriteNum, &temphit);                                                                                               \
         vm.pSprite->ang -= x;                                                                                                                        \
     } while (0)
 
@@ -1290,7 +1290,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_lotsofglass:
                 insptr++;
-                A_SpawnGlass(vm.spriteNum, *insptr++);
+                spriteglass(vm.spriteNum, *insptr++);
                 continue;
 
             case concmd_killit:
@@ -1480,9 +1480,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 insptr++;
 
                 {
-                    pPlayer->eat_amt += *insptr;
-                    if (pPlayer->eat_amt > 100)
-                        pPlayer->eat_amt = 100;
+                    pPlayer->eat += *insptr;
+                    if (pPlayer->eat > 100)
+                        pPlayer->eat = 100;
 
                     pPlayer->drink_amt -= *insptr;
                     if (pPlayer->drink_amt < 0)
@@ -1645,7 +1645,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                                                  debrisTile + tileOffset, vm.pSprite->shade, 32 + (r5 & 15), 32 + (r4 & 15),
                                                                  r3 & 2047, (r2 & 127) + 32, -(r1 & 2047), vm.spriteNum, 5);
 
-                            sprite[spriteNum].yvel = ((RR || vm.pSprite->picnum == TILE_BLIMP) && debrisTile == TILE_SCRAP1) ? g_blimpSpawnItems[cnt % 14] : -1;
+                            sprite[spriteNum].yvel = ((RR || vm.pSprite->picnum == TILE_BLIMP) && debrisTile == TILE_SCRAP1) ? weaponsandammosprites[cnt % 14] : -1;
                             sprite[spriteNum].pal  = vm.pSprite->pal;
                         }
                     insptr++;
@@ -1885,7 +1885,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 }
                 continue;
 
-            case concmd_ifinspace: VM_CONDITIONAL(G_CheckForSpaceCeiling(vm.pSprite->sectnum)); continue;
+            case concmd_ifinspace: VM_CONDITIONAL(fi.ceilingspace(vm.pSprite->sectnum)); continue;
 
             case concmd_spritepal:
                 insptr++;
@@ -2045,7 +2045,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 P_DoQuote(*(insptr++) | MAXQUOTES, pPlayer);
                 continue;
 
-            case concmd_ifinouterspace: VM_CONDITIONAL(G_CheckForSpaceFloor(vm.pSprite->sectnum)); continue;
+            case concmd_ifinouterspace: VM_CONDITIONAL(fi.floorspace(vm.pSprite->sectnum)); continue;
 
             case concmd_ifnotmoving: VM_CONDITIONAL((vm.pActor->movflag & 49152) > 16384); continue;
 
@@ -2069,11 +2069,11 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     case NAKED1__STATIC:
                     case STATUE__STATIC:
                         if (vm.pSprite->yvel)
-                            operaterespawns(vm.pSprite->yvel);
+                            fi.operaterespawns(vm.pSprite->yvel);
                         break;
                     default:
                         if (vm.pSprite->hitag >= 0)
-                            operaterespawns(vm.pSprite->hitag);
+                            fi.operaterespawns(vm.pSprite->hitag);
                         break;
                 }
                 continue;

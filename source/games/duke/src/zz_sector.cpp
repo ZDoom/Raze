@@ -753,11 +753,11 @@ rrtripbomb_case:
                                 pPlayer->drink_amt = 0;
                         }
 
-                        if (pPlayer->eat_amt < 100)
+                        if (pPlayer->eat < 100)
                         {
-                            pPlayer->eat_amt += 5;
-                            if (pPlayer->eat_amt > 100)
-                                pPlayer->eat_amt = 100;
+                            pPlayer->eat += 5;
+                            if (pPlayer->eat > 100)
+                                pPlayer->eat = 100;
                         }
 
                         sprite[pPlayer->i].extra += 5;
@@ -806,7 +806,7 @@ rrtripbomb_case:
     }
 }
 
-int A_CheckHitSprite(int spriteNum, int16_t *hitSprite)
+int hitasprite(int spriteNum, int16_t *hitSprite)
 {
     hitdata_t hitData;
     int32_t   zOffset = 0;

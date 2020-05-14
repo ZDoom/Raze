@@ -482,7 +482,7 @@ public:
         // eat
         //
         DrawGraphic(tileGetTexture(TILE_JETPACK), 122, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 20000. / 65536., 20000. / 65536.);
-        format.Format("%d", p->eat_amt);
+        format.Format("%d", p->eat);
         SBar_DrawString(this, &numberFont, format, 175, -BigFont->GetHeight() * scale - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
         //
@@ -890,15 +890,15 @@ public:
             DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT4), 265, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
 
-        if (p->eat_amt >= 0 && p->eat_amt <= 30)
+        if (p->eat >= 0 && p->eat <= 30)
         {
             DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT1), 276, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
-        else if (p->eat_amt >= 31 && p->eat_amt <= 65)
+        else if (p->eat >= 31 && p->eat <= 65)
         {
             DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT2), 285, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
-        else if (p->eat_amt >= 66 && p->eat_amt <= 87)
+        else if (p->eat >= 66 && p->eat <= 87)
         {
             DrawGraphic(tileGetTexture(TILE_GUTMETER_LIGHT3), 294, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }

@@ -48,44 +48,26 @@ typedef struct {
 
 
 void breakwall(short newpn, short spr, short dawallnum);
-void activatebysector(int s, int sn);
 int S_FindMusicSFX(int sectNum, int *sndptr);
 void callsound2(int soundNum, int playerNum);
 int callsound(int sectNum,int spriteNum);
-int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
-inline int hitasprite(int s, int16_t* h)
-{
-    return A_CheckHitSprite(s, h);
-}
-void checkhitsprite(int s, int d);
-void checkhitwall(int spr, int wal, int x, int y, int z, int w);
-inline void A_DamageWall(int spr, int dawallnum, const vec3_t* pos, int weaponNum)
-{
-    checkhitwall(spr, dawallnum, pos->x, pos->y, pos->z, weaponNum);
-}
+int hitasprite(int spriteNum,int16_t *hitSprite);
 
 int findplayer(const spritetype* pSprite, int32_t* dist);
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
-bool isadoorwall(int tileNum);
 bool isablockdoor(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
-void animatewalls(void);
 bool activatewarpelevators(int s, int w);
 int check_activator_motion(int lotag);
 void operateactivators(int l, int w);
-void operateforcefields(int s,int low);
 void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);
 void operatemasterswitches(int lotag);
-void operaterespawns(int lotag);
 void operatesectors(int s, int i);
 void P_HandleSharedKeys(int playerNum);
 int getanimationgoal(const int32_t* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
-bool checkhitswitch(int playerNum, int wallOrSprite, int nSwitchType);
-void checksectors(int playerNum);
-bool checkhitceiling(int sec);
 int setanimation(short animsect, int* animptr, int thegoal, int thevel);
 void dofurniture(int wallNum, int sectNum, int playerNum);
 void dotorch();

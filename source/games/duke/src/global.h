@@ -280,7 +280,7 @@ extern int32_t g_tripbombRadius;
 extern int32_t g_volumeCnt;
 #define gc g_spriteGravity
 
-extern int16_t g_blimpSpawnItems[15];
+extern int16_t weaponsandammosprites[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
 
 extern const char *s_buildDate;

@@ -245,7 +245,7 @@ void G_PostCreateGameState(void);
 
 void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
 #define ceilingglass A_SpawnCeilingGlass
-void A_SpawnGlass(int spriteNum,int glassCnt);
+void spriteglass(int spriteNum,int glassCnt);
 void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
 #define lotsofcolourglass A_SpawnRandomGlass
 void A_SpawnWallGlass(int spriteNum,int wallnum,int glassCnt);
@@ -307,6 +307,11 @@ inline int32_t G_GetTeamPalette(int32_t team)
 }
 
 #define A_CheckSpriteFlags(spriteNum, iType) (((g_tile[sprite[spriteNum].picnum].flags^actor[spriteNum].flags) & iType) != 0)
+
+inline int actorfella(int spnum)
+{
+    return A_CheckSpriteFlags(spnum, SFLAG_KILLCOUNT);
+}
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (g_tile[iPicnum].flags & iType) != 0)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
@@ -439,6 +444,38 @@ static inline int G_GetMusicIdx(const char *str)
 
 extern void G_PrintCurrentMusic(void);
 
+
+struct Dispatcher
+{
+	// sectors_?.cpp
+	bool (*isadoorwall)(int dapic);
+	void (*animatewalls)();
+	void (*operaterespawns)(int low);
+	void (*operateforcefields)(int s, int low);
+	bool (*checkhitswitch)(int snum, int w, int switchtype);
+	void (*activatebysector)(int sect, int j);
+	void (*checkhitwall)(int spr, int dawallnum, int x, int y, int z, int atwith);
+    void (*checkplayerhurt)(struct player_struct* p, int j);
+	bool (*checkhitceiling)(int sn);
+	void (*checkhitsprite)(int i, int sn);
+	void (*checksectors)(int low);
+
+	bool (*ceilingspace)(int sectnum);
+	bool (*floorspace)(int sectnum);
+	void (*addweapon)(struct player_struct *p, int weapon);
+	void (*hitradius)(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+	int  (*movesprite)(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+	void (*lotsofmoney)(spritetype *s, short n);
+	void (*lotsofmail)(spritetype *s, short n);
+	void (*lotsofpaper)(spritetype *s, short n);
+	void (*guts)(spritetype* s, short gtype, short n, short p);
+	void (*gutsdir)(spritetype* s, short gtype, short n, short p);
+	int  (*ifhitsectors)(int sectnum);
+	int  (*ifhitbyweapon)(int sectnum);
+	void (*fall)(int g_i, int g_p);
+};
+
+extern Dispatcher fi;
 
 #endif
 

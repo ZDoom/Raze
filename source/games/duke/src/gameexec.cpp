@@ -52,6 +52,8 @@ int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
 bool ifsquished(int i, int p);
 void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
+void destroyit(int g_i);
+void mamaspawn(int g_i);
 
 //---------------------------------------------------------------------------
 //
@@ -247,7 +249,7 @@ char parse(void)
 		break;
 
 	case concmd_ifhitweapon:
-		parseifelse(ifhitbyweapon(g_i) >= 0);
+		parseifelse(fi.ifhitbyweapon(g_i) >= 0);
 		break;
 	case concmd_ifsquished:
 		parseifelse(ifsquished(g_i, g_p) == 1);
@@ -331,11 +333,7 @@ char parse(void)
 		insptr++;
 		break;
 	case concmd_mamaspawn:
-		if (mamaspawn_count)
-		{
-			mamaspawn_count--;
-			spawn(g_i, RABBIT);
-		}
+		mamaspawn(g_i);
 		insptr++;
 		break;
 	case concmd_mamaquake:
@@ -440,7 +438,7 @@ char parse(void)
 
 		insptr++;
 
-		if ((g_sp->picnum == APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesizy[g_sp->picnum] + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
+		if ((g_sp->picnum == APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesiz[g_sp->picnum].y + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
 		{
 			j = ((*insptr) - g_sp->yrepeat) << 1;
 			if (abs(j)) g_sp->yrepeat += ksgn(j);
@@ -552,17 +550,17 @@ char parse(void)
 		insptr++;
 		g_sp->xoffset = 0;
 		g_sp->yoffset = 0;
-		fall(g_i, g_p);
+		fi.fall(g_i, g_p);
 		break;
 	case concmd_enda:
 	case concmd_break:
 	case concmd_ends:
 	case concmd_endevent:
 		return 1;
-	case 30:
+	case concmd_rightbrace:
 		insptr++;
 		return 1;
-	case 2:
+	case concmd_addammo:
 		insptr++;
 		if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
 		{
@@ -572,47 +570,55 @@ char parse(void)
 		addammo( *insptr, &ps[g_p], *(insptr+1) );
 		if(ps[g_p].curr_weapon == KNEE_WEAPON)
 			if( ps[g_p].gotweapon[*insptr] )
-				addweapon( &ps[g_p], *insptr );
+				fi.addweapon( &ps[g_p], *insptr );
 		insptr += 2;
 		break;
-	case 86:
+	case concmd_money:
 		insptr++;
-		lotsofmoney(g_sp,*insptr);
-		insptr++;
-		break;
-	case 102:
-		insptr++;
-		lotsofmail(g_sp,*insptr);
+		fi.lotsofmoney(g_sp,*insptr);
 		insptr++;
 		break;
-	case 105:
+	case concmd_mail:
+		insptr++;
+		fi.lotsofmail(g_sp,*insptr);
+		insptr++;
+		break;
+	case concmd_sleeptime:
 		insptr++;
 		hittype[g_i].timetosleep = (short)*insptr;
 		insptr++;
 		break;
-	case 103:
+	case concmd_paper:
 		insptr++;
-		lotsofpaper(g_sp,*insptr);
+		fi.lotsofpaper(g_sp,*insptr);
 		insptr++;
 		break;
-	case 88:
+	case concmd_addkills:
 		insptr++;
-		ps[g_p].actors_killed += *insptr;
+		if (isRR())
+		{
+			if (g_spriteExtra[g_i] < 1 || g_spriteExtra[g_i] == 128)
+			{
+				if (actorfella(g_i))
+					ps[g_p].actors_killed += *insptr;
+			}
+		}
+		else ps[g_p].actors_killed += *insptr;
 		hittype[g_i].actorstayput = -1;
 		insptr++;
 		break;
-	case 93:
+	case concmd_lotsofglass:
 		insptr++;
 		spriteglass(g_i,*insptr);
 		insptr++;
 		break;
-	case 22:
+	case concmd_killit:
 		insptr++;
 		killit_flag = 1;
 		break;
-	case 23: // addweapon
+	case concmd_addweapon:
 		insptr++;
-		if( ps[g_p].gotweapon[*insptr] == 0 ) addweapon( &ps[g_p], *insptr );
+		if( ps[g_p].gotweapon[*insptr] == 0 ) fi.addweapon( &ps[g_p], *insptr );
 		else if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
 		{
 				killit_flag = 2;
@@ -621,31 +627,135 @@ char parse(void)
 		addammo( *insptr, &ps[g_p], *(insptr+1) );
 		if(ps[g_p].curr_weapon == KNEE_WEAPON)
 			if( ps[g_p].gotweapon[*insptr] )
-				addweapon( &ps[g_p], *insptr );
+				fi.addweapon( &ps[g_p], *insptr );
 		insptr+=2;
 		break;
-	case 68:
+	case concmd_debug:
 		insptr++;
-		printf("%ld\n",*insptr);
+		Printf("%ld\n",*insptr);
 		insptr++;
 		break;
-	case 69:
-		insptr++;
+	case concmd_endofgame:
 		ps[g_p].timebeforeexit = *insptr;
 		ps[g_p].customexitsound = -1;
 		ud.eog = 1;
 		insptr++;
 		break;
-	case 25:
+
+	case concmd_isdrunk: // todo: move out to player_r.
+		insptr++;
+		ps[g_p].drink_amt += *insptr;
+		j = sprite[ps[g_p].i].extra;
+		if (j > 0)
+			j += *insptr;
+		if (j > max_player_health * 2)
+			j = max_player_health * 2;
+		if (j < 0)
+			j = 0;
+
+		if (ud.god == 0)
+		{
+			if (*insptr > 0)
+			{
+				if ((j - *insptr) < (max_player_health >> 2) &&
+					j >= (max_player_health >> 2))
+					spritesound(DUKE_GOTHEALTHATLOW, ps[g_p].i);
+
+				ps[g_p].last_extra = j;
+			}
+
+			sprite[ps[g_p].i].extra = j;
+		}
+		if (ps[g_p].drink_amt > 100)
+			ps[g_p].drink_amt = 100;
+
+		if (sprite[ps[g_p].i].extra >= max_player_health)
+		{
+			sprite[ps[g_p].i].extra = max_player_health;
+			ps[g_p].last_extra = max_player_health;
+		}
+		insptr++;
+		break;
+	case concmd_strafeleft:
+		insptr++;
+		fi.movesprite(g_i, sintable[(g_sp->ang + 1024) & 2047] >> 10, sintable[(g_sp->ang + 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		break;
+	case concmd_straferight:
+		insptr++;
+		fi.movesprite(g_i, sintable[(g_sp->ang - 0) & 2047] >> 10, sintable[(g_sp->ang - 512) & 2047] >> 10, g_sp->zvel, CLIPMASK0);
+		break;
+	case concmd_larrybird:
+		insptr++;
+		ps[g_p].posz = sector[sprite[ps[g_p].i].sectnum].ceilingz;
+		sprite[ps[g_p].i].z = ps[g_p].posz;
+		break;
+	case concmd_destroyit:
+		insptr++;
+		destroyit(g_i);
+		break;
+	case concmd_iseat: // move out to player_r.
+		insptr++;
+		ps[g_p].eat += *insptr;
+		if (ps[g_p].eat > 100)
+		{
+			ps[g_p].eat = 100;
+		}
+		ps[g_p].drink_amt -= *insptr;
+		if (ps[g_p].drink_amt < 0)
+			ps[g_p].drink_amt = 0;
+		j = sprite[ps[g_p].i].extra;
+		if (g_sp->picnum != TILE_ATOMICHEALTH)
+		{
+			if (j > max_player_health && *insptr > 0)
+			{
+				insptr++;
+				break;
+			}
+			else
+			{
+				if (j > 0)
+					j += (*insptr) * 3;
+				if (j > max_player_health && *insptr > 0)
+					j = max_player_health;
+			}
+		}
+		else
+		{
+			if (j > 0)
+				j += *insptr;
+			if (j > (max_player_health << 1))
+				j = (max_player_health << 1);
+		}
+
+		if (j < 0) j = 0;
+
+		if (ud.god == 0)
+		{
+			if (*insptr > 0)
+			{
+				if ((j - *insptr) < (max_player_health >> 2) &&
+					j >= (max_player_health >> 2))
+					spritesound(229, ps[g_p].i);
+
+				ps[g_p].last_extra = j;
+			}
+
+			sprite[ps[g_p].i].extra = j;
+		}
+
+		insptr++;
+		break;
+
+	case concmd_addphealth: // todo: move out to player.
 		insptr++;
 
-		if(ps[g_p].newowner >= 0)
+		if(!isRR() && ps[g_p].newowner >= 0)
 		{
 			ps[g_p].newowner = -1;
 			ps[g_p].posx = ps[g_p].oposx;
 			ps[g_p].posy = ps[g_p].oposy;
 			ps[g_p].posz = ps[g_p].oposz;
-			ps[g_p].ang = ps[g_p].oang;
+			ps[g_p].q16ang = ps[g_p].oq16ang;
 			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
 			setpal(&ps[g_p]);
 
@@ -660,7 +770,7 @@ char parse(void)
 
 		j = sprite[ps[g_p].i].extra;
 
-		if(g_sp->picnum != ATOMICHEALTH)
+		if(g_sp->picnum != TILE_ATOMICHEALTH)
 		{
 			if( j > max_player_health && *insptr > 0 )
 			{
@@ -691,7 +801,7 @@ char parse(void)
 			{
 				if( ( j - *insptr ) < (max_player_health>>2) &&
 					j >= (max_player_health>>2) )
-						spritesound(DUKE_GOTHEALTHATLOW,ps[g_p].i);
+						spritesound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].i);
 
 				ps[g_p].last_extra = j;
 			}
@@ -701,22 +811,20 @@ char parse(void)
 
 		insptr++;
 		break;
-	case 17:
+
+	case concmd_state:
 		{
-			int *tempscrptr;
-
-			tempscrptr = insptr+2;
-
-			insptr = (int *) *(insptr+1);
-			while(1) if(parse()) break;
+			auto tempscrptr = insptr + 2;
+			insptr = apScript + *(insptr + 1);
+			while (1) if (parse()) break;
 			insptr = tempscrptr;
 		}
 		break;
-	case 29:
+	case concmd_leftbrace:
 		insptr++;
 		while(1) if(parse()) break;
 		break;
-	case 32:
+	case concmd_move:
 		g_t[0]=0;
 		insptr++;
 		g_t[1] = *insptr;
@@ -726,34 +834,35 @@ char parse(void)
 		if(g_sp->hitag&random_angle)
 			g_sp->ang = krand()&2047;
 		break;
-	case 31:
+	case concmd_spawn:
 		insptr++;
 		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
 			spawn(g_i,*insptr);
 		insptr++;
 		break;
-	case 33:
+	case concmd_ifwasweapon:
+	case concmd_ifspawnedby:	// these two are the same
 		insptr++;
 		parseifelse( hittype[g_i].picnum == *insptr);
 		break;
-	case 21:
+	case concmd_ifai:
 		insptr++;
 		parseifelse(g_t[5] == *insptr);
 		break;
-	case 34:
+	case concmd_ifaction:
 		insptr++;
 		parseifelse(g_t[4] == *insptr);
 		break;
-	case 35:
+	case concmd_ifactioncount:
 		insptr++;
 		parseifelse(g_t[2] >= *insptr);
 		break;
-	case 36:
+	case concmd_resetactioncount:
 		insptr++;
 		g_t[2] = 0;
 		break;
-	case 37:
-		{
+	case concmd_debris:
+	{
 			short dnum;
 
 			insptr++;
@@ -877,9 +986,34 @@ char parse(void)
 //AddLog("EOF: resetplayer");
 
 		break;
+	case 130:
+		parseifelse(ud.coop || numplayers > 2);
+		break;
+	case 129:
+		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073);
+		break;
 	case 43:
 		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == 1);
 		break;
+#ifdef RRRA
+	case 131:
+		parseifelse(ps[g_p].MotoSpeed > 60);
+		break;
+	case 134:
+		parseifelse(ps[g_p].OnMotorcycle == 1);
+		break;
+	case 135:
+		parseifelse(ps[g_p].OnBoat == 1);
+		break;
+	case 145:
+		g_sp->xrepeat--;
+		g_sp->yrepeat--;
+		parseifelse(g_sp->xrepeat <= 5);
+		break;
+	case 132:
+		parseifelse(WindTime > 0);
+		break;
+#endif
 	case 44:
 		parseifelse( sector[g_sp->sectnum].lotag == 2);
 		break;
@@ -944,7 +1078,7 @@ char parse(void)
 		insptr++;
 		break;
 	case 50:
-		hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
+		fi.hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
 		insptr+=6;
 		break;
 	case 51:
@@ -1012,19 +1146,26 @@ char parse(void)
 		break;
 		case 58:
 			insptr += 2;
-			guts(g_sp,*(insptr-1),*insptr,g_p);
+			fi.guts(g_sp,*(insptr-1),*insptr,g_p);
 			insptr++;
 			break;
-		case 59:
-			insptr++;
-//			  if(g_sp->owner >= 0 && sprite[g_sp->owner].picnum == *insptr)
-  //			  parseifelse(1);
-//			  else
-			parseifelse( hittype[g_i].picnum == *insptr);
-			break;
-		case 61:
+		case 121:
 			insptr++;
 			forceplayerangle(&ps[g_p]);
+			ps[g_p].posxv -= sintable[(ps[g_p].ang + 512) & 2047] << 7;
+			ps[g_p].posyv -= sintable[ps[g_p].ang & 2047] << 7;
+			return 0;
+		case 61:
+			insptr++;
+			if (!isRR())
+				forceplayerangle(&ps[g_p]);
+			else
+			{
+				ps[g_p].posxv -= sintable[(ps[g_p].ang + 512) & 2047] << 10;
+				ps[g_p].posyv -= sintable[ps[g_p].ang & 2047] << 10;
+				ps[g_p].jumping_counter = 767;
+				ps[g_p].jumping_toggle = 1;
+			}
 			return 0;
 		case 62:
 			insptr++;
@@ -1062,7 +1203,7 @@ char parse(void)
 			}
 			break;
 		case 67:
-			parseifelse(ceilingspace(g_sp->sectnum));
+			parseifelse(fi.ceilingspace(g_sp->sectnum));
 			break;
 
 		case 74:
@@ -1366,7 +1507,7 @@ char parse(void)
 			insptr++;
 			break;
 		case 81:
-			parseifelse( floorspace(g_sp->sectnum));
+			parseifelse( fi.floorspace(g_sp->sectnum));
 			break;
 		case 82:
 			parseifelse( (hittype[g_i].movflag&49152) > 16384 );
@@ -1388,10 +1529,10 @@ char parse(void)
 				case PODFEM1:
 				case NAKED1:
 				case STATUE:
-					if(g_sp->yvel) operaterespawns(g_sp->yvel);
+					if(g_sp->yvel) fi.operaterespawns(g_sp->yvel);
 					break;
 				default:
-					if(g_sp->hitag >= 0) operaterespawns(g_sp->hitag);
+					if(g_sp->hitag >= 0) fi.operaterespawns(g_sp->hitag);
 					break;
 			}
 			break;

@@ -347,7 +347,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
-		if (isadoorwall(picnum) == 0) return 0;
+		if (fi.isadoorwall(picnum) == 0) return 0;
 		break;
 	}
 
@@ -497,7 +497,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 	switch (picnum)
 	{
 	default:
-		if (isadoorwall(picnum) == 0) break;
+		if (fi.isadoorwall(picnum) == 0) break;
 	case DIPSWITCH:
 	case DIPSWITCH + 1:
 	case TECHSWITCH:
@@ -591,14 +591,14 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		}
 
 		operateactivators(lotag, snum);
-		operateforcefields(ps[snum].i, lotag);
+		fi.operateforcefields(ps[snum].i, lotag);
 		operatemasterswitches(lotag);
 
 		if (picnum == DIPSWITCH || picnum == DIPSWITCH + 1 ||
 			picnum == ALIENSWITCH || picnum == ALIENSWITCH + 1 ||
 			picnum == TECHSWITCH || picnum == TECHSWITCH + 1) return 1;
 
-		if (hitag == 0 && isadoorwall(picnum) == 0)
+		if (hitag == 0 && fi.isadoorwall(picnum) == 0)
 		{
 			if (switchtype == SWITCH_SPRITE)
 				S_PlaySound3D(SWITCH_ON, w, &v);
@@ -830,7 +830,7 @@ void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith)
 
 	case ATM:
 		wal->picnum = ATMBROKE;
-		lotsofmoney(&sprite[spr], 1 + (krand() & 7));
+		fi.lotsofmoney(&sprite[spr], 1 + (krand() & 7));
 		spritesound(GLASS_HEAVYBREAK, spr);
 		break;
 
@@ -936,7 +936,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 		p->posyv = -(sintable[(p->getang()) & 2047] << 8);
 		spritesound(DUKE_LONGTERM_PAIN, p->i);
 
-		checkhitwall(p->i, j,
+		fi.checkhitwall(p->i, j,
 			p->posx + (sintable[(p->getang() + 512) & 2047] >> 9),
 			p->posy + (sintable[p->getang() & 2047] >> 9),
 			p->posz, -1);
@@ -945,7 +945,7 @@ void checkplayerhurt_d(struct player_struct* p, int j)
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		checkhitwall(p->i, j,
+		fi.checkhitwall(p->i, j,
 			p->posx + (sintable[(p->getang() + 512) & 2047] >> 9),
 			p->posy + (sintable[p->getang() & 2047] >> 9),
 			p->posz, -1);
@@ -1193,7 +1193,7 @@ void checkhitsprite_d(int i, int sn)
 	case STATUEFLASH:
 	case STATUE:
 		if (sprite[i].picnum == BOTTLE10)
-			lotsofmoney(&sprite[i], 4 + (krand() & 3));
+			fi.lotsofmoney(&sprite[i], 4 + (krand() & 3));
 		else if (sprite[i].picnum == STATUE || sprite[i].picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(i, -1, 40);
@@ -1344,12 +1344,12 @@ void checkhitsprite_d(int i, int sn)
 		shoot(i, BLOODSPLAT3);
 		sprite[i].ang = krand() & 2047;
 		shoot(i, BLOODSPLAT4);
-		guts(&sprite[i], JIBS1, 1, myconnectindex);
-		guts(&sprite[i], JIBS2, 2, myconnectindex);
-		guts(&sprite[i], JIBS3, 3, myconnectindex);
-		guts(&sprite[i], JIBS4, 4, myconnectindex);
-		guts(&sprite[i], JIBS5, 1, myconnectindex);
-		guts(&sprite[i], JIBS3, 6, myconnectindex);
+		fi.guts(&sprite[i], JIBS1, 1, myconnectindex);
+		fi.guts(&sprite[i], JIBS2, 2, myconnectindex);
+		fi.guts(&sprite[i], JIBS3, 3, myconnectindex);
+		fi.guts(&sprite[i], JIBS4, 4, myconnectindex);
+		fi.guts(&sprite[i], JIBS5, 1, myconnectindex);
+		fi.guts(&sprite[i], JIBS3, 6, myconnectindex);
 		sound(SQUISHED);
 		deletesprite(i);
 		break;
@@ -1537,7 +1537,7 @@ void checksectors_d(int snum)
 	if (p->gm & MODE_TYPE || sprite[p->i].extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SK_OPEN))
-		lotsofmoney(&sprite[p->i], 2);
+		fi.lotsofmoney(&sprite[p->i], 2);
 
 	if (p->newowner >= 0)
 	{
@@ -1637,7 +1637,7 @@ void checksectors_d(int snum)
 
 		if (neartagsprite >= 0)
 		{
-			if (checkhitswitch(snum, neartagsprite, 1)) return;
+			if (fi.checkhitswitch(snum, neartagsprite, 1)) return;
 
 			switch (sprite[neartagsprite].picnum)
 			{
@@ -1769,10 +1769,10 @@ void checksectors_d(int snum)
 
 		if (neartagwall >= 0)
 		{
-			if (wall[neartagwall].lotag > 0 && isadoorwall(wall[neartagwall].picnum))
+			if (wall[neartagwall].lotag > 0 && fi.isadoorwall(wall[neartagwall].picnum))
 			{
 				if (hitscanwall == neartagwall || hitscanwall == -1)
-					checkhitswitch(snum, neartagwall, 0);
+					fi.checkhitswitch(snum, neartagwall, 0);
 				return;
 			}
 			else if (p->newowner >= 0)
@@ -1805,7 +1805,7 @@ void checksectors_d(int snum)
 				}
 				operatesectors(sprite[p->i].sectnum, p->i);
 			}
-			else checkhitswitch(snum, neartagwall, 0);
+			else fi.checkhitswitch(snum, neartagwall, 0);
 		}
 	}
 }

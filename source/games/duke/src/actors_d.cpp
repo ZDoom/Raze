@@ -241,13 +241,13 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 			{
 				d = abs(wall[sector[dasect].wallptr].x - s->x) + abs(wall[sector[dasect].wallptr].y - s->y);
 				if (d < r)
-					checkhitceiling(dasect);
+					fi.checkhitceiling(dasect);
 				else
 				{
 					// ouch...
 					d = abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].x - s->x) + abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].y - s->y);
 					if (d < r)
-						checkhitceiling(dasect);
+						fi.checkhitceiling(dasect);
 				}
 			}
 
@@ -267,7 +267,7 @@ void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 					y1 = (((wal->y + wall[wal->point2].y) >> 1) + s->y) >> 1;
 					updatesector(x1, y1, &sect);
 					if (sect >= 0 && cansee(x1, y1, s->z, sect, s->x, s->y, s->z, s->sectnum))
-						checkhitwall(i, x, wal->x, wal->y, s->z, s->picnum);
+						fi.checkhitwall(i, x, wal->x, wal->y, s->z, s->picnum);
 				}
 		} while (sectcnt < sectend);
 	}
@@ -300,7 +300,7 @@ SKIPWALLCHECK:
 					{
 						if (badguy(sj) && !cansee(sj->x, sj->y, sj->z + q, sj->sectnum, s->x, s->y, s->z + q, s->sectnum))
 							goto BOLT;
-						checkhitsprite(j, i);
+						fi.checkhitsprite(j, i);
 					}
 			}
 			else if (sj->extra >= 0 && sj != s && (sj->picnum == TRIPBOMB || badguy(sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat & 257) || sj->picnum == DUKELYINGDEAD))
@@ -378,7 +378,7 @@ SKIPWALLCHECK:
 							sj->picnum == FEM8 || sj->picnum == FEM9 ||
 							sj->picnum == FEM10 || sj->picnum == STATUE ||
 							sj->picnum == STATUEFLASH || sj->picnum == SPACEMARINE || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL)
-							checkhitsprite(j, i);
+							fi.checkhitsprite(j, i);
 					}
 					else if (s->extra == 0) hittype[j].extra = 0;
 
@@ -884,7 +884,7 @@ void movefallers_d(void)
 			s->z -= (16 << 8);
 			hittype[i].temp_data[1] = s->ang;
 			x = s->extra;
-			j = ifhitbyweapon(i);
+			j = fi.ifhitbyweapon(i);
 			if (j >= 0) 
 			{
 				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
@@ -934,10 +934,10 @@ void movefallers_d(void)
 					ssp(i,CLIPMASK0);
 				}
 
-				if (floorspace(s->sectnum)) x = 0;
+				if (fi.floorspace(s->sectnum)) x = 0;
 				else
 				{
-					if (ceilingspace(s->sectnum))
+					if (fi.ceilingspace(s->sectnum))
 						x = gc / 6;
 					else
 						x = gc;
@@ -1001,7 +1001,7 @@ static void movetripbomb(int i)
 			spritesound(LASERTRIP_EXPLODE, i);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
 			x = s->extra;
-			hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
 			j = spawn(i, EXPLOSION2);
 			sprite[j].ang = s->ang;
@@ -1024,7 +1024,7 @@ static void movetripbomb(int i)
 		x = s->extra;
 		s->extra = 1;
 		int16_t l = s->ang;
-		j = ifhitbyweapon(i);
+		j = fi.ifhitbyweapon(i);
 		if (j >= 0)
 		{ 
 			hittype[i].temp_data[2] = 16; 
@@ -1133,7 +1133,7 @@ static void movecrack(int i)
 	{
 		t[0] = s->cstat;
 		t[1] = s->ang;
-		int j = ifhitbyweapon(i);
+		int j = fi.ifhitbyweapon(i);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
 			j = headspritestat[STAT_STANDABLE];
@@ -1163,7 +1163,7 @@ static void movecrack(int i)
 
 static void movefireext(int i)
 {
-	int j = ifhitbyweapon(i);
+	int j = fi.ifhitbyweapon(i);
 	if (j == -1) return;
 
 	auto s = &sprite[i];
@@ -1192,13 +1192,13 @@ static void movefireext(int i)
 
 		int x = s->extra;
 		spawn(i, EXPLOSION2);
-		hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
+		fi.hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		spritesound(PIPEBOMB_EXPLODE, i);
 		detonate(i, EXPLOSION2);
 	}
 	else
 	{
-		hitradius(i, seenineblastradius, 10, 15, 20, 25);
+		fi.hitradius(i, seenineblastradius, 10, 15, 20, 25);
 		deletesprite(i);
 	}
 }
@@ -1617,7 +1617,7 @@ void moveweapons_d(void)
 					break;
 			}
 
-			j = movesprite(i,
+			j = fi.movesprite(i,
 				(k*(sintable[(s->ang+512)&2047]))>>14,
 				(k*(sintable[s->ang&2047]))>>14,ll,qq);
 
@@ -1696,7 +1696,7 @@ void moveweapons_d(void)
 					}
 
 					if (!isWorldTour() || s->picnum != FIREBALL || fireball)
-						checkhitsprite(j,i);
+						fi.checkhitsprite(j,i);
 
 					if (sprite[j].picnum == APLAYER)
 					{
@@ -1750,7 +1750,7 @@ void moveweapons_d(void)
 					else
 					{
 						setsprite(i,dax,day,daz);
-						checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
+						fi.checkhitwall(i,j,s->x,s->y,s->z,s->picnum);
 
 						if (s->picnum == FREEZEBLAST)
 						{
@@ -1781,7 +1781,7 @@ void moveweapons_d(void)
 								continue;
 							}
 
-						checkhitceiling(s->sectnum);
+						fi.checkhitceiling(s->sectnum);
 					}
 					else if (fireball)
 					{
@@ -1834,7 +1834,7 @@ void moveweapons_d(void)
 					{
 						spawn(i,SHRINKEREXPLOSION);
 						spritesound(SHRINKER_HIT,i);
-						hitradius(i,shrinkerblastradius,0,0,0,0);
+						fi.hitradius(i,shrinkerblastradius,0,0,0,0);
 					}
 					else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 					{
@@ -1855,12 +1855,12 @@ void moveweapons_d(void)
 						if (s->xrepeat >= 10)
 						{
 							x = s->extra;
-							hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+							fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 						}
 						else
 						{
 							x = s->extra+(global_random&3);
-							hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+							fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 						}
 					}
 					if (fireball) 
@@ -2298,7 +2298,7 @@ static void greenslime(int i)
 		s->picnum = GREENSLIME + 2;
 		s->extra = 1;
 		s->pal = 1;
-		j = ifhitbyweapon(i); if (j >= 0)
+		j = fi.ifhitbyweapon(i); if (j >= 0)
 		{
 			if (j == FREEZEBLAST)
 				return;
@@ -2433,7 +2433,7 @@ static void greenslime(int i)
 		}
 	}
 
-	j = ifhitbyweapon(i); if (j >= 0)
+	j = fi.ifhitbyweapon(i); if (j >= 0)
 	{
 		spritesound(SLIM_DYING, i);
 
@@ -2471,7 +2471,7 @@ static void greenslime(int i)
 		s->picnum = GREENSLIME + 4;
 
 		//					if(s->yrepeat > 62)
-		  //					  guts(s,JIBS6,5,myconnectindex);
+		  //					  fi.guts(s,JIBS6,5,myconnectindex);
 
 		if (s->xrepeat > 32) s->xrepeat -= krand() & 7;
 		if (s->yrepeat > 16) s->yrepeat -= krand() & 7;
@@ -2685,7 +2685,7 @@ static void flamethrowerflame(int i)
 		return;
 	}
 
-	j = movesprite(i, (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+	j = fi.movesprite(i, (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
 		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1);
 
 	if (s->sectnum < 0)
@@ -2715,7 +2715,7 @@ static void flamethrowerflame(int i)
 		if ((j & kHitTypeMask) == kHitSprite)
 		{
 			j &= (MAXSPRITES - 1);
-			checkhitsprite((short)j, i);
+			fi.checkhitsprite((short)j, i);
 			if (sprite[j].picnum == APLAYER)
 				spritesound(j, PISTOL_BODYHIT);
 		}
@@ -2723,24 +2723,24 @@ static void flamethrowerflame(int i)
 		{
 			j &= (MAXWALLS - 1);
 			setsprite(i, dax, day, daz);
-			checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+			fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
 		}
 		else if ((j & kHitTypeMask) == kHitSector)
 		{
 			setsprite(i, dax, day, daz);
 			if (s->zvel < 0)
-				checkhitceiling(s->sectnum);
+				fi.checkhitceiling(s->sectnum);
 		}
 
 		if (s->xrepeat >= 10)
 		{
 			x = s->extra;
-			hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(i, rpgblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 		}
 		else
 		{
 			x = s->extra + (global_random & 3);
-			hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(i, (rpgblastradius >> 1), x >> 2, x >> 1, x - (x >> 2), x);
 		}
 	}
 }
@@ -2777,7 +2777,7 @@ static void heavyhbomb(int i)
 
 	if (t[3] == 0)
 	{
-		j = ifhitbyweapon(i);
+		j = fi.ifhitbyweapon(i);
 		if (j >= 0)
 		{
 			t[3] = 1;
@@ -2808,7 +2808,7 @@ static void heavyhbomb(int i)
 		}
 	}
 
-	j = movesprite(i,
+	j = fi.movesprite(i,
 		(s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
 		(s->xvel * (sintable[s->ang & 2047])) >> 14,
 		s->zvel, CLIPMASK0);
@@ -2852,7 +2852,7 @@ static void heavyhbomb(int i)
 	{
 		j &= (MAXWALLS - 1);
 
-		checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(i, j, s->x, s->y, s->z, s->picnum);
 
 		int k = getangle(
 			wall[wall[j].point2].x - wall[j].x,
@@ -2888,7 +2888,7 @@ DETONATEB:
 			case BOUNCEMINE: m = bouncemineblastradius; break;
 			}
 
-			hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
+			fi.hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
 			spawn(i, EXPLOSION2);
 			if (s->zvel == 0)
 				spawn(i, EXPLOSION2BOT);
@@ -2938,7 +2938,7 @@ DETONATEB:
 				spritesound(DUKE_GET, ps[p].i);
 
 				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
-					addweapon(&ps[p], HANDBOMB_WEAPON);
+					fi.addweapon(&ps[p], HANDBOMB_WEAPON);
 
 				if (sprite[s->owner].picnum != APLAYER)
 				{
@@ -3019,7 +3019,7 @@ void moveactors_d(void)
 			}
 			else
 			{
-				j = ifhitbyweapon(i);
+				j = fi.ifhitbyweapon(i);
 				if (j >= 0)
 				{
 					s->cstat = 32 + 128;
@@ -3046,7 +3046,7 @@ void moveactors_d(void)
 					if (k == 1)
 					{
 						operateactivators(s->lotag, -1);
-						operateforcefields(i, s->lotag);
+						fi.operateforcefields(i, s->lotag);
 						operatemasterswitches(s->lotag);
 					}
 				}
@@ -4140,7 +4140,7 @@ void move_d(int g_i, int g_p, int g_x)
 			}
 		}
 
-		hittype[g_i].movflag = movesprite(g_i,
+		hittype[g_i].movflag = fi.movesprite(g_i,
 			(daxvel * (sintable[(angdif + 512) & 2047])) >> 14,
 			(daxvel * (sintable[angdif & 2047])) >> 14, g_sp->zvel, CLIPMASK0);
 	}

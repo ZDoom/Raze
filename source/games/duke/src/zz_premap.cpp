@@ -964,7 +964,7 @@ void P_ResetStatus(int playerNum)
 
         g_wupass = 0;
         pPlayer->drink_ang = pPlayer->eat_ang = 1647;
-        pPlayer->drink_amt = pPlayer->eat_amt = 0;
+        pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
         pPlayer->hbomb_time = 0;
@@ -1092,7 +1092,7 @@ void P_ResetInventory(int playerNum)
         }
 
         pPlayer->drink_ang = pPlayer->eat_ang = 1647;
-        pPlayer->drink_amt = pPlayer->eat_amt = 0;
+        pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
         pPlayer->hbomb_time = 0;
@@ -1211,7 +1211,7 @@ static void resetprestat(int playerNum, int gameMode)
         }
 
         pPlayer->drink_ang = pPlayer->eat_ang = 1647;
-        pPlayer->drink_amt = pPlayer->eat_amt = 0;
+        pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
         pPlayer->hbomb_time = 0;

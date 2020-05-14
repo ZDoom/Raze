@@ -110,13 +110,13 @@ static void P_IncurDamage(DukePlayer_t * const pPlayer)
 
     if (RR)
     {
-        int guts = 0;
+        int fi.guts = 0;
         if (pPlayer->drink_amt > 31 && pPlayer->drink_amt < 65)
-            guts++;
-        if (pPlayer->eat_amt > 31 && pPlayer->eat_amt < 65)
-            guts++;
+            fi.guts++;
+        if (pPlayer->eat > 31 && pPlayer->eat < 65)
+            fi.guts++;
 
-        switch (guts)
+        switch (fi.guts)
         {
             case 1:
                 playerDamage = (int)(playerDamage*0.75);
@@ -670,9 +670,9 @@ growspark_rr:
 
                     if (hitData.sprite >= 0 && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH && sprite[hitData.sprite].picnum != TILE_ACCESSSWITCH2)
                     {
-                        checkhitsprite(hitData.sprite, kneeSprite);
+                        fi.checkhitsprite(hitData.sprite, kneeSprite);
                         if (playerNum >= 0)
-                            checkhitswitch(playerNum, hitData.sprite, 1);
+                            fi.checkhitswitch(playerNum, hitData.sprite, 1);
                     }
                     else if (hitData.wall >= 0)
                     {
@@ -680,9 +680,9 @@ growspark_rr:
                         
                         if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
                         {
-                            A_DamageWall(kneeSprite, hitData.wall, &hitData.pos, projecTile);
+                            fi.checkhitwall(kneeSprite, hitData.wall, &hitData.pos, projecTile);
                             if (playerNum >= 0)
-                                checkhitswitch(playerNum, hitData.wall, 0);
+                                fi.checkhitswitch(playerNum, hitData.wall, 0);
                         }
                     }
                 }
@@ -741,7 +741,7 @@ growspark_rr:
                             return -1;
                         }
                         else
-                            checkhitceiling(hitData.sect);
+                            fi.checkhitceiling(hitData.sect);
                     }
 
                     if (!RR || sector[hitData.sect].lotag != ST_1_ABOVE_WATER)
@@ -752,7 +752,7 @@ growspark_rr:
                 {
                     if (RR && sprite[hitData.sprite].picnum == TILE_TORNADO)
                         return -1;
-                    checkhitsprite(hitData.sprite, spawnedSprite);
+                    fi.checkhitsprite(hitData.sprite, spawnedSprite);
 
                     if (sprite[hitData.sprite].picnum == TILE_APLAYER &&
                         (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
@@ -773,7 +773,7 @@ growspark_rr:
 
                     if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData.sprite].picnum))
                     {
-                        checkhitswitch(playerNum, hitData.sprite, 1);
+                        fi.checkhitswitch(playerNum, hitData.sprite, 1);
                         return -1;
                     }
                 }
@@ -783,7 +783,7 @@ growspark_rr:
 
                     A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
 
-                    if (isadoorwall(hitWall->picnum) == 1)
+                    if (fi.isadoorwall(hitWall->picnum) == 1)
                         goto SKIPBULLETHOLE;
 
                     if (RR && isablockdoor(hitWall->picnum) == 1)
@@ -791,7 +791,7 @@ growspark_rr:
 
                     if (playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
                     {
-                        checkhitswitch(playerNum, hitData.wall, 0);
+                        fi.checkhitswitch(playerNum, hitData.wall, 0);
                         return -1;
                     }
 
@@ -823,7 +823,7 @@ growspark_rr:
                 SKIPBULLETHOLE:
 
                     HandleHitWall(&hitData);
-                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
+                    fi.checkhitwall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
                 }
             }
             else
@@ -833,7 +833,7 @@ growspark_rr:
 
                 if (hitData.sprite >= 0)
                 {
-                    checkhitsprite(hitData.sprite, spawnedSprite);
+                    fi.checkhitsprite(hitData.sprite, spawnedSprite);
                     if (sprite[hitData.sprite].picnum != TILE_APLAYER)
                         A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
                     else
@@ -843,7 +843,7 @@ growspark_rr:
                     }
                 }
                 else if (hitData.wall >= 0)
-                    A_DamageWall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
+                    fi.checkhitwall(spawnedSprite, hitData.wall, &hitData.pos, TILE_SHOTSPARK1);
             }
 
             if ((krand2() & 255) < (RR ? 10 : 4))
@@ -943,12 +943,12 @@ growspark_rr:
             if (hitData.wall == -1 && hitData.sprite == -1 && hitData.sect >= 0
                 && Zvel < 0 && (sector[hitData.sprite].ceilingstat & 1) == 0)
             {
-                checkhitceiling(hitData.sect);
+                fi.checkhitceiling(hitData.sect);
             }
             else if (hitData.sprite >= 0)
-                checkhitsprite(hitData.sprite, otherSprite);
+                fi.checkhitsprite(hitData.sprite, otherSprite);
             else if (hitData.wall >= 0 && wall[hitData.wall].picnum != TILE_ACCESSSWITCH && wall[hitData.wall].picnum != TILE_ACCESSSWITCH2)
-                A_DamageWall(otherSprite, hitData.wall, &hitData.pos, projecTile);
+                fi.checkhitwall(otherSprite, hitData.wall, &hitData.pos, projecTile);
         }
         break;
 
@@ -4250,8 +4250,8 @@ static int32_t P_DoCounters(int playerNum)
         if (--pPlayer->eat_timer <= 0)
         {
             pPlayer->eat_timer = 1024;
-            if (pPlayer->eat_amt)
-                pPlayer->eat_amt--;
+            if (pPlayer->eat)
+                pPlayer->eat--;
         }
 
         if (pPlayer->drink_amt == 100)
@@ -4259,14 +4259,14 @@ static int32_t P_DoCounters(int playerNum)
             if (!A_CheckSoundPlaying(pPlayer->i, 420))
                 A_PlaySound(420, pPlayer->i);
             pPlayer->drink_amt -= 9;
-            pPlayer->eat_amt >>= 1;
+            pPlayer->eat >>= 1;
         }
-        pPlayer->eat_ang = (1647 + pPlayer->eat_amt * 8) & 2047;
+        pPlayer->eat_ang = (1647 + pPlayer->eat * 8) & 2047;
 
-        if (pPlayer->eat_amt >= 100)
-            pPlayer->eat_amt = 100;
+        if (pPlayer->eat >= 100)
+            pPlayer->eat = 100;
 
-        if (pPlayer->eat_amt >= 31 && krand2() < pPlayer->eat_amt)
+        if (pPlayer->eat >= 31 && krand2() < pPlayer->eat)
         {
             switch (krand2()&3)
             {
@@ -4289,9 +4289,9 @@ static int32_t P_DoCounters(int playerNum)
                 P_MadeNoise(playerNum);
                 P_Thrust(pPlayer, 4);
             }
-            pPlayer->eat_amt -= 4;
-            if (pPlayer->eat_amt < 0)
-                pPlayer->eat_amt = 0;
+            pPlayer->eat -= 4;
+            if (pPlayer->eat < 0)
+                pPlayer->eat = 0;
         }
     }
 
@@ -4375,7 +4375,7 @@ static int32_t P_DoCounters(int playerNum)
             P_SelectNextInvItem(pPlayer);
             if (RR)
             {
-                pPlayer->eat_amt = pPlayer->drink_amt = 0;
+                pPlayer->eat = pPlayer->drink_amt = 0;
                 pPlayer->eat_ang = pPlayer->drink_ang = 1647;
             }
         }
@@ -4442,7 +4442,7 @@ static int32_t P_DoCounters(int playerNum)
         {
             if (pPlayer->access_spritenum >= 0)
             {
-                checkhitswitch(playerNum, pPlayer->access_spritenum, 1);
+                fi.checkhitswitch(playerNum, pPlayer->access_spritenum, 1);
                 switch (sprite[pPlayer->access_spritenum].pal)
                 {
                     case 0:  RR ? pPlayer->keys[1] = 1 : pPlayer->got_access &= (0xffff - 0x1); break;
@@ -4453,7 +4453,7 @@ static int32_t P_DoCounters(int playerNum)
             }
             else
             {
-                checkhitswitch(playerNum,pPlayer->access_wallnum,0);
+                fi.checkhitswitch(playerNum,pPlayer->access_wallnum,0);
                 switch (wall[pPlayer->access_wallnum].pal)
                 {
                     case 0:  RR ? pPlayer->keys[1] = 1 : pPlayer->got_access &= (0xffff - 0x1); break;
@@ -4684,13 +4684,12 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
         pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
 }
 
-void addweapon(player_struct* p, int w);
 void checkavailinven(struct player_struct* p);
 void checkavailweapon(struct player_struct* p);
 
 void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
 {
-    addweapon(pPlayer, weaponNum);
+    fi.addweapon(pPlayer, weaponNum);
 }
 
 void P_SelectNextInvItem(DukePlayer_t *pPlayer)
@@ -4708,7 +4707,7 @@ static void DoWallTouchDamage(const DukePlayer_t *pPlayer, int32_t wallNum)
     vec3_t const davect = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 9),
                       pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 9), pPlayer->pos.z };
 
-    A_DamageWall(pPlayer->i, wallNum, &davect, -1);
+    fi.checkhitwall(pPlayer->i, wallNum, &davect, -1);
 }
 
 static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
@@ -7471,7 +7470,7 @@ check_enemy_sprite:
                 {
                     A_PlaySound(436, pPlayer->i);
                     pPlayer->last_pissed_time = 4000;
-                    pPlayer->eat_amt = 0;
+                    pPlayer->eat = 0;
                 }
             }
         }
@@ -8486,7 +8485,7 @@ HORIZONLY:;
         {
             if (!(sector[pSprite->sectnum].lotag & 0x8000u) &&
                 (isanunderoperator(sector[pSprite->sectnum].lotag) || isanearoperator(sector[pSprite->sectnum].lotag)))
-                activatebysector(pSprite->sectnum, pPlayer->i);
+                fi.activatebysector(pSprite->sectnum, pPlayer->i);
 
             if (squishPlayer)
             {
@@ -8495,7 +8494,7 @@ HORIZONLY:;
             }
         }
         else if (klabs(floorZ - ceilZ) < ZOFFSET5 && isanunderoperator(sector[pPlayer->cursectnum].lotag))
-            activatebysector(pPlayer->cursectnum, pPlayer->i);
+            fi.activatebysector(pPlayer->cursectnum, pPlayer->i);
 
         if (RR && sector[pPlayer->cursectnum].ceilingz > (sector[pPlayer->cursectnum].floorz-ZOFFSET4))
         {
@@ -8620,7 +8619,7 @@ HORIZONLY:;
                     case NAKED1__STATIC:
                     case STATUE__STATIC:
                         if (sprite[pPlayer->actorsqu].yvel)
-                            operaterespawns(sprite[pPlayer->actorsqu].yvel);
+                            fi.operaterespawns(sprite[pPlayer->actorsqu].yvel);
                         A_DeleteSprite(pPlayer->actorsqu);
                         break;
                     case APLAYER__STATIC:

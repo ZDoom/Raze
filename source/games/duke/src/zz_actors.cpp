@@ -50,20 +50,20 @@ void G_ClearCameraView(DukePlayer_t *ps)
             sprite[k].yvel = 0;
 }
 
-void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+void fi.hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 
 void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4)
 {
-    hitradius(spriteNum, blastRadius, dmg1, dmg2, dmg3, dmg4);
+    fi.hitradius(spriteNum, blastRadius, dmg1, dmg2, dmg3, dmg4);
 }
 
 
-int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+int fi.movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 
 int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t clipType)
 {
 
-    return movesprite(spriteNum, change->x, change->y, change->z, clipType);
+    return fi.movesprite(spriteNum, change->x, change->y, change->z, clipType);
 }
 
 int32_t block_deletesprite = 0;
@@ -135,17 +135,14 @@ void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
     }
 }
 
-void guts(spritetype* s, short gtype, short n, short p);
-void gutsdir(spritetype* s, short gtype, short n, short p);
-
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 {
-    guts(&sprite[spriteNum], tileNum, spawnCnt, 0);
+    fi.guts(&sprite[spriteNum], tileNum, spawnCnt, 0);
 }
 
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
 {
-    gutsdir(&sprite[spriteNum], tileNum, spawnCnt, 0);
+    fi.gutsdir(&sprite[spriteNum], tileNum, spawnCnt, 0);
 }
 
 static int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
@@ -283,18 +280,16 @@ int G_WakeUp(spritetype *const pSprite, int const playerNum)
 
 // sleeping monsters, etc
 
-// stupid name, but it's what the function does.
-int ifhitsectors(int sectnum);
 
 static FORCE_INLINE int G_FindExplosionInSector(int const sectNum)
 {
-    return ifhitsectors(sectNum);
+    return fi.ifhitsectors(sectNum);
 }
 
-int ifhitbyweapon(int s);
+int fi.ifhitbyweapon(int s);
 int A_IncurDamage(int const spriteNum)
 {
-    return ifhitbyweapon(spriteNum);
+    return fi.ifhitbyweapon(spriteNum);
 }
 
 

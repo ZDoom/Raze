@@ -3614,7 +3614,7 @@ rr_badguy:
             case 46:
                 if (RR) break;
                 ror_protectedsectors[pSprite->sectnum] = 1;
-                /* XXX: fall-through intended? */
+                /* XXX: fi.fall-through intended? */
                 fallthrough__;
 #endif
             case SE_49_POINT_LIGHT:
@@ -7529,7 +7529,7 @@ int G_DoMoveThings(void)
         {
             P_ProcessInput(i);
             if (!DEER)
-            checksectors(i);
+            fi.checksectors(i);
         }
     }
 
@@ -7549,7 +7549,7 @@ int G_DoMoveThings(void)
         }
         else
         {
-            animatewalls();
+            fi.animatewalls();
             movecyclers();
         }
 
@@ -7659,7 +7659,7 @@ void lotsofpopcorn(int spriteNum, int wallNum, int glassCnt)
     }
 }
 
-void A_SpawnGlass(int spriteNum, int glassCnt)
+void spriteglass(int spriteNum, int glassCnt)
 {
     for (; glassCnt>0; glassCnt--)
     {

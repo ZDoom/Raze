@@ -286,7 +286,6 @@ inline int wallswitchcheck(int s)
 int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
-void guts(spritetype* s, short gtype, short n, short p);
 
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
@@ -331,9 +330,6 @@ extern int32_t A_MoveSprite(int32_t spritenum, vec3_t const * change, uint32_t c
 ACTOR_INLINE_HEADER int A_CheckEnemyTile(int tileNum);
 ACTOR_INLINE_HEADER int A_SetSprite(int spriteNum, uint32_t cliptype);
 
-EXTERN_INLINE_HEADER int G_CheckForSpaceCeiling(int sectnum);
-EXTERN_INLINE_HEADER int G_CheckForSpaceFloor(int sectnum);
-
 EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * s);
 
 #if defined actors_c_ || !defined DISABLE_INLINING
@@ -355,18 +351,6 @@ ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 
 # endif
 
-bool ceilingspace(int sectnum);
-bool floorspace(int sectnum);
-
-EXTERN_INLINE int G_CheckForSpaceCeiling(int const sectnum)
-{
-    return ceilingspace(sectnum);
-}
-
-EXTERN_INLINE int G_CheckForSpaceFloor(int const sectnum)
-{
-    return floorspace(sectnum);
-}
 
 EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 {
@@ -389,7 +373,6 @@ inline int wakeup(int sn, int pn)
 }
 
 // shared functions
-int ifhitsectors(int sn);
 void ms(short i);
 void movecrane(int i, int crane);
 void movefountain(int i, int fountain);
@@ -453,14 +436,8 @@ void handle_se130(int i, int countmax, int EXPLOSION2);
 
 void respawn_rrra(int i, int j);
 
-void hitradius(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-int ifhitbyweapon(int sn);
-int movesprite(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-void lotsofmoney(spritetype* s, short n);
-
 int dodge(spritetype*);
 void alterang(int a, int g_i, int g_p);
-void fall(int g_i, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 
 // tile names which are identical for all games.

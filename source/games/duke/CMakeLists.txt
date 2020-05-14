@@ -5,13 +5,17 @@ set( PCH_SOURCES
 	src/actors_d.cpp
 	src/actors_lava.cpp
 	src/bowling.cpp
+	src/dispatcher.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
 	src/gamevar.cpp
-	src/zz_actors.cpp
+	src/player.cpp
+	src/player_d.cpp
+	src/player_r.cpp
 	src/sectors.cpp
 	src/sectors_d.cpp
 	src/sectors_r.cpp
+	src/zz_actors.cpp
 	src/zz_anim.cpp
 	src/zz_cheats.cpp
 	src/zz_cmdline.cpp

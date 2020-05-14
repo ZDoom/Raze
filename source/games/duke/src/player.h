@@ -248,7 +248,7 @@ typedef struct player_struct {
     int32_t noise_x, noise_y, noise_radius;
     uint8_t keys[5];
     int16_t yehaa_timer;
-    int16_t drink_amt, eat_amt, drink_ang, eat_ang;
+    int16_t drink_amt, eat, drink_ang, eat_ang;
     int32_t drink_timer, eat_timer;
     int16_t MamaEnd;
     int16_t MotoSpeed, tilt_status, moto_drink;
@@ -392,7 +392,6 @@ inline void addammo(int weaponNum, DukePlayer_t* pPlayer, int addAmount)
     P_AddAmmo(pPlayer, weaponNum, addAmount);
 }
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
-void addweapon(DukePlayer_t* pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);

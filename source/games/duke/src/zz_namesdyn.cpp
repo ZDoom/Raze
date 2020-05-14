@@ -2930,21 +2930,21 @@ void G_InitDynamicTiles(void)
 
     DynamicTileMap[0] = 0;
 
-    g_blimpSpawnItems[0] = TILE_RPGSPRITE;
-    g_blimpSpawnItems[1] = TILE_CHAINGUNSPRITE;
-    g_blimpSpawnItems[2] = TILE_DEVISTATORAMMO;
-    g_blimpSpawnItems[3] = TILE_RPGAMMO;
-    g_blimpSpawnItems[4] = TILE_RPGAMMO;
-    g_blimpSpawnItems[5] = TILE_JETPACK;
-    g_blimpSpawnItems[6] = TILE_SHIELD;
-    g_blimpSpawnItems[7] = TILE_FIRSTAID;
-    g_blimpSpawnItems[8] = TILE_STEROIDS;
-    g_blimpSpawnItems[9] = TILE_RPGAMMO;
-    g_blimpSpawnItems[10] = TILE_RPGAMMO;
-    g_blimpSpawnItems[11] = TILE_RPGSPRITE;
-    g_blimpSpawnItems[12] = TILE_RPGAMMO;
-    g_blimpSpawnItems[13] = TILE_FREEZESPRITE;
-    g_blimpSpawnItems[14] = TILE_FREEZEAMMO;
+    weaponsandammosprites[0] = TILE_RPGSPRITE;
+    weaponsandammosprites[1] = TILE_CHAINGUNSPRITE;
+    weaponsandammosprites[2] = TILE_DEVISTATORAMMO;
+    weaponsandammosprites[3] = TILE_RPGAMMO;
+    weaponsandammosprites[4] = TILE_RPGAMMO;
+    weaponsandammosprites[5] = TILE_JETPACK;
+    weaponsandammosprites[6] = TILE_SHIELD;
+    weaponsandammosprites[7] = TILE_FIRSTAID;
+    weaponsandammosprites[8] = TILE_STEROIDS;
+    weaponsandammosprites[9] = TILE_RPGAMMO;
+    weaponsandammosprites[10] = TILE_RPGAMMO;
+    weaponsandammosprites[11] = TILE_RPGSPRITE;
+    weaponsandammosprites[12] = TILE_RPGAMMO;
+    weaponsandammosprites[13] = TILE_FREEZESPRITE;
+    weaponsandammosprites[14] = TILE_FREEZEAMMO;
 
     if (RR)
     {

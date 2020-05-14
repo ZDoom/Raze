@@ -44,91 +44,6 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
-// game dependent dispatchers
-//
-//---------------------------------------------------------------------------
-
-bool isadoorwall_d(int dapic);
-bool isadoorwall_r(int dapic);
-void animatewalls_d(void);
-void animatewalls_r(void);
-void operaterespawns_d(int low);
-void operaterespawns_r(int low);
-void operateforcefields_r(int s, int low);
-void operateforcefields_d(int s, int low);
-bool checkhitswitch_d(int snum, int w, int switchtype);
-bool checkhitswitch_r(int snum, int w, int switchtype);
-void activatebysector_d(int sect, int j);
-void activatebysector_r(int sect, int j);
-void checkhitwall_d(int spr, int dawallnum, int x, int y, int z, int atwith);
-void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith);
-void checkplayerhurt_d(struct player_struct* p, int j);
-void checkplayerhurt_r(struct player_struct* p, int j);
-bool checkhitceiling_d(int sn);
-bool checkhitceiling_r(int sn);
-void checkhitsprite_d(int i, int sn);
-void checkhitsprite_r(int i, int sn);
-void checksectors_d(int snum);
-void checksectors_r(int snum);
-
-bool isadoorwall(int dapic)
-{
-	return isRR() ? isadoorwall_r(dapic) : isadoorwall_d(dapic);
-}
-
-void animatewalls()
-{
-	if (isRR()) animatewalls_r(); else animatewalls_d();
-}
-
-void operaterespawns(int low)
-{
-	if (isRR()) operaterespawns_r(low); else operaterespawns_d(low);
-}
-
-void operateforcefields(int s, int low)
-{
-	if (isRR()) operateforcefields_r(s, low); else operateforcefields_d(s, low);
-}
-
-bool checkhitswitch(int snum, int w, int switchtype)
-{
-	return isRR() ? checkhitswitch_r(snum, w, switchtype) : checkhitswitch_d(snum, w, switchtype);
-}
-
-void activatebysector(int sect, int j)
-{
-	if (isRR()) activatebysector_r(sect, j); else activatebysector_d(sect, j);
-}
-
-void checkhitwall(int spr, int dawallnum, int x, int y, int z, int atwith)
-{
-	if (isRR()) checkhitwall_r(spr, dawallnum, x, y, z, atwith); else checkhitwall_d(spr, dawallnum, x, y, z, atwith);
-}
-
-void checkplayerhurt(struct player_struct* p, int j)
-{
-	if (isRR()) checkplayerhurt_r(p, j); else checkplayerhurt_d(p, j);
-}
-
-bool checkhitceiling(int sn)
-{
-	return isRR() ? checkhitceiling_r(sn) : checkhitceiling_d(sn);
-}
-
-void checkhitsprite(int i, int sn)
-{
-	if (isRR()) checkhitsprite_r(i, sn); else checkhitsprite_d(i, sn);
-}
-
-void checksectors(int low)
-{
-	if (isRR()) checksectors_r(low); else checksectors_d(low);
-}
-
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1083,7 +998,7 @@ void operateactivators(int low, int snum)
 		i = nextspritestat[i];
 	}
 
-	operaterespawns(low);
+	fi.operaterespawns(low);
 }
 
 //---------------------------------------------------------------------------

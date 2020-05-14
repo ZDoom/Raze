@@ -664,7 +664,7 @@ void G_DoCheats(void)
                             operatesectors(i, pPlayer->i);
                         }
                     }
-                    operateforcefields(pPlayer->i, -1);
+                    fi.operateforcefields(pPlayer->i, -1);
 
                     P_DoQuote(QUOTE_CHEAT_UNLOCK, pPlayer);
                     end_cheat(pPlayer);
