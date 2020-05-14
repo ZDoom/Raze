@@ -541,7 +541,7 @@ void gutsdir_r(spritetype* s, short gtype, short n, short p)
 void movefta_r(void)
 {
 	int x, px, py, sx, sy;
-	short i, j=0, p, psect, ssect, nexti;
+	short i, j, p, psect, ssect, nexti;
 	spritetype* s;
 
 	i = headspritestat[STAT_ZOMBIEACTOR];

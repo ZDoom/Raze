@@ -656,44 +656,6 @@ void VM_Execute(native_t loop)
         {
 
 
-            case concmd_ai:
-                insptr++;
-                // Following changed to use pointersizes
-                AC_AI_ID(vm.pData)     = *insptr++;                         // Ai
-                AC_ACTION_ID(vm.pData) = *(apScript + AC_AI_ID(vm.pData));  // Action
-                AC_MOVE_ID(vm.pData) = *(apScript + AC_AI_ID(vm.pData) + 1);  // move
-
-                vm.pSprite->hitag = *(apScript + AC_AI_ID(vm.pData) + 2);  // move flags
-
-                AC_COUNT(vm.pData)        = 0;
-                AC_ACTION_COUNT(vm.pData) = 0;
-                AC_CURFRAME(vm.pData)     = 0;
-
-                if (vm.pSprite->hitag & random_angle)
-                    vm.pSprite->ang = krand2() & 2047;
-                continue;
-
-            case concmd_action:
-                insptr++;
-                AC_ACTION_COUNT(vm.pData) = 0;
-                AC_CURFRAME(vm.pData)     = 0;
-                AC_ACTION_ID(vm.pData)    = *insptr++;
-                continue;
-
-            case concmd_ifpdistl:
-                insptr++;
-                VM_CONDITIONAL(!(DEER && sub_535EC()) && vm.playerDist < *(insptr));
-                if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
-                    vm.pActor->timetosleep = SLEEPTIME;
-                continue;
-
-            case concmd_ifpdistg:
-                VM_CONDITIONAL(vm.playerDist > *(++insptr));
-                if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
-                    vm.pActor->timetosleep = SLEEPTIME;
-                continue;
-
-
             case concmd_smacksprite:
                 insptr++;
                 if (krand2()&1)
@@ -771,92 +733,6 @@ void VM_Execute(native_t loop)
                     A_PlaySound(411, vm.spriteNum);
                 continue;
 
-            case concmd_ifgotweaponce:
-                insptr++;
-
-                if ((g_gametypeFlags[ud.coop] & GAMETYPE_WEAPSTAY) && (g_netServer || ud.multimode > 1))
-                {
-                    if (*insptr == 0)
-                    {
-                        int j = 0;
-                        for (; j < pPlayer->weapreccnt; ++j)
-                            if (pPlayer->weaprecs[j] == vm.pSprite->picnum)
-                                break;
-
-                        VM_CONDITIONAL(j < pPlayer->weapreccnt && vm.pSprite->owner == vm.spriteNum);
-                        continue;
-                    }
-                    else if (pPlayer->weapreccnt < MAX_WEAPON_RECS-1)
-                    {
-                        pPlayer->weaprecs[pPlayer->weapreccnt++] = vm.pSprite->picnum;
-                        VM_CONDITIONAL(vm.pSprite->owner == vm.spriteNum);
-                        continue;
-                    }
-                }
-                VM_CONDITIONAL(0);
-                continue;
-
-            case concmd_getlastpal:
-                insptr++;
-                if (vm.pSprite->picnum == TILE_APLAYER)
-                    vm.pSprite->pal = g_player[P_GetP(vm.pSprite)].ps->palookup;
-                else
-                    vm.pSprite->pal = vm.pActor->tempang;
-                vm.pActor->tempang = 0;
-                continue;
-
-            case concmd_tossweapon:
-                insptr++;
-                // NOTE: assumes that current actor is TILE_APLAYER
-                checkweapons(&ps[P_GetP(vm.pSprite)]);
-                continue;
-
-            case concmd_mikesnd:
-                insptr++;
-                if (EDUKE32_PREDICT_FALSE(((unsigned)vm.pSprite->yvel >= MAXSOUNDS)))
-                {
-                    CON_ERRPRINTF("invalid sound %d\n", vm.pUSprite->yvel);
-                    continue;
-                }
-                if (!S_CheckSoundPlaying(vm.spriteNum, vm.pSprite->yvel))
-                    A_PlaySound(vm.pSprite->yvel, vm.spriteNum, CHAN_VOICE);
-                continue;
-
-            case concmd_pkick:
-                insptr++;
-
-                if ((g_netServer || ud.multimode > 1) && vm.pSprite->picnum == TILE_APLAYER)
-                {
-                    if (g_player[otherp].ps->quick_kick == 0)
-                        g_player[otherp].ps->quick_kick = 14;
-                }
-                else if (vm.pSprite->picnum != TILE_APLAYER && pPlayer->quick_kick == 0)
-                    pPlayer->quick_kick = 14;
-                continue;
-
-            case concmd_sizeto:
-                insptr++;
-
-                tw = (*insptr++ - vm.pSprite->xrepeat) << 1;
-                vm.pSprite->xrepeat += ksgn(tw);
-
-                if ((vm.pSprite->picnum == TILE_APLAYER && vm.pSprite->yrepeat < 36) || *insptr < vm.pSprite->yrepeat
-                    || ((vm.pSprite->yrepeat * (tilesiz[vm.pSprite->picnum].y + 8)) << 2) < (vm.pActor->floorz - vm.pActor->ceilingz))
-                {
-                    tw = ((*insptr) - vm.pSprite->yrepeat) << 1;
-                    if (klabs(tw))
-                        vm.pSprite->yrepeat += ksgn(tw);
-                }
-
-                insptr++;
-
-                continue;
-
-            case concmd_sizeat:
-                insptr++;
-                vm.pSprite->xrepeat = (uint8_t)*insptr++;
-                vm.pSprite->yrepeat = (uint8_t)*insptr++;
-                continue;
 
             case concmd_shoot:
                 insptr++;
@@ -1949,6 +1825,17 @@ void VM_Execute(native_t loop)
             case concmd_ifcanseetarget:
             case concmd_ifnocover:
             case concmd_ifcansee:
+            case concmd_ai:
+            case concmd_action:
+            case concmd_ifpdistl:
+            case concmd_ifpdistg:
+            case concmd_ifgotweaponce:
+            case concmd_getlastpal:
+            case concmd_tossweapon:
+            case concmd_mikesnd:
+            case concmd_pkick:
+            case concmd_sizeto:
+            case concmd_sizeat:
 
                 if (parse()) goto out;
                 if (killit_flag & 1) vm.flags |= VM_KILL;
