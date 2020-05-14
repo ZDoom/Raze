@@ -894,7 +894,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_fakebubba:
                 insptr++;
-                switch (++g_fakeBubbaCnt)
+                switch (++fakebubba_spawn)
                 {
                 case 1:
                     A_Spawn(vm.spriteNum, TILE_PIG);
@@ -925,9 +925,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_mamaspawn:
                 insptr++;
-                if (g_mamaSpawnCnt)
+                if (mamaspawn_count)
                 {
-                    g_mamaSpawnCnt--;
+                    mamaspawn_count--;
                     A_Spawn(vm.spriteNum, TILE_RABBIT);
                 }
                 continue;
@@ -942,24 +942,24 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_garybanjo:
                 insptr++;
-                if (g_banjoSong == 0)
+                if (banjosound == 0)
                 {
                     switch (krand2()&3)
                     {
                     case 3:
-                        g_banjoSong = 262;
+                        banjosound = 262;
                         break;
                     case 0:
-                        g_banjoSong = 272;
+                        banjosound = 272;
                         break;
                     default:
-                        g_banjoSong = 273;
+                        banjosound = 273;
                         break;
                     }
-                    A_PlaySound(g_banjoSong, vm.spriteNum);
+                    A_PlaySound(banjosound, vm.spriteNum, CHAN_WEAPON);
                 }
-                else if (!S_CheckSoundPlaying(vm.spriteNum, g_banjoSong))
-                    A_PlaySound(g_banjoSong, vm.spriteNum, CHAN_WEAPON);
+                else if (!S_CheckSoundPlaying(vm.spriteNum, banjosound))
+                    A_PlaySound(banjosound, vm.spriteNum, CHAN_WEAPON);
                 continue;
             case concmd_motoloopsnd:
                 insptr++;
@@ -1004,7 +1004,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
             case concmd_tossweapon:
                 insptr++;
                 // NOTE: assumes that current actor is TILE_APLAYER
-                P_DropWeapon(P_GetP(vm.pSprite));
+                checkweapons(&ps[P_GetP(vm.pSprite)]);
                 continue;
 
             case concmd_mikesnd:
@@ -1066,18 +1066,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_ifsoundid:
                 insptr++;
-                VM_CONDITIONAL((int16_t)*insptr == g_ambientLotag[vm.pSprite->ang]);
+                VM_CONDITIONAL((int16_t)*insptr == ambientlotag[vm.pSprite->ang]);
                 continue;
 
             case concmd_ifsounddist:
                 insptr++;
                 if (*insptr == 0)
                 {
-                    VM_CONDITIONAL(g_ambientHitag[vm.pSprite->ang] > vm.playerDist);
+                    VM_CONDITIONAL(ambienthitag[vm.pSprite->ang] > vm.playerDist);
                 }
                 else if (*insptr == 1)
                 {
-                    VM_CONDITIONAL(g_ambientHitag[vm.pSprite->ang] < vm.playerDist);
+                    VM_CONDITIONAL(ambienthitag[vm.pSprite->ang] < vm.playerDist);
                 }
                 else
                 {
@@ -1088,13 +1088,13 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_soundtag:
                 insptr++;
-                A_PlaySound(g_ambientLotag[vm.pSprite->ang], vm.spriteNum);
+                A_PlaySound(ambientlotag[vm.pSprite->ang], vm.spriteNum);
                 continue;
 
             case concmd_soundtagonce:
                 insptr++;
-                if (!S_CheckSoundPlaying(vm.spriteNum, g_ambientLotag[vm.pSprite->ang]))
-                    A_PlaySound(g_ambientLotag[vm.pSprite->ang], vm.spriteNum);
+                if (!S_CheckSoundPlaying(vm.spriteNum, ambientlotag[vm.pSprite->ang]))
+                    A_PlaySound(ambientlotag[vm.pSprite->ang], vm.spriteNum);
                 continue;
 
             case concmd_soundonce:
@@ -1158,7 +1158,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case concmd_mamaend:
                 insptr++;
-                g_player[myconnectindex].ps->level_end_timer = 150;
+                g_player[myconnectindex].ps->MamaEnd = 150;
                 continue;
 
             case concmd_ifactorhealthg:

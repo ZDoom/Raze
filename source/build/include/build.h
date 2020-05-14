@@ -1077,6 +1077,10 @@ inline int32_t   setsprite(int16_t spritenum, int x, int y, int z)
     return setsprite(spritenum, &v);
 }
 
+void setspritepos(int spnum, int x, int y, int z)
+{
+    sprite[spnum].pos = { x,y,z };
+}
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);

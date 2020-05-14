@@ -1165,7 +1165,7 @@ static void resetprestat(int playerNum, int gameMode)
     {
         g_windTime = 0;
         WindDir = 0;
-        g_fakeBubbaCnt = 0;
+        fakebubba_spawn = 0;
         RRRA_ExitedLevel = 0;
         g_bellTime = 0;
         g_bellSprite = 0;
@@ -1278,9 +1278,9 @@ static void prelevel(char g)
         ufospawnsminion = 0;
         pistonsound = 0;
         enemysizecheat = 0;
-        g_player[myconnectindex].ps->level_end_timer = 0;
-        g_mamaSpawnCnt = 15;
-        g_banjoSong = 0;
+        g_player[myconnectindex].ps->MamaEnd = 0;
+        mamaspawn_count = 15;
+        banjosound = 0;
         RRRA_ExitedLevel = 0;
         if (!DEER)
         {
@@ -1293,11 +1293,11 @@ static void prelevel(char g)
                     ps->inv_amount[GET_STEROIDS] = 0;
             }
             if (ud.level_number == 3 && ud.volume_number == 0)
-                g_mamaSpawnCnt = 5;
+                mamaspawn_count = 5;
             else if (ud.level_number == 2 && ud.volume_number == 1)
-                g_mamaSpawnCnt = 10;
+                mamaspawn_count = 10;
             else if (ud.level_number == 6 && ud.volume_number == 1)
-                g_mamaSpawnCnt = 15;
+                mamaspawn_count = 15;
         }
     }
 
@@ -1306,8 +1306,8 @@ static void prelevel(char g)
     Bmemset(shadedsector, 0, sizeof(shadedsector));
     Bmemset(g_geoSectorWarp, -1, sizeof(g_geoSectorWarp));
     Bmemset(g_geoSectorWarp2, -1, sizeof(g_geoSectorWarp2));
-    Bmemset(g_ambientHitag, -1, sizeof(g_ambientHitag));
-    Bmemset(g_ambientLotag, -1, sizeof(g_ambientLotag));
+    Bmemset(ambienthitag, -1, sizeof(ambienthitag));
+    Bmemset(ambientlotag, -1, sizeof(ambientlotag));
     show2dsector.Zero();
 #ifdef LEGACY_ROR
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
@@ -1324,9 +1324,9 @@ static void prelevel(char g)
         {
             g_windTime = 0;
             WindDir = 0;
-            g_fakeBubbaCnt = 0;
+            fakebubba_spawn = 0;
             RRRA_ExitedLevel = 0;
-            g_mamaSpawnCnt = 15; // ???
+            mamaspawn_count = 15; // ???
             g_bellTime = 0;
             g_bellSprite = 0;
 
@@ -1532,8 +1532,8 @@ static void prelevel(char g)
                     G_GameExit("\nToo many ambient effects");
                 else
                 {
-                    g_ambientHitag[g_ambientCnt] = SHT(i);
-                    g_ambientLotag[g_ambientCnt] = SLT(i);
+                    ambienthitag[g_ambientCnt] = SHT(i);
+                    ambientlotag[g_ambientCnt] = SLT(i);
                     sprite[i].ang = g_ambientCnt++;
                     sprite[i].lotag = 0;
                     sprite[i].hitag = 0;

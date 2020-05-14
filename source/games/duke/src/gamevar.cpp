@@ -56,15 +56,7 @@ extern int errorcount, warningcount, line_count;
 
 intptr_t *actorLoadEventScrptr[MAXTILES];
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-
-// global crap for event management
-int g_i,g_p;
-int g_x;
-int *g_t;
-uint8_t killit_flag;
-spritetype *g_sp;
 #endif
-
 
 //---------------------------------------------------------------------------
 //

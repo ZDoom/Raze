@@ -877,8 +877,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &shadedsector[0], sizeof(shadedsector[0]), MAXSECTORS },
 
     { 0, &g_ambientCnt, sizeof(g_ambientCnt), 1 },
-    { 0, &g_ambientHitag[0], sizeof(g_ambientHitag[0]), ARRAY_SIZE(g_ambientHitag) },
-    { 0, &g_ambientLotag[0], sizeof(g_ambientLotag[0]), ARRAY_SIZE(g_ambientLotag) },
+    { 0, &ambienthitag[0], sizeof(ambienthitag[0]), ARRAY_SIZE(ambienthitag) },
+    { 0, &ambientlotag[0], sizeof(ambientlotag[0]), ARRAY_SIZE(ambientlotag) },
     
     { 0, &g_ufoSpawn, sizeof(g_ufoSpawn), 1 },
     { 0, &g_ufoCnt, sizeof(g_ufoCnt), 1 },
@@ -896,9 +896,9 @@ static const dataspec_t svgm_anmisc[] =
 
     { 0, &g_windTime, sizeof(g_windTime), 1 },
     { 0, &WindDir, sizeof(WindDir), 1 },
-    { 0, &g_fakeBubbaCnt, sizeof(g_fakeBubbaCnt), 1 },
-    { 0, &g_mamaSpawnCnt, sizeof(g_mamaSpawnCnt), 1 },
-    { 0, &g_banjoSong, sizeof(g_banjoSong), 1 },
+    { 0, &fakebubba_spawn, sizeof(fakebubba_spawn), 1 },
+    { 0, &mamaspawn_count, sizeof(mamaspawn_count), 1 },
+    { 0, &banjosound, sizeof(banjosound), 1 },
     { 0, &g_bellTime, sizeof(g_bellTime), 1 },
     { 0, &g_bellSprite, sizeof(g_bellSprite), 1 },
 

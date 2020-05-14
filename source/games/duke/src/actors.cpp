@@ -68,6 +68,8 @@ int ifhitsectors_r(int sectnum);
 int ifhitbyweapon_r(int sn);
 int ifhitbyweapon_d(int sn);
 int adjustfall(spritetype* s, int c);
+void fall_d(int g_i, int g_p);
+void fall_r(int g_i, int g_p);
 
 bool ceilingspace(int sectnum)
 {
@@ -135,6 +137,11 @@ int ifhitsectors(int sectnum)
 int ifhitbyweapon(int sectnum)
 {
 	return isRR()? ifhitbyweapon_r(sectnum) : ifhitbyweapon_d(sectnum);
+}
+
+void fall(int g_i, int g_p)
+{
+	if (isRR()) fall_r(g_i, g_p); else fall_d(g_i, g_p);
 }
 
 //---------------------------------------------------------------------------
@@ -5050,6 +5057,98 @@ void alterang(int a, int g_i, int g_p)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// the indirections here are to keep this core function free of game references
+//
+//---------------------------------------------------------------------------
+
+
+void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*))
+{
+	int j;
+	auto g_sp = &sprite[g_i];
+	g_sp->xoffset = 0;
+	g_sp->yoffset = 0;
+	//			  if(!gotz)
+	{
+		long c;
+
+		int sphit = fallspecial? fallspecial(g_i, g_p) : 0;
+		if (floorspace(g_sp->sectnum))
+			c = 0;
+		else
+		{
+			if (ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
+				c = gc / 6;
+			else c = gc;
+		}
+
+		if (hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat & 2))
+		{
+			getglobalz(g_i);
+			hittype[g_i].cgg = 6;
+		}
+		else hittype[g_i].cgg--;
+
+		if (g_sp->z < (hittype[g_i].floorz - FOURSLEIGHT))
+		{
+			g_sp->zvel += c;
+			g_sp->z += g_sp->zvel;
+
+			if (g_sp->zvel > 6144) g_sp->zvel = 6144;
+		}
+		else
+		{
+			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
+
+			if (badguy(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+			{
+
+				if (g_sp->zvel > 3084 && g_sp->extra <= 1)
+				{
+					if (g_sp->pal != 1 && g_sp->picnum != DRONE)
+					{
+						if (g_sp->picnum == APLAYER && g_sp->extra > 0)
+							goto SKIPJIBS;
+						if (sphit)
+						{
+							guts(g_sp, JIBS6, 5, g_p);
+							spritesound(squished, g_i);
+						}
+						else
+						{
+							guts(g_sp, JIBS6, 15, g_p);
+							spritesound(squished, g_i);
+							spawn(g_i, BLOODPOOL);
+						}
+					}
+
+				SKIPJIBS:
+
+					hittype[g_i].picnum = SHOTSPARK1;
+					hittype[g_i].extra = 1;
+					g_sp->zvel = 0;
+				}
+				else if (g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
+				{
+
+					short j = g_sp->sectnum;
+					int x = g_sp->x, y = g_sp->y, z = g_sp->z;
+					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
+					setspritepos(g_i, x, y, z);	// wrap this for safety. The renderer may need processing of the new position.
+					if (j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
+						changespritesect(g_i, j);
+
+					spritesound(thud, g_i);
+				}
+			}
+			if (sector[g_sp->sectnum].lotag == 1)
+				falladjustz(g_sp);
+			else g_sp->zvel = 0;
+		}
+	}
+}
 
 
 

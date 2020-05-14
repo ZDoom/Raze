@@ -460,6 +460,8 @@ void lotsofmoney(spritetype* s, short n);
 
 int dodge(spritetype*);
 void alterang(int a, int g_i, int g_p);
+void fall(int g_i, int g_p);
+void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 
 // tile names which are identical for all games.
 enum

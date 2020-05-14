@@ -4156,4 +4156,29 @@ void move_d(int g_i, int g_p, int g_x)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static void falladjustz(spritetype* g_sp)
+{
+	switch (g_sp->picnum)
+	{
+	case OCTABRAIN:
+	case COMMANDER:
+	case DRONE:
+		break;
+	default:
+		g_sp->z += (24 << 8);
+		break;
+	}
+}
+
+void fall_d(int g_i, int g_p)
+{
+	fall_common(g_i, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, SQUISHED, THUD, nullptr, falladjustz);
+}
+
 END_DUKE_NS

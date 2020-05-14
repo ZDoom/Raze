@@ -197,8 +197,8 @@ G_EXTERN int32_t g_winderFlash;
 G_EXTERN int32_t g_winderTime;
 G_EXTERN int32_t g_brightness;
 
-G_EXTERN int16_t g_ambientLotag[64];
-G_EXTERN int16_t g_ambientHitag[64];
+G_EXTERN int16_t ambientlotag[64];
+G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t g_ambientCnt;
 
 G_EXTERN intptr_t *apScript;
@@ -217,7 +217,7 @@ G_EXTERN msx_ msx;
 G_EXTERN msy_ msy;
 
 G_EXTERN int32_t g_windTime, WindDir;
-G_EXTERN int16_t g_fakeBubbaCnt, g_mamaSpawnCnt, g_banjoSong, g_bellTime, g_bellSprite;
+G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, g_bellSprite;
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!

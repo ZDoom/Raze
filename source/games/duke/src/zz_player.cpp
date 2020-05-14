@@ -4593,9 +4593,9 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
                                            };
 // this is used for player deaths
-void P_DropWeapon(int const playerNum)
+void checkweapons(DukePlayer_t* const pPlayer)
 {
-    DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
+    int playerNum = sprite[pPlayer->i].yvel;
     int const currentWeapon = WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : pPlayer->curr_weapon;
 
     if (RRRA && (g_netServer || numplayers > 1))

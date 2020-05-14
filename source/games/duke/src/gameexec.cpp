@@ -32,6 +32,7 @@ source as it is released.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "concmd.h"
 #include "duke3d_ed.h"
 #include "gamedef.h"
 #include "gamevar.h"
@@ -39,8 +40,24 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-#if 0
+// curse these global variables for parameter passing...
+int g_i, g_p;
+int g_x;
+int* g_t;
+uint8_t killit_flag;
+spritetype* g_sp;
+
 char parse(void);
+int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
+bool ifsquished(int i, int p);
+void fakebubbaspawn(int g_i, int g_p);
+void tearitup(int sect);
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void parseifelse(int condition)
 {
@@ -52,7 +69,7 @@ void parseifelse(int condition)
 	}
 	else
 	{
-		insptr = (int *) *(insptr+1);
+		insptr = apScript + *(insptr+1);
 		if(*insptr == 10)
 		{
 			// else...
@@ -65,6 +82,135 @@ void parseifelse(int condition)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+static int ifcanshoottarget(int g_i, int g_p, int g_x)
+{
+	int j;
+	auto g_sp = &sprite[g_i];
+	if (g_x > 1024)
+	{
+		short temphit, sclip, angdif;
+
+		if (badguy(g_sp) && g_sp->xrepeat > 56)
+		{
+			sclip = 3084;
+			angdif = 48;
+		}
+		else
+		{
+			sclip = 768;
+			angdif = 16;
+		}
+
+		j = hitasprite(g_i, &temphit);
+		if (j == (1 << 30))
+		{
+			return 1;
+		}
+		if (j > sclip)
+		{
+			if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+				j = 0;
+			else
+			{
+				g_sp->ang += angdif; j = hitasprite(g_i, &temphit); g_sp->ang -= angdif;
+				if (j > sclip)
+				{
+					if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+						j = 0;
+					else
+					{
+						g_sp->ang -= angdif; j = hitasprite(g_i, &temphit); g_sp->ang += angdif;
+						if (j > 768)
+						{
+							if (temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
+								j = 0;
+							else j = 1;
+						}
+						else j = 0;
+					}
+				}
+				else j = 0;
+			}
+		}
+		else j = 0;
+	}
+	else j = 1;
+	return j;
+}
+
+static bool ifcansee(int g_i, int g_p)
+{
+	auto g_sp = &sprite[g_i];
+	spritetype* s;
+	short sect;
+	int j;
+
+	// select sprite for monster to target
+	// if holoduke is on, let them target holoduke first.
+	// 
+	if (ps[g_p].holoduke_on >= 0 && !isRR())
+	{
+		s = &sprite[ps[g_p].holoduke_on];
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((32 << 8) - 1)), g_sp->sectnum,
+			s->x, s->y, s->z, s->sectnum);
+
+		if (j == 0)
+		{
+			// they can't see player's holoduke
+			// check for player...
+			s = &sprite[ps[g_p].i];
+		}
+	}
+	else s = &sprite[ps[g_p].i];	// holoduke not on. look for player
+
+	// can they see player, (or player's holoduke)
+	j = cansee(g_sp->x, g_sp->y, g_sp->z - (krand() & ((47 << 8))), g_sp->sectnum,
+		s->x, s->y, s->z - ((isRR()? 28 : 24) << 8), s->sectnum);
+
+	if (j == 0)
+	{
+		// they can't see it.
+
+		// Huh?.  This does nothing....
+		// (the result is always j==0....)
+		if ((abs(hittype[g_i].lastvx - g_sp->x) + abs(hittype[g_i].lastvy - g_sp->y)) <
+			(abs(hittype[g_i].lastvx - s->x) + abs(hittype[g_i].lastvy - s->y)))
+			j = 0;
+
+		// um yeah, this if() will always fire....
+		if (j == 0)
+		{
+			// search around for target player
+
+			// also modifies 'target' x&y if found..
+
+			j = furthestcanseepoint(g_i, s, &hittype[g_i].lastvx, &hittype[g_i].lastvy);
+
+			if (j == -1) j = 0;
+			else j = 1;
+		}
+	}
+	else
+	{
+		// else, they did see it.
+		// save where we were looking...
+		hittype[g_i].lastvx = s->x;
+		hittype[g_i].lastvy = s->y;
+	}
+
+	if (j == 1 && (g_sp->statnum == 1 || g_sp->statnum == 6))
+		hittype[g_i].timetosleep = SLEEPTIME;
+
+	return j == 1;
+}
+
+
 // int *it = 0x00589a04;
 
 char parse(void)
@@ -73,852 +219,797 @@ char parse(void)
 
 	if(killit_flag) return 1;
 
-	switch(*insptr)
+	switch (*insptr)
 	{
-		case 3:
-			insptr++;
-			parseifelse( rnd(*insptr));
-			break;
-		case 45:
+	case concmd_ifrnd:
+		insptr++;
+		parseifelse(rnd(*insptr));
+		break;
+	case concmd_ifcanshoottarget:
+		parseifelse(ifcanshoottarget(g_i, g_p, g_x));
+		break;
+	case concmd_ifcanseetarget:
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz/*-((krand()&41)<<8)*/, sprite[ps[g_p].i].sectnum);
+		parseifelse(j);
+		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		break;
+	case concmd_ifnocover:
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz, sprite[ps[g_p].i].sectnum);
+		parseifelse(j);
+		if (j) hittype[g_i].timetosleep = SLEEPTIME;
+		break;
 
-			if(g_x > 1024)
-			{
-				short temphit, sclip, angdif;
+	case concmd_ifactornotstayput:
+		parseifelse(hittype[g_i].actorstayput == -1);
+		break;
+	case concmd_ifcansee:
+		parseifelse(ifcansee(g_i, g_p));
+		break;
 
-				if( badguy(g_sp) && g_sp->xrepeat > 56 )
-				{
-					sclip = 3084;
-					angdif = 48;
-				}
-				else
-				{
-					sclip = 768;
-					angdif = 16;
-				}
+	case concmd_ifhitweapon:
+		parseifelse(ifhitbyweapon(g_i) >= 0);
+		break;
+	case concmd_ifsquished:
+		parseifelse(ifsquished(g_i, g_p) == 1);
+		break;
+	case concmd_ifdead:
+	{
+		j = g_sp->extra;
+		if (g_sp->picnum == APLAYER)
+			j--;
+		parseifelse(j < 0);
+	}
+	break;
+	case concmd_ai:
+		insptr++;
+		g_t[5] = *insptr;
+		g_t[4] = apScript[g_t[5]];		  // Action
+		g_t[1] = apScript[g_t[5] + 1];		// move
+		g_sp->hitag = apScript[g_t[5] + 2];	  // Ai
+		g_t[0] = g_t[2] = g_t[3] = 0;
+		if (g_sp->hitag & random_angle)
+			g_sp->ang = krand() & 2047;
+		insptr++;
+		break;
+	case concmd_action:
+		insptr++;
+		g_t[2] = 0;
+		g_t[3] = 0;
+		g_t[4] = *insptr;
+		insptr++;
+		break;
 
-				j = hitasprite(g_i,&temphit);
-				if(j == (1<<30))
-				{
-					parseifelse(1);
-					break;
-				}
-				if(j > sclip)
-				{
-					if(temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
-						j = 0;
-					else
-					{
-						g_sp->ang += angdif;j = hitasprite(g_i,&temphit);g_sp->ang -= angdif;
-						if(j > sclip)
-						{
-							if(temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
-								j = 0;
-							else
-							{
-								g_sp->ang -= angdif;j = hitasprite(g_i,&temphit);g_sp->ang += angdif;
-								if( j > 768 )
-								{
-									if(temphit >= 0 && sprite[temphit].picnum == g_sp->picnum)
-										j = 0;
-									else j = 1;
-								}
-								else j = 0;
-							}
-						}
-						else j = 0;
-					}
-				}
-				else j =  0;
-			}
-			else j = 1;
-
-			parseifelse(j);
-			break;
-		case 91:
-			j = cansee(g_sp->x,g_sp->y,g_sp->z-((TRAND&41)<<8),g_sp->sectnum,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz/*-((TRAND&41)<<8)*/,sprite[ps[g_p].i].sectnum);
-			parseifelse(j);
-			if( j ) hittype[g_i].timetosleep = SLEEPTIME;
-			break;
-
-		case 49:
-			parseifelse(hittype[g_i].actorstayput == -1);
-			break;
-		case 5:
+	case concmd_ifpdistl:
+		insptr++;
+		parseifelse(g_x < *insptr);
+		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
+			hittype[g_i].timetosleep = SLEEPTIME;
+		break;
+	case concmd_ifpdistg:
+		insptr++;
+		parseifelse(g_x > * insptr);
+		if (g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
+			hittype[g_i].timetosleep = SLEEPTIME;
+		break;
+	case concmd_else:
+		insptr = apScript + *(insptr + 1);
+		break;
+	case concmd_addstrength:
+		insptr++;
+		g_sp->extra += *insptr;
+		insptr++;
+		break;
+	case concmd_strength:
+		insptr++;
+		g_sp->extra = *insptr;
+		insptr++;
+		break;
+	case concmd_smacksprite:
+		switch (krand() & 1)
 		{
-			spritetype *s;
-			short sect;
-
-			// select sprite for monster to target
-			// if holoduke is on, let them target holoduke first.
-			// 
-			if(ps[g_p].holoduke_on >= 0)
-			{
-				s = &sprite[ps[g_p].holoduke_on];
-				j = cansee(g_sp->x,g_sp->y,g_sp->z-(TRAND&((32<<8)-1)),g_sp->sectnum,
-					   s->x,s->y,s->z,s->sectnum);
-				
-				if(j == 0)
-				{
-					// they can't see player's holoduke
-					// check for player...
-					s = &sprite[ps[g_p].i];
-				}
-			}
-			else s = &sprite[ps[g_p].i];	// holoduke not on. look for player
-
-			// can they see player, (or player's holoduke)
-			j = cansee(g_sp->x,g_sp->y,g_sp->z-(TRAND&((47<<8))),g_sp->sectnum,
-				s->x,s->y,s->z-(24<<8),s->sectnum);
-
-			if(j == 0)
-			{
-				// they can't see it.
-
-				// Huh?.  This does nothing....
-				// (the result is always j==0....)
-				if( ( abs(hittype[g_i].lastvx-g_sp->x)+abs(hittype[g_i].lastvy-g_sp->y) ) <
-					( abs(hittype[g_i].lastvx-s->x)+abs(hittype[g_i].lastvy-s->y) ) )
-						j = 0;
-
-				// um yeah, this if() will always fire....
-				if( j == 0 )
-				{
-					// search around for target player
-					
-					// also modifies 'target' x&y if found..
-					
-					j = furthestcanseepoint(g_i,s,&hittype[g_i].lastvx,&hittype[g_i].lastvy);
-
-					if(j == -1) j = 0;
-					else j = 1;
-				}
-			}
-			else
-			{
-				// else, they did see it.
-				// save where we were looking...
-				hittype[g_i].lastvx = s->x;
-				hittype[g_i].lastvy = s->y;
-			}
-
-			if( j == 1 && ( g_sp->statnum == 1 || g_sp->statnum == 6 ) )
-				hittype[g_i].timetosleep = SLEEPTIME;
-
-			parseifelse(j == 1);
+		case 0:
+			g_sp->ang = (+512 + g_sp->ang + (krand() & 511)) & 2047;
+			break;
+		case 1:
+			g_sp->ang = (-512 + g_sp->ang - (krand() & 511)) & 2047;
 			break;
 		}
+		insptr++;
+		break;
+	case concmd_fakebubba:
+		insptr++;
+		fakebubbaspawn(g_i, g_p);
+		break;
 
-		case 6:
-			parseifelse(ifhitbyweapon(g_i) >= 0);
-			break;
-		case 27:
-			parseifelse( ifsquished(g_i, g_p) == 1);
-			break;
-		case 26:
+	case concmd_rndmove:
+		g_sp->ang = krand() & 2047;
+		g_sp->xvel = 25;
+		insptr++;
+		break;
+	case concmd_mamatrigger:
+		operateactivators(667, ps[g_p].i);
+		insptr++;
+		break;
+	case concmd_mamaspawn:
+		if (mamaspawn_count)
+		{
+			mamaspawn_count--;
+			spawn(g_i, RABBIT);
+		}
+		insptr++;
+		break;
+	case concmd_mamaquake:
+		if (g_sp->pal == 31)
+			earthquaketime = 4;
+		else if (g_sp->pal == 32)
+			earthquaketime = 6;
+		insptr++;
+		break;
+	case concmd_garybanjo:
+		if (banjosound == 0)
+		{
+			short rnum = (krand() & 3) + 1;
+			if (rnum == 4)
 			{
-				j = g_sp->extra;
-				if(g_sp->picnum == APLAYER)
-					j--;
-				parseifelse(j < 0);
+				banjosound = 262;
 			}
-			break;
-		case 24:
-			insptr++;
-			g_t[5] = *insptr;
-			g_t[4] = *(int *)(g_t[5]);		  // Action
-			g_t[1] = *(int *)(g_t[5]+4);		// move
-			g_sp->hitag = *(int *)(g_t[5]+8);	  // Ai
-			g_t[0] = g_t[2] = g_t[3] = 0;
-			if(g_sp->hitag&random_angle)
-				g_sp->ang = TRAND&2047;
-			insptr++;
-			break;
-		case 7:
-			insptr++;
-			g_t[2] = 0;
-			g_t[3] = 0;
-			g_t[4] = *insptr;
-			insptr++;
-			break;
-
-		case 8:
-			insptr++;
-			parseifelse(g_x < *insptr);
-			if(g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-				hittype[g_i].timetosleep = SLEEPTIME;
-			break;
-		case 9:
-			insptr++;
-			parseifelse(g_x > *insptr);
-			if(g_x > MAXSLEEPDIST && hittype[g_i].timetosleep == 0)
-				hittype[g_i].timetosleep = SLEEPTIME;
-			break;
-		case 10:
-			insptr = (int *) *(insptr+1);
-			break;
-		case 100:
-			insptr++;
-			g_sp->extra += *insptr;
-			insptr++;
-			break;
-		case 11:
-			insptr++;
-			g_sp->extra = *insptr;
-			insptr++;
-			break;
-		case 94:
-			insptr++;
-
-			if(ud.coop >= 1 && ud.multimode > 1)
+			else if (rnum == 1)
 			{
-				if(*insptr == 0)
-				{
-					for(j=0;j < ps[g_p].weapreccnt;j++)
-						if( ps[g_p].weaprecs[j] == g_sp->picnum )
-							break;
-
-					parseifelse(j < ps[g_p].weapreccnt && g_sp->owner == g_i);
-				}
-				else if(ps[g_p].weapreccnt < 16)
-				{
-					ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
-					parseifelse(g_sp->owner == g_i);
-				}
+				banjosound = 272;
 			}
-			else parseifelse(0);
-			break;
-		case 95:
-			insptr++;
-			if(g_sp->picnum == APLAYER)
-				g_sp->pal = ps[g_sp->yvel].palookup;
-			else g_sp->pal = hittype[g_i].tempang;
-			hittype[g_i].tempang = 0;
-			break;
-		case 104:
-			insptr++;
-			checkweapons(&ps[g_sp->yvel]);
-			break;
-		case 106:
-			insptr++;
-			break;
-		case 97:
-			insptr++;
-			if(Sound[g_sp->yvel].num == 0)
-				spritesound(g_sp->yvel,g_i);
-			break;
-		case 96:
-			insptr++;
-
-			if( ud.multimode > 1 && g_sp->picnum == APLAYER )
+			else if (rnum == 2)
 			{
-				if(ps[otherp].quick_kick == 0)
-					ps[otherp].quick_kick = 14;
+				banjosound = 273;
 			}
-			else if(g_sp->picnum != APLAYER && ps[g_p].quick_kick == 0)
-				ps[g_p].quick_kick = 14;
-			break;
-		case 28:
-			insptr++;
-
-	    // JBF 20030805: As I understand it, if xrepeat becomes 0 it basically kills the
-	    // sprite, which is why the "sizeto 0 41" calls in 1.3d became "sizeto 4 41" in
-	    // 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
-	    //if (!PLUTOPAK && *insptr == 0) *insptr = 4;
-	    
-            j = ((*insptr)-g_sp->xrepeat)<<1;
-            g_sp->xrepeat += ksgn(j);
-
-            insptr++;
-
-            if( ( g_sp->picnum == APLAYER && g_sp->yrepeat < 36 ) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat*(tilesizy[g_sp->picnum]+8))<<2) < (hittype[g_i].floorz - hittype[g_i].ceilingz) )
-            {
-                j = ((*insptr)-g_sp->yrepeat)<<1;
-                if( abs(j) ) g_sp->yrepeat += ksgn(j);
-            }
-
-			insptr++;
-
-			break;
-		case 99:
-			insptr++;
-			g_sp->xrepeat = (char) *insptr;
-			insptr++;
-			g_sp->yrepeat = (char) *insptr;
-			insptr++;
-			break;
-		case 13:
-			insptr++;
-			shoot(g_i,(short)*insptr);
-			insptr++;
-			break;
-		case 87:
-			insptr++;
-			if( Sound[*insptr].num == 0 )
-				spritesound((short) *insptr,g_i);
-			insptr++;
-			break;
-		case CON_IFSOUND:
-			insptr++;
-			parseifelse( Sound[*insptr].num == 0 );
-			break;
-		case 89:
-			insptr++;
-			if( Sound[*insptr].num > 0 )
-				stopsound((short)*insptr);
-			insptr++;
-			break;
-		case 92:
-			insptr++;
-			if(g_p == screenpeek || ud.coop==1)
-				spritesound((short) *insptr,ps[screenpeek].i);
-			insptr++;
-			break;
-		case 15:
-			insptr++;
-			spritesound((short) *insptr,g_i);
-			insptr++;
-			break;
-		case 84:
-			insptr++;
-			ps[g_p].tipincs = 26;
-			break;
-		case 16:
-			insptr++;
-			g_sp->xoffset = 0;
-			g_sp->yoffset = 0;
-//			  if(!gotz)
+			else
 			{
-				int c;
-
-				if( floorspace(g_sp->sectnum) )
-					c = 0;
-				else
-				{
-					if( ceilingspace(g_sp->sectnum) || sector[g_sp->sectnum].lotag == 2)
-						c = gc/6;
-					else c = gc;
-				}
-
-				if( hittype[g_i].cgg <= 0 || (sector[g_sp->sectnum].floorstat&2) )
-				{
-					getglobalz(g_i);
-					hittype[g_i].cgg = 6;
-				}
-				else hittype[g_i].cgg --;
-
-				if( g_sp->z < (hittype[g_i].floorz-FOURSLEIGHT) )
-				{
-					g_sp->zvel += c;
-					g_sp->z+=g_sp->zvel;
-
-					if(g_sp->zvel > 6144) g_sp->zvel = 6144;
-				}
-				else
-				{
-					g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
-
-					if( badguy(g_sp) || ( g_sp->picnum == APLAYER && g_sp->owner >= 0) )
-					{
-
-						if( g_sp->zvel > 3084 && g_sp->extra <= 1)
-						{
-							if(g_sp->pal != 1 && g_sp->picnum != DRONE)
-							{
-								if(g_sp->picnum == APLAYER && g_sp->extra > 0)
-									goto SKIPJIBS;
-								guts(g_sp,JIBS6,15,g_p);
-								spritesound(SQUISHED,g_i);
-								spawn(g_i,BLOODPOOL);
-							}
-
-							SKIPJIBS:
-
-							hittype[g_i].picnum = SHOTSPARK1;
-							hittype[g_i].extra = 1;
-							g_sp->zvel = 0;
-						}
-						else if(g_sp->zvel > 2048 && sector[g_sp->sectnum].lotag != 1)
-						{
-
-							j = g_sp->sectnum;
-							pushmove(&g_sp->x,&g_sp->y,&g_sp->z,&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-							if(j != g_sp->sectnum && j >= 0 && j < MAXSECTORS)
-								changespritesect(g_i,j);
-
-							spritesound(THUD,g_i);
-						}
-					}
-					if(sector[g_sp->sectnum].lotag == 1)
-						switch (g_sp->picnum)
-						{
-							case OCTABRAIN:
-							case COMMANDER:
-							case DRONE:
-								break;
-							default:
-								g_sp->z += (24<<8);
-								break;
-						}
-					else g_sp->zvel = 0;
-				}
+				banjosound = 273;
 			}
+			A_PlaySound(banjosound, g_i, CHAN_WEAPON);
+		}
+		else if (!S_CheckSoundPlaying(g_i, banjosound))
+			A_PlaySound(banjosound, g_i, CHAN_WEAPON);
+		insptr++;
+		break;
+	case concmd_motoloopsnd:
+		if (!S_CheckSoundPlaying(g_i, 411))
+			A_PlaySound(411, g_i, CHAN_VOICE);
+		insptr++;
+		break;
+	case concmd_ifgotweaponce:
+		insptr++;
 
-			break;
-		case 4:
-		case 12:
-		case 18:
-			return 1;
-		case 30:
-			insptr++;
-			return 1;
-		case 2:
-			insptr++;
-			if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		if (ud.coop >= 1 && ud.multimode > 1)
+		{
+			if (*insptr == 0)
 			{
+				for (j = 0; j < ps[g_p].weapreccnt; j++)
+					if (ps[g_p].weaprecs[j] == g_sp->picnum)
+						break;
+
+				parseifelse(j < ps[g_p].weapreccnt&& g_sp->owner == g_i);
+			}
+			else if (ps[g_p].weapreccnt < 16)
+			{
+				ps[g_p].weaprecs[ps[g_p].weapreccnt++] = g_sp->picnum;
+				parseifelse(g_sp->owner == g_i);
+			}
+		}
+		else parseifelse(0);
+		break;
+	case concmd_getlastpal:
+		insptr++;
+		if (g_sp->picnum == APLAYER)
+			g_sp->pal = ps[g_sp->yvel].palookup;
+		else g_sp->pal = hittype[g_i].tempang;
+		hittype[g_i].tempang = 0;
+		break;
+	case concmd_tossweapon:
+		insptr++;
+		checkweapons(&ps[g_sp->yvel]);
+		break;
+	case concmd_nullop:
+		insptr++;
+		break;
+	case concmd_mikesnd:
+		insptr++;
+		if (!S_CheckSoundPlaying(g_i, g_sp->yvel))
+			A_PlaySound(g_sp->yvel, g_i, CHAN_VOICE);
+		break;
+	case concmd_pkick:
+		insptr++;
+
+		if (ud.multimode > 1 && g_sp->picnum == APLAYER)
+		{
+			if (ps[otherp].quick_kick == 0)
+				ps[otherp].quick_kick = 14;
+		}
+		else if (g_sp->picnum != APLAYER && ps[g_p].quick_kick == 0)
+			ps[g_p].quick_kick = 14;
+		break;
+	case concmd_sizeto:
+		insptr++;
+
+		// JBF 20030805: As I understand it, if xrepeat becomes 0 it basically kills the
+		// sprite, which is why the "sizeto 0 41" calls in 1.3d became "sizeto 4 41" in
+		// 1.4, so instead of patching the CONs I'll surruptitiously patch the code here
+		//if (!PLUTOPAK && *insptr == 0) *insptr = 4;
+
+		j = ((*insptr) - g_sp->xrepeat) << 1;
+		g_sp->xrepeat += ksgn(j);
+
+		insptr++;
+
+		if ((g_sp->picnum == APLAYER && g_sp->yrepeat < 36) || *insptr < g_sp->yrepeat || ((g_sp->yrepeat * (tilesizy[g_sp->picnum] + 8)) << 2) < (hittype[g_i].floorz - hittype[g_i].ceilingz))
+		{
+			j = ((*insptr) - g_sp->yrepeat) << 1;
+			if (abs(j)) g_sp->yrepeat += ksgn(j);
+		}
+
+		insptr++;
+
+		break;
+	case concmd_sizeat:
+		insptr++;
+		g_sp->xrepeat = (uint8_t)*insptr;
+		insptr++;
+		g_sp->yrepeat = (uint8_t)*insptr;
+		insptr++;
+		break;
+	case concmd_shoot:
+		insptr++;
+		shoot(g_i, (short)*insptr);
+		insptr++;
+		break;
+	case concmd_ifsoundid:
+		insptr++;
+		parseifelse((short)*insptr == ambientlotag[g_sp->ang]);
+		break;
+	case concmd_ifsounddist:
+		insptr++;
+		if (*insptr == 0)
+			parseifelse(ambienthitag[g_sp->ang] > g_x);
+		else if (*insptr == 1)
+			parseifelse(ambienthitag[g_sp->ang] < g_x);
+		insptr++;
+		break;
+	case concmd_soundtag:
+		insptr++;
+		spritesound(ambientlotag[g_sp->ang], g_i);
+		break;
+	case concmd_soundtagonce:
+		insptr++;
+		if (!S_CheckSoundPlaying(g_i, ambientlotag[g_sp->ang]))
+			A_PlaySound(ambientlotag[g_sp->ang], g_i);
+		break;
+	case concmd_soundonce:
+		insptr++;
+		if (!S_CheckSoundPlaying(g_i, *insptr++))
+			A_PlaySound(*(insptr - 1), g_i);
+		insptr++;
+		break;
+	case concmd_stopsound:
+		insptr++;
+		if (S_CheckSoundPlaying(g_i, *insptr))
+			S_StopSound((int)*insptr);
+		insptr++;
+		break;
+	case concmd_globalsound:
+		insptr++;
+		if (g_p == screenpeek || ud.coop == 1)
+			spritesound((int)*insptr, ps[screenpeek].i);
+		insptr++;
+		break;
+	case concmd_smackbubba:
+		insptr++;
+		if (!isRRRA || g_sp->pal != 105)
+		{
+			ps[myconnectindex].gm = MODE_EOL;
+			ud.level_number++;
+			if (ud.level_number > 6)
+				ud.level_number = 0;
+			ud.m_level_number = ud.level_number;
+		}
+		break;
+	case concmd_mamaend:
+		insptr++;
+		ps[myconnectindex].MamaEnd = 150;
+		break;
+
+	case concmd_ifactorhealthg:
+		insptr++;
+		parseifelse(g_sp->extra > (short)*insptr);
+		break;
+	case concmd_ifactorhealthl:
+		insptr++;
+		parseifelse(g_sp->extra < (short)*insptr);
+		break;
+	case concmd_sound:
+		insptr++;
+		spritesound((short) *insptr,g_i);
+		insptr++;
+		break;
+	case concmd_tip:
+		insptr++;
+		ps[g_p].tipincs = 26;
+		break;
+	case concmd_iftipcow:
+	case concmd_ifhittruck: // both have the same code.
+		if (g_spriteExtra[g_i] == 1) // TRANSITIONAL 'filler' no longer exists
+		{
+			j = 1;
+			g_spriteExtra[g_i]++;
+		}
+		else
+			j = 0;
+		parseifelse(j > 0);
+		break;
+	case concmd_tearitup:
+		insptr++;
+		tearitup(g_sp->sectnum);
+		break;
+	case concmd_fall:
+		insptr++;
+		g_sp->xoffset = 0;
+		g_sp->yoffset = 0;
+		fall(g_i, g_p);
+		break;
+	case concmd_enda:
+	case concmd_break:
+	case concmd_ends:
+	case concmd_endevent:
+		return 1;
+	case 30:
+		insptr++;
+		return 1;
+	case 2:
+		insptr++;
+		if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		{
+			killit_flag = 2;
+			break;
+		}
+		addammo( *insptr, &ps[g_p], *(insptr+1) );
+		if(ps[g_p].curr_weapon == KNEE_WEAPON)
+			if( ps[g_p].gotweapon[*insptr] )
+				addweapon( &ps[g_p], *insptr );
+		insptr += 2;
+		break;
+	case 86:
+		insptr++;
+		lotsofmoney(g_sp,*insptr);
+		insptr++;
+		break;
+	case 102:
+		insptr++;
+		lotsofmail(g_sp,*insptr);
+		insptr++;
+		break;
+	case 105:
+		insptr++;
+		hittype[g_i].timetosleep = (short)*insptr;
+		insptr++;
+		break;
+	case 103:
+		insptr++;
+		lotsofpaper(g_sp,*insptr);
+		insptr++;
+		break;
+	case 88:
+		insptr++;
+		ps[g_p].actors_killed += *insptr;
+		hittype[g_i].actorstayput = -1;
+		insptr++;
+		break;
+	case 93:
+		insptr++;
+		spriteglass(g_i,*insptr);
+		insptr++;
+		break;
+	case 22:
+		insptr++;
+		killit_flag = 1;
+		break;
+	case 23: // addweapon
+		insptr++;
+		if( ps[g_p].gotweapon[*insptr] == 0 ) addweapon( &ps[g_p], *insptr );
+		else if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		{
 				killit_flag = 2;
 				break;
-			}
-			addammo( *insptr, &ps[g_p], *(insptr+1) );
-			if(ps[g_p].curr_weapon == KNEE_WEAPON)
-				if( ps[g_p].gotweapon[*insptr] )
-					addweapon( &ps[g_p], *insptr );
-			insptr += 2;
-			break;
-		case 86:
-			insptr++;
-			lotsofmoney(g_sp,*insptr);
-			insptr++;
-			break;
-		case 102:
-			insptr++;
-			lotsofmail(g_sp,*insptr);
-			insptr++;
-			break;
-		case 105:
-			insptr++;
-			hittype[g_i].timetosleep = (short)*insptr;
-			insptr++;
-			break;
-		case 103:
-			insptr++;
-			lotsofpaper(g_sp,*insptr);
-			insptr++;
-			break;
-		case 88:
-			insptr++;
-			ps[g_p].actors_killed += *insptr;
-			hittype[g_i].actorstayput = -1;
-			insptr++;
-			break;
-		case 93:
-			insptr++;
-			spriteglass(g_i,*insptr);
-			insptr++;
-			break;
-		case 22:
-			insptr++;
-			killit_flag = 1;
-			break;
-		case 23: // addweapon
-			insptr++;
-			if( ps[g_p].gotweapon[*insptr] == 0 ) addweapon( &ps[g_p], *insptr );
-			else if( ps[g_p].ammo_amount[*insptr] >= max_ammo_amount[*insptr] )
+		}
+		addammo( *insptr, &ps[g_p], *(insptr+1) );
+		if(ps[g_p].curr_weapon == KNEE_WEAPON)
+			if( ps[g_p].gotweapon[*insptr] )
+				addweapon( &ps[g_p], *insptr );
+		insptr+=2;
+		break;
+	case 68:
+		insptr++;
+		printf("%ld\n",*insptr);
+		insptr++;
+		break;
+	case 69:
+		insptr++;
+		ps[g_p].timebeforeexit = *insptr;
+		ps[g_p].customexitsound = -1;
+		ud.eog = 1;
+		insptr++;
+		break;
+	case 25:
+		insptr++;
+
+		if(ps[g_p].newowner >= 0)
+		{
+			ps[g_p].newowner = -1;
+			ps[g_p].posx = ps[g_p].oposx;
+			ps[g_p].posy = ps[g_p].oposy;
+			ps[g_p].posz = ps[g_p].oposz;
+			ps[g_p].ang = ps[g_p].oang;
+			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
+			setpal(&ps[g_p]);
+
+			j = headspritestat[1];
+			while(j >= 0)
 			{
-				 killit_flag = 2;
-				 break;
+				if(sprite[j].picnum==CAMERA1)
+					sprite[j].yvel = 0;
+				j = nextspritestat[j];
 			}
-			addammo( *insptr, &ps[g_p], *(insptr+1) );
-			if(ps[g_p].curr_weapon == KNEE_WEAPON)
-				if( ps[g_p].gotweapon[*insptr] )
-					addweapon( &ps[g_p], *insptr );
-			insptr+=2;
-			break;
-		case 68:
-			insptr++;
-			printf("%ld\n",*insptr);
-			insptr++;
-			break;
-		case 69:
-			insptr++;
-			ps[g_p].timebeforeexit = *insptr;
-			ps[g_p].customexitsound = -1;
-			ud.eog = 1;
-			insptr++;
-			break;
-		case 25:
-			insptr++;
+		}
 
-			if(ps[g_p].newowner >= 0)
+		j = sprite[ps[g_p].i].extra;
+
+		if(g_sp->picnum != ATOMICHEALTH)
+		{
+			if( j > max_player_health && *insptr > 0 )
 			{
-				ps[g_p].newowner = -1;
-				ps[g_p].posx = ps[g_p].oposx;
-				ps[g_p].posy = ps[g_p].oposy;
-				ps[g_p].posz = ps[g_p].oposz;
-				ps[g_p].ang = ps[g_p].oang;
-				updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-				setpal(&ps[g_p]);
-
-				j = headspritestat[1];
-				while(j >= 0)
-				{
-					if(sprite[j].picnum==CAMERA1)
-						sprite[j].yvel = 0;
-					j = nextspritestat[j];
-				}
-			}
-
-			j = sprite[ps[g_p].i].extra;
-
-			if(g_sp->picnum != ATOMICHEALTH)
-			{
-				if( j > max_player_health && *insptr > 0 )
-				{
-					insptr++;
-					break;
-				}
-				else
-				{
-					if(j > 0)
-						j += *insptr;
-					if ( j > max_player_health && *insptr > 0 )
-						j = max_player_health;
-				}
+				insptr++;
+				break;
 			}
 			else
 			{
-				if( j > 0 )
+				if(j > 0)
 					j += *insptr;
-				if ( j > (max_player_health<<1) )
-					j = (max_player_health<<1);
+				if ( j > max_player_health && *insptr > 0 )
+					j = max_player_health;
 			}
+		}
+		else
+		{
+			if( j > 0 )
+				j += *insptr;
+			if ( j > (max_player_health<<1) )
+				j = (max_player_health<<1);
+		}
 
-			if(j < 0) j = 0;
+		if(j < 0) j = 0;
 
-			if(ud.god == 0)
+		if(ud.god == 0)
+		{
+			if(*insptr > 0)
 			{
-				if(*insptr > 0)
-				{
-					if( ( j - *insptr ) < (max_player_health>>2) &&
-						j >= (max_player_health>>2) )
-							spritesound(DUKE_GOTHEALTHATLOW,ps[g_p].i);
+				if( ( j - *insptr ) < (max_player_health>>2) &&
+					j >= (max_player_health>>2) )
+						spritesound(DUKE_GOTHEALTHATLOW,ps[g_p].i);
 
-					ps[g_p].last_extra = j;
-				}
-
-				sprite[ps[g_p].i].extra = j;
+				ps[g_p].last_extra = j;
 			}
 
-			insptr++;
-			break;
-		case 17:
-			{
-				int *tempscrptr;
+			sprite[ps[g_p].i].extra = j;
+		}
 
-				tempscrptr = insptr+2;
+		insptr++;
+		break;
+	case 17:
+		{
+			int *tempscrptr;
 
-				insptr = (int *) *(insptr+1);
-				while(1) if(parse()) break;
-				insptr = tempscrptr;
-			}
-			break;
-		case 29:
-			insptr++;
+			tempscrptr = insptr+2;
+
+			insptr = (int *) *(insptr+1);
 			while(1) if(parse()) break;
-			break;
-		case 32:
-			g_t[0]=0;
+			insptr = tempscrptr;
+		}
+		break;
+	case 29:
+		insptr++;
+		while(1) if(parse()) break;
+		break;
+	case 32:
+		g_t[0]=0;
+		insptr++;
+		g_t[1] = *insptr;
+		insptr++;
+		g_sp->hitag = *insptr;
+		insptr++;
+		if(g_sp->hitag&random_angle)
+			g_sp->ang = krand()&2047;
+		break;
+	case 31:
+		insptr++;
+		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+			spawn(g_i,*insptr);
+		insptr++;
+		break;
+	case 33:
+		insptr++;
+		parseifelse( hittype[g_i].picnum == *insptr);
+		break;
+	case 21:
+		insptr++;
+		parseifelse(g_t[5] == *insptr);
+		break;
+	case 34:
+		insptr++;
+		parseifelse(g_t[4] == *insptr);
+		break;
+	case 35:
+		insptr++;
+		parseifelse(g_t[2] >= *insptr);
+		break;
+	case 36:
+		insptr++;
+		g_t[2] = 0;
+		break;
+	case 37:
+		{
+			short dnum;
+
 			insptr++;
-			g_t[1] = *insptr;
+			dnum = *insptr;
 			insptr++;
-			g_sp->hitag = *insptr;
-			insptr++;
-			if(g_sp->hitag&random_angle)
-				g_sp->ang = TRAND&2047;
-			break;
-		case 31:
-			insptr++;
+
 			if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-				spawn(g_i,*insptr);
-			insptr++;
-			break;
-		case 33:
-			insptr++;
-			parseifelse( hittype[g_i].picnum == *insptr);
-			break;
-		case 21:
-			insptr++;
-			parseifelse(g_t[5] == *insptr);
-			break;
-		case 34:
-			insptr++;
-			parseifelse(g_t[4] == *insptr);
-			break;
-		case 35:
-			insptr++;
-			parseifelse(g_t[2] >= *insptr);
-			break;
-		case 36:
-			insptr++;
-			g_t[2] = 0;
-			break;
-		case 37:
+				for(j=(*insptr)-1;j>=0;j--)
 			{
-				short dnum;
+				if(g_sp->picnum == BLIMP && dnum == SCRAP1)
+					s = 0;
+				else s = (krand()%3);
 
-				insptr++;
-				dnum = *insptr;
-				insptr++;
-
-				if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-					for(j=(*insptr)-1;j>=0;j--)
-				{
-					if(g_sp->picnum == BLIMP && dnum == SCRAP1)
-						s = 0;
-					else s = (TRAND%3);
-
-					l = EGS(g_sp->sectnum,
-							g_sp->x+(TRAND&255)-128,g_sp->y+(TRAND&255)-128,g_sp->z-(8<<8)-(TRAND&8191),
-							dnum+s,g_sp->shade,32+(TRAND&15),32+(TRAND&15),
-							TRAND&2047,(TRAND&127)+32,
-							-(TRAND&2047),g_i,5);
-					if(g_sp->picnum == BLIMP && dnum == SCRAP1)
-						sprite[l].yvel = weaponsandammosprites[j%14];
-					else sprite[l].yvel = -1;
-					sprite[l].pal = g_sp->pal;
-				}
-				insptr++;
+				l = EGS(g_sp->sectnum,
+						g_sp->x+(krand()&255)-128,g_sp->y+(krand()&255)-128,g_sp->z-(8<<8)-(krand()&8191),
+						dnum+s,g_sp->shade,32+(krand()&15),32+(krand()&15),
+						krand()&2047,(krand()&127)+32,
+						-(krand()&2047),g_i,5);
+				if(g_sp->picnum == BLIMP && dnum == SCRAP1)
+					sprite[l].yvel = weaponsandammosprites[j%14];
+				else sprite[l].yvel = -1;
+				sprite[l].pal = g_sp->pal;
 			}
-			break;
-		case 52:
 			insptr++;
-			g_t[0] = (short) *insptr;
-			insptr++;
-			break;
-		case 101:
-			insptr++;
-			g_sp->cstat |= (short)*insptr;
-			insptr++;
-			break;
-		case 110:
-			insptr++;
-			g_sp->clipdist = (short) *insptr;
-			insptr++;
-			break;
-		case 40:
-			insptr++;
-			g_sp->cstat = (short) *insptr;
-			insptr++;
-			break;
-		case 41:
-			insptr++;
-			parseifelse(g_t[1] == *insptr);
-			break;
-		case 42:
-			insptr++;
+		}
+		break;
+	case 52:
+		insptr++;
+		g_t[0] = (short) *insptr;
+		insptr++;
+		break;
+	case 101:
+		insptr++;
+		g_sp->cstat |= (short)*insptr;
+		insptr++;
+		break;
+	case 110:
+		insptr++;
+		g_sp->clipdist = (short) *insptr;
+		insptr++;
+		break;
+	case 40:
+		insptr++;
+		g_sp->cstat = (short) *insptr;
+		insptr++;
+		break;
+	case 41:
+		insptr++;
+		parseifelse(g_t[1] == *insptr);
+		break;
+	case 42:
+		insptr++;
 
 //AddLog("resetplayer");				
-			if(ud.multimode < 2)
+		if(ud.multimode < 2)
+		{
+			if( lastsavedpos >= 0 && ud.recstat != 2 )
 			{
-				if( lastsavedpos >= 0 && ud.recstat != 2 )
-				{
-					ps[g_p].gm = MODE_MENU;
-					KB_ClearKeyDown(sc_Space);
-					cmenu(15000);
-				}
-				else ps[g_p].gm = MODE_RESTART;
-				killit_flag = 2;
+				ps[g_p].gm = MODE_MENU;
+				KB_ClearKeyDown(sc_Space);
+				cmenu(15000);
 			}
-			else
-			{
-				pickrandomspot(g_p);
-				g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
-				g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy =ps[g_p].posy;
-				g_sp->z = hittype[g_i].bposy = ps[g_p].oposz =ps[g_p].posz;
-				updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
-				setsprite(ps[g_p].i,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT);
-				g_sp->cstat = 257;
+			else ps[g_p].gm = MODE_RESTART;
+			killit_flag = 2;
+		}
+		else
+		{
+			pickrandomspot(g_p);
+			g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
+			g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy =ps[g_p].posy;
+			g_sp->z = hittype[g_i].bposy = ps[g_p].oposz =ps[g_p].posz;
+			updatesector(ps[g_p].posx,ps[g_p].posy,&ps[g_p].cursectnum);
+			setsprite(ps[g_p].i,ps[g_p].posx,ps[g_p].posy,ps[g_p].posz+PHEIGHT);
+			g_sp->cstat = 257;
 
-				g_sp->shade = -12;
-				g_sp->clipdist = 64;
-				g_sp->xrepeat = 42;
-				g_sp->yrepeat = 36;
-				g_sp->owner = g_i;
-				g_sp->xoffset = 0;
-				g_sp->pal = ps[g_p].palookup;
+			g_sp->shade = -12;
+			g_sp->clipdist = 64;
+			g_sp->xrepeat = 42;
+			g_sp->yrepeat = 36;
+			g_sp->owner = g_i;
+			g_sp->xoffset = 0;
+			g_sp->pal = ps[g_p].palookup;
 
-				ps[g_p].last_extra = g_sp->extra = max_player_health;
-				ps[g_p].wantweaponfire = -1;
-				ps[g_p].horiz = 100;
-				ps[g_p].on_crane = -1;
-				ps[g_p].frag_ps = g_p;
-				ps[g_p].horizoff = 0;
-				ps[g_p].opyoff = 0;
-				ps[g_p].wackedbyactor = -1;
-				ps[g_p].shield_amount = max_armour_amount;
-				ps[g_p].dead_flag = 0;
-				ps[g_p].pals_time = 0;
-				ps[g_p].footprintcount = 0;
-				ps[g_p].weapreccnt = 0;
-				ps[g_p].fta = 0;
-				ps[g_p].ftq = 0;
-				ps[g_p].posxv = ps[g_p].posyv = 0;
-				ps[g_p].rotscrnang = 0;
+			ps[g_p].last_extra = g_sp->extra = max_player_health;
+			ps[g_p].wantweaponfire = -1;
+			ps[g_p].horiz = 100;
+			ps[g_p].on_crane = -1;
+			ps[g_p].frag_ps = g_p;
+			ps[g_p].horizoff = 0;
+			ps[g_p].opyoff = 0;
+			ps[g_p].wackedbyactor = -1;
+			ps[g_p].shield_amount = max_armour_amount;
+			ps[g_p].dead_flag = 0;
+			ps[g_p].pals_time = 0;
+			ps[g_p].footprintcount = 0;
+			ps[g_p].weapreccnt = 0;
+			ps[g_p].fta = 0;
+			ps[g_p].ftq = 0;
+			ps[g_p].posxv = ps[g_p].posyv = 0;
+			ps[g_p].rotscrnang = 0;
 
-				ps[g_p].falling_counter = 0;
+			ps[g_p].falling_counter = 0;
 
-				hittype[g_i].extra = -1;
-				hittype[g_i].owner = g_i;
+			hittype[g_i].extra = -1;
+			hittype[g_i].owner = g_i;
 
-				hittype[g_i].cgg = 0;
-				hittype[g_i].movflag = 0;
-				hittype[g_i].tempang = 0;
-				hittype[g_i].actorstayput = -1;
-				hittype[g_i].dispicnum = 0;
-				hittype[g_i].owner = ps[g_p].i;
+			hittype[g_i].cgg = 0;
+			hittype[g_i].movflag = 0;
+			hittype[g_i].tempang = 0;
+			hittype[g_i].actorstayput = -1;
+			hittype[g_i].dispicnum = 0;
+			hittype[g_i].owner = ps[g_p].i;
 
-				resetinventory(g_p);
-				resetweapons(g_p);
+			resetinventory(g_p);
+			resetweapons(g_p);
 
-				cameradist = 0;
-				cameraclock = totalclock;
-			}
-			setpal(&ps[g_p]);
+			cameradist = 0;
+			cameraclock = totalclock;
+		}
+		setpal(&ps[g_p]);
 //AddLog("EOF: resetplayer");
 
-			break;
-		case 43:
-			parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == 1);
-			break;
-		case 44:
-			parseifelse( sector[g_sp->sectnum].lotag == 2);
-			break;
-		case 46:
-			insptr++;
-			parseifelse(g_t[0] >= *insptr);
-			break;
-		case 53:
-			insptr++;
-			parseifelse(g_sp->picnum == *insptr);
-			break;
-		case 47:
-			insptr++;
-			g_t[0] = 0;
-			break;
-		case 48:
-			insptr+=2;
-			switch(*(insptr-1))
-			{
-				case 0:
-					ps[g_p].steroids_amount = *insptr;
-					ps[g_p].inven_icon = 2;
-					break;
-				case 1:
-					ps[g_p].shield_amount +=		  *insptr;// 100;
-					if(ps[g_p].shield_amount > max_player_health)
-						ps[g_p].shield_amount = max_player_health;
-					break;
-				case 2:
-					ps[g_p].scuba_amount =			   *insptr;// 1600;
-					ps[g_p].inven_icon = 6;
-					break;
-				case 3:
-					ps[g_p].holoduke_amount =		   *insptr;// 1600;
-					ps[g_p].inven_icon = 3;
-					break;
-				case 4:
-					ps[g_p].jetpack_amount =		   *insptr;// 1600;
-					ps[g_p].inven_icon = 4;
-					break;
-				case 6:
-					switch(g_sp->pal)
-					{
-						case  0: ps[g_p].got_access |= 1;break;
-						case 21: ps[g_p].got_access |= 2;break;
-						case 23: ps[g_p].got_access |= 4;break;
-					}
-					break;
-				case 7:
-					ps[g_p].heat_amount = *insptr;
-					ps[g_p].inven_icon = 5;
-					break;
-				case 9:
-					ps[g_p].inven_icon = 1;
-					ps[g_p].firstaid_amount = *insptr;
-					break;
-				case 10:
-					ps[g_p].inven_icon = 7;
-					ps[g_p].boot_amount = *insptr;
-					break;
-			}
-			insptr++;
-			break;
-		case 50:
-			hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
-			insptr+=6;
-			break;
-		case 51:
-			{
-				insptr++;
-
-				l = *insptr;
-				j = 0;
-
-				s = g_sp->xvel;
-
-				if( (l&8) && ps[g_p].on_ground && (sync[g_p].bits&2) )
-					   j = 1;
-				else if( (l&16) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&
-					ps[g_p].poszv > 2048 )
-						j = 1;
-				else if( (l&32) && ps[g_p].jumping_counter > 348 )
-					   j = 1;
-				else if( (l&1) && s >= 0 && s < 8)
-					   j = 1;
-				else if( (l&2) && s >= 8 && !(sync[g_p].bits&(1<<5)) )
-					   j = 1;
-				else if( (l&4) && s >= 8 && sync[g_p].bits&(1<<5) )
-					   j = 1;
-				else if( (l&64) && ps[g_p].posz < (g_sp->z-(48<<8)) )
-					   j = 1;
-				else if( (l&128) && s <= -8 && !(sync[g_p].bits&(1<<5)) )
-					   j = 1;
-				else if( (l&256) && s <= -8 && (sync[g_p].bits&(1<<5)) )
-					   j = 1;
-				else if( (l&512) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
-					   j = 1;
-				else if( (l&1024) && sprite[ps[g_p].i].xrepeat < 32 )
-					   j = 1;
-				else if( (l&2048) && ps[g_p].jetpack_on )
-					   j = 1;
-				else if( (l&4096) && ps[g_p].steroids_amount > 0 && ps[g_p].steroids_amount < 400 )
-					   j = 1;
-				else if( (l&8192) && ps[g_p].on_ground)
-					   j = 1;
-				else if( (l&16384) && sprite[ps[g_p].i].xrepeat > 32 && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
-					   j = 1;
-				else if( (l&32768) && sprite[ps[g_p].i].extra <= 0)
-					   j = 1;
-				else if( (l&65536L) )
+		break;
+	case 43:
+		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == 1);
+		break;
+	case 44:
+		parseifelse( sector[g_sp->sectnum].lotag == 2);
+		break;
+	case 46:
+		insptr++;
+		parseifelse(g_t[0] >= *insptr);
+		break;
+	case 53:
+		insptr++;
+		parseifelse(g_sp->picnum == *insptr);
+		break;
+	case 47:
+		insptr++;
+		g_t[0] = 0;
+		break;
+	case 48:
+		insptr+=2;
+		switch(*(insptr-1))
+		{
+			case 0:
+				ps[g_p].steroids_amount = *insptr;
+				ps[g_p].inven_icon = 2;
+				break;
+			case 1:
+				ps[g_p].shield_amount +=		  *insptr;// 100;
+				if(ps[g_p].shield_amount > max_player_health)
+					ps[g_p].shield_amount = max_player_health;
+				break;
+			case 2:
+				ps[g_p].scuba_amount =			   *insptr;// 1600;
+				ps[g_p].inven_icon = 6;
+				break;
+			case 3:
+				ps[g_p].holoduke_amount =		   *insptr;// 1600;
+				ps[g_p].inven_icon = 3;
+				break;
+			case 4:
+				ps[g_p].jetpack_amount =		   *insptr;// 1600;
+				ps[g_p].inven_icon = 4;
+				break;
+			case 6:
+				switch(g_sp->pal)
 				{
-					if(g_sp->picnum == APLAYER && ud.multimode > 1)
-						j = getincangle(ps[otherp].ang,getangle(ps[g_p].posx-ps[otherp].posx,ps[g_p].posy-ps[otherp].posy));
-					else
-						j = getincangle(ps[g_p].ang,getangle(g_sp->x-ps[g_p].posx,g_sp->y-ps[g_p].posy));
-
-					if( j > -128 && j < 128 )
-						j = 1;
-					else
-						j = 0;
+					case  0: ps[g_p].got_access |= 1;break;
+					case 21: ps[g_p].got_access |= 2;break;
+					case 23: ps[g_p].got_access |= 4;break;
 				}
-
-				parseifelse((int) j);
-
-			}
-			break;
-		case 56:
+				break;
+			case 7:
+				ps[g_p].heat_amount = *insptr;
+				ps[g_p].inven_icon = 5;
+				break;
+			case 9:
+				ps[g_p].inven_icon = 1;
+				ps[g_p].firstaid_amount = *insptr;
+				break;
+			case 10:
+				ps[g_p].inven_icon = 7;
+				ps[g_p].boot_amount = *insptr;
+				break;
+		}
+		insptr++;
+		break;
+	case 50:
+		hitradius(g_i,*(insptr+1),*(insptr+2),*(insptr+3),*(insptr+4),*(insptr+5));
+		insptr+=6;
+		break;
+	case 51:
+		{
 			insptr++;
-			parseifelse(g_sp->extra <= *insptr);
-			break;
+
+			l = *insptr;
+			j = 0;
+
+			s = g_sp->xvel;
+
+			if( (l&8) && ps[g_p].on_ground && (sync[g_p].bits&2) )
+					j = 1;
+			else if( (l&16) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&
+				ps[g_p].poszv > 2048 )
+					j = 1;
+			else if( (l&32) && ps[g_p].jumping_counter > 348 )
+					j = 1;
+			else if( (l&1) && s >= 0 && s < 8)
+					j = 1;
+			else if( (l&2) && s >= 8 && !(sync[g_p].bits&(1<<5)) )
+					j = 1;
+			else if( (l&4) && s >= 8 && sync[g_p].bits&(1<<5) )
+					j = 1;
+			else if( (l&64) && ps[g_p].posz < (g_sp->z-(48<<8)) )
+					j = 1;
+			else if( (l&128) && s <= -8 && !(sync[g_p].bits&(1<<5)) )
+					j = 1;
+			else if( (l&256) && s <= -8 && (sync[g_p].bits&(1<<5)) )
+					j = 1;
+			else if( (l&512) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
+					j = 1;
+			else if( (l&1024) && sprite[ps[g_p].i].xrepeat < 32 )
+					j = 1;
+			else if( (l&2048) && ps[g_p].jetpack_on )
+					j = 1;
+			else if( (l&4096) && ps[g_p].steroids_amount > 0 && ps[g_p].steroids_amount < 400 )
+					j = 1;
+			else if( (l&8192) && ps[g_p].on_ground)
+					j = 1;
+			else if( (l&16384) && sprite[ps[g_p].i].xrepeat > 32 && sprite[ps[g_p].i].extra > 0 && ps[g_p].timebeforeexit == 0 )
+					j = 1;
+			else if( (l&32768) && sprite[ps[g_p].i].extra <= 0)
+					j = 1;
+			else if( (l&65536L) )
+			{
+				if(g_sp->picnum == APLAYER && ud.multimode > 1)
+					j = getincangle(ps[otherp].ang,getangle(ps[g_p].posx-ps[otherp].posx,ps[g_p].posy-ps[otherp].posy));
+				else
+					j = getincangle(ps[g_p].ang,getangle(g_sp->x-ps[g_p].posx,g_sp->y-ps[g_p].posy));
+
+				if( j > -128 && j < 128 )
+					j = 1;
+				else
+					j = 0;
+			}
+
+			parseifelse((int) j);
+
+		}
+		break;
+	case 56:
+		insptr++;
+		parseifelse(g_sp->extra <= *insptr);
+		break;
 		case 58:
 			insptr += 2;
 			guts(g_sp,*(insptr-1),*insptr,g_p);
@@ -1027,7 +1118,6 @@ char parse(void)
 			parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) >= *insptr);
 			break;
 */
-#ifdef WW2
 		case CON_ADDLOG:
 		{	int l;
 			int lFile;
@@ -1051,10 +1141,6 @@ char parse(void)
 			{
 				// invalid varID
 				insptr++;
-	sprintf(g_szBuf,"ADDLOGVAR: %s L=%ld INVALID VARIABLE",g_achSourceFiles[lFile],l);
-	AddLog(g_szBuf);
-	sprintf(g_szBuf,"Offset=%0lX\n",scriptptr-script);
-	AddLog(g_szBuf);
 				break;	// out of switch
 			}
 			sprintf(szBuf,"ADDLOGVAR: %s L=%ld %s ",g_achSourceFiles[lFile],l, aGameVars[*insptr].szLabel);
@@ -1111,17 +1197,6 @@ char parse(void)
 			insptr++;
 			break;
 		}
-		case CON_SIN:
-		{	int i;
-			int lValue;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			lValue=GetGameVarID(*insptr, g_i, g_p);
-			lValue=sintable[lValue&2047];
-			SetGameVarID(i, lValue , g_i, g_p );
-			insptr++;
-			break;
-		}
 		
 		case CON_ADDVARVAR:
 		{	int i;
@@ -1129,63 +1204,6 @@ char parse(void)
 			i=*(insptr++);	// ID of def
 			SetGameVarID(i, GetGameVarID(i, g_i, g_p) + GetGameVarID(*insptr, g_i, g_p), g_i, g_p );
 			insptr++;
-			break;
-		}
-		case CON_SPGETLOTAG:
-		{	
-			insptr++;
-			SetGameVarID(g_iLoTagID, g_sp->lotag, g_i, g_p);
-			break;
-		}
-		case CON_SPGETHITAG:
-		{	
-			insptr++;
-			SetGameVarID(g_iHiTagID, g_sp->hitag, g_i, g_p);
-			break;
-		}
-		case CON_SECTGETLOTAG:
-		{	
-			insptr++;
-			SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_i, g_p);
-			break;
-		}
-		case CON_SECTGETHITAG:
-		{	
-			insptr++;
-			SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_i, g_p);
-			break;
-		}
-		case CON_GETTEXTUREFLOOR:
-		{	
-			insptr++;
-			SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_i, g_p);
-			break;
-		}
-
-		case CON_IFVARVARAND:
-		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) & GetGameVarID(*(insptr), g_i, g_p) )
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
-		}
-		case CON_IFVARVARN:
-		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) != GetGameVarID(*(insptr), g_i, g_p) )
-			{
-				j=1;
-			}
-			parseifelse( j );
 			break;
 		}
 		case CON_IFVARVARE:
@@ -1240,32 +1258,6 @@ char parse(void)
 			parseifelse( j );
 			break;
 		}
-		case CON_IFVARN:
-		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) != *insptr)
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
-		}
-		case CON_IFVARAND:
-		{
-			int i;
-			insptr++;
-			i=*(insptr++);	// ID of def
-			j=0;
-			if(GetGameVarID(i, g_i, g_p) & *insptr)
-			{
-				j=1;
-			}
-			parseifelse( j );
-			break;
-		}
 		case CON_IFVARG:
 		{
 			int i;
@@ -1292,7 +1284,6 @@ char parse(void)
 			parseifelse( j );
 			break;
 		}
-#endif
 		case 78:
 			insptr++;
 			parseifelse( sprite[ps[g_p].i].extra < *insptr);

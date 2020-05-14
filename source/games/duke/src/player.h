@@ -250,7 +250,7 @@ typedef struct player_struct {
     int16_t yehaa_timer;
     int16_t drink_amt, eat_amt, drink_ang, eat_ang;
     int32_t drink_timer, eat_timer;
-    int16_t level_end_timer;
+    int16_t MamaEnd;
     int16_t MotoSpeed, tilt_status, moto_drink;
     uint8_t OnMotorcycle, OnBoat, moto_underwater, not_on_water, moto_on_ground;
     uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
@@ -278,7 +278,7 @@ typedef struct player_struct {
 #define heat_amount inv_amount[GET_HEATS]
 #define scuba_amount inv_amount[GET_SCUBA]
 #define boot_amount inv_amount[GET_BOOTS]
-#define raat609 level_end_timer // name in RRGDX is 'MamaEnd'
+#define raat609 MamaEnd
 #define raat5dd sea_sick_stat
 
 
@@ -396,7 +396,7 @@ void addweapon(DukePlayer_t* pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);
-void P_DropWeapon(int playerNum);
+void checkweapons(DukePlayer_t* const pPlayer);
 int findotherplayer(int p, int* d);
 void    P_FragPlayer(int playerNum);
 #ifdef YAX_ENABLE

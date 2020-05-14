@@ -2115,10 +2115,10 @@ static void rrra_specialstats()
 		i = nexti;
 	}
 
-	if (ps[screenpeek].raat609 > 0)
+	if (ps[screenpeek].MamaEnd > 0)
 	{
-		ps[screenpeek].raat609--;
-		if (ps[screenpeek].raat609 == 0)
+		ps[screenpeek].MamaEnd--;
+		if (ps[screenpeek].MamaEnd == 0)
 		{
 			ps[screenpeek].gm = MODE_EOL;
 			ud.eog = 1;
@@ -4348,6 +4348,136 @@ void move_r(int g_i, int g_p, int g_x)
 		if (sector[g_sp->sectnum].floorpicnum == MIRROR)
 			deletesprite(g_i);
 	}
+}
+
+void fakebubbaspawn(int g_i, int g_p)
+{
+	fakebubba_spawn++;
+	switch (fakebubba_spawn)
+	{
+	default:
+		break;
+	case 1:
+		spawn(g_i, PIG);
+		break;
+	case 2:
+		spawn(g_i, MINION);
+		break;
+	case 3:
+		spawn(g_i, CHEER);
+		break;
+	case 4:
+		spawn(g_i, VIXEN);
+		operateactivators(666, ps[g_p].i);
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// special checks in fall that only apply to RR.
+//
+//---------------------------------------------------------------------------
+
+static int fallspecial(int g_i, int g_p)
+{
+	int sphit = 0;
+	auto g_sp = &sprite[g_i];
+	if (isRRRA())
+	{
+		if (sector[g_sp->sectnum].lotag == 801)
+		{
+			if (g_sp->picnum == ROCK)
+			{
+				spawn(g_i, ROCK2);
+				spawn(g_i, ROCK2);
+				deletesprite(g_i);
+			}
+			return 0;
+		}
+		else if (sector[g_sp->sectnum].lotag == 802)
+		{
+			if (g_sp->picnum != APLAYER && badguy(g_sp) && g_sp->z == hittype[g_i].floorz - FOURSLEIGHT)
+			{
+				guts(g_sp, JIBS6, 5, g_p);
+				spritesound(SQUISHED, g_i);
+				deletesprite(g_i);
+			}
+			return 0;
+		}
+		else if (sector[g_sp->sectnum].lotag == 803)
+		{
+			if (g_sp->picnum == ROCK2)
+				deletesprite(g_i);
+			return 0;
+		}
+	}
+	if (sector[g_sp->sectnum].lotag == 800)
+	{
+		if (g_sp->picnum == 40)
+		{
+			deletesprite(g_i);
+			return 0;
+		}
+		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || g_spriteExtra[g_i] < 128))
+		{
+			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
+			g_sp->zvel = 8000;
+			g_sp->extra = 0;
+			g_spriteExtra[g_i]++;
+			sphit = 1;
+		}
+		else if (g_sp->picnum != APLAYER)
+		{
+			if (!g_spriteExtra[g_i])
+				deletesprite(g_i);
+			return 0;
+		}
+		hittype[g_i].picnum = SHOTSPARK1;
+		hittype[g_i].extra = 1;
+	}
+	else if (isRRRA() && sector[g_sp->sectnum].floorpicnum == RRTILE7820 || sector[g_sp->sectnum].floorpicnum == RRTILE7768)
+	{
+		if (g_sp->picnum != MINION && g_sp->pal != 19)
+		{
+			if ((krand() & 3) == 1)
+			{
+				hittype[g_i].picnum = SHOTSPARK1;
+				hittype[g_i].extra = 5;
+			}
+		}
+	}	
+	return sphit;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void falladjustz(spritetype* g_sp)
+{
+	if (isRRRA()) switch (g_sp->picnum)
+	{
+	case HULKBOAT:
+		g_sp->z += (12 << 8);
+		return;
+	case MINIONBOAT:
+		g_sp->z += (3 << 8);
+		return;
+	case CHEERBOAT:
+	case EMPTYBOAT:
+		g_sp->z += (6 << 8);
+		return;
+	}
+	if (g_sp->picnum != DRONE)
+		g_sp->z += (24 << 8);
+}
+
+void fall_r(int g_i, int g_p)
+{
+	fall_common(g_i, g_p, JIBS6, DRONE, BLOODPOOL, SHOTSPARK1, 69, 158, fallspecial, falladjustz);
 }
 
 END_DUKE_NS

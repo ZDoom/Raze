@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern int16_t g_ambientLotag[64];
-extern int16_t g_ambientHitag[64];
+extern int16_t ambientlotag[64];
+extern int16_t ambienthitag[64];
 extern int32_t g_levelTextTime;
 extern int32_t voting,vote_map,vote_episode;
 int G_EnterLevel(int gameMode);

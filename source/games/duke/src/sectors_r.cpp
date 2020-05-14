@@ -2866,4 +2866,24 @@ void dofurniture(int wl, int sect, int snum)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void tearitup(int sect)
+{
+	int j = headspritesect[sect];
+	while (j != -1)
+	{
+		int nextj = nextspritesect[j];
+		if (sprite[j].picnum == DESTRUCTO)
+		{
+			hittype[j].picnum = SHOTSPARK1;
+			hittype[j].extra = 1;
+		}
+		j = nextj;
+	}
+}
 END_DUKE_NS
