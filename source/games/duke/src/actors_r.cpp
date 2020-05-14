@@ -722,7 +722,7 @@ int ifhitbyweapon_r(int sn)
 				}
 
 				int pn = hittype[sn].picnum;
-				if (pn == RPG2 && isRRRA()) pn = 0; // avoid messing around with gotos.
+				if (pn == RPG2 && !isRRRA()) pn = 0; // avoid messing around with gotos.
 				switch (pn)
 				{
 				case RADIUSEXPLOSION:
