@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 #define VOLUMEALL           (g_Shareware == 0)
-#define PLUTOPAK            (g_scriptVersion >= 14)
+#define PLUTOPAK            (true)//g_scriptVersion >= 14)
 #define VOLUMEONE           (g_Shareware == 1)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
@@ -195,17 +195,6 @@ enum GameFunction_t
 	gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
 	NUM_ACTIONS
 };
-
-static inline int32_t G_HaveActor(int spriteNum)
-{
-    return g_tile[spriteNum].execPtr!=NULL;
-}
-
-static inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
-{
-    return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
-}
-
 
 struct GameInterface : ::GameInterface
 {

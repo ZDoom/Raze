@@ -1319,14 +1319,15 @@ void G_DumpDebugInfo(void)
 // else only if it equals 0.
 static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncond)
 {
-    if (g_tile[tilenum].execPtr)
+    if (actorinfo[tilenum].scriptaddress)
     {
-        SH(i) = *(g_tile[tilenum].execPtr);
-        AC_ACTION_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+1);
-        AC_MOVE_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+2);
+        auto sa = &apScript[actorinfo[tilenum].scriptaddress];
+        SH(i) = sa[0];
+        AC_ACTION_ID(actor[i].t_data) = sa[1];
+        AC_MOVE_ID(actor[i].t_data) = sa[2];
 
-        if (set_movflag_uncond || (*(g_tile[tilenum].execPtr + 3) && SHT(i) == 0))  // AC_MOVFLAGS
-            SHT(i) = *(g_tile[tilenum].execPtr+3);
+        if (set_movflag_uncond || (sa[3] && SHT(i) == 0))  // AC_MOVFLAGS
+            SHT(i) = sa[3];
 
         return 1;
     }
@@ -1555,7 +1556,7 @@ default_case:
                 if (pSprite->xrepeat == 0 || pSprite->yrepeat == 0)
                     pSprite->xrepeat = pSprite->yrepeat = 1;
 
-                if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUY))
+                if (actorflag(newSprite, SFLAG_BADGUY))
                 {
                     if (ud.monsters_off == 1)
                     {
@@ -1566,10 +1567,10 @@ default_case:
 
                     makeitfall(newSprite);
 
-                    if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
+                    if (actorflag(newSprite, SFLAG_BADGUYSTAYPUT))
                         pActor->actorstayput = pSprite->sectnum;
 
-                    if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
+                    if (!RR || actorflag(newSprite, SFLAG_KILLCOUNT))
                         g_player[myconnectindex].ps->max_actors_killed++;
                     pSprite->clipdist = 80;
 
@@ -3154,7 +3155,7 @@ rr_badguy:
                     pSprite->cstat |= 257;
 
                     if (pSprite->picnum != TILE_SHARK)
-                        if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
+                        if (!RR || actorflag(newSprite, SFLAG_KILLCOUNT))
                             g_player[myconnectindex].ps->max_actors_killed++;
                 }
 
@@ -3270,7 +3271,7 @@ rr_badguy:
                 changespritestat(newSprite, STAT_MISC);
                 goto SPAWN_END;
             }
-            if (!RR || A_CheckSpriteFlags(newSprite, SFLAG_KILLCOUNT))
+            if (!RR || actorflag(newSprite, SFLAG_KILLCOUNT))
                 g_player[myconnectindex].ps->max_actors_killed++;
             pActor->t_data[5] = 0;
             if (ud.monsters_off == 1)
@@ -3616,8 +3617,10 @@ rr_badguy:
                 /* XXX: fi.fall-through intended? */
                 fallthrough__;
 #endif
+
             case SE_49_POINT_LIGHT:
             case SE_50_SPOT_LIGHT:
+#ifdef POLYMER
             {
                 int32_t j, nextj;
 
@@ -3625,6 +3628,7 @@ rr_badguy:
                     if (sprite[j].picnum == TILE_ACTIVATOR || sprite[j].picnum == TILE_ACTIVATORLOCKED)
                         pActor->flags |= SFLAG_USEACTIVATOR;
             }
+#endif
             changespritestat(newSprite, pSprite->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;
             break;
@@ -4341,7 +4345,7 @@ static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
 {
     int const floorPal = sector[sectNum].floorpal;
 
-    if (floorPal && !lookups.noFloorPal(floorPal) && !A_CheckSpriteFlags(pSprite->owner, SFLAG_NOPAL))
+    if (floorPal && !lookups.noFloorPal(floorPal) && !actorflag(pSprite->owner, SFLAG_NOPAL))
     {
         pSprite->pal = floorPal;
         return 1;
@@ -5061,7 +5065,7 @@ default_case1:
             {
                 // Display TILE_APLAYER sprites with action PSTAND when viewed through
                 // a camera.
-                const intptr_t *aplayer_scr = g_tile[TILE_APLAYER].execPtr;
+                auto aplayer_scr = apScript + actorinfo[TILE_APLAYER].scriptaddress;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
                 scrofs_action = aplayer_scr[1];
@@ -5351,7 +5355,7 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (!RR && g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || pSprite->picnum == TILE_APLAYER || pSprite->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite(pSprite) || actorflag(t->owner,SFLAG_NVG) || pSprite->picnum == TILE_APLAYER || pSprite->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
@@ -5361,7 +5365,7 @@ skip:
             t->shade = -127;
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (pSprite->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (pSprite->picnum == TILE_APLAYER && pSprite->owner >= 0))
+        if (pSprite->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(pSprite) || actorflag(t->owner,SFLAG_SHADOW) || (pSprite->picnum == TILE_APLAYER && pSprite->owner >= 0))
             if ((!RR || (pSprite->cstat&48) == 0) && t->statnum != TSPR_TEMP && pSprite->picnum != TILE_EXPLOSION2 && (RR || pSprite->picnum != TILE_HANGLIGHT) && pSprite->picnum != TILE_DOMELITE && (RR || pSprite->picnum != TILE_HOTMEAT)
                 && (!RR || pSprite->picnum != TILE_TORNADO) && (!RR || pSprite->picnum != TILE_EXPLOSION3) && (!RR || RRRA || pSprite->picnum != TILE_SBMOVE))
             {
@@ -5376,7 +5380,7 @@ skip:
                     continue;
                 }
 
-                if (actor[i].flags & SFLAG_NOFLOORSHADOW)
+                if (actor[i].aflags & SFLAG_NOFLOORSHADOW)
                     continue;
 
                 if (r_shadows && spritesortcnt < (maxspritesonscreen-2)
@@ -6531,7 +6535,7 @@ static void G_CompileScripts(void)
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 #endif
 
-    C_Compile(G_ConFile());
+    loadcons(G_ConFile());
 
     if ((uint32_t)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
@@ -6573,7 +6577,7 @@ static inline void G_CheckGametype(void)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
-#define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag
+#define SETFLAG(Tilenum, Flag) actorinfo[Tilenum].flags |= Flag
 
 // Has to be after setting the dynamic names (e.g. TILE_SHARK).
 static void A_InitEnemyFlags(void)

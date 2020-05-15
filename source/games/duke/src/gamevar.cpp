@@ -420,7 +420,6 @@ int *GetGameValuePtr(char *szGameLabel)
 	
 }
 
-#if 0
 //---------------------------------------------------------------------------
 //
 //  Event stuff
@@ -448,66 +447,6 @@ bool IsGameEvent(int i)
 	if (i>=MAXGAMEEVENTS) return 0;
 	return (apScriptGameEvent[i]!=NULL);
 }
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void OnEvent(int iEventID, short i,short p,long x)
-{
-	int og_i,og_p;
-	int og_x;
-	int *og_t;
-	spritetype *og_sp;
-	uint8_t okillit_flag;
-	intptr_t *oinsptr;
-
-	char done;
-
-	if( iEventID >= MAXGAMEEVENTS)
-	{
-		Printf("Invalid Event ID\n");
-		return;
-	}
-	if( apScriptGameEvent[iEventID] == 0 )
-	{
-		return;
-	}
-
-	// save current values...
-	og_i=g_i;
-	og_p=g_p;
-	og_x=g_x;
-	og_sp=g_sp;
-	og_t=g_t;
-	okillit_flag=killit_flag;
-	oinsptr=insptr;
-	
-	g_i = i;	// current sprite ID
-	g_p = p;	/// current player ID
-	g_x = x;	// ?
-	g_sp = &sprite[g_i];
-	g_t = &hittype[g_i].temp_data[0];
-
-	insptr = (apScriptGameEvent[iEventID]);
-
-	killit_flag = 0;
-	do
-		done = parse();
-	while( done == 0 );
-
-	// restore old values...
-	g_i=og_i;
-	g_p=og_p;
-	g_x=og_x;
-	g_sp=og_sp;
-	g_t=og_t;
-	killit_flag=okillit_flag;
-	insptr=oinsptr;
-}
-#endif
 
 //---------------------------------------------------------------------------
 //

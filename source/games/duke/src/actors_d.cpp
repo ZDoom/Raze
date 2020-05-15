@@ -456,11 +456,7 @@ int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigne
 		{
 			if (sprite[spritenum].picnum == LIZMAN)
 				cd = 292;
-#if 0	// TRANSITIONAL the needed infrastructure for this is too different for now
-			else if ((actortype[sprite[spritenum].picnum] & 3))
-#else
-			else if (A_CheckSpriteFlags(spritenum, SFLAG_BADGUY))
-#endif
+			else if (actorflag(spritenum, SFLAG_BADGUY))
 				cd = sprite[spritenum].clipdist << 2;
 			else
 				cd = 192;

@@ -625,7 +625,7 @@ void movefta_r(void)
 					default:
 #if 0
 						// TRANSITIONAL: RedNukem has this here. Needed?
-						if (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
+						if (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
 #endif
 						hittype[i].timetosleep = 0;
 						check_fta_sounds(i);

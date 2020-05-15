@@ -28,67 +28,95 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"  // vmstate_t
 
 BEGIN_DUKE_NS
-int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
-int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
-int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum);
-int32_t VM_ExecuteEventWithValue(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn);
 
-static FORCE_INLINE int VM_HaveEvent(int const nEventID)
+enum
 {
-    return !!apScriptGameEvent[nEventID];
-}
+	EVENT_INIT = 0,
+	EVENT_ENTERLEVEL,
+	EVENT_RESETWEAPONS,	// for each player
+	EVENT_RESETINVENTORY, // for each player
+	EVENT_HOLSTER,		// for each player
+	EVENT_LOOKLEFT,		// for each player
+	EVENT_LOOKRIGHT,	// for each player
+	EVENT_SOARUP,		// for each player
+	EVENT_SOARDOWN,		// for each player
+	EVENT_CROUCH,		// for each player
+	EVENT_JUMP,			// for each player
+	EVENT_RETURNTOCENTER,	// for each player
+	EVENT_LOOKUP,		// for each player
+	EVENT_LOOKDOWN,		// for each player
+	EVENT_AIMUP,		// for each player
+	EVENT_AIMDOWN,		// for each player
+	EVENT_FIRE,			// for each player
+	EVENT_CHANGEWEAPON,	// for each player
+	EVENT_GETSHOTRANGE,	// for each player
+	EVENT_GETAUTOAIMANGLE,	// for each player
+	EVENT_GETLOADTILE,
 
-static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
-{
-    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum, nDist, nReturn) : nReturn;
-}
+	EVENT_CHEATGETSTEROIDS,
+	EVENT_CHEATGETHEAT,
+	EVENT_CHEATGETBOOT,
+	EVENT_CHEATGETSHIELD,
+	EVENT_CHEATGETSCUBA,
+	EVENT_CHEATGETHOLODUKE,
+	EVENT_CHEATGETJETPACK,
+	EVENT_CHEATGETFIRSTAID,
+	EVENT_QUICKKICK,
+	EVENT_INVENTORY,
+	EVENT_USENIGHTVISION,
+	EVENT_USESTEROIDS,
+	EVENT_INVENTORYLEFT,
+	EVENT_INVENTORYRIGHT,
+	EVENT_HOLODUKEON,
+	EVENT_HOLODUKEOFF,
+	EVENT_USEMEDKIT,
+	EVENT_USEJETPACK,
+	EVENT_TURNAROUND,
 
-static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum, int nDist)
-{
-    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum, nDist) : 0;
-}
+	EVENT_NUMEVENTS,
+	EVENT_MAXEVENT = EVENT_NUMEVENTS - 1
+};
 
-static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum = -1, int playerNum = -1)
-{
-    return VM_HaveEvent(nEventID) ? VM_ExecuteEvent(nEventID, spriteNum, playerNum) : 0;
-}
 
-inline int OnEvent(int id, int pnum, int snum, int what)
+
+void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
+
+static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum=-1, int playerNum=-1, int nDist=-1, int32_t nReturn=0)
 {
-    return VM_OnEvent(id, snum, pnum, what);
+    // set return
+    if (IsGameEvent(nEventID))
+    {
+        SetGameVarID(g_iReturnVarID, nReturn, spriteNum, playerNum);
+        OnEvent(nEventID, spriteNum, playerNum, -1);
+        return GetGameVarID(g_iReturnVarID, spriteNum, playerNum);
+    }
+    return nReturn;
 }
 
 static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int32_t nReturn)
 {
-    return VM_HaveEvent(nEventID) ? VM_ExecuteEventWithValue(nEventID, spriteNum, playerNum, nReturn) : nReturn;
+	// set return
+    if (IsGameEvent(nEventID))
+    {
+        SetGameVarID(g_iReturnVarID, nReturn, spriteNum, playerNum);
+        OnEvent(nEventID, spriteNum, playerNum, -1);
+        return GetGameVarID(g_iReturnVarID, spriteNum, playerNum);
+    }
+    return nReturn;
 }
 
 
 extern int32_t ticrandomseed;
 
-extern int32_t g_tw;
-extern int32_t g_currentEvent;
-extern int32_t g_errorLineNum;
-
 void execute(int s, int p, int d);
+
 void makeitfall(int s);
 int furthestangle(int spriteNum, int angDiv);
 void getglobalz(int s);
 int getincangle(int c, int n);
-//void G_RestoreMapState();
-//void G_SaveMapState();
-
-#define CON_ERRPRINTF(Text, ...) do { \
-    Printf("Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
-} while (0)
-
-#define CON_CRITICALERRPRINTF(Text, ...) do { \
-    I_Error("Line %d, %s: " Text, VM_DECODE_LINE_NUMBER(g_tw), VM_GetKeywordForID(VM_DECODE_INST(g_tw)), ## __VA_ARGS__); \
-} while (0)
 
 void G_GetTimeDate(int32_t * pValues);
 int G_StartTrack(int levelNum);
-void VM_UpdateAnim(int spriteNum, int32_t *pData);
 
 END_DUKE_NS
 

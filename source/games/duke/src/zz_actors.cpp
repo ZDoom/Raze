@@ -294,8 +294,8 @@ static void G_DoEffectorLights(void)  // STATNUM 14
         {
         case SE_49_POINT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
-                    !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+            if (!actorflag(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
+                    !(actorflag(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
                 {
@@ -360,8 +360,8 @@ static void G_DoEffectorLights(void)  // STATNUM 14
         }
         case SE_50_SPOT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
-                    !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+            if (!actorflag(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
+                    !(actorflag(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
                 {
@@ -466,7 +466,7 @@ static void A_DoLight(int spriteNum)
 
     if (((sector[pSprite->sectnum].floorz - sector[pSprite->sectnum].ceilingz) < 16) || pSprite->z > sector[pSprite->sectnum].floorz || pSprite->z > actor[spriteNum].floorz ||
         (pSprite->picnum != TILE_SECTOREFFECTOR && ((pSprite->cstat & 32768) || pSprite->yrepeat < 4)) ||
-        A_CheckSpriteFlags(spriteNum, SFLAG_NOLIGHT) || (A_CheckSpriteFlags(spriteNum, SFLAG_USEACTIVATOR) && sector[pSprite->sectnum].lotag & 16384))
+        actorflag(spriteNum, SFLAG_NOLIGHT) || (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[pSprite->sectnum].lotag & 16384))
     {
         if (actor[spriteNum].lightptr != NULL)
             A_DeleteLight(spriteNum);
@@ -505,7 +505,7 @@ static void A_DoLight(int spriteNum)
             case ACCESSSWITCH__STATIC:
             case ACCESSSWITCH2__STATIC:
                 {
-                    if ((pSprite->cstat & 32768) || A_CheckSpriteFlags(spriteNum, SFLAG_NOLIGHT))
+                    if ((pSprite->cstat & 32768) || actorflag(spriteNum, SFLAG_NOLIGHT))
                     {
                         if (actor[spriteNum].lightptr != NULL)
                             A_DeleteLight(spriteNum);

@@ -310,14 +310,17 @@ inline int32_t G_GetTeamPalette(int32_t team)
     return pal[team];
 }
 
-#define A_CheckSpriteFlags(spriteNum, iType) (((g_tile[sprite[spriteNum].picnum].flags^actor[spriteNum].flags) & iType) != 0)
+inline int actorflag(int spritenum, int mask)
+{
+    return (((actorinfo[sprite[spritenum].picnum].flags/* ^ actor[spritenum].flags*/) & mask) != 0);
+}
 
 inline int actorfella(int spnum)
 {
-    return A_CheckSpriteFlags(spnum, SFLAG_KILLCOUNT);
+    return actorflag(spnum, SFLAG_KILLCOUNT);
 }
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
-#define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (g_tile[iPicnum].flags & iType) != 0)
+#define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (actorinfo[iPicnum].flags & iType) != 0)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
 extern int G_StartRTS(int lumpNum, int localPlayer);

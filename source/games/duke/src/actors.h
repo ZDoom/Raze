@@ -137,7 +137,7 @@ typedef struct
 {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
 
-    int32_t flags;                             // 4b
+    int32_t aflags;                             // 4b
     union
     {
         vec3_t  bpos;                              // 12b
@@ -185,13 +185,12 @@ typedef struct
 } netactor_t;
 #pragma pack(pop)
 
-typedef struct
+// Todo - put more state in here
+struct ActorInfo
 {
-    intptr_t *execPtr;  // pointer to CON script for this tile, formerly actorscrptr
-    intptr_t *loadPtr;  // pointer to load time CON script, formerly actorLoadEventScrPtr or something
-    uint32_t      flags;       // formerly SpriteFlags, ActorType
-    int32_t       cacherange;  // formerly SpriteCache
-} tiledata_t;
+    uint32_t scriptaddress;
+    uint32_t flags;
+};
 
 
 // KEEPINSYNC lunatic/con_lang.lua
@@ -262,7 +261,7 @@ enum pflags_t
     PROJECTILE_TYPE_MASK         = PROJECTILE_HITSCAN | PROJECTILE_RPG | PROJECTILE_KNEE | PROJECTILE_BLOOD,
 };
 
-extern tiledata_t   g_tile[MAXTILES];
+extern ActorInfo   actorinfo[MAXTILES];
 extern actor_t      actor[MAXSPRITES];
 extern actor_t* hittype;
 extern int32_t      block_deletesprite;
@@ -337,7 +336,7 @@ EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * s);
 
 ACTOR_INLINE int A_CheckEnemyTile(int const tileNum)
 {
-    return ((g_tile[tileNum].flags & (SFLAG_BADGUY_TILE | SFLAG_BADGUY)) != 0);
+    return ((actorinfo[tileNum].flags & (SFLAG_BADGUY_TILE | SFLAG_BADGUY)) != 0);
 }
 
 int ssp(short i, unsigned int cliptype); //The set sprite function

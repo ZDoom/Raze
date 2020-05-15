@@ -24,8 +24,6 @@ set( PCH_SOURCES
 	src/zz_d_menu.cpp
 	src/zz_demo.cpp
 	src/zz_game.cpp
-	src/zz_gamedef.cpp
-	src/zz_gameexec.cpp
 	src/zz_global.cpp
 	src/zz_interpolate.cpp
 	src/zz_namesdyn.cpp

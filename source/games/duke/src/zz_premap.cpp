@@ -87,9 +87,6 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    for (j = PN(i); j <= g_tile[PN(i)].cacherange; j++)
-        tloadtile(j,1);
-
     switch (DYNAMICTILEMAP(PN(i)))
     {
     case HYDRENT__STATIC:
@@ -386,15 +383,6 @@ static void G_PrecacheSprites(void)
 {
     int32_t i;
 
-    //for (i=0; i<MAXTILES; i++)
-    //{
-    //    if (g_tile[i].flags & SFLAG_PROJECTILE)
-    //        tloadtile(i,1);
-    //
-    //    if (A_CheckSpriteTileFlags(i, SFLAG_CACHE))
-    //        for (j = i; j <= g_tile[i].cacherange; j++)
-    //            tloadtile(j,1);
-    //}
     tloadtile(TILE_BOTTOMSTATUSBAR,1);
     if ((g_netServer || ud.multimode > 1))
         tloadtile(TILE_FRAGBAR,1);

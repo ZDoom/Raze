@@ -3,55 +3,6 @@
 BEGIN_DUKE_NS
 
 // gamedef.c
-//void OnEvent(int iEventID, int i,int p,int x);
-
-enum
-{
-	EVENT_INIT = 0,
-	EVENT_ENTERLEVEL,
-	EVENT_RESETWEAPONS,	// for each player
-	EVENT_RESETINVENTORY, // for each player
-	EVENT_HOLSTER,		// for each player
-	EVENT_LOOKLEFT,		// for each player
-	EVENT_LOOKRIGHT,	// for each player
-	EVENT_SOARUP,		// for each player
-	EVENT_SOARDOWN,		// for each player
-	EVENT_CROUCH,		// for each player
-	EVENT_JUMP,			// for each player
-	EVENT_RETURNTOCENTER,	// for each player
-	EVENT_LOOKUP,		// for each player
-	EVENT_LOOKDOWN,		// for each player
-	EVENT_AIMUP,		// for each player
-	EVENT_AIMDOWN,		// for each player
-	EVENT_FIRE,			// for each player
-	EVENT_CHANGEWEAPON,	// for each player
-	EVENT_GETSHOTRANGE,	// for each player
-	EVENT_GETAUTOAIMANGLE,	// for each player
-	EVENT_GETLOADTILE,
-	
-	EVENT_CHEATGETSTEROIDS,
-	EVENT_CHEATGETHEAT,
-	EVENT_CHEATGETBOOT,
-	EVENT_CHEATGETSHIELD,
-	EVENT_CHEATGETSCUBA,
-	EVENT_CHEATGETHOLODUKE,
-	EVENT_CHEATGETJETPACK,
-	EVENT_CHEATGETFIRSTAID,
-	EVENT_QUICKKICK,
-	EVENT_INVENTORY,
-	EVENT_USENIGHTVISION,
-	EVENT_USESTEROIDS,
-	EVENT_INVENTORYLEFT,
-	EVENT_INVENTORYRIGHT,
-	EVENT_HOLODUKEON,
-	EVENT_HOLODUKEOFF,
-	EVENT_USEMEDKIT,
-	EVENT_USEJETPACK,
-	EVENT_TURNAROUND,
-	
-	EVENT_NUMEVENTS,
-	EVENT_MAXEVENT = EVENT_NUMEVENTS-1
-};
 
 enum
 {

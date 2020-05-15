@@ -61,8 +61,8 @@ enum DUKE3D_GLOBALFLAGS {
 };
 
 G_EXTERN actor_t actor[MAXSPRITES];
-// g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
-G_EXTERN tiledata_t g_tile[MAXTILES];
+// actorinfo: tile-specific data THAT DOES NOT CHANGE during the course of a game
+G_EXTERN ActorInfo actorinfo[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 extern char *label;
 G_EXTERN char g_loadFromGroupOnly;
@@ -202,7 +202,20 @@ G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t g_ambientCnt;
 
 G_EXTERN intptr_t *apScript;
-G_EXTERN intptr_t *scriptptr;
+G_EXTERN intptr_t *scriptaddress;
+
+inline int32_t G_HaveActor(int spriteNum)
+{
+    return actorinfo[spriteNum].scriptaddress != NULL;
+}
+
+inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
+{
+    return G_HaveActor(spriteNum) ? apScript[actorinfo[spriteNum].scriptaddress] : 0;
+}
+
+
+
 
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 struct msx_

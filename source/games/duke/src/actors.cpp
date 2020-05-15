@@ -4689,7 +4689,7 @@ void getglobalz(int i)
 			{
 				if( s->statnum != 4 )
 				{
-					hittype[i].flags |= SFLAG_NOFLOORSHADOW; 
+					hittype[i].aflags |= SFLAG_NOFLOORSHADOW; 
 					//hittype[i].dispicnum = -4; // No shadows on actors
 					s->xvel = -256;
 					ssp(i,CLIPMASK0);
@@ -4697,7 +4697,7 @@ void getglobalz(int i)
 			}
 			else if(sprite[lz].picnum == TILE_APLAYER && badguy(s) )
 			{
-				hittype[i].flags |= SFLAG_NOFLOORSHADOW; 
+				hittype[i].aflags |= SFLAG_NOFLOORSHADOW; 
 				//hittype[i].dispicnum = -4; // No shadows on actors
 				s->xvel = -256;
 				ssp(i,CLIPMASK0);

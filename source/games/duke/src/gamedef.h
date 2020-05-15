@@ -54,7 +54,7 @@ extern int32_t g_totalLines;
 extern int warningcount;
 extern int32_t otherp;
 
-extern intptr_t *scriptptr;
+extern intptr_t *scriptaddress;
 
 
 int32_t C_AllocQuote(int32_t qnum);
@@ -67,7 +67,7 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName);
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags);
 void ReportError(int32_t iError);
-void C_Compile(const char *filenam);
+void loadcons(const char *filenam);
 
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;

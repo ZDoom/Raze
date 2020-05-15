@@ -187,9 +187,6 @@ static int32_t gtextsc(int32_t sc)
 
 static void G_DrawCameraText(int16_t i)
 {
-    //if (VM_OnEvent(EVENT_DISPLAYCAMERAOSD, i, screenpeek) != 0)
-    //    return;
-
     if (!T1(i))
     {
         rotatesprite_win(24<<16, 33<<16, 65536L, 0, TILE_CAMCORNER, 0, 0, 2);
@@ -810,7 +807,6 @@ void G_DisplayRest(int32_t smoothratio)
 
             G_RestoreInterpolations();
 
-            //int32_t const textret = VM_OnEvent(EVENT_DISPLAYOVERHEADMAPTEXT, g_player[screenpeek].ps->i, screenpeek);
             if (/*textret == 0 &&*/ ud.overhead_on == 2)
             {
                 const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
@@ -823,7 +819,6 @@ void G_DisplayRest(int32_t smoothratio)
     }
 
 
-    //if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek) == 0)
         G_DrawStatusBar(screenpeek);
 
     G_PrintGameQuotes(screenpeek);
@@ -874,7 +869,7 @@ void G_DisplayRest(int32_t smoothratio)
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.overhead_on != 2 && hud_stats) // && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
+    if (ud.overhead_on != 2 && hud_stats)
     {
         DukePlayer_t const * const myps = g_player[myconnectindex].ps;
         int const sbarshift = RR ? 15 : 16;

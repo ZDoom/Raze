@@ -52,14 +52,14 @@ int line_number;
 int labelcnt;
 int errorcount, warningcount;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
 int g_currentSourceFile;
-intptr_t parsing_actor, parsing_event;
+uint32_t parsing_actor, parsing_event;
 int parsing_state;
 int num_squigilly_brackets;
 int checking_ifelse;
 
 //G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
 extern char tempbuf[];
-extern intptr_t* scriptptr;
+extern intptr_t* scriptaddress;
 extern int* labelcode;
 extern intptr_t* apScript;
 
@@ -421,22 +421,22 @@ static void setscriptvalue(int offset, int value)
 
 static void appendscriptvalue(int value)
 {
-	*scriptptr++ = value;
+	*scriptaddress++ = value;
 }
 
 static int popscriptvalue()
 {
-	return *--scriptptr;
+	return *--scriptaddress;
 }
 
 int scriptpos()
 {
-	return int(scriptptr - apScript);
+	return int(scriptaddress - apScript);
 }
 
 void appendlabeladdress(int offset = 0)
 {
-	labelcode[labelcnt++] = int(scriptptr - apScript) + offset;
+	labelcode[labelcnt++] = int(scriptaddress - apScript) + offset;
 	labelcnt++;
 }
 
@@ -448,7 +448,7 @@ void appendlabelvalue(int value)
 
 void reservescriptspace(int space)
 {
-	scriptptr += space;
+	scriptaddress += space;
 }
 
 
@@ -754,7 +754,7 @@ int parsecommand()
 			{
 				transnum();
 				popscriptvalue();
-				j |= *scriptptr;
+				j |= *scriptaddress;
 			}
 			appendscriptvalue(j);
 		}
@@ -793,7 +793,7 @@ int parsecommand()
 		transnum(); // Volume Number (0/4)
 		popscriptvalue();
 
-		k = *scriptptr - 1;
+		k = *scriptaddress - 1;
 		if (k == -1) k = MAXVOLUMES;
 
 		if (k >= 0) // if it's background music
@@ -975,20 +975,16 @@ int parsecommand()
 
 		transnum();
 		lnum = popscriptvalue();
-#if 1
-		g_tile[lnum].execPtr = apScript + parsing_actor;	// TRANSITIONAL should only store an index
+
+		actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
 		if (tw == concmd_useractor)
 		{
 			if (j & 1)
-				g_tile[lnum].flags |= SFLAG_BADGUY;
+				actorinfo[lnum].flags |= SFLAG_BADGUY;
 
 			if (j & 2)
-				g_tile[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
+				actorinfo[lnum].flags |= (SFLAG_BADGUY | SFLAG_BADGUYSTAYPUT);
 		}
-#else
-		actorscrptr[lnum] = parsing_actor;
-		actortype[lnum] = j;
-#endif
 
 		for (j = 0; j < 4; j++)
 		{
@@ -1014,7 +1010,7 @@ int parsecommand()
 				}
 				transnum();
 				// This code was originally here but is a no-op, because both source and destination are the same here.			
-				//*(parsing_actor + j) = *(scriptptr - 1);
+				//*(parsing_actor + j) = *(scriptaddress - 1);
 			}
 		}
 
@@ -1042,7 +1038,7 @@ int parsecommand()
 
 		transnum();
 		popscriptvalue();
-		j = *scriptptr;	// type of event
+		j = *scriptaddress;	// type of event
 		if (j< 0 || j> EVENT_MAXEVENT)
 		{
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Invalid Event ID.\n", fn, line_number);
@@ -1133,7 +1129,7 @@ int parsecommand()
 		{
 			checking_ifelse--;
 			tempscrptr = scriptpos();
-			scriptptr++; //Leave a spot for the fail location
+			scriptaddress++; //Leave a spot for the fail location
 			parsecommand();
 			setscriptvalue(tempscrptr, scriptpos());
 		}
@@ -1309,7 +1305,7 @@ int parsecommand()
 		{
 			transnum();
 			popscriptvalue();
-			j |= *scriptptr;
+			j |= *scriptaddress;
 		} while (keyword() == -1);
 		appendscriptvalue(j);
 		goto if_common;
@@ -1410,7 +1406,7 @@ int parsecommand()
 		popscriptvalue();
 		transnum();
 		popscriptvalue();
-		j = *scriptptr;
+		j = *scriptaddress;
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		i = 0;
@@ -1428,7 +1424,7 @@ int parsecommand()
 		popscriptvalue();
 		transnum();
 		popscriptvalue();
-		j = *scriptptr;
+		j = *scriptaddress;
 		while (*textptr == ' ') textptr++;
 
 		i = 0;
@@ -1447,10 +1443,10 @@ int parsecommand()
 		popscriptvalue();
 		transnum();
 		popscriptvalue();
-		j = *scriptptr;
+		j = *scriptaddress;
 		transnum();
 		popscriptvalue();
-		k = *scriptptr;
+		k = *scriptaddress;
 		while (*textptr == ' ') textptr++;
 
 		i = 0;
@@ -1494,7 +1490,7 @@ int parsecommand()
 	case concmd_definequote:
 		popscriptvalue();
 		transnum();
-		k = *(scriptptr - 1);
+		k = *(scriptaddress - 1);
 		if (k >= MAXQUOTES)
 		{
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Quote number exceeds limit of %d.\n", line_number, MAXQUOTES);
@@ -1518,7 +1514,7 @@ int parsecommand()
 	{
 		popscriptvalue();
 		transnum();
-		k = *(scriptptr - 1);
+		k = *(scriptaddress - 1);
 		popscriptvalue();
 		i = 0;
 		while (*textptr == ' ')
@@ -1533,19 +1529,19 @@ int parsecommand()
 		parsebuffer.Push(0);
 
 		transnum();
-		int ps = *(scriptptr - 1);
+		int ps = *(scriptaddress - 1);
 		popscriptvalue();
 		transnum();
-		int pe = *(scriptptr - 1);
+		int pe = *(scriptaddress - 1);
 		popscriptvalue();
 		transnum();
-		int pr = *(scriptptr - 1);
+		int pr = *(scriptaddress - 1);
 		popscriptvalue();
 		transnum();
-		int m = *(scriptptr - 1);
+		int m = *(scriptaddress - 1);
 		popscriptvalue();
 		transnum();
-		int vo = *(scriptptr - 1);
+		int vo = *(scriptaddress - 1);
 		popscriptvalue();
 		S_DefineSound(k, parsebuffer.Data(), ps, pe, pr, m, vo, 1.f);
 		return 0;
@@ -1668,7 +1664,7 @@ int parsecommand()
 			max_ammo_amount[14] = parseone();
 			max_ammo_amount[16] = parseone();
 		}
-		scriptptr++;
+		scriptaddress++;
 	}
 	return 0;
 	}
@@ -1713,24 +1709,24 @@ void compilecon(const char *filenam)
 
 void loadcons(const char* filenam)
 {
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		memset(&actorinfo[i], 0, sizeof(actorinfo));
+	}
+
+	apScript = (intptr_t*)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
+
 	labelcnt = 0;
 
 	SortCommands();
 
-#if 0
 	ClearGameEvents();
-#endif
-
 	ClearGameVars();
 	AddSystemVars();
 
-
-	//memset(actorscrptr, 0, MAXSPRITES);
-	//memset(actortype, 0, MAXSPRITES);
-
 	auto before = I_nsTime();
 
-	scriptptr = apScript + 1;
+	scriptaddress = apScript + 1;
 	compilecon(filenam); //Tokenize
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
@@ -1748,7 +1744,7 @@ void loadcons(const char* filenam)
 	{
 		auto after = I_nsTime();
 		Printf("Compilation time:%.2f ms, Code Size:%d bytes. %d labels. %d/%d Variables.\n", (after-before) / 1000000.,
-			((scriptptr - apScript) << 2) - 4,
+			((scriptaddress - apScript) << 2) - 4,
 			labelcnt,
 			0,//iGameVarCount,
 			MAXGAMEVARS
