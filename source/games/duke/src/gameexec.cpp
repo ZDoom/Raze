@@ -41,11 +41,12 @@ source as it is released.
 BEGIN_DUKE_NS
 
 // curse these global variables for parameter passing...
-int g_i, g_p;
-int g_x;
-int* g_t;
-uint8_t killit_flag;
-spritetype* g_sp;
+static int g_i, g_p;
+static int g_x;
+static int* g_t;
+static uint8_t killit_flag;
+static spritetype* g_sp;
+static intptr_t* insptr;
 
 int parse(void);
 int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
@@ -56,11 +57,10 @@ void destroyit(int g_i);
 void mamaspawn(int g_i);
 void forceplayerangle(DukePlayer_t* p);
 
-TArray<int> spritesToDelete; // List of sprites to delete.
-
+static bool killthesprite = false;
 void addspritetodelete(int spnum)
 {
-	if (spritesToDelete.Find(spnum) == spritesToDelete.Size()) spritesToDelete.Push(spnum);
+	killthesprite = true;
 }
 
 //---------------------------------------------------------------------------
@@ -76,11 +76,7 @@ void parseifelse(int condition)
 	{
 		// skip 'else' pointer.. and...
 		insptr+=2;
-#if 0
 		parse();
-#else
-		VM_Execute(0);
-#endif
 	}
 	else
 	{
@@ -91,12 +87,7 @@ void parseifelse(int condition)
 
 			// skip 'else' and...
 			insptr+=2;
-			
-#if 0
 			parse();
-#else
-			VM_Execute(0);
-#endif
 		}
 	}
 }
@@ -842,11 +833,7 @@ int parse(void)
 		break;
 	case concmd_leftbrace:
 		insptr++;
-#if 0
 		while (1) if (parse()) break;
-#else
-		VM_Execute(1);
-#endif
 		break;
 	case concmd_move:
 		g_t[0]=0;
@@ -1521,7 +1508,7 @@ int parse(void)
 		break;
 
 	case concmd_ifnosounds:
-		parseifelse(!A_CheckAnySoundPlaying(vm.spriteNum) );
+		parseifelse(!A_CheckAnySoundPlaying(g_i) );
 		break;
 
 	case concmd_ifplaybackon: //Twentieth Anniversary World Tour
@@ -1537,8 +1524,10 @@ int parse(void)
 	return 0;
 }
 
-void execute(short i,short p,int x)
+void execute(int i,int p,int x)
 {
+	if (!G_HaveActor(sprite[i].picnum)) return;
+
 	int done;
 
 	g_i = i;	// Sprite ID
@@ -1548,8 +1537,8 @@ void execute(short i,short p,int x)
 	g_t = &hittype[g_i].temp_data[0];	// Sprite's 'extra' data
 
 #if 1
-	if (!g_tile[vm.pSprite->picnum].execPtr) return;
-	insptr =  4 + (g_tile[vm.pSprite->picnum].execPtr);
+	if (!g_tile[g_sp->picnum].execPtr) return;
+	insptr =  4 + (g_tile[g_sp->picnum].execPtr);
 #else
 	if( actorscrptr[g_sp->picnum] == 0 ) return;
 	insptr = 4 + (actorscrptr[g_sp->picnum]);
@@ -1580,7 +1569,7 @@ void execute(short i,short p,int x)
 			g_sp->lotag = 0;
 			g_t[3] += increment;
 		}
-		if (abs(g_t[3]) >= abs(numframes * delay))
+		if (abs(g_t[3]) >= abs(numframes * increment))
 			g_t[3] = 0;
 	}
 
@@ -1593,31 +1582,33 @@ void execute(short i,short p,int x)
 		// if player was set to squish, first stop that...
 		if(ps[g_p].actorsqu == g_i)
 			ps[g_p].actorsqu = -1;
-		addspritetodelete(g_i);
+		killthesprite = true;
 	}
 	else
 	{
 		fi.move(g_i, g_p, g_x);
 
-		if (g_sp->statnum == 1)
+		if (g_sp->statnum == STAT_ACTOR)
 		{
 			if (badguy(g_sp))
 			{
-				if (g_sp->xrepeat > 60) return;
-				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) return;
+				if (g_sp->xrepeat > 60) goto quit;
+				if (ud.respawn_monsters == 1 && g_sp->extra <= 0) goto quit;
 			}
-			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) return;
+			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) goto quit;
 
 			if (hittype[g_i].timetosleep > 1)
 				hittype[g_i].timetosleep--;
 			else if (hittype[g_i].timetosleep == 1)
-				changespritestat(g_i, 2);
+				changespritestat(g_i, STAT_ZOMBIEACTOR);
 		}
 
 		else if (g_sp->statnum == STAT_STANDABLE)
 			fi.checktimetosleep(g_i);
 	}
-	for (auto i : spritesToDelete) deletesprite(i);
+quit:
+	if (killthesprite) deletesprite(i);
+	killthesprite = false;
 }
 
 

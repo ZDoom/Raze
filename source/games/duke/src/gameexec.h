@@ -66,19 +66,11 @@ static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, in
 
 extern int32_t ticrandomseed;
 
-extern vmstate_t vm;
 extern int32_t g_tw;
 extern int32_t g_currentEvent;
 extern int32_t g_errorLineNum;
 
-extern uint32_t g_actorCalls[MAXTILES];
-extern double g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
-
-void A_Execute(int spriteNum, int playerNum, int playerDist);
-inline void execute(int s, int p, int d)
-{
-    A_Execute(s, p, d);
-}
+void execute(int s, int p, int d);
 void makeitfall(int s);
 int furthestangle(int spriteNum, int angDiv);
 void getglobalz(int s);

@@ -9220,4 +9220,15 @@ int P_HasKey(int sectNum, int playerNum)
 
 int16_t max_ammo_amount[MAX_WEAPONS];
 
+void forceplayerangle(DukePlayer_t* pPlayer)
+{
+    int const nAngle = 128 - (krand2() & 255);
+
+    pPlayer->q16horiz += F16(64);
+    pPlayer->return_to_center = 9;
+    pPlayer->rotscrnang = nAngle >> 1;
+    pPlayer->look_ang = pPlayer->rotscrnang;
+}
+
+
 END_DUKE_NS

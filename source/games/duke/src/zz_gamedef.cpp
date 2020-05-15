@@ -62,12 +62,9 @@ void loadcons(const char* filenam);
 
 void C_Compile(const char *fileName)
 {
-    Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
-
     for (int i=0; i<MAXTILES; i++)
     {
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
-        g_actorMinMs[i] = 1e308;
     }
 
     apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));

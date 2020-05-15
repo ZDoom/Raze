@@ -52,11 +52,8 @@ int iGameVarCount;
 
 extern int errorcount, warningcount, line_count;
 
-#if 0
-
-intptr_t *actorLoadEventScrptr[MAXTILES];
-intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-#endif
+//intptr_t *actorLoadEventScrptr[MAXTILES];
+intptr_t apScriptGameEvent[MAXGAMEEVENTS];
 
 //---------------------------------------------------------------------------
 //

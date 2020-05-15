@@ -406,48 +406,6 @@ static int osdcmd_password(CCmdFuncPtr parm)
 int osdcmd_listplayers(CCmdFuncPtr parm);
 #endif
 
-static int osdcmd_printtimes(CCmdFuncPtr UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    char buf[32];
-    int32_t maxlen = 0;
-    int32_t haveac=0;
-
-    for (int i=0; i<MAXTILES; i++)
-        if (g_actorCalls[i])
-        {
-            if (!haveac)
-            {
-                haveac = 1;
-                Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
-            }
-
-            buf[0] = 0;
-
-            /*
-            for (int ii=0; ii<labelcnt; ii++)
-            {
-                if (labelcode[ii] == i && labeltype[ii] & LABEL_ACTOR)
-                {
-                    Bstrcpy(buf, label+(ii<<6));
-                    break;
-                }
-            }
-            */
-
-            if (!buf[0]) Bsprintf(buf, "%d", i);
-
-            Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
-                buf, g_actorCalls[i], g_actorTotalMs[i],
-                1000*g_actorMinMs[i],
-                1000*g_actorTotalMs[i]/g_actorCalls[i],
-                1000*g_actorMaxMs[i]);
-        }
-
-    return OSDCMD_OK;
-}
-
 
 int32_t registerosdcommands(void)
 {
@@ -484,8 +442,6 @@ int32_t registerosdcommands(void)
 #if !defined NETCODE_DISABLE
     C_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
 #endif
-
-    C_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
 

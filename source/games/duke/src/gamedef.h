@@ -40,9 +40,7 @@ BEGIN_DUKE_NS
 #define VM_INSTMASK 0xfff
 #define VM_DECODE_LINE_NUMBER(xxx) ((int)((xxx) >> 12))
 
-extern intptr_t const * insptr;
-
-extern intptr_t apScriptGameEvent[EVENT_NUMEVENTS];
+extern intptr_t apScriptGameEvent[];
 
 extern char g_scriptFileName[BMAX_PATH];
 
@@ -63,24 +61,6 @@ int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
 
 extern int32_t g_numProjectiles;
-
-typedef struct {
-    int spriteNum;
-    int playerNum;
-    int playerDist;
-    int flags;
-
-    union {
-        spritetype *pSprite;
-        uspritetype *pUSprite;
-    };
-
-    int32_t *     pData;
-    DukePlayer_t *pPlayer;
-    actor_t *     pActor;
-} vmstate_t;
-
-extern vmstate_t vm;
 
 void G_DoGameStartup(const int32_t *params);
 void C_DefineMusic(int volumeNum, int levelNum, const char *fileName);
