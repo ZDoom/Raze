@@ -4203,7 +4203,7 @@ void move_r(int g_i, int g_p, int g_x)
 		return;
 	}
 
-	moveptr = apScript + g_t[1];
+	moveptr = &ScriptCode[g_t[1]];
 
 	if (a & geth) g_sp->xvel += (*moveptr - g_sp->xvel) >> 1;
 	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;

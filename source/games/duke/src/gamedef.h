@@ -53,9 +53,6 @@ extern int32_t g_totalLines;
 extern int warningcount;
 extern int32_t otherp;
 
-extern intptr_t *scriptaddress;
-
-
 int32_t C_AllocQuote(int32_t qnum);
 void C_InitQuotes(void);
 

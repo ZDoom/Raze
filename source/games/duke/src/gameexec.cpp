@@ -80,7 +80,7 @@ void parseifelse(int condition)
 	}
 	else
 	{
-		insptr = apScript + *(insptr+1);
+		insptr = &ScriptCode[*(insptr+1)];
 		if(*insptr == 10)
 		{
 			// else...
@@ -278,9 +278,9 @@ int parse(void)
 	case concmd_ai:
 		insptr++;
 		g_t[5] = *insptr;
-		g_t[4] = apScript[g_t[5]];		  // Action
-		g_t[1] = apScript[g_t[5] + 1];		// move
-		g_sp->hitag = apScript[g_t[5] + 2];	  // Ai
+		g_t[4] = ScriptCode[g_t[5]];		  // Action
+		g_t[1] = ScriptCode[g_t[5] + 1];		// move
+		g_sp->hitag = ScriptCode[g_t[5] + 2];	  // Ai
 		g_t[0] = g_t[2] = g_t[3] = 0;
 		if (g_sp->hitag & random_angle)
 			g_sp->ang = krand() & 2047;
@@ -307,7 +307,7 @@ int parse(void)
 			hittype[g_i].timetosleep = SLEEPTIME;
 		break;
 	case concmd_else:
-		insptr = apScript + *(insptr + 1);
+		insptr = &ScriptCode[*(insptr + 1)];
 		break;
 	case concmd_addstrength:
 		insptr++;
@@ -826,7 +826,7 @@ int parse(void)
 	case concmd_state:
 		{
 			auto tempscrptr = insptr + 2;
-			insptr = apScript + *(insptr + 1);
+			insptr = &ScriptCode[*(insptr + 1)];
 			while (1) if (parse()) break;
 			insptr = tempscrptr;
 		}
@@ -1517,7 +1517,7 @@ int parse(void)
 
 	default:
 		Printf(TEXTCOLOR_RED "Unrecognized PCode of %ld  in parse.  Killing current sprite.\n",*insptr);
-		Printf(TEXTCOLOR_RED "Offset=%0lX\n",scriptaddress-apScript);
+		Printf(TEXTCOLOR_RED "Offset=%0lX\n",insptr-ScriptCode.Data());
 		killit_flag = 1;
 		break;
 	}
@@ -1537,7 +1537,7 @@ void execute(int i,int p,int x)
 	g_t = &hittype[g_i].temp_data[0];	// Sprite's 'extra' data
 
 	if (actorinfo[g_sp->picnum].scriptaddress == 0) return;
-	insptr = apScript +  4 + (actorinfo[g_sp->picnum].scriptaddress);
+	insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
 
 	killit_flag = 0;
 
@@ -1552,7 +1552,7 @@ void execute(int i,int p,int x)
 	if (g_t[4])
 	{
 		// This code was utterly cryptic in the original source.
-		auto ptr = apScript + g_t[4];
+		auto ptr = &ScriptCode[g_t[4]];
 		int numframes = ptr[1];
 		int increment = ptr[3];
 		int delay =  ptr[4];
@@ -1649,7 +1649,7 @@ void OnEvent(int iEventID, int p, int i, int x)
 	g_sp = &sprite[g_i];
 	g_t = &hittype[g_i].temp_data[0];
 
-	insptr = apScript + apScriptGameEvent[iEventID];
+	insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 
 	killit_flag = 0;
 	do

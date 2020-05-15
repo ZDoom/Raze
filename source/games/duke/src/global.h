@@ -201,9 +201,6 @@ G_EXTERN int16_t ambientlotag[64];
 G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t g_ambientCnt;
 
-G_EXTERN intptr_t *apScript;
-G_EXTERN intptr_t *scriptaddress;
-
 inline int32_t G_HaveActor(int spriteNum)
 {
     return actorinfo[spriteNum].scriptaddress != NULL;
@@ -211,7 +208,7 @@ inline int32_t G_HaveActor(int spriteNum)
 
 inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
 {
-    return G_HaveActor(spriteNum) ? apScript[actorinfo[spriteNum].scriptaddress] : 0;
+    return G_HaveActor(spriteNum) ? ScriptCode[actorinfo[spriteNum].scriptaddress] : 0;
 }
 
 

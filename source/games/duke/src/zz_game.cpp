@@ -1321,7 +1321,7 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
 {
     if (actorinfo[tilenum].scriptaddress)
     {
-        auto sa = &apScript[actorinfo[tilenum].scriptaddress];
+        auto sa = &ScriptCode[actorinfo[tilenum].scriptaddress];
         SH(i) = sa[0];
         AC_ACTION_ID(actor[i].t_data) = sa[1];
         AC_MOVE_ID(actor[i].t_data) = sa[2];
@@ -5065,7 +5065,7 @@ default_case1:
             {
                 // Display TILE_APLAYER sprites with action PSTAND when viewed through
                 // a camera.
-                auto aplayer_scr = apScript + actorinfo[TILE_APLAYER].scriptaddress;
+                auto aplayer_scr = &ScriptCode[actorinfo[TILE_APLAYER].scriptaddress];
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
                 scrofs_action = aplayer_scr[1];
@@ -5269,8 +5269,8 @@ default_case2:
             if ((unsigned)scrofs_action + ACTION_VIEWTYPE >= (unsigned)g_scriptSize)
                 goto skip;
 
-            int viewtype = apScript[scrofs_action + ACTION_VIEWTYPE];
-            uint16_t const action_flags = apScript[scrofs_action + ACTION_FLAGS];
+            int viewtype = ScriptCode[scrofs_action + ACTION_VIEWTYPE];
+            uint16_t const action_flags = ScriptCode[scrofs_action + ACTION_FLAGS];
 
             int const invertp = viewtype < 0;
             l = klabs(viewtype);
@@ -5334,7 +5334,7 @@ default_case2:
                 }
             }
 
-            t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + l*curframe;
+            t->picnum += frameOffset + ScriptCode[scrofs_action + ACTION_STARTFRAME] + l*curframe;
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
             if (l > 0)
@@ -6515,7 +6515,6 @@ static void G_Cleanup(void)
 #if 0
     if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
 #endif
-    Xfree(apScript);
 
 }
 

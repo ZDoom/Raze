@@ -1077,7 +1077,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || (apScript != NULL))
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || ScriptCode.Size())
     {
 #ifndef DEBUGGINGAIDS
         if (havedemo)

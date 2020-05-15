@@ -173,7 +173,7 @@ void A_MoveSector(int spriteNum)
 }
 
 // NOTE: T5 is AC_ACTION_ID
-# define LIGHTRAD_PICOFS(i) (T5(i) ? *(apScript + T5(i)) + (*(apScript + T5(i) + 2)) * AC_CURFRAME(actor[i].t_data) : 0)
+# define LIGHTRAD_PICOFS(i) (T5(i) ? ScriptCode[T5(i)] + ScriptCode[T5(i) + 2] * AC_CURFRAME(actor[i].t_data) : 0)
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 // XXX: may access tilesizy out-of-bounds by bad user code.
