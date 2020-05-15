@@ -230,11 +230,6 @@ inline int inventory(spritetype* S)
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
 #define EGS A_InsertSprite
-int A_Spawn(int spriteNum,int tileNum);
-inline int spawn(int s, int t)
-{
-    return A_Spawn(s, t);
-}
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 
@@ -291,7 +286,7 @@ void OnBoat(DukePlayer_t *pPlayer, int spriteNum);
 void OffBoat(DukePlayer_t *pPlayer);
 
 // Cstat protection mask for (currently) spawned MASKWALL* sprites.
-// TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?
+// TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in fi.spawn()?
 // 2048+(32+16)+8+4
 #define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_ALIGNMENT_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
 
@@ -452,6 +447,17 @@ extern void G_PrintCurrentMusic(void);
 
 void addspritetodelete(int spnum);
 
+int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
+void spawninitdefault(int j, int i);
+void spawntransporter(int j, int i, bool beam);
+int spawnbloodpoolpart1(int j, int i);
+void initfootprint(int j, int i);
+void initshell(int j, int i, bool isshell);
+void initcrane(int j, int i, int CRANEPOLE);
+void initwaterdrip(int j, int i);
+int initreactor(int j, int i, bool isrecon);
+void spawneffector(int i);
+
 struct Dispatcher
 {
 	// sectors_?.cpp
@@ -484,6 +490,7 @@ struct Dispatcher
     void (*respawnhitag)(spritetype* g_sp);
     void (*checktimetosleep)(int g_i);
     void (*move)(int g_i, int g_p, int g_x);
+	int (*spawn)(int j, int pn);
 
 
 };

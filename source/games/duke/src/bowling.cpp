@@ -52,7 +52,7 @@ void ballreturn(short spr)
 				nextj = nextspritestat[j];
 				if (sprite[j].picnum == RRTILE282)
 					if (sprite[i].hitag == sprite[j].hitag)
-					spawn(j, BOWLINGBALLSPRITE);
+					fi.spawn(j, BOWLINGBALLSPRITE);
 				if (sprite[j].picnum == RRTILE280)
 					if (sprite[i].hitag == sprite[j].hitag)
 						if (sprite[j].lotag == 0)
@@ -207,7 +207,7 @@ void resetpins(short sect)
 		nexti = nextspritesect[i];
 		if (sprite[i].picnum == 283)
 		{
-			j = spawn(i,3440);
+			j = fi.spawn(i,3440);
 			sprite[j].lotag = sprite[i].lotag;
 			if (sprite[j].lotag == 3 || sprite[j].lotag == 5)
 			{

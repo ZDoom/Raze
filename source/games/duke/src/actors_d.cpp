@@ -1005,7 +1005,7 @@ static void movetripbomb(int i)
 			x = s->extra;
 			fi.hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
-			j = spawn(i, EXPLOSION2);
+			j = fi.spawn(i, EXPLOSION2);
 			sprite[j].ang = s->ang;
 			sprite[j].xvel = 348;
 			ssp(j, CLIPMASK0);
@@ -1066,7 +1066,7 @@ static void movetripbomb(int i)
 			// we're on a trip wire
 			while (x > 0)
 			{
-				j = spawn(i, LASERLINE);
+				j = fi.spawn(i, LASERLINE);
 				setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
 				sprite[j].hitag = s->hitag;
 				hittype[j].temp_data[1] = sprite[j].z;
@@ -1177,7 +1177,7 @@ static void movefireext(int i)
 		sprite[j].pal = 2;
 	}
 
-	spawn(i, EXPLOSION2);
+	fi.spawn(i, EXPLOSION2);
 	spritesound(PIPEBOMB_EXPLODE, i);
 	spritesound(GLASS_HEAVYBREAK, i);
 
@@ -1193,7 +1193,7 @@ static void movefireext(int i)
 		}
 
 		int x = s->extra;
-		spawn(i, EXPLOSION2);
+		fi.spawn(i, EXPLOSION2);
 		fi.hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		spritesound(PIPEBOMB_EXPLODE, i);
 		detonate(i, EXPLOSION2);
@@ -1520,7 +1520,7 @@ void moveweapons_d(void)
 		case FREEZEBLAST:
 			if (s->yvel < 1 || s->extra < 2 || (s->xvel|s->zvel) == 0)
 			{
-				j = spawn(i,TRANSPORTERSTAR);
+				j = fi.spawn(i,TRANSPORTERSTAR);
 				sprite[j].pal = 1;
 				sprite[j].xrepeat = 32;
 				sprite[j].yrepeat = 32;
@@ -1564,7 +1564,7 @@ void moveweapons_d(void)
 				case RPG:
 					if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 					{
-						j = spawn(i,SMALLSMOKE);
+						j = fi.spawn(i,SMALLSMOKE);
 						sprite[j].z += (1 << 8);
 					}
 					break;
@@ -1584,7 +1584,7 @@ void moveweapons_d(void)
 							{
 								float siz = 1.0f - (hittype[i].temp_data[0] * 0.2f);
 								int trail = hittype[i].temp_data[1];
-								j = hittype[i].temp_data[1] = spawn(i, FIREBALL);
+								j = hittype[i].temp_data[1] = fi.spawn(i, FIREBALL);
 
 								auto spr = &sprite[j];
 								spr->xvel = sprite[i].xvel;
@@ -1688,7 +1688,7 @@ void moveweapons_d(void)
 					if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
 						if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
 					{
-						j = spawn(i,TRANSPORTERSTAR);
+						j = fi.spawn(i,TRANSPORTERSTAR);
 						sprite[j].pal = 1;
 						sprite[j].xrepeat = 32;
 						sprite[j].yrepeat = 32;
@@ -1746,7 +1746,7 @@ void moveweapons_d(void)
 								wall[wall[j].point2].y-wall[j].y);
 						s->ang = ((k << 1) - s->ang)&2047;
 						s->owner = i;
-						spawn(i,TRANSPORTERSTAR);
+						fi.spawn(i,TRANSPORTERSTAR);
 						continue;
 					}
 					else
@@ -1787,7 +1787,7 @@ void moveweapons_d(void)
 					}
 					else if (fireball)
 					{
-						j = spawn(i, LAVAPOOL);
+						j = fi.spawn(i, LAVAPOOL);
 						sprite[j].owner = sprite[i].owner;
 						sprite[j].yvel = sprite[i].yvel;
 						actor[j].owner = sprite[i].owner;
@@ -1815,7 +1815,7 @@ void moveweapons_d(void)
 				{
 					if (s->picnum == RPG)
 					{
-						k = spawn(i,EXPLOSION2);
+						k = fi.spawn(i,EXPLOSION2);
 						sprite[k].x = dax;
 						sprite[k].y = day;
 						sprite[k].z = daz;
@@ -1828,19 +1828,19 @@ void moveweapons_d(void)
 						else if ((j&49152) == 16384)
 						{
 							if (s->zvel > 0)
-								spawn(i,EXPLOSION2BOT);
+								fi.spawn(i,EXPLOSION2BOT);
 							else { sprite[k].cstat |= 8; sprite[k].z += (48 << 8); }
 						}
 					}
 					else if (s->picnum == SHRINKSPARK)
 					{
-						spawn(i,SHRINKEREXPLOSION);
+						fi.spawn(i,SHRINKEREXPLOSION);
 						spritesound(SHRINKER_HIT,i);
 						fi.hitradius(i,shrinkerblastradius,0,0,0,0);
 					}
 					else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 					{
-						k = spawn(i,EXPLOSION2);
+						k = fi.spawn(i,EXPLOSION2);
 						sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
 						if ((j&49152) == 16384)
 						{
@@ -1867,7 +1867,7 @@ void moveweapons_d(void)
 					}
 					if (fireball) 
 					{
-						j = spawn(i, EXPLOSION2);
+						j = fi.spawn(i, EXPLOSION2);
 						sprite[j].xrepeat = sprite[j].yrepeat = (short)(s->xrepeat >> 1);
 					}
 				}
@@ -1887,7 +1887,7 @@ void moveweapons_d(void)
 				}
 			}
 			else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
-				spawn(i,WATERBUBBLE);
+				fi.spawn(i,WATERBUBBLE);
 			break;
 
 		case SHOTSPARK1:
@@ -1948,7 +1948,7 @@ void movetransports_d(void)
 						{
 							if (sprite[i].pal == 0)
 							{
-								spawn(i, TRANSPORTERBEAM);
+								fi.spawn(i, TRANSPORTERBEAM);
 								spritesound(TELEPORTER, i);
 							}
 
@@ -1977,7 +1977,7 @@ void movetransports_d(void)
 
 							if (sprite[i].pal == 0)
 							{
-								k = spawn(sprite[i].owner, TRANSPORTERBEAM);
+								k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
 								spritesound(TELEPORTER, k);
 							}
 
@@ -2060,12 +2060,12 @@ void movetransports_d(void)
 						setpal(&ps[p]);
 
 						if ((krand() & 255) < 32)
-							spawn(j, WATERSPLASH2);
+							fi.spawn(j, WATERSPLASH2);
 
 						if (sectlotag == 1)
 							for (l = 0; l < 9; l++)
 							{
-								q = spawn(ps[p].i, WATERBUBBLE);
+								q = fi.spawn(ps[p].i, WATERBUBBLE);
 								sprite[q].z += krand() & 16383;
 							}
 					}
@@ -2144,7 +2144,7 @@ void movetransports_d(void)
 
 						if (sectlotag > 0)
 						{
-							k = spawn(j, WATERSPLASH2);
+							k = fi.spawn(j, WATERSPLASH2);
 							if (sectlotag == 1 && sprite[j].statnum == 4)
 							{
 								sprite[k].xvel = sprite[j].xvel >> 1;
@@ -2171,10 +2171,10 @@ void movetransports_d(void)
 
 									if (sprite[i].pal == 0)
 									{
-										k = spawn(i, TRANSPORTERBEAM);
+										k = fi.spawn(i, TRANSPORTERBEAM);
 										spritesound(TELEPORTER, k);
 
-										k = spawn(sprite[i].owner, TRANSPORTERBEAM);
+										k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
 										spritesound(TELEPORTER, k);
 									}
 
@@ -2351,7 +2351,7 @@ static void greenslime(int i)
 				spritesound(SQUISHED, i);
 				if ((krand() & 255) < 32)
 				{
-					j = spawn(i, BLOODPOOL);
+					j = fi.spawn(i, BLOODPOOL);
 					sprite[j].pal = 0;
 				}
 				ps[p].actors_killed++;
@@ -2451,7 +2451,7 @@ static void greenslime(int i)
 
 		if ((krand() & 255) < 32)
 		{
-			j = spawn(i, BLOODPOOL);
+			j = fi.spawn(i, BLOODPOOL);
 			sprite[j].pal = 0;
 		}
 
@@ -2663,7 +2663,7 @@ static void flamethrowerflame(int i)
 	t[0]++;
 	if (sector[sect].lotag == 2)
 	{
-		sprite[spawn(i, EXPLOSION2)].shade = 127;
+		sprite[fi.spawn(i, EXPLOSION2)].shade = 127;
 		deletesprite(i);
 		return;
 	}
@@ -2682,7 +2682,7 @@ static void flamethrowerflame(int i)
 		t[3] = krand() % 10;
 	if (t[0] > 30) 
 	{
-		sprite[spawn(i, EXPLOSION2)].shade = 127;
+		sprite[fi.spawn(i, EXPLOSION2)].shade = 127;
 		deletesprite(i);
 		return;
 	}
@@ -2766,7 +2766,7 @@ static void heavyhbomb(int i)
 		if (t[2] <= 0)
 		{
 			spritesound(TELEPORTER, i);
-			spawn(i, TRANSPORTERSTAR);
+			fi.spawn(i, TRANSPORTERSTAR);
 			s->cstat = 257;
 		}
 		return;
@@ -2821,7 +2821,7 @@ static void heavyhbomb(int i)
 		if (t[5] == 0)
 		{
 			t[5] = 1;
-			spawn(i, WATERSPLASH2);
+			fi.spawn(i, WATERSPLASH2);
 		}
 	}
 	else t[5] = 0;
@@ -2891,9 +2891,9 @@ DETONATEB:
 			}
 
 			fi.hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
-			spawn(i, EXPLOSION2);
+			fi.spawn(i, EXPLOSION2);
 			if (s->zvel == 0)
-				spawn(i, EXPLOSION2BOT);
+				fi.spawn(i, EXPLOSION2BOT);
 			spritesound(PIPEBOMB_EXPLODE, i);
 			for (x = 0; x < 8; x++)
 				RANDOMSCRAP(s, i);
@@ -2915,7 +2915,7 @@ DETONATEB:
 			else
 			{
 				t[2] = respawnitemtime;
-				spawn(i, RESPAWNMARKERRED);
+				fi.spawn(i, RESPAWNMARKERRED);
 				s->cstat = (short)32768;
 				s->yrepeat = 9;
 				return;
@@ -2958,7 +2958,7 @@ DETONATEB:
 				else
 				{
 					t[2] = respawnitemtime;
-					spawn(i, RESPAWNMARKERRED);
+					fi.spawn(i, RESPAWNMARKERRED);
 					s->cstat = (short)32768;
 				}
 			}
@@ -3079,7 +3079,7 @@ void moveactors_d(void)
 				continue;
 			} 
 			else if ((t[0] & 3) == 0)
-				spawn(i, EXPLOSION2);
+				fi.spawn(i, EXPLOSION2);
 			ssp(i, CLIPMASK0);
 			break;
 		case RAT:
@@ -3115,7 +3115,7 @@ void moveactors_d(void)
 
 		case BOUNCEMINE:
 		case MORTER:
-			j = spawn(i, FRAMEEFFECT1);
+			j = fi.spawn(i, FRAMEEFFECT1);
 			hittype[j].temp_data[0] = 3;
 
 		case HEAVYHBOMB:
@@ -3743,7 +3743,7 @@ void moveeffectors_d(void)   //STATNUM 3
 							if (rnd(32) && (hittype[i].temp_data[2] & 1))
 							{
 								sprite[j].cstat &= 32767;
-								spawn(j, SMALLSMOKE);
+								fi.spawn(j, SMALLSMOKE);
 
 								p = findplayer(s, &x);
 								x = ldist(&sprite[ps[p].i], &sprite[j]);

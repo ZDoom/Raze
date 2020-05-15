@@ -628,7 +628,7 @@ growspark_rr:
 
                     if (hitwal->hitag == 0)
                     {
-                        int const spawnedSprite = A_Spawn(spriteNum, projecTile);
+                        int const spawnedSprite = fi.spawn(spriteNum, projecTile);
                         sprite[spawnedSprite].xvel = -12;
                         sprite[spawnedSprite].ang
                         = (getangle(hitwal->x - wall[hitwal->point2].x, hitwal->y - wall[hitwal->point2].y) + 512) & 2047;
@@ -657,7 +657,7 @@ growspark_rr:
 
                     if (playerNum >= 0)
                     {
-                        int k = A_Spawn(kneeSprite, TILE_SMALLSMOKE);
+                        int k = fi.spawn(kneeSprite, TILE_SMALLSMOKE);
                         sprite[k].z -= ZOFFSET3;
                         if (!RR || projecTile == TILE_KNEE)
                             A_PlaySound(KICK_HIT, kneeSprite);
@@ -688,7 +688,7 @@ growspark_rr:
                 }
                 else if(playerNum >= 0 && hitData.pos.z > 0 && sector[hitData.sect].lotag == 1)
                 {
-                    int splashSprite = A_Spawn(pPlayer->i, TILE_WATERSPLASH2);
+                    int splashSprite = fi.spawn(pPlayer->i, TILE_WATERSPLASH2);
                     sprite[splashSprite].x = hitData.pos.x;
                     sprite[splashSprite].y = hitData.pos.y;
                     sprite[splashSprite].ang = fix16_to_int(pPlayer->q16ang); // Total tweek
@@ -745,7 +745,7 @@ growspark_rr:
                     }
 
                     if (!RR || sector[hitData.sect].lotag != ST_1_ABOVE_WATER)
-                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
+                        fi.spawn(spawnedSprite, TILE_SMALLSMOKE);
                 }
                 
                 if (hitData.sprite >= 0)
@@ -758,7 +758,7 @@ growspark_rr:
                         (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
                                            g_player[P_Get(hitData.sprite)].ps->team != g_player[P_Get(spriteNum)].ps->team)))
                     {
-                        int jibSprite = A_Spawn(spawnedSprite, TILE_JIBS6);
+                        int jibSprite = fi.spawn(spawnedSprite, TILE_JIBS6);
 
                         sprite[spawnedSprite].xrepeat = sprite[spawnedSprite].yrepeat = 0;
                         sprite[jibSprite].z += ZOFFSET6;
@@ -768,7 +768,7 @@ growspark_rr:
                     }
                     else
                     {
-                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
+                        fi.spawn(spawnedSprite, TILE_SMALLSMOKE);
                     }
 
                     if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData.sprite].picnum))
@@ -781,7 +781,7 @@ growspark_rr:
                 {
                     uwalltype const * const hitWall = (uwalltype *)&wall[hitData.wall];
 
-                    A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
+                    fi.spawn(spawnedSprite, TILE_SMALLSMOKE);
 
                     if (fi.isadoorwall(hitWall->picnum) == 1)
                         goto SKIPBULLETHOLE;
@@ -811,7 +811,7 @@ growspark_rr:
                             if (sprite[decalSprite].picnum == TILE_BULLETHOLE && dist(&sprite[decalSprite], &sprite[spawnedSprite]) < (12 + (krand2() & 7)))
                                 goto SKIPBULLETHOLE;
 
-                        decalSprite = A_Spawn(spawnedSprite, TILE_BULLETHOLE);
+                        decalSprite = fi.spawn(spawnedSprite, TILE_BULLETHOLE);
 
                         sprite[decalSprite].xvel = -1;
                         sprite[decalSprite].ang
@@ -835,7 +835,7 @@ growspark_rr:
                 {
                     fi.checkhitsprite(hitData.sprite, spawnedSprite);
                     if (sprite[hitData.sprite].picnum != TILE_APLAYER)
-                        A_Spawn(spawnedSprite, TILE_SMALLSMOKE);
+                        fi.spawn(spawnedSprite, TILE_SMALLSMOKE);
                     else
                     {
                         sprite[spawnedSprite].xrepeat = 0;
@@ -855,7 +855,7 @@ growspark_rr:
         case TRIPBOMBSPRITE__STATIC:
         {
             if (!RR) break;
-            int const newSprite = A_Spawn(spriteNum, projecTile);
+            int const newSprite = fi.spawn(spriteNum, projecTile);
             sprite[newSprite].xvel = 32;
             sprite[newSprite].ang = sprite[spriteNum].ang;
             sprite[newSprite].z -= (5<<8);
@@ -864,7 +864,7 @@ growspark_rr:
 
         case BOWLINGBALL__STATICRR:
         {
-            int const newSprite = A_Spawn(spriteNum, projecTile);
+            int const newSprite = fi.spawn(spriteNum, projecTile);
             sprite[newSprite].xvel = 250;
             sprite[newSprite].ang = sprite[spriteNum].ang;
             sprite[newSprite].z -= (15<<8);
@@ -1717,7 +1717,7 @@ static void P_DoWeaponSpawn(int playerNum)
     if (PWEAPON(playerNum, pPlayer->curr_weapon, Spawn) <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
         return;
 
-    int newSprite = A_Spawn(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Spawn));
+    int newSprite = fi.spawn(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Spawn));
     
     if ((PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SPAWNTYPE2))
     {
@@ -4602,7 +4602,7 @@ void checkweapons(DukePlayer_t* const pPlayer)
     {
         if (pPlayer->OnMotorcycle)
         {
-            int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBIKE);
+            int const newSprite = fi.spawn(pPlayer->i, TILE_EMPTYBIKE);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[MOTORCYCLE_WEAPON];
             pPlayer->OnMotorcycle = 0;
@@ -4618,7 +4618,7 @@ void checkweapons(DukePlayer_t* const pPlayer)
         }
         else if (pPlayer->OnBoat)
         {
-            int const newSprite = A_Spawn(pPlayer->i, TILE_EMPTYBOAT);
+            int const newSprite = fi.spawn(pPlayer->i, TILE_EMPTYBOAT);
             sprite[newSprite].ang = fix16_to_int(pPlayer->q16ang);
             sprite[newSprite].owner = pPlayer->ammo_amount[BOAT_WEAPON];
             pPlayer->OnBoat = 0;
@@ -4638,7 +4638,7 @@ void checkweapons(DukePlayer_t* const pPlayer)
         return;
 
     if (krand2() & 1)
-        A_Spawn(pPlayer->i, WeaponPickupSprites[currentWeapon]);
+        fi.spawn(pPlayer->i, WeaponPickupSprites[currentWeapon]);
     else
         switch (DYNAMICWEAPONMAP(currentWeapon))
         {
@@ -4646,7 +4646,7 @@ void checkweapons(DukePlayer_t* const pPlayer)
                 if (!RRRA) break;
                 fallthrough__;
             case RPG_WEAPON__STATIC:
-            case HANDBOMB_WEAPON__STATIC: A_Spawn(pPlayer->i, TILE_EXPLOSION2); break;
+            case HANDBOMB_WEAPON__STATIC: fi.spawn(pPlayer->i, TILE_EXPLOSION2); break;
         }
 
     if (RR)
@@ -4655,7 +4655,7 @@ void checkweapons(DukePlayer_t* const pPlayer)
         {
             if (pPlayer->keys[key] == 1)
             {
-                int const newSprite = A_Spawn(pPlayer->i, TILE_ACCESSCARD);
+                int const newSprite = fi.spawn(pPlayer->i, TILE_ACCESSCARD);
                 switch (key)
                 {
                     case 1:
@@ -5526,7 +5526,7 @@ static void P_ProcessWeapon(int playerNum)
 
                         if (((*weaponFrame) % 3) == 0)
                         {
-                            spriteNum = A_Spawn(pPlayer->i, TILE_SHELL);
+                            spriteNum = fi.spawn(pPlayer->i, TILE_SHELL);
 
                             sprite[spriteNum].ang += 1024;
                             sprite[spriteNum].ang &= 2047;
@@ -6131,7 +6131,7 @@ static void P_ProcessWeapon(int playerNum)
                 }
                 else if ((*weaponFrame) == 2)
                 {
-                    A_Spawn(pPlayer->i, TILE_SHELL);
+                    fi.spawn(pPlayer->i, TILE_SHELL);
                 }
 
                 if (++(*weaponFrame) >= 5)
@@ -6195,7 +6195,7 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->kickback_pic++;
                     break;
                 case 24:
-                    spriteNum = A_Spawn(pPlayer->i, TILE_SHOTGUNSHELL);
+                    spriteNum = fi.spawn(pPlayer->i, TILE_SHOTGUNSHELL);
                     sprite[spriteNum].ang += 1024;
                     A_SetSprite(spriteNum, CLIPMASK0);
                     sprite[spriteNum].ang += 1024;
@@ -6216,7 +6216,7 @@ static void P_ProcessWeapon(int playerNum)
 
                         if (((*weaponFrame) % 3) == 0)
                         {
-                            spriteNum = A_Spawn(pPlayer->i, TILE_SHELL);
+                            spriteNum = fi.spawn(pPlayer->i, TILE_SHELL);
 
                             sprite[spriteNum].ang += 1024;
                             sprite[spriteNum].ang &= 2047;
@@ -6620,7 +6620,7 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
 
     if (pPlayer->scuba_on && (krand2()&255) < 8)
     {
-        int const spriteNum = A_Spawn(pPlayer->i, TILE_WATERBUBBLE);
+        int const spriteNum = fi.spawn(pPlayer->i, TILE_WATERBUBBLE);
         int const q16ang      = fix16_to_int(pPlayer->q16ang);
 
         sprite[spriteNum].x      += sintable[(q16ang + 512 + 64 - (g_globalRandom & 128)+(RR ? 128 : 0)) & 2047] >> 6;
@@ -7705,7 +7705,7 @@ check_enemy_sprite:
                 if (pPlayer->on_ground == 1)
                 {
                     if (pPlayer->dummyplayersprite < 0)
-                        pPlayer->dummyplayersprite = A_Spawn(pPlayer->i,TILE_PLAYERONWATER);
+                        pPlayer->dummyplayersprite = fi.spawn(pPlayer->i,TILE_PLAYERONWATER);
 
                     pPlayer->footprintcount = 6;
                     //sprite[pPlayer->dummyplayersprite].cstat |= 32768;
@@ -7753,10 +7753,10 @@ check_enemy_sprite:
                         {
                             switch (krand2() & 3)
                             {
-                                case 0: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS); break;
-                                case 1: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS2); break;
-                                case 2: spriteNum  = A_Spawn(pPlayer->i, TILE_FOOTPRINTS3); break;
-                                default: spriteNum = A_Spawn(pPlayer->i, TILE_FOOTPRINTS4); break;
+                                case 0: spriteNum  = fi.spawn(pPlayer->i, TILE_FOOTPRINTS); break;
+                                case 1: spriteNum  = fi.spawn(pPlayer->i, TILE_FOOTPRINTS2); break;
+                                case 2: spriteNum  = fi.spawn(pPlayer->i, TILE_FOOTPRINTS3); break;
+                                default: spriteNum = fi.spawn(pPlayer->i, TILE_FOOTPRINTS4); break;
                             }
                             sprite[spriteNum].pal   = pPlayer->footprintpal;
                             sprite[spriteNum].shade = pPlayer->footprintshade;
@@ -8598,7 +8598,7 @@ HORIZONLY:;
                 dist(&sprite[pPlayer->i], &sprite[pPlayer->actorsqu]) < 1400)
             {
                 A_DoGuts(pPlayer->actorsqu, TILE_JIBS6, 7);
-                A_Spawn(pPlayer->actorsqu, TILE_BLOODPOOL);
+                fi.spawn(pPlayer->actorsqu, TILE_BLOODPOOL);
                 A_PlaySound(SQUISHED, pPlayer->actorsqu);
                 switch (DYNAMICTILEMAP(sprite[pPlayer->actorsqu].picnum))
                 {

@@ -1178,7 +1178,7 @@ void moveweapons_r(void)
 		case FREEZEBLAST:
 			if (s->yvel < 1 || s->extra < 2 || (s->xvel | s->zvel) == 0)
 			{
-				j = spawn(i, TRANSPORTERSTAR);
+				j = fi.spawn(i, TRANSPORTERSTAR);
 				sprite[j].pal = 1;
 				sprite[j].xrepeat = 32;
 				sprite[j].yrepeat = 32;
@@ -1223,7 +1223,7 @@ void moveweapons_r(void)
 			case RPG:
 				if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 				{
-					j = spawn(i, SMALLSMOKE);
+					j = fi.spawn(i, SMALLSMOKE);
 					sprite[j].z += (1 << 8);
 				}
 				break;
@@ -1232,11 +1232,11 @@ void moveweapons_r(void)
 				s->hitag++;
 				if (hittype[i].picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 				{
-					j = spawn(i, SMALLSMOKE);
+					j = fi.spawn(i, SMALLSMOKE);
 					sprite[j].z += (1 << 8);
 					if ((krand() & 15) == 2)
 					{
-						j = spawn(i, 1310);
+						j = fi.spawn(i, 1310);
 					}
 				}
 				if (sprite[s->lotag].extra <= 0)
@@ -1282,7 +1282,7 @@ void moveweapons_r(void)
 					makeitfall(i);
 				if (s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
 				{
-					j = spawn(i, SMALLSMOKE);
+					j = fi.spawn(i, SMALLSMOKE);
 					sprite[j].z += (1 << 8);
 				}
 				break;
@@ -1350,7 +1350,7 @@ void moveweapons_r(void)
 							&& sprite[j].pal == 19)
 						{
 							spritesound(RPG_EXPLODE, i);
-							k = spawn(i, EXPLOSION2);
+							k = fi.spawn(i, EXPLOSION2);
 							sprite[k].x = dax;
 							sprite[k].y = day;
 							sprite[k].z = daz;
@@ -1360,7 +1360,7 @@ void moveweapons_r(void)
 					else if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
 						if (badguy(&sprite[j]) || sprite[j].picnum == APLAYER)
 					{
-						j = spawn(i,TRANSPORTERSTAR);
+						j = fi.spawn(i,TRANSPORTERSTAR);
 						sprite[j].pal = 1;
 						sprite[j].xrepeat = 32;
 						sprite[j].yrepeat = 32;
@@ -1422,7 +1422,7 @@ void moveweapons_r(void)
 							wall[wall[j].point2].y - wall[j].y);
 						s->ang = ((k << 1) - s->ang) & 2047;
 						s->owner = i;
-						spawn(i, TRANSPORTERSTAR);
+						fi.spawn(i, TRANSPORTERSTAR);
 						continue;
 					}
 					else
@@ -1460,7 +1460,7 @@ void moveweapons_r(void)
 								s->y += sintable[s->ang & 2047] >> 7;
 								if (!isRRRA() || (sprite[s->owner].picnum != CHEER && sprite[s->owner].picnum != CHEERSTAYPUT))
 								{
-									j = spawn(i, CIRCLESTUCK);
+									j = fi.spawn(i, CIRCLESTUCK);
 									sprite[j].xrepeat = 8;
 									sprite[j].yrepeat = 8;
 									sprite[j].cstat = 16;
@@ -1525,7 +1525,7 @@ void moveweapons_r(void)
 				{
 					if (s->picnum == RPG)
 					{
-						k = spawn(i, EXPLOSION2);
+						k = fi.spawn(i, EXPLOSION2);
 						sprite[k].x = dax;
 						sprite[k].y = day;
 						sprite[k].z = daz;
@@ -1543,7 +1543,7 @@ void moveweapons_r(void)
 					}
 					else if (isRRRA() && s->picnum == RPG2)
 					{
-						k = spawn(i, EXPLOSION2);
+						k = fi.spawn(i, EXPLOSION2);
 						sprite[k].x = dax;
 						sprite[k].y = day;
 						sprite[k].z = daz;
@@ -1562,7 +1562,7 @@ void moveweapons_r(void)
 					else if (isRRRA() && s->picnum == RRTILE1790)
 					{
 						s->extra = 160;
-						k = spawn(i, EXPLOSION2);
+						k = fi.spawn(i, EXPLOSION2);
 						sprite[k].x = dax;
 						sprite[k].y = day;
 						sprite[k].z = daz;
@@ -1580,7 +1580,7 @@ void moveweapons_r(void)
 					}
 					else if (s->picnum != FREEZEBLAST && s->picnum != FIRELASER && s->picnum != SHRINKSPARK)
 					{
-						k = spawn(i, 1441);
+						k = fi.spawn(i, 1441);
 						sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat >> 1;
 						if ((j & 49152) == 16384)
 						{
@@ -1642,7 +1642,7 @@ void moveweapons_r(void)
 				continue;
 			}
 			if ((s->picnum == RPG || (isRRRA() && s->picnum == RPG2)) && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(184))
-				spawn(i, WATERBUBBLE);
+				fi.spawn(i, WATERBUBBLE);
 
 			continue;
 
@@ -1707,7 +1707,7 @@ void movetransports_r(void)
 					{
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
-							spawn(i, TRANSPORTERBEAM);
+							fi.spawn(i, TRANSPORTERBEAM);
 							spritesound(TELEPORTER, i);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])// connectpoinhittype[i].temp_data[1][k])
@@ -1733,7 +1733,7 @@ void movetransports_r(void)
 							changespritesect(j, sprite[OW].sectnum);
 							ps[p].cursectnum = sprite[j].sectnum;
 
-							k = spawn(OW, TRANSPORTERBEAM);
+							k = fi.spawn(OW, TRANSPORTERBEAM);
 							spritesound(TELEPORTER, k);
 
 							break;
@@ -1823,7 +1823,7 @@ void movetransports_r(void)
 						setpal(&ps[p]);
 
 						if ((krand() & 255) < 32)
-							spawn(ps[p].i, WATERSPLASH2);
+							fi.spawn(ps[p].i, WATERSPLASH2);
 					}
 					else if (isRRRA() && k == 2)
 					{
@@ -1925,7 +1925,7 @@ void movetransports_r(void)
 
 						if (sectlotag > 0)
 						{
-							k = spawn(j, WATERSPLASH2);
+							k = fi.spawn(j, WATERSPLASH2);
 							if (sectlotag == 1 && sprite[j].statnum == 4)
 							{
 								sprite[k].xvel = sprite[j].xvel >> 1;
@@ -1950,10 +1950,10 @@ void movetransports_r(void)
 									hittype[j].bposy = sprite[j].y;
 									hittype[j].bposz = sprite[j].z;
 
-									k = spawn(i, TRANSPORTERBEAM);
+									k = fi.spawn(i, TRANSPORTERBEAM);
 									spritesound(TELEPORTER, k);
 
-									k = spawn(OW, TRANSPORTERBEAM);
+									k = fi.spawn(OW, TRANSPORTERBEAM);
 									spritesound(TELEPORTER, k);
 
 									if (sprite[OW].owner != OW)
@@ -2088,7 +2088,7 @@ static void rrra_specialstats()
 			sprite[i].extra--;
 			if (sprite[i].extra <= -104)
 			{
-				spawn(i, sprite[i].lotag);
+				fi.spawn(i, sprite[i].lotag);
 				deletesprite(i);
 			}
 		}
@@ -2221,7 +2221,7 @@ static void rrra_specialstats()
 			setsprite(i, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - 10);
 			sprite[i].extra = 1;
 			sprite[i].picnum = PIG + 11;
-			spawn(i, TRANSPORTERSTAR);
+			fi.spawn(i, TRANSPORTERSTAR);
 		}
 		i = nexti;
 	}
@@ -2236,7 +2236,7 @@ static void rrra_specialstats()
 			{
 				sprite[i].hitag--;
 				sprite[i].extra = 150;
-				spawn(i, RABBIT);
+				fi.spawn(i, RABBIT);
 			}
 			else
 				sprite[i].extra--;
@@ -2298,7 +2298,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8162 + 2;
-						spawn(i, BATTERYAMMO);
+						fi.spawn(i, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
 						spritesound(52, i);
 					}
@@ -2312,7 +2312,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8162 + 6;
-						spawn(i, HEAVYHBOMB);
+						fi.spawn(i, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
 						spritesound(52, i);
 					}
@@ -2326,7 +2326,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8162 + 5;
-						spawn(i, SIXPAK);
+						fi.spawn(i, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
 						spritesound(52, i);
 					}
@@ -2340,7 +2340,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8162 + 4;
-						spawn(i, ATOMICHEALTH);
+						fi.spawn(i, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
 						spritesound(52, i);
 					}
@@ -2376,7 +2376,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8589 + 5;
-						spawn(i, BATTERYAMMO);
+						fi.spawn(i, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
 						spritesound(342, i);
 					}
@@ -2390,7 +2390,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8589 + 6;
-						spawn(i, HEAVYHBOMB);
+						fi.spawn(i, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
 						spritesound(342, i);
 					}
@@ -2404,7 +2404,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8589 + 2;
-						spawn(i, SIXPAK);
+						fi.spawn(i, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
 						spritesound(342, i);
 					}
@@ -2418,7 +2418,7 @@ static void rrra_specialstats()
 					else
 					{
 						sprite[i].picnum = RRTILE8589 + 3;
-						spawn(i, ATOMICHEALTH);
+						fi.spawn(i, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
 						spritesound(342, i);
 					}
@@ -2499,7 +2499,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3190);
+					j = fi.spawn(i, RRTILE3190);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 128;
 				}
@@ -2508,7 +2508,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3192);
+					j = fi.spawn(i, RRTILE3192);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 256;
 				}
@@ -2525,7 +2525,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3132);
+					j = fi.spawn(i, RRTILE3132);
 					sprite[i].lotag = 96;
 					if (!isRRRA()) spritesound(472, j);
 				}
@@ -2534,7 +2534,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3120);
+					j = fi.spawn(i, RRTILE3120);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 448;
 				}
@@ -2543,7 +2543,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3122);
+					j = fi.spawn(i, RRTILE3122);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 64;
 				}
@@ -2552,7 +2552,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3123);
+					j = fi.spawn(i, RRTILE3123);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 512;
 				}
@@ -2561,7 +2561,7 @@ void rr_specialstats()
 				sprite[i].lotag--;
 				if (sprite[i].lotag < 0)
 				{
-					j = spawn(i, RRTILE3124);
+					j = fi.spawn(i, RRTILE3124);
 					sprite[j].ang = sprite[i].ang;
 					sprite[i].lotag = 224;
 				}
@@ -2665,7 +2665,7 @@ static void heavyhbomb(int i)
 		if (t[2] <= 0)
 		{
 			spritesound(TELEPORTER, i);
-			spawn(i, TRANSPORTERSTAR);
+			fi.spawn(i, TRANSPORTERSTAR);
 			s->cstat = 257;
 		}
 		return;
@@ -2727,7 +2727,7 @@ static void heavyhbomb(int i)
 		if (t[5] == 0)
 		{
 			t[5] = 1;
-			spawn(i, WATERSPLASH2);
+			fi.spawn(i, WATERSPLASH2);
 			if (isRRRA() && s->picnum == MORTER)
 				s->xvel = 0;
 		}
@@ -2811,9 +2811,9 @@ DETONATEB:
 			if (sector[s->sectnum].lotag != 800)
 			{
 				fi.hitradius(i, m, x >> 2, x >> 1, x - (x >> 2), x);
-				spawn(i, EXPLOSION2);
+				fi.spawn(i, EXPLOSION2);
 				if (s->picnum == CHEERBOMB)
-					spawn(i, BURNING);
+					fi.spawn(i, BURNING);
 				spritesound(PIPEBOMB_EXPLODE, i);
 				for (x = 0; x < 8; x++)
 					RANDOMSCRAP(s, i);
@@ -2833,7 +2833,7 @@ DETONATEB:
 		}
 		if (s->picnum == CHEERBOMB)
 		{
-			spawn(i, BURNING);
+			fi.spawn(i, BURNING);
 			deletesprite(i);
 			return;
 		}
@@ -2876,7 +2876,7 @@ DETONATEB:
 					else
 					{
 						t[2] = respawnitemtime;
-						spawn(i, RESPAWNMARKERRED);
+						fi.spawn(i, RESPAWNMARKERRED);
 						s->cstat = (short)32768;
 					}
 				}
@@ -2902,7 +2902,7 @@ static int henstand(int i)
 		s->lotag--;
 		if (s->lotag == 0)
 		{
-			spawn(i, HEN);
+			fi.spawn(i, HEN);
 			deletesprite(i);
 			return 1;
 		}
@@ -2932,7 +2932,7 @@ static int henstand(int i)
 				fi.checkhitsprite(i, j);
 				if (sprite[j].picnum == HEN)
 				{
-					int ns = spawn(j, HENSTAND);
+					int ns = fi.spawn(j, HENSTAND);
 					deletesprite(j);
 					sprite[ns].xvel = 32;
 					sprite[ns].lotag = 40;
@@ -3117,7 +3117,7 @@ void moveactors_r(void)
 				{
 					if (sector[s->sectnum].lotag == 1)
 					{
-						j = spawn(i,WATERSPLASH2);
+						j = fi.spawn(i,WATERSPLASH2);
 						sprite[j].z = sector[sprite[j].sectnum].floorz;
 					}
 					deletesprite(i);
@@ -3132,7 +3132,7 @@ void moveactors_r(void)
 				}
 				else
 				{
-					spawn(i,BOWLINGBALLSPRITE);
+					fi.spawn(i,BOWLINGBALLSPRITE);
 					deletesprite(i);
 					continue;
 				}
@@ -3555,7 +3555,7 @@ void moveeffectors_r(void)   //STATNUM 3
 					if ((!isRRRA() || lastlevel) && hulkspawn)
 					{
 						hulkspawn--;
-						ns = spawn(i, HULK);
+						ns = fi.spawn(i, HULK);
 						sprite[ns].z = sector[sprite[ns].sectnum].ceilingz;
 						sprite[ns].pal = 33;
 						if (!hulkspawn)
@@ -3565,7 +3565,7 @@ void moveeffectors_r(void)   //STATNUM 3
 							sprite[ns].pal = 7;
 							sprite[ns].xrepeat = 80;
 							sprite[ns].yrepeat = 255;
-							ns = spawn(i, 296);
+							ns = fi.spawn(i, 296);
 							sprite[ns].cstat = 0;
 							sprite[ns].cstat |= 32768;
 							sprite[ns].z = sector[s->sectnum].floorz - 6144;
@@ -3608,7 +3608,7 @@ void moveeffectors_r(void)   //STATNUM 3
 									}
 								}
 								else pn = UFO1_RRRA;
-								ns = spawn(i, pn);
+								ns = fi.spawn(i, pn);
 								sprite[ns].z = sector[sprite[ns].sectnum].ceilingz;
 							}
 					j = nextj;
@@ -4360,16 +4360,16 @@ void fakebubbaspawn(int g_i, int g_p)
 	default:
 		break;
 	case 1:
-		spawn(g_i, PIG);
+		fi.spawn(g_i, PIG);
 		break;
 	case 2:
-		spawn(g_i, MINION);
+		fi.spawn(g_i, MINION);
 		break;
 	case 3:
-		spawn(g_i, CHEER);
+		fi.spawn(g_i, CHEER);
 		break;
 	case 4:
-		spawn(g_i, VIXEN);
+		fi.spawn(g_i, VIXEN);
 		operateactivators(666, ps[g_p].i);
 		break;
 	}
@@ -4391,8 +4391,8 @@ static int fallspecial(int g_i, int g_p)
 		{
 			if (g_sp->picnum == ROCK)
 			{
-				spawn(g_i, ROCK2);
-				spawn(g_i, ROCK2);
+				fi.spawn(g_i, ROCK2);
+				fi.spawn(g_i, ROCK2);
 				addspritetodelete(g_i);
 			}
 			return 0;
@@ -4613,7 +4613,7 @@ void mamaspawn(int g_i)
 	if (mamaspawn_count)
 	{
 		mamaspawn_count--;
-		spawn(g_i, RABBIT);
+		fi.spawn(g_i, RABBIT);
 	}
 }
 

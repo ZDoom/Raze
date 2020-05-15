@@ -106,7 +106,6 @@ void SortCommands()
 //
 //---------------------------------------------------------------------------
 
-#if 0
 enum
 {
 	ERROR_ISAKEYWORD = 1,
@@ -118,13 +117,7 @@ enum
 	ERROR_NOTAGAMEVAR,
 	ERROR_OPENBRACKET,
 	ERROR_CLOSEBRACKET,
-	ERROR_NOENDSWITCH
-};
-#endif
-
-enum
-{
-	ERROR_PARMUNDEFINED = 20,
+	ERROR_NOENDSWITCH,
 };
 
 void ReportError(int iError)
@@ -1607,7 +1600,7 @@ int parsecommand()
 		max_ammo_amount[8] = parseone();
 		max_ammo_amount[9] = parseone();
 		 max_ammo_amount[11] = parseone();
-		if (isRR()) max_ammo_amount[12] = parseone();
+		if (isRR() || isWorldTour()) max_ammo_amount[12] = parseone();
 		camerashitable = parseone();
 		numfreezebounces = parseone();
 		freezerhurtowner = parseone();

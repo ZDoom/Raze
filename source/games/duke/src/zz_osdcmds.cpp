@@ -302,7 +302,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
         return OSDCMD_SHOWHELP;
     }
 
-    idx = A_Spawn(g_player[myconnectindex].ps->i, picnum);
+    idx = fi.spawn(g_player[myconnectindex].ps->i, picnum);
     if (set & 1) sprite[idx].pal = (uint8_t)pal;
     if (set & 2) sprite[idx].cstat = (int16_t)cstat;
     if (set & 4) sprite[idx].ang = ang;

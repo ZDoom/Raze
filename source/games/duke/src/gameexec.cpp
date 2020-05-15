@@ -848,7 +848,7 @@ int parse(void)
 	case concmd_spawn:
 		insptr++;
 		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
-			spawn(g_i,*insptr);
+			fi.spawn(g_i,*insptr);
 		insptr++;
 		break;
 	case concmd_ifwasweapon:

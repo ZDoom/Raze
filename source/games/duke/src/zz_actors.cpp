@@ -96,7 +96,7 @@ void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
         int32_t const r1 = krand2(), r2 = krand2();
         int const j = A_InsertSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z - (r2 % (47 << 8)), tileNum, -32, 8,
                                8, r1 & 2047, 0, 0, spriteNum, 5);
-        //A_Spawn(-1, j);
+        //fi.spawn(-1, j);
         sprite[j].cstat = krand2()&12;
     }
 }

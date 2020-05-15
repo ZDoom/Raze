@@ -86,6 +86,8 @@ void checktimetosleep_d(int g_i);
 void checktimetosleep_r(int g_i);
 void move_d(int g_i, int g_p, int g_x);
 void move_r(int g_i, int g_p, int g_x);
+int spawn_d(int j, int pn);
+int spawn_r(int j, int pn);
 
 Dispatcher fi;
 
@@ -122,7 +124,8 @@ void SetDispatcher()
 		spawnweapondebris_d,
 		respawnhitag_d,
 		checktimetosleep_d,
-		move_d
+		move_d,
+		spawn_d,
 		};
 	}
 	else	
@@ -157,6 +160,7 @@ void SetDispatcher()
 		respawnhitag_r,
 		checktimetosleep_r,
 		move_r,
+		spawn_r,
 		};
 	}
 }

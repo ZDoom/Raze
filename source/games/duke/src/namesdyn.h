@@ -3585,6 +3585,7 @@ enum dukeweapon_t_alt
     FREEZE_WEAPON,
     HANDREMOTE_WEAPON,  // 10
     GROW_WEAPON,
+    FLAMETHROWER_WEAPON,    // World Tour
 
     MIN_WEAPON = 0,
     MAX_WEAPON = 9

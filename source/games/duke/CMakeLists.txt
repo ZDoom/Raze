@@ -16,6 +16,9 @@ set( PCH_SOURCES
 	src/sectors_d.cpp
 	src/sectors_r.cpp
 	src/sounds.cpp
+	src/spawn.cpp
+	src/spawn_d.cpp
+	src/spawn_r.cpp
 	src/zz_actors.cpp
 	src/zz_anim.cpp
 	src/zz_cheats.cpp

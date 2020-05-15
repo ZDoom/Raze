@@ -906,7 +906,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_chickenWeaponTimer, sizeof(g_chickenWeaponTimer), 1 },
     { 0, &RRRA_ExitedLevel, sizeof(RRRA_ExitedLevel), 1 },
     { 0, &RRRA_EndEpisode, sizeof(RRRA_EndEpisode), 1 },
-    { 0, &g_fogType, sizeof(g_fogType), 1 },
+    { 0, &fogactive, sizeof(fogactive), 1 },
     { DS_LOADFN, (void *)sv_rrrafog, 0, 1 },
 
     { DS_SAVEFN, (void *)&sv_restsave, 0, 1 },
@@ -1403,7 +1403,7 @@ int32_t sv_updatestate(int32_t frominit)
 
 static void sv_rrrafog()
 {
-    G_SetFog(g_fogType ? 2 : 0);
+    setmapfog(fogactive ? 2 : 0);
 }
 
 static void postloadplayer(int32_t savegamep)

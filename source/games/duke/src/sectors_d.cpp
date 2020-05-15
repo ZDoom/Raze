@@ -196,7 +196,7 @@ void operaterespawns_d(int low)
 		case RESPAWN:
 			if (badguypic(sprite[i].hitag) && ud.monsters_off) break;
 
-			j = spawn(i, TRANSPORTERSTAR);
+			j = fi.spawn(i, TRANSPORTERSTAR);
 			sprite[j].z -= (32 << 8);
 
 			sprite[i].extra = 66 - 12;   // Just a way to killit
@@ -1053,7 +1053,7 @@ void checkhitsprite_d(int i, int sn)
 	case OCEANSPRITE3:
 	case OCEANSPRITE4:
 	case OCEANSPRITE5:
-		spawn(i, SMALLSMOKE);
+		fi.spawn(i, SMALLSMOKE);
 		deletesprite(i);
 		break;
 	case QUEBALL:
@@ -1096,7 +1096,7 @@ void checkhitsprite_d(int i, int sn)
 			{
 				sprite[i].cstat &= ~257;
 				hittype[i].temp_data[0] = 1;
-				spawn(i, BURNING);
+				fi.spawn(i, BURNING);
 			}
 			break;
 		}
@@ -1149,7 +1149,7 @@ void checkhitsprite_d(int i, int sn)
 	case WATERFOUNTAIN + 2:
 	case WATERFOUNTAIN + 3:
 		sprite[i].picnum = WATERFOUNTAINBROKE;
-		spawn(i, TOILETWATER);
+		fi.spawn(i, TOILETWATER);
 		break;
 	case SATELITE:
 	case FUELPOD:
@@ -1160,7 +1160,7 @@ void checkhitsprite_d(int i, int sn)
 			for (j = 0; j < 15; j++)
 				EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, i, 5);
-			spawn(i, EXPLOSION2);
+			fi.spawn(i, EXPLOSION2);
 			deletesprite(i);
 		}
 		break;
@@ -1236,7 +1236,7 @@ void checkhitsprite_d(int i, int sn)
 		hittype[sprite[i].owner].temp_data[0] = 32;
 		hittype[sprite[i].owner].temp_data[1] = !hittype[sprite[i].owner].temp_data[1];
 		hittype[sprite[i].owner].temp_data[2] ++;
-		spawn(i, EXPLOSION2);
+		fi.spawn(i, EXPLOSION2);
 		break;
 
 	case BROKEHYDROPLANT:
@@ -1253,7 +1253,7 @@ void checkhitsprite_d(int i, int sn)
 		sprite[i].picnum = TOILETBROKE;
 		sprite[i].cstat |= (krand() & 1) << 2;
 		sprite[i].cstat &= ~257;
-		spawn(i, TOILETWATER);
+		fi.spawn(i, TOILETWATER);
 		spritesound(GLASS_BREAKING, i);
 		break;
 
@@ -1261,13 +1261,13 @@ void checkhitsprite_d(int i, int sn)
 		sprite[i].picnum = STALLBROKE;
 		sprite[i].cstat |= (krand() & 1) << 2;
 		sprite[i].cstat &= ~257;
-		spawn(i, TOILETWATER);
+		fi.spawn(i, TOILETWATER);
 		spritesound(GLASS_HEAVYBREAK, i);
 		break;
 
 	case HYDRENT:
 		sprite[i].picnum = BROKEFIREHYDRENT;
-		spawn(i, TOILETWATER);
+		fi.spawn(i, TOILETWATER);
 
 		//			for(k=0;k<5;k++)
 		  //		  {
@@ -1315,7 +1315,7 @@ void checkhitsprite_d(int i, int sn)
 		case PIPE6:sprite[i].picnum = PIPE6B; break;
 		}
 
-		j = spawn(i, STEAM);
+		j = fi.spawn(i, STEAM);
 		sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
 		break;
 
@@ -1324,7 +1324,7 @@ void checkhitsprite_d(int i, int sn)
 	case INDY:
 	case JURYGUY:
 		spritesound(sprite[i].lotag, i);
-		spawn(i, sprite[i].hitag);
+		fi.spawn(i, sprite[i].hitag);
 	case SPACEMARINE:
 		sprite[i].extra -= sprite[sn].extra;
 		if (sprite[i].extra > 0) break;
@@ -1389,7 +1389,7 @@ void checkhitsprite_d(int i, int sn)
 					if (sprite[sn].picnum != FREEZEBLAST)
 						//if (actortype[sprite[i].picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
-							j = spawn(sn, JIBS6);
+							j = fi.spawn(sn, JIBS6);
 							if (sprite[sn].pal == 6)
 								sprite[j].pal = 6;
 							sprite[j].z += (4 << 8);

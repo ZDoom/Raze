@@ -217,11 +217,11 @@ inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 struct msx_
 {
-    int operator[](int v) { return g_origins[v].x; }
+    int &operator[](int v) { return g_origins[v].x; }
 };
 struct msy_
 {
-    int operator[](int v) { return g_origins[v].y; }
+    int &operator[](int v) { return g_origins[v].y; }
 };
 G_EXTERN msx_ msx;
 G_EXTERN msy_ msy;
@@ -231,7 +231,7 @@ G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, g_bel
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, RRRA_ExitedLevel, RRRA_EndEpisode, g_fogType;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, RRRA_ExitedLevel, RRRA_EndEpisode, fogactive;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
 

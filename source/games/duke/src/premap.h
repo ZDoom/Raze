@@ -43,7 +43,7 @@ void P_ResetWeapons(int playerNum);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);
 extern int32_t fragbarheight(void);
-void G_SetFog(int fogtype);
+void setmapfog(int fogtype);
 void G_InitRRRASkies(void);
 
 END_DUKE_NS

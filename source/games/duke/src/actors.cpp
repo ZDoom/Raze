@@ -549,7 +549,7 @@ void movefx(void)
 		case RESPAWN:
 			if (sprite[i].extra == 66)
 			{
-				j = spawn(i, sprite[i].hitag);
+				j = fi.spawn(i, sprite[i].hitag);
 				if (isRRRA()) 
 				{
 					respawn_rrra(i, j);
@@ -869,7 +869,7 @@ void moveflammable(int i, int tire, int box, int pool)
 		if (!isRR() && s->picnum == tire && hittype[i].temp_data[1] == 32)
 		{
 			s->cstat = 0;
-			j = spawn(i, pool);
+			j = fi.spawn(i, pool);
 			sprite[j].shade = 127;
 		}
 		else
@@ -946,7 +946,7 @@ void detonate(int i, int explosion)
 	if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
 	{
 		int x = s->extra;
-		spawn(i, explosion);
+		fi.spawn(i, explosion);
 		fi.hitradius(i, seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		spritesound(PIPEBOMB_EXPLODE, i);
 	}
@@ -1271,7 +1271,7 @@ void movecanwithsomething(int i)
 		for (j = 0; j < 10; j++)
 			RANDOMSCRAP(s, i);
 
-		if (s->lotag) spawn(i, s->lotag);
+		if (s->lotag) fi.spawn(i, s->lotag);
 
 		deletesprite(i);
 	}
@@ -1547,7 +1547,7 @@ void forcesphere(int i, int forcesphere)
 		for (int l = 512; l < (2048 - 512); l += 128)
 			for (int j = 0; j < 2048; j += 128)
 			{
-				int k = spawn(i, forcesphere);
+				int k = fi.spawn(i, forcesphere);
 				sprite[k].cstat = 257 + 128;
 				sprite[k].clipdist = 64;
 				sprite[k].ang = j;
@@ -1630,7 +1630,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 	{
 		s->z += 1024;
 		t[2]++;
-		if ((t[2] & 3) == 0) spawn(i, explosion);
+		if ((t[2] & 3) == 0) fi.spawn(i, explosion);
 		getglobalz(i);
 		s->ang += 96;
 		s->xvel = 128;
@@ -1641,7 +1641,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 				RANDOMSCRAP(s, i);
 			spritesound(LASERTRIP_EXPLODE, i);
 			int sp = getspawn(i);
-			if (sp >= 0) spawn(i, sp);
+			if (sp >= 0) fi.spawn(i, sp);
 			ps[myconnectindex].actors_killed++;
 			deletesprite(i);
 		}
@@ -2514,7 +2514,7 @@ void scrap(int i, int SCRAP1, int SCRAP6)
 	{
 		if (s->picnum == SCRAP1 && s->yvel > 0)
 		{
-			int j = spawn(i, s->yvel);
+			int j = fi.spawn(i, s->yvel);
 			setsprite(j, s->x, s->y, s->z);
 			getglobalz(j);
 			sprite[j].hitag = sprite[j].lotag = 0;
@@ -4537,12 +4537,12 @@ void handle_se35(int i, int SMALLSMOKE, int EXPLOSION2)
 		for (int j = 0; j < 8; j++)
 		{
 			s->ang += krand() & 511;
-			int k = spawn(i, SMALLSMOKE);
+			int k = fi.spawn(i, SMALLSMOKE);
 			sprite[k].xvel = 96 + (krand() & 127);
 			ssp(k, CLIPMASK0);
 			setsprite(k, sprite[k].x, sprite[k].y, sprite[k].z);
 			if (rnd(16))
-				spawn(i, EXPLOSION2);
+				fi.spawn(i, EXPLOSION2);
 		}
 
 	switch (t[0])
@@ -4628,7 +4628,7 @@ void handle_se130(int i, int countmax, int EXPLOSION2)
 
 	if (rnd(64))
 	{
-		int k = spawn(i, EXPLOSION2);
+		int k = fi.spawn(i, EXPLOSION2);
 		sprite[k].xrepeat = sprite[k].yrepeat = 2 + (krand() & 7);
 		sprite[k].z = sc->floorz - (krand() % x);
 		sprite[k].ang += 256 - (krand() % 511);
@@ -5021,7 +5021,7 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 						{
 							fi.guts(g_sp, JIBS6, 15, g_p);
 							spritesound(squished, g_i);
-							spawn(g_i, BLOODPOOL);
+							fi.spawn(g_i, BLOODPOOL);
 						}
 					}
 

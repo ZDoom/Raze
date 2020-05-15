@@ -1261,8 +1261,8 @@ static void prelevel(char g)
 
     if (RRRA)
     {
-        G_SetFog(0);
-        g_fogType = 0;
+        setmapfog(0);
+        fogactive = 0;
         ufospawnsminion = 0;
         pistonsound = 0;
         enemysizecheat = 0;
@@ -1578,14 +1578,14 @@ static void prelevel(char g)
     for (size_t i = 0; i < MAXSPRITES; i++)
     {
         if (sprite[i].statnum < MAXSTATUS && (DEER || PN(i) != TILE_SECTOREFFECTOR || SLT(i) != SE_14_SUBWAY_CAR))
-            A_Spawn(-1, i);
+            fi.spawn(-1, i);
     }
 
     if (!DEER)
     for (size_t i = 0; i < MAXSPRITES; i++)
     {
         if (sprite[i].statnum < MAXSTATUS && PN(i) == TILE_SECTOREFFECTOR && SLT(i) == SE_14_SUBWAY_CAR)
-            A_Spawn(-1, i);
+            fi.spawn(-1, i);
         if (RR && sprite[i].picnum == TILE_RRTILE19)
             A_DeleteSprite(i);
         if (RR && sprite[i].picnum == TILE_RRTILE34)
@@ -2460,7 +2460,7 @@ int G_EnterLevel(int gameMode)
     return 0;
 }
 
-void G_SetFog(int fogtype)
+void setmapfog(int fogtype)
 {
     GLInterface.SetMapFog(fogtype != 0);
 }
