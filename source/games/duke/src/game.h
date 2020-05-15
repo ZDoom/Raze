@@ -227,9 +227,8 @@ inline int inventory(spritetype* S)
 {
     return A_CheckInventorySprite(S);
 }
-int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
-                       uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
-#define EGS A_InsertSprite
+short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
+#define A_InsertSprite EGS
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 

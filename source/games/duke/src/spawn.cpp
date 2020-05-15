@@ -46,6 +46,92 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
+short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss) 
+{
+	int i;
+	spritetype* s;
+
+	if (isRRRA() && s_ow < 0)
+		return 0;
+
+	i = insertsprite(whatsect, s_ss);
+
+	if (i < 0)
+		I_Error(" Too many sprites spawned.");
+
+	hittype[i].bposx = s_x;
+	hittype[i].bposy = s_y;
+	hittype[i].bposz = s_z;
+
+	s = &sprite[i];
+
+	s->x = s_x;
+	s->y = s_y;
+	s->z = s_z;
+	s->cstat = 0;
+	s->picnum = s_pn;
+	s->shade = s_s;
+	s->xrepeat = s_xr;
+	s->yrepeat = s_yr;
+	s->pal = 0;
+
+	s->ang = s_a;
+	s->xvel = s_ve;
+	s->zvel = s_zv;
+	s->owner = s_ow;
+	s->xoffset = 0;
+	s->yoffset = 0;
+	s->yvel = 0;
+	s->clipdist = 0;
+	s->pal = 0;
+	s->lotag = 0;
+
+	hittype[i].picnum = sprite[s_ow].picnum;
+
+	hittype[i].lastvx = 0;
+	hittype[i].lastvy = 0;
+
+	hittype[i].timetosleep = 0;
+	hittype[i].actorstayput = -1;
+	hittype[i].extra = -1;
+	hittype[i].owner = s_ow;
+	hittype[i].cgg = 0;
+	hittype[i].movflag = 0;
+	hittype[i].tempang = 0;
+	hittype[i].dispicnum = 0;
+	hittype[i].floorz = hittype[s_ow].floorz;
+	hittype[i].ceilingz = hittype[s_ow].ceilingz;
+	memset(hittype[i].temp_data, 0, sizeof(hittype[i].temp_data));
+	if (actorinfo[s_pn].scriptaddress)
+	{
+		auto sa = &ScriptCode[actorinfo[s_pn].scriptaddress];
+		s->extra = sa[0];
+		hittype[i].temp_data[4] = sa[1];
+		hittype[i].temp_data[1] = sa[2];
+		s->hitag = sa[3];
+	}
+	else
+	{
+		s->extra = 0;
+		s->hitag = 0;
+	}
+
+	if (show2dsector[s->sectnum]) show2dsprite[i >> 3] |= (1 << (i & 7));
+	else show2dsprite[i >> 3] &= ~(1 << (i & 7));
+
+	spriteext[i] = {};
+	spritesmooth[i] = {};
+
+	return(i);
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes)
 {
 	int i;
