@@ -2012,13 +2012,13 @@ drawscreen(PLAYERp pp)
     if (/*PEDANTIC_MODE ||*/ pp->sop_control ||
         pp == Player+myconnectindex && TEST(pp->Flags, PF_DEAD))
     {
-        tq16ang = camerapp->q16ang;
-        tq16horiz = camerapp->q16horiz;
+        tq16ang = camerapp->oq16ang + mulscale16(((camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
+        tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     }
     else
     {
-        tq16ang = camerapp->oq16ang + mulscale16(((camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
-        tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
+        tq16ang = camerapp->q16ang;
+        tq16horiz = camerapp->q16horiz;
     }
 
     tsectnum = camerapp->cursectnum;
