@@ -848,7 +848,7 @@ int SmackerDecoder::DecodeFrame(uint32_t frameSize)
             break;
         case SMK_BLK_FULL:
             mode = 0;
-			if (kSMK4iD == signature) // In case of Smacker v4 we have three modes
+			if (isVer4) // In case of Smacker v4 we have three modes
 			{
 				if (bits.GetBit()) mode = 1;
 				else if (bits.GetBit()) mode = 2;
