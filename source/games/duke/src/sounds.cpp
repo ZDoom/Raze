@@ -1,11 +1,15 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2016 EDuke32 developers and contributors
-Copyright (C) 2019 Christoph Oelckers
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
+Copyright (C) 2020 - Christoph Oelckers
 
-This is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License version 2
-as published by the Free Software Foundation.
+This file is part of Enhanced Duke Nukem 3D version 1.5 - Atomic Edition
+
+Duke Nukem 3D is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,9 +19,19 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Original Source: 1996 - Todd Replogle
+Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
+
+EDuke enhancements integrated: 04/13/2003 - Matt Saettler
+
+Note: EDuke source was in transition.  Changes are in-progress in the
+source as it is released.
+
 */
 //-------------------------------------------------------------------------
+
 
 #include "ns.h"	// Must come before everything else!
 
@@ -183,32 +197,31 @@ inline bool S_IsAmbientSFX(int spriteNum)
 //
 //==========================================================================
 
-static int S_CalcDistAndAng(int spriteNum, int soundNum, int sectNum,
+static int GetPositionInfo(int spriteNum, int soundNum, int sectNum,
                              const vec3_t *cam, const vec3_t *pos, int *distPtr, FVector3 *sndPos)
 {
     // There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
     // However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
+    auto sp = &sprite[spriteNum];
     int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
     auto const* snd = soundEngine->GetUserData(soundNum + 1);
     int userflags = snd ? snd[kFlags] : 0;
     int dist_adjust = snd ? snd[kVolAdjust] : 0;
 
-    if (PN(spriteNum) != TILE_APLAYER || P_Get(spriteNum) != screenpeek)
+    if (sp->picnum != TILE_APLAYER || sp->yvel != screenpeek)
     {
         orgsndist = sndist = FindDistance3D(cam->x - pos->x, cam->y - pos->y, (cam->z - pos->z));
 
-        if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && S_IsAmbientSFX(spriteNum) && (sector[SECT(spriteNum)].lotag & 0xff) < 9)  // ST_9_SLIDING_ST_DOOR
-            sndist = divscale14(sndist, SHT(spriteNum) + 1);
+        if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && sp->picnum == MUSICANDSFX && sp->lotag < 999 && (sector[sp->sectnum].lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
+            sndist = divscale14(sndist, sp->hitag + 1);
     }
 
     sndist += dist_adjust;
-    if (sndist < 0)
-        sndist = 0;
+    if (sndist < 0) sndist = 0;
 
-    if (sectNum > -1 && sndist && PN(spriteNum) != TILE_MUSICANDSFX
-        && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (24 << 8), SECT(spriteNum)))
-        sndist += sndist>>(RR?2:5);
+    if (sectNum > -1 && sndist && sp->picnum != TILE_MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, sp->x, sp->y, sp->z - (24 << 8), sp->sectnum))
+        sndist += sndist >> (isRR() ? 2 : 5);
 
     // Here the sound distance was clamped to a minimum of 144*4. 
     // It's better to handle rolloff in the backend instead of whacking the sound origin here.
@@ -249,16 +262,16 @@ void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
     {
         if (ud.overhead_on != 2)
         {
-            if (c) *c = &CAMERA(pos);
-            if (cs) *cs = CAMERA(sect);
-            if (ca) *ca = fix16_to_int(CAMERA(q16ang));
+            if (c) *c = &ud.camerapos;
+            if (cs) *cs = ud.camerasect;
+            if (ca) *ca = ud.cameraq16ang >> FRACBITS;
         }
         else
         {
-            auto pPlayer = g_player[screenpeek].ps;
-            if (c) *c = &pPlayer->pos;
-            if (cs) *cs = pPlayer->cursectnum;
-            if (ca) *ca = fix16_to_int(pPlayer->q16ang);
+            auto p = &ps[screenpeek];
+            if (c) *c = &p->pos;
+            if (cs) *cs = p->cursectnum;
+            if (ca) *ca = p->getang();
         }
     }
     else
@@ -299,7 +312,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
             assert(actor != nullptr);
             if (actor != nullptr)
             {
-                S_CalcDistAndAng(int(actor - sprite), chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
+                GetPositionInfo(int(actor - sprite), chanSound - 1, camsect, campos, &actor->pos, nullptr, pos);
                 /*
                 if (vel) // DN3D does not properly maintain this.
                 {
@@ -371,26 +384,23 @@ void S_Update(void)
 
 int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, EChanFlags flags)
 {
-    auto const pPlayer = g_player[myconnectindex].ps;
-    if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pPlayer->gm & MODE_MENU) ||
-        (pPlayer->timebeforeexit > 0 && pPlayer->timebeforeexit <= GAMETICSPERSEC * 3)) return -1;
+    auto const pl = &ps[myconnectindex];
+    if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pl->gm & MODE_MENU) ||
+        (pl->timebeforeexit > 0 && pl->timebeforeexit <= GAMETICSPERSEC * 3)) return -1;
 
     int userflags = S_GetUserFlags(sndnum);
-    if ((!(snd_speech & 1) && (userflags & SF_TALK)) || ((userflags & SF_ADULT) && adult_lockout))
-        return -1;
 
-    // Duke talk
+    auto sp = &sprite[spriteNum];
+
+    if ((userflags & (SF_DTAG | SF_GLOBAL)) == SF_DTAG)
+    {
+        // Duke-Tag sound does not play in 3D.
+        return S_PlaySound(sndnum);
+    }
+
     if (userflags & SF_TALK)
     {
-        if ((g_netServer || ud.multimode > 1) && PN(spriteNum) == TILE_APLAYER && P_Get(spriteNum) != screenpeek) // other player sound
-        {
-            if ((snd_speech & 4) != 4)
-                return -1;
-        }
-        else if ((snd_speech & 1) != 1)
-            return -1;
-
-
+        if (snd_speech == 0 || (ud.multimode > 1 && sp->picnum == TILE_APLAYER && sp->yvel != screenpeek && ud.coop != 1)) return -1;
         bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
             {
                 auto sid = chan->OrgID;
@@ -400,11 +410,6 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
         // don't play if any Duke talk sounds are already playing
         if (foundone) return -1;
     }
-    else if ((userflags & (SF_DTAG | SF_GLOBAL)) == SF_DTAG)  // Duke-Tag sound
-    {
-        return S_PlaySound(sndnum);
-
-    }
 
     int32_t    sndist;
     FVector3 sndpos;    // this is in sound engine space.
@@ -413,33 +418,31 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     int32_t camsect;
 
     S_GetCamera(&campos, nullptr, &camsect);
-    S_CalcDistAndAng(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
+    GetPositionInfo(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
     int        pitch = S_GetPitch(sndnum);
-    auto const pOther = g_player[screenpeek].ps;
 
+    if (ps[screenpeek].sound_pitch)
+        pitch += ps[screenpeek].sound_pitch;
 
-    if (pOther->sound_pitch)
-        pitch += pOther->sound_pitch;
+    bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
 
-    bool explosionp = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
-
-    if (explosionp)
+    bool underwater = ps[screenpeek].cursectnum > -1 && sector[ps[screenpeek].cursectnum].lotag == ST_2_UNDERWATER;
+    if (explosion)
     {
-        if (pOther->cursectnum > -1 && sector[pOther->cursectnum].lotag == ST_2_UNDERWATER)
+        if (underwater)
             pitch -= 1024;
     }
     else
     {
-        if (sndist > 32767 && PN(spriteNum) != TILE_MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+        if (sndist > 32767 && sp->picnum != TILE_MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
             return -1;
 
-        if (pOther->cursectnum > -1 && sector[pOther->cursectnum].lotag == ST_2_UNDERWATER
-            && (userflags & SF_TALK) == 0)
+        if (underwater && (userflags & SF_TALK) == 0)
             pitch = -768;
     }
 
     bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-    if (is_playing &&  PN(spriteNum) != TILE_MUSICANDSFX)
+    if (is_playing && sp->picnum != TILE_MUSICANDSFX)
         S_StopEnvSound(sndnum, spriteNum);
 
     int const repeatp = (userflags & SF_LOOP);
@@ -453,7 +456,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     // I think it is better to lower their attenuation so that they are louder than the rest but still fade in the distance.
     // For the original effect, attenuation needs to be set to ATTN_NONE here.
     float attenuation;
-    if (explosionp) attenuation = 0.5f;
+    if (explosion) attenuation = 0.5f;
     else attenuation = (userflags & (SF_GLOBAL | SF_DTAG)) == SF_GLOBAL ? ATTN_NONE : ATTN_NORM;
 
     if (userflags & SF_LOOP) flags |= CHANF_LOOP;
@@ -557,13 +560,28 @@ int S_CheckSoundPlaying(int soundNum)
 
 void S_MenuSound(void)
 {
-    static int SoundNum;
-    int const menusnds[] = {
-        LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
-        PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
-        PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
+    static int menunum;
+    int/*static const short*/ menusnds[] =
+    {
+        LASERTRIP_EXPLODE,
+        DUKE_GRUNT,
+        DUKE_LAND_HURT,
+        CHAINGUN_FIRE,
+        SQUISHED,
+        KICK_HIT,
+        PISTOL_RICOCHET,
+        PISTOL_BODYHIT,
+        PISTOL_FIRE,
+        SHOTGUN_FIRE,
+        BOS1_WALK,
+        RPG_EXPLODE,
+        PIPEBOMB_BOUNCE,
+        PIPEBOMB_EXPLODE,
+        NITEVISION_ONOFF,
+        RPG_SHOOT,
+        SELECT_WEAPON
     };
-    int s = RR ? 390 : menusnds[SoundNum++ % ARRAY_SIZE(menusnds)];
+    int s = isRR() ? 390 : menusnds[menunum++ % countof(menusnds)];
     if (s != -1)
         S_PlaySound(s, CHAN_AUTO, CHANF_UI);
 }
@@ -576,43 +594,29 @@ void S_MenuSound(void)
 
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
 
-static void S_SetMusicIndex(unsigned int m)
-{
-    ud.music_episode = m / MAXLEVELS;
-    ud.music_level = m % MAXLEVELS;
-}
-
-void S_PlayLevelMusicOrNothing(unsigned int m)
+void S_PlayLevelMusic(unsigned int m)
 {
     auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
     if (RR && mr.music.IsEmpty() && mus_redbook && !cd_disabled) return;
     Mus_Play(mr.labelName, mr.music, true);
-    S_SetMusicIndex(m);
 }
 
-int S_TryPlaySpecialMusic(unsigned int m)
+void S_PlaySpecialMusic(unsigned int m)
 {
-    if (RR) return 0;   // Can only be MUS_LOADING, RR does not use it.
+    if (RR) return;   // Can only be MUS_LOADING, RR does not use it.
     auto& musicfn = mapList[m].music;
     if (musicfn.IsNotEmpty())
     {
-        if (!Mus_Play(nullptr, musicfn, true))
-        {
-            S_SetMusicIndex(m);
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-void S_PlaySpecialMusicOrNothing(unsigned int m)
-{
-    if (S_TryPlaySpecialMusic(m))
-    {
-        S_SetMusicIndex(m);
+        Mus_Play(nullptr, musicfn, true);
+        
     }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void S_PlayRRMusic(int newTrack)
 {

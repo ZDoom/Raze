@@ -63,9 +63,8 @@ void cacheAllSounds(void);
 void S_MenuSound(void);
 void S_PauseMusic(bool paused);
 void S_PauseSounds(bool paused);
-void S_PlayLevelMusicOrNothing(unsigned int);
-int S_TryPlaySpecialMusic(unsigned int);
-void S_PlaySpecialMusicOrNothing(unsigned int);
+void S_PlayLevelMusic(unsigned int);
+void S_PlaySpecialMusic(unsigned int);
 void S_ContinueLevelMusic(void);
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0);
 inline int sound(int num)

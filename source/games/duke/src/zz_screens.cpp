@@ -1260,7 +1260,7 @@ void G_DisplayLogo(void)
             S_ClearSoundLocks();
         }
 
-        S_PlaySpecialMusicOrNothing(MUS_INTRO);
+        S_PlaySpecialMusic(MUS_INTRO);
 
         //g_player[myconnectindex].ps->palette = drealms;
         //G_FadePalette(0,0,0,252);

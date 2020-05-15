@@ -566,7 +566,7 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-    S_TryPlaySpecialMusic(MUS_LOADING);
+    S_PlaySpecialMusic(MUS_LOADING);
 
     starttime = timerGetTicks();
 
@@ -1886,7 +1886,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
         levelNum == 0 && volumeNum == 3 && adult_lockout == 0)
     {
-        S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
+        S_PlaySpecialMusic(MUS_BRIEFING);
 
         renderFlushPerms();
         videoSetViewableArea(0,0,xdim-1,ydim-1);
@@ -2362,9 +2362,9 @@ int G_EnterLevel(int gameMode)
     {
         if (Menu_HaveUserMap())
         {
-            S_PlayLevelMusicOrNothing(USERMAPMUSICFAKESLOT);
+            S_PlayLevelMusic(USERMAPMUSICFAKESLOT);
         }
-        else S_PlayLevelMusicOrNothing(mii);
+        else S_PlayLevelMusic(mii);
     }
 
     if (gameMode & (MODE_GAME|MODE_EOL))

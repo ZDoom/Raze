@@ -15,6 +15,7 @@ set( PCH_SOURCES
 	src/sectors.cpp
 	src/sectors_d.cpp
 	src/sectors_r.cpp
+	src/sounds.cpp
 	src/zz_actors.cpp
 	src/zz_anim.cpp
 	src/zz_cheats.cpp
@@ -36,7 +37,6 @@ set( PCH_SOURCES
 	src/zz_screens.cpp
 	src/zz_text.cpp
 	src/zz_sector.cpp
-	src/zz_sounds.cpp
 	src/zz_soundsdyn.cpp
 	src/zz_rrdh.cpp)
 
