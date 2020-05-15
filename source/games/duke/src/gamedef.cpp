@@ -61,7 +61,7 @@ int checking_ifelse;
 extern char tempbuf[];
 extern int* labelcode;
 
-TArray<intptr_t> ScriptCode;
+TArray<int> ScriptCode;
 
 //---------------------------------------------------------------------------
 //

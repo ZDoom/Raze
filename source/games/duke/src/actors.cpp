@@ -4889,11 +4889,10 @@ void alterang(int a, int g_i, int g_p)
 {
 	short aang, angdif, goalang, j;
 	int ticselapsed;
-	intptr_t* moveptr;
 	int* g_t = hittype[g_i].t_data;
 	auto* g_sp = &sprite[g_i];
 
-	moveptr = &ScriptCode[g_t[1]];
+	auto moveptr = &ScriptCode[g_t[1]];
 
 	ticselapsed = (g_t[0]) & 31;
 

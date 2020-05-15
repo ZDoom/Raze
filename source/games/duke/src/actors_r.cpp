@@ -4057,7 +4057,6 @@ void move_r(int g_i, int g_p, int g_x)
 	auto g_sp = &sprite[g_i];
 	auto g_t = hittype[g_i].t_data;
 	int l;
-	intptr_t *moveptr;
 	short a, goalang, angdif;
 	int daxvel;
 
@@ -4203,7 +4202,7 @@ void move_r(int g_i, int g_p, int g_x)
 		return;
 	}
 
-	moveptr = &ScriptCode[g_t[1]];
+	auto moveptr = &ScriptCode[g_t[1]];
 
 	if (a & geth) g_sp->xvel += (*moveptr - g_sp->xvel) >> 1;
 	if (a & getv) g_sp->zvel += ((*(moveptr + 1) << 4) - g_sp->zvel) >> 1;

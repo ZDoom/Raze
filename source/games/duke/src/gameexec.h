@@ -77,7 +77,7 @@ enum
 	EVENT_MAXEVENT = EVENT_NUMEVENTS - 1
 };
 
-extern TArray<intptr_t> ScriptCode;
+extern TArray<int> ScriptCode;
 
 
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);

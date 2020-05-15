@@ -46,7 +46,7 @@ static int g_x;
 static int* g_t;
 static uint8_t killit_flag;
 static spritetype* g_sp;
-static intptr_t* insptr;
+static int* insptr;
 
 int parse(void);
 int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
@@ -1620,7 +1620,7 @@ void OnEvent(int iEventID, int p, int i, int x)
 	int* og_t;
 	spritetype* og_sp;
 	uint8_t okillit_flag;
-	intptr_t* oinsptr;
+	int* oinsptr;
 
 	char done;
 
