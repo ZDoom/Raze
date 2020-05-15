@@ -399,7 +399,7 @@ static int popscriptvalue()
 
 void reservescriptspace(int space)
 {
-	ScriptCode.Reserve(space);
+	for (int i = 0; i < space; i++) ScriptCode.Push(0);
 }
 
 /*
