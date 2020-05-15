@@ -1335,59 +1335,6 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     return 0;
 }
 
-static actor_t NullActor;
-static spriteext_t NullSprExt;
-static spritesmooth_t NullSprSmooth;
-
-int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int16_t s_pn,int8_t s_s,
-                       uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss)
-{
-    if (RR && s_ow < 0)
-        return 0;
-
-    int32_t i = /*Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : */insertsprite(whatsect, s_ss);
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXSPRITES))
-    {
-        G_DumpDebugInfo();
-        Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
-                          s_pn,s_ow < 0 ? -1 : TrackerCast(sprite[s_ow].picnum),s_ow,s_x,s_y,s_z,whatsect);
-        G_GameExit("Too many sprites spawned.");
-    }
-
-    uspritetype spr_temp = { s_x, s_y,      s_z,  0,   s_pn, s_s,  0, 0,    0, s_xr, s_yr, 0,
-                             0,   whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0,    0 };
-
-#ifdef DEBUGGINGAIDS
-    g_spriteStat.numins++;
-#endif
-
-    spritetype *s = &sprite[i];
-    *s = *(spritetype *)&spr_temp;
-    actor[i] = NullActor;
-    actor[i].bpos = *(vec3_t *)s;
-
-    if ((unsigned)s_ow < MAXSPRITES)
-    {
-        actor[i].picnum = sprite[s_ow].picnum;
-        actor[i].floorz = actor[s_ow].floorz;
-        actor[i].ceilingz = actor[s_ow].ceilingz;
-    }
-
-    actor[i].actorstayput = actor[i].extra = -1;
-#ifdef POLYMER
-    actor[i].lightId = -1;
-#endif
-    actor[i].owner = s_ow;
-
-    G_InitActor(i, s_pn, 1);
-
-    spriteext[i] = NullSprExt;
-    spritesmooth[i] = NullSprSmooth;
-
-    return i;
-}
-
 #ifdef YAX_ENABLE
 void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz)
 {
