@@ -590,7 +590,7 @@ int spawn_r(int j, int pn)
 
             case SHELL: //From the player
             case SHOTGUNSHELL:
-				initshell(i, j, sp->picnum == SHELL);
+				initshell(j, i, sp->picnum == SHELL);
                 break;
             case RESPAWN:
                 sp->extra = 66-13;
