@@ -177,7 +177,7 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 			if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
 			{
 				if (sp->shade == 127) return i;
-				if (wallswitchcheck(i) == 1 && (sp->cstat & 16))
+				if (wallswitchcheck(i) && (sp->cstat & 16))
 				{
 					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sprite[i].pal)
 					{

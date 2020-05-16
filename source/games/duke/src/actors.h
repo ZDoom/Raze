@@ -241,11 +241,6 @@ inline int LocateTheLocator(int const tag, int const sectNum)
     return A_FindLocator(tag, sectNum);
 }
 
-int  A_CheckSwitchTile(int spriteNum);
-inline int wallswitchcheck(int s)
-{
-    return A_CheckSwitchTile(s);
-}
 int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);

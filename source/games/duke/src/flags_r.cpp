@@ -102,6 +102,57 @@ void initactorflags_r()
 	{
 		setflag(SFLAG_NODAMAGEPUSH, { HULK, SBMOVE });
 	}
+
+	settileflag(TFLAG_WALLSWITCH, {
+        HANDPRINTSWITCH,
+        HANDPRINTSWITCH+1,
+        ALIENSWITCH,
+        ALIENSWITCH+1,
+        MULTISWITCH,
+        MULTISWITCH+1,
+        MULTISWITCH+2,
+        MULTISWITCH+3,
+        ACCESSSWITCH,
+        ACCESSSWITCH2,
+        PULLSWITCH,
+        PULLSWITCH+1,
+        HANDSWITCH,
+        HANDSWITCH+1,
+        SLOTDOOR,
+        SLOTDOOR+1,
+        LIGHTSWITCH,
+        LIGHTSWITCH+1,
+        SPACELIGHTSWITCH,
+        SPACELIGHTSWITCH+1,
+        SPACEDOORSWITCH,
+        SPACEDOORSWITCH+1,
+        FRANKENSTINESWITCH,
+        FRANKENSTINESWITCH+1,
+        LIGHTSWITCH2,
+        LIGHTSWITCH2+1,
+        POWERSWITCH1,
+        POWERSWITCH1+1,
+        LOCKSWITCH1,
+        LOCKSWITCH1+1,
+        POWERSWITCH2,
+        POWERSWITCH2+1,
+        DIPSWITCH,
+        DIPSWITCH+1,
+        DIPSWITCH2,
+        DIPSWITCH2+1,
+        TECHSWITCH,
+        TECHSWITCH+1,
+        DIPSWITCH3,
+        DIPSWITCH3+1,
+        NUKEBUTTON,
+		NUKEBUTTON+1});
+	if (isRRRA()) settileflag(TFLAG_WALLSWITCH, {
+        MULTISWITCH2,
+        MULTISWITCH2+1,
+        MULTISWITCH2+2,
+        MULTISWITCH2+3,
+        RRTILE8464,
+		RRTILE8464+1});
 }
 
 END_DUKE_NS

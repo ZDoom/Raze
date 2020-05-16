@@ -245,58 +245,7 @@ void A_PlayAlertSound(int spriteNum)
     }
 }
 
-int A_CheckSwitchTile(int spriteNum)
-{
-    // picnum 0 would oob in the switch below,
-
-    if (PN(spriteNum) <= 0)
-        return 0;
-
-    // TILE_MULTISWITCH has 4 states so deal with it separately,
-    // TILE_ACCESSSWITCH and TILE_ACCESSSWITCH2 are only active in one state so deal with
-    // them separately.
-
-    if ((PN(spriteNum) >= TILE_MULTISWITCH && PN(spriteNum) <= TILE_MULTISWITCH + 3) || (PN(spriteNum) == TILE_ACCESSSWITCH || PN(spriteNum) == TILE_ACCESSSWITCH2))
-        return 1;
-
-    if (RRRA && PN(spriteNum) >= TILE_MULTISWITCH2 && PN(spriteNum) <= TILE_MULTISWITCH2 + 3)
-        return 1;
-
-    // Loop to catch both states of switches.
-    for (bssize_t j=1; j>=0; j--)
-    {
-        switch (DYNAMICTILEMAP(PN(spriteNum)-j))
-        {
-        case RRTILE8464__STATICRR:
-            if (RRRA) return 1;
-            break;
-        case NUKEBUTTON__STATIC:
-            if (RR) return 1;
-            break;
-        case HANDPRINTSWITCH__STATIC:
-        case ALIENSWITCH__STATIC:
-        case MULTISWITCH__STATIC:
-        case PULLSWITCH__STATIC:
-        case HANDSWITCH__STATIC:
-        case SLOTDOOR__STATIC:
-        case LIGHTSWITCH__STATIC:
-        case SPACELIGHTSWITCH__STATIC:
-        case SPACEDOORSWITCH__STATIC:
-        case FRANKENSTINESWITCH__STATIC:
-        case LIGHTSWITCH2__STATIC:
-        case POWERSWITCH1__STATIC:
-        case LOCKSWITCH1__STATIC:
-        case POWERSWITCH2__STATIC:
-        case DIPSWITCH__STATIC:
-        case DIPSWITCH2__STATIC:
-        case TECHSWITCH__STATIC:
-        case DIPSWITCH3__STATIC:
-            return 1;
-        }
-    }
-
-    return 0;
-}
+TileInfo tileinfo[MAXTILES];
 
 
 void movefta_d(void);

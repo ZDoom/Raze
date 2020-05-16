@@ -303,6 +303,17 @@ inline int32_t G_GetTeamPalette(int32_t team)
     return pal[team];
 }
 
+enum
+{
+    TFLAG_WALLSWITCH = 1
+};
+// for now just flags not related to actors, may get more info later.
+struct TileInfo
+{
+    int flags;
+};
+extern TileInfo tileinfo[MAXTILES];
+
 inline int actorflag(int spritenum, int mask)
 {
     return (((actorinfo[sprite[spritenum].picnum].flags/* ^ actor[spritenum].flags*/) & mask) != 0);
@@ -319,6 +330,19 @@ inline void setflag(int flag, const std::initializer_list<short>& types)
     {
         actorinfo[val].flags |= flag;
     }
+}
+
+inline void settileflag(int flag, const std::initializer_list<short>& types)
+{
+    for (auto val : types)
+    {
+        tileinfo[val].flags |= flag;
+    }
+}
+
+inline bool wallswitchcheck(int s)
+{
+    return !!(tileinfo[s].flags & TFLAG_WALLSWITCH);
 }
 
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
