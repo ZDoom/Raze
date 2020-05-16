@@ -4965,7 +4965,6 @@ void alterang(int a, int g_i, int g_p)
 //
 //---------------------------------------------------------------------------
 
-
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*))
 {
 	auto g_sp = &sprite[g_i];
@@ -5050,8 +5049,5 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 		}
 	}
 }
-
-
-
 
 END_DUKE_NS

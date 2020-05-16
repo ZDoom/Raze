@@ -103,7 +103,7 @@ int spawn_d(int j, int pn)
 
 				if (j >= 0) {
 					hittype[i].timetosleep = 0;
-					check_fta_sounds(i);
+					fi.check_fta_sounds(i);
 					changespritestat(i, 1);
 				} else
 					changespritestat(i, 2);
@@ -270,6 +270,10 @@ int spawn_d(int j, int pn)
                    sp->pal = 6;
                changespritestat(i,5);
                break;
+            case LAVAPOOL:
+                if (!isWorldTour()) // Twentieth Anniversary World Tour
+                    return i;
+
             case BLOODPOOL:
             case PUKE:
 				if (spawnbloodpoolpart1(j, i)) break;
@@ -568,6 +572,11 @@ int spawn_d(int j, int pn)
                 changespritestat(i,11);
                 break;
 
+            case ONFIRE:
+                // Twentieth Anniversary World Tour
+                if (!isWorldTour())
+                    break;
+
             case EXPLOSION2:
             case EXPLOSION2BOT:
             case BURNING:
@@ -683,11 +692,24 @@ int spawn_d(int j, int pn)
                 t[2] = sector[sect].floorz;
                 if(sector[sect].lotag != 1 && sector[sect].lotag != 2)
                     sector[sect].floorz = sp->z;
-                if(sp->pal && ud.multimode > 1)
+                if (!isWorldTour())
                 {
-                    sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i,5);
-                    break;
+                    if (sp->pal && ud.multimode > 1)
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        changespritestat(i, 5);
+                        break;
+                    }
+                }
+                else { // Twentieth Anniversary World Tour addition
+                    if ((sp->pal == 1 && ud.multimode > 1) // Single-game Only
+                        || (sp->pal == 2 && (ud.multimode == 1 || ud.multimode > 1 && ud.coop != 1)) // Co-op Only
+                        || (sp->pal == 3 && (ud.multimode == 1 || ud.multimode > 1 && ud.coop == 1))) // Dukematch Only
+                    {
+                        sp->xrepeat = sp->yrepeat = 0;
+                        changespritestat(i, 5);
+                        break;
+                    }
                 }
             case WATERBUBBLEMAKER:
 				if (sp->hitag && sp->picnum == WATERBUBBLEMAKER) 
@@ -838,7 +860,7 @@ int spawn_d(int j, int pn)
                     if(j >= 0)
                     {
                         hittype[i].timetosleep = 0;
-                        check_fta_sounds(i);
+                        fi.check_fta_sounds(i);
                         changespritestat(i,1);
                     }
                     else changespritestat(i,2);
@@ -902,6 +924,11 @@ int spawn_d(int j, int pn)
             case RECON:
 				if (initreactor(j, i, sp->picnum == RECON)) return i;
                 break;
+
+            case FLAMETHROWERSPRITE:
+            case FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
+                if (!isWorldTour())
+                    break;
 
             case ATOMICHEALTH:
             case STEROIDS:

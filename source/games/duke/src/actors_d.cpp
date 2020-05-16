@@ -95,6 +95,78 @@ bool floorspace_d(int sectnum)
 //
 //---------------------------------------------------------------------------
 
+void check_fta_sounds_d(int i)
+{
+	if (sprite[i].extra > 0) switch (sprite[i].picnum)
+	{
+	case LIZTROOPONTOILET:
+	case LIZTROOPJUSTSIT:
+	case LIZTROOPSHOOT:
+	case LIZTROOPJETPACK:
+	case LIZTROOPDUCKING:
+	case LIZTROOPRUNNING:
+	case LIZTROOP:
+		spritesound(PRED_RECOG, i);
+		break;
+	case LIZMAN:
+	case LIZMANSPITTING:
+	case LIZMANFEEDING:
+	case LIZMANJUMP:
+		spritesound(CAPT_RECOG, i);
+		break;
+	case PIGCOP:
+	case PIGCOPDIVE:
+		spritesound(PIG_RECOG, i);
+		break;
+	case RECON:
+		spritesound(RECO_RECOG, i);
+		break;
+	case DRONE:
+		spritesound(DRON_RECOG, i);
+		break;
+	case COMMANDER:
+	case COMMANDERSTAYPUT:
+		spritesound(COMM_RECOG, i);
+		break;
+	case ORGANTIC:
+		spritesound(TURR_RECOG, i);
+		break;
+	case OCTABRAIN:
+	case OCTABRAINSTAYPUT:
+		spritesound(OCTA_RECOG, i);
+		break;
+	case BOSS1:
+		sound(BOS1_RECOG);
+		break;
+	case BOSS2:
+		if (sprite[i].pal == 1)
+			sound(BOS2_RECOG);
+		else sound(WHIPYOURASS);
+		break;
+	case BOSS3:
+		if (sprite[i].pal == 1)
+			sound(BOS3_RECOG);
+		else sound(RIPHEADNECK);
+		break;
+	case BOSS4:
+	case BOSS4STAYPUT:
+		if (sprite[i].pal == 1)
+			sound(BOS4_RECOG);
+		sound(BOSS4_FIRSTSEE);
+		break;
+	case GREENSLIME:
+		spritesound(SLIM_RECOG, i);
+		break;
+	}
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void addweapon_d(struct player_struct *p, int weapon)
 {
 	if ( p->gotweapon[weapon] == 0 )
@@ -701,7 +773,7 @@ void movefta_d(void)
 
 						default:
 							hittype[i].timetosleep = 0;
-							check_fta_sounds(i);
+							fi.check_fta_sounds(i);
 							changespritestat(i, STAT_ACTOR);
 							break;
 					}

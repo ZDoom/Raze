@@ -198,6 +198,8 @@ enum sflags_t
 {
     SFLAG_SHADOW        = 0x00000001,
     SFLAG_NVG           = 0x00000002,
+    SFLAG_INVENTORY     = 0x00000004,
+    SFLAG_ADULT         = 0x00000008,
     SFLAG_BADGUY        = 0x00000020,
     SFLAG_NOPAL         = 0x00000040,
     SFLAG_USEACTIVATOR  = 0x00000200,
@@ -250,11 +252,6 @@ void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
 void movecyclers(void);
 void movedummyplayers(void);
 void A_MoveSector(int spriteNum);
-void A_PlayAlertSound(int spriteNum);
-inline void check_fta_sounds(int s)
-{
-    A_PlayAlertSound(s);
-}
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 void resetlanepics(void);
 

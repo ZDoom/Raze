@@ -222,11 +222,6 @@ extern int32_t voting;
 
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-int32_t A_CheckInventorySprite(spritetype *s);
-inline int inventory(spritetype* S)
-{
-    return A_CheckInventorySprite(S);
-}
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
 #define A_InsertSprite EGS
 int G_DoMoveThings(void);
@@ -240,14 +235,11 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 
 void G_PostCreateGameState(void);
 
-void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
-#define ceilingglass A_SpawnCeilingGlass
+void ceilingglass(int spriteNum,int sectNum,int glassCnt);
 void spriteglass(int spriteNum,int glassCnt);
-void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
-#define lotsofcolourglass A_SpawnRandomGlass
-void A_SpawnWallGlass(int spriteNum,int wallnum,int glassCnt);
-#define lotsofglass A_SpawnWallGlass
-void lotsofpopcorn(int spriteNum,int wallnum,int glassCnt);
+void lotsofcolourglass(int spriteNum,int wallNum,int glassCnt);
+void lotsofglass(int spriteNum,int wallnum,int glassCnt);
+
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_DumpDebugInfo(void);
@@ -331,6 +323,12 @@ inline void setflag(int flag, const std::initializer_list<short>& types)
         actorinfo[val].flags |= flag;
     }
 }
+
+inline bool inventory(spritetype* S)
+{
+    return !!(actorinfo[S->picnum].flags & SFLAG_INVENTORY);
+}
+
 
 inline void settileflag(int flag, const std::initializer_list<short>& types)
 {
@@ -524,6 +522,7 @@ struct Dispatcher
     void (*checktimetosleep)(int g_i);
     void (*move)(int g_i, int g_p, int g_x);
 	int (*spawn)(int j, int pn);
+    void (*check_fta_sounds)(int i);
 
 
 };

@@ -5032,6 +5032,7 @@ void updatesectorexclude(int32_t const x, int32_t const y, int16_t * const sectn
 //      as starting sector and the 'initial' z check is skipped
 //      (not initial anymore because it follows the sector updating due to TROR)
 
+// NOTE: This comes from Duke, therefore it's GPL!
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
 {
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)

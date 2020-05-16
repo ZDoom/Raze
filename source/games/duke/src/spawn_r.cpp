@@ -1049,7 +1049,7 @@ int spawn_r(int j, int pn)
                     if(j >= 0)
                     {
                         hittype[i].timetosleep = 0;
-                        check_fta_sounds(i);
+                        fi.check_fta_sounds(i);
                         changespritestat(i,1);
                     }
                     else changespritestat(i,2);

@@ -99,6 +99,28 @@ bool floorspace_r(int sectnum)
 //
 //---------------------------------------------------------------------------
 
+void check_fta_sounds_r(int i)
+{
+	if (sprite[i].extra > 0) switch (sprite[i].picnum)
+	{
+	case COOT: // LIZTROOP
+		if (!isRRRA() && (krand() & 3) == 2)
+			spritesound(PRED_RECOG, i);
+		break;
+	case BILLYCOCK:
+	case BILLYRAY:
+	case BRAYSNIPER: // PIGCOP
+		spritesound(PIG_RECOG, i);
+		break;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void addweapon_r(struct player_struct* p, int weapon)
 {
 	short cw = p->curr_weapon;
@@ -628,7 +650,7 @@ void movefta_r(void)
 						if (actorflag(spriteNum, SFLAG_USEACTIVATOR) && sector[sprite[spriteNum].sectnum].lotag & 16384) break;
 #endif
 						hittype[i].timetosleep = 0;
-						check_fta_sounds(i);
+						fi.check_fta_sounds(i);
 						changespritestat(i, STAT_ACTOR);
 						break;
 					}
@@ -646,7 +668,7 @@ void movefta_r(void)
 					if (wakeup(i, p))
 					{
 						hittype[i].timetosleep = 0;
-						check_fta_sounds(i);
+						fi.check_fta_sounds(i);
 						changespritestat(i, STAT_ACTOR);
 					}
 				}
@@ -4663,6 +4685,5 @@ void checktimetosleep_r(int g_i)
 		}
 	}
 }
-
 
 END_DUKE_NS

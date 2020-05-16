@@ -1083,4 +1083,180 @@ void spawneffector(int i)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void vglass(int x, int y, int a, int wn, int n)
+{
+	int z, zincs;
+	int sect;
+
+	sect = wall[wn].nextsector;
+	if (sect == -1) return;
+	zincs = (sector[sect].floorz - sector[sect].ceilingz) / n;
+
+	for (z = sector[sect].ceilingz; z < sector[sect].floorz; z += zincs)
+		EGS(sect, x, y, z - (krand() & 8191), TILE_GLASSPIECES + (z & (krand() % 3)), -32, 36, 36, a + 128 - (krand() & 255), 16 + (krand() & 31), 0, -1, 5);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void lotsofglass(int i, int wallnum, int n)
+{
+	int j, xv, yv, z, x1, y1, a;
+	short sect;
+	auto sp = &sprite[i];
+
+	sect = -1;
+
+	if (wallnum < 0)
+	{
+		for (j = n - 1; j >= 0; j--)
+		{
+			a = sp->ang - 256 + (krand() & 511) + 1024;
+			EGS(sp->sectnum, sp->x, sp->y, sp->z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
+		}
+		return;
+	}
+
+	j = n + 1;
+
+	x1 = wall[wallnum].x;
+	y1 = wall[wallnum].y;
+
+	xv = wall[wall[wallnum].point2].x - x1;
+	yv = wall[wall[wallnum].point2].y - y1;
+
+	x1 -= sgn(yv);
+	y1 += sgn(xv);
+
+	xv /= j;
+	yv /= j;
+
+	for (j = n; j > 0; j--)
+	{
+		x1 += xv;
+		y1 += yv;
+
+		updatesector(x1, y1, &sect);
+		if (sect >= 0)
+		{
+			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			if (z < -(32 << 8) || z >(32 << 8))
+				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
+			a = sp->ang - 1024;
+			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), i, 5);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void spriteglass(int i, int n)
+{
+	int j, k, a, z;
+	auto sp = &sprite[i];
+
+	for (j = n; j > 0; j--)
+	{
+		a = krand() & 2047;
+		z = sp->z - ((krand() & 16) << 8);
+		k = EGS(sp->sectnum, sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), i, 5);
+		sprite[k].pal = sprite[i].pal;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void ceilingglass(int i, int sectnum, int n)
+{
+	int j, xv, yv, z, x1, y1;
+	int a, s, startwall, endwall;
+	auto sp = &sprite[i];
+
+	startwall = sector[sectnum].wallptr;
+	endwall = startwall + sector[sectnum].wallnum;
+
+	for (s = startwall; s < (endwall - 1); s++)
+	{
+		x1 = wall[s].x;
+		y1 = wall[s].y;
+
+		xv = (wall[s + 1].x - x1) / (n + 1);
+		yv = (wall[s + 1].y - y1) / (n + 1);
+
+		for (j = n; j > 0; j--)
+		{
+			x1 += xv;
+			y1 += yv;
+			a = krand() & 2047;
+			z = sector[sectnum].ceilingz + ((krand() & 15) << 8);
+			EGS(sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, i, 5);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void lotsofcolourglass(int i, int wallnum, int n)
+{
+	int j, xv, yv, z, x1, y1;
+	short sect = -1;
+	int a, k;
+	auto sp = &sprite[i];
+
+	if (wallnum < 0)
+	{
+		for (j = n - 1; j >= 0; j--)
+		{
+			a = krand() & 2047;
+			k = EGS(sp->sectnum, sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), i, 5);
+			sprite[k].pal = krand() & 15;
+		}
+		return;
+	}
+
+	j = n + 1;
+	x1 = wall[wallnum].x;
+	y1 = wall[wallnum].y;
+
+	xv = (wall[wall[wallnum].point2].x - wall[wallnum].x) / j;
+	yv = (wall[wall[wallnum].point2].y - wall[wallnum].y) / j;
+
+	for (j = n; j > 0; j--)
+	{
+		x1 += xv;
+		y1 += yv;
+
+		updatesector(x1, y1, &sect);
+		z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+		if (z < -(32 << 8) || z >(32 << 8))
+			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
+		a = sp->ang - 1024;
+		k = EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), i, 5);
+		sprite[k].pal = krand() & 7;
+	}
+}
+
+
+
 END_DUKE_NS

@@ -928,6 +928,61 @@ void activatebysector_r(int sect, int j)
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+static void lotsofpopcorn(short i, short wallnum, short n)
+{
+	long j, xv, yv, z, x1, y1;
+	short sect, a;
+
+	sect = -1;
+	auto sp = &sprite[i];
+
+	if (wallnum < 0)
+	{
+		for (j = n - 1; j >= 0; j--)
+		{
+			a = sp->ang - 256 + (krand() & 511) + 1024;
+			EGS(sp->sectnum, sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
+		}
+		return;
+	}
+
+	j = n + 1;
+
+	x1 = wall[wallnum].x;
+	y1 = wall[wallnum].y;
+
+	xv = wall[wall[wallnum].point2].x - x1;
+	yv = wall[wall[wallnum].point2].y - y1;
+
+	x1 -= ksgn(yv);
+	y1 += ksgn(xv);
+
+	xv /= j;
+	yv /= j;
+
+	for (j = n; j > 0; j--)
+	{
+		x1 += xv;
+		y1 += yv;
+
+		updatesector(x1, y1, &sect);
+		if (sect >= 0)
+		{
+			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			if (z < -(32 << 8) || z >(32 << 8))
+				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
+			a = sp->ang - 1024;
+			EGS(sp->sectnum, x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), i, 5);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------

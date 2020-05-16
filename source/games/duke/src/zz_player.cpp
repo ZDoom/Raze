@@ -8404,7 +8404,7 @@ HORIZONLY:;
                         if (sprite[spriteNum].picnum == TILE_BILLYRAY)
                             A_PlaySound(404, spriteNum);
                         else
-                            A_PlayAlertSound(spriteNum);
+                            fi.check_fta_sounds(spriteNum);
                         changespritestat(spriteNum, STAT_ACTOR);
                     }
                 }

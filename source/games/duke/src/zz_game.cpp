@@ -196,23 +196,6 @@ void G_GameQuit(void)
 }
 
 
-int32_t A_CheckInventorySprite(spritetype *s)
-{
-    switch (DYNAMICTILEMAP(s->picnum))
-    {
-    case FIRSTAID__STATIC:
-    case STEROIDS__STATIC:
-    case HEATSENSOR__STATIC:
-    case BOOTS__STATIC:
-    case JETPACK__STATIC:
-    case HOLODUKE__STATIC:
-    case AIRTANK__STATIC:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
 void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
 {
     if (!pPlayer->OnMotorcycle && !(sector[pPlayer->cursectnum].lotag == 2))
@@ -1659,7 +1642,7 @@ default_case1:
         EDUKE32_STATIC_ASSERT(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
         uspritetype *const pSprite = (i < 0) ? (uspritetype *)&tsprite[j] : (uspritetype *)&sprite[i];
 
-        if (adult_lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
+        if (adult_lockout &&  G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
@@ -4454,174 +4437,6 @@ int G_DoMoveThings(void)
         dotorch();
 
     return 0;
-}
-
-void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
-{
-    if (wallNum < 0)
-    {
-        for (bssize_t j = glassCnt - 1; j >= 0; --j)
-        {
-            int const a = SA(spriteNum) - 256 + (krand2() & 511) + 1024;
-            int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a,
-                           32 + (r2 & 63), 1024 - (r1 & 1023), spriteNum, 5);
-        }
-        return;
-    }
-
-    vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
-    vec2_t v  = { wall[wall[wallNum].point2].x - v1.x, wall[wall[wallNum].point2].y - v1.y };
-
-    v1.x -= ksgn(v.y);
-    v1.y += ksgn(v.x);
-
-    v.x = tabledivide32_noinline(v.x, glassCnt+1);
-    v.y = tabledivide32_noinline(v.y, glassCnt+1);
-
-    int16_t sect = -1;
-
-    for (bsize_t j = glassCnt; j > 0; --j)
-    {
-        v1.x += v.x;
-        v1.y += v.y;
-
-        updatesector(v1.x,v1.y,&sect);
-        if (sect >= 0)
-        {
-            int z = sector[sect].floorz - (krand2() & (klabs(sector[sect].ceilingz - sector[sect].floorz)));
-
-            if (z < -ZOFFSET5 || z > ZOFFSET5)
-                z = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
-
-            int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
-                           -(r1 & 1023), spriteNum, 5);
-        }
-    }
-}
-
-// RR only
-void lotsofpopcorn(int spriteNum, int wallNum, int glassCnt)
-{
-    if (wallNum < 0)
-    {
-        for (bssize_t j = glassCnt - 1; j >= 0; --j)
-        {
-            int const a = SA(spriteNum) - 256 + (krand2() & 511) + 1024;
-            int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), TILE_POPCORN, -32, 36, 36, a,
-                           32 + (r2 & 63), 1024 - (r1 & 1023), spriteNum, 5);
-        }
-        return;
-    }
-
-    vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
-    vec2_t v  = { wall[wall[wallNum].point2].x - v1.x, wall[wall[wallNum].point2].y - v1.y };
-
-    v1.x -= ksgn(v.y);
-    v1.y += ksgn(v.x);
-
-    v.x = tabledivide32_noinline(v.x, glassCnt+1);
-    v.y = tabledivide32_noinline(v.y, glassCnt+1);
-
-    int16_t sect = -1;
-
-    for (bsize_t j = glassCnt; j > 0; --j)
-    {
-        v1.x += v.x;
-        v1.y += v.y;
-
-        updatesector(v1.x,v1.y,&sect);
-        if (sect >= 0)
-        {
-            int z = sector[sect].floorz - (krand2() & (klabs(sector[sect].ceilingz - sector[sect].floorz)));
-
-            if (z < -ZOFFSET5 || z > ZOFFSET5)
-                z = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
-
-            int32_t const r1 = krand2(), r2 = krand2();
-            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_POPCORN, -32, 36, 36, SA(spriteNum) - 1024, 32 + (r2 & 63),
-                           -(r1 & 1023), spriteNum, 5);
-        }
-    }
-}
-
-void spriteglass(int spriteNum, int glassCnt)
-{
-    for (; glassCnt>0; glassCnt--)
-    {
-        int const a = krand2()&2047;
-        int const z = SZ(spriteNum)-((krand2()&16)<<8);
-        int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2();
-        int const k
-        = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), z, TILE_GLASSPIECES + (glassCnt % 3),
-                         r3 & 15, 36, 36, a, 32 + (r2 & 63), -512 - (r1 & 2047), spriteNum, 5);
-        sprite[k].pal = sprite[spriteNum].pal;
-    }
-}
-
-void A_SpawnCeilingGlass(int spriteNum, int sectNum, int glassCnt)
-{
-    int const startWall = sector[sectNum].wallptr;
-    int const endWall = startWall+sector[sectNum].wallnum;
-
-    for (bssize_t wallNum = startWall; wallNum < (endWall - 1); wallNum++)
-    {
-        vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
-        vec2_t v  = { tabledivide32_noinline(wall[wallNum + 1].x - v1.x, glassCnt + 1),
-                     tabledivide32_noinline(wall[wallNum + 1].y - v1.y, glassCnt + 1) };
-
-        for (bsize_t j = glassCnt; j > 0; j--)
-        {
-            v1.x += v.x;
-            v1.y += v.y;
-            int const a = krand2()&2047;
-            int const z = sector[sectNum].ceilingz+((krand2()&15)<<8);
-            A_InsertSprite(sectNum, v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36,
-                           a, (krand2() & 31), 0, spriteNum, 5);
-        }
-    }
-}
-
-void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
-{
-    if (wallNum < 0)
-    {
-        for (bssize_t j = glassCnt - 1; j >= 0; j--)
-        {
-            int const a = krand2() & 2047;
-            int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2();
-            int const k
-            = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (r3 & (63 << 8)), TILE_GLASSPIECES + (j % 3),
-                             -32, 36, 36, a, 32 + (r2 & 63), 1024 - (r1 & 2047), spriteNum, 5);
-            sprite[k].pal = krand2() & 15;
-        }
-        return;
-    }
-
-    vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
-    vec2_t v  = { tabledivide32_noinline(wall[wall[wallNum].point2].x - wall[wallNum].x, glassCnt + 1),
-                 tabledivide32_noinline(wall[wall[wallNum].point2].y - wall[wallNum].y, glassCnt + 1) };
-    int16_t sectNum = sprite[spriteNum].sectnum;
-
-    for (bsize_t j = glassCnt; j > 0; j--)
-    {
-        v1.x += v.x;
-        v1.y += v.y;
-
-        updatesector(v1.x, v1.y, &sectNum);
-
-        int z = sector[sectNum].floorz - (krand2() & (klabs(sector[sectNum].ceilingz - sector[sectNum].floorz)));
-
-        if (z < -ZOFFSET5 || z > ZOFFSET5)
-            z       = SZ(spriteNum) - ZOFFSET5 + (krand2() & ((64 << 8) - 1));
-
-        int32_t const r1 = krand2(), r2 = krand2();
-        int const k = A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024,
-                                     32 + (r2 & 63), -(r1 & 2047), spriteNum, 5);
-        sprite[k].pal = krand2() & 7;
-    }
 }
 
 void GameInterface::FreeGameData()
