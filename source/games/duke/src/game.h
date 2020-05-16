@@ -312,6 +312,15 @@ inline int actorfella(int spnum)
 {
     return actorflag(spnum, SFLAG_KILLCOUNT);
 }
+
+inline void setflag(int flag, const std::initializer_list<short>& types)
+{
+    for (auto val : types)
+    {
+        actorinfo[val].flags |= flag;
+    }
+}
+
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (actorinfo[iPicnum].flags & iType) != 0)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
@@ -460,6 +469,7 @@ void spawneffector(int i);
 struct Dispatcher
 {
 	// sectors_?.cpp
+	void (*initactorflags)();
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();
 	void (*operaterespawns)(int low);

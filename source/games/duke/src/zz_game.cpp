@@ -3554,11 +3554,9 @@ static void G_CompileScripts(void)
 {
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
-#if 0
-    labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
-#endif
 
     loadcons(G_ConFile());
+	fi.initactorflags();
 
     if ((uint32_t)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
@@ -3600,146 +3598,9 @@ static inline void G_CheckGametype(void)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
-#define SETFLAG(Tilenum, Flag) actorinfo[Tilenum].flags |= Flag
-
-// Has to be after setting the dynamic names (e.g. TILE_SHARK).
-static void A_InitEnemyFlags(void)
-{
-    if (DEER)
-    {
-        int DukeEnemies[] = {
-            TILE_DOGRUN, TILE_PIG, TILE_VIXEN, TILE_CHEER };
-
-        for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
-            SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE|SFLAG_KILLCOUNT);
-    }
-    else if (RRRA)
-    {
-        int DukeEnemies[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT, TILE_HEN,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
-            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
-            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA };
-
-        int DukeEnemiesTile[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
-            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
-            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA };
-
-        int KillCountEnemies[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK,
-            TILE_VIXEN, TILE_SBSWIPE, TILE_BIKERB, TILE_BIKERBV2, TILE_BIKER, TILE_MAKEOUT, TILE_CHEERB, TILE_CHEER, TILE_CHEERSTAYPUT,
-            TILE_COOTPLAY, TILE_BILLYPLAY, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_MAMA,
-            TILE_ROCK, TILE_ROCK2 };
-
-        int SolidEnemies[] = { TILE_HULK, TILE_MAMA, TILE_BILLYPLAY, TILE_COOTPLAY, TILE_MAMACLOUD };
-        int NoWaterDipEnemies[] = { TILE_DRONE };
-        int NoCanSeeCheck[] = {
-            TILE_COOT, TILE_COOTSTAYPUT, TILE_VIXEN, TILE_BIKERB, TILE_BIKERBV2, TILE_CHEER, TILE_CHEERB,
-            TILE_CHEERSTAYPUT, TILE_MINIONBOAT, TILE_HULKBOAT, TILE_CHEERBOAT, TILE_RABBIT, TILE_COOTPLAY,
-            TILE_BILLYPLAY, TILE_MAKEOUT, TILE_MAMA };
-
-        for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
-            SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
-
-        for (bssize_t i = ARRAY_SIZE(DukeEnemiesTile) - 1; i >= 0; i--)
-            SETFLAG(DukeEnemiesTile[i], SFLAG_BADGUY_TILE);
-
-        for (bssize_t i = ARRAY_SIZE(KillCountEnemies) - 1; i >= 0; i--)
-            SETFLAG(KillCountEnemies[i], SFLAG_KILLCOUNT);
-
-        for (bssize_t i = ARRAY_SIZE(SolidEnemies) - 1; i >= 0; i--)
-            SETFLAG(SolidEnemies[i], SFLAG_NODAMAGEPUSH);
-
-        for (bssize_t i = ARRAY_SIZE(NoWaterDipEnemies) - 1; i >= 0; i--)
-            SETFLAG(NoWaterDipEnemies[i], SFLAG_NOWATERDIP);
-
-        for (bssize_t i = ARRAY_SIZE(NoCanSeeCheck) - 1; i >= 0; i--)
-            SETFLAG(NoCanSeeCheck[i], SFLAG_NOCANSEECHECK);
-    }
-    else if (RR)
-    {
-        int DukeEnemies[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT, TILE_HEN,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
-            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
-
-        int DukeEnemiesTile[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
-            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
-
-        int KillCountEnemies[] = {
-            TILE_BOULDER, TILE_BOULDER1, TILE_EGG, TILE_RAT, TILE_TORNADO, TILE_BILLYCOCK, TILE_BILLYRAY, TILE_BILLYRAYSTAYPUT,
-            TILE_BRAYSNIPER, TILE_DOGRUN, TILE_LTH, TILE_HULKJUMP, TILE_BUBBASTAND, TILE_HULK, TILE_HULKSTAYPUT,
-            TILE_DRONE, TILE_PIG, TILE_RECON, TILE_SBMOVE, TILE_MINION, TILE_MINIONSTAYPUT, TILE_UFO1, TILE_UFO2, TILE_UFO3, TILE_UFO4, TILE_UFO5,
-            TILE_COOT, TILE_COOTSTAYPUT, TILE_SHARK, TILE_VIXEN };
-
-        int SolidEnemies[] = { TILE_HULK, TILE_SBMOVE };
-        int NoWaterDipEnemies[] = { TILE_DRONE };
-        int NoCanSeeCheck[] = { TILE_VIXEN };
-
-        for (bssize_t i = ARRAY_SIZE(DukeEnemies) - 1; i >= 0; i--)
-            SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
-
-        for (bssize_t i = ARRAY_SIZE(DukeEnemiesTile) - 1; i >= 0; i--)
-            SETFLAG(DukeEnemiesTile[i], SFLAG_BADGUY_TILE);
-
-        for (bssize_t i = ARRAY_SIZE(KillCountEnemies) - 1; i >= 0; i--)
-            SETFLAG(KillCountEnemies[i], SFLAG_KILLCOUNT);
-
-        for (bssize_t i = ARRAY_SIZE(SolidEnemies) - 1; i >= 0; i--)
-            SETFLAG(SolidEnemies[i], SFLAG_NODAMAGEPUSH);
-
-        for (bssize_t i = ARRAY_SIZE(NoWaterDipEnemies) - 1; i >= 0; i--)
-            SETFLAG(NoWaterDipEnemies[i], SFLAG_NOWATERDIP);
-
-        for (bssize_t i = ARRAY_SIZE(NoCanSeeCheck) - 1; i >= 0; i--)
-            SETFLAG(NoCanSeeCheck[i], SFLAG_NOCANSEECHECK);
-    }
-    else
-    {
-        int DukeEnemies[] = {
-            TILE_SHARK, TILE_RECON, TILE_DRONE,
-            TILE_LIZTROOPONTOILET, TILE_LIZTROOPJUSTSIT, TILE_LIZTROOPSTAYPUT, TILE_LIZTROOPSHOOT,
-            TILE_LIZTROOPJETPACK, TILE_LIZTROOPDUCKING, TILE_LIZTROOPRUNNING, TILE_LIZTROOP,
-            TILE_OCTABRAIN, TILE_COMMANDER, TILE_COMMANDERSTAYPUT, TILE_PIGCOP, TILE_EGG, TILE_PIGCOPSTAYPUT, TILE_PIGCOPDIVE,
-            TILE_LIZMAN, TILE_LIZMANSPITTING, TILE_LIZMANFEEDING, TILE_LIZMANJUMP, TILE_ORGANTIC,
-            TILE_BOSS1, TILE_BOSS2, TILE_BOSS3, TILE_BOSS4, TILE_RAT, TILE_ROTATEGUN };
-
-        int SolidEnemies[] = { TILE_TANK, TILE_BOSS1, TILE_BOSS2, TILE_BOSS3, TILE_BOSS4, TILE_RECON, TILE_ROTATEGUN };
-        int NoWaterDipEnemies[] = { TILE_OCTABRAIN, TILE_COMMANDER, TILE_DRONE };
-        int GreenSlimeFoodEnemies[] = { TILE_LIZTROOP, TILE_LIZMAN, TILE_PIGCOP, TILE_NEWBEAST };
-
-        for (bssize_t i=TILE_GREENSLIME; i<=TILE_GREENSLIME+7; i++)
-            SETFLAG(i, SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE);
-
-        for (bssize_t i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
-            SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY|SFLAG_BADGUY_TILE);
-
-        for (bssize_t i=ARRAY_SIZE(SolidEnemies)-1; i>=0; i--)
-            SETFLAG(SolidEnemies[i], SFLAG_NODAMAGEPUSH);
-
-        for (bssize_t i=ARRAY_SIZE(NoWaterDipEnemies)-1; i>=0; i--)
-            SETFLAG(NoWaterDipEnemies[i], SFLAG_NOWATERDIP);
-
-        for (bssize_t i=ARRAY_SIZE(GreenSlimeFoodEnemies)-1; i>=0; i--)
-            SETFLAG(GreenSlimeFoodEnemies[i], SFLAG_GREENSLIMEFOOD);
-    }
-}
-#undef SETFLAG
-
 void G_PostCreateGameState(void)
 {
     Net_SendClientInfo();
-    A_InitEnemyFlags();
 }
 
 void InitFonts();

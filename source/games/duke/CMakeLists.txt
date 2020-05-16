@@ -6,6 +6,8 @@ set( PCH_SOURCES
 	src/actors_lava.cpp
 	src/bowling.cpp
 	src/dispatch.cpp
+	src/flags_d.cpp
+	src/flags_r.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp
 	src/gamevar.cpp

@@ -31,6 +31,9 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
+void initactorflags_d();
+void initactorflags_r();
+
 bool isadoorwall_d(int dapic);
 bool isadoorwall_r(int dapic);
 void animatewalls_d(void);
@@ -96,6 +99,7 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
+		initactorflags_d,
 		isadoorwall_d,
 		animatewalls_d,
 		operaterespawns_d,
@@ -131,6 +135,7 @@ void SetDispatcher()
 	else	
 	{
 		fi = {
+		initactorflags_r,
 		isadoorwall_r,
 		animatewalls_r,
 		operaterespawns_r,
