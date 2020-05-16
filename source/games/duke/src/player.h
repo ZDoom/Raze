@@ -180,6 +180,7 @@ typedef struct player_struct {
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
+    int gethorizdiff() { return (q16horiz + q16horizoff) >> FRACBITS; }
 
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
@@ -257,7 +258,7 @@ typedef struct player_struct {
     int16_t moto_bump, moto_bump_target, moto_turb;
     int16_t drug_stat[3];
     int32_t drug_aspect;
-    uint8_t drug_mode, lotag800kill, sea_sick_stat;
+    uint8_t DrugMode, lotag800kill, sea_sick_stat;
     int32_t drug_timer;
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
@@ -356,12 +357,6 @@ extern int32_t          ticrandomseed;
 
 #define SHOOT_HARDCODED_ZVEL INT32_MIN
 
-int A_Shoot(int spriteNum, int projecTile);
-inline int shoot(int s, int p)
-{
-    return A_Shoot(s, p);
-}
-
 static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 {
     pPlayer->pals.f = f;
@@ -380,8 +375,7 @@ inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
 
 int hitawall(DukePlayer_t* pPlayer, int* hitWall);
 void    P_AddKills(DukePlayer_t * pPlayer, uint16_t kills);
-int32_t A_GetHitscanRange(int spriteNum);
-inline int hits(int s) { return A_GetHitscanRange(s); }
+int hits(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
@@ -405,11 +399,7 @@ void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ,
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_DHProcessInput(int playerNum);
-void    P_QuickKill(DukePlayer_t *pPlayer);
-inline void quickkill(DukePlayer_t* pPlayer)
-{
-    P_QuickKill(pPlayer);
-}
+void quickkill(DukePlayer_t* pPlayer);
 void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
 inline void setpal(DukePlayer_t* pPlayer)
@@ -454,6 +444,11 @@ static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 
 void P_SetWeaponGamevars(int playerNum, const DukePlayer_t* const pPlayer);
+
+void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
+int hits(int i);
+int hitasprite(int i, short* hitsp);
+int aim(spritetype* s, int aang);
 
 END_DUKE_NS
 

@@ -469,7 +469,7 @@ int parse(void)
 		break;
 	case concmd_shoot:
 		insptr++;
-		shoot(g_i, (short)*insptr);
+		fi.shoot(g_i, (short)*insptr);
 		insptr++;
 		break;
 	case concmd_ifsoundid:

@@ -806,44 +806,5 @@ rrtripbomb_case:
     }
 }
 
-int hitasprite(int spriteNum, int16_t *hitSprite)
-{
-    hitdata_t hitData;
-    int32_t   zOffset = 0;
-
-    if (A_CheckEnemySprite(&sprite[spriteNum]))
-        zOffset = (42 << 8);
-    else if (PN(spriteNum) == TILE_APLAYER)
-        zOffset = (39 << 8);
-
-    SZ(spriteNum) -= zOffset;
-    hitscan((const vec3_t *)&sprite[spriteNum], SECT(spriteNum), sintable[(SA(spriteNum) + 512) & 2047],
-            sintable[SA(spriteNum) & 2047], 0, &hitData, CLIPMASK1);
-    SZ(spriteNum) += zOffset;
-
-    if (hitSprite)
-        *hitSprite = hitData.sprite;
-
-    if (hitData.wall >= 0 && (wall[hitData.wall].cstat&16) && A_CheckEnemySprite( &sprite[spriteNum]))
-        return 1<<30;
-
-    return FindDistance2D(hitData.pos.x-SX(spriteNum),hitData.pos.y-SY(spriteNum));
-}
-
-int hitawall(DukePlayer_t *pPlayer, int *hitWall)
-{
-    hitdata_t hitData;
-
-    hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
-            sintable[fix16_to_int(pPlayer->q16ang) & 2047], 0, &hitData, CLIPMASK0);
-
-    *hitWall = hitData.wall;
-
-    if (hitData.wall < 0)
-        return INT32_MAX;
-
-    return FindDistance2D(hitData.pos.x - pPlayer->pos.x, hitData.pos.y - pPlayer->pos.y);
-}
-
 
 END_DUKE_NS

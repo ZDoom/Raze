@@ -90,7 +90,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
     if (player != g_player[screenpeek].ps)
         return;
 
-    videoSetPalette(0, palid, set);
+    videoSetPalette(palid, set);
 }
 
 

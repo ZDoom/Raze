@@ -60,7 +60,7 @@ void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
     int       inWater       = 0;
     int const playerSectnum = pPlayer->cursectnum;
 
-    if (pPlayer->drug_mode)
+    if (pPlayer->DrugMode)
         pPlayer->palette = DRUGPAL;
     else if (pPlayer->heat_on)
         pPlayer->palette = SLIMEPAL;
@@ -77,7 +77,7 @@ void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
         inWater              = 1;
     }
 
-    g_restorePalette = 1+inWater;
+    restorepalette = 1+inWater;
 }
 
 static void P_IncurDamage(DukePlayer_t * const pPlayer)
@@ -130,17 +130,6 @@ static void P_IncurDamage(DukePlayer_t * const pPlayer)
     sprite[pPlayer->i].extra = pPlayer->last_extra + playerDamage;
 }
 
-void P_QuickKill(DukePlayer_t * const pPlayer)
-{
-    P_PalFrom(pPlayer, 48, 48,48,48);
-
-    sprite[pPlayer->i].extra = 0;
-    sprite[pPlayer->i].cstat |= 32768;
-
-    if (ud.god == 0)
-        A_DoGuts(pPlayer->i,TILE_JIBS6,8);
-}
-
 static void Proj_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
 {
     if ((klabs(startPos.x - endPos->x) + klabs(startPos.y - endPos->y)) < 3084)
@@ -163,19 +152,6 @@ static void Proj_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, in
         A_InsertSprite(sectNum, startPos.x, startPos.y, startPos.z, TILE_WATERBUBBLE, -32, 4 + (r3 & 3), 4 + (r2 & 3), r1 & 2047, 0, 0,
                        g_player[0].ps->i, 5);
     }
-}
-
-int32_t A_GetHitscanRange(int spriteNum)
-{
-    int const zOffset = (PN(spriteNum) == TILE_APLAYER) ? (40<<8) : 0;
-    hitdata_t hitData;
-
-    SZ(spriteNum) -= zOffset;
-    hitscan((const vec3_t *)&sprite[spriteNum], SECT(spriteNum), sintable[(SA(spriteNum) + 512) & 2047],
-            sintable[SA(spriteNum) & 2047], 0, &hitData, CLIPMASK1);
-    SZ(spriteNum) += zOffset;
-
-    return (FindDistance2D(hitData.pos.x - SX(spriteNum), hitData.pos.y - SY(spriteNum)));
 }
 
 static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projecTile)
@@ -1667,11 +1643,11 @@ static void P_FireWeapon(int playerNum)
 
     P_SetWeaponGamevars(playerNum, pPlayer);
     //        Printf("doing %d %d %d\n",PWEAPON(snum, p->curr_weapon, Shoots),p->curr_weapon,snum);
-    A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+    fi.shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
 
     for (bssize_t burstFire = PWEAPON(playerNum, pPlayer->curr_weapon, ShotsPerBurst) - 1; burstFire > 0; --burstFire)
     {
-        A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+        fi.shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
 
         if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AMMOPERSHOT)
         {
@@ -4425,7 +4401,7 @@ static int32_t P_DoCounters(int playerNum)
             pPlayer->last_quick_kick = pPlayer->quick_kick + 1;
 
             if (--pPlayer->quick_kick == 8)
-                A_Shoot(pPlayer->i, TILE_KNEE);
+                fi.shoot(pPlayer->i, TILE_KNEE);
         }
         else if (pPlayer->last_quick_kick > 0)
             --pPlayer->last_quick_kick;
@@ -4961,7 +4937,7 @@ static void P_ProcessWeapon(int playerNum)
             else if (pPlayer->hbomb_time <= 0 && (*weaponFrame) < 5)
             {
                 S_PlaySound(PIPEBOMB_EXPLODE);
-                P_QuickKill(pPlayer);
+                quickkill(pPlayer);
             }
         }
     }
@@ -5323,7 +5299,7 @@ static void P_ProcessWeapon(int playerNum)
                             sprite[pipeSpriteNum].z += ZOFFSET3;
                         }
 
-                        if (A_GetHitscanRange(pPlayer->i) < 512)
+                        if (hits(pPlayer->i) < 512)
                         {
                             sprite[pipeSpriteNum].ang += 1024;
                             sprite[pipeSpriteNum].zvel /= 3;
@@ -5356,7 +5332,7 @@ static void P_ProcessWeapon(int playerNum)
             case PISTOL_WEAPON__STATIC:
                 if ((*weaponFrame) == 1)
                 {
-                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
+                    fi.shoot(pPlayer->i, TILE_SHOTSPARK1);
                     A_PlaySound(PISTOL_FIRE, pPlayer->i);
                     pPlayer->noise_radius = 8192;
                     P_MadeNoise(playerNum);
@@ -5413,16 +5389,16 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->shotgun_state[1] = 1;
                 if ((*weaponFrame) == 4)
                 {
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
 
                     pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -5440,16 +5416,16 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     if (pPlayer->shotgun_state[1])
                     {
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                        A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                        fi.shoot(pPlayer->i, TILE_SHOTGUN);
 
                         pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -5536,7 +5512,7 @@ static void P_ProcessWeapon(int playerNum)
                         }
 
                         A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                        A_Shoot(pPlayer->i, TILE_CHAINGUN);
+                        fi.shoot(pPlayer->i, TILE_CHAINGUN);
                         pPlayer->noise_radius = 8192;
                         P_MadeNoise(playerNum);
                         lastvisinc = (int32_t) totalclock + 32;
@@ -5579,7 +5555,7 @@ static void P_ProcessWeapon(int playerNum)
                         pus = 1;
                     }
 
-                    A_Shoot(pPlayer->i, TILE_GROWSPARK);
+                    fi.shoot(pPlayer->i, TILE_GROWSPARK);
 
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
@@ -5596,7 +5572,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[SHRINKER_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, TILE_SHRINKSPARK);
+                    fi.shoot(pPlayer->i, TILE_SHRINKSPARK);
                     P_CheckWeapon(pPlayer);
                 }
                 if (++(*weaponFrame) > 20)
@@ -5611,7 +5587,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255 + (95 << 8);
                     lastvisinc = (int32_t) totalclock + 32;
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
+                    fi.shoot(pPlayer->i, TILE_SHOTSPARK1);
                     pPlayer->noise_radius = 16384;
                     P_MadeNoise(playerNum);
                     pPlayer->ammo_amount[DEVISTATOR_WEAPON]--;
@@ -5640,7 +5616,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255 + (95 << 8);
                     lastvisinc = (int32_t) totalclock + 32;
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                    A_Shoot(pPlayer->i, TILE_CHAINGUN);
+                    fi.shoot(pPlayer->i, TILE_CHAINGUN);
                     pPlayer->noise_radius = 16384;
                     P_MadeNoise(playerNum);
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON]--;
@@ -5669,7 +5645,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->MotoSpeed -= 20;
                     pPlayer->ammo_amount[BOAT_WEAPON]--;
-                    A_Shoot(pPlayer->i, TILE_RRTILE1790);
+                    fi.shoot(pPlayer->i, TILE_RRTILE1790);
                 }
                 (*weaponFrame)++;
                 if ((*weaponFrame) > 20)
@@ -5686,7 +5662,7 @@ static void P_ProcessWeapon(int playerNum)
             case FREEZE_WEAPON__STATIC:
                 (*weaponFrame)++;
                 if ((*weaponFrame) >= 7 && (*weaponFrame) <= 11)
-                    A_Shoot(pPlayer->i, TILE_FIRELASER);
+                    fi.shoot(pPlayer->i, TILE_FIRELASER);
 
                 if ((*weaponFrame) == 5)
                 {
@@ -5753,7 +5729,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->ammo_amount[BOWLING_WEAPON]--;
                     A_PlaySound(354, pPlayer->i);
-                    A_Shoot(pPlayer->i, TILE_BOWLINGBALL);
+                    fi.shoot(pPlayer->i, TILE_BOWLINGBALL);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -5774,7 +5750,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if ((*weaponFrame) == 12)
                 {
-                    A_Shoot(pPlayer->i, TILE_KNEE);
+                    fi.shoot(pPlayer->i, TILE_KNEE);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -5792,7 +5768,7 @@ static void P_ProcessWeapon(int playerNum)
 
                 if ((*weaponFrame) == 8)
                 {
-                    A_Shoot(pPlayer->i, TILE_SLINGBLADE);
+                    fi.shoot(pPlayer->i, TILE_SLINGBLADE);
                     pPlayer->noise_radius = 1024;
                     P_MadeNoise(playerNum);
                 }
@@ -5812,7 +5788,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, TILE_RPG);
+                    fi.shoot(pPlayer->i, TILE_RPG);
                     pPlayer->noise_radius = 32768;
                     P_MadeNoise(playerNum);
                     P_CheckWeapon(pPlayer);
@@ -5831,7 +5807,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, TILE_RPG2);
+                    fi.shoot(pPlayer->i, TILE_RPG2);
                     pPlayer->noise_radius = 32768;
                     P_MadeNoise(playerNum);
                     P_CheckWeapon(pPlayer);
@@ -5890,7 +5866,7 @@ static void P_ProcessWeapon(int playerNum)
                         sprite[pipeSpriteNum].z += ZOFFSET3;
                     }
 
-                    if (A_GetHitscanRange(pPlayer->i) < 512)
+                    if (hits(pPlayer->i) < 512)
                     {
                         sprite[pipeSpriteNum].ang += 1024;
                         sprite[pipeSpriteNum].zvel /= 3;
@@ -5923,7 +5899,7 @@ static void P_ProcessWeapon(int playerNum)
                         }
 
                         P_SetWeaponGamevars(playerNum, pPlayer);
-                        A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
+                        fi.shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
                     }
                 }
 
@@ -6069,7 +6045,7 @@ static void P_ProcessWeapon(int playerNum)
                             sprite[pipeSpriteNum].z += ZOFFSET3;
                         }
 
-                        if (A_GetHitscanRange(pPlayer->i) < 512)
+                        if (hits(pPlayer->i) < 512)
                         {
                             sprite[pipeSpriteNum].ang += 1024;
                             sprite[pipeSpriteNum].zvel /= 3;
@@ -6123,7 +6099,7 @@ static void P_ProcessWeapon(int playerNum)
             case PISTOL_WEAPON__STATIC:
                 if ((*weaponFrame) == 1)
                 {
-                    A_Shoot(pPlayer->i, TILE_SHOTSPARK1);
+                    fi.shoot(pPlayer->i, TILE_SHOTSPARK1);
                     A_PlaySound(PISTOL_FIRE, pPlayer->i);
                     lastvisinc = (int32_t) totalclock+32;
                     pPlayer->visibility = 0;
@@ -6165,13 +6141,13 @@ static void P_ProcessWeapon(int playerNum)
             case SHOTGUN_WEAPON__STATIC:
                 if (++(*weaponFrame) == 4)
                 {
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
-                    A_Shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
+                    fi.shoot(pPlayer->i, TILE_SHOTGUN);
 
                     pPlayer->ammo_amount[SHOTGUN_WEAPON]--;
 
@@ -6226,7 +6202,7 @@ static void P_ProcessWeapon(int playerNum)
                         }
 
                         A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
-                        A_Shoot(pPlayer->i, TILE_CHAINGUN);
+                        fi.shoot(pPlayer->i, TILE_CHAINGUN);
                         lastvisinc = (int32_t) totalclock + 32;
                         pPlayer->visibility = 0;
                         flashColor = 255+(95<<8);
@@ -6271,7 +6247,7 @@ static void P_ProcessWeapon(int playerNum)
 
                     pPlayer->ammo_amount[GROW_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, TILE_GROWSPARK);
+                    fi.shoot(pPlayer->i, TILE_GROWSPARK);
 
                     pPlayer->visibility = 0;
                     flashColor = 216+(52<<8)+(20<<16);
@@ -6308,7 +6284,7 @@ static void P_ProcessWeapon(int playerNum)
 
                     pPlayer->ammo_amount[SHRINKER_WEAPON]--;
 
-                    A_Shoot(pPlayer->i, TILE_SHRINKER);
+                    fi.shoot(pPlayer->i, TILE_SHRINKER);
 
                     if (!NAM)
                     {
@@ -6340,7 +6316,7 @@ static void P_ProcessWeapon(int playerNum)
                         pPlayer->visibility = 0;
                         flashColor = 255+(95<<8);
                         lastvisinc = (int32_t) totalclock + 32;
-                        A_Shoot(pPlayer->i, TILE_RPG);
+                        fi.shoot(pPlayer->i, TILE_RPG);
                         pPlayer->ammo_amount[DEVISTATOR_WEAPON]--;
                         P_CheckWeapon(pPlayer);
                     }
@@ -6360,7 +6336,7 @@ static void P_ProcessWeapon(int playerNum)
                         pPlayer->visibility = 0;
                         flashColor = 72+(88<<8)+(140<<16);
                         lastvisinc = (int32_t) totalclock + 32;
-                        A_Shoot(pPlayer->i, TILE_FREEZEBLAST);
+                        fi.shoot(pPlayer->i, TILE_FREEZEBLAST);
                         P_CheckWeapon(pPlayer);
                     }
                     if (sprite[pPlayer->i].xrepeat < 32)
@@ -6389,7 +6365,7 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->vel.z = 0;
                     if ((*weaponFrame) == 3)
                     {
-                        A_Shoot(pPlayer->i, TILE_HANDHOLDINGLASER);
+                        fi.shoot(pPlayer->i, TILE_HANDHOLDINGLASER);
                     }
                 }
                 if ((*weaponFrame) == 16)
@@ -6407,7 +6383,7 @@ static void P_ProcessWeapon(int playerNum)
             case KNEE_WEAPON__STATIC:
                 if (++(*weaponFrame) == 7)
                 {
-                    A_Shoot(pPlayer->i, TILE_KNEE);
+                    fi.shoot(pPlayer->i, TILE_KNEE);
                 }
                 else if ((*weaponFrame) == 14)
                 {
@@ -6434,7 +6410,7 @@ static void P_ProcessWeapon(int playerNum)
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
                     flashColor = 255+(95<<8);
-                    A_Shoot(pPlayer->i, TILE_RPG);
+                    fi.shoot(pPlayer->i, TILE_RPG);
                     P_CheckWeapon(pPlayer);
                 }
                 else if ((*weaponFrame) == 20)
@@ -7310,7 +7286,7 @@ void P_ProcessInput(int playerNum)
     {
         if (pSprite->extra > 0 && ud.clipping == 0)
         {
-            P_QuickKill(pPlayer);
+            quickkill(pPlayer);
             A_PlaySound(SQUISHED, pPlayer->i);
         }
 
@@ -7815,7 +7791,7 @@ check_enemy_sprite:
                         if (RRRA)
                             pPlayer->moto_on_ground = 1;
                         if (pPlayer->falling_counter > 62 || (RRRA && pPlayer->falling_counter > 2 && sector[pPlayer->cursectnum].lotag == 802))
-                            P_QuickKill(pPlayer);
+                            quickkill(pPlayer);
                         else if (pPlayer->falling_counter > 9)
                         {
                             // Falling damage.
@@ -8410,13 +8386,13 @@ HORIZONLY:;
                 }
                 if (sprite[spriteNum].picnum == TILE_RRTILE3410)
                 {
-                    P_QuickKill(pPlayer);
+                    quickkill(pPlayer);
                     A_PlaySound(446, pPlayer->i);
                 }
                 else if (RRRA && sprite[spriteNum].picnum == TILE_RRTILE2443 && sprite[spriteNum].pal == 19)
                 {
                     sprite[spriteNum].pal = 0;
-                    pPlayer->drug_mode = 5;
+                    pPlayer->DrugMode = 5;
                     pPlayer->drug_timer = (int32_t) totalclock;
                     sprite[pPlayer->i].extra = max_player_health;
                 }
@@ -8449,7 +8425,7 @@ HORIZONLY:;
         {
             if (RRRA)
                 pPlayer->lotag800kill = 1;
-            P_QuickKill(pPlayer);
+            quickkill(pPlayer);
             return;
         }
     }
@@ -8463,7 +8439,7 @@ HORIZONLY:;
         if ((!ud.clipping && pSector->lotag == ST_31_TWO_WAY_TRAIN) &&
             ((unsigned)pSector->hitag < MAXSPRITES && sprite[pSector->hitag].xvel && actor[pSector->hitag].t_data[0] == 0))
         {
-            P_QuickKill(pPlayer);
+            quickkill(pPlayer);
             return;
         }
     }
@@ -8489,7 +8465,7 @@ HORIZONLY:;
 
             if (squishPlayer)
             {
-                P_QuickKill(pPlayer);
+                quickkill(pPlayer);
                 return;
             }
         }
@@ -8498,7 +8474,7 @@ HORIZONLY:;
 
         if (RR && sector[pPlayer->cursectnum].ceilingz > (sector[pPlayer->cursectnum].floorz-ZOFFSET4))
         {
-            P_QuickKill(pPlayer);
+            quickkill(pPlayer);
             return;
         }
     }
@@ -8625,7 +8601,7 @@ HORIZONLY:;
                     case APLAYER__STATIC:
                     {
                         int playerSquished = P_Get(pPlayer->actorsqu);
-                        P_QuickKill(g_player[playerSquished].ps);
+                        quickkill(g_player[playerSquished].ps);
                         g_player[playerSquished].ps->frag_ps = playerNum;
                         break;
                     }
@@ -9219,16 +9195,6 @@ int P_HasKey(int sectNum, int playerNum)
 }
 
 int16_t max_ammo_amount[MAX_WEAPONS];
-
-void forceplayerangle(DukePlayer_t* pPlayer)
-{
-    int const nAngle = 128 - (krand2() & 255);
-
-    pPlayer->q16horiz += F16(64);
-    pPlayer->return_to_center = 9;
-    pPlayer->rotscrnang = nAngle >> 1;
-    pPlayer->look_ang = pPlayer->rotscrnang;
-}
 
 
 END_DUKE_NS

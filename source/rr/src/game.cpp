@@ -7166,7 +7166,7 @@ int GameInterface::app_main()
 #endif
 
     videoInit();
-    videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
+    videoSetPalette(BASEPAL, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"

@@ -184,6 +184,7 @@ void initactorflags_r()
 		DOLPHIN2,
 		TOUGHGAL });
 
+	actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
 }
 
 END_DUKE_NS

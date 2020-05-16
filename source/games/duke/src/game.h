@@ -214,7 +214,7 @@ extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_levelTextTime;
 extern int32_t g_quitDeadline;
-extern int32_t g_restorePalette;
+extern int32_t restorepalette;
 extern int32_t tempwallptr;
 extern int32_t ticrandomseed;
 extern int32_t vote_map;
@@ -523,6 +523,10 @@ struct Dispatcher
     void (*move)(int g_i, int g_p, int g_x);
 	int (*spawn)(int j, int pn);
     void (*check_fta_sounds)(int i);
+
+    // player
+    void (*incur_damage)(struct player_struct* p);
+    void (*shoot)(int, int);
 
 
 };

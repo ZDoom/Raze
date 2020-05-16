@@ -882,7 +882,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         viewingRange = Blrintf(float(vr) * tanf(r_fov * (PI/360.f)));
 
-        if (!RRRA || !pPlayer->drug_mode)
+        if (!RRRA || !pPlayer->DrugMode)
         {
             if (!r_usenewaspect)
                 renderSetAspect(viewingRange, yxaspect);
@@ -906,7 +906,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
 
-        if (RRRA && pPlayer->drug_mode > 0)
+        if (RRRA && pPlayer->DrugMode > 0)
         {
             while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !System_WantGuiCapture())
             {
@@ -932,7 +932,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     aspect = viewingRange + pPlayer->drug_stat[1] * 5000;
                     if (aspect < viewingRange)
                     {
-                        pPlayer->drug_mode = 0;
+                        pPlayer->DrugMode = 0;
                         pPlayer->drug_stat[0] = 0;
                         pPlayer->drug_stat[2] = 0;
                         pPlayer->drug_stat[1] = 0;
@@ -963,8 +963,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     if (pPlayer->drug_stat[2] < 1)
                     {
                         pPlayer->drug_stat[0] = 2;
-                        pPlayer->drug_mode--;
-                        if (pPlayer->drug_mode == 1)
+                        pPlayer->DrugMode--;
+                        if (pPlayer->DrugMode == 1)
                             pPlayer->drug_stat[0] = 3;
                     }
                     else
@@ -2483,7 +2483,7 @@ rrcoolexplosion1:
             if (t->picnum == TILE_EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
-                //g_restorePalette = 1;   // JBF 20040101: why?
+                //restorepalette = 1;   // JBF 20040101: why?
                 if (RR)
                     t->pal = 0;
             }
@@ -2853,7 +2853,7 @@ void G_HandleLocalKeys(void)
         buttonMap.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = 0;
-        g_restorePalette = -1;
+        restorepalette = -1;
     }
 
     if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
@@ -3066,7 +3066,7 @@ void G_HandleLocalKeys(void)
             ud.fola = g_player[screenpeek].ps->oang;
         }
 #endif
-        g_restorePalette = 1;
+        restorepalette = 1;
         G_UpdateScreenArea();
     }
 }
@@ -4015,7 +4015,7 @@ int GameInterface::app_main()
     videoInit();
     InitFonts();
     V_LoadTranslations();
-    videoSetPalette(0, g_player[myconnectindex].ps->palette, 0);
+    videoSetPalette(BASEPAL, 0);
 
     // check if the minifont will support lowercase letters (3136-3161)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"
@@ -4384,7 +4384,7 @@ int G_DoMoveThings(void)
             if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
             {
                 actor[g_player[i].ps->i].picnum = TILE_APLAYERTOP;
-                P_QuickKill(g_player[i].ps);
+                quickkill(g_player[i].ps);
             }
         }
         if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)

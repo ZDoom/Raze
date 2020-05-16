@@ -90,7 +90,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
     if (player != g_player[screenpeek].ps)
         return;
 
-    videoSetPalette(0, palid, set);
+    videoSetPalette(palid, set);
 }
 
 
@@ -695,18 +695,18 @@ void G_DisplayRest(int32_t smoothratio)
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
     }
 
-    if (g_restorePalette)
+    if (restorepalette)
     {
         // reset a normal palette
         static uint32_t omovethingscnt;
 
-        if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
+        if (restorepalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             int32_t pal = pp->palette;
 
-            // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp, pal, (g_restorePalette > 0) ? Pal_DontResetFade : ESetPalFlags::FromInt(0));
-            g_restorePalette = 0;
+            // restorepalette < 0: reset tinting, too (e.g. when loading new game)
+            P_SetGamePalette(pp, pal, (restorepalette > 0) ? Pal_DontResetFade : ESetPalFlags::FromInt(0));
+            restorepalette = 0;
         }
         else
         {
@@ -1118,10 +1118,10 @@ void G_DisplayLogo(void)
                         rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 7106, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                         G_HandleAsync();
 
-                        if (g_restorePalette)
+                        if (restorepalette)
                         {
                             P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                            g_restorePalette = 0;
+                            restorepalette = 0;
                         }
                         videoNextPage();
                     }
@@ -1163,10 +1163,10 @@ void G_DisplayLogo(void)
                         rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, 7107, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                         G_HandleAsync();
 
-                        if (g_restorePalette)
+                        if (restorepalette)
                         {
                             P_SetGamePalette(g_player[myconnectindex].ps, g_player[myconnectindex].ps->palette, 0);
-                            g_restorePalette = 0;
+                            restorepalette = 0;
                         }
                         videoNextPage();
                     }

@@ -505,7 +505,7 @@ int32_t Anim_Play(const char *fn)
 
             if (g_restorePalette == 1)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
+                P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
                 g_restorePalette = 0;
             }
 

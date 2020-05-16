@@ -1215,7 +1215,7 @@ void checkhitsprite_d(int i, int sn)
 	case FETUSBROKE:
 		for (j = 0; j < 48; j++)
 		{
-			shoot(i, BLOODSPLAT1);
+			fi.shoot(i, BLOODSPLAT1);
 			sprite[i].ang += 333;
 		}
 		spritesound(GLASS_HEAVYBREAK, i);
@@ -1329,21 +1329,21 @@ void checkhitsprite_d(int i, int sn)
 		sprite[i].extra -= sprite[sn].extra;
 		if (sprite[i].extra > 0) break;
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT1);
+		fi.shoot(i, BLOODSPLAT1);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT2);
+		fi.shoot(i, BLOODSPLAT2);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT3);
+		fi.shoot(i, BLOODSPLAT3);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT4);
+		fi.shoot(i, BLOODSPLAT4);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT1);
+		fi.shoot(i, BLOODSPLAT1);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT2);
+		fi.shoot(i, BLOODSPLAT2);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT3);
+		fi.shoot(i, BLOODSPLAT3);
 		sprite[i].ang = krand() & 2047;
-		shoot(i, BLOODSPLAT4);
+		fi.shoot(i, BLOODSPLAT4);
 		fi.guts(&sprite[i], JIBS1, 1, myconnectindex);
 		fi.guts(&sprite[i], JIBS2, 2, myconnectindex);
 		fi.guts(&sprite[i], JIBS3, 3, myconnectindex);
@@ -1403,10 +1403,10 @@ void checkhitsprite_d(int i, int sn)
 				if (j >= 0 && sprite[j].picnum == APLAYER && sprite[i].picnum != ROTATEGUN && sprite[i].picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
-						shoot(i, BLOODSPLAT3);
-						shoot(i, BLOODSPLAT1);
-						shoot(i, BLOODSPLAT2);
-						shoot(i, BLOODSPLAT4);
+						fi.shoot(i, BLOODSPLAT3);
+						fi.shoot(i, BLOODSPLAT1);
+						fi.shoot(i, BLOODSPLAT2);
+						fi.shoot(i, BLOODSPLAT4);
 					}
 
 				if (sprite[i].picnum != TANK && sprite[i].picnum != BOSS1 && sprite[i].picnum != BOSS4 && sprite[i].picnum != BOSS2 && sprite[i].picnum != BOSS3 && sprite[i].picnum != RECON && sprite[i].picnum != ROTATEGUN)

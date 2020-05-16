@@ -1667,7 +1667,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			a = s->ang;
 			s->ang = hittype[i].tempang;
 			if (attacksnd >= 0) spritesound(attacksnd, i);
-			shoot(i, firelaser);
+			fi.shoot(i, firelaser);
 			s->ang = a;
 		}
 		if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sectnum, ps[p].posx, ps[p].posy, ps[p].posz, ps[p].cursectnum))
@@ -1701,7 +1701,7 @@ void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int 
 			else if ((t[2] & 15) == 0 && attacksnd >= 0)
 			{
 				spritesound(attacksnd, i);
-				shoot(i, firelaser);
+				fi.shoot(i, firelaser);
 			}
 		}
 		s->ang += getincangle(s->ang, getangle(ps[p].posx - s->x, ps[p].posy - s->y)) >> 2;
@@ -2785,7 +2785,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 				{
 					j = s->ang;
 					s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-					shoot(i, RPG);
+					fi.shoot(i, RPG);
 					s->ang = j;
 				}
 			}
@@ -3325,7 +3325,7 @@ void handle_se05(int i, int FIRELASER)
 	{
 		j = s->ang;
 		s->ang = getangle(s->x - ps[p].posx, s->y - ps[p].posy);
-		shoot(i, FIRELASER);
+		fi.shoot(i, FIRELASER);
 		s->ang = j;
 	}
 

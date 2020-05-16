@@ -93,6 +93,10 @@ int spawn_d(int j, int pn);
 int spawn_r(int j, int pn);
 void check_fta_sounds_d(int i);
 void check_fta_sounds_r(int i);
+void incur_damage_d(struct player_struct* p);
+void incur_damage_r(struct player_struct* p);
+void shoot_d(int i, int atwith);
+void shoot_r(int i, int atwith);
 
 
 Dispatcher fi;
@@ -133,7 +137,10 @@ void SetDispatcher()
 		checktimetosleep_d,
 		move_d,
 		spawn_d,
-		check_fta_sounds_d
+		check_fta_sounds_d,
+
+		incur_damage_d,
+		shoot_d
 		};
 	}
 	else	
@@ -171,6 +178,9 @@ void SetDispatcher()
 		move_r,
 		spawn_r,
 		check_fta_sounds_r,
+
+		incur_damage_r,
+		shoot_r
 		};
 	}
 }

@@ -190,6 +190,7 @@ struct ActorInfo
 {
     uint32_t scriptaddress;
     uint32_t flags;
+    int aimoffset;
 };
 
 
@@ -200,8 +201,10 @@ enum sflags_t
     SFLAG_NVG           = 0x00000002,
     SFLAG_INVENTORY     = 0x00000004,
     SFLAG_ADULT         = 0x00000008,
+    SFLAG_SHRINKAUTOAIM     = 0x00000010,
     SFLAG_BADGUY        = 0x00000020,
     SFLAG_NOPAL         = 0x00000040,
+    SFLAG_FORCEAUTOAIM  = 0x00000080,
     SFLAG_USEACTIVATOR  = 0x00000200,
     SFLAG_NOFLOORSHADOW = 0x00001000,  // for temp. internal use, per-tile flag not checked
     SFLAG_BADGUYSTAYPUT = 0x00008000,

@@ -175,8 +175,8 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_
 # define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
 #endif
 
-#define CLIPMASK0 (((1L)<<16)+1L)
-#define CLIPMASK1 (((256L)<<16)+64L)
+#define CLIPMASK0 (((1)<<16)+1)
+#define CLIPMASK1 (((256)<<16)+64)
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])

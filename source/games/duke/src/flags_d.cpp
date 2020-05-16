@@ -201,6 +201,20 @@ void initactorflags_d()
         4562,
         4498,
         4957 });
+
+    setflag(SFLAG_SHRINKAUTOAIM, {
+        GREENSLIME,
+        GREENSLIME + 1,
+        GREENSLIME + 2,
+        GREENSLIME + 3,
+        GREENSLIME + 4,
+        GREENSLIME + 5,
+        GREENSLIME + 6,
+        GREENSLIME + 7,
+        });
+
+    actorinfo[ORGANTIC].aimoffset = 32 << 8;
+    actorinfo[ROTATEGUN].aimoffset = 32 << 8;
 }
 	
 	

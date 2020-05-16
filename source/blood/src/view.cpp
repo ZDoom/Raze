@@ -2984,7 +2984,7 @@ void UpdateDacs(int nPalette, bool bNoTint)
         nGreen = ClipRange(nGreen, -255, 255);
         nBlue = ClipRange(nBlue, -255, 255);
 
-        videoSetPalette(0, nPalette, 0);
+        videoSetPalette(nPalette, 0);
         videoTintBlood(nRed, nGreen, nBlue);
     }
 }

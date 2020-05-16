@@ -503,10 +503,10 @@ int32_t Anim_Play(const char *fn)
                 goto end_anim_restore_gl;
             }
 
-            if (g_restorePalette == 1)
+            if (restorepalette == 1)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
-                g_restorePalette = 0;
+                P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
+                restorepalette = 0;
             }
 
             frametime = (int32_t)totalclock;

@@ -767,7 +767,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_RAMRBILL:
-                    P_QuickKill(pPlayer);
+                    quickkill(pPlayer);
                     P_DoQuote(127, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
@@ -796,7 +796,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_RAAARON:
-                    pPlayer->drug_mode = pPlayer->drug_mode ? 0 : 5;
+                    pPlayer->DrugMode = pPlayer->DrugMode ? 0 : 5;
                     pPlayer->drug_timer = (int32_t) totalclock;
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();

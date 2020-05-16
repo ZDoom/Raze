@@ -990,7 +990,7 @@ void P_ResetStatus(int playerNum)
             pPlayer->not_on_water = 0;
             pPlayer->sea_sick = 0;
             pPlayer->nocheat = 0;
-            pPlayer->drug_mode = 0;
+            pPlayer->DrugMode = 0;
             pPlayer->drug_stat[0] = 0;
             pPlayer->drug_stat[1] = 0;
             pPlayer->drug_stat[2] = 0;
@@ -1833,7 +1833,7 @@ static void prelevel(char g)
 
     if (RR && !g_thunderOn)
     {
-        videoSetPalette(0,BASEPAL,0);
+        videoSetPalette(BASEPAL,0);
         g_visibility = g_player[screenpeek].ps->visibility;
     }
     if (RR)
@@ -2449,7 +2449,7 @@ int G_EnterLevel(int gameMode)
                    mapList[mii].DisplayName());
     }
 
-    g_restorePalette = -1;
+    restorepalette = -1;
 
     G_UpdateScreenArea();
     videoClearViewableArea(0L);

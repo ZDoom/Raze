@@ -252,7 +252,7 @@ G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
 G_EXTERN int32_t g_noEnemies;
-G_EXTERN int32_t g_restorePalette;
+G_EXTERN int32_t restorepalette;
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN double g_gameUpdateTime;

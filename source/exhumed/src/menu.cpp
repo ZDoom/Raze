@@ -1043,8 +1043,6 @@ void CinemaFadeIn()
 {
     BlackOut();
 
-    //videoSetPalette(0, ANIMPAL, Pal_Fullscreen);
-
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {

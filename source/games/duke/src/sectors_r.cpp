@@ -2384,10 +2384,10 @@ void checkhitsprite_r(int i, int sn)
 				if (j >= 0 && sprite[j].picnum == APLAYER && sprite[i].picnum != DRONE)
 					if (ps[sprite[j].yvel].curr_weapon == SHOTGUN_WEAPON)
 					{
-						shoot(i, BLOODSPLAT3);
-						shoot(i, BLOODSPLAT1);
-						shoot(i, BLOODSPLAT2);
-						shoot(i, BLOODSPLAT4);
+						fi.shoot(i, BLOODSPLAT3);
+						fi.shoot(i, BLOODSPLAT1);
+						fi.shoot(i, BLOODSPLAT2);
+						fi.shoot(i, BLOODSPLAT4);
 					}
 
 				if (sprite[i].statnum == 2)
