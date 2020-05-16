@@ -50,11 +50,10 @@ class FileStream
 			kSeekEnd     = 2
 		};
 
-		bool Seek(int32_t offset, SeekDirection = kSeekStart);
-		bool Skip(int32_t offset);
+        int32_t Seek(int32_t offset, SeekDirection = kSeekStart);
+        int32_t Skip(int32_t offset);
 
 		int32_t GetPosition();
-		bool Is_Eos();
 
 	private:
 		FileReader file;

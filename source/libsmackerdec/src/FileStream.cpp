@@ -85,7 +85,7 @@ uint8_t FileStream::ReadByte()
 	return file.ReadInt8();
 }
 
-bool FileStream::Seek(int32_t offset, SeekDirection direction)
+int32_t FileStream::Seek(int32_t offset, SeekDirection direction)
 {
     int32_t nStatus = -1;
 	if (kSeekStart == direction) {
@@ -94,26 +94,16 @@ bool FileStream::Seek(int32_t offset, SeekDirection direction)
 	else if (kSeekCurrent == direction) {
 		nStatus = file.Seek(offset, FileReader::SeekCur);
 	}
+    else if (kSeekEnd == direction) {
+        nStatus = klseek(file, offset, SEEK_END);
+    }
 
-	// TODO - end seek
-	if (nStatus < 0)
-	{
-		// todo
-		return false;
-	}
-
-	return true;
+    return nStatus;
 }
 
-bool FileStream::Skip(int32_t offset)
+int32_t FileStream::Skip(int32_t offset)
 {
 	return Seek(offset, kSeekCurrent);
-}
-
-bool FileStream::Is_Eos()
-{
-    // TODO:
-    return false;
 }
 
 int32_t FileStream::GetPosition()
