@@ -2424,6 +2424,214 @@ static void underwater(int snum, int sb_snum, int psect, int fz, int cz)
 		sprite[j].z = p->posz + (8 << 8);
 		sprite[j].cstat = 514;
 	}
+}
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void onMotorcycleMove(int snum, int psect, int j)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+	auto s = &sprite[pi];
+	int psectlotag = sector[psect].lotag;
+
+	short var104, var108, var10c;
+	var104 = 0;
+	j &= (MAXWALLS - 1);
+	var108 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
+	var10c = abs(p->getang() - var108);
+	switch (krand() & 1)
+	{
+	case 0:
+		p->addang(p->MotoSpeed >> 1);
+		break;
+	case 1:
+		p->addang(-p->MotoSpeed >> 1);
+		break;
+	}
+	if (var10c >= 441 && var10c <= 581)
+	{
+		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
+		p->MotoSpeed = 0;
+		if (A_CheckSoundPlaying(pi, 238) == 0)
+			A_PlaySound(238, pi);
+	}
+	else if (var10c >= 311 && var10c <= 711)
+	{
+		var104 = (p->MotoSpeed * p->MotoSpeed) >> 11;
+		p->MotoSpeed -= (p->MotoSpeed >> 1) + (p->MotoSpeed >> 2);
+		if (A_CheckSoundPlaying(pi, 238) == 0)
+			A_PlaySound(238, pi);
+	}
+	else if (var10c >= 111 && var10c <= 911)
+	{
+		var104 = (p->MotoSpeed * p->MotoSpeed) >> 14;
+		p->MotoSpeed -= (p->MotoSpeed >> 1);
+		if (A_CheckSoundPlaying(pi, 239) == 0)
+			A_PlaySound(239, pi);
+	}
+	else
+	{
+		var104 = (p->MotoSpeed * p->MotoSpeed) >> 15;
+		p->MotoSpeed -= (p->MotoSpeed >> 3);
+		if (A_CheckSoundPlaying(pi, 240) == 0)
+			A_PlaySound(240, pi);
+	}
+	s->extra -= var104;
+	if (s->extra <= 0)
+	{
+		spritesound(SQUISHED, pi);
+		SetPlayerPal(p, PalEntry(63, 63, 0, 0));
+	}
+	else if (var104)
+		spritesound(DUKE_LAND_HURT, pi);
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void onBoatMove(int snum, int psect, int j)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+	auto s = &sprite[pi];
+	int psectlotag = sector[psect].lotag;
+
+	short var114, var118, var11c;
+	j &= (MAXWALLS - 1);
+	var114 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
+	var118 = abs(p->getang() - var114);
+	switch (krand() & 1)
+	{
+	case 0:
+		p->addang(p->MotoSpeed >> 2);
+		break;
+	case 1:
+		p->addang(-p->MotoSpeed >> 2);
+		break;
+	}
+	if (var118 >= 441 && var118 <= 581)
+	{
+		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
+		if (psectlotag == 1)
+			if (A_CheckSoundPlaying(pi, 178) == 0)
+				A_PlaySound(178, pi);
+	}
+	else if (var118 >= 311 && var118 <= 711)
+	{
+		p->MotoSpeed -= ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 3;
+		if (psectlotag == 1)
+			if (A_CheckSoundPlaying(pi, 179) == 0)
+				A_PlaySound(179, pi);
+	}
+	else if (var118 >= 111 && var118 <= 911)
+	{
+		p->MotoSpeed -= (p->MotoSpeed >> 4);
+		if (psectlotag == 1)
+			if (A_CheckSoundPlaying(pi, 180) == 0)
+				A_PlaySound(180, pi);
+	}
+	else
+	{
+		p->MotoSpeed -= (p->MotoSpeed >> 6);
+		if (psectlotag == 1)
+			if (A_CheckSoundPlaying(pi, 181) == 0)
+				A_PlaySound(181, pi);
+	}
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void onMotorcycleHit(int snum, int var60)
+{
+	auto p = &ps[snum];
+
+	if (badguy(&sprite[var60]) || sprite[var60].picnum == APLAYER)
+	{
+		if (sprite[var60].picnum != APLAYER)
+		{
+			if (numplayers == 1)
+			{
+				fi.movesprite(var60, sintable[(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 8,
+					sintable[(p->TiltStatus * 20 + p->getang()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
+			}
+		}
+		else
+			hittype[var60].owner = p->i;
+		hittype[var60].picnum = MOTOHIT;
+		hittype[var60].extra = p->MotoSpeed >> 1;
+		p->MotoSpeed -= p->MotoSpeed >> 2;
+		p->TurbCount = 6;
+	}
+	else if ((sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2443 || sprite[var60].picnum == RRTILE2451 || sprite[var60].picnum == RRTILE2455)
+		&& sprite[var60].picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
+	{
+		spritesound(SQUISHED, var60);
+		if (sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2451)
+		{
+			if (sprite[var60].lotag != 0)
+			{
+				for (int j = 0; j < MAXSPRITES; j++)
+				{
+					if ((sprite[j].picnum == RRTILE2431 || sprite[j].picnum == RRTILE2451) && sprite[j].pal == 4)
+					{
+						if (sprite[var60].lotag == sprite[j].lotag)
+						{
+							sprite[j].xrepeat = 0;
+							sprite[j].yrepeat = 0;
+						}
+					}
+				}
+			}
+			fi.guts(&sprite[var60], RRTILE2460, 12, myconnectindex);
+			fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
+		}
+		else
+			fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
+		fi.guts(&sprite[var60], RRTILE2465, 3, myconnectindex);
+		sprite[var60].xrepeat = 0;
+		sprite[var60].yrepeat = 0;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void onBoatHit(int snum, int var60)
+{
+	auto p = &ps[snum];
+	if (badguy(&sprite[var60]) || sprite[var60].picnum == APLAYER)
+	{
+		if (sprite[var60].picnum != APLAYER)
+		{
+			if (numplayers == 1)
+			{
+				fi.movesprite(var60, sintable[(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 9,
+					sintable[(p->TiltStatus * 20 + p->getang()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
+			}
+		}
+		else
+			hittype[var60].owner = p->i;
+		hittype[var60].picnum = MOTOHIT;
+		hittype[var60].extra = p->MotoSpeed >> 2;
+		p->MotoSpeed -= p->MotoSpeed >> 2;
+		p->TurbCount = 6;
+	}
 }
 END_DUKE_NS
