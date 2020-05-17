@@ -6418,14 +6418,18 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if (sector[pSprite->sectnum].lotag != ST_2_UNDERWATER)
                 {
+                    // Move player spawns with sector.
+                    for (int spawnNum = 0; spawnNum < g_playerSpawnCnt; spawnNum++)
+                    {
+                        if (g_playerSpawnPoints[spawnNum].sect == pSprite->sectnum)
+                        {
+                            g_playerSpawnPoints[spawnNum].pos.x += m;
+                            g_playerSpawnPoints[spawnNum].pos.y += x;
+                        }
+                    }
+
                     for (TRAVERSE_CONNECT(playerNum))
                     {
-                        if (g_playerSpawnPoints[playerNum].sect == pSprite->sectnum)
-                        {
-                            g_playerSpawnPoints[playerNum].pos.x += m;
-                            g_playerSpawnPoints[playerNum].pos.y += x;
-                        }
-
                         auto const pPlayer = g_player[playerNum].ps;
 
                         // might happen when squished into void space
@@ -6555,6 +6559,16 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (ud.noclip == 0)
                         MaybeTrainKillPlayer(pSprite, 0);
 
+                // Move player spawns with sector.
+                for (int spawnNum = 0; spawnNum < g_playerSpawnCnt; spawnNum++)
+                {
+                    if (g_playerSpawnPoints[spawnNum].sect == pSprite->sectnum)
+                    {
+                        g_playerSpawnPoints[spawnNum].pos.x += l;
+                        g_playerSpawnPoints[spawnNum].pos.y += x;
+                    }
+                }
+
                 for (int TRAVERSE_CONNECT(playerNum))
                 {
                     auto const pPlayer = g_player[playerNum].ps;
@@ -6569,12 +6583,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         pPlayer->bobpos.x += l;
                         pPlayer->bobpos.y += x;
-                    }
-
-                    if (g_playerSpawnPoints[playerNum].sect == pSprite->sectnum)
-                    {
-                        g_playerSpawnPoints[playerNum].pos.x += l;
-                        g_playerSpawnPoints[playerNum].pos.y += x;
                     }
                 }
 
