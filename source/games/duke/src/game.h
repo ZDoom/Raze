@@ -476,6 +476,7 @@ static inline int G_GetMusicIdx(const char *str)
 extern void G_PrintCurrentMusic(void);
 
 void addspritetodelete(int spnum);
+void checkavailinven(struct player_struct* p);
 
 int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
 void spawninitdefault(int j, int i);
@@ -527,6 +528,8 @@ struct Dispatcher
     // player
     void (*incur_damage)(struct player_struct* p);
     void (*shoot)(int, int);
+    void (*selectweapon)(int snum, int j);
+
 
 
 };

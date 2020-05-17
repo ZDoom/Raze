@@ -381,6 +381,16 @@ inline bool PlayerInput(int pl, int bit)
     return TEST_SYNC_KEY(g_player[pl].input->bits, bit);
 }
 
+inline void PlayerSetInput(int pl, int bit)
+{
+    g_player[pl].input->bits |= (1 << bit);
+}
+
+inline int PlayerInputBits(int pl, int bits)
+{
+    return (g_player[pl].input->bits & bits);
+}
+
 inline bool PlayerInputSideVel(int pl)
 {
     return g_player[pl].input->svel;

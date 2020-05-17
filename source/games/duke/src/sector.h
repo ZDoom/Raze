@@ -64,7 +64,7 @@ void operateactivators(int l, int w);
 void operateforcefields_common(int s, int low, const std::initializer_list<int>& tiles);
 void operatemasterswitches(int lotag);
 void operatesectors(int s, int i);
-void P_HandleSharedKeys(int playerNum);
+void hud_input(int playerNum);
 int getanimationgoal(const int32_t* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);

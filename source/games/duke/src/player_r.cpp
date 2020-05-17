@@ -880,7 +880,7 @@ void shoot_r(int i, int atwith)
 				sprite[j].extra >>= 2;
 			}
 		}
-		else if (ps[p].curr_weapon == DEVISTATOR_WEAPON)
+		else if (ps[p].curr_weapon == TIT_WEAPON)
 		{
 			sprite[j].extra >>= 2;
 			sprite[j].ang += 16 - (krand() & 31);
@@ -939,5 +939,210 @@ void shoot_r(int i, int atwith)
 	return;
 }
 
+//---------------------------------------------------------------------------
+//
+// this is one lousy hack job...
+//
+//---------------------------------------------------------------------------
+
+void selectweapon_r(int snum, int j)
+{
+	if (j >= 0)
+	{
+		int a = 0;
+	}
+	int i, k;
+	auto p = &ps[snum];
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)
+	{
+		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
+		{
+			if (j == 10 || j == 11)
+			{
+				k = p->curr_weapon;
+				if (isRRRA())
+				{
+					if (k == CHICKEN_WEAPON) k = CROSSBOW_WEAPON;
+					else if (k == BUZZSAW_WEAPON) k = THROWSAW_WEAPON;
+					else if (k == SLINGBLADE_WEAPON) k = KNEE_WEAPON;
+				}
+				j = (j == 10 ? -1 : 1);
+				i = 0;
+
+				while (k >= 0 && k < 10)
+				{
+					k += j;
+					if (k == -1) k = 9;
+					else if (k == 10) k = 0;
+
+					if (p->gotweapon[k] && p->ammo_amount[k] > 0)
+					{
+						j = k;
+						break;
+					}
+
+					i++;
+					if (i == 10)
+					{
+						fi.addweapon(p, KNEE_WEAPON);
+						break;
+					}
+				}
+			}
+
+			k = -1;
+
+
+			if (j == DYNAMITE_WEAPON && p->ammo_amount[DYNAMITE_WEAPON] == 0)
+			{
+				k = headspritestat[1];
+				while (k >= 0)
+				{
+					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+					{
+						p->gotweapon.Set(DYNAMITE_WEAPON);
+						j = HANDREMOTE_WEAPON;
+						break;
+					}
+					k = nextspritestat[k];
+				}
+			}
+			else if (j == KNEE_WEAPON && isRRRA())
+			{
+				if (p->curr_weapon == KNEE_WEAPON)
+				{
+					p->subweapon = 2;
+					j = SLINGBLADE_WEAPON;
+				}
+				else if (p->subweapon & 2)
+				{
+					p->subweapon = 0;
+					j = KNEE_WEAPON;
+				}
+			}
+			else if (j == CROSSBOW_WEAPON && isRRRA())
+			{
+				if (screenpeek == snum) pus = NUMPAGES;
+
+				if (p->curr_weapon == CROSSBOW_WEAPON || p->ammo_amount[CROSSBOW_WEAPON] == 0)
+				{
+					if (p->ammo_amount[CHICKEN_WEAPON] == 0)
+						return;
+					p->subweapon = 4;
+					j = CHICKEN_WEAPON;
+				}
+				else if ((p->subweapon & 4) || p->ammo_amount[CHICKEN_WEAPON] == 0)
+				{
+					p->subweapon = 0;
+					j = CROSSBOW_WEAPON;
+				}
+			}
+			else if (j == THROWSAW_WEAPON)
+			{
+				if (screenpeek == snum) pus = NUMPAGES;
+
+				if (p->curr_weapon == THROWSAW_WEAPON || p->ammo_amount[THROWSAW_WEAPON] == 0)
+				{
+					p->subweapon = (1 << BUZZSAW_WEAPON);
+					j = BUZZSAW_WEAPON;
+				}
+				else if ((p->subweapon & (1 << BUZZSAW_WEAPON)) || p->ammo_amount[BUZZSAW_WEAPON] == 0)
+				{
+					p->subweapon = 0;
+					j = THROWSAW_WEAPON;
+				}
+			}
+			else if (j == POWDERKEG_WEAPON)
+			{
+				if (screenpeek == snum) pus = NUMPAGES;
+
+				if (p->curr_weapon == POWDERKEG_WEAPON || p->ammo_amount[POWDERKEG_WEAPON] == 0)
+				{
+					p->subweapon = (1 << BOWLING_WEAPON);
+					j = BOWLING_WEAPON;
+				}
+				else if ((p->subweapon & (1 << BOWLING_WEAPON)) || p->ammo_amount[BOWLING_WEAPON] == 0)
+				{
+					p->subweapon = 0;
+					j = POWDERKEG_WEAPON;
+				}
+			}
+
+
+			if (p->holster_weapon)
+			{
+				PlayerSetInput(snum, SK_HOLSTER);
+				p->weapon_pos = -9;
+			}
+			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
+			{
+			case KNEE_WEAPON:
+				fi.addweapon(p, j);
+				break;
+			case SLINGBLADE_WEAPON:
+				if (isRRRA())
+				{
+					spritesound(496, ps[screenpeek].i);
+					fi.addweapon(p, j);
+				}
+				break;
+
+			case PISTOL_WEAPON:
+				if (p->ammo_amount[PISTOL_WEAPON] == 0)
+					if (p->show_empty_weapon == 0)
+					{
+						p->last_full_weapon = p->curr_weapon;
+						p->show_empty_weapon = 32;
+					}
+				fi.addweapon(p, PISTOL_WEAPON);
+				break;
+
+			case CHICKEN_WEAPON:
+				if (!isRRRA()) break;
+			case SHOTGUN_WEAPON:
+			case RIFLEGUN_WEAPON:
+			case CROSSBOW_WEAPON:
+			case TIT_WEAPON:
+			case ALIENBLASTER_WEAPON:
+			case THROWSAW_WEAPON:
+			case BUZZSAW_WEAPON:
+			case POWDERKEG_WEAPON:
+			case BOWLING_WEAPON:
+				if (p->ammo_amount[j] == 0 && p->show_empty_weapon == 0)
+				{
+					p->last_full_weapon = p->curr_weapon;
+					p->show_empty_weapon = 32;
+				}
+				fi.addweapon(p, j);
+				break;
+
+			case MOTORCYCLE_WEAPON:
+			case BOAT_WEAPON:
+				if (isRRRA())
+				{
+					if (p->ammo_amount[j] == 0 && p->show_empty_weapon == 0)
+					{
+						p->show_empty_weapon = 32;
+					}
+					fi.addweapon(p, j);
+				}
+				break;
+
+			case HANDREMOTE_WEAPON:	// what's up with this? RR doesn't define this weapon.
+				if (k >= 0) // Found in list of [1]'s
+				{
+					p->curr_weapon = HANDREMOTE_WEAPON;
+					p->last_weapon = -1;
+					p->weapon_pos = 10;
+				}
+				break;
+			case DYNAMITE_WEAPON:
+				if (p->ammo_amount[DYNAMITE_WEAPON] > 0 && p->gotweapon[DYNAMITE_WEAPON])
+					fi.addweapon(p, DYNAMITE_WEAPON);
+				break;
+			}
+		}
+	}
+}
 
 END_DUKE_NS

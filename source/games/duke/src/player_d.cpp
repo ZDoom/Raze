@@ -1091,5 +1091,214 @@ void shoot_d(int i, int atwith)
 	return;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void selectweapon_d(int snum, int j) // playernum, weaponnum
+{
+	int i, k;
+	auto p = &ps[snum];
+	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+	{
+		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
+		{
+			if (j == 10 || j == 11)
+			{
+				k = p->curr_weapon;
+				j = (j == 10 ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
+				i = 0;
+
+				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON))))	// JBF 20040116: so we don't select grower with v1.3d
+				{
+					if (k == GROW_WEAPON)	// JBF: this is handling next/previous with the grower selected
+					{
+						if (j == (unsigned int)-1)
+							k = 5;
+						else k = 7;
+
+					}
+					else
+					{
+						k += j;
+						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
+							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))	// JBF: activates grower
+								k = GROW_WEAPON;							// if enabled
+					}
+
+					if (k == -1) k = 9;
+					else if (k == 10) k = 0;
+
+					if (p->gotweapon[k] && p->ammo_amount[k] > 0)
+					{
+						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
+							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
+								k = GROW_WEAPON;
+						j = k;
+						break;
+					}
+					else	// JBF: grower with no ammo, but shrinker with ammo, switch to shrink
+						if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+						{
+							j = SHRINKER_WEAPON;
+							p->subweapon &= ~(1 << GROW_WEAPON);
+							break;
+						}
+						else	// JBF: shrinker with no ammo, but grower with ammo, switch to grow
+							if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+							{
+								j = GROW_WEAPON;
+								p->subweapon |= (1 << GROW_WEAPON);
+								break;
+							}
+
+					i++;	// absolutely no weapons, so use foot
+					if (i == 10)
+					{
+						fi.addweapon(p, KNEE_WEAPON);
+						break;
+					}
+				}
+			}
+
+			k = -1;
+
+
+			if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
+			{
+				k = headspritestat[1];
+				while (k >= 0)
+				{
+					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+					{
+						p->gotweapon.Set(HANDBOMB_WEAPON);
+						j = HANDREMOTE_WEAPON;
+						break;
+					}
+					k = nextspritestat[k];
+				}
+			}
+
+			if (j == SHRINKER_WEAPON && PLUTOPAK)	// JBF 20040116: so we don't select the grower with v1.3d
+			{
+				if (screenpeek == snum) pus = NUMPAGES;
+
+				if (p->curr_weapon != GROW_WEAPON && p->curr_weapon != SHRINKER_WEAPON)
+				{
+					if (p->ammo_amount[GROW_WEAPON] > 0)
+					{
+						if ((p->subweapon & (1 << GROW_WEAPON)) == (1 << GROW_WEAPON))
+							j = GROW_WEAPON;
+						else if (p->ammo_amount[SHRINKER_WEAPON] == 0)
+						{
+							j = GROW_WEAPON;
+							p->subweapon |= (1 << GROW_WEAPON);
+						}
+					}
+					else if (p->ammo_amount[SHRINKER_WEAPON] > 0)
+						p->subweapon &= ~(1 << GROW_WEAPON);
+				}
+				else if (p->curr_weapon == SHRINKER_WEAPON)
+				{
+					p->subweapon |= (1 << GROW_WEAPON);
+					j = GROW_WEAPON;
+				}
+				else
+					p->subweapon &= ~(1 << GROW_WEAPON);
+			}
+
+			if (p->holster_weapon)
+			{
+				PlayerSetInput(snum, SK_HOLSTER);
+				p->weapon_pos = -9;
+			}
+			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
+			{
+			case KNEE_WEAPON:
+				fi.addweapon(p, KNEE_WEAPON);
+				break;
+			case PISTOL_WEAPON:
+				if (p->ammo_amount[PISTOL_WEAPON] == 0)
+					if (p->show_empty_weapon == 0)
+					{
+						p->last_full_weapon = p->curr_weapon;
+						p->show_empty_weapon = 32;
+					}
+				fi.addweapon(p, PISTOL_WEAPON);
+				break;
+			case SHOTGUN_WEAPON:
+				if (p->ammo_amount[SHOTGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
+				{
+					p->last_full_weapon = p->curr_weapon;
+					p->show_empty_weapon = 32;
+				}
+				fi.addweapon(p, SHOTGUN_WEAPON);
+				break;
+			case CHAINGUN_WEAPON:
+				if (p->ammo_amount[CHAINGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
+				{
+					p->last_full_weapon = p->curr_weapon;
+					p->show_empty_weapon = 32;
+				}
+				fi.addweapon(p, CHAINGUN_WEAPON);
+				break;
+			case RPG_WEAPON:
+				if (p->ammo_amount[RPG_WEAPON] == 0)
+					if (p->show_empty_weapon == 0)
+					{
+						p->last_full_weapon = p->curr_weapon;
+						p->show_empty_weapon = 32;
+					}
+				fi.addweapon(p, RPG_WEAPON);
+				break;
+			case DEVISTATOR_WEAPON:
+				if (p->ammo_amount[DEVISTATOR_WEAPON] == 0 && p->show_empty_weapon == 0)
+				{
+					p->last_full_weapon = p->curr_weapon;
+					p->show_empty_weapon = 32;
+				}
+				fi.addweapon(p, DEVISTATOR_WEAPON);
+				break;
+			case FREEZE_WEAPON:
+				if (p->ammo_amount[FREEZE_WEAPON] == 0 && p->show_empty_weapon == 0)
+				{
+					p->last_full_weapon = p->curr_weapon;
+					p->show_empty_weapon = 32;
+				}
+				fi.addweapon(p, FREEZE_WEAPON);
+				break;
+			case GROW_WEAPON:
+			case SHRINKER_WEAPON:
+
+				if (p->ammo_amount[j] == 0 && p->show_empty_weapon == 0)
+				{
+					p->show_empty_weapon = 32;
+					p->last_full_weapon = p->curr_weapon;
+				}
+
+				fi.addweapon(p, j);
+				break;
+			case HANDREMOTE_WEAPON:
+				if (k >= 0) // Found in list of [1]'s
+				{
+					p->curr_weapon = HANDREMOTE_WEAPON;
+					p->last_weapon = -1;
+					p->weapon_pos = 10;
+				}
+				break;
+			case HANDBOMB_WEAPON:
+				if (p->ammo_amount[HANDBOMB_WEAPON] > 0 && p->gotweapon[HANDBOMB_WEAPON])
+					fi.addweapon(p, HANDBOMB_WEAPON);
+				break;
+			case TRIPBOMB_WEAPON:
+				if (p->ammo_amount[TRIPBOMB_WEAPON] > 0 && p->gotweapon[TRIPBOMB_WEAPON])
+					fi.addweapon(p, TRIPBOMB_WEAPON);
+				break;
+			}
+		}
+	}
+}
 
 END_DUKE_NS

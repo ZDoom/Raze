@@ -72,40 +72,49 @@ inline bool AFLAMABLE(int X)
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //
 
-#define SK_JUMP         0
-#define SK_CROUCH       1
-#define SK_FIRE         2
-#define SK_AIM_UP       3
-#define SK_AIM_DOWN     4
-#define SK_RUN          5
-#define SK_LOOK_LEFT    6
-#define SK_LOOK_RIGHT   7
-// weapons take up 4 bits...
-#define SK_WEAPON_BITS  8
-#define SK_WEAPON_BITS1 9
-#define SK_WEAPON_BITS2 10
-#define SK_WEAPON_BITS3 11
-#define SK_STEROIDS     12
-#define SK_LOOK_UP      13
-#define SK_LOOK_DOWN    14
-#define SK_NIGHTVISION  15
-#define SK_MEDKIT       16
-#define SK_MULTIFLAG    17
-#define SK_CENTER_VIEW  18
-#define SK_HOLSTER      19
-#define SK_INV_LEFT     20
-#define SK_PAUSE        21
-#define SK_QUICK_KICK   22
-#define SK_AIMMODE      23
-#define SK_HOLODUKE     24
-#define SK_JETPACK      25
-#define SK_GAMEQUIT     26
-#define SK_INV_RIGHT    27
-#define SK_TURNAROUND   28
-#define SK_OPEN         29
-#define SK_INVENTORY    30
-#define SK_ESCAPE       31
+enum
+{
+    // Todo: Make this bit masks - cannot be done before eliminating all old code using it
+    SK_JUMP         = 0 ,
+    SK_CROUCH       = 1 ,
+    SK_FIRE         = 2 ,
+    SK_AIM_UP       = 3 ,
+    SK_AIM_DOWN     = 4 ,
+    SK_RUN          = 5 ,
+    SK_LOOK_LEFT    = 6 ,
+    SK_LOOK_RIGHT   = 7 ,
+    // weapons take up 4 bits...
+    SK_WEAPON_BITS  = 8 ,
+    SK_WEAPON_BITS1 = 9 ,
+    SK_WEAPON_BITS2 = 10,
+    SK_WEAPON_BITS3 = 11,
+    SK_STEROIDS     = 12,
+    SK_LOOK_UP      = 13,
+    SK_LOOK_DOWN    = 14,
+    SK_NIGHTVISION  = 15,
+    SK_MEDKIT       = 16,
+    SK_MULTIFLAG    = 17,
+    SK_CENTER_VIEW  = 18,
+    SK_HOLSTER      = 19,
+    SK_INV_LEFT     = 20,
+    SK_PAUSE        = 21,
+    SK_QUICK_KICK   = 22,
+    SK_AIMMODE      = 23,
+    SK_HOLODUKE     = 24,
+    SK_JETPACK      = 25,
+    SK_GAMEQUIT     = 26,
+    SK_INV_RIGHT    = 27,
+    SK_TURNAROUND   = 28,
+    SK_OPEN         = 29,
+    SK_INVENTORY    = 30,
+    SK_ESCAPE       = 31,
 
+    SK_WEAPONMASK_BITS = (15u << SK_WEAPON_BITS),
+    SK_INTERFACE_BITS = (SK_WEAPONMASK_BITS | BIT(SK_STEROIDS) | BIT(SK_NIGHTVISION) | BIT(SK_MEDKIT) | BIT(SK_QUICK_KICK) | \
+        BIT(SK_HOLSTER) | BIT(SK_INV_LEFT) | BIT(SK_PAUSE) | BIT(SK_HOLODUKE) | BIT(SK_JETPACK) | BIT(SK_INV_RIGHT) | \
+        BIT(SK_TURNAROUND) | BIT(SK_OPEN) | BIT(SK_INVENTORY) | BIT(SK_ESCAPE)),
+
+};
 // rotatesprite flags
 #define ROTATE_SPRITE_TRANSLUCENT   (BIT(0))
 #define ROTATE_SPRITE_VIEW_CLIP     (BIT(1)) // clip to view

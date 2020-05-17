@@ -97,6 +97,8 @@ void incur_damage_d(struct player_struct* p);
 void incur_damage_r(struct player_struct* p);
 void shoot_d(int i, int atwith);
 void shoot_r(int i, int atwith);
+void selectweapon_d(int snum, int j);
+void selectweapon_r(int snum, int j);
 
 
 Dispatcher fi;
@@ -140,7 +142,8 @@ void SetDispatcher()
 		check_fta_sounds_d,
 
 		incur_damage_d,
-		shoot_d
+		shoot_d,
+		selectweapon_d,
 		};
 	}
 	else	
@@ -180,7 +183,8 @@ void SetDispatcher()
 		check_fta_sounds_r,
 
 		incur_damage_r,
-		shoot_r
+		shoot_r,
+		selectweapon_r
 		};
 	}
 }

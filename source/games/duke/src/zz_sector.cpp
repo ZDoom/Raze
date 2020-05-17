@@ -678,7 +678,7 @@ rrtripbomb_case:
             pPlayer->yehaa_timer = 126;
             A_PlaySound(390, pPlayer->i);
             pPlayer->noise_radius = 16384;
-            P_MadeNoise(playerNum);
+            madenoise(playerNum);
             if (sector[pPlayer->cursectnum].lotag == 857)
             {
                 if (sprite[pPlayer->i].extra <= max_player_health)

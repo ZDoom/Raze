@@ -2942,7 +2942,7 @@ void P_DHGetInput(int const playerNum)
     //}
 }
 
-void P_MadeNoise(int playerNum)
+void madenoise(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
     pPlayer->make_noise = 1;
@@ -3046,7 +3046,7 @@ static int32_t P_DoCounters(int playerNum)
             if (!g_netServer && numplayers < 2)
             {
                 pPlayer->noise_radius = 16384;
-                P_MadeNoise(playerNum);
+                madenoise(playerNum);
                 P_Thrust(pPlayer, 4);
             }
             pPlayer->eat -= 4;
@@ -3444,7 +3444,6 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
         pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
 }
 
-void checkavailinven(struct player_struct* p);
 void checkavailweapon(struct player_struct* p);
 
 void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
@@ -4047,7 +4046,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     pPlayer->hbomb_on = 0;
                     pPlayer->noise_radius = 8192;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                 }
                 if ((*weaponFrame) == 12)
                 {
@@ -4119,7 +4118,7 @@ static void P_ProcessWeapon(int playerNum)
                     fi.shoot(pPlayer->i, TILE_SHOTSPARK1);
                     A_PlaySound(PISTOL_FIRE, pPlayer->i);
                     pPlayer->noise_radius = 8192;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
 
                     lastvisinc = (int32_t) totalclock+32;
                     pPlayer->visibility = 0;
@@ -4189,7 +4188,7 @@ static void P_ProcessWeapon(int playerNum)
                     A_PlaySound(SHOTGUN_FIRE, pPlayer->i);
 
                     pPlayer->noise_radius = 8192;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
 
                     lastvisinc = (int32_t) totalclock + 32;
                     pPlayer->visibility = 0;
@@ -4298,7 +4297,7 @@ static void P_ProcessWeapon(int playerNum)
                         A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
                         fi.shoot(pPlayer->i, TILE_CHAINGUN);
                         pPlayer->noise_radius = 8192;
-                        P_MadeNoise(playerNum);
+                        madenoise(playerNum);
                         lastvisinc = (int32_t) totalclock + 32;
                         pPlayer->visibility = 0;
                         flashColor = 255+(95<<8);
@@ -4342,7 +4341,7 @@ static void P_ProcessWeapon(int playerNum)
                     fi.shoot(pPlayer->i, TILE_GROWSPARK);
 
                     pPlayer->noise_radius = 1024;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                     P_CheckWeapon(pPlayer);
                 }
                 else
@@ -4373,7 +4372,7 @@ static void P_ProcessWeapon(int playerNum)
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
                     fi.shoot(pPlayer->i, TILE_SHOTSPARK1);
                     pPlayer->noise_radius = 16384;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                     pPlayer->ammo_amount[DEVISTATOR_WEAPON]--;
                     P_CheckWeapon(pPlayer);
                 }
@@ -4402,7 +4401,7 @@ static void P_ProcessWeapon(int playerNum)
                     A_PlaySound(CHAINGUN_FIRE, pPlayer->i);
                     fi.shoot(pPlayer->i, TILE_CHAINGUN);
                     pPlayer->noise_radius = 16384;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON]--;
                     if (pPlayer->ammo_amount[MOTORCYCLE_WEAPON] <= 0)
                         *weaponFrame = 0;
@@ -4452,7 +4451,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     A_PlaySound(CAT_FIRE, pPlayer->i);
                     pPlayer->noise_radius = 2048;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                 }
                 else if ((*weaponFrame) == 9)
                 {
@@ -4515,7 +4514,7 @@ static void P_ProcessWeapon(int playerNum)
                     A_PlaySound(354, pPlayer->i);
                     fi.shoot(pPlayer->i, TILE_BOWLINGBALL);
                     pPlayer->noise_radius = 1024;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                 }
                 if ((*weaponFrame) < 30)
                     P_Thrust(pPlayer, 4);
@@ -4536,7 +4535,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     fi.shoot(pPlayer->i, TILE_KNEE);
                     pPlayer->noise_radius = 1024;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                 }
                 else if ((*weaponFrame) == 16)
                     (*weaponFrame) = 0;
@@ -4554,7 +4553,7 @@ static void P_ProcessWeapon(int playerNum)
                 {
                     fi.shoot(pPlayer->i, TILE_SLINGBLADE);
                     pPlayer->noise_radius = 1024;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                 }
                 else if ((*weaponFrame) == 16)
                     (*weaponFrame) = 0;
@@ -4574,7 +4573,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255+(95<<8);
                     fi.shoot(pPlayer->i, TILE_RPG);
                     pPlayer->noise_radius = 32768;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                     P_CheckWeapon(pPlayer);
                 }
                 else if ((*weaponFrame) == 16)
@@ -4593,7 +4592,7 @@ static void P_ProcessWeapon(int playerNum)
                     flashColor = 255+(95<<8);
                     fi.shoot(pPlayer->i, TILE_RPG2);
                     pPlayer->noise_radius = 32768;
-                    P_MadeNoise(playerNum);
+                    madenoise(playerNum);
                     P_CheckWeapon(pPlayer);
                 }
                 else if ((*weaponFrame) == 16)

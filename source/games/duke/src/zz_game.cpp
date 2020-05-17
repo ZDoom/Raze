@@ -4394,7 +4394,7 @@ int G_DoMoveThings(void)
             sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
 
         if (!DEER)
-        P_HandleSharedKeys(i);
+            hud_input(i);
 
         if (ud.pause_on == 0)
         {

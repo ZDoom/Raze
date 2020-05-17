@@ -413,7 +413,7 @@ int     P_GetHudPal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
-void P_MadeNoise(int playerNum);
+void madenoise(int playerNum);
 int P_HasKey(int sectNum, int playerNum);
 #define haskey P_HasKey
 

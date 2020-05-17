@@ -85,8 +85,6 @@ static bool CheatCheckList (event_t *ev)
 
 	if (ev->type == EV_KeyDown)
 	{
-		int i;
-
 		for (auto &cht :cheats)
 		{
 			if (CheatAddKey (&cht, (uint8_t)ev->data2, &eat))
