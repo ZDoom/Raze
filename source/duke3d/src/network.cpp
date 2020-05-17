@@ -318,20 +318,6 @@ static netField_t ActorFields[] =
     { ACTF(t_data_8),                   32 },
     { ACTF(t_data_9),                   32 },
 
-#ifdef LUNATIC
-    // need to update this section if LUNATIC is ever brought back in
-    { ACTF(hvel),               16 },
-    { ACTF(vvel),               16 },
-
-
-    { ACTF(startframe),         16 },
-    { ACTF(numframes),          16 },
-
-    { ACTF(viewtype),           16 },
-    { ACTF(incval),             16 },
-    { ACTF(delay),              16 },
-#endif
-
     { ACTF(flags),                      32 },
 
     { ACTF(bpos_x),                     32 },
@@ -356,10 +342,6 @@ static netField_t ActorFields[] =
 
     { ACTF(stayput),            16 },
     { ACTF(dispicnum),          16 },
-
-#if defined LUNATIC
-    { ACTF(movflags),           16 },
-#endif
 
     { ACTF(cgg),            8},
 
@@ -964,21 +946,6 @@ static void Net_CopyActorFromNet(const netactor_t* netActor, actor_t *gameActor)
     gameActor->t_data[8] = netActor->t_data_8;
     gameActor->t_data[9] = netActor->t_data_9;
 
-#ifdef LUNATIC
-
-    gameActor->mv.hvel = netActor->hvel;
-    gameActor->mv.vvel = netActor->vvel;
-
-    gameActor->ac.startframe = netActor->startframe;
-    gameActor->ac.numframes = netActor->numframes;
-    gameActor->ac.viewtype = netActor->viewtype;
-    gameActor->ac.incval = netActor->incval;
-    gameActor->ac.delay = netActor->delay;
-
-    gameActor->actiontics = netActor->actiontics;
-
-#endif
-
     gameActor->flags = netActor->flags;
 
     gameActor->bpos.x = netActor->bpos_x;
@@ -1004,13 +971,6 @@ static void Net_CopyActorFromNet(const netactor_t* netActor, actor_t *gameActor)
 
     gameActor->stayput = netActor->stayput;
     gameActor->dispicnum = netActor->dispicnum;
-
-#if defined LUNATIC
-
-    //WARNING: NOT the same as movflag
-    gameActor->movflags = netActor->movflags;
-
-#endif
 
     gameActor->cgg = netActor->cgg;
 }
@@ -1324,21 +1284,6 @@ static void Net_CopyActorToNet(const actor_t* gameActor, netactor_t *netActor)
     netActor->t_data_8 = gameActor->t_data[8];
     netActor->t_data_9 = gameActor->t_data[9];
 
-#ifdef LUNATIC
-
-    netActor->hvel = gameActor->mv.hvel;
-    netActor->vvel = gameActor->mv.vvel;
-
-    netActor->startframe = gameActor->ac.startframe;
-    netActor->numframes = gameActor->ac.numframes;
-    netActor->viewtype = gameActor->ac.viewtype;
-    netActor->incval = gameActor->ac.incval;
-    netActor->delay = gameActor->ac.delay;
-
-    netActor->actiontics = gameActor->actiontics;
-
-#endif
-
     netActor->flags = gameActor->flags;
 
     netActor->bpos_x = gameActor->bpos.x;
@@ -1364,12 +1309,6 @@ static void Net_CopyActorToNet(const actor_t* gameActor, netactor_t *netActor)
 
     netActor->stayput = gameActor->stayput;
     netActor->dispicnum = gameActor->dispicnum;
-
-#if defined LUNATIC
-    //WARNING: NOT the same as movflag
-    netActor->movflags = gameActor->movflags;
-
-#endif
 
     netActor->cgg = gameActor->cgg;
 }
