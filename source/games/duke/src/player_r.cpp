@@ -1141,4 +1141,327 @@ void selectweapon_r(int snum, int j)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int doincrements_r(struct player_struct* p)
+{
+	int snum;
+
+	if (isRRRA())
+	{
+		if (WindTime > 0)
+			WindTime--;
+		else if ((krand() & 127) == 8)
+		{
+			WindTime = 120 + ((krand() & 63) << 2);
+			WindDir = krand() & 2047;
+		}
+
+		if (BellTime > 0)
+		{
+			BellTime--;
+			if (BellTime == 0)
+				sprite[word_119BE0].picnum++;
+		}
+		if (chickenphase > 0)
+			chickenphase--;
+		if (p->SeaSick)
+		{
+			p->SeaSick--;
+			if (p->SeaSick == 0)
+				p->sea_sick_stat = 0;
+		}
+	}
+
+	snum = sprite[p->i].yvel;
+	//    j = sync[snum].avel;
+	//    p->weapon_ang = -(j/5);
+
+	p->player_par++;
+	if (p->yehaa_timer)
+		p->yehaa_timer--;
+
+
+	if (p->detonate_count > 0)
+	{
+		p->detonate_count++;
+		p->detonate_time--;
+	}
+	p->drink_timer--;
+	if (p->drink_timer <= 0)
+	{
+		p->drink_timer = 1024;
+		if (p->drink_amt)
+		{
+			p->drink_amt--;
+		}
+	}
+	p->eat_timer--;
+	if (p->eat_timer <= 0)
+	{
+		p->eat_timer = 1024;
+		if (p->eat)
+			p->eat--;
+	}
+	if (p->drink_amt >= 100)
+	{
+		if (!A_CheckSoundPlaying(p->i, 420))
+			spritesound(420, p->i);
+		p->drink_amt -= 9;
+		p->eat >>= 1;
+	}
+	p->eatang = (1647 + p->eat * 8) & 2047;
+
+	if (p->eat >= 100)
+		p->eat = 100;
+
+	if (p->eat >= 31 && krand() < p->eat)
+	{
+		switch (krand() & 3)
+		{
+		case 0:
+			spritesound(404, p->i);
+			break;
+		case 1:
+			spritesound(422, p->i);
+			break;
+		case 2:
+			spritesound(423, p->i);
+			break;
+		case 3:
+			spritesound(424, p->i);
+			break;
+		}
+		if (numplayers < 2)
+		{
+			p->noise_radius = 16384;
+			madenoise(screenpeek);
+			p->posxv += sintable[(p->getang() + 512) & 2047] << 4;
+			p->posyv += sintable[p->getang() & 2047] << 4;
+		}
+		p->eat -= 4;
+		if (p->eat < 0)
+			p->eat = 0;
+	}
+
+	if (p->invdisptime > 0)
+		p->invdisptime--;
+
+	if (p->tipincs > 0) p->tipincs--;
+
+	if (p->last_pissed_time > 0)
+	{
+		p->last_pissed_time--;
+
+		if (p->drink_amt > 66 && (p->last_pissed_time % 26) == 0)
+			p->drink_amt--;
+
+		if (ud.lockout == 0)
+		{
+			if (p->last_pissed_time == 5662)
+				spritesound(434, p->i);
+			else if (p->last_pissed_time == 5567)
+				spritesound(434, p->i);
+			else if (p->last_pissed_time == 5472)
+				spritesound(433, p->i);
+			else if (p->last_pissed_time == 5072)
+				spritesound(435, p->i);
+			else if (p->last_pissed_time == 5014)
+				spritesound(434, p->i);
+			else if (p->last_pissed_time == 4919)
+				spritesound(433, p->i);
+		}
+
+		if (p->last_pissed_time == 5668)
+		{
+			p->holster_weapon = 0;
+			p->weapon_pos = 10;
+		}
+	}
+
+	if (p->crack_time > 0)
+	{
+		p->crack_time--;
+		if (p->crack_time == 0)
+		{
+			p->knuckle_incs = 1;
+			p->crack_time = 777;
+		}
+	}
+
+	if (p->steroids_amount > 0 && p->steroids_amount < 400)
+	{
+		p->steroids_amount--;
+		if (p->steroids_amount == 0)
+		{
+			checkavailinven(p);
+			p->eat = p->drink_amt = 0;
+			p->eatang = p->drunkang = 1647;
+		}
+		if (!(p->steroids_amount & 14))
+			if (snum == screenpeek || ud.coop == 1)
+				spritesound(DUKE_TAKEPILLS, p->i);
+	}
+
+	if (p->access_incs && sprite[p->i].pal != 1)
+	{
+		p->access_incs++;
+		if (sprite[p->i].extra <= 0)
+			p->access_incs = 12;
+		if (p->access_incs == 12)
+		{
+			if (p->access_spritenum >= 0)
+			{
+				fi.checkhitswitch(snum, p->access_spritenum, 1);
+				switch (sprite[p->access_spritenum].pal)
+				{
+				case 0:p->keys[1] = 1; break;
+				case 21:p->keys[2] = 1; break;
+				case 23:p->keys[3] = 1; break;
+				}
+				p->access_spritenum = -1;
+			}
+			else
+			{
+				fi.checkhitswitch(snum, p->access_wallnum, 0);
+				switch (wall[p->access_wallnum].pal)
+				{
+				case 0:p->keys[1] = 1; break;
+				case 21:p->keys[2] = 1; break;
+				case 23:p->keys[3] = 1; break;
+				}
+			}
+		}
+
+		if (p->access_incs > 20)
+		{
+			p->access_incs = 0;
+			p->weapon_pos = 10;
+			p->kickback_pic = 0;
+		}
+	}
+
+	if (p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+	{
+		if (p->scuba_amount > 0)
+		{
+			p->scuba_on = 1;
+			p->inven_icon = 6;
+			FTA(76, p);
+		}
+		else
+		{
+			if (p->airleft > 0)
+				p->airleft--;
+			else
+			{
+				p->extra_extra8 += 32;
+				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
+					spritesound(DUKE_LONGTERM_PAIN, p->i);
+			}
+		}
+	}
+	else if (p->scuba_amount > 0 && p->scuba_on)
+	{
+		p->scuba_amount--;
+		if (p->scuba_amount == 0)
+		{
+			p->scuba_on = 0;
+			checkavailinven(p);
+		}
+	}
+
+	if (p->knuckle_incs)
+	{
+		p->knuckle_incs++;
+		if (p->knuckle_incs == 10)
+		{
+			if (!wupass)
+			{
+				short snd = -1;
+				wupass = 1;
+				if (lastlevel)
+				{
+					snd = 391;
+				}
+				else switch (ud.volume_number)
+				{
+				case 0:
+					switch (ud.level_number)
+					{
+					case 0:
+						snd = isRRRA()? 63 : 391;
+						break;
+					case 1:
+						snd = 64;
+						break;
+					case 2:
+						snd = 77;
+						break;
+					case 3:
+						snd = 80;
+						break;
+					case 4:
+						snd = 102;
+						break;
+					case 5:
+						snd = 103;
+						break;
+					case 6:
+						snd = 104;
+						break;
+					}
+					break;
+				case 1:
+					switch (ud.level_number)
+					{
+					case 0:
+						snd = 105;
+						break;
+					case 1:
+						snd = 176;
+						break;
+					case 2:
+						snd = 177;
+						break;
+					case 3:
+						snd = 198;
+						break;
+					case 4:
+						snd = 230;
+						break;
+					case 5:
+						snd = 255;
+						break;
+					case 6:
+						snd = 283;
+						break;
+					}
+					break;
+				}
+				if (snd == -1)
+					snd = 391;
+				spritesound(snd, p->i);
+			}
+			else if (totalclock > 1024)
+				if (snum == screenpeek || ud.coop == 1)
+				{
+					if (rand() & 1)
+						spritesound(DUKE_CRACK, p->i);
+					else spritesound(DUKE_CRACK2, p->i);
+				}
+		}
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SK_FIRE))
+			p->knuckle_incs = 0;
+
+		return 1;
+	}
+	return 0;
+}
+
+
 END_DUKE_NS

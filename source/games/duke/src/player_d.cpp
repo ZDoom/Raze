@@ -38,6 +38,7 @@ source as it is released.
 #include "gamevar.h"
 #include "player.h"
 #include "names.h"
+#include "macros.h"
 
 BEGIN_DUKE_NS 
 
@@ -1306,5 +1307,198 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 		}
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int doincrements_d(struct player_struct* p)
+{
+	int snum;
+
+	snum = sprite[p->i].yvel;
+	//    j = sync[snum].avel;
+	//    p->weapon_ang = -(j/5);
+
+	p->player_par++;
+
+	if (p->invdisptime > 0)
+		p->invdisptime--;
+
+	if (p->tipincs > 0) p->tipincs--;
+
+	if (p->last_pissed_time > 0)
+	{
+		p->last_pissed_time--;
+
+		if (p->last_pissed_time == (26 * 219))
+		{
+			spritesound(FLUSH_TOILET, p->i);
+			if (snum == screenpeek || ud.coop == 1)
+				spritesound(DUKE_PISSRELIEF, p->i);
+		}
+
+		if (p->last_pissed_time == (26 * 218))
+		{
+			p->holster_weapon = 0;
+			p->weapon_pos = 10;
+		}
+	}
+
+	if (p->crack_time > 0)
+	{
+		p->crack_time--;
+		if (p->crack_time == 0)
+		{
+			p->knuckle_incs = 1;
+			p->crack_time = 777;
+		}
+	}
+
+	if (p->steroids_amount > 0 && p->steroids_amount < 400)
+	{
+		p->steroids_amount--;
+		if (p->steroids_amount == 0)
+			checkavailinven(p);
+		if (!(p->steroids_amount & 7))
+			if (snum == screenpeek || ud.coop == 1)
+				spritesound(DUKE_HARTBEAT, p->i);
+	}
+
+	if (p->heat_on && p->heat_amount > 0)
+	{
+		p->heat_amount--;
+		if (p->heat_amount == 0)
+		{
+			p->heat_on = 0;
+			checkavailinven(p);
+			spritesound(NITEVISION_ONOFF, p->i);
+			setpal(p);
+		}
+	}
+
+	if (p->holoduke_on >= 0)
+	{
+		p->holoduke_amount--;
+		if (p->holoduke_amount <= 0)
+		{
+			spritesound(TELEPORTER, p->i);
+			p->holoduke_on = -1;
+			checkavailinven(p);
+		}
+	}
+
+	if (p->jetpack_on && p->jetpack_amount > 0)
+	{
+		p->jetpack_amount--;
+		if (p->jetpack_amount <= 0)
+		{
+			p->jetpack_on = 0;
+			checkavailinven(p);
+			spritesound(DUKE_JETPACK_OFF, p->i);
+			stopsound(DUKE_JETPACK_IDLE);
+			stopsound(DUKE_JETPACK_ON);
+		}
+	}
+
+	if (p->quick_kick > 0 && sprite[p->i].pal != 1)
+	{
+		p->quick_kick--;
+		if (p->quick_kick == 8)
+			fi.shoot(p->i, KNEE);
+	}
+
+	if (p->access_incs && sprite[p->i].pal != 1)
+	{
+		p->access_incs++;
+		if (sprite[p->i].extra <= 0)
+			p->access_incs = 12;
+		if (p->access_incs == 12)
+		{
+			if (p->access_spritenum >= 0)
+			{
+				fi.checkhitswitch(snum, p->access_spritenum, 1);
+				switch (sprite[p->access_spritenum].pal)
+				{
+				case 0:p->got_access &= (0xffff - 0x1); break;
+				case 21:p->got_access &= (0xffff - 0x2); break;
+				case 23:p->got_access &= (0xffff - 0x4); break;
+				}
+				p->access_spritenum = -1;
+			}
+			else
+			{
+				fi.checkhitswitch(snum, p->access_wallnum, 0);
+				switch (wall[p->access_wallnum].pal)
+				{
+				case 0:p->got_access &= (0xffff - 0x1); break;
+				case 21:p->got_access &= (0xffff - 0x2); break;
+				case 23:p->got_access &= (0xffff - 0x4); break;
+				}
+			}
+		}
+
+		if (p->access_incs > 20)
+		{
+			p->access_incs = 0;
+			p->weapon_pos = 10;
+			p->kickback_pic = 0;
+		}
+	}
+
+	if (p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+	{
+		if (p->scuba_amount > 0)
+		{
+			p->scuba_on = 1;
+			p->inven_icon = 6;
+			FTA(76, p);
+		}
+		else
+		{
+			if (p->airleft > 0)
+				p->airleft--;
+			else
+			{
+				p->extra_extra8 += 32;
+				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
+					spritesound(DUKE_LONGTERM_PAIN, p->i);
+			}
+		}
+	}
+	else if (p->scuba_amount > 0 && p->scuba_on)
+	{
+		p->scuba_amount--;
+		if (p->scuba_amount == 0)
+		{
+			p->scuba_on = 0;
+			checkavailinven(p);
+		}
+	}
+
+	if (p->knuckle_incs)
+	{
+		p->knuckle_incs++;
+		if (p->knuckle_incs == 10 && !isWW2GI())
+		{
+			if (totalclock > 1024)
+				if (snum == screenpeek || ud.coop == 1)
+				{
+					if (rand() & 1)
+						spritesound(DUKE_CRACK, p->i);
+					else spritesound(DUKE_CRACK2, p->i);
+				}
+			spritesound(DUKE_CRACK_FIRST, p->i);
+		}
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SK_FIRE))
+			p->knuckle_incs = 0;
+
+		return 1;
+	}
+	return 0;
+}
+
 
 END_DUKE_NS

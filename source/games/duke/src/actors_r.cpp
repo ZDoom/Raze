@@ -4399,7 +4399,7 @@ void fakebubbaspawn(int g_i, int g_p)
 
 //---------------------------------------------------------------------------
 //
-// special checks in fi.fall that only apply to RR.
+// special checks in fall that only apply to RR.
 //
 //---------------------------------------------------------------------------
 

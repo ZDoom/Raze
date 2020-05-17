@@ -242,14 +242,14 @@ typedef struct player_struct {
 
     int16_t recoil;
     int32_t stairs;
-    int32_t hbomb_offset;
-    int16_t hbomb_time;
+    int32_t detonate_count;
+    int16_t detonate_time;
     uint8_t shotgun_state[2];
     uint8_t make_noise;
     int32_t noise_x, noise_y, noise_radius;
     uint8_t keys[5];
     int16_t yehaa_timer;
-    int16_t drink_amt, eat, drink_ang, eat_ang;
+    int16_t drink_amt, eat, drunkang, eatang;
     int32_t drink_timer, eat_timer;
     int16_t MamaEnd;
     int16_t MotoSpeed, tilt_status, moto_drink;
@@ -282,7 +282,10 @@ typedef struct player_struct {
 #define shield_amount inv_amount[GET_SHIELD]
 #define raat609 MamaEnd
 #define raat5dd sea_sick_stat
-
+#define at57e detonate_offset
+#define at57c detonate_time
+#define at58e drink_timer
+#define at592 eat_timer
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct

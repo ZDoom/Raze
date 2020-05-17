@@ -166,7 +166,7 @@ G_EXTERN int32_t *labeltype;
 G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 
-G_EXTERN int32_t g_wupass;
+G_EXTERN int32_t wupass;
 G_EXTERN int32_t g_chickenPlant;
 #define chickenplant g_chickenPlant
 G_EXTERN int32_t g_thunderOn;
@@ -231,9 +231,11 @@ G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, g_bel
 #define BellTime g_bellTime
 #define word_119BE0 g_bellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, g_chickenWeaponTimer, RRRA_ExitedLevel, RRRA_EndEpisode, fogactive;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, RRRA_EndEpisode, fogactive;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
+#define raat605 chickenphase
+#define at59d yeehaa_timer
 
 // XXX: I think this pragma pack is meaningless here.
 // MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:

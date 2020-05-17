@@ -950,18 +950,18 @@ void P_ResetStatus(int playerNum)
             pPlayer->keys[4] = 0;
         }
 
-        g_wupass = 0;
-        pPlayer->drink_ang = pPlayer->eat_ang = 1647;
+        wupass = 0;
+        pPlayer->drunkang = pPlayer->eatang = 1647;
         pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
-        pPlayer->hbomb_time = 0;
-        pPlayer->hbomb_offset = 0;
+        pPlayer->detonate_time = 0;
+        pPlayer->detonate_count = 0;
         pPlayer->recoil = 0;
         pPlayer->yehaa_timer = 0;
         if (RRRA)
         {
-            g_chickenWeaponTimer = 0;
+            chickenphase = 0;
             if (pPlayer->OnMotorcycle)
             {
                 pPlayer->OnMotorcycle = 0;
@@ -1029,7 +1029,7 @@ void P_ResetWeapons(int playerNum)
     pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
     if (RRRA)
     {
-        g_chickenWeaponTimer = 0;
+        chickenphase = 0;
         pPlayer->gotweapon.Set(SLINGBLADE_WEAPON);
         pPlayer->ammo_amount[KNEE_WEAPON] = 1;
         pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
@@ -1079,12 +1079,12 @@ void P_ResetInventory(int playerNum)
             pPlayer->keys[4] = 0;
         }
 
-        pPlayer->drink_ang = pPlayer->eat_ang = 1647;
+        pPlayer->drunkang = pPlayer->eatang = 1647;
         pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
-        pPlayer->hbomb_time = 0;
-        pPlayer->hbomb_offset = 0;
+        pPlayer->detonate_time = 0;
+        pPlayer->detonate_count = 0;
         pPlayer->recoil = 0;
         pPlayer->yehaa_timer = 0;
         resetlanepics();
@@ -1198,12 +1198,12 @@ static void resetprestat(int playerNum, int gameMode)
             pPlayer->keys[4] = 0;
         }
 
-        pPlayer->drink_ang = pPlayer->eat_ang = 1647;
+        pPlayer->drunkang = pPlayer->eatang = 1647;
         pPlayer->drink_amt = pPlayer->eat = 0;
         pPlayer->drink_timer = pPlayer->eat_timer = 4096;
         pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
-        pPlayer->hbomb_time = 0;
-        pPlayer->hbomb_offset = 0;
+        pPlayer->detonate_time = 0;
+        pPlayer->detonate_count = 0;
         pPlayer->recoil = 0;
         pPlayer->yehaa_timer = 0;
         resetlanepics();

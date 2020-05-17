@@ -938,7 +938,7 @@ void P_DisplayWeapon(void)
                 {
                     if (!g_netServer && ud.multimode < 2)
                     {
-                        if (g_chickenWeaponTimer)
+                        if (chickenphase)
                         {
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 222 - weaponYOffset,
                                                    TILE_RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
@@ -948,7 +948,7 @@ void P_DisplayWeapon(void)
                             A_PlaySound(327, pPlayer->i);
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - halfLookAng, weaponY + 222 - weaponYOffset,
                                                    TILE_RPGGUN2+7, weaponShade, weaponBits, weaponPal, 36700);
-                            g_chickenWeaponTimer = 6;
+                            chickenphase = 6;
                         }
                         else
                         {
@@ -1177,7 +1177,7 @@ void P_DisplayWeapon(void)
 
                     if (*weaponFrame < 5)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 265 - halfLookAng, weaponY + 174 - weaponYOffset + pPlayer->hbomb_offset,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 265 - halfLookAng, weaponY + 174 - weaponYOffset + pPlayer->detonate_count,
                                                 TILE_RRTILE1752, 0, weaponBits, weaponPal, 36700);
                     }
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 290 - halfLookAng, weaponY + 238 - weaponYOffset,
@@ -2723,8 +2723,8 @@ static int32_t P_DoCounters(int playerNum)
                 sprite[g_bellSprite].picnum++;
         }
 
-        if (playerNum == 0 && g_chickenWeaponTimer > 0)
-            g_chickenWeaponTimer--;
+        if (playerNum == 0 && chickenphase > 0)
+            chickenphase--;
 
         if (pPlayer->sea_sick)
         {
@@ -2740,10 +2740,10 @@ static int32_t P_DoCounters(int playerNum)
         if (pPlayer->yehaa_timer)
             pPlayer->yehaa_timer--;
 
-        if (pPlayer->hbomb_offset > 0)
+        if (pPlayer->detonate_count > 0)
         {
-            pPlayer->hbomb_offset++;
-            pPlayer->hbomb_time--;
+            pPlayer->detonate_count++;
+            pPlayer->detonate_time--;
         }
 
         if (--pPlayer->drink_timer <= 0)
@@ -2767,7 +2767,7 @@ static int32_t P_DoCounters(int playerNum)
             pPlayer->drink_amt -= 9;
             pPlayer->eat >>= 1;
         }
-        pPlayer->eat_ang = (1647 + pPlayer->eat * 8) & 2047;
+        pPlayer->eatang = (1647 + pPlayer->eat * 8) & 2047;
 
         if (pPlayer->eat >= 100)
             pPlayer->eat = 100;
@@ -2882,7 +2882,7 @@ static int32_t P_DoCounters(int playerNum)
             if (RR)
             {
                 pPlayer->eat = pPlayer->drink_amt = 0;
-                pPlayer->eat_ang = pPlayer->drink_ang = 1647;
+                pPlayer->eatang = pPlayer->drunkang = 1647;
             }
         }
 
@@ -3011,10 +3011,10 @@ static int32_t P_DoCounters(int playerNum)
     {
         if (++pPlayer->knuckle_incs == 10)
         {
-            if (RR && !g_wupass)
+            if (RR && !wupass)
             {
                 int soundId = 391;
-                g_wupass = 1;
+                wupass = 1;
                 if (!g_lastLevel) switch (ud.volume_number)
                 {
                     case 0:
@@ -3456,14 +3456,14 @@ static void P_ProcessWeapon(int playerNum)
 
     if (RR)
     {
-        if (pPlayer->hbomb_offset > 0)
+        if (pPlayer->detonate_count > 0)
         {
             if (ud.god)
             {
-                pPlayer->hbomb_time = 45;
-                pPlayer->hbomb_offset = 0;
+                pPlayer->detonate_time = 45;
+                pPlayer->detonate_count = 0;
             }
-            else if (pPlayer->hbomb_time <= 0 && (*weaponFrame) < 5)
+            else if (pPlayer->detonate_time <= 0 && (*weaponFrame) < 5)
             {
                 S_PlaySound(PIPEBOMB_EXPLODE);
                 quickkill(pPlayer);
@@ -3776,8 +3776,8 @@ static void P_ProcessWeapon(int playerNum)
                     pPlayer->curr_weapon = DYNAMITE_WEAPON;
                     pPlayer->last_weapon = -1;
                     pPlayer->weapon_pos = WEAPON_POS_RAISE;
-                    pPlayer->hbomb_time = 45;
-                    pPlayer->hbomb_offset = 1;
+                    pPlayer->detonate_time = 45;
+                    pPlayer->detonate_count = 1;
                     S_PlaySound(402);
                 }
                 break;
@@ -3785,7 +3785,7 @@ static void P_ProcessWeapon(int playerNum)
             case HANDREMOTE_WEAPON__STATIC:
                 (*weaponFrame)++;
 
-                if (pPlayer->hbomb_time < 0)
+                if (pPlayer->detonate_time < 0)
                     pPlayer->hbomb_on = 0;
 
                 if ((*weaponFrame) == 39)
@@ -3846,8 +3846,8 @@ static void P_ProcessWeapon(int playerNum)
                     (*weaponFrame) = 0;
                     pPlayer->curr_weapon = HANDBOMB_WEAPON;
                     pPlayer->last_weapon = -1;
-                    pPlayer->hbomb_offset = 0;
-                    pPlayer->hbomb_time = 45;
+                    pPlayer->detonate_count = 0;
+                    pPlayer->detonate_time = 45;
                     if (pPlayer->ammo_amount[HANDBOMB_WEAPON] > 0)
                     {
                         P_AddWeapon(pPlayer, HANDBOMB_WEAPON);
@@ -6054,7 +6054,7 @@ check_enemy_sprite:
     if (pPlayer->newowner >= 0)
     {
         P_UpdatePosWhenViewingCam(pPlayer);
-        P_DoCounters(playerNum);
+        fi.doincrements(&ps[playerNum]);
 
         if ((WW2GI ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : pPlayer->curr_weapon) == HANDREMOTE_WEAPON)
             P_ProcessWeapon(playerNum);
@@ -7145,7 +7145,7 @@ HORIZONLY:;
             >> 2);
     }
 
-    if (P_DoCounters(playerNum))
+    if (fi.doincrements(&ps[playerNum]))
         return;
 
     switch (pPlayer->weapon_pos)

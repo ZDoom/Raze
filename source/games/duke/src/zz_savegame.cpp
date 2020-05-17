@@ -903,7 +903,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &enemysizecheat, sizeof(enemysizecheat), 1 },
     { 0, &ufospawnsminion, sizeof(ufospawnsminion), 1 },
     { 0, &pistonsound, sizeof(pistonsound), 1 },
-    { 0, &g_chickenWeaponTimer, sizeof(g_chickenWeaponTimer), 1 },
+    { 0, &chickenphase, sizeof(chickenphase), 1 },
     { 0, &RRRA_ExitedLevel, sizeof(RRRA_ExitedLevel), 1 },
     { 0, &RRRA_EndEpisode, sizeof(RRRA_EndEpisode), 1 },
     { 0, &fogactive, sizeof(fogactive), 1 },

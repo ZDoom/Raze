@@ -864,14 +864,14 @@ public:
                 SBar_DrawString(this, &miniFont, "AUTO", x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
         }
 
-        p->drink_ang = ((p->drink_amt * 8) + 1647) & 2047;
+        p->drunkang = ((p->drink_amt * 8) + 1647) & 2047;
         if (p->drink_amt >= 100)
         {
             p->drink_amt = 100;
-            p->drink_ang = 400;
+            p->drunkang = 400;
         }
-        DrawGraphic(tileGetTexture(TILE_GUTMETER), 257, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->drink_ang * 360. / 2048 */ );
-        DrawGraphic(tileGetTexture(TILE_GUTMETER), 293, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->eat_ang * 360. / 2048 */);
+        DrawGraphic(tileGetTexture(TILE_GUTMETER), 257, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->drunkang * 360. / 2048 */ );
+        DrawGraphic(tileGetTexture(TILE_GUTMETER), 293, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->eatang * 360. / 2048 */);
 
         if (p->drink_amt >= 0 && p->drink_amt <= 30)
         {

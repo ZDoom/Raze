@@ -99,6 +99,9 @@ void shoot_d(int i, int atwith);
 void shoot_r(int i, int atwith);
 void selectweapon_d(int snum, int j);
 void selectweapon_r(int snum, int j);
+int doincrements_d(struct player_struct* p);
+int doincrements_r(struct player_struct* p);
+
 
 
 Dispatcher fi;
@@ -144,6 +147,7 @@ void SetDispatcher()
 		incur_damage_d,
 		shoot_d,
 		selectweapon_d,
+		doincrements_d,
 		};
 	}
 	else	
@@ -184,7 +188,8 @@ void SetDispatcher()
 
 		incur_damage_r,
 		shoot_r,
-		selectweapon_r
+		selectweapon_r,
+		doincrements_r,
 		};
 	}
 }
