@@ -4313,13 +4313,6 @@ int32_t ksqrt(uint32_t num)
     return nsqrtasm(num);
 }
 
-#ifdef LUNATIC
-int32_t Mulscale(int32_t a, int32_t b, int32_t sh)
-{
-    return mulscale(a, b, sh);
-}
-#endif
-
 // Gets the BUILD unit height and z offset of a sprite.
 // Returns the z offset, 'height' may be NULL.
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs)

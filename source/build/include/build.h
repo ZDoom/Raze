@@ -1207,12 +1207,6 @@ extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
-#ifdef LUNATIC
-extern const int32_t engine_main_arrays_are_static;
-extern const int32_t engine_v8;
-int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
-#endif
-
 static FORCE_INLINE CONSTEXPR int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
