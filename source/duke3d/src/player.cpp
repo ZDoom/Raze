@@ -4859,34 +4859,6 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
 }
 
 
-static void P_HandlePal(DukePlayer_t *const pPlayer)
-{
-#if !defined LUNATIC
-    pPlayer->pals.f--;
-#else
-    if (pPlayer->palsfadespeed > 0)
-    {
-        // <palsfadespeed> is the tint fade speed is in
-        // decrements/P_ProcessInput() calls.
-        pPlayer->pals.f = max(pPlayer->pals.f - pPlayer->palsfadespeed, 0);
-    }
-    else
-    {
-        // <palsfadespeed> is a negated count of how many times we
-        // (P_ProcessInput()) should be called before decrementing the tint
-        // fading by one. <palsfadenext> is the live counter.
-        if (pPlayer->palsfadenext < 0)
-            pPlayer->palsfadenext++;
-
-        if (pPlayer->palsfadenext == 0)
-        {
-            pPlayer->palsfadenext = pPlayer->palsfadespeed;
-            pPlayer->pals.f--;
-        }
-    }
-#endif
-}
-
 // Duke3D needs the player sprite to actually be in the floor when shrunk in order to walk under enemies.
 // This sucks.
 static void P_ClampZ(DukePlayer_t* const pPlayer, int const sectorLotag, int32_t const ceilZ, int32_t const floorZ)
@@ -5072,7 +5044,7 @@ void P_ProcessInput(int playerNum)
     }
 
     if (pPlayer->pals.f > 0)
-        P_HandlePal(pPlayer);
+        pPlayer->pals.f--;
 
     if (pPlayer->fta > 0 && --pPlayer->fta == 0)
     {
