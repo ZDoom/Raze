@@ -1111,9 +1111,15 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 				j = (j == 10 ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
-				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON))))	// JBF 20040116: so we don't select grower with v1.3d
+				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON)) != 0)
+					|| (isWorldTour() && k == FLAMETHROWER_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0))
 				{
-					if (k == GROW_WEAPON)	// JBF: this is handling next/previous with the grower selected
+					if (k == FLAMETHROWER_WEAPON) //Twentieth Anniversary World Tour
+					{
+						if (j == -1) k = TRIPBOMB_WEAPON;
+						else k = PISTOL_WEAPON;
+					}
+					else if (k == GROW_WEAPON)	// JBF: this is handling next/previous with the grower selected
 					{
 						if (j == (unsigned int)-1)
 							k = 5;
@@ -1123,9 +1129,11 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 					else
 					{
 						k += j;
-						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
-							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))	// JBF: activates grower
-								k = GROW_WEAPON;							// if enabled
+						// JBF 20040116: so we don't select grower with v1.3d
+						if (PLUTOPAK && k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))	// JBF: activates grower
+							k = GROW_WEAPON;							// if enabled
+						if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
+							k = FLAMETHROWER_WEAPON;
 					}
 
 					if (k == -1) k = 9;
@@ -1136,23 +1144,37 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
 							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
 								k = GROW_WEAPON;
+							if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
+								k = FLAMETHROWER_WEAPON;
+
 						j = k;
 						break;
 					}
-					else	// JBF: grower with no ammo, but shrinker with ammo, switch to shrink
-						if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
-						{
-							j = SHRINKER_WEAPON;
-							p->subweapon &= ~(1 << GROW_WEAPON);
-							break;
-						}
-						else	// JBF: shrinker with no ammo, but grower with ammo, switch to grow
-							if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
-							{
-								j = GROW_WEAPON;
-								p->subweapon |= (1 << GROW_WEAPON);
-								break;
-							}
+					else if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[SHRINKER_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+					{
+						j = SHRINKER_WEAPON;
+						p->subweapon &= ~(1 << GROW_WEAPON);
+						break;
+					}
+					else if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 && p->gotweapon[SHRINKER_WEAPON] && p->ammo_amount[GROW_WEAPON] > 0)	// JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+					{
+						j = GROW_WEAPON;
+						p->subweapon |= (1 << GROW_WEAPON);
+						break;
+					}
+					//Twentieth Anniversary World Tour
+					else if (isWorldTour() && k == FLAMETHROWER_WEAPON && p->ammo_amount[FLAMETHROWER_WEAPON] == 0 && p->gotweapon[FREEZE_WEAPON] && p->ammo_amount[FREEZE_WEAPON] > 0)
+					{
+						j = FREEZE_WEAPON;
+						p->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
+						break;
+					}
+					else if (isWorldTour() && k == FREEZE_WEAPON && p->ammo_amount[FREEZE_WEAPON] == 0 && p->gotweapon[FLAMETHROWER_WEAPON] && p->ammo_amount[FLAMETHROWER_WEAPON] > 0)
+					{
+						j = FLAMETHROWER_WEAPON;
+						p->subweapon |= (1 << FLAMETHROWER_WEAPON);
+						break;
+					}
 
 					i++;	// absolutely no weapons, so use foot
 					if (i == 10)
@@ -1179,6 +1201,33 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 					}
 					k = nextspritestat[k];
 				}
+			}
+
+			//Twentieth Anniversary World Tour
+			if (j == FREEZE_WEAPON && isWorldTour())
+			{
+				if (p->curr_weapon != FLAMETHROWER_WEAPON && p->curr_weapon != FREEZE_WEAPON)
+				{
+					if (p->ammo_amount[FLAMETHROWER_WEAPON] > 0)
+					{
+						if ((p->subweapon & (1 << FLAMETHROWER_WEAPON)) == (1 << FLAMETHROWER_WEAPON))
+							j = FLAMETHROWER_WEAPON;
+						else if (p->ammo_amount[FREEZE_WEAPON] == 0)
+						{
+							j = FLAMETHROWER_WEAPON;
+							p->subweapon |= (1 << FLAMETHROWER_WEAPON);
+						}
+					}
+					else if (p->ammo_amount[FREEZE_WEAPON] > 0)
+						p->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
+				}
+				else if (p->curr_weapon == FREEZE_WEAPON)
+				{
+					p->subweapon |= (1 << FLAMETHROWER_WEAPON);
+					j = FLAMETHROWER_WEAPON;
+				}
+				else
+					p->subweapon &= ~(1 << FLAMETHROWER_WEAPON);
 			}
 
 			if (j == SHRINKER_WEAPON && PLUTOPAK)	// JBF 20040116: so we don't select the grower with v1.3d
@@ -1220,55 +1269,12 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 				fi.addweapon(p, KNEE_WEAPON);
 				break;
 			case PISTOL_WEAPON:
-				if (p->ammo_amount[PISTOL_WEAPON] == 0)
-					if (p->show_empty_weapon == 0)
-					{
-						p->last_full_weapon = p->curr_weapon;
-						p->show_empty_weapon = 32;
-					}
-				fi.addweapon(p, PISTOL_WEAPON);
-				break;
 			case SHOTGUN_WEAPON:
-				if (p->ammo_amount[SHOTGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
-				{
-					p->last_full_weapon = p->curr_weapon;
-					p->show_empty_weapon = 32;
-				}
-				fi.addweapon(p, SHOTGUN_WEAPON);
-				break;
 			case CHAINGUN_WEAPON:
-				if (p->ammo_amount[CHAINGUN_WEAPON] == 0 && p->show_empty_weapon == 0)
-				{
-					p->last_full_weapon = p->curr_weapon;
-					p->show_empty_weapon = 32;
-				}
-				fi.addweapon(p, CHAINGUN_WEAPON);
-				break;
 			case RPG_WEAPON:
-				if (p->ammo_amount[RPG_WEAPON] == 0)
-					if (p->show_empty_weapon == 0)
-					{
-						p->last_full_weapon = p->curr_weapon;
-						p->show_empty_weapon = 32;
-					}
-				fi.addweapon(p, RPG_WEAPON);
-				break;
 			case DEVISTATOR_WEAPON:
-				if (p->ammo_amount[DEVISTATOR_WEAPON] == 0 && p->show_empty_weapon == 0)
-				{
-					p->last_full_weapon = p->curr_weapon;
-					p->show_empty_weapon = 32;
-				}
-				fi.addweapon(p, DEVISTATOR_WEAPON);
-				break;
 			case FREEZE_WEAPON:
-				if (p->ammo_amount[FREEZE_WEAPON] == 0 && p->show_empty_weapon == 0)
-				{
-					p->last_full_weapon = p->curr_weapon;
-					p->show_empty_weapon = 32;
-				}
-				fi.addweapon(p, FREEZE_WEAPON);
-				break;
+			case FLAMETHROWER_WEAPON:
 			case GROW_WEAPON:
 			case SHRINKER_WEAPON:
 
