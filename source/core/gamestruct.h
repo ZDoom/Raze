@@ -90,6 +90,7 @@ struct GameInterface
 	virtual void SetAmbience(bool on) {}
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual int GetStringTile(int font, const char* t, int f) { return -1; }
+	virtual int CheckCheat(const char* cheat, const char* args) { return 0; }
 
 };
 

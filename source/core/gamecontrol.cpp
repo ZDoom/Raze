@@ -123,7 +123,6 @@ void LoadScripts();
 
 
 bool AppActive;
-int chatmodeon;	// needed by the common console code.
 
 FString currentGame;
 FString LumpFilter;
@@ -159,6 +158,7 @@ static StringtableCallbacks stblcb =
 	StrTable_GetGender
 };
 
+extern int chatmodeon;
 
 bool System_WantGuiCapture()
 {

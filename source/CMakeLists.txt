@@ -786,6 +786,8 @@ set (PCH_SOURCES
 	core/animlib.cpp
 	core/mathutil.cpp
 	core/rts.cpp
+	core/ct_chat.cpp
+	core/entercheat.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
