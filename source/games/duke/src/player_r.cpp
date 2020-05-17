@@ -947,10 +947,6 @@ void shoot_r(int i, int atwith)
 
 void selectweapon_r(int snum, int j)
 {
-	if (j >= 0)
-	{
-		int a = 0;
-	}
 	int i, k;
 	auto p = &ps[snum];
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)

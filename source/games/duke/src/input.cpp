@@ -18,7 +18,7 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 Original Source: 1996 - Todd Replogle
 Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
@@ -57,8 +57,6 @@ void hud_input(int snum)
 
 	unk = 0;
 	p = &ps[snum];
-
-	Printf("Sync bits are %08x for %d\n", g_player[snum].input->bits, snum);
 
 	i = p->aim_mode;
 	p->aim_mode = PlayerInput(snum, SK_AIMMODE);
@@ -113,143 +111,144 @@ void hud_input(int snum)
 			Mus_SetPaused(ud.pause_on);
 			S_PauseSounds(ud.pause_on);
 		}
-	}
-	// Don't go on if paused or dead.
-	if (ud.pause_on) return;
-	if (sprite[p->i].extra <= 0) return;
 
-	// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-	if (PlayerInput(snum, SK_INVENTORY) && p->newowner == -1)
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_INVENTORY, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+		// Don't go on if paused or dead.
+		if (ud.pause_on) return;
+		if (sprite[p->i].extra <= 0) return;
+
+		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
+		if (PlayerInput(snum, SK_INVENTORY) && p->newowner == -1)
 		{
-			switch (p->inven_icon)
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_INVENTORY, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				// Yet another place where no symbolic constants were used. :(
+				switch (p->inven_icon)
+				{
+					// Yet another place where no symbolic constants were used. :(
 				case ICON_JETPACK: PlayerSetInput(snum, SK_JETPACK); break;
 				case ICON_HOLODUKE: PlayerSetInput(snum, SK_HOLODUKE); break;
 				case ICON_HEATS: PlayerSetInput(snum, SK_NIGHTVISION); break;
 				case ICON_FIRSTAID: PlayerSetInput(snum, SK_MEDKIT); break;
 				case ICON_STEROIDS: PlayerSetInput(snum, SK_STEROIDS); break;
+				}
 			}
 		}
-	}
 
-	if (!isRR() && PlayerInput(snum, SK_NIGHTVISION))
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0 && p->heat_amount > 0)
+		if (!isRR() && PlayerInput(snum, SK_NIGHTVISION))
 		{
-			p->heat_on = !p->heat_on;
-			setpal(p);
-			p->inven_icon = 5;
-			spritesound(NITEVISION_ONOFF, p->i);
-			FTA(106 + (!p->heat_on), p);
-		}
-	}
-
-	if (PlayerInput(snum, SK_STEROIDS))
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			if (p->steroids_amount == 400)
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0 && p->heat_amount > 0)
 			{
-				p->steroids_amount--;
-				spritesound(DUKE_TAKEPILLS, p->i);
-				p->inven_icon = ICON_STEROIDS;
-				FTA(12, p);
+				p->heat_on = !p->heat_on;
+				setpal(p);
+				p->inven_icon = 5;
+				spritesound(NITEVISION_ONOFF, p->i);
+				FTA(106 + (!p->heat_on), p);
 			}
 		}
-		return;
-	}
 
-	if (PlayerInput(snum, SK_INV_LEFT) || PlayerInput(snum, SK_INV_RIGHT))
-	{
-		p->invdisptime = 26 * 2;
-
-		if (PlayerInput(snum, SK_INV_RIGHT)) k = 1;
-		else k = 0;
-
-		dainv = p->inven_icon;
-
-		i = 0;
-	CHECKINV1:
-
-		if (i < 9)
+		if (PlayerInput(snum, SK_STEROIDS))
 		{
-			i++;
-
-			switch (dainv)
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-			case 4:
-				if (p->jetpack_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 5;
-				else dainv = 3;
-				goto CHECKINV1;
-			case 6:
-				if (p->scuba_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 7;
-				else dainv = 5;
-				goto CHECKINV1;
-			case 2:
-				if (p->steroids_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 3;
-				else dainv = 1;
-				goto CHECKINV1;
-			case 3:
-				if (p->holoduke_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 4;
-				else dainv = 2;
-				goto CHECKINV1;
-			case 0:
-			case 1:
-				if (p->firstaid_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 2;
-				else dainv = 7;
-				goto CHECKINV1;
-			case 5:
-				if (p->heat_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 6;
-				else dainv = 4;
-				goto CHECKINV1;
-			case 7:
-				if (p->boot_amount > 0 && i > 1)
-					break;
-				if (k) dainv = 1;
-				else dainv = 6;
-				goto CHECKINV1;
+				if (p->steroids_amount == 400)
+				{
+					p->steroids_amount--;
+					spritesound(DUKE_TAKEPILLS, p->i);
+					p->inven_icon = ICON_STEROIDS;
+					FTA(12, p);
+				}
 			}
+			return;
 		}
-		else dainv = 0;
 
-		// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-		if (PlayerInput(snum, SK_INV_LEFT))
+		if (PlayerInput(snum, SK_INV_LEFT) || PlayerInput(snum, SK_INV_RIGHT))
 		{
-			SetGameVarID(g_iReturnVarID, dainv, -1, snum);
-			OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
-			dainv = GetGameVarID(g_iReturnVarID, -1, snum);
+			p->invdisptime = 26 * 2;
+
+			if (PlayerInput(snum, SK_INV_RIGHT)) k = 1;
+			else k = 0;
+
+			dainv = p->inven_icon;
+
+			i = 0;
+		CHECKINV1:
+
+			if (i < 9)
+			{
+				i++;
+
+				switch (dainv)
+				{
+				case 4:
+					if (p->jetpack_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 5;
+					else dainv = 3;
+					goto CHECKINV1;
+				case 6:
+					if (p->scuba_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 7;
+					else dainv = 5;
+					goto CHECKINV1;
+				case 2:
+					if (p->steroids_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 3;
+					else dainv = 1;
+					goto CHECKINV1;
+				case 3:
+					if (p->holoduke_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 4;
+					else dainv = 2;
+					goto CHECKINV1;
+				case 0:
+				case 1:
+					if (p->firstaid_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 2;
+					else dainv = 7;
+					goto CHECKINV1;
+				case 5:
+					if (p->heat_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 6;
+					else dainv = 4;
+					goto CHECKINV1;
+				case 7:
+					if (p->boot_amount > 0 && i > 1)
+						break;
+					if (k) dainv = 1;
+					else dainv = 6;
+					goto CHECKINV1;
+				}
+			}
+			else dainv = 0;
+
+			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
+			if (PlayerInput(snum, SK_INV_LEFT))
+			{
+				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
+				OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
+				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
+			}
+			if (PlayerInput(snum, SK_INV_RIGHT))
+			{
+				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
+				OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
+				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
+			}
+			p->inven_icon = dainv;
+			// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
+			static const uint8_t invquotes[] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE, QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS };
+			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
-		if (PlayerInput(snum, SK_INV_RIGHT)) 
-		{
-			SetGameVarID(g_iReturnVarID, dainv, -1, snum);
-			OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
-			dainv = GetGameVarID(g_iReturnVarID, -1, snum);
-		}
-		p->inven_icon = dainv;
-		// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
-		static const uint8_t invquotes[] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE, QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS };
-		if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 
 		j = (PlayerInputBits(snum, SK_WEAPONMASK_BITS) >> SK_WEAPON_BITS) - 1;
 		if (j > 0 && p->kickback_pic > 0)
@@ -276,224 +275,224 @@ void hud_input(int snum)
 				}
 			}
 		}
-	}
 
-	if (PlayerInput(snum, SK_HOLODUKE) && (isRR() || p->newowner == -1))
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+		if (PlayerInput(snum, SK_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
-			if (!isRR())
-			{
-				if (p->holoduke_on == -1)
-				{
-					if (p->holoduke_amount > 0)
-					{
-						p->inven_icon = 3;
-
-						p->holoduke_on = i =
-							EGS(p->cursectnum,
-								p->posx,
-								p->posy,
-								p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->getang(), 0, 0, -1, 10);
-						hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
-						sprite[i].yvel = snum;
-						sprite[i].extra = 0;
-						FTA(47, p);
-					}
-					else FTA(QUOTE_HOLODUKE_ON, p);
-					spritesound(TELEPORTER, p->holoduke_on);
-
-				}
-				else
-				{
-					spritesound(TELEPORTER, p->holoduke_on);
-					p->holoduke_on = -1;
-					FTA(QUOTE_HOLODUKE_NOT_FOUND, p);
-				}
-			}
-			else // In RR this means drinking whiskey.
-			{
-				if (p->holoduke_amount > 0 && sprite[p->i].extra < max_player_health)
-				{
-					p->holoduke_amount -= 400;
-					sprite[p->i].extra += 5;
-					if (sprite[p->i].extra > max_player_health)
-						sprite[p->i].extra = max_player_health;
-
-					p->drink_amt += 5;
-					p->inven_icon = 3;
-					if (p->holoduke_amount == 0)
-						checkavailinven(p);
-
-					if (p->drink_amt < 99 && !A_CheckSoundPlaying(p->i, 425))
-						spritesound(425, p->i);
-				}
-			}
-		}
-	}
-
-	if (isRR() && PlayerInput(snum, SK_NIGHTVISION) && p->newowner == -1)
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			if (p->yehaa_timer == 0)
-			{
-				p->yehaa_timer = 126;
-				spritesound(390, p->i);
-				p->noise_radius = 16384;
-				madenoise(snum);
-				if (sector[p->cursectnum].lotag == 857)
-				{
-					if (sprite[p->i].extra <= max_player_health)
-					{
-						sprite[p->i].extra += 10;
-						if (sprite[p->i].extra >= max_player_health)
-							sprite[p->i].extra = max_player_health;
-					}
-				}
-				else
-				{
-					if (sprite[p->i].extra + 1 <= max_player_health)
-					{
-						sprite[p->i].extra++;
-					}
-				}
-			}
-		}
-	}
-
-	if (PlayerInput(snum, SK_MEDKIT))
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			if (p->firstaid_amount > 0 && sprite[p->i].extra < max_player_health)
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
 				if (!isRR())
 				{
-					j = max_player_health - sprite[p->i].extra;
-
-					if ((unsigned int)p->firstaid_amount > j)
+					if (p->holoduke_on == -1)
 					{
-						p->firstaid_amount -= j;
-						sprite[p->i].extra = max_player_health;
-						p->inven_icon = 1;
+						if (p->holoduke_amount > 0)
+						{
+							p->inven_icon = 3;
+
+							p->holoduke_on = i =
+								EGS(p->cursectnum,
+									p->posx,
+									p->posy,
+									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->getang(), 0, 0, -1, 10);
+							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
+							sprite[i].yvel = snum;
+							sprite[i].extra = 0;
+							FTA(47, p);
+						}
+						else FTA(QUOTE_HOLODUKE_ON, p);
+						spritesound(TELEPORTER, p->holoduke_on);
+
 					}
 					else
 					{
-						sprite[p->i].extra += p->firstaid_amount;
-						p->firstaid_amount = 0;
-						checkavailinven(p);
+						spritesound(TELEPORTER, p->holoduke_on);
+						p->holoduke_on = -1;
+						FTA(QUOTE_HOLODUKE_NOT_FOUND, p);
 					}
-					spritesound(DUKE_USEMEDKIT, p->i);
+				}
+				else // In RR this means drinking whiskey.
+				{
+					if (p->holoduke_amount > 0 && sprite[p->i].extra < max_player_health)
+					{
+						p->holoduke_amount -= 400;
+						sprite[p->i].extra += 5;
+						if (sprite[p->i].extra > max_player_health)
+							sprite[p->i].extra = max_player_health;
+
+						p->drink_amt += 5;
+						p->inven_icon = 3;
+						if (p->holoduke_amount == 0)
+							checkavailinven(p);
+
+						if (p->drink_amt < 99 && !A_CheckSoundPlaying(p->i, 425))
+							spritesound(425, p->i);
+					}
+				}
+			}
+		}
+
+		if (isRR() && PlayerInput(snum, SK_NIGHTVISION) && p->newowner == -1)
+		{
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			{
+				if (p->yehaa_timer == 0)
+				{
+					p->yehaa_timer = 126;
+					spritesound(390, p->i);
+					p->noise_radius = 16384;
+					madenoise(snum);
+					if (sector[p->cursectnum].lotag == 857)
+					{
+						if (sprite[p->i].extra <= max_player_health)
+						{
+							sprite[p->i].extra += 10;
+							if (sprite[p->i].extra >= max_player_health)
+								sprite[p->i].extra = max_player_health;
+						}
+					}
+					else
+					{
+						if (sprite[p->i].extra + 1 <= max_player_health)
+						{
+							sprite[p->i].extra++;
+						}
+					}
+				}
+			}
+		}
+
+		if (PlayerInput(snum, SK_MEDKIT))
+		{
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			{
+				if (p->firstaid_amount > 0 && sprite[p->i].extra < max_player_health)
+				{
+					if (!isRR())
+					{
+						j = max_player_health - sprite[p->i].extra;
+
+						if ((unsigned int)p->firstaid_amount > j)
+						{
+							p->firstaid_amount -= j;
+							sprite[p->i].extra = max_player_health;
+							p->inven_icon = 1;
+						}
+						else
+						{
+							sprite[p->i].extra += p->firstaid_amount;
+							p->firstaid_amount = 0;
+							checkavailinven(p);
+						}
+						spritesound(DUKE_USEMEDKIT, p->i);
+					}
+					else
+					{
+						j = 10;
+						if (p->firstaid_amount > j)
+						{
+							p->firstaid_amount -= j;
+							sprite[p->i].extra += j;
+							if (sprite[p->i].extra > max_player_health)
+								sprite[p->i].extra = max_player_health;
+							p->inven_icon = 1;
+						}
+						else
+						{
+							sprite[p->i].extra += p->firstaid_amount;
+							p->firstaid_amount = 0;
+							checkavailinven(p);
+						}
+						if (sprite[p->i].extra > max_player_health)
+							sprite[p->i].extra = max_player_health;
+						p->drink_amt += 10;
+						if (p->drink_amt <= 100 && !A_CheckSoundPlaying(p->i, DUKE_USEMEDKIT))
+							spritesound(DUKE_USEMEDKIT, p->i);
+					}
+				}
+			}
+		}
+
+		if (PlayerInput(snum, SK_JETPACK) && (isRR() || p->newowner == -1))
+		{
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_USEJETPACK, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			{
+				if (!isRR())
+				{
+					if (p->jetpack_amount > 0)
+					{
+						p->jetpack_on = !p->jetpack_on;
+						if (p->jetpack_on)
+						{
+							p->inven_icon = 4;
+
+							S_StopEnvSound(-1, p->i, CHAN_VOICE);	// this will stop the falling scream
+							A_PlaySound(DUKE_JETPACK_ON, p->i);
+							FTA(QUOTE_JETPACK_ON, p);
+						}
+						else
+						{
+							p->hard_landing = 0;
+							p->poszv = 0;
+							spritesound(DUKE_JETPACK_OFF, p->i);
+							S_StopEnvSound(DUKE_JETPACK_IDLE, p->i);
+							S_StopEnvSound(DUKE_JETPACK_ON, p->i);
+							FTA(QUOTE_JETPACK_OFF, p);
+						}
+					}
+					else FTA(QUOTE_JETPACK_NOT_FOUND, p);
 				}
 				else
 				{
-					j = 10;
-					if (p->firstaid_amount > j)
+					// eat cow pie
+					if (p->jetpack_amount > 0 && sprite[p->i].extra < max_player_health)
 					{
-						p->firstaid_amount -= j;
-						sprite[p->i].extra += j;
-						if (sprite[p->i].extra > max_player_health)
-							sprite[p->i].extra = max_player_health;
-						p->inven_icon = 1;
-					}
-					else
-					{
-						sprite[p->i].extra += p->firstaid_amount;
-						p->firstaid_amount = 0;
-						checkavailinven(p);
-					}
-					if (sprite[p->i].extra > max_player_health)
-						sprite[p->i].extra = max_player_health;
-					p->drink_amt += 10;
-					if (p->drink_amt <= 100 && !A_CheckSoundPlaying(p->i, DUKE_USEMEDKIT))
-						spritesound(DUKE_USEMEDKIT, p->i);
-				}
-			}
-		}
-	}
+						if (!A_CheckSoundPlaying(p->i, 429))
+							A_PlaySound(429, p->i);
 
-	if (PlayerInput(snum, SK_JETPACK) && (isRR() || p->newowner == -1))
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_USEJETPACK, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
-		{
-			if (!isRR())
-			{
-				if (p->jetpack_amount > 0)
-				{
-					p->jetpack_on = !p->jetpack_on;
-					if (p->jetpack_on)
-					{
+						p->jetpack_amount -= 100;
+						if (p->drink_amt > 0)
+						{
+							p->drink_amt -= 5;
+							if (p->drink_amt < 0)
+								p->drink_amt = 0;
+						}
+
+						if (p->eat < 100)
+						{
+							p->eat += 5;
+							if (p->eat > 100)
+								p->eat = 100;
+						}
+
+						sprite[p->i].extra += 5;
+
 						p->inven_icon = 4;
 
-						S_StopEnvSound(-1, p->i, CHAN_VOICE);	// this will stop the falling scream
-						A_PlaySound(DUKE_JETPACK_ON, p->i);
-						FTA(QUOTE_JETPACK_ON, p);
+						if (sprite[p->i].extra > max_player_health)
+							sprite[p->i].extra = max_player_health;
+
+						if (p->jetpack_amount <= 0)
+							checkavailinven(p);
 					}
-					else
-					{
-						p->hard_landing = 0;
-						p->poszv = 0;
-						spritesound(DUKE_JETPACK_OFF, p->i);
-						S_StopEnvSound(DUKE_JETPACK_IDLE, p->i);
-						S_StopEnvSound(DUKE_JETPACK_ON, p->i);
-						FTA(QUOTE_JETPACK_OFF, p);
-					}
-				}
-				else FTA(QUOTE_JETPACK_NOT_FOUND, p);
-			}
-			else
-			{
-				// eat cow pie
-				if (p->jetpack_amount > 0 && sprite[p->i].extra < max_player_health)
-				{
-					if (!A_CheckSoundPlaying(p->i, 429))
-						A_PlaySound(429, p->i);
-
-					p->jetpack_amount -= 100;
-					if (p->drink_amt > 0)
-					{
-						p->drink_amt -= 5;
-						if (p->drink_amt < 0)
-							p->drink_amt = 0;
-					}
-
-					if (p->eat < 100)
-					{
-						p->eat += 5;
-						if (p->eat > 100)
-							p->eat = 100;
-					}
-
-					sprite[p->i].extra += 5;
-
-					p->inven_icon = 4;
-
-					if (sprite[p->i].extra > max_player_health)
-						sprite[p->i].extra = max_player_health;
-
-					if (p->jetpack_amount <= 0)
-						checkavailinven(p);
 				}
 			}
 		}
-	}
 
-	if (PlayerInput(snum, SK_TURNAROUND) && p->one_eighty_count == 0)
-	{
-		SetGameVarID(g_iReturnVarID, 0, -1, snum);
-		OnEvent(EVENT_TURNAROUND, -1, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+		if (PlayerInput(snum, SK_TURNAROUND) && p->one_eighty_count == 0)
 		{
-			p->one_eighty_count = -1024;
+			SetGameVarID(g_iReturnVarID, 0, -1, snum);
+			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
+			{
+				p->one_eighty_count = -1024;
+			}
 		}
 	}
 }

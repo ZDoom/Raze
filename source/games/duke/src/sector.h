@@ -48,7 +48,6 @@ typedef struct {
 
 
 void breakwall(short newpn, short spr, short dawallnum);
-int S_FindMusicSFX(int sectNum, int *sndptr);
 void callsound2(int soundNum, int playerNum);
 int callsound(int sectNum,int spriteNum);
 int hitasprite(int spriteNum,int16_t *hitSprite);
