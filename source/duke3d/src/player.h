@@ -138,7 +138,6 @@ typedef struct {
 //  * char --> int8_t
 // Need to carefully think about implications!
 // TODO: rearrange this if the opportunity arises!
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     vec3_t pos, opos;
     vec3_t vel, npos;
@@ -210,7 +209,6 @@ typedef struct {
     int8_t padding_[1];
 } DukePlayer_t;
 
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
 {
     DukePlayer_t *ps;
@@ -237,7 +235,6 @@ typedef struct
 } playerdata_t;
 #pragma pack(pop)
 
-// KEEPINSYNC lunatic/con_lang.lua
 typedef struct
 {
     // NOTE: the member names must be identical to aplWeapon* suffixes.
@@ -299,7 +296,6 @@ typedef struct {
     int32_t userdata; // 4b
 } projectile_t;
 
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     int32_t cur, count;  // "cur" is the only member that is *used*
     int32_t gunposx, lookhalfang;  // weapon_xoffset, ps->look_ang>>1

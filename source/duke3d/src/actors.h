@@ -40,7 +40,6 @@ BEGIN_DUKE_NS
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)
 
-// KEEPINSYNC lunatic/con_lang.lua
 #define STAT_DEFAULT        0
 #define STAT_ACTOR          1
 #define STAT_ZOMBIEACTOR    2
@@ -298,7 +297,6 @@ typedef struct
 } tiledata_t;
 
 
-// KEEPINSYNC lunatic/con_lang.lua
 enum sflags_t
 {
     SFLAG_SHADOW        = 0x00000001,

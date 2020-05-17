@@ -861,7 +861,7 @@ char const *VM_GetKeywordForID(int32_t id)
     return "<unknown instruction>";
 }
 
-// KEEPINSYNC with enum GameEvent_t and lunatic/con_lang.lua
+// KEEPINSYNC with enum GameEvent_t
 const char *EventNames[MAXEVENTS] =
 {
     "EVENT_INIT",
@@ -5676,7 +5676,6 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
     labelcode[g_labelCnt++] = lValue;
 }
 
-// KEEPINSYNC lunatic/con_lang.lua
 static void C_AddDefaultDefinitions(void)
 {
     for (int i=0; i<MAXEVENTS; i++)

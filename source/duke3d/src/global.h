@@ -41,7 +41,6 @@ BEGIN_DUKE_NS
 #endif
 
 #define MAXINTERPOLATIONS MAXSPRITES
-// KEEPINSYNC lunatic/con_lang.lua
 
 // duke3d global soup :(
 
