@@ -287,8 +287,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
         }
         else
         {
-            int32_t i;
-            int32_t j;
+            int32_t i, j;
 
             for (j=0; j<2; j++)
             {
