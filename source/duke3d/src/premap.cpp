@@ -599,9 +599,6 @@ void P_MoveToRandomSpawnPoint(int playerNum)
 static inline void P_ResetTintFade(DukePlayer_t *const pPlayer)
 {
     pPlayer->pals.f = 0;
-#ifdef LUNATIC
-    pPlayer->palsfadeprio = 0;
-#endif
 }
 
 void P_ResetMultiPlayer(int playerNum)
