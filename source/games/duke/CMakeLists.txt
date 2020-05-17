@@ -44,6 +44,6 @@ set( PCH_SOURCES
 	src/zz_text.cpp
 	src/zz_sector.cpp
 	src/zz_soundsdyn.cpp
-	src/zz_rrdh.cpp)
+	)
 
 add_game_library2( duke )

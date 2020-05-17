@@ -1681,12 +1681,6 @@ static void prelevel(char g)
         animwall[g_animWallCnt].tag = 0;
         animwall[g_animWallCnt].wallnum = 0;
 
-        if (DEER)
-        {
-            pWall->extra = -1;
-            continue;
-        }
-
         int const switchPic = G_GetForcefieldPicnum(i);
 
         if (switchPic >= 0)
@@ -1843,8 +1837,6 @@ static void prelevel(char g)
 
     G_SetupGlobalPsky();
 
-    if (DEER)
-        sub_52BA8();
 }
 
 

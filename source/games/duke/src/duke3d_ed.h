@@ -127,7 +127,6 @@ END_DUKE_NS
 #include "sector.h"
 #include "sounds.h"
 #include "soundsdyn.h"
-#include "rrdh.h"
 
 BEGIN_DUKE_NS
 

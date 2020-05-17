@@ -228,94 +228,6 @@ void Menu_DHLeaonardHeadReset(void)
 	word_A99B0 = 0;
 }
 
-void Menu_DHLeaonardHeadDisplay(vec2_t pos)
-{
-	if (sub_51B68() && !dword_A99C0)
-	{
-		dword_A99C0 = (int)totalclock;
-	}
-	if (dword_A99C0 && (int)totalclock - dword_A99C0 > 40)
-	{
-		dword_A99C0 = 0;
-		dword_A99C4 = 1;
-	}
-	switch (dword_A99A0)
-	{
-	case 0:
-		if ((int)totalclock - dword_A99B8 >= 240 && dword_A99C4 && (rrdh_random() & 63) < 32)
-		{
-			dword_A99A0 = 1;
-			dword_A99A4 = 160 - ((rrdh_random() & 255) - 128);
-			word_A99B0 = ((rrdh_random() & 127) + 1984) & 2047;
-			dword_A99AC = (rrdh_random() & 4095) - 4090;
-			word_A99B2 = TILE_SPINNINGNUKEICON + (rrdh_random() & 15);
-		}
-		break;
-	case 1:
-		if (dword_A99A8 < 54)
-		{
-			if ((int)totalclock - dword_A99B4 > 2)
-			{
-				dword_A99B4 = (int)totalclock;
-				dword_A99A8 += 2;
-			}
-		}
-		else
-		{
-			dword_A99A0 = 2;
-			dword_A99BC = (int)totalclock;
-		}
-		pos.x += dword_A99A4 << 16;
-		pos.y += (240 - dword_A99A8) << 16;
-		rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
-		break;
-	case 2:
-		if (dword_A99C4 == 1)
-		{
-			if ((rrdh_random() & 63) > 32)
-				word_A99B2--;
-			else
-				word_A99B2++;
-		}
-		else
-		{
-			if ((rrdh_random() & 127) == 48)
-			{
-				if ((int)totalclock - dword_A99BC > 240)
-					dword_A99A0 = 3;
-			}
-		}
-		if (word_A99B2 < TILE_SPINNINGNUKEICON)
-			word_A99B2 = TILE_SPINNINGNUKEICON + 15;
-		if (word_A99B2 > TILE_SPINNINGNUKEICON + 15)
-			word_A99B2 = TILE_SPINNINGNUKEICON;
-		pos.x += dword_A99A4 << 16;
-		pos.y += (240 - dword_A99A8) << 16;
-		rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
-		if ((int)totalclock - dword_A99BC > 960)
-			dword_A99A0 = 3;
-		break;
-	case 3:
-		if (dword_A99A8 > 0)
-		{
-			if ((int)totalclock - dword_A99B4 > 2)
-			{
-				dword_A99B4 = (int)totalclock;
-				dword_A99A8 -= 2;
-			}
-			pos.x += dword_A99A4 << 16;
-			pos.y += (240 - dword_A99A8) << 16;
-			rotatesprite(pos.x, pos.y, 32768 - dword_A99AC, word_A99B0, word_A99B2, 0, 0, 10, 0, 0, xdim - 1, ydim - 1);
-		}
-		else
-		{
-			dword_A99B8 = (int)totalclock;
-			dword_A99A0 = 0;
-		}
-		break;
-	}
-	dword_A99C4 = 0;
-}
 
 
 //----------------------------------------------------------------------------
@@ -380,13 +292,7 @@ class DukeMainMenu : public DukeListMenu
 	void PreDraw() override
 	{
 		DukeListMenu::PreDraw();
-		if (DEER)
-		{
-			vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
-			Menu_DHLeaonardHeadDisplay(forigin);
-			rotatesprite_fs(forigin.x + (MENU_MARGIN_CENTER << 16), forigin.y + ((32) << 16), 20480L, 0, TILE_DUKENUKEM, 0, 0, 10);
-		}
-		else if (RRRA)
+		if (RRRA)
 		{
 			rotatesprite_fs(int(origin.X * 65536) + ((MENU_MARGIN_CENTER - 5) << 16), int(origin.Y * 65536) + ((57) << 16), 16592L, 0, TILE_THREEDEE, 0, 0, 10);
 		}
@@ -507,31 +413,6 @@ class DukeWeaponMenu : public DukeListMenu
 			rotatesprite_fs(forigin.x + (8 << 16), forigin.y + (4 << 16), 32768L, 0, t2, -64, 0, 128 + 16 + 10);
 		}
 };
-
-class DukeTrophiesMenu : public DukeListMenu
-{
-	void PreDraw() override
-	{
-		DukeListMenu::PreDraw();
-		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
-		if (g_player[myconnectindex].ps->gm & MODE_GAME)
-		{
-			if (ud.level_number < 4)
-			{
-				rotatesprite_fs(forigin.x + (160 << 16), forigin.y + (100 << 16), 65536, 0, 1730, 0, 0, 10);
-				sub_5469C(forigin, 0);
-			}
-			else
-				sub_5469C(forigin, 2);
-		}
-		else
-		{
-			rotatesprite_fs(forigin.x + (160 << 16), forigin.y + (100 << 16), 65536, 0, 1730, 0, 0, 10);
-			sub_5469C(forigin, 1);
-		}
-	}
-};
-
 
 //----------------------------------------------------------------------------
 //
@@ -780,7 +661,7 @@ static TMenuClassDescriptor<Duke3d::DukeListMenu> _lm("Duke.ListMenu");
 static TMenuClassDescriptor<Duke3d::DukeHuntMenu> _dhm("Duke.HuntMenu");
 static TMenuClassDescriptor<Duke3d::DukeTargetMenu> _dtm("Duke.TargetMenu");
 static TMenuClassDescriptor<Duke3d::DukeWeaponMenu> _dwm("Duke.WeaponMenu");
-static TMenuClassDescriptor<Duke3d::DukeTrophiesMenu> _dttm("Duke.TrophiesMenu");
+
 static TMenuClassDescriptor<DImageScrollerMenu> _ism("Duke.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterDuke3dMenus()
@@ -791,5 +672,4 @@ void RegisterDuke3dMenus()
 	menuClasses.Push(&_dhm);
 	menuClasses.Push(&_dtm);
 	menuClasses.Push(&_dwm);
-	menuClasses.Push(&_dttm);
 }

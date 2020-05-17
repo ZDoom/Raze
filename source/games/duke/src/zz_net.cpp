@@ -1780,8 +1780,6 @@ void Net_GetInput(void)
         P_GetInputMotorcycle(myconnectindex);
     else if (RRRA && g_player[myconnectindex].ps->OnBoat)
         P_GetInputBoat(myconnectindex);
-    else if (DEER)
-        P_DHGetInput(myconnectindex);
     else
         P_GetInput(myconnectindex);
 
