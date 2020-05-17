@@ -178,10 +178,8 @@ void G_InitDynamicSounds(void);
 
 void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue);
 
-#if !defined LUNATIC
 void initsoundhashnames(void);
 void freesoundhashnames(void);
-#endif
 
 extern int32_t ALIEN_SWITCH1;
 extern int32_t BIGBANG;

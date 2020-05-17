@@ -30,12 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestructures.h"
 
 BEGIN_DUKE_NS
-
-#ifdef LUNATIC
-int32_t g_noResetVars;
-LUNATIC_CB void (*A_ResetVars)(int32_t spriteNum);
-#else
-
 gamevar_t   aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t     g_gameVarCount   = 0;
@@ -833,12 +827,10 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 
     return &(var.global);
 }
-#endif  // !defined LUNATIC
 
 void Gv_ResetSystemDefaults(void)
 {
     // call many times...
-#if !defined LUNATIC
     char aszBuf[64];
 
     //AddLog("ResetWeaponDefaults");
@@ -901,7 +893,6 @@ void Gv_ResetSystemDefaults(void)
     g_weaponVarID    = Gv_GetVarIndex("WEAPON");
     g_worksLikeVarID = Gv_GetVarIndex("WORKSLIKE");
     g_zRangeVarID    = Gv_GetVarIndex("ZRANGE");
-#endif
 
     for (auto & tile : g_tile)
         if (tile.defproj)
@@ -1131,16 +1122,13 @@ void Gv_FinalizeWeaponDefaults(void)
 #undef FINISH_WEAPON_DEFAULT_X
 #undef POSTADDWEAPONVAR
 
-#if !defined LUNATIC
 static int32_t lastvisinc;
-#endif
 
 
 static void Gv_AddSystemVars(void)
 {
     // only call ONCE
 
-#if !defined LUNATIC
     // special vars for struct access
     // KEEPINSYNC gamedef.h: enum QuickStructureAccess_t (including order)
     Gv_NewVar("sprite",         -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
@@ -1159,7 +1147,6 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("input",          -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("tiledata",       -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("paldata",        -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
-#endif
 
 #ifndef EDUKE32_STANDALONE
     if (NAM_WW2GI)
@@ -1229,21 +1216,6 @@ static void Gv_AddSystemVars(void)
         ADDWEAPONVAR(i, TotalTime);
         ADDWEAPONVAR(i, WorksLike);
     }
-
-#ifdef LUNATIC
-    for (int i=0; i<MAXPLAYERS; i++)
-    {
-        auto ps = g_player[i].ps;
-
-        ps->pipebombControl = NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE;
-        ps->pipebombLifetime = NAM_GRENADE_LIFETIME;
-        ps->pipebombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
-
-        ps->tripbombControl = TRIPBOMB_TRIPWIRE;
-        ps->tripbombLifetime = NAM_GRENADE_LIFETIME;
-        ps->tripbombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
-    }
-#else
 
 #ifndef EDUKE32_STANDALONE
     Gv_NewVar("GRENADE_LIFETIME",      NAM_GRENADE_LIFETIME,                    GAMEVAR_SYSTEM | GAMEVAR_PERPLAYER);
@@ -1318,11 +1290,11 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("ydim",                  (intptr_t)&ydim,                         GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
     Gv_NewVar("yxaspect",              (intptr_t)&yxaspect,                     GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
 
-# ifdef USE_OPENGL
+#ifdef USE_OPENGL
     Gv_NewVar("rendmode", (intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-# else
+#else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
-# endif
+#endif
 
     // SYSTEM_GAMEARRAY
     Gv_NewArray("gotpic",            (void *)&gotpic[0],              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
@@ -1330,33 +1302,22 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("show2dsector",      (void *)&show2dsector,        MAXSECTORS, GAMEARRAY_SYSTEM | GAMEARRAY_BITMAP);
     Gv_NewArray("tilesizx",          (void *)tileWidth,               MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
     Gv_NewArray("tilesizy",          (void *)tileHeight,              MAXTILES,   GAMEARRAY_SYSTEM | GAMEARRAY_FUNC | GAMEARRAY_READONLY);
-#endif
 }
 
 #undef ADDWEAPONVAR
 
 void Gv_Init(void)
 {
-#if !defined LUNATIC
     // already initialized
     if (aGameVars[0].flags)
         return;
-#else
-    static int32_t inited=0;
-    if (inited)
-        return;
-    inited = 1;
-#endif
 
     // Set up weapon defaults, g_playerWeapon[][].
     Gv_AddSystemVars();
-#if !defined LUNATIC
     Gv_InitWeaponPointers();
-#endif
     Gv_ResetSystemDefaults();
 }
 
-#if !defined LUNATIC
 void Gv_InitWeaponPointers(void)
 {
     char aszBuf[64];
@@ -1470,14 +1431,12 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("ydim")].global              = (intptr_t)&ydim;
     aGameVars[Gv_GetVarIndex("yxaspect")].global          = (intptr_t)&yxaspect;
 
-# ifdef USE_OPENGL
+#ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].global = (intptr_t)&rendmode;
-# endif
+#endif
 
     aGameArrays[Gv_GetArrayIndex("gotpic")].pValues = (intptr_t *)&gotpic[0];
     aGameArrays[Gv_GetArrayIndex("tilesizx")].pValues = (intptr_t *)tileWidth;
     aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)tileHeight;
 }
-#endif
-
 END_DUKE_NS

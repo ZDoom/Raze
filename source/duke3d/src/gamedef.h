@@ -78,10 +78,8 @@ enum
         g_warningCnt++;                                                                          \
     } while (0)
 
-#if !defined LUNATIC
 extern intptr_t const * insptr;
 void VM_ScriptInfo(intptr_t const * const ptr, int const range);
-#endif
 
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
@@ -141,9 +139,7 @@ extern uint8_t *bitptr;
 
 extern const char *EventNames[MAXEVENTS];
 
-#if !defined LUNATIC
 extern intptr_t *g_scriptPtr;
-#endif
 
 typedef projectile_t defaultprojectile_t;
 
@@ -179,8 +175,6 @@ void C_DefineVolumeFlags(int32_t vol, int32_t flags);
 void C_UndefineVolume(int32_t vol);
 void C_UndefineSkill(int32_t skill);
 void C_UndefineLevel(int32_t vol, int32_t lev);
-#if defined LUNATIC
-#else
 void C_ReportError(int error);
 void C_Compile(const char *filenam);
 
@@ -756,7 +750,6 @@ enum PalDataLabel_t
     PALDATA_END
 };
 
-#endif
 // KEEPINSYNC lunatic/con_lang.lua
 enum ProjectileLabel_t
 {
@@ -792,7 +785,6 @@ enum ProjectileLabel_t
     PROJ_USERDATA,
     PROJ_END
 };
-#if !defined LUNATIC
 
 enum IterationTypes_t
 {
@@ -1361,8 +1353,6 @@ enum ScriptKeywords_t
 };
 #undef ENUM_TRANSFORM
 #undef COMMA
-
-#endif
 
 END_DUKE_NS
 

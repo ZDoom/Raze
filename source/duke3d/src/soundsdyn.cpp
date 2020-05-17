@@ -338,7 +338,6 @@ int32_t FLAMETHROWER_LOOP   = FLAMETHROWER_LOOP__STATIC;
 int32_t FLAMETHROWER_END    = FLAMETHROWER_END__STATIC;
 int32_t E5L7_DUKE_QUIT_YOU  = E5L7_DUKE_QUIT_YOU__STATIC;
 
-#if !defined LUNATIC
 static hashtable_t h_names = {512, NULL};
 
 void G_ProcessDynamicSoundMapping(const char *szLabel, int32_t lValue)
@@ -371,7 +370,6 @@ void freesoundhashnames(void)
 {
     hash_free(&h_names);
 }
-#endif
 #endif
 
 // This is run after all CON define's have been processed to set up the

@@ -661,10 +661,8 @@ void G_InitDynamicTiles(void);
 
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue);
 
-#if !defined LUNATIC
 void inithashnames(void);
 void freehashnames(void);
-#endif
 
 extern int32_t ACCESS_ICON;
 extern int32_t ACCESSCARD;

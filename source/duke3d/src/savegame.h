@@ -28,11 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 
-#ifdef LUNATIC
-# define SV_MAJOR_VER 2
-#else
-# define SV_MAJOR_VER 1
-#endif
+#define SV_MAJOR_VER 1
 #define SV_MINOR_VER 7
 
 #pragma pack(push,1)

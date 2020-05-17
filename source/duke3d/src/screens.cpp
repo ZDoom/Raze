@@ -958,10 +958,6 @@ void G_DisplayRest(int32_t smoothratio)
         G_ShowScores();
 
 
-#ifdef LUNATIC
-    El_DisplayErrors();
-#endif
-
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {
@@ -1069,10 +1065,6 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
         start += step;
     } while (start != end+step);
 }
-
-#ifdef LUNATIC
-int32_t g_logoFlags = 255;
-#endif
 
 #ifdef __ANDROID__
 int inExtraScreens = 0;

@@ -297,11 +297,9 @@ int32_t G_LoadPlayer(FSaveGameNode *sv)
 
 			M_ClearMenus();
 
-#if !defined LUNATIC
             Gv_ResetVars();
             Gv_InitWeaponPointers();
             Gv_RefreshPointers();
-#endif
             Gv_ResetSystemDefaults();
 
             for (int i=0; i < (MAXVOLUMES*MAXLEVELS); i++)
@@ -1136,9 +1134,6 @@ static const dataspec_t svgm_script[] =
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
-#if defined LUNATIC
-    { DS_LOADFN|DS_NOCHK, (void *)&sv_create_lua_state, 0, 1 },
-#endif
     { DS_END, 0, 0, 0 }
 };
 
@@ -1189,7 +1184,6 @@ static uint8_t *svdiff;
 
 #include "gamedef.h"
 
-#if !defined LUNATIC
 #define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/ GAMEVAR_READONLY | GAMEVAR_PTR_MASK | /*GAMEVAR_NORESET |*/ GAMEVAR_SPECIAL)
 
 static char svgm_vars_string [] = "blK:vars";
@@ -1259,7 +1253,6 @@ static void sv_makevarspec()
     svgm_vars[vcnt].size  = 0;
     svgm_vars[vcnt].cnt   = 0;
 }
-#endif
 
 void sv_freemem()
 {
@@ -1285,12 +1278,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot)
     savehead_t h;
 
     // calculate total snapshot size
-#if !defined LUNATIC
     sv_makevarspec();
     svsnapsiz = calcsz((const dataspec_t *)svgm_vars);
-#else
-    svsnapsiz = 0;
-#endif
     svsnapsiz += calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
 
 
@@ -1490,9 +1479,7 @@ uint32_t sv_writediff(FileWriter *fil)
     cmpspecdata(svgm_secwsp, &p, &d);
     cmpspecdata(svgm_script, &p, &d);
     cmpspecdata(svgm_anmisc, &p, &d);
-#if !defined LUNATIC
     cmpspecdata((const dataspec_t *)svgm_vars, &p, &d);
-#endif
 
     if (p != svsnapshot+svsnapsiz)
         Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
@@ -1524,9 +1511,7 @@ int32_t sv_readdiff(FileReader &fil)
     if (applydiff(svgm_secwsp, &p, &d)) return -4;
     if (applydiff(svgm_script, &p, &d)) return -5;
     if (applydiff(svgm_anmisc, &p, &d)) return -6;
-#if !defined LUNATIC
     if (applydiff((const dataspec_t *)svgm_vars, &p, &d)) return -7;
-#endif
 
     int i = 0;
 
@@ -1680,12 +1665,6 @@ static void sv_restload()
 # define PRINTSIZE(name) do { } while (0)
 #endif
 
-#ifdef LUNATIC
-// <levelnum>: if we're not serializing for a mapstate, -1
-//  otherwise, the linearized level number
-LUNATIC_CB const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
-#endif
-
 static uint8_t *dosaveplayer2(FileWriter &fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
@@ -1701,11 +1680,9 @@ static uint8_t *dosaveplayer2(FileWriter &fil, uint8_t *mem)
     mem=writespecdata(svgm_anmisc, &fil, mem);  // animates, quotes & misc.
     PRINTSIZE("animisc");
 
-#if !defined LUNATIC
     Gv_WriteSave(fil);  // gamevars
     mem=writespecdata((const dataspec_t *)svgm_vars, 0, mem);
     PRINTSIZE("vars");
-#endif
 
     return mem;
 }
@@ -1727,7 +1704,6 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
     if (readspecdata(svgm_anmisc, &fil, &mem)) return -6;
     PRINTSIZE("animisc");
 
-#if !defined LUNATIC
     int i;
 
     if ((i = Gv_ReadSave(fil))) return i;
@@ -1744,7 +1720,6 @@ static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
         }
     }
     PRINTSIZE("vars");
-#endif
 
     if (memptr)
         *memptr = mem;
@@ -1763,9 +1738,7 @@ int32_t sv_updatestate(int32_t frominit)
     if (readspecdata(svgm_script, nullptr, &p)) return -5;
     if (readspecdata(svgm_anmisc, nullptr, &p)) return -6;
 
-#if !defined LUNATIC
     if (readspecdata((const dataspec_t *)svgm_vars, nullptr, &p)) return -8;
-#endif
 
     if (p != pbeg+svsnapsiz)
     {
@@ -1884,11 +1857,7 @@ static void postloadplayer(int32_t savegamep)
 
     //8
     // if (savegamep)  ?
-#ifdef LUNATIC
-    G_ResetTimers(1);
-#else
     G_ResetTimers(0);
-#endif
 
 #ifdef USE_STRUCT_TRACKERS
     Bmemset(sectorchanged, 0, sizeof(sectorchanged));

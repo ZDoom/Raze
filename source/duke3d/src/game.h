@@ -113,9 +113,9 @@ static inline int32_t G_GetLogoFlags(void)
     return Gv_GetVarByLabel("LOGO_FLAGS",255, -1, -1);
 }
 
-# define CAMERA(Membname) (ud.camera ## Membname)
-# define CAMERADIST g_cameraDistance
-# define CAMERACLOCK g_cameraClock
+#define CAMERA(Membname) (ud.camera ## Membname)
+#define CAMERADIST g_cameraDistance
+#define CAMERACLOCK g_cameraClock
 
 #endif
 
@@ -212,10 +212,8 @@ extern char ror_protectedsectors[MAXSECTORS];
 
 extern int32_t g_Debug;
 extern int32_t g_Shareware;
-#if !defined LUNATIC
 extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
-#endif
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_levelTextTime;
@@ -241,9 +239,6 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 #define Yax_SetBunchZs(sectnum, cf, daz)
 #endif
 
-#ifdef LUNATIC
-void El_CreateGameState(void);
-#endif
 void G_PostCreateGameState(void);
 
 void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);

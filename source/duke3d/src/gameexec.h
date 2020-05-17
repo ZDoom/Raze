@@ -71,12 +71,10 @@ enum vmflags_t
 extern int32_t ticrandomseed;
 
 extern vmstate_t vm;
-#if !defined LUNATIC
 extern int32_t g_tw;
 extern int32_t g_currentEvent;
 
 void A_LoadActor(int const spriteNum);
-#endif
 
 extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
@@ -93,7 +91,6 @@ void G_SaveMapState();
 void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     int32_t shade, int32_t orientation, int32_t p);
 
-#if !defined LUNATIC
 void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
 static inline void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
@@ -104,7 +101,6 @@ static inline void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, in
     VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, p);
 }
 void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
-#endif
 
 
 #define CON_ERRPRINTF(Text, ...) do { \

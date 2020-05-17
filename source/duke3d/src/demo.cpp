@@ -193,9 +193,9 @@ error_wopen_demo:
     ud.reccnt = 0;
     ud.recstat = m_recstat = 1;  //
 
-# if KRANDDEBUG
+#if KRANDDEBUG
     krd_enable(1);
-# endif
+#endif
     g_demo_cnt = 1;
 }
 

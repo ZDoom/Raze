@@ -916,13 +916,8 @@ void A_MoveSector(int spriteNum)
     }
 }
 
-#if !defined LUNATIC
 // NOTE: T5 is AC_ACTION_ID
-# define LIGHTRAD_PICOFS(i) (T5(i) ? *(apScript + T5(i)) + (*(apScript + T5(i) + 2)) * AC_CURFRAME(actor[i].t_data) : 0)
-#else
-// startframe + viewtype*[cyclic counter]
-# define LIGHTRAD_PICOFS(i) (actor[i].ac.startframe + actor[i].ac.viewtype * AC_CURFRAME(actor[i].t_data))
-#endif
+#define LIGHTRAD_PICOFS(i) (T5(i) ? *(apScript + T5(i)) + (*(apScript + T5(i) + 2)) * AC_CURFRAME(actor[i].t_data) : 0)
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 // XXX: may access tilesizy out-of-bounds by bad user code.

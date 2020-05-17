@@ -58,7 +58,6 @@ int32_t g_lineNumber;
 uint32_t g_scriptcrc;
 char g_szBuf[1024];
 
-#if !defined LUNATIC
 static char *textptr;
 
 static char g_szCurrentBlockName[64] = "(none)";
@@ -89,17 +88,11 @@ static intptr_t *g_caseTablePtr;
 
 static bool C_ParseCommand(bool loop = false);
 static void C_SetScriptSize(int32_t newsize);
-#endif
 
 int32_t g_errorCnt;
 int32_t g_warningCnt;
 int32_t g_numXStrings;
 
-#ifdef LUNATIC
-weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
-#endif
-
-#if !defined LUNATIC
 static char *C_GetLabelType(int const type)
 {
     static tokenmap_t const LabelType[] =
@@ -867,7 +860,6 @@ char const *VM_GetKeywordForID(int32_t id)
 
     return "<unknown instruction>";
 }
-#endif
 
 // KEEPINSYNC with enum GameEvent_t and lunatic/con_lang.lua
 const char *EventNames[MAXEVENTS] =
@@ -1029,9 +1021,6 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_NEWGAMECUSTOM",
     "EVENT_INITCOMPLETE",
     "EVENT_CAPIR",
-#ifdef LUNATIC
-    "EVENT_ANIMATEALLSPRITES",
-#endif
 };
 
 uint8_t *bitptr; // pointer to bitmap of which bytecode positions contain pointers
@@ -1040,7 +1029,6 @@ uint8_t *bitptr; // pointer to bitmap of which bytecode positions contain pointe
 #define BITPTR_CLEAR(x) bitmap_clear(bitptr, x)
 #define BITPTR_IS_POINTER(x) bitmap_test(bitptr, x)
 
-#if !defined LUNATIC
 hashtable_t h_arrays   = { MAXGAMEARRAYS >> 1, NULL };
 hashtable_t h_gamevars = { MAXGAMEVARS >> 1, NULL };
 hashtable_t h_labels   = { 11264 >> 1, NULL };
@@ -1981,7 +1969,6 @@ static void C_Include(const char *confile)
 
     Xfree(mptr);
 }
-#endif  // !defined LUNATIC
 
 void G_DoGameStartup(const int32_t *params)
 {
@@ -2215,7 +2202,6 @@ void C_InitQuotes(void)
     }
 }
 
-#if !defined LUNATIC
 static inline void C_BitOrNextValue(int32_t *valptr)
 {
     C_GetNextValue(LABEL_DEFINE);
@@ -5807,7 +5793,6 @@ static void C_AddDefaultDefinitions(void)
 
     C_AddDefinition("NO", 0, LABEL_DEFINE | LABEL_ACTION | LABEL_AI | LABEL_MOVE);
 }
-#endif
 
 void C_InitProjectiles(void)
 {
@@ -5842,7 +5827,6 @@ void C_InitProjectiles(void)
     }
 }
 
-#if !defined LUNATIC
 static char const * C_ScriptVersionString(int32_t version)
 {
 #ifdef EDUKE32_STANDALONE
@@ -6129,6 +6113,5 @@ void C_ReportError(int error)
         break;
     }
 }
-#endif
 
 END_DUKE_NS

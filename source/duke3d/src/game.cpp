@@ -1059,13 +1059,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
     spriteext[newSprite]    = {};
     spritesmooth[newSprite] = {};
 
-#if defined LUNATIC
-    if (!g_noResetVars)
-#endif
         A_ResetVars(newSprite);
-#if defined LUNATIC
-    g_noResetVars = 0;
-#endif
 
     if (VM_HaveEvent(EVENT_EGS))
     {
@@ -3501,11 +3495,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
     {
         int32_t switchpic;
         int32_t curframe;
-#if !defined LUNATIC
         int32_t scrofs_action;
-#else
-        int32_t startframe, viewtype;
-#endif
         //is the perfect time to animate sprites
         auto const t = &tsprite[j];
         const int32_t i = t->owner;
@@ -3552,12 +3542,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
         const int32_t sect = pSprite->sectnum;
 
         curframe = AC_CURFRAME(actor[i].t_data);
-#if !defined LUNATIC
         scrofs_action = AC_ACTION_ID(actor[i].t_data);
-#else
-        startframe = actor[i].ac.startframe;
-        viewtype = actor[i].ac.viewtype;
-#endif
         switchpic = pSprite->picnum;
         // Some special cases because dynamictostatic system can't handle
         // addition to constants.
@@ -3792,12 +3777,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             {
                 // Display APLAYER sprites with action PSTAND when viewed through
                 // a camera.  Not implemented for Lunatic.
-#if !defined LUNATIC
                 const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
                 scrofs_action = aplayer_scr[1];
-#endif
                 curframe = 0;
             }
 #endif
@@ -3892,15 +3875,11 @@ PALONLY:
 
         if (G_TileHasActor(pSprite->picnum))
         {
-#if !defined LUNATIC
             if ((unsigned)scrofs_action + ACTION_PARAM_COUNT > (unsigned)g_scriptSize)
                 goto skip;
 
             int32_t viewtype = apScript[scrofs_action + ACTION_VIEWTYPE];
             uint16_t const action_flags = apScript[scrofs_action + ACTION_FLAGS];
-#else
-            uint16_t const action_flags = actor[i].ac.flags;
-#endif
 
             int const invertp = viewtype < 0;
             l = klabs(viewtype);
@@ -3953,11 +3932,7 @@ PALONLY:
                 }
             }
 
-#if !defined LUNATIC
             t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + viewtype*curframe;
-#else
-            t->picnum += frameOffset + startframe + viewtype*curframe;
-#endif
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
             if (viewtype > 0)
@@ -3972,9 +3947,7 @@ PALONLY:
         /* completemirror() already reverses the drawn frame, so the above isn't necessary.
          * Even Polymost's and Polymer's mirror seems to function correctly this way. */
 
-#if !defined LUNATIC
 skip:
-#endif
         // Night vision goggles tsprite tinting.
         // XXX: Currently, for the splitscreen mod, sprites will be pal6-colored iff the first
         // player has nightvision on.  We should pass stuff like "from which player is this view
@@ -4057,11 +4030,7 @@ skip:
                 }
             }
 
-#ifdef LUNATIC
-        bool const haveAction = false; // FIXME!
-#else
         bool const haveAction = scrofs_action != 0 && (unsigned)scrofs_action + ACTION_PARAM_COUNT <= (unsigned)g_scriptSize;
-#endif
 
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
@@ -4196,9 +4165,6 @@ skip:
             G_DoEventAnimSprites(j);
     }
 
-#ifdef LUNATIC
-    VM_OnEvent(EVENT_ANIMATEALLSPRITES);
-#endif
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numonscreen = spritesortcnt;
 #endif
@@ -5170,7 +5136,6 @@ static void G_Cleanup(void)
         Xfree(g_player[i].input);
     }
 
-#if !defined LUNATIC
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
     if (labeltype != (uint8_t*)&wall[0]) Xfree(labeltype);
@@ -5184,7 +5149,6 @@ static void G_Cleanup(void)
     hash_free(&h_gamevars);
     hash_free(&h_arrays);
     hash_free(&h_labels);
-#endif
 }
 
 /*
@@ -5209,16 +5173,10 @@ void G_Shutdown(void)
 
 static void G_CompileScripts(void)
 {
-#if !defined LUNATIC
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (int32_t *)&sector[0];  // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (uint8_t *)&wall[0];    // V8: 16384*32 = 524288    V7: 8192*32/4 = 262144
-#endif
 
-#if defined LUNATIC
-    Gv_Init();
-    C_InitProjectiles();
-#else
     C_Compile(G_ConFile());
 
 	if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
@@ -5241,7 +5199,6 @@ static void G_CompileScripts(void)
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
     VM_OnEvent(EVENT_INIT);
-#endif
 }
 
 static inline void G_CheckGametype(void)
@@ -5305,52 +5262,6 @@ static void A_InitEnemyFlags(void)
 }
 #undef SETFLAG
 
-#ifdef LUNATIC
-// Will be used to store CON code translated to Lua.
-int32_t g_elCONSize;
-char *g_elCON;  // NOT 0-terminated!
-
-LUNATIC_EXTERN void El_SetCON(const char *conluacode)
-{
-    int32_t slen = Bstrlen(conluacode);
-
-    g_elCON = (char *)Xmalloc(slen);
-
-    g_elCONSize = slen;
-    Bmemcpy(g_elCON, conluacode, slen);
-}
-
-void El_CreateGameState(void)
-{
-    int32_t i;
-
-    El_DestroyState(&g_ElState);
-
-    if ((i = El_CreateState(&g_ElState, "game")))
-    {
-        Printf("Lunatic: Error initializing global ELua state (code %d)\n", i);
-    }
-    else
-    {
-        extern const char luaJIT_BC__defs_game[];
-
-        if ((i = L_RunString(&g_ElState, luaJIT_BC__defs_game,
-                             LUNATIC_DEFS_BC_SIZE, "_defs_game.lua")))
-        {
-            Printf("Lunatic: Error preparing global ELua state (code %d)\n", i);
-            El_DestroyState(&g_ElState);
-        }
-    }
-
-    if (i)
-        G_GameExit("Failure setting up Lunatic!");
-
-# if !defined DEBUGGINGAIDS
-    El_ClearErrors();
-# endif
-}
-#endif
-
 // Throw in everything here that needs to be called after a Lua game state
 // recreation (or on initial startup in a non-Lunatic build.)
 void G_PostCreateGameState(void)
@@ -5371,11 +5282,6 @@ static void G_Startup(void)
     if (engineInit())
         G_FatalEngineError();
 
-#ifdef LUNATIC
-    El_CreateGameState();
-    C_InitQuotes();
-#endif
-
     G_InitDynamicTiles();
     G_InitDynamicSounds();
 
@@ -5383,11 +5289,6 @@ static void G_Startup(void)
     G_InitMultiPsky(CLOUDYOCEAN, MOONSKY1, BIGORBIT1, LA);
     Gv_FinalizeWeaponDefaults();
     G_PostCreateGameState();
-#ifdef LUNATIC
-    // NOTE: This is only effective for CON-defined EVENT_INIT. See EVENT_INIT
-    // not in _defs_game.lua.
-    VM_OnEvent(EVENT_INIT);
-#endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
     if (userConfig.CommandMap.IsNotEmpty())

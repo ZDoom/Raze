@@ -65,9 +65,6 @@ BEGIN_DUKE_NS
 
 vmstate_t vm;
 
-
-
-#if !defined LUNATIC
 int32_t g_tw;
 int32_t g_currentEvent = -1;
 
@@ -91,9 +88,6 @@ double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILE
 
 GAMEEXEC_STATIC void VM_Execute(int const loop = false);
 
-#endif
-
-#if !defined LUNATIC
 void VM_ScriptInfo(intptr_t const * const ptr, int const range)
 {
     if (!apScript || !ptr || g_currentEvent == -1)
@@ -128,7 +122,6 @@ void VM_ScriptInfo(intptr_t const * const ptr, int const range)
         Printf("g_errorLineNum: %d, g_tw: %d\n", VM_DECODE_LINE_NUMBER(g_tw), VM_DECODE_INST(g_tw));
     }
 }
-#endif
 
 static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 {
@@ -144,24 +137,6 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 
 intptr_t apScriptEvents[MAXEVENTS];
 
-// May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
-#ifdef LUNATIC
-static FORCE_INLINE int32_t VM_EventInlineInternal__(int const &eventNum, int const &spriteNum, int const &playerNum, int const &playerDist, int32_t returnValue)
-{
-    const double t = timerGetHiTicks();
-    int32_t ret = El_CallEvent(&g_ElState, eventNum, spriteNum, playerNum, playerDist, &returnValue);
-
-    // NOTE: the run times are those of the called event plus any events
-    // called by it, *not* "self" time.
-    g_eventTotalMs[eventNum] += timerGetHiTicks()-t;
-    g_eventCalls[eventNum]++;
-
-    if (ret == 1)
-        VM_DeleteSprite(spriteNum, playerNum);
-
-    return returnValue;
-}
-#else
 static uspritetype dummy_sprite;
 static actor_t     dummy_actor;
 
@@ -223,7 +198,6 @@ static FORCE_INLINE int32_t VM_EventInlineInternal__(int const eventNum, int con
 
     return returnValue;
 }
-#endif
 
 // the idea here is that the compiler inlines the call to VM_EventInlineInternal__() and gives us a set of
 // functions which are optimized further based on distance/return having values known at compile time
@@ -290,7 +264,6 @@ static int VM_CheckSquished(void)
     return 1;
 }
 
-#if !defined LUNATIC
 GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 {
     int const nAngle = 128-(krand()&255);
@@ -300,7 +273,6 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
     pPlayer->q16rotscrnang    = fix16_from_int(nAngle >> 1);
     pPlayer->q16look_ang      = pPlayer->q16rotscrnang;
 }
-#endif
 
 // wow, this function sucks
 
@@ -533,7 +505,6 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 {
     int const elapsedTics = (AC_COUNT(vm.pData))&31;
 
-#if !defined LUNATIC
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
 
     {
@@ -545,10 +516,6 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
     auto const moveptr = apScript + AC_MOVE_ID(vm.pData);
     auto &hvel    = moveptr[0];
     auto &vvel    = moveptr[1];
-#else
-    auto &hvel = vm.pActor->mv.hvel;
-    auto &vvel = vm.pActor->mv.vvel;
-#endif
 
     vm.pSprite->xvel += (hvel - vm.pSprite->xvel)/5;
     if (vm.pSprite->zvel < 648)
@@ -691,7 +658,6 @@ GAMEEXEC_STATIC void VM_Move(void)
         }
     }
 
-#if !defined LUNATIC
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
@@ -702,10 +668,6 @@ GAMEEXEC_STATIC void VM_Move(void)
     auto const moveptr = apScript + AC_MOVE_ID(vm.pData);
     auto &hvel = moveptr[0];
     auto &vvel = moveptr[1];
-#else
-    auto &hvel = vm.pActor->mv.hvel;
-    auto &vvel = vm.pActor->mv.vvel;
-#endif
 
     if (movflags & geth)
         vm.pSprite->xvel += (hvel - vm.pSprite->xvel) >> 1;
@@ -880,9 +842,6 @@ static void P_AddWeaponMaybeSwitch(DukePlayer_t * const ps, int const weaponNum)
     }
 }
 
-#if defined LUNATIC
-void        P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap) { P_AddWeaponMaybeSwitch(g_player[snum].ps, weap); }
-#else
 static void P_AddWeaponAmmoCommon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
 {
     P_AddAmmo(pPlayer, weaponNum, nAmount);
@@ -963,17 +922,12 @@ static void VM_AddInventory(DukePlayer_t * const pPlayer, int const itemNum, int
         default: CON_ERRPRINTF("invalid inventory item %d\n", itemNum); break;
     }
 }
-#endif
 
 static int A_GetVerticalVel(actor_t const * const pActor)
 {
-#ifdef LUNATIC
-    return pActor->mv.vvel;
-#else
     int32_t moveScriptOfs = AC_MOVE_ID(pActor->t_data);
 
     return ((unsigned) moveScriptOfs < (unsigned) g_scriptSize - 1) ? apScript[moveScriptOfs + 1] : 0;
-#endif
 }
 
 static int32_t A_GetWaterZOffset(int const spriteNum)
@@ -1167,7 +1121,6 @@ static int G_StartTrackSlot(int const volumeNum, int const levelNum)
     return 1;
 }
 
-#ifndef LUNATIC
 static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 {
     if (EDUKE32_PREDICT_FALSE(G_StartTrackSlot(volumeNum, levelNum)))
@@ -1178,9 +1131,6 @@ static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 
     return 0;
 }
-#else
-int G_StartTrack(int const levelNum) { return G_StartTrackSlot(ud.volume_number, levelNum); }
-#endif
 
 LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, int unbiasedp)
 {
@@ -1338,7 +1288,6 @@ static void ResizeArray(int const arrayNum, int const newSize)
     Xaligned_free(oldArray);
 }
 
-#if !defined LUNATIC
 #if defined __GNUC__ || defined __clang__
 // # define CON_USE_COMPUTED_GOTO does not work anymore with some of the changes.
 #endif
@@ -6261,11 +6210,9 @@ void A_LoadActor(int const spriteNum)
     if (vm.flags & VM_KILL)
         A_DeleteSprite(vm.spriteNum);
 }
-#endif
 
 void VM_UpdateAnim(int const spriteNum, int32_t * const pData)
 {
-#if !defined LUNATIC
     size_t const actionofs = AC_ACTION_ID(pData);
     auto const actionptr = (actionofs != 0 && actionofs + (ACTION_PARAM_COUNT-1) < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
 
@@ -6274,11 +6221,6 @@ void VM_UpdateAnim(int const spriteNum, int32_t * const pData)
         int const action_frames = actionptr[ACTION_NUMFRAMES];
         int const action_incval = actionptr[ACTION_INCVAL];
         int const action_delay  = actionptr[ACTION_DELAY];
-#else
-        int const action_frames = actor[spriteNum].ac.numframes;
-        int const action_incval = actor[spriteNum].ac.incval;
-        int const action_delay  = actor[spriteNum].ac.delay;
-#endif
         auto actionticsptr = &AC_ACTIONTICS(&sprite[spriteNum], &actor[spriteNum]);
         *actionticsptr += TICSPERFRAME;
 
@@ -6331,15 +6273,9 @@ void A_Execute(int const spriteNum, int const playerNum, int const playerDist)
 
     double t = timerGetHiTicks();
 
-#ifdef LUNATIC
-    int32_t killit=0;
-    if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
-        killit = (El_CallActor(&g_ElState, picnum, spriteNum, playerNum, playerDist)==1);
-#else
     insptr = 4 + (g_tile[vm.pSprite->picnum].execPtr);
     VM_Execute(true);
     insptr = NULL;
-#endif
 
     t = timerGetHiTicks()-t;
     g_actorTotalMs[picnum] += t;
@@ -6347,11 +6283,7 @@ void A_Execute(int const spriteNum, int const playerNum, int const playerDist)
     g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
     g_actorCalls[picnum]++;
 
-#ifdef LUNATIC
-    if (!killit)
-#else
     if ((vm.flags & VM_KILL) == 0)
-#endif
     {
         VM_Move();
 
@@ -6431,10 +6363,8 @@ void G_SaveMapState(void)
     Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
 
     // If we're in EVENT_ANIMATESPRITES, we'll be saving pointer values to disk :-/
-#if !defined LUNATIC
     if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
         Printf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
-#endif
     Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
 #ifndef NEW_MAP_FORMAT
     Bmemcpy(&save->wallext[0],&wallext[0],sizeof(wallext_t)*MAXWALLS);
@@ -6492,7 +6422,6 @@ void G_SaveMapState(void)
     save->randomseed       = randomseed;
     save->g_globalRandom   = g_globalRandom;
 
-#if !defined LUNATIC
     for (native_t i=g_gameVarCount-1; i>=0; i--)
     {
         if (aGameVars[i].flags & GAMEVAR_NORESET)
@@ -6523,21 +6452,6 @@ void G_SaveMapState(void)
         save->arrays[i] = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
         Bmemcpy(&save->arrays[i][0], aGameArrays[i].pValues, Gv_GetArrayAllocSize(i));
     }
-#else
-    int32_t slen;
-    const char *svcode = El_SerializeGamevars(&slen, levelNum);
-
-    if (slen < 0)
-    {
-        El_OnError("ERROR: savemapstate: serialization failed!");
-    }
-    else
-    {
-        char *savecode = Xstrdup(svcode);
-        Xfree(save->savecode);
-        save->savecode = savecode;
-    }
-#endif
     ototalclock = totalclock;
 }
 
@@ -6569,14 +6483,12 @@ void G_RestoreMapState(void)
 
         // If we're restoring from EVENT_ANIMATESPRITES, all spriteext[].tspr
         // will be overwritten, so NULL them.
-#if !defined LUNATIC
         if (EDUKE32_PREDICT_FALSE(g_currentEvent == EVENT_ANIMATESPRITES))
         {
             Printf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n", VM_DECODE_LINE_NUMBER(g_tw));
             for (native_t i=0; i<MAXSPRITES; i++)
                 spriteext[i].tspr = NULL;
         }
-#endif
         Numsprites = pSavedState->numsprites;
         tailspritefree = pSavedState->tailspritefree;
         Bmemcpy(&headspritesect[0],&pSavedState->headspritesect[0],sizeof(headspritesect));
@@ -6624,7 +6536,6 @@ void G_RestoreMapState(void)
         randomseed = pSavedState->randomseed;
         g_globalRandom = pSavedState->g_globalRandom;
 
-#if !defined LUNATIC
         for (native_t i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].flags & GAMEVAR_NORESET)
@@ -6658,12 +6569,6 @@ void G_RestoreMapState(void)
         }
 
         Gv_RefreshPointers();
-#else
-        if (pSavedState->savecode)
-        {
-            El_RestoreGamevars(pSavedState->savecode);
-        }
-#endif
         // Update g_player[].ps->i (sprite indices of players) to be consistent
         // with just loaded sprites.
         // Otherwise, crashes may ensue: e.g. WGR2 SVN r391, map spiderden:
@@ -6721,22 +6626,6 @@ void G_RestoreMapState(void)
     }
 }
 
-#ifdef LUNATIC
-void VM_FallSprite(int32_t i) { VM_Fall(i, &sprite[i]); }
-
-int32_t VM_ResetPlayer2(int32_t snum, int32_t flags) { return VM_ResetPlayer(snum, 0, flags); }
-
-int32_t VM_CheckSquished2(int32_t i, int32_t snum)
-{
-    vm.spriteNum = i;
-    vm.pSprite   = &sprite[i];
-    vm.playerNum = snum;
-    vm.pPlayer   = g_player[snum].ps;
-
-    return VM_CheckSquished();
-}
-#endif
-
 // MYOS* CON commands.
 void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
@@ -6753,7 +6642,6 @@ void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int
     rotatesprite_win(x, y, zoom, rotAngle, tilenum, shade, p, 2|orientation);
 }
 
-#if !defined LUNATIC
 void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
     auto const pPlayer = g_player[screenpeek].ps;
@@ -6769,7 +6657,4 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 
     VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, tilePal);
 }
-
-#endif
-
 END_DUKE_NS
