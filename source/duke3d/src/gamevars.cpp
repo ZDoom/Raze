@@ -1076,16 +1076,6 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
 } while (0)
 #endif
 
-// After CON translation, get not-overridden members from weapondefaults[] back
-// into the live arrays! (That is, g_playerWeapon[][] for Lunatic, WEAPONx_*
-// gamevars on the CON side in C-CON.)
-#ifdef LUNATIC
-# define POSTADDWEAPONVAR(Weapidx, Membname) ADDWEAPONVAR(Weapidx, Membname)
-#else
-// NYI
-# define POSTADDWEAPONVAR(Weapidx, Membname) do {} while (0)
-#endif
-
 // Finish a default weapon member after CON translation. If it was not
 // overridden from CON itself (see example at g_weaponOverridden[]), we set
 // both the weapondefaults[] entry (probably dead by now) and the live value.
@@ -1093,7 +1083,6 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
     if (!g_weaponOverridden[i].Membname) \
     { \
         weapondefaults[i].Membname = G_StaticToDynamic##What(weapondefaults[i].Membname); \
-        POSTADDWEAPONVAR(i, Membname); \
     } \
 } while (0)
 
@@ -1120,7 +1109,6 @@ void Gv_FinalizeWeaponDefaults(void)
 #undef FINISH_WEAPON_DEFAULT_SOUND
 #undef FINISH_WEAPON_DEFAULT_TILE
 #undef FINISH_WEAPON_DEFAULT_X
-#undef POSTADDWEAPONVAR
 
 static int32_t lastvisinc;
 
