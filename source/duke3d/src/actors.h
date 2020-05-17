@@ -114,17 +114,10 @@ enum actionflags
     AF_VIEWPOINT = 1u<<0u,
 };
 
-// Select an actor's actiontics and movflags locations depending on
-// whether we compile the Lunatic build.
 // <spr>: sprite pointer
 // <a>: actor_t pointer
-#ifdef LUNATIC
-# define AC_ACTIONTICS(spr, a) ((a)->actiontics)
-# define AC_MOVFLAGS(spr, a) ((a)->movflags)
-#else
-# define AC_ACTIONTICS(spr, a) ((spr)->lotag)
-# define AC_MOVFLAGS(spr, a) ((spr)->hitag)
-#endif
+#define AC_ACTIONTICS(spr, a) ((spr)->lotag)
+#define AC_MOVFLAGS(spr, a) ((spr)->hitag)
 
 // (+ 40 16 16 4 8 6 8 6 4 20)
 #pragma pack(push, 1)
