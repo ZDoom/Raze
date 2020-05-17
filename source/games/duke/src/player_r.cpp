@@ -1463,5 +1463,967 @@ int doincrements_r(struct player_struct* p)
 	return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
+void checkweapons_r(struct player_struct* p)
+{
+	static const short weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
+			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
+			TRIPBOMBSPRITE, BOWLINGBALLSPRITE, FREEZEBLAST, HEAVYHBOMB };
+	short i, j;
+
+	if (isRRRA())
+	{
+		if (p->OnMotorcycle && numplayers > 1)
+		{
+			j = fi.spawn(p->i, 7220);
+			sprite[j].ang = p->getang();
+			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+			p->OnMotorcycle = 0;
+			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+			p->q16horiz = 100 << FRACBITS;
+			p->moto_do_bump = 0;
+			p->MotoSpeed = 0;
+			p->TiltStatus = 0;
+			p->moto_drink = 0;
+			p->VBumpTarget = 0;
+			p->VBumpNow = 0;
+			p->TurbCount = 0;
+		}
+		else if (p->OnBoat && numplayers > 1)
+		{
+			j = fi.spawn(p->i, 7233);
+			sprite[j].ang = p->getang();
+			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
+			p->OnBoat = 0;
+			p->gotweapon.Clear(BOAT_WEAPON);
+			p->q16horiz = 100 << FRACBITS;
+			p->moto_do_bump = 0;
+			p->MotoSpeed = 0;
+			p->TiltStatus = 0;
+			p->moto_drink = 0;
+			p->VBumpTarget = 0;
+			p->VBumpNow = 0;
+			p->TurbCount = 0;
+		}
+	}
+
+	if (p->curr_weapon > 0)
+	{
+		if (krand() & 1)
+			fi.spawn(p->i, weapon_sprites[p->curr_weapon]);
+		else switch (p->curr_weapon)
+		{
+		case CHICKEN_WEAPON:
+			if (!isRRRA()) break;
+		case DYNAMITE_WEAPON:
+		case CROSSBOW_WEAPON:
+			fi.spawn(p->i, EXPLOSION2);
+			break;
+		}
+	}
+
+	for (i = 0; i < 5; i++)
+	{
+		if (p->keys[i] == 1)
+		{
+			j = fi.spawn(p->i, ACCESSCARD);
+			switch (i)
+			{
+			case 1:
+				sprite[j].lotag = 100;
+				break;
+			case 2:
+				sprite[j].lotag = 101;
+				break;
+			case 3:
+				sprite[j].lotag = 102;
+				break;
+			case 4:
+				sprite[j].lotag = 103;
+				break;
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void onMotorcycle(int snum, int &sb_snum)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+
+	int var64, var68, var6c, var70, var74, var78, var7c, var80;
+	short var84;
+	if (p->MotoSpeed < 0)
+		p->MotoSpeed = 0;
+	if (sb_snum & SKB_CROUCH)
+	{
+		var64 = 1;
+		sb_snum &= ~SKB_CROUCH;
+	}
+	else
+		var64 = 0;
+
+	if (sb_snum & SKB_JUMP)
+	{
+		var68 = 1;
+		sb_snum &= ~SKB_JUMP;
+		if (p->on_ground)
+		{
+			if (p->MotoSpeed == 0 && var64)
+			{
+				if (!A_CheckSoundPlaying(pi, 187))
+					spritesound(187, pi);
+			}
+			else if (p->MotoSpeed == 0 && !A_CheckSoundPlaying(pi, 214))
+			{
+				if (A_CheckSoundPlaying(pi, 187))
+					S_StopEnvSound(187, pi);
+				spritesound(214, pi);
+			}
+			else if (p->MotoSpeed >= 50 && !A_CheckSoundPlaying(pi, 188))
+			{
+				A_PlaySound(188, pi);
+			}
+			else if (!A_CheckSoundPlaying(pi, 188) && !A_CheckSoundPlaying(pi, 214))
+			{
+				A_PlaySound(188, pi);
+			}
+		}
+	}
+	else
+	{
+		var68 = 0;
+		if (A_CheckSoundPlaying(pi, 214))
+		{
+			S_StopEnvSound(214, pi);
+			if (!A_CheckSoundPlaying(pi, 189))
+				A_PlaySound(189, pi);
+		}
+		if (A_CheckSoundPlaying(pi, 188))
+		{
+			S_StopEnvSound(188, pi);
+			if (!A_CheckSoundPlaying(pi, 189))
+				A_PlaySound(189, pi);
+		}
+		if (!A_CheckSoundPlaying(pi, 189) && !A_CheckSoundPlaying(pi, 187))
+			A_PlaySound(187, pi);
+	}
+	if (sb_snum & SK_AIM_UP)
+	{
+		var6c = 1;
+		sb_snum &= ~SK_AIM_UP;
+	}
+	else
+		var6c = 0;
+	if (sb_snum & SK_AIM_DOWN)
+	{
+		var70 = 1;
+		var74 = 1;
+		sb_snum &= ~SK_AIM_DOWN;
+	}
+	else
+	{
+		var70 = 0;
+		var74 = 0;
+	}
+	if (sb_snum & SK_LOOK_LEFT)
+	{
+		var78 = 1;
+		var7c = 1;
+		sb_snum &= ~SK_LOOK_LEFT;
+	}
+	else
+	{
+		var78 = 0;
+		var7c = 0;
+	}
+	var80 = 0;
+	if (p->drink_amt > 88 && p->moto_drink == 0)
+	{
+		var84 = krand() & 63;
+		if (var84 == 1)
+			p->moto_drink = -10;
+		else if (var84 == 2)
+			p->moto_drink = 10;
+	}
+	else if (p->drink_amt > 99 && p->moto_drink == 0)
+	{
+		var84 = krand() & 31;
+		if (var84 == 1)
+			p->moto_drink = -20;
+		else if (var84 == 2)
+			p->moto_drink = 20;
+	}
+	if (p->on_ground == 1)
+	{
+		if (var64 && p->MotoSpeed > 0)
+		{
+			if (p->moto_on_oil)
+				p->MotoSpeed -= 2;
+			else
+				p->MotoSpeed -= 4;
+			if (p->MotoSpeed < 0)
+				p->MotoSpeed = 0;
+			p->VBumpTarget = -30;
+			p->moto_do_bump = 1;
+		}
+		else if (var68 && !var64)
+		{
+			if (p->MotoSpeed < 40)
+			{
+				p->VBumpTarget = 70;
+				p->moto_bump_fast = 1;
+			}
+			p->MotoSpeed += 2;
+			if (p->MotoSpeed > 120)
+				p->MotoSpeed = 120;
+			if (!p->NotOnWater)
+				if (p->MotoSpeed > 80)
+					p->MotoSpeed = 80;
+		}
+		else if (p->MotoSpeed > 0)
+			p->MotoSpeed--;
+		if (p->moto_do_bump && (!var64 || p->MotoSpeed == 0))
+		{
+			p->VBumpTarget = 0;
+			p->moto_do_bump = 0;
+		}
+		if (var6c && p->MotoSpeed <= 0 && !var64)
+		{
+			int var88;
+			p->MotoSpeed = -15;
+			var88 = var7c;
+			var7c = var74;
+			var74 = var88;
+			var80 = 1;
+		}
+	}
+	if (p->MotoSpeed != 0 && p->on_ground == 1)
+	{
+		if (!p->VBumpNow)
+			if ((krand() & 3) == 2)
+				p->VBumpTarget = (p->MotoSpeed >> 4) * ((krand() & 7) - 4);
+		if (var74 || p->moto_drink < 0)
+		{
+			if (p->moto_drink < 0)
+				p->moto_drink++;
+		}
+		else if (var7c || p->moto_drink > 0)
+		{
+			if (p->moto_drink > 0)
+				p->moto_drink--;
+		}
+	}
+	if (p->TurbCount)
+	{
+		if (p->TurbCount <= 1)
+		{
+			p->q16horiz = 100 << FRACBITS;
+			p->TurbCount = 0;
+			p->VBumpTarget = 0;
+			p->VBumpNow = 0;
+		}
+		else
+		{
+			p->q16horiz = (100 + ((krand2() & 15) - 7)) << FRACBITS;
+			p->TurbCount--;
+			p->moto_drink = (krand() & 3) - 2;
+		}
+	}
+	else if (p->VBumpTarget > p->VBumpNow)
+	{
+		if (p->moto_bump_fast)
+			p->VBumpNow += 6;
+		else
+			p->VBumpNow++;
+		if (p->VBumpTarget < p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+	}
+	else if (p->VBumpTarget < p->VBumpNow)
+	{
+		if (p->moto_bump_fast)
+			p->VBumpNow -= 6;
+		else
+			p->VBumpNow--;
+		if (p->VBumpTarget > p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+	}
+	else
+	{
+		p->VBumpTarget = 0;
+		p->moto_bump_fast = 0;
+	}
+	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (var74 || var7c))
+	{
+		short var8c, var90, var94, var98;
+		var8c = p->MotoSpeed;
+		var90 = p->getang();
+		if (var74)
+			var94 = -10;
+		else
+			var94 = 10;
+		if (var94 < 0)
+			var98 = 350;
+		else
+			var98 = -350;
+		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
+		{
+			if (p->moto_on_oil)
+				var8c <<= 3;
+			else
+				var8c <<= 2;
+			if (p->moto_do_bump)
+			{
+				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
+				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
+				p->setang((var90 - (var98 >> 2)) & 2047);
+			}
+			else
+			{
+				p->posxv += (var8c >> 7) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
+				p->posyv += (var8c >> 7) * (sintable[(var94 * -51 + var90) & 2047] << 4);
+				p->setang((var90 - (var98 >> 6)) & 2047);
+			}
+			p->moto_on_mud = 0;
+			p->moto_on_oil = 0;
+		}
+		else
+		{
+			if (p->moto_do_bump)
+			{
+				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
+				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
+				p->setang((var90 - (var98 >> 4)) & 2047);
+				if (!A_CheckSoundPlaying(pi, 220))
+					A_PlaySound(220, pi);
+			}
+			else
+			{
+				p->posxv += (var8c >> 7) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
+				p->posyv += (var8c >> 7) * (sintable[(var94 * -51 + var90) & 2047] << 4);
+				p->setang((var90 - (var98 >> 7)) & 2047);
+			}
+		}
+	}
+	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
+	{
+		short var9c, vara0, vara4;
+		var9c = p->MotoSpeed;
+		vara0 = p->getang();
+		var84 = krand() & 1;
+		if (var84 == 0)
+			vara4 = -10;
+		else if (var84 == 1)
+			vara4 = 10;
+		if (p->moto_on_oil)
+			var9c *= 10;
+		else
+			var9c *= 5;
+		p->posxv += (var9c >> 7) * (sintable[(vara4 * -51 + vara0 + 512) & 2047] << 4);
+		p->posyv += (var9c >> 7) * (sintable[(vara4 * -51 + vara0) & 2047] << 4);
+	}
+	p->moto_on_mud = 0;
+	p->moto_on_oil = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void onBoat(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+
+	int vara8, varac, varb0, varb4, varb8, varbc, varc0, varc4, varc8;
+	short varcc;
+	if (p->NotOnWater)
+	{
+		if (p->MotoSpeed > 0)
+		{
+			if (!A_CheckSoundPlaying(pi, 88))
+				A_PlaySound(88, pi);
+		}
+		else
+		{
+			if (!A_CheckSoundPlaying(pi, 87))
+				A_PlaySound(87, pi);
+		}
+	}
+	if (p->MotoSpeed < 0)
+		p->MotoSpeed = 0;
+	if ((sb_snum & SKB_CROUCH) && (sb_snum & SKB_JUMP))
+	{
+		vara8 = 1;
+		varac = 0;
+		varb0 = 0;
+		sb_snum &= ~(SKB_JUMP|SKB_CROUCH);
+	}
+	else
+		vara8 = 0;
+	if (sb_snum & SKB_JUMP)
+	{
+		varac = 1;
+		sb_snum &= ~SKB_JUMP;
+		if (p->MotoSpeed == 0 && !A_CheckSoundPlaying(pi, 89))
+		{
+			if (A_CheckSoundPlaying(pi, 87))
+				S_StopEnvSound(pi, 87);
+			A_PlaySound(89, pi);
+		}
+		else if (p->MotoSpeed >= 50 && !A_CheckSoundPlaying(pi, 88))
+			A_PlaySound(88, pi);
+		else if (!A_CheckSoundPlaying(pi, 88) && !A_CheckSoundPlaying(pi, 89))
+			A_PlaySound(88, pi);
+	}
+	else
+	{
+		varac = 0;
+		if (A_CheckSoundPlaying(pi, 89))
+		{
+			S_StopEnvSound(pi, 89);
+			if (!A_CheckSoundPlaying(pi, 90))
+				A_PlaySound(90, pi);
+		}
+		if (A_CheckSoundPlaying(pi, 88))
+		{
+			S_StopEnvSound(pi, 88);
+			if (!A_CheckSoundPlaying(pi, 90))
+				A_PlaySound(90, pi);
+		}
+		if (!A_CheckSoundPlaying(pi, 90) && !A_CheckSoundPlaying(pi, 87))
+			A_PlaySound(87, pi);
+	}
+
+	if (sb_snum & SKB_CROUCH)
+	{
+		varb0 = 1;
+		sb_snum &= ~SKB_CROUCH;
+	}
+	else
+		varb0 = 0;
+	if (sb_snum & SKB_AIM_UP)
+	{
+		varb4 = 1;
+		sb_snum &= ~SKB_AIM_UP;
+	}
+	else varb4 = 0;
+	if (sb_snum & SKB_AIM_DOWN)
+	{
+		varb8 = 1;
+		varbc = 1;
+		sb_snum &= ~SKB_AIM_DOWN;
+		if (!A_CheckSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			A_PlaySound(91, pi);
+	}
+	else
+	{
+		varb8 = 0;
+		varbc = 0;
+	}
+	if (sb_snum & SKB_LOOK_LEFT)
+	{
+		varc0 = 1;
+		varc4 = 1;
+		sb_snum &= ~SKB_LOOK_LEFT;
+		if (!A_CheckSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			A_PlaySound(91, pi);
+	}
+	else
+	{
+		varc0 = 0;
+		varc4 = 0;
+	}
+	varc8 = 0;
+	if (!p->NotOnWater)
+	{
+		if (p->drink_amt > 88 && p->moto_drink == 0)
+		{
+			varcc = krand() & 63;
+			if (varcc == 1)
+				p->moto_drink = -10;
+			else if (varcc == 2)
+				p->moto_drink = 10;
+		}
+		else if (p->drink_amt > 99 && p->moto_drink == 0)
+		{
+			varcc = krand() & 31;
+			if (varcc == 1)
+				p->moto_drink = -20;
+			else if (varcc == 2)
+				p->moto_drink = 20;
+		}
+	}
+	if (p->on_ground == 1)
+	{
+		if (vara8)
+		{
+			if (p->MotoSpeed <= 25)
+			{
+				p->MotoSpeed++;
+				if (!A_CheckSoundPlaying(pi, 182))
+					A_PlaySound(182, pi);
+			}
+			else
+			{
+				p->MotoSpeed -= 2;
+				if (p->MotoSpeed < 0)
+					p->MotoSpeed = 0;
+				p->VBumpTarget = 30;
+				p->moto_do_bump = 1;
+			}
+		}
+		else if (varb0 && p->MotoSpeed > 0)
+		{
+			p->MotoSpeed -= 2;
+			if (p->MotoSpeed < 0)
+				p->MotoSpeed = 0;
+			p->VBumpTarget = 30;
+			p->moto_do_bump = 1;
+		}
+		else if (varac)
+		{
+			if (p->MotoSpeed < 40)
+				if (!p->NotOnWater)
+				{
+					p->VBumpTarget = -30;
+					p->moto_bump_fast = 1;
+				}
+			p->MotoSpeed++;
+			if (p->MotoSpeed > 120)
+				p->MotoSpeed = 120;
+		}
+		else if (p->MotoSpeed > 0)
+			p->MotoSpeed--;
+		if (p->moto_do_bump && (!varb0 || p->MotoSpeed == 0))
+		{
+			p->VBumpTarget = 0;
+			p->moto_do_bump = 0;
+		}
+		if (varb4 && p->MotoSpeed == 0 && !varb0)
+		{
+			int vard0;
+			if (!p->NotOnWater)
+				p->MotoSpeed = -25;
+			else
+				p->MotoSpeed = -20;
+			vard0 = varc4;
+			varc4 = varbc;
+			varbc = vard0;
+			varc8 = 1;
+		}
+	}
+	if (p->MotoSpeed != 0 && p->on_ground == 1)
+	{
+		if (!p->VBumpNow)
+			if ((krand() & 15) == 14)
+				p->VBumpTarget = (p->MotoSpeed >> 4) * ((krand() & 3) - 2);
+		if (varbc || p->moto_drink < 0)
+		{
+			if (p->moto_drink < 0)
+				p->moto_drink++;
+		}
+		else if (varc4 || p->moto_drink > 0)
+		{
+			if (p->moto_drink > 0)
+				p->moto_drink--;
+		}
+	}
+	if (p->TurbCount)
+	{
+		if (p->TurbCount <= 1)
+		{
+			p->q16horiz = 100 << FRACBITS;
+			p->TurbCount = 0;
+			p->VBumpTarget = 0;
+			p->VBumpNow = 0;
+		}
+		else
+		{
+			p->q16horiz = (100 + ((krand() & 15) - 7)) << FRACBITS;
+			p->TurbCount--;
+			p->moto_drink = (krand() & 3) - 2;
+		}
+	}
+	else if (p->VBumpTarget > p->VBumpNow)
+	{
+		if (p->moto_bump_fast)
+			p->VBumpNow += 6;
+		else
+			p->VBumpNow++;
+		if (p->VBumpTarget < p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+	}
+	else if (p->VBumpTarget < p->VBumpNow)
+	{
+		if (p->moto_bump_fast)
+			p->VBumpNow -= 6;
+		else
+			p->VBumpNow--;
+		if (p->VBumpTarget > p->VBumpNow)
+			p->VBumpNow = p->VBumpTarget;
+		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+	}
+	else
+	{
+		p->VBumpTarget = 0;
+		p->moto_bump_fast = 0;
+	}
+	if (p->MotoSpeed > 0 && p->on_ground == 1 && (varbc || varc4))
+	{
+		short vard4, vard8, vardc, vare0;
+		vard4 = p->MotoSpeed;
+		vard8 = p->getang();
+		if (varbc)
+			vardc = -10;
+		else
+			vardc = 10;
+		if (vardc < 0)
+			vare0 = 350;
+		else
+			vare0 = -350;
+		vard4 <<= 2;
+		if (p->moto_do_bump)
+		{
+			p->posxv += (vard4 >> 6) * (sintable[(vardc * -51 + vard8 + 512) & 2047] << 4);
+			p->posyv += (vard4 >> 6) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
+			p->setang((vard8 - (vare0 >> 5)) & 2047);
+		}
+		else
+		{
+			p->posxv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8 + 512) & 2047] << 4);
+			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
+			p->setang((vard8 - (vare0 >> 6)) & 2047);
+		}
+	}
+	if (p->NotOnWater)
+		if (p->MotoSpeed > 50)
+			p->MotoSpeed -= (p->MotoSpeed >> 1);
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+	int psectlotag = sector[psect].lotag;
+
+	if (p->airleft != 15 * 26)
+		p->airleft = 15 * 26; //Aprox twenty seconds.
+
+	if (p->scuba_on == 1)
+		p->scuba_on = 0;
+
+	int i = 40;
+	if (psectlotag == 1 && p->spritebridge == 0)
+	{
+		if (shrunk == 0)
+		{
+			i = 34;
+			p->pycount += 32;
+			p->pycount &= 2047;
+			p->pyoff = sintable[p->pycount] >> 6;
+		}
+		else i = 12;
+
+		if (shrunk == 0 && truefdist <= PHEIGHT)
+		{
+			if (p->on_ground == 1)
+			{
+				if (p->dummyplayersprite == -1)
+					p->dummyplayersprite =
+					fi.spawn(pi, PLAYERONWATER);
+
+				p->footprintcount = 6;
+				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
+				{
+					p->footprintpal = 8;
+					p->footprintshade = 0;
+				}
+				else if (isRRRA() && (sector[p->cursectnum].floorpicnum == RRTILE7756 || sector[p->cursectnum].floorpicnum == RRTILE7888))
+				{
+					p->footprintpal = 0;
+					p->footprintshade = 40;
+				}
+				else
+				{
+					p->footprintpal = 0;
+					p->footprintshade = 0;
+				}
+			}
+		}
+	}
+	else if (!p->OnMotorcycle)
+	{
+		footprints(snum);
+	}
+
+	if (p->posz < (fz - (i << 8))) //falling
+	{
+		if ((sb_snum & 3) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
+			p->posz = fz - (i << 8);
+		else
+		{
+			p->on_ground = 0;
+
+			if ((p->OnMotorcycle || p->OnBoat) && fz - (i << 8) * 2 > p->posz)
+			{
+				if (p->MotoOnGround)
+				{
+					p->VBumpTarget = 80;
+					p->moto_bump_fast = 1;
+					p->poszv -= gc * (p->MotoSpeed >> 4);
+					p->MotoOnGround = 0;
+					if (A_CheckSoundPlaying(pi, 188))
+						S_StopEnvSound(188, pi);
+					spritesound(189, pi);
+				}
+				else
+				{
+					p->poszv += gc - 80 + (120 - p->MotoSpeed);
+					if (!A_CheckSoundPlaying(pi, 189) && !A_CheckSoundPlaying(pi, 190))
+						A_PlaySound(190, pi);
+				}
+			}
+			else
+				p->poszv += (gc + 80); // (TICSPERFRAME<<6);
+
+			if (p->poszv >= (4096 + 2048)) p->poszv = (4096 + 2048);
+			if (p->poszv > 2400 && p->falling_counter < 255)
+			{
+				p->falling_counter++;
+				if (p->falling_counter == 38)
+					p->scream_voice = spritesound(DUKE_SCREAM, pi);
+			}
+
+			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
+				if (sector[p->cursectnum].lotag != 1)
+				{
+					if (isRRRA()) p->MotoOnGround = 1;
+					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && sector[p->cursectnum].lotag == 802)) 
+						quickkill(p);
+
+					else if (p->falling_counter > 9)
+					{
+						int j = p->falling_counter;
+						s->extra -= j - (krand() & 3);
+						if (s->extra <= 0)
+						{
+							spritesound(SQUISHED, pi);
+						}
+						else
+						{
+							spritesound(DUKE_LAND, pi);
+							spritesound(DUKE_LAND_HURT, pi);
+						}
+
+						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
+					}
+					else if (p->poszv > 2048)
+					{
+						if (p->OnMotorcycle)
+						{
+							if (A_CheckSoundPlaying(pi, 190))
+								S_StopEnvSound(pi, 190);
+							spritesound(191, pi);
+							p->TurbCount = 12;
+						}
+						else spritesound(DUKE_LAND, pi);
+					}
+					else if (p->poszv > 1024 && p->OnMotorcycle)
+					{
+						spritesound(DUKE_LAND, pi);
+						p->TurbCount = 12;
+					}
+				}
+		}
+	}
+
+	else
+	{
+		p->falling_counter = 0;
+		S_StopEnvSound(-1, pi, CHAN_VOICE);
+
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
+			p->hard_landing = p->poszv >> 10;
+
+		p->on_ground = 1;
+
+		if (i == 40)
+		{
+			//Smooth on the ground
+
+			int k = ((fz - (i << 8)) - p->posz) >> 1;
+			if (abs(k) < 256) k = 0;
+			p->posz += k;
+			p->poszv -= 768;
+			if (p->poszv < 0) p->poszv = 0;
+		}
+		else if (p->jumping_counter == 0)
+		{
+			p->posz += ((fz - (i << 7)) - p->posz) >> 1; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->posz > fz - (16 << 8))
+			{
+				p->posz = fz - (16 << 8);
+				p->poszv >>= 1;
+			}
+		}
+
+		p->on_warping_sector = 0;
+
+		if ((sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+		{
+			playerCrouch(snum);
+		}
+
+		if ((sb_snum & SKB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
+			p->jumping_toggle = 0;
+
+		else if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
+		{
+			playerJump(snum, fz, cz);
+		}
+	}
+
+	if (p->jumping_counter)
+	{
+		if ((sb_snum & SKB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
+			p->jumping_toggle = 0;
+
+		if (p->jumping_counter < 768)
+		{
+			if (psectlotag == 1 && p->jumping_counter > 768)
+			{
+				p->jumping_counter = 0;
+				p->poszv = -512;
+			}
+			else
+			{
+				p->poszv -= (sintable[(2048 - 128 + p->jumping_counter) & 2047]) / 12;
+				p->jumping_counter += 180;
+				p->on_ground = 0;
+			}
+		}
+		else
+		{
+			p->jumping_counter = 0;
+			p->poszv = 0;
+		}
+	}
+
+	p->posz += p->poszv;
+
+	if (p->posz < (cz + (4 << 8)))
+	{
+		p->jumping_counter = 0;
+		if (p->poszv < 0)
+			p->posxv = p->posyv = 0;
+		p->poszv = 128;
+		p->posz = cz + (4 << 8);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void underwater(int snum, int sb_snum, int psect, int fz, int cz)
+{
+	int j;
+	auto p = &ps[snum];
+	int pi = p->i;
+	int psectlotag = sector[psect].lotag;
+
+	p->jumping_counter = 0;
+
+	p->pycount += 32;
+	p->pycount &= 2047;
+	p->pyoff = sintable[p->pycount] >> 7;
+
+	if (!A_CheckSoundPlaying(pi, DUKE_UNDERWATER))
+		A_PlaySound(DUKE_UNDERWATER, pi);
+
+	if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle)
+	{
+		if (p->poszv > 0) p->poszv = 0;
+		p->poszv -= 348;
+		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
+	}
+	else if ((sb_snum & SKB_CROUCH) || p->OnMotorcycle)
+	{
+		if (p->poszv < 0) p->poszv = 0;
+		p->poszv += 348;
+		if (p->poszv > (256 * 6)) p->poszv = (256 * 6);
+	}
+	else
+	{
+		if (p->poszv < 0)
+		{
+			p->poszv += 256;
+			if (p->poszv > 0)
+				p->poszv = 0;
+		}
+		if (p->poszv > 0)
+		{
+			p->poszv -= 256;
+			if (p->poszv < 0)
+				p->poszv = 0;
+		}
+	}
+
+	if (p->poszv > 2048)
+		p->poszv >>= 1;
+
+	p->posz += p->poszv;
+
+	if (p->posz > (fz - (15 << 8)))
+		p->posz += ((fz - (15 << 8)) - p->posz) >> 1;
+
+	if (p->posz < (cz + (4 << 8)))
+	{
+		p->posz = cz + (4 << 8);
+		p->poszv = 0;
+	}
+
+	if (p->scuba_on && (krand() & 255) < 8)
+	{
+		j = fi.spawn(pi, WATERBUBBLE);
+		sprite[j].x +=
+			sintable[(p->getang() + 512 + 64 - (global_random & 128) + 128) & 2047] >> 6;
+		sprite[j].y +=
+			sintable[(p->getang() + 64 - (global_random & 128) + 128) & 2047] >> 6;
+		sprite[j].xrepeat = 3;
+		sprite[j].yrepeat = 2;
+		sprite[j].z = p->posz + (8 << 8);
+		sprite[j].cstat = 514;
+	}
+
+}
 END_DUKE_NS

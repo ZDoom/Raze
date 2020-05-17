@@ -1501,4 +1501,379 @@ int doincrements_d(struct player_struct* p)
 }
 
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void checkweapons_d(struct player_struct* p)
+{
+	static const short weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
+			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
+			TRIPBOMBSPRITE, FREEZESPRITE, HEAVYHBOMB, SHRINKERSPRITE };
+
+	int cw;
+
+	if (isWW2GI())
+	{
+		int snum = sprite[p->i].yvel;
+		cw = aplWeaponWorksLike[p->curr_weapon][snum];
+	}
+	else 
+		cw = p->curr_weapon;
+
+
+	if (cw < 1 || cw >= MAX_WEAPONS) return;
+
+	if (cw)
+	{
+		if (krand() & 1)
+			fi.spawn(p->i, weapon_sprites[cw]);
+		else switch (cw)
+		{
+		case RPG_WEAPON:
+		case HANDBOMB_WEAPON:
+			fi.spawn(p->i, EXPLOSION2);
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void operateJetpack(int snum, int sb_snum, int psectlotag, int fz, int cz, int shrunk)
+{
+	int j;
+	auto p = &ps[snum];
+	int pi = p->i;
+	p->on_ground = 0;
+	p->jumping_counter = 0;
+	p->hard_landing = 0;
+	p->falling_counter = 0;
+
+	p->pycount += 32;
+	p->pycount &= 2047;
+	p->pyoff = sintable[p->pycount] >> 7;
+
+	if (p->jetpack_on < 11)
+	{
+		p->jetpack_on++;
+		p->posz -= (p->jetpack_on << 7); //Goin up
+	}
+	else if (p->jetpack_on == 11 && !A_CheckSoundPlaying(pi, DUKE_JETPACK_IDLE))
+		spritesound(DUKE_JETPACK_IDLE, pi);
+
+	if (shrunk) j = 512;
+	else j = 2048;
+
+	if (sb_snum & SKB_JUMP)                            //A (soar high)
+	{
+		// jump
+		SetGameVarID(g_iReturnVarID, 0, pi, snum);
+		OnEvent(EVENT_SOARUP, pi, snum, -1);
+		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+		{
+			p->posz -= j;
+			p->crack_time = 777;
+		}
+	}
+
+	if (sb_snum & SKB_CROUCH)                            //Z (soar low)
+	{
+		// crouch
+		SetGameVarID(g_iReturnVarID, 0, pi, snum);
+		OnEvent(EVENT_SOARDOWN, pi, snum, -1);
+		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+		{
+			p->posz += j;
+			p->crack_time = 777;
+		}
+		p->posz += j;
+		p->crack_time = 777;
+	}
+
+	int k;
+	if (shrunk == 0 && (psectlotag == 0 || psectlotag == 2)) k = 32;
+	else k = 16;
+
+	if (psectlotag != 2 && p->scuba_on == 1)
+		p->scuba_on = 0;
+
+	if (p->posz > (fz - (k << 8)))
+		p->posz += ((fz - (k << 8)) - p->posz) >> 1;
+	if (p->posz < (hittype[pi].ceilingz + (18 << 8)))
+		p->posz = hittype[pi].ceilingz + (18 << 8);
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+{
+	int j;
+	auto p = &ps[snum];
+	int pi = p->i;
+	int psectlotag = sector[psect].lotag;
+
+	if (p->airleft != 15 * 26)
+		p->airleft = 15 * 26; //Aprox twenty seconds.
+
+	if (p->scuba_on == 1)
+		p->scuba_on = 0;
+
+	int i = 40;
+	if (psectlotag == 1 && p->spritebridge == 0)
+	{
+		if (shrunk == 0)
+		{
+			i = 34;
+			p->pycount += 32;
+			p->pycount &= 2047;
+			p->pyoff = sintable[p->pycount] >> 6;
+		}
+		else i = 12;
+
+		if (shrunk == 0 && truefdist <= PHEIGHT)
+		{
+			if (p->on_ground == 1)
+			{
+				if (p->dummyplayersprite == -1)
+					p->dummyplayersprite =
+					fi.spawn(pi, PLAYERONWATER);
+
+				p->footprintcount = 6;
+				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
+					p->footprintpal = 8;
+				else p->footprintpal = 0;
+				p->footprintshade = 0;
+			}
+		}
+	}
+	else
+	{
+		footprints(snum);
+	}
+
+	if (p->posz < (fz - (i << 8))) //falling
+	{
+
+		// not jumping or crouching
+		if ((sb_snum & 3) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
+			p->posz = fz - (i << 8);
+		else
+		{
+			p->on_ground = 0;
+			p->poszv += (gc + 80); // (TICSPERFRAME<<6);
+			if (p->poszv >= (4096 + 2048)) p->poszv = (4096 + 2048);
+			if (p->poszv > 2400 && p->falling_counter < 255)
+			{
+				p->falling_counter++;
+				if (p->falling_counter == 38)
+					p->scream_voice = spritesound(DUKE_SCREAM, pi);
+			}
+
+			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
+				if (sector[p->cursectnum].lotag != 1)
+				{
+					if (p->falling_counter > 62) quickkill(p);
+
+					else if (p->falling_counter > 9)
+					{
+						j = p->falling_counter;
+						sprite[pi].extra -= j - (krand() & 3);
+						if (sprite[pi].extra <= 0)
+						{
+							spritesound(SQUISHED, pi);
+							SetPlayerPal(p, PalEntry(63, 63, 0, 0));
+						}
+						else
+						{
+							spritesound(DUKE_LAND, pi);
+							spritesound(DUKE_LAND_HURT, pi);
+						}
+
+						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
+					}
+					else if (p->poszv > 2048) spritesound(DUKE_LAND, pi);
+				}
+		}
+	}
+
+	else
+	{
+		p->falling_counter = 0;
+		S_StopEnvSound(-1, pi, CHAN_VOICE);
+
+		if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->poszv > (6144 >> 1))
+			p->hard_landing = p->poszv >> 10;
+
+		p->on_ground = 1;
+
+		if (i == 40)
+		{
+			//Smooth on the ground
+
+			int k = ((fz - (i << 8)) - p->posz) >> 1;
+			if (abs(k) < 256) k = 0;
+			p->posz += k;
+			p->poszv -= 768;
+			if (p->poszv < 0) p->poszv = 0;
+		}
+		else if (p->jumping_counter == 0)
+		{
+			p->posz += ((fz - (i << 7)) - p->posz) >> 1; //Smooth on the water
+			if (p->on_warping_sector == 0 && p->posz > fz - (16 << 8))
+			{
+				p->posz = fz - (16 << 8);
+				p->poszv >>= 1;
+			}
+		}
+
+		p->on_warping_sector = 0;
+
+		if (sb_snum & SKB_CROUCH)
+		{
+			playerCrouch(snum);
+		}
+
+		// jumping
+		if ((sb_snum & SKB_JUMP) == 0 && p->jumping_toggle == 1)
+			p->jumping_toggle = 0;
+
+		else if ((sb_snum & SKB_JUMP))
+		{
+			playerJump(snum, fz, cz);
+		}
+
+		if (p->jumping_counter && (sb_snum & SKB_JUMP) == 0)
+			p->jumping_toggle = 0;
+	}
+
+	if (p->jumping_counter)
+	{
+		if ((sb_snum & SKB_JUMP) == 0 && p->jumping_toggle == 1)
+			p->jumping_toggle = 0;
+
+		if (p->jumping_counter < (1024 + 256))
+		{
+			if (psectlotag == 1 && p->jumping_counter > 768)
+			{
+				p->jumping_counter = 0;
+				p->poszv = -512;
+			}
+			else
+			{
+				p->poszv -= (sintable[(2048 - 128 + p->jumping_counter) & 2047]) / 12;
+				p->jumping_counter += 180;
+				p->on_ground = 0;
+			}
+		}
+		else
+		{
+			p->jumping_counter = 0;
+			p->poszv = 0;
+		}
+	}
+
+	p->posz += p->poszv;
+
+	if (p->posz < (cz + (4 << 8)))
+	{
+		p->jumping_counter = 0;
+		if (p->poszv < 0)
+			p->posxv = p->posyv = 0;
+		p->poszv = 128;
+		p->posz = cz + (4 << 8);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void underwater(int snum, int sb_snum, int psect, int fz, int cz)
+{
+	int j;
+	auto p = &ps[snum];
+	int pi = p->i;
+	int psectlotag = sector[psect].lotag;
+
+	// under water
+	p->jumping_counter = 0;
+
+	p->pycount += 32;
+	p->pycount &= 2047;
+	p->pyoff = sintable[p->pycount] >> 7;
+
+	if (!A_CheckSoundPlaying(pi, DUKE_UNDERWATER))
+		A_PlaySound(DUKE_UNDERWATER, pi);
+
+	if (sb_snum & 1)
+	{
+		// jump
+		if (p->poszv > 0) p->poszv = 0;
+		p->poszv -= 348;
+		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
+	}
+	else if (sb_snum & (1 << 1))
+	{
+		// crouch
+		if (p->poszv < 0) p->poszv = 0;
+		p->poszv += 348;
+		if (p->poszv > (256 * 6)) p->poszv = (256 * 6);
+	}
+	else
+	{
+		// normal view
+		if (p->poszv < 0)
+		{
+			p->poszv += 256;
+			if (p->poszv > 0)
+				p->poszv = 0;
+		}
+		if (p->poszv > 0)
+		{
+			p->poszv -= 256;
+			if (p->poszv < 0)
+				p->poszv = 0;
+		}
+	}
+
+	if (p->poszv > 2048)
+		p->poszv >>= 1;
+
+	p->posz += p->poszv;
+
+	if (p->posz > (fz - (15 << 8)))
+		p->posz += ((fz - (15 << 8)) - p->posz) >> 1;
+
+	if (p->posz < (cz + (4 << 8)))
+	{
+		p->posz = cz + (4 << 8);
+		p->poszv = 0;
+	}
+
+	if (p->scuba_on && (krand() & 255) < 8)
+	{
+		j = fi.spawn(pi, WATERBUBBLE);
+		sprite[j].x +=
+			sintable[(p->getang() + 512 + 64 - (global_random & 128)) & 2047] >> 6;
+		sprite[j].y +=
+			sintable[(p->getang() + 64 - (global_random & 128)) & 2047] >> 6;
+		sprite[j].xrepeat = 3;
+		sprite[j].yrepeat = 2;
+		sprite[j].z = p->posz + (8 << 8);
+	}
+}
 END_DUKE_NS

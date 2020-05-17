@@ -287,6 +287,433 @@ int aim(spritetype* s, int aang)
 	return j;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnlist)
+{
+	auto p = &ps[snum];
+
+	if (p->knee_incs > 0)
+	{
+		p->knee_incs++;
+		p->addhoriz(-48);
+		p->return_to_center = 9;
+		if (p->knee_incs > 15)
+		{
+			p->knee_incs = 0;
+			p->holster_weapon = 0;
+			if (p->weapon_pos < 0)
+				p->weapon_pos = -p->weapon_pos;
+			if (p->actorsqu >= 0 && dist(&sprite[pi], &sprite[p->actorsqu]) < 1400)
+			{
+				fi.guts(&sprite[p->actorsqu], TILE_JIBS6, 7, myconnectindex);
+				fi.spawn(p->actorsqu, TILE_BLOODPOOL);
+				spritesound(SQUISHED, p->actorsqu);
+				if (isIn(sprite[p->actorsqu].picnum, respawnlist))
+				{
+					if (sprite[p->actorsqu].yvel)
+						fi.operaterespawns(sprite[p->actorsqu].yvel);
+				}
+
+				if (sprite[p->actorsqu].picnum == TILE_APLAYER)
+				{
+					quickkill(&ps[sprite[p->actorsqu].yvel]);
+					ps[sprite[p->actorsqu].yvel].frag_ps = snum;
+				}
+				else if (badguy(&sprite[p->actorsqu]))
+				{
+					deletesprite(p->actorsqu);
+					p->actors_killed++;
+				}
+				else deletesprite(p->actorsqu);
+			}
+			p->actorsqu = -1;
+		}
+		else if (p->actorsqu >= 0)
+			p->addang(getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
+	}
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int makepainsounds(int snum, int type)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+	int k = 0;
+
+	switch (type)
+	{
+	case 0:
+		if (rnd(32))
+		{
+			if (p->boot_amount > 0)
+				k = 1;
+			else
+			{
+				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					spritesound(DUKE_LONGTERM_PAIN, pi);
+				SetPlayerPal(p, PalEntry(32, 64, 64, 64));
+				s->extra -= 1 + (krand() & 3);
+				if (!A_CheckSoundPlaying(pi, SHORT_CIRCUIT))
+					spritesound(SHORT_CIRCUIT, pi);
+			}
+		}
+		break;
+	case 1:
+		if (rnd(16))
+		{
+			if (p->boot_amount > 0)
+				k = 1;
+			else
+			{
+				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					spritesound(DUKE_LONGTERM_PAIN, pi);
+				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
+				s->extra -= 1 + (krand() & 3);
+			}
+		}
+		break;
+	case 2:
+		if (rnd(32))
+		{
+			if (p->boot_amount > 0)
+				k = 1;
+			else
+			{
+				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					spritesound(DUKE_LONGTERM_PAIN, pi);
+				SetPlayerPal(p, PalEntry(32, 8, 0, 0));
+				s->extra -= 1 + (krand() & 3);
+			}
+		}
+		break;
+	case 3:
+		if ((krand() & 3) == 1)
+			if (p->on_ground)
+			{
+				if (p->OnMotorcycle)
+					s->extra -= 2;
+				else
+					s->extra -= 4;
+				spritesound(DUKE_LONGTERM_PAIN, pi);
+			}
+		break;
+	}
+	return k;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void footprints(int snum)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+	auto psect = s->sectnum;
+
+	if (p->footprintcount > 0 && p->on_ground)
+		if ((sector[p->cursectnum].floorstat & 2) != 2)
+		{
+			int j;
+			for (j = headspritesect[psect]; j >= 0; j = nextspritesect[j])
+				if (sprite[j].picnum == TILE_FOOTPRINTS || sprite[j].picnum == TILE_FOOTPRINTS2 || sprite[j].picnum == TILE_FOOTPRINTS3 || sprite[j].picnum == TILE_FOOTPRINTS4)
+					if (abs(sprite[j].x - p->posx) < 384)
+						if (abs(sprite[j].y - p->posy) < 384)
+							break;
+			if (j < 0)
+			{
+				p->footprintcount--;
+				if (sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+				{
+					switch (krand() & 3)
+					{
+					case 0:  j = fi.spawn(pi, TILE_FOOTPRINTS); break;
+					case 1:  j = fi.spawn(pi, TILE_FOOTPRINTS2); break;
+					case 2:  j = fi.spawn(pi, TILE_FOOTPRINTS3); break;
+					default: j = fi.spawn(pi, TILE_FOOTPRINTS4); break;
+					}
+					sprite[j].pal = p->footprintpal;
+					sprite[j].shade = p->footprintshade;
+				}
+			}
+		}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerisdead(int snum, int psectlotag, int fz, int cz)
+{
+	auto p = &ps[snum];
+	auto pi = p->i;
+	auto s = &sprite[pi];
+
+	if (p->dead_flag == 0)
+	{
+		if (s->pal != 1)
+		{
+			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
+			p->posz -= (16 << 8);
+			s->z -= (16 << 8);
+		}
+#if 0
+		if (ud.recstat == 1 && ud.multimode < 2)
+			closedemowrite();
+#endif
+
+		if (s->pal != 1)
+			p->dead_flag = (512 - ((krand() & 1) << 10) + (krand() & 255) - 512) & 2047;
+
+		p->jetpack_on = 0;
+		p->holoduke_on = -1;
+
+		if (!isRR())S_StopEnvSound(DUKE_JETPACK_IDLE, pi);
+		S_StopEnvSound(-1, pi, CHAN_VOICE);
 
 
+		if (s->pal != 1 && (s->cstat & 32768) == 0) s->cstat = 0;
+
+		if (ud.multimode > 1 && (s->pal != 1 || (s->cstat & 32768)))
+		{
+			if (p->frag_ps != snum)
+			{
+				ps[p->frag_ps].frag++;
+				//frags[p->frag_ps][snum]++;
+				g_player[p->frag_ps].frags[snum]++;	 // TRANSITIONAL
+				g_player[snum].frags[snum]++;  // deaths
+
+				auto pname = &g_player[p->frag_ps].user_name[0];	 // TRANSITIONAL
+				//&ud.user_name[p->frag_ps][0]);
+				if (snum == screenpeek)
+				{
+					quoteMgr.InitializeQuote(QUOTE_RESERVED, "Killed by %s", pname);
+					FTA(QUOTE_RESERVED, p);
+				}
+				else
+				{
+					quoteMgr.InitializeQuote(QUOTE_RESERVED2, "Killed %s", pname);
+					FTA(QUOTE_RESERVED2, p);
+				}
+
+			}
+			else p->fraggedself++;
+
+#if 0
+			if (myconnectindex == connecthead)
+			{
+				sprintf(tempbuf, "frag %d killed %d\n", p->frag_ps + 1, snum + 1);
+				sendscore(tempbuf);
+				//                    printf(tempbuf);
+			}
+#endif
+
+			p->frag_ps = snum;
+			pus = NUMPAGES;
+		}
+	}
+
+	if (psectlotag == ST_2_UNDERWATER)
+	{
+		if (p->on_warping_sector == 0)
+		{
+			if (abs(p->posz - fz) > (PHEIGHT >> 1))
+				p->posz += 348;
+		}
+		else
+		{
+			s->z -= 512;
+			s->zvel = -348;
+		}
+
+		clipmove(&p->posx, &p->posy,
+			&p->posz, &p->cursectnum,
+			0, 0, 164L, (4L << 8), (4L << 8), CLIPMASK0);
+		//            p->bobcounter += 32;
+	}
+
+	p->oposx = p->posx;
+	p->oposy = p->posy;
+	p->oposz = p->posz;
+	p->oq16ang = p->q16ang;
+	p->opyoff = p->pyoff;
+
+	p->q16horiz = 100 << FRACBITS;
+	p->q16horizoff = 0;
+
+	updatesector(p->posx, p->posy, &p->cursectnum);
+
+	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (20L << 8), CLIPMASK0);
+
+	if (fz > cz + (16 << 8) && s->pal != 1)
+		p->rotscrnang = (p->dead_flag + ((fz + p->posz) >> 7)) & 2047;
+
+	p->on_warping_sector = 0;
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int endoflevel(int snum)
+{
+	auto p = &ps[snum];
+
+	// the fist puching the end-of-level thing...
+	p->fist_incs++;
+	if (p->fist_incs == 28)
+	{
+#if 0
+		if (ud.recstat == 1) closedemowrite();
+#endif
+		sound(PIPEBOMB_EXPLODE);
+		SetPlayerPal(p, PalEntry(48, 64, 64, 64));
+	}
+	if (p->fist_incs > 42)
+	{
+		// Fixme: Take level orogression logic out of here.
+		if (p->buttonpalette && ud.from_bonus == 0)
+		{
+			ud.from_bonus = ud.level_number + 1;
+			if (ud.secretlevel > 0 && ud.secretlevel < (isRR() ? 9 : 12)) ud.level_number = ud.secretlevel - 1;
+			ud.m_level_number = ud.level_number;
+		}
+		else
+		{
+			if (ud.from_bonus)
+			{
+				ud.level_number = ud.from_bonus;
+				ud.m_level_number = ud.level_number;
+				ud.from_bonus = 0;
+			}
+			else
+			{
+				if (ud.level_number == ud.secretlevel && ud.from_bonus > 0)
+					ud.level_number = ud.from_bonus;
+				else ud.level_number++;
+
+				if (ud.level_number > (isRR() ? 6 : 10)) ud.level_number = 0;
+				ud.m_level_number = ud.level_number;
+
+			}
+		}
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			ps[i].gm = MODE_EOL;
+		p->fist_incs = 0;
+		return 1;
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void timedexit(int snum)
+{
+	auto p = &ps[snum];
+	p->timebeforeexit--;
+	if (p->timebeforeexit == 26 * 5)
+	{
+		FX_StopAllSounds();
+		if (p->customexitsound >= 0)
+		{
+			sound(p->customexitsound);
+			FTA(102, p);
+		}
+	}
+	else if (p->timebeforeexit == 1)
+	{
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			ps[i].gm = MODE_EOL;
+		if (ud.from_bonus && !isRR())
+		{
+			ud.level_number = ud.from_bonus;
+			ud.m_level_number = ud.level_number;
+			ud.from_bonus = 0;
+		}
+		else
+		{
+			ud.level_number++;
+			ud.m_level_number = ud.level_number;
+		}
+		return;
+	}
+}
+
+void playerCrouch(int snum)
+{
+	auto p = &ps[snum];
+	// crouching
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_CROUCH, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->posz += (2048 + 768);
+		p->crack_time = 777;
+	}
+}
+
+void playerJump(int snum, int fz, int cz)
+{
+	auto p = &ps[snum];
+	if (p->jumping_toggle == 0 && p->jumping_counter == 0)
+	{
+		if ((fz - cz) > (56 << 8))
+		{
+			SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+			OnEvent(EVENT_JUMP, p->i, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+			{
+				p->jumping_counter = 1;
+				p->jumping_toggle = 1;
+			}
+		}
+	}
+}
+
+void playerLookLeft(int snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->look_ang -= 152;
+		p->rotscrnang += 24;
+	}
+}
+
+void playerLookRight(int snum)
+{
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->look_ang += 152;
+		p->rotscrnang -= 24;
+	}
+}
 END_DUKE_NS

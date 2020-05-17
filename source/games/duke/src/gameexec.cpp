@@ -417,7 +417,7 @@ int parse(void)
 		break;
 	case concmd_tossweapon:
 		insptr++;
-		checkweapons(&ps[g_sp->yvel]);
+		fi.checkweapons(&ps[g_sp->yvel]);
 		break;
 	case concmd_nullop:
 		insptr++;

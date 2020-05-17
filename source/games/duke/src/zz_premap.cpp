@@ -970,15 +970,15 @@ void P_ResetStatus(int playerNum)
             }
             pPlayer->lotag800kill = 0;
             pPlayer->moto_do_bump = 0;
-            pPlayer->moto_on_ground = 1;
+            pPlayer->MotoOnGround = 1;
             pPlayer->moto_underwater = 0;
             pPlayer->MotoSpeed = 0;
-            pPlayer->tilt_status = 0;
+            pPlayer->TiltStatus = 0;
             pPlayer->moto_drink = 0;
-            pPlayer->moto_bump_target = 0;
-            pPlayer->moto_bump = 0;
+            pPlayer->VBumpTarget = 0;
+            pPlayer->VBumpNow = 0;
             pPlayer->moto_bump_fast = 0;
-            pPlayer->moto_turb = 0;
+            pPlayer->TurbCount = 0;
             pPlayer->moto_on_mud = 0;
             pPlayer->moto_on_oil = 0;
             if (pPlayer->OnBoat)
@@ -987,7 +987,7 @@ void P_ResetStatus(int playerNum)
                 pPlayer->gotweapon.Clear(BOAT_WEAPON);
                 pPlayer->curr_weapon = SLINGBLADE_WEAPON;
             }
-            pPlayer->not_on_water = 0;
+            pPlayer->NotOnWater = 0;
             pPlayer->sea_sick = 0;
             pPlayer->nocheat = 0;
             pPlayer->DrugMode = 0;
@@ -1859,7 +1859,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
             G_BonusScreenRRRA(1);
     }
 
-    if (RR && !RRRA && g_turdLevel && !g_lastLevel)
+    if (RR && !RRRA && ud.level_number == 6 && ud.volume_number == 0)
         G_BonusScreen(0);
 
     g_showShareware = GAMETICSPERSEC*34;

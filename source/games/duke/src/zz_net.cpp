@@ -220,15 +220,15 @@ void Net_ResetPrediction(void)
     myhardlanding = g_player[myconnectindex].ps->hard_landing;
     myreturntocenter = g_player[myconnectindex].ps->return_to_center;
     my_MotoSpeed = g_player[myconnectindex].ps->MotoSpeed;
-    my_not_on_water = g_player[myconnectindex].ps->not_on_water;
-    my_moto_on_ground = g_player[myconnectindex].ps->moto_on_ground;
+    my_NotOnWater = g_player[myconnectindex].ps->NotOnWater;
+    my_MotoOnGround = g_player[myconnectindex].ps->MotoOnGround;
     my_moto_do_bump = g_player[myconnectindex].ps->moto_do_bump;
     my_moto_bump_fast = g_player[myconnectindex].ps->moto_bump_fast;
     my_moto_on_oil = g_player[myconnectindex].ps->moto_on_oil;
     my_moto_on_mud = g_player[myconnectindex].ps->moto_on_mud;
     my_moto_bump = g_player[myconnectindex].ps->moto_do_bump;
-    my_moto_bump_target = g_player[myconnectindex].ps->moto_bump_target;
-    my_moto_turb = g_player[myconnectindex].ps->moto_turb;
+    my_moto_bump_target = g_player[myconnectindex].ps->VBumpTarget;
+    my_moto_turb = g_player[myconnectindex].ps->TurbCount;
     my_stairs = g_player[myconnectindex].ps->stairs;
 }
 
@@ -316,7 +316,7 @@ void Net_DoPrediction(void)
                     my_MotoSpeed += 2;
                     if (my_MotoSpeed > 120)
                         my_MotoSpeed = 120;
-                    if (!my_not_on_water)
+                    if (!my_NotOnWater)
                         if (my_MotoSpeed > 80)
                             my_MotoSpeed = 80;
                 }
@@ -393,7 +393,7 @@ void Net_DoPrediction(void)
                     var98 = 350;
                 else
                     var98 = -350;
-                if (my_moto_on_mud || my_moto_on_oil || !my_not_on_water)
+                if (my_moto_on_mud || my_moto_on_oil || !my_NotOnWater)
                 {
                     if (my_moto_on_oil)
                         var8c <<= 3;
@@ -528,7 +528,7 @@ void Net_DoPrediction(void)
                 else if (varac)
                 {
                     if (my_MotoSpeed < 40)
-                        if (!my_not_on_water)
+                        if (!my_NotOnWater)
                         {
                             my_moto_bump_target = -30;
                             my_moto_bump_fast = 1;
@@ -547,7 +547,7 @@ void Net_DoPrediction(void)
                 if (varb4 && my_MotoSpeed == 0 && !varb0)
                 {
                     int vard0;
-                    if (!my_not_on_water)
+                    if (!my_NotOnWater)
                         my_MotoSpeed = -25;
                     else
                         my_MotoSpeed = -20;
@@ -629,7 +629,7 @@ void Net_DoPrediction(void)
                     myang = F16((vard8-(vare0>>6))&2047);
                 }
             }
-            if (my_not_on_water)
+            if (my_NotOnWater)
                 if (my_MotoSpeed > 50)
                     my_MotoSpeed -= (my_MotoSpeed>>1);
         }
@@ -938,12 +938,12 @@ check_enemy_sprite:
                 
                 if (RRRA && (pPlayer->OnMotorcycle || pPlayer->OnBoat) && floorZ - (floorZOffset << 9) > mypos.z)
                 {
-                    if (my_moto_on_ground)
+                    if (my_MotoOnGround)
                     {
                         my_moto_bump_target = 80;
                         my_moto_bump_fast = 1;
                         myvel.z -= g_spriteGravity*(my_MotoSpeed>>4);
-                        my_moto_on_ground = 0;
+                        my_MotoOnGround = 0;
                     }
                     else
                     {
@@ -961,7 +961,7 @@ check_enemy_sprite:
                     if (sector[mycursectnum].lotag != ST_1_ABOVE_WATER)
                     {
                         if (RRRA)
-                            my_moto_on_ground = 1;
+                            my_MotoOnGround = 1;
                     }
                 }
             }
@@ -1081,16 +1081,16 @@ check_enemy_sprite:
             if (spritebridge == 0 && myonground)
             {
                 if (sectorLotag == ST_1_ABOVE_WATER)
-                    my_not_on_water = 0;
+                    my_NotOnWater = 0;
                 else if (pPlayer->OnBoat)
                 {
                     if (sectorLotag == 1234)
-                        my_not_on_water = 0;
+                        my_NotOnWater = 0;
                     else
-                        my_not_on_water = 1;
+                        my_NotOnWater = 1;
                 }
                 else
-                    my_not_on_water = 1;
+                    my_NotOnWater = 1;
             }
         }
         if (pPlayer->jetpack_on == 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
@@ -1351,15 +1351,15 @@ void Net_CorrectPrediction(void)
     myhardlanding = p->hard_landing;
     myreturntocenter = p->return_to_center;
     my_MotoSpeed = p->MotoSpeed;
-    my_not_on_water = p->not_on_water;
-    my_moto_on_ground = p->moto_on_ground;
+    my_NotOnWater = p->NotOnWater;
+    my_MotoOnGround = p->MotoOnGround;
     my_moto_do_bump = p->moto_do_bump;
     my_moto_bump_fast = p->moto_bump_fast;
     my_moto_on_oil = p->moto_on_oil;
     my_moto_on_mud = p->moto_on_mud;
     my_moto_bump = p->moto_do_bump;
-    my_moto_bump_target = p->moto_bump_target;
-    my_moto_turb = p->moto_turb;
+    my_moto_bump_target = p->VBumpTarget;
+    my_moto_turb = p->TurbCount;
     my_stairs = p->stairs;
 
     predictfifoplc = movefifoplc;

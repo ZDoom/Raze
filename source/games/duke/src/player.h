@@ -252,10 +252,10 @@ typedef struct player_struct {
     int16_t drink_amt, eat, drunkang, eatang;
     int32_t drink_timer, eat_timer;
     int16_t MamaEnd;
-    int16_t MotoSpeed, tilt_status, moto_drink;
-    uint8_t OnMotorcycle, OnBoat, moto_underwater, not_on_water, moto_on_ground;
+    int16_t MotoSpeed, TiltStatus, moto_drink;
+    uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
     uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
-    int16_t moto_bump, moto_bump_target, moto_turb;
+    int16_t VBumpNow, VBumpTarget, TurbCount;
     int16_t drug_stat[3];
     int32_t drug_aspect;
     uint8_t DrugMode, lotag800kill, sea_sick_stat;
@@ -452,6 +452,14 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
 int hits(int i);
 int hitasprite(int i, short* hitsp);
 int aim(spritetype* s, int aang);
+
+void timedexit(int snum);
+int endoflevel(int snum);
+void playerisdead(int snum, int psectlotag, int fz, int cz);
+void footprints(int snum);
+int makepainsounds(int snum, int type);
+void playerCrouch(int snum);
+void playerJump(int snum, int fz, int cz);
 
 END_DUKE_NS
 

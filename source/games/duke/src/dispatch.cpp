@@ -101,6 +101,8 @@ void selectweapon_d(int snum, int j);
 void selectweapon_r(int snum, int j);
 int doincrements_d(struct player_struct* p);
 int doincrements_r(struct player_struct* p);
+void checkweapons_d(struct player_struct* p);
+void checkweapons_r(struct player_struct* p);
 
 
 
@@ -148,6 +150,7 @@ void SetDispatcher()
 		shoot_d,
 		selectweapon_d,
 		doincrements_d,
+		checkweapons_d,
 		};
 	}
 	else	
@@ -190,6 +193,7 @@ void SetDispatcher()
 		shoot_r,
 		selectweapon_r,
 		doincrements_r,
+		checkweapons_r,
 		};
 	}
 }
