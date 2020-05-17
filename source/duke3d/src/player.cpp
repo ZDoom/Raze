@@ -2017,8 +2017,6 @@ static int P_DisplayKnuckles(int knuckleShade)
     return 1;
 }
 
-#if !defined LUNATIC
-// Set C-CON's WEAPON and WORKSLIKE gamevars.
 void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
 {
     Gv_SetVar(g_weaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
@@ -2026,7 +2024,6 @@ void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
               ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
               pPlayer->i, playerNum);
 }
-#endif
 
 static void P_FireWeapon(int playerNum)
 {
