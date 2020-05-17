@@ -922,7 +922,7 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = n
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
-#if !KRANDDEBUG && !defined LUNATIC
+#if !KRANDDEBUG
 static FORCE_INLINE int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
