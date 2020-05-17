@@ -1132,7 +1132,7 @@ static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
     return 0;
 }
 
-LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, int unbiasedp)
+static void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int sect, int ix1, int iy1, int ix2, int iy2, int unbiasedp)
 {
     int x1 = min(ix1, ix2);
     int x2 = max(ix1, ix2);

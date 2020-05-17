@@ -69,7 +69,6 @@ enum rendmode_t {
 # define M32_FIXME_WALLS 512
 # define M32_FIXME_SECTORS 2
 
-# define LUNATIC_EXTERN static
 
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 

@@ -42,7 +42,7 @@ struct dynitem
     const int16_t staticval;
 };
 
-LUNATIC_EXTERN struct dynitem g_dynTileList[] =
+static struct dynitem g_dynTileList[] =
 {
     { "ACCESS_ICON",         DVPTR(ACCESS_ICON),         ACCESS_ICON__STATIC },
     { "ACCESSCARD",          DVPTR(ACCESSCARD),          ACCESSCARD__STATIC },

@@ -47,7 +47,7 @@ struct dynitem
     const int16_t staticval;
 };
 
-LUNATIC_EXTERN struct dynitem g_dynSoundList[] =
+static struct dynitem g_dynSoundList[] =
 {
     { "ALIEN_SWITCH1",       DVPTR(ALIEN_SWITCH1),      ALIEN_SWITCH1__STATIC },
     { "BIGBANG",             DVPTR(BIGBANG),            BIGBANG__STATIC },

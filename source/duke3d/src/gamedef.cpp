@@ -2119,7 +2119,7 @@ void C_FreeProjectile(int32_t j)
 }
 
 
-LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
+static void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
 {
     if (g_tile[j].proj == NULL)
     {

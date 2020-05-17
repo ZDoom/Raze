@@ -844,7 +844,7 @@ void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
 }
 #endif
 
-LUNATIC_EXTERN int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
+static int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
 {
     if (setInterpolation)
     {
