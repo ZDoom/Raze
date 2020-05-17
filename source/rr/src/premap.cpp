@@ -816,7 +816,7 @@ void P_ResetPlayer(int playerNum)
     pPlayer->fta                    = 0;
     pPlayer->ftq                    = 0;
     pPlayer->vel.x = pPlayer->vel.y = 0;
-    if (!RR) pPlayer->rotscrnang             = 0;
+    if (!RR) pPlayer->q16rotscrnang          = 0;
     pPlayer->runspeed               = g_playerFriction;
     pPlayer->falling_counter        = 0;
 
@@ -908,9 +908,9 @@ void P_ResetStatus(int playerNum)
     pPlayer->heat_on           = 0;
     pPlayer->jetpack_on        = 0;
     pPlayer->holoduke_on       = -1;
-    pPlayer->look_ang          = 512 - ((ud.level_number & 1) << 10);
-    pPlayer->rotscrnang        = 0;
-    pPlayer->orotscrnang       = 1;  // JBF 20031220
+    pPlayer->q16look_ang       = fix16_from_int(512 - ((ud.level_number & 1) << 10));
+    pPlayer->q16rotscrnang     = 0;
+    pPlayer->oq16rotscrnang    = fix16_one;  // JBF 20031220
     pPlayer->newowner          = -1;
     pPlayer->jumping_counter   = 0;
     pPlayer->hard_landing      = 0;
@@ -935,6 +935,10 @@ void P_ResetStatus(int playerNum)
     //pPlayer->reloading          = 0;
     pPlayer->movement_lock      = 0;
     pPlayer->frag_ps            = playerNum;
+
+    g_player[playerNum].horizRecenter    = 0;
+    g_player[playerNum].horizSkew        = 0;
+    g_player[playerNum].horizAngleAdjust = 0;
 
     P_UpdateScreenPal(pPlayer);
 
@@ -2463,6 +2467,9 @@ int G_EnterLevel(int gameMode)
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     renderFlushPerms();
+
+    // reset lastInputTicks.
+    g_player[myconnectindex].lastInputTicks = 0;
 
     everyothertime = 0;
     g_globalRandom = 0;

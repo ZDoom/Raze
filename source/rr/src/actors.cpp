@@ -1111,23 +1111,6 @@ static int P_Submerge(int, int, DukePlayer_t *, int, int);
 static int P_Emerge(int, int, DukePlayer_t *, int, int);
 static void P_FinishWaterChange(int, DukePlayer_t *, int, int, int);
 
-static fix16_t P_GetQ16AngleDeltaForTic(DukePlayer_t const *pPlayer)
-{
-    auto oldAngle = pPlayer->oq16ang;
-    auto newAngle = pPlayer->q16ang;
-
-    if (klabs(fix16_sub(oldAngle, newAngle)) < F16(1024))
-        return fix16_sub(newAngle, oldAngle);
-
-    if (newAngle > F16(1024))
-        newAngle = fix16_sub(newAngle, F16(2048));
-
-    if (oldAngle > F16(1024))
-        oldAngle = fix16_sub(oldAngle, F16(2048));
-
-    return fix16_sub(newAngle, oldAngle);
-}
-
 ACTOR_STATIC void G_MovePlayers(void)
 {
     int spriteNum = headspritestat[STAT_PLAYER];
@@ -1181,7 +1164,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 if (G_HaveActor(sprite[spriteNum].picnum))
                     A_Execute(spriteNum, P_GetP(pSprite), otherPlayerDist);
 
-                pPlayer->q16angvel    = P_GetQ16AngleDeltaForTic(pPlayer);
+                pPlayer->q16angvel    = G_GetQ16AngleDelta(pPlayer->oq16ang, pPlayer->q16ang);
                 pPlayer->oq16ang      = pPlayer->q16ang;
                 pPlayer->oq16horiz    = pPlayer->q16horiz;
                 pPlayer->oq16horizoff = pPlayer->q16horizoff;
@@ -1228,7 +1211,7 @@ ACTOR_STATIC void G_MovePlayers(void)
 
                     if (pPlayer->wackedbyactor >= 0 && sprite[pPlayer->wackedbyactor].statnum < MAXSTATUS)
                     {
-                        pPlayer->q16ang += fix16_to_int(G_GetAngleDelta(pPlayer->q16ang,
+                        pPlayer->q16ang += fix16_from_int(G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),
                                                                       getangle(sprite[pPlayer->wackedbyactor].x - pPlayer->pos.x,
                                                                                sprite[pPlayer->wackedbyactor].y - pPlayer->pos.y))
                                                       >> 1);

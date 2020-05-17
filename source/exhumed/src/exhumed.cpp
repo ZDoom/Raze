@@ -2333,7 +2333,8 @@ GAMELOOP:
 
             if (System_WantGuiCapture() || bPause)
             {
-                totalclock = tclocks + 4;
+                tclocks = totalclock - 4;
+                buttonMap.ResetButtonStates();
             }
             else
             {

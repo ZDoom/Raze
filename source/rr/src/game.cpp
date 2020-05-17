@@ -917,9 +917,9 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         ))
         {
 #ifdef USE_OPENGL
-            renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
+            renderSetRollAngle(fix16_to_float(pPlayer->q16rotscrnang));
 #endif
-            pPlayer->orotscrnang = pPlayer->rotscrnang;
+            pPlayer->oq16rotscrnang = pPlayer->q16rotscrnang;
         }
 
         if (RRRA && pPlayer->drug_mode > 0)
@@ -1015,7 +1015,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          omypos.z + mulscale16(mypos.z - omypos.z, smoothRatio) };
 
                 CAMERA(pos)      = camVect;
-                CAMERA(q16ang)   = myang + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16ang)   = myang + pPlayer->q16look_ang;
                 CAMERA(q16horiz) = myhoriz + myhorizoff;
                 CAMERA(sect)     = mycursectnum;
             }
@@ -1026,8 +1026,20 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
                 CAMERA(pos)      = camVect;
-                CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+
+                if (pPlayer->wackedbyactor >= 0)
+                {
+                    CAMERA(q16ang)   = pPlayer->oq16ang
+                                     + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
+                                     + pPlayer->q16look_ang;
+                    CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
+                                     + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+                }
+                else
+                {
+                    CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
                 CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
+            }
             }
 
             if (cl_viewbob)
@@ -1057,7 +1069,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             // looking through viewscreen
             CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+            CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
             CAMERA(q16horiz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
             CAMERA(sect)     = sprite[pPlayer->newowner].sectnum;
         }
@@ -7280,7 +7292,14 @@ MAIN_LOOP_RESTART:
 
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
-        
+
+        if (System_WantGuiCapture() || ud.pause_on != 0)
+        {
+            ototalclock = totalclock - TICSPERFRAME;
+            buttonMap.ResetButtonStates();
+        }
+        else
+        {
         while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
             ototalclock += TICSPERFRAME;
@@ -7322,6 +7341,7 @@ MAIN_LOOP_RESTART:
         g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
 
         G_DoCheats();
+        }
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {

@@ -5800,8 +5800,8 @@ int32_t videoSetRenderMode(int32_t renderer)
 // setrollangle
 //
 #ifdef USE_OPENGL
-void renderSetRollAngle(int32_t rolla)
+void renderSetRollAngle(float rolla)
 {
-    gtang = (float)rolla * (fPI * (1.f/1024.f));
+    gtang = rolla * (fPI * (1.f/1024.f));
 }
 #endif

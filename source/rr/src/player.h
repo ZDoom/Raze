@@ -152,9 +152,10 @@ typedef struct {
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
-    int16_t cursectnum, look_ang, last_extra, subweapon;
+    int16_t cursectnum, last_extra, subweapon;
     int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
+    fix16_t q16look_ang;
 
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
@@ -163,10 +164,12 @@ typedef struct {
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
+    fix16_t one_eighty_target;
 
     int16_t weaprecs[MAX_WEAPON_RECS], weapon_sway, crack_time, bobcounter;
 
-    int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
+    int16_t dead_flag;
+    fix16_t oq16rotscrnang, q16rotscrnang;   // JBF 20031220: added orotscrnang
     int16_t holoduke_on, pycount;
     int16_t transporter_hold/*, clipdist*/;
 
@@ -210,7 +213,7 @@ typedef struct {
     int16_t drink_amt, eat_amt, drink_ang, eat_ang;
     int32_t drink_timer, eat_timer;
     int16_t level_end_timer;
-    int16_t moto_speed, tilt_status, moto_drink;
+    int16_t moto_speed, moto_drink;
     uint8_t on_motorcycle, on_boat, moto_underwater, not_on_water, moto_on_ground;
     uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
     int16_t moto_bump, moto_bump_target, moto_turb;
@@ -220,6 +223,7 @@ typedef struct {
     int32_t drug_timer;
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
+    double  tilt_status;
 
     int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
@@ -235,7 +239,10 @@ typedef struct
 
     bool    horizRecenter;
     float   horizAngleAdjust;
-    fix16_t horizSkew;
+    int8_t  horizSkew;
+    bool    lookLeft;
+    bool    lookRight;
+    double  lastInputTicks;
 
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;

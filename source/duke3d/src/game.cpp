@@ -712,8 +712,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
             if (ud.screen_tilting)
             {
-                renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
-                pPlayer->orotscrnang = pPlayer->rotscrnang;
+                renderSetRollAngle(fix16_to_float(pPlayer->q16rotscrnang));
+                pPlayer->oq16rotscrnang = pPlayer->q16rotscrnang;
             }
             else
             {
@@ -728,8 +728,20 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                      pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
             CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+
+            if (pPlayer->wackedbyactor >= 0)
+            {
+                CAMERA(q16ang)   = pPlayer->oq16ang
+                                 + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
+                                 + pPlayer->q16look_ang;
+                CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
+                                 + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+            }
+            else
+            {
+                CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
             CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
+            }
 
             if (cl_viewbob)
             {
@@ -758,7 +770,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             // looking through viewscreen
             CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+            CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
             CAMERA(q16horiz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
             CAMERA(sect)     = sprite[pPlayer->newowner].sectnum;
         }
@@ -5614,12 +5626,16 @@ static const char* actions[] = {
     "Quick_Kick",
     "Next_Weapon",
     "Previous_Weapon",
+    "Show_Console",            // unused, but re-inserted for padding/compatibility for IF.
+    "Show_DukeMatch_Scores",
     "Dpad_Select",
     "Dpad_Aiming",
+    "Autorun",                 // unused, but re-inserted for padding/compatibility for IF.
     "Last_Weapon",
+    "Quick_Save",              // unused, but re-inserted for padding/compatibility for IF.
+    "Quick_Load",              // unused, but re-inserted for padding/compatibility for IF.
     "Alt_Weapon",
     "Third_Person_View",
-    "Show_DukeMatch_Scores",
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
 int GameInterface::app_main()
@@ -5897,6 +5913,13 @@ MAIN_LOOP_RESTART:
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
 
+        if (System_WantGuiCapture() || ud.pause_on != 0)
+        {
+            ototalclock = totalclock - TICSPERFRAME;
+            buttonMap.ResetButtonStates();
+        }
+        else
+        {
         while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
             ototalclock += TICSPERFRAME;
@@ -5940,6 +5963,7 @@ MAIN_LOOP_RESTART:
         = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
 
         G_DoCheats();
+        }
 
         if (myplayer.gm & (MODE_EOL|MODE_RESTART))
         {

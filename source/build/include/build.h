@@ -1062,7 +1062,7 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 int32_t   videoSetRenderMode(int32_t renderer);
 
 #ifdef USE_OPENGL
-void    renderSetRollAngle(int32_t rolla);
+void    renderSetRollAngle(float rolla);
 #endif
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette

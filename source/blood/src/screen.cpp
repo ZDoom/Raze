@@ -123,6 +123,7 @@ void scrLoadPalette(void)
 
     enginePostInit();
 
+
 }
 
 void scrSetPalette(int palId)

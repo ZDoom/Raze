@@ -297,8 +297,8 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 
     pPlayer->q16horiz           += F16(64);
     pPlayer->return_to_center = 9;
-    pPlayer->rotscrnang       = nAngle >> 1;
-    pPlayer->look_ang         = pPlayer->rotscrnang;
+    pPlayer->q16rotscrnang    = fix16_from_int(nAngle >> 1);
+    pPlayer->q16look_ang      = pPlayer->q16rotscrnang;
 }
 #endif
 
@@ -513,6 +513,20 @@ int __fastcall G_GetAngleDelta(int currAngle, int newAngle)
 
 //    Printf("G_GetAngleDelta() returning %d\n",na-a);
     return newAngle-currAngle;
+}
+
+fix16_t __fastcall G_GetQ16AngleDelta(fix16_t oldAngle, fix16_t newAngle)
+{
+    if (fix16_abs(fix16_sub(oldAngle, newAngle)) < fix16_from_int(1024))
+        return fix16_sub(newAngle, oldAngle);
+
+    if (newAngle > fix16_from_int(1024))
+        newAngle = fix16_sub(newAngle, fix16_from_int(2048));
+
+    if (oldAngle > fix16_from_int(1024))
+        oldAngle = fix16_sub(oldAngle, fix16_from_int(2048));
+
+    return fix16_sub(newAngle, oldAngle);
 }
 
 GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)

@@ -191,7 +191,7 @@ void PlayerInterruptKeys()
     else
     {
         input.nAngle = fix16_sadd(input.nAngle, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
@@ -213,7 +213,7 @@ void PlayerInterruptKeys()
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * 120 / (1000.0 / elapsedInputTicks); };
+    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {

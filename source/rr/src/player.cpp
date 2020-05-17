@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "duke3d.h"
+#include "gameexec.h"
 #include "demo.h"
 #include "d_event.h"
 
@@ -1455,7 +1456,7 @@ static int P_DisplayFist(int const fistShade)
     if (fistInc <= 0)
         return 0;
 
-    int const fistY       = klabs(pPlayer->look_ang) / 9;
+    int const fistY       = klabs(fix16_to_int(pPlayer->q16look_ang)) / 9;
     int const fistZoom    = clamp(65536 - (sintable[(512 + (fistInc << 6)) & 2047] << 2), 40920, 90612);
     int const fistYOffset = 194 + (sintable[((6 + fistInc) << 7) & 2047] >> 9);
     int const fistPal     = P_GetHudPal(pPlayer);
@@ -1609,10 +1610,10 @@ static int P_DisplayKnee(int kneeShade)
     if (ps->knee_incs >= ARRAY_SIZE(knee_y) || sprite[ps->i].extra <= 0)
         return 0;
 
-    int const kneeY   = knee_y[ps->knee_incs] + (klabs(ps->look_ang) / 9) - (ps->hard_landing << 3);
+    int const kneeY   = knee_y[ps->knee_incs] + (klabs(fix16_to_int(ps->q16look_ang)) / 9) - (ps->hard_landing << 3);
     int const kneePal = P_GetKneePal(ps);
 
-    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].input->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].input->q16avel)>>5)-(fix16_to_int(ps->q16look_ang)>>1)+(knee_y[ps->knee_incs]>>2),
                      kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
 
     return 1;
@@ -1632,10 +1633,10 @@ static int P_DisplayKnuckles(int knuckleShade)
     if ((unsigned) (pPlayer->knuckle_incs>>1) >= ARRAY_SIZE(knuckleFrames) || sprite[pPlayer->i].extra <= 0)
         return 0;
 
-    int const knuckleY   = (klabs(pPlayer->look_ang) / 9) - (pPlayer->hard_landing << 3);
+    int const knuckleY   = (klabs(fix16_to_int(pPlayer->q16look_ang)) / 9) - (pPlayer->hard_landing << 3);
     int const knucklePal = P_GetHudPal(pPlayer);
 
-    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                      knuckleY + 180 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
                      knucklePal);
@@ -1803,13 +1804,13 @@ static int P_DisplayTip(int tipShade)
     if ((unsigned)pPlayer->tipincs >= ARRAY_SIZE(access_tip_y))
         return 1;
 
-    int const tipY       = (klabs(pPlayer->look_ang) / 9) - (pPlayer->hard_landing << 3);
+    int const tipY       = (klabs(fix16_to_int(pPlayer->q16look_ang)) / 9) - (pPlayer->hard_landing << 3);
     int const tipPal     = P_GetHudPal(pPlayer);
     int const tipYOffset = access_tip_y[pPlayer->tipincs] >> 1;
 
     guniqhudid = 201;
 
-    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                      tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
 
@@ -1829,20 +1830,20 @@ static int P_DisplayAccess(int accessShade)
         return 1;
 
     int const accessX   = access_tip_y[pSprite->access_incs] >> 2;
-    int const accessY   = access_tip_y[pSprite->access_incs] + (klabs(pSprite->look_ang) / 9) - (pSprite->hard_landing << 3);
+    int const accessY   = access_tip_y[pSprite->access_incs] + (klabs(fix16_to_int(pSprite->q16look_ang)) / 9) - (pSprite->hard_landing << 3);
     int const accessPal = (pSprite->access_spritenum >= 0) ? sprite[pSprite->access_spritenum].pal : 0;
 
     guniqhudid = 200;
 
     if ((pSprite->access_incs - 3) > 0 && (pSprite->access_incs - 3) >> 3)
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (fix16_to_int(pSprite->q16look_ang) >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4),
                          HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
     }
     else
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].input->q16avel) >> 5) - (fix16_to_int(pSprite->q16look_ang) >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), HANDHOLDINGACCESS, accessShade,
                          4 + DRAWEAP_CENTER, accessPal);
     }
@@ -1891,7 +1892,7 @@ void P_DisplayWeapon(void)
         return;
 
     int weaponX       = (160) - 90;
-    int weaponY       = klabs(pPlayer->look_ang) / 9;
+    int weaponY       = klabs(fix16_to_int(pPlayer->q16look_ang)) / 9;
     int weaponYOffset = 80 - (pPlayer->weapon_pos * pPlayer->weapon_pos);
     int weaponShade   = (RR && pPlayer->cursectnum >= 0 && g_shadedSector[pPlayer->cursectnum]) ? 16 : (sprite[pPlayer->i].shade <= 24 ? sprite[pPlayer->i].shade : 24);
 
@@ -1925,7 +1926,7 @@ void P_DisplayWeapon(void)
     hudweap.gunposx     = weaponX;
     hudweap.shade       = weaponShade;
     hudweap.count       = *weaponFrame;
-    hudweap.lookhalfang = pPlayer->look_ang >> 1;
+    hudweap.lookhalfang = fix16_to_int(pPlayer->q16look_ang) >> 1;
 
     quickKickFrame = 14 - pPlayer->quick_kick;
 
@@ -1936,10 +1937,10 @@ void P_DisplayWeapon(void)
         guniqhudid = 100;
 
         if (quickKickFrame < 6 || quickKickFrame > 12)
-            G_DrawTileScaled(weaponX + 80 - (pPlayer->look_ang >> 1), weaponY + 250 - weaponYOffset, KNEE, weaponShade,
+            G_DrawTileScaled(weaponX + 80 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 250 - weaponYOffset, KNEE, weaponShade,
                                 weaponBits | 4 | DRAWEAP_CENTER, weaponPal);
         else
-            G_DrawTileScaled(weaponX + 160 - 16 - (pPlayer->look_ang >> 1), weaponY + 214 - weaponYOffset, KNEE + 1,
+            G_DrawTileScaled(weaponX + 160 - 16 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 214 - weaponYOffset, KNEE + 1,
                                 weaponShade, weaponBits | 4 | DRAWEAP_CENTER, weaponPal);
         guniqhudid = 0;
     }
@@ -1982,7 +1983,7 @@ void P_DisplayWeapon(void)
 
             int const weaponPal = P_GetHudPal(pPlayer);
 
-            G_DrawTileScaled(160-(pPlayer->look_ang>>1), 174, motoTile, weaponShade, 2 | DRAWEAP_CENTER,
+            G_DrawTileScaled(160-(fix16_to_int(pPlayer->q16look_ang)>>1), 174, motoTile, weaponShade, 2 | DRAWEAP_CENTER,
                 weaponPal, 34816, pPlayer->tilt_status * 5 + (pPlayer->tilt_status < 0 ? 2047 : 0));
             return;
         }
@@ -2049,7 +2050,7 @@ void P_DisplayWeapon(void)
             else
                 weaponY = 170 + (*weaponFrame>>2);
 
-            G_DrawTileScaled(160-(pPlayer->look_ang>>1), weaponY, boatTile, weaponShade, 2 | DRAWEAP_CENTER,
+            G_DrawTileScaled(160-(fix16_to_int(pPlayer->q16look_ang)>>1), weaponY, boatTile, weaponShade, 2 | DRAWEAP_CENTER,
                 weaponPal, 66048, pPlayer->tilt_status + (pPlayer->tilt_status < 0 ? 2047 : 0));
             return;
         }
@@ -2070,10 +2071,10 @@ void P_DisplayWeapon(void)
 
         currentWeapon = weaponX;
         weaponX += sintable[(fistPos)&2047] >> 10;
-        G_DrawTileScaled(weaponX + 250 - (pPlayer->look_ang >> 1), weaponY + 258 - (klabs(sintable[(fistPos)&2047] >> 8)),
+        G_DrawTileScaled(weaponX + 250 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 258 - (klabs(sintable[(fistPos)&2047] >> 8)),
             FIST, weaponShade, weaponBits, weaponPal);
         weaponX = currentWeapon - (sintable[(fistPos)&2047] >> 10);
-        G_DrawTileScaled(weaponX + 40 - (pPlayer->look_ang >> 1), weaponY + 200 + (klabs(sintable[(fistPos)&2047] >> 8)), FIST,
+        G_DrawTileScaled(weaponX + 40 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 200 + (klabs(sintable[(fistPos)&2047] >> 8)), FIST,
             weaponShade, weaponBits | 4, weaponPal);
     }
     else
@@ -2093,7 +2094,7 @@ void P_DisplayWeapon(void)
             goto enddisplayweapon;
 
         int const doAnim      = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm & MODE_MENU);
-        int const halfLookAng = pPlayer->look_ang >> 1;
+        int const halfLookAng = fix16_to_int(pPlayer->q16look_ang) >> 1;
 
         int const weaponPal = P_GetHudPal(pPlayer);
 
@@ -2352,16 +2353,16 @@ void P_DisplayWeapon(void)
                 switch (*weaponFrame)
                 {
                 case 0:
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
                                             CHAINGUN, weaponShade, weaponBits, weaponPal, 32768);
                     break;
 
                 default:
                     if (*weaponFrame < 8)
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
                                                 CHAINGUN + 1, 0, weaponBits, weaponPal, 32768);
                     else
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1) + 30, weaponY + 233 - weaponYOffset + 5,
                                                 CHAINGUN + 2, weaponShade, weaponBits, weaponPal, 32768);
 
                     break;
@@ -2379,7 +2380,7 @@ void P_DisplayWeapon(void)
                     if (frame)
                         weaponShade = 0;
 
-                    G_DrawWeaponTileWithID(currentWeapon, offsetX[frame] - 12 + weaponX - (pPlayer->look_ang >> 1), weaponY + offsetY[frame] - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, offsetX[frame] - 12 + weaponX - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + offsetY[frame] - weaponYOffset,
                                             FIRSTGUN + frame, weaponShade, weaponBits, weaponPal, 36700);
 
                     break;
@@ -2484,11 +2485,11 @@ void P_DisplayWeapon(void)
                 {
                     static uint8_t freezerFrames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (pPlayer->look_ang >> 1), weaponY + 215 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 215 - weaponYOffset,
                                             FREEZE + freezerFrames[*weaponFrame], -32, weaponBits, weaponPal, 32768);
                 }
                 else
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (pPlayer->look_ang >> 1), weaponY + 215 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 260 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 215 - weaponYOffset,
                                             FREEZE, weaponShade, weaponBits, weaponPal, 32768);
                 break;
 
@@ -2786,7 +2787,7 @@ void P_DisplayWeapon(void)
                 switch (*weaponFrame)
                 {
                 case 0:
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 233 - weaponYOffset,
                                             CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
                     break;
 
@@ -2794,11 +2795,11 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame > 4 && *weaponFrame < 12)
                     {
                         int randomOffset = doAnim ? rand()&7 : 0;
-                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 140 - (pPlayer->look_ang >> 1),
+                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 140 - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                                                 randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                 CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                         if (doAnim) randomOffset = rand()&7;
-                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 184 - (pPlayer->look_ang >> 1),
+                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 184 - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                                                 randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                 CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                     }
@@ -2806,20 +2807,20 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame < 8)
                     {
                         int const randomOffset = doAnim ? rand()&7 : 0;
-                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 162 - (pPlayer->look_ang >> 1),
+                        G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 162 - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                             randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                 CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal);
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 233 - weaponYOffset,
                                                 CHAINGUN + 1 + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     }
                     else
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 233 - weaponYOffset,
                                                 CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
 
                     break;
                 }
 
-                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - (pPlayer->look_ang >> 1), weaponY + 260 - weaponYOffset,
+                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 260 - weaponYOffset,
                                         CHAINGUN, weaponShade, weaponBits, weaponPal);
                 break;
 
@@ -2832,7 +2833,7 @@ void P_DisplayWeapon(void)
                     if ((*weaponFrame) == 2)
                         pistolOffset -= 3;
 
-                    G_DrawWeaponTileWithID(currentWeapon, (pistolOffset - (pPlayer->look_ang >> 1)), (weaponY + 244 - weaponYOffset),
+                    G_DrawWeaponTileWithID(currentWeapon, (pistolOffset - (fix16_to_int(pPlayer->q16look_ang) >> 1)), (weaponY + 244 - weaponYOffset),
                                             FIRSTGUN + pistolFrames[*weaponFrame > 2 ? 0 : *weaponFrame], weaponShade, 2,
                                             weaponPal);
 
@@ -2843,41 +2844,41 @@ void P_DisplayWeapon(void)
                     weaponBits |= 512;
 
                 if ((*weaponFrame) < 10)
-                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
+                    G_DrawWeaponTileWithID(currentWeapon, 194 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
                                             weaponShade, weaponBits, weaponPal);
                 else if ((*weaponFrame) < 15)
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (pPlayer->look_ang >> 1),
+                    G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                                             weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), FIRSTGUN + 6, weaponShade,
                                             weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < 20)
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (pPlayer->look_ang >> 1),
+                    G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (fix16_to_int(pPlayer->q16look_ang) >> 1),
                                             weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), FIRSTGUN + 6, weaponShade,
                                             weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
 
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 12 : (NAM ? 38 : 23)))
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 235 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 6 : (NAM ? 44 : 25)))
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 245 - weaponYOffset,
                                             FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 224 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < (WW2GI ? PWEAPON(screenpeek, PISTOL_WEAPON, Reload) : (NAM ? 50 : 27)))
-                    G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
+                    G_DrawWeaponTileWithID(currentWeapon, 194 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
                                             weaponShade, weaponBits, weaponPal);
 
                 break;
@@ -3050,13 +3051,13 @@ void P_DisplayWeapon(void)
                         weaponY += rand() & 3;
                     }
                     weaponYOffset -= 16;
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 261 - weaponYOffset,
                                             FREEZE + 2, -32, weaponBits, weaponPal);
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 235 - weaponYOffset,
                                             FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
                 }
                 else
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (fix16_to_int(pPlayer->q16look_ang) >> 1), weaponY + 261 - weaponYOffset,
                                             FREEZE, weaponShade, weaponBits, weaponPal);
                 break;
 
@@ -3163,8 +3164,7 @@ enddisplayweapon:
 #define MAXSVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL     1024
 #define MAXHORIZVEL   256
-
-#define MOTOTURN      20
+#define ONEEIGHTYSCALE 4
 #define MAXVELMOTO    120
 
 int32_t g_myAimStat = 0, g_oldAimStat = 0;
@@ -3181,13 +3181,17 @@ enum inputlock_t
 
 static int P_CheckLockedMovement(int const playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto      &thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
 
     if (pPlayer->on_crane >= 0)
         return IL_NOMOVE|IL_NOANGLE;
 
     if (pPlayer->newowner != -1)
         return IL_NOANGLE|IL_NOHORIZ;
+
+    if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
+        return IL_NOHORIZ;
 
     if (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
         || pPlayer->knee_incs > 0
@@ -3202,6 +3206,7 @@ void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3253,7 +3258,7 @@ void P_GetInput(int const playerNum)
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
     }
 
     if (mouseaim)
@@ -3267,11 +3272,13 @@ void P_GetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3497,12 +3504,65 @@ void P_GetInput(int const playerNum)
         {
             localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
             pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
+
+            if (input.q16avel)
+            {
+                pPlayer->one_eighty_count = 0;
+        }
         }
 
         if (!(movementLocked & IL_NOHORIZ))
         {
             localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
             pPlayer->q16horiz  = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+        }
+    }
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
+
+        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
+
+        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
+
+        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
+
+        if (thisPlayer.lookLeft)
+        {
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+        if (thisPlayer.lookRight)
+        {
+            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+
+        if (pPlayer->one_eighty_count < 0)
+        {
+            pPlayer->one_eighty_count = -fix16_to_int(fix16_abs(G_GetQ16AngleDelta(pPlayer->one_eighty_target, pPlayer->q16ang)));
+            pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, fix16_max(fix16_one, fix16_from_dbl(scaleAdjustmentToInterval(-pPlayer->one_eighty_count / ONEEIGHTYSCALE)))) & 0x7FFFFFF;
+        }
+
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
         }
     }
 
@@ -3516,15 +3576,16 @@ void P_GetInput(int const playerNum)
     }
     else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
     {
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_from_dbl(200 / 3) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_from_dbl(66.535) - fix16_sdiv(pPlayer->q16horiz, fix16_from_dbl(1.505))))));
 
-        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if (pPlayer->q16horiz >= F16(99) && pPlayer->q16horiz <= F16(101))
         {
             pPlayer->q16horiz = F16(100);
+            pPlayer->return_to_center = 0;
             thisPlayer.horizRecenter = false;
         }
 
-        if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
+        if (pPlayer->q16horizoff >= F16(-1) && pPlayer->q16horizoff <= F16(1))
             pPlayer->q16horizoff = 0;
     }
  
@@ -3558,7 +3619,7 @@ void P_GetInput(int const playerNum)
     }
  
     if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(thisPlayer.horizSkew))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
@@ -3567,6 +3628,7 @@ void P_GetInputMotorcycle(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3603,16 +3665,18 @@ void P_GetInputMotorcycle(int playerNum)
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3649,22 +3713,18 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
 
-    int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
     int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
         else if (turn > 0)
             turnRight = 1;
     }
-    else
-        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3681,13 +3741,13 @@ void P_GetInputMotorcycle(int playerNum)
     {
         if (turnLeft)
         {
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
         }
         else if (turnRight)
         {
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
         }
@@ -3697,43 +3757,43 @@ void P_GetInputMotorcycle(int playerNum)
         if (turnLeft || pPlayer->moto_drink < 0)
         {
             turnHeldTime += elapsedTics;
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status < -10)
                 pPlayer->tilt_status = -10;
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
             {
                 if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
             }
             else
             {
                 if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
             }
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
             turnHeldTime += elapsedTics;
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
             if (pPlayer->tilt_status > 10)
                 pPlayer->tilt_status = 10;
             if (turnHeldTime >= TURBOTURNTIME && pPlayer->moto_speed > 0)
             {
                 if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
             }
             else
             {
                 if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (8 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
             }
         }
         else
@@ -3741,11 +3801,14 @@ void P_GetInputMotorcycle(int playerNum)
             turnHeldTime = 0;
 
             if (pPlayer->tilt_status > 0)
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             else if (pPlayer->tilt_status < 0)
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
         }
     }
+
+    if (pPlayer->tilt_status > -0.025 && pPlayer->tilt_status < 0.025)
+        pPlayer->tilt_status = 0;
 
     if (pPlayer->moto_underwater)
     {
@@ -3758,10 +3821,56 @@ void P_GetInputMotorcycle(int playerNum)
         localInput.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
     }
 
+    input.fvel += pPlayer->moto_speed;
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
+
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
+    {
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
+
+        localInput.fvel = localInput.svel = 0;
+        localInput.q16avel = localInput.q16horz = 0;
+    }
+    else
+    {
+        if (!(movementLocked & IL_NOMOVE))
+        {
+            localInput.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+
+        if (!(movementLocked & IL_NOANGLE))
+        {
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+    }
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
+        }
+    }
 
     if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
     {
@@ -3773,6 +3882,7 @@ void P_GetInputBoat(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -3809,16 +3919,18 @@ void P_GetInputBoat(int playerNum)
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3855,22 +3967,18 @@ void P_GetInputBoat(int playerNum)
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
     localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
 
-    int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
     int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
     int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
     if (turn)
     {
-        turnAmount = (MOTOTURN << 1);
         avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
         if (turn < 0)
             turnLeft = 1;
         else if (turn > 0)
             turnRight = 1;
     }
-    else
-        turnAmount = MOTOTURN;
 
     input.svel = input.fvel = input.q16avel = 0;
 
@@ -3892,47 +4000,47 @@ void P_GetInputBoat(int playerNum)
             turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
                 if (pPlayer->tilt_status < -10)
                     pPlayer->tilt_status = -10;
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (10 / 3))));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
             }
             else
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / 3)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
                 else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnAmount / (10 / 3)) / 3)));
+                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
         }
         else if (turnRight || pPlayer->moto_drink > 0)
         {
             turnHeldTime += elapsedTics;
             if (!pPlayer->not_on_water)
             {
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
                 if (pPlayer->tilt_status > 10)
                     pPlayer->tilt_status = 10;
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / (10 / 3))));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
             }
             else
                 if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turnAmount / 3)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
                 else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnAmount / (10 / 3)) / 3)));
+                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
         }
         else if (!pPlayer->not_on_water)
         {
             turnHeldTime = 0;
 
             if (pPlayer->tilt_status > 0)
-                pPlayer->tilt_status--;
+                pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
             else if (pPlayer->tilt_status < 0)
-                pPlayer->tilt_status++;
+                pPlayer->tilt_status += scaleAdjustmentToInterval(1);
         }
     }
     else if (!pPlayer->not_on_water)
@@ -3940,15 +4048,64 @@ void P_GetInputBoat(int playerNum)
         turnHeldTime = 0;
 
         if (pPlayer->tilt_status > 0)
-            pPlayer->tilt_status--;
+            pPlayer->tilt_status -= scaleAdjustmentToInterval(1);
         else if (pPlayer->tilt_status < 0)
-            pPlayer->tilt_status++;
+            pPlayer->tilt_status += scaleAdjustmentToInterval(1);
     }
 
+    if (pPlayer->tilt_status > -0.025 && pPlayer->tilt_status < 0.025)
+        pPlayer->tilt_status = 0;
+
+    input.fvel += pPlayer->moto_speed;
     input.q16avel      = fix16_mul(input.q16avel, avelScale);
+
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
+    {
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
+
+        localInput.fvel = localInput.svel = 0;
+        localInput.q16avel = localInput.q16horz = 0;
+    }
+    else
+    {
+        if (!(movementLocked & IL_NOMOVE))
+        {
+            localInput.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+
+        if (!(movementLocked & IL_NOANGLE))
+        {
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-    localInput.fvel    = clamp((input.fvel += pPlayer->moto_speed), -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+    }
+
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        if (RRRA && pPlayer->sea_sick)
+        {
+            if (pPlayer->sea_sick < 250)
+            {
+                if (pPlayer->sea_sick >= 180)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 130)
+                    pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 70)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+                else if (pPlayer->sea_sick >= 20)
+                    pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            }
+            if (pPlayer->sea_sick < 250)
+                pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval((krand2()&255)-128)));
+        }
+    }
 }
 
 int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
@@ -3974,6 +4131,7 @@ void P_DHGetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
+    auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -4031,11 +4189,13 @@ void P_DHGetInput(int const playerNum)
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
 
-    static double lastInputTicks;
     auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
 
-    lastInputTicks = currentHiTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -4126,6 +4286,37 @@ void P_DHGetInput(int const playerNum)
     if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003)
         input.fvel >>= 1;
 
+    // don't adjust rotscrnang and look_ang if dead.
+    if (pSprite->extra > 0)
+    {
+        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
+
+        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
+
+        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
+
+        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
+
+        if (thisPlayer.lookLeft)
+        {
+            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+        if (thisPlayer.lookRight)
+        {
+            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
+            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+        }
+
+        if (pPlayer->one_eighty_count < 0)
+        {
+            pPlayer->one_eighty_count = -fix16_to_int(fix16_abs(G_GetQ16AngleDelta(pPlayer->one_eighty_target, pPlayer->q16ang)));
+            pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, fix16_max(fix16_one, fix16_from_dbl(scaleAdjustmentToInterval(-pPlayer->one_eighty_count / ONEEIGHTYSCALE)))) & 0x7FFFFFF;
+        }
+    }
+
     // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
 
     if (thisPlayer.horizAngleAdjust)
@@ -4160,7 +4351,7 @@ void P_DHGetInput(int const playerNum)
     }
  
     if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(thisPlayer.horizSkew))));
+        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
  
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
  
@@ -6768,8 +6959,8 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
     pPlayer->vel.x          = 0;
     pPlayer->vel.y          = 0;
     sprite[pPlayer->i].xvel = 0;
-    pPlayer->look_ang       = 0;
-    pPlayer->rotscrnang     = 0;
+    pPlayer->q16look_ang    = 0;
+    pPlayer->q16rotscrnang  = 0;
 }
 
 static void P_DoWater(int const playerNum, int const playerBits, int const floorZ, int const ceilZ)
@@ -6843,6 +7034,8 @@ static void P_DoJetpack(int const playerNum, int const playerBits, int const pla
     pPlayer->pycount        += 32;
     pPlayer->pycount        &= 2047;
     pPlayer->pyoff           = sintable[pPlayer->pycount] >> 7;
+
+    g_player[playerNum].horizSkew = 0;
 
     if (pPlayer->jetpack_on < 11)
     {
@@ -6924,7 +7117,7 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
     pushmove((vec3_t *) pPlayer, &pPlayer->cursectnum, 128L, (4L<<8), (20L<<8), CLIPMASK0);
 
     if (floorZ > ceilZ + ZOFFSET2 && pSprite->pal != 1)
-        pPlayer->rotscrnang = (pPlayer->dead_flag + ((floorZ+pPlayer->pos.z)>>7))&2047;
+        pPlayer->q16rotscrnang = fix16_from_int((pPlayer->dead_flag + ((floorZ+pPlayer->pos.z)>>7)))&0x7FFFFFF;
 
     pPlayer->on_warping_sector = 0;
 }
@@ -6939,9 +7132,6 @@ void P_ProcessInput(int playerNum)
 {
     auto &thisPlayer = g_player[playerNum];
 
-    thisPlayer.horizAngleAdjust = 0;
-    thisPlayer.horizSkew = 0;
-
     if (DEER)
     {
         P_DHProcessInput(playerNum);
@@ -6949,6 +7139,9 @@ void P_ProcessInput(int playerNum)
     }
     if (thisPlayer.playerquitflag == 0)
         return;
+
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
 
     auto const pPlayer = thisPlayer.ps;
     auto const pSprite = &sprite[pPlayer->i];
@@ -7762,24 +7955,21 @@ check_enemy_sprite:
         return;
     }
 
-    pPlayer->rotscrnang -= (pPlayer->rotscrnang >> 1);
-
-    if (pPlayer->rotscrnang && !(pPlayer->rotscrnang >> 1))
-        pPlayer->rotscrnang -= ksgn(pPlayer->rotscrnang);
-
-    pPlayer->look_ang -= (pPlayer->look_ang >> 2);
-
-    if (pPlayer->look_ang && !(pPlayer->look_ang >> 2))
-        pPlayer->look_ang -= ksgn(pPlayer->look_ang);
-
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && (!RRRA || !pPlayer->on_motorcycle))
     {
         // look_left
         if (VM_OnEvent(EVENT_LOOKLEFT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->look_ang -= 152;
-            pPlayer->rotscrnang += 24;
+            thisPlayer.lookLeft = true;
         }
+        else
+        {
+            thisPlayer.lookLeft = false;
+    }
+    }
+    else
+    {
+        thisPlayer.lookLeft = false;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && (!RRRA || !pPlayer->on_motorcycle))
@@ -7787,27 +7977,17 @@ check_enemy_sprite:
         // look_right
         if (VM_OnEvent(EVENT_LOOKRIGHT,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->look_ang += 152;
-            pPlayer->rotscrnang -= 24;
+            thisPlayer.lookRight = true;
         }
-    }
-
-    if (RRRA && pPlayer->sea_sick)
-    {
-        if (pPlayer->sea_sick < 250)
+        else
         {
-            if (pPlayer->sea_sick >= 180)
-                pPlayer->rotscrnang += 24;
-            else if (pPlayer->sea_sick >= 130)
-                pPlayer->rotscrnang -= 24;
-            else if (pPlayer->sea_sick >= 70)
-                pPlayer->rotscrnang += 24;
-            else if (pPlayer->sea_sick >= 20)
-                pPlayer->rotscrnang += 24;
-        }
-        if (pPlayer->sea_sick < 250)
-            pPlayer->look_ang += (krand2()&255)-128;
+            thisPlayer.lookRight = false;
     }
+    }
+    else
+    {
+        thisPlayer.lookRight = false;
+        }
 
     int                  velocityModifier = TICSPERFRAME;
     const uint8_t *const weaponFrame      = &pPlayer->kickback_pic;
@@ -7847,12 +8027,6 @@ check_enemy_sprite:
     pPlayer->bobpos.y = pPlayer->pos.y;
     pPlayer->opos.z   = pPlayer->pos.z;
     pPlayer->opyoff   = pPlayer->pyoff;
-
-    if (pPlayer->one_eighty_count < 0)
-    {
-        pPlayer->one_eighty_count += 128;
-        pPlayer->q16ang += F16(128);
-    }
 
     // Shrinking code
 
@@ -8049,7 +8223,6 @@ check_enemy_sprite:
                             pPlayer->moto_turb = 12;
                         }
                     }
-                    pPlayer->on_ground = 1;
                 }
                 else
                     pPlayer->on_ground = 0;
@@ -8527,9 +8700,10 @@ HORIZONLY:;
                         {
                             if (numplayers == 1)
                             {
+                                int tilt_status = pPlayer->tilt_status;
                                 vec3_t const vect = {
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>8,
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>8,sprite[spriteNum].zvel
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>8,
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>8,sprite[spriteNum].zvel
                                 };
 
                                 A_MoveSprite(spriteNum,&vect,CLIPMASK0);
@@ -8580,9 +8754,10 @@ HORIZONLY:;
                         {
                             if (numplayers == 1)
                             {
+                                int tilt_status = pPlayer->tilt_status;
                                 vec3_t const vect = {
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>9,
-                                    sintable[(pPlayer->tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>9,sprite[spriteNum].zvel
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang)+512)&2047]>>9,
+                                    sintable[(tilt_status*20+fix16_to_int(pPlayer->q16ang))&2047]>>9,sprite[spriteNum].zvel
                                 };
 
                                 A_MoveSprite(spriteNum,&vect,CLIPMASK0);
@@ -8708,7 +8883,10 @@ HORIZONLY:;
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
         if (VM_OnEvent(EVENT_RETURNTOCENTER, pPlayer->i,playerNum) == 0)
+        {
             pPlayer->return_to_center = 9;
+            thisPlayer.horizRecenter  = true;
+        }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
@@ -8754,7 +8932,7 @@ HORIZONLY:;
 
     if (pPlayer->hard_landing > 0)
     {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = -(pPlayer->hard_landing << 4);
         pPlayer->hard_landing--;
     }
 
@@ -8784,7 +8962,7 @@ HORIZONLY:;
 
     if (pPlayer->knee_incs > 0)
     {
-        thisPlayer.horizSkew = F16(-48);
+        thisPlayer.horizSkew = -48;
         thisPlayer.horizRecenter = true;
         pPlayer->return_to_center = 9;
 
@@ -8870,11 +9048,11 @@ void P_DHProcessInput(int playerNum)
 {
     auto &thisPlayer = g_player[playerNum];
 
-    thisPlayer.horizAngleAdjust = 0;
-    thisPlayer.horizSkew = 0;
-
     if (thisPlayer.playerquitflag == 0)
         return;
+
+    thisPlayer.horizAngleAdjust = 0;
+    thisPlayer.horizSkew = 0;
 
     auto const pPlayer = thisPlayer.ps;
     auto const pSprite = &sprite[pPlayer->i];
@@ -9013,28 +9191,24 @@ void P_DHProcessInput(int playerNum)
         return;
     }
 
-    pPlayer->rotscrnang -= (pPlayer->rotscrnang >> 1);
-
-    if (pPlayer->rotscrnang && !(pPlayer->rotscrnang >> 1))
-        pPlayer->rotscrnang -= ksgn(pPlayer->rotscrnang);
-
-    pPlayer->look_ang -= (pPlayer->look_ang >> 2);
-
-    if (pPlayer->look_ang && !(pPlayer->look_ang >> 2))
-        pPlayer->look_ang -= ksgn(pPlayer->look_ang);
-
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_LEFT) && !pPlayer->on_motorcycle)
     {
         // look_left
-        pPlayer->look_ang -= 152;
-        pPlayer->rotscrnang += 24;
+        thisPlayer.lookLeft = true;
+    }
+    else
+    {
+        thisPlayer.lookLeft = false;
     }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_RIGHT) && !pPlayer->on_motorcycle)
     {
         // look_right
-        pPlayer->look_ang += 152;
-        pPlayer->rotscrnang -= 24;
+        thisPlayer.lookRight = true;
+    }
+    else
+    {
+        thisPlayer.lookRight = false;
     }
 
     int                  velocityModifier = TICSPERFRAME;
@@ -9072,12 +9246,6 @@ void P_DHProcessInput(int playerNum)
     pPlayer->bobpos.y = pPlayer->pos.y;
     pPlayer->opos.z   = pPlayer->pos.z;
     pPlayer->opyoff   = pPlayer->pyoff;
-
-    if (pPlayer->one_eighty_count < 0)
-    {
-        pPlayer->one_eighty_count += 128;
-        pPlayer->q16ang += F16(128);
-    }
 
     // Shrinking code
 
@@ -9357,7 +9525,10 @@ void P_DHProcessInput(int playerNum)
         pPlayer->return_to_center--;
 
     if (TEST_SYNC_KEY(playerBits, SK_CENTER_VIEW) || pPlayer->hard_landing)
+    {
         pPlayer->return_to_center = 9;
+        thisPlayer.horizRecenter  = true;
+    }
 
     if (TEST_SYNC_KEY(playerBits, SK_LOOK_UP))
     {
@@ -9391,7 +9562,7 @@ void P_DHProcessInput(int playerNum)
 
     if (pPlayer->hard_landing > 0)
     {
-        thisPlayer.horizSkew = fix16_from_int(-(pPlayer->hard_landing << 4));
+        thisPlayer.horizSkew = -(pPlayer->hard_landing << 4);
         pPlayer->hard_landing--;
     }
 

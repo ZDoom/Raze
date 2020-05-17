@@ -62,6 +62,7 @@ typedef enum
 #include "cmdlib.h"
 #include "i_interface.h"
 #include "printf.h"
+#include "cmdlib.h"
 
 EXTERN_CVAR (Bool, queryiwad);
 

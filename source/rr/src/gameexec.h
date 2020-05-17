@@ -74,6 +74,7 @@ void A_Fall(int spriteNum);
 int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
 void A_GetZLimits(int spriteNum);
 int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
+fix16_t __fastcall G_GetQ16AngleDelta(fix16_t oldAngle, fix16_t newAngle);
 //void G_RestoreMapState();
 //void G_SaveMapState();
 

@@ -137,6 +137,8 @@ void I_DetectOS()
 
 FArgs* Args; // command line arguments
 
+double refreshfreq;
+bool batchrun;
 
 namespace
 {
