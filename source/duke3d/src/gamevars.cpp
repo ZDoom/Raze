@@ -1059,22 +1059,12 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
     }
 }
 
-// Initialize WEAPONx_* gamevars. Since for Lunatic, they reside on the C side,
-// they're set directly. In C-CON, a new CON variable is defined together with
-// its initial value.
-#ifdef LUNATIC
-# define ADDWEAPONVAR(Weapidx, Membname) do { \
-    int32_t j; \
-    for (j=0; j<MAXPLAYERS; j++) \
-        g_playerWeapon[j][Weapidx].Membname = weapondefaults[Weapidx].Membname; \
-} while (0)
-#else
-# define ADDWEAPONVAR(Weapidx, Membname) do { \
+// Initialize WEAPONx_* gamevars
+#define ADDWEAPONVAR(Weapidx, Membname) do { \
     FStringf aszBuf("WEAPON%d_" #Membname, Weapidx); \
     aszBuf.ToUpper(); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
-#endif
 
 // Finish a default weapon member after CON translation. If it was not
 // overridden from CON itself (see example at g_weaponOverridden[]), we set
