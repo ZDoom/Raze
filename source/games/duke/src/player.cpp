@@ -81,7 +81,7 @@ void forceplayerangle(struct player_struct* p)
 
 	n = 128 - (krand() & 255);
 
-	p->q16horiz += 64 << FRACBITS;
+	p->addhoriz(64);
 	p->return_to_center = 9;
 	p->look_ang = n >> 1;
 	p->rotscrnang = n >> 1;
@@ -555,7 +555,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	p->oq16ang = p->q16ang;
 	p->opyoff = p->pyoff;
 
-	p->q16horiz = 100 << FRACBITS;
+	p->sethoriz(100);
 	p->q16horizoff = 0;
 
 	updatesector(p->posx, p->posy, &p->cursectnum);
@@ -743,8 +743,8 @@ void playerLookUp(int snum, int sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		if (sb_snum & SKB_RUN) p->q16horiz += 12 << FRACBITS;	// running
-		p->q16horiz += 12 << FRACBITS;
+		if (sb_snum & SKB_RUN) p->addhoriz(12);	// running
+		p->addhoriz(12);
 	}
 }
 
@@ -756,8 +756,8 @@ void playerLookDown(int snum, int sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		if (sb_snum & SKB_RUN) p->q16horiz -= 12 << FRACBITS;	// running
-		p->q16horiz -= 12 << FRACBITS;
+		if (sb_snum & SKB_RUN) p->addhoriz(-12);
+		p->addhoriz(-12);	// running
 	}
 }
 
@@ -768,8 +768,8 @@ void playerAimUp(int snum, int sb_snum)
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		if (sb_snum & SKB_RUN) p->q16horiz += 6 << FRACBITS;	// running
-		p->q16horiz += 6 << FRACBITS;
+		if (sb_snum & SKB_RUN) p->addhoriz(6);	// running
+		p->addhoriz(6);	// running
 	}
 }
 
@@ -780,8 +780,8 @@ void playerAimDown(int snum, int sb_snum)
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		if (sb_snum & SKB_RUN) p->q16horiz -= 6 << FRACBITS;	// running
-		p->q16horiz -= 6 << FRACBITS;
+		if (sb_snum & SKB_RUN) p->addhoriz(-6);	// running
+		p->addhoriz(-6);	// running
 	}
 }
 

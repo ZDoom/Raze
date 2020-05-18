@@ -2202,6 +2202,7 @@ static void fireweapon(int snum, int* kb)
 //
 //---------------------------------------------------------------------------
 
+#if 0
 static void operateweapon(int snum)
 {
 	auto p = &ps[snum];
@@ -3637,5 +3638,5 @@ static void operateweapon(int snum)
 		}
 #endif						
 }
-
+#endif
 END_DUKE_NS

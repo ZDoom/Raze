@@ -1485,7 +1485,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
 			p->OnMotorcycle = 0;
 			p->gotweapon.Clear(MOTORCYCLE_WEAPON);
-			p->q16horiz = 100 << FRACBITS;
+			p->sethoriz(100);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1501,7 +1501,7 @@ void checkweapons_r(struct player_struct* p)
 			sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
 			p->OnBoat = 0;
 			p->gotweapon.Clear(BOAT_WEAPON);
-			p->q16horiz = 100 << FRACBITS;
+			p->sethoriz(100);
 			p->moto_do_bump = 0;
 			p->MotoSpeed = 0;
 			p->TiltStatus = 0;
@@ -1730,14 +1730,14 @@ static void onMotorcycle(int snum, int &sb_snum)
 	{
 		if (p->TurbCount <= 1)
 		{
-			p->q16horiz = 100 << FRACBITS;
+			p->sethoriz(100);
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			p->q16horiz = (100 + ((krand2() & 15) - 7)) << FRACBITS;
+			p->sethoriz(100 + ((krand2() & 15) - 7));
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
@@ -1750,7 +1750,7 @@ static void onMotorcycle(int snum, int &sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+		p->sethoriz(100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1760,7 +1760,7 @@ static void onMotorcycle(int snum, int &sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+		p->sethoriz(100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -2050,14 +2050,14 @@ static void onBoat(int snum, int sb_snum)
 	{
 		if (p->TurbCount <= 1)
 		{
-			p->q16horiz = 100 << FRACBITS;
+			p->sethoriz(100);
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			p->q16horiz = (100 + ((krand() & 15) - 7)) << FRACBITS;
+			p->sethoriz(100 + ((krand() & 15) - 7));
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
@@ -2070,7 +2070,7 @@ static void onBoat(int snum, int sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+		p->sethoriz(100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2080,7 +2080,7 @@ static void onBoat(int snum, int sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->q16horiz = (100 + p->VBumpNow / 3) << FRACBITS;
+		p->sethoriz(100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -2505,7 +2505,7 @@ void onBoatMove(int snum, int psect, int j)
 	auto s = &sprite[pi];
 	int psectlotag = sector[psect].lotag;
 
-	short var114, var118, var11c;
+	short var114, var118;
 	j &= (MAXWALLS - 1);
 	var114 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
 	var118 = abs(p->getang() - var114);
@@ -2768,13 +2768,14 @@ static void fireWeapon(int snum, int *kb)
 	}
 }
 
+#if 0
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum)
+static void operateweapon(int snum, int sb_snum, int *kb)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3374,5 +3375,5 @@ static void operateweapon(int snum)
 	}
 
 }
-
+#endif
 END_DUKE_NS

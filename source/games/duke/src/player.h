@@ -179,6 +179,7 @@ typedef struct player_struct {
     void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS)-1); }
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
+    void sethoriz(int v) { q16horiz = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
     int gethorizdiff() { return (q16horiz + q16horizoff) >> FRACBITS; }
 
