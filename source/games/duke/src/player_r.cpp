@@ -2634,4 +2634,745 @@ void onBoatHit(int snum, int var60)
 		p->TurbCount = 6;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void fireWeapon(int snum, int *kb)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+
+	p->crack_time = 777;
+
+	if (p->holster_weapon == 1)
+	{
+		if (p->last_pissed_time <= (26 * 218) && p->weapon_pos == -9)
+		{
+			p->holster_weapon = 0;
+			p->weapon_pos = 10;
+			FTA(74, p);
+		}
+	}
+	else
+	{
+		if (isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
+		switch (p->curr_weapon)
+		{
+		case DYNAMITE_WEAPON:
+			p->hbomb_hold_delay = 0;
+			if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+		case HANDREMOTE_WEAPON:
+			p->hbomb_hold_delay = 0;
+			(*kb) = 1;
+			break;
+
+		case PISTOL_WEAPON:
+			if (p->ammo_amount[PISTOL_WEAPON] > 0)
+			{
+				p->ammo_amount[PISTOL_WEAPON]--;
+				(*kb) = 1;
+			}
+			break;
+
+		case RIFLEGUN_WEAPON:
+			if (p->ammo_amount[RIFLEGUN_WEAPON] > 0) // && p->random_club_frame == 0)
+				(*kb) = 1;
+			break;
+
+		case SHOTGUN_WEAPON:
+			if (p->ammo_amount[SHOTGUN_WEAPON] > 0 && p->random_club_frame == 0)
+				(*kb) = 1;
+			break;
+
+		case BOWLING_WEAPON:
+			if (p->ammo_amount[BOWLING_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+		case POWDERKEG_WEAPON:
+			if (p->ammo_amount[POWDERKEG_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+
+		case BUZZSAW_WEAPON:
+		case THROWSAW_WEAPON:
+			if (p->curr_weapon == BUZZSAW_WEAPON)
+			{
+				if (p->ammo_amount[BUZZSAW_WEAPON] > 0)
+				{
+					(*kb) = 1;
+					spritesound(431, pi);
+				}
+			}
+			else if (p->ammo_amount[THROWSAW_WEAPON] > 0)
+			{
+				(*kb) = 1;
+				spritesound(SHRINKER_FIRE, pi);
+			}
+			break;
+
+		case ALIENBLASTER_WEAPON:
+			if (p->ammo_amount[ALIENBLASTER_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+
+		case TIT_WEAPON:
+			if (p->ammo_amount[TIT_WEAPON] > 0)
+			{
+				(*kb) = 1;
+				p->hbomb_hold_delay = !p->hbomb_hold_delay;
+			}
+			break;
+
+		case MOTORCYCLE_WEAPON:
+			if (p->ammo_amount[MOTORCYCLE_WEAPON] > 0)
+			{
+				(*kb) = 1;
+				p->hbomb_hold_delay = !p->hbomb_hold_delay;
+			}
+			break;
+
+		case BOAT_WEAPON:
+			if (p->ammo_amount[BOAT_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+
+		case CROSSBOW_WEAPON:
+			if (p->ammo_amount[CROSSBOW_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+
+		case CHICKEN_WEAPON:
+			if (p->ammo_amount[CHICKEN_WEAPON] > 0)
+				(*kb) = 1;
+			break;
+
+		case KNEE_WEAPON:
+		case SLINGBLADE_WEAPON:
+			if (p->curr_weapon == SLINGBLADE_WEAPON)
+			{
+				if (p->ammo_amount[SLINGBLADE_WEAPON] > 0)
+					if (p->quick_kick == 0)
+						(*kb) = 1;
+			}
+			else if (!isRRRA() || p->ammo_amount[KNEE_WEAPON] > 0)
+				if (p->quick_kick == 0)
+					(*kb) = 1;
+			break;
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void operateweapon(int snum)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+
+	switch (p->curr_weapon)
+	{
+	case HANDBOMB_WEAPON:
+
+		if ((*kb) == 1)
+			sound(401);
+		if ((*kb) == 6 && (sb_snum & (1 << 2)))
+			p->rapid_fire_hold = 1;
+		(*kb)++;
+		if ((*kb) > 19)
+		{
+			(*kb) = 0;
+			p->curr_weapon = HANDREMOTE_WEAPON;
+			p->last_weapon = -1;
+			p->weapon_pos = 10;
+			p->at57c = 45;
+			p->at57e = 1;
+			sound(402);
+		}
+
+		break;
+
+
+	case HANDREMOTE_WEAPON:
+
+		(*kb)++;
+
+		if (p->at57c < 0)
+		{
+			p->hbomb_on = 0;
+		}
+
+		if ((*kb) == 39)
+		{
+			p->hbomb_on = 0;
+			p->at290 = 8192;
+			madenoise(snum);
+		}
+		if ((*kb) == 12)
+		{
+			p->ammo_amount[HANDBOMB_WEAPON]--;
+			if (p->ammo_amount[RPG_WEAPON])
+				p->ammo_amount[RPG_WEAPON]--;
+#ifdef RRRA
+			if (p->on_ground && (sb_snum & 2) && !p->OnMotorcycle)
+#else
+			if (p->on_ground && (sb_snum & 2))
+#endif
+			{
+				k = 15;
+				i = ((p->horiz + p->horizoff - 100) * 20);
+			}
+			else
+			{
+				k = 140;
+				i = -512 - ((p->horiz + p->horizoff - 100) * 20);
+			}
+
+			j = EGS(p->cursectnum,
+				p->posx + (sintable[(p->ang + 512) & 2047] >> 6),
+				p->posy + (sintable[p->ang & 2047] >> 6),
+				p->posz, HEAVYHBOMB, -16, 9, 9,
+				p->ang, (k + (p->hbomb_hold_delay << 5)) * 2, i, pi, 1);
+
+			if (k == 15)
+			{
+				sprite[j].yvel = 3;
+				sprite[j].z += (8 << 8);
+			}
+
+			k = hits(pi);
+			if (k < 512)
+			{
+				sprite[j].ang += 1024;
+				sprite[j].zvel /= 3;
+				sprite[j].xvel /= 3;
+			}
+
+			p->hbomb_on = 1;
+		}
+		else if ((*kb) < 12 && (sb_snum & 4))
+			p->hbomb_hold_delay++;
+
+		if ((*kb) == 40)
+		{
+			(*kb) = 0;
+			p->curr_weapon = HANDBOMB_WEAPON;
+			p->last_weapon = -1;
+			p->at57e = 0;
+			p->at57c = 45;
+			if (p->ammo_amount[HANDBOMB_WEAPON] > 0)
+			{
+				addweapon(p, HANDBOMB_WEAPON);
+				p->weapon_pos = -9;
+			}
+			else checkavailweapon(p);
+		}
+		break;
+
+	case PISTOL_WEAPON:
+		if ((*kb) == 1)
+		{
+			shoot(pi, SHOTSPARK1);
+			spritesound(PISTOL_FIRE, pi);
+			p->at290 = 8192;
+			madenoise(snum);
+
+			lastvisinc = totalclock + 32;
+			p->visibility = 0;
+			if (psectlotag != 857)
+			{
+				p->posxv -= sintable[(p->ang + 512) & 2047] << 4;
+				p->posyv -= sintable[p->ang & 2047] << 4;
+			}
+		}
+		else if ((*kb) == 2)
+			if (p->ammo_amount[PISTOL_WEAPON] <= 0)
+			{
+				(*kb) = 0;
+				checkavailweapon(p);
+			}
+
+		(*kb)++;
+
+		if ((*kb) >= 22)
+		{
+			if (p->ammo_amount[PISTOL_WEAPON] <= 0)
+			{
+				(*kb) = 0;
+				checkavailweapon(p);
+				break;
+			}
+			else if ((p->ammo_amount[PISTOL_WEAPON] % 6) == 0)
+			{
+				switch ((*kb))
+				{
+				case 24:
+					spritesound(EJECT_CLIP, pi);
+					break;
+				case 30:
+					spritesound(INSERT_CLIP, pi);
+					break;
+				}
+			}
+			else
+				(*kb) = 38;
+		}
+
+		if ((*kb) == 38)
+		{
+			(*kb) = 0;
+			checkavailweapon(p);
+		}
+
+		break;
+
+	case SHOTGUN_WEAPON:
+
+		(*kb)++;
+
+		if ((*kb) == 6)
+			if (p->at599 == 0)
+				if (p->ammo_amount[SHOTGUN_WEAPON] > 1)
+					if (sb_snum & 4)
+						p->at59a = 1;
+
+		if (*kb == 4)
+		{
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+			shoot(pi, SHOTGUN);
+
+			p->ammo_amount[SHOTGUN_WEAPON]--;
+
+			spritesound(SHOTGUN_FIRE, pi);
+
+			p->at290 = 8192;
+			madenoise(snum);
+
+			lastvisinc = totalclock + 32;
+			p->visibility = 0;
+		}
+
+		if (*kb == 7)
+		{
+			if (p->at59a)
+			{
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+				shoot(pi, SHOTGUN);
+
+				p->ammo_amount[SHOTGUN_WEAPON]--;
+
+				spritesound(SHOTGUN_FIRE, pi);
+
+				if (psectlotag != 857)
+				{
+					p->posxv -= sintable[(p->ang + 512) & 2047] << 5;
+					p->posyv -= sintable[p->ang & 2047] << 5;
+				}
+			}
+			else if (psectlotag != 857)
+			{
+				p->posxv -= sintable[(p->ang + 512) & 2047] << 4;
+				p->posyv -= sintable[p->ang & 2047] << 4;
+			}
+		}
+
+		if (p->at599)
+		{
+			switch (*kb)
+			{
+			case 16:
+				checkavailweapon(p);
+				break;
+			case 17:
+				spritesound(SHOTGUN_COCK, pi);
+				break;
+			case 28:
+				*kb = 0;
+				p->at599 = 0;
+				p->at59a = 0;
+				return;
+			}
+		}
+		else if (p->at59a)
+		{
+			switch (*kb)
+			{
+			case 26:
+				checkavailweapon(p);
+				break;
+			case 27:
+				spritesound(SHOTGUN_COCK, pi);
+				break;
+			case 38:
+				*kb = 0;
+				p->at599 = 0;
+				p->at59a = 0;
+				return;
+			}
+		}
+		else
+		{
+			switch (*kb)
+			{
+			case 16:
+				checkavailweapon(p);
+				(*kb) = 0;
+				p->at599 = 1;
+				p->at59a = 0;
+				return;
+			}
+		}
+		break;
+
+	case CHAINGUN_WEAPON:
+
+		(*kb)++;
+		p->horiz++;
+		p->at59b++;
+
+		if ((*kb) <= 12)
+		{
+			if (((*kb) % 3) == 0)
+			{
+				p->ammo_amount[CHAINGUN_WEAPON]--;
+
+				if (((*kb) % 3) == 0)
+				{
+					j = spawn(pi, SHELL);
+
+					sprite[j].ang += 1024;
+					sprite[j].ang &= 2047;
+					sprite[j].xvel += 32;
+					sprite[j].z += (3 << 8);
+					ssp(j, CLIPMASK0);
+				}
+
+				spritesound(CHAINGUN_FIRE, pi);
+				shoot(pi, CHAINGUN);
+				p->at290 = 8192;
+				madenoise(snum);
+				lastvisinc = totalclock + 32;
+				p->visibility = 0;
+
+				if (psectlotag != 857)
+				{
+					p->posxv -= sintable[(p->ang + 512) & 2047] << 4;
+					p->posyv -= sintable[p->ang & 2047] << 4;
+				}
+				checkavailweapon(p);
+
+				if ((sb_snum & (1 << 2)) == 0)
+				{
+					*kb = 0;
+					break;
+				}
+			}
+		}
+		else if ((*kb) > 10)
+		{
+			if (sb_snum & (1 << 2)) *kb = 1;
+			else *kb = 0;
+		}
+
+		break;
+
+	case SHRINKER_WEAPON:
+	case GROW_WEAPON:
+
+		if (p->curr_weapon == GROW_WEAPON)
+		{
+			if ((*kb) > 3)
+			{
+				*kb = 0;
+				if (screenpeek == snum) pus = 1;
+				shoot(pi, GROWSPARK);
+				p->at290 = 1024;
+				madenoise(snum);
+				checkavailweapon(p);
+			}
+			else (*kb)++;
+		}
+		else
+		{
+			if ((*kb) == 1)
+			{
+				p->ammo_amount[SHRINKER_WEAPON]--;
+				shoot(pi, SHRINKSPARK);
+				checkavailweapon(p);
+			}
+			(*kb)++;
+			if ((*kb) > 20)
+				*kb = 0;
+		}
+		break;
+
+	case DEVISTATOR_WEAPON:
+		(*kb)++;
+		if ((*kb) == 2 || (*kb) == 4)
+		{
+			p->visibility = 0;
+			lastvisinc = totalclock + 32;
+			spritesound(CHAINGUN_FIRE, pi);
+			shoot(pi, SHOTSPARK1);
+			p->at290 = 16384;
+			madenoise(snum);
+			p->ammo_amount[DEVISTATOR_WEAPON]--;
+			checkavailweapon(p);
+		}
+		if ((*kb) == 2)
+		{
+			p->ang += 16;
+		}
+		else if ((*kb) == 4)
+		{
+			p->ang -= 16;
+		}
+		if ((*kb) > 4)
+			(*kb) = 1;
+		if (!(sb_snum & 4))
+			(*kb) = 0;
+		break;
+#ifdef RRRA
+	case RA13_WEAPON:
+		(*kb)++;
+		if ((*kb) == 2 || (*kb) == 4)
+		{
+			p->visibility = 0;
+			lastvisinc = totalclock + 32;
+			spritesound(CHAINGUN_FIRE, pi);
+			shoot(pi, CHAINGUN);
+			p->at290 = 16384;
+			madenoise(snum);
+			p->ammo_amount[RA13_WEAPON]--;
+			if (p->ammo_amount[RA13_WEAPON] <= 0)
+				(*kb) = 0;
+			else
+				checkavailweapon(p);
+		}
+		if ((*kb) == 2)
+		{
+			p->ang += 4;
+		}
+		else if ((*kb) == 4)
+		{
+			p->ang -= 4;
+		}
+		if ((*kb) > 4)
+			(*kb) = 1;
+		if (!(sb_snum & 4))
+			(*kb) = 0;
+		break;
+	case RA14_WEAPON:
+		if ((*kb) == 3)
+		{
+			p->MotoSpeed -= 20;
+			p->ammo_amount[RA14_WEAPON]--;
+			shoot(pi, RRTILE1790);
+		}
+		(*kb)++;
+		if ((*kb) > 20)
+		{
+			(*kb) = 0;
+			checkavailweapon(p);
+		}
+		if (p->ammo_amount[RA14_WEAPON] <= 0)
+			(*kb) = 0;
+		else
+			checkavailweapon(p);
+		break;
+
+
+#endif
+	case FREEZE_WEAPON:
+		(*kb)++;
+		if ((*kb) >= 7 && (*kb) <= 11)
+			shoot(pi, FIRELASER);
+
+		if ((*kb) == 5)
+		{
+			spritesound(CAT_FIRE, pi);
+			p->at290 = 2048;
+			madenoise(snum);
+		}
+		else if ((*kb) == 9)
+		{
+			p->ammo_amount[FREEZE_WEAPON]--;
+			p->visibility = 0;
+			lastvisinc = totalclock + 32;
+			checkavailweapon(p);
+		}
+		else if ((*kb) == 12)
+		{
+			p->posxv -= sintable[(p->ang + 512) & 2047] << 4;
+			p->posyv -= sintable[p->ang & 2047] << 4;
+			p->horiz += 20;
+			p->at59b += 20;
+		}
+		if ((*kb) > 20)
+			(*kb) = 0;
+		break;
+
+	case TRIPBOMB_WEAPON:
+	case BOWLING_WEAPON:
+		if (p->curr_weapon == TRIPBOMB_WEAPON)
+		{
+			if ((*kb) == 3)
+			{
+				if (screenpeek == snum) pus = 1;
+				p->ammo_amount[TRIPBOMB_WEAPON]--;
+				p->gotweapon[TRIPBOMB_WEAPON] = 0;
+#ifdef RRRA
+				if (p->on_ground && (sb_snum & 2) && !p->OnMotorcycle)
+#else
+				if (p->on_ground && (sb_snum & 2))
+#endif
+				{
+					k = 15;
+					i = ((p->horiz + p->horizoff - 100) * 20);
+				}
+				else
+				{
+					k = 32;
+					i = -512 - ((p->horiz + p->horizoff - 100) * 20);
+				}
+
+				j = EGS(p->cursectnum,
+					p->posx + (sintable[(p->ang + 512) & 2047] >> 6),
+					p->posy + (sintable[p->ang & 2047] >> 6),
+					p->posz, TRIPBOMBSPRITE, -16, 9, 9,
+					p->ang, k * 2, i, pi, 1);
+			}
+			(*kb)++;
+			if ((*kb) > 20)
+			{
+				(*kb) = 0;
+				checkavailweapon(p);
+			}
+		}
+		else
+		{
+			if ((*kb) == 30)
+			{
+				p->ammo_amount[BOWLING_WEAPON]--;
+				spritesound(354, pi);
+				shoot(pi, BOWLINGBALL);
+				p->at290 = 1024;
+				madenoise(snum);
+			}
+			if ((*kb) < 30)
+			{
+				p->posxv += sintable[(p->ang + 512) & 2047] << 4;
+				p->posyv += sintable[p->ang & 2047] << 4;
+			}
+			(*kb)++;
+			if ((*kb) > 40)
+			{
+				(*kb) = 0;
+				p->gotweapon[BOWLING_WEAPON] = 0;
+				checkavailweapon(p);
+			}
+		}
+		break;
+	case KNEE_WEAPON:
+		(*kb)++;
+		if ((*kb) == 3)
+			spritesound(426, pi);
+		if ((*kb) == 12)
+		{
+			shoot(pi, KNEE);
+			p->at290 = 1024;
+			madenoise(snum);
+		}
+		else if ((*kb) == 16)
+			(*kb) = 0;
+
+		if (p->wantweaponfire >= 0)
+			checkavailweapon(p);
+		break;
+#ifdef RRRA
+	case RA15_WEAPON:
+		(*kb)++;
+		if ((*kb) == 3)
+			spritesound(252, pi);
+		if ((*kb) == 8)
+		{
+			shoot(pi, SLINGBLADE);
+			p->at290 = 1024;
+			madenoise(snum);
+		}
+		else if ((*kb) == 16)
+			(*kb) = 0;
+
+		if (p->wantweaponfire >= 0)
+			checkavailweapon(p);
+		break;
+#endif
+
+	case RPG_WEAPON:
+		(*kb)++;
+		if ((*kb) == 4)
+		{
+			p->ammo_amount[RPG_WEAPON]--;
+			if (p->ammo_amount[HANDBOMB_WEAPON])
+				p->ammo_amount[HANDBOMB_WEAPON]--;
+			lastvisinc = totalclock + 32;
+			p->visibility = 0;
+			shoot(pi, RPG);
+			p->at290 = 32768;
+			madenoise(snum);
+			checkavailweapon(p);
+		}
+		else if ((*kb) == 16)
+			spritesound(450, pi);
+		else if ((*kb) == 34)
+			(*kb) = 0;
+		break;
+#ifdef RRRA
+	case RA16_WEAPON:
+		(*kb)++;
+		if ((*kb) == 4)
+		{
+			p->ammo_amount[RA16_WEAPON]--;
+			lastvisinc = totalclock + 32;
+			p->visibility = 0;
+			shoot(pi, RPG2);
+			p->at290 = 32768;
+			madenoise(snum);
+			checkavailweapon(p);
+		}
+		else if ((*kb) == 16)
+			spritesound(450, pi);
+		else if ((*kb) == 34)
+			(*kb) = 0;
+		break;
+#endif
+	}
+
+}
+
 END_DUKE_NS

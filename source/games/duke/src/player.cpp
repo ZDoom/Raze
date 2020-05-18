@@ -663,6 +663,12 @@ void timedexit(int snum)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void playerCrouch(int snum)
 {
 	auto p = &ps[snum];
@@ -708,6 +714,7 @@ void playerLookLeft(int snum)
 
 void playerLookRight(int snum)
 {
+	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
@@ -716,4 +723,66 @@ void playerLookRight(int snum)
 		p->rotscrnang -= 24;
 	}
 }
+
+void playerCenterView(int snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_RETURNTOCENTER, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->return_to_center = 9;
+	}
+}
+
+void playerLookUp(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_LOOKUP, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->return_to_center = 9;
+		if (sb_snum & SKB_RUN) p->q16horiz += 12 << FRACBITS;	// running
+		p->q16horiz += 12 << FRACBITS;
+	}
+}
+
+void playerLookDown(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_LOOKDOWN, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		p->return_to_center = 9;
+		if (sb_snum & SKB_RUN) p->q16horiz -= 12 << FRACBITS;	// running
+		p->q16horiz -= 12 << FRACBITS;
+	}
+}
+
+void playerAimUp(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_AIMUP, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		if (sb_snum & SKB_RUN) p->q16horiz += 6 << FRACBITS;	// running
+		p->q16horiz += 6 << FRACBITS;
+	}
+}
+
+void playerAimDown(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
+	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	{
+		if (sb_snum & SKB_RUN) p->q16horiz -= 6 << FRACBITS;	// running
+		p->q16horiz -= 6 << FRACBITS;
+	}
+}
+
 END_DUKE_NS
