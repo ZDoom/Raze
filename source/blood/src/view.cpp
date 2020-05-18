@@ -2405,11 +2405,13 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
 
+#if 0
             if (tiletovox[nAnimTile] != -1)
             {
                 pTSprite->yoffset += picanm[nAnimTile].yofs;
                 pTSprite->xoffset += picanm[nAnimTile].xofs;
             }
+#endif
 
             int const nVoxel = tiletovox[pTSprite->picnum];
 
