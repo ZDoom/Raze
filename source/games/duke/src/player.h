@@ -187,6 +187,7 @@ typedef struct player_struct {
     void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS)-1); }
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
+    void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
     void sethoriz(int v) { q16horiz = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
     int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
@@ -462,13 +463,21 @@ int hits(int i);
 int hitasprite(int i, short* hitsp);
 int aim(spritetype* s, int aang);
 
-void timedexit(int snum);
+int timedexit(int snum);
+void dokneeattack(int snum, int pi, const std::initializer_list<int>& respawnlist);
 int endoflevel(int snum);
 void playerisdead(int snum, int psectlotag, int fz, int cz);
 void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
+void playerLookLeft(int snum);
+void playerLookRight(int snum);
+void playerCenterView(int snum);
+void playerLookUp(int snum, int sb_snum);
+void playerLookDown(int snum, int sb_snum);
+void playerAimUp(int snum, int sb_snum);
+void playerAimDown(int snum, int sb_snum);
 
 extern int lastvisinc;
 

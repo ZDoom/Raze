@@ -631,7 +631,7 @@ int endoflevel(int snum)
 //
 //---------------------------------------------------------------------------
 
-void timedexit(int snum)
+int timedexit(int snum)
 {
 	auto p = &ps[snum];
 	p->timebeforeexit--;
@@ -659,8 +659,9 @@ void timedexit(int snum)
 			ud.level_number++;
 			ud.m_level_number = ud.level_number;
 		}
-		return;
+		return true;
 	}
+	return false;
 }
 
 //---------------------------------------------------------------------------
@@ -735,6 +736,16 @@ void playerCenterView(int snum)
 	}
 }
 
+#pragma message("input stuff begins here")
+void horizAngleAdjust(int snum, int delta)
+{
+#if 1 // for per-frame input
+	g_player[snum].horizAngleAdjust = delta;
+#else // for synchronous input
+	ps[snum].addhoriz(delta);
+#endif
+}
+
 void playerLookUp(int snum, int sb_snum)
 {
 	auto p = &ps[snum];
@@ -743,8 +754,7 @@ void playerLookUp(int snum, int sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		if (sb_snum & SKB_RUN) p->addhoriz(12);	// running
-		p->addhoriz(12);
+		horizAngleAdjust(snum, (sb_snum & SKB_RUN) ? 12 : 24);
 	}
 }
 
@@ -756,8 +766,7 @@ void playerLookDown(int snum, int sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		if (sb_snum & SKB_RUN) p->addhoriz(-12);
-		p->addhoriz(-12);	// running
+		horizAngleAdjust(snum, (sb_snum & SKB_RUN) ? -12 : -24);
 	}
 }
 
@@ -768,8 +777,7 @@ void playerAimUp(int snum, int sb_snum)
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		if (sb_snum & SKB_RUN) p->addhoriz(6);	// running
-		p->addhoriz(6);	// running
+		horizAngleAdjust(snum, (sb_snum & SKB_RUN) ? 6 : 12);
 	}
 }
 
@@ -780,8 +788,7 @@ void playerAimDown(int snum, int sb_snum)
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		if (sb_snum & SKB_RUN) p->addhoriz(-6);	// running
-		p->addhoriz(-6);	// running
+		horizAngleAdjust(snum, (sb_snum & SKB_RUN) ? -6 : -12);
 	}
 }
 

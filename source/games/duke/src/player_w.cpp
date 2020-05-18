@@ -92,7 +92,7 @@ void DoFire(struct player_struct *p, short snum)
 	{
 		// do clip check...
 		p->kickback_pic=aplWeaponTotalTime[p->curr_weapon][snum];
-		// is same as (*kb)....
+		// is same as p->kickback_pic....
 	}
 
 	if(aplWeaponWorksLike[p->curr_weapon][snum]!=KNEE_WEAPON)
@@ -141,7 +141,7 @@ void DoSpawn(struct player_struct *p, short snum)
 //
 //---------------------------------------------------------------------------
 
-void fireweapon_ww(int snum, int* kb)
+void fireweapon_ww(int snum)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -171,7 +171,7 @@ void fireweapon_ww(int snum, int* kb)
 				p->hbomb_hold_delay = 0;
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -180,7 +180,7 @@ void fireweapon_ww(int snum, int* kb)
 				break;
 			case HANDREMOTE_WEAPON:
 				p->hbomb_hold_delay = 0;
-				(*kb) = 1;
+				p->kickback_pic = 1;
 				if (aplWeaponInitialSound[p->curr_weapon][snum])
 				{
 					spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -191,7 +191,7 @@ void fireweapon_ww(int snum, int* kb)
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
 					//                    p->ammo_amount[p->curr_weapon]--;
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -203,7 +203,7 @@ void fireweapon_ww(int snum, int* kb)
 			case CHAINGUN_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -214,7 +214,7 @@ void fireweapon_ww(int snum, int* kb)
 			case SHOTGUN_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -224,7 +224,7 @@ void fireweapon_ww(int snum, int* kb)
 			case TRIPBOMB_WEAPON:
 				if (operateTripbomb(snum))
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -235,7 +235,7 @@ void fireweapon_ww(int snum, int* kb)
 			case SHRINKER_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -246,7 +246,7 @@ void fireweapon_ww(int snum, int* kb)
 			case GROW_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -257,7 +257,7 @@ void fireweapon_ww(int snum, int* kb)
 			case FREEZE_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -267,7 +267,7 @@ void fireweapon_ww(int snum, int* kb)
 			case DEVISTATOR_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					p->hbomb_hold_delay = !p->hbomb_hold_delay;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
@@ -279,7 +279,7 @@ void fireweapon_ww(int snum, int* kb)
 			case RPG_WEAPON:
 				if (p->ammo_amount[RPG_WEAPON] > 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -290,7 +290,7 @@ void fireweapon_ww(int snum, int* kb)
 			case KNEE_WEAPON:
 				if (p->quick_kick == 0)
 				{
-					(*kb) = 1;
+					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
 						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
@@ -308,7 +308,7 @@ void fireweapon_ww(int snum, int* kb)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
+void operateweapon_ww(int snum, int sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -319,7 +319,7 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 	if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
 	{
 		if (aplWeaponHoldDelay[p->curr_weapon][snum]	// there is a hold delay
-			&& ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
+			&& (p->kickback_pic == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
 			&& (sb_snum & (1 << 2))	// and 'fire' button is still down
 			)
 			// just hold here...
@@ -327,8 +327,8 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 			p->rapid_fire_hold = 1;
 			return;
 		}
-		(*kb)++;
-		if ((*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
+		p->kickback_pic++;
+		if (p->kickback_pic == aplWeaponHoldDelay[p->curr_weapon][snum])
 		{
 			p->ammo_amount[p->curr_weapon]--;
 
@@ -375,23 +375,23 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 			p->hbomb_on = 1;
 
 		}
-		else if ((*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] &&
+		else if (p->kickback_pic < aplWeaponHoldDelay[p->curr_weapon][snum] &&
 			(sb_snum & SKB_CROUCH))
 		{
 			p->hbomb_hold_delay++;
 		}
-		else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
+		else if (p->kickback_pic > aplWeaponTotalTime[p->curr_weapon][snum])
 		{
-			(*kb) = 0;
+			p->kickback_pic = 0;
 			// don't change to remote when in NAM: grenades are timed
 			checkavailweapon(p);
 		}
 	}
 	else if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON)
 	{
-		(*kb)++;
+		p->kickback_pic++;
 
-		if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
+		if (p->kickback_pic == aplWeaponFireDelay[p->curr_weapon][snum])
 		{
 			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_BOMB_TRIGGER)
 			{
@@ -411,9 +411,9 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 			}
 		}
 
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+		if (p->kickback_pic >= aplWeaponTotalTime[p->curr_weapon][snum])
 		{
-			(*kb) = 0;
+			p->kickback_pic = 0;
 			/// WHAT THE HELL DOES THIS DO....?????????????
 			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
 				fi.addweapon(p, TRIPBOMB_WEAPON);
@@ -426,51 +426,51 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 	{
 
 		// the basic weapon...
-		(*kb)++;
+		p->kickback_pic++;
 
 		if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD)
 		{
-			if (*kb == aplWeaponReload[p->curr_weapon][snum])
+			if (p->kickback_pic == aplWeaponReload[p->curr_weapon][snum])
 			{
 				checkavailweapon(p);
 			}
 		}
 		if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_STANDSTILL
-			&& *kb < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
+			&& p->kickback_pic < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
 		{
 			p->posz = p->oposz;
 			p->poszv = 0;
 		}
-		if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
+		if (p->kickback_pic == aplWeaponSound2Time[p->curr_weapon][snum])
 		{
 			if (aplWeaponSound2Sound[p->curr_weapon][snum])
 			{
 				spritesound(aplWeaponSound2Sound[p->curr_weapon][snum], pi);
 			}
 		}
-		if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
+		if (p->kickback_pic == aplWeaponSpawnTime[p->curr_weapon][snum])
 		{
 			DoSpawn(p, snum);
 		}
-		if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
+		if (p->kickback_pic == aplWeaponFireDelay[p->curr_weapon][snum])
 		{
 			DoFire(p, snum);
 		}
 
-		if (*kb > aplWeaponFireDelay[p->curr_weapon][snum]
-			&& (*kb) < aplWeaponTotalTime[p->curr_weapon][snum])
+		if (p->kickback_pic > aplWeaponFireDelay[p->curr_weapon][snum]
+			&& p->kickback_pic < aplWeaponTotalTime[p->curr_weapon][snum])
 		{
 
 			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
 			{ // an 'automatic'
 				if ((sb_snum & (1 << 2)) == 0)
 				{
-					*kb = aplWeaponTotalTime[p->curr_weapon][snum];
+					p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum];
 				}
 
 				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
 				{
-					if (((*(kb)) % 3) == 0)
+					if (((p->kickback_pic) % 3) == 0)
 					{
 						DoFire(p, snum);
 						DoSpawn(p, snum);
@@ -486,7 +486,7 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 
 			} // 'automatic
 		}
-		else if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+		else if (p->kickback_pic >= aplWeaponTotalTime[p->curr_weapon][snum])
 		{
 			if ( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
 				aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
@@ -500,19 +500,19 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 				i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
 				// time for 'reload'
 
-				if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
+				if (p->kickback_pic == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
 				{ // eject shortly after 'total time'
 					spritesound(EJECT_CLIP, pi);
 				}
-				else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
+				else if (p->kickback_pic == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
 				{
 					// insert occurs 2/3 of way through reload delay
 					spritesound(INSERT_CLIP, pi);
 				}
 
-				if ((*kb) >= (aplWeaponReload[p->curr_weapon][snum]))
+				if (p->kickback_pic >= (aplWeaponReload[p->curr_weapon][snum]))
 				{
-					*kb = 0;
+					p->kickback_pic = 0;
 				}
 
 			}
@@ -525,21 +525,21 @@ void operateweapon_ww(int snum, int sb_snum, int psect, int* kb)
 						// we are an AUTOMATIC.  Fire again...
 						if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)
 						{
-							*kb = 1 + (krand() & 3);
+							p->kickback_pic = 1 + (krand() & 3);
 						}
 						else
 						{
-							*kb = 1;
+							p->kickback_pic = 1;
 						}
 					}
 					else
 					{
-						*kb = 0;
+						p->kickback_pic = 0;
 					}
 				}
 				else
 				{ // not 'automatic' and >totaltime
-					*kb = 0;
+					p->kickback_pic = 0;
 				}
 			}
 		}
