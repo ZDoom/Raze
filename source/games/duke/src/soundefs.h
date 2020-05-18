@@ -418,6 +418,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define JOKE                           397
 #define FLAMETHROWER_INTRO  398
 #define FLAMETHROWER_LOOP  399
-#define FLAMETHROWER_END= 400
+#define FLAMETHROWER_END 400
 #define E5L7_DUKE_QUIT_YOU  401
 	

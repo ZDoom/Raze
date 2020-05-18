@@ -157,7 +157,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = 98 * (100 + ps[p].gethorizdiff());
+				zvel = 98 * (100 + ps[p].gethorizsum());
 				sx += sintable[(sa + 860) & 0x7FF] / 448;
 				sy += sintable[(sa + 348) & 0x7FF] / 448;
 				sz += (3 << 8);
@@ -215,7 +215,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = (int)(100 - ps[p].gethorizdiff()) * 81;
+				zvel = (int)(100 - ps[p].gethorizsum()) * 81;
 				if (sprite[ps[p].i].xvel != 0)
 					vel = (int)((((512 - (1024
 						- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
@@ -283,7 +283,7 @@ void shoot_d(int i, int atwith)
 		{
 			if (p >= 0)
 			{
-				zvel = (100 - ps[p].gethorizdiff()) << 5;
+				zvel = (100 - ps[p].gethorizsum()) << 5;
 				sz += (6 << 8);
 				sa += 15;
 			}
@@ -459,14 +459,14 @@ void shoot_d(int i, int atwith)
 				if (j == -1)
 				{
 					// no target
-					zvel = (100 - ps[p].gethorizdiff()) << 5;
+					zvel = (100 - ps[p].gethorizsum()) << 5;
 				}
 				zvel += (zRange / 2) - (krand() & (zRange - 1));
 			}
 			else if (j == -1 || atwith != SHOTSPARK1)
 			{
 				sa += 16 - (krand() & 31);
-				zvel = (100 - ps[p].gethorizdiff()) << 5;
+				zvel = (100 - ps[p].gethorizsum()) << 5;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -676,7 +676,7 @@ void shoot_d(int i, int atwith)
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
 			else
-				zvel = (100 - ps[p].gethorizdiff()) * 98;
+				zvel = (100 - ps[p].gethorizsum()) * 98;
 		}
 		else
 		{
@@ -764,7 +764,7 @@ void shoot_d(int i, int atwith)
 				if (sprite[j].picnum != RECON)
 					sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = (100 - ps[p].gethorizdiff()) * 81;
+			else zvel = (100 - ps[p].gethorizsum()) * 81;
 			if (atwith == RPG)
 				spritesound(RPG_SHOOT, i);
 
@@ -850,7 +850,7 @@ void shoot_d(int i, int atwith)
 			{
 				sprite[j].x -= sintable[sa & 2047] / 56;
 				sprite[j].y -= sintable[(sa + 1024 + 512) & 2047] / 56;
-				sprite[j].ang -= 8 + (krand() & 255) - 128;
+				sprite[j].ang -=  8 + (krand() & 255) - 128;
 				sprite[j].xrepeat = 24;
 				sprite[j].yrepeat = 24;
 			}
@@ -892,7 +892,7 @@ void shoot_d(int i, int atwith)
 	case HANDHOLDINGLASER:
 
 		if (p >= 0)
-			zvel = (100 - ps[p].gethorizdiff()) * 32;
+			zvel = (100 - ps[p].gethorizsum()) * 32;
 		else zvel = 0;
 
 		hitscan(sx, sy, sz - ps[p].pyoff, sect,
@@ -993,7 +993,7 @@ void shoot_d(int i, int atwith)
 			else
 			{
 				sa += 16 - (krand() & 31);
-				zvel = (100 - ps[p].gethorizdiff()) << 5;
+				zvel = (100 - ps[p].gethorizsum()) << 5;
 				zvel += 128 - (krand() & 255);
 			}
 
@@ -1068,7 +1068,7 @@ void shoot_d(int i, int atwith)
 				zvel = ((sprite[j].z - sz - dal - (4 << 8)) * 768) / (ldist(&sprite[ps[p].i], &sprite[j]));
 				sa = getangle(sprite[j].x - sx, sprite[j].y - sy);
 			}
-			else zvel = (100 - ps[p].gethorizdiff()) * 98;
+			else zvel = (100 - ps[p].gethorizsum()) * 98;
 		}
 		else if (s->statnum != 3)
 		{
@@ -1483,7 +1483,7 @@ int doincrements_d(struct player_struct* p)
 		p->knuckle_incs++;
 		if (p->knuckle_incs == 10 && !isWW2GI())
 		{
-			if (totalclock > 1024)
+			if ((int)totalclock > 1024)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
@@ -1877,7 +1877,13 @@ static void underwater(int snum, int sb_snum, int psect, int fz, int cz)
 	}
 }
 
-static int operateTripbomb(int snum)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int operateTripbomb(int snum)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -1887,7 +1893,7 @@ static int operateTripbomb(int snum)
 
 	hitscan(p->posx, p->posy, p->posz,
 		p->cursectnum, sintable[(p->getang() + 512) & 2047],
-		sintable[p->getang() & 2047], (100 - p->gethorizdiff()) * 32,
+		sintable[p->getang() & 2047], (100 - p->gethorizsum()) * 32,
 		&sect, &hw, &hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (sect < 0 || hitsp >= 0)
@@ -1919,172 +1925,6 @@ static int operateTripbomb(int snum)
 			}
 
 	return 0;
-}
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-static void fireweapon_ww(int snum, int* kb)
-{
-	auto p = &ps[snum];
-	int pi = p->i;
-
-	p->crack_time = 777;
-
-	if (p->holster_weapon == 1)
-	{
-		if (p->last_pissed_time <= (26 * 218) && p->weapon_pos == -9)
-		{
-			p->holster_weapon = 0;
-			p->weapon_pos = 10;
-			FTA(74, p);
-		}
-	}
-	else
-	{
-		SetGameVarID(g_iReturnVarID, 0, pi, snum);
-		SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
-		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
-		OnEvent(EVENT_FIRE, pi, snum, -1);
-		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
-		{
-			switch (aplWeaponWorksLike[p->curr_weapon][snum])
-			{
-			case HANDBOMB_WEAPON:
-				p->hbomb_hold_delay = 0;
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-			case HANDREMOTE_WEAPON:
-				p->hbomb_hold_delay = 0;
-				(*kb) = 1;
-				if (aplWeaponInitialSound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-				}
-				break;
-
-			case PISTOL_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					//                    p->ammo_amount[p->curr_weapon]--;
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-
-			case CHAINGUN_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case SHOTGUN_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-			case TRIPBOMB_WEAPON:
-				if (operateTripbomb(snum))
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case SHRINKER_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case GROW_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case FREEZE_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-			case DEVISTATOR_WEAPON:
-				if (p->ammo_amount[p->curr_weapon] > 0)
-				{
-					(*kb) = 1;
-					p->hbomb_hold_delay = !p->hbomb_hold_delay;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case RPG_WEAPON:
-				if (p->ammo_amount[RPG_WEAPON] > 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-
-			case KNEE_WEAPON:
-				if (p->quick_kick == 0)
-				{
-					(*kb) = 1;
-					if (aplWeaponInitialSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
-					}
-				}
-				break;
-			}
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -2187,6 +2027,15 @@ static void fireweapon(int snum, int* kb)
 		}
 		break;
 
+	case FLAMETHROWER_WEAPON: // Twentieth Anniversary World Tour
+		if (isWorldTour() && p->ammo_amount[FLAMETHROWER_WEAPON] > 0) 
+		{
+			(*kb) = 1;
+			if (sector[p->cursectnum].lotag != 2)
+				spritesound(FLAMETHROWER_INTRO, pi);
+		}
+		break;
+
 	case KNEE_WEAPON:
 		if (p->quick_kick == 0)
 		{
@@ -2202,343 +2051,48 @@ static void fireweapon(int snum, int* kb)
 //
 //---------------------------------------------------------------------------
 
-#if 0
-static void operateweapon(int snum)
+static void operateweapon(int snum, int sb_snum, int psect, int* kb)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
+	int i, j, k;
 
 	// already firing...
-#ifdef WW2WEAPON
-	if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
-	{
-		if (aplWeaponHoldDelay[p->curr_weapon][snum]	// there is a hold delay
-			&& ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
-			&& (sb_snum & (1 << 2))	// and 'fire' button is still down
-			)
-			// just hold here...
-		{
-			p->rapid_fire_hold = 1;
-			return;
-		}
-		(*kb)++;
-		if ((*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
-		{
-			p->ammo_amount[p->curr_weapon]--;
 
-			if (p->on_ground && (sb_snum & 2))
-			{
-				k = 15;
-				i = ((p->horiz + p->horizoff - 100) * 20);
-			}
-			else
-			{
-				k = 140;
-				i = -512 - ((p->horiz + p->horizoff - 100) * 20);
-			}
-
-			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->ang + 512) & 2047] >> 6),
-				p->posy + (sintable[p->ang & 2047] >> 6),
-				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->ang, (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
-
-			{
-				long lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-				long lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-				// set timer.  blows up when at zero....
-				sprite[j].extra = lGrenadeLifetime
-					+ mulscale(krand(), lGrenadeLifetimeVar, 14)
-					- lGrenadeLifetimeVar;
-			}
-
-			if (k == 15)
-			{
-				sprite[j].yvel = 3;
-				sprite[j].z += (8 << 8);
-			}
-
-			k = hits(pi);
-			if (k < 512)
-			{
-				sprite[j].ang += 1024;
-				sprite[j].zvel /= 3;
-				sprite[j].xvel /= 3;
-			}
-
-			p->hbomb_on = 1;
-
-		}
-		else if ((*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] &&
-			(sb_snum & (1 << 2)))
-		{
-			p->hbomb_hold_delay++;
-		}
-		else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			(*kb) = 0;
-			// don't change to remote when in NAM: grenades are timed
-			checkavailweapon(p);
-		}
-	}
-	else if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON)
-	{
-		(*kb)++;
-
-		if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_BOMB_TRIGGER)
-			{
-				p->hbomb_on = 0;
-			}
-			if (aplWeaponShoots[p->curr_weapon][snum] != 0)
-			{
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					lastvisinc = totalclock + 32;
-					p->visibility = 0;
-				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			}
-		}
-
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			(*kb) = 0;
-			/// WHAT THE HELL DOES THIS DO....?????????????
-			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
-				addweapon(p, TRIPBOMB_WEAPON);
-			else
-				checkavailweapon(p);
-		}
-
-	}
-#if 0		
-	else if (aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON)
-	{
-		if (*kb < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
-		{
-			p->posz = p->oposz;
-			p->poszv = 0;
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-			{
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			}
-		}
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			(*kb) = 0;
-#ifdef FUTURENAM
-			// in NAM, the trip bomb uses the remote...
-			p->curr_weapon = HANDREMOTE_WEAPON;
-			p->last_weapon = -1;
-			p->weapon_pos = 10;
-#else
-			checkavailweapon(p);
-			p->weapon_pos = -9;
-#endif
-		}
-		else (*kb)++;
-	}
-#endif		
-	else
-	{
-		if (IsGameEvent(EVENT_PROCESSWEAPON))
-		{
-			OnEvent(EVENT_PROCESSWEAPON, p->i, snum, -1);
-		}
-		else
-		{
-			// the basic weapon...
-			(*kb)++;
-
-			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD)
-			{
-				if (*kb == aplWeaponReload[p->curr_weapon][snum])
-				{
-					checkavailweapon(p);
-				}
-			}
-			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_STANDSTILL
-				&& *kb < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
-			{
-				p->posz = p->oposz;
-				p->poszv = 0;
-			}
-			if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
-			{
-				if (aplWeaponSound2Sound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponSound2Sound[p->curr_weapon][snum], pi);
-				}
-			}
-			if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
-			{
-				DoSpawn(p, snum);
-			}
-			if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
-			{
-				DoFire(p, snum);
-			}
-
-			if (*kb > aplWeaponFireDelay[p->curr_weapon][snum]
-				&& (*kb) < aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-
-				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-				{ // an 'automatic'
-					if ((sb_snum & (1 << 2)) == 0)
-					{
-						*kb = aplWeaponTotalTime[p->curr_weapon][snum];
-					}
-
-					if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
-					{
-						if (((*(kb)) % 3) == 0)
-						{
-							DoFire(p, snum);
-							DoSpawn(p, snum);
-						}
-
-					}
-					if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
-					{
-						// fire every other...
-						DoFire(p, snum);
-						DoSpawn(p, snum);
-					}
-
-				} // 'automatic
-			}
-			else if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				if ( //!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD) &&
-					aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]
-					&& p->ammo_amount[p->curr_weapon] > 0
-					&& (aplWeaponClip[p->curr_weapon][snum])
-					&& ((p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])) == 0)
-					)
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-
-					if ((*kb) >= (aplWeaponReload[p->curr_weapon][snum]))
-					{
-						*kb = 0;
-					}
-
-				}
-				else
-				{
-					if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-					{ // an 'automatic'
-						if (sb_snum & (1 << 2))
-						{
-							// we are an AUTOMATIC.  Fire again...
-							if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)
-							{
-								*kb = 1 + (krand() & 3);
-							}
-							else
-							{
-								*kb = 1;
-							}
-						}
-						else
-						{
-							*kb = 0;
-						}
-					}
-					else
-					{ // not 'automatic' and >totaltime
-						*kb = 0;
-					}
-				}
-			}
-		} // process the event ourselves if no handler provided.
-	}
-
-#else
-
-#ifdef WW2
-	switch (aplWeaponWorksLike[p->curr_weapon][snum])
-#else
 	switch (p->curr_weapon)
-#endif
 	{
 	case HANDBOMB_WEAPON:	// grenade in NAM
-#ifdef WW2
-		if (aplWeaponHoldDelay[p->curr_weapon][snum]	// there is a hold delay
-			&& ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
-			&& (sb_snum & (1 << 2))	// and 'fire' button is still down
-			)
-			// just hold here...
-#else
 		if ((*kb) == 6 && (sb_snum & (1 << 2)))
-#endif
 		{
 			p->rapid_fire_hold = 1;
 			break;
 		}
 		(*kb)++;
-#ifdef WW2
-		if ((*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
-#else
 		if ((*kb) == 12)
-#endif				
 		{
-#ifdef WW2					
-			p->ammo_amount[p->curr_weapon]--;
-#else
 			p->ammo_amount[HANDBOMB_WEAPON]--;
-#endif
 
 			if (p->on_ground && (sb_snum & 2))
 			{
 				k = 15;
-				i = ((p->horiz + p->horizoff - 100) * 20);
+				i = ((p->gethorizsum() - 100) * 20);
 			}
 			else
 			{
 				k = 140;
-				i = -512 - ((p->horiz + p->horizoff - 100) * 20);
+				i = -512 - ((p->gethorizsum() - 100) * 20);
 			}
 
 			j = EGS(p->cursectnum,
-				p->posx + (sintable[(p->ang + 512) & 2047] >> 6),
-				p->posy + (sintable[p->ang & 2047] >> 6),
+				p->posx + (sintable[(p->getang() + 512) & 2047] >> 6),
+				p->posy + (sintable[p->getang() & 2047] >> 6),
 				p->posz, HEAVYHBOMB, -16, 9, 9,
-				p->ang, (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
-#ifdef NAM
+				p->getang(), (k + (p->hbomb_hold_delay << 5)), i, pi, 1);
 
+			if (isNam())
 			{
-				long lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, -1, snum);
-				long lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, snum);
-				//sprintf(g_szBuf,"Lifetime=%ld Var=%ld snum=%d",lGrenadeLifetime, lGrenadeLifetimeVar, snum);
-				//AddLog(g_szBuf);
-									// set timer.  blows up when at zero....
-				sprite[j].extra = lGrenadeLifetime
-					+ mulscale(krand(), lGrenadeLifetimeVar, 14)
-					- lGrenadeLifetimeVar;
+				sprite[j].extra = mulscale(krand(), NAM_GRENADE_LIFETIME_VAR, 14);
 			}
-#endif
 
 			if (k == 15)
 			{
@@ -2557,28 +2111,19 @@ static void operateweapon(int snum)
 			p->hbomb_on = 1;
 
 		}
-#ifdef WW2				
-		else if ((*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] &&
-			(sb_snum & (1 << 2)))
-#else
 		else if ((*kb) < 12 && (sb_snum & (1 << 2)))
-#endif
 			p->hbomb_hold_delay++;
-#ifdef WW2				
-		else if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
-#else
 		else if ((*kb) > 19)
-#endif
 		{
 			(*kb) = 0;
-#ifdef NAM
 			// don't change to remote when in NAM: grenades are timed
-			checkavailweapon(p);
-#else
-			p->curr_weapon = HANDREMOTE_WEAPON;
-			p->last_weapon = -1;
-			p->weapon_pos = 10;
-#endif					
+			if (isNam()) checkavailweapon(p);
+			else
+			{
+				p->curr_weapon = HANDREMOTE_WEAPON;
+				p->last_weapon = -1;
+				p->weapon_pos = 10;
+			}
 		}
 
 		break;
@@ -2588,166 +2133,40 @@ static void operateweapon(int snum)
 
 		(*kb)++;
 
-#ifdef WW2
-		if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_BOMB_TRIGGER)
-			{
-				p->hbomb_on = 0;
-			}
-			if (aplWeaponShoots[p->curr_weapon][snum] != 0)
-			{
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					lastvisinc = totalclock + 32;
-					p->visibility = 0;
-				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			}
-		}
-#else
 		if ((*kb) == 2)
 		{
 			p->hbomb_on = 0;
 		}
-#endif
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-#else
 		if ((*kb) == 10)
-#endif
 		{
 			(*kb) = 0;
-#ifdef NAM
-#ifdef WW2
-			/// WHAT THE HELL DOES THIS DO....?????????????
-			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
-				addweapon(p, TRIPBOMB_WEAPON);
+			int weapon = isNam() ? TRIPBOMB_WEAPON : HANDBOMB_WEAPON;
+
+			if (p->ammo_amount[weapon] > 0)
+				fi.addweapon(p, weapon);
 			else
-#else
-			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
-				addweapon(p, TRIPBOMB_WEAPON);
-			else
-#endif
-#else
-			if (p->ammo_amount[HANDBOMB_WEAPON] > 0)
-				addweapon(p, HANDBOMB_WEAPON);
-			else
-#endif					
 				checkavailweapon(p);
 		}
 		break;
 
 	case PISTOL_WEAPON:	// m-16 in NAM
-#if 0
-// TODO:
-#ifdef WW2
-//sprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-//AddLog(g_szBuf);
-		if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			(*kb) = 0;
-			checkavailweapon(p);
-		}
-#endif
-#endif				
-#ifdef WW2					
-		if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			//sprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-			//AddLog(g_szBuf);
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-			shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			if (aplWeaponFireSound[p->curr_weapon][snum])
-			{
-				spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-			}
-			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-			{
-				// make them visible if not set...
-				lastvisinc = totalclock + 32;
-				p->visibility = 0;
-			}
-		}
-#else
 		if ((*kb) == 1)
 		{
-			shoot(pi, SHOTSPARK1);
+			fi.shoot(pi, SHOTSPARK1);
 			spritesound(PISTOL_FIRE, pi);
-			lastvisinc = totalclock + 32;
+			lastvisinc = (int)totalclock + 32;
 			p->visibility = 0;
 		}
-#endif					
 
-#ifdef WW2				
-		else if ((*kb) == aplWeaponSpawnTime[p->curr_weapon][snum])
-		{
-			//sprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-			//AddLog(g_szBuf);
-			spawn(pi, aplWeaponSpawn[p->curr_weapon][snum]);
-		}
-#else
 		else if ((*kb) == 2)
-			spawn(pi, SHELL);
-#endif
+			fi.spawn(pi, SHELL);
 
 		(*kb)++;
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-#else
 		if ((*kb) >= 5)
-#endif
 		{
-#ifdef NAM
-#ifdef WW2
-			//sprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-			//AddLog(g_szBuf);
-			if (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have a reload to check for...
-
-				if (p->ammo_amount[p->curr_weapon] <= 0 || (p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])))
-				{
-					// no reload needed..
-					(*kb) = 0;
-					checkavailweapon(p);
-				}
-				else
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-				}
-			}
-			else
-			{
-				// no reload time to check... just reset...
-				(*kb) = 0;
-			}
-		}
-		else
-		{
-			// not past total time
-		}
-#else
-			if (p->ammo_amount[PISTOL_WEAPON] <= 0 || (p->ammo_amount[PISTOL_WEAPON] % 20))
+			if (p->ammo_amount[PISTOL_WEAPON] <= 0 || (p->ammo_amount[PISTOL_WEAPON] % (isNam() ? 20 : 12)))
 			{
 				(*kb) = 0;
 				checkavailweapon(p);
@@ -2768,176 +2187,34 @@ static void operateweapon(int snum)
 					break;
 				}
 			}
-	}
-#endif
-#else
-			if (p->ammo_amount[PISTOL_WEAPON] <= 0 || (p->ammo_amount[PISTOL_WEAPON] % 12))
-			{
-				(*kb) = 0;
-				checkavailweapon(p);
-			}
-			else
-			{
-				switch ((*kb))
-				{
-				case 5:
-					spritesound(EJECT_CLIP, pi);
-					break;
-					//#ifdef NAM								
-					//                            case WEAPON2_RELOAD_TIME - 15:
-					//#else
-				case 8:
-					//#endif
-					spritesound(INSERT_CLIP, pi);
-					break;
-				}
-			}
-}
-#endif
-
-#ifdef NAM
-#ifdef WW2
-		if ((*kb) >= aplWeaponReload[p->curr_weapon][snum])// 50)
-		{
-
-			(*kb) = 0;
-			checkavailweapon(p);
 		}
-#else
+
 		// 3 second re-load time
-		if ((*kb) == 50)
+		if ((*kb) == (isNam() ? 50 : 27))
 		{
 			(*kb) = 0;
 			checkavailweapon(p);
 		}
-#endif
-#else
-		if ((*kb) == 27)
-		{
-			(*kb) = 0;
-			checkavailweapon(p);
-		}
-#endif					
-
 		break;
 
 	case SHOTGUN_WEAPON:
 
 		(*kb)++;
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			// check for clip.
-			if (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have a reload to check for...
-
-				if (p->ammo_amount[p->curr_weapon] <= 0 || (p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])))
-				{
-					// no reload needed..
-					(*kb) = 0;
-					checkavailweapon(p);
-				}
-				else
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum]))
-					{
-						// done with clip... restart
-						*kb = 0;
-					}
-				}
-			}
-			else
-			{
-				// no reload time to check... just reset...
-				(*kb) = 0;
-			}
-		}
-		else
-		{
-			// not past total time
-		}
-
-		if (*kb == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			{
-				int i;
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				for (i = 0; i < aplWeaponShotsPerBurst[p->curr_weapon][snum]; i++)
-				{
-					shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-				}
-			}
-			p->ammo_amount[p->curr_weapon]--;
-
-			if (aplWeaponFireSound[p->curr_weapon][snum])
-			{
-				spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-			}
-
-			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-			{
-				// make them visible if not set...
-				lastvisinc = totalclock + 32;
-				p->visibility = 0;
-			}
-
-		}
-
-		if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_CHECKATRELOAD)
-		{
-			if (*kb == aplWeaponReload[p->curr_weapon][snum])
-			{
-				checkavailweapon(p);
-			}
-		}
-		if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
-		{
-			spritesound(aplWeaponSound2Sound[p->curr_weapon][snum], pi);
-		}
-		if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
-		{
-			j = spawn(pi, aplWeaponSpawn[p->curr_weapon][snum]);
-			sprite[j].ang += 1024;
-			ssp(j, CLIPMASK0);
-			sprite[j].ang += 1024;
-			p->kickback_pic++;
-		}
-		if (*kb >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			*kb = 0;
-		}
-#else
 		if (*kb == 4)
 		{
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
-			shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
+			fi.shoot(pi, SHOTGUN);
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
 			spritesound(SHOTGUN_FIRE, pi);
 
-			lastvisinc = totalclock + 32;
+			lastvisinc = (int)totalclock + 32;
 			p->visibility = 0;
 
 		}
@@ -2955,7 +2232,7 @@ static void operateweapon(int snum)
 			p->kickback_pic++;
 			break;
 		case 24:
-			j = spawn(pi, SHOTGUNSHELL);
+			j = fi.spawn(pi, SHOTGUNSHELL);
 			sprite[j].ang += 1024;
 			ssp(j, CLIPMASK0);
 			sprite[j].ang += 1024;
@@ -2965,172 +2242,12 @@ static void operateweapon(int snum)
 			*kb = 0;
 			return;
 		}
-#endif
 		break;
 
 	case CHAINGUN_WEAPON:	// m-60 in NAM 
 
 		(*kb)++;
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			// check for clip.
-			if (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have a reload to check for...
-
-				if (p->ammo_amount[p->curr_weapon] <= 0 || (p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])))
-				{
-					// no reload needed..
-					(*kb) = 0;
-					checkavailweapon(p);
-				}
-				else
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum]))
-					{
-						// done with clip... restart
-						*kb = 0;
-					}
-				}
-			}
-			else
-			{
-				// no reload time to check... just reset...
-				(*kb) = 0;
-			}
-		}
-		else
-		{
-			// not past total time
-		}
-		//				if( (*kb) < aplWeaponTotalTime[p->curr_weapon][snum] )
-		{
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-			{
-				// first fire...
-				p->ammo_amount[p->curr_weapon]--;
-
-				if (aplWeaponSpawn[p->curr_weapon][snum])
-				{
-					j = spawn(pi, aplWeaponSpawn[p->curr_weapon][snum]);
-
-					sprite[j].ang += 1024;
-					sprite[j].ang &= 2047;
-					sprite[j].xvel += 32;
-					sprite[j].z += (3 << 8);
-					ssp(j, CLIPMASK0);
-				}
-
-				if (aplWeaponFireSound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-				}
-
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					lastvisinc = totalclock + 32;
-					p->visibility = 0;
-				}
-
-				checkavailweapon(p);
-			}
-			else if ((*kb) <= aplWeaponHoldDelay[p->curr_weapon][snum])
-			{ // check for 'automatic'
-				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-				{ // an 'automatic'
-
-					if ((sb_snum & (1 << 2)) == 0)
-					{
-						// 'fire' not still down... stop...
-						*kb = 0;
-						break;
-					}
-
-					if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYTHIRD)
-					{
-						if (((*(kb)) % 3) == 0)
-						{
-							if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AMMOPERSHOT)
-							{
-								p->ammo_amount[p->curr_weapon]--;
-							}
-
-							if (aplWeaponSpawn[p->curr_weapon][snum])
-							{
-								j = spawn(pi, aplWeaponSpawn[p->curr_weapon][snum]);
-
-								sprite[j].ang += 1024;
-								sprite[j].ang &= 2047;
-								sprite[j].xvel += 32;
-								sprite[j].z += (3 << 8);
-								ssp(j, CLIPMASK0);
-							}
-
-							if (aplWeaponFireSound[p->curr_weapon][snum])
-							{
-								spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-							}
-
-							SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-							SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-							shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-
-							if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-							{
-								// make them visible if not set...
-								lastvisinc = totalclock + 32;
-								p->visibility = 0;
-							}
-
-							checkavailweapon(p);
-
-						}
-
-					}
-
-				}
-			}
-			else if ((*kb) > aplWeaponHoldDelay[p->curr_weapon][snum])
-			{	// if automatic, hold delay is time to wait before re-cycle
-
-				if ((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC) &&
-					sb_snum & (1 << 2))
-				{
-					// cycle the firing...
-					*kb = 1;
-				}
-				else
-				{
-					*kb = 0;
-				}
-			}
-		}
-		else
-		{
-			*kb = 0;
-		}
-#else
 		if (*(kb) <= 12)
 		{
 			if (((*(kb)) % 3) == 0)
@@ -3139,7 +2256,7 @@ static void operateweapon(int snum)
 
 				if ((*(kb) % 3) == 0)
 				{
-					j = spawn(pi, SHELL);
+					j = fi.spawn(pi, SHELL);
 
 					sprite[j].ang += 1024;
 					sprite[j].ang &= 2047;
@@ -3149,8 +2266,8 @@ static void operateweapon(int snum)
 				}
 
 				spritesound(CHAINGUN_FIRE, pi);
-				shoot(pi, CHAINGUN);
-				lastvisinc = totalclock + 32;
+				fi.shoot(pi, CHAINGUN);
+				lastvisinc = (int)totalclock + 32;
 				p->visibility = 0;
 				checkavailweapon(p);
 
@@ -3166,178 +2283,87 @@ static void operateweapon(int snum)
 			if (sb_snum & (1 << 2)) *kb = 1;
 			else *kb = 0;
 		}
-#endif				
 
 		break;
 
-	case SHRINKER_WEAPON:	// m-79 in NAM (Grenade launcher)
 	case GROW_WEAPON:		// m-14 with scope (sniper rifle)
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
+		bool check;
+		if (isNam())
 		{
-			// check for clip.
-			if (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have a reload to check for...
-
-				if (p->ammo_amount[p->curr_weapon] <= 0 || (p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])))
-				{
-					// no reload needed..
-					(*kb) = 0;
-					checkavailweapon(p);
-				}
-				else
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum]))
-					{
-						// done with clip... restart
-						*kb = 0;
-					}
-				}
-			}
-			else
-			{
-				// no reload time to check... just reset...
-				(*kb) = 0;
-			}
+			(*kb)++;
+			check = ((*kb) == 3);
 		}
 		else
 		{
-			// not past total time
+			check = ((*kb) > 3);
 		}
-#endif
-		if (p->curr_weapon == GROW_WEAPON)
+		if (check)
 		{
-#ifdef NAM
-#ifdef WW2
-			(*kb)++;
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-#else
-			(*kb)++;
-			if ((*kb) == 3)
-#endif						
-#else
-			if ((*kb) > 3)
-#endif						
+			// fire now, but don't reload right away...
+			if (isNam())
 			{
-#ifdef NAM
-				// fire now, but don't reload right away...
-				* kb++;
+				*kb++;
 				if (p->ammo_amount[p->curr_weapon] <= 1)
 					*kb = 0;
-#else
-				* kb = 0;
-#endif
-				if (screenpeek == snum) pus = 1;
-				p->ammo_amount[p->curr_weapon]--;
-#ifdef WW2
-				if (aplWeaponFireSound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-#else
-				shoot(pi, GROWSPARK);
-#endif
-
-				//#ifdef NAM
-				//#else
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					p->visibility = 0;
-					lastvisinc = totalclock + 32;
-				}
-				checkavailweapon(p);
-				//#endif
 			}
-#ifdef NAM
-			if ((*kb) > aplWeaponReload[p->curr_weapon][snum])	// 30)
-			{
-				// reload now...
+			else
 				*kb = 0;
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					p->visibility = 0;
-					lastvisinc = totalclock + 32;
-				}
-				checkavailweapon(p);
+			if (screenpeek == snum) pus = 1;
+			p->ammo_amount[p->curr_weapon]--;
+			fi.shoot(pi, GROWSPARK);
+
+			//#ifdef NAM
+			//#else
+			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
+			{
+				// make them visible if not set...
+				p->visibility = 0;
+				lastvisinc = (int)totalclock + 32;
 			}
-#else
-			else (*kb)++;
-#endif					
+			checkavailweapon(p);
+			//#endif
 		}
-		else
+		else if (!isNam()) (*kb)++;
+		if (isNam() && (*kb) > aplWeaponReload[p->curr_weapon][snum])	// 30)
 		{
-#ifdef NAM
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])	//10
-#else
-			if ((*kb) > 10)
-#endif						
+			// reload now...
+			*kb = 0;
+			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
 			{
-#ifdef NAM
-				// fire now, but wait for reload...
-				(*kb)++;
-#else
-				(*kb) = 0;
-#endif						
-
-#ifdef WW2						
-				p->ammo_amount[p->curr_weapon]--;
-				if (aplWeaponFireSound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-#else
-				p->ammo_amount[SHRINKER_WEAPON]--;
-				shoot(pi, SHRINKER);
-#endif
-
-#ifdef NAM
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					p->visibility = 0;
-					lastvisinc = totalclock + 32;
-				}
-#else
+				// make them visible if not set...
 				p->visibility = 0;
-				lastvisinc = totalclock + 32;
-				checkavailweapon(p);
-#endif						
+				lastvisinc = (int)totalclock + 32;
 			}
-#ifdef NAM
-			else if ((*kb) > aplWeaponReload[p->curr_weapon][snum])	// 30
-			{
-				*kb = 0;
-				p->visibility = 0;
-				lastvisinc = totalclock + 32;
-				checkavailweapon(p);
-			}
-#endif					
-			else (*kb)++;
+			checkavailweapon(p);
 		}
+		break;
+
+	case SHRINKER_WEAPON:	// m-79 in NAM (Grenade launcher)
+		if ((!isNam() && (*kb) > 10) || (isNam() && (*kb) == 10))
+		{
+			if (isNam()) (*kb)++; // fire now, but wait for reload...
+			else (*kb) = 0;
+
+			p->ammo_amount[SHRINKER_WEAPON]--;
+			fi.shoot(pi, SHRINKER);
+
+			if (!isNam())
+			{
+				p->visibility = 0;
+				//flashColor = 176 + (252 << 8) + (120 << 16);
+				lastvisinc = (int)totalclock + 32;
+				checkavailweapon(p);
+			}
+		}
+		else if (isNam() && (*kb) > 30)
+		{
+			*kb = 0;
+			p->visibility = 0;
+			lastvisinc = (int)totalclock + 32;
+			checkavailweapon(p);
+		}
+		else (*kb)++;
 		break;
 
 	case DEVISTATOR_WEAPON:
@@ -3345,137 +2371,41 @@ static void operateweapon(int snum)
 		{
 			(*kb)++;
 
-#ifdef WW2
-			if ((*kb) & 1)
-#else
 			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
 				// fire every other...
 
 				if (((*kb) >= aplWeaponFireDelay[p->curr_weapon][snum]) &&
 					(*kb) < aplWeaponHoldDelay[p->curr_weapon][snum] &&
 					((*kb) & 1))
-#endif
 				{
-#ifdef WW2						
-					if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-#endif
 					{
 						// make them visible if not set...
 						p->visibility = 0;
-						lastvisinc = totalclock + 32;
+						lastvisinc = (int)totalclock + 32;
 					}
-#ifdef WW2						
-					if (aplWeaponFireSound[p->curr_weapon][snum])
-					{
-						spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-					}
-					SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-					SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-					shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-#else
-					shoot(pi, RPG);
-#endif
+					fi.shoot(pi, RPG);
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
-#ifdef NAM
-#ifdef WW2					
-			if ((*kb) > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				(*kb) = 0;
-			}
-#else
 			if ((*kb) > 5) (*kb) = 0;
-#endif
-#else
-			if ((*kb) > 5) (*kb) = 0;
-#endif
 		}
 		break;
 	case FREEZE_WEAPON:
 		// flame thrower in NAM
 
-#ifdef WW2
-		if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			// check for clip.
-			if (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have a reload to check for...
-
-				if (p->ammo_amount[p->curr_weapon] <= 0 || (p->ammo_amount[p->curr_weapon] % (aplWeaponClip[p->curr_weapon][snum])))
-				{
-					// no reload needed..
-					(*kb) = 0;
-					checkavailweapon(p);
-				}
-				else
-				{
-					// reload in progress...
-					int i;
-					i = aplWeaponReload[p->curr_weapon][snum] - aplWeaponTotalTime[p->curr_weapon][snum];
-					// time for 'reload'
-
-					if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
-					{ // eject shortly after 'total time'
-						spritesound(EJECT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
-					{
-						// insert occurs 2/3 of way through reload delay
-						spritesound(INSERT_CLIP, pi);
-					}
-					else if ((*kb) == (aplWeaponReload[p->curr_weapon][snum]))
-					{
-						// done with clip... restart
-						*kb = 0;
-					}
-				}
-			}
-			else
-			{
-				// no reload time to check... just reset...
-				(*kb) = 0;
-			}
-		}
-		else
-		{
-			// not past total time
-		}
-#endif
-#ifdef WW2
-		if ((*kb) < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
-#else
 		if ((*kb) < 4)
-#endif					
 		{
 			(*kb)++;
-#ifdef WW2					
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-#else
 			if ((*kb) == 3)
-#endif
 			{
 				p->ammo_amount[p->curr_weapon]--;
 
-#ifdef WW2						
-				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-				{
-					// make them visible if not set...
-					p->visibility = 0;
-					lastvisinc = totalclock + 32;
-				}
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-#else
 				p->visibility = 0;
-				lastvisinc = totalclock + 32;
-				shoot(pi, FREEZEBLAST);
-#endif
+				lastvisinc = (int)totalclock + 32;
+				fi.shoot(pi, FREEZEBLAST);
 				checkavailweapon(p);
 			}
-			if (s->xrepeat < 32)
+			if (sprite[p->i].xrepeat < 32)
 			{
 				*kb = 0; break;
 			}
@@ -3485,115 +2415,65 @@ static void operateweapon(int snum)
 			if (sb_snum & (1 << 2))
 			{
 				*kb = 1;
-#ifdef WW2
-				if (aplWeaponFireSound[p->curr_weapon][snum])
-				{
-					spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-				}
-#else
 				spritesound(CAT_FIRE, pi);
-#endif
 			}
 			else *kb = 0;
 		}
 		break;
 
+	case FLAMETHROWER_WEAPON:
+		if (!isWorldTour()) // Twentieth Anniversary World Tour
+			break;
+		(*kb)++;
+		if ((*kb) == 2) 
+		{
+			if (sector[p->cursectnum].lotag != 2) 
+			{
+				p->ammo_amount[FLAMETHROWER_WEAPON]--;
+				if (snum == screenpeek)
+					g_visibility = 0;
+				fi.shoot(pi, FIREBALL);
+			}
+			checkavailweapon(p);
+		}
+		else if ((*kb) == 16) 
+		{
+			if ((sb_snum & SKB_FIRE) != 0)
+			{
+				*kb = 1;
+				spritesound(FLAMETHROWER_INTRO, pi);
+			}
+			else
+				*kb = 0;
+		}
+		break;
+
 	case TRIPBOMB_WEAPON:	// Claymore in NAM
-#ifdef WW2				
-		if (*kb < (aplWeaponFireDelay[p->curr_weapon][snum] + 1))
-#else
 		if (*kb < 4)
-#endif
 		{
 			p->posz = p->oposz;
 			p->poszv = 0;
-#ifdef WW2					
-			if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-			{
-				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-				SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-				shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			}
-#else
 			if ((*kb) == 3)
-				shoot(pi, HANDHOLDINGLASER);
-#endif
+				fi.shoot(pi, HANDHOLDINGLASER);
 		}
-#ifdef WW2				
-		if ((*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
-#else
 		if ((*kb) == 16)
-#endif
 		{
 			(*kb) = 0;
-#ifdef FUTURENAM
-			// in NAM, the trip bomb uses the remote...
-			p->curr_weapon = HANDREMOTE_WEAPON;
-			p->last_weapon = -1;
-			p->weapon_pos = 10;
-#else
 			checkavailweapon(p);
 			p->weapon_pos = -9;
-#endif
 		}
 		else (*kb)++;
 		break;
 	case KNEE_WEAPON:
 		(*kb)++;
 
-#ifdef WW2
-		if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-			shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-		}
-		else if (sb_snum & (1 << 2))
-		{
-			// 'fire' is still down.
-
-			if ((*kb) == aplWeaponHoldDelay[p->curr_weapon][snum])
-			{
-				// we are AT hold time
-				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
-				{
-					// we are an AUTOMATIC.  Fire again...
-					if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)
-					{
-						*kb = 1 + (krand() & 3);
-					}
-					else
-					{
-						*kb = 1;
-					}
-				}
-				else
-				{
-					// nothing special to do
-				}
-
-			}
-			else if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-			{
-				// we have reached 'totaltime' and 'fire' is down
-				///... should not get here if 'automatic'...
-				*kb = 0;
-			}
-		}
-		else if ((*kb) >= aplWeaponTotalTime[p->curr_weapon][snum])
-		{
-			// 'fire' isn't down and we've reached the end...
-			*kb = 0;
-		}
-#else
-		if ((*kb) == 7) shoot(pi, KNEE);
+		if ((*kb) == 7) fi.shoot(pi, KNEE);
 		else if ((*kb) == 14)
 		{
 			if (sb_snum & (1 << 2))
 				*kb = 1 + (krand() & 3);
 			else *kb = 0;
 		}
-#endif
 
 		if (p->wantweaponfire >= 0)
 			checkavailweapon(p);
@@ -3601,42 +2481,18 @@ static void operateweapon(int snum)
 
 	case RPG_WEAPON:	// m-72 in NAM (LAW)
 		(*kb)++;
-#ifdef WW2				
-		if ((*kb) == aplWeaponFireDelay[p->curr_weapon][snum])
-		{
-			p->ammo_amount[p->curr_weapon]--;
-			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
-			{
-				// make them visible if not set...
-				p->visibility = 0;
-				lastvisinc = totalclock + 32;
-			}
-			if (aplWeaponFireSound[p->curr_weapon][snum])
-			{
-				spritesound(aplWeaponFireSound[p->curr_weapon][snum], pi);
-			}
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], p->i, snum);
-			shoot(pi, aplWeaponShoots[p->curr_weapon][snum]);
-			checkavailweapon(p);
-		}
-		else if (*kb == aplWeaponTotalTime[p->curr_weapon][snum])
-			*kb = 0;
-#else
 		if ((*kb) == 4)
 		{
 			p->ammo_amount[RPG_WEAPON]--;
-			lastvisinc = totalclock + 32;
+			lastvisinc = (int)totalclock + 32;
 			p->visibility = 0;
-			shoot(pi, RPG);
+			fi.shoot(pi, RPG);
 			checkavailweapon(p);
 		}
 		else if (*kb == 20)
 			*kb = 0;
-#endif
 		break;
 		}
-#endif						
 }
-#endif
+
 END_DUKE_NS

@@ -308,6 +308,10 @@ extern int32_t VOL4ENDSND2;
 extern int32_t EXPANDERSHOOT;
 extern int32_t INTRO4_B;
 extern int32_t BIGBANG;
+#define FLAMETHROWER_INTRO  398
+#define FLAMETHROWER_LOOP  399
+#define FLAMETHROWER_END 400
+#define E5L7_DUKE_QUIT_YOU  401
 #define DUKE_SHUCKS 47 // this was missing
 
 #define DYNAMICSOUNDMAP(Soundnum) (DynamicSoundMap[Soundnum])

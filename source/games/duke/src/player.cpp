@@ -83,8 +83,8 @@ void forceplayerangle(struct player_struct* p)
 
 	p->addhoriz(64);
 	p->return_to_center = 9;
-	p->look_ang = n >> 1;
-	p->rotscrnang = n >> 1;
+	p->setlookang(n >> 1);
+	p->setrotscrnang(n >> 1);
 }
 
 //---------------------------------------------------------------------------
@@ -269,7 +269,7 @@ int aim(spritetype* s, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (s->picnum == TILE_APLAYER)
-									a = (abs(scale(sp->z - s->z, 10, sdist) - (ps[s->yvel].gethorizdiff() - 100)) < 100);
+									a = (abs(scale(sp->z - s->z, 10, sdist) - (ps[s->yvel].gethorizsum() - 100)) < 100);
 								else a = 1;
 
 								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
@@ -563,7 +563,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4L << 8), (20L << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->rotscrnang = (p->dead_flag + ((fz + p->posz) >> 7)) & 2047;
+		p->setrotscrnang((p->dead_flag + ((fz + p->posz) >> 7)) & 2047);
 
 	p->on_warping_sector = 0;
 
@@ -707,8 +707,8 @@ void playerLookLeft(int snum)
 	OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->look_ang -= 152;
-		p->rotscrnang += 24;
+		p->addlookang(-152);
+		p->addrotscrnang(24);
 	}
 }
 
@@ -719,8 +719,8 @@ void playerLookRight(int snum)
 	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->look_ang += 152;
-		p->rotscrnang -= 24;
+		p->addlookang(152);
+		p->addrotscrnang(24);
 	}
 }
 

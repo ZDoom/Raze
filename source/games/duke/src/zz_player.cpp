@@ -2798,8 +2798,6 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
         pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
 }
 
-void checkavailweapon(struct player_struct* p);
-
 void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
 {
     fi.addweapon(pPlayer, weaponNum);

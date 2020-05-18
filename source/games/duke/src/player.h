@@ -172,7 +172,15 @@ typedef struct player_struct {
 
     fix16_t q16horiz, q16horizoff;
     fix16_t q16ang, oq16ang;
+    int look_ang;
+    int16_t orotscrnang, rotscrnang;   // JBF 20031220: added orotscrnang
 
+    int getlookang() { return look_ang; }
+    void setlookang(int b) { look_ang = b; }
+    void addlookang(int b) { look_ang += b; }
+    int getrotscrnang() { return rotscrnang; }
+    void setrotscrnang(int b) { rotscrnang = b; }
+    void addrotscrnang(int b) { rotscrnang += b; }
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
     void setang(int v) { q16ang = v << FRACBITS; }
@@ -181,7 +189,7 @@ typedef struct player_struct {
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     void sethoriz(int v) { q16horiz = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
-    int gethorizdiff() { return (q16horiz + q16horizoff) >> FRACBITS; }
+    int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
 
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
@@ -195,7 +203,7 @@ typedef struct player_struct {
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
-    int16_t cursectnum, look_ang, last_extra, subweapon;
+    int16_t cursectnum, last_extra, subweapon;
     int16_t ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
@@ -209,7 +217,7 @@ typedef struct player_struct {
 
     int16_t weaprecs[MAX_WEAPON_RECS], weapon_sway, crack_time, bobcounter;
 
-    int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
+    int16_t dead_flag;
     int16_t holoduke_on, pycount;
     int16_t transporter_hold/*, clipdist*/;
 
@@ -283,7 +291,7 @@ typedef struct player_struct {
 #define shield_amount inv_amount[GET_SHIELD]
 #define raat609 MamaEnd
 #define raat5dd sea_sick_stat
-#define at57e detonate_offset
+#define at57e detonate_count
 #define at57c detonate_time
 #define at58e drink_timer
 #define at592 eat_timer
@@ -461,6 +469,8 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
+
+extern int lastvisinc;
 
 END_DUKE_NS
 

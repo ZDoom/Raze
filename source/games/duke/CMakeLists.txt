@@ -15,6 +15,7 @@ set( PCH_SOURCES
 	src/player.cpp
 	src/player_d.cpp
 	src/player_r.cpp
+	src/player_w.cpp
 	src/sectors.cpp
 	src/sectors_d.cpp
 	src/sectors_r.cpp

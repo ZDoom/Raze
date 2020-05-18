@@ -395,6 +395,7 @@ void respawn_rrra(int i, int j);
 int dodge(spritetype*);
 void alterang(int a, int g_i, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
+void checkavailweapon(struct player_struct* p);
 
 // tile names which are identical for all games.
 enum
