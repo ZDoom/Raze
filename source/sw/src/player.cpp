@@ -1583,7 +1583,7 @@ DoPlayerTurnBoat(PLAYERp pp)
     }
     else
     {
-        angvel = fix16_smul(pp->input.q16avel, fix16_from_float(PLAYER_TURN_SCALE));
+        angvel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
         angvel = fix16_sadd(angvel, fix16_ssub(angvel, fix16_sdiv(angvel, fix16_from_int(4))));
         angvel = fix16_sdiv(fix16_smul(angvel, fix16_from_int(synctics)), fix16_from_int(32));
     }
