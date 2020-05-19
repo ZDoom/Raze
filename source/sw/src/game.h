@@ -1283,7 +1283,7 @@ struct PLAYERstruct
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
 
-    SWBOOL on_vehicle;
+    SWBOOL on_vehicle, ScrollMode2D;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -2402,7 +2402,7 @@ int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 void AnimateCacheCursor(void);  // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
-void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
+void drawoverheadmap(int cposx,int cposy,int czoom,short cang, SWBOOL ScrollMode2D); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 void ManualPlayerInsert(PLAYERp pp);    // game.c

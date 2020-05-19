@@ -7794,8 +7794,7 @@ domovethings(void)
         DoPlayerSectorUpdatePreMove(pp);
         ChopsCheck(pp);
 
-//        extern SWBOOL ScrollMode2D;
-        //if (!ScrollMode2D)
+        //if (!pp->ScrollMode2D)
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         UpdatePlayerSprite(pp);

@@ -188,7 +188,6 @@ SWBOOL FirstTimeIntoGame;
 SWBOOL BorderAdjust = FALSE;
 SWBOOL InterpolateSectObj;
 SWBOOL LocationInfo = 0;
-void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
 int DispMono = TRUE;
 int Fog = FALSE;
@@ -229,7 +228,6 @@ SWBOOL PauseMode = FALSE;
 SWBOOL PauseKeySet = FALSE;
 SWBOOL SlowMode = FALSE;
 SWBOOL FrameAdvanceTics = 3;
-SWBOOL ScrollMode2D = FALSE;
 
 SWBOOL DebugSO = FALSE;
 SWBOOL DebugPanel = FALSE;
@@ -2556,7 +2554,7 @@ void RunLevel(void)
                 domovethings();
             }
 
-            if (!ScrollMode2D && !pp->on_vehicle)
+            if (!pp->ScrollMode2D && !pp->on_vehicle)
                 getinput(myconnectindex);
         }
 
@@ -3118,7 +3116,7 @@ void getinput(int const playerNum)
             MirrorDelay = 1;
             dimensionmode = 3;
             SetFragBar(pp);
-            ScrollMode2D = FALSE;
+            pp->ScrollMode2D = FALSE;
             SetRedrawScreen(pp);
         }
     }
@@ -3129,14 +3127,14 @@ void getinput(int const playerNum)
         if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
         {
 			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            ScrollMode2D = !ScrollMode2D;
+            pp->ScrollMode2D = !pp->ScrollMode2D;
             pp->mfposx = pp->posx;
             pp->mfposy = pp->posy;
         }
     }
 
     // If in 2D follow mode, scroll around.
-    if (ScrollMode2D && !Prediction)
+    if (pp->ScrollMode2D && !Prediction)
     {
         keymove = keymove / 2;
 
@@ -3154,7 +3152,7 @@ void getinput(int const playerNum)
         if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
         {
             buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            ScrollMode2D = !ScrollMode2D;
+            pp->ScrollMode2D = !pp->ScrollMode2D;
             // Reset coords
             pp->mfposx = pp->posx;
             pp->mfposy = pp->posy;
@@ -3208,7 +3206,7 @@ void getinput(int const playerNum)
     }
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || ScrollMode2D || InputMode)
+    if (M_Active() || pp->ScrollMode2D || InputMode)
         return;
 
     SET_LOC_KEY(localInput.bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
@@ -3585,7 +3583,7 @@ void getinput(int const playerNum)
 
 #define MAP_BLOCK_SPRITE    (DK_BLUE + 6)
 
-void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
+void drawoverheadmap(int cposx, int cposy, int czoom, short cang, SWBOOL ScrollMode2D)
 {
     int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
