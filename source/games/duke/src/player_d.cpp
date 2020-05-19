@@ -1670,7 +1670,7 @@ static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrun
 	{
 
 		// not jumping or crouching
-		if ((sb_snum & 3) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
+		if ((sb_snum & (SKB_JUMP|SKB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
 			p->posz = fz - (i << 8);
 		else
 		{
@@ -2065,7 +2065,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 	switch (p->curr_weapon)
 	{
 	case HANDBOMB_WEAPON:	// grenade in NAM
-		if (p->kickback_pic == 6 && (sb_snum & (1 << 2)))
+		if (p->kickback_pic == 6 && (sb_snum & SKB_FIRE))
 		{
 			p->rapid_fire_hold = 1;
 			break;
@@ -2114,7 +2114,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 			p->hbomb_on = 1;
 
 		}
-		else if (p->kickback_pic < 12 && (sb_snum & (1 << 2)))
+		else if (p->kickback_pic < 12 && (sb_snum & SKB_FIRE))
 			p->hbomb_hold_delay++;
 		else if (p->kickback_pic > 19)
 		{
@@ -2274,7 +2274,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 				p->visibility = 0;
 				checkavailweapon(p);
 
-				if ((sb_snum & (1 << 2)) == 0)
+				if ((sb_snum & SKB_FIRE) == 0)
 				{
 					p->kickback_pic = 0;
 					break;
@@ -2283,7 +2283,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		}
 		else if (p->kickback_pic > 10)
 		{
-			if (sb_snum & (1 << 2)) p->kickback_pic = 1;
+			if (sb_snum & SKB_FIRE) p->kickback_pic = 1;
 			else p->kickback_pic = 0;
 		}
 
@@ -2415,7 +2415,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		}
 		else
 		{
-			if (sb_snum & (1 << 2))
+			if (sb_snum & SKB_FIRE)
 			{
 				p->kickback_pic = 1;
 				spritesound(CAT_FIRE, pi);
@@ -2473,7 +2473,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		if (p->kickback_pic == 7) fi.shoot(pi, KNEE);
 		else if (p->kickback_pic == 14)
 		{
-			if (sb_snum & (1 << 2))
+			if (sb_snum & SKB_FIRE)
 				p->kickback_pic = 1 + (krand() & 3);
 			else p->kickback_pic = 0;
 		}
@@ -2504,7 +2504,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-void processinput_d(short snum)
+void processinput_d(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
 	char shrunk;
@@ -2682,12 +2682,12 @@ void processinput_d(short snum)
 
 	p->look_ang -= (p->look_ang >> 2);
 
-	if (sb_snum & (1 << 6))
+	if (sb_snum & SKB_LOOK_LEFT)
 	{
 		playerLookLeft(snum);
 	}
 
-	if (sb_snum & (1 << 7))
+	if (sb_snum & SKB_LOOK_RIGHT)
 	{
 		playerLookRight(snum);
 	}
@@ -2725,7 +2725,10 @@ void processinput_d(short snum)
 
 	p->oposz = p->posz;
 	p->opyoff = p->pyoff;
+#pragma message("input stuff begins here")
+#if 0
 	p->oq16ang = p->q16ang;
+#endif
 
 	if (p->one_eighty_count < 0)
 	{
@@ -2868,8 +2871,8 @@ void processinput_d(short snum)
 
 		bool check;
 
-		if (!isWW2GI()) check = ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & 2)));
-		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & 2)));
+		if (!isWW2GI()) check = ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & SKB_CROUCH)));
+		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & SKB_CROUCH)));
 		if (check)
 		{
 			p->posxv = mulscale(p->posxv, dukefriction - 0x2000, 16);
@@ -3107,7 +3110,7 @@ SHOOTINCODE:
 							p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum];
 						//				p->kickback_pic = aplWeaponFireDelay[p->curr_weapon][snum]+1;	// animate, but don't shoot...
 						p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum] + 1;	// animate, but don't shoot...
-						sb_snum &= ~(1 << 2); // not firing...
+						sb_snum &= ~SKB_FIRE; // not firing...
 					}
 					return;
 				}
@@ -3135,13 +3138,13 @@ SHOOTINCODE:
 
 	if (p->rapid_fire_hold == 1)
 	{
-		if (sb_snum & (1 << 2)) return;
+		if (sb_snum & SKB_FIRE) return;
 		p->rapid_fire_hold = 0;
 	}
 
 	if (shrunk || p->tipincs || p->access_incs)
-		sb_snum &= ~(1 << 2);
-	else if (shrunk == 0 && (sb_snum & (1 << 2)) && p->kickback_pic == 0 && p->fist_incs == 0 &&
+		sb_snum &= ~SKB_FIRE;
+	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
 		if (!isWW2GI()) fireweapon(snum);

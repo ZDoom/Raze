@@ -320,7 +320,7 @@ void operateweapon_ww(int snum, int sb_snum, int psect)
 	{
 		if (aplWeaponHoldDelay[p->curr_weapon][snum]	// there is a hold delay
 			&& (p->kickback_pic == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
-			&& (sb_snum & (1 << 2))	// and 'fire' button is still down
+			&& (sb_snum & SKB_FIRE)	// and 'fire' button is still down
 			)
 			// just hold here...
 		{
@@ -463,7 +463,7 @@ void operateweapon_ww(int snum, int sb_snum, int psect)
 
 			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
 			{ // an 'automatic'
-				if ((sb_snum & (1 << 2)) == 0)
+				if ((sb_snum & SKB_FIRE) == 0)
 				{
 					p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum];
 				}
@@ -520,7 +520,7 @@ void operateweapon_ww(int snum, int sb_snum, int psect)
 			{
 				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
 				{ // an 'automatic'
-					if (sb_snum & (1 << 2))
+					if (sb_snum & SKB_FIRE)
 					{
 						// we are an AUTOMATIC.  Fire again...
 						if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)

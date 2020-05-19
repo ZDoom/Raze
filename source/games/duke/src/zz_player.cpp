@@ -5712,7 +5712,7 @@ check_enemy_sprite:
                 pPlayer->rotscrnang += 24;
         }
         if (pPlayer->sea_sick < 250)
-            pPlayer->look_ang += (krand2()&255)-128;
+            pPlayer->addlookang((krand2()&255)-128);
     }
 
     int                  velocityModifier = TICSPERFRAME;
