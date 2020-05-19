@@ -651,6 +651,7 @@ GameStats GameInterface::getStats()
 	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
 }
 
+void displayweapon(int snum);
 
 void G_DisplayRest(int32_t smoothratio)
 {
@@ -742,7 +743,8 @@ void G_DisplayRest(int32_t smoothratio)
             else
             {
                 PspTwoDSetter set;
-                P_DisplayWeapon();
+                fi.displayweapon(screenpeek);
+                //P_DisplayWeapon();
 
                 if (pp->over_shoulder_on == 0)
                     P_DisplayScuba();

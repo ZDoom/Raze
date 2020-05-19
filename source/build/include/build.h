@@ -201,8 +201,9 @@ enum {
     RS_STRETCH = 1024,
 
     ROTATESPRITE_FULL16 = 2048,
+    RS_MODELSUBST= 4096,
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
-    ROTATESPRITE_MAX = 4096,
+    ROTATESPRITE_MAX = 8192,
 
     RS_CENTER = (1<<29),    // proper center align.
     RS_CENTERORIGIN = (1<<30),
@@ -860,6 +861,11 @@ void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnu
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
+
+class F2DDrawer;
+void twod_rotatesprite(F2DDrawer* twod, int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FGameTexture* pic = nullptr, int basepal = 0);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,

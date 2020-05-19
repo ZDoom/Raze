@@ -3021,10 +3021,26 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
 //
 //==========================================================================
 
-void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+void twod_rotatesprite(F2DDrawer *twod, int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
     int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FGameTexture* pic, int basepal)
 {
+    // todo: re-add
+#if 0
+    if (!tex && (dastat & RS_MODELSUBST))
+    {
+        tileUpdatePicnum(&picnum, (int16_t)0xc000);
+        if ((tileWidth(picnum) <= 0) || (tileHeight(picnum) <= 0)) return;
+        if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
+        {
+            polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);
+            return;
+        }
+    }
+#endif
+
+
+
     F2DDrawer::RenderCommand dg = {};
     int method = 0;
 
@@ -3138,6 +3154,22 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     twod->AddCommand(&dg);
 
 }
+
+void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+    int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture* tex, int basepal)
+{
+    if (!tex && (unsigned)picnum >= MAXTILES)
+        return;
+
+    if ((cx1 > cx2) || (cy1 > cy2)) return;
+    if (z <= 16) return;
+
+    // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
+    twod_rotatesprite(twod, sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
+}
+
+
 
 
 //
@@ -5280,44 +5312,6 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 
 
 #include "v_2ddrawer.h"
-//
-// rotatesprite
-//
-void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                   int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture *tex, int basepal)
-{
-    if (!tex && (unsigned)picnum >= MAXTILES)
-        return;
-
-    if ((cx1 > cx2) || (cy1 > cy2)) return;
-    if (z <= 16) return;
-
-    if (r_rotatespritenowidescreen)
-    {
-        dastat |= RS_STRETCH;
-        dastat &= ~RS_ALIGN_MASK;
-    }
-
-    if (!tex)
-    {
-        tileUpdatePicnum(&picnum, (int16_t)0xc000);
-        if ((tileWidth(picnum) <= 0) || (tileHeight(picnum) <= 0)) return;
-#if 0
-        if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
-        {
-            polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);
-            return;
-        }
-#endif
-    }
-
-    // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-    twod_rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
-
-    // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
-}
-
 
 
 void videoInit()

@@ -190,6 +190,7 @@ typedef struct player_struct {
     void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
     void sethoriz(int v) { q16horiz = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
+    int gethorizof() { return q16horizoff >> FRACBITS; }
     int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
 
     int32_t truefz, truecz, player_par;
@@ -478,6 +479,17 @@ void playerAimUp(int snum, int sb_snum);
 void playerAimDown(int snum, int sb_snum);
 
 extern int lastvisinc;
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+inline void hud_rotatesprite(int sx, int sy, int z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int dastat, int cx1, int cy1, int cx2, int cy2)
+{
+    twod_rotatesprite(&twodpsp, sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2);
+}
 
 END_DUKE_NS
 

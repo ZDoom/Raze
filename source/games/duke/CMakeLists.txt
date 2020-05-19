@@ -11,6 +11,8 @@ set( PCH_SOURCES
 	src/gamedef.cpp
 	src/gameexec.cpp
 	src/gamevar.cpp
+	src/hudweapon_d.cpp
+	src/hudweapon_r.cpp
 	src/input.cpp
 	src/player.cpp
 	src/player_d.cpp
