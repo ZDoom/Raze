@@ -4363,8 +4363,8 @@ int G_DoMoveThings(void)
 
         if (ud.pause_on == 0)
         {
-            P_ProcessInput(i);
-            //fi.processinput(i);
+            //P_ProcessInput(i);
+            fi.processinput(i);
             fi.checksectors(i);
         }
     }

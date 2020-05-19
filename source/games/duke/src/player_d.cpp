@@ -2711,7 +2711,7 @@ void processinput_d(int snum)
 			return;
 	}
 
-	if (p->pals.f >= 0)	// JBF 20040101: was > 0
+	if (p->pals.f > 0)	// JBF 20040101: was > 0
 		p->pals.f--;
 
 	// todo: Take this out of here. HUD text should be a new mode of the notification display.
