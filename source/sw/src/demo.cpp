@@ -318,7 +318,7 @@ void
 DemoReadBuffer(void)
 {
     memset(&DemoBuffer, -1, sizeof(DemoBuffer));
-    DemoReadPackets(DemoBuffer, sizeof(DemoBuffer)/sizeof(*DemoBuffer), DemoFileIn);
+    //DemoReadPackets(DemoBuffer, sizeof(DemoBuffer)/sizeof(*DemoBuffer), DemoFileIn);
 }
 
 void

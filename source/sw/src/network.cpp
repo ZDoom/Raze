@@ -44,7 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void getinput(SW_PACKET*);
+void getinput(SW_PACKET *, SWBOOL);
 
 /*
 SYNC BUG NOTES:
@@ -925,7 +925,6 @@ faketimerhandler(void)
 {
     int i, j, k;
     PLAYERp pp;
-    void getinput(SW_PACKET *, SWBOOL);
     extern SWBOOL BotMode;
 
 #if 0

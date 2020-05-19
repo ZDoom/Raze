@@ -1397,7 +1397,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", (int32_t)pp->pang);
+    out.AppendFormat("ANG:%d\n", fix16_to_int(pp->camq16ang));
 
     return out;
 }
@@ -2127,7 +2127,7 @@ drawscreen(PLAYERp pp)
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz, tang, thoriz);
+        JS_DrawCameras(pp, tx, ty, tz, tq16ang, tq16horiz);
     }
 
     screen->BeginScene();

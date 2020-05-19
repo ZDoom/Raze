@@ -23,13 +23,14 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
-BEGIN_SW_NS
 
 #ifndef INTERP_H
 
 #define INTERP_H
 
 #include "build.h"
+
+BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
 extern short short_numinterpolations;
