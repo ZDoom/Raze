@@ -1282,6 +1282,8 @@ struct PLAYERstruct
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
+
+    SWBOOL on_vehicle;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

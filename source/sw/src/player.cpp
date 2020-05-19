@@ -1188,6 +1188,16 @@ SWBOOL
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
+SWBOOL
+P_CheckOperatingVehicle(PLAYERp pp)
+{
+    SWBOOL on_vehicle = pp->DoPlayerAction == DoPlayerOperateBoat ||
+                        pp->DoPlayerAction == DoPlayerOperateTank ||
+                        pp->DoPlayerAction == DoPlayerOperateTurret;
+
+    return on_vehicle;
+}
+
 int
 DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
 {
@@ -1732,6 +1742,229 @@ void SlipSlope(PLAYERp pp)
 }
 
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
+
+double scaleAdjustmentToInterval(double x);
+
+void
+DoPlayerHorizon(PLAYERp pp, fix16_t *q16horz)
+{
+#define HORIZ_SPEED  (16)
+
+    // Fixme: This should probably be made optional.
+    if (cl_slopetilting)
+    {
+        int x,y,k,j;
+        short tempsect;
+
+        if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
+        {
+            if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+            {
+                // Get a point, 512 units ahead of player's position
+                x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
+                y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
+                tempsect = pp->cursectnum;
+                COVERupdatesector(x, y, &tempsect);
+
+                if (tempsect >= 0) // If the new point is inside a valid sector...
+                {
+                    // Get the floorz as if the new (x,y) point was still in
+                    // your sector
+                    j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
+                    k = getflorzofslope(pp->cursectnum, x, y);
+
+                    // If extended point is in same sector as you or the slopes
+                    // of the sector of the extended point and your sector match
+                    // closely (to avoid accidently looking straight out when
+                    // you're at the edge of a sector line) then adjust horizon
+                    // accordingly
+                    if ((pp->cursectnum == tempsect) || (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+                    {
+                        if (!pp->on_vehicle)
+                        {
+                            pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
+                        }
+                        else
+                        {
+                            pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (TEST(pp->Flags, PF_CLIMBING))
+        {
+            // tilt when climbing but you can't even really tell it
+            if (pp->q16horizoff < fix16_from_int(100))
+            {
+                if (!pp->on_vehicle)
+                {
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
+                }
+                else
+                {
+                    pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
+                }
+            }
+        }
+        else
+        {
+            // Make q16horizoff grow towards 0 since q16horizoff is not modified when
+            // you're not on a slope
+            if (pp->q16horizoff > 0)
+            {
+                if (!pp->on_vehicle)
+                {
+                    pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
+                }
+                else
+                {
+                    pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
+                }
+            }
+            else if (pp->q16horizoff < 0)
+            {
+                if (!pp->on_vehicle)
+                {
+                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((-pp->q16horizoff >> 3) + fix16_one))));
+                    pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
+                }
+                else
+                {
+                    pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+                }
+            }
+        }
+    }
+
+    if (*q16horz)
+    {
+        if (!pp->on_vehicle)
+        {
+            pp->q16horizbase = fix16_sadd(pp->q16horizbase, *q16horz);
+        }
+        else
+        {
+            pp->q16horizbase += *q16horz;
+        }
+        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+    }
+
+    // this is the locked type
+    if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+    {
+        // set looking because player is manually looking
+        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+
+        // adjust pp->q16horiz negative
+        if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+        {
+            if (!pp->on_vehicle)
+            {
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
+            }
+            else
+            {
+                pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+            }
+        }
+
+        // adjust pp->q16horiz positive
+        if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
+        {
+            if (!pp->on_vehicle)
+            {
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
+            }
+            else
+            {
+                pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
+            }
+        }
+    }
+
+    // this is the unlocked type
+    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN) || TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+    {
+        RESET(pp->Flags, PF_LOCK_HORIZ);
+        SET(pp->Flags, PF_LOOKING);
+
+        // adjust pp->q16horiz negative
+        if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+        {
+            if (!pp->on_vehicle)
+            {
+                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
+            }
+            else
+            {
+                pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+            }
+        }
+
+        // adjust pp->q16horiz positive
+        if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
+        {
+            if (!pp->on_vehicle)
+            {
+                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
+            }
+            else
+            {
+                pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
+            }
+        }
+
+        // reset pp->q16horizoff when resetting to center.
+        if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+            pp->q16horizoff = 0;
+    }
+
+    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
+    {
+        if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
+        {
+            // not pressing the pp->q16horiz keys
+            if (pp->q16horizbase != fix16_from_int(100))
+            {
+                int i;
+
+                // move pp->q16horiz back to 100
+                for (i = 1; i; i--)
+                {
+                    // this formula does not work for pp->q16horiz = 101-103
+                    if (!pp->on_vehicle)
+                    {
+                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
+                    }
+                    else
+                    {
+                        pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
+                    }
+                }
+            }
+            else
+            {
+                // not looking anymore because pp->q16horiz is back at 100
+                RESET(pp->Flags, PF_LOOKING);
+            }
+        }
+    }
+
+    // bound the base
+    pp->q16horizbase = fix16_clamp(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+
+    // bound adjust q16horizoff
+    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
+        pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MIN), pp->q16horizbase);
+    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
+        pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MAX), pp->q16horizbase);
+
+    // add base and offsets
+    pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+}
 
 void
 DoPlayerBob(PLAYERp pp)
@@ -2496,6 +2729,8 @@ DoPlayerMoveBoat(PLAYERp pp)
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
+
+    DoPlayerHorizon(pp, &pp->input.q16horz);
 }
 
 #if 0
@@ -3006,6 +3241,8 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
+    DoPlayerHorizon(pp, &pp->input.q16horz);
+
     DoTankTreads(pp);
 }
 
@@ -3020,6 +3257,8 @@ DoPlayerMoveTurret(PLAYERp pp)
         SET(pp->Flags, PF_PLAYER_MOVED);
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
+
+    DoPlayerHorizon(pp, &pp->input.q16horz);
 }
 
 void
