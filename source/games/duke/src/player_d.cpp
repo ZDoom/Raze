@@ -3171,4 +3171,22 @@ void processweapon_d(int s, int ss, int p)
 	processweapon(s, ss, p);
 }
 
+void processmove_d(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+{
+	int psectlotag = sector[psect].lotag;
+	auto p = &ps[snum];
+	if (psectlotag == 2)
+	{
+		underwater(snum, sb_snum, psect, fz, cz);
+	}
+
+	else if (p->jetpack_on)
+	{
+		operateJetpack(snum, sb_snum, psectlotag, fz, cz, shrunk);
+	}
+	else if (psectlotag != 2)
+	{
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+	}
+}
 END_DUKE_NS

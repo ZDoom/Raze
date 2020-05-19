@@ -1557,7 +1557,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void onMotorcycle(int snum, int &sb_snum)
+/*static*/ void onMotorcycle(int snum, int &sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1846,7 +1846,7 @@ static void onMotorcycle(int snum, int &sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void onBoat(int snum, int sb_snum)
+/*static*/ void onBoat(int snum, int& sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -4266,6 +4266,21 @@ HORIZONLY:
 void processweapon_r(int s, int ss, int p)
 {
 	processweapon(s, ss, p);
+}
+
+void processmove_r(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+{
+	int psectlotag = sector[psect].lotag;
+	auto p = &ps[snum];
+	if (psectlotag == 2)
+	{
+		underwater(snum, sb_snum, psect, fz, cz);
+	}
+
+	else if (psectlotag != 2)
+	{
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+	}
 }
 
 END_DUKE_NS
