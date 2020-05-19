@@ -44,8 +44,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-// getinput() calls will require redoing with regard to local input changes.
-// void getinput(int playerNum);
+void getinput(SW_PACKET*);
 
 /*
 SYNC BUG NOTES:
@@ -105,7 +104,8 @@ typedef struct
 {
     int32_t vel;
     int32_t svel;
-    fix16_t q16horz, q16avel;
+    int32_t angvel;
+    int32_t aimvel;
     int32_t bits;
 } SW_AVERAGE_PACKET;
 
@@ -282,7 +282,6 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
     *buf = 0;
     buf++;
 
-    // TODO: Properly copy the values in a cross-platform manner
     if (pak->vel != old_pak->vel)
     {
         *((short *)buf) = pak->vel;
@@ -297,17 +296,17 @@ int EncodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
         SET(*base_ptr, BIT(1));
     }
 
-    if (pak->q16avel != old_pak->q16avel)
+    if (pak->angvel != old_pak->angvel)
     {
-        *((fix16_t *)buf) = pak->q16avel;
-        buf += sizeof(pak->q16avel);
+        *((char *)buf) = pak->angvel;
+        buf += sizeof(pak->angvel);
         SET(*base_ptr, BIT(2));
     }
 
-    if (pak->q16horz != old_pak->q16horz)
+    if (pak->aimvel != old_pak->aimvel)
     {
-        *((fix16_t *)buf) = pak->q16horz;
-        buf += sizeof(pak->q16horz);
+        *((char *)buf) = pak->aimvel;
+        buf += sizeof(pak->aimvel);
         SET(*base_ptr, BIT(3));
     }
 
@@ -335,7 +334,6 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     *pak = *old_pak;
 
-    // TODO: Properly copy the values in a cross-platform manner
     if (TEST(*base_ptr, BIT(0)))
     {
         pak->vel = *(short *)buf;
@@ -350,14 +348,14 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 
     if (TEST(*base_ptr, BIT(2)))
     {
-        pak->q16avel = *(fix16_t *)buf;
-        buf += sizeof(pak->q16avel);
+        pak->angvel = *(char *)buf;
+        buf += sizeof(pak->angvel);
     }
 
     if (TEST(*base_ptr, BIT(3)))
     {
-        pak->q16horz = *(fix16_t *)buf;
-        buf += sizeof(pak->q16horz);
+        pak->aimvel = *(char *)buf;
+        buf += sizeof(pak->aimvel);
     }
 
     //won't work if > 4 bytes
@@ -935,13 +933,12 @@ faketimerhandler(void)
     if (Player[myconnectindex].movefifoend - movefifoplc >= 100)
         return;
 
-    // getinput() calls will require redoing with regard to local input changes.
-    // getinput(&loc);
+    getinput(&loc);
 
     AveragePacket.vel += loc.vel;
     AveragePacket.svel += loc.svel;
-    AveragePacket.q16avel += loc.q16avel;
-    AveragePacket.q16horz += loc.q16horz;
+    AveragePacket.angvel += loc.angvel;
+    AveragePacket.aimvel += loc.aimvel;
     SET(AveragePacket.bits, loc.bits);
 
     pp = Player + myconnectindex;
@@ -958,8 +955,8 @@ faketimerhandler(void)
 
     loc.vel = AveragePacket.vel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.q16avel = AveragePacket.q16avel / fix16_from_int(MovesPerPacket);
-    loc.q16horz = AveragePacket.q16horz / fix16_from_int(MovesPerPacket);
+    loc.angvel = AveragePacket.angvel / MovesPerPacket;
+    loc.aimvel = AveragePacket.aimvel / MovesPerPacket;
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));

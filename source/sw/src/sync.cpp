@@ -76,7 +76,7 @@ PlayerSync(void)
         updatecrc(crc, pp->posx & 255);
         updatecrc(crc, pp->posy & 255);
         updatecrc(crc, pp->posz & 255);
-        updatecrc(crc, fix16_to_int(pp->q16ang) & 255);
+        updatecrc(crc, pp->pang & 255);
     }
 
     return (uint8_t) crc & 255;
@@ -93,7 +93,7 @@ PlayerSync2(void)
     {
         pp = Player + i;
 
-        updatecrc(crc, fix16_to_int(pp->q16horiz) & 255);
+        updatecrc(crc, pp->horiz & 255);
         updatecrc(crc, User[pp->PlayerSprite]->Health & 255);
         updatecrc(crc, pp->bcnt & 255);
     }
@@ -544,7 +544,7 @@ getsyncbyte()
         {
         pp = Player + i;
         u = User[pp->SpriteP - sprite];
-        ch ^= (pp->posx ^ pp->posy ^ pp->posz ^ fix16_to_int(pp->q16ang) ^ fix16_to_int(pp->q16horiz) ^ u->Health);
+        ch ^= (pp->posx ^ pp->posy ^ pp->posz ^ pp->pang ^ pp->horiz ^ u->Health);
         }
 
     for (j = headspritestat[STAT_ENEMY]; j >= 0; j = nextspritestat[j])

@@ -52,7 +52,6 @@ Things required to make savegames work:
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
-#include "interp.h"
 #include "tags.h"
 #include "sector.h"
 #include "sprite.h"
@@ -147,6 +146,7 @@ char DemoText[3][64];
 int DemoTextYstart = 0;
 
 SWBOOL DoubleInitAWE32 = FALSE;
+int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
 short IntroAnimCount = 0;
@@ -186,8 +186,8 @@ SWBOOL NoDemoStartup = FALSE;
 SWBOOL FirstTimeIntoGame;
 
 SWBOOL BorderAdjust = FALSE;
-SWBOOL InterpolateSectObj;
 SWBOOL LocationInfo = 0;
+void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
 int DispMono = TRUE;
 int Fog = FALSE;
@@ -228,6 +228,7 @@ SWBOOL PauseMode = FALSE;
 SWBOOL PauseKeySet = FALSE;
 SWBOOL SlowMode = FALSE;
 SWBOOL FrameAdvanceTics = 3;
+SWBOOL ScrollMode2D = FALSE;
 
 SWBOOL DebugSO = FALSE;
 SWBOOL DebugPanel = FALSE;
@@ -275,8 +276,6 @@ uint8_t DebugPrintColor = 255;
 
 int krandcount;
 
-SW_PACKET localInput;
-
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
@@ -286,7 +285,6 @@ void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
 void RunLevel(void);
-void getinput(int playerNum);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static FILE *debug_fout = NULL;
@@ -588,8 +586,7 @@ void TerminateGame(void)
 
 bool LoadLevel(const char *filename)
 {
-    int16_t ang;
-    if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &ang, &Player[0].cursectnum) == -1)
+    if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
     {
 		Printf("Level not found: %s", filename);
 		return false;
@@ -597,7 +594,6 @@ bool LoadLevel(const char *filename)
 	currentLevel = &mapList[Level];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->labelName);
-    Player[0].q16ang = fix16_from_int(ang);
 	return true;
 }
 
@@ -943,7 +939,6 @@ void InitLevelGlobals(void)
     AnimCnt = 0;
     left_foot = FALSE;
     screenpeek = myconnectindex;
-    numinterpolations = short_numinterpolations = 0;
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
@@ -951,7 +946,6 @@ void InitLevelGlobals(void)
     sumowasseen = FALSE;
     zillawasseen = FALSE;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
-    InterpolateSectObj = !CommEnabled;// && !PedanticMode;
 }
 
 void InitLevelGlobals2(void)
@@ -2392,6 +2386,48 @@ void dsprintf_null(char *str, const char *format, ...)
     va_list arglist;
 }
 
+void MoveLoop(void)
+{
+    int pnum;
+
+    getpackets();
+
+    if (PredictionOn && CommEnabled)
+    {
+        while (predictmovefifoplc < Player[myconnectindex].movefifoend)
+        {
+            DoPrediction(ppp);
+        }
+    }
+
+    //While you have new input packets to process...
+    if (!CommEnabled)
+        bufferjitter = 0;
+
+    while (Player[myconnectindex].movefifoend - movefifoplc > bufferjitter)
+    {
+        //Make sure you have at least 1 packet from everyone else
+        for (pnum=connecthead; pnum>=0; pnum=connectpoint2[pnum])
+        {
+            if (movefifoplc == Player[pnum].movefifoend)
+            {
+                break;
+            }
+        }
+
+        //Pnum is >= 0 only if last loop was broken, meaning a player wasn't caught up
+        if (pnum >= 0)
+            break;
+
+        domovethings();
+
+#if DEBUG
+        //if (DemoSyncRecord)
+        //    demosync_record();
+#endif
+    }
+}
+
 
 void InitPlayerGameSettings(void)
 {
@@ -2505,6 +2541,8 @@ void InitRunLevel(void)
         StartAmbientSound();
 }
 
+void faketimerhandler();
+
 void RunLevel(void)
 {
     InitRunLevel();
@@ -2519,44 +2557,21 @@ void RunLevel(void)
         handleevents();
         OSD_DispatchQueued();
 		D_ProcessEvents();
+		faketimerhandler();
         if (LoadGameOutsideMoveLoop)
         {
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
-        if (M_Active() || GUICapture || GamePaused)
+        if (M_Active())
         {
-            ototalclock = (int)totalclock - (120 / synctics);
-            buttonMap.ResetButtonStates();
+            ototalclock = (int)totalclock;
         }
         else
         {
-            PLAYERp const pp = Player + myconnectindex;
-
-            while ((totalclock - ototalclock) >= synctics)
-            {
-                ototalclock += synctics;
-
-                getinput(myconnectindex);
-
-                auto    const q16ang = fix16_to_int(pp->q16ang);
-                auto &        input  = pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)];
-
-                input = localInput;
-                input.vel =  mulscale9(localInput.vel,  sintable[NORM_ANGLE(q16ang + 512)]) +
-                             mulscale9(localInput.svel, sintable[NORM_ANGLE(q16ang)]);
-                input.svel = mulscale9(localInput.vel,  sintable[NORM_ANGLE(q16ang)]) + 
-                             mulscale9(localInput.svel, sintable[NORM_ANGLE(q16ang + 1536)]);
-
-                pp->movefifoend++;
-                localInput = {};
-
-                domovethings();
-            }
-
-            if (!pp->ScrollMode2D && !pp->on_vehicle)
-                getinput(myconnectindex);
+            MoveLoop();
         }
+
 
         drawscreen(Player + screenpeek);
 
@@ -2774,7 +2789,7 @@ void ManualPlayerInsert(PLAYERp pp)
         npp->posx = pp->posx;
         npp->posy = pp->posy;
         npp->posz = pp->posz;
-        npp->q16ang = pp->q16ang;
+        npp->pang = pp->pang;
         npp->cursectnum = pp->cursectnum;
 
         myconnectindex = numplayers;
@@ -2804,7 +2819,7 @@ void BotPlayerInsert(PLAYERp pp)
         npp->posx = pp->posx;
         npp->posy = pp->posy;
         npp->posz = pp->posz-Z(100);
-        npp->q16ang = pp->q16ang;
+        npp->pang = pp->pang;
         npp->cursectnum = pp->cursectnum;
 
         //myconnectindex = numplayers;
@@ -3007,15 +3022,11 @@ void PauseKey(PLAYERp pp)
 
 short MirrorDelay;
 
-double elapsedInputTicks;
-double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
-
-void DoPlayerHorizon(PLAYERp pp, fix16_t *q16horz);
-
-void getinput(int const playerNum)
+void getinput(SW_PACKET *loc)
 {
     int i;
-    PLAYERp pp = Player + playerNum;
+    PLAYERp pp = Player + myconnectindex;
+    PLAYERp newpp = Player + myconnectindex;
     int inv_hotkey = 0;
 
 #define TURBOTURNTIME (120/8)
@@ -3025,27 +3036,26 @@ void getinput(int const playerNum)
 #define NORMALKEYMOVE 35
 #define MAXVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    1024
-#define MAXHORIZVEL  256
-#define TURN_SHIFT   4
-#define SET_LOC_KEY(bits, sync_num, key_test) SET(bits, ((!!(key_test)) << (sync_num)))
+#define MAXANGVEL    100
+#define MAXAIMVEL    128
+#define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
 
     static int32_t turnheldtime;
+    int32_t momx, momy;
 
-    // reset objects.
-    SW_PACKET input {};
-    localInput = {};
-    localInput.bits = 0;
-
+    extern SWBOOL MenuButtonAutoRun;
     extern SWBOOL MenuButtonAutoAim;
 
     if (Prediction && CommEnabled)
     {
-        pp = ppp;
+        newpp = ppp;
     }
 
+    // reset all syncbits
+    loc->bits = 0;
+
     // MAKE SURE THIS WILL GET SET
-    SET_LOC_KEY(localInput.bits, SK_QUIT_GAME, MultiPlayQuitFlag);
+    SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
@@ -3055,23 +3065,78 @@ void getinput(int const playerNum)
 		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
 		if (mouseaim)
-			SET(Player[playerNum].Flags, PF_MOUSE_AIMING_ON);
+			SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
 		else
-			RESET(Player[playerNum].Flags, PF_MOUSE_AIMING_ON);
+			RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
 
 		if (cl_autoaim)
-			SET(Player[playerNum].Flags, PF_AUTO_AIM);
-		else
-			RESET(Player[playerNum].Flags, PF_AUTO_AIM);
-		}
+			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			else
+			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+			}
 
     ControlInfo info;
     CONTROL_GetInput(&info);
 
+
+    //info.dz = (info.dz * move_scale)>>8;
+    //info.dyaw = (info.dyaw * turn_scale)>>8;
+
+    PauseKey(pp);
+
+    if (PauseKeySet)
+        return;
+
+    // MAP KEY
+    if (buttonMap.ButtonDown(gamefunc_Map))
+    {
+        buttonMap.ClearButton(gamefunc_Map);
+
+        // Init follow coords
+        Follow_posx = pp->posx;
+        Follow_posy = pp->posy;
+
+        if (dimensionmode == 3)
+            dimensionmode = 5;
+        else if (dimensionmode == 5)
+            dimensionmode = 6;
+        else
+        {
+            MirrorDelay = 1;
+            dimensionmode = 3;
+            SetFragBar(pp);
+            ScrollMode2D = FALSE;
+            SetRedrawScreen(pp);
+        }
+    }
+
+    // Toggle follow map mode on/off
+    if (dimensionmode == 5 || dimensionmode == 6)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+        {
+			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
+            ScrollMode2D = !ScrollMode2D;
+            Follow_posx = pp->posx;
+            Follow_posy = pp->posy;
+        }
+    }
+
+    // If in 2D follow mode, scroll around using glob vars
+    // Tried calling this in domovethings, but key response it too poor, skips key presses
+    // Note: ScrollMode2D = Follow mode, so this get called only during follow mode
+    if (ScrollMode2D && pp == Player + myconnectindex && !Prediction)
+        MoveScrollMode2D(Player + myconnectindex);
+
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || ScrollMode2D || InputMode)
+        return;
+
+    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
+
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
-    constexpr int analogTurnAmount   = (NORMALTURN << 1);
     constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
     if (running)
@@ -3093,178 +3158,58 @@ void getinput(int const playerNum)
         keymove = NORMALKEYMOVE;
     }
 
-    PauseKey(pp);
-
-    if (PauseKeySet)
-        return;
-
-    // MAP KEY
-    if (buttonMap.ButtonDown(gamefunc_Map))
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-
-        // Init follow coords
-        pp->mfposx = pp->posx;
-        pp->mfposy = pp->posy;
-
-        if (dimensionmode == 3)
-            dimensionmode = 5;
-        else if (dimensionmode == 5)
-            dimensionmode = 6;
-        else
-        {
-            MirrorDelay = 1;
-            dimensionmode = 3;
-            SetFragBar(pp);
-            pp->ScrollMode2D = FALSE;
-            SetRedrawScreen(pp);
-        }
-    }
-
-    // Toggle follow map mode on/off
-    if (dimensionmode == 5 || dimensionmode == 6)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-        {
-			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            pp->ScrollMode2D = !pp->ScrollMode2D;
-            pp->mfposx = pp->posx;
-            pp->mfposy = pp->posy;
-        }
-    }
-
-    // If in 2D follow mode, scroll around.
-    if (pp->ScrollMode2D && !Prediction)
-    {
-        keymove = keymove / 2;
-
-        if (M_Active())
-            return;
-
-        // Recenter view if told
-        if (buttonMap.ButtonDown(gamefunc_Center_View))
-        {
-            pp->mfposx = pp->posx;
-            pp->mfposy = pp->posy;
-        }
-
-        // Toggle follow map mode on/off
-        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-        {
-            buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            pp->ScrollMode2D = !pp->ScrollMode2D;
-            // Reset coords
-            pp->mfposx = pp->posx;
-            pp->mfposy = pp->posy;
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Strafe))
-            input.svel -= info.dyaw>>2;
-
-        input.svel -= info.dx>>2;
-        input.vel = -info.dz>>2;
-
-        if (!ConPanel)
-        {
-            if (!HelpInputMode)
-            {
-                if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-                    input.svel += keymove;
-
-                if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-                    input.svel += -keymove;
-
-                if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-                    input.vel += keymove;
-
-                if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-                    input.vel += -keymove;
-            }
-
-            if (!InputMode)
-            {
-                if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-                    input.svel += keymove;
-
-                if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-                    input.svel += -keymove;
-            }
-        }
-
-        input.vel  = clamp(input.vel, -MAXVEL, MAXVEL);
-        input.svel = clamp(input.svel, -MAXSVEL, MAXSVEL);
-
-        pp->mfposx += mulscale9(input.vel,  sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 512)]) +
-                      mulscale9(input.svel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]);
-        pp->mfposy += mulscale9(input.vel,  sintable[NORM_ANGLE(fix16_to_int(pp->q16ang))]) +
-                      mulscale9(input.svel, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + 1536)]);
-
-        pp->mfposx = max(pp->mfposx, x_min_bound);
-        pp->mfposy = max(pp->mfposy, y_min_bound);
-        pp->mfposx = min(pp->mfposx, x_max_bound);
-        pp->mfposy = min(pp->mfposy, y_max_bound);
-    }
-
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || pp->ScrollMode2D || InputMode)
-        return;
-
-    SET_LOC_KEY(localInput.bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
-
     info.dz = (info.dz * move_scale)>>8;
     info.dyaw = (info.dyaw * turn_scale)>>8;
 
+    int32_t svel = 0, vel = 0, angvel = 0, aimvel = 0;
+
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        input.svel = -info.mousex;
-        input.svel -= info.dyaw * keymove / analogExtent;
+        svel = -info.mousex;
+        svel -= info.dyaw * keymove / analogExtent;
     }
     else
     {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
+        angvel = info.mousex / 32;
+        angvel += info.dyaw * (turnamount << 1) / analogExtent;
     }
 
     if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(64)));
+        aimvel = -info.mousey / 64;
     else
-        input.vel = -(info.mousey >> 6);
+        vel = -(info.mousey >> 6);
 
-    if (!in_mouseflip)
-        input.q16horz = -input.q16horz;
+    if (in_mouseflip)
+        aimvel = -aimvel;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
-    input.svel -= info.dx * keymove / analogExtent;
-    input.vel -= info.dz * keymove / analogExtent;
-
-    static double lastInputTicks;
-
-    auto const currentHiTicks = timerGetHiTicks();
-    elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
+    aimvel -= info.dpitch * turnamount / analogExtent;
+    svel -= info.dx * keymove / analogExtent;
+    vel -= info.dz * keymove / analogExtent;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        if (!localInput.svel)
-        {
-            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !localInput.svel)
-                input.svel = keymove;
-            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !localInput.svel)
-                input.svel = -keymove;
-        }
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+            svel -= -keymove;
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+            svel -= keymove;
     }
     else
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
             turnheldtime += synctics;
-            input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
+            if (turnheldtime >= TURBOTURNTIME)
+                angvel -= turnamount;
+            else
+                angvel -= PREAMBLETURN;
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
         {
             turnheldtime += synctics;
-            input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
+            if (turnheldtime >= TURBOTURNTIME)
+                angvel += turnamount;
+            else
+                angvel += PREAMBLETURN;
         }
         else
         {
@@ -3272,119 +3217,43 @@ void getinput(int const playerNum)
         }
     }
 
-    if (localInput.svel < keymove && localInput.svel > -keymove)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
-            input.svel += keymove;
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
+        svel += keymove;
 
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-            input.svel += -keymove;
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
+        svel += -keymove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+    {
+        vel += keymove;
+        //DSPRINTF(ds,"vel key %d",vel);
+        //DebugWriteString(ds);
+    }
+    else
+    {
+        //DSPRINTF(ds,"vel %d",vel);
+        //DebugWriteString(ds);
     }
 
-    if (localInput.vel < keymove && localInput.vel > -keymove)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-            input.vel += keymove;
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+        vel += -keymove;
 
-        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-            input.vel += -keymove;
-    }
+    vel = clamp(vel, -MAXVEL, MAXVEL);
+    svel = clamp(svel, -MAXSVEL, MAXSVEL);
 
-    localInput.vel  = clamp(localInput.vel + input.vel, -MAXVEL, MAXVEL);
-    localInput.svel = clamp(localInput.svel + input.svel, -MAXSVEL, MAXSVEL);
+    angvel = clamp(angvel, -MAXANGVEL, MAXANGVEL);
+    aimvel = clamp(aimvel, -MAXAIMVEL, MAXAIMVEL);
 
-    localInput.q16avel = fix16_clamp(fix16_sadd(localInput.q16avel, input.q16avel), fix16_from_int(-MAXANGVEL), fix16_from_int(MAXANGVEL));
-    localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), fix16_from_int(-MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    momx = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang + 512)]);
+    momy = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang)]);
 
-    // actually snap
-    SET_LOC_KEY(localInput.bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(localInput.bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
+    momx += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang)]);
+    momy += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang + 1536)]);
 
-    // actually just look
-    SET_LOC_KEY(localInput.bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
-    SET_LOC_KEY(localInput.bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
-
-    SET_LOC_KEY(localInput.bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
-    SET_LOC_KEY(localInput.bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
-
-    pp->on_vehicle = P_CheckOperatingVehicle(pp);
-
-    if (!TEST(pp->Flags, PF_DEAD) && !pp->on_vehicle)
-    {
-        if (!TEST(pp->Flags, PF_CLIMBING))
-        {
-            if (!TEST(pp->Flags, PF_TURN_180))
-            {
-                if (TEST_SYNC_KEY(pp, SK_TURN_180))
-                {
-                    if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
-                    {
-                        fix16_t delta_q16ang;
-
-                        FLAG_KEY_RELEASE(pp, SK_TURN_180);
-
-                        pp->turn180_target = fix16_sadd(pp->q16ang, fix16_from_int(1024)) & 0x7FFFFFF;
-
-                        // make the first turn in the clockwise direction
-                        // the rest will follow
-                        delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
-
-                        pp->q16ang = fix16_sadd(pp->q16ang, fix16_max(fix16_one, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT))))))) & 0x7FFFFFF;
-
-                        SET(pp->Flags, PF_TURN_180);
-                    }
-                }
-                else
-                {
-                    FLAG_KEY_RESET(pp, SK_TURN_180);
-                }
-            }
-
-            if (TEST(pp->Flags, PF_TURN_180))
-            {
-                fix16_t delta_q16ang;
-
-                delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
-                pp->q16ang = fix16_sadd(pp->q16ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(fix16_abs(delta_q16ang), fix16_from_int(TURN_SHIFT)))))) & 0x7FFFFFF;
-
-                sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-                if (!Prediction)
-                {
-                    if (pp->PlayerUnderSprite >= 0)
-                        sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-                }
-
-                // get new delta to see how close we are
-                delta_q16ang = GetDeltaAngleQ16(pp->turn180_target, pp->q16ang);
-
-                if (fix16_abs(delta_q16ang) < (fix16_one << 1))
-                {
-                    pp->q16ang = pp->turn180_target;
-                    RESET(pp->Flags, PF_TURN_180);
-                }
-                else
-                    return;
-            }
-
-            if (input.q16avel != 0)
-            {
-               pp->q16ang = fix16_sadd(pp->q16ang, input.q16avel) & 0x7FFFFFF;
-
-                // update players sprite angle
-                // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-                // here to cover
-                // all cases.
-                sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
-                if (!Prediction)
-                {
-                    if (pp->PlayerUnderSprite >= 0)
-                        sprite[pp->PlayerUnderSprite].ang = fix16_to_int(pp->q16ang);
-                }
-            }
-        }
-
-        DoPlayerHorizon(pp, &localInput.q16horz);
-    }
+    loc->vel = momx;
+    loc->svel = momy;
+    loc->angvel = angvel;
+    loc->aimvel = aimvel;
 
     if (!CommEnabled)
     {
@@ -3394,29 +3263,39 @@ void getinput(int const playerNum)
         {
             MenuButtonAutoAim = FALSE;
             if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
-                SET_LOC_KEY(localInput.bits, SK_AUTO_AIM, TRUE);
+                SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
         }
 #endif
     }
     else if (inputState.GetKeyStatus(sc_Pause))
     {
-        SET_LOC_KEY(localInput.bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
+        SET_LOC_KEY(loc->bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
 		inputState.ClearKeyStatus(sc_Pause);
 	}
 
-    SET_LOC_KEY(localInput.bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
-    SET_LOC_KEY(localInput.bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
+    SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
+
+    SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
+    SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
+
+    // actually snap
+    SET_LOC_KEY(loc->bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
+    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
+
+    // actually just look
+    SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
+    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
 
     for (i = 0; i < MAX_WEAPONS_KEYS; i++)
     {
         if (buttonMap.ButtonDown(gamefunc_Weapon_1 + i))
         {
-            SET(localInput.bits, i + 1);
+            SET(loc->bits, i + 1);
             break;
         }
     }
 
-    if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
+    if (buttonMap.ButtonDown(gamefunc_Next_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
@@ -3452,11 +3331,11 @@ void getinput(int const playerNum)
             }
         }
 
-        SET(localInput.bits, next_weapon + 1);
+        SET(loc->bits, next_weapon + 1);
     }
 
 
-    if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
+    if (buttonMap.ButtonDown(gamefunc_Previous_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
@@ -3490,7 +3369,7 @@ void getinput(int const playerNum)
             }
         }
 
-        SET(localInput.bits, prev_weapon + 1);
+        SET(loc->bits, prev_weapon + 1);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
@@ -3498,7 +3377,7 @@ void getinput(int const playerNum)
         buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        SET(localInput.bits, which_weapon);
+        SET(loc->bits, which_weapon);
     }
 
 
@@ -3516,21 +3395,23 @@ void getinput(int const playerNum)
     if (buttonMap.ButtonDown(gamefunc_Caltrops))
         inv_hotkey = INVENTORY_CALTROPS+1;
 
-    SET(localInput.bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
+    SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
 
-    SET_LOC_KEY(localInput.bits, SK_INV_USE, buttonMap.ButtonDown(gamefunc_Inventory));
+    SET_LOC_KEY(loc->bits, SK_INV_USE, buttonMap.ButtonDown(gamefunc_Inventory));
 
-    SET_LOC_KEY(localInput.bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
-    SET_LOC_KEY(localInput.bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
-    SET_LOC_KEY(localInput.bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
+    SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
+    SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
+    SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
 
-    SET_LOC_KEY(localInput.bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
-    SET_LOC_KEY(localInput.bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
+    SET_LOC_KEY(loc->bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
 
-    SET_LOC_KEY(localInput.bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
+    SET_LOC_KEY(loc->bits, SK_INV_LEFT, buttonMap.ButtonDown(gamefunc_Inventory_Left));
+    SET_LOC_KEY(loc->bits, SK_INV_RIGHT, buttonMap.ButtonDown(gamefunc_Inventory_Right));
+
+    SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
 
     // need BUTTON
-    SET_LOC_KEY(localInput.bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
+    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {
@@ -3543,7 +3424,7 @@ void getinput(int const playerNum)
             if (screenpeek < 0)
                 screenpeek = connecthead;
 
-            if (dimensionmode != 2 && screenpeek == playerNum)
+            if (dimensionmode != 2 && screenpeek == myconnectindex)
             {
                 // JBF: figure out what's going on here
                 DoPlayerDivePalette(pp);  // Check Dive again
@@ -3583,7 +3464,7 @@ void getinput(int const playerNum)
 
 #define MAP_BLOCK_SPRITE    (DK_BLUE + 6)
 
-void drawoverheadmap(int cposx, int cposy, int czoom, short cang, SWBOOL ScrollMode2D)
+void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 {
     int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;

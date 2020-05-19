@@ -71,8 +71,8 @@ extern SWBOOL mirrorinview;
 extern short NormalVisibility;
 
 void JAnalyzeSprites(tspriteptr_t tspr);
-void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz);
-void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,fix16_t tpq16ang,fix16_t tpq16horiz);
+void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz);
+void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,short tpang,int tphoriz);
 void JS_InitMirrors(void);
 void JS_InitLockouts(void);
 void JS_ToggleLockouts(void);

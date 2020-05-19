@@ -33,6 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+#define MAXINTERPOLATIONS 1024
 int numinterpolations = 0, startofdynamicinterpolations = 0;
 int oldipos[MAXINTERPOLATIONS];
 int bakipos[MAXINTERPOLATIONS];
@@ -109,13 +110,5 @@ void restoreinterpolations(void)                 // Stick at end of drawscreen
 
     for (i = numinterpolations - 1; i >= 0; i--)
         *curipos[i] = bakipos[i];
-}
-
-void togglespriteinterpolation(spritetype *sp, int set)
-{
-    auto func = set ? setinterpolation : stopinterpolation;
-    func(&sp->x);
-    func(&sp->y);
-    func(&sp->z);
 }
 END_SW_NS

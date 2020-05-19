@@ -23,13 +23,6 @@ Original Source: 1997 - Frank Maddin and Jim Norwood
 Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
-
-#ifndef INTERP_H
-
-#define INTERP_H
-
-#include "build.h"
-
 BEGIN_SW_NS
 
 #define SHORT_MAXINTERPOLATIONS 256
@@ -38,7 +31,7 @@ extern short short_oldipos[SHORT_MAXINTERPOLATIONS];
 extern short short_bakipos[SHORT_MAXINTERPOLATIONS];
 extern short *short_curipos[SHORT_MAXINTERPOLATIONS];
 
-#define MAXINTERPOLATIONS MAXSPRITES
+#define MAXINTERPOLATIONS 1024
 extern int numinterpolations, startofdynamicinterpolations;
 extern int oldipos[MAXINTERPOLATIONS];
 extern int bakipos[MAXINTERPOLATIONS];
@@ -49,12 +42,4 @@ void stopinterpolation(int *posptr);
 void updateinterpolations(void);
 void dointerpolations(int smoothratio);
 void restoreinterpolations(void);
-
-void togglespriteinterpolation(spritetype *sp, int set);
-
-static void FORCE_INLINE setspriteinterpolation(spritetype *sp) { togglespriteinterpolation(sp, 1); }
-static void FORCE_INLINE stopspriteinterpolation(spritetype *sp) { togglespriteinterpolation(sp, 0); }
-
 END_SW_NS
-
-#endif
