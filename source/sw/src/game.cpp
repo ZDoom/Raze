@@ -2533,13 +2533,14 @@ void RunLevel(void)
         }
         else
         {
+            PLAYERp const pp = Player + myconnectindex;
+
             while ((totalclock - ototalclock) >= synctics)
             {
                 ototalclock += synctics;
 
                 getinput(myconnectindex);
 
-                PLAYERp const pp     = Player + myconnectindex;
                 auto    const q16ang = fix16_to_int(pp->q16ang);
                 auto &        input  = pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)];
 
@@ -2554,10 +2555,10 @@ void RunLevel(void)
 
                 domovethings();
             }
-        }
 
-        if (!ScrollMode2D)
-            getinput(myconnectindex);
+            if (!ScrollMode2D && !pp->on_vehicle)
+                getinput(myconnectindex);
+        }
 
         drawscreen(Player + screenpeek);
 
@@ -3008,6 +3009,11 @@ void PauseKey(PLAYERp pp)
 
 short MirrorDelay;
 
+double elapsedInputTicks;
+double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
+
+void DoPlayerHorizon(PLAYERp pp, fix16_t *q16horz);
+
 void getinput(int const playerNum)
 {
     int i;
@@ -3023,7 +3029,6 @@ void getinput(int const playerNum)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL    1024
 #define MAXHORIZVEL  256
-#define HORIZ_SPEED  (16)
 #define TURN_SHIFT   4
 #define SET_LOC_KEY(bits, sync_num, key_test) SET(bits, ((!!(key_test)) << (sync_num)))
 
@@ -3235,12 +3240,11 @@ void getinput(int const playerNum)
     input.vel -= info.dz * keymove / analogExtent;
 
     static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks = currentHiTicks - lastInputTicks;
 
     lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3305,7 +3309,9 @@ void getinput(int const playerNum)
     SET_LOC_KEY(localInput.bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));
     SET_LOC_KEY(localInput.bits, SK_TURN_180, buttonMap.ButtonDown(gamefunc_TurnAround));
 
-    if (!TEST(pp->Flags, PF_DEAD))
+    pp->on_vehicle = P_CheckOperatingVehicle(pp);
+
+    if (!TEST(pp->Flags, PF_DEAD) && !pp->on_vehicle)
     {
         if (!TEST(pp->Flags, PF_CLIMBING))
         {
@@ -3379,142 +3385,7 @@ void getinput(int const playerNum)
             }
         }
 
-        // Fixme: This should probably be made optional.
-        if (cl_slopetilting)
-        {
-            int x,y,k,j;
-            short tempsect;
-
-            if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
-            {
-                if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
-                {
-                    // Get a point, 512 units ahead of player's position
-                    x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
-                    y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
-                    tempsect = pp->cursectnum;
-                    COVERupdatesector(x, y, &tempsect);
-
-                    if (tempsect >= 0)              // If the new point is inside a valid
-                    // sector...
-                    {
-                        // Get the floorz as if the new (x,y) point was still in
-                        // your sector
-                        j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
-                        k = getflorzofslope(pp->cursectnum, x, y);
-
-                        // If extended point is in same sector as you or the slopes
-                        // of the sector of the extended point and your sector match
-                        // closely (to avoid accidently looking straight out when
-                        // you're at the edge of a sector line) then adjust horizon
-                        // accordingly
-                        if ((pp->cursectnum == tempsect) ||
-                            (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
-                        {
-                            pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
-                        }
-                    }
-                }
-            }
-
-            if (TEST(pp->Flags, PF_CLIMBING))
-            {
-                // tilt when climbing but you can't even really tell it
-                if (pp->q16horizoff < fix16_from_int(100))
-                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
-            }
-            else
-            {
-                // Make q16horizoff grow towards 0 since q16horizoff is not modified when
-                // you're not on a slope
-                if (pp->q16horizoff > 0)
-                {
-                    pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((pp->q16horizoff >> 3) + fix16_one))));
-                    pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
-                }
-                else if (pp->q16horizoff < 0)
-                {
-                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((-pp->q16horizoff >> 3) + fix16_one))));
-                    pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
-                }
-            }
-        }
-
-        if (input.q16horz)
-        {
-            pp->q16horizbase = fix16_sadd(pp->q16horizbase, input.q16horz);
-            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-        }
-
-        // this is the locked type
-        if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-        {
-            // set looking because player is manually looking
-            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-            // adjust pp->q16horiz negative
-            if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
-
-            // adjust pp->q16horiz positive
-            if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
-        }
-
-        // this is the unlocked type
-        if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN) || TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-        {
-            RESET(pp->Flags, PF_LOCK_HORIZ);
-            SET(pp->Flags, PF_LOOKING);
-
-            // adjust pp->q16horiz negative
-            if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
-
-            // adjust pp->q16horiz positive
-            if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
-
-            // reset pp->q16horizoff when resetting to center.
-            if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-                pp->q16horizoff = 0;
-        }
-
-        if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-        {
-            if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
-            {
-                // not pressing the pp->q16horiz keys
-                if (pp->q16horizbase != fix16_from_int(100))
-                {
-                    int i;
-
-                    // move pp->q16horiz back to 100
-                    for (i = 1; i; i--)
-                    {
-                        // this formula does not work for pp->q16horiz = 101-103
-                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
-                    }
-                }
-                else
-                {
-                    // not looking anymore because pp->q16horiz is back at 100
-                    RESET(pp->Flags, PF_LOOKING);
-                }
-            }
-        }
-
-        // bound the base
-        pp->q16horizbase = fix16_clamp(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
-
-        // bound adjust q16horizoff
-        if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-            pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MIN), pp->q16horizbase);
-        else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-            pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MAX), pp->q16horizbase);
-
-        // add base and offsets
-        pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+        DoPlayerHorizon(pp, &localInput.q16horz);
     }
 
     if (!CommEnabled)

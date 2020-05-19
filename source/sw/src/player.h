@@ -143,6 +143,8 @@ void PlaySOsound(short sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
 
+SWBOOL P_CheckOperatingVehicle(PLAYERp pp);
+
 END_SW_NS
 
 #endif
