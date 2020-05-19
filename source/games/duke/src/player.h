@@ -413,7 +413,6 @@ void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_DHProcessInput(int playerNum);
 void quickkill(DukePlayer_t* pPlayer);
-void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
 inline void setpal(DukePlayer_t* pPlayer)
 {

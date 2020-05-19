@@ -4363,6 +4363,23 @@ int G_DoMoveThings(void)
 
         if (ud.pause_on == 0)
         {
+            // todo: take HUD timer stuff out of the main game loop
+            auto p = &ps[i];
+            if (p->pals.f > 0)
+                p->pals.f--;
+
+            if (p->fta > 0)
+            {
+                p->fta--;
+                if (p->fta == 0)
+                {
+                    p->ftq = 0;
+                }
+            }
+            if (g_levelTextTime > 0)
+                g_levelTextTime--;
+
+
             //P_ProcessInput(i);
             fi.processinput(i);
             fi.checksectors(i);

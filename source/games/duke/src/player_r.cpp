@@ -3441,6 +3441,9 @@ void processinput_r(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
+	g_player[snum].horizAngleAdjust = 0;
+	g_player[snum].horizSkew = 0;
+
 	if (p->cheat_phase <= 0) sb_snum = g_player[snum].input->bits;// sync[snum].bits;
 	else sb_snum = 0;
 
@@ -3650,19 +3653,6 @@ void processinput_r(int snum)
 	{
 		if (timedexit(snum))
 			return;
-	}
-
-	if (p->pals.f > 0)
-		p->pals.f--;
-
-	// todo: Take this out of here. HUD text should be a new mode of the notification display.
-	if (p->fta > 0)
-	{
-		p->fta--;
-		if (p->fta == 0)
-		{
-			p->ftq = 0;
-		}
 	}
 
 	if (s->extra <= 0)
