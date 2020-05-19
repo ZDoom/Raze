@@ -130,6 +130,7 @@ void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(void);
+void MoveScrollMode2D(PLAYERp pp);
 void DoPlayerDivePalette(PLAYERp pp);
 void DoPlayerNightVisionPalette(PLAYERp pp);
 void DoPlayerStopDiveNoWarp(PLAYERp pp);
@@ -142,8 +143,6 @@ void UpdatePlayerSprite(PLAYERp pp);
 void PlaySOsound(short sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
-
-SWBOOL P_CheckOperatingVehicle(PLAYERp pp);
 
 END_SW_NS
 

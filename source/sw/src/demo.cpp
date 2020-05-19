@@ -194,7 +194,7 @@ DemoWriteHeader(void)
         dsp.z = pp->posz;
         fwrite(&dsp, sizeof(dsp), 1, DemoFileOut);
         fwrite(&pp->Flags, sizeof(pp->Flags), 1, DemoFileOut);
-        fwrite(&pp->q16ang, sizeof(pp->q16ang), 1, DemoFileOut);
+        fwrite(&pp->pang, sizeof(pp->pang), 1, DemoFileOut);
     }
 
     fwrite(&Skill, sizeof(Skill), 1, DemoFileOut);
@@ -252,7 +252,7 @@ DemoReadHeader(void)
         //pp->cursectnum = 0;
         //updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
         DREAD(&pp->Flags, sizeof(pp->Flags), 1, DemoFileIn);
-        DREAD(&pp->q16ang, sizeof(pp->q16ang), 1, DemoFileIn);
+        DREAD(&pp->pang, sizeof(pp->pang), 1, DemoFileIn);
     }
 
     DREAD(&Skill, sizeof(Skill), 1, DemoFileIn);

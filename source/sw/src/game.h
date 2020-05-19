@@ -540,11 +540,11 @@ int StdRandomRange(int range);
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (labs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
-#define PLAYER_FACING(pp,sp) (labs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
+#define PLAYER_FACING(pp,sp) (labs(GetDeltaAngle((pp)->pang, NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
 #define FACING(sp1,sp2) (labs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
 
 #define FACING_PLAYER_RANGE(pp,sp,range) (labs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (labs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (labs(GetDeltaAngle((pp)->pang, NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
 #define FACING_RANGE(sp1,sp2,range) (labs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
 
 // two vectors
@@ -874,8 +874,6 @@ extern int PlayerYellVocs[MAX_YELLSOUNDS];
 
 void BossHealthMeter(void);
 
-extern SWBOOL InterpolateSectObj;
-
 // Global variables used for modifying variouse things from the Console
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1060,7 +1058,8 @@ typedef struct
 {
     int16_t vel;
     int16_t svel;
-    fix16_t q16horz, q16avel;
+    int8_t angvel;
+    int8_t aimvel;
     int32_t bits;
 } SW_PACKET;
 
@@ -1094,10 +1093,8 @@ struct PLAYERstruct
     // interpolation
     int
         oposx, oposy, oposz;
-    fix16_t oq16horiz, oq16ang;
-
-    // Map follow mode pos values.
-    int32_t mfposx, mfposy;
+    short oang;
+    short ohoriz;
 
     // holds last valid move position
     short lv_sectnum;
@@ -1121,6 +1118,7 @@ struct PLAYERstruct
     int camera_dist; // view mode dist
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
+    short siang;
 
     int xvect, yvect;
     int oxvect, oyvect;
@@ -1131,6 +1129,8 @@ struct PLAYERstruct
     int drive_angvel;
     int drive_oangvel;
 
+
+
     // scroll 2D mode stuff
     int scr_x, scr_y, oscr_x, oscr_y;
     int scr_xvect, scr_yvect;
@@ -1140,12 +1140,11 @@ struct PLAYERstruct
     short circle_camera_ang;
     short camera_check_time_delay;
 
-    short cursectnum,lastcursectnum;
-    fix16_t turn180_target; // 180 degree turn
+    short pang,cursectnum,lastcursectnum;
+    short turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
-    int hvel,tilt,tilt_dest;
-    fix16_t q16horiz, q16horizbase, q16horizoff, q16ang;
+    int horizbase,horiz,horizoff,hvel,tilt,tilt_dest;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -1153,7 +1152,7 @@ struct PLAYERstruct
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
-    fix16_t RevolveDeltaAng, RevolveAng;
+    short RevolveDeltaAng, RevolveAng;
 
     // under vars are for wading and swimming
     short PlayerSprite, PlayerUnderSprite;
@@ -1282,8 +1281,6 @@ struct PLAYERstruct
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
-
-    SWBOOL on_vehicle, ScrollMode2D;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1909,6 +1906,7 @@ typedef struct
 
 extern SPIN Spin[17];
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
+extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 #define MAXANIM 256
 typedef void ANIM_CALLBACK (ANIMp, void *);
@@ -2127,7 +2125,6 @@ void SetBorder(PLAYERp pp, int);
 void SetFragBar(PLAYERp pp);
 int Distance(int x1, int y1, int x2, int y2);
 short GetDeltaAngle(short, short);
-fix16_t GetDeltaAngleQ16(fix16_t, fix16_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
@@ -2295,6 +2292,7 @@ extern int lockspeed,totalsynctics;
 #define synctics 3
 #define ACTORMOVETICS (synctics<<1)
 #define TICSPERMOVEMENT synctics
+#define FAKETIMERHANDLER()  if (totalclock >= ototalclock + synctics) faketimerhandler()
 
 // subtract value from clipdist on getzrange calls
 #define GETZRANGE_CLIP_ADJ 8
@@ -2402,7 +2400,7 @@ int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 void AnimateCacheCursor(void);  // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
-void drawoverheadmap(int cposx,int cposy,int czoom,short cang, SWBOOL ScrollMode2D); // game.c
+void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 void ManualPlayerInsert(PLAYERp pp);    // game.c
@@ -2425,7 +2423,7 @@ void ScreenCaptureKeys(void);   // draw.c
 int minigametext(int x,int y,const char *t,short dabits);  // jplayer.c
 void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
 
-void DrawOverlapRoom(int tx,int ty,int tz,fix16_t tq16ang,fix16_t tq16horiz,short tsectnum);    // rooms.c
+void DrawOverlapRoom(int tx,int ty,int tz,short tang,int thoriz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
 SWBOOL FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c

@@ -1393,7 +1393,7 @@ PlayerInitChemBomb(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
     w = SpawnSprite(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursectnum,
-                    nx, ny, nz, fix16_to_int(pp->q16ang), CHEMBOMB_VELOCITY);
+                    nx, ny, nz, pp->pang, CHEMBOMB_VELOCITY);
 
     wp = &sprite[w];
     wu = User[w];
@@ -1423,10 +1423,10 @@ PlayerInitChemBomb(PLAYERp pp)
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
         SET(wu->Flags, SPR_UNDERWATER);
 
-    wp->zvel = ((100 - fix16_to_int(pp->q16horiz)) * HORIZ_MULT);
+    wp->zvel = ((100 - pp->horiz) * HORIZ_MULT);
 
-    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d",fix16_to_int(pp->q16horiz), fix16_to_int(pp->q16horizoff),
-    // fix16_to_int(pp->q16horizoff + pp->q16horiz));
+    // //DSPRINTF(ds,"horiz %d, ho %d, ho+ho %d",pp->horiz, pp->horizoff,
+    // pp->horizoff + pp->horiz);
     // MONO_PRINT(ds);
 
     oclipdist = pp->SpriteP->clipdist;
@@ -1837,7 +1837,7 @@ PlayerInitCaltrops(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
     w = SpawnSprite(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
-                    nx, ny, nz, fix16_to_int(pp->q16ang), (CHEMBOMB_VELOCITY + RANDOM_RANGE(CHEMBOMB_VELOCITY)) / 2);
+                    nx, ny, nz, pp->pang, (CHEMBOMB_VELOCITY + RANDOM_RANGE(CHEMBOMB_VELOCITY)) / 2);
 
     wp = &sprite[w];
     wu = User[w];
@@ -1865,9 +1865,9 @@ PlayerInitCaltrops(PLAYERp pp)
         SET(wu->Flags, SPR_UNDERWATER);
 
     // They go out at different angles
-//        wp->ang = NORM_ANGLE(fix16_to_int(pp->q16ang) + (RANDOM_RANGE(50) - 25));
+//        wp->ang = NORM_ANGLE(pp->pang + (RANDOM_RANGE(50) - 25));
 
-    wp->zvel = ((100 - fix16_to_int(pp->q16horiz)) * HORIZ_MULT);
+    wp->zvel = ((100 - pp->horiz) * HORIZ_MULT);
 
     oclipdist = pp->SpriteP->clipdist;
     pp->SpriteP->clipdist = 0;
@@ -2501,7 +2501,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
 
     if (u->PlayerP)
     {
-        wp->z += ((100 - fix16_to_int(u->PlayerP->q16horiz)) * (HORIZ_MULT/3));
+        wp->z += ((100 - u->PlayerP->horiz) * (HORIZ_MULT/3));
     }
 
     switch (wu->ID)

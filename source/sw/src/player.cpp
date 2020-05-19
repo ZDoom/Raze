@@ -81,6 +81,7 @@ void pWeaponForceRest(PLAYERp pp);
 #define SO_IDLE_SOUND 1
 
 extern SWBOOL NoMeters;
+extern int Follow_posx,Follow_posy;
 
 #define TEST_UNDERWATER(pp) (TEST(sector[(pp)->cursectnum].extra, SECTFX_UNDERWATER))
 
@@ -1152,26 +1153,6 @@ GetDeltaAngle(short ang1, short ang2)
 
 }
 
-fix16_t
-GetDeltaAngleQ16(fix16_t ang1, fix16_t ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (fix16_abs(fix16_sub(ang1, ang2)) > fix16_from_int(1024))
-    {
-        if (ang1 <= fix16_from_int(1024))
-            ang1 = fix16_add(ang1, fix16_from_int(2048));
-
-        if (ang2 <= fix16_from_int(1024))
-            ang2 = fix16_add(ang2, fix16_from_int(2048));
-    }
-
-    //if (ang1 - ang2 == -fix16_from_int(1024))
-    //    return(fix16_from_int(1024));
-
-    return fix16_sub(ang1, ang2);
-
-}
-
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 
@@ -1187,16 +1168,6 @@ static int CompareTarget(void const * a, void const * b)
 SWBOOL
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
-
-SWBOOL
-P_CheckOperatingVehicle(PLAYERp pp)
-{
-    SWBOOL on_vehicle = pp->DoPlayerAction == DoPlayerOperateBoat ||
-                        pp->DoPlayerAction == DoPlayerOperateTank ||
-                        pp->DoPlayerAction == DoPlayerOperateTurret;
-
-    return on_vehicle;
-}
 
 int
 DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
@@ -1257,7 +1228,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
             angle2 = NORM_ANGLE(getangle(ep->x - sp->x, ep->y - sp->y));
 
             // Get the angle difference
-            // delta_ang = labs(fix16_to_int(pp->q16ang) - angle2);
+            // delta_ang = labs(pp->pang - angle2);
 
             delta_ang = labs(GetDeltaAngle(sp->ang, angle2));
 
@@ -1361,7 +1332,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
+    pp->pang = pp->oang = sp->ang;
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -1565,40 +1536,123 @@ DoPlayerCrawlHeight(PLAYERp pp)
 }
 
 void
+DoPlayerTurn(PLAYERp pp)
+{
+    short angvel;
+
+#define TURN_SHIFT 2
+
+    if (!TEST(pp->Flags, PF_TURN_180))
+    {
+        if (TEST_SYNC_KEY(pp, SK_TURN_180))
+        {
+            if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
+            {
+                short delta_ang;
+
+                FLAG_KEY_RELEASE(pp, SK_TURN_180);
+
+                pp->turn180_target = NORM_ANGLE(pp->pang + 1024);
+
+                // make the first turn in the clockwise direction
+                // the rest will follow
+                delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
+                pp->pang = NORM_ANGLE(pp->pang + (labs(delta_ang) >> TURN_SHIFT));
+
+                SET(pp->Flags, PF_TURN_180);
+            }
+        }
+        else
+        {
+            FLAG_KEY_RESET(pp, SK_TURN_180);
+        }
+    }
+
+    if (TEST(pp->Flags, PF_TURN_180))
+    {
+        short delta_ang;
+
+        delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
+        pp->pang = NORM_ANGLE(pp->pang + (delta_ang >> TURN_SHIFT));
+
+        sprite[pp->PlayerSprite].ang = pp->pang;
+        if (!Prediction)
+        {
+            if (pp->PlayerUnderSprite >= 0)
+                sprite[pp->PlayerUnderSprite].ang = pp->pang;
+        }
+
+        // get new delta to see how close we are
+        delta_ang = GetDeltaAngle(pp->turn180_target, pp->pang);
+
+        if (labs(delta_ang) < (3<<TURN_SHIFT))
+        {
+            pp->pang = pp->turn180_target;
+            RESET(pp->Flags, PF_TURN_180);
+        }
+        else
+            return;
+    }
+
+    angvel = pp->input.angvel * PLAYER_TURN_SCALE;
+
+    if (angvel != 0)
+    {
+        // running is not handled here now
+        angvel += DIV4(angvel);
+
+        pp->pang += DIV32(angvel * synctics);
+        pp->pang = NORM_ANGLE(pp->pang);
+
+        // update players sprite angle
+        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
+        // here to cover
+        // all cases.
+        sprite[pp->PlayerSprite].ang = pp->pang;
+        if (!Prediction)
+        {
+            if (pp->PlayerUnderSprite >= 0)
+                sprite[pp->PlayerUnderSprite].ang = pp->pang;
+        }
+
+    }
+}
+
+void
 DoPlayerTurnBoat(PLAYERp pp)
 {
-    fix16_t angvel;
+    int angvel;
     int angslide;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
 
-        angvel = fix16_from_int(pp->drive_angvel);
+        angvel = pp->drive_angvel;
     }
     else
     {
-        angvel = fix16_smul(pp->input.q16avel, fix16_from_int(PLAYER_TURN_SCALE));
-        angvel = fix16_sadd(angvel, fix16_ssub(angvel, fix16_sdiv(angvel, fix16_from_int(4))));
-        angvel = fix16_sdiv(fix16_smul(angvel, fix16_from_int(synctics)), fix16_from_int(32));
+        angvel = pp->input.angvel * PLAYER_TURN_SCALE;
+        angvel += angvel - DIV4(angvel);
+        angvel = DIV32(angvel * synctics);
     }
 
     if (angvel != 0)
     {
-        pp->q16ang = fix16_sadd(pp->q16ang, angvel) & 0x7FFFFFF;
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+        pp->pang = NORM_ANGLE(pp->pang + angvel);
+        sprite[pp->PlayerSprite].ang = pp->pang;
     }
 }
 
 void
 DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
 {
-    fix16_t angvel;
+    int angvel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
@@ -1606,24 +1660,24 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
 
-        angvel = fix16_from_int(pp->drive_angvel);
+        angvel = pp->drive_angvel;
     }
     else
     {
-        angvel = fix16_sdiv(fix16_smul(pp->input.q16avel, fix16_from_int(synctics)), fix16_from_int(8));
+        angvel = DIV8(pp->input.angvel * synctics);
     }
 
     if (angvel != 0)
     {
-        if (MultiClipTurn(pp, NORM_ANGLE(fix16_to_int(fix16_sadd(pp->q16ang, angvel))), z, floor_dist))
+        if (MultiClipTurn(pp, NORM_ANGLE(pp->pang + angvel), z, floor_dist))
         {
-            pp->q16ang = fix16_sadd(pp->q16ang, angvel) & 0x7FFFFFF;
-            sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+            pp->pang = NORM_ANGLE(pp->pang + angvel);
+            sprite[pp->PlayerSprite].ang = pp->pang;
         }
     }
 }
@@ -1631,7 +1685,7 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
 void
 DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 {
-    fix16_t angvel;
+    int angvel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
@@ -1639,24 +1693,24 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
 
-        angvel = fix16_from_int(pp->drive_angvel);
+        angvel = pp->drive_angvel;
     }
     else
     {
-        angvel = fix16_sdiv(fix16_smul(pp->input.q16avel, fix16_from_int(synctics)), fix16_from_int(8));
+        angvel = DIV8(pp->input.angvel * synctics);
     }
 
     if (angvel != 0)
     {
-        if (RectClipTurn(pp, NORM_ANGLE(fix16_to_int(fix16_sadd(pp->q16ang, angvel))), x, y, ox, oy))
+        if (RectClipTurn(pp, NORM_ANGLE(pp->pang + angvel), x, y, ox, oy))
         {
-            pp->q16ang = fix16_sadd(pp->q16ang, angvel) & 0x7FFFFFF;
-            sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+            pp->pang = NORM_ANGLE(pp->pang + angvel);
+            sprite[pp->PlayerSprite].ang = pp->pang;
         }
     }
 }
@@ -1664,8 +1718,8 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp)
 {
-    fix16_t angvel;
-    fix16_t new_ang;
+    int angvel;
+    short new_ang;
     short diff;
     SECTOR_OBJECTp sop = pp->sop;
     SW_PACKET last_input;
@@ -1677,9 +1731,9 @@ DoPlayerTurnTurret(PLAYERp pp)
         fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
         last_input = pp->inputfifo[fifo_ndx];
 
-        if (pp->input.q16avel && !last_input.q16avel)
+        if (pp->input.angvel && !last_input.angvel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && last_input.q16avel)
+        else if (!pp->input.angvel && last_input.angvel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -1688,38 +1742,38 @@ DoPlayerTurnTurret(PLAYERp pp)
         int angslide;
 
         pp->drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(pp->input.angvel, sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (pp->drive_oangvel*(angslide-1)))/angslide;
 
-        angvel = fix16_from_int(pp->drive_angvel);
+        angvel = pp->drive_angvel;
     }
     else
     {
-        angvel = fix16_sdiv(fix16_smul(pp->input.q16avel, fix16_from_int(synctics)), fix16_from_int(4));
+        angvel = DIV4(pp->input.angvel * synctics);
     }
 
     if (angvel != 0)
     {
-        new_ang = fix16_sadd(pp->q16ang, angvel) & 0x7FFFFFF;
+        new_ang = NORM_ANGLE(pp->pang + angvel);
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = GetDeltaAngle(fix16_to_int(new_ang), sop->limit_ang_center);
+            diff = GetDeltaAngle(new_ang, sop->limit_ang_center);
 
             if (labs(diff) >= sop->limit_ang_delta)
             {
                 if (diff < 0)
-                    new_ang = fix16_from_int(sop->limit_ang_center - sop->limit_ang_delta);
+                    new_ang = sop->limit_ang_center - sop->limit_ang_delta;
                 else
-                    new_ang = fix16_from_int(sop->limit_ang_center + sop->limit_ang_delta);
+                    new_ang = sop->limit_ang_center + sop->limit_ang_delta;
 
             }
         }
 
-        pp->q16ang = new_ang;
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+        pp->pang = new_ang;
+        sprite[pp->PlayerSprite].ang = pp->pang;
     }
 }
 
@@ -1741,115 +1795,86 @@ void SlipSlope(PLAYERp pp)
     pp->yvect += mulscale(sintable[ang], sector[pp->cursectnum].floorheinum, sectu->speed);
 }
 
-extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-
-double scaleAdjustmentToInterval(double x);
-
 void
-DoPlayerHorizon(PLAYERp pp, fix16_t *q16horz)
+PlayerAutoLook(PLAYERp pp)
 {
-#define HORIZ_SPEED  (16)
+    int x,y,k,j;
+    short tempsect;
 
-    // Fixme: This should probably be made optional.
-    if (cl_slopetilting)
+
+    if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        int x,y,k,j;
-        short tempsect;
-
-        if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
+        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
-            if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
-            {
-                // Get a point, 512 units ahead of player's position
-                x = pp->posx + (sintable[(fix16_to_int(pp->q16ang) + 512) & 2047] >> 5);
-                y = pp->posy + (sintable[fix16_to_int(pp->q16ang) & 2047] >> 5);
-                tempsect = pp->cursectnum;
-                COVERupdatesector(x, y, &tempsect);
+            // Get a point, 512 units ahead of player's position
+            x = pp->posx + (sintable[(pp->pang + 512) & 2047] >> 5);
+            y = pp->posy + (sintable[pp->pang & 2047] >> 5);
+            tempsect = pp->cursectnum;
+            COVERupdatesector(x, y, &tempsect);
 
-                if (tempsect >= 0) // If the new point is inside a valid sector...
-                {
-                    // Get the floorz as if the new (x,y) point was still in
-                    // your sector
-                    j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
-                    k = getflorzofslope(pp->cursectnum, x, y);
+            if (tempsect >= 0)              // If the new point is inside a valid
+            // sector...
+            {
+                // Get the floorz as if the new (x,y) point was still in
+                // your sector
+                j = getflorzofslope(pp->cursectnum, pp->posx, pp->posy);
+                k = getflorzofslope(pp->cursectnum, x, y);
 
-                    // If extended point is in same sector as you or the slopes
-                    // of the sector of the extended point and your sector match
-                    // closely (to avoid accidently looking straight out when
-                    // you're at the edge of a sector line) then adjust horizon
-                    // accordingly
-                    if ((pp->cursectnum == tempsect) || (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
-                    {
-                        if (!pp->on_vehicle)
-                        {
-                            pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
-                        }
-                        else
-                        {
-                            pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
-                        }
-                    }
-                }
-            }
-        }
-
-        if (TEST(pp->Flags, PF_CLIMBING))
-        {
-            // tilt when climbing but you can't even really tell it
-            if (pp->q16horizoff < fix16_from_int(100))
-            {
-                if (!pp->on_vehicle)
+                // If extended point is in same sector as you or the slopes
+                // of the sector of the extended point and your sector match
+                // closely (to avoid accidently looking straight out when
+                // you're at the edge of a sector line) then adjust horizon
+                // accordingly
+                if ((pp->cursectnum == tempsect) ||
+                    (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
-                }
-                else
-                {
-                    pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
-                }
-            }
-        }
-        else
-        {
-            // Make q16horizoff grow towards 0 since q16horizoff is not modified when
-            // you're not on a slope
-            if (pp->q16horizoff > 0)
-            {
-                if (!pp->on_vehicle)
-                {
-                    pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((pp->q16horizoff >> 3) + fix16_one))));
-                    pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
-                }
-                else
-                {
-                    pp->q16horizoff -= fix16_from_int(((fix16_to_int(pp->q16horizoff) >> 3) + 1));
-                }
-            }
-            else if (pp->q16horizoff < 0)
-            {
-                if (!pp->on_vehicle)
-                {
-                    pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((-pp->q16horizoff >> 3) + fix16_one))));
-                    pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
-                }
-                else
-                {
-                    pp->q16horizoff += fix16_from_int((((fix16_to_int(-pp->q16horizoff)) >> 3) + 1));
+                    pp->horizoff += (((j - k) * 160) >> 16);
                 }
             }
         }
     }
 
-    if (*q16horz)
+    if (TEST(pp->Flags, PF_CLIMBING))
     {
-        if (!pp->on_vehicle)
-        {
-            pp->q16horizbase = fix16_sadd(pp->q16horizbase, *q16horz);
-        }
-        else
-        {
-            pp->q16horizbase += *q16horz;
-        }
+        // tilt when climbing but you can't even really tell it
+        if (pp->horizoff < 100)
+            pp->horizoff += (((100 - pp->horizoff) >> 3) + 1);
+    }
+    else
+    {
+        // Make horizoff grow towards 0 since horizoff is not modified when
+        // you're not on a slope
+        if (pp->horizoff > 0)
+            pp->horizoff -= ((pp->horizoff >> 3) + 1);
+        if (pp->horizoff < 0)
+            pp->horizoff += (((-pp->horizoff) >> 3) + 1);
+    }
+}
+
+extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
+void
+DoPlayerHorizon(PLAYERp pp)
+{
+    int i;
+#define HORIZ_SPEED (16)
+
+//    //DSPRINTF(ds,"pp->horizoff, %d", pp->horizoff);
+//    MONO_PRINT(ds);
+
+	// Fixme: This should probably be made optional.
+	if (cl_slopetilting)
+		PlayerAutoLook(pp);
+
+    if (pp->input.aimvel)
+    {
+        pp->horizbase += pp->input.aimvel;
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+    }
+
+    if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+    {
+        pp->horiz = pp->horizbase = 100;
+        pp->horizoff = 0;
     }
 
     // this is the locked type
@@ -1858,112 +1883,80 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *q16horz)
         // set looking because player is manually looking
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
-        // adjust pp->q16horiz negative
+        // adjust pp->horizon negative
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
-        {
-            if (!pp->on_vehicle)
-            {
-                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
-            }
-            else
-            {
-                pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
-            }
-        }
+            pp->horizbase -= (HORIZ_SPEED/2);
 
-        // adjust pp->q16horiz positive
+        // adjust pp->horizon positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
-        {
-            if (!pp->on_vehicle)
-            {
-                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED / 2)));
-            }
-            else
-            {
-                pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
-            }
-        }
+            pp->horizbase += (HORIZ_SPEED/2);
     }
 
+
     // this is the unlocked type
-    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN) || TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
     {
         RESET(pp->Flags, PF_LOCK_HORIZ);
         SET(pp->Flags, PF_LOOKING);
 
-        // adjust pp->q16horiz negative
+        // adjust pp->horizon negative
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
-        {
-            if (!pp->on_vehicle)
-            {
-                pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
-            }
-            else
-            {
-                pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
-            }
-        }
+            pp->horizbase -= HORIZ_SPEED;
 
-        // adjust pp->q16horiz positive
+        // adjust pp->horizon positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
-        {
-            if (!pp->on_vehicle)
-            {
-                pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(HORIZ_SPEED)));
-            }
-            else
-            {
-                pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
-            }
-        }
-
-        // reset pp->q16horizoff when resetting to center.
-        if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
-            pp->q16horizoff = 0;
+            pp->horizbase += HORIZ_SPEED;
     }
+
 
     if (!TEST(pp->Flags, PF_LOCK_HORIZ))
     {
         if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
         {
-            // not pressing the pp->q16horiz keys
-            if (pp->q16horizbase != fix16_from_int(100))
+            // not pressing the pp->horiz keys
+            if (pp->horizbase != 100)
             {
-                int i;
 
-                // move pp->q16horiz back to 100
+                // move pp->horiz back to 100
                 for (i = 1; i; i--)
                 {
-                    // this formula does not work for pp->q16horiz = 101-103
-                    if (!pp->on_vehicle)
-                    {
-                        pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
-                    }
-                    else
-                    {
-                        pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
-                    }
+                    // this formula does not work for pp->horiz = 101-103
+                    pp->horizbase += 25 - (pp->horizbase >> 2);
                 }
             }
             else
             {
-                // not looking anymore because pp->q16horiz is back at 100
+                // not looking anymore because pp->horiz is back at 100
                 RESET(pp->Flags, PF_LOOKING);
             }
         }
     }
 
+#if 1
     // bound the base
-    pp->q16horizbase = fix16_clamp(pp->q16horizbase, fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+    pp->horizbase = max(pp->horizbase, PLAYER_HORIZ_MIN);
+    pp->horizbase = min(pp->horizbase, PLAYER_HORIZ_MAX);
 
-    // bound adjust q16horizoff
-    if (pp->q16horizbase + pp->q16horizoff < fix16_from_int(PLAYER_HORIZ_MIN))
-        pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MIN), pp->q16horizbase);
-    else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
-        pp->q16horizoff = fix16_ssub(fix16_from_int(PLAYER_HORIZ_MAX), pp->q16horizbase);
+    // bound adjust horizoff
+    if (pp->horizbase + pp->horizoff < PLAYER_HORIZ_MIN)
+        pp->horizoff = PLAYER_HORIZ_MIN - pp->horizbase;
+    else if (pp->horizbase + pp->horizoff > PLAYER_HORIZ_MAX)
+        pp->horizoff = PLAYER_HORIZ_MAX - pp->horizbase;
+
+    ////DSPRINTF(ds,"base %d, off %d, base + off %d",pp->horizbase, pp->horizoff, pp->horizbase + pp->horizoff);
+    //MONO_PRINT(ds);
 
     // add base and offsets
-    pp->q16horiz = fix16_clamp((pp->q16horizbase + pp->q16horizoff), fix16_from_int(PLAYER_HORIZ_MIN), fix16_from_int(PLAYER_HORIZ_MAX));
+    pp->horiz = pp->horizbase + pp->horizoff;
+#else
+    if (pp->horizbase + pp->horizoff < PLAYER_HORIZ_MIN)
+        pp->horizbase += HORIZ_SPEED;
+    else if (pp->horizbase + pp->horizoff > PLAYER_HORIZ_MAX)
+        pp->horizbase -= HORIZ_SPEED;
+
+    pp->horiz = pp->horizbase + pp->horizoff;
+#endif
+
 }
 
 void
@@ -1993,7 +1986,7 @@ DoPlayerBob(PLAYERp pp)
         // wrap bcnt
         pp->bcnt &= 2047;
 
-        // move pp->q16horiz up and down from 100 using sintable
+        // move pp->horiz up and down from 100 using sintable
         //pp->bob_z = Z((8 * sintable[pp->bcnt]) >> 14);
         pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
@@ -2009,7 +2002,7 @@ DoPlayerBob(PLAYERp pp)
         // wrap bcnt
         pp->bcnt &= 2047;
 
-        // move pp->q16horiz up and down from 100 using sintable
+        // move pp->horiz up and down from 100 using sintable
         //pp->bob_z = Z((4 * sintable[pp->bcnt]) >> 14);
         pp->bob_z = mulscale14(Z(amt),sintable[pp->bcnt]);
     }
@@ -2043,7 +2036,7 @@ DoPlayerRecoil(PLAYERp pp)
         return;
     }
 
-    // move pp->q16horiz up and down
+    // move pp->horiz up and down
     pp->recoil_horizoff = ((pp->recoil_amt * sintable[pp->recoil_ndx]) >> 14);
 }
 
@@ -2153,7 +2146,7 @@ UpdatePlayerSprite(PLAYERp pp)
     if (TEST(pp->Flags, PF_DEAD))
     {
         changespritesect(pp->PlayerSprite, pp->cursectnum);
-        sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+        sprite[pp->PlayerSprite].ang = pp->pang;
         UpdatePlayerUnderSprite(pp);
         return;
     }
@@ -2228,7 +2221,7 @@ UpdatePlayerSprite(PLAYERp pp)
 
     UpdatePlayerUnderSprite(pp);
 
-    sprite[pp->PlayerSprite].ang = fix16_to_int(pp->q16ang);
+    sprite[pp->PlayerSprite].ang = pp->pang;
 }
 
 void
@@ -2381,6 +2374,132 @@ void PlayerCheckValidMove(PLAYERp pp)
 }
 
 void
+MoveScrollMode2D(PLAYERp pp)
+{
+#define TURBOTURNTIME (120/8)
+#define NORMALTURN   (12+6)
+#define RUNTURN      (28)
+#define PREAMBLETURN 3
+#define NORMALKEYMOVE 35
+#define MAXVEL       ((NORMALKEYMOVE*2)+10)
+#define MAXSVEL      ((NORMALKEYMOVE*2)+10)
+#define MAXANGVEL    100
+
+    ControlInfo scrl_input;
+    int32_t keymove;
+    int32_t momx, momy;
+    static int mfvel=0, mfsvel=0;
+    extern SWBOOL HelpInputMode, ScrollMode2D;
+
+
+    CONTROL_GetInput(&scrl_input);
+
+    mfsvel = mfvel = 0;
+
+    if (M_Active())
+        return;
+
+    // Recenter view if told
+    if (buttonMap.ButtonDown(gamefunc_Center_View))
+    {
+        Follow_posx = pp->posx;
+        Follow_posy = pp->posy;
+    }
+
+    // Toggle follow map mode on/off
+    if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+    {
+		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
+        ScrollMode2D = !ScrollMode2D;
+        // Reset coords
+        Follow_posx = pp->posx;
+        Follow_posy = pp->posy;
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe))
+        mfsvel -= scrl_input.dyaw>>2;
+    mfsvel -= scrl_input.dx>>2;
+    mfvel = -scrl_input.dz>>2;
+
+#if 0
+    int const running = !!BUTTON(gamefunc_Run) ^ !!TEST(pp->Flags, PF_LOCK_RUN);
+    if (running)
+    {
+        keymove = NORMALKEYMOVE << 1;
+    }
+    else
+#endif
+    {
+        keymove = NORMALKEYMOVE;
+    }
+
+    if (!HelpInputMode && !ConPanel)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+        {
+            mfsvel -= -keymove;
+        }
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+        {
+            mfsvel -= keymove;
+        }
+    }
+
+    if (!InputMode && !ConPanel)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
+        {
+            mfsvel += keymove;
+        }
+
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
+        {
+            mfsvel += -keymove;
+        }
+    }
+
+    if (!HelpInputMode && !ConPanel)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+        {
+            mfvel += keymove;
+        }
+
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+        {
+            mfvel += -keymove;
+        }
+    }
+
+    if (mfvel < -MAXVEL)
+        mfvel = -MAXVEL;
+    if (mfvel > MAXVEL)
+        mfvel = MAXVEL;
+    if (mfsvel < -MAXSVEL)
+        mfsvel = -MAXSVEL;
+    if (mfsvel > MAXSVEL)
+        mfsvel = MAXSVEL;
+
+    momx = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang + 512)]);
+    momy = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang)]);
+
+    momx += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang)]);
+    momy += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang + 1536)]);
+
+    //mfvel = momx;
+    //mfsvel = momy;
+
+    Follow_posx += momx;
+    Follow_posy += momy;
+
+    Follow_posx = max(Follow_posx, x_min_bound);
+    Follow_posy = max(Follow_posy, y_min_bound);
+    Follow_posx = min(Follow_posx, x_max_bound);
+    Follow_posy = min(Follow_posy, y_max_bound);
+
+}
+
+void
 DoPlayerMenuKeys(PLAYERp pp)
 {
 }
@@ -2421,6 +2540,8 @@ DoPlayerMove(PLAYERp pp)
     void SlipSlope(PLAYERp pp);
 
     SlipSlope(pp);
+	
+    DoPlayerTurn(pp);
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -2523,6 +2644,8 @@ DoPlayerMove(PLAYERp pp)
     //PlayerSectorBound(pp, Z(1));
 
     DoPlayerSetWadeDepth(pp);
+
+    DoPlayerHorizon(pp);
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2721,16 +2844,16 @@ DoPlayerMoveBoat(PLAYERp pp)
     z = pp->posz + Z(10);
 
     save_sectnum = pp->cursectnum;
-    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), MAXSO, MAXSO);
+    OperateSectorObject(pp->sop, pp->pang, MAXSO, MAXSO);
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
     clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
 
-    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
+    OperateSectorObject(pp->sop, pp->pang, pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->input.q16horz);
+    DoPlayerHorizon(pp);
 }
 
 #if 0
@@ -2760,7 +2883,7 @@ void DoTankTreads(PLAYERp pp)
         return;
 
     vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
     if (dot < 0)
         reverse = TRUE;
 
@@ -2900,7 +3023,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // not moving - don't crush
-    if ((pp->xvect|pp->yvect) == 0 && pp->input.q16avel == 0)
+    if ((pp->xvect|pp->yvect) == 0 && pp->input.angvel == 0)
         return;
 
     // main sector
@@ -3006,7 +3129,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
                 continue;
 
             damage = -(u->Health + 100);
-            PlayerDamageSlide(u->PlayerP, damage, fix16_to_int(pp->q16ang));
+            PlayerDamageSlide(u->PlayerP, damage, pp->pang);
             PlayerUpdateHealth(u->PlayerP, damage);
             //PlayerCheckDeath(u->PlayerP, -1);
             PlayerCheckDeath(u->PlayerP, pp->PlayerSprite);
@@ -3141,7 +3264,7 @@ DoPlayerMoveTank(PLAYERp pp)
     }
 
     save_sectnum = pp->cursectnum;
-    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), MAXSO, MAXSO);
+    OperateSectorObject(pp->sop, pp->pang, MAXSO, MAXSO);
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
@@ -3171,7 +3294,7 @@ DoPlayerMoveTank(PLAYERp pp)
 
                 hitscan(&hit_pos, pp->cursectnum,
                         //pp->xvect, pp->yvect, 0,
-                        MOVEx(256, fix16_to_int(pp->q16ang)), MOVEy(256, fix16_to_int(pp->q16ang)), 0,
+                        MOVEx(256, pp->pang), MOVEy(256, pp->pang), 0,
                         &hitinfo, CLIPMASK_PLAYER);
 
                 ////DSPRINTF(ds,"hitinfo.sect %d, hitinfo.wall %d, hitinfo.pos.x %d, hitinfo.pos.y %d, hitinfo.pos.z %d",hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
@@ -3238,10 +3361,10 @@ DoPlayerMoveTank(PLAYERp pp)
         }
     }
 
-    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
+    OperateSectorObject(pp->sop, pp->pang, pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->input.q16horz);
+    DoPlayerHorizon(pp);
 
     DoTankTreads(pp);
 }
@@ -3256,9 +3379,9 @@ DoPlayerMoveTurret(PLAYERp pp)
     else
         SET(pp->Flags, PF_PLAYER_MOVED);
 
-    OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
+    OperateSectorObject(pp->sop, pp->pang, pp->sop->xmid, pp->sop->ymid);
 
-    DoPlayerHorizon(pp, &pp->input.q16horz);
+    DoPlayerHorizon(pp);
 }
 
 void
@@ -3685,7 +3808,7 @@ DoPlayerClimb(PLAYERp pp)
         pp->xvect = pp->yvect = 0;
 
     climbvel = FindDistance2D(pp->xvect, pp->yvect)>>9;
-    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
+    dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
     if (dot < 0)
         climbvel = -climbvel;
 
@@ -3834,6 +3957,8 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
+    DoPlayerHorizon(pp);
+
     if (FAF_ConnectArea(pp->cursectnum))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
@@ -3853,7 +3978,7 @@ DoPlayerClimb(PLAYERp pp)
 
         // constantly look for new ladder sector because of warping at any time
         neartag(pp->posx, pp->posy, pp->posz,
-                pp->cursectnum, fix16_to_int(pp->q16ang),
+                pp->cursectnum, pp->pang,
                 &sec, &wal, &spr,
                 &dist, 800L, NTAG_SEARCH_LO_HI, NULL);
 
@@ -3878,7 +4003,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            pp->q16ang = fix16_from_int(pp->LadderAngle);
+            pp->pang = pp->LadderAngle;
         }
     }
 }
@@ -3898,8 +4023,8 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     for (i = 0; i < SIZ(angs); i++)
     {
         FAFhitscan(pp->posx, pp->posy, zh, pp->cursectnum,    // Start position
-                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angs[i] + 512)],       // X vector of 3D ang
-                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angs[i])],         // Y vector of 3D ang
+                   sintable[NORM_ANGLE(pp->pang + angs[i] + 512)],       // X vector of 3D ang
+                   sintable[NORM_ANGLE(pp->pang + angs[i])],         // Y vector of 3D ang
                    0,                          // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4337,11 +4462,11 @@ PlayerOnLadder(PLAYERp pp)
     if (Prediction)
         return 0;
 
-    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, fix16_to_int(pp->q16ang),
+    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->pang,
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
 
-    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)+512)], sintable[fix16_to_int(pp->q16ang)]);
+    dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
 
     if (dir < 0)
         return FALSE;
@@ -4351,7 +4476,7 @@ PlayerOnLadder(PLAYERp pp)
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(fix16_to_int(pp->q16ang) + angles[i]),
+        neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(pp->pang + angles[i]),
                 &sec, &wal, &spr,
                 &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
@@ -4359,8 +4484,8 @@ PlayerOnLadder(PLAYERp pp)
             return FALSE;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
-                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang)  + angles[i] + 512)],
-                   sintable[NORM_ANGLE(fix16_to_int(pp->q16ang) + angles[i])],
+                   sintable[NORM_ANGLE(pp->pang  + angles[i] + 512)],
+                   sintable[NORM_ANGLE(pp->pang + angles[i])],
                    0,
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -4415,7 +4540,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    pp->q16ang = fix16_from_int(pp->LadderAngle);
+    pp->pang = pp->LadderAngle;
 
     return TRUE;
 }
@@ -5668,7 +5793,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    pp->q16ang = fix16_from_int(sop->ang);
+    pp->pang = sop->ang;
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5703,7 +5828,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16avel)
+        if (pp->input.angvel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5753,7 +5878,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    pp->q16ang = fix16_from_int(sop->ang);
+    pp->pang = sop->ang;
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5791,7 +5916,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16avel)
+        if (pp->input.angvel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5882,9 +6007,9 @@ DoPlayerStopOperate(PLAYERp pp)
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            pp->q16ang = pp->oq16ang = fix16_from_int(pp->remote_sprite->ang);
+            pp->pang = pp->oang = pp->remote_sprite->ang;
         else
-            pp->q16ang = pp->oq16ang = fix16_from_int(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->pang = pp->oang = getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
 
     if (pp->sop_control)
@@ -6468,21 +6593,21 @@ DoPlayerBeginDie(PLAYERp pp)
 int
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if (pp->q16horiz > fix16_from_int(target))
+    if (pp->horiz > target)
     {
-        pp->q16horiz = fix16_ssub(pp->q16horiz, fix16_from_int(speed));
-        if (pp->q16horiz <= fix16_from_int(target))
-            pp->q16horiz = fix16_from_int(target);
+        pp->horiz -= speed;
+        if (pp->horiz <= target)
+            pp->horiz = target;
     }
 
-    if (pp->q16horiz < fix16_from_int(target))
+    if (pp->horiz < target)
     {
-        pp->q16horiz = fix16_sadd(pp->q16horiz, fix16_from_int(speed));
-        if (pp->q16horiz >= fix16_from_int(target))
-            pp->q16horiz = fix16_from_int(target);
+        pp->horiz += speed;
+        if (pp->horiz >= target)
+            pp->horiz = target;
     }
 
-    return pp->q16horiz == fix16_from_int(target);
+    return pp->horiz == target;
 }
 
 int
@@ -6558,17 +6683,26 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     DoPlayerDeathHoriz(pp, PLAYER_DEATH_HORIZ_UP_VALUE, 4);
     //DoPlayerDeathTilt(pp, pp->tilt_dest, 4 * synctics);
 
+    // allow turning
+    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.angvel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
+    {
+        DoPlayerTurn(pp);
+        return;
+    }
+
     // follow what killed you if its available
     if (pp->Killer > -1)
     {
         SPRITEp kp = &sprite[pp->Killer];
-        fix16_t delta_q16ang;
+        short ang2,delta_ang;
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum,
                       pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            delta_q16ang = GetDeltaAngleQ16(fix16_from_int(getangle(kp->x - pp->posx, kp->y - pp->posy)), pp->q16ang);
-            pp->q16ang = fix16_sadd(pp->q16ang, fix16_sdiv(delta_q16ang, fix16_from_int(16))) & 0x7FFFFFF;
+            ang2 = getangle(kp->x - pp->posx, kp->y - pp->posy);
+
+            delta_ang = GetDeltaAngle(ang2, pp->pang);
+            pp->pang = NORM_ANGLE(pp->pang + (delta_ang >> 4));
         }
     }
 }
@@ -6608,7 +6742,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         pp->SpriteP->x = pp->posx;
         pp->SpriteP->y = pp->posy;
         pp->SpriteP->z = pp->posz+PLAYER_HEIGHT;
-        pp->SpriteP->ang = fix16_to_int(pp->q16ang);
+        pp->SpriteP->ang = pp->pang;
 
         DoSpawnTeleporterEffect(pp->SpriteP);
         PlaySound(DIGI_TELEPORT, pp, v3df_none);
@@ -6629,7 +6763,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
-        pp->q16horiz = pp->q16horizbase = fix16_from_int(100);
+        pp->horiz = pp->horizbase = 100;
         DoPlayerResetMovement(pp);
         u->ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7306,8 +7440,8 @@ MoveSkipSavePos(void)
         pp->oposx = pp->posx;
         pp->oposy = pp->posy;
         pp->oposz = pp->posz;
-        pp->oq16ang = pp->q16ang;
-        pp->oq16horiz = pp->q16horiz;
+        pp->oang = pp->pang;
+        pp->ohoriz = pp->horiz;
     }
 
     // save off stats for skip4
@@ -7374,7 +7508,7 @@ void ChopsCheck(PLAYERp pp)
 
     if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.q16avel|pp->input.q16horz) ||
+        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.angvel|pp->input.aimvel) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
@@ -7774,7 +7908,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].q16ang = fix16_from_int(getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
+            Player[screenpeek].pang = getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy);
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7794,7 +7928,8 @@ domovethings(void)
         DoPlayerSectorUpdatePreMove(pp);
         ChopsCheck(pp);
 
-        //if (!pp->ScrollMode2D)
+//        extern SWBOOL ScrollMode2D;
+        //if (!ScrollMode2D)
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         UpdatePlayerSprite(pp);
@@ -7845,7 +7980,7 @@ InitAllPlayers(void)
 
     //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
     //pfirst->posz = fz - PLAYER_HEIGHT;
-    pfirst->q16horiz = pfirst->q16horizbase = fix16_from_int(100);
+    pfirst->horiz = pfirst->horizbase = 100;
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
@@ -7853,15 +7988,15 @@ InitAllPlayers(void)
         pp->posx = pp->oposx = pfirst->posx;
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
-        pp->q16ang = pp->oq16ang = pfirst->q16ang;
-        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
+        pp->pang = pp->oang = pfirst->pang;
+        pp->horiz = pp->ohoriz = pfirst->horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
 
         //pp->MaxHealth = 100;
 
-        pp->q16horizbase = pfirst->q16horizbase;
+        pp->horizbase = pfirst->horizbase;
         pp->oldposx = 0;
         pp->oldposy = 0;
         pp->climb_ndx = 10;
@@ -7893,7 +8028,7 @@ InitAllPlayers(void)
         pp->FadeAmt = 0;
         pp->FadeTics = 0;
         pp->StartColor = 0;
-        pp->q16horizoff = 0;
+        pp->horizoff = 0;
 
         INITLIST(&pp->PanelSpriteList);
     }
@@ -8004,7 +8139,7 @@ PlayerSpawnPosition(PLAYERp pp)
     pp->posx = pp->oposx = sp->x;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
-    pp->q16ang = pp->oq16ang = fix16_from_int(sp->ang);
+    pp->pang = pp->oang = sp->ang;
     pp->cursectnum = sp->sectnum;
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
@@ -8063,7 +8198,7 @@ InitMultiPlayerInfo(void)
                 continue;
         }
 
-        start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+        start0 = SpawnSprite(MultiStatList[stat], ST1, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->pang, 0);
         ASSERT(start0 >= 0);
         if (User[start0])
         {
