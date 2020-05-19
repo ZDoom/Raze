@@ -80,56 +80,6 @@ void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
     restorepalette = 1+inWater;
 }
 
-static void P_IncurDamage(DukePlayer_t * const pPlayer)
-{
-    sprite[pPlayer->i].extra -= pPlayer->extra_extra8>>8;
-
-    int playerDamage = sprite[pPlayer->i].extra - pPlayer->last_extra;
-
-    if (playerDamage >= 0)
-        return;
-
-    pPlayer->extra_extra8 = 0;
-
-    if ((!RR && pPlayer->inv_amount[GET_SHIELD] > 0) || (RR && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400))
-    {
-        int const shieldDamage = playerDamage * (20 + (krand2()%30)) / 100;
-
-        playerDamage                     -= shieldDamage;
-        if (!RR)
-        {
-            pPlayer->inv_amount[GET_SHIELD] += shieldDamage;
-
-            if (pPlayer->inv_amount[GET_SHIELD] < 0)
-            {
-                playerDamage += pPlayer->inv_amount[GET_SHIELD];
-                pPlayer->inv_amount[GET_SHIELD] = 0;
-            }
-        }
-    }
-
-    if (RR)
-    {
-        int guts = 0;
-        if (pPlayer->drink_amt > 31 && pPlayer->drink_amt < 65)
-            guts++;
-        if (pPlayer->eat > 31 && pPlayer->eat < 65)
-            guts++;
-
-        switch (guts)
-        {
-            case 1:
-                playerDamage = (int)(playerDamage*0.75);
-                break;
-            case 2:
-                playerDamage = (int)(playerDamage*0.25);
-                break;
-        }
-    }
-
-    sprite[pPlayer->i].extra = pPlayer->last_extra + playerDamage;
-}
-
 
 //////////////////// HUD WEAPON / MISC. DISPLAY CODE ////////////////////
 
