@@ -1054,11 +1054,9 @@ ResizeView(PLAYERp pp)
 
         if (inputState.GetKeyStatus(KEYSC_ESC))
         {
-            extern SWBOOL ScrollMode2D;
-
 			inputState.ClearKeyStatus(sc_Escape);
             dimensionmode = 3;
-            ScrollMode2D = FALSE;
+            pp->ScrollMode2D = FALSE;
             SetRedrawScreen(pp);
         }
     }
@@ -2189,9 +2187,7 @@ drawscreen(PLAYERp pp)
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
     {
-        extern SWBOOL ScrollMode2D;
-
-        if (ScrollMode2D)
+        if (pp->ScrollMode2D)
         {
             tx = pp->mfposx;
             ty = pp->mfposy;
@@ -2218,7 +2214,7 @@ drawscreen(PLAYERp pp)
         }
 
         // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom, fix16_to_int(tq16ang));
+        drawoverheadmap(tx, ty, zoom, fix16_to_int(tq16ang), pp->ScrollMode2D);
     }
 
     for (j = 0; j < MAXSPRITES; j++)
