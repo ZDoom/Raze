@@ -241,7 +241,7 @@ void nnExtResetGlobals() {
 
     // reset tracking conditions, if any
     if (gTrackingCondsCount > 0) {
-        for (int i = 0; i <= gTrackingCondsCount; i++) {
+        for (int i = 0; i < gTrackingCondsCount; i++) {
             TRCONDITION* pCond = &gCondition[i];
             for (int k = 0; k < pCond->length; k++) {
                 pCond->obj[k].index = pCond->obj[k].cmd = 0;
@@ -260,7 +260,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
     nnExtResetGlobals();
 
     // use true random only for single player mode, otherwise use Blood's default one.
-    if (gGameOptions.nGameType == 0 && !VanillaMode() && !DemoRecordStatus()) {
+    /*if (gGameOptions.nGameType == 0 && !VanillaMode() && !DemoRecordStatus()) {
         
         gStdRandom.seed(std::random_device()());
 
@@ -273,10 +273,10 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 gAllowTrueRandom = true;
         }
 
-    }
+    }*/
 
-    if (!gAllowTrueRandom)
-        Printf("> True randomness is not available, using in-game random function(s)");
+	if (!gAllowTrueRandom) Printf("> STD randomness is not available, using in-game random function(s)");
+    else Printf("> Using STD randomness function(s).");
     
     for (int i = 0; i < kMaxXSprites; i++) {
 
@@ -584,6 +584,114 @@ void nnExtInitModernStuff(bool bSaveLoad) {
         }
     }
 
+    if (!bSaveLoad) {
+
+        // let's try to find "else" and "else if" of conditions here
+        spritetype* pCond = NULL; XSPRITE* pXCond = NULL;
+        bool found = false; int rx = 0; int sum1 = 0; int sum2 = 0;
+        
+        for (int i = headspritestat[kStatModernCondition]; i >= 0;) {
+            pCond = &sprite[i]; pXCond = &xsprite[pCond->extra];
+            sum1 = pXCond->locked + pXCond->busyTime + pXCond->waitTime + pXCond->data1;
+            if (!found) rx = pXCond->rxID;
+            
+            for (int a = i; a >= 0; a = nextspritestat[a], found = false) {
+                spritetype* pCond2 = &sprite[a]; XSPRITE* pXCond2 = &xsprite[pCond2->extra];
+                sum2 = pXCond2->locked + pXCond2->busyTime + pXCond2->waitTime + pXCond2->data1;
+
+                if (pXCond2->rxID != rx || pCond2->index == pCond->index || sum1 != sum2) continue;
+                else if ((pCond2->type != pCond->type) ^ (pCond2->cstat != pCond->cstat)) {
+                    initprintf("> ELSE IF found for condition #%d (RX ID: %d, CONDID: %d)\n", i, rx, pXCond->data1);
+                    pXCond2->rxID = pXCond2->busyTime = 0;
+                    pXCond->sysData2 = pCond2->index;
+                    i = a; found = true;
+                    break;
+                }
+
+            }
+
+            if (!found) i = nextspritestat[i];
+        }
+
+    }
+
+    // collect objects for tracking conditions
+    for (int i = headspritestat[kStatModernCondition]; i >= 0; i = nextspritestat[i]) {
+        spritetype* pSprite = &sprite[i]; XSPRITE* pXSprite = &xsprite[pSprite->extra];
+
+        if (pXSprite->busyTime <= 0) continue;
+        else if (gTrackingCondsCount >= kMaxTrackingConditions)
+            ThrowError("\nMax (%d) tracking conditions reached!", kMaxTrackingConditions);
+            
+        int count = 0;
+        TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
+
+        for (int i = 0; i < kMaxXSprites; i++) {
+            if (!spriRangeIsFine(xsprite[i].reference) || xsprite[i].txID != pXSprite->rxID || xsprite[i].reference == pSprite->index)
+                continue;
+
+            XSPRITE* pXSpr = &xsprite[i]; spritetype* pSpr = &sprite[pXSpr->reference];
+            int index = pXSpr->reference; int cmd = pXSpr->command;
+            switch (pSpr->type) {
+                case kSwitchToggle: // exceptions
+                case kSwitchOneWay: // exceptions
+                    continue;
+                case kModernPlayerControl:
+                    if (pSpr->statnum != kStatModernPlayerLinker || !bSaveLoad) break;
+                    // assign player sprite after savegame loading
+                    index = pXSpr->sysData1;
+                    cmd = xsprite[sprite[index].extra].command;
+                    break;
+            }
+
+            if (pSpr->type == kModernCondition || pSpr->type == kModernConditionFalse)
+                condError(pXSprite, "Tracking condition always must be first in condition sequence!");
+
+            if (count >= kMaxTracedObjects)
+                condError(pXSprite, "Max(% d) objects to track reached for condition # % d, rx id : % d!");
+
+            pCond->obj[count].type = OBJ_SPRITE;
+            pCond->obj[count].index = index;
+            pCond->obj[count++].cmd = cmd;
+        }
+
+        for (int i = 0; i < kMaxXSectors; i++) {
+            if (!sectRangeIsFine(xsector[i].reference) || xsector[i].txID != pXSprite->rxID) continue;
+            else if (count >= kMaxTracedObjects)
+                condError(pXSprite, "Max(% d) objects to track reached for condition # % d, rx id : % d!");
+
+            pCond->obj[count].type = OBJ_SECTOR;
+            pCond->obj[count].index = xsector[i].reference;
+            pCond->obj[count++].cmd = xsector[i].command;
+        }
+
+        for (int i = 0; i < kMaxXWalls; i++) {
+            if (!wallRangeIsFine(xwall[i].reference) || xwall[i].txID != pXSprite->rxID)
+                continue;
+
+            walltype* pWall = &wall[xwall[i].reference];
+            switch (pWall->type) {
+                case kSwitchToggle: // exceptions
+                case kSwitchOneWay: // exceptions
+                    continue;
+            }
+
+            if (count >= kMaxTracedObjects)
+                condError(pXSprite, "Max(% d) objects to track reached for condition # % d, rx id : % d!");
+                
+            pCond->obj[count].type = OBJ_WALL;
+            pCond->obj[count].index = xwall[i].reference;
+            pCond->obj[count++].cmd = xwall[i].command;
+        }
+
+        if (count == 0)
+            consoleSysMsg("No objects to track found for condition #%d, rx id: %d!", pSprite->index, pXSprite->rxID);
+
+        pCond->length = count;
+        pCond->xindex = pSprite->extra;
+        gTrackingCondsCount++;
+
+    }
 }
 
 
@@ -2072,8 +2180,8 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
             case 1:
                 pos = bottom;
                 break;
-            case 2:
-                pos = pSprite->z + (top / 4);
+            case 2: // middle
+                pos = pSprite->z + (tilesiz[pSprite->picnum].y / 2 + picanm[pSprite->picnum].yofs);
                 break;
             case 3:
             case 4:
@@ -2740,6 +2848,16 @@ bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
                 else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
                 return true;
+            /*case 57: // someone touching this wall?
+                for (int i = headspritestat[kStatDude]; i >= 0; i = nextspritestat[i]) {
+                    if (!xspriRangeIsFine(sprite[i].extra) || (gSpriteHit[sprite[i].extra].hit & 0xc000) != 0x8000) continue;
+                    else if ((gSpriteHit[sprite[i].extra].hit & 0x3fff) != objIndex) continue;
+                    else if (PUSH) {
+                        condPush(pXCond, OBJ_SPRITE, i);
+                        return true;
+        }
+    }
+                return false;*/
         }
     }
 
