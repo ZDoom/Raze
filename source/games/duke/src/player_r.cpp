@@ -2659,7 +2659,7 @@ static void fireweapon(int snum)
 	}
 	else
 	{
-		if (isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
+		if (!isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
 		switch (p->curr_weapon)
 		{
 		case DYNAMITE_WEAPON:
@@ -2781,7 +2781,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 	int i, j, k;
 	int psectlotag = sector[psect].lotag;
 
-	if (!isRRRA() && p->curr_weapon > BOWLING_WEAPON) return;
+	if (!isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
 	switch (p->curr_weapon)
 	{
 	case DYNAMITE_WEAPON:
