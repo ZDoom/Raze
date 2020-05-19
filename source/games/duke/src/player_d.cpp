@@ -2500,6 +2500,87 @@ static void operateweapon(int snum, int sb_snum, int psect)
 
 //---------------------------------------------------------------------------
 //
+// this function exists because gotos suck. :P
+//
+//---------------------------------------------------------------------------
+
+static void processweapon(int snum, int sb_snum, int psect)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+	auto s = &sprite[pi];
+	int shrunk = (s->yrepeat < 32);
+
+	if (isNamWW2GI() && (sb_snum & SKB_HOLSTER)) // 'Holster Weapon
+	{
+		if (isWW2GI())
+		{
+			SetGameVarID(g_iReturnVarID, 0, pi, snum);
+			SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
+			OnEvent(EVENT_HOLSTER, pi, snum, -1);
+			if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
+			{
+
+				// now it uses the game definitions...
+				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
+				{
+					if (p->ammo_amount[p->curr_weapon] > aplWeaponClip[p->curr_weapon][snum]
+						&& (p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum]) != 0)
+					{
+						// throw away the remaining clip
+						p->ammo_amount[p->curr_weapon] -=
+							p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum];
+						//				p->kickback_pic = aplWeaponFireDelay[p->curr_weapon][snum]+1;	// animate, but don't shoot...
+						p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum] + 1;	// animate, but don't shoot...
+						sb_snum &= ~SKB_FIRE; // not firing...
+					}
+					return;
+				}
+			}
+		}
+		else if (p->curr_weapon == PISTOL_WEAPON)
+		{
+			if (p->ammo_amount[PISTOL_WEAPON] > 20)
+			{
+				// throw away the remaining clip
+				p->ammo_amount[PISTOL_WEAPON] -= p->ammo_amount[PISTOL_WEAPON] % 20;
+				p->kickback_pic = 3;	// animate, but don't shoot...
+				sb_snum &= ~SKB_FIRE; // not firing...
+			}
+			return;
+		}
+	}
+
+
+	if (isWW2GI() && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_GLOWS))
+		p->random_club_frame += 64; // Glowing
+
+	if (!isWW2GI() && (p->curr_weapon == SHRINKER_WEAPON || p->curr_weapon == GROW_WEAPON))
+		p->random_club_frame += 64; // Glowing
+
+	if (p->rapid_fire_hold == 1)
+	{
+		if (sb_snum & SKB_FIRE) return;
+		p->rapid_fire_hold = 0;
+	}
+
+	if (shrunk || p->tipincs || p->access_incs)
+		sb_snum &= ~SKB_FIRE;
+	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
+		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
+	{
+		if (!isWW2GI()) fireweapon(snum);
+		else fireweapon_ww(snum);
+	}
+	else if (p->kickback_pic)
+	{
+		if (!isWW2GI()) operateweapon(snum, sb_snum, psect);
+		else operateweapon_ww(snum, sb_snum, psect);
+	}
+}
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -2670,8 +2751,8 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) goto SHOOTINCODE;
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) goto SHOOTINCODE;
+		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
 		return;
 	}
 
@@ -3082,80 +3163,12 @@ HORIZONLY:
 	}
 
 	// HACKS
-
-SHOOTINCODE:
-	//g_kb = p->kickback_pic;
-	//g_currentweapon = p->curr_weapon;
-	//#define WEAPON2_CLIP	20					
-		// reload clip
-	if (isNamWW2GI() && (sb_snum & SKB_HOLSTER)) // 'Holster Weapon
-	{
-		if (isWW2GI())
-		{
-			SetGameVarID(g_iReturnVarID, 0, pi, snum);
-			SetGameVarID(g_iWeaponVarID, p->curr_weapon, pi, snum);
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[p->curr_weapon][snum], pi, snum);
-			OnEvent(EVENT_HOLSTER, pi, snum, -1);
-			if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
-			{
-
-				// now it uses the game definitions...
-				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_HOLSTER_CLEARS_CLIP)
-				{
-					if (p->ammo_amount[p->curr_weapon] > aplWeaponClip[p->curr_weapon][snum]
-						&& (p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum]) != 0)
-					{
-						// throw away the remaining clip
-						p->ammo_amount[p->curr_weapon] -=
-							p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum];
-						//				p->kickback_pic = aplWeaponFireDelay[p->curr_weapon][snum]+1;	// animate, but don't shoot...
-						p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum] + 1;	// animate, but don't shoot...
-						sb_snum &= ~SKB_FIRE; // not firing...
-					}
-					return;
-				}
-			}
-		}
-		else if (p->curr_weapon == PISTOL_WEAPON)
-		{
-			if (p->ammo_amount[PISTOL_WEAPON] > 20)
-			{
-				// throw away the remaining clip
-				p->ammo_amount[PISTOL_WEAPON] -= p->ammo_amount[PISTOL_WEAPON] % 20;
-				p->kickback_pic = 3;	// animate, but don't shoot...
-				sb_snum &= ~SKB_FIRE; // not firing...
-			}
-			return;
-		}
-	}
-
-
-	if (isWW2GI() && (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_GLOWS))
-		p->random_club_frame += 64; // Glowing
-
-	if (!isWW2GI() && (p->curr_weapon == SHRINKER_WEAPON || p->curr_weapon == GROW_WEAPON))
-		p->random_club_frame += 64; // Glowing
-
-	if (p->rapid_fire_hold == 1)
-	{
-		if (sb_snum & SKB_FIRE) return;
-		p->rapid_fire_hold = 0;
-	}
-
-	if (shrunk || p->tipincs || p->access_incs)
-		sb_snum &= ~SKB_FIRE;
-	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
-		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
-	{
-		if (!isWW2GI()) fireweapon(snum);
-		else fireweapon_ww(snum);
-	}
-	else if (p->kickback_pic)
-	{
-		if (!isWW2GI()) operateweapon(snum, sb_snum, psect);
-		else operateweapon_ww(snum, sb_snum, psect);
-	}
+	processweapon(snum, sb_snum, psect);
 }
 
+void processweapon_d(int s, int ss, int p)
+{
+	processweapon(s, ss, p);
+}
 
 END_DUKE_NS

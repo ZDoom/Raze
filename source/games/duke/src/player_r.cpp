@@ -1620,29 +1620,29 @@ static void onMotorcycle(int snum, int &sb_snum)
 		if (!A_CheckSoundPlaying(pi, 189) && !A_CheckSoundPlaying(pi, 187))
 			A_PlaySound(187, pi);
 	}
-	if (sb_snum & SK_AIM_UP)
+	if (sb_snum & SKB_AIM_UP)
 	{
 		var6c = 1;
-		sb_snum &= ~SK_AIM_UP;
+		sb_snum &= ~SKB_AIM_UP;
 	}
 	else
 		var6c = 0;
-	if (sb_snum & SK_AIM_DOWN)
+	if (sb_snum & SKB_AIM_DOWN)
 	{
 		var70 = 1;
 		var74 = 1;
-		sb_snum &= ~SK_AIM_DOWN;
+		sb_snum &= ~SKB_AIM_DOWN;
 	}
 	else
 	{
 		var70 = 0;
 		var74 = 0;
 	}
-	if (sb_snum & SK_LOOK_LEFT)
+	if (sb_snum & SKB_LOOK_LEFT)
 	{
 		var78 = 1;
 		var7c = 1;
-		sb_snum &= ~SK_LOOK_LEFT;
+		sb_snum &= ~SKB_LOOK_LEFT;
 	}
 	else
 	{
@@ -3118,7 +3118,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 
 		if (p->kickback_pic == 1)
 		{
-			p->ammo_amount[SHRINKER_WEAPON]--;
+			p->ammo_amount[THROWSAW_WEAPON]--;
 			fi.shoot(pi, SHRINKSPARK);
 			checkavailweapon(p);
 		}
@@ -3363,6 +3363,67 @@ static void operateweapon(int snum, int sb_snum, int psect)
 
 //---------------------------------------------------------------------------
 //
+// this function exists because gotos suck. :P
+//
+//---------------------------------------------------------------------------
+
+static void processweapon(int snum, int sb_snum, int psect)
+{
+	auto p = &ps[snum];
+	int pi = p->i;
+	auto s = &sprite[pi];
+	int shrunk = (s->yrepeat < 8);
+
+	if (sb_snum & SKB_FIRE)
+	{
+		int a = 0;
+	}
+
+	if (p->detonate_count > 0)
+	{
+		if (ud.god)
+		{
+			p->detonate_time = 45;
+			p->detonate_count = 0;
+		}
+		else if (p->detonate_time <= 0 && p->kickback_pic < 5)
+		{
+			sound(14);
+			quickkill(p);
+		}
+	}
+
+
+	if (isRRRA() && (p->curr_weapon == KNEE_WEAPON || p->curr_weapon == SLINGBLADE_WEAPON))
+		p->random_club_frame += 64;
+
+	if (p->curr_weapon == THROWSAW_WEAPON || p->curr_weapon == BUZZSAW_WEAPON)
+		p->random_club_frame += 64; // Glowing
+
+	if (p->curr_weapon == TRIPBOMB_WEAPON || p->curr_weapon == BOWLING_WEAPON)
+		p->random_club_frame += 64;
+
+	if (p->rapid_fire_hold == 1)
+	{
+		if (sb_snum & SKB_FIRE) return;
+		p->rapid_fire_hold = 0;
+	}
+
+	if (shrunk || p->tipincs || p->access_incs)
+		sb_snum &= ~SKB_FIRE;
+	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
+		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
+	{
+		fireweapon(snum);
+	}
+	else if (p->kickback_pic)
+	{
+		operateweapon(snum, sb_snum, psect);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -3375,7 +3436,6 @@ void processinput_r(int snum)
 	short psect, psectlotag, tempsect, pi;
 	struct player_struct* p;
 	spritetype* s;
-	short unk1, unk2;
 
 	p = &ps[snum];
 	pi = p->i;
@@ -3632,8 +3692,7 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == HANDREMOTE_WEAPON) goto SHOOTINCODE;
-
+		if (p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
 		return;
 	}
 
@@ -4200,53 +4259,13 @@ HORIZONLY:
 		else p->weapon_pos--;
 	}
 
-	// HACKS
+	processweapon(snum, sb_snum, psect);
 
-SHOOTINCODE:
+}
 
-	if (p->at57e > 0)
-	{
-		if (ud.god)
-		{
-			p->at57c = 45;
-			p->at57e = 0;
-		}
-		else if (p->at57c <= 0 && p->kickback_pic < 5)
-		{
-			sound(14);
-			quickkill(p);
-		}
-	}
-
-#ifdef RRRA
-
-	if (p->curr_weapon == KNEE_WEAPON || p->curr_weapon == SLINGBLADE_WEAPON)
-		p->random_club_frame += 64;
-#endif
-
-	if (p->curr_weapon == SHRINKER_WEAPON || p->curr_weapon == GROW_WEAPON)
-		p->random_club_frame += 64; // Glowing
-
-	if (p->curr_weapon == TRIPBOMB_WEAPON || p->curr_weapon == BOWLING_WEAPON)
-		p->random_club_frame += 64;
-
-	if (p->rapid_fire_hold == 1)
-	{
-		if (sb_snum & SKB_FIRE) return;
-		p->rapid_fire_hold = 0;
-	}
-
-	if (shrunk || p->tipincs || p->access_incs)
-		sb_snum &= ~SKB_FIRE;
-	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
-		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
-	{
-		fireweapon(snum);
-	}
-	else if (p->kickback_pic)
-	{
-		operateweapon(snum, sb_snum, psect);
-	}
+void processweapon_r(int s, int ss, int p)
+{
+	processweapon(s, ss, p);
 }
 
 END_DUKE_NS

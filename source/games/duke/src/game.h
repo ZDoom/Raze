@@ -531,8 +531,7 @@ struct Dispatcher
     void (*selectweapon)(int snum, int j);
     int (*doincrements)(struct player_struct* p);
     void (*checkweapons)(struct player_struct* p);
-
-
+    void (*processinput)(int snum);
 
 
 };
