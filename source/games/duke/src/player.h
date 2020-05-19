@@ -426,8 +426,7 @@ int     P_GetKneePal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void madenoise(int playerNum);
-int P_HasKey(int sectNum, int playerNum);
-#define haskey P_HasKey
+int haskey(int sect, int snum);
 
 // Get the player index given an TILE_APLAYER sprite pointer.
 static inline int P_GetP(const void *pSprite)

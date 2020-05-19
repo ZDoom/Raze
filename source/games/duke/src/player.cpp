@@ -792,4 +792,30 @@ void playerAimDown(int snum, int sb_snum)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int haskey(int sect, int snum)
+{
+	auto p = &ps[snum];
+	if (!g_sectorExtra[sect])
+		return 1;
+	if (g_sectorExtra[sect] > 6)
+		return 1;
+	int wk = g_sectorExtra[sect];
+	if (wk > 3)
+		wk -= 3;
+
+	if (p->keys[wk] == 1)
+	{
+		g_sectorExtra[sect] = 0;
+		return 1;
+	}
+
+	return 0;
+}
+
 END_DUKE_NS

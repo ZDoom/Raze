@@ -2778,28 +2778,4 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 }
 
 
-
-
-int P_HasKey(int sectNum, int playerNum)
-{
-    if (g_sectorExtra[sectNum] == 0)
-        return 1;
-    if (g_sectorExtra[sectNum] > 6)
-        return 1;
-
-    int key = g_sectorExtra[sectNum];
-    if (key > 3)
-        key -= 3;
-
-    if (g_player[playerNum].ps->keys[key] == 1)
-    {
-        g_sectorExtra[sectNum] = 0;
-        return 1;
-    }
-    return 0;
-}
-
-int16_t max_ammo_amount[MAX_WEAPONS];
-
-
 END_DUKE_NS
