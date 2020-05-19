@@ -618,7 +618,7 @@ void LoadDemoRun(void)
                 break;
         }
         if (i == ARRAY_SSIZE(DemoName))
-            initputs("WARNING: demos.run is too long, ignoring remaining files\n");
+            Printf("WARNING: demos.run is too long, ignoring remaining files\n");
 
         fclose(fin);
     }
@@ -635,7 +635,7 @@ void LoadDemoRun(void)
                 break;
         }
         if (i == ARRAY_SSIZE(DemoText))
-            initputs("WARNING: demotxt.run is too long, trimming the text\n");
+            Printf("WARNING: demotxt.run is too long, trimming the text\n");
 
         fclose(fin);
     }
@@ -2809,7 +2809,7 @@ void ManualPlayerInsert(PLAYERp pp)
         npp->posx = pp->posx;
         npp->posy = pp->posy;
         npp->posz = pp->posz;
-        npp->pang = pp->pang;
+        npp->q16ang = pp->q16ang;
         npp->cursectnum = pp->cursectnum;
 
         myconnectindex = numplayers;
@@ -2839,7 +2839,7 @@ void BotPlayerInsert(PLAYERp pp)
         npp->posx = pp->posx;
         npp->posy = pp->posy;
         npp->posz = pp->posz-Z(100);
-        npp->pang = pp->pang;
+        npp->q16ang = pp->q16ang;
         npp->cursectnum = pp->cursectnum;
 
         //myconnectindex = numplayers;
@@ -3044,6 +3044,9 @@ short MirrorDelay;
 
 double elapsedInputTicks;
 double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
+
+void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel);
+void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel);
 
 void
 getinput(SW_PACKET *loc, SWBOOL tied)
@@ -3290,8 +3293,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else if (!TEST(pp->Flags, PF_DEAD))
     {
-        void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel);
-        void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel);
         if (!TEST(pp->Flags, PF_CLIMBING))
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
         DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);

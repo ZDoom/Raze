@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define SHORT_MAXINTERPOLATIONS 256
 short short_numinterpolations = 0;
 short short_oldipos[SHORT_MAXINTERPOLATIONS];
 short short_bakipos[SHORT_MAXINTERPOLATIONS];
@@ -111,4 +110,5 @@ void short_restoreinterpolations(void)                 // Stick at end of drawsc
     for (i = short_numinterpolations - 1; i >= 0; i--)
         *short_curipos[i] = short_bakipos[i];
 }
+
 END_SW_NS
