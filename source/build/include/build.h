@@ -1319,6 +1319,9 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     int32_t x3, int32_t y3, int32_t x4, int32_t y4,
     int32_t *intx, int32_t *inty, int32_t *intz);
 
+void markTileForPrecache(int tilenum, int palnum);
+void precacheMarkedTiles();
+
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
 extern void(*paletteLoadFromDisk_replace)(void);
 extern int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade);

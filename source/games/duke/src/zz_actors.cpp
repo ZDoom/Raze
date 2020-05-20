@@ -50,24 +50,9 @@ void G_ClearCameraView(DukePlayer_t *ps)
             sprite[k].yvel = 0;
 }
 
-int32_t A_MoveSprite(int32_t spriteNum, vec3_t const * const change, uint32_t clipType)
-{
-
-    return fi.movesprite(spriteNum, change->x, change->y, change->z, clipType);
-}
-
-int32_t block_deletesprite = 0;
-
-
 // deletesprite() game wrapper
 void A_DeleteSprite(int spriteNum)
 {
-    if (EDUKE32_PREDICT_FALSE(block_deletesprite))
-    {
-        Printf(TEXTCOLOR_RED "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
-        return;
-    }
-
 #ifdef POLYMER
     if (actor[spriteNum].lightptr != NULL && videoGetRenderMode() == REND_POLYMER)
         A_DeleteLight(spriteNum);
@@ -81,35 +66,6 @@ void A_DeleteSprite(int spriteNum)
 }
 
 void insertspriteq(int i);
-
-void A_AddToDeleteQueue(int spriteNum)
-{
-    insertspriteq(spriteNum);
-}
-
-void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
-{
-    spritetype *pSprite = &sprite[spriteNum];
-
-    for (; spawnCnt>0; spawnCnt--)
-    {
-        int32_t const r1 = krand2(), r2 = krand2();
-        int const j = A_InsertSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z - (r2 % (47 << 8)), tileNum, -32, 8,
-                               8, r1 & 2047, 0, 0, spriteNum, 5);
-        //fi.spawn(-1, j);
-        sprite[j].cstat = krand2()&12;
-    }
-}
-
-void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
-{
-    fi.guts(&sprite[spriteNum], tileNum, spawnCnt, 0);
-}
-
-void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
-{
-    fi.gutsdir(&sprite[spriteNum], tileNum, spawnCnt, 0);
-}
 
 static int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
 {
@@ -140,14 +96,6 @@ void Sect_ToggleInterpolation(int sectNum, int setInterpolation)
         }
     }
 }
-
-void ms(short i);
-
-void A_MoveSector(int spriteNum)
-{
-    ms(spriteNum);
-}
-
 
 int g_canSeePlayer = 0;
 

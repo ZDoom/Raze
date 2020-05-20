@@ -108,7 +108,6 @@ END_DUKE_NS
 
 #include "actors.h"
 #include "common_game.h"
-#include "config.h"
 #include "gamecontrol.h"
 #include "game.h"
 #include "gamedef.h"

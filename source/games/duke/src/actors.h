@@ -233,7 +233,6 @@ enum sflags_t
 extern ActorInfo   actorinfo[MAXTILES];
 extern actor_t      actor[MAXSPRITES];
 extern actor_t* hittype;
-extern int32_t      block_deletesprite;
 extern int32_t      g_noEnemies;
 #define actor_tog g_noEnemies
 extern int32_t      otherp;
@@ -247,15 +246,10 @@ inline int LocateTheLocator(int const tag, int const sectNum)
 }
 
 int A_IncurDamage(int spriteNum);
-void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 
-void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
-void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
 void movecyclers(void);
 void movedummyplayers(void);
-void A_MoveSector(int spriteNum);
-void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 void resetlanepics(void);
 
 int  G_SetInterpolation(int32_t *posptr);
@@ -282,7 +276,6 @@ static FORCE_INLINE void   setsectinterpolate(int sectnum) { Sect_ToggleInterpol
 # define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
 #endif
 
-extern int32_t A_MoveSprite(int32_t spritenum, vec3_t const * change, uint32_t cliptype);
 ACTOR_INLINE_HEADER int A_CheckEnemyTile(int tileNum);
 ACTOR_INLINE_HEADER int A_SetSprite(int spriteNum, uint32_t cliptype);
 
