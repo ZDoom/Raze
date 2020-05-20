@@ -40,6 +40,7 @@ void resetinventory(int playerNum);
 void P_ResetPlayer(int playerNum);
 void resetplayerstats(int playerNum);
 void resetweapons(int playerNum);
+void resetprestat(int snum, int g);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);
 extern int32_t fragbarheight(void);

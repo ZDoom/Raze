@@ -377,7 +377,7 @@ void resetinventory(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetprestat(short snum,char g)
+void resetprestat(int snum,int g)
 {
     struct player_struct *p;
     short i;
@@ -427,7 +427,7 @@ void resetprestat(short snum,char g)
     BellTime = 0;
     g_bellSprite = 0;
 
-    //numinterpolations = 0;
+    numinterpolations = 0;
     //startofdynamicinterpolations = 0;
 
     if( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (ud.coop != 1 && numplayers > 1) )
@@ -451,7 +451,7 @@ void resetprestat(short snum,char g)
     p->make_noise = 0;
     p->noise_radius = 0;
 
-    if (ud.multimode > 1 && ud.coop != 1)
+    if (isRR() && ud.multimode > 1 && ud.coop != 1)
     {
         p->keys[0] = 1;
         p->keys[1] = 1;
@@ -484,9 +484,7 @@ void resetprestat(short snum,char g)
 
     if (numplayers < 2)
     {
-        ufospawn = ud.m_player_skill*4+1;
-        if (ufospawn > 32)
-            ufospawn = 32;
+        ufospawn = std::min(ud.m_player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.m_player_skill + 1;
     }

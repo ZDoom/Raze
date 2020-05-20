@@ -71,7 +71,7 @@ void G_ResetInterpolations(void)
 {
     int32_t k, i;
 
-    g_interpolationCnt = 0;
+    numinterpolations = 0;
 
     k = headspritestat[STAT_EFFECTOR];
     while (k >= 0)
@@ -105,7 +105,7 @@ void G_ResetInterpolations(void)
         k = nextspritestat[k];
     }
 
-    for (i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
+    for (i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     for (i = g_animateCnt-1; i>=0; i--)
         G_SetInterpolation(g_animatePtr[i]);
 }

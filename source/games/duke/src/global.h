@@ -313,7 +313,7 @@ enum
 };
 
 // Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
-extern int32_t g_interpolationCnt;
+extern int32_t numinterpolations;
 extern int32_t* curipos[MAXINTERPOLATIONS];
 extern int32_t bakipos[MAXINTERPOLATIONS];
 void G_UpdateInterpolations(void);

@@ -311,122 +311,6 @@ void P_ResetPlayer(int playerNum)
 }
 
 
-static void resetprestat(int playerNum, int gameMode)
-{
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-
-    g_spriteDeleteQueuePos = 0;
-    for (bssize_t i = 0; i < g_deleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
-
-    pPlayer->hbomb_on          = 0;
-    pPlayer->cheat_phase       = 0;
-    pPlayer->toggle_key_flag   = 0;
-    pPlayer->secret_rooms      = 0;
-    pPlayer->max_secret_rooms  = 0;
-    pPlayer->actors_killed     = 0;
-    pPlayer->max_actors_killed = 0;
-    pPlayer->lastrandomspot    = 0;
-    pPlayer->weapon_pos        = WEAPON_POS_START;
-
-    P_ResetTintFade(pPlayer);
-
-    pPlayer->kickback_pic = 5;
-
-    pPlayer->last_weapon           = -1;
-    pPlayer->weapreccnt            = 0;
-    pPlayer->interface_toggle_flag = 0;
-    pPlayer->show_empty_weapon     = 0;
-    pPlayer->holster_weapon        = 0;
-    pPlayer->last_pissed_time      = 0;
-    pPlayer->one_parallax_sectnum  = -1;
-    pPlayer->visibility            = ud.const_visibility;
-
-    screenpeek         = myconnectindex;
-    g_animWallCnt      = 0;
-    g_cyclerCnt        = 0;
-    g_animateCnt       = 0;
-    parallaxtype       = 0;
-    randomseed         = 17;
-    ud.pause_on        = 0;
-    ud.camerasprite    = -1;
-    ud.eog             = 0;
-    tempwallptr        = 0;
-    g_curViewscreen    = -1;
-    g_earthquakeTime   = 0;
-    g_interpolationCnt = 0;
-
-    if (RRRA)
-    {
-        WindTime = 0;
-        WindDir = 0;
-        fakebubba_spawn = 0;
-        RRRA_ExitedLevel = 0;
-        g_bellTime = 0;
-        g_bellSprite = 0;
-    }
-
-    if (((gameMode & MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer)
-        || (!(g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
-    {
-        resetweapons(playerNum);
-        resetinventory(playerNum);
-    }
-    else if (pPlayer->curr_weapon == HANDREMOTE_WEAPON && !isRR())
-    {
-        pPlayer->ammo_amount[HANDBOMB_WEAPON]++;
-        pPlayer->curr_weapon = HANDBOMB_WEAPON;
-    }
-
-    pPlayer->timebeforeexit  = 0;
-    pPlayer->customexitsound = 0;
-
-    if (RR)
-    {
-        pPlayer->stairs = 0;
-        pPlayer->noise_x = 131072;
-        pPlayer->noise_y = 131072;
-        pPlayer->make_noise = 0;
-        pPlayer->noise_radius = 0;
-        if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART))
-        {
-            pPlayer->keys[0] = 1;
-            pPlayer->keys[1] = 1;
-            pPlayer->keys[2] = 1;
-            pPlayer->keys[3] = 1;
-            pPlayer->keys[4] = 1;
-        }
-        else
-        {
-            pPlayer->keys[0] = 0;
-            pPlayer->keys[1] = 0;
-            pPlayer->keys[2] = 0;
-            pPlayer->keys[3] = 0;
-            pPlayer->keys[4] = 0;
-        }
-
-        pPlayer->drunkang = pPlayer->eatang = 1647;
-        pPlayer->drink_amt = pPlayer->eat = 0;
-        pPlayer->drink_timer = pPlayer->eat_timer = 4096;
-        pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
-        pPlayer->detonate_time = 0;
-        pPlayer->detonate_count = 0;
-        pPlayer->recoil = 0;
-        pPlayer->yehaa_timer = 0;
-        resetlanepics();
-        if (!g_netServer && numplayers < 2)
-        {
-            g_ufoSpawn = min(ud.m_player_skill*4+1, 32);
-            g_ufoCnt = 0;
-            g_hulkSpawn = ud.m_player_skill + 1;
-        }
-        else
-        {
-            g_ufoSpawn = 32;
-            g_ufoCnt = 0;
-            g_hulkSpawn = 2;
-        }
-    }
-}
 
 static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
@@ -1594,7 +1478,7 @@ int G_EnterLevel(int gameMode)
 
     G_ClearFIFO();
 
-    for (i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
+    for (i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 

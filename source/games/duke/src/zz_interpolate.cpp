@@ -28,7 +28,7 @@ BEGIN_DUKE_NS
 
 #define MAXINTERPOLATIONS MAXSPRITES
 
-int32_t g_interpolationCnt;
+int32_t numinterpolations;
 int32_t g_interpolationLock;
 int32_t oldipos[MAXINTERPOLATIONS];
 int32_t *curipos[MAXINTERPOLATIONS];
@@ -36,28 +36,28 @@ int32_t bakipos[MAXINTERPOLATIONS];
 
 int G_SetInterpolation(int32_t *const posptr)
 {
-    if (g_interpolationCnt >= MAXINTERPOLATIONS)
+    if (numinterpolations >= MAXINTERPOLATIONS)
         return 1;
 
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+    for (bssize_t i = 0; i < numinterpolations; ++i)
         if (curipos[i] == posptr)
             return 0;
 
-    curipos[g_interpolationCnt] = posptr;
-    oldipos[g_interpolationCnt] = *posptr;
-    g_interpolationCnt++;
+    curipos[numinterpolations] = posptr;
+    oldipos[numinterpolations] = *posptr;
+    numinterpolations++;
     return 0;
 }
 
 void G_StopInterpolation(const int32_t * const posptr)
 {
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+    for (bssize_t i = 0; i < numinterpolations; ++i)
         if (curipos[i] == posptr)
         {
-            g_interpolationCnt--;
-            oldipos[i] = oldipos[g_interpolationCnt];
-            bakipos[i] = bakipos[g_interpolationCnt];
-            curipos[i] = curipos[g_interpolationCnt];
+            numinterpolations--;
+            oldipos[i] = oldipos[numinterpolations];
+            bakipos[i] = bakipos[numinterpolations];
+            curipos[i] = curipos[numinterpolations];
         }
 }
 
@@ -68,7 +68,7 @@ void G_DoInterpolations(int smoothRatio)
 
     int32_t ndelta = 0;
 
-    for (bssize_t i = 0, j = 0; i < g_interpolationCnt; ++i)
+    for (bssize_t i = 0, j = 0; i < numinterpolations; ++i)
     {
         int32_t const odelta = ndelta;
         bakipos[i] = *curipos[i];
@@ -82,12 +82,12 @@ void G_DoInterpolations(int smoothRatio)
 
 void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    for (bssize_t i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
+    for (bssize_t i=numinterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
 }
 
 void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {
-    int32_t i=g_interpolationCnt-1;
+    int32_t i=numinterpolations-1;
 
     if (--g_interpolationLock)
         return;
