@@ -460,14 +460,14 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     short daang, fix16_t daq16horiz, short dacursectnum, short tilenume)
+                     fix16_t daq16ang, fix16_t daq16horiz, short dacursectnum, short tilenume)
 {
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
     screen->BeginScene();
 
-    drawrooms(daposx, daposy, daposz, daang, daq16horiz, dacursectnum);
+    renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);
     renderDrawMasks();
     screen->FinishScene();
@@ -703,11 +703,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, fix16_t tpq16ang, fix16_
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->pang, cp->horiz, cp->cursectnum, mirror[cnt].campic);
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->q16ang, cp->q16horiz, cp->cursectnum, mirror[cnt].campic);
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, SP_TAG5(sp), camhoriz, sp->sectnum, mirror[cnt].campic);
+                                drawroomstotile(sp->x, sp->y, sp->z, fix16_from_int(SP_TAG5(sp)), fix16_from_int(camhoriz), sp->sectnum, mirror[cnt].campic);
                             }
                         }
                     }
