@@ -69,13 +69,13 @@ const char *GetVersionString();
 #define MINSAVEVER_DN3D 8
 #define MINSAVEVER_BLD 6
 #define MINSAVEVER_RR 7
-#define MINSAVEVER_SW 6
+#define MINSAVEVER_SW 7
 #define MINSAVEVER_PS 6
 
 #define SAVEVER_DN3D 8
 #define SAVEVER_BLD 6
 #define SAVEVER_RR 7
-#define SAVEVER_SW 6
+#define SAVEVER_SW 7
 #define SAVEVER_PS 6
 
 #if defined(__APPLE__) || defined(_WIN32)
