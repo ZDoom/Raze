@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS  
 
+int which_palookup = 9;
 
 //---------------------------------------------------------------------------
 //
@@ -495,6 +496,159 @@ void resetprestat(int snum,int g)
         hulkspawn = 2;
     }
 
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void resetpspritevars(int g)
+{
+    short i, j, nexti, circ;
+    int firstx, firsty;
+    spritetype* s;
+    char aimmode[MAXPLAYERS], autoaim[MAXPLAYERS];
+    STATUSBARTYPE tsbar[MAXPLAYERS];
+
+    EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,
+        TILE_APLAYER, 0, 0, 0, ps[0].getang(), 0, 0, 0, 10);
+
+    if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
+    {
+        aimmode[i] = ps[i].aim_mode;
+        autoaim[i] = ps[i].auto_aim;
+        if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
+        {
+            for (j = 0; j < MAX_WEAPONS; j++)
+            {
+                tsbar[i].ammo_amount[j] = ps[i].ammo_amount[j];
+                tsbar[i].gotweapon.Set(j, ps[i].gotweapon[j]);
+            }
+
+            tsbar[i].shield_amount = ps[i].shield_amount;
+            tsbar[i].curr_weapon = ps[i].curr_weapon;
+            tsbar[i].inven_icon = ps[i].inven_icon;
+
+            tsbar[i].firstaid_amount = ps[i].firstaid_amount;
+            tsbar[i].steroids_amount = ps[i].steroids_amount;
+            tsbar[i].holoduke_amount = ps[i].holoduke_amount;
+            tsbar[i].jetpack_amount = ps[i].jetpack_amount;
+            tsbar[i].heat_amount = ps[i].heat_amount;
+            tsbar[i].scuba_amount = ps[i].scuba_amount;
+            tsbar[i].boot_amount = ps[i].boot_amount;
+        }
+    }
+
+    resetplayerstats(0);
+
+    for (i = 1; i < MAXPLAYERS; i++)
+        memcpy(&ps[i], &ps[0], sizeof(ps[0]));
+
+    if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
+    {
+        ps[i].aim_mode = aimmode[i];
+        ps[i].auto_aim = autoaim[i];
+        if (ud.multimode > 1 && ud.coop == 1 && ud.last_level >= 0)
+        {
+            for (j = 0; j < MAX_WEAPONS; j++)
+            {
+                ps[i].ammo_amount[j] = tsbar[i].ammo_amount[j];
+                ps[i].gotweapon.Set(j, tsbar[i].gotweapon[j]);
+            }
+            ps[i].shield_amount = tsbar[i].shield_amount;
+            ps[i].curr_weapon = tsbar[i].curr_weapon;
+            ps[i].inven_icon = tsbar[i].inven_icon;
+
+            ps[i].firstaid_amount = tsbar[i].firstaid_amount;
+            ps[i].steroids_amount = tsbar[i].steroids_amount;
+            ps[i].holoduke_amount = tsbar[i].holoduke_amount;
+            ps[i].jetpack_amount = tsbar[i].jetpack_amount;
+            ps[i].heat_amount = tsbar[i].heat_amount;
+            ps[i].scuba_amount = tsbar[i].scuba_amount;
+            ps[i].boot_amount = tsbar[i].boot_amount;
+        }
+    }
+
+    numplayersprites = 0;
+    circ = 2048 / ud.multimode;
+
+    which_palookup = 9;
+    j = connecthead;
+    i = headspritestat[10];	// 10 == players...
+    while (i >= 0)
+    {
+        nexti = nextspritestat[i];
+        s = &sprite[i];
+
+        if (numplayersprites == MAXPLAYERS)
+            I_Error("Too many player sprites (max 16.)");
+
+        if (numplayersprites == 0)
+        {
+            firstx = ps[0].posx;
+            firsty = ps[0].posy;
+        }
+
+        po[numplayersprites].ox = s->x;
+        po[numplayersprites].oy = s->y;
+        po[numplayersprites].oz = s->z;
+        po[numplayersprites].oa = s->ang;
+        po[numplayersprites].os = s->sectnum;
+
+        numplayersprites++;
+        if (j >= 0)
+        {
+            s->owner = i;
+            s->shade = 0;
+            s->xrepeat = isRR() ? 24 : 42;
+            s->yrepeat = isRR() ? 17 : 36;
+            s->cstat = 1 + 256;
+            s->xoffset = 0;
+            s->clipdist = 64;
+
+            if ((g & MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
+            {
+                ps[j].last_extra = max_player_health;
+                s->extra = max_player_health;
+            }
+            else s->extra = ps[j].last_extra;
+
+            s->yvel = j;
+
+            if (ud.last_level == -1)
+            {
+                if (s->pal == 0)
+                {
+                    s->pal = ps[j].palookup = which_palookup;
+                    //ud.user_pals[j] = which_palookup;
+                    which_palookup++;
+                    if (which_palookup == 17) which_palookup = 9;
+                }
+                else /*ud.user_pals[j] =*/ ps[j].palookup = s->pal;
+            }
+            else
+                s->pal = ps[j].palookup = g_player[j].pcolor;// ud.user_pals[j];
+
+            ps[j].i = i;
+            ps[j].frag_ps = j;
+            hittype[i].owner = i;
+
+            hittype[i].bposx = ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
+            hittype[i].bposy = ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
+            hittype[i].bposz = ps[j].oposz = ps[j].posz = s->z;
+            ps[j].setang(s->ang);
+            ps[j].setoang(s->ang);
+
+            updatesector(s->x, s->y, &ps[j].cursectnum);
+
+            j = connectpoint2[j];
+
+        }
+        else deletesprite(i);
+        i = nexti;
+    }
 }
 
 

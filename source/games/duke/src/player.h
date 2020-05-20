@@ -125,7 +125,7 @@ typedef struct {
     };
 } playerspawn_t;
 
-typedef struct {
+typedef struct STATUSBARTYPE {
     int16_t got_access, last_extra, inv_amount[GET_MAX], curr_weapon, holoduke_on;
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
@@ -201,7 +201,6 @@ typedef struct player_struct {
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed;
-    int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
     uint16_t max_actors_killed, actors_killed;
