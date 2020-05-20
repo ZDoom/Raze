@@ -955,8 +955,8 @@ faketimerhandler(void)
 
     loc.vel = AveragePacket.vel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.q16avel = AveragePacket.q16avel / fix16_from_int(MovesPerPacket);
-    loc.q16horz = AveragePacket.q16horz / fix16_from_int(MovesPerPacket);
+    loc.q16avel = fix16_div(AveragePacket.q16avel, fix16_from_int(MovesPerPacket));
+    loc.q16horz = fix16_div(AveragePacket.q16horz, fix16_from_int(MovesPerPacket));
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
