@@ -950,7 +950,59 @@ int parse(void)
 		else
 		{
 			// I am not convinced this is even remotely smart to be executed from here...
-			P_ResetPlayer(g_p);
+			pickrandomspot(g_p);
+			g_sp->x = hittype[g_i].bposx = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].posx;
+			g_sp->y = hittype[g_i].bposy = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].posy;
+			g_sp->z = hittype[g_i].bposy = ps[g_p].oposz = ps[g_p].posz;
+			updatesector(ps[g_p].posx, ps[g_p].posy, &ps[g_p].cursectnum);
+			setsprite(ps[g_p].i, ps[g_p].posx, ps[g_p].posy, ps[g_p].posz + PHEIGHT);
+			g_sp->cstat = 257;
+
+			g_sp->shade = -12;
+			g_sp->clipdist = 64;
+			g_sp->xrepeat = 42;
+			g_sp->yrepeat = 36;
+			g_sp->owner = g_i;
+			g_sp->xoffset = 0;
+			g_sp->pal = ps[g_p].palookup;
+
+			ps[g_p].last_extra = g_sp->extra = max_player_health;
+			ps[g_p].wantweaponfire = -1;
+			ps[g_p].sethoriz(100);
+			ps[g_p].on_crane = -1;
+			ps[g_p].frag_ps = g_p;
+			ps[g_p].sethorizoff(0);
+			ps[g_p].opyoff = 0;
+			ps[g_p].wackedbyactor = -1;
+			ps[g_p].shield_amount = max_armour_amount;
+			ps[g_p].dead_flag = 0;
+			ps[g_p].pals.f = 0;
+			ps[g_p].footprintcount = 0;
+			ps[g_p].weapreccnt = 0;
+			ps[g_p].fta = 0;
+			ps[g_p].ftq = 0;
+			ps[g_p].posxv = ps[g_p].posyv = 0;
+			if (!isRR()) ps[g_p].rotscrnang = 0;
+
+			ps[g_p].falling_counter = 0;
+
+			hittype[g_i].extra = -1;
+			hittype[g_i].owner = g_i;
+
+			hittype[g_i].cgg = 0;
+			hittype[g_i].movflag = 0;
+			hittype[g_i].tempang = 0;
+			hittype[g_i].actorstayput = -1;
+			hittype[g_i].dispicnum = 0;
+			hittype[g_i].owner = ps[g_p].i;
+			hittype[g_i].temp_data[4] = 0;
+
+			resetinventory(g_p);
+			resetweapons(g_p);
+			ps[g_p].movement_lock = 0;
+
+			//cameradist = 0;
+			//cameraclock = totalclock;
 		}
 		setpal(&ps[g_p]);
 		break;

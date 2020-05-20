@@ -35,7 +35,7 @@ void G_CacheMapData(void);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);
 void G_UpdateScreenArea(void);
-void P_RandomSpawnPoint(int playerNum);
+void pickrandomspot(int playerNum);
 void resetinventory(int playerNum);
 void P_ResetPlayer(int playerNum);
 void resetplayerstats(int playerNum);

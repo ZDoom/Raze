@@ -37,7 +37,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void pickrandomspot(short snum)
+void pickrandomspot(int snum)
 {
     struct player_struct *p;
     short i;
