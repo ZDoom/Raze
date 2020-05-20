@@ -115,8 +115,6 @@ CCMD(vid_list_sdl_render_drivers)
 	}
 }
 
-double refreshfreq;
-
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
 namespace Priv
