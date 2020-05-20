@@ -107,6 +107,8 @@ void processinput_d(int snum);
 void processinput_r(int snum);
 void displayweapon_d(int snum);
 void displayweapon_r(int snum);
+void displaymasks_d(int snum);
+void displaymasks_r(int snum);
 
 
 
@@ -157,6 +159,7 @@ void SetDispatcher()
 		checkweapons_d,
 		processinput_d,
 		displayweapon_d,
+		displaymasks_d,
 		};
 	}
 	else	
@@ -202,6 +205,7 @@ void SetDispatcher()
 		checkweapons_r,
 		processinput_r,
 		displayweapon_r,
+		displaymasks_r,
 		};
 	}
 }

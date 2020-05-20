@@ -198,7 +198,7 @@ int animateknuckles(int gs, int snum)
 //
 //---------------------------------------------------------------------------
 
-void displaymasks(int snum)
+void displaymasks_d(int snum)
 {
 	int p;
 
@@ -211,12 +211,12 @@ void displaymasks(int snum)
 	{
 		if (ud.screen_size > 4)
 		{
-			rotatesprite(43 << 16, (200 - 8 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16, CRECT);
+			rotatesprite(44 << 16, (200 - 8 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16, CRECT);
 			rotatesprite((320 - 43) << 16, (200 - 8 - tilesiz[SCUBAMASK].y) << 16, 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16, CRECT);
 		}
 		else
 		{
-			rotatesprite(43 << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16, CRECT);
+			rotatesprite(44 << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16, CRECT);
 			rotatesprite((320 - 43) << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16, CRECT);
 		}
 	}
@@ -294,7 +294,7 @@ int animateaccess(int gs,int snum)
 void displayweapon_d(int snum)
 {
 	int gun_pos, looking_arc, cw;
-	int weapon_xoffset, i, j, x1, y1, x2;
+	int weapon_xoffset, i, j;
 	int o,pal;
 	signed char gs;
 	struct player_struct *p;
@@ -851,44 +851,46 @@ void displayweapon_d(int snum)
 			}
 			else
 			{
+				pin = (isWW2GI() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+
 				const int WEAPON2_RELOAD_TIME = 50;
 				auto reload_time = isWW2GI() ? aplWeaponReload[PISTOL_WEAPON][snum] : WEAPON2_RELOAD_TIME;
 				if (p->kickback_pic < 10)
-					hud_drawpal(194 - (p->look_ang >> 1), looking_arc + 230 - gun_pos, FIRSTGUN + 4, gs, o, pal);
+					hud_drawpal(194 - (p->look_ang >> 1), looking_arc + 230 - gun_pos, FIRSTGUN + 4, gs, o|pin, pal);
 				else if (p->kickback_pic < 15)
 				{
-					hud_drawpal(244 - (p->kickback_pic << 3) - (p->look_ang >> 1), looking_arc + 130 - gun_pos + (p->kickback_pic << 4), FIRSTGUN + 6, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(244 - (p->kickback_pic << 3) - (p->look_ang >> 1), looking_arc + 130 - gun_pos + (p->kickback_pic << 4), FIRSTGUN + 6, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < 20)
 				{
-					hud_drawpal(124 + (p->kickback_pic << 1) - (p->look_ang >> 1), looking_arc + 430 - gun_pos - (p->kickback_pic << 3), FIRSTGUN + 6, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(124 + (p->kickback_pic << 1) - (p->look_ang >> 1), looking_arc + 430 - gun_pos - (p->kickback_pic << 3), FIRSTGUN + 6, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < (reload_time - 12))
 				{
-					hud_drawpal(184 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 210 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(184 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 210 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < (reload_time - 6))
 				{
-					hud_drawpal(164 - (p->look_ang >> 1), looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(164 - (p->look_ang >> 1), looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < (reload_time))
 					hud_drawpal(194 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 5, gs, o, pal);
 				else if (p->kickback_pic < 23)
 				{
-					hud_drawpal(184 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 210 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(184 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 210 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < 25)
 				{
-					hud_drawpal(164 - (p->look_ang >> 1), looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o, pal);
-					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(164 - (p->look_ang >> 1), looking_arc + 245 - gun_pos, FIRSTGUN + 8, gs, o | pin, pal);
+					hud_drawpal(224 - (p->look_ang >> 1), looking_arc + 220 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 				}
 				else if (p->kickback_pic < 27)
-					hud_drawpal(194 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 5, gs, o, pal);
+					hud_drawpal(194 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FIRSTGUN + 5, gs, o | pin, pal);
 			}
 		};
 

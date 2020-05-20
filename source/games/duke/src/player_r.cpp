@@ -997,7 +997,7 @@ void selectweapon_r(int snum, int j)
 					if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
 					{
 						p->gotweapon.Set(DYNAMITE_WEAPON);
-						j = HANDREMOTE_WEAPON;
+						j = THROWINGDYNAMITE_WEAPON;
 						break;
 					}
 					k = nextspritestat[k];
@@ -1124,10 +1124,10 @@ void selectweapon_r(int snum, int j)
 				}
 				break;
 
-			case HANDREMOTE_WEAPON:	// what's up with this? RR doesn't define this weapon.
+			case THROWINGDYNAMITE_WEAPON:
 				if (k >= 0) // Found in list of [1]'s
 				{
-					p->curr_weapon = HANDREMOTE_WEAPON;
+					p->curr_weapon = THROWINGDYNAMITE_WEAPON;
 					p->last_weapon = -1;
 					p->weapon_pos = 10;
 				}
@@ -2667,7 +2667,7 @@ static void fireweapon(int snum)
 			if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
 				p->kickback_pic = 1;
 			break;
-		case HANDREMOTE_WEAPON:
+		case THROWINGDYNAMITE_WEAPON:
 			p->hbomb_hold_delay = 0;
 			p->kickback_pic = 1;
 			break;
@@ -2794,7 +2794,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		if (p->kickback_pic > 19)
 		{
 			p->kickback_pic = 0;
-			p->curr_weapon = HANDREMOTE_WEAPON;
+			p->curr_weapon = THROWINGDYNAMITE_WEAPON;
 			p->last_weapon = -1;
 			p->weapon_pos = 10;
 			p->detonate_time = 45;
@@ -2805,7 +2805,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		break;
 
 
-	case HANDREMOTE_WEAPON:
+	case THROWINGDYNAMITE_WEAPON:
 
 		p->kickback_pic++;
 
@@ -3682,7 +3682,7 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
+		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, sb_snum, psect);
 		return;
 	}
 

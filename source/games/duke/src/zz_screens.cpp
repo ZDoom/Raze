@@ -744,10 +744,9 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 PspTwoDSetter set;
                 fi.displayweapon(screenpeek);
-                //P_DisplayWeapon();
 
                 if (pp->over_shoulder_on == 0)
-                    P_DisplayScuba();
+                    fi.displaymasks(screenpeek);
     }
             if (!RR)
                 G_MoveClouds();

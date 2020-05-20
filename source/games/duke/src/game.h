@@ -533,6 +533,7 @@ struct Dispatcher
     void (*checkweapons)(struct player_struct* p);
     void (*processinput)(int snum);
     void (*displayweapon)(int snum);
+    void (*displaymasks)(int snum);
 
 
 };

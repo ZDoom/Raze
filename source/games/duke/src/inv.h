@@ -54,8 +54,4 @@ enum dukeinvicon_t
     ICON_MAX
 };
 
-extern int const icon_to_inv[ICON_MAX];
-
-extern int const inv_to_icon[GET_MAX];
-
 END_DUKE_NS

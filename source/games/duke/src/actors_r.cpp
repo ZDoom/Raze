@@ -196,7 +196,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 	case KNEE_WEAPON:
  	case DYNAMITE_WEAPON:	 
 	case TRIPBOMB_WEAPON:
-	case HANDREMOTE_WEAPON:
+	case THROWINGDYNAMITE_WEAPON:
 		break;
 	case SHOTGUN_WEAPON:	  
 		spritesound(SHOTGUN_COCK, p->i); 

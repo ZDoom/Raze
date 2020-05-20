@@ -402,7 +402,6 @@ inline void addammo(int weaponNum, DukePlayer_t* pPlayer, int addAmount)
 }
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
-void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);
 void checkweapons(DukePlayer_t* const pPlayer);
 int findotherplayer(int p, int* d);
@@ -423,8 +422,6 @@ inline void setpal(DukePlayer_t* pPlayer)
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);
-int     P_GetKneePal(const DukePlayer_t *pPlayer);
-int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void madenoise(int playerNum);
 int haskey(int sect, int snum);
