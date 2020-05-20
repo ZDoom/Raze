@@ -593,14 +593,14 @@ bool LoadLevel(const char *filename)
     int16_t ang;
     if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &ang, &Player[0].cursectnum) == -1)
     {
-		Printf("Level not found: %s", filename);
-		return false;
+        Printf("Level not found: %s", filename);
+        return false;
         }
-	currentLevel = &mapList[Level];
+    currentLevel = &mapList[Level];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->labelName);
-	return true;
-	Player[0].q16ang = fix16_from_int(ang);
+    Player[0].q16ang = fix16_from_int(ang);
+    return true;
 }
 
 void LoadDemoRun(void)
@@ -2577,21 +2577,21 @@ void RunLevel(void)
         handleevents();
         OSD_DispatchQueued();
 		D_ProcessEvents();
-		faketimerhandler();
         if (LoadGameOutsideMoveLoop)
         {
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
-        if (M_Active())
+        if (M_Active() || GUICapture || GamePaused)
         {
-            ototalclock = (int)totalclock;
+            ototalclock = (int)totalclock - (120 / synctics);
+            buttonMap.ResetButtonStates();
         }
         else
         {
+            faketimerhandler();
             MoveLoop();
         }
-
 
         drawscreen(Player + screenpeek);
 
@@ -3070,7 +3070,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     static int32_t turnheldtime;
     int32_t momx, momy;
 
-    extern SWBOOL MenuButtonAutoRun;
     extern SWBOOL MenuButtonAutoAim;
 
     if (Prediction && CommEnabled)
@@ -3088,30 +3087,26 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     // MAKE SURE THIS WILL GET SET
     SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+    bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
-	if (!CommEnabled)
-	{
-		// Go back to the source to set this - the old code here was catastrophically bad.
-		// this needs to be fixed properly - as it is this can never be compatible with demo playback.
+    if (!CommEnabled)
+    {
+        // Go back to the source to set this - the old code here was catastrophically bad.
+        // this needs to be fixed properly - as it is this can never be compatible with demo playback.
 
-		if (mouseaim)
-			SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-		else
-			RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+        if (mouseaim)
+            SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+        else
+            RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
 
-		if (cl_autoaim)
-			SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-			else
-			RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-			}
+        if (cl_autoaim)
+            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+        else
+            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+    }
 
     ControlInfo info;
     CONTROL_GetInput(&info);
-
-
-    //info.dz = (info.dz * move_scale)>>8;
-    //info.dyaw = (info.dyaw * turn_scale)>>8;
 
     PauseKey(pp);
 
@@ -3205,12 +3200,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else
     {
-        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(32));
-        q16angvel += fix16_from_int(info.dyaw) / analogExtent * (turnamount << 1);
+        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(45));
+        q16angvel += fix16_from_int(info.dyaw * (turnamount << 1) / (analogExtent >> 1));
     }
 
     if (mouseaim)
-        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(64));
+        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(77));
     else
         vel = -(info.mousey >> 6);
 

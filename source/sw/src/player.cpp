@@ -1642,7 +1642,6 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
                     sprite[pp->PlayerUnderSprite].ang = fix16_to_int(*pq16ang);
             }
         }
-
     }
 }
 
@@ -1829,7 +1828,6 @@ PlayerAutoLook(PLAYERp pp)
     int x,y,k,j;
     short tempsect;
 
-
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
         if ((PedanticMode || !TEST(pp->Flags, PF_MOUSE_AIMING_ON))
@@ -1841,8 +1839,7 @@ PlayerAutoLook(PLAYERp pp)
             tempsect = pp->cursectnum;
             COVERupdatesector(x, y, &tempsect);
 
-            if (tempsect >= 0)              // If the new point is inside a valid
-            // sector...
+            if (tempsect >= 0) // If the new point is inside a valid sector...
             {
                 // Get the floorz as if the new (x,y) point was still in
                 // your sector
@@ -1861,7 +1858,7 @@ PlayerAutoLook(PLAYERp pp)
                         pp->q16horizoff += fix16_from_int((((j - k) * 160) >> 16));
                     else
                         pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(mulscale16((j - k), 160))));
-		}
+                }
             }
         }
     }
@@ -1875,7 +1872,7 @@ PlayerAutoLook(PLAYERp pp)
                 pp->q16horizoff += fix16_from_int((((100 - fix16_to_int(pp->q16horizoff)) >> 3) + 1));
             else
                 pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(((fix16_from_int(100) - pp->q16horizoff) >> 3) + fix16_one))));
-	}
+        }
     }
     else
     {
@@ -1889,8 +1886,8 @@ PlayerAutoLook(PLAYERp pp)
             {
                 pp->q16horizoff = fix16_ssub(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((pp->q16horizoff >> 3) + fix16_one))));
                 pp->q16horizoff = fix16_max(pp->q16horizoff, 0);
-	    }
-	}
+            }
+        }
         if (pp->q16horizoff < 0)
         {
             if (PedanticMode)
@@ -1899,8 +1896,8 @@ PlayerAutoLook(PLAYERp pp)
             {
                 pp->q16horizoff = fix16_sadd(pp->q16horizoff, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float((-pp->q16horizoff >> 3) + fix16_one))));
                 pp->q16horizoff = fix16_min(pp->q16horizoff, 0);
-	    }
-	}
+            }
+        }
     }
 }
 
@@ -1920,9 +1917,9 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         return;
     }
 
-	// Fixme: This should probably be made optional.
-	if (cl_slopetilting)
-    PlayerAutoLook(pp);
+    // Fixme: This should probably be made optional.
+    if (cl_slopetilting)
+        PlayerAutoLook(pp);
 
     if (q16aimvel)
     {
@@ -1958,10 +1955,10 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
         {
             if (PedanticMode)
-		pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
+                pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
             else
                 pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
-	}
+        }
 
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
@@ -1973,7 +1970,6 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         }
     }
 
-
     // this is the unlocked type
     if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
     {
@@ -1984,10 +1980,10 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
         {
             if (PedanticMode)
-		pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
+                pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
             else
                 pp->q16horizbase = fix16_ssub(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
-	}
+        }
 
         // adjust *pq16horiz positive
         if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
@@ -1996,9 +1992,8 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
                 pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
-	}
+        }
     }
-
 
     if (!TEST(pp->Flags, PF_LOCK_HORIZ))
     {
@@ -2016,7 +2011,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
                         pp->q16horizbase += fix16_from_int(25 - (fix16_to_int(pp->q16horizbase) >> 2));
                     else
                         pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(fix16_to_float(fix16_ssub(fix16_from_int(25), fix16_sdiv(pp->q16horizbase, fix16_from_int(4)))))));
-		}
+                }
             }
             else
             {
