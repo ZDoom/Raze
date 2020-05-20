@@ -599,11 +599,6 @@ void G_DoCheats(void)
                         ud.volume_number = volnume;
                         ud.level_number = levnume;
 
-#if 0
-                        if (numplayers > 1 && g_netServer)
-                            Net_NewGame(volnume, levnume);
-                        else
-#endif
                             pPlayer->gm |= MODE_RESTART;
                     }
 
@@ -616,11 +611,6 @@ void G_DoCheats(void)
                         g_lastLevel = 0;
                     ud.player_skill = ud.m_player_skill;
 
-#if 0
-                    if (numplayers > 1 && g_netServer)
-                        Net_NewGame(ud.m_volume_number, m_level_number);
-                    else
-#endif
                         pPlayer->gm |= MODE_RESTART;
 
                     end_cheat(pPlayer);

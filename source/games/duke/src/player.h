@@ -421,7 +421,6 @@ inline void setpal(DukePlayer_t* pPlayer)
 
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
-int     P_GetHudPal(const DukePlayer_t *pPlayer);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 void madenoise(int playerNum);
 int haskey(int sect, int snum);
@@ -429,23 +428,7 @@ int haskey(int sect, int snum);
 // Get the player index given an TILE_APLAYER sprite pointer.
 static inline int P_GetP(const void *pSprite)
 {
-#if 0  // unprotected player index retrieval
-    return spr->yvel;
-#elif defined NETCODE_DISABLE
-    UNREFERENCED_PARAMETER(pSprite);  // for NDEBUG build
-    // NOTE: In the no-netcode build, there's no point to pass player indices
-    // at all since there is ever only one player. However, merely returning 0
-    // would mean making this build less strict than the normal one.
-    Bassert(((const uspritetype *)pSprite)->yvel == 0);
-    return 0;
-#else
-    int playerNum = ((const uspritetype *)pSprite)->yvel;
-    // [JM] Check against MAXPLAYERS as opposed to g_mostConcurrentPlayers
-    //      to prevent CON for disconnected/fake players from executing as playernum 0.
-    if ((unsigned)playerNum >= MAXPLAYERS)
-        playerNum = 0;
-    return playerNum;
-#endif
+    return ((const uspritetype*)pSprite)->yvel;
 }
 
 // Get the player index given an TILE_APLAYER sprite index.

@@ -2155,32 +2155,6 @@ int G_FindLevelByFile(const char *fileName)
     return MAXLEVELS * MAXVOLUMES;
 }
 
-#if 0
-static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t ticwait, int32_t tc)
-{
-    int32_t m = (step < 0) ? -1 : 1;
-
-    int32_t nexttic = totalclock;
-
-    for (; m*start <= m*end; start += step)
-    {
-        while (totalclock < nexttic)
-            sampletimer();
-        nexttic += ticwait;
-
-        if (inputState.GetKeyStatus(sc_Space))
-        {
-            inputState.ClearKeyStatus(sc_Space);
-            return;
-        }
-
-        setpalettefade(r,g,b,start);
-        flushperms();
-        G_DoLoadScreen(" ", tc);
-    }
-}
-#endif
-
 static int G_TryMapHack(const char *mhkfile)
 {
     int32_t failure = engineLoadMHK(mhkfile);

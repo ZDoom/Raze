@@ -354,7 +354,6 @@ extern void G_MaybeAllocPlayer(int32_t pnum);
 static inline void G_HandleAsync(void)
 {
     handleevents();
-    Net_GetPackets();
 }
 
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)

@@ -608,11 +608,6 @@ FString GameInterface::statFPS()
 				output.AppendFormat("G_MoveActors(): %.3f ms\n", g_moveActorsTime);
 				output.AppendFormat("G_MoveWorld(): %.3f ms\n", g_moveWorldTime);
             }
-
-            // lag meter
-#ifndef NETCODE_DISABLE
-            Net_PrintLag(output);
-#endif
         }
 
         if (cumulativeFrameDelay >= 1000.0)

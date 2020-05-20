@@ -34,10 +34,6 @@ int32_t PHEIGHT = PHEIGHT_DUKE;
 int32_t lastvisinc;
 hudweapon_t hudweap;
 
-#ifdef SPLITSCREEN_MOD_HACKS
-static int32_t g_snum;
-#endif
-
 extern int32_t g_levelTextTime, ticrandomseed;
 
 int32_t g_numObituaries = 0;

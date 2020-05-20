@@ -3891,9 +3891,6 @@ int GameInterface::app_main()
     if (g_scriptDebug)
         Printf("CON debugging activated (level %d).\n",g_scriptDebug);
 
-#ifndef NETCODE_DISABLE
-    Net_InitNetwork();
-#endif
     numplayers = 1;
     g_mostConcurrentPlayers = ud.multimode;
 

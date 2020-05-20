@@ -371,40 +371,6 @@ static int osdcmd_give(CCmdFuncPtr parm)
     return OSDCMD_SHOWHELP;
 }
 
-#if !defined NETCODE_DISABLE
-static int osdcmd_disconnect(CCmdFuncPtr UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-    // NUKE-TODO:
-    if (g_player[myconnectindex].ps->gm&MODE_MENU)
-        g_netDisconnect = 1;
-    return OSDCMD_OK;
-}
-
-static int osdcmd_connect(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
-
-    Net_Connect(parm->parms[0]);
-    G_BackToMenu();
-    return OSDCMD_OK;
-}
-
-static int osdcmd_password(CCmdFuncPtr parm)
-{
-    if (parm->numparms < 1)
-    {
-        Bmemset(g_netPassword, 0, sizeof(g_netPassword));
-        return OSDCMD_OK;
-    }
-    Bstrncpy(g_netPassword, (parm->raw) + 9, sizeof(g_netPassword)-1);
-
-    return OSDCMD_OK;
-}
-
-int osdcmd_listplayers(CCmdFuncPtr parm);
-#endif
 
 
 int32_t registerosdcommands(void)
@@ -417,32 +383,11 @@ int32_t registerosdcommands(void)
     }
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
-#if !defined NETCODE_DISABLE
-    C_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
-    C_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
-#endif
-
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
-#ifdef DEBUGGINGAIDS
-    C_RegisterFunction("inittimer","debug", osdcmd_inittimer);
-#endif
-#if !defined NETCODE_DISABLE
-#if 0
-    C_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
-    C_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
-#endif
-
-    C_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
-#endif
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
-#if !defined NETCODE_DISABLE
-    C_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
-#endif
-
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
 
     C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
