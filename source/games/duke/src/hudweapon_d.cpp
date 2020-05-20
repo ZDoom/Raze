@@ -1345,6 +1345,43 @@ void displayweapon_d(int snum)
 		//
 		//---------------------------------------------------------------------------
 
+		auto displayflamethrower = [&]()
+		{
+			if (sprite[p->i].pal == 1)
+				pal = 1;
+			else
+			{
+				if (p->cursectnum < 0)
+					pal = 0;
+				else
+					pal = sector[p->cursectnum].floorpal;
+			}
+
+			if (*kb < 1 || sector[p->cursectnum].lotag == 2)
+			{
+				hud_drawpal(weapon_xoffset + 210 - (p->look_ang >> 1), looking_arc + 261 - gun_pos, FLAMETHROWER, gs, o, pal);
+				hud_drawpal(weapon_xoffset + 210 - (p->look_ang >> 1), looking_arc + 261 - gun_pos, FLAMETHROWERPILOT, gs, o, pal);
+			}
+			else
+			{
+				static const uint8_t cat_frames[] = { 0, 0, 1, 1, 2, 2 };
+				if (sprite[p->i].pal != 1)
+				{
+					weapon_xoffset += krand() & 1;
+					looking_arc += krand() & 1;
+				}
+				gun_pos -= 16;
+				hud_drawpal(weapon_xoffset + 210 - (p->look_ang >> 1), looking_arc + 261 - gun_pos, FLAMETHROWER + 1, 32, o, pal);
+				hud_drawpal(weapon_xoffset + 210 - (p->look_ang >> 1), looking_arc + 235 - gun_pos, FLAMETHROWER + 2 + cat_frames[*kb % 6], -32, o, pal);
+			}
+		};
+
+		//---------------------------------------------------------------------------
+		//
+		//
+		//
+		//---------------------------------------------------------------------------
+
 
 		switch (cw)
 		{
@@ -1399,6 +1436,10 @@ void displayweapon_d(int snum)
 		case GROW_WEAPON:
 			if (isWW2GI()) displaygrower_ww();
 			else displayshrinker();
+			break;
+
+		case FLAMETHROWER_WEAPON:
+			displayflamethrower();
 			break;
 		}
 	}
