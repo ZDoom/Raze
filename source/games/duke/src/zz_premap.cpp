@@ -303,70 +303,13 @@ void P_ResetPlayer(int playerNum)
     actor[pPlayer->i].owner        = pPlayer->i;
     actor[pPlayer->i].t_data[4]    = 0;
 
-    P_ResetInventory(playerNum);
+    resetinventory(playerNum);
     resetweapons(playerNum);
 
     //pPlayer->reloading     = 0;
     pPlayer->movement_lock = 0;
 }
 
-void P_ResetInventory(int playerNum)
-{
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-
-    Bmemset(pPlayer->inv_amount, 0, sizeof(pPlayer->inv_amount));
-
-    pPlayer->scuba_on               = 0;
-    pPlayer->heat_on                = 0;
-    pPlayer->jetpack_on             = 0;
-    pPlayer->holoduke_on            = -1;
-    pPlayer->inven_icon             = ICON_NONE;
-    pPlayer->inv_amount[GET_SHIELD] = max_armour_amount;
-
-    if (RR)
-    {
-        if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_ACCESSATSTART))
-        {
-            pPlayer->keys[0] = 1;
-            pPlayer->keys[1] = 1;
-            pPlayer->keys[2] = 1;
-            pPlayer->keys[3] = 1;
-            pPlayer->keys[4] = 1;
-        }
-        else
-        {
-            pPlayer->keys[0] = 0;
-            pPlayer->keys[1] = 0;
-            pPlayer->keys[2] = 0;
-            pPlayer->keys[3] = 0;
-            pPlayer->keys[4] = 0;
-        }
-
-        pPlayer->drunkang = pPlayer->eatang = 1647;
-        pPlayer->drink_amt = pPlayer->eat = 0;
-        pPlayer->drink_timer = pPlayer->eat_timer = 4096;
-        pPlayer->shotgun_state[0] = pPlayer->shotgun_state[1] = 0;
-        pPlayer->detonate_time = 0;
-        pPlayer->detonate_count = 0;
-        pPlayer->recoil = 0;
-        pPlayer->yehaa_timer = 0;
-        resetlanepics();
-        if (!g_netServer && numplayers < 2)
-        {
-            g_ufoSpawn = min(ud.m_player_skill*4+1, 32);
-            g_ufoCnt = 0;
-            g_hulkSpawn = ud.m_player_skill + 1;
-        }
-        else
-        {
-            g_ufoSpawn = 32;
-            g_ufoCnt = 0;
-            g_hulkSpawn = 2;
-        }
-    }
-
-    VM_OnEvent(EVENT_RESETINVENTORY, pPlayer->i, playerNum);
-}
 
 static void resetprestat(int playerNum, int gameMode)
 {
@@ -426,7 +369,7 @@ static void resetprestat(int playerNum, int gameMode)
         || (!(g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
         resetweapons(playerNum);
-        P_ResetInventory(playerNum);
+        resetinventory(playerNum);
     }
     else if (pPlayer->curr_weapon == HANDREMOTE_WEAPON && !isRR())
     {
@@ -1622,7 +1565,7 @@ int G_EnterLevel(int gameMode)
             case FLOORSLIME__STATIC:
             case FLOORPLASMA__STATIC:
                 resetweapons(i);
-                P_ResetInventory(i);
+                resetinventory(i);
 
                 g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);
                 g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;

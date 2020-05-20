@@ -36,7 +36,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);
 void G_UpdateScreenArea(void);
 void P_RandomSpawnPoint(int playerNum);
-void P_ResetInventory(int playerNum);
+void resetinventory(int playerNum);
 void P_ResetPlayer(int playerNum);
 void resetplayerstats(int playerNum);
 void resetweapons(int playerNum);

@@ -303,25 +303,28 @@ void resetweapons(int snum)
 //
 //---------------------------------------------------------------------------
 
-void resetinventory(short snum)
+void resetinventory(int snum)
 {
-    struct player_struct *p;
+    struct player_struct* p;
 
     p = &ps[snum];
 
-    p->inven_icon       = 0;
+    p->inven_icon = 0;
     p->boot_amount = 0;
-    p->scuba_on =           0;p->scuba_amount =         0;
-    p->heat_amount        = 0;p->heat_on = 0;
-    p->jetpack_on =         0;p->jetpack_amount =       0;
-    p->shield_amount =      max_armour_amount;
+    p->scuba_on = 0;
+    p->scuba_amount = 0;
+    p->heat_amount = 0;
+    p->heat_on = 0;
+    p->jetpack_on = 0;
+    p->jetpack_amount = 0;
+    p->shield_amount = max_armour_amount;
     p->holoduke_on = -1;
-    p->holoduke_amount =    0;
+    p->holoduke_amount = 0;
     p->firstaid_amount = 0;
     p->steroids_amount = 0;
     p->inven_icon = 0;
 
-    if (ud.multimode > 1 && ud.coop != 1)
+    if (isRR() && ud.multimode > 1 && ud.coop != 1)
     {
         p->keys[0] = 1;
         p->keys[1] = 1;
@@ -354,9 +357,7 @@ void resetinventory(short snum)
 
     if (numplayers < 2)
     {
-        ufospawn = ud.m_player_skill*4+1;
-        if (ufospawn > 32)
-            ufospawn = 32;
+        ufospawn = std::min(ud.m_player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.m_player_skill + 1;
     }
@@ -366,6 +367,7 @@ void resetinventory(short snum)
         ufocnt = 0;
         hulkspawn = 2;
     }
+    OnEvent(EVENT_RESETINVENTORY, snum, p->i);
 }
 
 

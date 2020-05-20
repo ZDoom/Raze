@@ -4064,8 +4064,8 @@ MAIN_LOOP_RESTART:
 
             for (bssize_t TRAVERSE_CONNECT(i))
             {
-                P_ResetWeapons(i);
-                P_ResetInventory(i);
+                resetweapons(i);
+                resetinventory(i);
             }
 
             G_NewGame_EnterLevel();
