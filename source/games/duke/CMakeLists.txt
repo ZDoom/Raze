@@ -18,6 +18,9 @@ set( PCH_SOURCES
 	src/player_d.cpp
 	src/player_r.cpp
 	src/player_w.cpp
+	src/premap.cpp
+	src/premap_d.cpp
+	src/premap_r.cpp
 	src/sectors.cpp
 	src/sectors_d.cpp
 	src/sectors_r.cpp
@@ -30,7 +33,6 @@ set( PCH_SOURCES
 	src/zz_cheats.cpp
 	src/zz_cmdline.cpp
 	src/zz_common.cpp
-	src/zz_config.cpp
 	src/zz_d_menu.cpp
 	src/zz_demo.cpp
 	src/zz_game.cpp

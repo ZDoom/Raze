@@ -38,7 +38,7 @@ void G_UpdateScreenArea(void);
 void P_RandomSpawnPoint(int playerNum);
 void P_ResetInventory(int playerNum);
 void P_ResetPlayer(int playerNum);
-void P_ResetStatus(int playerNum);
+void resetplayerstats(int playerNum);
 void P_ResetWeapons(int playerNum);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);

@@ -626,31 +626,6 @@ void G_CacheMapData(void)
 
         if ((j&7) == 0)
             G_HandleAsync();
-
-#if 0
-        if (bpp > 8 && totalclock - tc > TICRATE/4)
-        {
-            /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
-            int percentage = min(100, tabledivide32_noinline(100 * pc, g_precacheCount));
-
-            while (percentage > lpc)
-            {
-                G_HandleAsync();
-                Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
-                G_DoLoadScreen(tempbuf, lpc);
-
-                if (totalclock - tc >= 1)
-                {
-                    tc = (int32_t) totalclock;
-                    lpc++;
-                }
-
-//                Printf("percentage %d lpc %d\n", percentage, lpc);
-            }
-
-            tc = (int32_t) totalclock;
-        }
-#endif
     }
 
     Bmemset(gotpic, 0, sizeof(gotpic));
@@ -727,7 +702,7 @@ void P_RandomSpawnPoint(int playerNum)
 
     if ((g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
-        i = krand2() % g_playerSpawnCnt;
+        i = krand2() % numplayersprites;
 
         if (g_gametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
@@ -736,7 +711,7 @@ void P_RandomSpawnPoint(int playerNum)
             {
                 if (j != playerNum && g_player[j].ps->team == pPlayer->team && sprite[g_player[j].ps->i].extra > 0)
                 {
-                    for (bssize_t k=0; k<g_playerSpawnCnt; k++)
+                    for (bssize_t k=0; k<numplayersprites; k++)
                     {
                         uint32_t dist = FindDistance2D(g_player[j].ps->pos.x - g_playerSpawnPoints[k].pos.x,
                                               g_player[j].ps->pos.y - g_playerSpawnPoints[k].pos.y);
@@ -830,6 +805,7 @@ void P_ResetPlayer(int playerNum)
     pPlayer->movement_lock = 0;
 }
 
+#if 0
 void P_ResetStatus(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
@@ -1011,7 +987,7 @@ void P_ResetStatus(int playerNum)
         }
     }
 }
-
+#endif
 void P_ResetWeapons(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
@@ -1972,7 +1948,7 @@ static void resetpspritevars(char gameMode)
             }
         }
 
-    P_ResetStatus(0);
+    resetplayerstats(0);
 
     for (TRAVERSE_CONNECT(i))
         if (i) Bmemcpy(g_player[i].ps,g_player[0].ps,sizeof(DukePlayer_t));
@@ -1995,7 +1971,7 @@ static void resetpspritevars(char gameMode)
             }
         }
 
-    g_playerSpawnCnt = 0;
+    numplayersprites = 0;
 //    circ = 2048/ud.multimode;
 
     g_whichPalForPlayer = 9;
@@ -2006,16 +1982,16 @@ static void resetpspritevars(char gameMode)
         const int32_t nexti = nextspritestat[i];
         spritetype *const s = &sprite[i];
 
-        if (g_playerSpawnCnt == MAXPLAYERS)
+        if (numplayersprites == MAXPLAYERS)
             G_GameExit("\nToo many player sprites (max 16.)");
 
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.x = s->x;
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.y = s->y;
-        g_playerSpawnPoints[g_playerSpawnCnt].pos.z = s->z;
-        g_playerSpawnPoints[g_playerSpawnCnt].ang   = s->ang;
-        g_playerSpawnPoints[g_playerSpawnCnt].sect  = s->sectnum;
+        g_playerSpawnPoints[numplayersprites].pos.x = s->x;
+        g_playerSpawnPoints[numplayersprites].pos.y = s->y;
+        g_playerSpawnPoints[numplayersprites].pos.z = s->z;
+        g_playerSpawnPoints[numplayersprites].ang   = s->ang;
+        g_playerSpawnPoints[numplayersprites].sect  = s->sectnum;
 
-        g_playerSpawnCnt++;
+        numplayersprites++;
 
         if (j < MAXPLAYERS)
         {

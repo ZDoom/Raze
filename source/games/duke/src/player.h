@@ -113,7 +113,11 @@ typedef struct {
         vec3_t pos;
         struct { int ox, oy, oz; };
     };
-    int16_t ang;
+    union
+    {
+        int16_t oa;
+        int16_t ang;
+    };
     union
     {
         int16_t sect;
@@ -189,6 +193,7 @@ typedef struct player_struct {
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
     void sethoriz(int v) { q16horiz = (v << FRACBITS); }
+    void sethorizoff(int v) { q16horizoff = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }
     int gethorizof() { return q16horizoff >> FRACBITS; }
     int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
@@ -297,6 +302,9 @@ typedef struct player_struct {
 #define at57c detonate_time
 #define at58e drink_timer
 #define at592 eat_timer
+#define raat5f1 drug_stat[0]
+#define raat5f3 drug_stat[1]
+#define raat5f5 drug_stat[2]
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct

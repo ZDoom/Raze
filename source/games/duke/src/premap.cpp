@@ -1,0 +1,485 @@
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2017-2019 Nuke.YKT
+
+This file is part of Duke Nukem 3D version 1.5 - Atomic Edition
+
+Duke Nukem 3D is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Original Source: 1996 - Todd Replogle
+Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
+*/
+//-------------------------------------------------------------------------
+
+#include "ns.h"
+#include "global.h"
+
+BEGIN_DUKE_NS  
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void pickrandomspot(short snum)
+{
+    struct player_struct *p;
+    short i;
+
+    p = &ps[snum];
+
+    if( ud.multimode > 1 && ud.coop != 1)
+        i = krand()%numplayersprites;
+    else i = snum;
+
+    p->bobposx = p->oposx = p->posx = po[i].ox;
+    p->bobposy = p->oposy = p->posy = po[i].oy;
+    p->oposz = p->posz = po[i].oz;
+    p->setang(po[i].oa);
+    p->cursectnum = po[i].os;
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void resetplayerstats(int snum)
+{
+    struct player_struct *p;
+
+    p = &ps[snum];
+
+    gFullMap = 0; 
+    p->dead_flag        = 0;
+    p->wackedbyactor    = -1;
+    p->falling_counter  = 0;
+    p->quick_kick       = 0;
+    p->subweapon        = 0;
+    p->last_full_weapon = 0;
+    p->ftq              = 0;
+    p->fta              = 0;
+    p->tipincs          = 0;
+    p->buttonpalette    = 0;
+    p->actorsqu         =-1;
+    p->invdisptime      = 0;
+    p->refresh_inventory= 0;
+    p->last_pissed_time = 0;
+    p->holster_weapon   = 0;
+    p->pycount          = 0;
+    p->pyoff            = 0;
+    p->opyoff           = 0;
+    p->loogcnt          = 0;
+    //p->angvel           = 0;
+    p->weapon_sway      = 0;
+//    p->select_dir       = 0;
+    p->extra_extra8     = 0;
+    p->show_empty_weapon= 0;
+    p->dummyplayersprite=-1;
+    p->crack_time       = 0;
+    p->hbomb_hold_delay = 0;
+    p->transporter_hold = 0;
+    p->wantweaponfire  = -1;
+    p->hurt_delay       = 0;
+    p->hurt_delay2      = 0;
+    p->footprintcount   = 0;
+    p->footprintpal     = 0;
+    p->footprintshade   = 0;
+    p->jumping_toggle   = 0;
+    p->sethoriz(140);                                   //!!
+    //p->oq16horiz = p->q16horiz;
+    p->sethorizoff(0);
+    p->bobcounter       = 0;
+    p->on_ground        = 0;
+    p->player_par       = 0;
+    p->return_to_center = 9;
+    p->airleft          = 15*26;
+    p->rapid_fire_hold  = 0;
+    p->toggle_key_flag  = 0;
+    p->access_spritenum = -1;
+    if(ud.multimode > 1 && ud.coop != 1 )
+        p->got_access = 7;
+    else p->got_access      = 0;
+    p->random_club_frame= 0;
+    pus = 1;
+    p->on_warping_sector = 0;
+    p->spritebridge      = 0;
+    p->palette = 0;
+
+    if(p->steroids_amount < 400 )
+    {
+        p->steroids_amount = 0;
+        p->inven_icon = 0;
+    }
+    p->heat_on =            0;
+    p->jetpack_on =         0;
+    p->holoduke_on =       -1;
+
+    p->look_ang          = 512 - ((ud.level_number&1)<<10);
+
+    p->rotscrnang        = 0;
+    p->orotscrnang       = 1;	// JBF 20031220
+    p->newowner          =-1;
+    p->jumping_counter   = 0;
+    p->hard_landing      = 0;
+    p->posxv             = 0;                           //!!
+    p->posyv             = 0;
+    p->poszv             = 0;
+    p->fric.x            = 0;
+    p->fric.y            = 0;
+    p->somethingonplayer =-1;
+    p->one_eighty_count  = 0;
+    p->cheat_phase       = 0;
+
+    p->on_crane          = -1;
+
+    if(p->curr_weapon == PISTOL_WEAPON)
+        p->kickback_pic  = isRR()? 22 : 5;
+    else p->kickback_pic = 0;
+
+    p->weapon_pos        = 6;
+    p->walking_snd_toggle= 0;
+    p->weapon_ang        = 0;
+
+    p->knuckle_incs      = 1;
+    p->fist_incs = 0;
+    p->knee_incs         = 0;
+    setpal(p);
+    p->stairs = 0;
+    //p->fogtype = 0;
+    p->noise_x = 0;
+    p->noise_y = 0;
+    p->make_noise = 0;
+    p->noise_radius = 0;
+    if (isRR() && ud.multimode > 1 && ud.coop != 1)
+    {
+        p->keys[0] = 1;
+        p->keys[1] = 1;
+        p->keys[2] = 1;
+        p->keys[3] = 1;
+        p->keys[4] = 1;
+    }
+    else
+    {
+        p->keys[0] = 0;
+        p->keys[1] = 0;
+        p->keys[2] = 0;
+        p->keys[3] = 0;
+        p->keys[4] = 0;
+    }
+    wupass = 0;
+    //p->at582 = 0;
+    p->drunkang = 1647;
+    p->eatang = 1647;
+    p->drink_amt = 0;
+    p->eat = 0;
+    p->drink_timer = 4096;
+    p->eat_timer = 4096;
+    p->shotgun_state[0] = 0;
+    p->shotgun_state[1] = 0;
+    p->detonate_time = 0;
+    p->detonate_count = 0;
+    p->recoil = 0;
+    p->yehaa_timer = 0;
+    chickenphase = 0;
+    if (p->OnMotorcycle)
+    {
+        p->OnMotorcycle = 0;
+        p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+        p->curr_weapon = isRRRA()? SLINGBLADE_WEAPON : KNEE_WEAPON;	// just in case this is made available for the other games
+    }
+    p->lotag800kill = 0;
+    p->moto_do_bump = 0;
+    p->MotoOnGround = 1;
+    p->moto_underwater = 0;
+    p->MotoSpeed = 0;
+    p->TiltStatus = 0;
+    p->moto_drink = 0;
+    p->VBumpTarget = 0;
+    p->VBumpNow  =0;
+    p->moto_bump_fast = 0;
+    p->TurbCount = 0;
+    p->moto_on_mud = 0;
+    p->moto_on_oil = 0;
+    if (p->OnBoat)
+    {
+        p->OnBoat = 0;
+        p->gotweapon.Clear(BOAT_WEAPON);
+        p->curr_weapon = isRRRA()? SLINGBLADE_WEAPON : KNEE_WEAPON;	// just in case this is made available for the other games
+    }
+    p->NotOnWater = 0;
+    p->SeaSick = 0;
+    p->nocheat = 0;
+    p->DrugMode = 0;
+    p->drug_stat[0] = 0;
+    p->drug_stat[1] = 0;
+    p->drug_stat[2] = 0;
+    p->drug_aspect = 0;
+    resetlanepics();
+
+    if (numplayers < 2)
+    {
+        ufospawn = isRRRA()? 3 : std::min(ud.m_player_skill*4+1, 32);
+        ufocnt = 0;
+        hulkspawn = ud.m_player_skill + 1;
+    }
+    else
+    {
+        ufospawn = isRRRA()? 0 :32;
+        ufocnt = 0;
+        hulkspawn = isRRRA()? 0 :2;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void resetweapons(int snum)
+{
+    short  weapon;
+    struct player_struct *p;
+
+    p = &ps[snum];
+
+    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
+        p->gotweapon.Clear(weapon);
+    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
+        p->ammo_amount[weapon] = 0;
+
+    p->weapon_pos = 6;
+    p->kickback_pic = 5;
+    p->curr_weapon = PISTOL_WEAPON;
+    p->gotweapon.Set(PISTOL_WEAPON);
+    p->gotweapon.Set(KNEE_WEAPON);
+    p->ammo_amount[PISTOL_WEAPON] = 48;
+    p->gotweapon.Set(HANDREMOTE_WEAPON);
+    p->last_weapon = -1;
+
+    p->show_empty_weapon= 0;
+    p->last_pissed_time = 0;
+    p->holster_weapon = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void resetinventory(short snum)
+{
+    struct player_struct *p;
+
+    p = &ps[snum];
+
+    p->inven_icon       = 0;
+    p->boot_amount = 0;
+    p->scuba_on =           0;p->scuba_amount =         0;
+    p->heat_amount        = 0;p->heat_on = 0;
+    p->jetpack_on =         0;p->jetpack_amount =       0;
+    p->shield_amount =      max_armour_amount;
+    p->holoduke_on = -1;
+    p->holoduke_amount =    0;
+    p->firstaid_amount = 0;
+    p->steroids_amount = 0;
+    p->inven_icon = 0;
+
+    if (ud.multimode > 1 && ud.coop != 1)
+    {
+        p->keys[0] = 1;
+        p->keys[1] = 1;
+        p->keys[2] = 1;
+        p->keys[3] = 1;
+        p->keys[4] = 1;
+    }
+    else
+    {
+        p->keys[0] = 0;
+        p->keys[1] = 0;
+        p->keys[2] = 0;
+        p->keys[3] = 0;
+        p->keys[4] = 0;
+    }
+
+    p->drunkang = 1647;
+    p->eatang = 1647;
+    p->drink_amt = 0;
+    p->eat = 0;
+    p->drink_timer = 0;
+    p->eat_timer = 0;
+    p->shotgun_state[0] = 0;
+    p->shotgun_state[1] = 0;
+    p->detonate_time = 0;
+    p->detonate_count = 0;
+    p->recoil = 0;
+    p->yehaa_timer = 0;
+    resetlanepics();
+
+    if (numplayers < 2)
+    {
+        ufospawn = ud.m_player_skill*4+1;
+        if (ufospawn > 32)
+            ufospawn = 32;
+        ufocnt = 0;
+        hulkspawn = ud.m_player_skill + 1;
+    }
+    else
+    {
+        ufospawn = 32;
+        ufocnt = 0;
+        hulkspawn = 2;
+    }
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void resetprestat(short snum,char g)
+{
+    struct player_struct *p;
+    short i;
+
+    p = &ps[snum];
+
+    spriteqloc = 0;
+    for(i=0;i<spriteqamount;i++) spriteq[i] = -1;
+
+    p->hbomb_on          = 0;
+    p->cheat_phase       = 0;
+    p->pals.f         = 0;
+    p->toggle_key_flag   = 0;
+    p->secret_rooms      = 0;
+    p->max_secret_rooms  = 0;
+    p->actors_killed     = 0;
+    p->max_actors_killed = 0;
+    p->lastrandomspot = 0;
+    p->weapon_pos = 6;
+    p->kickback_pic = 5;
+    p->last_weapon = -1;
+    p->weapreccnt = 0;
+    p->show_empty_weapon= 0;
+    p->holster_weapon = 0;
+    p->last_pissed_time = 0;
+
+    p->one_parallax_sectnum = -1;
+    p->visibility = ud.const_visibility;
+
+    screenpeek              = myconnectindex;
+    numanimwalls            = 0;
+    numcyclers              = 0;
+    animatecnt              = 0;
+    parallaxtype            = 0;
+    randomseed              = 17L;
+    ud.pause_on             = 0;
+    ud.camerasprite         =-1;
+    ud.eog                  = 0;
+    tempwallptr             = 0;
+    camsprite               =-1;
+    earthquaketime          = 0;
+
+    WindTime = 0;
+    WindDir = 0;
+    fakebubba_spawn = 0;
+    RRRA_ExitedLevel = 0;
+    BellTime = 0;
+    g_bellSprite = 0;
+
+    //numinterpolations = 0;
+    //startofdynamicinterpolations = 0;
+
+    if( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (ud.coop != 1 && numplayers > 1) )
+    {
+        resetweapons(snum);
+        resetinventory(snum);
+    }
+    else if(p->curr_weapon == HANDREMOTE_WEAPON)
+    {
+        p->ammo_amount[HANDBOMB_WEAPON]++;
+        p->curr_weapon = HANDBOMB_WEAPON;
+    }
+
+    p->timebeforeexit   = 0;
+    p->customexitsound  = 0;
+
+    p->stairs = 0;
+    //if (!isRRRA()) p->fogtype = 0;
+    p->noise_x = 131072;
+    p->noise_y = 131072;
+    p->make_noise = 0;
+    p->noise_radius = 0;
+
+    if (ud.multimode > 1 && ud.coop != 1)
+    {
+        p->keys[0] = 1;
+        p->keys[1] = 1;
+        p->keys[2] = 1;
+        p->keys[3] = 1;
+        p->keys[4] = 1;
+    }
+    else
+    {
+        p->keys[0] = 0;
+        p->keys[1] = 0;
+        p->keys[2] = 0;
+        p->keys[3] = 0;
+        p->keys[4] = 0;
+    }
+
+    p->drunkang = 1647;
+    p->eatang = 1647;
+    p->drink_amt = 0;
+    p->eat = 0;
+    p->drink_timer = 0;
+    p->eat_timer = 0;
+    p->shotgun_state[0] = 0;
+    p->shotgun_state[1] = 0;
+    p->detonate_time = 0;
+    p->detonate_count = 0;
+    p->recoil = 0;
+    p->yehaa_timer = 0;
+    resetlanepics();
+
+    if (numplayers < 2)
+    {
+        ufospawn = ud.m_player_skill*4+1;
+        if (ufospawn > 32)
+            ufospawn = 32;
+        ufocnt = 0;
+        hulkspawn = ud.m_player_skill + 1;
+    }
+    else
+    {
+        ufospawn = 32;
+        ufocnt = 0;
+        hulkspawn = 2;
+    }
+
+}
+
+
+END_DUKE_NS  

@@ -464,4 +464,10 @@ void videoShowFrame(int32_t w)
 	twod->Clear();
 }
 
+void markTileForPrecache(int tilenum, int palnum)
+{
+}
 
+void precacheMarkedTiles()
+{
+}
