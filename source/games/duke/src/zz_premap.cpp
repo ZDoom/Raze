@@ -304,45 +304,10 @@ void P_ResetPlayer(int playerNum)
     actor[pPlayer->i].t_data[4]    = 0;
 
     P_ResetInventory(playerNum);
-    P_ResetWeapons(playerNum);
+    resetweapons(playerNum);
 
     //pPlayer->reloading     = 0;
     pPlayer->movement_lock = 0;
-}
-
-void P_ResetWeapons(int playerNum)
-{
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-
-    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
-        pPlayer->ammo_amount[weaponNum] = 0;
-
-    pPlayer->weapon_pos                 = WEAPON_POS_START;
-    pPlayer->curr_weapon                = PISTOL_WEAPON;
-    pPlayer->kickback_pic               = 5;
-    pPlayer->gotweapon.Zero();
-    pPlayer->gotweapon.Set(PISTOL_WEAPON);
-    pPlayer->gotweapon.Set(KNEE_WEAPON);
-    pPlayer->gotweapon.Set(HANDREMOTE_WEAPON);
-    pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
-    if (RRRA)
-    {
-        chickenphase = 0;
-        pPlayer->gotweapon.Set(SLINGBLADE_WEAPON);
-        pPlayer->ammo_amount[KNEE_WEAPON] = 1;
-        pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
-        pPlayer->OnMotorcycle = 0;
-        pPlayer->moto_underwater = 0;
-        pPlayer->OnBoat = 0;
-        pPlayer->lotag800kill = 0;
-    }
-    pPlayer->last_weapon                = -1;
-    pPlayer->show_empty_weapon          = 0;
-    pPlayer->last_pissed_time           = 0;
-    pPlayer->holster_weapon             = 0;
-    pPlayer->last_used_weapon           = -1;
-    
-    VM_OnEvent(EVENT_RESETWEAPONS, pPlayer->i, playerNum);
 }
 
 void P_ResetInventory(int playerNum)
@@ -460,7 +425,7 @@ static void resetprestat(int playerNum, int gameMode)
     if (((gameMode & MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer)
         || (!(g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
-        P_ResetWeapons(playerNum);
+        resetweapons(playerNum);
         P_ResetInventory(playerNum);
     }
     else if (pPlayer->curr_weapon == HANDREMOTE_WEAPON && !isRR())
@@ -1656,7 +1621,7 @@ int G_EnterLevel(int gameMode)
             case HURTRAIL__STATIC:
             case FLOORSLIME__STATIC:
             case FLOORPLASMA__STATIC:
-                P_ResetWeapons(i);
+                resetweapons(i);
                 P_ResetInventory(i);
 
                 g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);

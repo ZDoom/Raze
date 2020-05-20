@@ -262,23 +262,39 @@ void resetweapons(int snum)
 
     p = &ps[snum];
 
-    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
-        p->gotweapon.Clear(weapon);
-    for ( weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++ )
+    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
+    {
         p->ammo_amount[weapon] = 0;
+    }
 
+    p->gotweapon.Zero();
     p->weapon_pos = 6;
     p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon.Set(PISTOL_WEAPON);
     p->gotweapon.Set(KNEE_WEAPON);
-    p->ammo_amount[PISTOL_WEAPON] = 48;
+    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon.Set(HANDREMOTE_WEAPON);
     p->last_weapon = -1;
 
     p->show_empty_weapon= 0;
     p->last_pissed_time = 0;
     p->holster_weapon = 0;
+
+    // Always clear these, even for non-RRRA
+    p->OnMotorcycle = 0;
+    p->moto_underwater = 0;
+    p->OnBoat = 0;
+    p->lotag800kill = 0;
+
+    if (isRRRA())
+    {
+        chickenphase = 0;
+        p->ammo_amount[KNEE_WEAPON] = 1;
+        p->gotweapon.Set(SLINGBLADE_WEAPON);
+        p->ammo_amount[SLINGBLADE_WEAPON] = 1;
+    }
+    OnEvent(EVENT_RESETWEAPONS, -1, snum, -1);
 }
 
 //---------------------------------------------------------------------------

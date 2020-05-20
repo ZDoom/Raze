@@ -433,22 +433,6 @@ void cacheit_r(void)
 }
 
 #if 0
-void resetweapons_r(int snum)
-{
-    resetweapons(snum);
-    if (isRRRA())
-    {
-        auto p = &ps[snum];
-        p->chickenphase = 0;
-        p->ammo_amount[KNEE_WEAPON] = 1;
-        p->gotweapon[SLINGBLADE_WEAPON] = 1;
-        p->ammo_amount[SLINGBLADE_WEAPON] = 1;
-        p->OnMotorcycle = 0;
-        p->moto_underwater = 0;
-        p->OnBoat = 0;
-        p->MamaEnd = 0;
-    }
-}
 //---------------------------------------------------------------------------
 //
 //

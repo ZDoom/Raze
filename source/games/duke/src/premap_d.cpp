@@ -265,11 +265,6 @@ void cacheit_d(void)
 }
 
 #if 0
-void resetweapons_w(int snum)
-{
-    resetweapons(snum);
-    OnEvent(EVENT_RESETWEAPONS, -1, snum, -1);
-}
 
 //---------------------------------------------------------------------------
 //

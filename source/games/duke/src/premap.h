@@ -39,7 +39,7 @@ void P_RandomSpawnPoint(int playerNum);
 void P_ResetInventory(int playerNum);
 void P_ResetPlayer(int playerNum);
 void resetplayerstats(int playerNum);
-void P_ResetWeapons(int playerNum);
+void resetweapons(int playerNum);
 void G_ClearFIFO(void);
 void G_ResetInterpolations(void);
 extern int32_t fragbarheight(void);
