@@ -2016,7 +2016,7 @@ drawscreen(PLAYERp pp)
     if (PedanticMode || pp->sop_control ||
         pp == Player+myconnectindex && TEST(pp->Flags, PF_DEAD))
     {
-        tq16ang = camerapp->oq16ang + mulscale16(((camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
+        tq16ang = camerapp->oq16ang + mulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio);
         tq16horiz = camerapp->oq16horiz + mulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio);
     }
     else
@@ -2127,7 +2127,7 @@ drawscreen(PLAYERp pp)
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
-        JS_DrawCameras(pp, tx, ty, tz, tq16ang, tq16horiz);
+        JS_DrawCameras(pp, tx, ty, tz);
     }
 
     screen->BeginScene();

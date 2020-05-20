@@ -524,16 +524,13 @@ short camplayerview = 1;                // Don't show yourself!
 // Hack job alert!
 // Mirrors and cameras are maintained in the same data structure, but for hardware rendering they cannot be interleaved.
 // So this function replicates JS_DrawMirrors to only process the camera textures but not change any global state.
-void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, fix16_t tpq16ang, fix16_t tpq16horiz)
+void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 {
     int j, cnt;
     int dist;
     int tposx, tposy; // Camera
     int* longptr;
-    fix16_t tang;
 
-    //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
-        // drift!
     SWBOOL bIsWallMirror = FALSE;
 
     camloopcnt += (int32_t)(totalclock - ototalclock);
@@ -717,7 +714,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, fix16_t tpq16ang, fix16_
     }
 }
 
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, fix16_t tpq16ang, fix16_t tpq16horiz)
+void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16_t tpq16horiz)
 {
     int j, cnt;
     int dist;
@@ -755,7 +752,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, fix16_t tpq16ang, fix16_
 //                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 //                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
 //                tz = pp->oposz + mulscale16(pp->posz - pp->oposz, smoothratio);
-//                tpq16ang = pp->oq16ang + mulscale16(((pp->q16ang + fix16_from_int(1024) - pp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio);
+//                tpq16ang = pp->q16ang;
 
 
                 dist = 0x7fffffff;
