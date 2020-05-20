@@ -393,22 +393,16 @@ int hits(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
-void    sub_299C0(void);
-void    P_DHGetInput(int const playerNum);
 void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
 inline void addammo(int weaponNum, DukePlayer_t* pPlayer, int addAmount)
 {
     P_AddAmmo(pPlayer, weaponNum, addAmount);
 }
-void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayWeapon(void);
 void checkweapons(DukePlayer_t* const pPlayer);
 int findotherplayer(int p, int* d);
 void    P_FragPlayer(int playerNum);
-#ifdef YAX_ENABLE
-void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ);
-#endif
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_DHProcessInput(int playerNum);

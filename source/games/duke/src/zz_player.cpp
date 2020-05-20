@@ -892,25 +892,6 @@ void P_GetInputBoat(int playerNum)
     localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
-int dword_A99D4, dword_A99D8, dword_A99DC, dword_A99E0;
-int dword_164620, dword_164624;
-
-void sub_299C0(void)
-{
-    dword_A99D8 = 0;
-    dword_A99DC = 0;
-}
-
-int sub_299D8(void)
-{
-    if ((int)totalclock - dword_A99D8 >= 30 && buttonMap.ButtonDown(gamefunc_Crouch))
-    {
-        dword_A99D8 = (int)totalclock;
-        dword_A99DC ^= 1;
-    }
-    return dword_A99DC;
-}
-
 void madenoise(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
@@ -932,59 +913,10 @@ void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addA
         pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
 }
 
-void P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum)
-{
-    fi.addweapon(pPlayer, weaponNum);
-}
-
-
 void P_CheckWeapon(DukePlayer_t *pPlayer)
 {
     checkavailweapon(pPlayer);
 }
-
-#ifdef YAX_ENABLE
-void getzsofslope_player(int sectNum, int playerX, int playerY, int32_t *pCeilZ, int32_t *pFloorZ)
-{
-    int didCeiling = 0;
-
-    if ((sector[sectNum].ceilingstat & 512) == 0)
-    {
-        int const neighborSect = yax_getneighborsect(playerX, playerY, sectNum, YAX_CEILING);
-
-        if (neighborSect >= 0)
-        {
-            *pCeilZ    = getceilzofslope(neighborSect, playerX, playerY);
-            didCeiling = 1;
-        }
-    }
-
-    int didFloor   = 0;
-
-    if ((sector[sectNum].floorstat & 512) == 0)
-    {
-        int const neighborSect = yax_getneighborsect(playerX, playerY, sectNum, YAX_FLOOR);
-
-        if (neighborSect >= 0)
-        {
-            *pFloorZ = getflorzofslope(neighborSect, playerX, playerY);
-            didFloor = 1;
-        }
-    }
-
-    if (!didCeiling || !didFloor)
-    {
-        int32_t ceilingZ, floorZ;
-        getzsofslope(sectNum, playerX, playerY, &ceilingZ, &floorZ);
-
-        if (!didCeiling)
-            *pCeilZ = ceilingZ;
-
-        if (!didFloor)
-            *pFloorZ = floorZ;
-    }
-}
-#endif
 
 void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 {
