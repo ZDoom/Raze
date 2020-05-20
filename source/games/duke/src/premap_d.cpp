@@ -229,7 +229,7 @@ static void cachegoodsprites(void)
 //
 //---------------------------------------------------------------------------
 
-void cacheit(void)
+void cacheit_d(void)
 {
     int i, j;
 

@@ -4274,7 +4274,7 @@ void polymost_initosdfuncs(void)
 {
 }
 
-static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
+void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 {
     // dapicnum and dapalnum are like you'd expect
     // datype is 0 for a wall/floor/ceiling and 1 for a sprite

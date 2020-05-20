@@ -61,7 +61,7 @@ static void cachespritenum(short i)
         break;
     case RRTILE2121:
     case RRTILE2122:
-        tloadtile(j, pal);
+        tloadtile(sprite[i].picnum, pal);
         break;
     case TOILET:
         tloadtile(TOILETBROKE);
@@ -398,7 +398,7 @@ static void cachegoodsprites(void)
 //
 //---------------------------------------------------------------------------
 
-static void cacheit(void)
+void cacheit_r(void)
 {
     short i,j;
 

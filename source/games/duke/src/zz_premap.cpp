@@ -51,424 +51,6 @@ static int32_t g_precacheCount;
 int32_t g_skillSoundVoice = -1;
 
 
-static void flag_precache(int32_t tile, int32_t type)
-{
-    if (!(gotpic[tile>>3] & pow2char[tile&7]))
-        g_precacheCount++;
-    gotpic[tile>>3] |= pow2char[tile&7];
-    precachehightile[type][tile>>3] |= pow2char[tile&7];
-}
-
-static void tloadtile(int32_t tilenume, int32_t type)
-{
-    int32_t i,j;
-
-    if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
-    {
-        i = tilenume - picanm[tilenume].num;
-        j = tilenume;
-    }
-    else
-    {
-        i = tilenume;
-        j = tilenume + picanm[tilenume].num;
-    }
-
-    for (; i<=j; i++)
-        flag_precache(i, type);
-}
-
-static void G_CacheSpriteNum(int32_t i)
-{
-    char maxc;
-    int32_t j;
-
-    if (ud.monsters_off && A_CheckEnemySprite(&sprite[i])) return;
-
-    maxc = 1;
-
-    switch (DYNAMICTILEMAP(PN(i)))
-    {
-    case HYDRENT__STATIC:
-        tloadtile(TILE_BROKEFIREHYDRENT,1);
-        for (j = TILE_TOILETWATER; j < (TILE_TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case RRTILE2121__STATICRR:
-    case RRTILE2122__STATICRR:
-        tloadtile(TILE_BROKEFIREHYDRENT, 1);
-        break;
-    case TOILET__STATIC:
-        tloadtile(TILE_TOILETBROKE,1);
-        for (j = TILE_TOILETWATER; j < (TILE_TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case STALL__STATIC:
-        tloadtile(TILE_STALLBROKE,1);
-        for (j = TILE_TOILETWATER; j < (TILE_TOILETWATER+4); j++) tloadtile(j,1);
-        break;
-    case FORCERIPPLE__STATIC:
-        if (!RR) break;
-        maxc = 9;
-        break;
-    case RUBBERCAN__STATIC:
-        maxc = 2;
-        break;
-    case TOILETWATER__STATIC:
-        maxc = 4;
-        break;
-    case BUBBASTAND__STATICRR:
-        for (j = TILE_BUBBASCRATCH; j < (TILE_BUBBASCRATCH+47); j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case SBSWIPE__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_BUBBASCRATCH; j <= (TILE_SBSWIPE+47); j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case COOT__STATICRR:
-        for(j = TILE_COOT; j <= (TILE_COOT+217); j++) tloadtile(j,1);
-        for(j = TILE_COOTJIBA; j < TILE_COOTJIBC+4; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case LTH__STATICRR:
-        maxc = 105;
-        for (j = TILE_LTH; j < (TILE_LTH + maxc); j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case BILLYRAY__STATICRR:
-        maxc = 144;
-        for (j = TILE_BILLYWALK; j < (TILE_BILLYWALK + maxc); j++) tloadtile(j,1);
-        for (j = TILE_BILLYJIBA; j <= TILE_BILLYJIBB + 4; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case COW__STATICRR:
-        maxc = 56;
-        for (j = PN(i); j < (PN(i) + maxc); j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case DOGRUN__STATICRR:
-        for (j = TILE_DOGATTACK; j <= TILE_DOGATTACK + 35; j++) tloadtile(j,1);
-        for (j = TILE_DOGRUN; j <= TILE_DOGRUN + 121; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case RABBIT__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_RABBIT; j <= TILE_RABBIT + 54; j++) tloadtile(j,1);
-        for (j = TILE_RABBIT + 56; j <= TILE_RABBIT + 56 + 49; j++) tloadtile(j,1);
-        for (j = TILE_RABBIT + 56; j <= TILE_RABBIT + 56 + 49; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case BIKERB__STATICRR:
-    case BIKERBV2__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_BIKERB; j <= TILE_BIKERB + 104; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case BIKER__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_BIKER; j <= TILE_BIKER + 116; j++) tloadtile(j,1);
-        for (j = TILE_BIKER + 150; j <= TILE_BIKER + 150 + 104; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case CHEER__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_CHEER; j <= TILE_CHEER + 44; j++) tloadtile(j,1);
-        for (j = TILE_CHEER + 47; j <= TILE_CHEER + 47 + 211; j++) tloadtile(j,1);
-        for (j = TILE_CHEER + 262; j <= TILE_CHEER + 262 + 72; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case CHEERB__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_CHEERB; j <= TILE_CHEERB + 157 + 83; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case MAMA__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_MAMA; j <= TILE_MAMA + 78; j++) tloadtile(j,1);
-        for (j = TILE_MAMA + 80; j <= TILE_MAMA + 80 + 7; j++) tloadtile(j,1);
-        for (j = TILE_MAMA + 90; j <= TILE_MAMA + 90 + 94; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case CHEERBOAT__STATICRR:
-        if (!RRRA) break;
-        tloadtile(TILE_CHEERBOAT,1);
-        maxc = 0;
-        break;
-    case HULKBOAT__STATICRR:
-        if (!RRRA) break;
-        tloadtile(TILE_HULKBOAT,1);
-        maxc = 0;
-        break;
-    case MINIONBOAT__STATICRR:
-        if (!RRRA) break;
-        tloadtile(TILE_MINIONBOAT,1);
-        maxc = 0;
-        break;
-    case BILLYPLAY__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_BILLYPLAY; j <= TILE_BILLYPLAY + 2; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case COOTPLAY__STATICRR:
-        if (!RRRA) break;
-        for (j = TILE_COOTPLAY; j <= TILE_COOTPLAY + 4; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case PIG__STATICRR:
-    case PIGSTAYPUT__STATICRR:
-        maxc = 69;
-        break;
-    case TORNADO__STATICRR:
-        maxc = 7;
-        break;
-    case HEN__STATICRR:
-    case HENSTAND__STATICRR:
-        maxc = 34;
-        break;
-    case FEMPIC1__STATIC:
-        if (RR) break;
-        maxc = 44;
-        break;
-    case LIZTROOP__STATIC:
-    case LIZTROOPRUNNING__STATIC:
-    case LIZTROOPSHOOT__STATIC:
-    case LIZTROOPJETPACK__STATIC:
-    case LIZTROOPONTOILET__STATIC:
-    case LIZTROOPDUCKING__STATIC:
-        if (RR) break;
-        for (j = TILE_LIZTROOP; j < (TILE_LIZTROOP+72); j++) tloadtile(j,1);
-        for (j=TILE_HEADJIB1; j<TILE_LEGJIB1+3; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case WOODENHORSE__STATIC:
-        if (RR) break;
-        maxc = 5;
-        for (j = TILE_HORSEONSIDE; j < (TILE_HORSEONSIDE+4); j++) tloadtile(j,1);
-        break;
-    case NEWBEAST__STATIC:
-    case NEWBEASTSTAYPUT__STATIC:
-        if (RR) break;
-        maxc = 90;
-        break;
-    case BOSS1__STATIC:
-    case BOSS2__STATIC:
-    case BOSS3__STATIC:
-        if (RR) break;
-        maxc = 30;
-        break;
-    case OCTABRAIN__STATIC:
-    case OCTABRAINSTAYPUT__STATIC:
-    case COMMANDER__STATIC:
-    case COMMANDERSTAYPUT__STATIC:
-        if (RR) break;
-        maxc = 38;
-        break;
-    case RECON__STATIC:
-        if (RR) break;
-        maxc = 13;
-        break;
-    case PIGCOP__STATIC:
-    case PIGCOPDIVE__STATIC:
-        if (RR) break;
-        maxc = 61;
-        break;
-    case SHARK__STATIC:
-        if (RR) break;
-        maxc = 30;
-        break;
-    case LIZMAN__STATIC:
-    case LIZMANSPITTING__STATIC:
-    case LIZMANFEEDING__STATIC:
-    case LIZMANJUMP__STATIC:
-        if (RR) break;
-        for (j=TILE_LIZMANHEAD1; j<TILE_LIZMANLEG1+3; j++) tloadtile(j,1);
-        maxc = 80;
-        break;
-    case APLAYER__STATIC:
-        maxc = 0;
-        if ((g_netServer || ud.multimode > 1))
-        {
-            maxc = 5;
-            if (RR)
-            {
-                for (j = TILE_APLAYER; j < TILE_APLAYER+220; j++) tloadtile(j,1);
-                for (j = TILE_DUKEGUN; j < TILE_DUKELEG+4; j++) tloadtile(j,1);
-            }
-            else
-                for (j = 1420; j < 1420+106; j++) tloadtile(j,1);
-        }
-        break;
-    case ATOMICHEALTH__STATIC:
-        maxc = 14;
-        break;
-    case DRONE__STATIC:
-        maxc = RR ? 6 : 10;
-        break;
-    case EXPLODINGBARREL__STATIC:
-    case SEENINE__STATIC:
-    case OOZFILTER__STATIC:
-        maxc = 3;
-        break;
-    case NUKEBARREL__STATIC:
-    case CAMERA1__STATIC:
-        maxc = 5;
-        break;
-        // caching of HUD sprites for weapons that may be in the level
-    case CHAINGUNSPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_CHAINGUN; j<=TILE_CHAINGUN+7; j++) tloadtile(j,1);
-        break;
-    case RPGSPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_RPGGUN; j<=TILE_RPGGUN+2; j++) tloadtile(j,1);
-        break;
-    case FREEZESPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_FREEZE; j<=TILE_FREEZE+5; j++) tloadtile(j,1);
-        break;
-    case GROWSPRITEICON__STATIC:
-    case SHRINKERSPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_SHRINKER-2; j<=TILE_SHRINKER+5; j++) tloadtile(j,1);
-        break;
-    case HBOMBAMMO__STATIC:
-    case HEAVYHBOMB__STATIC:
-        if (RR) break;
-        for (j=TILE_HANDREMOTE; j<=TILE_HANDREMOTE+5; j++) tloadtile(j,1);
-        break;
-    case TRIPBOMBSPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_HANDHOLDINGLASER; j<=TILE_HANDHOLDINGLASER+4; j++) tloadtile(j,1);
-        break;
-    case SHOTGUNSPRITE__STATIC:
-        if (RR) break;
-        tloadtile(TILE_SHOTGUNSHELL,1);
-        for (j=TILE_SHOTGUN; j<=TILE_SHOTGUN+6; j++) tloadtile(j,1);
-        break;
-    case DEVISTATORSPRITE__STATIC:
-        if (RR) break;
-        for (j=TILE_DEVISTATOR; j<=TILE_DEVISTATOR+1; j++) tloadtile(j,1);
-        break;
-    case VIXEN__STATICRR:
-        maxc = 214;
-        for (j = PN(i); j < PN(i) + maxc; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case SBMOVE__STATICRR:
-        if (RRRA) break;
-        maxc = 54;
-        for (j = PN(i); j < PN(i) + maxc; j++) tloadtile(j,1);
-        maxc = 100;
-        for (j = TILE_SBMOVE; j < TILE_SBMOVE + maxc; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case HULK__STATICRR:
-        maxc = 40;
-        for (j = PN(i) - 41; j < PN(i) + maxc - 41; j++) tloadtile(j,1);
-        for (j = TILE_HULKJIBA; j <= TILE_HULKJIBC + 4; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-    case MINION__STATICRR:
-        maxc = 141;
-        for (j = PN(i); j < PN(i) + maxc; j++) tloadtile(j,1);
-        for (j = TILE_MINJIBA; j <= TILE_MINJIBC + 4; j++) tloadtile(j,1);
-        maxc = 0;
-        break;
-
-    }
-
-    for (j = PN(i); j < (PN(i)+maxc); j++) tloadtile(j,1);
-}
-
-static void G_PrecacheSprites(void)
-{
-    int32_t i;
-
-    tloadtile(TILE_BOTTOMSTATUSBAR,1);
-    if ((g_netServer || ud.multimode > 1))
-        tloadtile(TILE_FRAGBAR,1);
-
-    tloadtile(TILE_VIEWSCREEN,1);
-
-    for (i=TILE_STARTALPHANUM; i<TILE_ENDALPHANUM+1; i++) tloadtile(i,1);
-    for (i=TILE_BIGALPHANUM-11; i<TILE_BIGALPHANUM+82; i++) tloadtile(i,1);
-    for (i=TILE_MINIFONT; i<TILE_MINIFONT+93; i++) tloadtile(i,1);
-
-    for (i=TILE_FOOTPRINTS; i<TILE_FOOTPRINTS+3; i++) tloadtile(i,1);
-
-    for (i = TILE_BURNING; i < TILE_BURNING+14; i++) tloadtile(i,1);
-
-    for (i = TILE_FIRSTGUN; i < TILE_FIRSTGUN+(RR ? 10 : 3) ; i++) tloadtile(i,1);
-
-    for (i = TILE_EXPLOSION2; i < TILE_EXPLOSION2+21 ; i++) tloadtile(i,1);
-
-    for (i = TILE_COOLEXPLOSION1; i < TILE_COOLEXPLOSION1+21 ; i++) tloadtile(i,1);
-
-    tloadtile(TILE_BULLETHOLE,1);
-    tloadtile(TILE_BLOODPOOL,1);
-
-    for (i = TILE_SMALLSMOKE; i < (TILE_SMALLSMOKE+4); i++) tloadtile(i,1);
-    for (i = TILE_SHOTSPARK1; i < (TILE_SHOTSPARK1+4); i++) tloadtile(i,1);
-
-    for (i = TILE_BLOOD; i < (TILE_BLOOD+4); i++) tloadtile(i,1);
-    for (i = TILE_JIBS1; i < (TILE_JIBS5+5); i++) tloadtile(i,1);
-    for (i = TILE_JIBS6; i < (TILE_JIBS6+8); i++) tloadtile(i,1);
-
-    for (i = TILE_SCRAP1; i < (TILE_SCRAP1+(RR? 19 : 29)); i++) tloadtile(i,1);
-
-    if (!RR)
-    {
-        for (i = TILE_BURNING2; i < TILE_BURNING2+14; i++) tloadtile(i,1);
-        for (i = TILE_CRACKKNUCKLES; i < TILE_CRACKKNUCKLES+4; i++) tloadtile(i,1);
-        for (i = TILE_FIRSTGUNRELOAD; i < TILE_FIRSTGUNRELOAD+8 ; i++) tloadtile(i,1);
-        for (i = TILE_TRANSPORTERBEAM; i < (TILE_TRANSPORTERBEAM+6); i++) tloadtile(i,1);
-        tloadtile(TILE_FIRELASER,1);
-        for (i=TILE_TRANSPORTERSTAR; i<TILE_TRANSPORTERSTAR+6; i++) tloadtile(i,1);
-        for (i=TILE_FORCERIPPLE; i<(TILE_FORCERIPPLE+9); i++) tloadtile(i,1);
-
-        for (i=TILE_MENUSCREEN; i<TILE_DUKECAR; i++) tloadtile(i,1);
-
-        for (i=TILE_RPG; i<TILE_RPG+7; i++) tloadtile(i,1);
-        for (i=TILE_FREEZEBLAST; i<TILE_FREEZEBLAST+3; i++) tloadtile(i,1);
-        for (i=TILE_SHRINKSPARK; i<TILE_SHRINKSPARK+4; i++) tloadtile(i,1);
-        for (i=TILE_GROWSPARK; i<TILE_GROWSPARK+4; i++) tloadtile(i,1);
-        for (i=TILE_SHRINKEREXPLOSION; i<TILE_SHRINKEREXPLOSION+4; i++) tloadtile(i,1);
-        for (i=TILE_MORTER; i<TILE_MORTER+4; i++) tloadtile(i,1);
-        for (i=0; i<=60; i++) tloadtile(i,1);
-    }
-    else
-    {
-        if (RRRA)
-        {
-            if (ud.volume_number == 0 && ud.level_number == 4)
-                tloadtile(TILE_RRTILE2577, 1);
-        }
-        else
-        {
-            if (ud.volume_number == 1 && ud.level_number == 2)
-            {
-                tloadtile(TILE_RRTILE3190, 1);
-                tloadtile(TILE_RRTILE3191, 1);
-                tloadtile(TILE_RRTILE3192, 1);
-                tloadtile(TILE_RRTILE3144, 1);
-                tloadtile(TILE_RRTILE3139, 1);
-                tloadtile(TILE_RRTILE3132, 1);
-                tloadtile(TILE_RRTILE3120, 1);
-                tloadtile(TILE_RRTILE3121, 1);
-                tloadtile(TILE_RRTILE3122, 1);
-                tloadtile(TILE_RRTILE3123, 1);
-                tloadtile(TILE_RRTILE3124, 1);
-            }
-        }
-        if (g_lastLevel)
-        {
-            tloadtile(TILE_UFO1, 1);
-            tloadtile(TILE_UFO2, 1);
-            tloadtile(TILE_UFO3, 1);
-            tloadtile(TILE_UFO4, 1);
-            tloadtile(TILE_UFO5, 1);
-        }
-    }
-}
 
 static void G_DoLoadScreen(const char *statustext, int32_t percent)
 {
@@ -556,83 +138,6 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
 
 
-
-void G_CacheMapData(void)
-{
-    int32_t i,j,pc=0;
-    int32_t tc;
-    uint32_t starttime, endtime;
-
-    if (ud.recstat == 2)
-        return;
-
-    S_PlaySpecialMusic(MUS_LOADING);
-
-    starttime = timerGetTicks();
-
-    cacheAllSounds();
-    G_PrecacheSprites();
-
-    for (i=0; i<numwalls; i++)
-    {
-        tloadtile(wall[i].picnum, 0);
-
-        if (wall[i].overpicnum >= 0)
-        {
-            tloadtile(wall[i].overpicnum, 0);
-        }
-    }
-
-    for (i=0; i<numsectors; i++)
-    {
-        tloadtile(sector[i].floorpicnum, 0);
-        tloadtile(sector[i].ceilingpicnum, 0);
-        if (sector[i].ceilingpicnum == TILE_LA)  // JBF 20040509: if( w aloff[sector[i].ceilingpicnum] == TILE_LA) WTF?!?!?!?
-        {
-            tloadtile(TILE_LA+1, 0);
-            tloadtile(TILE_LA+2, 0);
-        }
-
-        for (SPRITES_OF_SECT(i, j))
-            if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat&32768) == 0)
-                G_CacheSpriteNum(j);
-    }
-
-    tc = (int32_t) totalclock;
-    j = 0;
-
-    int lpc = -1;
-
-    for (i=0; i<MAXTILES; i++)
-    {
-        if (!(i&7) && !gotpic[i>>3])
-        {
-            i+=7;
-            continue;
-        }
-        if (gotpic[i>>3] & pow2char[i&7])
-        {
-			// For the hardware renderer precaching the raw pixel data is pointless.
-			if (videoGetRenderMode() < REND_POLYMOST)
-				tileLoad(i);
-
-#ifdef USE_OPENGL
-			if (r_precache) PrecacheHardwareTextures(i);
-#endif
-			j++;
-            pc++;
-        }
-        else continue;
-
-        if ((j&7) == 0)
-            G_HandleAsync();
-    }
-
-    Bmemset(gotpic, 0, sizeof(gotpic));
-
-    endtime = timerGetTicks();
-    Printf("Cache time: %dms\n", endtime-starttime);
-}
 
 extern int32_t fragbarheight(void)
 {
@@ -1214,13 +719,6 @@ static void prelevel(char g)
 
         if (sector[i].ceilingstat&1)
         {
-            if (tilePtr(sector[i].ceilingpicnum) == nullptr)
-            {
-                if (sector[i].ceilingpicnum == TILE_LA)
-                    for (bsize_t j = 0; j < 5; j++)
-                        tloadtile(sector[i].ceilingpicnum + j, 0);
-            }
-
             if (!RR && sector[i].ceilingpicnum == TILE_CLOUDYSKIES)
             {
                 if (g_cloudCnt < ARRAY_SSIZE(g_cloudSect))
@@ -1492,7 +990,7 @@ static void prelevel(char g)
                 case W_FORCEFIELD__STATIC:
                     if (RR) break;
                     if (pWall->overpicnum == W_FORCEFIELD__STATIC)
-                        for (bsize_t j = 0; j < 3; j++) tloadtile(TILE_W_FORCEFIELD + j, 0);
+                        for (bsize_t j = 0; j < 3; j++) markTileForPrecache(TILE_W_FORCEFIELD + j, 0);
                     if (pWall->shade > 31)
                         pWall->cstat = 0;
                     else
@@ -1516,12 +1014,12 @@ static void prelevel(char g)
         {
             case WATERTILE2__STATIC:
                 for (bsize_t j = 0; j < 3; j++)
-                    tloadtile(pWall->picnum + j, 0);
+                    markTileForPrecache(pWall->picnum + j, 0);
                 break;
 
             case RRTILE1814__STATICRR:
             case RRTILE1817__STATICRR:
-                tloadtile(pWall->picnum, 0);
+                markTileForPrecache(pWall->picnum, 0);
                 break;
             case RRTILE1939__STATICRR:
             case RRTILE1986__STATICRR:
@@ -1539,12 +1037,12 @@ static void prelevel(char g)
             case RRTILE2879__STATICRR:
             case RRTILE2898__STATICRR:
             case RRTILE2899__STATICRR:
-                tloadtile(pWall->picnum, 0);
+                markTileForPrecache(pWall->picnum, 0);
                 break;
 
 
             case TECHLIGHT2__STATIC:
-            case TECHLIGHT4__STATIC: tloadtile(pWall->picnum, 0); break;
+            case TECHLIGHT4__STATIC: markTileForPrecache(pWall->picnum, 0); break;
             case W_TECHWALL1__STATIC:
             case W_TECHWALL2__STATIC:
             case W_TECHWALL3__STATIC:
@@ -1558,7 +1056,7 @@ static void prelevel(char g)
             case SCREENBREAK7__STATIC:
             case SCREENBREAK8__STATIC:
                 for (bssize_t j = TILE_SCREENBREAK6; j < TILE_SCREENBREAK9; j++)
-                    tloadtile(j, 0);
+                    markTileForPrecache(j, 0);
 
                 animwall[g_animWallCnt].wallnum = i;
                 animwall[g_animWallCnt].tag     = -1;
@@ -1976,6 +1474,8 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     }
 }
 
+void cacheit_d();
+void cacheit_r();
 int G_EnterLevel(int gameMode)
 {
     int32_t i, mii;
@@ -2110,7 +1610,8 @@ int G_EnterLevel(int gameMode)
     ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mi.fileName.GetChars(), g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
-    G_CacheMapData();
+    if (isRR()) cacheit_r(); else cacheit_d();
+    //G_CacheMapData();
     // G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
 
     // Try this first so that it can disable the CD player if no tracks are found.

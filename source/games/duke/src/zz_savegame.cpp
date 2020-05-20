@@ -1426,7 +1426,7 @@ static void postloadplayer(int32_t savegamep)
     {
         Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
-        G_CacheMapData();
+        //G_CacheMapData();
 		Mus_ResumeSaved();
         Mus_SetPaused(false);
 
