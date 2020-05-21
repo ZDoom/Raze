@@ -3287,10 +3287,14 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else
     {
+        fix16_t prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
+
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
+        pp->oq16ang += pp->camq16ang - prevcamq16ang;
+        pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
 
     loc->vel += vel;
