@@ -36,7 +36,7 @@ BEGIN_DUKE_NS
 #define SV_MINOR_VER 7
 
 #pragma pack(push,1)
-typedef struct
+struct savehead_t
 {
     char headerstr[11];
     uint8_t majorver, minorver, ptrsize;
@@ -56,7 +56,7 @@ typedef struct
     // 286 bytes
 
     uint8_t getPtrSize() const { return ptrsize; }
-} savehead_t;
+};
 #pragma pack(pop)
 
 extern int32_t g_fakeSaveID;

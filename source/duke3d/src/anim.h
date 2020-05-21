@@ -30,12 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-typedef struct {
+struct animsound_t {
     uint16_t frame = 0;
     int16_t sound = 0;
-} animsound_t;
+};
 
-typedef struct
+struct dukeanim_t
 {
     FString name;
     double frameaspect1 = 0.0, frameaspect2 = 0.0;
@@ -43,7 +43,7 @@ typedef struct
     TArray<animsound_t> Sounds;
     uint8_t framedelay = 0;
     uint8_t frameflags = 0;
-} dukeanim_t;
+};
 
 extern dukeanim_t* g_animPtr;
 extern TArray<dukeanim_t> g_Animations;
