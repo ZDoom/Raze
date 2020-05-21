@@ -4,6 +4,8 @@ set( PCH_SOURCES
 	src/actors_r.cpp
 	src/actors_d.cpp
 	src/actors_lava.cpp
+	src/animatesprites_r.cpp
+	src/animatesprites_d.cpp
 	src/bowling.cpp
 	src/dispatch.cpp
 	src/flags_d.cpp

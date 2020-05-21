@@ -89,6 +89,12 @@ G_EXTERN int32_t movefifoplc;
 
 G_EXTERN int32_t predictfifoplc;
 G_EXTERN vec3_t mypos, omypos, myvel;
+#define myx mypos.x
+#define myy mypos.y
+#define myz mypos.z
+#define omyx omypos.x
+#define omyy omypos.y
+#define omyz omypos.z
 G_EXTERN fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
 G_EXTERN int16_t mycursectnum, myjumpingcounter;
 G_EXTERN uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;

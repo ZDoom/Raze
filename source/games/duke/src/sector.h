@@ -123,6 +123,14 @@ inline int ldist(const spritetype* s1, const spritetype* s2)
     return(FindDistance2D(vx, vy) + 1);
 }
 
+inline int ldist(const spritetype* s1, const tspritetype* s2)
+{
+    int vx, vy;
+    vx = s1->x - s2->x;
+    vy = s1->y - s2->y;
+    return(FindDistance2D(vx, vy) + 1);
+}
+
 inline int dist(const spritetype* s1, const spritetype* s2)
 {
     int vx, vy, vz;

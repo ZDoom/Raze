@@ -1385,8 +1385,14 @@ static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
     return viewtype_mirror<mirrored_rotations*2-2>(cstat, getofs_viewtype<mirrored_rotations*2-2>(angDiff));
 }
 
+void animatesprites_d(int x, int y, int a, int smoothratio);
+void animatesprites_r(int x, int y, int a, int smoothratio);
+
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothratio)
 {
+    if (!isRR()) animatesprites_d(ourx, oury, oura, smoothratio);
+    else animatesprites_r(ourx, oury, oura, smoothratio);
+#if 0
     UNREFERENCED_PARAMETER(ourz);
     int32_t j, frameOffset, playerNum;
     intptr_t l;
@@ -2621,6 +2627,7 @@ rrcoolexplosion1:
 
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numonscreen = spritesortcnt;
+#endif
 #endif
 }
 
