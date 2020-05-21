@@ -54,13 +54,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
 
-#if KRANDDEBUG
-# define GAME_INLINE
-# define GAME_STATIC
-#else
 # define GAME_INLINE inline
 # define GAME_STATIC static
-#endif
 
 BEGIN_DUKE_NS
 
@@ -443,24 +438,7 @@ static void G_SE150_Draw(int32_t spnum, int32_t x, int32_t y, int32_t z, int32_t
     if (sprite[spnum].lotag == 154) fofmode = 150;
     if (sprite[spnum].lotag == 155) fofmode = 151;
 
-    // fofmode=sprite[spnum].lotag-2;
-
-    // sectnum=sprite[j].sectnum;
-    // sectnum=cursectnum;
     ok++;
-
-    /*  recursive?
-     for(j=0;j<MAXSPRITES;j++)
-     {
-      if(
-         sprite[j].sectnum==sectnum &&
-         sprite[j].picnum==1 &&
-         sprite[j].lotag==110
-        ) { DrawFloorOverFloor(j); break;}
-     }
-    */
-
-    // if(ok==0) { Message("no fof",RED); return; }
 
     for (j = 0; j < MAXSPRITES; j++)
     {
@@ -1610,21 +1588,6 @@ void G_HandleLocalKeys(void)
             g_demo_showStats = !g_demo_showStats;
         }
 
-#if 0
-        if (inputState.GetKeyStatus(sc_kpad_Plus))
-        {
-            G_InitTimer(240);
-        }
-        else if (inputState.GetKeyStatus(sc_kpad_Minus))
-        {
-            G_InitTimer(60);
-        }
-        else if (g_timerTicsPerSecond != 120)
-        {
-            G_InitTimer(120);
-        }
-#endif
-
         if (inputState.GetKeyStatus(sc_kpad_6))
         {
             inputState.ClearKeyStatus(sc_kpad_6);
@@ -1747,17 +1710,6 @@ void G_HandleLocalKeys(void)
             ud.last_overhead = ud.overhead_on;
         }
 
-#ifdef __ANDROID__
-        if (ud.overhead_on == 1)
-            ud.scrollmode = 0;
-        else if (ud.overhead_on == 2)
-        {
-            ud.scrollmode = 1;
-            ud.folx = g_player[screenpeek].ps->opos.x;
-            ud.foly = g_player[screenpeek].ps->opos.y;
-            ud.fola = g_player[screenpeek].ps->oang;
-        }
-#endif
         restorepalette = 1;
         G_UpdateScreenArea();
     }
@@ -1800,21 +1752,7 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
 {
     scriptfile *included = scriptfile_fromfile(fileName);
 
-    if (!included)
-    {
-        if (!Bstrcasecmp(cmdtokptr,"null") || pScript == NULL) // this is a bit overboard to prevent unused parameter warnings
-            {
-           // Printf("Warning: Failed including %s as module\n", fn);
-            }
-/*
-        else
-            {
-            Printf("Warning: Failed including %s on line %s:%d\n",
-                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-*/
-    }
-    else
+    if (included)
     {
         parsedefinitions_game(included, firstPass);
         scriptfile_close(included);
@@ -2211,10 +2149,6 @@ static void G_Cleanup(void)
 
     if (label != (char *)&sprite[0]) Xfree(label);
     if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
-#if 0
-    if (labeltype != (int32_t*)&wall[0]) Xfree(labeltype);
-#endif
-
 }
 
 /*
@@ -2247,15 +2181,9 @@ static void G_CompileScripts(void)
 
         Bmemcpy(newlabel, label, labelcnt*64);
         Bmemcpy(newlabelcode, labelcode, labelcnt*sizeof(int32_t));
-#if 0
-        Bmemcpy(newlabeltype, labeltype, labelcnt*sizeof(int32_t));
-#endif
 
         label = newlabel;
         labelcode = newlabelcode;
-#if 0
-        labeltype = newlabeltype;
-#endif
     }
 
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
@@ -2464,14 +2392,6 @@ static int G_EndOfLevel(void)
     return 1;
 }
 
-#if defined(_WIN32) && defined(DEBUGGINGAIDS)
-// See FILENAME_CASE_CHECK in cache1d.c
-static int32_t check_filename_casing(void)
-{
-    return !(g_player[myconnectindex].ps->gm&MODE_GAME);
-}
-#endif
-
 void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
@@ -2625,11 +2545,6 @@ int GameInterface::app_main()
             g_Shareware = 1;
         }
     }
-
-    // gotta set the proper title after we compile the CONs if this is the full version
-
-    if (g_scriptDebug)
-        Printf("CON debugging activated (level %d).\n",g_scriptDebug);
 
     numplayers = 1;
     g_mostConcurrentPlayers = ud.multimode;
@@ -2788,19 +2703,16 @@ MAIN_LOOP_RESTART:
 
             Net_WaitForEverybody();
         }
-        else// if (g_networkMode != NET_DEDICATED_SERVER)
+        else
             G_DisplayLogo();
 
-        //if (g_networkMode != NET_DEDICATED_SERVER)
+		M_StartControlPanel(false);
+		M_SetMenu(NAME_Mainmenu);
+		if (G_PlaybackDemo())
         {
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_Mainmenu);
-			if (G_PlaybackDemo())
-            {
-                FX_StopAllSounds();
-                g_noLogoAnim = 1;
-                goto MAIN_LOOP_RESTART;
-            }
+            FX_StopAllSounds();
+            g_noLogoAnim = 1;
+            goto MAIN_LOOP_RESTART;
         }
     }
     else G_UpdateScreenArea();
@@ -2836,18 +2748,8 @@ MAIN_LOOP_RESTART:
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         inputState.SetBindsEnabled(!!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)));
 
-#if 0
-//#ifndef _WIN32
-        // stdin -> OSD input for dedicated server
-        if (g_networkMode == NET_DEDICATED_SERVER)
-        {
-        }
-        else
-#endif
-        {
-            G_HandleLocalKeys();
-        }
-
+        G_HandleLocalKeys();
+ 
         OSD_DispatchQueued();
 
         char gameUpdate = false;
@@ -2904,11 +2806,8 @@ MAIN_LOOP_RESTART:
             }
         }
 
-        /*if (g_networkMode == NET_DEDICATED_SERVER)
-        {
-            idle();
-        }
-        else */if (G_FPSLimit())
+        
+        if (G_FPSLimit())
         {
             if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
@@ -2938,7 +2837,7 @@ MAIN_LOOP_RESTART:
     while (1);
 }
 
-GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
+int32_t G_MoveLoop()
 {
     int i;
 
@@ -2985,9 +2884,6 @@ int G_DoMoveThings(void)
 
     // Name display when aiming at opponents
     if (cl_idplayers && (g_netServer || ud.multimode > 1)
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
         )
     {
         hitdata_t hitData;
@@ -3035,36 +2931,12 @@ int G_DoMoveThings(void)
         }
     }
 
-    // Moved lower so it is restored correctly by diffs:
-//    everyothertime++;
-
-    //if (g_netClient) // [75] The server should not overwrite its own randomseed
-    //    randomseed = ticrandomseed;
-
     for (bssize_t TRAVERSE_CONNECT(i))
         Bmemcpy(g_player[i].input, &inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i], sizeof(input_t));
 
     movefifoplc++;
 
     G_UpdateInterpolations();
-
-    /*
-        j = -1;
-        for (TRAVERSE_CONNECT(i))
-        {
-            if (g_player[i].playerquitflag == 0 || TEST_SYNC_KEY(g_player[i].sync->bits,SK_GAMEQUIT) == 0)
-            {
-                j = i;
-                continue;
-            }
-
-            G_CloseDemoWrite();
-
-            g_player[i].playerquitflag = 0;
-        }
-    */
-
-    Net_GetSyncStat();
 
     g_moveThingsCount++;
 
@@ -3128,24 +3000,13 @@ int G_DoMoveThings(void)
 
     Net_CorrectPrediction();
 
-    //if (g_netServer)
-    //    Net_SendServerUpdates();
-
     if ((everyothertime&1) == 0)
     {
         {
             fi.animatewalls();
             movecyclers();
         }
-
-        //if (g_netServer && (everyothertime % 10) == 0)
-        //{
-        //    Net_SendMapUpdate();
-        //}
     }
-
-    //if (g_netClient)   //Slave
-    //    Net_SendClientUpdate();
 
     if (RR && ud.recstat == 0 && ud.multimode < 2)
         dotorch();

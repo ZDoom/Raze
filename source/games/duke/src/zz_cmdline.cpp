@@ -33,46 +33,8 @@ BEGIN_DUKE_NS
 
 int32_t g_fakeMultiMode = 0;
 
-
-static void G_AddDemo(const char* param)
-{
-    Bstrncpy(tempbuf, param, sizeof(tempbuf));
-    char * colon = (char *) Bstrchr(tempbuf, ':');
-    int32_t framespertic=-1, numrepeats=1;
-
-    if (colon && colon != tempbuf)
-    {
-        // -d<filename>:<num>[,<num>]
-        // profiling options
-        *(colon++) = 0;
-        sscanf(colon, "%d,%d", &framespertic, &numrepeats);
-    }
-
-    Demo_SetFirst(tempbuf);
-
-    if (framespertic < 0)
-    {
-        Printf("Play demo %s.\n", g_firstDemoFile);
-    }
-    else
-    {
-        framespertic = clamp(framespertic, 0, 8)+1;
-        // TODO: repeat count and gathering statistics.
-        Printf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
-            framespertic-1);
-        Demo_PlayFirst(framespertic, 1);
-        g_noLogo = 1;
-    }
-}
-
 void G_CheckCommandLine()
 {
-	if (Args->CheckParm("-condebug") || Args->CheckParm("-z")) g_scriptDebug = 1;
-	if (Args->CheckParm("-altai"))
-	{
-		ud.playerai = 1;
-		Printf("Other player AI.\n");
-	}
 	auto val = Args->CheckValue("-skill");
 	if (val)
 	{
