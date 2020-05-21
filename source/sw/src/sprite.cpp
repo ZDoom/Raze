@@ -6767,7 +6767,6 @@ SpriteControl(void)
 #endif
     }
 
-    
     // Items and skip2 things
     if (MoveSkip2 == 0)
     {
