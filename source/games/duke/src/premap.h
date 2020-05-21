@@ -46,6 +46,7 @@ void G_ResetInterpolations(void);
 extern int32_t fragbarheight(void);
 void setmapfog(int fogtype);
 void G_InitRRRASkies(void);
+void prelevel_common(int g);
 
 END_DUKE_NS
 

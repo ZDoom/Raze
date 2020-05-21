@@ -568,7 +568,6 @@ void G_SE150(int32_t x, int32_t y, int32_t z, int32_t a, int32_t h, int32_t smoo
 }
 
 #ifdef LEGACY_ROR
-char ror_protectedsectors[MAXSECTORS];
 static int32_t drawing_ror = 0;
 static int32_t ror_sprite = -1;
 
@@ -651,7 +650,7 @@ static void G_SE40(int32_t smoothratio)
                 {
                     SE40backupStat[i] = sector[i].ceilingstat;
                     SE40backupZ[i] = sector[i].ceilingz;
-                    if (!ror_protectedsectors[i] || sp->lotag == 41)
+                    if (sp->lotag == 41)
                     {
                         sector[i].ceilingstat = 1;
                         sector[i].ceilingz += newz;
@@ -673,7 +672,7 @@ static void G_SE40(int32_t smoothratio)
                 {
                     SE40backupStat[i] = sector[i].floorstat;
                     SE40backupZ[i] = sector[i].floorz;
-                    if (!ror_protectedsectors[i] || sp->lotag == 41)
+                    if (sp->lotag == 41)
                     {
                         sector[i].floorstat = 1;
                         sector[i].floorz = +newz;
@@ -727,9 +726,9 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 #endif
         )
     {
-        if (g_mirrorCount == 0)
+        if (mirrorcnt == 0)
         {
-            // NOTE: We can have g_mirrorCount==0 but gotpic'd TILE_MIRROR,
+            // NOTE: We can have mirrorcnt==0 but gotpic'd TILE_MIRROR,
             // for example in LNGA2.
             gotpic[TILE_MIRROR>>3] &= ~(1<<(TILE_MIRROR&7));
             return;
@@ -737,48 +736,48 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 
         int32_t i = 0, dst = INT32_MAX;
 
-        for (bssize_t k=g_mirrorCount-1; k>=0; k--)
+        for (bssize_t k=mirrorcnt-1; k>=0; k--)
         {
-            if (!wallvisible(x, y, g_mirrorWall[k]))
+            if (!wallvisible(x, y, mirrorwall[k]))
                 continue;
 
             const int32_t j =
-                klabs(wall[g_mirrorWall[k]].x - x) +
-                klabs(wall[g_mirrorWall[k]].y - y);
+                klabs(wall[mirrorwall[k]].x - x) +
+                klabs(wall[mirrorwall[k]].y - y);
 
             if (j < dst)
                 dst = j, i = k;
         }
 
-        if (wall[g_mirrorWall[i]].overpicnum != TILE_MIRROR)
+        if (wall[mirrorwall[i]].overpicnum != TILE_MIRROR)
         {
             // Try to find a new mirror wall in case the original one was broken.
 
-            int32_t startwall = sector[g_mirrorSector[i]].wallptr;
-            int32_t endwall = startwall + sector[g_mirrorSector[i]].wallnum;
+            int32_t startwall = sector[mirrorsector[i]].wallptr;
+            int32_t endwall = startwall + sector[mirrorsector[i]].wallnum;
 
             for (bssize_t k=startwall; k<endwall; k++)
             {
                 int32_t j = wall[k].nextwall;
                 if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==TILE_MIRROR)  // cmp. premap.c
                 {
-                    g_mirrorWall[i] = j;
+                    mirrorwall[i] = j;
                     break;
                 }
             }
         }
 
-        if (wall[g_mirrorWall[i]].overpicnum == TILE_MIRROR)
+        if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
         {
             int32_t tposx, tposy;
             fix16_t tang;
 
-            renderPrepareMirror(x, y, z, a, q16horiz, g_mirrorWall[i], &tposx, &tposy, &tang);
+            renderPrepareMirror(x, y, z, a, q16horiz, mirrorwall[i], &tposx, &tposy, &tang);
 
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
-            renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+            renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,mirrorsector[i]+MAXSECTORS);
             display_mirror = 1;
             G_DoSpriteAnimations(tposx,tposy,z,fix16_to_int(tang),smoothratio);
             display_mirror = 0;
@@ -1133,39 +1132,39 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             int geoSector = 0;
 
-            for (bsize_t gs = 0; gs < g_geoSectorCnt; gs++)
+            for (bsize_t gs = 0; gs < geocnt; gs++)
             {
-                int spriteNum = headspritesect[g_geoSector[gs]];
+                int spriteNum = headspritesect[geosector[gs]];
                 while (spriteNum != -1)
                 {
                     int spriteNext = nextspritesect[spriteNum];
-                    changespritesect(spriteNum, g_geoSectorWarp[gs]);
-                    sprite[spriteNum].x -= g_geoSectorX[gs];
-                    sprite[spriteNum].y -= g_geoSectorY[gs];
+                    changespritesect(spriteNum, geosectorwarp[gs]);
+                    sprite[spriteNum].x -= geox[gs];
+                    sprite[spriteNum].y -= geoy[gs];
                     setsprite(spriteNum, (vec3_t*)&sprite[spriteNum]);
                     spriteNum = spriteNext;
                 }
-                if (CAMERA(sect) == g_geoSector[gs])
+                if (CAMERA(sect) == geosector[gs])
                     geoSector = gs;
             }
 
-            CAMERA(pos.x) -= g_geoSectorX[geoSector];
-            CAMERA(pos.y) -= g_geoSectorY[geoSector];
+            CAMERA(pos.x) -= geox[geoSector];
+            CAMERA(pos.y) -= geoy[geoSector];
             yax_preparedrawrooms();
-            renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),g_geoSectorWarp[geoSector]);
-            yax_drawrooms(G_DoSpriteAnimations, g_geoSectorWarp[geoSector], 0, smoothRatio);
-            CAMERA(pos.x) += g_geoSectorX[geoSector];
-            CAMERA(pos.y) += g_geoSectorY[geoSector];
+            renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),geosectorwarp[geoSector]);
+            yax_drawrooms(G_DoSpriteAnimations, geosectorwarp[geoSector], 0, smoothRatio);
+            CAMERA(pos.x) += geox[geoSector];
+            CAMERA(pos.y) += geoy[geoSector];
                 
-            for (bsize_t gs = 0; gs < g_geoSectorCnt; gs++)
+            for (bsize_t gs = 0; gs < geocnt; gs++)
             {
-                int spriteNum = headspritesect[g_geoSectorWarp[gs]];
+                int spriteNum = headspritesect[geosectorwarp[gs]];
                 while (spriteNum != -1)
                 {
                     int spriteNext = nextspritesect[spriteNum];
-                    changespritesect(spriteNum, g_geoSector[gs]);
-                    sprite[spriteNum].x += g_geoSectorX[gs];
-                    sprite[spriteNum].y += g_geoSectorY[gs];
+                    changespritesect(spriteNum, geosector[gs]);
+                    sprite[spriteNum].x += geox[gs];
+                    sprite[spriteNum].y += geoy[gs];
                     setsprite(spriteNum, (vec3_t*)&sprite[spriteNum]);
                     spriteNum = spriteNext;
                 }
@@ -1175,39 +1174,39 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             renderDrawMasks();
 
-            for (bsize_t gs = 0; gs < g_geoSectorCnt; gs++)
+            for (bsize_t gs = 0; gs < geocnt; gs++)
             {
-                int spriteNum = headspritesect[g_geoSector[gs]];
+                int spriteNum = headspritesect[geosector[gs]];
                 while (spriteNum != -1)
                 {
                     int spriteNext = nextspritesect[spriteNum];
-                    changespritesect(spriteNum, g_geoSectorWarp2[gs]);
-                    sprite[spriteNum].x -= g_geoSectorX2[gs];
-                    sprite[spriteNum].y -= g_geoSectorY2[gs];
+                    changespritesect(spriteNum, geosectorwarp2[gs]);
+                    sprite[spriteNum].x -= geox2[gs];
+                    sprite[spriteNum].y -= geoy2[gs];
                     setsprite(spriteNum, (vec3_t*)&sprite[spriteNum]);
                     spriteNum = spriteNext;
                 }
-                if (CAMERA(sect) == g_geoSector[gs])
+                if (CAMERA(sect) == geosector[gs])
                     geoSector = gs;
             }
 
-            CAMERA(pos.x) -= g_geoSectorX2[geoSector];
-            CAMERA(pos.y) -= g_geoSectorY2[geoSector];
+            CAMERA(pos.x) -= geox2[geoSector];
+            CAMERA(pos.y) -= geoy2[geoSector];
             yax_preparedrawrooms();
-            renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),g_geoSectorWarp2[geoSector]);
-            yax_drawrooms(G_DoSpriteAnimations, g_geoSectorWarp2[geoSector], 0, smoothRatio);
-            CAMERA(pos.x) += g_geoSectorX2[geoSector];
-            CAMERA(pos.y) += g_geoSectorY2[geoSector];
+            renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),geosectorwarp2[geoSector]);
+            yax_drawrooms(G_DoSpriteAnimations, geosectorwarp2[geoSector], 0, smoothRatio);
+            CAMERA(pos.x) += geox2[geoSector];
+            CAMERA(pos.y) += geoy2[geoSector];
                 
-            for (bsize_t gs = 0; gs < g_geoSectorCnt; gs++)
+            for (bsize_t gs = 0; gs < geocnt; gs++)
             {
-                int spriteNum = headspritesect[g_geoSectorWarp2[gs]];
+                int spriteNum = headspritesect[geosectorwarp2[gs]];
                 while (spriteNum != -1)
                 {
                     int spriteNext = nextspritesect[spriteNum];
-                    changespritesect(spriteNum, g_geoSector[gs]);
-                    sprite[spriteNum].x += g_geoSectorX2[gs];
-                    sprite[spriteNum].y += g_geoSectorY2[gs];
+                    changespritesect(spriteNum, geosector[gs]);
+                    sprite[spriteNum].x += geox2[gs];
+                    sprite[spriteNum].y += geoy2[gs];
                     setsprite(spriteNum, (vec3_t*)&sprite[spriteNum]);
                     spriteNum = spriteNext;
                 }

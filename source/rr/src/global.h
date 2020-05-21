@@ -159,7 +159,7 @@ G_EXTERN ClockTicks ototalclock;
 
 G_EXTERN int32_t g_wupass;
 G_EXTERN int32_t g_chickenPlant;
-G_EXTERN int32_t g_thunderOn;
+G_EXTERN int32_t thunderon;
 G_EXTERN int32_t g_ufoSpawn;
 G_EXTERN int32_t g_ufoCnt;
 G_EXTERN int32_t g_hulkSpawn;

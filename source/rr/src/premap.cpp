@@ -1320,7 +1320,7 @@ static void prelevel(char g)
         g_jailDoorCnt = 0;
         g_mineCartCnt = 0;
         g_ambientCnt = 0;
-        g_thunderOn = 0;
+        thunderon = 0;
         g_chickenPlant = 0;
         if (RRRA)
         {
@@ -1359,7 +1359,7 @@ static void prelevel(char g)
     for (bssize_t i=0; i<numsectors; i++)
     {
         if (RR && sector[i].ceilingpicnum == RRTILE2577)
-            g_thunderOn = 1;
+            thunderon = 1;
         sector[i].extra = 256;
 
         switch (sector[i].lotag)
@@ -1872,7 +1872,7 @@ static void prelevel(char g)
         }
     }
 
-    if (RR && !g_thunderOn)
+    if (RR && !thunderon)
     {
         videoSetPalette(BASEPAL,0);
         g_visibility = g_player[screenpeek].ps->visibility;

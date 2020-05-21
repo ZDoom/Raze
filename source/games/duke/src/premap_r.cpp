@@ -31,6 +31,12 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS 
 
+void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
+void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
+void addtorch(int i);
+void addlightning(int i);
+
+
 static inline void tloadtile(int tilenum, int palnum = 0)
 {
 	markTileForPrecache(tilenum, palnum);
@@ -432,14 +438,13 @@ void cacheit_r(void)
     precacheMarkedTiles();
 }
 
-#if 0
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
 
-void prelevel(char g)
+void prelevel_r(int g)
 {
     struct player_struct* p;
     short i;
@@ -455,94 +460,38 @@ void prelevel(char g)
     short sound;
     sound = 0;
 
+    prelevel_common(g);
     p = &ps[screenpeek];
 
 
-#ifdef RRRA
-    sub_86730(0);
-    p->fogtype = 0;
-    p->raat5dd = 0;
-    p->raat5fd = 0;
-    p->raat601 = 0;
-    p->SlotWin = 0;
-    p->raat607 = 0;
-    p->raat609 = 0;
-    mamaspawn_count = 15;
-    word_119BDC = 0;
-    word_119BE2 = 0;
-    if (ud.level_number == 3 && ud.volume_number == 0)
-        mamaspawn_count = 5;
-    else if (ud.level_number == 2 && ud.volume_number == 1)
-        mamaspawn_count = 10;
-    else if (ud.level_number == 6 && ud.volume_number == 1)
-        mamaspawn_count = 15;
-    else if (ud.level_number == 4 && ud.volume_number == 1)
-        ps[myconnectindex].steroids_amount = 0;
-#endif
-
-    clearbufbyte(show2dsector, sizeof(show2dsector), 0L);
-    clearbufbyte(show2dwall, sizeof(show2dwall), 0L);
-    clearbufbyte(show2dsprite, sizeof(show2dsprite), 0L);
-
-    for (i = 0; i < MAXSECTORS; i++)
-        shadedsector[i] = 0;
-
-    for (i = 0; i < 64; i++)
+    if (isRRRA())
     {
-        geosectorwarp[i] = -1;
-        geosectorwarp2[i] = -1;
-    }
+        if (ud.level_number == 4 && ud.volume_number == 1)
+            ps[myconnectindex].steroids_amount = 0;
 
-    for (i = 0; i < 64; i++)
-    {
-        ambienthitag[i] = -1;
-        ambientlotag[i] = -1;
-        ambientsprite[i] = -1;
-    }
-
-    resetprestat(0, g);
-    lightnincnt = 0;
-    torchcnt = 0;
-    geocnt = 0;
-    jaildoorcnt = 0;
-    minecartcnt = 0;
-    ambientfx = 0;
-    crashcnt = 0;
-    thunderon = 0;
-    chickenplant = 0;
-#ifdef RRRA
-    WindTime = 0;
-    WindDir = 0;
-    fakebubba_spawn = 0;
-    word_119BE2 = 0;
-    mamaspawn_count = 15;
-    BellTime = 0;
-    word_119BE0 = 0;
-
-    for (j = 0; j < MAXSPRITES; j++)
-    {
-        if (sprite[j].pal == 100)
+        for (j = 0; j < MAXSPRITES; j++)
         {
-            if (numplayers > 1)
-                deletesprite(j);
-            else
+            if (sprite[j].pal == 100)
+            {
+                if (numplayers > 1)
+                    deletesprite(j);
+                else
+                    sprite[j].pal = 0;
+            }
+            else if (sprite[j].pal == 101)
+            {
+                sprite[j].extra = 0;
+                sprite[j].hitag = 1;
                 sprite[j].pal = 0;
-        }
-        else if (sprite[j].pal == 101)
-        {
-            sprite[j].extra = 0;
-            sprite[j].hitag = 1;
-            sprite[j].pal = 0;
-            changespritestat(j, 118);
+                changespritestat(j, 118);
+            }
         }
     }
-#endif
 
     for (i = 0; i < numsectors; i++)
     {
         if (sector[i].ceilingpicnum == RRTILE2577)
             thunderon = 1;
-        sector[i].extra = 256;
 
         switch (sector[i].lotag)
         {
@@ -568,23 +517,14 @@ void prelevel(char g)
             {
                 if (sector[i].hitag == sector[j].hitag && j != i)
                 {
-                    if (jaildoorcnt > 32)
-                        gameexit("\nToo many jaildoor sectors");
-                    jaildoordist[jaildoorcnt] = dist;
-                    jaildoorspeed[jaildoorcnt] = speed;
-                    jaildoorsecthtag[jaildoorcnt] = sector[i].hitag;
-                    jaildoorsect[jaildoorcnt] = j;
-                    jaildoordrag[jaildoorcnt] = 0;
-                    jaildooropen[jaildoorcnt] = 0;
-                    jaildoordir[jaildoorcnt] = sector[j].lotag;
-                    jaildoorsound[jaildoorcnt] = sound;
-                    jaildoorcnt++;
+                    addjaildoor(dist, speed, sector[i].hitag, sector[j].lotag, sound, j);
                 }
             }
             break;
         case 42:
         {
             short ii;
+            int childsectnum = -1;
             k = headspritesect[i];
             while (k != -1)
             {
@@ -598,7 +538,7 @@ void prelevel(char g)
                         if (sprite[ii].picnum == RRTILE66)
                             if (sprite[ii].lotag == sprite[k].sectnum)
                             {
-                                minecartchildsect[minecartcnt] = sprite[ii].sectnum;
+                                childsectnum = sprite[ii].sectnum;
                                 deletesprite(ii);
                             }
                     }
@@ -611,51 +551,9 @@ void prelevel(char g)
                 }
                 k = nexti;
             }
-            if (minecartcnt > 16)
-                gameexit("\nToo many minecart sectors");
-            minecartdist[minecartcnt] = dist;
-            minecartspeed[minecartcnt] = speed;
-            minecartsect[minecartcnt] = i;
-            minecartdir[minecartcnt] = sector[i].hitag;
-            minecartdrag[minecartcnt] = dist;
-            minecartopen[minecartcnt] = 1;
-            minecartsound[minecartcnt] = sound;
-            minecartcnt++;
+            addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
             break;
         }
-        case 20:
-        case 22:
-            if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768;
-            continue;
-        }
-
-        if (sector[i].ceilingstat & 1)
-        {
-            if (waloff[sector[i].ceilingpicnum] == 0)
-            {
-                if (sector[i].ceilingpicnum == LA)
-                    for (j = 0; j < 5; j++)
-                        if (waloff[sector[i].ceilingpicnum + j] == 0)
-                            tloadtile(sector[i].ceilingpicnum + j);
-            }
-            setupbackdrop(sector[i].ceilingpicnum);
-
-            if (ps[0].one_parallax_sectnum == -1)
-                ps[0].one_parallax_sectnum = i;
-        }
-
-        if (sector[i].lotag == 32767) //Found a secret room
-        {
-            ps[0].max_secret_rooms++;
-            continue;
-        }
-
-        if (sector[i].lotag == -1)
-        {
-            ps[0].exitx = wall[sector[i].wallptr].x;
-            ps[0].exity = wall[sector[i].wallptr].y;
-            continue;
         }
     }
 
@@ -666,8 +564,8 @@ void prelevel(char g)
 
         if (sprite[i].lotag == -1 && (sprite[i].cstat & 16))
         {
-            ps[0].exitx = SX;
-            ps[0].exity = SY;
+            ps[0].exitx = sprite[i].x;
+            ps[0].exity = sprite[i].y;
         }
         else switch (sprite[i].picnum)
         {
@@ -676,44 +574,35 @@ void prelevel(char g)
             break;
 
         case GPSPEED:
-            sector[SECT].extra = SLT;
+            sector[sprite[i].sectnum].extra = sprite[i].lotag;
             deletesprite(i);
             break;
 
         case CYCLER:
             if (numcyclers >= MAXCYCLERS)
-                gameexit("\nToo many cycling sectors.");
-            cyclers[numcyclers][0] = SECT;
-            cyclers[numcyclers][1] = SLT;
-            cyclers[numcyclers][2] = SS;
-            cyclers[numcyclers][3] = sector[SECT].floorshade;
-            cyclers[numcyclers][4] = SHT;
-            cyclers[numcyclers][5] = (SA == 1536);
+                I_Error("Too many cycling sectors.");
+            cyclers[numcyclers][0] = sprite[i].sectnum;
+            cyclers[numcyclers][1] = sprite[i].lotag;
+            cyclers[numcyclers][2] = sprite[i].shade;
+            cyclers[numcyclers][3] = sector[sprite[i].sectnum].floorshade;
+            cyclers[numcyclers][4] = sprite[i].hitag;
+            cyclers[numcyclers][5] = (sprite[i].ang == 1536);
             numcyclers++;
             deletesprite(i);
             break;
 
         case RRTILE18:
-            if (torchcnt > 64)
-                gameexit("\nToo many torch effects");
-            torchsector[torchcnt] = SECT;
-            torchsectorshade[torchcnt] = sector[SECT].floorshade;
-            torchtype[torchcnt] = SLT;
-            torchcnt++;
+            addtorch(i);
             deletesprite(i);
             break;
 
         case RRTILE35:
-            if (lightnincnt > 64)
-                gameexit("\nToo many lightnin effects");
-            lightninsector[lightnincnt] = SECT;
-            lightninsectorshade[lightnincnt] = sector[SECT].floorshade;
-            lightnincnt++;
+            addlightning(i);
             deletesprite(i);
             break;
 
         case RRTILE68:
-            shadedsector[SECT] = 1;
+            shadedsector[sprite[i].sectnum] = 1;
             deletesprite(i);
             break;
 
@@ -723,12 +612,11 @@ void prelevel(char g)
 
         case SOUNDFX:
             if (ambientfx >= 64)
-                gameexit("\nToo many ambient effects");
+                I_Error("Too many ambient effects");
             else
             {
-                ambienthitag[ambientfx] = SHT;
-                ambientlotag[ambientfx] = SLT;
-                ambientsprite[ambientfx] = i;
+                ambienthitag[ambientfx] = sprite[i].hitag;
+                ambientlotag[ambientfx] = sprite[i].lotag;
                 sprite[i].ang = ambientfx;
                 ambientfx++;
                 sprite[i].lotag = 0;
@@ -744,7 +632,7 @@ void prelevel(char g)
         if (sprite[i].picnum == RRTILE19)
         {
             if (geocnt > 64)
-                gameexit("\nToo many geometry effects");
+                I_Error("Too many geometry effects");
             if (sprite[i].hitag == 0)
             {
                 geosector[geocnt] = sprite[i].sectnum;
@@ -757,14 +645,14 @@ void prelevel(char g)
                             geosectorwarp[geocnt] = sprite[j].sectnum;
                             geox[geocnt] = sprite[i].x - sprite[j].x;
                             geoy[geocnt] = sprite[i].y - sprite[j].y;
-                            geoz[geocnt] = sprite[i].z - sprite[j].z;
+                            //geoz[geocnt] = sprite[i].z - sprite[j].z;
                         }
                         if (sprite[j].hitag == 2)
                         {
                             geosectorwarp2[geocnt] = sprite[j].sectnum;
                             geox2[geocnt] = sprite[i].x - sprite[j].x;
                             geoy2[geocnt] = sprite[i].y - sprite[j].y;
-                            geoz2[geocnt] = sprite[i].z - sprite[j].z;
+                            //geoz2[geocnt] = sprite[i].z - sprite[j].z;
                         }
                     }
                 }
@@ -777,9 +665,9 @@ void prelevel(char g)
     {
         if (sprite[i].statnum < MAXSTATUS)
         {
-            if (sprite[i].picnum == SECTOREFFECTOR && SLT == 14)
+            if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
                 continue;
-            spawn(-1, i);
+            fi.spawn(-1, i);
         }
     }
 
@@ -787,14 +675,14 @@ void prelevel(char g)
     {
         if (sprite[i].statnum < MAXSTATUS)
         {
-            if (sprite[i].picnum == SECTOREFFECTOR && SLT == 14)
-                spawn(-1, i);
+            if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+                fi.spawn(-1, i);
         }
         if (sprite[i].picnum == RRTILE19)
             deletesprite(i);
         if (sprite[i].picnum == RRTILE34)
         {
-            sector[sprite[i].sectnum].filler = sprite[i].lotag;
+            g_sectorExtra[sprite[i].sectnum] = sprite[i].lotag;
             deletesprite(i);
         }
     }
@@ -806,24 +694,8 @@ void prelevel(char g)
     {
         switch (sprite[i].picnum)
         {
-        case DIPSWITCH:
-        case DIPSWITCH2:
-        case ACCESSSWITCH:
-        case PULLSWITCH:
-        case HANDSWITCH:
-        case SLOTDOOR:
-        case LIGHTSWITCH:
-        case SPACELIGHTSWITCH:
-        case SPACEDOORSWITCH:
-        case FRANKENSTINESWITCH:
-        case LIGHTSWITCH2:
-        case POWERSWITCH1:
-        case LOCKSWITCH1:
-        case POWERSWITCH2:
-#ifdef RRRA
-        case RRTILE8464:
-#endif
-            break;
+        case RRTILE8464 + 1:
+            if (!isRRRA()) break;
         case DIPSWITCH + 1:
         case DIPSWITCH2 + 1:
         case PULLSWITCH + 1:
@@ -839,24 +711,22 @@ void prelevel(char g)
         case POWERSWITCH2 + 1:
         case NUKEBUTTON:
         case NUKEBUTTON + 1:
-#ifdef RRRA
-        case RRTILE8464 + 1:
-#endif
+
             for (j = 0; j < lotaglist; j++)
-                if (SLT == lotags[j])
+                if (sprite[i].lotag == lotags[j])
                     break;
 
             if (j == lotaglist)
             {
-                lotags[lotaglist] = SLT;
+                lotags[lotaglist] = sprite[i].lotag;
                 lotaglist++;
                 if (lotaglist > 64)
-                    gameexit("\nToo many switches (64 max).");
+                    I_Error("Too many switches (64 max).");
 
                 j = headspritestat[3];
                 while (j >= 0)
                 {
-                    if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
+                    if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
                         hittype[j].temp_data[0] = 1;
                     j = nextspritestat[j];
                 }
@@ -878,7 +748,7 @@ void prelevel(char g)
             j = wal->nextsector;
 
             if (mirrorcnt > 63)
-                gameexit("\nToo many mirrors (64 max.)");
+                I_Error("Too many mirrors (64 max.)");
             if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
             {
                 sector[j].ceilingpicnum = MIRROR;
@@ -891,7 +761,7 @@ void prelevel(char g)
         }
 
         if (numanimwalls >= MAXANIMWALLS)
-            gameexit("\nToo many 'anim' walls (max 512.)");
+            I_Error("Too many 'anim' walls (max 512.)");
 
         animwall[numanimwalls].tag = 0;
         animwall[numanimwalls].wallnum = 0;
@@ -913,47 +783,11 @@ void prelevel(char g)
 
         switch (wal->picnum)
         {
-        case WATERTILE2:
-            for (j = 0; j < 3; j++)
-                if (waloff[wal->picnum + j] == 0)
-                    tloadtile(wal->picnum + j);
-            break;
-
-        case RRTILE1814:
-        case RRTILE1817:
-            if (waloff[wal->picnum] == 0)
-                tloadtile(wal->picnum);
-            break;
-        case RRTILE1939:
-        case RRTILE1986:
-        case RRTILE1987:
-        case RRTILE1988:
-        case RRTILE2004:
-        case RRTILE2005:
-        case RRTILE2123:
-        case RRTILE2124:
-        case RRTILE2125:
-        case RRTILE2126:
-        case RRTILE2636:
-        case RRTILE2637:
-        case RRTILE2878:
-        case RRTILE2879:
-        case RRTILE2898:
-        case RRTILE2899:
-            if (waloff[wal->picnum] == 0)
-                tloadtile(wal->picnum);
-            break;
-        case TECHLIGHT2:
-        case TECHLIGHT4:
-            if (waloff[wal->picnum] == 0)
-                tloadtile(wal->picnum);
-            break;
         case SCREENBREAK6:
         case SCREENBREAK7:
         case SCREENBREAK8:
-            if (waloff[SCREENBREAK6] == 0)
-                for (j = SCREENBREAK6; j <= SCREENBREAK8; j++)
-                    tloadtile(j, pal);
+            for (j = SCREENBREAK6; j <= SCREENBREAK8; j++)
+                tloadtile(j);
             animwall[numanimwalls].wallnum = i;
             animwall[numanimwalls].tag = -1;
             numanimwalls++;
@@ -972,15 +806,17 @@ void prelevel(char g)
             wall[j].overpicnum = MIRROR;
         }
     }
+    videoSetBrightness(0);
     if (!thunderon)
     {
-        char brightness = ud.brightness >> 2;
-        setbrightness(brightness, palette);
-        visibility = p->visibility;
+        g_visibility = p->visibility;
     }
-    tilesizx[0] = tilesizy[0] = 0;
-}
+ }
 
+
+
+
+#if 0
 
 
 

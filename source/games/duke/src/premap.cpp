@@ -27,6 +27,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #include "ns.h"
 #include "global.h"
+#include "premap.h"
 
 BEGIN_DUKE_NS  
 
@@ -426,7 +427,7 @@ void resetprestat(int snum,int g)
     fakebubba_spawn = 0;
     RRRA_ExitedLevel = 0;
     BellTime = 0;
-    g_bellSprite = 0;
+    BellSprite = 0;
 
     numinterpolations = 0;
     //startofdynamicinterpolations = 0;
@@ -648,6 +649,99 @@ void resetpspritevars(int g)
         }
         else deletesprite(i);
         i = nexti;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+void lava_cleararrays();
+
+void prelevel_common(int g)
+{
+    int i;
+
+    auto p = &ps[screenpeek];
+    p->sea_sick_stat = 0;
+    ufospawnsminion = 0;
+    pistonsound = 0;
+    p->SlotWin = 0;
+    enemysizecheat = 0;
+    p->MamaEnd = 0;
+    mamaspawn_count = 15;
+    banjosound = 0;
+    RRRA_ExitedLevel = 0;
+
+    lava_cleararrays();
+    geocnt = 0;
+    ambientfx = 0;
+    thunderon = 0;
+    chickenplant = 0;
+    WindTime = 0;
+    WindDir = 0;
+    fakebubba_spawn = 0;
+    RRRA_ExitedLevel = 0;
+    mamaspawn_count = 15;
+    BellTime = 0;
+    BellSprite = 0;
+
+    // RRRA E2L1 fog handling.
+    setmapfog(0);
+    fogactive = 0;
+
+    show2dsector.Zero();
+    memset(show2dwall, 0, sizeof(show2dwall));
+    memset(show2dsprite, 0, sizeof(show2dsprite));
+
+    resetprestat(0, g);
+    numclouds = 0;
+
+    memset(g_spriteExtra, 0, sizeof(g_spriteExtra));
+    memset(g_sectorExtra, 0, sizeof(g_sectorExtra));
+    memset(shadedsector, 0, sizeof(shadedsector));
+    memset(geosectorwarp, -1, sizeof(geosectorwarp));
+    memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
+    memset(ambienthitag, -1, sizeof(ambienthitag));
+    memset(ambientlotag, -1, sizeof(ambientlotag));
+
+    for (i = 0; i < numsectors; i++)
+    {
+        sector[i].extra = 256;
+
+        switch (sector[i].lotag)
+        {
+        case 20:
+        case 22:
+            if (sector[i].floorz > sector[i].ceilingz)
+                sector[i].lotag |= 32768;
+            continue;
+        }
+
+        if (sector[i].ceilingstat & 1)
+        {
+            //setupbackdrop(sector[i].ceilingpicnum);
+
+            if (sector[i].ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
+                clouds[numclouds++] = i;
+
+            if (ps[0].one_parallax_sectnum == -1)
+                ps[0].one_parallax_sectnum = i;
+        }
+
+        if (sector[i].lotag == 32767) //Found a secret room
+        {
+            ps[0].max_secret_rooms++;
+            continue;
+        }
+
+        if (sector[i].lotag == -1)
+        {
+            ps[0].exitx = wall[sector[i].wallptr].x;
+            ps[0].exity = wall[sector[i].wallptr].y;
+            continue;
+        }
     }
 }
 

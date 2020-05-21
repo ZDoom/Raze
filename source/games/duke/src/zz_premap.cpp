@@ -199,12 +199,6 @@ void G_UpdateScreenArea(void)
     pus = NUMPAGES;
 }
 
-static inline void P_ResetTintFade(DukePlayer_t *const pPlayer)
-{
-    pPlayer->pals.f = 0;
-}
-
-
 static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
 void G_InitRRRASkies(void)
@@ -236,6 +230,10 @@ void G_InitRRRASkies(void)
     }
 }
 
+void prelevel_d(int g);
+void prelevel_r(int g);
+
+#if 0
 static void prelevel(char g)
 {
     uint8_t *tagbitmap = (uint8_t *)Xcalloc(65536>>3, 1);
@@ -275,22 +273,19 @@ static void prelevel(char g)
     Bmemset(g_spriteExtra, 0, sizeof(g_spriteExtra));
     Bmemset(g_sectorExtra, 0, sizeof(g_sectorExtra));
     Bmemset(shadedsector, 0, sizeof(shadedsector));
-    Bmemset(g_geoSectorWarp, -1, sizeof(g_geoSectorWarp));
-    Bmemset(g_geoSectorWarp2, -1, sizeof(g_geoSectorWarp2));
+    Bmemset(geosectorwarp, -1, sizeof(geosectorwarp));
+    Bmemset(geosectorwarp2, -1, sizeof(geosectorwarp2));
     Bmemset(ambienthitag, -1, sizeof(ambienthitag));
     Bmemset(ambientlotag, -1, sizeof(ambientlotag));
     show2dsector.Zero();
-#ifdef LEGACY_ROR
-    Bmemset(ror_protectedsectors, 0, MAXSECTORS);
-#endif
     resetprestat(0,g);
     if (RR)
     {
         lava_cleararrays();
-        g_geoSectorCnt = 0;
-        g_ambientCnt = 0;
-        g_thunderOn = 0;
-        g_chickenPlant = 0;
+        geocnt = 0;
+        ambientfx = 0;
+        thunderon = 0;
+        chickenplant = 0;
         if (RRRA)
         {
             WindTime = 0;
@@ -299,7 +294,7 @@ static void prelevel(char g)
             RRRA_ExitedLevel = 0;
             mamaspawn_count = 15; // ???
             g_bellTime = 0;
-            g_bellSprite = 0;
+            BellSprite = 0;
 
             for (bssize_t spriteNum = 0; spriteNum < MAXSPRITES; spriteNum++)
             {
@@ -320,7 +315,7 @@ static void prelevel(char g)
             }
         }
     }
-    g_cloudCnt = 0;
+    numclouds = 0;
 
     int missedCloudSectors = 0;
 
@@ -328,7 +323,7 @@ static void prelevel(char g)
     for (bssize_t i=0; i<numsectors; i++)
     {
         if (RR && sector[i].ceilingpicnum == TILE_RRTILE2577)
-            g_thunderOn = 1;
+            thunderon = 1;
         sector[i].extra = 256;
 
         switch (sector[i].lotag)
@@ -406,8 +401,8 @@ static void prelevel(char g)
         {
             if (!RR && sector[i].ceilingpicnum == TILE_CLOUDYSKIES)
             {
-                if (g_cloudCnt < ARRAY_SSIZE(g_cloudSect))
-                    g_cloudSect[g_cloudCnt++] = i;
+                if (numclouds < ARRAY_SSIZE(clouds))
+                    clouds[numclouds++] = i;
                 else
                     missedCloudSectors++;
             }
@@ -446,7 +441,7 @@ static void prelevel(char g)
         else switch (DYNAMICTILEMAP(PN(i)))
             {
             case NUKEBUTTON__STATIC:
-                if (RR) g_chickenPlant = 1;
+                if (RR) chickenplant = 1;
                 break;
             case GPSPEED__STATIC:
                 // DELETE_AFTER_LOADACTOR. Must not change statnum.
@@ -492,13 +487,13 @@ static void prelevel(char g)
                 break;
 
             case SOUNDFX__STATICRR:
-                if (g_ambientCnt >= 64)
+                if (ambientfx >= 64)
                     G_GameExit("\nToo many ambient effects");
                 else
                 {
-                    ambienthitag[g_ambientCnt] = SHT(i);
-                    ambientlotag[g_ambientCnt] = SLT(i);
-                    sprite[i].ang = g_ambientCnt++;
+                    ambienthitag[ambientfx] = SHT(i);
+                    ambientlotag[ambientfx] = SLT(i);
+                    sprite[i].ang = ambientfx++;
                     sprite[i].lotag = 0;
                     sprite[i].hitag = 0;
                 }
@@ -524,28 +519,28 @@ static void prelevel(char g)
             {
                 if (sprite[i].hitag == 0)
                 {
-                    if (g_geoSectorCnt >= MAXGEOSECTORS)
+                    if (geocnt >= MAXGEOSECTORS)
                         G_GameExit("\nToo many geometry effects");
-                    g_geoSector[g_geoSectorCnt] = sprite[i].sectnum;
+                    geosector[geocnt] = sprite[i].sectnum;
                     for (bssize_t j = 0; j < MAXSPRITES; j++)
                     {
                         if (sprite[i].lotag == sprite[j].lotag && i != j && sprite[j].picnum == TILE_RRTILE19)
                         {
                             if (sprite[j].hitag == 1)
                             {
-                                g_geoSectorWarp[g_geoSectorCnt] = sprite[j].sectnum;
-                                g_geoSectorX[g_geoSectorCnt] = sprite[i].x - sprite[j].x;
-                                g_geoSectorY[g_geoSectorCnt] = sprite[i].y - sprite[j].y;
+                                geosectorwarp[geocnt] = sprite[j].sectnum;
+                                geox[geocnt] = sprite[i].x - sprite[j].x;
+                                geoy[geocnt] = sprite[i].y - sprite[j].y;
                             }
                             if (sprite[j].hitag == 2)
                             {
-                                g_geoSectorWarp2[g_geoSectorCnt] = sprite[j].sectnum;
-                                g_geoSectorX2[g_geoSectorCnt] = sprite[i].x - sprite[j].x;
-                                g_geoSectorY2[g_geoSectorCnt] = sprite[i].y - sprite[j].y;
+                                geosectorwarp2[geocnt] = sprite[j].sectnum;
+                                geox2[geocnt] = sprite[i].x - sprite[j].x;
+                                geoy2[geocnt] = sprite[i].y - sprite[j].y;
                             }
                         }
                     }
-                    g_geoSectorCnt++;
+                    geocnt++;
                 }
             }
         }
@@ -622,7 +617,7 @@ static void prelevel(char g)
 
     Xfree(tagbitmap);
 
-    g_mirrorCount = 0;
+    mirrorcnt = 0;
 
     for (bssize_t i = 0; i < numwalls; i++)
     {
@@ -634,16 +629,16 @@ static void prelevel(char g)
 
             if ((nextSectnum >= 0) && sector[nextSectnum].ceilingpicnum != TILE_MIRROR)
             {
-                if (g_mirrorCount > 63)
+                if (mirrorcnt > 63)
                 {
                     G_GameExit("\nToo many mirrors (64 max.)");
                 }
 
                 sector[nextSectnum].ceilingpicnum = TILE_MIRROR;
                 sector[nextSectnum].floorpicnum   = TILE_MIRROR;
-                g_mirrorWall[g_mirrorCount]       = i;
-                g_mirrorSector[g_mirrorCount]     = nextSectnum;
-                g_mirrorCount++;
+                mirrorwall[mirrorcnt]       = i;
+                mirrorsector[mirrorcnt]     = nextSectnum;
+                mirrorcnt++;
                 continue;
             }
         }
@@ -789,10 +784,10 @@ static void prelevel(char g)
     }
 
     //Invalidate textures in sector behind mirror
-    for (bssize_t i=0; i<g_mirrorCount; i++)
+    for (bssize_t i=0; i<mirrorcnt; i++)
     {
-        int const startWall = sector[g_mirrorSector[i]].wallptr;
-        int const endWall   = startWall + sector[g_mirrorSector[i]].wallnum;
+        int const startWall = sector[mirrorsector[i]].wallptr;
+        int const endWall   = startWall + sector[mirrorsector[i]].wallnum;
 
         for (bssize_t j = startWall; j < endWall; j++)
         {
@@ -801,7 +796,7 @@ static void prelevel(char g)
         }
     }
 
-    if (RR && !g_thunderOn)
+    if (RR && !thunderon)
     {
         videoSetPalette(BASEPAL,0);
         g_visibility = g_player[screenpeek].ps->visibility;
@@ -814,7 +809,7 @@ static void prelevel(char g)
     G_SetupGlobalPsky();
 
 }
-
+#endif
 
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
@@ -1117,7 +1112,8 @@ int G_EnterLevel(int gameMode)
     Bmemset(gotpic, 0, sizeof(gotpic));
     Bmemset(precachehightile, 0, sizeof(precachehightile));
 
-    prelevel(gameMode);
+    if (isRR()) prelevel_r(gameMode);
+    else prelevel_d(gameMode);
 
     G_InitRRRASkies();
 

@@ -223,7 +223,7 @@ void G_MoveWorld_r(void)
     if (!DEER)
         movefx();               //ST 11
 
-    if (numplayers < 2 && g_thunderOn)
+    if (numplayers < 2 && thunderon)
         thunder();
 
     g_moveWorldTime = (1 - 0.033) * g_moveWorldTime + 0.033 * (timerGetHiTicks() - worldTime);

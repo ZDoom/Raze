@@ -264,190 +264,127 @@ void cacheit_d(void)
     precacheMarkedTiles();
 }
 
-#if 0
-
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
 
-void prelevel(int g)
+void prelevel_d(int g)
 {
     short i, nexti, j, startwall, endwall, lotaglist;
     short lotags[65];
 
-
-    show2dsector.Zero();
-    memset(show2dwall,0, sizeof(show2dwall));
-    memset(show2dsprite,0, sizeof(show2dsprite));
-
-    resetprestat(0,g);
-    numclouds = 0;
-
-    for(i=0;i<numsectors;i++)
-    {
-        sector[i].extra = 256;
-
-        switch(sector[i].lotag)
-        {
-            case 20:
-            case 22:
-                if( sector[i].floorz > sector[i].ceilingz)
-                    sector[i].lotag |= 32768;
-                continue;
-        }
-
-        if(sector[i].ceilingstat&1)
-        {
-            setupbackdrop(sector[i].ceilingpicnum);
-
-            if(sector[i].ceilingpicnum == CLOUDYSKIES && numclouds < 127)
-                clouds[numclouds++] = i;
-
-            if(ps[0].one_parallax_sectnum == -1)
-                ps[0].one_parallax_sectnum = i;
-        }
-
-        if(sector[i].lotag == 32767) //Found a secret room
-        {
-            ps[0].max_secret_rooms++;
-            continue;
-        }
-
-        if(sector[i].lotag == -1)
-        {
-            ps[0].exitx = wall[sector[i].wallptr].x;
-            ps[0].exity = wall[sector[i].wallptr].y;
-            continue;
-        }
-    }
+    prelevel_common(g);
 
     i = headspritestat[0];
-    while(i >= 0)
+    while (i >= 0)
     {
         nexti = nextspritestat[i];
 
-		LoadActor(i, -1, -1);
-
-        if(sprite[i].lotag == -1 && (sprite[i].cstat&16) )
+        if (sprite[i].lotag == -1 && (sprite[i].cstat & 16))
         {
-            ps[0].exitx = SX;
-            ps[0].exity = SY;
+            ps[0].exitx = sprite[i].x;
+            ps[0].exity = sprite[i].y;
         }
-        else switch(PN)
+        else switch (sprite[i].picnum)
         {
-            case GPSPEED:
-                sector[SECT].extra = SLT;
-                deletesprite(i);
-                break;
+        case GPSPEED:
+            sector[sprite[i].sectnum].extra = sprite[i].lotag;
+            deletesprite(i);
+            break;
 
-            case CYCLER:
-                if(numcyclers >= MAXCYCLERS)
-                    gameexit("\nToo many cycling sectors.");
-                cyclers[numcyclers][0] = SECT;
-                cyclers[numcyclers][1] = SLT;
-                cyclers[numcyclers][2] = SS;
-                cyclers[numcyclers][3] = sector[SECT].floorshade;
-                cyclers[numcyclers][4] = SHT;
-                cyclers[numcyclers][5] = (SA == 1536);
-                numcyclers++;
-                deletesprite(i);
-                break;
+        case CYCLER:
+            if (numcyclers >= MAXCYCLERS)
+                I_Error("Too many cycling sectors.");
+            cyclers[numcyclers][0] = sprite[i].sectnum;
+            cyclers[numcyclers][1] = sprite[i].lotag;
+            cyclers[numcyclers][2] = sprite[i].shade;
+            cyclers[numcyclers][3] = sector[sprite[i].sectnum].floorshade;
+            cyclers[numcyclers][4] = sprite[i].hitag;
+            cyclers[numcyclers][5] = (sprite[i].ang == 1536);
+            numcyclers++;
+            deletesprite(i);
+            break;
         }
         i = nexti;
     }
 
-    for(i=0;i < MAXSPRITES;i++)
+    for (i = 0; i < MAXSPRITES; i++)
     {
-        if(sprite[i].statnum < MAXSTATUS)
+        if (sprite[i].statnum < MAXSTATUS)
         {
-            if(PN == SECTOREFFECTOR && SLT == 14)
+            if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
                 continue;
-            spawn(-1,i);
+            fi.spawn(-1, i);
         }
     }
 
-    for(i=0;i < MAXSPRITES;i++)
-        if(sprite[i].statnum < MAXSTATUS)
+    for (i = 0; i < MAXSPRITES; i++)
+        if (sprite[i].statnum < MAXSTATUS)
         {
-            if( PN == SECTOREFFECTOR && SLT == 14 )
-                spawn(-1,i);
+            if (sprite[i].picnum == SECTOREFFECTOR && sprite[i].lotag == 14)
+                fi.spawn(-1, i);
         }
 
     lotaglist = 0;
 
     i = headspritestat[0];
-    while(i >= 0)
+    while (i >= 0)
     {
-        switch(PN)
+        switch (sprite[i].picnum)
         {
-            case DIPSWITCH:
-            case DIPSWITCH2:
-            case ACCESSSWITCH:
-            case PULLSWITCH:
-            case HANDSWITCH:
-            case SLOTDOOR:
-            case LIGHTSWITCH:
-            case SPACELIGHTSWITCH:
-            case SPACEDOORSWITCH:
-            case FRANKENSTINESWITCH:
-            case LIGHTSWITCH2:
-            case POWERSWITCH1:
-            case LOCKSWITCH1:
-            case POWERSWITCH2:
-                break;
-            case DIPSWITCH+1:
-            case DIPSWITCH2+1:
-            case PULLSWITCH+1:
-            case HANDSWITCH+1:
-            case SLOTDOOR+1:
-            case LIGHTSWITCH+1:
-            case SPACELIGHTSWITCH+1:
-            case SPACEDOORSWITCH+1:
-            case FRANKENSTINESWITCH+1:
-            case LIGHTSWITCH2+1:
-            case POWERSWITCH1+1:
-            case LOCKSWITCH1+1:
-            case POWERSWITCH2+1:
-                for(j=0;j<lotaglist;j++)
-                    if( SLT == lotags[j] )
-                        break;
+        case DIPSWITCH + 1:
+        case DIPSWITCH2 + 1:
+        case PULLSWITCH + 1:
+        case HANDSWITCH + 1:
+        case SLOTDOOR + 1:
+        case LIGHTSWITCH + 1:
+        case SPACELIGHTSWITCH + 1:
+        case SPACEDOORSWITCH + 1:
+        case FRANKENSTINESWITCH + 1:
+        case LIGHTSWITCH2 + 1:
+        case POWERSWITCH1 + 1:
+        case LOCKSWITCH1 + 1:
+        case POWERSWITCH2 + 1:
+            for (j = 0; j < lotaglist; j++)
+                if (sprite[i].lotag == lotags[j])
+                    break;
 
-                if( j == lotaglist )
+            if (j == lotaglist)
+            {
+                lotags[lotaglist] = sprite[i].lotag;
+                lotaglist++;
+                if (lotaglist > 64)
+                    I_Error("Too many switches (64 max).");
+
+                j = headspritestat[3];
+                while (j >= 0)
                 {
-                    lotags[lotaglist] = SLT;
-                    lotaglist++;
-                    if(lotaglist > 64)
-                        gameexit("\nToo many switches (64 max).");
-
-                    j = headspritestat[3];
-                    while(j >= 0)
-                    {
-                        if(sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                            hittype[j].temp_data[0] = 1;
-                        j = nextspritestat[j];
-                    }
+                    if (sprite[j].lotag == 12 && sprite[j].hitag == sprite[i].lotag)
+                        hittype[j].temp_data[0] = 1;
+                    j = nextspritestat[j];
                 }
-                break;
+            }
+            break;
         }
         i = nextspritestat[i];
     }
 
     mirrorcnt = 0;
 
-    for( i = 0; i < numwalls; i++ )
+    for (i = 0; i < numwalls; i++)
     {
-        walltype *wal;
+        walltype* wal;
         wal = &wall[i];
 
-        if(wal->overpicnum == MIRROR && (wal->cstat&32) != 0)
+        if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
         {
             j = wal->nextsector;
 
-            if(mirrorcnt > 63)
-                gameexit("\nToo many mirrors (64 max.)");
-            if ( (j >= 0) && sector[j].ceilingpicnum != MIRROR )
+            if (mirrorcnt > 63)
+                I_Error("Too many mirrors (64 max.)");
+            if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
             {
                 sector[j].ceilingpicnum = MIRROR;
                 sector[j].floorpicnum = MIRROR;
@@ -458,133 +395,121 @@ void prelevel(int g)
             }
         }
 
-        if(numanimwalls >= MAXANIMWALLS)
-            gameexit("\nToo many 'anim' walls (max 512.)");
+        if (numanimwalls >= MAXANIMWALLS)
+            I_Error("Too many 'anim' walls (max 512.)");
 
         animwall[numanimwalls].tag = 0;
         animwall[numanimwalls].wallnum = 0;
 
-        switch(wal->overpicnum)
+        switch (wal->overpicnum)
         {
-            case FANSHADOW:
-            case FANSPRITE:
-                wall->cstat |= 65;
-                animwall[numanimwalls].wallnum = i;
-                numanimwalls++;
-                break;
+        case FANSHADOW:
+        case FANSPRITE:
+            wall->cstat |= 65;
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
+            break;
 
-            case W_FORCEFIELD:
-                if(waloff[W_FORCEFIELD] == 0)
-                    for(j=0;j<3;j++)
-                        tloadtile(W_FORCEFIELD+j);
-            case W_FORCEFIELD+1:
-            case W_FORCEFIELD+2:
-                if(wal->shade > 31)
-                    wal->cstat = 0;
-                else wal->cstat |= 85+256;
+        case W_FORCEFIELD:
+            for (j = 0; j < 3; j++)
+                tloadtile(W_FORCEFIELD + j);
+        case W_FORCEFIELD + 1:
+        case W_FORCEFIELD + 2:
+            if (wal->shade > 31)
+                wal->cstat = 0;
+            else wal->cstat |= 85 + 256;
 
+            if (wal->lotag && wal->nextwall >= 0)
+                wall[wal->nextwall].lotag = wal->lotag;
 
-                if(wal->lotag && wal->nextwall >= 0)
-                    wall[wal->nextwall].lotag =
-                        wal->lotag;
+        case BIGFORCE:
 
-            case BIGFORCE:
+            animwall[numanimwalls].wallnum = i;
+            numanimwalls++;
 
-                animwall[numanimwalls].wallnum = i;
-                numanimwalls++;
-
-                continue;
+            continue;
         }
 
         wal->extra = -1;
 
-        switch(wal->picnum)
+        switch (wal->picnum)
         {
-            case WATERTILE2:
-                for(j=0;j<3;j++)
-                    if(waloff[wal->picnum+j] == 0)
-                        tloadtile(wal->picnum+j);
-                break;
+        case W_TECHWALL1:
+        case W_TECHWALL2:
+        case W_TECHWALL3:
+        case W_TECHWALL4:
+            animwall[numanimwalls].wallnum = i;
+            //                animwall[numanimwalls].tag = -1;
+            numanimwalls++;
+            break;
+        case SCREENBREAK6:
+        case SCREENBREAK7:
+        case SCREENBREAK8:
+            for (j = SCREENBREAK6; j < SCREENBREAK9; j++)
+                tloadtile(j);
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = -1;
+            numanimwalls++;
+            break;
 
-            case TECHLIGHT2:
-            case TECHLIGHT4:
-                if(waloff[wal->picnum] == 0)
-                    tloadtile(wal->picnum);
-                break;
-            case W_TECHWALL1:
-            case W_TECHWALL2:
-            case W_TECHWALL3:
-            case W_TECHWALL4:
-                animwall[numanimwalls].wallnum = i;
-//                animwall[numanimwalls].tag = -1;
-                numanimwalls++;
-                break;
-            case SCREENBREAK6:
-            case SCREENBREAK7:
-            case SCREENBREAK8:
-                if(waloff[SCREENBREAK6] == 0)
-                    for(j=SCREENBREAK6;j<SCREENBREAK9;j++)
-                        tloadtile(j);
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = -1;
-                numanimwalls++;
-                break;
+        case FEMPIC1:
+        case FEMPIC2:
+        case FEMPIC3:
 
-            case FEMPIC1:
-            case FEMPIC2:
-            case FEMPIC3:
+            wal->extra = wal->picnum;
+            animwall[numanimwalls].tag = -1;
+            if (ud.lockout)
+            {
+                if (wal->picnum == FEMPIC1)
+                    wal->picnum = BLANKSCREEN;
+                else wal->picnum = SCREENBREAK6;
+            }
 
-                wal->extra = wal->picnum;
-                animwall[numanimwalls].tag = -1;
-                if(ud.lockout)
-                {
-                    if(wal->picnum == FEMPIC1)
-                        wal->picnum = BLANKSCREEN;
-                    else wal->picnum = SCREENBREAK6;
-                }
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = wal->picnum;
+            numanimwalls++;
+            break;
 
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = wal->picnum;
-                numanimwalls++;
-                break;
+        case SCREENBREAK1:
+        case SCREENBREAK2:
+        case SCREENBREAK3:
+        case SCREENBREAK4:
+        case SCREENBREAK5:
 
-            case SCREENBREAK1:
-            case SCREENBREAK2:
-            case SCREENBREAK3:
-            case SCREENBREAK4:
-            case SCREENBREAK5:
+        case SCREENBREAK9:
+        case SCREENBREAK10:
+        case SCREENBREAK11:
+        case SCREENBREAK12:
+        case SCREENBREAK13:
+        case SCREENBREAK14:
+        case SCREENBREAK15:
+        case SCREENBREAK16:
+        case SCREENBREAK17:
+        case SCREENBREAK18:
+        case SCREENBREAK19:
 
-            case SCREENBREAK9:
-            case SCREENBREAK10:
-            case SCREENBREAK11:
-            case SCREENBREAK12:
-            case SCREENBREAK13:
-            case SCREENBREAK14:
-            case SCREENBREAK15:
-            case SCREENBREAK16:
-            case SCREENBREAK17:
-            case SCREENBREAK18:
-            case SCREENBREAK19:
-
-                animwall[numanimwalls].wallnum = i;
-                animwall[numanimwalls].tag = wal->picnum;
-                numanimwalls++;
-                break;
+            animwall[numanimwalls].wallnum = i;
+            animwall[numanimwalls].tag = wal->picnum;
+            numanimwalls++;
+            break;
         }
     }
 
     //Invalidate textures in sector behind mirror
-    for(i=0;i<mirrorcnt;i++)
+    for (i = 0; i < mirrorcnt; i++)
     {
         startwall = sector[mirrorsector[i]].wallptr;
         endwall = startwall + sector[mirrorsector[i]].wallnum;
-        for(j=startwall;j<endwall;j++)
+        for (j = startwall; j < endwall; j++)
         {
             wall[j].picnum = MIRROR;
             wall[j].overpicnum = MIRROR;
         }
     }
 }
+
+
+#if 0
 
 //---------------------------------------------------------------------------
 //

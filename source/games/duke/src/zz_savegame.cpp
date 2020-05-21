@@ -827,9 +827,9 @@ static const dataspec_t svgm_secwsp[] =
     { DS_CNT(g_cyclerCnt), &g_cyclers[0][0], sizeof(g_cyclers[0]), (intptr_t)&g_cyclerCnt },
     { DS_NOCHK, &g_animWallCnt, sizeof(g_animWallCnt), 1 },
     { DS_CNT(g_animWallCnt), &animwall, sizeof(animwall[0]), (intptr_t)&g_animWallCnt },
-    { DS_NOCHK, &g_mirrorCount, sizeof(g_mirrorCount), 1 },
-    { DS_NOCHK, &g_mirrorWall[0], sizeof(g_mirrorWall[0]), ARRAY_SIZE(g_mirrorWall) },
-    { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), ARRAY_SIZE(g_mirrorSector) },
+    { DS_NOCHK, &mirrorcnt, sizeof(mirrorcnt), 1 },
+    { DS_NOCHK, &mirrorwall[0], sizeof(mirrorwall[0]), ARRAY_SIZE(mirrorwall) },
+    { DS_NOCHK, &mirrorsector[0], sizeof(mirrorsector[0]), ARRAY_SIZE(mirrorsector) },
     { 0, &everyothertime, sizeof(everyothertime), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -861,8 +861,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
     { DS_NOCHK, &g_deleteQueueSize, sizeof(g_deleteQueueSize), 1 },
     { DS_CNT(g_deleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_deleteQueueSize },
-    { DS_NOCHK, &g_cloudCnt, sizeof(g_cloudCnt), 1 },
-    { 0, &g_cloudSect[0], sizeof(g_cloudSect), 1 },
+    { DS_NOCHK, &numclouds, sizeof(numclouds), 1 },
+    { 0, &clouds[0], sizeof(clouds), 1 },
     { 0, &g_cloudX, sizeof(g_cloudX), 1 },
     { 0, &g_cloudY, sizeof(g_cloudY), 1 },
     { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
@@ -874,7 +874,7 @@ static const dataspec_t svgm_anmisc[] =
 
     { 0, &shadedsector[0], sizeof(shadedsector[0]), MAXSECTORS },
 
-    { 0, &g_ambientCnt, sizeof(g_ambientCnt), 1 },
+    { 0, &ambientfx, sizeof(ambientfx), 1 },
     { 0, &ambienthitag[0], sizeof(ambienthitag[0]), ARRAY_SIZE(ambienthitag) },
     { 0, &ambientlotag[0], sizeof(ambientlotag[0]), ARRAY_SIZE(ambientlotag) },
     
@@ -883,14 +883,14 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_hulkSpawn, sizeof(g_hulkSpawn), 1 },
     { 0, &g_lastLevel, sizeof(g_lastLevel), 1 },
 
-    { 0, &g_geoSector[0], sizeof(g_geoSector[0]), ARRAY_SIZE(g_geoSector) },
-    { 0, &g_geoSectorWarp[0], sizeof(g_geoSectorWarp[0]), ARRAY_SIZE(g_geoSectorWarp) },
-    { 0, &g_geoSectorX[0], sizeof(g_geoSectorX[0]), ARRAY_SIZE(g_geoSectorX) },
-    { 0, &g_geoSectorY[0], sizeof(g_geoSectorY[0]), ARRAY_SIZE(g_geoSectorY) },
-    { 0, &g_geoSectorWarp2[0], sizeof(g_geoSectorWarp2[0]), ARRAY_SIZE(g_geoSectorWarp2) },
-    { 0, &g_geoSectorX2[0], sizeof(g_geoSectorX2[0]), ARRAY_SIZE(g_geoSectorX2) },
-    { 0, &g_geoSectorY2[0], sizeof(g_geoSectorY2[0]), ARRAY_SIZE(g_geoSectorY2) },
-    { 0, &g_geoSectorCnt, sizeof(g_geoSectorCnt), 1 },
+    { 0, &geosector[0], sizeof(geosector[0]), ARRAY_SIZE(geosector) },
+    { 0, &geosectorwarp[0], sizeof(geosectorwarp[0]), ARRAY_SIZE(geosectorwarp) },
+    { 0, &geox[0], sizeof(geox[0]), ARRAY_SIZE(geox) },
+    { 0, &geoy[0], sizeof(geoy[0]), ARRAY_SIZE(geoy) },
+    { 0, &geosectorwarp2[0], sizeof(geosectorwarp2[0]), ARRAY_SIZE(geosectorwarp2) },
+    { 0, &geox2[0], sizeof(geox2[0]), ARRAY_SIZE(geox2) },
+    { 0, &geoy2[0], sizeof(geoy2[0]), ARRAY_SIZE(geoy2) },
+    { 0, &geocnt, sizeof(geocnt), 1 },
 
     { 0, &WindTime, sizeof(WindTime), 1 },
     { 0, &WindDir, sizeof(WindDir), 1 },
@@ -898,7 +898,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &mamaspawn_count, sizeof(mamaspawn_count), 1 },
     { 0, &banjosound, sizeof(banjosound), 1 },
     { 0, &g_bellTime, sizeof(g_bellTime), 1 },
-    { 0, &g_bellSprite, sizeof(g_bellSprite), 1 },
+    { 0, &BellSprite, sizeof(BellSprite), 1 },
 
     { 0, &enemysizecheat, sizeof(enemysizecheat), 1 },
     { 0, &ufospawnsminion, sizeof(ufospawnsminion), 1 },

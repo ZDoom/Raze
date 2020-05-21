@@ -201,11 +201,6 @@ static inline int Menu_HaveUserMap(void)
 extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);
 
-#ifdef LEGACY_ROR
-extern char ror_protectedsectors[MAXSECTORS];
-#endif
-
-
 extern int32_t g_Debug;
 extern int32_t g_Shareware;
 extern int32_t g_cameraClock;

@@ -219,10 +219,10 @@ static inline void G_MoveClouds(void)
     g_cloudX += sintable[(fix16_to_int(g_player[screenpeek].ps->q16ang)+512)&2047]>>9;
     g_cloudY += sintable[fix16_to_int(g_player[screenpeek].ps->q16ang)&2047]>>9;
 
-    for (i=g_cloudCnt-1; i>=0; i--)
+    for (i=numclouds-1; i>=0; i--)
     {
-        sector[g_cloudSect[i]].ceilingxpanning = g_cloudX>>6;
-        sector[g_cloudSect[i]].ceilingypanning = g_cloudY>>6;
+        sector[clouds[i]].ceilingxpanning = g_cloudX>>6;
+        sector[clouds[i]].ceilingypanning = g_cloudY>>6;
     }
 }
 

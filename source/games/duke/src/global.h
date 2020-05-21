@@ -108,7 +108,7 @@ G_EXTERN int32_t g_animWallCnt;
 #define numanimwalls g_animWallCnt
 G_EXTERN int32_t g_animateCnt;
 #define animatecnt g_animateCnt
-G_EXTERN int32_t g_cloudCnt;
+G_EXTERN int32_t numclouds;
 G_EXTERN int32_t g_curViewscreen;
 #define camsprite g_curViewscreen
 G_EXTERN int32_t g_frameRate;
@@ -128,7 +128,7 @@ G_EXTERN int32_t g_globalRandom;
 G_EXTERN int32_t impact_damage;
 extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
-G_EXTERN int32_t g_mirrorCount;
+G_EXTERN int32_t mirrorcnt;
 G_EXTERN int32_t g_mostConcurrentPlayers;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t numplayersprites;
@@ -149,7 +149,7 @@ G_EXTERN int32_t g_animateGoal[MAXANIMATES];
 G_EXTERN int32_t g_animateVel[MAXANIMATES];
 #define animatevel g_animateVel
 
-G_EXTERN int16_t g_cloudSect[256];
+G_EXTERN int16_t clouds[256];
 G_EXTERN int16_t g_cloudX;
 G_EXTERN int16_t g_cloudY;
 G_EXTERN ClockTicks g_cloudClock;
@@ -157,8 +157,8 @@ G_EXTERN ClockTicks g_cloudClock;
 G_EXTERN int16_t SpriteDeletionQueue[1024];
 G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
 #define cyclers g_cyclers
-G_EXTERN int16_t g_mirrorSector[64];
-G_EXTERN int16_t g_mirrorWall[64];
+G_EXTERN int16_t mirrorsector[64];
+G_EXTERN int16_t mirrorwall[64];
 G_EXTERN int32_t *labelcode;
 #if 0
 G_EXTERN int32_t *labeltype;
@@ -167,9 +167,8 @@ G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 
 G_EXTERN int32_t wupass;
-G_EXTERN int32_t g_chickenPlant;
-#define chickenplant g_chickenPlant
-G_EXTERN int32_t g_thunderOn;
+G_EXTERN int32_t chickenplant;
+G_EXTERN int32_t thunderon;
 G_EXTERN int32_t g_ufoSpawn;
 #define ufospawn g_ufoSpawn
 G_EXTERN int32_t g_ufoCnt;
@@ -182,14 +181,14 @@ G_EXTERN int32_t g_lastLevel;
 G_EXTERN int32_t g_turdLevel;
 
 
-G_EXTERN int32_t g_geoSectorWarp[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSectorWarp2[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSector[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSectorX[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSectorY[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSectorX2[MAXGEOSECTORS];
-G_EXTERN int32_t g_geoSectorY2[MAXGEOSECTORS];
-G_EXTERN uint32_t g_geoSectorCnt;
+G_EXTERN int32_t geosectorwarp[MAXGEOSECTORS];
+G_EXTERN int32_t geosectorwarp2[MAXGEOSECTORS];
+G_EXTERN int32_t geosector[MAXGEOSECTORS];
+G_EXTERN int32_t geox[MAXGEOSECTORS];
+G_EXTERN int32_t geoy[MAXGEOSECTORS];
+G_EXTERN int32_t geox2[MAXGEOSECTORS];
+G_EXTERN int32_t geoy2[MAXGEOSECTORS];
+G_EXTERN uint32_t geocnt;
 
 G_EXTERN int32_t g_thunderFlash;
 G_EXTERN int32_t g_thunderTime;
@@ -199,7 +198,7 @@ G_EXTERN int32_t g_brightness;
 
 G_EXTERN int16_t ambientlotag[64];
 G_EXTERN int16_t ambienthitag[64];
-G_EXTERN uint32_t g_ambientCnt;
+G_EXTERN uint32_t ambientfx;
 
 inline int32_t G_HaveActor(int spriteNum)
 {
@@ -227,9 +226,9 @@ G_EXTERN msx_ msx;
 G_EXTERN msy_ msy;
 
 G_EXTERN int32_t WindTime, WindDir;
-G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, g_bellSprite;
+G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, BellSprite;
 #define BellTime g_bellTime
-#define word_119BE0 g_bellSprite
+#define word_119BE0 BellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
 G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, RRRA_EndEpisode, fogactive;
 G_EXTERN int32_t g_cdTrack;
