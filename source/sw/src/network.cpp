@@ -933,13 +933,6 @@ UpdateInputs(void)
     PLAYERp pp;
     extern SWBOOL BotMode;
 
-    timerUpdate();
-    if ((totalclock < ototalclock + synctics))
-        return;
-
-    if (!ready2send)
-        return;
-
     ototalclock += synctics;
 
     getpackets();
