@@ -142,7 +142,7 @@ SWBOOL Global_PLock = FALSE;
 #endif
 
 // 12 was original source release. For future releases increment by two.
-int GameVersion = 15;
+int GameVersion = 17;
 
 char DemoText[3][64];
 int DemoTextYstart = 0;

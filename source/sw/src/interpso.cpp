@@ -32,6 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "interp.h"
 #include "interpso.h"
+#include "names2.h"
 
 BEGIN_SW_NS
 
@@ -52,6 +53,7 @@ static struct so_interp
 
     int32_t numinterpolations;
     int32_t tic, lasttic;
+    SWBOOL hasvator;
 } so_interpdata[MAX_SECTOR_OBJECTS];
 
 static void so_setpointinterpolation(so_interp *interp, int32_t *posptr)
@@ -116,6 +118,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 
     so_interp *interp = &so_interpdata[sop - SectorObject];
     interp->numinterpolations = 0;
+    interp->hasvator = FALSE;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
@@ -136,9 +139,18 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
             }
         }
 
-        so_setpointinterpolation(interp, &(*sectp)->ceilingz);
-        so_setpointinterpolation(interp, &(*sectp)->floorz);
+        for (SPRITES_OF_SECT(*sectp - sector, i))
+            if (sprite[i].statnum == STAT_VATOR && SP_TAG1(sprite+i) == SECT_VATOR)
+                break;
+        interp->hasvator |= (i >= 0);
     }
+
+    if (!interp->hasvator)
+        for (sectp = sop->sectp; *sectp; sectp++)
+        {
+            so_setpointinterpolation(interp, &(*sectp)->ceilingz);
+            so_setpointinterpolation(interp, &(*sectp)->floorz);
+        }
 
     // interpolate midpoint, for aiming at a remote controlled SO
     so_setpointinterpolation(interp, &sop->xmid);
@@ -155,7 +167,8 @@ void so_setspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp)
 
     so_setpointinterpolation(interp, &sp->x);
     so_setpointinterpolation(interp, &sp->y);
-    so_setpointinterpolation(interp, &sp->z);
+    if (!interp->hasvator)
+        so_setpointinterpolation(interp, &sp->z);
     so_setspriteanginterpolation(interp, &sp->ang, sp - sprite);
 }
 
@@ -165,7 +178,8 @@ void so_stopspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp)
 
     so_stopdatainterpolation(interp, &sp->x);
     so_stopdatainterpolation(interp, &sp->y);
-    so_stopdatainterpolation(interp, &sp->z);
+    if (!interp->hasvator)
+        so_stopdatainterpolation(interp, &sp->z);
     so_stopdatainterpolation(interp, &sp->ang);
 }
 
@@ -316,6 +330,7 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
     {
         so_interp::interp_data *data = interp->data;
         MWRITE(&interp->numinterpolations,sizeof(interp->numinterpolations),1,fil);
+        MWRITE(&interp->hasvator,sizeof(interp->hasvator),1,fil);
         for (i = 0; i < interp->numinterpolations; i++, data++)
         {
             saveisshot |= SaveSymDataInfo(fil, data->curipos);
@@ -340,6 +355,7 @@ SWBOOL so_readinterpolations(MFILE_READ fil)
     {
         so_interp::interp_data *data = interp->data;
         MREAD(&interp->numinterpolations,sizeof(interp->numinterpolations),1,fil);
+        MREAD(&interp->hasvator,sizeof(interp->hasvator),1,fil);
         for (i = 0; i < interp->numinterpolations; i++, data++)
         {
             saveisshot |= LoadSymDataInfo(fil, (void **)&data->curipos);
