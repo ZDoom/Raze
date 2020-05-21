@@ -188,7 +188,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 
 inline bool S_IsAmbientSFX(int spriteNum)
 {
-    return (sprite[spriteNum].picnum == TILE_MUSICANDSFX && sprite[spriteNum].lotag < 999);
+    return (sprite[spriteNum].picnum == MUSICANDSFX && sprite[spriteNum].lotag < 999);
 }
 
 //==========================================================================
@@ -220,7 +220,7 @@ static int GetPositionInfo(int spriteNum, int soundNum, int sectNum,
     sndist += dist_adjust;
     if (sndist < 0) sndist = 0;
 
-    if (sectNum > -1 && sndist && sp->picnum != TILE_MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, sp->x, sp->y, sp->z - (24 << 8), sp->sectnum))
+    if (sectNum > -1 && sndist && sp->picnum != MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, sp->x, sp->y, sp->z - (24 << 8), sp->sectnum))
         sndist += sndist >> (isRR() ? 2 : 5);
 
     // Here the sound distance was clamped to a minimum of 144*4. 
@@ -434,7 +434,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     }
     else
     {
-        if (sndist > 32767 && sp->picnum != TILE_MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+        if (sndist > 32767 && sp->picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
             return -1;
 
         if (underwater && (userflags & SF_TALK) == 0)
@@ -442,7 +442,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     }
 
     bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-    if (is_playing && sp->picnum != TILE_MUSICANDSFX)
+    if (is_playing && sp->picnum != MUSICANDSFX)
         S_StopEnvSound(sndnum, spriteNum);
 
     int const repeatp = (userflags & SF_LOOP);

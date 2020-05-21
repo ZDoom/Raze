@@ -215,6 +215,23 @@ void initactorflags_d()
 
     actorinfo[ORGANTIC].aimoffset = 32 << 8;
     actorinfo[ROTATEGUN].aimoffset = 32 << 8;
+
+    weaponsandammosprites[0] = RPGSPRITE;
+    weaponsandammosprites[1] = CHAINGUNSPRITE;
+    weaponsandammosprites[2] = DEVISTATORAMMO;
+    weaponsandammosprites[3] = RPGAMMO;
+    weaponsandammosprites[4] = RPGAMMO;
+    weaponsandammosprites[5] = JETPACK;
+    weaponsandammosprites[6] = SHIELD;
+    weaponsandammosprites[7] = FIRSTAID;
+    weaponsandammosprites[8] = STEROIDS;
+    weaponsandammosprites[9] = RPGAMMO;
+    weaponsandammosprites[10] = RPGAMMO;
+    weaponsandammosprites[11] = RPGSPRITE;
+    weaponsandammosprites[12] = RPGAMMO;
+    weaponsandammosprites[13] = FREEZESPRITE;
+    weaponsandammosprites[14] = FREEZEAMMO;
+
 }
 	
 	

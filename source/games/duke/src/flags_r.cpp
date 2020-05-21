@@ -185,6 +185,23 @@ void initactorflags_r()
 		TOUGHGAL });
 
 	actorinfo[RPG2].flags |= SFLAG_FORCEAUTOAIM;
+
+	weaponsandammosprites[0] = RPGSPRITE;
+	weaponsandammosprites[1] = CHAINGUNSPRITE;
+	weaponsandammosprites[2] = DEVISTATORAMMO;
+	weaponsandammosprites[3] = RPGAMMO;
+	weaponsandammosprites[4] = RPGAMMO;
+	weaponsandammosprites[5] = JETPACK;
+	weaponsandammosprites[6] = SHIELD;
+	weaponsandammosprites[7] = FIRSTAID;
+	weaponsandammosprites[8] = STEROIDS;
+	weaponsandammosprites[9] = RPGAMMO;
+	weaponsandammosprites[10] = RPGAMMO;
+	weaponsandammosprites[11] = RPGSPRITE;
+	weaponsandammosprites[12] = RPGAMMO;
+	weaponsandammosprites[13] = FREEZESPRITE;
+	weaponsandammosprites[14] = FREEZEAMMO;
+
 }
 
 END_DUKE_NS

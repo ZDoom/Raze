@@ -99,24 +99,7 @@ int32_t g_spriteGravity      = 176;
 int32_t g_timerTicsPerSecond = TICRATE;
 int32_t g_tripbombRadius     = 3880;
 
-int16_t weaponsandammosprites[15] =
-{
-    RPGSPRITE__STATIC,
-    CHAINGUNSPRITE__STATIC,
-    DEVISTATORAMMO__STATIC,
-    RPGAMMO__STATIC,
-    RPGAMMO__STATIC,
-    JETPACK__STATIC,
-    SHIELD__STATIC,
-    FIRSTAID__STATIC,
-    STEROIDS__STATIC,
-    RPGAMMO__STATIC,
-    RPGAMMO__STATIC,
-    RPGSPRITE__STATIC,
-    RPGAMMO__STATIC,
-    FREEZESPRITE__STATIC,
-    FREEZEAMMO__STATIC
-};
+int16_t weaponsandammosprites[15];
 
 char CheatKeys[2]       = { sc_D, sc_N };
 

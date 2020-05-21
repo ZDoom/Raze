@@ -1385,79 +1385,6 @@ static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
     return viewtype_mirror<mirrored_rotations*2-2>(cstat, getofs_viewtype<mirrored_rotations*2-2>(angDiff));
 }
 
-// XXX: this fucking sucks and needs to be replaced with a SFLAG
-static int G_CheckAdultTile(int tileNum)
-{
-    UNREFERENCED_PARAMETER(tileNum);
-    switch (tileNum)
-    {
-        case FEM1__STATIC:
-        case FEM2__STATIC:
-        case FEM3__STATIC:
-        case FEM4__STATIC:
-        case FEM5__STATIC:
-        case FEM6__STATIC:
-        case FEM7__STATIC:
-        case FEM8__STATIC:
-        case FEM9__STATIC:
-        case MAN__STATIC:
-        case MAN2__STATIC:
-        case WOMAN__STATIC:
-        case PODFEM1__STATIC:
-        case FEMPIC1__STATIC:
-        case FEMPIC2__STATIC:
-        case FEMPIC3__STATIC:
-        case FEMPIC4__STATIC:
-        case FEMPIC5__STATIC:
-        case FEMPIC6__STATIC:
-        case FEMPIC7__STATIC:
-        case BLOODYPOLE__STATIC:
-        case FEM6PAD__STATIC:
-        case OOZ2__STATIC:
-        case WALLBLOOD7__STATIC:
-        case WALLBLOOD8__STATIC:
-        case FETUS__STATIC:
-        case FETUSJIB__STATIC:
-        case FETUSBROKE__STATIC:
-        case HOTMEAT__STATIC:
-        case FOODOBJECT16__STATIC:
-        case TAMPON__STATIC:
-        case XXXSTACY__STATIC:
-        case 4946:
-        case 4947:
-        case 693:
-        case 2254:
-        case 4560:
-        case 4561:
-        case 4562:
-        case 4498:
-        case 4957:
-            if (RR) return 0;
-            return 1;
-        case FEM10__STATIC:
-        case NAKED1__STATIC:
-        case FEMMAG1__STATIC:
-        case FEMMAG2__STATIC:
-        case STATUE__STATIC:
-        case STATUEFLASH__STATIC:
-        case OOZ__STATIC:
-        case WALLBLOOD1__STATIC:
-        case WALLBLOOD2__STATIC:
-        case WALLBLOOD3__STATIC:
-        case WALLBLOOD4__STATIC:
-        case WALLBLOOD5__STATIC:
-        case SUSHIPLATE1__STATIC:
-        case SUSHIPLATE2__STATIC:
-        case SUSHIPLATE3__STATIC:
-        case SUSHIPLATE4__STATIC:
-        case DOLPHIN1__STATIC:
-        case DOLPHIN2__STATIC:
-        case TOUGHGAL__STATIC:
-            return 1;
-    }
-    return 0;
-}
-
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothratio)
 {
     UNREFERENCED_PARAMETER(ourz);
@@ -1628,7 +1555,7 @@ default_case1:
         EDUKE32_STATIC_ASSERT(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
         uspritetype *const pSprite = (i < 0) ? (uspritetype *)&tsprite[j] : (uspritetype *)&sprite[i];
 
-        if (adult_lockout &&  G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
+        if (adult_lockout && (tileinfo->flags & SFLAG_ADULT))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
@@ -1966,6 +1893,7 @@ default_case1:
 
             }
 
+#if 0 // nopooint fixing this now - will be handled when original code is used here.
             if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != playerNum || pSprite->owner == -1))
             {
                 if (ud.showweapons && sprite[g_player[playerNum].ps->i].extra > 0 && g_player[playerNum].ps->curr_weapon > 0
@@ -1984,20 +1912,38 @@ default_case1:
                         newTspr->picnum = 0;
                         switch(DYNAMICWEAPONMAP(g_player[playerNum].ps->curr_weapon))
                         {
-                            case PISTOL_WEAPON__STATIC:      newTspr->picnum = TILE_FIRSTGUNSPRITE;       break;
-                            case SHOTGUN_WEAPON__STATIC:     newTspr->picnum = TILE_SHOTGUNSPRITE;        break;
-                            case CHAINGUN_WEAPON__STATIC:    newTspr->picnum = TILE_CHAINGUNSPRITE;       break;
-                            case RPG_WEAPON__STATIC:         newTspr->picnum = TILE_RPGSPRITE;            break;
-                            case CHICKEN_WEAPON__STATIC:     newTspr->picnum = TILE_RPGSPRITE;            break;
+                            case PISTOL_WEAPON__STATIC:      newTspr->picnum = FIRSTGUNSPRITE;       break;
+                            case SHOTGUN_WEAPON__STATIC:     newTspr->picnum = SHOTGUNSPRITE;        break;
+                            case CHAINGUN_WEAPON__STATIC:    newTspr->picnum = CHAINGUNSPRITE;       break;
+                            case RPG_WEAPON__STATIC:         newTspr->picnum = RPGSPRITE;            break;
+                            case CHICKEN_WEAPON__STATIC:     newTspr->picnum = RPGSPRITE;            break;
                             case HANDREMOTE_WEAPON__STATIC:
-                            case HANDBOMB_WEAPON__STATIC:    newTspr->picnum = TILE_HEAVYHBOMB;           break;
-                            case TRIPBOMB_WEAPON__STATIC:    newTspr->picnum = TILE_TRIPBOMBSPRITE;       break;
-                            case BOWLINGBALL_WEAPON__STATIC: newTspr->picnum = TILE_BOWLINGBALLSPRITE;    break;
-                            case SHRINKER_WEAPON__STATIC:    newTspr->picnum = TILE_SHRINKSPARK;          break;
-                            case GROW_WEAPON__STATIC:        newTspr->picnum = TILE_SHRINKSPARK;          break;
-                            case FREEZE_WEAPON__STATIC:      newTspr->picnum = TILE_DEVISTATORSPRITE;     break;
-                            case DEVISTATOR_WEAPON__STATIC:  newTspr->picnum = TILE_FREEZESPRITE;         break;
+                            case HANDBOMB_WEAPON__STATIC:    newTspr->picnum = HEAVYHBOMB;           break;
+                            case TRIPBOMB_WEAPON__STATIC:    newTspr->picnum = TRIPBOMBSPRITE;       break;
+                            case BOWLINGBALL_WEAPON__STATIC: newTspr->picnum = BOWLINGBALLSPRITE;    break;
+                            case SHRINKER_WEAPON__STATIC:    newTspr->picnum = SHRINKSPARK;          break;
+                            case GROW_WEAPON__STATIC:        newTspr->picnum = SHRINKSPARK;          break;
+                            case FREEZE_WEAPON__STATIC:      newTspr->picnum = DEVISTATORSPRITE;     break;
+                            case DEVISTATOR_WEAPON__STATIC:  newTspr->picnum = FREEZESPRITE;         break;
                         }
+                    }
+                    else
+                    {
+                        switch (ps[p].curr_weapon)
+                        {
+                        case PISTOL_WEAPON:      tsprite[spritesortcnt].picnum = FIRSTGUNSPRITE;       break;
+                        case SHOTGUN_WEAPON:     tsprite[spritesortcnt].picnum = SHOTGUNSPRITE;        break;
+                        case CHAINGUN_WEAPON:    tsprite[spritesortcnt].picnum = CHAINGUNSPRITE;       break;
+                        case RPG_WEAPON:         tsprite[spritesortcnt].picnum = RPGSPRITE;            break;
+                        case HANDREMOTE_WEAPON:
+                        case HANDBOMB_WEAPON:    tsprite[spritesortcnt].picnum = HEAVYHBOMB;           break;
+                        case TRIPBOMB_WEAPON:    tsprite[spritesortcnt].picnum = TRIPBOMBSPRITE;       break;
+                        case GROW_WEAPON:        tsprite[spritesortcnt].picnum = GROWSPRITEICON;       break;
+                        case SHRINKER_WEAPON:    tsprite[spritesortcnt].picnum = SHRINKERSPRITE;       break;
+                        case FREEZE_WEAPON:      tsprite[spritesortcnt].picnum = FREEZESPRITE;         break;
+                        case DEVISTATOR_WEAPON:  tsprite[spritesortcnt].picnum = DEVISTATORSPRITE;     break;
+                        }
+
                     }
                     newTspr->z       = (pSprite->owner >= 0) ? g_player[playerNum].ps->pos.z - ZOFFSET4 : pSprite->z - (51 << 8);
                     newTspr->xrepeat = (newTspr->picnum == TILE_HEAVYHBOMB) ? 10 : 16;
@@ -2023,6 +1969,7 @@ default_case1:
                     spritesortcnt++;
                 }
             }
+#endif
 
             if (pSprite->owner == -1)
             {

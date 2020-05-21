@@ -2913,57 +2913,5 @@ void G_InitDynamicTiles(void)
 		}
 
     DynamicTileMap[0] = 0;
-
-    weaponsandammosprites[0] = TILE_RPGSPRITE;
-    weaponsandammosprites[1] = TILE_CHAINGUNSPRITE;
-    weaponsandammosprites[2] = TILE_DEVISTATORAMMO;
-    weaponsandammosprites[3] = TILE_RPGAMMO;
-    weaponsandammosprites[4] = TILE_RPGAMMO;
-    weaponsandammosprites[5] = TILE_JETPACK;
-    weaponsandammosprites[6] = TILE_SHIELD;
-    weaponsandammosprites[7] = TILE_FIRSTAID;
-    weaponsandammosprites[8] = TILE_STEROIDS;
-    weaponsandammosprites[9] = TILE_RPGAMMO;
-    weaponsandammosprites[10] = TILE_RPGAMMO;
-    weaponsandammosprites[11] = TILE_RPGSPRITE;
-    weaponsandammosprites[12] = TILE_RPGAMMO;
-    weaponsandammosprites[13] = TILE_FREEZESPRITE;
-    weaponsandammosprites[14] = TILE_FREEZEAMMO;
-
-    if (RR)
-    {
-        WeaponPickupSprites[0] = TILE_KNEE;
-        WeaponPickupSprites[1] = TILE_FIRSTGUNSPRITE;
-        WeaponPickupSprites[2] = TILE_SHOTGUNSPRITE;
-        WeaponPickupSprites[3] = TILE_CHAINGUNSPRITE;
-        WeaponPickupSprites[4] = TILE_RPGSPRITE;
-        WeaponPickupSprites[5] = TILE_HEAVYHBOMB;
-        WeaponPickupSprites[6] = TILE_SHRINKERSPRITE;
-        WeaponPickupSprites[7] = TILE_DEVISTATORSPRITE;
-        WeaponPickupSprites[8] = TILE_TRIPBOMBSPRITE;
-        WeaponPickupSprites[9] = TILE_BOWLINGBALLSPRITE;
-        WeaponPickupSprites[10] = TILE_FREEZEBLAST;
-        WeaponPickupSprites[11] = TILE_HEAVYHBOMB;
-    }
-    else
-    {
-        WeaponPickupSprites[0] = TILE_KNEE;
-        WeaponPickupSprites[1] = TILE_FIRSTGUNSPRITE;
-        WeaponPickupSprites[2] = TILE_SHOTGUNSPRITE;
-        WeaponPickupSprites[3] = TILE_CHAINGUNSPRITE;
-        WeaponPickupSprites[4] = TILE_RPGSPRITE;
-        WeaponPickupSprites[5] = TILE_HEAVYHBOMB;
-        WeaponPickupSprites[6] = TILE_SHRINKERSPRITE;
-        WeaponPickupSprites[7] = TILE_DEVISTATORSPRITE;
-        WeaponPickupSprites[8] = TILE_TRIPBOMBSPRITE;
-        WeaponPickupSprites[9] = TILE_FREEZESPRITE;
-        WeaponPickupSprites[10] = TILE_HEAVYHBOMB;
-        WeaponPickupSprites[11] = TILE_SHRINKERSPRITE;
-    }
-
-    // ouch... the big background image takes up a fuckload of memory and takes a second to load!
-#ifdef EDUKE32_GLES
-    TILE_MENUSCREEN = TILE_LOADSCREEN = TILE_BETASCREEN;
-#endif
 }
 END_DUKE_NS

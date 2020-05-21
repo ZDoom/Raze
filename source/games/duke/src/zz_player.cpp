@@ -900,11 +900,6 @@ void madenoise(int playerNum)
     pPlayer->noise_y = pPlayer->pos.y;
 }
 
-int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATIC, SHOTGUNSPRITE__STATIC,
-        CHAINGUNSPRITE__STATIC, RPGSPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC, DEVISTATORSPRITE__STATIC,
-        TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
-                                           };
-
 void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount)
 {
     pPlayer->ammo_amount[weaponNum] += addAmount;

@@ -59,7 +59,7 @@ void A_DeleteSprite(int spriteNum)
 #endif
 
     // AMBIENT_SFX_PLAYING
-    if (sprite[spriteNum].picnum == TILE_MUSICANDSFX && actor[spriteNum].t_data[0] == 1)
+    if (sprite[spriteNum].picnum == MUSICANDSFX && actor[spriteNum].t_data[0] == 1)
         S_StopEnvSound(sprite[spriteNum].lotag, spriteNum);
 
     deletesprite(spriteNum);
