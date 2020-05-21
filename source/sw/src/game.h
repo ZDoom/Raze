@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #pragma warning(disable:4101) // there's too many of these... :(
 #endif
 
+#include "build.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "mmulti.h"

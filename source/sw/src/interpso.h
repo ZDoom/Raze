@@ -29,6 +29,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "mfile.h"
 
+BEGIN_SW_NS
+
 extern int32_t so_numinterpolations;
 
 void so_addinterpolation(SECTOR_OBJECTp sop);
@@ -41,5 +43,7 @@ void so_dointerpolations(int32_t smoothratio);
 void so_restoreinterpolations(void);
 SWBOOL so_writeinterpolations(MFILE_WRITE fil);
 SWBOOL so_readinterpolations(MFILE_READ fil);
+
+END_SW_NS
 
 #endif

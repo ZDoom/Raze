@@ -24,12 +24,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"
+
 #include "compat.h"
 #include "pragmas.h"
 
 #include "game.h"
 #include "interp.h"
 #include "interpso.h"
+
+BEGIN_SW_NS
 
 #define SO_MAXINTERPOLATIONS MAXINTERPOLATIONS
 
@@ -304,13 +308,13 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
 {
     int32_t i;
     SECTOR_OBJECTp sop;
-    const so_interp *interp;
+    so_interp *interp;
     SWBOOL saveisshot = FALSE;
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        const so_interp::interp_data *data = interp->data;
+        so_interp::interp_data *data = interp->data;
         MWRITE(&interp->numinterpolations,sizeof(interp->numinterpolations),1,fil);
         for (i = 0; i < interp->numinterpolations; i++, data++)
         {
@@ -349,3 +353,5 @@ SWBOOL so_readinterpolations(MFILE_READ fil)
     }
     return saveisshot;
 }
+
+END_SW_NS
