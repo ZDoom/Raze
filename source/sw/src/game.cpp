@@ -3220,7 +3220,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
     else
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
         {
             turnheldtime += synctics;
             if (PedanticMode)
@@ -3233,7 +3233,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
             else
                 q16angvel = fix16_ssub(q16angvel, fix16_from_float(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN)));
         }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
         {
             turnheldtime += synctics;
             if (PedanticMode)
