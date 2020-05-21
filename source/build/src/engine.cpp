@@ -3037,7 +3037,9 @@ void twod_rotatesprite(F2DDrawer *twod, int32_t sx, int32_t sy, int32_t z, int16
             return;
         }
     }
+    else
 #endif
+        if (!pic) tileUpdatePicnum(&picnum, 0);
 
 
 
