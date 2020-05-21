@@ -475,7 +475,7 @@ void FGameConfigFile::AddAutoexec (FArgs *list, const char *game)
 	const char *key;
 	const char *value;
 
-	snprintf (section, countof(section), "%s.AutoLoad", game);
+	snprintf (section, countof(section), "%s.AutoExec", game);
 
 	// If <game>.AutoLoad section does not exist, create it
 	// with a default autoexec.cfg file present.

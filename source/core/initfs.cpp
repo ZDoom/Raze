@@ -324,16 +324,16 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 
 	const char* key;
 	const char* value;
-	if (GameConfig->SetSection("global.Autoload"))
+	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
+
+	long len;
+	int lastpos = 0;
+
+	while (lastpos < LumpFilter.Len() && (len = strcspn(LumpFilter.GetChars() + lastpos, ".")) > 0)
 	{
-		while (GameConfig->NextInSection(key, value))
-		{
-			if (stricmp(key, "Path") == 0)
-			{
-				FString nice = NicePath(value);
-				D_AddFile(Files, nice, true, -1, GameConfig);
-			}
-		}
+		auto file = LumpFilter.Left(len + lastpos) + ".Autoload";
+		D_AddConfigFiles(Files, file, "*.grp", GameConfig);
+		lastpos += len + 1;
 	}
 	
 	if (!insertdirectoriesafter && userConfig.AddFilesPre) for (auto& file : *userConfig.AddFilesPre)
