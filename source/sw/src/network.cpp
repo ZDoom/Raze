@@ -931,16 +931,6 @@ faketimerhandler(void)
     PLAYERp pp;
     extern SWBOOL BotMode;
 
-#if 0
-    if (inputState.GetKeyStatus(KEYSC_PERIOD))
-    {
-        extern unsigned int MoveThingsCount;
-        MoveThingsCount++;
-        MoveThingsCount--;
-        return;
-    }
-#endif
-
     timerUpdate();
     if ((totalclock < ototalclock + synctics))
         return;
