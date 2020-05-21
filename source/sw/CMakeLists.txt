@@ -26,6 +26,7 @@ set( PCH_SOURCES
 	src/hornet.cpp
 	src/interp.cpp
 	src/interpsh.cpp
+	src/interpso.cpp
 	src/inv.cpp
 	#src/jbhlp.cpp
 	src/jplayer.cpp

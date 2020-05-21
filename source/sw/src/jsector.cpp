@@ -335,7 +335,7 @@ void JS_InitMirrors(void)
             {
                 if (mirrorcnt >= MAXMIRRORS)
                 {
-                    buildprintf("MAXMIRRORS reached! Skipping mirror wall[%d]\n", i);
+                    Printf("MAXMIRRORS reached! Skipping mirror wall[%d]\n", i);
                     wall[i].overpicnum = sector[s].ceilingpicnum;
                     continue;
                 }

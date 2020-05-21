@@ -47,7 +47,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "reserve.h"
 
 //#define FILE_TYPE 1
-#include "mfile.h"
 
 #include "weapon.h"
 #include "cache.h"
@@ -1002,7 +1001,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     // SO interpolations
     saveisshot |= so_readinterpolations(fil);
-    if (saveisshot) { MCLOSE_READ(fil); return -1; }
+    if (saveisshot) { MCLOSE_READ(fil); return false; }
 
     // parental lock
     for (i = 0; i < (int)SIZ(otlist); i++)
