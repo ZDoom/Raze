@@ -171,6 +171,7 @@ typedef struct
 extern AUTO_NET Auto;
 extern SWBOOL AutoNet;
 
+void UpdateInputs(void);
 void getpackets(void);
 void SendMulitNameChange(char *new_name);
 void InitNetVars(void);

@@ -2602,7 +2602,7 @@ void RunLevel(void)
 
         timerUpdateClock();
         while (ready2send && (totalclock >= ototalclock + synctics))
-            faketimerhandler();
+            UpdateInputs();
     }
 
     ready2send = 0;
