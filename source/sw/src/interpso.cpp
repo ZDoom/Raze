@@ -183,7 +183,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
     SECTOR_OBJECTp sop;
     so_interp *interp;
     so_interp::interp_data *data;
-    SWBOOL interpolating = gs.InterpolateSO && !CommEnabled; // If changing from menu
+    SWBOOL interpolating = cl_sointerpolation && !CommEnabled; // If changing from menu
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)

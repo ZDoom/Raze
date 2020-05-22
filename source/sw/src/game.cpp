@@ -210,7 +210,6 @@ const GAME_SET gs_defaults =
 {
     2, // border
     0, // border tile
-	TRUE, // interpolate sector objects
 // Network game settings
     0, // GameType
     0, // Level
