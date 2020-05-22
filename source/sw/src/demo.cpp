@@ -440,6 +440,8 @@ DemoPlayBack(void)
 
     while (TRUE)
     {
+        timerUpdateClock();
+
         // makes code run at the same rate
         while (totalclock > totalsynctics)
         {
