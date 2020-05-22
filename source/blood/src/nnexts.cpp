@@ -355,7 +355,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                 }
 
                 if (sysStat)
-                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index, pSprite->statnum, kStatModernBase, kStatModernMax);
+                    ThrowError("Sprite status list number %d on sprite #%d is in a range of reserved (%d - %d)!", pSprite->index.cast(), pSprite->statnum.cast(), kStatModernBase, kStatModernMax);
             }
 
             switch (pSprite->type) {
@@ -410,22 +410,22 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                     switch (pXSprite->command) {
                         case kCmdLink:
                             if (pXSprite->data1 < 1 || pXSprite->data1 >= kMaxPlayers)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index, pXSprite->data1);
+                                ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", pSprite->index.cast(), pXSprite->data1);
                             
                             //if (numplayers < pXSprite->data1)
                                 //ThrowError("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index, pXSprite->data1);
+                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index.cast(), pXSprite->data1);
 
                             if (pXSprite->txID && pXSprite->txID < kChannelUser)
-                                ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
+                                ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index.cast(), kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
                             for (int nSprite = headspritestat[kStatModernPlayerLinker]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
                                 XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index, pXSprite->data1, nSprite);
+                                    ThrowError("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", pSprite->index.cast(), pXSprite->data1, nSprite);
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
@@ -443,7 +443,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                         
                         if (pXSprite->waitTime > 0) {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                            consoleSysMsg("Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index.cast(), pXSprite->rxID, pXSprite->busyTime);
                         }
 
                         pXSprite->busy = pXSprite->busyTime;
@@ -1539,7 +1539,7 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
         case 5: // erase powerups
             for (int i = 0; i < kMaxPowerUps; i++) pPlayer->pwUpTime[i] = 0;
             if (pXSource->data2) break;
-            fallthrough__;
+            //fallthrough__;
     }
 
 }
@@ -2428,7 +2428,7 @@ void condUnserialize(int serial, int* objType, int* objIndex) {
 
     } else {
         
-        ThrowError("%d is not condition serial!");
+        ThrowError("%d is not condition serial!", serial);
 
     }
 }
