@@ -3786,8 +3786,11 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
     return rv;
 }
 
-#define TSPR_OFFSET_FACTOR .000008f
-#define TSPR_OFFSET(tspr) ((TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 1) * TSPR_OFFSET_FACTOR)) * (float)sepdist(globalposx - tspr->x, globalposy - tspr->y, globalposz - tspr->z) * 0.025f)
+#define TSPR_OFFSET_FACTOR .0002f
+#define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 0) * TSPR_OFFSET_FACTOR))
+
+#define TSPR_OFFSET_FACTOR2 .000008f
+#define TSPR_OFFSET2(tspr) ((TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 1) * TSPR_OFFSET_FACTOR)) * (float)sepdist(globalposx - tspr->x, globalposy - tspr->y, globalposz - tspr->z) * 0.025f)
 
 
 void polymost_drawsprite(int32_t snum)
@@ -3905,10 +3908,11 @@ void polymost_drawsprite(int32_t snum)
 
             int const ang = (getangle(tspr->x - globalposx, tspr->y - globalposy) + 1024) & 2047;
 
-            float const foffs = TSPR_OFFSET(tspr);
+            float foffs = TSPR_OFFSET(tspr);
+            float foffs2 = TSPR_OFFSET(tspr);
+			if (fabs(foffs2) < fabs(foffs)) foffs = foffs2;
 
-            vec2f_t const offs = { (float) (sintable[(ang + 512) & 2047] >> 6) * foffs,
-                (float) (sintable[(ang) & 2047] >> 6) * foffs };
+            vec2f_t const offs = { (float)(sintable[(ang + 512) & 2047] >> 6)* foffs,  (float) (sintable[(ang) & 2047] >> 6) * foffs };
 
             vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
                            (float)(tspr->y - globalposy) + offs.y};

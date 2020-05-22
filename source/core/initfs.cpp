@@ -322,8 +322,6 @@ void InitFileSystem(TArray<GrpEntry>& groups)
 		i--;
 	}
 
-	const char* key;
-	const char* value;
 	D_AddConfigFiles(Files, "Global.Autoload", "*.grp", GameConfig);
 
 	long len;
