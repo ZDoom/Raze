@@ -47,7 +47,7 @@ DoSectorObjectSetScale(short match)
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == INT32_MAX)
+        if (SO_EMPTY(sop))
             continue;
 
         if (sop->match_event == match)
@@ -122,7 +122,7 @@ DoSOevent(short match, short state)
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == INT32_MAX)
+        if (SO_EMPTY(sop))
             continue;
 
         if (sop->match_event == match)

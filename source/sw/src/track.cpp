@@ -1428,7 +1428,7 @@ PostSetupSectorObject(void)
 
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == INT32_MAX)
+        if (SO_EMPTY(sop))
             continue;
         FindMainSector(sop);
     }
@@ -1442,7 +1442,7 @@ PlayerOnObject(short sectnum_match)
     SECTOR_OBJECTp sop;
 
     // place each sector object on the track
-    //for (i = 0; (SectorObject[i].xmid != INT32_MAX) && (i < MAX_SECTOR_OBJECTS); i++)
+    //for (i = 0; !SO_EMPTY(&SectorObject[i]) && (i < MAX_SECTOR_OBJECTS); i++)
     for (i = 0; (i < MAX_SECTOR_OBJECTS); i++)
     {
         sop = &SectorObject[i];
@@ -1476,7 +1476,7 @@ PlaceSectorObjectsOnTracks(void)
         SECTOR_OBJECTp sop = &SectorObject[i];
         TRACK_POINTp tpoint = NULL;
 
-        if (sop->xmid == INT32_MAX)
+        if (SO_EMPTY(sop))
             continue;
 
 
@@ -2095,7 +2095,7 @@ DetectSectorObject(SECTORp sectph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
+        if (SO_EMPTY(sop))
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
@@ -2123,7 +2123,7 @@ DetectSectorObjectByWall(WALLp wph)
     // move all points to nx,ny
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
-        if (sop->xmid == INT32_MAX /*|| sop->xmid == MAXSO*/)
+        if (SO_EMPTY(sop))
             continue;
 
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
