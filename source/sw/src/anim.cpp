@@ -309,6 +309,7 @@ playanm(short anim_num)
                 break;
             }
 
+	        videoClearViewableArea(0L);
             animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
             rotatesprite_fs(160 << 16, 100 << 16, 65536, 0, -1, 0, 0, 2 | 8 | 64, animtex.GetFrame());
             videoNextPage();
