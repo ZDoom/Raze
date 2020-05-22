@@ -945,7 +945,7 @@ SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_tra
     }
     if (!Mus_Play(mapname, song_file_name, true))
     {
-        // try the CD track anyway if no MIDI could be found (the original game doesn't have any MIDI, it was CD Audio only, this avoids no music playing id mus_redbook is off.)
+        // try the CD track anyway if no MIDI could be found (the original game doesn't have any MIDI, it was CD Audio only, this avoids no music playing if mus_redbook is off.)
         FStringf trackname("track%02d.ogg", cdaudio_track);
         if (!Mus_Play(nullptr, trackname, true)) return false;
     }

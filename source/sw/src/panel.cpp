@@ -982,10 +982,15 @@ int WeaponOperate(PLAYERp pp)
     }
 
     // Shut that computer chick up if weapon has changed!
+    // This really should be handled better, but since there's no usable tracking state for the sounds, the easiest way to handle them is to play on otherwise unused channels.
     if (pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO])
     {
         pp->InitingNuke = FALSE;
         soundEngine->StopSound(SOURCE_Player, pp, CHAN_WEAPON);
+    }
+    if (pp->CurWpn != pp->Wpn[WPN_RAIL])
+    {
+        soundEngine->StopSound(SOURCE_Player, pp, CHAN_ITEM);
     }
 
     return 0;
@@ -3718,7 +3723,7 @@ InitWeaponRail(PLAYERp pp)
     pSetState(psp, psp->PresentState);
 
     PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
-    PlaySound(DIGI_RAILREADY, pp, v3df_follow|v3df_dontpan);
+    PlaySound(DIGI_RAILREADY, pp, v3df_follow | v3df_dontpan, CHAN_ITEM); // this one needs to be on a dedicated channel to allow switching it off without too many checks.
     Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
     FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
