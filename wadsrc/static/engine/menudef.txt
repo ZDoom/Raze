@@ -1078,9 +1078,9 @@ OptionValue "PlayerColorsSW"
 OptionValue "PlayerTeam"
 {
 	0, "$TXT_COLOR_BLUE"
-	1, "TXT_COLOR_RED"
-	2, "TXT_COLOR_GREEN"
-	3, "TXT_COLOR_GRAY"
+	1, "$TXT_COLOR_RED"
+	2, "$TXT_COLOR_GREEN"
+	3, "$TXT_COLOR_GRAY"
 }
 
 OptionValue "Gender"
