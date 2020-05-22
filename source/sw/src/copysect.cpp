@@ -33,6 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sprite.h"
 #include "track.h"
+#include "interpso.h"
 
 BEGIN_SW_NS
 
@@ -41,6 +42,8 @@ extern int GlobSpeedSO;
 void CopySectorWalls(short dest_sectnum, short src_sectnum)
 {
     short dest_wall_num, src_wall_num, start_wall;
+    SECTOR_OBJECTp sop;
+    SECTORp *sectp;
 
     dest_wall_num = sector[dest_sectnum].wallptr;
     src_wall_num = sector[src_sectnum].wallptr;
@@ -86,6 +89,20 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
         src_wall_num = wall[src_wall_num].point2;
     }
     while (dest_wall_num != start_wall);
+
+    // TODO: Mapping a sector to the sector object to which it belongs is better
+    for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
+    {
+        if (SO_EMPTY(sop))
+            continue;
+
+        for (sectp = sop->sectp; *sectp; sectp++)
+            if (*sectp - sector == dest_sectnum)
+            {
+                so_setinterpolationtics(sop, 0);
+                break;
+            }
+    }
 }
 
 void CopySectorMatch(short match)
