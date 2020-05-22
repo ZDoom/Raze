@@ -8177,33 +8177,25 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 walltype *pWall = &wall[pData[2]];
 
-#if 0
-                // Due to a typo in the original source code, this block never executes.
-                if (!(pWall->cstat & 32))
-                {
-                    pWall->overpicnum++;
-                    if (pWall->nextwall >= 0)
-                        wall[pWall->nextwall].overpicnum++;
-
-                    if (pData[0] < pData[1]) pData[0]++;
-                    else
-                    {
-                        pWall->cstat &= (128+32+8+4+2);
-                        if (pWall->nextwall >= 0)
-                            wall[pWall->nextwall].cstat &= (128+32+8+4+2);
-                        DELETE_SPRITE_AND_CONTINUE(spriteNum);
-                    }
-
-                    break;
-                }
-#endif
-
                 pWall->cstat &= (255-32);
                 pWall->cstat |= 16;
                 if (pWall->nextwall >= 0)
                 {
                     wall[pWall->nextwall].cstat &= (255-32);
                     wall[pWall->nextwall].cstat |= 16;
+                }
+
+                pWall->overpicnum++;
+                if (pWall->nextwall >= 0)
+                    wall[pWall->nextwall].overpicnum++;
+
+                if (pData[0] < pData[1]) pData[0]++;
+                else
+                {
+                    pWall->cstat &= (128+32+8+4+2);
+                    if (pWall->nextwall >= 0)
+                        wall[pWall->nextwall].cstat &= (128+32+8+4+2);
+                    DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
             }
             break;
