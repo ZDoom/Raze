@@ -147,7 +147,6 @@ int GameVersion = 17;
 char DemoText[3][64];
 int DemoTextYstart = 0;
 
-SWBOOL DoubleInitAWE32 = FALSE;
 int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
