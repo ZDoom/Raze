@@ -95,7 +95,7 @@ int32_t FileStream::Seek(int32_t offset, SeekDirection direction)
 		nStatus = file.Seek(offset, FileReader::SeekCur);
 	}
     else if (kSeekEnd == direction) {
-        nStatus = klseek(file, offset, SEEK_END);
+        nStatus = file.Seek(offset, FileReader::SeekEnd);
     }
 
     return nStatus;

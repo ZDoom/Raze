@@ -2262,9 +2262,9 @@ const THINGINFO thingInfo[] = {
         800,
         (char)-128,
         0,
-        48,
-        48,
-        64, 64, 112, 64, 0, 96, 96,
+        44,
+        44,
+        0, 1024, 512, 1024, 0, 64, 512,
     },
 };
 
@@ -2359,7 +2359,7 @@ const EXPLOSION explodeInfo[] = {
     },
 };
 
-
+int gDudeDrag = 0x2a00;
 
 short gAffectedSectors[kMaxSectors];
 short gAffectedXWalls[kMaxXWalls];
@@ -5260,7 +5260,8 @@ void actExplodeSprite(spritetype *pSprite)
         return;
     sfxKill3DSound(pSprite, -1, -1);
     evKill(pSprite->index, 3);
-    int nType;
+    int nType = kExplosionStandard;
+
     switch (pSprite->type)
     {
     case kMissileFireballNapam:

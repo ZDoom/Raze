@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "c_cvars.h"
 #include "zstring.h"
 #include "inputstate.h"

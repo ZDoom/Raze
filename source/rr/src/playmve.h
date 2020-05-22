@@ -47,13 +47,9 @@
 #ifndef playmve_h_
 #define playmve_h_
 
-#include "a.h"
 #include "baselayer.h"
 #include "build.h"
-#include "cache1d.h"
 #include "compat.h"
-#include "fx_man.h"
-#include "keyboard.h"
 #include "pragmas.h"
 
 bool playmve(const char* filename);

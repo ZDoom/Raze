@@ -195,6 +195,7 @@ struct OBJECTS_TO_TRACK {
 };
 
 struct TRCONDITION {
+    signed   int xindex:    16;
     unsigned int length:    8;
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
@@ -289,7 +290,7 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 //  -------------------------------------------------------------------------   //
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);

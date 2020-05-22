@@ -568,21 +568,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
                 evPost(nSprite, 3, 18, kCmdOff);
             }
         }
-        break;
-
-        /*if (pSprite->statnum != kStatRespawn) {
-            switch (event.cmd) {
-                case kCmdOn:
-                    actExplodeSprite(pSprite);
-                    break;
-                default:
-                    sfxPlay3DSound(pSprite, 454, 0, 0);
-                    evPost(nSprite, 3, 18, kCmdOff);
-                    break;
-            }
-        }*/
-        break;
-    
+        break;    
     case kThingArmedProxBomb:
         if (pSprite->statnum != kStatRespawn) {
             switch (event.cmd) {
@@ -2156,10 +2142,6 @@ void trInit(void)
                 evPost(i, 3, 0, kCmdRepeat);
                 if (pXSprite->waitTime > 0)
                     evPost(i, 3, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
-                break;
-            case kModernCondition:
-                if (pXSprite->busyTime <= 0 || pXSprite->locked) break;
-                evPost(i, 3, ClipLow(pXSprite->busyTime, 5), kCallbackCondition);
                 break;
             #endif
             case kGenTrigger:

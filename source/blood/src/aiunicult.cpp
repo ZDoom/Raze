@@ -365,14 +365,14 @@ static void ThrowThing(int nXIndex, bool impact) {
         case kModernThingEnemyLifeLeech:
             XSPRITE* pXThing = &xsprite[pThing->extra];
             if (pLeech != NULL) pXThing->health = pXLeech->health;
-            else pXThing->health = 300 * gGameOptions.nDifficulty;
+            else pXThing->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
             sfxPlay3DSound(pSprite, 490, -1, 0);
 
-            if (gGameOptions.nDifficulty <= 2) pXThing->data3 = 32700;
-            else pXThing->data3 = Random(10);
+            pXThing->data3 = 512 / (gGameOptions.nDifficulty + 1);
             pThing->cstat &= ~CSTAT_SPRITE_BLOCK;
-            pThing->pal = 6; 
+            pThing->pal = 6;
+            pThing->clipdist = 0;
             pXThing->target = pTarget->index;
             pXThing->Proximity = true;
             pXThing->stateTimer = 1;
@@ -438,17 +438,19 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
     if (pXTarget == NULL) {  // target lost
         if(spriteIsUnderwater(pSprite,false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
         else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
+        pXSprite->target = -1;
         return;
 
     } else if (pXTarget->health <= 0) { // target is dead
         PLAYER* pPlayer = NULL;
         if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fraggerId == pSprite->index)) {
-                playGenDudeSound(pSprite, kGenDudeSndTargetDead);
-                if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
-                else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
+            playGenDudeSound(pSprite, kGenDudeSndTargetDead);
+            if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
+            else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
         } 
         else if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeGotoW);
         else aiGenDudeNewState(pSprite, &genDudeGotoL);
+        pXSprite->target = -1;
         return;
     }
     
@@ -477,6 +479,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)  {
             if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeSearchShortW);
             else aiGenDudeNewState(pSprite, &genDudeSearchShortL);
+            pXSprite->target = -1;
             return;
         }
     }
@@ -1388,57 +1391,57 @@ void scaleDamage(XSPRITE* pXSprite) {
     switch (surfType) {
         case 1:  // stone
             curScale[kDmgFall] = 0;
-            curScale[kDmgBullet] -= 128;
-            curScale[kDmgBurn] -= 50;
-            curScale[kDmgExplode] -= 40;
+            curScale[kDmgBullet] -= 200;
+            curScale[kDmgBurn] -= 100;
+            curScale[kDmgExplode] -= 80;
             curScale[kDmgChoke] += 30;
             curScale[kDmgElectric] += 20;
             break;
         case 2:  // metal
             curScale[kDmgFall] = 16;
-            curScale[kDmgBullet] -= 64;
-            curScale[kDmgBurn] -= 45;
-            curScale[kDmgExplode] -= 35;
+            curScale[kDmgBullet] -= 128;
+            curScale[kDmgBurn] -= 90;
+            curScale[kDmgExplode] -= 55;
             curScale[kDmgChoke] += 20;
             curScale[kDmgElectric] += 30;
             break;
         case 3:  // wood 
-            curScale[kDmgBullet] -= 5;
+            curScale[kDmgBullet] -= 10;
             curScale[kDmgBurn] += 50;
             curScale[kDmgExplode] += 40;
             curScale[kDmgChoke] += 10;
-            curScale[kDmgElectric] -= 30;
+            curScale[kDmgElectric] -= 60;
             break;
         case 5:  // water
         case 6:  // dirt
         case 7:  // clay
         case 13: // goo
             curScale[kDmgFall] = 8;
-            curScale[kDmgBullet] -= 10;
-            curScale[kDmgBurn] -= 128;
-            curScale[kDmgExplode] -= 30;
+            curScale[kDmgBullet] -= 20;
+            curScale[kDmgBurn] -= 200;
+            curScale[kDmgExplode] -= 60;
             curScale[kDmgChoke] = 0;
             curScale[kDmgElectric] += 40;
             break;
         case 8:  // snow
         case 9:  // ice
             curScale[kDmgFall] = 8;
-            curScale[kDmgBullet] -= 10;
-            curScale[kDmgBurn] -= 60;
-            curScale[kDmgExplode] -= 40;
+            curScale[kDmgBullet] -= 20;
+            curScale[kDmgBurn] -= 100;
+            curScale[kDmgExplode] -= 50;
             curScale[kDmgChoke] = 0;
             curScale[kDmgElectric] += 40;
             break;
         case 10: // leaves
         case 12: // plant
             curScale[kDmgFall] = 0;
-            curScale[kDmgBullet] -= 5;
+            curScale[kDmgBullet] -= 10;
             curScale[kDmgBurn] += 70;
             curScale[kDmgExplode] += 50;
             break;
         case 11: // cloth
             curScale[kDmgFall] = 8;
-            curScale[kDmgBullet] -= 5;
+            curScale[kDmgBullet] -= 10;
             curScale[kDmgBurn] += 30;
             curScale[kDmgExplode] += 20;
             break;
@@ -2116,7 +2119,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             pExtra->nLifeLeech = -1;
             if (pSprite->owner != kMaxSprites - 1) {
                 for (int nSprite = headspritestat[kStatThing]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-                    if (sprite[nSprite].owner == pSprite->index && pSprite->type == kModernThingEnemyLifeLeech) {
+                    if (sprite[nSprite].owner == pSprite->index && sprite[nSprite].type == kModernThingEnemyLifeLeech) {
                         pExtra->nLifeLeech = nSprite;
                         break;
                     }
