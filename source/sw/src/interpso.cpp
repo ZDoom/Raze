@@ -269,6 +269,10 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
         if (SO_EMPTY(sop))
             continue;
 
+        // Check if interpolation has been explicitly disabled
+        if (interp->lasttic == 0)
+            continue;
+
         // Unfortunately, interpolating over less samples doesn't work well
         // in multiplayer. We also skip any sector object not
         // remotely controlled by some player.
