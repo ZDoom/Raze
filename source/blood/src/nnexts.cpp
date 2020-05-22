@@ -552,7 +552,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
                 if (pXCond2->rxID != rx || pCond2->index == pCond->index || sum1 != sum2) continue;
                 else if ((pCond2->type != pCond->type) ^ (pCond2->cstat != pCond->cstat)) {
-                    initprintf("> ELSE IF found for condition #%d (RX ID: %d, CONDID: %d)\n", i, rx, pXCond->data1);
+                    Printf("> ELSE IF found for condition #%d (RX ID: %d, CONDID: %d)\n", i, rx, pXCond->data1);
                     pXCond2->rxID = pXCond2->busyTime = 0;
                     pXCond->sysData2 = pCond2->index;
                     i = a; found = true;
@@ -1569,7 +1569,8 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     for (int i = 0; i < 11; i++) {
                         if (gWeaponItemData[i].type != weapon) continue;
 
-                        WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; int nAmmoType = pWeaponData->ammoType;
+                        const WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; 
+                        int nAmmoType = pWeaponData->ammoType;
                         switch (pXSource->data2) {
                             case 1:
                                 pPlayer->hasWeapon[weapon] = true;

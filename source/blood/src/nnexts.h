@@ -61,8 +61,10 @@ BEGIN_BLD_NS
 #define kModernTypeFlag4 0x0004
 
 #define kMaxRandomizeRetries 16
-#define kPercentFull 100
+#define kPercFull 100
 #define kCondRange 100
+
+
 
 // modern statnums
 enum {
@@ -71,7 +73,7 @@ kStatModernDudeTargetChanger        = kStatModernBase,
 kStatModernCondition                = 21,
 kStatModernEventRedirector          = 22,
 kStatModernPlayerLinker             = 23,
-kStatModernSeqSpawner               = 24,
+kStatModernBrokenDudeLeech          = 24,
 kStatModernQavScene                 = 25,
 kStatModernTmp                      = 39,
 kStatModernMax                      = 40,
@@ -253,7 +255,6 @@ void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
 int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
 int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget);
 bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget);
-bool aiFightIsAnnoyingUnit(spritetype* pDude);
 bool aiFightUnitCanFly(spritetype* pDude);
 bool aiFightIsMeleeUnit(spritetype* pDude);
 bool aiFightDudeIsAffected(XSPRITE* pXDude);

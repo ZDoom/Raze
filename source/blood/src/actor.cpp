@@ -2359,8 +2359,6 @@ const EXPLOSION explodeInfo[] = {
     },
 };
 
-int gDudeDrag = 0x2a00;
-
 short gAffectedSectors[kMaxSectors];
 short gAffectedXWalls[kMaxXWalls];
 static const short gPlayerGibThingComments[] = {
