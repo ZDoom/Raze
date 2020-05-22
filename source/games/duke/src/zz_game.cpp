@@ -73,8 +73,6 @@ int32_t vote_map = -1, vote_episode = -1;
 
 int32_t g_Debug = 0;
 
-const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "REDNECK.RTS", "REDNECK.RTS", "NAM.RTS", "NAPALM.RTS" };
-
 int32_t g_Shareware = 0;
 
 int32_t tempwallptr;
@@ -90,30 +88,6 @@ int32_t g_levelTextTime = 0;
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
 #endif
-
-const char *G_DefaultRtsFile(void)
-{
-    if (DUKE)
-        return defaultrtsfilename[GAME_DUKE];
-    else if (NAPALM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
-            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAPALM];
-    }
-    else if (NAM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
-            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAM];
-    }
-    else if (RR)
-        return defaultrtsfilename[GAME_RR];
-
-    return defaultrtsfilename[0];
-}
 
 enum gametokens
 {
@@ -190,124 +164,6 @@ void G_GameQuit(void)
         //G_GameExit("Timed out.");
 }
 
-
-void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum)
-{
-    if (!pPlayer->OnMotorcycle && !(sector[pPlayer->cursectnum].lotag == 2))
-    {
-        if (spriteNum)
-        {
-            pPlayer->pos.x = sprite[spriteNum].x;
-            pPlayer->pos.y = sprite[spriteNum].y;
-            pPlayer->q16ang = F16(sprite[spriteNum].ang);
-            pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = sprite[spriteNum].owner;
-            A_DeleteSprite(spriteNum);
-        }
-        pPlayer->over_shoulder_on = 0;
-        pPlayer->OnMotorcycle = 1;
-        pPlayer->last_full_weapon = pPlayer->curr_weapon;
-        pPlayer->curr_weapon = MOTORCYCLE_WEAPON;
-        pPlayer->gotweapon.Set(MOTORCYCLE_WEAPON);
-        pPlayer->vel.x = 0;
-        pPlayer->vel.y = 0;
-        pPlayer->q16horiz = F16(100);
-    }
-    if (!A_CheckSoundPlaying(pPlayer->i,186))
-        A_PlaySound(186, pPlayer->i);
-}
-
-void OffMotorcycle(DukePlayer_t *pPlayer)
-{
-    int j;
-    if (pPlayer->OnMotorcycle)
-    {
-        if (A_CheckSoundPlaying(pPlayer->i,188))
-            S_StopEnvSound(188,pPlayer->i);
-        if (A_CheckSoundPlaying(pPlayer->i,187))
-            S_StopEnvSound(187,pPlayer->i);
-        if (A_CheckSoundPlaying(pPlayer->i,186))
-            S_StopEnvSound(186,pPlayer->i);
-        if (A_CheckSoundPlaying(pPlayer->i,214))
-            S_StopEnvSound(214,pPlayer->i);
-        if (!A_CheckSoundPlaying(pPlayer->i,42))
-            A_PlaySound(42, pPlayer->i);
-        pPlayer->OnMotorcycle = 0;
-        pPlayer->gotweapon.Clear(MOTORCYCLE_WEAPON);
-        pPlayer->curr_weapon = pPlayer->last_full_weapon;
-        P_CheckWeapon(pPlayer);
-        pPlayer->q16horiz = F16(100);
-        pPlayer->moto_do_bump = 0;
-        pPlayer->MotoSpeed = 0;
-        pPlayer->TiltStatus = 0;
-        pPlayer->moto_drink = 0;
-        pPlayer->VBumpTarget = 0;
-        pPlayer->VBumpNow = 0;
-        pPlayer->TurbCount = 0;
-        pPlayer->vel.x = 0;
-        pPlayer->vel.y = 0;
-        pPlayer->vel.x -= sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
-        pPlayer->vel.y -= sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
-        pPlayer->moto_underwater = 0;
-        j = fi.spawn(pPlayer->i, TILE_EMPTYBIKE);
-        sprite[j].ang = fix16_to_int(pPlayer->q16ang);
-        sprite[j].xvel += sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
-        sprite[j].yvel += sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
-        sprite[j].owner = pPlayer->ammo_amount[MOTORCYCLE_WEAPON];
-    }
-}
-
-void OnBoat(DukePlayer_t *pPlayer, int spriteNum)
-{
-    if (!pPlayer->OnBoat)
-    {
-        if (spriteNum)
-        {
-            pPlayer->pos.x = sprite[spriteNum].x;
-            pPlayer->pos.y = sprite[spriteNum].y;
-            pPlayer->q16ang = F16(sprite[spriteNum].ang);
-            pPlayer->ammo_amount[BOAT_WEAPON] = sprite[spriteNum].owner;
-            deletesprite(spriteNum);
-        }
-        pPlayer->over_shoulder_on = 0;
-        pPlayer->OnBoat = 1;
-        pPlayer->last_full_weapon = pPlayer->curr_weapon;
-        pPlayer->curr_weapon = BOAT_WEAPON;
-        pPlayer->gotweapon.Set(BOAT_WEAPON);
-        pPlayer->vel.x = 0;
-        pPlayer->vel.y = 0;
-        pPlayer->q16horiz = F16(100);
-    }
-}
-
-void OffBoat(DukePlayer_t *pPlayer)
-{
-    int j;
-    if (pPlayer->OnBoat)
-    {
-        pPlayer->OnBoat = 0;
-        pPlayer->gotweapon.Clear(BOAT_WEAPON);
-        pPlayer->curr_weapon = pPlayer->last_full_weapon;
-        P_CheckWeapon(pPlayer);
-        pPlayer->q16horiz = F16(100);
-        pPlayer->moto_do_bump = 0;
-        pPlayer->MotoSpeed = 0;
-        pPlayer->TiltStatus = 0;
-        pPlayer->moto_drink = 0;
-        pPlayer->VBumpTarget = 0;
-        pPlayer->VBumpNow = 0;
-        pPlayer->TurbCount = 0;
-        pPlayer->vel.x = 0;
-        pPlayer->vel.y = 0;
-        pPlayer->vel.x -= sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
-        pPlayer->vel.y -= sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
-        pPlayer->moto_underwater = 0;
-        j = fi.spawn(pPlayer->i, TILE_EMPTYBOAT);
-        sprite[j].ang = fix16_to_int(pPlayer->q16ang);
-        sprite[j].xvel += sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<7;
-        sprite[j].yvel += sintable[fix16_to_int(pPlayer->q16ang)&2047]<<7;
-        sprite[j].owner = pPlayer->ammo_amount[BOAT_WEAPON];
-    }
-}
 
 
 

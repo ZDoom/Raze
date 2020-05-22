@@ -78,8 +78,6 @@ int32_t vote_map = -1, vote_episode = -1;
 
 int32_t g_Debug = 0;
 
-const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "REDNECK.RTS", "REDNECK.RTS", "NAM.RTS", "NAPALM.RTS" };
-
 int32_t g_Shareware = 0;
 
 int32_t tempwallptr;
@@ -96,29 +94,6 @@ int32_t g_levelTextTime = 0;
 extern char forcegl;
 #endif
 
-const char *G_DefaultRtsFile(void)
-{
-    if (DUKE)
-        return defaultrtsfilename[GAME_DUKE];
-    else if (NAPALM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAM]))
-            return defaultrtsfilename[GAME_NAM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAPALM];
-    }
-    else if (NAM)
-    {
-        if (!fileSystem.FileExists(defaultrtsfilename[GAME_NAM]) && fileSystem.FileExists(defaultrtsfilename[GAME_NAPALM]))
-            return defaultrtsfilename[GAME_NAPALM]; // NAM/NAPALM Sharing
-        else
-            return defaultrtsfilename[GAME_NAM];
-    }
-    else if (RR)
-        return defaultrtsfilename[GAME_RR];
-
-    return defaultrtsfilename[0];
-}
 
 enum gametokens
 {
