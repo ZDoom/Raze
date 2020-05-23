@@ -3162,7 +3162,7 @@ void polymost_drawrooms()
     polymost_outputGLDebugMessage(3, "polymost_drawrooms()");
 
 #ifdef YAX_ENABLE
-	if (yax_polymostclearzbuffer)
+	//if (yax_polymostclearzbuffer)
 #endif
 	{
 		GLInterface.ClearDepth();
