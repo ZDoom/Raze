@@ -46,8 +46,8 @@ VPXTexture::VPXTexture() {}
 
 void VPXTexture::SetFrame(const void *data_, int width, int height)
 {
-    Size.x = width;
-    Size.y = height;
+    Width = width;
+    Height = height;
     data = data_;
     DeleteHardwareTextures();
 }
@@ -62,11 +62,11 @@ FBitmap VPXTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
 {
     FBitmap bmp;
 
-    bmp.Create(Size.x, Size.y);
+    bmp.Create(Width, Height);
 
     auto spix = (uint8_t*)data;
     auto dpix = bmp.GetPixels();
-    for (int i = 0; i < Size.x * Size.y; i++)
+    for (int i = 0; i < Width * Height; i++)
     {
         int p = i * 4;
         float y = spix[p] * (1/255.f);

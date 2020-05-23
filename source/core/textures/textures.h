@@ -226,6 +226,10 @@ public:
 
 	int GetWidth() const { return Size.x; }
 	int GetHeight() const { return Size.y; }
+	int GetTexelWidth() const { return Size.x; }
+	int GetTexelHeight() const { return Size.y; }
+	int GetDisplayWidth() const { return Size.x; }
+	int GetDisplayHeight() const { return Size.y; }
 	const vec2_16_t &GetSize() const { return Size; }
 	const uint8_t& GetPicSize() const { return PicSize; }
 	int GetLeftOffset() const { return PicAnim.xofs; }
@@ -294,7 +298,11 @@ protected:
 
 
 	FString Name;
-	vec2_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
+	union
+	{
+		vec2_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
+		struct { uint16_t Width, Height; };
+	};
 	rottile_t RotTile = { -1,-1 };
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?

@@ -178,10 +178,10 @@ void FGLRenderer::BindToFrameBuffer(FTexture *mat)
 	{
 		// must create the hardware texture first
 		BaseLayer = new FHardwareTexture();
-		BaseLayer->CreateTexture(mat->GetWidth()*4, mat->GetHeight()*4, FHardwareTexture::TrueColor, false);
+		BaseLayer->CreateTexture(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4, ::FHardwareTexture::TrueColor, false);
 		mat->SetHardwareTexture(0, BaseLayer);
 	}
-	BaseLayer->BindToFrameBuffer(mat->GetWidth()*4, mat->GetHeight()*4);
+	BaseLayer->BindToFrameBuffer(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4);
 }
 
 //===========================================================================

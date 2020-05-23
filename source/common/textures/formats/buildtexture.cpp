@@ -39,7 +39,7 @@
 #include "image.h"
 #include "palettecontainer.h"
 
-#if 0
+
 //==========================================================================
 //
 //
@@ -75,4 +75,3 @@ int FBuildTexture::CopyPixels(FBitmap *bmp, int conversion)
 
 }
 
-#endif

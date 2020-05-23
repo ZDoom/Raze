@@ -327,8 +327,8 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 	auto tex = TileFiles.tiles[tspr->picnum];
 	auto si = tex->FindReplacement(tspr->shade, 0);
 	if (si && hw_hightile) tex = si->faces[0];
-	if (tex->Get8BitPixels()) return false;
-	return tex && tex->GetTranslucency();
+    if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
+    return tex && tex->GetTranslucency();
 }
 
 int32_t polymost_spriteIsModelOrVoxel(tspritetype const * const tspr)
