@@ -753,10 +753,21 @@ set (PCH_SOURCES
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
 	common/textures/image.cpp
+	common/textures/formats/automaptexture.cpp
+	common/textures/formats/brightmaptexture.cpp
+	common/textures/formats/buildtexture.cpp
 	common/textures/formats/ddstexture.cpp
+	common/textures/formats/flattexture.cpp
+	common/textures/formats/imgztexture.cpp
 	common/textures/formats/jpegtexture.cpp
+	common/textures/formats/md5check.cpp
+	common/textures/formats/multipatchtexture.cpp
+	common/textures/formats/patchtexture.cpp
 	common/textures/formats/pcxtexture.cpp
 	common/textures/formats/pngtexture.cpp
+	common/textures/formats/rawpagetexture.cpp
+	common/textures/formats/emptytexture.cpp
+	common/textures/formats/shadertexture.cpp
 	common/textures/formats/tgatexture.cpp
 	common/textures/formats/stbtexture.cpp
 	common/console/c_commandline.cpp
@@ -969,6 +980,7 @@ include_directories(
 	common/audio/music
 	common/thirdparty
 	common/textures
+	common/textures/formats
 	common/filesystem
 	common/utility
 	common/console

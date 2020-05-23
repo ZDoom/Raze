@@ -326,12 +326,18 @@ struct TexCreateInfo
 	bool checkflat;
 };
 
+FImageSource *IMGZImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *PNGImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *JPEGImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *DDSImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *PCXImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *TGAImage_TryCreate(FileReader &, int lumpnum);
 FImageSource *StbImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *RawPageImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *FlatImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *PatchImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *EmptyImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *AutomapImage_TryCreate(FileReader &, int lumpnum);
 
 
 // Examines the lump contents to decide what type of texture to create,
@@ -339,12 +345,18 @@ FImageSource *StbImage_TryCreate(FileReader &, int lumpnum);
 FImageSource * FImageSource::GetImage(int lumpnum, bool isflat)
 {
 	static TexCreateInfo CreateInfo[] = {
+		{ IMGZImage_TryCreate,			false },
 		{ PNGImage_TryCreate,			false },
 		{ JPEGImage_TryCreate,			false },
 		{ DDSImage_TryCreate,			false },
 		{ PCXImage_TryCreate,			false },
 		{ StbImage_TryCreate,			false },
 		{ TGAImage_TryCreate,			false },
+		{ RawPageImage_TryCreate,		false },
+		{ FlatImage_TryCreate,			true },	// flat detection is not reliable, so only consider this for real flats.
+		{ PatchImage_TryCreate,			false },
+		{ EmptyImage_TryCreate,			false },
+		{ AutomapImage_TryCreate,		false },
 	};
 
 	if (lumpnum == -1) return nullptr;
