@@ -752,6 +752,13 @@ set (PCH_SOURCES
 	common/textures/animtexture.cpp
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
+	common/textures/image.cpp
+	common/textures/formats/ddstexture.cpp
+	common/textures/formats/jpegtexture.cpp
+	common/textures/formats/pcxtexture.cpp
+	common/textures/formats/pngtexture.cpp
+	common/textures/formats/tgatexture.cpp
+	common/textures/formats/stbtexture.cpp
 	common/console/c_commandline.cpp
 	common/console/c_buttons.cpp
 	common/console/c_bind.cpp
@@ -821,16 +828,8 @@ set (PCH_SOURCES
 	
 	core/textures/buildtiles.cpp
 	core/textures/texture.cpp
-	core/textures/image.cpp
 	core/textures/imagetexture.cpp
 	core/textures/imagehelpers.cpp
-	core/textures/formats/ddstexture.cpp
-	core/textures/formats/jpegtexture.cpp
-	core/textures/formats/pcxtexture.cpp
-	core/textures/formats/pngtexture.cpp
-	core/textures/formats/tgatexture.cpp
-	core/textures/formats/stbtexture.cpp
-	core/textures/formats/arttexture.cpp
 
 	core/music/s_advsound.cpp
 
@@ -1104,6 +1103,7 @@ source_group("Common\\Scripting\\Core" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOUR
 source_group("Common\\Scripting\\JIT" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/jit/.+")
 source_group("Common\\Scripting\\VM" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/scripting/vm/.+")
 source_group("Common\\Textures" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/.+")
+source_group("Common\\Textures\\Formats" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/textures/formats.+")
 source_group("Common\\Third Party" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/.+")
 source_group("Common\\Third Party\\Math" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/math/.+")
 source_group("Common\\Third Party\\RapidJSON" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/thirdparty/rapidjson/.+")
