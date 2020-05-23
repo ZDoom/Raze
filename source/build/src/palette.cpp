@@ -75,8 +75,6 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
 
 void paletteLoadFromDisk(void)
 {
-    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
-
     for (auto & x : glblend)
         x = defaultglblend;
 

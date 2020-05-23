@@ -2095,6 +2095,7 @@ int32_t engineInit(void)
 
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
+    GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
     if (paletteLoadFromDisk_replace)
     {
         paletteLoadFromDisk_replace();

@@ -63,13 +63,6 @@ using BITFIELD = uint32_t;
 #define NOVTABLE
 #endif
 
-
-#if defined(_MSC_VER)
-#define NOVTABLE __declspec(novtable)
-#else
-#define NOVTABLE
-#endif
-
 // always use our own definition for consistency.
 #ifdef M_PI
 #undef M_PI

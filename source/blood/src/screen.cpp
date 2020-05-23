@@ -71,10 +71,10 @@ void scrLoadPLUs(void)
     // load lookup tables
     for (int i = 0; i < MAXPALOOKUPS; i++) 
     {
-        int lump = i <= 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
+        int lump = i < 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
         if (lump < 0)
         {
-            if (i <= 15) I_FatalError("%s.PLU not found", PLU[i]);
+            if (i < 15) I_FatalError("%s.PLU not found", PLU[i]);
             else continue;
         }
         auto data = fileSystem.GetFileData(lump);
