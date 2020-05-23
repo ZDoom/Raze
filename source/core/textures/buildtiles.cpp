@@ -555,7 +555,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 		if (pal != -1)
 		{
-			auto remap = (const uint8_t*)LookupTables[pal].GetChars();
+			auto remap = paletteGetLookupTable(pal);
 			for (auto& pixel : buffer)
 			{
 				pixel = remap[pixel];

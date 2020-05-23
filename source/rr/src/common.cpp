@@ -146,7 +146,7 @@ void G_LoadLookups(void)
 
     if (RR)
     {
-        char table[256];
+        uint8_t table[256];
         for (bssize_t i = 0; i < 256; i++)
             table[i] = i;
         for (bssize_t i = 0; i < 32; i++)
@@ -186,7 +186,7 @@ void G_LoadLookups(void)
         {
             paletteMakeLookupTable(50, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
             paletteMakeLookupTable(51, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
-            paletteMakeLookupTable(54, LookupTables[8].GetChars(), 32 * 4, 32 * 4, 32 * 4, 0);
+            paletteMakeLookupTable(54, paletteGetLookupTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
         }
     }
 }

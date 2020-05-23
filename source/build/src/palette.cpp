@@ -138,11 +138,9 @@ void paletteLoadFromDisk(void)
 
     // Read base shade table (lookuptables 0).
     int length = numshades * 256;
-    auto p = LookupTables[0].LockNewBuffer(length);
-    auto count = fil.Read(p, length);
-    LookupTables->UnlockBuffer();
-    if (count != length)
-        return;
+    auto buffer = fil.Read(length);
+    if (buffer.Size() != length) return;
+    LookupTables[0] = FString((char*)buffer.Data(), length);
 
     paletteloaded |= PALETTE_SHADE;
     paletteloaded |= PALETTE_TRANSLUC;
@@ -158,7 +156,7 @@ void palettePostLoadTables(void)
 {
     globalpal = 0;
 
-    auto lookup = (const uint8_t*)LookupTables[0].GetChars();
+    auto lookup = paletteGetLookupTable(0);
     ImageHelpers::SetPalette(GPalette.BaseColors);
     
     for (int c = 0; c < 255; ++c) // skipping transparent color
@@ -211,7 +209,7 @@ void paletteFixTranslucencyMask(void)
 
 int32_t paletteLoadLookupTable(FileReader &fp)
 {
-    char remapbuf[256];
+    uint8_t remapbuf[256];
     int numlookups = fp.ReadUInt8();
     if (numlookups < 1)
         return -1;
@@ -244,7 +242,7 @@ void paletteSetupDefaultFog(void)
 {
     for (int j = 1; j <= 255 - 3; j++)
     {
-        if (!LookupTables[j].IsEmpty() && !LookupTables[j + 1].IsEmpty() && !LookupTables[j + 2].IsEmpty() && !LookupTables[j + 3].IsEmpty())
+        if (LookupTables[j].IsEmpty() && LookupTables[j + 1].IsEmpty() && LookupTables[j + 2].IsEmpty() && LookupTables[j + 3].IsEmpty())
         {
             paletteMakeLookupTable(j, NULL, 60, 60, 60, 1);
             paletteMakeLookupTable(j + 1, NULL, 60, 0, 0, 1);
@@ -272,7 +270,7 @@ void palettePostLoadLookups(void)
     {
         if (!LookupTables[l].IsEmpty())
         {
-            const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
+            const uint8_t* lookup = paletteGetLookupTable(l);
             FRemapTable remap;
             for (int i = 0; i < numpalettes; i++)
             {
@@ -306,9 +304,7 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
     if (shtab != NULL)
     {
         int length = numshades * 256;
-        auto p = LookupTables[palnum].LockNewBuffer(length);
-        memcpy(p, shtab, length);
-        LookupTables->UnlockBuffer();
+        LookupTables[palnum] = FString((const char*)shtab, length);
     }
 
     return 0;
@@ -320,9 +316,9 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 //
 //==========================================================================
 
-void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
+void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
 {
-    char idmap[256];
+    uint8_t idmap[256];
 
     // NOTE: palnum==0 is allowed
     if (paletteloaded == 0 || (unsigned)palnum >= MAXPALOOKUPS)
@@ -334,7 +330,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
     {
         if (r == 0 || g == 0 || b == 0)
         {
-            LookupTables[palnum] = ""; // clear this entry so that later it can be filled with the base remap.
+            paletteClearLookupTable(palnum);
             return;
         }
 
@@ -348,7 +344,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
     {
         // "black fog"/visibility case -- only remap color indices
 
-        auto src = (const uint8_t*)LookupTables[0].GetChars();
+        auto src = paletteGetLookupTable(0);
 
         for (int j = 0; j < numshades; j++)
             for (int i = 0; i < 256; i++)

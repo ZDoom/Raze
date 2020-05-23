@@ -29,6 +29,23 @@
 #define BRIGHTPAL	(MAXPALOOKUPS)
 
 extern FString LookupTables[MAXPALOOKUPS];
+inline const uint8_t *paletteGetLookupTable(int num)
+{
+    return (const uint8_t*)LookupTables[num].GetChars();
+}
+
+inline void paletteCopyLookupTable(int dest, int src)
+{
+    LookupTables[dest] = LookupTables[src];
+}
+inline bool paletteCheckLookupTable(int num)
+{
+    return LookupTables[num].Len() > 0;
+}
+inline void paletteClearLookupTable(int num)
+{
+    LookupTables[num] = "";
+}
 
 enum
 {
@@ -47,7 +64,7 @@ struct palette_t
 
 extern PalEntry palfadergb;
 
-void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
+void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency, bool twodonly);
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
 

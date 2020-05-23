@@ -218,6 +218,7 @@ InitPalette(void)
 
     unsigned int i;
     short play;
+    uint8_t tempbuf[256];
 
     //
     // Dive palettes

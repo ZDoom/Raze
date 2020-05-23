@@ -233,7 +233,7 @@ static void polymost_glinit()
     }
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-		GLInterface.SetPalswapData(palookupnum, (uint8_t*)LookupTables[palookupnum].GetChars(), numshades+1, palookupfog[palookupnum]);
+		GLInterface.SetPalswapData(palookupnum, paletteGetLookupTable(palookupnum), numshades+1, palookupfog[palookupnum]);
 	}
 }
 
@@ -406,7 +406,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         return;
     }
 
-    if (LookupTables[globalpal].IsEmpty())
+    if (!paletteCheckLookupTable(globalpal))
         globalpal = 0;
 
     //Load texture (globalpicnum)
@@ -4601,7 +4601,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     //    while sprites are clamped
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (LookupTables[dapalnum].IsEmpty())) return;//dapalnum = 0;
+   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!paletteCheckLookupTable(dapalnum))) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

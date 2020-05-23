@@ -2040,7 +2040,7 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            paletteMakeLookupTable(pal, LookupTables[remappal].GetChars(), red<<2, green<<2, blue<<2,
+            paletteMakeLookupTable(pal, paletteGetLookupTable(remappal), red<<2, green<<2, blue<<2,
                          remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;
@@ -2839,7 +2839,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         }
 
-                        paletteMakeLookupTable(id, (char*)palookupbuf.Data(), 0,0,0, g_noFloorPal[id]);
+                        paletteMakeLookupTable(id, palookupbuf.Data(), 0,0,0, g_noFloorPal[id]);
                     }
                     break;
                 }
@@ -2862,8 +2862,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (LookupTables[source].IsNotEmpty() || id > 0)    // do not overwrite the base with an empty table.
-                        LookupTables[id] = LookupTables[source];
+                    if (paletteCheckLookupTable(source) || id > 0)    // do not overwrite the base with an empty table.
+                        paletteCopyLookupTable(id, source);
                     didLoadShade = 1;
                     break;
                 }
@@ -2986,7 +2986,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_UNDEF:
                 {
-                    LookupTables[id] = "";
+                    paletteClearLookupTable(id);
                     didLoadShade = 0;
                     if (id == 0)
                         paletteloaded &= ~PALETTE_SHADE;
@@ -3341,7 +3341,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                LookupTables[i] = "";
+                paletteClearLookupTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;

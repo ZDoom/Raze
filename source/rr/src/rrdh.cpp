@@ -4320,10 +4320,10 @@ void ghdeploy_plrtouchedsprite(short a1, short a2)
 
 short word_2BE990[68];
 short word_2BEA18;
-char byte_2BE350[256];
 
 void sub_59C20(void)
 {
+    uint8_t table[256];
     int i;
     word_2BEA18 = 0;
     tileDelete(7059);
@@ -4334,8 +4334,8 @@ void sub_59C20(void)
             word_2BE990[word_2BEA18++] = i;
     }
     for (i = 0; i < 256; i++)
-        byte_2BE350[i] = i;
-    paletteMakeLookupTable(2, byte_2BE350, 10*4, 10*4, 24*4, 0);
+        table[i] = i;
+    paletteMakeLookupTable(2, table, 10*4, 10*4, 24*4, 0);
 }
 
 int dword_2BEA20, dword_2BEA24;
