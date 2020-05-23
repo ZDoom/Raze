@@ -1295,7 +1295,7 @@ OptionMenu "HUDOptions" //protected
 
 OptionMenu "PolymostOptions"
 {
-	Title "Polympost Options"
+	Title "Polymost Options"
 	Option "$POLYMOST_TC", "hw_hightile", "OnOff"
 	Option "$POLYMOST_CACHE", "r_precache", "OnOff"
 	StaticText ""
