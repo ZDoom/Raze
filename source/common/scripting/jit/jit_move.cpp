@@ -53,7 +53,11 @@ static void CastCo2S(FString *a, int b) { PalEntry c(b); a->Format("%02x %02x %0
 static int CastS2So(FString *b) { return FSoundID(*b); }
 static void CastSo2S(FString* a, int b) { *a = soundEngine->GetSoundName(b); }
 static void CastSID2S(FString* a, unsigned int b) { VM_CastSpriteIDToString(a, b); }
+#if 0
 static void CastTID2S(FString *a, int b) { auto tex = TexMan.GetTexture(*(FTextureID*)&b); *a = (tex == nullptr) ? "(null)" : tex->GetName().GetChars(); }
+#else
+static void CastTID2S(FString* a, int b) { *a = "(null)"; }
+#endif
 
 void JitCompiler::EmitCAST()
 {

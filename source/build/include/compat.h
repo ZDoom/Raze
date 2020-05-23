@@ -72,7 +72,7 @@
 #elif defined __cplusplus && __cplusplus >= 201103L
 # define CXXSTD 2011
 #elif defined __cplusplus && __cplusplus >= 199711L
-# define CXXSTD 1998
+# define CXXSTD 2014    // Thanks, Microsoft... :?
 #else
 # define CXXSTD 0
 #endif

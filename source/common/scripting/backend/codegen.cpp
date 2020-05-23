@@ -2917,6 +2917,7 @@ ExpEmit FxAddSub::Emit(VMFunctionBuilder *build)
 
 texcheck:
 	// Do a bounds check for the texture index. Note that count can change at run time so this needs to read the value from the texture manager.
+#if 0
 	auto * ptr = (FArray*)&TexMan.Textures;
 	auto * countptr = &ptr->Count;
 	ExpEmit bndp(build, REGT_POINTER);
@@ -2926,6 +2927,7 @@ texcheck:
 	build->Emit(OP_BOUND_R, to.RegNum, bndc.RegNum);
 	bndp.Free(build);
 	bndc.Free(build);
+#endif
 	return to;
 }
 
