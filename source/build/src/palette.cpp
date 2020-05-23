@@ -19,16 +19,16 @@
 #include "palettecontainer.h"
 #include "palutil.h"
 #include "colormatcher.h"
+#include "m_swap.h"
 #include "../../glbackend/glbackend.h"
 
-FMemArena lookuparena;
+// FString is a nice and convenient way to have automatically managed shared storage.
+FString LookupTables[MAXPALOOKUPS];
 
 uint8_t curbasepal;
 int32_t globalblend;
 
-palette_t palfadergb = { 0, 0, 0, 0 };
-unsigned char palfadedelta = 0;
-ESetPalFlags curpaletteflags;
+PalEntry palfadergb;
 
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
@@ -39,32 +39,15 @@ palette_t palookupfog[MAXPALOOKUPS];
 // NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
 int8_t g_noFloorPal[MAXPALOOKUPS];
 
-int32_t curbrightness = 0;
+FixedBitArray<256> FullbrightIndices;
 
-void setBlendFactor(int index, int alpha);
+//==========================================================================
+//
+// Adds a palette to the global list of base palettes
+//
+//==========================================================================
 
-
-int DetermineTranslucency(const uint8_t *table)
-{
-	uint8_t index;
-	PalEntry newcolor;
-	PalEntry newcolor2;
-
-	index = table[GPalette.BlackIndex * 256 + GPalette.WhiteIndex];
-    newcolor = GPalette.BaseColors[index];
-
-	index = table[GPalette.WhiteIndex * 256 + GPalette.BlackIndex];
-    newcolor2 = GPalette.BaseColors[index];
-    if (newcolor2.r == 255)	// if black on white results in white it's either
-							// fully transparent or additive
-	{
-		return -newcolor.r;
-	}
-
-	return newcolor.r;
-}
-
-void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
+void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency, bool twodonly)
 {
     if (id == 0)
     {
@@ -77,6 +60,7 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
         remap.Palette[255] = 0;
         remap.Remap[255] = 255;
     }
+    remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
 
     // Todo: remove this once the texture code can use GPalette directly
@@ -85,45 +69,18 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency)
 #endif
 }
 
-
-
-void fullscreen_tint_gl(PalEntry pe);
-
-static void alloc_palookup(int32_t pal)
-{
-    // The asm functions vlineasm1, mvlineasm1 (maybe others?) access the next
-    // lookuptables[...] shade entry for tilesizy==512 tiles.
-    // See DEBUG_TILESIZY_512 and the comment in a.nasm: vlineasm1.
-    lookuptables[pal] = (char *) Xaligned_alloc(16, (numshades + 1) * 256);
-    memset(lookuptables[pal], 0, (numshades + 1) * 256);
-}
-
-static void maybe_alloc_palookup(int32_t palnum);
-
-void (*paletteLoadFromDisk_replace)(void) = NULL;
-
-inline bool read_and_test(FileReader& handle, void* buffer, int32_t leng)
-{
-	return handle.Read(buffer, leng) != leng;
-};
-
+//==========================================================================
 //
-// loadpalette (internal)
+// loads the main palette file.
 //
+//==========================================================================
+
 void paletteLoadFromDisk(void)
 {
     GPalette.Init(MAXPALOOKUPS + 1);    // one slot for each translation, plus a separate one for the base palettes.
 
-#ifdef USE_OPENGL
     for (auto & x : glblend)
         x = defaultglblend;
-#endif
-
-    if (paletteLoadFromDisk_replace)
-    {
-        paletteLoadFromDisk_replace();
-        return;
-    }
 
 	auto fil = fileSystem.OpenFileReader("palette.dat");
 	if (!fil.isOpen())
@@ -139,16 +96,11 @@ void paletteLoadFromDisk(void)
     for (unsigned char & k : palette)
         k <<= 2;
 
-    paletteSetColorTable(0, palette);
+    paletteSetColorTable(0, palette, false, false);
     paletteloaded |= PALETTE_MAIN;
 
-
     // PALETTE_SHADES
-
-    if (2 != fil.Read(&numshades, 2))
-        return;
-
-    numshades = B_LITTLE16(numshades);
+    numshades = fil.ReadInt16();
 
     if (numshades <= 1)
     {
@@ -157,397 +109,266 @@ void paletteLoadFromDisk(void)
         return;
     }
 
-    // Auto-detect LameDuke. Its PALETTE.DAT doesn't have a 'numshades' 16-bit
-    // int after the base palette, but starts directly with the shade tables.
-    // Thus, the first two bytes will be 00 01, which is 256 if read as
-    // little-endian int16_t.
-    int32_t lamedukep = 0;
-    if (numshades >= 256)
+#if 0
+    // Reminder: Witchaven's shade table has no index and no easy means to autodetect.
+    if (numshades == 0 && (g_gameType & GAMEFLAG_WITCHAVEN))
     {
-        uint16_t temp;
-        if (read_and_test(fil, &temp, 2))
-            return;
-        temp = B_LITTLE16(temp);
-        if (temp == 770 || numshades > 256) // 02 03
+        numshades = 32;
+        fil.Seek(-2, FileReader::SeekCur);
+    }
+    else
+#endif
+    {
+        // LameDuke's is yet another variant.
+        if (numshades >= 256)
         {
-            if (fil.Seek(-4, FileReader::SeekCur) < 0)
+            uint16_t temp = fil.ReadUInt16();
+            if (temp == 770 || numshades > 256) // 02 03
             {
-                Printf("Warning: seek failed in loadpalette()!\n");
-                return;
+                fil.Seek(-4, FileReader::SeekCur);
+                numshades = 32;
             }
-
-            numshades = 32;
-            lamedukep = 1;
-        }
-        else
-        {
-            if (fil.Seek(-2, FileReader::SeekCur) < 0)
+            else
             {
-                Printf("Warning: seek failed in loadpalette()!\n");
-                return;
+                fil.Seek(-2, FileReader::SeekCur);
             }
         }
     }
 
+
     // Read base shade table (lookuptables 0).
-    maybe_alloc_palookup(0);
-    if (read_and_test(fil, lookuptables[0], numshades<<8))
+    int length = numshades * 256;
+    auto p = LookupTables[0].LockNewBuffer(length);
+    auto count = fil.Read(p, length);
+    LookupTables->UnlockBuffer();
+    if (count != length)
         return;
 
     paletteloaded |= PALETTE_SHADE;
     paletteloaded |= PALETTE_TRANSLUC;
-
-
-    // additional blending tables
-
-    uint8_t magic[12];
-    if (!read_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
-    {
-        uint8_t addblendtabs;
-        if (read_and_test(fil, &addblendtabs, 1))
-        {
-            Printf("Warning: failed reading additional blending table count\n");
-            return;
-        }
-
-        uint8_t blendnum;
-        char *tab = (char *) Xmalloc(256*256);
-        for (bssize_t i=0; i<addblendtabs; i++)
-        {
-            if (read_and_test(fil, &blendnum, 1))
-            {
-                Printf("Warning: failed reading additional blending table index\n");
-                Xfree(tab);
-                return;
-            }
-
-            if (read_and_test(fil, tab, 256*256))
-            {
-                Printf("Warning: failed reading additional blending table\n");
-                Xfree(tab);
-                return;
-            }
-
-			setBlendFactor(blendnum, DetermineTranslucency((const uint8_t*)tab));
-
-        }
-        Xfree(tab);
-
-        // Read log2 of count of alpha blending tables.
-        uint8_t lognumalphatabs;
-        if (!read_and_test(fil, &lognumalphatabs, 1))
-        {
-            if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
-                Printf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
-            else
-                numalphatabs = 1<<lognumalphatabs;
-        }
-    }
 }
 
-uint8_t PaletteIndexFullbrights[32];
+//==========================================================================
+//
+// postprocess the palette data after everything has been loaded
+//
+//==========================================================================
 
 void palettePostLoadTables(void)
 {
     globalpal = 0;
 
-    char const * const palookup0 = lookuptables[0];
-
+    auto lookup = (const uint8_t*)LookupTables[0].GetChars();
     ImageHelpers::SetPalette(GPalette.BaseColors);
     
-    // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
-    for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
+    for (int c = 0; c < 255; ++c) // skipping transparent color
     {
-        uint8_t const index = palookup0[c];
+        uint8_t index = lookup[c];
         PalEntry color = GPalette.BaseColors[index];
 
-        // don't consider #000000 fullbright
-        if (color.r == 0 && color.g == 0 && color.b == 0)
-            continue;
+        // don't consider black fullbright
+        if (color.isBlack()) continue;
 
-        for (size_t s = c + 256, s_end = 256*numshades; s < s_end; s += 256)
-            if (palookup0[s] != index)
-                goto PostLoad_NotFullbright;
+        bool isbright = true;
+        for (int i = 1; i < numshades; i++)
+            if (lookup[i * 256 + c] != index)
+            {
+                isbright = false;
+                break;
+            }
 
-        SetPaletteIndexFullbright(c);
-
-        PostLoad_NotFullbright: ;
+        if (isbright) FullbrightIndices.Set(c);
     }
 }
+
+//==========================================================================
+//
+// Ensure that all lookups map 255 to itself to preserve transparency.
+//
+//==========================================================================
 
 void paletteFixTranslucencyMask(void)
 {
-    for (auto thispalookup : lookuptables)
+    for (auto &thispalookup : LookupTables)
     {
-        if (thispalookup == NULL)
+        if (thispalookup.IsEmpty())
             continue;
 
-        for (bssize_t j=0; j<numshades; j++)
-            thispalookup[(j<<8) + 255] = 255;
+        for (int j = 0; j < numshades; j++)
+        {
+            auto p = thispalookup.LockBuffer();
+            p[(j << 8) + 255] = 255;
+            thispalookup.UnlockBuffer();
+        }
     }
 }
 
-// Load LOOKUP.DAT, which contains lookup tables and additional base palettes.
+//==========================================================================
 //
-// <fp>: open file handle
+// load the lookup tables from lookup.dat
 //
-// Returns:
-//  - on success, 0
-//  - on error, -1 (didn't read enough data)
-//  - -2: error, we already wrote an error message ourselves
+//==========================================================================
+
 int32_t paletteLoadLookupTable(FileReader &fp)
 {
-    uint8_t numlookups;
     char remapbuf[256];
-
-    if (1 != fp.Read(&numlookups, 1))
+    int numlookups = fp.ReadUInt8();
+    if (numlookups < 1)
         return -1;
 
-    for (bssize_t j=0; j<numlookups; j++)
+    for (int j=0; j<numlookups; j++)
     {
-        uint8_t palnum;
-
-        if (1 != fp.Read(&palnum, 1))
-            return -1;
-
-        if (palnum >= 256-RESERVEDPALS)
-        {
-            Printf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
-            return -2;
-        }
+        int palnum = fp.ReadUInt8();
 
         if (256 != fp.Read(remapbuf, 256))
             return -1;
 
-        paletteMakeLookupTable(palnum, remapbuf, 0, 0, 0, 0);
+        if (palnum >= 256 - RESERVEDPALS)
+        {
+            Printf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
+        }
+        else
+            paletteMakeLookupTable(palnum, remapbuf, 0, 0, 0, 0);
     }
 
     return 0;
 }
 
+//==========================================================================
+//
+// Find a gap of four consecutive unused pal numbers to generate fog shade tables.
+//
+//==========================================================================
+
 void paletteSetupDefaultFog(void)
 {
-    // Find a gap of four consecutive unused pal numbers to generate fog shade
-    // tables.
-    for (bssize_t j=1; j<=255-3; j++)
-        if (!lookuptables[j] && !lookuptables[j+1] && !lookuptables[j+2] && !lookuptables[j+3])
+    for (int j = 1; j <= 255 - 3; j++)
+    {
+        if (!LookupTables[j].IsEmpty() && !LookupTables[j + 1].IsEmpty() && !LookupTables[j + 2].IsEmpty() && !LookupTables[j + 3].IsEmpty())
         {
             paletteMakeLookupTable(j, NULL, 60, 60, 60, 1);
-            paletteMakeLookupTable(j+1, NULL, 60, 0, 0, 1);
-            paletteMakeLookupTable(j+2, NULL, 0, 60, 0, 1);
-            paletteMakeLookupTable(j+3, NULL, 0, 0, 60, 1);
+            paletteMakeLookupTable(j + 1, NULL, 60, 0, 0, 1);
+            paletteMakeLookupTable(j + 2, NULL, 0, 60, 0, 1);
+            paletteMakeLookupTable(j + 3, NULL, 0, 0, 60, 1);
 
             break;
         }
+    }
 }
+
+//==========================================================================
+//
+// post process the lookup tables once everything has been loaded
+//
+//==========================================================================
 
 void palettePostLoadLookups(void)
 {
-    // Alias remaining unused pal numbers to the base shade table.
-    for (bssize_t j=1; j<MAXPALOOKUPS; j++)
-    {
-        // If an existing lookup is identical to #0, free it.
-        if (lookuptables[j] && lookuptables[j] != lookuptables[0] && !Bmemcmp(lookuptables[0], lookuptables[j], 256*numshades))
-            paletteFreeLookupTable(j);
+    int numpalettes = GPalette.NumTranslations(Translation_BasePalettes);
+    if (numpalettes == 0) return;
+    auto basepalette = GPalette.GetTranslation(Translation_BasePalettes, 0);
 
-        if (!lookuptables[j])
-            paletteMakeLookupTable(j, NULL, 0, 0, 0, 1);
+    for (int l = 0; l < MAXPALOOKUPS; l++)
+    {
+        if (!LookupTables[l].IsEmpty())
+        {
+            const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
+            FRemapTable remap;
+            for (int i = 0; i < numpalettes; i++)
+            {
+                auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
+                if (!palette) continue;
+                if (i == 0 || (palette != basepalette && !palette->Inactive))
+                {
+                    memcpy(remap.Remap, lookup, 256);
+                    for (int j = 0; j < 256; j++)
+                    {
+                        remap.Palette[j] = palette->Palette[remap.Remap[j]];
+                    }
+                    remap.NumEntries = 256;
+                    GPalette.UpdateTranslation(TRANSLATION(i + 1, l), &remap);
+                }
+                if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
+            }
+        }
     }
+    // todo: at this point we should swap colors 0 and 255 so that paletted images being created here have their transparent color at index 0.
 }
 
-static int32_t palookup_isdefault(int32_t palnum)  // KEEPINSYNC engine.lua
-{
-    return (lookuptables[palnum] == NULL || (palnum!=0 && lookuptables[palnum] == lookuptables[0]));
-}
-
-static void maybe_alloc_palookup(int32_t palnum)
-{
-    if (palookup_isdefault(palnum))
-    {
-        alloc_palookup(palnum);
-        if (lookuptables[palnum] == NULL)
-            Bexit(1);
-    }
-}
-
-#ifdef USE_OPENGL
-glblend_t const nullglblend =
-{
-    {
-        { 1.f, BLENDFACTOR_ONE, BLENDFACTOR_ZERO, 0 },
-        { 1.f, BLENDFACTOR_ONE, BLENDFACTOR_ZERO, 0 },
-    },
-};
-glblend_t const defaultglblend =
-{
-    {
-        { 2.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
-        { 1.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
-    },
-};
-
-glblend_t glblend[MAXBLENDTABS];
-
-void setBlendFactor(int index, int alpha)
-{
-	if (index >= 0 && index < MAXBLENDTABS)
-	{
-		auto& myblend = glblend[index];
-		if (index >= 0)
-		{
-			myblend.def[0].alpha = index / 255.f;
-			myblend.def[1].alpha = 1.f - (index / 255.f);
-			myblend.def[0].src = myblend.def[1].src = BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-			myblend.def[0].dst = myblend.def[1].dst = BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-		}
-		else
-		{
-			myblend.def[0].alpha = 1;
-			myblend.def[1].alpha = 1;
-			myblend.def[0].src = myblend.def[1].src = BLENDFACTOR_ONE;
-			myblend.def[0].dst = myblend.def[1].dst = BLENDFACTOR_ONE;
-		}
-	}
-}
-
-FRenderStyle GetBlend(int blend, int def)
-{
-    static uint8_t const blendFuncTokens[NUMBLENDFACTORS] =
-    {
-        STYLEALPHA_Zero,
-        STYLEALPHA_One,
-        STYLEALPHA_SrcCol,
-        STYLEALPHA_InvSrcCol,
-        STYLEALPHA_Src,
-        STYLEALPHA_InvSrc,
-        STYLEALPHA_Dst,
-        STYLEALPHA_InvDst,
-        STYLEALPHA_DstCol,
-        STYLEALPHA_InvDstCol,
-    };
-    FRenderStyle rs;
-    rs.BlendOp = STYLEOP_Add;
-    glblenddef_t const* const glbdef = glblend[blend].def + def;
-    rs.SrcAlpha = blendFuncTokens[glbdef->src];
-    rs.DestAlpha = blendFuncTokens[glbdef->dst];
-    rs.Flags = 0;
-    return rs;
-}
-
-void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
-{
-    if (!enable)
-    {
-        GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-		return;
-    }
-    auto rs = GetBlend(blend, def);
-    GLInterface.SetRenderStyle(rs);
-}
-
-float float_trans(uint32_t maskprops, uint8_t blend)
-{
-    switch (maskprops)
-    {
-    case DAMETH_TRANS1:
-    case DAMETH_TRANS2:
-        return glblend[blend].def[maskprops - 2].alpha;
-    default:
-        return 1.0f;
-    }
-}
-
-#endif
+//==========================================================================
+//
+// set a lookup table from external data
+//
+//==========================================================================
 
 int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 {
     if (shtab != NULL)
     {
-        maybe_alloc_palookup(palnum);
-        Bmemcpy(lookuptables[palnum], shtab, 256*numshades);
+        int length = numshades * 256;
+        auto p = LookupTables[palnum].LockNewBuffer(length);
+        memcpy(p, shtab, length);
+        LookupTables->UnlockBuffer();
     }
 
     return 0;
 }
 
-void paletteFreeLookupTable(int32_t const palnum)
-{
-    if (palnum == 0 && lookuptables[palnum] != NULL)
-    {
-        for (bssize_t i = 1; i < MAXPALOOKUPS; i++)
-            if (lookuptables[i] == lookuptables[palnum])
-                lookuptables[i] = NULL;
-
-        ALIGNED_FREE_AND_NULL(lookuptables[palnum]);
-    }
-    else if (lookuptables[palnum] == lookuptables[0])
-        lookuptables[palnum] = NULL;
-    else
-        ALIGNED_FREE_AND_NULL(lookuptables[palnum]);
-}
-
+//==========================================================================
 //
-// makepalookup
+// creates a lookup table from scratch
 //
+//==========================================================================
+
 void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
 {
-    int32_t i, j;
-
-    static char idmap[256] = { 1 };
-
-    if (paletteloaded == 0)
-        return;
+    char idmap[256];
 
     // NOTE: palnum==0 is allowed
-    if ((unsigned) palnum >= MAXPALOOKUPS)
+    if (paletteloaded == 0 || (unsigned)palnum >= MAXPALOOKUPS)
         return;
 
     g_noFloorPal[palnum] = noFloorPal;
 
-    if (remapbuf==NULL)
+    if (remapbuf == nullptr)
     {
-        if ((r|g|b) == 0)
+        if (r == 0 || g == 0 || b == 0)
         {
-            lookuptables[palnum] = lookuptables[0];  // Alias to base shade table!
+            LookupTables[palnum] = ""; // clear this entry so that later it can be filled with the base remap.
             return;
         }
 
-        if (idmap[0]==1)  // init identity map
-            for (i=0; i<256; i++)
-                idmap[i] = i;
-
+        for (int i = 0; i < 256; i++) idmap[i] = i;
         remapbuf = idmap;
     }
 
-    maybe_alloc_palookup(palnum);
-
-    if ((r|g|b) == 0)
+    int length = numshades * 256;
+    auto p = LookupTables[palnum].LockNewBuffer(length);
+    if (r == 0 || g == 0 || b == 0)
     {
         // "black fog"/visibility case -- only remap color indices
 
-        for (j=0; j<numshades; j++)
-            for (i=0; i<256; i++)
+        auto src = (const uint8_t*)LookupTables[0].GetChars();
+
+        for (int j = 0; j < numshades; j++)
+            for (int i = 0; i < 256; i++)
             {
-                const char *src = lookuptables[0];
-                lookuptables[palnum][256*j + i] = src[256*j + remapbuf[i]];
+                p[256 * j + i] = src[256 * j + remapbuf[i]];
             }
     }
     else
     {
         // colored fog case
 
-        char *ptr2 = lookuptables[palnum];
-
-        for (i=0; i<numshades; i++)
+        for (int i = 0; i < numshades; i++)
         {
-            int32_t palscale = divscale16(i, numshades-1);
-
-            for (j=0; j<256; j++)
+            for (int j = 0; j < 256; j++)
             {
                 PalEntry pe = GPalette.BaseColors[remapbuf[j]];
-                *ptr2++ = ColorMatcher.Pick(pe.r + mulscale16(r-pe.r, palscale),
-                    pe.g + mulscale16(g-pe.g, palscale),
-                    pe.b + mulscale16(b-pe.b, palscale));
+                p[j] = ColorMatcher.Pick(
+                    pe.r + Scale(r - pe.r, i, numshades - 1),
+                    pe.g + Scale(g - pe.g, i, numshades - 1),
+                    pe.b + Scale(b - pe.b, i, numshades - 1));
             }
         }
     }
@@ -560,50 +381,59 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 #endif
 }
 
-//
-// setbrightness
-//
-// flags:
-//  1: don't setpalette(),  not checked anymore.
-//  2: don't gltexinvalidateall()
-//  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
-//  8: don't gltexinvalidate8()
-// 16: don't reset palfade*
-void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
+
+void videoSetPalette(int dabrightness, int palid, ESetPalFlags flags)
 {
-	if (GPalette.GetTranslation(Translation_BasePalettes, dapalid) == nullptr)
-		dapalid = 0;
-	curbasepal = dapalid;
-
-	if ((flags & Pal_DontResetFade) == 0)
-	{
-		palfadergb.r = palfadergb.g = palfadergb.b = 0;
-		palfadedelta = 0;
-	}
-
-    curpaletteflags = flags;
+	curbasepal = (GPalette.GetTranslation(Translation_BasePalettes, palid) == nullptr)? 0 : palid;
+    if ((flags & Pal_DontResetFade) == 0) palfadergb = 0;
 }
 
+//==========================================================================
 //
-// setpalettefade
+// map Build blend definitions to actual render style / alpha combos.
 //
-void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
+//==========================================================================
+
+glblend_t const nullglblend =
 {
-    palfadergb.r = r;
-    palfadergb.g = g;
-    palfadergb.b = b;
-    palfadedelta = offset;
+    {
+        { 1.f, STYLEALPHA_One, STYLEALPHA_Zero, 0 },
+        { 1.f, STYLEALPHA_One, STYLEALPHA_Zero, 0 },
+    },
+};
+glblend_t const defaultglblend =
+{
+    {
+        { 2.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+        { 1.f / 3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+    },
+};
+
+glblend_t glblend[MAXBLENDTABS];
+
+FRenderStyle GetRenderStyle(int blend, int def)
+{
+    FRenderStyle rs;
+    rs.BlendOp = STYLEOP_Add;
+    auto glbdef = &glblend[blend].def[def];
+    rs.SrcAlpha = glbdef->src;
+    rs.DestAlpha = glbdef->dst;
+    rs.Flags = 0;
+    return rs;
 }
 
-void paletteFreeAll()
+void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def)
 {
-    paletteloaded = 0;
+    if (!enable)
+    {
+        GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+        return;
+    }
+    auto rs = GetRenderStyle(blend, def);
+    GLInterface.SetRenderStyle(rs);
+}
 
-    for (bssize_t i = 0; i < MAXPALOOKUPS; i++)
-        if (i == 0 || lookuptables[i] != lookuptables[0])
-        {
-            // Take care of handling aliased ^^^ cases!
-            Xaligned_free(lookuptables[i]);
-        }
-    Bmemset(lookuptables, 0, sizeof(lookuptables));
+float GetAlphaFromBlend(uint32_t method, uint32_t blend)
+{
+    return method == DAMETH_TRANS1 || method == DAMETH_TRANS2 ? glblend[blend].def[method - DAMETH_TRANS1].alpha : 1.f;
 }

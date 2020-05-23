@@ -650,7 +650,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 		else
 			method |= DAMETH_MASK;
 
-		dg.mRenderStyle = GetBlend(dablend, (dastat & RS_TRANS2) ? 1 : 0);
+		dg.mRenderStyle = GetRenderStyle(dablend, (dastat & RS_TRANS2) ? 1 : 0);
 	}
 	else
 	{
@@ -664,7 +664,7 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	dg.mVertIndex = (int)mVertices.Reserve(4);
 	auto ptr = &mVertices[dg.mVertIndex];
 	float drawpoly_alpha = daalpha * (1.0f / 255.0f);
-	float alpha = float_trans(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
+	float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
 	p.a = (uint8_t)(alpha * 255);
 
 	vec2_16_t const siz = dg.mTexture->GetSize();
@@ -749,8 +749,8 @@ void F2DDrawer::AddPoly(FTexture* img, FVector4* vt, size_t vtcount, unsigned in
 	PalEntry p = 0xffffffff;
 	if (maskprops > DAMETH_MASK)
 	{
-		dg.mRenderStyle = GetBlend(0, maskprops == DAMETH_TRANS2);
-		p.a = (uint8_t)(float_trans(maskprops, 0) * 255);
+		dg.mRenderStyle = GetRenderStyle(0, maskprops == DAMETH_TRANS2);
+		p.a = (uint8_t)(GetAlphaFromBlend(maskprops, 0) * 255);
 	}
 	dg.mTexture = img;
 	dg.mRemapIndex = palette | (shade << 16);

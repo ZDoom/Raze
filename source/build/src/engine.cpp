@@ -69,7 +69,6 @@ bool playing_rr;
 bool playing_blood;
 int32_t rendmode=0;
 int32_t glrendmode = REND_POLYMOST;
-int32_t r_scenebrightness = 0;
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
@@ -2054,6 +2053,8 @@ int32_t enginePreInit(void)
 }
 
 
+void (*paletteLoadFromDisk_replace)(void) = NULL;   // replacement hook for Blood.
+
 //
 // initengine
 //
@@ -2094,7 +2095,14 @@ int32_t engineInit(void)
 
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
-    paletteLoadFromDisk();
+    if (paletteLoadFromDisk_replace)
+    {
+        paletteLoadFromDisk_replace();
+    }
+    else
+    {
+        paletteLoadFromDisk();
+    }
 
 #ifdef USE_OPENGL
     if (!mdinited) mdinit();
@@ -2123,7 +2131,6 @@ int32_t enginePostInit(void)
 //
 // uninitengine
 //
-void paletteFreeAll();
 
 void engineUnInit(void)
 {
@@ -2137,8 +2144,6 @@ void engineUnInit(void)
 #endif
 
 	TileFiles.CloseAll();
-
-    paletteFreeAll();
 
     for (bssize_t i = 0; i < num_usermaphacks; i++)
     {

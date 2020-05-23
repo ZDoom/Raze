@@ -92,6 +92,7 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define SOFTROTMAT 0
 
 static int32_t r_pogoDebug = 0;
+int32_t r_scenebrightness = 0;
 
 static float gviewxrange;
 static float ghoriz, ghoriz2;
@@ -232,7 +233,7 @@ static void polymost_glinit()
     }
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-		GLInterface.SetPalswapData(palookupnum, (uint8_t*)lookuptables[palookupnum], numshades+1, palookupfog[palookupnum]);
+		GLInterface.SetPalswapData(palookupnum, (uint8_t*)LookupTables[palookupnum].GetChars(), numshades+1, palookupfog[palookupnum]);
 	}
 }
 
@@ -289,21 +290,11 @@ void uploadbasepalette(int32_t basepalnum)
         basepalWFullBrightInfo[i*4+0] = remap->Palette[i].b;
         basepalWFullBrightInfo[i*4+1] = remap->Palette[i].g;
         basepalWFullBrightInfo[i*4+2] = remap->Palette[i].r;
-        basepalWFullBrightInfo[i*4+3] = 0-(IsPaletteIndexFullbright(i) != 0);
+        basepalWFullBrightInfo[i*4+3] = 0-(FullbrightIndices[i] != 0);
     }
 
 	GLInterface.SetPaletteData(basepalnum, basepalWFullBrightInfo);
 }
-
-// Used by RRRA fog hackery - the only place changing the palswaps at run time.
-void uploadpalswaps(int count, int32_t* swaps)
-{
-	for (int i = 0; i < count; i++)
-	{
-		GLInterface.SetPalswapData(i, (uint8_t*)lookuptables[i], numshades + 1, palookupfog[i]);
-	}
-}
-
 
 //(dpx,dpy) specifies an n-sided polygon. The polygon must be a convex clockwise loop.
 //    n must be <= 8 (assume clipping can double number of vertices)
@@ -415,7 +406,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         return;
     }
 
-    if (lookuptables[globalpal] == NULL)
+    if (LookupTables[globalpal].IsEmpty())
         globalpal = 0;
 
     //Load texture (globalpicnum)
@@ -521,7 +512,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (method & DAMETH_MASKPROPS)
     {
-        handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
+        SetRenderStyleFromBlend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
     }
 
     float pc[4];
@@ -530,7 +521,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     pc[0] = (float)globalr * (1.f / 255.f);
     pc[1] = (float)globalg * (1.f / 255.f);
     pc[2] = (float)globalb * (1.f / 255.f);
-  	pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
+  	pc[3] = GetAlphaFromBlend(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
 
     if (skyzbufferhack_pass)
         pc[3] = 0.01f;
@@ -3532,7 +3523,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
 #else
     uint8_t const blend = wallext[wallIndex].blend;
 #endif
-    handle_blend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
+    SetRenderStyleFromBlend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
 
     drawpoly_alpha = 0.f;
     drawpoly_blend = blend;
@@ -3839,7 +3830,7 @@ void polymost_drawsprite(int32_t snum)
     if (tspr->cstat & 2)
         method = DAMETH_CLAMPED | ((tspr->cstat & 512) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
-    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+    SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
     drawpoly_alpha = spriteext[spritenum].alpha;
     drawpoly_blend = tspr->blend;
@@ -4610,7 +4601,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     //    while sprites are clamped
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (lookuptables[dapalnum] == NULL)) return;//dapalnum = 0;
+   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (LookupTables[dapalnum].IsEmpty())) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

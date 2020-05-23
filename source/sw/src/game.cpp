@@ -730,7 +730,7 @@ bool InitGame()
             for (auto& c : pal)
                 c <<= 2;
 
-            paletteSetColorTable(DREALMSPAL, pal.Data(), true);
+            paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
         }
     }
 
@@ -844,7 +844,7 @@ bool InitGame()
 
     enginePostInit();
 
-    palettePostLoadLookups();
+    paletteFixTranslucencyMask();
     V_Init2();
 
     DemoModeMenuInit = TRUE;

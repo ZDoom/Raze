@@ -1602,7 +1602,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
 
-    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+    SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
     if (m->usesalpha) //Sprites with alpha in texture
     {

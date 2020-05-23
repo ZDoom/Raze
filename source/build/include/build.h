@@ -540,8 +540,8 @@ EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
 
 EXTERN int16_t numshades;
-EXTERN char *lookuptables[MAXPALOOKUPS];
 EXTERN uint8_t paletteloaded;
+
 
 EXTERN int32_t maxspritesonscreen;
 

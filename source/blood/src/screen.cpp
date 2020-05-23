@@ -34,22 +34,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-LOADITEM PLU[15] = {
-    { 0, "NORMAL" },
-    { 1, "SATURATE" },
-    { 2, "BEAST" },
-    { 3, "TOMMY" },
-    { 4, "SPIDER3" },
-    { 5, "GRAY" },
-    { 6, "GRAYISH" },
-    { 7, "SPIDER1" },
-    { 8, "SPIDER2" },
-    { 9, "FLAME" },
-    { 10, "COLD" },
-    { 11, "P1" },
-    { 12, "P2" },
-    { 13, "P3" },
-    { 14, "P4" }
+const char * PLU[15] = {
+    "NORMAL.PLU",
+    "SATURATE.PLU",
+    "BEAST.PLU",
+    "TOMMY.PLU",
+    "SPIDER3.PLU",
+    "GRAY.PLU",
+    "GRAYISH.PLU",
+    "SPIDER1.PLU",
+    "SPIDER2.PLU",
+    "FLAME.PLU",
+    "COLD.PLU",
+    "P1.PLU",
+    "P2.PLU",
+    "P3.PLU",
+    "P4.PLU"
 };
 
 const char *PAL[5] = {
@@ -68,49 +68,39 @@ bool gFogMode = false;
 
 void scrLoadPLUs(void)
 {
-    // load default palookups
-    for (int i = 0; i < 15; i++) 
+    // load lookup tables
+    for (int i = 0; i < MAXPALOOKUPS; i++) 
     {
-        DICTNODE *pPlu = gSysRes.Lookup(PLU[i].name, "PLU");
-        if (!pPlu)
-            ThrowError("%s.PLU not found", PLU[i].name);
-        if (pPlu->Size() / 256 != 64)
-            ThrowError("Incorrect PLU size");
-        lookuptables[PLU[i].id] = (char*)gSysRes.Lock(pPlu);
+        int lump = i <= 15 ? fileSystem.FindFile(PLU[i]) : fileSystem.FindResource(i, "PLU");
+        if (lump < 0)
+        {
+            if (i <= 15) I_FatalError("%s.PLU not found", PLU[i]);
+            else continue;
+        }
+        auto data = fileSystem.GetFileData(lump);
+        if (data.Size() != 64 * 256)
+            I_FatalError("Incorrect PLU size");
+        paletteSetLookupTable(i, data.Data());
     }
 
-    // by NoOne: load user palookups
-    for (int i = kUserPLUStart; i < MAXPALOOKUPS; i++) {
-        DICTNODE* pPlu = gSysRes.Lookup(i, "PLU");
-        if (!pPlu) continue;
-        else if (pPlu->Size() / 256 != 64) { consoleSysMsg("Incorrect filesize of PLU#%d", i); }
-        else lookuptables[i] = (char*)gSysRes.Lock(pPlu);
-    }
-
-#ifdef USE_OPENGL
     palookupfog[1].r = 255;
     palookupfog[1].g = 255;
     palookupfog[1].b = 255;
 	palookupfog[1].f = 1;
-#endif
 }
 
-#ifdef USE_OPENGL
 glblend_t const bloodglblend =
 {
     {
-        { 1.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
-        { 2.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
+        { 1.f/3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
+        { 2.f/3.f, STYLEALPHA_Src, STYLEALPHA_InvSrc, 0 },
     },
 };
-#endif
 
 void scrLoadPalette(void)
 {
-#ifdef USE_OPENGL
 	for (auto& x : glblend)
 		x = bloodglblend;
-#endif
 
     paletteloaded = 0;
     Printf("Loading palettes\n");
@@ -118,7 +108,7 @@ void scrLoadPalette(void)
     {
         auto pal = fileSystem.LoadFile(PAL[i]);
         if (pal.Size() < 768) I_FatalError("%s: file too small", PAL[i]);
-        paletteSetColorTable(i, pal.Data());
+        paletteSetColorTable(i, pal.Data(), false, false);
     }
     numshades = 64;
     paletteloaded |= PALETTE_MAIN;
