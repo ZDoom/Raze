@@ -898,4 +898,3 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 
 TileSiz tilesiz;
 PicAnm picanm;
-PicSiz picsiz;

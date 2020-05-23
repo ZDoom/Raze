@@ -1495,7 +1495,7 @@ int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
             }
         }
         
-        dist = tilesiz[picnum].y << 8;
+        dist = tileHeight(picnum) << 8;
         if (yrepeat < 64) dist -= (64 - yrepeat) * mul;
         else if (yrepeat > 64) dist += (yrepeat - 64) * (mul / 3);
     }

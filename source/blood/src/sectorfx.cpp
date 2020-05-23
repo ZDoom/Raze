@@ -285,9 +285,9 @@ void DoSectorPanning(void)
                 int py = (pSector->floorypanning<<8)+pXSector->floorYPanFrac;
                 if (pSector->floorstat&64)
                     angle -= 512;
-                int xBits = (picsiz[nTile]&15)-((pSector->floorstat&8)!=0);
+                int xBits = (widthBits(nTile))-((pSector->floorstat&8)!=0);
                 px += mulscale30(speed<<2, Cos(angle))>>xBits;
-                int yBits = (picsiz[nTile]/16)-((pSector->floorstat&8)!=0);
+                int yBits = (heightBits(nTile))-((pSector->floorstat&8)!=0);
                 py -= mulscale30(speed<<2, Sin(angle))>>yBits;
                 pSector->floorxpanning = px>>8;
                 pSector->floorypanning = py>>8;
@@ -301,9 +301,9 @@ void DoSectorPanning(void)
                 int py = (pSector->ceilingypanning<<8)+pXSector->ceilYPanFrac;
                 if (pSector->ceilingstat&64)
                     angle -= 512;
-                int xBits = (picsiz[nTile]&15)-((pSector->ceilingstat&8)!=0);
+                int xBits = (widthBits(nTile))-((pSector->ceilingstat&8)!=0);
                 px += mulscale30(speed<<2, Cos(angle))>>xBits;
-                int yBits = (picsiz[nTile]/16)-((pSector->ceilingstat&8)!=0);
+                int yBits = (heightBits(nTile))-((pSector->ceilingstat&8)!=0);
                 py -= mulscale30(speed<<2, Sin(angle))>>yBits;
                 pSector->ceilingxpanning = px>>8;
                 pSector->ceilingypanning = py>>8;
@@ -330,8 +330,8 @@ void DoSectorPanning(void)
             int nTile = wall[nWall].picnum;
             int px = (wall[nWall].xpanning<<8)+pXWall->xpanFrac;
             int py = (wall[nWall].ypanning<<8)+pXWall->ypanFrac;
-            px += (psx<<2)>>((uint8_t)picsiz[nTile]&15);
-            py += (psy<<2)>>((uint8_t)picsiz[nTile]/16);
+            px += (psx << 2) >> widthBits(nTile);
+            py += (psy << 2) >> heightBits(nTile);
             wall[nWall].xpanning = px>>8;
             wall[nWall].ypanning = py>>8;
             pXWall->xpanFrac = px&255;

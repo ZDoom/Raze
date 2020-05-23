@@ -1135,16 +1135,6 @@ void Gv_FinalizeWeaponDefaults(void)
 static int32_t lastvisinc;
 #endif
 
-// Helpers to read the refactored tilesiz array.
-static int tileWidth(int num)
-{
-	return tilesiz[num].x;
-}
-
-static int tileHeight(int num)
-{
-	return tilesiz[num].y;
-}
 
 static void Gv_AddSystemVars(void)
 {

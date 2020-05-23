@@ -87,8 +87,6 @@ void PaletteManager::DeleteAll()
 	lastsindex = ~0u;
 	memset(palettemap, 0, sizeof(palettemap));
 	memset(palswapmap, 0, sizeof(palswapmap));
-	memset(addshade, 0, sizeof(addshade));
-	memset(mulshade, 0, sizeof(mulshade));
 	numshades = 1;
 
 

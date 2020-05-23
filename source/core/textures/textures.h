@@ -639,15 +639,36 @@ struct PicAnm
 };
 extern PicAnm picanm;
 
-struct PicSiz
+// Helpers to read the refactored tilesiz array.
+inline int tileWidth(int num)
 {
-	uint8_t operator[](size_t index)
-	{
-		assert(index < MAXTILES);
-		return TileFiles.tiles[index]->GetPicSize();
-	}
-};
-extern PicSiz picsiz;
+	return tilesiz[num].x;
+}
+
+inline int tileHeight(int num)
+{
+	return tilesiz[num].y;
+}
+
+inline int widthBits(int num)
+{
+	int w = tileWidth(num);
+	int j = 15;
+
+	while ((j > 1) && ((1 << j) > w))
+		j--;
+	return j;
+}
+
+inline int heightBits(int num)
+{
+	int w = tileHeight(num);
+	int j = 15;
+
+	while ((j > 1) && ((1 << j) > w))
+		j--;
+	return j;
+}
 
 inline rottile_t& RotTile(int tile)
 {

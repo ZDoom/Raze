@@ -1639,8 +1639,8 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     if (globalorientation&32) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; }
 
     //Texture panning
-    vec2f_t fxy = { global_cf_xpanning * ((float)(1 << (picsiz[globalpicnum] & 15))) * (1.0f / 256.f),
-                    global_cf_ypanning * ((float)(1 << (picsiz[globalpicnum] >> 4))) * (1.0f / 256.f) };
+    vec2f_t fxy = { global_cf_xpanning * ((float)(1 << widthBits(globalpicnum))) * (1.0f / 256.f),
+                    global_cf_ypanning * ((float)(1 << heightBits(globalpicnum))) * (1.0f / 256.f) };
 
     if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
     {
@@ -1761,7 +1761,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
     float const t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
     float const t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
     float t = (float(xtex.d*x0 + otex.d) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
-    int i = (1<<(picsiz[globalpicnum]>>4));
+    int i = 1<< heightBits(globalpicnum);
     if (i < tilesize.y) i <<= 1;
 
 
@@ -1892,10 +1892,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
 
     float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
     float vv[2];
-    float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+    float t = (float)((1<<(widthBits(globalpicnum)))<<dapskybits);
     vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
     vv[0] = dd*((float)((tilesiz.y>>1)+dapyoffs)) - vv[1]*ghoriz;
-    int ti = (1<<(picsiz[globalpicnum]>>4)); if (ti != tilesiz.y) ti += ti;
+    int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesiz.y) ti += ti;
     vec3f_t o;
 
     skyclamphack = 0;
@@ -1916,7 +1916,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         if (xys[i].x > x1) x1 = xys[i].x;
     }
 
-    int const npot = (1<<(picsiz[globalpicnum]&15)) != tilesiz.x;
+    int const npot = (1<<(widthBits(globalpicnum))) != tileWidth(globalpicnum);
     int const xpanning = (hw_parallaxskypanning?global_cf_xpanning:0);
 
 	GLInterface.SetClamp((npot || xpanning != 0) ? 0 : 2);

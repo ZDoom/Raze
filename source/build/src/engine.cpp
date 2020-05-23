@@ -1435,8 +1435,8 @@ int32_t animateoffs(int const tilenum, int fakevar)
 // globalpicnum --> globalxshift, globalyshift
 static void calc_globalshifts(void)
 {
-    globalxshift = (8-(picsiz[globalpicnum]&15));
-    globalyshift = (8-(picsiz[globalpicnum]>>4));
+    globalxshift = (8-widthBits(globalpicnum));
+    globalyshift = (8-heightBits(globalpicnum));
     if (globalorientation&8) { globalxshift++; globalyshift++; }
     // PK: the following can happen for large (>= 512) tile sizes.
     // NOTE that global[xy]shift are unsigned chars.
@@ -3108,7 +3108,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalx2 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
             globaly2 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
 
-            ox = picsiz[globalpicnum]; oy = ((ox>>4)&15); ox &= 15;
+            ox = widthBits(globalpicnum); 
+            oy = heightBits(globalpicnum);
             if (pow2long[ox] != xspan)
             {
                 ox++;
@@ -4057,7 +4058,7 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
     int32_t hei, zofs=0;
     const int32_t picnum=spr->picnum, yrepeat=spr->yrepeat;
 
-    hei = (tilesiz[picnum].y*yrepeat)<<2;
+    hei = (tileHeight(picnum)*yrepeat)<<2;
     if (height != NULL)
         *height = hei;
 
@@ -5025,7 +5026,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (!tex)
     {
         tileUpdatePicnum(&picnum, (int16_t)0xc000);
-        if ((tilesiz[picnum].x <= 0) || (tilesiz[picnum].y <= 0)) return;
+        if ((tileWidth(picnum) <= 0) || (tileHeight(picnum) <= 0)) return;
         if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
         {
             polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);

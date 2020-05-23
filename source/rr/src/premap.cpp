@@ -1247,7 +1247,7 @@ void G_InitRRRASkies(void)
         if (sector[i].ceilingpicnum != LA && sector[i].ceilingpicnum != MOONSKY1 && sector[i].ceilingpicnum != BIGORBIT1)
         {
             int const picnum = sector[i].ceilingpicnum;
-            if (tilesiz[picnum].x == 512)
+            if (tileWidth(picnum) == 512)
             {
                 psky_t *sky = tileSetupSky(picnum);
                 sky->horizfrac = 32768;
@@ -1255,7 +1255,7 @@ void G_InitRRRASkies(void)
                 sky->tileofs[0] = 0;
                 sky->tileofs[1] = 0;
             }
-            else if (tilesiz[picnum].x == 1024)
+            else if (tileWidth(picnum) == 1024)
             {
                 psky_t *sky = tileSetupSky(picnum);
                 sky->horizfrac = 32768;

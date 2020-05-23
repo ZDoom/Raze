@@ -958,7 +958,7 @@ int getSpriteMassBySize(spritetype* pSprite) {
     }
 
     clipDist = ClipLow(pSprite->clipdist, 1);
-    short x = tilesiz[picnum].x;        short y = tilesiz[picnum].y;
+    short x = tileWidth(picnum);        short y = tileHeight(picnum);
     short xrepeat = pSprite->xrepeat; 	short yrepeat = pSprite->yrepeat;
 
     // take surface type into account
