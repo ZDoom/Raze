@@ -37,6 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdexcept>
 
 
 #include "i_sound.h"
@@ -64,19 +65,6 @@ extern float S_GetMusicVolume (const char *music);
 static void S_ActivatePlayList(bool goBack);
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
-
-	// Test if a real file with this name exists with all known extensions for music.
-	for (auto& ext : knownMusicExts)
-	{
-		test.Format("%s.%s", name.GetChars(), ext);
-		if (FileExists(test)) return test;
-#ifdef __unix__
-		test.Format("%s.%s", name.GetChars(), FString(ext).MakeLower().GetChars());
-		if (FileExists(test)) return test;
-#endif
-	}
-	return defmusic;
-}
 
 
 static FileReader DefaultOpenMusic(const char* fn)
