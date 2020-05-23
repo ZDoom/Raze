@@ -569,22 +569,11 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
 //  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
 //  8: don't gltexinvalidate8()
 // 16: don't reset palfade*
-// 32: apply brightness to scene in OpenGL
 void videoSetPalette(int dabrightness, int dapalid, ESetPalFlags flags)
 {
 	if (GPalette.GetTranslation(Translation_BasePalettes, dapalid) == nullptr)
 		dapalid = 0;
 	curbasepal = dapalid;
-
-	// In-scene brightness mode for RR's thunderstorm. This shouldn't affect the global gamma ramp.
-	if ((videoGetRenderMode() >= REND_POLYMOST) && (flags & Pal_SceneBrightness))
-	{
-    	r_scenebrightness = clamp(dabrightness, 0, 15);
-	}
-	else
-	{
-		r_scenebrightness = 0;
-	}
 
 	if ((flags & Pal_DontResetFade) == 0)
 	{

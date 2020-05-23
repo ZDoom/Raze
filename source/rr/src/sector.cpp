@@ -5270,7 +5270,7 @@ void G_Thunder(void)
         {
             brightness = 0;
             g_thunderFlash = 0;
-            videoSetPalette(0,g_player[screenpeek].ps->palette,Pal_SceneBrightness);
+            videoSetBrightness(0);
             g_visibility = g_player[screenpeek].ps->visibility;
         }
     }
@@ -5313,7 +5313,7 @@ void G_Thunder(void)
         g_visibility = 2048;
         if (brightness > 8)
             brightness = 0;
-        videoSetPalette(brightness,g_player[screenpeek].ps->palette,Pal_SceneBrightness);
+        videoSetBrightness(brightness);
     }
     if (g_winderFlash == 1)
     {

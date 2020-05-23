@@ -192,7 +192,7 @@ void WaitTicks(int nTicks);
 void FadeIn();
 void FadeOut(int bFadeMusic);
 
-int myprintext(int x, int y, const char *str, int shade);
+int myprintext(int x, int y, const char *str, int shade, int basepal = 0);
 int MyGetStringWidth(const char *str);
 
 void mychangespritesect(int nSprite, int nSector);

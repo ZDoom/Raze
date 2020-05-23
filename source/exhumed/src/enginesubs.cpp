@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum)
+void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum, int basepal)
 {
 #if 0
     rotatesprite(thex << 16, they << 16, 0x10000, (short)((flags & 8) << 7), tilenum, shade, dapalnum,
@@ -55,7 +55,7 @@ void overwritesprite(int thex, int they, short tilenum, signed char shade, char 
     they += offy;
     rotatesprite(thex << 16, they << 16, 65536L, (stat & 8) << 7, tilenum, shade, dapalnum,
         16 + (stat & 2) + ((stat & 4) >> 2) + (((stat & 16) >> 2) ^ ((stat & 8) >> 1)),
-        windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+        windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, nullptr, basepal);
     picanm[tilenum].sf = animbak;
 }
 

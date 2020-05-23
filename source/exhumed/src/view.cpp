@@ -605,8 +605,6 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-
-
 void NoClip()
 {
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);

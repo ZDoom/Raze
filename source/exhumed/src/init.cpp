@@ -52,6 +52,7 @@ enum
     kTagRamses = 61,
 };
 
+void uploadCinemaPalettes();
 ClockTicks ototalclock = 0;
 
 int initx, inity, initz;
@@ -216,7 +217,7 @@ void InstallEngine()
     {
         G_FatalEngineError();
     }
-
+    uploadCinemaPalettes();
     LoadPaletteLookups();
     V_Init2();
 

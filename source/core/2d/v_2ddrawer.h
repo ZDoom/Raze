@@ -142,7 +142,7 @@ public:
 
 	void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 		int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-		int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *pic);
+		int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *pic = nullptr, int basepal = 0);
 
 	void Clear();
 

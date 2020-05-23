@@ -142,16 +142,21 @@ enum ERenderFlags
 	STYLEF_FadeToBlack = 64,
 };
 
-union FRenderStyle
+struct FRenderStyle
 {
-	struct
+	union
 	{
-		uint8_t BlendOp;	// Of ERenderOp type
-		uint8_t SrcAlpha;	// Of ERenderAlpha type
-		uint8_t DestAlpha;	// Of ERenderAlpha type
-		uint8_t Flags;
+		struct
+		{
+			uint8_t BlendOp;	// Of ERenderOp type
+			uint8_t SrcAlpha;	// Of ERenderAlpha type
+			uint8_t DestAlpha;	// Of ERenderAlpha type
+			uint8_t Flags;
+		};
+		uint32_t AsDWORD;
 	};
-	uint32_t AsDWORD;
+
+	FRenderStyle() = default;
 
 	inline FRenderStyle &operator= (ERenderStyle legacy);
 	bool operator==(const FRenderStyle &o) const { return AsDWORD == o.AsDWORD; }
@@ -181,4 +186,3 @@ inline FRenderStyle &FRenderStyle::operator= (ERenderStyle legacy)
 	*this = LegacyRenderStyles[legacy];
 	return *this;
 }
-

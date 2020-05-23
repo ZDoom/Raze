@@ -13,6 +13,9 @@
 
 #include "renderstyle.h"
 #include "filesystem.h"
+#include "zstring.h"
+#include "palentry.h"
+#include "templates.h"
 
 #define MAXBASEPALS 256
 #define MAXPALOOKUPS 256
@@ -32,6 +35,7 @@ enum
 };
 
 extern uint8_t curbasepal;
+extern int32_t r_scenebrightness;
 
 extern uint8_t PaletteIndexFullbrights[32];
 
@@ -65,10 +69,12 @@ void paletteFreeLookupTable(int32_t palnum);
 enum ESetPalFlag
 {
     Pal_DontResetFade = 1,
-    Pal_SceneBrightness = 2,
-    Pal_Fullscreen = 4,
-    Pal_2D = 8,
 };
+
+inline void videoSetBrightness(int brightness)
+{
+    r_scenebrightness = clamp(brightness, 0, 15);
+}
 
 typedef TFlags<ESetPalFlag> ESetPalFlags;
     DEFINE_TFLAGS_OPERATORS(ESetPalFlags)

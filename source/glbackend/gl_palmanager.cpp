@@ -296,7 +296,7 @@ int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap, bool
 	PaletteData* paldata = &palettes[realpal];
 	PalswapData* swapdata = &palswaps[realswap];
 	PalEntry swappedpalette[256];
-	int end = nontransparent255 ? 256 : 255;
+	int end = paldata->colors[255].a == 255 ? 256 : 255;
 	if (!brightmap)
 	{
 		for (int i = 0; i < end; i++)
@@ -331,7 +331,7 @@ int PaletteManager::LookupPalette(int palette, int palswap, bool brightmap, bool
 			return -1;
 		}
 	}
-	if (!nontransparent255) swappedpalette[255] = 0;
+	if (end == 255) swappedpalette[255] = 0;
 	int palid = FindPalette((uint8_t*)swappedpalette);
 	swappedpalmap.Insert(combined, palid);
 	return palid;

@@ -93,9 +93,6 @@ int LoadPaletteLookups()
         }
 
         hFile.Read(buffer, 256*64);
-        // TODO: dumb hack
-        if (lookuptables[i])
-            ALIGNED_FREE_AND_NULL(lookuptables[i]);
         paletteSetLookupTable(i, buffer);
         
         bGreenPal = 0;
