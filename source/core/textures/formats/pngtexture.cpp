@@ -53,20 +53,22 @@
 class FPNGTexture : public FImageSource
 {
 public:
-	FPNGTexture (FileReader &lump, int width, int height, uint8_t bitdepth, uint8_t colortype, uint8_t interlace);
+	FPNGTexture (FileReader &lump, int lumpnum, int width, int height, uint8_t bitdepth, uint8_t colortype, uint8_t interlace);
 
-	void CreatePalettedPixels(uint8_t* buffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 
 protected:
+	void ReadAlphaRemap(FileReader *lump, uint8_t *alpharemap);
+
 	uint8_t BitDepth;
 	uint8_t ColorType;
 	uint8_t Interlace;
 	bool HaveTrans;
 	uint16_t NonPaletteTrans[3];
 
-	uint8_t PaletteMap[256];
-	uint32_t PaletteSize = 0;
+	uint8_t *PaletteMap = nullptr;
+	int PaletteSize = 0;
 	uint32_t StartOfIDAT = 0;
 	uint32_t StartOfPalette = 0;
 };
@@ -78,7 +80,7 @@ protected:
 //
 //==========================================================================
 
-FImageSource *PNGImage_TryCreate(FileReader & data)
+FImageSource *PNGImage_TryCreate(FileReader & data, int lumpnum)
 {
 	union
 	{
@@ -137,7 +139,7 @@ FImageSource *PNGImage_TryCreate(FileReader & data)
 		}
 	}
 
-	return new FPNGTexture (data, width, height, bitdepth, colortype, interlace);
+	return new FPNGTexture (data, lumpnum, width, height, bitdepth, colortype, interlace);
 }
 
 //==========================================================================
@@ -146,13 +148,14 @@ FImageSource *PNGImage_TryCreate(FileReader & data)
 //
 //==========================================================================
 
-FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
+FPNGTexture::FPNGTexture (FileReader &lump, int lumpnum, int width, int height,
 						  uint8_t depth, uint8_t colortype, uint8_t interlace)
-  : BitDepth(depth), ColorType(colortype), Interlace(interlace), HaveTrans(false)
+: FImageSource(lumpnum),
+  BitDepth(depth), ColorType(colortype), Interlace(interlace), HaveTrans(false)
 {
 	union
 	{
-		PalEntry palette[256];
+		uint32_t palette[256];
 		uint8_t pngpal[256][3];
 	} p;
 	uint8_t trans[256];
@@ -192,12 +195,12 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 				ihoty = BigLong((int)hoty);
 				if (ihotx < -32768 || ihotx > 32767)
 				{
-					Printf ("X-Offset for PNG texture %s is bad: %d (0x%08x)\n", Name.GetChars(), ihotx, ihotx);
+					Printf ("X-Offset for PNG texture %s is bad: %d (0x%08x)\n", fileSystem.GetFileFullName (lumpnum), ihotx, ihotx);
 					ihotx = 0;
 				}
 				if (ihoty < -32768 || ihoty > 32767)
 				{
-					Printf ("Y-Offset for PNG texture %s is bad: %d (0x%08x)\n", Name.GetChars(), ihoty, ihoty);
+					Printf ("Y-Offset for PNG texture %s is bad: %d (0x%08x)\n", fileSystem.GetFileFullName (lumpnum), ihoty, ihoty);
 					ihoty = 0;
 				}
 				LeftOffset = ihotx;
@@ -206,7 +209,7 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 			break;
 
 		case MAKE_ID('P','L','T','E'):
-			PaletteSize = std::min<int> (len / 3, 256);
+			PaletteSize = MIN<int> (len / 3, 256);
 			StartOfPalette = (uint32_t)lump.Tell();
 			lump.Read (p.pngpal, PaletteSize * 3);
 			if (PaletteSize * 3 != (int)len)
@@ -215,7 +218,7 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 			}
 			for (i = PaletteSize - 1; i >= 0; --i)
 			{
-				p.palette[i] = PalEntry(p.pngpal[i][0], p.pngpal[i][1], p.pngpal[i][2]);
+				p.palette[i] = MAKERGB(p.pngpal[i][0], p.pngpal[i][1], p.pngpal[i][2]);
 			}
 			break;
 
@@ -246,27 +249,25 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 		{
 			bMasked = true;
 			PaletteSize = 256;
-			memcpy (PaletteMap, GPalette.GrayMap+1, 256);
-			PaletteMap[255] = 254;	// cannot use 255.
-			PaletteMap[NonPaletteTrans[0]] = 255;
+			PaletteMap = (uint8_t*)ImageArena.Alloc(PaletteSize);
+			memcpy (PaletteMap, GPalette.GrayMap, 256);
+			PaletteMap[NonPaletteTrans[0]] = 0;
 		}
 		else
 		{
-			memcpy(PaletteMap, GPalette.GrayMap, 256);
+			PaletteMap = GPalette.GrayMap;
 		}
 		break;
 
 	case 3:		// Paletted
+		PaletteMap = (uint8_t*)ImageArena.Alloc(PaletteSize);
+		MakeRemap ((uint32_t*)GPalette.BaseColors, p.palette, PaletteMap, trans, PaletteSize);
 		for (i = 0; i < PaletteSize; ++i)
 		{
 			if (trans[i] == 0)
 			{
 				bMasked = true;
-				PaletteMap[i] = 255;
-			}
-			else
-			{
-				PaletteMap[i] = ColorMatcher.Pick(p.palette[i].r, p.palette[i].g, p.palette[i].b);
+				PaletteMap[i] = 0;
 			}
 		}
 		break;
@@ -287,13 +288,32 @@ FPNGTexture::FPNGTexture (FileReader &lump, int width, int height,
 //
 //==========================================================================
 
-void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
+void FPNGTexture::ReadAlphaRemap(FileReader *lump, uint8_t *alpharemap)
+{
+	auto p = lump->Tell();
+	lump->Seek(StartOfPalette, FileReader::SeekSet);
+	for (int i = 0; i < PaletteSize; i++)
+	{
+		uint8_t r = lump->ReadUInt8();
+		uint8_t g = lump->ReadUInt8();
+		uint8_t b = lump->ReadUInt8();
+		alpharemap[i] = PaletteMap[i] == 0 ? 0 : Luminance(r, g, b);
+	}
+	lump->Seek(p, FileReader::SeekSet);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+TArray<uint8_t> FPNGTexture::CreatePalettedPixels(int conversion)
 {
 	FileReader *lump;
 	FileReader lfr;
 
-	lfr = fileSystem.OpenFileReader(Name);
-	if (!lfr.isOpen()) return;
+	lfr = fileSystem.OpenFileReader(SourceLump);
 	lump = &lfr;
 
 	TArray<uint8_t> Pixels(Width*Height, true);
@@ -308,18 +328,46 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 		lump->Read(&len, 4);
 		lump->Read(&id, 4);
 
+		bool alphatex = conversion == luminance;
 		if (ColorType == 0 || ColorType == 3)	/* Grayscale and paletted */
 		{
 			M_ReadIDAT (*lump, Pixels.Data(), Width, Height, Width, BitDepth, ColorType, Interlace, BigLong((unsigned int)len));
 
 			if (Width == Height)
 			{
-				ImageHelpers::FlipSquareBlockRemap (Pixels.Data(), Width, PaletteMap);
+				if (conversion != luminance)
+				{
+					ImageHelpers::FlipSquareBlockRemap (Pixels.Data(), Width, PaletteMap);
+				}
+				else if (ColorType == 0)
+				{
+					ImageHelpers::FlipSquareBlock (Pixels.Data(), Width);
+				}
+				else
+				{
+					uint8_t alpharemap[256];
+					ReadAlphaRemap(lump, alpharemap);
+					ImageHelpers::FlipSquareBlockRemap(Pixels.Data(), Width, alpharemap);
+				}
 			}
 			else
 			{
 				TArray<uint8_t> newpix(Width*Height, true);
-				ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), Pixels.Data(), Width, Height, Width, PaletteMap);
+				if (conversion != luminance)
+				{
+					ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), Pixels.Data(), Width, Height, Width, PaletteMap);
+				}
+				else if (ColorType == 0)
+				{
+					ImageHelpers::FlipNonSquareBlock (newpix.Data(), Pixels.Data(), Width, Height, Width);
+				}
+				else
+				{
+					uint8_t alpharemap[256];
+					ReadAlphaRemap(lump, alpharemap);
+					ImageHelpers::FlipNonSquareBlockRemap(newpix.Data(), Pixels.Data(), Width, Height, Width, alpharemap);
+				}
+				return newpix;
 			}
 		}
 		else		/* RGB and/or Alpha present */
@@ -346,11 +394,11 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 					{
 						if (HaveTrans && in[0] == NonPaletteTrans[0] && in[1] == NonPaletteTrans[1] && in[2] == NonPaletteTrans[2])
 						{
-							*out++ = 255;
+							*out++ = 0;
 						}
 						else
 						{
-							*out++ = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2]);
+							*out++ = ImageHelpers::RGBToPalette(alphatex, in[0], in[1], in[2]);
 						}
 						in += pitch;
 					}
@@ -365,7 +413,7 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 				{
 					for (y = Height; y > 0; --y)
 					{
-						*out++ = PaletteMap[in[0]];
+						*out++ = alphatex? ((in[0] * in[1]) / 255) : in[1] < 128 ? 0 : PaletteMap[in[0]];
 						in += pitch;
 					}
 					in -= backstep;
@@ -379,7 +427,7 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 				{
 					for (y = Height; y > 0; --y)
 					{
-						*out++ = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2], in[3]);
+						*out++ = ImageHelpers::RGBToPalette(alphatex, in[0], in[1], in[2], in[3]);
 						in += pitch;
 					}
 					in -= backstep;
@@ -389,6 +437,7 @@ void FPNGTexture::CreatePalettedPixels(uint8_t *buffer)
 			delete[] tempix;
 		}
 	}
+	return Pixels;
 }
 
 //===========================================================================
@@ -409,9 +458,7 @@ int FPNGTexture::CopyPixels(FBitmap *bmp, int conversion)
 	FileReader *lump;
 	FileReader lfr;
 
-	lfr = fileSystem.OpenFileReader(Name);
-	if (!lfr.isOpen()) return -1;	// Just leave the texture blank.
-
+	lfr = fileSystem.OpenFileReader(SourceLump);
 	lump = &lfr;
 
 	lump->Seek(33, FileReader::SeekSet);
@@ -487,8 +534,8 @@ int FPNGTexture::CopyPixels(FBitmap *bmp, int conversion)
 		}
 		else
 		{
-			bmp->CopyPixelDataRGB(0, 0, Pixels, Width, Height, 3, pixwidth, 0, CF_RGBT,
-				nullptr, NonPaletteTrans[0], NonPaletteTrans[1], NonPaletteTrans[2]);
+			bmp->CopyPixelDataRGB(0, 0, Pixels, Width, Height, 3, pixwidth, 0, CF_RGBT, nullptr,
+				NonPaletteTrans[0], NonPaletteTrans[1], NonPaletteTrans[2]);
 			transpal = true;
 		}
 		break;
@@ -511,6 +558,8 @@ int FPNGTexture::CopyPixels(FBitmap *bmp, int conversion)
 	return transpal;
 }
 
+
+#include "textures.h"
 
 //==========================================================================
 //

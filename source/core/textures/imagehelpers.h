@@ -39,24 +39,49 @@
 
 #include <stdint.h>
 #include "tarray.h"
-#include "palentry.h"
+#include "colormatcher.h"
 #include "bitmap.h"
-#include "palutil.h"
 #include "palettecontainer.h"
 #include "v_colortables.h"
 
 namespace ImageHelpers
 {
-	extern int alphaThreshold;
-
+	// Helpers for creating paletted images.
+	inline uint8_t *GetRemap(bool wantluminance, bool srcisgrayscale = false)
+	{
+		if (wantluminance)
+		{
+			return srcisgrayscale ? GPalette.GrayRamp.Remap : GPalette.GrayscaleMap.Remap;
+		}
+		else
+		{
+			return srcisgrayscale ? GPalette.GrayMap : GPalette.Remap;
+		}
+	}
+	
 	inline uint8_t RGBToPalettePrecise(bool wantluminance, int r, int g, int b, int a = 255)
 	{
-		return BestColor((uint32_t*)GPalette.BaseColors, r, g, b);
+		if (wantluminance)
+		{
+			return (uint8_t)Luminance(r, g, b) * a / 255;
+		}
+		else
+		{
+			return ColorMatcher.Pick(r, g, b);
+		}
 	}
 	
 	inline uint8_t RGBToPalette(bool wantluminance, int r, int g, int b, int a = 255)
 	{
-		return a < alphaThreshold? 255 : RGB256k.RGB[r >> 2][g >> 2][b >> 2];
+		if (wantluminance)
+		{
+			// This is the same formula the OpenGL renderer uses for grayscale textures with an alpha channel.
+			return (uint8_t)(Luminance(r, g, b) * a / 255);
+		}
+		else
+		{
+			return a < 128? 0 : RGB256k.RGB[r >> 2][g >> 2][b >> 2];
+		}
 	}
 	
 	inline uint8_t RGBToPalette(bool wantluminance, PalEntry pe, bool hasalpha = true)

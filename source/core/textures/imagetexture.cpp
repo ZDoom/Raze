@@ -71,20 +71,7 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 
 FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
 {
-	FBitmap bmp;
-	bmp.Create(Size.x, Size.y);
-	if (p == nullptr)
-	{
-		mImage->CopyPixels(&bmp, 0);
-	}
-	else 
-	{
-		// For different base palettes the image needs to be downconverted.
-		TArray<uint8_t> ppix(Size.x * Size.y, true);
-		mImage->CreatePalettedPixels(ppix.Data());
-		bmp.CopyPixelData(0, 0, ppix.Data(), Size.x, Size.y, Size.y, 1, 0, p);
-	}
-	return bmp;
+	return mImage->GetCachedBitmap(p, FImageSource::normal, trans);
 }
 
 //===========================================================================
@@ -95,6 +82,7 @@ FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
 
 void FImageTexture::Create8BitPixels(uint8_t* buffer)
 {
-	ImageHelpers::alphaThreshold = alphaThreshold;
-	return mImage->CreatePalettedPixels(buffer);
+	//ImageHelpers::alphaThreshold = alphaThreshold;
+	auto buf = mImage->GetPalettedPixels(FImageSource::normal);
+	memcpy(buffer, buf.Data(), buf.Size());
 }

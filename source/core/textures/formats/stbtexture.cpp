@@ -46,10 +46,10 @@
  
 
 #include "files.h"
+#include "filesystem.h"
 #include "bitmap.h"
 #include "imagehelpers.h"
 #include "image.h"
-#include "filesystem.h"
 
 //==========================================================================
 //
@@ -66,8 +66,8 @@ class FStbTexture : public FImageSource
 {
 
 public:
-	FStbTexture (int w, int h);
-	void CreatePalettedPixels(uint8_t *destbuffer) override;
+	FStbTexture (int lumpnum, int w, int h);
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 };
 
@@ -83,14 +83,14 @@ static stbi_io_callbacks callbacks = {
 //
 //==========================================================================
 
-FImageSource *StbImage_TryCreate(FileReader & file)
+FImageSource *StbImage_TryCreate(FileReader & file, int lumpnum)
 {
 	int x, y, comp;
 	file.Seek(0, FileReader::SeekSet);
 	int result = stbi_info_from_callbacks(&callbacks, &file, &x, &y, &comp);
 	if (result == 1)
 	{
-		return new FStbTexture(x, y);
+		return new FStbTexture(lumpnum, x, y);
 	}
 	
 	return nullptr;
@@ -102,7 +102,8 @@ FImageSource *StbImage_TryCreate(FileReader & file)
 //
 //==========================================================================
 
-FStbTexture::FStbTexture (int w, int h)
+FStbTexture::FStbTexture (int lumpnum, int w, int h)
+	: FImageSource(lumpnum)
 {
 	Width = w;
 	Height = h;
@@ -116,19 +117,21 @@ FStbTexture::FStbTexture (int w, int h)
 //
 //==========================================================================
 
-void FStbTexture::CreatePalettedPixels(uint8_t *buffer)
+TArray<uint8_t> FStbTexture::CreatePalettedPixels(int conversion)
 {
 	FBitmap bitmap;
 	bitmap.Create(Width, Height);
-	CopyPixels(&bitmap, 0);
+	CopyPixels(&bitmap, conversion);
 	const uint8_t *data = bitmap.GetPixels();
 
 	uint8_t *dest_p;
 	int dest_adv = Height;
 	int dest_rew = Width * Height - 1;
 
-	dest_p = buffer;
+	TArray<uint8_t> Pixels(Width*Height, true);
+	dest_p = Pixels.Data();
 
+	bool doalpha = conversion == luminance; 
 	// Convert the source image from row-major to column-major format and remap it
 	for (int y = Height; y != 0; --y)
 	{
@@ -139,11 +142,12 @@ void FStbTexture::CreatePalettedPixels(uint8_t *buffer)
 			int r = *data++;
 			int a = *data++;
 			if (a < 128) *dest_p = 0;
-			else *dest_p = ImageHelpers::RGBToPalette(false, r, g, b); 
+			else *dest_p = ImageHelpers::RGBToPalette(doalpha, r, g, b); 
 			dest_p += dest_adv;
 		}
 		dest_p -= dest_rew;
 	}
+	return Pixels;
 }
 
 //==========================================================================
@@ -154,8 +158,7 @@ void FStbTexture::CreatePalettedPixels(uint8_t *buffer)
 
 int FStbTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader (SourceLump); 
 	int x, y, chan;
 	auto image = stbi_load_from_callbacks(&callbacks, &lump, &x, &y, &chan, STBI_rgb_alpha); 	
 	if (image)

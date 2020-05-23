@@ -56,7 +56,9 @@ FTexture *CreateBrightmapTexture(FImageSource*);
 // and creates the texture.
 FTexture * FTexture::CreateTexture(const char *name)
 {
-	auto image = FImageSource::GetImage(name);
+	int lump = fileSystem.FindFile(name);
+	if (lump < 0) return nullptr;
+	auto image = FImageSource::GetImage(lump, false);
 	if (image != nullptr)
 	{
 		FTexture *tex = new FImageTexture(image);

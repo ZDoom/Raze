@@ -10,6 +10,16 @@
 class FImageSource;
 using PrecacheInfo = TMap<int, std::pair<int, int>>;
 
+// Doom patch format header
+struct patch_t
+{
+	int16_t			width;			// bounding box size 
+	int16_t			height;
+	int16_t			leftoffset; 	// pixels to the left of origin 
+	int16_t			topoffset;		// pixels below the origin 
+	uint32_t 		columnofs[1];	// only [width] used
+};
+
 struct PalettedPixels
 {
 	friend class FImageSource;
@@ -27,8 +37,11 @@ private:
 // All it can do is provide raw image data to its users.
 class FImageSource
 {
+	friend class FBrightmapTexture;
 protected:
 
+	static FMemArena ImageArena;
+	static TArray<FImageSource *>ImageForLump;
 	static int NextID;
 
 	int SourceLump;
@@ -36,14 +49,17 @@ protected:
 	int LeftOffset = 0, TopOffset = 0;			// Offsets stored in the image.
 	bool bUseGamePalette = false;				// true if this is an image without its own color set.
 	int ImageID = -1;
-	FString Name;
 
 	// Internal image creation functions. All external access should go through the cache interface,
 	// so that all code can benefit from future improvements to that.
 
+	virtual TArray<uint8_t> CreatePalettedPixels(int conversion);
+	virtual int CopyPixels(FBitmap *bmp, int conversion);			// This will always ignore 'luminance'.
+	int CopyTranslatedPixels(FBitmap *bmp, const PalEntry *remap);
+
+
 public:
 
-	virtual ~FImageSource() = default;
 	void CopySize(FImageSource &other)
 	{
 		Width = other.Width;
@@ -53,16 +69,30 @@ public:
 		SourceLump = other.SourceLump;
 	}
 
+	// Images are statically allocated and freed in bulk. None of the subclasses may hold any destructible data.
+	void *operator new(size_t block) { return ImageArena.Alloc(block); }
+	void operator delete(void *block) {}
+
 	bool bMasked = true;						// Image (might) have holes (Assume true unless proven otherwise!)
 	int8_t bTranslucent = -1;					// Image has pixels with a non-0/1 value. (-1 means the user needs to do a real check)
 
 	int GetId() const { return ImageID; }
 	
 	// 'noremap0' will only be looked at by FPatchTexture and forwarded by FMultipatchTexture.
-	static FImageSource * GetImage(const char *name);
 
-	virtual void CreatePalettedPixels(uint8_t *destbuffer) = 0;
-	virtual int CopyPixels(FBitmap* bmp, int conversion) = 0;			// This will always ignore 'luminance'.
+	// Either returns a reference to the cache, or a newly created item. The return of this has to be considered transient. If you need to store the result, use GetPalettedPixels
+	PalettedPixels GetCachedPalettedPixels(int conversion);
+
+	// tries to get a buffer from the cache. If not available, create a new one. If further references are pending, create a copy.
+	TArray<uint8_t> GetPalettedPixels(int conversion);
+
+	
+	// Unlile for paletted images there is no variant here that returns a persistent bitmap, because all users have to process the returned image into another format.
+	FBitmap GetCachedBitmap(const PalEntry *remap, int conversion, int *trans = nullptr);
+
+	static void ClearImages() { ImageArena.FreeAll(); ImageForLump.Clear(); NextID = 0; }
+	static FImageSource * GetImage(int lumpnum, bool checkflat);
+
 
 
 	// Conversion option
@@ -74,6 +104,7 @@ public:
 	};
 	
 	FImageSource(int sourcelump = -1) : SourceLump(sourcelump) { ImageID = ++NextID; }
+	virtual ~FImageSource() {}
 	
 	int GetWidth() const
 	{
@@ -110,6 +141,11 @@ public:
 	{
 		return bUseGamePalette;
 	}
+
+	virtual void CollectForPrecache(PrecacheInfo &info, bool requiretruecolor);
+	static void BeginPrecaching();
+	static void EndPrecaching();
+	static void RegisterForPrecache(FImageSource *img, bool requiretruecolor);
 };
 
 //==========================================================================

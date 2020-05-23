@@ -35,19 +35,17 @@
 */
 
 #include <stdio.h>
-
-#include "files.h"
-#include "printf.h"
-#include "bitmap.h"
-#include "image.h"
-#include "filesystem.h"
-#include "imagehelpers.h"
-#include "v_text.h"
-
 extern "C"
 {
 #include <jpeglib.h>
 }
+
+#include "files.h"
+#include "filesystem.h"
+#include "printf.h"
+#include "bitmap.h"
+#include "imagehelpers.h"
+#include "image.h"
 
 
 struct FLumpSourceMgr : public jpeg_source_mgr
@@ -184,10 +182,10 @@ void JPEG_OutputMessage (j_common_ptr cinfo)
 class FJPEGTexture : public FImageSource
 {
 public:
-	FJPEGTexture (int width, int height);
+	FJPEGTexture (int lumpnum, int width, int height);
 
-	void CreatePalettedPixels(uint8_t* destbuffer) override;
 	int CopyPixels(FBitmap *bmp, int conversion) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 };
 
 //==========================================================================
@@ -196,7 +194,7 @@ public:
 //
 //==========================================================================
 
-FImageSource *JPEGImage_TryCreate(FileReader & data)
+FImageSource *JPEGImage_TryCreate(FileReader & data, int lumpnum)
 {
 	union
 	{
@@ -237,7 +235,7 @@ FImageSource *JPEGImage_TryCreate(FileReader & data)
 	{
 		return NULL;
 	}
-	return new FJPEGTexture (BigShort(first4bytes.w[1]), BigShort(first4bytes.w[0]));
+	return new FJPEGTexture (lumpnum, BigShort(first4bytes.w[1]), BigShort(first4bytes.w[0]));
 }
 
 //==========================================================================
@@ -246,7 +244,8 @@ FImageSource *JPEGImage_TryCreate(FileReader & data)
 //
 //==========================================================================
 
-FJPEGTexture::FJPEGTexture (int width, int height)
+FJPEGTexture::FJPEGTexture (int lumpnum, int width, int height)
+: FImageSource(lumpnum)
 {
 	bMasked = false;
 
@@ -260,10 +259,9 @@ FJPEGTexture::FJPEGTexture (int width, int height)
 //
 //==========================================================================
 
-void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
+TArray<uint8_t> FJPEGTexture::CreatePalettedPixels(int conversion)
 {
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader (SourceLump);
 	JSAMPLE *buff = NULL;
 
 	jpeg_decompress_struct cinfo;
@@ -280,13 +278,14 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 	FLumpSourceMgr sourcemgr(&lump, &cinfo);
 	try
 	{
+		bool doalpha = conversion == luminance;
 		jpeg_read_header(&cinfo, TRUE);
 		if (!((cinfo.out_color_space == JCS_RGB && cinfo.num_components == 3) ||
 			(cinfo.out_color_space == JCS_CMYK && cinfo.num_components == 4) ||
 			(cinfo.out_color_space == JCS_YCbCr && cinfo.num_components == 3) ||
 			(cinfo.out_color_space == JCS_GRAYSCALE && cinfo.num_components == 1)))
 		{
-			Printf(TEXTCOLOR_ORANGE "Unsupported color format in %s\n", Name.GetChars());
+			Printf(TEXTCOLOR_ORANGE "Unsupported color format in %s\n", fileSystem.GetFileFullPath(SourceLump).GetChars());
 		}
 		else
 		{
@@ -305,7 +304,7 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 				case JCS_RGB:
 					for (int x = Width; x > 0; --x)
 					{
-						*out = ImageHelpers::RGBToPalette(false, in[0], in[1], in[2]);
+						*out = ImageHelpers::RGBToPalette(doalpha, in[0], in[1], in[2]);
 						out += Height;
 						in += 3;
 					}
@@ -313,7 +312,7 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 
 				case JCS_GRAYSCALE:
 				{
-					auto remap = GPalette.GrayMap;
+					auto remap = ImageHelpers::GetRemap(doalpha, true);
 					for (int x = Width; x > 0; --x)
 					{
 						*out = remap[in[0]];
@@ -331,7 +330,7 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 						int r = in[3] - (((256 - in[0])*in[3]) >> 8);
 						int g = in[3] - (((256 - in[1])*in[3]) >> 8);
 						int b = in[3] - (((256 - in[2])*in[3]) >> 8);
-						*out = ImageHelpers::RGBToPalette(false, r, g, b);
+						*out = ImageHelpers::RGBToPalette(doalpha, r, g, b);
 						out += Height;
 						in += 4;
 					}
@@ -345,7 +344,7 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 						int r = clamp((int)(Y + 1.40200 * (Cr - 0x80)), 0, 255);
 						int g = clamp((int)(Y - 0.34414 * (Cb - 0x80) - 0.71414 * (Cr - 0x80)), 0, 255);
 						int b = clamp((int)(Y + 1.77200 * (Cb - 0x80)), 0, 255);
-						*out = ImageHelpers::RGBToPalette(false, r, g, b);
+						*out = ImageHelpers::RGBToPalette(doalpha, r, g, b);
 						out += Height;
 						in += 4;
 					}
@@ -363,13 +362,14 @@ void FJPEGTexture::CreatePalettedPixels(uint8_t *buffer)
 	}
 	catch (int)
 	{
-		Printf(TEXTCOLOR_ORANGE "JPEG error in %s\n", Name.GetChars());
+		Printf(TEXTCOLOR_ORANGE "JPEG error in %s\n", fileSystem.GetFileFullPath(SourceLump).GetChars());
 	}
 	jpeg_destroy_decompress(&cinfo);
 	if (buff != NULL)
 	{
 		delete[] buff;
 	}
+	return Pixels;
 }
 
 
@@ -385,8 +385,7 @@ int FJPEGTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
 	PalEntry pe[256];
 
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader (SourceLump);
 
 	jpeg_decompress_struct cinfo;
 	jpeg_error_mgr jerr;
@@ -406,7 +405,7 @@ int FJPEGTexture::CopyPixels(FBitmap *bmp, int conversion)
 			(cinfo.out_color_space == JCS_YCbCr && cinfo.num_components == 3) ||
 			(cinfo.out_color_space == JCS_GRAYSCALE && cinfo.num_components == 1)))
 		{
-			Printf(TEXTCOLOR_ORANGE "Unsupported color format in %s\n", Name.GetChars());
+			Printf(TEXTCOLOR_ORANGE "Unsupported color format in %s\n", fileSystem.GetFileFullPath(SourceLump).GetChars());
 		}
 		else
 		{
@@ -454,7 +453,7 @@ int FJPEGTexture::CopyPixels(FBitmap *bmp, int conversion)
 	}
 	catch (int)
 	{
-		Printf(TEXTCOLOR_ORANGE "JPEG error in %s\n", Name.GetChars());
+		Printf(TEXTCOLOR_ORANGE "JPEG error in %s\n", fileSystem.GetFileFullPath(SourceLump).GetChars());
 	}
 	jpeg_destroy_decompress(&cinfo);
 	return 0;

@@ -34,14 +34,160 @@
 **
 */
 
-#include "memarena.h"
 #include "bitmap.h"
 #include "image.h"
-#include "files.h"
 #include "filesystem.h"
-#include "imagehelpers.h"
+#include "files.h"
+#include "cmdlib.h"
+#include "palettecontainer.h"
 
+FMemArena FImageSource::ImageArena(32768);
+TArray<FImageSource *>FImageSource::ImageForLump;
 int FImageSource::NextID;
+static PrecacheInfo precacheInfo;
+
+struct PrecacheDataPaletted
+{
+	TArray<uint8_t> Pixels;
+	int RefCount;
+	int ImageID;
+};
+
+struct PrecacheDataRgba
+{
+	FBitmap Pixels;
+	int TransInfo;
+	int RefCount;
+	int ImageID;
+};
+
+// TMap doesn't handle this kind of data well.  std::map neither. The linear search is still faster, even for a few 100 entries because it doesn't have to access the heap as often..
+TArray<PrecacheDataPaletted> precacheDataPaletted;
+TArray<PrecacheDataRgba> precacheDataRgba;
+
+//===========================================================================
+// 
+// the default just returns an empty texture.
+//
+//===========================================================================
+
+TArray<uint8_t> FImageSource::CreatePalettedPixels(int conversion)
+{
+	TArray<uint8_t> Pixels(Width * Height, true);
+	memset(Pixels.Data(), 0, Width * Height);
+	return Pixels;
+}
+
+PalettedPixels FImageSource::GetCachedPalettedPixels(int conversion)
+{
+	PalettedPixels ret;
+
+	FString name;
+	fileSystem.GetFileShortName(name, SourceLump);
+
+	std::pair<int, int> *info = nullptr;
+	auto imageID = ImageID;
+
+	// Do we have this image in the cache?
+	unsigned index = conversion != normal? UINT_MAX : precacheDataPaletted.FindEx([=](PrecacheDataPaletted &entry) { return entry.ImageID == imageID; });
+	if (index < precacheDataPaletted.Size())
+	{
+		auto cache = &precacheDataPaletted[index];
+
+		if (cache->RefCount > 1)
+		{
+			//Printf("returning reference to %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+			ret.Pixels.Set(cache->Pixels.Data(), cache->Pixels.Size());
+			cache->RefCount--;
+		}
+		else if (cache->Pixels.Size() > 0)
+		{
+			//Printf("returning contents of %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+			ret.PixelStore = std::move(cache->Pixels);
+			ret.Pixels.Set(ret.PixelStore.Data(), ret.PixelStore.Size());
+			precacheDataPaletted.Delete(index);
+		}
+		else
+		{
+			//Printf("something bad happened for %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+		}
+	}
+	else
+	{
+		// The image wasn't cached. Now there's two possibilities: 
+		auto info = precacheInfo.CheckKey(ImageID);
+		if (!info || info->second <= 1 || conversion != normal)
+		{
+			// This is either the only copy needed or some access outside the caching block. In these cases create a new one and directly return it.
+			//Printf("returning fresh copy of %s\n", name.GetChars());
+			ret.PixelStore = CreatePalettedPixels(conversion);
+			ret.Pixels.Set(ret.PixelStore.Data(), ret.PixelStore.Size());
+		}
+		else
+		{
+			//Printf("creating cached entry for %s, refcount = %d\n", name.GetChars(), info->second);
+			// This is the first time it gets accessed and needs to be placed in the cache.
+			PrecacheDataPaletted *pdp = &precacheDataPaletted[precacheDataPaletted.Reserve(1)];
+
+			pdp->ImageID = imageID;
+			pdp->RefCount = info->second - 1;
+			info->second = 0;
+			pdp->Pixels = CreatePalettedPixels(normal);
+			ret.Pixels.Set(pdp->Pixels.Data(), pdp->Pixels.Size());
+		}
+	}
+	return ret;
+}
+
+TArray<uint8_t> FImageSource::GetPalettedPixels(int conversion)
+{
+	auto pix = GetCachedPalettedPixels(conversion);
+	if (pix.ownsPixels())
+	{
+		// return the pixel store of the returned data directly if this was the last reference.
+		auto array = std::move(pix.PixelStore);
+		return array;
+	}
+	else
+	{
+		// If there are pending references, make a copy.
+		TArray<uint8_t> array(pix.Pixels.Size(), true);
+		memcpy(array.Data(), pix.Pixels.Data(), array.Size());
+		return array;
+	}
+}
+
+
+
+//===========================================================================
+//
+// FImageSource::CopyPixels
+//
+// this is the generic case that can handle
+// any properly implemented texture for software rendering.
+// Its drawback is that it is limited to the base palette which is
+// why all classes that handle different palettes should subclass this
+// method
+//
+//===========================================================================
+
+int FImageSource::CopyPixels(FBitmap *bmp, int conversion)
+{
+	if (conversion == luminance) conversion = normal;	// luminance images have no use as an RGB source.
+	PalEntry *palette = GPalette.BaseColors;
+	for(int i=1;i<256;i++) palette[i].a = 255;	// set proper alpha values
+	auto ppix = CreatePalettedPixels(conversion);
+	bmp->CopyPixelData(0, 0, ppix.Data(), Width, Height, Height, 1, 0, palette, nullptr);
+	for(int i=1;i<256;i++) palette[i].a = 0;
+	return 0;
+}
+
+int FImageSource::CopyTranslatedPixels(FBitmap *bmp, const PalEntry *remap)
+{
+	auto ppix = CreatePalettedPixels(false);
+	bmp->CopyPixelData(0, 0, ppix.Data(), Width, Height, Height, 1, 0, remap, nullptr);
+	return 0;
+}
 
 //==========================================================================
 //
@@ -49,46 +195,184 @@ int FImageSource::NextID;
 //
 //==========================================================================
 
-typedef FImageSource * (*CreateFunc)(FileReader & file);
+FBitmap FImageSource::GetCachedBitmap(const PalEntry *remap, int conversion, int *ptrans)
+{
+	FBitmap ret;
+	
+	FString name;
+	int trans = -1;
+	fileSystem.GetFileShortName(name, SourceLump);
+	
+	std::pair<int, int> *info = nullptr;
+	auto imageID = ImageID;
+	
+	if (remap != nullptr)
+	{
+		// Remapped images are never run through the cache because they would complicate matters too much for very little gain.
+		// Translated images are normally sprites which normally just consist of a single image and use no composition.
+		// Additionally, since translation requires the base palette, the really time consuming stuff will never be subjected to it.
+		ret.Create(Width, Height);
+		trans = CopyTranslatedPixels(&ret, remap);
+	}
+	else
+	{
+		if (conversion == luminance) conversion = normal;	// luminance has no meaning for true color.
+		// Do we have this image in the cache?
+		unsigned index = conversion != normal? UINT_MAX : precacheDataRgba.FindEx([=](PrecacheDataRgba &entry) { return entry.ImageID == imageID; });
+		if (index < precacheDataRgba.Size())
+		{
+			auto cache = &precacheDataRgba[index];
+			
+			trans = cache->TransInfo;
+			if (cache->RefCount > 1)
+			{
+				//Printf("returning reference to %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+				ret.Copy(cache->Pixels, false);
+				cache->RefCount--;
+			}
+			else if (cache->Pixels.GetPixels())
+			{
+				//Printf("returning contents of %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+				ret = std::move(cache->Pixels);
+				precacheDataRgba.Delete(index);
+			}
+			else
+			{
+				// This should never happen if the function is implemented correctly
+				//Printf("something bad happened for %s, refcount = %d\n", name.GetChars(), cache->RefCount);
+				ret.Create(Width, Height);
+				trans = CopyPixels(&ret, normal);
+			}
+		}
+		else
+		{
+			// The image wasn't cached. Now there's two possibilities:
+			auto info = precacheInfo.CheckKey(ImageID);
+			if (!info || info->first <= 1 || conversion != normal)
+			{
+				// This is either the only copy needed or some access outside the caching block. In these cases create a new one and directly return it.
+				//Printf("returning fresh copy of %s\n", name.GetChars());
+				ret.Create(Width, Height);
+				trans = CopyPixels(&ret, conversion);
+			}
+			else
+			{
+				//Printf("creating cached entry for %s, refcount = %d\n", name.GetChars(), info->first);
+				// This is the first time it gets accessed and needs to be placed in the cache.
+				PrecacheDataRgba *pdr = &precacheDataRgba[precacheDataRgba.Reserve(1)];
+				
+				pdr->ImageID = imageID;
+				pdr->RefCount = info->first - 1;
+				info->first = 0;
+				pdr->Pixels.Create(Width, Height);
+				trans = pdr->TransInfo = CopyPixels(&pdr->Pixels, normal);
+				ret.Copy(pdr->Pixels, false);
+			}
+		}
+	}
+	if (ptrans) *ptrans = trans;
+	return ret;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FImageSource::CollectForPrecache(PrecacheInfo &info, bool requiretruecolor)
+{
+	auto val = info.CheckKey(ImageID);
+	bool tc = requiretruecolor;
+	if (val)
+	{
+		val->first += tc;
+		val->second += !tc;
+	}
+	else
+	{
+		auto pair = std::make_pair(tc, !tc);
+		info.Insert(ImageID, pair);
+	}
+}
+
+void FImageSource::BeginPrecaching()
+{
+	precacheInfo.Clear();
+}
+
+void FImageSource::EndPrecaching()
+{
+	precacheDataPaletted.Clear();
+	precacheDataRgba.Clear();
+}
+
+void FImageSource::RegisterForPrecache(FImageSource *img, bool requiretruecolor)
+{
+	img->CollectForPrecache(precacheInfo, requiretruecolor);
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+typedef FImageSource * (*CreateFunc)(FileReader & file, int lumpnum);
 
 struct TexCreateInfo
 {
 	CreateFunc TryCreate;
+	bool checkflat;
 };
 
-FImageSource *PNGImage_TryCreate(FileReader &);
-FImageSource *JPEGImage_TryCreate(FileReader &);
-FImageSource *DDSImage_TryCreate(FileReader &);
-FImageSource *PCXImage_TryCreate(FileReader &);
-FImageSource *TGAImage_TryCreate(FileReader &);
-FImageSource *ArtImage_TryCreate(FileReader &);
-FImageSource *StbImage_TryCreate(FileReader &);
+FImageSource *PNGImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *JPEGImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *DDSImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *PCXImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *TGAImage_TryCreate(FileReader &, int lumpnum);
+FImageSource *StbImage_TryCreate(FileReader &, int lumpnum);
 
 
 // Examines the lump contents to decide what type of texture to create,
 // and creates the texture.
-FImageSource * FImageSource::GetImage(const char *name)
+FImageSource * FImageSource::GetImage(int lumpnum, bool isflat)
 {
 	static TexCreateInfo CreateInfo[] = {
-		{ PNGImage_TryCreate },
-		{ JPEGImage_TryCreate },
-		{ DDSImage_TryCreate },
-		{ PCXImage_TryCreate },
-		{ StbImage_TryCreate },
-		{ ArtImage_TryCreate },
-		{ nullptr }
+		{ PNGImage_TryCreate,			false },
+		{ JPEGImage_TryCreate,			false },
+		{ DDSImage_TryCreate,			false },
+		{ PCXImage_TryCreate,			false },
+		{ StbImage_TryCreate,			false },
+		{ TGAImage_TryCreate,			false },
 	};
 
-	auto data = fileSystem.OpenFileReader(name);
-	if (!data.isOpen())  return nullptr;
+	if (lumpnum == -1) return nullptr;
 
-	for (size_t i = 0; CreateInfo[i].TryCreate; i++)
+	unsigned size = ImageForLump.Size();
+	if (size <= (unsigned)lumpnum)
 	{
-		auto image = CreateInfo[i].TryCreate(data);
-		if (image != nullptr)
+		// Hires textures can be added dynamically to the end of the lump array, so this must be checked each time.
+		ImageForLump.Resize(lumpnum + 1);
+		for (; size < ImageForLump.Size(); size++) ImageForLump[size] = nullptr;
+	}
+	// An image for this lump already exists. We do not need another one.
+	if (ImageForLump[lumpnum] != nullptr) return ImageForLump[lumpnum];
+
+	auto data = fileSystem.OpenFileReader(lumpnum);
+	if (!data.isOpen()) 
+		return nullptr;
+
+	for (size_t i = 0; i < countof(CreateInfo); i++)
+	{
+		if (!CreateInfo[i].checkflat || isflat)
 		{
-			image->Name = name;
-			return image;
+			auto image = CreateInfo[i].TryCreate(data, lumpnum);
+			if (image != nullptr)
+			{
+				ImageForLump[lumpnum] = image;
+				return image;
+			}
 		}
 	}
 	return nullptr;

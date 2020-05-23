@@ -34,12 +34,11 @@
 **
 */
 
-#include "basics.h"
 #include "files.h"
+#include "filesystem.h"
 #include "bitmap.h"
 #include "imagehelpers.h"
 #include "image.h"
-#include "filesystem.h"
 
 //==========================================================================
 //
@@ -82,7 +81,7 @@ struct PCXHeader
 class FPCXTexture : public FImageSource
 {
 public:
-	FPCXTexture (PCXHeader &);
+	FPCXTexture (int lumpnum, PCXHeader &);
 
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 
@@ -92,7 +91,7 @@ protected:
 	void ReadPCX8bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr);
 	void ReadPCX24bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr, int planes);
 
-	void CreatePalettedPixels(uint8_t *destbuffer) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 };
 
 
@@ -102,7 +101,7 @@ protected:
 //
 //==========================================================================
 
-FImageSource * PCXImage_TryCreate(FileReader & file)
+FImageSource * PCXImage_TryCreate(FileReader & file, int lumpnum)
 {
 	PCXHeader hdr;
 
@@ -131,7 +130,7 @@ FImageSource * PCXImage_TryCreate(FileReader & file)
 	file.Seek(0, FileReader::SeekSet);
 	file.Read(&hdr, sizeof(hdr));
 
-	return new FPCXTexture(hdr);
+	return new FPCXTexture(lumpnum, hdr);
 }
 
 //==========================================================================
@@ -140,7 +139,8 @@ FImageSource * PCXImage_TryCreate(FileReader & file)
 //
 //==========================================================================
 
-FPCXTexture::FPCXTexture(PCXHeader & hdr)
+FPCXTexture::FPCXTexture(int lumpnum, PCXHeader & hdr)
+: FImageSource(lumpnum)
 {
 	bMasked = false;
 	Width = LittleShort(hdr.xmax) - LittleShort(hdr.xmin) + 1;
@@ -344,19 +344,20 @@ void FPCXTexture::ReadPCX24bits (uint8_t *dst, FileReader & lump, PCXHeader *hdr
 //
 //==========================================================================
 
-void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
+TArray<uint8_t> FPCXTexture::CreatePalettedPixels(int conversion)
 {
 	uint8_t PaletteMap[256];
 	PCXHeader header;
 	int bitcount;
 
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader(SourceLump);
 
 	lump.Read(&header, sizeof(header));
 
 	bitcount = header.bitsPerPixel * header.numColorPlanes;
+	TArray<uint8_t> Pixels(Width*Height, true);
 
+	bool alphatex = conversion == luminance;
 	if (bitcount < 24)
 	{
 		if (bitcount < 8)
@@ -365,17 +366,17 @@ void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
 			{
 			default:
 			case 1:
-				PaletteMap[0] = GPalette.GrayMap[0];
-				PaletteMap[1] = GPalette.GrayMap[255];
-				ReadPCX1bit (buffer, lump, &header);
+				PaletteMap[0] = alphatex? 0 : GPalette.GrayMap[0];
+				PaletteMap[1] = alphatex? 255 : GPalette.GrayMap[255];
+				ReadPCX1bit (Pixels.Data(), lump, &header);
 				break;
 
 			case 4:
 				for (int i = 0; i < 16; i++)
 				{
-					PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, header.palette[i * 3], header.palette[i * 3 + 1], header.palette[i * 3 + 2]);
+					PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(alphatex, header.palette[i * 3], header.palette[i * 3 + 1], header.palette[i * 3 + 2]);
 				}
-				ReadPCX4bits (buffer, lump, &header);
+				ReadPCX4bits (Pixels.Data(), lump, &header);
 				break;
 			}
 		}
@@ -390,19 +391,20 @@ void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
 				uint8_t r = lump.ReadUInt8();
 				uint8_t g = lump.ReadUInt8();
 				uint8_t b = lump.ReadUInt8();
-				PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, r, g, b);
+				PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(alphatex, r, g, b);
 			}
 			lump.Seek(sizeof(header), FileReader::SeekSet);
-			ReadPCX8bits (buffer, lump, &header);
+			ReadPCX8bits (Pixels.Data(), lump, &header);
 		}
 		if (Width == Height)
 		{
-			ImageHelpers::FlipSquareBlockRemap(buffer, Width, PaletteMap);
+			ImageHelpers::FlipSquareBlockRemap(Pixels.Data(), Width, PaletteMap);
 		}
 		else
 		{
 			TArray<uint8_t> newpix(Width*Height, true);
-			ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), buffer, Width, Height, Width, PaletteMap);
+			ImageHelpers::FlipNonSquareBlockRemap (newpix.Data(), Pixels.Data(), Width, Height, Width, PaletteMap);
+			return newpix;
 		}
 	}
 	else
@@ -414,11 +416,12 @@ void FPCXTexture::CreatePalettedPixels(uint8_t *buffer)
 		{
 			for(int x=0; x < Width; x++)
 			{
-				buffer[y + Height * x] = ImageHelpers::RGBToPalette(false, row[0], row[1], row[2]);
+				Pixels[y + Height * x] = ImageHelpers::RGBToPalette(alphatex, row[0], row[1], row[2]);
 				row+=3;
 			}
 		}
 	}
+	return Pixels;
 }
 
 //===========================================================================
@@ -436,8 +439,7 @@ int FPCXTexture::CopyPixels(FBitmap *bmp, int conversion)
 	int bitcount;
 	TArray<uint8_t> Pixels;
 
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader(SourceLump);
 
 	lump.Read(&header, sizeof(header));
 

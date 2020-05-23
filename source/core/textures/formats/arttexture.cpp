@@ -41,7 +41,7 @@
 
 #include "build.h"
 
-
+#if 0
 //==========================================================================
 //
 // an AET texture
@@ -172,3 +172,4 @@ int FArtTexture::CopyPixels(FBitmap *bmp, int conversion)
 	return 0;
 }	 
 
+#endif

@@ -34,11 +34,11 @@
 */
 
 #include "files.h"
+#include "filesystem.h"
 #include "templates.h"
 #include "bitmap.h"
-#include "image.h"
-#include "filesystem.h"
 #include "imagehelpers.h"
+#include "image.h"
 
 
 //==========================================================================
@@ -77,13 +77,13 @@ struct TGAHeader
 class FTGATexture : public FImageSource
 {
 public:
-	FTGATexture (TGAHeader *);
+	FTGATexture (int lumpnum, TGAHeader *);
 
 	int CopyPixels(FBitmap *bmp, int conversion) override;
 
 protected:
 	void ReadCompressed(FileReader &lump, uint8_t * buffer, int bytesperpixel);
-	void CreatePalettedPixels(uint8_t *destbuffer) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 };
 
 //==========================================================================
@@ -92,7 +92,7 @@ protected:
 //
 //==========================================================================
 
-FImageSource *TGAImage_TryCreate(FileReader & file)
+FImageSource *TGAImage_TryCreate(FileReader & file, int lumpnum)
 {
 	TGAHeader hdr;
 
@@ -117,7 +117,7 @@ FImageSource *TGAImage_TryCreate(FileReader & file)
 	hdr.width = LittleShort(hdr.width);
 	hdr.height = LittleShort(hdr.height);
 
-	return new FTGATexture(&hdr);
+	return new FTGATexture(lumpnum, &hdr);
 }
 
 //==========================================================================
@@ -126,7 +126,8 @@ FImageSource *TGAImage_TryCreate(FileReader & file)
 //
 //==========================================================================
 
-FTGATexture::FTGATexture(TGAHeader * hdr)
+FTGATexture::FTGATexture (int lumpnum, TGAHeader * hdr)
+: FImageSource(lumpnum)
 {
 	Width = hdr->width;
 	Height = hdr->height;
@@ -152,7 +153,7 @@ void FTGATexture::ReadCompressed(FileReader &lump, uint8_t * buffer, int bytespe
 		{
 			b&=~128;
 			lump.Read(data, bytesperpixel);
-			for (int i=std::min<int>(Size, (b+1)); i>0; i--)
+			for (int i=MIN<int>(Size, (b+1)); i>0; i--)
 			{
 				buffer[0] = data[0];
 				if (bytesperpixel>=2) buffer[1] = data[1];
@@ -163,7 +164,7 @@ void FTGATexture::ReadCompressed(FileReader &lump, uint8_t * buffer, int bytespe
 		}
 		else 
 		{
-			lump.Read(buffer, std::min<int>(Size, (b+1))*bytesperpixel);
+			lump.Read(buffer, MIN<int>(Size, (b+1))*bytesperpixel);
 			buffer += (b+1)*bytesperpixel;
 		}
 		Size -= b+1;
@@ -176,11 +177,10 @@ void FTGATexture::ReadCompressed(FileReader &lump, uint8_t * buffer, int bytespe
 //
 //==========================================================================
 
-void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
+TArray<uint8_t> FTGATexture::CreatePalettedPixels(int conversion)
 {
 	uint8_t PaletteMap[256];
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return;
+	auto lump = fileSystem.OpenFileReader (SourceLump);
 	TGAHeader hdr;
 	uint16_t w;
 	uint8_t r,g,b,a;
@@ -229,22 +229,23 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 				r=g=b=a=0;
 				break;
 			}
-			PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(false, r, g, b, a);
+			PaletteMap[i] = ImageHelpers::RGBToPalettePrecise(conversion == luminance, r, g, b, a);
 		}
     }
     
     int Size = Width * Height * (hdr.bpp>>3);
+	TArray<uint8_t> buffer(Size, true);
    	
     if (hdr.img_type < 4)	// uncompressed
     {
-    	lump.Read(buffer, Size);
+    	lump.Read(buffer.Data(), Size);
     }
     else				// compressed
     {
-    	ReadCompressed(lump, buffer, hdr.bpp>>3);
+    	ReadCompressed(lump, buffer.Data(), hdr.bpp>>3);
     }
     
-	uint8_t * ptr = buffer;
+	uint8_t * ptr = buffer.Data();
 	int step_x = (hdr.bpp>>3);
 	int Pitch = Width * step_x;
 
@@ -287,7 +288,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 				for(int x=0;x<Width;x++)
 				{
 					int v = LittleShort(*p);
-					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, ((v >> 10) & 0x1f) * 8, ((v >> 5) & 0x1f) * 8, (v & 0x1f) * 8);
+					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(conversion == luminance, ((v >> 10) & 0x1f) * 8, ((v >> 5) & 0x1f) * 8, (v & 0x1f) * 8);
 					p+=step_x;
 				}
 			}
@@ -299,7 +300,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 				uint8_t * p = ptr + y * Pitch;
 				for(int x=0;x<Width;x++)
 				{
-					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0]);
+					Pixels[x*Height + y] = ImageHelpers::RGBToPalette(conversion == luminance, p[2], p[1], p[0]);
 					p+=step_x;
 				}
 			}
@@ -313,7 +314,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 					uint8_t * p = ptr + y * Pitch;
 					for(int x=0;x<Width;x++)
 					{
-						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0]);
+						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(conversion == luminance, p[2], p[1], p[0]);
 						p+=step_x;
 					}
 				}
@@ -325,7 +326,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 					uint8_t * p = ptr + y * Pitch;
 					for(int x=0;x<Width;x++)
 					{
-						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(false, p[2], p[1], p[0], p[3]);
+						Pixels[x*Height + y] = ImageHelpers::RGBToPalette(conversion == luminance, p[2], p[1], p[0], p[3]);
 						p+=step_x;
 					}
 				}
@@ -339,7 +340,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 	
 	case 3:	// Grayscale
 	{
-		auto remap = GPalette.GrayMap;
+		auto remap = ImageHelpers::GetRemap(conversion == luminance, true);
 		switch (hdr.bpp)
 		{
 		case 8:
@@ -374,6 +375,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 	default:
 		break;
     }
+	return Pixels;
 }	
 
 //===========================================================================
@@ -385,8 +387,7 @@ void FTGATexture::CreatePalettedPixels(uint8_t *buffer)
 int FTGATexture::CopyPixels(FBitmap *bmp, int conversion)
 {
 	PalEntry pe[256];
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return -1;
+	auto lump = fileSystem.OpenFileReader (SourceLump);
 	TGAHeader hdr;
 	uint16_t w;
 	uint8_t r,g,b,a;
@@ -441,7 +442,7 @@ int FTGATexture::CopyPixels(FBitmap *bmp, int conversion)
     }
     
     int Size = Width * Height * (hdr.bpp>>3);
-	TArray<uint8_t> sbuffer(Size, true);
+	TArray<uint8_t> sbuffer(Size);
    	
     if (hdr.img_type < 4)	// uncompressed
     {

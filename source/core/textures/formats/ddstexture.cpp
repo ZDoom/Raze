@@ -163,9 +163,9 @@ class FDDSTexture : public FImageSource
 		PIX_ARGB = 2
 	};
 public:
-	FDDSTexture (FileReader &lump, void *surfdesc);
+	FDDSTexture (FileReader &lump, int lumpnum, void *surfdesc);
 
-	void CreatePalettedPixels(uint8_t *destbuffer) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 
 protected:
 	uint32_t Format;
@@ -219,7 +219,7 @@ static bool CheckDDS (FileReader &file)
 //
 //==========================================================================
 
-FImageSource *DDSImage_TryCreate (FileReader &data)
+FImageSource *DDSImage_TryCreate (FileReader &data, int lumpnum)
 {
 	union
 	{
@@ -274,7 +274,7 @@ FImageSource *DDSImage_TryCreate (FileReader &data)
 	{
 		return NULL;
 	}
-	return new FDDSTexture (data, &surfdesc);
+	return new FDDSTexture (data, lumpnum, &surfdesc);
 }
 
 //==========================================================================
@@ -283,7 +283,8 @@ FImageSource *DDSImage_TryCreate (FileReader &data)
 //
 //==========================================================================
 
-FDDSTexture::FDDSTexture (FileReader &lump, void *vsurfdesc)
+FDDSTexture::FDDSTexture (FileReader &lump, int lumpnum, void *vsurfdesc)
+: FImageSource(lumpnum)
 {
 	DDSURFACEDESC2 *surf = (DDSURFACEDESC2 *)vsurfdesc;
 
@@ -372,30 +373,32 @@ void FDDSTexture::CalcBitShift (uint32_t mask, uint8_t *lshiftp, uint8_t *rshift
 //
 //==========================================================================
 
-void FDDSTexture::CreatePalettedPixels(uint8_t *buffer)
+TArray<uint8_t> FDDSTexture::CreatePalettedPixels(int conversion)
 {
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader (SourceLump);
+
+	TArray<uint8_t> Pixels(Width*Height, true);
 
 	lump.Seek (sizeof(DDSURFACEDESC2) + 4, FileReader::SeekSet);
 
-	int pmode = PIX_Palette;
+	int pmode = conversion == luminance ? PIX_Alphatex : PIX_Palette;
 	if (Format >= 1 && Format <= 4)		// RGB: Format is # of bytes per pixel
 	{
-		ReadRGB (lump, buffer, pmode);
+		ReadRGB (lump, Pixels.Data(), pmode);
 	}
 	else if (Format == ID_DXT1)
 	{
-		DecompressDXT1 (lump, buffer, pmode);
+		DecompressDXT1 (lump, Pixels.Data(), pmode);
 	}
 	else if (Format == ID_DXT3 || Format == ID_DXT2)
 	{
-		DecompressDXT3 (lump, Format == ID_DXT2, buffer, pmode);
+		DecompressDXT3 (lump, Format == ID_DXT2, Pixels.Data(), pmode);
 	}
 	else if (Format == ID_DXT5 || Format == ID_DXT4)
 	{
-		DecompressDXT5 (lump, Format == ID_DXT4, buffer, pmode);
+		DecompressDXT5 (lump, Format == ID_DXT4, Pixels.Data(), pmode);
 	}
+	return Pixels;
 }
 
 //==========================================================================
@@ -442,7 +445,7 @@ void FDDSTexture::ReadRGB (FileReader &lump, uint8_t *buffer, int pixelmode)
 					uint32_t g = (c & GMask) << GShiftL; g |= g >> GShiftR;
 					uint32_t b = (c & BMask) << BShiftL; b |= b >> BShiftR;
 					uint32_t a = (c & AMask) << AShiftL; a |= a >> AShiftR;
-					*pixelp = ImageHelpers::RGBToPalette(false, r >> 24, g >> 24, b >> 24, a >> 24);
+					*pixelp = ImageHelpers::RGBToPalette(pixelmode == PIX_Alphatex, r >> 24, g >> 24, b >> 24, a >> 24);
 				}
 				else
 				{
@@ -781,8 +784,7 @@ void FDDSTexture::DecompressDXT5 (FileReader &lump, bool premultiplied, uint8_t 
 
 int FDDSTexture::CopyPixels(FBitmap *bmp, int conversion)
 {
-	auto lump = fileSystem.OpenFileReader(Name);
-	if (!lump.isOpen()) return -1;	// Just leave the texture blank.
+	auto lump = fileSystem.OpenFileReader (SourceLump);
 
 	uint8_t *TexBuffer = bmp->GetPixels();
 
