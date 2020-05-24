@@ -1,8 +1,30 @@
 #pragma once
 
+enum class ETextureType : uint8_t
+{
+	Any,
+	Wall,
+	Flat,
+	Sprite,
+	WallPatch,
+	Build,		// no longer used but needs to remain for ZScript
+	SkinSprite,
+	Decal,
+	MiscPatch,
+	FontChar,
+	Override,	// For patches between TX_START/TX_END
+	Autopage,	// Automap background - used to enable the use of FAutomapTexture
+	SkinGraphic,
+	Null,
+	FirstDefined,
+	Canvas,
+	SWCanvas,
+};
+
 class FTextureID
 {
 	friend class FTextureManager;
+	friend void R_InitSpriteDefs();
 
 public:
 	FTextureID() = default;
@@ -15,6 +37,7 @@ public:
 	bool operator !=(const FTextureID &other) const { return texnum != other.texnum; }
 	FTextureID operator +(int offset) throw();
 	int GetIndex() const { return texnum; }	// Use this only if you absolutely need the index!
+	void SetIndex(int index) { texnum = index; }	// Use this only if you absolutely need the index!
 
 											// The switch list needs these to sort the switches by texture index
 	int operator -(FTextureID other) const { return texnum - other.texnum; }
@@ -33,4 +56,4 @@ class FSetTextureID : public FTextureID
 public:
 	FSetTextureID(int v) : FTextureID(v) {}
 };
-  
+

@@ -812,9 +812,10 @@ void tileSetAnim(int tile, const picanm_t& anm)
 
 FTexture* BuildTiles::GetTexture(const char* path)
 {
+	// let this go away.
 	auto res = textures.CheckKey(path);
 	if (res) return *res;
-	auto tex = FTexture::CreateTexture(path);
+	auto tex = FTexture::CreateTexture(path, -1, ETextureType::Override);
 	if (tex) textures.Insert(path, tex);
 	return tex;
 }

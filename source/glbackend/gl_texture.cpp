@@ -138,7 +138,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 	FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
-	else if (tex->GetUseType() != FTexture::Canvas)
+	else if (tex->GetUseType() != ETextureType::Canvas)
 		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
 	else
 		hwtex = nullptr;
@@ -232,7 +232,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	// Canvas textures must be treated like hightile replacements in the following code.
 	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 	auto rep = (picnum >= 0 && hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
-	if (rep || tex->GetUseType() == FTexture::Canvas)
+	if (rep || tex->GetUseType() == ETextureType::Canvas)
 	{
 		if (usepalette != 0)
 		{

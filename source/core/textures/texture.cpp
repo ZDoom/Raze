@@ -54,10 +54,13 @@ FTexture *CreateBrightmapTexture(FImageSource*);
 
 // Examines the lump contents to decide what type of texture to create,
 // and creates the texture.
-FTexture * FTexture::CreateTexture(const char *name)
+FTexture * FTexture::CreateTexture(const char *name, int lump, ETextureType useType)
 {
-	int lump = fileSystem.FindFile(name);
-	if (lump < 0) return nullptr;
+	if (lump < 0)
+	{
+		lump = fileSystem.FindFile(name);
+		if (lump < 0) return nullptr;
+	}
 	auto image = FImageSource::GetImage(lump, false);
 	if (image != nullptr)
 	{

@@ -200,17 +200,12 @@ struct FTextureBuffer
 class FTexture
 {
 	friend struct BuildTiles;
+	friend class FTextureManager;
 	friend bool tileLoad(int tileNum);
 	friend const uint8_t* tilePtr(int num);
 
 public:
-	enum UseType : uint8_t
-	{
-		Canvas,		// camera texture
-		User		// A texture with user-provided image content
-	};
-
-	static FTexture *CreateTexture(const char *name);
+	static FTexture* CreateTexture(const char* name, int lumpnum, ETextureType useType);
 
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }
@@ -246,8 +241,10 @@ public:
 	void CheckTrans(unsigned char * buffer, int size, int trans);
 	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
 	virtual void Reload() {}
-	UseType GetUseType() const { return useType; }
+	ETextureType GetUseType() const { return UseType; }
 	void DeleteHardwareTextures();
+	int GetSourceLump() { return SourceLump; }
+	void SetUseType(ETextureType use) { UseType = use; }
 
 	void SetHardwareTexture(int palid, FHardwareTexture* htex)
 	{
@@ -286,12 +283,15 @@ protected:
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
 	bool skyColorDone = false;
-	UseType useType = User;
+	ETextureType UseType = ETextureType::Any;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
 	TArray<uint8_t> CachedPixels;
 	// Don't waste too much effort on efficient storage here. Polymost performs so many calculations on a single draw call that the minor map lookup hardly matters.
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
+	bool bFullNameTexture = false;
+	FTextureID id = FSetTextureID(-1);
+	int SourceLump = -1;
 
 	FTexture (const char *name = NULL);
 	friend struct BuildTiles;
@@ -309,7 +309,7 @@ public:
 		bMasked = false;
 		bTranslucent = false;
 		//bNoExpand = true;
-		useType = FTexture::Canvas;
+		UseType = ETextureType::Wall;
 	}
 
 	void NeedUpdate() { bNeedsUpdate = true; }
