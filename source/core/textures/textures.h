@@ -246,7 +246,7 @@ public:
 	void SetOffsets(int l, int t)
 	{
 		_LeftOffset[0] = _LeftOffset[1] = l;
-		_TopOffset[0] = _TopOffset[1] = l;
+		_TopOffset[0] = _TopOffset[1] = t;
 	}
 	
 	int GetTexelWidth() { return Width; }
