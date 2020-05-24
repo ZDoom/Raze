@@ -50,6 +50,7 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
     if (id == 0)
     {
         GPalette.SetPalette(table, 255);
+        BuildTransTable(GPalette.BaseColors);
     }
     FRemapTable remap;
     remap.AddColors(0, 256, table);

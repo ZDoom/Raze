@@ -120,11 +120,11 @@ bool SetTextureParms(DrawParms *parms, FTexture *img, double xx, double yy)
 		parms->texheight = img->GetDisplayHeight();
 		if (parms->top == INT_MAX || parms->fortext)
 		{
-			parms->top = img->GetTopOffset();
+			parms->top = img->GetDisplayTopOffset();
 		}
 		if (parms->left == INT_MAX || parms->fortext)
 		{
-			parms->left = img->GetLeftOffset();
+			parms->left = img->GetDisplayLeftOffset();
 		}
 		if (parms->destwidth == INT_MAX || parms->fortext)
 		{

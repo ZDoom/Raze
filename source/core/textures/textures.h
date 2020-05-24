@@ -206,10 +206,6 @@ class FTexture
 public:
 	enum UseType : uint8_t
 	{
-		Image,	// anything that is not a regular tile.
-		Art,	// from an ART file, readonly
-		Writable,	// A writable texture
-		Restorable,	// a writable copy of something else
 		Canvas,		// camera texture
 		User		// A texture with user-provided image content
 	};
@@ -290,7 +286,7 @@ protected:
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
 	bool skyColorDone = false;
-	UseType useType = Image;
+	UseType useType = User;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
 	TArray<uint8_t> CachedPixels;

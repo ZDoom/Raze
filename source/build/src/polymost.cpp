@@ -311,7 +311,7 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
     if (wall->cstat & CSTAT_WALL_TRANSLUCENT)
         return true;
 
-	auto tex = TileFiles.tiles[wall->picnum];
+	auto tex = tileGetTexture(wall->picnum);
 	auto si = TileFiles.FindReplacement(wall->picnum, wall->pal);
 	if (si && hw_hightile) tex = si->faces[0];
 	if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
@@ -324,7 +324,7 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
         ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
         return true;
 
-	auto tex = TileFiles.tiles[tspr->picnum];
+	auto tex = tileGetTexture(tspr->picnum);
 	auto si = TileFiles.FindReplacement(tspr->picnum, tspr->shade, 0);
 	if (si && hw_hightile) tex = si->faces[0];
     if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
@@ -480,7 +480,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
 	else sampleroverride = SamplerClampXY;
 
-	bool success = GLInterface.SetTexture(globalpicnum, TileFiles.tiles[globalpicnum], globalpal, method, sampleroverride);
+	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), globalpal, method, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -535,7 +535,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         float const r = 1.f / dd[i];
 
-        if (TileFiles.tiles[globalpicnum]->GetUseType() == FTexture::Canvas)
+        if (TileFiles.tiledata[globalpicnum].replacement == ReplacementType::Canvas)
         {
             //update texcoords, canvas textures are upside down!
             vt->SetTexCoord(
@@ -4605,7 +4605,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    GLInterface.SetTexture(dapicnum, TileFiles.tiles[dapicnum], dapalnum, 0, -1);
+    GLInterface.SetTexture(dapicnum, tileGetTexture(dapicnum), dapalnum, 0, -1);
     hicprecaching = 0;
 
     if (datype == 0 || !hw_models) return;

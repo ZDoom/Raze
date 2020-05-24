@@ -69,10 +69,7 @@ struct HightileReplacement
 class FTileTexture : public FTexture
 {
 public:
-	FTileTexture()
-	{
-		useType = Art;
-	}
+	FTileTexture() = default;
 	void SetName(const char* name) { Name = name; }
 	FBitmap GetBgraBitmap(const PalEntry* remap, int* ptrans) override;
 	void Create8BitPixels(uint8_t* buffer) override;
@@ -113,7 +110,6 @@ class FLooseTile : public FTileTexture
 public:
 	FLooseTile(TArray<uint8_t> &store, int width, int height)
 	{
-		useType = Art;	// Whatever this was before - now it's a tile!
 		RawPixels = std::move(store);
 		SetSize(width, height);
 	}
@@ -135,7 +131,6 @@ class FDummyTile : public FTileTexture
 public:
 	FDummyTile(int width, int height)
 	{
-		useType = Art;
 		SetSize(width, height);
 	}
 
@@ -157,11 +152,6 @@ protected:
 	TArray<uint8_t> buffer;
 
 public:
-	FWritableTile()
-	{
-		useType = Writable;
-	}
-
 	const uint8_t* Get8BitPixels() override
 	{
 		return buffer.Data();
@@ -203,7 +193,6 @@ class FRestorableTile : public FWritableTile
 public:
 	FRestorableTile(FTexture* base)
 	{
-		useType = Restorable;
 		Base = base;
 		CopySize(base);
 		Resize(GetWidth(), GetHeight());
@@ -276,8 +265,6 @@ struct BuildTiles
 	TDeletingArray<BuildArtFile*> PerMapArtFiles;
 	TDeletingArray<FTexture*> AllTiles;	// This is for deleting tiles when shutting down.
 	TDeletingArray<FTexture*> AllMapTiles;	// Same for map tiles;
-	FTexture* tiles[MAXTILES];
-	FTexture* tilesbak[MAXTILES];
 	TMap<FString, FTexture*> textures;
 	TArray<FString> addedArt;
 	TMap<FTexture*, int> TextureToTile;
@@ -285,8 +272,13 @@ struct BuildTiles
 	BuildTiles()
 	{
 		Placeholder = new FDummyTile(0, 0);
-		for (auto& tile : tiles) tile = Placeholder;
-		for (auto& tile : tilesbak) tile = Placeholder;
+		for (auto& tile : tiledata)
+		{
+			tile.backup = tile.texture = Placeholder;
+			tile.RotTile = { -1,-1 };
+			tile.picanm = {};
+			tile.replacement = ReplacementType::Art;
+		}
 	}
 	~BuildTiles()
 	{
@@ -327,11 +319,11 @@ struct BuildTiles
 		TextureToTile.Clear();
 		for (int i = 0; i < MAXTILES; i++)
 		{
-			if (tiles[i] != nullptr) TextureToTile.Insert(tiles[i], i);
+			if (tiledata[i].texture != nullptr && tiledata[i].texture != Placeholder) TextureToTile.Insert(tiledata[i].texture, i);
 		}
 
 	}
-	FTexture* ValidateCustomTile(int tilenum, int type);
+	FTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
@@ -371,13 +363,13 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 extern BuildTiles TileFiles;
 inline bool tileCheck(int num)
 {
-	auto tex = TileFiles.tiles[num];
+	auto tex = TileFiles.tiledata[num].texture;
 	return tex->GetWidth() > 0 && tex->GetHeight() > 0;
 }
 
 inline const uint8_t* tilePtr(int num)
 {
-	auto tex = TileFiles.tiles[num];
+	auto tex = TileFiles.tiledata[num].texture;
 	auto p = tex->Get8BitPixels();
 	if (p) return p;
 	return tex->CachedPixels.Data();
@@ -385,17 +377,18 @@ inline const uint8_t* tilePtr(int num)
 
 inline uint8_t* tileData(int num)
 {
-	auto tex = TileFiles.tiles[num];
+	auto tex = TileFiles.tiledata[num].texture;
 	return tex->GetWritableBuffer();
 }
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.
 struct TileSiz
 {
-	const vec2_16_t &operator[](size_t index)
+	const vec2_16_t operator[](size_t index)
 	{
 		assert(index < MAXTILES);
-		return TileFiles.tiles[index]->GetSize();
+		vec2_16_t v = { (int16_t)TileFiles.tiledata[index].texture->GetDisplayWidth(), (int16_t)TileFiles.tiledata[index].texture->GetDisplayHeight() };
+		return v;
 	}
 };
 extern TileSiz tilesiz;
@@ -414,25 +407,25 @@ extern PicAnm picanm;
 inline int tileWidth(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiles[num]->GetDisplayWidth();
+	return TileFiles.tiledata[num].texture->GetDisplayWidth();
 }
 
 inline int tileHeight(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiles[num]->GetDisplayHeight();
+	return TileFiles.tiledata[num].texture->GetDisplayHeight();
 }
 
 inline int tileLeftOffset(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiles[num]->GetDisplayLeftOffset();
+	return TileFiles.tiledata[num].texture->GetDisplayLeftOffset();
 }
 
 inline int tileTopOffset(int num)
 {
 	assert(num < MAXTILES);
-	return TileFiles.tiles[num]->GetDisplayTopOffset();
+	return TileFiles.tiledata[num].texture->GetDisplayTopOffset();
 }
 
 inline int widthBits(int num)
@@ -470,5 +463,5 @@ inline void tileInvalidate(int tilenume, int32_t, int32_t)
 inline FTexture* tileGetTexture(int tile)
 {
 	assert(tile < MAXTILES);
-	return TileFiles.tiles[tile];
+	return TileFiles.tiledata[tile].texture;
 }
