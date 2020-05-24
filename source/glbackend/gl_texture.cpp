@@ -253,8 +253,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				applytint = true;
 				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
-			lookuppal = palmanager.LookupPalette(usepalette, usepalswap, false);
-			//lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+			lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
 		}
 	}
 
@@ -358,7 +357,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 			else if (TextureType == TT_TRUECOLOR)
 			{
-				lookuppal = palmanager.LookupPalette(usepalette, usepalswap, true);
+				lookuppal = -1;// Needs some work on the texture management first. palmanager.LookupPalette(usepalette, usepalswap, true);
 				if (lookuppal >= 0)
 				{
 					auto htex = LoadTexture(tex, TT_BRIGHTMAP, lookuppal);
