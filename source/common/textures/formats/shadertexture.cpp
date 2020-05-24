@@ -128,11 +128,9 @@ private:
 };
 
 
-#if 0
 FTexture *CreateShaderTexture(bool vertical, bool reverse)
 {
 	FStringf name("BarShader%c%c", vertical ? 'v' : 'h', reverse ? 'r' : 'f');
 	return CreateImageTexture(new FBarShader(vertical, reverse), name.GetChars());
 
 }
-#endif

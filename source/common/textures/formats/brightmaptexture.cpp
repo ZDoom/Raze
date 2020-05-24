@@ -71,9 +71,7 @@ int FBrightmapTexture::CopyPixels(FBitmap *bmp, int conversion)
 	return 0;
 }
 
-#if 0
 FTexture *CreateBrightmapTexture(FImageSource *tex)
 {
 	return CreateImageTexture(new FBrightmapTexture(tex));
 }
-#endif

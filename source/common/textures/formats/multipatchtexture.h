@@ -63,7 +63,7 @@ protected:
 struct TexInit
 {
 	FString TexName;
-	//ETextureType UseType = ETextureType::Null;
+	ETextureType UseType = ETextureType::Null;
 	FTexture *Texture = nullptr;
 	bool Silent = false;
 	bool HasLine = false;

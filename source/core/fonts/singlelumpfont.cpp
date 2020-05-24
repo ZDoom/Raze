@@ -38,11 +38,11 @@
 #include "v_font.h"
 #include "utf8.h"
 #include "fontchars.h"
+#include "texturemanager.h"
 #include "printf.h"
 #include "imagehelpers.h"
 #include "filesystem.h"
 #include "colormatcher.h"
-#include "buildtiles.h"
 
 #include "fontinternals.h"
 
@@ -201,7 +201,7 @@ void FSingleLumpFont::LoadTranslations()
 	for(unsigned int i = 0;i < count;++i)
 	{
 		if(Chars[i].TranslatedPic)
-			static_cast<FFontChar2*>(Chars[i].TranslatedPic)->SetSourceRemap(PatchRemap);
+			static_cast<FFontChar2*>(Chars[i].TranslatedPic->GetImage())->SetSourceRemap(PatchRemap);
 	}
 
 	BuildTranslations (luminosity, useidentity ? identity : nullptr, ranges, ActiveColors, usepalette ? local_palette : nullptr);
@@ -332,8 +332,9 @@ void FSingleLumpFont::LoadFON2 (const char * lump, const uint8_t *data)
 		}
 		else
 		{
-			Chars[i].TranslatedPic = new FFontChar2 (rawData, int(data_p - data), widths2[i], FontHeight);
-			TileFiles.AllTiles.Push(Chars[i].TranslatedPic);
+			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (fileSystem.FindFile(lump), int(data_p - data), widths2[i], FontHeight));
+			Chars[i].TranslatedPic->SetUseType(ETextureType::FontChar);
+			TexMan.AddTexture(Chars[i].TranslatedPic);
 			do
 			{
 				int8_t code = *data_p++;
@@ -461,14 +462,15 @@ void FSingleLumpFont::LoadBMF(const char *lump, const uint8_t *data)
 		{ // Empty character: skip it.
 			continue;
 		}
-		auto tex = new FFontChar2(rawData, int(chardata + chari + 6 - data),
+		auto tex = new FImageTexture(new FFontChar2(fileSystem.FindFile(lump), int(chardata + chari + 6 - data),
 			chardata[chari+1],	// width
 			chardata[chari+2],	// height
 			-(int8_t)chardata[chari+3],	// x offset
 			-(int8_t)chardata[chari+4]	// y offset
-		);
+		));
+		tex->SetUseType(ETextureType::FontChar);
 		Chars[chardata[chari] - FirstChar].TranslatedPic = tex;
-		TileFiles.AllTiles.Push(tex);
+		TexMan.AddTexture(tex);
 	}
 
 	// If the font did not define a space character, determine a suitable space width now.
@@ -533,9 +535,10 @@ void FSingleLumpFont::CheckFON1Chars (double *luminosity)
 
 		if(!Chars[i].TranslatedPic)
 		{
-			Chars[i].TranslatedPic = new FFontChar2 (rawData, int(data_p - data.Data()), SpaceWidth, FontHeight);
+			Chars[i].TranslatedPic = new FImageTexture(new FFontChar2 (0, int(data_p - data.Data()), SpaceWidth, FontHeight));
+			Chars[i].TranslatedPic->SetUseType(ETextureType::FontChar);
 			Chars[i].XMove = SpaceWidth;
-			TileFiles.AllTiles.Push(Chars[i].TranslatedPic);
+			TexMan.AddTexture(Chars[i].TranslatedPic);
 		}
 
 		// Advance to next char's data and count the used colors.

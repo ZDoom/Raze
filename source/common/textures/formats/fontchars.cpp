@@ -39,7 +39,7 @@
 #include "image.h"
 #include "imagehelpers.h"
 #include "fontchars.h"
-#include "printf.h"
+#include "engineerrors.h"
 
 //==========================================================================
 //
@@ -49,12 +49,13 @@
 //
 //==========================================================================
 
-FFontChar1::FFontChar1 (FTexture *sourcelump)
+FFontChar1::FFontChar1 (FImageSource *sourcelump)
 : BaseTexture(sourcelump), SourceRemap (nullptr)
 {
 	// now copy all the properties from the base texture
 	assert(BaseTexture != nullptr);
-	CopySize(BaseTexture);
+	CopySize(*BaseTexture);
+	bUseGamePalette = false;
 }
 
 //==========================================================================
@@ -65,20 +66,21 @@ FFontChar1::FFontChar1 (FTexture *sourcelump)
 //
 //==========================================================================
 
-void  FFontChar1::Create8BitPixels (uint8_t *data)
+TArray<uint8_t> FFontChar1::CreatePalettedPixels (int)
 {
 	// Make the texture as normal, then remap it so that all the colors
 	// are at the low end of the palette
 	// Why? It only creates unnecessary work!
-	BaseTexture->Create8BitPixels(data);
+	auto Pixels = BaseTexture->GetPalettedPixels(normal);
 
 	if (SourceRemap)
 	{
-		for (int x = 0; x < GetWidth() * GetHeight(); ++x)
+		for (int x = 0; x < Width*Height; ++x)
 		{
-			data[x] = SourceRemap[data[x]];
+			Pixels[x] = SourceRemap[Pixels[x]];
 		}
 	}
+	return Pixels;
 }
 
 //==========================================================================
@@ -89,13 +91,13 @@ void  FFontChar1::Create8BitPixels (uint8_t *data)
 //
 //==========================================================================
 
-FFontChar2::FFontChar2 (TArray<uint8_t>& sourcelump, int sourcepos, int width, int height, int leftofs, int topofs)
-: sourceData (sourcelump), SourcePos (sourcepos), SourceRemap(nullptr)
+FFontChar2::FFontChar2 (int sourcelump, int sourcepos, int width, int height, int leftofs, int topofs)
+: SourceLump (sourcelump), SourcePos (sourcepos), SourceRemap(nullptr)
 {
-	Size.x = width;
-	Size.y = height;
-	leftoffset = leftofs;
-	topoffset = topofs;
+	Width = width;
+	Height = height;
+	LeftOffset = leftofs;
+	TopOffset = topofs;
 }
 
 //==========================================================================
@@ -117,11 +119,10 @@ void FFontChar2::SetSourceRemap(const uint8_t *sourceremap)
 //
 //==========================================================================
 
-void FFontChar2::Create8BitPixels(uint8_t *Pixels)
+TArray<uint8_t> FFontChar2::CreatePalettedPixels(int)
 {
-	FileReader lump;
-	lump.OpenMemory(sourceData.Data(), sourceData.Size());
-	int destSize = GetWidth() * GetHeight();
+	auto lump = fileSystem.OpenFileReader (SourceLump);
+	int destSize = Width * Height;
 	uint8_t max = 255;
 	bool rle = true;
 
@@ -148,22 +149,24 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 		}
 	}
 
+	TArray<uint8_t> Pixels(destSize, true);
+
 	int runlen = 0, setlen = 0;
 	uint8_t setval = 0;  // Shut up, GCC!
-	uint8_t *dest_p = Pixels;
-	int dest_adv = GetHeight();
+	uint8_t *dest_p = Pixels.Data();
+	int dest_adv = Height;
 	int dest_rew = destSize - 1;
 
 	if (rle)
 	{
-		for (int y = GetHeight(); y != 0; --y)
+		for (int y = Height; y != 0; --y)
 		{
-			for (int x = GetWidth(); x != 0; )
+			for (int x = Width; x != 0; )
 			{
 				if (runlen != 0)
 				{
 					uint8_t color = lump.ReadUInt8();
-					color = std::min(color, max);
+					color = MIN (color, max);
 					if (SourceRemap != nullptr)
 					{
 						color = SourceRemap[color];
@@ -191,7 +194,7 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 					{
 						uint8_t color = lump.ReadUInt8();
 						setlen = (-code) + 1;
-						setval = std::min(color, max);
+						setval = MIN (color, max);
 						if (SourceRemap != nullptr)
 						{
 							setval = SourceRemap[setval];
@@ -204,9 +207,9 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 	}
 	else
 	{
-		for (int y = GetHeight(); y != 0; --y)
+		for (int y = Height; y != 0; --y)
 		{
-			for (int x = GetWidth(); x != 0; --x)
+			for (int x = Width; x != 0; --x)
 			{
 				uint8_t color = lump.ReadUInt8();
 				if (color > max)
@@ -226,23 +229,11 @@ void FFontChar2::Create8BitPixels(uint8_t *Pixels)
 
 	if (destSize < 0)
 	{
-		I_Error ("The font %s is corrupt", GetName().GetChars());
+		char name[9];
+		fileSystem.GetFileShortName (name, SourceLump);
+		name[8] = 0;
+		I_FatalError ("The font %s is corrupt", name);
 	}
+	return Pixels;
 }
 
-FBitmap FFontChar2::GetBgraBitmap(const PalEntry* remap, int* ptrans)
-{
-	FBitmap bmp;
-	TArray<uint8_t> buffer;
-	bmp.Create(Size.x, Size.y);
-	const uint8_t* ppix = Get8BitPixels();
-	if (!ppix)
-	{
-		// This is needed for tiles with a palette remap.
-		buffer.Resize(Size.x * Size.y);
-		Create8BitPixels(buffer.Data());
-		ppix = buffer.Data();
-	}
-	if (ppix) bmp.CopyPixelData(0, 0, ppix, Size.x, Size.y, Size.y, 1, 0, remap);
-	return bmp;
-}

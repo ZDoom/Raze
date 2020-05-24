@@ -1,33 +1,32 @@
 
 
 // This is a font character that loads a texture and recolors it.
-class FFontChar1 : public FTexture
+class FFontChar1 : public FImageSource
 {
 public:
-   FFontChar1 (FTexture *sourcelump);
-   void Create8BitPixels(uint8_t *) override;
+   FFontChar1 (FImageSource *sourcelump);
+   TArray<uint8_t> CreatePalettedPixels(int conversion) override;
    void SetSourceRemap(const uint8_t *sourceremap)  {  SourceRemap = sourceremap;  }
    const uint8_t *ResetSourceRemap() { auto p = SourceRemap; SourceRemap = nullptr; return p; }
-   FTexture *GetBase() const { return BaseTexture; }
+   FImageSource *GetBase() const { return BaseTexture; }
 
 protected:
 
-   FTexture *BaseTexture;
+   FImageSource *BaseTexture;
    const uint8_t *SourceRemap;
 };
 
 // This is a font character that reads RLE compressed data.
-class FFontChar2 : public FTexture
+class FFontChar2 : public FImageSource
 {
 public:
-	FFontChar2 (TArray<uint8_t>& sourceData, int sourcepos, int width, int height, int leftofs=0, int topofs=0);
+	FFontChar2 (int sourcelump, int sourcepos, int width, int height, int leftofs=0, int topofs=0);
 
-	void Create8BitPixels(uint8_t*) override;
-	FBitmap GetBgraBitmap(const PalEntry* remap, int* ptrans) override;
+	TArray<uint8_t> CreatePalettedPixels(int conversion) override;
 	void SetSourceRemap(const uint8_t *sourceremap);
 
 protected:
-	TArray<uint8_t>& sourceData;
+	int SourceLump;
 	int SourcePos;
 	const uint8_t *SourceRemap;
 };

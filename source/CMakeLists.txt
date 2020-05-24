@@ -734,7 +734,6 @@ set (PCH_SOURCES
 	core/fonts/singlelumpfont.cpp
 	core/fonts/v_font.cpp
 	core/fonts/v_text.cpp
-	core/fonts/fontchars.cpp
 
 	core/console/c_console.cpp
 	core/console/d_event.cpp
@@ -754,6 +753,7 @@ set (PCH_SOURCES
 	common/textures/m_png.cpp
 	common/textures/image.cpp
 	common/textures/texturemanager.cpp
+	common/textures/formats/fontchars.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp
 	common/textures/formats/buildtexture.cpp

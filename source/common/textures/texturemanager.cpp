@@ -1311,7 +1311,7 @@ int FTextureManager::CountLumpTextures (int lumpnum)
 
 void FTextureManager::AdjustSpriteOffsets()
 {
-	int lump, lastlump = 0;
+	int /*lump,*/ lastlump = 0;
 	int sprid;
 	TMap<int, bool> donotprocess;
 

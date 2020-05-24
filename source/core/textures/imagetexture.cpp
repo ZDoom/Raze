@@ -86,3 +86,9 @@ void FImageTexture::Create8BitPixels(uint8_t* buffer)
 	auto buf = mImage->GetPalettedPixels(FImageSource::normal);
 	memcpy(buffer, buf.Data(), buf.Size());
 }
+
+FTexture* CreateImageTexture(FImageSource* img, const char *name) noexcept
+{
+	return new FImageTexture(img, name);
+}
+ 

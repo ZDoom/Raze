@@ -54,6 +54,7 @@
 #include "imagehelpers.h"
 #include "glbackend/glbackend.h"
 #include "palettecontainer.h"
+#include "textures.h"
 
 #include "fontinternals.h"
 
@@ -161,13 +162,12 @@ FFont *FFont::FindFont (FName name)
 //
 //==========================================================================
 
-void RecordTextureColors (FTexture *pic, uint32_t *usedcolors)
+void RecordTextureColors (FImageSource *pic, uint32_t *usedcolors)
 {
-	auto size = pic->GetWidth() * pic->GetHeight();
-	TArray<uint8_t> pixels(size, 1);
 	int x;
 	
-	pic->Create8BitPixels(pixels.Data());
+	auto pixels = pic->GetPalettedPixels(false);
+	auto size = pic->GetWidth() * pic->GetHeight();
 	
 	for(x = 0;x < size; x++)
 	{
@@ -190,7 +190,7 @@ void FFont::RecordAllTextureColors(uint32_t *usedcolors)
 	{
 		if (Chars[i].TranslatedPic)
 		{
-			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic);
+			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic->GetImage());
 			if (pic)
 			{
 				// The remap must be temporarily reset here because this can be called on an initialized font.
@@ -221,7 +221,8 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 	SimpleTranslation(mycolors, mytranslation, myreverse, myluminosity);
 	SimpleTranslation(othercolors, othertranslation, otherreverse, otherluminosity);
 
-	FRemapTable remap;
+	FRemapTable remap(ActiveColors);
+	remap.Remap[0] = 0;
 	remap.Palette[0] = 0;
 
 	for (unsigned l = 1; l < myluminosity.Size(); l++)
@@ -244,6 +245,7 @@ void FFont::SetDefaultTranslation(uint32_t *othercolors)
 				r = clamp(r, 0, 255);
 				g = clamp(g, 0, 255);
 				b = clamp(b, 0, 255);
+				remap.Remap[l] = ColorMatcher.Pick(r, g, b);
 				remap.Palette[l] = PalEntry(255, r, g, b);
 				break;
 			}
@@ -568,10 +570,12 @@ FTexture *FFont::GetChar (int code, int translation, int *const width, bool *red
 		if (redirected) *redirected = redirect;
 		if (redirect)
 		{
+			assert(Chars[code].OriginalPic->GetUseType() == ETextureType::FontChar);
 			return Chars[code].OriginalPic;
 		}
 	}
 	if (redirected) *redirected = false;
+	assert(Chars[code].TranslatedPic->GetUseType() == ETextureType::FontChar);
 	return Chars[code].TranslatedPic;
 }
 
@@ -600,8 +604,8 @@ double GetBottomAlignOffset(FFont *font, int c)
 	FTexture *tex_zero = font->GetChar('0', CR_UNDEFINED, &w);
 	FTexture *texc = font->GetChar(c, CR_UNDEFINED, &w);
 	double offset = 0;
-	if (texc) offset += texc->GetTopOffset();
-	if (tex_zero) offset += -tex_zero->GetTopOffset() + tex_zero->GetHeight();
+	if (texc) offset += texc->GetDisplayTopOffset();
+	if (tex_zero) offset += -tex_zero->GetDisplayTopOffset() + tex_zero->GetDisplayHeight();
 	return offset;
 }
 
@@ -730,7 +734,7 @@ int FFont::GetMaxAscender(const uint8_t* string) const
 			auto ctex = GetChar(chr, CR_UNTRANSLATED, nullptr);
 			if (ctex)
 			{
-				auto offs = int(ctex->GetTopOffset());
+				auto offs = int(ctex->GetDisplayTopOffset());
 				if (offs > retval) retval = offs;
 			}
 		}
@@ -756,7 +760,7 @@ void FFont::LoadTranslations()
 	{
 		if (Chars[i].TranslatedPic)
 		{
-			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic);
+			FFontChar1 *pic = static_cast<FFontChar1 *>(Chars[i].TranslatedPic->GetImage());
 			if (pic)
 			{
 				pic->SetSourceRemap(nullptr); // Force the FFontChar1 to return the same pixels as the base texture
@@ -770,7 +774,7 @@ void FFont::LoadTranslations()
 	for (unsigned int i = 0; i < count; i++)
 	{
 		if(Chars[i].TranslatedPic)
-			static_cast<FFontChar1 *>(Chars[i].TranslatedPic)->SetSourceRemap(PatchRemap);
+			static_cast<FFontChar1 *>(Chars[i].TranslatedPic->GetImage())->SetSourceRemap(PatchRemap);
 	}
 
 	BuildTranslations (Luminosity.Data(), identity, &TranslationParms[TranslationType][0], ActiveColors, nullptr);
@@ -832,7 +836,7 @@ void FFont::FixXMoves()
 		}
 		if (Chars[i].OriginalPic)
 		{
-			int ofs = Chars[i].OriginalPic->GetTopOffset();
+			int ofs = Chars[i].OriginalPic->GetDisplayTopOffset();
 			if (ofs > Displacement) Displacement = ofs;
 		}
 	}
