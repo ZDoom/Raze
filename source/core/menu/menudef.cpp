@@ -48,6 +48,7 @@
 #include "optionmenuitems.h"
 #include "i_soundfont.h"
 #include "zstring.h"
+#include "buildtiles.h"
 #include <zmusic.h>
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.

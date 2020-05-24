@@ -41,6 +41,7 @@
 #include "v_draw.h"
 #include "glbackend/glbackend.h"
 #include "palettecontainer.h"
+#include "buildtiles.h"
 
 #include "fontinternals.h"
 
@@ -116,8 +117,6 @@ FHexFontChar::FHexFontChar (uint8_t *sourcedata, int swidth, int width, int heig
 	SourceWidth = swidth;
 	Size.x = width;
 	Size.y = height;
-	PicAnim.xofs = 0;
-	PicAnim.yofs = 0;
 }
 
 //==========================================================================

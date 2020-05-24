@@ -13,7 +13,7 @@
 
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
-#include "textures.h"
+#include "buildtiles.h"
 #include "bitmap.h"
 #include "m_argv.h"
 #include "gamecontrol.h"

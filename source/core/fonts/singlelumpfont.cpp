@@ -42,6 +42,7 @@
 #include "imagehelpers.h"
 #include "filesystem.h"
 #include "colormatcher.h"
+#include "buildtiles.h"
 
 #include "fontinternals.h"
 

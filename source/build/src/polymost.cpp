@@ -11,7 +11,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "mdsprite.h"
 #include "polymost.h"
 #include "files.h"
-#include "textures.h"
+#include "buildtiles.h"
 #include "bitmap.h"
 #include "../../glbackend/glbackend.h"
 #include "c_cvars.h"

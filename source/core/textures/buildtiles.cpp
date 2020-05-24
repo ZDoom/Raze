@@ -35,7 +35,7 @@
 
 #include "files.h"
 #include "zstring.h"
-#include "textures.h"
+#include "buildtiles.h"
 #include "image.h"
 
 #include "baselayer.h"
@@ -43,6 +43,7 @@
 #include "m_crc32.h"
 #include "build.h"
 #include "gamecontrol.h"
+#include "palettecontainer.h"
 
 enum
 {
@@ -85,6 +86,7 @@ FBitmap FTileTexture::GetBgraBitmap(const PalEntry* remap, int* ptrans)
 	TArray<uint8_t> buffer;
 	bmp.Create(Size.x, Size.y);
 	const uint8_t* ppix = Get8BitPixels();
+	if (!remap) remap = GPalette.BaseColors; // no remap was passed but this code needs a color table, so use the base.
 	if (!ppix)
 	{
 		// This is needed for tiles with a palette remap.
