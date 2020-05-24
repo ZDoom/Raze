@@ -604,8 +604,8 @@ double GetBottomAlignOffset(FFont *font, int c)
 	FTexture *tex_zero = font->GetChar('0', CR_UNDEFINED, &w);
 	FTexture *texc = font->GetChar(c, CR_UNDEFINED, &w);
 	double offset = 0;
-	if (texc) offset += texc->GetDisplayTopOffset();
-	if (tex_zero) offset += -tex_zero->GetDisplayTopOffset() + tex_zero->GetDisplayHeight();
+	if (texc) offset += texc->GetDisplayTopOffsetDouble();
+	if (tex_zero) offset += -tex_zero->GetDisplayTopOffsetDouble() + tex_zero->GetDisplayHeightDouble();
 	return offset;
 }
 

@@ -48,7 +48,7 @@
 #include "optionmenuitems.h"
 #include "i_soundfont.h"
 #include "zstring.h"
-#include "buildtiles.h"
+#include "texturemanager.h"
 #include <zmusic.h>
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
@@ -105,14 +105,13 @@ void M_DeinitMenus()
 
 static FTexture* GetMenuTexture(const char* const name)
 {
-	auto tex = TileFiles.GetTexture(name);
-
-	if (!tex)
+	auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
+	if (!texid.isValid())
 	{
 		Printf("Missing menu texture: \"%s\"\n", name);
 	}
 
-	return tex;
+	return TexMan.GetTexture(texid);
 }
 
 //=============================================================================

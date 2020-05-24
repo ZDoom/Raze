@@ -49,8 +49,8 @@
 #include "texturemanager.h"
 
 // Wrappers to keep the definitions of these classes out of here.
-void DeleteMaterial(FMaterial* mat) {}
-void DeleteSoftwareTexture(FSoftwareTexture* swtex) {}
+void DeleteMaterial(FMaterial* mat);
+void DeleteSoftwareTexture(FSoftwareTexture* swtex);
 IHardwareTexture* CreateHardwareTexture();
 
 

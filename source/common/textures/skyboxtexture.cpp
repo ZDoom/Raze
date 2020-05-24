@@ -36,6 +36,7 @@
 #include "textures.h"
 #include "skyboxtexture.h"
 #include "bitmap.h"
+#include "texturemanager.h"
 
 
 
@@ -48,6 +49,15 @@
 FSkyBox::FSkyBox(const char *name)
 : FTexture(name)
 {
+	FTextureID texid = TexMan.CheckForTexture(name, ETextureType::Wall);
+	previous = nullptr;
+	if (texid.isValid())
+	{
+		previous = TexMan.GetTexture(texid);
+		CopySize(previous);
+	}
+	faces[0]=faces[1]=faces[2]=faces[3]=faces[4]=faces[5] = nullptr;
+	UseType = ETextureType::Override;
 	bSkybox = true;
 	fliptop = false;
 }
@@ -58,9 +68,20 @@ FSkyBox::FSkyBox(const char *name)
 //
 //-----------------------------------------------------------------------------
 
-FBitmap FSkyBox::GetBgraBitmap(PalEntry *p, int *trans)
+TArray<uint8_t> FSkyBox::Get8BitPixels(bool alphatex)
 {
-	return faces[0]->GetBgraBitmap(p, trans);
+	return previous->Get8BitPixels(alphatex);
+}
+
+//-----------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
+
+FBitmap FSkyBox::GetBgraBitmap(const PalEntry *p, int *trans)
+{
+	return previous->GetBgraBitmap(p, trans);
 }
 
 //-----------------------------------------------------------------------------
@@ -71,5 +92,5 @@ FBitmap FSkyBox::GetBgraBitmap(PalEntry *p, int *trans)
 
 FImageSource *FSkyBox::GetImage() const
 {
-	return faces[0]->GetImage();
+	return previous->GetImage();
 }

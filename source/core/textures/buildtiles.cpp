@@ -63,7 +63,7 @@ BuildTiles TileFiles;
 
 picanm_t tileConvertAnimFormat(int32_t const picanimraw, int* lo, int* to)
 {
-	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
+	// Unpack a 4 byte packed anim descriptor into something more accessible
 	picanm_t anm;
 	anm.num = picanimraw & 63;
 	*lo = (int8_t)((picanimraw >> 8) & 255);
@@ -111,6 +111,14 @@ TArray<uint8_t> FTileTexture::CreatePalettedPixels(int conversion)
 static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
 {
 	auto tex = new FArtTile(backingstore, offset, width, height);
+	auto p = &backingstore[offset];
+	auto siz = width * height;
+	for (int i = 0; i < siz; i++, p++)
+	{
+		// move transparent color to index 0 to get in line with the rest of the texture management.
+		if (*p == 0) *p = 255;
+		else if (*p == 255) *p = 0;
+	}
 
 	if (tex)
 	{
@@ -295,11 +303,11 @@ void BuildTiles::ClearTextureCache(bool artonly)
 {
 	for (auto tex : AllTiles)
 	{
-		tex->DeleteHardwareTextures();
+		tex->SystemTextures.Clean(true, true);
 	}
 	for (auto tex : AllMapTiles)
 	{
-		tex->DeleteHardwareTextures();
+		tex->SystemTextures.Clean(true, true);
 	}
 	if (!artonly)
 	{
@@ -307,7 +315,7 @@ void BuildTiles::ClearTextureCache(bool artonly)
 		decltype(textures)::Pair* pair;
 		while (it.NextPair(pair))
 		{
-			pair->Value->DeleteHardwareTextures();
+			pair->Value->SystemTextures.Clean(true, true);
 		}
 	}
 }
@@ -323,14 +331,15 @@ void BuildTiles::InvalidateTile(int num)
 	if ((unsigned) num < MAXTILES)
 	{
 		auto tex = tiledata[num].texture;
-		tex->DeleteHardwareTextures();
+		tex->SystemTextures.Clean(true, true);
 		for (auto &rep : tiledata[num].Hightiles)
 		{
 			for (auto &reptex : rep.faces)
 			{
-				if (reptex) reptex->DeleteHardwareTextures();
+				if (reptex) reptex->SystemTextures.Clean(true, true);
 			}
 		}
+		tiledata[num].rawCache.data.Clear();
 	}
 }
 
@@ -534,7 +543,27 @@ int32_t tileGetCRC32(int tileNum)
 
 	auto size = tile->GetWidth() * tile->GetHeight();
 	if (size == 0) return 0;
-	return crc32(0, (const Bytef*)pixels, size);
+
+	// Temporarily revert the data to its original form with 255 being transparent. Otherwise the CRC won't match.
+	auto p = pixels;
+	for (int i = 0; i < size; i++, p++)
+	{
+		// move transparent color to index 0 to get in line with the rest of the texture management.
+		if (*p == 0) *p = 255;
+		else if (*p == 255) *p = 0;
+	}
+
+	auto crc = crc32(0, (const Bytef*)pixels, size);
+
+	// ... and back again.
+	p = pixels;
+	for (int i = 0; i < size; i++, p++)
+	{
+		// move transparent color to index 0 to get in line with the rest of the texture management.
+		if (*p == 0) *p = 255;
+		else if (*p == 255) *p = 0;
+	}
+	return crc;
 }
 
 
@@ -692,6 +721,7 @@ void tileDelete(int tile)
 
 void tileRemoveReplacement(int tile)
 {
+	if ((unsigned)tile >= MAXTILES) return;
 	TileFiles.DeleteReplacements(tile);
 }
 
@@ -781,23 +811,6 @@ void tileSetAnim(int tile, const picanm_t& anm)
 //
 //==========================================================================
 
-FTexture* BuildTiles::GetTexture(const char* path)
-{
-	// let this go away.
-	auto res = textures.CheckKey(path);
-	if (res) return *res;
-	auto lump = fileSystem.FindFile(path);
-	auto tex = FTexture::CreateTexture(path, lump, ETextureType::Override);
-	if (tex) textures.Insert(path, tex);
-	return tex;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
 void BuildTiles::CloseAll()
 {
 	decltype(textures)::Iterator it(textures);
@@ -831,7 +844,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 	HightileReplacement replace = {};
 
 	FTextureID texid = TexMan.CheckForTexture(filename, ETextureType::Any);
-	if (!texid.isValid())
+	if (!texid.isValid()) 
 	{
 		Printf("%s: Replacement for tile %d does not exist or is invalid\n", filename, picnum);
 		return -1;
@@ -839,7 +852,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char* filename, flo
 
 	replace.faces[0] = TexMan.GetTexture(texid);
 	if (replace.faces[0] == nullptr)
-		replace.alphacut = min(alphacut, 1.f);
+    replace.alphacut = min(alphacut,1.f);
 	replace.scale = { xscale, yscale };
 	replace.specpower = specpower; // currently unused
 	replace.specfactor = specfactor; // currently unused
@@ -871,12 +884,13 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 	
 	for (auto &face : replace.faces)
 	{
-		face = TileFiles.GetTexture(*facenames);
-		if (face == nullptr)
+		FTextureID texid = TexMan.CheckForTexture(*facenames, ETextureType::Any);
+		if (!texid.isValid())
 		{
 			Printf("%s: Skybox image for tile %d does not exist or is invalid\n", *facenames, picnum);
 			return -1;
 		}
+		face = TexMan.GetTexture(texid);
 	}
     replace.flags = flags;
 	replace.palnum = (uint16_t)palnum;

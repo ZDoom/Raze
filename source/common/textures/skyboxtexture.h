@@ -12,17 +12,23 @@ class FSkyBox : public FTexture
 {
 public:
 
-	FTexture* faces[6] = {};
+	FTexture *previous;
+	FTexture * faces[6];
 	bool fliptop;
 
 	FSkyBox(const char *name);
+	TArray<uint8_t> Get8BitPixels(bool alphatex);
 	FBitmap GetBgraBitmap(const PalEntry *, int *trans) override;
 	FImageSource *GetImage() const override;
 
 
 	void SetSize()
 	{
-		CopySize(faces[0]);
+		if (!previous && faces[0]) previous = faces[0];
+		if (previous)
+		{
+			CopySize(previous);
+		}
 	}
 
 	bool Is3Face() const

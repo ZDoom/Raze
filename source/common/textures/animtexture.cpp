@@ -40,18 +40,17 @@
 //
 //==========================================================================
 
-void AnimTexture::SetSize(int width, int height)
+void AnimTexture::SetFrameSize(int width, int height)
 {
-    Width = width;
-    Height = height;
+    FTexture::SetSize(width, height);
 	Image.Resize(width*height);
 }
 
 void AnimTexture::SetFrame(const uint8_t *palette, const void *data_)
 {
 	memcpy(Palette, palette, 768);
-	memcpy(Image.Data(), data_, Width*Height);
-    DeleteHardwareTextures();
+	memcpy(Image.Data(), data_, Width * Height);
+    SystemTextures.Clean(true, true);
 }
 
 //===========================================================================
@@ -101,8 +100,8 @@ AnimTextures::~AnimTextures()
 
 void AnimTextures::SetSize(int width, int height)
 {
-	tex[0]->SetSize(width, height);
-	tex[1]->SetSize(width, height);
+	tex[0]->SetFrameSize(width, height);
+	tex[1]->SetFrameSize(width, height);
 }
     
 void AnimTextures::SetFrame(const uint8_t *palette, const void* data)

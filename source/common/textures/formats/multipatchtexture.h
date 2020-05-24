@@ -118,3 +118,28 @@ struct BuildInfo
 };
 
 
+
+class FMultipatchTextureBuilder
+{
+	FTextureManager &TexMan;
+	TArray<BuildInfo> BuiltTextures;
+	void(*progressFunc)();
+	void(*checkForHacks)(BuildInfo&);
+
+	void MakeTexture(BuildInfo &buildinfo, ETextureType usetype);
+
+	void BuildTexture(const void *texdef, FPatchLookup *patchlookup, int maxpatchnum, bool strife, int deflumpnum, ETextureType usetyoe);
+	void AddTexturesLump(const void *lumpdata, int lumpsize, int deflumpnum, int patcheslump, int firstdup, bool texture1);
+
+	void ParsePatch(FScanner &sc, BuildInfo &info, TexPart &part, TexInit &init);
+	void ResolvePatches(BuildInfo &buildinfo);
+
+public:
+	FMultipatchTextureBuilder(FTextureManager &texMan, void(*progressFunc_)(), void(*checkForHacks_)(BuildInfo &)) : TexMan(texMan), progressFunc(progressFunc_), checkForHacks(checkForHacks_)
+	{
+	}
+
+	void AddTexturesLumps(int lump1, int lump2, int patcheslump);
+	void ParseTexture(FScanner &sc, ETextureType usetype);
+	void ResolveAllPatches();
+};

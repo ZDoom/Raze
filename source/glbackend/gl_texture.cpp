@@ -412,4 +412,21 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 	return true;
 }
 
+// stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
 
+int PalCheck(int tex)
+{
+	return tex;
+}
+
+void DeleteSoftwareTexture(FSoftwareTexture *)
+{
+
+}
+
+void InitBuildTiles()
+{
+
+}
+
+TArray<UserShaderDesc> usershaders;

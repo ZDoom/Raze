@@ -20,6 +20,7 @@
 #include "palutil.h"
 #include "colormatcher.h"
 #include "m_swap.h"
+#include "v_colortables.h"
 #include "../../glbackend/glbackend.h"
 
 // FString is a nice and convenient way to have automatically managed shared storage.

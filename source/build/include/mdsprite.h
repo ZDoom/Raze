@@ -15,6 +15,7 @@
 #define IDP3_MAGIC 0x33504449
 
 class FTexture;
+class FHardwareTexture;
 
 struct mdmodel_t
 {
@@ -36,7 +37,7 @@ struct mdskinmap_t
 {
 	uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hightiles
 	int32_t skinnum, surfnum;   // Skin identifier, surface number
-	FTexture* texture;
+	FTextureID texture;
 	mdskinmap_t* next;
 	float param, specpower, specfactor;
 };

@@ -30,9 +30,7 @@ private:
 		if ((unsigned)texnum >= Textures.Size()) return nullptr;
 		if (animate) texnum = Translation[texnum];
 		if (localize && Textures[texnum].HasLocalization) texnum = ResolveLocalizedTexture(texnum);
-#if 0
 		if (palettesubst) texnum = PalCheck(texnum);
-#endif
 		return Textures[texnum].Texture;
 	}
 public:

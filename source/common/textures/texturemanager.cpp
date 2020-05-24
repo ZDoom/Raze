@@ -119,12 +119,9 @@ void FTextureManager::FlushAll()
 	{
 		for (int j = 0; j < 2; j++)
 		{
-			Textures[i].Texture->DeleteHardwareTextures();
-#if 0
 			Textures[i].Texture->SystemTextures.Clean(true, true);
 			DeleteSoftwareTexture(Textures[i].Texture->SoftwareTexture);
 			Textures[i].Texture->SoftwareTexture = nullptr;
-#endif
 		}
 	}
 }
@@ -217,6 +214,7 @@ FTextureID FTextureManager::CheckForTexture (const char *name, ETextureType uset
 		}
 	}
 
+	
 	if (!(flags & TEXMAN_ShortNameOnly))
 	{
 		// We intentionally only look for textures in subdirectories.
@@ -234,7 +232,7 @@ FTextureID FTextureManager::CheckForTexture (const char *name, ETextureType uset
 				tex = FTexture::CreateTexture("", lump, ETextureType::Override);
 				if (tex != NULL)
 				{
-					//tex->AddAutoMaterials();
+					tex->AddAutoMaterials();
 					fileSystem.SetLinkedTexture(lump, tex);
 					return AddTexture(tex);
 				}
@@ -575,7 +573,6 @@ void FTextureManager::AddHiresTextures (int wadnum)
 							FTexture * oldtex = Textures[tlist[i].GetIndex()].Texture;
 
 							// Replace the entire texture and adjust the scaling and offset factors.
-#if 0
 							newtex->bWorldPanning = true;
 							newtex->SetDisplaySize(oldtex->GetDisplayWidth(), oldtex->GetDisplayHeight());
 							newtex->_LeftOffset[0] = int(oldtex->GetScaledLeftOffset(0) * newtex->Scale.X);
@@ -583,7 +580,6 @@ void FTextureManager::AddHiresTextures (int wadnum)
 							newtex->_TopOffset[0] = int(oldtex->GetScaledTopOffset(0) * newtex->Scale.Y);
 							newtex->_TopOffset[1] = int(oldtex->GetScaledTopOffset(1) * newtex->Scale.Y);
 							ReplaceTexture(tlist[i], newtex, true);
-#endif
 						}
 					}
 				}
@@ -616,7 +612,6 @@ void FTextureManager::LoadTextureDefs(int wadnum, const char *lumpname, FMultipa
 
 void FTextureManager::ParseTextureDef(int lump, FMultipatchTextureBuilder &build)
 {
-#if 0
 	TArray<FTextureID> tlist;
 
 	FScanner sc(lump);
@@ -770,7 +765,6 @@ void FTextureManager::ParseTextureDef(int lump, FMultipatchTextureBuilder &build
 			sc.ScriptError("Texture definition expected, found '%s'", sc.String);
 		}
 	}
-#endif
 }
 
 //==========================================================================
@@ -811,7 +805,6 @@ void FTextureManager::AddPatches (int lumpnum)
 
 void FTextureManager::LoadTextureX(int wadnum, FMultipatchTextureBuilder &build)
 {
-#if 0
 	// Use the most recent PNAMES for this WAD.
 	// Multiple PNAMES in a WAD will be ignored.
 	int pnames = fileSystem.CheckNumForName("PNAMES", ns_global, wadnum, false);
@@ -829,7 +822,6 @@ void FTextureManager::LoadTextureX(int wadnum, FMultipatchTextureBuilder &build)
 	int texlump1 = fileSystem.CheckNumForName ("TEXTURE1", ns_global, wadnum);
 	int texlump2 = fileSystem.CheckNumForName ("TEXTURE2", ns_global, wadnum);
 	build.AddTexturesLumps (texlump1, texlump2, pnames);
-#endif
 }
 
 //==========================================================================
@@ -1102,7 +1094,6 @@ void FTextureManager::Init(void (*progressFunc_)(), void (*checkForHacks)(BuildI
 	auto nulltex = new FImageTexture(nullptr, "");
 	nulltex->SetUseType(ETextureType::Null);
 	AddTexture (nulltex);
-#if 0 // stuff for later. Not needed to get things going.
 	// some special textures used in the game.
 	AddTexture(CreateShaderTexture(false, false));
 	AddTexture(CreateShaderTexture(false, true));
@@ -1142,7 +1133,6 @@ void FTextureManager::Init(void (*progressFunc_)(), void (*checkForHacks)(BuildI
 	glPart = TexMan.CheckForTexture("glstuff/glpart.png", ETextureType::MiscPatch);
 	mirrorTexture = TexMan.CheckForTexture("glstuff/mirror.png", ETextureType::MiscPatch);
 	AddLocalizedVariants();
-#endif
 }
 
 //==========================================================================
@@ -1153,7 +1143,6 @@ void FTextureManager::Init(void (*progressFunc_)(), void (*checkForHacks)(BuildI
 
 void FTextureManager::InitPalettedVersions()
 {
-#if 0
 	int lump, lastlump = 0;
 
 	while ((lump = fileSystem.FindLump("PALVERS", &lastlump)) != -1)
@@ -1182,7 +1171,6 @@ void FTextureManager::InitPalettedVersions()
 			}
 		}
 	}
-#endif
 }
 
 //==========================================================================
@@ -1311,7 +1299,7 @@ int FTextureManager::CountLumpTextures (int lumpnum)
 
 void FTextureManager::AdjustSpriteOffsets()
 {
-	int /*lump,*/ lastlump = 0;
+	int lump, lastlump = 0;
 	int sprid;
 	TMap<int, bool> donotprocess;
 
@@ -1335,7 +1323,6 @@ void FTextureManager::AdjustSpriteOffsets()
 		}
 	}
 
-#if 0
 	while ((lump = fileSystem.FindLump("SPROFS", &lastlump, false)) != -1)
 	{
 		FScanner sc;
@@ -1383,7 +1370,6 @@ void FTextureManager::AdjustSpriteOffsets()
 			}
 		}
 	}
-#endif
 }
 
 

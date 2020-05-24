@@ -49,7 +49,7 @@ void VPXTexture::SetFrame(const void *data_, int width, int height)
     Width = width;
     Height = height;
     data = data_;
-    DeleteHardwareTextures();
+    SystemTextures.Clean(true, true);
 }
 
 //===========================================================================

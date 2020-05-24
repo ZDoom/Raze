@@ -1,9 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "zstring.h"
 #include "tarray.h"
-#include "textures.h"
 #include "bitmap.h"
 #include "memarena.h"
 
@@ -169,4 +167,6 @@ protected:
 };
 
 
-FTexture* CreateImageTexture(FImageSource* img, const char *name = nullptr) noexcept; 
+class FTexture;
+
+FTexture* CreateImageTexture(FImageSource* img, const char *name = nullptr) noexcept;

@@ -406,7 +406,6 @@ protected:
 	double GetScaledHeightDouble () { return Height / Scale.Y; }
 	double GetScaleY() const { return Scale.Y; }
 
-
 	// Now with improved offset adjustment.
 	int GetLeftOffset(int adjusted) { return _LeftOffset[adjusted]; }
 	int GetTopOffset(int adjusted) { return _TopOffset[adjusted]; }

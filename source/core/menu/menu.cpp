@@ -54,6 +54,7 @@
 #include "statistics.h"
 #include "input/m_joy.h"
 #include "raze_sound.h"
+#include "texturemanager.h"
 
 void RegisterDukeMenus();
 void RegisterRedneckMenus();
@@ -265,9 +266,10 @@ bool DMenu::MouseEventBack(int type, int x, int y)
 {
 	if (m_show_backbutton >= 0)
 	{
-		FTexture* tex = TileFiles.GetTexture("engine/graphics/m_back.png");
-		if (tex != NULL)
+		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
+		if (texid.isValid())
 		{
+			auto tex = TexMan.GetTexture(texid);
 			if (m_show_backbutton&1) x -= screen->GetWidth() - tex->GetDisplayWidth() * CleanXfac;
 			if (m_show_backbutton&2) y -= screen->GetHeight() - tex->GetDisplayHeight() * CleanYfac;
 			mBackbuttonSelected = ( x >= 0 && x < tex->GetDisplayWidth() * CleanXfac &&
@@ -321,9 +323,11 @@ void DMenu::Drawer ()
 {
 	if (this == DMenu::CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
 	{
-		FTexture* tex = TileFiles.GetTexture("engine/graphics/m_back.png");
+		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
+		if (texid.isValid())
 		if (tex)
 		{
+			auto tex = TexMan.GetTexture(texid);
 			int w = tex->GetDisplayWidth() * CleanXfac;
 			int h = tex->GetDisplayHeight() * CleanYfac;
 			int x = (!(m_show_backbutton & 1)) ? 0 : screen->GetWidth() - w;
