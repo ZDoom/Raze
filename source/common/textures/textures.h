@@ -436,7 +436,6 @@ protected:
 
 public:
 	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
-	FTextureBuffer CreateTexBuffer(const PalEntry* translation, int flags = 0);
 
 	virtual bool DetermineTranslucency();
 	bool GetTranslucency()

@@ -45,10 +45,8 @@ private:
 	
  	TranslatedTexture * GetTexID(int translation, bool expanded)
 	{
-#if 0
 		auto remap = GPalette.TranslationToTable(translation);
 		translation = remap == nullptr ? 0 : remap->Index;
-#endif
 
 		if (translation == 0)
 		{
