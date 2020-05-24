@@ -470,10 +470,7 @@ void SaveEngineState()
 	{
 		fw->Write(&picanm[i], sizeof(picanm[i]));
 	}
-	for (int i = 0; i < MAXTILES; i++)
-	{
-		MREAD(&picanm[i], sizeof(picanm[i]), 1, fil);
-	}
+	WriteMagic(fw);
 
 
 	fw->Write(&tailspritefree, sizeof(tailspritefree));
@@ -537,6 +534,11 @@ void LoadEngineState()
 		fr.Read(headspritestat, sizeof(headspritestat));
 		fr.Read(prevspritestat, sizeof(prevspritestat));
 		fr.Read(nextspritestat, sizeof(nextspritestat));
+		CheckMagic(fr);
+		for (int i = 0; i < MAXTILES; i++)
+		{
+			fr.Read(&picanm[i], sizeof(picanm[i]));
+		}
 		CheckMagic(fr);
 
 		fr.Read(&tailspritefree, sizeof(tailspritefree));

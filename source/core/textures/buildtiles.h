@@ -2,12 +2,60 @@
 
 #include "textures.h"
 
+
+// picanm[].sf:
+// |bit(1<<7)
+// |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|
+enum AnimFlags
+{
+	PICANM_ANIMTYPE_NONE = 0,
+	PICANM_ANIMTYPE_OSC = (1 << 6),
+	PICANM_ANIMTYPE_FWD = (2 << 6),
+	PICANM_ANIMTYPE_BACK = (3 << 6),
+
+	PICANM_ANIMTYPE_SHIFT = 6,
+	PICANM_ANIMTYPE_MASK = (3 << 6),  // must be 192
+	PICANM_MISC_MASK = (3 << 4),
+	PICANM_TEXHITSCAN_BIT = (2 << 4),
+	PICANM_NOFULLBRIGHT_BIT = (1 << 4),
+	PICANM_ANIMSPEED_MASK = 15,  // must be 15
+};
+
+enum
+{
+	MAXTILES = 30720,
+	MAXUSERTILES = (MAXTILES-16)  // reserve 16 tiles at the end
+
+};
+
 enum class ReplacementType : int
 {
 	Art,
 	Writable,
 	Restorable,
 	Canvas
+};
+
+
+// NOTE: If the layout of this struct is changed, loadpics() must be modified
+// accordingly.
+struct picanm_t 
+{
+	uint8_t num;  // animate number
+	uint8_t sf;  // anim. speed and flags
+	uint8_t extra;
+
+	void Clear()
+	{
+		extra = sf = num = 0;
+	}
+};
+picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int* lo, int* to);
+
+struct rottile_t
+{
+	int16_t newtile;
+	int16_t owner;
 };
 
 struct HightileReplacement
@@ -45,7 +93,6 @@ public:
 		: RawPixels(backingstore), Offset(offset)
 	{
 		SetSize(width, height);
-		PicAnim = tileConvertAnimFormat(picanm, &leftoffset, &topoffset);
 	}
 
 	const uint8_t* Get8BitPixels() override
@@ -358,7 +405,7 @@ struct PicAnm
 	picanm_t& operator[](size_t index)
 	{
 		assert(index < MAXTILES);
-		return TileFiles.tiles[index]->GetAnim();
+		return TileFiles.tiledata[index].picanm;
 	}
 };
 extern PicAnm picanm;
@@ -411,7 +458,7 @@ inline int heightBits(int num)
 inline rottile_t& RotTile(int tile)
 {
 	assert(tile < MAXTILES);
-	return TileFiles.tiles[tile]->GetRotTile();
+	return TileFiles.tiledata[tile].RotTile;
 }
 
 

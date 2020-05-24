@@ -345,7 +345,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 		}
 #if 1
-		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap] && picnum > -1)
+		if (picnum > -1 && !(TileFiles.tiledata[picnum].picanm.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
@@ -359,7 +359,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				}
 				else
 				{
-					tex->PicAnim.sf |= PICANM_NOFULLBRIGHT_BIT;
+					TileFiles.tiledata[picnum].picanm.sf |= PICANM_NOFULLBRIGHT_BIT;
 				}
 			}
 			else if (TextureType == TT_TRUECOLOR)

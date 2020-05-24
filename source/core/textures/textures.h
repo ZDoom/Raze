@@ -41,63 +41,71 @@
 #include "tarray.h"
 #include "palentry.h"
 
-class FImageSource;
-class FTexture;
 class FHardwareTexture;
+class FImageSource;
 
-// picanm[].sf:
-// |bit(1<<7)
-// |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|
-enum AnimFlags
+enum MaterialShaderIndex
 {
-	PICANM_ANIMTYPE_NONE = 0,
-	PICANM_ANIMTYPE_OSC = (1 << 6),
-	PICANM_ANIMTYPE_FWD = (2 << 6),
-	PICANM_ANIMTYPE_BACK = (3 << 6),
-
-	PICANM_ANIMTYPE_SHIFT = 6,
-	PICANM_ANIMTYPE_MASK = (3 << 6),  // must be 192
-	PICANM_MISC_MASK = (3 << 4),
-	PICANM_TEXHITSCAN_BIT = (2 << 4),
-	PICANM_NOFULLBRIGHT_BIT = (1 << 4),
-	PICANM_ANIMSPEED_MASK = 15,  // must be 15
+	SHADER_Default,
+	SHADER_Warp1,
+	SHADER_Warp2,
+	SHADER_Brightmap,
+	SHADER_Specular,
+	SHADER_SpecularBrightmap,
+	SHADER_PBR,
+	SHADER_PBRBrightmap,
+	SHADER_Paletted,
+	SHADER_NoTexture,
+	SHADER_BasicFuzz,
+	SHADER_SmoothFuzz,
+	SHADER_SwirlyFuzz,
+	SHADER_TranslucentFuzz,
+	SHADER_JaggedFuzz,
+	SHADER_NoiseFuzz,
+	SHADER_SmoothNoiseFuzz,
+	SHADER_SoftwareFuzz,
+	FIRST_USER_SHADER
 };
 
+struct UserShaderDesc
+{
+	FString shader;
+	MaterialShaderIndex shaderType;
+	FString defines;
+	bool disablealphatest = false;
+};
+
+extern TArray<UserShaderDesc> usershaders;
+
+
+struct FloatRect
+{
+	float left,top;
+	float width,height;
+
+
+	void Offset(float xofs,float yofs)
+	{
+		left+=xofs;
+		top+=yofs;
+	}
+	void Scale(float xfac,float yfac)
+	{
+		left*=xfac;
+		width*=xfac;
+		top*=yfac;
+		height*=yfac;
+	}
+};
 
 enum ECreateTexBufferFlags
 {
-	CTF_CheckHires = 1,		// use external hires replacement if found
 	CTF_Expand = 2,			// create buffer with a one-pixel wide border
 	CTF_ProcessData = 4,	// run postprocessing on the generated buffer. This is only needed when using the data for a hardware texture.
 	CTF_CheckOnly = 8,		// Only runs the code to get a content ID but does not create a texture. Can be used to access a caching system for the hardware textures.
 };
 
-enum
-{
-	MAXTILES = 30720,
-	MAXUSERTILES = (MAXTILES-16)  // reserve 16 tiles at the end
 
-};
-
-// NOTE: If the layout of this struct is changed, loadpics() must be modified
-// accordingly.
-struct picanm_t 
-{
-	uint8_t num;  // animate number
-	uint8_t sf;  // anim. speed and flags
-	uint8_t extra;
-
-	void Clear()
-	{
-		extra = sf = num = 0;
-	}
-};
-
-struct rottile_t
-{
-	int16_t newtile;
-	int16_t owner;
-};
 
 class FBitmap;
 struct FRemapTable;
@@ -113,23 +121,30 @@ class FMultipatchTextureBuilder;
 
 extern int r_spriteadjustSW, r_spriteadjustHW;
 
-picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int *lo, int *to);
-
-
 class FNullTextureID : public FTextureID
 {
 public:
 	FNullTextureID() : FTextureID(0) {}
 };
 
+enum FTextureFormat : uint32_t
+{
+	TEX_Pal,
+	TEX_Gray,
+	TEX_RGB,		// Actually ARGB
 
+	TEX_Count
+};
 
+class FSoftwareTexture;
 class FGLRenderState;
 
+struct spriteframewithrotate;
 class FSerializer;
 namespace OpenGLRenderer
 {
 	class FGLRenderState;
+	class FHardwareTexture;
 }
 
 union FContentIdBuilder
@@ -150,6 +165,7 @@ struct FTextureBuffer
 	uint8_t *mBuffer = nullptr;
 	int mWidth = 0;
 	int mHeight = 0;
+	uint64_t mContentId = 0;	// unique content identifier. (Two images created from the same image source with the same settings will return the same value.)
 
 	FTextureBuffer() = default;
 
@@ -164,6 +180,7 @@ struct FTextureBuffer
 		mBuffer = other.mBuffer;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
+		mContentId = other.mContentId;
 		other.mBuffer = nullptr;
 	}
 
@@ -172,6 +189,7 @@ struct FTextureBuffer
 		mBuffer = other.mBuffer;
 		mWidth = other.mWidth;
 		mHeight = other.mHeight;
+		mContentId = other.mContentId;
 		other.mBuffer = nullptr;
 		return *this;
 	}
@@ -227,8 +245,6 @@ public:
 	int GetDisplayLeftOffset() const { return leftoffset; }
 	int GetDisplayTopOffset() const { return topoffset; }
 	void SetOffsets(int x, int y) { leftoffset = x; topoffset = y; }
-	picanm_t& GetAnim() { return PicAnim;  }	// This must be modifiable. There's quite a bit of code messing around with the flags in here.
-	rottile_t& GetRotTile() { return RotTile; }
 	FTextureBuffer CreateTexBuffer(const PalEntry *palette, int flags = 0);
 	bool GetTranslucency();
 	void CheckTrans(unsigned char * buffer, int size, int trans);
@@ -247,7 +263,6 @@ public:
 	}
 
 	int alphaThreshold = 128;
-	picanm_t PicAnim = {};
 	FixedBitArray<256> NoBrightmapFlag{ 0 };
 
 protected:
@@ -272,7 +287,6 @@ protected:
 		struct { uint16_t Width, Height; };
 	};
 	int leftoffset = 0, topoffset = 0;
-	rottile_t RotTile = { -1,-1 };
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
 	bool skyColorDone = false;

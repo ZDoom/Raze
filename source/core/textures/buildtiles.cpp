@@ -115,6 +115,7 @@ void FTileTexture::Create8BitPixels(uint8_t* buffer)
 FArtTile* GetTileTexture(const char* name, const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int picanm)
 {
 	auto tex = new FArtTile(backingstore, offset, width, height, picanm);
+
 	if (tex)
 	{
 		tex->SetName(name);
@@ -176,6 +177,10 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
 
 		auto tex = GetTileTexture("", RawData, uint32_t(tiledata - tiles), width, height, anm);
 		AddTile(i, tex);
+		int leftoffset, topoffset;
+		auto PicAnim = tileConvertAnimFormat(anm, &leftoffset, &topoffset);
+		tex->SetOffsets(leftoffset, topoffset);
+
 		tiledata += size;
 	}
 }
@@ -597,7 +602,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 		// Only modify the picanm info.
 		tex = TileFiles.tiles[tile];
 		if (!tex) return;
-		picanm = &tex->PicAnim;
+		picanm = &TileFiles.tiledata[tile].picanm;
 		sourceanm = picanm;
 		srcxo = tex->GetLeftOffset();
 		srcyo = tex->GetTopOffset();
@@ -607,7 +612,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 		if (source == -1) source = tile;
 		tex = TileFiles.tiles[source];
 		if (!tex) return;
-		sourceanm = &tex->PicAnim;
+		sourceanm = &TileFiles.tiledata[source].picanm;
 		srcxo = tex->GetLeftOffset();
 		srcyo = tex->GetTopOffset();
 
@@ -623,7 +628,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 			}
 		}
 		tex = new FLooseTile(buffer, tex->GetWidth(), tex->GetHeight());
-		picanm = &tex->PicAnim;
+		picanm = &TileFiles.tiledata[tile].picanm;
 		TileFiles.AddTile(tile, tex);
 	}
 
