@@ -45,7 +45,7 @@ public:
 		: RawPixels(backingstore), Offset(offset)
 	{
 		SetSize(width, height);
-		PicAnim = tileConvertAnimFormat(picanm);
+		PicAnim = tileConvertAnimFormat(picanm, &leftoffset, &topoffset);
 	}
 
 	const uint8_t* Get8BitPixels() override
@@ -215,6 +215,7 @@ struct TileDesc
 	FTexture* backup;	// original backup for map tiles
 	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
+	picanm_t picanmbackup;	// animation descriptor backup when using map tiles
 	rottile_t RotTile;// = { -1,-1 };
 	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
@@ -365,12 +366,26 @@ extern PicAnm picanm;
 // Helpers to read the refactored tilesiz array.
 inline int tileWidth(int num)
 {
-	return tilesiz[num].x;
+	assert(num < MAXTILES);
+	return TileFiles.tiles[num]->GetDisplayWidth();
 }
 
 inline int tileHeight(int num)
 {
-	return tilesiz[num].y;
+	assert(num < MAXTILES);
+	return TileFiles.tiles[num]->GetDisplayHeight();
+}
+
+inline int tileLeftOffset(int num)
+{
+	assert(num < MAXTILES);
+	return TileFiles.tiles[num]->GetDisplayLeftOffset();
+}
+
+inline int tileTopOffset(int num)
+{
+	assert(num < MAXTILES);
+	return TileFiles.tiles[num]->GetDisplayTopOffset();
 }
 
 inline int widthBits(int num)
@@ -400,7 +415,13 @@ inline rottile_t& RotTile(int tile)
 }
 
 
-inline void tileInvalidate(int16_t tilenume, int32_t, int32_t)
+inline void tileInvalidate(int tilenume, int32_t, int32_t)
 {
 	TileFiles.InvalidateTile(tilenume);
+}
+
+inline FTexture* tileGetTexture(int tile)
+{
+	assert(tile < MAXTILES);
+	return TileFiles.tiles[tile];
 }

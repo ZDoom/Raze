@@ -84,13 +84,12 @@ enum
 struct picanm_t 
 {
 	uint8_t num;  // animate number
-	int8_t xofs, yofs;
 	uint8_t sf;  // anim. speed and flags
 	uint8_t extra;
 
 	void Clear()
 	{
-		extra = sf = yofs = xofs = num = 0;
+		extra = sf = num = 0;
 	}
 };
 
@@ -114,7 +113,7 @@ class FMultipatchTextureBuilder;
 
 extern int r_spriteadjustSW, r_spriteadjustHW;
 
-picanm_t    tileConvertAnimFormat(int32_t const picanmdisk);
+picanm_t    tileConvertAnimFormat(int32_t const picanmdisk, int *lo, int *to);
 
 
 class FNullTextureID : public FTextureID
@@ -223,8 +222,11 @@ public:
 	int GetDisplayWidth() const { return Size.x; }
 	int GetDisplayHeight() const { return Size.y; }
 	const vec2_16_t &GetSize() const { return Size; }
-	int GetLeftOffset() const { return PicAnim.xofs; }
-	int GetTopOffset() const { return PicAnim.yofs; }
+	int GetLeftOffset() const { return leftoffset; }
+	int GetTopOffset() const { return topoffset; }
+	int GetDisplayLeftOffset() const { return leftoffset; }
+	int GetDisplayTopOffset() const { return topoffset; }
+	void SetOffsets(int x, int y) { leftoffset = x; topoffset = y; }
 	picanm_t& GetAnim() { return PicAnim;  }	// This must be modifiable. There's quite a bit of code messing around with the flags in here.
 	rottile_t& GetRotTile() { return RotTile; }
 	FTextureBuffer CreateTexBuffer(const PalEntry *palette, int flags = 0);
@@ -254,8 +256,8 @@ protected:
 	{
 		Size.x = BaseTexture->GetWidth();
 		Size.y = BaseTexture->GetHeight();
-		PicAnim.xofs = BaseTexture->PicAnim.xofs;
-		PicAnim.yofs = BaseTexture->PicAnim.yofs;
+		leftoffset = BaseTexture->leftoffset;
+		topoffset = BaseTexture->topoffset;
 	}
 
 	void SetSize(int w, int h)
@@ -269,6 +271,7 @@ protected:
 		vec2_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
 		struct { uint16_t Width, Height; };
 	};
+	int leftoffset = 0, topoffset = 0;
 	rottile_t RotTile = { -1,-1 };
 	uint8_t bMasked = true;		// Texture (might) have holes
 	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?

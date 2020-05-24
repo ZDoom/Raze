@@ -1862,8 +1862,8 @@ int32_t __fastcall VM_GetTileData(int const tileNum, int32_t labelNum)
         case TILEDATA_GAMEFLAGS: labelNum = g_tile[tileNum].flags; break;
 
         case TILEDATA_ANIMFRAMES: labelNum = p.num;  break;
-        case TILEDATA_XOFFSET:    labelNum = p.xofs; break;
-        case TILEDATA_YOFFSET:    labelNum = p.yofs; break;
+        case TILEDATA_XOFFSET:    labelNum = tileLeftOffset(tileNum); break;
+        case TILEDATA_YOFFSET:    labelNum = tileTopOffset(tileNum); break;
 
         case TILEDATA_ANIMSPEED: labelNum = (p.sf & PICANM_ANIMSPEED_MASK); break;
         case TILEDATA_ANIMTYPE:  labelNum = (p.sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
@@ -1882,6 +1882,7 @@ void __fastcall VM_SetTileData(int const tileNum, int const labelNum, int32_t ne
         return;
     }
 
+    // WTF is this??? This stuff is supposed to be immutable!
     auto &p = picanm[tileNum];
 
     switch (labelNum)
@@ -1892,8 +1893,8 @@ void __fastcall VM_SetTileData(int const tileNum, int const labelNum, int32_t ne
         case TILEDATA_GAMEFLAGS: g_tile[tileNum].flags = newValue; break;
 
         case TILEDATA_ANIMFRAMES: p.num  = newValue; break;
-        case TILEDATA_XOFFSET:    p.xofs = newValue; break;
-        case TILEDATA_YOFFSET:    p.yofs = newValue; break;
+        //case TILEDATA_XOFFSET:    p.xofs = newValue; break;
+        //case TILEDATA_YOFFSET:    p.yofs = newValue; break;
 
         case TILEDATA_ANIMSPEED: p.sf = (p.sf & ~PICANM_ANIMSPEED_MASK) | (newValue & PICANM_ANIMSPEED_MASK); break;
         case TILEDATA_ANIMTYPE:  p.sf = (p.sf & ~PICANM_ANIMTYPE_MASK) | ((newValue << PICANM_ANIMTYPE_SHIFT) & PICANM_ANIMTYPE_MASK); break;

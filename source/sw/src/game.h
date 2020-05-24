@@ -486,8 +486,8 @@ int StdRandomRange(int range);
 // that uses this macro
 #define DISTANCE(x1, y1, x2, y2, dist, tx, ty, tmin) \
     {                                    \
-        tx = labs(x2-x1);                    \
-        ty = labs(y2-y1);                    \
+        tx = abs(x2-x1);                    \
+        ty = abs(y2-y1);                    \
         tmin = min(tx,ty);                   \
         dist = tx + ty - DIV2(tmin);         \
     }
@@ -530,12 +530,12 @@ int StdRandomRange(int range);
 
 
 // x & y offset of tile
-#define TILE_XOFF(picnum) (picanm[(picnum)].xofs)
-#define TILE_YOFF(picnum) (picanm[(picnum)].yofs)
+#define TILE_XOFF(picnum) (tileLeftOffset(picnum))
+#define TILE_YOFF(picnum) (tileTopOffset(picnum))
 
 // x & y offset of current sprite tile
-#define SPRITEp_XOFF(sp) (picanm[(sp)->picnum].xofs)
-#define SPRITEp_YOFF(sp) (picanm[(sp)->picnum].yofs)
+#define SPRITEp_XOFF(sp) (tileLeftOffset((sp)->picnum))
+#define SPRITEp_YOFF(sp) (tileTopOffset((sp)->picnum))
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
 #define SPRITEp_SIZE_TOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) + Z(SPRITEp_YOFF(sp)))
@@ -561,13 +561,13 @@ int StdRandomRange(int range);
 #define SQ(val) ((val) * (val))
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
-#define FACING_PLAYER(pp,sp) (labs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
-#define PLAYER_FACING(pp,sp) (labs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
-#define FACING(sp1,sp2) (labs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
+#define FACING_PLAYER(pp,sp) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
+#define PLAYER_FACING(pp,sp) (abs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
+#define FACING(sp1,sp2) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
 
-#define FACING_PLAYER_RANGE(pp,sp,range) (labs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (labs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
-#define FACING_RANGE(sp1,sp2,range) (labs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
+#define FACING_PLAYER_RANGE(pp,sp,range) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
+#define FACING_RANGE(sp1,sp2,range) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
 
 // two vectors
 // can determin direction

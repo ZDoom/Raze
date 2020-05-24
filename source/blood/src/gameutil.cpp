@@ -487,32 +487,32 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             if ((pOther->cstat & 0x30) != 0)
                 return 3;
             int nPicnum = pOther->picnum;
-            if (tilesiz[nPicnum].x == 0 || tilesiz[nPicnum].y == 0)
+            if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
                 return 3;
-            int height = (tilesiz[nPicnum].y*pOther->yrepeat)<<2;
+            int height = (tileHeight(nPicnum)*pOther->yrepeat)<<2;
             int otherZ = pOther->z;
             if (pOther->cstat & 0x80)
                 otherZ += height / 2;
-            int nOffset = picanm[nPicnum].yofs;
+            int nOffset = tileTopOffset(nPicnum);
             if (nOffset)
                 otherZ -= (nOffset*pOther->yrepeat)<<2;
             dassert(height > 0);
-            int height2 = scale(otherZ-gHitInfo.hitz, tilesiz[nPicnum].y, height);
+            int height2 = scale(otherZ-gHitInfo.hitz, tileHeight(nPicnum), height);
             if (!(pOther->cstat & 8))
-                height2 = tilesiz[nPicnum].y-height2;
-            if (height2 >= 0 && height2 < tilesiz[nPicnum].y)
+                height2 = tileHeight(nPicnum)-height2;
+            if (height2 >= 0 && height2 < tileHeight(nPicnum))
             {
-                int width = (tilesiz[nPicnum].x*pOther->xrepeat)>>2;
+                int width = (tileWidth(nPicnum)*pOther->xrepeat)>>2;
                 width = (width*3)/4;
                 int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->x)*dy) / ksqrt(dx*dx+dy*dy);
                 dassert(width > 0);
-                int width2 = scale(check1, tilesiz[nPicnum].x, width);
-                int nOffset = picanm[nPicnum].xofs;
-                width2 += nOffset + tilesiz[nPicnum].x / 2;
-                if (width2 >= 0 && width2 < tilesiz[nPicnum].x)
+                int width2 = scale(check1, tileWidth(nPicnum), width);
+                int nOffset = tileTopOffset(nPicnum);
+                width2 += nOffset + tileWidth(nPicnum) / 2;
+                if (width2 >= 0 && width2 < tileWidth(nPicnum))
                 {
                     auto pData = tileLoadTile(nPicnum);
-                    if (pData[width2*tilesiz[nPicnum].y+height2] != TRANSPARENT_INDEX)
+                    if (pData[width2*tileHeight(nPicnum)+height2] != TRANSPARENT_INDEX)
                         return 3;
                 }
             }
@@ -566,8 +566,8 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 nOffset = -nOffset;
 
             int nPicnum = pWall->overpicnum;
-            int nSizX = tilesiz[nPicnum].x;
-            int nSizY = tilesiz[nPicnum].y;
+            int nSizX = tileWidth(nPicnum);
+            int nSizY = tileHeight(nPicnum);
             if (!nSizX || !nSizY)
                 return 0;
 

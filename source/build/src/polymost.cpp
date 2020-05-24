@@ -3821,8 +3821,8 @@ void polymost_drawsprite(int32_t snum)
     if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
     {
         int const flag = hw_hightile && h_xsize[globalpicnum];
-        off = { (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : picanm[globalpicnum].xofs),
-                (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs) };
+        off = { (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : tileLeftOffset(globalpicnum)),
+                (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : tileTopOffset(globalpicnum)) };
     }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
@@ -4472,7 +4472,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         if (dastat & RS_TOPLEFT)
         {
             vec2_16_t siz = tilesiz[picnum];
-            vec2_16_t off = { (int16_t)((siz.x >> 1) + picanm[picnum].xofs), (int16_t)((siz.y >> 1) + picanm[picnum].yofs) };
+            vec2_16_t off = { (int16_t)((siz.x >> 1) + tileLeftOffset(picnum)), (int16_t)((siz.y >> 1) + tileTopOffset(picnum)) };
 
             d = (float)z * (1.0f / (65536.f * 16384.f));
             cosang2 = cosang = (float)sintable[(a + 512) & 2047] * d;

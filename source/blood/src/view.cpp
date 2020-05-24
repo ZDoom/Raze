@@ -1822,7 +1822,7 @@ void viewInit(void)
         lensTable[i] = B_LITTLE32(lensTable[i]);
     }
 #endif
-    uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize, 0, 0);
+    uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize);
     memset(data, TRANSPARENT_INDEX, kLensSize*kLensSize);
     gGameMessageMgr.SetState(hud_messages);
     gGameMessageMgr.SetCoordinates(1, 1);
@@ -2157,7 +2157,7 @@ tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         pNSprite->picnum = pTSprite->picnum;
         pNSprite->pal = 5;
         int height = tilesiz[pNSprite->picnum].y;
-        int center = height/2+picanm[pNSprite->picnum].yofs;
+        int center = height / 2 + tileTopOffset(pNSprite->picnum);
         pNSprite->z -= (pNSprite->yrepeat<<2)*(height-center);
         break;
     }
@@ -2381,7 +2381,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                     {
                         pTSprite->cstat |= 48;
                         pTSprite->cstat &= ~(4|8);
-                        pTSprite->yoffset += picanm[pTSprite->picnum].yofs;
+                        pTSprite->yoffset += tileTopOffset(pTSprite->picnum);
                         pTSprite->picnum = voxelIndex[pTSprite->picnum];
                         if (!voxoff[pTSprite->picnum])
                             qloadvoxel(pTSprite->picnum);
@@ -2408,8 +2408,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 #if 0
             if (tiletovox[nAnimTile] != -1)
             {
-                pTSprite->yoffset += picanm[nAnimTile].yofs;
-                pTSprite->xoffset += picanm[nAnimTile].xofs;
+                pTSprite->yoffset += tileTopOffset(nAnimTile);
+                pTSprite->xoffset += tileLeftOffset(nAnimTile);
             }
 #endif
 
@@ -2427,8 +2427,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
             if (tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
                 tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].framenum >= 0)
             {
-                pTSprite->yoffset += picanm[nAnimTile].yofs;
-                pTSprite->xoffset += picanm[nAnimTile].xofs;
+                pTSprite->yoffset += tileTopOffset(nAnimTile);
+                pTSprite->xoffset += tileLeftOffset(nAnimTile);
 
                 if ((picanm[nRootTile].extra&7) == 7)
                     pTSprite->ang = (pTSprite->ang+((int)totalclock<<3))&2047;
@@ -3237,7 +3237,7 @@ void viewDrawScreen(bool sceneonly)
             //othercameraclock = gGameClock;
             if (!tileData(4079))
             {
-                tileAllocTile(4079, 128, 128, 0, 0);
+                tileAllocTile(4079, 128, 128);
             }
             r enderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);

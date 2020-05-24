@@ -656,10 +656,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(&gNet,sizeof(gNet),1,fil);
 
     MWRITE(&gs,sizeof(gs),1,fil);
-	for (int i = 0; i < MAXTILES; i++)
-	{
-		MWRITE(&picanm[i], sizeof(picanm[i]), 1, fil);
-	}
 
     MWRITE(&LevelSecrets,sizeof(LevelSecrets),1,fil);
 
@@ -1050,11 +1046,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(&gNet,sizeof(gNet),1,fil);
 
 	MREAD(&gs,sizeof(gs),1,fil);
-
-	for (int i = 0; i < MAXTILES; i++)
-	{
-		MREAD(&picanm[i], sizeof(picanm[i]), 1, fil);
-	}
 
     MREAD(&LevelSecrets,sizeof(LevelSecrets),1,fil);
 

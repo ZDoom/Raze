@@ -353,8 +353,8 @@ void seq_LoadSequences()
 
     for (i = 0; i < nSize; i++)
     {
-        picanm[nFontFirstChar + i].xofs = 0;
-        picanm[nFontFirstChar + i].yofs = 0;
+        auto tex = tileGetTexture(nFontFirstChar + i);
+        tex->SetOffsets(0, 0);
     }
 }
 

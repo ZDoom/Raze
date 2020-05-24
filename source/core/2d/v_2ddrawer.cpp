@@ -674,8 +674,8 @@ void F2DDrawer::rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 	{
 		if (!pic)
 		{
-			ofs = { int16_t(picanm[picnum].xofs + (siz.x >> 1)),
-					int16_t(picanm[picnum].yofs + (siz.y >> 1)) };
+			ofs = { int16_t(tileLeftOffset(picnum) + (siz.x >> 1)),
+					int16_t(tileTopOffset(picnum) + (siz.y >> 1)) };
 		}
 		else
 		{

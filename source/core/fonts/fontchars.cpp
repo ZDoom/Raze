@@ -94,8 +94,8 @@ FFontChar2::FFontChar2 (TArray<uint8_t>& sourcelump, int sourcepos, int width, i
 {
 	Size.x = width;
 	Size.y = height;
-	PicAnim.xofs = leftofs;
-	PicAnim.yofs = topofs;
+	leftoffset = leftofs;
+	topoffset = topofs;
 }
 
 //==========================================================================

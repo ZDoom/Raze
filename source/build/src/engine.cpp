@@ -2522,7 +2522,7 @@ static void sortsprites(int const start, int const end)
                 spritesxyz[k].z = s->z;
                 if ((s->cstat&48) != 32)
                 {
-                    int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
+                    int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
                     int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
 
                     spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
@@ -4068,7 +4068,7 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
     // NOTE: a positive per-tile yoffset translates the sprite into the
     // negative world z direction (i.e. upward).
     if (alsotileyofs)
-        zofs -= picanm[picnum].yofs*yrepeat<<2;
+        zofs -= tileTopOffset(picnum) *yrepeat<<2;
 
     return zofs;
 }

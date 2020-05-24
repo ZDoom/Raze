@@ -337,7 +337,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                     x1 = sprx;
                     y1 = spry;
                     tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
+                    xoff = tileLeftOffset(tilenum) + spr->xoffset;
                     if ((spr->cstat&4) > 0) xoff = -xoff;
                     k = spr->ang;
                     l = spr->xrepeat;
@@ -368,8 +368,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
             case 32:
                 tilenum = spr->picnum;
-                xoff = picanm[tilenum].xofs + spr->xoffset;
-                yoff = picanm[tilenum].yofs + spr->yoffset;
+                xoff = tileLeftOffset(tilenum) + spr->xoffset;
+                yoff = tileTopOffset(tilenum) + spr->yoffset;
                 if ((spr->cstat&4) > 0) xoff = -xoff;
                 if ((spr->cstat&8) > 0) yoff = -yoff;
 

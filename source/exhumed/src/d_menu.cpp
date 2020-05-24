@@ -142,9 +142,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		shade = 25;
 	}
 
-	picanm[tilenum].xofs = 0;
-	picanm[tilenum].yofs = 0;
-	rotatesprite(160 << 16, int((y + tilesiz[tilenum].y) *65536), zoomsize, 0, tilenum, shade, 0, 2, 0, 0, xdim, ydim);
+	rotatesprite(160 << 16, int((y + tilesiz[tilenum].y) *65536), zoomsize, 0, tilenum, shade, 0, 2|RS_TOPLEFT, 0, 0, xdim, ydim);
 
 	// tilesizx is 51
 	// tilesizy is 33

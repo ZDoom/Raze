@@ -59,7 +59,7 @@ int tileInit(char a1, const char *a2);
 void tileProcessGLVoxels(void);
 #endif
 const uint8_t * tileLoadTile(int nTile);
-uint8_t * tileAllocTile(int nTile, int x, int y, int ox, int oy);
+uint8_t * tileAllocTile(int nTile, int x, int y);
 void tilePreloadTile(int nTile);
 void tilePrecacheTile(int nTile, int nType = 1);
 char tileGetSurfType(int hit);

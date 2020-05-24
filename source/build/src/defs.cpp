@@ -766,10 +766,19 @@ static int32_t defsparser(scriptfile *script)
             {
                 // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 picanm[tile].sf |= flags;
+                int xo, yo;
                 if (havexoffset)
-                    picanm[tile].xofs = xoffset;
+                    xo = xoffset;
+                else
+                    xo = tileLeftOffset(tile);
                 if (haveyoffset)
-                    picanm[tile].yofs = yoffset;
+                    yo = yoffset;
+                else
+                    yo = tileTopOffset(tile);
+
+                auto tex = tileGetTexture(tile);
+                if (tex) tex->SetOffsets(xo, yo);
+
                 if (haveextra)
                     picanm[tile].extra = extra;
 
@@ -791,15 +800,25 @@ static int32_t defsparser(scriptfile *script)
 
             picanm[tile].sf |= flags;
 
+            int xo;
             if (havexoffset)
-                picanm[tile].xofs = xoffset;
+                xo = xoffset;
             else if (texstatus == 0)
-                picanm[tile].xofs = 0;
+                xo = 0;
+            else
+                xo = tileLeftOffset(tile);
 
+
+            int yo;
             if (haveyoffset)
-                picanm[tile].yofs = yoffset;
+                yo = yoffset;
             else if (texstatus == 0)
-                picanm[tile].yofs = 0;
+                yo = 0;
+            else
+                yo = tileTopOffset(tile);
+
+            auto tex = tileGetTexture(tile);
+            if (tex) tex->SetOffsets(xo, yo);
 
             if (haveextra)
                 picanm[tile].extra = extra;

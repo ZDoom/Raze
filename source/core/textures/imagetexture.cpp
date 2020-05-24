@@ -55,8 +55,8 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 		SetSize(img->GetWidth(), img->GetHeight());
 
 		auto offsets = img->GetOffsets();
-		PicAnim.xofs = offsets.first;
-		PicAnim.yofs = offsets.second;
+		leftoffset = offsets.first;
+		topoffset = offsets.second;
 
 		bMasked = img->bMasked;
 		bTranslucent = img->bTranslucent;

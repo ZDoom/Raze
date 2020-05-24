@@ -42,10 +42,10 @@ void overwritesprite(int thex, int they, short tilenum, signed char shade, char 
     {
         offx -= tilesiz[tilenum].x>>1;
         if (stat & 8)
-            offx += picanm[tilenum].xofs;
+            offx += tileLeftOffset(tilenum);
         else
-            offx -= picanm[tilenum].xofs;
-        offy -= (tilesiz[tilenum].y>>1)+picanm[tilenum].yofs;
+            offx -= tileLeftOffset(tilenum);
+        offy -= (tilesiz[tilenum].y>>1)+tileTopOffset(tilenum);
     }
     if (stat&8)
         offx += tilesiz[tilenum].x;

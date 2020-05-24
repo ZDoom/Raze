@@ -1084,7 +1084,7 @@ void    renderSetRollAngle(float rolla);
 //         bit 6: 33% translucence, using clamping
 //         bit 7: 67% translucence, using clamping
 //       clamping is for sprites, repeating is for walls
-void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how);
+void tileInvalidate(int tilenume, int32_t pal, int32_t how);
 
 void polymost_glreset(void);
 void PrecacheHardwareTextures(int nTile);

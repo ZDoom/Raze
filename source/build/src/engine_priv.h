@@ -232,7 +232,7 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
 
     const int32_t tilenum=spr->picnum, ang=spr->ang;
     const int32_t xrepeat = spr->xrepeat;
-    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
+    int32_t xoff = tileLeftOffset(tilenum) + spr->xoffset;
     int32_t k, l, dax, day;
 
     if (spr->cstat&4)
@@ -265,7 +265,7 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     vec2_t const span = { tilesiz[tilenum].x, tilesiz[tilenum].y};
     vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
 
-    vec2_t adjofs = { picanm[tilenum].xofs + spr->xoffset, picanm[tilenum].yofs + spr->yoffset };
+    vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
 
     if (spr->cstat & 4)
         adjofs.x = -adjofs.x;

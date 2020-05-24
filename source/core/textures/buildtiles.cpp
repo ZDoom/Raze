@@ -60,13 +60,13 @@ BuildTiles TileFiles;
 //
 //==========================================================================
 
-picanm_t tileConvertAnimFormat(int32_t const picanimraw)
+picanm_t tileConvertAnimFormat(int32_t const picanimraw, int* lo, int* to)
 {
 	// Unpack a 4 byte packed anim descriptor into the internal 5 byte format.
 	picanm_t anm;
 	anm.num = picanimraw & 63;
-	anm.xofs = (picanimraw >> 8) & 255;
-	anm.yofs = (picanimraw >> 16) & 255;
+	*lo = (int8_t)((picanimraw >> 8) & 255);
+	*to = (int8_t)((picanimraw >> 16) & 255);
 	anm.sf = ((picanimraw >> 24) & 15) | (picanimraw & 192);
 	anm.extra = (picanimraw >> 28) & 15;
 	return anm;
@@ -589,21 +589,27 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 	// Let's get things working first.
 	picanm_t* picanm = nullptr;
 	picanm_t* sourceanm = nullptr;
+	int srcxo, srcyo;
+	FTexture* tex;
 
 	if (pal == -1 && tile == source)
 	{
 		// Only modify the picanm info.
-		FTexture* tex = TileFiles.tiles[tile];
+		tex = TileFiles.tiles[tile];
 		if (!tex) return;
 		picanm = &tex->PicAnim;
 		sourceanm = picanm;
+		srcxo = tex->GetLeftOffset();
+		srcyo = tex->GetTopOffset();
 	}
 	else
 	{
 		if (source == -1) source = tile;
-		FTexture* tex = TileFiles.tiles[source];
+		tex = TileFiles.tiles[source];
 		if (!tex) return;
 		sourceanm = &tex->PicAnim;
+		srcxo = tex->GetLeftOffset();
+		srcyo = tex->GetTopOffset();
 
 		TArray<uint8_t> buffer(tex->GetWidth() * tex->GetHeight(), true);
 		tex->Create8BitPixels(buffer.Data());
@@ -621,8 +627,9 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 		TileFiles.AddTile(tile, tex);
 	}
 
-	picanm->xofs = xoffset != -1024 ? clamp(xoffset, -128, 127) : sourceanm->xofs;
-	picanm->yofs = yoffset != -1024 ? clamp(yoffset, -128, 127) : sourceanm->yofs;
+	if (xoffset != -1024) srcxo = clamp(xoffset, -128, 127);
+	if (yoffset != -1024) srcyo = clamp(yoffset, -128, 127);
+	tex->SetOffsets(srcxo, srcyo);
 	picanm->sf = (picanm->sf & ~PICANM_MISC_MASK) | (sourceanm->sf & PICANM_MISC_MASK) | flags;
 }
 

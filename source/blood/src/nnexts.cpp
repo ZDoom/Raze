@@ -2147,7 +2147,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
                 pos = bottom;
                 break;
             case 2: // middle
-                pos = pSprite->z + (tilesiz[pSprite->picnum].y / 2 + picanm[pSprite->picnum].yofs);
+                pos = pSprite->z + (tilesiz[pSprite->picnum].y / 2 + tileTopOffset(pSprite->picnum));
                 break;
             case 3:
             case 4:

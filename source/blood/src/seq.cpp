@@ -102,7 +102,7 @@ void UpdateSprite(int nXSprite, SEQFRAME *pFrame)
     dassert(pSprite->extra == nXSprite);
     if (pSprite->flags & 2)
     {
-        if (tilesiz[pSprite->picnum].y != tilesiz[seqGetTile(pFrame)].y || picanm[pSprite->picnum].yofs != picanm[seqGetTile(pFrame)].yofs
+        if (tilesiz[pSprite->picnum].y != tilesiz[seqGetTile(pFrame)].y || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
             || (pFrame->at3_0 && pFrame->at3_0 != pSprite->yrepeat))
             pSprite->flags |= 4;
     }

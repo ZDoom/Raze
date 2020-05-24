@@ -466,6 +466,15 @@ void SaveEngineState()
 	fw->Write(prevspritestat, sizeof(prevspritestat));
 	fw->Write(nextspritestat, sizeof(nextspritestat));
 	WriteMagic(fw);
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		fw->Write(&picanm[i], sizeof(picanm[i]));
+	}
+	for (int i = 0; i < MAXTILES; i++)
+	{
+		MREAD(&picanm[i], sizeof(picanm[i]), 1, fil);
+	}
+
 
 	fw->Write(&tailspritefree, sizeof(tailspritefree));
 	fw->Write(&myconnectindex, sizeof(myconnectindex));

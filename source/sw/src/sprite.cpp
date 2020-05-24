@@ -4778,8 +4778,8 @@ getzrangepoint(int x, int y, int z, short sectnum,
 
         // Calculate and store centering offset information into xoff&yoff
         tilenum = spr->picnum;
-        xoff = (int)picanm[tilenum].xofs + (int)spr->xoffset;
-        yoff = (int)picanm[tilenum].yofs + (int)spr->yoffset;
+        xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+        yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
         if (cstat & 4)
             xoff = -xoff;
         if (cstat & 8)

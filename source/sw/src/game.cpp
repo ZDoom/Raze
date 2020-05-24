@@ -3733,7 +3733,7 @@ SHOWSPRITE:
                     x1 = sprx;
                     y1 = spry;
                     tilenum = spr->picnum;
-                    xoff = (int)picanm[tilenum].xofs + (int)spr->xoffset;
+                    xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
                     if ((spr->cstat & 4) > 0)
                         xoff = -xoff;
                     k = spr->ang;
@@ -3765,8 +3765,8 @@ SHOWSPRITE:
                     if (dimensionmode == 5)
                     {
                         tilenum = spr->picnum;
-                        xoff = (int)picanm[tilenum].xofs + (int)spr->xoffset;
-                        yoff = (int)picanm[tilenum].yofs + (int)spr->yoffset;
+                        xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+                        yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
                         if ((spr->cstat & 4) > 0)
                             xoff = -xoff;
                         if ((spr->cstat & 8) > 0)
