@@ -145,7 +145,7 @@ void BuildTiles::AddTile(int tilenum, FTexture* tex, bool permap)
 //
 //===========================================================================
 
-void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
+void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, const char *mapname)
 {
 
 	const uint8_t *tiles = RawData.Data();
@@ -362,7 +362,7 @@ void BuildTiles::MakeCanvas(int tilenum, int width, int height)
 //
 //===========================================================================
 
-int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
+int BuildTiles::LoadArtFile(const char *fn, const char *mapname, int firsttile)
 {
 	auto old = FindFile(fn);
 	if (old >= ArtFiles.Size())	// Do not process if already loaded.
@@ -381,12 +381,12 @@ int BuildTiles::LoadArtFile(const char *fn, bool mapart, int firsttile)
 				// Only load the data if the header is present
 				if (CountTiles(fn, artptr) > 0)
 				{
-					auto& descs = mapart ? PerMapArtFiles : ArtFiles;
+					auto& descs = mapname ? PerMapArtFiles : ArtFiles;
 					auto file = new BuildArtFile;
 					descs.Push(file);
 					file->filename = fn;
 					file->RawData = std::move(artdata);
-					AddTiles(firsttile, file->RawData, mapart);
+					AddTiles(firsttile, file->RawData, mapname);
 				}
 			}
 		}
@@ -417,11 +417,11 @@ void BuildTiles::LoadArtSet(const char* filename)
 	for (int index = 0; index < MAXARTFILES_BASE; index++)
 	{
 		FStringf fn(filename, index);
-		LoadArtFile(fn, false);
+		LoadArtFile(fn, nullptr);
 	}
 	for (auto& addart : addedArt)
 	{
-		LoadArtFile(addart, false);
+		LoadArtFile(addart, nullptr);
 	}
 }
 
@@ -664,7 +664,7 @@ void artSetupMapArt(const char* filename)
 	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
 	{
 		FStringf fullname("%s_%02d.art", filename, i);
-		TileFiles.LoadArtFile(fullname, true);
+		TileFiles.LoadArtFile(fullname, filename);
 	}
 	TileFiles.SetupReverseTileMap();
 }

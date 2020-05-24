@@ -539,7 +539,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 			if (!check_tile("artfile", tile, script, cmdtokptr))
-				TileFiles.LoadArtFile(fn, false, tile);
+				TileFiles.LoadArtFile(fn, nullptr, tile);
         }
         break;
         case T_SETUPTILE:

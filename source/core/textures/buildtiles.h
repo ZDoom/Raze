@@ -293,7 +293,7 @@ struct BuildTiles
 
 	void AddTile(int tilenum, FTexture* tex, bool permap = false);
 
-	void AddTiles(int firsttile, TArray<uint8_t>& store, bool permap);
+	void AddTiles(int firsttile, TArray<uint8_t>& store, const char *mapname);
 
 	void AddFile(BuildArtFile* bfd, bool permap)
 	{
@@ -304,7 +304,7 @@ struct BuildTiles
 	{
 		return ArtFiles.FindEx([filename](const BuildArtFile* element) { return filename.CompareNoCase(element->filename) == 0; });
 	}
-	int LoadArtFile(const char* file, bool mapart = false, int firsttile = -1);
+	int LoadArtFile(const char* file, const char *mapname = nullptr, int firsttile = -1);
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
 	void AddArt(TArray<FString>& art)
