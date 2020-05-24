@@ -36,10 +36,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 short f_c = 3;
-static char tempbuf[256];
 
 void
-MapColors(short num, COLOR_MAP cm, short create)
+MapColors(short num, COLOR_MAP cm, short create, uint8_t *tempbuf)
 {
     int i;
     float inc;
@@ -243,62 +242,62 @@ InitPalette(void)
     // 1 Range changes
     //
 
-    MapColors(PALETTE_BROWN_RIPPER, BrownRipper, TRUE);
+    MapColors(PALETTE_BROWN_RIPPER, BrownRipper, TRUE, tempbuf);
     paletteMakeLookupTable(PALETTE_BROWN_RIPPER, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_SKEL_GORE, SkelGore, TRUE);
+    MapColors(PALETTE_SKEL_GORE, SkelGore, TRUE, tempbuf);
     paletteMakeLookupTable(PALETTE_SKEL_GORE, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_ELECTRO_GORE, ElectroGore, TRUE);
+    MapColors(PALETTE_ELECTRO_GORE, ElectroGore, TRUE, tempbuf);
     paletteMakeLookupTable(PALETTE_ELECTRO_GORE, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_MENU_HIGHLIGHT, MenuHighlight, TRUE);
+    MapColors(PALETTE_MENU_HIGHLIGHT, MenuHighlight, TRUE, tempbuf);
     paletteMakeLookupTable(PALETTE_MENU_HIGHLIGHT, tempbuf, 0, 0, 0, TRUE);
 
     //
     // Multiple range changes
     //
 
-    MapColors(PALETTE_BASIC_NINJA, NinjaBasic[0], TRUE);
+    MapColors(PALETTE_BASIC_NINJA, NinjaBasic[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaBasic); i++)
-        MapColors(PALETTE_BASIC_NINJA, NinjaBasic[i], FALSE);
+        MapColors(PALETTE_BASIC_NINJA, NinjaBasic[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_BASIC_NINJA, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_RED_NINJA, NinjaRed[0], TRUE);
+    MapColors(PALETTE_RED_NINJA, NinjaRed[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaRed); i++)
-        MapColors(PALETTE_RED_NINJA, NinjaRed[i], FALSE);
+        MapColors(PALETTE_RED_NINJA, NinjaRed[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_RED_NINJA, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_GREEN_NINJA, NinjaGreen[0], TRUE);
+    MapColors(PALETTE_GREEN_NINJA, NinjaGreen[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaGreen); i++)
-        MapColors(PALETTE_GREEN_NINJA, NinjaGreen[i], FALSE);
+        MapColors(PALETTE_GREEN_NINJA, NinjaGreen[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_GREEN_NINJA, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[0], TRUE);
+    MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToGreen); i++)
-        MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[i], FALSE);
+        MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_GREEN_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_RED_LIGHTING, AllToRed[0], TRUE);
+    MapColors(PALETTE_RED_LIGHTING, AllToRed[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToRed); i++)
-        MapColors(PALETTE_RED_LIGHTING, AllToRed[i], FALSE);
+        MapColors(PALETTE_RED_LIGHTING, AllToRed[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_RED_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[0], TRUE);
+    MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToBlue); i++)
-        MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[i], FALSE);
+        MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_BLUE_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
-    MapColors(PALETTE_ILLUMINATE, Illuminate[0], TRUE);
+    MapColors(PALETTE_ILLUMINATE, Illuminate[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(Illuminate); i++)
-        MapColors(PALETTE_ILLUMINATE, Illuminate[i], FALSE);
+        MapColors(PALETTE_ILLUMINATE, Illuminate[i], FALSE, tempbuf);
     paletteMakeLookupTable(PALETTE_ILLUMINATE, tempbuf, 0, 0, 0, TRUE);
 
     // PLAYER COLORS - ALSO USED FOR OTHER THINGS
     for (play = 0; play < PLAYER_COLOR_MAPS; play++)
     {
-        MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], TRUE);
-        MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], FALSE);
+        MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], TRUE, tempbuf);
+        MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], FALSE, tempbuf);
         paletteMakeLookupTable(PALETTE_PLAYER0 + play, tempbuf, 0, 0, 0, TRUE);
     }
 
