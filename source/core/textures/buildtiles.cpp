@@ -178,7 +178,7 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
 		auto tex = GetTileTexture("", RawData, uint32_t(tiledata - tiles), width, height, anm);
 		AddTile(i, tex);
 		int leftoffset, topoffset;
-		auto PicAnim = tileConvertAnimFormat(anm, &leftoffset, &topoffset);
+		this->tiledata[i].picanm = tileConvertAnimFormat(anm, &leftoffset, &topoffset);
 		tex->SetOffsets(leftoffset, topoffset);
 
 		tiledata += size;
