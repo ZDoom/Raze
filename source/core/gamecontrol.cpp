@@ -60,6 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "gamestate.h"
 #include "gstrings.h"
+#include "texturemanager.h"
 
 CUSTOM_CVAR(String, language, "auto", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALCONFIG)
 {
@@ -711,6 +712,7 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
