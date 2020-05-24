@@ -659,8 +659,8 @@ bool I_SetCursor(FTexture *cursorpic)
 			return false;
 		}
 		// Fixme: This should get a raw image, not a texture. (Once raw images get implemented.)
-		int lo = cursorpic->GetLeftOffset();
-		int to = cursorpic->GetTopOffset();
+		int lo = cursorpic->GetDisplayLeftOffset();
+		int to = cursorpic->GetDisplayTopOffset();
 
 		cursor = CreateAlphaCursor(image, lo, to);
 		if (cursor == NULL)

@@ -169,26 +169,4 @@ protected:
 };
 
 
-//==========================================================================
-//
-// a TGA texture
-//
-//==========================================================================
-
-class FImageTexture : public FTexture
-{
-	FImageSource *mImage;
-public:
-	FImageTexture (FImageSource *image, const char *name = nullptr);
-	~FImageTexture()
-	{
-		if (mImage) delete mImage;
-	}
-	void Create8BitPixels(uint8_t* buffer) override;
-
-	FImageSource *GetImage() const override { return mImage; }
-	FBitmap GetBgraBitmap(const PalEntry *p, int *trans) override;
-
-};
-
 FTexture* CreateImageTexture(FImageSource* img, const char *name = nullptr) noexcept; 

@@ -42,15 +42,15 @@
 
 void AnimTexture::SetSize(int width, int height)
 {
-    Size.x = width;
-    Size.y = height;
+    Width = width;
+    Height = height;
 	Image.Resize(width*height);
 }
 
 void AnimTexture::SetFrame(const uint8_t *palette, const void *data_)
 {
 	memcpy(Palette, palette, 768);
-	memcpy(Image.Data(), data_, Size.x * Size.y);
+	memcpy(Image.Data(), data_, Width*Height);
     DeleteHardwareTextures();
 }
 
@@ -64,11 +64,11 @@ FBitmap AnimTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
 {
     FBitmap bmp;
 
-    bmp.Create(Size.x, Size.y);
+    bmp.Create(Width, Height);
 
     auto spix = Image.Data();
     auto dpix = bmp.GetPixels();
-    for (int i = 0; i < Size.x * Size.y; i++)
+    for (int i = 0; i < Width * Height; i++)
     {
         int p = i * 4;
 		int index = spix[i];

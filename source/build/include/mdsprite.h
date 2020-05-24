@@ -3,6 +3,7 @@
 
 #ifdef USE_OPENGL
 #include "hightile.h"
+#include "glbackend/gl_hwtexture.h"
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)

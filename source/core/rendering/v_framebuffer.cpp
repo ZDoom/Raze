@@ -396,3 +396,8 @@ void DFrameBuffer::FinishScene()
 		GLInterface.DoDraw();
 	}
 }
+
+IHardwareTexture* CreateHardwareTexture()
+{
+	return screen->CreateHardwareTexture();
+}

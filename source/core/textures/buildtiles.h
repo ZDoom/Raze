@@ -1,7 +1,8 @@
 #pragma once
 
 #include "textures.h"
-
+#include "i_time.h"
+#include "compat.h"
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -69,10 +70,13 @@ struct HightileReplacement
 class FTileTexture : public FTexture
 {
 public:
-	FTileTexture() = default;
+	FTileTexture()
+	{}
+	virtual uint8_t* GetRawData() = 0;
 	void SetName(const char* name) { Name = name; }
-	FBitmap GetBgraBitmap(const PalEntry* remap, int* ptrans) override;
-	void Create8BitPixels(uint8_t* buffer) override;
+	TArray<uint8_t> Get8BitPixels(bool alphatex) override;
+	FBitmap GetBgraBitmap(const PalEntry* remap, int* trans = nullptr) override;
+	//bool GetTranslucency() override { return false; }
 };
 
 //==========================================================================
@@ -86,15 +90,14 @@ class FArtTile : public FTileTexture
 	const TArray<uint8_t>& RawPixels;
 	const uint32_t Offset;
 public:
-	FArtTile(const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height, int picanm)
+	FArtTile(const TArray<uint8_t>& backingstore, uint32_t offset, int width, int height)
 		: RawPixels(backingstore), Offset(offset)
 	{
 		SetSize(width, height);
 	}
-
-	const uint8_t* Get8BitPixels() override
+	uint8_t* GetRawData() override final
 	{
-		return RawPixels.Data() ? RawPixels.Data() + Offset : nullptr;
+		return &RawPixels[Offset];
 	}
 };
 
@@ -108,16 +111,17 @@ class FLooseTile : public FTileTexture
 {
 	TArray<uint8_t> RawPixels;
 public:
-	FLooseTile(TArray<uint8_t> &store, int width, int height)
+	FLooseTile(TArray<uint8_t>& store, int width, int height)
 	{
 		RawPixels = std::move(store);
 		SetSize(width, height);
 	}
 
-	const uint8_t* Get8BitPixels() override
+	uint8_t* GetRawData() override
 	{
 		return RawPixels.Data();
 	}
+
 };
 
 //==========================================================================
@@ -134,9 +138,9 @@ public:
 		SetSize(width, height);
 	}
 
-	const uint8_t* Get8BitPixels() override
+	uint8_t* GetRawData() override
 	{
-		return NULL;
+		return nullptr;
 	}
 };
 
@@ -152,20 +156,19 @@ protected:
 	TArray<uint8_t> buffer;
 
 public:
-	const uint8_t* Get8BitPixels() override
+	FWritableTile()
 	{
-		return buffer.Data();
+		//useType = Writable;
 	}
 
-	uint8_t* GetWritableBuffer() override
+	uint8_t* GetRawData() override
 	{
-		// Todo: Invalidate all hardware textures depending on this.
 		return buffer.Data();
 	}
 
 	bool Resize(int w, int h)
 	{
-		if (w <= 0 || h <=  0)
+		if (w <= 0 || h <= 0)
 		{
 			buffer.Reset();
 			return false;
@@ -195,13 +198,13 @@ public:
 	{
 		Base = base;
 		CopySize(base);
-		Resize(GetWidth(), GetHeight());
+		Resize(GetTexelWidth(), GetTexelHeight());
 		Reload();
 	}
 
-	void Reload() override
+	void Reload()
 	{
-		Base->Create8BitPixels(buffer.Data());
+		buffer = std::move(Base->Get8BitPixels(false));
 	}
 };
 
@@ -364,21 +367,31 @@ extern BuildTiles TileFiles;
 inline bool tileCheck(int num)
 {
 	auto tex = TileFiles.tiledata[num].texture;
-	return tex->GetWidth() > 0 && tex->GetHeight() > 0;
+	return tex && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0;
 }
 
 inline const uint8_t* tilePtr(int num)
 {
-	auto tex = TileFiles.tiledata[num].texture;
-	auto p = tex->Get8BitPixels();
-	if (p) return p;
-	return tex->CachedPixels.Data();
+	if (TileFiles.tiledata[num].rawCache.data.Size() == 0)
+	{
+		auto tex = TileFiles.tiledata[num].texture;
+		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
+		TileFiles.tiledata[num].rawCache.data = std::move(tex->Get8BitPixels(false));
+	}
+	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
+	return TileFiles.tiledata[num].rawCache.data.Data();
+}
+
+inline bool tileLoad(int tileNum)
+{
+	return !!tilePtr(tileNum);
 }
 
 inline uint8_t* tileData(int num)
 {
 	auto tex = TileFiles.tiledata[num].texture;
-	return tex->GetWritableBuffer();
+	auto p = dynamic_cast<FWritableTile*>(tex);
+	return p ? p->GetRawData() : nullptr;
 }
 
 // Some hacks to allow accessing the no longer existing arrays as if they still were arrays to avoid changing hundreds of lines of code.

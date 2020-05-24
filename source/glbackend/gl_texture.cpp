@@ -68,15 +68,10 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 
 FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 {
-	auto siz = tex->GetSize();
+	vec2_t siz = { tex->GetTexelWidth(), tex->GetTexelHeight() };
 
-	const uint8_t* p = tex->Get8BitPixels();
-	TArray<uint8_t> store(siz.x * siz.y, true);
-	if (!p)
-	{
-		tex->Create8BitPixels(store.Data());
-		p = store.Data();
-	}
+	auto store = tex->Get8BitPixels(false);
+	const uint8_t* p = store.Data();
 
 	auto glpic = GLInterface.NewTexture();
 	glpic->CreateTexture(siz.x, siz.y, FHardwareTexture::Indexed, false);
@@ -132,8 +127,8 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 {
 	if (textype == TT_INDEXED) palid = -1;
-	auto phwtex = tex->GetHardwareTexture(palid);
-	if (phwtex) return *phwtex;
+	auto phwtex = tex->SystemTextures.GetHardwareTexture(palid, false);
+	if (phwtex) return (FHardwareTexture*)phwtex;
 
 	FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
@@ -143,7 +138,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 	else
 		hwtex = nullptr;
 	
-	if (hwtex) tex->SetHardwareTexture(palid, hwtex);
+	if (hwtex) tex->SystemTextures.AddHardwareTexture(palid, false, hwtex);
 	return hwtex;
 }
 
@@ -392,7 +387,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	float al = 0.5f;
 	if (TextureType == TT_HICREPLACE)
 	{
-		al = ((unsigned)picnum < MAXTILES && alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
+		al = ((unsigned)picnum < MAXTILES&& alphahackarray[picnum] != 0) ? alphahackarray[picnum] * (1.f / 255.f) :
 			(tex->alphaThreshold >= 0 ? tex->alphaThreshold * (1.f / 255.f) : 0.f);
 	}
 	GLInterface.SetAlphaThreshold(al);
@@ -413,7 +408,7 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 	if (!mtex) return false;
 
 	BindTexture(0, mtex, sampler);
-	GLInterface.SetAlphaThreshold(tex->isTranslucent()? 0.f : 0.5f);
+	GLInterface.SetAlphaThreshold(tex->GetTranslucency()? 0.f : 0.5f);
 	return true;
 }
 

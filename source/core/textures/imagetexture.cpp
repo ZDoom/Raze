@@ -34,10 +34,11 @@
 */
 
 #include "files.h"
+#include "filesystem.h"
 #include "templates.h"
 #include "bitmap.h"
 #include "image.h"
-#include "imagehelpers.h"
+#include "textures.h"
 
 
 //==========================================================================
@@ -46,17 +47,19 @@
 //
 //==========================================================================
 
-FImageTexture::FImageTexture(FImageSource *img, const char *name)
-: FTexture(name)
+FImageTexture::FImageTexture(FImageSource* img, const char* name) noexcept
+	: FTexture(name, img ? img->LumpNum() : 0)
 {
 	mImage = img;
 	if (img != nullptr)
 	{
-		SetSize(img->GetWidth(), img->GetHeight());
+		if (name == nullptr) fileSystem.GetFileShortName(Name, img->LumpNum());
+		Width = img->GetWidth();
+		Height = img->GetHeight();
 
 		auto offsets = img->GetOffsets();
-		leftoffset = offsets.first;
-		topoffset = offsets.second;
+		_LeftOffset[1] = _LeftOffset[0] = offsets.first;
+		_TopOffset[1] = _TopOffset[0] = offsets.second;
 
 		bMasked = img->bMasked;
 		bTranslucent = img->bTranslucent;
@@ -69,9 +72,9 @@ FImageTexture::FImageTexture(FImageSource *img, const char *name)
 //
 //===========================================================================
 
-FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
+FBitmap FImageTexture::GetBgraBitmap(const PalEntry* p, int* trans)
 {
-	return mImage->GetCachedBitmap(p, FImageSource::normal, trans);
+	return mImage->GetCachedBitmap(p, bNoRemap0 ? FImageSource::noremap0 : FImageSource::normal, trans);
 }
 
 //===========================================================================
@@ -80,15 +83,14 @@ FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
 //
 //===========================================================================
 
-void FImageTexture::Create8BitPixels(uint8_t* buffer)
+TArray<uint8_t> FImageTexture::Get8BitPixels(bool alpha)
 {
-	//ImageHelpers::alphaThreshold = alphaThreshold;
-	auto buf = mImage->GetPalettedPixels(FImageSource::normal);
-	memcpy(buffer, buf.Data(), buf.Size());
+	return mImage->GetPalettedPixels(alpha ? alpha : bNoRemap0 ? FImageSource::noremap0 : FImageSource::normal);
 }
 
-FTexture* CreateImageTexture(FImageSource* img, const char *name) noexcept
+
+FTexture* CreateImageTexture(FImageSource* img, const char* name) noexcept
 {
 	return new FImageTexture(img, name);
 }
- 
+

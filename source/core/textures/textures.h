@@ -35,13 +35,18 @@
 #ifndef __TEXTURES_H
 #define __TEXTURES_H
 
-#include "compat.h"
+#include "basics.h"
+#include "vectors.h"
+#include "colormatcher.h"
+#include "renderstyle.h"
 #include "textureid.h"
-#include "zstring.h"
-#include "tarray.h"
-#include "palentry.h"
+#include <vector>
+#include "hw_texcontainer.h"
 
-class FHardwareTexture;
+// 15 because 0th texture is our texture
+#define MAX_CUSTOM_HW_SHADER_TEXTURES 15
+
+typedef TMap<int, bool> SpriteHits;
 class FImageSource;
 
 enum MaterialShaderIndex
@@ -199,103 +204,274 @@ struct FTextureBuffer
 // Base texture class
 class FTexture
 {
-	friend struct BuildTiles;
-	friend class FTextureManager;
-	friend bool tileLoad(int tileNum);
-	friend const uint8_t* tilePtr(int num);
+	friend class GLDefsParser;
+	friend class FMultipatchTextureBuilder;
+	
+	// The serializer also needs access to more specific info that shouldn't be accessible through the interface.
+	friend FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTextureID *defval);
+
+	// For now only give access to classes which cannot be reworked yet. None of these should remain here when all is done.
+	friend class FSoftwareTexture;
+	friend class FWarpTexture;
+	friend class FMaterial;
+	friend class OpenGLRenderer::FGLRenderState;	// For now this needs access to some fields in ApplyMaterial. This should be rerouted through the Material class
+	friend class VkRenderState;
+	friend class PolyRenderState;
+	friend struct FTexCoordInfo;
+	friend class OpenGLRenderer::FHardwareTexture;
+	friend class VkHardwareTexture;
+	friend class PolyHardwareTexture;
+	friend class FMultiPatchTexture;
+	friend class FSkyBox;
+	friend class FBrightmapTexture;
+	friend class FFont;
+
 
 public:
-	static FTexture* CreateTexture(const char* name, int lumpnum, ETextureType useType);
-
+	static FTexture *CreateTexture(const char *name, int lumpnum, ETextureType usetype);
 	virtual ~FTexture ();
 	virtual FImageSource *GetImage() const { return nullptr; }
+	void AddAutoMaterials();
+	void CreateUpsampledTextureBuffer(FTextureBuffer &texbuffer, bool hasAlpha, bool checkonly);
 
-	const FString &GetName() const { return Name; }
-	bool isMasked() const { return bMasked; }
-	bool isTranslucent() const { return bMasked; }
-	PalEntry GetSkyCapColor(bool bottom);
-
-	// Returns the whole texture, stored in column-major order
-	virtual void Create8BitPixels(uint8_t* buffer);
-	virtual const uint8_t* Get8BitPixels();
-	virtual uint8_t* GetWritableBuffer() { return nullptr; }	// For dynamic tiles. Requesting this must also invalidate the texture.
-	virtual FBitmap GetBgraBitmap(const PalEntry *remap, int *trans = nullptr);
-
-	static int SmoothEdges(unsigned char * buffer,int w, int h);
-	static PalEntry averageColor(const uint32_t *data, int size, int maxout);
-
-	int GetWidth() const { return Size.x; }
-	int GetHeight() const { return Size.y; }
-	int GetTexelWidth() const { return Size.x; }
-	int GetTexelHeight() const { return Size.y; }
-	int GetDisplayWidth() const { return Size.x; }
-	int GetDisplayHeight() const { return Size.y; }
-	const vec2_16_t &GetSize() const { return Size; }
-	int GetLeftOffset() const { return leftoffset; }
-	int GetTopOffset() const { return topoffset; }
-	int GetDisplayLeftOffset() const { return leftoffset; }
-	int GetDisplayTopOffset() const { return topoffset; }
-	void SetOffsets(int x, int y) { leftoffset = x; topoffset = y; }
-	FTextureBuffer CreateTexBuffer(const PalEntry *palette, int flags = 0);
-	bool GetTranslucency();
-	void CheckTrans(unsigned char * buffer, int size, int trans);
-	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
-	virtual void Reload() {}
-	ETextureType GetUseType() const { return UseType; }
-	void DeleteHardwareTextures();
-	int GetSourceLump() { return SourceLump; }
-	void SetUseType(ETextureType use) { UseType = use; }
-
-	void SetHardwareTexture(int palid, FHardwareTexture* htex)
+	// These are mainly meant for 2D code which only needs logical information about the texture to position it properly.
+	int GetDisplayWidth() { int foo = int((Width * 2) / Scale.X); return (foo >> 1) + (foo & 1); }
+	int GetDisplayHeight() { int foo = int((Height * 2) / Scale.Y); return (foo >> 1) + (foo & 1); }
+	double GetDisplayWidthDouble() { return Width / Scale.X; }
+	double GetDisplayHeightDouble() { return Height / Scale.Y; }
+	int GetDisplayLeftOffset() { return GetScaledLeftOffset(0); }
+	int GetDisplayTopOffset() { return GetScaledTopOffset(0); }
+	double GetDisplayLeftOffsetDouble() { return GetScaledLeftOffsetDouble(0); }
+	double GetDisplayTopOffsetDouble() { return GetScaledTopOffsetDouble(0); }
+	void SetOffsets(int l, int t)
 	{
-		HardwareTextures.Insert(palid, htex);
+		_LeftOffset[0] = _LeftOffset[1] = l;
+		_TopOffset[0] = _TopOffset[1] = l;
 	}
-	FHardwareTexture** GetHardwareTexture(int palid)
-	{
-		return HardwareTextures.CheckKey(palid);
-	}
-
-	int alphaThreshold = 128;
-	FixedBitArray<256> NoBrightmapFlag{ 0 };
-
-protected:
 	
-	void CopySize(FTexture *BaseTexture)
+	int GetTexelWidth() { return Width; }
+	int GetTexelHeight() { return Height; }
+	int GetTexelLeftOffset(int adjusted) { return _LeftOffset[adjusted]; }
+	int GetTexelTopOffset(int adjusted) { return _TopOffset[adjusted]; }
+
+	
+	bool isValid() const { return UseType != ETextureType::Null; }
+	bool isSWCanvas() const { return UseType == ETextureType::SWCanvas; }
+	bool isSkybox() const { return bSkybox; }
+	bool isFullbrightDisabled() const { return bDisableFullbright; }
+	bool isHardwareCanvas() const { return bHasCanvas; }	// There's two here so that this can deal with software canvases in the hardware renderer later.
+	bool isCanvas() const { return bHasCanvas; }
+	bool isMiscPatch() const { return UseType == ETextureType::MiscPatch; }	// only used by the intermission screen to decide whether to tile the background image or not. 
+	int isWarped() const { return bWarped; }
+	int GetRotations() const { return Rotations; }
+	void SetRotations(int rot) { Rotations = int16_t(rot); }
+	bool isSprite() const { return UseType == ETextureType::Sprite || UseType == ETextureType::SkinSprite || UseType == ETextureType::Decal; }
+	
+	const FString &GetName() const { return Name; }
+	void SetNoDecals(bool on) { bNoDecals = on;  }
+	void SetWarpStyle(int style) { bWarped = style; }
+	bool allowNoDecals() const { return bNoDecals; }
+	bool isScaled() const { return Scale.X != 1 || Scale.Y != 1; }
+	bool isMasked() const { return bMasked; }
+	void SetSkyOffset(int offs) { SkyOffset = offs; }
+	int GetSkyOffset() const { return SkyOffset; }
+	FTextureID GetID() const { return id; }
+	PalEntry GetSkyCapColor(bool bottom);
+	FTexture *GetRawTexture();
+	virtual int GetSourceLump() { return SourceLump; }	// needed by the scripted GetName method.
+	void GetGlowColor(float *data);
+	bool isGlowing() const { return bGlowing; }
+	bool isAutoGlowing() const { return bAutoGlowing; }
+	int GetGlowHeight() const { return GlowHeight; }
+	bool isFullbright() const { return bFullbright; }
+	void CreateDefaultBrightmap();
+	bool FindHoles(const unsigned char * buffer, int w, int h);
+	void SetUseType(ETextureType type) { UseType = type; }
+	int GetSourceLump() const { return SourceLump;  }
+	ETextureType GetUseType() const { return UseType; }
+	void SetSpeed(float fac) { shaderspeed = fac; }
+	void SetWorldPanning(bool on) { bWorldPanning = on; }
+	void SetDisplaySize(int fitwidth, int fitheight);
+	void SetFrontSkyLayer(bool on = true) { bNoRemap0 = on; }
+	bool IsFrontSkyLayer() { return bNoRemap0; }
+
+	FTexture* GetBrightmap()
 	{
-		Size.x = BaseTexture->GetWidth();
-		Size.y = BaseTexture->GetHeight();
-		leftoffset = BaseTexture->leftoffset;
-		topoffset = BaseTexture->topoffset;
+		if (!bBrightmapChecked)
+			CreateDefaultBrightmap();
+		return Brightmap;
 	}
 
+	void CopySize(FTexture* BaseTexture)
+	{
+		Width = BaseTexture->GetTexelWidth();
+		Height = BaseTexture->GetTexelHeight();
+		_TopOffset[0] = BaseTexture->_TopOffset[0];
+		_TopOffset[1] = BaseTexture->_TopOffset[1];
+		_LeftOffset[0] = BaseTexture->_LeftOffset[0];
+		_LeftOffset[1] = BaseTexture->_LeftOffset[1];
+		Scale = BaseTexture->Scale;
+	}
+
+	// This is only used for the null texture and for Heretic's skies.
 	void SetSize(int w, int h)
 	{
-		Size = { int16_t(w), int16_t(h) };
+		Width = w;
+		Height = h;
 	}
 
+
+	// Returns the whole texture, stored in column-major order
+	virtual TArray<uint8_t> Get8BitPixels(bool alphatex);
+	virtual FBitmap GetBgraBitmap(const PalEntry *remap, int *trans = nullptr);
+
+	static bool SmoothEdges(unsigned char * buffer,int w, int h);
+	static PalEntry averageColor(const uint32_t *data, int size, int maxout);
+
+	
+	FSoftwareTexture *GetSoftwareTexture();
+
+protected:
+
+	DVector2 Scale;
+
+	int SourceLump;
+	FTextureID id;
+
+	FMaterial *Material[2] = { nullptr, nullptr };
+public:
+	FHardwareTextureContainer SystemTextures;
+	int alphaThreshold = 0.5;
+	FixedBitArray<256> NoBrightmapFlag = false;
+protected:
+	FSoftwareTexture *SoftwareTexture = nullptr;
+
+	// None of the following pointers are owned by this texture, they are all controlled by the texture manager.
+
+	// Offset-less version for COMPATF_MASKEDMIDTEX
+	FTexture *OffsetLess = nullptr;
+	// Paletted variant
+	FTexture *PalVersion = nullptr;
+	// Material layers
+	FTexture *Brightmap = nullptr;
+	FTexture *Normal = nullptr;							// Normal map texture
+	FTexture *Specular = nullptr;						// Specular light texture for the diffuse+normal+specular light model
+	FTexture *Metallic = nullptr;						// Metalness texture for the physically based rendering (PBR) light model
+	FTexture *Roughness = nullptr;						// Roughness texture for PBR
+	FTexture *AmbientOcclusion = nullptr;				// Ambient occlusion texture for PBR
+	
+	FTexture *CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES] = { nullptr }; // Custom texture maps for custom hardware shaders
+
 	FString Name;
-	union
+	ETextureType UseType;	// This texture's primary purpose
+
+	uint8_t bNoDecals:1;		// Decals should not stick to texture
+	uint8_t bNoRemap0:1;		// Do not remap color 0 (used by front layer of parallax skies)
+	uint8_t bWorldPanning:1;	// Texture is panned in world units rather than texels
+	uint8_t bMasked:1;			// Texture (might) have holes
+	uint8_t bAlphaTexture:1;	// Texture is an alpha channel without color information
+	uint8_t bHasCanvas:1;		// Texture is based off FCanvasTexture
+	uint8_t bWarped:2;			// This is a warped texture. Used to avoid multiple warps on one texture
+	uint8_t bComplex:1;		// Will be used to mark extended MultipatchTextures that have to be
+							// fully composited before subjected to any kind of postprocessing instead of
+							// doing it per patch.
+	uint8_t bMultiPatch:2;		// This is a multipatch texture (we really could use real type info for textures...)
+	uint8_t bFullNameTexture : 1;
+	uint8_t bBrightmapChecked : 1;				// Set to 1 if brightmap has been checked
+	uint8_t bGlowing : 1;						// Texture glow color
+	uint8_t bAutoGlowing : 1;					// Glow info is determined from texture image.
+	uint8_t bFullbright : 1;					// always draw fullbright
+	uint8_t bDisableFullbright : 1;				// This texture will not be displayed as fullbright sprite
+	uint8_t bSkybox : 1;						// is a cubic skybox
+	uint8_t bNoCompress : 1;
+	uint8_t bNoExpand : 1;
+	int8_t bTranslucent : 2;
+	bool bHiresHasColorKey = false;				// Support for old color-keyed Doomsday textures
+
+	uint16_t Rotations;
+	int16_t SkyOffset;
+	FloatRect *areas = nullptr;
+	int areacount = 0;
+	int GlowHeight = 128;
+	PalEntry GlowColor = 0;
+	int HiresLump = -1;							// For external hires textures.
+	float Glossiness = 10.f;
+	float SpecularLevel = 0.1f;
+	float shaderspeed = 1.f;
+	int shaderindex = 0;
+
+	int GetScaledWidth () { int foo = int((Width * 2) / Scale.X); return (foo >> 1) + (foo & 1); }
+	int GetScaledHeight () { int foo = int((Height * 2) / Scale.Y); return (foo >> 1) + (foo & 1); }
+	double GetScaledWidthDouble () { return Width / Scale.X; }
+	double GetScaledHeightDouble () { return Height / Scale.Y; }
+	double GetScaleY() const { return Scale.Y; }
+
+
+	// Now with improved offset adjustment.
+	int GetLeftOffset(int adjusted) { return _LeftOffset[adjusted]; }
+	int GetTopOffset(int adjusted) { return _TopOffset[adjusted]; }
+	int GetScaledLeftOffset (int adjusted) { int foo = int((_LeftOffset[adjusted] * 2) / Scale.X); return (foo >> 1) + (foo & 1); }
+	int GetScaledTopOffset (int adjusted) { int foo = int((_TopOffset[adjusted] * 2) / Scale.Y); return (foo >> 1) + (foo & 1); }
+	double GetScaledLeftOffsetDouble(int adjusted) { return _LeftOffset[adjusted] / Scale.X; }
+	double GetScaledTopOffsetDouble(int adjusted) { return _TopOffset[adjusted] / Scale.Y; }
+
+	// Interfaces for the different renderers. Everything that needs to check renderer-dependent offsets
+	// should use these, so that if changes are needed, this is the only place to edit.
+
+	// For the hardware renderer. The software renderer's have been offloaded to FSoftwareTexture
+	int GetLeftOffsetHW() { return _LeftOffset[r_spriteadjustHW]; }
+	int GetTopOffsetHW() { return _TopOffset[r_spriteadjustHW]; }
+
+	virtual void ResolvePatches() {}
+
+	void SetScale(const DVector2 &scale)
 	{
-		vec2_16_t Size = { 0,0 };	// Keep this in the native format so that we can use it without copying it around.
-		struct { uint16_t Width, Height; };
-	};
-	int leftoffset = 0, topoffset = 0;
-	uint8_t bMasked = true;		// Texture (might) have holes
-	int8_t bTranslucent = -1;	// Does this texture have an active alpha channel?
-	bool skyColorDone = false;
-	ETextureType UseType = ETextureType::Any;
+		Scale = scale;
+	}
+
+protected:
+	uint16_t Width, Height;
+	int16_t _LeftOffset[2], _TopOffset[2];
+
+	FTexture (const char *name = NULL, int lumpnum = -1);
+
+public:
+	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
+	FTextureBuffer CreateTexBuffer(const PalEntry* translation, int flags = 0);
+	bool GetTranslucency();
+	FMaterial* GetMaterial(int num)
+	{
+		return Material[num];
+	}
+	FTexture* GetPalVersion()
+	{
+		return PalVersion;
+	}
+
+	void DeleteHardwareTextures()
+	{
+		SystemTextures.Clean(true, true);
+	}
+
+private:
+	int CheckDDPK3();
+	int CheckExternalFile(bool & hascolorkey);
+	
+	bool bSWSkyColorDone = false;
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
-	TArray<uint8_t> CachedPixels;
-	// Don't waste too much effort on efficient storage here. Polymost performs so many calculations on a single draw call that the minor map lookup hardly matters.
-	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
-	bool bFullNameTexture = false;
-	FTextureID id = FSetTextureID(-1);
-	int SourceLump = -1;
 
-	FTexture (const char *name = NULL);
-	friend struct BuildTiles;
+public:
+
+	void CheckTrans(unsigned char * buffer, int size, int trans);
+	bool ProcessData(unsigned char * buffer, int w, int h, bool ispatch);
+	int CheckRealHeight();
+
+	friend class FTextureManager;
 };
+
+
+// A texture that can be drawn to.
 
 class FCanvasTexture : public FTexture
 {
@@ -303,12 +479,13 @@ public:
 	FCanvasTexture(const char* name, int width, int height)
 	{
 		Name = name;
-		Size.x = width;
-		Size.y = height;
+		Width = width;
+		Height = height;
 
 		bMasked = false;
+		bHasCanvas = true;
 		bTranslucent = false;
-		//bNoExpand = true;
+		bNoExpand = true;
 		UseType = ETextureType::Wall;
 	}
 
@@ -324,6 +501,60 @@ public:
 
 	friend struct FCanvasTextureInfo;
 };
+
+
+// A wrapper around a hardware texture, to allow using it in the 2D drawing interface.
+class FWrapperTexture : public FTexture
+{
+	int Format;
+public:
+	FWrapperTexture(int w, int h, int bits = 1);
+	IHardwareTexture *GetSystemTexture()
+	{
+		return SystemTextures.GetHardwareTexture(0, false);
+	}
+
+	int GetColorFormat() const
+	{
+		return Format;
+	}
+};
+
+
+class FImageTexture : public FTexture
+{
+	FImageSource* mImage;
+public:
+	FImageTexture(FImageSource* image, const char* name = nullptr) noexcept;
+	virtual TArray<uint8_t> Get8BitPixels(bool alphatex);
+
+	void SetImage(FImageSource* img)	// This is only for the multipatch texture builder!
+	{
+		mImage = img;
+	}
+
+	FImageSource* GetImage() const override { return mImage; }
+	FBitmap GetBgraBitmap(const PalEntry* p, int* trans) override;
+
+};
+
+struct FTexCoordInfo
+{
+	int mRenderWidth;
+	int mRenderHeight;
+	int mWidth;
+	FVector2 mScale;
+	FVector2 mTempScale;
+	bool mWorldPanning;
+
+	float FloatToTexU(float v) const { return v / mRenderWidth; }
+	float FloatToTexV(float v) const { return v / mRenderHeight; }
+	float RowOffset(float ofs) const;
+	float TextureOffset(float ofs) const;
+	float TextureAdjustWidth() const;
+	void GetFromTexture(FTexture *tex, float x, float y, bool forceworldpanning);
+};
+
 
 #endif
 

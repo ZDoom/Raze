@@ -753,6 +753,7 @@ set (PCH_SOURCES
 	common/textures/m_png.cpp
 	common/textures/image.cpp
 	common/textures/texturemanager.cpp
+	common/textures/hw_ihwtexture.cpp
 	common/textures/formats/fontchars.cpp
 	common/textures/formats/automaptexture.cpp
 	common/textures/formats/brightmaptexture.cpp

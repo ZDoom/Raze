@@ -622,8 +622,8 @@ FTexture *PNGTexture_CreateFromFile(PNGHandle *png, const FString &filename)
 FPNGFileTexture::FPNGFileTexture (FileReader &lump, int width, int height, uint8_t colortype)
 : ColorType(colortype)
 {
-	Size.x = width;
-	Size.y = height;
+	Width = width;
+	Height = height;
 	fr = std::move(lump);
 }
 
@@ -639,11 +639,11 @@ FBitmap FPNGFileTexture::GetBgraBitmap(const PalEntry *remap, int *trans)
 	// Parse pre-IDAT chunks. I skip the CRCs. Is that bad?
 	PalEntry pe[256];
 	uint32_t len, id;
-	int pixwidth = Size.x * (ColorType == 2? 3:1);
+	int pixwidth = Width * (ColorType == 2? 3:1);
 	
 	FileReader *lump = &fr;
 	
-	bmp.Create(Size.x, Size.y);
+	bmp.Create(Width, Height);
 	lump->Seek(33, FileReader::SeekSet);
 	lump->Read(&len, 4);
 	lump->Read(&id, 4);
@@ -670,20 +670,20 @@ FBitmap FPNGFileTexture::GetBgraBitmap(const PalEntry *remap, int *trans)
 	}
 	auto StartOfIDAT = (uint32_t)lump->Tell() - 8;
 
-	TArray<uint8_t> Pixels(pixwidth * Size.y);
+	TArray<uint8_t> Pixels(pixwidth * Height);
 	
 	lump->Seek (StartOfIDAT, FileReader::SeekSet);
 	lump->Read(&len, 4);
 	lump->Read(&id, 4);
-	M_ReadIDAT (*lump, Pixels.Data(), Size.x, Size.y, pixwidth, 8, ColorType, 0, BigLong((unsigned int)len));
+	M_ReadIDAT (*lump, Pixels.Data(), Width, Height, pixwidth, 8, ColorType, 0, BigLong((unsigned int)len));
 	
 	if (ColorType == 3)
 	{
-		bmp.CopyPixelData(0, 0, Pixels.Data(), Size.x, Size.y, 1, Size.x, 0, pe);
+		bmp.CopyPixelData(0, 0, Pixels.Data(), Width, Height, 1, Width, 0, pe);
 	}
 	else
 	{
-		bmp.CopyPixelDataRGB(0, 0, Pixels.Data(), Size.x, Size.y, 3, pixwidth, 0, CF_RGB);
+		bmp.CopyPixelDataRGB(0, 0, Pixels.Data(), Width, Height, 3, pixwidth, 0, CF_RGB);
 	}
 	return bmp;
 } 
