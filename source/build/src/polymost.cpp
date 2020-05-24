@@ -19,6 +19,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "v_video.h"
 #include "flatvertices.h"
 #include "palettecontainer.h"
+#include "texturemanager.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -210,7 +211,7 @@ void polymost_glreset()
     }
     else
     {
-		TileFiles.ClearTextureCache();
+        TexMan.FlushAll();
     }
 
 	if (polymosttext)
@@ -535,7 +536,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         float const r = 1.f / dd[i];
 
-        if (TileFiles.tiledata[globalpicnum].replacement == ReplacementType::Canvas)
+        if (tileGetTexture(globalpicnum)->isCanvas())
         {
             //update texcoords, canvas textures are upside down!
             vt->SetTexCoord(

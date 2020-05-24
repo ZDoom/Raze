@@ -113,7 +113,7 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 	auto tex = new FArtTile(backingstore, offset, width, height);
 	auto p = &backingstore[offset];
 	auto siz = width * height;
-#if 0
+#ifdef SWAP_255
 	for (int i = 0; i < siz; i++, p++)
 	{
 		// move transparent color to index 0 to get in line with the rest of the texture management.
@@ -129,6 +129,20 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 	return nullptr;
 }
 
+
+void BuildTiles::Init()
+{
+	auto Placeholder = TexMan.ByIndex(0);
+	for (auto& tile : tiledata)
+	{
+		tile.texture = Placeholder;
+		tile.backup = Placeholder;
+		tile.picanm = {};
+		tile.RotTile = { -1,-1 };
+		tile.replacement = ReplacementType::Art;
+	}
+
+}
 //==========================================================================
 //
 // 
@@ -137,11 +151,9 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 
 void BuildTiles::AddTile(int tilenum, FTexture* tex, bool permap)
 {
-	assert(AllTiles.Find(tex) == AllTiles.Size() && AllMapTiles.Find(tex) == AllMapTiles.Size());
-	auto& array = permap ? AllMapTiles : AllTiles;
-	array.Push(tex);
+	assert(!tex->GetID().isValid());	// must not be added yet.
+	TexMan.AddTexture(tex);
 	tiledata[tilenum].texture = tex;
-
 	if (!permap) tiledata[tilenum].backup = tex;
 }
 
@@ -281,49 +293,6 @@ int CountTiles (const char *fn, const uint8_t *RawData)
 
 //===========================================================================
 //
-// CloseAllMapArt
-//
-// Closes all per-map ART files
-//
-//===========================================================================
-
-void BuildTiles::CloseAllMapArt()
-{
-	AllMapTiles.DeleteAndClear();
-	PerMapArtFiles.DeleteAndClear();
-}
-
-//===========================================================================
-//
-// ClearTextureCache
-//
-// Deletes all hardware textures
-//
-//===========================================================================
-
-void BuildTiles::ClearTextureCache(bool artonly)
-{
-	for (auto tex : AllTiles)
-	{
-		tex->SystemTextures.Clean(true, true);
-	}
-	for (auto tex : AllMapTiles)
-	{
-		tex->SystemTextures.Clean(true, true);
-	}
-	if (!artonly)
-	{
-		decltype(textures)::Iterator it(textures);
-		decltype(textures)::Pair* pair;
-		while (it.NextPair(pair))
-		{
-			pair->Value->SystemTextures.Clean(true, true);
-		}
-	}
-}
-
-//===========================================================================
-//
 // InvalidateTile
 //
 //===========================================================================
@@ -390,9 +359,8 @@ int BuildTiles::LoadArtFile(const char *fn, const char *mapname, int firsttile)
 				// Only load the data if the header is present
 				if (CountTiles(fn, artptr) > 0)
 				{
-					auto& descs = mapname ? PerMapArtFiles : ArtFiles;
 					auto file = new BuildArtFile;
-					descs.Push(file);
+					ArtFiles.Push(file);
 					file->filename = fn;
 					file->RawData = std::move(artdata);
 					AddTiles(firsttile, file->RawData, mapname);
@@ -404,13 +372,6 @@ int BuildTiles::LoadArtFile(const char *fn, const char *mapname, int firsttile)
 			//Printf("%s: file not found\n", fn);
 			return -1;
 		}
-	}
-	else
-	{
-		// Reuse the old one but move it to the top. (better not.)
-		//auto fd = std::move(ArtFiles[old]);
-		//ArtFiles.Delete(old);
-		//ArtFiles.Push(std::move(fd));
 	}
 	return 0;
 }
@@ -448,10 +409,12 @@ void BuildTiles::LoadArtSet(const char* filename)
 FTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 {
 	if (tilenum < 0 || tilenum >= MAXTILES) return nullptr;
-	if (tiledata[tilenum].texture != tiledata[tilenum].backup) return nullptr;	// no mucking around with map tiles.
-	auto tile = tiledata[tilenum].texture;
-	if (tiledata[tilenum].replacement == type) return tile;		// already created
-	if (tiledata[tilenum].replacement > ReplacementType::Art) return nullptr;		// different custom type - cannot replace again.
+	auto &td = tiledata[tilenum];
+	if (td.texture != td.backup) return nullptr;	// no mucking around with map tiles.
+	auto tile = td.texture;
+	auto reptype = td.replacement;
+	if (reptype == type) return tile;		// already created
+	if (reptype > ReplacementType::Art) return nullptr;		// different custom type - cannot replace again.
 	FTexture* replacement = nullptr;
 	if (type == ReplacementType::Writable)
 	{
@@ -546,7 +509,7 @@ int32_t tileGetCRC32(int tileNum)
 	auto size = tile->GetWidth() * tile->GetHeight();
 	if (size == 0) return 0;
 
-#if 0
+#ifdef SWAP_255
 	// Temporarily revert the data to its original form with 255 being transparent. Otherwise the CRC won't match.
 	auto p = pixels;
 	for (int i = 0; i < size; i++, p++)
@@ -666,7 +629,6 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 void artClearMapArt(void)
 {
-	TileFiles.CloseAllMapArt();
 	for (auto& td : TileFiles.tiledata)
 	{
 		td.texture = td.backup;
@@ -688,13 +650,35 @@ void artSetupMapArt(const char* filename)
 	currentMapArt = filename;
 	artClearMapArt();
 
-	FStringf firstname("%s_00.art", filename);
+	FString lcfilename = filename;
+	lcfilename.MakeLower();
+
+	// Re-get from the texture manager if this map's tiles have already been created.
+	if (TileFiles.maptilesadded.Find(lcfilename) < TileFiles.maptilesadded.Size())
+	{
+		for (int i = 0; i < MAXTILES; i++)
+		{
+			FStringf name("maptile_%s_%05d", lcfilename.GetChars(), i);
+			auto texid = TexMan.CheckForTexture(name, ETextureType::Any);
+			if (texid.isValid())
+			{
+				TileFiles.tiledata[i].texture = TexMan.GetTexture(texid);
+			}
+		}
+		return;
+	}
+
+	TileFiles.maptilesadded.Push(lcfilename);
+
+
+	FStringf firstname("%s_00.art", lcfilename.GetChars());
 	auto fr = fileSystem.OpenFileReader(firstname);
 	if (!fr.isOpen()) return;
 	for (auto& td : TileFiles.tiledata)
 	{
 		td.picanmbackup = td.picanm;
 	}
+
 
 	for (bssize_t i = 0; i < MAXARTFILES_TOTAL - MAXARTFILES_BASE; i++)
 	{
@@ -713,7 +697,7 @@ void artSetupMapArt(const char* filename)
 void tileDelete(int tile)
 {
 	TileFiles.TextureToTile.Remove(tileGetTexture(tile));
-	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TileFiles.Placeholder;
+	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.ByIndex(0);
 	vox_undefine(tile);
 	md_undefinetile(tile);
 	tileRemoveReplacement(tile);
@@ -806,11 +790,6 @@ int BuildTiles::tileCreateRotated(int tileNum)
 	return index;
 }
 
-void tileSetAnim(int tile, const picanm_t& anm)
-{
-
-}
-
 //==========================================================================
 //
 //
@@ -819,15 +798,7 @@ void tileSetAnim(int tile, const picanm_t& anm)
 
 void BuildTiles::CloseAll()
 {
-	decltype(textures)::Iterator it(textures);
-	decltype(textures)::Pair* pair;
-	while (it.NextPair(pair)) delete pair->Value;
-	textures.Clear();
-	CloseAllMapArt();
 	ArtFiles.DeleteAndClear();
-	AllTiles.DeleteAndClear();
-	if (Placeholder) delete Placeholder;
-	Placeholder = nullptr;
 }
 
 //==========================================================================

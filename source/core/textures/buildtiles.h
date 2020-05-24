@@ -273,23 +273,11 @@ struct BuildTiles
 	TDeletingArray<BuildArtFile*> ArtFiles;
 	TileDesc tiledata[MAXTILES];
 	TDeletingArray<BuildArtFile*> PerMapArtFiles;
-	TDeletingArray<FTexture*> AllTiles;	// This is for deleting tiles when shutting down.
-	TDeletingArray<FTexture*> AllMapTiles;	// Same for map tiles;
-	TMap<FString, FTexture*> textures;
 	TArray<FString> addedArt;
 	TMap<FTexture*, int> TextureToTile;
+	TArray<FString> maptilesadded;
 
-	BuildTiles()
-	{
-		Placeholder = new FImageTexture(new FDummyTile(0, 0));
-		for (auto& tile : tiledata)
-		{
-			tile.backup = tile.texture = Placeholder;
-			tile.RotTile = { -1,-1 };
-			tile.picanm = {};
-			tile.replacement = ReplacementType::Art;
-		}
-	}
+	void Init(); // This cannot be a constructor because it needs the texture manager running.
 	~BuildTiles()
 	{
 		CloseAll();
@@ -300,7 +288,7 @@ struct BuildTiles
 
 	void AddTile(int tilenum, FTexture* tex, bool permap = false);
 
-	void AddTiles(int firsttile, TArray<uint8_t>& store, const char *mapname);
+	void AddTiles(int firsttile, TArray<uint8_t>& store, const char* mapname);
 
 	void AddFile(BuildArtFile* bfd, bool permap)
 	{
@@ -311,7 +299,7 @@ struct BuildTiles
 	{
 		return ArtFiles.FindEx([filename](const BuildArtFile* element) { return filename.CompareNoCase(element->filename) == 0; });
 	}
-	int LoadArtFile(const char* file, const char *mapname = nullptr, int firsttile = -1);
+	int LoadArtFile(const char* file, const char* mapname = nullptr, int firsttile = -1);
 	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
 	void AddArt(TArray<FString>& art)

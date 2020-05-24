@@ -787,36 +787,8 @@ bool InitGame()
     }
 
     LoadDemoRun();
-    // Save off total heap for later calculations
-    //TotalMemory = Z_AvailHeap();
-    //DSPRINTF(ds,"Available Heap before LoadImages =  %d", TotalMemory);
-    //MONO_PRINT(ds);
-    // Reserve 1.5 megs for normal program use
-    // Generally, SW is consuming about a total of 11 megs including
-    // all the cached in graphics, etc. per level, so even on a 16 meg
-    // system, reserving 1.5 megs is fine.
-    // Note that on a 16 meg machine, Ken was leaving us about
-    // 24k for use outside the cache!  This was causing out of mem problems
-    // when songs, etc., greater than the remaining heap were being loaded.
-    // Even if you pre-cache songs, etc. to help, reserving some heap is
-    // a very smart idea since the game uses malloc throughout execution.
-    //ReserveMem = AllocMem(1L<<20);
-    //if(ReserveMem == 0) MONO_PRINT("Could not allocate 1.5 meg reserve!");
 
-    // LoadImages will now proceed to steal all the remaining heap space
-    //_outtext("\n\n\n\n\n\n\n\n");
-    //AnimateCacheCursor();
 	TileFiles.LoadArtSet("tiles%03d.art");
-
-    // Now free it up for later use
-    /*
-    if(ReserveMem)
-        {
-        // Recalc TotalMemory for later reference
-        ActualHeap = Z_AvailHeap() + 1536000L;
-        FreeMem(ReserveMem);
-        }
-    */
 
     Connect();
     SortBreakInfo();

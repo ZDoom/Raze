@@ -424,8 +424,8 @@ int GameMain()
 	C_DeinitConsole();
 	V_ClearFonts();
 	vox_deinit();
-	TileFiles.ClearTextureCache();
-	TileFiles.CloseAll();	// do this before shutting down graphics.
+	TexMan.DeleteAll();
+	TileFiles.CloseAll();	// delete the texture data before shutting down graphics.
 	GLInterface.Deinit();
 	I_ShutdownGraphics();
 	M_DeinitMenus();
@@ -714,6 +714,7 @@ int RunGame()
 	}
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
+	TileFiles.Init();
 	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
