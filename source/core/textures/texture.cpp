@@ -307,7 +307,7 @@ FTextureBuffer FTexture::CreateTexBuffer(const PalEntry * remap, int flags)
 
 		FBitmap bmp(buffer, W * 4, W, H);
 
-		int trans;
+		int trans = -1;
 		auto Pixels = GetBgraBitmap(remap, &trans);
 		bmp.Blit(0, 0, Pixels);
 

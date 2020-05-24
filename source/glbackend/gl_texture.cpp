@@ -230,6 +230,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	auto& h = hictinting[palette];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
+	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 	auto rep = (picnum >= 0 && hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
 	if (rep || tex->GetUseType() == FTexture::Canvas)
 	{
@@ -292,7 +293,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		}
 
 		// Also load additional layers needed for this texture.
-		if (hw_detailmapping && hw_hightile)
+		if (hw_detailmapping && hw_hightile && picnum > -1)
 		{
 			float detscalex = detscale, detscaley = detscale;
 			if (!(method & DAMETH_MODEL))
@@ -325,7 +326,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 				*/
 			}
 		}
-		if (hw_glowmapping && hw_hightile)
+		if (hw_glowmapping && hw_hightile && picnum > -1)
 		{
 			if (!(method & DAMETH_MODEL))
 			{
@@ -344,7 +345,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 		}
 #if 1
-		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
+		if (!(tex->PicAnim.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap] && picnum > -1)
 		{
 			if (TextureType == TT_HICREPLACE)
 			{

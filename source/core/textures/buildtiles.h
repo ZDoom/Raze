@@ -232,6 +232,7 @@ struct BuildTiles
 	FTexture* tilesbak[MAXTILES];
 	TMap<FString, FTexture*> textures;
 	TArray<FString> addedArt;
+	TMap<FTexture*, int> TextureToTile;
 
 	BuildTiles()
 	{
@@ -266,6 +267,21 @@ struct BuildTiles
 	void AddArt(TArray<FString>& art)
 	{
 		addedArt = std::move(art);
+	}
+	int GetTileIndex(FTexture* tex)
+	{
+		auto p = TextureToTile.CheckKey(tex);
+		return p ? *p : -1;
+	}
+
+	void SetupReverseTileMap()
+	{
+		TextureToTile.Clear();
+		for (int i = 0; i < MAXTILES; i++)
+		{
+			if (tiles[i] != nullptr) TextureToTile.Insert(tiles[i], i);
+		}
+
 	}
 	FTexture* ValidateCustomTile(int tilenum, int type);
 	int32_t artLoadFiles(const char* filename);

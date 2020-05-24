@@ -86,7 +86,8 @@ FBitmap FTileTexture::GetBgraBitmap(const PalEntry* remap, int* ptrans)
 	TArray<uint8_t> buffer;
 	bmp.Create(Size.x, Size.y);
 	const uint8_t* ppix = Get8BitPixels();
-	if (!remap) remap = GPalette.BaseColors; // no remap was passed but this code needs a color table, so use the base.
+	if (!remap) 
+		remap = GPalette.BaseColors; // no remap was passed but this code needs a color table, so use the base.
 	if (!ppix)
 	{
 		// This is needed for tiles with a palette remap.
@@ -133,6 +134,7 @@ void BuildTiles::AddTile(int tilenum, FTexture* tex, bool permap)
 	auto& array = permap ? AllMapTiles : AllTiles;
 	array.Push(tex);
 	tiles[tilenum] = tex;
+
 	if (!permap) tilesbak[tilenum] = tex;
 }
 
@@ -634,6 +636,7 @@ void artClearMapArt(void)
 {
 	TileFiles.CloseAllMapArt();
 	memcpy(TileFiles.tiles, TileFiles.tilesbak, sizeof(TileFiles.tiles));
+	TileFiles.SetupReverseTileMap();
 }
 
 //==========================================================================
@@ -658,6 +661,7 @@ void artSetupMapArt(const char* filename)
 		FStringf fullname("%s_%02d.art", filename, i);
 		TileFiles.LoadArtFile(fullname, true);
 	}
+	TileFiles.SetupReverseTileMap();
 }
 
 //==========================================================================

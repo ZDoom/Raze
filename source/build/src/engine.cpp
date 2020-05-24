@@ -2125,7 +2125,7 @@ int32_t enginePostInit(void)
         I_FatalError("No translucency table found.");
 
     palettePostLoadTables();
-
+    TileFiles.SetupReverseTileMap();
     return 0;
 }
 

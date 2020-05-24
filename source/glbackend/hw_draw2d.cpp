@@ -178,7 +178,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 				curbasepal = (cmd.mRemapIndex >> 8) & 0xff;
 				auto savedf = globalflags;
 				if (curbasepal > 0) globalflags |= GLOBAL_NO_GL_FULLBRIGHT;	// temp. hack to disable brightmaps.
-				SetTexture(0, tex, cmd.mRemapIndex & 0xff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+				SetTexture(-1, tex, cmd.mRemapIndex & 0xff, 4/*DAMETH_CLAMPED*/, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
 				curbasepal = saved;
 				globalflags = savedf;
 			}
