@@ -119,6 +119,7 @@ void FTextureManager::FlushAll()
 	{
 		for (int j = 0; j < 2; j++)
 		{
+			Textures[i].Texture->DeleteHardwareTextures();
 #if 0
 			Textures[i].Texture->SystemTextures.Clean(true, true);
 			DeleteSoftwareTexture(Textures[i].Texture->SoftwareTexture);

@@ -1848,10 +1848,8 @@ static void DoCast(const VMRegisters &reg, const VMFrame *f, int a, int b, int c
 	case CAST_TID2S:
 	{
 		ASSERTS(a); ASSERTD(b);
-#if 0
 		auto tex = TexMan.GetTexture(*(FTextureID*)&(reg.d[b]));
 		reg.s[a] = tex == nullptr ? "(null)" : tex->GetName().GetChars();
-#endif
 		break;
 	}
 
