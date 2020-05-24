@@ -149,7 +149,7 @@ void GLInstance::Deinit()
 	if (surfaceShader) delete surfaceShader;
 	surfaceShader = nullptr;
 	activeShader = nullptr;
-	palmanager.DeleteAllTextures();
+	palmanager.DeleteAll();
 	lastPalswapIndex = -1;
 }
 

@@ -1136,14 +1136,14 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
 #if 1
-    int palId = GLInterface.LookupPalette(curbasepal, globalpal, false);
-    auto palette = GLInterface.GetPaletteData(palId);
+    int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal); 
+    auto palette = GPalette.TranslationToTable(palId);
     if (!m->texIds) m->texIds = new TMap<int, FHardwareTexture*>;
     auto pTex = m->texIds->CheckKey(palId);
     FHardwareTexture* htex;
     if (!pTex)
     {
-        htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette);
+        htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette->Palette);
         m->texIds->Insert(palId, htex);
     }
     else

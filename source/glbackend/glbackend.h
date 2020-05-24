@@ -20,25 +20,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-struct PaletteData
-{
-	int32_t crc32;
-	PalEntry colors[256];
-	bool shadesdone;
-	int whiteindex, blackindex;
-	FHardwareTexture* paltexture;
-};
-
-struct PalswapData
-{
-	int32_t crc32;
-	bool isbright;
-	const uint8_t *lookup;	// points to the original data. This is static so no need to copy
-	FHardwareTexture* swaptexture;
-	PalEntry fadeColor;
-	uint8_t brightcolors[255];
-};
-
 enum
 {
 	PALSWAP_TEXTURE_SIZE = 2048
@@ -46,18 +27,12 @@ enum
 
 class PaletteManager
 {
-	// The current engine limit is 256 palettes and 256 palswaps.
-	uint32_t palettemap[256] = {};
-	uint32_t palswapmap[256] = {};
+	FHardwareTexture* palettetextures[256] = {};
+	FHardwareTexture* palswaptextures[256] = {};
+
 	uint32_t lastindex = ~0u;
 	uint32_t lastsindex = ~0u;
-	int numshades = 1;
 
-	// All data is being stored in contiguous blocks that can be used as uniform buffers as-is.
-	TArray<PaletteData> palettes;
-	TArray<PalswapData> palswaps;
-	TMap<int, int> swappedpalmap;
-	FHardwareTexture* palswapTexture = nullptr;
 	GLInstance* const inst;
 
 	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
@@ -69,17 +44,8 @@ public:
 	{}
 	~PaletteManager();
 	void DeleteAll();
-	void DeleteAllTextures();
-	void SetPalette(int index, const uint8_t *data);
-	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t &fadecolor);
-
 	void BindPalette(int index);
 	void BindPalswap(int index);
-	int ActivePalswap() const { return lastsindex; }
-	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false);
-	const PalEntry *GetPaletteData(int palid) const { return palettes[palid].colors; }
-	unsigned FindPalette(const uint8_t* paldata);
-
 };
 
 
@@ -228,16 +194,6 @@ public:
 		renderState.mBias.mFactor = 0;
 		renderState.mBias.mUnits = 0;
 		renderState.mBias.mChanged = true;
-	}
-
-	void SetPaletteData(int index, const uint8_t* data)
-	{
-		palmanager.SetPalette(index, data);
-	}
-
-	void SetPalswapData(int index, const uint8_t* data, int numshades, palette_t& fadecolor)
-	{
-		palmanager.SetPalswapData(index, data, numshades, fadecolor);
 	}
 
 	void SetPalswap(int index);
@@ -508,11 +464,6 @@ public:
 		renderState.fullscreenTint = color;
 	}
 
-	int GetPaletteIndex(PalEntry* palette)
-	{
-		return palmanager.FindPalette((uint8_t*)palette);
-	}
-
 	void EnableAlphaTest(bool on)
 	{
 		renderState.AlphaTest = on;
@@ -522,13 +473,6 @@ public:
 	{
 		renderState.AlphaThreshold = al;
 	}
-
-	int LookupPalette(int palette, int palswap, bool brightmap, bool nontransparent255 = false)
-	{
-		return palmanager.LookupPalette(palette, palswap, brightmap, nontransparent255);
-	}
-	const PalEntry* GetPaletteData(int palid) const { return palmanager.GetPaletteData(palid); }
-
 
 	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
 	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);

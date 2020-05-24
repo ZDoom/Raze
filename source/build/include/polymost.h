@@ -23,7 +23,6 @@ extern void Polymost_prepare_loadboard(void);
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...);
 
 //void phex(char v, char *s);
-void uploadbasepalette(int32_t basepalnum);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid);

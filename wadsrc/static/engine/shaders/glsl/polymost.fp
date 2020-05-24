@@ -198,11 +198,10 @@ void main()
 				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac);
 			}
 			
-			fullbright = palettedColor.a;	// This only gets set for paletted rendering.
-	   		palettedColor.a = c_one-floor(color.r);
+	   		palettedColor.a = color.r == 0.0? 0.0 : 1.0;// c_one-floor(color.r);
 	   		color = palettedColor;
 			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
-			if (fullbright == 0.0) color.rgb *= v_color.rgb; // Well, this is dead wrong but unavoidable. For colored fog it applies the light to the fog as well...
+			color.rgb *= v_color.rgb; // Well, this is dead wrong but unavoidable. For colored fog it applies the light to the fog as well...
 		}
 		else
 		{

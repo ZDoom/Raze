@@ -65,11 +65,6 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
     }
     remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
-
-    // Todo: remove this once the texture code can use GPalette directly
-#ifdef USE_OPENGL
-    uploadbasepalette(id);
-#endif
 }
 
 //==========================================================================
