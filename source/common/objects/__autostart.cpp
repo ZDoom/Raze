@@ -91,7 +91,7 @@ __declspec(allocate(".yreg$a")) void *const YRegHead = 0;
 
 #elif defined(__GNUC__)
 
-#include "doomtype.h"
+#include "basics.h"
 
 // I don't know of an easy way to merge sections together with the GNU linker,
 // so GCC users will see all of these sections appear in the final executable.

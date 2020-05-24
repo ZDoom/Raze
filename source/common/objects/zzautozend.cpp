@@ -55,7 +55,7 @@ __declspec(allocate(".yreg$z")) void *const YRegTail = 0;
 
 #elif defined(__GNUC__)
 
-#include "doomtype.h"
+#include "basics.h"
 
 void *const ARegTail __attribute__((section(SECTION_AREG))) = 0;
 void *const CRegTail __attribute__((section(SECTION_CREG))) = 0;
