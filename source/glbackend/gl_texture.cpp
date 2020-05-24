@@ -162,6 +162,7 @@ struct TexturePick
 	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
 };
 
+#if 0
 TexturePick PickTexture(int tilenum, int basepal, int palette)
 {
 	TexturePick pick = { nullptr, 0, -1, 0xffffff, 0xffffff };
@@ -169,7 +170,7 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	auto& h = hictinting[palette];
 	auto tex = TileFiles.tiles[tilenum];
-	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(usepalswap) : nullptr;
+	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(tilenum, usepalswap) : nullptr;
 	// Canvas textures must be treated like hightile replacements in the following code.
 	bool truecolor = rep || tex->GetUseType() == FTexture::Canvas;
 	bool applytint = false;
@@ -207,10 +208,11 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 	}
 	return pick;
 }
+#endif
 
 bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
 {
-	if (tex->GetWidth() <= 0 || tex->GetHeight() <= 0) return false;
+	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	GLInterface.SetPalette(usepalette);
@@ -228,7 +230,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	auto& h = hictinting[palette];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
-	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? tex->FindReplacement(palette) : nullptr;
+	auto rep = (picnum >= 0 && hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
 	if (rep || tex->GetUseType() == FTexture::Canvas)
 	{
 		if (usepalette != 0)
@@ -295,7 +297,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			float detscalex = detscale, detscaley = detscale;
 			if (!(method & DAMETH_MODEL))
 			{
-				auto drep = tex->FindReplacement(DETAILPAL);
+				auto drep = TileFiles.FindReplacement(picnum, DETAILPAL);
 				if (drep)
 				{
 					det = drep->faces[0];
@@ -327,7 +329,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		{
 			if (!(method & DAMETH_MODEL))
 			{
-				auto drep = tex->FindReplacement(GLOWPAL);
+				auto drep = TileFiles.FindReplacement(picnum, GLOWPAL);
 				if (drep)
 				{
 					glow = drep->faces[0];
@@ -346,7 +348,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
-				auto brep = tex->FindReplacement(BRIGHTPAL);
+				auto brep = TileFiles.FindReplacement(picnum, BRIGHTPAL);
 				if (brep)
 				{
 					LoadTexture(brep->faces[0], TT_HICREPLACE, 0);

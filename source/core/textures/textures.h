@@ -100,14 +100,6 @@ struct rottile_t
 	int16_t owner;
 };
 
-struct HightileReplacement
-{
-	FTexture *faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
-    vec2f_t scale;
-    float alphacut, specpower, specfactor;
-    uint16_t palnum, flags;
-};
-
 class FBitmap;
 struct FRemapTable;
 struct FCopyInfo;
@@ -242,12 +234,6 @@ public:
 	virtual void Reload() {}
 	UseType GetUseType() const { return useType; }
 	void DeleteHardwareTextures();
-	void AddReplacement(const HightileReplacement &);
-	void DeleteReplacement(int palnum);
-	void DeleteReplacements()
-	{
-		Hightiles.Clear();
-	}
 
 	void SetHardwareTexture(int palid, FHardwareTexture* htex)
 	{
@@ -258,8 +244,6 @@ public:
 		return HardwareTextures.CheckKey(palid);
 	}
 
-	HightileReplacement * FindReplacement(int palnum, bool skybox = false);
-	
 	int alphaThreshold = 128;
 	picanm_t PicAnim = {};
 	FixedBitArray<256> NoBrightmapFlag{ 0 };
@@ -293,7 +277,6 @@ protected:
 	PalEntry FloorSkyColor;
 	PalEntry CeilingSkyColor;
 	TArray<uint8_t> CachedPixels;
-	TArray<HightileReplacement> Hightiles;
 	// Don't waste too much effort on efficient storage here. Polymost performs so many calculations on a single draw call that the minor map lookup hardly matters.
 	TMap<int, FHardwareTexture*> HardwareTextures;	// Note: These must be deleted by the backend. When the texture manager is taken down it may already be too late to delete them.
 

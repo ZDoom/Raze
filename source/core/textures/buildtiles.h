@@ -2,6 +2,22 @@
 
 #include "textures.h"
 
+enum class ReplacementType : int
+{
+	Art,
+	Writable,
+	Restorable,
+	Canvas
+};
+
+struct HightileReplacement
+{
+	FTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
+	vec2f_t scale;
+	float alphacut, specpower, specfactor;
+	uint16_t palnum, flags;
+};
+
 class FTileTexture : public FTexture
 {
 public:
@@ -187,10 +203,28 @@ struct BuildArtFile
 //
 //==========================================================================
 
+struct RawCacheNode
+{
+	TArray<uint8_t> data;	
+	uint64_t lastUseTime;
+};
+
+struct TileDesc
+{
+	FTexture* texture;	// the currently active tile
+	FTexture* backup;	// original backup for map tiles
+	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
+	picanm_t picanm;		// animation descriptor
+	rottile_t RotTile;// = { -1,-1 };
+	TArray<HightileReplacement> Hightiles;
+	ReplacementType replacement;
+};
+
 struct BuildTiles
 {
 	FTexture* Placeholder;
 	TDeletingArray<BuildArtFile*> ArtFiles;
+	TileDesc tiledata[MAXTILES];
 	TDeletingArray<BuildArtFile*> PerMapArtFiles;
 	TDeletingArray<FTexture*> AllTiles;	// This is for deleting tiles when shutting down.
 	TDeletingArray<FTexture*> AllMapTiles;	// Same for map tiles;
@@ -243,6 +277,16 @@ struct BuildTiles
 	void ClearTextureCache(bool artonly = false);
 	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
+	HightileReplacement* FindReplacement(int picnum, int palnum, bool skybox = false);
+	void AddReplacement(int picnum, const HightileReplacement&);
+	void DeleteReplacement(int picnum, int palnum);
+	void DeleteReplacements(int picnum)
+	{
+		assert(picnum < MAXTILES);
+		tiledata[picnum].Hightiles.Clear();
+	}
+
+
 };
 
 int tileGetCRC32(int tileNum);

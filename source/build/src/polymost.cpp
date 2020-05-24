@@ -312,9 +312,9 @@ int32_t polymost_maskWallHasTranslucency(uwalltype const * const wall)
         return true;
 
 	auto tex = TileFiles.tiles[wall->picnum];
-	auto si = tex->FindReplacement(wall->pal);
+	auto si = TileFiles.FindReplacement(wall->picnum, wall->pal);
 	if (si && hw_hightile) tex = si->faces[0];
-	if (tex->Get8BitPixels()) return false;
+	if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
 	return tex && tex->GetTranslucency();
 }
 
@@ -325,7 +325,7 @@ int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
         return true;
 
 	auto tex = TileFiles.tiles[tspr->picnum];
-	auto si = tex->FindReplacement(tspr->shade, 0);
+	auto si = TileFiles.FindReplacement(tspr->picnum, tspr->shade, 0);
 	if (si && hw_hightile) tex = si->faces[0];
     if (tex->GetTexelWidth() == 0 || tex->GetTexelHeight() == 0) return false;
     return tex && tex->GetTranslucency();

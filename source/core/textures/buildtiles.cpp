@@ -180,6 +180,57 @@ void BuildTiles::AddTiles (int firsttile, TArray<uint8_t>& RawData, bool permap)
 
 //===========================================================================
 //
+// Replacement textures
+//
+//===========================================================================
+
+void BuildTiles::AddReplacement(int picnum, const HightileReplacement& replace)
+{
+	auto& Hightiles = tiledata[picnum].Hightiles;
+	for (auto& ht : Hightiles)
+	{
+		if (replace.palnum == ht.palnum && (replace.faces[1] == nullptr) == (ht.faces[1] == nullptr))
+		{
+			ht = replace;
+			return;
+		}
+	}
+	Hightiles.Push(replace);
+}
+
+void BuildTiles::DeleteReplacement(int picnum, int palnum)
+{
+	auto& Hightiles = tiledata[picnum].Hightiles;
+	for (int i = Hightiles.Size() - 1; i >= 0; i--)
+	{
+		if (Hightiles[i].palnum == palnum) Hightiles.Delete(i);
+	}
+}
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+HightileReplacement* BuildTiles::FindReplacement(int picnum, int palnum, bool skybox)
+{
+	auto& Hightiles = tiledata[picnum].Hightiles;
+	for (;;)
+	{
+		for (auto& rep : Hightiles)
+		{
+			if (rep.palnum == palnum && (rep.faces[1] != nullptr) == skybox) return &rep;
+		}
+		if (!palnum || palnum >= MAXPALOOKUPS - RESERVEDPALS) break;
+		palnum = 0;
+	}
+	return nullptr;	// no replacement found
+}
+
+
+//===========================================================================
+//
 // CountTiles
 //
 // Returns the number of tiles provided by an artfile
@@ -267,7 +318,7 @@ void BuildTiles::InvalidateTile(int num)
 	{
 		auto tex = tiles[num];
 		tex->DeleteHardwareTextures();
-		for (auto &rep : tex->Hightiles)
+		for (auto &rep : tiledata[num].Hightiles)
 		{
 			for (auto &reptex : rep.faces)
 			{
@@ -631,9 +682,8 @@ void tileDelete(int tile)
 
 void tileRemoveReplacement(int tile)
 {
-	if ((unsigned)tile >= MAXTILES) return;
 	FTexture *tex = TileFiles.tiles[tile];
-	tex->DeleteReplacements();
+	TileFiles.DeleteReplacements(tile);
 }
 
 //==========================================================================
@@ -795,7 +845,7 @@ int tileSetHightileReplacement(int picnum, int palnum, const char *filename, flo
     replace.specfactor = specfactor; // currently unused
     replace.flags = flags;
 	replace.palnum = (uint16_t)palnum;
-	tex->AddReplacement(replace);
+	TileFiles.AddReplacement(picnum, replace);
     return 0;
 }
 
@@ -830,7 +880,7 @@ int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags )
 	}
     replace.flags = flags;
 	replace.palnum = (uint16_t)palnum;
-	tex->AddReplacement(replace);
+	TileFiles.AddReplacement(picnum, replace);
 	return 0;
 }
 
@@ -844,8 +894,7 @@ int tileDeleteReplacement(int picnum, int palnum)
 {
     if ((uint32_t)picnum >= (uint32_t)MAXTILES) return -1;
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return -1;
-	auto tex = TileFiles.tiles[picnum];
-	tex->DeleteReplacement(palnum);
+	TileFiles.DeleteReplacement(picnum, palnum);
     return 0;
 }
 
