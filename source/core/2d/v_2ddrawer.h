@@ -7,6 +7,7 @@
 #include "renderstyle.h"
 
 struct DrawParms;
+class FFont;
 
 
 struct F2DPolygons
