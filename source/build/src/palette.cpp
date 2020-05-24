@@ -265,7 +265,6 @@ void palettePostLoadLookups(void)
             }
         }
     }
-#if 1 //def SWAP_255
     // Swap colors 0 and 255 in all tables so that all paletted images have their transparent color at index 0.
     // This means: 
     // - Swap palette and remap entries in all stored remap tables
@@ -288,7 +287,6 @@ void palettePostLoadLookups(void)
     }
     colorswap(&GPalette.GlobalBrightmap);
     std::swap(GPalette.BaseColors[0], GPalette.BaseColors[255]);
-#endif
 }
 
 //==========================================================================

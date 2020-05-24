@@ -113,14 +113,12 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 	auto tex = new FArtTile(backingstore, offset, width, height);
 	auto p = &backingstore[offset];
 	auto siz = width * height;
-#if 1 //def SWAP_255
 	for (int i = 0; i < siz; i++, p++)
 	{
 		// move transparent color to index 0 to get in line with the rest of the texture management.
 		if (*p == 0) *p = 255;
 		else if (*p == 255) *p = 0;
 	}
-#endif
 
 	if (tex)
 	{
@@ -509,7 +507,6 @@ int32_t tileGetCRC32(int tileNum)
 	auto size = tile->GetWidth() * tile->GetHeight();
 	if (size == 0) return 0;
 
-#if 1 //def SWAP_255
 	// Temporarily revert the data to its original form with 255 being transparent. Otherwise the CRC won't match.
 	auto p = pixels;
 	for (int i = 0; i < size; i++, p++)
@@ -518,11 +515,9 @@ int32_t tileGetCRC32(int tileNum)
 		if (*p == 0) *p = 255;
 		else if (*p == 255) *p = 0;
 	}
-#endif
 
 	auto crc = crc32(0, (const Bytef*)pixels, size);
 
-#if 1 //def SWAP_255
 	// ... and back again.
 	p = pixels;
 	for (int i = 0; i < size; i++, p++)
@@ -531,7 +526,6 @@ int32_t tileGetCRC32(int tileNum)
 		if (*p == 0) *p = 255;
 		else if (*p == 255) *p = 0;
 	}
-#endif
 	return crc;
 }
 
