@@ -325,7 +325,6 @@ void DMenu::Drawer ()
 	{
 		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
 		if (texid.isValid())
-		if (tex)
 		{
 			auto tex = TexMan.GetTexture(texid);
 			int w = tex->GetDisplayWidth() * CleanXfac;
