@@ -748,6 +748,7 @@ set (PCH_SOURCES
 	common/audio/music/i_soundfont.cpp
 	common/audio/music/music_config.cpp
 	common/thirdparty/sfmt/SFMT.cpp
+	common/textures/texture.cpp
 	common/textures/animtexture.cpp
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
@@ -841,7 +842,6 @@ set (PCH_SOURCES
 
 
 	core/textures/buildtiles.cpp
-	core/textures/texture.cpp
 	core/textures/imagetexture.cpp
 	core/textures/imagehelpers.cpp
 
