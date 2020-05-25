@@ -40,6 +40,7 @@
 #include "v_font.h"
 #include "v_text.h"
 #include "v_draw.h"
+#include "v_video.h"
 
 #define INPUTGRID_WIDTH		13
 #define INPUTGRID_HEIGHT	5

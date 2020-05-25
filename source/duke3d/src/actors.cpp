@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "sounds.h"
+#include "v_text.h"
+#include "printf.h"
 
 BEGIN_DUKE_NS
 
@@ -689,7 +691,7 @@ void A_DeleteSprite(int spriteNum)
 {
     if (EDUKE32_PREDICT_FALSE(block_deletesprite))
     {
-        Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
+        Printf(TEXTCOLOR_RED "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
         return;
     }
 
@@ -1402,7 +1404,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                         if (ud.god == 0)
                             if (G_CheckForSpaceCeiling(pSprite->sectnum) || G_CheckForSpaceFloor(pSprite->sectnum))
                             {
-                                Printf(OSD_ERROR "%s: player killed by space sector!\n", EDUKE32_FUNCTION);
+                                Printf(TEXTCOLOR_RED "%s: player killed by space sector!\n", EDUKE32_FUNCTION);
                                 P_QuickKill(pPlayer);
                             }
                     }

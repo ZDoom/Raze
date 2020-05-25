@@ -112,6 +112,8 @@ void DFrameBuffer::SetSize(int width, int height)
 {
 	Width = ViewportScaledWidth(width, height);
 	Height = ViewportScaledHeight(width, height);
+	twodgen.SetSize(Width, Height);
+	twodpsp.SetSize(Width, Height);
 }
 
 //==========================================================================
@@ -129,7 +131,7 @@ void DFrameBuffer::DrawRateStuff ()
 	{
         FString fpsbuff = gi->statFPS();
 
-		int textScale = active_con_scale();
+		int textScale = active_con_scale(twod);
 		int rate_x = Width / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
 		twod->AddColorOnlyQuad(rate_x * textScale, 0, Width, NewConsoleFont->GetHeight() * textScale, MAKEARGB(255,0,0,0));
 		DrawText (twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char *)&fpsbuff[0],

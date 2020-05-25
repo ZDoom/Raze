@@ -71,7 +71,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	

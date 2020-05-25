@@ -2692,7 +2692,7 @@ rrbloodpool_fallthrough:
             if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                Printf(TEXTCOLOR_RED "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                 pSprite->hitag = 0;
             }
@@ -3819,7 +3819,7 @@ rr_badguy:
                     // use elevator sector's ceiling as heuristic
                     T4(newSprite) = sector[sectNum].ceilingz;
 
-                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
+                    Printf(TEXTCOLOR_RED "WARNING: SE17 sprite %d using own sector's ceilingz to "
                                          "determine when to warp. Sector %d adjacent to a door?\n",
                                newSprite, sectNum);
                 }
@@ -3833,7 +3833,7 @@ rr_badguy:
                     // heuristic
                     T5(newSprite) = sector[sectNum].floorz;
 
-                    Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
+                    Printf(TEXTCOLOR_RED "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
                                newSprite, sectNum);
                 }
 
@@ -4057,7 +4057,7 @@ rr_badguy:
                     }
                     if (EDUKE32_PREDICT_FALSE(spriteNum == -1))
                     {
-                        Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
+                        Printf(TEXTCOLOR_RED "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                         changespritestat(newSprite, STAT_ACTOR);
                         goto SPAWN_END;
@@ -5386,7 +5386,7 @@ skip:
 #ifdef DEBUGGINGAIDS
                     // A negative actor[i].dispicnum used to mean 'no floor shadow please', but
                     // that was a bad hack since the value could propagate to sprite[].picnum.
-                    Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
+                    Printf(TEXTCOLOR_RED "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
 #endif
                     actor[i].dispicnum=0;
                     continue;

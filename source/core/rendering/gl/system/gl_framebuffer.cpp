@@ -40,6 +40,7 @@
 #include "printf.h"
 #include "templates.h"
 #include "palette.h"
+#include "build.h"
 #include "glbackend/glbackend.h"
 
 #include "gl_load/gl_interface.h"

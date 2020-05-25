@@ -5,10 +5,53 @@
 #include "vectors.h"
 #include "textures.h"
 #include "renderstyle.h"
+#include "dobject.h"
 
 struct DrawParms;
-class FFont;
+struct FColormap;
 
+class DShape2DTransform : public DObject
+{
+
+DECLARE_CLASS(DShape2DTransform, DObject)
+public:
+	DShape2DTransform()
+	{
+		transform.Identity();
+	}
+	DMatrix3x3 transform;
+};
+
+// intermediate struct for shape drawing
+
+enum EClearWhich
+{
+	C_Verts = 1,
+	C_Coords = 2,
+	C_Indices = 4,
+};
+
+class DShape2D : public DObject
+{
+
+	DECLARE_CLASS(DShape2D,DObject)
+public:
+	DShape2D()
+	{
+		transform.Identity();
+	}
+
+	TArray<int> mIndices;
+	TArray<DVector2> mVertices;
+	TArray<DVector2> mCoords;
+
+	DMatrix3x3 transform;
+
+	// dirty stores whether we need to re-apply the transformation
+	// otherwise it uses the cached values
+	bool dirty = true;
+	TArray<DVector2> mTransformedVertices;
+};
 
 struct F2DPolygons
 {
@@ -23,8 +66,6 @@ struct F2DPolygons
 	}
 
 };
-
-
 
 class F2DDrawer
 {
@@ -84,7 +125,7 @@ public:
 		int mIndexCount;
 
 		FTexture *mTexture;
-		int mRemapIndex;
+		int mTranslationId;
 		PalEntry mSpecialColormap[2];
 		int mScissor[4];
 		int mDesaturate;
@@ -103,7 +144,7 @@ public:
 		{
 			return mTexture == other.mTexture &&
 				mType == other.mType &&
-				mRemapIndex == other.mRemapIndex &&
+				mTranslationId == other.mTranslationId &&
 				mSpecialColormap[0].d == other.mSpecialColormap[0].d &&
 				mSpecialColormap[1].d == other.mSpecialColormap[1].d &&
 				!memcmp(mScissor, other.mScissor, sizeof(mScissor)) &&
@@ -119,70 +160,54 @@ public:
 	TArray<int> mIndices;
 	TArray<TwoDVertex> mVertices;
 	TArray<RenderCommand> mData;
+	int Width, Height;
+	bool isIn2D;
+public:
+	int fullscreenautoaspect = 0;
+	int cliptop = -1, clipleft = -1, clipwidth = -1, clipheight = -1;
 	
 	int AddCommand(const RenderCommand *data);
 	void AddIndices(int firstvert, int count, ...);
+private:
 	void AddIndices(int firstvert, TArray<int> &v);
 	bool SetStyle(FTexture *tex, DrawParms &parms, PalEntry &color0, RenderCommand &quad);
 	void SetColorOverlay(PalEntry color, float alpha, PalEntry &vertexcolor, PalEntry &overlaycolor);
 
 public:
 	void AddTexture(FTexture *img, DrawParms &parms);
-	void AddPoly(FTexture* img, FVector4 *vt, size_t vtcount, unsigned int *ind, size_t idxcount, int palette, int shade, int maskprops, int clipx1, int clipy1, int clipx2, int clipy2);
+	void AddShape(FTexture *img, DShape2D *shape, DrawParms &parms);
+	void AddPoly(FTexture *texture, FVector2 *points, int npoints,
+		double originx, double originy, double scalex, double scaley,
+		DAngle rotation, const FColormap &colormap, PalEntry flatcolor, double lightlevel, uint32_t *indices, size_t indexcount);
+	void AddPoly(FTexture* img, FVector4 *vt, size_t vtcount, unsigned int *ind, size_t idxcount, int translation, PalEntry color, FRenderStyle style, int clipx1, int clipy1, int clipx2, int clipy2);
 	void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2& otex,
 		int clipx1, int clipy1, int clipx2, int clipy2);
-	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin);
+	void AddFlatFill(int left, int top, int right, int bottom, FTexture *src, bool local_origin = false);
 
 	void AddColorOnlyQuad(int left, int top, int width, int height, PalEntry color, FRenderStyle *style = nullptr);
 	void ClearScreen(PalEntry color = 0xff000000);
+	void AddDim(PalEntry color, float damount, int x1, int y1, int w, int h);
+	void AddClear(int left, int top, int right, int bottom, int palcolor, uint32_t color);
 			
-	void AddLine(float x1, float y1, float x2, float y2, uint32_t color, uint8_t alpha = 255);
+		
 	void AddLine(float x1, float y1, float x2, float y2, int cx, int cy, int cx2, int cy2, uint32_t color, uint8_t alpha = 255);
 	void AddThickLine(int x1, int y1, int x2, int y2, double thickness, uint32_t color, uint8_t alpha = 255);
 	void AddPixel(int x1, int y1, uint32_t color);
 
-	void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-		int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-		int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *pic = nullptr, int basepal = 0);
-
 	void Clear();
+	int GetWidth() const { return Width; }
+	int GetHeight() const { return Height; }
+	void SetSize(int w, int h) { Width = w; Height = h; }
+	void Begin() { isIn2D = true; }
+	void End() { isIn2D = false; }
+	bool HasBegun2D() { return isIn2D; }
+
+	void ClearClipRect() { clipleft = cliptop = 0; clipwidth = clipheight = -1; }
+	void SetClipRect(int x, int y, int w, int h);
+	void GetClipRect(int* x, int* y, int* w, int* h);
 
 	bool mIsFirstPass = true;
 };
 
-extern F2DDrawer twodgen;
-extern F2DDrawer twodpsp;
-extern F2DDrawer* twod;
-
-// This is for safely substituting the 2D drawer for a block of code.
-class PspTwoDSetter
-{
-	F2DDrawer* old;
-public:
-	PspTwoDSetter()
-	{
-		old = twod;
-		twod = &twodpsp;
-	}
-	~PspTwoDSetter()
-	{
-		twod = old;
-	}
-	// Shadow Warrior fucked this up and draws the weapons in the same pass as the hud, meaning we have to switch this on and off depending on context.
-	void set()
-	{
-		twod = &twodpsp;
-	}
-	void clear()
-	{
-		twod = old;
-	}
-};
-
-void DrawTexture(F2DDrawer* drawer, FTexture* img, double x, double y, int tags_first, ...);
-void DrawChar(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, int character, int tag_first, ...);
-void DrawText(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, const char* string, int tag_first, ...);
-void DrawText(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, const char32_t* string, int tag_first, ...);
-void DrawFrame(F2DDrawer* twod, PalEntry color, int left, int top, int width, int height, int thickness);
 
 #endif

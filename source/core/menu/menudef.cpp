@@ -49,6 +49,7 @@
 #include "i_soundfont.h"
 #include "zstring.h"
 #include "texturemanager.h"
+#include "v_video.h"
 #include <zmusic.h>
 
 // Menu-relevant content that gets filled in by scripts. This will get processed after the game has loaded.
@@ -1538,4 +1539,27 @@ void M_CreateMenus()
 int M_GetDefaultSkill()
 {
 	return gDefaultSkill;
+}
+
+void FListMenuDescriptor::Reset()
+{
+	// Reset the default settings (ignore all other values in the struct)
+	mSelectOfsX = 0;
+	mSelectOfsY = 0;
+	mSelector = nullptr;
+	mDisplayTop = 0;
+	mXpos = 0;
+	mYpos = 0;
+	mLinespacing = 0;
+	mNetgameMessage = "";
+	mFont = NULL;
+	mFontColor = CR_UNTRANSLATED;
+	mFontColor2 = CR_UNTRANSLATED;
+	mScriptId = -1;
+	mSecondaryId = 0;
+	mNativeFontNum = NIT_BigFont;
+	mNativePalNum = NIT_ActiveColor;
+	mNativeFontScale = 1.f;
+	mFlags = 0;
+	mSpacing = 0;
 }

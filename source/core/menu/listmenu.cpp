@@ -42,6 +42,7 @@
 #include "baselayer.h"
 #include "gamecontrol.h"
 #include "build.h"
+#include "v_video.h"
 
 //=============================================================================
 //

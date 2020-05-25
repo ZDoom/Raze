@@ -397,7 +397,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
         goto finishTileSetup;
 #ifdef DEBUGGINGAIDS
     else if (EDUKE32_PREDICT_FALSE(noDraw != 0)) // event return values other than 0 and 1 are reserved
-        Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
+        Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
                    "other values are reserved.\n");
 #endif
     screen->BeginScene();

@@ -8,6 +8,9 @@
 #include "v_draw.h"
 #include "serializer.h"
 #include "mapinfo.h"
+#include "v_video.h"
+#include "v_text.h"
+#include "c_cvars.h"
 
 // Unlike in GZDoom we have to maintain this list here, because we got different game frontents that all store this info differently.
 // So the games will have to report the credited secrets so that this code can keep track of how to display them.

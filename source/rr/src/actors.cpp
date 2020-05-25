@@ -517,7 +517,7 @@ void A_DeleteSprite(int spriteNum)
 {
     if (EDUKE32_PREDICT_FALSE(block_deletesprite))
     {
-        Printf(OSD_ERROR "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
+        Printf(TEXTCOLOR_RED "A_DeleteSprite(): tried to remove sprite %d in EVENT_EGS\n", spriteNum);
         return;
     }
 

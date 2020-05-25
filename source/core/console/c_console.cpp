@@ -60,6 +60,8 @@
 #include "s_soundinternal.h"
 #include "engineerrors.h"
 #include "gamecontrol.h"
+#include "v_video.h"
+#include "v_draw.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -276,7 +278,7 @@ public:
 		unsigned LengthCells = CalcCellSize((unsigned)Text.length());
 
 		int n = StartPosCells;
-		unsigned cols = ConCols / active_con_scale();
+		unsigned cols = ConCols / active_con_scale(twod);
 
 		if (StartPosCells >= LengthCells)
 		{ // Start of visible line is beyond end of line
@@ -781,7 +783,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 		con_notifylines == 0)
 		return;
 
-	width = screen->GetWidth() / active_con_scaletext(generic_ui);
+	width = screen->GetWidth() / active_con_scaletext(twod, generic_ui);
 
 	FFont *font = generic_ui ? NewSmallFont : AlternativeSmallFont;
 	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
@@ -1101,7 +1103,7 @@ void FNotifyBuffer::Draw()
 			else
 				color = PrintColors[notify.PrintLevel];
 
-			int scale = active_con_scaletext(generic_ui);
+			int scale = active_con_scaletext(twod, generic_ui);
 			if (!center)
 				DrawText (twod, font, color, 0, line, notify.Text,
 					DTA_VirtualWidth, screen->GetWidth() / scale,
@@ -1135,7 +1137,7 @@ void C_DrawConsole ()
 	static int oldbottom = 0;
 	int lines, left, offset;
 
-	int textScale = active_con_scale();
+	int textScale = active_con_scale(twod);
 
 	left = LEFTMARGIN;
 	lines = (ConBottom/textScale-CurrentConsoleFont->GetHeight()*2)/CurrentConsoleFont->GetHeight();
@@ -1383,7 +1385,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 		case GK_PGUP:
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer up one page
-				RowAdjust += (screen->GetHeight()-4)/active_con_scale() /
+				RowAdjust += (screen->GetHeight()-4)/active_con_scale(twod) /
 					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 			}
 			else if (RowAdjust < conbuffer->GetFormattedLineCount())
@@ -1406,7 +1408,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 		case GK_PGDN:
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer down one page
-				const int scrollamt = (screen->GetHeight()-4)/active_con_scale() /
+				const int scrollamt = (screen->GetHeight()-4)/active_con_scale(twod) /
 					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 				if (RowAdjust < scrollamt)
 				{
@@ -2047,7 +2049,7 @@ static bool C_TabCompleteList ()
 
 			Printf ("%s%-*s", colorcode, int(maxwidth), TabCommands[i].TabName.GetChars());
 			x += maxwidth;
-			if (x > ConCols / active_con_scale() - maxwidth)
+			if (x > ConCols / active_con_scale(twod) - maxwidth)
 			{
 				x = 0;
 				Printf ("\n");

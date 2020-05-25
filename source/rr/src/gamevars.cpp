@@ -368,7 +368,7 @@ static int Gv_GetVarIndex(const char *szGameLabel)
 
     if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= MAXGAMEVARS))
     {
-        Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n", szGameLabel);
+        Printf(TEXTCOLOR_RED "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n", szGameLabel);
         return 0;
     }
 

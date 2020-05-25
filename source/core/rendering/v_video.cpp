@@ -370,6 +370,7 @@ void V_InitScreen()
 void V_Init2()
 {
 	palettePostLoadLookups();
+	twod = &twodgen;
 
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;
 
@@ -408,153 +409,7 @@ void V_Init2()
 	//setsizeneeded = true;
 }
 
-// Helper for ActiveRatio and CheckRatio. Returns the forced ratio type, or -1 if none.
-static int ActiveFakeRatio(int width, int height)
-{
-	int fakeratio = -1;
-	if ((vid_aspect >= 1) && (vid_aspect <= 6))
-	{
-		// [SP] User wants to force aspect ratio; let them.
-		fakeratio = int(vid_aspect);
-		if (fakeratio == 3)
-		{
-			fakeratio = 0;
-		}
-		else if (fakeratio == 5)
-		{
-			fakeratio = 3;
-		}
-	}
-	return fakeratio;
-}
 
-// Active screen ratio based on cvars and size
-float ActiveRatio(int width, int height, float *trueratio)
-{
-	static float forcedRatioTypes[] =
-	{
-		4 / 3.0f,
-		16 / 9.0f,
-		16 / 10.0f,
-		17 / 10.0f,
-		5 / 4.0f,
-		17 / 10.0f,
-		21 / 9.0f
-	};
-
-	float ratio = width / (float)height;
-	int fakeratio = ActiveFakeRatio(width, height);
-
-	if (trueratio)
-		*trueratio = ratio;
-	return (fakeratio != -1) ? forcedRatioTypes[fakeratio] : ratio;
-}
-
-
-// Tries to guess the physical dimensions of the screen based on the
-// screen's pixel dimensions. Can return:
-// 0: 4:3
-// 1: 16:9
-// 2: 16:10
-// 3: 17:10
-// 4: 5:4
-// 5: 17:10 (redundant, never returned)
-// 6: 21:9
-int CheckRatio (int width, int height, int *trueratio)
-{
-	float aspect = width / (float)height;
-
-	static std::pair<float, int> ratioTypes[] =
-	{
-		{ 21 / 9.0f , 6 },
-		{ 16 / 9.0f , 1 },
-		{ 17 / 10.0f , 3 },
-		{ 16 / 10.0f , 2 },
-		{ 4 / 3.0f , 0 },
-		{ 5 / 4.0f , 4 },
-		{ 0.0f, 0 }
-	};
-
-	int ratio = ratioTypes[0].second;
-	float distance = fabs(ratioTypes[0].first - aspect);
-	for (int i = 1; ratioTypes[i].first != 0.0f; i++)
-	{
-		float d = fabs(ratioTypes[i].first - aspect);
-		if (d < distance)
-		{
-			ratio = ratioTypes[i].second;
-			distance = d;
-		}
-	}
-
-	int fakeratio = ActiveFakeRatio(width, height);
-	if (fakeratio == -1)
-		fakeratio = ratio;
-
-	if (trueratio)
-		*trueratio = ratio;
-	return fakeratio;
-}
-
-int AspectBaseWidth(float aspect)
-{
-	return (int)round(240.0f * aspect * 3.0f);
-}
-
-int AspectBaseHeight(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return (int)round(200.0f * (320.0f / (AspectBaseWidth(aspect) / 3.0f)) * 3.0f);
-	else
-		return (int)round((200.0f * (4.0f / 3.0f)) / aspect * 3.0f);
-}
-
-double AspectPspriteOffset(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return 0.0;
-	else
-		return ((4.0 / 3.0) / aspect - 1.0) * 97.5;
-}
-
-int AspectMultiplier(float aspect)
-{
-	if (!AspectTallerThanWide(aspect))
-		return (int)round(320.0f / (AspectBaseWidth(aspect) / 3.0f) * 48.0f);
-	else
-		return (int)round(200.0f / (AspectBaseHeight(aspect) / 3.0f) * 48.0f);
-}
-
-bool AspectTallerThanWide(float aspect)
-{
-	return aspect < 1.333f;
-}
-
-void ScaleWithAspect (int &w, int &h, int Width, int Height)
-{
-	int resRatio = CheckRatio (Width, Height);
-	int screenRatio;
-	CheckRatio (w, h, &screenRatio);
-	if (resRatio == screenRatio)
-		return;
-
-	double yratio;
-	switch(resRatio)
-	{
-		case 0: yratio = 4./3.; break;
-		case 1: yratio = 16./9.; break;
-		case 2: yratio = 16./10.; break;
-		case 3: yratio = 17./10.; break;
-		case 4: yratio = 5./4.; break;
-		case 6: yratio = 21./9.; break;
-		default: return;
-	}
-	double y = w/yratio;
-	if (y > h)
-		w = static_cast<int>(h * yratio);
-	else
-		h = static_cast<int>(y);
-}
 
 CCMD(vid_setsize)
 {
@@ -592,3 +447,6 @@ CCMD(vid_listadapters)
 }
 
 bool vid_hdr_active = false;
+F2DDrawer twodpsp, twodgen;
+CVAR(Float, transsouls, 1, 0)
+CVAR(Int, uiscale, 0, CVAR_ARCHIVE)

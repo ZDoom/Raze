@@ -60,7 +60,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
     if (!fileSystem.Lookup(filename, "MAP"))
     {
-        Printf(OSD_ERROR "map: file \"%s\" not found.\n", filename);
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", filename);
         return OSDCMD_OK;
     }
 
@@ -237,7 +237,7 @@ static int osdcmd_levelwarp(CCmdFuncPtr parm)
     int m = atoi(parm->parms[1]);
     if (e == 0 || m == 0)
     {
-        Printf(OSD_ERROR "Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
+        Printf(TEXTCOLOR_RED "Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
         return OSDCMD_OK;
     }
     LevelWarp(e - 1, m - 1);

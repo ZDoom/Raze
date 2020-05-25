@@ -1489,7 +1489,7 @@ static void prelevel(char g)
     }
 
     if (missedCloudSectors > 0)
-        Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
+        Printf(TEXTCOLOR_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
 
     // NOTE: must be safe loop because callbacks could delete sprites.
     if (!DEER)
@@ -2323,7 +2323,7 @@ int G_EnterLevel(int gameMode)
 
     if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
     {
-        Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
+        Printf(TEXTCOLOR_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
         return 1;
     }
 
@@ -2343,7 +2343,7 @@ int G_EnterLevel(int gameMode)
     {
         if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
         {
-            Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
+            Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
         }
         userMapRecord.name = "";
@@ -2356,7 +2356,7 @@ int G_EnterLevel(int gameMode)
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
-        Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
+        Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
         return 1;
     }
     else
@@ -2493,11 +2493,11 @@ int G_EnterLevel(int gameMode)
 
     if (G_HaveUserMap())
     {
-        Printf(OSDTEXT_YELLOW "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
+        Printf(TEXTCOLOR_GOLD "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
     }
     else
     {
-        Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
+        Printf(TEXTCOLOR_GOLD "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                    mapList[mii].DisplayName());
     }
 

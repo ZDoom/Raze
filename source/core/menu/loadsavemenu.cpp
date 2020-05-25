@@ -47,6 +47,7 @@
 #include "savegamehelp.h"
 #include "i_specialpaths.h"
 #include "findfile.h"
+#include "v_video.h"
 
 
 

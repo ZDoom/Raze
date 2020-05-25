@@ -41,6 +41,7 @@
 #include "c_dispatch.h"
 #include "statistics.h"
 #include "v_2ddrawer.h"
+#include "v_video.h"
 
 extern FSaveGameNode *quickSaveSlot;
 

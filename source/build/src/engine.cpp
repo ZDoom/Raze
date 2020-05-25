@@ -27,6 +27,7 @@
 #include "stats.h"
 #include "menu.h"
 #include "version.h"
+#include "earcut.hpp"
 
 #ifdef USE_OPENGL
 # include "hightile.h"
@@ -2863,6 +2864,323 @@ killsprite:
 }
 
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int palette, int shade, int props, const FVector2& xtex, const FVector2& ytex, const FVector2& otex,
+    int clipx1, int clipy1, int clipx2, int clipy2)
+{
+    //Convert int32_t to float (in-place)
+    TArray<FVector4> points(npoints, true);
+    using Point = std::pair<float, float>;
+    std::vector<std::vector<Point>> polygon;
+    std::vector<Point>* curPoly;
+
+    polygon.resize(1);
+    curPoly = &polygon.back();
+
+    for (bssize_t i = 0; i < npoints; ++i)
+    {
+        auto X = ((float)rx1[i]) * (1.0f / 4096.f);
+        auto Y = ((float)ry1[i]) * (1.0f / 4096.f);
+        curPoly->push_back(std::make_pair(X, Y));
+        if (xb1[i] < i && i < npoints - 1)
+        {
+            polygon.resize(polygon.size() + 1);
+            curPoly = &polygon.back();
+        }
+    }
+    // Now make sure that the outer boundary is the first polygon by picking a point that's as much to the outside as possible.
+    int outer = 0;
+    float minx = FLT_MAX;
+    float miny = FLT_MAX;
+    for (size_t a = 0; a < polygon.size(); a++)
+    {
+        for (auto& pt : polygon[a])
+        {
+            if (pt.first < minx || (pt.first == minx && pt.second < miny))
+            {
+                minx = pt.first;
+                miny = pt.second;
+                outer = a;
+            }
+        }
+    }
+    if (outer != 0) std::swap(polygon[0], polygon[outer]);
+    auto indices = mapbox::earcut(polygon);
+
+    int p = 0;
+    for (size_t a = 0; a < polygon.size(); a++)
+    {
+        for (auto& pt : polygon[a])
+        {
+            FVector4 point = { pt.first, pt.second, float(pt.first * xtex.X + pt.second * ytex.X + otex.X), float(pt.first * xtex.Y + pt.second * ytex.Y + otex.Y) };
+            points[p++] = point;
+        }
+    }
+
+    int maskprops = (props >> 7) & DAMETH_MASKPROPS;
+    FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];
+    double alpha = 1.;
+    if (maskprops > DAMETH_MASK)
+    {
+        rs = GetRenderStyle(0, maskprops == DAMETH_TRANS2);
+        alpha = GetAlphaFromBlend(maskprops, 0);
+    }
+    int translation = TRANSLATION(Translation_Remap + curbasepal, palette);
+    int light = clamp(scale((numshades - shade), 255, numshades), 0, 255);
+    PalEntry pe = PalEntry(uint8_t(alpha*255), light, light, light);
+
+    twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
+}
+
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
+{
+    twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
+}
+
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
+{
+    drawlinergb(x1, y1, x2, y2, PalEntry(p.r, p.g, p.b));
+}
+
+void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
+{
+    drawlinergb(x1, y1, x2, y2, GPalette.BaseColors[GPalette.Remap[col]]);
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+
+#include "build.h"
+#include "../src/engine_priv.h"
+
+//sx,sy       center of sprite; screen coords*65536
+//z           zoom*65536. > is zoomed in
+//a           angle (0 is default)
+//dastat&1    1:translucence
+//dastat&2    1:auto-scale mode (use 320*200 coordinates)
+//dastat&4    1:y-flip
+//dastat&8    1:don't clip to startumost/startdmost
+//dastat&16   1:force point passed to be top-left corner, 0:Editart center
+//dastat&32   1:reverse translucence
+//dastat&64   1:non-masked, 0:masked
+//dastat&128  1:draw all pages (permanent - no longer used)
+//cx1,...     clip window (actual screen coords)
+
+//==========================================================================
+//
+// INTERNAL helper function for classic/polymost dorotatesprite
+//  sxptr, sxptr, z: in/out
+//  ret_yxaspect, ret_xyaspect: out
+//
+//==========================================================================
+
+static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, int32_t dastat, int32_t cx1_plus_cx2, int32_t cy1_plus_cy2)
+{
+    if ((dastat & RS_AUTO) == 0)
+    {
+        if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
+        {
+            return (10 << 16) / 12;
+        }
+        else
+        {
+            return xyaspect;
+        }
+    }
+    else
+    {
+        // dastat&2: Auto window size scaling
+        const int32_t oxdim = xdim;
+        const int32_t oydim = ydim;
+        int32_t xdim = oxdim;  // SHADOWS global
+        int32_t ydim = oydim;
+
+        int32_t zoomsc, sx = *sxptr, sy = *syptr;
+        int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
+
+        sy += rotatesprite_y_offset;
+
+        if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
+        {
+            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
+                sx += NEGATE_ON_CONDITION(scale(120 << 16, xdim, ydim) - (160 << 16), !(dastat & RS_ALIGN_R));
+
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                ydim = scale(xdim, 3, 4);
+            else
+                xdim = scale(ydim, 4, 3);
+
+            ouryxaspect = (12 << 16) / 10;
+            ourxyaspect = (10 << 16) / 12;
+        }
+
+        ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
+        ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
+
+        // screen center to s[xy], 320<<16 coords.
+        const int32_t normxofs = sx - (320 << 15), normyofs = sy - (200 << 15);
+
+        // nasty hacks go here
+        if (!(dastat & RS_NOCLIP))
+        {
+            const int32_t twice_midcx = cx1_plus_cx2 + 2;
+
+            // screen x center to sx1, scaled to viewport
+            const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
+
+            sx = ((twice_midcx) << 15) + scaledxofs;
+
+            zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
+            zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
+
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                zoomsc = scale(zoomsc, ydim, oydim);
+
+            sy = ((cy1_plus_cy2 + 2) << 15) + mulscale16(normyofs, zoomsc);
+        }
+        else
+        {
+            //If not clipping to startmosts, & auto-scaling on, as a
+            //hard-coded bonus, scale to full screen instead
+
+            sx = (xdim << 15) + 32768 + scale(normxofs, xdim, 320);
+
+            zoomsc = scale(xdim, ouryxaspect, 320);
+            sy = (ydim << 15) + 32768 + mulscale16(normyofs, zoomsc);
+
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                sy += (oydim - ydim) << 15;
+            else
+                sx += (oxdim - xdim) << 15;
+
+            if (dastat & RS_CENTERORIGIN)
+                sx += oxdim << 15;
+        }
+
+        *sxptr = sx;
+        *syptr = sy;
+        *z = mulscale16(*z, zoomsc);
+
+        return ourxyaspect;
+    }
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
+    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FTexture* pic, int basepal)
+{
+    F2DDrawer::RenderCommand dg = {};
+    int method = 0;
+
+    dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
+    dg.mType = F2DDrawer::DrawTypeTriangles;
+    if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
+    {
+        dg.mScissor[0] = clipx1;
+        dg.mScissor[1] = clipy1;
+        dg.mScissor[2] = clipx2 + 1;
+        dg.mScissor[3] = clipy2 + 1;
+        dg.mFlags |= F2DDrawer::DTF_Scissor;
+    }
+
+    if (!(dastat & RS_NOMASK))
+    {
+        if (dastat & RS_TRANS1)
+            method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
+        else
+            method |= DAMETH_MASK;
+
+        dg.mRenderStyle = GetRenderStyle(dablend, (dastat & RS_TRANS2) ? 1 : 0);
+    }
+    else
+    {
+        dg.mRenderStyle = LegacyRenderStyles[STYLE_Normal];
+    }
+
+    dg.mTexture = pic ? pic : tileGetTexture(picnum);
+    dg.mVertCount = 4;
+    dg.mVertIndex = (int)twod->mVertices.Reserve(4);
+    auto ptr = &twod->mVertices[dg.mVertIndex];
+    float drawpoly_alpha = daalpha * (1.0f / 255.0f);
+    float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
+    int light = clamp(scale((numshades - dashade), 255, numshades), 0, 255);
+    auto p = PalEntry((uint8_t)(alpha * 255), light, light, light);
+
+    vec2_t const siz = { dg.mTexture->GetDisplayWidth(), dg.mTexture->GetDisplayHeight() };
+    vec2_16_t ofs = { 0, 0 };
+
+    if (!(dastat & RS_TOPLEFT))
+    {
+        if (!pic)
+        {
+            ofs = { int16_t(tileLeftOffset(picnum) + (siz.x >> 1)),
+                    int16_t(tileTopOffset(picnum) + (siz.y >> 1)) };
+        }
+        else
+        {
+            ofs = { int16_t((siz.x >> 1)),
+                    int16_t((siz.y >> 1)) };
+        }
+    }
+
+    if (dastat & RS_YFLIP)
+        ofs.y = siz.y - ofs.y;
+
+    int32_t aspectcorrect = dorotspr_handle_bit2(&sx, &sy, &z, dastat, clipx1 + clipx2, clipy1 + clipy2);
+
+    int32_t cosang = mulscale14(sintable[(a + 512) & 2047], z);
+    int32_t cosang2 = cosang;
+    int32_t sinang = mulscale14(sintable[a & 2047], z);
+    int32_t sinang2 = sinang;
+
+    if ((dastat & RS_AUTO) || (!(dastat & RS_NOCLIP)))  // Don't aspect unscaled perms
+    {
+        cosang2 = mulscale16(cosang2, aspectcorrect);
+        sinang2 = mulscale16(sinang2, aspectcorrect);
+    }
+
+    int cx0 = sx - ofs.x * cosang2 + ofs.y * sinang2;
+    int cy0 = sy - ofs.x * sinang - ofs.y * cosang;
+
+    int cx1 = cx0 + siz.x * cosang2;
+    int cy1 = cy0 + siz.x * sinang;
+
+    int cx3 = cx0 - siz.y * sinang2;
+    int cy3 = cy0 + siz.y * cosang;
+
+    int cx2 = cx1 + cx3 - cx0;
+    int cy2 = cy1 + cy3 - cy0;
+
+    float y = (dastat & RS_YFLIP) ? 1.f : 0.f;
+
+    ptr->Set(cx0 / 65536.f, cy0 / 65536.f, 0.f, 0.f, y, p); ptr++;
+    ptr->Set(cx1 / 65536.f, cy1 / 65536.f, 0.f, 1.f, y, p); ptr++;
+    ptr->Set(cx2 / 65536.f, cy2 / 65536.f, 0.f, 1.f, 1.f - y, p); ptr++;
+    ptr->Set(cx3 / 65536.f, cy3 / 65536.f, 0.f, 0.f, 1.f - y, p); ptr++;
+    dg.mIndexIndex = twod->mIndices.Size();
+    dg.mIndexCount += 6;
+    twod->AddIndices(dg.mVertIndex, 6, 0, 1, 2, 0, 2, 3);
+    twod->AddCommand(&dg);
+
+}
+
+
 //
 // fillpolygon (internal)
 //
@@ -2882,7 +3200,7 @@ static void renderFillPolygon(int32_t npoints)
     ytex.Y = ((float)y2) * (-1.f / 4294967296.f);
     otex.X = (fxdim * xtex.X + fydim * ytex.X) * -0.5f + fglobalposx * (1.f / 4294967296.f);
     otex.Y = (fxdim * xtex.Y + fydim * ytex.Y) * -0.5f - fglobalposy * (1.f / 4294967296.f);
-    twod->FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+    FillPolygon(rx1, ry1, xb1, npoints, globalpicnum, globalpal, globalshade, globalorientation, xtex, ytex, otex, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
 }
 
 //
@@ -3750,7 +4068,7 @@ void videoNextPage(void)
 		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
 		recursion = true;
 		M_Drawer();
-		FStat::PrintStat();
+		FStat::PrintStat(twod);
 		C_DrawConsole();
 		recursion = false;
 	}
@@ -5035,7 +5353,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     }
 
     // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
-    twod->rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
+    twod_rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, cx1, cy1, cx2, cy2, tex, basepal);
 
     // RS_PERM code was removed because the current backend supports only one page that needs to be redrawn each frame in which case the perm list was skipped anyway.
 }

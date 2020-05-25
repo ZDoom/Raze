@@ -1296,4 +1296,35 @@ extern int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dap
 extern void(*PolymostProcessVoxels_Callback)(void);
 #endif
 
+class F2DDrawer;
+
+extern F2DDrawer twodgen;
+extern F2DDrawer twodpsp;
+extern F2DDrawer* twod;
+
+// This is for safely substituting the 2D drawer for a block of code.
+class PspTwoDSetter
+{
+	F2DDrawer* old;
+public:
+	PspTwoDSetter()
+	{
+		old = twod;
+		twod = &twodpsp;
+	}
+	~PspTwoDSetter()
+	{
+		twod = old;
+	}
+	// Shadow Warrior fucked this up and draws the weapons in the same pass as the hud, meaning we have to switch this on and off depending on context.
+	void set()
+	{
+		twod = &twodpsp;
+	}
+	void clear()
+	{
+		twod = old;
+	}
+};
+
 #endif // build_h_

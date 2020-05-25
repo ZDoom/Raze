@@ -13,6 +13,7 @@
 #include "textures.h"
 #include "bitmap.h"
 #include "v_draw.h"
+#include "v_video.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1

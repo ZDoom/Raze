@@ -537,7 +537,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     {
         AC_MOVE_ID(vm.pData) = 0;
-        Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(TEXTCOLOR_RED "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -694,7 +694,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
-        Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
+        Printf(TEXTCOLOR_RED "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -1268,7 +1268,7 @@ static void SetArray(int const arrayNum, int const arrayIndex, int const newValu
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayNum >= (unsigned)g_gameArrayCount || (unsigned)arrayIndex >= (unsigned)aGameArrays[arrayNum].size))
     {
-        Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
+        Printf(TEXTCOLOR_RED "Gv_SetVar(): tried to set invalid array %d or index out of bounds from "
                              "sprite %d (%d), player %d\n",
                    (int)arrayNum, vm.spriteNum, vm.pUSprite->picnum, vm.playerNum);
         vm.flags |= VM_RETURN;
@@ -1279,7 +1279,7 @@ static void SetArray(int const arrayNum, int const arrayIndex, int const newValu
 
     if (EDUKE32_PREDICT_FALSE(arr.flags & GAMEARRAY_READONLY))
     {
-        Printf(OSD_ERROR "Tried to set value in read-only array `%s'", arr.szLabel);
+        Printf(TEXTCOLOR_RED "Tried to set value in read-only array `%s'", arr.szLabel);
         vm.flags |= VM_RETURN;
         return;
     }
@@ -1310,7 +1310,7 @@ static void ResizeArray(int const arrayNum, int const newSize)
     if (newSize == oldSize || newSize < 0)
         return;
 #if 0
-    Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+    Printf(TEXTCOLOR_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                array.szLabel, array.size, newSize);
 #endif
     if (newSize == 0)
@@ -2834,7 +2834,7 @@ GAMEEXEC_STATIC void VM_Execute(int const loop /*= false*/)
                                     return;
                             break;
 badindex:
-                            Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", VM_DECODE_LINE_NUMBER(g_tw), iter_tokens[iterType].token, nIndex);
+                            Printf(TEXTCOLOR_RED "Line %d, for %s: index %d out of range!\n", VM_DECODE_LINE_NUMBER(g_tw), iter_tokens[iterType].token, nIndex);
                             vm.flags |= VM_RETURN;
                             dispatch();
                     }
@@ -5197,7 +5197,7 @@ badindex:
                             index = Gv_GetVar(*insptr++);
                             if (EDUKE32_PREDICT_TRUE((unsigned)index < (unsigned)aGameArrays[lVarID].size))
                             {
-                                Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", VM_DECODE_LINE_NUMBER(g_tw), aGameArrays[lVarID].szLabel, index,
+                                Printf(TEXTCOLOR_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", VM_DECODE_LINE_NUMBER(g_tw), aGameArrays[lVarID].szLabel, index,
                                            (int32_t)(m * Gv_GetArrayValue(lVarID, index)));
                                 dispatch();
                             }
@@ -5221,7 +5221,7 @@ badindex:
                                     CON_ERRPRINTF("invalid array index\n");
                                     abort_after_error();
                                 }
-                                Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n", VM_DECODE_LINE_NUMBER(g_tw), index, Gv_GetVar(*insptr++, index, vm.playerNum));
+                                Printf(TEXTCOLOR_GREEN "CONLOGVAR: L=%d %d %d\n", VM_DECODE_LINE_NUMBER(g_tw), index, Gv_GetVar(*insptr++, index, vm.playerNum));
                                 dispatch();
                             }
                         }
@@ -5259,7 +5259,7 @@ badindex:
                     Bstrcat(tempbuf, szBuf);
                     Bsprintf(szBuf, " =%d\n", Gv_GetVar(lVarID) * m);
                     Bstrcat(tempbuf, szBuf);
-                    Printf(OSDTEXT_GREEN "%s", tempbuf);
+                    Printf(TEXTCOLOR_GREEN "%s", tempbuf);
                     insptr++;
                     dispatch();
                 }

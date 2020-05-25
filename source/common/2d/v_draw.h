@@ -1,50 +1,27 @@
 #pragma once
-/*
-** v_video.h
-**
-**---------------------------------------------------------------------------
-** Copyright 1998-2008 Randy Heit
-** All rights reserved.
-**
-** Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions
-** are met:
-**
-** 1. Redistributions of source code must retain the above copyright
-**    notice, this list of conditions and the following disclaimer.
-** 2. Redistributions in binary form must reproduce the above copyright
-**    notice, this list of conditions and the following disclaimer in the
-**    documentation and/or other materials provided with the distribution.
-** 3. The name of the author may not be used to endorse or promote products
-**    derived from this software without specific prior written permission.
-**
-** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-**---------------------------------------------------------------------------
-**
-*/
 
-
-#include "palentry.h"
-#include "renderstyle.h"
-#include "c_cvars.h"
 #include "v_2ddrawer.h"
+#include "c_cvars.h"
+
+// TagItem definitions for DrawTexture. As far as I know, tag lists
+// originated on the Amiga.
+//
+// Think of TagItems as an array of the following structure:
+//
+// struct TagItem {
+//     uint32_t ti_Tag;
+//     uint32_t ti_Data;
+// };
 
 #define TAG_DONE	(0)  /* Used to indicate the end of the Tag list */
 #define TAG_END		(0)  /* Ditto									*/
 						 /* list pointed to in ti_Data 				*/
 
+#define TAG_USER	((uint32_t)(1u<<30))
+
 enum
 {
-	DTA_Base = 1,
+	DTA_Base = TAG_USER + 5000,
 	DTA_DestWidth,		// width of area to draw to
 	DTA_DestHeight,		// height of area to draw to
 	DTA_Alpha,			// alpha value for translucency
@@ -129,6 +106,9 @@ enum
 
 
 class FFont;
+struct FRemapTable;
+class player_t;
+typedef uint32_t angle_t;
 
 struct DrawParms
 {
@@ -149,8 +129,8 @@ struct DrawParms
 	double top;
 	double left;
 	float Alpha;
-	int TranslationId;
 	PalEntry fillcolor;
+	int TranslationId;
 	PalEntry colorOverlay;
 	PalEntry color;
 	int alphaChannel;
@@ -162,6 +142,7 @@ struct DrawParms
 	int masked;
 	int bilinear;
 	FRenderStyle style;
+	struct FSpecialColormap *specialcolormap;
 	int desaturate;
 	int scalex, scaley;
 	int cellx, celly;
@@ -170,9 +151,10 @@ struct DrawParms
 	int maxstrlen;
 	bool fortext;
 	bool virtBottom;
+	bool burn;
+	uint8_t fsscalemode;
 	double srcx, srcy;
 	double srcwidth, srcheight;
-	bool burn;
 };
 
 struct Va_List
@@ -180,3 +162,73 @@ struct Va_List
 	va_list list;
 };
 
+struct VMVa_List
+{
+	VMValue *args;
+	int curindex;
+	int numargs;
+	const uint8_t *reginfo;
+};
+
+float ActiveRatio (int width, int height, float *trueratio = NULL);
+inline double ActiveRatio (double width, double height) { return ActiveRatio(int(width), int(height)); }
+
+int AspectBaseWidth(float aspect);
+int AspectBaseHeight(float aspect);
+double AspectPspriteOffset(float aspect);
+int AspectMultiplier(float aspect);
+bool AspectTallerThanWide(float aspect);
+
+extern F2DDrawer* twod;
+
+int GetUIScale(F2DDrawer* drawer, int altval);
+int GetConScale(F2DDrawer* drawer, int altval);
+
+EXTERN_CVAR(Int, uiscale);
+EXTERN_CVAR(Int, con_scaletext);
+EXTERN_CVAR(Int, con_scale);
+
+inline int active_con_scaletext(F2DDrawer* drawer, bool newconfont = false)
+{
+	return newconfont ? GetConScale(drawer, con_scaletext) : GetUIScale(drawer, con_scaletext);
+}
+
+inline int active_con_scale(F2DDrawer *drawer)
+{
+	return GetConScale(drawer, con_scale);
+}
+
+#ifdef DrawText
+#undef DrawText	// See WinUser.h for the definition of DrawText as a macro
+#endif
+
+template<class T>
+bool ParseDrawTextureTags(F2DDrawer *drawer, FTexture* img, double x, double y, uint32_t tag, T& tags, DrawParms* parms, bool fortext);
+
+template<class T>
+void DrawTextCommon(F2DDrawer *drawer, FFont* font, int normalcolor, double x, double y, const T* string, DrawParms& parms);
+bool SetTextureParms(F2DDrawer *drawer, DrawParms* parms, FTexture* img, double x, double y);
+
+void DrawText(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, const char* string, int tag_first, ...);
+void DrawText(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, const char32_t* string, int tag_first, ...);
+void DrawChar(F2DDrawer* drawer, FFont* font, int normalcolor, double x, double y, int character, int tag_first, ...);
+void DrawTexture(F2DDrawer* drawer, FTexture* img, double x, double y, int tags_first, ...);
+
+void DoDim(F2DDrawer* drawer, PalEntry color, float amount, int x1, int y1, int w, int h, FRenderStyle* style = nullptr);
+void Dim(F2DDrawer* drawer, PalEntry color, float damount, int x1, int y1, int w, int h, FRenderStyle* style = nullptr);
+void FillBorder(F2DDrawer *drawer, FTexture* img);	// Fills the border around a 4:3 part of the screen on non-4:3 displays
+
+void DrawFrame(F2DDrawer* drawer, int left, int top, int width, int height);
+void DrawBorder(F2DDrawer* drawer, FTextureID, int x1, int y1, int x2, int y2);
+void DrawFrame(F2DDrawer* twod, PalEntry color, int left, int top, int width, int height, int thickness);
+
+// Set an area to a specified color
+void ClearRect(F2DDrawer* drawer, int left, int top, int right, int bottom, int palcolor, uint32_t color);
+
+void VirtualToRealCoords(F2DDrawer* drawer, double& x, double& y, double& w, double& h, double vwidth, double vheight, bool vbottom = false, bool handleaspect = true);
+
+// Code that uses these (i.e. SBARINFO) should probably be evaluated for using doubles all around instead.
+void VirtualToRealCoordsInt(F2DDrawer* drawer, int& x, int& y, int& w, int& h, int vwidth, int vheight, bool vbottom = false, bool handleaspect = true);
+
+extern int CleanWidth, CleanHeight, CleanXfac, CleanYfac;
+extern int CleanWidth_1, CleanHeight_1, CleanXfac_1, CleanYfac_1;

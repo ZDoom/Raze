@@ -35,6 +35,7 @@
 #include "v_draw.h"
 #include "build.h"
 #include "gamecvars.h"
+#include "v_video.h"
 
 int GUICapture = false;
 

@@ -622,6 +622,7 @@ file( GLOB HEADER_FILES
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
 	common/audio/music/*.h*
+	common/2d/*.h
 	common/console/*.h
 	common/utility/*.h
 	common/engine/*.h
@@ -751,9 +752,6 @@ set (PCH_SOURCES
 	core/raze_music.cpp
 	core/raze_sound.cpp
 
-	core/2d/v_2ddrawer.cpp
-	core/2d/v_draw.cpp
-	core/2d/v_drawtext.cpp
 	core/2d/screentext.cpp
 
 	core/console/c_console.cpp
@@ -768,6 +766,9 @@ set (PCH_SOURCES
 	common/audio/music/i_music.cpp
 	common/audio/music/i_soundfont.cpp
 	common/audio/music/music_config.cpp
+	common/2d/v_2ddrawer.cpp
+	common/2d/v_drawtext.cpp
+	common/2d/v_draw.cpp
 	common/thirdparty/sfmt/SFMT.cpp
 	common/fonts/singlelumpfont.cpp
 	common/fonts/singlepicfont.cpp
@@ -775,9 +776,10 @@ set (PCH_SOURCES
 	common/fonts/font.cpp
 	common/fonts/hexfont.cpp
 	common/fonts/v_font.cpp
+	common/fonts/v_text.cpp	
 	common/textures/hw_ihwtexture.cpp
 	common/textures/hw_material.cpp
-	common/fonts/v_text.cpp
+
 	common/textures/bitmap.cpp
 	common/textures/m_png.cpp
 	common/textures/texture.cpp
@@ -1011,6 +1013,7 @@ include_directories(
 	platform
 	common/audio/sound
 	common/audio/music
+	common/2d
 	common/thirdparty
 	common/textures
 	common/textures/formats
@@ -1139,6 +1142,7 @@ source_group("Common\\Audio\\Music" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_
 source_group("Common\\Console" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/console/.+")
 source_group("Common\\Utility" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/utility/.+")
 source_group("Common\\Engine" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/engine/.+")
+source_group("Common\\2D" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/2d/.+")
 source_group("Common\\Objects" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/objects/.+")
 source_group("Common\\Fonts" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/fonts/.+")
 source_group("Common\\File System" REGULAR_EXPRESSION "^${CMAKE_CURRENT_SOURCE_DIR}/common/filesystem/.+")

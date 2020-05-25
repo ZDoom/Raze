@@ -40,7 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 
 #include "common.h"
-#include "core/2d/v_text.h"
+#include "v_text.h"
+#include "printf.h"
 
 #include "cheats.h"
 #include "demo.h"  // g_firstDemoFile[]
@@ -63,7 +64,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
-        Printf(OSD_ERROR "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
         return OSDCMD_OK;
     }
 	
