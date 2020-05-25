@@ -733,7 +733,11 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (i == -1)
             {
                 i = nextsectorneighborz(sectNum,pSector->floorz,1,-1);
-                if (i == -1) return;
+                if (i == -1)
+                {
+                    OSD_Printf("ST_16_PLATFORM_DOWN/ST_17_PLATFORM_UP: bad neighbor for sector %d!\n", sectNum);
+                    return;
+                }
                 j = sector[i].floorz;
                 SetAnimation(sectNum,&pSector->floorz,j,pSector->extra);
             }
@@ -760,7 +764,10 @@ void G_OperateSectors(int sectNum, int spriteNum)
                 i = nextsectorneighborz(sectNum, pSector->floorz, 1, 1);
 
             if (i == -1)
+            {
+                OSD_Printf("ST_18_ELEVATOR_DOWN/ST_19_ELEVATOR_UP: bad neighbor for sector %d!\n", sectNum);
                 return;
+            }
 
             j = sector[i].floorz;
 
@@ -794,7 +801,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,1,1);
             if (j == -1)
             {
-                Printf("WARNING: ST29: null sector!\n");
+                Printf("ST_29_TEETH_DOOR: bad neighbor for sector %d!\n", sectNum);
                 return;
             }
             j = sector[j].ceilingz;
@@ -805,7 +812,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
             if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
             if (j == -1)
             {
-                Printf("WARNING: ST29: null sector!\n");
+                Printf("ST_29_TEETH_DOOR: bad neighbor for sector %d!\n", sectNum);
                 return;
             }
             j = sector[j].floorz;
@@ -854,13 +861,29 @@ REDODOOR:
         if (i >= 0)
         {
             if (g_animateGoal[sectNum] == pSector->ceilingz)
-                g_animateGoal[i] = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
+            {
+                j = nextsectorneighborz(sectNum, pSector->ceilingz, 1, 1);
+                if (j == -1)
+                {
+                    OSD_Printf("ST_21_FLOOR_DOOR: bad neighbor for sector %d!\n", sectNum);
+                    return;
+                }
+                g_animateGoal[i] = sector[j].floorz;
+            }
             else g_animateGoal[i] = pSector->ceilingz;
         }
         else
         {
             if (pSector->ceilingz == pSector->floorz)
-                j = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
+            {
+                i = nextsectorneighborz(sectNum, pSector->ceilingz, 1, 1);
+                if (i == -1)
+                {
+                    OSD_Printf("ST_21_FLOOR_DOOR: bad neighbor for sector %d!\n", sectNum);
+                    return;
+                }
+                j = sector[i].floorz;
+            }
             else j = pSector->ceilingz;
 
             pSector->lotag ^= 0x8000u;
@@ -890,8 +913,7 @@ REDODOOR:
             }
             else
             {
-                Printf("WARNING: ST_22_SPLITTING_DOOR: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
-                           floorNeighbor, ceilingNeighbor);
+                Printf("ST_22_SPLITTING_DOOR: bad neighbor for sector %d; floor neighbor=%d, ceiling neighbor=%d!\n", sectNum, floorNeighbor, ceilingNeighbor);
                 pSector->lotag ^= 0x8000u;
             }
         }
