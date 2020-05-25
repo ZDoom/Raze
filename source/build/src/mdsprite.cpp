@@ -463,7 +463,7 @@ int32_t md_undefinemodel(int32_t modelid)
 
 
 //Note: even though it says md2model, it works for both md2model&md3model
-FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bool *exact)
+FGameTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bool *exact)
 {
     int32_t i;
     mdskinmap_t *sk, *skzero = NULL;
@@ -482,7 +482,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
         {
 			if (exact) *exact = true;
             //Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
-            return TexMan.GetTexture(sk->texture);
+            return TexMan.GetGameTexture(sk->texture);
         }
         //If no match, give highest priority to number, then pal.. (Parkar's request, 02/27/2005)
         else if ((sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
@@ -501,7 +501,7 @@ FTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf, bo
 	{
 		//Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
 		if (exact) *exact = false;
-        return TexMan.GetTexture(skzero->texture);
+        return TexMan.GetGameTexture(skzero->texture);
 	}
 	else
 		return nullptr;
@@ -1711,7 +1711,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (!tex)
             continue;
 		
-		FTexture *det = nullptr, *glow = nullptr;
+		FGameTexture *det = nullptr, *glow = nullptr;
 		float detscale = 1.f;
 
 		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(

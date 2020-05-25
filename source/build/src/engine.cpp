@@ -3083,7 +3083,7 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
 
 void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FTexture* pic, int basepal)
+    int32_t clipx1, int32_t clipy1, int32_t clipx2, int32_t clipy2, FGameTexture* pic, int basepal)
 {
     F2DDrawer::RenderCommand dg = {};
     int method = 0;
@@ -3122,7 +3122,7 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     int light = clamp(scale((numshades - dashade), 255, numshades), 0, 255);
     auto p = PalEntry((uint8_t)(alpha * 255), light, light, light);
 
-    vec2_t const siz = { dg.mTexture->GetDisplayWidth(), dg.mTexture->GetDisplayHeight() };
+    vec2_t const siz = { (int)dg.mTexture->GetDisplayWidth(), (int)dg.mTexture->GetDisplayHeight() };
     vec2_16_t ofs = { 0, 0 };
 
     if (!(dastat & RS_TOPLEFT))
@@ -5327,7 +5327,7 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 //
 void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                    int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
-                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FTexture *tex, int basepal)
+                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, FGameTexture *tex, int basepal)
 {
     if (!tex && (unsigned)picnum >= MAXTILES)
         return;

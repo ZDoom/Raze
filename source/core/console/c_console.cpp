@@ -86,7 +86,7 @@ static bool TabbedList;		// True if tab list was shown
 CVAR(Bool, con_notablist, false, CVAR_ARCHIVE)
 
 
-static FTexture* conback;
+static FGameTexture* conback;
 static uint32_t conshade;
 static bool conline;
 

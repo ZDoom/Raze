@@ -270,7 +270,7 @@ bool DMenu::MouseEventBack(int type, int x, int y)
 		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
 		if (texid.isValid())
 		{
-			auto tex = TexMan.GetTexture(texid);
+			auto tex = TexMan.GetGameTexture(texid);
 			if (m_show_backbutton&1) x -= screen->GetWidth() - tex->GetDisplayWidth() * CleanXfac;
 			if (m_show_backbutton&2) y -= screen->GetHeight() - tex->GetDisplayHeight() * CleanYfac;
 			mBackbuttonSelected = ( x >= 0 && x < tex->GetDisplayWidth() * CleanXfac &&
@@ -327,7 +327,7 @@ void DMenu::Drawer ()
 		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
 		if (texid.isValid())
 		{
-			auto tex = TexMan.GetTexture(texid);
+			auto tex = TexMan.GetGameTexture(texid);
 			int w = tex->GetDisplayWidth() * CleanXfac;
 			int h = tex->GetDisplayHeight() * CleanYfac;
 			int x = (!(m_show_backbutton & 1)) ? 0 : screen->GetWidth() - w;

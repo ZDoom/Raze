@@ -502,7 +502,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         float const r = 1.f / dd[i];
 
-        if (tileGetTexture(globalpicnum)->isCanvas())
+        if (tileGetTexture(globalpicnum)->GetTexture()->isHardwareCanvas())
         {
             //update texcoords, canvas textures are upside down!
             vt->SetTexCoord(

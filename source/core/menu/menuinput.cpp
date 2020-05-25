@@ -330,7 +330,7 @@ void DTextEnterMenu::Drawer ()
 				int width;
 				const int xx = x * cell_width - INPUTGRID_WIDTH * cell_width / 2 + screen->GetWidth() / 2;
 				const int ch = InputGridChars[y * INPUTGRID_WIDTH + x];
-				FTexture *pic = displayFont->GetChar(ch, CR_DARKGRAY, &width);
+				auto pic = displayFont->GetChar(ch, CR_DARKGRAY, &width);
 				EColorRange color;
 				int remap;
 

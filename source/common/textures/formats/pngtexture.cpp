@@ -41,8 +41,8 @@
 #include "imagehelpers.h"
 #include "image.h"
 #include "printf.h"
+#include "texturemanager.h"
 #include "filesystem.h"
-#include "colormatcher.h"
 
 //==========================================================================
 //
@@ -591,7 +591,7 @@ protected:
 //
 //==========================================================================
 
-FTexture *PNGTexture_CreateFromFile(PNGHandle *png, const FString &filename)
+FGameTexture *PNGTexture_CreateFromFile(PNGHandle *png, const FString &filename)
 {
 	if (M_FindPNGChunk(png, MAKE_ID('I','H','D','R')) == 0)
 	{
@@ -610,7 +610,7 @@ FTexture *PNGTexture_CreateFromFile(PNGHandle *png, const FString &filename)
 	
 	// Reject anything that cannot be put into a savegame picture by GZDoom itself.
 	if (compression != 0 || filter != 0 || interlace > 0 || bitdepth != 8 || (colortype != 2 && colortype != 3)) return nullptr;
-	else return new FPNGFileTexture (png->File, width, height, colortype);
+	else return MakeGameTexture(new FPNGFileTexture (png->File, width, height, colortype), nullptr, ETextureType::Override);
 }
 
 //==========================================================================
@@ -624,6 +624,8 @@ FPNGFileTexture::FPNGFileTexture (FileReader &lump, int width, int height, uint8
 {
 	Width = width;
 	Height = height;
+	Masked = false;
+	bTranslucent = false;
 	fr = std::move(lump);
 }
 

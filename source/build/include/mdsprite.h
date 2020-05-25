@@ -14,14 +14,14 @@
 #define IDP2_MAGIC 0x32504449
 #define IDP3_MAGIC 0x33504449
 
-class FTexture;
+class FGameTexture;
 class FHardwareTexture;
 
 struct mdmodel_t
 {
 	int32_t mdnum, shadeoff;
 	float scale, bscale, zadd, yoffset;
-	FTexture *texture;
+	FGameTexture *texture;
 	
 	int32_t flags;
 };
@@ -200,7 +200,7 @@ struct voxmodel_t : public mdmodel_t
 
 EXTERN mdmodel_t **models;
 
-FTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
+FGameTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf, bool* exact);
 void mdinit(void);
 void freeallmodels(void);
 int32_t polymost_mddraw(tspriteptr_t tspr);

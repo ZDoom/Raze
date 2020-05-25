@@ -107,7 +107,7 @@ enum EMenuSounds : int
 EXTERN_CVAR(Bool, menu_sounds)
 
 struct event_t;
-class FTexture;
+class FGameTexture;
 class FFont;
 enum EColorRange : int;
 class FPlayerClass;
@@ -196,7 +196,7 @@ struct FListMenuDescriptor : public FMenuDescriptor
 	int mSelectedItem;
 	int mSelectOfsX;
 	int mSelectOfsY;
-	FTexture *mSelector;
+	FGameTexture *mSelector;
 	int mDisplayTop;
 	int mXpos, mYpos, mYbotton;
 	int mWLeft, mWRight;
@@ -401,7 +401,7 @@ public:
 	virtual bool MouseEvent(int type, int x, int y);
 	virtual bool CheckHotkey(int c);
 	virtual int GetWidth();
-	virtual void DrawSelector(int xofs, int yofs, FTexture *tex);
+	virtual void DrawSelector(int xofs, int yofs, FGameTexture *tex);
 	void OffsetPositionY(int ydelta) { mYpos += ydelta; }
 	int GetY() { return mYpos; }
 	int GetX() { return mXpos; }
@@ -414,11 +414,11 @@ public:
 class FListMenuItemStaticPatch : public FListMenuItem
 {
 protected:
-	FTexture *mTexture;
+	FGameTexture *mTexture;
 	bool mCentered;
 
 public:
-	FListMenuItemStaticPatch(int x, int y, FTexture *patch, bool centered);
+	FListMenuItemStaticPatch(int x, int y, FGameTexture *patch, bool centered);
 	void Drawer(DListMenu* menu, const DVector2& origin, bool selected);
 };
 
@@ -496,15 +496,15 @@ public:
 	~FListMenuItemNativeText();
 	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 	int GetWidth() override;
-	void DrawSelector(int xofs, int yofs, FTexture* tex) override { } // The text drawer handles this itself.
+	void DrawSelector(int xofs, int yofs, FGameTexture* tex) override { } // The text drawer handles this itself.
 };
 
 
 class FListMenuItemPatch : public FListMenuItemSelectable
 {
-	FTexture* mTexture;
+	FGameTexture* mTexture;
 public:
-	FListMenuItemPatch(int x, int y, int height, int hotkey, FTexture* patch, FName child, int param = 0);
+	FListMenuItemPatch(int x, int y, int height, int hotkey, FGameTexture* patch, FName child, int param = 0);
 	void Drawer(DListMenu* menu, const DVector2& origin, bool selected) override;
 	int GetWidth() override;
 };
@@ -806,7 +806,7 @@ private:
 	int LastSaved = -1;
 	int LastAccessed = -1;
 	TArray<char> SavePicData;
-	FTexture *SavePic = nullptr;
+	FGameTexture *SavePic = nullptr;
 
 public:
 	int WindowSize = 0;

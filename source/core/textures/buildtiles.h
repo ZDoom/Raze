@@ -62,7 +62,7 @@ struct rottile_t
 
 struct HightileReplacement
 {
-	FTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
+	FGameTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
 	vec2f_t scale;
 	float alphacut, specpower, specfactor;
 	uint16_t palnum, flags;
@@ -257,23 +257,24 @@ struct RawCacheNode
 
 struct TileDesc
 {
-	FTexture* texture;	// the currently active tile
-	FTexture* backup;	// original backup for map tiles
+	FGameTexture* texture;	// the currently active tile
+	FGameTexture* backup;	// original backup for map tiles
 	RawCacheNode rawCache;	// this is needed for hitscan testing to avoid reloading the texture each time.
 	picanm_t picanm;		// animation descriptor
 	picanm_t picanmbackup;	// animation descriptor backup when using map tiles
 	rottile_t RotTile;// = { -1,-1 };
 	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
+	FixedBitArray<256> NoBrightmapFlag;
 };
 
 struct BuildTiles
 {
-	FTexture* Placeholder;
+	FGameTexture* Placeholder;
 	TDeletingArray<BuildArtFile*> ArtFiles;
 	TileDesc tiledata[MAXTILES];
 	TArray<FString> addedArt;
-	TMap<FTexture*, int> TextureToTile;
+	TMap<FGameTexture*, int> TextureToTile;
 	TArray<FString> maptilesadded;
 
 	void Init(); // This cannot be a constructor because it needs the texture manager running.
@@ -284,7 +285,7 @@ struct BuildTiles
 
 	void CloseAll();
 
-	void AddTile(int tilenum, FTexture* tex, bool permap = false);
+	void AddTile(int tilenum, FGameTexture* tex, bool permap = false);
 
 	void AddTiles(int firsttile, TArray<uint8_t>& store, const char* mapname);
 
@@ -302,7 +303,7 @@ struct BuildTiles
 	{
 		addedArt = std::move(art);
 	}
-	int GetTileIndex(FTexture* tex)
+	int GetTileIndex(FGameTexture* tex)
 	{
 		auto p = TextureToTile.CheckKey(tex);
 		return p ? *p : -1;
@@ -317,14 +318,12 @@ struct BuildTiles
 		}
 
 	}
-	FTexture* ValidateCustomTile(int tilenum, ReplacementType type);
+	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
 	uint8_t* tileCreate(int tilenum, int width, int height);
-	void tileSetExternal(int tilenum, int width, int height, uint8_t* data);
 	int findUnusedTile(void);
 	int tileCreateRotated(int owner);
-	void ClearTextureCache(bool artonly = false);
 	void InvalidateTile(int num);
 	void MakeCanvas(int tilenum, int width, int height);
 	HightileReplacement* FindReplacement(int picnum, int palnum, bool skybox = false);
@@ -367,7 +366,7 @@ inline const uint8_t* tilePtr(int num)
 	{
 		auto tex = TileFiles.tiledata[num].texture;
 		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
-		TileFiles.tiledata[num].rawCache.data = std::move(tex->Get8BitPixels(false));
+		TileFiles.tiledata[num].rawCache.data = std::move(tex->GetTexture()->Get8BitPixels(false));
 	}
 	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
 	return TileFiles.tiledata[num].rawCache.data.Data();
@@ -381,7 +380,7 @@ inline bool tileLoad(int tileNum)
 inline uint8_t* tileData(int num)
 {
 	auto tex = TileFiles.tiledata[num].texture;
-	auto p = dynamic_cast<FWritableTile*>(tex);
+	auto p = dynamic_cast<FWritableTile*>(tex->GetTexture());
 	return p ? p->GetRawData() : nullptr;
 }
 
@@ -464,7 +463,7 @@ inline void tileInvalidate(int tilenume, int32_t, int32_t)
 	TileFiles.InvalidateTile(tilenume);
 }
 
-inline FTexture* tileGetTexture(int tile)
+inline FGameTexture* tileGetTexture(int tile)
 {
 	assert(tile < MAXTILES);
 	return TileFiles.tiledata[tile].texture;

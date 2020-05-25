@@ -66,11 +66,11 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
+FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
 {
 	vec2_t siz = { tex->GetTexelWidth(), tex->GetTexelHeight() };
 
-	auto store = tex->Get8BitPixels(false);
+	auto store = tex->GetTexture()->Get8BitPixels(false);
 	const uint8_t* p = store.Data();
 
 	auto glpic = GLInterface.NewTexture();
@@ -88,9 +88,9 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FTexture* tex)
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
+FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
-	auto texbuffer = tex->CreateTexBuffer(palid, checkfulltransparency? 0: CTF_ProcessData);
+	auto texbuffer = tex->GetTexture()->CreateTexBuffer(palid, checkfulltransparency? 0: CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)
 	{
@@ -122,21 +122,21 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FTexture* tex, int palid, b
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
+FHardwareTexture* GLInstance::LoadTexture(FGameTexture* tex, int textype, int palid)
 {
 	if (textype == TT_INDEXED) palid = -1;
-	auto phwtex = tex->SystemTextures.GetHardwareTexture(palid, false);
+	auto phwtex = tex->GetTexture()->SystemTextures.GetHardwareTexture(palid, false);
 	if (phwtex) return (FHardwareTexture*)phwtex;
 
 	FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
-	else if (tex->GetUseType() != ETextureType::Canvas)
+	else if (!tex->GetTexture()->isHardwareCanvas())
 		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
 	else
 		hwtex = nullptr;
 	
-	if (hwtex) tex->SystemTextures.AddHardwareTexture(palid, false, hwtex);
+	if (hwtex) tex->GetTexture()->SystemTextures.AddHardwareTexture(palid, false, hwtex);
 	return hwtex;
 }
 
@@ -148,7 +148,7 @@ FHardwareTexture* GLInstance::LoadTexture(FTexture* tex, int textype, int palid)
 
 struct TexturePick
 {
-	FTexture* texture;		// which texture to use
+	FGameTexture* texture;		// which texture to use
 	int translation;		// which translation table to use
 	int tintFlags;			// which shader tinting options to use
 	PalEntry tintColor;		// Tint color
@@ -165,7 +165,7 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 	auto tex = TileFiles.tiles[tilenum];
 	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(tilenum, usepalswap) : nullptr;
 	// Canvas textures must be treated like hightile replacements in the following code.
-	bool truecolor = rep || tex->GetUseType() == FTexture::Canvas;
+	bool truecolor = rep || tex->GetUseType() == FGameTexture::Canvas;
 	bool applytint = false;
 	if (truecolor)
 	{
@@ -203,7 +203,7 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 }
 #endif
 
-bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int method, int sampleroverride, FTexture *det, float detscale, FTexture *glow)
+bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int palette, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
 {
 	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
@@ -225,7 +225,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 	// Canvas textures must be treated like hightile replacements in the following code.
 	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 	auto rep = (picnum >= 0 && hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
-	if (rep || tex->GetUseType() == ETextureType::Canvas)
+	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette != 0)
 		{
@@ -338,7 +338,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 			}
 		}
 #if 1
-		if (picnum > -1 && !(TileFiles.tiledata[picnum].picanm.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !tex->NoBrightmapFlag[usepalswap])
+		if (picnum > -1 && !(TileFiles.tiledata[picnum].picanm.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !TileFiles.tiledata[picnum].NoBrightmapFlag[usepalswap])
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
@@ -364,7 +364,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 					if (htex == nullptr)
 					{
 						// Flag the texture as not being brightmapped for the given palette
-						tex->NoBrightmapFlag.Set(usepalswap);
+						TileFiles.tiledata[picnum].NoBrightmapFlag.Set(usepalswap);
 					}
 					else
 					{
@@ -400,7 +400,7 @@ bool GLInstance::SetTextureInternal(int picnum, FTexture* tex, int palette, int 
 //
 //===========================================================================
 
-bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
+bool GLInstance::SetNamedTexture(FGameTexture* tex, int palette, int sampler)
 {
 	auto mtex = LoadTexture(tex, palette>= 0? TT_TRUECOLOR : TT_HICREPLACE, palette);
 	if (!mtex) return false;
@@ -415,11 +415,6 @@ bool GLInstance::SetNamedTexture(FTexture* tex, int palette, int sampler)
 int PalCheck(int tex)
 {
 	return tex;
-}
-
-void DeleteSoftwareTexture(FSoftwareTexture *)
-{
-
 }
 
 void InitBuildTiles()

@@ -14,7 +14,7 @@ class FSamplerManager;
 class FShader;
 class PolymostShader;
 class SurfaceShader;
-class FTexture;
+class FGameTexture;
 class GLInstance;
 class F2DDrawer;
 struct palette_t;
@@ -115,7 +115,7 @@ class GLInstance
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
 	FHardwareTexture* texv;
-	FTexture* currentTexture = nullptr;
+	FGameTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
 
@@ -474,19 +474,19 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	FHardwareTexture* CreateIndexedTexture(FTexture* tex);
-	FHardwareTexture* CreateTrueColorTexture(FTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
-	FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-	bool SetTextureInternal(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride,  FTexture *det, float detscale, FTexture *glow);
+	FHardwareTexture* CreateIndexedTexture(FGameTexture* tex);
+	FHardwareTexture* CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
+	FHardwareTexture *LoadTexture(FGameTexture* tex, int texturetype, int palid);
+	bool SetTextureInternal(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride,  FGameTexture *det, float detscale, FGameTexture *glow);
 
-	bool SetNamedTexture(FTexture* tex, int palette, int sampleroverride);
+	bool SetNamedTexture(FGameTexture* tex, int palette, int sampleroverride);
 
-	bool SetTexture(int globalpicnum, FTexture* tex, int palette, int method, int sampleroverride)
+	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride)
 	{
 		return SetTextureInternal(globalpicnum, tex, palette, method, sampleroverride, nullptr, 1, nullptr);
 	}
 
-	bool SetModelTexture(FTexture *tex, int palette, FTexture *det, float detscale, FTexture *glow)
+	bool SetModelTexture(FGameTexture *tex, int palette, FGameTexture *det, float detscale, FGameTexture *glow)
 	{
 		return SetTextureInternal(-1, tex, palette, 8/*DAMETH_MODEL*/, -1, det, detscale, glow);
 	}

@@ -50,7 +50,7 @@ void VPXTexture::SetFrame(const void *data_, int width, int height)
     Width = width;
     Height = height;
     data = data_;
-    SystemTextures.Clean(true, true);
+    SystemTextures.Clean();
 }
 
 //===========================================================================
@@ -412,27 +412,27 @@ read_ivf_frame:
 
 /////////////// DRAWING! ///////////////
 static int sampler;
-static VPXTexture* vpxtex[2];
+static FGameTexture* vpxtex[2];
 static int which;
 
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
     ////////// GL STATE //////////
-    vpxtex[0] = new VPXTexture;
-    vpxtex[1] = new VPXTexture;
+    vpxtex[0] = MakeGameTexture(new VPXTexture, nullptr, ETextureType::Special);
+    vpxtex[1] = MakeGameTexture(new VPXTexture, nullptr, ETextureType::Special);
 
     if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
-    (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
+        (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
     {
-		sampler = SamplerClampXY;
+        sampler = CLAMP_XY;
     }
     else
     {
-		sampler = SamplerNoFilterClampXY;
+        sampler = CLAMP_XY;
     }
 
 
-	GLInterface.ClearScreen(0, true);
+    GLInterface.ClearScreen(0, true);
 }
 
 void animvpx_restore_glstate(void)
@@ -454,7 +454,8 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
         return 2;  // shouldn't happen
 
     which ^= 1;
-    vpxtex[which]->SetFrame(codec->pic, codec->width, codec->height);
+    static_cast<VPXTexture*>(vpxtex[which]->GetTexture())->SetFrame(codec->pic, codec->width, codec->height);
+    vpxtex[which]->CleanHardwareData();
 
     float vid_wbyh = ((float)codec->width)/codec->height;
     if (animvpx_aspect > 0)
