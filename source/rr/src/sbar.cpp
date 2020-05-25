@@ -21,11 +21,67 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
+#include "v_font.h"
 #include "duke3d.h"
 #include "compat.h"
 #include "sbar.h"
 
 BEGIN_RR_NS
+
+
+void InitFonts()
+{
+    GlyphSet fontdata;
+
+    // Small font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = TileFiles.GetTile(STARTALPHANUM + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Big font
+
+    // This font is VERY messy...
+    fontdata.Insert('_', TileFiles.GetTile(BIGALPHANUM - 11));
+    fontdata.Insert('-', TileFiles.GetTile(BIGALPHANUM - 11));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, TileFiles.GetTile(BIGALPHANUM - 10 + i));
+    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, TileFiles.GetTile(BIGALPHANUM + i));
+    fontdata.Insert('.', TileFiles.GetTile(BIGPERIOD));
+    fontdata.Insert(',', TileFiles.GetTile(BIGCOMMA));
+    fontdata.Insert('!', TileFiles.GetTile(BIGX_));
+    fontdata.Insert('?', TileFiles.GetTile(BIGQ));
+    fontdata.Insert(';', TileFiles.GetTile(BIGSEMI));
+    fontdata.Insert(':', TileFiles.GetTile(BIGCOLIN));
+    fontdata.Insert('\\', TileFiles.GetTile(BIGALPHANUM + 68));
+    fontdata.Insert('/', TileFiles.GetTile(BIGALPHANUM + 68));
+    fontdata.Insert('%', TileFiles.GetTile(BIGALPHANUM + 69));
+    fontdata.Insert('`', TileFiles.GetTile(BIGAPPOS));
+    fontdata.Insert('"', TileFiles.GetTile(BIGAPPOS));
+    fontdata.Insert('\'', TileFiles.GetTile(BIGAPPOS));
+    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Tiny font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = TileFiles.GetTile(MINIFONT + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // SBAR index font
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, TileFiles.GetTile(THREEBYFIVE + i));
+    fontdata.Insert(':', TileFiles.GetTile(THREEBYFIVE + 10));
+    fontdata.Insert('/', TileFiles.GetTile(THREEBYFIVE + 11));
+    new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+
+}
 
 static int32_t sbarx(int32_t x)
 {
@@ -42,7 +98,7 @@ static int32_t sbarxr(int32_t x)
 static int32_t sbary(int32_t y)
 {
     if (hud_position == 1 && ud.screen_size == 4 && ud.althud == 1) return sbarsc(y << 16);
-    else return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
+    else return (100<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
 int32_t sbarx16(int32_t x)
@@ -67,7 +123,7 @@ static int32_t sbarxr16(int32_t x)
 
 int32_t sbary16(int32_t y)
 {
-    return (200<<16) - sbarsc(200<<16) + sbarsc(y);
+    return (100<<16) - sbarsc(200<<16) + sbarsc(y);
 }
 
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t aspectCorrect = 1)
