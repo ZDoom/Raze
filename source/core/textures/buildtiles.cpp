@@ -130,7 +130,7 @@ static FTexture* GetTileTexture(const char* name, const TArray<uint8_t>& backing
 
 void BuildTiles::Init()
 {
-	auto Placeholder = TexMan.ByIndex(0);
+	Placeholder = TexMan.ByIndex(0);
 	for (auto& tile : tiledata)
 	{
 		tile.texture = Placeholder;

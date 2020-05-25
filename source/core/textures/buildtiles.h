@@ -272,7 +272,6 @@ struct BuildTiles
 	FTexture* Placeholder;
 	TDeletingArray<BuildArtFile*> ArtFiles;
 	TileDesc tiledata[MAXTILES];
-	TDeletingArray<BuildArtFile*> PerMapArtFiles;
 	TArray<FString> addedArt;
 	TMap<FTexture*, int> TextureToTile;
 	TArray<FString> maptilesadded;
@@ -284,7 +283,6 @@ struct BuildTiles
 	}
 
 	void CloseAll();
-	FTexture* GetTexture(const char* path);
 
 	void AddTile(int tilenum, FTexture* tex, bool permap = false);
 
@@ -292,15 +290,13 @@ struct BuildTiles
 
 	void AddFile(BuildArtFile* bfd, bool permap)
 	{
-		if (!permap) ArtFiles.Push(bfd);
-		else PerMapArtFiles.Push(bfd);
+		ArtFiles.Push(bfd);
 	}
 	int FindFile(const FString& filename)
 	{
 		return ArtFiles.FindEx([filename](const BuildArtFile* element) { return filename.CompareNoCase(element->filename) == 0; });
 	}
 	int LoadArtFile(const char* file, const char* mapname = nullptr, int firsttile = -1);
-	void CloseAllMapArt();
 	void LoadArtSet(const char* filename);
 	void AddArt(TArray<FString>& art)
 	{
