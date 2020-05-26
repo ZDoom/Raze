@@ -1750,36 +1750,6 @@ void MenuLevel(void)
     videoNextPage();
 }
 
-void SceneLevel(void)
-{
-    SWBOOL dp_bak;
-    SWBOOL dm_bak;
-    FILE *fin;
-#define CINEMATIC_DEMO_FILE "$scene.dmo"
-
-    // make sure it exists
-    if ((fin = fopen(CINEMATIC_DEMO_FILE,"rb")) == NULL)
-        return;
-    else
-        fclose(fin);
-
-    strcpy(DemoFileName,CINEMATIC_DEMO_FILE);
-
-    dp_bak = DemoPlaying;
-    dm_bak = DemoMode;
-
-    DemoMode = TRUE;
-    DemoPlaying = TRUE;
-    DemoOverride = TRUE;
-    InitLevel();
-    DemoOverride = FALSE;
-
-    ScenePlayBack();
-    TerminateLevel();
-    DemoMode = dm_bak;
-    DemoPlaying = dp_bak;
-}
-
 void
 LoadingLevelScreen(void)
 {
@@ -2314,7 +2284,6 @@ void GameIntro(void)
     {
         LogoLevel();
         //CreditsLevel();
-        //SceneLevel();
         //TitleLevel();
         IntroAnimLevel();
         IntroAnimCount = 0;

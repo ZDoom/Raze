@@ -52,7 +52,6 @@ SWBOOL DemoRecording = FALSE;
 SWBOOL DemoEdit = FALSE;
 SWBOOL DemoMode = FALSE;
 SWBOOL DemoModeMenuState = FALSE;
-SWBOOL DemoOverride = FALSE;
 char DemoFileName[16] = "demo.dmo";
 char DemoLevelName[16] = "";
 extern SWBOOL NewGame;
@@ -579,78 +578,4 @@ DemoPlayBack(void)
     }
 
 }
-
-//
-// Still using old method of playback - this was for opening demo
-//
-
-void
-ScenePlayBack(void)
-{
-    int buf_ndx, pnum, cnt;
-    PLAYERp pp;
-
-    if (SW_SHAREWARE)
-    {
-        // code here needs to be similar to RunLevel startup code
-        PlaySong(nullptr, "yokoha03.mid", -1);
-    }
-
-    // IMPORTANT - MUST be right before game loop
-    InitTimingVars();
-
-    buf_ndx = 0;
-    cnt = 0;
-    ready2send = 0;
-    DemoDone = FALSE;
-
-    inputState.ClearAllInput();
-
-    while (TRUE)
-    {
-        // makes code run at the same rate
-        while ((totalclock > totalsynctics))
-        {
-            TRAVERSE_CONNECT(pnum)
-            {
-                pp = Player + pnum;
-                pp->inputfifo[pp->movefifoend & (MOVEFIFOSIZ - 1)] = DemoBuffer[buf_ndx];
-                pp->movefifoend++;
-                buf_ndx++;
-
-                if (pp->inputfifo[(pp->movefifoend - 1) & (MOVEFIFOSIZ - 1)].bits == -1)
-                {
-                    DemoDone = TRUE;
-                    break;
-                }
-
-                if (buf_ndx > DEMO_BUFFER_MAX - 1)
-                {
-                    DemoReadBuffer();
-                    buf_ndx = 0;
-                }
-            }
-
-            if (inputState.CheckAllInput())
-                DemoDone = TRUE;
-
-            if (DemoDone)
-                break;
-
-            cnt++;
-
-            //movethings();
-            domovethings();
-        }
-
-        // demo is over
-        if (DemoDone)
-            break;
-
-        drawscreen(Player + screenpeek);
-    }
-}
-
-
-
 END_SW_NS

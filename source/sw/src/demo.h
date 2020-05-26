@@ -30,7 +30,6 @@ extern SWBOOL DemoPlaying;
 extern SWBOOL DemoRecording;
 extern SWBOOL DemoEdit;
 extern SWBOOL DemoMode;
-extern SWBOOL DemoOverride;
 extern char DemoFileName[16];
 extern char DemoLevelName[16];
 
@@ -71,7 +70,6 @@ typedef FILE *DFILE;
 void DemoTerm(void);
 void DemoPlaySetup(void);
 void DemoPlayBack(void);
-void ScenePlayBack(void);
 void DemoRecordSetup(void);
 void DemoDebugWrite(void);
 void DemoWriteBuffer(void);
