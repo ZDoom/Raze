@@ -1062,7 +1062,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, float &value, float *d
 
 FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTextureID *defval)
 {
-#if 0
 	if (arc.isWriting())
 	{
 		if (!arc.w->inObject() || defval == nullptr || value != *defval)
@@ -1140,7 +1139,6 @@ FSerializer &Serialize(FSerializer &arc, const char *key, FTextureID &value, FTe
 			}
 		}
 	}
-#endif
 	return arc;
 }
 

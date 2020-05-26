@@ -1,8 +1,8 @@
 /*
-** skyboxtexture.cpp
+** v_collection.h
 **
 **---------------------------------------------------------------------------
-** Copyright 2004-2019 Christoph Oelckers
+** Copyright 1998-2006 Randy Heit
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,44 +31,28 @@
 **
 */
 
-#include "filesystem.h"
-#include "textures.h"
-#include "skyboxtexture.h"
-#include "bitmap.h"
-#include "texturemanager.h"
+#ifndef __V_COLLECTION_H__
+#define __V_COLLECTION_H__
 
+#include "tarray.h"
+#include "textureid.h"
 
+class FGameTexture;
 
-//-----------------------------------------------------------------------------
-//
-//
-//
-//-----------------------------------------------------------------------------
-
-FSkyBox::FSkyBox(const char *name)
-	: FImageTexture(nullptr)
+class FImageCollection
 {
-	FTextureID texid = TexMan.CheckForTexture(name, ETextureType::Wall);
-	if (texid.isValid())
-	{
-		previous = TexMan.GetGameTexture(texid);
-	}
-	else previous = nullptr;
-	faces[0]=faces[1]=faces[2]=faces[3]=faces[4]=faces[5] = nullptr;
-	fliptop = false;
-}
+public:
+	FImageCollection();
+	FImageCollection(const char **patchNames, int numPatches);
 
-//-----------------------------------------------------------------------------
-//
-//
-//
-//-----------------------------------------------------------------------------
+	void Init(const char **patchnames, int numPatches, ETextureType namespc = ETextureType::Any);
+	void Add(const char **patchnames, int numPatches, ETextureType namespc = ETextureType::Any);
+	void Uninit();
 
-void FSkyBox::SetSize()
-{
-	if (!previous && faces[0]) previous = faces[0];
-	if (previous && previous->GetTexture()->GetImage())
-	{
-		SetImage(previous->GetTexture()->GetImage());
-	}
-}
+	FGameTexture *operator[] (int index) const;
+
+protected:
+	TArray<FTextureID> ImageMap;
+};
+
+#endif //__V_COLLECTION_H__

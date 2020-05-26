@@ -89,6 +89,7 @@ FFont* SmallFont, * SmallFont2, * BigFont, * BigUpper, * ConFont, * Intermission
 
 FFont *FFont::FirstFont = nullptr;
 int NumTextColors;
+static bool translationsLoaded;
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
@@ -138,7 +139,9 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 				head == MAKE_ID(0xE1,0xE6,0xD5,0x1A))
 			{
 				FFont *CreateSingleLumpFont (const char *fontname, int lump);
-				return CreateSingleLumpFont (name, lump);
+				font = CreateSingleLumpFont (name, lump);
+				if (translationsLoaded) font->LoadTranslations();
+				return font;
 			}
 		}
 		FTextureID picnum = TexMan.CheckForTexture (name, ETextureType::Any);
@@ -148,12 +151,15 @@ FFont *V_GetFont(const char *name, const char *fontlumpname)
 			if (tex && tex->GetSourceLump() >= folderfile)
 			{
 				FFont *CreateSinglePicFont(const char *name);
-				return CreateSinglePicFont (name);
+				font =  CreateSinglePicFont (name);
+				return font;
 			}
 		}
 		if (folderdata.Size() > 0)
 		{
-			return new FFont(name, nullptr, name, HU_FONTSTART, HU_FONTSIZE, 1, -1);
+			font = new FFont(name, nullptr, name, HU_FONTSTART, HU_FONTSIZE, 1, -1);
+			if (translationsLoaded) font->LoadTranslations();
+			return font;
 		}
 	}
 	return font;
@@ -728,13 +734,6 @@ void V_InitFonts()
 		OriginalSmallFont = new FFont("OriginalSmallFont", "STCFN%.3d", "defsmallfont", HU_FONTSTART, HU_FONTSIZE, HU_FONTSTART, -1, -1, false, true);
 	}
 
-	if (SmallFont)
-	{
-		uint32_t colors[256] = {};
-		SmallFont->RecordAllTextureColors(colors);
-		if (OriginalSmallFont != nullptr) OriginalSmallFont->SetDefaultTranslation(colors);
-		NewSmallFont->SetDefaultTranslation(colors);
-	}
 
 	if (!(SmallFont2 = V_GetFont("SmallFont2")))	// Only used by Strife
 	{
@@ -768,13 +767,6 @@ void V_InitFonts()
 	else
 	{
 		OriginalBigFont = new FFont("OriginalBigFont", nullptr, "bigfont", HU_FONTSTART, HU_FONTSIZE, 1, -1, -1, false, true);
-	}
-
-	if (BigFont)
-	{
-		uint32_t colors[256] = {};
-		BigFont->RecordAllTextureColors(colors);
-		if (OriginalBigFont != nullptr) OriginalBigFont->SetDefaultTranslation(colors);
 	}
 
 	// let PWAD BIGFONTs override the stock BIGUPPER font. (This check needs to be made smarter.)
@@ -833,7 +825,22 @@ void V_LoadTranslations()
 	for (auto font = FFont::FirstFont; font; font = font->Next)
 	{
 		if (!font->noTranslate) font->LoadTranslations();
+		else font->ActiveColors = 0;
 	}
+	if (BigFont)
+	{
+		uint32_t colors[256] = {};
+		BigFont->RecordAllTextureColors(colors);
+		if (OriginalBigFont != nullptr) OriginalBigFont->SetDefaultTranslation(colors);
+	}
+	if (SmallFont)
+	{
+		uint32_t colors[256] = {};
+		SmallFont->RecordAllTextureColors(colors);
+		if (OriginalSmallFont != nullptr) OriginalSmallFont->SetDefaultTranslation(colors);
+		NewSmallFont->SetDefaultTranslation(colors);
+	}
+	translationsLoaded = true;
 }
 
 void V_ClearFonts()

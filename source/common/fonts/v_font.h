@@ -38,7 +38,6 @@
 #include "palentry.h"
 #include "name.h"
 
-class DCanvas;
 class FGameTexture;
 struct FRemapTable;
 
@@ -156,7 +155,7 @@ protected:
 	int TranslationType = 0;
 	int Displacement = 0;
 	char Cursor;
-	bool noTranslate;
+	bool noTranslate = false;
 	bool translateUntranslated;
 	bool MixedCase = false;
 	bool forceremap = false;
@@ -167,7 +166,7 @@ protected:
 		int XMove = INT_MIN;
 	};
 	TArray<CharData> Chars;
-	int ActiveColors;
+	int ActiveColors = -1;
 	TArray<int> Translations;
 	uint8_t PatchRemap[256];
 

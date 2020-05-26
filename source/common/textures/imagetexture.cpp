@@ -60,11 +60,11 @@ FImageTexture::FImageTexture(FImageSource *img) noexcept
 void FImageTexture::SetFromImage()
 {
 	auto img = mImage;
-		Width = img->GetWidth();
-		Height = img->GetHeight();
+	Width = img->GetWidth();
+	Height = img->GetHeight();
 
 	Masked = img->bMasked;
-		bTranslucent = img->bTranslucent;
+	bTranslucent = img->bTranslucent;
 }
 //===========================================================================
 //
@@ -72,10 +72,10 @@ void FImageTexture::SetFromImage()
 //
 //===========================================================================
 
-FBitmap FImageTexture::GetBgraBitmap(const PalEntry* p, int* trans)
+FBitmap FImageTexture::GetBgraBitmap(const PalEntry *p, int *trans)
 {
-	return mImage->GetCachedBitmap(p, bNoRemap0 ? FImageSource::noremap0 : FImageSource::normal, trans);
-}
+	return mImage->GetCachedBitmap(p, bNoRemap0? FImageSource::noremap0 : FImageSource::normal, trans);
+}	
 
 //===========================================================================
 //
@@ -85,8 +85,8 @@ FBitmap FImageTexture::GetBgraBitmap(const PalEntry* p, int* trans)
 
 TArray<uint8_t> FImageTexture::Get8BitPixels(bool alpha)
 {
-	return mImage->GetPalettedPixels(alpha ? alpha : bNoRemap0 ? FImageSource::noremap0 : FImageSource::normal);
-}
+	return mImage->GetPalettedPixels(alpha? alpha : bNoRemap0 ? FImageSource::noremap0 : FImageSource::normal);
+}	
 
 //===========================================================================
 //

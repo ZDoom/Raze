@@ -39,14 +39,14 @@
 #include "files.h"
 #include "md5.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+
 #ifndef _WIN32
 #include <pwd.h>
 #include <unistd.h>
 #endif
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
 
 /*
 progdir will hold the path up to the game directory, including the slash

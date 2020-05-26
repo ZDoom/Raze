@@ -124,12 +124,6 @@ class FMultipatchTextureBuilder;
 
 extern int r_spriteadjustSW, r_spriteadjustHW;
 
-class FNullTextureID : public FTextureID
-{
-public:
-	FNullTextureID() : FTextureID(0) {}
-};
-
 enum FTextureFormat : uint32_t
 {
 	TEX_Pal,
@@ -287,7 +281,6 @@ public:
 
 public:
 	FTextureBuffer CreateTexBuffer(int translation, int flags = 0);
-
 	virtual bool DetermineTranslucency();
 	bool GetTranslucency()
 	{
@@ -359,7 +352,7 @@ protected:
 	void SetFromImage();
 public:
 	FImageTexture(FImageSource* image) noexcept;
-	virtual TArray<uint8_t> Get8BitPixels(bool alphatex);
+	TArray<uint8_t> Get8BitPixels(bool alphatex) override;
 
 	void SetImage(FImageSource* img)
 	{

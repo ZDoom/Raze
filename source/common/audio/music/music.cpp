@@ -39,7 +39,6 @@
 #include <stdlib.h>
 #include <stdexcept>
 
-
 #include "i_sound.h"
 #include "i_music.h"
 #include "printf.h"
@@ -51,13 +50,6 @@
 #include "filereadermusicinterface.h"
 #include <zmusic.h>
 
-static bool		MusicPaused;		// whether music is paused
-MusPlayingInfo mus_playing;	// music currently being played
-static FPlayList PlayList;
-float	relative_volume = 1.f;
-float	saved_relative_volume = 1.0f;	// this could be used to implement an ACS FadeMusic function
-MusicVolumeMap MusicVolumes;
-MidiDeviceMap MidiDevices;
 // EXTERNAL FUNCTION PROTOTYPES --------------------------------------------
 
 extern float S_GetMusicVolume (const char *music);
@@ -66,6 +58,13 @@ static void S_ActivatePlayList(bool goBack);
 
 // PRIVATE DATA DEFINITIONS ------------------------------------------------
 
+static bool		MusicPaused;		// whether music is paused
+MusPlayingInfo mus_playing;	// music currently being played
+static FPlayList PlayList;
+float	relative_volume = 1.f;
+float	saved_relative_volume = 1.0f;	// this could be used to implement an ACS FadeMusic function
+MusicVolumeMap MusicVolumes;
+MidiDeviceMap MidiDevices;
 
 static FileReader DefaultOpenMusic(const char* fn)
 {
@@ -223,9 +222,9 @@ void S_UpdateMusic ()
 			}
 			else
 			{
-			S_StopMusic(true);
+				S_StopMusic(true);
+			}
 		}
-	}
 	}
 }
 
@@ -265,11 +264,11 @@ void S_ActivatePlayList (bool goBack)
 	{
 		pos = goBack ? PlayList.Backup () : PlayList.Advance ();
 		if (pos == startpos)
-	{
+		{
 			PlayList.Clear();
 			Printf ("Cannot play anything in the playlist.\n");
 			return;
-	}
+		}
 	}
 }
 
@@ -342,48 +341,48 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		return true;
 	}
 
-		int lumpnum = -1;
-		int length = 0;
-		ZMusic_MusicStream handle = nullptr;
+	int lumpnum = -1;
+	int length = 0;
+	ZMusic_MusicStream handle = nullptr;
 	MidiDeviceSetting* devp = MidiDevices.CheckKey(musicname);
 
-		// Strip off any leading file:// component.
-		if (strncmp(musicname, "file://", 7) == 0)
-		{
-			musicname += 7;
-		}
+	// Strip off any leading file:// component.
+	if (strncmp(musicname, "file://", 7) == 0)
+	{
+		musicname += 7;
+	}
 
 	// opening the music must be done by the game because it's different depending on the game's file system use.
 	FileReader reader = mus_cb.OpenMusic(musicname);
-		if (!reader.isOpen()) return false;
+	if (!reader.isOpen()) return false;
 
-		// shutdown old music
+	// shutdown old music
 	S_StopMusic(true);
 
-		// Just record it if volume is 0 or music was disabled
+	// Just record it if volume is 0 or music was disabled
 	if (snd_musicvolume <= 0 || !mus_enabled)
-		{
-			mus_playing.loop = looping;
-			mus_playing.name = musicname;
-			mus_playing.baseorder = order;
-			mus_playing.LastSong = musicname;
-			return true;
-		}
+	{
+		mus_playing.loop = looping;
+		mus_playing.name = musicname;
+		mus_playing.baseorder = order;
+		mus_playing.LastSong = musicname;
+		return true;
+	}
 
-		// load & register it
-		if (handle != nullptr)
-		{
-			mus_playing.handle = handle;
-		}
-		else
-		{
-			auto mreader = GetMusicReader(reader);	// this passes the file reader to the newly created wrapper.
+	// load & register it
+	if (handle != nullptr)
+	{
+		mus_playing.handle = handle;
+	}
+	else
+	{
+		auto mreader = GetMusicReader(reader);	// this passes the file reader to the newly created wrapper.
 		mus_playing.handle = ZMusic_OpenSong(mreader, devp ? (EMidiDevice)devp->device : MDEV_DEFAULT, devp ? devp->args.GetChars() : "");
-			if (mus_playing.handle == nullptr)
-			{
-				Printf("Unable to load %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
-			}
+		if (mus_playing.handle == nullptr)
+		{
+			Printf("Unable to load %s: %s\n", mus_playing.name.GetChars(), ZMusic_GetLastError());
 		}
+	}
 
 	mus_playing.loop = looping;
 	mus_playing.name = musicname;
@@ -574,19 +573,19 @@ UNSAFE_CCMD (playlist)
 		{
 			Printf("Could not open " TEXTCOLOR_BOLD "%s" TEXTCOLOR_NORMAL ": %s\n", argv[1], strerror(errno));
 			return;
-	}
+		}
 		if (PlayList.GetNumSongs () > 0)
-	{
-			if (argc == 3)
 		{
+			if (argc == 3)
+			{
 				if (stricmp (argv[2], "shuffle") == 0)
 				{
 					PlayList.Shuffle ();
-		}
+				}
 				else
-	{
+				{
 					PlayList.SetPosition (atoi (argv[2]));
-	}
+				}
 			}
 			S_ActivatePlayList (false);
 		}
@@ -645,7 +644,7 @@ CCMD (playlistprev)
 	{
 		PlayList.Backup ();
 		S_ActivatePlayList (true);
-		}
+	}
 }
 
 //==========================================================================

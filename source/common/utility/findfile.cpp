@@ -43,6 +43,8 @@
 #include <unistd.h>
 #include <fnmatch.h>
 
+#include "cmdlib.h"
+
 static const char *pattern;
 
 static int matchfile(const struct dirent *ent)

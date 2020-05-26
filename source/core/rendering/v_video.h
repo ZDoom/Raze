@@ -41,6 +41,7 @@
 #include "renderstyle.h"
 #include "c_cvars.h"
 #include "v_2ddrawer.h"
+#include "intrect.h"
 //#include "hwrenderer/dynlights/hw_shadowmap.h"
 
 static const int VID_MIN_WIDTH = 640;
@@ -76,35 +77,6 @@ enum EHWCaps
 
 	RFL_INVALIDATE_BUFFER = 64,
 	RFL_DEBUG = 128,
-};
-
-
-struct IntRect
-{
-	int left, top;
-	int width, height;
-
-
-	void Offset(int xofs, int yofs)
-	{
-		left += xofs;
-		top += yofs;
-	}
-
-	void AddToRect(int x, int y)
-	{
-		if (x < left)
-			left = x;
-		if (x > left + width)
-			width = x - left;
-
-		if (y < top)
-			top = y;
-		if (y > top + height)
-			height = y - top;
-	}
-
-
 };
 
 

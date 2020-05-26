@@ -183,7 +183,6 @@ struct FSoundChan : public FISoundChannel
 // CHAN_VOICE is for oof, sight, or other voice sounds
 // CHAN_ITEM is for small things and item pickup
 // CHAN_BODY is for generic body sounds
-// Channels below 0 are reserved for CHAN_AUTO.
 
 enum EChannel
 {

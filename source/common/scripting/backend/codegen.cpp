@@ -18,10 +18,6 @@
 **    documentation and/or other materials provided with the distribution.
 ** 3. The name of the author may not be used to endorse or promote products
 **    derived from this software without specific prior written permission.
-** 4. When not used as part of ZDoom or a ZDoom derivative, this code will be
-**    covered by the terms of the GNU General Public License as published by
-**    the Free Software Foundation; either version 2 of the License, or (at
-**    your option) any later version.
 **
 ** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 ** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -48,7 +44,6 @@
 #include "m_random.h"
 #include "v_font.h"
 #include "templates.h"
-#include "palutil.h"
 
 extern FRandom pr_exrandom;
 FMemArena FxAlloc(65536);
@@ -2918,7 +2913,6 @@ ExpEmit FxAddSub::Emit(VMFunctionBuilder *build)
 
 texcheck:
 	// Do a bounds check for the texture index. Note that count can change at run time so this needs to read the value from the texture manager.
-#if 0
 	auto * ptr = (FArray*)&TexMan.Textures;
 	auto * countptr = &ptr->Count;
 	ExpEmit bndp(build, REGT_POINTER);
@@ -2928,7 +2922,6 @@ texcheck:
 	build->Emit(OP_BOUND_R, to.RegNum, bndc.RegNum);
 	bndp.Free(build);
 	bndc.Free(build);
-#endif
 	return to;
 }
 
@@ -6365,7 +6358,7 @@ FxExpression *FxMemberIdentifier::Resolve(FCompileContext& ctx)
 	if (Object->ValueType->isRealPointer())
 	{
 		auto ptype = Object->ValueType->toPointer()->PointedType;
-		if (ptype->isContainer())
+		if (ptype && ptype->isContainer())
 		{
 			auto ret = ResolveMember(ctx, ctx.Class, Object, static_cast<PContainerType *>(ptype));
 			delete this;

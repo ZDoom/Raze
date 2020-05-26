@@ -1,8 +1,9 @@
 /*
-** skyboxtexture.cpp
+** v_collection.cpp
+** Holds a collection of images
 **
 **---------------------------------------------------------------------------
-** Copyright 2004-2019 Christoph Oelckers
+** Copyright 1998-2006 Randy Heit
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,44 +32,51 @@
 **
 */
 
+#include "v_collection.h"
+#include "v_font.h"
+#include "v_video.h"
 #include "filesystem.h"
-#include "textures.h"
-#include "skyboxtexture.h"
-#include "bitmap.h"
 #include "texturemanager.h"
 
-
-
-//-----------------------------------------------------------------------------
-//
-//
-//
-//-----------------------------------------------------------------------------
-
-FSkyBox::FSkyBox(const char *name)
-	: FImageTexture(nullptr)
+FImageCollection::FImageCollection ()
 {
-	FTextureID texid = TexMan.CheckForTexture(name, ETextureType::Wall);
-	if (texid.isValid())
-	{
-		previous = TexMan.GetGameTexture(texid);
-	}
-	else previous = nullptr;
-	faces[0]=faces[1]=faces[2]=faces[3]=faces[4]=faces[5] = nullptr;
-	fliptop = false;
 }
 
-//-----------------------------------------------------------------------------
-//
-//
-//
-//-----------------------------------------------------------------------------
-
-void FSkyBox::SetSize()
+FImageCollection::FImageCollection (const char **patchNames, int numPatches)
 {
-	if (!previous && faces[0]) previous = faces[0];
-	if (previous && previous->GetTexture()->GetImage())
+	Add (patchNames, numPatches);
+}
+
+void FImageCollection::Init (const char **patchNames, int numPatches, ETextureType namespc)
+{
+	ImageMap.Clear();
+	Add(patchNames, numPatches, namespc);
+}
+
+// [MH] Mainly for mugshots with skins and SBARINFO
+void FImageCollection::Add (const char **patchNames, int numPatches, ETextureType namespc)
+{
+	int OldCount = ImageMap.Size();
+
+	ImageMap.Resize(OldCount + numPatches);
+
+	for (int i = 0; i < numPatches; ++i)
 	{
-		SetImage(previous->GetTexture()->GetImage());
+		FTextureID picnum = TexMan.CheckForTexture(patchNames[i], namespc);
+		ImageMap[OldCount + i] = picnum;
 	}
+}
+
+void FImageCollection::Uninit ()
+{
+	ImageMap.Clear();
+}
+
+FGameTexture *FImageCollection::operator[] (int index) const
+{
+	if ((unsigned int)index >= ImageMap.Size())
+	{
+		return NULL;
+	}
+	return ImageMap[index].Exists()? TexMan.GetGameTexture(ImageMap[index], true) : NULL;
 }
