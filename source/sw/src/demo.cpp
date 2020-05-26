@@ -445,6 +445,7 @@ DemoPlayBack(void)
         while (totalclock > totalsynctics)
         {
             handleevents();
+            OSD_DispatchQueued();
 
             TRAVERSE_CONNECT(pnum)
             {
