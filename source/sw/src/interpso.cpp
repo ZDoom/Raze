@@ -289,6 +289,22 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
+            // Hack for jittery coolies in level 1's train.
+            // Based in idea on code from draw.cpp:analyzesprites.
+            // TODO: It could be better. In particular, it could be better
+            // to conditionally disable the interpolation from analyzesprites
+            // instead, using TSPRITE info if possible.
+            if (((uintptr_t)(data->curipos) >= (uintptr_t)sprite) &&
+                ((uintptr_t)(data->curipos) < (uintptr_t)(sprite + Numsprites)))
+            {
+                int32_t sprnum = ((char *)data->curipos - (char *)sprite) / sizeof(*sprite);
+                USERp u = User[sprnum];
+                if (u && (sprite[sprnum].statnum != STAT_DEFAULT) &&
+                    ((TEST(u->Flags, SPR_SKIP4) && (sprite[sprnum].statnum <= STAT_SKIP4_INTERP_END)) ||
+                     (TEST(u->Flags, SPR_SKIP2) && (sprite[sprnum].statnum <= STAT_SKIP2_INTERP_END))))
+                    continue;
+            }
+
             if (data->spriteofang >= 0)
                 *(int16_t *)(data->curipos) = NORM_ANGLE(data->lastoldipos + mulscale16(data->lastangdiff, ratio));
             else
