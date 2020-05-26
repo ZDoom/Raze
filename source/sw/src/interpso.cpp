@@ -283,11 +283,12 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                !Player[screenpeek].sop_remote)))
             continue;
 
+        int32_t ratio = smoothratio * synctics + 65536 * interp->tic;
+        ratio /= interp->lasttic;
+        ratio = (interp->tic == interp->lasttic) ? 65536 : ratio;
+
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
-            int32_t ratio = smoothratio * synctics + 65536 * interp->tic;
-            ratio /= interp->lasttic;
-            ratio = (interp->tic == interp->lasttic) ? 65536 : ratio;
             if (data->spriteofang >= 0)
                 *(int16_t *)(data->curipos) = NORM_ANGLE(data->lastoldipos + mulscale16(data->lastangdiff, ratio));
             else
