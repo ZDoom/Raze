@@ -507,7 +507,6 @@ int GetSpriteHeight(int nSprite)
     return tilesiz[sprite[nSprite].picnum].y * sprite[nSprite].yrepeat * 4;
 }
 
-// TODO - where is ceildist used?
 int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
@@ -588,7 +587,6 @@ int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int 
     return nRet;
 }
 
-// OK
 void Gravity(short nSprite)
 {
     short nSector = sprite[nSprite].sectnum;
@@ -1084,6 +1082,19 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
     *nXVel = xvect;
     *nYVel = yvect;
+
+    /* 
+        Update player position variables, in case the player sprite was moved by a sector,
+        Otherwise these can be out of sync when used in sound code (before being updated in PlayerFunc()). 
+        Can cause local player sounds to play off-centre.
+        TODO: Might need to be done elsewhere too?
+    */
+    int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
+    initx = sprite[nPlayerSprite].x;
+    inity = sprite[nPlayerSprite].y;
+    initz = sprite[nPlayerSprite].z;
+    inita = sprite[nPlayerSprite].ang;
+    initsect = sprite[nPlayerSprite].sectnum;
 }
 
 void SetQuake(short nSprite, int nVal)
