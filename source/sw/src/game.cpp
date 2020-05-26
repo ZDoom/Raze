@@ -1532,62 +1532,6 @@ void SybexScreen(void)
 
 // CTW REMOVED END
 
-void
-TitleLevel(void)
-{
-    twod->ClearScreen();
-    videoNextPage();
-
-	ready2send = 0;
-    totalclock = 0;
-    ototalclock = 0;
-
-    rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
-    //FadeIn(0, 3);
-
-    inputState.ClearAllInput();
-    while (TRUE)
-    {
-        handleevents();
-        OSD_DispatchQueued();
-
-        // taken from top of faketimerhandler
-        // limits checks to max of 40 times a second
-        if (totalclock >= ototalclock + synctics)
-        {
-            //void MNU_CheckForMenusAnyKey( void );
-
-            ototalclock += synctics;
-            //MNU_CheckForMenusAnyKey();
-        }
-
-        //if (M_Active())
-        //    MNU_DrawMenu();
-
-        //drawscreen as fast as you can
-        rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-
-        videoNextPage();
-
-        if (totalclock > 5*120 || inputState.CheckAllInput())
-        {
-            DemoMode = TRUE;
-            DemoPlaying = TRUE;
-            break;
-        }
-    }
-
-//    clearview(0);
-//    nextpage();
-    //SetPaletteToVESA(backup_pal);
-
-    // put up a blank screen while loading
-//    clearview(0);
-//    nextpage();
-}
-
-
 void DrawMenuLevelScreen(void)
 {
     twod->ClearScreen();
@@ -2284,7 +2228,6 @@ void GameIntro(void)
     {
         LogoLevel();
         //CreditsLevel();
-        //TitleLevel();
         IntroAnimLevel();
         IntroAnimCount = 0;
     }
