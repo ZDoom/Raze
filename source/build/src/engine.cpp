@@ -2629,20 +2629,20 @@ killsprite:
 
         if (spritesortcnt < numSprites)
         {
-            int32_t py = spritesxyz[spritesortcnt].y;
-            int32_t pcstat = tspriteptr[spritesortcnt]->cstat & 48;
-            int32_t pangle = tspriteptr[spritesortcnt]->ang;
             i = spritesortcnt;
-            for (bssize_t j = spritesortcnt + 1; j <= numSprites; j++)
+            for (bssize_t i = spritesortcnt; i < numSprites;)
             {
-                if (j < numSprites)
+                int32_t py = spritesxyz[i].y;
+                int32_t pcstat = tspriteptr[i]->cstat & 48;
+                int32_t pangle = tspriteptr[i]->ang;
+                int j = i + 1;
+                if (!polymost_spriteIsModelOrVoxel(tspriteptr[i]))
                 {
-                    if (py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                    while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
                         && !polymost_spriteIsModelOrVoxel(tspriteptr[j]))
-                        continue;
-                    py = spritesxyz[j].y;
-                    pcstat = (tspriteptr[j]->cstat & 48);
-                    pangle = tspriteptr[j]->ang;
+                    {
+                        j++;
+                    }
                 }
                 if (j - i == 1)
                 {
