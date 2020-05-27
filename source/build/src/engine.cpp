@@ -128,8 +128,6 @@ static int32_t qradarang[10240];
 
 uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256], ATTRIBUTE((used)) sqrtable_old[2048];
 
-char britable[16][256]; // JBF 20040207: full 8bit precision
-
 static char kensmessage[128];
 const char *engineerrstr = "No error";
 
@@ -1570,24 +1568,6 @@ static void dosetaspect(void)
 }
 
 
-//
-// loadtables (internal)
-//
-static inline void calcbritable(void)
-{
-    int32_t i, j;
-    float a, b;
-
-    for (i=0; i<16; i++)
-    {
-        a = 8.f / ((float)i+8.f);
-        b = 255.f / powf(255.f, a);
-
-        for (j=0; j<256; j++) // JBF 20040207: full 8bit precision
-            britable[i][j] = (uint8_t) (powf((float)j, a) * b);
-    }
-}
-
 static int32_t engineLoadTables(void)
 {
     static char tablesloaded = 0;
@@ -1617,8 +1597,6 @@ static int32_t engineLoadTables(void)
             qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
-
-        calcbritable();
 
         tablesloaded = 1;
     }
@@ -2126,7 +2104,7 @@ int32_t enginePostInit(void)
         I_FatalError("No translucency table found.");
 
     V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
-    palettePostLoadTables();
+    lookups.postLoadTables();
     TileFiles.SetupReverseTileMap();
     return 0;
 }

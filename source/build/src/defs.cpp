@@ -469,7 +469,7 @@ static int32_t defsparser(scriptfile *script)
             g = clamp(g, 0, 63);
             b = clamp(b, 0, 63);
 
-            paletteMakeLookupTable(p, NULL, r<<2, g<<2, b<<2, 1);
+            lookups.makeTable(p, NULL, r<<2, g<<2, b<<2, 1);
         }
         break;
         case T_NOFLOORPALRANGE:
@@ -482,8 +482,8 @@ static int32_t defsparser(scriptfile *script)
             b = max(b, 1);
             e = min(e, MAXPALOOKUPS-1);
 
-            for (i=b; i<=e; i++)
-                g_noFloorPal[i] = 1;
+            for (i = b; i <= e; i++)
+                lookups.tables[i].noFloorPal = true;
         }
         break;
         case T_LOADGRP:
@@ -2059,8 +2059,8 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            paletteMakeLookupTable(pal, paletteGetLookupTable(remappal), red<<2, green<<2, blue<<2,
-                         remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
+            lookups.makeTable(pal, lookups.getTable(remappal), red<<2, green<<2, blue<<2,
+                         remappal==0 ? 1 : (nofloorpal == -1 ? lookups.tables[remappal].noFloorPal : nofloorpal));
         }
         break;
         case T_TEXTURE:
@@ -2847,7 +2847,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         didLoadShade = 1;
                         numshades = 32;
-                        paletteSetLookupTable(id, palookupbuf.Data());
+                        lookups.setTable(id, palookupbuf.Data());
                     }
                     else
                     {
@@ -2858,7 +2858,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         }
 
-                        paletteMakeLookupTable(id, palookupbuf.Data(), 0,0,0, g_noFloorPal[id]);
+                        lookups.makeTable(id, palookupbuf.Data(), 0,0,0, lookups.tables[id].noFloorPal);
                     }
                     break;
                 }
@@ -2881,8 +2881,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (paletteCheckLookupTable(source) || id > 0)    // do not overwrite the base with an empty table.
-                        paletteCopyLookupTable(id, source);
+                    if (lookups.checkTable(source) || id > 0)    // do not overwrite the base with an empty table.
+                        lookups.copyTable(id, source);
                     didLoadShade = 1;
                     break;
                 }
@@ -2928,7 +2928,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    paletteMakeLookupTable(id, NULL, red, green, blue, 1);
+                    lookups.makeTable(id, NULL, red, green, blue, 1);
                     break;
                 }
                 case T_MAKEPALOOKUP:
@@ -2989,23 +2989,23 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    paletteMakeLookupTable(id, NULL, red, green, blue, g_noFloorPal[id]);
+                    lookups.makeTable(id, NULL, red, green, blue, lookups.tables[id].noFloorPal);
 
                     break;
                 }
                 case T_NOFLOORPAL:
                 {
-                    g_noFloorPal[id] = 1;
+                    lookups.tables[id].noFloorPal = 1;
                     break;
                 }
                 case T_FLOORPAL:
                 {
-                    g_noFloorPal[id] = 0;
+                    lookups.tables[id].noFloorPal = 0;
                     break;
                 }
                 case T_UNDEF:
                 {
-                    paletteClearLookupTable(id);
+                    lookups.clearTable(id);
                     didLoadShade = 0;
                     if (id == 0)
                         paletteloaded &= ~PALETTE_SHADE;
@@ -3360,7 +3360,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                paletteClearLookupTable(i);
+                lookups.clearTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;

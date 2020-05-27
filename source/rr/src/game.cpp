@@ -4357,7 +4357,7 @@ static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
 {
     int const floorPal = sector[sectNum].floorpal;
 
-    if (floorPal && !g_noFloorPal[floorPal] && !A_CheckSpriteFlags(pSprite->owner, SFLAG_NOPAL))
+    if (floorPal && !lookups.noFloorPal(floorPal) && !A_CheckSpriteFlags(pSprite->owner, SFLAG_NOPAL))
     {
         pSprite->pal = floorPal;
         return 1;
@@ -6603,9 +6603,6 @@ static void G_PostLoadPalette(void)
 {
     //if (!(duke3d_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
     //    paletteSetupDefaultFog();
-
-    if (!(duke3d_globalflags & DUKE3D_NO_PALETTE_CHANGES))
-        paletteFixTranslucencyMask();
 }
 
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag

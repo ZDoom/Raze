@@ -361,7 +361,7 @@ void V_InitScreen()
 
 void V_Init2()
 {
-	palettePostLoadLookups();
+	lookups.postLoadLookups();
 	twod = &twodgen;
 
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;

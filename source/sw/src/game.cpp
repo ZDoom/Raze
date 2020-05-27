@@ -816,7 +816,6 @@ bool InitGame()
 
     enginePostInit();
 
-    paletteFixTranslucencyMask();
     V_Init2();
 
     DemoModeMenuInit = TRUE;

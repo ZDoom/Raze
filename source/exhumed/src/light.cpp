@@ -93,7 +93,7 @@ int LoadPaletteLookups()
         }
 
         hFile.Read(buffer, 256*64);
-        paletteSetLookupTable(i, buffer);
+        lookups.setTable(i, buffer);
         
         bGreenPal = 0;
 

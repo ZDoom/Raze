@@ -110,7 +110,7 @@ void G_LoadLookups(void)
 	if (!fr.isOpen())
 		return;
 
-	j = paletteLoadLookupTable(fr);
+	j = lookups.loadTable(fr);
 
     if (j < 0)
     {

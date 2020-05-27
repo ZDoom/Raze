@@ -600,7 +600,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 
 		if (pal != -1)
 		{
-			auto remap = paletteGetLookupTable(pal);
+			auto remap = lookups.getTable(pal);
 			for (auto& pixel : buffer)
 			{
 				pixel = remap[pixel];

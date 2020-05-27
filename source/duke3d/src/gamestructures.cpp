@@ -1917,7 +1917,7 @@ int32_t __fastcall VM_GetPalData(int const palNum, int32_t labelNum)
 
     switch (labelNum)
     {
-        case PALDATA_NOFLOORPAL: labelNum = g_noFloorPal[palNum]; break;
+        case PALDATA_NOFLOORPAL: labelNum = lookups.noFloorPal(palNum); break;
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }
 

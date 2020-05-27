@@ -120,8 +120,8 @@ void PaletteManager::BindPalette(int index)
 
 void PaletteManager::BindPalswap(int index)
 {
-	if (LookupTables[index].Len() == 0) index = 0;
-	if (LookupTables[index].Len() > 0)
+	if (!lookups.checkTable(index)) index = 0;
+	if (lookups.checkTable(index))
 	{
 		if (index != lastsindex)
 		{
@@ -130,12 +130,22 @@ void PaletteManager::BindPalswap(int index)
 			{
 				auto p = GLInterface.NewTexture();
 				p->CreateTexture(256, numshades, FHardwareTexture::Indexed, false);
-				p->LoadTexture((uint8_t*)LookupTables[index].GetChars());
+
+				// Perform a 0<->255 index swap. The lookup tables are still the original data.
+				TArray<uint8_t> lookup(numshades * 256, true);
+				memcpy(lookup.Data(), lookups.getTable(index), lookup.Size());
+				for (int i = 0; i < numshades; i++)
+				{
+					auto p = &lookup[i * 256];
+					p[255] = p[0];
+					p[0] = 0;
+				}
+				p->LoadTexture(lookup.Data());
 				p->SetSampler(SamplerNoFilterClampXY);
 				palswaptextures[index] = p;
 			}
 			inst->BindTexture(1, palswaptextures[index]);
-			inst->SetFadeColor(PalEntry(palookupfog[index].r, palookupfog[index].g, palookupfog[index].b));
+			inst->SetFadeColor(lookups.getFade(index));
 		}
 	}
 

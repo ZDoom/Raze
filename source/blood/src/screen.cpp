@@ -80,13 +80,10 @@ void scrLoadPLUs(void)
         auto data = fileSystem.GetFileData(lump);
         if (data.Size() != 64 * 256)
             I_FatalError("Incorrect PLU size");
-        paletteSetLookupTable(i, data.Data());
+        lookups.setTable(i, data.Data());
     }
 
-    palookupfog[1].r = 255;
-    palookupfog[1].g = 255;
-    palookupfog[1].b = 255;
-	palookupfog[1].f = 1;
+    lookups.setFadeColor(1, 255, 255, 255);
 }
 
 glblend_t const bloodglblend =

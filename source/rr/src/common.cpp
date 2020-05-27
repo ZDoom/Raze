@@ -109,7 +109,7 @@ void G_LoadLookups(void)
 	if (!fr.isOpen())
            return;
 
-    j = paletteLoadLookupTable(fr);
+    j = lookups.loadTable(fr);
 
     if (j < 0)
     {
@@ -152,16 +152,16 @@ void G_LoadLookups(void)
         for (bssize_t i = 0; i < 32; i++)
             table[i] = i+32;
 
-        paletteMakeLookupTable(7, table, 0, 0, 0, 0);
+        lookups.makeTable(7, table, 0, 0, 0, 0);
 
         for (bssize_t i = 0; i < 256; i++)
             table[i] = i;
-        paletteMakeLookupTable(30, table, 0, 0, 0, 0);
-        paletteMakeLookupTable(31, table, 0, 0, 0, 0);
-        paletteMakeLookupTable(32, table, 0, 0, 0, 0);
-        paletteMakeLookupTable(33, table, 0, 0, 0, 0);
+        lookups.makeTable(30, table, 0, 0, 0, 0);
+        lookups.makeTable(31, table, 0, 0, 0, 0);
+        lookups.makeTable(32, table, 0, 0, 0, 0);
+        lookups.makeTable(33, table, 0, 0, 0, 0);
         if (RRRA)
-            paletteMakeLookupTable(105, table, 0, 0, 0, 0);
+            lookups.makeTable(105, table, 0, 0, 0, 0);
 
         j = 63;
         for (bssize_t i = 64; i < 80; i++)
@@ -174,19 +174,19 @@ void G_LoadLookups(void)
         table[81] = 81;
         for (bssize_t i = 0; i < 32; i++)
             table[i] = i+32;
-        paletteMakeLookupTable(34, table, 0, 0, 0, 0);
+        lookups.makeTable(34, table, 0, 0, 0, 0);
         for (bssize_t i = 0; i < 256; i++)
             table[i] = i;
         for (bssize_t i = 0; i < 16; i++)
             table[i] = i+129;
         for (bssize_t i = 16; i < 32; i++)
             table[i] = i+192;
-        paletteMakeLookupTable(35, table, 0, 0, 0, 0);
+        lookups.makeTable(35, table, 0, 0, 0, 0);
         if (RRRA)
         {
-            paletteMakeLookupTable(50, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
-            paletteMakeLookupTable(51, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
-            paletteMakeLookupTable(54, paletteGetLookupTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
+            lookups.makeTable(50, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
+            lookups.makeTable(51, NULL, 12 * 4, 12 * 4, 12 * 4, 0);
+            lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
         }
     }
 }

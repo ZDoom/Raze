@@ -1423,7 +1423,7 @@ int P_GetHudPal(const DukePlayer_t *p)
     if (p->cursectnum >= 0)
     {
         int const hudPal = sector[p->cursectnum].floorpal;
-        if (!g_noFloorPal[hudPal])
+        if (!lookups.noFloorPal(hudPal))
             return hudPal;
     }
 

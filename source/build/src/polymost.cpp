@@ -373,7 +373,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         return;
     }
 
-    if (!paletteCheckLookupTable(globalpal))
+    if (!lookups.checkTable(globalpal))
         globalpal = 0;
 
     //Load texture (globalpicnum)
@@ -4568,7 +4568,7 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     //    while sprites are clamped
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!paletteCheckLookupTable(dapalnum))) return;//dapalnum = 0;
+   if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (!lookups.checkTable(dapalnum))) return;//dapalnum = 0;
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;

@@ -28,24 +28,65 @@
 #define NORMALPAL   (MAXPALOOKUPS - 4)
 #define BRIGHTPAL	(MAXPALOOKUPS)
 
-extern FString LookupTables[MAXPALOOKUPS];
-inline const uint8_t *paletteGetLookupTable(int num)
+struct LookupTable
 {
-    return (const uint8_t*)LookupTables[num].GetChars();
-}
+    FString Shades;
+    PalEntry FadeColor = 0;
+    float Visibility = 0;
+    bool hasBrightmap = false;
+    bool noFloorPal = false;
+};
 
-inline void paletteCopyLookupTable(int dest, int src)
+struct LookupTableInfo
 {
-    LookupTables[dest] = LookupTables[src];
-}
-inline bool paletteCheckLookupTable(int num)
-{
-    return LookupTables[num].Len() > 0;
-}
-inline void paletteClearLookupTable(int num)
-{
-    LookupTables[num] = "";
-}
+    LookupTable tables[MAXPALOOKUPS];
+
+    const uint8_t* getTable(int num)
+    {
+        if (tables[num].Shades.Len() == 0) num = 0;
+        return (const uint8_t*)tables[num].Shades.GetChars();
+    }
+
+    bool checkTable(int num)
+    {
+        return tables[num].Shades.IsNotEmpty();
+    }
+
+    void copyTable(int dest, int src)
+    {
+        tables[dest].Shades = tables[src].Shades;
+    }
+
+    void clearTable(int dest)
+    {
+        tables[dest].Shades = "";
+    }
+
+    void makeTable(int palnum, const uint8_t* remapbuf, int r, int g, int b, bool noFloorPal);
+    int setTable(int palnum, const uint8_t* remap);
+    void postLoadTables();
+    int loadTable(FileReader& fp);
+    void postLoadLookups();
+    void setupDefaultFog();
+
+    void setFadeColor(int num, int r, int g, int b)
+    {
+        tables[num].FadeColor = PalEntry(1, r, g, b);
+    }
+
+    PalEntry getFade(int num)
+    {
+        return tables[num].FadeColor;
+    }
+
+    bool noFloorPal(int num) const
+    {
+        return tables[num].noFloorPal;
+    }
+
+};
+
+extern LookupTableInfo lookups;
 
 enum
 {
@@ -63,9 +104,7 @@ struct palette_t
 
 extern PalEntry palfadergb;
 
-void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency, bool twodonly);
-int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab);
 
 #include "tflags.h"
 enum ESetPalFlag
@@ -98,20 +137,9 @@ void videoTintBlood(int32_t r, int32_t g, int32_t b);
 extern int32_t globalpal;
 extern int32_t globalblend;
 extern void paletteLoadFromDisk(void);
-extern void palettePostLoadTables(void);
 
-extern int32_t paletteLoadLookupTable(FileReader &fp);
-extern void paletteSetupDefaultFog(void);
-void paletteFreeLookups();
-extern void palettePostLoadLookups(void);
-extern void paletteFixTranslucencyMask(void);
-
-extern int8_t g_noFloorPal[MAXPALOOKUPS];
-
-extern char britable[16][256];
 
 #ifdef USE_OPENGL
-extern palette_t palookupfog[MAXPALOOKUPS];
 
 typedef struct glblenddef_
 {

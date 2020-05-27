@@ -24,23 +24,11 @@
 #include "v_font.h"
 #include "../../glbackend/glbackend.h"
 
-// FString is a nice and convenient way to have automatically managed shared storage.
-FString LookupTables[MAXPALOOKUPS];
+LookupTableInfo lookups;
 
 uint8_t curbasepal;
 int32_t globalblend;
-
 PalEntry palfadergb;
-
-#if defined(USE_OPENGL)
-palette_t palookupfog[MAXPALOOKUPS];
-#endif
-
-// For every pal number, whether tsprite pal should not be taken over from
-// floor pal.
-// NOTE: g_noFloorPal[0] is irrelevant as it's never checked.
-int8_t g_noFloorPal[MAXPALOOKUPS];
-
 
 //==========================================================================
 //
@@ -136,7 +124,7 @@ void paletteLoadFromDisk(void)
     int length = numshades * 256;
     auto buffer = fil.Read(length);
     if (buffer.Size() != length) return;
-    LookupTables[0] = FString((char*)buffer.Data(), length);
+    lookups.setTable(0, buffer.Data());
 
     paletteloaded |= PALETTE_SHADE;
     paletteloaded |= PALETTE_TRANSLUC;
@@ -148,30 +136,53 @@ void paletteLoadFromDisk(void)
 //
 //==========================================================================
 
-void palettePostLoadTables(void)
+void LookupTableInfo::postLoadTables(void)
 {
     globalpal = 0;
-    GPalette.GenerateGlobalBrightmapFromColormap(paletteGetLookupTable(0), numshades);
-}
+    GPalette.GenerateGlobalBrightmapFromColormap(getTable(0), numshades);
 
-//==========================================================================
-//
-// Ensure that all lookups map 255 to itself to preserve transparency.
-//
-//==========================================================================
-
-void paletteFixTranslucencyMask(void)
-{
-    for (auto &thispalookup : LookupTables)
+    // Try to detect fullbright translations. Unfortunately this cannot be used to detect fade strength because of loss of color precision in the palette map.
+    for (int j = 0; j < MAXPALOOKUPS; j++)
     {
-        if (thispalookup.IsEmpty())
-            continue;
-
-        for (int j = 0; j < numshades; j++)
+        auto lookup = tables[j].Shades;
+        if (lookup.Len() > 0)
         {
-            auto p = thispalookup.LockBuffer();
-            p[(j << 8) + 255] = 255;
-            thispalookup.UnlockBuffer();
+            auto basetable = (uint8_t*)lookup.GetChars();
+            auto midtable = basetable + ((numshades / 2) - 1) * 256;
+            int lumibase = 0, lumimid = 0;
+            for (int i = 1; i < 255; i++)   // intentionally leave out 0 and 255, because the table here is not translucency adjusted to the palette.
+            {
+                lumibase += GPalette.BaseColors[basetable[i]].Amplitude();
+                lumimid += GPalette.BaseColors[midtable[i]].Amplitude();
+            }
+            float divider = float(lumimid) / float(lumibase);
+            bool isbright = false;
+            if (divider > 0.9)
+            {
+                shadediv[j] = 1 / 10000.f;   // this translation is fullbright.
+            }
+            else
+            {
+                // Fullbright lookups do not need brightmaps.
+                auto fog = tables[j].FadeColor;
+                if (GPalette.HasGlobalBrightmap && fog.r == 0 && fog.g == 0 && fog.b == 0)
+                {
+                    isbright = true;
+                    // A translation is fullbright only if all fullbright colors in the base table are mapped to another fullbright color.
+                    auto brightmap = GPalette.GlobalBrightmap.Remap;
+                    for (int i = 1; i < 255; i++)   // This also ignores entries 0 and 255 for the same reason as above.
+                    {
+                        int map = basetable[i];
+                        if (brightmap[i] == GPalette.WhiteIndex && brightmap[map] != GPalette.WhiteIndex)
+                        {
+                            isbright = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            tables[j].hasBrightmap = isbright;
+            DPrintf(DMSG_NOTIFY, "Lookup %d is %sbright\n", j, isbright ? "" : "not ");
         }
     }
 }
@@ -182,7 +193,7 @@ void paletteFixTranslucencyMask(void)
 //
 //==========================================================================
 
-int32_t paletteLoadLookupTable(FileReader &fp)
+int32_t LookupTableInfo::loadTable(FileReader &fp)
 {
     uint8_t remapbuf[256];
     int numlookups = fp.ReadUInt8();
@@ -201,7 +212,7 @@ int32_t paletteLoadLookupTable(FileReader &fp)
             Printf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
         }
         else
-            paletteMakeLookupTable(palnum, remapbuf, 0, 0, 0, 0);
+            makeTable(palnum, remapbuf, 0, 0, 0, 0);
     }
 
     return 0;
@@ -213,17 +224,16 @@ int32_t paletteLoadLookupTable(FileReader &fp)
 //
 //==========================================================================
 
-void paletteSetupDefaultFog(void)
+void LookupTableInfo::setupDefaultFog(void)
 {
     for (int j = 1; j <= 255 - 3; j++)
     {
-        if (LookupTables[j].IsEmpty() && LookupTables[j + 1].IsEmpty() && LookupTables[j + 2].IsEmpty() && LookupTables[j + 3].IsEmpty())
+        if (tables[j].Shades.IsEmpty() && tables[j+1].Shades.IsEmpty() && tables[j + 2].Shades.IsEmpty() && tables[j + 3].Shades.IsEmpty())
         {
-            paletteMakeLookupTable(j, NULL, 60, 60, 60, 1);
-            paletteMakeLookupTable(j + 1, NULL, 60, 0, 0, 1);
-            paletteMakeLookupTable(j + 2, NULL, 0, 60, 0, 1);
-            paletteMakeLookupTable(j + 3, NULL, 0, 0, 60, 1);
-
+            makeTable(j, NULL, 60, 60, 60, 1);
+            makeTable(j + 1, NULL, 60, 0, 0, 1);
+            makeTable(j + 2, NULL, 0, 60, 0, 1);
+            makeTable(j + 3, NULL, 0, 0, 60, 1);
             break;
         }
     }
@@ -235,7 +245,7 @@ void paletteSetupDefaultFog(void)
 //
 //==========================================================================
 
-void palettePostLoadLookups(void)
+void LookupTableInfo::postLoadLookups()
 {
     int numpalettes = GPalette.NumTranslations(Translation_BasePalettes);
     if (numpalettes == 0) return;
@@ -255,9 +265,9 @@ void palettePostLoadLookups(void)
         {
             for (int l = 0; l < MAXPALOOKUPS; l++)
             {
-                if (!LookupTables[l].IsEmpty())
+                if (!tables[l].Shades.IsEmpty())
                 {
-                    const uint8_t* lookup = (uint8_t*)LookupTables[l].GetChars();
+                    const uint8_t* lookup = (uint8_t*)tables[l].Shades.GetChars();
                     FRemapTable remap;
                     if (i == 0 || (palette != basepalette && !palette->Inactive))
                     {
@@ -274,20 +284,23 @@ void palettePostLoadLookups(void)
             }
         }
     }
-    // Swap colors 0 and 255 in all tables so that all paletted images have their transparent color at index 0.
-    // This means: 
-    // - Swap palette and remap entries in all stored remap tables
-    // - change all remap entries of 255 to 0 and vice versa
+    // Assuming that color 255 is always transparent, do the following:
+    // Copy color 0 to color 255
+    // Set color 0 to transparent black
+    // Swap all remap entries from 0 to 255 and vice versa
+    // Always map 0 to 0.
 
     auto colorswap = [](FRemapTable* remap)
     {
-        std::swap(remap->Palette[0], remap->Palette[255]);
-        std::swap(remap->Remap[0], remap->Remap[255]);
+        remap->Palette[255] = remap->Palette[0];
+        remap->Palette[0] = 0;
+        remap->Remap[255] = remap->Remap[0];
         for (auto& c : remap->Remap)
         {
             if (c == 0) c = 255;
             else if (c == 255) c = 0;
         }
+        remap->Remap[0] = 0;
     };
 
     for (auto remap : GPalette.uniqueRemaps)
@@ -304,12 +317,12 @@ void palettePostLoadLookups(void)
 //
 //==========================================================================
 
-int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
+int32_t LookupTableInfo::setTable(int palnum, const uint8_t *shtab)
 {
     if (shtab != NULL)
     {
         int length = numshades * 256;
-        LookupTables[palnum] = FString((const char*)shtab, length);
+        tables[palnum].Shades = FString((const char*)shtab, length);
     }
 
     return 0;
@@ -321,7 +334,7 @@ int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 //
 //==========================================================================
 
-void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
+void LookupTableInfo::makeTable(int palnum, const uint8_t *remapbuf, int r, int g, int b, bool noFloorPal)
 {
     uint8_t idmap[256];
 
@@ -329,13 +342,13 @@ void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, 
     if (paletteloaded == 0 || (unsigned)palnum >= MAXPALOOKUPS)
         return;
 
-    g_noFloorPal[palnum] = noFloorPal;
+    tables[palnum].noFloorPal = noFloorPal;
 
     if (remapbuf == nullptr)
     {
         if (r == 0 || g == 0 || b == 0)
         {
-            paletteClearLookupTable(palnum);
+            clearTable(palnum);
             return;
         }
 
@@ -344,12 +357,12 @@ void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, 
     }
 
     int length = numshades * 256;
-    auto p = LookupTables[palnum].LockNewBuffer(length);
+    auto p = tables[palnum].Shades.LockNewBuffer(length);
     if (r == 0 || g == 0 || b == 0)
     {
         // "black fog"/visibility case -- only remap color indices
 
-        auto src = paletteGetLookupTable(0);
+        auto src = getTable(0);
 
         for (int j = 0; j < numshades; j++)
             for (int i = 0; i < 256; i++)
@@ -374,12 +387,10 @@ void paletteMakeLookupTable(int32_t palnum, const uint8_t *remapbuf, uint8_t r, 
         }
     }
 
-#if defined(USE_OPENGL)
-    palookupfog[palnum].r = r;
-    palookupfog[palnum].g = g;
-    palookupfog[palnum].b = b;
-	palookupfog[palnum].f = 1;
-#endif
+    tables[palnum].FadeColor.r = r;
+    tables[palnum].FadeColor.g = g;
+    tables[palnum].FadeColor.b = b;
+    tables[palnum].FadeColor.a = 1;
 }
 
 

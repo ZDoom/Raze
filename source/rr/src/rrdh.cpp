@@ -4335,7 +4335,7 @@ void sub_59C20(void)
     }
     for (i = 0; i < 256; i++)
         table[i] = i;
-    paletteMakeLookupTable(2, table, 10*4, 10*4, 24*4, 0);
+    lookups.makeTable(2, table, 10*4, 10*4, 24*4, 0);
 }
 
 int dword_2BEA20, dword_2BEA24;

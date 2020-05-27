@@ -228,31 +228,31 @@ InitPalette(void)
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     // palette for underwater
-    paletteMakeLookupTable(PALETTE_DIVE, tempbuf, 0, 0, FOG_AMT, TRUE);
+    lookups.makeTable(PALETTE_DIVE, tempbuf, 0, 0, FOG_AMT, TRUE);
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    paletteMakeLookupTable(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
+    lookups.makeTable(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    paletteMakeLookupTable(PALETTE_DIVE_LAVA, tempbuf, LAVA_AMT, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_DIVE_LAVA, tempbuf, LAVA_AMT, 0, 0, TRUE);
 
     //
     // 1 Range changes
     //
 
     MapColors(PALETTE_BROWN_RIPPER, BrownRipper, TRUE, tempbuf);
-    paletteMakeLookupTable(PALETTE_BROWN_RIPPER, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_BROWN_RIPPER, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_SKEL_GORE, SkelGore, TRUE, tempbuf);
-    paletteMakeLookupTable(PALETTE_SKEL_GORE, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_SKEL_GORE, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_ELECTRO_GORE, ElectroGore, TRUE, tempbuf);
-    paletteMakeLookupTable(PALETTE_ELECTRO_GORE, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_ELECTRO_GORE, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_MENU_HIGHLIGHT, MenuHighlight, TRUE, tempbuf);
-    paletteMakeLookupTable(PALETTE_MENU_HIGHLIGHT, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_MENU_HIGHLIGHT, tempbuf, 0, 0, 0, TRUE);
 
     //
     // Multiple range changes
@@ -261,44 +261,44 @@ InitPalette(void)
     MapColors(PALETTE_BASIC_NINJA, NinjaBasic[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaBasic); i++)
         MapColors(PALETTE_BASIC_NINJA, NinjaBasic[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_BASIC_NINJA, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_BASIC_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_RED_NINJA, NinjaRed[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaRed); i++)
         MapColors(PALETTE_RED_NINJA, NinjaRed[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_RED_NINJA, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_RED_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_GREEN_NINJA, NinjaGreen[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(NinjaGreen); i++)
         MapColors(PALETTE_GREEN_NINJA, NinjaGreen[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_GREEN_NINJA, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_GREEN_NINJA, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToGreen); i++)
         MapColors(PALETTE_GREEN_LIGHTING, AllToGreen[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_GREEN_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_GREEN_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_RED_LIGHTING, AllToRed[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToRed); i++)
         MapColors(PALETTE_RED_LIGHTING, AllToRed[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_RED_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_RED_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(AllToBlue); i++)
         MapColors(PALETTE_BLUE_LIGHTING, AllToBlue[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_BLUE_LIGHTING, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_BLUE_LIGHTING, tempbuf, 0, 0, 0, TRUE);
 
     MapColors(PALETTE_ILLUMINATE, Illuminate[0], TRUE, tempbuf);
     for (i = 1; i < SIZ(Illuminate); i++)
         MapColors(PALETTE_ILLUMINATE, Illuminate[i], FALSE, tempbuf);
-    paletteMakeLookupTable(PALETTE_ILLUMINATE, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_ILLUMINATE, tempbuf, 0, 0, 0, TRUE);
 
     // PLAYER COLORS - ALSO USED FOR OTHER THINGS
     for (play = 0; play < PLAYER_COLOR_MAPS; play++)
     {
         MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], TRUE, tempbuf);
         MapColors(PALETTE_PLAYER0 + play, PlayerColorMap[play][0], FALSE, tempbuf);
-        paletteMakeLookupTable(PALETTE_PLAYER0 + play, tempbuf, 0, 0, 0, TRUE);
+        lookups.makeTable(PALETTE_PLAYER0 + play, tempbuf, 0, 0, 0, TRUE);
     }
 
     //
@@ -310,7 +310,7 @@ InitPalette(void)
     // invert the brown palette
     for (i = 0; i < 32; i++)
         tempbuf[LT_BROWN + i] = (LT_BROWN + 32) - i;
-    paletteMakeLookupTable(PALETTE_SLUDGE, tempbuf, 0, 0, 0, TRUE);
+    lookups.makeTable(PALETTE_SLUDGE, tempbuf, 0, 0, 0, TRUE);
 
 }
 

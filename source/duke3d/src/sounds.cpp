@@ -98,8 +98,6 @@ void cacheAllSounds(void)
     for(auto &snd : sfx)
     {
         soundEngine->CacheSound(&snd);
-        if (((++i)&31) == 0)
-            gameHandleEvents();
     }
 }
 
