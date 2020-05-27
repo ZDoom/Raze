@@ -103,7 +103,7 @@ struct GINPUT
 
 #pragma pack(pop)
 
-extern GINPUT gInput;
+extern GINPUT gInput, gNetInput;
 extern bool bSilentAim;
 
 extern fix16_t gViewLook, gViewAngle;

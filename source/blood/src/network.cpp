@@ -734,10 +734,8 @@ void netGetInput(void)
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
         if (gNetFifoHead[myconnectindex]-200 > gNetFifoHead[p])
             return;
-    ctrlGetInput();
     GINPUT &input = gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
-    input = gInput;
-    gInput = {};
+    input = gNetInput;
     gNetFifoHead[myconnectindex]++;
     if (gGameOptions.nGameType == 0 || numplayers == 1)
     {

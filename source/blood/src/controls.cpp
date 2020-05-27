@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-GINPUT gInput;
+GINPUT gInput, gNetInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;

@@ -1224,6 +1224,8 @@ RESTART:
                 gBufferJitter = 0;
             while (totalclock >= gNetFifoClock && ready2send)
             {
+                gNetInput = gInput;
+                gInput = {};
                 netGetInput();
                 gNetFifoClock += 4;
                 while (gNetFifoHead[myconnectindex]-gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
