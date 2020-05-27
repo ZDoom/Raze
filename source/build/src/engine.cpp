@@ -3106,7 +3106,7 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
 
     if (!(dastat & RS_TOPLEFT))
     {
-        if (!pic)
+        if (!pic && !(dastat & RS_CENTER))
         {
             ofs = { int16_t(tileLeftOffset(picnum) + (siz.x >> 1)),
                     int16_t(tileTopOffset(picnum) + (siz.y >> 1)) };

@@ -206,6 +206,7 @@ enum {
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
     ROTATESPRITE_MAX = 4096,
 
+    RS_CENTER = (1<<29),    // proper center align.
     RS_CENTERORIGIN = (1<<30),
 };
 
