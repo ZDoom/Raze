@@ -1636,11 +1636,6 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     if (TEST(sop->flags, SOBJ_DONT_ROTATE))
     {
-        if (!cl_sointerpolation || CommEnabled)
-        {
-            pp->oposx = pp->posx;
-            pp->oposy = pp->posy;
-        }
         UpdatePlayerSprite(pp);
         return;
     }
@@ -1686,12 +1681,6 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     pp->camq16ang = NORM_Q16ANGLE(pp->camq16ang);
     pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + fix16_from_int(pp->RevolveDeltaAng));
 
-    if (!cl_sointerpolation || CommEnabled)
-    {
-        pp->oq16ang = pp->q16ang;
-        pp->oposx = pp->posx;
-        pp->oposy = pp->posy;
-    }
     UpdatePlayerSprite(pp);
 }
 
@@ -1946,8 +1935,6 @@ PlayerPart:
                     pp->SpriteP->z = pp->loz;
                 }
             }
-            if (!cl_sointerpolation || CommEnabled)
-                pp->oposz = pp->posz;
         }
         else
         {

@@ -2650,6 +2650,13 @@ DoPlayerMove(PLAYERp pp)
     int friction;
     int save_cstat;
     int push_ret = 0;
+
+    // If SO interpolation is disabled, make sure the player's aiming,
+    // turning and movement still get appropriately interpolated.
+    // We do this from here instead of MovePlayer, covering the case
+    // the player gets pushed by a wall (e.g., on the boat in level 5).
+    SWBOOL interpolate_ride = pp->sop_riding && (!gs.InterpolateSO || CommEnabled);
+
     void SlipSlope(PLAYERp pp);
 
     SlipSlope(pp);
@@ -2704,6 +2711,11 @@ DoPlayerMove(PLAYERp pp)
     if (TEST(pp->Flags, PF_CLIP_CHEAT))
     {
         short sectnum=pp->cursectnum;
+        if (interpolate_ride)
+        {
+            pp->oposx = pp->posx;
+            pp->oposy = pp->posy;
+        }
         pp->posx += pp->xvect >> 14;
         pp->posy += pp->yvect >> 14;
         COVERupdatesector(pp->posx, pp->posy, &sectnum);
@@ -2726,6 +2738,12 @@ DoPlayerMove(PLAYERp pp)
             }
         }
 
+        if (interpolate_ride)
+        {
+            pp->oposx = pp->posx;
+            pp->oposy = pp->posy;
+        }
+
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -2746,6 +2764,12 @@ DoPlayerMove(PLAYERp pp)
                     return;
             }
         }
+    }
+
+    if (interpolate_ride)
+    {
+        pp->oposz = pp->posz;
+        pp->oq16ang = pp->q16ang;
     }
 
     // check for warp - probably can remove from CeilingHit
