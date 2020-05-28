@@ -37,7 +37,7 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 }
 
 
-CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the texture filtering settings")
+CUSTOM_CVARD(Int, gl_texture_filter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL, "changes the texture filtering settings")
 {
 	static const char* const glfiltermodes[] =
 	{
@@ -54,11 +54,11 @@ CUSTOM_CVARD(Int, hw_texfilter, TEXFILTER_ON, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, 
 	else
 	{
 		gltexapplyprops();
-		Printf("Texture filtering mode changed to %s\n", glfiltermodes[hw_texfilter]);
+		Printf("Texture filtering mode changed to %s\n", glfiltermodes[gl_texture_filter]);
 	}
 }
 
-CUSTOM_CVARD(Int, hw_anisotropy, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "changes the OpenGL texture anisotropy setting")
+CUSTOM_CVARD(Float, gl_texture_filter_anisotropic, 4, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL, "changes the OpenGL texture anisotropy setting")
 {
 	gltexapplyprops();
 }
@@ -116,8 +116,6 @@ static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
 static int32_t lastglpolygonmode = 0; //FUK
 
-static FHardwareTexture *polymosttext = 0;
-
 static int32_t r_yshearing = 0;
 
 // used for fogcalc
@@ -145,23 +143,18 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 
 void gltexapplyprops(void)
 {
-    if (videoGetRenderMode() == REND_CLASSIC)
-        return;
-
 	if (GLInterface.glinfo.maxanisotropy > 1.f)
 	{
-		if (hw_anisotropy <= 0 || hw_anisotropy > GLInterface.glinfo.maxanisotropy)
-			hw_anisotropy = (int32_t)GLInterface.glinfo.maxanisotropy;
+		if (gl_texture_filter_anisotropic <= 0 || gl_texture_filter_anisotropic > GLInterface.glinfo.maxanisotropy)
+			gl_texture_filter_anisotropic = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-	GLInterface.mSamplers->SetTextureFilterMode(hw_texfilter, hw_anisotropy);
-	// do not force switch indexed textures with the filter. 
+	GLInterface.mSamplers->SetTextureFilterMode();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 //Use this for both initialization and uninitialization of OpenGL.
-static int32_t gltexcacnum = -1;
 
 //in-place multiply m0=m0*m1
 static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
@@ -201,26 +194,8 @@ static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
 void polymost_glreset()
 {
     //Reset if this is -1 (meaning 1st texture call ever), or > 0 (textures in memory)
-    if (gltexcacnum < 0)
-    {
-        gltexcacnum = 0;
-
-        //For 2D calls before 1st polymost_drawrooms()
-        gcosang = gcosang2 = 16384.f/262144.f;
-        gsinang = gsinang2 = 0.f;
-    }
-    else
-    {
-        TexMan.FlushAll();
-    }
-
-	if (polymosttext)
-		delete polymosttext;
-    polymosttext=nullptr;
-
-#ifdef DEBUGGINGAIDS
-    Printf("polymost_glreset()\n");
-#endif
+    gcosang = gcosang2 = 16384.f/262144.f;
+    gsinang = gsinang2 = 0.f;
 }
 
 FileReader GetBaseResource(const char* fn);

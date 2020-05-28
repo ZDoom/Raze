@@ -274,6 +274,10 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int palette, 
 		{
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
 		}
+		else if (tex->isHardwareCanvas())
+		{
+			sampler = CLAMP_CAMTEX;
+		}
 		UseDetailMapping(false);
 		UseGlowMapping(false);
 		UseBrightmaps(false);

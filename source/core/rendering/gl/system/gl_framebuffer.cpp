@@ -288,7 +288,7 @@ void OpenGLFrameBuffer::SetTextureFilterMode()
 	//if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
 }
 
-IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture() 
+IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture(int numchannels) 
 { 
 	return nullptr;// new FHardwareTexture(true/*tex->bNoCompress*/);
 }

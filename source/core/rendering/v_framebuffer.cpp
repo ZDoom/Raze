@@ -399,7 +399,7 @@ void DFrameBuffer::FinishScene()
 	}
 }
 
-IHardwareTexture* CreateHardwareTexture()
+IHardwareTexture* CreateHardwareTexture(int numchannels)
 {
-	return screen->CreateHardwareTexture();
+	return screen->CreateHardwareTexture(numchannels);
 }

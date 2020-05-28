@@ -52,6 +52,22 @@
 
 float shadediv[MAXPALOOKUPS];
 
+namespace OpenGLRenderer
+{
+
+
+	TexFilter_s TexFilter[] = {
+		{GL_NEAREST,					GL_NEAREST,		false},
+		{GL_NEAREST_MIPMAP_NEAREST,		GL_NEAREST,		true},
+		{GL_LINEAR,						GL_LINEAR,		false},
+		{GL_LINEAR_MIPMAP_NEAREST,		GL_LINEAR,		true},
+		{GL_LINEAR_MIPMAP_LINEAR,		GL_LINEAR,		true},
+		{GL_NEAREST_MIPMAP_LINEAR,		GL_NEAREST,		true},
+		{GL_LINEAR_MIPMAP_LINEAR,		GL_NEAREST,		true},
+	};
+
+}
+
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
@@ -85,7 +101,7 @@ void GLInstance::Init(int ydim)
 {
 	if (!mSamplers)
 	{
-		mSamplers = new FSamplerManager;
+		mSamplers = new OpenGLRenderer::FSamplerManager;
 	}
 
 	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");

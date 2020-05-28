@@ -403,7 +403,7 @@ int32_t Anim_Play(const char *fn)
 #endif
 // ANM playback --- v v v ---
 
-    int32_t ogltexfiltermode = hw_texfilter;
+    int32_t ogltexfiltermode = gl_texture_filter;
 	TArray<uint8_t> buffer;
 	auto fr = fileSystem.OpenFileReader(fn);
 
@@ -435,8 +435,8 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && hw_texfilter == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
-        hw_texfilter = TEXFILTER_ON;
+    if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && gl_texture_filter == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
+        gl_texture_filter = TEXFILTER_ON;
 
     ototalclock = totalclock;
 
@@ -522,7 +522,7 @@ int32_t Anim_Play(const char *fn)
     }
 
 end_anim_restore_gl:
-    hw_texfilter = ogltexfiltermode;
+    gl_texture_filter = ogltexfiltermode;
     gltexapplyprops();
 end_anim:
     inputState.ClearAllInput();

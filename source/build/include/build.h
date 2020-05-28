@@ -1087,7 +1087,6 @@ void    renderSetRollAngle(float rolla);
 //       clamping is for sprites, repeating is for walls
 void tileInvalidate(int tilenume, int32_t pal, int32_t how);
 
-void polymost_glreset(void);
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
 
@@ -1114,8 +1113,8 @@ EXTERN_CVAR(Bool, hw_animsmoothing)
 EXTERN_CVAR(Bool, hw_hightile)
 EXTERN_CVAR(Bool, hw_models)
 EXTERN_CVAR(Float, hw_shadescale)
-EXTERN_CVAR(Int, hw_anisotropy)
-EXTERN_CVAR(Int, hw_texfilter)
+EXTERN_CVAR(Float, gl_texture_filter_anisotropic)
+EXTERN_CVAR(Int, gl_texture_filter)
 extern bool hw_int_useindexedcolortextures;
 EXTERN_CVAR(Bool, hw_useindexedcolortextures)
 EXTERN_CVAR(Bool, hw_parallaxskypanning)

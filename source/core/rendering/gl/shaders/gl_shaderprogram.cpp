@@ -23,7 +23,7 @@
 #include "v_video.h"
 #include "gl_load/gl_interface.h"
 #include "gamecvars.h"
-#include "gl/system/gl_debug.h"
+#include "gl_debug.h"
 #include "gl/shaders/gl_shaderprogram.h"
 #include "hwrenderer/utility/hw_shaderpatcher.h"
 #include "filesystem.h"

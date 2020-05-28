@@ -20,8 +20,8 @@
 */
 
 #include "templates.h"
-#include "gl_load/gl_system.h"
-#include "gl/system/gl_debug.h"
+#include "gl_system.h"
+#include "gl_debug.h"
 #include "stats.h"
 #include "printf.h"
 #include <set>

@@ -713,7 +713,7 @@ set( FASTMATH_SOURCES
 set (PCH_SOURCES
 
 	glbackend/gl_hwtexture.cpp
-	glbackend/gl_samplers.cpp
+	#glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
@@ -866,6 +866,8 @@ set (PCH_SOURCES
 	common/objects/dobjgc.cpp
 	common/objects/dobjtype.cpp
 	common/rendering/gl_load/gl_interface.cpp
+	common/rendering/gl/gl_debug.cpp
+	common/rendering/gl/gl_samplers.cpp
 	common/scripting/core/dictionary.cpp
 	common/scripting/core/dynarrays.cpp
 	common/scripting/core/symbols.cpp
@@ -914,7 +916,6 @@ set (PCH_SOURCES
 	core/rendering/gl/renderer/gl_renderbuffers.cpp
 	core/rendering/gl/shaders/gl_shaderprogram.cpp
 	core/rendering/gl/system/gl_buffers.cpp
-	core/rendering/gl/system/gl_debug.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
 	core/rendering/hwrenderer/data/flatvertices.cpp
 	core/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
@@ -1036,6 +1037,7 @@ include_directories(
 	common/objects
 	common/rendering
 	common/rendering/gl_load
+	common/rendering/gl
 	common/scripting/vm
 	common/scripting/jit
 	common/scripting/core

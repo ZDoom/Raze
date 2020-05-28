@@ -20,6 +20,19 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
+enum ESampler
+{
+	NoSampler = -1,
+	SamplerRepeat = CLAMP_NONE,
+	SamplerClampX = CLAMP_X,
+	SamplerClampY = CLAMP_Y,
+	SamplerClampXY = CLAMP_XY,
+	Sampler2DFiltered = CLAMP_XY_NOMIP,	// Currently unused  shpuld be used for 2D content
+	SamplerNoFilterRepeat = CLAMP_NOFILTER,
+	SamplerNoFilterClampX = CLAMP_NOFILTER_X,
+	SamplerNoFilterClampY = CLAMP_NOFILTER_Y,
+	SamplerNoFilterClampXY = CLAMP_NOFILTER_XY,
+};
 enum
 {
 	PALSWAP_TEXTURE_SIZE = 2048
@@ -131,7 +144,7 @@ class GLInstance
 	
 public:
 	glinfo_t glinfo;
-	FSamplerManager *mSamplers;
+	OpenGLRenderer::FSamplerManager *mSamplers;
 	
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);

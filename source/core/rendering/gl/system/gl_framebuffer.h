@@ -29,7 +29,7 @@ public:
 	void WriteSavePic(FileWriter* file, int width, int height) override;
 #ifdef IMPLEMENT_IT
 	void SetTextureFilterMode() override;
-	IHardwareTexture *CreateHardwareTexture() override;
+	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	FModelRenderer *CreateModelRenderer(int mli) override;
 	void TextureFilterChanged() override;

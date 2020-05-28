@@ -573,10 +573,6 @@ void G_CacheMapData(void)
 
     S_TryPlaySpecialMusic(MUS_LOADING);
 
-#if defined EDUKE32_TOUCH_DEVICES && defined USE_OPENGL
-    polymost_glreset();
-#endif
-
     starttime = timerGetTicks();
 
     cacheAllSounds();
