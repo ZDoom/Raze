@@ -6000,7 +6000,6 @@ MAIN_LOOP_RESTART:
         if (g_saveRequested)
         {
             inputState.keyFlushChars();
-            videoNextPage();
 
 			M_Autosave();
 
