@@ -80,17 +80,6 @@ TArray<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
 //
 //==========================================================================
 
-void S_PauseSounds(bool paused)
-{
-    soundEngine->SetPaused(paused);
-}
-
-//==========================================================================
-//
-// 
-//
-//==========================================================================
-
 void cacheAllSounds(void)
 {
     auto& sfx = soundEngine->GetSounds();

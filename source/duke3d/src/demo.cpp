@@ -117,7 +117,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     ud.reccnt = 0;
 
     ud.god = ud.cashman = ud.eog = gFullMap = 0;
-    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
+    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= paused = 0;
 
     totalclock = ototalclock = lockclock = 0;
 
@@ -588,7 +588,7 @@ RECHECK:
                 Demo_FinishProfile();
 
             while (totalclock >= (lockclock+TICSPERFRAME)
-                //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && ud.pause_on)
+                //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && paused)
                 || (g_demo_goalCnt>0 && g_demo_cnt<g_demo_goalCnt))
             {
                 if (ud.reccnt<=0)

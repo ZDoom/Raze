@@ -784,7 +784,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.scrollmode == 0)
             {
-                if (pp->newowner == -1 && !ud.pause_on)
+                if (pp->newowner == -1 && !paused)
                 {
                     cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
                     cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
@@ -799,7 +799,7 @@ void G_DisplayRest(int32_t smoothratio)
             }
             else
             {
-                if (!ud.pause_on)
+                if (!paused)
                 {
                     ud.fola += ud.folavel>>3;
                     ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
@@ -898,10 +898,10 @@ void G_DisplayRest(int32_t smoothratio)
         renderSetAspect(vr, asp);
     }
 
-    if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+    if (paused==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
 
-    mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
+    mdpause = (paused || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 
     // JBF 20040124: display level stats in screen corner
     if (ud.overhead_on != 2 && hud_stats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
