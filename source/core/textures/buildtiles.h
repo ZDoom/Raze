@@ -379,8 +379,9 @@ inline bool tileLoad(int tileNum)
 
 inline uint8_t* tileData(int num)
 {
-	auto tex = TileFiles.tiledata[num].texture;
-	auto p = dynamic_cast<FWritableTile*>(tex->GetTexture());
+	auto tex = dynamic_cast<FImageTexture*>(TileFiles.tiledata[num].texture->GetTexture());
+	if (!tex) return nullptr;
+	auto p = dynamic_cast<FWritableTile*>(tex->GetImage());
 	return p ? p->GetRawData() : nullptr;
 }
 
