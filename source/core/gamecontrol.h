@@ -154,6 +154,8 @@ const char* G_DefaultConFile(void);
 const char* G_ConFile(void);
 
 TArray<GrpEntry> GrpScan();
+void S_PauseSound(bool notmusic, bool notsfx);
+void S_ResumeSound(bool notsfx);
 void S_SetSoundPaused(int state);
 
 void G_FatalEngineError(void);
@@ -182,3 +184,5 @@ enum
 	PAUSESFX_CONSOLE = 2
 };
 
+void updatePauseStatus();
+extern int paused;
