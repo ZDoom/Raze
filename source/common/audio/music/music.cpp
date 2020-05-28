@@ -167,9 +167,9 @@ static bool S_StartMusicPlaying(ZMusic_MusicStream song, bool loop, float rel_vo
 
 //==========================================================================
 //
-// S_PauseSound
+// S_PauseMusic
 //
-// Stop music and sound effects, during game PAUSE.
+// Stop music, during game PAUSE.
 //==========================================================================
 
 void S_PauseMusic ()
@@ -184,9 +184,9 @@ void S_PauseMusic ()
 
 //==========================================================================
 //
-// S_ResumeSound
+// S_ResumeMusic
 //
-// Resume music and sound effects, after game PAUSE.
+// Resume music, after game PAUSE.
 //==========================================================================
 
 void S_ResumeMusic ()
@@ -682,3 +682,5 @@ CCMD(currentmusic)
 		Printf("Currently no music playing\n");
 	}
 }
+
+extern int paused;
