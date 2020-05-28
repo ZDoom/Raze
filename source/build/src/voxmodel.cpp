@@ -637,7 +637,7 @@ static int32_t loadvox(const char *filnam)
             fil.Read(tbuf, voxsiz.z);
 
             for (bssize_t z=voxsiz.z-1; z>=0; z--)
-                if (tbuf[z] != TRANSPARENT_INDEX)
+                if (tbuf[z] != 255)
                 {
                     const int32_t i = j+z;
                     vbit[i>>5] |= (1<<SHIFTMOD32(i));
