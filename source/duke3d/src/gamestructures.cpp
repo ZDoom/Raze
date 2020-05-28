@@ -1394,7 +1394,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_OVERHEAD_ON:            labelNum = ud.overhead_on;                  break;
         case USERDEFS_LAST_OVERHEAD:          labelNum = ud.last_overhead;                break;
         case USERDEFS_SHOWWEAPONS:            labelNum = ud.showweapons;                  break;
-        case USERDEFS_PAUSE_ON:               labelNum = ud.pause_on;                     break;
+        case USERDEFS_PAUSE_ON:               labelNum = paused;                          break;
         case USERDEFS_FROM_BONUS:             labelNum = ud.from_bonus;                   break;
         case USERDEFS_CAMERASPRITE:           labelNum = ud.camerasprite;                 break;
         case USERDEFS_LAST_CAMSPRITE:         labelNum = ud.last_camsprite;               break;
@@ -1582,7 +1582,7 @@ void __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t cons
         case USERDEFS_OVERHEAD_ON:                  ud.overhead_on                   = iSet; break;
         case USERDEFS_LAST_OVERHEAD:                ud.last_overhead                 = iSet; break;
         case USERDEFS_SHOWWEAPONS:                  ud.showweapons                   = iSet; break;
-        case USERDEFS_PAUSE_ON:                     ud.pause_on                      = iSet; break;
+        case USERDEFS_PAUSE_ON:                     paused                           = iSet; break;
         case USERDEFS_FROM_BONUS:                   ud.from_bonus                    = iSet; break;
         case USERDEFS_CAMERASPRITE:                 ud.camerasprite                  = iSet; break;
         case USERDEFS_LAST_CAMSPRITE:               ud.last_camsprite                = iSet; break;

@@ -2275,7 +2275,7 @@ static void Net_ReceiveServerUpdate(ENetEvent *event)
     Bmemcpy(&serverupdate, updatebuf, sizeof(serverupdate_t));
     updatebuf += sizeof(serverupdate_t);
     inputfifo[0][0] = serverupdate.nsyn;
-    ud.pause_on     = serverupdate.pause_on;
+    paused          = serverupdate.pause_on;
 
     ticrandomseed = serverupdate.seed;
 
@@ -4945,7 +4945,7 @@ void Net_SendServerUpdates(void)
     serverupdate.header   = PACKET_MASTER_TO_SLAVE;
     serverupdate.seed     = ticrandomseed;
     serverupdate.nsyn     = *nsyn;
-    serverupdate.pause_on = ud.pause_on;
+    serverupdate.pause_on = paused;
 
     serverupdate.numplayers = 0;
     updatebuf               = tempnetbuf.Data() + sizeof(serverupdate_t);

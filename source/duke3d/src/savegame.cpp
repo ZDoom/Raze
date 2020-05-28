@@ -1093,7 +1093,7 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
     { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
-    { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
+    { 0, &paused, sizeof(paused), 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
