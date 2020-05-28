@@ -20,6 +20,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "flatvertices.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"
+#include "gamecontrol.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -314,9 +315,12 @@ static void polymost_updaterotmat(void)
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
 
+// Hack for Duke's camera until I can find out why this behaves erratically.
+int skiptile = -1;
+
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesize)
 {
-    if (method == DAMETH_BACKFACECULL ||
+    if (method == DAMETH_BACKFACECULL || globalpicnum == skiptile ||
 #ifdef YAX_ENABLE
         g_nodraw ||
 #endif

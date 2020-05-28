@@ -7130,6 +7130,9 @@ int GameInterface::app_main()
     G_PostLoadPalette();
 
     tileDelete(MIRROR);
+
+    skiptile = W_FORCEFIELD + 1;
+
     if (RR)
         tileDelete(0);
     if (RRRA)

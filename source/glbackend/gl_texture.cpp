@@ -91,7 +91,8 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
 
 FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
-	if (tex == TexMan.GameByIndex(0)) return nullptr;
+	if (tex == TexMan.GameByIndex(0)) 
+		return nullptr;
 	auto texbuffer = tex->GetTexture()->CreateTexBuffer(palid, checkfulltransparency? 0: CTF_ProcessData);
 	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
 	if (checkfulltransparency)

@@ -1204,6 +1204,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 # include "polymost.h"
 #endif
 
+extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
