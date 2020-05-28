@@ -21,7 +21,6 @@ class FLightBuffer;
 class DPSprite;
 class FGLRenderBuffers;
 class FGL2DDrawer;
-class FHardwareTexture;
 class SWSceneDrawer;
 class HWViewpointBuffer;
 struct FRenderViewpoint;
@@ -44,7 +43,7 @@ public:
 	int mMirrorCount = 0;
 	int mPlaneMirrorCount = 0;
 	//FShaderManager *mShaderManager = nullptr;
-	//FSamplerManager *mSamplerManager = nullptr;
+	FSamplerManager *mSamplerManager = nullptr;
 	unsigned int mFBID;
 	unsigned int mVAOID;
 	//unsigned int PortalQueryObject;

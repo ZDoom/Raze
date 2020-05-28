@@ -100,9 +100,8 @@ void PaletteManager::BindPalette(int index)
 
 			if (palettetextures[index] == nullptr)
 			{
-				auto p = GLInterface.NewTexture();
-				p->CreateTexture(256, 1, FHardwareTexture::TrueColor, false);
-				p->LoadTexture((uint8_t*)palettedata->Palette);
+				auto p = GLInterface.NewTexture(4);
+				p->CreateTexture((uint8_t*)palettedata->Palette, 256, 1, 15, false, "Palette");
 				palettetextures[index] = p;
 			}
 			inst->BindTexture(2, palettetextures[index], SamplerNoFilterClampXY);
@@ -127,8 +126,7 @@ void PaletteManager::BindPalswap(int index)
 			lastsindex = index;
 			if (palswaptextures[index] == nullptr)
 			{
-				auto p = GLInterface.NewTexture();
-				p->CreateTexture(256, numshades, FHardwareTexture::Indexed, false);
+				auto p = GLInterface.NewTexture(1);
 
 				// Perform a 0<->255 index swap. The lookup tables are still the original data.
 				TArray<uint8_t> lookup(numshades * 256, true);
@@ -139,7 +137,7 @@ void PaletteManager::BindPalswap(int index)
 					p[255] = p[0];
 					p[0] = 0;
 				}
-				p->LoadTexture(lookup.Data());
+				p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "Palette");
 				palswaptextures[index] = p;
 			}
 			inst->BindTexture(1, palswaptextures[index], SamplerNoFilterClampXY);

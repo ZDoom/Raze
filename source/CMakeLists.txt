@@ -712,8 +712,6 @@ set( FASTMATH_SOURCES
 
 set (PCH_SOURCES
 
-	glbackend/gl_hwtexture.cpp
-	#glbackend/gl_samplers.cpp
 	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
@@ -867,6 +865,7 @@ set (PCH_SOURCES
 	common/objects/dobjtype.cpp
 	common/rendering/gl_load/gl_interface.cpp
 	common/rendering/gl/gl_debug.cpp
+	common/rendering/gl/gl_hwtexture.cpp
 	common/rendering/gl/gl_samplers.cpp
 	common/scripting/core/dictionary.cpp
 	common/scripting/core/dynarrays.cpp

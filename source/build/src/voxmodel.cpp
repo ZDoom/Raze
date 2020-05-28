@@ -35,7 +35,7 @@ static voxmodel_t *gvox;
 
 
 //pitch must equal xsiz*4
-static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
+static OpenGLRenderer::FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
 {
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
@@ -64,9 +64,8 @@ static FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t y
         }
     }
 
-	auto tex = GLInterface.NewTexture();
-	tex->CreateTexture(xsiz, ysiz, FHardwareTexture::TrueColor, false);
-	tex->LoadTexture((uint8_t*)pic2);
+	auto tex = GLInterface.NewTexture(4);
+    tex->CreateTexture((uint8_t*)pic2, xsiz, ysiz, 15, true, "Voxel"); // Mipmap should be false for this but currently this causes render errors because the proper sampler cannot be selected.
     Xfree(pic2);
 
     return tex;
@@ -843,8 +842,8 @@ void voxfree(voxmodel_t *m)
 
     if (m->texIds)
     {
-        TMap<int, FHardwareTexture*>::Iterator it(*m->texIds);
-        TMap<int, FHardwareTexture*>::Pair* pair;
+        TMap<int, OpenGLRenderer::FHardwareTexture*>::Iterator it(*m->texIds);
+        TMap<int, OpenGLRenderer::FHardwareTexture*>::Pair* pair;
         while (it.NextPair(pair))
         {
             if (pair->Value) delete pair->Value;
@@ -1137,9 +1136,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #if 1
     int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal); 
     auto palette = GPalette.TranslationToTable(palId);
-    if (!m->texIds) m->texIds = new TMap<int, FHardwareTexture*>;
+    if (!m->texIds) m->texIds = new TMap<int, OpenGLRenderer::FHardwareTexture*>;
     auto pTex = m->texIds->CheckKey(palId);
-    FHardwareTexture* htex;
+    OpenGLRenderer::FHardwareTexture* htex;
     if (!pTex)
     {
         htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette->Palette);

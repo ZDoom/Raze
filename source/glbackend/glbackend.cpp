@@ -52,22 +52,6 @@
 
 float shadediv[MAXPALOOKUPS];
 
-namespace OpenGLRenderer
-{
-
-
-	TexFilter_s TexFilter[] = {
-		{GL_NEAREST,					GL_NEAREST,		false},
-		{GL_NEAREST_MIPMAP_NEAREST,		GL_NEAREST,		true},
-		{GL_LINEAR,						GL_LINEAR,		false},
-		{GL_LINEAR_MIPMAP_NEAREST,		GL_LINEAR,		true},
-		{GL_LINEAR_MIPMAP_LINEAR,		GL_LINEAR,		true},
-		{GL_NEAREST_MIPMAP_LINEAR,		GL_NEAREST,		true},
-		{GL_LINEAR_MIPMAP_LINEAR,		GL_NEAREST,		true},
-	};
-
-}
-
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
@@ -99,11 +83,6 @@ TArray<uint8_t> ttf;
 
 void GLInstance::Init(int ydim)
 {
-	if (!mSamplers)
-	{
-		mSamplers = new OpenGLRenderer::FSamplerManager;
-	}
-
 	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
@@ -158,8 +137,6 @@ void GLInstance::Deinit()
 		ImGui::DestroyContext(im_ctx);
 	}
 #endif
-	if (mSamplers) delete mSamplers;
-	mSamplers = nullptr;
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
 	if (surfaceShader) delete surfaceShader;
@@ -169,9 +146,9 @@ void GLInstance::Deinit()
 	lastPalswapIndex = -1;
 }
 
-FHardwareTexture* GLInstance::NewTexture()
+OpenGLRenderer::FHardwareTexture* GLInstance::NewTexture(int numchannels)
 {
-	return new FHardwareTexture;
+	return new OpenGLRenderer::FHardwareTexture(numchannels);
 }
 
 void GLInstance::ResetFrame()
@@ -320,7 +297,8 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 				reset = true;
 			}
 			glBindTexture(GL_TEXTURE_2D, texIds[i]);
-			GLInterface.mSamplers->Bind(i, samplerIds[i], -1);
+			if (OpenGLRenderer::GLRenderer)
+				OpenGLRenderer::GLRenderer->mSamplerManager->Bind(i, samplerIds[i], -1);
 			oldState.TexId[i] = texIds[i];
 			oldState.SamplerId[i] = samplerIds[i];
 		}

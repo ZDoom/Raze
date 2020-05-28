@@ -10,7 +10,6 @@
 #include "palentry.h"
 #include "renderstyle.h"
 
-class FSamplerManager;
 class FShader;
 class PolymostShader;
 class SurfaceShader;
@@ -40,8 +39,8 @@ enum
 
 class PaletteManager
 {
-	FHardwareTexture* palettetextures[256] = {};
-	FHardwareTexture* palswaptextures[256] = {};
+	OpenGLRenderer::FHardwareTexture* palettetextures[256] = {};
+	OpenGLRenderer::FHardwareTexture* palswaptextures[256] = {};
 
 	uint32_t lastindex = ~0u;
 	uint32_t lastsindex = ~0u;
@@ -127,7 +126,7 @@ class GLInstance
 	int maxTextureSize;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
-	FHardwareTexture* texv;
+	OpenGLRenderer::FHardwareTexture* texv;
 	FGameTexture* currentTexture = nullptr;
 	int TextureType;
 	int MatrixChange = 0;
@@ -144,7 +143,6 @@ class GLInstance
 	
 public:
 	glinfo_t glinfo;
-	OpenGLRenderer::FSamplerManager *mSamplers;
 	
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
@@ -166,7 +164,7 @@ public:
 	void DoDraw();
 	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
 
-	FHardwareTexture* NewTexture();
+	OpenGLRenderer::FHardwareTexture* NewTexture(int numchannels = 4);
 
 	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
 	void SetIndexBuffer(IIndexBuffer* vb);
@@ -363,13 +361,15 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
-	void BindTexture(int texunit, FHardwareTexture* tex, int sampler)
+	void BindTexture(int texunit, OpenGLRenderer::FHardwareTexture* tex, int sampler)
 	{
 		if (!tex) return;
 		if (texunit == 0)
 		{
-			if (tex->isIndexed()) renderState.Flags |= RF_UsePalette;
-			else renderState.Flags &= ~RF_UsePalette;
+			if (tex->numChannels() == 1) 
+				renderState.Flags |= RF_UsePalette;
+			else 
+				renderState.Flags &= ~RF_UsePalette;
 		}
 		renderState.texIds[texunit] = tex->GetTextureHandle();
 		renderState.samplerIds[texunit] = sampler;
@@ -487,9 +487,9 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	FHardwareTexture* CreateIndexedTexture(FGameTexture* tex);
-	FHardwareTexture* CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
-	FHardwareTexture *LoadTexture(FGameTexture* tex, int texturetype, int palid);
+	OpenGLRenderer::FHardwareTexture* CreateIndexedTexture(FGameTexture* tex);
+	OpenGLRenderer::FHardwareTexture* CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
+	OpenGLRenderer::FHardwareTexture *LoadTexture(FGameTexture* tex, int texturetype, int palid);
 	bool SetTextureInternal(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride,  FGameTexture *det, float detscale, FGameTexture *glow);
 
 	bool SetNamedTexture(FGameTexture* tex, int palette, int sampleroverride);

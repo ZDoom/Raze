@@ -27,12 +27,12 @@ public:
 	void CleanForRestart() override;
 	const char* DeviceName() const override;
 	void WriteSavePic(FileWriter* file, int width, int height) override;
-#ifdef IMPLEMENT_IT
-	void SetTextureFilterMode() override;
 	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
+	void SetTextureFilterMode() override;
+
+#ifdef IMPLEMENT_IT
 	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	FModelRenderer *CreateModelRenderer(int mli) override;
-	void TextureFilterChanged() override;
 #endif
 	void BeginFrame() override;
 	//void SetViewportRects(IntRect *bounds) override;

@@ -52,7 +52,7 @@
 #include "gl/renderer/gl_renderbuffers.h"
 #include "gl/shaders/gl_shaderprogram.h"
 //#include "hwrenderer/data/flatvertices.h"
-//#include "gl/textures/gl_samplers.h"
+#include "gl_samplers.h"
 //#include "hwrenderer/dynlights/hw_lightbuffer.h"
 //#include "hwrenderer/data/hw_viewpointbuffer.h"
 #include "r_videoscale.h"
@@ -108,7 +108,7 @@ void FGLRenderer::Initialize(int width, int height)
 	mOldFBID = 0;
 
 	//mShaderManager = new FShaderManager;
-	//mSamplerManager = new FSamplerManager;
+	mSamplerManager = new FSamplerManager;
 }
 
 FGLRenderer::~FGLRenderer() 
@@ -116,7 +116,7 @@ FGLRenderer::~FGLRenderer()
 	//FlushModels();
 	//TexMan.FlushAll();
 	//if (mShaderManager != nullptr) delete mShaderManager;
-	//if (mSamplerManager != nullptr) delete mSamplerManager;
+	if (mSamplerManager != nullptr) delete mSamplerManager;
 	if (mFBID != 0) glDeleteFramebuffers(1, &mFBID);
 	if (mVAOID != 0)
 	{
@@ -172,13 +172,13 @@ void FGLRenderer::EndOffscreen()
 void FGLRenderer::BindToFrameBuffer(FGameTexture *mat)
 {
 	auto pBaseLayer = mat->GetTexture()->SystemTextures.GetHardwareTexture(0, false);
-	auto BaseLayer = pBaseLayer ? (::FHardwareTexture*)pBaseLayer : nullptr;
+	auto BaseLayer = pBaseLayer ? (OpenGLRenderer::FHardwareTexture*)pBaseLayer : nullptr;
 
 	if (BaseLayer == nullptr)
 	{
 		// must create the hardware texture first
-		BaseLayer = new ::FHardwareTexture;
-		BaseLayer->CreateTexture(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4, ::FHardwareTexture::TrueColor, false);
+		BaseLayer =  new FHardwareTexture(4);
+		BaseLayer->CreateTexture(nullptr, mat->GetTexelWidth() * 4, mat->GetTexelHeight() * 4, 15, false, "Camtex");
 		mat->GetTexture()->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
 	}
 	BaseLayer->BindToFrameBuffer(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4);

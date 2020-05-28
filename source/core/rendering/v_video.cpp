@@ -396,7 +396,7 @@ void V_Init2()
 	Polymost_Startup();
 	GLInterface.Init(SCREENHEIGHT);
 	GLInterface.InitGLState(4, 4/*glmultisample*/);
-	GLInterface.mSamplers->SetTextureFilterMode();
+	screen->SetTextureFilterMode();
 
 	//setsizeneeded = true;
 }

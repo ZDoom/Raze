@@ -67,19 +67,18 @@ void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
+OpenGLRenderer::FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
 {
 	vec2_t siz = { tex->GetTexelWidth(), tex->GetTexelHeight() };
 
 	auto store = tex->GetTexture()->Get8BitPixels(false);
 	const uint8_t* p = store.Data();
 
-	auto glpic = GLInterface.NewTexture();
-	glpic->CreateTexture(siz.x, siz.y, FHardwareTexture::Indexed, false);
+	auto glpic = GLInterface.NewTexture(1);
 
 	TArray<uint8_t> flipped(siz.x * siz.y, true);
 	FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
-	glpic->LoadTexture(flipped.Data());
+	glpic->CreateTexture(flipped.Data(), siz.x, siz.y, 15, false, tex->GetName());
 	return glpic;
 }
 
@@ -89,7 +88,7 @@ FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
+OpenGLRenderer::FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
 {
 	if (tex == TexMan.GameByIndex(0)) 
 		return nullptr;
@@ -110,12 +109,8 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int pali
 		if (!found) return nullptr;
 	}
 
-	auto glpic = GLInterface.NewTexture();
-	if (!rgb8bit)
-		glpic->CreateTexture(texbuffer.mWidth, texbuffer.mHeight, FHardwareTexture::TrueColor, true);
-	else
-		glpic->CreateTexture(texbuffer.mWidth, texbuffer.mHeight, FHardwareTexture::Brightmap, false);	// Use a more memory friendly format for simple brightmaps.
-	glpic->LoadTexture(texbuffer.mBuffer);
+	auto glpic = GLInterface.NewTexture(4);
+	glpic->CreateTexture(texbuffer.mBuffer, texbuffer.mWidth, texbuffer.mHeight, 15, true, tex->GetName());
 	return glpic;
 }
 
@@ -125,13 +120,13 @@ FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int pali
 //
 //===========================================================================
 
-FHardwareTexture* GLInstance::LoadTexture(FGameTexture* tex, int textype, int palid)
+OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FGameTexture* tex, int textype, int palid)
 {
 	if (textype == TT_INDEXED) palid = -1;
 	auto phwtex = tex->GetTexture()->SystemTextures.GetHardwareTexture(palid, false);
-	if (phwtex) return (FHardwareTexture*)phwtex;
+	if (phwtex) return (OpenGLRenderer::FHardwareTexture*)phwtex;
 
-	FHardwareTexture *hwtex = nullptr;
+	OpenGLRenderer::FHardwareTexture *hwtex = nullptr;
 	if (textype == TT_INDEXED)
 		hwtex = CreateIndexedTexture(tex);
 	else if (!tex->GetTexture()->isHardwareCanvas())

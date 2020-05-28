@@ -94,10 +94,11 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(void *hMonitor, bool fullscreen) :
 	// SetVSync needs to be at the very top to workaround a bug in Nvidia's OpenGL driver.
 	// If wglSwapIntervalEXT is called after glBindFramebuffer in a frame the setting is not changed!
 	Super::SetVSync(vid_vsync);
+	FHardwareTexture::InitGlobalState();
 
 #ifdef IMPLEMENT_IT
 	// Make sure all global variables tracking OpenGL context state are reset..
-	FHardwareTexture::InitGlobalState();
+
 	gl_RenderState.Reset();
 #endif
 
@@ -248,7 +249,7 @@ void OpenGLFrameBuffer::Swap()
 	if (!swapbefore) glFinish();
 	//Finish.Unclock();
 	camtexcount = 0;
-	//FHardwareTexture::UnbindAll();
+	FHardwareTexture::UnbindAll();
 	mDebug->Update();
 }
 
@@ -282,16 +283,18 @@ void OpenGLFrameBuffer::CleanForRestart()
 {
 }
 
-#ifdef IMPLEMENT_IT
-void OpenGLFrameBuffer::SetTextureFilterMode()
-{
-	//if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
-}
-
 IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture(int numchannels) 
 { 
-	return nullptr;// new FHardwareTexture(true/*tex->bNoCompress*/);
+	return new FHardwareTexture(numchannels);
 }
+
+void OpenGLFrameBuffer::SetTextureFilterMode()
+{
+	if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
+}
+
+#ifdef IMPLEMENT_IT
+
 
 void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 {
@@ -336,13 +339,6 @@ IDataBuffer *OpenGLFrameBuffer::CreateDataBuffer(int bindingpoint, bool ssbo, bo
 {
 	return new GLDataBuffer(bindingpoint, ssbo);
 }
-
-#ifdef IMPLEMENT_IT
-void OpenGLFrameBuffer::TextureFilterChanged()
-{
-	if (GLRenderer != NULL && GLRenderer->mSamplerManager != NULL) GLRenderer->mSamplerManager->SetTextureFilterMode();
-}
-#endif
 
 void OpenGLFrameBuffer::BlurScene(float amount)
 {

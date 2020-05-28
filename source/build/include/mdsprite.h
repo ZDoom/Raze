@@ -3,7 +3,7 @@
 
 #ifdef USE_OPENGL
 #include "hightile.h"
-#include "glbackend/gl_hwtexture.h"
+#include "gl_hwtexture.h"
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)
 #define SHIFTMOD32(a) (a)
@@ -15,7 +15,6 @@
 #define IDP3_MAGIC 0x33504449
 
 class FGameTexture;
-class FHardwareTexture;
 
 struct mdmodel_t
 {
@@ -195,7 +194,7 @@ struct voxmodel_t : public mdmodel_t
     vec3_t siz;
     vec3f_t piv;
     int32_t is8bit;
-    TMap<int, FHardwareTexture*> *texIds;
+    TMap<int, OpenGLRenderer::FHardwareTexture*> *texIds;
 };
 
 EXTERN mdmodel_t **models;

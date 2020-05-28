@@ -150,7 +150,7 @@ void gltexapplyprops(void)
 			gl_texture_filter_anisotropic = (int32_t)GLInterface.glinfo.maxanisotropy;
 	}
 
-	GLInterface.mSamplers->SetTextureFilterMode();
+	screen->SetTextureFilterMode();
 }
 
 //--------------------------------------------------------------------------------------------------
