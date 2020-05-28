@@ -18,7 +18,6 @@ public:
 
 private:
 
-	int mSampler = 0;
 	unsigned int glTexID = 0;
 	unsigned int glDepthID = 0;	// only used by camera textures
 	unsigned int glBufferID = 0;
@@ -47,8 +46,6 @@ public:
 	unsigned int LoadTexturePart(const unsigned char* buffer, int x, int y, int w, int h);
 	unsigned int LoadTexture(FBitmap &bmp);
 	unsigned int GetTextureHandle();
-	int GetSampler() { return mSampler; }
-	void SetSampler(int sampler) { mSampler = sampler;  }
 	bool isIndexed() const { return internalType == Indexed; }
 	void BindToFrameBuffer(int w, int h);
 

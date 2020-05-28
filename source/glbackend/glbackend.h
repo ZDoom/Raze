@@ -350,7 +350,7 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
-	void BindTexture(int texunit, FHardwareTexture* tex, int sampler = NoSampler)
+	void BindTexture(int texunit, FHardwareTexture* tex, int sampler)
 	{
 		if (!tex) return;
 		if (texunit == 0)
@@ -359,7 +359,7 @@ public:
 			else renderState.Flags &= ~RF_UsePalette;
 		}
 		renderState.texIds[texunit] = tex->GetTextureHandle();
-		renderState.samplerIds[texunit] = sampler == NoSampler ? tex->GetSampler() : sampler;
+		renderState.samplerIds[texunit] = sampler;
 	}
 
 	void UnbindTexture(int texunit)

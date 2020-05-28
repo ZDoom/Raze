@@ -103,10 +103,9 @@ void PaletteManager::BindPalette(int index)
 				auto p = GLInterface.NewTexture();
 				p->CreateTexture(256, 1, FHardwareTexture::TrueColor, false);
 				p->LoadTexture((uint8_t*)palettedata->Palette);
-				p->SetSampler(SamplerNoFilterClampXY);
 				palettetextures[index] = p;
 			}
-			inst->BindTexture(2, palettetextures[index]);
+			inst->BindTexture(2, palettetextures[index], SamplerNoFilterClampXY);
 		}
 	}
 
@@ -141,10 +140,9 @@ void PaletteManager::BindPalswap(int index)
 					p[0] = 0;
 				}
 				p->LoadTexture(lookup.Data());
-				p->SetSampler(SamplerNoFilterClampXY);
 				palswaptextures[index] = p;
 			}
-			inst->BindTexture(1, palswaptextures[index]);
+			inst->BindTexture(1, palswaptextures[index], SamplerNoFilterClampXY);
 			inst->SetFadeColor(lookups.getFade(index));
 		}
 	}
