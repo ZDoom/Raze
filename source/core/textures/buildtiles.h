@@ -265,7 +265,6 @@ struct TileDesc
 	rottile_t RotTile;// = { -1,-1 };
 	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
-	FixedBitArray<256> NoBrightmapFlag;
 };
 
 struct BuildTiles

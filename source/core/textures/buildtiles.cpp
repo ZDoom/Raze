@@ -138,7 +138,6 @@ void BuildTiles::Init()
 		tile.picanm = {};
 		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
-		tile.NoBrightmapFlag.Zero();
 	}
 
 }
@@ -743,7 +742,7 @@ int BuildTiles::findUnusedTile(void)
 	for (; lastUnusedTile >= 0; --lastUnusedTile)
 	{
 		auto tex = tileGetTexture(lastUnusedTile);
-		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return lastUnusedTile;
+		if (!tex || !tex->isValid()) return lastUnusedTile;
 	}
 	return -1;
 }

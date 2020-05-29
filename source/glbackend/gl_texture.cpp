@@ -43,76 +43,11 @@
 #include "palettecontainer.h"
 #include "../../glbackend/glbackend.h"
 #include "texturemanager.h"
+#include "v_video.h"
 
 // Test CVARs.
 CVAR(Int, fixpalette, -1, 0)
 CVAR(Int, fixpalswap, -1, 0)
-
-template<class T>
-void FlipNonSquareBlock(T* dst, const T* src, int x, int y, int srcpitch)
-{
-	for (int i = 0; i < x; ++i)
-	{
-		for (int j = 0; j < y; ++j)
-		{
-			dst[i * y + j] = src[i + j * srcpitch];
-		}
-	}
-}
-
-
-//===========================================================================
-// 
-//	Create an indexed version of the requested texture
-//
-//===========================================================================
-
-OpenGLRenderer::FHardwareTexture* GLInstance::CreateIndexedTexture(FGameTexture* tex)
-{
-	vec2_t siz = { tex->GetTexelWidth(), tex->GetTexelHeight() };
-
-	auto store = tex->GetTexture()->Get8BitPixels(false);
-	const uint8_t* p = store.Data();
-
-	auto glpic = GLInterface.NewTexture(1);
-
-	TArray<uint8_t> flipped(siz.x * siz.y, true);
-	FlipNonSquareBlock(flipped.Data(), p, siz.y, siz.x, siz.y);
-	glpic->CreateTexture(flipped.Data(), siz.x, siz.y, 15, false, tex->GetName());
-	return glpic;
-}
-
-//===========================================================================
-//
-//	Create a true color version of the requested tile
-//
-//===========================================================================
-
-OpenGLRenderer::FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency, bool rgb8bit)
-{
-	if (tex == TexMan.GameByIndex(0)) 
-		return nullptr;
-	auto texbuffer = tex->GetTexture()->CreateTexBuffer(palid, checkfulltransparency? 0: CTF_ProcessData);
-	// Check if the texture is fully transparent. When creating a brightmap such textures can be discarded.
-	if (checkfulltransparency)
-	{
-		int siz = texbuffer.mWidth * texbuffer.mHeight * 4;
-		bool found = false;
-		for (int i = 3; i < siz; i+=4)
-		{
-			if (texbuffer.mBuffer[i] > 0)
-			{
-				found = true;
-				break;
-			}
-		}
-		if (!found) return nullptr;
-	}
-
-	auto glpic = GLInterface.NewTexture(4);
-	glpic->CreateTexture(texbuffer.mBuffer, texbuffer.mWidth, texbuffer.mHeight, 15, true, tex->GetName());
-	return glpic;
-}
 
 //===========================================================================
 // 
@@ -120,21 +55,14 @@ OpenGLRenderer::FHardwareTexture* GLInstance::CreateTrueColorTexture(FGameTextur
 //
 //===========================================================================
 
-OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FGameTexture* tex, int textype, int palid)
+OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FTexture *tex, int textype, int palid)
 {
 	if (textype == TT_INDEXED) palid = -1;
-	auto phwtex = tex->GetTexture()->SystemTextures.GetHardwareTexture(palid, false);
+	auto phwtex = tex->SystemTextures.GetHardwareTexture(palid, false);
 	if (phwtex) return (OpenGLRenderer::FHardwareTexture*)phwtex;
 
-	OpenGLRenderer::FHardwareTexture *hwtex = nullptr;
-	if (textype == TT_INDEXED)
-		hwtex = CreateIndexedTexture(tex);
-	else if (!tex->GetTexture()->isHardwareCanvas())
-		hwtex = CreateTrueColorTexture(tex, textype == TT_HICREPLACE? -1 : palid, textype == TT_BRIGHTMAP, textype == TT_BRIGHTMAP);
-	else
-		hwtex = nullptr;
-	
-	if (hwtex) tex->GetTexture()->SystemTextures.AddHardwareTexture(palid, false, hwtex);
+	auto hwtex = static_cast<OpenGLRenderer::FHardwareTexture*>(screen->CreateHardwareTexture(textype == TT_INDEXED? 1:4));
+	if (hwtex) tex->SystemTextures.AddHardwareTexture(palid, false, hwtex);
 	return hwtex;
 }
 
@@ -203,7 +131,7 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 
 bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
 {
-	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
+	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
 	int palette = GetTranslationIndex(paletteid);
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
@@ -216,6 +144,7 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 	TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
 
 	int lookuppal = 0;
+	int bindflags = 0;
 	VSMatrix texmat;
 
 	GLInterface.SetBasepalTint(0xffffff);
@@ -241,6 +170,7 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 		}
 		if (!rep || rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
 		TextureType = TT_HICREPLACE;
+		bindflags = CTF_Upscale;
 	}
 	else
 	{
@@ -254,7 +184,9 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
 			lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+			bindflags = CTF_Upscale;
 		}
+		else bindflags = CTF_Indexed;
 	}
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
@@ -264,7 +196,8 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 
 
 	// Load the main texture
-	auto mtex = LoadTexture(tex, TextureType, lookuppal);
+	
+	auto mtex = LoadTexture(tex->GetTexture(), TextureType, lookuppal);
 	if (mtex)
 	{
 		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
@@ -280,6 +213,7 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 		UseGlowMapping(false);
 		UseBrightmaps(false);
 
+		mtex->BindOrCreate(tex->GetTexture(), 0, sampler, lookuppal, bindflags);
 		BindTexture(0, mtex, sampler);
 		// Needs a) testing and b) verification for correctness. This doesn't look like it makes sense.
 		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f))
@@ -305,8 +239,9 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 			}
 			if (det)
 			{
-				auto htex = LoadTexture(det, TT_HICREPLACE, 0);
+				auto htex = LoadTexture(det->GetTexture(), TT_HICREPLACE, 0);
 				UseDetailMapping(true);
+				htex->BindOrCreate(det->GetTexture(), 3, CLAMP_NONE, 0, 0);
 				BindTexture(3, htex, SamplerRepeat);
 				texbound[0] = true;
 
@@ -335,44 +270,38 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 			}
 			if (glow)
 			{
-				auto htex = LoadTexture(glow, TT_HICREPLACE, 0);
+				auto htex = LoadTexture(glow->GetTexture(), TT_HICREPLACE, 0);
 				UseGlowMapping(true);
+				htex->BindOrCreate(glow->GetTexture(), 4, sampler, 0, CTF_Upscale);
 				BindTexture(4, htex, SamplerRepeat);
 				texbound[1] = true;
 			}
 		}
 #if 1
-		if (picnum > -1 && !(TileFiles.tiledata[picnum].picanm.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT) && !TileFiles.tiledata[picnum].NoBrightmapFlag[usepalswap])
+		if (picnum > -1 && !(TileFiles.tiledata[picnum].picanm.sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT))
 		{
 			if (TextureType == TT_HICREPLACE)
 			{
 				auto brep = TileFiles.FindReplacement(picnum, BRIGHTPAL);
 				if (brep)
 				{
-					LoadTexture(brep->faces[0], TT_HICREPLACE, 0);
+					auto mtex = LoadTexture(brep->faces[0]->GetTexture(), TT_HICREPLACE, 0);
 					UseBrightmaps(true);
+					mtex->BindOrCreate(brep->faces[0]->GetTexture(), 5, sampler, 0, CTF_Upscale);
 					BindTexture(5, mtex, sampler);
 					texbound[2] = true;
-				}
-				else
-				{
-					TileFiles.tiledata[picnum].picanm.sf |= PICANM_NOFULLBRIGHT_BIT;
 				}
 			}
 			else if (TextureType == TT_TRUECOLOR)
 			{
-				lookuppal = -1;// Needs some work on the texture management first. palmanager.LookupPalette(usepalette, usepalswap, true);
-				if (lookuppal >= 0)
+				auto btex = tex->GetBrightmap();
+				if (btex)
 				{
-					auto htex = LoadTexture(tex, TT_BRIGHTMAP, lookuppal);
-					if (htex == nullptr)
-					{
-						// Flag the texture as not being brightmapped for the given palette
-						TileFiles.tiledata[picnum].NoBrightmapFlag.Set(usepalswap);
-					}
-					else
+					auto htex = LoadTexture(btex, TT_BRIGHTMAP, lookuppal);
+					if (htex != nullptr)
 					{
 						UseBrightmaps(true);
+						htex->BindOrCreate(btex, 5, sampler, 0, CTF_Upscale);
 						BindTexture(5, htex, sampler);
 						texbound[2] = true;
 					}
@@ -399,22 +328,9 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 
 //===========================================================================
 // 
-// Sets a named texture for 2D rendering. In this case the palette is
-// a direct index into the palette map.
+// stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
 //
 //===========================================================================
-
-bool GLInstance::SetNamedTexture(FGameTexture* tex, int palette, int sampler)
-{
-	auto mtex = LoadTexture(tex, palette>= 0? TT_TRUECOLOR : TT_HICREPLACE, palette);
-	if (!mtex) return false;
-
-	BindTexture(0, mtex, sampler);
-	GLInterface.SetAlphaThreshold(tex->GetTranslucency()? 0.f : 0.5f);
-	return true;
-}
-
-// stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
 
 int PalCheck(int tex)
 {

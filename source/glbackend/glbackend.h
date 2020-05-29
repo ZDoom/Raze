@@ -487,12 +487,8 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	OpenGLRenderer::FHardwareTexture* CreateIndexedTexture(FGameTexture* tex);
-	OpenGLRenderer::FHardwareTexture* CreateTrueColorTexture(FGameTexture* tex, int palid, bool checkfulltransparency = false, bool rgb8bit = false);
-	OpenGLRenderer::FHardwareTexture *LoadTexture(FGameTexture* tex, int texturetype, int palid);
+	OpenGLRenderer::FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
 	bool SetTextureInternal(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride,  FGameTexture *det, float detscale, FGameTexture *glow);
-
-	bool SetNamedTexture(FGameTexture* tex, int palette, int sampleroverride);
 
 	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride)
 	{

@@ -305,6 +305,13 @@ public:
 		}
 	}
 
+	FTexture* GetBrightmap()
+	{
+		if (Brightmap.get() || (flags & GTexf_BrightmapChecked)) return Brightmap.get();
+		CreateDefaultBrightmap();
+		return Brightmap.get();
+	}
+
 };
 
 inline FGameTexture* MakeGameTexture(FTexture* tex, const char *name, ETextureType useType)

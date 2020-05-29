@@ -302,7 +302,7 @@ bool FHardwareTexture::BindOrCreate(FTexture *tex, int texunit, int clampmode, i
 {
 	int usebright = false;
 
-	bool needmipmap = (clampmode <= CLAMP_XY);
+	bool needmipmap = (clampmode <= CLAMP_XY) && !forcenofilter;
 
 	// Bind it to the system.
 	if (!Bind(texunit, needmipmap))
@@ -331,6 +331,7 @@ bool FHardwareTexture::BindOrCreate(FTexture *tex, int texunit, int clampmode, i
 			return false;
 		}
 	}
+	if (forcenofilter) clampmode += CLAMP_NOFILTER - CLAMP_NONE;
 	GLRenderer->mSamplerManager->Bind(texunit, clampmode, 255);
 	return true;
 }
