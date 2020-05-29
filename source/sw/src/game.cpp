@@ -224,8 +224,6 @@ const GAME_SET gs_defaults =
 GAME_SET gs;
 
 SWBOOL PlayerTrackingMode = FALSE;
-SWBOOL PauseMode = FALSE;
-SWBOOL PauseKeySet = FALSE;
 SWBOOL SlowMode = FALSE;
 SWBOOL FrameAdvanceTics = 3;
 SWBOOL ScrollMode2D = FALSE;
@@ -2437,10 +2435,6 @@ void MoveLoop(void)
         //    demosync_record();
 #endif
     }
-
-    // Get input again to update q16ang/q16horiz.
-    if (!PedanticMode)
-        getinput(&loc, TRUE);
 }
 
 
@@ -2577,15 +2571,24 @@ void RunLevel(void)
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
-        if (M_Active() || GUICapture || GamePaused)
+        updatePauseStatus();
+
+        if (paused)
         {
             ototalclock = (int)totalclock - (120 / synctics);
             buttonMap.ResetButtonStates();
         }
         else
         {
-            faketimerhandler();
-            MoveLoop();
+            while (ready2send && (totalclock >= ototalclock + synctics))
+            {
+                UpdateInputs();
+                MoveLoop();
+            }
+
+            // Get input again to update q16ang/q16horiz.
+            if (!PedanticMode)
+                getinput(&loc, TRUE);
         }
 
         drawscreen(Player + screenpeek);
@@ -2600,8 +2603,6 @@ void RunLevel(void)
         }
 
         timerUpdateClock();
-        while (ready2send && (totalclock >= ototalclock + synctics))
-            UpdateInputs();
     }
 
     ready2send = 0;
@@ -2990,53 +2991,6 @@ FunctionKeys(PLAYERp pp)
     }
 }
 
-void PauseKey(PLAYERp pp)
-{
-    extern SWBOOL CheatInputMode;
-
-    if (inputState.GetKeyStatus(sc_Pause) && !CommEnabled && !InputMode && !M_Active() && !CheatInputMode && !ConPanel)
-    {
-		inputState.ClearKeyStatus(sc_Pause);
-
-        PauseKeySet ^= 1;
-
-        if (PauseKeySet)
-            GamePaused = TRUE;
-        else
-            GamePaused = FALSE;
-
-        if (GamePaused)
-        {
-            short w,h;
-#define MSG_GAME_PAUSED "Game Paused"
-            MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
-            PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
-            Mus_SetPaused(true);
-        }
-        else
-        {
-            pClearTextLine(pp, 100);
-            Mus_SetPaused(false);
-        }
-    }
-
-    if (!CommEnabled && TEST(pp->Flags, PF_DEAD))
-    {
-        if (ReloadPrompt)
-        {
-                ReloadPrompt = FALSE;
-		   /*
-            }
-            else
-            {
-				inputState.SetKeyStatus(sc_Escape);
-				ControlPanelType = ct_quickloadmenu;
-            }
-			*/
-        }
-    }
-}
-
 short MirrorDelay;
 
 double elapsedInputTicks;
@@ -3105,9 +3059,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     ControlInfo info;
     CONTROL_GetInput(&info);
 
-    PauseKey(pp);
-
-    if (PauseKeySet)
+    if (paused)
         return;
 
     // MAP KEY

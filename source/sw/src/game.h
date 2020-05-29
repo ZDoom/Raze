@@ -2392,7 +2392,6 @@ void sendlogoff(void);
 
 extern int ototalclock, save_totalclock, gotlastpacketclock,smoothratio;
 extern SWBOOL ready2send;
-extern SWBOOL GamePaused;
 
 // local copy of variables updated by faketimerhandler
 extern int locselectedgun;

@@ -64,7 +64,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 static int OverlapDraw = FALSE;
-extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo, PauseKeySet;
+extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo;
 extern SWBOOL Voxel;
 extern char buffer[];
 SWBOOL DrawScreen;
@@ -1071,7 +1071,7 @@ static ClockTicks mapzoomclock;
 void
 ResizeView(PLAYERp pp)
 {
-    if (M_Active() || PauseKeySet)
+    if (M_Active() || paused)
         return;
 
     if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
@@ -2027,7 +2027,7 @@ drawscreen(PLAYERp pp)
 
 
     smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
-    if (GamePaused && !ReloadPrompt) // The checks were brought over from domovethings
+    if (paused && !ReloadPrompt) // The checks were brought over from domovethings
         smoothratio = 65536;
 
     if (!ScreenSavePic)
@@ -2326,6 +2326,26 @@ drawscreen(PLAYERp pp)
     short_restoreinterpolations();                 // Stick at end of drawscreen
     if (cl_sointerpolation)
         so_restoreinterpolations();                       // Stick at end of drawscreen
+
+    if (paused && !M_Active())
+    {
+        short w,h;
+#define MSG_GAME_PAUSED "Game Paused"
+        MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
+        PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
+    }
+    else
+    {
+        pClearTextLine(pp, 100);
+    }
+
+    if (!CommEnabled && TEST(pp->Flags, PF_DEAD))
+    {
+        if (ReloadPrompt)
+        {
+            ReloadPrompt = FALSE;
+        }
+    }
 
     PostDraw();
     DrawScreen = FALSE;
