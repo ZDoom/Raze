@@ -682,5 +682,3 @@ CCMD(currentmusic)
 		Printf("Currently no music playing\n");
 	}
 }
-
-extern int paused;
