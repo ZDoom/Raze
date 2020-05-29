@@ -59,7 +59,7 @@
 //#include "r_data/models/models.h"
 #include "gl/renderer/gl_postprocessstate.h"
 #include "gl/system/gl_buffers.h"
-#include "../glbackend/gl_hwtexture.h"
+#include "gl_hwtexture.h"
 #include "build.h"
 
 EXTERN_CVAR(Int, screenblocks)

@@ -201,9 +201,11 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 }
 #endif
 
-bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int palette, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
+bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
 {
 	if (tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
+	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
+	int palette = GetTranslationIndex(paletteid);
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	GLInterface.SetPalette(usepalette);

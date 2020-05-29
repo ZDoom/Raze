@@ -1726,7 +1726,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 			}
 			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
 		}
-		GLInterface.SetModelTexture(tex, globalpal, det, detscale, glow);
+        int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+        GLInterface.SetModelTexture(tex, palid, det, detscale, glow);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {

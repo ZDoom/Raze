@@ -426,7 +426,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
 	else sampleroverride = SamplerClampXY;
 
-	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), globalpal, method, sampleroverride);
+    int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
+	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), palid, method, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -4551,7 +4552,8 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
 
     //Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-    GLInterface.SetTexture(dapicnum, tileGetTexture(dapicnum), dapalnum, 0, -1);
+    int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+    GLInterface.SetTexture(dapicnum, tileGetTexture(dapicnum), palid, 0, -1);
     hicprecaching = 0;
 
     if (datype == 0 || !hw_models) return;
@@ -4565,7 +4567,8 @@ static void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype
     for (int i = 0; i <= surfaces; i++)
 	{
         auto tex = mdloadskin((md2model_t *)models[mid], 0, dapalnum, i, nullptr);
-		if (tex) GLInterface.SetTexture(-1, tex, dapalnum, 0, -1);
+        int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+        if (tex) GLInterface.SetTexture(-1, tex, palid, 0, -1);
 	}
 }
 

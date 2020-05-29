@@ -166,9 +166,10 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 			auto tex = cmd.mTexture;
 
-				SetFadeDisable(true);
-				SetShade(0, numshades);
-			SetNamedTexture(cmd.mTexture, cmd.mTranslationId, cmd.mFlags & F2DDrawer::DTF_Wrap ? SamplerRepeat : SamplerClampXY);
+			SetFadeDisable(true);
+			SetShade(0, numshades);
+
+			SetTexture(TileFiles.GetTileIndex(cmd.mTexture), cmd.mTexture, cmd.mTranslationId, 0, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY);
 			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			UseColorOnly(false);
 		}
@@ -180,7 +181,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		switch (cmd.mType)
 		{
 		case F2DDrawer::DrawTypeTriangles:
-		case F2DDrawer::DrawTypeRotateSprite:
 			DrawElement(DT_TRIANGLES, cmd.mIndexIndex, cmd.mIndexCount, renderState);
 			break;
 
