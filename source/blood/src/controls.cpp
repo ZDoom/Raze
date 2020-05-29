@@ -159,16 +159,19 @@ void ctrlGetInput(void)
         cl_crosshair = !cl_crosshair;
     }
 
-    if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
+    if (gPlayer[myconnectindex].nextWeapon == 0)
     {
-        buttonMap.ClearButton(gamefunc_Next_Weapon);
-        gInput.keyFlags.nextWeapon = 1;
-    }
+        if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
+        {
+            buttonMap.ClearButton(gamefunc_Next_Weapon);
+            gInput.keyFlags.nextWeapon = 1;
+        }
 
-    if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
-    {
-        buttonMap.ClearButton(gamefunc_Previous_Weapon);
-        gInput.keyFlags.prevWeapon = 1;
+        if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
+        {
+            buttonMap.ClearButton(gamefunc_Previous_Weapon);
+            gInput.keyFlags.prevWeapon = 1;
+        }
     }
 
     if (buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
