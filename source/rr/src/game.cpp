@@ -849,7 +849,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         videoSetCorrectedAspect();
     }
 
-    if (ud.pause_on || pPlayer->on_crane > -1)
+    if (paused || pPlayer->on_crane > -1)
         smoothRatio = 65536;
     else
         smoothRatio = calc_smoothratio(totalclock, ototalclock);
@@ -924,7 +924,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         if (RRRA && pPlayer->drug_mode > 0)
         {
-            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !GUICapture)
+            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !paused && !GUICapture)
             {
                 int aspect;
                 if (pPlayer->drug_stat[0] == 0)
@@ -5027,7 +5027,7 @@ default_case1:
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].input->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
+                if (g_player[playerNum].input->extbits & (1 << 7) && !paused && spritesortcnt < maxspritesonscreen)
                 {
                     tspritetype *const playerTyping = t;
 
@@ -7296,7 +7296,9 @@ MAIN_LOOP_RESTART:
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
 
-        if (M_Active() || GUICapture || ud.pause_on != 0)
+        updatePauseStatus();
+
+        if (paused)
         {
             ototalclock = totalclock - TICSPERFRAME;
             buttonMap.ResetButtonStates();
@@ -7305,8 +7307,6 @@ MAIN_LOOP_RESTART:
         {
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
             {
-                ototalclock += TICSPERFRAME;
-
                 if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
                     P_GetInputMotorcycle(myconnectindex);
                 else if (RRRA && g_player[myconnectindex].ps->on_boat)
@@ -7330,7 +7330,9 @@ MAIN_LOOP_RESTART:
 
                 g_player[myconnectindex].movefifoend++;
 
-                if (((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+                ototalclock += TICSPERFRAME;
+
+                if (paused == 0 && ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
                 {
                     G_MoveLoop();
@@ -7528,11 +7530,8 @@ int G_DoMoveThings(void)
     everyothertime++;
     if (g_earthquakeTime > 0) g_earthquakeTime--;
 
-    if (ud.pause_on == 0)
-    {
-        g_globalRandom = krand2();
-        A_MoveDummyPlayers();//ST 13
-    }
+    g_globalRandom = krand2();
+    A_MoveDummyPlayers();//ST 13
 
     for (bssize_t TRAVERSE_CONNECT(i))
     {
@@ -7552,18 +7551,14 @@ int G_DoMoveThings(void)
             sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
 
         if (!DEER)
-        P_HandleSharedKeys(i);
+            P_HandleSharedKeys(i);
 
-        if (ud.pause_on == 0)
-        {
-            P_ProcessInput(i);
-            if (!DEER)
+        P_ProcessInput(i);
+        if (!DEER)
             P_CheckSectors(i);
-        }
     }
 
-    if (ud.pause_on == 0)
-        G_MoveWorld();
+    G_MoveWorld();
 
     Net_CorrectPrediction();
 
@@ -7578,8 +7573,8 @@ int G_DoMoveThings(void)
         }
         else
         {
-        G_AnimateWalls();
-        A_MoveCyclers();
+            G_AnimateWalls();
+            A_MoveCyclers();
         }
 
         //if (g_netServer && (everyothertime % 10) == 0)

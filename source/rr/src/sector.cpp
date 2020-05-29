@@ -3648,29 +3648,7 @@ void P_HandleSharedKeys(int playerNum)
     {
         pPlayer->interface_toggle_flag = 1;
 
-        if (TEST_SYNC_KEY(playerBits, SK_PAUSE))
-        {
-            inputState.ClearKeyStatus(sc_Pause);
-            if (ud.pause_on)
-                ud.pause_on = 0;
-            else ud.pause_on = 1+SHIFTS_IS_PRESSED;
-            if (ud.pause_on)
-            {
-                Mus_SetPaused(true);
-                S_PauseSounds(true);
-            }
-            else
-            {
-                Mus_SetPaused(false);
-
-                S_PauseSounds(false);
-
-                pub = NUMPAGES;
-                pus = NUMPAGES;
-            }
-        }
-
-        if (ud.pause_on) return;
+        if (paused) return;
 
         if (sprite[pPlayer->i].extra <= 0) return;		// if dead...
 
