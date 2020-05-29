@@ -420,11 +420,13 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
 	// This only takes effect for textures with their default set to SamplerClampXY.
-	int sampleroverride;
-	if (drawpoly_srepeat && drawpoly_trepeat) sampleroverride = SamplerRepeat;
-	else if (drawpoly_srepeat) sampleroverride = SamplerClampY;
-	else if (drawpoly_trepeat) sampleroverride = SamplerClampX;
-	else sampleroverride = SamplerClampXY;
+	int sampleroverride = CLAMP_NONE;
+    if (method & DAMETH_CLAMPED)
+    {
+        if (drawpoly_srepeat) sampleroverride |= CLAMP_Y;
+        if (drawpoly_trepeat) sampleroverride |= CLAMP_X;
+    }
+
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
 	bool success = GLInterface.SetTexture(globalpicnum, tileGetTexture(globalpicnum), palid, method, sampleroverride);

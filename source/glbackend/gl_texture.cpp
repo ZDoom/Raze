@@ -61,7 +61,7 @@ OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FTexture *tex, int tex
 	return hwtex;
 }
 
-bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
+bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride)
 {
 	TexturePick pick;
 	if (!PickTexture(picnum, tex, paletteid, pick)) return false;

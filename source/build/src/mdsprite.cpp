@@ -1726,7 +1726,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		}
 #endif
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
-        GLInterface.SetModelTexture(tex, palid, det, detscale, glow);
+        GLInterface.SetTexture(-1, tex, palid, 0, CLAMP_XY);
 
         if (tspr->clipdist & TSPR_FLAGS_MDHACK)
         {

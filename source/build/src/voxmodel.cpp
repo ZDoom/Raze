@@ -11,6 +11,7 @@
 #include "mdsprite.h"
 #include "v_video.h"
 #include "flatvertices.h"
+#include "texturemanager.h"
 
 #include "palette.h"
 #include "../../glbackend/glbackend.h"
@@ -32,42 +33,59 @@ static int32_t *shcntmal, *shcnt = 0, shcntp;
 static int32_t mytexo5, *zbit, gmaxx, gmaxy, garea, pow2m1[33];
 static voxmodel_t *gvox;
 
+class FStaticImage : public FImageSource
+{
+    TArray<uint8_t> buffer;
+
+public:
+    FStaticImage(int w, int h, TArray<uint8_t>& srcbuffer)
+    {
+        Width = w;
+        Height = h;
+        buffer = std::move(srcbuffer);
+        bUseGamePalette = false;
+    }
+
+    int CopyPixels(FBitmap* bmp, int conversion) override
+    {
+        *bmp = FBitmap(buffer.Data(), 4*Width, Width, Height);
+        return 0;
+    }
+};
 
 //pitch must equal xsiz*4
-static OpenGLRenderer::FHardwareTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
+static FGameTexture *gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, const PalEntry *paldata)
 {
     // Correct for GL's RGB order; also apply gamma here:
     const coltype *const pic = (const coltype *)picbuf;
-    coltype *pic2 = (coltype *)Xmalloc(xsiz*ysiz*sizeof(coltype));
+    TArray<uint8_t> buffer(xsiz * ysiz * sizeof(PalEntry));
+    PalEntry* pic2 = (PalEntry*)buffer.Data();
 
     if (!is8bit)
     {
-        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
+        for (int i=xsiz*ysiz-1; i>=0; i--)
         {
-            pic2[i].r = pic[i].b;
+            pic2[i].r = pic[i].r;
             pic2[i].g = pic[i].g;
-            pic2[i].b = pic[i].r;
+            pic2[i].b = pic[i].b;
             pic2[i].a = 255;
         }
     }
     else
     {
-        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
+        for (int i=xsiz*ysiz-1; i>=0; i--)
         {
             const int32_t ii = pic[i].a;
 
-            pic2[i].r = paldata[ii].b;
+            pic2[i].r = paldata[ii].r;
             pic2[i].g = paldata[ii].g;
-            pic2[i].b = paldata[ii].r;
+            pic2[i].b = paldata[ii].b;
             pic2[i].a = 255;
         }
     }
-
-	auto tex = GLInterface.NewTexture(4);
-    tex->CreateTexture((uint8_t*)pic2, xsiz, ysiz, 15, true, "Voxel"); // Mipmap should be false for this but currently this causes render errors because the proper sampler cannot be selected.
-    Xfree(pic2);
-
-    return tex;
+    auto tt = MakeGameTexture(new FImageTexture(new FStaticImage(xsiz, ysiz, buffer)), "", ETextureType::Special);
+    TexMan.AddGameTexture(tt, false);
+    return tt;
 }
 
 static int32_t getvox(int32_t x, int32_t y, int32_t z)
@@ -838,18 +856,6 @@ void voxfree(voxmodel_t *m)
 
     DO_FREE_AND_NULL(m->mytex);
     DO_FREE_AND_NULL(m->quad);
-
-    if (m->texIds)
-    {
-        TMap<int, OpenGLRenderer::FHardwareTexture*>::Iterator it(*m->texIds);
-        TMap<int, OpenGLRenderer::FHardwareTexture*>::Pair* pair;
-        while (it.NextPair(pair))
-        {
-            if (pair->Value) delete pair->Value;
-        }
-        delete m->texIds;
-    }
-
     Xfree(m);
 }
 
@@ -1084,11 +1090,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     pc[0] = pc[1] = pc[2] = 1.f;
 
-	auto& h = lookups.tables[globalpal];
-	if (h.tintFlags & (TINTF_USEONART|TINTF_ALWAYSUSEART))
-		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
-	else
-		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
     if (!shadowHack)
     {
@@ -1135,9 +1136,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #if 1
     int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal); 
     auto palette = GPalette.TranslationToTable(palId);
-    if (!m->texIds) m->texIds = new TMap<int, OpenGLRenderer::FHardwareTexture*>;
+    if (!m->texIds) m->texIds = new TMap<int, FGameTexture*>;
     auto pTex = m->texIds->CheckKey(palId);
-    OpenGLRenderer::FHardwareTexture* htex;
+    FGameTexture* htex;
     if (!pTex)
     {
         htex = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, palette->Palette);
@@ -1149,7 +1150,15 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
     GLInterface.SetPalswap(globalpal);
-	GLInterface.BindTexture(0, htex, -1);
+	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, 0, CLAMP_XY);
+
+	// This must be done after setting up the texture.
+	auto& h = lookups.tables[globalpal];
+	if (h.tintFlags & (TINTF_USEONART|TINTF_ALWAYSUSEART))
+		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
+	else
+		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+
 	GLInterface.UseBrightmaps(false);
 	GLInterface.UseGlowMapping(false);
 	GLInterface.UseDetailMapping(false);

@@ -194,7 +194,7 @@ struct voxmodel_t : public mdmodel_t
     vec3_t siz;
     vec3f_t piv;
     int32_t is8bit;
-    TMap<int, OpenGLRenderer::FHardwareTexture*> *texIds;
+    TMap<int, FGameTexture*> *texIds;
 };
 
 EXTERN mdmodel_t **models;

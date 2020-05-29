@@ -480,17 +480,8 @@ public:
 	}
 
 	OpenGLRenderer::FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-	bool SetTextureInternal(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride,  FGameTexture *det, float detscale, FGameTexture *glow);
 
-	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride)
-	{
-		return SetTextureInternal(globalpicnum, tex, palette, method, sampleroverride, nullptr, 1, nullptr);
-	}
-
-	bool SetModelTexture(FGameTexture *tex, int palette, FGameTexture *det, float detscale, FGameTexture *glow)
-	{
-		return SetTextureInternal(-1, tex, palette, 8/*DAMETH_MODEL*/, -1, det, detscale, glow);
-	}
+	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride);
 };
 
 extern GLInstance GLInterface;
