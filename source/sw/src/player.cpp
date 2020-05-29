@@ -7846,9 +7846,9 @@ void PauseMultiPlay(void)
             {
                 FLAG_KEY_RELEASE(pp, SK_PAUSE);
 
-                GamePaused ^= 1;
+                paused ^= 1;
 
-                if (GamePaused)
+                if (paused)
                 {
                     short w,h;
                     auto m = GStrings("Game Paused");
@@ -7859,14 +7859,12 @@ void PauseMultiPlay(void)
 
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;
-                    Mus_SetPaused(true);
                 }
                 else
                 {
                     PredictionOn = SavePrediction;
                     TRAVERSE_CONNECT(p)
                     pClearTextLine(Player + p, 100);
-                    Mus_SetPaused(false);
                 }
             }
         }
@@ -7962,8 +7960,7 @@ domovethings(void)
 
 #if 0
     {
-        extern SWBOOL PauseKeySet;
-        if (inputState.GetKeyStatus(KEYSC_F5) && !(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)) && !PauseKeySet)
+        if (inputState.GetKeyStatus(KEYSC_F5) && !(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)) && !paused)
         {
             inputState.GetKeyStatus(KEYSC_F5) = 0;
             ResChange();
@@ -7991,7 +7988,7 @@ domovethings(void)
         DoPlayerMenuKeys(pp);
     }
 
-    if (GamePaused)
+    if (paused)
     {
         if (!ReloadPrompt)
             return;

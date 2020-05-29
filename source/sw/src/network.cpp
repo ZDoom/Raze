@@ -29,6 +29,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "baselayer.h"
 #include "mmulti.h"
 
+#include "gamecontrol.h"
+
 #include "keys.h"
 #include "game.h"
 #include "tags.h"
@@ -70,7 +72,6 @@ SYNC BUG NOTES:
 //#define MAXSYNCBYTES 16
 static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
-extern SWBOOL PauseKeySet;
 
 gNET gNet;
 extern short PlayerQuitMenuLevel;
@@ -128,7 +129,6 @@ int save_totalclock;
 
 // must start out as 0
 
-SWBOOL GamePaused = FALSE;
 SWBOOL NetBroadcastMode = TRUE;
 SWBOOL NetModeOverride = FALSE;
 
@@ -386,32 +386,16 @@ int DecodeBits(SW_PACKET *pak, SW_PACKET *old_pak, uint8_t* buf)
 }
 
 void
-PauseGame(void)
-{
-    if (PauseKeySet)
-        return;
-
-    if (DemoPlaying || DemoRecording)
-        return;
-
-    if (GamePaused)
-        return;
-
-    if (numplayers < 2)
-        GamePaused = TRUE;
-}
-
-void
 ResumeGame(void)
 {
-    if (PauseKeySet)
+    if (paused)
         return;
 
     if (DemoPlaying || DemoRecording)
         return;
 
     if (numplayers < 2)
-        GamePaused = FALSE;
+        paused = 0;
 }
 
 void

@@ -26,6 +26,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "build.h"
 
+#include "gamecontrol.h"
+
 #include "names2.h"
 #include "game.h"
 #include "tags.h"
@@ -91,7 +93,7 @@ void VisViewChange(PLAYERp pp, int *vis)
     int x,y,z;
     short sectnum;
 
-    if (GamePaused)
+    if (paused)
         return;
 
     // find the closest quake - should be a strength value

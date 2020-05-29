@@ -6229,7 +6229,7 @@ pChopsShake(PANEL_SPRITEp psp)
 void
 pChopsWait(PANEL_SPRITEp psp)
 {
-    //if (!GamePaused && RANDOM_P2(1024) < 10)
+    //if (!paused && RANDOM_P2(1024) < 10)
     if (RANDOM_P2(1024) < 10)
     {
         // random x position
