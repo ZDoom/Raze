@@ -95,14 +95,6 @@ enum EWinding
 	Winding_CW
 };
 
-enum ETexType
-{
-	TT_INDEXED,
-	TT_TRUECOLOR,
-	TT_HICREPLACE,
-	TT_BRIGHTMAP
-};
-
 struct ImDrawData;
 struct palette_t;
 extern float shadediv[256];

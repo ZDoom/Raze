@@ -390,19 +390,14 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
-#ifdef USE_OPENGL
             if ((uint32_t)tile < MAXTILES)
-                alphahackarray[tile] = Blrintf(alpha * (float)UINT8_MAX);
-#endif
+                TileFiles.tiledata[tile].alphaThreshold = (float)alpha;
         }
         break;
         case T_ALPHAHACKRANGE:
         {
             int32_t tilenume1,tilenume2;
             double alpha;
-#ifdef USE_OPENGL
-            int32_t i;
-#endif
 
             if (scriptfile_getsymbol(script,&tilenume1)) break;
             if (scriptfile_getsymbol(script,&tilenume2)) break;
@@ -411,10 +406,8 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile_range("alphahackrange", &tilenume1, &tilenume2, script, cmdtokptr))
                 break;
 
-#ifdef USE_OPENGL
-            for (i=tilenume1; i<=tilenume2; i++)
-                alphahackarray[i] = Blrintf(alpha * (float)UINT8_MAX);
-#endif
+            for (int i=tilenume1; i<=tilenume2; i++)
+                TileFiles.tiledata[i].alphaThreshold = (float)alpha;
         }
         break;
         case T_SPRITECOL:

@@ -6820,6 +6820,7 @@ static void G_Startup(void)
 
 //    Printf("Loading palette/lookups...\n");
     G_LoadLookups();
+    TileFiles.PostLoadSetup();
 
     if (DEER)
         sub_54DE0();

@@ -1607,12 +1607,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     if (m->usesalpha) //Sprites with alpha in texture
     {
         // PLAG : default cutoff removed
-        float al = 0.0;
-        if (alphahackarray[globalpicnum] != 0)
-            al=alphahackarray[globalpicnum] * (1.f/255.f);
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
-		GLInterface.SetAlphaThreshold(al);
+		GLInterface.SetAlphaThreshold(TileFiles.tiledata[globalpicnum].alphaThreshold);
     }
     else
     {
@@ -1713,7 +1710,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 		FGameTexture *det = nullptr, *glow = nullptr;
 		float detscale = 1.f;
 
+#if 0
 		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(
+        // Todo: assign the laxers to the base textures at setup time
         if (!(tspr->clipdist & TSPR_FLAGS_MDHACK))
         {
 			det = tex = hw_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;
@@ -1725,6 +1724,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 			}
 			glow = hw_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi, nullptr) : 0;
 		}
+#endif
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetModelTexture(tex, palid, det, detscale, glow);
 

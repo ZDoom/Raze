@@ -138,6 +138,7 @@ void BuildTiles::Init()
 		tile.picanm = {};
 		tile.RotTile = { -1,-1 };
 		tile.replacement = ReplacementType::Art;
+		tile.alphaThreshold = 0.5;
 	}
 
 }
@@ -493,6 +494,59 @@ uint8_t* BuildTiles::tileMakeWritable(int num)
 
 //==========================================================================
 //
+// Processes data from .def files into the textures
+//
+//==========================================================================
+
+void BuildTiles::PostLoadSetup()
+{
+	for (auto& tile : tiledata)
+	{
+		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, *specTex = nullptr;
+		float scalex = 1.f, scaley = 1.f;
+		for (auto& rep : tile.Hightiles)
+		{
+			if (rep.palnum == GLOWPAL)
+			{
+				glowTex = rep.faces[0];
+			}
+			if (rep.palnum == NORMALPAL)
+			{
+				normalTex = rep.faces[0];
+			}
+			if (rep.palnum == SPECULARPAL)
+			{
+				specTex = rep.faces[0];
+			}
+			if (rep.palnum == DETAILPAL)
+			{
+				detailTex = rep.faces[0];
+				scalex = rep.scale.x;
+				scaley = rep.scale.y;
+			}
+		}
+		if (!detailTex && !glowTex && !normalTex && !specTex) continue; // if there's no layers there's nothing to do.
+		for (auto& rep : tile.Hightiles)
+		{
+			if (rep.faces[1]) continue;	// do not muck around with skyboxes (yet)
+			if (rep.palnum < NORMALPAL)
+			{
+				auto tex = rep.faces[0];
+				// Make a copy so that multiple appearances of the same texture can be handled. They will all refer to the same internal texture anyway.
+				tex = MakeGameTexture(tex->GetTexture(), "", ETextureType::Any);
+				tex->SetGlowmap(glowTex->GetTexture());
+				tex->SetDetailmap(detailTex->GetTexture());
+				tex->SetNormalmap(normalTex->GetTexture());
+				tex->SetSpecularmap(specTex->GetTexture());
+				tex->SetDetailScale(scalex, scaley);
+				rep.faces[0] = tex;
+			}
+		}
+	}
+}
+
+//==========================================================================
+//
 // Returns checksum for a given tile
 //
 //==========================================================================
@@ -543,7 +597,6 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	FTextureID texid = TexMan.CheckForTexture(fn, ETextureType::Any);
 	if (!texid.isValid()) return -1;
 	auto tex = TexMan.GetGameTexture(texid);
-	//tex->alphaThreshold = 255 - alphacut;
 
 	int32_t xsiz = tex->GetTexelWidth(), ysiz = tex->GetTexelHeight();
 
@@ -929,6 +982,83 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 		}
 	}
 	TileFiles.InvalidateTile(tilenum2);
+}
+
+//===========================================================================
+// 
+//	Picks a texture for rendering for a given tilenum/palette combination
+//
+//===========================================================================
+
+// Test CVARs.
+CVAR(Int, fixpalette, -1, 0)
+CVAR(Int, fixpalswap, -1, 0)
+
+bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
+{
+	if (!tex) tex = tileGetTexture(picnum);
+	if (picnum == -1) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
+
+	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
+	pick.texture = tex;
+	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
+	int palette = GetTranslationIndex(paletteid);
+	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
+	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
+	int TextureType = hw_int_useindexedcolortextures && picnum >= 0 ? TT_INDEXED : TT_TRUECOLOR;
+
+	pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+	pick.basepalTint = 0xffffff;
+
+	auto& h = lookups.tables[palette];
+	bool applytint = false;
+	// Canvas textures must be treated like hightile replacements in the following code.
+	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
+	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
+	if (rep || tex->GetTexture()->isHardwareCanvas())
+	{
+		if (usepalette != 0)
+		{
+			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
+			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
+			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
+			pick.basepalTint = hh.tintColor;
+		}
+
+		if (rep)
+		{
+			tex = rep->faces[0];
+		}
+		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
+		pick.translation = 0;
+	}
+	else
+	{
+		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
+		if (TextureType == TT_TRUECOLOR)
+		{
+			if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
+			{
+				applytint = true;
+				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
+			}
+			pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+		}
+		else pick.translation |= 0x80000000;
+	}
+
+	if (applytint && h.tintFlags)
+	{
+		pick.tintFlags = h.tintFlags;
+		pick.tintColor = h.tintColor;
+	}
+	else
+	{
+		pick.tintFlags = -1;
+		pick.tintColor = 0xffffff;
+	}
+
+	return true;
 }
 
 

@@ -30,6 +30,13 @@ enum
 
 };
 
+enum ETexType
+{
+	TT_INDEXED,
+	TT_TRUECOLOR,
+};
+
+
 enum class ReplacementType : int
 {
 	Art,
@@ -265,6 +272,16 @@ struct TileDesc
 	rottile_t RotTile;// = { -1,-1 };
 	TArray<HightileReplacement> Hightiles;
 	ReplacementType replacement;
+	float alphaThreshold;
+};
+
+struct TexturePick
+{
+	FGameTexture* texture;		// which texture to use
+	int translation;		// which translation table to use
+	int tintFlags;			// which shader tinting options to use
+	PalEntry tintColor;		// Tint color
+	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
 };
 
 struct BuildTiles
@@ -334,6 +351,7 @@ struct BuildTiles
 		tiledata[picnum].Hightiles.Clear();
 	}
 
+	void PostLoadSetup();
 
 };
 
@@ -468,3 +486,5 @@ inline FGameTexture* tileGetTexture(int tile)
 	assert(tile < MAXTILES);
 	return TileFiles.tiledata[tile].texture;
 }
+
+bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);

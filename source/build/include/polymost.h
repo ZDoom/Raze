@@ -47,8 +47,6 @@ enum {
 
 extern float curpolygonoffset;
 
-extern uint8_t alphahackarray[MAXTILES];
-
 extern int32_t r_scenebrightness;
 extern int32_t polymostcenterhoriz;
 
