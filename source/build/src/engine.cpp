@@ -3063,7 +3063,7 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     F2DDrawer::RenderCommand dg = {};
     int method = 0;
 
-    dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
+    dg.mTranslationId = pic? 0 : TRANSLATION(Translation_Remap + basepal, dapalnum);
     dg.mType = F2DDrawer::DrawTypeTriangles;
     if (clipx1 > 0 || clipy1 > 0 || clipx2 < screen->GetWidth() - 1 || clipy2 < screen->GetHeight() - 1)
     {

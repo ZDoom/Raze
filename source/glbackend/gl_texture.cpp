@@ -80,73 +80,21 @@ struct TexturePick
 	PalEntry basepalTint;	// can the base palette be done with a global tint effect?
 };
 
-#if 0
-TexturePick PickTexture(int tilenum, int basepal, int palette)
+bool PickTexture(int picnum, FGameTexture *tex, int paletteid, TexturePick &pick)
 {
-	TexturePick pick = { nullptr, 0, -1, 0xffffff, 0xffffff };
-	int usepalette = fixpalette >= 0 ? fixpalette : basepal;
-	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
-	auto& h = hictinting[palette];
-	auto tex = TileFiles.tiles[tilenum];
-	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(tilenum, usepalswap) : nullptr;
-	// Canvas textures must be treated like hightile replacements in the following code.
-	bool truecolor = rep || tex->GetUseType() == FGameTexture::Canvas;
-	bool applytint = false;
-	if (truecolor)
-	{
-		if (usepalette != 0)
-		{
-			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
-			auto& hh = hictinting[MAXPALOOKUPS - 1];
-			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-			pick.basepalTint = hh.tint;
-		}
+	if (!tex) tex = tileGetTexture(picnum);
+	if (picnum == -1) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 
-		if (rep)
-		{
-			tex = rep->faces[0];
-		}
-		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
-	}
-	else
-	{
-		// Tinting is not used on indexed textures, unless explicitly requested
-		if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
-		{
-			applytint = true;
-			if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
-		}
-		pick.translation = TRANSLATION(usepalette + 1, usepalswap);
-	}
-	pick.texture = tex;
-	if (applytint && h.tintFlags)
-	{
-		pick.tintFlags = h.tintFlags;
-		pick.tintColor = h.tint;
-	}
-	return pick;
-}
-#endif
-
-bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
-{
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
+	pick.texture = tex;
 	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
 	int palette = GetTranslationIndex(paletteid);
 	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
-	GLInterface.SetPalette(usepalette);
-	GLInterface.SetPalswap(usepalswap);
-	bool texbound[3] = {};
-	int MatrixChange = 0;
+	int TextureType = hw_int_useindexedcolortextures ? TT_INDEXED : TT_TRUECOLOR;
 
-	TextureType = hw_int_useindexedcolortextures? TT_INDEXED : TT_TRUECOLOR;
-
-	int lookuppal = 0;
-	int bindflags = 0;
-	VSMatrix texmat;
-
-	GLInterface.SetBasepalTint(0xffffff);
+	pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+	pick.basepalTint = 0xffffff;
 
 	auto& h = lookups.tables[palette];
 	bool applytint = false;
@@ -160,7 +108,7 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
 			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
 			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-			GLInterface.SetBasepalTint(hh.tintColor);
+			pick.basepalTint = hh.tintColor;
 		}
 
 		if (rep)
@@ -168,34 +116,60 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 			tex = rep->faces[0];
 		}
 		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
-		TextureType = TT_HICREPLACE;
-		bindflags = CTF_Upscale;
+		pick.translation = 0;
+		//TextureType = TT_HICREPLACE;
 	}
 	else
 	{
 		// Only look up the palette if we really want to use it (i.e. when creating a true color texture of an ART tile.)
 		if (TextureType == TT_TRUECOLOR)
 		{
-			// Tinting is not used on indexed textures
 			if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
 			{
 				applytint = true;
 				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
-			lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
-			bindflags = CTF_Upscale;
+			pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
 		}
-		else bindflags = CTF_Indexed;
+		else pick.translation |= 0x80000000;
 	}
 
-	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	if (applytint && h.tintFlags) 
-		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
-	else GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
+	if (applytint && h.tintFlags)
+	{
+		pick.tintFlags = h.tintFlags;
+		pick.tintColor = h.tintColor;
+	}
+	else
+	{
+		pick.tintFlags = -1;
+		pick.tintColor = 0xffffff;
+	}
 
+	return true;
+}
+
+bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride, FGameTexture *det, float detscale, FGameTexture *glow)
+{
+	TexturePick pick;
+	if (!PickTexture(picnum, tex, paletteid, pick)) return false;
+
+	GLInterface.SetPalette(GetTranslationType(pick.translation & 0x7fffffff) - Translation_Remap);
+	GLInterface.SetPalswap(GetTranslationIndex(pick.translation));
+	GLInterface.SetBasepalTint(pick.basepalTint);
+
+	bool texbound[3] = {};
+	//int MatrixChange = 0;
+	//VSMatrix texmat;
+
+	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
+	GLInterface.SetTinting(pick.tintFlags, pick.tintColor, pick.tintColor);
 
 	// Load the main texture
 	
+	int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
+	int lookuppal = pick.translation & 0x7fffffff;
+	int bindflags = 0;
+
 	auto mtex = LoadTexture(tex->GetTexture(), TextureType, lookuppal);
 	if (mtex)
 	{
@@ -203,6 +177,7 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 		if (TextureType == TT_INDEXED)
 		{
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
+			bindflags = CTF_Indexed;
 		}
 		else if (tex->isHardwareCanvas())
 		{
@@ -215,12 +190,14 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 		mtex->BindOrCreate(tex->GetTexture(), 0, sampler, lookuppal, bindflags);
 		BindTexture(0, mtex, sampler);
 		// Needs a) testing and b) verification for correctness. This doesn't look like it makes sense.
+#if 0
 		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f))
 		{
 			//texmat.loadIdentity();
 			//texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
 			//GLInterface.SetMatrix(Matrix_Texture, &texmat);
 		}
+#endif
 
 		// Also load additional layers needed for this texture.
 		if (hw_detailmapping && hw_hightile && picnum > -1)
