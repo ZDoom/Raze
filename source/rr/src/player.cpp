@@ -2093,7 +2093,7 @@ void P_DisplayWeapon(void)
         if (!RR && currentWeapon == KNEE_WEAPON && *weaponFrame == 0)
             goto enddisplayweapon;
 
-        int const doAnim      = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm & MODE_MENU);
+        int const doAnim      = !(sprite[pPlayer->i].pal == 1 || paused || g_player[myconnectindex].ps->gm & MODE_MENU);
         int const halfLookAng = fix16_to_int(pPlayer->q16look_ang) >> 1;
 
         int const weaponPal = P_GetHudPal(pPlayer);
@@ -3209,7 +3209,15 @@ void P_GetInput(int const playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
+
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
+
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -3271,14 +3279,6 @@ void P_GetInput(int const playerNum)
     input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
-    thisPlayer.lastInputTicks = currentHiTicks;
-
-    if (elapsedInputTicks == currentHiTicks)
-        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3631,7 +3631,15 @@ void P_GetInputMotorcycle(int playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
+
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
+
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -3669,14 +3677,6 @@ void P_GetInputMotorcycle(int playerNum)
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
-    thisPlayer.lastInputTicks = currentHiTicks;
-
-    if (elapsedInputTicks == currentHiTicks)
-        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -3885,7 +3885,15 @@ void P_GetInputBoat(int playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
+
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
+
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -3923,14 +3931,6 @@ void P_GetInputBoat(int playerNum)
 
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
-    thisPlayer.lastInputTicks = currentHiTicks;
-
-    if (elapsedInputTicks == currentHiTicks)
-        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
@@ -4134,7 +4134,15 @@ void P_DHGetInput(int const playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
+
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
+
+    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -4188,14 +4196,6 @@ void P_DHGetInput(int const playerNum)
     input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.svel -= info.dx * keyMove / analogExtent;
     input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
-    thisPlayer.lastInputTicks = currentHiTicks;
-
-    if (elapsedInputTicks == currentHiTicks)
-        return;
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 
