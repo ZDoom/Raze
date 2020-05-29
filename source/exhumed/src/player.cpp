@@ -159,6 +159,18 @@ void PlayerInterruptKeys()
     ControlInfo info;
 	memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
     CONTROL_GetInput(&info);
+
+    static double lastInputTicks;
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
+
+    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
+
+    if (paused)
+        return;
+
 	D_ProcessEvents();
 
     localInput = {};
@@ -206,14 +218,6 @@ void PlayerInterruptKeys()
     input.horizon = fix16_ssub(input.horizon, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
     input.xVel -= info.dx * keyMove / analogExtent;
     input.yVel -= info.dz * keyMove / analogExtent;
-
-    static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
