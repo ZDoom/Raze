@@ -730,7 +730,6 @@ set (PCH_SOURCES
 	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/hash.cpp
-	build/src/hightile.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
 	build/src/palette.cpp

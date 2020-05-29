@@ -1128,8 +1128,6 @@ extern int32_t r_rortexture;
 extern int32_t r_rortexturerange;
 extern int32_t r_rorphase;
 
-void hicinit(void);
-void hicsetpalettetint(int32_t palnum, int r, int g, int b, int sr, int sg, int sb, polytintflags_t effect);
 // flags bitset: 1 = don't compress
 int32_t Ptile2tile(int32_t tile, int32_t palette) ATTRIBUTE((pure));
 int32_t md_loadmodel(const char *fn);

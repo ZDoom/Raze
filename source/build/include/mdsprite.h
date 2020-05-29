@@ -2,7 +2,7 @@
 # define mdsprite_h_
 
 #ifdef USE_OPENGL
-#include "hightile.h"
+#include "palette.h"
 #include "gl_hwtexture.h"
 
 #if defined(_M_IX86) || defined(_M_AMD64) || defined(__i386) || defined(__x86_64)

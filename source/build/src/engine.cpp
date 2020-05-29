@@ -30,7 +30,6 @@
 #include "earcut.hpp"
 
 #ifdef USE_OPENGL
-# include "hightile.h"
 # include "mdsprite.h"
 # include "polymost.h"
 #include "v_video.h"
@@ -2115,14 +2114,11 @@ int32_t enginePostInit(void)
 
 void engineUnInit(void)
 {
-#ifdef USE_OPENGL
     polymost_glreset();
-    hicinit();
     freeallmodels();
 # ifdef POLYMER
     polymer_uninit();
 # endif
-#endif
 
 	TileFiles.CloseAll();
 

@@ -7,7 +7,6 @@
 #include "pragmas.h"
 #include "baselayer.h"
 #include "engine_priv.h"
-#include "hightile.h"
 #include "polymost.h"
 #include "mdsprite.h"
 

@@ -35,7 +35,6 @@
 
 #include "palette.h"
 #include "build.h"
-#include "hightile.h"
 #include "polymost.h"
 #include "textures.h"
 #include "bitmap.h"
@@ -89,7 +88,7 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
 	auto& h = hictinting[palette];
 	auto tex = TileFiles.tiles[tilenum];
-	auto rep = (hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(tilenum, usepalswap) : nullptr;
+	auto rep = (hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(tilenum, usepalswap) : nullptr;
 	// Canvas textures must be treated like hightile replacements in the following code.
 	bool truecolor = rep || tex->GetUseType() == FGameTexture::Canvas;
 	bool applytint = false;
@@ -107,22 +106,22 @@ TexturePick PickTexture(int tilenum, int basepal, int palette)
 		{
 			tex = rep->faces[0];
 		}
-		if (!rep || rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
+		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
 	}
 	else
 	{
 		// Tinting is not used on indexed textures, unless explicitly requested
-		if (h.f & (HICTINT_ALWAYSUSEART | HICTINT_USEONART))
+		if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
 		{
 			applytint = true;
-			if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
+			if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
 		}
 		pick.translation = TRANSLATION(usepalette + 1, usepalswap);
 	}
 	pick.texture = tex;
-	if (applytint && h.f)
+	if (applytint && h.tintFlags)
 	{
-		pick.tintFlags = h.f;
+		pick.tintFlags = h.tintFlags;
 		pick.tintColor = h.tint;
 	}
 	return pick;
@@ -149,26 +148,26 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 
 	GLInterface.SetBasepalTint(0xffffff);
 
-	auto& h = hictinting[palette];
+	auto& h = lookups.tables[palette];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
 	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
-	auto rep = (picnum >= 0 && hw_hightile && !(h.f & HICTINT_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
+	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
 	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette != 0)
 		{
 			// This is a global setting for the entire scene, so let's do it here, right at the start. (Fixme: Store this in a static table instead of reusing the same entry for all palettes.)
-			auto& hh = hictinting[MAXPALOOKUPS - 1];
+			auto& hh = lookups.tables[MAXPALOOKUPS - 1];
 			// This sets a tinting color for global palettes, e.g. water or slime - only used for hires replacements (also an option for low-resource hardware where duplicating the textures may be problematic.)
-			GLInterface.SetBasepalTint(hh.tint);
+			GLInterface.SetBasepalTint(hh.tintColor);
 		}
 
 		if (rep)
 		{
 			tex = rep->faces[0];
 		}
-		if (!rep || rep->palnum != palette || (h.f & HICTINT_APPLYOVERALTPAL)) applytint = true;
+		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
 		TextureType = TT_HICREPLACE;
 		bindflags = CTF_Upscale;
 	}
@@ -178,10 +177,10 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 		if (TextureType == TT_TRUECOLOR)
 		{
 			// Tinting is not used on indexed textures
-			if (h.f & (HICTINT_ALWAYSUSEART | HICTINT_USEONART))
+			if (h.tintFlags & (TINTF_ALWAYSUSEART | TINTF_USEONART))
 			{
 				applytint = true;
-				if (!(h.f & HICTINT_APPLYOVERPALSWAP)) usepalswap = 0;
+				if (!(h.tintFlags & TINTF_APPLYOVERPALSWAP)) usepalswap = 0;
 			}
 			lookuppal = TRANSLATION(usepalette + Translation_Remap, usepalswap);
 			bindflags = CTF_Upscale;
@@ -190,8 +189,8 @@ bool GLInstance::SetTextureInternal(int picnum, FGameTexture* tex, int paletteid
 	}
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	if (applytint && h.f) 
-		GLInterface.SetTinting(h.f, h.tint, h.tint);
+	if (applytint && h.tintFlags) 
+		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
 	else GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
 

@@ -70,9 +70,7 @@ void paletteLoadFromDisk(void)
 	if (!fil.isOpen())
         return;
 
-
-    // PALETTE_MAIN
-
+    // Base palette
     uint8_t palette[768];
     if (768 != fil.Read(palette, 768))
         return;
@@ -83,42 +81,24 @@ void paletteLoadFromDisk(void)
     paletteSetColorTable(0, palette, false, false);
     paletteloaded |= PALETTE_MAIN;
 
-    // PALETTE_SHADES
-    numshades = fil.ReadInt16();
-
-    if (numshades <= 1)
+    // LameDuke and Witchaven use an older variant.
+    if (fil.GetLength() == 41600)
     {
-        Printf("Warning: Invalid number of shades in \"palette.dat\"!\n");
-        numshades = 0;
-        return;
-    }
-
-#if 0
-    // Reminder: Witchaven's shade table has no index and no easy means to autodetect.
-    if (numshades == 0 && (g_gameType & GAMEFLAG_WITCHAVEN))
-    {
-        numshades = 32;
         fil.Seek(-2, FileReader::SeekCur);
+        numshades = 32;
     }
     else
-#endif
     {
-        // LameDuke's is yet another variant.
-        if (numshades >= 256)
+        // Shade tables
+        numshades = fil.ReadInt16();
+
+        if (numshades <= 1)
         {
-            uint16_t temp = fil.ReadUInt16();
-            if (temp == 770 || numshades > 256) // 02 03
-            {
-                fil.Seek(-4, FileReader::SeekCur);
-                numshades = 32;
-            }
-            else
-            {
-                fil.Seek(-2, FileReader::SeekCur);
-            }
+            Printf("Warning: Invalid number of shades in \"palette.dat\"!\n");
+            numshades = 0;
+            return;
         }
     }
-
 
     // Read base shade table (lookuptables 0).
     int length = numshades * 256;
@@ -393,6 +373,31 @@ void LookupTableInfo::makeTable(int palnum, const uint8_t *remapbuf, int r, int 
     tables[palnum].FadeColor.a = 1;
 }
 
+
+//==========================================================================
+//
+// hicsetpalettetint(pal,r,g,b,sr,sg,sb,effect)
+//   The tinting values represent a mechanism for emulating the effect of global sector
+//   palette shifts on true-colour textures and only true-colour textures.
+//   effect bitset: 1 = greyscale, 2 = invert
+//
+//==========================================================================
+
+void LookupTableInfo::setPaletteTint(int palnum, int r, int g, int b, int sr, int sg, int sb, int flags)
+{
+    if ((unsigned)palnum >= MAXPALOOKUPS) return;
+
+    auto &lookup = tables[palnum];
+    lookup.tintColor = PalEntry(r, g, b);
+    lookup.tintShade = PalEntry(sr, sg, sb);
+    lookup.tintFlags = flags | TINTF_ENABLE;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
 void videoSetPalette(int dabrightness, int palid, ESetPalFlags flags)
 {

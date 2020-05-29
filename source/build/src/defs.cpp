@@ -19,10 +19,6 @@
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 
-#ifdef USE_OPENGL
-# include "hightile.h"
-#endif
-
 enum scripttoken_t
 {
     T_INCLUDE = 0,
@@ -384,9 +380,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
             if (scriptfile_getnumber(script,&f)) break; //effects
-#ifdef USE_OPENGL
-            hicsetpalettetint(pal,r,g,b,0,0,0,f);
-#endif
+            lookups.setPaletteTint(pal,r,g,b,0,0,0,f);
         }
         break;
         case T_ALPHAHACK:
@@ -1488,10 +1482,6 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getstring(script,&skinfn); break; //skin filename
                         case T_SURF:
                             scriptfile_getnumber(script,&surfnum); break;
-#ifdef USE_OPENGL
-                        case T_FORCEFILTER:
-                            flags |= HICR_FORCEFILTER; break;
-#endif
                         }
                     }
 
@@ -1827,10 +1817,6 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn[4]); break;
                 case T_BOTTOM:
                     scriptfile_getstring(script,&fn[5]); break;
-#ifdef USE_OPENGL
-				case T_FORCEFILTER:
-					flags |= HICR_FORCEFILTER; break;
-#endif
 
                 }
             }
@@ -1949,9 +1935,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-#ifdef USE_OPENGL
-            hicsetpalettetint(pal,red,green,blue,shadered,shadegreen,shadeblue,flags);
-#endif
+            lookups.setPaletteTint(pal,red,green,blue,shadered,shadegreen,shadeblue,flags);
         }
         break;
         case T_MAKEPALOOKUP:

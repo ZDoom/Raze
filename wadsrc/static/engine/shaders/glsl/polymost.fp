@@ -10,13 +10,13 @@ const int RF_ShadeInterpolate = 64;
 const int RF_FogDisabled = 128;
 const int RF_MapFog = 256;
 
-const int RF_HICTINT_Grayscale = 0x1;
-const int RF_HICTINT_Invert = 0x2;
-const int RF_HICTINT_Colorize = 0x4;
-const int RF_HICTINT_BLEND_Screen = 64;
-const int RF_HICTINT_BLEND_Overlay = 128;
-const int RF_HICTINT_BLEND_Hardlight = 192;
-const int RF_HICTINT_BLENDMASK = RF_HICTINT_BLEND_Screen | RF_HICTINT_BLEND_Overlay | RF_HICTINT_BLEND_Hardlight;
+const int RF_TINT_Grayscale = 0x1;
+const int RF_TINT_Invert = 0x2;
+const int RF_TINT_Colorize = 0x4;
+const int RF_TINT_BLEND_Screen = 64;
+const int RF_TINT_BLEND_Overlay = 128;
+const int RF_TINT_BLEND_Hardlight = 192;
+const int RF_TINT_BLENDMASK = RF_TINT_BLEND_Screen | RF_TINT_BLEND_Overlay | RF_TINT_BLEND_Hardlight;
 
 
 //s_texture points to an indexed color texture
@@ -89,13 +89,13 @@ float grayscale(vec4 color)
 vec4 convertColor(vec4 color)
 {
 	int effect = u_tintFlags;
-	if ((effect & RF_HICTINT_Grayscale) != 0)
+	if ((effect & RF_TINT_Grayscale) != 0)
 	{
 		float g = grayscale(color);
 		color = vec4(g, g, g, color.a);
 	}
 
-	if ((effect & RF_HICTINT_Invert) != 0)
+	if ((effect & RF_TINT_Invert) != 0)
 	{
 		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, color.a);
 	}
@@ -103,7 +103,7 @@ vec4 convertColor(vec4 color)
 	vec3 tcol = color.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
 
 	// Much of this looks quite broken by design. Why is this effectively multplied by 4 if the flag is set...? :(
-	if ((effect & RF_HICTINT_Colorize) != 0)
+	if ((effect & RF_TINT_Colorize) != 0)
 	{
 		tcol.r = min(((tcol.b) * u_tintModulate.r)* 4, 255.0);
 		tcol.g = min(((tcol.g) * u_tintModulate.g)* 4, 255.0);
@@ -117,19 +117,19 @@ vec4 convertColor(vec4 color)
 	}
 
 	vec4 ov = u_tintOverlay * 255.0;
-	switch (effect & RF_HICTINT_BLENDMASK)
+	switch (effect & RF_TINT_BLENDMASK)
 	{
-		case RF_HICTINT_BLEND_Screen:
+		case RF_TINT_BLEND_Screen:
 			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 256.0);
 			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 256.0);
 			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 256.0);
 			break;
-		case RF_HICTINT_BLEND_Overlay:
+		case RF_TINT_BLEND_Overlay:
 			tcol.r = tcol.b < 128.0? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
 			tcol.g = tcol.g < 128.0? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
 			tcol.b = tcol.r < 128.0? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);
 			break;
-		case RF_HICTINT_BLEND_Hardlight:
+		case RF_TINT_BLEND_Hardlight:
 			tcol.r = ov.r < 128.0 ? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
 			tcol.g = ov.g < 128.0 ? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
 			tcol.b = ov.b < 128.0 ? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);

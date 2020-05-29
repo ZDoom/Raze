@@ -2924,38 +2924,38 @@ void UpdateDacs(int nPalette, bool bNoTint)
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         gLastPal = 0;
-        polytint_t *tint = &hictinting[MAXPALOOKUPS-1];
+        auto &tint = lookups.tables[MAXPALOOKUPS-1];
         int nRed = 0;
         int nGreen = 0;
         int nBlue = 0;
-        tint->f = 0;
+        tint.tintFlags = 0;
         switch (nPalette)
         {
         case 0:
         default:
-            tint->tint.r = 255;
-            tint->tint.g = 255;
-            tint->tint.b = 255;
+            tint.tintColor.r = 255;
+            tint.tintColor.g = 255;
+            tint.tintColor.b = 255;
             break;
         case 1:
-            tint->tint.r = 132;
-            tint->tint.g = 164;
-            tint->tint.b = 255;
+            tint.tintColor.r = 132;
+            tint.tintColor.g = 164;
+            tint.tintColor.b = 255;
             break;
         case 2:
-            tint->tint.r = 255;
-            tint->tint.g = 126;
-            tint->tint.b = 105;
+            tint.tintColor.r = 255;
+            tint.tintColor.g = 126;
+            tint.tintColor.b = 105;
             break;
         case 3:
-            tint->tint.r = 162;
-            tint->tint.g = 186;
-            tint->tint.b = 15;
+            tint.tintColor.r = 162;
+            tint.tintColor.g = 186;
+            tint.tintColor.b = 15;
             break;
         case 4:
-            tint->tint.r = 255;
-            tint->tint.g = 255;
-            tint->tint.b = 255;
+            tint.tintColor.r = 255;
+            tint.tintColor.g = 255;
+            tint.tintColor.b = 255;
             break;
         }
         if (!bNoTint)

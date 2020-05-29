@@ -28,6 +28,27 @@
 #define NORMALPAL   (MAXPALOOKUPS - 4)
 #define BRIGHTPAL	(MAXPALOOKUPS)
 
+// fixme: should use the flags from the PRSFlags enum directly
+enum
+{
+    TINTF_GRAYSCALE = 1,
+    TINTF_INVERT = 2,
+    TINTF_COLORIZE = 4,
+    TINTF_USEONART = 8,
+    TINTF_APPLYOVERPALSWAP = 16,
+    TINTF_APPLYOVERALTPAL = 32,
+
+    TINTF_BLEND_MULTIPLY = 0 << 6,
+    TINTF_BLEND_SCREEN = 1 << 6,
+    TINTF_BLEND_OVERLAY = 2 << 6,
+    TINTF_BLEND_HARDLIGHT = 3 << 6,
+
+    TINTF_BLENDMASK = 64 | 128,
+    TINTF_ALWAYSUSEART = 256,
+    TINTF_PRECOMPUTED = TINTF_COLORIZE | TINTF_BLENDMASK,
+    TINTF_ENABLE = 32768
+};
+
 struct LookupTable
 {
     FString Shades;
@@ -35,6 +56,10 @@ struct LookupTable
     float Visibility = 0;
     bool hasBrightmap = false;
     bool noFloorPal = false;
+
+    int tintFlags = 0;
+    PalEntry tintColor = 0xffffff;
+    PalEntry tintShade = 0;
 };
 
 struct LookupTableInfo
@@ -84,6 +109,9 @@ struct LookupTableInfo
         return tables[num].noFloorPal;
     }
 
+    void setPaletteTint(int palnum, int r, int g, int b, int sr, int sg, int sb, int flags);
+
+
 };
 
 extern LookupTableInfo lookups;
@@ -130,16 +158,12 @@ inline void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 }
 
 
-#ifdef USE_OPENGL
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
-#endif
 
 extern int32_t globalpal;
 extern int32_t globalblend;
 extern void paletteLoadFromDisk(void);
 
-
-#ifdef USE_OPENGL
 
 typedef struct glblenddef_
 {
@@ -158,7 +182,5 @@ extern glblend_t glblend[MAXBLENDTABS];
 FRenderStyle GetRenderStyle(int blend, int def);
 extern void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def);
 float GetAlphaFromBlend(uint32_t maskprops, uint32_t blend);
-
-#endif
 
 #endif

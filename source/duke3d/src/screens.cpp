@@ -671,28 +671,28 @@ void G_DisplayRest(int32_t smoothratio)
     // this takes care of fullscreen tint for OpenGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        polytint_t & fstint = hictinting[MAXPALOOKUPS-1];
+        auto & fstint = lookups.tables[MAXPALOOKUPS-1];
 
         if (pp->palette == WATERPAL)
         {
-            fstint.tint.r = 224;
-            fstint.tint.g = 192;
-            fstint.tint.b = 255;
-            fstint.f = 0;
+            fstint.tintColor.r = 224;
+            fstint.tintColor.g = 192;
+            fstint.tintColor.b = 255;
+            fstint.tintFlags = 0;
         }
         else if (pp->palette == SLIMEPAL)
         {
-            fstint.tint.r = 208;
-            fstint.tint.g = 255;
-            fstint.tint.b = 192;
-            fstint.f = 0;
+            fstint.tintColor.r = 208;
+            fstint.tintColor.g = 255;
+            fstint.tintColor.b = 192;
+            fstint.tintFlags = 0;
         }
         else
         {
-            fstint.tint.r = 255;
-            fstint.tint.g = 255;
-            fstint.tint.b = 255;
-            fstint.f = 0;
+            fstint.tintColor.r = 255;
+            fstint.tintColor.g = 255;
+            fstint.tintColor.b = 255;
+            fstint.tintFlags = 0;
         }
     }
 #endif  // USE_OPENGL

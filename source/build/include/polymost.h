@@ -3,7 +3,6 @@
 
 
 #include "baselayer.h"  // glinfo
-#include "hightile.h"
 #include "mdsprite.h"
 
 void Polymost_CacheHitList(uint8_t* hash);

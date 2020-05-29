@@ -7,7 +7,6 @@
 #include "pragmas.h"
 #include "baselayer.h"
 #include "engine_priv.h"
-#include "hightile.h"
 #include "polymost.h"
 #include "mdsprite.h"
 #include "v_video.h"
@@ -1085,9 +1084,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     pc[0] = pc[1] = pc[2] = 1.f;
 
-	auto& h = hictinting[globalpal];
-	if (h.f & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
-		GLInterface.SetTinting(h.f, h.tint, h.tint);
+	auto& h = lookups.tables[globalpal];
+	if (h.tintFlags & (TINTF_USEONART|TINTF_ALWAYSUSEART))
+		GLInterface.SetTinting(h.tintFlags, h.tintColor, h.tintColor);
 	else
 		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
