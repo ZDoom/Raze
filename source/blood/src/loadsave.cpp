@@ -561,7 +561,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gFrame = 0;
     gFrameRate = 0;
     totalclock = 0;
-    gPaused = 0;
+    paused = 0;
     gGameStarted = 1;
     bVanilla = false;
     
@@ -662,7 +662,7 @@ void MyLoadSave::Load(void)
     Read(&totalclock, sizeof(totalclock));
     totalclock = nGameClock;
     Read(&gLevelTime, sizeof(gLevelTime));
-    Read(&gPaused, sizeof(gPaused));
+    Read(&paused, sizeof(paused));
     Read(baseWall, sizeof(baseWall[0])*numwalls);
     Read(baseSprite, sizeof(baseSprite[0])*nNumSprites);
     Read(baseFloor, sizeof(baseFloor[0])*numsectors);
@@ -755,7 +755,7 @@ void MyLoadSave::Save(void)
     ClockTicks nGameClock = totalclock;
     Write(&nGameClock, sizeof(nGameClock));
     Write(&gLevelTime, sizeof(gLevelTime));
-    Write(&gPaused, sizeof(gPaused));
+    Write(&paused, sizeof(paused));
     Write(baseWall, sizeof(baseWall[0])*numwalls);
     Write(baseSprite, sizeof(baseSprite[0])*nNumSprites);
     Write(baseFloor, sizeof(baseFloor[0])*numsectors);

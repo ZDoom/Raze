@@ -104,7 +104,6 @@ double g_gameUpdateAvgTime = 0.001;
 
 bool gQuitGame;
 int gQuitRequest;
-bool gPaused;
 
 enum gametokens
 {
@@ -663,7 +662,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         gGameMessageMgr.SetCoordinates(gViewX0S+1,gViewY0S+15);
     netWaitForEveryone(0);
     totalclock = 0;
-    gPaused = 0;
+    paused = 0;
     gGameStarted = 1;
     ready2send = 1;
 }
@@ -823,8 +822,7 @@ void ProcessFrame(void)
         if (gPlayer[i].input.keyFlags.pause)
         {
             gPlayer[i].input.keyFlags.pause = 0;
-            gPaused = !gPaused;
-            if (gPaused && gGameOptions.nGameType > 0 && numplayers > 1)
+            if (paused && gGameOptions.nGameType > 0 && numplayers > 1)
             {
                 sprintf(buffer,"%s paused the game",gProfile[i].name);
                 viewSetMessage(buffer);
@@ -834,7 +832,7 @@ void ProcessFrame(void)
     viewClearInterpolations();
     if (!gDemo.at1)
     {
-        if (gPaused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
+        if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
             return;
         if (gDemo.at0)
             gDemo.Write(gFifoInput[(gNetFifoTail-1)&255]);
@@ -1214,7 +1212,7 @@ RESTART:
         {
             char gameUpdate = false;
             double const gameUpdateStartTime = timerGetHiTicks();
-            while (gPredictTail < gNetFifoHead[myconnectindex] && !gPaused)
+            while (gPredictTail < gNetFifoHead[myconnectindex] && !paused)
             {
                 viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
             }

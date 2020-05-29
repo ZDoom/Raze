@@ -3088,7 +3088,7 @@ void viewDrawScreen(bool sceneonly)
     if (delta < 0)
         delta = 0;
     lastUpdate = totalclock;
-    if (!gPaused && (!M_Active() || gGameOptions.nGameType != 0))
+    if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
     }
@@ -3558,7 +3558,7 @@ void viewDrawScreen(bool sceneonly)
 
     viewDrawMapTitle();
     viewDrawAimedPlayerName();
-    if (gPaused)
+    if (paused)
     {
         viewDrawText(1, GStrings("TXTB_PAUSED"), 160, 10, 0, 0, 1, 0);
     }
