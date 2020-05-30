@@ -1712,7 +1712,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 #if 0
 		// The data lookup here is one incredible mess. Thanks to whoever cooked this up... :(
-        // Todo: assign the laxers to the base textures at setup time
+        // Todo: assign the layers to the base textures at setup time
         if (!(tspr->clipdist & TSPR_FLAGS_MDHACK))
         {
 			det = tex = hw_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi, nullptr) : nullptr;

@@ -101,7 +101,7 @@ extern float shadediv[256];
 
 enum
 {
-	MAX_TEXTURES = 6, /*15*/	// slot 15 is used internally and not available. - The renderer uses only 5, though.
+	MAX_TEXTURES = 4, /*15*/	// slot 15 is used internally and not available. - The renderer uses only 5, though.
 };
 
 struct GLState
@@ -120,7 +120,6 @@ class GLInstance
 	int lastPalswapIndex = -1;
 	OpenGLRenderer::FHardwareTexture* texv;
 	FGameTexture* currentTexture = nullptr;
-	int TextureType;
 	int MatrixChange = 0;
 
 	// Cached GL state.
@@ -480,6 +479,16 @@ public:
 	}
 
 	OpenGLRenderer::FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
+
+	void SetPaletteTexture(OpenGLRenderer::FHardwareTexture* tex)
+	{
+		renderState.PaletteTexture = tex;
+	}
+
+	void SetLookupTexture(OpenGLRenderer::FHardwareTexture* tex)
+	{
+		renderState.LookupTexture = tex;
+	}
 
 	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride);
 };

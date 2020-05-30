@@ -121,8 +121,8 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 			{
 				auto htex = LoadTexture(det, TT_TRUECOLOR, 0);
 				UseDetailMapping(true);
-				htex->BindOrCreate(det, 3, CLAMP_NONE, 0, 0);
-				BindTexture(3, htex, SamplerRepeat);
+				htex->BindOrCreate(det, 2, CLAMP_NONE, 0, 0);
+				BindTexture(2, htex, SamplerRepeat);
 				texbound[0] = true;
 
 				/* todo: 
@@ -137,8 +137,8 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 			{
 				auto htex = LoadTexture(glow, TT_TRUECOLOR, 0);
 				UseGlowMapping(true);
-				htex->BindOrCreate(glow, 4, sampler, 0, CTF_Upscale);
-				BindTexture(4, htex, SamplerRepeat);
+				htex->BindOrCreate(glow, 3, sampler, 0, CTF_Upscale);
+				BindTexture(3, htex, SamplerRepeat);
 				texbound[1] = true;
 			}
 		}
@@ -152,15 +152,15 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 				if (htex != nullptr)
 				{
 					UseBrightmaps(true);
-					htex->BindOrCreate(btex, 5, sampler, 0, CTF_Upscale);
-					BindTexture(5, htex, sampler);
+					htex->BindOrCreate(btex, 1, sampler, 0, CTF_Upscale);
+					BindTexture(1, htex, sampler);
 					texbound[2] = true;
 				}
 			}
 		}
-		if (!texbound[0]) UnbindTexture(3);
-		if (!texbound[1]) UnbindTexture(4);
-		if (!texbound[2]) UnbindTexture(5);
+		if (!texbound[0]) UnbindTexture(2);
+		if (!texbound[1]) UnbindTexture(3);
+		if (!texbound[2]) UnbindTexture(1);
 
 	}
 	else return false;

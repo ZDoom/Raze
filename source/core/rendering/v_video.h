@@ -51,7 +51,6 @@ static const int VID_MIN_UI_WIDTH = 640;
 static const int VID_MIN_UI_HEIGHT = 400;
 
 struct sector_t;
-class FTexture;
 struct FPortalSceneState;
 class FSkyVertexBuffer;
 class IIndexBuffer;
@@ -115,7 +114,6 @@ inline bool V_IsTrueColor()
 }
 
 
-class FTexture;
 class FileWriter;
 enum FTextureFormat : uint32_t;
 class FModelRenderer;
@@ -148,7 +146,7 @@ protected:
 };
 
 class IHardwareTexture;
-class FTexture;
+class FGameTexture;
 
 
 class DFrameBuffer
@@ -233,6 +231,7 @@ public:
 	virtual IHardwareTexture *CreateHardwareTexture(int numchannels) { return nullptr; }
 	virtual void PrecacheMaterial(FMaterial *mat, int translation) {}
 	virtual FModelRenderer *CreateModelRenderer(int mli) { return nullptr; }
+	virtual FMaterial* CreateMaterial(FGameTexture* tex, int scaleflags);
 	virtual void BeginFrame() {}
 	virtual void SetWindowSize(int w, int h) {}
 	virtual void StartPrecaching() {}
@@ -248,8 +247,11 @@ public:
 	bool BuffersArePersistent() { return !!(hwcaps & RFL_BUFFER_STORAGE); }
 
 	// Begin/End 2D drawing operations.
-	void Begin2D() { isIn2D = true; }
-	void End2D() { isIn2D = false; }
+	void Begin2D() 
+	{ 
+		m2DDrawer.Begin(Width, Height);
+	}
+	void End2D() { m2DDrawer.End(); }
 
 	void BeginScene();
 	void FinishScene();
@@ -257,7 +259,7 @@ public:
 	void End2DAndUpdate()
 	{
 		DrawRateStuff();
-		End2D();
+		m2DDrawer.End();
 		Update();
 	}
 

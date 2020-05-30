@@ -286,6 +286,8 @@ void GLInstance::DrawImGui(ImDrawData* data)
 
 void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
+	if (!OpenGLRenderer::GLRenderer) return;
+	auto sm = OpenGLRenderer::GLRenderer->mSamplerManager;
 	bool reset = false;
 	for (int i = 0; i < MAX_TEXTURES; i++)
 	{
@@ -297,13 +299,24 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 				reset = true;
 			}
 			glBindTexture(GL_TEXTURE_2D, texIds[i]);
-			if (OpenGLRenderer::GLRenderer)
-				OpenGLRenderer::GLRenderer->mSamplerManager->Bind(i, samplerIds[i], -1);
+			sm->Bind(i, samplerIds[i], -1);
 			oldState.TexId[i] = texIds[i];
 			oldState.SamplerId[i] = samplerIds[i];
 		}
-		if (reset) glActiveTexture(GL_TEXTURE0);
 	}
+	if (PaletteTexture != nullptr)
+	{
+		PaletteTexture->Bind(4, false);
+		sm->Bind(4, CLAMP_NOFILTER, -1);
+	}
+	if (LookupTexture != nullptr)
+	{
+		LookupTexture->Bind(5, false);
+		sm->Bind(5, CLAMP_NOFILTER, -1);
+	}
+	glActiveTexture(GL_TEXTURE0);
+
+
 	if (StateFlags != oldState.Flags)
 	{
 		if ((StateFlags ^ oldState.Flags) & STF_DEPTHTEST)

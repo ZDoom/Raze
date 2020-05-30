@@ -166,15 +166,15 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	int SamplerLoc;
     SamplerLoc = glGetUniformLocation(hShader, "s_texture");
 	glUniform1i(SamplerLoc, 0);
-    SamplerLoc = glGetUniformLocation(hShader, "s_palswap");
-	glUniform1i(SamplerLoc, 1);
-    SamplerLoc = glGetUniformLocation(hShader, "s_palette");
-	glUniform1i(SamplerLoc, 2);
-    SamplerLoc = glGetUniformLocation(hShader, "s_detail");
-	glUniform1i(SamplerLoc, 3);
-    SamplerLoc = glGetUniformLocation(hShader, "s_glow");
-	glUniform1i(SamplerLoc, 4);
 	SamplerLoc = glGetUniformLocation(hShader, "s_brightmap");
+	glUniform1i(SamplerLoc, 1);
+	SamplerLoc = glGetUniformLocation(hShader, "s_detail");
+	glUniform1i(SamplerLoc, 2);
+	SamplerLoc = glGetUniformLocation(hShader, "s_glow");
+	glUniform1i(SamplerLoc, 3);
+	SamplerLoc = glGetUniformLocation(hShader, "s_palette");
+	glUniform1i(SamplerLoc, 4);
+	SamplerLoc = glGetUniformLocation(hShader, "s_palswap");
 	glUniform1i(SamplerLoc, 5);
 
 	glUseProgram(0);

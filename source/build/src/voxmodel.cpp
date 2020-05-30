@@ -1150,6 +1150,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
     GLInterface.SetPalswap(globalpal);
+	// The texture here is already translated.
 	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, 0, CLAMP_XY);
 
 	// This must be done after setting up the texture.
@@ -1159,9 +1160,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 	else
 		GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 
-	GLInterface.UseBrightmaps(false);
-	GLInterface.UseGlowMapping(false);
-	GLInterface.UseDetailMapping(false);
 #endif
 
 	auto data = screen->mVertexData->AllocVertices(m->qcnt * 6);

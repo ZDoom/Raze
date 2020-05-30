@@ -166,7 +166,6 @@ IHardwareTexture *FMaterial::GetLayer(int i, int translation, MaterialLayerInfo 
 
 FMaterial * FMaterial::ValidateTexture(FGameTexture * gtex, int scaleflags, bool create)
 {
-#if 0
 	if (gtex && gtex->isValid())
 	{
 		if (!gtex->expandSprites()) scaleflags &= ~CTF_Expand;
@@ -178,7 +177,6 @@ FMaterial * FMaterial::ValidateTexture(FGameTexture * gtex, int scaleflags, bool
 		}
 		return hwtex;
 	}
-#endif
 	return NULL;
 }
 

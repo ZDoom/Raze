@@ -47,6 +47,7 @@
 #include "v_2ddrawer.h"
 #include "build.h"
 #include "../glbackend/glbackend.h"
+#include "hw_material.h"
 /*
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/utility/hw_clock.h"
@@ -376,6 +377,11 @@ void DFrameBuffer::FPSLimit()
 		}
 	}
 #endif
+}
+
+FMaterial* DFrameBuffer::CreateMaterial(FGameTexture* tex, int scaleflags)
+{
+	return new FMaterial(tex, scaleflags);
 }
 
 void DFrameBuffer::BeginScene()

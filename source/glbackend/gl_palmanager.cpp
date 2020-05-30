@@ -104,7 +104,7 @@ void PaletteManager::BindPalette(int index)
 				p->CreateTexture((uint8_t*)palettedata->Palette, 256, 1, 15, false, "Palette");
 				palettetextures[index] = p;
 			}
-			inst->BindTexture(2, palettetextures[index], SamplerNoFilterClampXY);
+			inst->SetPaletteTexture(palettetextures[index]);
 		}
 	}
 
@@ -140,7 +140,7 @@ void PaletteManager::BindPalswap(int index)
 				p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "Palette");
 				palswaptextures[index] = p;
 			}
-			inst->BindTexture(1, palswaptextures[index], SamplerNoFilterClampXY);
+			inst->SetLookupTexture(palswaptextures[index]);
 			inst->SetFadeColor(lookups.getFade(index));
 		}
 	}

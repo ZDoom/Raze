@@ -443,9 +443,9 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 		replacement = new FCanvasTexture(0, 0);
 	}
 	else return nullptr;
-	auto reptex = MakeGameTexture(replacement, "", ETextureType::Any);
-	AddTile(tilenum, reptex);
-	return reptex;
+	auto rep = MakeGameTexture(replacement, tile->GetName(), ETextureType::Override);
+	AddTile(tilenum, rep);
+	return rep;
 }
 
 //==========================================================================
@@ -777,7 +777,8 @@ void tileSetDummy(int tile, int width, int height)
 	}
 	else if (width > 0 && height > 0)
 	{
-		auto dtile = MakeGameTexture(new FImageTexture(new FDummyTile(width, height)), "", ETextureType::Any);
+		FStringf texname("#%05d", tile);
+		auto dtile = MakeGameTexture(new FImageTexture(new FDummyTile(width, height)), texname, ETextureType::Any);
 		TileFiles.AddTile(tile, dtile);
 	}
 }
@@ -831,7 +832,7 @@ int BuildTiles::tileCreateRotated(int tileNum)
 			*(dst + y * width + xofs) = *(src + y + yofs);
 	}
 
-	auto dtex = MakeGameTexture(new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth())), "", ETextureType::Any);
+	auto dtex = MakeGameTexture(new FImageTexture(new FLooseTile(dbuffer, tex->GetTexelHeight(), tex->GetTexelWidth())), "", ETextureType::Override);
 	int index = findUnusedTile();
 	bool mapart = TileFiles.tiledata[tileNum].texture != TileFiles.tiledata[tileNum].backup;
 	TileFiles.AddTile(index, dtex, mapart);

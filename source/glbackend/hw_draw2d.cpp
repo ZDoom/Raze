@@ -162,14 +162,15 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 			DisableScissor();
 		}
 
-		if (cmd.mTexture != nullptr)
+		auto tex = cmd.mTexture;
+		if (tex != nullptr && tex->isValid())
 		{
 			auto tex = cmd.mTexture;
 
 			SetFadeDisable(true);
 			SetShade(0, numshades);
 
-			SetTexture(TileFiles.GetTileIndex(cmd.mTexture), cmd.mTexture, cmd.mTranslationId, 0, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY);
+			SetTexture(TileFiles.GetTileIndex(tex), tex, cmd.mTranslationId, 0, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY);
 			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
 			UseColorOnly(false);
 		}
