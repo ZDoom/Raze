@@ -72,6 +72,7 @@ EXTERN_CVAR(Int, gl_ssao)
 
 void gl_LoadExtensions();
 void gl_PrintStartupLog();
+void DrawRateStuff();
 //void Draw2D(F2DDrawer *drawer, FRenderState &state);
 
 extern bool vid_hdr_active;
@@ -418,11 +419,11 @@ void OpenGLFrameBuffer::Draw2D()
 		GLRenderer->mBuffers->BindCurrentFB();
 		::DrawFullscreenBlends();
         DrawRateStuff();
-		GLInterface.Draw2D(&twodgen);
+		GLInterface.Draw2D(twod);
 	}
 }
 
-void OpenGLFrameBuffer::PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D)
+void OpenGLFrameBuffer::PostProcessScene(bool swscene, int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D)
 {
 	GLRenderer->PostProcessScene(fixedcm, afterBloomDrawEndScene2D);
 }
@@ -448,7 +449,7 @@ void videoShowFrame(int32_t w)
 	}
 
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
-	screen->PostProcessScene(0, []() {
+	screen->PostProcessScene(false, 0, []() {
 		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
 		});
 	screen->Update();
@@ -464,6 +465,6 @@ void videoShowFrame(int32_t w)
         OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
     }
 	twodpsp.Clear();
-	twodgen.Clear();
+	twod->Clear();
 	GLInterface.ResetFrame();
 }

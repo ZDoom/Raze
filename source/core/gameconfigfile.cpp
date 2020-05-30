@@ -263,7 +263,7 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 	const char *key;
 	const char *value;
 
-	sublen = countof(section) - 1 - snprintf (section, countof(section), "%s.", gamename);
+	sublen = countof(section) - 1 - mysnprintf (section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - sublen - 1;
 	section[countof(section) - 1] = '\0';
 	
@@ -314,14 +314,14 @@ void FGameConfigFile::DoKeySetup(const char *gamename)
 		{ "AutomapBindings", &AutomapBindings },
 		{ NULL, NULL }
 	};
+	const char *key, *value;
 
-	sublen = countof(section) - 1 - snprintf(section, countof(section), "%s.", gamename);
+	sublen = countof(section) - 1 - mysnprintf(section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - sublen - 1;
 	section[countof(section) - 1] = '\0';
 
 	C_SetDefaultBindings ();
 
-	const char* key, * value;
 	for (int i = 0; binders[i].label != NULL; ++i)
 	{
 		strncpy(subsection, binders[i].label, sublen);
@@ -372,7 +372,7 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 {
 	char section[32*3], *subsection;
 
-	sublen = countof(section) - 1 - snprintf (section, countof(section), "%s.", gamename);
+	sublen = countof(section) - 1 - mysnprintf (section, countof(section), "%s.", gamename);
 	subsection = section + countof(section) - 1 - sublen;
 
 	strncpy (subsection, "Player", sublen);
@@ -425,7 +425,6 @@ void FGameConfigFile::ArchiveGameData (const char *gamename)
 	strncpy (subsection, "AutomapBindings", sublen);
 	SetSection (section, true);
 	AutomapBindings.ArchiveBindings (this);
-
 }
 
 void FGameConfigFile::ArchiveGlobalData ()

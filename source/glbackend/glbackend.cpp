@@ -33,6 +33,7 @@
 **
 */
 #include <memory>
+#include <assert.h>
 #include "gl_load.h"
 #include "glbackend.h"
 #include "gl_samplers.h"
@@ -50,6 +51,8 @@
 #include "flatvertices.h"
 #include "gl_renderer.h"
 #include "build.h"
+#include "v_draw.h"
+#include "v_font.h"
 
 float shadediv[MAXPALOOKUPS];
 
@@ -555,7 +558,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
 
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
-	twodgen.Clear();
+	twod->Clear();
 	twodpsp.Clear();
 	OpenGLRenderer::GLRenderer->CopyToBackbuffer(&bounds, false);
 
@@ -579,4 +582,54 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
 }
 
+
+static int BufferLock = 0;
+
+void renderBeginScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock >= 0);
+	if (BufferLock++ == 0)
+	{
+		screen->mVertexData->Map();
+	}
+}
+
+void renderFinishScene()
+{
+	if (videoGetRenderMode() < REND_POLYMOST) return;
+	assert(BufferLock > 0);
+	if (--BufferLock == 0)
+	{
+		screen->mVertexData->Unmap();
+		GLInterface.DoDraw();
+	}
+}
+
+//==========================================================================
+//
+// DFrameBuffer :: DrawRateStuff
+//
+// Draws the fps counter, dot ticker, and palette debug.
+//
+//==========================================================================
+CVAR(Bool, vid_fps, false, 0)
+
+void DrawRateStuff()
+{
+	// Draws frame time and cumulative fps
+	if (vid_fps)
+	{
+		FString fpsbuff = gi->statFPS();
+
+		int textScale = active_con_scale(twod);
+		int rate_x = screen->GetWidth() / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);
+		twod->AddColorOnlyQuad(rate_x * textScale, 0, screen->GetWidth(), NewConsoleFont->GetHeight() * textScale, MAKEARGB(255, 0, 0, 0));
+		DrawText(twod, NewConsoleFont, CR_WHITE, rate_x, 0, (char*)&fpsbuff[0],
+			DTA_VirtualWidth, screen->GetWidth() / textScale,
+			DTA_VirtualHeight, screen->GetHeight() / textScale,
+			DTA_KeepRatio, true, TAG_DONE);
+
+	}
+}
 

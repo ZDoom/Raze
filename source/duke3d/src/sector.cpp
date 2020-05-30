@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "secrets.h"
 #include "v_video.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
 
@@ -400,7 +401,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
         Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
                    "other values are reserved.\n");
 #endif
-    screen->BeginScene();
+    renderBeginScene();
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
@@ -410,7 +411,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
     display_mirror = saveMirror;
     renderDrawMasks();
-    screen->FinishScene();
+    renderFinishScene();
 
 finishTileSetup:
     renderRestoreTarget();

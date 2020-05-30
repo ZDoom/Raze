@@ -64,6 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "glbackend/glbackend.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 
@@ -3241,7 +3242,7 @@ void viewDrawScreen(bool sceneonly)
             }
             r enderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);
-            screen->BeginScene();
+            renderBeginScene();
             int vd8 = pOther->pSprite->x;
             int vd4 = pOther->pSprite->y;
             int vd0 = pOther->zView;
@@ -3307,7 +3308,7 @@ void viewDrawScreen(bool sceneonly)
             memcpy(gotpic+510, bakMirrorGotpic, 2);
             viewProcessSprites(vd8, vd4, vd0, v50, gInterpolate);
             renderDrawMasks();
-            screen->FinishScene();
+            renderFinishScene();
             renderRestoreTarget();
 #endif
         }
@@ -3349,7 +3350,7 @@ void viewDrawScreen(bool sceneonly)
             }
             nSprite = nextspritestat[nSprite];
         }
-        screen->BeginScene();
+        renderBeginScene();
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
         cA = (cA + interpolateangfix16(fix16_from_int(deliriumTurnO), fix16_from_int(deliriumTurn), gInterpolate)) & 0x7ffffff;
         int vfc, vf8;
@@ -3404,7 +3405,7 @@ void viewDrawScreen(bool sceneonly)
         sub_557C4(cX, cY, gInterpolate);
         renderDrawMasks();
         gView->pSprite->cstat = bakCstat;
-        screen->FinishScene();
+        renderFinishScene();
 
         if ((v78 || bDelirium) && !sceneonly)
         {

@@ -44,8 +44,6 @@
 #include "intrect.h"
 #include "hw_shadowmap.h"
 
-static const int VID_MIN_WIDTH = 640;
-static const int VID_MIN_HEIGHT = 400;
 
 struct sector_t;
 struct FPortalSceneState;
@@ -82,35 +80,12 @@ extern int DisplayWidth, DisplayHeight;
 void V_UpdateModeSize (int width, int height);
 void V_OutputResized (int width, int height);
 
-EXTERN_CVAR(Int, vid_rendermode)
 EXTERN_CVAR(Bool, vid_fullscreen)
 EXTERN_CVAR(Int, win_x)
 EXTERN_CVAR(Int, win_y)
 EXTERN_CVAR(Int, win_w)
 EXTERN_CVAR(Int, win_h)
 EXTERN_CVAR(Bool, win_maximized)
-
-
-inline bool V_IsHardwareRenderer()
-{
-	return vid_rendermode == 4;
-}
-
-inline bool V_IsSoftwareRenderer()
-{
-	return vid_rendermode < 2;
-}
-
-inline bool V_IsPolyRenderer()
-{
-	return vid_rendermode == 2 || vid_rendermode == 3;
-}
-
-inline bool V_IsTrueColor()
-{
-	return vid_rendermode == 1 || vid_rendermode == 3 || vid_rendermode == 4;
-}
-
 
 struct FColormap;
 class FileWriter;
@@ -152,11 +127,10 @@ class DFrameBuffer
 {
 protected:
 
-	F2DDrawer m2DDrawer;
+	//F2DDrawer m2DDrawer;
 private:
 	int Width = 0;
 	int Height = 0;
-	int BufferLock = 0;
 
 public:
 	// Hardware render state that needs to be exposed to the API independent part of the renderer. For ease of access this is stored in the base class.
@@ -167,10 +141,9 @@ public:
 	unsigned int uniformblockalignment = 256;	// Hardware dependent uniform buffer alignment.
 	unsigned int maxuniformblock = 65536;
 	const char *vendorstring;					// We have to account for some issues with particular vendors.
-	//FPortalSceneState *mPortalState;			// global portal state.
-	//FSkyVertexBuffer *mSkyData = nullptr;		// the sky vertex buffer
+	FSkyVertexBuffer *mSkyData = nullptr;		// the sky vertex buffer
 	FFlatVertexBuffer *mVertexData = nullptr;	// Global vertex data
-	//HWViewpointBuffer *mViewpoints = nullptr;	// Viewpoint render data.
+	HWViewpointBuffer *mViewpoints = nullptr;	// Viewpoint render data.
 	FLightBuffer *mLights = nullptr;			// Dynamic lights
 	IShadowMap mShadowMap;
 
@@ -246,23 +219,6 @@ public:
 	virtual IDataBuffer *CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize) { return nullptr; }
 	bool BuffersArePersistent() { return !!(hwcaps & RFL_BUFFER_STORAGE); }
 
-	// Begin/End 2D drawing operations.
-	void Begin2D() 
-	{ 
-		m2DDrawer.Begin(Width, Height);
-	}
-	void End2D() { m2DDrawer.End(); }
-
-	void BeginScene();
-	void FinishScene();
-
-	void End2DAndUpdate()
-	{
-		DrawRateStuff();
-		m2DDrawer.End();
-		Update();
-	}
-
 	// This is overridable in case Vulkan does it differently.
 	virtual bool RenderTextureIsFlipped() const
 	{
@@ -270,25 +226,31 @@ public:
 	}
 
 	// Report a game restart
+	void SetClearColor(int color);
 	virtual int Backend() { return 0; }
 	virtual const char* DeviceName() const { return "Unknown"; }
-	virtual void WriteSavePic(FileWriter *file, int width, int height);
+	virtual void AmbientOccludeScene(float m5) {}
+	virtual void FirstEye() {}
+	virtual void NextEye(int eyecount) {}
+	virtual void SetSceneRenderTarget(bool useSSAO) {}
+	virtual void UpdateShadowMap() {}
+	virtual void WaitForCommands(bool finish) {}
+	virtual void SetSaveBuffers(bool yes) {}
+	virtual void ImageTransitionScene(bool unknown) {}
+	virtual void CopyScreenToBuffer(int width, int height, uint8_t* buffer)	{ memset(buffer, 0, width* height); }
+	virtual bool FlipSavePic() const { return false; }
+	virtual void RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect&)> renderFunc) {}
+	virtual void SetActiveRenderTarget() {}
 
 	// Screen wiping
 	virtual FTexture *WipeStartScreen();
 	virtual FTexture *WipeEndScreen();
 
-	virtual void PostProcessScene(int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) { if (afterBloomDrawEndScene2D) afterBloomDrawEndScene2D(); }
+	virtual void PostProcessScene(bool swscene, int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) { if (afterBloomDrawEndScene2D) afterBloomDrawEndScene2D(); }
 
 	void ScaleCoordsFromWindow(int16_t &x, int16_t &y);
 
-	uint64_t GetLastFPS() const { return LastCount; }
-
 	virtual void Draw2D() {}
-	void Clear2D() {}
-
-	// Calculate gamma table
-	void CalcGamma(float gamma, uint8_t gammalookup[256]);
 
 	virtual void SetViewportRects(IntRect *bounds);
 	int ScreenToWindowX(int x);
@@ -307,13 +269,8 @@ public:
 	// The original size of the framebuffer as selected in the video menu.
 	uint64_t FrameTime = 0;
 
-protected:
-	void DrawRateStuff ();
-
 private:
 	uint64_t fpsLimitTime = 0;
-
-	uint64_t LastMS = 0, LastSec = 0, FrameCount = 0, LastCount = 0, LastTic = 0;
 
 	bool isIn2D = false;
 };
@@ -339,9 +296,6 @@ void V_Init2 ();
 void V_Shutdown ();
 
 inline bool IsRatioWidescreen(int ratio) { return (ratio & 3) != 0; }
-
-void ScaleWithAspect(int &w, int &h, int Width, int Height);
-
 extern bool setsizeneeded, setmodeneeded;
 
 

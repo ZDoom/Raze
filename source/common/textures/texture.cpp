@@ -49,6 +49,7 @@
 #include "texturemanager.h"
 #include "c_cvars.h"
 #include "imagehelpers.h"
+#include "v_video.h"
 
 // Wrappers to keep the definitions of these classes out of here.
 IHardwareTexture* CreateHardwareTexture(int numchannels);
@@ -531,7 +532,7 @@ IHardwareTexture* FTexture::GetHardwareTexture(int translation, int scaleflags)
 		IHardwareTexture* hwtex = SystemTextures.GetHardwareTexture(translation, scaleflags);
 		if (hwtex == nullptr)
 	{
-			hwtex = CreateHardwareTexture(4);
+			hwtex = screen->CreateHardwareTexture(4);
 			SystemTextures.AddHardwareTexture(translation, scaleflags, hwtex);
 	}
 		return hwtex;
@@ -552,7 +553,7 @@ FWrapperTexture::FWrapperTexture(int w, int h, int bits)
 	Height = h;
 	Format = bits;
 	//bNoCompress = true;
-	auto hwtex = CreateHardwareTexture(4);
+	auto hwtex = screen->CreateHardwareTexture(4);
 	// todo: Initialize here.
 	SystemTextures.AddHardwareTexture(0, false, hwtex);
 }

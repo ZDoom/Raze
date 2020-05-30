@@ -46,6 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "parent.h"
 #include "v_video.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_SW_NS
 
@@ -477,12 +478,12 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
     renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
-    screen->BeginScene();
+    renderBeginScene();
 
     renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
     analyzesprites(daposx, daposy, daposz, FALSE);
     renderDrawMasks();
-    screen->FinishScene();
+    renderFinishScene();
 
     renderRestoreTarget();
 }
