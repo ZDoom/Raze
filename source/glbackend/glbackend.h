@@ -9,6 +9,7 @@
 #include "matrix.h"
 #include "palentry.h"
 #include "renderstyle.h"
+#include "hw_material.h"
 
 class FShader;
 class PolymostShader;
@@ -352,6 +353,24 @@ public:
 		SetColor(r * (1 / 255.f), g * (1 / 255.f), b * (1 / 255.f), a * (1 / 255.f));
 	}
 
+	void SetMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+	{
+		assert(mat);
+		renderState.mMaterial.mMaterial = mat;
+		renderState.mMaterial.mClampMode = clampmode;
+		renderState.mMaterial.mTranslation = translation;
+		renderState.mMaterial.mOverrideShader = overrideshader;
+		renderState.mMaterial.mChanged = true;
+		//mTextureModeFlags = mat->GetLayerFlags();
+	}
+
+	void SetMaterial(FGameTexture* tex, EUpscaleFlags upscalemask, int scaleflags, int clampmode, int translation, int overrideshader)
+	{
+		assert(tex);
+		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
+		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
+	}
+#if 0
 	void BindTexture(int texunit, OpenGLRenderer::FHardwareTexture* tex, int sampler)
 	{
 		if (!tex) return;
@@ -379,6 +398,7 @@ public:
 			UnbindTexture(texunit);
 		}
 	}
+#endif
 
 	void UseColorOnly(bool yes)
 	{

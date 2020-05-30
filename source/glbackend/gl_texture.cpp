@@ -63,112 +63,38 @@ OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FTexture *tex, int tex
 
 bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride)
 {
-	TexturePick pick;
-	if (!PickTexture(picnum, tex, paletteid, pick)) return false;
+	TexturePick texpick;
+	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 
-	GLInterface.SetPalette(GetTranslationType(pick.translation & 0x7fffffff) - Translation_Remap);
-	GLInterface.SetPalswap(GetTranslationIndex(pick.translation));
-	GLInterface.SetBasepalTint(pick.basepalTint);
-
-	bool texbound[3] = {};
-	//int MatrixChange = 0;
-	//VSMatrix texmat;
-
-	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	GLInterface.SetTinting(pick.tintFlags, pick.tintColor, pick.tintColor);
-
-	// Load the main texture
-	
-	int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-	int lookuppal = pick.translation & 0x7fffffff;
-	int bindflags = 0;
-
-	auto mtex = LoadTexture(tex->GetTexture(), TextureType, lookuppal);
-	if (mtex)
-	{
+	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
 		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
 		if (TextureType == TT_INDEXED)
 		{
 			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
-			bindflags = CTF_Indexed;
 		}
 		else if (tex->isHardwareCanvas())
 		{
 			sampler = CLAMP_CAMTEX;
 		}
-		UseDetailMapping(false);
-		UseGlowMapping(false);
-		UseBrightmaps(false);
 
-		mtex->BindOrCreate(tex->GetTexture(), 0, sampler, lookuppal, bindflags);
-		BindTexture(0, mtex, sampler);
-		// Needs a) testing and b) verification for correctness. This doesn't look like it makes sense.
-#if 0
-		if (rep && (rep->scale.x != 1.0f || rep->scale.y != 1.0f))
-		{
-			//texmat.loadIdentity();
-			//texmat.scale(rep->scale.x, rep->scale.y, 1.0f);
-			//GLInterface.SetMatrix(Matrix_Texture, &texmat);
-		}
-#endif
+	int lookuppal = texpick.translation & 0x7fffffff;
 
-		// Also load additional layers needed for this texture.
-		if (hw_detailmapping)
-		{
-			auto det = tex->GetDetailmap();
-			auto detscale = tex->GetDetailScale();
-			if (det)
-			{
-				auto htex = LoadTexture(det, TT_TRUECOLOR, 0);
-				UseDetailMapping(true);
-				htex->BindOrCreate(det, 2, CLAMP_NONE, 0, 0);
-				BindTexture(2, htex, SamplerRepeat);
-				texbound[0] = true;
-
-				/* todo: 
-				GLInterface.SetDetailScale(detscale);
-				*/
-			}
-		}
-		if (hw_glowmapping)
-		{
-			auto glow = tex->GetGlowmap();
-			if (glow)
-			{
-				auto htex = LoadTexture(glow, TT_TRUECOLOR, 0);
-				UseGlowMapping(true);
-				htex->BindOrCreate(glow, 3, sampler, 0, CTF_Upscale);
-				BindTexture(3, htex, SamplerRepeat);
-				texbound[1] = true;
-			}
-		}
-
-		if (!(globalflags & GLOBAL_NO_GL_FULLBRIGHT))
-		{
-			auto btex = tex->GetBrightmap();
-			if (btex)
-			{
-				auto htex = LoadTexture(btex, TT_TRUECOLOR, lookuppal);
-				if (htex != nullptr)
-				{
-					UseBrightmaps(true);
-					htex->BindOrCreate(btex, 1, sampler, 0, CTF_Upscale);
-					BindTexture(1, htex, sampler);
-					texbound[2] = true;
-				}
-			}
-		}
-		if (!texbound[0]) UnbindTexture(2);
-		if (!texbound[1]) UnbindTexture(3);
-		if (!texbound[2]) UnbindTexture(1);
-
-	}
-	else return false;
-
+	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
+	GLInterface.SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
+	GLInterface.SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
+	GLInterface.SetPalswap(GetTranslationIndex(lookuppal));
+	GLInterface.SetBasepalTint(texpick.basepalTint);
+	auto &mat = renderState.mMaterial;
+	mat.mMaterial = FMaterial::ValidateTexture(tex, 0); // todo allow scaling
+	mat.mClampMode = sampler;
+	mat.mTranslation = texpick.translation;
+	mat.mOverrideShader = 0;
+	mat.mChanged = true;
+	if (TextureType == TT_INDEXED) renderState.Flags |= RF_UsePalette;
+	else renderState.Flags &= ~RF_UsePalette;
 	GLInterface.SetAlphaThreshold(tex->alphaThreshold);
 	return true;
 }
-
 
 //===========================================================================
 // 

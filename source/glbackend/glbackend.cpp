@@ -284,26 +284,78 @@ void GLInstance::DrawImGui(ImDrawData* data)
 }
 
 
+//===========================================================================
+// 
+//	Binds a texture to the renderer
+//
+//===========================================================================
+
+void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+{
+
+	auto tex = mat->Source();
+	//mEffectState = overrideshader >= 0 ? overrideshader : mat->GetShaderIndex();
+	//mShaderTimer = tex->GetShaderSpeed();
+	//SetSpecular(tex->GetGlossiness(), tex->GetSpecularLevel());
+	//if (tex->isHardwareCanvas()) static_cast<FCanvasTexture*>(tex->GetTexture())->NeedUpdate();
+
+	clampmode = tex->GetClampMode(clampmode);
+
+	// avoid rebinding the same texture multiple times.
+	//if (mat == lastMaterial && lastClamp == clampmode && translation == lastTranslation) return;
+#if 0
+	lastMaterial = mat;
+	lastClamp = clampmode;
+	lastTranslation = translation;
+#endif
+
+	int scf = 0;
+	if (Flags & RF_UsePalette)
+	{
+		scf |= CTF_Indexed;
+		translation = -1;
+	}
+
+	int usebright = false;
+	int maxbound = 0;
+
+ 	int numLayers = mat->NumLayers();
+	MaterialLayerInfo* layer;
+	auto base = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
+	scf |= layer->scaleFlags;
+	if (base->BindOrCreate(layer->layerTexture, 0, clampmode, translation, scf))
+	{
+		for (int i = 1; i < numLayers; i++)
+		{
+			auto systex = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
+			// fixme: Upscale flags must be disabled for certain layers.
+			systex->BindOrCreate(layer->layerTexture, i, clampmode, 0, layer->scaleFlags);
+			maxbound = i;
+		}
+	}
+	// The palette lookup must be done manually.
+#if 0
+	// unbind everything from the last texture that's still active
+	for (int i = maxbound + 1; i <= 16/*maxBoundMaterial*/; i++)
+			{
+		OpenGLRenderer::FHardwareTexture::Unbind(i);
+		//maxBoundMaterial = maxbound;
+			}
+#endif
+}
+
 void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 {
 	if (!OpenGLRenderer::GLRenderer) return;
 	auto sm = OpenGLRenderer::GLRenderer->mSamplerManager;
+
 	bool reset = false;
-	for (int i = 0; i < MAX_TEXTURES; i++)
+	if (mMaterial.mChanged)
 	{
-		if ( texIds[i] != oldState.TexId[i] || samplerIds[i] != oldState.SamplerId[i])
-		{
-			if (i != 0)
-			{
-				glActiveTexture(GL_TEXTURE0 + i);
-				reset = true;
-			}
-			glBindTexture(GL_TEXTURE_2D, texIds[i]);
-			sm->Bind(i, samplerIds[i], -1);
-			oldState.TexId[i] = texIds[i];
-			oldState.SamplerId[i] = samplerIds[i];
-		}
+		mMaterial.mChanged = false;
+		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
+ 
 	if (PaletteTexture != nullptr)
 	{
 		PaletteTexture->Bind(4, false);
