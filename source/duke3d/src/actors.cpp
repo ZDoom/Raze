@@ -116,9 +116,8 @@ void A_RadiusDamageObject_Internal(int const spriteNum, int const otherSprite, i
 #ifndef EDUKE32_STANDALONE
     if (WORLDTOUR && pSprite->picnum == FLAMETHROWERFLAME)
     {
-        if (sprite[pSprite->owner].picnum == FIREFLY && pOther->picnum == FIREFLY)
-            return;
-        if (sprite[pSprite->owner].picnum == BOSS5 && pOther->picnum == BOSS5)
+        // enemies in WT don't damage other enemies of the same type with FLAMETHROWERFLAME
+        if (sprite[pSprite->owner].picnum == pOther->picnum && pOther->picnum != APLAYER)
             return;
     }
 #endif
