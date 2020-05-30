@@ -77,12 +77,21 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 			sampler = CLAMP_CAMTEX;
 		}
 
-	int lookuppal = texpick.translation & 0x7fffffff;
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
 	GLInterface.SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
-	GLInterface.SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
-	GLInterface.SetPalswap(GetTranslationIndex(lookuppal));
+	if (texpick.translation != 0)
+	{
+		int lookuppal = texpick.translation & 0x7fffffff;
+		GLInterface.SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
+		GLInterface.SetPalswap(GetTranslationIndex(lookuppal));
+	}
+	else
+	{
+		GLInterface.SetPalette(0);
+		GLInterface.SetPalswap(0);
+	}
+
 	GLInterface.SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
 	mat.mMaterial = FMaterial::ValidateTexture(tex, 0); // todo allow scaling
