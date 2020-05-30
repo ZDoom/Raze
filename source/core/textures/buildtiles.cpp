@@ -415,6 +415,7 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 	if (reptype == type) return tile;		// already created
 	if (reptype > ReplacementType::Art) return nullptr;		// different custom type - cannot replace again.
 	FTexture* replacement = nullptr;
+	td.replacement = type;
 	if (type == ReplacementType::Writable)
 	{
 		// Creates an empty writable tile.
