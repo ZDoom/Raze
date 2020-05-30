@@ -93,6 +93,9 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 	if (TextureType == TT_INDEXED) renderState.Flags |= RF_UsePalette;
 	else renderState.Flags &= ~RF_UsePalette;
 	GLInterface.SetAlphaThreshold(tex->alphaThreshold);
+	UseBrightmaps(tex->GetBrightmap() != nullptr);
+	UseGlowMapping(tex->GetGlowmap() != nullptr);
+	UseDetailMapping(tex->GetDetailmap() != nullptr);
 	return true;
 }
 
