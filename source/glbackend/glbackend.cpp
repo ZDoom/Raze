@@ -194,7 +194,6 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	rendercommands.Push(renderState);
 	clearMapFog();
 	SetIdentityMatrix(Matrix_Texture);
-	SetIdentityMatrix(Matrix_Detail);
 	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 }
 
@@ -312,16 +311,17 @@ void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int trans
 	MaterialLayerInfo* layer;
 	auto base = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
 	scf |= layer->scaleFlags;
-	if (base->BindOrCreate(layer->layerTexture, 0, clampmode, translation, scf))
+	if (base->BindOrCreate(layer->layerTexture, 0, layer->clampflags == -1? clampmode : layer->clampflags, translation, scf))
 	{
 		for (int i = 1; i < numLayers; i++)
 		{
 			auto systex = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
 			// fixme: Upscale flags must be disabled for certain layers.
-			systex->BindOrCreate(layer->layerTexture, i, clampmode, 0, layer->scaleFlags);
+			systex->BindOrCreate(layer->layerTexture, i, layer->clampflags == -1 ? clampmode : layer->clampflags, 0, layer->scaleFlags);
 			maxbound = i;
 		}
 	}
+
 	// The palette lookup must be done manually.
 #if 0
 	// unbind everything from the last texture that's still active
@@ -343,6 +343,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	{
 		mMaterial.mChanged = false;
 		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
+		shader->DetailParms.Set(mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y);
 	}
  
 	if (PaletteTexture != nullptr)
@@ -497,8 +498,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		shader->ProjectionMatrix.Set(matrixArray[matrixIndex[Matrix_Projection]].get());
 	if (matrixIndex[Matrix_Model] != -1)
 		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
-	if (matrixIndex[Matrix_Detail] != -1)
-		shader->DetailMatrix.Set(matrixArray[matrixIndex[Matrix_Detail]].get());
 	if (matrixIndex[Matrix_Texture] != -1)
 		shader->TextureMatrix.Set(matrixArray[matrixIndex[Matrix_Texture]].get());
 	memset(matrixIndex, -1, sizeof(matrixIndex));

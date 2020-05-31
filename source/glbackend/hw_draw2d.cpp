@@ -104,7 +104,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	VSMatrix mat(0);
 	SetIdentityMatrix(Matrix_View);
 	SetIdentityMatrix(Matrix_Model);
-	SetIdentityMatrix(Matrix_Detail);
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
 	SetMatrix(Matrix_Projection, mat.get());
 	SetViewport(0, 0, xdim, ydim);

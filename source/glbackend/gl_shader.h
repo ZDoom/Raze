@@ -49,12 +49,12 @@ public:
 	FBufferedUniformPalEntry TintModulate;
 	FBufferedUniformPalEntry TintOverlay;
 	FBufferedUniform1i TintFlags;
+	FBufferedUniform2f DetailParms;
 
 
 	FUniformMatrix4f   RotMatrix;
 	FUniformMatrix4f   ModelMatrix;
 	FUniformMatrix4f   ProjectionMatrix;
-	FUniformMatrix4f   DetailMatrix;
 	FUniformMatrix4f   TextureMatrix;
 
 public:
