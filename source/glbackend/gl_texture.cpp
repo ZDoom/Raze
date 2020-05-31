@@ -67,15 +67,11 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int me
 	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 
 	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-		auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
-		if (TextureType == TT_INDEXED)
-		{
-			sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
-		}
-		else if (tex->isHardwareCanvas())
-		{
-			sampler = CLAMP_CAMTEX;
-		}
+	auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
+	if (TextureType == TT_INDEXED)
+	{
+		sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
+	}
 
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
