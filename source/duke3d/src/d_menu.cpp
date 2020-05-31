@@ -425,7 +425,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 void GameInterface::MenuOpened()
 {
-	S_PauseSounds(true);
+	S_PauseSound(true, false);
 	if ((!g_netServer && ud.multimode < 2))
 	{
 		ready2send = 0;
@@ -491,7 +491,7 @@ void GameInterface::MenuClosed()
 		}
 
 		G_UpdateScreenArea();
-		S_PauseSounds(false);
+		S_ResumeSound(false);
 	}
 }
 

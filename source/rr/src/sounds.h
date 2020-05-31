@@ -57,8 +57,6 @@ inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPl
 inline void S_ClearSoundLocks(void) {}
 void cacheAllSounds(void);
 void S_MenuSound(void);
-void S_PauseMusic(bool paused);
-void S_PauseSounds(bool paused);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);

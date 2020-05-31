@@ -730,7 +730,6 @@ short screensize;
 short bSnakeCam = kFalse;
 short bRecord = kFalse;
 short bPlayback = kFalse;
-short bPause = kFalse;
 short bInDemo = kFalse;
 short bSlipMode = kFalse;
 short bDoFlashes = kTrue;
@@ -1012,26 +1011,8 @@ void CheckKeys()
 		return;
     }
 
-    if (inputState.GetKeyStatus(sc_Pause))
+    if (paused)
     {
-        if (!nNetPlayerCount)
-        {
-            if (bPause)
-            {
-                ototalclock = totalclock = tclocks;
-                bPause = kFalse;
-            }
-            else
-            {
-                bPause = kTrue;
-                // NoClip();
-                // int nLen = MyGetStringWidth("PAUSED");
-                // myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
-                // Clip();
-                // videoNextPage();
-            }
-			inputState.ClearKeyStatus(sc_Pause);
-        }
         return;
     }
 
@@ -1463,7 +1444,7 @@ void G_Polymer_UnInit(void) { }
 
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
-    if (bRecord || bPlayback || nFreeze != 0 || bCamera || bPause)
+    if (bRecord || bPlayback || nFreeze != 0 || bCamera || paused)
         return 65536;
 
     return CalcSmoothRatio(totalclk, ototalclk, 30);
@@ -1525,7 +1506,7 @@ static void GameDisplay(void)
 
     DrawView(smoothRatio);
 
-    if (bPause)
+    if (paused && !M_Active())
     {
         int nLen = MyGetStringWidth("PAUSED");
         myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
@@ -2214,6 +2195,7 @@ GAMELOOP:
         }
 
 // TODO		CONTROL_GetButtonInput();
+        updatePauseStatus();
         CheckKeys();
 
         if (bRecord || bPlayback)
@@ -2279,12 +2261,12 @@ GAMELOOP:
             else
             {
                 // loc_11FBC:
-                while (bPause)
+                while (paused)
                 {
                     inputState.ClearAllInput();
                     if (WaitAnyKey(-1) != sc_Pause)
                     {
-                        bPause = kFalse;
+                        paused = kFalse;
                     }
                 }
             }
@@ -2332,7 +2314,7 @@ GAMELOOP:
         {
             bInMove = kTrue;
 
-            if (System_WantGuiCapture() || bPause)
+            if (paused)
             {
                 tclocks = totalclock - 4;
                 buttonMap.ResetButtonStates();
@@ -3267,7 +3249,7 @@ int DoSpiritHead()
 
 bool GameInterface::CanSave()
 {
-    return !bRecord && !bPlayback && !bPause && !bInDemo && nTotalPlayers == 1;
+    return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
 }
 
 void GameInterface::UpdateScreenSize()

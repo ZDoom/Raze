@@ -135,6 +135,9 @@ CVAR(Bool, disableautoload, false, CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_GLOBALC
 
 extern int hud_size_max;
 
+int paused;
+bool pausedWithKey;
+
 CUSTOM_CVAR(Int, cl_gender, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
 	if (self < 0 || self > 3) self = 0;
@@ -939,6 +942,45 @@ CCMD(snd_reset)
 
 //==========================================================================
 //
+// S_PauseSound
+//
+// Stop music and sound effects, during game PAUSE.
+//
+//==========================================================================
+
+void S_PauseSound (bool notmusic, bool notsfx)
+{
+	if (!notmusic)
+	{
+		S_PauseMusic();
+	}
+	if (!notsfx)
+	{
+		soundEngine->SetPaused(true);
+		GSnd->SetSfxPaused (true, 0);
+	}
+}
+
+//==========================================================================
+//
+// S_ResumeSound
+//
+// Resume music and sound effects, after game PAUSE.
+//
+//==========================================================================
+
+void S_ResumeSound (bool notsfx)
+{
+	S_ResumeMusic();
+	if (!notsfx)
+	{
+		soundEngine->SetPaused(false);
+		GSnd->SetSfxPaused (false, 0);
+	}
+}
+
+//==========================================================================
+//
 // S_SetSoundPaused
 //
 // Called with state non-zero when the app is active, zero when it isn't.
@@ -947,7 +989,6 @@ CCMD(snd_reset)
 
 void S_SetSoundPaused(int state)
 {
-#if 0
 	if (state)
 	{
 		if (paused == 0)
@@ -966,21 +1007,10 @@ void S_SetSoundPaused(int state)
 			S_PauseSound(false, true);
 			if (GSnd != nullptr)
 			{
-				GSnd->SetInactive(gamestate == GS_LEVEL || gamestate == GS_TITLELEVEL ?
-					SoundRenderer::INACTIVE_Complete :
-					SoundRenderer::INACTIVE_Mute);
+				GSnd->SetInactive(SoundRenderer::INACTIVE_Complete);
 			}
 		}
 	}
-	if (!netgame
-#ifdef _DEBUG
-		&& !demoplayback
-#endif
-		)
-	{
-		pauseext = !state;
-	}
-#endif
 }
 
 int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
@@ -1051,3 +1081,32 @@ bool CheckCheatmode(bool printmsg)
 	return false;
 }
 
+void updatePauseStatus()
+{
+	bool GUICapture = System_WantGuiCapture();
+    if (M_Active() || GUICapture)
+    {
+        paused = 1;
+    }
+    else if ((!M_Active() || !GUICapture) && !pausedWithKey)
+    {
+        paused = 0;
+    }
+
+    if (inputState.GetKeyStatus(sc_Pause))
+    {
+        inputState.ClearKeyStatus(sc_Pause);
+        paused = !paused;
+
+        if (paused)
+        {
+            S_PauseSound(!paused, !paused);
+        }
+        else
+        {
+            S_ResumeSound(paused);
+        }
+
+        pausedWithKey = paused;
+    }
+}

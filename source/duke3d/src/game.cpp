@@ -3746,7 +3746,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].input->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
+                if (g_player[playerNum].input->extbits & (1 << 7) && !paused && spritesortcnt < maxspritesonscreen)
                 {
                     auto const playerTyping = &tsprite[spritesortcnt];
 
@@ -5913,7 +5913,9 @@ MAIN_LOOP_RESTART:
         bool gameUpdate = false;
         double gameUpdateStartTime = timerGetHiTicks();
 
-        if (M_Active() || GUICapture || ud.pause_on != 0)
+        updatePauseStatus();
+
+        if (paused)
         {
             ototalclock = totalclock - TICSPERFRAME;
             buttonMap.ResetButtonStates();
@@ -5922,8 +5924,8 @@ MAIN_LOOP_RESTART:
         {
             while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU | MODE_DEMO)) == 0) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
             {
-                ototalclock += TICSPERFRAME;
-
+                if (g_networkMode != NET_DEDICATED_SERVER)
+                {
                 P_GetInput(myconnectindex);
 
                 // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
@@ -5944,8 +5946,11 @@ MAIN_LOOP_RESTART:
                 }
 
                 localInput = {};
+                }
 
-            if ((!System_WantGuiCapture() || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
+                ototalclock += TICSPERFRAME;
+
+                if (paused == 0 && (!System_WantGuiCapture() || ud.recstat == 2 || (g_netServer || ud.multimode > 1))
                     && (myplayer.gm & MODE_GAME))
                 {
                     Net_GetPackets();
@@ -6120,11 +6125,8 @@ int G_DoMoveThings(void)
     everyothertime++;
     if (g_earthquakeTime > 0) g_earthquakeTime--;
 
-    if (ud.pause_on == 0)
-    {
         g_globalRandom = krand();
         A_MoveDummyPlayers();//ST 13
-    }
 
     for (bssize_t TRAVERSE_CONNECT(i))
     {
@@ -6143,14 +6145,10 @@ int G_DoMoveThings(void)
 
         P_HandleSharedKeys(i);
 
-        if (ud.pause_on == 0)
-        {
             P_ProcessInput(i);
             P_CheckSectors(i);
         }
-    }
 
-    if (ud.pause_on == 0)
         G_MoveWorld();
 
 //    Net_CorrectPrediction();

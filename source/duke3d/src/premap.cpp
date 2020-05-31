@@ -871,7 +871,7 @@ static void P_PrepForNewLevel(int playerNum, int gameMode)
 
     ud.camerasprite = -1;
     ud.eog          = 0;
-    ud.pause_on     = 0;
+    paused          = 0;
 
     if (((gameMode & MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer)
         || (!(g_gametypeFlags[ud.coop] & GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
@@ -1728,7 +1728,7 @@ int G_EnterLevel(int gameMode)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        S_PauseSounds(false);
+        S_ResumeSound(false);
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);

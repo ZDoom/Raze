@@ -121,7 +121,6 @@ extern double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 extern double g_gameUpdateAvgTime;
 extern int blood_globalflags;
 
-extern bool gPaused;
 extern bool gSavingGame;
 extern bool gQuitGame;
 extern int gQuitRequest;

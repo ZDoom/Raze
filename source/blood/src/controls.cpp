@@ -78,7 +78,16 @@ int gViewLookRecenter;
 
 void ctrlGetInput(void)
 {
+    int prevPauseState = paused;
     ControlInfo info;
+
+    static double lastInputTicks;
+    auto const    currentHiTicks    = timerGetHiTicks();
+    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
+
+    lastInputTicks = currentHiTicks;
+
+    auto scaleAdjustmentToInterval = [=](double x) { return x * kTicsPerSec / (1000.0 / elapsedInputTicks); };
 
     if (!gGameStarted || gInputMode != kInputGame)
     {
@@ -87,14 +96,16 @@ void ctrlGetInput(void)
         return;
     }
 
+    updatePauseStatus();
+    if (paused != prevPauseState)
+    {
+        gInput.keyFlags.pause = 1;
+    }
+
+    if (paused)
+        return;
+
     GINPUT input = {};
-    static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * kTicsPerSec / (1000.0 / elapsedInputTicks); };
 
     D_ProcessEvents();
 
@@ -366,12 +377,6 @@ void ctrlGetInput(void)
     if (!in_mouseflip)
         input.q16mlook = -input.q16mlook;
 
-    if (inputState.GetKeyStatus(sc_Pause)) // 0xc5 in disassembly
-    {
-        gInput.keyFlags.pause = 1;
-        inputState.ClearKeyStatus(sc_Pause);
-    }
-
     if (!gViewMap.bFollowMode && gViewMode == 4)
     {
         gViewMap.turn += input.q16turn<<2;
@@ -385,7 +390,7 @@ void ctrlGetInput(void)
     gInput.strafe = clamp(gInput.strafe + input.strafe, -2048, 2048);
     gInput.q16turn = fix16_sadd(gInput.q16turn, input.q16turn);
     gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
-    if (gMe && gMe->pXSprite->health != 0 && !gPaused)
+    if (gMe && gMe->pXSprite->health != 0 && !paused)
     {
         int upAngle = 289;
         int downAngle = -347;

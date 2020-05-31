@@ -28,6 +28,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "build.h"
 #include "common.h"
 
+#include "gamecontrol.h"
+
 #include "names2.h"
 #include "game.h"
 #include "tags.h"
@@ -190,7 +192,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     *y_diff = 0;
     *ang_diff = 0;
 
-    if (GamePaused)
+    if (paused)
         return;
 
     // find the closest quake - should be a strength value

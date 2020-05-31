@@ -1150,7 +1150,7 @@ static void resetprestat(int playerNum, int gameMode)
     g_animateCnt       = 0;
     parallaxtype       = 0;
     randomseed         = 17;
-    ud.pause_on        = 0;
+    paused             = 0;
     ud.camerasprite    = -1;
     ud.eog             = 0;
     tempwallptr        = 0;
@@ -2289,7 +2289,7 @@ int G_EnterLevel(int gameMode)
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        S_PauseSounds(false);
+        S_ResumeSound(false);
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
