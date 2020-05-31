@@ -19,25 +19,6 @@ endif()
 list( APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake )
 include( FindPackageHandleStandardArgs )
 
-macro( require_stricmp )
-	CHECK_FUNCTION_EXISTS( stricmp STRICMP_EXISTS )
-	if( NOT STRICMP_EXISTS )
-		add_definitions( -Dstricmp=strcasecmp )
-	endif()
-endmacro()
-
-macro( require_strnicmp )
-	CHECK_FUNCTION_EXISTS( strnicmp STRNICMP_EXISTS )
-	if( NOT STRNICMP_EXISTS )
-		add_definitions( -Dstrnicmp=strncasecmp )
-	endif()
-endmacro()
-
-macro( use_fast_math )
-	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ZD_FASTMATH_FLAG}" )
-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ZD_FASTMATH_FLAG}" )
-endmacro() 
-
 # Support cross compiling
 option( FORCE_CROSSCOMPILE "Turn on cross compiling." NO )
 if( FORCE_CROSSCOMPILE )
@@ -168,6 +149,32 @@ if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
 	set( PROFILE 0 CACHE BOOL "Enable profiling with gprof for Debug and RelWithDebInfo build types." )
 endif()
 
+# Fast math flags, required by some subprojects
+set( ZD_FASTMATH_FLAG "" )
+if( ZD_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
+	set( ZD_FASTMATH_FLAG "-ffast-math -ffp-contract=fast" )
+elseif( MSVC )
+	set( ZD_FASTMATH_FLAG "/fp:fast" )
+endif()
+
+macro( use_fast_math )
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ZD_FASTMATH_FLAG}" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ZD_FASTMATH_FLAG}" )
+endmacro() 
+macro( require_stricmp )
+	CHECK_FUNCTION_EXISTS( stricmp STRICMP_EXISTS )
+	if( NOT STRICMP_EXISTS )
+		add_definitions( -Dstricmp=strcasecmp )
+	endif()
+endmacro()
+
+macro( require_strnicmp )
+	CHECK_FUNCTION_EXISTS( strnicmp STRNICMP_EXISTS )
+	if( NOT STRNICMP_EXISTS )
+		add_definitions( -Dstrnicmp=strncasecmp )
+	endif()
+endmacro()
+
 option( NO_OPENAL "Disable OpenAL sound support" OFF )
 
 find_package( BZip2 )
@@ -181,7 +188,7 @@ target_architecture(TARGET_ARCHITECTURE)
 
 if( ${TARGET_ARCHITECTURE} MATCHES "x86_64" )
 	set( HAVE_VM_JIT ON )
-	#option (HAVE_VULKAN "Enable Vulkan support" ON)
+	option (HAVE_VULKAN "Enable Vulkan support" ON)
 endif()
 
 # no, we're not using external asmjit for now, we made too many modifications to our's.
@@ -200,9 +207,9 @@ if( MSVC )
 	# Function-level linking
 	# Disable run-time type information
 	if ( HAVE_VULKAN )
-		set( ALL_C_FLAGS "/GF /Gy /permissive- /DHAVE_VULKAN" )
+		set( ALL_C_FLAGS "/GF /Gy /permissive- /DHAVE_VULKAN /DHAVE_SOFTPOLY" )
 	else()
-		set( ALL_C_FLAGS "/GF /Gy /permissive-" )
+		set( ALL_C_FLAGS "/GF /Gy /permissive- /DHAVE_SOFTPOLY" )
 	endif()
 
 	# Use SSE 2 as minimum always as the true color drawers needs it for __vectorcall
@@ -246,9 +253,9 @@ if( MSVC )
 else()
 	set( REL_LINKER_FLAGS "" )
 	if ( HAVE_VULKAN )
-		set( ALL_C_FLAGS "-ffp-contract=off -DHAVE_VULKAN" )
+		set( ALL_C_FLAGS "-ffp-contract=off -DHAVE_VULKAN -DHAVE_SOFTPOLY" )
 	else()
-		set( ALL_C_FLAGS "-ffp-contract=off" )
+		set( ALL_C_FLAGS "-ffp-contract=off -DHAVE_SOFTPOLY" )
 	endif()
 	set( ALL_C_FLAGS "${ALL_C_FLAGS} -DUSE_OPENGL=1 -DNOASM=1" )
 
@@ -314,14 +321,6 @@ if (HAVE_VULKAN)
 	add_subdirectory( libraries/glslang/glslang)
 	add_subdirectory( libraries/glslang/spirv )
 	add_subdirectory( libraries/glslang/OGLCompilersDLL )
-endif()
-
-# Fast math flags, required by some subprojects
-set( DEM_FASTMATH_FLAG "" )
-if( DEM_CMAKE_COMPILER_IS_GNUCXX_COMPATIBLE )
-	set( DEM_FASTMATH_FLAG "-ffast-math -ffp-contract=fast" )
-elseif( MSVC )
-	set( DEM_FASTMATH_FLAG "/fp:fast" )
 endif()
 
 if( ZLIB_FOUND AND NOT FORCE_INTERNAL_ZLIB )

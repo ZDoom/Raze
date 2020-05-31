@@ -52,6 +52,10 @@ const char *GetVersionString();
 #define VER_MINOR 6
 #define VER_REVISION 0
 
+#define ENG_MAJOR 0
+#define ENG_MINOR 6
+#define ENG_REVISION 0
+
 // More stuff that needs to be different for derivatives.
 #define GAMENAME "Raze"
 #define WGAMENAME L"Raze"

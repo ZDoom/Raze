@@ -267,6 +267,7 @@ void OpenGLFrameBuffer::Swap()
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
 	mDebug->Update();
+	mVertexData->Reset();
 }
 
 //==========================================================================

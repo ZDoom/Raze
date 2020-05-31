@@ -531,6 +531,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 
 	// we must be sure the GPU finished reading from the buffer before we fill it with new data.
 	glFinish();
+	screen->mVertexData->Reset();
 
 	// Switch to render buffers dimensioned for the savepic
 	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mSaveBuffers;
@@ -560,6 +561,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 
 	// strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
 	glFinish();
+	screen->mVertexData->Reset();
 
 	if (didit)
 	{

@@ -26,6 +26,7 @@ struct FRenderViewpoint;
 
 namespace OpenGLRenderer
 {
+	class FHardwareTexture;
 	class FShaderManager;
 	class FSamplerManager;
 	class OpenGLFrameBuffer;
