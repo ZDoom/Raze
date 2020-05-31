@@ -32,7 +32,6 @@ CRC
 	BLOOD10_CRC 0xB291418f
 	BLOOD11_CRC 0xC3A99936
 	BLOOD_CRC 0xA8FDDA84
-	BLOOD_CRC 0xA8FDDA84
 	SWREG12_CRC 0x7545319F
 	SWWD_CRC 0xA9AAA7B7
 	SWTD_CRC 0xA1A65BE8
@@ -379,9 +378,48 @@ addon
 
 grpinfo
 {
+	name "Blood 1.0"
+	size 9570681
+	crc BLOOD10_CRC
+	defname "blood.def"
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
+	name "Blood 1.1"
+	size 9570681
+	crc BLOOD11_CRC
+	defname "blood.def"
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
 	name "BLOOD: One Unit Whole Blood"
 	size 9570681
-	crc 0xA8FDDA84
+	crc BLOOD_CRC
+	defname "blood.def"
+	scriptname "BLOOD.INI"
+	flags GAMEFLAG_BLOOD
+	dependency 0
+	loadgrp "SOUNDS.RFF", "GUI.RFF"
+	gamefilter "Blood.Blood"
+}
+
+grpinfo
+{
+	name "BLOOD: One Unit Whole Blood"
+	size 9570681
+	crc BLOOD_CRC
 	defname "blood.def"
 	scriptname "BLOOD.INI"
 	flags GAMEFLAG_BLOOD

@@ -263,6 +263,14 @@ void DrawFullscreenBlends()
 
 }
 
+void DrawRateStuff();
+
+void Draw2D(F2DDrawer* drawer, FRenderState& state)
+{
+	::DrawFullscreenBlends();
+	DrawRateStuff();
+	GLInterface.Draw2D(twod);
+}
 
 void videoTintBlood(int32_t r, int32_t g, int32_t b)
 {

@@ -33,47 +33,44 @@
 **
 */ 
 
-
-#include "gl_load/gl_system.h"
+#include "gl_system.h"
 #include "v_video.h"
 #include "m_png.h"
-#include "printf.h"
 #include "templates.h"
-#include "palette.h"
-#include "build.h"
-#include "hw_viewpointbuffer.h"
-#include "glbackend/glbackend.h"
+#include "i_time.h"
 
-#include "gl_load/gl_interface.h"
-#include "gl/system/gl_framebuffer.h"
-#include "gl/renderer/gl_renderer.h"
-#include "gl_renderstate.h"
+#include "gl_interface.h"
+#include "gl_framebuffer.h"
+#include "gl_renderer.h"
 #include "gl_renderbuffers.h"
-#include "flatvertices.h"
-#include "hw_lightbuffer.h"
+#include "gl_samplers.h"
+#include "hw_clock.h"
 #include "hw_vrmodes.h"
-#include "hwrenderer/postprocessing/hw_postprocess.h"
-#include "gl_postprocessstate.h"
 #include "hw_skydome.h"
+#include "hw_viewpointbuffer.h"
+#include "hw_lightbuffer.h"
 #include "gl_shaderprogram.h"
-#include "hw_cvars.h"
 #include "gl_debug.h"
 #include "r_videoscale.h"
+#include "gl_buffers.h"
+#include "gl_postprocessstate.h"
+#include "v_draw.h"
+#include "printf.h"
+#include "gl_hwtexture.h"
+
+#include "flatvertices.h"
+#include "hw_cvars.h"
 
 EXTERN_CVAR (Bool, vid_vsync)
 EXTERN_CVAR(Bool, r_drawvoxels)
 EXTERN_CVAR(Int, gl_tonemap)
-EXTERN_CVAR(Bool, gl_texture_usehires)
-EXTERN_CVAR(Int, gl_ssao)
+EXTERN_CVAR(Bool, cl_capfps)
 
 void gl_LoadExtensions();
 void gl_PrintStartupLog();
-void DrawRateStuff();
-//void Draw2D(F2DDrawer *drawer, FRenderState &state);
+void Draw2D(F2DDrawer *drawer, FRenderState &state);
 
 extern bool vid_hdr_active;
-
-void DrawFullscreenBlends();
 
 namespace OpenGLRenderer
 {
@@ -188,18 +185,15 @@ void OpenGLFrameBuffer::InitializeState()
 
 void OpenGLFrameBuffer::Update()
 {
-#if 0
 	twoD.Reset();
 	Flush3D.Reset();
 
 	Flush3D.Clock();
-#endif
 	GLRenderer->Flush();
-//	Flush3D.Unclock();
+	Flush3D.Unclock();
 
 	Swap();
 	Super::Update();
-	screen->mVertexData->Reset();
 }
 
 void OpenGLFrameBuffer::CopyScreenToBuffer(int width, int height, uint8_t* scr)
@@ -263,13 +257,13 @@ CVAR(Bool, gl_finishbeforeswap, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG);
 void OpenGLFrameBuffer::Swap()
 {
 	bool swapbefore = gl_finishbeforeswap && camtexcount == 0;
-	//Finish.Reset();
-	//Finish.Clock();
+	Finish.Reset();
+	Finish.Clock();
 	if (swapbefore) glFinish();
 	FPSLimit();
 	SwapBuffers();
 	if (!swapbefore) glFinish();
-	//Finish.Unclock();
+	Finish.Unclock();
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
 	mDebug->Update();
@@ -519,9 +513,7 @@ void OpenGLFrameBuffer::Draw2D()
 	if (GLRenderer != nullptr)
 	{
 		GLRenderer->mBuffers->BindCurrentFB();
-		::DrawFullscreenBlends();
-        DrawRateStuff();
-		GLInterface.Draw2D(twod);
+		::Draw2D(twod, gl_RenderState);
 	}
 }
 

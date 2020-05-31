@@ -31,12 +31,12 @@
 #include "hw_cvars.h"
 #include "flatvertices.h"
 #include "gl_shader.h"
-#include "gl/renderer/gl_renderer.h"
+#include "gl_renderer.h"
 #include "hw_lightbuffer.h"
 #include "gl_renderbuffers.h"
 #include "gl_hwtexture.h"
 #include "gl_buffers.h"
-//#include "hwrenderer/utility/hw_clock.h"
+#include "hw_clock.h"
 #include "hwrenderer/data/hw_viewpointbuffer.h"
 
 namespace OpenGLRenderer
@@ -394,9 +394,9 @@ void FGLRenderState::Draw(int dt, int index, int count, bool apply)
 	{
 		Apply();
 	}
-	//drawcalls.Clock();
+	drawcalls.Clock();
 	glDrawArrays(dt2gl[dt], index, count);
-	//drawcalls.Unclock();
+	drawcalls.Unclock();
 }
 
 void FGLRenderState::DrawIndexed(int dt, int index, int count, bool apply)
@@ -405,9 +405,9 @@ void FGLRenderState::DrawIndexed(int dt, int index, int count, bool apply)
 	{
 		Apply();
 	}
-	//drawcalls.Clock();
+	drawcalls.Clock();
 	glDrawElements(dt2gl[dt], count, GL_UNSIGNED_INT, (void*)(intptr_t)(index * sizeof(uint32_t)));
-	//drawcalls.Unclock();
+	drawcalls.Unclock();
 }
 
 void FGLRenderState::SetDepthMask(bool on)

@@ -42,6 +42,7 @@
 #include "hw_cvars.h"
 #include "gl_debug.h"
 #include "gl_renderer.h"
+#include "gl_renderstate.h"
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
 

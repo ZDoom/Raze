@@ -2,17 +2,21 @@
 #define __GL_FRAMEBUFFER
 
 #include "gl_sysfb.h"
+#include "m_png.h"
 
 #include <memory>
 
 namespace OpenGLRenderer
 {
 
+class FHardwareTexture;
 class FGLDebug;
 
 class OpenGLFrameBuffer : public SystemGLFrameBuffer
 {
 	typedef SystemGLFrameBuffer Super;
+
+	void RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect &)> renderFunc) override;
 
 public:
 
@@ -22,14 +26,25 @@ public:
 
 	void InitializeState() override;
 	void Update() override;
-	void Draw2D() override;
 
+	void AmbientOccludeScene(float m5) override;
+	void FirstEye() override;
+	void NextEye(int eyecount) override;
+	void SetSceneRenderTarget(bool useSSAO) override;
+	void UpdateShadowMap() override;
+	void WaitForCommands(bool finish) override;
+	void SetSaveBuffers(bool yes) override;
+	void CopyScreenToBuffer(int width, int height, uint8_t* buffer) override;
+	bool FlipSavePic() const override { return true; }
+
+	FRenderState* RenderState() override;
+	void UpdatePalette() override;
 	const char* DeviceName() const override;
 	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	void SetTextureFilterMode() override;
-
+	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	void BeginFrame() override;
-	//void SetViewportRects(IntRect *bounds) override;
+	void SetViewportRects(IntRect *bounds) override;
 	void BlurScene(float amount) override;
 	IVertexBuffer *CreateVertexBuffer() override;
 	IIndexBuffer *CreateIndexBuffer() override;
@@ -43,32 +58,17 @@ public:
 	void Swap();
 	bool IsHWGammaActive() const { return HWGammaActive; }
 
-	void SetVSync(bool vsync) override;
+	void SetVSync(bool vsync);
 
-	void SetViewportRects(IntRect* bounds) override;
-	void UpdatePalette() override;
-	void AmbientOccludeScene(float m5) override;
-	void FirstEye() override;
-	void NextEye(int eyecount) override;
-	void SetSceneRenderTarget(bool useSSAO) override;
-	void UpdateShadowMap() override;
-	void WaitForCommands(bool finish) override;
-	void SetSaveBuffers(bool yes) override;
-	void CopyScreenToBuffer(int width, int height, uint8_t* buffer) override;
-	bool FlipSavePic() const override { return true; }
-	void RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect&)> renderFunc) override;
-	void PrecacheMaterial(FMaterial* mat, int translation) override;
-	FRenderState* RenderState() override;
-
-	FTexture* WipeStartScreen() override;
-	FTexture* WipeEndScreen() override;
-
-	//void Draw2D() override;
+	void Draw2D() override;
 	void PostProcessScene(bool swscene, int fixedcm, const std::function<void()> &afterBloomDrawEndScene2D) override;
 
 	bool HWGammaActive = false;			// Are we using hardware or software gamma?
 	std::shared_ptr<FGLDebug> mDebug;	// Debug API
     
+    FTexture *WipeStartScreen() override;
+    FTexture *WipeEndScreen() override;
+
 	int camtexcount = 0;
 };
 
