@@ -84,7 +84,7 @@ public:
 	bool StartOffscreen();
 	void EndOffscreen();
 
-	void BindToFrameBuffer(FGameTexture* tex);
+	void BindToFrameBuffer(FTexture* tex);
 
 private:
 

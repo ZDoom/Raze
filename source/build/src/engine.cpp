@@ -5392,7 +5392,7 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
         return;
 
     OpenGLRenderer::GLRenderer->StartOffscreen();
-    OpenGLRenderer::GLRenderer->BindToFrameBuffer(tileGetTexture(tilenume));
+    OpenGLRenderer::GLRenderer->BindToFrameBuffer(tileGetTexture(tilenume)->GetTexture());
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
     bakxsiz = xdim; bakysiz = ydim;

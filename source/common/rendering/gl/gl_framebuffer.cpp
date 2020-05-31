@@ -217,7 +217,6 @@ void OpenGLFrameBuffer::CopyScreenToBuffer(int width, int height, uint8_t* scr)
 
 void OpenGLFrameBuffer::RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect &)> renderFunc)
 {
-#if 0
 	GLRenderer->StartOffscreen();
 	GLRenderer->BindToFrameBuffer(tex);
 
@@ -231,7 +230,6 @@ void OpenGLFrameBuffer::RenderTextureView(FCanvasTexture* tex, std::function<voi
 
 	tex->SetUpdated(true);
 	static_cast<OpenGLFrameBuffer*>(screen)->camtexcount++;
-#endif
 }
 
 //===========================================================================

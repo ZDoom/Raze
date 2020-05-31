@@ -55,7 +55,6 @@
 #include "model.h"
 #include "gl_postprocessstate.h"
 #include "gl_buffers.h"
-#include "gl_hwtexture.h"
 #include "texturemanager.h"
 
 EXTERN_CVAR(Int, screenblocks)
@@ -159,19 +158,19 @@ void FGLRenderer::EndOffscreen()
 //
 //===========================================================================
 
-void FGLRenderer::BindToFrameBuffer(FGameTexture *mat)
+void FGLRenderer::BindToFrameBuffer(FTexture *tex)
 {
-	auto pBaseLayer = mat->GetTexture()->SystemTextures.GetHardwareTexture(0, false);
+	auto pBaseLayer = tex->SystemTextures.GetHardwareTexture(0, false);
 	auto BaseLayer = pBaseLayer ? (OpenGLRenderer::FHardwareTexture*)pBaseLayer : nullptr;
 
 	if (BaseLayer == nullptr)
 	{
 		// must create the hardware texture first
 		BaseLayer =  new FHardwareTexture(4);
-		BaseLayer->CreateTexture(nullptr, mat->GetTexelWidth() * 4, mat->GetTexelHeight() * 4, 15, false, "Camtex");
-		mat->GetTexture()->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
+		BaseLayer->CreateTexture(nullptr, tex->GetWidth(), tex->GetHeight(), 15, false, "Camtex");
+		tex->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
 	}
-	BaseLayer->BindToFrameBuffer(mat->GetTexelWidth()*4, mat->GetTexelHeight()*4);
+	BaseLayer->BindToFrameBuffer(tex->GetWidth(), tex->GetHeight());
 }
 
 //===========================================================================
