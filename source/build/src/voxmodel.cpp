@@ -11,6 +11,7 @@
 #include "mdsprite.h"
 #include "v_video.h"
 #include "flatvertices.h"
+#include "hw_renderstate.h"
 #include "texturemanager.h"
 
 #include "palette.h"
@@ -1174,7 +1175,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
             f = 1 /*clut[fi++]*/;
 			if (qdone > 0)
 			{
-				GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
+				GLInterface.Draw(DT_Triangles, qstart, qdone * 6);
 				qstart += qdone * 6;
 				qdone = 0;
 			}
@@ -1205,7 +1206,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 		qdone++;
     }
 
-	GLInterface.Draw(DT_TRIANGLES, qstart, qdone * 6);
+	GLInterface.Draw(DT_Triangles, qstart, qdone * 6);
 	GLInterface.SetClamp(prevClamp);
     //------------
 	GLInterface.SetCull(Cull_None);

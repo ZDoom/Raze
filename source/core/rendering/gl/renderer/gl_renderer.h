@@ -78,7 +78,6 @@ public:
 	void CopyToBackbuffer(const IntRect *bounds, bool applyGamma);
 	void DrawPresentTexture(const IntRect &box, bool applyGamma);
 	void Flush();
-	//void Draw2D(F2DDrawer *data);
 	void BeginFrame();
     
 	bool StartOffscreen();

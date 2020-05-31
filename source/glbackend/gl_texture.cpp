@@ -125,3 +125,8 @@ void InitBuildTiles()
 }
 
 TArray<UserShaderDesc> usershaders;
+
+void UpdateVRModes(bool considerQuadBuffered = true)
+{
+	// should update the menu.
+}

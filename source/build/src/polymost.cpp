@@ -20,7 +20,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "flatvertices.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"
-#include "gamecontrol.h"
+#include "hw_renderstate.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -479,7 +479,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 			r * (1.f / 1024.f));
 
     }
-	GLInterface.Draw(DT_TRIANGLE_FAN, data.second, npoints);
+	GLInterface.Draw(DT_TriangleFan, data.second, npoints);
 
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     GLInterface.UseDetailMapping(false);
@@ -491,7 +491,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         vec3d_t const bxtex = xtex, bytex = ytex, botex = otex;
         xtex = xtex2, ytex = ytex2, otex = otex2;
 		GLInterface.SetColorMask(false);
-        GLInterface.Draw(DT_TRIANGLE_FAN, data.second, npoints);
+        GLInterface.Draw(DT_TriangleFan, data.second, npoints);
         GLInterface.SetColorMask(true);
 		xtex = bxtex, ytex = bytex, otex = botex;
     }

@@ -41,28 +41,24 @@
 #include "templates.h"
 #include "palette.h"
 #include "build.h"
+#include "hw_viewpointbuffer.h"
 #include "glbackend/glbackend.h"
 
 #include "gl_load/gl_interface.h"
 #include "gl/system/gl_framebuffer.h"
 #include "gl/renderer/gl_renderer.h"
+#include "gl_renderstate.h"
 #include "gl_renderbuffers.h"
 #include "flatvertices.h"
 #include "hw_lightbuffer.h"
-/*
-#include "gl/textures/gl_samplers.h"
-#include "hwrenderer/utility/hw_clock.h"
-#include "hwrenderer/utility/hw_vrmodes.h"
-#include "hwrenderer/models/hw_models.h"
-#include "hwrenderer/scene/hw_skydome.h"
-#include "hwrenderer/data/hw_viewpointbuffer.h"
-#include "gl/shaders/gl_shaderprogram.h"
-*/
+#include "hw_vrmodes.h"
+#include "hwrenderer/postprocessing/hw_postprocess.h"
+#include "gl_postprocessstate.h"
+#include "hw_skydome.h"
+#include "gl_shaderprogram.h"
+#include "hw_cvars.h"
 #include "gl_debug.h"
 #include "r_videoscale.h"
-//#include "gl_buffers.h"
-
-//#include "hwrenderer/data/flatvertices.h"
 
 EXTERN_CVAR (Bool, vid_vsync)
 EXTERN_CVAR(Bool, r_drawvoxels)
@@ -97,11 +93,9 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(void *hMonitor, bool fullscreen) :
 	Super::SetVSync(vid_vsync);
 	FHardwareTexture::InitGlobalState();
 
-#ifdef IMPLEMENT_IT
 	// Make sure all global variables tracking OpenGL context state are reset..
 
 	gl_RenderState.Reset();
-#endif
 
 	GLRenderer = nullptr;
 }
@@ -111,10 +105,8 @@ OpenGLFrameBuffer::~OpenGLFrameBuffer()
 	PPResource::ResetAll();
 
 	if (mVertexData != nullptr) delete mVertexData;
-#ifdef IMPLEMENT_IT
 	if (mSkyData != nullptr) delete mSkyData;
 	if (mViewpoints != nullptr) delete mViewpoints;
-#endif
 	if (mLights != nullptr) delete mLights;
 	mShadowMap.Reset();
 
@@ -177,10 +169,8 @@ void OpenGLFrameBuffer::InitializeState()
 	SetViewportRects(nullptr);
 
 	mVertexData = new FFlatVertexBuffer(GetWidth(), GetHeight());
-#ifdef IMPLEMENT_IT
 	mSkyData = new FSkyVertexBuffer;
 	mViewpoints = new HWViewpointBuffer;
-#endif
 	mLights = new FLightBuffer();
 	GLRenderer = new FGLRenderer(this);
 	GLRenderer->Initialize(GetWidth(), GetHeight());
@@ -212,12 +202,50 @@ void OpenGLFrameBuffer::Update()
 	screen->mVertexData->Reset();
 }
 
+void OpenGLFrameBuffer::CopyScreenToBuffer(int width, int height, uint8_t* scr)
+{
+	IntRect bounds;
+	bounds.left = 0;
+	bounds.top = 0;
+	bounds.width = width;
+	bounds.height = height;
+	GLRenderer->CopyToBackbuffer(&bounds, false);
+
+	// strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
+	glFinish();
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
+}
+
 //===========================================================================
 //
-//
+// Camera texture rendering
 //
 //===========================================================================
 
+void OpenGLFrameBuffer::RenderTextureView(FCanvasTexture* tex, std::function<void(IntRect &)> renderFunc)
+{
+#if 0
+	GLRenderer->StartOffscreen();
+	GLRenderer->BindToFrameBuffer(tex);
+
+	IntRect bounds;
+	bounds.left = bounds.top = 0;
+	bounds.width = FHardwareTexture::GetTexDimension(tex->GetWidth());
+	bounds.height = FHardwareTexture::GetTexDimension(tex->GetHeight());
+
+	renderFunc(bounds);
+	GLRenderer->EndOffscreen();
+
+	tex->SetUpdated(true);
+	static_cast<OpenGLFrameBuffer*>(screen)->camtexcount++;
+#endif
+}
+
+//===========================================================================
+//
+// 
+//
+//===========================================================================
 
 const char* OpenGLFrameBuffer::DeviceName() const 
 {
@@ -283,37 +311,27 @@ void OpenGLFrameBuffer::SetTextureFilterMode()
 	if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
 }
 
-#ifdef IMPLEMENT_IT
-
 
 void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 {
-	auto tex = mat->tex;
-	if (tex->isSWCanvas()) return;
+	if (mat->Source()->GetUseType() == ETextureType::SWCanvas) return;
 
-	// Textures that are already scaled in the texture lump will not get replaced by hires textures.
-	int flags = mat->isExpanded() ? CTF_Expand : (!tex->isScaled()) ? CTF_CheckHires : 0;
-	int numLayers = mat->GetLayers();
-	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation));
+	int flags = mat->GetScaleFlags();
+	int numLayers = mat->NumLayers();
+	MaterialLayerInfo* layer;
+	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
 
-	if (base->BindOrCreate(tex, 0, CLAMP_NONE, translation, flags))
+	if (base->BindOrCreate(layer->layerTexture, 0, CLAMP_NONE, translation, layer->scaleFlags))
 	{
 		for (int i = 1; i < numLayers; i++)
 		{
-			FTexture *layer;
 			auto systex = static_cast<FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
-			systex->BindOrCreate(layer, i, CLAMP_NONE, 0, mat->isExpanded() ? CTF_Expand : 0);
+			systex->BindOrCreate(layer->layerTexture, i, CLAMP_NONE, 0, layer->scaleFlags);
 		}
 	}
 	// unbind everything. 
 	FHardwareTexture::UnbindAll();
 }
-
-FModelRenderer *OpenGLFrameBuffer::CreateModelRenderer(int mli)
-{
-	return new FHWModelRenderer(nullptr, gl_RenderState, mli);
-}
-#endif
 
 IVertexBuffer *OpenGLFrameBuffer::CreateVertexBuffer()
 { 
@@ -335,13 +353,95 @@ void OpenGLFrameBuffer::BlurScene(float amount)
 	GLRenderer->BlurScene(amount);
 }
 
-#if 0
+void OpenGLFrameBuffer::SetViewportRects(IntRect *bounds)
+{
+	Super::SetViewportRects(bounds);
+	if (!bounds)
+	{
+		auto vrmode = VRMode::GetVRMode(true);
+		vrmode->AdjustViewport(this);
+	}
+}
+
 void OpenGLFrameBuffer::UpdatePalette()
 {
 	if (GLRenderer)
 		GLRenderer->ClearTonemapPalette();
 }
-#endif
+
+FRenderState* OpenGLFrameBuffer::RenderState()
+{
+	return &gl_RenderState;
+}
+
+void OpenGLFrameBuffer::AmbientOccludeScene(float m5)
+{
+	gl_RenderState.EnableDrawBuffers(1);
+	GLRenderer->AmbientOccludeScene(m5);
+	glViewport(screen->mSceneViewport.left, mSceneViewport.top, mSceneViewport.width, mSceneViewport.height);
+	GLRenderer->mBuffers->BindSceneFB(true);
+	gl_RenderState.EnableDrawBuffers(gl_RenderState.GetPassDrawBufferCount());
+	gl_RenderState.Apply();
+}
+
+void OpenGLFrameBuffer::FirstEye()
+{
+	GLRenderer->mBuffers->CurrentEye() = 0;  // always begin at zero, in case eye count changed
+}
+
+void OpenGLFrameBuffer::NextEye(int eyecount)
+{
+	GLRenderer->mBuffers->NextEye(eyecount);
+}
+
+void OpenGLFrameBuffer::SetSceneRenderTarget(bool useSSAO)
+{
+	GLRenderer->mBuffers->BindSceneFB(useSSAO);
+}
+
+void OpenGLFrameBuffer::UpdateShadowMap()
+{
+	if (mShadowMap.PerformUpdate())
+	{
+		FGLDebug::PushGroup("ShadowMap");
+
+		FGLPostProcessState savedState;
+
+		static_cast<GLDataBuffer*>(screen->mShadowMap.mLightList)->BindBase();
+		static_cast<GLDataBuffer*>(screen->mShadowMap.mNodesBuffer)->BindBase();
+		static_cast<GLDataBuffer*>(screen->mShadowMap.mLinesBuffer)->BindBase();
+
+		GLRenderer->mBuffers->BindShadowMapFB();
+
+		GLRenderer->mShadowMapShader->Bind();
+		GLRenderer->mShadowMapShader->Uniforms->ShadowmapQuality = gl_shadowmap_quality;
+		GLRenderer->mShadowMapShader->Uniforms->NodesCount = screen->mShadowMap.NodesCount();
+		GLRenderer->mShadowMapShader->Uniforms.SetData();
+		static_cast<GLDataBuffer*>(GLRenderer->mShadowMapShader->Uniforms.GetBuffer())->BindBase();
+
+		glViewport(0, 0, gl_shadowmap_quality, 1024);
+		GLRenderer->RenderScreenQuad();
+
+		const auto& viewport = screen->mScreenViewport;
+		glViewport(viewport.left, viewport.top, viewport.width, viewport.height);
+
+		GLRenderer->mBuffers->BindShadowMapTexture(16);
+		FGLDebug::PopGroup();
+		screen->mShadowMap.FinishUpdate();
+	}
+}
+
+void OpenGLFrameBuffer::WaitForCommands(bool finish)
+{
+	glFinish();
+}
+
+void OpenGLFrameBuffer::SetSaveBuffers(bool yes)
+{
+	if (!GLRenderer) return;
+	if (yes) GLRenderer->mBuffers = GLRenderer->mSaveBuffers;
+	else GLRenderer->mBuffers = GLRenderer->mScreenBuffers;
+}
 
 //===========================================================================
 //
@@ -403,6 +503,8 @@ TArray<uint8_t> OpenGLFrameBuffer::GetScreenshotBuffer(int &pitch, ESSType &colo
 
 	// Screenshot should not use gamma correction if it was already applied to rendered image
 	gamma = 1;
+	if (vid_hdr_active && vid_fullscreen)
+		gamma *= 2.2f;
 	return ScreenshotBuffer;
 }
 
@@ -428,6 +530,49 @@ void OpenGLFrameBuffer::PostProcessScene(bool swscene, int fixedcm, const std::f
 	GLRenderer->PostProcessScene(fixedcm, afterBloomDrawEndScene2D);
 }
 
+//==========================================================================
+//
+// OpenGLFrameBuffer :: WipeStartScreen
+//
+// Called before the current screen has started rendering. This needs to
+// save what was drawn the previous frame so that it can be animated into
+// what gets drawn this frame.
+//
+//==========================================================================
 
+FTexture *OpenGLFrameBuffer::WipeStartScreen()
+{
+	const auto &viewport = screen->mScreenViewport;
+
+	auto tex = new FWrapperTexture(viewport.width, viewport.height, 1);
+	tex->GetSystemTexture()->CreateTexture(nullptr, viewport.width, viewport.height, 0, false, "WipeStartScreen");
+	glFinish();
+	static_cast<FHardwareTexture*>(tex->GetSystemTexture())->Bind(0, false);
+
+	GLRenderer->mBuffers->BindCurrentFB();
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height);
+	return tex;
 }
 
+//==========================================================================
+//
+// OpenGLFrameBuffer :: WipeEndScreen
+//
+// The screen we want to animate to has just been drawn.
+//
+//==========================================================================
+
+FTexture *OpenGLFrameBuffer::WipeEndScreen()
+{
+	GLRenderer->Flush();
+	const auto &viewport = screen->mScreenViewport;
+	auto tex = new FWrapperTexture(viewport.width, viewport.height, 1);
+	tex->GetSystemTexture()->CreateTexture(NULL, viewport.width, viewport.height, 0, false, "WipeEndScreen");
+	glFinish();
+	static_cast<FHardwareTexture*>(tex->GetSystemTexture())->Bind(0, false);
+	GLRenderer->mBuffers->BindCurrentFB();
+	glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, viewport.left, viewport.top, viewport.width, viewport.height);
+	return tex;
+}
+
+}

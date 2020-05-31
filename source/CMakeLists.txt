@@ -883,6 +883,7 @@ set (PCH_SOURCES
 	common/rendering/hwrenderer/data/hw_vrmodes.cpp
 	common/rendering/hwrenderer/data/hw_lightbuffer.cpp
 	common/rendering/hwrenderer/data/hw_aabbtree.cpp
+	common/rendering/hwrenderer/data/hw_skydome.cpp
 	common/rendering/hwrenderer/data/hw_shadowmap.cpp
 	common/rendering/hwrenderer/data/hw_shaderpatcher.cpp
 	common/rendering/hwrenderer/postprocessing/hw_postprocess.cpp
@@ -938,6 +939,7 @@ set (PCH_SOURCES
 	core/input/m_joy.cpp
 
 	core/rendering/gl/renderer/gl_renderer.cpp
+	core/rendering/gl/renderer/gl_stereo3d.cpp
 	core/rendering/gl/system/gl_framebuffer.cpp
 )
 
