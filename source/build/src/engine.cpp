@@ -5346,6 +5346,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
 void videoInit()
 {
+    lookups.postLoadLookups();
     V_Init2();
     videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
 

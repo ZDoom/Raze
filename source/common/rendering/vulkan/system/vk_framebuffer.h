@@ -77,7 +77,6 @@ public:
 	const char* DeviceName() const override;
 	int Backend() override { return 1; }
 	void SetTextureFilterMode() override;
-	void TextureFilterChanged() override;
 	void StartPrecaching() override;
 	void BeginFrame() override;
 	void BlurScene(float amount) override;
@@ -89,7 +88,7 @@ public:
 	void ImageTransitionScene(bool unknown) override;
 	void SetActiveRenderTarget() override;
 
-	IHardwareTexture *CreateHardwareTexture() override;
+	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	FMaterial* CreateMaterial(FGameTexture* tex, int scaleflags) override;
 	IVertexBuffer *CreateVertexBuffer() override;
 	IIndexBuffer *CreateIndexBuffer() override;

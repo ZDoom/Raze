@@ -1,6 +1,7 @@
 #ifndef __GL_SAMPLERS_H
 #define __GL_SAMPLERS_H
 
+#include "gl_hwtexture.h"
 #include "textures.h"
 
 namespace OpenGLRenderer

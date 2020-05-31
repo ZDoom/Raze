@@ -91,7 +91,7 @@ void FGLRenderer::BlurScene(float gameinfobluramount)
 	int eyeCount = vrmode->mEyeCount;
 	for (int i = 0; i < eyeCount; ++i)
 	{
-	hw_postprocess.bloom.RenderBlur(&renderstate, sceneWidth, sceneHeight, gameinfobluramount);
+		hw_postprocess.bloom.RenderBlur(&renderstate, sceneWidth, sceneHeight, gameinfobluramount);
 		if (eyeCount - i > 1) mBuffers->NextEye(eyeCount);
 	}
 }
@@ -112,7 +112,7 @@ void FGLRenderer::Flush()
 	auto vrmode = VRMode::GetVRMode(true);
 	if (vrmode->mEyeCount == 1)
 	{
-	CopyToBackbuffer(nullptr, true);
+		CopyToBackbuffer(nullptr, true);
 	}
 	else
 	{

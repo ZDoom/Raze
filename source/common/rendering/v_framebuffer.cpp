@@ -72,7 +72,6 @@ EXTERN_CVAR(Int, screenblocks)
 
 DFrameBuffer::DFrameBuffer (int width, int height)
 {
-	twod = &m2DDrawer;
 	SetSize(width, height);
 }
 

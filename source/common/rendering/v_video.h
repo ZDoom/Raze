@@ -120,14 +120,11 @@ protected:
 };
 
 class IHardwareTexture;
-class FGameTexture;
+class FTexture;
 
 
 class DFrameBuffer
 {
-protected:
-
-	F2DDrawer m2DDrawer;
 private:
 	int Width = 0;
 	int Height = 0;
@@ -202,7 +199,6 @@ public:
 	virtual void SetTextureFilterMode() {}
 	virtual IHardwareTexture *CreateHardwareTexture(int numchannels) { return nullptr; }
 	virtual void PrecacheMaterial(FMaterial *mat, int translation) {}
-	virtual FModelRenderer *CreateModelRenderer(int mli) { return nullptr; }
 	virtual FMaterial* CreateMaterial(FGameTexture* tex, int scaleflags);
 	virtual void BeginFrame() {}
 	virtual void SetWindowSize(int w, int h) {}

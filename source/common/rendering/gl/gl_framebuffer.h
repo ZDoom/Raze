@@ -40,8 +40,8 @@ public:
 	FRenderState* RenderState() override;
 	void UpdatePalette() override;
 	const char* DeviceName() const override;
-	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	void SetTextureFilterMode() override;
+	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	void PrecacheMaterial(FMaterial *mat, int translation) override;
 	void BeginFrame() override;
 	void SetViewportRects(IntRect *bounds) override;

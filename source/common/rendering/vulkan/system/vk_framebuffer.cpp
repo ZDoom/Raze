@@ -379,7 +379,7 @@ void VulkanFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 	}
 }
 
-IHardwareTexture *VulkanFrameBuffer::CreateHardwareTexture()
+IHardwareTexture *VulkanFrameBuffer::CreateHardwareTexture(int numchannels)
 {
 	return new VkHardwareTexture();
 }
@@ -419,11 +419,6 @@ IDataBuffer *VulkanFrameBuffer::CreateDataBuffer(int bindingpoint, bool ssbo, bo
 }
 
 void VulkanFrameBuffer::SetTextureFilterMode()
-{
-	TextureFilterChanged();
-}
-
-void VulkanFrameBuffer::TextureFilterChanged()
 {
 	if (mSamplerManager)
 	{

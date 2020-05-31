@@ -78,10 +78,10 @@ void FGLRenderBuffers::ClearScene()
 	}
 	else
 	{
-	DeleteRenderBuffer(mSceneMultisampleBuf);
-	DeleteRenderBuffer(mSceneFogBuf);
-	DeleteRenderBuffer(mSceneNormalBuf);
-	DeleteRenderBuffer(mSceneDepthStencilBuf);
+		DeleteRenderBuffer(mSceneMultisampleBuf);
+		DeleteRenderBuffer(mSceneFogBuf);
+		DeleteRenderBuffer(mSceneNormalBuf);
+		DeleteRenderBuffer(mSceneDepthStencilBuf);
 	}
 }
 

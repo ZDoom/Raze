@@ -91,7 +91,6 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(void *hMonitor, bool fullscreen) :
 	FHardwareTexture::InitGlobalState();
 
 	// Make sure all global variables tracking OpenGL context state are reset..
-
 	gl_RenderState.Reset();
 
 	GLRenderer = nullptr;
@@ -266,6 +265,7 @@ void OpenGLFrameBuffer::Swap()
 	Finish.Unclock();
 	camtexcount = 0;
 	FHardwareTexture::UnbindAll();
+	gl_RenderState.ClearLastMaterial();
 	mDebug->Update();
 	mVertexData->Reset();
 }
@@ -296,16 +296,15 @@ void OpenGLFrameBuffer::SetVSync(bool vsync)
 //
 //===========================================================================
 
-IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture(int numchannels) 
-{ 
-	return new FHardwareTexture(numchannels);
-}
-
 void OpenGLFrameBuffer::SetTextureFilterMode()
 {
 	if (GLRenderer != nullptr && GLRenderer->mSamplerManager != nullptr) GLRenderer->mSamplerManager->SetTextureFilterMode();
 }
 
+IHardwareTexture *OpenGLFrameBuffer::CreateHardwareTexture(int numchannels) 
+{ 
+	return new FHardwareTexture(numchannels);
+}
 
 void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 {
@@ -326,6 +325,7 @@ void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 	}
 	// unbind everything. 
 	FHardwareTexture::UnbindAll();
+	gl_RenderState.ClearLastMaterial();
 }
 
 IVertexBuffer *OpenGLFrameBuffer::CreateVertexBuffer()

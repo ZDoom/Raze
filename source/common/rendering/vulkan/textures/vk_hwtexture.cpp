@@ -369,7 +369,8 @@ VulkanDescriptorSet* VkMaterial::GetDescriptorSet(const FMaterialState& state)
 	int translation = state.mTranslation;
 
 	auto remap = translation <= 0 ? nullptr : GPalette.TranslationToTable(translation);
-	if (remap) translation = remap->Index;
+	if (remap) 
+		translation = remap->Index;
 
 	clampmode = base->GetClampMode(clampmode);
 

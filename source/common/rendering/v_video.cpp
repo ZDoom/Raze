@@ -62,7 +62,6 @@
 #include "i_interface.h"
 #include "v_draw.h"
 #include "templates.h"
-#include "palette.h"
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
@@ -168,7 +167,7 @@ CUSTOM_CVAR (Bool, vid_vsync, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 }
 
 // [RH] Set true when vid_setmode command has been executed
-bool	setmodeneeded = false;
+bool setmodeneeded = false;
 bool setsizeneeded = false;
 
 //==========================================================================
@@ -290,6 +289,9 @@ void V_UpdateModeSize (int width, int height)
 void V_OutputResized (int width, int height)
 {
 	V_UpdateModeSize(width, height);
+	// set new resolution in 2D drawer
+	twod->Begin(screen->GetWidth(), screen->GetHeight());
+	twod->End();
 	setsizeneeded = true;
 	C_NewModeAdjust();
 	if (sysCallbacks && sysCallbacks->OnScreenSizeChanged) 
@@ -358,8 +360,6 @@ void V_InitScreen()
 
 void V_Init2()
 {
-	lookups.postLoadLookups();
-
 	float gamma = static_cast<DDummyFrameBuffer *>(screen)->Gamma;
 
 	{
@@ -396,7 +396,10 @@ CUSTOM_CVAR (Int, vid_aspect, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE)
 		sysCallbacks->OnScreenSizeChanged();
 }
 
-
+DEFINE_ACTION_FUNCTION(_Screen, GetAspectRatio)
+{
+	ACTION_RETURN_FLOAT(ActiveRatio(screen->GetWidth(), screen->GetHeight(), nullptr));
+}
 
 CCMD(vid_setsize)
 {

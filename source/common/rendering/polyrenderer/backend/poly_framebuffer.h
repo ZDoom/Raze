@@ -43,7 +43,7 @@ public:
 	void AmbientOccludeScene(float m5) override;
 	//void SetSceneRenderTarget(bool useSSAO) override;
 
-	IHardwareTexture *CreateHardwareTexture(int) override;
+	IHardwareTexture *CreateHardwareTexture(int numchannels) override;
 	IVertexBuffer *CreateVertexBuffer() override;
 	IIndexBuffer *CreateIndexBuffer() override;
 	IDataBuffer *CreateDataBuffer(int bindingpoint, bool ssbo, bool needsresize) override;
