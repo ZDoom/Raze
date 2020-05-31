@@ -63,10 +63,3 @@ public:
 	virtual bool Load(const char * name, const char * vert_prog_lump, const char * fragprog); //, const char * fragprog2, const char *defines);
 };
 
-class SurfaceShader : public FShader
-{
-public:
-	SurfaceShader() = default;
-	virtual bool Load(const char* name, const char* vert_prog_lump, const char* fragprog); //, const char * fragprog2, const char *defines);
-
-};

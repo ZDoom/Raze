@@ -145,8 +145,6 @@ void GLInstance::Deinit()
 #endif
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
-	if (surfaceShader) delete surfaceShader;
-	surfaceShader = nullptr;
 	activeShader = nullptr;
 	palmanager.DeleteAll();
 	lastPalswapIndex = -1;
@@ -252,15 +250,6 @@ void GLInstance::SetPolymostShader()
 	{
 		polymostShader->Bind();
 		activeShader = polymostShader;
-	}
-}
-
-void GLInstance::SetSurfaceShader()
-{
-	if (activeShader != surfaceShader)
-	{
-		surfaceShader->Bind();
-		activeShader = surfaceShader;
 	}
 }
 

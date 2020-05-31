@@ -14,7 +14,6 @@
 
 class FShader;
 class PolymostShader;
-class SurfaceShader;
 class FGameTexture;
 class GLInstance;
 class F2DDrawer;
@@ -122,7 +121,6 @@ class GLInstance
 	PolymostRenderState renderState;
 	FShader* activeShader;
 	PolymostShader* polymostShader;
-	SurfaceShader* surfaceShader;
 	
 	
 public:
@@ -172,7 +170,6 @@ public:
 	}
 
 	void SetPolymostShader();
-	void SetSurfaceShader();
 	void SetPalette(int palette);
 	
 	void ReadPixels(int w, int h, uint8_t* buffer);
