@@ -5329,11 +5329,13 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     {
         tileUpdatePicnum(&picnum, (int16_t)0xc000);
         if ((tileWidth(picnum) <= 0) || (tileHeight(picnum) <= 0)) return;
+#if 0
         if (hw_models && tile2model[picnum].hudmem[(dastat & 4) >> 2])
         {
             polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, guniqhudid);
             return;
         }
+#endif
     }
 
     // We must store all calls in the 2D drawer so that the backend can operate on a clean 3D view.
