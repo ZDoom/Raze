@@ -1645,7 +1645,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     int prevClamp = GLInterface.GetClamp();
 	GLInterface.SetClamp(0);
-    auto matrixindex = GLInterface.SetIdentityMatrix(Matrix_Model);
+    VSMatrix imat = 0;
+    imat.scale(1024, 1024, 1024);
+    auto matrixindex = GLInterface.SetMatrix(Matrix_Model, &imat);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -1700,7 +1702,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         //Let OpenGL (and perhaps hardware :) handle the matrix rotation
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
-		GLInterface.SetMatrix(Matrix_Model, mat);
+        for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
+        GLInterface.SetMatrix(Matrix_Model, mat);
         // PLAG: End
 
 		bool exact = false;

@@ -198,8 +198,8 @@ static void resizeglcheck(void)
 
     float m[4][4]{};
 
-    float const nearclip = 4.0f / (gxyaspect * gyxscale * 1024.f);
-    float const farclip = 64.f;
+    float const nearclip = 4.0f / (gxyaspect * gyxscale);
+    float const farclip = 65536.f;
 
     m[0][0] = 1.f;
     m[1][1] = fxdimen / (fydimen * ratio);
@@ -474,9 +474,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         //update verts
 		vt->SetVertex(
-			(px[i] - ghalfx) * r * grhalfxdown10x,
-			(ghalfy - py[i]) * r * grhalfxdown10,
-			r * (1.f / 1024.f));
+			(px[i] - ghalfx) * r * grhalfxdown10x * 1024.f,
+			(ghalfy - py[i]) * r * grhalfxdown10 * 1024.f,
+			r);
 
     }
 	GLInterface.Draw(DT_TriangleFan, data.second, npoints);

@@ -210,7 +210,7 @@ public:
 
 	void SetVisibility(float visibility, float fviewingrange)
 	{
-		renderState.VisFactor = visibility* fviewingrange* (1.f / (64.f * 65536.f));
+		renderState.VisFactor = visibility* fviewingrange* (1.f / (65536.f * 65536.f));
 	}
 
 	void EnableBlend(bool on)

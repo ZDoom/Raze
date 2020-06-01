@@ -1122,7 +1122,9 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
 
-	int matrixindex = GLInterface.SetMatrix(Matrix_Model, mat);
+    for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
+
+    int matrixindex = GLInterface.SetMatrix(Matrix_Model, mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);

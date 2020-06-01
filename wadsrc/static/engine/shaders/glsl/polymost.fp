@@ -223,7 +223,7 @@ void main()
 		}
 		if ((u_flags & RF_MapFog) != 0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
-			float fogfactor = 0.55 + 0.3 * exp2 (-5.0*v_fogCoord); 		
+			float fogfactor = 0.55 + 0.3 * exp2 ((-5.0 / 1024.0)*v_distance); 		
 			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
 		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
