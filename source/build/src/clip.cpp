@@ -1724,7 +1724,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype>>16);
 
-    vec2_t closest = { pos->x, pos->y };
+    vec2_t closest = pos->vec2;
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
         getsectordist(closest, sectnum, &closest);
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
@@ -1786,13 +1786,13 @@ restart_grand:
                     continue;
 
                 int32_t daz, daz2;
-                closest = { pos->x, pos->y };
+                closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
                 getzsofslope(k,closest.x,closest.y,&daz,&daz2);
 
                 int32_t fz, cz;
-                closest = { pos->x, pos->y };
+                closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
                 getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
@@ -1878,7 +1878,7 @@ restart_grand:
 #endif
                 //It actually got here, through all the continue's!!!
                 int32_t daz, daz2;
-                closest = { pos->x, pos->y };
+                closest = pos->vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
@@ -1894,7 +1894,7 @@ restart_grand:
                 {
                     int32_t fz,cz, hitwhat=(curspr-(uspritetype *)sprite)+49152;
 
-                    closest = { pos->x, pos->y };
+                    closest = pos->vec2;
                     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                         getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
                     getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
@@ -2081,7 +2081,7 @@ restart_grand:
                         {
                             addclipsect(j);
 
-                            closest = { pos->x, pos->y };
+                            closest = pos->vec2;
                             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                                 getsectordist(closest, j, &closest);
                             int const daz = getceilzofslope(j, closest.x, closest.y);
@@ -2122,7 +2122,7 @@ restart_grand:
                         {
                             addclipsect(j);
 
-                            closest = { pos->x, pos->y };
+                            closest = pos->vec2;
                             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                                 getsectordist(closest, j, &closest);
                             int const daz = getflorzofslope(j, closest.x,closest.y);

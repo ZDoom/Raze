@@ -3113,8 +3113,7 @@ badindex:
                 {
                     // else, they did see it.
                     // save where we were looking...
-                    vm.pActor->lastv.x = pSprite->x;
-                    vm.pActor->lastv.y = pSprite->y;
+                    vm.pActor->lastv = pSprite->pos.vec2;
                 }
 
                 if (tw && (vm.pSprite->statnum == STAT_ACTOR || vm.pSprite->statnum == STAT_STANDABLE))
