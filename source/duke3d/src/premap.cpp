@@ -1495,7 +1495,7 @@ static void G_CollectSpawnPoints(int gameMode)
 
         p.oq16ang = p.q16ang = fix16_from_int(s.ang);
 
-        updatesector(s.x, s.y, &p.cursectnum);
+        p.cursectnum = s.sectnum;
 
         pindex++;
 
