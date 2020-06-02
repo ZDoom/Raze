@@ -1154,7 +1154,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     GLInterface.SetPalswap(globalpal);
 	// The texture here is already translated.
-	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, 0, CLAMP_NOFILTER_XY);
+	GLInterface.SetTexture(-1, htex, 0/*TRANSLATION(Translation_Remap + curbasepal, globalpal)*/, CLAMP_NOFILTER_XY);
 
 	// This must be done after setting up the texture.
 	auto& h = lookups.tables[globalpal];

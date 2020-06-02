@@ -499,7 +499,7 @@ public:
 		renderState.LookupTexture = tex;
 	}
 
-	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int method, int sampleroverride);
+	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride);
 };
 
 extern GLInstance GLInterface;

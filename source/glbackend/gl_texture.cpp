@@ -61,13 +61,12 @@ OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FTexture *tex, int tex
 	return hwtex;
 }
 
-bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int method, int sampleroverride)
+bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler)
 {
 	TexturePick texpick;
 	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 
 	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
-	auto sampler = (method & DAMETH_CLAMPED) ? (sampleroverride != -1 ? sampleroverride : SamplerClampXY) : SamplerRepeat;
 	if (TextureType == TT_INDEXED)
 	{
 		sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
