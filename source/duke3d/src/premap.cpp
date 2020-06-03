@@ -624,7 +624,6 @@ void P_ResetMultiPlayer(int playerNum)
 
     s.pos = p.pos;
 
-    updatesector(p.pos.x, p.pos.y, &p.cursectnum);
     setsprite(p.i, &tmpvect);
 
     s.clipdist = 64;
