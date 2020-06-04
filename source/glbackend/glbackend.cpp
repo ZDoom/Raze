@@ -54,6 +54,8 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "hw_viewpointuniforms.h"
+#include "hw_viewpointbuffer.h"
+#include "gl_renderstate.h"
 
 F2DDrawer twodpsp;
 static int BufferLock = 0;
@@ -98,6 +100,26 @@ void GLInstance::Init(int ydim)
 	LoadPolymostShader();
 }
 
+FString i_data = R"(
+		#version 330
+		// This must match the HWViewpointUniforms struct
+		layout(std140) uniform ViewpointUBO {
+			mat4 ProjectionMatrix;
+			mat4 ViewMatrix;
+			mat4 NormalViewMatrix;
+
+			vec4 uCameraPos;
+			vec4 uClipLine;
+
+			float uGlobVis;			// uGlobVis = R_GetGlobVis(r_visibility) / 32.0
+			int uPalLightLevels;	
+			int uViewHeight;		// Software fuzz scaling
+			float uClipHeight;
+			float uClipHeightDirection;
+			int uShadowmapFilter;
+		};
+	)";
+
 void GLInstance::LoadPolymostShader()
 {
 	auto fr1 = GetResource("engine/shaders/glsl/polymost.vp");
@@ -107,8 +129,10 @@ void GLInstance::LoadPolymostShader()
 	// Zero-terminate both strings.
 	Vert.Push(0);
 	Frag.Push(0);
+	FStringf VertS("%s\n%s", i_data, Vert.Data());
+	FStringf FragS("%s\n%s", i_data, Frag.Data());
 	polymostShader = new PolymostShader();
-	polymostShader->Load("PolymostShader", (const char*)Vert.Data(), (const char*)Frag.Data());
+	polymostShader->Load("PolymostShader", (const char*)VertS.GetChars(), (const char*)FragS.GetChars());
 	SetPolymostShader();
 }
 
@@ -268,7 +292,7 @@ void GLInstance::SetPalette(int index)
 void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
-	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (renderState.NumShades - 2) : shadediv[index];
+	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (numshades - 2) : shadediv[index];
 }
 
 void GLInstance::DrawImGui(ImDrawData* data)
@@ -486,7 +510,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
 	shader->Flags.Set(Flags);
 	shader->Shade.Set(Shade);
-	shader->NumShades.Set(NumShades);
 	shader->ShadeDiv.Set(ShadeDiv);
 	shader->VisFactor.Set(VisFactor);
 	shader->Flags.Set(Flags);
@@ -503,6 +526,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
 	if (matrixIndex[Matrix_Texture] != -1)
 		shader->TextureMatrix.Set(matrixArray[matrixIndex[Matrix_Texture]].get());
+
 	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
 
@@ -595,8 +619,8 @@ void renderBeginScene()
 	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock == 0);
 
-	GLInterface.polymostShader->ProjectionMatrix.Set(vp.mProjectionMatrix.get());
-	GLInterface.polymostShader->RotMatrix.Set(vp.mViewMatrix.get());
+	vp.mPalLightLevels = numshades;
+	screen->mViewpoints->SetViewpoint(OpenGLRenderer::gl_RenderState, &vp);
 
 	if (BufferLock++ == 0)
 	{

@@ -200,7 +200,6 @@ public:
 	void SetShade(int32_t shade, int numshades)
 	{
 		renderState.Shade = shade;
-		renderState.NumShades = numshades;
 	}
 
 	void SetVisibility(float visibility, float fviewingrange)

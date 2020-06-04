@@ -37,6 +37,7 @@
 #include "glbackend.h"
 #include "gl_shader.h"
 #include "zstring.h"
+#include "shaderuniforms.h"
 
 #include "baselayer.h"
 
@@ -134,10 +135,12 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 {
 	if (!FShader::Load(name, vert_prog, frag_prog)) return false;
 	
+	int tempindex = glGetUniformBlockIndex(hShader, "ViewpointUBO");
+	if (tempindex != -1) glUniformBlockBinding(hShader, tempindex, VIEWPOINT_BINDINGPOINT);
+
 	Flags.Init(hShader, "u_flags");
 	Shade.Init(hShader, "u_shade");
 	ShadeDiv.Init(hShader, "u_shadeDiv");
-	NumShades.Init(hShader, "u_numShades");
     VisFactor.Init(hShader, "u_visFactor");
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
@@ -150,9 +153,7 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	TintFlags.Init(hShader, "u_tintFlags");
 	DetailParms.Init(hShader, "u_detailParms");
 
-    RotMatrix.Init(hShader, "u_rotMatrix");
 	ModelMatrix.Init(hShader, "u_modelMatrix");
-	ProjectionMatrix.Init(hShader, "u_projectionMatrix");
 	TextureMatrix.Init(hShader, "u_textureMatrix");
 
 

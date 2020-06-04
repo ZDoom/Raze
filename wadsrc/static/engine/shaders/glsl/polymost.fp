@@ -1,5 +1,3 @@
-#version 330
-
 const int RF_ColorOnly = 1;
 const int RF_UsePalette = 2;
 const int RF_DetailMapping = 4;
@@ -40,6 +38,7 @@ uniform float u_alphaThreshold;
 uniform vec4 u_tintOverlay, u_tintModulate;
 uniform int u_tintFlags;
 uniform vec4 u_fullscreenTint;
+uniform vec2 u_detailParms;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
@@ -171,13 +170,14 @@ void main()
 		vec4 detailColor = vec4(1.0);
 		if ((u_flags & RF_DetailMapping) != 0)
 		{
-			detailColor = texture(s_detail, v_detailCoord.xy);
+			detailColor = texture(s_detail, newCoord * u_detailParms);
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
 
 		float visibility = max(u_visFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
-		float shade = clamp((u_shade + visibility), 0.0, u_numShades - 1.0);
+		float numShades = float(uPalLightLevels & 255);
+		float shade = clamp((u_shade + visibility), 0.0, numShades - 1.0);
 		
 
 		if ((u_flags & RF_UsePalette) != 0)
@@ -223,7 +223,7 @@ void main()
 		}
 		if ((u_flags & RF_MapFog) != 0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
-			float fogfactor = 0.55 + 0.3 * exp2 ((-5.0 / 1024.0)*v_distance); 		
+			float fogfactor = 0.55 + 0.3 * exp2 (-5.0*v_fogCoord); 		
 			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
 		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.

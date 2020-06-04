@@ -37,7 +37,6 @@ class PolymostShader : public FShader
 public:
 	FBufferedUniform1i Flags;
     FBufferedUniform1f Shade;
-    FBufferedUniform1f NumShades;
 	FBufferedUniform1f ShadeDiv;
 	FBufferedUniform1f VisFactor;
     FBufferedUniform1f NPOTEmulationFactor;
@@ -52,9 +51,7 @@ public:
 	FBufferedUniform2f DetailParms;
 
 
-	FUniformMatrix4f   RotMatrix;
 	FUniformMatrix4f   ModelMatrix;
-	FUniformMatrix4f   ProjectionMatrix;
 	FUniformMatrix4f   TextureMatrix;
 
 public:

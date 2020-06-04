@@ -1,17 +1,12 @@
-#version 330
-
 out vec4 v_color;
 out float v_distance;
 out vec4 v_texCoord;
-out vec4 v_detailCoord;
+out float v_fogCoord;
 out vec4 v_eyeCoordPosition;
 
 uniform float u_usePalette;
-uniform mat4 u_rotMatrix;
 uniform mat4 u_modelMatrix;
-uniform mat4 u_projectionMatrix;
 uniform mat4 u_textureMatrix;
-uniform vec2 u_detailParms;
 
 in vec4 i_vertPos;
 in vec4 i_texCoord;
@@ -22,15 +17,15 @@ in vec4 i_color;
 void main()
 {
    vec4 vertex = u_modelMatrix * i_vertPos;
-   vec4 eyeCoordPosition = u_rotMatrix * vertex;
+   vec4 eyeCoordPosition = ViewMatrix * vertex;
    v_eyeCoordPosition = eyeCoordPosition;
-   gl_Position = u_projectionMatrix * eyeCoordPosition;
+   gl_Position = ProjectionMatrix * eyeCoordPosition;
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
    v_texCoord = u_textureMatrix * i_texCoord;
-   v_detailCoord = vec4(i_texCoord.x * u_detailParms.x, i_texCoord.y * u_detailParms.y, 0.0, 0.0);
 
+   v_fogCoord = abs(eyeCoordPosition.z);
 
    v_color = i_color;
    v_distance = eyeCoordPosition.z;

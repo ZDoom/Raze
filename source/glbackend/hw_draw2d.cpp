@@ -33,6 +33,7 @@
 */
 
 
+#include "gl_load.h"
 #include "cmdlib.h"
 #include "gl_buffers.h"
 #include "v_2ddrawer.h"
@@ -44,6 +45,8 @@
 #include "build.h"
 #include "v_video.h"
 #include "hw_renderstate.h"
+#include "hw_viewpointbuffer.h"
+#include "gl_renderstate.h"
 
 extern int16_t numshades;
 extern TArray<VSMatrix> matrixArray;
@@ -102,15 +105,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	renderSetViewMatrix(nullptr);
-	mat.ortho(0, xdim, ydim, 0, -1, 1);
-	renderSetProjectionMatrix(mat.get());
+	screen->mViewpoints->Set2D(OpenGLRenderer::gl_RenderState, xdim, ydim);
 	SetIdentityMatrix(Matrix_Model);
-
-	// Temporary hack to set the matrices.
-	renderBeginScene();
-	renderFinishScene();
-
 	SetViewport(0, 0, xdim, ydim);
 	EnableDepthTest(false);
 	EnableMultisampling(false);
