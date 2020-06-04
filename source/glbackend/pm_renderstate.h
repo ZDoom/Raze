@@ -10,7 +10,6 @@ class FMaterial;
 enum EMatrixType
 {
 	Matrix_Model,
-	Matrix_Texture,
 	// These are the only ones being used.
 	NUMMATRICES
 };
@@ -67,7 +66,7 @@ struct PolymostRenderState
 	float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
-	short matrixIndex[NUMMATRICES] = { 0,0 };
+	short matrixIndex[NUMMATRICES] = { 0 };
 	PalEntry fullscreenTint = 0xffffff, hictint = 0xffffff, hictint_overlay = 0xffffff;
 	int hictint_flags = -1;
 	FDepthBiasState mBias{ };

@@ -151,10 +151,10 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	TintModulate.Init(hShader, "u_tintModulate");
 	TintOverlay.Init(hShader, "u_tintOverlay");
 	TintFlags.Init(hShader, "u_tintFlags");
-	DetailParms.Init(hShader, "u_detailParms");
 
-	ModelMatrix.Init(hShader, "u_modelMatrix");
-	TextureMatrix.Init(hShader, "u_textureMatrix");
+	DetailParms.Init(hShader, "uDetailParms");
+	ModelMatrix.Init(hShader, "ModelMatrix");
+	TextureMatrix.Init(hShader, "TextureMatrix");
 
 
     

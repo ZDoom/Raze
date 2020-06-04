@@ -101,24 +101,28 @@ void GLInstance::Init(int ydim)
 }
 
 FString i_data = R"(
-		#version 330
-		// This must match the HWViewpointUniforms struct
-		layout(std140) uniform ViewpointUBO {
-			mat4 ProjectionMatrix;
-			mat4 ViewMatrix;
-			mat4 NormalViewMatrix;
+	#version 330
+	// This must match the HWViewpointUniforms struct
+	layout(std140) uniform ViewpointUBO {
+		mat4 ProjectionMatrix;
+		mat4 ViewMatrix;
+		mat4 NormalViewMatrix;
 
-			vec4 uCameraPos;
-			vec4 uClipLine;
+		vec4 uCameraPos;
+		vec4 uClipLine;
 
-			float uGlobVis;			// uGlobVis = R_GetGlobVis(r_visibility) / 32.0
-			int uPalLightLevels;	
-			int uViewHeight;		// Software fuzz scaling
-			float uClipHeight;
-			float uClipHeightDirection;
-			int uShadowmapFilter;
-		};
-	)";
+		float uGlobVis;			// uGlobVis = R_GetGlobVis(r_visibility) / 32.0
+		int uPalLightLevels;	
+		int uViewHeight;		// Software fuzz scaling
+		float uClipHeight;
+		float uClipHeightDirection;
+		int uShadowmapFilter;
+	};
+	uniform mat4 ModelMatrix;
+	uniform mat4 NormalModelMatrix;
+	uniform mat4 TextureMatrix;
+	uniform vec4 uDetailParms;
+)";
 
 void GLInstance::LoadPolymostShader()
 {
@@ -374,7 +378,8 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	{
 		mMaterial.mChanged = false;
 		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
-		shader->DetailParms.Set(mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y);
+		float buffer[] = { mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y, 1.f, 0.f };
+		shader->DetailParms.Set(buffer);
 	}
  
 	if (PaletteTexture != nullptr)
@@ -524,8 +529,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->FullscreenTint.Set(fullscreenTint);
 	if (matrixIndex[Matrix_Model] != -1)
 		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
-	if (matrixIndex[Matrix_Texture] != -1)
-		shader->TextureMatrix.Set(matrixArray[matrixIndex[Matrix_Texture]].get());
 
 	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
@@ -552,7 +555,6 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mSaveBuffers;
 	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
 	screen->SetViewportRects(&bounds);
-
 
 	int oldx = xdim;
 	int oldy = ydim;

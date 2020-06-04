@@ -38,7 +38,6 @@ uniform float u_alphaThreshold;
 uniform vec4 u_tintOverlay, u_tintModulate;
 uniform int u_tintFlags;
 uniform vec4 u_fullscreenTint;
-uniform vec2 u_detailParms;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
@@ -170,7 +169,7 @@ void main()
 		vec4 detailColor = vec4(1.0);
 		if ((u_flags & RF_DetailMapping) != 0)
 		{
-			detailColor = texture(s_detail, newCoord * u_detailParms);
+			detailColor = texture(s_detail, newCoord * uDetailParms.xy) * uDetailParms.z;
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}

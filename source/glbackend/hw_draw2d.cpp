@@ -106,7 +106,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
 	screen->mViewpoints->Set2D(OpenGLRenderer::gl_RenderState, xdim, ydim);
-	SetIdentityMatrix(Matrix_Model);
 	SetViewport(0, 0, xdim, ydim);
 	EnableDepthTest(false);
 	EnableMultisampling(false);

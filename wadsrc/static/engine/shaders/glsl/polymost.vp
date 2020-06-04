@@ -5,8 +5,6 @@ out float v_fogCoord;
 out vec4 v_eyeCoordPosition;
 
 uniform float u_usePalette;
-uniform mat4 u_modelMatrix;
-uniform mat4 u_textureMatrix;
 
 in vec4 i_vertPos;
 in vec4 i_texCoord;
@@ -16,14 +14,14 @@ in vec4 i_color;
 
 void main()
 {
-   vec4 vertex = u_modelMatrix * i_vertPos;
+   vec4 vertex = ModelMatrix * i_vertPos;
    vec4 eyeCoordPosition = ViewMatrix * vertex;
    v_eyeCoordPosition = eyeCoordPosition;
    gl_Position = ProjectionMatrix * eyeCoordPosition;
 
    eyeCoordPosition.xyz /= eyeCoordPosition.w;
 
-   v_texCoord = u_textureMatrix * i_texCoord;
+   v_texCoord = TextureMatrix * i_texCoord;
 
    v_fogCoord = abs(eyeCoordPosition.z);
 

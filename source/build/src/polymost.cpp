@@ -209,7 +209,6 @@ static void resizeglcheck(void)
     m[2][3] = 1.f;
     m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
 	renderSetProjectionMatrix(&m[0][0]);
-	GLInterface.SetIdentityMatrix(Matrix_Model);
 }
 
 //(dpx,dpy) specifies an n-sided polygon. The polygon must be a convex clockwise loop.

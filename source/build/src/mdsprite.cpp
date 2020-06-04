@@ -1647,7 +1647,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 	GLInterface.SetClamp(0);
     VSMatrix imat = 0;
     imat.scale(1024, 1024, 1024);
-    auto matrixindex = GLInterface.SetMatrix(Matrix_Model, &imat);
+    GLInterface.SetMatrix(Matrix_Model, &imat);
 
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
@@ -1796,9 +1796,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
 	GLInterface.SetCull(Cull_None);
 
-	VSMatrix identity(0);
-	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
-
+    GLInterface.SetIdentityMatrix(Matrix_Model);
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     GLInterface.SetClamp(prevClamp);
     

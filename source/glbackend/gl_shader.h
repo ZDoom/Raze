@@ -48,7 +48,7 @@ public:
 	FBufferedUniformPalEntry TintModulate;
 	FBufferedUniformPalEntry TintOverlay;
 	FBufferedUniform1i TintFlags;
-	FBufferedUniform2f DetailParms;
+	FBufferedUniform4f DetailParms;
 
 
 	FUniformMatrix4f   ModelMatrix;

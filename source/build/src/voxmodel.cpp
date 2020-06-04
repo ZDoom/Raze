@@ -1124,7 +1124,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     for (int i = 0; i < 15; i++) mat[i] *= 1024.f;
 
-    int matrixindex = GLInterface.SetMatrix(Matrix_Model, mat);
+    GLInterface.SetMatrix(Matrix_Model, mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);
@@ -1217,8 +1217,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     {
 		GLInterface.SetDepthFunc(Depth_Less);
 	}
-	VSMatrix identity(0);
-	GLInterface.RestoreMatrix(Matrix_Model, matrixindex);
+	GLInterface.SetIdentityMatrix(Matrix_Model);
 	GLInterface.SetFadeDisable(false);
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     return 1;
