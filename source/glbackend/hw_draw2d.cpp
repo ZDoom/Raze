@@ -231,38 +231,19 @@ extern PalEntry palfadergb;
 
 void DrawFullscreenBlends()
 {
-	GLInterface.SetIdentityMatrix(Matrix_Model);
-
-	GLInterface.EnableDepthTest(false);
-	GLInterface.EnableAlphaTest(false);
-	GLInterface.EnableBlend(true);
-	GLInterface.UseColorOnly(true);
-
-	renderBeginScene();
-	if (palfadergb.a > 0)
-	{
-		// Todo: reroute to the 2D drawer
-		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
-		GLInterface.SetColorub(palfadergb.r, palfadergb.g, palfadergb.b, palfadergb.a);
-		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
-	}
+	// These get prepended to the 2D drawer so they must be submitted in reverse order of drawing.
 	if (tint_blood_r | tint_blood_g | tint_blood_b)
 	{
-		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Add]);
-
-		GLInterface.SetColorub(max(tint_blood_r, 0), max(tint_blood_g, 0), max(tint_blood_b, 0), 255);
-		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
-
-		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Subtract]);
-		GLInterface.SetColorub(max(-tint_blood_r, 0), max(-tint_blood_g, 0), max(-tint_blood_b, 0), 255);
-		GLInterface.Draw(DT_TriangleStrip, FFlatVertexBuffer::PRESENT_INDEX, 4);
-
-		GLInterface.SetColorub(255, 255, 255, 255);
-		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+		PalEntry color2(255, std::max(-tint_blood_r, 0), std::max(-tint_blood_g, 0), std::max(-tint_blood_b, 0));
+		twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), color2, &LegacyRenderStyles[STYLE_Subtract], true);
+		PalEntry color(255, std::max(tint_blood_r, 0), std::max(tint_blood_g, 0), std::max(tint_blood_b, 0));
+		twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), color, &LegacyRenderStyles[STYLE_Add], true);
 	}
-	renderFinishScene();
-	GLInterface.UseColorOnly(false);
 
+	if (palfadergb.a > 0)
+	{
+		twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), palfadergb, &LegacyRenderStyles[STYLE_Translucent], true);
+	}
 }
 
 void DrawRateStuff();
