@@ -1492,9 +1492,10 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 break;
 
             if (hitData.wall >= 0 && hitData.sect >= 0)
-                if (((hitData.pos.x - startPos.x) * (hitData.pos.x - startPos.x)
-                     + (hitData.pos.y - startPos.y) * (hitData.pos.y - startPos.y))
-                    < (290 * 290))
+            {
+                uint32_t xdiff_sq = (hitData.pos.x - startPos.x) * (hitData.pos.x - startPos.x);
+                uint32_t ydiff_sq = (hitData.pos.y - startPos.y) * (hitData.pos.y - startPos.y);
+                if (xdiff_sq + ydiff_sq < (290 * 290))
                 {
                     // ST_2_UNDERWATER
                     if (wall[hitData.wall].nextsector >= 0)
@@ -1506,6 +1507,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                         placeMine = 1;
                 }
 
+            }
             if (placeMine == 1)
             {
                 int const tripBombMode = (playerNum < 0) ? 0 :
@@ -4306,12 +4308,15 @@ static void P_ProcessWeapon(int playerNum)
                                 if (wall[hitData.wall].overpicnum == BIGFORCE)
                                     break;
 
+                            uint32_t xdiff_sq, ydiff_sq;
                             int spriteNum = headspritesect[hitData.sect];
                             while (spriteNum >= 0)
                             {
-                                if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
-                                    ((sprite[spriteNum].x - hitData.pos.x) * (sprite[spriteNum].x - hitData.pos.x) +
-                                     (sprite[spriteNum].y - hitData.pos.y) * (sprite[spriteNum].y - hitData.pos.y)) < (290 * 290))
+                                xdiff_sq = (sprite[spriteNum].x - hitData.pos.x) * (sprite[spriteNum].x - hitData.pos.x);
+                                ydiff_sq = (sprite[spriteNum].y - hitData.pos.y) * (sprite[spriteNum].y - hitData.pos.y);
+
+                                if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4
+                                        && xdiff_sq + ydiff_sq < (290 * 290))
                                     break;
                                 spriteNum = nextspritesect[spriteNum];
                             }
@@ -4320,8 +4325,11 @@ static void P_ProcessWeapon(int playerNum)
                             if (spriteNum == -1 && hitData.wall >= 0 && (wall[hitData.wall].cstat & 16) == 0)
                                 if ((wall[hitData.wall].nextsector >= 0 && sector[wall[hitData.wall].nextsector].lotag <= 2) ||
                                     (wall[hitData.wall].nextsector == -1 && sector[hitData.sect].lotag <= 2))
-                                    if (((hitData.pos.x - pPlayer->pos.x) * (hitData.pos.x - pPlayer->pos.x) +
-                                         (hitData.pos.y - pPlayer->pos.y) * (hitData.pos.y - pPlayer->pos.y)) < (290 * 290))
+                                    {
+                                    xdiff_sq = (hitData.pos.x - pPlayer->pos.x) * (hitData.pos.x - pPlayer->pos.x);
+                                    ydiff_sq = (hitData.pos.y - pPlayer->pos.y) * (hitData.pos.y - pPlayer->pos.y);
+
+                                    if (xdiff_sq + ydiff_sq < (290 * 290))
                                     {
                                         pPlayer->pos.z = pPlayer->opos.z;
                                         pPlayer->vel.z = 0;
@@ -4331,6 +4339,7 @@ static void P_ProcessWeapon(int playerNum)
                                             A_PlaySound(PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound), pPlayer->i);
                                         }
                                     }
+                        }
                         }
                         break;
 
@@ -5214,7 +5223,7 @@ void P_ProcessInput(int playerNum)
 
     if (!ud.noclip)
         pushmove(&pPlayer->pos, &pPlayer->cursectnum, pPlayer->clipdist - 1, (4L<<8), stepHeight, CLIPMASK0);
-    
+
     // Shrinking code
 
     if (sectorLotag == ST_2_UNDERWATER)
