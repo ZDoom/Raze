@@ -1133,7 +1133,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
-        renderBeginScene();
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 #ifdef LEGACY_ROR
         if (!RR)
@@ -1263,7 +1262,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
         renderDrawMasks();
 #endif
-        renderFinishScene();
     }
 
     G_RestoreInterpolations();

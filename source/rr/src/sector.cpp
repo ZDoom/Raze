@@ -507,7 +507,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     int const    saveMirror = display_mirror;
 
     renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
-    renderBeginScene();
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
@@ -517,7 +516,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
     display_mirror = saveMirror;
     renderDrawMasks();
-    renderFinishScene();
 
     renderRestoreTarget();
 }

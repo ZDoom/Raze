@@ -2618,6 +2618,7 @@ killsprite:
 
     sortsprites(0, spritesortcnt);
     sortsprites(spritesortcnt, numSprites);
+    renderBeginScene();
 
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST)
@@ -2809,17 +2810,9 @@ killsprite:
         }
 
         debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
-#ifdef USE_OPENGL
-        if (videoGetRenderMode() == REND_POLYMOST)
-			GLInterface.SetClamp(0);
-#endif
         renderDrawMaskedWall(maskwallcnt);
     }
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-		GLInterface.SetClamp(1+2);
-#endif
     while (spritesortcnt)
     {
         --spritesortcnt;
@@ -2830,14 +2823,10 @@ killsprite:
             tspriteptr[spritesortcnt] = NULL;
         }
     }
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-    {
-		GLInterface.SetDepthMask(true);
-		GLInterface.SetClamp(0);
-        GLInterface.SetDepthBias(0, 0);
-    }
-#endif
+    renderFinishScene();
+	GLInterface.SetDepthMask(true);
+	GLInterface.SetClamp(0);
+    GLInterface.SetDepthBias(0, 0);
 }
 
 

@@ -53,8 +53,10 @@
 #include "build.h"
 #include "v_draw.h"
 #include "v_font.h"
+#include "hw_viewpointuniforms.h"
 
 F2DDrawer twodpsp;
+static int BufferLock = 0;
 
 float shadediv[MAXPALOOKUPS];
 
@@ -187,13 +189,13 @@ static GLint primtypes[] ={ GL_POINTS, GL_LINES, GL_TRIANGLES, GL_TRIANGLE_FAN, 
 
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
+	assert (BufferLock > 0);
 	applyMapFog();
 	renderState.vindex = start;
 	renderState.vcount = count;
 	renderState.primtype = type;
 	rendercommands.Push(renderState);
 	clearMapFog();
-	SetIdentityMatrix(Matrix_Texture);
 	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 }
 
@@ -232,11 +234,16 @@ void GLInstance::DoDraw()
 int GLInstance::SetMatrix(int num, const VSMatrix *mat)
 {
 	int r = renderState.matrixIndex[num];
-	if (num == Matrix_Projection) mProjectionM5 = mat->get()[5];
 	renderState.matrixIndex[num] = matrixArray.Size();
 	matrixArray.Push(*mat);
 	return r;
 }
+
+void GLInstance::SetIdentityMatrix(int num)
+{
+	renderState.matrixIndex[num] = 0;
+}
+
 
 void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
 {
@@ -492,10 +499,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->TintModulate.Set(hictint);
 	shader->TintOverlay.Set(hictint_overlay);
 	shader->FullscreenTint.Set(fullscreenTint);
-	if (matrixIndex[Matrix_View] != -1)
-		shader->RotMatrix.Set(matrixArray[matrixIndex[Matrix_View]].get());
-	if (matrixIndex[Matrix_Projection] != -1)
-		shader->ProjectionMatrix.Set(matrixArray[matrixIndex[Matrix_Projection]].get());
 	if (matrixIndex[Matrix_Model] != -1)
 		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
 	if (matrixIndex[Matrix_Texture] != -1)
@@ -569,12 +572,32 @@ void WriteSavePic(FileWriter* file, int width, int height)
 }
 
 
-static int BufferLock = 0;
+static HWViewpointUniforms vp;
+
+void renderSetProjectionMatrix(const float* p)
+{
+	if (p)
+	{
+		vp.mProjectionMatrix.loadMatrix(p);
+		GLInterface.mProjectionM5 = p[5];
+	}
+	else vp.mProjectionMatrix.loadIdentity();
+}
+
+void renderSetViewMatrix(const float* p)
+{
+	if (p) vp.mViewMatrix.loadMatrix(p);
+	else vp.mViewMatrix.loadIdentity();
+}
 
 void renderBeginScene()
 {
 	if (videoGetRenderMode() < REND_POLYMOST) return;
-	assert(BufferLock >= 0);
+	assert(BufferLock == 0);
+
+	GLInterface.polymostShader->ProjectionMatrix.Set(vp.mProjectionMatrix.get());
+	GLInterface.polymostShader->RotMatrix.Set(vp.mViewMatrix.get());
+
 	if (BufferLock++ == 0)
 	{
 		screen->mVertexData->Map();
@@ -584,7 +607,7 @@ void renderBeginScene()
 void renderFinishScene()
 {
 	if (videoGetRenderMode() < REND_POLYMOST) return;
-	assert(BufferLock > 0);
+	assert(BufferLock == 1);
 	if (--BufferLock == 0)
 	{
 		screen->mVertexData->Unmap();

@@ -102,10 +102,15 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	SetIdentityMatrix(Matrix_View);
-	SetIdentityMatrix(Matrix_Model);
+	renderSetViewMatrix(nullptr);
 	mat.ortho(0, xdim, ydim, 0, -1, 1);
-	SetMatrix(Matrix_Projection, mat.get());
+	renderSetProjectionMatrix(mat.get());
+	SetIdentityMatrix(Matrix_Model);
+
+	// Temporary hack to set the matrices.
+	renderBeginScene();
+	renderFinishScene();
+
 	SetViewport(0, 0, xdim, ydim);
 	EnableDepthTest(false);
 	EnableMultisampling(false);
@@ -216,7 +221,6 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	//drawer->mIsFirstPass = false;
 	EnableBlend(true);
 	EnableMultisampling(true);
-	SetIdentityMatrix(Matrix_Projection);
 	matrixArray.Resize(1);
 	renderState.Apply(polymostShader, lastState);	// actually set the desired state before returning.
 }
@@ -227,15 +231,14 @@ extern PalEntry palfadergb;
 
 void DrawFullscreenBlends()
 {
-	GLInterface.SetIdentityMatrix(Matrix_Projection);
 	GLInterface.SetIdentityMatrix(Matrix_Model);
-	GLInterface.SetIdentityMatrix(Matrix_View);
 
 	GLInterface.EnableDepthTest(false);
 	GLInterface.EnableAlphaTest(false);
 	GLInterface.EnableBlend(true);
 	GLInterface.UseColorOnly(true);
 
+	renderBeginScene();
 	if (palfadergb.a > 0)
 	{
 		// Todo: reroute to the 2D drawer
@@ -257,7 +260,7 @@ void DrawFullscreenBlends()
 		GLInterface.SetColorub(255, 255, 255, 255);
 		GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 	}
-	GLInterface.DoDraw();
+	renderFinishScene();
 	GLInterface.UseColorOnly(false);
 
 }

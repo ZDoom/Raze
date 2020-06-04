@@ -2174,7 +2174,6 @@ drawscreen(PLAYERp pp)
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-    renderBeginScene();
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;
@@ -2194,7 +2193,6 @@ drawscreen(PLAYERp pp)
     analyzesprites(tx, ty, tz, FALSE);
     post_analyzesprites();
     renderDrawMasks();
-    renderFinishScene();
 
     if (r_usenewaspect)
     {

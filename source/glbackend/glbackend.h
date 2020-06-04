@@ -117,13 +117,13 @@ class GLInstance
 	// Cached GL state.
 	GLState lastState;
 
-	float mProjectionM5 = 1.0f; // needed by ssao
 	PolymostRenderState renderState;
 	FShader* activeShader;
-	PolymostShader* polymostShader;
 	
 	
 public:
+	float mProjectionM5 = 1.0f; // needed by ssao
+	PolymostShader* polymostShader;
 	glinfo_t glinfo;
 	
 	void Init(int y);
@@ -158,12 +158,7 @@ public:
 	{
 		return SetMatrix(num, reinterpret_cast<const VSMatrix*>(mat));
 	}
-	int SetIdentityMatrix(int num)
-	{
-		auto r = renderState.matrixIndex[num];
-		renderState.matrixIndex[num] = 0;
-		return r;
-	}
+	void SetIdentityMatrix(int num);
 	void RestoreMatrix(int num, int index)
 	{
 		renderState.matrixIndex[num] = index;
@@ -504,6 +499,8 @@ public:
 
 extern GLInstance GLInterface;
 
+void renderSetProjectionMatrix(const float* p);
+void renderSetViewMatrix(const float* p);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();

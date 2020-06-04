@@ -679,7 +679,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                            "other values are reserved.\n");
 #endif
 
-            renderBeginScene();
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
@@ -692,7 +691,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
             G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             renderDrawMasks();
-            renderFinishScene();
         }
     }
     else
@@ -844,7 +842,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
 #endif
-            renderBeginScene();
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
             G_ClearGotMirror();
@@ -874,7 +871,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
             renderDrawMasks();
 #endif
-            renderFinishScene();
         }
     }
 

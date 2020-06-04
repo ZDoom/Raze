@@ -208,7 +208,7 @@ static void resizeglcheck(void)
     m[2][2] = (farclip + nearclip) / (farclip - nearclip);
     m[2][3] = 1.f;
     m[3][2] = -(2.f * farclip * nearclip) / (farclip - nearclip);
-	GLInterface.SetMatrix(Matrix_Projection, &m[0][0]);
+	renderSetProjectionMatrix(&m[0][0]);
 	GLInterface.SetIdentityMatrix(Matrix_Model);
 }
 
@@ -283,7 +283,7 @@ static void polymost_updaterotmat(void)
         0.f, 0.f, 0.f, 1.f,
     };
     multiplyMatrix4f(matrix, tiltmatrix);
-	GLInterface.SetMatrix(Matrix_View, matrix);
+    renderSetViewMatrix(matrix);
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -3279,6 +3279,8 @@ void polymost_drawrooms()
 
     grhalfxdown10x = grhalfxdown10;
 
+    renderBeginScene();
+
     if (inpreparemirror)
     {
         // see engine.c: INPREPAREMIRROR_NO_BUNCHES
@@ -3294,6 +3296,7 @@ void polymost_drawrooms()
             inpreparemirror = 0;
         }
     }
+
 
     while (numbunches > 0)
     {
@@ -3327,6 +3330,7 @@ void polymost_drawrooms()
         bunchfirst[closest] = bunchfirst[numbunches];
         bunchlast[closest] = bunchlast[numbunches];
     }
+    renderFinishScene();
 
 	GLInterface.SetDepthFunc(Depth_LessEqual);
 }
@@ -3601,6 +3605,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     polymost_updaterotmat();
     grhalfxdown10x = grhalfxdown10;
 
+    renderBeginScene();
     //POGO: write the mirror region to the stencil buffer to allow showing mirrors & skyboxes at the same time
 	GLInterface.EnableStencilWrite(1);
     GLInterface.EnableAlphaTest(false);
@@ -3608,6 +3613,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     polymost_drawmaskwallinternal(mirrorWall);
     GLInterface.EnableAlphaTest(true);
     GLInterface.EnableDepthTest(true);
+    renderFinishScene();
 
     //POGO: render only to the mirror region
 	GLInterface.EnableStencilTest(1);
