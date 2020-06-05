@@ -2128,6 +2128,7 @@ DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
     return;
 #else
     SET(pp->Flags, PF_RECOIL);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
@@ -3530,6 +3531,7 @@ DoPlayerBeginJump(PLAYERp pp)
     RESET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
@@ -3559,6 +3561,7 @@ DoPlayerBeginForceJump(PLAYERp pp)
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
@@ -3709,6 +3712,7 @@ DoPlayerBeginFall(PLAYERp pp)
     RESET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_FALL_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_FALL_CEILING_DIST;
@@ -3908,6 +3912,7 @@ DoPlayerBeginClimb(PLAYERp pp)
     RESET(pp->Flags, PF_JUMPING|PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->DoPlayerAction = DoPlayerClimb;
 
@@ -4282,6 +4287,7 @@ DoPlayerBeginCrawl(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
     SET(pp->Flags, PF_CRAWLING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
     pp->floor_dist = PLAYER_CRAWL_FLOOR_DIST;
@@ -4437,6 +4443,7 @@ DoPlayerBeginFly(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
     SET(pp->Flags, PF_FLYING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_FLY_FRICTION;
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -5123,6 +5130,7 @@ DoPlayerBeginDive(PLAYERp pp)
     if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
 
     SET(pp->Flags, PF_DIVING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -5188,6 +5196,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     }
 
     SET(pp->Flags, PF_DIVING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -5599,6 +5608,7 @@ DoPlayerBeginWade(PLAYERp pp)
 
     RESET(pp->Flags, PF_JUMPING | PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_WADE_FRICTION;
     pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
@@ -7321,6 +7331,7 @@ DoPlayerBeginRun(PLAYERp pp)
     }
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
+    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 
     if (pp->WadeDepth)
     {
@@ -8071,11 +8082,25 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
+        auto prevFlags2 = pp->Flags2;
         RESET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
 //        extern SWBOOL ScrollMode2D;
         //if (!ScrollMode2D)
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
+        // Fix a possible jitter upon player action change;
+        // Mostly done in order to force updates to oq16ang/oq16horiz.
+        // Don't do so for a dead player which may follow
+        // the killer if present, due to angle interpolation.
+        if (!PedanticMode && !TEST(pp->Flags, PF_DEAD))
+        {
+            auto currFlags2 = pp->Flags2;
+            if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_TURN)
+                DoPlayerTurn(pp, &pp->q16ang, 0);
+            if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_AIM)
+                DoPlayerHorizon(pp, &pp->q16horiz, 0);
+            pp->Flags2 = currFlags2;
+        }
         UpdatePlayerSprite(pp);
 
 #if DEBUG
