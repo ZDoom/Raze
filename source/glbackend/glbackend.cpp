@@ -100,7 +100,7 @@ void GLInstance::Init(int ydim)
 	LoadPolymostShader();
 }
 
-FString i_data = R"(
+auto i_data = R"(
 	#version 330
 	// This must match the HWViewpointUniforms struct
 	layout(std140) uniform ViewpointUBO {
@@ -122,6 +122,13 @@ FString i_data = R"(
 	uniform mat4 NormalModelMatrix;
 	uniform mat4 TextureMatrix;
 	uniform vec4 uDetailParms;
+
+	uniform vec4 uTextureBlendColor;
+	uniform vec4 uTextureModulateColor;
+	uniform vec4 uTextureAddColor;
+
+	uniform float uAlphaThreshold;
+
 )";
 
 void GLInstance::LoadPolymostShader()
@@ -523,10 +530,34 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
-	shader->TintFlags.Set(hictint_flags);
-	shader->TintModulate.Set(hictint);
-	shader->TintOverlay.Set(hictint_overlay);
-	shader->FullscreenTint.Set(fullscreenTint);
+	FVector4 addcol(0, 0, 0, 0);
+	FVector4 modcol(fullscreenTint.r / 255.f, fullscreenTint.g / 255.f, fullscreenTint.b / 255.f, 0);
+	FVector4 blendcol(0, 0, 0, 0);
+	int flags = 0;
+	if (fullscreenTint != 0xffffff) flags |= 16;
+	if (hictint_flags != -1)
+	{
+		flags |= 16;
+		if (hictint_flags & TINTF_COLORIZE)
+		{
+			modcol.X *= hictint.r / 64.f;
+			modcol.Y *= hictint.g / 64.f;
+			modcol.Z *= hictint.b / 64.f;
+		}
+		if (hictint_flags & TINTF_GRAYSCALE)
+			modcol.W = 1.f;
+
+		if (hictint_flags & TINTF_INVERT)
+			flags |= 8;
+
+		if (hictint_flags & TINTF_BLENDMASK)
+			flags |= ((hictint_flags & TINTF_BLENDMASK) >> 6) + 1;
+
+		addcol.W = flags;
+	}
+	shader->muTextureAddColor.Set(&addcol[0]);
+	shader->muTextureModulateColor.Set(&modcol[0]);
+	shader->muTextureBlendColor.Set(&blendcol[0]);
 	if (matrixIndex[Matrix_Model] != -1)
 		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
 

@@ -8,15 +8,6 @@ const int RF_ShadeInterpolate = 64;
 const int RF_FogDisabled = 128;
 const int RF_MapFog = 256;
 
-const int RF_TINT_Grayscale = 0x1;
-const int RF_TINT_Invert = 0x2;
-const int RF_TINT_Colorize = 0x4;
-const int RF_TINT_BLEND_Screen = 64;
-const int RF_TINT_BLEND_Overlay = 128;
-const int RF_TINT_BLEND_Hardlight = 192;
-const int RF_TINT_BLENDMASK = RF_TINT_BLEND_Screen | RF_TINT_BLEND_Overlay | RF_TINT_BLEND_Hardlight;
-
-
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
 //s_palswap is the palette swap texture where u is the color index and v is the shade
@@ -29,22 +20,14 @@ uniform sampler2D s_glow;
 uniform sampler2D s_brightmap;
 
 uniform float u_shade;
-uniform float u_numShades;
 uniform float u_shadeDiv;
 uniform float u_visFactor;
 uniform int u_flags;
-uniform float u_alphaThreshold;
-
-uniform vec4 u_tintOverlay, u_tintModulate;
-uniform int u_tintFlags;
-uniform vec4 u_fullscreenTint;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
 uniform float u_brightness;
 uniform vec4 u_fogColor;
-uniform vec3 u_tintcolor;
-uniform vec3 u_tintmodulate;
 
 in vec4 v_color;
 in float v_distance;
@@ -52,15 +35,7 @@ in vec4 v_texCoord;
 in vec4 v_detailCoord;
 in float v_fogCoord;
 in vec4 v_eyeCoordPosition;
-
-const float c_basepalScale = 255.0/256.0;
-const float c_basepalOffset = 0.5/256.0;
-
-const float c_zero = 0.0;
-const float c_one = 1.0;
-const float c_two = 2.0;
-const vec4 c_vec4_one = vec4(c_one);
-const float c_wrapThreshold = 0.9;
+in vec4 v_worldPosition;
 
 layout(location=0) out vec4 fragColor;
 layout(location=1) out vec4 fragFog;
@@ -76,66 +51,92 @@ float grayscale(vec4 color)
 {
 	return dot(color.rgb, vec3(0.3, 0.56, 0.14));
 }
- 
+
 //===========================================================================
 //
-// Hightile tinting code. (hictinting[dapalnum]) This can be done inside the shader 
-// to avoid costly texture duplication (but needs a more modern GLSL than 1.10.)
+// Desaturate a color
 //
 //===========================================================================
 
-vec4 convertColor(vec4 color)
+vec4 dodesaturate(vec4 texel, float factor)
 {
-	int effect = u_tintFlags;
-	if ((effect & RF_TINT_Grayscale) != 0)
+	if (factor != 0.0)
 	{
-		float g = grayscale(color);
-		color = vec4(g, g, g, color.a);
-	}
-
-	if ((effect & RF_TINT_Invert) != 0)
-	{
-		color = vec4(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, color.a);
-	}
-	
-	vec3 tcol = color.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
-
-	// Much of this looks quite broken by design. Why is this effectively multplied by 4 if the flag is set...? :(
-	if ((effect & RF_TINT_Colorize) != 0)
-	{
-		tcol.r = min(((tcol.b) * u_tintModulate.r)* 4, 255.0);
-		tcol.g = min(((tcol.g) * u_tintModulate.g)* 4, 255.0);
-		tcol.b = min(((tcol.r) * u_tintModulate.b)* 4, 255.0);
+		float gray = grayscale(texel);
+		return mix (texel, vec4(gray,gray,gray,texel.a), factor);
 	}
 	else
 	{
-		tcol.r = min(((tcol.b) * u_tintModulate.r), 255.0);
-		tcol.g = min(((tcol.g) * u_tintModulate.g), 255.0);
-		tcol.b = min(((tcol.r) * u_tintModulate.b), 255.0);
+		return texel;
 	}
-
-	vec4 ov = u_tintOverlay * 255.0;
-	switch (effect & RF_TINT_BLENDMASK)
-	{
-		case RF_TINT_BLEND_Screen:
-			tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 256.0);
-			tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 256.0);
-			tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 256.0);
-			break;
-		case RF_TINT_BLEND_Overlay:
-			tcol.r = tcol.b < 128.0? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
-			tcol.g = tcol.g < 128.0? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
-			tcol.b = tcol.r < 128.0? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);
-			break;
-		case RF_TINT_BLEND_Hardlight:
-			tcol.r = ov.r < 128.0 ? (tcol.r * ov.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - ov.r)) / 128.0);
-			tcol.g = ov.g < 128.0 ? (tcol.g * ov.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - ov.g)) / 128.0);
-			tcol.b = ov.b < 128.0 ? (tcol.b * ov.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - ov.b)) / 128.0);
-			break;
-	}
-	color.rgb = tcol / 255.0;
-	return color;
 }
+
+//===========================================================================
+//
+// Texture tinting code originally from JFDuke but with a few more options
+//
+//===========================================================================
+
+const int Tex_Blend_Alpha = 1;
+const int Tex_Blend_Screen = 2;
+const int Tex_Blend_Overlay = 3;
+const int Tex_Blend_Hardlight = 4;
+ 
+ vec4 ApplyTextureManipulation(vec4 texel, int blendflags)
+ {
+	// Step 1: desaturate according to the material's desaturation factor. 
+	texel = dodesaturate(texel, uTextureModulateColor.a);
+	
+	// Step 2: Invert if requested
+	if ((blendflags & 8) != 0)
+	{
+		texel.rgb = vec3(1.0 - texel.r, 1.0 - texel.g, 1.0 - texel.b);
+	}
+	
+	// Step 3: Apply additive color
+	texel.rgb += uTextureAddColor.rgb;
+	
+	// Step 4: Colorization, including gradient if set.
+	texel.rgb *= uTextureModulateColor.rgb;
+	
+	// Before applying the blend the value needs to be clamped to [0..1] range.
+	texel.rgb = clamp(texel.rgb, 0.0, 1.0);
+	
+	// Step 5: Apply a blend. This may just be a translucent overlay or one of the blend modes present in current Build engines.
+	if ((blendflags & 7) != 0)
+	{
+		vec3 tcol = texel.rgb * 255.0;	// * 255.0 to make it easier to reuse the integer math.
+		vec4 tint = uTextureBlendColor * 255.0;
+
+		switch (blendflags & 7)
+		{
+			default:
+				tcol.b = tcol.b * (1.0 - uTextureBlendColor.a) + tint.b * uTextureBlendColor.a;
+				tcol.g = tcol.g * (1.0 - uTextureBlendColor.a) + tint.g * uTextureBlendColor.a;
+				tcol.r = tcol.r * (1.0 - uTextureBlendColor.a) + tint.r * uTextureBlendColor.a;
+				break;
+			// The following 3 are taken 1:1 from the Build engine
+			case Tex_Blend_Screen:
+				tcol.b = 255.0 - (((255.0 - tcol.b) * (255.0 - tint.r)) / 256.0);
+				tcol.g = 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 256.0);
+				tcol.r = 255.0 - (((255.0 - tcol.r) * (255.0 - tint.b)) / 256.0);
+				break;
+			case Tex_Blend_Overlay:
+				tcol.b = tcol.b < 128.0? (tcol.b * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.b)) / 128.0);
+				tcol.g = tcol.g < 128.0? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
+				tcol.r = tcol.r < 128.0? (tcol.r * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.r)) / 128.0);
+				break;
+			case Tex_Blend_Hardlight:
+				tcol.b = tint.b < 128.0 ? (tcol.b * tint.b) / 128.0 : 255.0 - (((255.0 - tcol.b) * (255.0 - tint.b)) / 128.0);
+				tcol.g = tint.g < 128.0 ? (tcol.g * tint.g) / 128.0 : 255.0 - (((255.0 - tcol.g) * (255.0 - tint.g)) / 128.0);
+				tcol.r = tint.r < 128.0 ? (tcol.r * tint.r) / 128.0 : 255.0 - (((255.0 - tcol.r) * (255.0 - tint.r)) / 128.0);
+				break;
+		}
+		texel.rgb = tcol / 255.0;
+	}
+	return texel;
+}
+
 
 //===========================================================================
 //
@@ -197,7 +198,7 @@ void main()
 				palettedColor.rgb = mix(palettedColor.rgb, palettedColorNext.rgb, shadeFrac);
 			}
 			
-	   		palettedColor.a = color.r == 0.0? 0.0 : 1.0;// c_one-floor(color.r);
+	   		palettedColor.a = color.r == 0.0? 0.0 : 1.0;// 1.0-floor(color.r);
 	   		color = palettedColor;
 			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
 			color.rgb *= v_color.rgb; // Well, this is dead wrong but unavoidable. For colored fog it applies the light to the fog as well...
@@ -205,7 +206,15 @@ void main()
 		else
 		{
 			color.rgb *= detailColor.rgb;
-			if (u_tintFlags != -1) color = convertColor(color);
+			
+			// Apply the texture modification colors.
+			int blendflags = int(uTextureAddColor.a);	// this alpha is unused otherwise
+			if (blendflags != 0)	
+			{
+				// only apply the texture manipulation if it contains something.
+				color = ApplyTextureManipulation(color, blendflags);
+			}
+			
 			if ((u_flags & RF_FogDisabled) == 0)
 			{
 				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
@@ -225,7 +234,7 @@ void main()
 			float fogfactor = 0.55 + 0.3 * exp2 (-5.0*v_fogCoord); 		
 			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
-		if (color.a < u_alphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
+		if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
 		
 		color.a *= v_color.a;
 	}
@@ -241,8 +250,16 @@ void main()
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
+	/*
+	int ix = int (v_worldPosition.x);
+	int iy = int (v_worldPosition.z);
+	int iz = int (v_worldPosition.y);
+	if ((ix & 64) == 1) color.r = 0;
+	if ((iy & 64) == 1) color.g = 0;
+	if ((iz & 64) == 1) color.b = 0;
+	*/
+	
 	color.rgb = pow(color.rgb, vec3(u_brightness));
-	color.rgb *= u_fullscreenTint.rgb;	// must be the last thing to be done.
 	fragColor = color;
 	fragFog = vec4(0.0, 0.0, 0.0, 1.0); // Does build have colored fog?
 	vec3 normal = normalize(cross(dFdx(v_eyeCoordPosition.xyz), dFdy(v_eyeCoordPosition.xyz)));

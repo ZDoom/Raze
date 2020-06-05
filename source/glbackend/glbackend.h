@@ -106,6 +106,7 @@ struct GLState
 
 class GLInstance
 {
+public:
 	TArray<PolymostRenderState> rendercommands;
 	int maxTextureSize;
 	PaletteManager palmanager;

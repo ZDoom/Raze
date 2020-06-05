@@ -38,6 +38,12 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 }
 
 
+void PrintVis(int sectvis, char type)
+{
+    Printf("%c: g_vis = %d, gv = %d, gv2 = %d, gc = %d, gc2 = %d, gh2 = %d, globvis2 = %d, fviewingrange = %f, sectvis = %d, result = %f\n",
+        type, g_visibility, globalvisibility, globalvisibility2, globalcisibility, globalcisibility2, globalhisibility2, globvis2, fviewingrange, sectvis, GLInterface.renderState.VisFactor);
+}
+
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
 
 // For testing - will be removed later.
@@ -2084,12 +2090,10 @@ static void polymost_drawalls(int32_t const bunch)
         globalshade = sec->floorshade;
         globalpal = sec->floorpal;
         globalorientation = sec->floorstat;
-        globvis = (sector[sectnum].visibility != 0) ?
-                  mulscale4(globalcisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
-                  globalcisibility;
         globvis2 = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility2;
+        PrintVis(sector[sectnum].visibility, 'c');
 		GLInterface.SetVisibility(globvis2, fviewingrange);
 
         tileUpdatePicnum(&globalpicnum, sectnum);
@@ -2342,13 +2346,11 @@ static void polymost_drawalls(int32_t const bunch)
         globalshade = sec->ceilingshade;
         globalpal = sec->ceilingpal;
         globalorientation = sec->ceilingstat;
-        globvis = (sector[sectnum].visibility != 0) ?
-                  mulscale4(globalcisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
-                  globalcisibility;
         globvis2 = (sector[sectnum].visibility != 0) ?
                   mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                   globalcisibility2;
-		GLInterface.SetVisibility(globvis2, fviewingrange);
+        PrintVis(sector[sectnum].visibility, 'c');
+        GLInterface.SetVisibility(globvis2, fviewingrange);
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -2668,11 +2670,10 @@ static void polymost_drawalls(int32_t const bunch)
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
-                globvis = globalvisibility;
-                if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
                 globvis2 = globalvisibility2;
                 if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-				GLInterface.SetVisibility(globvis2, fviewingrange);
+                PrintVis(sector[sectnum].visibility, 'v');
+                GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2710,11 +2711,10 @@ static void polymost_drawalls(int32_t const bunch)
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
-                globvis = globalvisibility;
-                if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
                 globvis2 = globalvisibility2;
                 if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-				GLInterface.SetVisibility(globvis2, fviewingrange);
+                PrintVis(sector[sectnum].visibility, 'v');
+                GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2758,13 +2758,11 @@ static void polymost_drawalls(int32_t const bunch)
 
                 globalshade = wal->shade;
                 globalpal = wal->pal;
-                globvis = (sector[sectnum].visibility != 0) ?
-                          mulscale4(globalvisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
-                          globalvisibility;
                 globvis2 = (sector[sectnum].visibility != 0) ?
                           mulscale4(globalvisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
                           globalvisibility2;
-				GLInterface.SetVisibility(globvis2, fviewingrange);
+                PrintVis(sector[sectnum].visibility, 'v');
+                GLInterface.SetVisibility(globvis2, fviewingrange);
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -3356,12 +3354,10 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     globalorientation = (int32_t)wal->cstat;
     tileUpdatePicnum(&globalpicnum, (int16_t)wallIndex+16384);
 
-    globvis = globalvisibility;
-    globvis = (sector[sectnum].visibility != 0) ? mulscale4(globvis, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility;
-
     globvis2 = globalvisibility2;
     globvis2 = (sector[sectnum].visibility != 0) ? mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility2;
-	GLInterface.SetVisibility(globvis2, fviewingrange);
+    PrintVis(sector[sectnum].visibility, 'v');
+    GLInterface.SetVisibility(globvis2, fviewingrange);
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
@@ -3733,15 +3729,12 @@ void polymost_drawsprite(int32_t snum)
     globalshade = tspr->shade;
     globalpal = tspr->pal;
     globalorientation = tspr->cstat;
-    globvis = globalvisibility;
-
-    if (sector[tspr->sectnum].visibility != 0)
-        globvis = mulscale4(globvis, (uint8_t)(sector[tspr->sectnum].visibility + 16));
 
     globvis2 = globalvisibility2;
     if (sector[tspr->sectnum].visibility != 0)
         globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-	GLInterface.SetVisibility(globvis2, fviewingrange);
+    PrintVis(sector[tspr->sectnum].visibility, 'v');
+    GLInterface.SetVisibility(globvis2, fviewingrange);
 
     vec2_t off = { 0, 0 };
 
@@ -4154,7 +4147,8 @@ void polymost_drawsprite(int32_t snum)
             globvis2 = globalhisibility2;
             if (sector[tspr->sectnum].visibility != 0)
                 globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-			GLInterface.SetVisibility(globvis2, fviewingrange);
+            PrintVis(sector[tspr->sectnum].visibility, 'h');
+            GLInterface.SetVisibility(globvis2, fviewingrange);
 
             if ((globalorientation & 64) != 0 && (globalposz > pos.z) == (!(globalorientation & 8)))
                 goto _drawsprite_return;

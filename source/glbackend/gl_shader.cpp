@@ -66,10 +66,6 @@ bool FShader::Load(const char * name, const char * vert_prog, const char * frag_
 	glAttachShader(hShader, hVertProg);
 	glAttachShader(hShader, hFragProg);
 
-	glBindAttribLocation(hShader, 0, "i_vertPos");
-	glBindAttribLocation(hShader, 1, "i_texCoord");
-	glBindAttribLocation(hShader, 2, "i_color");
-
 	glLinkProgram(hShader);
 
 	glGetShaderInfoLog(hVertProg, 10000, NULL, buffer);
@@ -146,15 +142,14 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
 	FogColor.Init(hShader, "u_fogColor");
-	AlphaThreshold.Init(hShader, "u_alphaThreshold");
-	FullscreenTint.Init(hShader, "u_fullscreenTint");
-	TintModulate.Init(hShader, "u_tintModulate");
-	TintOverlay.Init(hShader, "u_tintOverlay");
-	TintFlags.Init(hShader, "u_tintFlags");
 
+	AlphaThreshold.Init(hShader, "uAlphaThreshold");
 	DetailParms.Init(hShader, "uDetailParms");
 	ModelMatrix.Init(hShader, "ModelMatrix");
 	TextureMatrix.Init(hShader, "TextureMatrix");
+	muTextureAddColor.Init(hShader, "uTextureAddColor");
+	muTextureModulateColor.Init(hShader, "uTextureModulateColor");
+	muTextureBlendColor.Init(hShader, "uTextureBlendColor");
 
 
     

@@ -13,15 +13,6 @@ class FShader
 protected:
 	unsigned int hShader = 0;
 
-#if 0
-	FName mName;
-	int projectionmatrix_index;
-	int viewmatrix_index;
-	int modelmatrix_index;
-	int texturematrix_index;
-	bool currentTextureMatrixState = false;
-	bool currentModelMatrixState = false;
-#endif
 
 public:
 	FShader() = default;
@@ -44,15 +35,14 @@ public:
     FBufferedUniform1f Brightness;
 	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniformPalEntry FogColor;
-	FBufferedUniformPalEntry FullscreenTint;
-	FBufferedUniformPalEntry TintModulate;
-	FBufferedUniformPalEntry TintOverlay;
-	FBufferedUniform1i TintFlags;
 	FBufferedUniform4f DetailParms;
 
 
 	FUniformMatrix4f   ModelMatrix;
 	FUniformMatrix4f   TextureMatrix;
+	FBufferedUniform4f muTextureBlendColor;
+	FBufferedUniform4f muTextureModulateColor;
+	FBufferedUniform4f muTextureAddColor;
 
 public:
 

@@ -1101,7 +1101,7 @@ fix16_t qglobalang;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 static int32_t globaluclip, globaldclip;
-int32_t globvis, globalvisibility;
+int32_t globalvisibility;
 int32_t globalhisibility, globalpisibility, globalcisibility;
 #ifdef USE_OPENGL
 int32_t globvis2, globalvisibility2, globalhisibility2, globalpisibility2, globalcisibility2;
@@ -3265,8 +3265,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
 
 			globalshade = max(min<int>(sec->floorshade, numshades - 1), 0);
-			globvis = globalhisibility;
-            if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
             if ((globalorientation&64) == 0)
             {
                 set_globalpos(dax, day, globalposz);
@@ -3384,8 +3382,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             else
                 globalshade = ((int32_t)sector[spr->sectnum].floorshade);
             globalshade = max(min(globalshade+spr->shade+6,numshades-1),0);
-            globvis = globalhisibility;
-            if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
 
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
