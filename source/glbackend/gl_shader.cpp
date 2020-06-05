@@ -135,14 +135,13 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	if (tempindex != -1) glUniformBlockBinding(hShader, tempindex, VIEWPOINT_BINDINGPOINT);
 
 	Flags.Init(hShader, "u_flags");
-	Shade.Init(hShader, "u_shade");
-	ShadeDiv.Init(hShader, "u_shadeDiv");
-    VisFactor.Init(hShader, "u_visFactor");
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
 	FogColor.Init(hShader, "u_fogColor");
 
+	muFogEnabled.Init(hShader, "uFogEnabled");
+	muLightParms.Init(hShader, "uLightAttr");
 	AlphaThreshold.Init(hShader, "uAlphaThreshold");
 	DetailParms.Init(hShader, "uDetailParms");
 	ModelMatrix.Init(hShader, "ModelMatrix");

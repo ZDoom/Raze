@@ -5,8 +5,6 @@ const int RF_GlowMapping = 8;
 const int RF_Brightmapping = 16;
 const int RF_NPOTEmulation = 32;
 const int RF_ShadeInterpolate = 64;
-const int RF_FogDisabled = 128;
-const int RF_MapFog = 256;
 
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
@@ -19,9 +17,6 @@ uniform sampler2D s_detail;
 uniform sampler2D s_glow;
 uniform sampler2D s_brightmap;
 
-uniform float u_shade;
-uniform float u_shadeDiv;
-uniform float u_visFactor;
 uniform int u_flags;
 
 uniform float u_npotEmulationFactor;
@@ -175,9 +170,9 @@ void main()
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
 
-		float visibility = max(uGlobVis * u_visFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
+		float visibility = max(uGlobVis * uLightFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
 		float numShades = float(uPalLightLevels & 255);
-		float shade = clamp((u_shade + visibility), 0.0, numShades - 1.0);
+		float shade = clamp((uLightLevel + visibility), 0.0, numShades - 1.0);
 		
 
 		if ((u_flags & RF_UsePalette) != 0)
@@ -215,9 +210,9 @@ void main()
 				color = ApplyTextureManipulation(color, blendflags);
 			}
 			
-			if ((u_flags & RF_FogDisabled) == 0)
+			if (uFogEnabled != 0) // Right now this code doesn't care about the fog modes yet.
 			{
-				shade = clamp(shade * u_shadeDiv, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
+				shade = clamp(shade * uLightDist, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
 				vec3 lightcolor = v_color.rgb * (1.0 - shade);
 
 				if ((u_flags & RF_Brightmapping) != 0)
@@ -225,13 +220,13 @@ void main()
 					lightcolor = clamp(lightcolor + texture(s_brightmap, v_texCoord.xy).rgb, 0.0, 1.0);
 				}
 				color.rgb *= lightcolor;
-				if ((u_flags & RF_MapFog) == 0) color.rgb += u_fogColor.rgb * shade;
+				if (uFogDensity == 0.0) color.rgb += u_fogColor.rgb * shade;
 			}
 			else color.rgb *= v_color.rgb;
 		}
-		if ((u_flags & RF_MapFog) != 0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
+		if (uFogDensity != 0.0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
-			float fogfactor = 0.55 + 0.3 * exp2 (-5.0*v_fogCoord); 		
+			float fogfactor = 0.55 + 0.3 * exp2 (uFogDensity * v_fogCoord); 		
 			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
 		if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.

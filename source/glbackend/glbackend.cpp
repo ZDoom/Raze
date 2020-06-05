@@ -126,6 +126,12 @@ auto i_data = R"(
 	uniform vec4 uTextureAddColor;
 
 	uniform float uAlphaThreshold;
+	uniform vec4 uLightAttr;
+	#define uLightLevel uLightAttr.a
+	#define uFogDensity uLightAttr.b
+	#define uLightFactor uLightAttr.g
+	#define uLightDist uLightAttr.r
+	uniform int uFogEnabled;
 
 )";
 
@@ -373,7 +379,7 @@ void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int trans
 #endif
 }
 
-void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
+void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 {
 	if (!OpenGLRenderer::GLRenderer) return;
 	auto sm = OpenGLRenderer::GLRenderer->mSamplerManager;
@@ -386,7 +392,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		float buffer[] = { mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y, 1.f, 0.f };
 		shader->DetailParms.Set(buffer);
 	}
- 
+
 	if (PaletteTexture != nullptr)
 	{
 		PaletteTexture->Bind(4, false);
@@ -417,7 +423,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 			if (StateFlags & STF_MULTISAMPLE) glEnable(GL_MULTISAMPLE);
 			else glDisable(GL_MULTISAMPLE);
 		}
-		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST|STF_STENCILWRITE))
+		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST | STF_STENCILWRITE))
 		{
 			if (StateFlags & STF_STENCILWRITE)
 			{
@@ -465,7 +471,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, (StateFlags & STF_WIREFRAME) ? GL_LINE : GL_FILL);
 		}
-		if (StateFlags & (STF_CLEARCOLOR| STF_CLEARDEPTH))
+		if (StateFlags & (STF_CLEARCOLOR | STF_CLEARDEPTH))
 		{
 			glClearColor(ClearColor.r / 255.f, ClearColor.g / 255.f, ClearColor.b / 255.f, 1.f);
 			int bit = 0;
@@ -517,17 +523,29 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 		oldState.DepthFunc = DepthFunc;
 	}
 	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
-	shader->Flags.Set(Flags);
-	shader->Shade.Set(Shade);
-	shader->ShadeDiv.Set(ShadeDiv / (numshades - 2));
-	shader->VisFactor.Set(VisFactor);
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
+	{
+		if (!FogColor.isBlack())
+		{
+			Flags &= ~RF_Brightmapping;
+			shader->muFogEnabled.Set(-1);
+		}
+		else
+		{
+			shader->muFogEnabled.Set(1);
+		}
+	}
+	else shader->muFogEnabled.Set(0);
+
 	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
+	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , Shade };
+	shader->muLightParms.Set(lightattr);
+
 	FVector4 addcol(0, 0, 0, 0);
 	FVector4 modcol(fullscreenTint.r / 255.f, fullscreenTint.g / 255.f, fullscreenTint.b / 255.f, 0);
 	FVector4 blendcol(0, 0, 0, 0);

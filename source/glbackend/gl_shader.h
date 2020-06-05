@@ -27,17 +27,15 @@ class PolymostShader : public FShader
 {
 public:
 	FBufferedUniform1i Flags;
-    FBufferedUniform1f Shade;
-	FBufferedUniform1f ShadeDiv;
-	FBufferedUniform1f VisFactor;
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
     FBufferedUniform1f Brightness;
-	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniformPalEntry FogColor;
+
 	FBufferedUniform4f DetailParms;
-
-
+	FBufferedUniform1f AlphaThreshold;
+	FBufferedUniform1i muFogEnabled;
+	FBufferedUniform4f muLightParms;
 	FUniformMatrix4f   ModelMatrix;
 	FUniformMatrix4f   TextureMatrix;
 	FBufferedUniform4f muTextureBlendColor;
