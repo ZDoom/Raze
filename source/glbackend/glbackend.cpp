@@ -129,8 +129,8 @@ void GLInstance::LoadPolymostShader()
 	// Zero-terminate both strings.
 	Vert.Push(0);
 	Frag.Push(0);
-	FStringf VertS("%s\n%s", i_data, Vert.Data());
-	FStringf FragS("%s\n%s", i_data, Frag.Data());
+	FStringf VertS("%s\n%s", i_data.GetChars(), Vert.Data());
+	FStringf FragS("%s\n%s", i_data.GetChars(), Frag.Data());
 	polymostShader = new PolymostShader();
 	polymostShader->Load("PolymostShader", (const char*)VertS.GetChars(), (const char*)FragS.GetChars());
 	SetPolymostShader();
