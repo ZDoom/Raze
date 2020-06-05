@@ -89,7 +89,6 @@ enum EWinding
 
 struct ImDrawData;
 struct palette_t;
-extern float shadediv[256];
 
 enum
 {

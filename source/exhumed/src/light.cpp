@@ -100,9 +100,9 @@ int LoadPaletteLookups()
 #ifdef USE_OPENGL
         // These 3 tables do not have normal gradients. The others work without adjustment.
         // Other changes than altering the fog gradient are not necessary.
-        shadediv[kPalTorch] = shadediv[kPalTorch2] = 1 / 20.f;
-        shadediv[kPalNoTorch] = shadediv[kPalNoTorch2] = 0.25f;
-        shadediv[kPalBrite] = shadediv[kPalBrite] = 1 / 128.f;
+        lookups.tables[kPalTorch].ShadeFactor = lookups.tables[kPalTorch2].ShadeFactor = (numshades - 2) / 20.f;
+        lookups.tables[kPalNoTorch].ShadeFactor = lookups.tables[kPalNoTorch2].ShadeFactor = (numshades - 2) / 4.f;
+        lookups.tables[kPalBrite].ShadeFactor = lookups.tables[kPalBrite].ShadeFactor = (numshades - 2) / 128.f;
 #endif
 
     }

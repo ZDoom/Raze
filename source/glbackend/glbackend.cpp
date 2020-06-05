@@ -60,8 +60,6 @@
 F2DDrawer twodpsp;
 static int BufferLock = 0;
 
-float shadediv[MAXPALOOKUPS];
-
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
 int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
@@ -303,7 +301,7 @@ void GLInstance::SetPalette(int index)
 void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
-	renderState.ShadeDiv = shadediv[index] == 0 ? 1.f / (numshades - 2) : shadediv[index];
+	renderState.ShadeDiv = lookups.tables[index].ShadeFactor;
 }
 
 void GLInstance::DrawImGui(ImDrawData* data)
@@ -522,7 +520,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState &oldState)
 	if (!(Flags & RF_FogDisabled) && !FogColor.isBlack()) Flags &= ~RF_Brightmapping;
 	shader->Flags.Set(Flags);
 	shader->Shade.Set(Shade);
-	shader->ShadeDiv.Set(ShadeDiv);
+	shader->ShadeDiv.Set(ShadeDiv / (numshades - 2));
 	shader->VisFactor.Set(VisFactor);
 	shader->Flags.Set(Flags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);

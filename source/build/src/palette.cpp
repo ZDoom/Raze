@@ -139,10 +139,11 @@ void LookupTableInfo::postLoadTables(void)
             bool isbright = false;
             if (divider > 0.9)
             {
-                shadediv[j] = 1 / 10000.f;   // this translation is fullbright.
+                tables[j].ShadeFactor = 1 / 10000.f;   // this translation is fullbright.
             }
             else
             {
+                if (tables[j].ShadeFactor == 0) tables[j].ShadeFactor = 1.f;
                 // Fullbright lookups do not need brightmaps.
                 auto fog = tables[j].FadeColor;
                 if (GPalette.HasGlobalBrightmap && fog.r == 0 && fog.g == 0 && fog.b == 0)

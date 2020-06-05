@@ -53,6 +53,7 @@ struct LookupTable
 {
     FString Shades;
     PalEntry FadeColor = 0;
+    float ShadeFactor = 1.f;
     float Visibility = 0;
     bool hasBrightmap = false;
     bool noFloorPal = false;
