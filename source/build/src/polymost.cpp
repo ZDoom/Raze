@@ -38,12 +38,6 @@ CUSTOM_CVARD(Bool, hw_useindexedcolortextures, false, CVAR_ARCHIVE | CVAR_GLOBAL
 }
 
 
-void PrintVis(int sectvis, char type)
-{
-    Printf("%c: g_vis = %d, gv = %d, gv2 = %d, gc = %d, gc2 = %d, gh2 = %d, globvis2 = %d, fviewingrange = %f, sectvis = %d, result = %f\n",
-        type, g_visibility, globalvisibility, globalvisibility2, globalcisibility, globalcisibility2, globalhisibility2, globvis2, fviewingrange, sectvis, GLInterface.renderState.VisFactor);
-}
-
 //{ "r_yshearing", "enable/disable y-shearing", (void*)&r_yshearing, CVAR_BOOL, 0, 1 }, disabled because not fully functional 
 
 // For testing - will be removed later.
@@ -119,6 +113,13 @@ static hitdata_t polymost_hitdata;
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
+}
+
+float sectorVisibility(int sectnum)
+{
+    // Beware of wraparound madness...
+    int v = sector[sectnum].visibility;
+    return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
 }
 
 void gltexapplyprops(void)
@@ -289,6 +290,7 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
+    renderSetVisibility(g_visibility * fviewingrange * (4.f / (65536.f * 65536.f)));
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -2090,11 +2092,8 @@ static void polymost_drawalls(int32_t const bunch)
         globalshade = sec->floorshade;
         globalpal = sec->floorpal;
         globalorientation = sec->floorstat;
-        globvis2 = (sector[sectnum].visibility != 0) ?
-                  mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
-                  globalcisibility2;
-        PrintVis(sector[sectnum].visibility, 'c');
-		GLInterface.SetVisibility(globvis2, fviewingrange);
+
+		GLInterface.SetVisibility(sectorVisibility(sectnum));
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -2124,12 +2123,6 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-            globvis2 = globalpisibility;
-            if (sec->visibility != 0)
-                globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
-            float viscale = xdimscale*fxdimen*(.0000001f/256.f);
-			GLInterface.SetVisibility(globvis2*viscale, fviewingrange);
-
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
             for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
@@ -2144,8 +2137,8 @@ static void polymost_drawalls(int32_t const bunch)
 				pow2xsplit = 0;
                 skyclamphack = 0;
                 flatskyrender = 1;
-                globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
-				GLInterface.SetVisibility(0.f, fviewingrange);
+                //globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
+				GLInterface.SetVisibility(0.f);
                 polymost_domost(x0,fy0,x1,fy1);
                 flatskyrender = 0;
                 ghoriz = ghorizbak;
@@ -2346,11 +2339,7 @@ static void polymost_drawalls(int32_t const bunch)
         globalshade = sec->ceilingshade;
         globalpal = sec->ceilingpal;
         globalorientation = sec->ceilingstat;
-        globvis2 = (sector[sectnum].visibility != 0) ?
-                  mulscale4(globalcisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
-                  globalcisibility2;
-        PrintVis(sector[sectnum].visibility, 'c');
-        GLInterface.SetVisibility(globvis2, fviewingrange);
+        GLInterface.SetVisibility(sectorVisibility(sectnum));
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -2380,12 +2369,6 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
-            globvis2 = globalpisibility;
-            if (sec->visibility != 0)
-                globvis2 = mulscale4(globvis2, (uint8_t)(sec->visibility + 16));
-            float viscale = xdimscale*fxdimen*(.0000001f/256.f);
-			GLInterface.SetVisibility(globvis2*viscale, fviewingrange);
-
             //Use clamping for tiled sky textures
             //(don't wrap around edges if the sky use multiple panels)
             for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
@@ -2400,8 +2383,8 @@ static void polymost_drawalls(int32_t const bunch)
 				pow2xsplit = 0;
 				skyclamphack = 0;
 				flatskyrender = 1;
-				globalshade += globvis2 * xdimscale * fviewingrange * (1.f / (64.f * 65536.f * 256.f * 1024.f));
-				GLInterface.SetVisibility(0.f, fviewingrange);
+				//globalshade += globvis2 * xdimscale * fviewingrange * (1.f / (64.f * 65536.f * 256.f * 1024.f));
+				GLInterface.SetVisibility(0.f);
 				polymost_domost(x1, cy1, x0, cy0);
 				flatskyrender = 0;
                 ghoriz = ghorizbak;
@@ -2670,10 +2653,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
-                globvis2 = globalvisibility2;
-                if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-                PrintVis(sector[sectnum].visibility, 'v');
-                GLInterface.SetVisibility(globvis2, fviewingrange);
+                GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2711,10 +2691,7 @@ static void polymost_drawalls(int32_t const bunch)
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
-                globvis2 = globalvisibility2;
-                if (sector[sectnum].visibility != 0) globvis2 = mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility+16));
-                PrintVis(sector[sectnum].visibility, 'v');
-                GLInterface.SetVisibility(globvis2, fviewingrange);
+                GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2758,11 +2735,7 @@ static void polymost_drawalls(int32_t const bunch)
 
                 globalshade = wal->shade;
                 globalpal = wal->pal;
-                globvis2 = (sector[sectnum].visibility != 0) ?
-                          mulscale4(globalvisibility2, (uint8_t)(sector[sectnum].visibility + 16)) :
-                          globalvisibility2;
-                PrintVis(sector[sectnum].visibility, 'v');
-                GLInterface.SetVisibility(globvis2, fviewingrange);
+                GLInterface.SetVisibility(sectorVisibility(sectnum));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -3354,10 +3327,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     globalorientation = (int32_t)wal->cstat;
     tileUpdatePicnum(&globalpicnum, (int16_t)wallIndex+16384);
 
-    globvis2 = globalvisibility2;
-    globvis2 = (sector[sectnum].visibility != 0) ? mulscale4(globvis2, (uint8_t)(sector[sectnum].visibility + 16)) : globalvisibility2;
-    PrintVis(sector[sectnum].visibility, 'v');
-    GLInterface.SetVisibility(globvis2, fviewingrange);
+    GLInterface.SetVisibility(sectorVisibility(sectnum));
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
@@ -3730,11 +3700,7 @@ void polymost_drawsprite(int32_t snum)
     globalpal = tspr->pal;
     globalorientation = tspr->cstat;
 
-    globvis2 = globalvisibility2;
-    if (sector[tspr->sectnum].visibility != 0)
-        globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-    PrintVis(sector[tspr->sectnum].visibility, 'v');
-    GLInterface.SetVisibility(globvis2, fviewingrange);
+    GLInterface.SetVisibility(sectorVisibility(tspr->sectnum));
 
     vec2_t off = { 0, 0 };
 
@@ -4144,11 +4110,7 @@ void polymost_drawsprite(int32_t snum)
         break;
 
         case 2:  // Floor sprite
-            globvis2 = globalhisibility2;
-            if (sector[tspr->sectnum].visibility != 0)
-                globvis2 = mulscale4(globvis2, (uint8_t)(sector[tspr->sectnum].visibility + 16));
-            PrintVis(sector[tspr->sectnum].visibility, 'h');
-            GLInterface.SetVisibility(globvis2, fviewingrange);
+            GLInterface.SetVisibility(sectorVisibility(tspr->sectnum) * (4.f/5.f)); // No idea why this uses a different visibility setting...
 
             if ((globalorientation & 64) != 0 && (globalposz > pos.z) == (!(globalorientation & 8)))
                 goto _drawsprite_return;

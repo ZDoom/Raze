@@ -203,9 +203,9 @@ public:
 		renderState.Shade = shade;
 	}
 
-	void SetVisibility(float visibility, float fviewingrange)
+	void SetVisibility(float visibility)
 	{
-		renderState.VisFactor = visibility* fviewingrange* (1.f / (65536.f * 65536.f));
+		renderState.VisFactor = visibility;
 	}
 
 	void EnableBlend(bool on)
@@ -501,6 +501,7 @@ extern GLInstance GLInterface;
 
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
+void renderSetVisibility(float v);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();

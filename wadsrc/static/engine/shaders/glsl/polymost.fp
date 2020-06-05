@@ -175,7 +175,7 @@ void main()
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
 
-		float visibility = max(u_visFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
+		float visibility = max(uGlobVis * u_visFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
 		float numShades = float(uPalLightLevels & 255);
 		float shade = clamp((u_shade + visibility), 0.0, numShades - 1.0);
 		

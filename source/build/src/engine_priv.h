@@ -94,11 +94,6 @@ extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
 extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern int32_t globalhisibility, globalpisibility, globalcisibility;
-#ifdef USE_OPENGL
-extern int32_t globvis2, globalvisibility2, globalhisibility2, globalpisibility2, globalcisibility2;
-#endif
-extern int32_t globalvisibility;
 extern int32_t xyaspect;
 extern int32_t globalshade;
 extern int16_t globalpicnum;
