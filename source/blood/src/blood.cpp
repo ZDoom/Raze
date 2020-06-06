@@ -1187,16 +1187,20 @@ RESTART:
         goto RESTART;
     }
     UpdateNetworkMenus();
+#if 0
     if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
         gDemo.SetupPlayback(NULL);
+#endif
     gQuitGame = 0;
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)
     {
         inputState.ClearAllInput();
     }
+#if 0
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo && demo_playloop)
         gDemo.Playback();
+#endif
     if (gDemo.at59ef > 0)
         M_ClearMenus();
 	if (!bAddUserMap && !gGameStarted)
@@ -1344,8 +1348,10 @@ RESTART:
 #endif
         if (gGameOptions.nGameType != 0)
         {
+#if 0
             if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
                 gDemo.NextDemo();
+#endif
             videoSetViewableArea(0,0,xdim-1,ydim-1);
             if (!bQuickStart)
                 credLogosDos();
