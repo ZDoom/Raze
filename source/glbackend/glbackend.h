@@ -407,15 +407,10 @@ public:
 		else renderState.Flags &= ~RF_Brightmapping;
 	}
 
-	void SetNpotEmulation(bool yes, float factor, float xOffset)
+	void SetNpotEmulation(float factor, float xOffset)
 	{
-		if (yes)
-		{
-			renderState.Flags |= RF_NPOTEmulation;
-			renderState.NPOTEmulationFactor = factor;
-			renderState.NPOTEmulationXOffset = xOffset;
-		}
-		else renderState.Flags &= ~RF_NPOTEmulation;
+		renderState.NPOTEmulationFactor = factor;
+		renderState.NPOTEmulationXOffset = xOffset;
 	}
 
 	void SetShadeInterpolate(int32_t yes)

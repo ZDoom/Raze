@@ -3,7 +3,6 @@ const int RF_UsePalette = 2;
 const int RF_DetailMapping = 4;
 const int RF_GlowMapping = 8;
 const int RF_Brightmapping = 16;
-const int RF_NPOTEmulation = 32;
 const int RF_ShadeInterpolate = 64;
 
 
@@ -163,7 +162,7 @@ void main()
 		vec2 newCoord;
 		
 		// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
-		if ((u_flags & RF_NPOTEmulation) != 0)
+		if (u_npotEmulationFactor != 0.0)
 		{
 			float period = floor(coordY / u_npotEmulationFactor);
 			coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));

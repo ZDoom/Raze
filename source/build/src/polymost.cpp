@@ -424,16 +424,16 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         int32_t size2;
         for (size2 = 1; size2 < size; size2 += size2) {}
         if (size == size2)
-			GLInterface.SetNpotEmulation(false, 1.f, 0.f); 
+			GLInterface.SetNpotEmulation(0.f, 0.f); 
         else
         {
             float xOffset = 1.f / tilesize.x;
-			GLInterface.SetNpotEmulation(true, (1.f*size2) / size, xOffset);
+			GLInterface.SetNpotEmulation((1.f*size2) / size, xOffset);
         }
     }
     else
     {
-		GLInterface.SetNpotEmulation(false, 1.f, 0.f);
+		GLInterface.SetNpotEmulation(0.f, 0.f);
     }
 
     vec2_t tsiz2 = tsiz;
@@ -491,7 +491,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
     GLInterface.UseDetailMapping(false);
 	GLInterface.UseGlowMapping(false);
-	GLInterface.SetNpotEmulation(false, 1.f, 0.f);
+	GLInterface.SetNpotEmulation(0.f, 0.f);
 
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
     {

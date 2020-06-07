@@ -21,7 +21,6 @@ enum PRSFlags
 	RF_DetailMapping = 4,
 	RF_GlowMapping = 8,
 	RF_Brightmapping = 16,
-	RF_NPOTEmulation = 32,
 	RF_ShadeInterpolate = 64,
 	RF_FogDisabled = 128,
 	RF_MapFog = 256,	// RRRA E2L1.
