@@ -2656,7 +2656,7 @@ DoPlayerMove(PLAYERp pp)
     // turning and movement still get appropriately interpolated.
     // We do this from here instead of MovePlayer, covering the case
     // the player gets pushed by a wall (e.g., on the boat in level 5).
-    SWBOOL interpolate_ride = pp->sop_riding && (!gs.InterpolateSO || CommEnabled);
+    SWBOOL interpolate_ride = pp->sop_riding && (!cl_sointerpolation || CommEnabled);
 
     void SlipSlope(PLAYERp pp);
 
