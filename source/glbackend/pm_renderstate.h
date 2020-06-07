@@ -57,8 +57,7 @@ struct PolymostRenderState
 	int LayerFlags = 0;
     float NPOTEmulationFactor = 1.f;
     float NPOTEmulationXOffset;
-    float Brightness = 1.f;
-	float AlphaThreshold = 0.5f;
+    float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };
 	short matrixIndex[NUMMATRICES] = { 0 };

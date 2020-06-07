@@ -137,8 +137,7 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	Flags.Init(hShader, "u_flags");
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
-    Brightness.Init(hShader, "u_brightness");
-
+    
 	TextureMode.Init(hShader, "uTextureMode");
 	FogColor.Init(hShader, "uFogColor");
 	muFogEnabled.Init(hShader, "uFogEnabled");

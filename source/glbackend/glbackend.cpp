@@ -546,7 +546,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
-	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set((Flags& RF_MapFog)? PalEntry(0x999999) : FogColor);
 	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , ShadeDiv >= 1 / 1000.f? Shade : 0 };
 	shader->muLightParms.Set(lightattr);
@@ -725,6 +724,8 @@ void DrawRateStuff()
 	}
 }
 
+int32_t r_scenebrightness = 0;
+
 void videoShowFrame(int32_t w)
 {
 	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -742,8 +743,10 @@ void videoShowFrame(int32_t w)
 		glDrawBuffers(1, buffers);
 	}
 
+	float Brightness = 8.f / (r_scenebrightness + 8.f);
+
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
-	screen->PostProcessScene(false, 0, 1.f, []() {
+	screen->PostProcessScene(false, 0, Brightness, []() {
 		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
 		});
 	screen->Update();

@@ -67,7 +67,6 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define SOFTROTMAT 0
 
 static int32_t r_pogoDebug = 0;
-int32_t r_scenebrightness = 0;
 
 static float gviewxrange;
 static float ghoriz, ghoriz2;
@@ -3065,8 +3064,6 @@ void polymost_drawrooms()
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
 	GLInterface.SetDepthFunc(Depth_LessEqual);
-
-	GLInterface.SetBrightness(r_scenebrightness);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)

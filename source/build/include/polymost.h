@@ -47,7 +47,6 @@ enum {
 
 extern float curpolygonoffset;
 
-extern int32_t r_scenebrightness;
 extern int32_t polymostcenterhoriz;
 
 extern int16_t globalpicnum;

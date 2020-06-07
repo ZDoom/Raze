@@ -35,7 +35,6 @@ uniform int u_flags;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
-uniform float u_brightness;
 
 in vec4 v_color;
 in float v_distance;
@@ -263,7 +262,6 @@ void main()
 	if ((iz & 64) == 1) color.b = 0;
 	*/
 	
-	color.rgb = pow(color.rgb, vec3(u_brightness));
 	fragColor = color;
 	fragFog = vec4(0.0, 0.0, 0.0, 1.0); // Does build have colored fog?
 	vec3 normal = normalize(cross(dFdx(v_eyeCoordPosition.xyz), dFdy(v_eyeCoordPosition.xyz)));

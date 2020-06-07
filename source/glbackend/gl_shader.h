@@ -29,7 +29,6 @@ public:
 	FBufferedUniform1i Flags;
     FBufferedUniform1f NPOTEmulationFactor;
     FBufferedUniform1f NPOTEmulationXOffset;
-    FBufferedUniform1f Brightness;
 	FBufferedUniformPalEntry FogColor;
 
 	FBufferedUniform1i TextureMode;

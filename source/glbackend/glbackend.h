@@ -431,11 +431,6 @@ public:
 		renderState.Flags &= ~RF_MapFog;
 	}
 
-	void SetBrightness(int brightness)
-	{
-		renderState.Brightness = 8.f / (brightness + 8.f);
-	}
-
 	void SetTinting(int flags, PalEntry color, PalEntry overlayColor)
 	{
 		renderState.hictint = color;
