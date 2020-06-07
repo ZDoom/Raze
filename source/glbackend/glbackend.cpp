@@ -533,7 +533,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	{
 		if (!FogColor.isBlack())
 		{
-			Flags &= ~RF_Brightmapping;
+			//Flags &= ~RF_Brightmapping;
 			shader->muFogEnabled.Set(-1);
 		}
 		else
@@ -543,12 +543,17 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	}
 	else shader->muFogEnabled.Set(0);
 
+	int texturemode = 0;
+	if (Flags & RF_DetailMapping) texturemode |= 0x20000;
+	if (Flags & RF_Brightmapping) texturemode |= 0x10000;
+	if (Flags & RF_GlowMapping) texturemode |= 0x40000;
 	shader->Flags.Set(Flags);
+	shader->TextureMode.Set(texturemode);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
-	shader->FogColor.Set(FogColor);
+	shader->FogColor.Set((Flags& RF_MapFog)? PalEntry(0x999999) : FogColor);
 	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , ShadeDiv >= 1 / 1000.f? Shade : 0 };
 	shader->muLightParms.Set(lightattr);
 

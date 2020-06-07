@@ -6,6 +6,24 @@ const int RF_Brightmapping = 16;
 const int RF_NPOTEmulation = 32;
 const int RF_ShadeInterpolate = 64;
 
+
+struct Material
+{
+	vec4 Base;
+	vec4 Bright;
+	vec4 Glow;
+	vec3 Normal;
+	vec3 Specular;
+	float Glossiness;
+	float SpecularLevel;
+	float Metallic;
+	float Roughness;
+	float AO;
+};
+
+Material material;
+ 
+
 //s_texture points to an indexed color texture
 uniform sampler2D s_texture;
 //s_palswap is the palette swap texture where u is the color index and v is the shade
@@ -221,11 +239,10 @@ void main()
 		}
 		if (uFogDensity != 0.0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
-			float fogfactor = 0.55 + 0.3 * exp2 (uFogDensity * v_fogCoord); 		
-			color.rgb = vec3(0.6*(1.0-fogfactor)) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
+			float fogfactor = 0.55 + 0.3 * exp2 (uFogDensity * v_fogCoord / 1024.0); 		
+			color.rgb = uFogColor.rgb * (1.0-fogfactor) + color.rgb * fogfactor;// mix(vec3(0.6), color.rgb, fogfactor);
 		}
 		if (color.a < uAlphaThreshold) discard;	// it's only here that we have the alpha value available to be able to perform the alpha test.
-		
 		color.a *= v_color.a;
 	}
 	else
