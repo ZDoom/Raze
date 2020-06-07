@@ -366,6 +366,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     float usub = 0;
     float vsub = 0;
+#if 0
     if (skyclamphack)
     {
         drawpoly_srepeat = false;
@@ -396,6 +397,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             if (v < -FLT_EPSILON || v > 1 + FLT_EPSILON) drawpoly_trepeat = true;
         }
     }
+#endif
 
     polymost_outputGLDebugMessage(3, "polymost_drawpoly(dpxy:%p, n:%d, method_:%X), method: %X", dpxy, n, method_, method);
 
