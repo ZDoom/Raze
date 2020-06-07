@@ -3075,8 +3075,19 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     auto ptr = &twod->mVertices[dg.mVertIndex];
     float drawpoly_alpha = daalpha * (1.0f / 255.0f);
     float alpha = GetAlphaFromBlend(method, dablend) * (1.f - drawpoly_alpha); // Hmmm...
-    int light = clamp(scale((numshades - dashade), 255, numshades), 0, 255);
-    auto p = PalEntry((uint8_t)(alpha * 255), light, light, light);
+    PalEntry p;
+
+    if (!hw_useindexedcolortextures)
+    {
+        int light = clamp(scale((numshades - dashade), 255, numshades), 0, 255);
+        p = PalEntry((uint8_t)(alpha * 255), light, light, light);
+    }
+    else
+    {
+        p = PalEntry((uint8_t)(alpha * 255), 255, 255, 255);
+        dg.mLightLevel = clamp(dashade, 0, numshades);
+    }
+
 
     vec2_t const siz = { (int)dg.mTexture->GetDisplayWidth(), (int)dg.mTexture->GetDisplayHeight() };
     vec2_16_t ofs = { 0, 0 };

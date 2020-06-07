@@ -197,7 +197,8 @@ void main()
 			}
 			
 	   		palettedColor.a = color.r == 0.0? 0.0 : 1.0;// 1.0-floor(color.r);
-	   		color = palettedColor;
+	   		color.rgb = palettedColor.rgb * v_color.rgb;
+			color.a = palettedColor.a;
 		}
 		else
 		{

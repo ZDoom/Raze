@@ -105,7 +105,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 void GLInstance::Draw2D(F2DDrawer *drawer)
 {
 	VSMatrix mat(0);
-	screen->mViewpoints->Set2D(OpenGLRenderer::gl_RenderState, xdim, ydim);
+	screen->mViewpoints->Set2D(OpenGLRenderer::gl_RenderState, xdim, ydim, numshades);
 	SetViewport(0, 0, xdim, ydim);
 	EnableDepthTest(false);
 	EnableMultisampling(false);
@@ -167,8 +167,8 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 		{
 			auto tex = cmd.mTexture;
 
-			SetFadeDisable(true);
-			SetShade(0, numshades);
+			SetFadeDisable(cmd.mLightLevel == 0);
+			SetShade(cmd.mLightLevel, numshades);
 
 			SetTexture(TileFiles.GetTileIndex(tex), tex, cmd.mTranslationId, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY);
 			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
