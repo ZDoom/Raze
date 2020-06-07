@@ -32,6 +32,7 @@ public:
     FBufferedUniform1f Brightness;
 	FBufferedUniformPalEntry FogColor;
 
+	FBufferedUniform1i TextureMode;
 	FBufferedUniform4f DetailParms;
 	FBufferedUniform1f AlphaThreshold;
 	FBufferedUniform1i muFogEnabled;

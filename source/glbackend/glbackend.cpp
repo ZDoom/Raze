@@ -116,6 +116,10 @@ auto i_data = R"(
 		float uClipHeightDirection;
 		int uShadowmapFilter;
 	};
+	uniform sampler2D detailtexture;
+	uniform sampler2D glowtexture;
+	uniform sampler2D brighttexture;
+
 	uniform mat4 ModelMatrix;
 	uniform mat4 NormalModelMatrix;
 	uniform mat4 TextureMatrix;
@@ -132,6 +136,8 @@ auto i_data = R"(
 	#define uLightFactor uLightAttr.g
 	#define uLightDist uLightAttr.r
 	uniform int uFogEnabled;
+	uniform vec4 uFogColor;
+	uniform int uTextureMode;
 
 )";
 
@@ -543,7 +549,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->Brightness.Set(Brightness);
 	shader->FogColor.Set(FogColor);
-	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , Shade };
+	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , ShadeDiv >= 1 / 1000.f? Shade : 0 };
 	shader->muLightParms.Set(lightattr);
 
 	FVector4 addcol(0, 0, 0, 0);

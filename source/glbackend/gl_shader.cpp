@@ -138,8 +138,9 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
     NPOTEmulationFactor.Init(hShader, "u_npotEmulationFactor");
     NPOTEmulationXOffset.Init(hShader, "u_npotEmulationXOffset");
     Brightness.Init(hShader, "u_brightness");
-	FogColor.Init(hShader, "u_fogColor");
 
+	TextureMode.Init(hShader, "uTextureMode");
+	FogColor.Init(hShader, "uFogColor");
 	muFogEnabled.Init(hShader, "uFogEnabled");
 	muLightParms.Init(hShader, "uLightAttr");
 	AlphaThreshold.Init(hShader, "uAlphaThreshold");
@@ -160,11 +161,11 @@ bool PolymostShader::Load(const char * name, const char * vert_prog, const char 
 	int SamplerLoc;
     SamplerLoc = glGetUniformLocation(hShader, "s_texture");
 	glUniform1i(SamplerLoc, 0);
-	SamplerLoc = glGetUniformLocation(hShader, "s_brightmap");
+	SamplerLoc = glGetUniformLocation(hShader, "brighttexture");
 	glUniform1i(SamplerLoc, 1);
-	SamplerLoc = glGetUniformLocation(hShader, "s_detail");
+	SamplerLoc = glGetUniformLocation(hShader, "detailtexture");
 	glUniform1i(SamplerLoc, 2);
-	SamplerLoc = glGetUniformLocation(hShader, "s_glow");
+	SamplerLoc = glGetUniformLocation(hShader, "glowtexture");
 	glUniform1i(SamplerLoc, 3);
 	SamplerLoc = glGetUniformLocation(hShader, "s_palette");
 	glUniform1i(SamplerLoc, 4);

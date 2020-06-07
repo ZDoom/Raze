@@ -13,16 +13,11 @@ uniform sampler2D s_palswap;
 //s_palette is the base palette texture where u is the color index
 uniform sampler2D s_palette;
 
-uniform sampler2D s_detail;
-uniform sampler2D s_glow;
-uniform sampler2D s_brightmap;
-
 uniform int u_flags;
 
 uniform float u_npotEmulationFactor;
 uniform float u_npotEmulationXOffset;
 uniform float u_brightness;
-uniform vec4 u_fogColor;
 
 in vec4 v_color;
 in float v_distance;
@@ -165,7 +160,7 @@ void main()
 		vec4 detailColor = vec4(1.0);
 		if ((u_flags & RF_DetailMapping) != 0)
 		{
-			detailColor = texture(s_detail, newCoord * uDetailParms.xy) * uDetailParms.z;
+			detailColor = texture(detailtexture, newCoord * uDetailParms.xy) * uDetailParms.z;
 			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
 			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
 		}
@@ -217,10 +212,10 @@ void main()
 
 				if ((u_flags & RF_Brightmapping) != 0)
 				{
-					lightcolor = clamp(lightcolor + texture(s_brightmap, v_texCoord.xy).rgb, 0.0, 1.0);
+					lightcolor = clamp(lightcolor + texture(brighttexture, v_texCoord.xy).rgb, 0.0, 1.0);
 				}
 				color.rgb *= lightcolor;
-				if (uFogDensity == 0.0) color.rgb += u_fogColor.rgb * shade;
+				if (uFogDensity == 0.0) color.rgb += uFogColor.rgb * shade;
 			}
 			else color.rgb *= v_color.rgb;
 		}
@@ -241,7 +236,7 @@ void main()
 
 	if ((u_flags & (RF_ColorOnly|RF_GlowMapping)) == RF_GlowMapping)
 	{
-		vec4 glowColor = texture(s_glow, v_texCoord.xy);
+		vec4 glowColor = texture(glowtexture, v_texCoord.xy);
 		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
 	}
 	
