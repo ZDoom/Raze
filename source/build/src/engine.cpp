@@ -3063,8 +3063,11 @@ void twod_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t pic
     dg.mTexture = pic ? pic : tileGetTexture(picnum);
     if (!dg.mTexture || !dg.mTexture->isValid()) return; // empty tile.
 
-    // todo: check for hires replacements
-    if (basepal == 0 && dapalnum == 0 && pic) dg.mTranslationId = 0;
+    // todo: check for hires replacements.
+
+    // The weapon drawer needs to use the global base palette.
+    if (twod == &twodpsp) dg.mTranslationId = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+    else if (basepal == 0 && dapalnum == 0 && pic) dg.mTranslationId = 0;
     else dg.mTranslationId = TRANSLATION(Translation_Remap + basepal, dapalnum);
 
     dg.mVertCount = 4;
