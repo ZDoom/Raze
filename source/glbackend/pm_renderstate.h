@@ -18,9 +18,6 @@ enum PRSFlags
 {
 	RF_ColorOnly = 1,
 	RF_UsePalette = 2,
-	RF_DetailMapping = 4,
-	RF_GlowMapping = 8,
-	RF_Brightmapping = 16,
 	RF_ShadeInterpolate = 64,
 	RF_FogDisabled = 128,
 	RF_MapFog = 256,	// RRRA E2L1.
@@ -48,8 +45,6 @@ enum PRSFlags
 	STF_CLEARDEPTH = 2048,
 	STF_VIEWPORTSET = 4096,
 	STF_SCISSORSET = 8192,
-
-
 };
 
 struct PolymostRenderState
@@ -59,6 +54,7 @@ struct PolymostRenderState
 	float ShadeDiv = 62.f;
 	float VisFactor = 128.f;
 	int Flags = 0;
+	int LayerFlags = 0;
     float NPOTEmulationFactor = 1.f;
     float NPOTEmulationXOffset;
     float Brightness = 1.f;

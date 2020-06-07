@@ -1,9 +1,10 @@
 const int RF_ColorOnly = 1;
 const int RF_UsePalette = 2;
-const int RF_DetailMapping = 4;
-const int RF_GlowMapping = 8;
-const int RF_Brightmapping = 16;
 const int RF_ShadeInterpolate = 64;
+
+const int TEXF_Brightmap = 0x10000;
+const int TEXF_Detailmap = 0x20000;
+const int TEXF_Glowmap = 0x40000;
 
 
 struct Material
@@ -170,17 +171,7 @@ void main()
 		}
 		newCoord = vec2(coordX, coordY);
 
-		// Paletted textures are stored in column major order rather than row major so coordinates need to be swapped here.
 		color = texture(s_texture, newCoord);
-
-		// This was further down but it really should be done before applying any kind of depth fading, not afterward.
-		vec4 detailColor = vec4(1.0);
-		if ((u_flags & RF_DetailMapping) != 0)
-		{
-			detailColor = texture(detailtexture, newCoord * uDetailParms.xy) * uDetailParms.z;
-			detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
-			// Application of this differs based on render mode because for paletted rendering with palettized shade tables it can only be done after processing the shade table. We only have a palette index before.
-		}
 
 		float visibility = max(uGlobVis * uLightFactor * v_distance - ((u_flags & RF_ShadeInterpolate) != 0.0? 0.5 : 0.0), 0.0);
 		float numShades = float(uPalLightLevels & 255);
@@ -207,13 +198,17 @@ void main()
 			
 	   		palettedColor.a = color.r == 0.0? 0.0 : 1.0;// 1.0-floor(color.r);
 	   		color = palettedColor;
-			color.rgb *= detailColor.rgb;	// with all this palettizing, this can only be applied afterward, even though it is wrong to do it this way.
-			color.rgb *= v_color.rgb; // Well, this is dead wrong but unavoidable. For colored fog it applies the light to the fog as well...
 		}
 		else
 		{
-			color.rgb *= detailColor.rgb;
-			
+			// This was further down but it really should be done before applying any kind of depth fading, not afterward.
+			if ((uTextureMode & TEXF_Detailmap) != 0)
+			{
+				vec4 detailColor = texture(detailtexture, newCoord * uDetailParms.xy) * uDetailParms.z;
+				detailColor = mix(vec4(1.0), 2.0 * detailColor, detailColor.a);
+				color.rgb *= detailColor.rgb;
+			}
+
 			// Apply the texture modification colors.
 			int blendflags = int(uTextureAddColor.a);	// this alpha is unused otherwise
 			if (blendflags != 0)	
@@ -224,10 +219,10 @@ void main()
 			
 			if (uFogEnabled != 0) // Right now this code doesn't care about the fog modes yet.
 			{
-				shade = clamp(shade * uLightDist, 0.0, 1.0);	// u_shadeDiv is really 1/shadeDiv.
+				shade = clamp(shade * uLightDist, 0.0, 1.0);
 				vec3 lightcolor = v_color.rgb * (1.0 - shade);
 
-				if ((u_flags & RF_Brightmapping) != 0)
+				if ((uTextureMode & TEXF_Brightmap) != 0)
 				{
 					lightcolor = clamp(lightcolor + texture(brighttexture, v_texCoord.xy).rgb, 0.0, 1.0);
 				}
@@ -235,6 +230,13 @@ void main()
 				if (uFogDensity == 0.0) color.rgb += uFogColor.rgb * shade;
 			}
 			else color.rgb *= v_color.rgb;
+
+			if ((uTextureMode & TEXF_Glowmap) != 0)
+			{
+				vec4 glowColor = texture(glowtexture, v_texCoord.xy);
+				color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
+			}
+
 		}
 		if (uFogDensity != 0.0) // fog hack for RRRA E2L1. Needs to be done better, this is gross, but still preferable to the broken original implementation.
 		{
@@ -250,11 +252,6 @@ void main()
 		color = v_color;
 	}
 
-	if ((u_flags & (RF_ColorOnly|RF_GlowMapping)) == RF_GlowMapping)
-	{
-		vec4 glowColor = texture(glowtexture, v_texCoord.xy);
-		color.rgb = mix(color.rgb, glowColor.rgb, glowColor.a);
-	}
 	
 	/*
 	int ix = int (v_worldPosition.x);

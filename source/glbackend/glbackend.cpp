@@ -249,7 +249,6 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 	if (activeShader == polymostShader)
 	{
 		glVertexAttrib4fv(2, renderState.Color);
-		if (renderState.Color[3] != 1.f) renderState.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		renderState.Apply(polymostShader, lastState);
 	}
 	if (type != DT_Lines)
@@ -267,7 +266,6 @@ void GLInstance::DoDraw()
 	for (auto& rs : rendercommands)
 	{
 		glVertexAttrib4fv(2, rs.Color);
-		if (rs.Color[3] != 1.f) rs.Flags &= ~RF_Brightmapping;	// The way the colormaps are set up means that brightmaps cannot be used on translucent content at all.
 		rs.Apply(polymostShader, lastState);
 		glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
 	}
@@ -543,12 +541,8 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	}
 	else shader->muFogEnabled.Set(0);
 
-	int texturemode = 0;
-	if (Flags & RF_DetailMapping) texturemode |= 0x20000;
-	if (Flags & RF_Brightmapping) texturemode |= 0x10000;
-	if (Flags & RF_GlowMapping) texturemode |= 0x40000;
 	shader->Flags.Set(Flags);
-	shader->TextureMode.Set(texturemode);
+	shader->TextureMode.Set(LayerFlags);
 	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
 	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);

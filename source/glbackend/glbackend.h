@@ -20,24 +20,6 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
-enum ESampler
-{
-	NoSampler = -1,
-	SamplerRepeat = CLAMP_NONE,
-	SamplerClampX = CLAMP_X,
-	SamplerClampY = CLAMP_Y,
-	SamplerClampXY = CLAMP_XY,
-	Sampler2DFiltered = CLAMP_XY_NOMIP,	// Currently unused  shpuld be used for 2D content
-	SamplerNoFilterRepeat = CLAMP_NOFILTER,
-	SamplerNoFilterClampX = CLAMP_NOFILTER_X,
-	SamplerNoFilterClampY = CLAMP_NOFILTER_Y,
-	SamplerNoFilterClampXY = CLAMP_NOFILTER_XY,
-};
-enum
-{
-	PALSWAP_TEXTURE_SIZE = 2048
-};
-
 class PaletteManager
 {
 	OpenGLRenderer::FHardwareTexture* palettetextures[256] = {};
@@ -391,20 +373,20 @@ public:
 
 	void UseDetailMapping(bool yes)
 	{
-		if (yes) renderState.Flags |= RF_DetailMapping;
-		else renderState.Flags &= ~RF_DetailMapping;
+		if (yes) renderState.LayerFlags |= TEXF_Detailmap;
+		else renderState.LayerFlags &= ~TEXF_Detailmap;
 	}
 
 	void UseGlowMapping(bool yes)
 	{
-		if (yes) renderState.Flags |= RF_GlowMapping;
-		else renderState.Flags &= ~RF_GlowMapping;
+		if (yes) renderState.LayerFlags |= TEXF_Glowmap;
+		else renderState.LayerFlags &= ~TEXF_Glowmap;
 	}
 
 	void UseBrightmaps(bool yes)
 	{
-		if (yes) renderState.Flags |= RF_Brightmapping;
-		else renderState.Flags &= ~RF_Brightmapping;
+		if (yes) renderState.LayerFlags |= TEXF_Brightmap;
+		else renderState.LayerFlags &= ~TEXF_Brightmap;
 	}
 
 	void SetNpotEmulation(float factor, float xOffset)

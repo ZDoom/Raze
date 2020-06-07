@@ -69,7 +69,7 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 	int TextureType = (texpick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
 	if (TextureType == TT_INDEXED)
 	{
-		sampler = sampler + SamplerNoFilterRepeat - SamplerRepeat;
+		sampler = sampler + CLAMP_NOFILTER - CLAMP_NONE;
 	}
 
 
