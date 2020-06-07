@@ -408,7 +408,7 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 	double u1, v1, u2, v2;
 	PalEntry vertexcolor;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypeTriangles;
 	dg.mVertCount = 4;
@@ -487,7 +487,7 @@ void F2DDrawer::AddShape(FGameTexture* img, DShape2D* shape, DrawParms& parms)
 
 	PalEntry vertexcolor;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypeTriangles;
 	dg.mVertCount = shape->mVertices.Size();
@@ -560,7 +560,7 @@ void F2DDrawer::AddPoly(FGameTexture *texture, FVector2 *points, int npoints,
 		DAngle rotation, const FColormap &colormap, PalEntry flatcolor, double fadelevel,
 		uint32_t *indices, size_t indexcount)
 {
-	RenderCommand poly = {};
+	RenderCommand poly;
 
 	poly.mType = DrawTypeTriangles;
 	poly.mTexture = texture;
@@ -636,7 +636,7 @@ void F2DDrawer::AddPoly(FGameTexture *texture, FVector2 *points, int npoints,
 
 void F2DDrawer::AddPoly(FGameTexture* img, FVector4* vt, size_t vtcount, unsigned int* ind, size_t idxcount, int translation, PalEntry color, FRenderStyle style, int clipx1, int clipy1, int clipx2, int clipy2)
 {
-	RenderCommand dg = {};
+	RenderCommand dg;
 	int method = 0;
 
 	dg.mType = DrawTypeTriangles;
@@ -698,7 +698,7 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTextu
 {
 	float fU1, fU2, fV1, fV2;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypeTriangles;
 	dg.mRenderStyle = DefaultRenderStyle();
@@ -817,7 +817,7 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTextu
 
 void F2DDrawer::AddColorOnlyQuad(int x1, int y1, int w, int h, PalEntry color, FRenderStyle *style, bool prepend)
 {
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypeTriangles;
 	dg.mVertCount = 4;
@@ -856,7 +856,7 @@ void F2DDrawer::AddLine(double x1, double y1, double x2, double y2, int clipx1, 
 	PalEntry p = (PalEntry)color;
 	p.a = alpha;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	if (clipx1 > 0 || clipy1 > 0 || clipx2 < GetWidth()- 1 || clipy2 < GetHeight() - 1)
 	{
@@ -900,7 +900,7 @@ void F2DDrawer::AddThickLine(int x1, int y1, int x2, int y2, double thickness, u
 	DVector2 corner2 = point1 + perp;
 	DVector2 corner3 = point1 - perp;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypeTriangles;
 	dg.mVertCount = 4;
@@ -928,7 +928,7 @@ void F2DDrawer::AddPixel(int x1, int y1, uint32_t color)
 	PalEntry p = (PalEntry)color;
 	p.a = 255;
 
-	RenderCommand dg = {};
+	RenderCommand dg;
 
 	dg.mType = DrawTypePoints;
 	dg.mRenderStyle = LegacyRenderStyles[STYLE_Translucent];
