@@ -743,7 +743,7 @@ void videoShowFrame(int32_t w)
 	}
 
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
-	screen->PostProcessScene(false, 0, []() {
+	screen->PostProcessScene(false, 0, 1.f, []() {
 		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
 		});
 	screen->Update();

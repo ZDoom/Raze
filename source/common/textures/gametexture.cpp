@@ -149,6 +149,7 @@ void FGameTexture::AddAutoMaterials()
 	{ "materials/ao/", &FGameTexture::AmbientOcclusion }
 	};
 
+	if (flags & GTexf_AutoMaterialsAdded) return; // do this only once
 
 	bool fullname = !!(flags & GTexf_FullNameTexture);
 	FString searchname = GetName();
@@ -177,6 +178,7 @@ void FGameTexture::AddAutoMaterials()
 			}
 		}
 	}
+	flags |= GTexf_AutoMaterialsAdded;
 }
 
 //===========================================================================
@@ -460,7 +462,7 @@ float FTexCoordInfo::TextureAdjustWidth() const
 	{
 		float tscale = fabsf(mTempScale.X);
 		if (tscale == 1.f) return (float)mRenderWidth;
-		else return mWidth / fabs(tscale);
+		else return mWidth / fabsf(tscale);
 	}
 	else return (float)mWidth;
 }

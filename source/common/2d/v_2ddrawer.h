@@ -129,7 +129,7 @@ public:
 		PalEntry mSpecialColormap[2];
 		int mScissor[4];
 		int mDesaturate;
-		FRenderStyle mRenderStyle;	
+		FRenderStyle mRenderStyle;
 		PalEntry mColor1;	// Overlay color
 		ETexMode mDrawMode;
 		uint8_t mLightLevel;
