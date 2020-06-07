@@ -6,9 +6,7 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 // by the EDuke32 team (development@voidpoint.com)
 
-#include "compat.h"
 #include "build.h"
-#include "engine_priv.h"
 #include "baselayer.h"
 #include "imagehelpers.h"
 
@@ -75,8 +73,8 @@ void paletteLoadFromDisk(void)
     if (768 != fil.Read(palette, 768))
         return;
 
-    for (unsigned char & k : palette)
-        k <<= 2;
+    for (auto & pe : palette)
+        pe <<= 2;
 
     paletteSetColorTable(0, palette, false, false);
     paletteloaded |= PALETTE_MAIN;
@@ -176,7 +174,7 @@ void LookupTableInfo::postLoadTables(void)
 
 int32_t LookupTableInfo::loadTable(FileReader &fp)
 {
-    uint8_t remapbuf[256];
+    uint8_t buffer[256];
     int numlookups = fp.ReadUInt8();
     if (numlookups < 1)
         return -1;
@@ -185,15 +183,15 @@ int32_t LookupTableInfo::loadTable(FileReader &fp)
     {
         int palnum = fp.ReadUInt8();
 
-        if (256 != fp.Read(remapbuf, 256))
+        if (256 != fp.Read(buffer, 256))
             return -1;
 
-        if (palnum >= 256 - RESERVEDPALS)
+        if (palnum < 0 || palnum >= 256 - RESERVEDPALS)
         {
-            Printf("ERROR: attempt to load lookup at reserved pal %d\n", palnum);
+            Printf("ERROR: attempt to load lookup at invalid index %d\n", palnum);
         }
         else
-            makeTable(palnum, remapbuf, 0, 0, 0, 0);
+            makeTable(palnum, buffer, 0, 0, 0, 0);
     }
 
     return 0;

@@ -778,7 +778,6 @@ set (PCH_SOURCES
 	build/src/hash.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
-	build/src/palette.cpp
 	build/src/polymost.cpp
 	build/src/pragmas.cpp
 	build/src/scriptfile.cpp
@@ -801,6 +800,7 @@ set (PCH_SOURCES
 	core/screenshot.cpp
 	core/raze_music.cpp
 	core/raze_sound.cpp
+	core/palette.cpp
 
 	core/2d/screentext.cpp
 
