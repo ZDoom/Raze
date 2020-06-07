@@ -123,8 +123,6 @@ void A_DeleteSprite(int spriteNum);
 
 #define MAX_RETURN_VALUES 6
 
-// KEEPINSYNC lunatic/_defs_game.lua
-
 typedef struct {
     vec3_t camerapos;
     int32_t const_visibility,uw_framerate;

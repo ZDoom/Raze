@@ -348,7 +348,6 @@ enum ScriptKeywords_t
     CON_IFPUPWIND,          // 166
     CON_END
 };
-// KEEPINSYNC with the keyword list in lunatic/con_lang.lua
 
 END_RR_NS
 

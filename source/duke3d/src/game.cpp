@@ -3776,7 +3776,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             if (!FURY && g_player[playerNum].ps->newowner > -1)
             {
                 // Display APLAYER sprites with action PSTAND when viewed through
-                // a camera.  Not implemented for Lunatic.
+                // a camera.
                 const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
@@ -5262,8 +5262,6 @@ static void A_InitEnemyFlags(void)
 }
 #undef SETFLAG
 
-// Throw in everything here that needs to be called after a Lua game state
-// recreation (or on initial startup in a non-Lunatic build.)
 void G_PostCreateGameState(void)
 {
     Net_SendClientInfo();
@@ -5595,8 +5593,6 @@ int GameInterface::app_main()
 
     Net_GetPackets();
 
-    // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
-    // because in Lunatic, the {pipe,trip}bomb* members are initialized.
     for (int i=0; i<MAXPLAYERS; i++)
         G_MaybeAllocPlayer(i);
 

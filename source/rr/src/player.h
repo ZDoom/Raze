@@ -132,7 +132,6 @@ typedef struct {
 //  * char --> int8_t
 // Need to carefully think about implications!
 // TODO: rearrange this if the opportunity arises!
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     vec3_t pos, opos, vel, npos;
     vec2_t bobpos, fric;
@@ -231,7 +230,6 @@ typedef struct {
     int8_t padding_[3];
 } DukePlayer_t;
 
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
 {
     DukePlayer_t *ps;
@@ -255,7 +253,6 @@ typedef struct
 } playerdata_t;
 #pragma pack(pop)
 
-// KEEPINSYNC lunatic/con_lang.lua
 typedef struct
 {
     // NOTE: the member names must be identical to aplWeapon* suffixes.
@@ -277,10 +274,6 @@ typedef struct
     int32_t FlashColor;  // Muzzle flash color
 } weapondata_t;
 
-#ifdef LUNATIC
-# define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)
-extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
-#else
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 extern intptr_t         *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
 extern intptr_t         *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
@@ -298,9 +291,7 @@ extern intptr_t         *aplWeaponFireSound[MAX_WEAPONS];       // Sound made wh
 extern intptr_t         *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
 extern intptr_t         *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
 extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
-#endif
 
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     int32_t cur, count;  // "cur" is the only member that is *used*
     int32_t gunposx, lookhalfang;  // weapon_xoffset, ps->look_ang>>1

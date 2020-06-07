@@ -55,7 +55,6 @@ BEGIN_RR_NS
 #define RECSYNCBUFSIZ       2520   //2520 is the (LCM of 1-8)*3
 #define MOVEFIFOSIZ         256
 
-// KEEPINSYNC lunatic/con_lang.lua
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
