@@ -675,7 +675,8 @@ void P_ResetMultiPlayer(int playerNum)
 
 void P_ResetPlayer(int playerNum)
 {
-    auto &p = *g_player[playerNum].ps;
+    auto &thisPlayer = g_player[playerNum];
+    auto &p          = *thisPlayer.ps;
 
     gFullMap = 0;
 
@@ -774,9 +775,10 @@ void P_ResetPlayer(int playerNum)
                      ? PWEAPON(playerNum, p.curr_weapon, TotalTime)
                      : 0;
 
-    g_player[playerNum].horizRecenter    = 0;
-    g_player[playerNum].horizSkew        = 0;
-    g_player[playerNum].horizAngleAdjust = 0;
+    thisPlayer.smoothcamera     = false;
+    thisPlayer.horizRecenter    = false;
+    thisPlayer.horizSkew        = 0;
+    thisPlayer.horizAngleAdjust = 0;
     g_player[playerNum].lastInputTicks   = 0;
 
     P_UpdateScreenPal(&p);

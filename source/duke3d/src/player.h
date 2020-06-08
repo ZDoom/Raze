@@ -222,12 +222,12 @@ typedef struct
     double  lastInputTicks;
 
     int32_t netsynctime;
-    int16_t ping, filler;
     int32_t pcolor, pteam;
+    int16_t ping;
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-
+    char smoothcamera;
     char vote, gotvote, pingcnt, playerquitflag,
         ready; // currently unused. May be used later to indicate that a player has pressed use on intermission to indicate they are ready to go on to the next map
     char user_name[32];
