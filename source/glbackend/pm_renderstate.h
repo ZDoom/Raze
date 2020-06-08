@@ -55,8 +55,7 @@ struct PolymostRenderState
 	float VisFactor = 128.f;
 	int Flags = 0;
 	int LayerFlags = 0;
-    float NPOTEmulationFactor = 1.f;
-    float NPOTEmulationXOffset;
+	FVector2 NPOTEmulation = { 0.f, 0.f };
     float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
 	float Color[4] = { 1,1,1,1 };

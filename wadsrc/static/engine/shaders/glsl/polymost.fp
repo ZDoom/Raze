@@ -33,9 +33,6 @@ uniform sampler2D s_palette;
 
 uniform int u_flags;
 
-uniform float u_npotEmulationFactor;
-uniform float u_npotEmulationXOffset;
-
 in vec4 v_color;
 in float v_distance;
 in vec4 v_texCoord;
@@ -161,12 +158,12 @@ void main()
 		float coordY = v_texCoord.y;
 		vec2 newCoord;
 		
-		// Coordinate adjustment for NPOT textures (something must have gone very wrong to make this necessary...)
-		if (u_npotEmulationFactor != 0.0)
+		// Coordinate adjustment for NPOT textures. It is somehow fitting that Build games exploited this texture wrapping quirk of the software rendering engine...
+		if (uNpotEmulation.y != 0.0)
 		{
-			float period = floor(coordY / u_npotEmulationFactor);
-			coordX += u_npotEmulationXOffset * floor(mod(coordY, u_npotEmulationFactor));
-			coordY = period + mod(coordY, u_npotEmulationFactor);
+			float period = floor(coordY / uNpotEmulation.y);
+			coordX += uNpotEmulation.x * floor(mod(coordY, uNpotEmulation.y));
+			coordY = period + mod(coordY, uNpotEmulation.y);
 		}
 		newCoord = vec2(coordX, coordY);
 

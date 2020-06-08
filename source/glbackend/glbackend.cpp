@@ -138,6 +138,7 @@ auto i_data = R"(
 	uniform int uFogEnabled;
 	uniform vec4 uFogColor;
 	uniform int uTextureMode;
+	uniform vec2 uNpotEmulation;
 
 )";
 
@@ -543,8 +544,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 
 	shader->Flags.Set(Flags);
 	shader->TextureMode.Set(LayerFlags);
-	shader->NPOTEmulationFactor.Set(NPOTEmulationFactor);
-	shader->NPOTEmulationXOffset.Set(NPOTEmulationXOffset);
+	shader->NPOTEmulation.Set(&NPOTEmulation.X);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->FogColor.Set((Flags& RF_MapFog)? PalEntry(0x999999) : FogColor);
 	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , ShadeDiv >= 1 / 1000.f? Shade : 0 };

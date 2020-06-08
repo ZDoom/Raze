@@ -391,8 +391,8 @@ public:
 
 	void SetNpotEmulation(float factor, float xOffset)
 	{
-		renderState.NPOTEmulationFactor = factor;
-		renderState.NPOTEmulationXOffset = xOffset;
+		renderState.NPOTEmulation.Y = factor;
+		renderState.NPOTEmulation.X = xOffset;
 	}
 
 	void SetShadeInterpolate(int32_t yes)
