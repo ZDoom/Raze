@@ -4045,7 +4045,7 @@ void videoNextPage(void)
     omdtims = mdtims;
     mdtims = timerGetTicks();
 
-    for (native_t i = 0; i < Numsprites; ++i)
+    for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
             spriteext[i].mdanimtims += mdtims - omdtims;
 #endif
