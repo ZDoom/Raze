@@ -276,9 +276,11 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
     bfirst_search_init(sectorList, sectorMap, &numSectors, numsectors, pSprite->sectnum);
 
 #ifndef EDUKE32_STANDALONE
+    int wallDamage = true;
+
     // rockets from the Devastator skip propagating damage to other sectors
     if (!FURY && (pSprite->picnum == RPG && pSprite->xrepeat < 11))
-        goto wallsfinished;
+        wallDamage = false;
 #endif
 
     uint8_t *wallTouched;
@@ -342,7 +344,10 @@ void A_RadiusDamage(int const spriteNum, int const blastRadius, int const dmg1, 
                     if (pWall->nextwall != -1)
                         bitmap_set(wallCanSee, pWall->nextwall);
 
-                    A_DamageWall_Internal(spriteNum, w, { p.x, p.y, pSprite->z }, pSprite->picnum);
+#ifndef EDUKE32_STANDALONE
+                    if (wallDamage)
+#endif
+                        A_DamageWall_Internal(spriteNum, w, { p.x, p.y, pSprite->z }, pSprite->picnum);
                 }
 
             int const nextSector = pWall->nextsector;
