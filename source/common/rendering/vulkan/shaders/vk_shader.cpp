@@ -25,6 +25,7 @@
 #include "hw_shaderpatcher.h"
 #include "filesystem.h"
 #include "engineerrors.h"
+#include "version.h"
 #include <ShaderLang.h>
 
 VkShaderManager::VkShaderManager(VulkanDevice *device) : device(device)
