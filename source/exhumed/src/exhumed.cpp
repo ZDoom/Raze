@@ -426,11 +426,11 @@ const char *gString[] =
     "HI SWEETIE, I LOVE YOU",
     "",
     "",
-    "SNAKE CAM ENABLED",
     "FLASHES TOGGLED",
+    "",
+    "",
+    "",
     "FULL MAP",
-    "",
-    "",
     "",
     "",
     "",
@@ -857,6 +857,11 @@ void DoPassword(int nPassword)
             break;
         }
 
+        case 1: // KIMBERLY
+        {
+            break;
+        }
+
         case 2: // LOBOCOP
         {
             lLocalCodes |= kButtonCheatGuns;
@@ -869,9 +874,10 @@ void DoPassword(int nPassword)
             break;
         }
 
-        case 4:
+        case 4: // LOBOLITE
         {
-            if (bDoFlashes == kFalse) {
+            if (bDoFlashes == kFalse)
+            {
                 bDoFlashes = kTrue;
             }
             else {
@@ -880,57 +886,61 @@ void DoPassword(int nPassword)
             break;
         }
 
-        case 5:
+        case 5: // LOBOPICK
         {
             lLocalCodes |= kButtonCheatKeys;
             break;
         }
 
-        case 6:
+        case 6: // LOBOSLIP
         {
             if (!nNetPlayerCount)
             {
                 if (bSlipMode == kFalse)
                 {
                     bSlipMode = kTrue;
-                    StatusMessage(300, "Slip mode %s", "ON");
+                    StatusMessage(300, "Slip mode ON");
                 }
                 else {
                     bSlipMode = kFalse;
-                    StatusMessage(300, "Slip mode %s", "OFF");
+                    StatusMessage(300, "Slip mode OFF");
                 }
             }
             break;
         }
 
-        case 7:
+        case 7: // LOBOSNAKE
         {
             if (!nNetPlayerCount)
             {
-                if (bSnakeCam == kFalse) {
+                if (bSnakeCam == kFalse)
+                {
                     bSnakeCam = kTrue;
+                    StatusMessage(750, "SNAKE CAM ENABLED");
                 }
-                else {
+                else
+                {
                     bSnakeCam = kFalse;
+                    StatusMessage(750, "SNAKE CAM DISABLED");
                 }
             }
             break;
         }
 
-        case 8:
+        case 8: // LOBOSPHERE
         {
             GrabMap();
             bShowTowers = kTrue;
             break;
         }
 
-        case 9:
+        case 9: // LOBOSWAG
         {
-            lLocalCodes |= kButtonCheatItems; // LOBOSWAG
+            lLocalCodes |= kButtonCheatItems;
             break;
         }
 
-        case 10:
+        case 10: // LOBOXY
         {
             if (bCoordinates == kFalse) {
                 bCoordinates = kTrue;

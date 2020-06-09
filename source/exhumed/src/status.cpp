@@ -714,12 +714,14 @@ void DrawStatus()
         // draw compass
         seq_DrawStatusSequence(nStatusSeqOffset + 35, ((inita + 128) & kAngleMask) >> 8, 0);
 
+        /*
         if (bCoordinates)
         {
             sprintf(numberBuf, "%i", lastfps);
             // char *cFPS = itoa(lastfps, numberBuf, 10);
             printext(xdim - 20, nViewTop, numberBuf, kTile159, -1);
         }
+        */
 
         // draw ammo count
         seq_DrawStatusSequence(nStatusSeqOffset + 44, nDigit[2], 0);
