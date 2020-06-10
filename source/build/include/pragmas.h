@@ -49,6 +49,19 @@ skip:
     return libdivide::libdivide_u32_do(n, &udiv);
 }
 
+static inline uint64_t divideu64(uint64_t const n, uint64_t const d)
+{
+    static libdivide::libdivide_u64_t udiv;
+    static uint64_t lastd;
+
+    if (d == lastd)
+        goto skip;
+
+    udiv = libdivide::libdivide_u64_gen((lastd = d));
+skip:
+    return libdivide::libdivide_u64_do(n, &udiv);
+}
+
 static inline int64_t tabledivide64(int64_t const n, int64_t const d)
 {
     static libdivide::libdivide_s64_t sdiv;
@@ -78,6 +91,7 @@ skip:
 }
 
 extern uint32_t divideu32_noinline(uint32_t n, uint32_t d);
+extern uint64_t divideu64_noinline(uint64_t n, uint64_t d);
 extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
 
 
