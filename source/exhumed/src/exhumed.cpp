@@ -2142,11 +2142,12 @@ LOOP3:
         }
         levelnew = -1;
     }
+    /* don't restore mid level savepoint if re-entering just completed level
     if (nNetPlayerCount == 0 && lastlevel == levelnum)
     {
         RestoreSavePoint(nLocalPlayer, &initx, &inity, &initz, &initsect, &inita);
     }
-
+    */
     lastlevel = levelnum;
 
     for (i = 0; i < nTotalPlayers; i++)
