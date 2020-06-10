@@ -5345,7 +5345,7 @@ void P_ProcessInput(int playerNum)
 
                 getzrange(&pPlayer->pos, pPlayer->cursectnum, &ceilZ2, &dummy, &floorZ2, &dummy, getZRangeClipDist, CLIPMASK0);
 
-                if (klabs(floorZ2-ceilZ2) > (48<<8))
+                if (!pPlayer->jumping_counter && klabs(floorZ2-ceilZ2) > (48<<8))
                 {
                     if (VM_OnEvent(EVENT_JUMP,pPlayer->i,playerNum) == 0)
                     {
