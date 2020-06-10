@@ -583,6 +583,8 @@ void DrawView(int smoothRatio, bool sceneonly)
                 if (!bFullScreen) {
                     MaskStatus();
                 }
+
+                DrawSnakeCamStatus();
             }
         }
     }

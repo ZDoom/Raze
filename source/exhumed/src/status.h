@@ -35,16 +35,12 @@ void SetPlayerItem(short nPlayer, short nItem);
 void SetMagicFrame();
 void SetHealthFrame(short nVal);
 void SetAirFrame();
-
 void MoveStatus();
-
+void DrawSnakeCamStatus();
 void DrawStatus();
-
 int BuildStatusAnim(int val, int nFlags);
-
 void SetNextItem(int nPlayer);
 void SetPrevItem(int nPlayer);
-
 void SetCounter(short nVal);
 void SetCounterImmediate(short nVal);
 
