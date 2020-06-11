@@ -4725,10 +4725,11 @@ ACTOR_STATIC void G_MoveActors(void)
 
             pSprite->cstat = (playerDist < 1596) ? 0 : 257;
 
-            if (pData[0] == -4) //On the player
+            if (pData[0] == -4 && pPlayer->somethingonplayer == spriteNum) //On the player
             {
                 if (sprite[pPlayer->i].extra < 1)
                 {
+                    pPlayer->somethingonplayer = -1;
                     pData[0] = 0;
                     goto next_sprite;
                 }
