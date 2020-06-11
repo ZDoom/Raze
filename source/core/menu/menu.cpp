@@ -52,7 +52,7 @@
 #include "build.h"
 #include "baselayer.h"
 #include "statistics.h"
-#include "input/m_joy.h"
+#include "m_joy.h"
 #include "raze_sound.h"
 #include "texturemanager.h"
 #include "v_video.h"
