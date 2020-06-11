@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "global.h"
 #include "duke3d.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 user_defs ud;
@@ -124,4 +124,4 @@ int16_t g_blimpSpawnItems[15] =
 
 char CheatKeys[2]       = { sc_D, sc_N };
 
-END_DUKE_NS
+END_EDUKE_NS

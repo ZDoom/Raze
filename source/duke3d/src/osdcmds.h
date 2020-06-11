@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define osdcmds_h_
 
 #include <inttypes.h>
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 struct osdcmd_cheatsinfo {
 	int32_t cheatnum;	// -1 = none, else = see DoCheats()
@@ -39,7 +39,7 @@ int32_t registerosdcommands(void);
 extern const char *const ConsoleButtons[];
 
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif	// osdcmds_h_
 

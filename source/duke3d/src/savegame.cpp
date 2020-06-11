@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "raze_music.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
@@ -1886,4 +1886,4 @@ static void postloadplayer(int32_t savegamep)
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
-END_DUKE_NS
+END_EDUKE_NS

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "mmulti.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 // Macros, some from SW source
@@ -190,6 +190,6 @@ BEGIN_DUKE_NS
 #define T5(i)  actor[i].t_data[4]
 #define T6(i)  actor[i].t_data[5]
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

@@ -53,7 +53,7 @@ FString C_CON_GetBoundKeyForLastInput(int gameFunc);
 const char* C_CON_GetButtonFunc(int num);
 const char* KB_ScanCodeToString(int scancode); // convert scancode into a string
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
@@ -6657,4 +6657,4 @@ void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int3
 
     VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, tilePal);
 }
-END_DUKE_NS
+END_EDUKE_NS

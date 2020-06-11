@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "raze_music.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define MAXSOUNDS           4096
 #define LOUDESTVOLUME       111
@@ -75,6 +75,6 @@ static inline bool S_IsAmbientSFX(int spriteNum)
     return (sprite[spriteNum].picnum == MUSICANDSFX && sprite[spriteNum].lotag < 999);
 }
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

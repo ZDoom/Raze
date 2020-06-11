@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "inv.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 extern int32_t g_mostConcurrentPlayers;
@@ -384,6 +384,6 @@ static inline int P_Get(int32_t spriteNum) { return P_GetP((uspriteptr_t)&sprite
 
 extern int portableBackupSave(const char *, const char *, int, int);
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

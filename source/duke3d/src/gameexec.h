@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sector.h"  // mapstate_t
 #include "zstring.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
 int32_t VM_ExecuteEvent(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
@@ -121,6 +121,6 @@ int G_StartTrack(int levelNum);
 void VM_UpdateAnim(int const spriteNum, int32_t * const pData);
 void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist);
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

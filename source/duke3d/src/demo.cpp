@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 char g_firstDemoFile[BMAX_PATH];
 
@@ -933,4 +933,4 @@ nextdemo_nomenu:
     return 1;
 }
 
-END_DUKE_NS
+END_EDUKE_NS

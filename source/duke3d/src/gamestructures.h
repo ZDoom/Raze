@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "hash.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2);
 void    __fastcall VM_SetUserdef(int const labelNum, int const lParm2, int32_t const newValue);
@@ -85,7 +85,7 @@ static hashtable_t *const vmStructHashTablePtrs[] = {
     &h_actor, &h_input, &h_paldata, &h_player, &h_projectile, &h_sector, &h_tiledata, &h_tsprite, &h_userdef, &h_wall,
 };
 
-END_DUKE_NS
+END_EDUKE_NS
 
 
 #endif // gamestructures_h__

@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define MAXCHEATLEN 20
 #define MAXCHEATDESC 64
@@ -95,4 +95,4 @@ enum CheatCodeFunctions
     NUMCHEATFUNCS,
 };
 
-END_DUKE_NS
+END_EDUKE_NS

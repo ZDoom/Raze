@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_specialpaths.h"
 #include "savegamehelp.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 int32_t lastvisinc;
@@ -5924,4 +5924,4 @@ int portableBackupSave(const char * path, const char * name, int volume, int lev
     return 0;
 }
 #endif
-END_DUKE_NS
+END_EDUKE_NS

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screentext.h"
 #include "menus.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #define MAXUSERQUOTES 6
@@ -63,4 +63,4 @@ extern void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t z, int32_t a);
 
-END_DUKE_NS
+END_EDUKE_NS

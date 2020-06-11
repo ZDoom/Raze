@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 void C_CON_SetButtonAlias(int num, const char* text);
 void C_CON_ClearButtonAlias(int num);
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define LINE_NUMBER (g_lineNumber << 12)
 
@@ -6113,4 +6113,4 @@ void C_ReportError(int error)
     }
 }
 
-END_DUKE_NS
+END_EDUKE_NS

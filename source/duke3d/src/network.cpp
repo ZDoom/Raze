@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "m_crc32.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // Data needed even if netcode is disabled
 ENetHost    *g_netServer     = NULL;
@@ -5317,4 +5317,4 @@ static int osdcmd_kickban(CCmdFuncPtr parm)
 #endif
 
 //-------------------------------------------------------------------------------------------------
-END_DUKE_NS
+END_EDUKE_NS

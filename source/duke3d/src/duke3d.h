@@ -131,7 +131,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "soundsdyn.h"
 #include "text.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
@@ -247,6 +247,6 @@ struct GameInterface : ::GameInterface
 
 };
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

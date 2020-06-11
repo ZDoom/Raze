@@ -2,8 +2,11 @@
 
 #ifndef NO_NAMESPACE
 
-#define BEGIN_DUKE_NS namespace Duke {
+#define BEGIN_DUKE_NS namespace Duke3d {
 #define END_DUKE_NS }
+
+#define BEGIN_EDUKE_NS namespace Duke {
+#define END_EDUKE_NS }
 
 #define BEGIN_RR_NS namespace Redneck {
 #define END_RR_NS }
@@ -19,6 +22,9 @@
 
 #else
 	
+#define BEGIN_EDUKE_NS
+#define END_EDUKE_NS
+
 #define BEGIN_DUKE_NS
 #define END_DUKE_NS
 

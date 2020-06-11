@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "../../glbackend/glbackend.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define MENU_MARGIN_REGULAR 40
 #define MENU_MARGIN_WIDE    32
@@ -754,7 +754,7 @@ void GameInterface::QuitToTitle()
 		G_CloseDemoWrite();
 	artClearMapArt();
 }
-END_DUKE_NS
+END_EDUKE_NS
 
 //----------------------------------------------------------------------------
 //

@@ -17,7 +17,7 @@
 #include "common.h"
 #include "common_game.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 // Set up new-style multi-psky handling.
@@ -138,4 +138,4 @@ void G_LoadLookups(void)
 }
 
 
-END_DUKE_NS
+END_EDUKE_NS

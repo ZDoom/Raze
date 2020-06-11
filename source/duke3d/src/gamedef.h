@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "events_defs.h"
 
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 enum
 {
@@ -1352,6 +1352,6 @@ enum ScriptKeywords_t
 #undef ENUM_TRANSFORM
 #undef COMMA
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif // gamedef_h_

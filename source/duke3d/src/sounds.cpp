@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "raze_sound.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 class DukeSoundEngine : public SoundEngine
@@ -607,4 +607,4 @@ void S_ContinueLevelMusic(void)
 }
 
 
-END_DUKE_NS
+END_EDUKE_NS

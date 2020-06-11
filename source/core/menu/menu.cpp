@@ -57,6 +57,7 @@
 #include "v_video.h"
 
 void RegisterDukeMenus();
+void RegisterDuke3dMenus();
 void RegisterRedneckMenus();
 void RegisterBloodMenus();
 void RegisterSWMenus();
@@ -1017,6 +1018,7 @@ void M_PreviousMenu()
 void M_Init (void) 
 {
 	RegisterDukeMenus();
+	RegisterDuke3dMenus();
 	RegisterRedneckMenus();
 	RegisterBloodMenus();
 	RegisterSWMenus();

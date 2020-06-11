@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sounds.h"
 #include "menu.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #ifdef global_c_
     #define G_EXTERN
@@ -205,7 +205,7 @@ EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 
 #endif
 
-END_DUKE_NS
+END_EDUKE_NS
 
 
 #endif

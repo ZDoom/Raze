@@ -2,7 +2,7 @@
 #ifndef EDUKE32_EVENTS_DEFS_H_
 #define EDUKE32_EVENTS_DEFS_H_
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // the order of these can't be changed or else compatibility with EDuke 2.0 mods will break
 // KEEPINSYNC with EventNames[]
@@ -167,6 +167,6 @@ enum GameEvent_t {
     MAXEVENTS
 };
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

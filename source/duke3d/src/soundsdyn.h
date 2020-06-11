@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef soundsdyn_h__
 #define soundsdyn_h__
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define DYNSOUNDREMAP_ENABLE
 
@@ -339,6 +339,6 @@ extern int32_t E5L7_DUKE_QUIT_YOU;
 
 #endif
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif // soundsdyn_h__

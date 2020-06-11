@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_text.h"
 #include "printf.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #if KRANDDEBUG
@@ -8944,4 +8944,4 @@ void G_MoveWorld(void)
     g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
 }
 
-END_DUKE_NS
+END_EDUKE_NS

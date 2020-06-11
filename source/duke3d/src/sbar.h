@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 static FORCE_INLINE int32_t sbarsc(int32_t sc)
 {
@@ -39,4 +39,4 @@ static FORCE_INLINE int32_t sbartile(void)
     return WORLDTOUR ? WIDESCREENSTATUSBAR : BOTTOMSTATUSBAR;
 }
 
-END_DUKE_NS
+END_EDUKE_NS

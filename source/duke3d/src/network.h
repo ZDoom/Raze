@@ -35,7 +35,7 @@ struct ENetHost;
 struct ENetPeer;
 struct ENetAddress;
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // net packet specification/compatibility version
 #define NETVERSION    1
@@ -360,6 +360,6 @@ void Net_PrintLag(FString& output);
 
 #endif
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif // netplay_h_

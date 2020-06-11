@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "animvpx.h"
 #endif
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 dukeanim_t* g_animPtr;
@@ -533,4 +533,4 @@ end_anim:
     return !running;
 }
 
-END_DUKE_NS
+END_EDUKE_NS

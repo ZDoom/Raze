@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef namesdyn_h__
 #define namesdyn_h__
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #define SECTOREFFECTOR__STATIC      1
@@ -1295,6 +1295,6 @@ extern int32_t E32_TILE5846;
 
 #define DYNAMICTILEMAP(Tilenum) (DynamicTileMap[Tilenum])
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif // namesdyn_h__

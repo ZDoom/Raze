@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tarray.h"
 #include "zstring.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 struct animsound_t {
     uint16_t frame = 0;
@@ -53,6 +53,6 @@ extern dukeanim_t * Anim_Create(const char *fn);
 int32_t Anim_Play(const char *fn);
 void Anim_Init(void);
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

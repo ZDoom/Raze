@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "c_dispatch.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 {
@@ -745,4 +745,4 @@ void G_DoCheats(void)
     }
 }
 
-END_DUKE_NS
+END_EDUKE_NS

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "game.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #define SV_MAJOR_VER 1
@@ -86,6 +86,6 @@ void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode);
 void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode);
 
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

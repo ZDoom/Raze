@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "palette.h"
 #include "cmdlib.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #ifndef ONLY_USERDEFS
 
@@ -432,6 +432,6 @@ static inline int G_GetMusicIdx(const char *str)
 #endif
 
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

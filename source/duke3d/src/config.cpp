@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "cmdline.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 
@@ -68,4 +68,4 @@ int CONFIG_ReadSetup(void)
     return 0;
 }
 
-END_DUKE_NS
+END_EDUKE_NS

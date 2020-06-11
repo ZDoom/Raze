@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 extern void G_CheckCommandLine();
@@ -34,6 +34,6 @@ extern void G_ShowDebugHelp(void);
 
 extern int32_t g_fakeMultiMode;
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif // cmdline_h__

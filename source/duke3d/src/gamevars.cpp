@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "gamestructures.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 gamevar_t   aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
 int32_t     g_gameVarCount   = 0;
@@ -1417,4 +1417,4 @@ void Gv_RefreshPointers(void)
     aGameArrays[Gv_GetArrayIndex("tilesizx")].pValues = (intptr_t *)tileWidth;
     aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)tileHeight;
 }
-END_DUKE_NS
+END_EDUKE_NS

@@ -9,7 +9,7 @@
 
 #include "gamecontrol.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
@@ -67,5 +67,5 @@ static inline void Duke_ApplySpritePropertiesToTSprite(tspriteptr_t tspr, usprit
 
 void Duke_CommonCleanup(void);
 
-END_DUKE_NS
+END_EDUKE_NS
 #endif

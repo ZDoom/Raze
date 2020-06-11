@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sbar.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 static int32_t sbarx(int32_t x)
 {
@@ -1128,4 +1128,4 @@ void G_DrawBackground(void)
 
     pus = pub = NUMPAGES;
 }
-END_DUKE_NS
+END_EDUKE_NS

@@ -65,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # define GAME_STATIC static
 #endif
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 int32_t g_quitDeadline = 0;
 
@@ -6253,4 +6253,4 @@ void GameInterface::UpdateScreenSize()
 	return new GameInterface;
 }
 
-END_DUKE_NS
+END_EDUKE_NS

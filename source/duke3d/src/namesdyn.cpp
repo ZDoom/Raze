@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "global.h"
 #include "gamecontrol.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 # define DVPTR(x) &x
 
@@ -1375,4 +1375,4 @@ void G_InitDynamicTiles(void)
     WeaponPickupSprites[11] = SHRINKERSPRITE;
     WeaponPickupSprites[12] = FLAMETHROWERSPRITE;
 }
-END_DUKE_NS
+END_EDUKE_NS

@@ -419,6 +419,10 @@ void UserConfig::ProcessOptions()
 //
 //==========================================================================
 
+namespace Duke3d
+{
+	::GameInterface* CreateInterface();
+}
 namespace Duke
 {
 	::GameInterface* CreateInterface();
@@ -445,6 +449,7 @@ extern int MinFPSRate; // this is a bit messy.
 
 void CheckFrontend(int flags)
 {
+	auto old = Args->CheckValue("-duke_old");
 	MinFPSRate = 30;
 	bool duke_compat = duke_compatibility_15;
 	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
@@ -458,10 +463,6 @@ void CheckFrontend(int flags)
 	{
 		gi = Blood::CreateInterface();
 	}
-	else if (flags & GAMEFLAG_RRALL)
-	{
-		gi = Redneck::CreateInterface();
-	}
 	else if (flags & GAMEFLAG_SW)
 	{
 		MinFPSRate = 40;
@@ -470,6 +471,14 @@ void CheckFrontend(int flags)
 	else if (flags & GAMEFLAG_PSEXHUMED)
 	{
 		gi = Powerslave::CreateInterface();
+	}
+	else if (old)
+	{
+		gi = Duke3d::CreateInterface();
+	}
+	else if (flags & GAMEFLAG_RRALL)
+	{
+		gi = Redneck::CreateInterface();
 	}
 	else if ((flags & GAMEFLAG_FURY) || GameStartupInfo.modern > 0)
 	{

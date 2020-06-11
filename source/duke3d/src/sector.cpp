@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_video.h"
 #include "glbackend/glbackend.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // PRIMITIVE
 
@@ -3532,4 +3532,4 @@ void P_CheckSectors(int playerNum)
     }
 }
 
-END_DUKE_NS
+END_EDUKE_NS

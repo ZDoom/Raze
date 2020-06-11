@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "c_dispatch.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 int32_t g_fakeMultiMode = 0;
 
@@ -97,4 +97,4 @@ void G_CheckCommandLine()
 	}
 }
 
-END_DUKE_NS
+END_EDUKE_NS

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"
 #include "filesystem.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 #define MAXGAMEVARS 2048 // must be a power of two
@@ -283,6 +283,6 @@ VM_GAMEVAR_OPERATOR(Gv_ShiftVarR, >>=)
 
 #undef VM_GAMEVAR_OPERATOR
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

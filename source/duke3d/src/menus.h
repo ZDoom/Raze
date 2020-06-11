@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 // a subset of screentext parameters, restricted because menus require accessibility
 struct MenuFont_t
@@ -57,6 +57,6 @@ inline int G_CheckPlayerColor(int color)
 }
 
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 # include "namesdyn.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
@@ -466,7 +466,7 @@ EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
     return A_CheckEnemyTile(((uspriteptr_t) pSprite)->picnum);
 }
 
-END_DUKE_NS
+END_EDUKE_NS
 
 #endif
 

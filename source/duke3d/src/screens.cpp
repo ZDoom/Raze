@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "v_2ddrawer.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
@@ -2188,4 +2188,4 @@ void G_BonusScreen(int32_t bonusonly)
     } while (1);
 }
 
-END_DUKE_NS
+END_EDUKE_NS

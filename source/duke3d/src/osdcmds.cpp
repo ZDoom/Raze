@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "mapinfo.h"
 
-BEGIN_DUKE_NS
+BEGIN_EDUKE_NS
 
 
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
@@ -658,4 +658,4 @@ int32_t registerosdcommands(void)
     return 0;
 }
 
-END_DUKE_NS
+END_EDUKE_NS
