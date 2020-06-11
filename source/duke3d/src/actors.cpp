@@ -4739,12 +4739,12 @@ ACTOR_STATIC void G_MoveActors(void)
 
             pSprite->cstat = (playerDist < 1596) ? 0 : 257;
 
-            if (pData[0] == GREENSLIME_ONPLAYER && pPlayer->somethingonplayer == spriteNum)
+            if (pData[0] == GREENSLIME_ONPLAYER)
             {
-                if (sprite[pPlayer->i].extra < 1)
+                if (sprite[pPlayer->i].extra < 1 && pPlayer->somethingonplayer == spriteNum)
                 {
                     pPlayer->somethingonplayer = -1;
-                    pData[0] = GREENSLIME_DONEEATING;
+                    pData[0] = GREENSLIME_TOFLOOR;
                     goto next_sprite;
                 }
 
@@ -4827,10 +4827,9 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 goto next_sprite;
             }
-
             else if (pSprite->xvel < 64 && playerDist < 768)
             {
-                if (pPlayer->somethingonplayer == -1)
+                if (pPlayer->somethingonplayer == -1 && sprite[pPlayer->i].extra > 0)
                 {
                     pPlayer->somethingonplayer = spriteNum;
 
