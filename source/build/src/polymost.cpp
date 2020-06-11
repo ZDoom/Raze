@@ -120,11 +120,6 @@ float sectorVisibility(int sectnum)
     return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
 }
 
-void gltexapplyprops(void)
-{
-	screen->SetTextureFilterMode();
-}
-
 //--------------------------------------------------------------------------------------------------
 
 //Use this for both initialization and uninitialization of OpenGL.

@@ -1103,8 +1103,6 @@ enum {
 };
 
 extern int32_t gltexmaxsize;
-void gltexapplyprops (void);
-void texcache_invalidate(void);
 
 EXTERN_CVAR(Bool, hw_detailmapping)
 EXTERN_CVAR(Bool, hw_glowmapping)

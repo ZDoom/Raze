@@ -31,8 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "animtexture.h"
 #include "v_2ddrawer.h"
-#include "../glbackend/glbackend.h"
-
+#include "v_video.h"
 
 #include "anim.h"
 
@@ -523,7 +522,7 @@ int32_t Anim_Play(const char *fn)
 
 end_anim_restore_gl:
     gl_texture_filter = ogltexfiltermode;
-    gltexapplyprops();
+    screen->SetTextureFilterMode();
 end_anim:
     inputState.ClearAllInput();
 	anim->animbuf = nullptr;
