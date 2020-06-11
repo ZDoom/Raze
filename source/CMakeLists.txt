@@ -1305,7 +1305,7 @@ unset( PCH_SOURCES )
 unset( HEADER_FILES )
 unset( NOT_COMPILED_SOURCE_FILES )
 
-add_subdirectory( duke )
+add_subdirectory( games/duke )
 add_subdirectory( duke3d )
 add_subdirectory( blood )
 add_subdirectory( rr )
