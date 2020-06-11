@@ -759,11 +759,9 @@ set (FASTMATH_SOURCES ${FASTMATH_SOURCES} ${POLYBACKEND_SOURCES})
 
 set (PCH_SOURCES
 
-	glbackend/gl_shader.cpp
 	glbackend/glbackend.cpp
 	glbackend/gl_palmanager.cpp
 	glbackend/gl_texture.cpp
-	glbackend/hw_draw2d.cpp
 
 	thirdparty/src/base64.cpp
 	thirdparty/src/fix16.cpp

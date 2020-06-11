@@ -96,17 +96,8 @@ public:
 
 CVAR(Bool, gl_aalines, false, CVAR_ARCHIVE) 
 
-EXTERN_CVAR(Bool, hw_use_backend);
-#include "glbackend/glbackend.h"
-
 void Draw2D(F2DDrawer *drawer, FRenderState &state)
 {
-	// This is still needed for testing until things are working.
-	if (!hw_use_backend)
-	{
-		GLInterface.Draw2D(drawer);
-		return;
-	}
 	twoD.Clock();
 
 	const auto &mScreenViewport = screen->mScreenViewport;

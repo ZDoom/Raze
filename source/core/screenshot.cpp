@@ -42,6 +42,7 @@
 #include "gamecontrol.h"
 #include "printf.h"
 #include "c_dispatch.h"
+#include "v_video.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -63,7 +64,7 @@ static FileWriter *opennextfile(const char *fn)
 
 void getScreen(uint8_t* imgBuf)
 {
-	GLInterface.ReadPixels(xdim, ydim, imgBuf);
+	screen->CopyScreenToBuffer(xdim, ydim, imgBuf);
 }
 
 

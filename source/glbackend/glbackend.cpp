@@ -34,39 +34,24 @@
 */
 #include <memory>
 #include <assert.h>
-#include "gl_load.h"
 #include "glbackend.h"
-#include "gl_samplers.h"
-#include "gl_shader.h"
 #include "textures.h"
 #include "palette.h"
-//#include "imgui.h"
 #include "gamecontrol.h"
-//#include "imgui_impl_sdl.h"
-//#include "imgui_impl_opengl3.h"
 #include "baselayer.h"
-#include "gl_interface.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "flatvertices.h"
-#include "gl_renderer.h"
 #include "build.h"
 #include "v_draw.h"
 #include "v_font.h"
 #include "hw_viewpointuniforms.h"
 #include "hw_viewpointbuffer.h"
-#include "gl_renderstate.h"
+#include "hw_renderstate.h"
 #include "hw_cvars.h"
 
 F2DDrawer twodpsp;
 static int BufferLock = 0;
-
-CVAR(Bool, hw_use_backend, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-
-
-static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
-static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
-int depthf[] = { GL_ALWAYS, GL_LESS, GL_EQUAL, GL_LEQUAL };
 
 TArray<VSMatrix> matrixArray;
 
@@ -95,95 +80,18 @@ TArray<uint8_t> ttf;
 
 void GLInstance::Init(int ydim)
 {
-	//glinfo.bufferstorage =  !!strstr(glinfo.extensions, "GL_ARB_buffer_storage");
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
-
 	new(&renderState) PolymostRenderState;	// reset to defaults.
-	LoadPolymostShader();
-}
-
-auto i_data = R"(
-	#version 330
-	// This must match the HWViewpointUniforms struct
-	layout(std140) uniform ViewpointUBO {
-		mat4 ProjectionMatrix;
-		mat4 ViewMatrix;
-		mat4 NormalViewMatrix;
-
-		vec4 uCameraPos;
-		vec4 uClipLine;
-
-		float uGlobVis;			// uGlobVis = R_GetGlobVis(r_visibility) / 32.0
-		int uPalLightLevels;	
-		int uViewHeight;		// Software fuzz scaling
-		float uClipHeight;
-		float uClipHeightDirection;
-		int uShadowmapFilter;
-	};
-	uniform sampler2D detailtexture;
-	uniform sampler2D glowtexture;
-	uniform sampler2D brighttexture;
-
-	uniform mat4 ModelMatrix;
-	uniform mat4 NormalModelMatrix;
-	uniform mat4 TextureMatrix;
-	uniform vec4 uDetailParms;
-
-	uniform vec4 uTextureBlendColor;
-	uniform vec4 uTextureModulateColor;
-	uniform vec4 uTextureAddColor;
-
-	uniform float uAlphaThreshold;
-	uniform vec4 uLightAttr;
-	#define uLightLevel uLightAttr.a
-	#define uFogDensity uLightAttr.b
-	#define uLightFactor uLightAttr.g
-	#define uLightDist uLightAttr.r
-	uniform int uFogEnabled;
-	uniform vec4 uFogColor;
-	uniform int uTextureMode;
-	uniform vec2 uNpotEmulation;
-
-)";
-
-void GLInstance::LoadPolymostShader()
-{
-	auto fr1 = GetResource("engine/shaders/glsl/polymost.vp");
-	TArray<uint8_t> Vert = fr1.Read();
-	fr1 = GetResource("engine/shaders/glsl/polymost.fp");
-	TArray<uint8_t> Frag = fr1.Read();
-	// Zero-terminate both strings.
-	Vert.Push(0);
-	Frag.Push(0);
-	FStringf VertS("%s\n%s", i_data, Vert.Data());
-	FStringf FragS("%s\n%s", i_data, Frag.Data());
-	polymostShader = new PolymostShader();
-	polymostShader->Load("PolymostShader", (const char*)VertS.GetChars(), (const char*)FragS.GetChars());
-	SetPolymostShader();
 }
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
-	glEnable(GL_TEXTURE_2D);
-
-    if (multisample > 0 )
-    {
-		//glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
-        glEnable(GL_MULTISAMPLE);
-    }
 	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
 	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
 	screen->BeginFrame();	
-	bool useSSAO = (gl_ssao != 0);
-    OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
-	ClearBufferState();
 }
 
 void GLInstance::Deinit()
 {
-	if (polymostShader) delete polymostShader;
-	polymostShader = nullptr;
-	activeShader = nullptr;
 	palmanager.DeleteAll();
 	lastPalswapIndex = -1;
 }
@@ -201,28 +109,6 @@ void GLInstance::ResetFrame()
 
 }
 
-void GLInstance::SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2)
-{
-	int o[] = { offset1, offset2 };
-	static_cast<OpenGLRenderer::GLVertexBuffer*>(vb)->Bind(o);
-}
-
-void GLInstance::SetIndexBuffer(IIndexBuffer* vb)
-{
-	if (vb) static_cast<OpenGLRenderer::GLIndexBuffer*>(vb)->Bind();
-	else glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-void GLInstance::ClearBufferState()
-{
-	SetVertexBuffer(screen->mVertexData->GetBufferObjects().first, 0, 0);
-	SetIndexBuffer(nullptr);
-}
-
-	
-static GLint primtypes[] ={ GL_POINTS, GL_LINES, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP };
-	
-
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	assert (BufferLock > 0);
@@ -235,41 +121,12 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 	renderState.StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
 }
 
-void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState &renderState)
-{
-	if (activeShader == polymostShader)
-	{
-		glVertexAttrib4fv(2, renderState.Color);
-		renderState.Apply(polymostShader, lastState);
-	}
-	if (type != DT_Lines)
-	{
-		glDrawElements(primtypes[type], count, GL_UNSIGNED_INT, (void*)(intptr_t)(start * sizeof(uint32_t)));
-	}
-	else
-	{
-		glDrawArrays(primtypes[type], start, count);
-	}
-}
-
 void GLInstance::DoDraw()
 {
-	if (hw_use_backend)
+	for (auto& rs : rendercommands)
 	{
-		for (auto& rs : rendercommands)
-		{
-			rs.Apply(*screen->RenderState(), lastState);
-			screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
-		}
-	}
-	else
-	{
-		for (auto& rs : rendercommands)
-		{
-			glVertexAttrib4fv(2, rs.Color);
-			rs.Apply(polymostShader, lastState);
-			glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
-		}
+		rs.Apply(*screen->RenderState(), lastState);
+		screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
 	}
 	rendercommands.Clear();
 	matrixArray.Resize(1);
@@ -290,17 +147,6 @@ void GLInstance::SetIdentityMatrix(int num)
 }
 
 
-void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
-{
-	glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-}
-
-void GLInstance::SetPolymostShader()
-{
-	polymostShader->Bind();
-	activeShader = polymostShader;
-}
-
 void GLInstance::SetPalette(int index)
 {
 	palmanager.BindPalette(index);
@@ -311,250 +157,6 @@ void GLInstance::SetPalswap(int index)
 {
 	palmanager.BindPalswap(index);
 	renderState.ShadeDiv = lookups.tables[index].ShadeFactor;
-}
-
-//===========================================================================
-// 
-//	Binds a texture to the renderer
-//
-//===========================================================================
-
-void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader, PolymostShader* shader)
-{
-	auto tex = mat->Source();
-	clampmode = tex->GetClampMode(clampmode);
-
-	// avoid rebinding the same texture multiple times.
-	//if (mat == lastMaterial && lastClamp == clampmode && translation == lastTranslation) return;
-#if 0
-	lastMaterial = mat;
-	lastClamp = clampmode;
-	lastTranslation = translation;
-#endif
-
-	int scf = 0;
-	if (Flags & RF_UsePalette)
-	{
-		scf |= CTF_Indexed;
-		translation = -1;
-	}
-
-	int usebright = false;
-	int maxbound = 0;
-
- 	int numLayers = mat->NumLayers();
-	MaterialLayerInfo* layer;
-	auto base = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(0, translation, &layer));
-	scf |= layer->scaleFlags;
-	if (base->BindOrCreate(layer->layerTexture, 0, layer->clampflags == -1? clampmode : layer->clampflags, translation, scf))
-	{
-		int LayerFlags = 0;
-		for (int i = 1; i < numLayers; i++)
-		{
-			auto systex = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
-			// fixme: Upscale flags must be disabled for certain layers.
-			systex->BindOrCreate(layer->layerTexture, i, layer->clampflags == -1 ? clampmode : layer->clampflags, 0, layer->scaleFlags);
-			maxbound = i;
-			LayerFlags |= 32768 << i;
-		}
-		shader->TextureMode.Set(LayerFlags);
-	}
-
-}
-
-void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
-{
-	if (!OpenGLRenderer::GLRenderer) return;
-	auto sm = OpenGLRenderer::GLRenderer->mSamplerManager;
-
-	bool reset = false;
-	if (mMaterial.mChanged)
-	{
-		mMaterial.mChanged = false;
-		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader, shader);
-		float buffer[] = { mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y, 1.f, 0.f };
-		shader->DetailParms.Set(buffer);
-	}
-
-	if (PaletteTexture != nullptr)
-	{
-		PaletteTexture->Bind(4, false);
-		sm->Bind(4, CLAMP_NOFILTER, -1);
-	}
-	if (LookupTexture != nullptr)
-	{
-		LookupTexture->Bind(5, false);
-		sm->Bind(5, CLAMP_NOFILTER, -1);
-	}
-	glActiveTexture(GL_TEXTURE0);
-
-
-	if (StateFlags != oldState.Flags)
-	{
-		if ((StateFlags ^ oldState.Flags) & STF_DEPTHTEST)
-		{
-			if (StateFlags & STF_DEPTHTEST) glEnable(GL_DEPTH_TEST);
-			else glDisable(GL_DEPTH_TEST);
-		}
-		if ((StateFlags ^ oldState.Flags) & STF_BLEND)
-		{
-			if (StateFlags & STF_BLEND) glEnable(GL_BLEND);
-			else glDisable(GL_BLEND);
-		}
-		if ((StateFlags ^ oldState.Flags) & STF_MULTISAMPLE)
-		{
-			if (StateFlags & STF_MULTISAMPLE) glEnable(GL_MULTISAMPLE);
-			else glDisable(GL_MULTISAMPLE);
-		}
-		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST | STF_STENCILWRITE))
-		{
-			if (StateFlags & STF_STENCILWRITE)
-			{
-				glEnable(GL_STENCIL_TEST);
-				glClear(GL_STENCIL_BUFFER_BIT);
-				glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-				glStencilFunc(GL_ALWAYS, 1/*value*/, 0xFF);
-			}
-			else if (StateFlags & STF_STENCILTEST)
-			{
-				glEnable(GL_STENCIL_TEST);
-				glStencilFunc(GL_EQUAL, 1/*value*/, 0xFF);
-				glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-			}
-			else
-			{
-				glDisable(GL_STENCIL_TEST);
-			}
-		}
-		if ((StateFlags ^ oldState.Flags) & (STF_CULLCW | STF_CULLCCW))
-		{
-			if (StateFlags & (STF_CULLCW | STF_CULLCCW))
-			{
-				glFrontFace(StateFlags & STF_CULLCW ? GL_CW : GL_CCW);
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_BACK); // Cull_Front is not being used.
-			}
-			else
-			{
-				glDisable(GL_CULL_FACE);
-			}
-		}
-		if ((StateFlags ^ oldState.Flags) & STF_COLORMASK)
-		{
-			if (StateFlags & STF_COLORMASK) glColorMask(1, 1, 1, 1);
-			else glColorMask(0, 0, 0, 0);
-		}
-		if ((StateFlags ^ oldState.Flags) & STF_DEPTHMASK)
-		{
-			if (StateFlags & STF_DEPTHMASK) glDepthMask(1);
-			else glDepthMask(0);
-		}
-		if (StateFlags & (STF_CLEARCOLOR | STF_CLEARDEPTH))
-		{
-			glClearColor(ClearColor.r / 255.f, ClearColor.g / 255.f, ClearColor.b / 255.f, 1.f);
-			int bit = 0;
-			if (StateFlags & STF_CLEARCOLOR) bit |= GL_COLOR_BUFFER_BIT;
-			if (StateFlags & STF_CLEARDEPTH) bit |= GL_DEPTH_BUFFER_BIT;
-			glClear(bit);
-		}
-		if (StateFlags & STF_VIEWPORTSET)
-		{
-			glViewport(vp_x, vp_y, vp_w, vp_h);
-		}
-		if (StateFlags & STF_SCISSORSET)
-		{
-			if (sc_x > SHRT_MIN)
-			{
-				glScissor(sc_x, sc_y, sc_w, sc_h);
-				glEnable(GL_SCISSOR_TEST);
-			}
-			else
-				glDisable(GL_SCISSOR_TEST);
-		}
-		if (mBias.mChanged)
-		{
-			if (mBias.mFactor == 0 && mBias.mUnits == 0)
-			{
-				glDisable(GL_POLYGON_OFFSET_FILL);
-			}
-			else
-			{
-				glEnable(GL_POLYGON_OFFSET_FILL);
-			}
-			glPolygonOffset(mBias.mFactor, mBias.mUnits);
-			mBias.mChanged = false;
-		}
-
-		StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
-		oldState.Flags = StateFlags;
-	}
-	if (Style != oldState.Style)
-	{
-		glBlendFunc(blendstyles[Style.SrcAlpha], blendstyles[Style.DestAlpha]);
-		if (Style.BlendOp != oldState.Style.BlendOp) glBlendEquation(renderops[Style.BlendOp]);
-		oldState.Style = Style;
-		// Flags are not being checked yet, the current shader has no implementation for them.
-	}
-	if (DepthFunc != oldState.DepthFunc)
-	{
-		glDepthFunc(depthf[DepthFunc]);
-		oldState.DepthFunc = DepthFunc;
-	}
-	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
-	{
-		if (!FogColor.isBlack())
-		{
-			//Flags &= ~RF_Brightmapping;
-			shader->muFogEnabled.Set(-1);
-		}
-		else
-		{
-			shader->muFogEnabled.Set(1);
-		}
-	}
-	else shader->muFogEnabled.Set(0);
-
-	shader->Flags.Set(Flags);
-	shader->NPOTEmulation.Set(&NPOTEmulation.X);
-	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
-	shader->FogColor.Set((Flags& RF_MapFog)? PalEntry(0x999999) : FogColor);
-	float lightattr[] = { ShadeDiv / (numshades - 2), VisFactor, (Flags & RF_MapFog) ? -5.f : 0.f , ShadeDiv >= 1 / 1000.f? Shade : 0 };
-	shader->muLightParms.Set(lightattr);
-
-	FVector4 addcol(0, 0, 0, 0);
-	FVector4 modcol(fullscreenTint.r / 255.f, fullscreenTint.g / 255.f, fullscreenTint.b / 255.f, 0);
-	FVector4 blendcol(0, 0, 0, 0);
-	int flags = 0;
-	if (fullscreenTint != 0xffffff) flags |= 16;
-	if (hictint_flags != -1)
-	{
-		flags |= 16;
-		if (hictint_flags & TINTF_COLORIZE)
-		{
-			modcol.X *= hictint.r / 64.f;
-			modcol.Y *= hictint.g / 64.f;
-			modcol.Z *= hictint.b / 64.f;
-		}
-		if (hictint_flags & TINTF_GRAYSCALE)
-			modcol.W = 1.f;
-
-		if (hictint_flags & TINTF_INVERT)
-			flags |= 8;
-
-		if (hictint_flags & TINTF_BLENDMASK)
-			flags |= ((hictint_flags & TINTF_BLENDMASK) >> 6) + 1;
-
-		addcol.W = flags;
-	}
-	shader->muTextureAddColor.Set(&addcol[0]);
-	shader->muTextureModulateColor.Set(&modcol[0]);
-	shader->muTextureBlendColor.Set(&blendcol[0]);
-	if (matrixIndex[Matrix_Model] != -1)
-		shader->ModelMatrix.Set(matrixArray[matrixIndex[Matrix_Model]].get());
-
-	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
 
 void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
@@ -714,7 +316,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	auto& RenderState = *screen->RenderState();
 
 	// we must be sure the GPU finished reading from the buffer before we fill it with new data.
-	glFinish();
+	screen->WaitForCommands(false);
 	screen->mVertexData->Reset();
 
 	// Switch to render buffers dimensioned for the savepic
@@ -787,7 +389,7 @@ void renderBeginScene()
 	assert(BufferLock == 0);
 
 	vp.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8) | ((int)5 << 16);
-	screen->mViewpoints->SetViewpoint(OpenGLRenderer::gl_RenderState, &vp);
+	screen->mViewpoints->SetViewpoint(*screen->RenderState(), &vp);
 
 	if (BufferLock++ == 0)
 	{
@@ -851,7 +453,6 @@ void videoShowFrame(int32_t w)
 
 	float Brightness = 8.f / (r_scenebrightness + 8.f);
 
-	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
 	screen->PostProcessScene(false, 0, Brightness, []() {
 		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
 		});

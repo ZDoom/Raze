@@ -13,7 +13,6 @@
 #include "pm_renderstate.h"
 
 class FShader;
-class PolymostShader;
 class FGameTexture;
 class GLInstance;
 class F2DDrawer;
@@ -79,7 +78,6 @@ struct GLState
 	int Flags = STF_COLORMASK | STF_DEPTHMASK;
 	FRenderStyle Style{};
 	int DepthFunc = -1;
-	int TexId[MAX_TEXTURES] = {}, SamplerId[MAX_TEXTURES] = {};
 };
 
 class GLInstance
@@ -96,18 +94,14 @@ public:
 	GLState lastState;
 
 	PolymostRenderState renderState;
-	FShader* activeShader;
 	
 	
 public:
 	float mProjectionM5 = 1.0f; // needed by ssao
-	PolymostShader* polymostShader;
 	glinfo_t glinfo;
 	
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
-	void LoadPolymostShader();
-	void Draw2D(F2DDrawer* drawer);
 	void ResetFrame();
 
 	void Deinit();
@@ -121,13 +115,8 @@ public:
 	GLInstance();
 	void Draw(EDrawType type, size_t start, size_t count);
 	void DoDraw();
-	void DrawElement(EDrawType type, size_t start, size_t count, PolymostRenderState& renderState);
 
 	OpenGLRenderer::FHardwareTexture* NewTexture(int numchannels = 4);
-
-	void SetVertexBuffer(IVertexBuffer* vb, int offset1, int offset2);
-	void SetIndexBuffer(IIndexBuffer* vb);
-	void ClearBufferState();
 
 	float GetProjectionM5() { return mProjectionM5; }
 	int SetMatrix(int num, const VSMatrix *mat );
@@ -141,11 +130,8 @@ public:
 		renderState.matrixIndex[num] = index;
 	}
 
-	void SetPolymostShader();
 	void SetPalette(int palette);
 	
-	void ReadPixels(int w, int h, uint8_t* buffer);
-
 	void SetTextureMode(int m)
 	{
 		renderState.TextureMode = m;

@@ -36,7 +36,6 @@
 #include "templates.h"
 #include "hw_vrmodes.h"
 #include "v_draw.h"
-#include "i_interface.h"
 
 extern bool vid_hdr_active;
 

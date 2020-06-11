@@ -3,7 +3,6 @@
 #include "palentry.h"
 #include "gl_buffers.h"
 #include "renderstyle.h"
-class PolymostShader;
 struct GLState;
 class FMaterial;
 
@@ -74,7 +73,5 @@ struct PolymostRenderState
 
 	PalEntry FogColor;
 
-	void ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader, PolymostShader *shader);
-	void Apply(PolymostShader *shader, GLState &oldstate);
 	void Apply(FRenderState & state, GLState& oldState);
 };

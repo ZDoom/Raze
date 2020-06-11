@@ -122,12 +122,6 @@ float sectorVisibility(int sectnum)
 
 void gltexapplyprops(void)
 {
-	if (GLInterface.glinfo.maxanisotropy > 1.f)
-	{
-		if (gl_texture_filter_anisotropic <= 0 || gl_texture_filter_anisotropic > GLInterface.glinfo.maxanisotropy)
-			gl_texture_filter_anisotropic = (int32_t)GLInterface.glinfo.maxanisotropy;
-	}
-
 	screen->SetTextureFilterMode();
 }
 
