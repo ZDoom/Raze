@@ -107,7 +107,6 @@ void paletteLoadFromDisk(void)
     // LameDuke and Witchaven use an older variant.
     if (fil.GetLength() == 41600)
     {
-        fil.Seek(-2, FileReader::SeekCur);
         numshades = 32;
     }
     else
@@ -129,8 +128,7 @@ void paletteLoadFromDisk(void)
     if (buffer.Size() != length) return;
     lookups.setTable(0, buffer.Data());
 
-    paletteloaded |= PALETTE_SHADE;
-    paletteloaded |= PALETTE_TRANSLUC;
+    paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
 }
 
 //==========================================================================

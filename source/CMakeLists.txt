@@ -914,6 +914,7 @@ set (PCH_SOURCES
 	common/engine/renderstyle.cpp
 	common/engine/v_colortables.cpp
 	common/engine/serializer.cpp
+	common/engine/m_joy.cpp
 	common/engine/m_random.cpp
 	common/objects/dobject.cpp
 	common/objects/dobjgc.cpp
@@ -983,10 +984,6 @@ set (PCH_SOURCES
 	core/menu/messagebox.cpp
 	core/menu/optionmenu.cpp
 	core/menu/resolutionmenu.cpp
-
-	#core/input/i_joystick.cpp
-	#core/input/i_input.cpp
-	core/input/m_joy.cpp
 )
 
 if( ${HAVE_VM_JIT} )

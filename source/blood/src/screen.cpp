@@ -110,12 +110,7 @@ void scrLoadPalette(void)
     numshades = 64;
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();
-    paletteloaded |= PALETTE_SHADE;
-    Printf("Loading translucency table\n");
-    DICTNODE *pTrans = gSysRes.Lookup("TRANS", "TLU");
-    if (!pTrans)
-        ThrowError("TRANS.TLU not found");
-    paletteloaded |= PALETTE_TRANSLUC;
+    paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
 
     enginePostInit();
 

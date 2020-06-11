@@ -1,7 +1,7 @@
 #ifndef M_JOY_H
 #define M_JOY_H
 
-#include <stdint.h>
+#include "basics.h"
 #include "tarray.h"
 #include "c_cvars.h"
 
@@ -18,7 +18,7 @@ enum EJoyAxis
 };
 
 // Generic configuration interface for a controller.
-struct IJoystickConfig
+struct NOVTABLE IJoystickConfig
 {
 	virtual ~IJoystickConfig() = 0;
 	

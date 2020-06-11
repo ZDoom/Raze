@@ -38,6 +38,7 @@
 #include "gameconfigfile.h"
 #include "d_event.h"
 #include "cmdlib.h"
+#include "printf.h"
 
 // MACROS ------------------------------------------------------------------
 
@@ -124,23 +125,23 @@ bool M_LoadJoystickConfig(IJoystickConfig *joy)
 	numaxes = joy->GetNumAxes();
 	for (int i = 0; i < numaxes; ++i)
 	{
-		axislen = snprintf(key, countof(key), "Axis%u", i);
+		axislen = mysnprintf(key, countof(key), "Axis%u", i);
 
-		snprintf(key + axislen, countof(key) - axislen, "deadzone");
+		mysnprintf(key + axislen, countof(key) - axislen, "deadzone");
 		value = GameConfig->GetValueForKey(key);
 		if (value != NULL)
 		{
 			joy->SetAxisDeadZone(i, (float)atof(value));
 		}
 
-		snprintf(key + axislen, countof(key) - axislen, "scale");
+		mysnprintf(key + axislen, countof(key) - axislen, "scale");
 		value = GameConfig->GetValueForKey(key);
 		if (value != NULL)
 		{
 			joy->SetAxisScale(i, (float)atof(value));
 		}
 
-		snprintf(key + axislen, countof(key) - axislen, "map");
+		mysnprintf(key + axislen, countof(key) - axislen, "map");
 		value = GameConfig->GetValueForKey(key);
 		if (value != NULL)
 		{
@@ -173,30 +174,30 @@ void M_SaveJoystickConfig(IJoystickConfig *joy)
 		GameConfig->ClearCurrentSection();
 		if (!joy->IsSensitivityDefault())
 		{
-			snprintf(value, countof(value), "%g", joy->GetSensitivity());
+			mysnprintf(value, countof(value), "%g", joy->GetSensitivity());
 			GameConfig->SetValueForKey("Sensitivity", value);
 		}
 		numaxes = joy->GetNumAxes();
 		for (int i = 0; i < numaxes; ++i)
 		{
-			axislen = snprintf(key, countof(key), "Axis%u", i);
+			axislen = mysnprintf(key, countof(key), "Axis%u", i);
 
 			if (!joy->IsAxisDeadZoneDefault(i))
 			{
-				snprintf(key + axislen, countof(key) - axislen, "deadzone");
-				snprintf(value, countof(value), "%g", joy->GetAxisDeadZone(i));
+				mysnprintf(key + axislen, countof(key) - axislen, "deadzone");
+				mysnprintf(value, countof(value), "%g", joy->GetAxisDeadZone(i));
 				GameConfig->SetValueForKey(key, value);
 			}
 			if (!joy->IsAxisScaleDefault(i))
 			{
-				snprintf(key + axislen, countof(key) - axislen, "scale");
-				snprintf(value, countof(value), "%g", joy->GetAxisScale(i));
+				mysnprintf(key + axislen, countof(key) - axislen, "scale");
+				mysnprintf(value, countof(value), "%g", joy->GetAxisScale(i));
 				GameConfig->SetValueForKey(key, value);
 			}
 			if (!joy->IsAxisMapDefault(i))
 			{
-				snprintf(key + axislen, countof(key) - axislen, "map");
-				snprintf(value, countof(value), "%d", joy->GetAxisMap(i));
+				mysnprintf(key + axislen, countof(key) - axislen, "map");
+				mysnprintf(value, countof(value), "%d", joy->GetAxisMap(i));
 				GameConfig->SetValueForKey(key, value);
 			}
 		}

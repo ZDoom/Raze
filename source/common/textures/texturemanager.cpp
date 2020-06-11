@@ -106,7 +106,7 @@ void FTextureManager::DeleteAll()
 // This must not, under any circumstances, delete the wipe textures, because
 // all CCMDs triggering a flush can be executed while a wipe is in progress
 //
-// This now also deletes the software textures because having the software
+// This now also deletes the software textures because the software
 // renderer can also use the texture scalers and that is the
 // main reason to call this outside of the destruction code.
 //
@@ -120,8 +120,8 @@ void FTextureManager::FlushAll()
 		{
 			Textures[i].Texture->CleanHardwareData();
 			delete Textures[i].Texture->GetSoftwareTexture();
-			Textures[i].Texture->SetSoftwareTexture(nullptr);
 			calcShouldUpscale(Textures[i].Texture);
+			Textures[i].Texture->SetSoftwareTexture(nullptr);
 		}
 	}
 }
@@ -782,23 +782,23 @@ void FTextureManager::ParseTextureDef(int lump, FMultipatchTextureBuilder &build
 		}
 		else if (sc.Compare("texture"))
 		{
-			build.ParseTexture(sc, ETextureType::Override);
+			build.ParseTexture(sc, ETextureType::Override, lump);
 		}
 		else if (sc.Compare("sprite"))
 		{
-			build.ParseTexture(sc, ETextureType::Sprite);
+			build.ParseTexture(sc, ETextureType::Sprite, lump);
 		}
 		else if (sc.Compare("walltexture"))
 		{
-			build.ParseTexture(sc, ETextureType::Wall);
+			build.ParseTexture(sc, ETextureType::Wall, lump);
 		}
 		else if (sc.Compare("flat"))
 		{
-			build.ParseTexture(sc, ETextureType::Flat);
+			build.ParseTexture(sc, ETextureType::Flat, lump);
 		}
 		else if (sc.Compare("graphic"))
 		{
-			build.ParseTexture(sc, ETextureType::MiscPatch);
+			build.ParseTexture(sc, ETextureType::MiscPatch, lump);
 		}
 		else if (sc.Compare("#include"))
 		{

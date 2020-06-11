@@ -143,6 +143,10 @@ public:
 	void SetArchiveBit () { Flags |= CVAR_ARCHIVE; }
 	void MarkUnsafe();
 	void MarkSafe() { Flags &= ~CVAR_UNSAFECONTEXT; }
+	void AddDescription(const FString& label)
+	{
+		if (Description.IsEmpty()) Description = label;
+	}
 
 	int ToInt()
 	{
@@ -214,6 +218,7 @@ private:
 	friend void C_SetCVarsToDefaults (void);
 	friend void FilterCompactCVars (TArray<FBaseCVar *> &cvars, uint32_t filter);
 	friend void C_DeinitConsole();
+	friend void C_ListCVarsWithoutDescription();
 };
 
 // Returns a string with all cvars whose flags match filter. In compact mode,
