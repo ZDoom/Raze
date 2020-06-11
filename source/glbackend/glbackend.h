@@ -146,6 +146,11 @@ public:
 	
 	void ReadPixels(int w, int h, uint8_t* buffer);
 
+	void SetTextureMode(int m)
+	{
+		renderState.TextureMode = m;
+	}
+
 	void SetDepthBias(float a, float b)
 	{
 		renderState.mBias.mFactor = a;

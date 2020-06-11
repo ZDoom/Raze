@@ -433,6 +433,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         SetRenderStyleFromBlend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
     }
 
+    if (!(method & (DAMETH_WALL | DAMETH_CLAMPED | DAMETH_MASK)))
+        GLInterface.SetTextureMode(TM_OPAQUE);
+
     float pc[4];
 
     // The shade rgb from the tint is ignored here.
@@ -479,6 +482,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
 	GLInterface.SetNpotEmulation(0.f, 0.f);
+    GLInterface.SetTextureMode(TM_NORMAL);
 
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
     {

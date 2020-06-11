@@ -53,6 +53,7 @@ struct PolymostRenderState
 	float ShadeDiv = 62.f;
 	float VisFactor = 128.f;
 	int Flags = 0;
+	int TextureMode = TM_NORMAL;
 	FVector2 NPOTEmulation = { 0.f, 0.f };
     float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;

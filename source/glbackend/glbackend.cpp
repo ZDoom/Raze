@@ -575,7 +575,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	{
 		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);
 		state.EnableMultisampling(StateFlags & STF_MULTISAMPLE);
-		state.SetTextureMode((StateFlags & STF_BLEND) ? TM_OPAQUE : TM_NORMAL);
 
 		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST | STF_STENCILWRITE))
 		{
@@ -641,6 +640,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	state.SetFog((Flags & RF_MapFog) ? PalEntry(0x999999) : FogColor, 21.f);	// Fixme: The real density still needs to be implemented. 21 is a reasonable default only.
 	state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
 	state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
+	state.SetTextureMode(TextureMode);
 
 	state.SetNpotEmulation(NPOTEmulation.Y, NPOTEmulation.X);
 	state.AlphaFunc(Alpha_Greater, AlphaTest ? AlphaThreshold : -1.f);
