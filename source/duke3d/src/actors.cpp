@@ -4676,13 +4676,27 @@ ACTOR_STATIC void G_MoveActors(void)
                 }
             }
 
-            if (pData[0] == -5) // FROZEN
+            enum
+            {
+                GREENSLIME_FROZEN = -5,
+                GREENSLIME_ONPLAYER,
+                GREENSLIME_DEAD,  // set but not checked anywhere...
+                GREENSLIME_EATINGACTOR,
+                GREENSLIME_DONEEATING,
+                GREENSLIME_ONFLOOR,
+                GREENSLIME_TOCEILING,
+                GREENSLIME_ONCEILING,
+                GREENSLIME_TOFLOOR,
+            };
+
+            if (pData[0] == GREENSLIME_FROZEN)
             {
                 pData[3]++;
                 if (pData[3] > 280)
                 {
                     pSprite->pal = 0;
-                    pData[0] = pData[3] = 0;
+                    pData[0] = GREENSLIME_ONFLOOR;
+                    pData[3] = 0;
                     goto next_sprite;
                 }
                 A_Fall(spriteNum);
@@ -4725,12 +4739,12 @@ ACTOR_STATIC void G_MoveActors(void)
 
             pSprite->cstat = (playerDist < 1596) ? 0 : 257;
 
-            if (pData[0] == -4 && pPlayer->somethingonplayer == spriteNum) //On the player
+            if (pData[0] == GREENSLIME_ONPLAYER && pPlayer->somethingonplayer == spriteNum)
             {
                 if (sprite[pPlayer->i].extra < 1)
                 {
                     pPlayer->somethingonplayer = -1;
-                    pData[0] = 0;
+                    pData[0] = GREENSLIME_DONEEATING;
                     goto next_sprite;
                 }
 
@@ -4761,7 +4775,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         }
 
                         P_AddKills(pPlayer, 1);
-                        pData[0] = -3;
+                        pData[0] = GREENSLIME_DEAD;
 
                         if (pPlayer->somethingonplayer == spriteNum)
                             pPlayer->somethingonplayer = -1;
@@ -4819,11 +4833,13 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (pPlayer->somethingonplayer == -1)
                 {
                     pPlayer->somethingonplayer = spriteNum;
-                    if (pData[0] == 3 || pData[0] == 2)  // Falling downward
+
+                    if (pData[0] == GREENSLIME_TOFLOOR || pData[0] == GREENSLIME_ONCEILING)  // Falling downward
                         pData[2] = (12 << 8);
                     else
                         pData[2] = -(13 << 8);  // Climbing up player
-                    pData[0]     = -4;
+
+                    pData[0] = GREENSLIME_ONPLAYER;
                 }
             }
 
@@ -4838,7 +4854,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (damageTile == FREEZEBLAST)
                 {
                     A_PlaySound(SOMETHINGFROZE, spriteNum);
-                    pData[0] = -5;
+                    pData[0] = GREENSLIME_FROZEN;
                     pData[3] = 0;
                     goto next_sprite;
                 }
@@ -4858,19 +4874,16 @@ ACTOR_STATIC void G_MoveActors(void)
                                                  spriteNum, 5);
                     sprite[j].pal = 6;
                 }
-                pData[0] = -3;
+                pData[0] = GREENSLIME_DEAD;
                 DELETE_SPRITE_AND_CONTINUE(spriteNum);
             }
             // All weap
-            if (pData[0] == -1) //Shrinking down
+            if (pData[0] == GREENSLIME_DONEEATING)
             {
                 A_Fall(spriteNum);
 
                 pSprite->cstat &= 65535-8;
                 pSprite->picnum = GREENSLIME+4;
-
-                //                    if(s->yrepeat > 62)
-                //                      A_DoGuts(s,JIBS6,5,myconnectindex);
 
                 if (pSprite->xrepeat > 32) pSprite->xrepeat -= krand()&7;
                 if (pSprite->yrepeat > 16) pSprite->yrepeat -= krand()&7;
@@ -4879,14 +4892,14 @@ ACTOR_STATIC void G_MoveActors(void)
                     pSprite->xrepeat = 40;
                     pSprite->yrepeat = 16;
                     pData[5] = -1;
-                    pData[0] = 0;
+                    pData[0] = GREENSLIME_ONFLOOR;
                 }
 
                 goto next_sprite;
             }
-            else if (pData[0] != -2) A_GetZLimits(spriteNum);
+            else if (pData[0] != GREENSLIME_EATINGACTOR) A_GetZLimits(spriteNum);
 
-            if (pData[0] == -2) //On top of somebody
+            if (pData[0] == GREENSLIME_EATINGACTOR) //On top of somebody
             {
                 A_Fall(spriteNum);
                 sprite[pData[5]].xvel = 0;
@@ -4906,7 +4919,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         pSprite->xrepeat += 4;
                     else
                     {
-                        pData[0]   = -1;
+                        pData[0]   = GREENSLIME_DONEEATING;
                         playerDist = ldist(pSprite, &sprite[pData[5]]);
 
                         if (playerDist < 768)
@@ -4934,7 +4947,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         if (ldist(pSprite, &sprite[j]) < 768 && (klabs(pSprite->z - sprite[j].z) < 8192))  // Gulp them
                         {
                             pData[5] = j;
-                            pData[0] = -2;
+                            pData[0] = GREENSLIME_EATINGACTOR;
                             pData[1] = 0;
                             goto next_sprite;
                         }
@@ -4944,14 +4957,14 @@ ACTOR_STATIC void G_MoveActors(void)
 
             //Moving on the ground or ceiling
 
-            if (pData[0] == 0 || pData[0] == 2)
+            if (pData[0] == GREENSLIME_ONFLOOR || pData[0] == GREENSLIME_ONCEILING)
             {
                 pSprite->picnum = GREENSLIME;
 
                 if ((krand()&511) == 0)
                     A_PlaySound(SLIM_ROAM,spriteNum);
 
-                if (pData[0]==2)
+                if (pData[0]==GREENSLIME_ONCEILING)
                 {
                     pSprite->zvel = 0;
                     pSprite->cstat &= (65535-8);
@@ -4959,7 +4972,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     if ((sector[sectNum].ceilingstat&1) || (actor[spriteNum].ceilingz+6144) < pSprite->z)
                     {
                         pSprite->z += 2048;
-                        pData[0] = 3;
+                        pData[0] = GREENSLIME_TOFLOOR;
                         goto next_sprite;
                     }
                 }
@@ -4998,7 +5011,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             }
 
-            if (pData[0]==1)
+            if (pData[0]==GREENSLIME_TOCEILING)
             {
                 pSprite->picnum = GREENSLIME;
                 if (pSprite->yrepeat < 40) pSprite->yrepeat+=8;
@@ -5010,11 +5023,11 @@ ACTOR_STATIC void G_MoveActors(void)
                 {
                     pSprite->z = actor[spriteNum].ceilingz+4096;
                     pSprite->xvel = 0;
-                    pData[0] = 2;
+                    pData[0] = GREENSLIME_ONCEILING;
                 }
             }
 
-            if (pData[0]==3)
+            if (pData[0]==GREENSLIME_TOFLOOR)
             {
                 pSprite->picnum = GREENSLIME+1;
 
@@ -5034,7 +5047,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (pSprite->z > actor[spriteNum].floorz-2048)
                 {
                     pSprite->z = actor[spriteNum].floorz-2048;
-                    pData[0] = 0;
+                    pData[0] = GREENSLIME_ONFLOOR;
                     pSprite->xvel = 0;
                 }
             }
