@@ -1080,7 +1080,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     if (shadowHack)
     {
-		GLInterface.SetDepthFunc(Depth_LessEqual);
+		GLInterface.SetDepthFunc(DF_LEqual);
 	}
 
 
@@ -1215,7 +1215,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 
     if (shadowHack)
     {
-		GLInterface.SetDepthFunc(Depth_Less);
+		GLInterface.SetDepthFunc(DF_Less);
 	}
 	GLInterface.SetIdentityMatrix(Matrix_Model);
 	GLInterface.SetFadeDisable(false);

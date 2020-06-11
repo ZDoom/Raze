@@ -49,10 +49,6 @@
 
 LookupTableInfo lookups;
 
-uint8_t curbasepal;
-int32_t globalblend;
-PalEntry palfadergb;
-
 //==========================================================================
 //
 // Adds a palette to the global list of base palettes
@@ -418,9 +414,16 @@ void LookupTableInfo::setPaletteTint(int palnum, int r, int g, int b, int sr, in
 
 //==========================================================================
 //
-//
+// todo: everything below belongs elsewhere. Move it out
 //
 //==========================================================================
+#include "v_2ddrawer.h"
+
+uint8_t curbasepal;
+PalEntry palfadergb;
+static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
+glblend_t glblend[MAXBLENDTABS];
+
 
 void videoSetPalette(int dabrightness, int palid, ESetPalFlags flags)
 {
@@ -449,7 +452,6 @@ glblend_t const defaultglblend =
     },
 };
 
-glblend_t glblend[MAXBLENDTABS];
 
 FRenderStyle GetRenderStyle(int blend, int def)
 {
@@ -476,4 +478,34 @@ void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def)
 float GetAlphaFromBlend(uint32_t method, uint32_t blend)
 {
     return method == DAMETH_TRANS1 || method == DAMETH_TRANS2 ? glblend[blend].def[method - DAMETH_TRANS1].alpha : 1.f;
+}
+
+//==========================================================================
+//
+// Fullscreen blend effects
+//
+//==========================================================================
+
+void DrawFullscreenBlends()
+{
+    // These get prepended to the 2D drawer so they must be submitted in reverse order of drawing.
+    if (tint_blood_r | tint_blood_g | tint_blood_b)
+    {
+        PalEntry color2(255, std::max(-tint_blood_r, 0), std::max(-tint_blood_g, 0), std::max(-tint_blood_b, 0));
+        twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), color2, &LegacyRenderStyles[STYLE_Subtract], true);
+        PalEntry color(255, std::max(tint_blood_r, 0), std::max(tint_blood_g, 0), std::max(tint_blood_b, 0));
+        twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), color, &LegacyRenderStyles[STYLE_Add], true);
+    }
+
+    if (palfadergb.a > 0)
+    {
+        twod->AddColorOnlyQuad(0, 0, twod->GetWidth(), twod->GetHeight(), palfadergb, &LegacyRenderStyles[STYLE_Translucent], true);
+    }
+}
+
+void videoTintBlood(int32_t r, int32_t g, int32_t b)
+{
+    tint_blood_r = r;
+    tint_blood_g = g;
+    tint_blood_b = b;
 }

@@ -162,7 +162,6 @@ inline void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 void videoTintBlood(int32_t r, int32_t g, int32_t b);
 
 extern int32_t globalpal;
-extern int32_t globalblend;
 extern void paletteLoadFromDisk(void);
 
 

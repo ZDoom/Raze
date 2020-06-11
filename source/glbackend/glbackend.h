@@ -20,6 +20,12 @@ class F2DDrawer;
 struct palette_t;
 extern int xdim, ydim;
 
+enum
+{
+	DM_MAINVIEW,
+	DM_OFFSCREEN
+};
+
 class PaletteManager
 {
 	OpenGLRenderer::FHardwareTexture* palettetextures[256] = {};
@@ -54,15 +60,6 @@ enum ECullSide
 	Cull_Back
 };
 
-enum EDepthFunct
-{
-	Depth_Always,
-	Depth_Less,
-	Depth_Equal,
-	Depth_LessEqual
-};
-
-
 enum EWinding
 {
 	Winding_CCW,
@@ -89,7 +86,6 @@ class GLInstance
 {
 public:
 	TArray<PolymostRenderState> rendercommands;
-	int maxTextureSize;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
 	OpenGLRenderer::FHardwareTexture* texv;
@@ -112,7 +108,6 @@ public:
 	void InitGLState(int fogmode, int multisample);
 	void LoadPolymostShader();
 	void Draw2D(F2DDrawer* drawer);
-	void DrawImGui(ImDrawData*);
 	void ResetFrame();
 
 	void Deinit();
@@ -246,12 +241,6 @@ public:
 		else renderState.StateFlags &= ~STF_DEPTHMASK;
 	}
 
-	void SetWireframe(bool on)
-	{
-		if (on) renderState.StateFlags |= STF_WIREFRAME;
-		else renderState.StateFlags &= ~STF_WIREFRAME;
-	}
-
 	void ClearScreen(PalEntry pe, bool depth)
 	{
 		renderState.ClearColor = pe;
@@ -335,58 +324,11 @@ public:
 		if (shouldUpscale(tex, upscalemask)) scaleflags |= CTF_Upscale;
 		SetMaterial(FMaterial::ValidateTexture(tex, scaleflags), clampmode, translation, overrideshader);
 	}
-#if 0
-	void BindTexture(int texunit, OpenGLRenderer::FHardwareTexture* tex, int sampler)
-	{
-		if (!tex) return;
-		if (texunit == 0)
-		{
-			if (tex->numChannels() == 1) 
-				renderState.Flags |= RF_UsePalette;
-			else 
-				renderState.Flags &= ~RF_UsePalette;
-		}
-		renderState.texIds[texunit] = tex->GetTextureHandle();
-		renderState.samplerIds[texunit] = sampler;
-	}
-
-	void UnbindTexture(int texunit)
-	{
-		renderState.texIds[texunit] = 0;
-		renderState.samplerIds[texunit] = 0;
-	}
-
-	void UnbindAllTextures()
-	{
-		for (int texunit = 0; texunit < MAX_TEXTURES; texunit++)
-		{
-			UnbindTexture(texunit);
-		}
-	}
-#endif
 
 	void UseColorOnly(bool yes)
 	{
 		if (yes) renderState.Flags |= RF_ColorOnly;
 		else renderState.Flags &= ~RF_ColorOnly;
-	}
-
-	void UseDetailMapping(bool yes)
-	{
-		if (yes) renderState.LayerFlags |= TEXF_Detailmap;
-		else renderState.LayerFlags &= ~TEXF_Detailmap;
-	}
-
-	void UseGlowMapping(bool yes)
-	{
-		if (yes) renderState.LayerFlags |= TEXF_Glowmap;
-		else renderState.LayerFlags &= ~TEXF_Glowmap;
-	}
-
-	void UseBrightmaps(bool yes)
-	{
-		if (yes) renderState.LayerFlags |= TEXF_Brightmap;
-		else renderState.LayerFlags &= ~TEXF_Brightmap;
 	}
 
 	void SetNpotEmulation(float factor, float xOffset)
@@ -466,6 +408,9 @@ public:
 	}
 
 	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride);
+	void RenderScene(FRenderState& state);
+	void DrawScene(int drawmode);
+
 };
 
 extern GLInstance GLInterface;

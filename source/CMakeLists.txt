@@ -639,6 +639,7 @@ file( GLOB HEADER_FILES
 	common/thirdparty/math/*h
 	common/rendering/*.h
 	common/rendering/gl_load/*.h
+	common/rendering/hwrenderer/*.h
 	common/rendering/hwrenderer/data/*.h
 	common/rendering/polyrenderer/*.h
 	common/rendering/polyrenderer/math/*.h
@@ -923,6 +924,7 @@ set (PCH_SOURCES
 	common/rendering/v_video.cpp
 	common/rendering/r_thread.cpp
 	common/rendering/r_videoscale.cpp
+	common/rendering/hwrenderer/hw_draw2d.cpp
 	common/rendering/hwrenderer/data/hw_clock.cpp
 	common/rendering/hwrenderer/data/hw_skydome.cpp
 	common/rendering/hwrenderer/data/flatvertices.cpp
@@ -1093,6 +1095,7 @@ include_directories(
 	common/fonts
 	common/objects
 	common/rendering
+	common/rendering/hwrenderer
 	common/rendering/hwrenderer/data
 	common/rendering/gl_load
 	common/rendering/gl

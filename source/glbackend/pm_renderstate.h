@@ -40,7 +40,6 @@ enum PRSFlags
 	STF_STENCILTEST = 64,
 	STF_CULLCW = 128,
 	STF_CULLCCW = 256,
-	STF_WIREFRAME = 512,
 	STF_CLEARCOLOR = 1024,
 	STF_CLEARDEPTH = 2048,
 	STF_VIEWPORTSET = 4096,
@@ -54,7 +53,6 @@ struct PolymostRenderState
 	float ShadeDiv = 62.f;
 	float VisFactor = 128.f;
 	int Flags = 0;
-	int LayerFlags = 0;
 	FVector2 NPOTEmulation = { 0.f, 0.f };
     float AlphaThreshold = 0.5f;
 	bool AlphaTest = true;
@@ -75,6 +73,7 @@ struct PolymostRenderState
 
 	PalEntry FogColor;
 
-	void ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader);
+	void ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader, PolymostShader *shader);
 	void Apply(PolymostShader *shader, GLState &oldstate);
+	void Apply(FRenderState & state, GLState& oldState);
 };

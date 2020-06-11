@@ -32,24 +32,17 @@
 **
 */
 
-
-#include "gl_load.h"
-#include "cmdlib.h"
-#include "gl_buffers.h"
-#include "v_2ddrawer.h"
-#include "c_cvars.h"
-#include "glbackend.h"
-#include "v_draw.h"
-#include "palette.h"
-#include "flatvertices.h"
-#include "build.h"
 #include "v_video.h"
+#include "cmdlib.h"
+#include "hwrenderer/data/buffers.h"
+#include "flatvertices.h"
+#include "hwrenderer/data/hw_viewpointbuffer.h"
+#include "hw_clock.h"
+#include "hw_cvars.h"
 #include "hw_renderstate.h"
-#include "hw_viewpointbuffer.h"
-#include "gl_renderstate.h"
+#include "r_videoscale.h"
+#include "v_draw.h"
 
-extern int16_t numshades;
-extern TArray<VSMatrix> matrixArray;
 
 //===========================================================================
 // 
@@ -67,8 +60,8 @@ public:
 
 	F2DVertexBuffer()
 	{
-		mVertexBuffer = new OpenGLRenderer::GLVertexBuffer();
-		mIndexBuffer = new OpenGLRenderer::GLIndexBuffer();
+		mVertexBuffer = screen->CreateVertexBuffer();
+		mIndexBuffer = screen->CreateIndexBuffer();
 
 		static const FVertexBufferAttribute format[] = {
 			{ 0, VATTR_VERTEX, VFmt_Float3, (int)myoffsetof(F2DDrawer::TwoDVertex, x) },
@@ -100,18 +93,29 @@ public:
 // Draws the 2D stuff. This is the version for OpenGL 3 and later.
 //
 //===========================================================================
-void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid);
 
-void GLInstance::Draw2D(F2DDrawer *drawer)
+CVAR(Bool, gl_aalines, false, CVAR_ARCHIVE) 
+
+EXTERN_CVAR(Bool, hw_use_backend);
+#include "glbackend/glbackend.h"
+
+void Draw2D(F2DDrawer *drawer, FRenderState &state)
 {
-	VSMatrix mat(0);
-	screen->mViewpoints->Set2D(OpenGLRenderer::gl_RenderState, xdim, ydim, numshades);
-	SetViewport(0, 0, xdim, ydim);
-	EnableDepthTest(false);
-	EnableMultisampling(false);
-	EnableBlend(true);
-	EnableAlphaTest(true);
-	SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
+	// This is still needed for testing until things are working.
+	if (!hw_use_backend)
+	{
+		GLInterface.Draw2D(drawer);
+		return;
+	}
+	twoD.Clock();
+
+	const auto &mScreenViewport = screen->mScreenViewport;
+	state.SetViewport(mScreenViewport.left, mScreenViewport.top, mScreenViewport.width, mScreenViewport.height);
+	screen->mViewpoints->Set2D(state, twod->GetWidth(), twod->GetHeight());
+
+	state.EnableDepthTest(false);
+	state.EnableMultisampling(false);
+	state.EnableLineSmooth(gl_aalines);
 
 	auto &vertices = drawer->mVertices;
 	auto &indices = drawer->mIndices;
@@ -119,6 +123,7 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 
 	if (commands.Size() == 0)
 	{
+		twoD.Unclock();
 		return;
 	}
 
@@ -132,94 +137,105 @@ void GLInstance::Draw2D(F2DDrawer *drawer)
 	}
 	F2DVertexBuffer vb;
 	vb.UploadData(&vertices[0], vertices.Size(), &indices[0], indices.Size());
-	assert(vb.GetBufferObjects().first && vb.GetBufferObjects().second);
-	SetVertexBuffer(vb.GetBufferObjects().first, 0, 0);
-	SetIndexBuffer(vb.GetBufferObjects().second);
-	SetFadeDisable(true);
+	state.SetVertexBuffer(&vb);
+	state.EnableFog(false);
 
 	for(auto &cmd : commands)
 	{
 
-
 		int gltrans = -1;
+		state.SetRenderStyle(cmd.mRenderStyle);
+		state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
+		state.EnableFog(2);	// Special 2D mode 'fog'.
 
-		SetRenderStyle(cmd.mRenderStyle);
-		//state.EnableBrightmap(!(cmd.mRenderStyle.Flags & STYLEF_ColorIsFixed));
-		//state.SetTextureMode(cmd.mDrawMode);
+		state.SetTextureMode(cmd.mDrawMode);
 
+		int sciX, sciY, sciW, sciH;
 		if (cmd.mFlags & F2DDrawer::DTF_Scissor)
 		{
 			// scissor test doesn't use the current viewport for the coordinates, so use real screen coordinates
 			// Note that the origin here is the lower left corner!
-			int sciX = screen->ScreenToWindowX(cmd.mScissor[0]);
-			int sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
-			int sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
-			int sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
+			sciX = screen->ScreenToWindowX(cmd.mScissor[0]);
+			sciY = screen->ScreenToWindowY(cmd.mScissor[3]);
+			sciW = screen->ScreenToWindowX(cmd.mScissor[2]) - sciX;
+			sciH = screen->ScreenToWindowY(cmd.mScissor[1]) - sciY;
+			// If coordinates turn out negative, clip to sceen here to avoid undefined behavior. 
 			if (sciX < 0) sciW += sciX, sciX = 0;
 			if (sciY < 0) sciH += sciY, sciY = 0;
-			SetScissor(sciX, sciY, sciW, sciH);
 		}
 		else
 		{
-			DisableScissor();
+			sciX = sciY = sciW = sciH = -1;
 		}
+		state.SetScissor(sciX, sciY, sciW, sciH);
 
-		auto tex = cmd.mTexture;
-		if (tex != nullptr && tex->isValid())
+		if (cmd.mSpecialColormap[0].a != 0)
 		{
-			auto tex = cmd.mTexture;
+			state.SetTextureMode(TM_FIXEDCOLORMAP);
+			state.SetObjectColor(cmd.mSpecialColormap[0]);
+			state.SetAddColor(cmd.mSpecialColormap[1]);
+		}
+		state.SetFog(cmd.mColor1, 0);
+		state.SetColor(1, 1, 1, 1, cmd.mDesaturate); 
 
-			SetFadeDisable(cmd.mLightLevel == 0);
-			SetShade(cmd.mLightLevel, numshades);
+		state.AlphaFunc(Alpha_GEqual, 0.f);
 
-			SetTexture(TileFiles.GetTileIndex(tex), tex, cmd.mTranslationId, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY);
-			EnableBlend(!(cmd.mRenderStyle.Flags & STYLEF_Alpha1));
-			UseColorOnly(false);
+		if (cmd.mTexture != nullptr && cmd.mTexture->isValid())
+		{
+			auto flags = cmd.mTexture->GetUseType() >= ETextureType::Special? UF_None : cmd.mTexture->GetUseType() == ETextureType::FontChar? UF_Font : UF_Texture;
+			state.SetMaterial(cmd.mTexture, flags, 0, cmd.mFlags & F2DDrawer::DTF_Wrap ? CLAMP_NONE : CLAMP_XY_NOMIP, cmd.mTranslationId, -1);
+			state.EnableTexture(true);
+
+			// Canvas textures are stored upside down
+			if (cmd.mTexture->isHardwareCanvas())
+			{
+				state.mTextureMatrix.loadIdentity();
+				state.mTextureMatrix.scale(1.f, -1.f, 1.f);
+				state.mTextureMatrix.translate(0.f, 1.f, 0.0f);
+				state.EnableTextureMatrix(true);
+			}
+			if (cmd.mFlags & F2DDrawer::DTF_Burn)
+			{
+				state.SetEffect(EFF_BURN);
+			}
 		}
 		else
 		{
-			UseColorOnly(true);
+			state.EnableTexture(false);
 		}
 
 		switch (cmd.mType)
 		{
+		default:
 		case F2DDrawer::DrawTypeTriangles:
-			DrawElement(DT_Triangles, cmd.mIndexIndex, cmd.mIndexCount, renderState);
+			state.DrawIndexed(DT_Triangles, cmd.mIndexIndex, cmd.mIndexCount);
 			break;
 
 		case F2DDrawer::DrawTypeLines:
-			DrawElement(DT_Lines, cmd.mVertIndex, cmd.mVertCount, renderState);
+			state.Draw(DT_Lines, cmd.mVertIndex, cmd.mVertCount);
 			break;
 
 		case F2DDrawer::DrawTypePoints:
-			//Draw(DT_POINTS, cmd.mVertIndex, cmd.mVertCount);
+			state.Draw(DT_Points, cmd.mVertIndex, cmd.mVertCount);
 			break;
 
 		}
-		/*
 		state.SetObjectColor(0xffffffff);
 		state.SetObjectColor2(0);
 		state.SetAddColor(0);
 		state.EnableTextureMatrix(false);
 		state.SetEffect(EFF_NONE);
-		*/
 
 	}
+	state.SetScissor(-1, -1, -1, -1);
 
-	//state.SetRenderStyle(STYLE_Translucent);
-	ClearBufferState();
-	UseColorOnly(false);
-	//state.EnableBrightmap(true);
-	//state.SetTextureMode(TM_NORMAL);
-	SetShade(0, numshades);
-	SetFadeDisable(false);
-	SetColor(1, 1, 1);
-	DisableScissor();
-	//drawer->mIsFirstPass = false;
-	EnableBlend(true);
-	EnableMultisampling(true);
-	matrixArray.Resize(1);
-	renderState.Apply(polymostShader, lastState);	// actually set the desired state before returning.
+	state.SetRenderStyle(STYLE_Translucent);
+	state.SetVertexBuffer(screen->mVertexData);
+	state.EnableTexture(true);
+	state.EnableBrightmap(true);
+	state.SetTextureMode(TM_NORMAL);
+	state.EnableFog(false);
+	state.ResetColor();
+	drawer->mIsFirstPass = false;
+	twoD.Unclock();
 }
-
-

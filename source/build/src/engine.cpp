@@ -4017,6 +4017,8 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     return 0;
 }
 
+void DrawFullscreenBlends();
+
 //
 // nextpage
 //
@@ -4036,6 +4038,9 @@ void videoNextPage(void)
 		recursion = false;
 	}
 
+    // Handle the final 2D overlays.
+    DrawFullscreenBlends();
+    DrawRateStuff();
 
     if (in3dmode())
     {

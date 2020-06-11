@@ -2168,9 +2168,6 @@ drawscreen(PLAYERp pp)
 
     renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (fPI/360.f))), yxaspect);
 
-    if (FAF_DebugView)
-        videoClearViewableArea(255);
-
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.

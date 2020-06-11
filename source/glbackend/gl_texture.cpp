@@ -74,20 +74,20 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
-	GLInterface.SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
+	SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
 	if (texpick.translation != 0)
 	{
 		int lookuppal = texpick.translation & 0x7fffffff;
-		GLInterface.SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
-		GLInterface.SetPalswap(GetTranslationIndex(lookuppal));
+		SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
+		SetPalswap(GetTranslationIndex(lookuppal));
 	}
 	else
 	{
-		GLInterface.SetPalette(0);
-		GLInterface.SetPalswap(0);
+		SetPalette(0);
+		SetPalswap(0);
 	}
 
-	GLInterface.SetBasepalTint(texpick.basepalTint);
+	SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
 	mat.mMaterial = FMaterial::ValidateTexture(tex, 0); // todo allow scaling
 	mat.mClampMode = sampler;
@@ -97,9 +97,6 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 	if (TextureType == TT_INDEXED) renderState.Flags |= RF_UsePalette;
 	else renderState.Flags &= ~RF_UsePalette;
 	GLInterface.SetAlphaThreshold(tex->alphaThreshold);
-	UseBrightmaps(tex->GetBrightmap() != nullptr);
-	UseGlowMapping(tex->GetGlowmap() != nullptr);
-	UseDetailMapping(tex->GetDetailmap() != nullptr);
 	return true;
 }
 
@@ -108,11 +105,6 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 // stand-ins for the texture system. Nothing of this is used right now, but needs to be present to satisfy the linker
 //
 //===========================================================================
-
-int PalCheck(int tex)
-{
-	return tex;
-}
 
 void InitBuildTiles()
 {

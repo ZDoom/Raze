@@ -56,9 +56,13 @@
 #include "hw_viewpointuniforms.h"
 #include "hw_viewpointbuffer.h"
 #include "gl_renderstate.h"
+#include "hw_cvars.h"
 
 F2DDrawer twodpsp;
 static int BufferLock = 0;
+
+CVAR(Bool, hw_use_backend, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+
 
 static int blendstyles[] = { GL_ZERO, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA };
 static int renderops[] = { GL_FUNC_ADD, GL_FUNC_ADD, GL_FUNC_SUBTRACT, GL_FUNC_REVERSE_SUBTRACT };
@@ -160,19 +164,13 @@ void GLInstance::LoadPolymostShader()
 
 void GLInstance::InitGLState(int fogmode, int multisample)
 {
-	glShadeModel(GL_SMOOTH);  // GL_FLAT
 	glEnable(GL_TEXTURE_2D);
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if (multisample > 0 )
     {
 		//glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
         glEnable(GL_MULTISAMPLE);
     }
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
-
 	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
 	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
 	screen->BeginFrame();	
@@ -183,14 +181,6 @@ void GLInstance::InitGLState(int fogmode, int multisample)
 
 void GLInstance::Deinit()
 {
-#if 0
-	if (im_ctx)
-	{
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplSDL2_Shutdown();
-		ImGui::DestroyContext(im_ctx);
-	}
-#endif
 	if (polymostShader) delete polymostShader;
 	polymostShader = nullptr;
 	activeShader = nullptr;
@@ -264,11 +254,22 @@ void GLInstance::DrawElement(EDrawType type, size_t start, size_t count, Polymos
 
 void GLInstance::DoDraw()
 {
-	for (auto& rs : rendercommands)
+	if (hw_use_backend)
 	{
-		glVertexAttrib4fv(2, rs.Color);
-		rs.Apply(polymostShader, lastState);
-		glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
+		for (auto& rs : rendercommands)
+		{
+			rs.Apply(*screen->RenderState(), lastState);
+			screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+		}
+	}
+	else
+	{
+		for (auto& rs : rendercommands)
+		{
+			glVertexAttrib4fv(2, rs.Color);
+			rs.Apply(polymostShader, lastState);
+			glDrawArrays(primtypes[rs.primtype], rs.vindex, rs.vcount);
+		}
 	}
 	rendercommands.Clear();
 	matrixArray.Resize(1);
@@ -296,11 +297,8 @@ void GLInstance::ReadPixels(int xdim, int ydim, uint8_t* buffer)
 
 void GLInstance::SetPolymostShader()
 {
-	if (activeShader != polymostShader)
-	{
-		polymostShader->Bind();
-		activeShader = polymostShader;
-	}
+	polymostShader->Bind();
+	activeShader = polymostShader;
 }
 
 void GLInstance::SetPalette(int index)
@@ -315,29 +313,15 @@ void GLInstance::SetPalswap(int index)
 	renderState.ShadeDiv = lookups.tables[index].ShadeFactor;
 }
 
-void GLInstance::DrawImGui(ImDrawData* data)
-{
-#if 0
-	ImGui_ImplOpenGL3_RenderDrawData(data);
-#endif
-}
-
-
 //===========================================================================
 // 
 //	Binds a texture to the renderer
 //
 //===========================================================================
 
-void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader)
+void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int translation, int overrideshader, PolymostShader* shader)
 {
-
 	auto tex = mat->Source();
-	//mEffectState = overrideshader >= 0 ? overrideshader : mat->GetShaderIndex();
-	//mShaderTimer = tex->GetShaderSpeed();
-	//SetSpecular(tex->GetGlossiness(), tex->GetSpecularLevel());
-	//if (tex->isHardwareCanvas()) static_cast<FCanvasTexture*>(tex->GetTexture())->NeedUpdate();
-
 	clampmode = tex->GetClampMode(clampmode);
 
 	// avoid rebinding the same texture multiple times.
@@ -364,24 +348,18 @@ void PolymostRenderState::ApplyMaterial(FMaterial* mat, int clampmode, int trans
 	scf |= layer->scaleFlags;
 	if (base->BindOrCreate(layer->layerTexture, 0, layer->clampflags == -1? clampmode : layer->clampflags, translation, scf))
 	{
+		int LayerFlags = 0;
 		for (int i = 1; i < numLayers; i++)
 		{
 			auto systex = static_cast<OpenGLRenderer::FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
 			// fixme: Upscale flags must be disabled for certain layers.
 			systex->BindOrCreate(layer->layerTexture, i, layer->clampflags == -1 ? clampmode : layer->clampflags, 0, layer->scaleFlags);
 			maxbound = i;
+			LayerFlags |= 32768 << i;
 		}
+		shader->TextureMode.Set(LayerFlags);
 	}
 
-	// The palette lookup must be done manually.
-#if 0
-	// unbind everything from the last texture that's still active
-	for (int i = maxbound + 1; i <= 16/*maxBoundMaterial*/; i++)
-			{
-		OpenGLRenderer::FHardwareTexture::Unbind(i);
-		//maxBoundMaterial = maxbound;
-			}
-#endif
 }
 
 void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
@@ -393,7 +371,7 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	if (mMaterial.mChanged)
 	{
 		mMaterial.mChanged = false;
-		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
+		ApplyMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader, shader);
 		float buffer[] = { mMaterial.mMaterial->GetDetailScale().X, mMaterial.mMaterial->GetDetailScale().Y, 1.f, 0.f };
 		shader->DetailParms.Set(buffer);
 	}
@@ -472,10 +450,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 			if (StateFlags & STF_DEPTHMASK) glDepthMask(1);
 			else glDepthMask(0);
 		}
-		if ((StateFlags ^ oldState.Flags) & STF_WIREFRAME)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, (StateFlags & STF_WIREFRAME) ? GL_LINE : GL_FILL);
-		}
 		if (StateFlags & (STF_CLEARCOLOR | STF_CLEARDEPTH))
 		{
 			glClearColor(ClearColor.r / 255.f, ClearColor.g / 255.f, ClearColor.b / 255.f, 1.f);
@@ -543,7 +517,6 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	else shader->muFogEnabled.Set(0);
 
 	shader->Flags.Set(Flags);
-	shader->TextureMode.Set(LayerFlags);
 	shader->NPOTEmulation.Set(&NPOTEmulation.X);
 	shader->AlphaThreshold.Set(AlphaTest ? AlphaThreshold : -1.f);
 	shader->FogColor.Set((Flags& RF_MapFog)? PalEntry(0x999999) : FogColor);
@@ -584,6 +557,147 @@ void PolymostRenderState::Apply(PolymostShader* shader, GLState& oldState)
 	memset(matrixIndex, -1, sizeof(matrixIndex));
 }
 
+void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
+{
+	if (Flags & RF_ColorOnly)
+	{
+		state.EnableTexture(false);
+	}
+	else
+	{
+		state.EnableTexture(true);
+		state.SetMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
+	}
+	/* todo: bind indexed textures */
+
+	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
+	if (StateFlags != oldState.Flags)
+	{
+		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);
+		state.EnableMultisampling(StateFlags & STF_MULTISAMPLE);
+		state.SetTextureMode((StateFlags & STF_BLEND) ? TM_OPAQUE : TM_NORMAL);
+
+		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST | STF_STENCILWRITE))
+		{
+			if (StateFlags & STF_STENCILWRITE)
+			{
+				state.EnableStencil(true);
+				state.SetEffect(EFF_STENCIL);
+				state.SetStencil(0, SOP_Increment, SF_ColorMaskOff);
+			}
+			else if (StateFlags & STF_STENCILTEST)
+			{
+				state.EnableStencil(true);
+				state.SetEffect(EFF_NONE);
+				state.SetStencil(1, SOP_Keep, SF_DepthMaskOff);
+			}
+			else
+			{
+				state.EnableStencil(false);
+				state.SetEffect(EFF_NONE);
+			}
+		}
+		if ((StateFlags ^ oldState.Flags) & (STF_CULLCW | STF_CULLCCW))
+		{
+			int cull = Cull_None;
+			if (StateFlags & STF_CULLCCW) cull = Cull_CCW;
+			else if (StateFlags & STF_CULLCW) cull = Cull_CW;
+			state.SetCulling(cull);
+		}
+		state.SetColorMask(StateFlags & STF_COLORMASK);
+		state.SetDepthMask(StateFlags & STF_DEPTHMASK);
+		if (StateFlags & (STF_CLEARCOLOR | STF_CLEARDEPTH))
+		{
+			int clear = 0;
+			//if (StateFlags & STF_CLEARCOLOR) clear |= CT_Color;
+			if (StateFlags & STF_CLEARDEPTH) clear |= CT_Depth;
+			state.Clear(clear);
+		}
+		if (StateFlags & STF_VIEWPORTSET)
+		{
+			state.SetViewport(vp_x, vp_y, vp_w, vp_h);
+		}
+		if (StateFlags & STF_SCISSORSET)
+		{
+			state.SetScissor(sc_x, sc_y, sc_w, sc_h);
+		}
+		state.SetDepthBias(mBias.mFactor, mBias.mUnits);
+
+		StateFlags &= ~(STF_CLEARCOLOR | STF_CLEARDEPTH | STF_VIEWPORTSET | STF_SCISSORSET);
+		oldState.Flags = StateFlags;
+	}
+	state.SetRenderStyle(Style);
+	if (DepthFunc != oldState.DepthFunc)
+	{
+		state.SetDepthFunc(DepthFunc);
+		oldState.DepthFunc = DepthFunc;
+	}
+	// Disable brightmaps if non-black fog is used.
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
+	{
+		state.EnableFog(FogColor.isBlack() && !(Flags & RF_MapFog) ? 1 : -1);
+	}
+	else state.EnableFog(0);
+	state.SetFog((Flags & RF_MapFog) ? PalEntry(0x999999) : FogColor, 21.f);	// Fixme: The real density still needs to be implemented. 21 is a reasonable default only.
+	state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);
+	state.SetLightParms(VisFactor, ShadeDiv / (numshades - 2));
+
+	state.SetNpotEmulation(NPOTEmulation.Y, NPOTEmulation.X);
+	state.AlphaFunc(Alpha_Greater, AlphaTest ? AlphaThreshold : -1.f);
+
+	FVector4 addcol(0, 0, 0, 0);
+	FVector4 modcol(fullscreenTint.r / 255.f, fullscreenTint.g / 255.f, fullscreenTint.b / 255.f, 1);
+	FVector4 blendcol(0, 0, 0, 0);
+	int flags = 0;
+
+	if (fullscreenTint != 0xffffff) flags |= 16;
+	if (hictint_flags != -1)
+	{
+		flags |= TextureManipulation::ActiveBit;
+		if (hictint_flags & TINTF_COLORIZE)
+		{
+			modcol.X *= hictint.r / 64.f;
+			modcol.Y *= hictint.g / 64.f;
+			modcol.Z *= hictint.b / 64.f;
+		}
+		if (hictint_flags & TINTF_GRAYSCALE)
+			modcol.W = 1.f;
+
+		if (hictint_flags & TINTF_INVERT)
+			flags |= TextureManipulation::InvertBit;
+
+		if (hictint_flags & TINTF_BLENDMASK)
+		{
+			blendcol = modcol;	// WTF???, but the tinting code really uses the same color for both!
+			flags |= (((hictint_flags & TINTF_BLENDMASK) >> 6) + 1) & TextureManipulation::BlendMask;
+		}
+		addcol.W = flags;
+	}
+	state.SetTextureColors(&modcol.X, &addcol.X, &blendcol.X);
+
+	if (matrixIndex[Matrix_Model] != -1)
+	{
+		state.EnableModelMatrix(true);
+		state.mModelMatrix = matrixArray[matrixIndex[Matrix_Model]];
+	}
+	else state.EnableModelMatrix(false);
+
+	memset(matrixIndex, -1, sizeof(matrixIndex));
+}
+
+void DoWriteSavePic(FileWriter* file, ESSType ssformat, uint8_t* scr, int width, int height, bool upsidedown)
+{
+	int pixelsize = 3;
+	int pitch = width * pixelsize;
+	if (upsidedown)
+	{
+		scr += ((height - 1) * width * pixelsize);
+		pitch *= -1;
+	}
+
+	M_CreatePNG(file, scr, nullptr, ssformat, width, height, pitch, vid_gamma);
+}
+
 //===========================================================================
 //
 // Render the view to a savegame picture
@@ -597,15 +711,20 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	bounds.top = 0;
 	bounds.width = width;
 	bounds.height = height;
+	auto& RenderState = *screen->RenderState();
 
 	// we must be sure the GPU finished reading from the buffer before we fill it with new data.
 	glFinish();
 	screen->mVertexData->Reset();
 
 	// Switch to render buffers dimensioned for the savepic
-	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mSaveBuffers;
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
-	screen->SetViewportRects(&bounds);
+	screen->SetSaveBuffers(true);
+	screen->ImageTransitionScene(true);
+
+	RenderState.SetVertexBuffer(screen->mVertexData);
+	screen->mVertexData->Reset();
+	//screen->mLights->Clear();
+	screen->mViewpoints->Clear();
 
 	int oldx = xdim;
 	int oldy = ydim;
@@ -625,27 +744,17 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
 	twod->Clear();
 	twodpsp.Clear();
-	OpenGLRenderer::GLRenderer->CopyToBackbuffer(&bounds, false);
 
-	// strictly speaking not needed as the glReadPixels should block until the scene is rendered, but this is to safeguard against shitty drivers
-	glFinish();
-	screen->mVertexData->Reset();
+	int numpixels = width * height;
+	uint8_t* scr = (uint8_t*)M_Malloc(numpixels * 3);
+	screen->CopyScreenToBuffer(width, height, scr);
 
-	if (didit)
-	{
-		int numpixels = width * height;
-		uint8_t* scr = (uint8_t*)Xmalloc(numpixels * 3);
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, scr);
-		M_CreatePNG(file, scr + ((height - 1) * width * 3), nullptr, SS_RGB, width, height, -width * 3, vid_gamma);
-		M_FinishPNG(file);
-		Xfree(scr);
-	}
+	DoWriteSavePic(file, SS_RGB, scr, width, height, screen->FlipSavePic());
+	M_Free(scr);
 
 	// Switch back the screen render buffers
 	screen->SetViewportRects(nullptr);
-	OpenGLRenderer::GLRenderer->mBuffers = OpenGLRenderer::GLRenderer->mScreenBuffers;
-	bool useSSAO = (gl_ssao != 0);
-	OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(useSSAO);
+	screen->SetSaveBuffers(false);
 }
 
 
@@ -677,7 +786,7 @@ void renderBeginScene()
 	if (videoGetRenderMode() < REND_POLYMOST) return;
 	assert(BufferLock == 0);
 
-	vp.mPalLightLevels = numshades;
+	vp.mPalLightLevels = numshades | (static_cast<int>(gl_fogmode) << 8) | ((int)5 << 16);
 	screen->mViewpoints->SetViewpoint(OpenGLRenderer::gl_RenderState, &vp);
 
 	if (BufferLock++ == 0)
@@ -726,42 +835,34 @@ void DrawRateStuff()
 
 int32_t r_scenebrightness = 0;
 
+
+
+void Draw2D(F2DDrawer* drawer, FRenderState& state);
+
 void videoShowFrame(int32_t w)
 {
-	static GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-
 	if (gl_ssao)
 	{
-		glDrawBuffers(1, buffers);
-		OpenGLRenderer::GLRenderer->AmbientOccludeScene(GLInterface.GetProjectionM5());
-		glViewport(screen->mSceneViewport.left, screen->mSceneViewport.top, screen->mSceneViewport.width, screen->mSceneViewport.height);
-		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
-		glDrawBuffers(3, buffers);
+		screen->AmbientOccludeScene(GLInterface.GetProjectionM5());
+		// To do: the translucent part of the scene should be drawn here, but the render setup in the games is really too broken to do SSAO.
 
-		// To do: the translucent part of the scene should be drawn here
-
-		glDrawBuffers(1, buffers);
+		//glDrawBuffers(1, buffers);
 	}
 
 	float Brightness = 8.f / (r_scenebrightness + 8.f);
 
 	OpenGLRenderer::GLRenderer->mBuffers->BlitSceneToTexture(); // Copy the resulting scene to the current post process texture
 	screen->PostProcessScene(false, 0, Brightness, []() {
-		GLInterface.Draw2D(&twodpsp); // draws the weapon sprites
+		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
 		});
 	screen->Update();
 	// After finishing the frame, reset everything for the next frame. This needs to be done better.
 	screen->BeginFrame();
-	if (gl_ssao)
-	{
-		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(true);
-		glDrawBuffers(3, buffers);
-	}
-	else
-	{
-		OpenGLRenderer::GLRenderer->mBuffers->BindSceneFB(false);
-	}
+	bool useSSAO = (gl_ssao != 0);
+	screen->SetSceneRenderTarget(useSSAO);
 	twodpsp.Clear();
 	twod->Clear();
 	GLInterface.ResetFrame();
 }
+
+

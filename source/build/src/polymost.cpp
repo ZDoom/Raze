@@ -24,7 +24,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-CVAR(Bool, hw_polygonmode, 0, 0)
 CVARD(Bool, hw_animsmoothing, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model animation smoothing")
 CVARD(Bool, hw_hightile, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable hightile texture rendering")
 CVARD(Bool, hw_models, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG, "enable/disable model rendering")
@@ -182,17 +181,6 @@ FileReader GetBaseResource(const char* fn);
 
 static void resizeglcheck(void)
 {
-    //FUK
-    if (lastglpolygonmode != hw_polygonmode)
-    {
-        lastglpolygonmode = hw_polygonmode;
-		GLInterface.SetWireframe(hw_polygonmode == 1);
-    }
-    if (hw_polygonmode) //FUK
-    {
-		GLInterface.ClearScreen(0xffffff, true);
-    }
-
     const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
     float ratio = 1;
     const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
@@ -490,8 +478,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 	GLInterface.Draw(DT_TriangleFan, data.second, npoints);
 
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
-    GLInterface.UseDetailMapping(false);
-	GLInterface.UseGlowMapping(false);
 	GLInterface.SetNpotEmulation(0.f, 0.f);
 
 	if (skyzbufferhack && skyzbufferhack_pass == 0)
@@ -3063,7 +3049,7 @@ void polymost_drawrooms()
     GLInterface.EnableBlend(false);
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
-	GLInterface.SetDepthFunc(Depth_LessEqual);
+	GLInterface.SetDepthFunc(DF_LEqual);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
@@ -3168,7 +3154,7 @@ void polymost_drawrooms()
 
     if (n < 3) 
 	{
-		GLInterface.SetDepthFunc(Depth_LessEqual);
+		GLInterface.SetDepthFunc(DF_LEqual);
 		return; 
 	}
 
@@ -3301,7 +3287,7 @@ void polymost_drawrooms()
     }
     renderFinishScene();
 
-	GLInterface.SetDepthFunc(Depth_LessEqual);
+	GLInterface.SetDepthFunc(DF_LEqual);
 }
 
 static void polymost_drawmaskwallinternal(int32_t wallIndex)
