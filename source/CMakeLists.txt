@@ -1059,7 +1059,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke3d blood rr sw exhumed )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke3d duke blood rr sw exhumed )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -1291,6 +1291,19 @@ macro( add_game_library )
 		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
 	endif()
 	use_precompiled_header("..")
+	add_library( ${ARGV0} STATIC
+		${PCH_SOURCES}
+		${HEADER_FILES}
+		${NOT_COMPILED_SOURCE_FILES}
+	)
+endmacro()
+
+macro( add_game_library2 )
+	file( GLOB HEADER_FILES src/*.h )
+	if( NOT_COMPILED_SOURCE_FILES )
+		set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )
+	endif()
+	use_precompiled_header("../..")
 	add_library( ${ARGV0} STATIC
 		${PCH_SOURCES}
 		${HEADER_FILES}

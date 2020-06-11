@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "enet.h"
 #endif
 
-#include "duke3d.h"
+#include "duke3d_ed.h"
 #include "game.h"
 #include "gamedef.h"
 #include "net.h"

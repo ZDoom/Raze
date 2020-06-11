@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define global_c_
 #include "global.h"
-#include "duke3d.h"
+#include "duke3d_ed.h"
 
 BEGIN_DUKE_NS
 

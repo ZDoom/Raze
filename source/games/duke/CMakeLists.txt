@@ -27,4 +27,4 @@ set( PCH_SOURCES
 	src/soundsdyn.cpp
 	src/rrdh.cpp)
 
-add_game_library( duke )
+add_game_library2( duke )

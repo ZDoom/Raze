@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define sector_c_
 
-#include "duke3d.h"
+#include "duke3d_ed.h"
 
 #include "secrets.h"
 #include "v_video.h"

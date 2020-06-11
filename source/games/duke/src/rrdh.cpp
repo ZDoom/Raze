@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 #include "baselayer.h"
-#include "duke3d.h"
+#include "duke3d_ed.h"
 #include "sounds.h"
 #include "i_time.h"
 #include "files.h"

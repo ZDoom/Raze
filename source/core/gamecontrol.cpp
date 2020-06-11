@@ -449,7 +449,7 @@ extern int MinFPSRate; // this is a bit messy.
 
 void CheckFrontend(int flags)
 {
-	auto old = Args->CheckValue("-duke_old");
+	auto old = Args->CheckParm("-duke_old");
 	MinFPSRate = 30;
 	bool duke_compat = duke_compatibility_15;
 	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
