@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "animtexture.h"
 #include "v_video.h"
-#include "../glbackend/glbackend.h"
 
 
 #include "anim.h"
