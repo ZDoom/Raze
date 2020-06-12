@@ -1596,7 +1596,7 @@ OptionMenu VideoModeMenu //protected
 
 	StaticText " "
 	Option "$DSPLYMNU_VSYNC",					"vid_vsync", "OnOff"
-	Option "$VIDMNU_MAXFPS",					"r_maxfps", "MaxFps"
+	Option "$VIDMNU_MAXFPS",					"vid_maxfps", "MaxFps"
 
 	StaticText ""
 	StaticText "$VIDMNU_CUSTOMRES"

@@ -358,42 +358,6 @@ CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable spr
 CVARD(Bool, r_rotatespritenowidescreen, false, CVAR_NOSET, "pass bit 1024 to all CON rotatesprite calls")
 CVARD(Bool, r_precache, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable the pre-level caching routine")
 
-CUSTOM_CVARD(Int, r_maxfps, 200, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "limit the frame rate")
-{
-	if (self < 0) self = 0;
-	else if (self > 0 && self < 30) self = 30;
-	else if (self > 1000) self = 1000;
-}
-
-int G_FPSLimit(void)
-{
-    if (r_maxfps <= 0)
-        return 1;
-	
-	auto frameDelay = timerGetFreqU64()/(double)r_maxfps;
-
-    static double   nextPageDelay;
-    static uint64_t lastFrameTicks;
-
-    nextPageDelay = clamp(nextPageDelay, 0.0, frameDelay);
-
-    uint64_t const frameTicks   = timerGetTicksU64();
-    uint64_t const elapsedTime  = frameTicks - lastFrameTicks;
-    double const   dElapsedTime = elapsedTime;
-
-    if (dElapsedTime >= nextPageDelay)
-    {
-        if (dElapsedTime <= nextPageDelay+frameDelay)
-            nextPageDelay += frameDelay-dElapsedTime;
-
-        lastFrameTicks = frameTicks;
-
-        return 1;
-    }
-
-    return 0;
-}
-
 CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_FRONTEND_DUKELIKE, "sets weapon autoselection order")
 {
 	char dest[11];

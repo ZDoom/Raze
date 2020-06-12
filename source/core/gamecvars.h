@@ -119,5 +119,5 @@ extern float r_ambientlightrecip;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
-int G_FPSLimit(void);
+inline int G_FPSLimit(void) { return 1; }
 bool G_AllowAutoload();
