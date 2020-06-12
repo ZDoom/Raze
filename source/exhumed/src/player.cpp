@@ -188,7 +188,7 @@ void PlayerInterruptKeys()
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
-    constexpr int const analogTurnAmount = 12;
+    int const analogTurnAmount = 12;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {

@@ -179,8 +179,8 @@ public:
 
 extern InputState inputState;
 
-constexpr int   analogExtent = 32767; // used as a divisor for scaling joystick input.
-constexpr float joyaxesScale = (float)analogExtent * 0.75f; // used as a multiplier for scaling joystick input.
+const int   analogExtent = 32767; // used as a divisor for scaling joystick input.
+const float joyaxesScale = (float)analogExtent * 0.75f; // used as a multiplier for scaling joystick input.
 
 void CONTROL_GetInput(ControlInfo* info);
 int32_t handleevents(void);

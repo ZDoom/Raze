@@ -407,8 +407,8 @@ static void G_DoLoadScreen(const char *statustext, int percent)
     if (percent != -1)
     {
         int const     width = scale(scale(xdim-1, 288, 320), percent, 100);
-        int constexpr tile  = 929;
-        int constexpr bits  = 2+8+16;
+        int const tile  = 929;
+        int const bits  = 2+8+16;
 
         rotatesprite(31<<16 , 145<<16, 65536, 0, tile, 15, 0, bits, 0, 0, width, ydim-1);
         rotatesprite(159<<16, 145<<16, 65536, 0, tile, 15, 0, bits, 0, 0, width, ydim-1);

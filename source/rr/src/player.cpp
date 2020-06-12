@@ -3254,7 +3254,7 @@ void P_GetInput(int const playerNum)
 	
 	int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const     turnAmount       = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
-    constexpr int analogTurnAmount = (NORMALTURN << 1);
+    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
@@ -3668,7 +3668,7 @@ void P_GetInputMotorcycle(int playerNum)
 
     // JBF: Run key behaviour is selectable
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    constexpr int analogTurnAmount = (NORMALTURN << 1);
+    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
@@ -3918,7 +3918,7 @@ void P_GetInputBoat(int playerNum)
 
     // JBF: Run key behaviour is selectable
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    constexpr int analogTurnAmount = (NORMALTURN << 1);
+    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
@@ -4159,7 +4159,7 @@ void P_DHGetInput(int const playerNum)
     int const playerCrouch         = sub_299D8();
     int const playerJump           = buttonMap.ButtonDown(gamefunc_Jump) && !(pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003);
     int const turnAmount           = playerCrouch ? 2 : (playerRunning ? 16 : 8);
-    constexpr int analogTurnAmount = 16;
+    int const analogTurnAmount = 16;
     int const keyMove              = playerCrouch ? 3 : (playerRunning ? 24 : 12);
 
     input_t input {};
