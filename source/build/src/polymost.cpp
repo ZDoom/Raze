@@ -1828,8 +1828,6 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     int const npot = (1<<(widthBits(globalpicnum))) != tileWidth(globalpicnum);
     int const xpanning = (hw_parallaxskypanning?global_cf_xpanning:0);
 
-	GLInterface.SetClamp((npot || xpanning != 0) ? 0 : 2);
-
     int picnumbak = globalpicnum;
     ti = globalpicnum;
     o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
@@ -1966,8 +1964,6 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     skyclamphack = false;
 
     globalpicnum = picnumbak;
-
-	GLInterface.SetClamp(0);
 
     flatskyrender = 1;
     GLInterface.useMapFog = f;

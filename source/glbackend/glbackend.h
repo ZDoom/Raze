@@ -76,9 +76,8 @@ enum
 
 struct GLState
 {
-	int Flags = STF_COLORMASK | STF_DEPTHMASK;
-	FRenderStyle Style{};
-	int DepthFunc = -1;
+	int Flags;
+	int DepthFunc;
 };
 
 class GLInstance
@@ -91,9 +90,6 @@ public:
 	FGameTexture* currentTexture = nullptr;
 	int MatrixChange = 0;
 
-	// Cached GL state.
-	GLState lastState;
-
 	PolymostRenderState renderState;
 	
 	
@@ -103,8 +99,7 @@ public:
 	
 	void Init(int y);
 	void InitGLState(int fogmode, int multisample);
-	void ResetFrame();
-
+	
 	void Deinit();
 	
 	static int GetTexDimension(int value)
@@ -153,18 +148,6 @@ public:
 	}
 
 	void SetPalswap(int index);
-
-	int GetClamp()
-	{
-		return 0;// int(renderState.Clamp[0] + 2 * renderState.Clamp[1]);
-	}
-
-	void SetClamp(int clamp)
-	{
-		// This option is totally pointless and should be removed.
-		//renderState.Clamp[0] = clamp & 1;
-		//renderState.Clamp[1] = !!(clamp & 2);
-	}
 
 	void SetShade(int32_t shade, int numshades)
 	{

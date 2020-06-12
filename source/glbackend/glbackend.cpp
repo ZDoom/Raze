@@ -101,14 +101,6 @@ OpenGLRenderer::FHardwareTexture* GLInstance::NewTexture(int numchannels)
 	return new OpenGLRenderer::FHardwareTexture(numchannels);
 }
 
-void GLInstance::ResetFrame()
-{
-	GLState s;
-	lastState = s; // Back to defaults.
-	lastState.Style.BlendOp = -1;	// invalidate. This forces a reset for the next operation
-
-}
-
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	assert (BufferLock > 0);
@@ -123,12 +115,21 @@ void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 
 void GLInstance::DoDraw()
 {
-	for (auto& rs : rendercommands)
+	GLState lastState;
+
+	if (rendercommands.Size() > 0)
 	{
-		rs.Apply(*screen->RenderState(), lastState);
-		screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
+		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
+
+		for (auto& rs : rendercommands)
+		{
+			rs.Apply(*screen->RenderState(), lastState);
+			screen->RenderState()->Draw(rs.primtype, rs.vindex, rs.vcount);
+		}
+		renderState.Apply(*screen->RenderState(), lastState);	// apply any pending change before returning.
+		rendercommands.Clear();
 	}
-	rendercommands.Clear();
 	matrixArray.Resize(1);
 }
 
@@ -143,7 +144,7 @@ int GLInstance::SetMatrix(int num, const VSMatrix *mat)
 
 void GLInstance::SetIdentityMatrix(int num)
 {
-	renderState.matrixIndex[num] = 0;
+	renderState.matrixIndex[num] = -1;
 }
 
 
@@ -463,7 +464,6 @@ void videoShowFrame(int32_t w)
 	screen->SetSceneRenderTarget(useSSAO);
 	twodpsp.Clear();
 	twod->Clear();
-	GLInterface.ResetFrame();
 }
 
 

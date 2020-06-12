@@ -1643,8 +1643,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
-    int prevClamp = GLInterface.GetClamp();
-	GLInterface.SetClamp(0);
     VSMatrix imat = 0;
     imat.scale(1024, 1024, 1024);
     GLInterface.SetMatrix(Matrix_Model, &imat);
@@ -1795,7 +1793,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     GLInterface.SetIdentityMatrix(Matrix_Model);
     GLInterface.SetTinting(-1, 0xffffff, 0xffffff);
-    GLInterface.SetClamp(prevClamp);
     
     globalnoeffect=0;
     return 1;

@@ -1134,8 +1134,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
 #endif
     const float phack[2] = { 0, 1.f/256.f };
 
-    int prevClamp = GLInterface.GetClamp();
-	GLInterface.SetClamp(0);
 #if 1
     int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal); 
     auto palette = GPalette.TranslationToTable(palId);
@@ -1209,7 +1207,6 @@ int32_t polymost_voxdraw(voxmodel_t *m, tspriteptr_t const tspr)
     }
 
 	GLInterface.Draw(DT_Triangles, qstart, qdone * 6);
-	GLInterface.SetClamp(prevClamp);
     //------------
 	GLInterface.SetCull(Cull_None);
 

@@ -2607,7 +2607,6 @@ killsprite:
     {
         GLInterface.EnableBlend(false);
         GLInterface.EnableAlphaTest(true);
-		GLInterface.SetClamp(1+2);
         GLInterface.SetDepthBias(-2, -256);
 
         if (spritesortcnt < numSprites)
@@ -2660,8 +2659,7 @@ killsprite:
             }
         }
 
-		GLInterface.SetClamp(0);
-        int32_t numMaskWalls = maskwallcnt;
+		int32_t numMaskWalls = maskwallcnt;
         maskwallcnt = 0;
         for (i = 0; i < numMaskWalls; i++)
         {
@@ -2702,11 +2700,6 @@ killsprite:
         _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
         _equation p1eq   = equation(pos.x, pos.y, dot.x, dot.y);
         _equation p2eq   = equation(pos.x, pos.y, dot2.x, dot2.y);
-
-#ifdef USE_OPENGL
-        if (videoGetRenderMode() == REND_POLYMOST)
-			GLInterface.SetClamp(1+2);
-#endif
 
         i = spritesortcnt;
         while (i)
@@ -2807,8 +2800,7 @@ killsprite:
     }
     renderFinishScene();
 	GLInterface.SetDepthMask(true);
-	GLInterface.SetClamp(0);
-    GLInterface.SetDepthBias(0, 0);
+	GLInterface.SetDepthBias(0, 0);
 }
 
 
