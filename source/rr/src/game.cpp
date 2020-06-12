@@ -833,7 +833,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     if (pub > 0 || videoGetRenderMode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
-        videoClearScreen(0);
+        //videoClearScreen(0);
 #ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
 #endif

@@ -352,7 +352,7 @@ void menu_DoPlasma()
             }
         }
 
-        videoClearScreen(overscanindex);
+        twod->ClearScreen();
 
 
         uint8_t* plasmapix = const_cast<uint8_t*>(tilePtr(nPlasmaTile));

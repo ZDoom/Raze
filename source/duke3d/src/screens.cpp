@@ -1049,8 +1049,6 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // STEP must evenly divide END-START
     Bassert(klabs(end-start)%step == 0);
 
-    videoClearScreen(0);
-
     // (end-start)/step + 1 iterations
     do
     {
@@ -1060,6 +1058,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
             return;
         }
 
+        twod->ClearScreen();
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH, nullptr, basepal);
         G_FadePalette(r, g, b, start);
         start += step;
@@ -1148,10 +1147,9 @@ void gameDisplay3DRScreen()
         }
         else
         {
-            videoClearScreen(0);
+            twod->ClearScreen();
 
             fadepal(0, 0, 0, 0, 252, 28);
-            renderFlushPerms();
             rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
             videoNextPage();
             fadepaltile(0, 0, 0, 252, 0, -28, DREALMS, DREALMSPAL);
@@ -1161,7 +1159,7 @@ void gameDisplay3DRScreen()
             {
                 if (G_FPSLimit())
                 {
-                    videoClearScreen(0);
+                    twod->ClearScreen();
                     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
                     gameHandleEvents();
                     videoNextPage();
@@ -1178,8 +1176,7 @@ void gameDisplayTitleScreen(void)
     int titlesound  = 0;
     int32_t const logoflags = G_GetLogoFlags();
 
-    videoClearScreen(0);
-
+    twod->ClearScreen();
     rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, TITLEPAL);
     inputState.keyFlushChars();
     fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN, TITLEPAL);
@@ -1193,7 +1190,7 @@ void gameDisplayTitleScreen(void)
     {
         if (G_FPSLimit())
         {
-            videoClearScreen(0);
+            twod->ClearScreen();
             rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, BETASCREEN, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, TITLEPAL);
             if (logoflags & LOGO_DUKENUKEM)
             {
@@ -1273,10 +1270,9 @@ void G_DisplayLogo(void)
     inputState.ClearAllInput();
 
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    videoClearScreen(0L);
+    twod->ClearScreen();
     G_FadePalette(0, 0, 0, 252);
 
-    renderFlushPerms();
     videoNextPage();
 
     Mus_Stop();
@@ -1301,7 +1297,7 @@ void G_DisplayLogo(void)
                 inputState.ClearAllInput();
             }
 
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
 
             if (logoflags & LOGO_STOPANIMSOUNDS)
@@ -1323,14 +1319,14 @@ void G_DisplayLogo(void)
             {
                 gameDisplay3DRScreen();
 
-                videoClearScreen(0L);
+                twod->ClearScreen();
                 videoNextPage();
             }
 
             inputState.ClearAllInput();
         }
 
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
 
         if (logoflags & LOGO_TITLESCREEN)
@@ -1339,8 +1335,7 @@ void G_DisplayLogo(void)
         inputState.ClearAllInput();
     }
 
-    renderFlushPerms();
-    videoClearScreen(0L);
+    twod->ClearScreen();
     videoNextPage();
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
@@ -1348,8 +1343,7 @@ void G_DisplayLogo(void)
     if ((G_GetLogoFlags() & LOGO_STOPMISCSOUNDS) == 0)
         S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
 
-    //G_FadePalette(0,0,0,0);
-    videoClearScreen(0L);
+    twod->ClearScreen();
 }
 
 #ifndef EDUKE32_STANDALONE
@@ -1397,7 +1391,7 @@ static void G_BonusCutscenes(void)
                 350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
             };
 
-            videoClearScreen(0L);
+            twod->ClearScreen();
             rotatesprite_fs(0, 50 << 16, 65536L, 0, VICTORY1, 0, 0, 2 + 8 + 16 + 64 + 128 + BGSTRETCH, nullptr, ENDINGPAL);
             videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
@@ -1409,7 +1403,7 @@ static void G_BonusCutscenes(void)
             {
                 if (G_FPSLimit())
                 {
-                    videoClearScreen(0L);
+                    twod->ClearScreen();
                     rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH, nullptr, ENDINGPAL);
 
                     // boss
@@ -1492,7 +1486,7 @@ static void G_BonusCutscenes(void)
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
         Mus_Stop();
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
 
         if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
@@ -1500,7 +1494,7 @@ static void G_BonusCutscenes(void)
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov2.anm");
             inputState.ClearAllInput();
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
 
             S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
@@ -1526,7 +1520,7 @@ static void G_BonusCutscenes(void)
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
         Mus_Stop();
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
 
         if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
@@ -1535,19 +1529,19 @@ static void G_BonusCutscenes(void)
 
             inputState.ClearAllInput();
             int t = Anim_Play("vol4e1.anm");
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
             if (t)
                 goto end_vol4e;
 
             t = Anim_Play("vol4e2.anm");
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
             if (t)
                 goto end_vol4e;
 
             Anim_Play("vol4e3.anm");
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
         }
 
@@ -1566,7 +1560,7 @@ static void G_BonusCutscenes(void)
         G_FadePalette(0, 0, 0, 0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
-        videoClearScreen(0L);
+        twod->ClearScreen();
         menutext_center(60, GStrings("Thanks to all our"));
         menutext_center(60+16, GStrings("fans for giving"));
         menutext_center(60+16+16, GStrings("us big heads."));
@@ -1584,7 +1578,7 @@ static void G_BonusCutscenes(void)
             goto VOL4_END;
 
     VOL4_DUKETEAM:
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
 
         Anim_Play("DUKETEAM.ANM");
@@ -1592,7 +1586,7 @@ static void G_BonusCutscenes(void)
         inputState.ClearAllInput();
         G_HandleEventsWhileNoInput();
 
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
         G_FadePalette(0, 0, 0, 252);
 
@@ -1608,7 +1602,7 @@ static void G_BonusCutscenes(void)
             return;
 
         Mus_Stop();
-        videoClearScreen(0L);
+        twod->ClearScreen();
         videoNextPage();
         if (adult_lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
@@ -1618,7 +1612,7 @@ static void G_BonusCutscenes(void)
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
                 gameHandleEvents();
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
 
             FX_StopAllSounds();
@@ -1661,7 +1655,7 @@ static void G_BonusCutscenes(void)
             S_ClearSoundLocks();
             S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI);
 
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
 
             Anim_Play("DUKETEAM.ANM");
@@ -1669,7 +1663,7 @@ static void G_BonusCutscenes(void)
             inputState.ClearAllInput();
             G_HandleEventsWhileNoInput();
 
-            videoClearScreen(0L);
+            twod->ClearScreen();
             videoNextPage();
             G_FadePalette(0, 0, 0, 252);
         }
@@ -1678,7 +1672,7 @@ static void G_BonusCutscenes(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        videoClearScreen(0L);
+        twod->ClearScreen();
 
         break;
 
@@ -1691,7 +1685,7 @@ static void G_BonusCutscenes(void)
             Mus_Stop();
             totalclocklock = totalclock = 0;
 
-            videoClearScreen(0L);
+            twod->ClearScreen();
             rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
             videoNextPage();
 
@@ -1707,7 +1701,7 @@ static void G_BonusCutscenes(void)
                 {
                     totalclocklock = totalclock;
 
-                    videoClearScreen(0L);
+                    twod->ClearScreen();
                     rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
                     videoNextPage();
                 }
@@ -1877,7 +1871,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     fadepal(0, 0, 0, 0, 252, 28);
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    videoClearScreen(0L);
+    twod->ClearScreen();
     videoNextPage();
     renderFlushPerms();
 
@@ -1903,7 +1897,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        videoClearScreen(0);
+        twod->ClearScreen();
         G_DisplayMPResultsScreen();
 
         PlayBonusMusic();
@@ -1919,7 +1913,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             if (G_FPSLimit())
             {
-                videoClearScreen(0);
+                twod->ClearScreen();
                 G_DisplayMPResultsScreen();
                 videoNextPage();
             }
@@ -1962,7 +1956,7 @@ void G_BonusScreen(int32_t bonusonly)
         {
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
             {
-                videoClearScreen(0);
+                twod->ClearScreen();
                 rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BONUSSCREEN+gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
 
                 if (totalclock >= 1000000000 && totalclock < 1000000320)

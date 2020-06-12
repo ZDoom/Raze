@@ -2740,7 +2740,7 @@ int myprintext(int x, int y, const char *str, int shade, int basepal)
 void EraseScreen(int nVal)
 {
     // There's no other values than 0 ever coming through here.
-    videoClearScreen(0);
+    twod->ClearScreen();
 }
 
 void InitSpiritHead()

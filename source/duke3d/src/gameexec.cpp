@@ -1203,7 +1203,7 @@ void Screen_Play(void)
         if (!G_FPSLimit())
             continue;
 
-        videoClearScreen(0);
+        twod->ClearScreen();
 
         if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, inputState.CheckAllInput()))
             running = false;

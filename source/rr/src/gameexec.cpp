@@ -1263,7 +1263,7 @@ void Screen_Play(void)
         if (!G_FPSLimit())
             continue;
 
-        videoClearScreen(0);
+        twod->ClearScreen();
         if (inputState.CheckAllInput())
             running = 0;
 

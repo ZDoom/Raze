@@ -1022,8 +1022,6 @@ void G_DrawBackground(void)
 {
     int32_t x, y, x1, x2;
 
-    renderFlushPerms();
-
     int32_t y1=0, y2=ydim;
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
@@ -1032,7 +1030,7 @@ void G_DrawBackground(void)
         const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
         int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 
-        videoClearScreen(0);
+        twod->ClearScreen();
 
         // when not rendering a game, fullscreen wipe
         //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);

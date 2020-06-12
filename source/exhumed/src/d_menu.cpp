@@ -53,7 +53,7 @@ int menu_Menu(int nVal)
 		auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
 		int dword_9AB5F = ((int)totalclock / 16) & 3;
 
-		videoClearScreen(0);
+		twod->ClearScreen();
 
 		overwritesprite(160, 100, kSkullHead, 32, 3, kPalNormal);
 		overwritesprite(161, 130, kSkullJaw, 32, 3, kPalNormal);

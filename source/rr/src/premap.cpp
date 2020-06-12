@@ -489,11 +489,11 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
-            videoClearScreen(0L);
+            twod->ClearScreen();
         }
 
-        videoClearScreen(0);
-        
+        twod->ClearScreen();
+
         int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, DEER ? 7040 : LOADSCREEN);
 
         rotatesprite_fs(320<<15,200<<15,65536L,0,loadScreenTile,0,0,2+8+64+BGSTRETCH);
@@ -544,7 +544,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
     {
         if (!statustext)
         {
-            videoClearScreen(0L);
+            twod->ClearScreen();
             //g_player[myconnectindex].ps->palette = palette;
             //G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308

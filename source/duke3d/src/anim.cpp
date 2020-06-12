@@ -471,7 +471,7 @@ int32_t Anim_Play(const char *fn)
 
             frametime = (int32_t)totalclock;
 
-            videoClearScreen(0);
+            twod->ClearScreen();
 
             int32_t z;
 #if 0   // fixme: The math here doesn't look right - this better use a more robust fullscreen scaler later.

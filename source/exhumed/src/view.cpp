@@ -588,7 +588,7 @@ void DrawView(int smoothRatio, bool sceneonly)
     }
     else
     {
-        videoClearScreen(overscanindex);
+        twod->ClearScreen();
         DrawStatus();
     }
 
