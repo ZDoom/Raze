@@ -240,8 +240,6 @@ void LoadingLevelScreen(void);
 uint8_t FakeMultiNumPlayers;
 
 int totalsynctics;
-int turn_scale = 256;
-int move_scale = 256;
 
 short Level = 0;
 SWBOOL ExitLevel = FALSE;
@@ -2995,7 +2993,10 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
-    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
+
+    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
+    // and use to scale back player's aim and ang values for a consistent feel between games.
+    float const inputScale = 1.40625f;
 
     if (running)
     {
@@ -3019,34 +3020,31 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     if (tied)
         keymove = 0;
 
-    info.dz = (info.dz * move_scale)>>8;
-    info.dyaw = (info.dyaw * turn_scale)>>8;
-
     int32_t svel = 0, vel = 0;
     fix16_t q16aimvel = 0, q16angvel = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
         svel = -info.mousex;
-        svel -= info.dyaw * keymove / analogExtent;
+        svel -= scaleAdjustmentToInterval(info.dyaw * keymove / analogExtent);
     }
     else
     {
-        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(45));
-        q16angvel += fix16_from_int(info.dyaw * (turnamount << 1) / (analogExtent >> 1));
+        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(inputScale * 32));
+        q16angvel += fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * turnamount / (inputScale * (analogExtent >> 1))));
     }
 
     if (mouseaim)
-        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int(77));
+        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int((inputScale / 2) * 64));
     else
         vel = -(info.mousey >> 6);
 
     if (in_mouseflip)
         q16aimvel = -q16aimvel;
 
-    q16aimvel -= fix16_from_int(info.dpitch) * turnamount / analogExtent;
-    svel -= info.dx * keymove / analogExtent;
-    vel -= info.dz * keymove / analogExtent;
+    q16aimvel -= fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * turnamount / ((inputScale / 2) * analogExtent)));
+    svel -= scaleAdjustmentToInterval(info.dx * keymove / analogExtent);
+    vel -= scaleAdjustmentToInterval(info.dz * keymove / analogExtent);
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
