@@ -1110,3 +1110,4 @@ void updatePauseStatus()
         pausedWithKey = paused;
     }
 }
+

@@ -2508,40 +2508,29 @@ void DoGameOverScene()
 void DoTitle()
 {
     short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000 };
-
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    if (videoGetRenderMode() == REND_CLASSIC)
-        BlackOut();
-
-    overwritesprite(0, 0, EXHUMED ? kTileBMGLogo : kTilePIELogo, 0, 2, kPalNormal);
-    videoNextPage();
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeIn();
-
-    inputState.ClearAllInput();
-
-    WaitAnyKey(2);
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeOut(0);
-
-    SetOverscan(BASEPAL);
-
+    auto showscreen = [](int tile)
+    {
+        auto start = I_msTime();
+        int shade = numshades;
+        uint64_t span;
+        inputState.ClearAllInput();
+        do
+        {
+            overwritesprite(0, 0, tile, shade, 2, kPalNormal);
+            videoNextPage();
+            auto now = I_msTime();
+            span = now - start;
+            if (span < 1000) shade = Scale(1000 - span, numshades, 1000);
+            else if (span < 2000) shade = 0;
+            else shade = Scale(span - 2000, numshades, 1000);
+            if (inputState.CheckAllInput()) break;
+        } while (span < 3000);
+    };
+    showscreen(EXHUMED ? kTileBMGLogo : kTilePIELogo);
     int nScreenTile = seq_GetSeqPicnum(kSeqScreens, 0, 0);
-
-    overwritesprite(0, 0, nScreenTile, 0, 2, kPalNormal);
-    videoNextPage();
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeIn();
-    PlayLogoSound();
-
-    WaitAnyKey(2);
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeOut(0);
+    showscreen(nScreenTile);
     inputState.ClearAllInput();
 
     PlayMovie("book.mov");
