@@ -5268,7 +5268,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (pData[3] > 280)
                 {
                     pSprite->pal = 0;
-                    pData[0] = 0;
+                    pData[0] = pData[3] = 0;
                     goto next_sprite;
                 }
                 A_Fall(spriteNum);
@@ -5370,6 +5370,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (pData[3] > 0)
                 {
                     static const char slimeFrames[] = { 5, 5, 6, 6, 7, 7, 6, 5 };
+
+                    Bassert(pData[3] < ARRAY_SSIZE(slimeFrames));
 
                     pSprite->picnum = GREENSLIME + slimeFrames[pData[3]];
 
