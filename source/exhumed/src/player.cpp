@@ -408,13 +408,21 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                 if (nStat >= 900 && !(sprite[i].cstat & 0x8000))
                 {
-                    int xDiff = sprite[i].x - x;
-                    int yDiff = sprite[i].y - y;
+                    uint32_t xDiff = klabs(sprite[i].x - x);
+                    uint32_t yDiff = klabs(sprite[i].y - y);
                     int zDiff = sprite[i].z - z;
 
                     if (zDiff < 5120 && zDiff > -25600)
                     {
-                        int theSqrt = ksqrt(xDiff * xDiff + yDiff * yDiff);
+                        uint32_t diff = xDiff * xDiff + yDiff * yDiff;
+
+                        if (diff > INT_MAX)
+                        {
+                            OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                            diff = INT_MAX; 
+                        }
+
+                        int theSqrt = ksqrt(diff);
 
                         if (theSqrt < nVal3 && ((nStat != 950 && nStat != 949) || !(var_14 & 1)) && ((nStat != 912 && nStat != 913) || !(var_20 & 2)))
                         {
