@@ -11,6 +11,7 @@
 #include "hw_material.h"
 #include "hw_renderstate.h"
 #include "pm_renderstate.h"
+#include "templates.h"
 
 class FShader;
 class FGameTexture;
@@ -167,7 +168,7 @@ public:
 
 	void SetShade(int32_t shade, int numshades)
 	{
-		renderState.Shade = shade;
+		renderState.Shade = clamp(shade, 0, numshades-1);
 	}
 
 	void SetVisibility(float visibility)
