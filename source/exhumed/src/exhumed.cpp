@@ -2518,6 +2518,7 @@ void DoTitle()
         inputState.ClearAllInput();
         do
         {
+            twod->ClearScreen();
             overwritesprite(0, 0, tile, shade, 2, kPalNormal);
             videoNextPage();
             auto now = I_msTime();
