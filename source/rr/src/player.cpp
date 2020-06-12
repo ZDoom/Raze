@@ -3202,6 +3202,13 @@ static int P_CheckLockedMovement(int const playerNum)
     return 0;
 }
 
+static double elapsedInputTicks;
+
+static double scaleAdjustmentToInterval(double x)
+{
+    return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks);
+}
+
 void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
@@ -3209,9 +3216,8 @@ void P_GetInput(int const playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
     thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
@@ -3250,7 +3256,6 @@ void P_GetInput(int const playerNum)
     int const     turnAmount       = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
     constexpr int analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
@@ -3261,12 +3266,12 @@ void P_GetInput(int const playerNum)
         input.svel = -(info.mousex + strafeyaw) >> 3;
         strafeyaw  = (info.mousex + strafeyaw) % 8;
 
-        input.svel -= info.dyaw * keyMove / analogExtent;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
     }
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
     }
 
     if (mouseaim)
@@ -3276,11 +3281,9 @@ void P_GetInput(int const playerNum)
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
-    input.svel -= info.dx * keyMove / analogExtent;
-    input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
@@ -3631,9 +3634,8 @@ void P_GetInputMotorcycle(int playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
     thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
@@ -3668,17 +3670,14 @@ void P_GetInputMotorcycle(int playerNum)
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     constexpr int analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
 
-    input.svel -= info.dx * keyMove / analogExtent;
-    input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
 
     pPlayer->crouch_toggle = 0;
 
@@ -3885,9 +3884,8 @@ void P_GetInputBoat(int playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
     thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
@@ -3922,17 +3920,14 @@ void P_GetInputBoat(int playerNum)
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     constexpr int analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
     input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
 
-    input.svel -= info.dx * keyMove / analogExtent;
-    input.fvel -= info.dz * keyMove / analogExtent;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
 
     pPlayer->crouch_toggle = 0;
 
@@ -4134,9 +4129,8 @@ void P_DHGetInput(int const playerNum)
     auto const pSprite    = &sprite[pPlayer->i];
     ControlInfo info;
 
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
     thisPlayer.lastInputTicks = currentHiTicks;
 
     if (elapsedInputTicks == currentHiTicks)
@@ -4167,7 +4161,6 @@ void P_DHGetInput(int const playerNum)
     int const turnAmount           = playerCrouch ? 2 : (playerRunning ? 16 : 8);
     constexpr int analogTurnAmount = 16;
     int const keyMove              = playerCrouch ? 3 : (playerRunning ? 24 : 12);
-    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
@@ -4178,12 +4171,12 @@ void P_DHGetInput(int const playerNum)
         input.svel = -(info.mousex + strafeyaw) >> 3;
         strafeyaw  = (info.mousex + strafeyaw) % 8;
 
-        input.svel -= info.dyaw * keyMove / analogExtent;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
     }
     else
     {
         input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
     }
 
     if (mouseaim)
@@ -4193,9 +4186,9 @@ void P_DHGetInput(int const playerNum)
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
-    input.svel -= info.dx * keyMove / analogExtent;
-    input.fvel -= info.dz * keyMove / analogExtent;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 

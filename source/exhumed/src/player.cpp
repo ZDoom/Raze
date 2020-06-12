@@ -189,7 +189,6 @@ void PlayerInterruptKeys()
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
     constexpr int const analogTurnAmount = 12;
-    constexpr int const analogExtent = 32767; // KEEPINSYNC sdlayer.cpp
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
@@ -198,12 +197,12 @@ void PlayerInterruptKeys()
         input.xVel = -(info.mousex + strafeyaw) >> 6;
         strafeyaw  = (info.mousex + strafeyaw) % 64;
 
-        input.xVel -= info.dyaw * keyMove / analogExtent;
+        input.xVel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
     }
     else
     {
         input.nAngle = fix16_sadd(input.nAngle, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_int(info.dyaw * analogTurnAmount / (analogExtent >> 1)));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
@@ -215,9 +214,9 @@ void PlayerInterruptKeys()
 
     if (!in_mouseflip) input.horizon = -input.horizon;
 
-    input.horizon = fix16_ssub(input.horizon, fix16_from_int(info.dpitch * analogTurnAmount / analogExtent));
-    input.xVel -= info.dx * keyMove / analogExtent;
-    input.yVel -= info.dz * keyMove / analogExtent;
+    input.horizon = fix16_ssub(input.horizon, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
+    input.xVel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
+    input.yVel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
