@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "animtexture.h"
 #include "../glbackend/glbackend.h"
 #include "raze_sound.h"
+#include "v_2ddrawer.h"
 
 BEGIN_BLD_NS
 
@@ -77,7 +78,6 @@ void credLogosDos(void)
     char bShift = inputState.ShiftPressed();
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
     DoUnFade(1);
-    videoClearScreen(0);
     if (bShift)
         return;
     {
@@ -87,6 +87,7 @@ void credLogosDos(void)
         }
         else
         {
+            twod->ClearScreen();
             rotatesprite(160<<16, 100<<16, 65536, 0, 2050, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
             sndStartSample("THUNDER2", 128, -1);
             videoNextPage();
@@ -101,7 +102,7 @@ void credLogosDos(void)
         }
         else
         {
-            videoClearScreen(0);
+            twod->ClearScreen();
             rotatesprite(160<<16, 100<<16, 65536, 0, 2052, 0, 0, 0x0a, 0, 0, xdim-1, ydim-1);
             videoNextPage();
             DoUnFade(1);
@@ -114,11 +115,11 @@ void credLogosDos(void)
     sndStartSample("THUNDER2", 128, -1);
     if (!DoFade(0, 0, 0, 60))
         return;
-    videoClearScreen(0);
+    twod->ClearScreen();
     videoNextPage();
     if (!DoUnFade(1))
         return;
-    videoClearScreen(0);
+    twod->ClearScreen();
     rotatesprite(160<<16, 100<<16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim-1, ydim-1);
     videoNextPage();
     Wait(360);
@@ -127,7 +128,7 @@ void credLogosDos(void)
 
 void credReset(void)
 {
-    videoClearScreen(0);
+    twod->ClearScreen();
     videoNextPage();
     DoFade(0,0,0,1);
     DoUnFade(1);
@@ -227,7 +228,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         if (inputState.CheckAllInput())
             break;
 
-        videoClearScreen(0);
+        twod->ClearScreen();
         Smacker_GetPalette(hSMK, palette);
         Smacker_GetFrame(hSMK, pFrame.Data());
         animtex.SetFrame(palette, pFrame.Data());

@@ -3588,7 +3588,6 @@ char pzLoadingScreenText1[256], pzLoadingScreenText2[256], pzLoadingScreenText3[
 
 void viewLoadingScreenWide(void)
 {
-    videoClearScreen(0);
 #ifdef USE_OPENGL
     if ((blood_globalflags&BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch && !(hw_hightile && h_xsize[kLoadScreen])))
 #else
@@ -3620,11 +3619,11 @@ void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
 {
     int vc;
     viewGetFontInfo(1, NULL, NULL, &vc);
+    twod->ClearScreen();
     if (nLoadingScreenTile == kLoadScreen)
         viewLoadingScreenWide();
     else if (nLoadingScreenTile)
     {
-        videoClearScreen(0);
         rotatesprite(160<<16, 100<<16, 65536, 0, nLoadingScreenTile, 0, 0, 74, 0, 0, xdim-1, ydim-1);
     }
     if (pzLoadingScreenText1[0])

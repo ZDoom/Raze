@@ -273,7 +273,7 @@ public:
 	{
 		//twod->Clear();
 		SetViewport(0, 0, xdim, ydim);
-		ClearScreen(pe, false);
+		ClearScreen(pe, true);
 	}
 
 	void ClearDepth()

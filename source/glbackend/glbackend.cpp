@@ -210,7 +210,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		if (StateFlags & (STF_CLEARCOLOR | STF_CLEARDEPTH))
 		{
 			int clear = 0;
-			//if (StateFlags & STF_CLEARCOLOR) clear |= CT_Color;
+			if (StateFlags & STF_CLEARCOLOR) clear |= CT_Color;
 			if (StateFlags & STF_CLEARDEPTH) clear |= CT_Depth;
 			state.Clear(clear);
 		}
