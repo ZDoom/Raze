@@ -3953,6 +3953,8 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 
     // Done reading file.
 
+    g_loadedMapVersion = mapversion;
+
     return engineFinishLoadBoard(dapos, dacursectnum, numsprites, 0);
 }
 
