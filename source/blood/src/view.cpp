@@ -2149,17 +2149,20 @@ tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
     }
     case VIEW_EFFECT_0:
     {
-        auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
-        pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
-        pNSprite->shade = 127;
-        pNSprite->cstat |= 2;
-        pNSprite->xrepeat = pTSprite->xrepeat;
-        pNSprite->yrepeat = pTSprite->yrepeat>>2;
-        pNSprite->picnum = pTSprite->picnum;
-        pNSprite->pal = 5;
-        int height = tilesiz[pNSprite->picnum].y;
-        int center = height / 2 + tileTopOffset(pNSprite->picnum);
-        pNSprite->z -= (pNSprite->yrepeat<<2)*(height-center);
+        if (r_shadows)
+        {
+            auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
+            pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
+            pNSprite->shade = 127;
+            pNSprite->cstat |= 2;
+            pNSprite->xrepeat = pTSprite->xrepeat;
+            pNSprite->yrepeat = pTSprite->yrepeat >> 2;
+            pNSprite->picnum = pTSprite->picnum;
+            pNSprite->pal = 5;
+            int height = tilesiz[pNSprite->picnum].y;
+            int center = height / 2 + tileTopOffset(pNSprite->picnum);
+            pNSprite->z -= (pNSprite->yrepeat << 2) * (height - center);
+        }
         break;
     }
     case VIEW_EFFECT_1:
