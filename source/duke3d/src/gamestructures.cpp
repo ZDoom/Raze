@@ -1367,6 +1367,8 @@ memberlabel_t const UserdefsLabels[]=
     { "newgamecustomopen",      USERDEFS_NEWGAMECUSTOMOPEN,      0, 0, -1 },
     { "newgamecustomsubopen",   USERDEFS_NEWGAMECUSTOMSUBOPEN,   LABEL_HASPARM2, MAXMENUGAMEPLAYENTRIES, -1 },
     { "gamepadactive",          USERDEFS_GAMEPADACTIVE,          0, 0, -1 },
+    { "m_newgamecustom",        USERDEFS_M_NEWGAMECUSTOM,        0, 0, -1 },
+    { "m_newgamecustomsub",     USERDEFS_M_NEWGAMECUSTOMSUB,     0, 0, -1 }
 };
 
 int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
@@ -1548,8 +1550,10 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int const lParm2)
         case USERDEFS_AUTOSAVE:               labelNum = cl_autosave;                     break;
         case USERDEFS_DRAW_Y:                 labelNum = rotatesprite_y_offset;           break;
         case USERDEFS_DRAW_YXASPECT:          labelNum = rotatesprite_yxaspect;           break;
-        case USERDEFS_FOV:                    labelNum = r_fov;                          break;
-        case USERDEFS_GAMEPADACTIVE:          labelNum = inputState.gamePadActive();     break;
+        case USERDEFS_FOV:                    labelNum = r_fov;                           break;
+        case USERDEFS_GAMEPADACTIVE:          labelNum = inputState.gamePadActive();      break;
+        case USERDEFS_M_NEWGAMECUSTOM:        labelNum = ud.m_newgamecustom;              break;
+        case USERDEFS_M_NEWGAMECUSTOMSUB:     labelNum = ud.m_newgamecustomsub;           break;
 
         default: EDUKE32_UNREACHABLE_SECTION(labelNum = -1; break);
     }
