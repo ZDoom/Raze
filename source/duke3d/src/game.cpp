@@ -5859,9 +5859,9 @@ MAIN_LOOP_RESTART:
 
             g_gameUpdateAvgTime
             = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
-
-            G_DoCheats();
         }
+
+        G_DoCheats();
 
         if (myplayer.gm & (MODE_EOL|MODE_RESTART))
         {
