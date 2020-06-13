@@ -7345,9 +7345,9 @@ MAIN_LOOP_RESTART:
             if (g_gameUpdateAvgTime < 0.f)
                 g_gameUpdateAvgTime = g_gameUpdateTime;
             g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-
-            G_DoCheats();
         }
+
+        G_DoCheats();
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {
