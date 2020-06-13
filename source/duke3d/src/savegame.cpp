@@ -859,7 +859,7 @@ static int32_t getnumvar(const dataspec_t *spec)
 {
     int n = 0;
     for (; spec->flags != DS_END; spec++)
-        if (spec->flags & (DS_STRING|DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN))
+        if (!(spec->flags & (DS_STRING|DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN)))
             ++n;
     return n;
 }
