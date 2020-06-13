@@ -67,12 +67,15 @@ extern uint16_t sqrtable[4096], shlookup[4096+256],sqrtable_old[2048];
 
 inline int32_t ksqrtasm_old(int32_t n)
 {
-    n = klabs(n);
-    int shift;
-    for (shift = 0; n >= 2048; n >>=2, shift++)
+    uint32_t shift = 0;
+    n = klabs((int32_t)n);
+    while (n >= 2048)
     {
+        n >>= 2;
+        ++shift;
     }
-    return (sqrtable_old[n]<<shift)>>10;
+    uint32_t const s = sqrtable_old[n];
+    return (s << shift) >> 10;
 }
 
 inline int32_t clip_nsqrtasm(int32_t n)
