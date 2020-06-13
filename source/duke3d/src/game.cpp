@@ -3529,9 +3529,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura
             t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
             t->y -= mulscale16(65536-smoothratio,ps->pos.y-ps->opos.y);
             // dirty hack
-            if (ps->dead_flag) t->z = ps->opos.z;
+            if (ps->dead_flag || sprite[ps->i].extra <= 0) t->z = ps->opos.z;
             t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
-                (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
+                ((ps->dead_flag || sprite[ps->i].extra <= 0) ? 0 : PHEIGHT) + PHEIGHT;
         }
         else if (pSprite->picnum != CRANEPOLE)
         {
