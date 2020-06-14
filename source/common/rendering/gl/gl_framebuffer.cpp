@@ -265,7 +265,6 @@ void OpenGLFrameBuffer::Swap()
 	FHardwareTexture::UnbindAll();
 	gl_RenderState.ClearLastMaterial();
 	mDebug->Update();
-	mVertexData->Reset();
 }
 
 //==========================================================================

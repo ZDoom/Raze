@@ -160,16 +160,11 @@ void FGLRenderer::EndOffscreen()
 
 void FGLRenderer::BindToFrameBuffer(FTexture *tex)
 {
-	auto pBaseLayer = tex->SystemTextures.GetHardwareTexture(0, false);
-	auto BaseLayer = pBaseLayer ? (OpenGLRenderer::FHardwareTexture*)pBaseLayer : nullptr;
-
-	if (BaseLayer == nullptr)
-	{
-		// must create the hardware texture first
-		BaseLayer =  new FHardwareTexture(4);
-		BaseLayer->CreateTexture(nullptr, tex->GetWidth(), tex->GetHeight(), 15, false, "Camtex");
-		tex->SystemTextures.AddHardwareTexture(0, false, BaseLayer);
-	}
+	auto BaseLayer = static_cast<FHardwareTexture*>(tex->GetHardwareTexture(0, 0));
+	// must create the hardware texture first
+	BaseLayer->BindOrCreate(tex, 0, 0, 0, 0);
+	FHardwareTexture::Unbind(0);
+	gl_RenderState.ClearLastMaterial();
 	BaseLayer->BindToFrameBuffer(tex->GetWidth(), tex->GetHeight());
 }
 

@@ -453,6 +453,7 @@ void videoShowFrame(int32_t w)
 		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
 		});
 	screen->Update();
+	screen->mVertexData->Reset();
 	// After finishing the frame, reset everything for the next frame. This needs to be done better.
 	screen->BeginFrame();
 	bool useSSAO = (gl_ssao != 0);
