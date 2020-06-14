@@ -480,7 +480,7 @@ int32_t Anim_Play(const char *fn)
 
     {
         AnimTextures animtex;
-        animtex.SetSize(320, 200);
+        animtex.SetSize(AnimTexture::Paletted, 320, 200);
 
         do
         {

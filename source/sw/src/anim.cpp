@@ -262,7 +262,7 @@ playanm(short anim_num)
 
     {
         AnimTextures animtex;
-        animtex.SetSize(320, 200);
+        animtex.SetSize(AnimTexture::Paletted, 320, 200);
         if (ANIMnum == 1)
         {
             // draw the first frame

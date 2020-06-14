@@ -14,80 +14,14 @@
 #include "bitmap.h"
 #include "v_draw.h"
 #include "v_video.h"
+#include "texturemanager.h"
+#include "animtexture.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
 #include "animvpx.h"
-
-
-class VPXTexture : public FTexture
-{
-public:
-    VPXTexture();
-    void SetFrame(const void* data, int width, int height);
-    virtual FBitmap GetBgraBitmap(const PalEntry* remap, int* trans) override;
-
-protected:
-
-    const void* data;
-
-public:
-
-};
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
-VPXTexture::VPXTexture() {}
-
-void VPXTexture::SetFrame(const void *data_, int width, int height)
-{
-    Width = width;
-    Height = height;
-    data = data_;
-    SystemTextures.Clean();
-}
-
-//===========================================================================
-//
-// FPNGTexture::CopyPixels
-//
-//===========================================================================
-
-FBitmap VPXTexture::GetBgraBitmap(const PalEntry* remap, int* trans)
-{
-    FBitmap bmp;
-
-    bmp.Create(Width, Height);
-
-    auto spix = (uint8_t*)data;
-    auto dpix = bmp.GetPixels();
-    for (int i = 0; i < Width * Height; i++)
-    {
-        int p = i * 4;
-        float y = spix[p] * (1/255.f);
-        float u = spix[p+1] * (1 / 255.f) - 0.5f;
-        float v = spix[p+2] * (1 / 255.f) - 0.5f;
-
-        y = 1.1643f * (y - 0.0625f);
-
-        float r = y + 1.5958f * v;
-        float g = y - 0.39173f * u - 0.81290f * v;
-        float b = y + 2.017f * u;
-
-        dpix[p + 0] =  (uint8_t)(clamp(b, 0, 1.f) * 255);
-        dpix[p + 1] =  (uint8_t)(clamp(g, 0, 1.f) * 255);
-        dpix[p + 2] =  (uint8_t)(clamp(r, 0, 1.f) * 255);
-        dpix[p + 3] = 255;
-    }
-    return bmp;
-}
-
 
 const char *animvpx_read_ivf_header_errmsg[] = {
     "All OK",
@@ -418,17 +352,18 @@ static int which;
 void animvpx_setup_glstate(int32_t animvpx_flags)
 {
     ////////// GL STATE //////////
-    vpxtex[0] = MakeGameTexture(new VPXTexture, nullptr, ETextureType::Special);
-    vpxtex[1] = MakeGameTexture(new VPXTexture, nullptr, ETextureType::Special);
+    vpxtex[0] = TexMan.FindGameTexture("AnimTextureFrame1", ETextureType::Override);
+    vpxtex[1] = TexMan.FindGameTexture("AnimTextureFrame2", ETextureType::Override);
+
     sampler = CLAMP_XY;
     GLInterface.ClearScreen(0, true);
 }
 
 void animvpx_restore_glstate(void)
 {
-	delete vpxtex[0];
+	vpxtex[0]->CleanHardwareData();
 	vpxtex[0] = nullptr;
-    delete vpxtex[1];
+    vpxtex[1]->CleanHardwareData();
     vpxtex[1] = nullptr;
 }
 
@@ -443,8 +378,8 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
         return 2;  // shouldn't happen
 
     which ^= 1;
-    static_cast<VPXTexture*>(vpxtex[which]->GetTexture())->SetFrame(codec->pic, codec->width, codec->height);
-    vpxtex[which]->CleanHardwareData();
+    static_cast<AnimTexture*>(vpxtex[which]->GetTexture())->SetFrameSize(AnimTexture::YUV, codec->width, codec->height);
+    static_cast<AnimTexture*>(vpxtex[which]->GetTexture())->SetFrame(nullptr, codec->pic);
 
     float vid_wbyh = ((float)codec->width)/codec->height;
     if (animvpx_aspect > 0)

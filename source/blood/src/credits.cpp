@@ -172,7 +172,7 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
     uint8_t palette[768];
     AnimTextures animtex;
     TArray<uint8_t> pFrame(nWidth * nHeight + std::max(nWidth, nHeight), true);
-    animtex.SetSize(nWidth, nHeight);
+    animtex.SetSize(AnimTexture::Paletted, nWidth, nHeight);
     int nFrameRate = Smacker_GetFrameRate(hSMK);
     int nFrames = Smacker_GetNumFrames(hSMK);
 

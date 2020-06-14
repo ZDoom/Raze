@@ -216,7 +216,7 @@ void PlayMovie(const char* fileName)
     int z = 0;
 
     AnimTextures animtex;
-    animtex.SetSize(200, 320);
+    animtex.SetSize(AnimTexture::Paletted, 200, 320);
 
     // Read a frame in first
     if (ReadFrame(fp, palette))
