@@ -64,6 +64,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "i_interface.h"
 #include "x86.h"
 #include "startupinfo.h"
+#include "mapinfo.h"
+#include "menustate.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -117,6 +119,7 @@ void InitENet();
 void ShutdownENet();
 void S_ParseSndInfo();
 void I_DetectOS(void);
+void LoadScripts();
 
 
 bool AppActive;
@@ -546,6 +549,7 @@ int GameMain()
 	}
 	InitENet();
 	DeleteStartupScreen();
+	PClass::StaticShutdown();
 	if (Args) delete Args;
 	return r;
 }
@@ -836,6 +840,7 @@ int RunGame()
 	timerSetCallback(Mus_UpdateMusic);
 	S_ParseSndInfo();
 	InitStatistics();
+	LoadScripts();
 	M_Init();
 	SetDefaultStrings();
 	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later

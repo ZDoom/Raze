@@ -800,6 +800,7 @@ set (PCH_SOURCES
 	core/raze_music.cpp
 	core/raze_sound.cpp
 	core/palette.cpp
+	core/zcompile.cpp
 
 	core/2d/screentext.cpp
 
