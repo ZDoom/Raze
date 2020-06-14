@@ -34,7 +34,6 @@ enum PRSFlags
 	STF_COLORMASK = 2,
 	STF_DEPTHMASK = 4,
 	STF_DEPTHTEST = 8,
-	STF_MULTISAMPLE = 16,
 	STF_STENCILWRITE = 32,
 	STF_STENCILTEST = 64,
 	STF_CULLCW = 128,
@@ -62,7 +61,7 @@ struct PolymostRenderState
 	int hictint_flags = -1;
 	FDepthBiasState mBias{ };
 	FMaterialState mMaterial;
-	OpenGLRenderer::FHardwareTexture* PaletteTexture = nullptr, * LookupTexture = nullptr;
+	IHardwareTexture* PaletteTexture = nullptr, * LookupTexture = nullptr;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};

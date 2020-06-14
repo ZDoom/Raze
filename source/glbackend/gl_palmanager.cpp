@@ -43,6 +43,7 @@
 #include "v_font.h"
 #include "palette.h"
 #include "build.h"
+#include "v_video.h"
 
 //===========================================================================
 //
@@ -100,7 +101,7 @@ void PaletteManager::BindPalette(int index)
 
 			if (palettetextures[index] == nullptr)
 			{
-				auto p = GLInterface.NewTexture(4);
+				auto p = screen->CreateHardwareTexture(4);
 				p->CreateTexture((uint8_t*)palettedata->Palette, 256, 1, 15, false, "Palette");
 				palettetextures[index] = p;
 			}
@@ -126,7 +127,7 @@ void PaletteManager::BindPalswap(int index)
 			lastsindex = index;
 			if (palswaptextures[index] == nullptr)
 			{
-				auto p = GLInterface.NewTexture(1);
+				auto p = screen->CreateHardwareTexture(1);
 
 				// Perform a 0<->255 index swap. The lookup tables are still the original data.
 				TArray<uint8_t> lookup(numshades * 256, true);

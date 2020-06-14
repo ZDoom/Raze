@@ -28,15 +28,13 @@ enum
 
 class PaletteManager
 {
-	OpenGLRenderer::FHardwareTexture* palettetextures[256] = {};
-	OpenGLRenderer::FHardwareTexture* palswaptextures[256] = {};
+	IHardwareTexture* palettetextures[256] = {};
+	IHardwareTexture* palswaptextures[256] = {};
 
 	uint32_t lastindex = ~0u;
 	uint32_t lastsindex = ~0u;
 
 	GLInstance* const inst;
-
-	//OpenGLRenderer::GLDataBuffer* palswapBuffer = nullptr;
 
 	unsigned FindPalswap(const uint8_t* paldata, palette_t& fadecolor);
 
@@ -86,7 +84,6 @@ public:
 	TArray<PolymostRenderState> rendercommands;
 	PaletteManager palmanager;
 	int lastPalswapIndex = -1;
-	OpenGLRenderer::FHardwareTexture* texv;
 	FGameTexture* currentTexture = nullptr;
 	int MatrixChange = 0;
 
@@ -111,8 +108,6 @@ public:
 	GLInstance();
 	void Draw(EDrawType type, size_t start, size_t count);
 	void DoDraw();
-
-	OpenGLRenderer::FHardwareTexture* NewTexture(int numchannels = 4);
 
 	float GetProjectionM5() { return mProjectionM5; }
 	int SetMatrix(int num, const VSMatrix *mat );
@@ -169,12 +164,6 @@ public:
 	{
 		if (on) renderState.StateFlags |= STF_DEPTHTEST;
 		else renderState.StateFlags &= ~STF_DEPTHTEST;
-	}
-
-	void EnableMultisampling(bool on)
-	{
-		if (on) renderState.StateFlags |= STF_MULTISAMPLE;
-		else renderState.StateFlags &= ~STF_MULTISAMPLE;
 	}
 
 	void EnableStencilWrite(int value)
@@ -370,14 +359,12 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	OpenGLRenderer::FHardwareTexture *LoadTexture(FTexture* tex, int texturetype, int palid);
-
-	void SetPaletteTexture(OpenGLRenderer::FHardwareTexture* tex)
+	void SetPaletteTexture(IHardwareTexture* tex)
 	{
 		renderState.PaletteTexture = tex;
 	}
 
-	void SetLookupTexture(OpenGLRenderer::FHardwareTexture* tex)
+	void SetLookupTexture(IHardwareTexture* tex)
 	{
 		renderState.LookupTexture = tex;
 	}

@@ -96,11 +96,6 @@ void GLInstance::Deinit()
 	lastPalswapIndex = -1;
 }
 
-OpenGLRenderer::FHardwareTexture* GLInstance::NewTexture(int numchannels)
-{
-	return new OpenGLRenderer::FHardwareTexture(numchannels);
-}
-
 void GLInstance::Draw(EDrawType type, size_t start, size_t count)
 {
 	assert (BufferLock > 0);
@@ -121,6 +116,7 @@ void GLInstance::DoDraw()
 	{
 		lastState.Flags = ~rendercommands[0].StateFlags;	// Force ALL flags to be considered 'changed'.
 		lastState.DepthFunc = INT_MIN;						// Something totally invalid.
+		screen->RenderState()->EnableMultisampling(true);
 
 		for (auto& rs : rendercommands)
 		{
@@ -177,7 +173,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	if (StateFlags != oldState.Flags)
 	{
 		state.EnableDepthTest(StateFlags & STF_DEPTHTEST);
-		state.EnableMultisampling(StateFlags & STF_MULTISAMPLE);
 
 		if ((StateFlags ^ oldState.Flags) & (STF_STENCILTEST | STF_STENCILWRITE))
 		{

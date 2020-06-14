@@ -50,17 +50,6 @@
 //
 //===========================================================================
 
-OpenGLRenderer::FHardwareTexture* GLInstance::LoadTexture(FTexture *tex, int textype, int palid)
-{
-	if (textype == TT_INDEXED) palid = -1;
-	auto phwtex = tex->SystemTextures.GetHardwareTexture(palid, false);
-	if (phwtex) return (OpenGLRenderer::FHardwareTexture*)phwtex;
-
-	auto hwtex = static_cast<OpenGLRenderer::FHardwareTexture*>(screen->CreateHardwareTexture(textype == TT_INDEXED? 1:4));
-	if (hwtex) tex->SystemTextures.AddHardwareTexture(palid, false, hwtex);
-	return hwtex;
-}
-
 bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler)
 {
 	TexturePick texpick;
