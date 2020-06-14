@@ -418,9 +418,9 @@ void UpdateJoystickMenu(IJoystickConfig *selected)
 		if (i == (int)Joysticks.Size())
 		{
 			SELECTED_JOYSTICK = NULL;
-			if (DMenu::CurrentMenu != NULL && dynamic_cast<DJoystickConfigMenu*>(DMenu::CurrentMenu))
+			if (CurrentMenu != NULL && dynamic_cast<DJoystickConfigMenu*>(CurrentMenu))
 			{
-				DMenu::CurrentMenu->Close();
+				CurrentMenu->Close();
 			}
 		}
 	}

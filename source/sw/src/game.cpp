@@ -93,7 +93,7 @@ Things required to make savegames work:
 #include "printf.h"
 #include "m_argv.h"
 #include "debugbreak.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "raze_music.h"
 #include "statistics.h"
 #include "gstrings.h"

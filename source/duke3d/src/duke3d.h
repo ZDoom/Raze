@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "polymost.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "memarena.h"
 
 

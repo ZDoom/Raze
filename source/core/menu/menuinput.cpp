@@ -33,7 +33,7 @@
 **
 */
 
-#include "menu/menu.h"
+#include "menu.h"
 #include "c_cvars.h"
 #include "d_event.h"
 #include "d_gui.h"

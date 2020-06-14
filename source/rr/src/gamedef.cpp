@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osd.h"
 #include "m_crc32.h"
 #include "printf.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "stringtable.h"
 #include "mapinfo.h"
 

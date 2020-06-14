@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_dispatch.h"
 #include "filesystem.h"
 #include "statistics.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "mapinfo.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"

@@ -63,7 +63,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "track.h"
 #include "interp.h"
 #include "interpso.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "gstrings.h"
 #include "raze_music.h"
 

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "version.h"
 #include "savegamehelp.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "mapinfo.h"
 #include "raze_music.h"
 

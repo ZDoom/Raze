@@ -536,7 +536,7 @@ bool FListMenuItemSelectable::MouseEvent(int type, int x, int y)
 {
 	if (type == DMenu::MOUSE_Release)
 	{
-		if (NULL != DMenu::CurrentMenu && DMenu::CurrentMenu->MenuEvent(MKEY_Enter, true))
+		if (NULL != CurrentMenu && CurrentMenu->MenuEvent(MKEY_Enter, true))
 		{
 			return true;
 		}

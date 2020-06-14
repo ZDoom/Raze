@@ -42,7 +42,7 @@
 #include "c_cvars.h"
 #include "c_bind.h"
 #include "gameconfigfile.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "v_draw.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
@@ -428,7 +428,7 @@ void DOptionMenu::Drawer ()
 		int cur_indent = mDesc->mItems[i]->Draw(mDesc, y, indent, isSelected);
 		if (cur_indent >= 0 && isSelected && mDesc->mItems[i]->Selectable())
 		{
-			if ((((DMenu::MenuTime>>2)%8) < 6) || DMenu::CurrentMenu != this)
+			if ((((DMenu::MenuTime>>2)%8) < 6) || CurrentMenu != this)
 			{
 				DrawOptionText(cur_indent + 3 * CleanXfac_1, y, OptionSettings.mFontColorSelection, "◄");
 				//M_DrawConText(OptionSettings.mFontColorSelection, cur_indent + 3 * CleanXfac_1, y+fontheight-9*CleanYfac_1, "\xd");
@@ -478,7 +478,7 @@ bool FOptionMenuItem::MouseEvent(int type, int x, int y)
 {
 	if (Selectable() && type == DMenu::MOUSE_Release)
 	{
-		return DMenu::CurrentMenu->MenuEvent(MKEY_Enter, true);
+		return CurrentMenu->MenuEvent(MKEY_Enter, true);
 	}
 	return false;
 }

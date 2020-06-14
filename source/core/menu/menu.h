@@ -11,6 +11,7 @@
 #include "zstring.h"
 #include "baselayer.h"
 #include "v_draw.h"
+#include "menustate.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);
@@ -84,14 +85,6 @@ typedef struct MenuGameplayStemEntry
 
 extern MenuGameplayStemEntry g_MenuGameplayEntries[MAXMENUGAMEPLAYENTRIES];
 
-
-enum EMenuState : int
-{
-	MENU_Off,			// Menu is closed
-	MENU_On,			// Menu is opened
-	MENU_WaitKey,		// Menu is opened and waiting for a key in the controls menu
-	MENU_OnNoPause,		// Menu is opened but does not pause the game
-};
 
 enum EMenuSounds : int
 {
@@ -326,8 +319,8 @@ public:
 		BACKBUTTON_TIME = 4*MENU_TICRATE
 	};
 
-	static DMenu *CurrentMenu;
 	static int MenuTime;
+	static bool InMenu;
 
 	DMenu *mParentMenu;
 	DVector2 origin = { 0,0 };
@@ -842,5 +835,6 @@ public:
 };
 
 extern FSavegameManager savegameManager;
+extern DMenu* CurrentMenu;
 
 #endif

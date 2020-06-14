@@ -1111,3 +1111,7 @@ void updatePauseStatus()
     }
 }
 
+bool OkForLocalization(FTextureID texnum, const char* substitute)
+{
+	return false;
+}

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "gamecvars.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "gamestructures.h"
 
 BEGIN_DUKE_NS

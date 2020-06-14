@@ -39,7 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "parent.h"
 #include "scriptfile.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
 

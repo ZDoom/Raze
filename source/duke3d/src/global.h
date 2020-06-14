@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotes.h"
 #include "sector.h"
 #include "sounds.h"
-#include "menu/menu.h"
+#include "menu.h"
 
 BEGIN_DUKE_NS
 

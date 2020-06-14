@@ -132,7 +132,7 @@ void DMessageBoxMenu::Destroy()
 
 void DMessageBoxMenu::CloseSound()
 {
-	M_MenuSound(DMenu::CurrentMenu ? BackSound : ::CloseSound);
+	M_MenuSound(CurrentMenu ? BackSound : ::CloseSound);
 }
 
 //=============================================================================
@@ -362,13 +362,13 @@ bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 
 void M_StartMessage(const char *message, int messagemode, int scriptId, FName action)
 {
-	if (DMenu::CurrentMenu == NULL) 
+	if (CurrentMenu == NULL) 
 	{
 		// only play a sound if no menu was active before
 		M_StartControlPanel(menuactive == MENU_Off);
 	}
-	DMenu *newmenu = new DMessageBoxMenu(DMenu::CurrentMenu, message, messagemode, false, action);
-	newmenu->mParentMenu = DMenu::CurrentMenu;
+	DMenu *newmenu = new DMessageBoxMenu(CurrentMenu, message, messagemode, false, action);
+	newmenu->mParentMenu = CurrentMenu;
 	newmenu->scriptID = scriptId;
 	M_ActivateMenu(newmenu);
 }
@@ -382,7 +382,7 @@ void M_StartMessage(const char *message, int messagemode, int scriptId, FName ac
 
 DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptId, bool playsound, FName action, hFunc handler)
 {
-	auto newmenu = new DMessageBoxMenu(DMenu::CurrentMenu, message, messagemode, false, action, handler);
+	auto newmenu = new DMessageBoxMenu(CurrentMenu, message, messagemode, false, action, handler);
 	newmenu->scriptID = scriptId;
 	return newmenu;
 
@@ -403,7 +403,7 @@ CCMD (menu_endgame)
 	M_StartControlPanel (true);
 	FString tempstring;
 	tempstring << GStrings("ENDGAME") << "\n\n" << GStrings("PRESSYN");
-	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, 501, false, NAME_None, [](bool res)
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, 501, false, NAME_None, [](bool res)
 		{
 			if (res)
 			{
@@ -429,7 +429,7 @@ CCMD (menu_quit)
 	FString EndString;
 	EndString << GStrings("CONFIRM_QUITMSG") << "\n\n" << GStrings("PRESSYN");
 
-	DMenu *newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
+	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
 		if (res) throw CExitEvent(0);
 	});

@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "network.h"
 #include "mmulti.h"
 #include "c_bind.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "sfx.h"
 
 bool ShowOptionMenu();

@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "colormap.h"
 #include "config.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "raze_sound.h"
 #include "sounds.h"
 

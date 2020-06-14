@@ -33,7 +33,7 @@
 **
 */
 
-#include "menu/menu.h"
+#include "menu.h"
 #include "version.h"
 #include "m_png.h"
 #include "filesystem.h"

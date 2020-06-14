@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamevars.h"
 #include "mmulti.h"
 #include "network.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "palette.h"
 #include "cmdlib.h"
 

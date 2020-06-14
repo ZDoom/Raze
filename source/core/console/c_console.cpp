@@ -1759,7 +1759,6 @@ CCMD(toggleconsole)
 	C_ToggleConsole();
 }
 
-#if 0 // The Build engine cannot do this at the moment. Q: Implement and redirect some messages here?
 /* Printing in the middle of the screen */
 
 CVAR(Float, con_midtime, 3.f, CVAR_ARCHIVE)
@@ -1768,6 +1767,7 @@ const char *console_bar = "----------------------------------------";
 
 void C_MidPrint (FFont *font, const char *msg, bool bold)
 {
+#if 0 // The Build engine cannot do this at the moment. Q: Implement and redirect some messages here?
 	if (StatusBar == nullptr || screen == nullptr)
 		return;
 
@@ -1793,8 +1793,8 @@ void C_MidPrint (FFont *font, const char *msg, bool bold)
 	{
 		StatusBar->DetachMessage (MAKE_ID('C','N','T','R'));
 	}
-}
 #endif
+}
 
 
 /****** Tab completion code ******/

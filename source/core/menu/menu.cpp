@@ -85,8 +85,9 @@ CVAR(Int, m_show_backbutton, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
 TArray<MenuClassDescriptor*> menuClasses(TArray<MenuClassDescriptor*>::ENoInit(0));
 
-DMenu *DMenu::CurrentMenu;
+DMenu *CurrentMenu;
 int DMenu::MenuTime;
+bool DMenu::InMenu;
 
 FNewGameStartup NewGameStartupInfo;
 EMenuState		menuactive;
@@ -207,7 +208,7 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 		if (scriptID != 0)
 		{
-			M_MenuSound(DMenu::CurrentMenu->mParentMenu? BackSound : CloseSound);
+			M_MenuSound(CurrentMenu->mParentMenu? BackSound : CloseSound);
 			Close();
 			return true;
 		}
@@ -224,24 +225,24 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 
 void DMenu::Close ()
 {
-	assert(DMenu::CurrentMenu == this);
+	assert(CurrentMenu == this);
 	
-	DMenu::CurrentMenu = mParentMenu;
+	CurrentMenu = mParentMenu;
 	if (mParentMenu && transition.StartTransition(this, mParentMenu, MA_Return))
 	{
-		g_currentMenu = DMenu::CurrentMenu->scriptID;
+		g_currentMenu = CurrentMenu->scriptID;
 	}
 	else
 	{
 		Destroy();
 		toDelete.Push(this);
-		if (DMenu::CurrentMenu == NULL)
+		if (CurrentMenu == NULL)
 		{
 			M_ClearMenus();
 		}
 		else
 		{
-			g_currentMenu = DMenu::CurrentMenu->scriptID;
+			g_currentMenu = CurrentMenu->scriptID;
 		}
 	}
 }
@@ -322,7 +323,7 @@ void DMenu::Ticker ()
 
 void DMenu::Drawer () 
 {
-	if (this == DMenu::CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
+	if (this == CurrentMenu && BackbuttonAlpha > 0 && m_show_backbutton >= 0 && m_use_mouse)
 	{
 		auto texid = TexMan.CheckForTexture("engine/graphics/m_back.png", ETextureType::Any);
 		if (texid.isValid())
@@ -365,7 +366,7 @@ void M_StartControlPanel (bool makeSound)
 {
 	static bool created = false;
 	// intro might call this repeatedly
-	if (DMenu::CurrentMenu != NULL)
+	if (CurrentMenu != NULL)
 		return;
 
 	if (!created) // Cannot do this earlier.
@@ -396,7 +397,7 @@ void M_StartControlPanel (bool makeSound)
 
 void Menu_Open(int playerid)
 {
-	M_StartControlPanel(DMenu::CurrentMenu == nullptr);
+	M_StartControlPanel(CurrentMenu == nullptr);
 }
 
 //=============================================================================
@@ -409,12 +410,12 @@ void M_ActivateMenu(DMenu *menu)
 {
 	g_currentMenu = menu->scriptID;
 	if (menuactive == MENU_Off) menuactive = MENU_On;
-	if (DMenu::CurrentMenu != NULL)
+	if (CurrentMenu != NULL)
 	{
-		DMenu::CurrentMenu->ReleaseCapture();
-		transition.StartTransition(DMenu::CurrentMenu, menu, MA_Advance);
+		CurrentMenu->ReleaseCapture();
+		transition.StartTransition(CurrentMenu, menu, MA_Advance);
 	}
-	DMenu::CurrentMenu = menu;
+	CurrentMenu = menu;
 	DMenu::MenuTime = -1;
 	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
@@ -482,8 +483,8 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	case NAME_EngineCredits:
 	case NAME_EngineCredits2:
 	{
-		auto m = DMenu::CurrentMenu;
-		DMenu::CurrentMenu = m->mParentMenu;
+		auto m = CurrentMenu;
+		CurrentMenu = m->mParentMenu;
 		m->mParentMenu = nullptr;
 		toDelete.Push(m);
 		break;
@@ -579,7 +580,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 				{
 					newmenu = new DListMenu;
 				}
-				newmenu->Init(DMenu::CurrentMenu, ld);
+				newmenu->Init(CurrentMenu, ld);
 				M_ActivateMenu(newmenu);
 			}
 		}
@@ -603,7 +604,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			{
 				newmenu = new DOptionMenu;
 			}
-			newmenu->Init(DMenu::CurrentMenu, ld);
+			newmenu->Init(CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
 		}
 		else if ((*desc)->mType == MDESC_ImageScroller)
@@ -627,7 +628,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			{
 				newmenu = new DImageScrollerMenu;
 			}
-			newmenu->Init(DMenu::CurrentMenu, ld);
+			newmenu->Init(CurrentMenu, ld);
 			M_ActivateMenu(newmenu);
 		}
 		return true;
@@ -641,7 +642,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 			if (menuclass->IsDescendantOf(RUNTIME_CLASS(DMenu)))
 			{
 				DMenu *newmenu = (DMenu*)menuclass->CreateNew();
-				newmenu->mParentMenu = DMenu::CurrentMenu;
+				newmenu->mParentMenu = CurrentMenu;
 				M_ActivateMenu(newmenu);
 				return true;
 			}
@@ -673,7 +674,7 @@ bool M_DoResponder (event_t *ev)
 	}
 	*/
 
-	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
+	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
 		// There are a few input sources we are interested in:
 		//
@@ -708,9 +709,9 @@ bool M_DoResponder (event_t *ev)
 				}
 
 				// pass everything else on to the current menu
-				return DMenu::CurrentMenu->Responder(ev);
+				return CurrentMenu->Responder(ev);
 			}
-			else if (DMenu::CurrentMenu->TranslateKeyboardEvents())
+			else if (CurrentMenu->TranslateKeyboardEvents())
 			{
 				ch = ev->data1;
 				keyup = ev->subtype == EV_GUI_KeyUp;
@@ -729,7 +730,7 @@ bool M_DoResponder (event_t *ev)
 				default:
 					if (!keyup)
 					{
-						return DMenu::CurrentMenu->Responder(ev);
+						return CurrentMenu->Responder(ev);
 					}
 					break;
 				}
@@ -812,11 +813,11 @@ bool M_DoResponder (event_t *ev)
 				{
 					MenuButtonTickers[mkey] = KEY_REPEAT_DELAY;
 				}
-				DMenu::CurrentMenu->MenuEvent(mkey, fromcontroller);
+				CurrentMenu->MenuEvent(mkey, fromcontroller);
 				return true;
 			}
 		}
-		return DMenu::CurrentMenu->Responder(ev) || !keyup;
+		return CurrentMenu->Responder(ev) || !keyup;
 	}
 	else if (MenuEnabled)
 	{
@@ -871,12 +872,12 @@ void M_Ticker (void)
 {
 	DMenu::MenuTime++;
 	if (DMenu::MenuTime & 3) return;
-	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off) 
+	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
 		if (DMenu::MenuTime != 0) D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
-		if (DMenu::CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
-		DMenu::CurrentMenu->Ticker();
+		if (CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
+		CurrentMenu->Ticker();
 
 		for (int i = 0; i < NUM_MKEYS; ++i)
 		{
@@ -885,7 +886,7 @@ void M_Ticker (void)
 				if (MenuButtonTickers[i] > 0 &&	--MenuButtonTickers[i] <= 0)
 				{
 					MenuButtonTickers[i] = KEY_REPEAT_RATE;
-					DMenu::CurrentMenu->MenuEvent(i, MenuButtonOrigin[i]);
+					CurrentMenu->MenuEvent(i, MenuButtonOrigin[i]);
 				}
 			}
 		}
@@ -912,9 +913,9 @@ void M_Drawer (void)
 {
 	PalEntry fade = 0x70000000;
 
-	if (DMenu::CurrentMenu != NULL && menuactive != MENU_Off)
+	if (CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		if (DMenu::CurrentMenu->DimAllowed() && fade && !DrawBackground) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (CurrentMenu->DimAllowed() && fade && !DrawBackground) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 
 		bool going = false;
 		if (transition.previous)
@@ -929,10 +930,10 @@ void M_Drawer (void)
 		}
 		if (!going)
 		{
-			assert(DMenu::CurrentMenu);
-			DMenu::CurrentMenu->origin = { 0,0 };
+			assert(CurrentMenu);
+			CurrentMenu->origin = { 0,0 };
 			// else if (DrawBackground) Menu_DrawBackground(origin);
-			DMenu::CurrentMenu->Drawer();
+			CurrentMenu->Drawer();
 		}
 	}
 }
@@ -954,7 +955,7 @@ void M_ClearMenus (bool final)
 	M_DemoNoPlay = false;
 	transition.previous = transition.current = nullptr;
 	transition.dir = 0;
-	auto menu = DMenu::CurrentMenu;
+	auto menu = CurrentMenu;
 	while (menu != nullptr)
 	{
 		auto nextm = menu->mParentMenu;
@@ -962,7 +963,7 @@ void M_ClearMenus (bool final)
 		delete menu;
 		menu = nextm;
 	}
-	DMenu::CurrentMenu = nullptr;
+	CurrentMenu = nullptr;
 	menuactive = MENU_Off;
 	M_UnpauseSound();
 	if (!final)
@@ -978,7 +979,7 @@ void Menu_Close(int playerid)
 
 bool M_Active()
 {
-	return DMenu::CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;
+	return CurrentMenu != nullptr || ConsoleState == c_down || ConsoleState == c_falling;
 }
 
 //=============================================================================
@@ -1000,11 +1001,11 @@ void M_MenuSound(EMenuSounds snd)
 
 void M_PreviousMenu()
 {
-	if (DMenu::CurrentMenu != nullptr)
+	if (CurrentMenu != nullptr)
 	{
-		DMenu* parent = DMenu::CurrentMenu->mParentMenu;
-		DMenu::CurrentMenu->Destroy();
-		DMenu::CurrentMenu = parent;
+		DMenu* parent = CurrentMenu->mParentMenu;
+		CurrentMenu->Destroy();
+		CurrentMenu = parent;
 	}
 }
 
@@ -1122,3 +1123,4 @@ CCMD(openloadmenu)
 	M_StartControlPanel(true);
 	M_SetMenu(NAME_Loadgamemenu);
 }
+

@@ -33,7 +33,7 @@
 **
 */
 
-#include "menu/menu.h"
+#include "menu.h"
 #include "version.h"
 #include "m_png.h"
 #include "filesystem.h"
@@ -660,7 +660,7 @@ CCMD(quicksave)
 	tempstring.Substitute("%s", slot->SaveTitle.GetChars());
 	M_StartControlPanel(true);
 
-	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
 		{
 			if (res)
 			{
@@ -708,7 +708,7 @@ CCMD(quickload)
 
 	M_StartControlPanel(true);
 
-	DMenu* newmenu = CreateMessageBoxMenu(DMenu::CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
+	DMenu* newmenu = CreateMessageBoxMenu(CurrentMenu, tempstring, 0, INT_MAX, false, NAME_None, [](bool res)
 		{
 			if (res)
 			{

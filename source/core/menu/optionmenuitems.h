@@ -68,7 +68,7 @@ public:
 	bool Activate(FName caller) override
 	{
 		M_MenuSound(CursorSound);
-		M_SetMenu(mAction, mParam, static_cast<DOptionMenu*>(DMenu::CurrentMenu)->GetDescriptor()->mMenuName);
+		M_SetMenu(mAction, mParam, static_cast<DOptionMenu*>(CurrentMenu)->GetDescriptor()->mMenuName);
 		return true;
 	}
 };
@@ -481,7 +481,7 @@ public:
 	{
 		M_MenuSound(AdvanceSound);
 		mWaiting = true;
-		DMenu *input = new DEnterKey(DMenu::CurrentMenu, &mInput);
+		DMenu *input = new DEnterKey(CurrentMenu, &mInput);
 		M_ActivateMenu(input);
 		return true;
 	}
@@ -685,7 +685,7 @@ public:
 
 	bool MouseEvent(int type, int x, int y) override
 	{
-		DOptionMenu *lm = static_cast<DOptionMenu*>(DMenu::CurrentMenu);
+		DOptionMenu *lm = static_cast<DOptionMenu*>(CurrentMenu);
 		if (type != DMenu::MOUSE_Click)
 		{
 			if (!lm->CheckFocus(this)) return false;
@@ -905,7 +905,7 @@ public:
 		{
 			M_MenuSound(AdvanceSound);
 			mEntering = true;
-			mInput = new DTextEnterMenu(DMenu::CurrentMenu, NewSmallFont, GetCVarString(), 256, fromcontroller );
+			mInput = new DTextEnterMenu(CurrentMenu, NewSmallFont, GetCVarString(), 256, fromcontroller );
 			M_ActivateMenu( mInput );
 			return true;
 		}

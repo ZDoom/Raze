@@ -56,7 +56,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interpso.h"
 #include "sector.h"
 #include "config.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "swcvar.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"

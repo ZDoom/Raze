@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "sbar.h"
 #include "statistics.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "mapinfo.h"
 #include "cmdlib.h"
 #include "v_2ddrawer.h"

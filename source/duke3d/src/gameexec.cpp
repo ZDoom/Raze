@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "files.h"
 #include "base64.h"
 #include "version.h"
-#include "menu/menu.h"
+#include "menu.h"
 #include "c_dispatch.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
