@@ -506,18 +506,23 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
-    renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
+    auto canvas = renderSetTarget(tileNum);
+    if (!canvas) return;
 
-    yax_preparedrawrooms();
-    drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
-    yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
+    screen->RenderTextureView(canvas, [=](IntRect& rect)
+        {
+            yax_preparedrawrooms();
+            drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
+            yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
-    display_mirror = 3;
-    G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
-    display_mirror = saveMirror;
-    renderDrawMasks();
+            display_mirror = 3;
+            G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
+            display_mirror = saveMirror;
+            renderDrawMasks();
 
+        });
     renderRestoreTarget();
+
 }
 
 void G_AnimateCamSprite(int smoothRatio)

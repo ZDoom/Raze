@@ -477,11 +477,15 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 {
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
-    renderSetTarget(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
+    auto canvas = renderSetTarget(tilenume);
+    if (!canvas) return;
 
-    renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
-    analyzesprites(daposx, daposy, daposz, FALSE);
-    renderDrawMasks();
+    screen->RenderTextureView(canvas, [=](IntRect& rect)
+        {
+            renderDrawRoomsQ16(daposx, daposy, daposz, daq16ang, daq16horiz, dacursectnum);
+            analyzesprites(daposx, daposy, daposz, FALSE);
+            renderDrawMasks();
+        });
 
     renderRestoreTarget();
 }

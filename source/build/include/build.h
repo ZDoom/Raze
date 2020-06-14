@@ -836,7 +836,7 @@ void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 inline void   renderFlushPerms(void) {}
 
 void   plotpixel(int32_t x, int32_t y, char col);
-void   renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
 void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t dawall,
                            int32_t *tposx, int32_t *tposy, fix16_t *tang);

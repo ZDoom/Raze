@@ -385,35 +385,31 @@ int SetAnimation(int sectNum, int32_t *animPtr, int goalVal, int animVel)
 
 static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
 {
-    int const playerNum = screenpeek;
-
-    vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
+    vec3_t const camera = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
-    renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
+    auto canvas = renderSetTarget(tileNum);
+    if (!canvas) return;
 
-    int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERATILE, spriteNum, playerNum, 0);
+    screen->RenderTextureView(canvas, [=](IntRect& rect)
+        {
+            // Beware! Apparently this is allowed to render to the camera itself. Breakage is basically guarenteed...
+            if (VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERATILE, spriteNum, screenpeek, 0) != 1)
+            {
+                yax_preparedrawrooms();
+                drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
+                yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
-    if (noDraw == 1)
-        goto finishTileSetup;
-#ifdef DEBUGGINGAIDS
-    else if (EDUKE32_PREDICT_FALSE(noDraw != 0)) // event return values other than 0 and 1 are reserved
-        Printf(TEXTCOLOR_RED "ERROR: EVENT_DISPLAYROOMSCAMERATILE return value must be 0 or 1, "
-                   "other values are reserved.\n");
-#endif
-
-    yax_preparedrawrooms();
-    drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
-    yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
-
-    display_mirror = 3;
-    G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
-    display_mirror = saveMirror;
-    renderDrawMasks();
-    
-finishTileSetup:
+                display_mirror = 3;
+                G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
+                display_mirror = saveMirror;
+                renderDrawMasks();
+            }
+        });
     renderRestoreTarget();
+
 }
+
 
 void G_AnimateCamSprite(int smoothRatio)
 {

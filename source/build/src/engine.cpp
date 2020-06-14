@@ -5356,16 +5356,15 @@ static vec2_t bakwindowxy1, bakwindowxy2;
 //
 // setviewtotile
 //
-void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
+FCanvasTexture* renderSetTarget(int16_t tilenume)
 {
-    if (setviewcnt > 0)
-        return;
-    if (xsiz <= 0 ||
-        ysiz <= 0)
-        return;
-
-    OpenGLRenderer::GLRenderer->StartOffscreen();
-    OpenGLRenderer::GLRenderer->BindToFrameBuffer(tileGetTexture(tilenume)->GetTexture());
+    auto tex = tileGetTexture(tilenume);
+    if (!tex || !tex->isHardwareCanvas()) return nullptr;
+    auto canvas = static_cast<FCanvasTexture*>(tex->GetTexture());
+    if (!canvas) return nullptr;
+    int xsiz = tex->GetTexelWidth(), ysiz = tex->GetTexelHeight();
+    if (setviewcnt > 0 || xsiz <= 0 || ysiz <= 0)
+        return nullptr;
 
     //DRAWROOMS TO TILE BACKUP&SET CODE
     bakxsiz = xdim; bakysiz = ydim;
@@ -5374,10 +5373,11 @@ void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     setviewcnt++;
 
-    xdim = ysiz*4;
-    ydim = xsiz*4;
-    videoSetViewableArea(0,0,ysiz*4-1,xsiz*4-1);
+    xdim = ysiz;
+    ydim = xsiz;
+    videoSetViewableArea(0,0,ysiz-1,xsiz-1);
     renderSetAspect(65536,65536);
+    return canvas;
 }
 
 
@@ -5388,8 +5388,6 @@ void renderRestoreTarget()
 {
     if (setviewcnt <= 0) return;
     setviewcnt--;
-
-    OpenGLRenderer::GLRenderer->EndOffscreen();
 
     xdim = bakxsiz;
     ydim = bakysiz;
