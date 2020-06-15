@@ -3453,8 +3453,7 @@ void sub_57B38(long cposx, long cposy, long czoom, short cang)
 
                         if ((show2dwall[j>>3]&(1<<(j&7))) == 0) continue;
 
-                        if (tilesiz[wal->picnum].x == 0) continue;
-                        if (tilesiz[wal->picnum].y == 0) continue;
+                        if (!tileGetTexture(wal->picnum)->isValid()) continue;
 
                         if (j == k)
                                 { x1 = x2; y1 = y2; }

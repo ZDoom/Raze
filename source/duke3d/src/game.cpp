@@ -3936,7 +3936,7 @@ PALONLY:
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
             if (viewtype > 0)
-                while (tilesiz[t->picnum].x == 0 && t->picnum > 0)
+                while (!tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
                     t->picnum -= l;       //Hack, for actors
 
             if (actor[i].dispicnum >= 0)

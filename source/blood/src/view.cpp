@@ -228,7 +228,7 @@ void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize)
 		for (const char *pBuf = unk1; *pBuf != 0; pBuf++)
 		{
 			int tile = ((*pBuf-32)&127)+pFont->tile;
-			if (tilesiz[tile].x != 0 && tilesiz[tile].y != 0)
+			if (tileGetTexture(tile)->isValid())
 				width += tilesiz[tile].x+pFont->space;
 		}
 		if (pXSize)

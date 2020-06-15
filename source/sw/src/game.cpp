@@ -3679,10 +3679,7 @@ SHOWSPRITE:
             if (!mapcheat && (show2dwall[j >> 3] & (1 << (j & 7))) == 0)
                 continue;
 
-            if (tilesiz[wal->picnum].x == 0)
-                continue;
-            if (tilesiz[wal->picnum].y == 0)
-                continue;
+            if (!tileGetTexture(wal->picnum)->isValid()) continue;
 
             ox = wal->x - cposx;
             oy = wal->y - cposy;

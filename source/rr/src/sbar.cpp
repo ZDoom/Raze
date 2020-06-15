@@ -1461,7 +1461,7 @@ void G_DrawBackground(void)
 
     // XXX: if dapicnum is not available, this might leave the menu background
     // not drawn, leading to "HOM".
-    if ((dapicnum >= 0 && tilesiz[dapicnum].x == 0) || (dapicnum >= 0 && tilesiz[dapicnum].y == 0) ||
+    if ((dapicnum >= 0 && !tileGetTexture(dapicnum)->isValid()) ||
         (windowxy1.x-1 <= 0 && windowxy2.x >= xdim-1 && windowxy1.y-1 <= 0 && windowxy2.y >= ydim-1) ||
         dapicnum < 0)
     {

@@ -446,8 +446,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         {
             if (wal->nextwall >= 0) continue;
 
-            if (tilesiz[wal->picnum].x == 0) continue;
-            if (tilesiz[wal->picnum].y == 0) continue;
+            if (!tileGetTexture(wal->picnum)->isValid()) continue;
 
             if (j == k)
             {
