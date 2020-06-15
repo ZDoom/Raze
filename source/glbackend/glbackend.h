@@ -29,10 +29,7 @@ enum
 class PaletteManager
 {
 	IHardwareTexture* palettetextures[256] = {};
-	IHardwareTexture* palswaptextures[256] = {};
-
-	uint32_t lastindex = ~0u;
-	uint32_t lastsindex = ~0u;
+	IHardwareTexture* lookuptextures[256] = {};
 
 	GLInstance* const inst;
 
@@ -43,8 +40,8 @@ public:
 	{}
 	~PaletteManager();
 	void DeleteAll();
-	void BindPalette(int index);
-	void BindPalswap(int index);
+	IHardwareTexture *GetPalette(int index);
+	IHardwareTexture* GetLookup(int index);
 };
 
 
@@ -80,6 +77,8 @@ struct GLState
 
 class GLInstance
 {
+	friend IHardwareTexture* setpalettelayer(int layer, int translation);
+
 public:
 	TArray<PolymostRenderState> rendercommands;
 	PaletteManager palmanager;
@@ -121,8 +120,6 @@ public:
 		renderState.matrixIndex[num] = index;
 	}
 
-	void SetPalette(int palette);
-	
 	void SetTextureMode(int m)
 	{
 		renderState.TextureMode = m;
@@ -307,11 +304,6 @@ public:
 		else renderState.Flags &= ~RF_ShadeInterpolate;
 	}
 
-	void SetFadeColor(PalEntry color)
-	{
-		renderState.FogColor = color;
-	};
-
 	void SetFadeDisable(bool yes)
 	{
 		if (yes) renderState.Flags |= RF_FogDisabled;
@@ -359,20 +351,7 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	void SetPaletteTexture(IHardwareTexture* tex)
-	{
-		renderState.PaletteTexture = tex;
-	}
-
-	void SetLookupTexture(IHardwareTexture* tex)
-	{
-		renderState.LookupTexture = tex;
-	}
-
 	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride);
-	void RenderScene(FRenderState& state);
-	void DrawScene(int drawmode);
-
 };
 
 extern GLInstance GLInterface;

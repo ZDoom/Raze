@@ -78,8 +78,18 @@ GLInstance::GLInstance()
 //ImGuiContext* im_ctx;
 TArray<uint8_t> ttf;
 
+IHardwareTexture *setpalettelayer(int layer, int translation)
+{
+	if (layer == 1)
+		return GLInterface.palmanager.GetPalette(GetTranslationType(translation) - Translation_Remap);
+	else if (layer == 2)
+		return GLInterface.palmanager.GetLookup(GetTranslationIndex(translation));
+	else return nullptr;
+}
+
 void GLInstance::Init(int ydim)
 {
+	FMaterial::SetLayerCallback(setpalettelayer);
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 }
 
@@ -143,17 +153,10 @@ void GLInstance::SetIdentityMatrix(int num)
 	renderState.matrixIndex[num] = -1;
 }
 
-
-void GLInstance::SetPalette(int index)
-{
-	palmanager.BindPalette(index);
-}
-
-
 void GLInstance::SetPalswap(int index)
 {
-	palmanager.BindPalswap(index);
 	renderState.ShadeDiv = lookups.tables[index].ShadeFactor;
+	renderState.FogColor = lookups.getFade(index);
 }
 
 void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)

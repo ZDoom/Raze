@@ -61,7 +61,6 @@ struct PolymostRenderState
 	int hictint_flags = -1;
 	FDepthBiasState mBias{ };
 	FMaterialState mMaterial;
-	IHardwareTexture* PaletteTexture = nullptr, * LookupTexture = nullptr;
 
 	int StateFlags = STF_COLORMASK|STF_DEPTHMASK;
 	FRenderStyle Style{};

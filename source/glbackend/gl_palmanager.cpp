@@ -69,13 +69,11 @@ void PaletteManager::DeleteAll()
 		if (pal) delete pal;
 		pal = nullptr;
 	}
-	for (auto& pal : palswaptextures)
+	for (auto& pal : lookuptextures)
 	{
 		if (pal) delete pal;
 		pal = nullptr;
 	}
-	lastindex = ~0u;
-	lastsindex = ~0u;
 }
 
 //===========================================================================
@@ -84,7 +82,7 @@ void PaletteManager::DeleteAll()
 //
 //===========================================================================
 
-void PaletteManager::BindPalette(int index)
+IHardwareTexture *PaletteManager::GetPalette(int index)
 {
 	auto palettedata = GPalette.GetTranslation(Translation_BasePalettes, index);
 	if (palettedata == nullptr)
@@ -95,20 +93,16 @@ void PaletteManager::BindPalette(int index)
 
 	if (palettedata)
 	{
-		if (index != lastindex)
+		if (palettetextures[index] == nullptr)
 		{
-			lastindex = index;
-
-			if (palettetextures[index] == nullptr)
-			{
-				auto p = screen->CreateHardwareTexture(4);
-				p->CreateTexture((uint8_t*)palettedata->Palette, 256, 1, 15, false, "Palette");
-				palettetextures[index] = p;
-			}
-			inst->SetPaletteTexture(palettetextures[index]);
+			auto p = screen->CreateHardwareTexture(4);
+			p->CreateTexture((uint8_t*)palettedata->Palette, 256, 1, 15, false, "Palette");
+			palettetextures[index] = p;
 		}
+		return palettetextures[index];
 	}
-
+	I_FatalError("palette not initialized for palette emulated render mode");	// we cannot continue if this happens.
+	return nullptr;
 }
 
 //===========================================================================
@@ -117,35 +111,31 @@ void PaletteManager::BindPalette(int index)
 //
 //===========================================================================
 
-void PaletteManager::BindPalswap(int index)
+IHardwareTexture* PaletteManager::GetLookup(int index)
 {
 	if (!lookups.checkTable(index)) index = 0;
 	if (lookups.checkTable(index))
 	{
-		if (index != lastsindex)
+		if (lookuptextures[index] == nullptr)
 		{
-			lastsindex = index;
-			if (palswaptextures[index] == nullptr)
+			auto p = screen->CreateHardwareTexture(1);
+
+			// Perform a 0<->255 index swap. The lookup tables are still the original data.
+			TArray<uint8_t> lookup(numshades * 256, true);
+			memcpy(lookup.Data(), lookups.getTable(index), lookup.Size());
+			for (int i = 0; i < numshades; i++)
 			{
-				auto p = screen->CreateHardwareTexture(1);
-
-				// Perform a 0<->255 index swap. The lookup tables are still the original data.
-				TArray<uint8_t> lookup(numshades * 256, true);
-				memcpy(lookup.Data(), lookups.getTable(index), lookup.Size());
-				for (int i = 0; i < numshades; i++)
-				{
-					auto p = &lookup[i * 256];
-					p[255] = p[0];
-					p[0] = 0;
-				}
-				p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "Palette");
-				palswaptextures[index] = p;
+				auto p = &lookup[i * 256];
+				p[255] = p[0];
+				p[0] = 0;
 			}
-			inst->SetLookupTexture(palswaptextures[index]);
-			inst->SetFadeColor(lookups.getFade(index));
+			p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "PaletteLookup");
+			lookuptextures[index] = p;
 		}
+		return lookuptextures[index];
 	}
-
+	I_FatalError("palette lookups not initialized for palette emulated render mode");	// we cannot continue if this happens.
+	return nullptr;
 }
 
 

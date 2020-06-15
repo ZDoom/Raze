@@ -64,17 +64,8 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 
 	// This is intentionally the same value for both parameters. The shader does not use the same uniform for modulation and overlay colors.
 	SetTinting(texpick.tintFlags, texpick.tintColor, texpick.tintColor);
-	if (texpick.translation != 0)
-	{
-		int lookuppal = texpick.translation & 0x7fffffff;
-		SetPalette(GetTranslationType(lookuppal) - Translation_Remap);
-		SetPalswap(GetTranslationIndex(lookuppal));
-	}
-	else
-	{
-		SetPalette(0);
-		SetPalswap(0);
-	}
+	int lookuppal = texpick.translation & 0x7fffffff;
+	SetPalswap(GetTranslationIndex(lookuppal));
 
 	SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
