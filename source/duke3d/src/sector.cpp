@@ -393,7 +393,6 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
 
     screen->RenderTextureView(canvas, [=](IntRect& rect)
         {
-            // Beware! Apparently this is allowed to render to the camera itself. Breakage is basically guarenteed...
             if (VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERATILE, spriteNum, screenpeek, 0) != 1)
             {
                 yax_preparedrawrooms();
