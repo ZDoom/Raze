@@ -418,7 +418,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                         if (diff > INT_MAX)
                         {
-                            OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                            Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
                             diff = INT_MAX; 
                         }
 
