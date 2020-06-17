@@ -677,7 +677,18 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
     sprite[nSprite1].ang = GetMyAngle(x, y);
 
-    return ksqrt(y * y + x * x);
+    uint32_t x2 = klabs(x);
+    uint32_t y2 = klabs(y);
+
+    uint32_t diff = x2 * x2 + y2 * y2;
+
+    if (diff > INT_MAX)
+    {
+        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        diff = INT_MAX;
+    }
+
+    return ksqrt(diff);
 }
 
 int FindPlayer(int nSprite, int nDistance)
