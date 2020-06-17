@@ -2531,6 +2531,7 @@ void DoTitle()
         {
             twod->ClearScreen();
             overwritesprite(0, 0, tile, shade, 2, kPalNormal);
+            HandleAsync();
             videoNextPage();
             auto now = I_msTime();
             span = now - start;
