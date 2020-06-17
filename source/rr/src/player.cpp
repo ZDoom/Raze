@@ -3184,6 +3184,12 @@ static int P_CheckLockedMovement(int const playerNum)
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
 
+    if (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
+        || pPlayer->knee_incs > 0
+        || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
+            && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
+        return IL_NOTHING;
+
     if (pPlayer->on_crane >= 0)
         return IL_NOMOVE|IL_NOANGLE;
 
@@ -3192,12 +3198,6 @@ static int P_CheckLockedMovement(int const playerNum)
 
     if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
         return IL_NOHORIZ;
-
-    if (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
-        || pPlayer->knee_incs > 0
-        || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
-            && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
-        return IL_NOTHING;
 
     return 0;
 }
