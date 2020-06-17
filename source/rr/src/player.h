@@ -247,6 +247,7 @@ typedef struct
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
+    char smoothcamera;
     char vote, gotvote, playerreadyflag, playerquitflag, connected;
     char user_name[32];
     char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];

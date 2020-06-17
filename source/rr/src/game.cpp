@@ -822,7 +822,8 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 
 void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto const &thisPlayer = g_player[playerNum];
+    auto const  pPlayer    = thisPlayer.ps;
 
     int yxAspect     = yxaspect;
     int viewingRange = viewingrange;
@@ -1028,7 +1029,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
                 CAMERA(pos)          = camVect;
 
-                if (pPlayer->wackedbyactor >= 0)
+                if (thisPlayer.smoothcamera)
                 {
                     CAMERA(q16ang)   = pPlayer->oq16ang
                                      + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
