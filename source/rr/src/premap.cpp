@@ -837,7 +837,8 @@ void P_ResetPlayer(int playerNum)
 
 void P_ResetStatus(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    auto &     thisPlayer = g_player[playerNum];
+    auto const pPlayer    = thisPlayer.ps;
 
     gFullMap              = 0;
     pPlayer->dead_flag         = 0;
@@ -932,9 +933,10 @@ void P_ResetStatus(int playerNum)
     pPlayer->movement_lock      = 0;
     pPlayer->frag_ps            = playerNum;
 
-    g_player[playerNum].horizRecenter    = 0;
-    g_player[playerNum].horizSkew        = 0;
-    g_player[playerNum].horizAngleAdjust = 0;
+    thisPlayer.smoothcamera     = false;
+    thisPlayer.horizRecenter    = false;
+    thisPlayer.horizSkew        = 0;
+    thisPlayer.horizAngleAdjust = 0;
 
     P_UpdateScreenPal(pPlayer);
 
