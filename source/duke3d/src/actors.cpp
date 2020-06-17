@@ -1399,13 +1399,6 @@ ACTOR_STATIC void G_MovePlayers(void)
                 pPlayer->oq16horiz    = pPlayer->q16horiz;
                 pPlayer->oq16horizoff = pPlayer->q16horizoff;
 
-                if (pPlayer->one_eighty_count < 0)
-                {
-                    thisPlayer.smoothcamera = true;
-                    pPlayer->one_eighty_count += 128;
-                    pPlayer->q16ang += F16(128);
-                }
-
                 if (g_netServer || ud.multimode > 1)
                 {
                     if (sprite[g_player[otherp].ps->i].extra > 0)
