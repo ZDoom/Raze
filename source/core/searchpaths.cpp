@@ -35,7 +35,6 @@
 #include "m_crc32.h"
 #include "i_specialpaths.h"
 #include "i_system.h"
-#include "compat.h"
 #include "gameconfigfile.h"
 #include "cmdlib.h"
 #include "utf8.h"

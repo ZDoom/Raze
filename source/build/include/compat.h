@@ -9,6 +9,7 @@
 
 #include "xs_Float.h"
 #include "m_alloc.h"
+#include "intvec.h"
 
 ////////// Compiler detection //////////
 
@@ -628,10 +629,6 @@ EDUKE32_STATIC_ASSERT(sizeof(native_t) == sizeof(unative_t));
 typedef struct MAY_ALIAS {
     int32_t x, y;
 } vec2_t;
-
-typedef struct MAY_ALIAS {
-    int16_t x, y;
-} vec2_16_t;
 
 typedef struct {
     uint32_t x, y;

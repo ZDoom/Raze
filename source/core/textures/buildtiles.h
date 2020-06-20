@@ -3,7 +3,7 @@
 #include "textures.h"
 #include "image.h"
 #include "i_time.h"
-#include "compat.h"
+#include "intvec.h"
 
 // picanm[].sf:
 // |bit(1<<7)
@@ -70,7 +70,7 @@ struct rottile_t
 struct HightileReplacement
 {
 	FGameTexture* faces[6]; // only one gets used by a texture, the other 5 are for skyboxes only
-	vec2f_t scale;
+	FVector2 scale;
 	float alphacut, specpower, specfactor;
 	uint16_t palnum, flags;
 };

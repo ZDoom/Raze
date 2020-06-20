@@ -524,8 +524,8 @@ void BuildTiles::PostLoadSetup()
 			if (rep.palnum == DETAILPAL)
 			{
 				detailTex = rep.faces[0];
-				scalex = rep.scale.x;
-				scaley = rep.scale.y;
+				scalex = rep.scale.X;
+				scaley = rep.scale.Y;
 			}
 		}
 		if (!detailTex && !glowTex && !normalTex && !specTex) continue; // if there's no layers there's nothing to do.
