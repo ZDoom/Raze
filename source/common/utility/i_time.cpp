@@ -142,6 +142,11 @@ uint64_t I_msTime()
 	return NSToMS(I_nsTime());
 }
 
+double I_msTimeF(void)
+{
+	return I_nsTime() / 1'000'000.;
+}
+
 uint64_t I_msTimeFS() // from "start"
 {
 	return (FirstFrameStartTime == 0) ? 0 : NSToMS(I_nsTime() - FirstFrameStartTime);
