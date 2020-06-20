@@ -4175,7 +4175,6 @@ void G_InitTimer(int32_t ticspersec)
 {
     if (g_timerTicsPerSecond != ticspersec)
     {
-        timerUninit();
         timerInit(ticspersec);
         g_timerTicsPerSecond = ticspersec;
     }
