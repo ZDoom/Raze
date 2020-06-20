@@ -55,7 +55,6 @@
 #include "inputstate.h"
 #include "i_time.h"
 #include "gamecvars.h"
-#include "baselayer.h"
 #include "i_system.h"
 #include "s_soundinternal.h"
 #include "engineerrors.h"

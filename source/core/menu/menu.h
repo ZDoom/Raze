@@ -9,9 +9,9 @@
 #include "version.h"
 #include "textures.h"
 #include "zstring.h"
-#include "baselayer.h"
 #include "v_draw.h"
 #include "menustate.h"
+#include "gamestruct.h"
 
 EXTERN_CVAR(Float, snd_menuvolume)
 EXTERN_CVAR(Int, m_use_mouse);

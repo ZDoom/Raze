@@ -37,7 +37,6 @@
 #include "m_crc32.h"
 #include "glbackend.h"
 
-#include "baselayer.h"
 #include "resourcefile.h"
 #include "imagehelpers.h"
 #include "v_font.h"

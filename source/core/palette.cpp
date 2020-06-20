@@ -32,7 +32,6 @@
 */ 
 
 #include "build.h"
-#include "baselayer.h"
 #include "imagehelpers.h"
 
 #include "palette.h"

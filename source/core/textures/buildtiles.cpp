@@ -38,7 +38,6 @@
 #include "buildtiles.h"
 #include "image.h"
 
-#include "baselayer.h"
 #include "palette.h"
 #include "m_crc32.h"
 #include "build.h"

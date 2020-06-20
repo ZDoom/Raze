@@ -50,7 +50,6 @@
 #include "gamecontrol.h"
 #include "pragmas.h"
 #include "build.h"
-#include "baselayer.h"
 #include "statistics.h"
 #include "m_joy.h"
 #include "raze_sound.h"

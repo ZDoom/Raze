@@ -35,7 +35,6 @@
 
 #include "compositesaveame.h"
 #include "savegamehelp.h"
-#include "baselayer.h"
 #include "gstrings.h"
 #include "i_specialpaths.h"
 #include "cmdlib.h"
@@ -51,6 +50,7 @@
 #include "version.h"
 #include "raze_music.h"
 #include "raze_sound.h"
+#include "gamestruct.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;

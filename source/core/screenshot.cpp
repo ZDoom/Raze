@@ -31,9 +31,6 @@
 **
 */
 
-#include "compat.h"
-#include "build.h"
-#include "baselayer.h"
 #include "version.h"
 #include "m_png.h"
 #include "i_specialpaths.h"

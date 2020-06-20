@@ -36,6 +36,7 @@
 #include "gstrings.h"
 #include "v_font.h"
 #include "cmdlib.h"
+#include "templates.h"
 
 
 void M_DrawConText (int color, int x, int y, const char *str);

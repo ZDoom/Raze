@@ -36,7 +36,6 @@
 
 #include "c_cvars.h"
 #include "common.h"
-#include "baselayer.h"
 #include "gameconfigfile.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
@@ -46,6 +45,7 @@
 #include "c_dispatch.h"
 #include "gstrings.h"
 #include "quotemgr.h"
+#include "gamestruct.h"
 
 #define CVAR_FRONTEND_BLOOD 0
 #define CVAR_FRONTEND_DUKELIKE 0

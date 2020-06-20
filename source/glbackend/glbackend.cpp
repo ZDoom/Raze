@@ -38,7 +38,6 @@
 #include "textures.h"
 #include "palette.h"
 #include "gamecontrol.h"
-#include "baselayer.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "flatvertices.h"
