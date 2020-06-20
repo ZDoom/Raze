@@ -790,6 +790,7 @@ set (PCH_SOURCES
 	core/gamecontrol.cpp
 	core/inputstate.cpp
 	core/searchpaths.cpp
+	core/screenjob.cpp
 	core/initfs.cpp
 	core/statistics.cpp
 	core/secrets.cpp
