@@ -440,10 +440,12 @@ namespace Powerslave
 	::GameInterface* CreateInterface();
 }
 
-CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+extern int MinFPSRate; // this is a bit messy.
 
 void CheckFrontend(int flags)
 {
+	MinFPSRate = 30;
 	bool duke_compat = duke_compatibility_15;
 	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
 	auto c = Args->CheckValue("-duke_compatibility_15");
@@ -462,6 +464,7 @@ void CheckFrontend(int flags)
 	}
 	else if (flags & GAMEFLAG_SW)
 	{
+		MinFPSRate = 40;
 		gi = ShadowWarrior::CreateInterface();
 	}
 	else if (flags & GAMEFLAG_PSEXHUMED)
