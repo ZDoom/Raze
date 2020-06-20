@@ -30,7 +30,6 @@ typedef unsigned short UINT2;
 typedef unsigned int  UINT4;
 
 #include "md4.h"
-#include "compat.h"
 
 /* Constants for MD4Transform routine.
  */
@@ -50,7 +49,7 @@ typedef unsigned int  UINT4;
 static void MD4Transform(UINT4 [4], const unsigned char [64]);
 static void Encode(unsigned char *, const UINT4 *, unsigned int);
 static void Decode(UINT4 *, const unsigned char *, unsigned int);
-#define MD4_memcpy Bmemcpy
+#define MD4_memcpy memcpy
 #define MD4_memset memset
 
 static unsigned char PADDING[64] =

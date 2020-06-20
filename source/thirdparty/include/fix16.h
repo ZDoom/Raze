@@ -1,9 +1,6 @@
 #ifndef __libfixmath_fix16_h__
 #define __libfixmath_fix16_h__
 
-#include "compat.h"
-
-
 
 /* These options may let the optimizer to remove some calls to the functions.
  * Refer to http://gcc.gnu.org/onlinedocs/gcc/Function-Attributes.html
@@ -24,18 +21,18 @@
 
 typedef int32_t fix16_t;
 
-static CONSTEXPR const fix16_t FIX16_MAX      = 0x7FFFFFFF; /*!< the maximum value of fix16_t */
-static CONSTEXPR const fix16_t FIX16_MIN      = 0x80000000; /*!< the minimum value of fix16_t */
-static CONSTEXPR const fix16_t FIX16_OVERFLOW = 0x80000000; /*!< the value used to indicate overflows when FIXMATH_NO_OVERFLOW is not specified */
+static const fix16_t FIX16_MAX      = 0x7FFFFFFF; /*!< the maximum value of fix16_t */
+static const fix16_t FIX16_MIN      = 0x80000000; /*!< the minimum value of fix16_t */
+static const fix16_t FIX16_OVERFLOW = 0x80000000; /*!< the value used to indicate overflows when FIXMATH_NO_OVERFLOW is not specified */
 
-static CONSTEXPR const fix16_t fix16_one = 0x00010000; /*!< fix16_t value of 1 */
+static const fix16_t fix16_one = 0x00010000; /*!< fix16_t value of 1 */
 
 /* Conversion functions between fix16_t and float/integer.
  * These are inlined to allow compiler to optimize away constant numbers
  */
-static FORCE_INLINE CONSTEXPR fix16_t fix16_from_int(int a)     { return a * fix16_one; }
-static FORCE_INLINE CONSTEXPR float   fix16_to_float(fix16_t a) { return (float)a / fix16_one; }
-static FORCE_INLINE CONSTEXPR double  fix16_to_dbl(fix16_t a)   { return (double)a / fix16_one; }
+static inline constexpr fix16_t fix16_from_int(int a)     { return a * fix16_one; }
+static inline constexpr float   fix16_to_float(fix16_t a) { return (float)a / fix16_one; }
+static inline constexpr double  fix16_to_dbl(fix16_t a)   { return (double)a / fix16_one; }
 
 static inline constexpr int fix16_to_int(fix16_t a)
 {
@@ -77,24 +74,24 @@ static inline fix16_t fix16_from_dbl(double a)
 */
 #define F16(x) ((fix16_t)(((x) >= 0) ? ((x) * 65536.0 + 0.5) : ((x) * 65536.0 - 0.5)))
 
-static FORCE_INLINE CONSTEXPR fix16_t fix16_abs(fix16_t x)
+static inline constexpr fix16_t fix16_abs(fix16_t x)
     { return (x < 0 ? -x : x); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_floor(fix16_t x)
+static inline constexpr fix16_t fix16_floor(fix16_t x)
     { return (x & 0xFFFF0000UL); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_ceil(fix16_t x)
+static inline constexpr fix16_t fix16_ceil(fix16_t x)
     { return (x & 0xFFFF0000UL) + ((x & 0x0000FFFFUL) ? fix16_one : 0); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_min(fix16_t x, fix16_t y)
+static inline constexpr fix16_t fix16_min(fix16_t x, fix16_t y)
     { return (x < y ? x : y); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_max(fix16_t x, fix16_t y)
+static inline constexpr fix16_t fix16_max(fix16_t x, fix16_t y)
     { return (x > y ? x : y); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_clamp(fix16_t x, fix16_t lo, fix16_t hi)
+static inline constexpr fix16_t fix16_clamp(fix16_t x, fix16_t lo, fix16_t hi)
     { return fix16_min(fix16_max(x, lo), hi); }
 
 /* Subtraction and addition with (optional) overflow detection. */
 #ifdef FIXMATH_NO_OVERFLOW
 
-static FORCE_INLINE CONSTEXPR fix16_t fix16_add(fix16_t inArg0, fix16_t inArg1) { return (inArg0 + inArg1); }
-static FORCE_INLINE CONSTEXPR fix16_t fix16_sub(fix16_t inArg0, fix16_t inArg1) { return (inArg0 - inArg1); }
+static inline constexpr fix16_t fix16_add(fix16_t inArg0, fix16_t inArg1) { return (inArg0 + inArg1); }
+static inline constexpr fix16_t fix16_sub(fix16_t inArg0, fix16_t inArg1) { return (inArg0 - inArg1); }
 
 #else
 
@@ -127,7 +124,7 @@ extern fix16_t fix16_sdiv(fix16_t inArg0, fix16_t inArg1) FIXMATH_FUNC_ATTRS;
 
 /*! Divides the first given fix16_t by the second and returns the remainder.
 */
-static FORCE_INLINE fix16_t fix16_mod(fix16_t x, fix16_t y) { return x %= y; }
+static inline fix16_t fix16_mod(fix16_t x, fix16_t y) { return x %= y; }
 
 
 
