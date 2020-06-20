@@ -25,8 +25,9 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
 #include "animlib.h"
+#include "m_swap.h"
+#include "m_alloc.h"
 
 //****************************************************************************
 //
@@ -126,13 +127,13 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
                 uint8_t color = *(srcP+1);
                 count = *(uint8_t *)srcP;
                 srcP += sizeof(int16_t);
-                Bmemset(dstP, color, count);
+                memset(dstP, color, count);
                 dstP += count;
                 continue;
             }
             else if ((count & 0x80) == 0) /* short copy */
             {
-                Bmemcpy(dstP, srcP, count);
+                memcpy(dstP, srcP, count);
                 dstP += count;
                 srcP += count;
                 continue;
@@ -146,7 +147,7 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
 
         {
             /* long op */
-            uint16_t count = B_LITTLE16(B_UNBUF16(srcP));
+            uint16_t count = LittleShort((uint16_t)GetShort(srcP));
             srcP += sizeof(int16_t);
 
             if (!count) /* stop sign */
@@ -160,13 +161,13 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
             {
                 uint8_t color = *srcP++;
                 count &= ~0x4000;
-                Bmemset(dstP, color, count);
+                memset(dstP, color, count);
                 dstP += count;
                 continue;
             }
 
             /* long copy */
-            Bmemcpy(dstP, srcP, count);
+            memcpy(dstP, srcP, count);
             dstP += count;
             srcP += count;
         }
@@ -187,13 +188,13 @@ static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
     uint16_t offset = 0;
     uint16_t frame = framenumber - anim->curlp->baseRecord;
 
-    while (frame--) offset += B_LITTLE16(pagepointer[frame]);
+    while (frame--) offset += LittleShort(pagepointer[frame]);
 
     uint8_t *ppointer = (uint8_t *)(pagepointer) + anim->curlp->nRecords*2 + offset + 4;
 
     if ((ppointer-4)[1])
     {
-        uint16_t const temp = B_LITTLE16(((uint16_t *)(ppointer-4))[1]);
+        uint16_t const temp = LittleShort(((uint16_t *)(ppointer-4))[1]);
         ppointer += temp + (temp & 1);
     }
 
@@ -221,7 +222,7 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
     if (length < 0)
         return -1;
 
-    anim = (anim_t *)Xrealloc(anim, sizeof(anim_t));
+    anim = (anim_t *)M_Realloc(anim, sizeof(anim_t));
 
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;
@@ -229,17 +230,17 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
     // this just modifies the data in-place instead of copying it elsewhere now
     lpfileheader & lpheader = *(anim->lpheader = (lpfileheader *)(anim->buffer = buffer));
 
-    lpheader.id              = B_LITTLE32(lpheader.id);
-    lpheader.maxLps          = B_LITTLE16(lpheader.maxLps);
-    lpheader.nLps            = B_LITTLE16(lpheader.nLps);
-    lpheader.nRecords        = B_LITTLE32(lpheader.nRecords);
-    lpheader.maxRecsPerLp    = B_LITTLE16(lpheader.maxRecsPerLp);
-    lpheader.lpfTableOffset  = B_LITTLE16(lpheader.lpfTableOffset);
-    lpheader.contentType     = B_LITTLE32(lpheader.contentType);
-    lpheader.width           = B_LITTLE16(lpheader.width);
-    lpheader.height          = B_LITTLE16(lpheader.height);
-    lpheader.nFrames         = B_LITTLE32(lpheader.nFrames);
-    lpheader.framesPerSecond = B_LITTLE16(lpheader.framesPerSecond);
+    lpheader.id              = LittleLong(lpheader.id);
+    lpheader.maxLps          = LittleShort(lpheader.maxLps);
+    lpheader.nLps            = LittleShort(lpheader.nLps);
+    lpheader.nRecords        = LittleLong(lpheader.nRecords);
+    lpheader.maxRecsPerLp    = LittleShort(lpheader.maxRecsPerLp);
+    lpheader.lpfTableOffset  = LittleShort(lpheader.lpfTableOffset);
+    lpheader.contentType     = LittleLong(lpheader.contentType);
+    lpheader.width           = LittleShort(lpheader.width);
+    lpheader.height          = LittleShort(lpheader.height);
+    lpheader.nFrames         = LittleLong(lpheader.nFrames);
+    lpheader.framesPerSecond = LittleShort(lpheader.framesPerSecond);
 
     length -= lpheader.nLps * sizeof(lp_descriptor);
     if (length < 0)
@@ -262,9 +263,9 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
     // assuming the utilities to create them can make them that way
     for (lp_descriptor * lp = anim->LpArray, * lp_end = lp+lpheader.nLps; lp < lp_end; ++lp)
     {
-        lp->baseRecord = B_LITTLE16(lp->baseRecord);
-        lp->nRecords   = B_LITTLE16(lp->nRecords);
-        lp->nBytes     = B_LITTLE16(lp->nBytes);
+        lp->baseRecord = LittleShort(lp->baseRecord);
+        lp->nRecords   = LittleShort(lp->nRecords);
+        lp->nBytes     = LittleShort(lp->nBytes);
     }
 
     return 0;
@@ -273,7 +274,8 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
 
 void ANIM_FreeAnim(void)
 {
-    DO_FREE_AND_NULL(anim);
+    M_Free(anim);
+    anim = nullptr;
 }
 
 
