@@ -18,9 +18,4 @@ uint32_t timerGetTicks(void);
 
 void (*timerSetCallback(void (*callback)(void)))(void);
 
-inline void timerUpdate() // to avoid merge conflicts when the other games get updated.
-{
-	timerUpdateClock();
-}
-
 #endif // timer_h__

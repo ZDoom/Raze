@@ -1238,7 +1238,7 @@ getpackets(void)
     PLAYERp pp;
     SW_PACKET tempinput;
 
-    timerUpdate();
+    timerUpdateClock();
 
     if (!CommEnabled)
         return;
