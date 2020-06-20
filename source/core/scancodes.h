@@ -1,4 +1,39 @@
 #pragma once
+
+//-------------------------------------------------------------------------
+/*
+Copyright (C) 1996, 2003 - 3D Realms Entertainment
+
+This file is part of Duke Nukem 3D version 1.5 - Atomic Edition
+
+Duke Nukem 3D is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+Original Source: 1996 - Todd Replogle
+Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
+*/
+//-------------------------------------------------------------------------
+
+/*
+=============================================================================
+
+                                    DEFINES
+
+=============================================================================
+*/
+
 #define  sc_None         0
 #define  sc_Bad          0xff
 #define  sc_Comma        0x33
@@ -27,7 +62,7 @@
 #define  sc_F11          0x57
 #define  sc_F12          0x58
 #define  sc_Kpad_Star    0x37
-#define  sc_Pause        0xc5
+#define  sc_Pause        0xc5 // 0x59
 #define  sc_ScrollLock   0x46
 #define  sc_NumLock      0x45
 #define  sc_Slash        0x35
@@ -117,19 +152,9 @@
 
 // Ascii scan codes
 
-#define asc_Enter 13
-#define asc_Escape 27
-#define asc_Ctrl_A 1
-#define asc_Ctrl_B 2
-#define asc_Ctrl_C 3
-#define asc_Ctrl_E 5
-#define asc_Ctrl_F 6
-#define asc_BackSpace 8
-#define asc_Tab 9
-#define asc_Ctrl_K 11
-#define asc_Ctrl_L 12
-#define asc_Ctrl_N 14
-#define asc_Ctrl_P 16
-#define asc_Ctrl_U 21
-#define asc_Ctrl_W 23
-#define asc_Space 32
+#define  asc_Enter       13
+#define  asc_Escape      27
+#define  asc_BackSpace   8
+#define  asc_Tab         9
+#define  asc_Space       32
+
