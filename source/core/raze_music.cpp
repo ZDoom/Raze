@@ -190,6 +190,7 @@ static FString lastMusicLevel, lastMusic;
 int Mus_Play(const char *mapname, const char *fn, bool loop)
 {
 	if (mus_blocked) return 1;	// Caller should believe it succeeded.
+	if (*fn == '/') fn++;
 	// Store the requested names for resuming.
 	lastMusicLevel = mapname;
 	lastMusic = fn;
