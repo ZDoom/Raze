@@ -20,7 +20,6 @@
 #ifndef _SmackerFileStream_h_
 #define _SmackerFileStream_h_
 
-#include "compat.h"
 #include <stdint.h>
 #include "files.h"
 

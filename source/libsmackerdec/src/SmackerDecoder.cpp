@@ -45,10 +45,9 @@
 #include "SmackerDecoder.h"
 #include "HuffmanVLC.h"
 #include "LogError.h"
+#include "printf.h"
 #include <assert.h>
 #include <algorithm>
-#include "compat.h"
-#include "baselayer.h"
 
 std::vector<class SmackerDecoder*> classInstances;
 
@@ -93,9 +92,8 @@ void Smacker_Close(SmackerHandle &handle)
 	handle.isValid = false;
 }
 
-uint32_t Smacker_GetNumAudioTracks(SmackerHandle &handle)
+uint32_t Smacker_GetNumAudioTracks(SmackerHandle &)
 {
-	UNREFERENCED_PARAMETER(handle);
 	// TODO: fixme
 	return 1;
 }
@@ -411,7 +409,6 @@ bool SmackerDecoder::Open(const char *fileName)
 	// determine max buffer sizes for audio tracks
 //	file.Seek(nextPos, SmackerCommon::FileStream::kSeekStart);
 
-	uint32_t UNUSED(frameSize) = frameSizes[0] & (~3);
 	uint8_t frameFlag  = frameFlags[0];
 
 	// skip over palette
@@ -587,8 +584,6 @@ int SmackerDecoder::DecodeHeaderTree(SmackerCommon::BitReader &bits, std::vector
 	if (bits.GetBit())
 	{
 		DecodeTree(bits, &tmp2, 0, 0);
-
-		uint32_t UNUSED(end) = bits.GetPosition();
 
 		bits.SkipBits(1);
 
@@ -808,8 +803,6 @@ int SmackerDecoder::DecodeFrame(uint32_t frameSize)
     blocks = bw * bh;
 
 	stride = frameWidth;
-
-	uint32_t UNUSED(fileStart) = file.GetPosition();
 
 	SmackerCommon::BitReader bits(file, frameSize);
 
