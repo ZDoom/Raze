@@ -49,7 +49,6 @@ extern const uint8_t  CheatFunctionIDs[];
 
 extern int errorcount;
 extern int32_t line_number;
-extern int32_t g_scriptVersion;
 extern int32_t g_totalLines;
 extern int warningcount;
 extern int32_t otherp;
