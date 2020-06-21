@@ -3277,7 +3277,7 @@ void viewDrawScreen(bool sceneonly)
             }
             memcpy(bakMirrorGotpic, gotpic + 510, 2);
             memcpy(gotpic + 510, otherMirrorGotpic, 2);
-            g_visibility = (int32_t)(ClipLow(gVisibility - 32 * pOther->visibility, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+            g_visibility = (int32_t)(ClipLow(gVisibility - 32 * pOther->visibility, 0));
             int vc4, vc8;
             getzsofslope(vcc, vd8, vd4, &vc8, &vc4);
             if (vd0 >= vc4)
@@ -3351,7 +3351,7 @@ void viewDrawScreen(bool sceneonly)
             }
             nSprite = nextspritestat[nSprite];
         }
-        g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0) * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+        g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0));
         cA = (cA + interpolateangfix16(fix16_from_int(deliriumTurnO), fix16_from_int(deliriumTurn), gInterpolate)) & 0x7ffffff;
         int vfc, vf8;
         getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
