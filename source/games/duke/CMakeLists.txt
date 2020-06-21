@@ -50,7 +50,6 @@ set( PCH_SOURCES
 	src/zz_screens.cpp
 	src/zz_text.cpp
 	src/zz_sector.cpp
-	src/zz_soundsdyn.cpp
 	)
 
 add_game_library2( duke )

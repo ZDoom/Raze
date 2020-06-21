@@ -125,7 +125,7 @@ END_DUKE_NS
 #include "text.h"
 #include "sector.h"
 #include "sounds.h"
-#include "soundsdyn.h"
+#include "soundefs.h"
 
 BEGIN_DUKE_NS
 

@@ -737,7 +737,7 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
             }
             else if( r_shadows && spritesortcnt < (MAXSPRITESONSCREEN-2))
             {
-                long daz,xrep,yrep;
+                int daz;
 
                 if (isRRRA() && sector[sect].lotag == 160) continue;
                 if( (sector[sect].lotag&0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE )
