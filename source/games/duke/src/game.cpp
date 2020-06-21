@@ -7112,10 +7112,8 @@ int GameInterface::app_main()
 
     enginePostInit();
 
-    tileDelete(MIRROR);
-
     tileDelete(TILE_MIRROR);
-    skiptile = W_FORCEFIELD + 1;
+    skiptile = TILE_W_FORCEFIELD + 1;
 
     if (RR)
         tileDelete(0);
