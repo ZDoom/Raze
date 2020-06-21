@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "compat.h"
 #include "screens.h"
 
@@ -765,7 +765,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.scrollmode == 0)
             {
-                if (pp->newowner == -1 && !paused)
+                if (pp->newowner == -1 && !ud.pause_on)
                 {
                     if (screenpeek == myconnectindex && numplayers > 1)
                     {
@@ -789,7 +789,7 @@ void G_DisplayRest(int32_t smoothratio)
             }
             else
             {
-                if (!paused)
+                if (!ud.pause_on)
                 {
                     ud.fola += ud.folavel>>3;
                     ud.folx += (ud.folfvel*sintable[(512+2048-ud.fola)&2047])>>14;
@@ -822,7 +822,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (pp->invdisptime > 0) G_DrawInventory(pp);
 
     //if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek) == 0)
         G_DrawStatusBar(screenpeek);
@@ -844,12 +843,12 @@ void G_DisplayRest(int32_t smoothratio)
     if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = CROSSHAIR;
-        //ud.returnvar[0] = (160<<16) - (fix16_to_int(g_player[myconnectindex].ps->q16look_ang)<<15);
+        //ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
         //ud.returnvar[1] = 100<<16;
         //int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
         if ((unsigned) a < MAXTILES)
         {
-            vec2_t crosshairpos = { (160<<16) - (fix16_to_int(g_player[myconnectindex].ps->q16look_ang)<<15), 100<<16 };
+            vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
             //vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint32_t crosshair_o = 1|2;
             uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
@@ -869,10 +868,10 @@ void G_DisplayRest(int32_t smoothratio)
     }
 	*/
 
-    if (paused==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+    if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
 
-    mdpause = (paused || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
+    mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 
     // JBF 20040124: display level stats in screen corner
     if (ud.overhead_on != 2 && hud_stats) // && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)

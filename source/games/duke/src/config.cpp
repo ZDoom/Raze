@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "osdcmds.h"
 #include "baselayer.h"
 #include "cmdline.h"
@@ -42,7 +42,7 @@ int32_t CONFIG_ReadSetup(void)
     ud.camera_time = 0;//4;
 
     ud.screen_tilting = 1;
-    ud.statusbarflags = STATUSBAR_NOSHRINK;
+    ud.statusbarflags = 0;// STATUSBAR_NOSHRINK;
     playerteam = 0;
     ud.angleinterpolation = 0;
 

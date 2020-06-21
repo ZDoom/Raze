@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-struct animsound_t {
+struct animsound_t
+{
     uint16_t frame = 0;
     int16_t sound = 0;
 };

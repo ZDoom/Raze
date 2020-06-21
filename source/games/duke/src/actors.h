@@ -40,6 +40,7 @@ BEGIN_DUKE_NS
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)
 
+// KEEPINSYNC lunatic/con_lang.lua
 #define STAT_DEFAULT        0
 #define STAT_ACTOR          1
 #define STAT_ZOMBIEACTOR    2
@@ -117,6 +118,8 @@ enum actionflags
     AF_VIEWPOINT = 1u<<0u,
 };
 
+// Select an actor's actiontics and movflags locations depending on
+// whether we compile the Lunatic build.
 // <spr>: sprite pointer
 // <a>: actor_t pointer
 # define AC_ACTIONTICS(spr, a) ((spr)->lotag)
@@ -176,6 +179,7 @@ typedef struct
 } tiledata_t;
 
 
+// KEEPINSYNC lunatic/con_lang.lua
 enum sflags_t
 {
     SFLAG_SHADOW        = 0x00000001,

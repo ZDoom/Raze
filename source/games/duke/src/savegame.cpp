@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "premap.h"
 #include "prlights.h"
 #include "savegame.h"
@@ -183,7 +183,7 @@ int32_t G_LoadPlayer(const char *path)
 
     // some setup first
     ud.multimode = h.numplayers;
-    S_PauseSound(true, false);
+	S_PauseSounds(true);
 
     if (numplayers > 1)
     {
@@ -834,7 +834,7 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
     { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
-    { 0, &paused, sizeof(paused), 1 },
+    { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },

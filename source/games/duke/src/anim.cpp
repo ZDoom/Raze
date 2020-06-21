@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "baselayer.h"
 #include "baselayer.h"
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "animlib.h"
 #include "compat.h"
 #include "cmdlib.h"
@@ -480,7 +480,7 @@ int32_t Anim_Play(const char *fn)
 
     {
         AnimTextures animtex;
-        animtex.SetSize(320, 200);
+        animtex.SetSize(AnimTexture::Paletted, 320, 200);
 
         do
         {
@@ -562,7 +562,6 @@ int32_t Anim_Play(const char *fn)
 
 end_anim_restore_gl:
     gl_texture_filter = ogltexfiltermode;
-    gltexapplyprops();
 end_anim:
     inputState.ClearAllInput();
 	anim->animbuf = nullptr;

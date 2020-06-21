@@ -132,6 +132,7 @@ typedef struct {
 //  * char --> int8_t
 // Need to carefully think about implications!
 // TODO: rearrange this if the opportunity arises!
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     vec3_t pos, opos, vel, npos;
     vec2_t bobpos, fric;
@@ -151,10 +152,9 @@ typedef struct {
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
-    int16_t cursectnum, last_extra, subweapon;
+    int16_t cursectnum, look_ang, last_extra, subweapon;
     int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
-    fix16_t q16look_ang;
 
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
@@ -163,12 +163,10 @@ typedef struct {
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
-    fix16_t one_eighty_target;
 
     int16_t weaprecs[MAX_WEAPON_RECS], weapon_sway, crack_time, bobcounter;
 
-    int16_t dead_flag;
-    fix16_t oq16rotscrnang, q16rotscrnang;   // JBF 20031220: added orotscrnang
+    int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
     int16_t holoduke_on, pycount;
     int16_t transporter_hold/*, clipdist*/;
 
@@ -212,7 +210,7 @@ typedef struct {
     int16_t drink_amt, eat_amt, drink_ang, eat_ang;
     int32_t drink_timer, eat_timer;
     int16_t level_end_timer;
-    int16_t moto_speed, moto_drink;
+    int16_t moto_speed, tilt_status, moto_drink;
     uint8_t on_motorcycle, on_boat, moto_underwater, not_on_water, moto_on_ground;
     uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
     int16_t moto_bump, moto_bump_target, moto_turb;
@@ -222,7 +220,6 @@ typedef struct {
     int32_t drug_timer;
     int32_t sea_sick;
     uint8_t hurt_delay2, nocheat;
-    double  tilt_status;
 
     int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
 
@@ -230,6 +227,7 @@ typedef struct {
     int8_t padding_[3];
 } DukePlayer_t;
 
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
 {
     DukePlayer_t *ps;
@@ -237,10 +235,7 @@ typedef struct
 
     bool    horizRecenter;
     float   horizAngleAdjust;
-    int8_t  horizSkew;
-    bool    lookLeft;
-    bool    lookRight;
-    double  lastInputTicks;
+    fix16_t horizSkew;
 
     int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
@@ -253,6 +248,7 @@ typedef struct
 } playerdata_t;
 #pragma pack(pop)
 
+// KEEPINSYNC lunatic/con_lang.lua
 typedef struct
 {
     // NOTE: the member names must be identical to aplWeapon* suffixes.
@@ -274,6 +270,10 @@ typedef struct
     int32_t FlashColor;  // Muzzle flash color
 } weapondata_t;
 
+#ifdef LUNATIC
+# define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)
+extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
+#else
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 extern intptr_t         *aplWeaponClip[MAX_WEAPONS];            // number of items in clip
 extern intptr_t         *aplWeaponReload[MAX_WEAPONS];          // delay to reload (include fire)
@@ -291,7 +291,9 @@ extern intptr_t         *aplWeaponFireSound[MAX_WEAPONS];       // Sound made wh
 extern intptr_t         *aplWeaponSound2Time[MAX_WEAPONS];      // Alternate sound time
 extern intptr_t         *aplWeaponSound2Sound[MAX_WEAPONS];     // Alternate sound sound ID
 extern intptr_t         *aplWeaponFlashColor[MAX_WEAPONS];      // Color for polymer muzzle flash
+#endif
 
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     int32_t cur, count;  // "cur" is the only member that is *used*
     int32_t gunposx, lookhalfang;  // weapon_xoffset, ps->look_ang>>1

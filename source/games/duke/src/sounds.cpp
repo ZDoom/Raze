@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "raze_music.h"
 #include "mapinfo.h"
 #include "raze_sound.h"
@@ -79,6 +79,17 @@ TArray<uint8_t> DukeSoundEngine::ReadSound(int lumpnum)
 //
 //==========================================================================
 
+void S_PauseSounds(bool paused)
+{
+    soundEngine->SetPaused(paused);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
 void cacheAllSounds(void)
 {
     auto& sfx = soundEngine->GetSounds();
@@ -86,6 +97,8 @@ void cacheAllSounds(void)
     for(auto &snd : sfx)
     {
         soundEngine->CacheSound(&snd);
+        if (((++i)&31) == 0)
+            G_HandleAsync();
     }
 }
 

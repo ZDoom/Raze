@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "compat.h"
 #include "demo.h"
-#include "duke3d_ed.h"
+#include "duke3d.h"
 
 #include "menus.h"
 #include "osdcmds.h"
@@ -326,7 +326,7 @@ void Menu_DHLeaonardHeadDisplay(vec2_t pos)
 //
 //----------------------------------------------------------------------------
 
-class Duke3dListMenu : public DListMenu
+class DukeListMenu : public DListMenu
 {
 	using Super = DListMenu;
 protected:
@@ -369,17 +369,17 @@ protected:
 	}
 };
 
-class Duke3dMainMenu : public Duke3dListMenu
+class DukeMainMenu : public DukeListMenu
 {
 	virtual void Init(DMenu* parent = NULL, FListMenuDescriptor* desc = NULL) override
 	{
-		Duke3dListMenu::Init(parent, desc);
+		DukeListMenu::Init(parent, desc);
 		Menu_DHLeaonardHeadReset();
 	}
 
 	void PreDraw() override
 	{
-		Duke3dListMenu::PreDraw();
+		DukeListMenu::PreDraw();
 		if (DEER)
 		{
 			vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
@@ -405,11 +405,11 @@ class Duke3dMainMenu : public Duke3dListMenu
 };
 
 
-class Duke3dHuntMenu : public Duke3dListMenu
+class DukeHuntMenu : public DukeListMenu
 {
 	void PreDraw() override
 	{
-		Duke3dListMenu::PreDraw();
+		DukeListMenu::PreDraw();
 		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
 		int t1, t2;
 		short ang;
@@ -443,11 +443,11 @@ class Duke3dHuntMenu : public Duke3dListMenu
 	}
 };
 
-class Duke3dTargetMenu : public Duke3dListMenu
+class DukeTargetMenu : public DukeListMenu
 {
 	void PreDraw() override
 	{
-		Duke3dListMenu::PreDraw();
+		DukeListMenu::PreDraw();
 		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
 		int t1, t2;
 		short ang;
@@ -472,11 +472,11 @@ class Duke3dTargetMenu : public Duke3dListMenu
 	}
 };
 
-class Duke3dWeaponMenu : public Duke3dListMenu
+class DukeWeaponMenu : public DukeListMenu
 {
 	void PreDraw() override
 	{
-		Duke3dListMenu::PreDraw();
+		DukeListMenu::PreDraw();
 		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
 		int t1, t2;
 		switch (mDesc->mSelectedItem)
@@ -508,11 +508,11 @@ class Duke3dWeaponMenu : public Duke3dListMenu
 		}
 };
 
-class Duke3dTrophiesMenu : public Duke3dListMenu
+class DukeTrophiesMenu : public DukeListMenu
 {
 	void PreDraw() override
 	{
-		Duke3dListMenu::PreDraw();
+		DukeListMenu::PreDraw();
 		vec2_t forigin = { int(origin.X * 65536), int(origin.Y * 65536) };
 		if (g_player[myconnectindex].ps->gm & MODE_GAME)
 		{
@@ -580,7 +580,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 void GameInterface::MenuOpened()
 {
-	S_PauseSound(true, false);
+	S_PauseSounds(true);
 	if ((!g_netServer && ud.multimode < 2))
 	{
 		ready2send = 0;
@@ -646,7 +646,7 @@ void GameInterface::MenuClosed()
 		}
 
 		G_UpdateScreenArea();
-		S_ResumeSound(false);
+		S_PauseSounds(false);
 	}
 }
 
@@ -775,13 +775,13 @@ END_DUKE_NS
 //----------------------------------------------------------------------------
 
 
-static TMenuClassDescriptor<Duke3d::Duke3dMainMenu> _mm("Duke3d.MainMenu");
-static TMenuClassDescriptor<Duke3d::Duke3dListMenu> _lm("Duke3d.ListMenu");
-static TMenuClassDescriptor<Duke3d::Duke3dHuntMenu> _dhm("Duke3d.HuntMenu");
-static TMenuClassDescriptor<Duke3d::Duke3dTargetMenu> _dtm("Duke3d.TargetMenu");
-static TMenuClassDescriptor<Duke3d::Duke3dWeaponMenu> _dwm("Duke3d.WeaponMenu");
-static TMenuClassDescriptor<Duke3d::Duke3dTrophiesMenu> _dttm("Duke3d.TrophiesMenu");
-static TMenuClassDescriptor<DImageScrollerMenu> _ism("Duke3d.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
+static TMenuClassDescriptor<Duke3d::DukeMainMenu> _mm("Duke.MainMenu");
+static TMenuClassDescriptor<Duke3d::DukeListMenu> _lm("Duke.ListMenu");
+static TMenuClassDescriptor<Duke3d::DukeHuntMenu> _dhm("Duke.HuntMenu");
+static TMenuClassDescriptor<Duke3d::DukeTargetMenu> _dtm("Duke.TargetMenu");
+static TMenuClassDescriptor<Duke3d::DukeWeaponMenu> _dwm("Duke.WeaponMenu");
+static TMenuClassDescriptor<Duke3d::DukeTrophiesMenu> _dttm("Duke.TrophiesMenu");
+static TMenuClassDescriptor<DImageScrollerMenu> _ism("Duke.ImageScrollerMenu"); // does not implement a new class, we only need the descriptor.
 
 void RegisterDuke3dMenus()
 {

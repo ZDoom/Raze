@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 
 #include "anim.h"
 
@@ -261,8 +261,8 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 
     pPlayer->q16horiz           += F16(64);
     pPlayer->return_to_center = 9;
-    pPlayer->q16rotscrnang    = fix16_from_int(nAngle >> 1);
-    pPlayer->q16look_ang      = pPlayer->q16rotscrnang;
+    pPlayer->rotscrnang       = nAngle >> 1;
+    pPlayer->look_ang         = pPlayer->rotscrnang;
 }
 
 // wow, this function sucks
@@ -490,20 +490,6 @@ int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
 
 //    Printf("G_GetAngleDelta() returning %d\n",na-a);
     return newAngle-currAngle;
-}
-
-fix16_t __fastcall G_GetQ16AngleDelta(fix16_t oldAngle, fix16_t newAngle)
-{
-    if (fix16_abs(fix16_sub(oldAngle, newAngle)) < fix16_from_int(1024))
-        return fix16_sub(newAngle, oldAngle);
-
-    if (newAngle > fix16_from_int(1024))
-        newAngle = fix16_sub(newAngle, fix16_from_int(2048));
-
-    if (oldAngle > fix16_from_int(1024))
-        oldAngle = fix16_sub(oldAngle, fix16_from_int(2048));
-
-    return fix16_sub(newAngle, oldAngle);
 }
 
 GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
@@ -1916,8 +1902,14 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     continue;
                 }
                 insptr++;
-                if (!RR || ((g_spriteExtra[vm.spriteNum] < 1 || g_spriteExtra[vm.spriteNum] == 128) && A_CheckSpriteFlags(vm.spriteNum, SFLAG_KILLCOUNT)))
+                if (RR)
+                {
+                    // This check does not exist in Duke Nukem.
+                    if ((g_spriteExtra[vm.spriteNum] < 1 || g_spriteExtra[vm.spriteNum] == 128)
+                    && (!RR || A_CheckSpriteFlags(vm.spriteNum, SFLAG_KILLCOUNT)))
                         P_AddKills(pPlayer, *insptr);
+                }
+                else P_AddKills(pPlayer, *insptr);
                 insptr++;
                 vm.pActor->actorstayput = -1;
                 continue;

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define game_c_
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "osdcmds.h"
@@ -49,7 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
-#include "playmve.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -833,7 +832,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     if (pub > 0 || videoGetRenderMode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
-        videoClearScreen(0);
+        //videoClearScreen(0);
 #ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
 #endif
@@ -850,7 +849,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         videoSetCorrectedAspect();
     }
 
-    if (paused || pPlayer->on_crane > -1)
+    if (ud.pause_on || pPlayer->on_crane > -1)
         smoothRatio = 65536;
     else
         smoothRatio = calc_smoothratio(totalclock, ototalclock);
@@ -918,14 +917,14 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         ))
         {
 #ifdef USE_OPENGL
-            renderSetRollAngle(fix16_to_float(pPlayer->q16rotscrnang));
+            renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
 #endif
-            pPlayer->oq16rotscrnang = pPlayer->q16rotscrnang;
+            pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
 
         if (RRRA && pPlayer->drug_mode > 0)
         {
-            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !paused && !System_WantGuiCapture())
+            while (pPlayer->drug_timer < totalclock && !(pPlayer->gm & MODE_MENU) && !ud.pause_on && !System_WantGuiCapture())
             {
                 int aspect;
                 if (pPlayer->drug_stat[0] == 0)
@@ -1016,7 +1015,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          omypos.z + mulscale16(mypos.z - omypos.z, smoothRatio) };
 
                 CAMERA(pos)      = camVect;
-                CAMERA(q16ang)   = myang + pPlayer->q16look_ang;
+                CAMERA(q16ang)   = myang + fix16_from_int(pPlayer->look_ang);
                 CAMERA(q16horiz) = myhoriz + myhorizoff;
                 CAMERA(sect)     = mycursectnum;
             }
@@ -1026,21 +1025,9 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                          pPlayer->opos.y + mulscale16(pPlayer->pos.y - pPlayer->opos.y, smoothRatio),
                                          pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
-                CAMERA(pos)          = camVect;
-
-                if (pPlayer->wackedbyactor >= 0)
-                {
-                    CAMERA(q16ang)   = pPlayer->oq16ang
-                                     + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
-                                     + pPlayer->q16look_ang;
-                    CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
-                                     + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
-                }
-                else
-                {
-                    CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
-                    CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
-                }
+                CAMERA(pos)      = camVect;
+                CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+                CAMERA(q16horiz) = pPlayer->q16horiz + pPlayer->q16horizoff;
             }
 
             if (cl_viewbob)
@@ -1070,7 +1057,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             // looking through viewscreen
             CAMERA(pos)      = camVect;
-            CAMERA(q16ang)   = pPlayer->q16ang + pPlayer->q16look_ang;
+            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
             CAMERA(q16horiz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
             CAMERA(sect)     = sprite[pPlayer->newowner].sectnum;
         }
@@ -3180,8 +3167,7 @@ rr_badguy:
                 }
                 else changespritestat(newSprite, STAT_ZOMBIEACTOR);
 
-                if (RR && spriteNum >= 0)
-                    pSprite->shade = sprite[spriteNum].shade;
+                pSprite->shade = sprite[spriteNum].shade;
             }
 
             break;
@@ -5026,7 +5012,7 @@ default_case1:
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].input->extbits & (1 << 7) && !paused && spritesortcnt < maxspritesonscreen)
+                if (g_player[playerNum].input->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
                 {
                     tspritetype *const playerTyping = t;
 
@@ -5280,11 +5266,11 @@ default_case2:
             if ((unsigned)scrofs_action + ACTION_VIEWTYPE >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = apScript[scrofs_action + ACTION_VIEWTYPE];
+            int viewtype = apScript[scrofs_action + ACTION_VIEWTYPE];
             uint16_t const action_flags = apScript[scrofs_action + ACTION_FLAGS];
 
-            int const invertp = l < 0;
-            l = klabs(l);
+            int const invertp = viewtype < 0;
+            l = klabs(viewtype);
 
 #ifdef USE_OPENGL
             if (videoGetRenderMode() >= REND_POLYMOST && hw_models && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
@@ -6598,12 +6584,6 @@ static inline void G_CheckGametype(void)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
-static void G_PostLoadPalette(void)
-{
-    //if (!(duke3d_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
-    //    paletteSetupDefaultFog();
-}
-
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag
 
 // Has to be after setting the dynamic names (e.g. SHARK).
@@ -7123,8 +7103,6 @@ int GameInterface::app_main()
 
     enginePostInit();
 
-    G_PostLoadPalette();
-
     tileDelete(MIRROR);
 
     skiptile = W_FORCEFIELD + 1;
@@ -7296,58 +7274,48 @@ MAIN_LOOP_RESTART:
 
         char gameUpdate = false;
         double const gameUpdateStartTime = timerGetHiTicks();
-
-        updatePauseStatus();
-
-        if (paused)
+        
+        while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
-            ototalclock = totalclock - TICSPERFRAME;
-            buttonMap.ResetButtonStates();
-        }
-        else
-        {
-            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+            ototalclock += TICSPERFRAME;
+
+            if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
+                P_GetInputMotorcycle(myconnectindex);
+            else if (RRRA && g_player[myconnectindex].ps->on_boat)
+                P_GetInputBoat(myconnectindex);
+            else
+                P_GetInput(myconnectindex);
+
+            // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+            auto const pPlayer = g_player[myconnectindex].ps;
+            auto const q16ang  = fix16_to_int(pPlayer->q16ang);
+            auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
+
+            input = localInput;
+            input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                         mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
+                         pPlayer->fric.x;
+            input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                         mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
+                         pPlayer->fric.y;
+            localInput = {};
+
+            g_player[myconnectindex].movefifoend++;
+
+            if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+                    (g_player[myconnectindex].ps->gm&MODE_GAME))
             {
-                if (RRRA && g_player[myconnectindex].ps->on_motorcycle)
-                    P_GetInputMotorcycle(myconnectindex);
-                else if (RRRA && g_player[myconnectindex].ps->on_boat)
-                    P_GetInputBoat(myconnectindex);
-                else
-                    P_GetInput(myconnectindex);
-
-                // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-                auto const pPlayer = g_player[myconnectindex].ps;
-                auto const q16ang  = fix16_to_int(pPlayer->q16ang);
-                auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
-
-                input = localInput;
-                input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
-                             mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
-                             pPlayer->fric.x;
-                input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
-                             mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
-                             pPlayer->fric.y;
-                localInput = {};
-
-                g_player[myconnectindex].movefifoend++;
-
-                ototalclock += TICSPERFRAME;
-
-                if (paused == 0 && (!System_WantGuiCapture() || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME))
-                {
-                    G_MoveLoop();
-                }
+                G_MoveLoop();
             }
-
-            gameUpdate = true;
-            g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-            if (g_gameUpdateAvgTime < 0.f)
-                g_gameUpdateAvgTime = g_gameUpdateTime;
-            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-
-            G_DoCheats();
         }
+
+        gameUpdate = true;
+        g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
+        if (g_gameUpdateAvgTime < 0.f)
+            g_gameUpdateAvgTime = g_gameUpdateTime;
+        g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+
+        G_DoCheats();
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {
@@ -7531,8 +7499,11 @@ int G_DoMoveThings(void)
     everyothertime++;
     if (g_earthquakeTime > 0) g_earthquakeTime--;
 
+    if (ud.pause_on == 0)
+    {
         g_globalRandom = krand2();
         A_MoveDummyPlayers();//ST 13
+    }
 
     for (bssize_t TRAVERSE_CONNECT(i))
     {
@@ -7554,11 +7525,15 @@ int G_DoMoveThings(void)
         if (!DEER)
         P_HandleSharedKeys(i);
 
+        if (ud.pause_on == 0)
+        {
             P_ProcessInput(i);
             if (!DEER)
             P_CheckSectors(i);
         }
+    }
 
+    if (ud.pause_on == 0)
         G_MoveWorld();
 
     Net_CorrectPrediction();

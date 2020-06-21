@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "menus.h"
 #include "savegame.h"
 #include "namesdyn.h"
@@ -654,18 +654,32 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
     }
 }
 
-// Initialize WEAPONx_* gamevars. In C-CON, a new CON variable is defined together with
+// Initialize WEAPONx_* gamevars. Since for Lunatic, they reside on the C side,
+// they're set directly. In C-CON, a new CON variable is defined together with
 // its initial value.
+#ifdef LUNATIC
+# define ADDWEAPONVAR(Weapidx, Membname) do { \
+    int32_t j; \
+    for (j=0; j<MAXPLAYERS; j++) \
+        g_playerWeapon[j][Weapidx].Membname = weapondefaults[Weapidx].Membname; \
+} while (0)
+#else
 # define ADDWEAPONVAR(Weapidx, Membname) do { \
     FStringf aszBuf("WEAPON%d_" #Membname, Weapidx); \
     aszBuf.ToUpper(); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
+#endif
 
 // After CON translation, get not-overridden members from weapondefaults[] back
-// into the live arrays!
+// into the live arrays! (That is, g_playerWeapon[][] for Lunatic, WEAPONx_*
+// gamevars on the CON side in C-CON.)
+#ifdef LUNATIC
+# define POSTADDWEAPONVAR(Weapidx, Membname) ADDWEAPONVAR(Weapidx, Membname)
+#else
 // NYI
 # define POSTADDWEAPONVAR(Weapidx, Membname) do {} while (0)
+#endif
 
 // Finish a default weapon member after CON translation. If it was not
 // overridden from CON itself (see example at g_weaponOverridden[]), we set
@@ -700,7 +714,9 @@ void Gv_FinalizeWeaponDefaults(void)
 #undef FINISH_WEAPON_DEFAULT_X
 #undef POSTADDWEAPONVAR
 
+#if !defined LUNATIC
 static int32_t lastvisinc;
+#endif
 
 static void Gv_AddSystemVars(void)
 {
@@ -754,15 +770,26 @@ static void Gv_AddSystemVars(void)
 
 void Gv_Init(void)
 {
+#if !defined LUNATIC
     // already initialized
     if (aGameVars[0].flags)
         return;
+#else
+    static int32_t inited=0;
+    if (inited)
+        return;
+    inited = 1;
+#endif
 
     // Set up weapon defaults, g_playerWeapon[][].
     Gv_AddSystemVars();
+#if !defined LUNATIC
     Gv_InitWeaponPointers();
+#endif
+    Gv_ResetSystemDefaults();
 }
 
+#if !defined LUNATIC
 void Gv_InitWeaponPointers(void)
 {
     char aszBuf[64];
@@ -826,5 +853,6 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
     aGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
 }
+#endif
 
 END_DUKE_NS

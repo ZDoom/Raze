@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "fix16.h"
-#include "gamedefs.h"
 #include "gamedef.h"
 #include "net.h"
 #include "mmulti.h"
@@ -122,6 +121,8 @@ void A_DeleteSprite(int spriteNum);
 #define MAXRTSNAME 128
 
 #define MAX_RETURN_VALUES 6
+
+// KEEPINSYNC lunatic/_defs_game.lua
 
 typedef struct {
     vec3_t camerapos;
@@ -312,7 +313,7 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
     if (!(((!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
           (g_netServer || ud.multimode > 1) ||
           ud.recstat == 2) ||
-        paused)
+        ud.pause_on)
     {
         return 65536;
     }

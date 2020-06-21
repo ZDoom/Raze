@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "mmulti.h"
 #include "quotes.h"
 #include "sector.h"
@@ -46,6 +46,7 @@ BEGIN_DUKE_NS
 #endif
 
 #define MAXINTERPOLATIONS MAXSPRITES
+// KEEPINSYNC lunatic/con_lang.lua
 
 // duke3d global soup :(
 
@@ -66,7 +67,6 @@ enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
-G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];

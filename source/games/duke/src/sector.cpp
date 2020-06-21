@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define sector_c_
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 
 #include "secrets.h"
 #include "v_video.h"
@@ -503,21 +503,26 @@ int SetAnimation(int sectNum, int32_t *animPtr, int goalVal, int animVel)
 
 static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
 {
-    vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
+    vec3_t const camera = G_GetCameraPosition(spriteNum, smoothRatio);
     int const    saveMirror = display_mirror;
 
-    renderSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
+    auto canvas = renderSetTarget(tileNum);
+    if (!canvas) return;
 
-    yax_preparedrawrooms();
-    drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
-    yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
+    screen->RenderTextureView(canvas, [=](IntRect& rect)
+        {
+            yax_preparedrawrooms();
+            drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
+            yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
-    display_mirror = 3;
-    G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
-    display_mirror = saveMirror;
-    renderDrawMasks();
+            display_mirror = 3;
+            G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
+            display_mirror = saveMirror;
+            renderDrawMasks();
 
+        });
     renderRestoreTarget();
+    
 }
 
 void G_AnimateCamSprite(int smoothRatio)
@@ -3647,7 +3652,29 @@ void P_HandleSharedKeys(int playerNum)
     {
         pPlayer->interface_toggle_flag = 1;
 
-        if (paused) return;
+        if (TEST_SYNC_KEY(playerBits, SK_PAUSE))
+        {
+            inputState.ClearKeyStatus(sc_Pause);
+            if (ud.pause_on)
+                ud.pause_on = 0;
+            else ud.pause_on = 1+SHIFTS_IS_PRESSED;
+            if (ud.pause_on)
+            {
+                Mus_SetPaused(true);
+                S_PauseSounds(true);
+            }
+            else
+            {
+                Mus_SetPaused(false);
+
+                S_PauseSounds(false);
+
+                pub = NUMPAGES;
+                pus = NUMPAGES;
+            }
+        }
+
+        if (ud.pause_on) return;
 
         if (sprite[pPlayer->i].extra <= 0) return;		// if dead...
 
@@ -4225,10 +4252,7 @@ rrtripbomb_case:
 
         if (TEST_SYNC_KEY(playerBits, SK_TURNAROUND) && pPlayer->one_eighty_count == 0)
             if (VM_OnEvent(EVENT_TURNAROUND,pPlayer->i,playerNum) == 0)
-            {
-                pPlayer->one_eighty_count  = -1024;
-                pPlayer->one_eighty_target = fix16_sadd(pPlayer->q16ang, -fix16_from_int(pPlayer->one_eighty_count)) & 0x7FFFFFF;
-            }
+                pPlayer->one_eighty_count = -1024;
     }
 }
 

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "demo.h"
-#include "duke3d_ed.h"
+#include "duke3d.h"
 
 #include "menus.h"
 #include "savegame.h"
@@ -120,7 +120,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 
     gFullMap = false;
     ud.god = ud.cashman = ud.eog = 0;
-    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= paused = 0;
+    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
     totalclock = ototalclock = lockclock = 0;
 
@@ -591,7 +591,7 @@ RECHECK:
                 Demo_FinishProfile();
 
             while (totalclock >= (lockclock+TICSPERFRAME)
-                //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && paused)
+                //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && ud.pause_on)
                 || (g_demo_goalCnt>0 && g_demo_cnt<g_demo_goalCnt))
             {
                 if (ud.reccnt<=0)

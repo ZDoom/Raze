@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "compat.h"
 #include "sbar.h"
 #include "menus.h"
@@ -110,6 +110,23 @@ vec2_t mpgametext(int32_t x, int32_t y, const char *t, int32_t s, int32_t o, int
 vec2_t mpgametextsize(const char *t, int32_t f)
 {
     return G_ScreenTextSize(MF_Bluefont.tilenum, 0, 0, textsc(MF_Bluefont.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
+}
+
+static int32_t sbarx16(int32_t x)
+{
+    if (ud.screen_size == 4) return sbarsc(x);
+    return (((320 << 16) - sbarsc(320 << 16)) >> 1) + sbarsc(x);
+}
+
+static int32_t sbarxr16(int32_t x)
+{
+    if (ud.screen_size == 4) return (320 << 16) - sbarsc(x);
+    return (((320 << 16) - sbarsc(320 << 16)) >> 1) + sbarsc(x);
+}
+
+static int32_t sbary16(int32_t y)
+{
+    return (100 << 16) - sbarsc(200 << 16) + sbarsc(y);
 }
 
 // minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
