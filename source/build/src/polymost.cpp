@@ -266,7 +266,7 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(((float)(g_visibility) / r_ambientlight) * fviewingrange * (4.f / (65536.f * 65536.f)));
+    renderSetVisibility(((float)(g_visibility) / (8.f / 15.f) / r_ambientlight) * fviewingrange * (4.f / (65536.f * 65536.f)));
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
