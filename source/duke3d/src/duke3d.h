@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "menu.h"
 #include "memarena.h"
+#include "sector.h"
 
 
 

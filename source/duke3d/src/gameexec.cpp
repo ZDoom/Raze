@@ -3976,7 +3976,7 @@ badindex:
 
                     VM_ASSERT((unsigned)in.x < MAXSPRITES && (unsigned)in.y < MAXSPRITES, "invalid sprite %d, %d\n", in.x, in.y);
 
-                    Gv_SetVar(out, (VM_DECODE_INST(tw) == CON_LDIST ? ldist : dist)(&sprite[in.x], &sprite[in.y]));
+                    Gv_SetVar(out, VM_DECODE_INST(tw) == CON_LDIST ? ldist(&sprite[in.x], &sprite[in.y]) : dist(&sprite[in.x], &sprite[in.y]));
                     dispatch();
                 }
 
@@ -5233,7 +5233,7 @@ badindex:
                     // <type> <maxdistvarid> <varid>
                     int const  decodedInst  = VM_DECODE_INST(tw);
                     int const  actorsOnly   = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARACTOR3D);
-                    auto const dist_funcptr = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARSPRITE) ? &ldist : &dist;
+                    auto const dist_funcptr = (decodedInst == CON_FINDNEARACTOR || decodedInst == CON_FINDNEARSPRITE);
 
                     int const findTile  = *insptr++;
                     int       maxDist   = Gv_GetVar(*insptr++);
@@ -5250,7 +5250,7 @@ badindex:
                         {
                             if (sprite[spriteNum].picnum == findTile && spriteNum != vm.spriteNum)
                             {
-                                int const foundDist = dist_funcptr(vm.pSprite, &sprite[spriteNum]);
+                                int const foundDist = dist_funcptr? ldist(vm.pSprite, &sprite[spriteNum]) : dist(vm.pSprite, &sprite[spriteNum]);
 
                                 if (foundDist < maxDist)
                                 {

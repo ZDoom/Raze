@@ -190,6 +190,7 @@ inline int checkcursectnums(int se)
     return G_CheckPlayerInSector(se);
 }
 
+// These are from duke's sector.c
 inline int ldist(const spritetype* s1, const spritetype* s2)
 {
     int vx, vy;
