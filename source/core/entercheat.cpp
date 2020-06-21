@@ -57,6 +57,7 @@ bool Cheat_Responder (event_t *ev)
 	
 	if (cheats.Size() == 0)
 	{
+#if 0
 		auto gcheats = gi->GetCheats();
 		if (gcheats)
 		{
@@ -66,6 +67,7 @@ bool Cheat_Responder (event_t *ev)
 				cheats.Push(cht);
 			}
 		}
+#endif
 	}
 
 	if (nocheats)
