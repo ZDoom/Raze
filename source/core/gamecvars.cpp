@@ -343,13 +343,10 @@ CUSTOM_CVARD(Int, r_showfpsperiod, 0, 0, "time in seconds before averaging min a
 	if (self < 0 || self > 5) self = 1;
 }
 
-float r_ambientlightrecip;
-
 CUSTOM_CVARD(Float, r_ambientlight, 1.0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sets the global map light level")
 {
 	if (self < 0.1f) self = 0.1f;
 	else if (self > 10.f) self = 10.f;
-	else r_ambientlightrecip = 1.f / self;
 }
 
 CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable sprite and model shadows")
