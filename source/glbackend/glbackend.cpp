@@ -482,7 +482,7 @@ void markTileForPrecache(int tilenum, int palnum)
 
 	for (; i <= j; i++)
 	{
-		int64_t val = i + (int64_t(palnum) << 16);
+		int64_t val = i + (int64_t(palnum) << 32);
 		cachemap.Insert(val, true);
 	}
 }
@@ -495,7 +495,7 @@ void precacheMarkedTiles()
 	decltype(cachemap)::Pair* pair;
 	while (it.NextPair(pair))
 	{
-		int dapicnum = pair->Key;
+		int dapicnum = pair->Key & 0x7fffffff;
 		int dapalnum = pair->Key >> 32;
 		polymost_precache(dapicnum, dapalnum, 0);
 	}

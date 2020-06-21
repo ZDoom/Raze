@@ -40,6 +40,7 @@ BEGIN_DUKE_NS
 
 inline void tloadtile(int tilenum, int palnum = 0)
 {
+    assert(tilenum < MAXTILES);
 	markTileForPrecache(tilenum, palnum);
 }
 
