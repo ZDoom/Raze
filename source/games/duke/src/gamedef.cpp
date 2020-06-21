@@ -45,8 +45,6 @@ into many sub-files.
 
 BEGIN_DUKE_NS
 
-int16_t max_ammo_amount[MAX_WEAPONS];
-
 // parser state: todo: turn into a class
 char* textptr;
 char* label;
