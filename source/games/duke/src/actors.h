@@ -265,8 +265,8 @@ void G_StopInterpolation(const int32_t *posptr);
 void                Sect_ToggleInterpolation(int sectnum, int setInterpolation);
 static FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
 static FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
-static FORCE_INLINE void   clearsectinterpolate(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
-static FORCE_INLINE void   setsectinterpolate(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
+static FORCE_INLINE void   clearsectinterpolate(int sprnum) { Sect_ToggleInterpolation(sprite[sprnum].sectnum, 0); }
+static FORCE_INLINE void   setsectinterpolate(int sprnum) { Sect_ToggleInterpolation(sprite[sprnum].sectnum, 1); }
 
 #if KRANDDEBUG
 # define ACTOR_INLINE __fastcall

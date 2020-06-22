@@ -212,7 +212,7 @@ int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes
 			sp->extra = ScriptCode[actorinfo[s].scriptaddress];
 			t[4] = ScriptCode[actorinfo[s].scriptaddress+1];
 			t[1] = ScriptCode[actorinfo[s].scriptaddress+2];
-			int s3 = ScriptCode[actorinfo[s].scriptaddress];
+			int s3 = ScriptCode[actorinfo[s].scriptaddress+3];
 			if (s3 && sp->hitag == 0)
 				sp->hitag = s3;
 		}

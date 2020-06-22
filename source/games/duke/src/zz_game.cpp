@@ -2890,4 +2890,5 @@ void GameInterface::UpdateScreenSize()
 psaccess ps;
 actor_t* hittype = actor;
 
+
 END_DUKE_NS
