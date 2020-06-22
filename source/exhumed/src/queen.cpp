@@ -255,10 +255,18 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
         int edx = ((pSprite2->z - nTileY) - pSprite->z) >> 8;
 
-        int x = pSprite2->x - pSprite->x;
-        int y = pSprite2->y - pSprite->y;
+        uint32_t xDiff = klabs(pSprite2->x - pSprite->x);
+        uint32_t yDiff = klabs(pSprite2->y - pSprite->y);
 
-        int nSqrt = ksqrt(x * x + y * y);
+        uint32_t sqrtVal = xDiff * xDiff + yDiff * yDiff;
+
+        if (sqrtVal > INT_MAX)
+        {
+            OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+            sqrtVal = INT_MAX;
+        }
+
+        int nSqrt = ksqrt(sqrtVal);
 
         int var_14 = GetMyAngle(nSqrt, edx);
 
@@ -292,7 +300,18 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
     int v26 = x * ((val1 * Cos(nAngle)) >> 14);
     int v27 = x * ((val1 * Sin(nAngle)) >> 14);
 
-    int nSqrt = ksqrt(((v26 >> 8) * (v26 >> 8)) + ((v27 >> 8) * (v27 >> 8))) * Sin(da);
+    uint32_t xDiff = klabs((int32_t)(v26 >> 8));
+    uint32_t yDiff = klabs((int32_t)(v27 >> 8));
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int nSqrt = ksqrt(sqrtNum) * Sin(da);
 
     return movesprite(nSprite, v26 >> 2, v27 >> 2, (Sin(bobangle) >> 5) + (nSqrt >> 13), 0, 0, CLIPMASK1);
 }

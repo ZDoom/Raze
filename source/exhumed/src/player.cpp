@@ -1414,7 +1414,15 @@ loc_1AB8E:
             playerX -= sprite[nPlayerSprite].x;
             playerY -= sprite[nPlayerSprite].y;
 
-            totalvel[nPlayer] = ksqrt((playerY * playerY) + (playerX * playerX));
+            uint32_t sqrtNum = playerX * playerX + playerY * playerY;
+
+            if (sqrtNum > INT_MAX)
+            {
+                OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                sqrtNum = INT_MAX;
+            }
+
+            totalvel[nPlayer] = ksqrt(sqrtNum);
 
             int nViewSect = sprite[nPlayerSprite].sectnum;
 

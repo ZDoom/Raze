@@ -1543,7 +1543,18 @@ int runlist_CheckRadialDamage(short nSprite)
 
     int edi = 0;
 
-    int nDist = ksqrt(x * x + y * y);
+    uint32_t xDiff = klabs(x);
+    uint32_t yDiff = klabs(y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int nDist = ksqrt(sqrtNum);
 
     if (nDist < nDamageRadius)
     {

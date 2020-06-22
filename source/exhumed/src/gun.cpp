@@ -304,7 +304,18 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 
     int ecx = sintable[150] >> 3;
 
-    if (ksqrt((hitX - *x) * (hitX - *x) + (hitY - *y) * (hitY - *y)) >= ecx)
+    uint32_t xDiff = klabs(hitX - *x);
+    uint32_t yDiff = klabs(hitY - *y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    if (ksqrt(sqrtNum) >= ecx)
         return 0;
 
     *x = hitX;

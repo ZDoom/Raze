@@ -145,7 +145,18 @@ int BuildSnake(short nPlayer, short zVal)
     hitsect = hitData.sect;
     hitsprite = hitData.sprite;
 
-    int nSqrt = ksqrt(((hity - y) * (hity - y)) + ((hitx - x) * (hitx - x)));
+    uint32_t xDiff = klabs(hitx - x);
+    uint32_t yDiff = klabs(hity - y);
+
+    uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
+
+    if (sqrtNum > INT_MAX)
+    {
+        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        sqrtNum = INT_MAX;
+    }
+
+    int nSqrt = ksqrt(sqrtNum);
 
     if (nSqrt < (sintable[512] >> 4))
     {
