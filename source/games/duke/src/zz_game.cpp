@@ -2133,7 +2133,7 @@ static void G_Startup(void)
     picanm[TILE_LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
 
 //    Printf("Loading palette/lookups...\n");
-    G_LoadLookups();
+    genspriteremaps();
     TileFiles.PostLoadSetup();
 
     screenpeek = myconnectindex;

@@ -67,5 +67,101 @@ void checkcommandline()
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void genspriteremaps(void)
+{
+    int j;
+
+	auto fr = fileSystem.OpenFileReader("lookup.dat");
+	if (!fr.isOpen())
+           return;
+
+    j = lookups.loadTable(fr);
+
+    if (j < 0)
+    {
+        if (j == -1)
+            Printf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
+
+        return;
+    }
+
+    uint8_t paldata[768];
+
+    for (j=1; j<=5; j++)
+    {
+		if (fr.Read(paldata, 768) != 768)
+			return;
+
+        for (int k = 0; k < 768; k++) // Build uses 6 bit VGA palettes.
+            paldata[k] = (paldata[k] << 2) | (paldata[k] >> 6);
+
+        paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j < DREALMSPAL);
+    }
+
+    for (int i = 0; i < 256; i++)
+    {
+        // swap red and blue channels.
+        paldata[i * 3] = GPalette.BaseColors[i].b;
+        paldata[i * 3+1] = GPalette.BaseColors[i].g;
+        paldata[i * 3+2] = GPalette.BaseColors[i].r;
+    }
+    paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
+
+    if (isRR())
+    {
+        uint8_t table[256];
+        for (j = 0; j < 768; j++)
+            table[j] = j;
+        for (j = 0; j < 32; j++)
+            table[j] = j + 32;
+
+        lookups.makeTable(7, table, 0, 0, 0, 0);
+
+        for (j = 0; j < 768; j++)
+            table[j] = j;
+        lookups.makeTable(30, table, 0, 0, 0, 0);
+        lookups.makeTable(31, table, 0, 0, 0, 0);
+        lookups.makeTable(32, table, 0, 0, 0, 0);
+        lookups.makeTable(33, table, 0, 0, 0, 0);
+        if (isRRRA())
+            lookups.makeTable(105, table, 0, 0, 0, 0);
+
+        int unk = 63;
+        for (j = 64; j < 80; j++)
+        {
+            unk--;
+            table[j] = unk;
+            table[j + 16] = j - 24;
+        }
+        table[80] = 80;
+        table[81] = 81;
+        for (j = 0; j < 32; j++)
+        {
+            table[j] = j + 32;
+        }
+        lookups.makeTable(34, table, 0, 0, 0, 0);
+        for (j = 0; j < 768; j++)
+            table[j] = j;
+        for (j = 0; j < 16; j++)
+            table[j] = j + 129;
+        for (j = 16; j < 32; j++)
+            table[j] = j + 192;
+        lookups.makeTable(35, table, 0, 0, 0, 0);
+        if (isRRRA())
+        {
+            lookups.makeTable(50, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
+            lookups.makeTable(51, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
+            lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
+        }
+    }
+}
+
+
 END_DUKE_NS
 

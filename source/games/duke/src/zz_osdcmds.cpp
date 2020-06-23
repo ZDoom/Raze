@@ -130,50 +130,6 @@ foundone:
 }
 
 
-// demo <demonum or demofn> [<prof>]
-//
-// To profile a demo ("timedemo mode"), <prof> can be given in the range 0-8,
-// which will start to replay it as fast as possible, rendering <prof> frames
-// for each gametic.
-//
-// Notes:
-//  * The demos should be recorded with demorec_diffs set to 0, so that the
-//    game state updates are actually computed.
-//  * Currently, the profiling can only be aborted on SDL 1.2 builds by
-//    pressing any key.
-//  * With <prof> greater than 1, interpolation should be calculated properly,
-//    though this has not been verified by looking at the frames.
-//  * When testing whether a change in the source has an effect on performance,
-//    the variance of the run times MUST be taken into account (that is, the
-//    replaying must be performed multiple times for the old and new versions,
-//    etc.)
-static int osdcmd_demo(CCmdFuncPtr parm)
-{
-    if (numplayers > 1)
-    {
-        Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-
-    if (g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
-        Printf("demo: Must not be in a game.\n");
-        return OSDCMD_OK;
-    }
-
-    if (parm->numparms != 1 && parm->numparms != 2)
-        return OSDCMD_SHOWHELP;
-
-    {
-        int32_t prof = parm->numparms==2 ? Batoi(parm->parms[1]) : -1;
-
-        Demo_SetFirst(parm->parms[0]);
-        Demo_PlayFirst(clamp(prof, -1, 8)+1, 0);
-    }
-
-    return OSDCMD_OK;
-}
-
 static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
@@ -377,10 +333,6 @@ int32_t registerosdcommands(void)
 {
 
 	C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    if (!VOLUMEONE)
-    {
-        C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
-    }
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);

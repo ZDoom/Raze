@@ -34,17 +34,17 @@ enum Games_t {
     GAMECOUNT
 };
 
-typedef enum basepal_ {
+enum basepal_t {
     BASEPAL = 0,
     WATERPAL,
     SLIMEPAL,
-    DREALMSPAL,
     TITLEPAL,
+    DREALMSPAL,
     ENDINGPAL,  // 5
-    ANIMPAL,
+    ANIMPAL,    // not used anymore
     DRUGPAL,
     BASEPALCOUNT
-} basepal_t;
+};
 
 #include "v_text.h"
 
@@ -58,7 +58,7 @@ extern void G_SetupGlobalPsky(void);
 
 //////////
 
-extern void G_LoadLookups(void);
+extern void genspriteremaps(void);
 
 //////////
 
