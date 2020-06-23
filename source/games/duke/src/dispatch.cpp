@@ -109,6 +109,8 @@ void displayweapon_d(int snum);
 void displayweapon_r(int snum);
 void displaymasks_d(int snum);
 void displaymasks_r(int snum);
+void think_d();
+void think_r();
 
 
 
@@ -119,6 +121,7 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
+		think_d,
 		initactorflags_d,
 		isadoorwall_d,
 		animatewalls_d,
@@ -165,6 +168,7 @@ void SetDispatcher()
 	else	
 	{
 		fi = {
+		think_r,
 		initactorflags_r,
 		isadoorwall_r,
 		animatewalls_r,

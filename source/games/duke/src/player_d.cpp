@@ -2637,7 +2637,8 @@ void processinput_d(int snum)
 	hittype[pi].floorz = fz;
 	hittype[pi].ceilingz = cz;
 
-#if 0
+#pragma message("input stuff begins here")
+#if 0 // disabled input
 	p->oq16horiz = p->q16horiz;
 	p->oq16horizoff = p->q16horizoff;
 #endif

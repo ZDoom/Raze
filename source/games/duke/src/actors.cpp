@@ -42,6 +42,7 @@ This file is a combination of code from the following sources:
 #include "ns.h"
 #include "global.h"
 #include "namesdyn.h"
+#include "stats.h"
 
 BEGIN_DUKE_NS
 
@@ -5049,5 +5050,21 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 		}
 	}
 }
+
+int LocateTheLocator(int n, int sn)
+{
+	int i;
+
+	i = headspritestat[7];
+	while (i >= 0)
+	{
+		if ((sn == -1 || sn == sprite[i].sectnum) && n == sprite[i].lotag)
+			return i;
+		i = nextspritestat[i];
+	}
+	return -1;
+}
+
+
 
 END_DUKE_NS

@@ -605,8 +605,8 @@ FString GameInterface::statFPS()
 
 				output.AppendFormat("Game Update: %2.2f ms + draw: %2.2f ms\n", g_gameUpdateTime, g_gameUpdateAndDrawTime - g_gameUpdateTime);
 				output.AppendFormat("GU min/max/avg: %5.2f/%5.2f/%5.2f ms\n", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
-				output.AppendFormat("G_MoveActors(): %.3f ms\n", g_moveActorsTime);
-				output.AppendFormat("G_MoveWorld(): %.3f ms\n", g_moveWorldTime);
+                output.AppendFormat("actor think time: %.3f ms\n", actortime.TimeMS());
+                output.AppendFormat("total think timn: %.3f ms\n", thinktime.TimeMS());
             }
         }
 

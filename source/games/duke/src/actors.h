@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "player.h"
 # include "namesdyn.h"
+#include "stats.h"
+
+extern glcycle_t actortime, thinktime;
 
 BEGIN_DUKE_NS
 
@@ -239,11 +242,7 @@ extern int32_t      otherp;
 extern int32_t      ticrandomseed;
 extern int g_canSeePlayer;
 
-int A_FindLocator(int const tag, int const sectNum);
-inline int LocateTheLocator(int const tag, int const sectNum)
-{
-    return A_FindLocator(tag, sectNum);
-}
+int LocateTheLocator(int const tag, int const sectNum);
 
 int A_IncurDamage(int spriteNum);
 void A_DeleteSprite(int spriteNum);
@@ -251,12 +250,14 @@ void A_DeleteSprite(int spriteNum);
 void movecyclers(void);
 void movedummyplayers(void);
 void resetlanepics(void);
+void moveplayers();
+void doanimations();
+void movefx();
 
 int  G_SetInterpolation(int32_t *posptr);
 void G_ClearCameraView(DukePlayer_t *ps);
 void clearcamera(player_struct* ps);
 void G_DoInterpolations(int smoothRatio);
-void G_MoveWorld(void);
 void G_RefreshLights(void);
 void G_StopInterpolation(const int32_t *posptr);
 

@@ -4686,4 +4686,41 @@ void checktimetosleep_r(int g_i)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void thunder(void);
+
+void think_r(void)
+{
+	thinktime.Reset();
+	thinktime.Clock();
+
+	movefta_r();			//ST 2
+	moveweapons_r();		//ST 4
+	movetransports_r();		//ST 9
+	moveplayers();			//ST 10
+	movefallers_r();		//ST 12
+	moveexplosions_r();		//ST 5
+
+	actortime.Reset();
+	actortime.Clock();
+	moveactors_r();			//ST 1
+	actortime.Unclock();
+
+	moveeffectors_r();		//ST 3
+	movestandables_r();		//ST 6
+	doanimations();
+	movefx();				//ST 11
+
+	if (numplayers < 2 && thunderon)
+		thunder();
+
+	thinktime.Unclock();
+}
+
+
 END_DUKE_NS

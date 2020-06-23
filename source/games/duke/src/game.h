@@ -486,6 +486,7 @@ void spawneffector(int i);
 struct Dispatcher
 {
 	// sectors_?.cpp
+    void (*think)();
 	void (*initactorflags)();
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();

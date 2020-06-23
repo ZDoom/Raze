@@ -2852,7 +2852,7 @@ int G_DoMoveThings(void)
     }
 
     if (ud.pause_on == 0)
-        G_MoveWorld();
+        fi.think();
 
     Net_CorrectPrediction();
 

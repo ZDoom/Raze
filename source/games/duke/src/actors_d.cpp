@@ -4311,4 +4311,36 @@ void checktimetosleep_d(int g_i)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void think_d(void)
+{
+	thinktime.Reset();
+	thinktime.Clock();
+
+	movefta_d();			//ST 2
+	moveweapons_d();		//ST 4
+	movetransports_d();		//ST 9
+	moveplayers();			//ST 10
+	movefallers_d();		//ST 12
+	moveexplosions_d();		//ST 5
+
+	actortime.Reset();
+	actortime.Clock();
+	moveactors_d();			//ST 1
+	actortime.Unclock();
+
+	moveeffectors_d();		//ST 3
+	movestandables_d();		//ST 6
+	doanimations();
+	movefx();				//ST 11
+
+	thinktime.Unclock();
+}
+
+
 END_DUKE_NS

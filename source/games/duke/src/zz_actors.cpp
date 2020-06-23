@@ -28,11 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-#if KRANDDEBUG
-# define ACTOR_STATIC
-#else
-# define ACTOR_STATIC static
-#endif
 
 #define DELETE_SPRITE_AND_CONTINUE(KX) do { A_DeleteSprite(KX); goto next_sprite; } while (0)
 
@@ -53,11 +48,6 @@ void G_ClearCameraView(DukePlayer_t *ps)
 // deletesprite() game wrapper
 void A_DeleteSprite(int spriteNum)
 {
-#ifdef POLYMER
-    if (actor[spriteNum].lightptr != NULL && videoGetRenderMode() == REND_POLYMER)
-        A_DeleteLight(spriteNum);
-#endif
-
     // AMBIENT_SFX_PLAYING
     if (sprite[spriteNum].picnum == MUSICANDSFX && actor[spriteNum].t_data[0] == 1)
         S_StopEnvSound(sprite[spriteNum].lotag, spriteNum);
@@ -114,126 +104,7 @@ int G_WakeUp(spritetype *const pSprite, int const playerNum)
 }
 
 
-// sleeping monsters, etc
-
- int A_FindLocator(int const tag, int const sectNum)
-{
-    for (bssize_t SPRITES_OF(STAT_LOCATOR, spriteNum))
-    {
-        if ((sectNum == -1 || sectNum == SECT(spriteNum)) && tag == SLT(spriteNum))
-            return spriteNum;
-    }
-
-    return -1;
-}
-
-
 TileInfo tileinfo[MAXTILES];
-
-
-void movefta_d(void);
-void movefallers_d();
-void movestandables_d();
-void moveweapons_d();
-void movetransports_d(void);
-void moveactors_d();
-void moveexplosions_d();
-void moveeffectors_d();
-
-void movefta_r(void);
-void moveplayers();
-void movefx();
-void movefallers_r();
-void movestandables_r();
-void moveweapons_r();
-void movetransports_r(void);
-void moveactors_r();
-void thunder();
-void moveexplosions_r();
-void moveeffectors_r();
-
-void doanimations(void);
-
-void G_MoveWorld_d(void)
-{
-    extern double g_moveActorsTime, g_moveWorldTime;
-    const double worldTime = timerGetHiTicks();
-
-    movefta_d();     //ST 2
-    moveweapons_d();          //ST 4
-    movetransports_d();       //ST 9
-
-    moveplayers();          //ST 10
-    movefallers_d();          //ST 12
-    moveexplosions_d();             //ST 5
-
-    const double actorsTime = timerGetHiTicks();
-
-    moveactors_d();           //ST 1
-
-    g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(timerGetHiTicks()-actorsTime);
-
-    // XXX: Has to be before effectors, in particular movers?
-    // TODO: lights in moving sectors ought to be interpolated
-    //G_DoEffectorLights();
-    moveeffectors_d();        //ST 3
-    movestandables_d();       //ST 6
-
-    //G_RefreshLights();
-    doanimations();
-    movefx();               //ST 11
-
-    g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(timerGetHiTicks()-worldTime);
-}
-
-void G_MoveWorld_r(void)
-{
-    extern double g_moveActorsTime, g_moveWorldTime;
-    const double worldTime = timerGetHiTicks();
-
-    if (!DEER)
-    {
-        movefta_r();     //ST 2
-        moveweapons_r();          //ST 4
-        movetransports_r();       //ST 9
-    }
-
-    moveplayers();          //ST 10
-    movefallers_r();          //ST 12
-    if (!DEER)
-        moveexplosions_r();             //ST 5
-
-    const double actorsTime = timerGetHiTicks();
-
-    moveactors_r();           //ST 1
-
-    g_moveActorsTime = (1 - 0.033) * g_moveActorsTime + 0.033 * (timerGetHiTicks() - actorsTime);
-
-    // XXX: Has to be before effectors, in particular movers?
-    // TODO: lights in moving sectors ought to be interpolated
-    // G_DoEffectorLights();
-    if (!DEER)
-    {
-        moveeffectors_r();        //ST 3
-        movestandables_r();       //ST 6
-    }
-
-    //G_RefreshLights();
-    doanimations();
-    if (!DEER)
-        movefx();               //ST 11
-
-    if (numplayers < 2 && thunderon)
-        thunder();
-
-    g_moveWorldTime = (1 - 0.033) * g_moveWorldTime + 0.033 * (timerGetHiTicks() - worldTime);
-}
-
-void G_MoveWorld(void)
-{
-    if (!isRR()) G_MoveWorld_d();
-    else G_MoveWorld_r();
-}
 
 END_DUKE_NS
 
