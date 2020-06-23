@@ -61,6 +61,8 @@ BEGIN_DUKE_NS
 void SetDispatcher();
 void checkcommandline();
 
+uint8_t shadedsector[MAXSECTORS];
+
 int32_t g_fakeMultiMode = 0;
 int32_t g_quitDeadline = 0;
 
@@ -651,9 +653,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (pub > 0 || videoGetRenderMode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
         //videoClearScreen(0);
-#ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
-#endif
             G_DrawBackground();
         pub = 0;
     }

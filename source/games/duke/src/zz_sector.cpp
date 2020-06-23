@@ -31,47 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-// PRIMITIVE
-void operatejaildoors(int hitag);
-
-static int g_haltSoundHack = 0;
-
-uint8_t shadedsector[MAXSECTORS];
-
-
-static void G_SetupCamTile(int spriteNum, int smoothRatio)
-{
-    int const viewscrTile = TILE_VIEWSCR;
-    TileFiles.MakeCanvas(viewscrTile, tilesiz[PN(spriteNum)].x, tilesiz[PN(spriteNum)].y);
-
-    vec3_t const camera = G_GetCameraPosition(spriteNum, smoothRatio);
-    int const    saveMirror = display_mirror;
-
-    auto canvas = renderSetTarget(viewscrTile);
-    if (!canvas) return;
-
-    screen->RenderTextureView(canvas, [=](IntRect& rect)
-        {
-            yax_preparedrawrooms();
-            drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
-            yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
-
-            display_mirror = 3;
-            G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
-            display_mirror = saveMirror;
-            renderDrawMasks();
-
-        });
-    renderRestoreTarget();
-    
-}
 
 void G_AnimateCamSprite(int smoothRatio)
 {
-#ifdef DEBUG_VALGRIND_NO_SMC
-    return;
-#endif
-
     if (g_curViewscreen < 0)
         return;
 
@@ -86,13 +48,27 @@ void G_AnimateCamSprite(int smoothRatio)
 
         if (OW(spriteNum) >= 0 && dist(&sprite[pPlayer->i], &sprite[spriteNum]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
+			TileFiles.MakeCanvas(TILE_VIEWSCR, tilesiz[PN(spriteNum)].x, tilesiz[PN(spriteNum)].y);
 
-            G_SetupCamTile(OW(spriteNum), smoothRatio);
-#ifdef POLYMER
-            // Force texture update on viewscreen sprite in Polymer!
-            if (videoGetRenderMode() == REND_POLYMER)
-                polymer_invalidatesprite(spriteNum);
-#endif
+			vec3_t const camera = G_GetCameraPosition(spriteNum, smoothRatio);
+			int const    saveMirror = display_mirror;
+
+			auto canvas = renderSetTarget(TILE_VIEWSCR);
+			if (!canvas) return;
+
+			screen->RenderTextureView(canvas, [=](IntRect& rect)
+				{
+					yax_preparedrawrooms();
+					drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
+					yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
+
+					display_mirror = 3;
+					G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
+					display_mirror = saveMirror;
+					renderDrawMasks();
+
+				});
+			renderRestoreTarget();
         }
 
         T1(spriteNum) = (int32_t) totalclock;
