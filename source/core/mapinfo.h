@@ -61,10 +61,47 @@ struct MapRecord
 
 };
 
+
 extern MapRecord mapList[512];
 extern MapRecord userMapRecord;
 extern MapRecord *currentLevel;	
 extern MapRecord* lastLevel;
+
+inline bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false)
+{
+	static const char* specials[] = { "intro", "briefing", "loading" };
+	for (int i = 0; i < 3; i++)
+	{
+		if (!stricmp(mapname, specials[i]))
+		{
+			// todo: store this properly.
+			return true;
+		}
+	}
+
+	int index = -1; // = FindMap(mapname);
+
+	// This is for the DEFS parser's MUSIC command which never bothered to check for the real map name.
+	if (index < 0 && namehack)
+	{
+		int lev, ep;
+		signed char b1, b2;
+
+		int numMatches = sscanf(mapname, "%c%d%c%d", &b1, &ep, &b2, &lev);
+
+		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
+			return false;
+
+		index = -1; // = FindMapByIndex(ep, lev);
+
+	}
+	if (index >= 0)
+	{
+		mapList[index].music = music;
+		return true;
+	}
+	return false;
+}
 
 
 inline void InitRREndMap()

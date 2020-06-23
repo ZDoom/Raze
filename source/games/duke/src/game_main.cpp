@@ -32,8 +32,13 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "screens.h"
 #include "baselayer.h"
 #include "m_argv.h"
+#include "mapinfo.h"
+#include "texturemanager.h"
 
 BEGIN_DUKE_NS
+
+FFont* IndexFont;
+FFont* DigiFont;
 
 //---------------------------------------------------------------------------
 //
@@ -160,6 +165,76 @@ void genspriteremaps(void)
             lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
         }
     }
+}
+
+//==========================================================================
+//
+// Sets up the game fonts.
+//
+//==========================================================================
+
+void InitFonts()
+{
+    GlyphSet fontdata;
+
+    // Small font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = tileGetTexture(TILE_STARTALPHANUM + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Big font
+
+    // This font is VERY messy...
+    fontdata.Insert('_', tileGetTexture(TILE_BIGALPHANUM - 11));
+    fontdata.Insert('-', tileGetTexture(TILE_BIGALPHANUM - 11));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_BIGALPHANUM - 10 + i));
+    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(TILE_BIGALPHANUM + i));
+    fontdata.Insert('.', tileGetTexture(TILE_BIGPERIOD));
+    fontdata.Insert(',', tileGetTexture(TILE_BIGCOMMA));
+    fontdata.Insert('!', tileGetTexture(TILE_BIGX_));
+    fontdata.Insert('?', tileGetTexture(TILE_BIGQ));
+    fontdata.Insert(';', tileGetTexture(TILE_BIGSEMI));
+    fontdata.Insert(':', tileGetTexture(TILE_BIGCOLIN));
+    fontdata.Insert('\\', tileGetTexture(TILE_BIGALPHANUM + 68));
+    fontdata.Insert('/', tileGetTexture(TILE_BIGALPHANUM + 68));
+    fontdata.Insert('%', tileGetTexture(TILE_BIGALPHANUM + 69));
+    fontdata.Insert('`', tileGetTexture(TILE_BIGAPPOS));
+    fontdata.Insert('"', tileGetTexture(TILE_BIGAPPOS));
+    fontdata.Insert('\'', tileGetTexture(TILE_BIGAPPOS));
+    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Tiny font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = tileGetTexture(TILE_MINIFONT + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // SBAR index font
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_THREEBYFIVE + i));
+    fontdata.Insert(':', tileGetTexture(TILE_THREEBYFIVE + 10));
+    fontdata.Insert('/', tileGetTexture(TILE_THREEBYFIVE + 11));
+    fontdata.Insert('%', tileGetTexture(TILE_MINIFONT + '%' - '!'));
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+
+    fontdata.Clear();
+
+    // digital font
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(TILE_DIGITALNUM + i));
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+
 }
 
 

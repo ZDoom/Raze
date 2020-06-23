@@ -953,12 +953,22 @@ bool FScanner::ScanValue(bool allowfloat)
 			return false;
 		}
 	}
-	if (TokenType != TK_IntConst && (TokenType != TK_FloatConst || !allowfloat)) 
-	{
+
+	if (TokenType == TK_FloatConst && !allowfloat)
 		return false;
+
+	if (TokenType != TK_IntConst && TokenType != TK_FloatConst) 
+	{
+		auto d = constants.CheckKey(String);
+		if (!d) return false;
+		if (!allowfloat && int64_t(*d) != *d) return false;
+		BigNumber = *d;
+		Number = *d;
+		Float = *d;
 	}
 	if (neg)
 	{
+		BigNumber = -BigNumber;
 		Number = -Number;
 		Float = -Float;
 	}

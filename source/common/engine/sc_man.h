@@ -2,6 +2,7 @@
 #define __SC_MAN_H__
 
 #include "zstring.h"
+#include "tarray.h"
 #include "name.h"
 #include "basics.h"
 
@@ -97,6 +98,11 @@ public:
 	bool GetFloat();
 	void MustGetFloat();
 	bool CheckFloat();
+
+	double *LookupConstant(FName name)
+	{
+		return constants.CheckKey(name);
+	}
 	
 	// Token based variant
 	bool CheckValue(bool allowfloat);
@@ -136,6 +142,8 @@ protected:
 
 	// Strings longer than this minus one will be dynamically allocated.
 	static const int MAX_STRING_SIZE = 128;
+
+	TMap<FName, double> constants;
 
 	bool ScriptOpen;
 	FString ScriptBuffer;

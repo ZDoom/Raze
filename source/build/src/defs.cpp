@@ -18,6 +18,71 @@
 #include "m_argv.h"
 #include "gamecontrol.h"
 #include "palettecontainer.h"
+#include "mapinfo.h"
+
+#if 0
+// For later
+{
+if (sc.Compare("music"))
+{
+    FString id, mus;
+    sc.MustGetToken('{');
+    while (!sc.CheckToken('}'))
+    {
+        sc.MustGetToken(TK_Identifier);
+        if (sc.Compare("id"))
+        {
+            sc.MustGetString();
+            id = sc.String;
+        }
+        else if (sc.Compare("file"))
+        {
+            sc.MustGetString();
+            mus = sc.String;
+        }
+    }
+
+    if (!SetMusicForMap(id, mus, true))
+    {
+        sc.ScriptError("Map %s not found in music definition", id.GetChars());
+    }
+
+    char* tokenPtr = pScript->ltextptr;
+    char* musicID = NULL;
+    char* fileName = NULL;
+    char* musicEnd;
+
+    if (scriptfile_getbraces(pScript, &musicEnd))
+        break;
+
+    while (pScript->textptr < musicEnd)
+    {
+        switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
+        {
+        case T_ID: scriptfile_getstring(pScript, &musicID); break;
+        case T_FILE: scriptfile_getstring(pScript, &fileName); break;
+        }
+    }
+
+    if (!firstPass)
+    {
+        if (musicID == NULL)
+        {
+            Printf("Error: missing ID for music definition near line %s:%d\n",
+                pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
+            break;
+        }
+
+        if (fileName == NULL || fileSystem.FileExists(fileName))
+            break;
+
+        if (S_DefineMusic(musicID, fileName) == -1)
+            Printf("Error: invalid music ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
+    }
+
+}
+}
+#endif
 
 enum scripttoken_t
 {
@@ -477,6 +542,12 @@ static int32_t defsparser(scriptfile *script)
         {
             char *bs;
             scriptfile_getstring(script,&bs);
+#if 0
+            if (!scriptfile_getstring(pScript, &fileName) && firstPass)
+            {
+                fileSystem.AddAdditionalFile(fileName);
+            }
+#endif
         }
         break;
         case T_CACHESIZE:
@@ -2361,6 +2432,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
+            SetMusicForMap(dummy2, dummy, true);
         }
         break;
 

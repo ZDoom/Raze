@@ -133,7 +133,6 @@ enum gametokens
     T_ALLOW = 2,
     T_NOAUTOLOAD,
     T_INCLUDEDEFAULT,
-    T_MUSIC,
     T_SOUND,
     T_FILE,
     T_CUTSCENE,
@@ -4684,7 +4683,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         { "loadgrp",         T_LOADGRP          },
         { "cachesize",       T_CACHESIZE        },
         { "noautoload",      T_NOAUTOLOAD       },
-        { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
         { "cutscene",        T_CUTSCENE         },
         { "animsounds",      T_ANIMSOUNDS       },
@@ -4777,42 +4775,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             if (firstPass)
                 gNoAutoLoad = 1;
             break;
-        case T_MUSIC:
-        {
-            char *tokenPtr = pScript->ltextptr;
-            char *musicID  = NULL;
-            char *fileName = NULL;
-            char *musicEnd;
-
-            if (scriptfile_getbraces(pScript, &musicEnd))
-                break;
-
-            while (pScript->textptr < musicEnd)
-            {
-                switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
-                {
-                    case T_ID: scriptfile_getstring(pScript, &musicID); break;
-                    case T_FILE: scriptfile_getstring(pScript, &fileName); break;
-                }
-            }
-
-            if (!firstPass)
-            {
-                if (musicID==NULL)
-                {
-                    Printf("Error: missing ID for music definition near line %s:%d\n",
-                               pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
-                    break;
-                }
-
-                if (fileName == NULL || fileSystem.FileExists(fileName))
-                    break;
-
-                if (S_DefineMusic(musicID, fileName) == -1)
-                    Printf("Error: invalid music ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
-            }
-        }
-        break;
 
         case T_CUTSCENE:
         {

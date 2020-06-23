@@ -49,10 +49,6 @@ enum basepal_t {
 #include "v_text.h"
 
 
-extern int loaddefinitions_game(const char *fn, int32_t preload);
-
-//////////
-
 extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
 extern void G_SetupGlobalPsky(void);
 

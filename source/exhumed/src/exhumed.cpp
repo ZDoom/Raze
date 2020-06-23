@@ -451,7 +451,6 @@ enum gametokens
     T_ALLOW = 2,
     T_NOAUTOLOAD,
     T_INCLUDEDEFAULT,
-    T_MUSIC,
     T_SOUND,
     T_FILE,
     T_CUTSCENE,

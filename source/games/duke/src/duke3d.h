@@ -130,6 +130,9 @@ END_DUKE_NS
 
 BEGIN_DUKE_NS
 
+extern FFont* IndexFont;
+extern FFont* DigiFont;
+
 // Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
 enum GameFunction_t
 {
