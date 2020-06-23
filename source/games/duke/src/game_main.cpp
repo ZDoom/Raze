@@ -31,7 +31,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "demo.h"
 #include "screens.h"
 #include "baselayer.h"
-#include "cmdline.h"
 #include "m_argv.h"
 
 BEGIN_DUKE_NS

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <array>
 #include "v_font.h"
-#include "duke3d_ed.h"
+#include "duke3d.h"
 #include "compat.h"
 #include "sbar.h"
 #include "statusbar.h"
@@ -724,7 +724,7 @@ public:
 
         FString format;
 
-        if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if (ud.multimode > 1 && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
         {
             DrawGraphic(tileGetTexture(TILE_KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
             format.Format("%d", max(p->frag - p->fraggedself, 0));
@@ -823,7 +823,7 @@ public:
 
         FString format;
 
-        if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if (ud.multimode > 1 && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
         {
             DrawGraphic(tileGetTexture(TILE_KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
             format.Format("%d", max(p->frag - p->fraggedself, 0));
