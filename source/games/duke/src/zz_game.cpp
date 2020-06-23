@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 #include "sbar.h"
 #include "screens.h"
-#include "cmdline.h"
 #include "palette.h"
 #include "gamecvars.h"
 #include "gameconfigfile.h"
@@ -60,7 +59,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 void SetDispatcher();
+void checkcommandline();
 
+int32_t g_fakeMultiMode = 0;
 int32_t g_quitDeadline = 0;
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
@@ -2375,7 +2376,7 @@ int GameInterface::app_main()
     // accesses g_player[0].
     G_MaybeAllocPlayer(0);
 
-    G_CheckCommandLine();
+    checkcommandline();
 
     SetDefaults();
 

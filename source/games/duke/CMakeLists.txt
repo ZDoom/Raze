@@ -1,5 +1,6 @@
 
 set( PCH_SOURCES
+	src/game_main.cpp
 	src/actors.cpp
 	src/actors_r.cpp
 	src/actors_d.cpp
@@ -33,7 +34,6 @@ set( PCH_SOURCES
 	src/zz_actors.cpp
 	src/zz_anim.cpp
 	src/zz_cheats.cpp
-	src/zz_cmdline.cpp
 	src/zz_common.cpp
 	src/zz_d_menu.cpp
 	src/zz_demo.cpp
