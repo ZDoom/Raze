@@ -2531,9 +2531,9 @@ MoveScrollMode2D(PLAYERp pp)
     }
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
-        mfsvel -= scrl_input.dyaw>>2;
-    mfsvel -= scrl_input.dx>>2;
-    mfvel = -scrl_input.dz>>2;
+        mfsvel -= scrl_input.dyaw / 4;
+    mfsvel -= scrl_input.dx / 4;
+    mfvel = -scrl_input.dz /4;
 
 #if 0
     int const running = !!BUTTON(gamefunc_Run) ^ !!TEST(pp->Flags, PF_LOCK_RUN);

@@ -15,12 +15,12 @@ typedef uint16_t kb_scancode;
 
 struct ControlInfo
 {
-	int32_t     dx;
-	int32_t     dy;
-	int32_t     dz;
-	int32_t     dyaw;
-	int32_t     dpitch;
-	int32_t     droll;
+	float       dx;
+	float       dy;
+	float       dz;
+	float       dyaw;
+	float       dpitch;
+	float       droll;
 	int32_t     mousex;
 	int32_t     mousey;
 };
@@ -178,9 +178,6 @@ public:
 };
 
 extern InputState inputState;
-
-const int   analogExtent = 32767; // used as a divisor for scaling joystick input.
-const float joyaxesScale = (float)analogExtent * 0.75f; // used as a multiplier for scaling joystick input.
 
 void CONTROL_GetInput(ControlInfo* info);
 int32_t handleevents(void);

@@ -195,9 +195,9 @@ void CONTROL_GetInput(ControlInfo* info)
 
 		I_GetAxes(joyaxes);
 
-		info->dyaw += -joyaxes[JOYAXIS_Yaw] * joyaxesScale;
-		info->dx += -joyaxes[JOYAXIS_Side] * joyaxesScale;
-		info->dz += -joyaxes[JOYAXIS_Forward] * joyaxesScale;
-		info->dpitch += -joyaxes[JOYAXIS_Pitch] * joyaxesScale;
+		info->dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
+		info->dx += -joyaxes[JOYAXIS_Side] * 0.75f;
+		info->dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
+		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
 }

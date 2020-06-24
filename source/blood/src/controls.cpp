@@ -306,10 +306,10 @@ void ctrlGetInput(void)
     if (gInput.forward < keyMove && gInput.forward > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-            gInput.forward += keyMove;
+            input.forward += keyMove;
 
         if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-            gInput.forward -= keyMove;
+            input.forward -= keyMove;
     }
 
     if (gInput.strafe < keyMove && gInput.strafe > -keyMove)
@@ -345,6 +345,10 @@ void ctrlGetInput(void)
     static int32_t lastInputClock;  // MED
     int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
+    // Blood's q16mlook scaling is different from the other games, therefore use the below constant to attenuate
+    // the speed to match the other games.
+    float const mlookScale = 3.25f;
+
     lastInputClock = (int32_t) totalclock;
 
     if (turnLeft || turnRight)
@@ -361,24 +365,31 @@ void ctrlGetInput(void)
         input.q16turn <<= 1;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
-        input.strafe -= info.mousex;
+    {
+        static int strafeyaw;
+
+        input.strafe = -(info.mousex + strafeyaw) >> 3;
+        strafeyaw    = (info.mousex + strafeyaw) % 8;
+
+        input.strafe -= scaleAdjustmentToInterval(info.dyaw * keyMove);
+    }
     else
+    {
         input.q16turn = fix16_sadd(input.q16turn, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
+        input.q16turn = fix16_sadd(input.q16turn, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
+    }
 
-    input.strafe -= -(info.dx<<5);
+    input.strafe  -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.forward -= scaleAdjustmentToInterval(info.dz * keyMove);
 
-#if 0
-    if (info.dz < 0)
-        gInput.mlook = ClipRange((info.dz+127)>>7, -127, 127);
-    else
-        gInput.mlook = ClipRange(info.dz>>7, -127, 127);
-#endif
     if (mouseaim)
-        input.q16mlook = fix16_sadd(input.q16mlook, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(208)));
+        input.q16mlook = fix16_sadd(input.q16mlook, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_float(mlookScale * 64.f)));
     else
         input.forward -= info.mousey;
     if (!in_mouseflip)
         input.q16mlook = -input.q16mlook;
+
+    input.q16mlook = fix16_ssub(input.q16mlook, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch / mlookScale)));
 
     if (!gViewMap.bFollowMode && gViewMode == 4)
     {
