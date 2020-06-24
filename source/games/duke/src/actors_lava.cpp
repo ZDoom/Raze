@@ -27,7 +27,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "global.h"
-#include "actors.h"
+#include "zz_actors.h"
 #include "names_rr.h"
 #include "serializer.h"
 

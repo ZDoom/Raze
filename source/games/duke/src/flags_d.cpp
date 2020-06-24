@@ -33,7 +33,7 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "actors.h"
+#include "zz_actors.h"
 #include "names.h"
 
 BEGIN_DUKE_NS

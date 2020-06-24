@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef sector_h_
 #define sector_h_
 
-#include "actors.h"  // actor_t
+#include "zz_actors.h"  // actor_t
 #include "gamedef.h"
 #include "gamevar.h"
 #include "macros.h"

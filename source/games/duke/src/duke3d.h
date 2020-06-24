@@ -108,7 +108,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 
 END_DUKE_NS
 
-#include "actors.h"
+#include "zz_actors.h"
 #include "common_game.h"
 #include "gamecontrol.h"
 #include "game.h"
@@ -123,7 +123,7 @@ END_DUKE_NS
 #include "player.h"
 #include "quotes.h"
 #include "rts.h"
-#include "text.h"
+#include "zz_text.h"
 #include "sector.h"
 #include "sounds.h"
 #include "soundefs.h"

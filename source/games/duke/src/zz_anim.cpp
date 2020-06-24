@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "../glbackend/glbackend.h"
 
 
-#include "anim.h"
+#include "zz_anim.h"
 
 #ifdef USE_LIBVPX
 # include "animvpx.h"

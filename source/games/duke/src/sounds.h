@@ -29,11 +29,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef sounds_public_h_
 #define sounds_public_h_
 
-#include "sounds_common.h"
 #include "raze_sound.h"
 #include "raze_music.h"
 
 BEGIN_DUKE_NS
+
+// Sound flags
+enum {
+    SF_LOOP = 1,
+    SF_MSFX = 2,
+    SF_TALK = 4,
+    SF_ADULT = 8,
+    SF_GLOBAL = 16,
+    SF_ONEINST_INTERNAL = 32,
+
+    SF_DTAG = 128,
+};
 
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSOUNDS           4096

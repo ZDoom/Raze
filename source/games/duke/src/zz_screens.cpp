@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "screens.h"
 
-#include "anim.h"
+#include "zz_anim.h"
 #include "sbar.h"
 #include "menus.h"
 #include "demo.h"

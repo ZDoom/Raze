@@ -30,7 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "global.h"
 #include "game.h"
-#include "sounds_common.h"
+#include "sounds.h"
 #include "names_rr.h"
 
 BEGIN_DUKE_NS

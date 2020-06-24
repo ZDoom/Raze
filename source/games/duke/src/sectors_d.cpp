@@ -34,7 +34,7 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "sounds_common.h"
+#include "sounds.h"
 #include "names.h"
 
 // PRIMITIVE

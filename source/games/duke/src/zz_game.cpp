@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "menus.h"
 #include "savegame.h"
-#include "anim.h"
+#include "zz_anim.h"
 #include "demo.h"
 
 #include "cheats.h"
