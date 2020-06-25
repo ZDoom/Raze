@@ -250,6 +250,7 @@ void    Net_Connect(const char *srvaddr);
 // Packet Handlers
 #endif
 void    Net_GetPackets(void);
+inline void getpackets() { Net_GetPackets(); }
 #ifndef NETCODE_DISABLE
 
 void    Net_SendClientInfo(void);
