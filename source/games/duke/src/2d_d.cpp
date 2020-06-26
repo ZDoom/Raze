@@ -28,6 +28,15 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 // this file collects all 2D content of the game that was scattered across multiple sources originally.
 // All this should transition to a more modern, preferably localization friendly, approach later.
 
+#include "ns.h"
+#include "duke3d.h"
+#include "names.h"
+#include "animtexture.h"
+#include "animlib.h"
+
+#undef gametext
+
+BEGIN_DUKE_NS
 
 
 // Text output - needs to transition to the actual font routines once everything is set up.
@@ -53,7 +62,7 @@ int gametext(int x,int y,const char *t,char s,short dabits)
 
             if(*t >= '0' && *t <= '9')
                 newx += 8;
-            else newx += tilesizx[ac];
+            else newx += tilesiz[ac].x;
             t++;
         }
 
@@ -73,7 +82,7 @@ int gametext(int x,int y,const char *t,char s,short dabits)
 
         if(*t >= '0' && *t <= '9')
             x += 8;
-        else x += tilesizx[ac];
+        else x += tilesiz[ac].x;
 
         t++;
     }
@@ -102,7 +111,7 @@ int gametextpal(int x,int y,const char *t,char s,unsigned char p)
 
             if(*t >= '0' && *t <= '9')
                 newx += 8;
-            else newx += tilesizx[ac];
+            else newx += tilesiz[ac].x;
             t++;
         }
 
@@ -121,7 +130,7 @@ int gametextpal(int x,int y,const char *t,char s,unsigned char p)
         rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,2+8+16,0,0,xdim-1,ydim-1);
         if(*t >= '0' && *t <= '9')
             x += 8;
-        else x += tilesizx[ac];
+        else x += tilesiz[ac].x;
 
         t++;
     }
@@ -151,7 +160,7 @@ int gametextpart(int x,int y,const char *t,char s,short p)
 
             if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
 
-            newx += tilesizx[ac];
+            newx += tilesiz[ac].x;
             t++;
             cnt++;
 
@@ -177,7 +186,7 @@ int gametextpart(int x,int y,const char *t,char s,short p)
         else
             rotatesprite(x<<16,y<<16,65536L,0,ac,s,0,2+8+16,0,0,xdim-1,ydim-1);
 
-        x += tilesizx[ac];
+        x += tilesiz[ac].x;
 
         t++;
         cnt++;
@@ -190,7 +199,7 @@ void gamenumber(int x,int y,int n,char s)
 {
     char b[10];
     //ltoa(n,b,10);
-    Bsnprintf(b,10,"%d",n);
+    mysnprintf(b,10,"%d",n);
     gametext(x,y,b,s,2+8+16);
 }
 
@@ -376,78 +385,69 @@ void playanm(const char *fn,char t)
 {
     unsigned char *animbuf, *palptr, palbuf[768];
     int i, j, k, length=0, numframes=0;
-    int32 handle=-1;
-    UserInput uinfo;
 
 //    return;
     AnimTextures animtex;
 
     inputState.ClearAllInput();
 
-    uinfo.dir = dir_None;
-    uinfo.button0 = uinfo.button1 = FALSE;
-	
 	auto fr = fileSystem.OpenFileReader(fn);
 
-	if (!fr.isOpen())
-		goto ENDOFANIMLOOP;
-
-	buffer = fr.ReadPadded(1);
-	fr.Close();
-
-    anim->animbuf = buffer.Data();
-
-    if (memcmp(anim->animbuf, "LPF ", 4) ||
-        ANIM_LoadAnim(anim->animbuf, buffer.Size()-1) < 0 ||
-        (numframes = ANIM_NumFrames()) <= 0)
+    if (fr.isOpen())
     {
-        Printf("%s: Invalid ANM file\n", fn);
-        goto ENDOFANIMLOOP;
-    }
-	
-    animtex.SetSize(AnimTexture::Paletted, 320, 200);
-    palptr = ANIM_GetPalette();
+        auto buffer = fr.ReadPadded(1);
+        fr.Close();
 
-    ototalclock = totalclock + 10;
-
-    for(i=1;i<numframes;i++)
-    {
-        while(totalclock < ototalclock)
+        if (memcmp(buffer.Data(), "LPF ", 4) ||
+            ANIM_LoadAnim(buffer.Data(), buffer.Size() - 1) < 0 ||
+            (numframes = ANIM_NumFrames()) <= 0)
         {
-            handleevents();
-            getpackets();
-			if (inputState.CheckAllInput())
-                goto ENDOFANIMLOOP;
+            Printf("%s: Invalid ANM file\n", fn);
+            goto ENDOFANIMLOOP;
         }
-        animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
 
-		// ouch!
-        if(t == 10) ototalclock += 14;
-        else if(t == 9) ototalclock += 10;
-        else if(t == 7) ototalclock += 18;
-        else if(t == 6) ototalclock += 14;
-        else if(t == 5) ototalclock += 9;
-        else if(ud.volume_number == 3) ototalclock += 10;
-        else if(ud.volume_number == 2) ototalclock += 10;
-        else if(ud.volume_number == 1) ototalclock += 18;
-        else                           ototalclock += 10;
+        animtex.SetSize(AnimTexture::Paletted, 320, 200);
+        palptr = ANIM_GetPalette();
 
-        twod->ClearScreen();
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_MASKED, false, TAG_DONE);
-		
-        clearview(0);
-        rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
-        videoNextPage();
-        inputState.ClearAllInput();
+        ototalclock = totalclock + 10;
 
-        if(t == 8) endanimvol41(i);
-        else if(t == 10) endanimvol42(i);
-        else if(t == 11) endanimvol43(i);
-        else if(t == 9) intro42animsounds(i);
-        else if(t == 7) intro4animsounds(i);
-        else if(t == 6) first4animsounds(i);
-        else if(t == 5) logoanimsounds(i);
-        else if(t < 4) endanimsounds(i);
+        for (i = 1; i < numframes; i++)
+        {
+            while (totalclock < ototalclock)
+            {
+                handleevents();
+                //getpackets();
+                if (inputState.CheckAllInput())
+                    goto ENDOFANIMLOOP;
+            }
+            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+
+            // ouch!
+            if (t == 10) ototalclock += 14;
+            else if (t == 9) ototalclock += 10;
+            else if (t == 7) ototalclock += 18;
+            else if (t == 6) ototalclock += 14;
+            else if (t == 5) ototalclock += 9;
+            else if (ud.volume_number == 3) ototalclock += 10;
+            else if (ud.volume_number == 2) ototalclock += 10;
+            else if (ud.volume_number == 1) ototalclock += 18;
+            else                           ototalclock += 10;
+
+            twod->ClearScreen();
+            DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
+
+            videoNextPage();
+            inputState.ClearAllInput();
+
+            if (t == 8) endanimvol41(i);
+            else if (t == 10) endanimvol42(i);
+            else if (t == 11) endanimvol43(i);
+            else if (t == 9) intro42animsounds(i);
+            else if (t == 7) intro4animsounds(i);
+            else if (t == 6) first4animsounds(i);
+            else if (t == 5) logoanimsounds(i);
+            else if (t < 4) endanimsounds(i);
+        }
     }
 
     ENDOFANIMLOOP:
@@ -461,142 +461,141 @@ void playanm(const char *fn,char t)
 //
 //
 //---------------------------------------------------------------------------
- 
- void Logo(void)
+
+void Logo(void)
 {
-    short i,j,soundanm;
-    UserInput uinfo;
+    int i,j,soundanm;
 
     soundanm = 0;
 
     ready2send = 0;
 
-    KB_FlushKeyboardQueue();
-    KB_ClearKeysDown(); // JBF
-
-    setview(0,0,xdim-1,ydim-1);
-    clearview(0L);
-    IFISSOFTMODE palto(0,0,0,63);
-
-    flushperms();
-    nextpage();
-
-    stopmusic();
+    inputState.ClearAllInput();
+    twod->ClearScreen();
+    videoNextPage();
+    Mus_Stop();
     FX_StopAllSounds(); // JBF 20031228
-    clearsoundlocks();  // JBF 20031228
 
-if (VOLUMEALL) {
-
-    if(!KB_KeyWaiting() && nomorelogohack == 0)
+    if (VOLUMEALL) 
     {
-        getpackets();
-        playanm("logo.anm",5);
-        IFISSOFTMODE palto(0,0,0,63);
-        KB_FlushKeyboardQueue();
-        KB_ClearKeysDown(); // JBF
-    }
-
-    clearview(0L);
-    nextpage();
-}
-
-    playmusic(&env_music_fn[0][0]);
-    if (!NAM) {
-        fadepal(0,0,0, 0,64,7);
-        //ps[myconnectindex].palette = drealms;
-        //palto(0,0,0,63);
-        setgamepalette(&ps[myconnectindex], drealms, 3);    // JBF 20040308
-        rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-        nextpage();
-        fadepal(0,0,0, 63,0,-7);
-        totalclock = 0;
-
-        uinfo.dir = dir_None;
-        uinfo.button0 = uinfo.button1 = FALSE;
-        KB_FlushKeyboardQueue();
-        do {
-            handleevents();
-            getpackets();
-            CONTROL_GetUserInput(&uinfo);
-        } while (totalclock < (120*7) && !KB_KeyWaiting() && !uinfo.button0 && !uinfo.button1 );
-        CONTROL_ClearUserInput(&uinfo);
-
-        KB_ClearKeysDown(); // JBF
-    }
-
-    fadepal(0,0,0, 0,64,7);
-    clearview(0L);
-    nextpage();
-
-    //ps[myconnectindex].palette = titlepal;
-    setgamepalette(&ps[myconnectindex], titlepal, 3);   // JBF 20040308
-    flushperms();
-    rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-    fadepal(0,0,0, 63,0,-7);
-    totalclock = 0;
-
-    uinfo.dir = dir_None;
-    uinfo.button0 = uinfo.button1 = FALSE;
-    KB_FlushKeyboardQueue();
-    do {
-        clearview(0);
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-
-        if( totalclock > 120 && totalclock < (120+60) )
+        if (!inputState.CheckAllInput())
         {
-            if(soundanm == 0)
+            //getpackets();
+            playanm("logo.anm", 5);
+            inputState.ClearAllInput();
+        }
+
+        twod->ClearScreen();
+        videoNextPage();
+    }
+
+    S_PlaySpecialMusic(MUS_INTRO);
+
+    if (!isNam()) 
+    {
+        auto tex = tileGetTexture(DREALMS);
+        if (tex && tex->isValid())
+        {
+            auto translation = TRANSLATION(Translation_BasePalettes + DREALMSPAL, 0);
+
+            auto start = I_msTime();
+            uint64_t span = 0;
+            inputState.ClearAllInput();
+            int color = 0;
+            uint64_t duration = 7500;
+            while (span < duration)
+            {
+                twod->ClearScreen();
+                int light = 255;
+                if (span < 255) light = span;
+                else if (span > duration - 255) light = duration - span;
+                light = clamp(light, 0, 255);
+                PalEntry pe(255, light, light, light);
+                DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+                handleevents();
+                videoNextPage();
+                span = I_msTime() - start;
+                if (inputState.CheckAllInput()) break;
+            }
+        }
+    }
+    twod->ClearScreen();
+    videoNextPage();
+    inputState.ClearAllInput();
+    auto translation = TRANSLATION(Translation_BasePalettes + TITLEPAL, 0);
+    auto start = I_msTime();
+    uint64_t span = 0;
+    int clock = 0;
+    do
+    {
+        int light = 255;
+        if (span < 255) light = span;
+        //else if (span > duration - 255) light = duration - span;
+        light = clamp(light, 0, 255);
+        PalEntry pe(255, light, light, light);
+
+        twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(BETASCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+
+        span = I_msTime() - start;
+        clock = Scale(span, 120, 1000);
+        if (clock >= 120 && clock < 120+60)
+        {
+            if (soundanm == 0)
             {
                 soundanm = 1;
                 sound(PIPEBOMB_EXPLODE);
             }
-            rotatesprite(160<<16,104<<16,(totalclock-120)<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+            // Todo: figure out how to translate this call
+            //DrawTexture(twod, tileGetTexture(DUKENUKEM), 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+            rotatesprite(160 << 16, 104 << 16, clock << 10, 0, DUKENUKEM, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
         }
-        else if( totalclock >= (120+60) )
-            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+        else if (span >= 1500)
+            rotatesprite(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
 
-        if( totalclock > 220 && totalclock < (220+30) )
+        if (clock > 220 && clock < (220 + 30))
         {
-            if( soundanm == 1)
+            if (soundanm == 1)
             {
                 soundanm = 2;
                 sound(PIPEBOMB_EXPLODE);
             }
 
-            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-            rotatesprite(160<<16,(129)<<16,(totalclock - 220 )<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite(160 << 16, (104) << 16, 60 << 10, 0, DUKENUKEM, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
+            rotatesprite(160 << 16, (129) << 16, (clock - 220) << 11, 0, THREEDEE, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
         }
-        else if( totalclock >= (220+30) )
-            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+        else if (clock >= (220 + 30))
+            rotatesprite(160 << 16, (129) << 16, 30 << 11, 0, THREEDEE, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
 
         if (PLUTOPAK) { // JBF 20030804
-            if( totalclock >= 280 && totalclock < 395 )
+            if( clock >= 280 && clock < 395 )
             {
-                rotatesprite(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                rotatesprite(160 << 16, (151) << 16, (410 - clock) << 12, 0, PLUTOPAKSPRITE + 1, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
                 if(soundanm == 2)
                 {
                     soundanm = 3;
                     sound(FLY_BY);
                 }
             }
-            else if( totalclock >= 395 )
+            else if( clock >= 395 )
             {
                 if(soundanm == 3)
                 {
                     soundanm = 4;
                     sound(PIPEBOMB_EXPLODE);
                 }
-                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                rotatesprite(160 << 16, (151) << 16, 30 << 11, 0, PLUTOPAKSPRITE + 1, 0, 0, 2 + 8, 0, 0, xdim - 1, ydim - 1, nullptr, TITLEPAL);
             }
         }
 
-        nextpage();
+        videoNextPage();
         handleevents();
-        getpackets();
-        CONTROL_GetUserInput(&uinfo);
-    } while(totalclock < (860+120) && !KB_KeyWaiting() && !uinfo.button0 && !uinfo.button1);
-    CONTROL_ClearUserInput(&uinfo);
-    KB_ClearKeysDown(); // JBF
+        //getpackets();
+    } 
+    while(clock < (860+120) && !inputState.CheckAllInput());
+    inputState.ClearAllInput();
 
+#if 0
     if(ud.multimode > 1)
     {
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
@@ -611,17 +610,12 @@ if (VOLUMEALL) {
     }
 
     waitforeverybody();
+#endif
 
-    flushperms();
-    clearview(0L);
-    nextpage();
+    twod->ClearScreen();
+    videoNextPage();
 
-    //ps[myconnectindex].palette = palette;
-    setgamepalette(&ps[myconnectindex], palette, 0);    // JBF 20040308
     sound(NITEVISION_ONOFF);
-
-    //palto(0,0,0,0);
-    clearview(0L);
 }
 
 void dobonus(char bonusonly)
@@ -1201,3 +1195,4 @@ void dobonus(char bonusonly)
 }
 
 
+END_DUKE_NS
