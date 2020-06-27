@@ -89,6 +89,8 @@ enum
 
 	DTA_FullscreenEx,
 	DTA_FullscreenScale,
+	DTA_ScaleX,
+	DTA_ScaleY,
 
 };
 
@@ -157,6 +159,7 @@ struct DrawParms
 	int8_t fsscalemode;
 	double srcx, srcy;
 	double srcwidth, srcheight;
+	double patchscalex, patchscaley;
 };
 
 struct Va_List

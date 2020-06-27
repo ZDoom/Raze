@@ -155,6 +155,8 @@ enum DrawTextureTags
 
 	DTA_FullscreenEx,		// advanced fullscreen control.
 	DTA_FullscreenScale,	// enable DTA_Fullscreen coordinate calculation for placed overlays.
+	DTA_ScaleX,				// scales the patch dimensions before applying any other transformation.
+	DTA_ScaleY,
 
 };
 

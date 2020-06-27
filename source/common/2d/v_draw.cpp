@@ -399,12 +399,14 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		}
 		if (parms->destwidth == INT_MAX || parms->fortext)
 		{
-			parms->destwidth = img->GetDisplayWidth();
+			parms->destwidth = parms->texwidth;
 		}
 		if (parms->destheight == INT_MAX || parms->fortext)
 		{
-			parms->destheight = img->GetDisplayHeight();
+			parms->destheight = parms->texheight;
 		}
+		parms->destwidth *= parms->patchscalex;
+		parms->destheight *= parms->patchscaley;
 
 		switch (parms->cleanmode)
 		{
@@ -446,7 +448,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		case DTA_FullscreenEx:
 		{
 			DoubleRect rect;
-			CalcFullscreenScale(drawer, img->GetDisplayWidth(), img->GetDisplayHeight(), parms->fsscalemode, rect);
+			CalcFullscreenScale(drawer, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
 			parms->keepratio = true;
 			parms->x = rect.left;
 			parms->y = rect.top;
@@ -624,6 +626,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->monospace = EMonospacing::Off;
 	parms->spacing = 0;
 	parms->fsscalemode = -1;
+	parms->patchscalex = parms->patchscaley = 1;
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -956,6 +959,18 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			{
 				//parms->shadowAlpha = 0;
 			}
+			break;
+
+		case DTA_ScaleX:
+			assert(fortext == false);
+			if (fortext) return false;
+			parms->patchscalex = ListGetDouble(tags);
+			break;
+
+		case DTA_ScaleY:
+			assert(fortext == false);
+			if (fortext) return false;
+			parms->patchscaley = ListGetDouble(tags);
 			break;
 
 		case DTA_Masked:

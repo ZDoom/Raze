@@ -135,8 +135,14 @@ AnimTextures::AnimTextures()
 
 AnimTextures::~AnimTextures()
 {
-    tex[0]->CleanHardwareData(true);
-    tex[1]->CleanHardwareData(true);
+    Clean();
+}
+
+void AnimTextures::Clean()
+{
+    if (tex[0]) tex[0]->CleanHardwareData(true);
+    if (tex[1]) tex[1]->CleanHardwareData(true);
+    tex[0] = tex[1] = nullptr;
 }
 
 void AnimTextures::SetSize(int format, int width, int height)

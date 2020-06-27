@@ -1069,12 +1069,13 @@ void G_DisplayExtraScreens(void)
     }
 }
 
-void Logo();
+void Logo_d();
+void Logo_r();
 void G_DisplayLogo(void)
 {
     if (!isRR())
     {
-        Logo();
+        Logo_d();
         return;
     }
     int32_t soundanm = 0;
@@ -1144,159 +1145,6 @@ void G_DisplayLogo(void)
         videoClearScreen(0L);
         return;
     }
-    if (!g_noLogo && !userConfig.nologo /* && (!g_netServer && ud.multimode < 2) */)
-    {
-        if (VOLUMEALL)
-        {
-            if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
-            {
-                Net_GetPackets();
-                Anim_Play("logo.anm");
-                G_FadePalette(0, 0, 0, 252);
-                inputState.ClearAllInput();
-            }
-
-            videoClearScreen(0L);
-            videoNextPage();
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-        }
-
-        S_PlaySpecialMusic(MUS_INTRO);
-
-        //g_player[myconnectindex].ps->palette = drealms;
-        //G_FadePalette(0,0,0,252);
-
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
-        {
-            Net_GetPackets();
-
-			if (fileSystem.FileExists("3dr.ivf") || fileSystem.FileExists("3dr.anm"))
-            {
-                Anim_Play("3dr.anm");
-                G_FadePalette(0, 0, 0, 252);
-                inputState.ClearAllInput();
-            }
-            else
-            {
-                videoClearScreen(0);
-
-                fadepal(0, 0, 0, 0, 252, 28);
-                renderFlushPerms();
-                rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TILE_DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
-                videoNextPage();
-                fadepaltile(0, 0, 0, 252, 0, -28, TILE_DREALMS, DREALMSPAL);
-                totalclock = 0;
-
-                while (totalclock < (120 * 7) && !inputState.CheckAllInput())
-                {
-                    if (G_FPSLimit())
-                    {
-                        videoClearScreen(0);
-                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, TILE_DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH, nullptr, DREALMSPAL);
-                        G_HandleAsync();
-                        videoNextPage();
-                    }
-                }
-
-                fadepaltile(0, 0, 0, 0, 252, 28, TILE_DREALMS, DREALMSPAL);
-            }
-        }
-
-        videoClearScreen(0L);
-        videoNextPage();
-
-        inputState.ClearAllInput();
-
-        videoClearScreen(0L);
-        videoNextPage();
-
-        videoClearScreen(0);
-
-        //g_player[myconnectindex].ps->palette = titlepal;
-        renderFlushPerms();
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TILE_BETASCREEN, 0, 0, 2+8+64+BGSTRETCH, nullptr, TITLEPAL);
-        inputState.keyFlushChars();
-        fadepaltile(0, 0, 0, 252, 0, -28, TILE_BETASCREEN, TITLEPAL);
-        totalclock = 0;
-
-        while (
-            totalclock < (860+120) &&
-            !inputState.CheckAllInput())
-        {
-            if (G_FPSLimit())
-            {
-                videoClearScreen(0);
-                rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TILE_BETASCREEN, 0, 0, 2+8+64+BGSTRETCH, nullptr, TITLEPAL);
-
-                if (totalclock > 120 && totalclock < (120+60))
-                {
-                    if (soundanm == 0)
-                    {
-                        soundanm++;
-                        S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                    }
-                    rotatesprite_fs(160<<16, 104<<16, ((int32_t) totalclock-120)<<10, 0, TILE_DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
-                }
-                else if (totalclock >= (120+60))
-                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, TILE_DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
-
-                if (totalclock > 220 && totalclock < (220+30))
-                {
-                    if (soundanm == 1)
-                    {
-                        soundanm++;
-                        S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                    }
-
-                    rotatesprite_fs(160<<16, (104)<<16, 60<<10, 0, TILE_DUKENUKEM, 0, 0, 2+8, nullptr, TITLEPAL);
-                    rotatesprite_fs(160<<16, (129)<<16, ((int32_t) totalclock - 220)<<11, 0, TILE_THREEDEE, 0, 0, 2+8, nullptr, TITLEPAL);
-                }
-                else if (totalclock >= (220+30))
-                    rotatesprite_fs(160<<16, (129)<<16, 30<<11, 0, TILE_THREEDEE, 0, 0, 2+8, nullptr, TITLEPAL);
-
-                if (PLUTOPAK)
-                {
-                    // JBF 20030804
-                    if (totalclock >= 280 && totalclock < 395)
-                    {
-                        rotatesprite_fs(160<<16, (151)<<16, (410-(int32_t) totalclock)<<12, 0, TILE_PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8, nullptr, TITLEPAL);
-                        if (soundanm == 2)
-                        {
-                            soundanm++;
-                            S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
-                        }
-                    }
-                    else if (totalclock >= 395)
-                    {
-                        if (soundanm == 3)
-                        {
-                            soundanm++;
-                            S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                        }
-                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, TILE_PLUTOPAKSPRITE+1, (sintable[((int32_t) totalclock<<4)&2047]>>11), 0, 2+8, nullptr, TITLEPAL);
-                    }
-                }
-
-                videoNextPage();
-            }
-
-            G_HandleAsync();
-        }
-
-        inputState.ClearAllInput();
-    }
-
-    renderFlushPerms();
-    videoClearScreen(0L);
-    videoNextPage();
-
-    //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-    S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
-
-    //G_FadePalette(0,0,0,0);
-    videoClearScreen(0L);
 }
 
 void G_DoOrderScreen(void)

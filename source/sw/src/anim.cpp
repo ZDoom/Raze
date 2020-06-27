@@ -260,7 +260,6 @@ playanm(short anim_num)
         goto ENDOFANIMLOOP;
     }
 
-    ANIM_LoadAnim(&anm, buffer.Data(), buffer.Size()-1);
     ANIMnumframes = ANIM_NumFrames(&anm);
     numframes = ANIMnumframes;
 
