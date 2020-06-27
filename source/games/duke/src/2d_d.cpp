@@ -16,7 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+aint with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 Original Source: 1996 - Todd Replogle
@@ -33,14 +33,18 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "names.h"
 #include "animtexture.h"
 #include "animlib.h"
+#include "raze_music.h"
+#include "mapinfo.h"
+//#include "zz_text.h"
 
 #undef gametext
+//#undef menutext
 
 BEGIN_DUKE_NS
 
 
 // Text output - needs to transition to the actual font routines once everything is set up.
-
+#if 1
 int gametext(int x,int y,const char *t,char s,short dabits)
 {
     short ac,newx;
@@ -194,6 +198,7 @@ int gametextpart(int x,int y,const char *t,char s,short p)
 
     return (x);
 }
+#endif
 
 void gamenumber(int x,int y,int n,char s)
 {
@@ -383,8 +388,7 @@ void endanimvol43(int fr)
 
 void playanm(const char *fn,char t)
 {
-    unsigned char *animbuf, *palptr, palbuf[768];
-    int i, j, k, length=0, numframes=0;
+    int i, length=0, numframes=0;
 
 //    return;
     AnimTextures animtex;
@@ -395,19 +399,20 @@ void playanm(const char *fn,char t)
 
     if (fr.isOpen())
     {
+        anim_t anm;
         auto buffer = fr.ReadPadded(1);
         fr.Close();
 
         if (memcmp(buffer.Data(), "LPF ", 4) ||
-            ANIM_LoadAnim(buffer.Data(), buffer.Size() - 1) < 0 ||
-            (numframes = ANIM_NumFrames()) <= 0)
+            ANIM_LoadAnim(&anm, buffer.Data(), buffer.Size() - 1) < 0 ||
+            (numframes = ANIM_NumFrames(&anm)) <= 0)
         {
             Printf("%s: Invalid ANM file\n", fn);
             goto ENDOFANIMLOOP;
         }
 
         animtex.SetSize(AnimTexture::Paletted, 320, 200);
-        palptr = ANIM_GetPalette();
+        auto palptr = ANIM_GetPalette(&anm);
 
         ototalclock = totalclock + 10;
 
@@ -420,7 +425,7 @@ void playanm(const char *fn,char t)
                 if (inputState.CheckAllInput())
                     goto ENDOFANIMLOOP;
             }
-            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+            animtex.SetFrame(ANIM_GetPalette(&anm), ANIM_DrawFrame(&anm, i));
 
             // ouch!
             if (t == 10) ototalclock += 14;
@@ -453,7 +458,6 @@ void playanm(const char *fn,char t)
     ENDOFANIMLOOP:
 
     inputState.ClearAllInput();
-    ANIM_FreeAnim ();
 }
 
 //---------------------------------------------------------------------------
@@ -464,7 +468,7 @@ void playanm(const char *fn,char t)
 
 void Logo(void)
 {
-    int i,j,soundanm;
+    int soundanm;
 
     soundanm = 0;
 
@@ -606,7 +610,7 @@ void Logo(void)
             rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
         gametext(160,190,"WAITING FOR PLAYERS",14,2);
-        nextpage();
+        videoNextPage();
     }
 
     waitforeverybody();
@@ -620,11 +624,11 @@ void Logo(void)
 
 void dobonus(char bonusonly)
 {
-    short t, r, tinc,gfx_offset;
-    long i, y,xfragtotal,yfragtotal;
+    short t, /*r,*/ tinc,gfx_offset;
+    //int i, y, xfragtotal, yfragtotal;
     short bonuscnt;
 
-    long breathe[] =
+    static const int breathe[] =
     {
          0,  30,VICTORY1+1,176,59,
         30,  60,VICTORY1+2,176,59,
@@ -632,7 +636,7 @@ void dobonus(char bonusonly)
         90, 120,0         ,176,59
     };
 
-    long bossmove[] =
+    static const int bossmove[] =
     {
          0, 120,VICTORY1+3,86,59,
        220, 260,VICTORY1+4,86,59,
@@ -644,15 +648,11 @@ void dobonus(char bonusonly)
 
     bonuscnt = 0;
 
-    for(t=0;t<64;t+=7) palto(0,0,0,t);
-    setview(0,0,xdim-1,ydim-1);
-    clearview(0L);
-    nextpage();
-    flushperms();
+    twod->ClearScreen();
+    videoNextPage();
 
     FX_StopAllSounds();
-    clearsoundlocks();
-    FX_SetReverb(0L);
+    FX_SetReverb(0);
 
     if(bonusonly) goto FRAGBONUS;
 
@@ -662,17 +662,16 @@ void dobonus(char bonusonly)
         case 0:
             if(ud.lockout == 0)
             {
-                clearview(0L);
-                rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                nextpage();
-                ps[myconnectindex].palette = endingpal;
-                for(t=63;t>=0;t--) palto(0,0,0,t);
+                twod->ClearScreen();
+                rotatesprite(0, 50 << 16, 65536L, 0, VICTORY1, 0, 0, 2 + 8 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1, nullptr, ENDINGPAL);
+                videoNextPage();
+                //for(t=63;t>=0;t--) palto(0,0,0,t);
 
-                KB_FlushKeyboardQueue();
+                inputState.ClearAllInput();
                 totalclock = 0; tinc = 0;
                 while( 1 )
                 {
-                    clearview(0L);
+                    twod->ClearScreen();
                     rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
                     // boss
@@ -703,176 +702,210 @@ void dobonus(char bonusonly)
                         }
                     }
 
-                    getpackets();
-                    nextpage();
-                    if( KB_KeyWaiting() ) break;
+                    //getpackets();
+                    videoNextPage();
+                    if( inputState.CheckAllInput() ) break;
                 }
             }
 
-            for(t=0;t<64;t++) palto(0,0,0,t);
+            //for(t=0;t<64;t++) palto(0,0,0,t);
 
-            KB_FlushKeyboardQueue();
-            ps[myconnectindex].palette = palette;
+            inputState.ClearAllInput();
 
-            rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            nextpage(); for(t=63;t>0;t--) palto(0,0,0,t);
-            while( !KB_KeyWaiting() ) getpackets();
-            for(t=0;t<64;t++) palto(0,0,0,t);
-            MUSIC_StopSong();
+            do
+            {
+                twod->ClearScreen();
+                rotatesprite(0, 0, 65536L, 0, 3292, 0, 0, 2 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
+                videoNextPage();
+                //for(t=63;t>0;t--) palto(0,0,0,t);
+            } while (!inputState.CheckAllInput()); //getpackets();
+            //for(t=0;t<64;t++) palto(0,0,0,t);
+            Mus_Stop();
             FX_StopAllSounds();
-            clearsoundlocks();
             break;
         case 1:
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
+            Mus_Stop();
+            twod->ClearScreen();
+            videoNextPage();
 
             if(ud.lockout == 0)
             {
                 playanm("cineov2.anm",1);
-                KB_FlushKeyBoardQueue();
-                clearview(0L);
-                nextpage();
+                inputState.ClearAllInput();
+                twod->ClearScreen();
+                videoNextPage();
             }
 
             sound(PIPEBOMB_EXPLODE);
 
-            for(t=0;t<64;t++) palto(0,0,0,t);
-            setview(0,0,xdim-1,ydim-1);
-            KB_FlushKeyboardQueue();
-            ps[myconnectindex].palette = palette;
-            rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            nextpage(); for(t=63;t>0;t--) palto(0,0,0,t);
-            while( !KB_KeyWaiting() ) getpackets();
-            for(t=0;t<64;t++) palto(0,0,0,t);
+            //for(t=0;t<64;t++) palto(0,0,0,t);
+            inputState.ClearAllInput();
+            do
+            {
+                twod->ClearScreen();
+                rotatesprite(0, 0, 65536L, 0, 3293, 0, 0, 2 + 8 + 16 + 64, 0, 0, xdim - 1, ydim - 1);
+                videoNextPage();
+                //for(t=63;t>0;t--) palto(0,0,0,t);
+            } while (!inputState.CheckAllInput()); //getpackets();
+            //for(t=0;t<64;t++) palto(0,0,0,t);
 
             break;
 
         case 3:
 
-            setview(0,0,xdim-1,ydim-1);
-
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
+            Mus_Stop();
+            twod->ClearScreen();
+            videoNextPage();
 
             if(ud.lockout == 0)
             {
-                KB_FlushKeyboardQueue();
+                inputState.ClearAllInput();
                 playanm("vol4e1.anm",8);
-                clearview(0L);
-                nextpage();
+                twod->ClearScreen();
+                videoNextPage();
                 playanm("vol4e2.anm",10);
-                clearview(0L);
-                nextpage();
+                twod->ClearScreen();
+                videoNextPage();
                 playanm("vol4e3.anm",11);
-                clearview(0L);
-                nextpage();
+                twod->ClearScreen();
+                videoNextPage();
             }
 
             FX_StopAllSounds();
-            clearsoundlocks();
             sound(ENDSEQVOL3SND4);
-            KB_FlushKeyBoardQueue();
+            inputState.ClearAllInput();
 
-            ps[myconnectindex].palette = palette;
-            palto(0,0,0,63);
-            clearview(0L);
-            menutext(160,60,0,0,"THANKS TO ALL OUR");
-            menutext(160,60+16,0,0,"FANS FOR GIVING");
-            menutext(160,60+16+16,0,0,"US BIG HEADS.");
-            menutext(160,70+16+16+16,0,0,"LOOK FOR A DUKE NUKEM 3D");
-            menutext(160,70+16+16+16+16,0,0,"SEQUEL SOON.");
-            nextpage();
+            //palto(0,0,0,63);
+            twod->ClearScreen();
+            menutext_center(60, GStrings("Thanks to all our"));
+            menutext_center(60 + 16, GStrings("fans for giving"));
+            menutext_center(60 + 16 + 16, GStrings("us big heads."));
+            menutext_center(70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
+            menutext_center(70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
+            videoNextPage();
 
-            for(t=63;t>0;t-=3) palto(0,0,0,t);
-            KB_FlushKeyboardQueue();
-            while(!KB_KeyWaiting()) getpackets();
-            for(t=0;t<64;t+=3) palto(0,0,0,t);
+            //for(t=63;t>0;t-=3) palto(0,0,0,t);
+            inputState.ClearAllInput();
+            while(!inputState.CheckAllInput()) //getpackets();
+            //for(t=0;t<64;t+=3) palto(0,0,0,t);
 
-            clearview(0L);
-            nextpage();
+            twod->ClearScreen();
+            videoNextPage();
 
             playanm("DUKETEAM.ANM",4);
 
-            KB_FlushKeyBoardQueue();
-            while(!KB_KeyWaiting()) getpackets();
+            inputState.ClearAllInput();
+            while(!inputState.CheckAllInput()) //getpackets();
 
-            clearview(0L);
-            nextpage();
-            palto(0,0,0,63);
+            twod->ClearScreen();
+            videoNextPage();
+            //palto(0,0,0,63);
 
             FX_StopAllSounds();
-            clearsoundlocks();
-            KB_FlushKeyBoardQueue();
-
+            inputState.ClearAllInput();
             break;
 
         case 2:
 
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
+            Mus_Stop();
+            twod->ClearScreen();
+            videoNextPage();
             if(ud.lockout == 0)
             {
-                for(t=63;t>=0;t--) palto(0,0,0,t);
+                //for(t=63;t>=0;t--) palto(0,0,0,t);
                 playanm("cineov3.anm",2);
-                KB_FlushKeyBoardQueue();
+                inputState.ClearAllInput();
                 ototalclock = totalclock+200;
-                while(totalclock < ototalclock) getpackets();
-                clearview(0L);
-                nextpage();
+                while(totalclock < ototalclock) //getpackets();
+                twod->ClearScreen();
+                videoNextPage();
 
                 FX_StopAllSounds();
-                clearsoundlocks();
             }
 
             playanm("RADLOGO.ANM",3);
 
-            if( ud.lockout == 0 && !KB_KeyWaiting() )
+            if( ud.lockout == 0 && !inputState.CheckAllInput() )
             {
                 sound(ENDSEQVOL3SND5);
-                while(Sound[ENDSEQVOL3SND5].lock>=200) getpackets();
-                if(KB_KeyWaiting()) goto ENDANM;
+                while (S_CheckSoundPlaying(ENDSEQVOL3SND5, 0)) { handleevents(); /*getpackets();*/ }
+                if (inputState.CheckAllInput()) goto ENDANM;
                 sound(ENDSEQVOL3SND6);
-                while(Sound[ENDSEQVOL3SND6].lock>=200) getpackets();
-                if(KB_KeyWaiting()) goto ENDANM;
+                while (S_CheckSoundPlaying(ENDSEQVOL3SND6, 0)) { handleevents(); /*getpackets();*/ }
+                if (inputState.CheckAllInput()) goto ENDANM;
                 sound(ENDSEQVOL3SND7);
-                while(Sound[ENDSEQVOL3SND7].lock>=200) getpackets();
-                if(KB_KeyWaiting()) goto ENDANM;
+                while (S_CheckSoundPlaying(ENDSEQVOL3SND7, 0)) { handleevents(); /*getpackets();*/ }
+                if (inputState.CheckAllInput()) goto ENDANM;
                 sound(ENDSEQVOL3SND8);
-                while(Sound[ENDSEQVOL3SND8].lock>=200) getpackets();
-                if(KB_KeyWaiting()) goto ENDANM;
+                while (S_CheckSoundPlaying(ENDSEQVOL3SND8, 0)) { handleevents(); /*getpackets();*/ }
+                if (inputState.CheckAllInput()) goto ENDANM;
                 sound(ENDSEQVOL3SND9);
-                while(Sound[ENDSEQVOL3SND9].lock>=200) getpackets();
+                while (S_CheckSoundPlaying(ENDSEQVOL3SND9, 0)) { handleevents(); /*getpackets();*/ }
             }
 
-            KB_FlushKeyBoardQueue();
+            inputState.ClearAllInput();
             totalclock = 0;
-            while(!KB_KeyWaiting() && totalclock < 120) getpackets();
+            while(!inputState.CheckAllInput() && totalclock < 120) //getpackets();
 
             ENDANM:
 
             FX_StopAllSounds();
-            clearsoundlocks();
-
-            KB_FlushKeyBoardQueue();
-
-            clearview(0L);
+            inputState.ClearAllInput();
+            twod->ClearScreen();
 
             break;
+			
+		case 4:
+			if (!isWorldTour())
+				return;
+
+			if (adult_lockout == 0)
+			{
+				Mus_Stop();
+				totalclocklock = totalclock = 0;
+
+				twod->ClearScreen();
+				rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
+				videoNextPage();
+
+				fadepal(0, 0, 0, 252, 0, -4);
+
+				inputState.ClearAllInput();
+
+				S_PlaySound(E5L7_DUKE_QUIT_YOU);
+
+				do
+				{
+					totalclocklock = totalclock;
+
+					twod->ClearScreen();
+					rotatesprite_fs(160<<16, 100<<16, 65536L, 0, FIREFLYGROWEFFECT, 0, 0, 2+8+64+BGSTRETCH);
+					videoNextPage();
+
+					handleevents();
+
+					if (inputState.CheckAllInput()) break;
+				} while (1);
+
+				fadepal(0, 0, 0, 0, 252, 4);
+			}
+
+			Mus_Stop();
+			FX_StopAllSounds();
+			S_ClearSoundLocks();
+			break;
     }
 
-    FRAGBONUS:
+FRAGBONUS:
+    ;
+#if 0
 
-    ps[myconnectindex].palette = palette;
-    KB_FlushKeyboardQueue();
+    inputState.ClearAllInput();
     totalclock = 0; tinc = 0;
     bonuscnt = 0;
 
-    MUSIC_StopSong();
+    Mus_Stop();
     FX_StopAllSounds();
-    clearsoundlocks();
 
     if(playerswhenstarted > 1 && ud.coop != 1 )
     {
@@ -950,32 +983,19 @@ void dobonus(char bonusonly)
         }
 
         minitext(45,96+(8*7),"DEATHS",8,2+8+16+128);
-        nextpage();
+        videoNextPage();
 
         for(t=0;t<64;t+=7)
             palto(0,0,0,63-t);
 
-        KB_FlushKeyboardQueue();
-        while(KB_KeyWaiting()==0) getpackets();
-
-        if( KB_KeyPressed( sc_F12 ) )
-        {
-            KB_ClearKeyDown( sc_F12 );
-#ifdef NAM			
-            screencapture("WW20000.pcx",0);
-#else
-#ifdef NAM			
-            screencapture("nam0000.pcx",0);
-#else
-            screencapture("duke0000.pcx",0);
-#endif
-#endif
-        }
+        inputState.ClearAllInput();
+        while(inputState.CheckAllInput()==0) //getpackets();
 
         if(bonusonly || ud.multimode > 1) return;
 
         for(t=0;t<64;t+=7) palto(0,0,0,t);
     }
+#endif
 
     if(bonusonly || ud.multimode > 1) return;
 
@@ -989,19 +1009,36 @@ void dobonus(char bonusonly)
             break;
     }
 
+    const char* lastmapname;
+
+    if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
+    {
+        lastmapname = strrchr(boardfilename, '\\');
+        if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
+        if (!lastmapname) lastmapname = boardfilename;
+    }
+    else
+    {
+        lastmapname = currentLevel->name;
+        if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
+            lastmapname = currentLevel->fileName;
+    }
+
+
+
     rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
 
-    menutext(160,20-6,0,0,&level_names[(ud.volume_number*11)+ud.last_level-1][0]);
-    menutext(160,36-6,0,0,"COMPLETED");
+    menutext_center(20-6,lastmapname);
+    menutext_center(36-6,"COMPLETED");
 
     gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
-    if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-        sound(BONUSMUSIC);
+    if (MusicEnabled() && mus_enabled)
+        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
 
-    nextpage();
-    KB_FlushKeyboardQueue();
-    for(t=0;t<64;t++) palto(0,0,0,63-t);
+    videoNextPage();
+    inputState.ClearAllInput();
+    //for(t=0;t<64;t++) palto(0,0,0,63-t);
     bonuscnt = 0;
     totalclock = 0; tinc = 0;
 
@@ -1013,7 +1050,7 @@ void dobonus(char bonusonly)
 
             if( totalclock > (1000000000L) && totalclock < (1000000320L) )
             {
-                switch( (totalclock>>4)%15 )
+                switch( ((int)totalclock>>4)%15 )
                 {
                     case 0:
                         if(bonuscnt == 6)
@@ -1050,7 +1087,7 @@ void dobonus(char bonusonly)
             else if( totalclock > (10240+120L) ) break;
             else
             {
-                switch( (totalclock>>5)&3 )
+                switch( ((int)totalclock>>5)&3 )
                 {
                     case 1:
                     case 3:
@@ -1062,8 +1099,8 @@ void dobonus(char bonusonly)
                 }
             }
 
-            menutext(160,20-6,0,0,&level_names[(ud.volume_number*11)+ud.last_level-1][0]);
-            menutext(160,36-6,0,0,"COMPLETED");
+            menutext_center(20-6,lastmapname);
+            menutext_center(36-6,"COMPLETED");
 
             gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
@@ -1071,11 +1108,9 @@ void dobonus(char bonusonly)
             {
                 gametext(10,59+9,"Your Time:",0,2+8+16);
                 gametext(10,69+9,"Par time:",0,2+8+16);
-#ifdef NAM
-//				gametext(10,78+9,"Green Beret's Time:",0,2+8+16);
-#else
-				gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
-#endif
+                if (!isNamWW2GI())
+				    gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
+
                 if(bonuscnt == 0)
                     bonuscnt++;
 
@@ -1092,16 +1127,17 @@ void dobonus(char bonusonly)
                     gametext((320>>2)+71,60+9,tempbuf,0,2+8+16);
 
                     sprintf(tempbuf,"%02ld:%02ld",
-                        (partime[ud.volume_number*11+ud.last_level-1]/(26*60))%60,
-                        (partime[ud.volume_number*11+ud.last_level-1]/26)%60);
+                        (currentLevel->parTime / (26*60))%60,
+                        (currentLevel->parTime / 26)%60);
                     gametext((320>>2)+71,69+9,tempbuf,0,2+8+16);
 
-#ifndef NAM					
-                    sprintf(tempbuf,"%02ld:%02ld",
-                        (designertime[ud.volume_number*11+ud.last_level-1]/(26*60))%60,
-                        (designertime[ud.volume_number*11+ud.last_level-1]/26)%60);
-                    gametext((320>>2)+71,78+9,tempbuf,0,2+8+16);
-#endif					
+                    if (!isNamWW2GI())
+                    {
+                        sprintf(tempbuf, "%02ld:%02ld",
+                            (currentLevel->designerTime / (26 * 60)) % 60,
+                            (currentLevel->designerTime / 26) % 60);
+                            gametext((320 >> 2) + 71, 78 + 9, tempbuf, 0, 2 + 8 + 16);
+                    }
 
                 }
             }
@@ -1152,11 +1188,11 @@ void dobonus(char bonusonly)
                         bonuscnt++;
                         sound(PIPEBOMB_EXPLODE);
                     }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
+                    sprintf(tempbuf,"%-3d",ps[myconnectindex].secret_rooms);
                     gametext((320>>2)+70,120+9,tempbuf,0,2+8+16);
                     if( ps[myconnectindex].secret_rooms > 0 )
-                        sprintf(tempbuf,"%-3ld%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
+                        sprintf(tempbuf,"%-3d",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
+                    sprintf(tempbuf,"%-3d",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
                     gametext((320>>2)+70,130+9,tempbuf,0,2+8+16);
                 }
             }
@@ -1164,25 +1200,11 @@ void dobonus(char bonusonly)
             if(totalclock > 10240 && totalclock < 10240+10240)
                 totalclock = 1024;
 
-            if( KB_KeyWaiting() && totalclock > (60*2) )
+            if( inputState.CheckAllInput() && totalclock > (60*2) )
             {
-                if( KB_KeyPressed( sc_F12 ) )
-                {
-                    KB_ClearKeyDown( sc_F12 );
-#ifdef WW2
-                    screencapture("WW20000.pcx",0);
-#else
-#ifdef NAM
-                    screencapture("nam0000.pcx",0);
-#else
-                    screencapture("duke0000.pcx",0);
-#endif
-#endif
-                }
-
                 if( totalclock < (60*13) )
                 {
-                    KB_FlushKeyboardQueue();
+                    inputState.ClearAllInput();
                     totalclock = (60*13);
                 }
                 else if( totalclock < (1000000000L))
@@ -1190,7 +1212,7 @@ void dobonus(char bonusonly)
             }
         }
         else break;
-        nextpage();
+        videoNextPage();
     }
 }
 
