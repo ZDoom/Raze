@@ -1,10 +1,85 @@
+/*
+** screenjob.cpp
+**
+** Generic asynchronous screen display
+**
+**---------------------------------------------------------------------------
+** Copyright 2020 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+*/
 
 #include "types.h"
 #include "build.h"
 #include "screenjob.h"
-#include "dobject.h"
+#include "i_time.h"
+#include "v_2ddrawer.h"
 
 
+IMPLEMENT_CLASS(DScreenJob, true, false)
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void RunScreenJob(DScreenJob *job, std::function<void(bool skipped)> completion, bool clearbefore)
+{
+	if (clearbefore)
+	{
+		twod->ClearScreen();
+		videoNextPage();
+	}
+	
+	auto startTime = I_nsTime();
+	
+	// Input later needs to be event based so that these screens can do more than be skipped.
+	inputState.ClearAllInput();
+	while(true)
+	{
+		auto now = I_nsTime();
+		int frame = int((now - startTime) * 120 / 1'000'000'000);
+		bool skiprequest = inputState.CheckAllInput();
+		twod->ClearScreen();
+		int state = job->Frame(frame, skiprequest);
+		videoNextPage();
+		if (state < 1)
+		{
+			completion(state < 0);
+			return;
+		}
+	}
+}
+
+void PlayVideo(const char *filename, AnimSound *ans, int frameticks, std::function<void(bool skipped)> completion);
+
+
+#if 0
 void RunScreen(const char *classname, VMValue *params, int numparams, std::function<void(bool aborted)> completion)
 {
 	int ticker = 0;
@@ -92,3 +167,4 @@ void RunScreen(const char *classname, VMValue *params, int numparams, std::funct
 	}
 	completion(true);
 }
+#endif
