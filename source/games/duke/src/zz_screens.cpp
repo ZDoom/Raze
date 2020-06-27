@@ -1069,8 +1069,14 @@ void G_DisplayExtraScreens(void)
     }
 }
 
+void Logo();
 void G_DisplayLogo(void)
 {
+    if (!isRR())
+    {
+        Logo();
+        return;
+    }
     int32_t soundanm = 0;
     //int32_t logoflags = G_GetLogoFlags();
 

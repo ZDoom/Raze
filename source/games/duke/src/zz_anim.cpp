@@ -256,6 +256,7 @@ void Anim_Init(void)
 
 int32_t Anim_Play(const char *fn)
 {
+#if 0
     dukeanim_t *anim = Anim_Find(fn);
 
     if (!anim)
@@ -569,5 +570,8 @@ end_anim:
 	tileDelete(TILE_ANIM);
 
     return !running;
+#else
+    return false;
+#endif
 }
 END_DUKE_NS
