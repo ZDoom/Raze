@@ -405,6 +405,7 @@ int32_t Anim_Play(const char *fn)
     int32_t ogltexfiltermode = gl_texture_filter;
 	TArray<uint8_t> buffer;
 	auto fr = fileSystem.OpenFileReader(fn);
+    anim_t anm;
 
 	if (!fr.isOpen())
 		goto end_anim;
@@ -423,16 +424,12 @@ int32_t Anim_Play(const char *fn)
 
     int32_t numframes;
 
-    // "LPF " (.anm)
-    if (firstfour != B_LITTLE32(0x2046504Cu) ||
-        ANIM_LoadAnim(anim->animbuf, buffer.Size()-1) < 0 ||
-        (numframes = ANIM_NumFrames()) <= 0)
+    if (ANIM_LoadAnim(&anm, anim->animbuf, buffer.Size()-1) < 0)
     {
-        // XXX: ANM_LoadAnim() still checks less than the bare minimum,
-        // e.g. ANM file could still be too small and not contain any frames.
         Printf("Error: malformed ANM file \"%s\".\n", fn);
         goto end_anim;
     }
+    numframes = ANIM_NumFrames(&anm);
 
     if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && gl_texture_filter == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
         gl_texture_filter = TEXFILTER_ON;
@@ -461,7 +458,7 @@ int32_t Anim_Play(const char *fn)
 
             i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
-            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+            animtex.SetFrame(ANIM_GetPalette(&anm), ANIM_DrawFrame(&anm, i));
 
             if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, inputState.CheckAllInput()))
             {
@@ -526,7 +523,6 @@ end_anim_restore_gl:
 end_anim:
     inputState.ClearAllInput();
 	anim->animbuf = nullptr;
-    ANIM_FreeAnim();
 
 	tileDelete(TILE_ANIM);
 

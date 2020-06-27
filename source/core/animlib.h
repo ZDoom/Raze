@@ -43,7 +43,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
    need to be in the header because there are no exposed functions
    that use any of this directly */
 
-typedef struct lpfileheaderstruct
+struct lpfileheader
 {
     uint32_t id;              /* 4 uint8_tacter ID == "LPF " */
     uint16_t maxLps;          /* max # largePages allowed. 256 FOR NOW.   */
@@ -66,24 +66,23 @@ typedef struct lpfileheaderstruct
     uint32_t nFrames;         /* Number of actual frames in the file, includes ring frame. */
     uint16_t framesPerSecond; /* Number of frames to play per second. */
     uint16_t pad2[29];        /* 58 bytes of filler to round up to 128 bytes total. */
-}
-lpfileheader;                 /* (comments from original source) */
+};
 
 // this is the format of a large page structure
-typedef struct
+struct lp_descriptor
 {
     uint16_t baseRecord;   // Number of first record in this large page.
     uint16_t nRecords;        // Number of records in lp.
     // bit 15 of "nRecords" == "has continuation from previous lp".
     // bit 14 of "nRecords" == "final record continues on next lp".
     uint16_t nBytes;                  // Total number of bytes of contents, excluding header.
-} lp_descriptor;
+};
 
 #pragma pack(pop)
 
 #define IMAGEBUFFERSIZE 0x10000
 
-typedef struct
+struct anim_t
 {
     uint16_t framecount;          // current frame of anim
     lpfileheader * lpheader;           // file header will be loaded into this structure
@@ -95,7 +94,7 @@ typedef struct
     uint8_t * buffer;
     uint8_t pal[768];
     int32_t currentframe;
-} anim_t;
+};
 
 //****************************************************************************
 //
@@ -105,17 +104,7 @@ typedef struct
 //
 //****************************************************************************
 
-int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length);
-
-//****************************************************************************
-//
-//      ANIM_FreeAnim ()
-//
-// Free up internal anim data structure
-//
-//****************************************************************************
-
-void ANIM_FreeAnim(void);
+int32_t ANIM_LoadAnim(anim_t *anim, uint8_t *buffer, int32_t length);
 
 //****************************************************************************
 //
@@ -125,7 +114,10 @@ void ANIM_FreeAnim(void);
 //
 //****************************************************************************
 
-int32_t ANIM_NumFrames(void);
+inline int32_t ANIM_NumFrames(anim_t* anim)
+{
+    return anim->lpheader->nRecords;
+}
 
 //****************************************************************************
 //
@@ -135,7 +127,7 @@ int32_t ANIM_NumFrames(void);
 //
 //****************************************************************************
 
-uint8_t * ANIM_DrawFrame(int32_t framenumber);
+uint8_t * ANIM_DrawFrame(anim_t* anim, int32_t framenumber);
 
 //****************************************************************************
 //
@@ -144,6 +136,9 @@ uint8_t * ANIM_DrawFrame(int32_t framenumber);
 // return the palette of the anim
 //****************************************************************************
 
-uint8_t * ANIM_GetPalette(void);
+inline uint8_t* ANIM_GetPalette(anim_t* anim)
+{
+    return anim->pal;
+}
 
 #endif

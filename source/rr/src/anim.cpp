@@ -461,17 +461,14 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
 
     int32_t numframes;
+    anim_t anm;
 
-    // "LPF " (.anm)
-    if (firstfour != B_LITTLE32(0x2046504C) ||
-        ANIM_LoadAnim(anim->animbuf, buffer.Size()-1) < 0 ||
-        (numframes = ANIM_NumFrames()) <= 0)
+    if (ANIM_LoadAnim(&anm, anim->animbuf, buffer.Size() - 1) < 0)
     {
-        // XXX: ANM_LoadAnim() still checks less than the bare minimum,
-        // e.g. ANM file could still be too small and not contain any frames.
         Printf("Error: malformed ANM file \"%s\".\n", fn);
         goto end_anim;
     }
+    numframes = ANIM_NumFrames(&anm);
 
     ototalclock = totalclock;
 
@@ -495,7 +492,7 @@ int32_t Anim_Play(const char *fn)
             if (totalclock < ototalclock - 1)
                 continue;
 
-            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+            animtex.SetFrame(ANIM_GetPalette(&anm), ANIM_DrawFrame(&anm, i));
 
             if (inputState.CheckAllInput())
             {
@@ -566,7 +563,6 @@ end_anim_restore_gl:
 end_anim:
     inputState.ClearAllInput();
 	anim->animbuf = nullptr;
-    ANIM_FreeAnim();
 	tileDelete(TILE_ANIM);
 
     return !running;

@@ -35,8 +35,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 //****************************************************************************
 
-static anim_t * anim = NULL;
-
 //****************************************************************************
 //
 //      findpage ()
@@ -44,7 +42,7 @@ static anim_t * anim = NULL;
 //
 //****************************************************************************
 
-static inline uint16_t findpage(uint16_t framenumber)
+static inline uint16_t findpage(anim_t *anim, uint16_t framenumber)
 {
     // curlpnum is initialized to 0xffff, obviously
     size_t i = anim->curlpnum & ~0xffff;
@@ -88,7 +86,7 @@ static inline uint16_t findpage(uint16_t framenumber)
 //
 //****************************************************************************
 
-static inline void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
+static inline void loadpage(anim_t *anim, uint16_t pagenumber, uint16_t **pagepointer)
 {
     if (anim->curlpnum == pagenumber)
         return;
@@ -183,7 +181,7 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
 //
 //****************************************************************************
 
-static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
+static void renderframe(anim_t *anim, uint16_t framenumber, uint16_t *pagepointer)
 {
     uint16_t offset = 0;
     uint16_t frame = framenumber - anim->curlp->baseRecord;
@@ -209,20 +207,20 @@ static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 //
 //****************************************************************************
 
-static inline void drawframe(uint16_t framenumber)
+static inline void drawframe(anim_t *anim, uint16_t framenumber)
 {
-    loadpage(findpage(framenumber), &anim->thepage);
-    renderframe(framenumber, anim->thepage);
+    loadpage(anim, findpage(anim, framenumber), &anim->thepage);
+    renderframe(anim, framenumber, anim->thepage);
 }
 
 // <length> is the file size, for consistency checking.
-int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
+int32_t ANIM_LoadAnim(anim_t *anim, uint8_t *buffer, int32_t length)
 {
+    if (memcmp(buffer, "LPF ", 4)) return -1;
+
     length -= sizeof(lpfileheader)+128+768;
     if (length < 0)
         return -1;
-
-    anim = (anim_t *)M_Realloc(anim, sizeof(anim_t));
 
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;
@@ -267,25 +265,11 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
         lp->nRecords   = LittleShort(lp->nRecords);
         lp->nBytes     = LittleShort(lp->nBytes);
     }
-
-    return 0;
+    return ANIM_NumFrames(anim) <= 0 ? -1 : 0;
 }
 
 
-void ANIM_FreeAnim(void)
-{
-    M_Free(anim);
-    anim = nullptr;
-}
-
-
-int32_t ANIM_NumFrames(void)
-{
-    return anim->lpheader->nRecords;
-}
-
-
-uint8_t * ANIM_DrawFrame(int32_t framenumber)
+uint8_t * ANIM_DrawFrame(anim_t *anim, int32_t framenumber)
 {
     uint32_t cnt = anim->currentframe;
 
@@ -293,7 +277,7 @@ uint8_t * ANIM_DrawFrame(int32_t framenumber)
     if (cnt > (uint32_t)framenumber)
         cnt = 0;
 
-    do drawframe(cnt++);
+    do drawframe(anim, cnt++);
     while (cnt < (uint32_t)framenumber);
 
     anim->currentframe = framenumber;
@@ -301,7 +285,3 @@ uint8_t * ANIM_DrawFrame(int32_t framenumber)
 }
 
 
-uint8_t * ANIM_GetPalette(void)
-{
-    return anim->pal;
-}

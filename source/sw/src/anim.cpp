@@ -252,9 +252,16 @@ playanm(short anim_num)
 
     DSPRINTF(ds,"PlayAnm - Palette Stuff");
     MONO_PRINT(ds);
+    anim_t anm;
 
-    ANIM_LoadAnim(buffer.Data(), buffer.Size()-1);
-    ANIMnumframes = ANIM_NumFrames();
+    if (ANIM_LoadAnim(&anm, buffer.Data(), buffer.Size() - 1) < 0)
+    {
+        Printf("Error: malformed ANM file \"%s\".\n", ANIMname[ANIMnum]);
+        goto ENDOFANIMLOOP;
+    }
+
+    ANIM_LoadAnim(&anm, buffer.Data(), buffer.Size()-1);
+    ANIMnumframes = ANIM_NumFrames(&anm);
     numframes = ANIMnumframes;
 
 
@@ -266,7 +273,7 @@ playanm(short anim_num)
         if (ANIMnum == 1)
         {
             // draw the first frame
-            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(1));
+            animtex.SetFrame(ANIM_GetPalette(&anm), ANIM_DrawFrame(&anm, 1));
             rotatesprite_fs(160 << 16, 100 << 16, 65536, 0, -1, 0, 0, 2 | 8 | 64, animtex.GetFrame());
         }
 
@@ -310,7 +317,7 @@ playanm(short anim_num)
             }
 
 	        videoClearViewableArea(0L);
-            animtex.SetFrame(ANIM_GetPalette(), ANIM_DrawFrame(i));
+            animtex.SetFrame(ANIM_GetPalette(&anm), ANIM_DrawFrame(&anm, i));
             rotatesprite_fs(160 << 16, 100 << 16, 65536, 0, -1, 0, 0, 2 | 8 | 64, animtex.GetFrame());
             videoNextPage();
             handleevents();
@@ -332,6 +339,5 @@ ENDOFANIMLOOP:
     videoNextPage();
 
     inputState.ClearAllInput();
-    ANIM_FreeAnim();
 }
 END_SW_NS
