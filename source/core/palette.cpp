@@ -63,7 +63,7 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
         BuildTransTable(GPalette.BaseColors);
     }
     FRemapTable remap;
-    remap.AddColors(0, 256, table, 255);
+    remap.AddColors(0, 256, table, -1);
     if (!notransparency)
     {
         remap.Palette[255] = 0;
@@ -281,17 +281,12 @@ void LookupTableInfo::postLoadLookups()
             }
         }
     }
-    // Assuming that color 255 is always transparent, do the following:
-    // Copy color 0 to color 255
-    // Set color 0 to transparent black
-    // Swap all remap entries from 0 to 255 and vice versa
-    // Always map 0 to 0.
 
+    // Swap colors 0 and 255. Note that color 255 may not be translucent!
     auto colorswap = [](FRemapTable* remap)
     {
-        remap->Palette[255] = remap->Palette[0];
-        remap->Palette[0] = 0;
-        remap->Remap[255] = remap->Remap[0];
+        std::swap(remap->Palette[255], remap->Palette[0]);
+        std::swap(remap->Remap[255], remap->Remap[0]);
         for (auto& c : remap->Remap)
         {
             if (c == 0) c = 255;

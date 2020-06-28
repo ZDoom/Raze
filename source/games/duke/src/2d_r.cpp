@@ -787,26 +787,20 @@ void Logo_r(CompletionFunc completion)
 
     static const int frametimes[] = { 9, 9, 9 }; // same for all 3 anims
 
+    JobDesc jobs[3];
+    int job = 0;
+
     if (!isRRRA())
     {
-        PlayVideo(!inputState.CheckAllInput() ? "rr_intro.anm" : nullptr, introsound, frametimes, [=](bool skipped)
-            {
-                FX_StopAllSounds();
-                PlayVideo("redneck.anm", rednecksound, frametimes, [=](bool skipped)
-                    {
-                        FX_StopAllSounds();
-                        PlayVideo("xatlogo.anm", xatrixsound, frametimes, [=](bool skipped)
-                            {
-                                FX_StopAllSounds();
-                                completion(skipped);
-                            });
-                    });
-            });
+        jobs[job++] = { PlayVideo("rr_intro.anm", introsound, frametimes), nullptr };
+        jobs[job++] = { PlayVideo("redneck.anm", rednecksound, frametimes), nullptr };
+        jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, frametimes), nullptr };
     }
     else
     {
-        PlayVideo("redint.mve", completion);
+        jobs[job++] = { PlayVideo("redint.mve"), nullptr };
     }
+    RunScreenJob(jobs, job, completion);
 }
 
 

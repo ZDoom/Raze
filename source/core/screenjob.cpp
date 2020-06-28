@@ -52,37 +52,50 @@ IMPLEMENT_CLASS(DScreenJob, true, false)
 //
 //---------------------------------------------------------------------------
 
-void RunScreenJob(DScreenJob *job, CompletionFunc completion, bool clearbefore)
+void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore)
 {
-	if (job == nullptr)
+	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected.
+	for (int i = 0; i < count; i++)
 	{
-		completion(false);
-		return;
+		jobs[i].job->Release();
 	}
-	if (clearbefore)
+	bool skipped = false;
+	for (int i = 0; i < count; i++)
 	{
-		twod->ClearScreen();
-		videoNextPage();
-	}
-	
-	auto startTime = I_nsTime();
-	
-	// Input later needs to be event based so that these screens can do more than be skipped.
-	inputState.ClearAllInput();
-	while(true)
-	{
-		auto now = I_nsTime();
-		handleevents();
-		bool skiprequest = inputState.CheckAllInput();
-		int state = job->Frame(now - startTime, skiprequest);
-		videoNextPage();
-		if (state < 1)
+		auto job = jobs[i];
+		if (job.job != nullptr && (!skipped || !job.ignoreifskipped))
 		{
-			job->Destroy();
-			completion(state < 0);
-			return;
+			skipped = false;
+			if (clearbefore)
+			{
+				twod->ClearScreen();
+				videoNextPage();
+			}
+
+			auto startTime = I_nsTime();
+
+			// Input later needs to be event based so that these screens can do more than be skipped.
+			inputState.ClearAllInput();
+			while (true)
+			{
+				auto now = I_nsTime();
+				handleevents();
+				bool skiprequest = inputState.CheckAllInput();
+				int state = job.job->Frame(now - startTime, skiprequest);
+				videoNextPage();
+				if (state < 1)
+				{
+					skipped = state < 0;
+					job.job->Destroy();
+					job.job->ObjectFlags |= OF_YesReallyDelete;
+					delete job.job;
+					break;
+				}
+			}
 		}
+		if (job.postAction) job.postAction();
 	}
+	if (completion) completion(false);
 }
 
 //---------------------------------------------------------------------------
@@ -172,6 +185,7 @@ public:
 			}
 		}
 		curframe++;
+		if (skiprequest) soundEngine->StopAllChannels();
 		return skiprequest ? -1 : curframe < numframes? 1 : 0;
 	}
 
@@ -188,19 +202,17 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, CompletionFunc completion)
+DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks)
 {
-	if (!filename)	// this is for chaining optional videos without special case coding by the caller.
+	if (!filename)
 	{
-		completion(false);
-		return;
+		return nullptr;
 	}
 	auto fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
 	{
 		Printf("%s: Unable to open video\n", filename);
-		completion(true);
-		return;
+		return nullptr;
 	}
 	char id[20] = {};
 
@@ -214,9 +226,9 @@ void PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks
 		{
 			Printf("%s: invalid ANM file.\n", filename);
 			anm->Destroy();
-			return;
+			return nullptr;
 		}
-		RunScreenJob(anm, completion);
+		return anm;
 	}
 	else if (!memcmp(id, "SMK2", 4))
 	{
@@ -230,8 +242,7 @@ void PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks
 	else
 	{
 		Printf("%s: Unknown video format\n", filename);
-		completion(true);
-		return;
 	}
+	return nullptr;
 }
 

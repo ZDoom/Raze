@@ -64,7 +64,6 @@ public:
 
 FImageSource *AnmImage_TryCreate(FileReader & file, int lumpnum)
 {
-	int x, y, comp;
 	file.Seek(0, FileReader::SeekSet);
 	char check[4];
 	file.Read(check, 4);
@@ -77,8 +76,8 @@ FImageSource *AnmImage_TryCreate(FileReader & file, int lumpnum)
 	{
 		return nullptr;
 	}
-	numframes = ANIM_NumFrames(&anim);
-	if (result >= 1)
+	int numframes = ANIM_NumFrames(&anim);
+	if (numframes >= 1)
 	{
 		return new FAnmTexture(lumpnum, 320, 200);
 	}
@@ -104,16 +103,16 @@ FAnmTexture::FAnmTexture (int lumpnum, int w, int h)
 void FAnmTexture::ReadFrame(uint8_t *pixels, uint8_t *palette)
 {
 	FileData lump = fileSystem.ReadFile (SourceLump);
-	const uint8_t *source = (const uint8_t *)lump.GetMem(); 
+	uint8_t *source = (uint8_t *)lump.GetMem(); 
 
 	anim_t anim;
 	if (ANIM_LoadAnim(&anim, source, lump.GetSize()) >= 0)
 	{
-		numframes = ANIM_NumFrames(&anim);
-		if (result >= 1)
+		int numframes = ANIM_NumFrames(&anim);
+		if (numframes >= 1)
 		{
-			memcpy(palette, ANIM_GetPalette(anim), 768);
-			memcpy(pixels, ANIM_DrawFrame(1), Width*Height);
+			memcpy(palette, ANIM_GetPalette(&anim), 768);
+			memcpy(pixels, ANIM_DrawFrame(&anim, 1), Width*Height);
 			return;
 		}
 	}
@@ -140,7 +139,7 @@ TArray<uint8_t> FAnmTexture::CreatePalettedPixels(int conversion)
 		remap[i] = ColorMatcher.Pick(palette[i*3], palette[i*3+1], palette[i*3+2]);
 	}
 	ImageHelpers::FlipNonSquareBlockRemap (pixels.Data(), buffer, Width, Height, Width, remap); 
-	return Pixels;
+	return pixels;
 }
 
 //==========================================================================
@@ -155,14 +154,14 @@ int FAnmTexture::CopyPixels(FBitmap *bmp, int conversion)
 	uint8_t palette[768];
 	ReadFrame(buffer, palette);
 	
-    auto dpix = bmp.GetPixels();
+    auto dpix = bmp->GetPixels();
 	for (int i = 0; i < Width * Height; i++)
 	{
 		int p = i * 4;
 		int index = buffer[i];
-		dpix[p + 0] = Palette[index * 3 + 2];
-		dpix[p + 1] = Palette[index * 3 + 1];
-		dpix[p + 2] = Palette[index * 3];
+		dpix[p + 0] = palette[index * 3 + 2];
+		dpix[p + 1] = palette[index * 3 + 1];
+		dpix[p + 2] = palette[index * 3];
 		dpix[p + 3] = 255;
 	}
 

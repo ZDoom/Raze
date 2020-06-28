@@ -481,9 +481,17 @@ inline void tileInvalidate(int tilenume, int32_t, int32_t)
 	TileFiles.InvalidateTile(tilenume);
 }
 
-inline FGameTexture* tileGetTexture(int tile)
+int32_t animateoffs(int const tilenum, int fakevar);
+
+inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 {
 	assert(tile < MAXTILES);
+	if (animate)
+	{
+		if (picanm[tile].sf & PICANM_ANIMTYPE_MASK)
+			tile += animateoffs(tile, 0);
+
+	}
 	return TileFiles.tiledata[tile].texture;
 }
 
