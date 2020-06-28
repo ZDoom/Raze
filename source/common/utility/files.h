@@ -292,6 +292,14 @@ public:
 		return BigLong(v);
 	}
 
+	uint32_t ReadUInt64()
+	{
+		uint64_t v = 0;
+		Read(&v, 8);
+		// Prove to me that there's a relevant 64 bit Big Endian architecture and I fix this! :P
+		return v;
+	}
+
 
 	friend class FileSystem;
 };
