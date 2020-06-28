@@ -90,104 +90,6 @@ void Anim_Init(void)
         uint8_t frame;
     };
 
-    static defaultanmsound const logo[] =
-    {
-        { FLY_BY, 1 },
-        { PIPEBOMB_EXPLODE, 19 },
-    };
-
-    static defaultanmsound const cineov2[] =
-    {
-        { WIND_AMBIENCE, 1 },
-        { ENDSEQVOL2SND1, 26 },
-        { ENDSEQVOL2SND2, 36 },
-        { THUD, 54 },
-        { ENDSEQVOL2SND3, 62 },
-        { ENDSEQVOL2SND4, 75 },
-        { ENDSEQVOL2SND5, 81 },
-        { ENDSEQVOL2SND6, 115 },
-        { ENDSEQVOL2SND7, 124 },
-    };
-
-    static defaultanmsound const cineov3[] =
-    {
-        { WIND_REPEAT, 1 },
-        { DUKE_GRUNT, 98 },
-        { THUD, 82+20 },
-        { SQUISHED, 82+20 },
-        { ENDSEQVOL3SND3, 104+20 },
-        { ENDSEQVOL3SND2, 114+20 },
-        { PIPEBOMB_EXPLODE, 158 },
-    };
-
-    static defaultanmsound const vol42a[] =
-    {
-        { INTRO4_B, 1 },
-        { SHORT_CIRCUIT, 12 },
-        { INTRO4_5, 18 },
-        { SHORT_CIRCUIT, 34 },
-    };
-
-    static defaultanmsound const vol41a[] =
-    {
-        { INTRO4_1, 1 },
-        { INTRO4_3, 7 },
-        { INTRO4_2, 12 },
-        { INTRO4_4, 26 },
-    };
-
-    static defaultanmsound const vol43a[] =
-    {
-        { INTRO4_6, 10 },
-    };
-
-    static defaultanmsound const vol4e1[] =
-    {
-        { DUKE_UNDERWATER, 3 },
-        { VOL4ENDSND1, 35 },
-    };
-
-    static defaultanmsound const vol4e2[] =
-    {
-        { DUKE_UNDERWATER, 11 },
-        { VOL4ENDSND1, 20 },
-        { VOL4ENDSND2, 39 },
-        { StopAllSounds, 50 },
-    };
-
-    static defaultanmsound const vol4e3[] =
-    {
-        { BOSS4_DEADSPEECH, 1 },
-        { VOL4ENDSND1, 40 },
-        { DUKE_UNDERWATER, 40 },
-        { BIGBANG, 50 },
-    };
-
-    static defaultanmsound const rr_intro[] =
-    {
-        { 29, 1 },
-    };
-
-    static defaultanmsound const redneck[] =
-    {
-        { 478, 1 },
-    };
-
-    static defaultanmsound const xatlogo[] =
-    {
-        { 479, 1 },
-    };
-
-    static defaultanmsound const turdmov[] =
-    {
-        { 82, 1 },
-    };
-
-    static defaultanmsound const rr_outro[] =
-    {
-        { 35, 1 },
-    };
-
     struct defaultanm {
         char const *fn;
         defaultanmsound const *sounds;
@@ -198,23 +100,6 @@ void Anim_Init(void)
 #define anmsnd(x) (x), ARRAY_SIZE(x)
     static defaultanm const anms[] =
     {
-        { "logo.anm", anmsnd(logo), 9 },
-        { "3dr.anm", NULL, 0, 10 },
-        { "vol4e1.anm", anmsnd(vol4e1), 10 },
-        { "vol4e2.anm", anmsnd(vol4e2), 14 },
-        { "vol4e3.anm", anmsnd(vol4e3), 10 },
-        { "vol41a.anm", anmsnd(vol41a), 14 },
-        { "vol42a.anm", anmsnd(vol42a), 18 },
-        { "vol43a.anm", anmsnd(vol43a), 10 },
-        { "duketeam.anm", NULL, 0, 10 },
-        { "radlogo.anm", NULL, 0, 10 },
-        { "cineov2.anm", anmsnd(cineov2), 18 },
-        { "cineov3.anm", anmsnd(cineov3), 10 },
-        { "rr_intro.anm", anmsnd(rr_intro), 9 },
-        { "redneck.anm", anmsnd(redneck), 9 },
-        { "xatlogo.anm", anmsnd(xatlogo), 9 },
-        { "turdmov.anm", anmsnd(turdmov), 9 },
-        { "rr_outro.anm", anmsnd(rr_outro), 9 },
         { "lvl1.anm", NULL, 0, 20 },
         { "lvl2.anm", NULL, 0, 20 },
         { "lvl3.anm", NULL, 0, 20 },

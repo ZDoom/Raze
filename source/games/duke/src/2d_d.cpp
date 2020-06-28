@@ -552,50 +552,6 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DImageScreen : public DScreenJob
-{
-	int fadeoutstart = -1;
-	int tilenum = -1;
-	FGameTexture* tex = nullptr;
-
-public:
-	DImageScreen(FGameTexture * tile)
-	{
-		tex = tile;
-	}
-
-	DImageScreen(int tile)
-	{
-		tilenum = tile;
-	}
-
-	int Frame(uint64_t clock, bool skiprequest) override
-	{
-		if (tilenum > 0)
-		{
-			tex = tileGetTexture(tilenum, true);
-		}
-		if (!tex) return 0;
-		int span = int(clock / 1'000'000);
-		int light = 255;
-		if (span < 255) light = span;
-		else if (fadeoutstart > 0 && span > fadeoutstart - 255) light = fadeoutstart - span;
-		light = clamp(light, 0, 255);
-		PalEntry pe(255, light, light, light);
-		twod->ClearScreen();
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		// Only end after having faded out.
-		if (skiprequest && fadeoutstart < 0) fadeoutstart = span;
-		return fadeoutstart > 0 && light == 0 ? -1 : 1;
-	}
-};
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 class DBlackScreen : public DScreenJob
 {
 	int wait;
@@ -809,12 +765,38 @@ void bonussequence_d(int num, CompletionFunc completion)
 
 	static const AnimSound vol4e3[] =
 	{
-		{ 1, BOSS4_DEADSPEECH },
-		{ 40, VOL4ENDSND1 },
-		{ 40, DUKE_UNDERWATER },
-		{ 50, BIGBANG },
+		{ 1, BOSS4_DEADSPEECH+1 },
+		{ 40, VOL4ENDSND1+1 },
+		{ 40, DUKE_UNDERWATER+1 },
+		{ 50, BIGBANG+1 },
 		{ -1,-1 }
 	};
+
+	static const AnimSound vol42a[] =
+	{
+		{ 1, INTRO4_B +1 },
+		{ 12, SHORT_CIRCUIT + 1 },
+		{ 18, INTRO4_5 + 1 },
+		{ 34, SHORT_CIRCUIT+1 },
+		{ -1,-1 }
+	};
+
+	static const AnimSound vol41a[] =
+	{
+		{ 1, INTRO4_1+1 },
+		{ 7, INTRO4_3+1 },
+		{ 12, INTRO4_2+1 },
+		{ 26, INTRO4_4+1 },
+		{ -1,-1 }
+	};
+
+	static const AnimSound vol43a[] =
+	{
+		{ 10, INTRO4_6+1 },
+		{ -1,-1 }
+	};
+
+
 	static const int framespeed_10[] = { 10, 10, 10 };
 	static const int framespeed_14[] = { 14, 14, 14 };
 	static const int framespeed_18[] = { 18, 18, 18 };
@@ -856,6 +838,12 @@ void bonussequence_d(int num, CompletionFunc completion)
 		jobs[job++] = { Create<DEpisode5End>(),  []() { FX_StopAllSounds(); } };
 		break;
 
+	case 5:	// Episode 4 start
+		S_PlaySpecialMusic(MUS_BRIEFING);
+		jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
+		jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
+		jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
+		break;
 	}
 	RunScreenJob(jobs, job, completion); 
 }

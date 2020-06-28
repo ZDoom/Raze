@@ -832,9 +832,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = TILE_CROSSHAIR;
-        //ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
-        //ud.returnvar[1] = 100<<16;
-        //int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, TILE_CROSSHAIR);
+
         if ((unsigned) a < MAXTILES)
         {
             vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
@@ -847,15 +845,6 @@ void G_DisplayRest(int32_t smoothratio)
             rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, 0, crosshair_o);
         }
     }
-
-	/*
-    if (VM_HaveEvent(EVENT_DISPLAYREST))
-    {
-        int32_t vr=viewingrange, asp=yxaspect;
-        VM_ExecuteEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
-        renderSetAspect(vr, asp);
-    }
-	*/
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, GStrings("Game Paused"));
@@ -924,13 +913,11 @@ void G_DisplayRest(int32_t smoothratio)
 	
     Net_DisplaySyncMsg();
 
-#ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE)
     {
         if (g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, TILE_BETAVERSION, 0, 0, 2+8+16+128);
     }
-#endif
 
     if (!Demo_IsProfiling())
     {
@@ -1090,6 +1077,7 @@ void G_DoOrderScreen(void)
 }
 
 void bonussequence_d(int num, CompletionFunc completion);
+void bonussequence_r(int num, CompletionFunc completion);
 
 static void G_BonusCutscenes(void)
 {
@@ -1100,65 +1088,25 @@ static void G_BonusCutscenes(void)
 
     if (RR)
     {
-        switch (ud.volume_number)
+        bonussequence_r(ud.volume_number, [](bool) {});
+        if (ud.volume_number == 0)
         {
-        case 0:
-            videoClearScreen(0L);
-            videoNextPage();
-            if (adult_lockout == 0)
-            {
-                Anim_Play("turdmov.anm");
-                inputState.ClearAllInput();
-                videoClearScreen(0L);
-                videoNextPage();
-            }
+            // Todo: allow to return to the menu here
             m_level_number = ud.level_number = 0;
             ud.m_volume_number = ud.volume_number = 1;
             ud.eog = 0;
-            fadepal(0, 0, 0, 0, 252, 4);
-            inputState.ClearAllInput();
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
-            rotatesprite_fs(0, 0, 65536L, 0, TILE_TENSCREEN, 0, 0, 2+8+16+64+128+BGSTRETCH);
-            videoNextPage();
-            fadepal(0, 0, 0, 252, 0, -4);
-            inputState.ClearAllInput();
-            G_HandleEventsWhileNoInput();
-            fadepal(0, 0, 0, 0, 252, 4);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            break;
-        case 1:
-            videoClearScreen(0L);
-            videoNextPage();
-            if (adult_lockout == 0)
-            {
-                Anim_Play("rr_outro.anm");
-                inputState.ClearAllInput();
-                videoClearScreen(0L);
-                videoNextPage();
-            }
+            g_turdLevel = false;
+        }
+        else
+        {
             g_lastLevel = 0;
             g_vixenLevel = 1;
             ud.level_number = 0;
             ud.volume_number = 0;
-            fadepal(0, 0, 0, 0, 252, 4);
-            videoSetViewableArea(0, 0, xdim-1, ydim-1);
-            inputState.ClearAllInput();
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
-            rotatesprite_fs(0, 0, 65536L, 0, TILE_TENSCREEN, 0, 0, 2 + 8 + 16 + 64 + 128 + BGSTRETCH);
-            videoNextPage();
-            fadepal(0, 0, 0, 252, 0, -4);
-            inputState.ClearAllInput();
-            G_HandleEventsWhileNoInput();
-            fadepal(0, 0, 0, 0, 252, 4);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            break;
         }
-        return;
     }
-
-	bonussequence_d(ud.volume_number, [](bool){});
+    else 
+	    bonussequence_d(ud.volume_number, [](bool){});
 }
 
 static void G_DisplayMPResultsScreen(void)

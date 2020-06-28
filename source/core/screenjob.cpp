@@ -45,6 +45,34 @@
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
+IMPLEMENT_CLASS(DImageScreen, true, false)
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int DImageScreen::Frame(uint64_t clock, bool skiprequest)
+{
+	if (tilenum > 0)
+	{
+		tex = tileGetTexture(tilenum, true);
+	}
+	if (!tex) return 0;
+	int span = int(clock / 1'000'000);
+	int light = 255;
+	if (span < 255) light = span;
+	else if (fadeoutstart > 0 && span > fadeoutstart - 255) light = fadeoutstart - span;
+	light = clamp(light, 0, 255);
+	PalEntry pe(255, light, light, light);
+	twod->ClearScreen();
+	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+	// Only end after having faded out.
+	if (skiprequest&& fadeoutstart < 0) fadeoutstart = span;
+	return fadeoutstart > 0 && light == 0 ? -1 : 1;
+}
+
 
 //---------------------------------------------------------------------------
 //

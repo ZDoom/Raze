@@ -761,6 +761,11 @@ void ShowMapFrame(void)
 
 #endif
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void Logo_r(CompletionFunc completion)
 {
@@ -785,16 +790,16 @@ void Logo_r(CompletionFunc completion)
         { -1, -1 }
     };
 
-    static const int frametimes[] = { 9, 9, 9 }; // same for all 3 anims
+    static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
 
     JobDesc jobs[3];
     int job = 0;
 
     if (!isRRRA())
     {
-        jobs[job++] = { PlayVideo("rr_intro.anm", introsound, frametimes), nullptr };
-        jobs[job++] = { PlayVideo("redneck.anm", rednecksound, frametimes), nullptr };
-        jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, frametimes), nullptr };
+        jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed), nullptr };
+        jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed), nullptr };
+        jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed), nullptr };
     }
     else
     {
@@ -803,6 +808,61 @@ void Logo_r(CompletionFunc completion)
     RunScreenJob(jobs, job, completion);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void bonussequence_r(int num, CompletionFunc completion)
+{
+    static const AnimSound  turdmov[] =
+    {
+        { 1, 82 + 1 },
+        { -1, -1 }
+    };
+
+    static const AnimSound  rr_outro[] =
+    {
+        { 1, 35 + 1 },
+        { -1, -1 }
+    };
+
+    static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
+
+    Mus_Stop();
+    FX_StopAllSounds();
+
+    JobDesc jobs[2];
+    int job = 0;
+
+    switch (num)
+    {
+    case 0:
+        jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed), nullptr };
+        jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+        break;
+
+    case 1:
+        jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed), nullptr };
+        jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+        break;
+
+    default:
+        break;
+    }
+    RunScreenJob(jobs, job, completion);
+}
+
+#if 0
+CCMD(testbonus)
+{
+    if (argv.argc() > 1)
+    {
+        bonussequence_r(strtol(argv[1], nullptr, 0), nullptr);
+    }
+}
+#endif
 
 #if 0
 

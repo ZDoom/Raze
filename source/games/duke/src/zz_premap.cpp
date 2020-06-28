@@ -231,6 +231,7 @@ void G_InitRRRASkies(void)
 
 void prelevel_d(int g);
 void prelevel_r(int g);
+void bonussequence_d(int num, CompletionFunc completion);
 
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
@@ -270,31 +271,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
         levelNum == 0 && volumeNum == 3 && adult_lockout == 0)
     {
-        S_PlaySpecialMusic(MUS_BRIEFING);
-
-        renderFlushPerms();
-        videoSetViewableArea(0,0,xdim-1,ydim-1);
-        twod->ClearScreen();
-        videoNextPage();
-
-        int animReturn = Anim_Play("vol41a.anm");
-        twod->ClearScreen();
-        videoNextPage();
-        if (animReturn)
-            goto end_vol4a;
-
-        animReturn = Anim_Play("vol42a.anm");
-        twod->ClearScreen();
-        videoNextPage();
-        if (animReturn)
-            goto end_vol4a;
-
-        Anim_Play("vol43a.anm");
-        twod->ClearScreen();
-        videoNextPage();
-
-end_vol4a:
-        FX_StopAllSounds();
+        bonussequence_d(5, [](bool) {});
     }
 
 #ifdef EDUKE32_TOUCH_DEVICES
