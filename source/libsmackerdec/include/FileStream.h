@@ -30,29 +30,29 @@ class FileStream
 	public:
 
 		bool Open(const char *fileName);
-		bool Is_Open();
-		void Close();
+		bool Is_Open() { return file.isOpen(); }
+		void Close() { file.Close(); }
 
-		int32_t ReadBytes(uint8_t *data, uint32_t nBytes);
+		int32_t ReadBytes(uint8_t *data, uint32_t nBytes)
+		{
+			return (uint32_t)file.Read(data, static_cast<int32_t>(nBytes));
+		}
 
-		uint32_t ReadUint32LE();
-		uint32_t ReadUint32BE();
+		uint64_t ReadUint64LE() { return file.ReadUInt64(); }
+		uint32_t ReadUint32LE() { return file.ReadUInt32(); }
+		uint16_t ReadUint16LE() { return file.ReadUInt16(); }
+		uint8_t ReadByte() { return file.ReadInt8(); }
 
-		uint16_t ReadUint16LE();
-		uint16_t ReadUint16BE();
-
-		uint8_t ReadByte();
 
 		enum SeekDirection{
-			kSeekCurrent = 0,
-			kSeekStart   = 1,
-			kSeekEnd     = 2
+			kSeekCurrent = SEEK_CUR,
+			kSeekStart   = SEEK_SET,
+			kSeekEnd     = SEEK_END
 		};
 
-        int32_t Seek(int32_t offset, SeekDirection = kSeekStart);
-        int32_t Skip(int32_t offset);
-
-		int32_t GetPosition();
+        int32_t Seek(int32_t offset, SeekDirection dir = kSeekStart) { return file.Seek(offset, (FileReader::ESeek) dir); }
+        int32_t Skip(int32_t offset) { return Seek(offset, kSeekCurrent); }
+		int32_t GetPosition() { return file.Tell(); }
 
 	private:
 		FileReader file;
