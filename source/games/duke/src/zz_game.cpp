@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "menus.h"
 #include "savegame.h"
-#include "zz_anim.h"
 #include "demo.h"
 
 #include "cheats.h"
@@ -2018,8 +2017,6 @@ int GameInterface::app_main()
         i = 1-i;
     }
 
-    Anim_Init();
-
     const char *defsfile = G_DefFile();
     uint32_t stime = timerGetTicks();
     if (!loaddefinitionsfile(defsfile))
@@ -2062,14 +2059,6 @@ int GameInterface::app_main()
 
     ud.last_level = -1;
     registerosdcommands();
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    int const clipMapError = engineLoadClipMaps();
-    if (clipMapError > 0)
-        Printf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
-
-    g_clipMapFiles.Reset();
-#endif
 
     videoInit();
     V_LoadTranslations();

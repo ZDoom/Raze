@@ -325,375 +325,7 @@ static void gamenumber(long x,long y,long n,char s)
 }
 
 
-void endanimsounds(long fr)
-{
-    switch(ud.volume_number)
-    {
-        case 0:break;
-        case 1:
-            switch(fr)
-            {
-                case 1:
-                    sound(390);
-                    break;
-                case 26:
-                    sound(390);
-                    break;
-                case 36:
-                    sound(390);
-                    break;
-                case 54:
-                    sound(390);
-                    break;
-                case 62:
-                    sound(390);
-                    break;
-                case 75:
-                    sound(390);
-                    break;
-                case 81:
-                    sound(390);
-                    break;
-                case 115:
-                    sound(390);
-                    break;
-                case 124:
-                    sound(390);
-                    break;
-            }
-            break;
-        case 2:
-            switch(fr)
-            {
-                case 1:
-                    sound(390);
-                    break;
-                case 98:
-                    sound(390);
-                    break;
-                case 82+20:
-                    sound(390);
-                    sound(390);
-                    break;
-                case 104+20:
-                    sound(390);
-                    break;
-                case 114+20:
-                    sound(390);
-                    break;
-                case 158:
-                    sound(390);
-                    break;
-            }
-            break;
-    }
-}
-
-void logoanimsounds(long fr, short s)
-{
-#ifdef RRRA
-    switch (s)
-    {
-        case 1:
-            if (fr == 1)
-                sound(256);
-            break;
-        case 2:
-            if (fr == 1)
-                sound(257);
-            break;
-        case 3:
-            if (fr == 1)
-                sound(258);
-            break;
-        case 4:
-            if (fr == 1)
-                sound(259);
-            break;
-        case 5:
-            break;
-        case 6:
-            if (fr == 1)
-                sound(479);
-            break;
-    }
-#else
-    switch(s)
-    {
-        case -1:
-            if (fr == 1)
-                sound(29);
-            break;
-        case 0:
-            if (fr == 1)
-                sound(478);
-            break;
-        case 1:
-            if (fr == 1)
-                sound(479);
-            break;
-        case 4:
-            if (fr == 1)
-                sound(35);
-            break;
-        case 5:
-            if (fr == 1)
-                sound(82);
-            break;
-    }
-#endif
-}
-
-
 #if 0
-#ifdef RRRA
-short playanm(char *fn,char t, short s)
-#else
-void playanm(char *fn,char t, short s)
-#endif
-{
-        char *animbuf, *palptr;
-    long i, j, k, length, numframes;
-    int handle;
-#ifdef RRRA
-    char *windir = getenv("windir");
-    if (windir)
-    {
-        cddrives = 0;
-        cdon = 0;
-        sound(390);
-        return -1;
-    }
-        handle = kopen4load(fn,0);
-        if(handle == -1) return -1;
-        length = kfilelength(handle);
-#else
-        handle = kopen4load(fn,0);
-        if(handle == -1) return;
-        length = kfilelength(handle);
-#endif
-
-    walock[MAXTILES-3-t] = 219+t;
-
-    if(anim == 0)
-        allocache((long *)&anim,length+sizeof(anim_t),&walock[MAXTILES-3-t]);
-
-    animbuf = (char *)(FP_OFF(anim)+sizeof(anim_t));
-
-    tilesizx[MAXTILES-3-t] = 200;
-    tilesizy[MAXTILES-3-t] = 320;
-
-        kread(handle,animbuf,length);
-        kclose(handle);
-
-        setview(0, 0, xdim, ydim);
-        clearview(0);
-        nextpage();
-
-        ANIM_LoadAnim (animbuf);
-        numframes = ANIM_NumFrames();
-
-        palptr = ANIM_GetPalette();
-        for(i=0;i<256;i++)
-        {
-                j = (i<<2); k = j-i;
-                tempbuf[j+0] = (palptr[k+2]>>2);
-                tempbuf[j+1] = (palptr[k+1]>>2);
-                tempbuf[j+2] = (palptr[k+0]>>2);
-                tempbuf[j+3] = 0;
-        }
-
-        VBE_setPalette(0L,256L,tempbuf);
-
-    ototalclock = totalclock + 10;
-
-    KB_FlushKeyboardQueue();
-
-        for(i=1;i<numframes;i++)
-        {
-       while(totalclock < ototalclock)
-       {
-          if( KB_KeyWaiting() )
-          {
-              FX_StopAllSounds();
-              clearsoundlocks();
-#ifdef RRRA
-              ANIM_FreeAnim();
-              walock[MAXTILES-3-t] = 1;
-              return 10;
-#else
-              goto ENDOFANIMLOOP;
-#endif
-          }
-          getpackets();
-       }
-
-       if(t == 6) ototalclock += 400;
-#ifdef RRRA
-       else if(t == 5) ototalclock += 8;
-#else
-       else if(t == 5) ototalclock += 9;
-#endif
-       else if(ud.volume_number == 2) ototalclock += 10;
-       else if(ud.volume_number == 1) ototalclock += 18;
-       else                           ototalclock += 10;
-
-       waloff[MAXTILES-3-t] = FP_OFF(ANIM_DrawFrame(i));
-       rotatesprite(0<<16,0<<16,65536L,512,MAXTILES-3-t,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
-       nextpage();
-
-       if(t == 5) logoanimsounds(i,s);
-       else if(t < 4) endanimsounds(i);
-        }
-
-    ENDOFANIMLOOP:
-
-    ANIM_FreeAnim ();
-    walock[MAXTILES-3-t] = 1;
-#ifdef RRRA
-    return 0;
-#endif
-}
-#endif
-
-#ifdef RRRA
-
-#if 0
-void PlayMapAnim(void)
-{
-    const char *fn;
-    char t;
-        char *animbuf, *palptr;
-    long i, j, k, length=0, numframes=0;
-    int handle=-1;
-    char *windir;
-
-    fn = NULL;
-    t = 5;
-    if (ud.volume_number == 0)
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                fn = "lvl1.anm";
-                break;
-            case 2:
-                fn = "lvl2.anm";
-                break;
-            case 3:
-                fn = "lvl3.anm";
-                break;
-            case 4:
-                fn = "lvl4.anm";
-                break;
-            case 5:
-                fn = "lvl5.anm";
-                break;
-            case 6:
-                fn = "lvl6.anm";
-                break;
-            default:
-                fn = "lvl7.anm";
-                break;
-        }
-    }
-    else
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                fn = "lvl8.anm";
-                break;
-            case 2:
-                fn = "lvl9.anm";
-                break;
-            case 3:
-                fn = "lvl10.anm";
-                break;
-            case 4:
-                fn = "lvl11.anm";
-                break;
-            case 5:
-                fn = "lvl12.anm";
-                break;
-            case 6:
-                fn = "lvl13.anm";
-                break;
-            default:
-                fn = NULL;
-                break;
-        }
-    }
-    windir = getenv("windir");
-    if (windir)
-    {
-        cddrives = 0;
-        cdon = 0;
-        sound(390);
-        return;
-    }
-        handle = kopen4load(fn,0);
-        if(handle == -1) return;
-        length = kfilelength(handle);
-
-    walock[MAXTILES-3-t] = 219+t;
-
-    if(anim == 0)
-        allocache((long *)&anim,length+sizeof(anim_t),&walock[MAXTILES-3-t]);
-
-    animbuf = (char *)(FP_OFF(anim)+sizeof(anim_t));
-
-    tilesizx[MAXTILES-3-t] = 200;
-    tilesizy[MAXTILES-3-t] = 320;
-
-        kread(handle,animbuf,length);
-        kclose(handle);
-
-        ANIM_LoadAnim (animbuf);
-        numframes = ANIM_NumFrames();
-
-        palptr = ANIM_GetPalette();
-        for(i=0;i<256;i++)
-        {
-                j = (i<<2); k = j-i;
-                tempbuf[j+0] = (palptr[k+2]>>2);
-                tempbuf[j+1] = (palptr[k+1]>>2);
-                tempbuf[j+2] = (palptr[k+0]>>2);
-                tempbuf[j+3] = 0;
-        }
-
-        VBE_setPalette(0L,256L,tempbuf);
-
-    ototalclock = totalclock + 10;
-
-    KB_FlushKeyboardQueue();
-
-        for(i=1;i<numframes;i++)
-        {
-       while(totalclock < ototalclock)
-       {
-          if( KB_KeyWaiting() )
-          {
-              FX_StopAllSounds();
-              clearsoundlocks();
-              goto ENDOFANIMLOOP;
-          }
-          getpackets();
-       }
-
-       ototalclock += 20;
-
-       waloff[MAXTILES-3-t] = FP_OFF(ANIM_DrawFrame(i));
-       rotatesprite(0<<16,0<<16,65536L,512,MAXTILES-3-t,0,0,2+4+8+16+64, 0,0,xdim-1,ydim-1);
-       nextpage();
-        }
-
-    ENDOFANIMLOOP:
-
-    ANIM_FreeAnim ();
-    walock[MAXTILES-3-t] = 1;
-}
-
 void ShowMapFrame(void)
 {
     short t = -1, i;
@@ -757,8 +389,6 @@ void ShowMapFrame(void)
         palto(0,0,0,63-i);
     ps[myconnectindex].palette = palette;
 }
-#endif
-
 #endif
 
 //---------------------------------------------------------------------------
@@ -854,15 +484,28 @@ void bonussequence_r(int num, CompletionFunc completion)
     RunScreenJob(jobs, job, completion);
 }
 
-#if 0
-CCMD(testbonus)
+//---------------------------------------------------------------------------
+//
+// RRRA only
+//
+//---------------------------------------------------------------------------
+
+void PlayMapAnim(CompletionFunc completion)
 {
-    if (argv.argc() > 1)
+    char fn[20];
+
+    int lev = ud.level_number + 7 * ud.volume_number;
+    if (lev >= 1 && lev <= 13)
     {
-        bonussequence_r(strtol(argv[1], nullptr, 0), nullptr);
+        mysnprintf(fn, 20, "lvl%d.anm", lev);
+
+        static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame
+        JobDesc job = { PlayVideo(fn, nullptr, framespeed) };
+        RunScreenJob(&job, 1, completion);
     }
+    else completion(false);
 }
-#endif
+
 
 #if 0
 

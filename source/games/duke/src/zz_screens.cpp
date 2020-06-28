@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "screens.h"
 
-#include "zz_anim.h"
 #include "sbar.h"
 #include "menus.h"
 #include "demo.h"
@@ -1664,70 +1663,6 @@ void G_BonusScreen(int32_t bonusonly)
         g_vixenLevel = 0;
 }
 
-void G_PlayMapAnim(void)
-{
-    const char *animFile;
-    if (ud.volume_number == 0)
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                animFile = "lvl1.anm";
-                break;
-            case 2:
-                animFile = "lvl2.anm";
-                break;
-            case 3:
-                animFile = "lvl3.anm";
-                break;
-            case 4:
-                animFile = "lvl4.anm";
-                break;
-            case 5:
-                animFile = "lvl5.anm";
-                break;
-            case 6:
-                animFile = "lvl6.anm";
-                break;
-            default:
-                animFile = "lvl7.anm";
-                break;
-        }
-    }
-    else
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                animFile = "lvl8.anm";
-                break;
-            case 2:
-                animFile = "lvl9.anm";
-                break;
-            case 3:
-                animFile = "lvl10.anm";
-                break;
-            case 4:
-                animFile = "lvl11.anm";
-                break;
-            case 5:
-                animFile = "lvl12.anm";
-                break;
-            case 6:
-                animFile = "lvl13.anm";
-                break;
-            default:
-                animFile = NULL;
-                break;
-        }
-    }
-
-    if (animFile == NULL)
-        return;
-
-    Anim_Play(animFile);
-}
-
 void G_ShowMapFrame(void)
 {
     int frame = -1;
@@ -1788,6 +1723,9 @@ void G_ShowMapFrame(void)
     }
     rotatesprite_fs(160<<16,100<<16,65536L,0,TILE_RRTILE8624+frame,0,0,10+64+128);
 }
+
+void PlayMapAnim(CompletionFunc completion);
+
 
 void G_BonusScreenRRRA(int32_t bonusonly)
 {
@@ -1930,7 +1868,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     {
                         bonuscnt++;
                         Mus_Stop();
-                        G_PlayMapAnim();
+                        PlayMapAnim([](bool) {});
                         break;
                     }
                 }

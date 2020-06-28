@@ -34,7 +34,6 @@ set( PCH_SOURCES
 	src/spawn_d.cpp
 	src/spawn_r.cpp
 	src/zz_actors.cpp
-	src/zz_anim.cpp
 	src/zz_cheats.cpp
 	src/zz_common.cpp
 	src/zz_d_menu.cpp
