@@ -54,6 +54,11 @@ IMPLEMENT_CLASS(DScreenJob, true, false)
 
 void RunScreenJob(DScreenJob *job, CompletionFunc completion, bool clearbefore)
 {
+	if (job == nullptr)
+	{
+		completion(false);
+		return;
+	}
 	if (clearbefore)
 	{
 		twod->ClearScreen();
@@ -163,7 +168,7 @@ public:
 				if (sound == -1)
 					soundEngine->StopAllChannels();
 				else
-					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_BODY, CHANF_NONE, sound, 1.f, ATTN_NONE);
+					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
 			}
 		}
 		curframe++;
