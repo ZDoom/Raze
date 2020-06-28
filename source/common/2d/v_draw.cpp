@@ -187,6 +187,7 @@ void DrawTexture(F2DDrawer *drawer, FGameTexture* img, double x, double y, int t
 	va_start(tags.list, tags_first);
 	DrawParms parms;
 
+	if (!img || !img->isValid()) return;
 	bool res = ParseDrawTextureTags(drawer, img, x, y, tags_first, tags, &parms, false);
 	va_end(tags.list);
 	if (!res)
@@ -208,6 +209,7 @@ static void DrawTexture(F2DDrawer *drawer, FGameTexture *img, double x, double y
 {
 	DrawParms parms;
 	uint32_t tag = ListGetInt(args);
+	if (!img || !img->isValid()) return;
 	bool res = ParseDrawTextureTags(drawer, img, x, y, tag, args, &parms, false);
 	if (!res) return;
 	drawer->AddTexture(img, parms);
