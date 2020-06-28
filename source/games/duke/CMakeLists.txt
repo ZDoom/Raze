@@ -1,6 +1,7 @@
 
 set( PCH_SOURCES
 	src/2d_d.cpp
+	src/2d_r.cpp
 	src/game_main.cpp
 	src/actors.cpp
 	src/actors_r.cpp

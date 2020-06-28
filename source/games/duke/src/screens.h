@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 extern void G_DisplayExtraScreens(void);
-extern void G_DisplayLogo(void);
 extern void G_DoOrderScreen(void);
 
 #ifdef DEBUGGINGAIDS

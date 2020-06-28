@@ -112,6 +112,10 @@ void displaymasks_r(int snum);
 void think_d();
 void think_r();
 
+void Logo_d(CompletionFunc);
+void Logo_r(CompletionFunc);
+void InitFonts_d();
+void InitFonts_r();
 
 
 Dispatcher fi;
@@ -121,6 +125,8 @@ void SetDispatcher()
 	if (!isRR())
 	{
 		fi = {
+		Logo_d,
+		InitFonts_d,
 		think_d,
 		initactorflags_d,
 		isadoorwall_d,
@@ -168,6 +174,8 @@ void SetDispatcher()
 	else	
 	{
 		fi = {
+		Logo_r,
+		InitFonts_r,
 		think_r,
 		initactorflags_r,
 		isadoorwall_r,

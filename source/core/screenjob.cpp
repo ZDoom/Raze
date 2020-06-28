@@ -52,7 +52,7 @@ IMPLEMENT_CLASS(DScreenJob, true, false)
 //
 //---------------------------------------------------------------------------
 
-void RunScreenJob(DScreenJob *job, std::function<void(bool skipped)> completion, bool clearbefore)
+void RunScreenJob(DScreenJob *job, CompletionFunc completion, bool clearbefore)
 {
 	if (clearbefore)
 	{
@@ -183,7 +183,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, std::function<void(bool skipped)> completion)
+void PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, CompletionFunc completion)
 {
 	if (!filename)	// this is for chaining optional videos without special case coding by the caller.
 	{

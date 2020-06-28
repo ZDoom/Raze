@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "palette.h"
 #include "cmdlib.h"
+#include "screenjob.h"
 
 BEGIN_DUKE_NS
 
@@ -469,6 +470,10 @@ void spawneffector(int i);
 
 struct Dispatcher
 {
+    // global stuff
+    void (*ShowLogo)(CompletionFunc completion);
+    void (*InitFonts)();
+
 	// sectors_?.cpp
     void (*think)();
 	void (*initactorflags)();

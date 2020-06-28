@@ -1645,8 +1645,6 @@ void G_PostCreateGameState(void)
     Net_SendClientInfo();
 }
 
-void InitFonts();
-
 static void G_Startup(void)
 {
     int32_t i;
@@ -1708,7 +1706,7 @@ static void G_Startup(void)
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
         G_GameExit("Failed loading art.");
 
-    InitFonts();
+    fi.InitFonts();
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
@@ -1906,8 +1904,6 @@ static const char* actions[] = {
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
 
-void InitFonts();
-
 int32_t SetDefaults(void)
 {
     g_player[0].ps->aim_mode = 1;
@@ -2076,7 +2072,6 @@ int GameInterface::app_main()
 #endif
 
     videoInit();
-    InitFonts();
     V_LoadTranslations();
     videoSetPalette(BASEPAL, 0);
 
@@ -2142,9 +2137,11 @@ MAIN_LOOP_RESTART:
             Net_WaitForEverybody();
         }
         else
-            G_DisplayLogo();
+        {
+            fi.ShowLogo([](bool) {});
+        }
 
-		M_StartControlPanel(false);
+        M_StartControlPanel(false);
 		M_SetMenu(NAME_Mainmenu);
 		if (G_PlaybackDemo())
         {

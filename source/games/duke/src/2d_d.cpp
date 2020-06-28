@@ -36,6 +36,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "raze_music.h"
 #include "mapinfo.h"
 #include "screenjob.h"
+#include "texturemanager.h"
 //#include "zz_text.h"
 
 #undef gametext
@@ -43,10 +44,80 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
+//==========================================================================
+//
+// Sets up the game fonts.
+//
+//==========================================================================
+
+void InitFonts_d()
+{
+    GlyphSet fontdata;
+
+    // Small font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = tileGetTexture(STARTALPHANUM + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Big font
+
+    // This font is VERY messy...
+    fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
+    fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
+    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
+    fontdata.Insert('.', tileGetTexture(BIGPERIOD));
+    fontdata.Insert(',', tileGetTexture(BIGCOMMA));
+    fontdata.Insert('!', tileGetTexture(BIGX));
+    fontdata.Insert('?', tileGetTexture(BIGQ));
+    fontdata.Insert(';', tileGetTexture(BIGSEMI));
+    fontdata.Insert(':', tileGetTexture(BIGCOLIN));
+    fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
+    fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
+    fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
+    fontdata.Insert('`', tileGetTexture(BIGAPPOS));
+    fontdata.Insert('"', tileGetTexture(BIGAPPOS));
+    fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
+    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // Tiny font
+    for (int i = 0; i < 95; i++)
+    {
+        auto tile = tileGetTexture(MINIFONT + i);
+        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+            fontdata.Insert('!' + i, tile);
+    }
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    fontdata.Clear();
+
+    // SBAR index font
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
+    fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
+    fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
+    fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+
+    fontdata.Clear();
+
+    // digital font
+    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
+    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+
+}
+
 
 // Text output - needs to transition to the actual font routines once everything is set up.
 #if 1
-int gametext(int x,int y,const char *t,char s,short dabits)
+static int gametext(int x,int y,const char *t,char s,short dabits)
 {
 	short ac,newx;
 	char centre;
@@ -95,7 +166,7 @@ int gametext(int x,int y,const char *t,char s,short dabits)
 	return (x);
 }
 
-int gametextpal(int x,int y,const char *t,char s,unsigned char p)
+static int gametextpal(int x,int y,const char *t,char s,unsigned char p)
 {
 	short ac,newx;
 	char centre;
@@ -143,7 +214,7 @@ int gametextpal(int x,int y,const char *t,char s,unsigned char p)
 	return (x);
 }
 
-int gametextpart(int x,int y,const char *t,char s,short p)
+static int gametextpart(int x,int y,const char *t,char s,short p)
 {
 	short ac,newx, cnt;
 	char centre;
@@ -199,15 +270,15 @@ int gametextpart(int x,int y,const char *t,char s,short p)
 
 	return (x);
 }
-#endif
 
-void gamenumber(int x,int y,int n,char s)
+static void gamenumber(int x,int y,int n,char s)
 {
 	char b[10];
 	//ltoa(n,b,10);
 	mysnprintf(b,10,"%d",n);
 	gametext(x,y,b,s,2+8+16);
 }
+#endif
 
 // ANM player - catastrophically shitty implementation. Todo: Move the sound and fps data to a control file per movie.
 
@@ -551,7 +622,7 @@ class DTitleScreen : public DScreenJob
 //
 //---------------------------------------------------------------------------
 
-void Logo(void)
+void Logo_d(CompletionFunc completion)
 {
 	Mus_Stop();
 	FX_StopAllSounds(); // JBF 20031228
@@ -564,42 +635,20 @@ void Logo(void)
 	};
 	static const int logoframetimes[] = { 9, 9, 9 };
 
-	PlayVideo(VOLUMEALL && !inputState.CheckAllInput() ? "logo.anm" : nullptr, logosound, logoframetimes, [](bool skipped)
+	PlayVideo(VOLUMEALL && !inputState.CheckAllInput() ? "logo.anm" : nullptr, logosound, logoframetimes, [=](bool skipped)
 		{
 			S_PlaySpecialMusic(MUS_INTRO);
-			RunScreenJob(!isNam() ? Create<DDRealmsScreen>() : nullptr, [](bool skipped)
+			RunScreenJob(!isNam() ? Create<DDRealmsScreen>() : nullptr, [=](bool skipped)
 				{
-					RunScreenJob(Create<DTitleScreen>(), [](bool skipped)
+					RunScreenJob(Create<DTitleScreen>(), [=](bool skipped)
 						{
 							sound(NITEVISION_ONOFF);
+							completion(skipped);
 						});
 				});
 		});
-
-
-
-#if 0
-	// Needs to be fixed later. The network code busy-waits and blocks the entire app.
-	if(ud.multimode > 1)
-	{
-		rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-
-		rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-		rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-		if (PLUTOPAK)   // JBF 20030804
-			rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
-
-		gametext(160,190,"WAITING FOR PLAYERS",14,2);
-		videoNextPage();
-	}
-
-	waitforeverybody();
-#endif
-
-	twod->ClearScreen();
-	videoNextPage();
-
 }
+
 
 void dobonus(char bonusonly)
 {

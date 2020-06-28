@@ -122,14 +122,14 @@ void genspriteremaps(void)
     if (isRR())
     {
         uint8_t table[256];
-        for (j = 0; j < 768; j++)
+        for (j = 0; j < 256; j++)
             table[j] = j;
         for (j = 0; j < 32; j++)
             table[j] = j + 32;
 
         lookups.makeTable(7, table, 0, 0, 0, 0);
 
-        for (j = 0; j < 768; j++)
+        for (j = 0; j < 256; j++)
             table[j] = j;
         lookups.makeTable(30, table, 0, 0, 0, 0);
         lookups.makeTable(31, table, 0, 0, 0, 0);
@@ -152,7 +152,7 @@ void genspriteremaps(void)
             table[j] = j + 32;
         }
         lookups.makeTable(34, table, 0, 0, 0, 0);
-        for (j = 0; j < 768; j++)
+        for (j = 0; j < 256; j++)
             table[j] = j;
         for (j = 0; j < 16; j++)
             table[j] = j + 129;

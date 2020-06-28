@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu/menu.h"
 #include "mapinfo.h"
 #include "v_2ddrawer.h"
+#include "screenjob.h"
 
 BEGIN_DUKE_NS
 
@@ -1066,84 +1067,6 @@ void G_DisplayExtraScreens(void)
 
         fadepaltile(0, 0, 0, 0, 252, 28, TILE_TENSCREEN, BASEPAL);
         inputState.ClearAllInput();
-    }
-}
-
-void Logo_d();
-void Logo_r();
-void G_DisplayLogo(void)
-{
-    if (!isRR())
-    {
-        Logo_d();
-        return;
-    }
-    int32_t soundanm = 0;
-    //int32_t logoflags = G_GetLogoFlags();
-
-    ready2send = 0;
-
-    inputState.ClearAllInput();
-
-    videoSetViewableArea(0, 0, xdim-1, ydim-1);
-    videoClearScreen(0L);
-    G_FadePalette(0, 0, 0, 252);
-
-    renderFlushPerms();
-    videoNextPage();
-
-    Mus_Stop();
-    FX_StopAllSounds(); // JBF 20031228
-    if (RRRA)
-        return;
-    if (RR)
-    {
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
-        {
-            Net_GetPackets();
-            Anim_Play("rr_intro.anm");
-            G_FadePalette(0, 0, 0, 252);
-            inputState.ClearAllInput();
-        }
-
-        videoClearScreen(0L);
-        videoNextPage();
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
-        {
-            Net_GetPackets();
-            Anim_Play("redneck.anm");
-            G_FadePalette(0, 0, 0, 252);
-            inputState.ClearAllInput();
-        }
-
-        videoClearScreen(0L);
-        videoNextPage();
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-
-        if (!inputState.CheckAllInput() && g_noLogoAnim == 0 && !userConfig.nologo)
-        {
-            Net_GetPackets();
-            Anim_Play("xatlogo.anm");
-            G_FadePalette(0, 0, 0, 252);
-            inputState.ClearAllInput();
-        }
-
-        videoClearScreen(0L);
-        videoNextPage();
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-
-        //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI);
-
-        //G_FadePalette(0,0,0,0);
-        videoClearScreen(0L);
-        return;
     }
 }
 
