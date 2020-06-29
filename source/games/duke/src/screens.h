@@ -20,10 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "screenjob.h"
+
 BEGIN_DUKE_NS
 
-extern void G_DisplayExtraScreens(void);
-extern void G_DoOrderScreen(void);
+extern void showtwoscreens(CompletionFunc func);
+extern void doorders(CompletionFunc func);
 
 #ifdef DEBUGGINGAIDS
 typedef struct {

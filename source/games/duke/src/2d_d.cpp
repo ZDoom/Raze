@@ -785,6 +785,39 @@ void ShowMPBonusScreen_d(int pws, CompletionFunc completion)
 	RunScreenJob(&job, 1, completion);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void showtwoscreens(CompletionFunc completion)
+{
+	JobDesc jobs[2];
+	int job = 0;
+
+	jobs[job++] = { Create<DImageScreen>(3291), nullptr };
+	jobs[job++] = { Create<DImageScreen>(3290), nullptr };
+	RunScreenJob(jobs, job, completion);
+}
+
+void doorders(CompletionFunc completion)
+{
+	JobDesc jobs[2];
+	int job = 0;
+
+	for(int i=0;i<4;i++)
+		jobs[job++] = { Create<DImageScreen>(ORDERING+i), nullptr };
+	RunScreenJob(jobs, job, completion);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+
 
 #if 1
 CCMD(testbonus)

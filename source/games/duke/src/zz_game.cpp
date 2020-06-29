@@ -47,6 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
+#include "st_start.h"
+#include "i_interface.h"
 
 // Uncomment to prevent anything except mirrors from drawing. It is sensible to
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
@@ -59,6 +61,8 @@ BEGIN_DUKE_NS
 
 void SetDispatcher();
 void checkcommandline();
+
+int16_t max_ammo_amount[MAX_WEAPONS];
 
 uint8_t shadedsector[MAXSECTORS];
 
@@ -191,8 +195,8 @@ void G_GameExit(const char *msg)
         }
 
         // shareware and TEN screens
-        if (*msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y')
-            G_DisplayExtraScreens();
+        if (*msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y' && !VOLUMEALL && !RR)
+            showtwoscreens([](bool) {});
     }
 
 	if (*msg != 0)
@@ -202,7 +206,12 @@ void G_GameExit(const char *msg)
 			I_Error("%s", msg);
 		}
 	}
-	throw CExitEvent(0);
+    if (!RR)
+    {
+        endoomName = VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
+        ST_Endoom();
+    }
+	else throw CExitEvent(0);
 }
 
 
@@ -1801,7 +1810,7 @@ static int G_EndOfLevel(void)
             if ((!g_netServer && ud.multimode < 2))
             {
                 if (!VOLUMEALL)
-                    G_DoOrderScreen();
+                    doorders([](bool) {});
                 g_player[myconnectindex].ps->gm = 0;
 				return 2;
             }

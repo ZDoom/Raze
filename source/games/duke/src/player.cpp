@@ -38,8 +38,6 @@ source as it is released.
 
 BEGIN_DUKE_NS 
 
-int16_t max_ammo_amount[MAX_WEAPONS];
-
 //---------------------------------------------------------------------------
 //
 // setpal
