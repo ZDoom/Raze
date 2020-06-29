@@ -261,13 +261,15 @@ void DrawTextCommon(F2DDrawer *drawer, FFont *font, int normalcolor, double x, d
 	if (parms.celly == 0) parms.celly = font->GetHeight() + 1;
 	parms.celly *= parms.scaley;
 
+	bool palettetrans = (normalcolor == CR_UNDEFINED && parms.TranslationId != 0);
+
 	if (normalcolor >= NumTextColors)
 		normalcolor = CR_UNTRANSLATED;
 	boldcolor = normalcolor ? normalcolor - 1 : NumTextColors - 1;
 
 	PalEntry colorparm = parms.color;
 	PalEntry color = 0xffffffff;
-	trans = font->GetColorTranslation((EColorRange)normalcolor, &color);
+	trans = palettetrans? -1 : font->GetColorTranslation((EColorRange)normalcolor, &color);
 	parms.color = PalEntry(colorparm.a, (color.r * colorparm.r) / 255, (color.g * colorparm.g) / 255, (color.b * colorparm.b) / 255);
 
 	kerning = font->GetDefaultKerning();
@@ -311,7 +313,8 @@ void DrawTextCommon(F2DDrawer *drawer, FFont *font, int normalcolor, double x, d
 		bool redirected = false;
 		if (NULL != (pic = font->GetChar(c, currentcolor, &w, &redirected)))
 		{
-			parms.TranslationId = redirected? -1 : trans;
+			// if palette translation is used, font colors will be ignored.
+			if (!palettetrans) parms.TranslationId = redirected? -1 : trans;
 			SetTextureParms(drawer, &parms, pic, cx, cy);
 			if (parms.cellx)
 			{

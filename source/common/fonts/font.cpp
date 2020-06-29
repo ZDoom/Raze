@@ -860,7 +860,7 @@ int FFont::GetColorTranslation (EColorRange range, PalEntry *color) const
 		}
 		if (color != nullptr) *color = retcolor;
 	}
-	if (ActiveColors == 0)
+	if (ActiveColors == 0 || range == CR_UNDEFINED)
 		return -1;
 	else if (range >= NumTextColors)
 		range = CR_UNTRANSLATED;
@@ -977,7 +977,7 @@ FGameTexture *FFont::GetChar (int code, int translation, int *const width, bool 
 	if (code < 0) return nullptr;
 
 
-	if (translation == CR_UNTRANSLATED && !forceremap)
+	if ((translation == CR_UNTRANSLATED || translation == CR_UNDEFINED) && !forceremap)
 	{
 		bool redirect = Chars[code].OriginalPic && Chars[code].OriginalPic != Chars[code].TranslatedPic;
 		if (redirected) *redirected = redirect;

@@ -44,8 +44,12 @@ extern vec2_t mpgametext(int32_t x, int32_t y, char const * t, int32_t s, int32_
 extern vec2_t mpgametextsize(char const * t, int32_t f);
 extern int32_t textsc(int32_t sc);
 
+inline int minitext(int x, int y, const char* t, int p, int sb)
+{
+	return minitext_(x, y, t, 0, p, sb);
+}
+
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
-#define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
 #define menutext(x, y, t) menutext_((x)<<16, (y)<<16, 0, (t), 10|16, 0)
 #define menutext_centeralign(x, y, t) menutext_((x), (y), 0, (t), 10|16, TEXT_XCENTER|TEXT_YCENTER)
 #define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)

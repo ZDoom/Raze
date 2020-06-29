@@ -40,7 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "buildtiles.h"
 //#include "zz_text.h"
 
-#undef gametext
+#undef GameText
 //#undef menutext
 
 BEGIN_DUKE_NS
@@ -59,10 +59,10 @@ void InitFonts_d()
     for (int i = 0; i < 95; i++)
     {
         auto tile = tileGetTexture(STARTALPHANUM + i);
-        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
-    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 5, false, false, false, &fontdata);
     fontdata.Clear();
 
     // Big font
@@ -95,12 +95,13 @@ void InitFonts_d()
     for (int i = 0; i < 95; i++)
     {
         auto tile = tileGetTexture(MINIFONT + i);
-        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
     fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, -1, false, false, false, &fontdata);
-    fontdata.Clear();
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
+	SmallFont2->SetKerning(1);
+	fontdata.Clear();
 
     // SBAR index font
     for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
@@ -120,215 +121,35 @@ void InitFonts_d()
 }
 
 
-// Text output - needs to transition to the actual font routines once everything is set up.
-#if 1
-static int gametext(int x,int y,const char *t,char s,short dabits)
+//==========================================================================
+//
+// wrappers around DrawText to allow easier reuse of the old code.
+// The vertical displacements are to have the same positioning as with the original code.
+//
+//==========================================================================
+
+static void BigText(double x, double y, const char* text)
 {
-	short ac,newx;
-	char centre;
-	const char *oldt;
-
-	centre = ( x == (320>>1) );
-	newx = 0;
-	oldt = t;
-
-	if(centre)
-	{
-		while(*t)
-		{
-			if(*t == 32) {newx+=5;t++;continue;}
-			else ac = *t - '!' + STARTALPHANUM;
-
-			if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-			if(*t >= '0' && *t <= '9')
-				newx += 8;
-			else newx += tilesiz[ac].x;
-			t++;
-		}
-
-		t = oldt;
-		x = (320>>1)-(newx>>1);
-	}
-
-	while(*t)
-	{
-		if(*t == 32) {x+=5;t++;continue;}
-		else ac = *t - '!' + STARTALPHANUM;
-
-		if( ac < STARTALPHANUM || ac > ENDALPHANUM )
-			break;
-
-		rotatesprite(x<<16,y<<16,65536L,0,ac,s,0,dabits,0,0,xdim-1,ydim-1);
-
-		if(*t >= '0' && *t <= '9')
-			x += 8;
-		else x += tilesiz[ac].x;
-
-		t++;
-	}
-
-	return (x);
+	auto width = BigFont->StringWidth(text);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 }
 
-static int gametextpal(int x,int y,const char *t,char s,unsigned char p)
+static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-	short ac,newx;
-	char centre;
-	const char *oldt;
-
-	centre = ( x == (320>>1) );
-	newx = 0;
-	oldt = t;
-
-	if(centre)
-	{
-		while(*t)
-		{
-			if(*t == 32) {newx+=5;t++;continue;}
-			else ac = *t - '!' + STARTALPHANUM;
-
-			if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-			if(*t >= '0' && *t <= '9')
-				newx += 8;
-			else newx += tilesiz[ac].x;
-			t++;
-		}
-
-		t = oldt;
-		x = (320>>1)-(newx>>1);
-	}
-
-	while(*t)
-	{
-		if(*t == 32) {x+=5;t++;continue;}
-		else ac = *t - '!' + STARTALPHANUM;
-
-		if( ac < STARTALPHANUM || ac > ENDALPHANUM )
-			break;
-
-		rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,2+8+16,0,0,xdim-1,ydim-1);
-		if(*t >= '0' && *t <= '9')
-			x += 8;
-		else x += tilesiz[ac].x;
-
-		t++;
-	}
-
-	return (x);
+	if (align != -1)
+		x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
+	int light = Scale(numshades - shade, 255, numshades);
+	PalEntry pe(255, light, light, light);
+	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
-static int gametextpart(int x,int y,const char *t,char s,short p)
+static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-	short ac,newx, cnt;
-	char centre;
-	const char *oldt;
-
-	centre = ( x == (320>>1) );
-	newx = 0;
-	oldt = t;
-	cnt = 0;
-
-	if(centre)
-	{
-		while(*t)
-		{
-			if(cnt == p) break;
-
-			if(*t == 32) {newx+=5;t++;continue;}
-			else ac = *t - '!' + STARTALPHANUM;
-
-			if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-			newx += tilesiz[ac].x;
-			t++;
-			cnt++;
-
-		}
-
-		t = oldt;
-		x = (320>>1)-(newx>>1);
-	}
-
-	cnt = 0;
-	while(*t)
-	{
-		if(*t == 32) {x+=5;t++;continue;}
-		else ac = *t - '!' + STARTALPHANUM;
-
-		if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-		if(cnt == p)
-		{
-			rotatesprite(x<<16,y<<16,65536L,0,ac,s,1,2+8+16,0,0,xdim-1,ydim-1);
-			break;
-		}
-		else
-			rotatesprite(x<<16,y<<16,65536L,0,ac,s,0,2+8+16,0,0,xdim-1,ydim-1);
-
-		x += tilesiz[ac].x;
-
-		t++;
-		cnt++;
-	}
-
-	return (x);
-}
-
-static void gamenumber(int x,int y,int n,char s)
-{
-	char b[10];
-	//ltoa(n,b,10);
-	mysnprintf(b,10,"%d",n);
-	gametext(x,y,b,s,2+8+16);
-}
-#endif
-
-void intro4animsounds(int fr)
-{
-	switch(fr)
-	{
-		case 1:
-			sound(INTRO4_B);
-			break;
-		case 12:
-		case 34:
-			sound(SHORT_CIRCUIT);
-			break;
-		case 18:
-			sound(INTRO4_5);
-			break;
-	}
-}
-
-void first4animsounds(int fr)
-{
-	switch(fr)
-	{
-		case 1:
-			sound(INTRO4_1);
-			break;
-		case 12:
-			sound(INTRO4_2);
-			break;
-		case 7:
-			sound(INTRO4_3);
-			break;
-		case 26:
-			sound(INTRO4_4);
-			break;
-	}
-}
-
-void intro42animsounds(int fr)
-{
-	switch(fr)
-	{
-		case 10:
-			sound(INTRO4_6);
-			break;
-	}
+	if (align != -1)
+		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
+	int light = Scale(numshades - shade, 255, numshades);
+	PalEntry pe(255, light, light, light);
+	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
 //---------------------------------------------------------------------------
@@ -668,21 +489,14 @@ public:
 class DEpisode4Text : public DScreenJob
 {
 
-	void centertext(double y, const char* text)
-	{
-		text = GStrings(text);
-		auto width = BigFont->StringWidth(text);
-		DrawText(twod, BigFont, CR_RED, 160. - width/2, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
-	}
-
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		twod->ClearScreen();
-		centertext(60, "Thanks to all our");
-		centertext(60 + 16, "fans for giving");
-		centertext(60 + 16 + 16, "us big heads.");
-		centertext(70 + 16 + 16 + 16, "Look for a Duke Nukem 3D");
-		centertext(70 + 16 + 16 + 16 + 16, "sequel soon.");
+		BigText(160, 60, GStrings("Thanks to all our"));
+		BigText(160, 60 + 16, GStrings("fans for giving"));
+		BigText(160, 60 + 16 + 16, GStrings("us big heads."));
+		BigText(160, 70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
+		BigText(160, 70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
 		return skiprequest ? -1 : 1;
 	}
 };
@@ -860,17 +674,131 @@ void bonussequence_d(int num, CompletionFunc completion)
 	RunScreenJob(jobs, job, completion); 
 }
 
-#if 0
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static void PlayBonusMusic()
+{
+	if (MusicEnabled() && mus_enabled)
+		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+
+}
+
+class DMultiplayerBonusScreen : public DScreenJob
+{
+	int playerswhenstarted;
+
+public:
+	DMultiplayerBonusScreen(int pws)
+	{
+		playerswhenstarted = pws;
+	}
+
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		char tempbuf[32];
+		twod->ClearScreen();
+		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
+		if (PLUTOPAK)
+			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
+
+		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);
+		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
+		GameText(160, 165, GStrings("Presskey"), 0, 0);
+
+		int t = 0;
+
+		MiniText(38, 80, GStrings("Name"), 0, -1, 8);
+		MiniText(269+20, 80, GStrings("Kills"), 0, 1, 8);
+
+		for (int i = 0; i < playerswhenstarted; i++)
+		{
+			mysnprintf(tempbuf, 32, "%-4ld", i + 1);
+			MiniText(92 + (i * 23), 80, tempbuf, 0, -1, 3);
+		}
+
+		for (int i = 0; i < playerswhenstarted; i++)
+		{
+			int xfragtotal = 0;
+			mysnprintf(tempbuf, 32, "%ld", i + 1);
+
+			MiniText(30, 90 + t, tempbuf, 0);
+			MiniText(38, 90 + t, g_player[i].user_name, 0, -1, ps[i].palookup);
+
+			for (int y = 0; y < playerswhenstarted; y++)
+			{
+				int frag = g_player[i].frags[y];// frags[i][y]);
+				if (i == y)
+				{
+					mysnprintf(tempbuf, 32, "%-4ld", ps[y].fraggedself);
+					MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, 2);
+					xfragtotal -= ps[y].fraggedself;
+				}
+				else
+				{
+					mysnprintf(tempbuf, 32, "%-4ld", frag);
+					MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
+					xfragtotal += frag;
+				}
+				/*
+				if (myconnectindex == connecthead)
+				{
+					mysnprintf(tempbuf, 32, "stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
+					sendscore(tempbuf);
+				}
+				*/
+			}
+
+			mysnprintf(tempbuf, 32, "%-4ld", xfragtotal);
+			MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, 2);
+
+			t += 7;
+		}
+
+		for (int y = 0; y < playerswhenstarted; y++)
+		{
+			int yfragtotal = 0;
+			for (int i = 0; i < playerswhenstarted; i++)
+			{
+				if (i == y)
+					yfragtotal += ps[i].fraggedself;
+				int frag = g_player[i].frags[y];// frags[i][y]);
+				yfragtotal += frag;
+			}
+			mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
+			minitext(92 + (y * 23), 96 + (8 * 7), tempbuf, 2, 2 + 8 + 16 + 128);
+		}
+
+		minitext(45, 96 + (8 * 7), GStrings("Deaths"), 8, 2 + 8 + 16 + 128);
+		return skiprequest ? -1 : 1;
+	}
+};
+
+void ShowMPBonusScreen_d(int pws, CompletionFunc completion)
+{
+	PlayBonusMusic();
+	JobDesc job = { Create<DMultiplayerBonusScreen>(pws) };
+	RunScreenJob(&job, 1, completion);
+}
+
+
+#if 1
 CCMD(testbonus)
 {
 	if (argv.argc() > 1)
 	{
-		bonussequence_d(strtol(argv[1], nullptr, 0), nullptr);
+		//bonussequence_d(strtol(argv[1], nullptr, 0), nullptr);
+		ShowMPBonusScreen_d(strtol(argv[1], nullptr, 0), nullptr);
 	}
 }
 #endif
 
 
+#if 0
 void dobonus(char bonusonly)
 {
 	short tinc,gfx_offset;
@@ -897,91 +825,6 @@ FRAGBONUS:
 
 	if(playerswhenstarted > 1 && ud.coop != 1 )
 	{
-		if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-			sound(BONUSMUSIC);
-
-		rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64,0,0,xdim-1,ydim-1);
-		rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
-
-#ifndef UK
-		rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
-#endif
-
-		gametext(160,58+2,"MULTIPLAYER TOTALS",0,2+8+16);
-		gametext(160,58+10,level_names[(ud.volume_number*11)+ud.last_level-1],0,2+8+16);
-
-		gametext(160,165,"PRESS ANY KEY TO CONTINUE",0,2+8+16);
-
-
-		t = 0;
-		minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-		for(i=0;i<playerswhenstarted;i++)
-		{
-			sprintf(tempbuf,"%-4ld",i+1);
-			minitext(92+(i*23),80,tempbuf,3,2+8+16+128);
-		}
-
-		for(i=0;i<playerswhenstarted;i++)
-		{
-			xfragtotal = 0;
-			sprintf(tempbuf,"%ld",i+1);
-
-			minitext(30,90+t,tempbuf,0,2+8+16+128);
-			minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
-
-			for(y=0;y<playerswhenstarted;y++)
-			{
-				if(i == y)
-				{
-					sprintf(tempbuf,"%-4ld",ps[y].fraggedself);
-					minitext(92+(y*23),90+t,tempbuf,2,2+8+16+128);
-					xfragtotal -= ps[y].fraggedself;
-				}
-				else
-				{
-					sprintf(tempbuf,"%-4ld",frags[i][y]);
-					minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-					xfragtotal += frags[i][y];
-				}
-
-				if(myconnectindex == connecthead)
-				{
-					sprintf(tempbuf,"stats %ld killed %ld %ld\n",i+1,y+1,frags[i][y]);
-					sendscore(tempbuf);
-				}
-			}
-
-			sprintf(tempbuf,"%-4ld",xfragtotal);
-			minitext(101+(8*23),90+t,tempbuf,2,2+8+16+128);
-
-			t += 7;
-		}
-
-		for(y=0;y<playerswhenstarted;y++)
-		{
-			yfragtotal = 0;
-			for(i=0;i<playerswhenstarted;i++)
-			{
-				if(i == y)
-					yfragtotal += ps[i].fraggedself;
-				yfragtotal += frags[i][y];
-			}
-			sprintf(tempbuf,"%-4ld",yfragtotal);
-			minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
-		}
-
-		minitext(45,96+(8*7),"DEATHS",8,2+8+16+128);
-		videoNextPage();
-
-		for(t=0;t<64;t+=7)
-			palto(0,0,0,63-t);
-
-		inputState.ClearAllInput();
-		while(inputState.CheckAllInput()==0) //getpackets();
-
-		if(bonusonly || ud.multimode > 1) return;
-
-		for(t=0;t<64;t+=7) palto(0,0,0,t);
 	}
 #endif
 
@@ -1019,7 +862,7 @@ FRAGBONUS:
 	menutext_center(20-6,lastmapname);
 	menutext_center(36-6,"COMPLETED");
 
-	gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
+	gametext_(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
 	if (MusicEnabled() && mus_enabled)
 		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
@@ -1090,14 +933,14 @@ FRAGBONUS:
 			menutext_center(20-6,lastmapname);
 			menutext_center(36-6,"COMPLETED");
 
-			gametext(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
+			gametext_(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
 
 			if( totalclock > (60*3) )
 			{
-				gametext(10,59+9,"Your Time:",0,2+8+16);
-				gametext(10,69+9,"Par time:",0,2+8+16);
+				gametext_(10,59+9,"Your Time:",0,2+8+16);
+				gametext_(10,69+9,"Par time:",0,2+8+16);
 				if (!isNamWW2GI())
-					gametext(10,78+9,"3D Realms' Time:",0,2+8+16);
+					gametext_(10,78+9,"3D Realms' Time:",0,2+8+16);
 
 				if(bonuscnt == 0)
 					bonuscnt++;
@@ -1112,27 +955,27 @@ FRAGBONUS:
 					sprintf(tempbuf,"%02ld:%02ld",
 						(ps[myconnectindex].player_par/(26*60))%60,
 						(ps[myconnectindex].player_par/26)%60);
-					gametext((320>>2)+71,60+9,tempbuf,0,2+8+16);
+					gametext_((320>>2)+71,60+9,tempbuf,0,2+8+16);
 
 					sprintf(tempbuf,"%02ld:%02ld",
 						(currentLevel->parTime / (26*60))%60,
 						(currentLevel->parTime / 26)%60);
-					gametext((320>>2)+71,69+9,tempbuf,0,2+8+16);
+					gametext_((320>>2)+71,69+9,tempbuf,0,2+8+16);
 
 					if (!isNamWW2GI())
 					{
-						sprintf(tempbuf, "%02ld:%02ld",
+						mysnprintf(tempbuf, 32, "%02ld:%02ld",
 							(currentLevel->designerTime / (26 * 60)) % 60,
 							(currentLevel->designerTime / 26) % 60);
-							gametext((320 >> 2) + 71, 78 + 9, tempbuf, 0, 2 + 8 + 16);
+							gametext_((320 >> 2) + 71, 78 + 9, tempbuf, 0, 2 + 8 + 16);
 					}
 
 				}
 			}
 			if( totalclock > (60*6) )
 			{
-				gametext(10,94+9,"Enemies Killed:",0,2+8+16);
-				gametext(10,99+4+9,"Enemies Left:",0,2+8+16);
+				gametext_(10,94+9,"Enemies Killed:",0,2+8+16);
+				gametext_(10,99+4+9,"Enemies Left:",0,2+8+16);
 
 				if(bonuscnt == 2)
 				{
@@ -1148,25 +991,25 @@ FRAGBONUS:
 						sound(PIPEBOMB_EXPLODE);
 					}
 					sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-					gametext((320>>2)+70,93+9,tempbuf,0,2+8+16);
+					gametext_((320>>2)+70,93+9,tempbuf,0,2+8+16);
 					if(ud.player_skill > 3 )
 					{
 						sprintf(tempbuf,"N/A");
-						gametext((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
+						gametext_((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
 					}
 					else
 					{
 						if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
 							sprintf(tempbuf,"%-3ld",0);
 						else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-						gametext((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
+						gametext_((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
 					}
 				}
 			}
 			if( totalclock > (60*9) )
 			{
-				gametext(10,120+9,"Secrets Found:",0,2+8+16);
-				gametext(10,130+9,"Secrets Missed:",0,2+8+16);
+				gametext_(10,120+9,"Secrets Found:",0,2+8+16);
+				gametext_(10,130+9,"Secrets Missed:",0,2+8+16);
 				if(bonuscnt == 4) bonuscnt++;
 
 				if( totalclock > (60*10) )
@@ -1177,11 +1020,11 @@ FRAGBONUS:
 						sound(PIPEBOMB_EXPLODE);
 					}
 					sprintf(tempbuf,"%-3d",ps[myconnectindex].secret_rooms);
-					gametext((320>>2)+70,120+9,tempbuf,0,2+8+16);
+					gametext_((320>>2)+70,120+9,tempbuf,0,2+8+16);
 					if( ps[myconnectindex].secret_rooms > 0 )
 						sprintf(tempbuf,"%-3d",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
 					sprintf(tempbuf,"%-3d",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-					gametext((320>>2)+70,130+9,tempbuf,0,2+8+16);
+					gametext_((320>>2)+70,130+9,tempbuf,0,2+8+16);
 				}
 			}
 
@@ -1204,5 +1047,6 @@ FRAGBONUS:
 	}
 }
 
+#endif
 
 END_DUKE_NS
