@@ -1111,12 +1111,6 @@ static void G_BonusCutscenes(void)
 void ShowMPBonusScreen_d(int pws, CompletionFunc completion);
 void ShowMPBonusScreen_r(int pws, CompletionFunc completion);
 
-static void G_DisplayMPResultsScreen(void)
-{
-    if (!isRR()) ShowMPBonusScreen_d(g_mostConcurrentPlayers, [](bool){});
-    else ShowMPBonusScreen_r(g_mostConcurrentPlayers, [](bool) {});
-}
-
 static int32_t G_PrintTime_ClockPad(void)
 {
     int32_t clockpad = 2;
@@ -1219,34 +1213,8 @@ void G_BonusScreen(int32_t bonusonly)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        videoClearScreen(0);
-        G_DisplayMPResultsScreen();
-
-        PlayBonusMusic();
-
-        videoNextPage();
-        inputState.ClearAllInput();
-        fadepal(0, 0, 0, 252, 0, RR ? -4 : -28);
-        totalclock = 0;
-
-        while (totalclock < TICRATE*10)
-        {
-            G_HandleAsync();
-
-            if (G_FPSLimit())
-            {
-                videoClearScreen(0);
-                G_DisplayMPResultsScreen();
-                videoNextPage();
-            }
-
-            if (inputState.CheckAllInput())
-            {
-                break;
-            }
-        }
-
-        fadepal(0, 0, 0, 0, 252, RR ? 4 : 28);
+        if (!isRR()) ShowMPBonusScreen_d(g_mostConcurrentPlayers, [](bool) {});
+        else ShowMPBonusScreen_r(g_mostConcurrentPlayers, [](bool) {});
     }
 
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
