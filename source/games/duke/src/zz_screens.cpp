@@ -1108,72 +1108,13 @@ static void G_BonusCutscenes(void)
 	    bonussequence_d(ud.volume_number, [](bool){});
 }
 
+void ShowMPBonusScreen_d(int pws, CompletionFunc completion);
+void ShowMPBonusScreen_r(int pws, CompletionFunc completion);
+
 static void G_DisplayMPResultsScreen(void)
 {
-    int32_t i, y, t = 0;
-
-    rotatesprite_fs(160<<16, 100<<16, 65536L, 0, TILE_MENUSCREEN, 16, 0, 2+8+64+BGSTRETCH);
-    rotatesprite_fs(160<<16, 34<<16, RR ? 23592L : 65536L, 0, TILE_INGAMEDUKETHREEDEE, 0, 0, 10);
-    if (!RR && PLUTOPAK)   // JBF 20030804
-        rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, TILE_PLUTOPAKSPRITE+2, 0, 0, 2+8);
-    gametext_center(58+(RR ? 0 : 2), GStrings("Multiplayer Totals"));
-    gametext_center(58+10, currentLevel->DisplayName());
-
-    gametext_center_shade(RR ? 175 : 165, GStrings("Presskey"), quotepulseshade);
-
-    minitext(38, 80, GStrings("Name"), 8, 2+8+16+128);
-    minitext(269, 80, GStrings("Kills"), 8, 2+8+16+128);
-    for (i=0; i<g_mostConcurrentPlayers; i++)
-    {
-        Bsprintf(tempbuf, "%-4d", i+1);
-        minitext(92+(i*23), 80, tempbuf, RR ? 0 : 3, 2+8+16+128);
-    }
-
-    for (i=0; i<g_mostConcurrentPlayers; i++)
-    {
-        int32_t xfragtotal = 0;
-        Bsprintf(tempbuf, "%d", i+1);
-
-        minitext(30, 90+t, tempbuf, 0, 2+8+16+128);
-        minitext(38, 90+t, g_player[i].user_name, g_player[i].ps->palookup, 2+8+16+128);
-
-        for (y=0; y<g_mostConcurrentPlayers; y++)
-        {
-            if (i == y)
-            {
-                Bsprintf(tempbuf, "%-4d", g_player[y].ps->fraggedself);
-                minitext(92+(y*23), 90+t, tempbuf, RR ? 0 : 2, 2+8+16+128);
-                xfragtotal -= g_player[y].ps->fraggedself;
-            }
-            else
-            {
-                Bsprintf(tempbuf, "%-4d", g_player[i].frags[y]);
-                minitext(92+(y*23), 90+t, tempbuf, 0, 2+8+16+128);
-                xfragtotal += g_player[i].frags[y];
-            }
-        }
-
-        Bsprintf(tempbuf, "%-4d", xfragtotal);
-        minitext(101+(8*23), 90+t, tempbuf, RR ? 0 : 2, 2+8+16+128);
-
-        t += 7;
-    }
-
-    for (y=0; y<g_mostConcurrentPlayers; y++)
-    {
-        int32_t yfragtotal = 0;
-        for (i=0; i<g_mostConcurrentPlayers; i++)
-        {
-            if (i == y)
-                yfragtotal += g_player[i].ps->fraggedself;
-            else
-                yfragtotal += g_player[i].frags[y];
-        }
-        Bsprintf(tempbuf, "%-4d", yfragtotal);
-        minitext(92+(y*23), 96+(8*7), tempbuf, RR ? 0 : 2, 2+8+16+128);
-    }
-
-    minitext(45, 96+(8*7), GStrings("Deaths"), RR ? 0 : 8, 2+8+16+128);
+    if (!isRR()) ShowMPBonusScreen_d(g_mostConcurrentPlayers, [](bool){});
+    else ShowMPBonusScreen_r(g_mostConcurrentPlayers, [](bool) {});
 }
 
 static int32_t G_PrintTime_ClockPad(void)

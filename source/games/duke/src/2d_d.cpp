@@ -99,7 +99,7 @@ void InitFonts_d()
             fontdata.Insert('!' + i, tile);
     }
     fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 3, false, false, false, &fontdata);
 	SmallFont2->SetKerning(1);
 	fontdata.Clear();
 
@@ -687,12 +687,12 @@ static void PlayBonusMusic()
 
 }
 
-class DMultiplayerBonusScreen : public DScreenJob
+class DDukeMultiplayerBonusScreen : public DScreenJob
 {
 	int playerswhenstarted;
 
 public:
-	DMultiplayerBonusScreen(int pws)
+	DDukeMultiplayerBonusScreen(int pws)
 	{
 		playerswhenstarted = pws;
 	}
@@ -770,10 +770,10 @@ public:
 				yfragtotal += frag;
 			}
 			mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
-			minitext(92 + (y * 23), 96 + (8 * 7), tempbuf, 2, 2 + 8 + 16 + 128);
+			MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, 2);
 		}
 
-		minitext(45, 96 + (8 * 7), GStrings("Deaths"), 8, 2 + 8 + 16 + 128);
+		MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0, -1, 8);
 		return skiprequest ? -1 : 1;
 	}
 };
@@ -781,7 +781,7 @@ public:
 void ShowMPBonusScreen_d(int pws, CompletionFunc completion)
 {
 	PlayBonusMusic();
-	JobDesc job = { Create<DMultiplayerBonusScreen>(pws) };
+	JobDesc job = { Create<DDukeMultiplayerBonusScreen>(pws) };
 	RunScreenJob(&job, 1, completion);
 }
 

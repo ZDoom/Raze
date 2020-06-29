@@ -60,10 +60,11 @@ void InitFonts_r()
     for (int i = 0; i < 95; i++)
     {
         auto tile = tileGetTexture(STARTALPHANUM + i);
-        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
-    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
+    SmallFont->SetKerning(2);
     fontdata.Clear();
 
     // Big font
@@ -85,18 +86,22 @@ void InitFonts_r()
     fontdata.Insert('`', tileGetTexture(BIGAPPOS));
     fontdata.Insert('"', tileGetTexture(BIGAPPOS));
     fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
-    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    GlyphSet::Iterator it(fontdata);
+    GlyphSet::Pair* pair;
+    while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
     fontdata.Clear();
 
     // Tiny font
     for (int i = 0; i < 95; i++)
     {
         auto tile = tileGetTexture(MINIFONT + i);
-        if (tile && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
             fontdata.Insert('!' + i, tile);
     }
     fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 6, false, false, false, &fontdata);
+    SmallFont2->SetKerning(2);
     fontdata.Clear();
 
     // SBAR index font
@@ -116,213 +121,40 @@ void InitFonts_r()
 
 }
 
+//==========================================================================
+//
+// wrappers around DrawText to allow easier reuse of the old code.
+// The vertical displacements are to have the same positioning as with the original code.
+//
+//==========================================================================
 
-static int gametext(int x,int y,char *t,char s)
+static void BigText(double x, double y, const char* text)
 {
-    short ac,newx;
-    char centre, *oldt;
-
-    centre = ( x == (320>>1) );
-    newx = 0;
-    oldt = t;
-
-    if(centre)
-    {
-        while(*t)
-        {
-            if(*t == 32) {newx+=5;t++;continue;}
-            else ac = *t - '!' + STARTALPHANUM;
-
-            if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-            if(*t >= '0' && *t <= '9')
-                newx += 8;
-            else newx += tilesiz[ac].x / 2;
-            t++;
-        }
-
-        t = oldt;
-        x = (320>>1)-(newx>>1);
-    }
-
-    while(*t)
-    {
-        if(*t == 32) {x+=5;t++;continue;}
-        else ac = *t - '!' + STARTALPHANUM;
-
-        if( ac < STARTALPHANUM || ac > ENDALPHANUM )
-            break;
-
-        rotatesprite(x<<16,y<<16,32768L,0,ac,s,0,2+8+16,0,0,xdim-1,ydim-1);
-
-        if(*t >= '0' && *t <= '9')
-            x += 8;
-        else x += tilesiz[ac].x / 2;
-
-        t++;
-    }
-
-    return (x);
+    x *= 2; y *= 2;
+    auto width = BigFont->StringWidth(text);
+    DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 24, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, TAG_DONE);
 }
 
-static int gametext2(int x,int y,char *t,char s)
+static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-    short ac,newx;
-    char centre, *oldt;
-
-    centre = ( x == (320>>1) );
-    newx = 0;
-    oldt = t;
-
-    if(centre)
-    {
-        while(*t)
-        {
-            if(*t == 32) {newx+=5;t++;continue;}
-            else ac = *t - '!' + STARTALPHANUM;
-
-            if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-            if(*t >= '0' && *t <= '9')
-                newx += 8;
-            else newx += tilesiz[ac].x / 2;
-            t++;
-        }
-
-        t = oldt;
-        x = (320>>1)-(newx>>1);
-    }
-
-    while(*t)
-    {
-        if(*t == 32) {x+=5;t++;continue;}
-        else if(*t == '\'') ac = '`' - '!' + STARTALPHANUM;
-        else ac = *t - '!' + STARTALPHANUM;
-
-        if( ac < STARTALPHANUM || ac > ENDALPHANUM )
-            break;
-
-        rotatesprite(x<<16,y<<16,32768L,0,ac,s,s,2+8+16,0,0,xdim-1,ydim-1);
-
-        if(*t >= '0' && *t <= '9')
-            x += 8;
-        else x += tilesiz[ac].x / 2;
-
-        t++;
-    }
-
-    return (x);
+    x *= 2; y *= 2;
+    if (align != -1)
+        x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
+    int light = Scale(numshades - shade, 255, numshades);
+    PalEntry pe(255, light, light, light);
+    DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
-static int gametextpal(int x,int y,char *t,char s,char p)
+static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-    short ac,newx;
-    char centre, *oldt;
-
-    centre = ( x == (320>>1) );
-    newx = 0;
-    oldt = t;
-
-    if(centre)
-    {
-        while(*t)
-        {
-            if(*t == 32) {newx+=5;t++;continue;}
-            else ac = *t - '!' + STARTALPHANUM;
-
-            if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-            if(*t >= '0' && *t <= '9')
-                newx += 8;
-            else newx += tilesiz[ac].x;
-            t++;
-        }
-
-        t = oldt;
-        x = (320>>1)-(newx>>1);
-    }
-
-    while(*t)
-    {
-        if(*t == 32) {x+=5;t++;continue;}
-        else ac = *t - '!' + STARTALPHANUM;
-
-        if( ac < STARTALPHANUM || ac > ENDALPHANUM )
-            break;
-
-        rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,2+8+16,0,0,xdim-1,ydim-1);
-        if(*t >= '0' && *t <= '9')
-            x += 8;
-        else x += tilesiz[ac].x;
-
-        t++;
-    }
-
-    return (x);
+    x *= 2; y *= 2;
+    if (align != -1)
+        x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
+    int light = Scale(numshades - shade, 255, numshades);
+    PalEntry pe(255, light, light, light);
+    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
-static int gametextpart(int x,int y,char *t,char s,short p)
-{
-    short ac,newx, cnt;
-    char centre, *oldt;
-
-    centre = ( x == (320>>1) );
-    newx = 0;
-    oldt = t;
-    cnt = 0;
-
-    if(centre)
-    {
-        while(*t)
-        {
-            if(cnt == p) break;
-
-            if(*t == 32) {newx+=5;t++;continue;}
-            else ac = *t - '!' + STARTALPHANUM;
-
-            if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-            newx += tilesiz[ac].x;
-            t++;
-            cnt++;
-
-        }
-
-        t = oldt;
-        x = (320>>1)-(newx>>1);
-    }
-
-    cnt = 0;
-    while(*t)
-    {
-        if(*t == 32) {x+=5;t++;continue;}
-        else ac = *t - '!' + STARTALPHANUM;
-
-        if( ac < STARTALPHANUM || ac > ENDALPHANUM ) break;
-
-        if(cnt == p)
-        {
-            rotatesprite(x<<16,y<<16,65536L,0,ac,s,1,2+8+16,0,0,xdim-1,ydim-1);
-            break;
-        }
-        else
-            rotatesprite(x<<16,y<<16,65536L,0,ac,s,0,2+8+16,0,0,xdim-1,ydim-1);
-
-        x += tilesiz[ac].x;
-
-        t++;
-        cnt++;
-    }
-
-    return (x);
-}
-
-static void gamenumber(long x,long y,long n,char s)
-{
-    char b[10];
-    ltoa(n,b,10);
-    gametext(x,y,b,s);
-}
 
 
 #if 0
@@ -505,6 +337,121 @@ void PlayMapAnim(CompletionFunc completion)
     }
     else completion(false);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class DRRMultiplayerBonusScreen : public DScreenJob
+{
+    int playerswhenstarted;
+
+public:
+    DRRMultiplayerBonusScreen(int pws)
+    {
+        playerswhenstarted = pws;
+    }
+
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        char tempbuf[32];
+        twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+        double scale = 0.36;
+        DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
+            DTA_CenterOffset, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
+
+        GameText(160, 58, GStrings("Multiplayer Totals"), 0, 0);
+        GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
+        GameText(160, 165, GStrings("Presskey"), 0, 0);
+
+        int t = 0;
+
+        MiniText(38, 80, GStrings("Name"), 0);
+        MiniText(269 + 20, 80, GStrings("Kills"), 0, 1);
+
+        for (int i = 0; i < playerswhenstarted; i++)
+        {
+            mysnprintf(tempbuf, 32, "%-4ld", i + 1);
+            MiniText(92 + (i * 23), 80, tempbuf, 0);
+        }
+
+        for (int i = 0; i < playerswhenstarted; i++)
+        {
+            int xfragtotal = 0;
+            mysnprintf(tempbuf, 32, "%ld", i + 1);
+
+            MiniText(30, 90 + t, tempbuf, 0);
+            MiniText(38, 90 + t, g_player[i].user_name, 0, -1, ps[i].palookup);
+
+            for (int y = 0; y < playerswhenstarted; y++)
+            {
+                int frag = g_player[i].frags[y];// frags[i][y]);
+                if (i == y)
+                {
+                    mysnprintf(tempbuf, 32, "%-4ld", ps[y].fraggedself);
+                    MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
+                    xfragtotal -= ps[y].fraggedself;
+                }
+                else
+                {
+                    mysnprintf(tempbuf, 32, "%-4ld", frag);
+                    MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
+                    xfragtotal += frag;
+                }
+                /*
+                if (myconnectindex == connecthead)
+                {
+                    mysnprintf(tempbuf, 32, "stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
+                    sendscore(tempbuf);
+                }
+                */
+            }
+
+            mysnprintf(tempbuf, 32, "%-4ld", xfragtotal);
+            MiniText(101 + (8 * 23), 90 + t, tempbuf, 0);
+
+            t += 7;
+        }
+
+        for (int y = 0; y < playerswhenstarted; y++)
+        {
+            int yfragtotal = 0;
+            for (int i = 0; i < playerswhenstarted; i++)
+            {
+                if (i == y)
+                    yfragtotal += ps[i].fraggedself;
+                int frag = g_player[i].frags[y];// frags[i][y]);
+                yfragtotal += frag;
+            }
+            mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
+            MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0);
+        }
+
+        MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0);
+        return skiprequest ? -1 : 1;
+    }
+};
+
+void ShowMPBonusScreen_r(int pws, CompletionFunc completion)
+{
+    JobDesc job = { Create<DRRMultiplayerBonusScreen>(pws) };
+    RunScreenJob(&job, 1, completion);
+}
+
+
+#if 1
+CCMD(testrbonus)
+{
+    if (argv.argc() > 1)
+    {
+        //bonussequence_d(strtol(argv[1], nullptr, 0), nullptr);
+        ShowMPBonusScreen_r(strtol(argv[1], nullptr, 0), nullptr);
+    }
+}
+#endif
 
 
 #if 0
