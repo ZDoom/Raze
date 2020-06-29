@@ -84,7 +84,11 @@ void InitFonts_d()
     fontdata.Insert('`', tileGetTexture(BIGAPPOS));
     fontdata.Insert('"', tileGetTexture(BIGAPPOS));
     fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
-    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, -1, false, false, false, &fontdata);
+	// The texture offsets in this font are useless for font printing. This should only apply to these glyphs, not for international extensions, though.
+	GlyphSet::Iterator it(fontdata);
+	GlyphSet::Pair* pair;
+	while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 5, false, false, false, &fontdata);
     fontdata.Clear();
 
     // Tiny font
@@ -663,14 +667,22 @@ public:
 
 class DEpisode4Text : public DScreenJob
 {
+
+	void centertext(double y, const char* text)
+	{
+		text = GStrings(text);
+		auto width = BigFont->StringWidth(text);
+		DrawText(twod, BigFont, CR_RED, 160. - width/2, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+	}
+
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		twod->ClearScreen();
-		menutext_center(60, GStrings("Thanks to all our"));
-		menutext_center(60 + 16, GStrings("fans for giving"));
-		menutext_center(60 + 16 + 16, GStrings("us big heads."));
-		menutext_center(70 + 16 + 16 + 16, GStrings("Look for a Duke Nukem 3D"));
-		menutext_center(70 + 16 + 16 + 16 + 16, GStrings("sequel soon."));
+		centertext(60, "Thanks to all our");
+		centertext(60 + 16, "fans for giving");
+		centertext(60 + 16 + 16, "us big heads.");
+		centertext(70 + 16 + 16 + 16, "Look for a Duke Nukem 3D");
+		centertext(70 + 16 + 16 + 16 + 16, "sequel soon.");
 		return skiprequest ? -1 : 1;
 	}
 };
