@@ -46,6 +46,8 @@ This file is a combination of code from the following sources:
 
 BEGIN_DUKE_NS
 
+int otherp;
+
 int adjustfall(spritetype* s, int c);
 
 //---------------------------------------------------------------------------
@@ -378,7 +380,6 @@ void movedummyplayers(void)
 //
 //---------------------------------------------------------------------------
 
-int otherp;
 void moveplayers(void) //Players
 {
 	short i, nexti;

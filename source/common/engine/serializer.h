@@ -218,7 +218,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 {
 	if (arc.isWriting())
 	{
-		if (value.Size() == 0) return arc;	// do not save empty arrays
+		if (value.Size() == 0 && key) return arc;	// do not save empty arrays
 	}
 	bool res = arc.BeginArray(key);
 	if (arc.isReading())

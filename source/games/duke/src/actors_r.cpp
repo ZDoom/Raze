@@ -45,14 +45,6 @@ void resetpins(short sect);
 void resetlanepics(void);
 
 
-struct FireProj
-{
-	int x, y, z;
-	int xv, yv, zv;
-};
-
-static TMap<int, FireProj> fire;
-
 //---------------------------------------------------------------------------
 //
 // 

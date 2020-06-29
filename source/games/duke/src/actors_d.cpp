@@ -38,6 +38,7 @@ This file contains parts of DukeGDX by Alexander Makarov-[M210] (m210-2007@mail.
 #include "global.h"
 #include "zz_actors.h"
 #include "names.h"
+#include "serializer.h"
 
 BEGIN_DUKE_NS
 
@@ -48,6 +49,54 @@ struct FireProj
 };
 
 static TMap<int, FireProj> fire;
+
+static FSerializer& Serialize(FSerializer& arc, const char* key, FireProj& p, FireProj* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("x", p.x)
+			("y", p.y)
+			("z", p.z)
+			("xv", p.xv)
+			("yv", p.yv)
+			("zv", p.zv)
+			.EndObject();
+	}
+	return arc;
+}
+
+void SerializeActorGlobals(FSerializer& arc)
+{
+	if (arc.isWriting() && fire.CountUsed() == 0) return;
+	bool res = arc.BeginArray("FireProj");
+	if (arc.isReading())
+	{
+		fire.Clear();
+		if (!res) return;
+		auto length = arc.ArraySize() / 2;
+		int key;
+		FireProj value;
+
+		for (int i = 0; i < length; i++)
+		{
+			Serialize(arc, nullptr, key, nullptr);
+			Serialize(arc, nullptr, value, nullptr);
+			fire.Insert(key, value);
+		}
+	}
+	else
+	{
+		TMap<int, FireProj>::Iterator it(fire);
+		TMap<int, FireProj>::Pair* pair;
+		while (it.NextPair(pair))
+		{
+			int k = pair->Key;
+			Serialize(arc, nullptr, k, nullptr);
+			Serialize(arc, nullptr, pair->Value, nullptr);
+		}
+	}
+	arc.EndArray();
+}
 
 //---------------------------------------------------------------------------
 //
