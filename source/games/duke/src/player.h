@@ -214,7 +214,7 @@ typedef struct player_struct {
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t newowner, jumping_counter, airleft;
-    int16_t fta, ftq, access_wallnum, access_spritenum;
+    int16_t /*fta,*/ ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
     int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;

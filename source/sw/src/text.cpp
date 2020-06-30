@@ -435,15 +435,6 @@ void PutStringInfo(PLAYERp pp, const char *string)
     if (hud_messages == 1) PutStringInfoLine(pp, string);
 }
 
-void GameInterface::DoPrintMessage(int prio, const char* string)
-{
-	if (!hud_messages)
-		return;
-
-	Printf(prio | PRINT_NOTIFY, "%s", string); // Put it in the console too
-	if (hud_messages == 1) PutStringInfoLine(&Player[myconnectindex], string);
-}
-
 void PutStringInfoLine(PLAYERp pp, const char *string)
 {
     short x,y;

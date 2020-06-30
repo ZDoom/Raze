@@ -251,14 +251,11 @@ void G_GameExit(const char *msg) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
 void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
-void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
 void G_UpdatePlayerFromMenu(void);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
-inline void FTA(int q, DukePlayer_t* p)
-{
-    P_DoQuote(q, p);
-}
+void FTA(int q, struct player_struct* p);
+
 void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);
 void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
 void OffMotorcycle(DukePlayer_t *pPlayer);

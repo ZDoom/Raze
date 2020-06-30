@@ -1950,7 +1950,7 @@ MAIN_LOOP_RESTART:
     ototalclock = 0;
     lockclock = 0;
 
-    g_player[myconnectindex].ps->fta = 0;
+    g_player[myconnectindex].ps->ftq = 0;
 
     if (ud.warp_on == 1)
     {
@@ -2176,15 +2176,7 @@ int G_DoMoveThings(void)
 
             if (playerNum != screenpeek && g_player[playerNum].ps->dead_flag == 0)
             {
-                if (pPlayer->fta == 0 || pPlayer->ftq == QUOTE_RESERVED3)
-                {
-                    if (ldist(&sprite[pPlayer->i], &sprite[hitData.sprite]) < 9216)
-                    {
-						quoteMgr.FormatQuote(QUOTE_RESERVED3, "%s", &g_player[playerNum].user_name[0]);
-                        pPlayer->fta = 12, pPlayer->ftq = QUOTE_RESERVED3;
-                    }
-                }
-                else if (pPlayer->fta > 2) pPlayer->fta -= 3;
+                Printf(PRINT_HIGH|PRINT_NOTIFY, "%s\n", &g_player[playerNum].user_name[0]);
             }
         }
     }
@@ -2238,19 +2230,10 @@ int G_DoMoveThings(void)
 
         if (ud.pause_on == 0)
         {
-            // todo: take HUD timer stuff out of the main game loop
             auto p = &ps[i];
             if (p->pals.f > 0)
                 p->pals.f--;
 
-            if (p->fta > 0)
-            {
-                p->fta--;
-                if (p->fta == 0)
-                {
-                    p->ftq = 0;
-                }
-            }
             if (g_levelTextTime > 0)
                 g_levelTextTime--;
 

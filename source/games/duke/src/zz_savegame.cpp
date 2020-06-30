@@ -142,9 +142,9 @@ int32_t G_LoadPlayer(const char *path)
     if (status < 0 || h.numplayers != ud.multimode)
     {
         if (status == -4 || status == -3 || status == 1)
-            P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
+            FTA(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
         else if (h.numplayers != ud.multimode)
-            P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
+            FTA(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
 
         ototalclock = totalclock;
         ready2send = 1;
@@ -261,7 +261,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		{
 			Printf("Saved: %s\n", fn.GetChars());
 			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
-			P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+			FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		}
 		
 		ready2send = 1;
@@ -279,7 +279,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     if (g_netServer || ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
-        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+        FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
         return false;
@@ -298,7 +298,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     if (g_netServer || ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
-        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+        FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 		return false;
     }
     else

@@ -979,7 +979,6 @@ int parse(void)
 			ps[g_p].pals.f = 0;
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;
-			ps[g_p].fta = 0;
 			ps[g_p].ftq = 0;
 			ps[g_p].posxv = ps[g_p].posyv = 0;
 			if (!isRR()) ps[g_p].rotscrnang = 0;

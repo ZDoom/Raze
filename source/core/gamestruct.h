@@ -76,15 +76,6 @@ struct GameInterface
 	virtual bool SaveGame(FSaveGameNode*) { return false; }
 	virtual bool LoadGame(FSaveGameNode*) { return false; }
 	virtual bool CleanupForLoad() { return true; }
-	virtual void DoPrintMessage(int prio, const char*) {}
-	void PrintMessage(int prio, const char*fmt, ...)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		FString f;
-		f.VFormat(fmt, ap);
-		DoPrintMessage(prio, f);
-	}
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void QuitToTitle() {}
 	virtual void SetAmbience(bool on) {}

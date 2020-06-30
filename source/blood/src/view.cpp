@@ -2877,12 +2877,6 @@ void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY 
     gGameMessageMgr.Add(pMessage, 15, pal, priority);
 }
 
-void GameInterface::DoPrintMessage(int prio, const char*msg)
-{
-	viewSetMessage(msg, 0, prio == PRINT_LOW ? MESSAGE_PRIORITY_PICKUP : prio == PRINT_MEDIUM ? MESSAGE_PRIORITY_NORMAL : MESSAGE_PRIORITY_SYSTEM);
-}
-
-
 void viewDisplayMessage(void)
 {
     gGameMessageMgr.Display();

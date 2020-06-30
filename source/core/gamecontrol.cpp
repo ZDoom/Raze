@@ -1076,7 +1076,7 @@ CCMD (togglemsg)
 			const char *statestr = argv.argc() <= 2? "*" : argv[2];
 			if (*statestr == '*')
 			{
-				gi->PrintMessage(PRINT_MEDIUM, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
+				Printf(PRINT_MEDIUM|PRINT_NOTIFY, "\"%s\" = \"%s\"\n", var->GetName(), val.Bool ? "true" : "false");
 			}
 			else
 			{
@@ -1087,7 +1087,7 @@ CCMD (togglemsg)
 					// Positive means Off/On, negative means On/Off
 					int quote = state > 0? state + val.Bool : -(state + val.Bool);
 					auto text = quoteMgr.GetQuote(quote);
-					if (text) gi->PrintMessage(PRINT_MEDIUM, "%s\n", text);
+					if (text) Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s\n", text);
 				}
 			}
 		}

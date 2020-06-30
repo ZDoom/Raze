@@ -347,28 +347,4 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 	}
 }
 
-void GameInterface::DoPrintMessage(int prio, const char* t)
-{
-	auto p = g_player[myconnectindex].ps; // text quotes always belong to the local player.
-	int32_t cq = 0;
-
-	if (hud_messages == 0 || !(p->gm & MODE_GAME))
-		return;
-
-	if (p->fta > 0)
-		if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
-
-	if (p == g_player[screenpeek].ps)
-		Printf(prio|PRINT_NOTIFY, cq ? TEXTCOLOR_TAN "%s\n" : "%s\n", t);
-
-	if (hud_messages == 1)
-	{
-		p->fta = 100;
-		p->ftq = -32768;
-		text_quote = t;
-		pub = NUMPAGES;
-		pus = NUMPAGES;
-	}
-}
-
 END_RR_NS

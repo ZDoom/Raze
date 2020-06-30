@@ -168,6 +168,36 @@ void genspriteremaps(void)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void FTA(int q, struct player_struct* p)
+{
+    if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
+        return;
+
+    if (p->ftq != q)
+    {
+        if (q == 13) p->ftq = q;
+        auto qu = quoteMgr.GetQuote(q);
+        if (p == g_player[screenpeek].ps && qu[0] != '\0')
+        {
+            if (q >= 70 && q <= 72 && hud_messages == 2)
+            {
+                // Todo: redirect this to a centered message (these are "need a key" messages)
+            }
+            else
+            {
+                int printlevel = hud_messages == 1 ? PRINT_MEDIUM : PRINT_MEDIUM | PRINT_NOTIFY;
+                Printf(printlevel, "%s\n", qu);
+            }
+        }
+    }
+}
+
 
 END_DUKE_NS
 

@@ -134,6 +134,7 @@ CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale not
 {
 	if (self < 0) self = 0;
 }
+CVAR(Bool, con_pulseText, true, CVAR_ARCHIVE)
 
 CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
 {
@@ -1097,6 +1098,10 @@ void FNotifyBuffer::Draw()
 		if (j > 0)
 		{
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
+			if (con_pulseText)
+			{
+				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
+			}
 
 			if (notify.PrintLevel >= PRINTLEVELS)
 				color = CR_UNTRANSLATED;

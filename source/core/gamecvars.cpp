@@ -233,21 +233,15 @@ CCMD (togglemessages)
 {
 	if (hud_messages)
 	{
-		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(24));
+		Printf(PRINT_MEDIUM | PRINT_NOTIFY, "%s\n", quoteMgr.GetQuote(24));
 		hud_messages = false;
 	}
 	else
 	{
 		hud_messages = true;
-		gi->PrintMessage(PRINT_MEDIUM, "%s\n", quoteMgr.GetQuote(23));
+		Printf(PRINT_MEDIUM | PRINT_NOTIFY, "%s\n", quoteMgr.GetQuote(23));
 	}
 }
-
-
-
-//{
-	//Blood::gGameMessageMgr.SetState(self); // this is for terminaing an active message. Cannot be done like this because CVARs are global.
-//}
 
 CVARD_NAMED(Int, hud_numbertile, althud_numbertile, 2930, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "first tile in alt hud number set")
 CVARD_NAMED(Int, hud_numberpal, althud_numberpal, 0, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "pal for alt hud numbers")
@@ -284,7 +278,7 @@ CCMD(togglemouseaim)
 	in_mousemode = !in_mousemode;
 	if (!silentmouseaimtoggle)
 	{
-		gi->DoPrintMessage(PRINT_MEDIUM, in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
+		Printf(PRINT_MEDIUM|PRINT_NOTIFY, in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
 	}
 }
 
