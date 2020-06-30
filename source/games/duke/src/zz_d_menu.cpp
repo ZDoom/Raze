@@ -642,8 +642,6 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 void GameInterface::QuitToTitle()
 {
 	g_player[myconnectindex].ps->gm = MODE_DEMO;
-	if (ud.recstat == 1)
-		G_CloseDemoWrite();
 	artClearMapArt();
 }
 

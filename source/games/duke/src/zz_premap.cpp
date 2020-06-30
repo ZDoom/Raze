@@ -561,9 +561,6 @@ int G_EnterLevel(int gameMode)
         else g_player[myconnectindex].ps->gm = MODE_GAME;
     }
 
-    if ((ud.recstat == 1) && (gameMode&MODE_RESTART) != MODE_RESTART)
-        G_OpenDemoWrite();
-
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);

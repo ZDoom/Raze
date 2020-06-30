@@ -918,7 +918,6 @@ void G_DisplayRest(int32_t smoothratio)
             rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, TILE_BETAVERSION, 0, 0, 2+8+16+128);
     }
 
-    if (!Demo_IsProfiling())
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
             Net_SendMessage();

@@ -177,13 +177,6 @@ void G_GameExit(const char *msg)
 {
     if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
 
-    if (ud.recstat == 1)
-        G_CloseDemoWrite();
-	else if (ud.recstat == 2)
-	{
-		delete g_demo_filePtr;
-		g_demo_filePtr = nullptr;
-	}
     // JBF: fixes crash on demo playback
     // PK: modified from original
 
@@ -1414,22 +1407,6 @@ void G_HandleLocalKeys(void)
         P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
-    if (inputState.UnboundKeyPressed(sc_ScrollLock))
-    {
-        inputState.ClearKeyStatus(sc_ScrollLock);
-
-        switch (ud.recstat)
-        {
-        case 0:
-            if (SHIFTS_IS_PRESSED)
-                G_OpenDemoWrite();
-            break;
-        case 1:
-            G_CloseDemoWrite();
-            break;
-        }
-    }
-
     if (ud.recstat == 2)
     {
         if (inputState.GetKeyStatus(sc_Space))
@@ -1459,8 +1436,6 @@ void G_HandleLocalKeys(void)
 
             if (g_demo_goalCnt > g_demo_totalCnt)
                 g_demo_goalCnt = 0;
-            else
-                Demo_PrepareWarp();
         }
         else if (inputState.GetKeyStatus(sc_kpad_4))
         {
@@ -1473,7 +1448,6 @@ void G_HandleLocalKeys(void)
             if (g_demo_goalCnt <= 0)
                 g_demo_goalCnt = 1;
 
-            Demo_PrepareWarp();
         }
     }
 
@@ -1760,7 +1734,6 @@ void G_UpdatePlayerFromMenu(void)
 void G_BackToMenu(void)
 {
     boardfilename[0] = 0;
-    if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
 	M_StartControlPanel(false);
@@ -1776,8 +1749,6 @@ static int G_EndOfLevel(void)
 
     if (g_player[myconnectindex].ps->gm&MODE_EOL)
     {
-        G_CloseDemoWrite();
-
         ready2send = 0;
 
         if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0) &&
@@ -2090,6 +2061,8 @@ int GameInterface::app_main()
 	return 0;
 }
 	
+int32_t G_PlaybackDemo(void);
+
 void app_loop()
 {
 	auto &myplayer = g_player[myconnectindex].ps;
@@ -2368,8 +2341,6 @@ int G_DoMoveThings(void)
     updateinterpolations();
 
     g_moveThingsCount++;
-
-    if (ud.recstat == 1) G_DemoRecord();
 
     everyothertime++;
     if (g_earthquakeTime > 0) g_earthquakeTime--;

@@ -44,22 +44,6 @@ extern int32_t g_demo_rewind;
 extern int32_t g_demo_showStats;
 extern int32_t g_demo_totalCnt;
 
-int32_t G_PlaybackDemo(void);
-void Demo_PrepareWarp(void);
-void G_CloseDemoWrite(void);
-void G_DemoRecord(void);
-void G_OpenDemoWrite(void);
-
-void Demo_PlayFirst(int32_t prof, int32_t exitafter);
-void Demo_SetFirst(const char *demostr);
-
-int32_t Demo_IsProfiling(void);
-
-#if KRANDDEBUG
-int32_t krd_print(const char *filename);
-void krd_enable(int32_t which);
-#endif
-
 END_DUKE_NS
 
 #endif
