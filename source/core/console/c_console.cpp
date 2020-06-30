@@ -154,7 +154,7 @@ CVAR(Int, developer, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 EXTERN_CVAR(Int, uiscale);
 
 
-bool generic_ui = true;
+CVAR(Bool, generic_ui, false, CVAR_ARCHIVE)
 
 
 struct History
@@ -785,7 +785,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 
 	width = screen->GetWidth() / active_con_scaletext(twod, generic_ui);
 
-	FFont *font = generic_ui ? NewSmallFont : AlternativeSmallFont;
+	FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
 	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
 
 	if (AddType == APPENDLINE && Text.Size() > 0 && Text[Text.Size() - 1].PrintLevel == printlevel)
@@ -905,7 +905,7 @@ int PrintString (int iprintlevel, const char *outline)
 			I_PrintStr(outline);
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && (iprintlevel & PRINT_NOTIFY))
+			if (vidactive && (iprintlevel & PRINT_NOTIFY)) // The logic here is inverse to ZDoom because most texts getting here should not be on screem.
 			{
 				NotifyStrings.AddString(printlevel, outline);
 			}
@@ -1065,7 +1065,7 @@ void FNotifyBuffer::Tick()
 	if (i > 0)
 	{
 		Text.Delete(0, i);
-		FFont* font = generic_ui ? NewSmallFont : AlternativeSmallFont;
+		FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
 		Top += font->GetHeight();
 	}
 }
@@ -1079,7 +1079,7 @@ void FNotifyBuffer::Draw()
 	//if (gamestate == GS_FULLCONSOLE || gamestate == GS_DEMOSCREEN/* || menuactive != MENU_Off*/)
 		//return;
 
-	FFont* font = generic_ui ? NewSmallFont : AlternativeSmallFont;
+	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
 
 	line = Top + font->GetDisplacement();
 	canskip = true;

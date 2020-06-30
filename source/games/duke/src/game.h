@@ -230,7 +230,6 @@ void spriteglass(int spriteNum,int glassCnt);
 void lotsofcolourglass(int spriteNum,int wallNum,int glassCnt);
 void lotsofglass(int spriteNum,int wallnum,int glassCnt);
 
-void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_DumpDebugInfo(void);
 

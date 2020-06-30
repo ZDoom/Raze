@@ -1951,8 +1951,6 @@ MAIN_LOOP_RESTART:
     lockclock = 0;
 
     g_player[myconnectindex].ps->fta = 0;
-    for (int & q : user_quote_time)
-        q = 0;
 
     if (ud.warp_on == 1)
     {
@@ -2151,16 +2149,6 @@ int G_DoMoveThings(void)
 
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
-
-    for (int & i : user_quote_time)
-    {
-        if (i)
-        {
-            if (--i > hud_messagetime)
-                i = hud_messagetime;
-            if (!i) pub = NUMPAGES;
-        }
-    }
 
     // Name display when aiming at opponents
     if (cl_idplayers && (g_netServer || ud.multimode > 1)
