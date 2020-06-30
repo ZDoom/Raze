@@ -31,20 +31,6 @@ BEGIN_DUKE_NS
 
 #define DELETE_SPRITE_AND_CONTINUE(KX) do { A_DeleteSprite(KX); goto next_sprite; } while (0)
 
-void G_ClearCameraView(DukePlayer_t *ps)
-{
-    ps->newowner = -1;
-    ps->pos = ps->opos;
-    ps->q16ang = ps->oq16ang;
-
-    updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
-    P_UpdateScreenPal(ps);
-
-    for (bssize_t SPRITES_OF(STAT_ACTOR, k))
-        if (sprite[k].picnum==TILE_CAMERA1)
-            sprite[k].yvel = 0;
-}
-
 // deletesprite() game wrapper
 void A_DeleteSprite(int spriteNum)
 {
@@ -56,36 +42,6 @@ void A_DeleteSprite(int spriteNum)
 }
 
 void insertspriteq(int i);
-
-static int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
-{
-    if (setInterpolation)
-    {
-        return G_SetInterpolation(&wall[wallNum].x) || G_SetInterpolation(&wall[wallNum].y);
-    }
-    else
-    {
-        G_StopInterpolation(&wall[wallNum].x);
-        G_StopInterpolation(&wall[wallNum].y);
-        return 0;
-    }
-}
-
-void Sect_ToggleInterpolation(int sectNum, int setInterpolation)
-{
-    for (bssize_t j = sector[sectNum].wallptr, endwall = sector[sectNum].wallptr + sector[sectNum].wallnum; j < endwall; j++)
-    {
-        G_ToggleWallInterpolation(j, setInterpolation);
-
-        int const nextWall = wall[j].nextwall;
-
-        if (nextWall >= 0)
-        {
-            G_ToggleWallInterpolation(nextWall, setInterpolation);
-            G_ToggleWallInterpolation(wall[nextWall].point2, setInterpolation);
-        }
-    }
-}
 
 int g_canSeePlayer = 0;
 

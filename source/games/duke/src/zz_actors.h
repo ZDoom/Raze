@@ -247,20 +247,11 @@ int LocateTheLocator(int const tag, int const sectNum);
 int A_IncurDamage(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 
-int  G_SetInterpolation(int32_t *posptr);
-void G_ClearCameraView(DukePlayer_t *ps);
 void clearcamera(player_struct* ps);
-void G_DoInterpolations(int smoothRatio);
 void G_RefreshLights(void);
-void G_StopInterpolation(const int32_t *posptr);
 
-// PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
-// Note: The entire interpolation system needs to be a lot smarter than what's backing these functions.
-void                Sect_ToggleInterpolation(int sectnum, int setInterpolation);
-static FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
-static FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
-static FORCE_INLINE void   clearsectinterpolate(int sprnum) { Sect_ToggleInterpolation(sprite[sprnum].sectnum, 0); }
-static FORCE_INLINE void   setsectinterpolate(int sprnum) { Sect_ToggleInterpolation(sprite[sprnum].sectnum, 1); }
+void   clearsectinterpolate(int sprnum);
+void   setsectinterpolate(int sprnum);
 
 #if KRANDDEBUG
 # define ACTOR_INLINE __fastcall

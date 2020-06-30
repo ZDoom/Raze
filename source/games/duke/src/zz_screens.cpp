@@ -751,7 +751,7 @@ void G_DisplayRest(int32_t smoothratio)
         {
             // smoothratio = min(max(smoothratio,0),65536);
             smoothratio = calc_smoothratio(totalclock, ototalclock);
-            G_DoInterpolations(smoothratio);
+            dointerpolations(smoothratio);
 
             if (ud.scrollmode == 0)
             {
@@ -798,7 +798,7 @@ void G_DisplayRest(int32_t smoothratio)
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
 
-            G_RestoreInterpolations();
+            restoreinterpolations();
 
             if (/*textret == 0 &&*/ ud.overhead_on == 2)
             {

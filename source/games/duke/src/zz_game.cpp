@@ -206,12 +206,8 @@ void G_GameExit(const char *msg)
 			I_Error("%s", msg);
 		}
 	}
-    if (!RR)
-    {
-        endoomName = VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
-        ST_Endoom();
-    }
-	else throw CExitEvent(0);
+    endoomName = RR? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
+    ST_Endoom();
 }
 
 
@@ -688,7 +684,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     CAMERA(sect) = pPlayer->cursectnum;
 
-    G_DoInterpolations(smoothRatio);
+    dointerpolations(smoothRatio);
     G_AnimateCamSprite(smoothRatio);
 
     if (ud.camerasprite >= 0)
@@ -1077,7 +1073,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
     }
 
-    G_RestoreInterpolations();
+    restoreinterpolations();
 
     if (!RRRA || !fogactive)
     {
@@ -1182,9 +1178,9 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
         return;
 
     for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
-        G_SetInterpolation(&sector[i].ceilingz);
+        setinterpolation(&sector[i].ceilingz);
     for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))
-        G_SetInterpolation(&sector[i].floorz);
+        setinterpolation(&sector[i].floorz);
 }
 #else
 # define Yax_SetBunchInterpolation(sectnum, cf)
@@ -2369,7 +2365,7 @@ int G_DoMoveThings(void)
 
     movefifoplc++;
 
-    G_UpdateInterpolations();
+    updateinterpolations();
 
     g_moveThingsCount++;
 

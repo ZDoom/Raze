@@ -79,15 +79,15 @@ void G_ResetInterpolations(void)
         switch (sprite[k].lotag)
         {
         case SE_31_FLOOR_RISE_FALL:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
             break;
         case SE_32_CEILING_RISE_FALL:
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case SE_17_WARP_ELEVATOR:
         case SE_25_PISTON:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
         case SE_0_ROTATING_SECTOR:
         case SE_5_BOSS:
@@ -98,7 +98,7 @@ void G_ResetInterpolations(void)
         case SE_16_REACTOR:
         case SE_26:
         case SE_30_TWO_WAY_TRAIN:
-            Sect_SetInterpolation(sprite[k].sectnum);
+            setsectinterpolate(k);
             break;
         }
 
@@ -107,7 +107,7 @@ void G_ResetInterpolations(void)
 
     for (i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     for (i = g_animateCnt-1; i>=0; i--)
-        G_SetInterpolation(g_animatePtr[i]);
+        setinterpolation(g_animatePtr[i]);
 }
 
 

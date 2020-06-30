@@ -19,6 +19,7 @@ set( PCH_SOURCES
 	src/hudweapon_d.cpp
 	src/hudweapon_r.cpp
 	src/input.cpp
+	src/interpolate.cpp
 	src/player.cpp
 	src/player_d.cpp
 	src/player_r.cpp
@@ -40,7 +41,6 @@ set( PCH_SOURCES
 	src/zz_demo.cpp
 	src/zz_game.cpp
 	src/zz_global.cpp
-	src/zz_interpolate.cpp
 	src/zz_namesdyn.cpp
 	src/zz_net.cpp
 	src/zz_osdcmds.cpp

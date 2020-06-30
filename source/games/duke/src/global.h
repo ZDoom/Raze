@@ -321,33 +321,14 @@ enum
 extern int32_t numinterpolations;
 extern int32_t* curipos[MAXINTERPOLATIONS];
 extern int32_t bakipos[MAXINTERPOLATIONS];
-void G_UpdateInterpolations(void);
-void G_RestoreInterpolations(void);
-int G_SetInterpolation(int32_t* const posptr);
-void G_StopInterpolation(const int32_t* const posptr);
-void G_DoInterpolations(int smoothRatio);
+
 
 // old names as porting help.
-inline void updateinterpolations()
-{
-    G_UpdateInterpolations();
-}
-inline void restoreinterpolations()
-{
-    G_RestoreInterpolations();
-}
-inline int setinterpolation(int32_t* posptr)
-{
-   return G_SetInterpolation(posptr);
-}
-inline void stopinterpolation(int32_t* posptr)
-{
-    G_SetInterpolation(posptr);
-}
-inline void dointerpolations(int smoothratio)
-{
-    G_DoInterpolations(smoothratio);
-}
+void updateinterpolations();
+void restoreinterpolations();
+void setinterpolation(int* posptr);
+void stopinterpolation(int* posptr);
+void dointerpolations(int smoothratio);
 
 
 // Hack struct to allow old code to access the EDuke-style player data without changing it.

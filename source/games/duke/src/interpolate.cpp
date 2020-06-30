@@ -18,7 +18,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
+aint with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 Original Source: 1996 - Todd Replogle
@@ -32,19 +32,32 @@ source as it is released.
 */
 //-------------------------------------------------------------------------
 
+#include "ns.h"	// Must come before everything else!
+#include "global.h"
+
+BEGIN_DUKE_NS
+
+
+#define MAXINTERPOLATIONS MAXSPRITES
+
+int32_t numinterpolations;
+int32_t g_interpolationLock;
+int32_t oldipos[MAXINTERPOLATIONS];
+int32_t *curipos[MAXINTERPOLATIONS];
+int32_t bakipos[MAXINTERPOLATIONS];
 
 
 void updateinterpolations()  //Stick at beginning of domovethings
 {
-	long i;
+	int i;
 
 	for(i=numinterpolations-1;i>=0;i--) oldipos[i] = *curipos[i];
 }
 
 
-void setinterpolation(long *posptr)
+void setinterpolation(int *posptr)
 {
-	long i;
+	int i;
 
 	if (numinterpolations >= MAXINTERPOLATIONS) return;
 	for(i=numinterpolations-1;i>=0;i--)
@@ -54,11 +67,11 @@ void setinterpolation(long *posptr)
 	numinterpolations++;
 }
 
-void stopinterpolation(long *posptr)
+void stopinterpolation(int *posptr)
 {
-	long i;
+	int i;
 
-	for(i=numinterpolations-1;i>=startofdynamicinterpolations;i--)
+	for(i=numinterpolations-1;i>=0;i--)
 		if (curipos[i] == posptr)
 		{
 			numinterpolations--;
@@ -68,9 +81,9 @@ void stopinterpolation(long *posptr)
 		}
 }
 
-void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
+void dointerpolations(int smoothratio)       //Stick at beginning of drawscreen
 {
-	long i, j, odelta, ndelta;
+	int i, j, odelta, ndelta;
 
 	ndelta = 0; j = 0;
 	for(i=numinterpolations-1;i>=0;i--)
@@ -84,18 +97,19 @@ void dointerpolations(long smoothratio)       //Stick at beginning of drawscreen
 
 void restoreinterpolations()  //Stick at end of drawscreen
 {
-	long i;
+	int i;
 
 	for(i=numinterpolations-1;i>=0;i--) *curipos[i] = bakipos[i];
 }
 
 
-void setsectinterpolate(short i)
+void setsectinterpolate(int i)
 {
-    long j, k, startwall,endwall;
+    int j, k, startwall,endwall;
+    auto sect = &sector[sprite[i].sectnum];
 
-    startwall = sector[SECT].wallptr;
-    endwall = startwall+sector[SECT].wallnum;
+    startwall = sect->wallptr;
+    endwall = startwall+sect->wallnum;
 
     for(j=startwall;j<endwall;j++)
     {
@@ -116,9 +130,10 @@ void setsectinterpolate(short i)
 void clearsectinterpolate(short i)
 {
     short j,startwall,endwall;
+    auto sect = &sector[sprite[i].sectnum];
 
-    startwall = sector[SECT].wallptr;
-    endwall = startwall+sector[SECT].wallnum;
+    startwall = sect->wallptr;
+    endwall = startwall + sect->wallnum;
     for(j=startwall;j<endwall;j++)
     {
         stopinterpolation(&wall[j].x);
@@ -130,4 +145,6 @@ void clearsectinterpolate(short i)
         }
     }
 }
+
+END_DUKE_NS
 
