@@ -50,6 +50,20 @@ int otherp;
 
 int adjustfall(spritetype* s, int c);
 
+
+//---------------------------------------------------------------------------
+//
+// wrapper to ensure that if a sound actor is killed, the sound is stopped as well.
+//
+//---------------------------------------------------------------------------
+
+void deletesprite(int num)
+{
+	if (sprite[num].picnum == MUSICANDSFX && hittype[num].temp_data[0] == 1)
+		S_StopEnvSound(sprite[num].lotag, num);
+	::deletesprite(num);
+}
+
 //---------------------------------------------------------------------------
 //
 // 

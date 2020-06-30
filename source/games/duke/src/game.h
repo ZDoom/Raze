@@ -103,12 +103,6 @@ enum {
     STATUSBAR_NOMODERN  = 0x00000040,
 };
 
-void A_DeleteSprite(int spriteNum);
-
-//static inline int32_t G_GetLogoFlags(void)
-//{
-//    return 255;
-//}
 
 # define CAMERA(Membname) (ud.camera ## Membname)
 # define CAMERADIST g_cameraDistance

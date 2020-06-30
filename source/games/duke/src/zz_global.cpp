@@ -103,4 +103,6 @@ int16_t weaponsandammosprites[15];
 
 char CheatKeys[2]       = { sc_D, sc_N };
 
+TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
+
 END_DUKE_NS

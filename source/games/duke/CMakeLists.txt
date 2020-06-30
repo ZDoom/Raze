@@ -20,6 +20,7 @@ set( PCH_SOURCES
 	src/hudweapon_r.cpp
 	src/input.cpp
 	src/interpolate.cpp
+	src/noise.cpp
 	src/player.cpp
 	src/player_d.cpp
 	src/player_r.cpp
@@ -34,7 +35,6 @@ set( PCH_SOURCES
 	src/spawn.cpp
 	src/spawn_d.cpp
 	src/spawn_r.cpp
-	src/zz_actors.cpp
 	src/zz_cheats.cpp
 	src/zz_common.cpp
 	src/zz_d_menu.cpp

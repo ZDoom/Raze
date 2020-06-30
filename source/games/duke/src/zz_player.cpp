@@ -892,14 +892,6 @@ void P_GetInputBoat(int playerNum)
     localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
-void madenoise(int playerNum)
-{
-    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
-    pPlayer->make_noise = 1;
-    pPlayer->noise_x = pPlayer->pos.x;
-    pPlayer->noise_y = pPlayer->pos.y;
-}
-
 void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount)
 {
     pPlayer->ammo_amount[weaponNum] += addAmount;

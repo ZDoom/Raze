@@ -245,7 +245,6 @@ extern int g_canSeePlayer;
 int LocateTheLocator(int const tag, int const sectNum);
 
 int A_IncurDamage(int spriteNum);
-void A_DeleteSprite(int spriteNum);
 
 void clearcamera(player_struct* ps);
 void G_RefreshLights(void);
@@ -300,11 +299,7 @@ inline int badguypic(int tile)
 {
     return A_CheckEnemyTile(tile);
 }
-int G_WakeUp(spritetype* const pSprite, int const playerNum);
-inline int wakeup(int sn, int pn)
-{
-    return G_WakeUp(&sprite[sn], pn);
-}
+int wakeup(int sn, int pn);
 
 #include "actor.h"
 

@@ -267,7 +267,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
         if (setsprite(idx, &vect) < 0)
         {
             Printf("spawn: Sprite can't be spawned into null space\n");
-            A_DeleteSprite(idx);
+            deletesprite(idx);
         }
     }
 

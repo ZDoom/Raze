@@ -260,8 +260,8 @@ typedef struct player_struct {
     int32_t detonate_count;
     int16_t detonate_time;
     uint8_t shotgun_state[2];
-    uint8_t make_noise;
-    int32_t noise_x, noise_y, noise_radius;
+    uint8_t make_noise; // at28e
+    int32_t noise_x, noise_y, noise_radius; // at286, at28a, at290
     uint8_t keys[5];
     int16_t yehaa_timer;
     int16_t drink_amt, eat, drunkang, eatang;
@@ -422,7 +422,7 @@ inline void setpal(DukePlayer_t* pPlayer)
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
-void madenoise(int playerNum);
+int madenoise(int playerNum);
 int haskey(int sect, int snum);
 
 // Get the player index given an TILE_APLAYER sprite pointer.
