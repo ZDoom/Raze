@@ -188,29 +188,6 @@ void captionmenutext(int32_t x, int32_t y, char const *t)
 }
 
 
-int32_t user_quote_time[MAXUSERQUOTES];
-static char user_quote[MAXUSERQUOTES][178];
-
-void G_AddUserQuote(const char* daquote)
-{
-	int32_t i;
-
-	if (hud_messages == 0) return;
-	Printf(PRINT_MEDIUM | PRINT_NOTIFY, "%s\n", daquote);
-	if (hud_messages == 1)
-	{
-		for (i = MAXUSERQUOTES - 1; i > 0; i--)
-		{
-			Bstrcpy(user_quote[i], user_quote[i - 1]);
-			user_quote_time[i] = user_quote_time[i - 1];
-		}
-		Bstrcpy(user_quote[0], daquote);
-
-		user_quote_time[0] = hud_messagetime;
-		pub = NUMPAGES;
-	}
-}
-
 int32_t textsc(int32_t sc)
 {
     return scale(sc, hud_textscale, 400);
@@ -321,18 +298,6 @@ void G_PrintGameQuotes(int32_t snum)
     if (k > 1 && !reserved_quote)
         y += k <= 8 ? (height * (k-1))>>3 : height;
 
-    for (size_t i = MAXUSERQUOTES-1; i < MAXUSERQUOTES; --i)
-    {
-        k = user_quote_time[i];
-
-        if (k <= 0)
-            continue;
-
-        // int32_t const sh = hud_glowingquotes ? sintable[((totalclock+(i<<2))<<5)&2047]>>11 : 0;
-
-        height = mpgametext(mpgametext_x, y, user_quote[i], textsh(k), texto(k), texta(k), TEXT_LINEWRAP).y + textsc(1<<16);
-        y += k <= 4 ? (height * (k-1))>>2 : height;
-    }
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)

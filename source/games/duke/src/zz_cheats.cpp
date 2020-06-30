@@ -459,12 +459,6 @@ void G_DoCheats(void)
 
                 case CHEAT_DEBUG:
                     g_Debug = 1-g_Debug;
-
-                    G_DumpDebugInfo();
-                    Bsprintf(tempbuf, "Gamevars dumped to log");
-                    G_AddUserQuote(tempbuf);
-                    Bsprintf(tempbuf, "Map dumped to debug.map");
-                    G_AddUserQuote(tempbuf);
                     end_cheat(pPlayer);
                     break;
 

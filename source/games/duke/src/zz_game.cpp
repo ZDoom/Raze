@@ -1243,7 +1243,6 @@ void G_HandleLocalKeys(void)
     {
         if (inputState.UnboundKeyPressed(sc_F1) || inputState.UnboundKeyPressed(sc_F2) || cl_autovote)
         {
-            G_AddUserQuote(GStrings("VoteCast"));
             Net_SendMapVote(inputState.UnboundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
             inputState.ClearKeyStatus(sc_F1);
             inputState.ClearKeyStatus(sc_F2);
@@ -1347,7 +1346,7 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                G_AddUserQuote(*CombatMacros[ridiculeNum-1]);
+                Printf(PRINT_NOTIFY, *CombatMacros[ridiculeNum-1]);
 				Net_SendTaunt(ridiculeNum);
 				pus = NUMPAGES;
                 pub = NUMPAGES;

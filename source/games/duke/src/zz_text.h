@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-#define MAXUSERQUOTES 6
-
-extern int32_t user_quote_time[MAXUSERQUOTES];
 extern int32_t minitext_lowercase;
 extern int32_t minitext_yofs;
 
