@@ -691,17 +691,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
-#ifdef LEGACY_ROR
         if (!RR)
             G_SE40(smoothRatio);
-#endif
-#ifdef POLYMER
-        if (videoGetRenderMode() == REND_POLYMER)
-            polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
-#endif
-        yax_preparedrawrooms();
+
         renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
-        yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
         G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
         renderDrawMasks();
     }
@@ -903,30 +896,9 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         while (CAMERA(sect) >= 0)  // if, really
         {
             getzsofslope(CAMERA(sect),CAMERA(pos.x),CAMERA(pos.y),&ceilZ,&floorZ);
-#ifdef YAX_ENABLE
-            if (yax_getbunch(CAMERA(sect), YAX_CEILING) >= 0)
-            {
-                if (CAMERA(pos.z) < ceilZ)
-                {
-                    updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
-                    break;  // since CAMERA(sect) might have been updated to -1
-                    // NOTE: fist discovered in WGR2 SVN r134, til' death level 1
-                    //  (Lochwood Hollow).  A problem REMAINS with Polymost, maybe classic!
-                }
-            }
-            else
-#endif
                 if (CAMERA(pos.z) < ceilZ+ZOFFSET6)
                     CAMERA(pos.z) = ceilZ+ZOFFSET6;
 
-#ifdef YAX_ENABLE
-            if (yax_getbunch(CAMERA(sect), YAX_FLOOR) >= 0)
-            {
-                if (CAMERA(pos.z) > floorZ)
-                    updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
-            }
-            else
-#endif
                 if (CAMERA(pos.z) > floorZ-ZOFFSET6)
                     CAMERA(pos.z) = floorZ-ZOFFSET6;
 
@@ -936,27 +908,17 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
-#ifdef LEGACY_ROR
         if (!RR)
             G_SE40(smoothRatio);
-#endif
+
         if (RRRA)
             G_SE150(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
-#ifdef POLYMER
-        if (videoGetRenderMode() == REND_POLYMER)
-            polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
-#endif
         // for G_PrintCoords
         dr_viewingrange = viewingrange;
         dr_yxaspect = yxaspect;
-#ifdef DEBUG_MIRRORS_ONLY
-        gotpic[TILE_MIRROR>>3] |= (1<<(TILE_MIRROR&7));
-#else
         if (RR && sector[CAMERA(sect)].lotag == 848)
         {
-            yax_preparedrawrooms();
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
-            yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 
             G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 
@@ -982,9 +944,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             CAMERA(pos.x) -= geox[geoSector];
             CAMERA(pos.y) -= geoy[geoSector];
-            yax_preparedrawrooms();
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),geosectorwarp[geoSector]);
-            yax_drawrooms(G_DoSpriteAnimations, geosectorwarp[geoSector], 0, smoothRatio);
             CAMERA(pos.x) += geox[geoSector];
             CAMERA(pos.y) += geoy[geoSector];
                 
@@ -1024,9 +984,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             CAMERA(pos.x) -= geox2[geoSector];
             CAMERA(pos.y) -= geoy2[geoSector];
-            yax_preparedrawrooms();
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),geosectorwarp2[geoSector]);
-            yax_drawrooms(G_DoSpriteAnimations, geosectorwarp2[geoSector], 0, smoothRatio);
             CAMERA(pos.x) += geox2[geoSector];
             CAMERA(pos.y) += geoy2[geoSector];
                 
@@ -1050,20 +1008,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
         else
         {
-            yax_preparedrawrooms();
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
-            yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
-#ifdef LEGACY_ROR
             if (!RR && (unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
                 G_OROR_DupeSprites(&sprite[ror_sprite]);
-#endif
             G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
         }
-#ifdef LEGACY_ROR
         drawing_ror = 0;
-#endif
         renderDrawMasks();
-#endif
     }
 
     restoreinterpolations();
@@ -1149,35 +1100,6 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     return 0;
 }
 
-#ifdef YAX_ENABLE
-void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz)
-{
-    int32_t i, bunchnum = yax_getbunch(sectnum, cf);
-
-    if (bunchnum < 0 || bunchnum >= numyaxbunches)
-        return;
-
-    for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
-        SECTORFLD(i,z, YAX_CEILING) = daz;
-    for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))
-        SECTORFLD(i,z, YAX_FLOOR) = daz;
-}
-
-static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
-{
-    int32_t i, bunchnum = yax_getbunch(sectnum, cf);
-
-    if (bunchnum < 0 || bunchnum >= numyaxbunches)
-        return;
-
-    for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
-        setinterpolation(&sector[i].ceilingz);
-    for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))
-        setinterpolation(&sector[i].floorz);
-}
-#else
-# define Yax_SetBunchInterpolation(sectnum, cf)
-#endif
 
 static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
 {
