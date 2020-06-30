@@ -563,7 +563,7 @@ int G_EnterLevel(int gameMode)
 
 #ifndef EDUKE32_TOUCH_DEVICES
     if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
-        P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
+        FTA(QUOTE_F1HELP,g_player[myconnectindex].ps);
 #endif
 
     for (TRAVERSE_CONNECT(i))

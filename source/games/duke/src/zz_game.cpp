@@ -1305,14 +1305,14 @@ void G_HandleLocalKeys(void)
     {
         buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
-        P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
+        FTA(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
         buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
-        P_DoQuote(QUOTE_CROSSHAIR_OFF-cl_crosshair,g_player[screenpeek].ps);
+        FTA(QUOTE_CROSSHAIR_OFF-cl_crosshair,g_player[screenpeek].ps);
     }
 
     if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
@@ -1325,7 +1325,7 @@ void G_HandleLocalKeys(void)
             ud.foly = g_player[screenpeek].ps->opos.y;
             ud.fola = fix16_to_int(g_player[screenpeek].ps->oq16ang);
         }
-        P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
+        FTA(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
 
@@ -1378,7 +1378,7 @@ void G_HandleLocalKeys(void)
                 CAMERADIST  = 0;
                 CAMERACLOCK = (int32_t) totalclock;
 
-                P_DoQuote(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
+                FTA(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
             }
         }
 
@@ -2150,36 +2150,7 @@ int G_DoMoveThings(void)
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
 
-    // Name display when aiming at opponents
-    if (cl_idplayers && (g_netServer || ud.multimode > 1)
-        )
-    {
-        hitdata_t hitData;
-        DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
 
-        for (bssize_t TRAVERSE_CONNECT(i))
-            if (g_player[i].ps->holoduke_on != -1)
-                sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
-
-        hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
-                sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) << 11, &hitData,
-                0xffff0030);
-
-        for (bssize_t TRAVERSE_CONNECT(i))
-            if (g_player[i].ps->holoduke_on != -1)
-                sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
-
-        if ((hitData.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
-                sprite[hitData.sprite].picnum == TILE_APLAYER)
-        {
-            int const playerNum = P_Get(hitData.sprite);
-
-            if (playerNum != screenpeek && g_player[playerNum].ps->dead_flag == 0)
-            {
-                Printf(PRINT_HIGH|PRINT_NOTIFY, "%s\n", &g_player[playerNum].user_name[0]);
-            }
-        }
-    }
 
     if (g_showShareware > 0)
     {

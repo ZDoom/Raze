@@ -303,7 +303,7 @@ void G_DoCheats(void)
             //case CHEAT_RESERVED3:
                 break;
             default:
-                P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
+                FTA(QUOTE_CHEATS_DISABLED, pPlayer);
                 osdcmd_cheatsinfo_stat.cheatnum = -1;
                 return;
             }
@@ -347,7 +347,7 @@ void G_DoCheats(void)
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 pPlayer->cheat_phase = 0;
-                //                P_DoQuote(QUOTE_46,pPlayer);
+                //                FTA(QUOTE_46,pPlayer);
                 return;
             }
 
@@ -435,7 +435,7 @@ void G_DoCheats(void)
 
                     if (RRRA) pPlayer->ammo_amount[SLINGBLADE_WEAPON] = 1;
 
-                    P_DoQuote(QUOTE_CHEAT_ALL_WEAPONS, pPlayer);
+                    FTA(QUOTE_CHEAT_ALL_WEAPONS, pPlayer);
 
                     end_cheat(pPlayer);
                 }
@@ -443,7 +443,7 @@ void G_DoCheats(void)
 
                 case CHEAT_INVENTORY:
                     G_CheatGetInv(pPlayer);
-                    P_DoQuote(QUOTE_CHEAT_ALL_INV, pPlayer);
+                    FTA(QUOTE_CHEAT_ALL_INV, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
@@ -453,7 +453,7 @@ void G_DoCheats(void)
                         for (int key = 0; key < 5; key++)
                             pPlayer->keys[key] = 1;
                     inputState.keyFlushChars();
-                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, pPlayer);
+                    FTA(QUOTE_CHEAT_ALL_KEYS, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
@@ -464,14 +464,14 @@ void G_DoCheats(void)
 
                 case CHEAT_CLIP:
                     ud.clipping = !ud.clipping;
-                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.clipping, pPlayer);
+                    FTA(QUOTE_CHEAT_NOCLIP-!ud.clipping, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
                 case CHEAT_RESERVED2:
                     if (RR)
                     {
-                        P_DoQuote(QUOTE_JETPACK_ON, pPlayer);
+                        FTA(QUOTE_JETPACK_ON, pPlayer);
                         inputState.keyFlushChars();
                     }
                     else
@@ -483,7 +483,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_ALLEN:
-                    P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
+                    FTA(QUOTE_CHEAT_ALLEN, pPlayer);
                     pPlayer->cheat_phase = 0;
                     inputState.ClearKeyStatus(sc_N);
                     return;
@@ -517,14 +517,14 @@ void G_DoCheats(void)
 
                         //if (cheatNum != CHEAT_COMEGETSOME)
                         //{
-                            P_DoQuote(QUOTE_CHEAT_GODMODE_ON, pPlayer);
+                            FTA(QUOTE_CHEAT_GODMODE_ON, pPlayer);
                         //}
                         //else
                         //{
                         //    Bstrcpy(pStrings[QUOTE_RESERVED4], "Come Get Some!");
                         //
                         //    S_PlaySound(DUKE_GETWEAPON2);
-                        //    P_DoQuote(QUOTE_RESERVED4, pPlayer);
+                        //    FTA(QUOTE_RESERVED4, pPlayer);
                         //    G_CheatGetInv(pPlayer);
                         //
                         //    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
@@ -541,7 +541,7 @@ void G_DoCheats(void)
                         sprite[pi].extra = max_player_health;
                         actor[pi].extra = -1;
                         pPlayer->last_extra = max_player_health;
-                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, pPlayer);
+                        FTA(QUOTE_CHEAT_GODMODE_OFF, pPlayer);
                     }
 
                     sprite[pi].extra = max_player_health;
@@ -572,9 +572,9 @@ void G_DoCheats(void)
                     if (RR)
                         for (int key = 0; key < 5; key++)
                             pPlayer->keys[key] = 1;
-                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, pPlayer);
+                    FTA(QUOTE_CHEAT_EVERYTHING, pPlayer);
 
-                    //                    P_DoQuote(QUOTE_21,pPlayer);
+                    //                    FTA(QUOTE_21,pPlayer);
                     pPlayer->inven_icon = ICON_FIRSTAID;
 
                     end_cheat(pPlayer);
@@ -621,13 +621,13 @@ void G_DoCheats(void)
                         pPlayer->over_shoulder_on ^= 1;
                         CAMERADIST = 0;
                         CAMERACLOCK = (int32_t) totalclock;
-                        //                    P_DoQuote(QUOTE_CHEATS_DISABLED,pPlayer);
+                        //                    FTA(QUOTE_CHEATS_DISABLED,pPlayer);
                     }
                     end_cheat(pPlayer);
                     return;
 
                 case CHEAT_TIME:
-                    //                    P_DoQuote(QUOTE_21,pPlayer);
+                    //                    FTA(QUOTE_21,pPlayer);
                     end_cheat(pPlayer);
                     return;
 
@@ -647,7 +647,7 @@ void G_DoCheats(void)
                     }
                     fi.operateforcefields(pPlayer->i, -1);
 
-                    P_DoQuote(QUOTE_CHEAT_UNLOCK, pPlayer);
+                    FTA(QUOTE_CHEAT_UNLOCK, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
@@ -663,14 +663,14 @@ void G_DoCheats(void)
                     if (RR)
                         for(int key = 0; key < 5; key++)
                             pPlayer->keys[key] = 1;
-                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, pPlayer);
+                    FTA(QUOTE_CHEAT_EVERYTHING, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
                     gFullMap = !gFullMap;
 
-                    P_DoQuote(gFullMap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
+                    FTA(gFullMap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
                         pPlayer);
 
                     end_cheat(pPlayer);
@@ -680,11 +680,11 @@ void G_DoCheats(void)
                     if (NAM_WW2GI)
                     {
                         quoteMgr.InitializeQuote(QUOTE_RESERVED4, g_NAMMattCheatQuote);
-                        P_DoQuote(QUOTE_RESERVED4, pPlayer);
+                        FTA(QUOTE_RESERVED4, pPlayer);
                     }
                     else
                     {
-                        P_DoQuote(QUOTE_CHEAT_TODD, pPlayer);
+                        FTA(QUOTE_CHEAT_TODD, pPlayer);
                     }
 
                     end_cheat(pPlayer);
@@ -696,7 +696,7 @@ void G_DoCheats(void)
                     return;
 
                 case CHEAT_BETA:
-                    P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
+                    FTA(QUOTE_CHEAT_BETA, pPlayer);
                     inputState.ClearKeyStatus(sc_H);
                     end_cheat(pPlayer);
                     return;
@@ -705,7 +705,7 @@ void G_DoCheats(void)
                     pPlayer->inv_amount[GET_STEROIDS] = 399;
                     if (!RR)
                         pPlayer->inv_amount[GET_HEATS] = 1200;
-                    P_DoQuote(QUOTE_CHEAT_STEROIDS, pPlayer);
+                    FTA(QUOTE_CHEAT_STEROIDS, pPlayer);
                     end_cheat(pPlayer);
                     return;
 
@@ -717,7 +717,7 @@ void G_DoCheats(void)
                         g_noEnemies = 0;
 
 					quoteMgr.FormatQuote(QUOTE_RESERVED4, "%s: %s", GStrings("NETMNU_MONSTERS"), s[g_noEnemies]);
-                    P_DoQuote(QUOTE_RESERVED4, pPlayer);
+                    FTA(QUOTE_RESERVED4, pPlayer);
 
                     end_cheat(pPlayer);
                     return;
@@ -727,7 +727,7 @@ void G_DoCheats(void)
                 //case CHEAT_RESERVED3:
                     if (RR)
                     {
-                        P_DoQuote(51, pPlayer);
+                        FTA(51, pPlayer);
                         end_cheat(pPlayer);
                     }
                     else
@@ -742,14 +742,14 @@ void G_DoCheats(void)
                 case CHEAT_RAJOSEPH:
                     OnMotorcycle(pPlayer, 0);
                     pPlayer->ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
-                    P_DoQuote(126, pPlayer);
+                    FTA(126, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
 
                 case CHEAT_RAMRBILL:
                     quickkill(pPlayer);
-                    P_DoQuote(127, pPlayer);
+                    FTA(127, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -771,7 +771,7 @@ void G_DoCheats(void)
                     pPlayer->curr_weapon = KNEE_WEAPON;
                     pPlayer->nocheat = 1;
                     sprite[pPlayer->i].extra = 1;
-                    P_DoQuote(128, pPlayer);
+                    FTA(128, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -785,7 +785,7 @@ void G_DoCheats(void)
 
                 case CHEAT_RANOCHEAT:
                     pPlayer->nocheat = 1;
-                    P_DoQuote(130, pPlayer);
+                    FTA(130, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -810,7 +810,7 @@ void G_DoCheats(void)
                         sprite[newSprite].xrepeat <<= 2;
                         sprite[newSprite].yrepeat <<= 2;
                     }
-                    P_DoQuote(139, pPlayer);
+                    FTA(139, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -819,12 +819,12 @@ void G_DoCheats(void)
                     if (pPlayer->drink_amt)
                     {
                         pPlayer->drink_amt = 0;
-                        P_DoQuote(132, pPlayer);
+                        FTA(132, pPlayer);
                     }
                     else
                     {
                         pPlayer->drink_amt = 90;
-                        P_DoQuote(131, pPlayer);
+                        FTA(131, pPlayer);
                     }
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
@@ -843,7 +843,7 @@ void G_DoCheats(void)
                     pPlayer->got_access = 7;
                     for (int key = 0; key < 5; key++)
                         pPlayer->keys[key] = 1;
-                    P_DoQuote(5, pPlayer);
+                    FTA(5, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -852,12 +852,12 @@ void G_DoCheats(void)
                     if (pPlayer->sea_sick_stat)
                     {
                         pPlayer->sea_sick_stat = 0;
-                        P_DoQuote(129, pPlayer);
+                        FTA(129, pPlayer);
                     }
                     else
                     {
                         pPlayer->sea_sick_stat = 1;
-                        P_DoQuote(137, pPlayer);
+                        FTA(137, pPlayer);
                     }
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
@@ -867,7 +867,7 @@ void G_DoCheats(void)
                 case CHEAT_RADONUT:
                     OnBoat(pPlayer, 0);
                     pPlayer->ammo_amount[BOAT_WEAPON] = max_ammo_amount[BOAT_WEAPON];
-                    P_DoQuote(136, pPlayer);
+                    FTA(136, pPlayer);
                     end_cheat(pPlayer);
                     inputState.keyFlushChars();
                     return;
@@ -897,13 +897,13 @@ void G_DoCheats(void)
             {
                 if (ud.player_skill == 4)
                 {
-                    P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
+                    FTA(QUOTE_CHEATS_DISABLED, pPlayer);
                     pPlayer->cheat_phase = 0;
                 }
                 else
                 {
                     pPlayer->cheat_phase = 1;
-                    //                    P_DoQuote(QUOTE_25,pPlayer);
+                    //                    FTA(QUOTE_25,pPlayer);
                     cheatbuflen = 0;
                 }
                 inputState.keyFlushChars();
