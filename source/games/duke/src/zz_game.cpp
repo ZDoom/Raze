@@ -1329,49 +1329,6 @@ void G_HandleLocalKeys(void)
         P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
-    if (ud.recstat == 2)
-    {
-        if (inputState.GetKeyStatus(sc_Space))
-        {
-            inputState.ClearKeyStatus(sc_Space);
-
-            g_demo_paused = !g_demo_paused;
-            g_demo_rewind = 0;
-
-            if (g_demo_paused)
-                FX_StopAllSounds();
-        }
-
-        if (inputState.GetKeyStatus(sc_Tab))
-        {
-            inputState.ClearKeyStatus(sc_Tab);
-            g_demo_showStats = !g_demo_showStats;
-        }
-
-        if (inputState.GetKeyStatus(sc_kpad_6))
-        {
-            inputState.ClearKeyStatus(sc_kpad_6);
-
-            int const fwdTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
-            g_demo_goalCnt    = g_demo_paused ? g_demo_cnt + 1 : g_demo_cnt + REALGAMETICSPERSEC * fwdTics;
-            g_demo_rewind     = 0;
-
-            if (g_demo_goalCnt > g_demo_totalCnt)
-                g_demo_goalCnt = 0;
-        }
-        else if (inputState.GetKeyStatus(sc_kpad_4))
-        {
-            inputState.ClearKeyStatus(sc_kpad_4);
-
-            int const rewindTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
-            g_demo_goalCnt       = g_demo_paused ? g_demo_cnt - 1 : g_demo_cnt - REALGAMETICSPERSEC * rewindTics;
-            g_demo_rewind        = 1;
-
-            if (g_demo_goalCnt <= 0)
-                g_demo_goalCnt = 1;
-
-        }
-    }
 
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED || WIN_IS_PRESSED)
     {
