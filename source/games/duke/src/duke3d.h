@@ -85,13 +85,7 @@ enum {
 
 #define PACKBUF_SIZE        32768
 
-#define TILE_SAVESHOT       (MAXTILES-1)
-#define TILE_LOADSHOT       (MAXTILES-3)
-#define TILE_TILT           (MAXTILES-2)
-#define TILE_ANIM           (MAXTILES-4)
 #define TILE_VIEWSCR        (MAXTILES-5)
-// Reserved: TILE_VIEWSCR_1 (MAXTILES-6)
-// Reserved: TILE_VIEWSCR_2 (MAXTILES-7)
 EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 
 // sprites with these statnums should be considered for fixing

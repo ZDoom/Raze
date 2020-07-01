@@ -1011,16 +1011,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
 
     // write header
 
-#if 0 // not usable anymore
-    if (spot >= 0 && tileData(TILE_SAVESHOT))
-    {
-		auto fw = WriteSavegameChunk("screenshot.dat");
-        fw->Write(tileData(TILE_SAVESHOT), 320*200);
-
-    }
-#endif
-
-
     if (spot >= 0)
     {
         // savegame

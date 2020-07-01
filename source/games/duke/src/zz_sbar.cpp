@@ -121,7 +121,7 @@ public:
         }
         else
         {
-            ammo_sprites = { -1, TILE_AMMO, TILE_SHOTGUNAMMO, TILE_BATTERYAMMO, TILE_HBOMBAMMO, TILE_HBOMBAMMO, TILE_RRTILE43, TILE_DEVISTATORAMMO, TILE_TRIPBOMBSPRITE, TILE_GROWSPRITEICON, TILE_HBOMBAMMO, -1,
+            ammo_sprites = { -1, TILE_AMMO, TILE_SHOTGUNAMMO, TILE_BATTERYAMMO, TILE_HBOMBAMMO, TILE_HBOMBAMMO, 43/*TILE_RRTILE43*/, TILE_DEVISTATORAMMO, TILE_TRIPBOMBSPRITE, TILE_GROWSPRITEICON, TILE_HBOMBAMMO, -1,
                 TILE_BOWLINGBALLSPRITE, TILE_MOTOAMMO, TILE_BOATAMMO, -1, TILE_RPG2SPRITE };
         }
     }
@@ -877,7 +877,7 @@ void G_DrawBackground(void)
         return;
     }
 
-    auto tex = tileGetTexture((g_gameType & GAMEFLAG_RRRA) ? TILE_RRTILE7629 : TILE_BIGHOLE);
+    auto tex = tileGetTexture((g_gameType & GAMEFLAG_RRRA) ? /*TILE_RRTILE*/7629 : TILE_BIGHOLE);
     if (tex != nullptr && tex->isValid())
     {
         if (windowxy1.y > 0)
