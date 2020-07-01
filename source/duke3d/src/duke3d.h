@@ -215,7 +215,7 @@ static inline int32_t G_DefaultActorHealthForTile(int const tileNum)
 
 struct GameInterface : ::GameInterface
 {
-	const char* Name() override { return "Duke"; }
+	const char* Name() override { return "EDuke"; }
 	int app_main() override;
 	void UpdateScreenSize() override;
 	void FreeGameData() override;

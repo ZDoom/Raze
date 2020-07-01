@@ -763,10 +763,10 @@ END_EDUKE_NS
 //----------------------------------------------------------------------------
 
 
-static TMenuClassDescriptor<Duke::DukeMainMenu> _mm("Duke.MainMenu");
-static TMenuClassDescriptor<Duke::DukeListMenu> _lm("Duke.ListMenu");
-static TMenuClassDescriptor<Duke::DukeNewGameCustomSubMenu> _ngcsm("Duke.NewGameCustomSubMenu");
-static TMenuClassDescriptor<Duke::DDukeImageScrollerMenu> _ism("Duke.ImageScrollerMenu");
+static TMenuClassDescriptor<Duke::DukeMainMenu> _mm("EDuke.MainMenu");
+static TMenuClassDescriptor<Duke::DukeListMenu> _lm("EDuke.ListMenu");
+static TMenuClassDescriptor<Duke::DukeNewGameCustomSubMenu> _ngcsm("EDuke.NewGameCustomSubMenu");
+static TMenuClassDescriptor<Duke::DDukeImageScrollerMenu> _ism("EDuke.ImageScrollerMenu");
 
 void RegisterDukeMenus()
 {

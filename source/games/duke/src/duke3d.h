@@ -194,7 +194,7 @@ enum GameFunction_t
 
 struct GameInterface : ::GameInterface
 {
-	const char* Name() override { return "Redneck"; }
+	const char* Name() override { return "Duke"; }
 	int app_main() override;
 	void UpdateScreenSize() override;
 	void FreeGameData() override;
