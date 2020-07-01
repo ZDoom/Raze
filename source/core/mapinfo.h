@@ -22,14 +22,15 @@ enum
 
 struct MapRecord
 {
-	int parTime = -1;
-	int designerTime = -1;
+	int parTime = 0;
+	int designerTime = 0;
 	FString fileName;
 	FString labelName;
 	FString name;
 	FString music;
 	int cdSongId = -1;
 	int flags = 0;
+	int levelNumber = -1;
 
 	// The rest is only used by Blood
 	int nextLevel = -1;
@@ -109,6 +110,7 @@ inline void InitRREndMap()
 	// RR defines its end map ad-hoc so give it a proper entry to reference (the last one in episode 2 because it needs to be in Ep. 2.)
 	mapList[127].SetName("$TXT_CLOSEENCOUNTERS");
 	mapList[127].SetFileName("endgame.map");
+	mapList[127].levelNumber = 163;	// last one in Ep. 2.
 }
 
 enum

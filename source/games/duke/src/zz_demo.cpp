@@ -76,12 +76,12 @@ RECHECK:
     {
         ud.recstat = 0;
 
-        fadepal(0,0,0, 0,252,28);
+        //fadepal(0,0,0, 0,252,28);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         G_DrawBackground();
         //M_DisplayMenus();
         videoNextPage();
-        fadepal(0,0,0, 252,0,-28);
+        //fadepal(0,0,0, 252,0,-28);
         ud.reccnt = 0;
     }
 

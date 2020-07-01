@@ -135,7 +135,7 @@ G_EXTERN int32_t impact_damage;
 extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
 G_EXTERN int32_t mirrorcnt;
-G_EXTERN int32_t g_mostConcurrentPlayers;
+G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t numplayersprites;
 G_EXTERN int32_t g_scriptDebug;
@@ -181,10 +181,8 @@ G_EXTERN int32_t g_ufoCnt;
 #define ufocnt g_ufoCnt
 G_EXTERN int32_t g_hulkSpawn;
 #define hulkspawn g_hulkSpawn
-G_EXTERN int32_t g_vixenLevel;
 G_EXTERN int32_t g_lastLevel;
 #define lastlevel g_lastLevel
-G_EXTERN int32_t g_turdLevel;
 
 
 G_EXTERN int32_t geosectorwarp[MAXGEOSECTORS];

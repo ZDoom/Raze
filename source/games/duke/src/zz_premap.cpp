@@ -121,7 +121,6 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         {
             videoClearScreen(0L);
             //g_player[myconnectindex].ps->palette = palette;
-            //G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         }
         /*Gv_SetVar(g_iReturnVarID,TILE_LOADSCREEN, -1, -1);*/
@@ -230,7 +229,7 @@ void G_InitRRRASkies(void)
 
 void prelevel_d(int g);
 void prelevel_r(int g);
-void bonussequence_d(int num, CompletionFunc completion);
+void e4intro(CompletionFunc completion);
 
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
@@ -245,10 +244,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if (m_recstat != 2 && ud.last_level >= 0 &&
         (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
     {
-        if (!RRRA || g_mostConcurrentPlayers > 1 || g_netServer || numplayers > 1)
-            G_BonusScreen(1);
-        else
-            G_BonusScreenRRRA(1);
+        G_BonusScreen(1);
     }
 
     if (RR && !RRRA && ud.level_number == 6 && ud.volume_number == 0)
@@ -270,7 +266,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
         levelNum == 0 && volumeNum == 3 && adult_lockout == 0)
     {
-        bonussequence_d(5, [](bool) {});
+        e4intro([](bool) {});
     }
 
 #ifdef EDUKE32_TOUCH_DEVICES
@@ -591,7 +587,6 @@ int G_EnterLevel(int gameMode)
     Net_ResetPrediction();
 
     //g_player[myconnectindex].ps->palette = palette;
-    //G_FadePalette(0,0,0,0);
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     renderFlushPerms();

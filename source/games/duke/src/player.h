@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern int32_t g_mostConcurrentPlayers;
+extern int32_t playerswhenstarted;
 
 #define MOVEFIFOSIZ                 256
 

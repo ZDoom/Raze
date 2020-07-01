@@ -538,7 +538,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void bonussequence_d(int num, CompletionFunc completion)
+static void bonussequence_d(int num, JobDesc *jobs, int &job)
 {
 	static const AnimSound  cineov2sound[] =
 	{
@@ -591,40 +591,10 @@ void bonussequence_d(int num, CompletionFunc completion)
 		{ -1,-1 }
 	};
 
-	static const AnimSound vol42a[] =
-	{
-		{ 1, INTRO4_B +1 },
-		{ 12, SHORT_CIRCUIT + 1 },
-		{ 18, INTRO4_5 + 1 },
-		{ 34, SHORT_CIRCUIT+1 },
-		{ -1,-1 }
-	};
-
-	static const AnimSound vol41a[] =
-	{
-		{ 1, INTRO4_1+1 },
-		{ 7, INTRO4_3+1 },
-		{ 12, INTRO4_2+1 },
-		{ 26, INTRO4_4+1 },
-		{ -1,-1 }
-	};
-
-	static const AnimSound vol43a[] =
-	{
-		{ 10, INTRO4_6+1 },
-		{ -1,-1 }
-	};
-
 
 	static const int framespeed_10[] = { 10, 10, 10 };
 	static const int framespeed_14[] = { 14, 14, 14 };
 	static const int framespeed_18[] = { 18, 18, 18 };
-
-	Mus_Stop();
-	FX_StopAllSounds();
-
-	JobDesc jobs[10];
-	int job = 0;
 
 	switch (num)
 	{
@@ -635,14 +605,14 @@ void bonussequence_d(int num, CompletionFunc completion)
 
 	case 1:
 		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18), []() { S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI); } };
-		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN), nullptr };
+		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN), []() { FX_StopAllSounds(); } };
 		break;
 
 	case 2:
 		jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
 		jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
 		jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
-		if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)) };
+		if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)), []() { FX_StopAllSounds(); } };
 		break;
 
 	case 3:
@@ -656,15 +626,7 @@ void bonussequence_d(int num, CompletionFunc completion)
 	case 4:
 		jobs[job++] = { Create<DEpisode5End>(),  []() { FX_StopAllSounds(); } };
 		break;
-
-	case 5:	// Episode 4 start
-		S_PlaySpecialMusic(MUS_BRIEFING);
-		jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
-		jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
-		jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
-		break;
 	}
-	RunScreenJob(jobs, job, completion); 
 }
 
 //---------------------------------------------------------------------------
@@ -714,6 +676,7 @@ public:
 	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
+		PlayBonusMusic();
 	}
 
 	int Frame(uint64_t clock, bool skiprequest)
@@ -796,13 +759,6 @@ public:
 		return skiprequest ? -1 : 1;
 	}
 };
-
-void ShowMPBonusScreen_d(int pws, CompletionFunc completion)
-{
-	PlayBonusMusic();
-	JobDesc job = { Create<DDukeMultiplayerBonusScreen>(pws) };
-	RunScreenJob(&job, 1, completion);
-}
 
 //---------------------------------------------------------------------------
 //
@@ -1000,18 +956,92 @@ public:
 
 };
 
-void ShowBonusScreen_d(CompletionFunc completion)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void dobonus_d(bool bonusonly, CompletionFunc completion)
 {
-	PlayBonusMusic();
-	JobDesc job = { Create<DDukeLevelSummaryScreen>() };
-	RunScreenJob(&job, 1, completion);
+	JobDesc jobs[20];
+	int job = 0;
+
+	FX_StopAllSounds();
+	Mus_Stop();
+
+	if (!bonusonly && numplayers < 2 && ud.eog && ud.from_bonus == 0)
+	{
+		bonussequence_d(ud.volume_number, jobs, job);
+	}
+
+	if (playerswhenstarted > 1 && ud.coop != 1)
+	{
+		jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(playerswhenstarted) };
+	}
+	else if (!bonusonly && ud.multimode <= 1)
+	{
+		jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
+	}
+	if (job)
+		RunScreenJob(jobs, job, completion);
+	else if (completion) completion(false);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void e4intro(CompletionFunc completion)
+{
+	JobDesc jobs[5];
+	int job = 0;
+
+	static const AnimSound vol42a[] =
+	{
+		{ 1, INTRO4_B + 1 },
+		{ 12, SHORT_CIRCUIT + 1 },
+		{ 18, INTRO4_5 + 1 },
+		{ 34, SHORT_CIRCUIT + 1 },
+		{ -1,-1 }
+	};
+
+	static const AnimSound vol41a[] =
+	{
+		{ 1, INTRO4_1 + 1 },
+		{ 7, INTRO4_3 + 1 },
+		{ 12, INTRO4_2 + 1 },
+		{ 26, INTRO4_4 + 1 },
+		{ -1,-1 }
+	};
+
+	static const AnimSound vol43a[] =
+	{
+		{ 10, INTRO4_6 + 1 },
+		{ -1,-1 }
+	};
+
+	static const int framespeed_10[] = { 10, 10, 10 };
+	static const int framespeed_14[] = { 14, 14, 14 };
+
+	S_PlaySpecialMusic(MUS_BRIEFING);
+	jobs[job++] = { PlayVideo("vol41a.anm", vol41a, framespeed_10), nullptr };
+	jobs[job++] = { PlayVideo("vol42a.anm", vol42a, framespeed_14), nullptr };
+	jobs[job++] = { PlayVideo("vol43a.anm", vol43a, framespeed_10), nullptr };
+	RunScreenJob(jobs, job, completion);
 }
 
 
 // Utility for testing the above screens
 CCMD(testscreen)
 {
+	JobDesc jobs[10];
+	int job = 0;
 	C_HideConsole();
+	FX_StopAllSounds();
+	Mus_Stop();
 	if (argv.argc() > 1)
 	{
 		int screen = strtol(argv[1], nullptr, 0);
@@ -1022,12 +1052,17 @@ CCMD(testscreen)
 		case 2:
 		case 3:
 		case 4:
+			bonussequence_d(screen, jobs, job);
+			RunScreenJob(jobs, job, nullptr);
+			break;
+
 		case 5:
-			bonussequence_d(screen, nullptr);
+			e4intro(nullptr);
 			break;
 
 		case 6:
-			ShowMPBonusScreen_d(6, nullptr);
+			jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(6) };
+			RunScreenJob(jobs, job, nullptr);
 			break;
 
 		case 7:
@@ -1039,7 +1074,8 @@ CCMD(testscreen)
 			break;
 
 		case 9:
-			ShowBonusScreen_d(nullptr);
+			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
+			RunScreenJob(jobs, job, nullptr);
 			break;
 		}
 	}

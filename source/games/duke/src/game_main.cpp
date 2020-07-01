@@ -198,6 +198,5 @@ void FTA(int q, struct player_struct* p)
     }
 }
 
-
 END_DUKE_NS
 

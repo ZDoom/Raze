@@ -182,7 +182,8 @@ void G_GameExit(const char *msg)
 
     if (!g_quickExit)
     {
-        if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
+
+        if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
         }
@@ -411,7 +412,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
     int32_t k;
     const spritetype *refsp;
 
-    if ((unsigned)sp->yvel >= (unsigned)g_mostConcurrentPlayers)
+    if ((unsigned)sp->yvel >= (unsigned)playerswhenstarted)
         return;
 
     refsp = &sprite[sp->yvel];
@@ -1640,10 +1641,7 @@ static int G_EndOfLevel(void)
             G_UpdateScreenArea();
             ud.screen_size = i;
 
-            if (!RRRA || (g_mostConcurrentPlayers > 1 && numplayers > 1))
-                G_BonusScreen(0);
-            else
-                G_BonusScreenRRRA(0);
+            G_BonusScreen(0);
         }
 
         // Clear potentially loaded per-map ART only after the bonus screens.
@@ -1835,7 +1833,7 @@ int GameInterface::app_main()
     }
 
     numplayers = 1;
-    g_mostConcurrentPlayers = ud.multimode;
+    playerswhenstarted = ud.multimode;
 
     if (!g_fakeMultiMode)
     {
@@ -1909,7 +1907,7 @@ int GameInterface::app_main()
         }
     }
 
-    g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
+    playerswhenstarted = ud.multimode;  // XXX: redundant?
 
     ud.last_level = -1;
     registerosdcommands();

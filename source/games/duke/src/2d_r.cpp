@@ -210,7 +210,7 @@ void Logo_r(CompletionFunc completion)
 //
 //---------------------------------------------------------------------------
 
-void bonussequence_r(int num, CompletionFunc completion)
+static void bonussequence_r(int num, JobDesc* jobs, int& job)
 {
     static const AnimSound  turdmov[] =
     {
@@ -229,9 +229,6 @@ void bonussequence_r(int num, CompletionFunc completion)
     Mus_Stop();
     FX_StopAllSounds();
 
-    JobDesc jobs[2];
-    int job = 0;
-
     switch (num)
     {
     case 0:
@@ -247,29 +244,6 @@ void bonussequence_r(int num, CompletionFunc completion)
     default:
         break;
     }
-    RunScreenJob(jobs, job, completion);
-}
-
-//---------------------------------------------------------------------------
-//
-// RRRA only
-//
-//---------------------------------------------------------------------------
-
-void PlayMapAnim(int volnum, int mapnum, CompletionFunc completion)
-{
-    char fn[20];
-
-    int lev = mapnum + 7 * volnum;
-    if (lev >= 1 && lev <= 13)
-    {
-        mysnprintf(fn, 20, "lvl%d.anm", lev);
-
-        static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame
-        JobDesc job = { PlayVideo(fn, nullptr, framespeed) };
-        RunScreenJob(&job, 1, completion);
-    }
-    else if (completion) completion(false);
 }
 
 //---------------------------------------------------------------------------
@@ -370,14 +344,6 @@ public:
     }
 };
 
-void ShowMPBonusScreen_r(int pws, CompletionFunc completion)
-{
-    PlayBonusMusic();
-    JobDesc job = { Create<DRRMultiplayerBonusScreen>(pws) };
-    RunScreenJob(&job, 1, completion);
-}
-
-
 //---------------------------------------------------------------------------
 //
 //
@@ -396,16 +362,16 @@ class DRRLevelSummaryScreen : public DScreenJob
     }
 
 public:
-    DRRLevelSummaryScreen() : DScreenJob(fadein | fadeout)
+    DRRLevelSummaryScreen(bool dofadein = true) : DScreenJob(dofadein? (fadein | fadeout) : fadeout)
     {
-        gfx_offset = (ud.volume_number == 0) ? RRTILE403 : RRTILE409;
-        gfx_offset += ud.level_number - 1;
-
-        if (g_lastLevel || g_vixenLevel)
-            gfx_offset = RRTILE409 + 7;
-
+        PlayBonusMusic();
         if (boardfilename[0])
             gfx_offset = RRTILE403;
+        else if (!isRRRA())
+            gfx_offset = RRTILE403 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+        else
+            gfx_offset = LEVELMAP + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+        
 
         if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) // todo: get rid of this awful hack.
         {
@@ -565,624 +531,82 @@ public:
 };
 
 
-void ShowBonusScreen_r(CompletionFunc completion)
+class DRRRAEndOfGame : public DScreenJob
 {
-    PlayBonusMusic();
+public:
+    DRRRAEndOfGame() : DScreenJob(fadein|fadeout)
+    {
+        S_PlaySound(35, CHAN_AUTO, CHANF_UI);
+    }
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        int totalclock = int(clock * 120 / 1'000'000'000);
+        auto tex = tileGetTexture(RRTILE8677 + ((totalclock >> 4) & 1));
+        DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+        if (!S_CheckSoundPlaying(-1, 35) && totalclock > 15*120) return 0; // make sure it stays, even if sound is off.
+        if (skiprequest)
+        {
+            S_StopSound(35);
+            return -1;
+        }
+        return 1;
+    }
+};
 
-}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-
-
-#if 0
-
-#ifdef RRRA
-void dobonus2(char bonusonly)
+void dobonus_r(bool bonusonly, CompletionFunc completion)
 {
-    short t, r, tinc,gfx_offset,bg_tile;
-    long i, y,xfragtotal,yfragtotal,var24;
-    short bonuscnt;
-
-    var24 = 0;
-    bonuscnt = 0;
-
-    for(t=0;t<64;t++) palto(0,0,0,t);
-    setview(0,0,xdim-1,ydim-1);
-    clearview(0L);
-    nextpage();
-    flushperms();
+    JobDesc jobs[20];
+    int job = 0;
 
     FX_StopAllSounds();
-    clearsoundlocks();
-    FX_SetReverb(0L);
+    Mus_Stop();
 
-    if (boardfilename[0] == 0 && numplayers < 2)
+    if (!bonusonly && !isRRRA() && numplayers < 2 && ud.eog && ud.from_bonus == 0)
     {
-        if ((ud.eog == 0 || ud.volume_number != 1) && ud.volume_number <= 1)
-        {
-            var24 = 1;
-            MUSIC_StopSong();
-            KB_FlushKeyboardQueue();
-            ShowMapFrame();
-        }
+        bonussequence_r(ud.volume_number, jobs, job);
     }
 
-    if(bonusonly) goto FRAGBONUS;
-
-    FRAGBONUS:
-
-    ps[myconnectindex].palette = palette;
-    KB_FlushKeyboardQueue();
-    totalclock = 0; tinc = 0;
-    bonuscnt = 0;
-
-    MUSIC_StopSong();
-
-    if(bonusonly || ud.multimode > 1) return;
-
-    if (ud.eog)
+    if (playerswhenstarted > 1 && ud.coop != 1)
     {
-        for (t = 0; t < 64; t++) palto(0, 0, 0, t);
-        clearview(0);
-        nextpage();
-        spritesound(35,ps[0].i);
-        palto(0, 0, 0, 0);
-        ps[myconnectindex].palette = palette;
-        while (1)
+        jobs[job++] = { Create<DRRMultiplayerBonusScreen>(playerswhenstarted) };
+    }
+    else if (!bonusonly && ud.multimode <= 1)
+    {
+        jobs[job++] = { Create<DRRLevelSummaryScreen>() };
+        if (isRRRA() && !boardfilename[0] && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
         {
-            int var40;
-            switch ((totalclock >> 4) & 1)
+            int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+            char fn[20];
+            mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
+            static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't appear before the user notices.
+            jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
+            if (ud.eog && currentLevel->levelNumber > 100)
             {
-            case 0:
-                rotatesprite(0,0,65536,0,0,RRTILE8677,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                nextpage();
-                palto(0, 0, 0, 0);
-                ps[myconnectindex].palette = palette;
-                getpackets();
-                break;
-            case 1:
-                rotatesprite(0,0,65536,0,0,RRTILE8677+1,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                nextpage();
-                palto(0, 0, 0, 0);
-                ps[myconnectindex].palette = palette;
-                getpackets();
-                break;
+                jobs[job++] = { Create<DRRRAEndOfGame>() };
             }
-            if (Sound[35].num == 0) break;
         }
+
     }
-    if (word_119BE4)
-    {
-        word_119BE4 = 0;
-        ud.m_volume_number = ud.volume_number = 1;
-        ud.m_level_number = ud.level_number = 0;
-        ud.eog = 0;
-    }
-    if (turdlevel)
-        turdlevel = 0;
-    if (vixenlevel)
-        vixenlevel = 0;
+    if (job)
+        RunScreenJob(jobs, job, completion);
+    else if (completion) completion(false);
 }
-#else
-void dobonus(char bonusonly)
-{
-    short t, r, tinc,gfx_offset;
-    long i, y,xfragtotal,yfragtotal;
-    short bonuscnt;
-    short bg_tile;
-
-    bonuscnt = 0;
-
-    for(t=0;t<64;t++) palto(0,0,0,t);
-    setview(0,0,xdim-1,ydim-1);
-    clearview(0L);
-    nextpage();
-    flushperms();
-
-    FX_StopAllSounds();
-    clearsoundlocks();
-    FX_SetReverb(0L);
-
-    if(bonusonly) goto FRAGBONUS;
-
-    if(numplayers < 2 && ud.eog && ud.from_bonus == 0)
-        switch(ud.volume_number)
-    {
-        case 0:
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
-            if(ud.lockout == 0)
-            {
-                playanm("turdmov.anm",5,5);
-                KB_FlushKeyboardQueue();
-                clearview(0L);
-                nextpage();
-            }
-            ud.level_number = 0;
-            ud.volume_number = 1;
-            ud.eog = 0;
-
-            for(t=0;t<64;t++) palto(0,0,0,t);
-
-            KB_FlushKeyboardQueue();
-            ps[myconnectindex].palette = palette;
-
-            rotatesprite(0,0,65536L,0,1685,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-            nextpage(); for(t=63;t>0;t--) palto(0,0,0,t);
-            while( !KB_KeyWaiting() ) getpackets();
-            for(t=0;t<64;t++) palto(0,0,0,t);
-            MUSIC_StopSong();
-            FX_StopAllSounds();
-            clearsoundlocks();
-            break;
-        case 1:
-            MUSIC_StopSong();
-            clearview(0L);
-            nextpage();
-
-            if(ud.lockout == 0)
-            {
-                playanm("rr_outro.anm",5,4);
-                KB_FlushKeyboardQueue();
-                clearview(0L);
-                nextpage();
-            }
-            lastlevel = 0;
-            vixenlevel = 1;
-            ud.level_number = 0;
-            ud.volume_number = 0;
-
-            for(t=0;t<64;t++) palto(0,0,0,t);
-            setview(0,0,xdim-1,ydim-1);
-            KB_FlushKeyboardQueue();
-            ps[myconnectindex].palette = palette;
-            rotatesprite(0,0,65536L,0,1685,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
-            nextpage(); for(t=63;t>0;t--) palto(0,0,0,t);
-            while( !KB_KeyWaiting() ) getpackets();
-            for(t=0;t<64;t++) palto(0,0,0,t);
-
-            break;
-
-        case 2:
-            KB_FlushKeyboardQueue();
-            while( !KB_KeyWaiting() ) getpackets();
-
-            FX_StopAllSounds();
-            clearsoundlocks();
-            KB_FlushKeyboardQueue();
-
-            clearview(0L);
-            nextpage();
-            playanm("LNRDTEAM.ANM",4,3);
-            KB_FlushKeyboardQueue();
-
-            while( !KB_KeyWaiting() ) getpackets();
-
-            FX_StopAllSounds();
-            clearsoundlocks();
-
-            KB_FlushKeyboardQueue();
-
-            break;
-    }
-
-    FRAGBONUS:
-
-    ps[myconnectindex].palette = palette;
-    KB_FlushKeyboardQueue();
-    totalclock = 0; tinc = 0;
-    bonuscnt = 0;
-
-    MUSIC_StopSong();
-    FX_StopAllSounds();
-    clearsoundlocks();
-
-    if(playerswhenstarted > 1 && ud.coop != 1 )
-    {
-        if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-            sound(249);
-
-        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,24<<16,23592L,0,INGAMEDUKETHREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        gametext(160,58,"MULTIPLAYER TOTALS",0);
-        gametext(160,58+10,level_names[(ud.volume_number*7)+ud.last_level-1],0);
-
-        gametext(160,175,"PRESS ANY KEY TO CONTINUE",0);
-
-
-        t = 0;
-        minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            sprintf(tempbuf,"%-4ld",i+1);
-            minitext(92+(i*23),80,tempbuf,0,2+8+16+128);
-        }
-
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            xfragtotal = 0;
-            sprintf(tempbuf,"%ld",i+1);
-
-            minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
-
-            for(y=0;y<playerswhenstarted;y++)
-            {
-                if(i == y)
-                {
-                    sprintf(tempbuf,"%-4ld",ps[y].fraggedself);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal -= ps[y].fraggedself;
-                }
-                else
-                {
-                    sprintf(tempbuf,"%-4ld",frags[i][y]);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += frags[i][y];
-                }
-
-                if(myconnectindex == connecthead)
-                {
-                    sprintf(tempbuf,"stats %ld killed %ld %ld\n",i+1,y+1,frags[i][y]);
-                    sendscore(tempbuf);
-                }
-            }
-
-            sprintf(tempbuf,"%-4ld",xfragtotal);
-            minitext(101+(8*23),90+t,tempbuf,0,2+8+16+128);
-
-            t += 7;
-        }
-
-        for(y=0;y<playerswhenstarted;y++)
-        {
-            yfragtotal = 0;
-            for(i=0;i<playerswhenstarted;i++)
-            {
-                if(i == y)
-                    yfragtotal += ps[i].fraggedself;
-                yfragtotal += frags[i][y];
-            }
-            sprintf(tempbuf,"%-4ld",yfragtotal);
-            minitext(92+(y*23),96+(8*7),tempbuf,0,2+8+16+128);
-        }
-
-        minitext(45,96+(8*7),"DEATHS",0,2+8+16+128);
-        nextpage();
-
-        for(t=0;t<64;t++)
-            palto(0,0,0,63-t);
-
-        KB_FlushKeyboardQueue();
-        while(KB_KeyWaiting()==0) getpackets();
-
-        if( KB_KeyPressed( sc_F12 ) )
-        {
-            KB_ClearKeyDown( sc_F12 );
-            screencapture("rdnk0000.pcx",0);
-        }
-
-        if(bonusonly || ud.multimode > 1) return;
-
-        for(t=0;t<64;t++) palto(0,0,0,t);
-    }
-
-    if(bonusonly || ud.multimode > 1) return;
-
-    if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-        sound(249);
-
-    
-    gfx_offset = (ud.volume_number&1)*5;
-    bg_tile = RRTILE403;
-    if (ud.volume_number == 0)
-        bg_tile = ud.level_number+RRTILE403-1;
-    else
-        bg_tile = ud.level_number+RRTILE409-1;
-
-    if (lastlevel || vixenlevel)
-        bg_tile = RRTILE409+7;
-
-    if (boardfilename[0])
-    {
-        rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        endlvlmenutext(80,16,0,0,boardfilename);
-    }
-    else
-    {
-        rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-            endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-        else if (turdlevel)
-            endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-        else
-            endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-    }
-
-    endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-    nextpage();
-    KB_FlushKeyboardQueue();
-    for(t=0;t<64;t++) palto(0,0,0,63-t);
-    bonuscnt = 0;
-    totalclock = 0; tinc = 0;
-
-    while( 1 )
-    {
-        if(ps[myconnectindex].gm&MODE_EOL)
-        {
-            if (boardfilename[0])
-                rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-            else
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-
-            if( totalclock > (1000000000L) && totalclock < (1000000320L) )
-            {
-                switch( ((unsigned long)totalclock>>4)%15 )
-                {
-                    case 0:
-                        if(bonuscnt == 6)
-                        {
-                            bonuscnt++;
-                            sound(425);
-                            switch(rand()&3)
-                            {
-                                case 0:
-                                    sound(195);
-                                    break;
-                                case 1:
-                                    sound(196);
-                                    break;
-                                case 2:
-                                    sound(197);
-                                    break;
-                                case 3:
-                                    sound(199);
-                                    break;
-                            }
-                        }
-                    case 1:
-                    case 4:
-                    case 5:
-                    case 2:
-                    case 3:
-                       break;
-                }
-            }
-            else if( totalclock > (10240+120L) ) break;
-            else
-            {
-                switch( (totalclock>>5)&3 )
-                {
-                    case 1:
-                    case 3:
-                        break;
-                    case 2:
-                        break;
-                }
-            }
-
-            if (boardfilename[0])
-            {
-                rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                endlvlmenutext(80,16,0,0,boardfilename);
-            }
-            else
-            {
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-                    endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-                else if (turdlevel)
-                    endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-                else
-                    endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-            }
-
-            endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-
-            if( totalclock > (60*3) )
-            {
-                endlvlmenutext(30,48,0,0,"Yer Time:");
-                endlvlmenutext(30,64,0,0,"Par time:");
-                endlvlmenutext(30,80,0,0,"Xatrix Time:");
-                if(bonuscnt == 0)
-                    bonuscnt++;
-
-                if( totalclock > (60*4) )
-                {
-                    if(bonuscnt == 1)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%02ld : %02ld",
-                        (ps[myconnectindex].player_par/(26*60))%60,
-                        (ps[myconnectindex].player_par/26)%60);
-                    endlvlmenutext(191,48,0,0,tempbuf);
-
-                    if(!boardfilename[0])
-                    {
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (partime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (partime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,64,0,0,tempbuf);
-
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (designertime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (designertime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,80,0,0,tempbuf);
-                    }
-
-                }
-            }
-            if( totalclock > (60*6) )
-            {
-                endlvlmenutext(30,112,0,0,"Varmints Killed:");
-                endlvlmenutext(30,128,0,0,"Varmints Left:");
-
-                if(bonuscnt == 2)
-                    bonuscnt++;
-
-                if( totalclock > (60*7) )
-                {
-                    if(bonuscnt == 3)
-                    {
-                        bonuscnt++;
-                        sound(422);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-                    endlvlmenutext(231,112,0,0,tempbuf);
-                    if(ud.player_skill > 3 )
-                    {
-                        sprintf(tempbuf,"N/A");
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                    else
-                    {
-                        if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
-                            sprintf(tempbuf,"%-3ld",0);
-                        else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                }
-            }
-            if( totalclock > (60*9) )
-            {
-                endlvlmenutext(30,144,0,0,"Secrets Found:");
-                endlvlmenutext(30,160,0,0,"Secrets Missed:");
-                if(bonuscnt == 4) bonuscnt++;
-
-                if( totalclock > (60*10) )
-                {
-                    if(bonuscnt == 5)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,144,0,0,tempbuf);
-                    if( ps[myconnectindex].secret_rooms > 0 )
-                        sprintf(tempbuf,"%-3ld%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,160,0,0,tempbuf);
-                }
-            }
-
-            if(totalclock > 10240 && totalclock < 10240+10240)
-                totalclock = 1024;
-
-            if( KB_KeyWaiting() && totalclock > (60*2) )
-            {
-                if( KB_KeyPressed( sc_F12 ) )
-                {
-                    KB_ClearKeyDown( sc_F12 );
-                    screencapture("rdnk0000.pcx",0);
-                }
-
-                if( totalclock < (60*13) )
-                {
-                    KB_FlushKeyboardQueue();
-                    totalclock = (60*13);
-                }
-                else if( totalclock < (1000000000L))
-                   totalclock = (1000000000L);
-            }
-        }
-        else break;
-        nextpage();
-    }
-    if (turdlevel)
-        turdlevel = 0;
-    if (vixenlevel)
-        vixenlevel = 0;
-}
-#endif
-
-#ifdef RRRA
-
-void dobonus(char bonusonly)
-{
-    if (turdlevel)
-        turdlevel = 0;
-    if (vixenlevel)
-        vixenlevel = 0;
-}
-#endif
-
-#endif
-
-
-
-#if 0
-void ShowMapFrame(void)
-{
-    short t = -1, i;
-    ps[myconnectindex].palette = palette;
-    if (ud.volume_number == 0)
-    {
-        switch (ud.level_number)
-        {
-        case 1:
-            t = 0;
-            break;
-        case 2:
-            t = 1;
-            break;
-        case 3:
-            t = 2;
-            break;
-        case 4:
-            t = 3;
-            break;
-        case 5:
-            t = 4;
-            break;
-        case 6:
-            t = 5;
-            break;
-        default:
-            t = 6;
-            break;
-        }
-    }
-    else
-    {
-        switch (ud.level_number)
-        {
-        case 1:
-            t = 7;
-            break;
-        case 2:
-            t = 8;
-            break;
-        case 3:
-            t = 9;
-            break;
-        case 4:
-            t = 10;
-            break;
-        case 5:
-            t = 11;
-            break;
-        case 6:
-            t = 12;
-            break;
-        default:
-            t = -1;
-            break;
-        }
-    }
-    rotatesprite(0, 0, 65536, 0, 8624 + t, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-    for (i = 0; i < 64; i++)
-        palto(0, 0, 0, 63 - i);
-    ps[myconnectindex].palette = palette;
-}
-#endif
 
 
 // Utility for testing the above screens
 CCMD(testrscreen)
 {
+    JobDesc jobs[10];
+    int job = 0;
     C_HideConsole();
+    FX_StopAllSounds();
+    Mus_Stop();
     if (argv.argc() > 1)
     {
         int screen = strtol(argv[1], nullptr, 0);
@@ -1190,22 +614,29 @@ CCMD(testrscreen)
         {
         case 0:
         case 1:
-            if (!isRRRA()) bonussequence_r(screen, nullptr);
+            if (!isRRRA())
+            {
+                bonussequence_r(screen, jobs, job);
+                RunScreenJob(jobs, job, nullptr);
+            }
             break;
 
         case 2:
-            ShowMPBonusScreen_r(6, nullptr);
+            jobs[job++] = { Create<DRRMultiplayerBonusScreen>(6) };
+            RunScreenJob(jobs, job, nullptr);
             break;
 
         case 3:
-            ShowBonusScreen_r(nullptr);
+            jobs[job++] = { Create<DRRLevelSummaryScreen>() };
+            RunScreenJob(jobs, job, nullptr);
+            break;
+
+        case 4:
+            jobs[job++] = { Create<DRRRAEndOfGame>() };
+            RunScreenJob(jobs, job, nullptr);
             break;
 
         default:
-            if (isRRRA() && screen >= 100 && screen < 114)
-            {
-                PlayMapAnim(0, screen - 100, nullptr);
-            }
             break;
         }
     }

@@ -1425,6 +1425,8 @@ int parsecommand()
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
 
+		mapList[j * MAXLEVELS + k].levelNumber = k + j * 100;
+
 		textptr += 5;
 		while (*textptr == ' ') textptr++;
 
