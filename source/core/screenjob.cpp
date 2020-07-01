@@ -259,15 +259,16 @@ public:
 
 DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks)
 {
+	auto nothing = []()->DScreenJob* { return Create<DScreenJob>(); };
 	if (!filename)
 	{
-		return nullptr;
+		return nothing();
 	}
 	auto fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
 	{
 		Printf("%s: Unable to open video\n", filename);
-		return nullptr;
+		return nothing();
 	}
 	char id[20] = {};
 
@@ -281,7 +282,7 @@ DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		{
 			Printf("%s: invalid ANM file.\n", filename);
 			anm->Destroy();
-			return nullptr;
+			return nothing();
 		}
 		return anm;
 	}
@@ -298,6 +299,6 @@ DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	{
 		Printf("%s: Unknown video format\n", filename);
 	}
-	return nullptr;
+	return nothing();
 }
 

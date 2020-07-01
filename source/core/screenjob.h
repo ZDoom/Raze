@@ -33,7 +33,7 @@ public:
 		return now;
 	}
 
-	virtual int Frame(uint64_t clock, bool skiprequest) = 0;
+	virtual int Frame(uint64_t clock, bool skiprequest) { return 0; }
 };
 
 //---------------------------------------------------------------------------

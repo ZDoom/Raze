@@ -360,7 +360,7 @@ class DRRLevelSummaryScreen : public DScreenJob
     }
 
 public:
-    DRRLevelSummaryScreen(bool dofadein = true) : DScreenJob(dofadein? (fadein | fadeout) : fadeout)
+    DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
     {
         PlayBonusMusic();
         if (boardfilename[0])
@@ -577,9 +577,9 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
     }
     else if (!bonusonly && ud.multimode <= 1)
     {
-        jobs[job++] = { Create<DRRLevelSummaryScreen>() };
         if (isRRRA() && !boardfilename[0] && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
         {
+            jobs[job++] = { Create<DRRLevelSummaryScreen>(true) };
             int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
             char fn[20];
             mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
@@ -590,7 +590,7 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
                 jobs[job++] = { Create<DRRRAEndOfGame>() };
             }
         }
-
+        else jobs[job++] = { Create<DRRLevelSummaryScreen>(false) };
     }
     if (job)
         RunScreenJob(jobs, job, completion);
