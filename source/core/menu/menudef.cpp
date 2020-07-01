@@ -466,35 +466,6 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		if (desc->mSelectedItem == -1) desc->mSelectedItem = desc->mItems.Size() - 1;
 
 		}
-		else if (sc.Compare("NativeFont"))
-		{
-			desc->mNativePalNum = NIT_ActiveColor;
-			desc->mNativeFontScale = 1.f;
-			sc.MustGetString();
-			if (sc.Compare("Big")) desc->mNativeFontNum = NIT_BigFont;
-			else if (sc.Compare("Small")) desc->mNativeFontNum = NIT_SmallFont;
-			else if (sc.Compare("Tiny")) desc->mNativeFontNum = NIT_TinyFont;
-			else sc.ScriptError("Unknown native font type");
-			if (sc.CheckString(","))
-			{
-				sc.MustGetString();
-				if (sc.Compare("Active")) desc->mNativePalNum = NIT_ActiveColor;
-				else if (sc.Compare("Inactive")) desc->mNativePalNum = NIT_InactiveColor;
-				else if (sc.Compare("Selected")) desc->mNativePalNum = NIT_SelectedColor;
-				else
-				{
-					char* ep;
-					int v = (int)strtoll(sc.String, &ep, 0);
-					if (*ep != 0) sc.ScriptError("Unknown native palette");
-					desc->mNativePalNum = v;
-				}
-				if (sc.CheckString(","))
-				{
-					sc.MustGetFloat();
-					desc->mNativeFontScale = sc.Float;
-				}			
-			}
-		}
 		else if (sc.Compare("Font"))
 		{
 		sc.MustGetString();

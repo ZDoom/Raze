@@ -29,6 +29,67 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+
+// common font types
+// tilenums are set after namesdyn runs.
+// These are also modifiable by scripts.
+//                                      emptychar x,y       between x,y         zoom                cursorLeft          cursorCenter        cursorScale          textflags
+//                                      tilenum             shade_deselected    shade_disabled      pal                 pal_selected        pal_deselected       pal_disabled
+MenuFont_t MF_Redfont = { { 5 << 16, 15 << 16 },  { 0, 0 },           65536,              20 << 16,             110 << 16,            65536, 65536, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE,
+                                        -1,                 10,                 0,                  0,                  0,                  0,                   1,
+                                        0,                  0,                  1 };
+MenuFont_t MF_Bluefont = { { 5 << 16, 7 << 16 },   { 0, 0 },           65536,              10 << 16,             110 << 16,            32768, 65536, 65536, 0,
+                                        -1,                 10,                 0,                  0,                  10,                 10,                  16,
+                                        0,                  0,                  16 };
+MenuFont_t MF_Minifont = { { 4 << 16, 5 << 16 },   { 1 << 16, 1 << 16 },   65536,              10 << 16,             110 << 16,            32768, 65536, 65536, 0,
+                                        -1,                 10,                 0,                  0,                  2,                  2,                   0,
+                                        0,                  0,                  16 };
+
+
+/*
+This function prepares data after ART and CON have been processed.
+It also initializes some data in loops rather than statically at compile time.
+*/
+
+void Menu_Init(void)
+{
+
+    // prepare menu fonts
+    // check if tilenum is -1 in case it was set in EVENT_SETDEFAULTS
+    if ((unsigned)MF_Redfont.tilenum >= MAXTILES) MF_Redfont.tilenum = TILE_BIGALPHANUM;
+    if ((unsigned)MF_Bluefont.tilenum >= MAXTILES) MF_Bluefont.tilenum = TILE_STARTALPHANUM;
+    if ((unsigned)MF_Minifont.tilenum >= MAXTILES) MF_Minifont.tilenum = TILE_MINIFONT;
+    MF_Redfont.emptychar.y = tilesiz[MF_Redfont.tilenum].y << 16;
+    MF_Bluefont.emptychar.y = tilesiz[MF_Bluefont.tilenum].y << 16;
+    MF_Minifont.emptychar.y = tilesiz[MF_Minifont.tilenum].y << 16;
+    if (!minitext_lowercase)
+        MF_Minifont.textflags |= TEXT_UPPERCASE;
+
+
+
+    if (RR)
+    {
+        MF_Redfont.zoom = 32768;
+        MF_Redfont.emptychar.x <<= 1;
+        MF_Redfont.cursorScale = 13107;
+        MF_Redfont.cursorScale2 = 6553;
+        //MF_Redfont.emptychar.y <<= 1;
+        MF_Bluefont.zoom = 32768;
+        MF_Bluefont.emptychar.x <<= 1;
+        MF_Bluefont.cursorScale = 6553;
+        MF_Bluefont.cursorScale2 = 6553;
+        //MF_Bluefont.emptychar.y <<= 1;
+        MF_Minifont.zoom = 32768;
+        MF_Minifont.emptychar.x <<= 1;
+        MF_Minifont.cursorScale = 6553;
+        MF_Minifont.cursorScale2 = 6553;
+        //MF_Minifont.emptychar.y <<= 1;
+    }
+
+}
+
+
+
 // assign the character's tilenum
 int GameInterface::GetStringTile(int font, const char* t, int f)
 {
@@ -169,9 +230,5 @@ void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_
     G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, s, MF_Redfont.pal, o|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, f|MF_Redfont.textflags|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 }
 
-void captionmenutext(int32_t x, int32_t y, char const *t)
-{
-    G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, 0, ud.menutitle_pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, MF_Redfont.textflags|TEXT_LITERALESCAPE|TEXT_XCENTER|TEXT_YCENTER, 0, 0, xdim-1, ydim-1);
-}
 
 END_DUKE_NS

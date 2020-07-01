@@ -33,7 +33,6 @@ extern int32_t minitext_yofs;
 
 extern int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb);
 extern void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f);
-extern void captionmenutext(int32_t x, int32_t y, char const *t);
 extern vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f);
 
 inline int minitext(int x, int y, const char* t, int p, int sb)

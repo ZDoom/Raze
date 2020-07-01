@@ -8,44 +8,17 @@ LISTMENU "MainMenu"
 {
 	ScriptId 0
 	class "$.MainMenu"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		ifgame(fury)
-		{
-			position 40, 130, 60
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		//NativeTextItem "$MNU_NEWGAME", "m", "MultiMenu" // In EDuke this replaces "New Game" when in networking mode. Kept here as a reminder.
-		ifgame(fury)
-		{
-			NativeTextItem "$MNU_CONTINUE", "l", "LoadGameMenu"
-		}
-		else
-		{
-			NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
-		}
+		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_CREDITS", "c", "CreditsMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Deer)
-	{
-		position 160, 72, 115
-		centermenu
-		animatedtransition
-		NativeTextItem "Go Huntin'!", "g", "HuntMenu"
-		NativeTextItem "Target Range", "r", "TargetMenu"
-		NativeTextItem "Trophies", "t", "TrophiesMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)

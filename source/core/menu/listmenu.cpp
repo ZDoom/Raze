@@ -553,14 +553,10 @@ FListMenuItemText::FListMenuItemText(int x, int y, int height, int hotkey, const
 : FListMenuItemSelectable(x, y, height, child, param)
 {
 	mText = text;
-	/*
 	mFont = font;
 	mColor = color;
 	mColorSelected = color2;
-	*/
 	mFont = NewSmallFont;
-	mColor = CR_RED;
-	mColorSelected = CR_GOLD;
 	mHotkey = hotkey;
 }
 
@@ -570,10 +566,10 @@ FListMenuItemText::~FListMenuItemText()
 
 void FListMenuItemText::Drawer(DListMenu* menu, const DVector2& origin, bool selected)
 {
-	const char *text = mText;
+	const char *text = GStrings(mText);
 	if (mText.Len())
 	{
-		DrawText(twod, mFont, selected ? mColorSelected : mColor, mXpos, mYpos, text, DTA_Clean, true, TAG_DONE);
+		DrawText(twod, mFont, selected ? mColorSelected : mColor, mXpos - mFont->StringWidth(text)/2, mYpos, text, DTA_Clean, true, TAG_DONE);
 	}
 }
 
