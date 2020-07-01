@@ -160,21 +160,18 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 
 class DDRealmsScreen : public DScreenJob
 {
+public:
+	DDRealmsScreen() : DScreenJob(fadein | fadeout)	{}
+
 	int Frame(uint64_t clock, bool skiprequest) override
 	{
-		const int duration = 7500;
+		const uint64_t duration = 7'000'000'000;
 		const auto tex = tileGetTexture(DREALMS, true);
 		const int translation = TRANSLATION(Translation_BasePalettes, DREALMSPAL);
 
-		int span = int(clock / 1'000'000);
-		int light = 255;
-		if (span < 255) light = span;
-		else if (span > duration - 255) light = duration - span;
-		light = clamp(light, 0, 255);
-		PalEntry pe(255, light, light, light);
 		twod->ClearScreen();
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		return skiprequest ? -1 : span < duration ? 1 : 0;
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		return skiprequest ? -1 : clock < duration ? 1 : 0;
 	}
 };
 
@@ -188,26 +185,18 @@ class DTitleScreen : public DScreenJob
 {
 	int soundanm = 0;
 
+public:
+	DTitleScreen() : DScreenJob(fadein | fadeout) {}
+
 	int Frame(uint64_t nsclock, bool skiprequest) override
 	{
 		twod->ClearScreen();
 		int clock = nsclock * 120 / 1'000'000'000;
-		// Make this draw an empty frame before it ends.
-		if (clock > (860 + 120))
-		{
-			return 0;
-		}
 
 		auto translation = TRANSLATION(Translation_BasePalettes, TITLEPAL);
-		uint64_t span = nsclock / 1'000'000;
-		int light = 255;
-		if (span < 255) light = span;
-		//else if (span > duration - 255) light = duration - span;
-		light = clamp(light, 0, 255);
-		PalEntry pe(255, light, light, light);
 
 		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(BETASCREEN, true), 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(BETASCREEN, true), 0, 0, DTA_FullscreenEx, 3, DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (soundanm == 0 && clock >= 120 && clock < 120 + 60)
 		{
@@ -233,20 +222,26 @@ class DTitleScreen : public DScreenJob
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
 			DrawTexture(twod, tileGetTexture(DUKENUKEM, true), 160, 104, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-				DTA_CenterOffset, true,  DTA_TranslationIndex, translation, DTA_Color, pe, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+				DTA_CenterOffset, true,  DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		scale = clamp(clock - 220, 0, 30) / 32.;
 		if (scale > 0.)
 			DrawTexture(twod, tileGetTexture(THREEDEE, true), 160, 129, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-				DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_Color, pe, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+				DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		if (PLUTOPAK) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
 				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+1, true), 160, 151, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_Color, pe, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+					DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
+
+		if (clock > (860 + 120))
+		{
+			return 0;
+		}
+
 		return skiprequest ? -1 : 1;
 	}
 };
@@ -287,9 +282,10 @@ void Logo_d(CompletionFunc completion)
 class DEpisode1End1 : public DScreenJob
 {
 	int bonuscnt = 0;
-	int fadeoutstart = -1;
 
 public:
+	DEpisode1End1() : DScreenJob(fadein | fadeout) {}
+
 	int Frame(uint64_t nsclock, bool skiprequest) override
 	{
 		static const int breathe[] =
@@ -313,18 +309,12 @@ public:
 		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
 
 		int totalclock = nsclock * 120 / 1'000'000'000;
-		if (skiprequest) fadeoutstart = totalclock;
 
 		uint64_t span = nsclock / 1'000'000;
-		int light = 255;
-		if (span < 255) light = span;
-		else if (fadeoutstart > 0 && span > fadeoutstart - 255) light = fadeoutstart - span;
-		light = clamp(light, 0, 255);
-		PalEntry pe(255, light, light, light);
 
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
-			DTA_TranslationIndex, translation, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 
 		// boss
@@ -338,7 +328,7 @@ public:
 					bonuscnt++; 
 				}
 				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+					DTA_TranslationIndex, translation, TAG_DONE);
 			}
 
 		// Breathe
@@ -347,7 +337,7 @@ public:
 			if (totalclock >= 750)
 			{
 				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+					DTA_TranslationIndex, translation, TAG_DONE);
 				if (totalclock >= 750 && bonuscnt == 2) 
 				{ 
 					S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
@@ -363,11 +353,11 @@ public:
 						bonuscnt++;
 					}
 					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-						DTA_TranslationIndex, translation, DTA_Color, pe, TAG_DONE);
+						DTA_TranslationIndex, translation, TAG_DONE);
 				}
 		}
 		// Only end after having faded out.
-		return fadeoutstart > 0 && light == 0 ? -1 : 1;
+		return skiprequest ? -1 : 1;
 	}
 };
 
@@ -402,6 +392,8 @@ class DEpisode3End : public DImageScreen
 	int sound = 0;
 	int64_t waittime = 0;
 
+public:
+
 	FGameTexture* getTexture()
 	{
 		// Here we must provide a real texture, even if invalid, so that the sounds play.
@@ -411,7 +403,7 @@ class DEpisode3End : public DImageScreen
 	}
 
 public:
-	DEpisode3End() : DImageScreen(getTexture())
+	DEpisode3End() : DImageScreen(getTexture(), fadein|fadeout)
 	{
 	}
 
@@ -460,7 +452,7 @@ public:
 			if (!S_CheckSoundPlaying(ENDSEQVOL3SND8))
 			{
 				sound++;
-				waittime = clock + 1'000'000'000;
+				waittime = clock + SoundEnabled()? 1'000'000'000 : 5'000'000'000;	// if sound is off this wouldn't wait without a longer delay here.
 			}
 			break;
 
@@ -488,6 +480,8 @@ public:
 
 class DEpisode4Text : public DScreenJob
 {
+public:
+	DEpisode4Text() : DScreenJob(fadein | fadeout) {}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
@@ -510,10 +504,9 @@ class DEpisode4Text : public DScreenJob
 class DEpisode5End : public DImageScreen
 {
 	int sound = 0;
-	int64_t waittime = 0;
 
 public:
-	DEpisode5End() : DImageScreen(FIREFLYGROWEFFECT)
+	DEpisode5End() : DImageScreen(FIREFLYGROWEFFECT, fadein|fadeout)
 	{
 	}
 
@@ -680,6 +673,32 @@ void bonussequence_d(int num, CompletionFunc completion)
 //
 //---------------------------------------------------------------------------
 
+void showtwoscreens(CompletionFunc completion)
+{
+	JobDesc jobs[2];
+	int job = 0;
+
+	jobs[job++] = { Create<DImageScreen>(3291), nullptr };
+	jobs[job++] = { Create<DImageScreen>(3290), nullptr };
+	RunScreenJob(jobs, job, completion);
+}
+
+void doorders(CompletionFunc completion)
+{
+	JobDesc jobs[4];
+	int job = 0;
+
+	for (int i = 0; i < 4; i++)
+		jobs[job++] = { Create<DImageScreen>(ORDERING + i), nullptr };
+	RunScreenJob(jobs, job, completion);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static void PlayBonusMusic()
 {
 	if (MusicEnabled() && mus_enabled)
@@ -692,7 +711,7 @@ class DDukeMultiplayerBonusScreen : public DScreenJob
 	int playerswhenstarted;
 
 public:
-	DDukeMultiplayerBonusScreen(int pws)
+	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
 	}
@@ -791,295 +810,240 @@ void ShowMPBonusScreen_d(int pws, CompletionFunc completion)
 //
 //---------------------------------------------------------------------------
 
-void showtwoscreens(CompletionFunc completion)
+class DDukeLevelSummaryScreen : public DScreenJob
 {
-	JobDesc jobs[2];
-	int job = 0;
-
-	jobs[job++] = { Create<DImageScreen>(3291), nullptr };
-	jobs[job++] = { Create<DImageScreen>(3290), nullptr };
-	RunScreenJob(jobs, job, completion);
-}
-
-void doorders(CompletionFunc completion)
-{
-	JobDesc jobs[2];
-	int job = 0;
-
-	for(int i=0;i<4;i++)
-		jobs[job++] = { Create<DImageScreen>(ORDERING+i), nullptr };
-	RunScreenJob(jobs, job, completion);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-
-
-#if 1
-CCMD(testbonus)
-{
-	if (argv.argc() > 1)
-	{
-		//bonussequence_d(strtol(argv[1], nullptr, 0), nullptr);
-		ShowMPBonusScreen_d(strtol(argv[1], nullptr, 0), nullptr);
-	}
-}
-#endif
-
-
-#if 0
-void dobonus(char bonusonly)
-{
-	short tinc,gfx_offset;
-	//int i, y, xfragtotal, yfragtotal;
-	short bonuscnt;
-
-	bonuscnt = 0;
-
-	FX_StopAllSounds();
-	FX_SetReverb(0);
-
-	if(bonusonly) goto FRAGBONUS;
-
-FRAGBONUS:
-	;
-#if 0
-
-	inputState.ClearAllInput();
-	totalclock = 0; tinc = 0;
-	bonuscnt = 0;
-
-	Mus_Stop();
-	FX_StopAllSounds();
-
-	if(playerswhenstarted > 1 && ud.coop != 1 )
-	{
-	}
-#endif
-
-	if(bonusonly || ud.multimode > 1) return;
-
-	switch(ud.volume_number)
-	{
-		case 1:
-			gfx_offset = 5;
-			break;
-		default:
-			gfx_offset = 0;
-			break;
-	}
-
 	const char* lastmapname;
+	int gfx_offset;
+	int bonuscnt = 0;
 
-	if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
+	void SetTotalClock(int tc)
 	{
-		lastmapname = strrchr(boardfilename, '\\');
-		if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
-		if (!lastmapname) lastmapname = boardfilename;
-	}
-	else
-	{
-		lastmapname = currentLevel->name;
-		if (!lastmapname || !*lastmapname) // this isn't right but it's better than no name at all
-			lastmapname = currentLevel->fileName;
+		SetClock(tc * (uint64_t)1'000'000'000 / 120);
 	}
 
-
-
-	rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-
-	menutext_center(20-6,lastmapname);
-	menutext_center(36-6,"COMPLETED");
-
-	gametext_(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
-
-	if (MusicEnabled() && mus_enabled)
-		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
-
-	videoNextPage();
-	inputState.ClearAllInput();
-	//for(t=0;t<64;t++) palto(0,0,0,63-t);
-	bonuscnt = 0;
-	totalclock = 0; tinc = 0;
-
-	while( 1 )
+public:
+	DDukeLevelSummaryScreen() : DScreenJob(fadein | fadeout)
 	{
-		if(ps[myconnectindex].gm&MODE_EOL)
+		gfx_offset = BONUSSCREEN + ((ud.volume_number == 1) ? 5 : 0);
+
+		if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) // todo: get rid of this awful hack.
 		{
-			rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+			lastmapname = strrchr(boardfilename, '\\');
+			if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
+			if (!lastmapname) lastmapname = boardfilename;
+		}
+		else
+		{
+			lastmapname = currentLevel->DisplayName();
+		}
+		PlayBonusMusic();
+	}
 
-			if( totalclock > (1000000000L) && totalclock < (1000000320L) )
+	void FormatTime(int time, char* tempbuf)
+	{
+		mysnprintf(tempbuf, 32, "%02ld:%02ld", (time / (26 * 60)) % 60, (time / 26) % 60);
+	}
+
+	void PrintTime(int totalclock)
+	{
+		char tempbuf[32];
+		GameText(10, 59 + 9, GStrings("TXT_YourTime"), 0);
+		GameText(10, 69 + 9, GStrings("TXT_ParTime"), 0);
+		if (!isNamWW2GI())
+			GameText(10, 78 + 9, GStrings("TXT_3DRTIME"), 0);
+
+		if (bonuscnt == 0)
+			bonuscnt++;
+
+		if (totalclock > (60 * 4))
+		{
+			if (bonuscnt == 1)
 			{
-				switch( ((int)totalclock>>4)%15 )
-				{
-					case 0:
-						if(bonuscnt == 6)
-						{
-							bonuscnt++;
-							sound(SHOTGUN_COCK);
-							switch(rand()&3)
-							{
-								case 0:
-									sound(BONUS_SPEECH1);
-									break;
-								case 1:
-									sound(BONUS_SPEECH2);
-									break;
-								case 2:
-									sound(BONUS_SPEECH3);
-									break;
-								case 3:
-									sound(BONUS_SPEECH4);
-									break;
-							}
-						}
-					case 1:
-					case 4:
-					case 5:
-						rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-						break;
-					case 2:
-					case 3:
-					   rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-					   break;
-				}
+				bonuscnt++;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 			}
-			else if( totalclock > (10240+120L) ) break;
-			else
+			FormatTime(ps[myconnectindex].player_par, tempbuf);
+			GameText((320 >> 2) + 71, 60 + 9, tempbuf, 0);
+
+			FormatTime(currentLevel->parTime, tempbuf);
+			GameText((320 >> 2) + 71, 69 + 9, tempbuf, 0);
+
+			if (!isNamWW2GI())
 			{
-				switch( ((int)totalclock>>5)&3 )
-				{
-					case 1:
-					case 3:
-						rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-						break;
-					case 2:
-						rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-						break;
-				}
-			}
-
-			menutext_center(20-6,lastmapname);
-			menutext_center(36-6,"COMPLETED");
-
-			gametext_(160,192,"PRESS ANY KEY TO CONTINUE",16,2+8+16);
-
-			if( totalclock > (60*3) )
-			{
-				gametext_(10,59+9,"Your Time:",0,2+8+16);
-				gametext_(10,69+9,"Par time:",0,2+8+16);
-				if (!isNamWW2GI())
-					gametext_(10,78+9,"3D Realms' Time:",0,2+8+16);
-
-				if(bonuscnt == 0)
-					bonuscnt++;
-
-				if( totalclock > (60*4) )
-				{
-					if(bonuscnt == 1)
-					{
-						bonuscnt++;
-						sound(PIPEBOMB_EXPLODE);
-					}
-					sprintf(tempbuf,"%02ld:%02ld",
-						(ps[myconnectindex].player_par/(26*60))%60,
-						(ps[myconnectindex].player_par/26)%60);
-					gametext_((320>>2)+71,60+9,tempbuf,0,2+8+16);
-
-					sprintf(tempbuf,"%02ld:%02ld",
-						(currentLevel->parTime / (26*60))%60,
-						(currentLevel->parTime / 26)%60);
-					gametext_((320>>2)+71,69+9,tempbuf,0,2+8+16);
-
-					if (!isNamWW2GI())
-					{
-						mysnprintf(tempbuf, 32, "%02ld:%02ld",
-							(currentLevel->designerTime / (26 * 60)) % 60,
-							(currentLevel->designerTime / 26) % 60);
-							gametext_((320 >> 2) + 71, 78 + 9, tempbuf, 0, 2 + 8 + 16);
-					}
-
-				}
-			}
-			if( totalclock > (60*6) )
-			{
-				gametext_(10,94+9,"Enemies Killed:",0,2+8+16);
-				gametext_(10,99+4+9,"Enemies Left:",0,2+8+16);
-
-				if(bonuscnt == 2)
-				{
-					bonuscnt++;
-					sound(FLY_BY);
-				}
-
-				if( totalclock > (60*7) )
-				{
-					if(bonuscnt == 3)
-					{
-						bonuscnt++;
-						sound(PIPEBOMB_EXPLODE);
-					}
-					sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-					gametext_((320>>2)+70,93+9,tempbuf,0,2+8+16);
-					if(ud.player_skill > 3 )
-					{
-						sprintf(tempbuf,"N/A");
-						gametext_((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
-					}
-					else
-					{
-						if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
-							sprintf(tempbuf,"%-3ld",0);
-						else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-						gametext_((320>>2)+70,99+4+9,tempbuf,0,2+8+16);
-					}
-				}
-			}
-			if( totalclock > (60*9) )
-			{
-				gametext_(10,120+9,"Secrets Found:",0,2+8+16);
-				gametext_(10,130+9,"Secrets Missed:",0,2+8+16);
-				if(bonuscnt == 4) bonuscnt++;
-
-				if( totalclock > (60*10) )
-				{
-					if(bonuscnt == 5)
-					{
-						bonuscnt++;
-						sound(PIPEBOMB_EXPLODE);
-					}
-					sprintf(tempbuf,"%-3d",ps[myconnectindex].secret_rooms);
-					gametext_((320>>2)+70,120+9,tempbuf,0,2+8+16);
-					if( ps[myconnectindex].secret_rooms > 0 )
-						sprintf(tempbuf,"%-3d",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-					sprintf(tempbuf,"%-3d",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-					gametext_((320>>2)+70,130+9,tempbuf,0,2+8+16);
-				}
-			}
-
-			if(totalclock > 10240 && totalclock < 10240+10240)
-				totalclock = 1024;
-
-			if( inputState.CheckAllInput() && totalclock > (60*2) )
-			{
-				if( totalclock < (60*13) )
-				{
-					inputState.ClearAllInput();
-					totalclock = (60*13);
-				}
-				else if( totalclock < (1000000000L))
-				   totalclock = (1000000000L);
+				FormatTime(currentLevel->designerTime, tempbuf);
+				GameText((320 >> 2) + 71, 78 + 9, tempbuf, 0);
 			}
 		}
-		else break;
-		videoNextPage();
+	}
+
+	void PrintKills(int totalclock)
+	{
+		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
+		GameText(10, 99 + 4 + 9, GStrings("TXT_EnemiesLeft"), 0);
+
+		if (bonuscnt == 2)
+		{
+			bonuscnt++;
+			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
+		}
+
+		if (totalclock > (60 * 7))
+		{
+			if (bonuscnt == 3)
+			{
+				bonuscnt++;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].actors_killed);
+			GameText((320 >> 2) + 70, 93 + 9, tempbuf, 0);
+			if (ud.player_skill > 3)
+			{
+				mysnprintf(tempbuf, 32, GStrings("TXT_N_A"));
+				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
+			}
+			else
+			{
+				if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
+					mysnprintf(tempbuf, 32, "%-3ld", 0);
+				else mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
+				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
+			}
+		}
+	}
+
+	void PrintSecrets(int totalclock)
+	{
+		GameText(10, 120 + 9, GStrings("TXT_SECFND"), 0);
+		GameText(10, 130 + 9, GStrings("TXT_SECMISS"), 0);
+		if (bonuscnt == 4) bonuscnt++;
+
+		if (totalclock > (60 * 10))
+		{
+			if (bonuscnt == 5)
+			{
+				bonuscnt++;
+				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
+			}
+			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
+			GameText((320 >> 2) + 70, 120 + 9, tempbuf, 0);
+			if (ps[myconnectindex].secret_rooms > 0)
+				sprintf(tempbuf, "%-3d", (100 * ps[myconnectindex].secret_rooms / ps[myconnectindex].max_secret_rooms));
+			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_secret_rooms - ps[myconnectindex].secret_rooms);
+			GameText((320 >> 2) + 70, 130 + 9, tempbuf, 0);
+		}
+	}
+
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		int totalclock = int(clock * 120 / 1'000'000'000);
+		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
+		if (lastmapname) BigText(160, 20 - 6, lastmapname);
+		BigText(160, 36 - 6, GStrings("Completed"));
+		GameText(160, 192, GStrings("PRESSKEY"), (sintable[(totalclock << 5) & 2047] >> 11), 0);
+
+		if (totalclock > (60 * 3))
+		{
+			PrintTime(totalclock);
+		}
+		if (totalclock > (60 * 6))
+		{
+			PrintKills(totalclock);
+		}
+		if (totalclock > (60 * 9))
+		{
+			PrintSecrets(totalclock);
+		}
+
+		if (totalclock > (1000000000L) && totalclock < (1000000320L))
+		{
+			int val = (totalclock >> 4) % 15;
+			if (val == 0)
+			{
+				if (bonuscnt == 6)
+				{
+					bonuscnt++;
+					S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
+					S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
+				}
+			}
+			else
+			{
+				int tile = val == 2 || val == 3 ? gfx_offset + 4 : gfx_offset + 3;
+				DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			}
+		}
+		else if (totalclock > (10240 + 120L)) return 0;
+		else
+		{
+			int val = (totalclock >> 5) & 3;
+			int tile = val == 2 ? gfx_offset + 2 : gfx_offset + 1;
+			DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+		}
+
+		if (totalclock > 10240 && totalclock < 10240 + 10240)
+			SetTotalClock(1024);
+
+		if (skiprequest && totalclock > (60 * 2))
+		{
+			skiprequest = false;
+			if (totalclock < (60 * 13))
+			{
+				SetTotalClock(60 * 13);
+			}
+			else if (totalclock < (1000000000))
+				SetTotalClock(1000000000);
+		}
+
+		return 1;
+	}
+
+};
+
+void ShowBonusScreen_d(CompletionFunc completion)
+{
+	PlayBonusMusic();
+	JobDesc job = { Create<DDukeLevelSummaryScreen>() };
+	RunScreenJob(&job, 1, completion);
+}
+
+
+// Utility for testing the above screens
+CCMD(testscreen)
+{
+	C_HideConsole();
+	if (argv.argc() > 1)
+	{
+		int screen = strtol(argv[1], nullptr, 0);
+		switch (screen)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			bonussequence_d(screen, nullptr);
+			break;
+
+		case 6:
+			ShowMPBonusScreen_d(6, nullptr);
+			break;
+
+		case 7:
+			showtwoscreens(nullptr);
+			break;
+
+		case 8:
+			doorders(nullptr);
+			break;
+
+		case 9:
+			ShowBonusScreen_d(nullptr);
+			break;
+		}
 	}
 }
 
-#endif
 
 END_DUKE_NS

@@ -128,9 +128,11 @@ void InitFonts_r()
 //
 //==========================================================================
 
-static void BigText(double x, double y, const char* text)
+static void BigText(double x, double y, const char* text, int align)
 {
     x *= 2; y *= 2;
+    if (align != -1)
+        x -= BigFont->StringWidth(text) * (align == 0 ? 0.5 : 1);
     auto width = BigFont->StringWidth(text);
     DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 24, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, TAG_DONE);
 }
@@ -154,74 +156,6 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
     PalEntry pe(255, light, light, light);
     DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
-
-
-
-#if 0
-void ShowMapFrame(void)
-{
-    short t = -1, i;
-    ps[myconnectindex].palette = palette;
-    if (ud.volume_number == 0)
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                t = 0;
-                break;
-            case 2:
-                t = 1;
-                break;
-            case 3:
-                t = 2;
-                break;
-            case 4:
-                t = 3;
-                break;
-            case 5:
-                t = 4;
-                break;
-            case 6:
-                t = 5;
-                break;
-            default:
-                t = 6;
-                break;
-        }
-    }
-    else
-    {
-        switch (ud.level_number)
-        {
-            case 1:
-                t = 7;
-                break;
-            case 2:
-                t = 8;
-                break;
-            case 3:
-                t = 9;
-                break;
-            case 4:
-                t = 10;
-                break;
-            case 5:
-                t = 11;
-                break;
-            case 6:
-                t = 12;
-                break;
-            default:
-                t = -1;
-                break;
-        }
-    }
-    rotatesprite(0,0,65536,0,8624+t,0,0,10+16+64+128,0,0,xdim-1,ydim-1);
-    for (i = 0; i < 64; i++)
-        palto(0,0,0,63-i);
-    ps[myconnectindex].palette = palette;
-}
-#endif
 
 //---------------------------------------------------------------------------
 //
@@ -322,11 +256,11 @@ void bonussequence_r(int num, CompletionFunc completion)
 //
 //---------------------------------------------------------------------------
 
-void PlayMapAnim(CompletionFunc completion)
+void PlayMapAnim(int volnum, int mapnum, CompletionFunc completion)
 {
     char fn[20];
 
-    int lev = ud.level_number + 7 * ud.volume_number;
+    int lev = mapnum + 7 * volnum;
     if (lev >= 1 && lev <= 13)
     {
         mysnprintf(fn, 20, "lvl%d.anm", lev);
@@ -335,7 +269,7 @@ void PlayMapAnim(CompletionFunc completion)
         JobDesc job = { PlayVideo(fn, nullptr, framespeed) };
         RunScreenJob(&job, 1, completion);
     }
-    else completion(false);
+    else if (completion) completion(false);
 }
 
 //---------------------------------------------------------------------------
@@ -349,9 +283,10 @@ class DRRMultiplayerBonusScreen : public DScreenJob
     int playerswhenstarted;
 
 public:
-    DRRMultiplayerBonusScreen(int pws)
+    DRRMultiplayerBonusScreen(int pws) : DScreenJob(fadein | fadeout)
     {
         playerswhenstarted = pws;
+        PlayBonusMusic();
     }
 
     int Frame(uint64_t clock, bool skiprequest)
@@ -437,21 +372,205 @@ public:
 
 void ShowMPBonusScreen_r(int pws, CompletionFunc completion)
 {
+    PlayBonusMusic();
     JobDesc job = { Create<DRRMultiplayerBonusScreen>(pws) };
     RunScreenJob(&job, 1, completion);
 }
 
 
-#if 1
-CCMD(testrbonus)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class DRRLevelSummaryScreen : public DScreenJob
 {
-    if (argv.argc() > 1)
+    const char* lastmapname;
+    int gfx_offset;
+    int bonuscnt = 0;
+
+    void SetTotalClock(int tc)
     {
-        //bonussequence_d(strtol(argv[1], nullptr, 0), nullptr);
-        ShowMPBonusScreen_r(strtol(argv[1], nullptr, 0), nullptr);
+        SetClock(tc * (uint64_t)1'000'000'000 / 120);
     }
+
+public:
+    DRRLevelSummaryScreen() : DScreenJob(fadein | fadeout)
+    {
+        gfx_offset = (ud.volume_number == 0) ? RRTILE403 : RRTILE409;
+        gfx_offset += ud.level_number - 1;
+
+        if (g_lastLevel || g_vixenLevel)
+            gfx_offset = RRTILE409 + 7;
+
+        if (boardfilename[0])
+            gfx_offset = RRTILE403;
+
+        if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) // todo: get rid of this awful hack.
+        {
+            lastmapname = strrchr(boardfilename, '\\');
+            if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
+            if (!lastmapname) lastmapname = boardfilename;
+        }
+        else
+        {
+            lastmapname = currentLevel->DisplayName();
+        }
+    }
+
+    void FormatTime(int time, char* tempbuf)
+    {
+        mysnprintf(tempbuf, 32, "%02ld:%02ld", (time / (26 * 60)) % 60, (time / 26) % 60);
+    }
+
+    void PrintTime(int totalclock)
+    {
+        char tempbuf[32];
+        BigText(30, 48, GStrings("TXT_YerTime"), -1);
+        BigText(30, 64, GStrings("TXT_ParTime"), -1);
+        BigText(30, 80, GStrings("TXT_XTRTIME"), -1);
+
+        if (bonuscnt == 0)
+            bonuscnt++;
+
+        if (totalclock > (60 * 4))
+        {
+            if (bonuscnt == 1)
+            {
+                bonuscnt++;
+                S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+            }
+            FormatTime(ps[myconnectindex].player_par, tempbuf);
+            BigText(191, 48, tempbuf, -1);
+
+            FormatTime(currentLevel->parTime, tempbuf);
+            BigText(191, 64, tempbuf, -1);
+
+            if (!isNamWW2GI())
+            {
+                FormatTime(currentLevel->designerTime, tempbuf);
+                BigText(191, 80, tempbuf, -1);
+            }
+        }
+    }
+
+    void PrintKills(int totalclock)
+    {
+        BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
+        BigText(30, 128 + 4 + 9, GStrings("TXT_VarmintsLeft"), -1);
+
+        if (bonuscnt == 2)
+            bonuscnt++;
+
+        if (totalclock > (60 * 7))
+        {
+            if (bonuscnt == 3)
+            {
+                bonuscnt++;
+                S_PlaySound(442, CHAN_AUTO, CHANF_UI);
+            }
+            mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].actors_killed);
+            BigText(231, 112, tempbuf, -1);
+            if (ud.player_skill > 3)
+            {
+                mysnprintf(tempbuf, 32, GStrings("TXT_N_A"));
+                BigText(231, 128, tempbuf, -1);
+            }
+            else
+            {
+                if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
+                    mysnprintf(tempbuf, 32, "%-3ld", 0);
+                else mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
+                BigText(231, 128, tempbuf, -1);
+            }
+        }
+    }
+
+    void PrintSecrets(int totalclock)
+    {
+        BigText(30, 144, GStrings("TXT_SECFND"), -1);
+        BigText(30, 160, GStrings("TXT_SECMISS"), -1);
+        if (bonuscnt == 4) bonuscnt++;
+
+        if (totalclock > (60 * 10))
+        {
+            if (bonuscnt == 5)
+            {
+                bonuscnt++;
+                S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+            }
+            mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
+            BigText(231, 144, tempbuf, -1);
+            if (ps[myconnectindex].secret_rooms > 0)
+                sprintf(tempbuf, "%-3d", (100 * ps[myconnectindex].secret_rooms / ps[myconnectindex].max_secret_rooms));
+            mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_secret_rooms - ps[myconnectindex].secret_rooms);
+            BigText(231, 160, tempbuf, -1);
+        }
+    }
+
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        int totalclock = int(clock * 120 / 1'000'000'000);
+        DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
+        if (lastmapname) BigText(80, 16, lastmapname, 0);
+        BigText(15, 192, GStrings("PRESSKEY"), -1);
+
+        if (totalclock > (60 * 3))
+        {
+            PrintTime(totalclock);
+        }
+        if (totalclock > (60 * 6))
+        {
+            PrintKills(totalclock);
+        }
+        if (totalclock > (60 * 9))
+        {
+            PrintSecrets(totalclock);
+        }
+
+        if (totalclock > (1000000000L) && totalclock < (1000000320L))
+        {
+            int val = (totalclock >> 4) % 15;
+            if (val == 0)
+            {
+                if (bonuscnt == 6)
+                {
+                    bonuscnt++;
+                    S_PlaySound(425, CHAN_AUTO, CHANF_UI);
+                    S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
+                }
+            }
+        }
+        else if (totalclock > (10240 + 120L)) return 0;
+
+        if (totalclock > 10240 && totalclock < 10240 + 10240)
+            SetTotalClock(1024);
+
+        if (skiprequest && totalclock > (60 * 2))
+        {
+            skiprequest = false;
+            if (totalclock < (60 * 13))
+            {
+                SetTotalClock(60 * 13);
+            }
+            else if (totalclock < (1000000000))
+                SetTotalClock(1000000000);
+        }
+
+        return 1;
+    }
+
+};
+
+
+void ShowBonusScreen_r(CompletionFunc completion)
+{
+    PlayBonusMusic();
+
 }
-#endif
+
 
 
 #if 0
@@ -498,370 +617,8 @@ void dobonus2(char bonusonly)
 
     MUSIC_StopSong();
 
-    if(playerswhenstarted > 1 && ud.coop != 1 )
-    {
-        if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-            sound(249);
-
-        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,57<<16,16592L,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        gametext(160,58,"MULTIPLAYER TOTALS",0);
-        gametext(160,58+10,level_names[(ud.volume_number*7)+ud.last_level-1],0);
-
-        gametext(160,175,"PRESS ANY KEY TO CONTINUE",0);
-
-
-        t = 0;
-        minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            sprintf(tempbuf,"%-4ld",i+1);
-            minitext(92+(i*23),80,tempbuf,0,2+8+16+128);
-        }
-
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            xfragtotal = 0;
-            sprintf(tempbuf,"%ld",i+1);
-
-            minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
-
-            for(y=0;y<playerswhenstarted;y++)
-            {
-                if(i == y)
-                {
-                    sprintf(tempbuf,"%-4ld",ps[y].fraggedself);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal -= ps[y].fraggedself;
-                }
-                else
-                {
-                    sprintf(tempbuf,"%-4ld",frags[i][y]);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += frags[i][y];
-                }
-
-                if(myconnectindex == connecthead)
-                {
-                    sprintf(tempbuf,"stats %ld killed %ld %ld\n",i+1,y+1,frags[i][y]);
-                    sendscore(tempbuf);
-                }
-            }
-
-            sprintf(tempbuf,"%-4ld",xfragtotal);
-            minitext(101+(8*23),90+t,tempbuf,0,2+8+16+128);
-
-            t += 7;
-        }
-
-        for(y=0;y<playerswhenstarted;y++)
-        {
-            yfragtotal = 0;
-            for(i=0;i<playerswhenstarted;i++)
-            {
-                if(i == y)
-                    yfragtotal += ps[i].fraggedself;
-                yfragtotal += frags[i][y];
-            }
-            sprintf(tempbuf,"%-4ld",yfragtotal);
-            minitext(92+(y*23),96+(8*7),tempbuf,0,2+8+16+128);
-        }
-
-        minitext(45,96+(8*7),"DEATHS",0,2+8+16+128);
-        nextpage();
-
-        for(t=0;t<64;t++)
-            palto(0,0,0,63-t);
-
-        KB_FlushKeyboardQueue();
-        while(KB_KeyWaiting()==0) getpackets();
-
-        if( KB_KeyPressed( sc_F12 ) )
-        {
-            KB_ClearKeyDown( sc_F12 );
-            screencapture("rdnk0000.pcx",0);
-        }
-
-        if(bonusonly || ud.multimode > 1) return;
-
-        for(t=0;t<64;t++) palto(0,0,0,t);
-    }
-
     if(bonusonly || ud.multimode > 1) return;
 
-    if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-        sound(249);
-
-    
-    gfx_offset = (ud.volume_number&1)*5;
-    bg_tile = RRTILE403;
-    if (ud.volume_number == 0)
-        bg_tile = ud.level_number+RRTILE403-1;
-    else
-        bg_tile = ud.level_number+RRTILE409-1;
-
-    if (lastlevel || vixenlevel)
-        bg_tile = RRTILE409+7;
-
-    if (boardfilename[0])
-    {
-        if (!var24)
-        {
-            rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-            endlvlmenutext(80,16,0,0,boardfilename);
-        }
-    }
-    else if (!var24)
-    {
-        rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-            endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-        else if (turdlevel)
-            endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-        else
-            endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-    }
-    else
-    {
-        endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-    }
-
-    endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-    KB_FlushKeyboardQueue();
-    if (!var24)
-    {
-        nextpage();
-        for(t=0;t<64;t++) palto(0,0,0,63-t);
-    }
-    bonuscnt = 0;
-    totalclock = 0; tinc = 0;
-
-    while( 1 )
-    {
-        if(ps[myconnectindex].gm&MODE_EOL)
-        {
-            if (boardfilename[0])
-            {
-                if (!var24)
-                    rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-            }
-            else if (!var24)
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-
-            if( totalclock > (1000000000L) && totalclock < (1000000320L) )
-            {
-                switch( ((unsigned long)totalclock>>4)%15 )
-                {
-                    case 0:
-                        if(bonuscnt == 6)
-                        {
-                            bonuscnt++;
-                            sound(425);
-                            switch(rand()&3)
-                            {
-                                case 0:
-                                    sound(195);
-                                    break;
-                                case 1:
-                                    sound(196);
-                                    break;
-                                case 2:
-                                    sound(197);
-                                    break;
-                                case 3:
-                                    sound(199);
-                                    break;
-                            }
-                        }
-                    case 1:
-                    case 4:
-                    case 5:
-                    case 2:
-                    case 3:
-                       break;
-                }
-            }
-            else if( totalclock > (10240+120L) ) break;
-            else
-            {
-                switch( (totalclock>>5)&3 )
-                {
-                    case 1:
-                    case 3:
-                        break;
-                    case 2:
-                        break;
-                }
-            }
-
-            if (boardfilename[0])
-            {
-                if (!var24)
-                {
-                    rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                    endlvlmenutext(80,16,0,0,boardfilename);
-                }
-            }
-            else if (!var24)
-            {
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-                    endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-                else if (turdlevel)
-                    endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-                else
-                    endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-            }
-            else
-            {
-                endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-            }
-
-            endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-
-            if( totalclock > (60*3) )
-            {
-                endlvlmenutext(30,48,0,0,"Yer Time:");
-                endlvlmenutext(30,64,0,0,"Par time:");
-                endlvlmenutext(30,80,0,0,"Xatrix Time:");
-                if(bonuscnt == 0)
-                    bonuscnt++;
-
-                if( totalclock > (60*4) )
-                {
-                    if(bonuscnt == 1)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%02ld : %02ld",
-                        (ps[myconnectindex].player_par/(26*60))%60,
-                        (ps[myconnectindex].player_par/26)%60);
-                    endlvlmenutext(191,48,0,0,tempbuf);
-
-                    if(!boardfilename[0])
-                    {
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (partime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (partime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,64,0,0,tempbuf);
-
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (designertime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (designertime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,80,0,0,tempbuf);
-                    }
-
-                }
-            }
-            if( totalclock > (60*6) )
-            {
-                endlvlmenutext(30,112,0,0,"Varmints Killed:");
-                endlvlmenutext(30,128,0,0,"Varmints Left:");
-
-                if(bonuscnt == 2)
-                    bonuscnt++;
-
-                if( totalclock > (60*7) )
-                {
-                    if(bonuscnt == 3)
-                    {
-                        bonuscnt++;
-                        sound(422);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-                    endlvlmenutext(231,112,0,0,tempbuf);
-                    if(ud.player_skill > 3 )
-                    {
-                        sprintf(tempbuf,"N/A");
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                    else
-                    {
-                        if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
-                            sprintf(tempbuf,"%-3ld",0);
-                        else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                }
-            }
-            if( totalclock > (60*9) )
-            {
-                endlvlmenutext(30,144,0,0,"Secrets Found:");
-                endlvlmenutext(30,160,0,0,"Secrets Missed:");
-                if(bonuscnt == 4) bonuscnt++;
-
-                if( totalclock > (60*10) )
-                {
-                    if(bonuscnt == 5)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,144,0,0,tempbuf);
-                    if( ps[myconnectindex].secret_rooms > 0 )
-                        sprintf(tempbuf,"%-3ld%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,160,0,0,tempbuf);
-                }
-            }
-
-            if(totalclock > 10240 && totalclock < 10240+10240)
-                totalclock = 1024;
-
-            if( KB_KeyWaiting() && totalclock > (60*2) )
-            {
-                if (var24)
-                {
-                    if (bonuscnt == 7)
-                    {
-                        bonuscnt++;
-                        MUSIC_StopSong();
-                        KB_FlushKeyboardQueue();
-                        PlayMapAnim();
-                    }
-                    else if (bonuscnt == 8)
-                    {
-                        KB_FlushKeyboardQueue();
-                        totalclock = 10361;
-                        break;
-                    }
-
-                }
-                if( KB_KeyPressed( sc_F12 ) )
-                {
-                    KB_ClearKeyDown( sc_F12 );
-                    screencapture("rdnk0000.pcx",0);
-                }
-
-                if (var24)
-                {
-                    if( totalclock < (60*13) )
-                    {
-                        KB_FlushKeyboardQueue();
-                        totalclock = (60*13);
-                    }
-                    else if( totalclock < (1000000000L))
-                       totalclock = (1000000000L);
-                }
-                else
-                {
-                    if( totalclock < (60*13) )
-                    {
-                        KB_FlushKeyboardQueue();
-                        totalclock = (60*13);
-                    }
-                    else if( totalclock < (1000000000L))
-                       totalclock = (1000000000L);
-                }
-            }
-        }
-        else break;
-        if (!var24 || bonuscnt)
-            nextpage();
-    }
     if (ud.eog)
     {
         for (t = 0; t < 64; t++) palto(0, 0, 0, t);
@@ -1344,348 +1101,6 @@ void dobonus(char bonusonly)
 
 void dobonus(char bonusonly)
 {
-    short t, r, tinc,gfx_offset,bg_tile;
-    long i, y,xfragtotal,yfragtotal;
-    short bonuscnt;
-
-    bonuscnt = 0;
-
-    for(t=0;t<64;t++) palto(0,0,0,t);
-    setview(0,0,xdim-1,ydim-1);
-    clearview(0L);
-    nextpage();
-    flushperms();
-
-    FX_StopAllSounds();
-    clearsoundlocks();
-    FX_SetReverb(0L);
-
-    if(bonusonly) goto FRAGBONUS;
-
-    FRAGBONUS:
-
-    ps[myconnectindex].palette = palette;
-    KB_FlushKeyboardQueue();
-    totalclock = 0; tinc = 0;
-    bonuscnt = 0;
-
-    MUSIC_StopSong();
-    FX_StopAllSounds();
-    clearsoundlocks();
-
-    if(playerswhenstarted > 1 && ud.coop != 1 )
-    {
-        if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-            sound(249);
-
-        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,24<<16,23592L,0,INGAMEDUKETHREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        gametext(160,58,"MULTIPLAYER TOTALS",0);
-        gametext(160,58+10,level_names[(ud.volume_number*7)+ud.last_level-1],0);
-
-        gametext(160,175,"PRESS ANY KEY TO CONTINUE",0);
-
-
-        t = 0;
-        minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            sprintf(tempbuf,"%-4ld",i+1);
-            minitext(92+(i*23),80,tempbuf,0,2+8+16+128);
-        }
-
-        for(i=0;i<playerswhenstarted;i++)
-        {
-            xfragtotal = 0;
-            sprintf(tempbuf,"%ld",i+1);
-
-            minitext(30,90+t,tempbuf,0,2+8+16+128);
-            minitext(38,90+t,ud.user_name[i],ps[i].palookup,2+8+16+128);
-
-            for(y=0;y<playerswhenstarted;y++)
-            {
-                if(i == y)
-                {
-                    sprintf(tempbuf,"%-4ld",ps[y].fraggedself);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal -= ps[y].fraggedself;
-                }
-                else
-                {
-                    sprintf(tempbuf,"%-4ld",frags[i][y]);
-                    minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
-                    xfragtotal += frags[i][y];
-                }
-
-                if(myconnectindex == connecthead)
-                {
-                    sprintf(tempbuf,"stats %ld killed %ld %ld\n",i+1,y+1,frags[i][y]);
-                    sendscore(tempbuf);
-                }
-            }
-
-            sprintf(tempbuf,"%-4ld",xfragtotal);
-            minitext(101+(8*23),90+t,tempbuf,0,2+8+16+128);
-
-            t += 7;
-        }
-
-        for(y=0;y<playerswhenstarted;y++)
-        {
-            yfragtotal = 0;
-            for(i=0;i<playerswhenstarted;i++)
-            {
-                if(i == y)
-                    yfragtotal += ps[i].fraggedself;
-                yfragtotal += frags[i][y];
-            }
-            sprintf(tempbuf,"%-4ld",yfragtotal);
-            minitext(92+(y*23),96+(8*7),tempbuf,0,2+8+16+128);
-        }
-
-        minitext(45,96+(8*7),"DEATHS",0,2+8+16+128);
-        nextpage();
-
-        for(t=0;t<64;t++)
-            palto(0,0,0,63-t);
-
-        KB_FlushKeyboardQueue();
-        while(KB_KeyWaiting()==0) getpackets();
-
-        if( KB_KeyPressed( sc_F12 ) )
-        {
-            KB_ClearKeyDown( sc_F12 );
-            screencapture("rdnk0000.pcx",0);
-        }
-
-        if(bonusonly || ud.multimode > 1) return;
-
-        for(t=0;t<64;t++) palto(0,0,0,t);
-    }
-
-    if(bonusonly || ud.multimode > 1) return;
-
-    if(!(MusicToggle == 0 || MusicDevice == NumSoundCards))
-        sound(249);
-
-    
-    gfx_offset = (ud.volume_number&1)*5;
-    bg_tile = RRTILE403;
-    if (ud.volume_number == 0)
-        bg_tile = ud.level_number+RRTILE403-1;
-    else
-        bg_tile = ud.level_number+RRTILE409-1;
-
-    if (lastlevel || vixenlevel)
-        bg_tile = RRTILE409+7;
-
-    if (boardfilename[0])
-    {
-        rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        endlvlmenutext(80,16,0,0,boardfilename);
-    }
-    else
-    {
-        rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-        if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-            endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-        else if (turdlevel)
-            endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-        else
-            endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-    }
-
-    endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-    nextpage();
-    KB_FlushKeyboardQueue();
-    for(t=0;t<64;t++) palto(0,0,0,63-t);
-    bonuscnt = 0;
-    totalclock = 0; tinc = 0;
-
-    while( 1 )
-    {
-        if(ps[myconnectindex].gm&MODE_EOL)
-        {
-            if (boardfilename[0])
-                rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-            else
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-
-            if( totalclock > (1000000000L) && totalclock < (1000000320L) )
-            {
-                switch( ((unsigned long)totalclock>>4)%15 )
-                {
-                    case 0:
-                        if(bonuscnt == 6)
-                        {
-                            bonuscnt++;
-                            sound(425);
-                            switch(rand()&3)
-                            {
-                                case 0:
-                                    sound(195);
-                                    break;
-                                case 1:
-                                    sound(196);
-                                    break;
-                                case 2:
-                                    sound(197);
-                                    break;
-                                case 3:
-                                    sound(199);
-                                    break;
-                            }
-                        }
-                    case 1:
-                    case 4:
-                    case 5:
-                    case 2:
-                    case 3:
-                       break;
-                }
-            }
-            else if( totalclock > (10240+120L) ) break;
-            else
-            {
-                switch( (totalclock>>5)&3 )
-                {
-                    case 1:
-                    case 3:
-                        break;
-                    case 2:
-                        break;
-                }
-            }
-
-            if (boardfilename[0])
-            {
-                rotatesprite(0,0,65536L,0,403,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                endlvlmenutext(80,16,0,0,boardfilename);
-            }
-            else
-            {
-                rotatesprite(0,0,65536L,0,bg_tile,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
-                if ((lastlevel && ud.volume_number == 2) || vixenlevel)
-                    endlvlmenutext(80,16,0,0,"CLOSE ENCOUNTERS");
-                else if (turdlevel)
-                    endlvlmenutext(80,16,0,0,"SMELTING PLANT");
-                else
-                    endlvlmenutext(80,16,0,0,level_names[(ud.volume_number*7)+ud.last_level-1]);
-            }
-
-            endlvlmenutext(15,192,0,0,"PRESS ANY KEY TO CONTINUE");
-
-            if( totalclock > (60*3) )
-            {
-                endlvlmenutext(30,48,0,0,"Yer Time:");
-                endlvlmenutext(30,64,0,0,"Par time:");
-                endlvlmenutext(30,80,0,0,"Xatrix Time:");
-                if(bonuscnt == 0)
-                    bonuscnt++;
-
-                if( totalclock > (60*4) )
-                {
-                    if(bonuscnt == 1)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%02ld : %02ld",
-                        (ps[myconnectindex].player_par/(26*60))%60,
-                        (ps[myconnectindex].player_par/26)%60);
-                    endlvlmenutext(191,48,0,0,tempbuf);
-
-                    if(!boardfilename[0])
-                    {
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (partime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (partime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,64,0,0,tempbuf);
-
-                        sprintf(tempbuf,"%02ld : %02ld",
-                            (designertime[ud.volume_number*7+ud.last_level-1]/(26*60))%60,
-                            (designertime[ud.volume_number*7+ud.last_level-1]/26)%60);
-                        endlvlmenutext(191,80,0,0,tempbuf);
-                    }
-
-                }
-            }
-            if( totalclock > (60*6) )
-            {
-                endlvlmenutext(30,112,0,0,"Varmints Killed:");
-                endlvlmenutext(30,128,0,0,"Varmints Left:");
-
-                if(bonuscnt == 2)
-                    bonuscnt++;
-
-                if( totalclock > (60*7) )
-                {
-                    if(bonuscnt == 3)
-                    {
-                        bonuscnt++;
-                        sound(422);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].actors_killed);
-                    endlvlmenutext(231,112,0,0,tempbuf);
-                    if(ud.player_skill > 3 )
-                    {
-                        sprintf(tempbuf,"N/A");
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                    else
-                    {
-                        if( (ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed) < 0 )
-                            sprintf(tempbuf,"%-3ld",0);
-                        else sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_actors_killed-ps[myconnectindex].actors_killed);
-                        endlvlmenutext(231,128,0,0,tempbuf);
-                    }
-                }
-            }
-            if( totalclock > (60*9) )
-            {
-                endlvlmenutext(30,144,0,0,"Secrets Found:");
-                endlvlmenutext(30,160,0,0,"Secrets Missed:");
-                if(bonuscnt == 4) bonuscnt++;
-
-                if( totalclock > (60*10) )
-                {
-                    if(bonuscnt == 5)
-                    {
-                        bonuscnt++;
-                        sound(404);
-                    }
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,144,0,0,tempbuf);
-                    if( ps[myconnectindex].secret_rooms > 0 )
-                        sprintf(tempbuf,"%-3ld%",(100*ps[myconnectindex].secret_rooms/ps[myconnectindex].max_secret_rooms));
-                    sprintf(tempbuf,"%-3ld",ps[myconnectindex].max_secret_rooms-ps[myconnectindex].secret_rooms);
-                    endlvlmenutext(231,160,0,0,tempbuf);
-                }
-            }
-
-            if(totalclock > 10240 && totalclock < 10240+10240)
-                totalclock = 1024;
-
-            if( KB_KeyWaiting() && totalclock > (60*2) )
-            {
-                if( KB_KeyPressed( sc_F12 ) )
-                {
-                    KB_ClearKeyDown( sc_F12 );
-                    screencapture("rdnk0000.pcx",0);
-                }
-
-                if( totalclock < (60*13) )
-                {
-                    KB_FlushKeyboardQueue();
-                    totalclock = (60*13);
-                }
-                else if( totalclock < (1000000000L))
-                   totalclock = (1000000000L);
-            }
-        }
-        else break;
-        nextpage();
-    }
     if (turdlevel)
         turdlevel = 0;
     if (vixenlevel)
@@ -1694,5 +1109,106 @@ void dobonus(char bonusonly)
 #endif
 
 #endif
+
+
+
+#if 0
+void ShowMapFrame(void)
+{
+    short t = -1, i;
+    ps[myconnectindex].palette = palette;
+    if (ud.volume_number == 0)
+    {
+        switch (ud.level_number)
+        {
+        case 1:
+            t = 0;
+            break;
+        case 2:
+            t = 1;
+            break;
+        case 3:
+            t = 2;
+            break;
+        case 4:
+            t = 3;
+            break;
+        case 5:
+            t = 4;
+            break;
+        case 6:
+            t = 5;
+            break;
+        default:
+            t = 6;
+            break;
+        }
+    }
+    else
+    {
+        switch (ud.level_number)
+        {
+        case 1:
+            t = 7;
+            break;
+        case 2:
+            t = 8;
+            break;
+        case 3:
+            t = 9;
+            break;
+        case 4:
+            t = 10;
+            break;
+        case 5:
+            t = 11;
+            break;
+        case 6:
+            t = 12;
+            break;
+        default:
+            t = -1;
+            break;
+        }
+    }
+    rotatesprite(0, 0, 65536, 0, 8624 + t, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
+    for (i = 0; i < 64; i++)
+        palto(0, 0, 0, 63 - i);
+    ps[myconnectindex].palette = palette;
+}
+#endif
+
+
+// Utility for testing the above screens
+CCMD(testrscreen)
+{
+    C_HideConsole();
+    if (argv.argc() > 1)
+    {
+        int screen = strtol(argv[1], nullptr, 0);
+        switch (screen)
+        {
+        case 0:
+        case 1:
+            if (!isRRRA()) bonussequence_r(screen, nullptr);
+            break;
+
+        case 2:
+            ShowMPBonusScreen_r(6, nullptr);
+            break;
+
+        case 3:
+            ShowBonusScreen_r(nullptr);
+            break;
+
+        default:
+            if (isRRRA() && screen >= 100 && screen < 114)
+            {
+                PlayMapAnim(0, screen - 100, nullptr);
+            }
+            break;
+        }
+    }
+}
 
 END_DUKE_NS

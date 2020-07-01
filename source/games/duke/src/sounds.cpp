@@ -638,4 +638,10 @@ void S_PlayRRMusic(int newTrack)
 }
 
 
+void PlayBonusMusic()
+{
+    if (MusicEnabled() && mus_enabled)
+        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+}
+
 END_DUKE_NS

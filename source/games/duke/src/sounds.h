@@ -94,6 +94,7 @@ int S_GetUserFlags(int sndnum);
 int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
 void S_InitSound();
 void S_PlayRRMusic(int newTrack = -1);
+void PlayBonusMusic();
 
 inline bool S_IsSoundValid(int num)
 {

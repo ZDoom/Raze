@@ -46,13 +46,6 @@ double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
-void PlayBonusMusic()
-{
-    if (MusicEnabled() && mus_enabled)
-        S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
-
-}
-
 ////////// OFTEN-USED FEW-LINERS //////////
 static void G_HandleEventsWhileNoInput(void)
 {
@@ -515,10 +508,6 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     }
 }
 
-#ifdef DEBUGGINGAIDS
-sprstat_t g_spriteStat;
-#endif
-
 FString G_PrintCoords(int32_t snum)
 {
     const int32_t x = g_Debug ? 288 : 0;
@@ -551,17 +540,6 @@ FString G_PrintCoords(int32_t snum)
 
     out.AppendFormat("\nTHOLD= %d ", ps->transporter_hold);
     out.AppendFormat("GAMETIC= %u, TOTALCLOCK=%d\n", g_moveThingsCount, (int32_t)totalclock);
-#ifdef DEBUGGINGAIDS
-    out.AppendFormat("NUMSPRITES= %d\n", Numsprites);
-    if (g_moveThingsCount > g_spriteStat.lastgtic + REALGAMETICSPERSEC)
-    {
-        g_spriteStat.lastgtic = g_moveThingsCount;
-        g_spriteStat.lastnumins = g_spriteStat.numins;
-        g_spriteStat.numins = 0;
-    }
-    out.AppendFormat("INSERTIONS/s= %u\n", g_spriteStat.lastnumins);
-    out.AppendFormat("ONSCREEN= %d\n", g_spriteStat.numonscreen);
-#endif
     out.AppendFormat("\nVR=%.03f  YX=%.03f", (double)dr_viewingrange / 65536.0, (double)dr_yxaspect / 65536.0);
     return out;
 }
@@ -1099,24 +1077,8 @@ const char* G_PrintBestTime(void)
 
 void G_BonusScreen(int32_t bonusonly)
 {
-    int32_t gfx_offset;
     int32_t bonuscnt;
     int32_t clockpad = 2;
-    const char *lastmapname;
-
-    //if (g_networkMode == NET_DEDICATED_SERVER)
-    //    return;
-
-    if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0])
-    {
-        lastmapname = Bstrrchr(boardfilename, '\\');
-        if (!lastmapname) lastmapname = Bstrrchr(boardfilename, '/');
-        if (!lastmapname) lastmapname = boardfilename;
-    }
-    else
-    {
-        lastmapname = currentLevel->DisplayName();
-    }
 
     fadepal(0, 0, 0, 0, 252, RR ? 4 : 28);
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
@@ -1150,353 +1112,9 @@ void G_BonusScreen(int32_t bonusonly)
 
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
-    if (!RR)
-    {
-        gfx_offset = (ud.volume_number==1) ? 5 : 0;
-        gfx_offset += TILE_BONUSSCREEN;
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
+    //if (!RR) ShowBonusScreen_d();
+    //else ShowMPBonusScreen_r();
 
-        if (lastmapname)
-            menutext_center(20-6, lastmapname);
-    	menutext_center(36-6, GStrings("Completed"));
-
-        gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
-
-        PlayBonusMusic();
-    }
-    else
-    {
-        gfx_offset = (ud.volume_number==0) ? TILE_RRTILE403 : TILE_RRTILE409;
-        gfx_offset += ud.level_number-1;
-
-        if (g_lastLevel || g_vixenLevel)
-            gfx_offset = TILE_RRTILE409+7;
-
-        if (boardfilename[0])
-            gfx_offset = TILE_RRTILE403;
-
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
-        if (lastmapname)
-            menutext(80,16, lastmapname);
-
-        menutext(15, 192, GStrings("PRESSKEY"));
-    }
-
-    videoNextPage();
-    inputState.ClearAllInput();
-    fadepal(0, 0, 0, 252, 0, -4);
-    bonuscnt = 0;
-    totalclock = 0;
-
-    do
-    {
-        int32_t yy = 0, zz;
-
-        G_HandleAsync();
-
-        if (G_FPSLimit())
-        {
-            if (g_player[myconnectindex].ps->gm&MODE_EOL)
-            {
-                videoClearScreen(0);
-                rotatesprite_fs(160<<16, 100<<16, 65536L, 0, gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
-
-                if (totalclock >= 1000000000 && totalclock < 1000000320)
-                {
-                    switch (((int32_t) totalclock>>4)%15)
-                    {
-                    case 0:
-                        if (bonuscnt == 6)
-                        {
-                            bonuscnt++;
-                            S_PlaySound(RR ? 425 : SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
-                            switch (rand()&3)
-                            {
-                            case 0:
-                                S_PlaySound(BONUS_SPEECH1, CHAN_AUTO, CHANF_UI);
-                                break;
-                            case 1:
-                                S_PlaySound(BONUS_SPEECH2, CHAN_AUTO, CHANF_UI);
-                                break;
-                            case 2:
-                                S_PlaySound(BONUS_SPEECH3, CHAN_AUTO, CHANF_UI);
-                                break;
-                            case 3:
-                                S_PlaySound(BONUS_SPEECH4, CHAN_AUTO, CHANF_UI);
-                                break;
-                            }
-                        }
-                        fallthrough__;
-                    case 1:
-                    case 4:
-                    case 5:
-                        if (!RR)
-                            rotatesprite_fs(199<<16, 31<<16, 65536L, 0, 3+gfx_offset, 0, 0, 2+8+16+64+128+BGSTRETCH);
-                        break;
-                    case 2:
-                    case 3:
-                        if (!RR)
-                            rotatesprite_fs(199<<16, 31<<16, 65536L, 0, 4+gfx_offset, 0, 0, 2+8+16+64+128+BGSTRETCH);
-                        break;
-                    }
-                }
-                else if (totalclock > (10240+120L)) break;
-                else
-                {
-                    switch (((int32_t) totalclock>>5)&3)
-                    {
-                    case 1:
-                    case 3:
-                        if (!RR)
-                            rotatesprite_fs(199<<16, 31<<16, 65536L, 0, 1+gfx_offset, 0, 0, 2+8+16+64+128+BGSTRETCH);
-                        break;
-                    case 2:
-                        if (!RR)
-                            rotatesprite_fs(199<<16, 31<<16, 65536L, 0, 2+gfx_offset, 0, 0, 2+8+16+64+128+BGSTRETCH);
-                        break;
-                    }
-                }
-
-                if (!RR)
-                {
-                    if (lastmapname)
-                        menutext_center(20-6, lastmapname);
-    	            menutext_center(36-6, GStrings("Completed"));
-
-                    gametext_center_shade(192, GStrings("PRESSKEY"), quotepulseshade);
-                }
-                else
-                {
-                    if (lastmapname)
-                        menutext(80, 16, lastmapname);
-
-                    menutext(15, 192, GStrings("PRESSKEY"));
-                }
-
-                const int yystep = RR ? 16 : 10;
-                if (totalclock > (60*3))
-                {
-                    yy = zz = RR ? 48 : 59;
-
-                    if (!RR)
-                        gametext(10, yy+9, GStrings("TXT_YourTime"));
-                    else
-                        menutext(30, yy, GStrings("TXT_YerTime"));
-
-                    yy+= yystep;
-                    if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
-                    {
-                        if (currentLevel->parTime)
-                        {
-                            if (!RR)
-                                gametext(10, yy+9, GStrings("TXT_ParTime"));
-                            else
-                                menutext(30, yy, GStrings("TXT_ParTime"));
-                            yy+=yystep;
-                        }
-                        if (currentLevel->designerTime)
-                        {
-                            // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
-                            if (DUKE)
-                                gametext(10, yy+9, GStrings("TXT_3DRTIME"));
-                            else if (RR)
-                                menutext(30, yy, GStrings("TXT_XTRTIME"));
-                            yy+=yystep;
-                        }
-
-                    }
-                    if (ud.playerbest > 0)
-                    {
-                        if (!RR)
-                            gametext(10, yy+9, (g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < ud.playerbest) ? "Prev Best Time:" : "Your Best Time:");
-                        else
-                            menutext(30, yy, (g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < ud.playerbest) ? "Prev Best:" : "Yer Best:");
-                        yy += yystep;
-                    }
-
-                    if (bonuscnt == 0)
-                        bonuscnt++;
-
-                    yy = zz;
-                    if (totalclock >(60*4))
-                    {
-                        if (bonuscnt == 1)
-                        {
-                            bonuscnt++;
-                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                        }
-
-                        if (g_player[myconnectindex].ps->player_par > 0)
-                        {
-                            G_PrintYourTime();
-                            if (!RR)
-                            {
-                                gametext_number((320>>2)+71, yy+9, tempbuf);
-                                if (g_player[myconnectindex].ps->player_par < ud.playerbest)
-                                gametext((320>>2)+89+(clockpad*24), yy+9, GStrings("TXT_NEWRECORD"));
-                            }
-                            else
-                            {
-                                menutext(191, yy, tempbuf);
-                                //if (g_player[myconnectindex].ps->player_par < ud.playerbest)
-                                //    menutext(191 + 30 + (clockpad*24), yy, "New record!");
-                            }
-                        }
-                        else if (!RR)
-                            gametext_pal((320>>2)+71, yy+9, GStrings("TXT_Cheated"), 2);
-                        else
-                            menutext(191, yy, GStrings("TXT_Cheated"));
-                        yy+=yystep;
-
-                        if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
-                        {
-                            if (currentLevel->parTime)
-                            {
-                                G_PrintParTime();
-                                if (!RR)
-                                    gametext_number((320>>2)+71, yy+9, tempbuf);
-                                else
-                                    menutext(191, yy, tempbuf);
-                                yy+=yystep;
-                            }
-                            if (currentLevel->designerTime)
-                            {
-                                G_PrintDesignerTime();
-                                if (DUKE)
-                                    gametext_number((320>>2)+71, yy+9, tempbuf);
-                                else if (RR)
-                                    menutext(191, yy, tempbuf);
-                                yy+=yystep;
-                            }
-                        }
-
-                        if (ud.playerbest > 0)
-                        {
-                            G_PrintBestTime();
-                            if (!RR)
-                                gametext_number((320>>2)+71, yy+9, tempbuf);
-                            else
-                                menutext(191, yy, tempbuf);
-                            yy+=yystep;
-                        }
-                    }
-                }
-
-                zz = yy += RR ? 16 : 5;
-                if (totalclock > (60*6))
-                {
-                    if (!RR)
-                        gametext(10, yy+9, GStrings("TXT_EnemiesKilled"));
-                    else
-                        menutext(30, yy, GStrings("TXT_VarmintsKilled"));
-                    yy += yystep;
-                    if (!RR)
-                        gametext(10, yy+9, GStrings("TXT_EnemiesLeft"));
-                    else
-                        menutext(30, yy, GStrings("TXT_VarmintsLeft"));
-                    yy += yystep;
-
-                    if (bonuscnt == 2)
-                    {
-                        bonuscnt++;
-                        if (!RR)
-                            S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
-                    }
-
-                    yy = zz;
-
-                    if (totalclock > (60*7))
-                    {
-                        if (bonuscnt == 3)
-                        {
-                            bonuscnt++;
-                            S_PlaySound(RR ? 422 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                        }
-                        Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->actors_killed);
-                        if (!RR)
-                            gametext_number((320>>2)+70, yy+9, tempbuf);
-                        else
-                            menutext(231,yy,tempbuf);
-                        yy += yystep;
-                        if (ud.player_skill > 3 && !RR)
-                        {
-                            if (!RR)
-                      	      gametext((320>>2)+70, yy+9, GStrings("TXT_N_A"));
-                            else
-                                menutext(231,yy, GStrings("TXT_N_A"));
-                            yy += yystep;
-                        }
-                        else
-                        {
-                            if ((g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed) < 0)
-                                Bsprintf(tempbuf, "%-3d", 0);
-                            else Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
-                            if (!RR)
-                                gametext_number((320>>2)+70, yy+9, tempbuf);
-                            else
-                                menutext(231, yy, tempbuf);
-                            yy += yystep;
-                        }
-                    }
-                }
-
-                zz = yy += RR ? 0 : 5;
-                if (totalclock > (60*9))
-                {
-                    if (!RR)
-                        gametext(10, yy+9, GStrings("TXT_SECFND"));
-                    else
-                        menutext(30, yy, GStrings("TXT_SECFND"));
-                    yy += yystep;
-                    if (!RR)
-                        gametext(10, yy+9, GStrings("TXT_SECMISS"));
-                    else
-                        menutext(30, yy, GStrings("TXT_SECMISS"));
-                    yy += yystep;
-                    if (bonuscnt == 4) bonuscnt++;
-
-                    yy = zz;
-                    if (totalclock > (60*10))
-                    {
-                        if (bonuscnt == 5)
-                        {
-                            bonuscnt++;
-                            S_PlaySound(RR ? 404 : PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
-                        }
-                        Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
-                        if (!RR)
-                            gametext_number((320>>2)+70, yy+9, tempbuf);
-                        else
-                            menutext(231, yy, tempbuf);
-                        yy += yystep;
-                        Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
-                        if (!RR)
-                            gametext_number((320>>2)+70, yy+9, tempbuf);
-                        else
-                            menutext(231, yy, tempbuf);
-                        yy += yystep;
-                        }
-                    }
-
-                if (totalclock > 10240 && totalclock < 10240+10240)
-                    totalclock = 1024;
-
-                if (inputState.CheckAllInput() && totalclock >(60*2)) // JBF 20030809
-                {
-                    if (totalclock < (60*13))
-                    {
-                        totalclock = (60*13);
-                    }
-                    else if (totalclock < 1000000000)
-                        totalclock = 1000000000;
-                }
-            }
-            else
-                break;
-
-            videoNextPage();
-        }
-    } while (1);
     if (g_turdLevel)
         g_turdLevel = 0;
     if (g_vixenLevel)
@@ -1564,7 +1182,7 @@ void G_ShowMapFrame(void)
     rotatesprite_fs(160<<16,100<<16,65536L,0,TILE_RRTILE8624+frame,0,0,10+64+128);
 }
 
-void PlayMapAnim(CompletionFunc completion);
+void PlayMapAnim(int v, int m, CompletionFunc completion);
 
 
 void G_BonusScreenRRRA(int32_t bonusonly)
@@ -1682,7 +1300,7 @@ void G_BonusScreenRRRA(int32_t bonusonly)
                     {
                         bonuscnt++;
                         Mus_Stop();
-                        PlayMapAnim([](bool) {});
+                        PlayMapAnim(ud.volume_number, ud.level_number, [](bool) {});
                         break;
                     }
                 }

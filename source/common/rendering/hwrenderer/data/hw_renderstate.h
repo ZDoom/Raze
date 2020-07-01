@@ -291,7 +291,7 @@ public:
 		mStreamData.uGradientBottomPlane = { 0.0f, 0.0f, 0.0f, 0.0f };
 		mStreamData.uSplitTopPlane = { 0.0f, 0.0f, 0.0f, 0.0f };
 		mStreamData.uSplitBottomPlane = { 0.0f, 0.0f, 0.0f, 0.0f };
-		mStreamData.uDynLightColor = { 0.0f, 0.0f, 0.0f, 0.0f };
+		mStreamData.uDynLightColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		mStreamData.uDetailParms = { 0.0f, 0.0f, 0.0f, 0.0f };
 #ifdef NPOT_EMULATION
 		mStreamData.uNpotEmulation = { 0,0 };
@@ -460,7 +460,15 @@ public:
 
 	void SetDynLight(float r, float g, float b)
 	{
-		mStreamData.uDynLightColor = { r, g, b, 0.0f };
+		mStreamData.uDynLightColor.X = r;
+		mStreamData.uDynLightColor.Y = g;
+		mStreamData.uDynLightColor.Z = b;
+	}
+
+	void SetScreenFade(float f)
+	{
+		// This component is otherwise unused.
+		mStreamData.uDynLightColor.W = f;
 	}
 
 	void SetObjectColor(PalEntry pe)

@@ -945,8 +945,12 @@ void F2DDrawer::AddPixel(int x1, int y1, uint32_t color)
 
 void F2DDrawer::Clear()
 {
-	mVertices.Clear();
-	mIndices.Clear();
-	mData.Clear();
-	mIsFirstPass = true;
+	if (!locked)
+	{
+		mVertices.Clear();
+		mIndices.Clear();
+		mData.Clear();
+		mIsFirstPass = true;
+	}
+	screenFade = 1.f;
 }

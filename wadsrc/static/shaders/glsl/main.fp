@@ -773,7 +773,7 @@ void main()
 			frag = frag * ProcessLight(material, vColor);
 		frag.rgb = frag.rgb + uFogColor.rgb;
 	}
-	FragColor = frag;
+	FragColor = vec4(frag.rgb * uDynLightColor.a, frag.a);	// apply a global fade factor.
 #ifdef GBUFFER_PASS
 	FragFog = vec4(AmbientOcclusionColor(), 1.0);
 	FragNormal = vec4(vEyeNormal.xyz * 0.5 + 0.5, 1.0);

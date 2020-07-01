@@ -130,6 +130,7 @@ void Draw2D(F2DDrawer *drawer, FRenderState &state)
 	vb.UploadData(&vertices[0], vertices.Size(), &indices[0], indices.Size());
 	state.SetVertexBuffer(&vb);
 	state.EnableFog(false);
+	state.SetScreenFade(drawer->screenFade);
 
 	for(auto &cmd : commands)
 	{
@@ -226,6 +227,7 @@ void Draw2D(F2DDrawer *drawer, FRenderState &state)
 	state.EnableBrightmap(true);
 	state.SetTextureMode(TM_NORMAL);
 	state.EnableFog(false);
+	state.SetScreenFade(1);
 	state.ResetColor();
 	drawer->mIsFirstPass = false;
 	twoD.Unclock();

@@ -61,16 +61,10 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	}
 	if (!tex) return 0;
 	int span = int(clock / 1'000'000);
-	int light = 255;
-	if (span < 255) light = span;
-	else if (fadeoutstart > 0 && span > fadeoutstart - 255) light = fadeoutstart - span;
-	light = clamp(light, 0, 255);
-	PalEntry pe(255, light, light, light);
 	twod->ClearScreen();
-	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, pe, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 	// Only end after having faded out.
-	if (skiprequest&& fadeoutstart < 0) fadeoutstart = span;
-	return fadeoutstart > 0 && light == 0 ? -1 : 1;
+	return skiprequest ? -1 : 1;
 }
 
 
@@ -104,19 +98,52 @@ void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clea
 
 			// Input later needs to be event based so that these screens can do more than be skipped.
 			inputState.ClearAllInput();
+
+			float screenfade = job.job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
+
 			while (true)
 			{
 				auto now = I_nsTime();
 				handleevents();
 				bool skiprequest = inputState.CheckAllInput();
-				int state = job.job->Frame(now - startTime, skiprequest);
+				auto clock = now - startTime;
+				if (screenfade < 1.f)
+				{
+					float ms = (clock / 1'000'000) / job.job->fadetime;
+					screenfade = clamp(ms, 0.f, 1.f);
+					twod->SetScreenFade(screenfade);
+				}
+				job.job->SetClock(clock);
+				int state = job.job->Frame(clock, skiprequest);
+				startTime -= job.job->GetClock() - clock;
+				// Must lock before displaying.
+				if (state < 1 && job.job->fadestyle & DScreenJob::fadeout)
+					twod->Lock();
+
 				videoNextPage();
 				if (state < 1)
 				{
+					if (job.job->fadestyle & DScreenJob::fadeout)
+					{
+						startTime = now;
+						float screenfade2;
+						do
+						{
+							now = I_nsTime();
+							auto clock = now - startTime;
+							float ms = (clock / 1'000'000) / job.job->fadetime;
+							screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
+							twod->SetScreenFade(screenfade2);
+							if (screenfade2 <= 0.f) twod->Unlock(); // must unlock before displaying.
+							videoNextPage();
+							
+						} while (screenfade2 > 0.f);
+					}
 					skipped = state < 0;
 					job.job->Destroy();
 					job.job->ObjectFlags |= OF_YesReallyDelete;
 					delete job.job;
+					twod->SetScreenFade(1);
 					break;
 				}
 			}

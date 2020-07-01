@@ -164,6 +164,8 @@ public:
 	TArray<RenderCommand> mData;
 	int Width, Height;
 	bool isIn2D;
+	bool locked;	// prevents clearing of the data so it can be reused multiple times (useful for screen fades)
+	float screenFade = 1.f;
 public:
 	int fullscreenautoaspect = 0;
 	int cliptop = -1, clipleft = -1, clipwidth = -1, clipheight = -1;
@@ -199,6 +201,9 @@ public:
 	void AddPixel(int x1, int y1, uint32_t color);
 
 	void Clear();
+	void Lock() { locked = true; }
+	void SetScreenFade(float factor) { screenFade = factor; }
+	void Unlock() { locked = false; }
 	int GetWidth() const { return Width; }
 	int GetHeight() const { return Height; }
 	void SetSize(int w, int h) { Width = w; Height = h; }
