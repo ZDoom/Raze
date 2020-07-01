@@ -103,19 +103,6 @@ vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int3
 {
     return G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
 }
-void gametext_simple(int32_t x, int32_t y, const char *t)
-{
-    G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags, 0, 0, xdim-1, ydim-1);
-}
-vec2_t mpgametext(int32_t x, int32_t y, const char *t, int32_t s, int32_t o, int32_t a, int32_t f)
-{
-    return G_ScreenText(MF_Bluefont.tilenum, x, y, textsc(MF_Bluefont.zoom), 0, 0, t, s, MF_Bluefont.pal, o|2|8|16|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
-}
-vec2_t mpgametextsize(const char *t, int32_t f)
-{
-    return G_ScreenTextSize(MF_Bluefont.tilenum, 0, 0, textsc(MF_Bluefont.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
-}
-
 static int32_t sbarx16(int32_t x)
 {
     if (ud.screen_size == 4) return sbarsc(x);
@@ -185,12 +172,6 @@ void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_
 void captionmenutext(int32_t x, int32_t y, char const *t)
 {
     G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, 0, ud.menutitle_pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, MF_Redfont.textflags|TEXT_LITERALESCAPE|TEXT_XCENTER|TEXT_YCENTER, 0, 0, xdim-1, ydim-1);
-}
-
-
-int32_t textsc(int32_t sc)
-{
-    return scale(sc, hud_textscale, 400);
 }
 
 END_DUKE_NS

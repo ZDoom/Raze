@@ -37,10 +37,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "screenjob.h"
 #include "texturemanager.h"
-//#include "zz_text.h"
-
-#undef gametext
-//#undef menutext
 
 BEGIN_DUKE_NS
 
@@ -90,6 +86,7 @@ void InitFonts_r()
     GlyphSet::Pair* pair;
     while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
     BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
+    BigFont->SetKerning(6);
     fontdata.Clear();
 
     // Tiny font
@@ -130,11 +127,12 @@ void InitFonts_r()
 
 static void BigText(double x, double y, const char* text, int align)
 {
-    x *= 2; y *= 2;
+    //x *= 2.2; y *= 2.64;
     if (align != -1)
         x -= BigFont->StringWidth(text) * (align == 0 ? 0.5 : 1);
     auto width = BigFont->StringWidth(text);
-    DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 24, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, TAG_DONE);
+    //DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 24, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 704, DTA_VirtualHeight, 528, TAG_DONE);
+    DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
@@ -424,7 +422,7 @@ public:
     void PrintKills(int totalclock)
     {
         BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
-        BigText(30, 128 + 4 + 9, GStrings("TXT_VarmintsLeft"), -1);
+        BigText(30, 128, GStrings("TXT_VarmintsLeft"), -1);
 
         if (bonuscnt == 2)
             bonuscnt++;
@@ -477,10 +475,11 @@ public:
 
     int Frame(uint64_t clock, bool skiprequest)
     {
+        twod->ClearScreen();
         int totalclock = int(clock * 120 / 1'000'000'000);
         DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-        if (lastmapname) BigText(80, 16, lastmapname, 0);
+        if (lastmapname) BigText(80, 16, lastmapname, -1);
         BigText(15, 192, GStrings("PRESSKEY"), -1);
 
         if (totalclock > (60 * 3))

@@ -3714,7 +3714,7 @@ void polymost_drawsprite(int32_t snum)
                 break;  // else, render as flat sprite
             }
 
-            if ((tspr->cstat & 48) == 48 && voxmodels[tspr->picnum])
+            if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
                 polymost_voxdraw(voxmodels[tspr->picnum], tspr);
                 return;

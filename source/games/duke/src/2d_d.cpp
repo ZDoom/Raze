@@ -38,10 +38,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "screenjob.h"
 #include "texturemanager.h"
 #include "buildtiles.h"
-//#include "zz_text.h"
-
-#undef GameText
-//#undef menutext
 
 BEGIN_DUKE_NS
 
@@ -682,6 +678,7 @@ public:
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		char tempbuf[32];
+		int totalclock = int(clock * 120 / 1'000'000'000);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
@@ -690,7 +687,7 @@ public:
 
 		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);
 		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
-		GameText(160, 165, GStrings("Presskey"), 0, 0);
+		GameText(160, 165, GStrings("Presskey"), 8 - int(sin(totalclock / 10.) * 8), 0);
 
 		int t = 0;
 
@@ -891,12 +888,13 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		twod->ClearScreen();
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (lastmapname) BigText(160, 20 - 6, lastmapname);
 		BigText(160, 36 - 6, GStrings("Completed"));
-		GameText(160, 192, GStrings("PRESSKEY"), (sintable[(totalclock << 5) & 2047] >> 11), 0);
+		GameText(160, 192, GStrings("PRESSKEY"), 8 - int(sin(totalclock / 10.) * 8), 0);
 
 		if (totalclock > (60 * 3))
 		{
@@ -1077,6 +1075,14 @@ CCMD(testscreen)
 			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
 			RunScreenJob(jobs, job, nullptr);
 			break;
+
+		case 10:
+			ud.eog = true;
+			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
+			RunScreenJob(jobs, job, nullptr);
+			ud.eog = false;
+			break;
+
 		}
 	}
 }

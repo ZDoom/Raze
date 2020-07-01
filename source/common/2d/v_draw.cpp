@@ -964,14 +964,10 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			break;
 
 		case DTA_ScaleX:
-			assert(fortext == false);
-			if (fortext) return false;
 			parms->patchscalex = ListGetDouble(tags);
 			break;
 
 		case DTA_ScaleY:
-			assert(fortext == false);
-			if (fortext) return false;
 			parms->patchscaley = ListGetDouble(tags);
 			break;
 

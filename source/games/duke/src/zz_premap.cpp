@@ -241,6 +241,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     ready2send = 0;
 
+#if 0
     if (m_recstat != 2 && ud.last_level >= 0 &&
         (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
     {
@@ -249,6 +250,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     if (RR && !RRRA && ud.level_number == 6 && ud.volume_number == 0)
         G_BonusScreen(0);
+#endif
 
     g_showShareware = GAMETICSPERSEC*34;
 

@@ -258,8 +258,11 @@ void DrawTextCommon(F2DDrawer *drawer, FFont *font, int normalcolor, double x, d
 	int			kerning;
 	FGameTexture *pic;
 
+	double scalex = parms.scalex * parms.patchscalex;
+	double scaley = parms.scaley * parms.patchscaley;
+
 	if (parms.celly == 0) parms.celly = font->GetHeight() + 1;
-	parms.celly *= parms.scaley;
+	parms.celly *= scaley;
 
 	bool palettetrans = (normalcolor == CR_UNDEFINED && parms.TranslationId != 0);
 
@@ -333,11 +336,11 @@ void DrawTextCommon(F2DDrawer *drawer, FFont *font, int normalcolor, double x, d
 		}
 		if (parms.monospace == EMonospacing::Off)
 		{
-			cx += (w + kerning + parms.spacing) * parms.scalex;
+			cx += (w + kerning + parms.spacing) * scalex;
 		}
 		else
 		{
-			cx += (parms.spacing) * parms.scalex;
+			cx += (parms.spacing) * scalex;
 		}
 
 	}
