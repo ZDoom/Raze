@@ -527,22 +527,22 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 
 		if (p == screenpeek || ud.coop == 1)
 		{
-			if (sprite[ps[p].i].xvel > 16 && ps[p].on_ground)
+			auto& pp = ps[p];
+			if (sprite[pp.i].xvel > 16 && pp.on_ground)
 				i = TILE_APLAYERTOP + (((int)totalclock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 
-			j = klabs(ps[p].truefz - ps[p].posz) >> 8;
-			j = mulscale(czoom * (sprite[ps[p].i].yrepeat + j), yxaspect, 16);
+			j = klabs(pp.truefz - pp.posz) >> 8;
+			j = mulscale(czoom * (sprite[pp.i].yrepeat + j), yxaspect, 16);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			/*
-			rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), j,
-				daang, i, sprite[ps[p].i].shade, sprite[ps[p].i].pal,
-				(sprite[ps[p].i].cstat & 2) >> 1, windowx1, windowy1, windowx2, windowy2);
-				*/
+			int light = Scale(numshades - sprite[pp.i].shade, 255, numshades);
+			PalEntry pe(255, light, light, light);
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal),
+				DTA_Color, pe, DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
 		}
 	}
 }
