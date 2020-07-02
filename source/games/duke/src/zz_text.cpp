@@ -208,7 +208,7 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
             x = sbarxr16(x);
         else
             x = sbarx16(x);
-        y = minitext_yofs+sbary16(y);
+        y = minitext_yofs;
         z = sbarsc(z);
     }
 

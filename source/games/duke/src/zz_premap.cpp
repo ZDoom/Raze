@@ -343,7 +343,6 @@ void G_ClearFIFO(void)
     {
         if (g_player[p].input != NULL)
             Bmemset(g_player[p].input, 0, sizeof(input_t));
-        g_player[p].vote = g_player[p].gotvote = 0;
     }
 }
 

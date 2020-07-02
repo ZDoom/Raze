@@ -1240,16 +1240,6 @@ void G_HandleLocalKeys(void)
         CONTROL_GetInput(&noshareinfo);
     }
 
-    if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-    {
-        if (inputState.UnboundKeyPressed(sc_F1) || inputState.UnboundKeyPressed(sc_F2) || cl_autovote)
-        {
-            Net_SendMapVote(inputState.UnboundKeyPressed(sc_F1) || cl_autovote ? cl_autovote-1 : 0);
-            inputState.ClearKeyStatus(sc_F1);
-            inputState.ClearKeyStatus(sc_F2);
-        }
-    }
-
     if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps->gm & MODE_TYPE) == 0)
     {
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))

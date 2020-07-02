@@ -50,32 +50,6 @@ double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
-////////// OFTEN-USED FEW-LINERS //////////
-static void G_HandleEventsWhileNoInput(void)
-{
-    inputState.ClearAllInput();
-
-    while (!inputState.CheckAllInput())
-        G_HandleAsync();
-
-}
-
-static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
-{
-    S_PlaySound(soundnum, CHAN_AUTO, CHANF_UI);
-    inputState.ClearAllInput();
-    while (S_CheckSoundPlaying(-1, soundnum))
-    {
-        G_HandleAsync();
-        if (inputState.CheckAllInput())
-        {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-//////////
 
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
 {
@@ -90,44 +64,6 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
     videoSetPalette(palid, set);
 }
 
-
-#define SCORESHEETOFFSET -20
-static void G_ShowScores(void)
-{
-    int32_t t, i;
-
-    if (playerswhenstarted > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
-    {
-        gametext_center(SCORESHEETOFFSET+58+2, GStrings("Multiplayer Totals"));
-        gametext_center(SCORESHEETOFFSET+58+10, currentLevel->DisplayName());
-
-        t = 0;
-        minitext(70, SCORESHEETOFFSET+80, GStrings("Name"), 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(170, SCORESHEETOFFSET+80, GStrings("Frags"), 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(200, SCORESHEETOFFSET+80, GStrings("Deaths"), 8, 2+8+16+ROTATESPRITE_MAX);
-        minitext(235, SCORESHEETOFFSET+80, GStrings("Ping"), 8, 2+8+16+ROTATESPRITE_MAX);
-
-        for (i=playerswhenstarted-1; i>=0; i--)
-        {
-            if (!g_player[i].playerquitflag)
-                continue;
-
-            minitext(70, SCORESHEETOFFSET+90+t, g_player[i].user_name, g_player[i].ps->palookup, 2+8+16+ROTATESPRITE_MAX);
-
-            Bsprintf(tempbuf, "%-4d", g_player[i].ps->frag);
-            minitext(170, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
-
-            Bsprintf(tempbuf, "%-4d", g_player[i].frags[i] + g_player[i].ps->fraggedself);
-            minitext(200, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
-
-            //Bsprintf(tempbuf, "%-4d", g_player[i].ping);
-            //minitext(235, SCORESHEETOFFSET+90+t, tempbuf, 2, 2+8+16+ROTATESPRITE_MAX);
-
-            t += 7;
-        }
-    }
-}
-#undef SCORESHEETOFFSET
 
 ////////// TINT ACCUMULATOR //////////
 
@@ -590,18 +526,6 @@ void G_DisplayRest(int32_t smoothratio)
         G_ScreenText(MF_Bluefont.tilenum, 2<<16, i-gtextsc(ystep), gtextsc(MF_Bluefont.zoom), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, xbetween, MF_Bluefont.between.y, MF_Bluefont.textflags|TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
     }
 
-    if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-    {
-        Bsprintf(tempbuf, "%s^00 has called a vote for map", g_player[voting].user_name);
-        gametext_center(40, tempbuf);
-        Bsprintf(tempbuf, "%s (E%dL%d)", mapList[vote_episode*MAXLEVELS + vote_map].DisplayName(), vote_episode+1, vote_map+1);
-        gametext_center(48, tempbuf);
-        gametext_center(70, "Press F1 to Accept, F2 to Decline");
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Show_DukeMatch_Scores))
-        G_ShowScores();
-	
     Net_DisplaySyncMsg();
 
     if (VOLUMEONE)
