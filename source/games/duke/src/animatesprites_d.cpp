@@ -163,11 +163,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                break;
 
 			default:
-                if((tileinfo[s->picnum].flags & SFLAG_ADULT) && adult_lockout)
-                {
-                    t->xrepeat = t->yrepeat = 0;
-                    continue;
-                }
+                break;
         }
 
         if( t->statnum == 99 ) continue;
@@ -209,11 +205,6 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
             case MAIL+1:
             case PAPER:
             case PAPER+1:
-                if(adult_lockout && s->pal == 2)
-                {
-                    t->xrepeat = t->yrepeat = 0;
-                    continue;
-                }
                 break;
             case TRIPBOMB:
                 continue;

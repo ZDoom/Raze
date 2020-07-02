@@ -1781,8 +1781,6 @@ int32_t TILE_MAMAJIBA = 0;
 int32_t TILE_MAMAJIBB = 0;
 
 
-int APLAYER, CAMERA1;
-
 // This is run after all CON define's have been processed to set up the
 // dynamic->static tile mapping.
 void G_InitDynamicTiles(void)

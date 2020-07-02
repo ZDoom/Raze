@@ -39,6 +39,9 @@ BEGIN_DUKE_NS
 
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
+void drawstatusbar_d(int snum);
+void drawstatusbar_r(int snum);
+
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
 int32_t dr_yxaspect, dr_viewingrange;
@@ -771,7 +774,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 twod->ClearScreen();
-                G_DrawBackground();
+                drawbackground();
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
@@ -789,8 +792,8 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-
-        G_DrawStatusBar(screenpeek);
+    if (isRR()) drawstatusbar_r(screenpeek);
+    else drawstatusbar_d(screenpeek);
 
     if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
     {

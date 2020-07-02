@@ -163,7 +163,7 @@ int32_t G_LoadPlayer(const char *path)
         pub = NUMPAGES;
         pus = NUMPAGES;
         G_UpdateScreenArea();
-        G_DrawBackground();
+        drawbackground();
         menutext_center(100, "Loading...");
         videoNextPage();
     }
@@ -1430,7 +1430,7 @@ static void postloadplayer(int32_t savegamep)
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     restorepalette = -1;
 
-    //3.5
+    //4
     if (savegamep)
     {
         for (SPRITES_OF(STAT_FX, i))
@@ -1444,31 +1444,6 @@ static void postloadplayer(int32_t savegamep)
         FX_SetReverb(0);
     }
 
-    //4
-    if (savegamep)
-    {
-        if (adult_lockout)
-        {
-            for (i=0; i<g_animWallCnt; i++)
-                switch (DYNAMICTILEMAP(wall[animwall[i].wallnum].picnum))
-                {
-                case FEMPIC1__STATIC:
-                    wall[animwall[i].wallnum].picnum = TILE_BLANKSCREEN;
-                    break;
-                case FEMPIC2__STATIC:
-                case FEMPIC3__STATIC:
-                    wall[animwall[i].wallnum].picnum = TILE_SCREENBREAK6;
-                    break;
-                }
-        }
-#if 0
-        else
-        {
-            for (i=0; i<g_numAnimWalls; i++)
-                if (wall[animwall[i].wallnum].extra >= 0)
-                    wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
-        }
-#endif
     }
 
     //5

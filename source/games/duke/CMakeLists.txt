@@ -29,6 +29,9 @@ set( PCH_SOURCES
 	src/premap.cpp
 	src/premap_d.cpp
 	src/premap_r.cpp
+	src/sbar.cpp
+	src/sbar_d.cpp
+	src/sbar_r.cpp
 	src/sectors.cpp
 	src/sectors_d.cpp
 	src/sectors_r.cpp
@@ -47,7 +50,6 @@ set( PCH_SOURCES
 	src/zz_player.cpp
 	src/zz_premap.cpp
 	src/zz_savegame.cpp
-	src/zz_sbar.cpp
 	src/zz_screens.cpp
 	src/zz_text.cpp
 	src/zz_sector.cpp

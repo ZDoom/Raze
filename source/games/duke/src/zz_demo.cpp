@@ -78,7 +78,7 @@ RECHECK:
 
         //fadepal(0,0,0, 0,252,28);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        G_DrawBackground();
+        drawbackground();
         //M_DisplayMenus();
         videoNextPage();
         //fadepal(0,0,0, 252,0,-28);
@@ -106,7 +106,7 @@ RECHECK:
         {
             if (foundemo == 0)
             {
-                G_DrawBackground();
+                drawbackground();
             }
 
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))

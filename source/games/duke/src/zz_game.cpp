@@ -422,7 +422,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
         if (spritesortcnt >= maxspritesonscreen)
             break;
 
-        if (sprite[k].picnum != TILE_SECTOREFFECTOR && sprite[k].z >= sp->z)
+        if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
         {
             tspriteptr_t tsp = renderAddTSpriteFromSprite(k);
 
@@ -652,7 +652,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     {
         //videoClearScreen(0);
         if (ud.screen_size >= 8)
-            G_DrawBackground();
+            drawbackground();
         pub = 0;
     }
 
@@ -1165,7 +1165,7 @@ static int32_t g_RTSPlaying;
 // Returns: started playing?
 int G_StartRTS(int lumpNum, int localPlayer)
 {
-    if (!adult_lockout && SoundEnabled() &&
+    if (SoundEnabled() &&
         RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
     {
         auto sid = RTS_GetSoundID(lumpNum - 1);
@@ -2096,7 +2096,7 @@ MAIN_LOOP_RESTART:
 
             G_DrawRooms(screenpeek, smoothRatio);
             if (videoGetRenderMode() >= REND_POLYMOST)
-                G_DrawBackground();
+                drawbackground();
             G_DisplayRest(smoothRatio);
             videoNextPage();
 

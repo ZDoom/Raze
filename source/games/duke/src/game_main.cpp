@@ -198,5 +198,67 @@ void FTA(int q, struct player_struct* p)
     }
 }
 
+//==========================================================================
+//
+// Draws the background
+// todo: split up to have dedicated functions for both cases.
+//
+//==========================================================================
+
+void drawbackground(void)
+{
+    if ((g_player[myconnectindex].ps->gm & MODE_GAME) == 0 && ud.recstat != 2)
+    {
+        twod->ClearScreen();
+        auto tex = tileGetTexture(TILE_MENUSCREEN);
+        PalEntry color = 0xff808080;
+        if (!hud_bgstretch)
+            DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
+        else
+            DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
+        return;
+    }
+
+    auto tex = tileGetTexture(isRRRA() ? /*TILE_RRTILE*/7629 : TILE_BIGHOLE);
+    if (tex != nullptr && tex->isValid())
+    {
+        if (windowxy1.y > 0)
+        {
+            twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.y, tex, false, 1);
+        }
+        if (windowxy2.y + 1 < twod->GetHeight())
+        {
+            twod->AddFlatFill(0, windowxy2.y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
+        }
+        if (windowxy1.x > 0)
+        {
+            twod->AddFlatFill(0, windowxy1.y, windowxy1.x, windowxy2.y + 1, tex, false, 1);
+        }
+        if (windowxy2.x + 1 < twod->GetWidth())
+        {
+            twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
+        }
+        auto vb = tileGetTexture(TILE_VIEWBORDER);
+        auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
+        int x1 = windowxy1.x - 4;
+        int y1 = windowxy1.y - 4;
+        int x2 = windowxy2.x + 5;
+        int y2 = windowxy2.y + 5;
+        twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
+        twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
+        twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
+        twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
+        twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
+        twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
+        twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
+        twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
+    }
+    else
+    {
+        // If we got no frame just clear the screen.
+        twod->ClearScreen();
+    }
+}
+
 END_DUKE_NS
 

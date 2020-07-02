@@ -40,6 +40,12 @@ inline int minitext(int x, int y, const char* t, int p, int sb)
 	return minitext_(x, y, t, 0, p, sb);
 }
 
+static FORCE_INLINE int32_t sbarsc(int32_t sc)
+{
+	return scale(sc, ud.statusbarscale, 100);
+}
+
+
 #define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)
 #define gametext_center(y, t) gametext_(160<<16, (y)<<16, (t), 0, MF_Bluefont.pal, 0, 0, TEXT_XCENTER)
 #define gametext_center_number(y, t) gametext_(160<<16, (y)<<16, (t), 0, MF_Bluefont.pal, 0, 0, TEXT_XCENTER|TEXT_GAMETEXTNUMHACK)

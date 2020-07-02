@@ -266,7 +266,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     // we don't want the intro to play after the multiplayer setup screen
     if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
-        levelNum == 0 && volumeNum == 3 && adult_lockout == 0)
+        levelNum == 0 && volumeNum == 3)
     {
         e4intro([](bool) {});
     }
@@ -627,7 +627,7 @@ int G_EnterLevel(int gameMode)
 
     G_UpdateScreenArea();
     videoClearViewableArea(0L);
-    G_DrawBackground();
+    drawbackground();
     G_DrawRooms(myconnectindex,65536);
 
     Net_WaitForEverybody();

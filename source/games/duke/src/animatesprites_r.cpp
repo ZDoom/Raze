@@ -150,11 +150,7 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
                 t->xrepeat = t->yrepeat = 0;
             break;
         default:
-            if ((tileinfo[s->picnum].flags & SFLAG_ADULT) && adult_lockout)
-            {
-                t->xrepeat = t->yrepeat = 0;
-                continue;
-            }
+            break;
         }
 
         if( t->statnum == 99 ) continue;
@@ -209,11 +205,6 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
                     t->shade = -127;
             case MONEY:
             case MONEY+1:
-                if(adult_lockout && s->pal == 2)
-                {
-                    t->xrepeat = t->yrepeat = 0;
-                    continue;
-                }
                 break;
             case TRIPBOMBSPRITE:
                 continue;
