@@ -55,8 +55,11 @@ void InitFonts_d()
     for (int i = 0; i < 95; i++)
     {
         auto tile = tileGetTexture(STARTALPHANUM + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            fontdata.Insert('!' + i, tile);
+		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+		{
+			fontdata.Insert('!' + i, tile);
+			tile->SetOffsetsNotForFont();
+		}
     }
     SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 5, false, false, false, &fontdata);
     fontdata.Clear();

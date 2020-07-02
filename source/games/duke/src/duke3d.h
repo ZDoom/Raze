@@ -212,10 +212,10 @@ struct GameInterface : ::GameInterface
 	void StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
+	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
 	bool SaveGame(FSaveGameNode*) override;
 	bool LoadGame(FSaveGameNode*) override;
-	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	int GetStringTile(int font, const char* t, int f) override;

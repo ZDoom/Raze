@@ -46,6 +46,28 @@
 
 extern FSaveGameNode *quickSaveSlot;
 
+
+void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
+{
+	double scale = SmallFontScale();
+	int formatwidth = int(320 / scale);
+	auto lines = V_BreakLines(SmallFont, formatwidth, text, true);
+	auto fheight = bg? 10 : SmallFont->GetHeight()* scale;	// Fixme: Get spacing for text pages from elsewhere.
+	if (!bg)
+	{
+		auto totaltextheight = lines.Size() * fheight;
+		position -= totaltextheight / 2;
+	}
+
+	double y = origin.Y + position;
+	for (auto& line : lines)
+	{
+		double x = origin.X + 160 - line.Width * scale * 0.5;
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y += fheight;
+	}
+}
+
 class DMessageBoxMenu : public DMenu
 {
 	using Super = DMenu;
@@ -202,10 +224,10 @@ void DMessageBoxMenu::Drawer()
 		{
 			y += fontheight;
 			mMouseY = y;
-			DrawText(twod, NewSmallFont,
+			DrawText(twod, SmallFont,
 				messageSelection == 0 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y, GStrings["TXT_YES"], DTA_Clean, true, TAG_DONE);
-			DrawText(twod, NewSmallFont,
+			DrawText(twod, SmallFont,
 				messageSelection == 1 ? OptionSettings.mFontColorSelection : OptionSettings.mFontColor,
 				160, y + fontheight + 1, GStrings["TXT_NO"], DTA_Clean, true, TAG_DONE);
 
@@ -213,7 +235,7 @@ void DMessageBoxMenu::Drawer()
 			{
 				if (((DMenu::MenuTime >> 2) % 8) < 6)
 				{
-					DrawText(twod, NewSmallFont, OptionSettings.mFontColorSelection,
+					DrawText(twod, SmallFont, OptionSettings.mFontColorSelection,
 						(150 - 160) * CleanXfac + screen->GetWidth() / 2,
 						(y + (fontheight + 1) * messageSelection - 100 + fontheight / 2 - 5) * CleanYfac + screen->GetHeight() / 2,
 						"\xd",
