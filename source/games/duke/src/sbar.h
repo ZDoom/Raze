@@ -22,6 +22,9 @@ protected:
     std::pair<const char*, EColorRange> ontext(DukePlayer_t *p);
     void DrawInventory(const DukePlayer_t* p, double x, double y, int align);
     PalEntry LightForShade(int shade);
+public:
+    void PrintLevelStats(int bottomy);
+
 };
 
 END_DUKE_NS

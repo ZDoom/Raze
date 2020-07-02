@@ -229,15 +229,18 @@ public:
 				y -= 4;
 			DrawInventory(p, 0, y, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD1(p, snum);
+            PrintLevelStats(scale * tilesiz[BIGALPHANUM].y + 10);
         }
         else if (style == 2)
         {
             DrawInventory(p, 56, -20, DI_SCREEN_CENTER_BOTTOM);
             FullscreenHUD2(p);
+            PrintLevelStats(scale * tilesiz[HEALTHBOX].y + 2);
         }
         else
         {
             DrawInventory(p, 0, -20, DI_SCREEN_CENTER_BOTTOM);
+            PrintLevelStats(2);
         }
     }
 
@@ -379,6 +382,7 @@ public:
         {
             DrawGraphic(tileGetTexture(GUTMETER_LIGHT4), 302, top + 24, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale);
         }
+        PrintLevelStats(-1);
     }
 };
 

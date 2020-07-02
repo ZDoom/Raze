@@ -170,4 +170,54 @@ PalEntry DDukeCommonStatusBar::LightForShade(int shade)
 	return PalEntry(255, ll, ll, ll);
 }
 
+//==========================================================================
+//
+// Statistics output
+//
+//==========================================================================
+
+void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
+{
+	// JBF 20040124: display level stats in screen corner
+	if (ud.overhead_on != 2 && hud_stats)
+	{
+		FLevelStats stats{};
+		auto pp = &ps[myconnectindex];
+
+		stats.fontscale = isRR() ? 0.5 : 1.;
+		stats.spacing = isRR() ? 10 : 7;
+		stats.screenbottomspace = bottomy;
+
+		stats.time = Scale(pp->player_par, 1000, REALGAMETICSPERSEC);
+		stats.kills = pp->actors_killed;
+		stats.maxkills = !isRR() && ud.player_skill > 3 ? -2 : pp->max_actors_killed;
+		stats.frags = ud.multimode > 1 && !ud.coop ? pp->frag - pp->fraggedself : -1;
+		stats.secrets = pp->secret_rooms;
+		stats.maxsecrets = pp->max_secret_rooms;
+		stats.font = SmallFont;
+		if (isNamWW2GI())
+		{
+			// The stock font of these games is totally unusable for this.
+			stats.font = ConFont;
+			stats.spacing = ConFont->GetHeight() + 2;
+			stats.letterColor = CR_ORANGE;
+			stats.standardColor = CR_YELLOW;
+			stats.completeColor = CR_FIRE;
+		}
+		else if (!isRR())
+		{
+			stats.letterColor = CR_ORANGE;
+			stats.standardColor = CR_CREAM;
+			stats.completeColor = CR_FIRE;
+		}
+		else
+		{
+			stats.letterColor = CR_ORANGE;
+			stats.standardColor =
+				stats.completeColor = CR_UNTRANSLATED;
+		}
+		DBaseStatusBar::PrintLevelStats(stats);
+	}
+}
+
 END_DUKE_NS

@@ -35,6 +35,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "m_argv.h"
 #include "mapinfo.h"
 #include "texturemanager.h"
+#include "statusbar.h"
 
 BEGIN_DUKE_NS
 

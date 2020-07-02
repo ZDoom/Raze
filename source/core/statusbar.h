@@ -68,6 +68,18 @@ enum
 	HUDMSGLayer_Default = HUDMSGLayer_OverHUD,
 };
 
+struct FLevelStats
+{
+	int screenbottomspace;
+	int time; // in milliseconds
+	int frags;
+	int kills, maxkills;	// set maxkills to -1 to ignore, or to -2 to only print kills
+	int secrets, maxsecrets;	// set maxsecrets to -1 to ignore
+	int spacing; // uses fontheight if 0 or less.
+	EColorRange letterColor, standardColor, completeColor;
+	double fontscale;
+	FFont* font;
+};
 
 //============================================================================
 //
@@ -174,6 +186,7 @@ public:
 	void BeginHUD(int resW, int resH, double Alpha, bool forceScaled = false);
 	bool ForceHUDScale(bool on) { std::swap(ForcedScale, on); return on; }	// This is for SBARINFO which should not use BeginStatusBar or BeginHUD.
 	void StatusbarToRealCoords(double &x, double &y, double &w, double &h) const;
+	void PrintLevelStats(FLevelStats& stats);
 	int GetTopOfStatusbar() const
 	{
 		return SBarTop;

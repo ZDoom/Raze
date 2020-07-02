@@ -798,3 +798,37 @@ void FormatNumber(int number, int minsize, int maxsize, int flags, const FString
 	else fmt.Format("%s%*d", prefix.GetChars(), minsize, number);
 }
 
+CVAR(Float, hud_statscale, 2, CVAR_ARCHIVE)
+
+void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
+{
+	BeginHUD(320, 200, 1.f, false);
+	double scale = stats.fontscale * hud_statscale;
+	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
+	double spacing = stats.spacing * hud_statscale;
+	double y = (stats.screenbottomspace < 0 ? RelTop : screen->GetHeight() - stats.screenbottomspace * defaultScale.Y) - spacing;
+
+	FString text;
+	if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
+	{
+		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
+			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y -= spacing;
+	}
+
+	text = "";
+	if (stats.frags > -1) text.Format(TEXTCOLOR_ESCAPESTR "%cF: " TEXTCOLOR_ESCAPESTR "%c%d", stats.letterColor + 'A', stats.standardColor + 'A', stats.frags);
+	else if (stats.maxkills == -2) text.Format(TEXTCOLOR_ESCAPESTR "%cK: " TEXTCOLOR_ESCAPESTR "%c%d", stats.letterColor + 'A', stats.standardColor + 'A', stats.kills);
+	else if (stats.maxkills != -1) text.Format(TEXTCOLOR_ESCAPESTR "%cK: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
+		stats.letterColor + 'A', stats.kills == stats.maxkills ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.kills, stats.maxkills);
+
+	if (text.IsNotEmpty())
+	{
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y -= spacing;
+	}
+
+	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor+'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
+	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+}

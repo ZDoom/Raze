@@ -114,7 +114,7 @@ public:
         //
         // Health
         //
-        DrawGraphic(tileGetTexture(TILE_COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+        DrawGraphic(tileGetTexture(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
         FString format;
         if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
@@ -131,7 +131,7 @@ public:
         //
         // Armor
         //
-        DrawGraphic(tileGetTexture(TILE_SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+        DrawGraphic(tileGetTexture(SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
         format.Format("%d", GetMoraleOrShield(p, snum));
         SBar_DrawString(this, &numberFont, format, 105, -numberFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
@@ -181,9 +181,9 @@ public:
         //
         // keys
         //
-        if (p->got_access & 1) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -29, -30, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-        if (p->got_access & 4) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -24, -28, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-        if (p->got_access & 2) DrawGraphic(tileGetTexture(TILE_ACCESSCARD), -19, -26, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+        if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -29, -30, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+        if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -24, -28, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+        if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -19, -26, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
     }
 
 
@@ -198,7 +198,7 @@ public:
         //
         // health
         //
-        DrawGraphic(tileGetTexture(TILE_HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
         FStringf format("%d", health);
         SBar_DrawString(this, &digiFont, format, 19, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -206,7 +206,7 @@ public:
         //
         // ammo
         //
-        DrawGraphic(tileGetTexture(TILE_AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+        DrawGraphic(tileGetTexture(AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
         int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
         format.Format("%d", p->ammo_amount[wp]);
         SBar_DrawString(this, &digiFont, format, 53, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
@@ -218,7 +218,7 @@ public:
         if (icon > 0)
         {
             int x = 73;
-            DrawGraphic(tileGetTexture(TILE_INVENTORYBOX), 69, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+            DrawGraphic(tileGetTexture(INVENTORYBOX), 69, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
             if (icon < ICON_MAX)
                 DrawGraphic(tileGetTexture(item_icons[icon]), x, -14, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
@@ -247,15 +247,18 @@ public:
         {
             DrawInventory(p, 0, -46, DI_SCREEN_CENTER_BOTTOM);
             FullscreenHUD1(p, snum);
+            PrintLevelStats(tilesiz[BIGALPHANUM].y +10);
         }
         else if (style == 2)
         {
 			DrawInventory(p, (ud.multimode > 1) ? 56 : 65, -28, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
+            PrintLevelStats(tilesiz[HEALTHBOX].y + 2);
         }
         else
         {
             DrawInventory(p, 0, -28, DI_SCREEN_CENTER_BOTTOM);
+            PrintLevelStats(2);
         }
     }
 
@@ -393,6 +396,7 @@ public:
             auto text = ontext(p);
             if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
         }
+        PrintLevelStats(-1);
     }
 
 
