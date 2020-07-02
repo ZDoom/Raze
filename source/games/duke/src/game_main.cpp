@@ -81,91 +81,91 @@ void checkcommandline()
 
 void genspriteremaps(void)
 {
-    int j;
+	int j;
 
 	auto fr = fileSystem.OpenFileReader("lookup.dat");
 	if (!fr.isOpen())
-           return;
+		   return;
 
-    j = lookups.loadTable(fr);
+	j = lookups.loadTable(fr);
 
-    if (j < 0)
-    {
-        if (j == -1)
-            Printf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
+	if (j < 0)
+	{
+		if (j == -1)
+			Printf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
 
-        return;
-    }
+		return;
+	}
 
-    uint8_t paldata[768];
+	uint8_t paldata[768];
 
-    for (j=1; j<=5; j++)
-    {
+	for (j=1; j<=5; j++)
+	{
 		if (fr.Read(paldata, 768) != 768)
 			return;
 
-        for (int k = 0; k < 768; k++) // Build uses 6 bit VGA palettes.
-            paldata[k] = (paldata[k] << 2) | (paldata[k] >> 6);
+		for (int k = 0; k < 768; k++) // Build uses 6 bit VGA palettes.
+			paldata[k] = (paldata[k] << 2) | (paldata[k] >> 6);
 
-        paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j < DREALMSPAL);
-    }
+		paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j < DREALMSPAL);
+	}
 
-    for (int i = 0; i < 256; i++)
-    {
-        // swap red and blue channels.
-        paldata[i * 3] = GPalette.BaseColors[i].b;
-        paldata[i * 3+1] = GPalette.BaseColors[i].g;
-        paldata[i * 3+2] = GPalette.BaseColors[i].r;
-    }
-    paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
+	for (int i = 0; i < 256; i++)
+	{
+		// swap red and blue channels.
+		paldata[i * 3] = GPalette.BaseColors[i].b;
+		paldata[i * 3+1] = GPalette.BaseColors[i].g;
+		paldata[i * 3+2] = GPalette.BaseColors[i].r;
+	}
+	paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
 
-    if (isRR())
-    {
-        uint8_t table[256];
-        for (j = 0; j < 256; j++)
-            table[j] = j;
-        for (j = 0; j < 32; j++)
-            table[j] = j + 32;
+	if (isRR())
+	{
+		uint8_t table[256];
+		for (j = 0; j < 256; j++)
+			table[j] = j;
+		for (j = 0; j < 32; j++)
+			table[j] = j + 32;
 
-        lookups.makeTable(7, table, 0, 0, 0, 0);
+		lookups.makeTable(7, table, 0, 0, 0, 0);
 
-        for (j = 0; j < 256; j++)
-            table[j] = j;
-        lookups.makeTable(30, table, 0, 0, 0, 0);
-        lookups.makeTable(31, table, 0, 0, 0, 0);
-        lookups.makeTable(32, table, 0, 0, 0, 0);
-        lookups.makeTable(33, table, 0, 0, 0, 0);
-        if (isRRRA())
-            lookups.makeTable(105, table, 0, 0, 0, 0);
+		for (j = 0; j < 256; j++)
+			table[j] = j;
+		lookups.makeTable(30, table, 0, 0, 0, 0);
+		lookups.makeTable(31, table, 0, 0, 0, 0);
+		lookups.makeTable(32, table, 0, 0, 0, 0);
+		lookups.makeTable(33, table, 0, 0, 0, 0);
+		if (isRRRA())
+			lookups.makeTable(105, table, 0, 0, 0, 0);
 
-        int unk = 63;
-        for (j = 64; j < 80; j++)
-        {
-            unk--;
-            table[j] = unk;
-            table[j + 16] = j - 24;
-        }
-        table[80] = 80;
-        table[81] = 81;
-        for (j = 0; j < 32; j++)
-        {
-            table[j] = j + 32;
-        }
-        lookups.makeTable(34, table, 0, 0, 0, 0);
-        for (j = 0; j < 256; j++)
-            table[j] = j;
-        for (j = 0; j < 16; j++)
-            table[j] = j + 129;
-        for (j = 16; j < 32; j++)
-            table[j] = j + 192;
-        lookups.makeTable(35, table, 0, 0, 0, 0);
-        if (isRRRA())
-        {
-            lookups.makeTable(50, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
-            lookups.makeTable(51, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
-            lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
-        }
-    }
+		int unk = 63;
+		for (j = 64; j < 80; j++)
+		{
+			unk--;
+			table[j] = unk;
+			table[j + 16] = j - 24;
+		}
+		table[80] = 80;
+		table[81] = 81;
+		for (j = 0; j < 32; j++)
+		{
+			table[j] = j + 32;
+		}
+		lookups.makeTable(34, table, 0, 0, 0, 0);
+		for (j = 0; j < 256; j++)
+			table[j] = j;
+		for (j = 0; j < 16; j++)
+			table[j] = j + 129;
+		for (j = 16; j < 32; j++)
+			table[j] = j + 192;
+		lookups.makeTable(35, table, 0, 0, 0, 0);
+		if (isRRRA())
+		{
+			lookups.makeTable(50, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
+			lookups.makeTable(51, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
+			lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -176,26 +176,26 @@ void genspriteremaps(void)
 
 void FTA(int q, struct player_struct* p)
 {
-    if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
-        return;
+	if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
+		return;
 
-    if (p->ftq != q)
-    {
-        if (q == 13) p->ftq = q;
-        auto qu = quoteMgr.GetQuote(q);
-        if (p == g_player[screenpeek].ps && qu[0] != '\0')
-        {
-            if (q >= 70 && q <= 72 && hud_messages == 2)
-            {
-                // Todo: redirect this to a centered message (these are "need a key" messages)
-            }
-            else
-            {
-                int printlevel = hud_messages == 1 ? PRINT_MEDIUM : PRINT_MEDIUM | PRINT_NOTIFY;
-                Printf(printlevel, "%s\n", qu);
-            }
-        }
-    }
+	if (p->ftq != q)
+	{
+		if (q == 13) p->ftq = q;
+		auto qu = quoteMgr.GetQuote(q);
+		if (p == g_player[screenpeek].ps && qu[0] != '\0')
+		{
+			if (q >= 70 && q <= 72 && hud_messages == 2)
+			{
+				// Todo: redirect this to a centered message (these are "need a key" messages)
+			}
+			else
+			{
+				int printlevel = hud_messages == 1 ? PRINT_MEDIUM : PRINT_MEDIUM | PRINT_NOTIFY;
+				Printf(printlevel, "%s\n", qu);
+			}
+		}
+	}
 }
 
 //==========================================================================
@@ -207,57 +207,344 @@ void FTA(int q, struct player_struct* p)
 
 void drawbackground(void)
 {
-    if ((g_player[myconnectindex].ps->gm & MODE_GAME) == 0 && ud.recstat != 2)
-    {
-        twod->ClearScreen();
-        auto tex = tileGetTexture(TILE_MENUSCREEN);
-        PalEntry color = 0xff808080;
-        if (!hud_bgstretch)
-            DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
-        else
-            DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
-        return;
-    }
+	if ((g_player[myconnectindex].ps->gm & MODE_GAME) == 0 && ud.recstat != 2)
+	{
+		twod->ClearScreen();
+		auto tex = tileGetTexture(TILE_MENUSCREEN);
+		PalEntry color = 0xff808080;
+		if (!hud_bgstretch)
+			DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
+		else
+			DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
+		return;
+	}
 
-    auto tex = tileGetTexture(isRRRA() ? /*TILE_RRTILE*/7629 : TILE_BIGHOLE);
-    if (tex != nullptr && tex->isValid())
-    {
-        if (windowxy1.y > 0)
-        {
-            twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.y, tex, false, 1);
-        }
-        if (windowxy2.y + 1 < twod->GetHeight())
-        {
-            twod->AddFlatFill(0, windowxy2.y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
-        }
-        if (windowxy1.x > 0)
-        {
-            twod->AddFlatFill(0, windowxy1.y, windowxy1.x, windowxy2.y + 1, tex, false, 1);
-        }
-        if (windowxy2.x + 1 < twod->GetWidth())
-        {
-            twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
-        }
-        auto vb = tileGetTexture(TILE_VIEWBORDER);
-        auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
-        int x1 = windowxy1.x - 4;
-        int y1 = windowxy1.y - 4;
-        int x2 = windowxy2.x + 5;
-        int y2 = windowxy2.y + 5;
-        twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
-        twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
-        twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
-        twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
-        twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
-        twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
-        twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
-        twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
-    }
-    else
-    {
-        // If we got no frame just clear the screen.
-        twod->ClearScreen();
-    }
+	auto tex = tileGetTexture(isRRRA() ? /*TILE_RRTILE*/7629 : TILE_BIGHOLE);
+	if (tex != nullptr && tex->isValid())
+	{
+		if (windowxy1.y > 0)
+		{
+			twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.y, tex, false, 1);
+		}
+		if (windowxy2.y + 1 < twod->GetHeight())
+		{
+			twod->AddFlatFill(0, windowxy2.y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
+		}
+		if (windowxy1.x > 0)
+		{
+			twod->AddFlatFill(0, windowxy1.y, windowxy1.x, windowxy2.y + 1, tex, false, 1);
+		}
+		if (windowxy2.x + 1 < twod->GetWidth())
+		{
+			twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
+		}
+		auto vb = tileGetTexture(TILE_VIEWBORDER);
+		auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
+		int x1 = windowxy1.x - 4;
+		int y1 = windowxy1.y - 4;
+		int x2 = windowxy2.x + 5;
+		int y2 = windowxy2.y + 5;
+		twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
+		twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
+		twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
+		twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
+		twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
+		twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
+		twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
+		twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
+	}
+	else
+	{
+		// If we got no frame just clear the screen.
+		twod->ClearScreen();
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
+{
+	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
+	int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+	int xvect, yvect, xvect2, yvect2;
+	int p;
+	PalEntry col;
+	walltype* wal, * wal2;
+	spritetype* spr;
+
+	renderSetAspect(65536, 65536);
+
+	xvect = sintable[(-cang) & 2047] * czoom;
+	yvect = sintable[(1536 - cang) & 2047] * czoom;
+	xvect2 = mulscale16(xvect, yxaspect);
+	yvect2 = mulscale16(yvect, yxaspect);
+
+	//Draw red lines
+	for (i = 0; i < numsectors; i++)
+	{
+		if (!gFullMap && !show2dsector[i]) continue;
+
+		startwall = sector[i].wallptr;
+		endwall = sector[i].wallptr + sector[i].wallnum;
+
+		z1 = sector[i].ceilingz;
+		z2 = sector[i].floorz;
+
+		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
+		{
+			k = wal->nextwall;
+			if (k < 0) continue;
+
+			if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
+				if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0) continue;
+
+			if (!gFullMap && !show2dsector[wal->nextsector])
+			{
+				col = PalEntry(170, 170, 170);
+				ox = wal->x - cposx;
+				oy = wal->y - cposy;
+				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
+				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+
+				wal2 = &wall[wal->point2];
+				ox = wal2->x - cposx;
+				oy = wal2->y - cposy;
+				x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
+				y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+
+				drawlinergb(x1, y1, x2, y2, col);
+			}
+		}
+	}
+
+	//Draw sprites
+	k = ps[screenpeek].i;
+	for (i = 0; i < numsectors; i++)
+	{
+		if (!gFullMap || !show2dsector[i]) continue;
+		for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
+		{
+			spr = &sprite[j];
+
+			if (j == k || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
+
+			col = PalEntry(0, 170, 170);
+			if (spr->cstat & 1) col = PalEntry(170, 0, 170);
+
+			sprx = spr->x;
+			spry = spr->y;
+
+			if ((spr->cstat & 257) != 0) switch (spr->cstat & 48)
+			{
+			case 0:
+				//                    break;
+
+				ox = sprx - cposx;
+				oy = spry - cposy;
+				x1 = dmulscale16(ox, xvect, -oy, yvect);
+				y1 = dmulscale16(oy, xvect2, ox, yvect2);
+
+				ox = (sintable[(spr->ang + 512) & 2047] >> 7);
+				oy = (sintable[(spr->ang) & 2047] >> 7);
+				x2 = dmulscale16(ox, xvect, -oy, yvect);
+				y2 = dmulscale16(oy, xvect, ox, yvect);
+
+				x3 = mulscale16(x2, yxaspect);
+				y3 = mulscale16(y2, yxaspect);
+
+				drawlinergb(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
+					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
+				drawlinergb(x1 - y2 + (xdim << 11), y1 + x3 + (ydim << 11),
+					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
+				drawlinergb(x1 + y2 + (xdim << 11), y1 - x3 + (ydim << 11),
+					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
+				break;
+
+			case 16:
+				if (spr->picnum == TILE_LASERLINE)
+				{
+					x1 = sprx;
+					y1 = spry;
+					tilenum = spr->picnum;
+					xoff = tileLeftOffset(tilenum) + spr->xoffset;
+					if ((spr->cstat & 4) > 0) xoff = -xoff;
+					k = spr->ang;
+					l = spr->xrepeat;
+					dax = sintable[k & 2047] * l;
+					day = sintable[(k + 1536) & 2047] * l;
+					l = tilesiz[tilenum].x;
+					k = (l >> 1) + xoff;
+					x1 -= mulscale16(dax, k);
+					x2 = x1 + mulscale16(dax, l);
+					y1 -= mulscale16(day, k);
+					y2 = y1 + mulscale16(day, l);
+
+					ox = x1 - cposx;
+					oy = y1 - cposy;
+					x1 = dmulscale16(ox, xvect, -oy, yvect);
+					y1 = dmulscale16(oy, xvect2, ox, yvect2);
+
+					ox = x2 - cposx;
+					oy = y2 - cposy;
+					x2 = dmulscale16(ox, xvect, -oy, yvect);
+					y2 = dmulscale16(oy, xvect2, ox, yvect2);
+
+					drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+						x2 + (xdim << 11), y2 + (ydim << 11), col);
+				}
+
+				break;
+
+			case 32:
+				tilenum = spr->picnum;
+				xoff = tileLeftOffset(tilenum) + spr->xoffset;
+				yoff = tileTopOffset(tilenum) + spr->yoffset;
+				if ((spr->cstat & 4) > 0) xoff = -xoff;
+				if ((spr->cstat & 8) > 0) yoff = -yoff;
+
+				k = spr->ang;
+				cosang = sintable[(k + 512) & 2047];
+				sinang = sintable[k & 2047];
+				xspan = tilesiz[tilenum].x;
+				xrepeat = spr->xrepeat;
+				yspan = tilesiz[tilenum].y;
+				yrepeat = spr->yrepeat;
+
+				dax = ((xspan >> 1) + xoff) * xrepeat;
+				day = ((yspan >> 1) + yoff) * yrepeat;
+				x1 = sprx + dmulscale16(sinang, dax, cosang, day);
+				y1 = spry + dmulscale16(sinang, day, -cosang, dax);
+				l = xspan * xrepeat;
+				x2 = x1 - mulscale16(sinang, l);
+				y2 = y1 + mulscale16(cosang, l);
+				l = yspan * yrepeat;
+				k = -mulscale16(cosang, l);
+				x3 = x2 + k;
+				x4 = x1 + k;
+				k = -mulscale16(sinang, l);
+				y3 = y2 + k;
+				y4 = y1 + k;
+
+				ox = x1 - cposx;
+				oy = y1 - cposy;
+				x1 = dmulscale16(ox, xvect, -oy, yvect);
+				y1 = dmulscale16(oy, xvect2, ox, yvect2);
+
+				ox = x2 - cposx;
+				oy = y2 - cposy;
+				x2 = dmulscale16(ox, xvect, -oy, yvect);
+				y2 = dmulscale16(oy, xvect2, ox, yvect2);
+
+				ox = x3 - cposx;
+				oy = y3 - cposy;
+				x3 = dmulscale16(ox, xvect, -oy, yvect);
+				y3 = dmulscale16(oy, xvect2, ox, yvect2);
+
+				ox = x4 - cposx;
+				oy = y4 - cposy;
+				x4 = dmulscale16(ox, xvect, -oy, yvect);
+				y4 = dmulscale16(oy, xvect2, ox, yvect2);
+
+				drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+					x2 + (xdim << 11), y2 + (ydim << 11), col);
+
+				drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
+					x3 + (xdim << 11), y3 + (ydim << 11), col);
+
+				drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
+					x4 + (xdim << 11), y4 + (ydim << 11), col);
+
+				drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
+					x1 + (xdim << 11), y1 + (ydim << 11), col);
+
+				break;
+			}
+		}
+	}
+
+	//Draw white lines
+	for (i = numsectors - 1; i >= 0; i--)
+	{
+		if (!gFullMap && !show2dsector[i]) continue;
+
+		startwall = sector[i].wallptr;
+		endwall = sector[i].wallptr + sector[i].wallnum;
+
+		k = -1;
+		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
+		{
+			if (wal->nextwall >= 0) continue;
+
+			if (tilesiz[wal->picnum].x == 0) continue;
+			if (tilesiz[wal->picnum].y == 0) continue;
+
+			if (j == k)
+			{
+				x1 = x2;
+				y1 = y2;
+			}
+			else
+			{
+				ox = wal->x - cposx;
+				oy = wal->y - cposy;
+				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
+				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+			}
+
+			k = wal->point2;
+			wal2 = &wall[k];
+			ox = wal2->x - cposx;
+			oy = wal2->y - cposy;
+			x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
+			y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
+
+			drawlinergb(x1, y1, x2, y2, PalEntry(170, 170, 170));
+		}
+	}
+
+	videoSetCorrectedAspect();
+
+	for (p = connecthead; p >= 0; p = connectpoint2[p])
+	{
+		if (ud.scrollmode && p == screenpeek) continue;
+
+		ox = sprite[ps[p].i].x - cposx;
+		oy = sprite[ps[p].i].y - cposy;
+		daang = (sprite[ps[p].i].ang - cang) & 2047;
+		if (p == screenpeek)
+		{
+			ox = 0;
+			oy = 0;
+			daang = 0;
+		}
+		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
+		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+
+		if (p == screenpeek || ud.coop == 1)
+		{
+			if (sprite[ps[p].i].xvel > 16 && ps[p].on_ground)
+				i = TILE_APLAYERTOP + (((int)totalclock >> 4) & 3);
+			else
+				i = TILE_APLAYERTOP;
+
+			j = klabs(ps[p].truefz - ps[p].posz) >> 8;
+			j = mulscale(czoom * (sprite[ps[p].i].yrepeat + j), yxaspect, 16);
+
+			if (j < 22000) j = 22000;
+			else if (j > (65536 << 1)) j = (65536 << 1);
+
+			/*
+			rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), j,
+				daang, i, sprite[ps[p].i].shade, sprite[ps[p].i].pal,
+				(sprite[ps[p].i].cstat & 2) >> 1, windowx1, windowy1, windowx2, windowy2);
+				*/
+		}
+	}
 }
 
 END_DUKE_NS

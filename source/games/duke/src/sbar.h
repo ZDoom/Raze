@@ -24,6 +24,4 @@ protected:
     PalEntry LightForShade(int shade);
 };
 
-void drawstatusbar(int snum);
-
 END_DUKE_NS

@@ -1444,8 +1444,6 @@ static void postloadplayer(int32_t savegamep)
         FX_SetReverb(0);
     }
 
-    }
-
     //5
     G_ResetInterpolations();
 
