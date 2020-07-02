@@ -242,7 +242,7 @@ public:
     void DrawHud(int snum, int style)
     {
         auto p = g_player[snum].ps;
-        BeginHUD(320, 200, 1.f, true);
+        BeginHUD(320, 200, 1.f, false);
         if (style == 1)
         {
             DrawInventory(p, 0, -46, DI_SCREEN_CENTER_BOTTOM);
@@ -253,7 +253,7 @@ public:
         {
 			DrawInventory(p, (ud.multimode > 1) ? 56 : 65, -28, DI_SCREEN_CENTER_BOTTOM);
 			FullscreenHUD2(p);
-            PrintLevelStats(tilesiz[HEALTHBOX].y + 2);
+            PrintLevelStats(tilesiz[HEALTHBOX].y + 4);
         }
         else
         {

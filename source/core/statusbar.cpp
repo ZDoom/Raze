@@ -802,11 +802,21 @@ CVAR(Float, hud_statscale, 2, CVAR_ARCHIVE)
 
 void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 {
-	BeginHUD(320, 200, 1.f, false);
+	double y;
 	double scale = stats.fontscale * hud_statscale;
 	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
 	double spacing = stats.spacing * hud_statscale;
-	double y = (stats.screenbottomspace < 0 ? RelTop : screen->GetHeight() - stats.screenbottomspace * defaultScale.Y) - spacing;
+	if (stats.screenbottomspace < 0)
+	{
+		double x = 0, w = 0, h = 0;
+		y = 200 - RelTop;
+		StatusbarToRealCoords(x, y, w, h);
+		y -= spacing;
+	}
+	else
+	{
+		y = (screen->GetHeight() - stats.screenbottomspace * GetHUDScale().Y) - spacing;
+	}
 
 	FString text;
 	if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
