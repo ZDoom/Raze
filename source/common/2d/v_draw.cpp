@@ -438,7 +438,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 				// First calculate the destination rect for an image of the given size and then reposition this object in it.
 				DoubleRect rect;
 				CalcFullscreenScale(drawer, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
-				parms->x = rect.left + parms->x * rect.width / parms->virtWidth;
+				parms->x = (parms->keepratio? 0 : rect.left) + parms->x * rect.width / parms->virtWidth;
 				parms->y = rect.top + parms->y * rect.height / parms->virtHeight;
 				parms->destwidth = parms->destwidth * rect.width / parms->virtWidth;
 				parms->destheight = parms->destheight * rect.height / parms->virtHeight;
