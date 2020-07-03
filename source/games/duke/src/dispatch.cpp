@@ -116,6 +116,8 @@ void Logo_d(CompletionFunc);
 void Logo_r(CompletionFunc);
 void InitFonts_d();
 void InitFonts_r();
+void PrintPaused_d();
+void PrintPaused_r();
 
 
 Dispatcher fi;
@@ -127,6 +129,8 @@ void SetDispatcher()
 		fi = {
 		Logo_d,
 		InitFonts_d,
+		PrintPaused_d,
+		
 		think_d,
 		initactorflags_d,
 		isadoorwall_d,
@@ -176,6 +180,8 @@ void SetDispatcher()
 		fi = {
 		Logo_r,
 		InitFonts_r,
+		PrintPaused_r,
+		
 		think_r,
 		initactorflags_r,
 		isadoorwall_r,

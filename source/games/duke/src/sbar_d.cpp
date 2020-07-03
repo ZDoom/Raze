@@ -402,6 +402,8 @@ public:
 
 };
 
+void PrintLevelName_d(double alpha);
+
 void drawstatusbar_d(int snum)
 {
 	DDukeStatusBar dsb;
@@ -413,6 +415,16 @@ void drawstatusbar_d(int snum)
 	{
 		dsb.Statusbar(snum);
     }
+
+    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
+    {
+        double alpha;
+        if (g_levelTextTime > 16) alpha = 1.;
+        else alpha = (g_levelTextTime) / 16.;
+        PrintLevelName_d(alpha);
+    }
+
+
 }
 
 END_DUKE_NS

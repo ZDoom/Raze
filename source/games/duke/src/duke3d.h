@@ -117,7 +117,6 @@ END_DUKE_NS
 #include "player.h"
 #include "quotes.h"
 #include "rts.h"
-#include "zz_text.h"
 #include "sector.h"
 #include "sounds.h"
 #include "soundefs.h"
@@ -218,7 +217,6 @@ struct GameInterface : ::GameInterface
 	bool LoadGame(FSaveGameNode*) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
-	int GetStringTile(int font, const char* t, int f) override;
 };
 
 END_DUKE_NS

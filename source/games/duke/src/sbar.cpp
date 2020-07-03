@@ -80,9 +80,9 @@ void DDukeCommonStatusBar::displayfragbar(void)
 
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		minitext(21 + (73 * (i & 3)), 2 + ((i & 28) << 1), &ud.user_name[i][0], sprite[ps[i].i].pal, 2 + 8 + 16 + 128);
+		m initext(21 + (73 * (i & 3)), 2 + ((i & 28) << 1), &ud.user_name[i][0], sprite[ps[i].i].pal, 2 + 8 + 16 + 128);
 		sprintf(tempbuf, "%d", ps[i].frag - ps[i].fraggedself);
-		minitext(17 + 50 + (73 * (i & 3)), 2 + ((i & 28) << 1), tempbuf, sprite[ps[i].i].pal, 2 + 8 + 16 + 128);
+		m initext(17 + 50 + (73 * (i & 3)), 2 + ((i & 28) << 1), tempbuf, sprite[ps[i].i].pal, 2 + 8 + 16 + 128);
 	}
 }
 #endif

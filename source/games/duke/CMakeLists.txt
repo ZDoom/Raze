@@ -51,7 +51,6 @@ set( PCH_SOURCES
 	src/zz_premap.cpp
 	src/zz_savegame.cpp
 	src/zz_screens.cpp
-	src/zz_text.cpp
 	src/zz_sector.cpp
 	)
 

@@ -549,11 +549,13 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 
 	if (/*textret == 0 &&*/ ud.overhead_on == 2)
 	{
-		const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
-
-		if (!G_HaveUserMap()) // && !(G_GetLogoFlags() & LOGO_HIDEEPISODE))
-			minitext(5, a + 6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2 + 8 + 16 + 256);
-		minitext(5, a + 6 + 6, currentLevel->DisplayName(), 0, 2 + 8 + 16 + 256);
+		double scale = isRR() ? 0.5 : 1.;
+		int top = isRR() ? 0 : ((ud.screen_size > 0) ? 147 : 179);
+		if (!G_HaveUserMap())
+		DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top+6, GStrings.localize(gVolumeNames[ud.volume_number]), 
+			DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+		DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top + 12, currentLevel->DisplayName(),
+			DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 	}
 
 }

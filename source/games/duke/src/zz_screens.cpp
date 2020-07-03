@@ -434,18 +434,6 @@ void G_DisplayRest(int32_t smoothratio)
     if (isRR()) drawstatusbar_r(screenpeek);
     else drawstatusbar_d(screenpeek);
 
-    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
-    {
-        int32_t o = 10|16;
-
-        if (g_levelTextTime < 3)
-            o |= 1|32;
-        else if (g_levelTextTime < 5)
-            o |= 1;
-
-        menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, currentLevel->DisplayName(), o, TEXT_XCENTER);
-    }
-
     if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = TILE_CROSSHAIR;
@@ -463,8 +451,8 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-        menutext_center(100, GStrings("Game Paused"));
+    if (ud.pause_on == 1 && (g_player[myconnectindex].ps->gm & MODE_MENU) == 0)
+        fi.PrintPaused();
 
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 

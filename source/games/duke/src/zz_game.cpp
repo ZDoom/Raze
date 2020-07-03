@@ -1627,10 +1627,6 @@ static int G_EndOfLevel(void)
     {
         ready2send = 0;
 
-        if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0) &&
-            ud.display_bonus_screen == 1)
-            CONFIG_SetMapBestTime(g_loadedMapHack.md4, g_player[myconnectindex].ps->player_par);
-
         if (ud.display_bonus_screen == 1)
         {
             int32_t i = ud.screen_size;
@@ -1775,8 +1771,6 @@ int32_t SetDefaults(void)
     return 0;
 }
 
-void Menu_Init(void);
-
 int GameInterface::app_main()
 {
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -1913,21 +1907,6 @@ int GameInterface::app_main()
     videoInit();
     V_LoadTranslations();
     videoSetPalette(BASEPAL, 0);
-
-    // check if the minifont will support lowercase letters (3136-3161)
-    // there is room for them in tiles012.art between "[\]^_." and "{|}~"
-    minitext_lowercase = 1;
-
-    for (bssize_t i = TILE_MINIFONT + ('a'-'!'); minitext_lowercase && i < TILE_MINIFONT + ('z'-'!') + 1; ++i)
-        minitext_lowercase &= (int)tileCheck(i);
-
-    /*if (RRRA)
-        playmve("REDINT.MVE"); still needs work on the audio side*/
-
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        Menu_Init();
-    }
 
     FX_StopAllSounds();
     S_ClearSoundLocks();

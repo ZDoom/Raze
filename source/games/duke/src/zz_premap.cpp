@@ -312,7 +312,6 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
 {
     char levelName[BMAX_PATH];
     int16_t lbang;
-
     if (!VOLUMEONE && Menu_HaveUserMap())
     {
         if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
@@ -325,8 +324,8 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
         currentLevel = &userMapRecord;
         SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(boardfilename);
-		G_LoadMapHack(levelName, boardfilename);
-        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR? "dethtoll.mid" : nullptr);
+        G_LoadMapHack(levelName, boardfilename);
+        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR ? "dethtoll.mid" : nullptr);
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
@@ -338,7 +337,7 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
         currentLevel = &mi;
         SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(mi.fileName);
-		G_LoadMapHack(levelName, mi.fileName);
+        G_LoadMapHack(levelName, mi.fileName);
     }
 
     if (RR && !RRRA && ud.volume_number == 1 && ud.level_number == 1)
@@ -372,12 +371,7 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
     allignwarpelevators();
     resetpspritevars(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : mi.fileName.GetChars(), g_loadedMapHack.md4);
-
-    // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     if (isRR()) cacheit_r(); else cacheit_d();
-    //G_CacheMapData();
-    // G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
     return 0;
 }
 

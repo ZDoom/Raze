@@ -128,14 +128,13 @@ void InitFonts_r()
 //
 //==========================================================================
 
-static void BigText(double x, double y, const char* text, int align)
+static void BigText(double x, double y, const char* text, int align, double alpha = 1.)
 {
     //x *= 2.2; y *= 2.64;
     if (align != -1)
         x -= BigFont->StringWidth(text) * (align == 0 ? 0.5 : 1);
     auto width = BigFont->StringWidth(text);
-    //DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 24, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 704, DTA_VirtualHeight, 528, TAG_DONE);
-    DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, TAG_DONE);
+    DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
@@ -643,6 +642,15 @@ public:
 	}
 };
 
+void PrintPaused_r()
+{
+    BigText(160, 100, GStrings("Game Paused"), 0);
+}
+
+void PrintLevelName_r(double alpha)
+{
+    BigText(160, 114, currentLevel->DisplayName(), 0, alpha);
+}
 
 // Utility for testing the above screens
 CCMD(testrscreen)

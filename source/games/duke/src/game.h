@@ -140,8 +140,6 @@ typedef struct {
     int32_t ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,marker;
 
-    int32_t playerbest;
-
     //int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
@@ -460,6 +458,7 @@ struct Dispatcher
     // global stuff
     void (*ShowLogo)(CompletionFunc completion);
     void (*InitFonts)();
+	void (*PrintPaused)();
 
 	// sectors_?.cpp
     void (*think)();
