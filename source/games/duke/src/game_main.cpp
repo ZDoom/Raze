@@ -565,13 +565,14 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 // calculate size of 3D viewport.
 // Fixme: this needs to be adjusted to the new status bar code, 
 // once the status bar is a persistent queriable object
+// (it should also be moved out of the game code then.
 //
 //---------------------------------------------------------------------------
 
 void updateviewport(void)
 {
 	ud.screen_size = clamp(ud.screen_size, 0, 64);
-	const int32_t ss = std::max(ud.screen_size - 8, 0);
+	int ss = std::max(ud.screen_size - 8, 0);
 
 	int x1 = scale(ss, xdim, 160);
 	int x2 = xdim - x1;

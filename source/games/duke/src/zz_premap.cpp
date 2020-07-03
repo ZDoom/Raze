@@ -384,8 +384,8 @@ int G_EnterLevel(int gameMode)
 
     /*
     G_DoLoadScreen(msg, -1);
-    G_UpdateScreenArea();
     */
+    updateviewport();
     int res = LoadTheMap(mi, pPlayer, gameMode);
     if (res != 0) return res;
 
@@ -482,7 +482,7 @@ int G_EnterLevel(int gameMode)
 
     restorepalette = -1;
 
-    G_UpdateScreenArea();
+    updateviewport();
     videoClearViewableArea(0L);
     drawbackground();
     G_DrawRooms(myconnectindex,65536);

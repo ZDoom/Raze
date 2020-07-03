@@ -1219,14 +1219,14 @@ void GameInterface::set_hud_layout(int layout)
 		ud.screen_size = RR? screen_size_vals_rr[layout] : screen_size_vals[layout];
 		ud.statusbarmode = layout >= 8;
 		ud.althud = layout >= 10;
-		G_UpdateScreenArea();
+		updateviewport();
 	}
 }
 
 void GameInterface::set_hud_scale(int scale)
 {
     ud.statusbarscale = clamp(scale, 36, 100);
-    G_UpdateScreenArea();
+    updateviewport();
 }
 
 void G_HandleLocalKeys(void)
@@ -1257,7 +1257,7 @@ void G_HandleLocalKeys(void)
                 hud_scale = hud_scale + 4;
             }
 
-            G_UpdateScreenArea();
+            updateviewport();
         }
 
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
@@ -1276,7 +1276,7 @@ void G_HandleLocalKeys(void)
                 hud_scale = hud_scale - 4;
             }
 
-            G_UpdateScreenArea();
+            updateviewport();
         }
     }
 
@@ -1394,7 +1394,7 @@ void G_HandleLocalKeys(void)
         ud.last_overhead = ud.overhead_on;
         ud.overhead_on   = 0;
         ud.scrollmode    = 0;
-        G_UpdateScreenArea();
+        updateviewport();
     }
 #endif
 
@@ -1414,7 +1414,7 @@ void G_HandleLocalKeys(void)
         }
 
         restorepalette = 1;
-        G_UpdateScreenArea();
+        updateviewport();
     }
 }
 
@@ -1631,7 +1631,7 @@ static int G_EndOfLevel(void)
         {
             int32_t i = ud.screen_size;
             ud.screen_size = 0;
-            G_UpdateScreenArea();
+            updateviewport();
             ud.screen_size = i;
 
             G_BonusScreen(0);
@@ -1968,7 +1968,7 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
         }
     }
-    else G_UpdateScreenArea();
+    else updateviewport();
 
 //    G_GameExit(" "); ///
 
@@ -2217,7 +2217,7 @@ void GameInterface::FreeGameData()
 
 void GameInterface::UpdateScreenSize()
 {
-    G_UpdateScreenArea();
+    updateviewport();
 }
 
 ::GameInterface* CreateInterface()
