@@ -113,11 +113,26 @@ void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)
 {
 }
 
-float sectorVisibility(int sectnum)
+int renderCalcVisBase(void)
+{
+    return mulscale16(g_visibility, mulscale16(xdimenscale, viewingrangerecip));
+}
+
+int renderCalcVisFloor(void)
+{
+    return mulscale16(renderCalcVisBase(), xyaspect);
+}
+
+int renderCalcVisCeiling(void)
+{
+    return mulscale8(renderCalcVisFloor(), 320);
+}
+
+float sectorVisibility(int sectnum, int vis)
 {
     // Beware of wraparound madness...
     int v = sector[sectnum].visibility;
-    return v? ((uint8_t)(v + 16)) / 16.f : 1.f;
+    return (v? mulscale4(vis, (uint8_t)(v + 16)) : vis) * fviewingrange * (1.f / (65536.f * 65536.f)) / r_ambientlight;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +281,6 @@ static void polymost_updaterotmat(void)
     };
     multiplyMatrix4f(matrix, tiltmatrix);
     renderSetViewMatrix(matrix);
-    renderSetVisibility(((float)(g_visibility) / r_ambientlight) * fviewingrange * (7.5f / (65536.f * 65536.f)));
 }
 
 static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, int32_t method, const vec2_16_t& tilesiz);
@@ -2069,7 +2083,7 @@ static void polymost_drawalls(int32_t const bunch)
         globalpal = sec->floorpal;
         globalorientation = sec->floorstat;
 
-		GLInterface.SetVisibility(sectorVisibility(sectnum));
+		GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisCeiling())); // deliberately not renderCalcVisFloor().
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -2315,7 +2329,7 @@ static void polymost_drawalls(int32_t const bunch)
         globalshade = sec->ceilingshade;
         globalpal = sec->ceilingpal;
         globalorientation = sec->ceilingstat;
-        GLInterface.SetVisibility(sectorVisibility(sectnum));
+        GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisCeiling()));
 
         tileUpdatePicnum(&globalpicnum, sectnum);
 
@@ -2629,7 +2643,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
-                GLInterface.SetVisibility(sectorVisibility(sectnum));
+                GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisBase()));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2667,7 +2681,7 @@ static void polymost_drawalls(int32_t const bunch)
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
-                GLInterface.SetVisibility(sectorVisibility(sectnum));
+                GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisBase()));
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -2711,7 +2725,7 @@ static void polymost_drawalls(int32_t const bunch)
 
                 globalshade = wal->shade;
                 globalpal = wal->pal;
-                GLInterface.SetVisibility(sectorVisibility(sectnum));
+                GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisBase()));
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
@@ -3301,7 +3315,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     globalorientation = (int32_t)wal->cstat;
     tileUpdatePicnum(&globalpicnum, (int16_t)wallIndex+16384);
 
-    GLInterface.SetVisibility(sectorVisibility(sectnum));
+    GLInterface.SetVisibility(sectorVisibility(sectnum, renderCalcVisBase()));
 
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
@@ -3674,7 +3688,7 @@ void polymost_drawsprite(int32_t snum)
     globalpal = tspr->pal;
     globalorientation = tspr->cstat;
 
-    GLInterface.SetVisibility(sectorVisibility(tspr->sectnum));
+    GLInterface.SetVisibility(sectorVisibility(tspr->sectnum, renderCalcVisBase()));
 
     vec2_t off = { 0, 0 };
 
@@ -4084,7 +4098,7 @@ void polymost_drawsprite(int32_t snum)
         break;
 
         case 2:  // Floor sprite
-            GLInterface.SetVisibility(sectorVisibility(tspr->sectnum) * (4.f/5.f)); // No idea why this uses a different visibility setting...
+            GLInterface.SetVisibility(sectorVisibility(tspr->sectnum, renderCalcVisFloor()));
 
             if ((globalorientation & 64) != 0 && (globalposz > pos.z) == (!(globalorientation & 8)))
                 goto _drawsprite_return;

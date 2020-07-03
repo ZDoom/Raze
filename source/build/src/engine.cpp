@@ -1104,7 +1104,7 @@ static int32_t globaluclip, globaldclip;
 //char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
-static int32_t viewingrangerecip;
+int32_t viewingrangerecip;
 
 static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;

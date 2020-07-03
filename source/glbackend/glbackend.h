@@ -358,7 +358,6 @@ extern GLInstance GLInterface;
 
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);
-void renderSetVisibility(float v);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();

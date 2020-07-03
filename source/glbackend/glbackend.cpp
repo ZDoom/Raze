@@ -377,11 +377,6 @@ void renderSetViewMatrix(const float* p)
 	else vp.mViewMatrix.loadIdentity();
 }
 
-void renderSetVisibility(float vis)
-{
-	vp.mGlobVis = vis;
-}
-
 void renderBeginScene()
 {
 	if (videoGetRenderMode() < REND_POLYMOST) return;
