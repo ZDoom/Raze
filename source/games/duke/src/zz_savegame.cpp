@@ -1417,7 +1417,7 @@ static void postloadplayer(int32_t savegamep)
     }
 
     //3
-    P_UpdateScreenPal(g_player[myconnectindex].ps);
+    setpal(g_player[myconnectindex].ps);
     restorepalette = -1;
 
     //4

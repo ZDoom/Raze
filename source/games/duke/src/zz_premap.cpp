@@ -510,7 +510,7 @@ int G_EnterLevel(int gameMode)
 
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-    P_UpdateScreenPal(g_player[myconnectindex].ps);
+    setpal(g_player[myconnectindex].ps);
     renderFlushPerms();
 
     everyothertime = 0;

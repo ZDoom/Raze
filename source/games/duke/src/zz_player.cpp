@@ -45,32 +45,6 @@ void P_AddKills(DukePlayer_t * const pPlayer, uint16_t kills)
     pPlayer->actors_killed += kills;
 }
 
-void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
-{
-    int       inWater       = 0;
-    int const playerSectnum = pPlayer->cursectnum;
-
-    if (pPlayer->DrugMode)
-        pPlayer->palette = DRUGPAL;
-    else if (pPlayer->heat_on)
-        pPlayer->palette = SLIMEPAL;
-    else if (playerSectnum < 0)
-        pPlayer->palette = BASEPAL;
-    else if (sector[playerSectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[playerSectnum].ceilingpicnum <= TILE_FLOORSLIME + 2)
-    {
-        pPlayer->palette = SLIMEPAL;
-        inWater          = 1;
-    }
-    else
-    {
-        pPlayer->palette     = (sector[pPlayer->cursectnum].lotag == ST_2_UNDERWATER) ? WATERPAL : BASEPAL;
-        inWater              = 1;
-    }
-
-    restorepalette = 1+inWater;
-}
-
-
 int P_GetOverheadPal(DukePlayer_t const * pPlayer)
 {
     return sprite[pPlayer->i].pal;

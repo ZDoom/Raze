@@ -382,12 +382,12 @@ inline int PlayerInputBits(int pl, int bits)
     return (g_player[pl].input->bits & bits);
 }
 
-inline bool PlayerInputSideVel(int pl)
+inline int PlayerInputSideVel(int pl)
 {
     return g_player[pl].input->svel;
 }
 
-inline bool PlayerInputForwardVel(int pl)
+inline int PlayerInputForwardVel(int pl)
 {
     return g_player[pl].input->fvel;
 }

@@ -748,7 +748,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     {
                         pPlayer->drug_aspect = aspect;
                     }
-                    P_UpdateScreenPal(pPlayer);
+                    setpal(pPlayer);
                 }
                 else if (pPlayer->drug_stat[0] == 3)
                 {
@@ -766,7 +766,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                     {
                         pPlayer->drug_aspect = aspect;
                     }
-                    P_UpdateScreenPal(pPlayer);
+                    setpal(pPlayer);
                 }
                 else if (pPlayer->drug_stat[0] == 2)
                 {
@@ -779,7 +779,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                         pPlayer->drug_stat[2]++;
                         aspect = pPlayer->drug_stat[2] * 500 + viewingRange * 3;
                         pPlayer->drug_aspect = aspect;
-                        P_UpdateScreenPal(pPlayer);
+                        setpal(pPlayer);
                     }
                 }
                 else
@@ -796,7 +796,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                         pPlayer->drug_stat[2]--;
                         aspect = pPlayer->drug_stat[2] * 500 + viewingRange * 3;
                         pPlayer->drug_aspect = aspect;
-                        P_UpdateScreenPal(pPlayer);
+                        setpal(pPlayer);
                     }
                 }
 
@@ -811,7 +811,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
                 renderSetAspect(mulscale16(viewingRange, viewingrange), yxaspect);
             }
-            P_UpdateScreenPal(pPlayer);
+            setpal(pPlayer);
         }
 
         if (pPlayer->newowner < 0)
@@ -1621,7 +1621,7 @@ static int G_EndOfLevel(void)
 {
 	STAT_Update(ud.eog || (currentLevel->flags & MI_FORCEEOG));
 	P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
-    P_UpdateScreenPal(g_player[myconnectindex].ps);
+    setpal(g_player[myconnectindex].ps);
 
     if (g_player[myconnectindex].ps->gm&MODE_EOL)
     {

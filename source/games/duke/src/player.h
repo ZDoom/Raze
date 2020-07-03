@@ -413,12 +413,7 @@ void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
 void    P_DHProcessInput(int playerNum);
 void quickkill(DukePlayer_t* pPlayer);
-void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
-inline void setpal(DukePlayer_t* pPlayer)
-{
-    P_UpdateScreenPal(pPlayer);
-}
-
+void setpal(DukePlayer_t* pPlayer);
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
