@@ -117,28 +117,6 @@ static int32_t gtextsc(int32_t sc)
 
 ////////// DISPLAYREST //////////
 
-static void G_DrawCameraText(int16_t i)
-{
-    if (!T1(i))
-    {
-        rotatesprite_win(24<<16, 33<<16, 65536L, 0, TILE_CAMCORNER, 0, 0, 2);
-        rotatesprite_win((320-26)<<16, 34<<16, 65536L, 0, TILE_CAMCORNER+1, 0, 0, 2);
-        rotatesprite_win(22<<16, 163<<16, 65536L, 512, TILE_CAMCORNER+1, 0, 0, 2+4);
-        rotatesprite_win((310-10)<<16, 163<<16, 65536L, 512, TILE_CAMCORNER+1, 0, 0, 2);
-
-        if ((int32_t) totalclock&16)
-            rotatesprite_win(46<<16, 32<<16, 65536L, 0, TILE_CAMLIGHT, 0, 0, 2);
-    }
-    else
-    {
-        int32_t flipbits = ((int32_t) totalclock<<1)&48;
-
-        for (bssize_t x=-64; x<394; x+=64)
-            for (bssize_t y=0; y<200; y+=64)
-                rotatesprite_win(x<<16, y<<16, 65536L, 0, TILE_STATIC, 0, 0, 2+flipbits);
-    }
-}
-
 static inline void G_MoveClouds(void)
 {
     int32_t i;

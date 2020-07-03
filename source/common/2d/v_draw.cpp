@@ -45,6 +45,9 @@ EXTERN_CVAR(Int, vid_aspect)
 EXTERN_CVAR(Int, uiscale)
 CVAR(Bool, ui_screenborder_classic_scaling, true, CVAR_ARCHIVE)
 
+static void VirtualToRealCoords(F2DDrawer* drawer, double Width, double Height, double& x, double& y, double& w, double& h,
+	double vwidth, double vheight, bool vbottom, bool handleaspect);
+
 // Helper for ActiveRatio and CheckRatio. Returns the forced ratio type, or -1 if none.
 int ActiveFakeRatio(int width, int height)
 {
@@ -332,10 +335,10 @@ DEFINE_ACTION_FUNCTION(_Screen, GetClipRect)
 }
 
 
-static void CalcFullscreenScale(F2DDrawer* drawer, double srcwidth, double srcheight, int autoaspect, DoubleRect &rect)
+static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcwidth, double srcheight, int autoaspect, DoubleRect &rect)
 {
-	auto GetWidth = [=]() { return drawer->GetWidth(); };
-	auto GetHeight = [=]() {return drawer->GetHeight(); };
+	auto GetWidth = [=]() { return parms->viewport.width; };
+	auto GetHeight = [=]() {return parms->viewport.height; };
 
 	double aspect;
 	if (srcheight == 200) aspect = srcwidth / 240.;
@@ -383,8 +386,8 @@ static void CalcFullscreenScale(F2DDrawer* drawer, double srcwidth, double srche
 
 bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, double xx, double yy)
 {
-	auto GetWidth = [=]() { return drawer->GetWidth(); };
-	auto GetHeight = [=]() {return drawer->GetHeight(); };
+	auto GetWidth = [=]() { return parms->viewport.width; };
+	auto GetHeight = [=]() {return parms->viewport.height; };
 	if (img != NULL)
 	{
 		parms->x = xx;
@@ -437,9 +440,9 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 			{
 				// First calculate the destination rect for an image of the given size and then reposition this object in it.
 				DoubleRect rect;
-				CalcFullscreenScale(drawer, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
-				parms->x = (parms->keepratio? 0 : rect.left) + parms->x * rect.width / parms->virtWidth;
-				parms->y = rect.top + parms->y * rect.height / parms->virtHeight;
+				CalcFullscreenScale(drawer, parms, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
+				parms->x = parms->viewport.left + (parms->keepratio? 0 : rect.left) + parms->x * rect.width / parms->virtWidth;
+				parms->y = parms->viewport.top + rect.top + parms->y * rect.height / parms->virtHeight;
 				parms->destwidth = parms->destwidth * rect.width / parms->virtWidth;
 				parms->destheight = parms->destheight * rect.height / parms->virtHeight;
 				return false;
@@ -450,10 +453,10 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		case DTA_FullscreenEx:
 		{
 			DoubleRect rect;
-			CalcFullscreenScale(drawer, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
+			CalcFullscreenScale(drawer, parms, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
 			parms->keepratio = true;
-			parms->x = rect.left;
-			parms->y = rect.top;
+			parms->x = parms->viewport.left + rect.left;
+			parms->y = parms->viewport.top + rect.top;
 			parms->destwidth = rect.width;
 			parms->destheight = rect.height;
 			return false; // Do not call VirtualToRealCoords for this!
@@ -482,9 +485,11 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		}
 		if (parms->virtWidth != GetWidth() || parms->virtHeight != GetHeight())
 		{
-			VirtualToRealCoords(drawer, parms->x, parms->y, parms->destwidth, parms->destheight,
+			VirtualToRealCoords(drawer, GetWidth(), GetHeight(), parms->x, parms->y, parms->destwidth, parms->destheight,
 				parms->virtWidth, parms->virtHeight, parms->virtBottom, !parms->keepratio);
 		}
+		parms->x += parms->viewport.left;
+		parms->y += parms->viewport.top;
 	}
 
 	return false;
@@ -607,8 +612,8 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->color = 0xffffffff;
 	//parms->shadowAlpha = 0;
 	parms->shadowColor = 0;
-	parms->virtWidth = drawer->GetWidth();
-	parms->virtHeight = drawer->GetHeight();
+	parms->virtWidth = INT_MAX;		// these need to match the viewport if not explicitly set, but we do not know that yet.
+	parms->virtHeight = INT_MAX;
 	parms->keepratio = false;
 	parms->style.BlendOp = 255;		// Dummy "not set" value
 	parms->masked = true;
@@ -629,6 +634,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->spacing = 0;
 	parms->fsscalemode = -1;
 	parms->patchscalex = parms->patchscaley = 1;
+	parms->viewport = { 0,0,drawer->GetWidth(), drawer->GetHeight() };
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -1025,10 +1031,28 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			parms->burn = true;
 			break;
 
+		case DTA_ViewportX:
+			parms->viewport.left = ListGetInt(tags);
+			break;
+
+		case DTA_ViewportY:
+			parms->viewport.top = ListGetInt(tags);
+			break;
+
+		case DTA_ViewportWidth:
+			parms->viewport.width = ListGetInt(tags);
+			break;
+
+		case DTA_ViewportHeight:
+			parms->viewport.height = ListGetInt(tags);
+			break;
 		}
 		tag = ListGetInt(tags);
 	}
 	ListEnd(tags);
+
+	if (parms->virtWidth == INT_MAX) parms->virtWidth = parms->viewport.width;
+	if (parms->virtHeight == INT_MAX) parms->virtHeight = parms->viewport.height;
 
 	auto clipleft = drawer->clipleft;
 	auto cliptop = drawer->cliptop;
@@ -1097,11 +1121,9 @@ template bool ParseDrawTextureTags<VMVa_List>(F2DDrawer* drawer, FGameTexture *i
 //
 //==========================================================================
 
-void VirtualToRealCoords(F2DDrawer *drawer, double &x, double &y, double &w, double &h,
+static void VirtualToRealCoords(F2DDrawer *drawer, double Width, double Height, double &x, double &y, double &w, double &h,
 	double vwidth, double vheight, bool vbottom, bool handleaspect) 
 {
-	auto Width = drawer->GetWidth();
-	auto Height = drawer->GetHeight();
 	float myratio = handleaspect ? ActiveRatio (Width, Height) : (4.0f / 3.0f);
 
     // if 21:9 AR, map to 16:9 for all callers.
@@ -1140,6 +1162,14 @@ void VirtualToRealCoords(F2DDrawer *drawer, double &x, double &y, double &w, dou
 		y = y * Height / vheight;
 		h = bottom * Height / vheight - y;
 	}
+}
+
+void VirtualToRealCoords(F2DDrawer* drawer, double& x, double& y, double& w, double& h,
+	double vwidth, double vheight, bool vbottom, bool handleaspect)
+{
+	auto Width = drawer->GetWidth();
+	auto Height = drawer->GetHeight();
+	VirtualToRealCoords(drawer, Width, Height, x, y, w, h, vwidth, vheight, vbottom, handleaspect);
 }
 
 DEFINE_ACTION_FUNCTION(_Screen, VirtualToRealCoords)

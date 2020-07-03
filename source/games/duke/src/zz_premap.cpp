@@ -423,20 +423,17 @@ int G_EnterLevel(int gameMode)
 
     for (TRAVERSE_CONNECT(i))
     {
-        switch (DYNAMICTILEMAP(sector[sprite[g_player[i].ps->i].sectnum].floorpicnum))
+        int pn = sector[sprite[g_player[i].ps->i].sectnum].floorpicnum;
+        if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
         {
-            case HURTRAIL__STATIC:
-            case FLOORSLIME__STATIC:
-            case FLOORPLASMA__STATIC:
-                resetweapons(i);
-                resetinventory(i);
+            resetweapons(i);
+            resetinventory(i);
 
-                g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);
-                g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
+            g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);
+            g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
 
-                g_player[i].ps->curr_weapon  = KNEE_WEAPON;
-                g_player[i].ps->kickback_pic = 0;
-                break;
+            g_player[i].ps->curr_weapon  = KNEE_WEAPON;
+            g_player[i].ps->kickback_pic = 0;
         }
     }
 

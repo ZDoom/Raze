@@ -608,6 +608,39 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+void cameratext(int i)
+{
+	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
+	{
+		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffset, true,
+			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+	};
+	if (!hittype[i].temp_data[0])
+	{
+		drawitem(TILE_CAMCORNER, 24, 33, false, false);
+		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);
+		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
+		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
+
+		if ((int)totalclock & 16)
+			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
+	}
+	else
+	{
+		int flipbits = ((int)totalclock << 1) & 48;
+
+		for (int x = -64; x < 394; x += 64)
+			for (int y = 0; y < 200; y += 64)
+				drawitem(TILE_STATIC, x, y, !!((int)totalclock & 8), !!((int)totalclock & 16));
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // calculate size of 3D viewport.
 // Fixme: this needs to be adjusted to the new status bar code, 
 // once the status bar is a persistent queriable object
@@ -656,6 +689,8 @@ void updateviewport(void)
 
 	videoSetViewableArea(x1, y1, x2 - 1, y2 - 1);
 }
+
+
 
 END_DUKE_NS
 

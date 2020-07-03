@@ -2,6 +2,7 @@
 
 #include "v_2ddrawer.h"
 #include "c_cvars.h"
+#include "intrect.h"
 
 // TagItem definitions for DrawTexture. As far as I know, tag lists
 // originated on the Amiga.
@@ -92,6 +93,11 @@ enum
 	DTA_ScaleX,
 	DTA_ScaleY,
 
+	DTA_ViewportX,			// Defines the viewport on the screen that should be rendered to.
+	DTA_ViewportY,
+	DTA_ViewportWidth,
+	DTA_ViewportHeight,
+
 };
 
 enum EMonospacing : int
@@ -160,6 +166,7 @@ struct DrawParms
 	double srcx, srcy;
 	double srcwidth, srcheight;
 	double patchscalex, patchscaley;
+	IntRect viewport;
 };
 
 struct Va_List
