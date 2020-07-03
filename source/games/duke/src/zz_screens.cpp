@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 
 #include "sbar.h"
-#include "demo.h"
 #include "mdsprite.h"
 #include "gamecvars.h"
 #include "menu/menu.h"
@@ -318,7 +317,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (ud.pause_on == 1 && (g_player[myconnectindex].ps->gm & MODE_MENU) == 0)
         fi.PrintPaused();
 
-    mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
+    mdpause = (ud.pause_on || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 
     Net_DisplaySyncMsg();
 

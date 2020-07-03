@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "cheats.h"
-#include "demo.h"  // g_firstDemoFile[]
 #include "duke3d.h"
 #include "osdcmds.h"
 #include "savegame.h"
