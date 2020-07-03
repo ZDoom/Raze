@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define actors_h_
 
 #include "player.h"
-# include "namesdyn.h"
+# include "names.h"
 #include "stats.h"
 
 extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;

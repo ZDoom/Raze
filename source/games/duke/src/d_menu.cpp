@@ -40,7 +40,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "menu/menu.h"
 #include "gstrings.h"
 #include "version.h"
-#include "namesdyn.h"
+#include "names.h"
 #include "../../glbackend/glbackend.h"
 
 

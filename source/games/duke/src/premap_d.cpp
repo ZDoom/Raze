@@ -35,7 +35,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "build.h"
-#include "names.h"
+#include "names_d.h"
 
 BEGIN_DUKE_NS 
 

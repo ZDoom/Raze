@@ -30,7 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #include "ns.h"
 #include "duke3d.h"
-#include "names_rr.h"
+#include "names_r.h"
 #include "animtexture.h"
 #include "animlib.h"
 #include "raze_music.h"

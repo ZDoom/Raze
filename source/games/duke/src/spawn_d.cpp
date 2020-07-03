@@ -36,7 +36,7 @@ source as it is released.
 #include "global.h"
 #include "game.h"
 #include "sounds.h"
-#include "names.h"
+#include "names_d.h"
 
 BEGIN_DUKE_NS
 

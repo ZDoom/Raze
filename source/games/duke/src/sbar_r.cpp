@@ -32,7 +32,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 #include "sbar.h"
 #include "v_draw.h"
-#include "names_rr.h"
+#include "names_r.h"
 #include "texturemanager.h"
 
 BEGIN_DUKE_NS

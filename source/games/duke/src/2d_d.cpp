@@ -30,7 +30,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "ns.h"
 #include "duke3d.h"
-#include "names.h"
+#include "names_d.h"
 #include "animtexture.h"
 #include "animlib.h"
 #include "raze_music.h"

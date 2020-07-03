@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamedef.h"
 #include "gamevar.h"
 #include "macros.h"
-#include "namesdyn.h"  // for G_GetForcefieldPicnum()
+#include "names.h"
 #include "player.h"  // playerspawn_t
 #include "mathutil.h"
 

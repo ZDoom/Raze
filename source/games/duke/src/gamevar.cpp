@@ -36,13 +36,13 @@ source as it is released.
 #include "global.h"
 #include "gamedef.h"
 #include "serializer.h"
-#include "namesdyn.h"
+#include "names.h"
 #include "build.h"
 #include "mmulti.h"
 #include "gamevar.h"
 
-// This currently only works for Duke and related games
-#include "names.h"
+// This currently only works for WW2GI.
+#include "names_d.h"
 
 BEGIN_DUKE_NS
 

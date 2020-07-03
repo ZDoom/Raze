@@ -40,7 +40,7 @@ source as it is released.
 #include "sbar.h"
 #include "statusbar.h"
 #include "v_draw.h"
-#include "names.h"
+#include "names_d.h"
 #include "texturemanager.h"
 
 BEGIN_DUKE_NS

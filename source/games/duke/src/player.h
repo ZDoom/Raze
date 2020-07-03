@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define player_h_
 
 #include "inv.h"
-#include "namesdyn.h"
+#include "names.h"
 #include "fix16.h"
 #include "net.h"
 #include "tarray.h"

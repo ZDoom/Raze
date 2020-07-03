@@ -44,7 +44,6 @@ set( PCH_SOURCES
 	src/zz_demo.cpp
 	src/zz_game.cpp
 	src/zz_global.cpp
-	src/zz_namesdyn.cpp
 	src/zz_net.cpp
 	src/zz_osdcmds.cpp
 	src/zz_player.cpp

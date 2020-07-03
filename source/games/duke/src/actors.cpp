@@ -41,7 +41,7 @@ This file is a combination of code from the following sources:
 
 #include "ns.h"
 #include "global.h"
-#include "namesdyn.h"
+#include "names.h"
 #include "stats.h"
 
 BEGIN_DUKE_NS

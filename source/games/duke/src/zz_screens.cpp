@@ -41,6 +41,7 @@ BEGIN_DUKE_NS
 void drawstatusbar_d(int snum);
 void drawstatusbar_r(int snum);
 void drawoverheadmap(int cposx, int cposy, int czoom, int cang);
+void cameratext(int i);
 
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
@@ -226,7 +227,7 @@ void G_DisplayRest(int32_t smoothratio)
         if (ud.overhead_on != 2)
         {
             if (!RR && pp->newowner >= 0)
-                G_DrawCameraText(pp->newowner);
+                cameratext(pp->newowner);
             else
             {
                 PspTwoDSetter set;

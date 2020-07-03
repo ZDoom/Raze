@@ -266,7 +266,7 @@ void drawbackground(void)
 		return;
 	}
 
-	auto tex = tileGetTexture(isRRRA() ? /*TILE_RRTILE*/7629 : TILE_BIGHOLE);
+	auto tex = tileGetTexture(TILE_SCREENBORDER);
 	if (tex != nullptr && tex->isValid())
 	{
 		if (windowxy1.y > 0)

@@ -35,7 +35,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "sounds.h"
-#include "names.h"
+#include "names_d.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS

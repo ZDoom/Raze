@@ -112,7 +112,7 @@ END_DUKE_NS
 #include "global.h"
 #include "inv.h"
 #include "macros.h"
-#include "namesdyn.h"
+#include "names.h"
 #include "net.h"
 #include "player.h"
 #include "quotes.h"

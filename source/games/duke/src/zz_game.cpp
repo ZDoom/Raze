@@ -1513,9 +1513,6 @@ static void G_Startup(void)
     if (engineInit())
         G_FatalEngineError();
 
-    G_InitDynamicTiles();
-    //G_InitDynamicSounds();
-
     // These depend on having the dynamic tile and/or sound mappings set up:
     G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
     G_PostCreateGameState();
