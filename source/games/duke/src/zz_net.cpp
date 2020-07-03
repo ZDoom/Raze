@@ -54,15 +54,6 @@ void faketimerhandler(void) {}
 
 void Net_GetPackets(void)
 {
-    if (g_netDisconnect)
-    {
-        g_netDisconnect = 0;
-
-        if (g_gameQuit)
-            G_GameExit(" ");
-
-        return;
-    }
 }
 
 END_DUKE_NS

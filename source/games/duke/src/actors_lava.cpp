@@ -162,7 +162,7 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int j)
 void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum)
 {
 	if (minecartcnt >= 16)
-		G_GameExit("\nToo many minecart sectors");
+		I_Error("Too many minecart sectors");
 	minecartdist[minecartcnt] = p1;
 	minecartspeed[minecartcnt] = p2;
 	minecartsect[minecartcnt] = i;

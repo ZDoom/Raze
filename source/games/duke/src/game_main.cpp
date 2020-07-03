@@ -35,6 +35,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "mapinfo.h"
 #include "texturemanager.h"
 #include "statusbar.h"
+#include "st_start.h"
+#include "i_interface.h"
 
 BEGIN_DUKE_NS
 
@@ -116,6 +118,28 @@ void checkcommandline()
 		}
 		Printf("Respawn on.\n");
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// fixme: Menu does not call this
+//
+//---------------------------------------------------------------------------
+
+void gameexitfrommenu()
+{
+	// MP scoreboard
+	if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET))
+	{
+		G_BonusScreen(1);
+	}
+
+	// shareware and TEN screens
+	if (!VOLUMEALL && !RR)
+		showtwoscreens([](bool) {});
+
+	endoomName = RR ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
+	ST_Endoom();
 }
 
 //---------------------------------------------------------------------------

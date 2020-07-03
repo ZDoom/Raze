@@ -185,8 +185,7 @@ int32_t G_LoadPlayer(const char *path)
     {
         // in theory, we could load into an initial dump first and trivially
         // recover if things go wrong...
-        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", path, status);
-        G_GameExit(tempbuf);
+        I_Error("Loading save game file \"%s\" failed (code %d), cannot recover.", path, status);
     }
 	
     sv_postudload();  // ud.m_XXX = ud.XXX

@@ -93,38 +93,6 @@ int32_t g_levelTextTime = 0;
 extern char forcegl;
 #endif
 
-enum gametokens
-{
-    T_INCLUDE = 0,
-    T_INTERFACE = 0,
-    T_LOADGRP = 1,
-    T_MODE = 1,
-    T_CACHESIZE = 2,
-    T_ALLOW = 2,
-    T_NOAUTOLOAD,
-    T_INCLUDEDEFAULT,
-    T_MUSIC,
-    T_SOUND,
-    T_FILE,
-    T_CUTSCENE,
-    T_ANIMSOUNDS,
-    T_NOFLOORPALRANGE,
-    T_ID,
-    T_MINPITCH,
-    T_MAXPITCH,
-    T_PRIORITY,
-    T_TYPE,
-    T_DISTANCE,
-    T_VOLUME,
-    T_DELAY,
-    T_RENAMEFILE,
-    T_GLOBALGAMEFLAGS,
-    T_ASPECT,
-    T_FORCEFILTER,
-    T_FORCENOFILTER,
-    T_TEXTUREFILTER,
-};
-
 static void gameTimerHandler(void)
 {
     S_Update();
@@ -144,64 +112,7 @@ void G_HandleSpecialKeys(void)
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_DispatchQueued();
 
-    if (g_quickExit == 0 && inputState.GetKeyStatus(sc_LeftControl) && inputState.GetKeyStatus(sc_LeftAlt) && (inputState.GetKeyStatus(sc_Delete)||inputState.GetKeyStatus(sc_End)))
-    {
-        g_quickExit = 1;
-        G_GameExit("Quick Exit.");
-    }
 }
-
-void G_GameQuit(void)
-{
-    if (numplayers < 2)
-        G_GameExit(" ");
-
-    if (g_gameQuit == 0)
-    {
-        g_gameQuit = 1;
-        g_quitDeadline = (int32_t) totalclock+120;
-        //g_netDisconnect = 1;
-    }
-
-    if ((totalclock > g_quitDeadline) && (g_gameQuit == 1))
-        g_netDisconnect = 1;
-        //G_GameExit("Timed out.");
-}
-
-
-
-
-void G_GameExit(const char *msg)
-{
-    if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
-
-    // JBF: fixes crash on demo playback
-    // PK: modified from original
-
-    if (!g_quickExit)
-    {
-
-        if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
-        {
-            G_BonusScreen(1);
-        }
-
-        // shareware and TEN screens
-        if (*msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y' && !VOLUMEALL && !RR)
-            showtwoscreens([](bool) {});
-    }
-
-	if (*msg != 0)
-	{
-		if (!(msg[0] == ' ' && msg[1] == 0))
-		{
-			I_Error("%s", msg);
-		}
-	}
-    endoomName = RR? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
-    ST_Endoom();
-}
-
 
 
 static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
@@ -1079,27 +990,6 @@ void G_DumpDebugInfo(void)
     }
 }
 
-// if <set_movflag_uncond> is true, set the moveflag unconditionally,
-// else only if it equals 0.
-static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncond)
-{
-    if (actorinfo[tilenum].scriptaddress)
-    {
-        auto sa = &ScriptCode[actorinfo[tilenum].scriptaddress];
-        SH(i) = sa[0];
-        AC_ACTION_ID(actor[i].t_data) = sa[1];
-        AC_MOVE_ID(actor[i].t_data) = sa[2];
-
-        if (set_movflag_uncond || (sa[3] && SHT(i) == 0))  // AC_MOVFLAGS
-            SHT(i) = sa[3];
-
-        return 1;
-    }
-
-    return 0;
-}
-
-
 static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
 {
     int const floorPal = sector[sectNum].floorpal;
@@ -1452,7 +1342,7 @@ static void G_CompileScripts(void)
 	fi.initactorflags();
 
     if ((uint32_t)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
-        G_GameExit("Error: too many labels defined!");
+        I_FatalError("Error: too many labels defined!");
 
     {
         char *newlabel;
@@ -1554,7 +1444,7 @@ static void G_Startup(void)
         Printf("Multiplayer initialized.\n");
 
     if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
-        G_GameExit("Failed loading art.");
+        I_FatalError("Failed loading art.");
 
     fi.InitFonts();
 
@@ -1965,8 +1855,6 @@ MAIN_LOOP_RESTART:
         }
     }
     else updateviewport();
-
-//    G_GameExit(" "); ///
 
     ud.showweapons = ud.config.ShowOpponentWeapons;
     P_SetupMiscInputSettings();
