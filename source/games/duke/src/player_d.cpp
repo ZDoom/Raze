@@ -2602,12 +2602,12 @@ void processinput_d(int snum)
 	g_player[snum].horizAngleAdjust = 0;
 	g_player[snum].horizSkew = 0;
 
-	if (p->cheat_phase <= 0) sb_snum = g_player[snum].input->bits;// sync[snum].bits;
+	if (p->cheat_phase <= 0) sb_snum = PlayerInputBits(snum, ~0);
 	else sb_snum = 0;
 
-	auto sb_fvel = g_player[snum].input->fvel;	// TRANSITIONAL
-	auto sb_svel = g_player[snum].input->svel;
-	auto sb_avel = g_player[snum].input->q16avel;
+	auto sb_fvel = PlayerInputForwardVel(snum);
+	auto sb_svel = PlayerInputSideVel(snum);
+	auto sb_avel = PlayerInputAngVel(snum);
 
 	psect = p->cursectnum;
 	if (psect == -1)

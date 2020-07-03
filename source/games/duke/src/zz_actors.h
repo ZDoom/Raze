@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "namesdyn.h"
 #include "stats.h"
 
-extern glcycle_t actortime, thinktime;
+extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 BEGIN_DUKE_NS
 

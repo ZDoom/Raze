@@ -2006,7 +2006,8 @@ MAIN_LOOP_RESTART:
         OSD_DispatchQueued();
 
         char gameUpdate = false;
-        double const gameUpdateStartTime = timerGetHiTicks();
+        gameupdatetime.Reset();
+        gameupdatetime.Clock();
         
         while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
@@ -2043,10 +2044,7 @@ MAIN_LOOP_RESTART:
         }
 
         gameUpdate = true;
-        g_gameUpdateTime = timerGetHiTicks()-gameUpdateStartTime;
-        if (g_gameUpdateAvgTime < 0.f)
-            g_gameUpdateAvgTime = g_gameUpdateTime;
-        g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
+        gameupdatetime.Unclock();
 
         G_DoCheats();
 
@@ -2071,17 +2069,14 @@ MAIN_LOOP_RESTART:
 
             int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
+            drawtime.Reset();
+            drawtime.Clock();
             G_DrawRooms(screenpeek, smoothRatio);
             if (videoGetRenderMode() >= REND_POLYMOST)
                 drawbackground();
             G_DisplayRest(smoothRatio);
+            drawtime.Unclock();
             videoNextPage();
-
-            if (gameUpdate)
-            {
-                g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
-            }
-
         }
 
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)

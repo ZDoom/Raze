@@ -415,12 +415,41 @@ void renderFinishScene()
 //==========================================================================
 CVAR(Bool, vid_fps, false, 0)
 
+
+static FString statFPS()
+{
+	static int32_t frameCount;
+	static double lastFrameTime;
+	static double cumulativeFrameDelay;
+	static double lastFPS;
+
+	FString output;
+
+	double frameTime = I_msTimeF();
+	double frameDelay = frameTime - lastFrameTime;
+	cumulativeFrameDelay += frameDelay;
+
+	if (frameDelay >= 0)
+	{
+		output.AppendFormat("%5.1f fps (%.1f ms)\n", lastFPS, frameDelay);
+
+		if (cumulativeFrameDelay >= 1000.0)
+		{
+			lastFPS = 1000.f * frameCount / cumulativeFrameDelay;
+			frameCount = 0;
+			cumulativeFrameDelay = 0.0;
+		}
+	}
+	lastFrameTime = frameTime;
+	return output;
+}
+
 void DrawRateStuff()
 {
 	// Draws frame time and cumulative fps
 	if (vid_fps)
 	{
-		FString fpsbuff = gi->statFPS();
+		FString fpsbuff = statFPS();
 
 		int textScale = active_con_scale(twod);
 		int rate_x = screen->GetWidth() / textScale - NewConsoleFont->StringWidth(&fpsbuff[0]);

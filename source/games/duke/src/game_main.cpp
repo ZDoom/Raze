@@ -44,6 +44,51 @@ FFont* DigiFont;
 
 //---------------------------------------------------------------------------
 //
+// debug output
+//
+//---------------------------------------------------------------------------
+
+FString GameInterface::GetCoordString()
+{
+	int snum = screenpeek;
+	FString out;
+
+	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
+		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].q16ang / 65536., ps[snum].cursectnum,
+		sector[ps[snum].cursectnum].lotag, sector[ps[snum].cursectnum].hitag);
+
+	return out;
+}
+
+
+GameStats GameInterface::getStats()
+{
+	struct player_struct* p = &ps[myconnectindex];
+	return { p->actors_killed, p->max_actors_killed, p->secret_rooms, p->max_secret_rooms, p->player_par / REALGAMETICSPERSEC, p->frag };
+}
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+FString GameInterface::statFPS()
+{
+	FString output;
+
+	output.AppendFormat("Actor think time: %.3f ms\n", actortime.TimeMS());
+	output.AppendFormat("Total think time: %.3f ms\n", thinktime.TimeMS());
+	output.AppendFormat("Game Update: %.3f ms\n", gameupdatetime.TimeMS());
+	output.AppendFormat("Draw time: %.3f ms\n", drawtime.TimeMS());
+
+	return output;
+}
+
+
+//---------------------------------------------------------------------------
+//
 // game specific command line args go here. 
 //
 //---------------------------------------------------------------------------
@@ -171,7 +216,8 @@ void genspriteremaps(void)
 
 //---------------------------------------------------------------------------
 //
-// 
+// This now redirects the messagew to the console's notification display
+// which has all the features to reasonably do this in Duke style.
 //
 //---------------------------------------------------------------------------
 

@@ -392,6 +392,11 @@ inline int PlayerInputForwardVel(int pl)
     return g_player[pl].input->fvel;
 }
 
+inline fixed_t PlayerInputAngVel(int pl)
+{
+    return g_player[pl].input->q16avel;
+}
+
 enum
 {
     kHitTypeMask = 0xC000,

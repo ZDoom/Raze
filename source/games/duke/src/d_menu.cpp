@@ -276,7 +276,7 @@ void GameInterface::MenuClosed()
 			g_cameraDistance = 65536;
 		}
 
-		G_UpdateScreenArea();
+		updateviewport();
 		S_PauseSounds(false);
 	}
 }
