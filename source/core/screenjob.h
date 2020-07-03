@@ -11,12 +11,14 @@ class DScreenJob : public DObject
 	int64_t now;
 	const int fadestyle;
 	const float fadetime;	// in milliseconds
+	int fadestate = fadein;
 
 	friend void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore);
 
 public:
 	enum
 	{
+		visible = 0,
 		fadein = 1,
 		fadeout = 2,
 	};
@@ -34,6 +36,8 @@ public:
 	}
 
 	virtual int Frame(uint64_t clock, bool skiprequest) { return 0; }
+	int GetFadeState() const { return fadestate; }
+
 };
 
 //---------------------------------------------------------------------------

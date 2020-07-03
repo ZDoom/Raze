@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screens.h"
 
 #include "sbar.h"
-#include "menus.h"
 #include "demo.h"
 #include "mdsprite.h"
 #include "gamecvars.h"
@@ -429,15 +428,6 @@ void G_DisplayRest(int32_t smoothratio)
             drawoverheadmap(cposx, cposy, pp->zoom, cang);
 
             restoreinterpolations();
-
-            if (/*textret == 0 &&*/ ud.overhead_on == 2)
-            {
-                const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
-
-                if (!G_HaveUserMap()) // && !(G_GetLogoFlags() & LOGO_HIDEEPISODE))
-                    minitext(5, a+6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2+8+16+256);
-                minitext(5, a+6+6, currentLevel->DisplayName(), 0, 2+8+16+256);
-            }
         }
     }
 

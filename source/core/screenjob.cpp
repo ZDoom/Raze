@@ -112,7 +112,9 @@ void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clea
 					float ms = (clock / 1'000'000) / job.job->fadetime;
 					screenfade = clamp(ms, 0.f, 1.f);
 					twod->SetScreenFade(screenfade);
+					job.job->fadestate = DScreenJob::fadein;
 				}
+				else job.job->fadestate = DScreenJob::visible;
 				job.job->SetClock(clock);
 				int state = job.job->Frame(clock, skiprequest);
 				startTime -= job.job->GetClock() - clock;
@@ -125,6 +127,7 @@ void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clea
 				{
 					if (job.job->fadestyle & DScreenJob::fadeout)
 					{
+						job.job->fadestate = DScreenJob::fadeout;
 						startTime = now;
 						float screenfade2;
 						do

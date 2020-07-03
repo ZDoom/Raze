@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "duke3d.h"
-#include "menus.h"
 #include "demo.h"
 #include "savegame.h"
 #include "statistics.h"
@@ -48,90 +47,6 @@ static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 int32_t g_skillSoundVoice = -1;
 
-
-
-static void G_DoLoadScreen(const char *statustext, int32_t percent)
-{
-    if (ud.recstat != 2)
-    {
-        int32_t i = 0;
-
-        //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-
-        if (!statustext)
-        {
-            i = ud.screen_size;
-            ud.screen_size = 0;
-            G_UpdateScreenArea();
-            videoClearScreen(0L);
-        }
-
-        videoClearScreen(0);
-        
-        int const loadScreenTile = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, DEER ? 7040 : TILE_LOADSCREEN);
-
-        rotatesprite_fs(320<<15,200<<15,65536L,0,loadScreenTile,0,0,2+8+64+BGSTRETCH);
-
-        int const textY = RRRA ? 140 : 90;
-
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-        {
-            menutext_center(textY, RR ? GStrings("TXT_ENTRUM") : GStrings("TXT_LOADUM"));
-            if (RR)
-                menutext_center(textY+20, boardfilename);
-            else
-                gametext_center_shade_pal(textY+10, boardfilename, 14, 2);
-        }
-        else if (RR && g_lastLevel)
-        {
-            menutext_center(textY,GStrings("TXT_ENTERIN"));
-            menutext_center(textY+16+8,GStrings("TXT_CLOSEENCOUNTERS"));
-        }
-        else
-        {
-            menutext_center(textY, RR ? GStrings("TXT_ENTERIN") : GStrings("TXT_LOADING"));
-            menutext_center(textY+16+8,mapList[(ud.volume_number*MAXLEVELS) + ud.level_number].DisplayName());
-        }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-        if (statustext) gametext_center_number(180, statustext);
-#endif
-
-        if (percent != -1)
-        {
-            int32_t ii = scale(scale(xdim-1,288,320),percent,100);
-            rotatesprite(31<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(159<<16,145<<16,65536,0,929,15,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(30<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
-            rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
-        }
-
-        videoNextPage();
-
-        if (!statustext)
-        {
-            inputState.keyFlushChars();
-            ud.screen_size = i;
-        }
-    }
-    else
-    {
-        if (!statustext)
-        {
-            videoClearScreen(0L);
-            //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        }
-        /*Gv_SetVar(g_iReturnVarID,TILE_LOADSCREEN, -1, -1);*/
-
-        rotatesprite_fs(320<<15,200<<15,65536L, 0,TILE_LOADSCREEN,0,0,2+8+64+BGSTRETCH);
-
-        menutext_center(RRRA?155:105,RR? GStrings("TXT_LOADIN") : GStrings("TXT_Loading..."));
-        if (statustext) gametext_center_number(180, statustext);
-        videoNextPage();
-    }
-}
 
 
 
@@ -166,7 +81,7 @@ void G_UpdateScreenArea(void)
         renderFlushPerms();
 
     {
-        const int32_t ss = max(ud.screen_size-8,0);
+        const int32_t ss = std::max(ud.screen_size-8,0);
 
         int32_t x1 = scale(ss,xdim,160);
         int32_t x2 = xdim-x1;
@@ -392,77 +307,10 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
 void cacheit_d();
 void cacheit_r();
-int G_EnterLevel(int gameMode)
+
+static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
 {
-    int32_t i, mii;
     char levelName[BMAX_PATH];
-
-//    flushpackets();
-//    waitforeverybody();
-    vote_map = vote_episode = voting = -1;
-
-    ud.respawn_monsters  = ud.m_respawn_monsters;
-    ud.respawn_items     = ud.m_respawn_items;
-    ud.respawn_inventory = ud.m_respawn_inventory;
-    ud.monsters_off      = ud.m_monsters_off;
-    ud.coop              = m_coop;
-    ud.marker            = m_marker;
-    ud.ffire             = m_ffire;
-    ud.noexits           = m_noexits;
-
-    if ((gameMode & MODE_DEMO) != MODE_DEMO)
-        ud.recstat = m_recstat;
-    if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
-        ud.recstat = 0;
-
-    VM_OnEvent(EVENT_ENTERLEVEL);
-
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        S_PauseSounds(false);
-        FX_StopAllSounds();
-        S_ClearSoundLocks();
-        FX_SetReverb(0);
-    }
-
-    if (Menu_HaveUserMap())
-    {
-        int levelNum = G_FindLevelByFile(boardfilename);
-
-        if (levelNum != MAXLEVELS*MAXVOLUMES)
-        {
-            int volumeNum = levelNum;
-
-            levelNum &= MAXLEVELS-1;
-            volumeNum = (volumeNum - levelNum) / MAXLEVELS;
-
-            ud.level_number = m_level_number = levelNum;
-            ud.volume_number = ud.m_volume_number = volumeNum;
-
-            boardfilename[0] = 0;
-        }
-    }
-
-    // Redirect the final RR level to a valid map record so that currentLevel can point to something.
-    mii = (RR && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
-	auto &mi = mapList[mii];
-
-    if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
-    {
-        Printf(TEXTCOLOR_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
-        return 1;
-    }
-
-    i = ud.screen_size;
-    ud.screen_size = 0;
-
-    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
-    G_DoLoadScreen(msg, -1);
-    G_UpdateScreenArea();
-
-    ud.screen_size = i;
-
-    DukePlayer_t *const pPlayer = g_player[0].ps;
     int16_t lbang;
 
     if (!VOLUMEONE && Menu_HaveUserMap())
@@ -530,6 +378,85 @@ int G_EnterLevel(int gameMode)
     if (isRR()) cacheit_r(); else cacheit_d();
     //G_CacheMapData();
     // G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
+    return 0;
+}
+
+int G_EnterLevel(int gameMode)
+{
+    int32_t i, mii;
+
+//    flushpackets();
+//    waitforeverybody();
+    vote_map = vote_episode = voting = -1;
+
+    ud.respawn_monsters  = ud.m_respawn_monsters;
+    ud.respawn_items     = ud.m_respawn_items;
+    ud.respawn_inventory = ud.m_respawn_inventory;
+    ud.monsters_off      = ud.m_monsters_off;
+    ud.coop              = m_coop;
+    ud.marker            = m_marker;
+    ud.ffire             = m_ffire;
+    ud.noexits           = m_noexits;
+
+    if ((gameMode & MODE_DEMO) != MODE_DEMO)
+        ud.recstat = m_recstat;
+    if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
+        ud.recstat = 0;
+
+    VM_OnEvent(EVENT_ENTERLEVEL);
+
+    //if (g_networkMode != NET_DEDICATED_SERVER)
+    {
+        S_PauseSounds(false);
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        FX_SetReverb(0);
+    }
+
+    if (Menu_HaveUserMap())
+    {
+        int levelNum = G_FindLevelByFile(boardfilename);
+
+        if (levelNum != MAXLEVELS*MAXVOLUMES)
+        {
+            int volumeNum = levelNum;
+
+            levelNum &= MAXLEVELS-1;
+            volumeNum = (volumeNum - levelNum) / MAXLEVELS;
+
+            ud.level_number = m_level_number = levelNum;
+            ud.volume_number = ud.m_volume_number = volumeNum;
+
+            boardfilename[0] = 0;
+        }
+    }
+
+    // Redirect the final RR level to a valid map record so that currentLevel can point to something.
+    mii = (RR && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
+    auto& mi = mapList[mii];
+
+    if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
+    {
+        Printf(TEXTCOLOR_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
+        return 1;
+    }
+
+    i = ud.screen_size;
+    ud.screen_size = 0;
+
+    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
+
+    ud.screen_size = i;
+
+    DukePlayer_t *const pPlayer = g_player[0].ps;
+
+
+    /*
+    G_DoLoadScreen(msg, -1);
+    G_UpdateScreenArea();
+    */
+    int res = LoadTheMap(mi, pPlayer, gameMode);
+    if (res != 0) return res;
 
     // Try this first so that it can disable the CD player if no tracks are found.
     if (RR && !(gameMode & MODE_DEMO))

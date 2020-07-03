@@ -1034,6 +1034,46 @@ void e4intro(CompletionFunc completion)
 	RunScreenJob(jobs, job, completion);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DDukeLoadScreen : public DScreenJob
+{
+	std::function<int(void)> callback;
+	
+public:
+	DDukeLoadScreen(const char *mapname_, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout), callback(callback_) {}
+
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		
+		// fixme: The level management needs a total overhaul!
+		if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+		{
+			BigText(160, 90, GStrings("TXT_LOADUM"));
+			GameText(160, 100, boardfilename, 14, 0);
+		}
+		else
+		{
+			BigText(160, 90, GStrings("TXT_LOADING"));
+			BigText(160, 114, mapList[(ud.volume_number * MAXLEVELS) + ud.level_number].DisplayName());
+		}
+		
+		// Initiate the level load once the page has been faded in completely.
+		if (callback && GetFadeState() == visible)
+		{
+			callback();
+			callback = nullptr;
+		}
+		if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
+		return skiprequest? -1 : 1;
+	}
+};
+
 
 // Utility for testing the above screens
 CCMD(testscreen)
@@ -1089,6 +1129,5 @@ CCMD(testscreen)
 		}
 	}
 }
-
 
 END_DUKE_NS

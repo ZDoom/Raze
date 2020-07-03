@@ -158,16 +158,6 @@ int32_t G_LoadPlayer(const char *path)
     ud.multimode = h.numplayers;
 	S_PauseSounds(true);
 
-    if (numplayers > 1)
-    {
-        pub = NUMPAGES;
-        pus = NUMPAGES;
-        G_UpdateScreenArea();
-        drawbackground();
-        menutext_center(100, "Loading...");
-        videoNextPage();
-    }
-
     Net_WaitForEverybody();
 
     FX_StopAllSounds();

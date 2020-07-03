@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "osdcmds.h"
 #include "net.h"
-#include "menus.h"
 #include "savegame.h"
 #include "demo.h"
 
@@ -1492,6 +1491,14 @@ void G_PostCreateGameState(void)
     Net_SendClientInfo();
 }
 
+inline int G_CheckPlayerColor(int color)
+{
+    static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
+    if (color >= 0 && color < 10) return player_pals[color];
+    return 0;
+}
+
+
 static void G_Startup(void)
 {
     int32_t i;
@@ -1768,6 +1775,7 @@ int32_t SetDefaults(void)
     return 0;
 }
 
+void Menu_Init(void);
 
 int GameInterface::app_main()
 {

@@ -24,10 +24,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "compat.h"
 #include "sbar.h"
-#include "menus.h"
 #include "gstrings.h"
 
 BEGIN_DUKE_NS
+
+
+// a subset of screentext parameters, restricted because menus require accessibility
+typedef struct MenuFont_t
+{
+    //    int32_t xspace, yline;
+    vec2_t emptychar, between;
+    int32_t zoom;
+    int32_t cursorLeftPosition, cursorCenterPosition, cursorScale, cursorScale2, cursorScale3;
+    int32_t textflags;
+    int16_t tilenum;
+    // selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
+    int8_t shade_deselected, shade_disabled;
+    uint8_t pal;
+    uint8_t pal_selected, pal_deselected, pal_disabled;
+    uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
+
+    int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
+} MenuFont_t;
 
 
 // common font types
@@ -164,6 +182,12 @@ vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int3
 {
     return G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f, 0, 0, xdim-1, ydim-1);
 }
+
+static FORCE_INLINE int32_t sbarsc(int32_t sc)
+{
+    return scale(sc, ud.statusbarscale, 100);
+}
+
 static int32_t sbarx16(int32_t x)
 {
     if (ud.screen_size == 4) return sbarsc(x);

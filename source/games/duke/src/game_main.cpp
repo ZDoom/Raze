@@ -546,6 +546,16 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 				DTA_Color, pe, DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
 		}
 	}
+
+	if (/*textret == 0 &&*/ ud.overhead_on == 2)
+	{
+		const int32_t a = RR ? 0 : ((ud.screen_size > 0) ? 147 : 179);
+
+		if (!G_HaveUserMap()) // && !(G_GetLogoFlags() & LOGO_HIDEEPISODE))
+			minitext(5, a + 6, GStrings.localize(gVolumeNames[ud.volume_number]), 0, 2 + 8 + 16 + 256);
+		minitext(5, a + 6 + 6, currentLevel->DisplayName(), 0, 2 + 8 + 16 + 256);
+	}
+
 }
 
 END_DUKE_NS

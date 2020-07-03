@@ -601,6 +601,49 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 }
 
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DRRLoadScreen : public DScreenJob
+{
+	std::function<int(void)> callback;
+	
+public:
+	DRRLoadScreen(const char *mapname_, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout), callback(callback_) {}
+
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		
+		int y = isRRRA()? 140 : 90;
+		// fixme: The level management needs a total overhaul!
+		if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+		{
+			BigText(160, y, GStrings("TXT_ENTRUM"), 0);
+			BigText(160, y+20, boardfilename, 0);
+		}
+		else
+		{
+			BigText(160, y, GStrings("TXT_ENTERIN"), 0);
+			// Fixme: This last level hack needs to go away!!!
+			BigText(160, y+24, mapList[g_lastLevel? 127 : (ud.volume_number * MAXLEVELS) + ud.level_number].DisplayName(), 0);
+		}
+		
+		// Initiate the level load once the page has been faded in completely.
+		if (callback && GetFadeState() == visible)
+		{
+			callback();
+			callback = nullptr;
+		}
+		if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
+		return skiprequest? -1 : 1;
+	}
+};
+
+
 // Utility for testing the above screens
 CCMD(testrscreen)
 {
@@ -643,5 +686,6 @@ CCMD(testrscreen)
         }
     }
 }
+
 
 END_DUKE_NS

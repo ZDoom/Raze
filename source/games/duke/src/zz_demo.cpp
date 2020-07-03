@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "duke3d.h"
 
-#include "menus.h"
 #include "savegame.h"
 #include "screens.h"
 
