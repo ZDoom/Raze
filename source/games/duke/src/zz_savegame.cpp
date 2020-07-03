@@ -1430,7 +1430,7 @@ static void postloadplayer(int32_t savegamep)
                 T1(i) = 0;
             }
 
-        G_UpdateScreenArea();
+        updateviewport();
         FX_SetReverb(0);
     }
 

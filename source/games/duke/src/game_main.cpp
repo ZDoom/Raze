@@ -560,5 +560,55 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 
 }
 
+//---------------------------------------------------------------------------
+//
+// calculate size of 3D viewport.
+// Fixme: this needs to be adjusted to the new status bar code, 
+// once the status bar is a persistent queriable object
+//
+//---------------------------------------------------------------------------
+
+void updateviewport(void)
+{
+	ud.screen_size = clamp(ud.screen_size, 0, 64);
+	const int32_t ss = std::max(ud.screen_size - 8, 0);
+
+	int x1 = scale(ss, xdim, 160);
+	int x2 = xdim - x1;
+
+	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)) * ud.statusbarscale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
+	int y2 = 200 * 100 - y1;
+
+	if (isRR() && ud.screen_size <= 12)
+	{
+		x1 = 0;
+		x2 = xdim;
+		y1 = 0;
+		if (ud.statusbarmode)
+			y2 = 200 * 100;
+	}
+
+	int fbh = 0;
+	if (ud.screen_size > 0 && ud.coop != 1 && ud.multimode > 1)
+	{
+		int j = 0;
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
+			if (i > j) j = i;
+
+		if (j >= 1) fbh += 8;
+		if (j >= 4) fbh += 8;
+		if (j >= 8) fbh += 8;
+		if (j >= 12) fbh += 8;
+	}
+
+	y1 += fbh * 100;
+	if (ud.screen_size >= 8 && ud.statusbarmode == 0)
+		y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * ud.statusbarscale;
+	y1 = scale(y1, ydim, 200 * 100);
+	y2 = scale(y2, ydim, 200 * 100);
+
+	videoSetViewableArea(x1, y1, x2 - 1, y2 - 1);
+}
+
 END_DUKE_NS
 

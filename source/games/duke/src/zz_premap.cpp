@@ -48,69 +48,6 @@ static int32_t g_precacheCount;
 int32_t g_skillSoundVoice = -1;
 
 
-
-
-
-extern int32_t fragbarheight(void)
-{
-    if (ud.screen_size > 0 && !(ud.statusbarflags & STATUSBAR_NOFRAGBAR)
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
-        && (g_netServer || ud.multimode > 1) && GTFLAGS(GAMETYPE_FRAGBAR))
-    {
-        int32_t i, j = 0;
-
-        for (TRAVERSE_CONNECT(i))
-            if (i > j)
-                j = i;
-
-        return ((j + 3) >> 2) << 3;
-    }
-
-    return 0;
-}
-
-void G_UpdateScreenArea(void)
-{
-    if (!in3dmode())
-        return;
-
-    ud.screen_size = clamp(ud.screen_size, 0, 64);
-    if (ud.screen_size == 0)
-        renderFlushPerms();
-
-    {
-        const int32_t ss = std::max(ud.screen_size-8,0);
-
-        int32_t x1 = scale(ss,xdim,160);
-        int32_t x2 = xdim-x1;
-
-        int32_t y1 = scale(ss,(200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)) * ud.statusbarscale),200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
-        int32_t y2 = 200*100-y1;
-
-        if (RR && ud.screen_size <= 12)
-        {
-            x1 = 0;
-            x2 = xdim;
-            y1 = 0;
-            if (ud.statusbarmode)
-                y2 = 200*100;
-        }
-
-        y1 += fragbarheight()*100;
-        if (ud.screen_size >= 8 && ud.statusbarmode==0)
-            y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (RR ? 1 : 0))*ud.statusbarscale;
-        y1 = scale(y1,ydim,200*100);
-        y2 = scale(y2,ydim,200*100);
-
-        videoSetViewableArea(x1,y1,x2-1,y2-1);
-    }
-
-    pub = NUMPAGES;
-    pus = NUMPAGES;
-}
-
 static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
 void G_InitRRRASkies(void)
