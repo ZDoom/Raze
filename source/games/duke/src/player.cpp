@@ -213,7 +213,7 @@ int aim(spritetype* s, int aang)
 		return -1;
 
 	j = -1;
-	//    if(s->picnum == TILE_APLAYER && ps[s->yvel].aim_mode) return -1;
+	//	  if(s->picnum == TILE_APLAYER && ps[s->yvel].aim_mode) return -1;
 
 	if (isRR())
 	{
@@ -446,9 +446,9 @@ void footprints(int snum)
 				{
 					switch (krand() & 3)
 					{
-					case 0:  j = fi.spawn(pi, TILE_FOOTPRINTS); break;
-					case 1:  j = fi.spawn(pi, TILE_FOOTPRINTS2); break;
-					case 2:  j = fi.spawn(pi, TILE_FOOTPRINTS3); break;
+					case 0:	 j = fi.spawn(pi, TILE_FOOTPRINTS); break;
+					case 1:	 j = fi.spawn(pi, TILE_FOOTPRINTS2); break;
+					case 2:	 j = fi.spawn(pi, TILE_FOOTPRINTS3); break;
 					default: j = fi.spawn(pi, TILE_FOOTPRINTS4); break;
 					}
 					sprite[j].pal = p->footprintpal;
@@ -525,7 +525,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			{
 				sprintf(tempbuf, "frag %d killed %d\n", p->frag_ps + 1, snum + 1);
 				sendscore(tempbuf);
-				//                    printf(tempbuf);
+				//					  printf(tempbuf);
 			}
 #endif
 
@@ -550,7 +550,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		clipmove(&p->posx, &p->posy,
 			&p->posz, &p->cursectnum,
 			0, 0, 164L, (4L << 8), (4L << 8), CLIPMASK0);
-		//            p->bobcounter += 32;
+		//			  p->bobcounter += 32;
 	}
 
 	p->oposx = p->posx;
@@ -821,5 +821,71 @@ int haskey(int sect, int snum)
 
 	return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// view - as in third person view (stupid name for this function)
+//
+//---------------------------------------------------------------------------
+
+bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz)
+{
+	spritetype* sp;
+	int i, nx, ny, nz, hx, hy, hz, hitx, hity, hitz;
+	short bakcstat, hitsect, hitwall, hitsprite, daang;
+
+	nx = (sintable[(ang + 1536) & 2047] >> 4);
+	ny = (sintable[(ang + 1024) & 2047] >> 4);
+	nz = (horiz - 100) * 128;
+
+	sp = &sprite[pp->i];
+
+	bakcstat = sp->cstat;
+	sp->cstat &= (short)~0x101;
+
+	updatesectorz(*vx, *vy, *vz, vsectnum);
+	hitscan(*vx, *vy, *vz, *vsectnum, nx, ny, nz, &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK1);
+
+	if (*vsectnum < 0)
+	{
+		sp->cstat = bakcstat;
+		return false;
+	}
+
+	hx = hitx - (*vx); hy = hity - (*vy);
+	if (abs(nx) + abs(ny) > abs(hx) + abs(hy))
+	{
+		*vsectnum = hitsect;
+		if (hitwall >= 0)
+		{
+			daang = getangle(wall[wall[hitwall].point2].x - wall[hitwall].x,
+				wall[wall[hitwall].point2].y - wall[hitwall].y);
+
+			i = nx * sintable[daang] + ny * sintable[(daang + 1536) & 2047];
+			if (abs(nx) > abs(ny)) hx -= mulscale28(nx, i);
+			else hy -= mulscale28(ny, i);
+		}
+		else if (hitsprite < 0)
+		{
+			if (abs(nx) > abs(ny)) hx -= (nx >> 5);
+			else hy -= (ny >> 5);
+		}
+		if (abs(nx) > abs(ny)) i = divscale16(hx, nx);
+		else i = divscale16(hy, ny);
+		if (i < cameradist) cameradist = i;
+	}
+	*vx = (*vx) + mulscale16(nx, cameradist);
+	*vy = (*vy) + mulscale16(ny, cameradist);
+	*vz = (*vz) + mulscale16(nz, cameradist);
+
+	cameradist = min(cameradist + (((int)totalclock - cameraclock) << 10), 65536);
+	cameraclock = (int)totalclock;
+
+	updatesectorz(*vx, *vy, *vz, vsectnum);
+
+	sp->cstat = bakcstat;
+	return true;
+}
+	 
 
 END_DUKE_NS

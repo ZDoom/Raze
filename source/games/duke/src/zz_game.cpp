@@ -115,73 +115,6 @@ void G_HandleSpecialKeys(void)
 }
 
 
-static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
-{
-    spritetype *sp = &sprite[pp->i];
-    int32_t i, hx, hy;
-    int32_t bakcstat = sp->cstat;
-    hitdata_t hit;
-
-    vec3_t n = {
-        sintable[(ang+1536)&2047]>>4,
-        sintable[(ang+1024)&2047]>>4,
-        (horiz-100) * 128
-    };
-
-    updatesectorz(vect->x,vect->y,vect->z,vsectnum);
-
-    sp->cstat &= ~0x101;
-    hitscan(vect, *vsectnum, n.x,n.y,n.z, &hit, CLIPMASK1);
-    sp->cstat = bakcstat;
-
-    if (*vsectnum < 0)
-        return -1;
-
-    hx = hit.pos.x-(vect->x);
-    hy = hit.pos.y-(vect->y);
-
-    if (klabs(n.x)+klabs(n.y) > klabs(hx)+klabs(hy))
-    {
-        *vsectnum = hit.sect;
-
-        if (hit.wall >= 0)
-        {
-            int32_t daang = getangle(wall[wall[hit.wall].point2].x-wall[hit.wall].x,
-                             wall[wall[hit.wall].point2].y-wall[hit.wall].y);
-
-            i = n.x*sintable[daang] + n.y*sintable[(daang+1536)&2047];
-
-            if (klabs(n.x) > klabs(n.y))
-                hx -= mulscale28(n.x,i);
-            else hy -= mulscale28(n.y,i);
-        }
-        else if (hit.sprite < 0)
-        {
-            if (klabs(n.x) > klabs(n.y))
-                hx -= (n.x>>5);
-            else hy -= (n.y>>5);
-        }
-
-        if (klabs(n.x) > klabs(n.y))
-            i = divscale16(hx,n.x);
-        else i = divscale16(hy,n.y);
-
-        if (i < CAMERADIST)
-            CAMERADIST = i;
-    }
-
-    vect->x += mulscale16(n.x,CAMERADIST);
-    vect->y += mulscale16(n.y,CAMERADIST);
-    vect->z += mulscale16(n.z,CAMERADIST);
-
-    CAMERADIST = min(CAMERADIST+(((int32_t) totalclock-CAMERACLOCK)<<10),65536);
-    CAMERACLOCK = (int32_t) totalclock;
-
-    updatesectorz(vect->x,vect->y,vect->z,vsectnum);
-
-    return 0;
-}
-
 int32_t SE150_TempSectorZ[MAXSECTORS];
 int32_t SE150_TempSectorPicnum[MAXSECTORS];
 
@@ -762,10 +695,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             {
                 CAMERA(pos.z) -= 3072;
 
-                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz))) < 0)
+                if (!view(pPlayer, &ud.camerapos.x, &ud.camerapos.y, &ud.camerapos.z, &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz))))
                 {
                     CAMERA(pos.z) += 3072;
-                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz)));
+                    view(pPlayer, &ud.camerapos.x, &ud.camerapos.y, &ud.camerapos.z, &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz)));
                 }
             }
         }

@@ -452,6 +452,7 @@ void playerLookUp(int snum, int sb_snum);
 void playerLookDown(int snum, int sb_snum);
 void playerAimUp(int snum, int sb_snum);
 void playerAimDown(int snum, int sb_snum);
+bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz);
 
 extern int lastvisinc;
 
