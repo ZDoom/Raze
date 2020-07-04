@@ -783,10 +783,10 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 
+	core/cheathandler.cpp
 	core/mathutil.cpp
 	core/rts.cpp
 	core/ct_chat.cpp
-	core/entercheat.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
