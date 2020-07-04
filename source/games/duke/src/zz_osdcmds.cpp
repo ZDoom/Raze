@@ -23,16 +23,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "cheats.h"
 #include "duke3d.h"
 #include "osdcmds.h"
 #include "savegame.h"
 #include "sbar.h"
 #include "mapinfo.h"
+#include "cheathandler.h"
 
 BEGIN_DUKE_NS
 
-struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
+bool cheatGod(cheatseq_t*);
+bool cheatClip(cheatseq_t*);
+bool cheatWeapons(cheatseq_t* s);
+bool cheatStuff(cheatseq_t* s);
+bool cheatKeys(cheatseq_t* s);
+bool cheatInventory(cheatseq_t* s);
 
 static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
@@ -46,7 +51,6 @@ static int osdcmd_levelwarp(CCmdFuncPtr parm)
         return OSDCMD_OK;
     }
 
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
     ud.m_volume_number = e - 1;
     m_level_number = m - 1;
 
@@ -109,7 +113,6 @@ foundone:
         return OSDCMD_OK;
     }
 
-    osdcmd_cheatsinfo_stat.cheatnum = -1;
     ud.m_monsters_off = ud.monsters_off = 0;
 
     ud.m_respawn_items = 0;
@@ -133,32 +136,25 @@ static int osdcmd_activatecheat(CCmdFuncPtr parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
-        osdcmd_cheatsinfo_stat.cheatnum = Batoi(parm->parms[0]);
-    else
-        Printf("activatecheat: Not in a single-player game.\n");
-
+    PlaybackCheat(parm->parms[0]);
     return OSDCMD_OK;
 }
 
-static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CORNHOLIO;
+    if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
+        cheatGod(nullptr);
     else
         Printf("god: Not in a single-player game.\n");
 
     return OSDCMD_OK;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
+    if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
     {
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CLIP;
+        cheatClip(nullptr);
     }
     else
     {
@@ -272,7 +268,6 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     return OSDCMD_OK;
 }
 
-
 static int osdcmd_give(CCmdFuncPtr parm)
 {
     int32_t i;
@@ -286,9 +281,10 @@ static int osdcmd_give(CCmdFuncPtr parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
+    cheatseq_t* cs = (cheatseq_t*)(intptr_t)1;
     if (!Bstrcasecmp(parm->parms[0], "all"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_STUFF;
+        cheatStuff(cs);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
@@ -298,7 +294,7 @@ static int osdcmd_give(CCmdFuncPtr parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_WEAPONS;
+        cheatWeapons(cs);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
@@ -314,12 +310,12 @@ static int osdcmd_give(CCmdFuncPtr parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_KEYS;
+        cheatKeys(cs);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "inventory"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_INVENTORY;
+        cheatInventory(cs);
         return OSDCMD_OK;
     }
     return OSDCMD_SHOWHELP;

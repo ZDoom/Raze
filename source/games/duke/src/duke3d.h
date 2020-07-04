@@ -217,6 +217,7 @@ struct GameInterface : ::GameInterface
 	bool LoadGame(FSaveGameNode*) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
+	bool CheatAllowed(bool printmsg) override;
 };
 
 END_DUKE_NS

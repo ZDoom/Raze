@@ -41,6 +41,7 @@
 #include "utf8.h"
 #include "m_joy.h"
 #include "vm.h"
+#include "cheathandler.h"
 
 bool G_Responder(event_t* ev);
 
@@ -73,6 +74,8 @@ void D_ProcessEvents (void)
 			continue;				// console ate the event
 		if (M_Responder (ev))
 			continue;				// menu ate the event
+		if (Cheat_Responder(ev))
+			continue;
 		G_Responder (ev);
 	}
 }

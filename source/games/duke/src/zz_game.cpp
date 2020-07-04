@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "savegame.h"
 
-#include "cheats.h"
 #include "sbar.h"
 #include "screens.h"
 #include "palette.h"
@@ -58,6 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 void SetDispatcher();
+void InitCheats();
 void checkcommandline();
 
 int16_t max_ammo_amount[MAX_WEAPONS];
@@ -67,7 +67,7 @@ uint8_t shadedsector[MAXSECTORS];
 int32_t g_fakeMultiMode = 0;
 int32_t g_quitDeadline = 0;
 
-int32_t g_cameraDistance = 0, g_cameraClock = 0;
+int32_t cameradist = 0, cameraclock = 0;
 static int32_t g_quickExit;
 
 char boardfilename[BMAX_PATH] = {0};
@@ -1698,7 +1698,7 @@ int GameInterface::app_main()
         g_cdTrack = -1;
     }
 
-    G_SetupCheats();
+    InitCheats();
 
     if (SHAREWARE)
         g_Shareware = 1;
@@ -1929,8 +1929,6 @@ MAIN_LOOP_RESTART:
 
         gameUpdate = true;
         gameupdatetime.Unclock();
-
-        G_DoCheats();
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {

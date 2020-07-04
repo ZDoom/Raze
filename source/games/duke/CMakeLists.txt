@@ -10,6 +10,7 @@ set( PCH_SOURCES
 	src/animatesprites_r.cpp
 	src/animatesprites_d.cpp
 	src/bowling.cpp
+	src/cheats.cpp
 	src/d_menu.cpp
 	src/dispatch.cpp
 	src/flags_d.cpp
@@ -39,7 +40,6 @@ set( PCH_SOURCES
 	src/spawn.cpp
 	src/spawn_d.cpp
 	src/spawn_r.cpp
-	src/zz_cheats.cpp
 	src/zz_common.cpp
 	src/zz_demo.cpp
 	src/zz_game.cpp

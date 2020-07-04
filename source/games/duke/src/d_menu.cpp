@@ -272,8 +272,8 @@ void GameInterface::MenuClosed()
 		{
 			ready2send = 1;
 			totalclock = ototalclock;
-			g_cameraClock = (int32_t)totalclock;
-			g_cameraDistance = 65536;
+			cameraclock = (int32_t)totalclock;
+			cameradist = 65536;
 		}
 
 		updateviewport();

@@ -1097,7 +1097,7 @@ CCMD (togglemsg)
 // Just a placeholder for now.
 bool CheckCheatmode(bool printmsg)
 {
-	return false;
+	return gi->CheatAllowed(printmsg);
 }
 
 void updatePauseStatus()

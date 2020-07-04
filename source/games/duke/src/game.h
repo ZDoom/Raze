@@ -105,8 +105,8 @@ enum {
 
 
 # define CAMERA(Membname) (ud.camera ## Membname)
-# define CAMERADIST g_cameraDistance
-# define CAMERACLOCK g_cameraClock
+# define CAMERADIST cameradist
+# define CAMERACLOCK cameraclock
 
 #endif
 
@@ -196,8 +196,8 @@ extern const char *G_DefaultRtsFile(void);
 
 extern int32_t g_Debug;
 extern int32_t g_Shareware;
-extern int32_t g_cameraClock;
-extern int32_t g_cameraDistance;
+extern int32_t cameraclock;
+extern int32_t cameradist;
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_levelTextTime;

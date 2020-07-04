@@ -27,6 +27,8 @@
 #include "c_dispatch.h"
 #include "d_event.h"
 #include "cheathandler.h"
+#include "printf.h"
+#include "gamestruct.h"
 
 static cheatseq_t *cheats;
 static int numcheats;
@@ -54,7 +56,7 @@ static bool CheatAddKey (cheatseq_t *cheat, uint8_t key, bool *eat)
 		cheat->Pos = cheat->Sequence;
 		cheat->CurrentArg = 0;
 	}
-	if (*cheat->Pos == '#')
+	if (*cheat->Pos == '#' && key >= '0' && key <= '9')
 	{
 		*eat = true;
 		cheat->Args[cheat->CurrentArg++] = key;
@@ -108,8 +110,7 @@ bool Cheat_Responder (event_t *ev)
 			}
 			else if (cheats->Pos - cheats->Sequence > 2)
 			{ // If more than two characters into the sequence,
-			  // eat the keypress, just so that the Hexen cheats
-			  // with T in them will work without unbinding T.
+			  // eat the keypress.
 				eat = true;
 			}
 		}
@@ -117,3 +118,22 @@ bool Cheat_Responder (event_t *ev)
 	return eat;
 }
 
+void PlaybackCheat(const char *p)
+{
+	if (!gi->CheatAllowed(false))
+	{
+		event_t ev = { EV_KeyDown, 0, 0, -1 };
+		Cheat_Responder(&ev);   // Reset the parser by passing a non-existent key.
+		for (; *p; p++)
+		{
+			// just play the cheat command through the event parser
+			ev.data2 = *p;
+			Cheat_Responder(&ev);
+		}
+		ev.data2 = -1;
+		Cheat_Responder(&ev);
+	}
+	else
+		Printf("activatecheat: Cheats not allowed.\n");
+
+}
