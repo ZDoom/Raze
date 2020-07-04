@@ -111,6 +111,8 @@ void displaymasks_d(int snum);
 void displaymasks_r(int snum);
 void think_d();
 void think_r();
+void animatesprites_d(int x, int y, int a, int smoothratio);
+void animatesprites_r(int x, int y, int a, int smoothratio);
 
 void Logo_d(CompletionFunc);
 void Logo_r(CompletionFunc);
@@ -173,6 +175,7 @@ void SetDispatcher()
 		processinput_d,
 		displayweapon_d,
 		displaymasks_d,
+		animatesprites_d,
 		};
 	}
 	else	
@@ -224,6 +227,7 @@ void SetDispatcher()
 		processinput_r,
 		displayweapon_r,
 		displaymasks_r,
+		animatesprites_r,
 		};
 	}
 }

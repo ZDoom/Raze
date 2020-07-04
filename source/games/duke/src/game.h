@@ -238,7 +238,6 @@ void G_BonusScreen(int32_t bonusonly);
 void G_BonusScreenRRRA(int32_t bonusonly);
 //void G_CheatGetInv(void);
 void G_DisplayRest(int32_t smoothratio);
-void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothratio);
 void drawbackground(void);
 void G_DrawFrags(void);
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t horiz, int32_t smoothratio);
@@ -501,6 +500,8 @@ struct Dispatcher
     void (*processinput)(int snum);
     void (*displayweapon)(int snum);
     void (*displaymasks)(int snum);
+
+    void (*animatesprites)(int x, int y, int a, int smoothratio);
 
 
 };

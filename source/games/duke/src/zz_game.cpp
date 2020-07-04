@@ -194,13 +194,10 @@ static void G_SE150_Draw(int32_t spnum, int32_t x, int32_t y, int32_t z, int32_t
     offx = x - sprite[i].x;
     offy = y - sprite[i].y;
     i = floor2;
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_setanimatesprites(G_DoSpriteAnimations, offx + sprite[i].x, offy + sprite[i].y, z, fix16_to_int(a), smoothratio);
-#endif
+
 
     renderDrawRoomsQ16(offx + sprite[i].x, offy + sprite[i].y, z, a, h, sprite[i].sectnum);
-    G_DoSpriteAnimations(offx + sprite[i].x, offy + sprite[i].y, z, fix16_to_int(a), smoothratio);
+    fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, fix16_to_int(a), smoothratio);
     renderDrawMasks();
 
     for (j = 0; j < MAXSPRITES; j++)  // restore ceiling or floor
@@ -244,156 +241,8 @@ void G_SE150(int32_t x, int32_t y, int32_t z, int32_t a, int32_t h, int32_t smoo
     }
 }
 
-#ifdef LEGACY_ROR
-static int32_t drawing_ror = 0;
-static int32_t ror_sprite = -1;
 
-static void G_OROR_DupeSprites(const spritetype *sp)
-{
-    // dupe the sprites touching the portal to the other sector
-    int32_t k;
-    const spritetype *refsp;
-
-    if ((unsigned)sp->yvel >= (unsigned)playerswhenstarted)
-        return;
-
-    refsp = &sprite[sp->yvel];
-
-    for (SPRITES_OF_SECT(sp->sectnum, k))
-    {
-        if (spritesortcnt >= maxspritesonscreen)
-            break;
-
-        if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
-        {
-            tspriteptr_t tsp = renderAddTSpriteFromSprite(k);
-
-            tsp->x += (refsp->x - sp->x);
-            tsp->y += (refsp->y - sp->y);
-            tsp->z += -sp->z + actor[sp->yvel].ceilingz;
-            tsp->sectnum = refsp->sectnum;
-
-//            Printf("duped sprite of pic %d at %d %d %d\n",tsp->picnum,tsp->x,tsp->y,tsp->z);
-        }
-    }
-}
-
-static int16_t SE40backupStat[MAXSECTORS];
-static int32_t SE40backupZ[MAXSECTORS];
-
-static void G_SE40(int32_t smoothratio)
-{
-    if ((unsigned)ror_sprite < MAXSPRITES)
-    {
-        int32_t x, y, z;
-        int16_t sect;
-        int32_t level = 0;
-        const spritetype *const sp = &sprite[ror_sprite];
-        const int32_t sprite2 = sp->yvel;
-
-        if ((unsigned)sprite2 >= MAXSPRITES)
-            return;
-
-        if (klabs(sector[sp->sectnum].floorz - sp->z) < klabs(sector[sprite[sprite2].sectnum].floorz - sprite[sprite2].z))
-            level = 1;
-
-        x = CAMERA(pos.x) - sp->x;
-        y = CAMERA(pos.y) - sp->y;
-        z = CAMERA(pos.z) - (level ? sector[sp->sectnum].floorz : sector[sp->sectnum].ceilingz);
-
-        sect = sprite[sprite2].sectnum;
-        updatesector(sprite[sprite2].x + x, sprite[sprite2].y + y, &sect);
-
-        if (sect != -1)
-        {
-            int32_t renderz, picnum;
-            // XXX: PK: too large stack allocation for my taste
-            int32_t i;
-            int32_t pix_diff, newz;
-            //                Printf("drawing ror\n");
-
-            if (level)
-            {
-                // renderz = sector[sprite[sprite2].sectnum].ceilingz;
-                renderz = sprite[sprite2].z - (sprite[sprite2].yrepeat * tilesiz[sprite[sprite2].picnum].y<<1);
-                picnum = sector[sprite[sprite2].sectnum].ceilingpicnum;
-                sector[sprite[sprite2].sectnum].ceilingpicnum = 562;
-				tileDelete(562);
-
-                pix_diff = klabs(z) >> 8;
-                newz = - ((pix_diff / 128) + 1) * (128<<8);
-
-                for (i = 0; i < numsectors; i++)
-                {
-                    SE40backupStat[i] = sector[i].ceilingstat;
-                    SE40backupZ[i] = sector[i].ceilingz;
-                    if (sp->lotag == 41)
-                    {
-                        sector[i].ceilingstat = 1;
-                        sector[i].ceilingz += newz;
-                    }
-                }
-            }
-            else
-            {
-                // renderz = sector[sprite[sprite2].sectnum].floorz;
-                renderz = sprite[sprite2].z;
-                picnum = sector[sprite[sprite2].sectnum].floorpicnum;
-                sector[sprite[sprite2].sectnum].floorpicnum = 562;
-				tileDelete(562);
-
-                pix_diff = klabs(z) >> 8;
-                newz = ((pix_diff / 128) + 1) * (128<<8);
-
-                for (i = 0; i < numsectors; i++)
-                {
-                    SE40backupStat[i] = sector[i].floorstat;
-                    SE40backupZ[i] = sector[i].floorz;
-                    if (sp->lotag == 41)
-                    {
-                        sector[i].floorstat = 1;
-                        sector[i].floorz = +newz;
-                    }
-                }
-            }
-
-#ifdef POLYMER
-            if (videoGetRenderMode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), fix16_to_int(CAMERA(q16ang)), smoothratio);
-#endif
-            renderDrawRoomsQ16(sprite[sprite2].x + x, sprite[sprite2].y + y,
-                      z + renderz, CAMERA(q16ang), CAMERA(q16horiz), sect);
-            drawing_ror = 1 + level;
-
-            if (drawing_ror == 2) // viewing from top
-                G_OROR_DupeSprites(sp);
-
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothratio);
-            renderDrawMasks();
-
-            if (level)
-            {
-                sector[sprite[sprite2].sectnum].ceilingpicnum = picnum;
-                for (i = 0; i < numsectors; i++)
-                {
-                    sector[i].ceilingstat = SE40backupStat[i];
-                    sector[i].ceilingz = SE40backupZ[i];
-                }
-            }
-            else
-            {
-                sector[sprite[sprite2].sectnum].floorpicnum = picnum;
-
-                for (i = 0; i < numsectors; i++)
-                {
-                    sector[i].floorstat = SE40backupStat[i];
-                    sector[i].floorz = SE40backupZ[i];
-                }
-            }
-        }
-    }
-}
-#endif
+void se40code(int x, int y, int z, int a, int h, int smoothratio);
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
@@ -456,7 +305,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 
             renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,mirrorsector[i]+MAXSECTORS);
             display_mirror = 1;
-            G_DoSpriteAnimations(tposx,tposy,z,fix16_to_int(tang),smoothratio);
+            fi.animatesprites(tposx,tposy,fix16_to_int(tang),smoothratio);
             display_mirror = 0;
 
             renderDrawMasks();
@@ -535,10 +384,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
         if (!RR)
-            G_SE40(smoothRatio);
+            se40code(pSprite->x, pSprite->y, pSprite->z, CAMERA(q16ang), fix16_from_int(pSprite->yvel), smoothRatio);
 
         renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
-        G_DoSpriteAnimations(pSprite->x, pSprite->y, pSprite->z, fix16_to_int(CAMERA(q16ang)), smoothRatio);
+        fi.animatesprites(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
         renderDrawMasks();
     }
     else
@@ -562,9 +411,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
 
         if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
         ))
         {
 #ifdef USE_OPENGL
@@ -752,7 +598,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
         if (!RR)
-            G_SE40(smoothRatio);
+            se40code(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 
         if (RRRA)
             G_SE150(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
@@ -763,7 +609,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
 
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
+            fi.animatesprites(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 
             renderDrawMasks();
 
@@ -805,7 +651,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 }
             }
 
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
+            fi.animatesprites(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 
             renderDrawMasks();
 
@@ -845,18 +691,15 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 }
             }
 
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
-
-            renderDrawMasks();
+            fi.animatesprites(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
         }
         else
         {
             renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
-            if (!RR && (unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
-                G_OROR_DupeSprites(&sprite[ror_sprite]);
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),fix16_to_int(CAMERA(q16ang)),smoothRatio);
+            //if (!RR && (unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
+              //  G_OROR_DupeSprites(&sprite[ror_sprite]);
+            fi.animatesprites(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
         }
-        drawing_ror = 0;
         renderDrawMasks();
     }
 
@@ -943,14 +786,7 @@ static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
     return viewtype_mirror<mirrored_rotations*2-2>(cstat, getofs_viewtype<mirrored_rotations*2-2>(angDiff));
 }
 
-void animatesprites_d(int x, int y, int a, int smoothratio);
-void animatesprites_r(int x, int y, int a, int smoothratio);
 
-void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t ourz, int32_t oura, int32_t smoothratio)
-{
-    if (!isRR()) animatesprites_d(ourx, oury, oura, smoothratio);
-    else animatesprites_r(ourx, oury, oura, smoothratio);
-}
 
 void G_InitTimer(int32_t ticspersec)
 {

@@ -60,10 +60,9 @@ void G_AnimateCamSprite(int smoothRatio)
 				{
 					yax_preparedrawrooms();
 					drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
-					yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
 					display_mirror = 3;
-					G_DoSpriteAnimations(camera.x, camera.y, camera.z, SA(spriteNum), smoothRatio);
+					fi.animatesprites(camera.x, camera.y, SA(spriteNum), smoothRatio);
 					display_mirror = saveMirror;
 					renderDrawMasks();
 
