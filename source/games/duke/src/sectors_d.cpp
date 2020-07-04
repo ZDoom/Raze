@@ -1663,8 +1663,8 @@ void checksectors_d(int snum)
 					else if (sprite[p->i].extra < max_player_health)
 						sprite[p->i].extra = max_player_health;
 				}
-				else if (S_CheckSoundPlaying(FLUSH_TOILET) == 0)
-					spritesound(FLUSH_TOILET, p->i);
+				else if (S_CheckSoundPlaying(neartagsprite, FLUSH_TOILET) == 0)
+					spritesound(FLUSH_TOILET, neartagsprite);
 				return;
 
 			case NUKEBUTTON:

@@ -229,7 +229,6 @@ void lotsofcolourglass(int spriteNum,int wallNum,int glassCnt);
 void lotsofglass(int spriteNum,int wallnum,int glassCnt);
 
 void G_BackToMenu(void);
-void G_DumpDebugInfo(void);
 
 const char* G_PrintYourTime(void);
 const char* G_PrintParTime(void);

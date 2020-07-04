@@ -10,6 +10,7 @@ set( PCH_SOURCES
 	src/animatesprites_r.cpp
 	src/animatesprites_d.cpp
 	src/bowling.cpp
+	src/ccmds.cpp
 	src/cheats.cpp
 	src/d_menu.cpp
 	src/dispatch.cpp
@@ -45,7 +46,6 @@ set( PCH_SOURCES
 	src/zz_game.cpp
 	src/zz_global.cpp
 	src/zz_net.cpp
-	src/zz_osdcmds.cpp
 	src/zz_player.cpp
 	src/zz_premap.cpp
 	src/zz_savegame.cpp

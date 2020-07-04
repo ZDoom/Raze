@@ -3870,7 +3870,7 @@ void moveeffectors_d(void)   //STATNUM 3
 								x = ldist(&sprite[ps[p].i], &sprite[j]);
 								if (x < 768)
 								{
-									if (S_CheckSoundPlaying(DUKE_LONGTERM_PAIN) < 1)
+									if (S_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN) < 1)
 										spritesound(DUKE_LONGTERM_PAIN, ps[p].i);
 									spritesound(SHORT_CIRCUIT, ps[p].i);
 									sprite[ps[p].i].extra -= 8 + (krand() & 7);

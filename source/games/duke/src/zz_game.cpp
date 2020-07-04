@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "compat.h"
 #include "baselayer.h"
-#include "osdcmds.h"
 #include "net.h"
 #include "savegame.h"
 
@@ -59,6 +58,7 @@ BEGIN_DUKE_NS
 void SetDispatcher();
 void InitCheats();
 void checkcommandline();
+int registerosdcommands(void);
 
 int16_t max_ammo_amount[MAX_WEAPONS];
 
@@ -971,24 +971,6 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-
-void G_DumpDebugInfo(void)
-{
-    int32_t j,x;
-    //    FILE * fp=fopen("condebug.log","w");
-
-    for (x=0; x<MAXSTATUS; x++)
-    {
-        j = headspritestat[x];
-        while (j >= 0)
-        {
-            buildprint("Sprite ", j, " (", TrackerCast(sprite[j].x), ",", TrackerCast(sprite[j].y), ",", TrackerCast(sprite[j].z),
-                ") (picnum: ", TrackerCast(sprite[j].picnum), ")\n");
-            buildprint("\n");
-            j = nextspritestat[j];
-        }
-    }
-}
 
 static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
 {

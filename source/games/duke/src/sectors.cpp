@@ -348,7 +348,7 @@ int getanimationgoal(const int* animptr)
 
 	j = -1;
 	for (i = animatecnt - 1; i >= 0; i--)
-		if (animptr == (int*)animateptr[i])
+		if (animptr == animateptr[i])
 		{
 			j = i;
 			break;

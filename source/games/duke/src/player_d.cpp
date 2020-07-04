@@ -1402,8 +1402,8 @@ int doincrements_d(struct player_struct* p)
 			p->jetpack_on = 0;
 			checkavailinven(p);
 			spritesound(DUKE_JETPACK_OFF, p->i);
-			stopsound(DUKE_JETPACK_IDLE);
-			stopsound(DUKE_JETPACK_ON);
+			S_StopEnvSound(DUKE_JETPACK_IDLE, p->i);
+			S_StopEnvSound(DUKE_JETPACK_ON, p->i);
 		}
 	}
 

@@ -2808,7 +2808,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 		}
 
 		if (s->xvel <= 64 && statstate)
-			stopsound(hittype[i].lastvx);
+			S_StopEnvSound(hittype[i].lastvx, i);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{

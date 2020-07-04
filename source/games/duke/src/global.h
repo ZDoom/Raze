@@ -64,6 +64,11 @@ G_EXTERN actor_t actor[MAXSPRITES];
 // actorinfo: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN ActorInfo actorinfo[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
+enum
+{
+    MAXLABELLEN = 64
+};
+
 extern char *label;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_skillCnt;
