@@ -30,12 +30,12 @@
 #include "printf.h"
 #include "gamestruct.h"
 
-static cheatseq_t *cheats;
+static cheatseq_t *cheatlist;
 static int numcheats;
 
 void SetCheats(cheatseq_t *cht, int count)
 {
-	cheats = cht;
+	cheatlist = cht;
 	numcheats = count;
 }
 
@@ -99,6 +99,7 @@ bool Cheat_Responder (event_t *ev)
 	{
 		int i;
 
+		auto cheats = cheatlist;
 		for (i = 0; i < numcheats; i++, cheats++)
 		{
 			if (CheatAddKey (cheats, (uint8_t)ev->data2, &eat))
