@@ -49,50 +49,31 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-#define FOFTILE 13
-#define FOFTILEX 32
-#define FOFTILEY 32
 static int tempsectorz[MAXSECTORS];
 static int tempsectorpicnum[MAXSECTORS];
 //short tempcursectnum;
 
-void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
+void SE40_Draw(int tag, int spnum, int x, int y, int z, int a, int h, int smoothratio)
 {
-    int i = 0, j = 0, k = 0;
-    int floor1 = 0, floor2 = 0, ok = 0, fofmode = 0;
+    int i, j = 0, k = 0;
+    int floor1, floor2 = 0, ok = 0, fofmode = 0;
     int offx, offy;
 
     if (sprite[spnum].ang != 512) return;
 
-    i = FOFTILE;    //Effect TILE
+    i = FOF;    //Effect TILE
+    tileDelete(FOF);
     if (!(gotpic[i >> 3] & (1 << (i & 7)))) return;
     gotpic[i >> 3] &= ~(1 << (i & 7));
 
     floor1 = spnum;
 
-    if (sprite[spnum].lotag == 42) fofmode = 40;
-    if (sprite[spnum].lotag == 43) fofmode = 41;
-    if (sprite[spnum].lotag == 44) fofmode = 40;
-    if (sprite[spnum].lotag == 45) fofmode = 41;
+    if (sprite[spnum].lotag == tag + 2) fofmode = tag + 0;
+    if (sprite[spnum].lotag == tag + 3) fofmode = tag + 1;
+    if (sprite[spnum].lotag == tag + 4) fofmode = tag + 0;
+    if (sprite[spnum].lotag == tag + 5) fofmode = tag + 1;
 
-    // fofmode=sprite[spnum].lotag-2;
-
-    // sectnum=sprite[j].sectnum;
-    // sectnum=cursectnum;
     ok++;
-
-    /*  recursive?
-     for(j=0;j<MAXSPRITES;j++)
-     {
-      if(
-         sprite[j].sectnum==sectnum &&
-         sprite[j].picnum==1 &&
-         sprite[j].lotag==110
-        ) { DrawFloorOverFloor(j); break;}
-     }
-    */
-
-    // if(ok==0) { Message("no fof",RED); return; }
 
     for (j = 0; j < MAXSPRITES; j++)
     {
@@ -106,7 +87,7 @@ void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
     }
     // if(ok==1) { Message("no floor1",RED); return; }
 
-    if (fofmode == 40) k = 41; else k = 40;
+    if (fofmode == tag + 0) k = tag + 1; else k = tag + 0;
 
     for (j = 0; j < MAXSPRITES; j++)
     {
@@ -128,14 +109,14 @@ void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
             sprite[j].hitag == sprite[floor1].hitag
             )
         {
-            if (k == 40)
+            if (k == tag + 0)
             {
                 tempsectorz[sprite[j].sectnum] = sector[sprite[j].sectnum].floorz;
                 sector[sprite[j].sectnum].floorz += (((z - sector[sprite[j].sectnum].floorz) / 32768) + 1) * 32768;
                 tempsectorpicnum[sprite[j].sectnum] = sector[sprite[j].sectnum].floorpicnum;
                 sector[sprite[j].sectnum].floorpicnum = 13;
             }
-            if (k == 41)
+            if (k == tag + 1)
             {
                 tempsectorz[sprite[j].sectnum] = sector[sprite[j].sectnum].ceilingz;
                 sector[sprite[j].sectnum].ceilingz += (((z - sector[sprite[j].sectnum].ceilingz) / 32768) - 1) * 32768;
@@ -152,13 +133,10 @@ void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
 #if 0
     drawrooms(offx + sprite[i].x, offy + sprite[i].y, z, a, h, sprite[i].sectnum);
 #else
-    renderDrawRoomsQ16(sprite[i].x + x, sprite[i].y + y, z, a, h, sprite[i].sectnum);
-
-    //drawing_ror = 1 + level;
-    //if (drawing_ror == 2) G_OROR_DupeSprites(sp);
+    renderDrawRoomsQ16(sprite[i].x + offx, sprite[i].y + offy, z, a, h, sprite[i].sectnum);
 #endif
 
-    fi.animatesprites(x, y, fix16_to_int(a), smoothratio);
+    fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, fix16_to_int(a), smoothratio);
     renderDrawMasks();
 
     for (j = 0; j < MAXSPRITES; j++)  // restore ceiling or floor
@@ -168,12 +146,12 @@ void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
             sprite[j].hitag == sprite[floor1].hitag
             )
         {
-            if (k == 40)
+            if (k == tag + 0)
             {
                 sector[sprite[j].sectnum].floorz = tempsectorz[sprite[j].sectnum];
                 sector[sprite[j].sectnum].floorpicnum = tempsectorpicnum[sprite[j].sectnum];
             }
-            if (k == 41)
+            if (k == tag + 1)
             {
                 sector[sprite[j].sectnum].ceilingz = tempsectorz[sprite[j].sectnum];
                 sector[sprite[j].sectnum].ceilingpicnum = tempsectorpicnum[sprite[j].sectnum];
@@ -190,14 +168,14 @@ void SE40_Draw(int spnum, int x, int y, int z, int a, int h, int smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void se40code(int x, int y, int z, int a, int h, int smoothratio)
+void se40code(int tag, int x, int y, int z, int a, int h, int smoothratio)
 {
     int i;
 
     i = headspritestat[STAT_RAROR];
     while (i >= 0)
     {
-        switch (sprite[i].lotag)
+        switch (sprite[i].lotag - tag + 40)
         {
             //            case 40:
             //            case 41:
@@ -208,7 +186,7 @@ void se40code(int x, int y, int z, int a, int h, int smoothratio)
         case 44:
         case 45:
             if (ps[screenpeek].cursectnum == sprite[i].sectnum)
-                SE40_Draw(i, x, y, z, a, h, smoothratio);
+                SE40_Draw(tag, i, x, y, z, a, h, smoothratio);
             break;
         }
         i = nextspritestat[i];

@@ -114,135 +114,7 @@ void G_HandleSpecialKeys(void)
 
 }
 
-
-int32_t SE150_TempSectorZ[MAXSECTORS];
-int32_t SE150_TempSectorPicnum[MAXSECTORS];
-
-static void G_SE150_Draw(int32_t spnum, int32_t x, int32_t y, int32_t z, int32_t a, int32_t h, int32_t smoothratio)
-{
-    int32_t i = 13, j, k = 0;
-    int32_t floor1 = spnum, floor2 = 0, ok = 0, fofmode;
-    int32_t offx, offy;
-
-    if (sprite[spnum].ang != 512) return;
-
-    tileDelete(13);
-    if (!(gotpic[i >> 3] & (1 << (i & 7)))) return;
-    gotpic[i >> 3] &= ~(1 << (i & 7));
-
-    floor1 = spnum;
-
-    if (sprite[spnum].lotag == 152) fofmode = 150;
-    if (sprite[spnum].lotag == 153) fofmode = 151;
-    if (sprite[spnum].lotag == 154) fofmode = 150;
-    if (sprite[spnum].lotag == 155) fofmode = 151;
-
-    ok++;
-
-    for (j = 0; j < MAXSPRITES; j++)
-    {
-        if (
-            sprite[j].picnum == 1 &&
-            sprite[j].lotag == fofmode &&
-            sprite[j].hitag == sprite[floor1].hitag
-            ) {
-            floor1 = j; fofmode = sprite[j].lotag; ok++; break;
-        }
-    }
-    // if(ok==1) { Message("no floor1",RED); return; }
-
-    if (fofmode == 150) k = 151; else k = 150;
-
-    for (j = 0; j < MAXSPRITES; j++)
-    {
-        if (
-            sprite[j].picnum == 1 &&
-            sprite[j].lotag == k &&
-            sprite[j].hitag == sprite[floor1].hitag
-            ) {
-            floor2 = j; ok++; break;
-        }
-    }
-
-    // if(ok==2) { Message("no floor2",RED); return; }
-
-    for (j = 0; j < MAXSPRITES; j++)  // raise ceiling or floor
-    {
-        if (sprite[j].picnum == 1 &&
-            sprite[j].lotag == k + 2 &&
-            sprite[j].hitag == sprite[floor1].hitag
-            )
-        {
-            if (k == 150)
-            {
-                SE150_TempSectorZ[sprite[j].sectnum] = sector[sprite[j].sectnum].floorz;
-                sector[sprite[j].sectnum].floorz += (((z - sector[sprite[j].sectnum].floorz) / 32768) + 1) * 32768;
-                SE150_TempSectorPicnum[sprite[j].sectnum] = sector[sprite[j].sectnum].floorpicnum;
-                sector[sprite[j].sectnum].floorpicnum = 13;
-            }
-            else if (k == 151)
-            {
-                SE150_TempSectorZ[sprite[j].sectnum] = sector[sprite[j].sectnum].ceilingz;
-                sector[sprite[j].sectnum].ceilingz += (((z - sector[sprite[j].sectnum].ceilingz) / 32768) - 1) * 32768;
-                SE150_TempSectorPicnum[sprite[j].sectnum] = sector[sprite[j].sectnum].ceilingpicnum;
-                sector[sprite[j].sectnum].ceilingpicnum = 13;
-            }
-        }
-    }
-
-    i = floor1;
-    offx = x - sprite[i].x;
-    offy = y - sprite[i].y;
-    i = floor2;
-
-
-    renderDrawRoomsQ16(offx + sprite[i].x, offy + sprite[i].y, z, a, h, sprite[i].sectnum);
-    fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, fix16_to_int(a), smoothratio);
-    renderDrawMasks();
-
-    for (j = 0; j < MAXSPRITES; j++)  // restore ceiling or floor
-    {
-        if (sprite[j].picnum == 1 &&
-            sprite[j].lotag == k + 2 &&
-            sprite[j].hitag == sprite[floor1].hitag
-            )
-        {
-            if (k == 150)
-            {
-                sector[sprite[j].sectnum].floorz = SE150_TempSectorZ[sprite[j].sectnum];
-                sector[sprite[j].sectnum].floorpicnum = SE150_TempSectorPicnum[sprite[j].sectnum];
-            }
-            else if (k == 151)
-            {
-                sector[sprite[j].sectnum].ceilingz = SE150_TempSectorZ[sprite[j].sectnum];
-                sector[sprite[j].sectnum].ceilingpicnum = SE150_TempSectorPicnum[sprite[j].sectnum];
-            }
-        }
-    }
-}
-void G_SE150(int32_t x, int32_t y, int32_t z, int32_t a, int32_t h, int32_t smoothratio)
-{
-    for (int i = headspritestat[STAT_RAROR]; i >= 0; i = nextspritestat[i])
-    {
-        switch(sprite[i].lotag)
-        {
-//            case 40:
-//            case 41:
-//                SE40_Draw(i,x,y,a,smoothratio);
-//                break;
-            case 152:
-            case 153:
-            case 154:
-            case 155:
-                if(g_player[screenpeek].ps->cursectnum == sprite[i].sectnum)
-                    G_SE150_Draw(i,x,y,z,a,h,smoothratio);
-                break;
-        }
-    }
-}
-
-
-void se40code(int x, int y, int z, int a, int h, int smoothratio);
+void se40code(int tag, int x, int y, int z, int a, int h, int smoothratio);
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
@@ -384,7 +256,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
         if (!RR)
-            se40code(pSprite->x, pSprite->y, pSprite->z, CAMERA(q16ang), fix16_from_int(pSprite->yvel), smoothRatio);
+            se40code(40, pSprite->x, pSprite->y, pSprite->z, CAMERA(q16ang), fix16_from_int(pSprite->yvel), smoothRatio);
 
         renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
         fi.animatesprites(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
@@ -597,11 +469,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
-        if (!RR)
-            se40code(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
+        if (!RR || RRRA) se40code(RRRA? 150 : 40, CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 
-        if (RRRA)
-            G_SE150(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
         // for G_PrintCoords
         dr_viewingrange = viewingrange;
         dr_yxaspect = yxaspect;
