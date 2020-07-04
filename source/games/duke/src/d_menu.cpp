@@ -141,7 +141,7 @@ class DukeMainMenu : public DukeListMenu
 		double x = origin.X + 160;
 		if (RRRA)
 		{
-			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterOffset, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterBottomOffset, true, TAG_DONE);
 		}
 		else if (isRR())
 		{
