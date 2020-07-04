@@ -33,11 +33,7 @@ int32_t PHEIGHT = PHEIGHT_DUKE;
 int32_t lastvisinc;
 hudweapon_t hudweap;
 
-extern int32_t g_levelTextTime, ticrandomseed;
-
-int32_t g_numObituaries = 0;
-int32_t g_numSelfObituaries = 0;
-
+extern int32_t g_levelTextTime;
 
 void P_AddKills(DukePlayer_t * const pPlayer, uint16_t kills)
 {

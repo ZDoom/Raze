@@ -194,19 +194,14 @@ static inline int Menu_HaveUserMap(void)
 extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);
 
-extern int32_t g_Debug;
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
 extern int32_t cameradist;
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_levelTextTime;
-extern int32_t g_quitDeadline;
 extern int32_t restorepalette;
 extern int32_t tempwallptr;
-extern int32_t ticrandomseed;
-extern int32_t vote_map;
-extern int32_t voting;
 
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
@@ -220,8 +215,6 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 #else
 #define Yax_SetBunchZs(sectnum, cf, daz)
 #endif
-
-void G_PostCreateGameState(void);
 
 void ceilingglass(int spriteNum,int sectNum,int glassCnt);
 void spriteglass(int spriteNum,int glassCnt);
@@ -244,8 +237,6 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t horiz, i
 void G_DrawRooms(int32_t playerNum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 void G_HandleLocalKeys(void);
-void G_HandleSpecialKeys(void);
-//void G_SE40(int32_t smoothratio);
 void G_UpdatePlayerFromMenu(void);
 void FTA(int q, struct player_struct* p);
 

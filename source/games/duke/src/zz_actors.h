@@ -239,7 +239,6 @@ extern actor_t* hittype;
 extern int32_t      g_noEnemies;
 #define actor_tog g_noEnemies
 extern int32_t      otherp;
-extern int32_t      ticrandomseed;
 extern int g_canSeePlayer;
 
 int LocateTheLocator(int const tag, int const sectNum);

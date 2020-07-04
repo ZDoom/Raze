@@ -107,8 +107,6 @@ static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, in
 }
 
 
-extern int32_t ticrandomseed;
-
 void execute(int s, int p, int d);
 
 void makeitfall(int s);

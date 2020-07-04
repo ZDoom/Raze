@@ -50,32 +50,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // also uncomment ENGINE_CLEAR_SCREEN in build/src/engine_priv.h.
 //#define DEBUG_MIRRORS_ONLY
 
-# define GAME_INLINE inline
-# define GAME_STATIC static
-
 BEGIN_DUKE_NS
 
 void SetDispatcher();
 void InitCheats();
 void checkcommandline();
 int registerosdcommands(void);
+int32_t G_MoveLoop(void);
 
 int16_t max_ammo_amount[MAX_WEAPONS];
 
 uint8_t shadedsector[MAXSECTORS];
 
-int32_t g_fakeMultiMode = 0;
-int32_t g_quitDeadline = 0;
-
 int32_t cameradist = 0, cameraclock = 0;
-static int32_t g_quickExit;
 
 char boardfilename[BMAX_PATH] = {0};
-
-int32_t voting = -1;
-int32_t vote_map = -1, vote_episode = -1;
-
-int32_t g_Debug = 0;
 
 int32_t g_Shareware = 0;
 
@@ -83,24 +72,12 @@ int32_t tempwallptr;
 
 static int32_t nonsharedtimer;
 
-int32_t ticrandomseed;
-
-GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
-
 int32_t g_levelTextTime = 0;
-
-#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
-extern char forcegl;
-#endif
 
 static void gameTimerHandler(void)
 {
     S_Update();
-    G_HandleSpecialKeys();
-}
 
-void G_HandleSpecialKeys(void)
-{
     // we need CONTROL_GetInput in order to pick up joystick button presses
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
@@ -118,11 +95,7 @@ void se40code(int tag, int x, int y, int z, int a, int h, int smoothratio);
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
-    if ((gotpic[TILE_MIRROR>>3]&(1<<(TILE_MIRROR&7)))
-#ifdef POLYMER
-        && (videoGetRenderMode() != REND_POLYMER)
-#endif
-        )
+    if ((gotpic[TILE_MIRROR>>3]&(1<<(TILE_MIRROR&7))))
     {
         if (mirrorcnt == 0)
         {
@@ -185,18 +158,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             g_visibility = j;
         }
 
-#ifdef SPLITSCREEN_MOD_HACKS
-        if (!g_fakeMultiMode)
-#endif
-        {
-            // HACK for splitscreen mod: this is so that mirrors will be drawn
-            // from showview commands. Ugly, because we'll attempt do draw mirrors
-            // each frame then. But it's better than not drawing them, I guess.
-            // XXX: fix the sequence of setting/clearing this bit. Right now,
-            // we always draw one frame without drawing the mirror, after which
-            // the bit gets set and drawn subsequently.
-            gotpic[TILE_MIRROR>>3] &= ~(1<<(TILE_MIRROR&7));
-        }
+        gotpic[TILE_MIRROR>>3] &= ~(1<<(TILE_MIRROR&7));
     }
 }
 
@@ -630,32 +592,6 @@ static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
     return 0;
 }
 
-template <int rotations>
-static int getofs_viewtype(int angDiff)
-{
-    return ((((angDiff + 3072) & 2047) * rotations + 1024) >> 11) % rotations;
-}
-
-template <int rotations>
-static int viewtype_mirror(uint16_t & cstat, int frameOffset)
-{
-    if (frameOffset > rotations / 2)
-    {
-        cstat |= 4;
-        return rotations - frameOffset;
-    }
-
-    cstat &= ~4;
-    return frameOffset;
-}
-
-template <int mirrored_rotations>
-static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
-{
-    return viewtype_mirror<mirrored_rotations*2-2>(cstat, getofs_viewtype<mirrored_rotations*2-2>(angDiff));
-}
-
-
 
 void G_InitTimer(int32_t ticspersec)
 {
@@ -995,11 +931,6 @@ static inline void G_CheckGametype(void)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
-void G_PostCreateGameState(void)
-{
-    Net_SendClientInfo();
-}
-
 inline int G_CheckPlayerColor(int color)
 {
     static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
@@ -1024,7 +955,7 @@ static void G_Startup(void)
 
     // These depend on having the dynamic tile and/or sound mappings set up:
     G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
-    G_PostCreateGameState();
+    Net_SendClientInfo();
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
 	if (userConfig.CommandMap.IsNotEmpty())
@@ -1333,19 +1264,7 @@ int GameInterface::app_main()
     numplayers = 1;
     playerswhenstarted = ud.multimode;
 
-    if (!g_fakeMultiMode)
-    {
-        connectpoint2[0] = -1;
-    }
-    else
-    {
-        for (bssize_t i=0; i<ud.multimode-1; i++)
-            connectpoint2[i] = i+1;
-        connectpoint2[ud.multimode-1] = -1;
-
-        for (bssize_t i=1; i<ud.multimode; i++)
-            g_player[i].playerquitflag = 1;
-    }
+    connectpoint2[0] = -1;
 
     Net_GetPackets();
 

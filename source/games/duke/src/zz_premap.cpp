@@ -317,7 +317,6 @@ int G_EnterLevel(int gameMode)
 
 //    flushpackets();
 //    waitforeverybody();
-    vote_map = vote_episode = voting = -1;
 
     ud.respawn_monsters  = ud.m_respawn_monsters;
     ud.respawn_items     = ud.m_respawn_items;

@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern int32_t g_fakeMultiMode;
-
 #define VOLUMEALL           (g_Shareware == 0)
 #define PLUTOPAK            (true)//g_scriptVersion >= 14)
 #define VOLUMEONE           (g_Shareware == 1)

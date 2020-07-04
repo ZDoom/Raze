@@ -370,10 +370,7 @@ extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
 extern hudweapon_t      hudweap;
 extern int32_t          g_levelTextTime;
-extern int32_t          g_numObituaries;
-extern int32_t          g_numSelfObituaries;
 extern int32_t          mouseyaxismode;
-extern int32_t          ticrandomseed;
 
 #define SHOOT_HARDCODED_ZVEL INT32_MIN
 
