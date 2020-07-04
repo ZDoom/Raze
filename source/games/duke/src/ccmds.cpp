@@ -1,6 +1,7 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright 2020 Christoph Oelckers
 
 This file is part of Duke Nukem 3D version 1.5 - Atomic Edition
 
@@ -28,7 +29,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "ns.h"
 
 #include "duke3d.h"
-#include "osdcmds.h"
 #include "savegame.h"
 #include "sbar.h"
 #include "mapinfo.h"
@@ -158,7 +158,7 @@ static int ccmd_noclip(CCmdFuncPtr)
     return CCMD_OK;
 }
 
-int ccmd_restartmap(CCmdFuncPtr)
+static int ccmd_restartmap(CCmdFuncPtr)
 {
     if (ps[myconnectindex].gm & MODE_GAME && ud.multimode == 1)
         ps[myconnectindex].gm = MODE_RESTART;
@@ -238,6 +238,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+// Strangely enough JFDuke does not have a 'give' CCMD, so this is based on the version in EDuke32.
 static int ccmd_give(CCmdFuncPtr parm)
 {
     if (numplayers != 1 || (ps[myconnectindex].gm & MODE_GAME) == 0 ||
