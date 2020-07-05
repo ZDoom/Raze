@@ -495,7 +495,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 break;
         }
 
-        if (ScriptCode[actorinfo[s->picnum].scriptaddress])
+        if (actorinfo[s->picnum].scriptaddress)
         {
             if(t4)
             {
