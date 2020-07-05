@@ -21,8 +21,8 @@ struct ControlInfo
 	float       dyaw;
 	float       dpitch;
 	float       droll;
-	int32_t     mousex;
-	int32_t     mousey;
+	float       mousex;
+	float       mousey;
 };
 
 
@@ -42,7 +42,7 @@ class InputState
 	uint8_t g_keyAsciiPos;
 	uint8_t g_keyAsciiEnd;
 
-	vec2_t  g_mousePos;
+	vec2f_t  g_mousePos;
 
 	void keySetState(int32_t key, int32_t state);
 
@@ -140,11 +140,11 @@ public:
 
 	void AddEvent(const event_t* ev);
 
-	void MouseSetPos(int x, int y)
+	void MouseSetPos(float x, float y)
 	{
 		g_mousePos = { x, y };
 	}
-	void MouseAddToPos(int x, int y)
+	void MouseAddToPos(float x, float y)
 	{
 		g_mousePos.x += x;
 		g_mousePos.y += y;

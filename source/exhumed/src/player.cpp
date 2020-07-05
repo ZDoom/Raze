@@ -191,25 +191,21 @@ void PlayerInterruptKeys()
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.xVel = -(info.mousex + strafeyaw) >> 6;
-        strafeyaw  = (info.mousex + strafeyaw) % 64;
-
+        input.xVel -= info.mousex * 4.f;
         input.xVel -= info.dyaw * keyMove;
     }
     else
     {
-        input.nAngle = fix16_sadd(input.nAngle, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(info.mousex));
         input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     if (g_MyAimMode)
-        input.horizon = fix16_sadd(input.horizon, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(64)));
+        input.horizon = fix16_sadd(input.horizon, fix16_from_float(info.mousey));
     else
-        input.yVel = -(info.mousey >> 6);
+        input.yVel -= info.mousey * 8.f;
 
     if (!in_mouseflip) input.horizon = -input.horizon;
 

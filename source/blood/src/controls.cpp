@@ -366,16 +366,12 @@ void ctrlGetInput(void)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.strafe = -(info.mousex + strafeyaw) >> 3;
-        strafeyaw    = (info.mousex + strafeyaw) % 8;
-
+        input.strafe -= info.mousex * 32.f;
         input.strafe -= scaleAdjustmentToInterval(info.dyaw * keyMove);
     }
     else
     {
-        input.q16turn = fix16_sadd(input.q16turn, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
+        input.q16turn = fix16_sadd(input.q16turn, fix16_from_float(info.mousex));
         input.q16turn = fix16_sadd(input.q16turn, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
@@ -383,9 +379,9 @@ void ctrlGetInput(void)
     input.forward -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     if (mouseaim)
-        input.q16mlook = fix16_sadd(input.q16mlook, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_float(mlookScale * 64.f)));
+        input.q16mlook = fix16_sadd(input.q16mlook, fix16_from_float(info.mousey / mlookScale));
     else
-        input.forward -= info.mousey;
+        input.forward -= info.mousey * 64.f;
     if (!in_mouseflip)
         input.q16mlook = -input.q16mlook;
 
