@@ -831,7 +831,7 @@ int haskey(int sect, int snum)
 bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz)
 {
 	spritetype* sp;
-	int i, nx, ny, nz, hx, hy, hz, hitx, hity, hitz;
+	int i, nx, ny, nz, hx, hy, hitx, hity, hitz;
 	short bakcstat, hitsect, hitwall, hitsprite, daang;
 
 	nx = (sintable[(ang + 1536) & 2047] >> 4);
