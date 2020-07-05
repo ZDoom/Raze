@@ -188,35 +188,30 @@ void PlayerInterruptKeys()
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove    = playerRunning ? 12 : 6;
-    int const analogTurnAmount = 12;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.xVel = -(info.mousex + strafeyaw) >> 6;
-        strafeyaw  = (info.mousex + strafeyaw) % 64;
-
-        input.xVel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
+        input.xVel -= info.mousex * 4.f;
+        input.xVel -= info.dyaw * keyMove;
     }
     else
     {
-        input.nAngle = fix16_sadd(input.nAngle, fix16_sdiv(fix16_from_int(info.mousex), fix16_from_int(32)));
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(info.mousex));
+        input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     if (g_MyAimMode)
-        input.horizon = fix16_sadd(input.horizon, fix16_sdiv(fix16_from_int(info.mousey), fix16_from_int(64)));
+        input.horizon = fix16_sadd(input.horizon, fix16_from_float(info.mousey));
     else
-        input.yVel = -(info.mousey >> 6);
+        input.yVel -= info.mousey * 8.f;
 
     if (!in_mouseflip) input.horizon = -input.horizon;
 
-    input.horizon = fix16_ssub(input.horizon, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
-    input.xVel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
-    input.yVel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
+    input.horizon = fix16_ssub(input.horizon, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
+    input.xVel -= info.dx * keyMove;
+    input.yVel -= info.dz * keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {

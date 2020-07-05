@@ -2996,7 +2996,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
     // and use to scale back player's aim and ang values for a consistent feel between games.
-    float const inputScale = 1.40625f;
+    float const angvelScale = 1.40625f;
+    float const aimvelScale = 1.203125f;
+
+    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
+    // for dividing controller input to match speed input speed of other games.
+    float const ticrateScale = 0.75f;
 
     if (running)
     {
@@ -3025,26 +3030,26 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        svel = -info.mousex;
-        svel -= scaleAdjustmentToInterval(info.dyaw * keymove / analogExtent);
+        svel -= (info.mousex * ticrateScale) * 4.f;
+        svel -= info.dyaw * keymove;
     }
     else
     {
-        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_int(inputScale * 32));
-        q16angvel += fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * turnamount / (inputScale * (analogExtent >> 1))));
+        q16angvel = fix16_sadd(q16angvel, fix16_from_float(info.mousex / angvelScale));
+        q16angvel = fix16_sadd(q16angvel, fix16_from_dbl(scaleAdjustmentToInterval((info.dyaw * ticrateScale) / angvelScale)));
     }
 
     if (mouseaim)
-        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_int((inputScale / 2) * 64));
+        q16aimvel = fix16_ssub(q16aimvel, fix16_from_float(info.mousey / aimvelScale));
     else
-        vel = -(info.mousey >> 6);
+        vel -= (info.mousey * ticrateScale) * 8.f;
 
     if (in_mouseflip)
         q16aimvel = -q16aimvel;
 
-    q16aimvel -= fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * turnamount / ((inputScale / 2) * analogExtent)));
-    svel -= scaleAdjustmentToInterval(info.dx * keymove / analogExtent);
-    vel -= scaleAdjustmentToInterval(info.dz * keymove / analogExtent);
+    q16aimvel -= fix16_from_dbl(scaleAdjustmentToInterval((info.dpitch * ticrateScale) / aimvelScale));
+    svel -= info.dx * keymove;
+    vel -= info.dz * keymove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -3190,7 +3195,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         }
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Next_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Next_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
@@ -3230,7 +3235,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     }
 
 
-    if (buttonMap.ButtonDown(gamefunc_Previous_Weapon))
+    if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon))
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;

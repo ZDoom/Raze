@@ -83,6 +83,21 @@ char* G_GetSubString(const char *text, const char *end, const int32_t iter, cons
 
 #define USERQUOTE_RIGHTOFFSET 14
 
+static int GetStringTile(int font, const char* t, int f)
+{
+    int ret = gi->GetStringTile(font, t, f);
+    auto tex = tileGetTexture(ret);
+    if (!tex || !tex->isValid())
+    {
+        if (*t >= 'a' && *t <= 'z')
+        {
+            char tt = *t - 32;
+            ret = gi->GetStringTile(font, &tt, f);
+        }
+    }
+    return ret;
+}
+
 
 // qstrdim
 vec2_t G_ScreenTextSize(const int32_t font,
@@ -171,7 +186,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
         }
 
         // translate the character to a tilenum
-        tile = gi->GetStringTile(font, &t, f);
+        tile = GetStringTile(font, &t, f);
 
         // reset this here because we haven't printed anything yet this loop
         extent.x = 0;
@@ -192,7 +207,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                 char space = '.'; // this is subject to change as an implementation detail
                 if (f & TEXT_TILESPACE)
                     space = '\x7F'; // tile after '~'
-                tile = gi->GetStringTile(font, &space, f);
+                tile = GetStringTile(font, &space, f);
 
                 extent.x += (tilesiz[tile].x * z);
             }
@@ -206,7 +221,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = gi->GetStringTile(font, &line, f);
+                    tile = GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -239,7 +254,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = gi->GetStringTile(font, &line, f);
+                    tile = GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -267,7 +282,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
             if (NUMHACKACTIVE)
             {
                 char numeral = '0'; // this is subject to change as an implementation detail
-                extent.x = (tilesiz[gi->GetStringTile(font, &numeral, f)].x-1) * z;
+                extent.x = (tilesiz[GetStringTile(font, &numeral, f)].x-1) * z;
             }
 
             // height
@@ -328,7 +343,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
                         char line = 'A'; // this is subject to change as an implementation detail
                         if (f & TEXT_TILELINE)
                             line = '\x7F'; // tile after '~'
-                        tile = gi->GetStringTile(font, &line, f);
+                        tile = GetStringTile(font, &line, f);
 
                         tempyextent += tilesiz[tile].y * z;
                     }
@@ -559,7 +574,7 @@ vec2_t G_ScreenText(const int32_t font,
         }
 
         // translate the character to a tilenum
-        tile = gi->GetStringTile(font, &t, f);
+        tile = GetStringTile(font, &t, f);
 
         switch (t)
         {
@@ -601,7 +616,7 @@ vec2_t G_ScreenText(const int32_t font,
                 char space = '.'; // this is subject to change as an implementation detail
                 if (f & TEXT_TILESPACE)
                     space = '\x7F'; // tile after '~'
-                tile = gi->GetStringTile(font, &space, f);
+                tile = GetStringTile(font, &space, f);
 
                 extent.x += (tilesiz[tile].x * z);
             }
@@ -615,7 +630,7 @@ vec2_t G_ScreenText(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = gi->GetStringTile(font, &line, f);
+                    tile = GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -643,7 +658,7 @@ vec2_t G_ScreenText(const int32_t font,
                     char line = 'A'; // this is subject to change as an implementation detail
                     if (f & TEXT_TILELINE)
                         line = '\x7F'; // tile after '~'
-                    tile = gi->GetStringTile(font, &line, f);
+                    tile = GetStringTile(font, &line, f);
 
                     tempyextent += tilesiz[tile].y * z;
                 }
@@ -694,7 +709,7 @@ vec2_t G_ScreenText(const int32_t font,
             if (NUMHACKACTIVE)
             {
                 char numeral = '0'; // this is subject to change as an implementation detail
-                extent.x = (tilesiz[gi->GetStringTile(font, &numeral, f)].x-1) * z;
+                extent.x = (tilesiz[GetStringTile(font, &numeral, f)].x-1) * z;
             }
 
             // height
@@ -752,7 +767,7 @@ vec2_t G_ScreenText(const int32_t font,
                             char line = 'A'; // this is subject to change as an implementation detail
                             if (f & TEXT_TILELINE)
                                 line = '\x7F'; // tile after '~'
-                            tile = gi->GetStringTile(font, &line, f);
+                            tile = GetStringTile(font, &line, f);
 
                             tempyextent += tilesiz[tile].y * z;
                         }

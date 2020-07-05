@@ -49,6 +49,8 @@
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
 
+CVAR(Bool, gl_texture, true, 0)
+
 F2DDrawer twodpsp;
 static int BufferLock = 0;
 
@@ -166,7 +168,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	}
 	else
 	{
-		state.EnableTexture(true);
+		state.EnableTexture(gl_texture);
 		state.SetMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
 	/* todo: bind indexed textures */

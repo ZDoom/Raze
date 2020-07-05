@@ -15,14 +15,14 @@ typedef uint16_t kb_scancode;
 
 struct ControlInfo
 {
-	int32_t     dx;
-	int32_t     dy;
-	int32_t     dz;
-	int32_t     dyaw;
-	int32_t     dpitch;
-	int32_t     droll;
-	int32_t     mousex;
-	int32_t     mousey;
+	float       dx;
+	float       dy;
+	float       dz;
+	float       dyaw;
+	float       dpitch;
+	float       droll;
+	float       mousex;
+	float       mousey;
 };
 
 
@@ -42,7 +42,7 @@ class InputState
 	uint8_t g_keyAsciiPos;
 	uint8_t g_keyAsciiEnd;
 
-	vec2_t  g_mousePos;
+	vec2f_t  g_mousePos;
 
 	void keySetState(int32_t key, int32_t state);
 
@@ -140,11 +140,11 @@ public:
 
 	void AddEvent(const event_t* ev);
 
-	void MouseSetPos(int x, int y)
+	void MouseSetPos(float x, float y)
 	{
 		g_mousePos = { x, y };
 	}
-	void MouseAddToPos(int x, int y)
+	void MouseAddToPos(float x, float y)
 	{
 		g_mousePos.x += x;
 		g_mousePos.y += y;
@@ -178,9 +178,6 @@ public:
 };
 
 extern InputState inputState;
-
-const int   analogExtent = 32767; // used as a divisor for scaling joystick input.
-const float joyaxesScale = (float)analogExtent * 0.75f; // used as a multiplier for scaling joystick input.
 
 void CONTROL_GetInput(ControlInfo* info);
 int32_t handleevents(void);

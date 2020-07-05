@@ -578,6 +578,7 @@ typedef struct {
     int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 
     int32_t yscale;
+    int combinedtile;
 } psky_t;
 
 // Index of map-global (legacy) multi-sky:
@@ -648,8 +649,6 @@ EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
-
-EXTERN char editwall[(MAXWALLS+7)>>3];
 
 extern uint32_t drawlinepat;
 

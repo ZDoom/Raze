@@ -30,8 +30,6 @@ int32_t registerosdcommands(void);
 void GAME_onshowosd(int shown);
 void GAME_clearbackground(int numcols, int numrows);
 
-//extern float r_ambientlight,r_ambientlightrecip;
-
 extern const char *const ConsoleButtons[];
 
 //extern uint32_t cl_cheatmask;

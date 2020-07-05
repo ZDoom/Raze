@@ -3254,36 +3254,31 @@ void P_GetInput(int const playerNum)
 	
 	int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const     turnAmount       = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
-    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.svel = -(info.mousex + strafeyaw) >> 3;
-        strafeyaw  = (info.mousex + strafeyaw) % 8;
-
-        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
+        input.svel -= info.mousex * 4.f;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
     }
     else
     {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
     else
-        input.fvel = -(info.mousey >> 3);
+        input.fvel -= info.mousey * 8.f;
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
-    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
@@ -3668,16 +3663,15 @@ void P_GetInputMotorcycle(int playerNum)
 
     // JBF: Run key behaviour is selectable
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
 
-    input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
 
-    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     pPlayer->crouch_toggle = 0;
 
@@ -3918,16 +3912,15 @@ void P_GetInputBoat(int playerNum)
 
     // JBF: Run key behaviour is selectable
     int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const     analogTurnAmount = (NORMALTURN << 1);
     int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
 
     input_t input {};
 
-    input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
 
-    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     pPlayer->crouch_toggle = 0;
 
@@ -4159,36 +4152,31 @@ void P_DHGetInput(int const playerNum)
     int const playerCrouch         = sub_299D8();
     int const playerJump           = buttonMap.ButtonDown(gamefunc_Jump) && !(pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].hitag == 2003);
     int const turnAmount           = playerCrouch ? 2 : (playerRunning ? 16 : 8);
-    int const analogTurnAmount = 16;
     int const keyMove              = playerCrouch ? 3 : (playerRunning ? 24 : 12);
 
     input_t input {};
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.svel = -(info.mousex + strafeyaw) >> 3;
-        strafeyaw  = (info.mousex + strafeyaw) % 8;
-
-        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove / analogExtent);
+        input.svel -= info.mousex * 4.f;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
     }
     else
     {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw * analogTurnAmount / (analogExtent >> 1))));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
     else
-        input.fvel = -(info.mousey >> 3);
+        input.fvel -= info.mousey * 8.f;
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch * analogTurnAmount / analogExtent)));
-    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove / analogExtent);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove / analogExtent);
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
+    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
 

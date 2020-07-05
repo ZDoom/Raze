@@ -143,7 +143,7 @@ public:
 
 	void SetShade(int32_t shade, int numshades)
 	{
-		renderState.Shade = clamp(shade, 0, numshades-1);
+		renderState.Shade = std::min(shade, numshades-1);
 	}
 
 	void SetVisibility(float visibility)

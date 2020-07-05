@@ -1104,7 +1104,7 @@ static int32_t globaluclip, globaldclip;
 //char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
-static int32_t viewingrangerecip;
+int32_t viewingrangerecip;
 
 static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
@@ -3460,7 +3460,6 @@ static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daan
     show2dsector.Zero();
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
-    Bmemset(editwall, 0, sizeof(editwall));
 #ifdef USE_STRUCT_TRACKERS
     Bmemset(sectorchanged, 0, sizeof(sectorchanged));
     Bmemset(spritechanged, 0, sizeof(spritechanged));
@@ -4863,22 +4862,6 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
                 continue;
             }
         }
-    }
-
-    if (editstatus)
-    {
-        int32_t w;
-        // TODO: extern a separate bitmap instead?
-        for (w=0; w<numwalls; w++)
-            if (walbitmap[w>>3] & pow2char[w&7])
-            {
-                editwall[w>>3] |= 1<<(w&7);
-                if (flags&2)
-                {
-                    int wn = lastwall(w);
-                    editwall[wn>>3] |= 1<<(wn&7);
-                }
-            }
     }
 }
 

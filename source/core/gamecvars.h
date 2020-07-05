@@ -115,7 +115,6 @@ EXTERN_CVAR(Int, playercolor)
 EXTERN_CVAR(Int, playerteam)
 
 extern bool gNoAutoLoad;
-extern float r_ambientlightrecip;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.
 bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);

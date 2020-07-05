@@ -46,22 +46,24 @@
 
 void InputState::GetMouseDelta(ControlInfo * info)
 {
-    vec2_t input;
+    vec2f_t input, finput;
 
 	input = g_mousePos;
 	g_mousePos = {};
 
-    vec2f_t finput = { float(input.x) / 3.0f, float(input.y) };
-
     if (in_mousesmoothing)
     {
-        static vec2_t last;
-        finput = { float(input.x + last.x) * 0.5f, float(input.y + last.y) * 0.5f };
+        static vec2f_t last;
+        finput = { (input.x + last.x) * 0.5f, (input.y + last.y) * 0.5f };
         last = input;
     }
+    else
+    {
+    	finput = { input.x, input.y };
+    }
 
-    info->mousex = int(finput.x * (16.f) * in_mousesensitivity * in_mousescalex);
-    info->mousey = int(finput.y * (16.f) * in_mousesensitivity * in_mousescaley);
+    info->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
+    info->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
 
 	// todo: Use these when the mouse is used for moving instead of turning.
 	//info->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
@@ -69,7 +71,7 @@ void InputState::GetMouseDelta(ControlInfo * info)
 
 	if (in_mousebias)
 	{
-		if (abs(info->mousex) > abs(info->mousey))
+		if (fabs(info->mousex) > fabs(info->mousey))
 			info->mousey /= in_mousebias;
 		else
 			info->mousex /= in_mousebias;
@@ -195,9 +197,9 @@ void CONTROL_GetInput(ControlInfo* info)
 
 		I_GetAxes(joyaxes);
 
-		info->dyaw += -joyaxes[JOYAXIS_Yaw] * joyaxesScale;
-		info->dx += -joyaxes[JOYAXIS_Side] * joyaxesScale;
-		info->dz += -joyaxes[JOYAXIS_Forward] * joyaxesScale;
-		info->dpitch += -joyaxes[JOYAXIS_Pitch] * joyaxesScale;
+		info->dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
+		info->dx += -joyaxes[JOYAXIS_Side] * 0.75f;
+		info->dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
+		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
 }
