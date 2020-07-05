@@ -179,8 +179,8 @@ void G_ResetTimers(uint8_t keepgtics)
     if (!keepgtics)
         g_moveThingsCount = 0;
 
-    if (g_curViewscreen >= 0)
-        actor[g_curViewscreen].t_data[0] = 0;
+    if (camsprite >= 0)
+        actor[camsprite].t_data[0] = 0;
 }
 
 void G_ClearFIFO(void)

@@ -120,8 +120,7 @@ G_EXTERN int32_t g_animWallCnt;
 G_EXTERN int32_t g_animateCnt;
 #define animatecnt g_animateCnt
 G_EXTERN int32_t numclouds;
-G_EXTERN int32_t g_curViewscreen;
-#define camsprite g_curViewscreen
+G_EXTERN int32_t camsprite;
 G_EXTERN int32_t g_frameRate;
 G_EXTERN int32_t g_cyclerCnt;
 #define numcyclers g_cyclerCnt

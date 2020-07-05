@@ -26,6 +26,9 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //------------------------------------------------------------------------- 
 
+// This file collects several functions from the original game.c
+// that do not fit any particular category.
+
 #include "ns.h"	// Must come before everything else!
 
 #include "duke3d.h"

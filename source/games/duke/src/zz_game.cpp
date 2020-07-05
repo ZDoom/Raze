@@ -83,15 +83,11 @@ static void gameTimerHandler(void)
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
+        C_RunDelayedCommands();
     }
-
-    // only dispatch commands here when not in a game
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
-        OSD_DispatchQueued();
-
 }
 
-void se40code(int tag, int x, int y, int z, int a, int h, int smoothratio);
+void se40code(int x, int y, int z, int a, int h, int smoothratio);
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
@@ -204,7 +200,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     CAMERA(sect) = pPlayer->cursectnum;
 
     dointerpolations(smoothRatio);
-    G_AnimateCamSprite(smoothRatio);
+    //G_AnimateCamSprite(smoothRatio);
 
     if (ud.camerasprite >= 0)
     {
@@ -218,7 +214,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                       + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
         if (!RR)
-            se40code(40, pSprite->x, pSprite->y, pSprite->z, CAMERA(q16ang), fix16_from_int(pSprite->yvel), smoothRatio);
+            se40code(pSprite->x, pSprite->y, pSprite->z, CAMERA(q16ang), fix16_from_int(pSprite->yvel), smoothRatio);
 
         renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
         fi.animatesprites(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
@@ -384,7 +380,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         }
         else
         {
-            vec3_t const camVect = G_GetCameraPosition(pPlayer->newowner, smoothRatio);
+            vec3_t const camVect = { 0,0,0 };// G_GetCameraPosition(pPlayer->newowner, smoothRatio);
 
             // looking through viewscreen
             CAMERA(pos)      = camVect;
@@ -431,7 +427,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
         G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
-        if (!RR || RRRA) se40code(RRRA? 150 : 40, CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
+        if (!RR || RRRA) se40code(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 
         // for G_PrintCoords
         dr_viewingrange = viewingrange;
@@ -1426,7 +1422,7 @@ MAIN_LOOP_RESTART:
 
         G_HandleLocalKeys();
  
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
 
         char gameUpdate = false;
         gameupdatetime.Reset();

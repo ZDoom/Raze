@@ -82,20 +82,6 @@ static inline int G_GetForcefieldPicnum(int wallNum)
     return tileNum;
 }
 
-// Returns the interpolated position of the camera that the player is looking
-// through (using a viewscreen). <i> should be the player's ->newowner member.
-static inline vec3_t G_GetCameraPosition(int32_t i, int32_t smoothratio)
-{
-    const spritetype *const cs = &sprite[i];
-    const actor_t *const ca = &actor[i];
-
-    vec3_t cam = { ca->bpos.x + mulscale16(cs->x - ca->bpos.x, smoothratio),
-                   ca->bpos.y + mulscale16(cs->y - ca->bpos.y, smoothratio),
-                   ca->bpos.z + mulscale16(cs->z - ca->bpos.z, smoothratio)
-                 };
-    return cam;
-}
-
 EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
 
 #if defined sector_c_ || !defined DISABLE_INLINING
