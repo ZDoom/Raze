@@ -69,7 +69,8 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
         remap.Palette[255] = 0;
         remap.Remap[255] = 255;
     }
-    remap.Inactive = twodonly;  // use Inactive as a marker for the postprocessing so that for pure 2D palettes the creation of shade tables can be skipped.
+    remap.TwodOnly = twodonly;  // 
+    remap.NoTransparency = notransparency;
     GPalette.UpdateTranslation(TRANSLATION(Translation_BasePalettes, id), &remap);
 }
 
@@ -253,9 +254,8 @@ void LookupTableInfo::postLoadLookups()
         auto palette = GPalette.GetTranslation(Translation_BasePalettes, i);
         if (!palette) continue;
 
-        if (palette->Inactive)
+        if (palette->TwodOnly)
         {
-            palette->Inactive = false;
             GPalette.CopyTranslation(TRANSLATION(Translation_Remap + i, 0), TRANSLATION(Translation_BasePalettes, i));
         }
         else
@@ -266,7 +266,7 @@ void LookupTableInfo::postLoadLookups()
                 {
                     const uint8_t* lookup = (uint8_t*)tables[l].Shades.GetChars();
                     FRemapTable remap;
-                    if (i == 0 || (palette != basepalette && !palette->Inactive))
+                    if (i == 0 || (palette != basepalette && !palette->TwodOnly))
                     {
                         memcpy(remap.Remap, lookup, 256);
                         for (int j = 0; j < 256; j++)
@@ -276,7 +276,6 @@ void LookupTableInfo::postLoadLookups()
                         remap.NumEntries = 256;
                         GPalette.UpdateTranslation(TRANSLATION(i + Translation_Remap, l), &remap);
                     }
-                    if (palette != basepalette) palette->Inactive = false;  // clear the marker flag
                 }
             }
         }
@@ -292,7 +291,11 @@ void LookupTableInfo::postLoadLookups()
             if (c == 0) c = 255;
             else if (c == 255) c = 0;
         }
-        remap->Remap[0] = 0;
+        if (!remap->NoTransparency)
+        {
+            remap->Remap[0] = 0;
+            remap->Palette[0] = 0;
+        }
     };
 
     for (auto remap : GPalette.uniqueRemaps)
