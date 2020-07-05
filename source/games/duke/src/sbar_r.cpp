@@ -297,7 +297,7 @@ public:
 
         FString format;
 
-        if (ud.multimode > 1 && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if (ud.multimode > 1 && !ud.coop)
         {
             DrawGraphic(tileGetTexture(KILLSICON), 228, top + 8, DI_ITEM_OFFSETS, 1, 0, 0, 1, 1);
             format.Format("%d", max(p->frag - p->fraggedself, 0));

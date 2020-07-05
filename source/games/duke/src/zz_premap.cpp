@@ -370,20 +370,13 @@ int G_EnterLevel(int gameMode)
         return 1;
     }
 
-    i = ud.screen_size;
-    ud.screen_size = 0;
-
     FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
-
-    ud.screen_size = i;
-
     DukePlayer_t *const pPlayer = g_player[0].ps;
 
 
     /*
     G_DoLoadScreen(msg, -1);
     */
-    updateviewport();
     int res = LoadTheMap(mi, pPlayer, gameMode);
     if (res != 0) return res;
 
@@ -477,10 +470,9 @@ int G_EnterLevel(int gameMode)
 
     restorepalette = -1;
 
-    updateviewport();
     videoClearViewableArea(0L);
-    drawbackground();
     displayrooms(myconnectindex,65536);
+    G_DisplayRest(65536);
 
     Net_WaitForEverybody();
     return 0;

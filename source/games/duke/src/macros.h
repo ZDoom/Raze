@@ -44,8 +44,6 @@ static FORCE_INLINE int32_t krand2(void)
         TILE_SCRAP6+(r4&15),-8,RR?16:48,RR?16:48,r3&2047,(r2&63)+64,-512-(r1&2047),i,5); \
 }
 
-#define GTFLAGS(x) (g_gametypeFlags[ud.coop] & x)
-
 #define TRAVERSE_SPRITE_SECT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n)
 #define TRAVERSE_SPRITE_STAT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n)
 #define TRAVERSE_CONNECT(i)              i = 0; i != -1; i = connectpoint2[i]

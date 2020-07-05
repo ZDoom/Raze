@@ -177,15 +177,12 @@ static void cachegoodsprites(void)
 {
     int i;
 	
-    if (ud.screen_size >= 8)
+    tloadtile(BOTTOMSTATUSBAR);
+    if (ud.multimode > 1)
     {
-        tloadtile(BOTTOMSTATUSBAR);
-        if (ud.multimode > 1)
-        {
-            tloadtile(FRAGBAR);
-            for (i = MINIFONT; i < MINIFONT + 63; i++)
-                tloadtile(i);
-        }
+        tloadtile(FRAGBAR);
+        for (i = MINIFONT; i < MINIFONT + 63; i++)
+            tloadtile(i);
     }
 
     tloadtile(VIEWSCREEN);
@@ -547,11 +544,8 @@ void enterlevel(char g)
     clearsoundlocks();
     FX_SetReverb(0);
 
-    i = ud.screen_size;
-    ud.screen_size = 0;
     dofrontscreens();
     vscrn();
-    ud.screen_size = i;
 
 #ifndef VOLUMEONE
 
@@ -684,8 +678,8 @@ void enterlevel(char g)
      palto(0,0,0,0);
      vscrn();
      clearview(0L);
-     drawbackground();
      displayrooms(myconnectindex,65536);
+     displayrest(screenpeek);
 
      clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
      ps[myconnectindex].over_shoulder_on = 0;

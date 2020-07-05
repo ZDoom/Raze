@@ -327,13 +327,10 @@ static void cachegoodsprites(void)
 {
     short i;
 
-    if (ud.screen_size >= 8)
+    tloadtile(BOTTOMSTATUSBAR);
+    if (ud.multimode > 1)
     {
-        tloadtile(BOTTOMSTATUSBAR);
-        if (ud.multimode > 1)
-        {
-            tloadtile(FRAGBAR);
-        }
+        tloadtile(FRAGBAR);
     }
 
     //tloadtile(VIEWSCREEN);
@@ -840,12 +837,9 @@ void enterlevel(char g)
     if ((g & MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
-    i = ud.screen_size;
-    ud.screen_size = 0;
     dofrontscreens();
     vscrn();
-    ud.screen_size = i;
-
+    
     if (lastlevel)
     {
         if (loadboard("endgame.map", &ps[0].posx, &ps[0].posy, &ps[0].posz, &ps[0].ang, &ps[0].cursectnum) == -1)
@@ -991,7 +985,6 @@ void loadlevel(const char *filename)
      palto(0,0,0,0);
      vscrn();
      clearview(0L);
-     drawbackground();
      displayrooms(screenpeek,65536);
      displayrest(screenpeek);
      nextpage();

@@ -33,7 +33,6 @@ int G_FindLevelByFile(const char *fileName);
 void G_CacheMapData(void);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);
-void updateviewport(void);
 void pickrandomspot(int playerNum);
 void resetinventory(int playerNum);
 void P_ResetPlayer(int playerNum);

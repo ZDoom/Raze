@@ -36,80 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-#ifndef ONLY_USERDEFS
-
-// Compile game-side legacy Room over Room code?
-#define LEGACY_ROR 1
-
-enum GametypeFlags_t {
-    GAMETYPE_COOP                   = 0x00000001,
-    GAMETYPE_WEAPSTAY               = 0x00000002,
-    GAMETYPE_FRAGBAR                = 0x00000004,
-    GAMETYPE_SCORESHEET             = 0x00000008,
-    GAMETYPE_DMSWITCHES             = 0x00000010,
-    GAMETYPE_COOPSPAWN              = 0x00000020,
-    GAMETYPE_ACCESSCARDSPRITES      = 0x00000040,
-    GAMETYPE_COOPVIEW               = 0x00000080,
-    GAMETYPE_COOPSOUND              = 0x00000100,
-    GAMETYPE_OTHERPLAYERSINMAP      = 0x00000200,
-    GAMETYPE_ITEMRESPAWN            = 0x00000400,
-    GAMETYPE_MARKEROPTION           = 0x00000800,
-    GAMETYPE_PLAYERSFRIENDLY        = 0x00001000,
-    GAMETYPE_FIXEDRESPAWN           = 0x00002000,
-    GAMETYPE_ACCESSATSTART          = 0x00004000,
-    GAMETYPE_PRESERVEINVENTORYDEATH = 0x00008000,
-    GAMETYPE_TDM                    = 0x00010000,
-    GAMETYPE_TDMSPAWN               = 0x00020000
-};
-
-// logo control
-enum LogoFlags_t {
-    LOGO_ENABLED           = 0x00000001,
-    LOGO_PLAYANIM          = 0x00000002,
-    LOGO_PLAYMUSIC         = 0x00000004,
-    LOGO_3DRSCREEN         = 0x00000008,
-    LOGO_TITLESCREEN       = 0x00000010,
-    LOGO_DUKENUKEM         = 0x00000020,
-    LOGO_THREEDEE          = 0x00000040,
-    LOGO_PLUTOPAKSPRITE    = 0x00000080,
-    LOGO_SHAREWARESCREENS  = 0x00000100,
-    LOGO_TENSCREEN         = 0x00000200,
-    LOGO_STOPANIMSOUNDS    = 0x00000400,
-    LOGO_NOE4CUTSCENE      = 0x00000800,
-    LOGO_NOE1BONUSSCENE    = 0x00001000,
-    LOGO_NOE2BONUSSCENE    = 0x00002000,
-    LOGO_NOE3BONUSSCENE    = 0x00004000,
-    LOGO_NOE4BONUSSCENE    = 0x00008000,
-    LOGO_NOE1ENDSCREEN     = 0x00010000,
-    LOGO_NOE2ENDSCREEN     = 0x00020000,
-    LOGO_NOE3RADLOGO       = 0x00040000,
-    LOGO_NODUKETEAMTEXT    = 0x00080000,
-    LOGO_NODUKETEAMPIC     = 0x00100000,
-    LOGO_STOPMISCSOUNDS    = 0x00200000,
-    LOGO_NOGAMETITLE       = 0x00400000,
-    LOGO_NOTITLEBAR        = 0x00800000,
-    LOGO_HIDEEPISODE       = 0x01000000,
-    LOGO_NOHELP            = 0x02000000,
-    LOGO_NOCREDITS         = 0x04000000,
-};
-
-enum {
-    STATUSBAR_NONONE    = 0x00000001,
-    STATUSBAR_NOMINI    = 0x00000002,
-    STATUSBAR_NOFULL    = 0x00000004,
-    STATUSBAR_NOSHRINK  = 0x00000008,
-    STATUSBAR_NOFRAGBAR = 0x00000010,
-    STATUSBAR_NOOVERLAY = 0x00000020,
-    STATUSBAR_NOMODERN  = 0x00000040,
-};
-
-
-# define CAMERA(Membname) (ud.camera ## Membname)
-# define CAMERADIST cameradist
-# define CAMERACLOCK cameraclock
-
-#endif
-
 #define MAXSAVEGAMENAMESTRUCT 32
 #define MAXSAVEGAMENAME (MAXSAVEGAMENAMESTRUCT-1)
 #define MAXPWLOCKOUT 128
@@ -129,7 +55,7 @@ typedef struct {
     int32_t statusbarmode;
 	int32_t noexits,automsg;
     int32_t althud;
-    int32_t statusbarflags, statusbarrange;
+    int32_t statusbarrange;
 
     int32_t entered_name,screen_tilting;
     int32_t coop,screen_size,lockout,crosshair;

@@ -285,7 +285,6 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 twod->ClearScreen();
-                drawbackground();
                 renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             drawoverheadmap(cposx, cposy, pp->zoom, cang);

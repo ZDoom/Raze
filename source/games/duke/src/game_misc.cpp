@@ -291,46 +291,6 @@ void drawbackground(void)
 			DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
 		return;
 	}
-
-	auto tex = tileGetTexture(TILE_SCREENBORDER);
-	if (tex != nullptr && tex->isValid())
-	{
-		if (windowxy1.y > 0)
-		{
-			twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.y, tex, false, 1);
-		}
-		if (windowxy2.y + 1 < twod->GetHeight())
-		{
-			twod->AddFlatFill(0, windowxy2.y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
-		}
-		if (windowxy1.x > 0)
-		{
-			twod->AddFlatFill(0, windowxy1.y, windowxy1.x, windowxy2.y + 1, tex, false, 1);
-		}
-		if (windowxy2.x + 1 < twod->GetWidth())
-		{
-			twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
-		}
-		auto vb = tileGetTexture(TILE_VIEWBORDER);
-		auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
-		int x1 = windowxy1.x - 4;
-		int y1 = windowxy1.y - 4;
-		int x2 = windowxy2.x + 5;
-		int y2 = windowxy2.y + 5;
-		twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
-		twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
-		twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);
-		twod->AddFlatFill(x2 - 4, y1, x2, y2, vb, 3);
-		twod->AddFlatFill(x1, y1, x1 + 4, y1 + 4, ve, 1);
-		twod->AddFlatFill(x2 - 4, y1, x2, y1 + 4, ve, 3);
-		twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
-		twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
-	}
-	else
-	{
-		// If we got no frame just clear the screen.
-		twod->ClearScreen();
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -663,57 +623,6 @@ void cameratext(int i)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!((int)totalclock & 8), !!((int)totalclock & 16));
 	}
-}
-
-//---------------------------------------------------------------------------
-//
-// calculate size of 3D viewport.
-// Fixme: this needs to be adjusted to the new status bar code, 
-// once the status bar is a persistent queriable object
-// (it should also be moved out of the game code then.
-//
-//---------------------------------------------------------------------------
-
-void updateviewport(void)
-{
-	ud.screen_size = clamp(ud.screen_size, 0, 64);
-	int ss = std::max(ud.screen_size - 8, 0);
-
-	int x1 = scale(ss, xdim, 160);
-	int x2 = xdim - x1;
-
-	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)) * ud.statusbarscale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
-	int y2 = 200 * 100 - y1;
-
-	if (isRR() && ud.screen_size <= 12)
-	{
-		x1 = 0;
-		x2 = xdim;
-		y1 = 0;
-		if (ud.statusbarmode)
-			y2 = 200 * 100;
-	}
-
-	int fbh = 0;
-	if (ud.screen_size > 0 && ud.coop != 1 && ud.multimode > 1)
-	{
-		int j = 0;
-		for (int i = connecthead; i >= 0; i = connectpoint2[i])
-			if (i > j) j = i;
-
-		if (j >= 1) fbh += 8;
-		if (j >= 4) fbh += 8;
-		if (j >= 8) fbh += 8;
-		if (j >= 12) fbh += 8;
-	}
-
-	y1 += fbh * 100;
-	if (ud.screen_size >= 8 && ud.statusbarmode == 0)
-		y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * ud.statusbarscale;
-	y1 = scale(y1, ydim, 200 * 100);
-	y2 = scale(y2, ydim, 200 * 100);
-
-	videoSetViewableArea(x1, y1, x2 - 1, y2 - 1);
 }
 
 

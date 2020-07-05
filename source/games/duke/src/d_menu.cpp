@@ -275,7 +275,6 @@ void GameInterface::MenuClosed()
 			cameradist = 65536;
 		}
 
-		updateviewport();
 		S_PauseSounds(false);
 	}
 }

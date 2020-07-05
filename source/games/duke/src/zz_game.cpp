@@ -87,20 +87,6 @@ static void gameTimerHandler(void)
     }
 }
 
-static int G_MaybeTakeOnFloorPal(tspritetype *pSprite, int sectNum)
-{
-    int const floorPal = sector[sectNum].floorpal;
-
-    if (floorPal && !lookups.noFloorPal(floorPal) && !actorflag(pSprite->owner, SFLAG_NOPAL))
-    {
-        pSprite->pal = floorPal;
-        return 1;
-    }
-
-    return 0;
-}
-
-
 void G_InitTimer(int32_t ticspersec)
 {
     if (g_timerTicsPerSecond != ticspersec)
@@ -132,56 +118,6 @@ int G_StartRTS(int lumpNum, int localPlayer)
     return 0;
 }
 
-// Trying to sanitize the mess of options and the mess of variables the mess was stored in. (Did I say this was a total mess before...? >) )
-// Hopefully this is more comprehensible, at least it neatly stores everything useful in a single linear value...
-bool GameInterface::validate_hud(int layout)
-{
-	if (layout <= (RR? 5: 6))	// Status bar with border
-	{
-		return !(ud.statusbarflags & STATUSBAR_NOSHRINK);
-	}
-	else if (layout <= 7) // Status bar fullscreen
-	{
-		return (!(ud.statusbarflags & STATUSBAR_NOFULL) || !(ud.statusbarflags & STATUSBAR_NOOVERLAY));
-	}
-	else if (layout == 8)	// Status bar overlay
-	{
-		return !(ud.statusbarflags & STATUSBAR_NOOVERLAY);
-	}
-	else if (layout == 9)	// Fullscreen HUD
-	{
-		return (!(ud.statusbarflags & STATUSBAR_NOMINI) || !(ud.statusbarflags & STATUSBAR_NOMODERN));
-	}
-	else if (layout == 10)
-	{
-		return !(ud.statusbarflags & STATUSBAR_NOMODERN);
-	}
-	else if (layout == 11)
-	{
-		return !(ud.statusbarflags & STATUSBAR_NONONE);
-	}
-	return false;
-}
-
-void GameInterface::set_hud_layout(int layout)
-{
-	static const uint8_t screen_size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
-	static const uint8_t screen_size_vals_rr[] = { 56, 48, 40, 32, 24, 16, 12, 8, 8, 4, 4, 0 };
-	if (validate_hud(layout))
-	{
-		ud.screen_size = RR? screen_size_vals_rr[layout] : screen_size_vals[layout];
-		ud.statusbarmode = layout >= 8;
-		ud.althud = layout >= 10;
-		updateviewport();
-	}
-}
-
-void GameInterface::set_hud_scale(int scale)
-{
-    ud.statusbarscale = clamp(scale, 36, 100);
-    updateviewport();
-}
-
 void G_HandleLocalKeys(void)
 {
 //    CONTROL_ProcessBinds();
@@ -209,8 +145,6 @@ void G_HandleLocalKeys(void)
             {
                 hud_scale = hud_scale + 4;
             }
-
-            updateviewport();
         }
 
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
@@ -228,15 +162,13 @@ void G_HandleLocalKeys(void)
             {
                 hud_scale = hud_scale - 4;
             }
-
-            updateviewport();
         }
     }
 
     if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
         return;
 
-    if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
+    if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
     {
         buttonMap.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
@@ -318,8 +250,8 @@ void G_HandleLocalKeys(void)
             {
                 g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
 
-                CAMERADIST  = 0;
-                CAMERACLOCK = (int32_t) totalclock;
+                cameradist  = 0;
+                cameraclock = (int32_t) totalclock;
 
                 FTA(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
             }
@@ -347,7 +279,6 @@ void G_HandleLocalKeys(void)
         ud.last_overhead = ud.overhead_on;
         ud.overhead_on   = 0;
         ud.scrollmode    = 0;
-        updateviewport();
     }
 #endif
 
@@ -367,7 +298,6 @@ void G_HandleLocalKeys(void)
         }
 
         restorepalette = 1;
-        updateviewport();
     }
 }
 
@@ -431,14 +361,6 @@ static void G_CompileScripts(void)
     VM_OnEvent(EVENT_INIT);
 }
 
-static inline void G_CheckGametype(void)
-{
-    m_coop = clamp(*m_coop, 0, g_gametypeCnt-1);
-    Printf("%s\n",g_gametypeNames[m_coop]);
-    if (g_gametypeFlags[m_coop] & GAMETYPE_ITEMRESPAWN)
-        ud.m_respawn_items = ud.m_respawn_inventory = 1;
-}
-
 inline int G_CheckPlayerColor(int color)
 {
     static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
@@ -464,7 +386,6 @@ static void G_Startup(void)
     // These depend on having the dynamic tile and/or sound mappings set up:
     G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
     Net_SendClientInfo();
-    if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
 	if (userConfig.CommandMap.IsNotEmpty())
 	{
@@ -574,11 +495,6 @@ static int G_EndOfLevel(void)
 
         if (ud.display_bonus_screen == 1)
         {
-            int32_t i = ud.screen_size;
-            ud.screen_size = 0;
-            updateviewport();
-            ud.screen_size = i;
-
             G_BonusScreen(0);
         }
 
@@ -703,7 +619,6 @@ int32_t SetDefaults(void)
     ud.camera_time = 0;//4;
 
     ud.screen_tilting = 1;
-    ud.statusbarflags = 0;// STATUSBAR_NOSHRINK;
     playerteam = 0;
     ud.angleinterpolation = 0;
 
@@ -901,19 +816,13 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
         }
     }
-    else updateviewport();
 
     ud.showweapons = ud.config.ShowOpponentWeapons;
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = playerteam;
 
-    if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
-    else
-    {
-        if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
-        else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
-    }
+    if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
+    else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
 
     ud.warp_on = 0;
 	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
@@ -1001,8 +910,6 @@ MAIN_LOOP_RESTART:
             drawtime.Reset();
             drawtime.Clock();
             displayrooms(screenpeek, smoothRatio);
-            if (videoGetRenderMode() >= REND_POLYMOST)
-                drawbackground();
             G_DisplayRest(smoothRatio);
             drawtime.Unclock();
             videoNextPage();
@@ -1084,14 +991,7 @@ int G_DoMoveThings(void)
         if (g_player[i].input->extbits&(1<<6))
         {
             g_player[i].ps->team = g_player[i].pteam;
-            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-            {
-                actor[g_player[i].ps->i].picnum = TILE_APLAYERTOP;
-                quickkill(g_player[i].ps);
-            }
         }
-        if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-            g_player[i].ps->palookup = g_player[i].pcolor = G_GetTeamPalette(g_player[i].ps->team);
 
         if (sprite[g_player[i].ps->i].pal != 1)
             sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
@@ -1137,11 +1037,6 @@ void GameInterface::FreeGameData()
 {
     setmapfog(0);
     G_Cleanup();
-}
-
-void GameInterface::UpdateScreenSize()
-{
-    updateviewport();
 }
 
 ::GameInterface* CreateInterface()

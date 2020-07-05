@@ -33,6 +33,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
+void DrawBorder();
+
 //---------------------------------------------------------------------------
 //
 // Floor Over Floor
@@ -469,8 +471,7 @@ void displayrooms(int snum, int smoothratio)
 	int tiltcs = 0; // JBF 20030807
 
 	p = &ps[snum];
-
-	if (ud.screen_size >= 8) drawbackground();
+	DrawBorder();
 
 	if (ud.overhead_on == 2 || p->cursectnum == -1)
 		return;
