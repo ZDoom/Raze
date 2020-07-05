@@ -5232,7 +5232,7 @@ int32_t setaspect_new_use_dimen = 0;
 
 void videoSetCorrectedAspect()
 {
-    if (r_usenewaspect && newaspect_enable && videoGetRenderMode() != REND_POLYMER)
+    if (/*r_usenewaspect &&*/ newaspect_enable && videoGetRenderMode() != REND_POLYMER)
     {
         // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
         // meaning we have to stretch it by a factor of 1.25 instead of 1.2

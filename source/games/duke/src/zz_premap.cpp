@@ -480,7 +480,7 @@ int G_EnterLevel(int gameMode)
     updateviewport();
     videoClearViewableArea(0L);
     drawbackground();
-    G_DrawRooms(myconnectindex,65536);
+    displayrooms(myconnectindex,65536);
 
     Net_WaitForEverybody();
     return 0;

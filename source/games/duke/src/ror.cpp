@@ -220,12 +220,12 @@ void renderMirror(int cposx, int cposy, int cposz, int cang, int choriz, int smo
 		{
 			int tposx, tposy, tposz, tang;
 
-			renderPrepareMirror(cposx, cposy, cposz, cang, choriz, mirrorwall[i], &tposx, &tposy, &tang);
+			renderPrepareMirror(cposx, cposy, cposz, cang << FRACBITS, choriz<<FRACBITS, mirrorwall[i], &tposx, &tposy, &tang);
 
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			drawrooms(tposx, tposy, cposz, tang, choriz, mirrorsector[i] + MAXSECTORS);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz << FRACBITS, mirrorsector[i] + MAXSECTORS);
 
 			display_mirror = 1;
 			fi.animatesprites(tposx, tposy, tang, smoothratio);
@@ -282,7 +282,7 @@ void animatecamsprite(int smoothRatio)
 
 //---------------------------------------------------------------------------
 //
-// 
+// RRRA's drug distortion effect
 //
 //---------------------------------------------------------------------------
 
@@ -371,13 +371,13 @@ void setdrugmode(player_struct *p, int oyrepeat)
 
 //---------------------------------------------------------------------------
 //
-// 
+// used by RR to inject some external geometry into a scene. 
 //
 //---------------------------------------------------------------------------
 
-void tag848Hackery(int cposx, int cposy, int cposz, int cang, int choriz, int sect, int smoothratio)
+static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz, int sect, int smoothratio)
 {
-	short gs, tgsect, nextspr, geosect, geoid;
+	short gs, tgsect, nextspr, geosect, geoid = 0;
 	int spr;
 	drawrooms(cposx, cposy, cposz, cang, choriz, sect);
 	fi.animatesprites(cposx, cposy, cang, smoothratio);
@@ -485,6 +485,8 @@ void displayrooms(short snum, int smoothratio)
 
 	g_visibility = p->visibility;
 
+	newaspect_enable = 1;
+	videoSetCorrectedAspect();
 
 	smoothratio = min(max(smoothratio, 0), 65536);
 	if (ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
@@ -535,8 +537,13 @@ void displayrooms(short snum, int smoothratio)
 			cposx = omyx + mulscale16((int)(myx - omyx), smoothratio);
 			cposy = omyy + mulscale16((int)(myy - omyy), smoothratio);
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
+#if 0
 			cang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);
 			choriz = omyhoriz + omyhorizoff + mulscale16((int)(myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothratio);
+#else
+			cang = myang >> 16;
+			choriz = (myhoriz + myhorizoff) >> 16;
+#endif
 			sect = mycursectnum;
 		}
 		else
@@ -544,9 +551,15 @@ void displayrooms(short snum, int smoothratio)
 			cposx = p->oposx + mulscale16((int)(p->posx - p->oposx), smoothratio);
 			cposy = p->oposy + mulscale16((int)(p->posy - p->oposy), smoothratio);
 			cposz = p->oposz + mulscale16((int)(p->posz - p->oposz), smoothratio);
+#if 0
+			// Original code for when the values are passed through the sync struct
 			cang = p->getoang() + mulscale16((int)(((p->getang() + 1024 - p->getoang()) & 2047) - 1024), smoothratio);
-			//choriz = p->ohoriz+p->ohorizoff+mulscale16((int)(p->gethorizsum()-p->ohoriz-p->ohorizoff),smoothratio);
-			choriz = mulscale16((int)(p->gethorizsum()), smoothratio);
+			choriz = p->ohoriz+p->ohorizoff+mulscale16((int)(p->gethorizsum()-p->ohoriz-p->ohorizoff),smoothratio);
+#else
+			// This is for real time updating of the view direction.
+			cang = p->getang();
+			choriz = p->gethorizsum();
+#endif
 		}
 		cang += p->look_ang;
 
@@ -598,7 +611,7 @@ void displayrooms(short snum, int smoothratio)
 
 		if (isRR() && sector[sect].lotag == 848)
 		{
-			tag848Hackery(cposx, cposy, cposz, cang, choriz, sect, smoothratio);
+			geometryEffect(cposx, cposy, cposz, cang, choriz, sect, smoothratio);
 		}
 		else
 		{
@@ -622,5 +635,13 @@ void displayrooms(short snum, int smoothratio)
 		else p->visibility = ud.const_visibility;
 	}
 }
+
+bool GameInterface::GenerateSavePic()
+{
+	displayrooms(myconnectindex, 65536);
+	return true;
+}
+
+
 
 END_DUKE_NS
