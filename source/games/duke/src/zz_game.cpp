@@ -199,7 +199,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         pPlayer->visibility = ud.const_visibility;
 
     int const playerVis = pPlayer->visibility;
-    g_visibility        = (playerVis <= 0) ? 0 : (int32_t)(playerVis * (numplayers > 1 ? 1.f : r_ambientlightrecip));
+    g_visibility = (playerVis <= 0) ? 0 : (int32_t)(playerVis);
 
     CAMERA(sect) = pPlayer->cursectnum;
 

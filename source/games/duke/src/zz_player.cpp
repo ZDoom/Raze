@@ -108,11 +108,26 @@ static int P_CheckLockedMovement(int const playerNum)
     return 0;
 }
 
+static double elapsedInputTicks;
+
+static double scaleAdjustmentToInterval(double x)
+{
+    return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks);
+}
+
 void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = thisPlayer.ps;
     ControlInfo info;
+
+    auto const currentHiTicks = timerGetHiTicks();
+    elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
+    thisPlayer.lastInputTicks = currentHiTicks;
+
+    if (elapsedInputTicks == currentHiTicks)
+        return;
+
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
     {
@@ -153,23 +168,19 @@ void P_GetInput(int const playerNum)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        static int strafeyaw;
-
-        input.svel = -(info.mousex + strafeyaw) >> 3;
-        strafeyaw  = (info.mousex + strafeyaw) % 8;
-
-        input.svel -= info.dyaw * keyMove / analogExtent;
+        input.svel -= info.mousex * 4.f;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
     }
     else
     {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_sdiv(fix16_from_int(info.mousex), F16(32)));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_int(info.dyaw / analogExtent * (analogTurnAmount << 1)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_sdiv(fix16_from_int(info.mousey), F16(64)));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
     else
-        input.fvel = -(info.mousey >> 3);
+        input.fvel -= info.mousey * 8.f;
 
     if (!in_mouseflip) input.q16horz = -input.q16horz;
 
@@ -178,8 +189,6 @@ void P_GetInput(int const playerNum)
     input.fvel -= info.dz * keyMove / analogExtent;
 
     static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
 
     lastInputTicks = currentHiTicks;
 

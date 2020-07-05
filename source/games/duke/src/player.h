@@ -323,6 +323,7 @@ typedef struct
     char playerreadyflag, playerquitflag, connected;
     char user_name[32];
     char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
+    double  lastInputTicks;
 
 } playerdata_t;
 #pragma pack(pop)
