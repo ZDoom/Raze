@@ -3030,19 +3030,19 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        svel = -info.mousex;
+        svel -= (info.mousex * ticrateScale) * 4.f;
         svel -= info.dyaw * keymove;
     }
     else
     {
-        q16angvel = fix16_div(fix16_from_int(info.mousex), fix16_from_float(angvelScale * 32.f));
-        q16angvel += fix16_from_dbl(scaleAdjustmentToInterval((info.dyaw * ticrateScale) / angvelScale));
+        q16angvel = fix16_sadd(q16angvel, fix16_from_float(info.mousex / angvelScale));
+        q16angvel = fix16_sadd(q16angvel, fix16_from_dbl(scaleAdjustmentToInterval((info.dyaw * ticrateScale) / angvelScale)));
     }
 
     if (mouseaim)
-        q16aimvel = -fix16_div(fix16_from_int(info.mousey), fix16_from_float(aimvelScale * 64.f));
+        q16aimvel = fix16_ssub(q16aimvel, fix16_from_float(info.mousey / aimvelScale));
     else
-        vel = -(info.mousey >> 6);
+        vel -= (info.mousey * ticrateScale) * 8.f;
 
     if (in_mouseflip)
         q16aimvel = -q16aimvel;
