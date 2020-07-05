@@ -1303,8 +1303,8 @@ int GameInterface::app_main()
 
     if (RR)
         tileDelete(0);
-    if (RRRA)
-        tileDelete(13);
+
+    tileDelete(13);
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {

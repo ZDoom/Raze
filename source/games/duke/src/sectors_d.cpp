@@ -1713,6 +1713,7 @@ void checksectors_d(int snum)
 
 						sprite[neartagsprite].owner = i;
 						sprite[neartagsprite].yvel = 1;
+						camsprite = neartagsprite;
 
 
 						j = p->cursectnum;
