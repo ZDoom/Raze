@@ -216,7 +216,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 void GameInterface::MenuOpened()
 {
 	S_PauseSounds(true);
-	if ((!g_netServer && ud.multimode < 2))
+	if (ud.multimode < 2)
 	{
 		ready2send = 0;
 		totalclock = ototalclock;
@@ -267,7 +267,7 @@ void GameInterface::MenuClosed()
 		// The following lines are here so that you cannot close the menu when no game is running.
 		gm &= ~MODE_MENU;
 
-		if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
+		if (ud.multimode < 2 && ud.recstat != 2)
 		{
 			ready2send = 1;
 			totalclock = ototalclock;

@@ -37,21 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-#define TIMERUPDATESIZ 32
-
-ENetHost *g_netServer = NULL;
-ENetHost *g_netClient = NULL;
-ENetPeer *g_netClientPeer = NULL;
-ENetPeer* g_netPlayerPeer[MAXPLAYERS];
-enet_uint16 g_netPort = 23513;
-int32_t g_netDisconnect = 0;
-char g_netPassword[32];
-int32_t g_netPlayersWaiting = 0;
-int32_t g_netIndex = 2;
-newgame_t pendingnewgame;
-
+void *g_netServer = NULL;
 void faketimerhandler(void) {}
-
 void Net_GetPackets(void)
 {
 }

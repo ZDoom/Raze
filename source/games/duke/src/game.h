@@ -252,10 +252,8 @@ static inline void G_HandleAsync(void)
 
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
-    if (!(((!g_netServer && ud.multimode < 2) && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
-          (g_netServer || ud.multimode > 1) ||
-          ud.recstat == 2) ||
-        ud.pause_on)
+    if (!((ud.multimode < 2 && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
+          ud.multimode > 1 || ud.recstat == 2) || ud.pause_on)
     {
         return 65536;
     }

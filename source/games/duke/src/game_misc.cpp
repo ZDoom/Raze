@@ -132,7 +132,7 @@ void checkcommandline()
 void gameexitfrommenu()
 {
 	// MP scoreboard
-	if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET))
+	if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && !ud.coop)
 	{
 		G_BonusScreen(1);
 	}

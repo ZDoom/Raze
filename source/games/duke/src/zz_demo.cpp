@@ -100,7 +100,7 @@ RECHECK:
                 //if (ud.recstat != 2)
                     //M_DisplayMenus();
 
-                if ((g_netServer || ud.multimode > 1))//  && !Menu_IsTextInput(m_currentMenu))
+                if (ud.multimode > 1)//  && !Menu_IsTextInput(m_currentMenu))
                 {
                     ControlInfo noshareinfo;
                     CONTROL_GetInput(&noshareinfo);

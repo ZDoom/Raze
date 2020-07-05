@@ -223,9 +223,6 @@ void G_HandleLocalKeys(void)
             {
                 Printf(PRINT_NOTIFY, *CombatMacros[ridiculeNum-1]);
 				Net_SendTaunt(ridiculeNum);
-				pus = NUMPAGES;
-                pub = NUMPAGES;
-
                 return;
             }
 
@@ -233,9 +230,6 @@ void G_HandleLocalKeys(void)
             if (G_StartRTS(ridiculeNum, 1))
             {
 				Net_SendRTS(ridiculeNum);
-				pus = NUMPAGES;
-                pub = NUMPAGES;
-
                 return;
             }
         }
@@ -849,7 +843,7 @@ MAIN_LOOP_RESTART:
         gameupdatetime.Reset();
         gameupdatetime.Clock();
         
-        while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+        while ((!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
             ototalclock += TICSPERFRAME;
 
