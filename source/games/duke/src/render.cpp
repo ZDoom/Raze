@@ -218,7 +218,7 @@ void renderMirror(int cposx, int cposy, int cposz, int cang, int choriz, int smo
 
 		if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
 		{
-			int tposx, tposy, tposz, tang;
+			int tposx, tposy, tang;
 
 			renderPrepareMirror(cposx, cposy, cposz, cang << FRACBITS, choriz<<FRACBITS, mirrorwall[i], &tposx, &tposy, &tang);
 
@@ -461,14 +461,12 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 //
 //---------------------------------------------------------------------------
 
-void displayrooms(short snum, int smoothratio)
+void displayrooms(int snum, int smoothratio)
 {
-	int cposx, cposy, cposz, dst, j, fz, cz, hz, lz;
-	short sect, cang, k, choriz, tsect;
+	int cposx, cposy, cposz, fz, cz;
+	short sect, cang, choriz;
 	struct player_struct* p;
-	int dx, dy, thoriz, i;
-	short tang;
-	int tiltcx, tiltcy, tiltcs = 0; // JBF 20030807
+	int tiltcs = 0; // JBF 20030807
 
 	p = &ps[snum];
 
