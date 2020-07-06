@@ -1419,8 +1419,8 @@ static void postloadplayer(int32_t savegamep)
         for (SPRITES_OF(STAT_FX, i))
             if (sprite[i].picnum == MUSICANDSFX)
             {
-                T2(i) = SoundEnabled();
-                T1(i) = 0;
+                hittype[i].temp_data[1] = SoundEnabled();
+                hittype[i].temp_data[0] = 0;
             }
 
         FX_SetReverb(0);

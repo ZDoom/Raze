@@ -86,34 +86,6 @@ inline bool AFLAMABLE(int X)
 #define CSTAT_SPRITE_NOSHADE        BIT(11)
 #define CSTAT_SPRITE_BREAKABLE (CSTAT_SPRITE_BLOCK_HITSCAN)
 
-#define SP(i)  sprite[i].yvel
-#define SX(i)  sprite[i].x
-#define SY(i)  sprite[i].y
-#define SZ(i)  sprite[i].z
-#define SS(i)  sprite[i].shade
-#define PN(i)  sprite[i].picnum
-#define SA(i)  sprite[i].ang
-//#define SV  sprite[i].xvel
-//#define ZV  sprite[i].zvel
-//#define RX  sprite[i].xrepeat
-//#define RY  sprite[i].yrepeat
-#define OW(i)  sprite[i].owner
-#define CS(i)  sprite[i].cstat
-#define SH(i)  sprite[i].extra
-//#define CX  sprite[i].xoffset
-//#define CY  sprite[i].yoffset
-//#define CD  sprite[i].clipdist
-//#define PL  sprite[i].pal
-#define SLT(i)  sprite[i].lotag
-#define SHT(i)  sprite[i].hitag
-#define SECT(i) sprite[i].sectnum
-
-#define T1(i)  actor[i].t_data[0]
-#define T2(i)  actor[i].t_data[1]
-#define T3(i)  actor[i].t_data[2]
-#define T4(i)  actor[i].t_data[3]
-#define T5(i)  actor[i].t_data[4]
-#define T6(i)  actor[i].t_data[5]
 
 END_DUKE_NS
 

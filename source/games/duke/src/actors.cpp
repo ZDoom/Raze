@@ -84,7 +84,7 @@ void deletesprite(int num)
 //
 //---------------------------------------------------------------------------
 
-void addammo(short weapon, struct player_struct* p, short amount)
+void addammo(int weapon, struct player_struct* p, int amount)
 {
 	p->ammo_amount[weapon] += amount;
 

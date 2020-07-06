@@ -76,6 +76,7 @@ void alterang(int a, int g_i, int g_p);
 void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOTSPARK1, int squished, int thud, int(*fallspecial)(int, int), void (*falladjustz)(spritetype*));
 void checkavailweapon(struct player_struct* p);
 void deletesprite(int num);
+void addammo(int weapon, struct player_struct* p, int amount);
 
 int ssp(int i, unsigned int cliptype); //The set sprite function
 void insertspriteq(int i);

@@ -806,30 +806,4 @@ void P_GetInputBoat(int playerNum)
     localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
-void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount)
-{
-    pPlayer->ammo_amount[weaponNum] += addAmount;
-
-    if (pPlayer->ammo_amount[weaponNum] > max_ammo_amount[weaponNum])
-        pPlayer->ammo_amount[weaponNum] = max_ammo_amount[weaponNum];
-}
-
-void P_CheckWeapon(DukePlayer_t *pPlayer)
-{
-    checkavailweapon(pPlayer);
-}
-
-void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
-{
-    int const newOwner      = pPlayer->newowner;
-    pPlayer->pos            = *(vec3_t *)&sprite[newOwner];
-    pPlayer->q16ang           = fix16_from_int(SA(newOwner));
-    pPlayer->vel.x          = 0;
-    pPlayer->vel.y          = 0;
-    sprite[pPlayer->i].xvel = 0;
-    pPlayer->look_ang       = 0;
-    pPlayer->rotscrnang     = 0;
-}
-
-
 END_DUKE_NS

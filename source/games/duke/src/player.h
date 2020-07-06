@@ -44,8 +44,7 @@ extern int32_t PHEIGHT;
 
 enum
 {
-    PIPEBOMB_REMOTE = 0x00000001,
-    PIPEBOMB_TIMER = 0x00000002,
+    // Control flags for WW2GI weapons.
     TRIPBOMB_TRIPWIRE = 1,
     TRIPBOMB_TIMER = 2
 };
@@ -58,24 +57,6 @@ enum
 
 #define MAX_WEAPON_RECS             256
 
-enum weaponflags_t {
-    WEAPON_SPAWNTYPE1           = 0x00000000, // just spawn
-    WEAPON_HOLSTER_CLEARS_CLIP  = 0x00000001, // 'holstering' clears the current clip
-    WEAPON_GLOWS                = 0x00000002, // weapon 'glows' (shrinker and grower)
-    WEAPON_AUTOMATIC            = 0x00000004, // automatic fire (continues while 'fire' is held down
-    WEAPON_FIREEVERYOTHER       = 0x00000008, // during 'hold time' fire every frame
-    WEAPON_FIREEVERYTHIRD       = 0x00000010, // during 'hold time' fire every third frame
-    WEAPON_RANDOMRESTART        = 0x00000020, // restart for automatic is 'randomized' by RND 3
-    WEAPON_AMMOPERSHOT          = 0x00000040, // uses ammo for each shot (for automatic)
-    WEAPON_BOMB_TRIGGER         = 0x00000080, // weapon is the 'bomb' trigger
-    WEAPON_NOVISIBLE            = 0x00000100, // weapon use does not cause user to become 'visible'
-    WEAPON_THROWIT              = 0x00000200, // weapon 'throws' the 'shoots' item...
-    WEAPON_CHECKATRELOAD        = 0x00000400, // check weapon availability at 'reload' time
-    WEAPON_STANDSTILL           = 0x00000800, // player stops jumping before actual fire (like tripbomb in duke)
-    WEAPON_SPAWNTYPE2           = 0x00001000, // spawn like shotgun shells
-    WEAPON_SPAWNTYPE3           = 0x00002000, // spawn like chaingun shells
-};
-
 enum gamemode_t {
     MODE_MENU                   = 0x00000001,
     MODE_DEMO                   = 0x00000002,
@@ -84,27 +65,6 @@ enum gamemode_t {
     MODE_TYPE                   = 0x00000010,
     MODE_RESTART                = 0x00000020,
     MODE_SENDTOWHOM             = 0x00000040,
-};
-
-// Player Actions.
-enum playeraction_t {
-    pstanding                   = 0x00000001,
-    pwalking                    = 0x00000002,
-    prunning                    = 0x00000004,
-    pducking                    = 0x00000008,
-    pfalling                    = 0x00000010,
-    pjumping                    = 0x00000020,
-    phigher                     = 0x00000040,
-    pwalkingback                = 0x00000080,
-    prunningback                = 0x00000100,
-    pkicking                    = 0x00000200,
-    pshrunk                     = 0x00000400,
-    pjetpack                    = 0x00000800,
-    ponsteroids                 = 0x00001000,
-    ponground                   = 0x00002000,
-    palive                      = 0x00004000,
-    pdead                       = 0x00008000,
-    pfacing                     = 0x00010000
 };
 
 typedef struct {
@@ -349,12 +309,7 @@ typedef struct
     int32_t FlashColor;  // Muzzle flash color
 } weapondata_t;
 
-#ifdef LUNATIC
-# define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)
-extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
-#else
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
-#endif
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
@@ -369,15 +324,6 @@ extern playerdata_t     *const g_player;
 extern hudweapon_t      hudweap;
 extern int32_t          mouseyaxismode;
 
-#define SHOOT_HARDCODED_ZVEL INT32_MIN
-
-static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
-{
-    pPlayer->pals.f = f;
-    pPlayer->pals.r = r;
-    pPlayer->pals.g = g;
-    pPlayer->pals.b = b;
-}
 
 inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
 {
@@ -392,37 +338,14 @@ int hits(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
-void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
-inline void addammo(int weaponNum, DukePlayer_t* pPlayer, int addAmount)
-{
-    P_AddAmmo(pPlayer, weaponNum, addAmount);
-}
-void    P_CheckWeapon(DukePlayer_t *pPlayer);
-void    P_DisplayWeapon(void);
 void checkweapons(DukePlayer_t* const pPlayer);
 int findotherplayer(int p, int* d);
-void    P_FragPlayer(int playerNum);
-void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
-void    P_ProcessInput(int playerNum);
-void    P_DHProcessInput(int playerNum);
 void quickkill(DukePlayer_t* pPlayer);
 void setpal(DukePlayer_t* pPlayer);
-void    P_EndLevel(void);
-void    P_CheckWeaponI(int playerNum);
 int madenoise(int playerNum);
 int haskey(int sect, int snum);
 
-// Get the player index given an TILE_APLAYER sprite pointer.
-static inline int P_GetP(const void *pSprite)
-{
-    return ((const uspritetype*)pSprite)->yvel;
-}
-
-// Get the player index given an TILE_APLAYER sprite index.
-static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
 extern int16_t max_ammo_amount[MAX_WEAPONS];
-
-void P_SetWeaponGamevars(int playerNum, const DukePlayer_t* const pPlayer);
 
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
 int hits(int i);
