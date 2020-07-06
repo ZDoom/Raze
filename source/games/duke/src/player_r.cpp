@@ -1019,8 +1019,6 @@ void selectweapon_r(int snum, int j)
 			}
 			else if (j == CROSSBOW_WEAPON && isRRRA())
 			{
-				if (screenpeek == snum) pus = NUMPAGES;
-
 				if (p->curr_weapon == CROSSBOW_WEAPON || p->ammo_amount[CROSSBOW_WEAPON] == 0)
 				{
 					if (p->ammo_amount[CHICKEN_WEAPON] == 0)
@@ -1036,8 +1034,6 @@ void selectweapon_r(int snum, int j)
 			}
 			else if (j == THROWSAW_WEAPON)
 			{
-				if (screenpeek == snum) pus = NUMPAGES;
-
 				if (p->curr_weapon == THROWSAW_WEAPON || p->ammo_amount[THROWSAW_WEAPON] == 0)
 				{
 					p->subweapon = (1 << BUZZSAW_WEAPON);
@@ -1051,8 +1047,6 @@ void selectweapon_r(int snum, int j)
 			}
 			else if (j == POWDERKEG_WEAPON)
 			{
-				if (screenpeek == snum) pus = NUMPAGES;
-
 				if (p->curr_weapon == POWDERKEG_WEAPON || p->ammo_amount[POWDERKEG_WEAPON] == 0)
 				{
 					p->subweapon = (1 << BOWLING_WEAPON);

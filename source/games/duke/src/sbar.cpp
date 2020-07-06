@@ -75,11 +75,10 @@ void DDukeCommonStatusBar::displayfragbar(void)
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 		if (i > j) j = i;
 
-	rotatesprite(0, 0, 65600L, 0, TILE_FRAGBAR, 0, 0, 2 + 8 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-	if (j >= 4) rotatesprite(319, (8) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-	if (j >= 8) rotatesprite(319, (16) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-	if (j >= 12) rotatesprite(319, (24) << 16, 65600L, 0, TILE_FRAGBAR, 0, 0, 10 + 16 + 64 + 128, 0, 0, xdim - 1, ydim - 1);
-
+	auto tex = tileGetTexture(TILE_FRAGBAR);
+	for (int y = 0; y < 32; y += 8)
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, 3, DTA_ViewportWidth, 320, DTA_ViewportHeight, 200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
+		
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		m initext(21 + (73 * (i & 3)), 2 + ((i & 28) << 1), &ud.user_name[i][0], sprite[ps[i].i].pal, 2 + 8 + 16 + 128);

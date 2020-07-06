@@ -104,7 +104,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         G_BonusScreen(0);
 #endif
 
-    show_shareware = GAMETICSPERSEC*34;
+    show_shareware = REALGAMETICSPERSEC*30;
 
     ud.level_number = levelNum;
     ud.volume_number = volumeNum;

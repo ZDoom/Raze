@@ -222,7 +222,7 @@ void clearcamera(player_struct* ps)
 //
 //---------------------------------------------------------------------------
 
-int ssp(short i, unsigned int cliptype) //The set sprite function
+int ssp(int i, unsigned int cliptype) //The set sprite function
 {
 	spritetype* s;
 	int movetype;

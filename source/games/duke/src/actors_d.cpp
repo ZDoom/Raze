@@ -3469,6 +3469,7 @@ void moveexplosions_d(void)  // STATNUM 5
 
 		case LAVAPOOL:
 		case ONFIRE:
+		case ONFIRESMOKE:
 		case BURNEDCORPSE:
 		case LAVAPOOLBUBBLE:
 		case WHISPYSMOKE:

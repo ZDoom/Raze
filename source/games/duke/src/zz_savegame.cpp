@@ -965,7 +965,7 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
     if (isAutoSave)
         h.ptrsize |= 1u << 7u;
 
-    h.bytever      = BYTEVERSION;
+    h.bytever = 0;
     h.userbytever  = ud.userbytever;
     h.scriptcrc    = 0;
 
@@ -1053,14 +1053,8 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || ScriptCode.Size())
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != 0 || h->userbytever != ud.userbytever || ScriptCode.Size())
     {
-#ifndef DEBUGGINGAIDS
-        if (havedemo)
-#endif
-            Printf("Incompatible savegame. Expected version %d.%d.%d.%d, found %d.%d.%d.%d\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
-                       ud.userbytever, h->majorver, h->minorver, h->bytever, h->userbytever);
-
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
         {
             return 1;

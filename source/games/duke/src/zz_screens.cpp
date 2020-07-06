@@ -284,14 +284,15 @@ void G_DisplayRest(int32_t smoothratio)
 
         if ((unsigned) a < MAXTILES)
         {
-            vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
+            vec2_t crosshairpos = {  };
             //vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint32_t crosshair_o = 1|2;
-            uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
-            if (isRR())
-                crosshair_scale >>= 1;
+            double crosshair_scale = cl_crosshairscale * .001;
+            if (isRR()) crosshair_scale *= .5;
 
-            rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, 0, crosshair_o);
+            DrawTexture(twod, tileGetTexture(a), 160 - (g_player[myconnectindex].ps->look_ang >> 1), 100,
+                DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale,
+                DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x, DTA_ViewportY, windowxy2.y - windowxy1.y, TAG_DONE);
         }
     }
 

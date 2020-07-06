@@ -160,8 +160,6 @@ void P_GetInput(int const playerNum)
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
-
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
         if (!localInput.svel)
@@ -330,7 +328,7 @@ void P_GetInput(int const playerNum)
 
     localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (isRR())
@@ -492,8 +490,6 @@ void P_GetInputMotorcycle(int playerNum)
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
-
     pPlayer->crouch_toggle = 0;
 
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE;
@@ -502,7 +498,7 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
@@ -686,8 +682,6 @@ void P_GetInputBoat(int playerNum)
 
     lastInputTicks = currentHiTicks;
 
-    auto scaleAdjustmentToInterval = [=](double x) { return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks); };
-
     pPlayer->crouch_toggle = 0;
 
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE;
@@ -696,7 +690,7 @@ void P_GetInputBoat(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);

@@ -238,7 +238,6 @@ void   setsectinterpolate(int sprnum);
 #endif
 
 ACTOR_INLINE_HEADER int A_CheckEnemyTile(int tileNum);
-ACTOR_INLINE_HEADER int A_SetSprite(int spriteNum, uint32_t cliptype);
 
 EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * s);
 
@@ -251,13 +250,6 @@ ACTOR_INLINE int A_CheckEnemyTile(int const tileNum)
     return ((actorinfo[tileNum].flags & (SFLAG_INTERNAL_BADGUY | SFLAG_BADGUY)) != 0);
 }
 
-int ssp(short i, unsigned int cliptype); //The set sprite function
-void insertspriteq(int i);
-
-ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
-{
-    return ssp(spriteNum, cliptype);
-}
 
 # endif
 

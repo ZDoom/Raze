@@ -1237,8 +1237,6 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 
 			if (j == SHRINKER_WEAPON && PLUTOPAK)	// JBF 20040116: so we don't select the grower with v1.3d
 			{
-				if (screenpeek == snum) pus = NUMPAGES;
-
 				if (p->curr_weapon != GROW_WEAPON && p->curr_weapon != SHRINKER_WEAPON)
 				{
 					if (p->ammo_amount[GROW_WEAPON] > 0)

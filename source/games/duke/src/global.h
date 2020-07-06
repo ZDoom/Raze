@@ -34,6 +34,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+
+#define VOLUMEALL           (g_Shareware == 0)
+#define PLUTOPAK            (true)//g_scriptVersion >= 14)
+#define VOLUMEONE           (g_Shareware == 1)
+
+#define MOVEFIFOSIZ         256
+
+#define MAXLEVELS           64
+#define MAXGAMETYPES        16
+
+enum {
+    MUS_FIRST_SPECIAL = MAXVOLUMES * MAXLEVELS,
+
+    MUS_INTRO = MUS_FIRST_SPECIAL,
+    MUS_BRIEFING = MUS_FIRST_SPECIAL + 1,
+    MUS_LOADING = MUS_FIRST_SPECIAL + 2,
+};
+
+
 #define MAXMINECARTS 16
 #define MAXJAILDOORS 32
 #define MAXLIGHTNINSECTORS 64
@@ -47,9 +66,6 @@ BEGIN_DUKE_NS
 #endif
 
 #define MAXINTERPOLATIONS MAXSPRITES
-// KEEPINSYNC lunatic/con_lang.lua
-
-// duke3d global soup :(
 
 
 G_EXTERN int32_t duke3d_globalflags;
@@ -77,11 +93,9 @@ G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 #define MAXPLAYERNAME 32
 G_EXTERN char tempbuf[MAXSECTORS<<1],buf[1024];
-G_EXTERN uint8_t packbuf[PACKBUF_SIZE];
 
 
 G_EXTERN input_t localInput;
-G_EXTERN input_t recsync[RECSYNCBUFSIZ];
 
 G_EXTERN int32_t avgfvel, avgsvel, avgbits;
 G_EXTERN fix16_t avgavel, avghorz;
@@ -377,6 +391,24 @@ inline fixed_t PlayerInputAngVel(int pl)
 {
     return g_player[pl].input->q16avel;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+inline void hud_drawsprite(int sx, int sy, int z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int dastat)
+{
+    twod_rotatesprite(&twodpsp, sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+}
+
+inline void hud_draw(int x, int y, int tilenum, int shade, int orientation)
+{
+    int p = sector[ps[screenpeek].cursectnum].floorpal;
+    hud_drawsprite(x << 16, y << 16, 65536L, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+}
+
 
 enum
 {

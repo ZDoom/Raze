@@ -11,13 +11,13 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 Original Source: 1996 - Todd Replogle
 Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
@@ -747,7 +747,21 @@ enum
 	SIGN2 = 4912,
 	JURYGUY = 4943,
 
+
 	// New names from World Tour
+	WIDESCREENSTATUSBAR = 5120,
+	RPGGUNWIDE = 5121,
+	FIRSTGUNRELOADWIDE = 5122,
+	FREEZEWIDE = 5123,
+	FREEZEFIREWIDE = 5124,
+	SHRINKERWIDE = 5127,
+	CRACKKNUCKLESWIDE = 5129,
+	ONFIRESMOKE = 5143,
+	LAVASPLASH = 5371,
+	BOSS2STAYPUT = 2711,
+	BOSS3STAYPUT = 2761,
+	WTGLASS1 = 5736,
+	WTGLASS2 = 5737,
 	FLAMETHROWERSPRITE = 5134,
 	FLAMETHROWERAMMO = 5135,
 	FLAMETHROWER = 5138,

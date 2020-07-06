@@ -58,7 +58,7 @@ public:
     DDukeStatusBar()
     {
         // optionally draw at the top of the screen.
-        SetSize(tilesiz[BOTTOMSTATUSBAR].y);
+        SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
         scale = 1;
 
         ammo_sprites = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO, TRIPBOMBSPRITE, FREEZEAMMO + 1, HBOMBAMMO, GROWAMMO/*, FLAMETHROWERAMMO + 1*/ };
@@ -345,11 +345,11 @@ public:
     void Statusbar(int snum)
     {
         auto p = g_player[snum].ps;
-        int h = tilesiz[BOTTOMSTATUSBAR].y;
+        int h = tilesiz[TILE_BOTTOMSTATUSBAR].y;
         int top = 200 - h;
         BeginStatusBar(320, 200, h, true);
         DrawInventory(p, 160, 154, 0);
-        DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+        DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
         FString format;
 

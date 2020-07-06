@@ -386,7 +386,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 {
     auto const pl = &ps[myconnectindex];
     if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || (pl->gm & MODE_MENU) ||
-        (pl->timebeforeexit > 0 && pl->timebeforeexit <= GAMETICSPERSEC * 3)) return -1;
+        (pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
     int userflags = S_GetUserFlags(sndnum);
 

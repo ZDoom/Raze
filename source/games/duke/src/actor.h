@@ -77,3 +77,5 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 void checkavailweapon(struct player_struct* p);
 void deletesprite(int num);
 
+int ssp(int i, unsigned int cliptype); //The set sprite function
+void insertspriteq(int i);

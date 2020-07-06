@@ -67,6 +67,13 @@ enum GameFunction_t
 };
 
 
+enum
+{
+    TICRATE = 120,
+    REALGAMETICSPERSEC = 30, // The number of game state updates per second:
+    TICSPERFRAME = (TICRATE/REALGAMETICSPERSEC) // (This used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated to 4 by integer division.)
+};
+
 // tile names which are identical for all games.
 enum
 {
@@ -81,6 +88,9 @@ enum
 	RESPAWN = 9,
 	GPSPEED = 10,
 	FOF = 13,
+
+    TILE_VIEWSCR = (MAXTILES-5)
+
 };	
 
 // the available palettes. These are indices into the global table of translations.

@@ -530,7 +530,6 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 #endif
 
 			p->frag_ps = snum;
-			pus = NUMPAGES;
 		}
 	}
 

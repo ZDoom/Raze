@@ -448,17 +448,6 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 
 extern int lastvisinc;
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-inline void hud_rotatesprite(int sx, int sy, int z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int dastat, int cx1, int cy1, int cx2, int cy2)
-{
-    twod_rotatesprite(&twodpsp, sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2);
-}
-
 END_DUKE_NS
 
 #endif

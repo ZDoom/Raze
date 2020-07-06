@@ -1048,6 +1048,15 @@ void checkhitsprite_d(int i, int sn)
 
 	switch (sprite[i].picnum)
 	{
+	case WTGLASS1:
+	case WTGLASS2:
+		if (!isWorldTour())
+			break;
+		A_PlaySound(GLASS_BREAKING, i);
+		lotsofglass(i, -1, 10);
+		deletesprite(i);
+		return;
+
 	case OCEANSPRITE1:
 	case OCEANSPRITE2:
 	case OCEANSPRITE3:
