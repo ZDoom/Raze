@@ -75,9 +75,9 @@ void displayloogie(short snum)
 		z = 4096 + ((ps[snum].loogcnt + i) << 9);
 		x = (-getavel(snum)) + (sintable[((ps[snum].loogcnt + i) << 6) & 2047] >> 10);
 
-		rotatesprite(
+		hud_drawsprite(
 			(ps[snum].loogiex[i] + x) << 16, (200 + ps[snum].loogiey[i] - y) << 16, z - (i << 8), 256 - a,
-			LOOGIE, 0, 0, 2, 0, 0, xdim - 1, ydim - 1);
+			LOOGIE, 0, 0, 2);
 	}
 }
 
@@ -110,10 +110,10 @@ int animatefist(int gs, int snum)
 	else
 		fistpal = sector[ps[snum].cursectnum].floorpal;
 
-	rotatesprite(
+	hud_drawsprite(
 		(-fisti + 222 + (getavel(snum) >> 4)) << 16,
 		(looking_arc + fistz) << 16,
-		fistzoom, 0, FIST, gs, fistpal, 2, 0, 0, xdim - 1, ydim - 1);
+		fistzoom, 0, FIST, gs, fistpal, 2);
 
 	return 1;
 }
