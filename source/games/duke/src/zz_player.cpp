@@ -206,7 +206,7 @@ void P_GetInput(int const playerNum)
 
     if (localInput.fvel < keyMove && localInput.fvel > -keyMove)
     {
-        if (RR)
+        if (isRR())
         {
             /*if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
             {
@@ -283,7 +283,7 @@ void P_GetInput(int const playerNum)
     else if (weaponSelection == gamefunc_Weapon_1-1)
         weaponSelection = 0;
 
-    if ((localInput.bits & 0xf00) == 0)
+    if ((localInput.bits & SKB_WEAPONMASK_BITS) == 0)
         localInput.bits |= (weaponSelection << SK_WEAPON_BITS);
 
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE);
@@ -333,14 +333,14 @@ void P_GetInput(int const playerNum)
     localInput.bits |= inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
     //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
-    if (RR)
+    if (isRR())
     {
-        if (TEST_SYNC_KEY(localInput.bits, SK_CROUCH))
-            localInput.bits &= ~(1 << SK_JUMP);
+        if (localInput.bits & SKB_CROUCH)
+            localInput.bits &= ~SKB_JUMP;
         if (pPlayer->drink_amt > 88)
-            localInput.bits |= 1 << SK_LOOK_LEFT;
+            localInput.bits |= SKB_LOOK_LEFT;
         if (pPlayer->drink_amt > 99)
-            localInput.bits |= 1 << SK_LOOK_DOWN;
+            localInput.bits |= SKB_LOOK_DOWN;
     }
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
@@ -635,11 +635,6 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.q16avel = fix16_sadd(localInput.q16avel, input.q16avel);
     pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
     localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
-
-    if (TEST_SYNC_KEY(localInput.bits, SK_JUMP))
-    {
-        localInput.bits |= 1;
-    }
 }
 
 void P_GetInputBoat(int playerNum)

@@ -139,10 +139,10 @@ void gameexitfrommenu()
 	}
 
 	// shareware and TEN screens
-	if (!VOLUMEALL && !RR)
+	if (!VOLUMEALL && !isRR())
 		showtwoscreens([](bool) {});
 
-	endoomName = RR ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
+	endoomName = isRR() ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
 	ST_Endoom();
 }
 

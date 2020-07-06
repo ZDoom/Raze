@@ -750,7 +750,7 @@ void horizAngleAdjust(int snum, int delta)
 #endif
 }
 
-void playerLookUp(int snum, int sb_snum)
+void playerLookUp(int snum, ESyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -762,7 +762,7 @@ void playerLookUp(int snum, int sb_snum)
 	}
 }
 
-void playerLookDown(int snum, int sb_snum)
+void playerLookDown(int snum, ESyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -774,7 +774,7 @@ void playerLookDown(int snum, int sb_snum)
 	}
 }
 
-void playerAimUp(int snum, int sb_snum)
+void playerAimUp(int snum, ESyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -785,7 +785,7 @@ void playerAimUp(int snum, int sb_snum)
 	}
 }
 
-void playerAimDown(int snum, int sb_snum)
+void playerAimDown(int snum, ESyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);

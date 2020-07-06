@@ -1536,7 +1536,7 @@ void checksectors_d(int snum)
 
 	if (p->gm & MODE_TYPE || sprite[p->i].extra <= 0) return;
 
-	if (ud.cashman && PlayerInput(snum, SK_OPEN))
+	if (ud.cashman && PlayerInput(snum, SKB_OPEN))
 		fi.lotsofmoney(&sprite[p->i], 2);
 
 	if (p->newowner >= 0)
@@ -1549,13 +1549,13 @@ void checksectors_d(int snum)
 		}
 	}
 
-	if (!(PlayerInput(snum, SK_OPEN)) && !PlayerInput(snum, SK_ESCAPE))
+	if (!(PlayerInput(snum, SKB_OPEN)) && !PlayerInput(snum, SKB_ESCAPE))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)
 	{
 
-		if (PlayerInput(snum, SK_ESCAPE))
+		if (PlayerInput(snum, SKB_ESCAPE))
 		{
 			if (p->newowner >= 0)
 			{
@@ -1757,7 +1757,7 @@ void checksectors_d(int snum)
 			}
 		}
 
-		if (!PlayerInput(snum, SK_OPEN)) return;
+		if (!PlayerInput(snum, SKB_OPEN)) return;
 		else if (p->newowner >= 0) { i = -1; goto CLEARCAMERAS; }
 
 		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)

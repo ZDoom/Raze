@@ -175,7 +175,7 @@ void mploadsave()
 
 			multiflag = 0;
 
-			if(j == 0 && !RR)
+			if(j == 0 && !isRR())
 			{
 				if(multiwho != myconnectindex)
 				{
@@ -225,7 +225,7 @@ int domovethings()
 	j = -1;
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (PlayerInput(i, SK_GAMEQUIT))
+		if (PlayerInput(i, SKB_GAMEQUIT))
 		{
 			if (i == myconnectindex) gameexitfrommenu();
 			if (screenpeek == i)

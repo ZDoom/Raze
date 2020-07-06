@@ -1068,7 +1068,7 @@ void selectweapon_r(int snum, int j)
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SK_HOLSTER);
+				PlayerSetInput(snum, SKB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
@@ -1456,7 +1456,7 @@ int doincrements_r(struct player_struct* p)
 					else spritesound(DUKE_CRACK2, p->i);
 				}
 		}
-		else if (p->knuckle_incs == 22 || PlayerInput(snum, SK_FIRE))
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
 
 		return 1;
@@ -1558,7 +1558,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-/*static*/ void onMotorcycle(int snum, int &sb_snum)
+static void onMotorcycle(int snum, ESyncBits &sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1847,7 +1847,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-/*static*/ void onBoat(int snum, int& sb_snum)
+static void onBoat(int snum, ESyncBits& sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2127,7 +2127,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2355,7 +2355,7 @@ static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrun
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, int sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -2775,7 +2775,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, int sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3368,7 +3368,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, int sb_snum, int psect)
+static void processweapon(int snum, ESyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3433,7 +3433,7 @@ void processinput_r(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, var60;
 	char shrunk;
-	int sb_snum;
+	ESyncBits sb_snum;
 	short psect, psectlotag, tempsect, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -4260,12 +4260,12 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void processweapon_r(int s, int ss, int p)
+void processweapon_r(int s, ESyncBits ss, int p)
 {
 	processweapon(s, ss, p);
 }
 
-void processmove_r(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_r(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];

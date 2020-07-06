@@ -23,11 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef player_h_
 #define player_h_
 
-#include "inv.h"
 #include "names.h"
 #include "fix16.h"
 #include "net.h"
 #include "tarray.h"
+#include "constants.h"
 
 BEGIN_DUKE_NS
 
@@ -134,7 +134,7 @@ typedef struct STATUSBARTYPE {
 } DukeStatus_t;
 
 typedef struct {
-    uint32_t bits;
+    ESyncBits bits;
     int16_t fvel, svel;
     fix16_t q16avel, q16horz;
 } input_t;
@@ -440,10 +440,10 @@ void playerJump(int snum, int fz, int cz);
 void playerLookLeft(int snum);
 void playerLookRight(int snum);
 void playerCenterView(int snum);
-void playerLookUp(int snum, int sb_snum);
-void playerLookDown(int snum, int sb_snum);
-void playerAimUp(int snum, int sb_snum);
-void playerAimDown(int snum, int sb_snum);
+void playerLookUp(int snum, ESyncBits sb_snum);
+void playerLookDown(int snum, ESyncBits sb_snum);
+void playerAimUp(int snum, ESyncBits sb_snum);
+void playerAimDown(int snum, ESyncBits sb_snum);
 bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz);
 
 extern int lastvisinc;

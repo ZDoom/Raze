@@ -289,7 +289,7 @@ void updateviewport(void)
 	int x1 = scale(ss, xdim, 160);
 	int x2 = xdim - x1;
 
-	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (RR ? 1 : 0)) * ud.statusbarscale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
+	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * ud.statusbarscale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
 	int y2 = 200 * 100 - y1;
 
 	if (isRR() && ud.screen_size <= 12)

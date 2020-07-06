@@ -14,11 +14,14 @@
 //     uint32_t ti_Data;
 // };
 
-#define TAG_DONE	(0)  /* Used to indicate the end of the Tag list */
-#define TAG_END		(0)  /* Ditto									*/
-						 /* list pointed to in ti_Data 				*/
+enum tags : uint32_t
+{
+	TAG_DONE = (0),  /* Used to indicate the end of the Tag list */
+	TAG_END = (0),  /* Ditto									*/
+	/* list pointed to in ti_Data 				*/
 
-#define TAG_USER	((uint32_t)(1u<<30))
+	TAG_USER = ((uint32_t)(1u << 30))
+};
 
 enum
 {

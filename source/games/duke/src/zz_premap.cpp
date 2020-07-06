@@ -52,7 +52,7 @@ static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[sp
 
 void G_InitRRRASkies(void)
 {
-    if (!RRRA)
+    if (!isRRRA())
         return;
     
     for (bssize_t i = 0; i < MAXSECTORS; i++)
@@ -100,7 +100,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         G_BonusScreen(1);
     }
 
-    if (RR && !RRRA && ud.level_number == 6 && ud.volume_number == 0)
+    if (isRR() && !isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
         G_BonusScreen(0);
 #endif
 
@@ -117,7 +117,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     int const UserMap = Menu_HaveUserMap();
 
     // we don't want the intro to play after the multiplayer setup screen
-    if (!RR && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
+    if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
         levelNum == 0 && volumeNum == 3)
     {
         e4intro([](bool) {});
@@ -139,17 +139,17 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     {
         for (bssize_t weaponNum = 0; weaponNum < 12/*MAX_WEAPONS*/; weaponNum++)
         {
-            auto const worksLike = WW2GI ? PWEAPON(0, weaponNum, WorksLike) : weaponNum;
+            auto const worksLike = isWW2GI() ? PWEAPON(0, weaponNum, WorksLike) : weaponNum;
             if (worksLike == PISTOL_WEAPON)
             {
                 pPlayer->curr_weapon = weaponNum;
                 pPlayer->gotweapon.Set(weaponNum);
                 pPlayer->ammo_amount[weaponNum] = min<int16_t>(max_ammo_amount[weaponNum], 48);
             }
-            else if (worksLike == KNEE_WEAPON || (!RR && worksLike == HANDREMOTE_WEAPON) || (RRRA && worksLike == SLINGBLADE_WEAPON))
+            else if (worksLike == KNEE_WEAPON || (!isRR() && worksLike == HANDREMOTE_WEAPON) || (isRRRA() && worksLike == SLINGBLADE_WEAPON))
             {
                 pPlayer->gotweapon.Set(weaponNum);
-                if (RRRA)
+                if (isRRRA())
                     pPlayer->ammo_amount[KNEE_WEAPON] = 1;
             }
         }
@@ -248,7 +248,7 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
         SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(boardfilename);
         G_LoadMapHack(levelName, boardfilename);
-        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR ? "dethtoll.mid" : nullptr);
+        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !isRR() ? "dethtoll.mid" : nullptr);
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
@@ -263,7 +263,7 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
         G_LoadMapHack(levelName, mi.fileName);
     }
 
-    if (RR && !RRRA && ud.volume_number == 1 && ud.level_number == 1)
+    if (isRR() && !isRRRA() && ud.volume_number == 1 && ud.level_number == 1)
     {
         for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             g_player[0].ps->ammo_amount[i] = 0;
@@ -281,7 +281,7 @@ static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
 
     G_InitRRRASkies();
 
-    if (RRRA && ud.level_number == 2 && ud.volume_number == 0)
+    if (isRRRA() && ud.level_number == 2 && ud.volume_number == 0)
     {
         for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
             g_player[0].ps->ammo_amount[i] = 0;
@@ -347,8 +347,8 @@ int G_EnterLevel(int gameMode)
         }
     }
 
-    // Redirect the final RR level to a valid map record so that currentLevel can point to something.
-    mii = (RR && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
+    // Redirect the final isRR() level to a valid map record so that currentLevel can point to something.
+    mii = (isRR() && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
     auto& mi = mapList[mii];
 
     if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
@@ -368,7 +368,7 @@ int G_EnterLevel(int gameMode)
     if (res != 0) return res;
 
     // Try this first so that it can disable the CD player if no tracks are found.
-    if (RR && !(gameMode & MODE_DEMO))
+    if (isRR() && !(gameMode & MODE_DEMO))
         S_PlayRRMusic();
 
     if (ud.recstat != 2)

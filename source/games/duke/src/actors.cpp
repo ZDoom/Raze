@@ -43,6 +43,7 @@ This file is a combination of code from the following sources:
 #include "global.h"
 #include "names.h"
 #include "stats.h"
+#include "constants.h"
 
 BEGIN_DUKE_NS
 
@@ -50,6 +51,19 @@ int otherp;
 
 int adjustfall(spritetype* s, int c);
 
+
+//---------------------------------------------------------------------------
+//
+// this was once a macro
+//
+//---------------------------------------------------------------------------
+
+void RANDOMSCRAP(spritetype *s, int i)
+{
+    int r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2(), r6 = krand2(), r7 = krand2();
+    int v = isRR() ? 16 : 48;
+	EGS(s->sectnum, s->x + (r7 & 255) - 128, s->y + (r6 & 255) - 128, s->z - (8 << 8) - (r5 & 8191), TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), i, 5); 
+}
 
 //---------------------------------------------------------------------------
 //
@@ -1507,7 +1521,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 			//						if(s->pal == 12)
 			{
 				j = getincangle(ps[p].getang(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
-				if (j > -64 && j < 64 && PlayerInput(p, SK_OPEN))
+				if (j > -64 && j < 64 && PlayerInput(p, SKB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
 						int a = headspritestat[STAT_ACTOR];

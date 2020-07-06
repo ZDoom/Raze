@@ -101,19 +101,17 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 END_DUKE_NS
 
 #include "zz_actors.h"
-#include "common_game.h"
 #include "gamecontrol.h"
 #include "game.h"
 #include "gamedef.h"
 #include "gameexec.h"
 #include "gamevar.h"
 #include "global.h"
-#include "inv.h"
 #include "macros.h"
 #include "names.h"
 #include "net.h"
 #include "player.h"
-#include "quotes.h"
+#include "quotemgr.h"
 #include "rts.h"
 #include "sector.h"
 #include "sounds.h"
@@ -123,71 +121,6 @@ BEGIN_DUKE_NS
 
 extern FFont* IndexFont;
 extern FFont* DigiFont;
-
-// Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
-enum GameFunction_t
-{
-	gamefunc_Move_Forward,
-	gamefunc_Move_Backward,
-	gamefunc_Turn_Left,
-	gamefunc_Turn_Right,
-	gamefunc_Strafe,
-	gamefunc_Fire,
-	gamefunc_Open,
-	gamefunc_Run,
-	gamefunc_Alt_Fire,	// Duke3D, Blood
-	gamefunc_Jump,
-	gamefunc_Crouch,
-	gamefunc_Look_Up,
-	gamefunc_Look_Down,
-	gamefunc_Look_Left,
-	gamefunc_Look_Right,
-	gamefunc_Strafe_Left,
-	gamefunc_Strafe_Right,
-	gamefunc_Aim_Up,
-	gamefunc_Aim_Down,
-	gamefunc_Weapon_1, // CCMD
-	gamefunc_Weapon_2, // CCMD
-	gamefunc_Weapon_3, // CCMD
-	gamefunc_Weapon_4, // CCMD
-	gamefunc_Weapon_5, // CCMD
-	gamefunc_Weapon_6, // CCMD
-	gamefunc_Weapon_7, // CCMD
-	gamefunc_Weapon_8, // CCMD
-	gamefunc_Weapon_9, // CCMD
-	gamefunc_Weapon_10, // CCMD
-	gamefunc_Inventory, // CCMD
-	gamefunc_Inventory_Left, // CCMD
-	gamefunc_Inventory_Right, // CCMD
-	gamefunc_Holo_Duke, // CCMD			// Duke3D, RR
-	gamefunc_Jetpack, // CCMD
-	gamefunc_NightVision, // CCMD
-	gamefunc_MedKit, // CCMD
-	gamefunc_TurnAround,
-	gamefunc_SendMessage,
-	gamefunc_Map, // CCMD
-	gamefunc_Shrink_Screen, // CCMD
-	gamefunc_Enlarge_Screen, // CCMD
-	gamefunc_Center_View, // CCMD
-	gamefunc_Holster_Weapon, // CCMD
-	gamefunc_Show_Opponents_Weapon, // CCMD
-	gamefunc_Map_Follow_Mode, // CCMD
-	gamefunc_See_Coop_View, // CCMD
-	gamefunc_Mouse_Aiming, // CCMD
-	gamefunc_Toggle_Crosshair, // CCMD
-	gamefunc_Steroids, // CCMD
-	gamefunc_Quick_Kick, // CCMD
-	gamefunc_Next_Weapon, // CCMD
-	gamefunc_Previous_Weapon, // CCMD
-	gamefunc_Dpad_Select,
-	gamefunc_Dpad_Aiming,
-	gamefunc_Last_Weapon, // CCMD
-	gamefunc_Alt_Weapon,
-	gamefunc_Third_Person_View, // CCMD
-	gamefunc_Show_DukeMatch_Scores, // CCMD
-	gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
-	NUM_ACTIONS
-};
 
 struct GameInterface : ::GameInterface
 {

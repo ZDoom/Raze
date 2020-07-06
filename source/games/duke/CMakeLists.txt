@@ -55,3 +55,5 @@ set( PCH_SOURCES
 	)
 
 add_game_library2( duke )
+
+include_directories( src )

@@ -60,13 +60,13 @@ void hud_input(int snum)
 	p = &ps[snum];
 
 	i = p->aim_mode;
-	p->aim_mode = PlayerInput(snum, SK_AIMMODE);
+	p->aim_mode = PlayerInput(snum, SKB_AIMMODE);
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
 	if (isRR())
 	{
-		if (PlayerInput(snum, SK_QUICK_KICK) && p->last_pissed_time == 0)
+		if (PlayerInput(snum, SKB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
 			if (!isRRRA() || sprite[p->i].extra > 0)
 			{
@@ -85,7 +85,7 @@ void hud_input(int snum)
 	}
 	else
 	{
-		if (PlayerInput(snum, SK_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
+		if (PlayerInput(snum, SKB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_QUICKKICK, -1, snum, -1);
@@ -99,16 +99,16 @@ void hud_input(int snum)
 
 	// WTF??? In the original source this was a soup of numeric literals, i.e. totally incomprehensible.
 	// The bit mask has been exported to the bit type enum.
-	if (!PlayerInputBits(snum, SK_INTERFACE_BITS))
+	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
 		p->interface_toggle_flag = 1;
 
-		if (PlayerInput(snum, SK_PAUSE))
+		if (PlayerInput(snum, SKB_PAUSE))
 		{
 			ud.pause_on = !ud.pause_on;
-			if (ud.pause_on == 1 && PlayerInput(snum, SK_RUN)) ud.pause_on = 2; // Mode 2 is silent, i.e. prints no notification.
+			if (ud.pause_on == 1 && PlayerInput(snum, SKB_RUN)) ud.pause_on = 2; // Mode 2 is silent, i.e. prints no notification.
 			Mus_SetPaused(ud.pause_on);
 			S_PauseSounds(ud.pause_on);
 		}
@@ -118,7 +118,7 @@ void hud_input(int snum)
 		if (sprite[p->i].extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(snum, SK_INVENTORY) && p->newowner == -1)
+		if (PlayerInput(snum, SKB_INVENTORY) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_INVENTORY, -1, snum, -1);
@@ -127,16 +127,16 @@ void hud_input(int snum)
 				switch (p->inven_icon)
 				{
 					// Yet another place where no symbolic constants were used. :(
-				case ICON_JETPACK: PlayerSetInput(snum, SK_JETPACK); break;
-				case ICON_HOLODUKE: PlayerSetInput(snum, SK_HOLODUKE); break;
-				case ICON_HEATS: PlayerSetInput(snum, SK_NIGHTVISION); break;
-				case ICON_FIRSTAID: PlayerSetInput(snum, SK_MEDKIT); break;
-				case ICON_STEROIDS: PlayerSetInput(snum, SK_STEROIDS); break;
+				case ICON_JETPACK: PlayerSetInput(snum, SKB_JETPACK); break;
+				case ICON_HOLODUKE: PlayerSetInput(snum, SKB_HOLODUKE); break;
+				case ICON_HEATS: PlayerSetInput(snum, SKB_NIGHTVISION); break;
+				case ICON_FIRSTAID: PlayerSetInput(snum, SKB_MEDKIT); break;
+				case ICON_STEROIDS: PlayerSetInput(snum, SKB_STEROIDS); break;
 				}
 			}
 		}
 
-		if (!isRR() && PlayerInput(snum, SK_NIGHTVISION))
+		if (!isRR() && PlayerInput(snum, SKB_NIGHTVISION))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -150,7 +150,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SK_STEROIDS))
+		if (PlayerInput(snum, SKB_STEROIDS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
@@ -167,11 +167,11 @@ void hud_input(int snum)
 			return;
 		}
 
-		if (PlayerInput(snum, SK_INV_LEFT) || PlayerInput(snum, SK_INV_RIGHT))
+		if (PlayerInput(snum, SKB_INV_LEFT) || PlayerInput(snum, SKB_INV_RIGHT))
 		{
 			p->invdisptime = 26 * 2;
 
-			if (PlayerInput(snum, SK_INV_RIGHT)) k = 1;
+			if (PlayerInput(snum, SKB_INV_RIGHT)) k = 1;
 			else k = 0;
 
 			dainv = p->inven_icon;
@@ -233,13 +233,13 @@ void hud_input(int snum)
 			else dainv = 0;
 
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-			if (PlayerInput(snum, SK_INV_LEFT))
+			if (PlayerInput(snum, SKB_INV_LEFT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
 				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
 			}
-			if (PlayerInput(snum, SK_INV_RIGHT))
+			if (PlayerInput(snum, SKB_INV_RIGHT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
@@ -251,14 +251,14 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		j = (PlayerInputBits(snum, SK_WEAPONMASK_BITS) >> SK_WEAPON_BITS) - 1;
+		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) >> SK_WEAPON_BITS) - 1;
 		if (j > 0 && p->kickback_pic > 0)
 			p->wantweaponfire = j;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
 		fi.selectweapon(snum, j);
 
-		if (PlayerInput(snum, SK_HOLSTER))
+		if (PlayerInput(snum, SKB_HOLSTER))
 		{
 			if (p->curr_weapon > KNEE_WEAPON)
 			{
@@ -277,7 +277,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SK_HOLODUKE) && (isRR() || p->newowner == -1))
+		if (PlayerInput(snum, SKB_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
@@ -333,7 +333,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (isRR() && PlayerInput(snum, SK_NIGHTVISION) && p->newowner == -1)
+		if (isRR() && PlayerInput(snum, SKB_NIGHTVISION) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -365,7 +365,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SK_MEDKIT))
+		if (PlayerInput(snum, SKB_MEDKIT))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
@@ -418,7 +418,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SK_JETPACK) && (isRR() || p->newowner == -1))
+		if (PlayerInput(snum, SKB_JETPACK) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEJETPACK, -1, snum, -1);
@@ -486,7 +486,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SK_TURNAROUND) && p->one_eighty_count == 0)
+		if (PlayerInput(snum, SKB_TURNAROUND) && p->one_eighty_count == 0)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);

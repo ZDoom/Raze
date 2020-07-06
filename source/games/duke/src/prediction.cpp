@@ -104,7 +104,7 @@ void fakedomovethings(void)
         input *syn;
         struct player_struct *p;
         int i, j, k, doubvel, fz, cz, hz, lz, x, y;
-        unsigned int sb_snum;
+        ESyncBits sb_snum;
         short psect, psectlotag, tempsect, backcstat;
         uint8_t shrunk, spritebridge;
 

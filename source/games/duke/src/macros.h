@@ -37,12 +37,7 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-#define RANDOMSCRAP(s, i) \
-{ \
-    int32_t const r1 = krand2(), r2 = krand2(), r3 = krand2(), r4 = krand2(), r5 = krand2(), r6 = krand2(), r7 = krand2(); \
-    A_InsertSprite(s->sectnum,s->x+(r7&255)-128,s->y+(r6&255)-128,s->z-ZOFFSET3-(r5&8191),\
-        TILE_SCRAP6+(r4&15),-8,RR?16:48,RR?16:48,r3&2047,(r2&63)+64,-512-(r1&2047),i,5); \
-}
+void RANDOMSCRAP(spritetype* s, int i);
 
 #define TRAVERSE_SPRITE_SECT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n)
 #define TRAVERSE_SPRITE_STAT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n)
@@ -57,8 +52,6 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BIT(shift)     (1u<<(shift))
 
-#define TEST_SYNC_KEY(bits, sync_num) (!!TEST((bits), BIT(sync_num)))
-
 inline bool AFLAMABLE(int X)
 {
     return (X == TILE_BOX || X == TILE_TREE1 || X == TILE_TREE2 || X == TILE_TIRE || X == TILE_CONE);
@@ -70,78 +63,6 @@ inline bool AFLAMABLE(int X)
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //
 
-enum
-{
-    // Todo: Make this bit masks - cannot be done before eliminating all old code using it
-    SK_JUMP         = 0 ,
-    SK_CROUCH       = 1 ,
-    SK_FIRE         = 2 ,
-    SK_AIM_UP       = 3 ,
-    SK_AIM_DOWN     = 4 ,
-    SK_RUN          = 5 ,
-    SK_LOOK_LEFT    = 6 ,
-    SK_LOOK_RIGHT   = 7 ,
-    // weapons take up 4 bits...
-    SK_WEAPON_BITS  = 8 ,
-    SK_WEAPON_BITS1 = 9 ,
-    SK_WEAPON_BITS2 = 10,
-    SK_WEAPON_BITS3 = 11,
-    SK_STEROIDS     = 12,
-    SK_LOOK_UP      = 13,
-    SK_LOOK_DOWN    = 14,
-    SK_NIGHTVISION  = 15,
-    SK_MEDKIT       = 16,
-    SK_MULTIFLAG    = 17,
-    SK_CENTER_VIEW  = 18,
-    SK_HOLSTER      = 19,
-    SK_INV_LEFT     = 20,
-    SK_PAUSE        = 21,
-    SK_QUICK_KICK   = 22,
-    SK_AIMMODE      = 23,
-    SK_HOLODUKE     = 24,
-    SK_JETPACK      = 25,
-    SK_GAMEQUIT     = 26,
-    SK_INV_RIGHT    = 27,
-    SK_TURNAROUND   = 28,
-    SK_OPEN         = 29,
-    SK_INVENTORY    = 30,
-    SK_ESCAPE       = 31,
-
-    SKB_JUMP = 1 << 0,
-    SKB_CROUCH = 1 << 1,
-    SKB_FIRE = 1 << 2,
-    SKB_AIM_UP = 1 << 3,
-    SKB_AIM_DOWN = 1 << 4,
-    SKB_RUN = 1 << 5,
-    SKB_LOOK_LEFT = 1 << 6,
-    SKB_LOOK_RIGHT = 1 << 7,
-    SKB_STEROIDS = 1 << 12,
-    SKB_LOOK_UP = 1 << 13,
-    SKB_LOOK_DOWN = 1 << 14,
-    SKB_NIGHTVISION = 1 << 15,
-    SKB_MEDKIT = 1 << 16,
-    SKB_MULTIFLAG = 1 << 17,
-    SKB_CENTER_VIEW = 1 << 18,
-    SKB_HOLSTER = 1 << 19,
-    SKB_INV_LEFT = 1 << 20,
-    SKB_PAUSE = 1 << 21,
-    SKB_QUICK_KICK = 1 << 22,
-    SKB_AIMMODE = 1 << 23,
-    SKB_HOLODUKE = 1 << 24,
-    SKB_JETPACK = 1 << 25,
-    SKB_GAMEQUIT = 1 << 26,
-    SKB_INV_RIGHT = 1 << 27,
-    SKB_TURNAROUND = 1 << 28,
-    SKB_OPEN = 1 << 29,
-    SKB_INVENTORY = 1 << 30,
-    SKB_ESCAPE = 1 << 31,
-
-    SK_WEAPONMASK_BITS = (15u << SK_WEAPON_BITS),
-    SK_INTERFACE_BITS = (SK_WEAPONMASK_BITS | BIT(SK_STEROIDS) | BIT(SK_NIGHTVISION) | BIT(SK_MEDKIT) | BIT(SK_QUICK_KICK) | \
-        BIT(SK_HOLSTER) | BIT(SK_INV_LEFT) | BIT(SK_PAUSE) | BIT(SK_HOLODUKE) | BIT(SK_JETPACK) | BIT(SK_INV_RIGHT) | \
-        BIT(SK_TURNAROUND) | BIT(SK_OPEN) | BIT(SK_INVENTORY) | BIT(SK_ESCAPE)),
-
-};
 // rotatesprite flags
 #define ROTATE_SPRITE_TRANSLUCENT   (BIT(0))
 #define ROTATE_SPRITE_VIEW_CLIP     (BIT(1)) // clip to view
@@ -155,45 +76,7 @@ enum
 
 #define RS_SCALE                    BIT(16)
 
-// system defines for status bits
-#define CEILING_STAT_PLAX           BIT(0)
-#define CEILING_STAT_SLOPE          BIT(1)
-#define CEILING_STAT_SWAPXY         BIT(2)
-#define CEILING_STAT_SMOOSH         BIT(3)
-#define CEILING_STAT_XFLIP          BIT(4)
-#define CEILING_STAT_YFLIP          BIT(5)
-#define CEILING_STAT_RELATIVE       BIT(6)
-#define CEILING_STAT_TYPE_MASK     (BIT(7)|BIT(8))
-#define CEILING_STAT_MASKED         BIT(7)
-#define CEILING_STAT_TRANS          BIT(8)
-#define CEILING_STAT_TRANS_FLIP     (BIT(7)|BIT(8))
-#define CEILING_STAT_FAF_BLOCK_HITSCAN      BIT(15)
 
-#define FLOOR_STAT_PLAX           BIT(0)
-#define FLOOR_STAT_SLOPE          BIT(1)
-#define FLOOR_STAT_SWAPXY         BIT(2)
-#define FLOOR_STAT_SMOOSH         BIT(3)
-#define FLOOR_STAT_XFLIP          BIT(4)
-#define FLOOR_STAT_YFLIP          BIT(5)
-#define FLOOR_STAT_RELATIVE       BIT(6)
-#define FLOOR_STAT_TYPE_MASK     (BIT(7)|BIT(8))
-#define FLOOR_STAT_MASKED         BIT(7)
-#define FLOOR_STAT_TRANS          BIT(8)
-#define FLOOR_STAT_TRANS_FLIP     (BIT(7)|BIT(8))
-#define FLOOR_STAT_FAF_BLOCK_HITSCAN      BIT(15)
-
-#define CSTAT_WALL_BLOCK            BIT(0)
-#define CSTAT_WALL_BOTTOM_SWAP      BIT(1)
-#define CSTAT_WALL_ALIGN_BOTTOM     BIT(2)
-#define CSTAT_WALL_XFLIP            BIT(3)
-#define CSTAT_WALL_MASKED           BIT(4)
-#define CSTAT_WALL_1WAY             BIT(5)
-#define CSTAT_WALL_BLOCK_HITSCAN    BIT(6)
-#define CSTAT_WALL_TRANSLUCENT      BIT(7)
-#define CSTAT_WALL_YFLIP            BIT(8)
-#define CSTAT_WALL_TRANS_FLIP       BIT(9)
-#define CSTAT_WALL_BLOCK_ACTOR (BIT(14)) // my def
-#define CSTAT_WALL_WARP_HITSCAN (BIT(15)) // my def
 
 //cstat, bit 0: 1 = Blocking sprite (use with clipmove, getzrange)    "B"
 //       bit 1: 1 = 50/50 transluscence, 0 = normal                   "T"

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "palette.h"
 #include "cmdlib.h"
 #include "screenjob.h"
+#include "constants.h"
 
 BEGIN_DUKE_NS
 
@@ -117,9 +118,6 @@ static inline int Menu_HaveUserMap(void)
 {
     return (boardfilename[0] != 0 && m_level_number == 7 && ud.m_volume_number == 0);
 }
-
-extern const char *defaultrtsfilename[GAMECOUNT];
-extern const char *G_DefaultRtsFile(void);
 
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
@@ -261,84 +259,6 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
     return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
 }
 
-// sector effector lotags
-enum
-{
-    SE_0_ROTATING_SECTOR              = 0,
-    SE_1_PIVOT                        = 1,
-    SE_2_EARTHQUAKE                   = 2,
-    SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT = 3,
-    SE_4_RANDOM_LIGHTS                = 4,
-    SE_5_BOSS                         = 5,
-    SE_6_SUBWAY                       = 6,
-    // ^^ potentially incomplete substitution in code
-    // vv almost surely complete substitution
-    SE_7_TELEPORT                      = 7,
-    SE_8_UP_OPEN_DOOR_LIGHTS           = 8,
-    SE_9_DOWN_OPEN_DOOR_LIGHTS         = 9,
-    SE_10_DOOR_AUTO_CLOSE              = 10,
-    SE_11_SWINGING_DOOR                = 11,
-    SE_12_LIGHT_SWITCH                 = 12,
-    SE_13_EXPLOSIVE                    = 13,
-    SE_14_SUBWAY_CAR                   = 14,
-    SE_15_SLIDING_DOOR                 = 15,
-    SE_16_REACTOR                      = 16,
-    SE_17_WARP_ELEVATOR                = 17,
-    SE_18_INCREMENTAL_SECTOR_RISE_FALL = 18,
-    SE_19_EXPLOSION_LOWERS_CEILING     = 19,
-    SE_20_STRETCH_BRIDGE               = 20,
-    SE_21_DROP_FLOOR                   = 21,
-    SE_22_TEETH_DOOR                   = 22,
-    SE_23_ONE_WAY_TELEPORT             = 23,
-    SE_24_CONVEYOR                     = 24,
-    SE_25_PISTON                       = 25,
-    SE_26                              = 26,
-    SE_27_DEMO_CAM                     = 27,
-    SE_28_LIGHTNING                    = 28,
-    SE_29_WAVES                        = 29,
-    SE_30_TWO_WAY_TRAIN                = 30,
-    SE_31_FLOOR_RISE_FALL              = 31,
-    SE_32_CEILING_RISE_FALL            = 32,
-    SE_33_QUAKE_DEBRIS                 = 33,
-    SE_34                              = 34,  // XXX
-    SE_35                              = 35,  // XXX
-    SE_36_PROJ_SHOOTER                 = 36,
-    SE_47_LIGHT_SWITCH                 = 47,
-    SE_48_LIGHT_SWITCH                 = 48,
-    SE_49_POINT_LIGHT                  = 49,
-    SE_50_SPOT_LIGHT                   = 50,
-    SE_130                             = 130,
-    SE_131                             = 131,
-};
-
-// sector lotags
-enum
-{
-    ST_0_NO_EFFECT   = 0,
-    ST_1_ABOVE_WATER = 1,
-    ST_2_UNDERWATER  = 2,
-    ST_3             = 3,
-    // ^^^ maybe not complete substitution in code
-    ST_9_SLIDING_ST_DOOR     = 9,
-    ST_15_WARP_ELEVATOR      = 15,
-    ST_16_PLATFORM_DOWN      = 16,
-    ST_17_PLATFORM_UP        = 17,
-    ST_18_ELEVATOR_DOWN      = 18,
-    ST_19_ELEVATOR_UP        = 19,
-    ST_20_CEILING_DOOR       = 20,
-    ST_21_FLOOR_DOOR         = 21,
-    ST_22_SPLITTING_DOOR     = 22,
-    ST_23_SWINGING_DOOR      = 23,
-    ST_25_SLIDING_DOOR       = 25,
-    ST_26_SPLITTING_ST_DOOR  = 26,
-    ST_27_STRETCH_BRIDGE     = 27,
-    ST_28_DROP_FLOOR         = 28,
-    ST_29_TEETH_DOOR         = 29,
-    ST_30_ROTATE_RISE_BRIDGE = 30,
-    ST_31_TWO_WAY_TRAIN      = 31,
-    // left: ST 32767, 65534, 65535
-};
-
 
 static inline void G_NewGame_EnterLevel(void)
 {
@@ -364,6 +284,14 @@ void initwaterdrip(int j, int i);
 int initreactor(int j, int i, bool isrecon);
 void spawneffector(int i);
 void gameexitfrommenu();
+
+extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
+extern void G_SetupGlobalPsky(void);
+
+//////////
+
+extern void genspriteremaps(void);
+
 
 struct Dispatcher
 {

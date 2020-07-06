@@ -158,7 +158,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
     palaccum_add(&tint, &pp->pals, pp->pals.f);
-    if (!RR)
+    if (!isRR())
     {
         static const palette_t loogiepal = { 0, 63, 0, 0 };
 
@@ -207,7 +207,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (ud.overhead_on != 2)
         {
-            if (!RR && pp->newowner >= 0)
+            if (!isRR() && pp->newowner >= 0)
                 cameratext(pp->newowner);
             else
             {
@@ -217,7 +217,7 @@ void G_DisplayRest(int32_t smoothratio)
                 if (pp->over_shoulder_on == 0)
                     fi.displaymasks(screenpeek);
     }
-            if (!RR)
+            if (!isRR())
                 moveclouds();
         }
 
@@ -278,7 +278,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (isRR()) drawstatusbar_r(screenpeek);
     else drawstatusbar_d(screenpeek);
 
-    if (!DEER && g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
+    if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
     {
         int32_t a = TILE_CROSSHAIR;
 
@@ -288,7 +288,7 @@ void G_DisplayRest(int32_t smoothratio)
             //vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
             uint32_t crosshair_o = 1|2;
             uint32_t crosshair_scale = divscale16(cl_crosshairscale, 100);
-            if (RR)
+            if (isRR())
                 crosshair_scale >>= 1;
 
             rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, 0, crosshair_o);

@@ -323,7 +323,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                     t->cstat |= 2;
                     if ( screenpeek == myconnectindex && numplayers >= 2 )
                     {
-                        t->x = omyx + mulscale16((int)(myx - omyx), smoothratio);
+                        t->x = omyx + mulscale16((int)( myx - omyx), smoothratio);
                         t->y = omyy + mulscale16((int)(myy - omyy), smoothratio);
                         t->z = omyz + mulscale16((int)(myz - omyz), smoothratio) + (40 << 8);
                         t->ang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);

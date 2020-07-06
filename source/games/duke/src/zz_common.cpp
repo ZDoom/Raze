@@ -14,7 +14,6 @@
 #include "palettecontainer.h"
 
 #include "common.h"
-#include "common_game.h"
 
 BEGIN_DUKE_NS
 

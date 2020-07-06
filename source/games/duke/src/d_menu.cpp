@@ -130,7 +130,7 @@ protected:
 
 class DukeMainMenu : public DukeListMenu
 {
-	virtual void Init(DMenu* parent = NULL, FListMenuDescriptor* desc = NULL) override
+	virtual void Init(DMenu* parent = nullptr, FListMenuDescriptor* desc = nullptr) override
 	{
 		DukeListMenu::Init(parent, desc);
 	}
@@ -139,7 +139,7 @@ class DukeMainMenu : public DukeListMenu
 	{
 		DukeListMenu::PreDraw();
 		double x = origin.X + 160;
-		if (RRRA)
+		if (isRRRA())
 		{
 			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterBottomOffset, true, TAG_DONE);
 		}

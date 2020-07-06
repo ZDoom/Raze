@@ -121,7 +121,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -138,7 +138,7 @@ void G_HandleLocalKeys(void)
             {
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(RR ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 				}
             }
             else
@@ -223,7 +223,7 @@ void G_HandleLocalKeys(void)
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
 
-            if (!RRRA || (!g_player[myconnectindex].ps->OnMotorcycle && !g_player[myconnectindex].ps->OnBoat))
+            if (!isRRRA() || (!g_player[myconnectindex].ps->OnMotorcycle && !g_player[myconnectindex].ps->OnBoat))
             {
                 g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
 
@@ -557,7 +557,7 @@ static const char* actions[] = {
     "Inventory",
     "Inventory_Left",
     "Inventory_Right",
-    "Holo_Duke",			// Duke3D", RR
+    "Holo_Duke",			// Duke3D", isRR()
     "Jetpack",
     "NightVision",
     "MedKit",
@@ -644,14 +644,14 @@ int GameInterface::app_main()
     S_InitSound();
 
     
-    if (RR)
+    if (isRR())
     {
         g_cdTrack = -1;
     }
 
     InitCheats();
 
-    if (SHAREWARE)
+    if (VOLUMEONE)
         g_Shareware = 1;
     else
     {
@@ -701,7 +701,7 @@ int GameInterface::app_main()
     tileDelete(TILE_MIRROR);
     skiptile = TILE_W_FORCEFIELD + 1;
 
-    if (RR)
+    if (isRR())
         tileDelete(0);
 
     tileDelete(13);
@@ -823,9 +823,9 @@ MAIN_LOOP_RESTART:
         {
             ototalclock += TICSPERFRAME;
 
-            if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
+            if (isRRRA() && g_player[myconnectindex].ps->OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (RRRA && g_player[myconnectindex].ps->OnBoat)
+            else if (isRRRA() && g_player[myconnectindex].ps->OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);
@@ -868,9 +868,9 @@ MAIN_LOOP_RESTART:
         
         if (G_FPSLimit())
         {
-            if (RRRA && g_player[myconnectindex].ps->OnMotorcycle)
+            if (isRRRA() && g_player[myconnectindex].ps->OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (RRRA && g_player[myconnectindex].ps->OnBoat)
+            else if (isRRRA() && g_player[myconnectindex].ps->OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);

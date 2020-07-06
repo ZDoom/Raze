@@ -77,19 +77,3 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 void checkavailweapon(struct player_struct* p);
 void deletesprite(int num);
 
-// tile names which are identical for all games.
-enum
-{
-	SECTOREFFECTOR = 1,
-	ACTIVATOR = 2,
-	TOUCHPLATE = 3,
-	ACTIVATORLOCKED = 4,
-	MUSICANDSFX = 5,
-	LOCATORS = 6,
-	CYCLER = 7,
-	MASTERSWITCH = 8,
-	RESPAWN = 9,
-	GPSPEED = 10,
-	FOF = 13,
-};	
-

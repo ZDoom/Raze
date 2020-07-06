@@ -27,16 +27,6 @@ BEGIN_DUKE_NS
 extern void showtwoscreens(CompletionFunc func);
 extern void doorders(CompletionFunc func);
 
-#ifdef DEBUGGINGAIDS
-typedef struct {
-    uint32_t lastgtic;
-    uint32_t lastnumins, numins;
-    int32_t numonscreen;
-} sprstat_t;
-
-extern sprstat_t g_spriteStat;
-#endif
-
 extern int32_t dr_yxaspect, dr_viewingrange;
 extern int32_t g_noLogoAnim, g_noLogo;
 

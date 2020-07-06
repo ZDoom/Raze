@@ -44,28 +44,6 @@ BEGIN_DUKE_NS
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)
 
-// KEEPINSYNC lunatic/con_lang.lua
-enum
-{
-	STAT_DEFAULT        = 0,
-	STAT_ACTOR          = 1,
-	STAT_ZOMBIEACTOR    = 2,
-	STAT_EFFECTOR       = 3,
-	STAT_PROJECTILE     = 4,
-	STAT_MISC           = 5,
-	STAT_STANDABLE      = 6,
-	STAT_LOCATOR        = 7,
-	STAT_ACTIVATOR      = 8,
-	STAT_TRANSPORT      = 9,
-	STAT_PLAYER         = 10,
-	STAT_FX             = 11,
-	STAT_FALLER         = 12,
-	STAT_DUMMYPLAYER    = 13,
-	STAT_LIGHT          = 14,
-	STAT_RAROR          = 15,
-	STAT_NETALLOC       = MAXSTATUS-1
-};
-
 
 // Defines the motion characteristics of an actor
 enum amoveflags_t

@@ -2108,13 +2108,13 @@ void movetransports_d(void)
 					else if (!(sectlotag == 1 && ps[p].on_ground == 1)) break;
 
 					if (onfloorz == 0 && abs(sprite[i].z - ps[p].posz) < 6144)
-						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SK_JUMP))) ||
-							(ps[p].jetpack_on && (PlayerInput(p, SK_CROUCH) ^ !!ps[p].crouch_toggle)))
+						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SKB_JUMP))) ||
+							(ps[p].jetpack_on && (PlayerInput(p, SKB_CROUCH) ^ !!ps[p].crouch_toggle)))
 						{
 							ps[p].oposx = ps[p].posx += sprite[sprite[i].owner].x - sprite[i].x;
 							ps[p].oposy = ps[p].posy += sprite[sprite[i].owner].y - sprite[i].y;
 
-							if (ps[p].jetpack_on && (PlayerInput(p, SK_JUMP) || ps[p].jetpack_on < 11))
+							if (ps[p].jetpack_on && (PlayerInput(p, SKB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].posz = sprite[sprite[i].owner].z - 6144;
 							else ps[p].posz = sprite[sprite[i].owner].z + 6144;
 							ps[p].oposz = ps[p].posz;
@@ -2131,7 +2131,7 @@ void movetransports_d(void)
 
 					k = 0;
 
-					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SK_CROUCH) || ps[p].poszv > 2048))
+					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].posz > (sector[sect].floorz - (16 << 8)) && (PlayerInput(p, SKB_CROUCH) || ps[p].poszv > 2048))
 						//						if( onfloorz && sectlotag == 1 && ps[p].posz > (sector[sect].floorz-(6<<8)) )
 					{
 						k = 1;
@@ -2459,7 +2459,7 @@ static void greenslime(int i)
 
 		s->ang = ps[p].getang();
 
-		if ((PlayerInput(p, SK_FIRE) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
+		if ((PlayerInput(p, SKB_FIRE) || (ps[p].quick_kick > 0)) && sprite[ps[p].i].extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
 			{
 				for (x = 0; x < 8; x++)

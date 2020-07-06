@@ -44,7 +44,7 @@ source as it is released.
 BEGIN_DUKE_NS 
 
 void fireweapon_ww(int snum);
-void operateweapon_ww(int snum, int sb_snum, int psect);
+void operateweapon_ww(int snum, ESyncBits sb_snum, int psect);
 
 //---------------------------------------------------------------------------
 //
@@ -1265,7 +1265,7 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SK_HOLSTER);
+				PlayerSetInput(snum, SKB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
@@ -1496,7 +1496,7 @@ int doincrements_d(struct player_struct* p)
 				}
 			spritesound(DUKE_CRACK_FIRST, p->i);
 		}
-		else if (p->knuckle_incs == 22 || PlayerInput(snum, SK_FIRE))
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
 
 		return 1;
@@ -1550,7 +1550,7 @@ void checkweapons_d(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void operateJetpack(int snum, int sb_snum, int psectlotag, int fz, int cz, int shrunk)
+static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, int cz, int shrunk)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1621,7 +1621,7 @@ static void operateJetpack(int snum, int sb_snum, int psectlotag, int fz, int cz
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1806,7 +1806,7 @@ static void movement(int snum, int sb_snum, int psect, int fz, int cz, int shrun
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, int sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -2055,7 +2055,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, int sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2076,7 +2076,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 		{
 			p->ammo_amount[HANDBOMB_WEAPON]--;
 
-			if (p->on_ground && (sb_snum & 2))
+			if (p->on_ground && (sb_snum & SKB_CROUCH))
 			{
 				k = 15;
 				i = ((p->gethorizsum() - 100) * 20);
@@ -2505,7 +2505,7 @@ static void operateweapon(int snum, int sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, int sb_snum, int psect)
+static void processweapon(int snum, ESyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2590,7 +2590,7 @@ void processinput_d(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
 	char shrunk;
-	unsigned long sb_snum;
+	ESyncBits sb_snum;
 	short psect, psectlotag, tempsect, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -2602,7 +2602,7 @@ void processinput_d(int snum)
 	g_player[snum].horizAngleAdjust = 0;
 	g_player[snum].horizSkew = 0;
 
-	if (p->cheat_phase <= 0) sb_snum = PlayerInputBits(snum, ~0);
+	if (p->cheat_phase <= 0) sb_snum = PlayerInputBits(snum, SKB_ALL);
 	else sb_snum = 0;
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
@@ -3157,12 +3157,12 @@ HORIZONLY:
 	processweapon(snum, sb_snum, psect);
 }
 
-void processweapon_d(int s, int ss, int p)
+void processweapon_d(int s, ESyncBits ss, int p)
 {
 	processweapon(s, ss, p);
 }
 
-void processmove_d(int snum, int sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_d(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];

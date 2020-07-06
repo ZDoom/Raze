@@ -1122,7 +1122,7 @@ int parse(void)
 			s = g_sp->xvel;
 
 			// sigh... this was yet another place where number literals were used as bit masks for every single value, making the code totally unreadable.
-			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SK_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
+			if( (l& pducking) && ps[g_p].on_ground && (PlayerInput(g_p, SKB_CROUCH) ^ !!(ps[g_p].crouch_toggle) ))
 					j = 1;
 			else if( (l& pfalling) && ps[g_p].jumping_counter == 0 && !ps[g_p].on_ground &&	ps[g_p].poszv > 2048 )
 					j = 1;
@@ -1130,15 +1130,15 @@ int parse(void)
 					j = 1;
 			else if( (l& pstanding) && s >= 0 && s < 8)
 					j = 1;
-			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SK_RUN)) )
+			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SKB_RUN)) )
 					j = 1;
-			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SK_RUN) )
+			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SKB_RUN) )
 					j = 1;
 			else if( (l& phigher) && ps[g_p].posz < (g_sp->z-(48<<8)) )
 					j = 1;
-			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SK_RUN)) )
+			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SKB_RUN)) )
 					j = 1;
-			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SK_RUN)) )
+			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SKB_RUN)) )
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;
@@ -1203,7 +1203,7 @@ int parse(void)
 		parseifelse( (( hittype[g_i].floorz - hittype[g_i].ceilingz ) >> 8 ) < *insptr);
 		break;
 	case concmd_ifhitspace:
-		parseifelse(PlayerInput(g_p, SK_OPEN));
+		parseifelse(PlayerInput(g_p, SKB_OPEN));
 		break;
 	case concmd_ifoutside:
 		parseifelse(sector[g_sp->sectnum].ceilingstat & 1);

@@ -27,9 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "duke3d.h"
 #include "mmulti.h"
-#include "quotes.h"
+#include "quotemgr.h"
 #include "sector.h"
 #include "sounds.h"
+#include "constants.h"
 
 BEGIN_DUKE_NS
 
@@ -342,22 +343,22 @@ inline bool isIn(int value, const std::initializer_list<int> &list)
 
 
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
-inline bool PlayerInput(int pl, int bit)
+inline bool PlayerInput(int pl, ESyncBits bit)
 {
-    return TEST_SYNC_KEY(g_player[pl].input->bits, bit);
+    return (!!((g_player[pl].input->bits) &bit));
 }
 
-inline void PlayerSetInput(int pl, int bit)
+inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-    g_player[pl].input->bits |= (1 << bit);
+    g_player[pl].input->bits |= bit;
 }
 
-inline void PlayerClearInput(int pl, int bit)
+inline void PlayerClearInput(int pl, ESyncBits bit)
 {
-    g_player[pl].input->bits &= ~(1 << bit);
+    g_player[pl].input->bits &= ~bit;
 }
 
-inline int PlayerInputBits(int pl, int bits)
+inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
     return (g_player[pl].input->bits & bits);
 }

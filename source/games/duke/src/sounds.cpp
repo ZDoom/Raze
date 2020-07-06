@@ -344,7 +344,7 @@ void S_Update(void)
     int32_t ca, cs;
 	
     auto& gm = g_player[myconnectindex].ps->gm;
-    if (RR && !Mus_IsPlaying() && (gm && gm & MODE_GAME))
+    if (isRR() && !Mus_IsPlaying() && (gm && gm & MODE_GAME))
         S_PlayRRMusic(); 
 
     S_GetCamera(&c, &ca, &cs);
@@ -597,13 +597,13 @@ static bool cd_disabled = false;    // This is in case mus_redbook is enabled bu
 void S_PlayLevelMusic(unsigned int m)
 {
     auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
-    if (RR && mr.music.IsEmpty() && mus_redbook && !cd_disabled) return;
+    if (isRR() && mr.music.IsEmpty() && mus_redbook && !cd_disabled) return;
     Mus_Play(mr.labelName, mr.music, true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)
 {
-    if (RR) return;   // Can only be MUS_LOADING, RR does not use it.
+    if (isRR()) return;   // Can only be MUS_LOADING, isRR() does not use it.
     auto& musicfn = mapList[m].music;
     if (musicfn.IsNotEmpty())
     {
@@ -620,7 +620,7 @@ void S_PlaySpecialMusic(unsigned int m)
 
 void S_PlayRRMusic(int newTrack)
 {
-    if (!RR || !mus_redbook || cd_disabled || currentLevel->music.IsNotEmpty())
+    if (!isRR() || !mus_redbook || cd_disabled || currentLevel->music.IsNotEmpty())
         return;
     Mus_Stop();
 
