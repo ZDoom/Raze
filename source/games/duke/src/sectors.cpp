@@ -1099,6 +1099,30 @@ void allignwarpelevators(void)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void moveclouds(void)
+{
+	if (totalclock > cloudtotalclock || totalclock < (cloudtotalclock - 7))
+	{
+		cloudtotalclock = totalclock + 6;
+
+		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
+		cloudx += (sintable[(ps[screenpeek].getang() + 512) & 2047] >> 9);
+		cloudy += (sintable[ps[screenpeek].getang() & 2047] >> 9);
+		for (int i = 0; i < numclouds; i++)
+		{
+			sector[clouds[i]].ceilingxpanning = cloudx >> 6;
+			sector[clouds[i]].ceilingypanning = cloudy >> 6;
+		}
+	}
+}
+
+
 
 
 END_DUKE_NS

@@ -117,28 +117,9 @@ static int32_t gtextsc(int32_t sc)
 
 ////////// DISPLAYREST //////////
 
-static inline void G_MoveClouds(void)
-{
-    int32_t i;
-
-    if (totalclock <= g_cloudClock && totalclock >= (g_cloudClock-7))
-        return;
-
-    g_cloudClock = totalclock+6;
-
-    g_cloudX += sintable[(fix16_to_int(g_player[screenpeek].ps->q16ang)+512)&2047]>>9;
-    g_cloudY += sintable[fix16_to_int(g_player[screenpeek].ps->q16ang)&2047]>>9;
-
-    for (i=numclouds-1; i>=0; i--)
-    {
-        sector[clouds[i]].ceilingxpanning = g_cloudX>>6;
-        sector[clouds[i]].ceilingypanning = g_cloudY>>6;
-    }
-}
-
-
 
 void displayweapon(int snum);
+void moveclouds();
 
 void G_DisplayRest(int32_t smoothratio)
 {
@@ -236,7 +217,7 @@ void G_DisplayRest(int32_t smoothratio)
                     fi.displaymasks(screenpeek);
     }
             if (!RR)
-                G_MoveClouds();
+                moveclouds();
         }
 
         if (ud.overhead_on > 0)
