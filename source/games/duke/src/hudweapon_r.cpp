@@ -760,7 +760,7 @@ void displayweapon_r(int snum)
 					if ((*kb) < 5)
 					{
 						rdmyospal(weapon_xoffset + x + 190 - (p->look_ang >> 1) - dx,
-							looking_arc + 258 - gun_pos - 64 + p->at57e - dy, RRTILE1752, 0, o |  pin, pal);
+							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RRTILE1752, 0, o |  pin, pal);
 					}
 					rdmyospal(weapon_xoffset + x + 190 - (p->look_ang >> 1),
 						looking_arc + 258 - gun_pos - dy, HANDTHROW + remote_frames[*kb], gs, o |  pin, pal);
@@ -770,7 +770,7 @@ void displayweapon_r(int snum)
 					if ((*kb) < 5)
 					{
 						rdmyospal(weapon_xoffset + x + 190 - (p->look_ang >> 1) - dx,
-							looking_arc + 258 - gun_pos - 64 + p->at57e - dy, RRTILE1752, 0, o |  pin, pal);
+							looking_arc + 258 - gun_pos - 64 + p->detonate_count - dy, RRTILE1752, 0, o |  pin, pal);
 					}
 					rdmyospal(weapon_xoffset + x + 190 - (p->look_ang >> 1),
 						looking_arc + 258 - gun_pos - dy, HANDTHROW + 1, gs, o |  pin, pal);

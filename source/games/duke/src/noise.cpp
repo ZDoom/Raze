@@ -33,7 +33,7 @@ int madenoise(int snum)
 {
     player_struct *p;
     p = &ps[snum];
-    p->make_noise = 1;
+    p->donoise = 1;
     p->noise_x = p->posx;
     p->noise_y = p->posy;
     return 1;
@@ -44,7 +44,7 @@ int wakeup(int i, int snum)
     player_struct *p;
     int radius;
     p = &ps[snum];
-    if (!p->make_noise)
+    if (!p->donoise)
         return 0;
     if (sprite[i].pal == 30 || sprite[i].pal == 32 || sprite[i].pal == 33 || (isRRRA() && sprite[i].pal == 8))
         return 0;

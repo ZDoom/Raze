@@ -86,7 +86,16 @@ typedef struct {
 } playerspawn_t;
 
 typedef struct STATUSBARTYPE {
-    int16_t got_access, last_extra, inv_amount[GET_MAX], curr_weapon, holoduke_on;
+    int16_t firstaid_amount;
+    int16_t steroids_amount;
+    int16_t holoduke_amount;
+    int16_t jetpack_amount;
+    int16_t heat_amount;
+    int16_t scuba_amount;
+    int16_t boot_amount;
+    int16_t shield_amount;
+
+    int16_t got_access, last_extra, curr_weapon, holoduke_on;
     int16_t last_weapon, weapon_pos, kickback_pic;
     int16_t ammo_amount[MAX_WEAPONS], frag[MAXPLAYERS];
     FixedBitArray<MAX_WEAPONS> gotweapon;
@@ -169,7 +178,16 @@ typedef struct player_struct {
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
     int16_t cursectnum, last_extra, subweapon;
-    int16_t ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
+    int16_t ammo_amount[MAX_WEAPONS];
+    int16_t firstaid_amount;
+    int16_t steroids_amount;
+    int16_t holoduke_amount;
+    int16_t jetpack_amount;
+    int16_t heat_amount;
+    int16_t scuba_amount;
+    int16_t boot_amount;
+    int16_t shield_amount;
+
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t newowner, jumping_counter, airleft;
@@ -219,7 +237,7 @@ typedef struct player_struct {
     int32_t detonate_count;
     int16_t detonate_time;
     uint8_t shotgun_state[2];
-    uint8_t make_noise; // at28e
+    uint8_t donoise; // at28e
     int32_t noise_x, noise_y, noise_radius; // at286, at28a, at290
     uint8_t keys[5];
     int16_t yehaa_timer;
@@ -246,14 +264,6 @@ typedef struct player_struct {
 
 // transition helpers
 #define SeaSick sea_sick
-#define firstaid_amount inv_amount[GET_FIRSTAID]
-#define steroids_amount inv_amount[GET_STEROIDS]
-#define holoduke_amount inv_amount[GET_HOLODUKE]
-#define jetpack_amount inv_amount[GET_JETPACK]
-#define heat_amount inv_amount[GET_HEATS]
-#define scuba_amount inv_amount[GET_SCUBA]
-#define boot_amount inv_amount[GET_BOOTS]
-#define shield_amount inv_amount[GET_SHIELD]
 #define raat609 MamaEnd
 #define raat5dd sea_sick_stat
 #define at57e detonate_count
