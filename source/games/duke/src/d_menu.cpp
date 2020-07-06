@@ -257,7 +257,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-
 	auto& gm = g_player[myconnectindex].ps->gm;
 	if (gm & MODE_GAME)
 	{

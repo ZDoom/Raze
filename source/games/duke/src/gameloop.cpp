@@ -52,6 +52,30 @@ static inline int movefifoend(int myconnectindex)
 }
 */
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int menuloop(void)
+{
+	FX_StopAllSounds();
+	while (menuactive != MENU_Off)
+	{
+		handleevents();
+		drawbackground();
+		videoNextPage();
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static void fakedomovethings()
 {
 	// prediction

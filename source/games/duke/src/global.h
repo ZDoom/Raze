@@ -274,8 +274,7 @@ extern char CheatKeys[2];
 extern char g_gametypeNames[MAXGAMETYPES][33];
 
 extern int32_t respawnactortime;
-extern int32_t g_bouncemineRadius;
-#define bouncemineblastradius g_bouncemineRadius
+extern int32_t bouncemineblastradius;
 extern int32_t g_deleteQueueSize;
 extern int32_t g_gametypeCnt;
 extern int32_t respawnitemtime;
@@ -343,7 +342,8 @@ struct psaccess
 };
 extern psaccess ps;
 
-#define spriteqamount g_deleteQueueSize
+
+extern int spriteqamount;
 #define spriteq SpriteDeletionQueue
 #define spriteqloc g_spriteDeleteQueuePos
 

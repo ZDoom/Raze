@@ -57,8 +57,10 @@ void InitCheats();
 void checkcommandline();
 int registerosdcommands(void);
 int32_t G_MoveLoop(void);
+int menuloop(void);
 
 int16_t max_ammo_amount[MAX_WEAPONS];
+int32_t spriteqamount = 64;
 
 uint8_t shadedsector[MAXSECTORS];
 
@@ -735,8 +737,6 @@ int GameInterface::app_main()
 	return 0;
 }
 	
-int32_t G_PlaybackDemo(void);
-
 void app_loop()
 {
 	auto &myplayer = g_player[myconnectindex].ps;
@@ -782,7 +782,7 @@ MAIN_LOOP_RESTART:
 
         M_StartControlPanel(false);
 		M_SetMenu(NAME_Mainmenu);
-		if (G_PlaybackDemo())
+		if (menuloop())
         {
             FX_StopAllSounds();
             g_noLogoAnim = 1;

@@ -38,8 +38,7 @@ char    g_gametypeNames[MAXGAMETYPES][33]
 float g_gameUpdateAvgTime = -1.f;
 
 int32_t respawnactortime   = 768;
-int32_t g_bouncemineRadius   = 2500;
-int32_t g_deleteQueueSize    = 64;
+int32_t bouncemineblastradius = 2500;
 int32_t respawnitemtime    = 768;
 
 int32_t g_morterRadius       = 2500;

@@ -632,7 +632,7 @@ void cameratext(int i)
 //
 //---------------------------------------------------------------------------
 
-int G_StartRTS(int lumpNum, int localPlayer)
+int startrts(int lumpNum, int localPlayer)
 {
 	if (SoundEnabled() &&
 		RTS_IsInitialized() && rtsplaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
