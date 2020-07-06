@@ -58,7 +58,7 @@ public:
     }
 
 
-	int getinvamount(const DukePlayer_t* p)
+	int getinvamount(const struct player_struct* p)
 	{
 		switch (p->inven_icon)
 		{
@@ -88,7 +88,7 @@ public:
     //
     //==========================================================================
 
-    void FullscreenHUD1(DukePlayer_t* p, int snum)
+    void FullscreenHUD1(struct player_struct* p, int snum)
     {
         //
         // Health
@@ -174,7 +174,7 @@ public:
     //
     //==========================================================================
 
-    void FullscreenHUD2(DukePlayer_t* p)
+    void FullscreenHUD2(struct player_struct* p)
     {
         //
         // health
@@ -250,7 +250,7 @@ public:
     //
     //==========================================================================
 
-    void DrawWeaponBar(const DukePlayer_t* p, int top)
+    void DrawWeaponBar(const struct player_struct* p, int top)
     {
         double sbscale = 32800. / 65536.;
 

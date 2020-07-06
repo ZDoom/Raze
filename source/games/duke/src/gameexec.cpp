@@ -77,7 +77,7 @@ void fakebubbaspawn(int g_i, int g_p);
 void tearitup(int sect);
 void destroyit(int g_i);
 void mamaspawn(int g_i);
-void forceplayerangle(DukePlayer_t* p);
+void forceplayerangle(struct player_struct* p);
 
 static bool killthesprite = false;
 void addspritetodelete(int spnum)

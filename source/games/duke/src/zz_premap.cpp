@@ -85,7 +85,7 @@ void e4intro(CompletionFunc completion);
 
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
-    DukePlayer_t *const pPlayer = g_player[0].ps;
+    struct player_struct *const pPlayer = g_player[0].ps;
 
     handleevents();
 
@@ -231,7 +231,7 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 void cacheit_d();
 void cacheit_r();
 
-static int LoadTheMap(MapRecord &mi, DukePlayer_t *pPlayer, int gameMode)
+static int LoadTheMap(MapRecord &mi, struct player_struct *pPlayer, int gameMode)
 {
     char levelName[BMAX_PATH];
     int16_t lbang;
@@ -361,7 +361,7 @@ int G_EnterLevel(int gameMode)
     }
 
     FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
-    DukePlayer_t *const pPlayer = g_player[0].ps;
+    struct player_struct *const pPlayer = g_player[0].ps;
 
 
     /*

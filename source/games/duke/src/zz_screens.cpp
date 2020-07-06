@@ -47,7 +47,7 @@ int32_t g_crosshairSum = -1;
 double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 
 
-void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)
+void P_SetGamePalette(struct player_struct *player, uint32_t palid, ESetPalFlags set)
 {
     if (palid >= MAXBASEPALS)
         palid = 0;
@@ -123,7 +123,7 @@ void G_DisplayRest(int32_t smoothratio)
     int32_t i, j;
     palaccum_t tint = PALACCUM_INITIALIZER;
 
-    DukePlayer_t *const pp = g_player[screenpeek].ps;
+    struct player_struct *const pp = g_player[screenpeek].ps;
     int32_t cposx, cposy, cang;
 
     // this takes care of fullscreen tint for OpenGL

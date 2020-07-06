@@ -71,7 +71,7 @@ public:
 	//
 	//==========================================================================
 
-	int getinvamount(const DukePlayer_t* p)
+	int getinvamount(const struct player_struct* p)
 	{
 		switch (p->inven_icon)
 		{
@@ -94,7 +94,7 @@ public:
 		return -1;
 	}
 
-	int GetMoraleOrShield(DukePlayer_t *p, int snum)
+	int GetMoraleOrShield(struct player_struct *p, int snum)
 	{
 		// special handling for WW2GI
 		int lAmount = GetGameVar("PLR_MORALE", -1, p->i, snum);
@@ -109,7 +109,7 @@ public:
     //
     //==========================================================================
 
-    void FullscreenHUD1(DukePlayer_t* p, int snum)
+    void FullscreenHUD1(struct player_struct* p, int snum)
     {
         //
         // Health
@@ -193,7 +193,7 @@ public:
     //
     //==========================================================================
 
-    void FullscreenHUD2(DukePlayer_t *p)
+    void FullscreenHUD2(struct player_struct *p)
     {
         //
         // health
@@ -312,7 +312,7 @@ public:
     //
     //==========================================================================
 
-    void DrawWeaponAmounts(const DukePlayer_t* p, int x, int y)
+    void DrawWeaponAmounts(const struct player_struct* p, int x, int y)
     {
         int cw = p->curr_weapon;
 

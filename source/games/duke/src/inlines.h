@@ -152,6 +152,10 @@ inline void clearfriction()
     }
 }
 
+inline void SetPlayerPal(player_struct* p, PalEntry pe)
+{
+    p->pals = pe;
+}
 
 //---------------------------------------------------------------------------
 //

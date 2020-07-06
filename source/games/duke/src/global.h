@@ -305,7 +305,7 @@ void dointerpolations(int smoothratio);
 // Hack struct to allow old code to access the EDuke-style player data without changing it.
 struct psaccess
 {
-    DukePlayer_t& operator[](int index)
+    struct player_struct& operator[](int index)
     {
         return *g_player[index].ps;
     }

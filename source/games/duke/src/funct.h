@@ -138,6 +138,8 @@ bool isanunderoperator(int lotag);
 int setanimation(short animsect, int* animptr, int thegoal, int thevel);
 void dofurniture(int wallNum, int sectNum, int playerNum);
 void dotorch();
+int hitawall(struct player_struct* pPlayer, int* hitWall);
+int hits(int spriteNum);
 
 void   clearsectinterpolate(int sprnum);
 void   setsectinterpolate(int sprnum);

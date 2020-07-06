@@ -31,7 +31,6 @@ BEGIN_DUKE_NS
 int32_t PHEIGHT = PHEIGHT_DUKE;
 
 int32_t lastvisinc;
-hudweapon_t hudweap;
 
 #define TURBOTURNTIME (TICRATE/8) // 7
 #define NORMALTURN    15

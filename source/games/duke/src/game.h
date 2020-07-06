@@ -34,27 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdlib.h"
 #include "screenjob.h"
 #include "constants.h"
+#include "types.h"
 
 BEGIN_DUKE_NS
-
-struct weaponhit
-{
-	uint8_t cgg;
-	short picnum, ang, extra, owner, movflag;
-	short tempang, actorstayput, dispicnum;
-	short timetosleep;
-	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
-	int temp_data[6];
-};
-
-
-// Todo - put more state in here
-struct ActorInfo
-{
-	uint32_t scriptaddress;
-	uint32_t flags;
-	int aimoffset;
-};
 
 
 typedef struct {
@@ -143,11 +125,11 @@ void G_HandleLocalKeys(void);
 void G_UpdatePlayerFromMenu(void);
 void FTA(int q, struct player_struct* p);
 
-void P_SetGamePalette(DukePlayer_t* player, uint32_t palid, ESetPalFlags flags);
-void OnMotorcycle(DukePlayer_t *pPlayer, int spriteNum);
-void OffMotorcycle(DukePlayer_t *pPlayer);
-void OnBoat(DukePlayer_t *pPlayer, int spriteNum);
-void OffBoat(DukePlayer_t *pPlayer);
+void P_SetGamePalette(player_struct* player, uint32_t palid, ESetPalFlags flags);
+void OnMotorcycle(player_struct *pPlayer, int spriteNum);
+void OffMotorcycle(player_struct *pPlayer);
+void OnBoat(player_struct *pPlayer, int spriteNum);
+void OffBoat(player_struct *pPlayer);
 
 void G_InitTimer(int32_t ticspersec);
 

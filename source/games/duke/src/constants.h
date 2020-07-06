@@ -1,6 +1,8 @@
 #pragma once
 #include "tflags.h"
 
+// all game constants got collected here.
+
 // Most of these should be replaced by CCMDs eventually
 enum GameFunction_t
 {
@@ -503,4 +505,11 @@ enum
     SLEEPTIME = 1536,
     ZOFFSET6 = (4 << 8),
     FOURSLEIGHT = (1 << 8)
+};
+
+enum
+{
+    // Control flags for WW2GI weapons.
+    TRIPBOMB_TRIPWIRE = 1,
+    TRIPBOMB_TIMER = 2
 };

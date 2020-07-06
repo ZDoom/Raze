@@ -93,7 +93,7 @@ void DDukeCommonStatusBar::displayfragbar(void)
 //
 //==========================================================================
 
-std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(DukePlayer_t *p)
+std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(struct player_struct *p)
 {
 	std::pair<const char*, EColorRange> retval(nullptr, CR_RED);
 
@@ -128,7 +128,7 @@ std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(DukePlayer_t *p
 //
 //==========================================================================
 
-void DDukeCommonStatusBar::DrawInventory(const DukePlayer_t* p, double x, double y, int align)
+void DDukeCommonStatusBar::DrawInventory(const struct player_struct* p, double x, double y, int align)
 {
 	if (p->invdisptime <= 0)return;
 

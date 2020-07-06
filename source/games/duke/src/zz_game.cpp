@@ -424,7 +424,7 @@ static void G_Startup(void)
 
 static void P_SetupMiscInputSettings(void)
 {
-    DukePlayer_t *ps = g_player[myconnectindex].ps;
+    struct player_struct *ps = g_player[myconnectindex].ps;
 
     ps->aim_mode = in_mousemode;
     ps->auto_aim = cl_autoaim;
@@ -518,7 +518,7 @@ static int G_EndOfLevel(void)
 void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
-        g_player[pnum].ps = (DukePlayer_t *)Xcalloc(1, sizeof(DukePlayer_t));
+        g_player[pnum].ps = (struct player_struct *)Xcalloc(1, sizeof(struct player_struct));
     if (g_player[pnum].input == NULL)
         g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
 }

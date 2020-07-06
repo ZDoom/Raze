@@ -762,7 +762,7 @@ static void sv_rrrafog();
 
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
+      +sizeof(g_player[0].frags)+sizeof(struct player_struct))*MAXPLAYERS)
 
 static uint8_t savegame_restdata[SVARDATALEN];
 
@@ -1242,9 +1242,9 @@ static void sv_postanimateptr()
 static void sv_restsave()
 {
     uint8_t *    mem = savegame_restdata;
-    DukePlayer_t dummy_ps;
+    struct player_struct dummy_ps;
 
-    Bmemset(&dummy_ps, 0, sizeof(DukePlayer_t));
+    Bmemset(&dummy_ps, 0, sizeof(struct player_struct));
 
 #define CPDAT(ptr,sz) do { Bmemcpy(mem, ptr, sz), mem+=sz ; } while (0)
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -1253,7 +1253,7 @@ static void sv_restsave()
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
-        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(DukePlayer_t));
+        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
     }
     
     Bassert((savegame_restdata + SVARDATALEN) - mem == 0);
@@ -1262,7 +1262,7 @@ static void sv_restsave()
 static void sv_restload()
 {
     uint8_t *    mem = savegame_restdata;
-    DukePlayer_t dummy_ps;
+    struct player_struct dummy_ps;
 
 #define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -1271,7 +1271,7 @@ static void sv_restload()
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
-        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(DukePlayer_t));
+        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
     }
 #undef CPDAT
 
