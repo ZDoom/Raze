@@ -41,17 +41,80 @@ BEGIN_DUKE_NS
 void GetNextInput();
 
 
-/*
-static inline int movefifoend(int myconnectindex)
+//---------------------------------------------------------------------------
+//
+// abstract the queue's implementation
+// All access to the input queues should go through this function interface.
+//
+//---------------------------------------------------------------------------
+static input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+static int movefifoend[MAXPLAYERS];
+static int movefifoplc;
+
+
+void clearfifo(void)
 {
-#if 1
-	return g_player[myconnectindex].movefifoend;
-#else
-	return movefifoend[myconnectindex];
+	localInput = {};
+	memset(&inputfifo, 0, sizeof(inputfifo));
+
+	for (int p = 0; p <= MAXPLAYERS - 1; ++p)
+	{
+		if (g_player[p].input != NULL)
+			*g_player[p].input = {};
+	}
+}
+
+
+static inline void GetNextInput()
+{
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
+		memcpy(g_player[i].input /*originally: &sync[i] */, &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
+
+	movefifoplc++;
+}
+
+void advancequeue(int myconnectindex)
+{
+	movefifoend[myconnectindex]++;
+}
+
+input_t& nextinput(int myconnectindex)
+{
+	return inputfifo[movefifoend[myconnectindex] & (MOVEFIFOSIZ - 1)][myconnectindex];
+}
+
+bool shouldprocessinput(int myconnectindex)
+{
+	if (movefifoend[myconnectindex] - movefifoplc > bufferjitter)
+	{
+		int i;
+		for (i = connecthead; i >= 0; i = connectpoint2[i])
+			if (movefifoplc == movefifoend[i]) return false;
+		if (i >= 0) return false;
+		return true;
+	}
+	return false;
+}
+
+static void fakedomovethings()
+{
+	// prediction
+}
+
+static void fakedomovethingscorrect()
+{
+	// unprediction
+}
+
+void prediction()
+{
+#if 0
+	// We currently have no net code driving this.
+	if (numplayers > 1)
+		while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
+	getpackets();
 #endif
 }
-*/
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -68,22 +131,6 @@ int menuloop(void)
 		videoNextPage();
 	}
 	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void fakedomovethings()
-{
-	// prediction
-}
-
-static void fakedomovethingscorrect()
-{
-	// unprediction
 }
 
 //---------------------------------------------------------------------------
@@ -254,28 +301,20 @@ int domovethings()
 // 
 //
 //---------------------------------------------------------------------------
-/*
 
-char moveloop()
+
+int moveloop()
 {
-	int i;
-
-	if (numplayers > 1)
-		while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
-
-	getpackets();
+	prediction();
 
 	if (numplayers < 2) bufferjitter = 0;
-	while (movefifoend(myconnectindex)-movefifoplc > bufferjitter)
+	while (shouldprocessinput(myconnectindex))
 	{
-		for(i=connecthead;i>=0;i=connectpoint2[i])
-			if (movefifoplc == movefifoend(i)) break;
-		if (i >= 0) break;
 		if( domovethings() ) return 1;
 	}
 	return 0;
 }
-*/
+
 
 END_DUKE_NS
 

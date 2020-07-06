@@ -82,15 +82,11 @@ G_EXTERN uint8_t packbuf[PACKBUF_SIZE];
 G_EXTERN input_t localInput;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
 
-//G_EXTERN uint8_t syncstat, syncval[MAXPLAYERS][MOVEFIFOSIZ];
-//G_EXTERN int32_t syncvalhead[MAXPLAYERS], syncvaltail, syncvaltottail;
-
 G_EXTERN int32_t avgfvel, avgsvel, avgbits;
 G_EXTERN fix16_t avgavel, avghorz;
 G_EXTERN int8_t avgextbits;
 
 G_EXTERN int32_t movefifosendplc;
-G_EXTERN int32_t movefifoplc;
 
 G_EXTERN int32_t predictfifoplc;
 G_EXTERN vec3_t mypos, omypos, myvel;
@@ -257,7 +253,6 @@ extern playerdata_t *const g_player;
 #endif
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 #define po g_playerSpawnPoints
-G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
 G_EXTERN int32_t g_noEnemies;

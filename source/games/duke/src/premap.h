@@ -38,7 +38,7 @@ void P_ResetPlayer(int playerNum);
 void resetplayerstats(int playerNum);
 void resetweapons(int playerNum);
 void resetprestat(int snum, int g);
-void G_ClearFIFO(void);
+void clearfifo(void);
 void G_ResetInterpolations(void);
 void setmapfog(int fogtype);
 void G_InitRRRASkies(void);

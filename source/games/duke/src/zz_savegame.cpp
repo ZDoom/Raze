@@ -1450,7 +1450,7 @@ static void postloadplayer(int32_t savegamep)
     if (savegamep)
     {
         ready2send = 1;
-        G_ClearFIFO();
+        clearfifo();
         Net_WaitForEverybody();
     }
 

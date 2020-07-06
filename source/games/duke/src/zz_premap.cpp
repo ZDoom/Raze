@@ -184,20 +184,6 @@ void G_ResetTimers(uint8_t keepgtics)
         actor[camsprite].t_data[0] = 0;
 }
 
-void G_ClearFIFO(void)
-{
-    Net_ClearFIFO();
-
-    memset(&localInput, 0, sizeof(input_t));
-    memset(&inputfifo, 0, sizeof(input_t) * MOVEFIFOSIZ * MAXPLAYERS);
-
-    for (bsize_t p = 0; p <= MAXPLAYERS - 1; ++p)
-    {
-        if (g_player[p].input != NULL)
-            Bmemset(g_player[p].input, 0, sizeof(input_t));
-    }
-}
-
 int G_FindLevelByFile(const char *fileName)
 {
     for (bssize_t volumeNum = 0; volumeNum < MAXVOLUMES; volumeNum++)
@@ -444,7 +430,7 @@ int G_EnterLevel(int gameMode)
 
     ud.last_level = ud.level_number+1;
 
-    G_ClearFIFO();
+    clearfifo();
 
     for (i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 

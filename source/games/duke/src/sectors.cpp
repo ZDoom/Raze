@@ -313,14 +313,6 @@ void doanimations(void)
 						{
 							ps[p].posz += v;
 							ps[p].poszv = 0;
-#if 0
-							if (p == myconnectindex)
-							{
-								myz += v;
-								myzvel = 0;
-								myzbak[((movefifoplc - 1) & (MOVEFIFOSIZ - 1))] = ps[p].posz;
-							}
-#endif
 						}
 
 			for (j = headspritesect[dasect]; j >= 0; j = nextspritesect[j])

@@ -29,8 +29,6 @@ BEGIN_DUKE_NS
 
 user_defs ud;
 
-const char *s_buildDate = "20120522";
-
 char    g_gametypeNames[MAXGAMETYPES][33]
 = { "DukeMatch (Spawn)", "Cooperative Play", "DukeMatch (No Spawn)", "Team DM (Spawn)", "Team DM (No Spawn)" };
 
@@ -56,8 +54,6 @@ int32_t g_timerTicsPerSecond = TICRATE;
 int32_t g_tripbombRadius     = 3880;
 
 int16_t weaponsandammosprites[15];
-
-char CheatKeys[2]       = { sc_D, sc_N };
 
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 

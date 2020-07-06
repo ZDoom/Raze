@@ -137,7 +137,6 @@ typedef struct {
     uint32_t bits;
     int16_t fvel, svel;
     fix16_t q16avel, q16horz;
-    int8_t extbits;
 } input_t;
 
 #pragma pack(push,1)
@@ -315,7 +314,6 @@ typedef struct
     float   horizAngleAdjust;
     fix16_t horizSkew;
 
-    int32_t movefifoend, syncvalhead, myminlag;
     int32_t pcolor, pteam;
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS];
@@ -366,7 +364,6 @@ typedef struct {
     int32_t shade;
 } hudweapon_t;
 
-extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
 extern hudweapon_t      hudweap;

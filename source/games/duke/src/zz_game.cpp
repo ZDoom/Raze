@@ -56,8 +56,10 @@ void SetDispatcher();
 void InitCheats();
 void checkcommandline();
 int registerosdcommands(void);
-int32_t G_MoveLoop(void);
+int32_t moveloop(void);
 int menuloop(void);
+void advancequeue(int myconnectindex);
+input_t& nextinput(int myconnectindex);
 
 int16_t max_ammo_amount[MAX_WEAPONS];
 int32_t spriteqamount = 64;
@@ -203,14 +205,14 @@ void G_HandleLocalKeys(void)
             if (SHIFTS_IS_PRESSED)
             {
                 Printf(PRINT_NOTIFY, *CombatMacros[ridiculeNum-1]);
-				Net_SendTaunt(ridiculeNum);
+				//Net_SendTaunt(ridiculeNum);
                 return;
             }
 
             // Not SHIFT -- that is, either some ALT or WIN.
             if (startrts(ridiculeNum, 1))
             {
-				Net_SendRTS(ridiculeNum);
+				//Net_SendRTS(ridiculeNum);
                 return;
             }
         }
@@ -772,8 +774,6 @@ MAIN_LOOP_RESTART:
             }
 
             G_NewGame_EnterLevel();
-
-            Net_WaitForEverybody();
         }
         else
         {
@@ -811,9 +811,6 @@ MAIN_LOOP_RESTART:
 
         Net_GetPackets();
 
-        // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        inputState.SetBindsEnabled(!!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)));
-
         G_HandleLocalKeys();
  
         C_RunDelayedCommands();
@@ -836,7 +833,7 @@ MAIN_LOOP_RESTART:
             // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
             auto const pPlayer = g_player[myconnectindex].ps;
             auto const q16ang  = fix16_to_int(pPlayer->q16ang);
-            auto &     input   = inputfifo[g_player[myconnectindex].movefifoend&(MOVEFIFOSIZ-1)][myconnectindex];
+            auto& input = nextinput(myconnectindex);
 
             input = localInput;
             input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
@@ -847,12 +844,12 @@ MAIN_LOOP_RESTART:
                          pPlayer->fric.y;
             localInput = {};
 
-            g_player[myconnectindex].movefifoend++;
+            advancequeue(myconnectindex);
 
             if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                     (g_player[myconnectindex].ps->gm&MODE_GAME))
             {
-                G_MoveLoop();
+                moveloop();
             }
         }
 
@@ -892,39 +889,6 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
     }
     while (1);
-}
-
-int domovethings();
-int32_t G_MoveLoop()
-{
-    int i;
-
-    if (numplayers > 1)
-        while (predictfifoplc < g_player[myconnectindex].movefifoend) Net_DoPrediction();
-
-    Net_GetPackets();
-
-    if (numplayers < 2) bufferjitter = 0;
-    while (g_player[myconnectindex].movefifoend-movefifoplc > bufferjitter)
-    {
-        for(TRAVERSE_CONNECT(i))
-        {
-            if (movefifoplc == g_player[i].movefifoend) break;
-        }
-        if (i >= 0) break;
-        if (domovethings()) return 1;
-    }
-
-
-    return 0;
-}
-
-void GetNextInput()
-{
-    for (bssize_t TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].input, &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
-
-    movefifoplc++;
 }
 
 void GameInterface::FreeGameData()

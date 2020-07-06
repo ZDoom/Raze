@@ -106,8 +106,6 @@ void P_GetInput(int const playerNum)
 
         localInput = {};
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        localInput.extbits |= (1 << 7);
-
         return;
     }
 
@@ -354,13 +352,6 @@ void P_GetInput(int const playerNum)
     else if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
 
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
-    localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Left)<<4;
-    localInput.extbits |= buttonMap.ButtonDown(gamefunc_Turn_Right)<<5;
-
     int const movementLocked = P_CheckLockedMovement(playerNum);
 
     if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
@@ -465,8 +456,6 @@ void P_GetInputMotorcycle(int playerNum)
 
         localInput = {};
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        localInput.extbits |= (1 << 7);
-
         return;
     }
 
@@ -533,11 +522,6 @@ void P_GetInputMotorcycle(int playerNum)
     if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
     
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
-
     int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -671,8 +655,6 @@ void P_GetInputBoat(int playerNum)
 
         localInput = {};
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        localInput.extbits |= (1 << 7);
-
         return;
     }
 
@@ -739,11 +721,6 @@ void P_GetInputBoat(int playerNum)
     if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
     
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || (input.fvel > 0));
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Move_Backward) || (input.fvel < 0)) << 1;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Left) || (input.svel > 0)) << 2;
-    localInput.extbits |= (buttonMap.ButtonDown(gamefunc_Strafe_Right) || (input.svel < 0)) << 3;
-
     int turnAmount;
     int const turn = input.q16avel / 32;
     int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
