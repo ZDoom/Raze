@@ -74,6 +74,8 @@ typedef struct {
 
 extern char const * VM_GetKeywordForID(int32_t id);
 
+extern TArray<int> ScriptCode;
+
 
 #include "concmd.h"
 

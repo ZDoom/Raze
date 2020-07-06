@@ -36,7 +36,6 @@ source as it is released.
 #include "duke3d.h"
 #include "gamedef.h"
 #include "gamevar.h"
-#include "gameexec.h"
 
 BEGIN_DUKE_NS
 

@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotemgr.h"
 #include "sounds.h"
 #include "constants.h"
-#include "gameexec.h"
 
 BEGIN_DUKE_NS
 

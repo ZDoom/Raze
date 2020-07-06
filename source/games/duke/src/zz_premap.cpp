@@ -319,7 +319,11 @@ int G_EnterLevel(int gameMode)
     if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
-    VM_OnEvent(EVENT_ENTERLEVEL);
+    if (IsGameEvent(EVENT_ENTERLEVEL))
+    {
+        SetGameVarID(g_iReturnVarID, -1, -1, -1);
+        OnEvent(EVENT_ENTERLEVEL);
+    }
 
     //if (g_networkMode != NET_DEDICATED_SERVER)
     {

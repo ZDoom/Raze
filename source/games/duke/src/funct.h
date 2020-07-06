@@ -146,4 +146,11 @@ void clearcamera(player_struct* ps);
 void showtwoscreens(CompletionFunc func);
 void doorders(CompletionFunc func);
 
+void execute(int s, int p, int d);
+void makeitfall(int s);
+int furthestangle(int spriteNum, int angDiv);
+void getglobalz(int s);
+int getincangle(int c, int n);
+void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
+
 END_DUKE_NS
