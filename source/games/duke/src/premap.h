@@ -29,20 +29,12 @@ extern int16_t ambientlotag[64];
 extern int16_t ambienthitag[64];
 int G_EnterLevel(int gameMode);
 int G_FindLevelByFile(const char *fileName);
-void G_CacheMapData(void);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);
-void pickrandomspot(int pn);
-void resetinventory(int pn);
 void P_ResetPlayer(int pn);
-void resetplayerstats(int pn);
-void resetweapons(int pn);
-void resetprestat(int snum, int g);
-void clearfifo(void);
 void G_ResetInterpolations(void);
-void setmapfog(int fogtype);
 void G_InitRRRASkies(void);
-void prelevel_common(int g);
+
 
 END_DUKE_NS
 

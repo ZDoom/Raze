@@ -174,4 +174,13 @@ int initreactor(int j, int i, bool isrecon);
 void spawneffector(int i);
 void gameexitfrommenu();
 
+void pickrandomspot(int pn);
+void resetinventory(int pn);
+void resetplayerstats(int pn);
+void resetweapons(int pn);
+void resetprestat(int snum, int g);
+void clearfifo(void);
+void setmapfog(int fogtype);
+void prelevel_common(int g);
+
 END_DUKE_NS

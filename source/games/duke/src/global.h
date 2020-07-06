@@ -281,17 +281,7 @@ extern int32_t g_volumeCnt;
 extern int16_t weaponsandammosprites[15];
 extern int32_t g_gametypeFlags[MAXGAMETYPES];
 
-extern const char *s_buildDate;
 #endif  
-
-inline void clearfriction()
-{
-    for (int playerNum = 0; playerNum != -1; playerNum = connectpoint2[playerNum])
-    {
-        vec2_t& fric = g_player[playerNum].ps->fric;
-        fric.x = fric.y = 0;
-    }
-}
 
 enum
 {

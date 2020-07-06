@@ -46,10 +46,6 @@ enum {
     SF_DTAG = 128,
 };
 
-// KEEPINSYNC lunatic/con_lang.lua
-#define MAXSOUNDS           4096
-#define LOUDESTVOLUME       111
-
 enum esound_t
 {
     kPitchStart,
@@ -69,7 +65,6 @@ inline int spritesound(int soundnum, int spritenum)
 int A_CheckAnySoundPlaying(int spriteNum);
 int S_CheckSoundPlaying(int soundNum);
 inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }
-inline void S_ClearSoundLocks(void) {}
 void cacheAllSounds(void);
 void S_MenuSound(void);
 void S_PauseMusic(bool paused);
@@ -88,6 +83,8 @@ inline void stopsound(int snd)
 {
     S_StopEnvSound(snd, -1);
 }
+#define S_StopSound(num) S_StopEnvSound(num, -1)
+
 void S_Update(void);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);

@@ -133,13 +133,13 @@ void DDukeCommonStatusBar::DrawInventory(const DukePlayer_t* p, double x, double
 	if (p->invdisptime <= 0)return;
 
 	int n = 0, j = 0;
-	if (p->inv_amount[GET_FIRSTAID] > 0) n |= 1, j++;
-	if (p->inv_amount[GET_STEROIDS] > 0) n |= 2, j++;
-	if (p->inv_amount[GET_HOLODUKE] > 0) n |= 4, j++;
-	if (p->inv_amount[GET_JETPACK] > 0) n |= 8, j++;
-	if (p->inv_amount[GET_HEATS] > 0) n |= 16, j++;
-	if (p->inv_amount[GET_SCUBA] > 0) n |= 32, j++;
-	if (p->inv_amount[GET_BOOTS] > 0) n |= 64, j++;
+	if (p->firstaid_amount > 0) n |= 1, j++;
+	if (p->steroids_amount > 0) n |= 2, j++;
+	if (p->holoduke_amount > 0) n |= 4, j++;
+	if (p->jetpack_amount > 0) n |= 8, j++;
+	if (p->heat_amount > 0) n |= 16, j++;
+	if (p->scuba_amount > 0) n |= 32, j++;
+	if (p->boot_amount > 0) n |= 64, j++;
 
 	x -= (j * 11);
 	y -= 6;

@@ -150,7 +150,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
+    if ((g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
         return;
 
     if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
@@ -181,8 +181,8 @@ void G_HandleLocalKeys(void)
         ud.scrollmode = 1-ud.scrollmode;
         if (ud.scrollmode)
         {
-            ud.folx = g_player[screenpeek].ps->opos.x;
-            ud.foly = g_player[screenpeek].ps->opos.y;
+            ud.folx = g_player[screenpeek].ps->oposx;
+            ud.foly = g_player[screenpeek].ps->oposy;
             ud.fola = fix16_to_int(g_player[screenpeek].ps->oq16ang);
         }
         FTA(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
@@ -444,8 +444,6 @@ void G_UpdatePlayerFromMenu(void)
     }
     else
     {
-        /*int32_t j = g_player[myconnectindex].ps->team;*/
-
         P_SetupMiscInputSettings();
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
@@ -686,7 +684,7 @@ int GameInterface::app_main()
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
         Bsprintf(g_player[j].user_name,"%s %d", GStrings("PLAYER"),j+1);
-        g_player[j].ps->team = g_player[j].pteam = i;
+        g_player[j].pteam = i;
         g_player[j].ps->weaponswitch = 3;
         g_player[j].ps->auto_aim = 0;
         i = 1-i;
@@ -740,7 +738,6 @@ int GameInterface::app_main()
     videoSetPalette(BASEPAL, 0);
 
     FX_StopAllSounds();
-    S_ClearSoundLocks();
 	app_loop();
 	return 0;
 }

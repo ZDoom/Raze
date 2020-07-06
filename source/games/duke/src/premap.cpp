@@ -149,7 +149,6 @@ void resetplayerstats(int snum)
     p->fric.y            = 0;
     p->somethingonplayer =-1;
     p->one_eighty_count  = 0;
-    p->cheat_phase       = 0;
 
     p->on_crane          = -1;
 
@@ -166,7 +165,6 @@ void resetplayerstats(int snum)
     p->knee_incs         = 0;
     setpal(p);
     p->stairs = 0;
-    //p->fogtype = 0;
     p->noise_x = 0;
     p->noise_y = 0;
     p->make_noise = 0;
@@ -390,7 +388,6 @@ void resetprestat(int snum,int g)
     for(i=0;i<spriteqamount;i++) spriteq[i] = -1;
 
     p->hbomb_on          = 0;
-    p->cheat_phase       = 0;
     p->pals.f         = 0;
     p->toggle_key_flag   = 0;
     p->secret_rooms      = 0;

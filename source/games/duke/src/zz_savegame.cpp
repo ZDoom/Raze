@@ -161,7 +161,6 @@ int32_t G_LoadPlayer(const char *path)
     Net_WaitForEverybody();
 
     FX_StopAllSounds();
-    S_ClearSoundLocks();
 
     // non-"m_" fields will be loaded from svgm_udnetw
     ud.m_volume_number = h.volnum;
@@ -1397,9 +1396,7 @@ static void postloadplayer(int32_t savegamep)
     if (savegamep)
     {
         Bmemset(gotpic, 0, sizeof(gotpic));
-        S_ClearSoundLocks();
-        //G_CacheMapData();
-		Mus_ResumeSaved();
+        Mus_ResumeSaved();
         Mus_SetPaused(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;

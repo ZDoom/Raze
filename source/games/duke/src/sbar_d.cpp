@@ -76,19 +76,19 @@ public:
 		switch (p->inven_icon)
 		{
 		case ICON_FIRSTAID:
-			return p->inv_amount[GET_FIRSTAID];
+			return p->firstaid_amount;
 		case ICON_STEROIDS:
-			return (p->inv_amount[GET_STEROIDS] + 3) >> 2;
+			return (p->steroids_amount + 3) >> 2;
 		case ICON_HOLODUKE:
-			return (p->inv_amount[GET_HOLODUKE] + 15) / 24;
+			return (p->holoduke_amount + 15) / 24;
 		case ICON_JETPACK:
-			return (p->inv_amount[GET_JETPACK] + 15) >> 4;
+			return (p->jetpack_amount + 15) >> 4;
 		case ICON_HEATS:
-			return p->inv_amount[GET_HEATS] / 12;
+			return p->heat_amount / 12;
 		case ICON_SCUBA:
-			return (p->inv_amount[GET_SCUBA] + 63) >> 6;
+			return (p->scuba_amount + 63) >> 6;
 		case ICON_BOOTS:
-			return p->inv_amount[GET_BOOTS] >> 1;
+			return p->boot_amount >> 1;
 		}
 
 		return -1;
@@ -98,7 +98,7 @@ public:
 	{
 		// special handling for WW2GI
 		int lAmount = GetGameVar("PLR_MORALE", -1, p->i, snum);
-		if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
+		if (lAmount == -1) lAmount = p->shield_amount;
 		return lAmount;
 	}
 

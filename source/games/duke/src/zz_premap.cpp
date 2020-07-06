@@ -87,7 +87,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
     DukePlayer_t *const pPlayer = g_player[0].ps;
 
-    G_HandleAsync();
+    handleevents();
 
     g_skillSoundVoice = -1;
 
@@ -329,7 +329,6 @@ int G_EnterLevel(int gameMode)
     {
         S_PauseSounds(false);
         FX_StopAllSounds();
-        S_ClearSoundLocks();
         FX_SetReverb(0);
     }
 

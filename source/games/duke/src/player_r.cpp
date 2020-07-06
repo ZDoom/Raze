@@ -3439,8 +3439,7 @@ void processinput_r(int snum)
 	g_player[snum].horizAngleAdjust = 0;
 	g_player[snum].horizSkew = 0;
 
-	if (p->cheat_phase <= 0) sb_snum = g_player[snum].input->bits;// sync[snum].bits;
-	else sb_snum = 0;
+	sb_snum = g_player[snum].input->bits;// sync[snum].bits;
 
 	auto sb_fvel = g_player[snum].input->fvel;	// TRANSITIONAL
 	auto sb_svel = g_player[snum].input->svel;

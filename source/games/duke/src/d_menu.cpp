@@ -308,7 +308,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		while (S_CheckSoundPlaying(skillsound))
 		{
 			S_Update();
-			G_HandleAsync();
+			handleevents();
 		}
 	}
 	ud.m_respawn_monsters = (gs.Skill == 3);

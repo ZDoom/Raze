@@ -410,8 +410,8 @@ void P_GetInput(int const playerNum)
     if (!pPlayer->aim_mode && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER && (sector[pPlayer->cursectnum].floorstat & 2))
     {
         // this is some kind of horse shit approximation of where the player is looking, I guess?
-        vec2_t const adjustedPosition = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
-                                          pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
+        vec2_t const adjustedPosition = { pPlayer->posx + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
+                                          pPlayer->posy + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
         int16_t currentSector = pPlayer->cursectnum;
  
         updatesector(adjustedPosition.x, adjustedPosition.y, &currentSector);

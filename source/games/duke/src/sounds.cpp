@@ -112,7 +112,7 @@ void cacheAllSounds(void)
     {
         soundEngine->CacheSound(&snd);
         if (((++i)&31) == 0)
-            G_HandleAsync();
+            handleevents();
     }
 }
 
@@ -151,9 +151,6 @@ int S_GetUserFlags(int num)
 
 int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
 {
-    if ((unsigned)index >= MAXSOUNDS)
-        return -1;
-
     auto& S_sfx = soundEngine->GetSounds();
     index++;
     unsigned oldindex = S_sfx.Size();
@@ -420,9 +417,6 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
     S_GetCamera(&campos, nullptr, &camsect);
     GetPositionInfo(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
     int        pitch = S_GetPitch(sndnum);
-
-    if (ps[screenpeek].sound_pitch)
-        pitch += ps[screenpeek].sound_pitch;
 
     bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
 

@@ -2600,8 +2600,7 @@ void processinput_d(int snum)
 	g_player[snum].horizAngleAdjust = 0;
 	g_player[snum].horizSkew = 0;
 
-	if (p->cheat_phase <= 0) sb_snum = PlayerInputBits(snum, SKB_ALL);
-	else sb_snum = 0;
+	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);

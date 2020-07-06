@@ -62,20 +62,20 @@ public:
 	{
 		switch (p->inven_icon)
 		{
-		case ICON_FIRSTAID:
-			return p->inv_amount[GET_FIRSTAID];
-		case ICON_STEROIDS:
-			return (p->inv_amount[GET_STEROIDS] + 3) >> 2;
-		case ICON_HOLODUKE:
-			return p->inv_amount[GET_HOLODUKE] / 400;
-		case ICON_JETPACK:
-			return p->inv_amount[GET_JETPACK] / 100;
-		case ICON_HEATS:
-			return p->inv_amount[GET_HEATS] / 12;
-		case ICON_SCUBA:
-			return (p->inv_amount[GET_SCUBA] + 63) >> 6;
-		case ICON_BOOTS:
-			return (p->inv_amount[GET_BOOTS] / 10) >> 1;
+        case ICON_FIRSTAID:
+            return p->firstaid_amount;
+        case ICON_STEROIDS:
+            return (p->steroids_amount + 3) >> 2;
+        case ICON_HOLODUKE:
+            return (p->holoduke_amount) / 400;
+        case ICON_JETPACK:
+            return (p->jetpack_amount) / 100;
+        case ICON_HEATS:
+            return p->heat_amount / 12;
+        case ICON_SCUBA:
+            return (p->scuba_amount + 63) >> 6;
+        case ICON_BOOTS:
+            return (p->boot_amount / 10) >> 1;
 		}
 
 		return -1;

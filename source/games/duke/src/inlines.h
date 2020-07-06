@@ -144,6 +144,15 @@ inline fixed_t PlayerInputAngVel(int pl)
     return g_player[pl].input->q16avel;
 }
 
+inline void clearfriction()
+{
+    for (int i = 0; i != -1; i = connectpoint2[i])
+    {
+        ps[i].fric.x = ps[i].fric.y = 0;
+    }
+}
+
+
 //---------------------------------------------------------------------------
 //
 //

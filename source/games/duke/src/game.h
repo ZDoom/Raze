@@ -57,17 +57,6 @@ struct ActorInfo
 };
 
 
-
-
-#define MAXSAVEGAMENAMESTRUCT 32
-#define MAXSAVEGAMENAME (MAXSAVEGAMENAMESTRUCT-1)
-#define MAXPWLOCKOUT 128
-#define MAXRTSNAME 128
-
-#define MAX_RETURN_VALUES 6
-
-// KEEPINSYNC lunatic/_defs_game.lua
-
 typedef struct {
     vec3_t camerapos;
     int32_t const_visibility,uw_framerate;
@@ -88,8 +77,6 @@ typedef struct {
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off;
     int32_t ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,marker;
-
-    //int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
 
@@ -123,9 +110,6 @@ extern int rtsplaying;
 
 #ifndef ONLY_USERDEFS
 
-// this is checked against http://eduke32.com/VERSION
-extern const char *s_buildDate;
-
 extern char boardfilename[BMAX_PATH];
 #define USERMAPMUSICFAKEVOLUME MAXVOLUMES
 #define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
@@ -149,34 +133,12 @@ extern int32_t g_doQuickSave;
 extern int32_t restorepalette;
 extern int32_t tempwallptr;
 
-//extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
-
-#define A_InsertSprite EGS
-int G_DoMoveThings(void);
-//int32_t G_EndOfLevel(void);
-
-#ifdef YAX_ENABLE
-void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
-#else
-#define Yax_SetBunchZs(sectnum, cf, daz)
-#endif
-
-
 void G_BackToMenu(void);
 
-const char* G_PrintYourTime(void);
-const char* G_PrintParTime(void);
-const char* G_PrintDesignerTime(void);
-const char* G_PrintBestTime(void);
 void G_BonusScreen(int32_t bonusonly);
-void G_BonusScreenRRRA(int32_t bonusonly);
-//void G_CheatGetInv(void);
 void G_DisplayRest(int32_t smoothratio);
 void drawbackground(void);
-void G_DrawFrags(void);
-void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t horiz, int32_t smoothratio);
 void displayrooms(int32_t playerNum,int32_t smoothratio);
-void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 void G_HandleLocalKeys(void);
 void G_UpdatePlayerFromMenu(void);
 void FTA(int q, struct player_struct* p);
@@ -187,22 +149,7 @@ void OffMotorcycle(DukePlayer_t *pPlayer);
 void OnBoat(DukePlayer_t *pPlayer, int spriteNum);
 void OffBoat(DukePlayer_t *pPlayer);
 
-// Cstat protection mask for (currently) spawned MASKWALL* sprites.
-// TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in fi.spawn()?
-// 2048+(32+16)+8+4
-#define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_ALIGNMENT_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
-
 void G_InitTimer(int32_t ticspersec);
-
-inline int32_t G_GetTeamPalette(int32_t team)
-{
-    int8_t pal[] = { 3, 10, 11, 12 };
-
-    if ((unsigned)team >= ARRAY_SIZE(pal))
-        return 0;
-
-    return pal[team];
-}
 
 enum
 {
@@ -216,18 +163,9 @@ struct TileInfo
 extern TileInfo tileinfo[MAXTILES];
 
 
-// (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
-#define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (actorinfo[iPicnum].flags & iType) != 0)
-#define S_StopSound(num) S_StopEnvSound(num, -1)
-
 extern int startrts(int lumpNum, int localPlayer);
 
 extern void G_MaybeAllocPlayer(int32_t pnum);
-
-static inline void G_HandleAsync(void)
-{
-    handleevents();
-}
 
 static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
@@ -248,9 +186,6 @@ static inline void G_NewGame_EnterLevel(void)
     if (G_EnterLevel(MODE_GAME))
         G_BackToMenu();
 }
-
-extern void G_PrintCurrentMusic(void);
-
 
 extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
 extern void G_SetupGlobalPsky(void);

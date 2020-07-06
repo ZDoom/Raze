@@ -235,15 +235,15 @@ void G_DisplayRest(int32_t smoothratio)
                     }
                     else
                     {
-                        cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
-                        cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
+                        cposx = pp->oposx + mulscale16(pp->posx-pp->oposx, smoothratio);
+                        cposy = pp->oposy + mulscale16(pp->posy-pp->oposy, smoothratio);
                         cang = fix16_to_int(pp->oq16ang) + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
                     }
                 }
                 else
                 {
-                    cposx = pp->opos.x;
-                    cposy = pp->opos.y;
+                    cposx = pp->oposx;
+                    cposy = pp->oposy;
                     cang = fix16_to_int(pp->oq16ang);
                 }
             }
