@@ -514,8 +514,7 @@ FAKEHORIZONLY:
             myhoriz -= (myhardlanding<<4);
         }
 
-        if (myhoriz > 299) myhoriz = 299;
-        else if (myhoriz < -99) myhoriz = -99;
+        myhoriz = clamp(myhoriz, HORIZ_MIN, HORIZ_MAX);
 
         if(p->knee_incs > 0)
         {

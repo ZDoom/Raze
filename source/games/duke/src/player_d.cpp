@@ -3109,8 +3109,7 @@ HORIZONLY:
 		if (p->horizoff > -5 && p->horizoff < 5) p->horizoff = 0;
 	}
 
-	if (p->horiz > 299) p->horiz = 299;
-	else if (p->horiz < -99) p->horiz = -99;
+	horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
 #endif
 
 	//Shooting code/changes

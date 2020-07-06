@@ -1431,10 +1431,6 @@ static void postloadplayer(int32_t savegamep)
     if (savegamep)
         everyothertime = 0;
 
-    //7
-    for (i=0; i<MAXPLAYERS; i++)
-        g_player[i].playerquitflag = 1;
-
     // ----------
 
     //7.5

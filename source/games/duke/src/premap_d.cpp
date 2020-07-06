@@ -681,7 +681,6 @@ void enterlevel(char g)
      displayrooms(myconnectindex,65536);
      displayrest(screenpeek);
 
-     clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
      ps[myconnectindex].over_shoulder_on = 0;
 
      clearfrags();

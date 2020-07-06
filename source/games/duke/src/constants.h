@@ -499,12 +499,20 @@ enum
 	EVENT_MAXEVENT = EVENT_NUMEVENTS - 1
 };
 
-enum
+enum miscConstants
 {
     MAXSLEEPDIST = 16384,
     SLEEPTIME = 1536,
     ZOFFSET6 = (4 << 8),
-    FOURSLEIGHT = (1 << 8)
+    FOURSLEIGHT = (1 << 8),
+
+    MOVEFIFOSIZ     =256,
+    HORIZ_MIN       =-99,
+    HORIZ_MAX       =299,
+    AUTO_AIM_ANGLE  =48,
+    PHEIGHT_DUKE    =(38<<8),
+    PHEIGHT_RR      =(40<<8)
+
 };
 
 enum

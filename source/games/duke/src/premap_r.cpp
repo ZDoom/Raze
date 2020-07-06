@@ -989,7 +989,6 @@ void loadlevel(const char *filename)
      displayrest(screenpeek);
      nextpage();
 
-     clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
      if (waitabort == 1)
          gameexit(" ");
      ps[myconnectindex].over_shoulder_on = 0;

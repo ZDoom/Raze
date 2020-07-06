@@ -608,8 +608,7 @@ void displayrooms(int snum, int smoothratio)
 			if (cposz > fz - (4 << 8)) cposz = fz - (4 << 8);
 		}
 
-		if (choriz > 299) choriz = 299;
-		else if (choriz < -99) choriz = -99;
+		choriz = clamp(choriz, HORIZ_MIN, HORIZ_MAX);
 
 		if (isRR() && sector[sect].lotag == 848)
 		{

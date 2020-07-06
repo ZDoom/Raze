@@ -28,25 +28,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "net.h"
 #include "tarray.h"
 #include "constants.h"
+#include "types.h"
 
 BEGIN_DUKE_NS
 
 extern int32_t playerswhenstarted;
 
-#define MOVEFIFOSIZ                 256
-
-#define HORIZ_MIN                   -99
-#define HORIZ_MAX                   299
-#define AUTO_AIM_ANGLE              48
-#define PHEIGHT_DUKE                (38<<8)
-#define PHEIGHT_RR                  (40<<8);
 extern int32_t PHEIGHT;
 
-#define WEAPON_POS_LOWER            -9
-#define WEAPON_POS_RAISE            10
-#define WEAPON_POS_START             6
-
-#define MAX_WEAPON_RECS             256
 
 enum gamemode_t {
     MODE_MENU                   = 0x00000001,
@@ -55,19 +44,9 @@ enum gamemode_t {
     MODE_EOL                    = 0x00000008,
     MODE_TYPE                   = 0x00000010,
     MODE_RESTART                = 0x00000020,
-    MODE_SENDTOWHOM             = 0x00000040,
 };
 
-typedef struct {
-    ESyncBits bits;
-    int16_t fvel, svel;
-    fix16_t q16avel, q16horz;
-} input_t;
 
-#pragma pack(push,1)
-
-
-// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
 {
     struct player_struct *ps;
@@ -81,13 +60,11 @@ typedef struct
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
     uint8_t frags[MAXPLAYERS];
 
-    char playerreadyflag, playerquitflag, connected;
     char user_name[32];
     char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
     double  lastInputTicks;
 
 } playerdata_t;
-#pragma pack(pop)
 
 
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])

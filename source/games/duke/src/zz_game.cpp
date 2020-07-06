@@ -354,8 +354,6 @@ inline int G_CheckPlayerColor(int color)
 
 static void G_Startup(void)
 {
-    int32_t i;
-
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);
 
@@ -397,11 +395,6 @@ static void G_Startup(void)
         }
 		strncpy(boardfilename, startupMap, BMAX_PATH);
     }
-
-    for (i=0; i<MAXPLAYERS; i++)
-        g_player[i].playerreadyflag = 0;
-
-    Net_GetPackets();
 
     if (numplayers > 1)
         Printf("Multiplayer initialized.\n");
@@ -676,8 +669,6 @@ int GameInterface::app_main()
         G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
-
-    g_player[0].playerquitflag = 1;
 
     g_player[myconnectindex].ps->palette = BASEPAL;
 
