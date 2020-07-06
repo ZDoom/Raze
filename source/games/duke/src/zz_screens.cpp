@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "v_2ddrawer.h"
 #include "screenjob.h"
+#include "prediction.h"
 
 BEGIN_DUKE_NS
 
@@ -232,8 +233,8 @@ void G_DisplayRest(int32_t smoothratio)
                 {
                     if (screenpeek == myconnectindex && numplayers > 1)
                     {
-                        cposx = omypos.x + mulscale16(mypos.x-omypos.x, smoothratio);
-                        cposy = omypos.y + mulscale16(mypos.y-omypos.y, smoothratio);
+                        cposx = omyx + mulscale16(myx-omyx, smoothratio);
+                        cposy = omyy + mulscale16(myy-omyy, smoothratio);
                         cang = fix16_to_int(omyang) + mulscale16((fix16_to_int(myang+F16(1024)-omyang)&2047)-1024, smoothratio);
                     }
                     else

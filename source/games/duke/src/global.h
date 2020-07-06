@@ -89,25 +89,6 @@ G_EXTERN int8_t avgextbits;
 G_EXTERN int32_t movefifosendplc;
 
 G_EXTERN int32_t predictfifoplc;
-G_EXTERN vec3_t mypos, omypos, myvel;
-#define myx mypos.x
-#define myy mypos.y
-#define myz mypos.z
-#define omyx omypos.x
-#define omyy omypos.y
-#define omyz omypos.z
-G_EXTERN fix16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, myang, omyang;
-G_EXTERN int16_t mycursectnum, myjumpingcounter;
-G_EXTERN uint8_t myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
-G_EXTERN int16_t my_MotoSpeed;
-G_EXTERN uint8_t my_NotOnWater, my_MotoOnGround;
-G_EXTERN uint8_t my_moto_do_bump, my_moto_bump_fast, my_moto_on_oil, my_moto_on_mud;
-G_EXTERN int16_t my_moto_bump, my_moto_bump_target, my_moto_turb;
-G_EXTERN int32_t my_stairs;
-
-G_EXTERN vec3_t myposbak[MOVEFIFOSIZ];
-G_EXTERN fix16_t myhorizbak[MOVEFIFOSIZ], myangbak[MOVEFIFOSIZ];
-G_EXTERN int32_t myminlag[MAXPLAYERS], mymaxlag, otherminlag, bufferjitter;
 
 G_EXTERN int32_t g_networkBroadcastMode, g_movesPerPacket;
 

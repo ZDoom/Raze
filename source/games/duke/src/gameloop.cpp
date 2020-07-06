@@ -50,7 +50,7 @@ void GetNextInput();
 static input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 static int movefifoend[MAXPLAYERS];
 static int movefifoplc;
-
+static int bufferjitter;
 
 void clearfifo(void)
 {

@@ -29,6 +29,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "duke3d.h"
 #include "build.h"
 #include "v_video.h"
+#include "prediction.h"
 
 
 BEGIN_DUKE_NS
@@ -540,8 +541,8 @@ void displayrooms(int snum, int smoothratio)
 			cang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);
 			choriz = omyhoriz + omyhorizoff + mulscale16((int)(myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothratio);
 #else
-			cang = myang >> 16;
-			choriz = (myhoriz + myhorizoff) >> 16;
+			cang = myang;
+			choriz = (myhoriz + myhorizoff);
 #endif
 			sect = mycursectnum;
 		}

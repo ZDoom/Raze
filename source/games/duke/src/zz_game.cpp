@@ -627,7 +627,7 @@ int GameInterface::app_main()
 	ud.m_monsters_off = userConfig.nomonsters;
 
     g_movesPerPacket = 1;
-    bufferjitter = 1;
+    //bufferjitter = 1;
     initsynccrc();
 
     // This needs to happen before G_CheckCommandLine() because G_GameExit()

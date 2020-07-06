@@ -32,6 +32,7 @@ set( PCH_SOURCES
 	src/premap.cpp
 	src/premap_d.cpp
 	src/premap_r.cpp
+	src/prediction.cpp
 	src/render.cpp
 	src/sbar.cpp
 	src/sbar_d.cpp
