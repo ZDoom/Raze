@@ -772,7 +772,7 @@ static const dataspec_t svgm_udnetw[] =
     { DS_STRING, (void *)svgm_udnetw_string, 0, 1 },
     { 0, &ud.multimode, sizeof(ud.multimode), 1 },
     { 0, &numplayersprites, sizeof(numplayersprites), 1 },
-    { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
+    { 0, &po, sizeof(po), 1 },
 
     { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
     { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },

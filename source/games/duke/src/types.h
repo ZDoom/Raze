@@ -34,6 +34,11 @@ struct ActorInfo
 	int aimoffset;
 };
 
+struct player_orig
+{
+    int ox, oy, oz;
+    short oa, os;
+};
 
 struct player_struct 
 {

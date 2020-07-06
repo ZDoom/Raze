@@ -119,8 +119,8 @@ int haskey(int sect, int snum);
 
 void breakwall(short newpn, short spr, short dawallnum);
 void callsound2(int soundNum, int playerNum);
-int callsound(int sectNum,int spriteNum);
-int hitasprite(int spriteNum,short *hitSprite);
+int callsound(int sectnum,int snum);
+int hitasprite(int snum,short *hitSprite);
 int findplayer(const spritetype* s, int* dist);
 void operatejaildoors(int hitag);
 void allignwarpelevators(void);
@@ -136,14 +136,14 @@ int getanimationgoal(const int* animPtr);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 int setanimation(short animsect, int* animptr, int thegoal, int thevel);
-void dofurniture(int wallNum, int sectNum, int playerNum);
+void dofurniture(int wallNum, int sectnum, int playerNum);
 void dotorch();
-int hitawall(struct player_struct* pPlayer, int* hitWall);
-int hits(int spriteNum);
+int hitawall(struct player_struct* pl, int* hitWall);
+int hits(int snum);
 
 void   clearsectinterpolate(int sprnum);
 void   setsectinterpolate(int sprnum);
-int LocateTheLocator(int const tag, int const sectNum);
+int LocateTheLocator(int const tag, int const sectnum);
 void clearcamera(player_struct* ps);
 
 void showtwoscreens(CompletionFunc func);
@@ -151,16 +151,16 @@ void doorders(CompletionFunc func);
 
 void execute(int s, int p, int d);
 void makeitfall(int s);
-int furthestangle(int spriteNum, int angDiv);
+int furthestangle(int snum, int angDiv);
 void getglobalz(int s);
 int getincangle(int c, int n);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
 
 short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
-void ceilingglass(int spriteNum, int sectNum, int glassCnt);
-void spriteglass(int spriteNum, int glassCnt);
-void lotsofcolourglass(int spriteNum, int wallNum, int glassCnt);
-void lotsofglass(int spriteNum, int wallnum, int glassCnt);
+void ceilingglass(int snum, int sectnum, int cnt);
+void spriteglass(int snum, int cnt);
+void lotsofcolourglass(int snum, int wallNum, int cnt);
+void lotsofglass(int snum, int wallnum, int cnt);
 
 void addspritetodelete(int spnum);
 void checkavailinven(struct player_struct* p);
@@ -184,5 +184,11 @@ void resetprestat(int snum, int g);
 void clearfifo(void);
 void setmapfog(int fogtype);
 void prelevel_common(int g);
+
+void FTA(int q, struct player_struct* p);
+void OnMotorcycle(player_struct *pl, int snum);
+void OffMotorcycle(player_struct *pl);
+void OnBoat(player_struct *pl, int snum);
+void OffBoat(player_struct *pl);
 
 END_DUKE_NS

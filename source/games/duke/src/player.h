@@ -59,24 +59,6 @@ enum gamemode_t {
 };
 
 typedef struct {
-    union
-    {
-        vec3_t pos;
-        struct { int ox, oy, oz; };
-    };
-    union
-    {
-        int16_t oa;
-        int16_t ang;
-    };
-    union
-    {
-        int16_t sect;
-        int16_t os;
-    };
-} playerspawn_t;
-
-typedef struct {
     ESyncBits bits;
     int16_t fvel, svel;
     fix16_t q16avel, q16horz;
@@ -110,7 +92,6 @@ typedef struct
 
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 
-extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
 extern int32_t          mouseyaxismode;
 

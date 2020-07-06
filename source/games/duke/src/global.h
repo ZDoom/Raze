@@ -237,8 +237,7 @@ playerdata_t *const g_player = &g_player_s[1];
 #else
 extern playerdata_t *const g_player;
 #endif
-G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
-#define po g_playerSpawnPoints
+G_EXTERN player_orig po[MAXPLAYERS];
 #pragma pack(pop)
 
 G_EXTERN int32_t restorepalette;

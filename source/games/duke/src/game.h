@@ -123,13 +123,8 @@ void drawbackground(void);
 void displayrooms(int32_t playerNum,int32_t smoothratio);
 void G_HandleLocalKeys(void);
 void G_UpdatePlayerFromMenu(void);
-void FTA(int q, struct player_struct* p);
 
 void P_SetGamePalette(player_struct* player, uint32_t palid, ESetPalFlags flags);
-void OnMotorcycle(player_struct *pPlayer, int spriteNum);
-void OffMotorcycle(player_struct *pPlayer);
-void OnBoat(player_struct *pPlayer, int spriteNum);
-void OffBoat(player_struct *pPlayer);
 
 void G_InitTimer(int32_t ticspersec);
 
