@@ -826,7 +826,7 @@ static char svgm_script_string [] = "blK:scri";
 static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)svgm_script_string, 0, 1 },
-    { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
+    { 0, &hittype[0], sizeof(weaponhit), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
     { DS_END, 0, 0, 0 }
 };

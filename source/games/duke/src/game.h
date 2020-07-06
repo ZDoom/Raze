@@ -37,6 +37,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+struct weaponhit
+{
+	uint8_t cgg;
+	short picnum, ang, extra, owner, movflag;
+	short tempang, actorstayput, dispicnum;
+	short timetosleep;
+	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
+	int temp_data[6];
+};
+
+
+// Todo - put more state in here
+struct ActorInfo
+{
+	uint32_t scriptaddress;
+	uint32_t flags;
+	int aimoffset;
+};
+
+
+
+
 #define MAXSAVEGAMENAMESTRUCT 32
 #define MAXSAVEGAMENAME (MAXSAVEGAMENAMESTRUCT-1)
 #define MAXPWLOCKOUT 128
@@ -129,7 +151,6 @@ extern int32_t tempwallptr;
 
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
-short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
 #define A_InsertSprite EGS
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
@@ -140,10 +161,6 @@ void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
 #define Yax_SetBunchZs(sectnum, cf, daz)
 #endif
 
-void ceilingglass(int spriteNum,int sectNum,int glassCnt);
-void spriteglass(int spriteNum,int glassCnt);
-void lotsofcolourglass(int spriteNum,int wallNum,int glassCnt);
-void lotsofglass(int spriteNum,int wallnum,int glassCnt);
 
 void G_BackToMenu(void);
 
@@ -198,42 +215,6 @@ struct TileInfo
 };
 extern TileInfo tileinfo[MAXTILES];
 
-inline int actorflag(int spritenum, int mask)
-{
-    return (((actorinfo[sprite[spritenum].picnum].flags/* ^ actor[spritenum].flags*/) & mask) != 0);
-}
-
-inline int actorfella(int spnum)
-{
-    return actorflag(spnum, SFLAG_KILLCOUNT);
-}
-
-inline void setflag(int flag, const std::initializer_list<short>& types)
-{
-    for (auto val : types)
-    {
-        actorinfo[val].flags |= flag;
-    }
-}
-
-inline bool inventory(spritetype* S)
-{
-    return !!(actorinfo[S->picnum].flags & SFLAG_INVENTORY);
-}
-
-
-inline void settileflag(int flag, const std::initializer_list<short>& types)
-{
-    for (auto val : types)
-    {
-        tileinfo[val].flags |= flag;
-    }
-}
-
-inline bool wallswitchcheck(int s)
-{
-    return !!(tileinfo[s].flags & TFLAG_WALLSWITCH);
-}
 
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (actorinfo[iPicnum].flags & iType) != 0)
@@ -270,20 +251,6 @@ static inline void G_NewGame_EnterLevel(void)
 
 extern void G_PrintCurrentMusic(void);
 
-void addspritetodelete(int spnum);
-void checkavailinven(struct player_struct* p);
-
-int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
-void spawninitdefault(int j, int i);
-void spawntransporter(int j, int i, bool beam);
-int spawnbloodpoolpart1(int j, int i);
-void initfootprint(int j, int i);
-void initshell(int j, int i, bool isshell);
-void initcrane(int j, int i, int CRANEPOLE);
-void initwaterdrip(int j, int i);
-int initreactor(int j, int i, bool isrecon);
-void spawneffector(int i);
-void gameexitfrommenu();
 
 extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
 extern void G_SetupGlobalPsky(void);
@@ -292,65 +259,12 @@ extern void G_SetupGlobalPsky(void);
 
 extern void genspriteremaps(void);
 
-
-struct Dispatcher
-{
-    // global stuff
-    void (*ShowLogo)(CompletionFunc completion);
-    void (*InitFonts)();
-	void (*PrintPaused)();
-
-	// sectors_?.cpp
-    void (*think)();
-	void (*initactorflags)();
-	bool (*isadoorwall)(int dapic);
-	void (*animatewalls)();
-	void (*operaterespawns)(int low);
-	void (*operateforcefields)(int s, int low);
-	bool (*checkhitswitch)(int snum, int w, int switchtype);
-	void (*activatebysector)(int sect, int j);
-	void (*checkhitwall)(int spr, int dawallnum, int x, int y, int z, int atwith);
-    void (*checkplayerhurt)(struct player_struct* p, int j);
-	bool (*checkhitceiling)(int sn);
-	void (*checkhitsprite)(int i, int sn);
-	void (*checksectors)(int low);
-
-	bool (*ceilingspace)(int sectnum);
-	bool (*floorspace)(int sectnum);
-	void (*addweapon)(struct player_struct *p, int weapon);
-	void (*hitradius)(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-	int  (*movesprite)(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-	void (*lotsofmoney)(spritetype *s, short n);
-	void (*lotsofmail)(spritetype *s, short n);
-	void (*lotsofpaper)(spritetype *s, short n);
-	void (*guts)(spritetype* s, short gtype, short n, short p);
-	void (*gutsdir)(spritetype* s, short gtype, short n, short p);
-	int  (*ifhitsectors)(int sectnum);
-	int  (*ifhitbyweapon)(int sectnum);
-	void (*fall)(int g_i, int g_p);
-    bool (*spawnweapondebris)(int picnum, int dnum);
-    void (*respawnhitag)(spritetype* g_sp);
-    void (*checktimetosleep)(int g_i);
-    void (*move)(int g_i, int g_p, int g_x);
-	int (*spawn)(int j, int pn);
-    void (*check_fta_sounds)(int i);
-
-    // player
-    void (*incur_damage)(struct player_struct* p);
-    void (*shoot)(int, int);
-    void (*selectweapon)(int snum, int j);
-    int (*doincrements)(struct player_struct* p);
-    void (*checkweapons)(struct player_struct* p);
-    void (*processinput)(int snum);
-    void (*displayweapon)(int snum);
-    void (*displaymasks)(int snum);
-
-    void (*animatesprites)(int x, int y, int a, int smoothratio);
+extern int32_t      actor_tog;
+extern int32_t      otherp;
 
 
-};
-
-extern Dispatcher fi;
+extern ActorInfo   actorinfo[MAXTILES];
+extern weaponhit      hittype[MAXSPRITES];
 
 #endif
 

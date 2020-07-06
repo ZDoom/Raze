@@ -36,7 +36,6 @@ This file contains parts of DukeGDX by Alexander Makarov-[M210] (m210-2007@mail.
 
 #include "ns.h"
 #include "global.h"
-#include "zz_actors.h"
 #include "names_d.h"
 #include "serializer.h"
 
@@ -1911,7 +1910,7 @@ void moveweapons_d(void)
 						j = fi.spawn(i, LAVAPOOL);
 						sprite[j].owner = sprite[i].owner;
 						sprite[j].yvel = sprite[i].yvel;
-						actor[j].owner = sprite[i].owner;
+						hittype[j].owner = sprite[i].owner;
 						deletesprite(i);
 						continue;
 					}

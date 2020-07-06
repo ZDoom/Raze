@@ -5,6 +5,10 @@
 // all inline functions.
 BEGIN_DUKE_NS
 
+inline bool AFLAMABLE(int X)
+{
+    return (X == TILE_BOX || X == TILE_TREE1 || X == TILE_TREE2 || X == TILE_TIRE || X == TILE_CONE);
+}
 
 inline int badguypic(int const tileNum)
 {
@@ -14,6 +18,42 @@ inline int badguypic(int const tileNum)
 inline int badguy(void const * const pSprite)
 {
     return badguypic(((uspritetype const *) pSprite)->picnum);
+}
+
+inline int actorflag(int spritenum, int mask)
+{
+    return (((actorinfo[sprite[spritenum].picnum].flags/* ^ hittype[spritenum].flags*/) & mask) != 0);
+}
+
+inline int actorfella(int spnum)
+{
+    return actorflag(spnum, SFLAG_KILLCOUNT);
+}
+
+inline void setflag(int flag, const std::initializer_list<short>& types)
+{
+    for (auto val : types)
+    {
+        actorinfo[val].flags |= flag;
+    }
+}
+
+inline bool inventory(spritetype* S)
+{
+    return !!(actorinfo[S->picnum].flags & SFLAG_INVENTORY);
+}
+
+inline void settileflag(int flag, const std::initializer_list<short>& types)
+{
+    for (auto val : types)
+    {
+        tileinfo[val].flags |= flag;
+    }
+}
+
+inline bool wallswitchcheck(int s)
+{
+    return !!(tileinfo[s].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)

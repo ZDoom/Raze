@@ -12,7 +12,7 @@
 #include "polymost.h"
 #include "gamecvars.h"
 #include "menu/menu.h"
-#include "zz_actors.h"
+#include "funct.h"
 #include "gamecontrol.h"
 #include "game.h"
 #include "gamedef.h"
@@ -26,6 +26,9 @@
 #include "rts.h"
 #include "sounds.h"
 #include "soundefs.h"
+#include "stats.h"
+
+extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 BEGIN_DUKE_NS
 
@@ -60,6 +63,65 @@ struct GameInterface : ::GameInterface
 	FString GetCoordString() override;
 	bool CheatAllowed(bool printmsg) override;
 };
+
+struct Dispatcher
+{
+    // global stuff
+    void (*ShowLogo)(CompletionFunc completion);
+    void (*InitFonts)();
+	void (*PrintPaused)();
+
+	// sectors_?.cpp
+    void (*think)();
+	void (*initactorflags)();
+	bool (*isadoorwall)(int dapic);
+	void (*animatewalls)();
+	void (*operaterespawns)(int low);
+	void (*operateforcefields)(int s, int low);
+	bool (*checkhitswitch)(int snum, int w, int switchtype);
+	void (*activatebysector)(int sect, int j);
+	void (*checkhitwall)(int spr, int dawallnum, int x, int y, int z, int atwith);
+    void (*checkplayerhurt)(struct player_struct* p, int j);
+	bool (*checkhitceiling)(int sn);
+	void (*checkhitsprite)(int i, int sn);
+	void (*checksectors)(int low);
+
+	bool (*ceilingspace)(int sectnum);
+	bool (*floorspace)(int sectnum);
+	void (*addweapon)(struct player_struct *p, int weapon);
+	void (*hitradius)(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
+	int  (*movesprite)(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
+	void (*lotsofmoney)(spritetype *s, short n);
+	void (*lotsofmail)(spritetype *s, short n);
+	void (*lotsofpaper)(spritetype *s, short n);
+	void (*guts)(spritetype* s, short gtype, short n, short p);
+	void (*gutsdir)(spritetype* s, short gtype, short n, short p);
+	int  (*ifhitsectors)(int sectnum);
+	int  (*ifhitbyweapon)(int sectnum);
+	void (*fall)(int g_i, int g_p);
+    bool (*spawnweapondebris)(int picnum, int dnum);
+    void (*respawnhitag)(spritetype* g_sp);
+    void (*checktimetosleep)(int g_i);
+    void (*move)(int g_i, int g_p, int g_x);
+	int (*spawn)(int j, int pn);
+    void (*check_fta_sounds)(int i);
+
+    // player
+    void (*incur_damage)(struct player_struct* p);
+    void (*shoot)(int, int);
+    void (*selectweapon)(int snum, int j);
+    int (*doincrements)(struct player_struct* p);
+    void (*checkweapons)(struct player_struct* p);
+    void (*processinput)(int snum);
+    void (*displayweapon)(int snum);
+    void (*displaymasks)(int snum);
+
+    void (*animatesprites)(int x, int y, int a, int smoothratio);
+
+
+};
+
+extern Dispatcher fi;
 
 END_DUKE_NS
 

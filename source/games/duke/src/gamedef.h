@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define gamedef_h_
 
 #include "gamevar.h"
-#include "zz_actors.h"
+#include "funct.h"
 #include "build.h"  // hashtable_t
 #include "common.h"  // tokenlist
 #include "player.h"  // projectile_t

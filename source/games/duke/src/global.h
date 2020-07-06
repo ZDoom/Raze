@@ -76,10 +76,6 @@ enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
-G_EXTERN actor_t actor[MAXSPRITES];
-// actorinfo: tile-specific data THAT DOES NOT CHANGE during the course of a game
-G_EXTERN ActorInfo actorinfo[MAXTILES];
-
 struct animwalltype
 {
     int16_t wallnum, tag;
@@ -245,7 +241,6 @@ G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 #define po g_playerSpawnPoints
 #pragma pack(pop)
 
-G_EXTERN int32_t g_noEnemies;
 G_EXTERN int32_t restorepalette;
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;

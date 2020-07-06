@@ -72,8 +72,11 @@ char boardfilename[BMAX_PATH] = {0};
 int32_t g_Shareware = 0;
 
 int32_t tempwallptr;
+int32_t      actor_tog;
 
 static int32_t nonsharedtimer;
+weaponhit hittype[MAXSPRITES];
+ActorInfo actorinfo[MAXTILES];
 
 static void gameTimerHandler(void)
 {
@@ -524,8 +527,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 
 void app_loop();
 
-// TODO: reorder (net)actor_t to eliminate slop and update assertion
-EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
+// TODO: reorder (net)weaponhit to eliminate slop and update assertion
+EDUKE32_STATIC_ASSERT(sizeof(weaponhit)%4 == 0);
 
 static const char* actions[] = {
     "Move_Forward",
@@ -906,7 +909,6 @@ void GameInterface::FreeGameData()
 
 // access wrappers that alias old names to current data.
 psaccess ps;
-actor_t* hittype = actor;
 
 
 END_DUKE_NS

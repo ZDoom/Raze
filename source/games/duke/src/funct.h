@@ -1,6 +1,7 @@
 #pragma once
 
 #include "screenjob.h"
+#include "constants.h"
 
 BEGIN_DUKE_NS
 
@@ -152,5 +153,25 @@ int furthestangle(int spriteNum, int angDiv);
 void getglobalz(int s);
 int getincangle(int c, int n);
 void OnEvent(int id, int pnum = -1, int snum = -1, int dist = -1);
+
+short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, short s_ow, signed char s_ss);
+void ceilingglass(int spriteNum, int sectNum, int glassCnt);
+void spriteglass(int spriteNum, int glassCnt);
+void lotsofcolourglass(int spriteNum, int wallNum, int glassCnt);
+void lotsofglass(int spriteNum, int wallnum, int glassCnt);
+
+void addspritetodelete(int spnum);
+void checkavailinven(struct player_struct* p);
+int initspriteforspawn(int j, int pn, const std::initializer_list<int> &excludes);
+void spawninitdefault(int j, int i);
+void spawntransporter(int j, int i, bool beam);
+int spawnbloodpoolpart1(int j, int i);
+void initfootprint(int j, int i);
+void initshell(int j, int i, bool isshell);
+void initcrane(int j, int i, int CRANEPOLE);
+void initwaterdrip(int j, int i);
+int initreactor(int j, int i, bool isrecon);
+void spawneffector(int i);
+void gameexitfrommenu();
 
 END_DUKE_NS

@@ -50,11 +50,6 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BIT(shift)     (1u<<(shift))
 
-inline bool AFLAMABLE(int X)
-{
-    return (X == TILE_BOX || X == TILE_TREE1 || X == TILE_TREE2 || X == TILE_TIRE || X == TILE_CONE);
-}
-
 #define rnd(X) ((krand2()>>8)>=(255-(X)))
 
 //
