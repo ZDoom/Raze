@@ -143,7 +143,7 @@ G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t numplayersprites;
 G_EXTERN int32_t g_scriptDebug;
-G_EXTERN int32_t g_showShareware;
+G_EXTERN int32_t show_shareware;
 G_EXTERN int32_t g_spriteDeleteQueuePos;
 G_EXTERN int32_t max_player_health;
 G_EXTERN int32_t max_armour_amount;
@@ -160,9 +160,9 @@ G_EXTERN int32_t g_animateVel[MAXANIMATES];
 #define animatevel g_animateVel
 
 G_EXTERN int16_t clouds[256];
-G_EXTERN int16_t g_cloudX;
-G_EXTERN int16_t g_cloudY;
-G_EXTERN ClockTicks g_cloudClock;
+G_EXTERN int16_t cloudx;
+G_EXTERN int16_t cloudy;
+G_EXTERN ClockTicks cloudtotalclock;
 
 G_EXTERN int16_t SpriteDeletionQueue[1024];
 G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];

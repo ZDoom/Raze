@@ -851,8 +851,8 @@ static const dataspec_t svgm_anmisc[] =
     { DS_CNT(g_deleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_deleteQueueSize },
     { DS_NOCHK, &numclouds, sizeof(numclouds), 1 },
     { 0, &clouds[0], sizeof(clouds), 1 },
-    { 0, &g_cloudX, sizeof(g_cloudX), 1 },
-    { 0, &g_cloudY, sizeof(g_cloudY), 1 },
+    { 0, &cloudx, sizeof(cloudx), 1 },
+    { 0, &cloudy, sizeof(cloudy), 1 },
     { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
@@ -1436,7 +1436,7 @@ static void postloadplayer(int32_t savegamep)
     G_ResetInterpolations();
 
     //6
-    g_showShareware = 0;
+    show_shareware = 0;
     if (savegamep)
         everyothertime = 0;
 

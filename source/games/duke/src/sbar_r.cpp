@@ -400,11 +400,11 @@ void drawstatusbar_r(int snum)
 		dsb.Statusbar(snum);
 	}
 
-    if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1 && !M_Active())
+    if (ud.show_level_text && hud_showmapname && levelTextTime > 1 && !M_Active())
     {
         double alpha;
-        if (g_levelTextTime > 16) alpha = 1.;
-        else alpha = (g_levelTextTime) / 16.;
+        if (levelTextTime > 16) alpha = 1.;
+        else alpha = (levelTextTime) / 16.;
         PrintLevelName_r(alpha);
     }
 

@@ -29,7 +29,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "ns.h"	// Must come before everything else!
 
 #include "duke3d.h"
-#include "demo.h"
+#include "sbar.h"
 #include "screens.h"
 #include "baselayer.h"
 #include "m_argv.h"
@@ -38,6 +38,10 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
+void GetNextInput();
+
+
+/*
 static inline int movefifoend(int myconnectindex)
 {
 #if 1
@@ -46,6 +50,7 @@ static inline int movefifoend(int myconnectindex)
 	return movefifoend[myconnectindex];
 #endif
 }
+*/
 
 static void fakedomovethings()
 {
@@ -57,89 +62,67 @@ static void fakedomovethingscorrect()
 	// unprediction
 }
 
-/*
-void mploadsave()
-{
-    for(int i=connecthead;i>=0;i=connectpoint2[i])
-        if( sync[i].bits&(1<<17) )
-    {
-        multiflag = 2;
-        multiwhat = (sync[i].bits>>18)&1;
-        multipos = (unsigned) (sync[i].bits>>19)&15;
-        multiwho = i;
-
-        if( multiwhat )
-        {
-            saveplayer( multipos );
-            multiflag = 0;
-
-            if(multiwho != myconnectindex)
-            {
-                strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
-                strcat(&fta_quotes[122]," SAVED A MULTIPLAYER GAME");
-                FTA(122,&ps[myconnectindex]);
-            }
-            else
-            {
-                strcpy(&fta_quotes[122],"MULTIPLAYER GAME SAVED");
-                FTA(122,&ps[myconnectindex]);
-            }
-            break;
-        }
-        else
-        {
-//            waitforeverybody();
-
-            j = loadplayer( multipos );
-
-            multiflag = 0;
-
-            if(j == 0 && !RR)
-            {
-                if(multiwho != myconnectindex)
-                {
-                    strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
-                    strcat(&fta_quotes[122]," LOADED A MULTIPLAYER GAME");
-                    FTA(122,&ps[myconnectindex]);
-                }
-                else
-                {
-                    strcpy(&fta_quotes[122],"MULTIPLAYER GAME LOADED");
-                    FTA(122,&ps[myconnectindex]);
-                }
-                return 1;
-            }
-        }
-    }
-}
-*/
-
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
-int domovethings();
-
-char moveloop()
+/*
+void mploadsave()
 {
-    int i;
+	for(int i=connecthead;i>=0;i=connectpoint2[i])
+		if( sync[i].bits&(1<<17) )
+	{
+		multiflag = 2;
+		multiwhat = (sync[i].bits>>18)&1;
+		multipos = (unsigned) (sync[i].bits>>19)&15;
+		multiwho = i;
 
-    if (numplayers > 1)
-        while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
+		if( multiwhat )
+		{
+			saveplayer( multipos );
+			multiflag = 0;
 
-    getpackets();
+			if(multiwho != myconnectindex)
+			{
+				strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
+				strcat(&fta_quotes[122]," SAVED A MULTIPLAYER GAME");
+				FTA(122,&ps[myconnectindex]);
+			}
+			else
+			{
+				strcpy(&fta_quotes[122],"MULTIPLAYER GAME SAVED");
+				FTA(122,&ps[myconnectindex]);
+			}
+			break;
+		}
+		else
+		{
+//            waitforeverybody();
 
-    if (numplayers < 2) bufferjitter = 0;
-    while (movefifoend(myconnectindex)-movefifoplc > bufferjitter)
-    {
-        for(i=connecthead;i>=0;i=connectpoint2[i])
-            if (movefifoplc == movefifoend(i)) break;
-        if (i >= 0) break;
-        if( domovethings() ) return 1;
-    }
-    return 0;
+			j = loadplayer( multipos );
+
+			multiflag = 0;
+
+			if(j == 0 && !RR)
+			{
+				if(multiwho != myconnectindex)
+				{
+					strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
+					strcat(&fta_quotes[122]," LOADED A MULTIPLAYER GAME");
+					FTA(122,&ps[myconnectindex]);
+				}
+				else
+				{
+					strcpy(&fta_quotes[122],"MULTIPLAYER GAME LOADED");
+					FTA(122,&ps[myconnectindex]);
+				}
+				return 1;
+			}
+		}
+	}
 }
+*/
 
 //---------------------------------------------------------------------------
 //
@@ -149,117 +132,126 @@ char moveloop()
 
 int domovethings()
 {
-    int i, j;
-    int ch;
+	int i, j;
 
 	// mplpadsave();
 
-    ud.camerasprite = -1;
-    lockclock += TICSPERFRAME;
+	ud.camerasprite = -1;
+	lockclock += TICSPERFRAME;
 
-    if(earthquaketime > 0) earthquaketime--;
-    if(rtsplaying > 0) rtsplaying--;
+	if (earthquaketime > 0) earthquaketime--;
+	if (rtsplaying > 0) rtsplaying--;
 
-    if( show_shareware > 0 )
-    {
-        show_shareware--;
-        if(show_shareware == 0)
-        {
-            pus = NUMPAGES;
-            pub = NUMPAGES;
-        }
-    }
+	if (show_shareware > 0)
+	{
+		show_shareware--;
+	}
 
-    everyothertime++;
+	everyothertime++;
+	GetNextInput();
+	updateinterpolations();
 
-    for(i=connecthead;i>=0;i=connectpoint2[i])
-        copybufbyte(&inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i],&sync[i],sizeof(input));
-    movefifoplc++;
+	j = -1;
+	for (i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		if (PlayerInput(i, SK_GAMEQUIT))
+		{
+			if (i == myconnectindex) gameexitfrommenu();
+			if (screenpeek == i)
+			{
+				screenpeek = connectpoint2[i];
+				if (screenpeek < 0) screenpeek = connecthead;
+			}
 
-    updateinterpolations();
+			if (i == connecthead) connecthead = connectpoint2[connecthead];
+			else connectpoint2[j] = connectpoint2[i];
 
-    j = -1;
-    for(i=connecthead;i>=0;i=connectpoint2[i])
-     {
-          if ((sync[i].bits&(1<<26)) == 0) { j = i; continue; }
+			numplayers--;
+			ud.multimode--;
 
-          if (i == myconnectindex) gameexit(" ");
-          if (screenpeek == i)
-          {
-                screenpeek = connectpoint2[i];
-                if (screenpeek < 0) screenpeek = connecthead;
-          }
+			//closedemowrite();
 
-          if (i == connecthead) connecthead = connectpoint2[connecthead];
-          else connectpoint2[j] = connectpoint2[i];
+			if (numplayers < 2 && !isRR())
+				S_PlaySound(GENERIC_AMBIENCE17, CHAN_AUTO, CHANF_UI);
 
-          numplayers--;
-          ud.multimode--;
+			Printf(PRINT_NOTIFY, "%s is history!", g_player[i].user_name);
 
-          closedemowrite();
+			quickkill(&ps[i]);
+			deletesprite(ps[i].i);
+		}
+		else j = i;
+	}
 
-          if (numplayers < 2 && !RR)
-              sound(GENERIC_AMBIENCE17);
+	//if(ud.recstat == 1) record();
 
-          pub = NUMPAGES;
-          pus = NUMPAGES;
-          vscrn();
+	if (ud.pause_on == 0)
+	{
+		global_random = krand();
+		movedummyplayers();//ST 13
+	}
 
-          Printf(PRINT_NOTIFY, "%s is history!",ud.user_name[i]);
+	for (i = connecthead; i >= 0; i = connectpoint2[i])
+	{
+		if (ud.pause_on == 0)
+		{
+			auto p = &ps[i];
+			if (p->pals.f > 0)
+				p->pals.f--;
 
-          quickkill(&ps[i]);
-          deletesprite(ps[i].i);
+			fi.processinput(i);
+			fi.checksectors(i);
+		}
+	}
 
-          if(j < 0 && networkmode == 0 )
-              gameexit( " \nThe 'MASTER/First player' just quit the game.  All\nplayers are returned from the game. This only happens in 5-8\nplayer mode as a different network scheme is used.");
-      }
+	if (ud.pause_on == 0)
+	{
+		if (levelTextTime > 0)
+			levelTextTime--;
 
-      if ((numplayers >= 2) && ((movefifoplc&7) == 7))
-      {
-            ch = (char)(randomseed&255);
-            for(i=connecthead;i>=0;i=connectpoint2[i])
-                 ch += ((ps[i].posx+ps[i].posy+ps[i].posz+ps[i].ang+ps[i].horiz)&255);
-            syncval[myconnectindex][syncvalhead[myconnectindex]&(MOVEFIFOSIZ-1)] = ch;
-            syncvalhead[myconnectindex]++;
-      }
-
-    if(ud.recstat == 1) record();
-
-    if( ud.pause_on == 0 )
-    {
-        global_random = TRAND;
-        movedummyplayers();//ST 13
-    }
-
-    for(i=connecthead;i>=0;i=connectpoint2[i])
-    {
-        cheatkeys(i);
-
-        if( ud.pause_on == 0 )
-        {
-            processinput(i);
-            checksectors(i);
-        }
-    }
-
-    if( ud.pause_on == 0 )
-    {
 		fi.think();
-    }
+	}
 
-    fakedomovethingscorrect();
+	fakedomovethingscorrect();
 
-    if( (everyothertime&1) == 0)
-    {
-        animatewalls();
-        movecyclers();
-        pan3dsound();
-    }
+	if ((everyothertime & 1) == 0)
+	{
+		fi.animatewalls();
+		movecyclers();
+	}
 
+	if (isRR() && ud.recstat == 0 && ud.multimode < 2)
+		dotorch();
 
-    return 0;
+	return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+/*
+
+char moveloop()
+{
+	int i;
+
+	if (numplayers > 1)
+		while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
+
+	getpackets();
+
+	if (numplayers < 2) bufferjitter = 0;
+	while (movefifoend(myconnectindex)-movefifoplc > bufferjitter)
+	{
+		for(i=connecthead;i>=0;i=connectpoint2[i])
+			if (movefifoplc == movefifoend(i)) break;
+		if (i >= 0) break;
+		if( domovethings() ) return 1;
+	}
+	return 0;
+}
+*/
 
 END_DUKE_NS
 

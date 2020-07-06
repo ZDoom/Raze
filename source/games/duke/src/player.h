@@ -370,7 +370,6 @@ extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     *const g_player;
 extern hudweapon_t      hudweap;
-extern int32_t          g_levelTextTime;
 extern int32_t          mouseyaxismode;
 
 #define SHOOT_HARDCODED_ZVEL INT32_MIN
@@ -392,7 +391,6 @@ inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
 }
 
 int hitawall(DukePlayer_t* pPlayer, int* hitWall);
-void    P_AddKills(DukePlayer_t * pPlayer, uint16_t kills);
 int hits(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
@@ -414,7 +412,6 @@ void quickkill(DukePlayer_t* pPlayer);
 void setpal(DukePlayer_t* pPlayer);
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
-int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 int madenoise(int playerNum);
 int haskey(int sect, int snum);
 

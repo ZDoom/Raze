@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdlib.h"
 #include "v_2ddrawer.h"
 #include "secrets.h"
+#include "sbar.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
@@ -103,7 +104,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         G_BonusScreen(0);
 #endif
 
-    g_showShareware = GAMETICSPERSEC*34;
+    show_shareware = GAMETICSPERSEC*34;
 
     ud.level_number = levelNum;
     ud.volume_number = volumeNum;
@@ -172,9 +173,9 @@ static inline void clearfrags(void)
 
 void G_ResetTimers(uint8_t keepgtics)
 {
-    totalclock = g_cloudClock = ototalclock = lockclock = 0;
+    totalclock = cloudtotalclock = ototalclock = lockclock = 0;
     ready2send = 1;
-    g_levelTextTime = 85;
+    levelTextTime = 85;
 
     if (!keepgtics)
         g_moveThingsCount = 0;

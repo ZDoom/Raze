@@ -27,4 +27,6 @@ public:
 
 };
 
+extern int levelTextTime;
+
 END_DUKE_NS

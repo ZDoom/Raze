@@ -303,7 +303,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (VOLUMEONE)
     {
-        if (g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+        if (show_shareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, TILE_BETAVERSION, 0, 0, 2+8+16+128);
     }
 

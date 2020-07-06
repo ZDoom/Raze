@@ -33,36 +33,6 @@ int32_t PHEIGHT = PHEIGHT_DUKE;
 int32_t lastvisinc;
 hudweapon_t hudweap;
 
-extern int32_t g_levelTextTime;
-
-void P_AddKills(DukePlayer_t * const pPlayer, uint16_t kills)
-{
-    pPlayer->actors_killed += kills;
-}
-
-int P_GetOverheadPal(DukePlayer_t const * pPlayer)
-{
-    return sprite[pPlayer->i].pal;
-}
-
-#define DRAWEAP_CENTER 262144
-#define weapsc(sc) scale(sc, hud_weaponscale, 100)
-
-static int32_t g_dts_yadd;
-
-
-// Set C-CON's WEAPON and WORKSLIKE gamevars.
-void P_SetWeaponGamevars(int playerNum, const DukePlayer_t * const pPlayer)
-{
-    if (!WW2GI)
-        return;
-    SetGameVarID(g_iWeaponVarID, pPlayer->curr_weapon, pPlayer->i, playerNum);
-    SetGameVarID(g_iWorksLikeVarID,
-              ((unsigned)pPlayer->curr_weapon < MAX_WEAPONS) ? PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) : -1,
-              pPlayer->i, playerNum);
-}
-
-
 #define TURBOTURNTIME (TICRATE/8) // 7
 #define NORMALTURN    15
 #define PREAMBLETURN  5

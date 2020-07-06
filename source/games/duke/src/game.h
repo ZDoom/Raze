@@ -96,6 +96,7 @@ typedef struct {
 } user_defs;
 
 extern user_defs ud;
+extern int rtsplaying;
 
 #ifndef ONLY_USERDEFS
 
@@ -125,7 +126,6 @@ extern int32_t cameraclock;
 extern int32_t cameradist;
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
-extern int32_t g_levelTextTime;
 extern int32_t restorepalette;
 extern int32_t tempwallptr;
 
@@ -363,6 +363,7 @@ void initcrane(int j, int i, int CRANEPOLE);
 void initwaterdrip(int j, int i);
 int initreactor(int j, int i, bool isrecon);
 void spawneffector(int i);
+void gameexitfrommenu();
 
 struct Dispatcher
 {

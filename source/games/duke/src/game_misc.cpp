@@ -45,6 +45,7 @@ BEGIN_DUKE_NS
 
 FFont* IndexFont;
 FFont* DigiFont;
+int rtsplaying;
 
 //---------------------------------------------------------------------------
 //
@@ -625,6 +626,28 @@ void cameratext(int i)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int G_StartRTS(int lumpNum, int localPlayer)
+{
+	if (SoundEnabled() &&
+		RTS_IsInitialized() && rtsplaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
+	{
+		auto sid = RTS_GetSoundID(lumpNum - 1);
+		if (sid != -1)
+		{
+			S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
+			rtsplaying = 7;
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 
 END_DUKE_NS

@@ -72,8 +72,6 @@ int32_t tempwallptr;
 
 static int32_t nonsharedtimer;
 
-int32_t g_levelTextTime = 0;
-
 static void gameTimerHandler(void)
 {
     S_Update();
@@ -98,25 +96,6 @@ void G_InitTimer(int32_t ticspersec)
 }
 
 
-static int32_t g_RTSPlaying;
-
-// Returns: started playing?
-int G_StartRTS(int lumpNum, int localPlayer)
-{
-    if (SoundEnabled() &&
-        RTS_IsInitialized() && g_RTSPlaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
-    {
-        auto sid = RTS_GetSoundID(lumpNum - 1);
-        if (sid != -1)
-        {
-            S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
-            g_RTSPlaying = 7;
-            return 1;
-        }
-    }
-
-    return 0;
-}
 
 void G_HandleLocalKeys(void)
 {
@@ -227,7 +206,7 @@ void G_HandleLocalKeys(void)
             }
 
             // Not SHIFT -- that is, either some ALT or WIN.
-            if (G_StartRTS(ridiculeNum, 1))
+            if (startrts(ridiculeNum, 1))
             {
 				Net_SendRTS(ridiculeNum);
                 return;
@@ -915,6 +894,7 @@ MAIN_LOOP_RESTART:
     while (1);
 }
 
+int domovethings();
 int32_t G_MoveLoop()
 {
     int i;
@@ -932,99 +912,19 @@ int32_t G_MoveLoop()
             if (movefifoplc == g_player[i].movefifoend) break;
         }
         if (i >= 0) break;
-        if (G_DoMoveThings()) return 1;
+        if (domovethings()) return 1;
     }
 
 
     return 0;
 }
 
-int G_DoMoveThings(void)
+void GetNextInput()
 {
-    ud.camerasprite = -1;
-    lockclock += TICSPERFRAME;
-
-    // Moved lower so it is restored correctly by demo diffs:
-    //if (g_earthquakeTime > 0) g_earthquakeTime--;
-
-    if (g_RTSPlaying > 0)
-        g_RTSPlaying--;
-
-
-
-    if (g_showShareware > 0)
-    {
-        g_showShareware--;
-        if (g_showShareware == 0)
-        {
-            pus = NUMPAGES;
-            pub = NUMPAGES;
-        }
-    }
-
     for (bssize_t TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].input, &inputfifo[movefifoplc&(MOVEFIFOSIZ-1)][i], sizeof(input_t));
+        Bmemcpy(g_player[i].input, &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
 
     movefifoplc++;
-
-    updateinterpolations();
-
-    g_moveThingsCount++;
-
-    everyothertime++;
-    if (g_earthquakeTime > 0) g_earthquakeTime--;
-
-    if (ud.pause_on == 0)
-    {
-        g_globalRandom = krand2();
-        movedummyplayers();//ST 13
-    }
-
-    for (bssize_t TRAVERSE_CONNECT(i))
-    {
-        if (g_player[i].input->extbits&(1<<6))
-        {
-            g_player[i].ps->team = g_player[i].pteam;
-        }
-
-        if (sprite[g_player[i].ps->i].pal != 1)
-            sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
-
-           hud_input(i);
-
-        if (ud.pause_on == 0)
-        {
-            auto p = &ps[i];
-            if (p->pals.f > 0)
-                p->pals.f--;
-
-            if (g_levelTextTime > 0)
-                g_levelTextTime--;
-
-
-            //P_ProcessInput(i);
-            fi.processinput(i);
-            fi.checksectors(i);
-        }
-    }
-
-    if (ud.pause_on == 0)
-        fi.think();
-
-    Net_CorrectPrediction();
-
-    if ((everyothertime&1) == 0)
-    {
-        {
-            fi.animatewalls();
-            movecyclers();
-        }
-    }
-
-    if (RR && ud.recstat == 0 && ud.multimode < 2)
-        dotorch();
-
-    return 0;
 }
 
 void GameInterface::FreeGameData()
