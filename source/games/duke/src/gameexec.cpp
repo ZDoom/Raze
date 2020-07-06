@@ -998,7 +998,7 @@ int parse(void)
 			ps[g_p].wackedbyactor = -1;
 			ps[g_p].shield_amount = max_armour_amount;
 			ps[g_p].dead_flag = 0;
-			ps[g_p].pals.f = 0;
+			ps[g_p].pals.a = 0;
 			ps[g_p].footprintcount = 0;
 			ps[g_p].weapreccnt = 0;
 			ps[g_p].ftq = 0;

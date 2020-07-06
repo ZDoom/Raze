@@ -109,44 +109,119 @@ typedef struct {
 } input_t;
 
 #pragma pack(push,1)
-// XXX: r1625 changed a lot types here, among others
-//  * int32_t --> int16_t
-//  * int16_t --> int8_t
-//  * char --> int8_t
-// Need to carefully think about implications!
-// TODO: rearrange this if the opportunity arises!
-// KEEPINSYNC lunatic/_defs_game.lua
-typedef struct player_struct {
+
+typedef struct player_struct 
+{
+    // This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
+    
+    // The sound code wants to read a vector out of this so we need to define one for the main coordinate.
     union
     {
         vec3_t pos;
         struct { int32_t posx, posy, posz; };
     };
-    union
-    {
-        vec3_t opos;
-        struct { int32_t oposx, oposy, oposz; };
-    };
 
-    union
-    {
-        vec3_t vel;
-        struct { int32_t posxv, posyv, poszv; };
-    };
-    vec3_t npos;
-    union
-    {
-        vec2_t bobpos;
-        struct { int32_t bobposx, bobposy; };
-    };
+    // input handles angle and horizon as fixed16 numbers. We need to account for that as well.
+    fixed_t q16ang, oq16ang, q16horiz, q16horizoff; // oq16horiz, oq16horizoff; // These two are currently not used but may be again later.
 
+    // using a bit field for this to save a bit of space.
+    FixedBitArray<MAX_WEAPONS> gotweapon;
+
+    // Palette management uses indices into the engine's palette table now.
+    unsigned int palette;
+    PalEntry pals;
+
+    // these did not exist in JFDuke.
+    uint8_t movement_lock;
     vec2_t fric;
 
-    fix16_t q16horiz, q16horizoff;
-    fix16_t q16ang, oq16ang;
-    int look_ang;
-    int16_t orotscrnang, rotscrnang;   // JBF 20031220: added orotscrnang
+    // From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
+    int zoom, exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
+    int invdisptime;
+    int bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
+    int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
+    int player_par, visibility;
+    int bobcounter, weapon_sway;
+    int pals_time, randomflamex, crack_time;
 
+    int aim_mode, auto_aim, weaponswitch;
+
+    short angvel, cursectnum, look_ang, last_extra, subweapon;
+    short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
+
+    short curr_weapon, last_weapon, tipincs, wantweaponfire;
+    short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
+    short jumping_counter, airleft, knee_incs, access_incs;
+    short ftq, access_wallnum, access_spritenum;
+    short kickback_pic, got_access, weapon_ang, firstaid_amount;
+    short somethingonplayer, on_crane, i, one_parallax_sectnum;
+    short over_shoulder_on, random_club_frame, fist_incs;
+    short one_eighty_count, cheat_phase;
+    short dummyplayersprite, extra_extra8, quick_kick;
+    short heat_amount, actorsqu, timebeforeexit, customexitsound;
+
+    short weaprecs[256], weapreccnt;
+    unsigned int interface_toggle_flag;
+
+    short orotscrnang, rotscrnang, dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
+    short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
+    short holoduke_on, pycount, weapon_pos, frag_ps;
+    short transporter_hold, last_full_weapon, footprintshade, boot_amount;
+
+    int scream_voice;
+
+    unsigned char gm;
+    unsigned char on_warping_sector, footprintcount;
+    unsigned char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    char name[32];
+    unsigned char inven_icon, buttonpalette;
+
+    unsigned char jetpack_on, spritebridge, lastrandomspot;
+    unsigned char scuba_on, footprintpal, heat_on;
+
+    unsigned char  holster_weapon;
+    unsigned char falling_counter;
+    unsigned char refresh_inventory;
+
+    unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
+    unsigned char walking_snd_toggle, palookup, hard_landing;
+    unsigned char return_to_center;
+
+    int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
+
+    // Redneck Rampage additions. Those which did not have names in the reconstructed source got one from either RedneckGDX or RedNukem.
+    // Items were reordered by size.
+    int stairs;
+    int detonate_count; // at57e
+    int noise_x, noise_y, noise_radius; // at286, at28a, at290
+    int drink_timer; // at58e
+    int eat_timer; // at592
+    int SlotWin;
+    short recoil;
+    short detonate_time; // at57c
+    short yehaa_timer;
+    short drink_amt, eat, drunkang, eatang;
+    uint8_t shotgun_state[2];
+    uint8_t donoise; // at28e
+    uint8_t keys[5];
+
+    // RRRA. The same as for the RR block applies.
+    int drug_aspect;
+    int drug_timer;
+    int SeaSick;
+    short MamaEnd; // raat609
+    short MotoSpeed, TiltStatus, moto_drink;
+    short VBumpNow, VBumpTarget, TurbCount;
+    short drug_stat[3]; // raat5f1..5
+    uint8_t DrugMode, lotag800kill;
+    uint8_t sea_sick_stat; // raat5dd
+    uint8_t hurt_delay2, nocheat;
+    uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
+    uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
+
+    int8_t crouch_toggle;
+
+    // Access helpers for the widened angle and horizon fields.
     int getlookang() { return look_ang; }
     void setlookang(int b) { look_ang = b; }
     void addlookang(int b) { look_ang += b; }
@@ -156,7 +231,7 @@ typedef struct player_struct {
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
     void setang(int v) { q16ang = v << FRACBITS; }
-    void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS)-1); }
+    void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS) - 1); }
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
@@ -166,113 +241,8 @@ typedef struct player_struct {
     int gethorizof() { return q16horizoff >> FRACBITS; }
     int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
 
-    int32_t truefz, truecz, player_par;
-    int32_t randomflamex, exitx, exity;
-    int32_t runspeed;
-
-    uint32_t interface_toggle_flag;
-    uint16_t max_actors_killed, actors_killed;
-    FixedBitArray<MAX_WEAPONS> gotweapon;
-    uint16_t zoom;
-
-    int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
-
-    int16_t cursectnum, last_extra, subweapon;
-    int16_t ammo_amount[MAX_WEAPONS];
-    int16_t firstaid_amount;
-    int16_t steroids_amount;
-    int16_t holoduke_amount;
-    int16_t jetpack_amount;
-    int16_t heat_amount;
-    int16_t scuba_amount;
-    int16_t boot_amount;
-    int16_t shield_amount;
-
-    int16_t wackedbyactor, pyoff, opyoff;
-
-    int16_t newowner, jumping_counter, airleft;
-    int16_t /*fta,*/ ftq, access_wallnum, access_spritenum;
-    int16_t got_access, weapon_ang, visibility;
-    int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
-    int16_t random_club_frame, one_eighty_count;
-    int16_t dummyplayersprite, extra_extra8;
-    int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
-
-    int16_t weaprecs[MAX_WEAPON_RECS], weapon_sway, crack_time, bobcounter;
-
-    int16_t dead_flag;
-    int16_t holoduke_on, pycount;
-    int16_t transporter_hold/*, clipdist*/;
-
-    uint8_t max_secret_rooms, secret_rooms;
-    // XXX: 255 values for frag(gedself) seems too small.
-    uint8_t frag, fraggedself, quick_kick, last_quick_kick;
-    uint8_t return_to_center, reloading, weapreccnt;
-    uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
-    uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
-
-    uint8_t gm, on_warping_sector, footprintcount, hurt_delay;
-    uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
-    uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
-
-    uint8_t jetpack_on, spritebridge, lastrandomspot;
-    uint8_t scuba_on, footprintpal, heat_on, invdisptime;
-
-    uint8_t holster_weapon, falling_counter, footprintshade;
-    uint8_t refresh_inventory, last_full_weapon;
-
-    uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
-    uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
-
-    int8_t numloogs, loogcnt, scream_voice;
-    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
-
-    uint8_t palette;
-    palette_t pals;
-
-    int8_t last_used_weapon;
-
-    int16_t recoil;
-    int32_t stairs;
-    int32_t detonate_count;
-    int16_t detonate_time;
-    uint8_t shotgun_state[2];
-    uint8_t donoise; // at28e
-    int32_t noise_x, noise_y, noise_radius; // at286, at28a, at290
-    uint8_t keys[5];
-    int16_t yehaa_timer;
-    int16_t drink_amt, eat, drunkang, eatang;
-    int32_t drink_timer, eat_timer;
-    int16_t MamaEnd;
-    int16_t MotoSpeed, TiltStatus, moto_drink;
-    uint8_t OnMotorcycle, OnBoat, moto_underwater, NotOnWater, MotoOnGround;
-    uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
-    int16_t VBumpNow, VBumpTarget, TurbCount;
-    int16_t drug_stat[3];
-    int32_t drug_aspect;
-    uint8_t DrugMode, lotag800kill, sea_sick_stat;
-    int32_t drug_timer;
-    int32_t sea_sick;
-    uint8_t hurt_delay2, nocheat;
-
-    int32_t dhat60f, dhat613, dhat617, dhat61b, dhat61f;
-
-    int8_t crouch_toggle;
-    int SlotWin;
-    int8_t padding_[3];
 } DukePlayer_t;
 
-// transition helpers
-#define SeaSick sea_sick
-#define raat609 MamaEnd
-#define raat5dd sea_sick_stat
-#define at57e detonate_count
-#define at57c detonate_time
-#define at58e drink_timer
-#define at592 eat_timer
-#define raat5f1 drug_stat[0]
-#define raat5f3 drug_stat[1]
-#define raat5f5 drug_stat[2]
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct
@@ -337,10 +307,7 @@ extern int32_t          mouseyaxismode;
 
 inline void SetPlayerPal(DukePlayer_t* pPlayer, PalEntry pe)
 {
-    pPlayer->pals.f = pe.a;
-    pPlayer->pals.r = pe.r;
-    pPlayer->pals.g = pe.g;
-    pPlayer->pals.b = pe.b;
+    pPlayer->pals = pe;
 }
 
 int hitawall(DukePlayer_t* pPlayer, int* hitWall);

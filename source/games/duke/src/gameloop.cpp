@@ -265,8 +265,8 @@ int domovethings()
 		if (ud.pause_on == 0)
 		{
 			auto p = &ps[i];
-			if (p->pals.f > 0)
-				p->pals.f--;
+			if (p->pals.a > 0)
+				p->pals.a--;
 
 			fi.processinput(i);
 			fi.checksectors(i);

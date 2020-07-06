@@ -85,7 +85,7 @@ typedef struct {
 * But note that for more than one tint, the composite tint will in general
 * change its hue as the ratio of the weights of the individual ones changes.
 */
-static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
+static void palaccum_add(palaccum_t *pa, const PalEntry *pal, int32_t f)
 {
     f = clamp(f, 0, 63);
     if (f == 0)
@@ -153,10 +153,10 @@ void G_DisplayRest(int32_t smoothratio)
             fstint.tintFlags = 0;
         }
     }
-    palaccum_add(&tint, &pp->pals, pp->pals.f);
+    palaccum_add(&tint, &pp->pals, pp->pals.a);
     if (!isRR())
     {
-        static const palette_t loogiepal = { 0, 63, 0, 0 };
+        static const PalEntry loogiepal(0, 63, 0, 0 );
 
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
     }

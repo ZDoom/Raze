@@ -388,7 +388,7 @@ void resetprestat(int snum,int g)
     for(i=0;i<spriteqamount;i++) spriteq[i] = -1;
 
     p->hbomb_on          = 0;
-    p->pals.f         = 0;
+    p->pals.a         = 0;
     p->toggle_key_flag   = 0;
     p->secret_rooms      = 0;
     p->max_secret_rooms  = 0;
