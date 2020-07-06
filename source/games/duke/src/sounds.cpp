@@ -257,19 +257,10 @@ void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
 {
     if (ud.camerasprite == -1)
     {
-        if (ud.overhead_on != 2)
-        {
-            if (c) *c = &ud.camerapos;
-            if (cs) *cs = ud.camerasect;
-            if (ca) *ca = ud.cameraq16ang >> FRACBITS;
-        }
-        else
-        {
-            auto p = &ps[screenpeek];
-            if (c) *c = &p->pos;
-            if (cs) *cs = p->cursectnum;
-            if (ca) *ca = p->getang();
-        }
+        auto p = &ps[screenpeek];
+        if (c) *c = &p->pos;
+        if (cs) *cs = p->cursectnum;
+        if (ca) *ca = p->getang();
     }
     else
     {

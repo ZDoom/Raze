@@ -41,6 +41,35 @@ struct input_t  // original name was input which is too generic for a type name.
     ESyncBits bits;
 };
 
+struct user_defs
+{
+    unsigned char god, warp_on, cashman, eog, showallmap;
+    unsigned char show_help, scrollmode, clipping;
+    char user_name[MAXPLAYERS][32];
+    unsigned char overhead_on, last_overhead, showweapons;
+
+    short pause_on, from_bonus;
+    short camerasprite, last_camsprite;
+    short last_level, secretlevel;
+
+    int const_visibility;
+    int camera_time, folfvel, folavel, folx, foly, fola;
+    int reccnt;
+
+    int runkey_mode, statusbarscale, mouseaiming, weaponswitch;
+
+    int entered_name, shadows, fta_on, executions, auto_run;
+    int coords, tickrate, levelstats, m_coop, coop, screen_size, lockout, crosshair;
+    int wchoice[MAXPLAYERS][MAX_WEAPONS], playerai;
+
+    int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
+    int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
+    int m_ffire, ffire, m_player_skill, m_level_number, m_volume_number, multimode;
+    int player_skill, level_number, volume_number, m_marker, marker, mouseflip;
+    int statusbarmode, noexits, althud, ShowOpponentWeapons;
+
+};
+
 struct player_orig
 {
     int ox, oy, oz;

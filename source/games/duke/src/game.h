@@ -39,54 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 
-typedef struct {
-    vec3_t camerapos;
-    int32_t const_visibility,uw_framerate;
-    int32_t camera_time,folfvel,folavel,folx,foly,fola;
-    int32_t reccnt;
-
-    int32_t statusbarscale,weaponswitch;   // JBF 20031125
-    int32_t statusbarmode;
-	int32_t noexits,automsg;
-    int32_t althud;
-    int32_t statusbarrange;
-
-    int32_t entered_name,screen_tilting;
-    int32_t coop,screen_size,lockout,crosshair;
-    int32_t angleinterpolation;
-
-    int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
-    int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off;
-    int32_t ffire,m_player_skill,m_level_number,m_volume_number,multimode;
-    int32_t player_skill,level_number,volume_number,marker;
-
-    uint32_t userbytever;
-
-    fix16_t cameraq16ang, cameraq16horiz;
-    int16_t camerasect;
-    int16_t pause_on,from_bonus;
-    int16_t camerasprite,last_camsprite;
-    int16_t last_level,secretlevel;
-
-    int8_t menutitle_pal, slidebar_palselected, slidebar_paldisabled;
-
-    struct {
-        int32_t AutoAim;
-        int32_t ShowOpponentWeapons;
-    } config;
-
-    char overhead_on,last_overhead,showweapons;
-    char god,warp_on,cashman,eog;
-    char scrollmode,clipping;
-    char display_bonus_screen;
-    char show_level_text;
-
-    uint8_t user_map;
-    uint8_t screenfade, menubackground;
-    uint8_t shadow_pal;
-    uint8_t wchoice[MAXPLAYERS][MAX_WEAPONS];
-} user_defs;
-
 extern user_defs ud;
 extern int rtsplaying;
 

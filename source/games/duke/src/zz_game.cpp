@@ -164,7 +164,7 @@ void G_HandleLocalKeys(void)
     if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
     {
         buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-        ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
+        ud.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
         FTA(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
@@ -467,10 +467,7 @@ static int G_EndOfLevel(void)
     {
         ready2send = 0;
 
-        if (ud.display_bonus_screen == 1)
-        {
-            G_BonusScreen(0);
-        }
+        G_BonusScreen(0);
 
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
@@ -493,7 +490,6 @@ static int G_EndOfLevel(void)
         }
     }
 
-    ud.display_bonus_screen = 1;
     ready2send = 0;
 
     if (numplayers > 1)
@@ -583,28 +579,6 @@ static const char* actions[] = {
     "Toggle_Crouch",	// This is the last one used by EDuke32.
 };
 
-int32_t SetDefaults(void)
-{
-    g_player[0].ps->aim_mode = 1;
-    ud.config.ShowOpponentWeapons = 0;
-    ud.automsg = 0;
-    ud.camerasprite = -1;
-
-    ud.camera_time = 0;//4;
-
-    ud.screen_tilting = 1;
-    playerteam = 0;
-    ud.angleinterpolation = 0;
-
-    ud.display_bonus_screen = 1;
-    ud.show_level_text = 1;
-    ud.screenfade = 1;
-    ud.menubackground = 1;
-    ud.slidebar_paldisabled = 1;
-    ud.shadow_pal = 4;
-    return 0;
-}
-
 int GameInterface::app_main()
 {
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -633,8 +607,11 @@ int GameInterface::app_main()
 
     checkcommandline();
 
-    SetDefaults();
-
+    g_player[0].ps->aim_mode = 1;
+    ud.ShowOpponentWeapons = 0;
+    ud.camerasprite = -1;
+    ud.camera_time = 0;//4;
+    playerteam = 0;
 
     hud_size.Callback();
     hud_scale.Callback();
@@ -783,7 +760,7 @@ MAIN_LOOP_RESTART:
         }
     }
 
-    ud.showweapons = ud.config.ShowOpponentWeapons;
+    ud.showweapons = ud.ShowOpponentWeapons;
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = playerteam;
 

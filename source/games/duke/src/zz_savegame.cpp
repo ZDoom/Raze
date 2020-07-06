@@ -234,10 +234,6 @@ bool G_SavePlayer(FSaveGameNode *sv)
 	{
 		auto& fw = *fil;
 
-		// temporary hack
-		ud.user_map = G_HaveUserMap();
-
-
         // SAVE!
         sv_saveandmakesnapshot(fw, 0, 0);
 
@@ -776,7 +772,6 @@ static const dataspec_t svgm_udnetw[] =
 
     { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
     { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },
-    { DS_NOCHK, &ud.user_map, sizeof(ud.user_map), 1 },
     { DS_NOCHK, &ud.player_skill, sizeof(ud.player_skill), 1 },
 
     { DS_NOCHK, &ud.from_bonus, sizeof(ud.from_bonus), 1 },
@@ -965,7 +960,7 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
         h.ptrsize |= 1u << 7u;
 
     h.bytever = 0;
-    h.userbytever  = ud.userbytever;
+    h.userbytever  = 0;
     h.scriptcrc    = 0;
 
     h.reccnt  = 0;
@@ -1052,7 +1047,7 @@ int32_t sv_loadheader(FileReader &fill, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != 0 || h->userbytever != ud.userbytever || ScriptCode.Size())
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != 0 || h->userbytever != 0 || ScriptCode.Size())
     {
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
         {
