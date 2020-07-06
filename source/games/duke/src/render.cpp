@@ -250,6 +250,8 @@ void renderMirror(int cposx, int cposy, int cposz, int cang, int choriz, int smo
 
 void animatecamsprite(int smoothRatio)
 {
+	const int VIEWSCREEN_ACTIVE_DISTANCE = 8192;
+
 	if (camsprite < 0)
 		return;
 

@@ -338,36 +338,9 @@ int hits(int spriteNum);
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);
 void    P_GetInputBoat(int playerNum);
-void checkweapons(DukePlayer_t* const pPlayer);
-int findotherplayer(int p, int* d);
-void quickkill(DukePlayer_t* pPlayer);
-void setpal(DukePlayer_t* pPlayer);
-int madenoise(int playerNum);
-int haskey(int sect, int snum);
 
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 
-void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
-int hits(int i);
-int hitasprite(int i, short* hitsp);
-int aim(spritetype* s, int aang);
-
-int timedexit(int snum);
-void dokneeattack(int snum, int pi, const std::initializer_list<int>& respawnlist);
-int endoflevel(int snum);
-void playerisdead(int snum, int psectlotag, int fz, int cz);
-void footprints(int snum);
-int makepainsounds(int snum, int type);
-void playerCrouch(int snum);
-void playerJump(int snum, int fz, int cz);
-void playerLookLeft(int snum);
-void playerLookRight(int snum);
-void playerCenterView(int snum);
-void playerLookUp(int snum, ESyncBits sb_snum);
-void playerLookDown(int snum, ESyncBits sb_snum);
-void playerAimUp(int snum, ESyncBits sb_snum);
-void playerAimDown(int snum, ESyncBits sb_snum);
-bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz);
 
 extern int lastvisinc;
 

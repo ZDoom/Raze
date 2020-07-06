@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 
 #include "sbar.h"
-#include "screens.h"
 #include "palette.h"
 #include "gamecvars.h"
 #include "gameconfigfile.h"
@@ -785,7 +784,6 @@ MAIN_LOOP_RESTART:
 		if (menuloop())
         {
             FX_StopAllSounds();
-            g_noLogoAnim = 1;
             goto MAIN_LOOP_RESTART;
         }
     }

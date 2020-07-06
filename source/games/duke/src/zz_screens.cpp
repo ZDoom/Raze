@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "compat.h"
-#include "screens.h"
 
 #include "sbar.h"
 #include "mdsprite.h"
@@ -45,10 +44,7 @@ void cameratext(int i);
 
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
-int32_t dr_yxaspect, dr_viewingrange;
 double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
-int32_t g_noLogoAnim = 0;
-int32_t g_noLogo = 0;
 
 
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, ESetPalFlags set)

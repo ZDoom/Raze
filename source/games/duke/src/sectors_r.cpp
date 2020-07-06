@@ -2205,7 +2205,7 @@ void checkhitsprite_r(int i, int sn)
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (sprite[sn].extra != G_DefaultActorHealth(SHOTSPARK1)) //  TRANSITIONAL - fix after getting rid of EDUKE cruft
+		if (actorinfo[SHOTSPARK1].scriptaddress && sprite[sn].extra != ScriptCode[actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
 				EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sector[sprite[i].sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,

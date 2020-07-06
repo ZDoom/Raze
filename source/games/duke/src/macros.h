@@ -37,8 +37,6 @@ static FORCE_INLINE int32_t krand2(void)
 
 #define BGSTRETCH (hud_bgstretch ? 1024 : 0)
 
-void RANDOMSCRAP(spritetype* s, int i);
-
 #define TRAVERSE_SPRITE_SECT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n)
 #define TRAVERSE_SPRITE_STAT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n)
 #define TRAVERSE_CONNECT(i)              i = 0; i != -1; i = connectpoint2[i]

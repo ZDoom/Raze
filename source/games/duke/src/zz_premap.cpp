@@ -181,7 +181,7 @@ void G_ResetTimers(uint8_t keepgtics)
         g_moveThingsCount = 0;
 
     if (camsprite >= 0)
-        actor[camsprite].t_data[0] = 0;
+        actor[camsprite].temp_data[0] = 0;
 }
 
 int G_FindLevelByFile(const char *fileName)

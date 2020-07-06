@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "mmulti.h"
 #include "quotemgr.h"
-#include "sector.h"
 #include "sounds.h"
 #include "constants.h"
+#include "gameexec.h"
 
 BEGIN_DUKE_NS
 
@@ -80,6 +80,13 @@ enum DUKE3D_GLOBALFLAGS {
 G_EXTERN actor_t actor[MAXSPRITES];
 // actorinfo: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN ActorInfo actorinfo[MAXTILES];
+
+struct animwalltype
+{
+    int16_t wallnum, tag;
+};
+
+
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 enum
 {
@@ -199,18 +206,6 @@ G_EXTERN int32_t g_brightness;
 G_EXTERN int16_t ambientlotag[64];
 G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t ambientfx;
-
-inline int32_t G_HaveActor(int spriteNum)
-{
-    return actorinfo[spriteNum].scriptaddress != NULL;
-}
-
-inline int32_t G_DefaultActorHealth(int spriteNum)	// rename!
-{
-    return G_HaveActor(spriteNum) ? ScriptCode[actorinfo[spriteNum].scriptaddress] : 0;
-}
-
-
 
 
 G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
@@ -338,76 +333,6 @@ extern int spriteqamount;
 #define spriteq SpriteDeletionQueue
 #define spriteqloc g_spriteDeleteQueuePos
 
-inline bool isIn(int value, int first)
-{
-    return value == first;
-}
-
-template<typename... Args>
-bool isIn(int value, int first, Args... args) 
-{
-    return value == first || isIn(value, args...);
-}
-
-inline bool isIn(int value, const std::initializer_list<int> &list)
-{
-    for (auto v : list) if (v == value) return true;
-    return false;
-}
-
-
-// these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
-inline bool PlayerInput(int pl, ESyncBits bit)
-{
-    return (!!((g_player[pl].input->bits) &bit));
-}
-
-inline void PlayerSetInput(int pl, ESyncBits bit)
-{
-    g_player[pl].input->bits |= bit;
-}
-
-inline void PlayerClearInput(int pl, ESyncBits bit)
-{
-    g_player[pl].input->bits &= ~bit;
-}
-
-inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
-{
-    return (g_player[pl].input->bits & bits);
-}
-
-inline int PlayerInputSideVel(int pl)
-{
-    return g_player[pl].input->svel;
-}
-
-inline int PlayerInputForwardVel(int pl)
-{
-    return g_player[pl].input->fvel;
-}
-
-inline fixed_t PlayerInputAngVel(int pl)
-{
-    return g_player[pl].input->q16avel;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-inline void hud_drawsprite(int sx, int sy, int z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int dastat)
-{
-    twod_rotatesprite(&twodpsp, sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
-}
-
-inline void hud_draw(int x, int y, int tilenum, int shade, int orientation)
-{
-    int p = sector[ps[screenpeek].cursectnum].floorpal;
-    hud_drawsprite(x << 16, y << 16, 65536L, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
-}
 
 
 enum
@@ -419,6 +344,13 @@ enum
     kHitSprite = 0xC000,
 };
 
+extern uint8_t shadedsector[MAXSECTORS];
+
+
+
+
 END_DUKE_NS
+
+#include "inlines.h"
 
 #endif

@@ -393,3 +393,58 @@ enum
 	STAT_NETALLOC       = MAXSTATUS-1
 };
 
+enum
+{
+	MAXCYCLERS      = 1024,
+	MAXANIMATES     = 1024,
+	MAXANIMWALLS    = 512,
+	MAXANIMPOINTS   = 2048,
+};
+
+enum amoveflags_t
+{
+    face_player       = 1,
+    geth              = 2,
+    getv              = 4,
+    random_angle      = 8,
+    face_player_slow  = 16,
+    spin              = 32,
+    face_player_smart = 64,
+    fleeenemy         = 128,
+    jumptoplayer_only = 256,
+    justjump1 = 256,
+    jumptoplayer      = 257,
+    seekplayer        = 512,
+    furthestdir       = 1024,
+    dodgebullet       = 4096,
+    justjump2         = 8192,
+    windang           = 16384,
+    antifaceplayerslow = 32768
+};
+
+enum 
+{ 
+	SWITCH_WALL, 
+	SWITCH_SPRITE 
+};
+
+enum sflags_t
+{
+    SFLAG_SHADOW        = 0x00000001,
+    SFLAG_NVG           = 0x00000002,
+    SFLAG_INVENTORY     = 0x00000004,
+    SFLAG_ADULT         = 0x00000008,
+    SFLAG_SHRINKAUTOAIM     = 0x00000010,
+    SFLAG_BADGUY        = 0x00000020,
+    SFLAG_NOPAL         = 0x00000040,
+    SFLAG_FORCEAUTOAIM  = 0x00000080,
+    SFLAG_USEACTIVATOR  = 0x00000200,
+    SFLAG_NOFLOORSHADOW = 0x00001000,  // for temp. internal use, per-tile flag not checked
+    SFLAG_BADGUYSTAYPUT = 0x00008000,
+    SFLAG_GREENSLIMEFOOD   = 0x00800000,
+    SFLAG_NODAMAGEPUSH     = 0x00100000,
+    SFLAG_NOWATERDIP       = 0x00200000,
+    SFLAG_INTERNAL_BADGUY  = 0x08000000, // a separate flag is needed for the internal ones because SFLAG_BADGUY has additional semantics.
+    SFLAG_KILLCOUNT        = 0x10000000,
+    SFLAG_NOCANSEECHECK    = 0x20000000,
+};

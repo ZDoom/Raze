@@ -4083,7 +4083,7 @@ void moveeffectors_d(void)   //STATNUM 3
 void move_d(int g_i, int g_p, int g_x)
 {
 	auto g_sp = &sprite[g_i];
-	auto g_t = hittype[g_i].t_data;
+	auto g_t = hittype[g_i].temp_data;
 	int l;
 	short a, goalang, angdif;
 	int daxvel;

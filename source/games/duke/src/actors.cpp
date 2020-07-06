@@ -4850,7 +4850,7 @@ int furthestangle(int i, int angs)
 	angincs = 2048 / angs;
 
 	if (s->picnum != TILE_APLAYER)
-		if ((hittype[i].t_data[0] & 63) > 2) return(s->ang + 1024);
+		if ((hittype[i].temp_data[0] & 63) > 2) return(s->ang + 1024);
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
@@ -4882,7 +4882,7 @@ int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day)
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
 	spritetype* s = &sprite[i];
 
-	if ((hittype[i].t_data[0] & 63)) return -1;
+	if ((hittype[i].temp_data[0] & 63)) return -1;
 
 	if (ud.multimode < 2 && ud.player_skill < 3)
 		angincs = 2048 / 2;
@@ -4919,7 +4919,7 @@ void alterang(int a, int g_i, int g_p)
 {
 	short aang, angdif, goalang, j;
 	int ticselapsed;
-	int* g_t = hittype[g_i].t_data;
+	int* g_t = hittype[g_i].temp_data;
 	auto* g_sp = &sprite[g_i];
 
 	auto moveptr = &ScriptCode[g_t[1]];

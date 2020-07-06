@@ -1600,7 +1600,7 @@ int parse(void)
 
 void execute(int i,int p,int x)
 {
-	if (!G_HaveActor(sprite[i].picnum)) return;
+	if (actorinfo[sprite[i].picnum].scriptaddress == 0) return;
 
 	int done;
 
