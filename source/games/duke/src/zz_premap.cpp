@@ -94,7 +94,7 @@ void G_NewGame(MapRecord *map, int skillNum)
     int const UserMap = false;// Menu_HaveUserMap();
 
     // we don't want the intro to play after the multiplayer setup screen.
-    if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 && currentLevel->levelNumber == levelnum(3, 0))
+    if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 && map->levelNumber == levelnum(3, 0))
     {
         e4intro([](bool) {});
     }

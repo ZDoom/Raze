@@ -967,7 +967,8 @@ int exitlevel(void)
 
     if (ps[myconnectindex].gm & MODE_RESTART)
     {
-        ud.nextLevel = currentLevel;
+        // If no level was set, restart the current one.
+        if (!ud.nextLevel) ud.nextLevel = currentLevel;
     }
 
     if (ps[myconnectindex].gm & MODE_EOL)

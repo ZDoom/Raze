@@ -788,12 +788,12 @@ int parsecommand()
 				tempMusic.Reserve(1);
 				tempMusic.Last().levnum = levelnum(k, i);
 				tempMusic.Last().music = parsebuffer.Data();
-				textptr += j;
 			}
 			else
 			{
 				specialmusic.Push(parsebuffer.Data());
 			}
+			textptr += j;
 			i++;
 		}
 
@@ -1727,6 +1727,34 @@ void loadcons(const char* filenam)
 	{
 		auto map = FindMapByLevelNum(tm.levnum);
 		if (map) map->music = tm.music;
+	}
+	if (isRRRA())
+	{
+		// RRRA goes directly to the second episode after E1L7 to continue the game.
+		int num = fileSystem.CheckNumForName("e1l7.map");
+		int file = fileSystem.GetFileContainer(num);
+		if (file <= fileSystem.GetMaxIwadNum())
+		{
+			auto maprec = FindMapByName("e1l7");
+			if (maprec) maprec->nextLevel = levelnum(1, 0);
+		}
+	}
+	else if (isRR())
+	{
+		// RR does not define its final level and crudely hacked it into the progression. This puts it into the E2L8 slot so that the game can naturally progress there.
+		auto maprec1 = FindMapByLevelNum(levelnum(1, 6));
+		auto maprec2 = FindMapByLevelNum(levelnum(1, 7));
+		auto maprec3 = FindMapByName("endgame");
+		int num3 = fileSystem.CheckNumForName("endgame.map");
+		if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
+		{
+			auto maprec = AllocateMap();
+			maprec->designerTime = 0;
+			maprec->parTime = 0;
+			maprec->SetFileName("endgame.map");
+			maprec->SetName("$TXT_CLOSEENCOUNTERS");
+			maprec->levelNumber = levelnum(1, 7);
+		}
 	}
 	tempMusic.Clear();
 

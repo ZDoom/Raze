@@ -173,7 +173,7 @@ bool cheatStuff(cheatseq_t *)
 static bool cheatLevel(cheatseq_t *s)
 {
 	// Fixme: This should be broadcast as a net event once things are up again.
-	g_lastLevel = 0;
+	lastlevel = 0;
 	int volnume,levnume;
 	volnume = s->Args[0] - '0' - 1;
 	levnume = (s->Args[1] - '0')*10+(s->Args[2]-'0') - 1;
@@ -261,7 +261,7 @@ static bool cheatCashman(cheatseq_t *)
 
 static bool cheatSkill(cheatseq_t *s)
 {
-	g_lastLevel = 0;
+	lastlevel = 0;
 	ud.m_player_skill = ud.player_skill = s->Args[0] - '1';
 	ps[myconnectindex].gm |= MODE_RESTART;
 	FX_StopAllSounds();

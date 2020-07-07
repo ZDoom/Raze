@@ -2241,7 +2241,6 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
 int G_EnterLevel(int gameMode)
 {
     int32_t i, mii;
-    char levelName[BMAX_PATH];
 
 //    flushpackets();
 //    waitforeverybody();
