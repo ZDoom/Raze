@@ -453,51 +453,6 @@ void G_BackToMenu(void)
 	inputState.keyFlushChars();
 }
 
-static int G_EndOfLevel(void)
-{
-	STAT_Update(ud.eog || (currentLevel->flags & MI_FORCEEOG));
-    setpal(g_player[myconnectindex].ps);
-
-    if (g_player[myconnectindex].ps->gm&MODE_EOL)
-    {
-        ready2send = 0;
-
-        dobonus(0);
-
-        // Clear potentially loaded per-map ART only after the bonus screens.
-        artClearMapArt();
-
-        if (ud.eog || (currentLevel->flags & MI_FORCEEOG))
-        {
-            ud.eog = 0;
-            if ((!g_netServer && ud.multimode < 2))
-            {
-                if (!VOLUMEALL)
-                    doorders([](bool) {});
-                g_player[myconnectindex].ps->gm = 0;
-				return 2;
-            }
-            else
-            {
-                ud.level_number = 0;
-            }
-        }
-    }
-
-    ready2send = 0;
-
-    if (numplayers > 1)
-        g_player[myconnectindex].ps->gm = MODE_GAME;
-
-    if (G_EnterLevel(g_player[myconnectindex].ps->gm))
-    {
-        return 2;
-    }
-
-    Net_WaitForEverybody();
-    return 1;
-}
-
 void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
@@ -803,7 +758,7 @@ MAIN_LOOP_RESTART:
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
         {
-            switch (G_EndOfLevel())
+            switch (exitlevel())
             {
                 case 1: continue;
                 case 2: goto MAIN_LOOP_RESTART;

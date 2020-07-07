@@ -28,7 +28,8 @@ enum
 	GAMEVAR_FLAG_SYSTEM = 2048,		// cannot change mode flags...(only default value)
 	GAMEVAR_FLAG_READONLY = 4096,	// values are read-only (no setvar allowed)
 	GAMEVAR_FLAG_PLONG = 8192,		// plValue is a pointer to a long
-};	
+	GAMEVAR_FLAG_PFUNC = 8192,		// plValue is a pointer to a getter function
+};
 
 enum
 {
@@ -94,6 +95,7 @@ typedef struct
 	{
 		int lValue;
 		int* plValue;
+		int (*getter)();
 	};
 	int defaultValue;
 	unsigned int dwFlags;

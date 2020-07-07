@@ -40,6 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "st_start.h"
 #include "i_interface.h"
 #include "prediction.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
 
@@ -91,6 +92,17 @@ FString GameInterface::statFPS()
 	return output;
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void setmapfog(int fogtype)
+{
+	GLInterface.SetMapFog(fogtype != 0);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -773,7 +785,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 		double scale = isRR() ? 0.5 : 1.;
 		int top = isRR() ? 0 : ((ud.screen_size > 0) ? 147 : 179);
 		if (!(currentLevel->flags & MI_USERMAP))
-			DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top+6, GStrings.localize(gVolumeNames[ud.volume_number]), 
+			DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top+6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]), 
 				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 		DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top + 12, currentLevel->DisplayName(),
 			DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
@@ -825,15 +837,6 @@ void dobonus(int bonusonly)
     if (isRRRA());
     else if (isRR()) dobonus_r(bonusonly, nullptr);
     else dobonus_d(bonusonly, nullptr);
-
-    // This hack needs to go away!
-    if (RRRA_EndEpisode)
-    {
-        RRRA_EndEpisode = 0;
-        ud.volume_number = 1;
-        ud.level_number = 0;
-        ud.eog = 0;
-    }
 }
 
 //---------------------------------------------------------------------------

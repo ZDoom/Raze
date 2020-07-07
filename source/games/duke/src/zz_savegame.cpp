@@ -767,8 +767,6 @@ static const dataspec_t svgm_udnetw[] =
     { 0, &numplayersprites, sizeof(numplayersprites), 1 },
     { 0, &po, sizeof(po), 1 },
 
-    { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
-    { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },
     { DS_NOCHK, &ud.player_skill, sizeof(ud.player_skill), 1 },
 
     { DS_NOCHK, &ud.from_bonus, sizeof(ud.from_bonus), 1 },
@@ -883,7 +881,6 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &pistonsound, sizeof(pistonsound), 1 },
     { 0, &chickenphase, sizeof(chickenphase), 1 },
     { 0, &RRRA_ExitedLevel, sizeof(RRRA_ExitedLevel), 1 },
-    { 0, &RRRA_EndEpisode, sizeof(RRRA_EndEpisode), 1 },
     { 0, &fogactive, sizeof(fogactive), 1 },
     { DS_LOADFN, (void *)sv_rrrafog, 0, 1 },
 
@@ -966,8 +963,8 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
     // it in a savegame header read
 
     h.numplayers = ud.multimode;
-    h.volnum     = ud.volume_number;
-    h.levnum     = ud.level_number;
+    h.volnum     = 0;
+    h.levnum     = 0;
     h.skill      = ud.player_skill;
 
     if (spot >= 0)

@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "sounds.h"
 #include "names_r.h"
+#include "mapinfo.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -517,8 +518,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			break;
 
 		case RRTILE2214:
-			if (ud.level_number > 6)
-				ud.level_number = 0;
+			//if (ud.level_numbe r > 6) ud.level_numbe r = 0; ??? Looks like some leftover garbage.
 			sprite[i].picnum++;
 			break;
 		case RRTILE8660:
@@ -675,19 +675,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 
 	if (lotag == (short)65535)
 	{
-		ps[myconnectindex].gm = MODE_EOL;
-		if (ud.from_bonus)
-		{
-			ud.level_number = ud.from_bonus;
-			ud.from_bonus = 0;
-		}
-		else
-		{
-			// fixme: This needs to be taken from the level definitions.
-			if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
-				RRRA_EndEpisode = 1; // hack to force advancing to episode 2.
-			ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-		}
+		setnextmap(false);
 	}
 
 	vec3_t v = { sx, sy, ps[snum].posz };
@@ -2464,24 +2452,10 @@ void checksectors_r(int snum)
 		p->secret_rooms++;
 		return;
 	case -1:
-		for (i = connecthead; i >= 0; i = connectpoint2[i])
-			ps[i].gm = MODE_EOL;
 		sector[p->cursectnum].lotag = 0;
 		if (!isRRRA() || !RRRA_ExitedLevel)
 		{
-			if (ud.from_bonus)
-			{
-				ud.level_number = ud.from_bonus;
-				ud.from_bonus = 0;
-			}
-			else
-			{
-				if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
-					RRRA_EndEpisode = 1;
-				ud.level_number++;
-				if (ud.level_number > 6)
-					ud.level_number = 0;
-			}
+			setnextmap(false);
 			RRRA_ExitedLevel = 1;
 		}
 		return;

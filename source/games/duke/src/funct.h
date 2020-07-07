@@ -214,5 +214,11 @@ void drawbackground(void);
 void displayrooms(int32_t playerNum, int32_t smoothratio);
 void setgamepalette(int palid);
 void resetmys();
+void resettimevars();
+bool setnextmap(bool checksecretexit);
+void prelevel_d(int g);
+void prelevel_r(int g);
+void e4intro(CompletionFunc completion);
+void clearfrags(void);
 
 END_DUKE_NS

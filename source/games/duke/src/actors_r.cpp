@@ -30,6 +30,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "names_r.h"
 #include "mmulti.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -2138,9 +2139,7 @@ static void rrra_specialstats()
 		{
 			ps[screenpeek].gm = MODE_EOL;
 			ud.eog = 1;
-			ud.level_number++;
-			if (ud.level_number > 6)
-				ud.level_number = 0;
+			ud.nextLevel = FindNextMap(currentLevel);
 		}
 	}
 

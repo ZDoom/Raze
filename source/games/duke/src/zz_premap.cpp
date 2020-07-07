@@ -63,11 +63,7 @@ void G_InitRRRASkies(void)
     }
 }
 
-void prelevel_d(int g);
-void prelevel_r(int g);
-void e4intro(CompletionFunc completion);
-
-void G_NewGame(int volumeNum, int levelNum, int skillNum)
+void G_NewGame(MapRecord *map, int skillNum)
 {
     struct player_struct *const pPlayer = g_player[0].ps;
 
@@ -82,14 +78,13 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         dobonus(1);
     }
 
-    if (isRR() && !isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
+    if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
         dobonus(0);
 #endif
 
     show_shareware = REALGAMETICSPERSEC*30;
 
-    ud.level_number = levelNum;
-    ud.volume_number = volumeNum;
+    ud.nextLevel = map;
     ud.player_skill = skillNum;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
@@ -98,18 +93,13 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     
     int const UserMap = false;// Menu_HaveUserMap();
 
-    // we don't want the intro to play after the multiplayer setup screen
-    if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
-        levelNum == 0 && volumeNum == 3)
+    // we don't want the intro to play after the multiplayer setup screen.
+    if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 && currentLevel->levelNumber == levelnum(3, 0))
     {
         e4intro([](bool) {});
     }
 
-#ifdef EDUKE32_TOUCH_DEVICES
-    pPlayer->zoom = 360;
-#else
     pPlayer->zoom = 768;
-#endif
     pPlayer->gm = 0;
 	M_ClearMenus();
 

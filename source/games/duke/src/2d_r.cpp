@@ -561,7 +561,8 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 
 	if (!bonusonly && !isRRRA() && numplayers < 2 && ud.eog && ud.from_bonus == 0)
 	{
-		bonussequence_r(ud.volume_number, jobs, job);
+		int vol = volfromlevelnum(currentLevel->levelNumber);
+		bonussequence_r(vol, jobs, job);
 	}
 
 	if (playerswhenstarted > 1 && ud.coop != 1)

@@ -36,6 +36,7 @@ source as it is released.
 #include "duke3d.h"
 #include "gamedef.h"
 #include "gamevar.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -535,10 +536,7 @@ int parse(void)
 		insptr++;
 		if (!isRRRA() || g_sp->pal != 105)
 		{
-			ps[myconnectindex].gm = MODE_EOL;
-			ud.level_number++;
-			if (ud.level_number > 6)
-				ud.level_number = 0;
+			setnextmap(false);
 		}
 		break;
 	case concmd_mamaend:

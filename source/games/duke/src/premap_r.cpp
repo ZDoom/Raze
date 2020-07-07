@@ -29,6 +29,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "global.h"
 #include "names_r.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS 
 
@@ -363,11 +364,11 @@ static void cachegoodsprites(void)
     for (i = SMALLSMOKE; i < (SMALLSMOKE + 4); i++)
         tloadtile(i);
 
-    if (isRRRA() && ud.volume_number == 0 && ud.level_number == 4)
+    if (isRRRA() && currentLevel->levelNumber == levelnum(0, 4))
     {
         tloadtile(RRTILE2577);
     }
-    if (!isRRRA() && ud.volume_number == 1 && ud.level_number == 2)
+    if (!isRRRA() && currentLevel->levelNumber == levelnum(1, 2))
     {
         tloadtile(RRTILE3190);
         tloadtile(RRTILE3191);
@@ -464,7 +465,7 @@ void prelevel_r(int g)
 
     if (isRRRA())
     {
-        if (ud.level_number == 4 && ud.volume_number == 1)
+        if (currentLevel->levelNumber == levelnum(1, 4))
             ps[myconnectindex].steroids_amount = 0;
 
         for (j = 0; j < MAXSPRITES; j++)

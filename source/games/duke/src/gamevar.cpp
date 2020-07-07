@@ -40,6 +40,7 @@ source as it is released.
 #include "build.h"
 #include "mmulti.h"
 #include "gamevar.h"
+#include "mapinfo.h"
 
 // This currently only works for WW2GI.
 #include "names_d.h"
@@ -68,7 +69,7 @@ void SerializeGameVars(FSerializer &arc)
 		// Only save the ones which hold their own data, i.e. skip pointer variables.
 		for (auto& gv : aGameVars)
 		{
-			if (!(gv.dwFlags & GAMEVAR_FLAG_PLONG))
+			if (!(gv.dwFlags & (GAMEVAR_FLAG_PLONG|GAMEVAR_FLAG_PFUNC)))
 			{
 				if (arc.BeginObject(gv.szLabel))
 				{
@@ -99,7 +100,7 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 
 	int b = 0;
 
-	if (dwFlags & GAMEVAR_FLAG_PLONG)
+	if (dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC))
 		dwFlags |= GAMEVAR_FLAG_SYSTEM;	// force system if PLONG
 
 	if (strlen(pszLabel) > (MAXVARLABEL - 1))
@@ -132,7 +133,7 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 	if (i < MAXGAMEVARS)
 	{
 		// Set values
-		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & GAMEVAR_FLAG_PLONG))
+		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			// if existing is system, they only get to change default value....
 			aGameVars[i].lValue = lValue;
@@ -145,7 +146,7 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 		{
 			strcpy(aGameVars[i].szLabel, pszLabel);
 			aGameVars[i].dwFlags = dwFlags;
-			if (dwFlags & GAMEVAR_FLAG_PLONG)
+			if (dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC))
 			{
 				aGameVars[i].plValue = (int*)lValue;
 			}
@@ -267,7 +268,7 @@ void ResetGameVars(void)
 
 	for(i=0;i<iGameVarCount;i++)
 	{
-		if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PLONG))
+		if (!(aGameVars[i].dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			if (aGameVars[i].dwFlags & (GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_PERACTOR))
 			{
@@ -330,6 +331,15 @@ int GetGameVarID(int id, int sActor, int sPlayer)
 
 		return	*aGameVars[id].plValue;
 	}
+	else if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PFUNC)
+	{
+		if (!aGameVars[id].plValue)
+		{
+			Printf("GetGameVarID NULL PlValues for PFUNC Var=%s\n", aGameVars[id].szLabel);
+		}
+
+		return	aGameVars[id].getter();
+	}
 	else
 	{
 		return aGameVars[id].lValue;
@@ -367,7 +377,7 @@ void SetGameVarID(int id, int lValue, int sActor, int sPlayer)
 		// set the value at pointer
 		*aGameVars[id].plValue=lValue;
 	}
-	else
+	else if( !(aGameVars[id].dwFlags & GAMEVAR_FLAG_PFUNC) )
 	{
 		aGameVars[id].lValue=lValue;
 	}
@@ -549,6 +559,9 @@ void InitGameVarPointers(void)
 // 
 //
 //---------------------------------------------------------------------------
+
+int getmap() { return mapfromlevelnum(currentLevel->levelNumber); }
+int getvol() { return volfromlevelnum(currentLevel->levelNumber); }
 
 void AddSystemVars()
 {
@@ -1137,8 +1150,8 @@ void AddSystemVars()
 	AddGameVar("MONSTERS_OFF",(intptr_t)&ud.monsters_off, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("MARKER",(intptr_t)&ud.marker, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("FFIRE",(intptr_t)&ud.ffire, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
-	AddGameVar("LEVEL",(intptr_t)&ud.level_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
-	AddGameVar("VOLUME",(intptr_t)&ud.volume_number, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_READONLY);
+	AddGameVar("LEVEL", (intptr_t)getmap, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PFUNC | GAMEVAR_FLAG_READONLY);
+	AddGameVar("VOLUME",(intptr_t)getvol, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PFUNC | GAMEVAR_FLAG_READONLY);
 
 	AddGameVar("COOP",(intptr_t)&ud.coop, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);
 	AddGameVar("MULTIMODE",(intptr_t)&ud.multimode, GAMEVAR_FLAG_SYSTEM | GAMEVAR_FLAG_PLONG);

@@ -64,9 +64,10 @@ struct user_defs
 
     int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
     int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
-    int m_ffire, ffire, m_player_skill, /*m_level_number, m_volume_number,*/ multimode;
-    int player_skill, level_number, volume_number, m_marker, marker, mouseflip;
+    int m_ffire, ffire, m_player_skill, multimode;
+    int player_skill, m_marker, marker, mouseflip;
     int statusbarmode, althud, ShowOpponentWeapons;
+    MapRecord* nextLevel;
 
 };
 

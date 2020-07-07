@@ -36,6 +36,7 @@ source as it is released.
 #include "global.h"
 #include "sounds.h"
 #include "names_d.h"
+#include "mapinfo.h"
 
 // PRIMITIVE
 BEGIN_DUKE_NS
@@ -477,17 +478,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 
 	if (lotag == (short)65535)
 	{
-		ps[myconnectindex].gm = MODE_EOL;
-		if (ud.from_bonus)
-		{
-			ud.level_number = ud.from_bonus;
-			ud.from_bonus = 0;
-		}
-		else
-		{
-			// fixme: This needs to be taken from the level definitions.
-			ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-		}
+		setnextmap(false);
 		return 1;
 	}
 
@@ -1506,20 +1497,8 @@ void checksectors_d(int snum)
 		p->secret_rooms++;
 		return;
 	case -1:
-		for (i = connecthead; i >= 0; i = connectpoint2[i])
-			ps[i].gm = MODE_EOL;
 		sector[p->cursectnum].lotag = 0;
-		if (ud.from_bonus)
-		{
-			ud.level_number = ud.from_bonus;
-			ud.from_bonus = 0;
-		}
-		else
-		{
-			ud.level_number++;
-			if ((ud.volume_number && ud.level_number > 10) || ud.level_number > 5)
-				ud.level_number = 0;
-		}
+		setnextmap(false);
 		return;
 	case -2:
 		sector[p->cursectnum].lotag = 0;

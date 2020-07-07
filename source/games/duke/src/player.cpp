@@ -35,6 +35,7 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS 
 
@@ -593,32 +594,7 @@ int endoflevel(int snum)
 	}
 	if (p->fist_incs > 42)
 	{
-		// Fixme: Take level orogression logic out of here.
-		if (p->buttonpalette && ud.from_bonus == 0)
-		{
-			ud.from_bonus = ud.level_number + 1;
-			if (ud.secretlevel > 0 && ud.secretlevel < (isRR() ? 9 : 12)) ud.level_number = ud.secretlevel - 1;
-		}
-		else
-		{
-			if (ud.from_bonus)
-			{
-				ud.level_number = ud.from_bonus;
-				ud.from_bonus = 0;
-			}
-			else
-			{
-				if (ud.level_number == ud.secretlevel && ud.from_bonus > 0)
-					ud.level_number = ud.from_bonus;
-				else ud.level_number++;
-
-				if (ud.level_number > (isRR() ? 6 : 10)) ud.level_number = 0;
-
-			}
-		}
-		for (int i = connecthead; i >= 0; i = connectpoint2[i])
-			ps[i].gm = MODE_EOL;
-		p->fist_incs = 0;
+		setnextmap(!!p->buttonpalette);
 		return 1;
 	}
 	return 0;
@@ -645,17 +621,7 @@ int timedexit(int snum)
 	}
 	else if (p->timebeforeexit == 1)
 	{
-		for (int i = connecthead; i >= 0; i = connectpoint2[i])
-			ps[i].gm = MODE_EOL;
-		if (ud.from_bonus && !isRR())
-		{
-			ud.level_number = ud.from_bonus;
-			ud.from_bonus = 0;
-		}
-		else
-		{
-			ud.level_number++;
-		}
+		setnextmap(false);
 		return true;
 	}
 	return false;

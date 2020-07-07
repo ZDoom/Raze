@@ -781,7 +781,8 @@ class DDukeLevelSummaryScreen : public DScreenJob
 public:
 	DDukeLevelSummaryScreen() : DScreenJob(fadein | fadeout)
 	{
-		gfx_offset = BONUSSCREEN + ((ud.volume_number == 1) ? 5 : 0);
+		int vol = volfromlevelnum(currentLevel->levelNumber);
+		gfx_offset = BONUSSCREEN + ((vol == 1) ? 5 : 0);
 		lastmapname = currentLevel->DisplayName();
 		PlayBonusMusic();
 	}
@@ -964,7 +965,7 @@ void dobonus_d(bool bonusonly, CompletionFunc completion)
 
 	if (!bonusonly && numplayers < 2 && ud.eog && ud.from_bonus == 0)
 	{
-		bonussequence_d(ud.volume_number, jobs, job);
+		bonussequence_d(volfromlevelnum(currentLevel->levelNumber), jobs, job);
 	}
 
 	if (playerswhenstarted > 1 && ud.coop != 1)

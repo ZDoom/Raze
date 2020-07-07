@@ -29,6 +29,9 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 #include "global.h"
 #include "premap.h"
+#include "mapinfo.h"
+#include "secrets.h"
+#include "statistics.h"
 
 BEGIN_DUKE_NS  
 
@@ -135,7 +138,7 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       -1;
 
-    p->look_ang          = 512 - ((ud.level_number&1)<<10);
+    p->look_ang = 512 - ((currentLevel->levelNumber & 1) << 10);
 
     p->rotscrnang        = 0;
     p->orotscrnang       = 1;	// JBF 20031220
@@ -895,7 +898,7 @@ int enterlevel(MapRecord *mi, int gamemode)
     everyothertime = 0;
     global_random = 0;
 
-    ud.last_level = ud.level_number+1;
+    ud.last_level = currentLevel->levelNumber;
     clearfifo();
     for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     ps[myconnectindex].over_shoulder_on = 0;
@@ -916,6 +919,49 @@ void setmapfog(int fogtype)
     GLInterface.SetMapFog(fogtype != 0);
 }
 
+//---------------------------------------------------------------------------
+//
+// Ideally this will become the only place where map progression gets set up.
+//
+//---------------------------------------------------------------------------
 
+bool setnextmap(bool checksecretexit)
+{
+    MapRecord *map;
+    int from_bonus = 0;
+
+    if (checksecretexit && ud.from_bonus == 0)
+    {
+        if (ud.secretlevel > 0)
+        {
+            int newlevnum = levelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel);
+            map = FindMapByLevelNum(newlevnum);
+            if (map)
+            {
+                from_bonus = currentLevel->levelNumber + 1;
+            }
+        }
+    }
+    else if (ud.from_bonus && currentLevel->nextLevel == -1)	// if the current level has an explicit link, use that instead of ud.from_bonus.
+    {
+        map = FindMapByLevelNum(ud.from_bonus);
+    }
+    else
+    {
+        map = FindNextMap(currentLevel);
+    }
+
+    for (int i = connecthead; i >= 0; i = connectpoint2[i])
+        ps[i].gm = MODE_EOL;
+
+    if (map)
+    {
+        ud.from_bonus = from_bonus;
+        ud.nextLevel = map;
+        return true;
+    }
+    ud.eog = true;
+    return false;
+}
 
 END_DUKE_NS  
