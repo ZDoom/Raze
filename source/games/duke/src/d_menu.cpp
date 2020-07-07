@@ -224,7 +224,7 @@ void GameInterface::MenuOpened()
 		screenpeek = myconnectindex;
 	}
 
-	auto& gm = g_player[myconnectindex].ps->gm;
+	auto& gm = ps[myconnectindex].gm;
 	if (gm & MODE_GAME)
 	{
 		gm |= MODE_MENU;
@@ -258,7 +258,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	auto& gm = g_player[myconnectindex].ps->gm;
+	auto& gm = ps[myconnectindex].gm;
 	if (gm & MODE_GAME)
 	{
 		if (gm & MODE_MENU)
@@ -282,7 +282,7 @@ void GameInterface::MenuClosed()
 bool GameInterface::CanSave()
 {
 	if (ud.recstat == 2) return false;
-	auto &myplayer = *g_player[myconnectindex].ps;
+	auto &myplayer = ps[myconnectindex];
 	if (sprite[myplayer.i].extra <= 0)
 	{
 		//P_DoQuote(QUOTE_SAVE_DEAD, &myplayer); // handled by the menu.
@@ -358,7 +358,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 
 void GameInterface::QuitToTitle()
 {
-	g_player[myconnectindex].ps->gm = MODE_DEMO;
+	ps[myconnectindex].gm = MODE_DEMO;
 	artClearMapArt();
 }
 

@@ -76,17 +76,6 @@ extern int startrts(int lumpNum, int localPlayer);
 
 extern void G_MaybeAllocPlayer(int32_t pnum);
 
-static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
-{
-    if (!((ud.multimode < 2 && ((g_player[myconnectindex].ps->gm & MODE_MENU) == 0)) ||
-          ud.multimode > 1 || ud.recstat == 2) || ud.pause_on)
-    {
-        return 65536;
-    }
-
-    return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
-}
-
 
 static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
 {

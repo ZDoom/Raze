@@ -157,6 +157,17 @@ inline void SetPlayerPal(player_struct* p, PalEntry pe)
     p->pals = pe;
 }
 
+inline int calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+{
+    if (!((ud.multimode < 2 && ((ps[myconnectindex].gm & MODE_MENU) == 0)) ||
+        ud.multimode > 1 || ud.recstat == 2) || ud.pause_on)
+    {
+        return 65536;
+    }
+    return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
+}
+
+
 // These should be the only places converting between level numbers and volume/map pairs
 constexpr inline int levelnum(int vol, int map)
 {

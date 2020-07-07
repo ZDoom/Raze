@@ -241,7 +241,7 @@ public:
 
     void DrawHud(int snum, int style)
     {
-        auto p = g_player[snum].ps;
+        auto p = &ps[snum];
         BeginHUD(320, 200, 1.f, false);
         if (style == 1)
         {
@@ -344,7 +344,7 @@ public:
 
     void Statusbar(int snum)
     {
-        auto p = g_player[snum].ps;
+        auto p = &ps[snum];
         int h = tilesiz[TILE_BOTTOMSTATUSBAR].y;
         int top = 200 - h;
         BeginStatusBar(320, 200, h, true);

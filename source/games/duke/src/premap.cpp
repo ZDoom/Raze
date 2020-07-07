@@ -936,7 +936,7 @@ int enterlevel(MapRecord *mi, int gamemode)
     FX_StopAllSounds();
     FX_SetReverb(0);
 
-    struct player_struct *const p = g_player[0].ps;
+    auto p = &ps[0];
 
 
     /*

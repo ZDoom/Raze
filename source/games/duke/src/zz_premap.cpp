@@ -70,7 +70,7 @@ void clearfrags(void)
     for (int i = 0; i < ud.multimode; i++)
     {
         playerdata_t *const pPlayerData = &g_player[i];
-        pPlayerData->ps->frag = pPlayerData->ps->fraggedself = 0;
+        ps[i].frag = ps[i].fraggedself = 0;
         memset(pPlayerData->frags, 0, sizeof(pPlayerData->frags));
     }
 }

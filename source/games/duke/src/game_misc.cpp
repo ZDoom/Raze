@@ -145,7 +145,7 @@ void checkcommandline()
 void gameexitfrommenu()
 {
 	// MP scoreboard
-	if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && !ud.coop)
+	if (playerswhenstarted > 1 && ps[myconnectindex].gm & MODE_GAME && !ud.coop)
 	{
 		dobonus(1);
 	}
@@ -269,7 +269,7 @@ void FTA(int q, struct player_struct* p)
 	{
 		if (q == 13) p->ftq = q;
 		auto qu = quoteMgr.GetQuote(q);
-		if (p == g_player[screenpeek].ps && qu[0] != '\0')
+		if (p == &ps[screenpeek] && qu[0] != '\0')
 		{
 			if (q >= 70 && q <= 72 && hud_messages == 2)
 			{
@@ -293,7 +293,7 @@ void FTA(int q, struct player_struct* p)
 
 void drawbackground(void)
 {
-	if ((g_player[myconnectindex].ps->gm & MODE_GAME) == 0 && ud.recstat != 2)
+	if ((ps[myconnectindex].gm & MODE_GAME) == 0 && ud.recstat != 2)
 	{
 		twod->ClearScreen();
 		auto tex = tileGetTexture(TILE_MENUSCREEN);

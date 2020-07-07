@@ -333,7 +333,7 @@ void S_Update(void)
 	vec3_t* c;
 	int32_t ca, cs;
 	
-	auto& gm = g_player[myconnectindex].ps->gm;
+	auto& gm = ps[myconnectindex].gm;
 	if (isRR() && !Mus_IsPlaying() && (gm && gm & MODE_GAME))
 		S_PlayRRMusic(); 
 
