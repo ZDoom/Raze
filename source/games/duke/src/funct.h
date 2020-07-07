@@ -3,6 +3,8 @@
 #include "screenjob.h"
 #include "constants.h"
 
+struct MapRecord;
+
 BEGIN_DUKE_NS
 
 // dumping ground for all external function prototypes to keep them out of the important headers.
@@ -221,5 +223,7 @@ void prelevel_r(int g);
 void e4intro(CompletionFunc completion);
 void clearfrags(void);
 int exitlevel();
+int enterlevel(MapRecord* mi, int gm);
+void newgame(MapRecord* mi, int sk);
 
 END_DUKE_NS

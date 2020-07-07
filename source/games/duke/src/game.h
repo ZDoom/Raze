@@ -90,7 +90,7 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 
 static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
 {
-    G_NewGame(map, skill);
+    newgame(map, skill);
 
     if (enterlevel(map, MODE_GAME))
         G_BackToMenu();

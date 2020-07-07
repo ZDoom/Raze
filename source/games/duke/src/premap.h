@@ -29,8 +29,6 @@ BEGIN_DUKE_NS
 
 extern int16_t ambientlotag[64];
 extern int16_t ambienthitag[64];
-int enterlevel(MapRecord *mi, int gameMode);
-void G_NewGame(MapRecord *mi, int skillNum);
 void P_ResetPlayer(int pn);
 void G_ResetInterpolations(void);
 void G_InitRRRASkies(void);

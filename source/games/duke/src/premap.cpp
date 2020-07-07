@@ -768,6 +768,94 @@ void resettimevars(void)
 //
 //---------------------------------------------------------------------------
 
+void newgame(MapRecord* map, int sk)
+{
+    auto p = &ps[0];
+    handleevents();
+    ready2send = 0;
+
+#if 0
+    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
+        dobonus(1);
+
+    if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
+        dobonus(0);
+#endif
+
+    show_shareware = 26 * 34;
+
+    ud.nextLevel = map;
+    ud.player_skill = sk;
+    ud.secretlevel = 0;
+    ud.from_bonus = 0;
+
+    ud.last_level = -1;
+
+    if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
+    {
+        e4intro([](bool) {});
+    }
+
+    p->zoom = 768;
+    p->gm = 0;
+    M_ClearMenus();
+    ResetGameVars();
+
+    if (m_coop != 1)
+    {
+        if (isWW2GI())
+        {
+            for (int i = 0; i < 12/*MAX_WEAPONS*/; i++) // aboive 12 have no data defined and would crash.
+            {
+                if (aplWeaponWorksLike[i][0] == PISTOL_WEAPON)
+                {
+                    p->curr_weapon = i;
+                    p->gotweapon.Set(i);
+                    p->ammo_amount[i] = 48;
+                }
+                else if (aplWeaponWorksLike[i][0] == KNEE_WEAPON || aplWeaponWorksLike[i][0] == HANDREMOTE_WEAPON)
+                {
+                    p->gotweapon.Set(i);
+                }
+            }
+        }
+        else
+        {
+            p->curr_weapon = PISTOL_WEAPON;
+            p->gotweapon.Set(PISTOL_WEAPON);
+            p->gotweapon.Set(KNEE_WEAPON);
+            p->ammo_amount[PISTOL_WEAPON] = 48;
+            p->gotweapon.Set(HANDREMOTE_WEAPON);
+            p->last_weapon = -1;
+        }
+
+        p->last_weapon = -1;
+    }
+
+    display_mirror = 0;
+
+    if (ud.multimode > 1)
+    {
+        if (numplayers < 2)
+        {
+            connecthead = 0;
+            for (int i = 0; i < MAXPLAYERS; i++) connectpoint2[i] = i + 1;
+            connectpoint2[ud.multimode - 1] = -1;
+        }
+    }
+    else
+    {
+        connecthead = 0;
+        connectpoint2[0] = -1;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 {
     int16_t lbang;

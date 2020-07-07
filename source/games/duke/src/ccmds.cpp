@@ -54,7 +54,7 @@ static void dowarp(MapRecord *map)
 
     if (ps[myconnectindex].gm & MODE_GAME)
     {
-        G_NewGame(map, ud.m_player_skill);
+        newgame(map, ud.m_player_skill);
         ps[myconnectindex].gm = MODE_RESTART;
     }
     else G_NewGame_EnterLevel(map, ud.m_player_skill);
