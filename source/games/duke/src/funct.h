@@ -6,6 +6,13 @@
 BEGIN_DUKE_NS
 
 // dumping ground for all external function prototypes to keep them out of the important headers.
+// This list is not sorted in any way.
+
+void lava_cleararrays();
+void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
+void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
+void addtorch(int i);
+void addlightning(int i);
 
 void movecyclers(void);
 void movedummyplayers(void);

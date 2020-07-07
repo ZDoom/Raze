@@ -34,21 +34,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-void lava_cleararrays();
-void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
-void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
-void addtorch(int i);
-void addlightning(int i);
-
-
 extern int which_palookup;
 
-static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 int32_t g_skillSoundVoice = -1;
 
-
-static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
 void G_InitRRRASkies(void)
 {
@@ -274,8 +264,7 @@ static int LoadTheMap(MapRecord &mi, struct player_struct *pPlayer, int gameMode
 
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));
-    Bmemset(precachehightile, 0, sizeof(precachehightile));
-
+    
     if (isRR()) prelevel_r(gameMode);
     else prelevel_d(gameMode);
 
