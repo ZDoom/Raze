@@ -569,155 +569,8 @@ static int32_t getnumvar(const dataspec_t *spec)
     return n;
 }
 
-// update dump at *dumpvar with new state and write diff to *diffvar
-static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **diffvar)
-{
-    uint8_t * dump   = *dumpvar;
-    uint8_t * diff   = *diffvar;
-    int       nbytes = (getnumvar(spec) + 7) >> 3;
-    int const slen   = Bstrlen((const char *)spec->ptr);
-
-    Bmemcpy(diff, spec->ptr, slen);
-    diff += slen;
-
-    while (nbytes--)
-        *(diff++) = 0;  // the bitmap of indices which elements of spec have changed go here
-
-    int eltnum = 0;
-
-    for (spec++; spec->flags!=DS_END; spec++)
-    {
-        if ((spec->flags&(DS_NOCHK|DS_STRING|DS_CMP)))
-            continue;
-
-        if (spec->flags&(DS_LOADFN|DS_SAVEFN))
-        {
-            if ((spec->flags&(DS_PROTECTFN))==0)
-                (*(void (*)())spec->ptr)();
-            continue;
-        }
-
-        void *  ptr;
-        int32_t cnt;
-
-        ds_get(spec, &ptr, &cnt);
-
-        if (cnt < 0)
-        {
-            Printf("csd: cnt=%d, f=0x%x\n", cnt, spec->flags);
-            continue;
-        }
-
-        uint8_t * const tmptr = diff;
-
-        docmpsd(ptr, dump, spec->size, cnt, &diff);
-
-        if (diff != tmptr)
-            (*diffvar + slen)[eltnum>>3] |= 1<<(eltnum&7);
-
-        dump += spec->size*cnt;
-        eltnum++;
-    }
-
-    *diffvar = diff;
-    *dumpvar = dump;
-}
-
 #define VALOFS(bits,p,ofs) (*(((UINT(bits) *)(p)) + (ofs)))
 
-// apply diff to dump, not to state! state is restored from dump afterwards.
-static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **diffvar)
-{
-    uint8_t * dump   = *dumpvar;
-    uint8_t * diff   = *diffvar;
-    int const nbytes = (getnumvar(spec)+7)>>3;
-    int const slen   = Bstrlen((const char *)spec->ptr);
-
-    if (Bmemcmp(diff, spec->ptr, slen))  // check STRING magic (sync check)
-        return 1;
-
-    diff += slen+nbytes;
-
-    int eltnum = -1;
-    for (spec++; spec->flags != DS_END; spec++)
-    {
-        if ((spec->flags & (DS_NOCHK|DS_STRING|DS_CMP|DS_LOADFN|DS_SAVEFN)))
-            continue;
-
-        int const cnt = ds_getcnt(spec);
-        if (cnt < 0) return 1;
-
-        eltnum++;
-        if (((*diffvar+slen)[eltnum>>3] & (1<<(eltnum&7))) == 0)
-        {
-            dump += spec->size * cnt;
-            continue;
-        }
-
-// ----------
-#define CPSINGLEVAL(Datbits)                  \
-    WVAL(Datbits, dump) = VAL(Datbits, diff); \
-    diff += BYTES(Datbits);                   \
-    dump += BYTES(Datbits)
-
-        if (cnt == 1)
-        {
-            switch (spec->size)
-            {
-                case 8: CPSINGLEVAL(64); continue;
-                case 4: CPSINGLEVAL(32); continue;
-                case 2: CPSINGLEVAL(16); continue;
-                case 1: CPSINGLEVAL(8); continue;
-            }
-        }
-
-#define CPELTS(Idxbits, Datbits)                             \
-    do                                                       \
-    {                                                        \
-        UINT(Idxbits) idx;                                   \
-        goto readidx_##Idxbits##_##Datbits;                  \
-        do                                                   \
-        {                                                    \
-            VALOFS(Datbits, dump, idx) = VAL(Datbits, diff); \
-            diff += BYTES(Datbits);                          \
-readidx_##Idxbits##_##Datbits:                               \
-            idx = VAL(Idxbits, diff);                        \
-            diff += BYTES(Idxbits);                          \
-        } while ((int##Idxbits##_t)idx != -1);               \
-    } while (0)
-
-#define CPDATA(Datbits)                                                            \
-    do                                                                             \
-    {                                                                              \
-        int const elts = tabledivide32_noinline(spec->size * cnt, BYTES(Datbits)); \
-        if (elts > 65536)                                                          \
-            CPELTS(32, Datbits);                                                   \
-        else if (elts > 256)                                                       \
-            CPELTS(16, Datbits);                                                   \
-        else                                                                       \
-            CPELTS(8, Datbits);                                                    \
-    } while (0)
-
-        if (spec->size == 8)
-            CPDATA(64);
-        else if ((spec->size & 3) == 0)
-            CPDATA(32);
-        else if ((spec->size & 1) == 0)
-            CPDATA(16);
-        else
-            CPDATA(8);
-        dump += spec->size * cnt;
-// ----------
-
-#undef CPELTS
-#undef CPSINGLEVAL
-#undef CPDATA
-    }
-
-    *diffvar = diff;
-    *dumpvar = dump;
-    return 0;
-}
 
 #undef VAL
 #undef VALOFS
@@ -973,16 +826,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
 		auto fw = WriteSavegameChunk("header.dat");
 		fw->Write(&h, sizeof(savehead_t));
 	}
-    else
-    {
-        // demo
-        // demo (currently broken, needs a new format.)
-        const time_t t = time(NULL);
-		struct tm *  st = localtime(&t);
-        FStringf demoname("Demo %04d%02d%02d %s", st->tm_year+1900, st->tm_mon+1, st->tm_mday, GetGitDescription());
-		fil.Write(&h, sizeof(savehead_t));
-
-	}
 
 
     // write header
@@ -991,19 +834,6 @@ int32_t sv_saveandmakesnapshot(FileWriter &fil, int8_t spot, bool isAutoSave)
     {
         // savegame
         dosaveplayer2(&fil, NULL);
-    }
-    else
-    {
-        // demo
-        SV_AllocSnap(0);
-
-        uint8_t * const p = dosaveplayer2(&fil, svsnapshot);
-
-        if (p != svsnapshot+svsnapsiz)
-        {
-            Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p - (svsnapshot + svsnapsiz)));
-            return 1;
-        }
     }
 
     return 0;
@@ -1133,60 +963,6 @@ int32_t sv_loadsnapshot(FileReader &fil, int32_t spot, savehead_t *h)
 }
 
 
-uint32_t sv_writediff(FileWriter *fil)
-{
-    uint8_t *p = svsnapshot;
-    uint8_t *d = svdiff;
-
-    cmpspecdata(svgm_udnetw, &p, &d);
-    cmpspecdata(svgm_secwsp, &p, &d);
-    cmpspecdata(svgm_script, &p, &d);
-    cmpspecdata(svgm_anmisc, &p, &d);
-    cmpspecdata((const dataspec_t *)svgm_vars, &p, &d);
-
-    if (p != svsnapshot+svsnapsiz)
-        Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
-    
-    uint32_t const diffsiz = d - svdiff;
-
-    fil->Write("dIfF",4);
-	fil->Write(&diffsiz, sizeof(diffsiz));
-
-	fil->Write(svdiff,  diffsiz);
-
-    return diffsiz;
-}
-
-int32_t sv_readdiff(FileReader &fil)
-{
-    int32_t diffsiz;
-
-    if (fil.Read(&diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
-        return -1;
-
-	if (fil.Read(svdiff, diffsiz) != diffsiz)
-            return -2;
-
-    uint8_t *p = svsnapshot;
-    uint8_t *d = svdiff;
-
-    if (applydiff(svgm_udnetw, &p, &d)) return -3;
-    if (applydiff(svgm_secwsp, &p, &d)) return -4;
-    if (applydiff(svgm_script, &p, &d)) return -5;
-    if (applydiff(svgm_anmisc, &p, &d)) return -6;
-    if (applydiff((const dataspec_t *)svgm_vars, &p, &d)) return -7;
-
-    int i = 0;
-
-    if (p!=svsnapshot+svsnapsiz)
-        i|=1;
-    if (d!=svdiff+diffsiz)
-        i|=2;
-    if (i)
-        Printf("sv_readdiff: p=%p, svsnapshot+svsnapsiz=%p; d=%p, svdiff+diffsiz=%p",
-                   p, svsnapshot+svsnapsiz, d, svdiff+diffsiz);
-    return i;
-}
 
 // SVGM data description
 static void sv_postudload()
@@ -1273,10 +1049,6 @@ static void sv_restload()
 
 static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem)
 {
-#ifdef DEBUGGINGAIDS
-    uint8_t *tmem = mem;
-    int32_t t=timerGetTicks();
-#endif
     mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
     PRINTSIZE("ud");
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
@@ -1295,10 +1067,6 @@ static uint8_t *dosaveplayer2(FileWriter *fil, uint8_t *mem)
 static int32_t doloadplayer2(FileReader &fil, uint8_t **memptr)
 {
     uint8_t *mem = memptr ? *memptr : NULL;
-#ifdef DEBUGGINGAIDS
-    uint8_t *tmem=mem;
-    int32_t t=timerGetTicks();
-#endif
     if (readspecdata(svgm_udnetw, &fil, &mem)) return -2;
     PRINTSIZE("ud");
     if (readspecdata(svgm_secwsp, &fil, &mem)) return -4;
