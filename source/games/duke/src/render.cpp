@@ -501,7 +501,7 @@ void displayrooms(int snum, int smoothratio)
 	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
 
-	// The camera texture must be rendered with the base palette, so this is the only place where the current global can be set.
+	// The camera texture must be rendered with the base palette, so this is the only place where the current global palette can be set.
 	// The setting here will be carried over to the rendering of the weapon sprites, but other 2D content will always default to the main palette.
 	setgamepalette(p->palette);
 	if (ud.camerasprite >= 0)

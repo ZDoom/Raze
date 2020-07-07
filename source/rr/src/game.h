@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "palette.h"
 #include "cmdlib.h"
 
+EXTERN_CVAR(Int, m_level_number)
+
 BEGIN_RR_NS
 
 #ifndef ONLY_USERDEFS

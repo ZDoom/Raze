@@ -374,7 +374,7 @@ void displayrest(int smoothratio)
 
 	i = pp->cursectnum;
 
-	show2dsector.Set(i);
+	if (i >= 0) show2dsector.Set(i);
 	wal = &wall[sector[i].wallptr];
 	for (j = sector[i].wallnum; j > 0; j--, wal++)
 	{
@@ -830,8 +830,8 @@ void dobonus(int bonusonly)
     if (RRRA_EndEpisode)
     {
         RRRA_EndEpisode = 0;
-        ud.m_volume_number = ud.volume_number = 1;
-        m_level_number = ud.level_number = 0;
+        ud.volume_number = 1;
+        ud.level_number = 0;
         ud.eog = 0;
     }
 }

@@ -447,7 +447,6 @@ void G_UpdatePlayerFromMenu(void)
 void G_BackToMenu(void)
 {
     boardfilename[0] = 0;
-    ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_Mainmenu);
@@ -480,7 +479,6 @@ static int G_EndOfLevel(void)
             }
             else
             {
-                m_level_number = 0;
                 ud.level_number = 0;
             }
         }
@@ -674,22 +672,12 @@ int GameInterface::app_main()
 
     tileDelete(13);
 
-    if (numplayers == 1 && boardfilename[0] != 0)
-    {
-        m_level_number  = 7;
-        ud.m_volume_number = 0;
-        ud.warp_on         = 1;
-    }
-
     // getnames();
 
     if (g_netServer || ud.multimode > 1)
     {
-        if (ud.warp_on == 0)
-        {
-            ud.m_monsters_off = 1;
-            ud.m_player_skill = 0;
-        }
+        ud.m_monsters_off = 1;
+        ud.m_player_skill = 0;
     }
 
     playerswhenstarted = ud.multimode;  // XXX: redundant?
@@ -717,32 +705,24 @@ MAIN_LOOP_RESTART:
 
     g_player[myconnectindex].ps->ftq = 0;
 
-    if (ud.warp_on == 1)
+    //if (ud.warp_on == 0)
     {
-        G_NewGame_EnterLevel();
-        // may change ud.warp_on in an error condition
-    }
-
-    if (ud.warp_on == 0)
-    {
+#if 0 // fixme once the game loop has been done.
         if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
         {
-            m_level_number = 7;
-            ud.m_volume_number = 0;
+            auto maprecord = FindMap(boardfilename);
+            ud.m_respawn_monsters = ud.m_player_skill == 4;
 
-            if (ud.m_player_skill == 4)
-                ud.m_respawn_monsters = 1;
-            else ud.m_respawn_monsters = 0;
-
-            for (bssize_t TRAVERSE_CONNECT(i))
+            for (int i = 0; i != -1; i = connectpoint2[i])
             {
                 resetweapons(i);
                 resetinventory(i);
             }
 
-            G_NewGame_EnterLevel();
+            StartGame(maprecord);
         }
         else
+#endif
         {
             fi.ShowLogo([](bool) {});
         }
@@ -763,7 +743,6 @@ MAIN_LOOP_RESTART:
     if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
     else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
 
-    ud.warp_on = 0;
 	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
 
     do //main loop

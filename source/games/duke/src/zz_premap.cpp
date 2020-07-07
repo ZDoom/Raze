@@ -332,8 +332,8 @@ int G_EnterLevel(int gameMode)
             levelNum &= MAXLEVELS-1;
             volumeNum = (volumeNum - levelNum) / MAXLEVELS;
 
-            ud.level_number = m_level_number = levelNum;
-            ud.volume_number = ud.m_volume_number = volumeNum;
+            ud.level_number = levelNum;
+            ud.volume_number = volumeNum;
 
             boardfilename[0] = 0;
         }
@@ -442,8 +442,7 @@ int G_EnterLevel(int gameMode)
     }
     else
     {
-        Printf(TEXTCOLOR_GOLD "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-                   mapList[mii].DisplayName());
+        Printf(TEXTCOLOR_GOLD "%s: %s\n", mapList[mii].labelName.GetChars(), mapList[mii].DisplayName());
     }
 
     videoClearViewableArea(0L);

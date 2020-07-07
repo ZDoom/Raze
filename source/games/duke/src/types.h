@@ -43,7 +43,7 @@ struct input_t  // original name was input which is too generic for a type name.
 
 struct user_defs
 {
-    unsigned char god, warp_on, cashman, eog, showallmap;
+    unsigned char god, cashman, eog, showallmap;
     unsigned char show_help, scrollmode, clipping;
     char user_name[MAXPLAYERS][32];
     unsigned char overhead_on, last_overhead, showweapons;
@@ -64,7 +64,7 @@ struct user_defs
 
     int respawn_monsters, respawn_items, respawn_inventory, recstat, monsters_off, brightness;
     int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
-    int m_ffire, ffire, m_player_skill, m_level_number, m_volume_number, multimode;
+    int m_ffire, ffire, m_player_skill, /*m_level_number, m_volume_number,*/ multimode;
     int player_skill, level_number, volume_number, m_marker, marker, mouseflip;
     int statusbarmode, noexits, althud, ShowOpponentWeapons;
 

@@ -598,14 +598,12 @@ int endoflevel(int snum)
 		{
 			ud.from_bonus = ud.level_number + 1;
 			if (ud.secretlevel > 0 && ud.secretlevel < (isRR() ? 9 : 12)) ud.level_number = ud.secretlevel - 1;
-			ud.m_level_number = ud.level_number;
 		}
 		else
 		{
 			if (ud.from_bonus)
 			{
 				ud.level_number = ud.from_bonus;
-				ud.m_level_number = ud.level_number;
 				ud.from_bonus = 0;
 			}
 			else
@@ -615,7 +613,6 @@ int endoflevel(int snum)
 				else ud.level_number++;
 
 				if (ud.level_number > (isRR() ? 6 : 10)) ud.level_number = 0;
-				ud.m_level_number = ud.level_number;
 
 			}
 		}
@@ -653,13 +650,11 @@ int timedexit(int snum)
 		if (ud.from_bonus && !isRR())
 		{
 			ud.level_number = ud.from_bonus;
-			ud.m_level_number = ud.level_number;
 			ud.from_bonus = 0;
 		}
 		else
 		{
 			ud.level_number++;
-			ud.m_level_number = ud.level_number;
 		}
 		return true;
 	}

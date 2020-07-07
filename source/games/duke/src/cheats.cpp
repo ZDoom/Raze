@@ -183,8 +183,6 @@ static bool cheatLevel(cheatseq_t *s)
 	{
 		FX_StopAllSounds();
 		FX_SetReverb(0);
-		ud.m_volume_number = ud.volume_number = volnume;
-		ud.m_level_number = ud.level_number = levnume;
 		ps[myconnectindex].gm |= MODE_RESTART;
 	}
 	return true;

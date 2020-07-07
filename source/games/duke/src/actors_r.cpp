@@ -2141,7 +2141,6 @@ static void rrra_specialstats()
 			ud.level_number++;
 			if (ud.level_number > 6)
 				ud.level_number = 0;
-			ud.m_level_number = ud.level_number;
 		}
 	}
 

@@ -312,14 +312,12 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		}
 	}
 	ud.m_respawn_monsters = (gs.Skill == 3);
-	ud.m_volume_number = gs.Episode;
-	m_level_number = gs.Level;
 
 	ud.m_monsters_off = ud.monsters_off = 0;
 	ud.m_respawn_items = 0;
 	ud.m_respawn_inventory = 0;
 	ud.multimode = 1;
-	G_NewGame_EnterLevel();
+	G_NewGame_EnterLevel(gs.Episode, gs.Level, ud.m_player_skill);
 
 }
 

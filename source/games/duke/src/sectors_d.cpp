@@ -481,14 +481,12 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		if (ud.from_bonus)
 		{
 			ud.level_number = ud.from_bonus;
-			ud.m_level_number = ud.level_number;
 			ud.from_bonus = 0;
 		}
 		else
 		{
 			// fixme: This needs to be taken from the level definitions.
 			ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-			ud.m_level_number = ud.level_number;
 		}
 		return 1;
 	}
@@ -1514,7 +1512,6 @@ void checksectors_d(int snum)
 		if (ud.from_bonus)
 		{
 			ud.level_number = ud.from_bonus;
-			ud.m_level_number = ud.level_number;
 			ud.from_bonus = 0;
 		}
 		else
@@ -1522,7 +1519,6 @@ void checksectors_d(int snum)
 			ud.level_number++;
 			if ((ud.volume_number && ud.level_number > 10) || ud.level_number > 5)
 				ud.level_number = 0;
-			ud.m_level_number = ud.level_number;
 		}
 		return;
 	case -2:

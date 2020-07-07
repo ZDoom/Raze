@@ -52,14 +52,12 @@ static void dowarp(int volume, int level)
 
     ud.multimode = 1;
 
-    ud.m_volume_number = volume;
-    m_level_number = level;
     if (ps[myconnectindex].gm & MODE_GAME)
     {
-        G_NewGame(ud.m_volume_number, m_level_number, ud.m_player_skill);
+        G_NewGame(volume, level, ud.m_player_skill);
         ps[myconnectindex].gm = MODE_RESTART;
     }
-    else G_NewGame_EnterLevel();
+    else G_NewGame_EnterLevel(volume, level, ud.m_player_skill);
 }
 
 static int ccmd_levelwarp(CCmdFuncPtr parm)

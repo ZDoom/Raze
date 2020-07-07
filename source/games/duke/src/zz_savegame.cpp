@@ -162,9 +162,6 @@ int32_t G_LoadPlayer(const char *path)
 
     FX_StopAllSounds();
 
-    // non-"m_" fields will be loaded from svgm_udnetw
-    ud.m_volume_number = h.volnum;
-    m_level_number = h.levnum;
     ud.m_player_skill = h.skill;
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
@@ -1199,8 +1196,6 @@ int32_t sv_readdiff(FileReader &fil)
 static void sv_postudload()
 {
 #if 1
-    m_level_number      = ud.level_number;
-    ud.m_volume_number     = ud.volume_number;
     ud.m_player_skill      = ud.player_skill;
     ud.m_respawn_monsters  = ud.respawn_monsters;
     ud.m_respawn_items     = ud.respawn_items;

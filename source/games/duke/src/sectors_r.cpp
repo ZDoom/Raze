@@ -679,7 +679,6 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 		if (ud.from_bonus)
 		{
 			ud.level_number = ud.from_bonus;
-			ud.m_level_number = ud.level_number;
 			ud.from_bonus = 0;
 		}
 		else
@@ -688,7 +687,6 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
 				RRRA_EndEpisode = 1; // hack to force advancing to episode 2.
 			ud.level_number = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
-			ud.m_level_number = ud.level_number;
 		}
 	}
 
@@ -2474,7 +2472,6 @@ void checksectors_r(int snum)
 			if (ud.from_bonus)
 			{
 				ud.level_number = ud.from_bonus;
-				ud.m_level_number = ud.level_number;
 				ud.from_bonus = 0;
 			}
 			else
@@ -2484,7 +2481,6 @@ void checksectors_r(int snum)
 				ud.level_number++;
 				if (ud.level_number > 6)
 					ud.level_number = 0;
-				ud.m_level_number = ud.level_number;
 			}
 			RRRA_ExitedLevel = 1;
 		}
