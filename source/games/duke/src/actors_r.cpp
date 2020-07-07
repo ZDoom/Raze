@@ -2139,7 +2139,7 @@ static void rrra_specialstats()
 		{
 			ps[screenpeek].gm = MODE_EOL;
 			ud.eog = 1;
-			ud.nextLevel = FindNextMap(currentLevel);
+			ud.nextLevel = nullptr;
 		}
 	}
 

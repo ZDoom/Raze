@@ -179,8 +179,10 @@ static bool cheatLevel(cheatseq_t *s)
 	levnume = (s->Args[1] - '0')*10+(s->Args[2]-'0') - 1;
 	
 	// Instead of hard coded range checks on volume and level, let's just check if the level is defined.
-	if (mapList[volnume*MAXLEVELS + levnume].fileName.IsNotEmpty())
+	auto map = FindMapByLevelNum(levelnum(volnume, levnume));
+	if (map)
 	{
+		ud.nextLevel = map;
 		FX_StopAllSounds();
 		FX_SetReverb(0);
 		ps[myconnectindex].gm |= MODE_RESTART;

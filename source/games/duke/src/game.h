@@ -45,8 +45,6 @@ extern int rtsplaying;
 #ifndef ONLY_USERDEFS
 
 extern char boardfilename[BMAX_PATH];
-#define USERMAPMUSICFAKEVOLUME MAXVOLUMES
-#define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
 
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
@@ -90,11 +88,11 @@ static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk
 }
 
 
-static inline void G_NewGame_EnterLevel(int volume, int level, int skill)
+static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
 {
-    G_NewGame(volume, level, skill);
+    G_NewGame(map, skill);
 
-    if (G_EnterLevel(MODE_GAME))
+    if (enterlevel(map, MODE_GAME))
         G_BackToMenu();
 }
 

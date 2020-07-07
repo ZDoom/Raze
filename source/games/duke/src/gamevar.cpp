@@ -560,6 +560,7 @@ void InitGameVarPointers(void)
 //
 //---------------------------------------------------------------------------
 
+// These are deliberately not stored in accessible variables anymore
 int getmap() { return mapfromlevelnum(currentLevel->levelNumber); }
 int getvol() { return volfromlevelnum(currentLevel->levelNumber); }
 

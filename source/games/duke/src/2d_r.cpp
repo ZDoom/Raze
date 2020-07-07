@@ -601,7 +601,6 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 class DRRLoadScreen : public DScreenJob
 {
 	std::function<int(void)> callback;
-	std::function<int(void)> callback;
 	MapRecord* rec;
 
 public:

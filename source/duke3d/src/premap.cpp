@@ -1744,7 +1744,6 @@ int G_EnterLevel(int gameMode)
     auto   &p0 = *g_player[0].ps;
     int16_t playerAngle;
 
-    char levelName[BMAX_PATH];
     NET_75_CHECK++; // a major problem with how STAT_NETALLOC works, is that loadboard loads sprites directly into the arrays and does not take from
                     // STAT_NETALLOC, even though the loaded sprites are very, very likely to be relevant to the netcode.
 

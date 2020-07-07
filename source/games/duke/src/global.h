@@ -40,15 +40,12 @@ BEGIN_DUKE_NS
 
 #define MOVEFIFOSIZ         256
 
-#define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
 enum {
-    MUS_FIRST_SPECIAL = MAXVOLUMES * MAXLEVELS,
-
-    MUS_INTRO = MUS_FIRST_SPECIAL,
-    MUS_BRIEFING = MUS_FIRST_SPECIAL + 1,
-    MUS_LOADING = MUS_FIRST_SPECIAL + 2,
+    MUS_INTRO = 0,
+    MUS_BRIEFING = 1,
+    MUS_LOADING = 2,
 };
 
 
@@ -127,8 +124,7 @@ G_EXTERN int32_t g_earthquakeTime;
 G_EXTERN int32_t g_freezerSelfDamage;
 #define freezerhurtowner g_freezerSelfDamage
 G_EXTERN int32_t g_gameQuit;
-G_EXTERN int32_t g_globalRandom;
-#define global_random g_globalRandom
+G_EXTERN int32_t global_random;
 G_EXTERN int32_t impact_damage;
 extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
@@ -220,7 +216,7 @@ G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, BellS
 #define BellTime g_bellTime
 #define word_119BE0 BellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, RRRA_EndEpisode, fogactive;
+G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, fogactive;
 G_EXTERN int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
 #define raat605 chickenphase
@@ -241,7 +237,6 @@ G_EXTERN player_orig po[MAXPLAYERS];
 #pragma pack(pop)
 
 G_EXTERN uint32_t everyothertime;
-G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN double g_gameUpdateTime;
 G_EXTERN double g_gameUpdateAndDrawTime;
 #define GAMEUPDATEAVGTIMENUMSAMPLES 100

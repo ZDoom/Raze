@@ -40,6 +40,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "gstrings.h"
 #include "version.h"
 #include "names.h"
+#include "mapinfo.h"
 #include "../../glbackend/glbackend.h"
 
 
@@ -317,7 +318,11 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	ud.m_respawn_items = 0;
 	ud.m_respawn_inventory = 0;
 	ud.multimode = 1;
-	G_NewGame_EnterLevel(gs.Episode, gs.Level, ud.m_player_skill);
+	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
+	if (map)
+	{
+		G_NewGame_EnterLevel(map, ud.m_player_skill);
+	}
 
 }
 

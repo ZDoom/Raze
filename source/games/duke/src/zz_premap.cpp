@@ -133,13 +133,13 @@ void G_NewGame(MapRecord *map, int skillNum)
 
 void resetpspritevars(int gameMode);
 
-static inline void clearfrags(void)
+void clearfrags(void)
 {
     for (int i = 0; i < ud.multimode; i++)
     {
         playerdata_t *const pPlayerData = &g_player[i];
         pPlayerData->ps->frag = pPlayerData->ps->fraggedself = 0;
-        Bmemset(pPlayerData->frags, 0, sizeof(pPlayerData->frags));
+        memset(pPlayerData->frags, 0, sizeof(pPlayerData->frags));
     }
 }
 

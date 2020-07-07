@@ -109,6 +109,8 @@ inline bool StartCommentary(int tag, int sprnum)
     return false;
 }
 
+extern TArray<FString> specialmusic;
+
 
 END_DUKE_NS
 

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_EDUKE_NS
 
+extern MapRecord userMapRecord;
 
 class DukeSoundEngine : public SoundEngine
 {

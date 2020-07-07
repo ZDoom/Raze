@@ -42,6 +42,7 @@ into many sub-files.
 #include "menu.h"
 #include "global.h"
 #include "m_argv.h"
+#include "sounds.h"
 
 BEGIN_DUKE_NS
 
@@ -62,6 +63,16 @@ extern char tempbuf[];
 extern int* labelcode;
 
 TArray<int> ScriptCode;
+
+struct TempMusic
+{
+	int levnum;
+	FString music;
+};
+
+// This is for situations where the music gets defined before the map. Since the map records do not exist yet, we need a temporary buffer.
+static TArray<TempMusic> tempMusic;
+
 
 //---------------------------------------------------------------------------
 //
@@ -752,35 +763,40 @@ int parsecommand()
 		popscriptvalue();
 		transnum(); // Volume Number (0/4)
 		k = popscriptvalue() - 1;
+		if (k < 0) specialmusic.Clear();
 
-		if (k == -1) k = MAXVOLUMES;
-
-		if (k >= 0) // if it's background music
+		i = 0;
+		// get the file name...
+		while (keyword() == -1)
 		{
-			i = 0;
-			// get the file name...
-			while (keyword() == -1)
+			while (isaltok(*textptr) == 0)
 			{
-				while (isaltok(*textptr) == 0)
-				{
-					if (*textptr == 0x0a) line_number++;
-					textptr++;
-					if (*textptr == 0) break;
-				}
-				j = 0;
-				parsebuffer.Clear();
-				while (isaltok(*(textptr + j)))
-				{
-					parsebuffer.Push(textptr[j]);
-					j++;
-				}
-				parsebuffer.Push(0);
-				mapList[(MAXLEVELS * k) + i].music = parsebuffer.Data();
-				textptr += j;
-				if (i > MAXLEVELS) break;
-				i++;
+				if (*textptr == 0x0a) line_number++;
+				textptr++;
+				if (*textptr == 0) break;
 			}
+			j = 0;
+			parsebuffer.Clear();
+			while (isaltok(*(textptr + j)))
+			{
+				parsebuffer.Push(textptr[j]);
+				j++;
+			}
+			parsebuffer.Push(0);
+			if (k >= 0)
+			{
+				tempMusic.Reserve(1);
+				tempMusic.Last().levnum = levelnum(k, i);
+				tempMusic.Last().music = parsebuffer.Data();
+				textptr += j;
+			}
+			else
+			{
+				specialmusic.Push(parsebuffer.Data());
+			}
+			i++;
 		}
+
 		return 0;
 	}
 	case concmd_include:
@@ -1395,6 +1411,7 @@ int parsecommand()
 		return 0;
 
 	case concmd_definelevelname:
+	{
 		popscriptvalue();
 		transnum();
 		j = popscriptvalue();
@@ -1410,22 +1427,25 @@ int parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		mapList[j * MAXLEVELS + k].SetFileName(parsebuffer.Data());
+		auto levnum = levelnum(j, k);
+		auto map = FindMapByLevelNum(levnum);
+		if (!map) map = AllocateMap();
+		map->SetFileName(parsebuffer.Data());
 
 		while (*textptr == ' ') textptr++;
 
-		mapList[j * MAXLEVELS + k].parTime =
+		map->parTime =
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
 
 		textptr += 5;
 		while (*textptr == ' ') textptr++;
 
-		mapList[j * MAXLEVELS + k].designerTime =
+		map->designerTime =
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
 
-		mapList[j * MAXLEVELS + k].levelNumber = k + j * 100;
+		map->levelNumber = levnum;
 
 		textptr += 5;
 		while (*textptr == ' ') textptr++;
@@ -1439,9 +1459,9 @@ int parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		mapList[j * MAXLEVELS + k].name = parsebuffer.Data();
+		map->name = parsebuffer.Data();
 		return 0;
-
+	}
 	case concmd_definequote:
 		popscriptvalue();
 		transnum();
@@ -1703,6 +1723,12 @@ void loadcons(const char* filenam)
 	// These can only be retrieved AFTER loading the scripts.
 	InitGameVarPointers();
 	ResetSystemDefaults();
+	for (auto& tm : tempMusic)
+	{
+		auto map = FindMapByLevelNum(tm.levnum);
+		if (map) map->music = tm.music;
+	}
+	tempMusic.Clear();
 
 }
 

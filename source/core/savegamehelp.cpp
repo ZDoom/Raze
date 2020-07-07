@@ -305,13 +305,14 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 	}
 
 	int savever;
-	FString engine, gamegrp, mapgrp, title, filename;
+	FString engine, gamegrp, mapgrp, title, filename, label;
 
 	arc("Save Version", savever)
 		("Engine", engine)
 		("Game Resource", gamegrp)
 		("Map Resource", mapgrp)
 		("Title", title)
+		("Nap Label", label)
 		("Map File", filename);
 
 	auto savesig = gi->GetSaveSig();
@@ -324,25 +325,16 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		return 0;
 	}
 
-	MapRecord *curLevel = nullptr;
+	MapRecord *curLevel = FindMapByName(label);
 
-	if (strncmp(filename, "file://", 7) != 0)
+	// If the map does not exist, check if it's a user map.
+	if (!curLevel)
 	{
-		for (auto& mr : mapList)
-		{
-			if (mr.fileName.Compare(filename) == 0)
-			{
-				curLevel = &mr;
-			}
-		}
-	}
-	else
-	{
-		curLevel = &userMapRecord;
+		curLevel = AllocateMap();
 		if (!formenu)
 		{
-			userMapRecord.name = "";
-			userMapRecord.SetFileName(filename);
+			curLevel->name = "";
+			curLevel->SetFileName(filename);
 		}
 	}
 	if (!curLevel) return 0;

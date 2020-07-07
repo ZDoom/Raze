@@ -220,5 +220,6 @@ void prelevel_d(int g);
 void prelevel_r(int g);
 void e4intro(CompletionFunc completion);
 void clearfrags(void);
+int exitlevel();
 
 END_DUKE_NS

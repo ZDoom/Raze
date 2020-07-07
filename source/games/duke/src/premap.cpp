@@ -910,17 +910,6 @@ int enterlevel(MapRecord *mi, int gamemode)
 
 //---------------------------------------------------------------------------
 //
-//
-//
-//---------------------------------------------------------------------------
-
-void setmapfog(int fogtype)
-{
-    GLInterface.SetMapFog(fogtype != 0);
-}
-
-//---------------------------------------------------------------------------
-//
 // Ideally this will become the only place where map progression gets set up.
 //
 //---------------------------------------------------------------------------
@@ -963,5 +952,59 @@ bool setnextmap(bool checksecretexit)
     ud.eog = true;
     return false;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int exitlevel(void)
+{
+    bool endofgame = ud.eog || (currentLevel->flags & MI_FORCEEOG) || ud.nextLevel == nullptr;
+    STAT_Update(endofgame);
+    setpal(&ps[myconnectindex]);
+
+    if (ps[myconnectindex].gm & MODE_RESTART)
+    {
+        ud.nextLevel = currentLevel;
+    }
+
+    if (ps[myconnectindex].gm & MODE_EOL)
+    {
+        ready2send = 0;
+        dobonus(0);
+
+        // Clear potentially loaded per-map ART only after the bonus screens.
+        artClearMapArt();
+
+        if (endofgame)
+        {
+            ud.eog = 0;
+            if (ud.multimode < 2)
+            {
+                if (!VOLUMEALL)
+                    doorders([](bool) {});
+                ps[myconnectindex].gm = 0;
+                return 2;
+            }
+            else
+            {
+                ud.nextLevel = FindMapByLevelNum(0);
+                if (!ud.nextLevel) return 2;
+            }
+        }
+    }
+
+    ready2send = 0;
+
+    if (numplayers > 1)
+        ps[myconnectindex].gm = MODE_GAME;
+
+    int res = enterlevel(ud.nextLevel, ps[myconnectindex].gm);
+    ud.nextLevel = nullptr;
+    return res ? 2 : 1;
+}
+
 
 END_DUKE_NS  

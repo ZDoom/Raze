@@ -78,6 +78,8 @@ void InitRREndMap();
 MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);
 MapRecord *FindNextMap(MapRecord *thismap);
+MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
+MapRecord* AllocateMap();
 
 enum
 {

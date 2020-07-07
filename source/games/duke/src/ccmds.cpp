@@ -43,7 +43,7 @@ bool cheatStuff(cheatseq_t* s);
 bool cheatKeys(cheatseq_t* s);
 bool cheatInventory(cheatseq_t* s);
 
-static void dowarp(int volume, int level)
+static void dowarp(MapRecord *map)
 {
     ud.m_monsters_off = ud.monsters_off = 0;
 
@@ -54,10 +54,10 @@ static void dowarp(int volume, int level)
 
     if (ps[myconnectindex].gm & MODE_GAME)
     {
-        G_NewGame(volume, level, ud.m_player_skill);
+        G_NewGame(map, ud.m_player_skill);
         ps[myconnectindex].gm = MODE_RESTART;
     }
-    else G_NewGame_EnterLevel(volume, level, ud.m_player_skill);
+    else G_NewGame_EnterLevel(map, ud.m_player_skill);
 }
 
 static int ccmd_levelwarp(CCmdFuncPtr parm)
@@ -71,7 +71,13 @@ static int ccmd_levelwarp(CCmdFuncPtr parm)
         Printf(TEXTCOLOR_RED "Invalid level!: E%sL%s\n", parm->parms[0], parm->parms[1]);
         return CCMD_OK;
     }
-    dowarp(e - 1, m - 1);
+    auto map = FindMapByLevelNum(levelnum(e - 1, m - 1));
+    if (!map)
+    {
+        Printf(TEXTCOLOR_RED "Level not found!: E%sL%s\n", parm->parms[0], parm->parms[1]);
+        return CCMD_OK;
+    }
+    dowarp(map);
 
     return CCMD_OK;
 }
@@ -89,36 +95,26 @@ static int ccmd_map(CCmdFuncPtr parm)
         Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
         return CCMD_OK;
     }
-    int volume, level;
 	// Check if the map is already defined.
-    for (int i = 0; i < 512; i++)
+    auto map = FindMapByName(mapname);
+    if (map == nullptr)
     {
-        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
+        // got a user map
+        if (VOLUMEONE)
         {
-           volume = i / MAXLEVELS;
-           level = i % MAXLEVELS;
-           goto foundone;
+            Printf(TEXTCOLOR_RED "Cannot use user maps in shareware.\n");
+            return CCMD_OK;
         }
+        DefaultExtension(mapname, ".map");
+        if (mapname[0] != '/') mapname.Insert(0, "/");
+        map = SetupUserMap(mapname, !isRR() ? "dethtoll.mid" : nullptr);
     }
-	if (VOLUMEONE)
-	{
-		Printf(TEXTCOLOR_RED "Cannot use user maps in shareware.\n");
-		return CCMD_OK;
-	}
-	// Treat as user map if not found in the list of regular maps.
-    boardfilename[0] = '/';
-    boardfilename[1] = 0;
-    volume = 0;
-    level = 7;
-	DefaultExtension(mapname, ".map");
-    strcat(boardfilename, mapname);
-foundone:
     if (numplayers > 1)
     {
         return CCMD_OK;
     }
 
-    dowarp(volume, level);
+    dowarp(map);
     return CCMD_OK;
 }
 
