@@ -783,11 +783,10 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.coop, sizeof(ud.coop), 1 },
     { DS_NOCHK, &ud.marker, sizeof(ud.marker), 1 },
     { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
-    { DS_NOCHK, &ud.noexits, sizeof(ud.noexits), 1 },
     { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
-    { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
+    { 0, &global_random, sizeof(global_random), 1 },
 //    { 0, &lockclock_dummy, sizeof(lockclock), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -1204,7 +1203,6 @@ static void sv_postudload()
     m_coop              = ud.coop;
     m_marker            = ud.marker;
     m_ffire             = ud.ffire;
-    m_noexits           = ud.noexits;
 #endif
 }
 //static int32_t lockclock_dummy;
@@ -1432,7 +1430,7 @@ static void postloadplayer(int32_t savegamep)
 
     //8
     // if (savegamep)  ?
-    G_ResetTimers(0);
+    resettimevars();
 
 #ifdef USE_STRUCT_TRACKERS
     Bmemset(sectorchanged, 0, sizeof(sectorchanged));

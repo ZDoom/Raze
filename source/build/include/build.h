@@ -818,6 +818,7 @@ void   initspritelists(void);
 
 int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   engineLoadMHK(const char *filename);
+void G_LoadMapHack(const char* filename);
 void engineClearLightsFromMHK();
 #ifdef HAVE_CLIPSHAPE_FEATURE
 int32_t engineLoadClipMaps(void);

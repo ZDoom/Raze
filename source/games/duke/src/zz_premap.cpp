@@ -34,18 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-extern int which_palookup;
-
-static int32_t g_precacheCount;
-int32_t g_skillSoundVoice = -1;
-
-
 void G_InitRRRASkies(void)
 {
     if (!isRRRA())
         return;
     
-    for (bssize_t i = 0; i < MAXSECTORS; i++)
+    for (int i = 0; i < MAXSECTORS; i++)
     {
         if (sector[i].ceilingpicnum != TILE_LA && sector[i].ceilingpicnum != TILE_MOONSKY1 && sector[i].ceilingpicnum != TILE_BIGORBIT1)
         {
@@ -79,8 +73,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     handleevents();
 
-    g_skillSoundVoice = -1;
-
     ready2send = 0;
 
 #if 0
@@ -104,7 +96,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     ud.last_level = -1;
     
-    int const UserMap = Menu_HaveUserMap();
+    int const UserMap = false;// Menu_HaveUserMap();
 
     // we don't want the intro to play after the multiplayer setup screen
     if (!isRR() && (!g_netServer && ud.multimode < 2) && UserMap == 0 &&
@@ -127,7 +119,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     if (m_coop != 1)
     {
-        for (bssize_t weaponNum = 0; weaponNum < 12/*MAX_WEAPONS*/; weaponNum++)
+        for (int weaponNum = 0; weaponNum < 12/*MAX_WEAPONS*/; weaponNum++)
         {
             auto const worksLike = isWW2GI() ? PWEAPON(0, weaponNum, WorksLike) : weaponNum;
             if (worksLike == PISTOL_WEAPON)
@@ -153,7 +145,7 @@ void resetpspritevars(int gameMode);
 
 static inline void clearfrags(void)
 {
-    for (bssize_t i = 0; i < ud.multimode; i++)
+    for (int i = 0; i < ud.multimode; i++)
     {
         playerdata_t *const pPlayerData = &g_player[i];
         pPlayerData->ps->frag = pPlayerData->ps->fraggedself = 0;
@@ -161,301 +153,5 @@ static inline void clearfrags(void)
     }
 }
 
-void G_ResetTimers(uint8_t keepgtics)
-{
-    totalclock = cloudtotalclock = ototalclock = lockclock = 0;
-    ready2send = 1;
-    levelTextTime = 85;
-
-    if (!keepgtics)
-        g_moveThingsCount = 0;
-
-    if (camsprite >= 0)
-        hittype[camsprite].temp_data[0] = 0;
-}
-
-int G_FindLevelByFile(const char *fileName)
-{
-    for (bssize_t volumeNum = 0; volumeNum < MAXVOLUMES; volumeNum++)
-    {
-        int const volOffset = volumeNum * MAXLEVELS;
-
-        for (bssize_t levelNum = 0; levelNum < MAXLEVELS; levelNum++)
-        {
-             if (!mapList[volOffset + levelNum].fileName.CompareNoCase(fileName))
-                return volOffset + levelNum;
-        }
-    }
-
-    return MAXLEVELS * MAXVOLUMES;
-}
-
-static int G_TryMapHack(const char *mhkfile)
-{
-    int32_t failure = engineLoadMHK(mhkfile);
-
-    if (!failure)
-        Printf("Loaded map hack file \"%s\"\n", mhkfile);
-
-    return failure;
-}
-
-static void G_LoadMapHack(char *outbuf, const char *filename)
-{
-    if (filename != NULL)
-        Bstrcpy(outbuf, filename);
-
-    append_ext_UNSAFE(outbuf, ".mhk");
-
-    if (G_TryMapHack(outbuf) && usermaphacks != NULL)
-    {
-        usermaphack_t *pMapInfo = (usermaphack_t*)bsearch(
-            &g_loadedMapHack, usermaphacks, num_usermaphacks, sizeof(usermaphack_t),
-            compare_usermaphacks);
-
-        if (pMapInfo)
-            G_TryMapHack(pMapInfo->mhkfile);
-    }
-}
-
-void cacheit_d();
-void cacheit_r();
-
-static int LoadTheMap(MapRecord &mi, struct player_struct *pPlayer, int gameMode)
-{
-    char levelName[BMAX_PATH];
-    int16_t lbang;
-    if (!VOLUMEONE && Menu_HaveUserMap())
-    {
-        if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
-        {
-            Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", boardfilename);
-            return 1;
-        }
-        userMapRecord.name = "";
-        userMapRecord.SetFileName(boardfilename);
-        currentLevel = &userMapRecord;
-        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-        STAT_NewLevel(boardfilename);
-        G_LoadMapHack(levelName, boardfilename);
-        userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !isRR() ? "dethtoll.mid" : nullptr);
-    }
-    else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
-    {
-        Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", mi.fileName.GetChars());
-        return 1;
-    }
-    else
-    {
-        currentLevel = &mi;
-        SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-        STAT_NewLevel(mi.fileName);
-        G_LoadMapHack(levelName, mi.fileName);
-    }
-
-    if (isRR() && !isRRRA() && ud.volume_number == 1 && ud.level_number == 1)
-    {
-        for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            g_player[0].ps->ammo_amount[i] = 0;
-        g_player[0].ps->gotweapon.Clear(KNEE_WEAPON);
-    }
-
-    pPlayer->q16ang = fix16_from_int(lbang);
-
-    g_precacheCount = 0;
-    Bmemset(gotpic, 0, sizeof(gotpic));
-    
-    if (isRR()) prelevel_r(gameMode);
-    else prelevel_d(gameMode);
-
-    G_InitRRRASkies();
-
-    if (isRRRA() && ud.level_number == 2 && ud.volume_number == 0)
-    {
-        for (bssize_t i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
-            g_player[0].ps->ammo_amount[i] = 0;
-        g_player[0].ps->gotweapon.Clear(KNEE_WEAPON);
-        g_player[0].ps->gotweapon.Set(SLINGBLADE_WEAPON);
-        g_player[0].ps->ammo_amount[SLINGBLADE_WEAPON] = 1;
-        g_player[0].ps->curr_weapon = SLINGBLADE_WEAPON;
-    }
-
-    allignwarpelevators();
-    resetpspritevars(gameMode);
-
-    if (isRR()) cacheit_r(); else cacheit_d();
-    return 0;
-}
-
-int G_EnterLevel(int gameMode)
-{
-    int32_t i, mii;
-
-//    flushpackets();
-//    waitforeverybody();
-
-    ud.respawn_monsters  = ud.m_respawn_monsters;
-    ud.respawn_items     = ud.m_respawn_items;
-    ud.respawn_inventory = ud.m_respawn_inventory;
-    ud.monsters_off      = ud.m_monsters_off;
-    ud.coop              = m_coop;
-    ud.marker            = m_marker;
-    ud.ffire             = m_ffire;
-    ud.noexits           = m_noexits;
-
-    if ((gameMode & MODE_DEMO) != MODE_DEMO)
-        ud.recstat = m_recstat;
-    if ((gameMode & MODE_DEMO) == 0 && ud.recstat == 2)
-        ud.recstat = 0;
-
-    if (IsGameEvent(EVENT_ENTERLEVEL))
-    {
-        SetGameVarID(g_iReturnVarID, -1, -1, -1);
-        OnEvent(EVENT_ENTERLEVEL);
-    }
-
-    //if (g_networkMode != NET_DEDICATED_SERVER)
-    {
-        S_PauseSounds(false);
-        FX_StopAllSounds();
-        FX_SetReverb(0);
-    }
-
-    if (Menu_HaveUserMap())
-    {
-        int levelNum = G_FindLevelByFile(boardfilename);
-
-        if (levelNum != MAXLEVELS*MAXVOLUMES)
-        {
-            int volumeNum = levelNum;
-
-            levelNum &= MAXLEVELS-1;
-            volumeNum = (volumeNum - levelNum) / MAXLEVELS;
-
-            ud.level_number = levelNum;
-            ud.volume_number = volumeNum;
-
-            boardfilename[0] = 0;
-        }
-    }
-
-    // Redirect the final isRR() level to a valid map record so that currentLevel can point to something.
-    mii = (isRR() && g_lastLevel)? 127 : (ud.volume_number*MAXLEVELS)+ud.level_number;
-    auto& mi = mapList[mii];
-
-    if (mi.fileName.IsEmpty() && !Menu_HaveUserMap())
-    {
-        Printf(TEXTCOLOR_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
-        return 1;
-    }
-
-    FStringf msg("%s . . .", GStrings("TXT_LOADMAP"));
-    struct player_struct *const pPlayer = g_player[0].ps;
-
-
-    /*
-    G_DoLoadScreen(msg, -1);
-    */
-    int res = LoadTheMap(mi, pPlayer, gameMode);
-    if (res != 0) return res;
-
-    // Try this first so that it can disable the CD player if no tracks are found.
-    if (isRR() && !(gameMode & MODE_DEMO))
-        S_PlayRRMusic();
-
-    if (ud.recstat != 2)
-    {
-        if (Menu_HaveUserMap())
-        {
-            S_PlayLevelMusic(USERMAPMUSICFAKESLOT);
-        }
-        else S_PlayLevelMusic(mii);
-    }
-
-    if (gameMode & (MODE_GAME|MODE_EOL))
-    {
-        for (TRAVERSE_CONNECT(i))
-        {
-            g_player[i].ps->gm = MODE_GAME;
-        }
-    }
-    else if (gameMode & MODE_RESTART)
-    {
-        if (ud.recstat == 2)
-            g_player[myconnectindex].ps->gm = MODE_DEMO;
-        else g_player[myconnectindex].ps->gm = MODE_GAME;
-    }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-    if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
-        FTA(QUOTE_F1HELP,g_player[myconnectindex].ps);
-#endif
-
-    for (TRAVERSE_CONNECT(i))
-    {
-        int pn = sector[sprite[g_player[i].ps->i].sectnum].floorpicnum;
-        if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
-        {
-            resetweapons(i);
-            resetinventory(i);
-
-            g_player[i].ps->gotweapon.Clear(PISTOL_WEAPON);
-            g_player[i].ps->ammo_amount[PISTOL_WEAPON] = 0;
-
-            g_player[i].ps->curr_weapon  = KNEE_WEAPON;
-            g_player[i].ps->kickback_pic = 0;
-        }
-    }
-
-    //PREMAP.C - replace near the my's at the end of the file
-
-    Net_NotifyNewGame();
-    Net_ResetPrediction();
-
-    //g_player[myconnectindex].ps->palette = palette;
-    setpal(g_player[myconnectindex].ps);
-    renderFlushPerms();
-
-    everyothertime = 0;
-    g_globalRandom = 0;
-
-    ud.last_level = ud.level_number+1;
-
-    clearfifo();
-
-    for (i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
-
-    g_player[myconnectindex].ps->over_shoulder_on = 0;
-
-    clearfrags();
-
-    G_ResetTimers(0);  // Here we go
-
-    //Bsprintf(g_szBuf,"G_EnterLevel L=%d V=%d",ud.level_number, ud.volume_number);
-    //AddLog(g_szBuf);
-    // variables are set by pointer...
-
-
-    if (G_HaveUserMap())
-    {
-        Printf(TEXTCOLOR_GOLD "%s: %s\n", GStrings("TXT_USERMAP"), boardfilename);
-    }
-    else
-    {
-        Printf(TEXTCOLOR_GOLD "%s: %s\n", mapList[mii].labelName.GetChars(), mapList[mii].DisplayName());
-    }
-
-    videoClearViewableArea(0L);
-    displayrooms(myconnectindex,65536);
-    displayrest(65536);
-
-    Net_WaitForEverybody();
-    return 0;
-}
-
-void setmapfog(int fogtype)
-{
-    GLInterface.SetMapFog(fogtype != 0);
-}
 
 END_DUKE_NS

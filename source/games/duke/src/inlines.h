@@ -157,6 +157,11 @@ inline void SetPlayerPal(player_struct* p, PalEntry pe)
     p->pals = pe;
 }
 
+constexpr inline int levelnum(int vol, int map)
+{
+    return vol * 1000 + map;
+}
+
 //---------------------------------------------------------------------------
 //
 //

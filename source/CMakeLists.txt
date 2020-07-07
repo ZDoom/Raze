@@ -791,6 +791,7 @@ set (PCH_SOURCES
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
 	core/inputstate.cpp
+	core/mapinfo.cpp
 	core/searchpaths.cpp
 	core/screenjob.cpp
 	core/initfs.cpp

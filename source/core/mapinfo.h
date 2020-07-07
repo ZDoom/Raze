@@ -18,6 +18,7 @@ inline void MakeStringLocalizable(FString &quote)
 enum
 {
 	MI_FORCEEOG = 1,
+	MI_USERMAP = 2,
 };
 
 struct MapRecord
@@ -39,7 +40,12 @@ struct MapRecord
 	FString author;
 	int8_t fog = -1, weather = -1;	// Blood defines these but they aren't used.
 	
-	const char *DisplayName()
+	const char* LabelName() const
+	{
+		if (flags & MI_USERMAP) return GStrings("TXT_USERMAP");
+		return labelName;
+	}
+	const char *DisplayName() const
 	{
 		if (name.IsEmpty()) return labelName;
 		return GStrings.localize(name);
@@ -64,54 +70,14 @@ struct MapRecord
 
 
 extern MapRecord mapList[512];
-extern MapRecord userMapRecord;
 extern MapRecord *currentLevel;	
-extern MapRecord* lastLevel;
 
-inline bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false)
-{
-	static const char* specials[] = { "intro", "briefing", "loading" };
-	for (int i = 0; i < 3; i++)
-	{
-		if (!stricmp(mapname, specials[i]))
-		{
-			// todo: store this properly.
-			return true;
-		}
-	}
+bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);
+void InitRREndMap();
 
-	int index = -1; // = FindMap(mapname);
-
-	// This is for the DEFS parser's MUSIC command which never bothered to check for the real map name.
-	if (index < 0 && namehack)
-	{
-		int lev, ep;
-		signed char b1, b2;
-
-		int numMatches = sscanf(mapname, "%c%d%c%d", &b1, &ep, &b2, &lev);
-
-		if (numMatches != 4 || toupper(b1) != 'E' || toupper(b2) != 'L')
-			return false;
-
-		index = -1; // = FindMapByIndex(ep, lev);
-
-	}
-	if (index >= 0)
-	{
-		mapList[index].music = music;
-		return true;
-	}
-	return false;
-}
-
-
-inline void InitRREndMap()
-{
-	// RR defines its end map ad-hoc so give it a proper entry to reference (the last one in episode 2 because it needs to be in Ep. 2.)
-	mapList[127].SetName("$TXT_CLOSEENCOUNTERS");
-	mapList[127].SetFileName("endgame.map");
-	mapList[127].levelNumber = 163;	// last one in Ep. 2.
-}
+MapRecord *FindMapByName(const char *nm);
+MapRecord *FindMapByLevelNum(int num);
+MapRecord *FindNextMap(MapRecord *thismap);
 
 enum
 {

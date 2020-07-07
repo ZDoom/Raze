@@ -579,11 +579,10 @@ void S_MenuSound(void)
 
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
 
-void S_PlayLevelMusic(unsigned int m)
+void S_PlayLevelMusic(MapRecord *mi)
 {
-    auto& mr = m == USERMAPMUSICFAKESLOT ? userMapRecord : mapList[m];
-    if (isRR() && mr.music.IsEmpty() && mus_redbook && !cd_disabled) return;
-    Mus_Play(mr.labelName, mr.music, true);
+    if (isRR() && mi->music.IsEmpty() && mus_redbook && !cd_disabled) return;
+    Mus_Play(mi->labelName, mi->music, true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)

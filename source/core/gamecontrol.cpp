@@ -97,12 +97,6 @@ auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need
 
 glcycle_t thinktime, actortime, gameupdatetime, drawtime;
 
-
-MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
-MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
-MapRecord* lastLevel;		// Same here, for the last level.
-MapRecord userMapRecord;	// stand-in for the user map.
-
 gamestate_t gamestate = GS_STARTUP;
 
 FILE* hashfile;

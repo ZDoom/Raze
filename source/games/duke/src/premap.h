@@ -23,11 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef premap_h_
 #define premap_h_
 
+struct MapRecord;
+
 BEGIN_DUKE_NS
 
 extern int16_t ambientlotag[64];
 extern int16_t ambienthitag[64];
-int G_EnterLevel(int gameMode);
+int G_EnterLevel(MapRecord *mi, int gameMode);
 int G_FindLevelByFile(const char *fileName);
 void G_NewGame(int volumeNum, int levelNum, int skillNum);
 void G_ResetTimers(uint8_t keepgtics);

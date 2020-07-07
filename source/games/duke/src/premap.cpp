@@ -742,5 +742,180 @@ void prelevel_common(int g)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void resettimevars(void)
+{
+    totalclock = 0;
+    cloudtotalclock = 0;
+    ototalclock = 0;
+    lockclock = 0;
+    ready2send = 1;
+    if (camsprite >= 0)
+        hittype[camsprite].temp_data[0] = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
+{
+    int16_t lbang;
+    if (VOLUMEONE && (mi->flags & MI_USERMAP))
+    {
+        Printf(TEXTCOLOR_RED "Cannot load user maps with shareware version!\n");
+        return 1;
+    }
+
+    if (engineLoadBoard(mi->fileName, VOLUMEONE, &p->pos, &lbang, &p->cursectnum) < 0)
+    {
+        Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", mi->fileName.GetChars());
+        return 1;
+    }
+    currentLevel = mi;
+    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+    STAT_NewLevel(mi->fileName);
+    G_LoadMapHack(mi->fileName);
+
+    if (isRR() && !isRRRA() && mi->levelNumber == levelnum(1, 1))
+    {
+        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
+            ps[0].ammo_amount[i] = 0;
+        ps[0].gotweapon.Clear(KNEE_WEAPON);
+    }
+    p->setang(lbang);
+
+    memset(gotpic, 0, sizeof(gotpic));
+    
+    if (isRR()) prelevel_r(gamemode);
+    else prelevel_d(gamemode);
+
+    G_InitRRRASkies();
+
+    if (isRRRA() && mi->levelNumber == levelnum(2, 0))
+    {
+        for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)
+            ps[0].ammo_amount[i] = 0;
+        ps[0].gotweapon.Clear(KNEE_WEAPON);
+        ps[0].gotweapon.Set(SLINGBLADE_WEAPON);
+        ps[0].ammo_amount[SLINGBLADE_WEAPON] = 1;
+        ps[0].curr_weapon = SLINGBLADE_WEAPON;
+    }
+
+    allignwarpelevators();
+    resetpspritevars(gamemode);
+
+    if (isRR()) cacheit_r(); else cacheit_d();
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int enterlevel(MapRecord *mi, int gamemode)
+{
+//    flushpackets();
+//    waitforeverybody();
+
+    ud.respawn_monsters = ud.m_respawn_monsters;
+    ud.respawn_items = ud.m_respawn_items;
+    ud.respawn_inventory = ud.m_respawn_inventory;
+    ud.monsters_off = ud.m_monsters_off;
+    ud.coop = ud.m_coop;
+    ud.marker = ud.m_marker;
+    ud.ffire = ud.m_ffire;
+
+    if ((gamemode & MODE_DEMO) == 0 && ud.recstat == 2)
+        ud.recstat = 0;
+
+    OnEvent(EVENT_ENTERLEVEL);
+
+    // Stop all sounds
+    S_PauseSounds(false);
+    FX_StopAllSounds();
+    FX_SetReverb(0);
+
+    struct player_struct *const p = g_player[0].ps;
+
+
+    /*
+    G_DoLoadScreen(msg, -1); // this should be done outside of this function later.
+    */
+    int res = LoadTheMap(mi, p, gamemode);
+    if (res != 0) return res;
+
+    // Try this first so that it can disable the CD player if no tracks are found.
+    if (isRR() && !(gamemode & MODE_DEMO))
+        S_PlayRRMusic();
+
+    if (ud.recstat != 2)
+    {
+        S_PlayLevelMusic(mi);
+    }
+
+    if (gamemode & (MODE_GAME|MODE_EOL))
+    {
+        ps[myconnectindex].gm = MODE_GAME;
+    }
+    else if (gamemode & MODE_RESTART)
+    {
+        if (ud.recstat == 2)
+            ps[myconnectindex].gm = MODE_DEMO;
+        else ps[myconnectindex].gm = MODE_GAME;
+    }
+
+    if (VOLUMEONE && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
+
+    for (int i = connecthead; i >= 0; i = connectpoint2[i])
+    {
+        int pn = sector[sprite[ps[i].i].sectnum].floorpicnum;
+        if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
+        {
+            resetweapons(i);
+            resetinventory(i);
+            ps[i].gotweapon.Clear(PISTOL_WEAPON);
+            ps[i].ammo_amount[PISTOL_WEAPON] = 0;
+            ps[i].curr_weapon = KNEE_WEAPON;
+            ps[i].kickback_pic = 0;
+        }
+    }
+    resetmys();
+    setpal(&ps[myconnectindex]);
+
+    everyothertime = 0;
+    global_random = 0;
+
+    ud.last_level = ud.level_number+1;
+    clearfifo();
+    for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
+    ps[myconnectindex].over_shoulder_on = 0;
+    clearfrags();
+    resettimevars();  // Here we go
+    Printf(TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void setmapfog(int fogtype)
+{
+    GLInterface.SetMapFog(fogtype != 0);
+}
+
+
 
 END_DUKE_NS  

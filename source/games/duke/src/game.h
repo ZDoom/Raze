@@ -47,18 +47,6 @@ extern int rtsplaying;
 extern char boardfilename[BMAX_PATH];
 #define USERMAPMUSICFAKEVOLUME MAXVOLUMES
 #define USERMAPMUSICFAKELEVEL (MAXLEVELS-1)
-#define USERMAPMUSICFAKESLOT ((USERMAPMUSICFAKEVOLUME * MAXLEVELS) + USERMAPMUSICFAKELEVEL)
-
-// Need to do this differently, set to false to allow transitioning away from the current mess.
-static inline int G_HaveUserMap(void)
-{
-    return  false; // (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0);
-}
-
-static inline int Menu_HaveUserMap(void)
-{
-    return false;// (boardfilename[0] != 0 && m_level_number == 7 && ud.m_volume_number == 0);
-}
 
 extern int32_t g_Shareware;
 extern int32_t cameraclock;

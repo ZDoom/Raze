@@ -192,6 +192,8 @@ void resetprestat(int snum, int g);
 void clearfifo(void);
 void setmapfog(int fogtype);
 void prelevel_common(int g);
+void cacheit_d();
+void cacheit_r();
 
 void FTA(int q, struct player_struct* p);
 void OnMotorcycle(player_struct *pl, int snum);
@@ -211,5 +213,6 @@ void displayrest(int32_t smoothratio);
 void drawbackground(void);
 void displayrooms(int32_t playerNum, int32_t smoothratio);
 void setgamepalette(int palid);
+void resetmys();
 
 END_DUKE_NS

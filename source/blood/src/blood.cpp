@@ -420,32 +420,6 @@ void EndLevel(void)
     seqKillAll();
 }
 
-int G_TryMapHack(const char* mhkfile)
-{
-    int const failure = engineLoadMHK(mhkfile);
-
-    if (!failure)
-        Printf("Loaded map hack file \"%s\"\n", mhkfile);
-
-    return failure;
-}
-
-void G_LoadMapHack(char* outbuf, const char* filename)
-{
-    if (filename != NULL)
-        Bstrcpy(outbuf, filename);
-
-    append_ext_UNSAFE(outbuf, ".mhk");
-
-    if (G_TryMapHack(outbuf) && usermaphacks != NULL)
-    {
-        auto pMapInfo = (usermaphack_t*)bsearch(&g_loadedMapHack, usermaphacks, num_usermaphacks,
-            sizeof(usermaphack_t), compare_usermaphacks);
-        if (pMapInfo)
-            G_TryMapHack(pMapInfo->mhkfile);
-    }
-}
-
 #ifdef POLYMER
 void G_RefreshLights(void)
 {
@@ -541,11 +515,10 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         gQuitGame = true;
         return;
     }
-    char levelName[BMAX_PATH];
     currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
-    G_LoadMapHack(levelName, gameOptions->zLevelName);
+    G_LoadMapHack(gameOptions->zLevelName);
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
     gSecretMgr.Clear();

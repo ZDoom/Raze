@@ -38,6 +38,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "screenjob.h"
 #include "texturemanager.h"
 #include "buildtiles.h"
+#include "mapinfo.h"
 
 BEGIN_DUKE_NS
 
@@ -781,17 +782,7 @@ public:
 	DDukeLevelSummaryScreen() : DScreenJob(fadein | fadeout)
 	{
 		gfx_offset = BONUSSCREEN + ((ud.volume_number == 1) ? 5 : 0);
-
-		if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) // todo: get rid of this awful hack.
-		{
-			lastmapname = strrchr(boardfilename, '\\');
-			if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
-			if (!lastmapname) lastmapname = boardfilename;
-		}
-		else
-		{
-			lastmapname = currentLevel->DisplayName();
-		}
+		lastmapname = currentLevel->DisplayName();
 		PlayBonusMusic();
 	}
 
@@ -1043,26 +1034,18 @@ void e4intro(CompletionFunc completion)
 class DDukeLoadScreen : public DScreenJob
 {
 	std::function<int(void)> callback;
+	MapRecord* rec;
 	
 public:
-	DDukeLoadScreen(const char *mapname_, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout), callback(callback_) {}
+	DDukeLoadScreen(MapRecord *maprec, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout),  callback(callback_), rec(maprec) {}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
-		// fixme: The level management needs a total overhaul!
-		if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-		{
-			BigText(160, 90, GStrings("TXT_LOADUM"));
-			GameText(160, 100, boardfilename, 14, 0);
-		}
-		else
-		{
-			BigText(160, 90, GStrings("TXT_LOADING"));
-			BigText(160, 114, mapList[(ud.volume_number * MAXLEVELS) + ud.level_number].DisplayName());
-		}
-		
+		BigText(160, 90, (rec->flags & MI_USERMAP)? GStrings("TXT_LOADUM") :  GStrings("TXT_LOADING"));
+		BigText(160, 114, rec->DisplayName());
+
 		// Initiate the level load once the page has been faded in completely.
 		if (callback && GetFadeState() == visible)
 		{

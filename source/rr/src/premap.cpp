@@ -42,6 +42,7 @@ static int32_t g_whichPalForPlayer = 9;
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t g_precacheCount;
 int32_t g_skillSoundVoice = -1;
+MapRecord userMapRecord;
 
 
 static void flag_precache(int32_t tile, int32_t type)
@@ -2237,34 +2238,6 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
 }
 #endif
 
-static int G_TryMapHack(const char *mhkfile)
-{
-    int32_t failure = engineLoadMHK(mhkfile);
-
-    if (!failure)
-        Printf("Loaded map hack file \"%s\"\n", mhkfile);
-
-    return failure;
-}
-
-static void G_LoadMapHack(char *outbuf, const char *filename)
-{
-    if (filename != NULL)
-        Bstrcpy(outbuf, filename);
-
-    append_ext_UNSAFE(outbuf, ".mhk");
-
-    if (G_TryMapHack(outbuf) && usermaphacks != NULL)
-    {
-        usermaphack_t *pMapInfo = (usermaphack_t*)bsearch(
-            &g_loadedMapHack, usermaphacks, num_usermaphacks, sizeof(usermaphack_t),
-            compare_usermaphacks);
-
-        if (pMapInfo)
-            G_TryMapHack(pMapInfo->mhkfile);
-    }
-}
-
 int G_EnterLevel(int gameMode)
 {
     int32_t i, mii;
@@ -2350,7 +2323,7 @@ int G_EnterLevel(int gameMode)
         currentLevel = &userMapRecord;
         SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(boardfilename);
-		G_LoadMapHack(levelName, boardfilename);
+		G_LoadMapHack(boardfilename);
         userMapRecord.music = G_SetupFilenameBasedMusic(boardfilename, !RR? "dethtoll.mid" : nullptr);
     }
     else if (engineLoadBoard(mi.fileName, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
@@ -2363,7 +2336,7 @@ int G_EnterLevel(int gameMode)
         currentLevel = &mi;
         SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
         STAT_NewLevel(mi.fileName);
-		G_LoadMapHack(levelName, mi.fileName);
+		G_LoadMapHack(mi.fileName);
     }
 
     if (RR && !RRRA && ud.volume_number == 1 && ud.level_number == 1)

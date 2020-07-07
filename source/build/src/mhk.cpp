@@ -417,3 +417,28 @@ int32_t engineLoadMHK(const char *filename)
     scriptfile_close(script);
     return 0;
 }
+
+// taken out of the game modules - this code was repeated in all of them.
+static int G_TryMapHack(const char* mhkfile)
+{
+    int const failure = engineLoadMHK(mhkfile);
+
+    if (!failure)
+        Printf("Loaded map hack file \"%s\"\n", mhkfile);
+
+    return failure;
+}
+
+void G_LoadMapHack(const char* filename)
+{
+    FString hack = StripExtension(filename) + ".mhk";
+
+    if (G_TryMapHack(hack) && usermaphacks != NULL)
+    {
+        auto pMapInfo = (usermaphack_t*)bsearch(&g_loadedMapHack, usermaphacks, num_usermaphacks,
+            sizeof(usermaphack_t), compare_usermaphacks);
+        if (pMapInfo)
+            G_TryMapHack(pMapInfo->mhkfile);
+    }
+}
+

@@ -50,74 +50,74 @@ BEGIN_DUKE_NS
 
 void InitFonts_r()
 {
-    GlyphSet fontdata;
+	GlyphSet fontdata;
 
-    // Small font
-    for (int i = 0; i < 95; i++)
-    {
-        auto tile = tileGetTexture(STARTALPHANUM + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-        {
-            fontdata.Insert('!' + i, tile);
-            tile->SetOffsetsNotForFont();
-        }
-    }
-    SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
-    SmallFont->SetKerning(2);
-    fontdata.Clear();
+	// Small font
+	for (int i = 0; i < 95; i++)
+	{
+		auto tile = tileGetTexture(STARTALPHANUM + i);
+		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+		{
+			fontdata.Insert('!' + i, tile);
+			tile->SetOffsetsNotForFont();
+		}
+	}
+	SmallFont = new ::FFont("SmallFont", nullptr, "defsmallfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
+	SmallFont->SetKerning(2);
+	fontdata.Clear();
 
-    // Big font
+	// Big font
 
-    // This font is VERY messy...
-    fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
-    fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
-    for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
-    fontdata.Insert('.', tileGetTexture(BIGPERIOD));
-    fontdata.Insert(',', tileGetTexture(BIGCOMMA));
-    fontdata.Insert('!', tileGetTexture(BIGX));
-    fontdata.Insert('?', tileGetTexture(BIGQ));
-    fontdata.Insert(';', tileGetTexture(BIGSEMI));
-    fontdata.Insert(':', tileGetTexture(BIGCOLIN));
-    fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
-    fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
-    fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
-    fontdata.Insert('`', tileGetTexture(BIGAPPOS));
-    fontdata.Insert('"', tileGetTexture(BIGAPPOS));
-    fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
-    GlyphSet::Iterator it(fontdata);
-    GlyphSet::Pair* pair;
-    while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
-    BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
-    BigFont->SetKerning(6);
-    fontdata.Clear();
+	// This font is VERY messy...
+	fontdata.Insert('_', tileGetTexture(BIGALPHANUM - 11));
+	fontdata.Insert('-', tileGetTexture(BIGALPHANUM - 11));
+	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(BIGALPHANUM - 10 + i));
+	for (int i = 0; i < 26; i++) fontdata.Insert('A' + i, tileGetTexture(BIGALPHANUM + i));
+	fontdata.Insert('.', tileGetTexture(BIGPERIOD));
+	fontdata.Insert(',', tileGetTexture(BIGCOMMA));
+	fontdata.Insert('!', tileGetTexture(BIGX));
+	fontdata.Insert('?', tileGetTexture(BIGQ));
+	fontdata.Insert(';', tileGetTexture(BIGSEMI));
+	fontdata.Insert(':', tileGetTexture(BIGCOLIN));
+	fontdata.Insert('\\', tileGetTexture(BIGALPHANUM + 68));
+	fontdata.Insert('/', tileGetTexture(BIGALPHANUM + 68));
+	fontdata.Insert('%', tileGetTexture(BIGALPHANUM + 69));
+	fontdata.Insert('`', tileGetTexture(BIGAPPOS));
+	fontdata.Insert('"', tileGetTexture(BIGAPPOS));
+	fontdata.Insert('\'', tileGetTexture(BIGAPPOS));
+	GlyphSet::Iterator it(fontdata);
+	GlyphSet::Pair* pair;
+	while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+	BigFont = new ::FFont("BigFont", nullptr, "defbigfont", 0, 0, 0, -1, 10, false, false, false, &fontdata);
+	BigFont->SetKerning(6);
+	fontdata.Clear();
 
-    // Tiny font
-    for (int i = 0; i < 95; i++)
-    {
-        auto tile = tileGetTexture(MINIFONT + i);
-        if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
-            fontdata.Insert('!' + i, tile);
-    }
-    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 6, false, false, false, &fontdata);
-    SmallFont2->SetKerning(2);
-    fontdata.Clear();
+	// Tiny font
+	for (int i = 0; i < 95; i++)
+	{
+		auto tile = tileGetTexture(MINIFONT + i);
+		if (tile && tile->isValid() && tile->GetTexelWidth() > 0 && tile->GetTexelHeight() > 0)
+			fontdata.Insert('!' + i, tile);
+	}
+	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+	SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 6, false, false, false, &fontdata);
+	SmallFont2->SetKerning(2);
+	fontdata.Clear();
 
-    // SBAR index font
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
-    fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
-    fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
-    fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
-    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+	// SBAR index font
+	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(THREEBYFIVE + i));
+	fontdata.Insert(':', tileGetTexture(THREEBYFIVE + 10));
+	fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
+	fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
+	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+	IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
-    fontdata.Clear();
+	fontdata.Clear();
 
-    // digital font
-    for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
-    fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
+	// digital font
+	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
+	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+	DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
 }
 
@@ -130,31 +130,31 @@ void InitFonts_r()
 
 static void BigText(double x, double y, const char* text, int align, double alpha = 1.)
 {
-    //x *= 2.2; y *= 2.64;
-    if (align != -1)
-        x -= BigFont->StringWidth(text) * (align == 0 ? 0.2 : 0.4);
-    auto width = BigFont->StringWidth(text);
-    DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
+	//x *= 2.2; y *= 2.64;
+	if (align != -1)
+		x -= BigFont->StringWidth(text) * (align == 0 ? 0.2 : 0.4);
+	auto width = BigFont->StringWidth(text);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-    x *= 2; y *= 2;
-    if (align != -1)
-        x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
-    int light = Scale(numshades - shade, 255, numshades);
-    PalEntry pe(255, light, light, light);
-    DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
+	x *= 2; y *= 2;
+	if (align != -1)
+		x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
+	int light = Scale(numshades - shade, 255, numshades);
+	PalEntry pe(255, light, light, light);
+	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
 static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
-    x *= 2; y *= 2;
-    if (align != -1)
-        x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
-    int light = Scale(numshades - shade, 255, numshades);
-    PalEntry pe(255, light, light, light);
-    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
+	x *= 2; y *= 2;
+	if (align != -1)
+		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
+	int light = Scale(numshades - shade, 255, numshades);
+	PalEntry pe(255, light, light, light);
+	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
 }
 
 //---------------------------------------------------------------------------
@@ -165,43 +165,43 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 
 void Logo_r(CompletionFunc completion)
 {
-    Mus_Stop();
-    FX_StopAllSounds(); // JBF 20031228
+	Mus_Stop();
+	FX_StopAllSounds(); // JBF 20031228
 
-    static const AnimSound introsound[] =
-    {
-        { 1, 29+1 },
-        { -1, -1 }
-    };
+	static const AnimSound introsound[] =
+	{
+		{ 1, 29+1 },
+		{ -1, -1 }
+	};
 
-    static const AnimSound rednecksound[] =
-    {
-        { 1, 478+1 },
-        { -1, -1 }
-    };
+	static const AnimSound rednecksound[] =
+	{
+		{ 1, 478+1 },
+		{ -1, -1 }
+	};
 
-    static const AnimSound  xatrixsound[] =
-    {
-        { 1, 479+1 },
-        { -1, -1 }
-    };
+	static const AnimSound  xatrixsound[] =
+	{
+		{ 1, 479+1 },
+		{ -1, -1 }
+	};
 
-    static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
+	static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
 
-    JobDesc jobs[3];
-    int job = 0;
+	JobDesc jobs[3];
+	int job = 0;
 
-    if (!isRRRA())
-    {
-        jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed), nullptr };
-        jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed), nullptr };
-        jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed), nullptr };
-    }
-    else
-    {
-        jobs[job++] = { PlayVideo("redint.mve"), nullptr };
-    }
-    RunScreenJob(jobs, job, completion);
+	if (!isRRRA())
+	{
+		jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed), nullptr };
+		jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed), nullptr };
+		jobs[job++] = { PlayVideo("xatlogo.anm", xatrixsound, framespeed), nullptr };
+	}
+	else
+	{
+		jobs[job++] = { PlayVideo("redint.mve"), nullptr };
+	}
+	RunScreenJob(jobs, job, completion);
 }
 
 //---------------------------------------------------------------------------
@@ -212,38 +212,38 @@ void Logo_r(CompletionFunc completion)
 
 static void bonussequence_r(int num, JobDesc* jobs, int& job)
 {
-    static const AnimSound  turdmov[] =
-    {
-        { 1, 82 + 1 },
-        { -1, -1 }
-    };
+	static const AnimSound  turdmov[] =
+	{
+		{ 1, 82 + 1 },
+		{ -1, -1 }
+	};
 
-    static const AnimSound  rr_outro[] =
-    {
-        { 1, 35 + 1 },
-        { -1, -1 }
-    };
+	static const AnimSound  rr_outro[] =
+	{
+		{ 1, 35 + 1 },
+		{ -1, -1 }
+	};
 
-    static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
+	static const int framespeed[] = { 9, 9, 9 }; // same for all 3 anims
 
-    Mus_Stop();
-    FX_StopAllSounds();
+	Mus_Stop();
+	FX_StopAllSounds();
 
-    switch (num)
-    {
-    case 0:
-        jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed), nullptr };
-        jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
-        break;
+	switch (num)
+	{
+	case 0:
+		jobs[job++] = { PlayVideo("turdmov.anm", turdmov, framespeed), nullptr };
+		jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+		break;
 
-    case 1:
-        jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed), nullptr };
-        jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
-        break;
+	case 1:
+		jobs[job++] = { PlayVideo("rr_outro.anm", rr_outro, framespeed), nullptr };
+		jobs[job++] = { Create<DImageScreen>(TENSCREEN), nullptr };
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -254,94 +254,94 @@ static void bonussequence_r(int num, JobDesc* jobs, int& job)
 
 class DRRMultiplayerBonusScreen : public DScreenJob
 {
-    int playerswhenstarted;
+	int playerswhenstarted;
 
 public:
-    DRRMultiplayerBonusScreen(int pws) : DScreenJob(fadein | fadeout)
-    {
-        playerswhenstarted = pws;
-        PlayBonusMusic();
-    }
+	DRRMultiplayerBonusScreen(int pws) : DScreenJob(fadein | fadeout)
+	{
+		playerswhenstarted = pws;
+		PlayBonusMusic();
+	}
 
-    int Frame(uint64_t clock, bool skiprequest)
-    {
-        char tempbuf[32];
-        twod->ClearScreen();
-        DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-        double scale = 0.36;
-        DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
-            DTA_CenterOffset, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		char tempbuf[32];
+		twod->ClearScreen();
+		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		double scale = 0.36;
+		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
+			DTA_CenterOffset, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
 
-        GameText(160, 58, GStrings("Multiplayer Totals"), 0, 0);
-        GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
-        GameText(160, 165, GStrings("Presskey"), 0, 0);
+		GameText(160, 58, GStrings("Multiplayer Totals"), 0, 0);
+		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
+		GameText(160, 165, GStrings("Presskey"), 0, 0);
 
-        int t = 0;
+		int t = 0;
 
-        MiniText(38, 80, GStrings("Name"), 0);
-        MiniText(269 + 20, 80, GStrings("Kills"), 0, 1);
+		MiniText(38, 80, GStrings("Name"), 0);
+		MiniText(269 + 20, 80, GStrings("Kills"), 0, 1);
 
-        for (int i = 0; i < playerswhenstarted; i++)
-        {
-            mysnprintf(tempbuf, 32, "%-4ld", i + 1);
-            MiniText(92 + (i * 23), 80, tempbuf, 0);
-        }
+		for (int i = 0; i < playerswhenstarted; i++)
+		{
+			mysnprintf(tempbuf, 32, "%-4ld", i + 1);
+			MiniText(92 + (i * 23), 80, tempbuf, 0);
+		}
 
-        for (int i = 0; i < playerswhenstarted; i++)
-        {
-            int xfragtotal = 0;
-            mysnprintf(tempbuf, 32, "%ld", i + 1);
+		for (int i = 0; i < playerswhenstarted; i++)
+		{
+			int xfragtotal = 0;
+			mysnprintf(tempbuf, 32, "%ld", i + 1);
 
-            MiniText(30, 90 + t, tempbuf, 0);
-            MiniText(38, 90 + t, g_player[i].user_name, 0, -1, ps[i].palookup);
+			MiniText(30, 90 + t, tempbuf, 0);
+			MiniText(38, 90 + t, g_player[i].user_name, 0, -1, ps[i].palookup);
 
-            for (int y = 0; y < playerswhenstarted; y++)
-            {
-                int frag = g_player[i].frags[y];// frags[i][y]);
-                if (i == y)
-                {
-                    mysnprintf(tempbuf, 32, "%-4ld", ps[y].fraggedself);
-                    MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
-                    xfragtotal -= ps[y].fraggedself;
-                }
-                else
-                {
-                    mysnprintf(tempbuf, 32, "%-4ld", frag);
-                    MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
-                    xfragtotal += frag;
-                }
-                /*
-                if (myconnectindex == connecthead)
-                {
-                    mysnprintf(tempbuf, 32, "stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
-                    sendscore(tempbuf);
-                }
-                */
-            }
+			for (int y = 0; y < playerswhenstarted; y++)
+			{
+				int frag = g_player[i].frags[y];// frags[i][y]);
+				if (i == y)
+				{
+					mysnprintf(tempbuf, 32, "%-4ld", ps[y].fraggedself);
+					MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
+					xfragtotal -= ps[y].fraggedself;
+				}
+				else
+				{
+					mysnprintf(tempbuf, 32, "%-4ld", frag);
+					MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
+					xfragtotal += frag;
+				}
+				/*
+				if (myconnectindex == connecthead)
+				{
+					mysnprintf(tempbuf, 32, "stats %ld killed %ld %ld\n", i + 1, y + 1, frag);
+					sendscore(tempbuf);
+				}
+				*/
+			}
 
-            mysnprintf(tempbuf, 32, "%-4ld", xfragtotal);
-            MiniText(101 + (8 * 23), 90 + t, tempbuf, 0);
+			mysnprintf(tempbuf, 32, "%-4ld", xfragtotal);
+			MiniText(101 + (8 * 23), 90 + t, tempbuf, 0);
 
-            t += 7;
-        }
+			t += 7;
+		}
 
-        for (int y = 0; y < playerswhenstarted; y++)
-        {
-            int yfragtotal = 0;
-            for (int i = 0; i < playerswhenstarted; i++)
-            {
-                if (i == y)
-                    yfragtotal += ps[i].fraggedself;
-                int frag = g_player[i].frags[y];// frags[i][y]);
-                yfragtotal += frag;
-            }
-            mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
-            MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0);
-        }
+		for (int y = 0; y < playerswhenstarted; y++)
+		{
+			int yfragtotal = 0;
+			for (int i = 0; i < playerswhenstarted; i++)
+			{
+				if (i == y)
+					yfragtotal += ps[i].fraggedself;
+				int frag = g_player[i].frags[y];// frags[i][y]);
+				yfragtotal += frag;
+			}
+			mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
+			MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0);
+		}
 
-        MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0);
-        return skiprequest ? -1 : 1;
-    }
+		MiniText(45, 96 + (8 * 7), GStrings("Deaths"), 0);
+		return skiprequest ? -1 : 1;
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -352,182 +352,173 @@ public:
 
 class DRRLevelSummaryScreen : public DScreenJob
 {
-    const char* lastmapname;
-    int gfx_offset;
-    int bonuscnt = 0;
+	const char* lastmapname;
+	int gfx_offset;
+	int bonuscnt = 0;
 
-    void SetTotalClock(int tc)
-    {
-        SetClock(tc * (uint64_t)1'000'000'000 / 120);
-    }
+	void SetTotalClock(int tc)
+	{
+		SetClock(tc * (uint64_t)1'000'000'000 / 120);
+	}
 
 public:
-    DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
-    {
-        PlayBonusMusic();
-        if (boardfilename[0])
-            gfx_offset = RRTILE403;
-        else if (!isRRRA())
-            gfx_offset = RRTILE403 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
-        else
-            gfx_offset = LEVELMAP + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
-        
+	DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
+	{
+		PlayBonusMusic();
+		if (currentLevel->flags & MI_USERMAP)
+			gfx_offset = RRTILE403;
+		else if (!isRRRA())
+			gfx_offset = RRTILE403 + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+		else
+			gfx_offset = LEVELMAP + clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+		
 
-        if (ud.volume_number == 0 && ud.last_level == 8 && boardfilename[0]) // todo: get rid of this awful hack.
-        {
-            lastmapname = strrchr(boardfilename, '\\');
-            if (!lastmapname) lastmapname = strrchr(boardfilename, '/');
-            if (!lastmapname) lastmapname = boardfilename;
-        }
-        else
-        {
-            lastmapname = currentLevel->DisplayName();
-        }
-    }
+		lastmapname = currentLevel->DisplayName();
+	}
 
-    void FormatTime(int time, char* tempbuf)
-    {
-        mysnprintf(tempbuf, 32, "%02ld:%02ld", (time / (26 * 60)) % 60, (time / 26) % 60);
-    }
+	void FormatTime(int time, char* tempbuf)
+	{
+		mysnprintf(tempbuf, 32, "%02ld:%02ld", (time / (26 * 60)) % 60, (time / 26) % 60);
+	}
 
-    void PrintTime(int totalclock)
-    {
-        char tempbuf[32];
-        BigText(30, 48, GStrings("TXT_YerTime"), -1);
-        BigText(30, 64, GStrings("TXT_ParTime"), -1);
-        BigText(30, 80, GStrings("TXT_XTRTIME"), -1);
+	void PrintTime(int totalclock)
+	{
+		char tempbuf[32];
+		BigText(30, 48, GStrings("TXT_YerTime"), -1);
+		BigText(30, 64, GStrings("TXT_ParTime"), -1);
+		BigText(30, 80, GStrings("TXT_XTRTIME"), -1);
 
-        if (bonuscnt == 0)
-            bonuscnt++;
+		if (bonuscnt == 0)
+			bonuscnt++;
 
-        if (totalclock > (60 * 4))
-        {
-            if (bonuscnt == 1)
-            {
-                bonuscnt++;
-                S_PlaySound(404, CHAN_AUTO, CHANF_UI);
-            }
-            FormatTime(ps[myconnectindex].player_par, tempbuf);
-            BigText(191, 48, tempbuf, -1);
+		if (totalclock > (60 * 4))
+		{
+			if (bonuscnt == 1)
+			{
+				bonuscnt++;
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+			}
+			FormatTime(ps[myconnectindex].player_par, tempbuf);
+			BigText(191, 48, tempbuf, -1);
 
-            FormatTime(currentLevel->parTime, tempbuf);
-            BigText(191, 64, tempbuf, -1);
+			FormatTime(currentLevel->parTime, tempbuf);
+			BigText(191, 64, tempbuf, -1);
 
-            if (!isNamWW2GI())
-            {
-                FormatTime(currentLevel->designerTime, tempbuf);
-                BigText(191, 80, tempbuf, -1);
-            }
-        }
-    }
+			if (!isNamWW2GI())
+			{
+				FormatTime(currentLevel->designerTime, tempbuf);
+				BigText(191, 80, tempbuf, -1);
+			}
+		}
+	}
 
-    void PrintKills(int totalclock)
-    {
-        BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
-        BigText(30, 128, GStrings("TXT_VarmintsLeft"), -1);
+	void PrintKills(int totalclock)
+	{
+		BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
+		BigText(30, 128, GStrings("TXT_VarmintsLeft"), -1);
 
-        if (bonuscnt == 2)
-            bonuscnt++;
+		if (bonuscnt == 2)
+			bonuscnt++;
 
-        if (totalclock > (60 * 7))
-        {
-            if (bonuscnt == 3)
-            {
-                bonuscnt++;
-                S_PlaySound(442, CHAN_AUTO, CHANF_UI);
-            }
-            mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].actors_killed);
-            BigText(231, 112, tempbuf, -1);
-            if (ud.player_skill > 3)
-            {
-                mysnprintf(tempbuf, 32, GStrings("TXT_N_A"));
-                BigText(231, 128, tempbuf, -1);
-            }
-            else
-            {
-                if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
-                    mysnprintf(tempbuf, 32, "%-3ld", 0);
-                else mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
-                BigText(231, 128, tempbuf, -1);
-            }
-        }
-    }
+		if (totalclock > (60 * 7))
+		{
+			if (bonuscnt == 3)
+			{
+				bonuscnt++;
+				S_PlaySound(442, CHAN_AUTO, CHANF_UI);
+			}
+			mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].actors_killed);
+			BigText(231, 112, tempbuf, -1);
+			if (ud.player_skill > 3)
+			{
+				mysnprintf(tempbuf, 32, GStrings("TXT_N_A"));
+				BigText(231, 128, tempbuf, -1);
+			}
+			else
+			{
+				if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
+					mysnprintf(tempbuf, 32, "%-3ld", 0);
+				else mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
+				BigText(231, 128, tempbuf, -1);
+			}
+		}
+	}
 
-    void PrintSecrets(int totalclock)
-    {
-        BigText(30, 144, GStrings("TXT_SECFND"), -1);
-        BigText(30, 160, GStrings("TXT_SECMISS"), -1);
-        if (bonuscnt == 4) bonuscnt++;
+	void PrintSecrets(int totalclock)
+	{
+		BigText(30, 144, GStrings("TXT_SECFND"), -1);
+		BigText(30, 160, GStrings("TXT_SECMISS"), -1);
+		if (bonuscnt == 4) bonuscnt++;
 
-        if (totalclock > (60 * 10))
-        {
-            if (bonuscnt == 5)
-            {
-                bonuscnt++;
-                S_PlaySound(404, CHAN_AUTO, CHANF_UI);
-            }
-            mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
-            BigText(231, 144, tempbuf, -1);
-            if (ps[myconnectindex].secret_rooms > 0)
-                sprintf(tempbuf, "%-3d", (100 * ps[myconnectindex].secret_rooms / ps[myconnectindex].max_secret_rooms));
-            mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_secret_rooms - ps[myconnectindex].secret_rooms);
-            BigText(231, 160, tempbuf, -1);
-        }
-    }
+		if (totalclock > (60 * 10))
+		{
+			if (bonuscnt == 5)
+			{
+				bonuscnt++;
+				S_PlaySound(404, CHAN_AUTO, CHANF_UI);
+			}
+			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].secret_rooms);
+			BigText(231, 144, tempbuf, -1);
+			if (ps[myconnectindex].secret_rooms > 0)
+				sprintf(tempbuf, "%-3d", (100 * ps[myconnectindex].secret_rooms / ps[myconnectindex].max_secret_rooms));
+			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_secret_rooms - ps[myconnectindex].secret_rooms);
+			BigText(231, 160, tempbuf, -1);
+		}
+	}
 
-    int Frame(uint64_t clock, bool skiprequest)
-    {
-        twod->ClearScreen();
-        int totalclock = int(clock * 120 / 1'000'000'000);
-        DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		twod->ClearScreen();
+		int totalclock = int(clock * 120 / 1'000'000'000);
+		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-        if (lastmapname) BigText(80, 16, lastmapname, -1);
-        BigText(15, 192, GStrings("PRESSKEY"), -1);
+		if (lastmapname) BigText(80, 16, lastmapname, -1);
+		BigText(15, 192, GStrings("PRESSKEY"), -1);
 
-        if (totalclock > (60 * 3))
-        {
-            PrintTime(totalclock);
-        }
-        if (totalclock > (60 * 6))
-        {
-            PrintKills(totalclock);
-        }
-        if (totalclock > (60 * 9))
-        {
-            PrintSecrets(totalclock);
-        }
+		if (totalclock > (60 * 3))
+		{
+			PrintTime(totalclock);
+		}
+		if (totalclock > (60 * 6))
+		{
+			PrintKills(totalclock);
+		}
+		if (totalclock > (60 * 9))
+		{
+			PrintSecrets(totalclock);
+		}
 
-        if (totalclock > (1000000000L) && totalclock < (1000000320L))
-        {
-            int val = (totalclock >> 4) % 15;
-            if (val == 0)
-            {
-                if (bonuscnt == 6)
-                {
-                    bonuscnt++;
-                    S_PlaySound(425, CHAN_AUTO, CHANF_UI);
-                    S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
-                }
-            }
-        }
-        else if (totalclock > (10240 + 120L)) return 0;
+		if (totalclock > (1000000000L) && totalclock < (1000000320L))
+		{
+			int val = (totalclock >> 4) % 15;
+			if (val == 0)
+			{
+				if (bonuscnt == 6)
+				{
+					bonuscnt++;
+					S_PlaySound(425, CHAN_AUTO, CHANF_UI);
+					S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
+				}
+			}
+		}
+		else if (totalclock > (10240 + 120L)) return 0;
 
-        if (totalclock > 10240 && totalclock < 10240 + 10240)
-            SetTotalClock(1024);
+		if (totalclock > 10240 && totalclock < 10240 + 10240)
+			SetTotalClock(1024);
 
-        if (skiprequest && totalclock > (60 * 2))
-        {
-            skiprequest = false;
-            if (totalclock < (60 * 13))
-            {
-                SetTotalClock(60 * 13);
-            }
-            else if (totalclock < (1000000000))
-                SetTotalClock(1000000000);
-        }
+		if (skiprequest && totalclock > (60 * 2))
+		{
+			skiprequest = false;
+			if (totalclock < (60 * 13))
+			{
+				SetTotalClock(60 * 13);
+			}
+			else if (totalclock < (1000000000))
+				SetTotalClock(1000000000);
+		}
 
-        return 1;
-    }
+		return 1;
+	}
 
 };
 
@@ -535,23 +526,23 @@ public:
 class DRRRAEndOfGame : public DScreenJob
 {
 public:
-    DRRRAEndOfGame() : DScreenJob(fadein|fadeout)
-    {
-        S_PlaySound(35, CHAN_AUTO, CHANF_UI);
-    }
-    int Frame(uint64_t clock, bool skiprequest)
-    {
-        int totalclock = int(clock * 120 / 1'000'000'000);
-        auto tex = tileGetTexture(RRTILE8677 + ((totalclock >> 4) & 1));
-        DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
-        if (!S_CheckSoundPlaying(-1, 35) && totalclock > 15*120) return 0; // make sure it stays, even if sound is off.
-        if (skiprequest)
-        {
-            S_StopSound(35);
-            return -1;
-        }
-        return 1;
-    }
+	DRRRAEndOfGame() : DScreenJob(fadein|fadeout)
+	{
+		S_PlaySound(35, CHAN_AUTO, CHANF_UI);
+	}
+	int Frame(uint64_t clock, bool skiprequest)
+	{
+		int totalclock = int(clock * 120 / 1'000'000'000);
+		auto tex = tileGetTexture(RRTILE8677 + ((totalclock >> 4) & 1));
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+		if (!S_CheckSoundPlaying(-1, 35) && totalclock > 15*120) return 0; // make sure it stays, even if sound is off.
+		if (skiprequest)
+		{
+			S_StopSound(35);
+			return -1;
+		}
+		return 1;
+	}
 };
 
 //---------------------------------------------------------------------------
@@ -562,41 +553,41 @@ public:
 
 void dobonus_r(bool bonusonly, CompletionFunc completion)
 {
-    JobDesc jobs[20];
-    int job = 0;
+	JobDesc jobs[20];
+	int job = 0;
 
-    FX_StopAllSounds();
-    Mus_Stop();
+	FX_StopAllSounds();
+	Mus_Stop();
 
-    if (!bonusonly && !isRRRA() && numplayers < 2 && ud.eog && ud.from_bonus == 0)
-    {
-        bonussequence_r(ud.volume_number, jobs, job);
-    }
+	if (!bonusonly && !isRRRA() && numplayers < 2 && ud.eog && ud.from_bonus == 0)
+	{
+		bonussequence_r(ud.volume_number, jobs, job);
+	}
 
-    if (playerswhenstarted > 1 && ud.coop != 1)
-    {
-        jobs[job++] = { Create<DRRMultiplayerBonusScreen>(playerswhenstarted) };
-    }
-    else if (!bonusonly && ud.multimode <= 1)
-    {
-        if (isRRRA() && !boardfilename[0] && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
-        {
-            jobs[job++] = { Create<DRRLevelSummaryScreen>(true) };
-            int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
-            char fn[20];
-            mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
-            static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't appear before the user notices.
-            jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
-            if (ud.eog && currentLevel->levelNumber > 100)
-            {
-                jobs[job++] = { Create<DRRRAEndOfGame>() };
-            }
-        }
-        else jobs[job++] = { Create<DRRLevelSummaryScreen>(false) };
-    }
-    if (job)
-        RunScreenJob(jobs, job, completion);
-    else if (completion) completion(false);
+	if (playerswhenstarted > 1 && ud.coop != 1)
+	{
+		jobs[job++] = { Create<DRRMultiplayerBonusScreen>(playerswhenstarted) };
+	}
+	else if (!bonusonly && ud.multimode <= 1)
+	{
+		if (isRRRA() && !boardfilename[0] && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
+		{
+			jobs[job++] = { Create<DRRLevelSummaryScreen>(true) };
+			int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
+			char fn[20];
+			mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
+			static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't appear before the user notices.
+			jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
+			if (ud.eog && currentLevel->levelNumber > 100)
+			{
+				jobs[job++] = { Create<DRRRAEndOfGame>() };
+			}
+		}
+		else jobs[job++] = { Create<DRRLevelSummaryScreen>(false) };
+	}
+	if (job)
+		RunScreenJob(jobs, job, completion);
+	else if (completion) completion(false);
 }
 
 
@@ -609,27 +600,19 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 class DRRLoadScreen : public DScreenJob
 {
 	std::function<int(void)> callback;
-	
+	std::function<int(void)> callback;
+	MapRecord* rec;
+
 public:
-	DRRLoadScreen(const char *mapname_, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout), callback(callback_) {}
+	DRRLoadScreen(MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec) {}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		int y = isRRRA()? 140 : 90;
-		// fixme: The level management needs a total overhaul!
-		if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-		{
-			BigText(160, y, GStrings("TXT_ENTRUM"), 0);
-			BigText(160, y+20, boardfilename, 0);
-		}
-		else
-		{
-			BigText(160, y, GStrings("TXT_ENTERIN"), 0);
-			// Fixme: This last level hack needs to go away!!!
-			BigText(160, y+24, mapList[g_lastLevel? 127 : (ud.volume_number * MAXLEVELS) + ud.level_number].DisplayName(), 0);
-		}
+		BigText(160, y, (rec->flags & MI_USERMAP) ? GStrings("TXT_ENTRUM") : GStrings("TXT_ENTERIN"), 0);
+		BigText(160, y+24, rec->DisplayName(), 0);
 		
 		// Initiate the level load once the page has been faded in completely.
 		if (callback && GetFadeState() == visible)
@@ -644,55 +627,55 @@ public:
 
 void PrintPaused_r()
 {
-    BigText(160, 100, GStrings("Game Paused"), 0);
+	BigText(160, 100, GStrings("Game Paused"), 0);
 }
 
 void PrintLevelName_r(double alpha)
 {
-    BigText(160, 114, currentLevel->DisplayName(), 0, alpha);
+	BigText(160, 114, currentLevel->DisplayName(), 0, alpha);
 }
 
 // Utility for testing the above screens
 CCMD(testrscreen)
 {
-    JobDesc jobs[10];
-    int job = 0;
-    C_HideConsole();
-    FX_StopAllSounds();
-    Mus_Stop();
-    if (argv.argc() > 1)
-    {
-        int screen = strtol(argv[1], nullptr, 0);
-        switch (screen)
-        {
-        case 0:
-        case 1:
-            if (!isRRRA())
-            {
-                bonussequence_r(screen, jobs, job);
-                RunScreenJob(jobs, job, nullptr);
-            }
-            break;
+	JobDesc jobs[10];
+	int job = 0;
+	C_HideConsole();
+	FX_StopAllSounds();
+	Mus_Stop();
+	if (argv.argc() > 1)
+	{
+		int screen = strtol(argv[1], nullptr, 0);
+		switch (screen)
+		{
+		case 0:
+		case 1:
+			if (!isRRRA())
+			{
+				bonussequence_r(screen, jobs, job);
+				RunScreenJob(jobs, job, nullptr);
+			}
+			break;
 
-        case 2:
-            jobs[job++] = { Create<DRRMultiplayerBonusScreen>(6) };
-            RunScreenJob(jobs, job, nullptr);
-            break;
+		case 2:
+			jobs[job++] = { Create<DRRMultiplayerBonusScreen>(6) };
+			RunScreenJob(jobs, job, nullptr);
+			break;
 
-        case 3:
-            jobs[job++] = { Create<DRRLevelSummaryScreen>() };
-            RunScreenJob(jobs, job, nullptr);
-            break;
+		case 3:
+			jobs[job++] = { Create<DRRLevelSummaryScreen>() };
+			RunScreenJob(jobs, job, nullptr);
+			break;
 
-        case 4:
-            jobs[job++] = { Create<DRRRAEndOfGame>() };
-            RunScreenJob(jobs, job, nullptr);
-            break;
+		case 4:
+			jobs[job++] = { Create<DRRRAEndOfGame>() };
+			RunScreenJob(jobs, job, nullptr);
+			break;
 
-        default:
-            break;
-        }
-    }
+		default:
+			break;
+		}
+	}
 }
 
 
