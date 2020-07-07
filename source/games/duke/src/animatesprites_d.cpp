@@ -650,7 +650,6 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 {
                     ps[screenpeek].visibility = -127;
                     lastvisinc = (int)totalclock+32;
-                    //restorepalette = 1;	// JBF 20040101: why?
                 }
                 t->shade = -127;
                 break;

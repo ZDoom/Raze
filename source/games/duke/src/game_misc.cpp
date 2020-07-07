@@ -39,6 +39,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "statusbar.h"
 #include "st_start.h"
 #include "i_interface.h"
+#include "prediction.h"
 
 BEGIN_DUKE_NS
 
@@ -134,7 +135,7 @@ void gameexitfrommenu()
 	// MP scoreboard
 	if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && !ud.coop)
 	{
-		G_BonusScreen(1);
+		dobonus(1);
 	}
 
 	// shareware and TEN screens
@@ -291,6 +292,194 @@ void drawbackground(void)
 			DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
 		return;
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// this is from ZDoom
+//
+//---------------------------------------------------------------------------
+
+void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
+{
+	r = clamp(r/255.f, 0.f, 0.25f);
+	g = clamp(r/255.f, 0.f, 0.25f);
+	b = clamp(r/255.f, 0.f, 0.25f);
+	a = clamp(a/255.f, 0.f, 0.25f);
+
+	
+	float a2, a3;
+
+	if (a <= 0)
+		return;
+	a2 = v_blend[3] + (1-v_blend[3])*a;	// new total alpha
+	a3 = v_blend[3]/a2;		// fraction of color from old
+
+	v_blend[0] = v_blend[0]*a3 + r*(1-a3);
+	v_blend[1] = v_blend[1]*a3 + g*(1-a3);
+	v_blend[2] = v_blend[2]*a3 + b*(1-a3);
+	v_blend[3] = a2;
+}
+ 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+ void setgamepalette(int palid)
+{
+    if (palid >= MAXBASEPALS || palid < 0) palid = 0;
+	auto& fstint = lookups.tables[MAXPALOOKUPS - 1];
+	if (palid == WATERPAL) fstint.tintColor = PalEntry(224, 192, 255);
+	else if (palid == SLIMEPAL) fstint.tintColor = PalEntry(208, 255, 192);
+	else fstint.tintColor = 0xffffff;
+    videoSetPalette(palid);
+}
+
+//---------------------------------------------------------------------------
+//
+// 'rest' in this case means everything not part of the 3D scene and its weapon sprite.
+//
+//---------------------------------------------------------------------------
+
+void displayrest(int smoothratio)
+{
+	int i, j;
+	unsigned char fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
+
+	struct player_struct* pp;
+	walltype* wal;
+	int cposx, cposy, cang;
+
+	pp = &ps[screenpeek];
+
+	float blend[4] = {};
+
+	// this does pain tinting etc from the CON
+	V_AddBlend(pp->pals.r, pp->pals.g, pp->pals.b, pp->pals.a, blend);
+	// loogies courtesy of being snotted on
+	if (pp->loogcnt > 0)
+	{
+		V_AddBlend(0, 63, 0, (pp->loogcnt >> 1), blend);
+	}
+	if (blend[3])
+	{
+		// result must be multiplied by 4 and normalised to 255. (4*255 = 1020)
+		auto comp = [&](int i) { return clamp(int(blend[i] * 1020), 0, 255); };
+		videoFadePalette(comp(0), comp(1), comp(2), comp(3)); 
+	}
+	else
+		videoclearFade();
+
+	i = pp->cursectnum;
+
+	show2dsector.Set(i);
+	wal = &wall[sector[i].wallptr];
+	for (j = sector[i].wallnum; j > 0; j--, wal++)
+	{
+		i = wal->nextsector;
+		if (i < 0) continue;
+		if (wal->cstat & 0x0071) continue;
+		if (wall[wal->nextwall].cstat & 0x0071) continue;
+		if (sector[i].lotag == 32767) continue;
+		if (sector[i].ceilingz >= sector[i].floorz) continue;
+		show2dsector.Set(i);
+	}
+
+	if (ud.camerasprite == -1)
+	{
+		if (ud.overhead_on != 2)
+		{
+			if (!isRR() && pp->newowner >= 0)
+				cameratext(pp->newowner);
+			else
+			{
+				fi.displayweapon(screenpeek);
+				if (pp->over_shoulder_on == 0)
+					fi.displaymasks(screenpeek);
+			}
+			if (!isRR())
+				moveclouds();
+		}
+
+		if (ud.overhead_on > 0)
+		{
+			// smoothratio = min(max(smoothratio,0),65536);
+			smoothratio = calc_smoothratio(totalclock, ototalclock);
+			dointerpolations(smoothratio);
+
+			if (ud.scrollmode == 0)
+			{
+				if (pp->newowner == -1 && !ud.pause_on)
+				{
+					if (screenpeek == myconnectindex && numplayers > 1)
+					{
+						cposx = omyx + mulscale16(myx - omyx, smoothratio);
+						cposy = omyy + mulscale16(myy - omyy, smoothratio);
+						cang = fix16_to_int(omyang) + mulscale16((fix16_to_int(myang + F16(1024) - omyang) & 2047) - 1024, smoothratio);
+					}
+					else
+					{
+						cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
+						cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
+						cang = pp->getang();// + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
+					}
+				}
+				else
+				{
+					cposx = pp->oposx;
+					cposy = pp->oposy;
+					cang = fix16_to_int(pp->oq16ang);
+				}
+			}
+			else
+			{
+				if (!ud.pause_on)
+				{
+					ud.fola += ud.folavel >> 3;
+					ud.folx += (ud.folfvel * sintable[(512 + 2048 - ud.fola) & 2047]) >> 14;
+					ud.foly += (ud.folfvel * sintable[(512 + 1024 - 512 - ud.fola) & 2047]) >> 14;
+				}
+				cposx = ud.folx;
+				cposy = ud.foly;
+				cang = ud.fola;
+			}
+
+			if (ud.overhead_on == 2)
+			{
+				twod->ClearScreen();
+				renderDrawMapView(cposx, cposy, pp->zoom, cang);
+			}
+			drawoverheadmap(cposx, cposy, pp->zoom, cang);
+
+			restoreinterpolations();
+		}
+	}
+
+	if (isRR()) drawstatusbar_r(screenpeek);
+	else drawstatusbar_d(screenpeek);
+
+	if (ps[myconnectindex].newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+	{
+		int32_t a = TILE_CROSSHAIR;
+
+		if ((unsigned)a < MAXTILES)
+		{
+			vec2_t crosshairpos = {  };
+			//vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
+			uint32_t crosshair_o = 1 | 2;
+			double crosshair_scale = cl_crosshairscale * .001;
+			if (isRR()) crosshair_scale *= .5;
+
+			DrawTexture(twod, tileGetTexture(a), 160 - (ps[myconnectindex].look_ang >> 1), 100,
+				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale,
+				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x, DTA_ViewportY, windowxy2.y - windowxy1.y, TAG_DONE);
+		}
+	}
+
+	if (ud.pause_on == 1 && (ps[myconnectindex].gm & MODE_MENU) == 0)
+		fi.PrintPaused();
 }
 
 //---------------------------------------------------------------------------
@@ -623,6 +812,28 @@ void cameratext(int i)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!((int)totalclock & 8), !!((int)totalclock & 16));
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void dobonus(int bonusonly)
+{
+    if (isRRRA());
+    else if (isRR()) dobonus_r(bonusonly, nullptr);
+    else dobonus_d(bonusonly, nullptr);
+
+    // This hack needs to go away!
+    if (RRRA_EndEpisode)
+    {
+        RRRA_EndEpisode = 0;
+        ud.m_volume_number = ud.volume_number = 1;
+        m_level_number = ud.level_number = 0;
+        ud.eog = 0;
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -800,7 +800,6 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
                 {
                     ps[screenpeek].visibility = -127;
                     lastvisinc = (int)totalclock+32;
-                    restorepalette = 1;
                     t->pal = 0;
                 }
                 else if(t->picnum == FIRELASER)

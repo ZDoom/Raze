@@ -149,7 +149,7 @@ inline void videoSetBrightness(int brightness)
 typedef TFlags<ESetPalFlag> ESetPalFlags;
     DEFINE_TFLAGS_OPERATORS(ESetPalFlags)
 
-void videoSetPalette(int dapalid, ESetPalFlags flags);
+void videoSetPalette(int dapalid);
 inline void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 {
     palfadergb.r = r;

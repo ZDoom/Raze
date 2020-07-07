@@ -977,8 +977,6 @@ void loadlevel(const char *filename)
 
      for(i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
 
-     restorepalette = 1;
-
      flushpackets();
      waitforeverybody();
 

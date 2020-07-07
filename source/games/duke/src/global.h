@@ -240,7 +240,6 @@ extern playerdata_t *const g_player;
 G_EXTERN player_orig po[MAXPLAYERS];
 #pragma pack(pop)
 
-G_EXTERN int32_t restorepalette;
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN double g_gameUpdateTime;

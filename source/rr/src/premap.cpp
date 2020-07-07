@@ -1874,7 +1874,8 @@ static void prelevel(char g)
 
     if (RR && !thunderon)
     {
-        videoSetPalette(BASEPAL,0);
+        videoSetPalette(BASEPAL);
+        videoclearFade();
         g_visibility = g_player[screenpeek].ps->visibility;
     }
     if (RR)

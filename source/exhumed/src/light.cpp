@@ -74,7 +74,7 @@ void MyLoadPalette()
     //
     //kread(hFile, kenpal, sizeof(kenpal));
     //kclose(hFile);
-    videoSetPalette(BASEPAL, 0);
+    videoSetPalette(BASEPAL);
     SetOverscan(BASEPAL);
 }
 
@@ -165,7 +165,7 @@ void GrabPalette()
 {
     SetOverscan(BASEPAL);
 
-    videoSetPalette(BASEPAL, 0);
+    videoSetPalette(BASEPAL);
 
     nPalDiff  = 0;
     nPalDelay = 0;
@@ -183,7 +183,7 @@ void BlackOut()
 
 void RestorePalette()
 {
-    videoSetPalette(BASEPAL, 0);
+    videoSetPalette(BASEPAL);
     videoTintBlood(0, 0, 0);
 }
 

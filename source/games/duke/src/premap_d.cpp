@@ -670,8 +670,6 @@ void enterlevel(char g)
 
      for(i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
 
-     restorepalette = 1;
-
      flushpackets();
      waitforeverybody();
 

@@ -97,11 +97,11 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     if (m_recstat != 2 && ud.last_level >= 0 &&
         (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
     {
-        G_BonusScreen(1);
+        dobonus(1);
     }
 
     if (isRR() && !isRRRA() && ud.level_number == 6 && ud.volume_number == 0)
-        G_BonusScreen(0);
+        dobonus(0);
 #endif
 
     show_shareware = REALGAMETICSPERSEC*30;
@@ -424,7 +424,6 @@ int G_EnterLevel(int gameMode)
     Net_ResetPrediction();
 
     //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     setpal(g_player[myconnectindex].ps);
     renderFlushPerms();
 
@@ -458,11 +457,9 @@ int G_EnterLevel(int gameMode)
                    mapList[mii].DisplayName());
     }
 
-    restorepalette = -1;
-
     videoClearViewableArea(0L);
     displayrooms(myconnectindex,65536);
-    G_DisplayRest(65536);
+    displayrest(65536);
 
     Net_WaitForEverybody();
     return 0;

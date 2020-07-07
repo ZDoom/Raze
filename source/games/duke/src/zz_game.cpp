@@ -158,7 +158,6 @@ void G_HandleLocalKeys(void)
         buttonMap.ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = 0;
-        restorepalette = -1;
     }
 
     if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
@@ -275,8 +274,6 @@ void G_HandleLocalKeys(void)
             if (ud.overhead_on == 3) ud.overhead_on = 0;
             ud.last_overhead = ud.overhead_on;
         }
-
-        restorepalette = 1;
     }
 }
 
@@ -460,14 +457,13 @@ void G_BackToMenu(void)
 static int G_EndOfLevel(void)
 {
 	STAT_Update(ud.eog || (currentLevel->flags & MI_FORCEEOG));
-	P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
     setpal(g_player[myconnectindex].ps);
 
     if (g_player[myconnectindex].ps->gm&MODE_EOL)
     {
         ready2send = 0;
 
-        G_BonusScreen(0);
+        dobonus(0);
 
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();
@@ -703,7 +699,7 @@ int GameInterface::app_main()
 
     videoInit();
     V_LoadTranslations();
-    videoSetPalette(BASEPAL, 0);
+    videoSetPalette(BASEPAL);
 
     FX_StopAllSounds();
 	app_loop();
@@ -850,7 +846,7 @@ MAIN_LOOP_RESTART:
             drawtime.Reset();
             drawtime.Clock();
             displayrooms(screenpeek, smoothRatio);
-            G_DisplayRest(smoothRatio);
+            displayrest(smoothRatio);
             drawtime.Unclock();
             videoNextPage();
         }

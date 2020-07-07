@@ -498,8 +498,10 @@ void displayrooms(int snum, int smoothratio)
 
 	dointerpolations(smoothratio);
 
+	setgamepalette(BASEPAL);
 	animatecamsprite(smoothratio);
 
+	setgamepalette(p->palette);
 	if (ud.camerasprite >= 0)
 	{
 		spritetype* s;
@@ -623,7 +625,6 @@ void displayrooms(int snum, int smoothratio)
 			renderDrawMasks();
 		}
 	}
-
 	restoreinterpolations();
 
 	if (!isRRRA() || !fogactive)

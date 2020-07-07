@@ -1403,7 +1403,6 @@ static void postloadplayer(int32_t savegamep)
 
     //3
     setpal(g_player[myconnectindex].ps);
-    restorepalette = -1;
 
     //4
     if (savegamep)

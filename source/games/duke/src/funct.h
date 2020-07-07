@@ -13,6 +13,7 @@ void resetlanepics(void);
 void moveplayers();
 void doanimations();
 void movefx();
+void moveclouds(void);
 
 void RANDOMSCRAP(spritetype* s, int i);
 void ms(short i);
@@ -190,5 +191,18 @@ void OnMotorcycle(player_struct *pl, int snum);
 void OffMotorcycle(player_struct *pl);
 void OnBoat(player_struct *pl, int snum);
 void OffBoat(player_struct *pl);
+
+void drawstatusbar_d(int snum);
+void drawstatusbar_r(int snum);
+void drawoverheadmap(int cposx, int cposy, int czoom, int cang);
+void cameratext(int i);
+void dobonus(int bonusonly);
+void dobonus_d(bool bonusonly, CompletionFunc completion);
+void dobonus_r(bool bonusonly, CompletionFunc completion);
+
+void displayrest(int32_t smoothratio);
+void drawbackground(void);
+void displayrooms(int32_t playerNum, int32_t smoothratio);
+void setgamepalette(int palid);
 
 END_DUKE_NS

@@ -47,12 +47,11 @@ BEGIN_DUKE_NS
 void setpal(struct player_struct* p)
 {
 	int palette;
-	restorepalette = 1;
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (p->cursectnum < 0) palette = BASEPAL; // don't crash if out of range.
-	else if (sector[p->cursectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[p->cursectnum].ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL, ++restorepalette;
-	else if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) palette = WATERPAL, ++restorepalette;
+	else if (sector[p->cursectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[p->cursectnum].ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
+	else if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	p->palette = palette;
 }

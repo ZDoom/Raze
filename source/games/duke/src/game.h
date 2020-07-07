@@ -62,21 +62,14 @@ static inline int Menu_HaveUserMap(void)
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
 extern int32_t cameradist;
-extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
-extern int32_t restorepalette;
 extern int32_t tempwallptr;
 
 void G_BackToMenu(void);
 
-void G_BonusScreen(int32_t bonusonly);
-void G_DisplayRest(int32_t smoothratio);
-void drawbackground(void);
-void displayrooms(int32_t playerNum,int32_t smoothratio);
 void G_HandleLocalKeys(void);
 void G_UpdatePlayerFromMenu(void);
 
-void P_SetGamePalette(player_struct* player, uint32_t palid, ESetPalFlags flags);
 
 void G_InitTimer(int32_t ticspersec);
 

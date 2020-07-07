@@ -51,7 +51,6 @@ set( PCH_SOURCES
 	src/zz_player.cpp
 	src/zz_premap.cpp
 	src/zz_savegame.cpp
-	src/zz_screens.cpp
 	)
 
 add_game_library2( duke )

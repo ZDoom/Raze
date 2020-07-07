@@ -422,10 +422,9 @@ static int32_t tint_blood_r = 0, tint_blood_g = 0, tint_blood_b = 0;
 glblend_t glblend[MAXBLENDTABS];
 
 
-void videoSetPalette(int palid, ESetPalFlags flags)
+void videoSetPalette(int palid)
 {
 	curbasepal = (GPalette.GetTranslation(Translation_BasePalettes, palid) == nullptr)? 0 : palid;
-    if ((flags & Pal_DontResetFade) == 0) palfadergb = 0;
 }
 
 //==========================================================================

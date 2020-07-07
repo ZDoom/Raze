@@ -5635,7 +5635,7 @@ int GameInterface::app_main()
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
         videoInit();
-        videoSetPalette(myplayer.palette, 0);
+        videoSetPalette(myplayer.palette);
     }
 
     // check if the minifont will support lowercase letters (3136-3161)
