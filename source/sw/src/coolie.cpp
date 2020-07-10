@@ -343,11 +343,6 @@ STATEp sg_CoolieDead[] =
     s_CoolieDead
 };
 
-STATE s_CoolieDeadHead[] =
-    {
-    {COOLIE_DEAD_HEAD, COOLIE_DIE_RATE, DoActorDebris, &s_CoolieDeadHead[0]}
-    };
-
 /*
 typedef struct
 {
@@ -578,7 +573,6 @@ int SpawnCoolg(short SpriteNum)
     // Don't do a ghost every time
     if (RANDOM_RANGE(1000) > 700)
     {
-        ChangeState(SpriteNum,&s_CoolieDeadHead[0]);
         return(0);
     }
 
@@ -728,7 +722,6 @@ static saveable_data saveable_coolie_data[] =
     SAVE_DATA(sg_CoolieDead),
 
     SAVE_DATA(CoolieActionSet),
-    SAVE_DATA(s_CoolieDeadHead),
 };
 
 saveable_module saveable_coolie =
