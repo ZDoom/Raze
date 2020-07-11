@@ -276,6 +276,21 @@ static int osdcmd_give(CCmdFuncPtr parm)
     return CCMD_SHOWHELP;
 }
 
+static int osdcmd_warptocoords(CCmdFuncPtr parm)
+{
+    if (parm->numparms != 5)
+        return OSDCMD_SHOWHELP;
+
+    Player->oposx = Player->posx = atoi(parm->parms[0]);
+    Player->oposy = Player->posy = atoi(parm->parms[1]);
+    Player->oposz = Player->posz = atoi(parm->parms[2]);
+
+    Player->oq16ang   = Player->q16ang   = Player->camq16ang   = fix16_from_int(atoi(parm->parms[3]));
+    Player->oq16horiz = Player->q16horiz = Player->camq16horiz = fix16_from_int(atoi(parm->parms[4]));
+
+    return OSDCMD_OK;
+}
+
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
@@ -290,6 +305,8 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
 
 //    C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+
+    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] [horiz]: warps the player to the specified coordinates",osdcmd_warptocoords);
 
     return 0;
 }
