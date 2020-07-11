@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common.h"
 #include "exhumed.h"
+#include "player.h"
 #include "osdcmds.h"
 #include "view.h"
 #include "mapinfo.h"
@@ -122,6 +123,23 @@ static int osdcmd_changelevel(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_warptocoords(CCmdFuncPtr parm)
+{
+    if (parm->numparms != 5)
+        return OSDCMD_SHOWHELP;
+
+    Player     *nPlayer = &PlayerList[nLocalPlayer];
+    spritetype *pSprite = &sprite[nPlayer->nSprite]; 
+
+    nPlayer->opos.x = pSprite->x = atoi(parm->parms[0]);
+    nPlayer->opos.y = pSprite->y = atoi(parm->parms[1]);
+    nPlayer->opos.z = pSprite->z = atoi(parm->parms[2]);
+
+    nPlayer->q16angle = fix16_from_int(atoi(parm->parms[3]));
+    nPlayer->q16horiz = fix16_from_int(atoi(parm->parms[4]));
+
+    return OSDCMD_OK;
+}
 
 int32_t registerosdcommands(void)
 {
@@ -143,6 +161,8 @@ int32_t registerosdcommands(void)
     //C_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
 
     //C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
+
+    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] [horiz]: warps the player to the specified coordinates",osdcmd_warptocoords);
 
     return 0;
 }
