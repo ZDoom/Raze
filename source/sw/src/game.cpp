@@ -141,8 +141,7 @@ SWBOOL Global_PLock = TRUE;
 SWBOOL Global_PLock = FALSE;
 #endif
 
-// 12 was original source release. For future releases increment by two.
-int GameVersion = 17;
+int GameVersion = 20;
 
 char DemoText[3][64];
 int DemoTextYstart = 0;
@@ -944,6 +943,7 @@ void InitLevelGlobals2(void)
     InitTimingVars();
     TotalKillable = 0;
     Bunny_Count = 0;
+    FinishAnim = 0;
 }
 
 void
@@ -1340,7 +1340,6 @@ void NewLevel(void)
 			STAT_Update(true);
     }
     }
-    FinishAnim = 0;
 }
 
 
