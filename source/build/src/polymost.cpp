@@ -1199,6 +1199,12 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     vec2_t const d = { POINT2(dawall).x - w.x, POINT2(dawall).y - w.y };
     int64_t i = d.x * ((int64_t)pos->x - w.x) + d.y * ((int64_t)pos->y - w.y);
 
+    if (d.x == 0 && d.y == 0)
+    {
+        // In Blood's E1M1 this gets triggered for wall 522.
+        return 1;
+    }
+
     if (i < 0)
         return 1;
 
@@ -3040,6 +3046,12 @@ void polymost_drawsprite(int32_t snum)
     GLInterface.SetVisibility(sectorVisibility(tspr->sectnum));
 
     vec2_t off = { 0, 0 };
+
+    if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
+    {
+        off = { (int32_t)tspr->xoffset + (tileLeftOffset(globalpicnum)),
+                (int32_t)tspr->yoffset + (tileTopOffset(globalpicnum)) };
+    }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
 
