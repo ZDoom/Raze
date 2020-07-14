@@ -888,8 +888,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     if (isRR()) prelevel_r(gamemode);
     else prelevel_d(gamemode);
 
-    G_InitRRRASkies();
-
     if (isRRRA() && mi->levelNumber == levelnum(2, 0))
     {
         for (int i = PISTOL_WEAPON; i < MAX_WEAPONS; i++)

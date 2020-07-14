@@ -1668,4 +1668,3 @@ void S_SoundReset()
 	soundEngine->Reset();
 	S_RestartMusic();
 }
-

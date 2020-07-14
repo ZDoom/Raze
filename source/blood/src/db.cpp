@@ -717,15 +717,11 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     mapHeader.at23 = B_LITTLE16(mapHeader.at23);
 #endif
 
-    psky_t *pSky = tileSetupSky(0);
-    pSky->horizfrac = 65536;
-
     *pX = mapHeader.at0;
     *pY = mapHeader.at4;
     *pZ = mapHeader.at8;
     *pAngle = mapHeader.atc;
     *pSector = mapHeader.ate;
-    pSky->lognumtiles = mapHeader.at10;
     gVisibility = g_visibility = mapHeader.at12;
     gSongId = mapHeader.at16;
     if (byte_1A76C8)
@@ -770,16 +766,21 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     {
         memset(&byte_19AE44, 0, 128);
     }
-    gSkyCount = 1<<pSky->lognumtiles;
+    gSkyCount = 1<< mapHeader.at10;
     IOBuffer1.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
     if (byte_1A76C8)
     {
         dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*2);
     }
+
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
+    pSky->horizfrac = 65536;
+    pSky->lognumtiles = mapHeader.at10;
     for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
     {
         pSky->tileofs[i] = B_LITTLE16(tpskyoff[i]);
     }
+
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];

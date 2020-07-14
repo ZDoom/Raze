@@ -84,8 +84,7 @@ static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
         G_BackToMenu();
 }
 
-extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
-extern void G_SetupGlobalPsky(void);
+extern void setupbackdrop();
 
 //////////
 

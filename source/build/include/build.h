@@ -400,6 +400,7 @@ EXTERN vec2_t windowxy1, windowxy2;
 #define DEFAULTPSKY -1
 
 typedef struct {
+    int tilenum;
     // The proportion at which looking up/down affects the apparent 'horiz' of
     // a parallaxed sky, scaled by 65536 (so, a value of 65536 makes it align
     // with the drawn surrounding scene):
@@ -410,32 +411,27 @@ typedef struct {
     int32_t yoffs;
 
     int8_t lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
-    int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
+    int16_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
 
     int32_t yscale;
     int combinedtile;
 } psky_t;
 
 // Index of map-global (legacy) multi-sky:
-EXTERN int32_t g_pskyidx;
 // New multi-psky
-EXTERN int32_t pskynummultis;
-EXTERN psky_t * multipsky;
-// Mapping of multi-sky index to base sky tile number:
-EXTERN int32_t * multipskytile;
+EXTERN TArray<psky_t> multipskies;
 
-static FORCE_INLINE int32_t getpskyidx(int32_t picnum)
+static FORCE_INLINE psky_t *getpskyidx(int32_t picnum)
 {
-    int32_t j;
+    for (auto& sky : multipskies)
+        if (picnum == sky.tilenum) return &sky;
 
-    for (j=pskynummultis-1; j>0; j--)  // NOTE: j==0 on non-early loop end
-        if (picnum == multipskytile[j])
-            break;  // Have a match.
-
-    return j;
+    return &multipskies[0];
 }
 
+
 EXTERN psky_t * tileSetupSky(int32_t tilenum);
+psky_t* defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t* tileofs, int yoff = 0);
 
 EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;

@@ -1024,21 +1024,50 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 
 psky_t * tileSetupSky(int32_t const tilenum)
 {
-    for (bssize_t i = 0; i < pskynummultis; i++)
-        if (multipskytile[i] == tilenum)
-            return &multipsky[i];
+    for (auto& sky : multipskies)
+        if (tilenum == sky.tilenum)
+        {
+            sky.combinedtile = -1;  // invalidate the old content
+            return &sky;
+        }
 
-    int32_t const newPskyID = pskynummultis++;
-    multipsky = (psky_t *)Xrealloc(multipsky, pskynummultis * sizeof(psky_t));
-    multipskytile = (int32_t *)Xrealloc(multipskytile, pskynummultis * sizeof(int32_t));
-
-    psky_t * const newPsky = &multipsky[newPskyID];
-    Bmemset(newPsky, 0, sizeof(psky_t));
-    multipskytile[newPskyID] = tilenum;
-    newPsky->yscale = 65536;
-
-    return newPsky;
+    multipskies.Reserve(1);
+    multipskies.Last() = {};
+    multipskies.Last().tilenum = tilenum;
+    multipskies.Last().combinedtile = -1;
+    multipskies.Last().yscale = 65536;
+    return &multipskies.Last();
 }
+
+psky_t * defineSky(int32_t const tilenum, int horiz, int lognumtiles, const uint16_t *tileofs, int yoff)
+{
+    auto sky = tileSetupSky(tilenum);
+    sky->horizfrac = horiz;
+    sky->lognumtiles = lognumtiles;
+    sky->yoffs = yoff;
+    memcpy(sky->tileofs, tileofs, 2 << lognumtiles);
+    return sky;
+}
+
+// Get properties of parallaxed sky to draw.
+// Returns: pointer to tile offset array. Sets-by-pointer the other three.
+const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, int32_t* dapyoffs, int32_t* daptileyscale)
+{
+    psky_t const* const psky = getpskyidx(picnum);
+
+    if (dapskybits)
+        *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
+    if (dapyscale)
+        *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
+    if (dapyoffs)
+        *dapyoffs = psky->yoffs + parallaxyoffs_override;
+    if (daptileyscale)
+        *daptileyscale = psky->yscale;
+
+    return psky->tileofs;
+}
+
+
 
 //
 // preinitengine
@@ -1174,10 +1203,6 @@ void engineUnInit(void)
     }
     DO_FREE_AND_NULL(usermaphacks);
     num_usermaphacks = 0;
-
-    DO_FREE_AND_NULL(multipsky);
-    DO_FREE_AND_NULL(multipskytile);
-    pskynummultis = 0;
 }
 
 

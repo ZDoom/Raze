@@ -626,7 +626,7 @@ public:
 
 void MyLoadSave::Load(void)
 {
-    psky_t *pSky = tileSetupSky(0);
+    psky_t *pSky = tileSetupSky(DEFAULTPSKY);
     int id;
     Read(&id, sizeof(id));
     if (id != 0x5653424e/*'VSBN'*/)
@@ -706,10 +706,9 @@ void MyLoadSave::Load(void)
 #ifdef NOONE_EXTENSIONS
     Read(&gModernMap, sizeof(gModernMap));
 #endif
-    psky_t skyInfo;
-    Read(&skyInfo, sizeof(skyInfo));
-
-    *tileSetupSky(0) = skyInfo;
+    psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
+    Read(skyInfo, sizeof(*skyInfo));
+    skyInfo->combinedtile = -1;
     gCheatMgr.sub_5BCF4();
 
 }
@@ -797,8 +796,8 @@ void MyLoadSave::Save(void)
 #ifdef NOONE_EXTENSIONS
     Write(&gModernMap, sizeof(gModernMap));
 #endif
-    psky_t skyInfo = *tileSetupSky(0);
-    Write(&skyInfo, sizeof(skyInfo));
+    psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
+    Write(skyInfo, sizeof(*skyInfo));
 }
 
 void LoadSavedInfo(void)

@@ -160,7 +160,7 @@ uint8_t LoadLevel(int nMap)
         PlayerList[i].nSprite = -1;
     }
 
-    psky_t* pSky = tileSetupSky(0);
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
 
     pSky->tileofs[0] = 0;
     pSky->tileofs[1] = 0;

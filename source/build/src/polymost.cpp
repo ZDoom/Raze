@@ -1300,7 +1300,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     
     float const fglobalang = fix16_to_float(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
-    int8_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+    int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
     ghoriz = (qglobalhoriz*(1.f/65536.f)-float(ydimen>>1))*dapyscale*(1.f/65536.f)+float(ydimen>>1)+ghorizcorrect;
 
@@ -1574,7 +1574,7 @@ static void polymost_drawalls(int32_t const bunch)
         tileUpdatePicnum(&globalpicnum, sectnum);
 
         int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
-        int8_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
+        int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT

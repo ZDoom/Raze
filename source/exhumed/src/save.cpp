@@ -54,7 +54,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     FinishSavegameRead();
 
     // reset the sky in case it hasn't been done yet.
-    psky_t* pSky = tileSetupSky(0);
+    psky_t* pSky = tileSetupSky(DEFAULTPSKY);
     pSky->tileofs[0] = 0;
     pSky->tileofs[1] = 0;
     pSky->tileofs[2] = 0;

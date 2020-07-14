@@ -31,7 +31,6 @@ extern int16_t ambientlotag[64];
 extern int16_t ambienthitag[64];
 void P_ResetPlayer(int pn);
 void G_ResetInterpolations(void);
-void G_InitRRRASkies(void);
 
 
 END_DUKE_NS

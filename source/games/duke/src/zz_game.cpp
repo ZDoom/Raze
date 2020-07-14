@@ -361,7 +361,7 @@ static void G_Startup(void)
         G_FatalEngineError();
 
     // These depend on having the dynamic tile and/or sound mappings set up:
-    G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
+    setupbackdrop();
     //Net_SendClientInfo();
 
 	if (userConfig.CommandMap.IsNotEmpty())
@@ -560,8 +560,6 @@ int GameInterface::app_main()
     ud.camera_time = 0;//4;
     playerteam = 0;
 
-    hud_size.Callback();
-    hud_scale.Callback();
     S_InitSound();
 
     
@@ -616,6 +614,8 @@ int GameInterface::app_main()
 	userConfig.AddDefs.reset();
 
     enginePostInit();
+    hud_size.Callback();
+    hud_scale.Callback();
 
     tileDelete(TILE_MIRROR);
     skiptile = TILE_W_FORCEFIELD + 1;

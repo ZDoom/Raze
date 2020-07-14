@@ -29,7 +29,6 @@ set( PCH_SOURCES
 	src/blood.cpp
 	src/callback.cpp
 	src/choke.cpp
-	src/common.cpp
 	src/config.cpp
 	src/controls.cpp
 	src/credits.cpp

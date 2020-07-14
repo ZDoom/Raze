@@ -624,7 +624,6 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &clouds[0], sizeof(clouds), 1 },
     { 0, &cloudx, sizeof(cloudx), 1 },
     { 0, &cloudy, sizeof(cloudy), 1 },
-    { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
     // RR stuff
@@ -1142,7 +1141,6 @@ static void postloadplayer(int32_t savegamep)
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].ps->drug_timer = 0;
 
-    G_InitRRRASkies();
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////

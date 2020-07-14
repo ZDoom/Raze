@@ -342,14 +342,14 @@ void GameInterface::set_hud_layout(int layout)
 		ud.screen_size = isRR()? screen_size_vals_rr[layout] : screen_size_vals[layout];
 		ud.statusbarmode = layout >= 8;
 		ud.althud = layout >= 10;
-		updateviewport();
+		if (xdim > 0 && ydim > 0) updateviewport();
 	}
 }
 
 void GameInterface::set_hud_scale(int scale)
 {
     ud.statusbarscale = clamp(scale, 36, 100);
-    updateviewport();
+	if (xdim > 0 && ydim > 0) updateviewport();
 }
 
 void GameInterface::UpdateScreenSize()
