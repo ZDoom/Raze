@@ -1,14 +1,17 @@
 #pragma once
 
 #include <stdint.h>
+#include "compat.h"
+#include "printf.h"
+#include "c_dispatch.h" 
 #include "tarray.h"
 #include "scancodes.h"
 #include "c_bind.h"
 #include "c_buttons.h"
 #include "d_event.h"
-#include "osd.h"
 #include "m_joy.h"
 #include "gamecvars.h"
+
 
 typedef uint16_t kb_scancode;
 // This encapsulates the entire game-readable input state which previously was spread out across several files.

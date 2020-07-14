@@ -16,7 +16,6 @@
 #include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
-#include "osd.h"
 #include "palette.h"
 #include "pragmas.h"
 #include "scriptfile.h"

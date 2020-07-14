@@ -39,6 +39,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "texturemanager.h"
 #include "buildtiles.h"
 #include "mapinfo.h"
+#include "c_dispatch.h"
 
 BEGIN_DUKE_NS
 

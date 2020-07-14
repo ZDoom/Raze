@@ -38,6 +38,7 @@ source as it is released.
 #include "c_cvars.h"
 #include "mapinfo.h"
 #include "cheathandler.h"
+#include "c_dispatch.h"
 
 EXTERN_CVAR(Int, developer)
 

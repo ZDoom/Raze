@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include "common.h"
 #include "common_game.h"
-#include "osd.h"
 #include "mmulti.h"
 
 #include "blood.h"
@@ -345,7 +344,7 @@ _DEMOPLAYBACK:
                 }
             }
             ready2send = 0;
-            OSD_DispatchQueued();
+            C_RunDelayedCommands();
             if (!gDemo.at1)
                 break;
             ProcessKeys();

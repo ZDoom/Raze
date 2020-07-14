@@ -45,7 +45,6 @@ Things required to make savegames work:
 #include "build.h"
 #include "baselayer.h"
 
-#include "osd.h"
 #include "baselayer.h"
 
 #include "keys.h"
@@ -1629,7 +1628,7 @@ void MenuLevel(void)
     while (TRUE)
     {
         handleevents();
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
 
         // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
@@ -2243,7 +2242,7 @@ void Control()
     while (!QuitFlag)
     {
         handleevents();
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
 
         NewLevel();
     }
@@ -2445,7 +2444,7 @@ void RunLevel(void)
     while (TRUE)
     {
         handleevents();
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
 		D_ProcessEvents();
         if (LoadGameOutsideMoveLoop)
         {

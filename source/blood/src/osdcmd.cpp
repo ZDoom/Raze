@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "baselayer.h"
-#include "osd.h"
 #include "compat.h"
 #include "mmulti.h"
 #include "common_game.h"
@@ -51,7 +50,7 @@ void LevelWarp(int nEpisode, int nLevel);
 static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     char filename[BMAX_PATH];
 
@@ -61,7 +60,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
     if (!fileSystem.Lookup(filename, "MAP"))
     {
         Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", filename);
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 
     for (int i = 0; i < 512; i++)
@@ -71,7 +70,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
             int e = i / kMaxLevels;
             int m = i % kMaxLevels;
             LevelWarp(e, m);
-            return OSDCMD_OK;
+            return CCMD_OK;
         }
     }
     // Map has not been defined. Treat as user map.
@@ -87,13 +86,13 @@ static int osdcmd_map(CCmdFuncPtr parm)
         gPacketStartGame.levelId = gGameOptions.nLevel;
         netBroadcastNewGame();
         gStartNewGame = 1;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     StartLevel(&gGameOptions);
     viewResizeView(gViewSize);
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_demo(CCmdFuncPtr parm)
@@ -101,23 +100,23 @@ static int osdcmd_demo(CCmdFuncPtr parm)
     if (numplayers > 1)
     {
         Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 
     //if (g_player[myconnectindex].ps->gm & MODE_GAME)
     //{
     //    Printf("demo: Must not be in a game.\n");
-    //    return OSDCMD_OK;
+    //    return CCMD_OK;
     //}
 
     if (parm->numparms != 1/* && parm->numparms != 2*/)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     gDemo.SetupPlayback(parm->parms[0]);
     gGameStarted = 0;
     gDemo.Playback();
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 
@@ -126,10 +125,10 @@ static int osdcmd_give(CCmdFuncPtr parm)
     if (numplayers != 1 || !gGameStarted || gMe->pXSprite->health == 0)
     {
         Printf("give: Cannot give while dead or not in a single-player game.\n");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
 
     if (!Bstrcasecmp(parm->parms[0], "all"))
     {
@@ -139,45 +138,45 @@ static int osdcmd_give(CCmdFuncPtr parm)
         SetArmor(true);
         SetKeys(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
     {
         actHealDude(gMe->pXSprite, 200, 200);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
     {
         SetWeapons(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
         SetAmmo(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))
     {
         SetArmor(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
     {
         SetKeys(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "inventory"))
     {
         SetToys(true);
         gCheatMgr.m_bPlayerCheated = true;
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
-    return OSDCMD_SHOWHELP;
+    return CCMD_SHOWHELP;
 }
 
 static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
@@ -191,7 +190,7 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
     else
         Printf("god: Not in a single-player game.\n");
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
@@ -208,40 +207,40 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
         Printf("noclip: Not in a single-player game.\n");
     }
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     FString CheatEntry;
     if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     CheatEntry = (char*)(parm->parms[0]);
     CheatEntry.ToUpper();
 
     if (gCheatMgr.Check((char*)(CheatEntry.GetChars())))
-	    return OSDCMD_OK;
+	    return CCMD_OK;
     else
     {
         Printf("Unrecognized cheat!: %s\n", parm->parms[0]);
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 }
 
 static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 2)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
     int e = atoi(parm->parms[0]);
     int m = atoi(parm->parms[1]);
     if (e == 0 || m == 0)
     {
         Printf(TEXTCOLOR_RED "Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     LevelWarp(e - 1, m - 1);
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 int32_t registerosdcommands(void)

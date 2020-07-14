@@ -1259,7 +1259,7 @@ RESTART:
             if (gQuitGame)
                 continue;
 
-            OSD_DispatchQueued();
+            C_RunDelayedCommands();
 
             ctrlGetInput();
 

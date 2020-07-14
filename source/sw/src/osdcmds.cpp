@@ -58,14 +58,14 @@ static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
     {
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
     }
     FString mapname = parm->parms[0];
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
         Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 	
 	// Check if the map is already defined.
@@ -75,23 +75,23 @@ static int osdcmd_map(CCmdFuncPtr parm)
         {
 			FStringf cheatcode("swtrek%02d", i);
 			WarpCheat(Player, cheatcode);
-			return OSDCMD_OK;
+			return CCMD_OK;
         }
     }
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 
 static int osdcmd_activatecheat(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     memset(MessageInputString, '\0', sizeof(MessageInputString));
     strcpy(MessageInputString, parm->parms[0]);
     CheatInput();
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
@@ -100,7 +100,7 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 
     GodCheat(Player, "swgod");
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
@@ -109,7 +109,7 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 
     ClipCheat(Player, "swghost");
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 int osdcmd_restartmap(CCmdFuncPtr UNUSED(parm))
@@ -118,12 +118,12 @@ int osdcmd_restartmap(CCmdFuncPtr UNUSED(parm))
 
     RestartCheat(Player, "swstart");
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
 
     char cheatcode[9] = "swtrek##";
 
@@ -131,7 +131,7 @@ int osdcmd_levelwarp(CCmdFuncPtr parm)
         cheatcode[6+i] = parm->parms[0][i];
 
     WarpCheat(Player, cheatcode);
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 #if 0
@@ -147,7 +147,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
     {
         Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 
     switch (parm->numparms)
@@ -198,19 +198,19 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
             if (i==g_labelCnt)
             {
                 Printf("spawn: Invalid tile label given\n");
-                return OSDCMD_OK;
+                return CCMD_OK;
             }
         }
 
         if ((uint32_t)picnum >= MAXUSERTILES)
         {
             Printf("spawn: Invalid tile number\n");
-            return OSDCMD_OK;
+            return CCMD_OK;
         }
         break;
 
     default:
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
     }
 
     idx = A_Spawn(g_player[myconnectindex].ps->i, picnum);
@@ -226,7 +226,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
         }
     }
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 #endif
 
@@ -234,44 +234,44 @@ static int osdcmd_give(CCmdFuncPtr parm)
 {
     int32_t i;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
 
     if (!Bstrcasecmp(parm->parms[0], "all"))
     {
         ItemCheat(Player, "swgimme");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
     {
         HealCheat(Player, "swmedic");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
     {
 	WeaponCheat(Player, "swguns");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
 	AmmoCheat(Player, "");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))
     {
         ArmorCheat(Player, ""); // this cheat did not exist before
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
     {
         KeysCheat(Player, "swkeys");
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "inventory"))
     {
         InventoryCheat(Player, ""); // this cheat did not exist before
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
-    return OSDCMD_SHOWHELP;
+    return CCMD_SHOWHELP;
 }
 
 int32_t registerosdcommands(void)

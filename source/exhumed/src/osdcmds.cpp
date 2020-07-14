@@ -42,7 +42,7 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
     else
         Printf("god: Not in a single-player game.\n");
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
@@ -58,21 +58,21 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
         Printf("noclip: Not in a single-player game.\n");
     }
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
     {
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
     }
     FString mapname = parm->parms[0];
 
     if (!fileSystem.Lookup(mapname, "MAP"))
     {
         Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
-        return OSDCMD_OK;
+        return CCMD_OK;
     }
 	
 	// Check if the map is already defined.
@@ -82,22 +82,22 @@ static int osdcmd_map(CCmdFuncPtr parm)
         {
 			levelnew = i;
 			levelnum = i;
-			return OSDCMD_OK;
+			return CCMD_OK;
         }
     }
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 static int osdcmd_changelevel(CCmdFuncPtr parm)
 {
     char* p;
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
 
     int nLevel = strtol(parm->parms[0], &p, 10);
-    if (p[0]) return OSDCMD_SHOWHELP;
+    if (p[0]) return CCMD_SHOWHELP;
 
-    if (nLevel < 0) return OSDCMD_SHOWHELP;
+    if (nLevel < 0) return CCMD_SHOWHELP;
 
     int nMaxLevels;
 
@@ -111,13 +111,13 @@ static int osdcmd_changelevel(CCmdFuncPtr parm)
     if (nLevel > nMaxLevels)
     {
         Printf("changelevel: invalid level number\n");
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
     }
 
     levelnew = nLevel;
     levelnum = nLevel;
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 

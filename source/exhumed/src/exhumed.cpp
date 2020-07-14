@@ -784,7 +784,7 @@ void timerhandler()
     }
 
     if (!bInMove) {
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
     }
 }
 
@@ -2191,7 +2191,7 @@ GAMELOOP:
         }
 
         HandleAsync();
-        OSD_DispatchQueued();
+        C_RunDelayedCommands();
 
         // Section B
         if (!CDplaying() && !nFreeze && !nNetPlayerCount)

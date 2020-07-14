@@ -37,6 +37,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "screenjob.h"
 #include "texturemanager.h"
+#include "c_dispatch.h"
 
 BEGIN_DUKE_NS
 
