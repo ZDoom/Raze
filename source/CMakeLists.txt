@@ -806,8 +806,6 @@ set (PCH_SOURCES
 	core/zcompile.cpp
 	core/statusbar.cpp
 
-	core/2d/screentext.cpp
-
 	core/console/c_console.cpp
 	core/console/d_event.cpp
 

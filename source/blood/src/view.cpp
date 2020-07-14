@@ -50,7 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "replace.h"
 #include "screen.h"
-#include "screentext.h"
 #include "sectorfx.h"
 #include "tile.h"
 #include "trig.h"
@@ -1026,21 +1025,39 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 {
     if (nFont < 0 || nFont >= kFontNum || !pString) return;
     FONT *pFont = &gFont[nFont];
-    int nFlags = TEXT_INTERNALSPACE;
-    switch (position)
+
+    //y += pFont->yoff;
+
+    if (position)
     {
-    case 0:
-        break;
-    case 1:
-        nFlags |= TEXT_XCENTER;
-        break;
-    case 2:
-        nFlags |= TEXT_XRIGHT;
-        break;
+        const char *s = pString;
+        int width = -pFont->space;
+        while (*s)
+        {
+            int nTile = ((*s-' ')&127)+pFont->tile;
+            if (tilesiz[nTile].x && tilesiz[nTile].y)
+                width += tilesiz[nTile].x+pFont->space;
+            s++;
+        }
+        if (position == 1)
+            width >>= 1;
+        x -= width;
     }
-    if (shadow)
-        G_ScreenText(pFont->tile, x + 1, y + 1, 65536, 0, 0, pString, 127, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
-    G_ScreenText(pFont->tile, x, y, 65536, 0, 0, pString, nShade, nPalette, 2|8|16|nStat, alpha, 0, 0, pFont->space, 0, nFlags, 0, 0, xdim-1, ydim-1);
+    const char *s = pString;
+    while (*s)
+    {
+        int nTile = ((*s-' ')&127) + pFont->tile;
+        if (tilesiz[nTile].x && tilesiz[nTile].y)
+        {
+            if (shadow)
+            {
+                rotatesprite_fs_alpha((x+1)<<16, (y+1)<<16, 65536, 0, nTile, 127, nPalette, 26|nStat, alpha);
+            }
+            rotatesprite_fs_alpha(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 26|nStat, alpha);
+            x += tilesiz[nTile].x+pFont->space;
+        }
+        s++;
+    }
 }
 
 void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2)
@@ -1080,15 +1097,14 @@ void DrawStatMaskedSprite(int nTile, int x, int y, int nShade, int nPalette, uns
 void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat, int nScale)
 {
     char tempbuf[80];
+    int width = tilesiz[nTile].x+1;
+    x <<= 16;
     sprintf(tempbuf, pFormat, nNumber);
-    G_ScreenText(nTile, x<<16, y<<16, nScale, 0, 0, tempbuf, nShade, nPalette, 2|8|ROTATESPRITE_FULL16|nStat, 0, tilesiz[nTile].x * nScale, 0, 1<<16, 0, TEXT_DIGITALNUMBER, 0, 0, xdim-1, ydim-1);
-    //int width = tilesiz[nTile].x+1;
-    //x <<= 16;
-    //for (unsigned int i = 0; i < strlen(tempbuf); i++, x += width*nScale)
-    //{
-    //    if (tempbuf[i] == ' ') continue;
-    //    rotatesprite(x, y<<16, nScale, 0, nTile+tempbuf[i]-'0', nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
-    //}
+    for (unsigned int i = 0; i < strlen(tempbuf); i++, x += width*nScale)
+    {
+        if (tempbuf[i] == ' ') continue;
+        rotatesprite(x, y<<16, nScale, 0, nTile+tempbuf[i]-'0', nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
+    }
 }
 
 void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat, int nScale)
