@@ -17,6 +17,7 @@
 //      (so we might as well check it).
 EDUKE32_STATIC_ASSERT(-1 >> 1 == -1);
 
+#if 0
 class ClockTicks
 {
 public:
@@ -159,5 +160,8 @@ private:
         ticksS32 &= VALUE_MASK;
     }
 };
+#else
+using ClockTicks = int;
+#endif
 
 #endif /* CLOCKTICKS_HPP_ */

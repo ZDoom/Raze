@@ -1031,12 +1031,11 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 	const double TICRATE = 120.;
 
 	double rfreq = refreshfreq * TICRATE / timerGetClockRate();
-	double elapsedTime = (totalclk - ototalclk).toScale16F();
+	double elapsedTime = (totalclk - ototalclk);
 	double elapsedFrames = elapsedTime * rfreq * (1. / TICRATE);
 	double ratio = (elapsedFrames * realgameticspersec) / rfreq;
 	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
 }
-
 
 FString G_GetDemoPath()
 {

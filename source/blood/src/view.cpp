@@ -3088,7 +3088,7 @@ void viewDrawScreen(bool sceneonly)
     lastUpdate = totalclock;
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
-        gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
+        gInterpolate = ((totalclock - gNetFifoClock) + 4) << 14;// .toScale16() / 4;
     }
     if (gInterpolate < 0 || gInterpolate > 65536)
     {
