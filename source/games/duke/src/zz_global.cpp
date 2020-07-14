@@ -53,8 +53,11 @@ int32_t g_spriteGravity      = 176;
 int32_t g_timerTicsPerSecond = TICRATE;
 int32_t g_tripbombRadius     = 3880;
 
+uint16_t frags[MAXPLAYERS][MAXPLAYERS];
+
 int16_t weaponsandammosprites[15];
 
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
+
 
 END_DUKE_NS

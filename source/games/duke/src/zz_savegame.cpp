@@ -538,7 +538,7 @@ static void sv_rrrafog();
 
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(g_player[0].frags)+sizeof(struct player_struct))*MAXPLAYERS)
+      +sizeof(struct player_struct))*MAXPLAYERS)
 
 static uint8_t savegame_restdata[SVARDATALEN];
 
@@ -943,7 +943,6 @@ static void sv_restsave()
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
-        CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
         CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
     }
     
@@ -961,7 +960,6 @@ static void sv_restload()
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
-        CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
         CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
     }
 #undef CPDAT

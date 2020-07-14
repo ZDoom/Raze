@@ -57,12 +57,13 @@ typedef struct
 
     int32_t pcolor, pteam;
     // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
-    uint8_t frags[MAXPLAYERS];
 
     char user_name[32];
     double  lastInputTicks;
 
 } playerdata_t;
+
+extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 
 
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])

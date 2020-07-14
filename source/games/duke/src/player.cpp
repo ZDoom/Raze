@@ -500,9 +500,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			if (p->frag_ps != snum)
 			{
 				ps[p->frag_ps].frag++;
-				//frags[p->frag_ps][snum]++;
-				g_player[p->frag_ps].frags[snum]++;	 // TRANSITIONAL
-				g_player[snum].frags[snum]++;  // deaths
+				frags[p->frag_ps][snum]++;
 
 				auto pname = &g_player[p->frag_ps].user_name[0];	 // TRANSITIONAL
 				//&ud.user_name[p->frag_ps][0]);

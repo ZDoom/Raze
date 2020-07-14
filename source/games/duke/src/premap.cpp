@@ -913,6 +913,21 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 //
 //---------------------------------------------------------------------------
 
+static void clearfrags(void)
+{
+    for (int i = 0; i < ud.multimode; i++)
+    {
+        ps[i].frag = ps[i].fraggedself = 0;
+    }
+    memset(frags, 0, sizeof(frags));
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 int enterlevel(MapRecord *mi, int gamemode)
 {
 //    flushpackets();

@@ -12,6 +12,7 @@
 #include "rts.h"
 #include "gamecontrol.h"
 #include "palettecontainer.h"
+#include "names.h"
 
 #include "common.h"
 
@@ -97,6 +98,36 @@ void G_SetupGlobalPsky(void)
 
     g_pskyidx = skyIdx;
 }
+
+void G_InitRRRASkies(void)
+{
+    if (!isRRRA())
+        return;
+    
+    for (int i = 0; i < MAXSECTORS; i++)
+    {
+        if (sector[i].ceilingpicnum != TILE_LA && sector[i].ceilingpicnum != TILE_MOONSKY1 && sector[i].ceilingpicnum != TILE_BIGORBIT1)
+        {
+            int const picnum = sector[i].ceilingpicnum;
+            if (tileWidth(picnum) == 512)
+            {
+                psky_t *sky = tileSetupSky(picnum);
+                sky->horizfrac = 32768;
+                sky->lognumtiles = 1;
+                sky->tileofs[0] = 0;
+                sky->tileofs[1] = 0;
+            }
+            else if (tileWidth(picnum) == 1024)
+            {
+                psky_t *sky = tileSetupSky(picnum);
+                sky->horizfrac = 32768;
+                sky->lognumtiles = 0;
+                sky->tileofs[0] = 0;
+            }
+        }
+    }
+}
+
 
 
 END_DUKE_NS

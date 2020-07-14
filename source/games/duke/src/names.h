@@ -21,7 +21,7 @@ extern int TILE_APLAYERTOP;
 extern int TILE_CAMCORNER;
 extern int TILE_CAMLIGHT;
 extern int TILE_STATIC;
-extern int TILE_BOTTOMSTATUSBAR;;
+extern int TILE_BOTTOMSTATUSBAR;
 extern int TILE_SPINNINGNUKEICON;
 extern int TILE_THREEDEE;
 extern int TILE_INGAMEDUKETHREEDEE;
