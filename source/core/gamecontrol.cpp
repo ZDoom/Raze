@@ -105,7 +105,6 @@ FStartupInfo GameStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 InputState inputState;
-void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
 FString GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
@@ -731,7 +730,6 @@ int RunGame()
 		execLogfile(logfile);
 	}
 	I_DetectOS();
-	SetClipshapes();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
 	ShutdownENet();

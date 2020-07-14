@@ -19,36 +19,12 @@ int16_t clipsectorlist[MAXCLIPSECTORS];
 static int16_t origclipsectorlist[MAXCLIPSECTORS];
 static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
 static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
-#ifdef HAVE_CLIPSHAPE_FEATURE
-static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
-#endif
 static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 
-////// sector-like clipping for sprites //////
-void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap)
-{
-    if (bak)
-    {
-        bak->numsectors = numsectors;
-        bak->numwalls = numwalls;
-        bak->sector = (usectortype *) sector;
-        bak->wall = (uwalltype *) wall;
-    }
 
-    if (newmap)
-    {
-        numsectors = newmap->numsectors;
-        numwalls = newmap->numwalls;
-        sector = const_cast<sectortype *>((sectortype const *)newmap->sector);
-        wall = const_cast<walltype *>((walltype const *)newmap->wall);
-    }
-}
-
-static mapinfo_t origmapinfo, clipmapinfo;
 int32_t quickloadboard=0;
 
-static clipinfo_t clipinfo[CM_MAX];
 static int32_t numclipmaps;
 
 static int32_t numclipsects;  // number in sectq[]
@@ -79,458 +55,9 @@ void engineInitClipMaps()
 
     // two's complement trick, -1 = 0xff
     Bmemset(&pictoidx, -1, sizeof(pictoidx));
-    Bmemset(&clipmapinfo, 0, sizeof(mapinfo_t));
 
     numsectors = 0;
     numwalls = 0;
-}
-
-// loads the clip maps.
-// this should be called before any real map is loaded.
-int32_t engineLoadClipMaps(void)
-{
-    int32_t i, k, w;
-
-    int32_t lwcp = 0;
-    size_t fi;
-    size_t const g_clipMapFilesNum = g_clipMapFiles.Size();
-
-    int32_t *fisec = NULL;
-    int32_t *fispr = NULL;
-
-    int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0;
-
-    engineInitClipMaps();
-
-    loadsector = (usectortype *) Xmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = (uwalltype *) Xmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = (uspritetype *) Xmalloc(MAXSPRITES * sizeof(spritetype));
-
-    if (g_clipMapFilesNum)
-    {
-        fisec = (int32_t *) Xcalloc(g_clipMapFilesNum, sizeof(int32_t));
-        fispr = (int32_t *) Xcalloc(g_clipMapFilesNum, sizeof(int32_t));
-    }
-
-    quickloadboard = 1;
-    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-    {
-        int16_t ang, cs;
-        vec3_t tmppos;
-
-        fisec[fi] = ournumsectors;
-        fispr[fi] = ournumsprites;
-
-        i = engineLoadBoard(g_clipMapFiles[fi], 8, &tmppos, &ang, &cs);
-        if (i<0)
-            continue;
-        // Numsprites will now be set!
-
-        Printf("Loading clip map: %s\n", g_clipMapFiles[fi].GetChars());
-
-        if (ournumsectors+numsectors>MAXSECTORS ||
-            ournumwalls+numwalls>MAXWALLS ||
-            ournumsprites+Numsprites>MAXSPRITES)
-        {
-            Printf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi].GetChars());
-            break;
-        }
-
-        Bmemcpy(loadsector+ournumsectors, sector, numsectors*sizeof(sectortype));
-        Bmemcpy(loadwall+ournumwalls, wall, numwalls*sizeof(walltype));
-        Bmemcpy(loadsprite+ournumsprites, sprite, Numsprites*sizeof(spritetype));
-        for (i=ournumsectors; i<ournumsectors+numsectors; i++)
-            loadsector[i].wallptr += ournumwalls;
-        for (i=ournumwalls; i<ournumwalls+numwalls; i++)
-        {
-            if (loadwall[i].point2>=0)
-                loadwall[i].point2 += ournumwalls;
-            if (loadwall[i].nextwall>=0)
-            {
-                loadwall[i].nextwall += ournumwalls;
-                loadwall[i].nextsector += ournumsectors;
-            }
-        }
-        for (i=ournumsprites; i<ournumsprites+Numsprites; i++)
-            if (loadsprite[i].sectnum>=0)
-                loadsprite[i].sectnum += ournumsectors;
-        ournumsectors += numsectors;
-        ournumwalls += numwalls;
-        ournumsprites += Numsprites;
-
-        ++lwcp;
-    }
-    quickloadboard = 0;
-
-    if (ournumsectors==0 || ournumwalls==0 || ournumsprites==0)  // nothing loaded
-    {
-        engineInitClipMaps();
-
-        Xfree(fisec);
-        Xfree(fispr);
-
-        return -1;
-    }
-
-    // shrink
-    loadsector = (usectortype *) Xrealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = (uwalltype *) Xrealloc(loadwall, ournumwalls*sizeof(walltype));
-
-    Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
-    Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
-    Bmemcpy(sprite, loadsprite, ournumsprites*sizeof(spritetype));
-    numsectors = ournumsectors;
-    numwalls = ournumwalls;
-
-    //  vvvv    don't use headsprite[sect,stat]!   vvvv
-
-    sectoidx = (int16_t *) Xmalloc(numsectors*sizeof(sectoidx[0]));
-
-    for (i=0; i<numsectors; i++)
-        sectoidx[i] = CM_NONE;
-
-    // determine outer sectors
-    for (i=0; i<numsectors; i++)
-    {
-        for (w=sector[i].wallptr; w<sector[i].wallptr+sector[i].wallnum; w++)
-            if (wall[w].nextsector<0)
-            {
-                sectoidx[i] = CM_OUTER;
-                break;
-            }
-    }
-    // break connections between outer sectors
-    for (i=0; i<numsectors; i++)
-    {
-        if (sectoidx[i] == CM_OUTER)
-            for (w=sector[i].wallptr; w<sector[i].wallptr+sector[i].wallnum; w++)
-            {
-                k = wall[w].nextwall;
-                if (k>=0 && sectoidx[wall[w].nextsector]==CM_OUTER)
-                {
-                    wall[k].nextwall = wall[k].nextsector = -1;
-                    wall[w].nextwall = wall[w].nextsector = -1;
-                }
-            }
-    }
-
-    {
-        int16_t ns, outersect;
-        int32_t pn, scnt, x, y, z, maxdist;
-
-        sectq = (int16_t *) Xmalloc(numsectors*sizeof(sectq[0]));
-        tempictoidx = (int16_t *) Xmalloc(MAXTILES*sizeof(tempictoidx[0]));
-
-        for (i=0; i<MAXTILES; i++)
-            tempictoidx[i]=-1;
-
-        // collect sprite picnums
-        for (i=0; i<MAXSPRITES && sprite[i].statnum<MAXSTATUS; i++)
-        {
-            pn = sprite[i].picnum;
-            k = sprite[i].sectnum;
-            //    -v-  note the <=                         ignore sprites in outer sectors
-            if (pn<=0 || pn>=MAXTILES || k<0 || k>=numsectors || (sectoidx[k]&CM_OUTER))
-                continue;
-
-            if (numclipmaps >= CM_MAX)
-            {
-                Printf("warning: reached max clip map number %d, not processing any more\n", CM_MAX);
-                break;
-            }
-
-            // chain
-            if (pictoidx[pn]>=0)
-            {
-                if (sectoidx[k]&CM_SOME)
-                {
-                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                        if (k>=fisec[fi])
-                            break;
-                    Printf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
-                        " already belongs to picnum %d.\n", g_clipMapFiles[fi].GetChars(), pn, i-fispr[fi], k-fisec[fi],
-                        clipinfo[sectoidx[k]].picnum);
-                    engineInitClipMaps();
-
-                    Xfree(fisec);
-                    Xfree(fispr);
-
-                    return 2;
-                }
-
-                // new one is front
-                clipinfo[numclipmaps].next = pictoidx[pn];
-                pictoidx[pn] = numclipmaps;
-            }
-            else
-            {
-                clipinfo[numclipmaps].next = -1;
-                pictoidx[pn] = numclipmaps;
-            }
-
-            if (!CM_NOROT(i))
-            {
-                if (sprite[i].ang!=1536 && sprite[i].ang!=512)
-                {
-                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                        if (i>=fispr[fi])
-                            break;
-                    Printf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
-                        g_clipMapFiles[fi].GetChars(), i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
-                }
-            }
-
-            clipinfo[numclipmaps].picnum = pn;
-
-            // collect sectors
-            scnt = numclipsects;
-            sectq[numclipsects++] = k;
-            sectoidx[k] = numclipmaps;
-
-            clipinfo[numclipmaps].qbeg = scnt;
-
-            outersect = -1;
-
-            do
-            {
-                k = sectq[scnt];
-
-                for (w=sector[k].wallptr; w<sector[k].wallptr+sector[k].wallnum; w++)
-                {
-                    ns = wall[w].nextsector;
-                    if (ns>=0)
-                    {
-                        if (sectoidx[ns]==CM_NONE)
-                        {
-                            sectoidx[ns] = numclipmaps;
-                            sectq[numclipsects++] = ns;
-                        }
-                        else if (sectoidx[ns]&CM_OUTER)
-                        {
-                            if (outersect>=0 && ns!=outersect)
-                            {
-                                for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                                    if (ns>=fisec[fi])
-                                        break;
-                                Printf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
-                                    " for sprite %d.\n", g_clipMapFiles[fi].GetChars(), outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
-                                engineInitClipMaps();
-
-                                Xfree(fisec);
-                                Xfree(fispr);
-
-                                return 3;
-                            }
-
-                            outersect = ns;
-                            sectoidx[outersect] |= numclipmaps;
-                        }
-                        else if (sectoidx[ns]!=numclipmaps)
-                        {
-                            for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                                if (ns>=fisec[fi])
-                                    break;
-                            Printf("clip map \"%s\": error: encountered sector %d belonging to index %d"
-                                " while collecting sectors for sprite %d (index %d).\n",
-                                g_clipMapFiles[fi].GetChars(), ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
-                            engineInitClipMaps();
-
-                            Xfree(fisec);
-                            Xfree(fispr);
-
-                            return 4;
-                        }
-                    }
-                }
-            } while (++scnt < numclipsects);
-
-            if (outersect==-1)
-            {
-                Printf("clip map: INTERNAL ERROR: outersect==-1!\n");
-                engineInitClipMaps();
-
-                Xfree(fisec);
-                Xfree(fispr);
-
-                return 5;
-            }
-
-            sectq[numclipsects++] = outersect;  // last is outer
-            clipinfo[numclipmaps].qend = numclipsects-1;
-
-            // normalize
-            maxdist = 0;
-
-            for (scnt=clipinfo[numclipmaps].qbeg; scnt<=clipinfo[numclipmaps].qend; scnt++)
-            {
-                k = sectq[scnt];
-
-                x = sprite[i].x;
-                y = sprite[i].y;
-                z = sprite[i].z;
-
-                sector[k].floorz -= z;
-                sector[k].ceilingz -= z;
-
-                if (scnt==clipinfo[numclipmaps].qbeg)
-                {
-                    // backup sprite tags since we'll discard sprites later
-                    sector[k].CM_XREPEAT = sprite[i].xrepeat;
-                    sector[k].CM_YREPEAT = sprite[i].yrepeat;
-                    sector[k].CM_XOFFSET = sprite[i].xoffset;
-                    sector[k].CM_YOFFSET = sprite[i].yoffset;
-                    sector[k].CM_CSTAT   = sprite[i].cstat;
-                    sector[k].CM_ANG     = sprite[i].ang;
-                }
-
-                // backup floor and ceiling z
-                CM_FLOORZ(k) = sector[k].floorz;
-                CM_CEILINGZ(k) = sector[k].ceilingz;
-
-                for (w=sector[k].wallptr; w<sector[k].wallptr+sector[k].wallnum; w++)
-                {
-                    wall[w].x -= x;
-                    wall[w].y -= y;
-
-                    if (scnt!=clipinfo[numclipmaps].qend)
-                    {
-                        if (CM_NOROT(i))
-                        {
-                            if (klabs(wall[w].x) > maxdist)
-                                maxdist = klabs(wall[w].x);
-                            if (klabs(wall[w].y) > maxdist)
-                                maxdist = klabs(wall[w].y);
-                        }
-                        else
-                        {
-                            int32_t tmp = ksqrt(uhypsq(wall[w].x, wall[w].y));
-                            if (tmp > maxdist)
-                                maxdist = tmp;
-                        }
-                    }
-
-                    // aliasing
-                    if (wall[w].lotag>0 || wall[w].hitag>0)
-                    {
-                        int32_t ii;
-
-                        if (wall[w].lotag>0 && wall[w].hitag>0)
-                        {
-                            if (wall[w].lotag > wall[w].hitag)
-                                swapshort(&wall[w].lotag, &wall[w].hitag);
-
-                            for (ii=wall[w].lotag; ii<wall[w].hitag; ii++)
-                                tempictoidx[ii] = numclipmaps;
-                        }
-                        else if (wall[w].lotag>0)
-                        {
-                            if (wall[w].lotag<MAXTILES)
-                                tempictoidx[wall[w].lotag] = numclipmaps;
-                        }
-                        else
-                        {
-                            if (wall[w].hitag<MAXTILES)
-                                tempictoidx[wall[w].hitag] = numclipmaps;
-                        }
-                    }
-
-                    CM_WALL_X(w) = wall[w].x;
-                    CM_WALL_Y(w) = wall[w].y;
-                }
-            }
-
-            clipinfo[numclipmaps].maxdist = maxdist;
-            numclipmaps++;
-        }
-    }
-
-    // yes, too much copying, but better than ugly code
-    Bmemcpy(loadsector, sector, ournumsectors*sizeof(sectortype));
-    Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
-
-    // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = (uwalltype *) Xmalloc(ournumwalls*sizeof(walltype));
-
-    {
-        int32_t j, loopstart, loopend, numloopwalls;
-
-        // invert walls!
-        loopstart = 0;
-        for (j=0; j<ournumwalls; j++)
-        {
-            wall[j].nextsector = wall[j].nextwall = -1;
-
-            if (wall[j].point2 < j)
-            {
-                loopend = j+1;
-                numloopwalls = loopend-loopstart;
-
-                if (numloopwalls<3)
-                {
-                    loopstart = loopend;
-                    continue;
-                }
-
-                for (k=0; k<numloopwalls; k++)
-                {
-                    wall[loopstart+k].x = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].x;
-                    wall[loopstart+k].y = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].y;
-
-                    CM_WALL_X(loopstart+k) = wall[loopstart+k].x;
-                    CM_WALL_Y(loopstart+k) = wall[loopstart+k].y;
-                }
-
-                loopstart = loopend;
-            }
-        }
-
-        // reconstruct wall connections
-        for (i=0; i<ournumsectors; i++)
-        {
-            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-                checksectorpointer(j, i);
-        }
-    }
-    Bmemcpy(loadwallinv, wall, ournumwalls*sizeof(walltype));
-
-    clipmapinfo.numsectors = numsectors;
-    clipmapinfo.sector = loadsector;
-    clipmapinfo.numwalls = numwalls;
-    clipmapinfo.wall = loadwall;
-
-    for (i=0; i<MAXTILES; i++)
-    {
-        if (pictoidx[i]==-1 && tempictoidx[i]>=0)
-            pictoidx[i]=tempictoidx[i];
-    }
-
-    DO_FREE_AND_NULL(loadsprite);
-    DO_FREE_AND_NULL(tempictoidx);
-
-    // don't let other code be distracted by the temporary map we constructed
-    numsectors = 0;
-    numwalls = 0;
-    initspritelists();
-
-    if (lwcp > 0)
-        Printf("Loaded clip map%s.\n", lwcp==1 ? "" : "s");
-
-    Xfree(fisec);
-    Xfree(fispr);
-
-    return 0;
-}
-
-
-int clipshape_idx_for_sprite(uspriteptr_t const curspr, int curidx)
-{
-     // per-sprite init
-     curidx = (curidx < 0) ? pictoidx[curspr->picnum] : clipinfo[curidx].next;
-
-     while (curidx >= 0 && (curspr->cstat & 32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT & 32))
-         curidx = clipinfo[curidx].next;
-
-     return curidx;
 }
 
 ////////// CLIPMOVE //////////
@@ -615,132 +142,6 @@ static inline void addclipsect(int const sectnum)
         clipmove_warned |= 1;
 }
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-int32_t clipsprite_try(uspriteptr_t const spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
-{
-    // try and see whether this sprite's picnum has sector-like clipping data
-    int32_t i = pictoidx[spr->picnum];
-    // handle sector-like floor sprites separately
-    while (i>=0 && (spr->cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
-        i = clipinfo[i].next;
-
-    if (i>=0)
-    {
-        int32_t maxcorrection = clipinfo[i].maxdist;
-        const int32_t k = sectq[clipinfo[i].qbeg];
-
-        if ((spr->cstat&CSTAT_SPRITE_ALIGNMENT)!=CSTAT_SPRITE_ALIGNMENT_FLOOR)
-        {
-            int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            maxcorrection = divideu32_noinline(maxcorrection * (int32_t) spr->xrepeat, tempint1);
-        }
-        else
-        {
-            int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            int32_t const tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
-            maxcorrection = max(divideu32_noinline(maxcorrection * (int32_t) spr->xrepeat, tempint1),
-                divideu32_noinline(maxcorrection * (int32_t) spr->yrepeat, tempint2));
-        }
-
-        maxcorrection -= MAXCLIPDIST;
-
-        if ((spr->x < xmin - maxcorrection) || (spr->y < ymin - maxcorrection) ||
-            (spr->x > xmax + maxcorrection) || (spr->y > ymax + maxcorrection))
-            return 1;
-
-        if (clipspritenum < MAXCLIPNUM)
-            clipspritelist[clipspritenum++] = spr-(uspritetype *)sprite;
-        //Printf("%d: clip sprite[%d]\n",clipspritenum,j);
-        return 1;
-    }
-
-    return 0;
-}
-
-// return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
-int32_t clipsprite_initindex(int32_t curidx, uspriteptr_t const curspr, int32_t *clipsectcnt, const vec3_t *vect)
-{
-    int32_t k, daz = curspr->z;
-    int32_t scalex, scaley, scalez, flipx, flipy;
-    int32_t flipmul=1;
-
-    const int32_t j = sectq[clipinfo[curidx].qbeg];
-    const int32_t tempint1 = sector[j].CM_XREPEAT;
-    const int32_t tempint2 = sector[j].CM_YREPEAT;
-
-    const int32_t rotang = (curspr->ang - sector[j].CM_ANG)&2047;
-    const int32_t dorot = !CM_NOROTS(j);
-
-    if ((curspr->cstat&CSTAT_SPRITE_ALIGNMENT)!=CSTAT_SPRITE_ALIGNMENT_FLOOR)  // face/wall sprite
-    {
-        scalex = scaley = divscale22(curspr->xrepeat, tempint1);
-        scalez = divscale22(curspr->yrepeat, tempint2);
-
-        flipx = 1-((curspr->cstat&4)>>1);
-        flipy = 1;
-    }
-    else
-    {
-        scalex = divscale22(curspr->xrepeat, tempint1);
-        scaley = divscale22(curspr->yrepeat, tempint2);
-        scalez = scalex;
-
-        flipx = 1-((curspr->cstat&4)>>1);
-        flipy = 1-((curspr->cstat&8)>>2);
-    }
-
-    if (dorot)
-    {
-        flipmul = flipx*flipy;
-        if (flipmul==-1)
-            wall = (walltype *) loadwallinv;
-    }
-
-    if ((curspr->cstat&128) != (sector[j].CM_CSTAT&128))
-        daz += (((curspr->cstat&128)>>6)-1)*((tilesiz[curspr->picnum].y*curspr->yrepeat)<<1);
-
-    *clipsectcnt = clipsectnum = 0;
-    // init sectors for this index
-    for (k=clipinfo[curidx].qbeg; k<=clipinfo[curidx].qend; k++)
-    {
-        int32_t const j   = sectq[k];
-        auto const    sec = &sector[j];
-
-        int32_t const startwall = sec->wallptr, endwall = startwall+sec->wallnum;
-
-        sec->floorz = daz + mulscale22(scalez, CM_FLOORZ(j));
-        sec->ceilingz = daz + mulscale22(scalez, CM_CEILINGZ(j));
-        //Printf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
-
-        for (int w=startwall; w<endwall; w++)
-        {
-            auto wal = (uwalltype *)(wall + w);
-            wal->x = mulscale22(scalex, CM_WALL_X(w));
-            wal->y = mulscale22(scaley, CM_WALL_Y(w));
-
-            if (dorot)
-            {
-                wal->x *= flipx;
-                wal->y *= flipy;
-                rotatepoint(zerovec, wal->pos, rotang, &wal->pos);
-            }
-
-            wal->x += curspr->x;
-            wal->y += curspr->y;
-        }
-
-        if (inside(vect->x, vect->y, j)==1)
-            addclipsect(j);
-    }
-
-    // add outer sector if not inside inner ones
-    if (clipsectnum==0)
-        addclipsect(sectq[k-1]);
-
-    return flipmul;
-}
-
-#endif
 
 static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, int nofix)
 {
@@ -1117,37 +518,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     do
     {
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (clipsectcnt>=clipsectnum)
-        {
-            // one bunch of sectors completed (either the very first
-            // one or a sector-like sprite one), prepare the next
-
-            //Printf("init sprite %d\n", clipspritecnt);
-            if (!curspr)
-            {
-                // init sector-like sprites for clipping
-                origclipsectnum = clipsectnum;
-                Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
-                Bmemcpy(origclipsectormap, clipsectormap, (numsectors+7)>>3);
-
-                // replace sector and wall with clip map
-                engineSetClipMap(&origmapinfo, &clipmapinfo);
-            }
-
-            curspr = (uspriteptr_t)&sprite[clipspritelist[clipspritecnt]];
-            clipshapeidx = clipshape_idx_for_sprite(curspr, clipshapeidx);
-
-            if (clipshapeidx < 0)
-            {
-                clipspritecnt++;
-                continue;
-            }
-
-            clipsprite_initindex(clipshapeidx, curspr, &clipsectcnt, pos);
-        }
-#endif
-
         int const dasect = clipsectorlist[clipsectcnt++];
         //if (curspr)
         //    Printf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
@@ -1182,39 +552,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
             int clipyou = 0;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            if (curspr)
-            {
-                if (wal->nextsector>=0)
-                {
-                    auto const sec2 = (usectorptr_t)&sector[wal->nextsector];
-
-                    clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-
-#define CLIPMV_SPR_F_DAZ2 getcorrectflorzofslope(wal->nextsector, v.x, v.y)
-#define CLIPMV_SPR_F_BASEZ getcorrectflorzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
-
-                    if ((sec2->floorstat&1) == 0)
-                    {
-                        if (CLIPMV_SPR_F_DAZ2-(flordist-1) <= pos->z && pos->z <= CLIPMV_SPR_F_BASEZ+(flordist-1))
-                            clipyou = 1;
-                    }
-
-                    if (clipyou == 0)
-                    {
-#define CLIPMV_SPR_C_DAZ2 getcorrectceilzofslope(wal->nextsector, v.x, v.y)
-#define CLIPMV_SPR_C_BASEZ getcorrectceilzofslope(sectq[clipinfo[clipshapeidx].qend], v.x, v.y)
-
-                        if ((sec2->ceilingstat & 1) == 0)
-                        {
-                            if (CLIPMV_SPR_C_BASEZ-(ceildist-1) <= pos->z && pos->z <= CLIPMV_SPR_C_DAZ2+(ceildist-1))
-                                clipyou = 1;
-                        }
-                    }
-                }
-            }
-            else
-#endif
                 if (wal->nextsector < 0 || (wal->cstat&dawalclipmask))
                 {
                     clipyou = 1;
@@ -1289,10 +626,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         if (dasprclipmask==0)
             continue;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (curspr)
-            continue;  // next sector of this index
-#endif
         for (native_t j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
             auto const spr = (uspriteptr_t)&sprite[j];
@@ -1301,10 +634,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             if ((cstat&dasprclipmask) == 0)
                 continue;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            if (clipsprite_try(spr, clipMin.x, clipMin.y, clipMax.x, clipMax.y))
-                continue;
-#endif
             vec2_t p1 = *(vec2_t const *)spr;
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -1404,18 +733,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             }
         }
     } while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (curspr)
-    {
-        // restore original map
-        engineSetClipMap(NULL, &origmapinfo);
-
-        clipsectnum = origclipsectnum;
-        Bmemcpy(clipsectorlist, origclipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
-        Bmemcpy(clipsectormap, origclipsectormap, (numsectors+7)>>3);
-    }
-#endif
 
     int32_t hitwalls[4], hitwall;
     int32_t clipReturn = 0;
@@ -1746,72 +1063,12 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     Bmemset(clipsectormap, 0, (numsectors+7)>>3);
     bitmap_set(clipsectormap, sectnum);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (0)
-    {
-beginagain:
-        // replace sector and wall with clip map
-        engineSetClipMap(&origmapinfo, &clipmapinfo);
-        clipsectcnt = clipsectnum;  // should be a nop, "safety"...
-    }
-#endif
 
 #ifdef YAX_ENABLE
 restart_grand:
 #endif
     do  //Collect sectors inside your square first
     {
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (clipsectcnt>=clipsectnum)
-        {
-            // one set of clip-sprite sectors completed, prepare the next
-
-            curspr = (uspriteptr_t)&sprite[clipspritelist[clipspritecnt]];
-            curidx = clipshape_idx_for_sprite(curspr, curidx);
-
-            if (curidx < 0)
-            {
-                // didn't find matching clipping sectors for sprite
-                clipspritecnt++;
-                continue;
-            }
-
-            clipsprite_initindex(curidx, curspr, &clipsectcnt, pos);
-
-            for (bssize_t i=0; i<clipsectnum; i++)
-            {
-                int const k = clipsectorlist[i];
-
-                if (k==sectq[clipinfo[curidx].qend])
-                    continue;
-
-                int32_t daz, daz2;
-                closest = pos->vec2;
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                    getsectordist(closest, k, &closest);
-                getzsofslope(k,closest.x,closest.y,&daz,&daz2);
-
-                int32_t fz, cz;
-                closest = pos->vec2;
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                    getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
-                getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
-
-                const int hitwhat = (curspr-(uspritetype *)sprite)+49152;
-
-                if ((sector[k].ceilingstat&1)==0)
-                {
-                    if (pos->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
-                    if (pos->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
-                }
-                if ((sector[k].floorstat&1)==0)
-                {
-                    if (pos->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
-                    if (pos->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
-                }
-            }
-        }
-#endif
         ////////// Walls //////////
 
         auto const startsec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
@@ -1843,16 +1100,6 @@ restart_grand:
                 if (wall[j].cstat&dawalclipmask) continue;  // XXX?
                 auto const sec = (usectorptr_t)&sector[k];
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-                if (curspr)
-                {
-                    if (k==sectq[clipinfo[curidx].qend])
-                        continue;
-                    if ((sec->ceilingstat&1) && (sec->floorstat&1))
-                        continue;
-                }
-                else
-#endif
                 if (editstatus == 0)
                 {
                     if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
@@ -1889,29 +1136,6 @@ restart_grand:
                 else
                     getzsofslope(k, closest.x,closest.y, &daz,&daz2);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-                if (curspr)
-                {
-                    int32_t fz,cz, hitwhat=(curspr-(uspritetype *)sprite)+49152;
-
-                    closest = pos->vec2;
-                    if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                        getsectordist(closest, sectq[clipinfo[curidx].qend], &closest);
-                    getzsofslope(sectq[clipinfo[curidx].qend],closest.x,closest.y,&cz,&fz);
-
-                    if ((sec->ceilingstat&1)==0)
-                    {
-                        if (pos->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
-                        if (pos->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
-                    }
-                    if ((sec->floorstat&1)==0)
-                    {
-                        if (pos->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
-                        if (pos->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
-                    }
-                }
-                else
-#endif
                 {
 #ifdef YAX_ENABLE
                     int16_t cb, fb;
@@ -1935,14 +1159,6 @@ restart_grand:
     }
     while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (curspr)
-    {
-        engineSetClipMap(NULL, &origmapinfo);  // restore original map
-        clipsectnum = clipspritenum = 0;  // skip the next for loop and check afterwards
-    }
-#endif
-
     ////////// Sprites //////////
 
     if (dasprclipmask)
@@ -1957,10 +1173,6 @@ restart_grand:
             {
                 int32_t clipyou = 0;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-                if (clipsprite_try((uspriteptr_t)&sprite[j], xmin,ymin, xmax,ymax))
-                    continue;
-#endif
                 vec2_t v1 = sprite[j].pos.vec2;
 
                 switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
@@ -2040,11 +1252,6 @@ restart_grand:
             }
         }
     }
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (clipspritenum>0)
-        goto beginagain;
-#endif
 
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
@@ -2264,19 +1471,6 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
                 if (inside(x1,y1,sec-(usectortype *)sector) == 1)
                     hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, x1, y1, z1);
             }
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            else
-            {
-                for (i=clipinfo[curidx].qbeg; i<clipinfo[curidx].qend; i++)
-                {
-                    if (inside(x1,y1,sectq[i]) == 1)
-                    {
-                        hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, x1, y1, z1);
-                        break;
-                    }
-                }
-            }
-#endif
         }
     }
 
@@ -2322,46 +1516,10 @@ restart_grand:
     {
         int32_t dasector, z, startwall, endwall;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (tempshortcnt >= tempshortnum)
-        {
-            // one bunch of sectors completed, prepare the next
-            if (!curspr)
-                engineSetClipMap(&origmapinfo, &clipmapinfo);  // replace sector and wall with clip map
-
-            curspr = (uspriteptr_t)&sprite[clipspritelist[clipspritecnt]];
-            curidx = clipshape_idx_for_sprite(curspr, curidx);
-
-            if (curidx < 0)
-            {
-                clipspritecnt++;
-                continue;
-            }
-
-            tmp[0] = (intptr_t)curidx;
-            tmp[1] = (intptr_t)curspr;
-            tmpptr = tmp;
-
-            clipsprite_initindex(curidx, curspr, &i, sv);  // &i is dummy
-            tempshortnum = (int16_t)clipsectnum;
-            tempshortcnt = 0;
-        }
-#endif
         dasector = clipsectorlist[tempshortcnt];
         auto const sec = (usectorptr_t)&sector[dasector];
 
         i = 1;
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (curspr)
-        {
-            if (dasector == sectq[clipinfo[curidx].qend])
-            {
-                i = -1;
-                tmp[2] = 1;
-            }
-            else tmp[2] = 0;
-        }
-#endif
         if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829)
         {
             if (hitscan_trysector(sv, sec, hit, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->ceilingz, -i, tmpptr))
@@ -2443,26 +1601,6 @@ restart_grand:
                     }
                 }
             }
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            else
-            {
-                if (wal->cstat&dawalclipmask)
-                {
-                    hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, intx, inty, intz);
-                    continue;
-                }
-
-                int32_t cz, fz, daz2;
-                getzsofslope(nextsector,intx,inty,&daz,&daz2);
-                getzsofslope(sectq[clipinfo[curidx].qend],intx,inty,&cz,&fz);
-                // ceil   cz daz daz2 fz   floor
-                if ((cz <= intz && intz <= daz) || (daz2 <= intz && intz <= fz))
-                {
-                    hit_set(hit, curspr->sectnum, -1, curspr-(uspritetype *)sprite, intx, inty, intz);
-                    continue;
-                }
-            }
-#endif
             int zz;
             for (zz = tempshortnum - 1; zz >= 0; zz--)
                 if (clipsectorlist[zz] == nextsector) break;
@@ -2474,10 +1612,6 @@ restart_grand:
         if (dasprclipmask==0)
             continue;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (curspr)
-            continue;
-#endif
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             auto const spr = (uspriteptr_t)&sprite[z];
@@ -2488,18 +1622,6 @@ restart_grand:
                 if ((cstat&dasprclipmask) == 0)
                     continue;
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            // try and see whether this sprite's picnum has sector-like clipping data
-            i = pictoidx[spr->picnum];
-            // handle sector-like floor sprites separately
-            while (i>=0 && (cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
-                i = clipinfo[i].next;
-            if (i>=0 && clipspritenum<MAXCLIPNUM)
-            {
-                clipspritelist[clipspritenum++] = z;
-                continue;
-            }
-#endif
             x1 = spr->x; y1 = spr->y; z1 = spr->z;
             switch (cstat&CSTAT_SPRITE_ALIGNMENT)
             {
@@ -2598,11 +1720,6 @@ restart_grand:
         }
     }
     while (++tempshortcnt < tempshortnum || clipspritecnt < clipspritenum);
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (curspr)
-        engineSetClipMap(NULL, &origmapinfo);
-#endif
 
 #ifdef YAX_ENABLE
     if (numyaxbunches == 0 || editstatus)

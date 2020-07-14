@@ -2018,9 +2018,6 @@ int32_t enginePreInit(void)
 #endif
 
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    engineInitClipMaps();
-#endif
     preinitcalled = 1;
     return 0;
 }
@@ -3532,9 +3529,6 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
     //Must be after loading sectors, etc!
     updatesector(dapos->x, dapos->y, dacursectnum);
 
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (!quickloadboard)
-#endif
     {
         Bmemset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
 #ifndef NEW_MAP_FORMAT

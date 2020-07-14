@@ -64,8 +64,6 @@ static inline void realloc_copy(char **fn, const char *buf)
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
-int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);
-
 
 void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 

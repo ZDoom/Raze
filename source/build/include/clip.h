@@ -14,55 +14,6 @@
 #define MAXCLIPSECTORS 512
 #define MAXCLIPNUM 2048
 #define CLIPCURBHEIGHT (1<<8)
-#ifdef HAVE_CLIPSHAPE_FEATURE
-
-#define CM_MAX 256  // must be a power of 2
-
-// sectoidx bits
-#undef CM_NONE
-#define CM_NONE (CM_MAX<<1)
-#define CM_SOME (CM_NONE-1)
-#define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
-
-// sprite -> sector tag mappings
-#define CM_XREPEAT floorpal
-#define CM_YREPEAT floorxpanning
-#define CM_XOFFSET ceilingshade
-#define CM_YOFFSET floorshade
-#define CM_CSTAT hitag
-#define CM_ANG extra
-#define CM_FLOORZ(Sec) (*(int32_t *)&sector[Sec].ceilingxpanning)  // ceilingxpanning,ceilingypanning,floorpicnum
-#define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,fogpal,lotag
-
-// backup of original normalized coordinates
-#define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)  // picnum, overpicnum
-#define CM_WALL_Y(Wal) (*(int32_t *)&wall[Wal].lotag)  // lotag, hitag
-
-// don't rotate when applying clipping, for models with rotational symmetry
-#define CM_NOROT(Spri) (sprite[Spri].cstat&2)
-#define CM_NOROTS(Sect) (sector[Sect].CM_CSTAT&2)
-
-extern vec2_t hitscangoal;
-
-typedef struct
-{
-    int16_t qbeg, qend;  // indices into sectq
-    int16_t picnum, next;
-    int32_t maxdist;
-} clipinfo_t;
-
-typedef struct
-{
-    int16_t numsectors, numwalls;
-    usectorptr_t sector;
-    uwallptr_t wall;
-} mapinfo_t;
-
-extern int32_t quickloadboard;
-extern void engineInitClipMaps();
-extern void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap);
-
-#endif // HAVE_CLIPSHAPE_FEATURE
 typedef struct
 {
     int32_t x1, y1, x2, y2;

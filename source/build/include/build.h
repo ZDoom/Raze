@@ -715,9 +715,6 @@ int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16
 int32_t   engineLoadMHK(const char *filename);
 void G_LoadMapHack(const char* filename);
 void engineClearLightsFromMHK();
-#ifdef HAVE_CLIPSHAPE_FEATURE
-int32_t engineLoadClipMaps(void);
-#endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
@@ -943,7 +940,6 @@ static FORCE_INLINE CONSTEXPR int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
-int clipshape_idx_for_sprite(uspriteptr_t curspr, int curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);

@@ -1045,13 +1045,4 @@ inline FVector3 GetSoundPos(const vec3_t *pos)
 
 #define WITHKPLIB
 
-
-#if DEBUGGINGAIDS>=2
-# define DEBUG_MAIN_ARRAYS
-#endif
-
-#if !defined DEBUG_MAIN_ARRAYS
-# define HAVE_CLIPSHAPE_FEATURE
-#endif
-
 #endif // compat_h_
