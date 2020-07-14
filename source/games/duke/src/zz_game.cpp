@@ -76,13 +76,14 @@ int32_t      actor_tog;
 static int32_t nonsharedtimer;
 weaponhit hittype[MAXSPRITES];
 ActorInfo actorinfo[MAXTILES];
+player_struct ps[MAXPLAYERS];
 
 static void gameTimerHandler(void)
 {
     S_Update();
 
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
+    if (!(ps[myconnectindex].gm & MODE_GAME))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
@@ -112,7 +113,7 @@ void G_HandleLocalKeys(void)
         CONTROL_GetInput(&noshareinfo);
     }
 
-    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps->gm & MODE_TYPE) == 0)
+    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
     {
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
         {
@@ -149,7 +150,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if ((g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
+    if ((ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
         return;
 
     if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
@@ -163,14 +164,14 @@ void G_HandleLocalKeys(void)
     {
         buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
-        FTA(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
+        FTA(QUOTE_WEAPON_MODE_OFF-ud.showweapons,&ps[screenpeek]);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
     {
         buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
         cl_crosshair = !cl_crosshair;
-        FTA(QUOTE_CROSSHAIR_OFF-cl_crosshair,g_player[screenpeek].ps);
+        FTA(QUOTE_CROSSHAIR_OFF-cl_crosshair,&ps[screenpeek]);
     }
 
     if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
@@ -179,11 +180,11 @@ void G_HandleLocalKeys(void)
         ud.scrollmode = 1-ud.scrollmode;
         if (ud.scrollmode)
         {
-            ud.folx = g_player[screenpeek].ps->oposx;
-            ud.foly = g_player[screenpeek].ps->oposy;
-            ud.fola = fix16_to_int(g_player[screenpeek].ps->oq16ang);
+            ud.folx = ps[screenpeek].oposx;
+            ud.foly = ps[screenpeek].oposy;
+            ud.fola = fix16_to_int(ps[screenpeek].oq16ang);
         }
-        FTA(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
+        FTA(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,&ps[myconnectindex]);
     }
 
 
@@ -223,14 +224,14 @@ void G_HandleLocalKeys(void)
         {
             buttonMap.ClearButton(gamefunc_Third_Person_View);
 
-            if (!isRRRA() || (!g_player[myconnectindex].ps->OnMotorcycle && !g_player[myconnectindex].ps->OnBoat))
+            if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
             {
-                g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
+                ps[myconnectindex].over_shoulder_on = !ps[myconnectindex].over_shoulder_on;
 
                 cameradist  = 0;
                 cameraclock = (int32_t) totalclock;
 
-                FTA(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
+                FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
             }
         }
 
@@ -240,17 +241,17 @@ void G_HandleLocalKeys(void)
             nonsharedtimer += timerOffset;
 
             if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-                g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
+                ps[myconnectindex].zoom += mulscale6(timerOffset, max<int>(ps[myconnectindex].zoom, 256));
 
             if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-                g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
+                ps[myconnectindex].zoom -= mulscale6(timerOffset, max<int>(ps[myconnectindex].zoom, 256));
 
-            g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
+            ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
         }
     }
 
 #if 0 // fixme: We should not query Esc here, this needs to be done differently
-    if (I_EscapeTrigger() && ud.overhead_on && g_player[myconnectindex].ps->newowner == -1)
+    if (I_EscapeTrigger() && ud.overhead_on && ps[myconnectindex].newowner == -1)
     {
         I_EscapeTriggerClear();
         ud.last_overhead = ud.overhead_on;
@@ -286,7 +287,6 @@ static void G_Cleanup(void)
 
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
-        Xfree(g_player[i].ps);
         Xfree(g_player[i].input);
     }
 
@@ -413,11 +413,11 @@ static void G_Startup(void)
 
 static void P_SetupMiscInputSettings(void)
 {
-    struct player_struct *ps = g_player[myconnectindex].ps;
+    struct player_struct *pp = &ps[myconnectindex];
 
-    ps->aim_mode = in_mousemode;
-    ps->auto_aim = cl_autoaim;
-    ps->weaponswitch = cl_weaponswitch;
+    pp->aim_mode = in_mousemode;
+    pp->auto_aim = cl_autoaim;
+    pp->weaponswitch = cl_weaponswitch;
 }
 
 void G_UpdatePlayerFromMenu(void)
@@ -428,25 +428,25 @@ void G_UpdatePlayerFromMenu(void)
     if (numplayers > 1)
     {
         //Net_SendClientInfo();
-        if (sprite[g_player[myconnectindex].ps->i].picnum == TILE_APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
-            sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
+        if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
+            sprite[ps[myconnectindex].i].pal = g_player[myconnectindex].pcolor;
     }
     else
     {
         P_SetupMiscInputSettings();
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
+        ps[myconnectindex].palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
 
         g_player[myconnectindex].pteam = playerteam;
 
-        if (sprite[g_player[myconnectindex].ps->i].picnum == TILE_APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
-            sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
+        if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
+            sprite[ps[myconnectindex].i].pal = g_player[myconnectindex].pcolor;
     }
 }
 
 void G_BackToMenu(void)
 {
     boardfilename[0] = 0;
-    g_player[myconnectindex].ps->gm = 0;
+    ps[myconnectindex].gm = 0;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_Mainmenu);
 	inputState.keyFlushChars();
@@ -454,8 +454,6 @@ void G_BackToMenu(void)
 
 void G_MaybeAllocPlayer(int32_t pnum)
 {
-    if (g_player[pnum].ps == NULL)
-        g_player[pnum].ps = (struct player_struct *)Xcalloc(1, sizeof(struct player_struct));
     if (g_player[pnum].input == NULL)
         g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
 }
@@ -554,7 +552,7 @@ int GameInterface::app_main()
 
     checkcommandline();
 
-    g_player[0].ps->aim_mode = 1;
+    ps[0].aim_mode = 1;
     ud.ShowOpponentWeapons = 0;
     ud.camerasprite = -1;
     ud.camera_time = 0;//4;
@@ -592,14 +590,14 @@ int GameInterface::app_main()
 
     G_Startup(); // a bunch of stuff including compiling cons
 
-    g_player[myconnectindex].ps->palette = BASEPAL;
+    ps[myconnectindex].palette = BASEPAL;
 
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
         Bsprintf(g_player[j].user_name,"%s %d", GStrings("PLAYER"),j+1);
         g_player[j].pteam = i;
-        g_player[j].ps->weaponswitch = 3;
-        g_player[j].ps->auto_aim = 0;
+        ps[j].weaponswitch = 3;
+        ps[j].auto_aim = 0;
         i = 1-i;
     }
 
@@ -649,14 +647,13 @@ int GameInterface::app_main()
 	
 void app_loop()
 {
-	auto &myplayer = g_player[myconnectindex].ps;
 
 MAIN_LOOP_RESTART:
     totalclock = 0;
     ototalclock = 0;
     lockclock = 0;
 
-    g_player[myconnectindex].ps->ftq = 0;
+    ps[myconnectindex].ftq = 0;
 
     //if (ud.warp_on == 0)
     {
@@ -693,15 +690,15 @@ MAIN_LOOP_RESTART:
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = playerteam;
 
-    if (playercolor) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
-    else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
+    if (playercolor) ps[myconnectindex].palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
+    else ps[myconnectindex].palookup = g_player[myconnectindex].pcolor;
 
 	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
 
     do //main loop
     {
 		handleevents();
-		if (g_player[myconnectindex].ps->gm == MODE_DEMO)
+		if (ps[myconnectindex].gm == MODE_DEMO)
 		{
 			M_ClearMenus();
 			goto MAIN_LOOP_RESTART;
@@ -717,19 +714,19 @@ MAIN_LOOP_RESTART:
         gameupdatetime.Reset();
         gameupdatetime.Clock();
         
-        while ((!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+        while ((!(ps[myconnectindex].gm & (MODE_MENU|MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
         {
             ototalclock += TICSPERFRAME;
 
-            if (isRRRA() && g_player[myconnectindex].ps->OnMotorcycle)
+            if (isRRRA() && ps[myconnectindex].OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (isRRRA() && g_player[myconnectindex].ps->OnBoat)
+            else if (isRRRA() && ps[myconnectindex].OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);
 
             // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
-            auto const pPlayer = g_player[myconnectindex].ps;
+            auto const pPlayer = &ps[myconnectindex];
             auto const q16ang  = fix16_to_int(pPlayer->q16ang);
             auto& input = nextinput(myconnectindex);
 
@@ -744,8 +741,8 @@ MAIN_LOOP_RESTART:
 
             advancequeue(myconnectindex);
 
-            if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (ud.multimode > 1)) &&
-                    (g_player[myconnectindex].ps->gm&MODE_GAME))
+            if (((!System_WantGuiCapture() && (ps[myconnectindex].gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (ud.multimode > 1)) &&
+                    (ps[myconnectindex].gm&MODE_GAME))
             {
                 moveloop();
             }
@@ -754,7 +751,7 @@ MAIN_LOOP_RESTART:
         gameUpdate = true;
         gameupdatetime.Unclock();
 
-        if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
+        if (ps[myconnectindex].gm & (MODE_EOL|MODE_RESTART))
         {
             switch (exitlevel())
             {
@@ -766,9 +763,9 @@ MAIN_LOOP_RESTART:
         
         if (G_FPSLimit())
         {
-            if (isRRRA() && g_player[myconnectindex].ps->OnMotorcycle)
+            if (isRRRA() && ps[myconnectindex].OnMotorcycle)
                 P_GetInputMotorcycle(myconnectindex);
-            else if (isRRRA() && g_player[myconnectindex].ps->OnBoat)
+            else if (isRRRA() && ps[myconnectindex].OnBoat)
                 P_GetInputBoat(myconnectindex);
             else
                 P_GetInput(myconnectindex);
@@ -783,7 +780,7 @@ MAIN_LOOP_RESTART:
             videoNextPage();
         }
 
-        if (g_player[myconnectindex].ps->gm&MODE_DEMO)
+        if (ps[myconnectindex].gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
     }
     while (1);
@@ -799,9 +796,6 @@ void GameInterface::FreeGameData()
 {
 	return new GameInterface;
 }
-
-// access wrappers that alias old names to current data.
-psaccess ps;
 
 
 END_DUKE_NS

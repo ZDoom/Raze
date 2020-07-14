@@ -48,7 +48,6 @@ enum gamemode_t {
 
 typedef struct
 {
-    struct player_struct *ps;
     input_t *input;
 
     bool    horizRecenter;

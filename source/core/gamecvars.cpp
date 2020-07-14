@@ -53,7 +53,7 @@
 /* Notes
  
  RedNukem has this for the toggle autorun command. Todo: Check what this is supposed to accomplish. The implementation makes no sense at all.
- (!RRRA || (!g_player[myconnectindex].ps->on_motorcycle && !g_player[myconnectindex].ps->on_boat)))
+ (!RRRA || (!ps[myconnectindex].on_motorcycle && !ps[myconnectindex].on_boat)))
  
  
  */

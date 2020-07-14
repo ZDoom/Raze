@@ -144,7 +144,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     int16_t set=0, idx;
     vec3_t vect;
 
-    if (numplayers > 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
+    if (numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME))
     {
         Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
         return CCMD_OK;
@@ -213,7 +213,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
         return CCMD_SHOWHELP;
     }
 
-    idx = A_Spawn(g_player[myconnectindex].ps->i, picnum);
+    idx = A_Spawn(ps[myconnectindex].i, picnum);
     if (set & 1) sprite[idx].pal = (uint8_t)pal;
     if (set & 2) sprite[idx].cstat = (int16_t)cstat;
     if (set & 4) sprite[idx].ang = ang;

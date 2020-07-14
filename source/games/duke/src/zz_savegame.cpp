@@ -142,9 +142,9 @@ int32_t G_LoadPlayer(const char *path)
     if (status < 0 || h.numplayers != ud.multimode)
     {
         if (status == -4 || status == -3 || status == 1)
-            FTA(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
+            FTA(QUOTE_SAVE_BAD_VERSION, &ps[myconnectindex]);
         else if (h.numplayers != ud.multimode)
-            FTA(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
+            FTA(QUOTE_SAVE_BAD_PLAYERS, &ps[myconnectindex]);
 
         ototalclock = totalclock;
         ready2send = 1;
@@ -242,7 +242,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		{
 			Printf("Saved: %s\n", fn.GetChars());
 			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
-			FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+			FTA(QUOTE_RESERVED4, &ps[myconnectindex]);
 		}
 		
 		ready2send = 1;
@@ -260,16 +260,16 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
-        FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+        FTA(QUOTE_RESERVED4, &ps[myconnectindex]);
 
-//        g_player[myconnectindex].ps->gm = MODE_GAME;
+//        ps[myconnectindex].gm = MODE_GAME;
         return false;
     }
     else
     {
         int32_t c = G_LoadPlayer(sv->Filename);
         if (c == 0)
-            g_player[myconnectindex].ps->gm = MODE_GAME;
+            ps[myconnectindex].gm = MODE_GAME;
         return !c;
     }
 }
@@ -279,7 +279,7 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
     if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
-        FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+        FTA(QUOTE_RESERVED4, &ps[myconnectindex]);
 		return false;
     }
     else
@@ -932,9 +932,6 @@ static void sv_postanimateptr()
 static void sv_restsave()
 {
     uint8_t *    mem = savegame_restdata;
-    struct player_struct dummy_ps;
-
-    Bmemset(&dummy_ps, 0, sizeof(struct player_struct));
 
 #define CPDAT(ptr,sz) do { Bmemcpy(mem, ptr, sz), mem+=sz ; } while (0)
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -942,7 +939,7 @@ static void sv_restsave()
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
-        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
+        CPDAT(&ps[i], sizeof(struct player_struct));
     }
     
     Bassert((savegame_restdata + SVARDATALEN) - mem == 0);
@@ -951,7 +948,6 @@ static void sv_restsave()
 static void sv_restload()
 {
     uint8_t *    mem = savegame_restdata;
-    struct player_struct dummy_ps;
 
 #define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
     for (int i = 0; i < MAXPLAYERS; i++)
@@ -959,12 +955,12 @@ static void sv_restload()
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
-        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(struct player_struct));
+        CPDAT(&ps[i], sizeof(struct player_struct));
     }
 #undef CPDAT
 
-    if (g_player[myconnectindex].ps)
-        g_player[myconnectindex].ps->auto_aim = cl_autoaim;
+    if (&ps[myconnectindex])
+        ps[myconnectindex].auto_aim = cl_autoaim;
 }
 
 #ifdef DEBUGGINGAIDS
@@ -1062,11 +1058,11 @@ static void postloadplayer(int32_t savegamep)
     int32_t i;
 
     //1
-    if (g_player[myconnectindex].ps->over_shoulder_on != 0)
+    if (ps[myconnectindex].over_shoulder_on != 0)
     {
         cameradist = 0;
         cameraclock = 0;
-        g_player[myconnectindex].ps->over_shoulder_on = 1;
+        ps[myconnectindex].over_shoulder_on = 1;
     }
 
     //2
@@ -1079,15 +1075,15 @@ static void postloadplayer(int32_t savegamep)
         Mus_ResumeSaved();
         Mus_SetPaused(false);
 
-        g_player[myconnectindex].ps->gm = MODE_GAME;
+        ps[myconnectindex].gm = MODE_GAME;
         ud.recstat = 0;
 
-        if (g_player[myconnectindex].ps->jetpack_on)
-            A_PlaySound(DUKE_JETPACK_IDLE, g_player[myconnectindex].ps->i);
+        if (ps[myconnectindex].jetpack_on)
+            A_PlaySound(DUKE_JETPACK_IDLE, ps[myconnectindex].i);
     }
 
     //3
-    setpal(g_player[myconnectindex].ps);
+    setpal(&ps[myconnectindex]);
 
     //4
     if (savegamep)
@@ -1139,7 +1135,7 @@ static void postloadplayer(int32_t savegamep)
     }
 #endif
     for (i=0; i<MAXPLAYERS; i++)
-        g_player[i].ps->drug_timer = 0;
+        ps[i].drug_timer = 0;
 
 }
 

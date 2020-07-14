@@ -418,7 +418,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
-        auto const pPlayer = g_player[p].ps;
+        auto const pPlayer = &ps[p];
         auto const pSprite = (uspriteptr_t)&sprite[pPlayer->i];
 
         ox = pSprite->x - cposx;

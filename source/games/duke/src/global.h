@@ -295,15 +295,7 @@ void stopinterpolation(int* posptr);
 void dointerpolations(int smoothratio);
 
 
-// Hack struct to allow old code to access the EDuke-style player data without changing it.
-struct psaccess
-{
-    struct player_struct& operator[](int index)
-    {
-        return *g_player[index].ps;
-    }
-};
-extern psaccess ps;
+extern player_struct ps[MAXPLAYERS];
 
 
 extern int spriteqamount;

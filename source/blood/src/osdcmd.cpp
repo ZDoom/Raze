@@ -103,7 +103,7 @@ static int osdcmd_demo(CCmdFuncPtr parm)
         return CCMD_OK;
     }
 
-    //if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    //if (ps[myconnectindex].gm & MODE_GAME)
     //{
     //    Printf("demo: Must not be in a game.\n");
     //    return CCMD_OK;

@@ -58,7 +58,7 @@ enum inputlock_t
 
 static int P_CheckLockedMovement(int const playerNum)
 {
-    auto const pPlayer = g_player[playerNum].ps;
+    auto const pPlayer = &ps[playerNum];
 
     if (pPlayer->on_crane >= 0)
         return IL_NOMOVE|IL_NOANGLE;
@@ -87,7 +87,7 @@ static double scaleAdjustmentToInterval(double x)
 void P_GetInput(int const playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
-    auto const pPlayer    = thisPlayer.ps;
+    auto const pPlayer = &ps[playerNum];
     ControlInfo info;
 
     auto const currentHiTicks = timerGetHiTicks();
@@ -443,7 +443,7 @@ void P_GetInput(int const playerNum)
 void P_GetInputMotorcycle(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
-    auto const pPlayer    = thisPlayer.ps;
+    auto const pPlayer = &ps[playerNum];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
@@ -635,7 +635,7 @@ void P_GetInputMotorcycle(int playerNum)
 void P_GetInputBoat(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
-    auto const pPlayer    = thisPlayer.ps;
+    auto const pPlayer    = &ps[playerNum];
     ControlInfo info;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
