@@ -658,9 +658,7 @@ void MyLoadSave::Load(void)
     Read(&gFrameClock, sizeof(gFrameClock));
     Read(&gFrameTicks, sizeof(gFrameTicks));
     Read(&gFrame, sizeof(gFrame));
-    ClockTicks nGameClock;
     Read(&totalclock, sizeof(totalclock));
-    totalclock = nGameClock;
     Read(&gLevelTime, sizeof(gLevelTime));
     Read(&paused, sizeof(paused));
     Read(baseWall, sizeof(baseWall[0])*numwalls);

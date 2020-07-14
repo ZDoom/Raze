@@ -1018,8 +1018,8 @@ void *handle_memerr(void *);
 #define LIBDIVIDE_NOINLINE
 #include "fix16.h"
 #include "libdivide.h"
-#include "clockticks.hpp"
 #include "vectors.h"
+using ClockTicks = int;
 
 inline FVector3 GetSoundPos(const vec3_t *pos)
 {
