@@ -989,7 +989,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
         }
         else
         {
-            int i = nsqrtasm(uhypsq(xy.x,xy.y)); if (i == 0) i = 1024; else i = tabledivide32(1048576, i);
+            int i = nsqrtasm(uhypsq(xy.x,xy.y)); if (i == 0) i = 1024; else i = 1048576 / i;
             r = i * (1.f/1048576.f);
         }
 
@@ -1207,7 +1207,7 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     if (i > j)
         return 1;
 
-    i = tabledivide64((i << 15), j) << 15;
+    i = ((i << 15) / j) << 15;
 
     n->x = w.x + ((d.x * i) >> 30);
     n->y = w.y + ((d.y * i) >> 30);

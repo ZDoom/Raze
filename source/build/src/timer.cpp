@@ -44,7 +44,7 @@ ATTRIBUTE((flatten)) void timerUpdateClock(void)
 
     uint64_t numerator = (elapsedTime.count() * (uint64_t) timerticspersec * steady_clock::period::num);
     uint64_t freq = timerGetFreqU64();
-    int n = tabledivide64(numerator, freq);
+    int n = numerator / freq;
 
     if (n <= 0) return;
 

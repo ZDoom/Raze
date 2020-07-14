@@ -135,7 +135,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
     }
 
     i = ((i << 15) / j) << 15;
-    //i = tabledivide64((i << 15), j) << 15;
 
     *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
@@ -906,7 +905,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 
             t = rayDotLineEndDiff;
         }
-        t = tabledivide64(t << 24L, rayLengthSquared);
+        t = (t << 24) / rayLengthSquared;
 
         *intersectionX = originX + mulscale24(ray.x, t);
         *intersectionY = originY + mulscale24(ray.y, t);
@@ -934,7 +933,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         return 0;
     }
 
-    int64_t t = tabledivide64(((int64_t) originDiffCrossLineVec) << 24L, rayCrossLineVec);
+    int64_t t = (int64_t(originDiffCrossLineVec) << 24) / rayCrossLineVec;
     // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
 
     *intersectionX = originX + mulscale24(ray.x, t);
@@ -2386,11 +2385,11 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             //relative alignment stuff
             ox = v2.x-v1.x; oy = v2.y-v1.y;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
+            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536*16384 / i;
             globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
             globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
             ox = v1.y-v4.y; oy = v4.x-v1.x;
-            i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
+            i = ox*ox+oy*oy; if (i == 0) continue; i = 65536 * 16384 / i;
             globalx2 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
             globaly2 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
 

@@ -3606,7 +3606,7 @@ void viewLoadingScreenWide(void)
         }
         else
         {
-            int width = roundscale(xdim, 240, ydim);
+            int width = scale(xdim, 240, ydim);
             int nCount = (width+kLoadScreenWideBackWidth-1)/kLoadScreenWideBackWidth;
             for (int i = 0; i < nCount; i++)
             {
