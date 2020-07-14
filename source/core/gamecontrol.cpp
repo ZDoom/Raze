@@ -827,6 +827,26 @@ int RunGame()
 	return gi->app_main();
 }
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+void PolymostProcessVoxels(void);
+
+void videoInit()
+{
+	lookups.postLoadLookups();
+	V_Init2();
+	videoSetGameMode(vid_fullscreen, screen->GetWidth(), screen->GetHeight(), 32, 1);
+
+	PolymostProcessVoxels();
+	GLInterface.Init(screen->GetWidth());
+	GLInterface.InitGLState(4, 4/*glmultisample*/);
+	screen->SetTextureFilterMode();
+}
+
 void G_FatalEngineError(void)
 {
 	I_FatalError("There was a problem initializing the engine: %s\n\nThe application will now close.", engineerrstr);

@@ -541,7 +541,6 @@ int GameInterface::app_main()
 
     SetDispatcher();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
-    playing_rr = 1;
     g_skillCnt = 4;
     ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;

@@ -97,7 +97,6 @@ void HookReplaceFunctions(void)
     changespritestat_replace = qchangespritestat;
     loadvoxel_replace = qloadvoxel;
     loadboard_replace = qloadboard;
-    playing_blood = true;
 }
 
 END_BLD_NS

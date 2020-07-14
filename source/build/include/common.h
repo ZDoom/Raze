@@ -13,9 +13,6 @@
 #include "scriptfile.h"
 #include "mathutil.h"
 
-extern bool playing_rr;
-extern bool playing_blood;
-
 //// TYPES
 struct strllist
 {

@@ -10,7 +10,6 @@ void Polymost_CacheHitList(uint8_t* hash);
 typedef struct { uint8_t r, g, b, a; } coltype;
 typedef struct { float r, g, b, a; } coltypef;
 
-extern bool playing_rr;
 extern int32_t rendmode;
 extern float gtang;
 extern double gxyaspect;

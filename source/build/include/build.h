@@ -489,13 +489,7 @@ extern uint32_t drawlinepat;
 
 extern void faketimerhandler(void);
 
-extern char apptitle[256];
-
 extern int32_t novoxmips;
-
-#ifdef DEBUGGINGAIDS
-extern float debug1, debug2;
-#endif
 
 extern int16_t tiletovox[MAXTILES];
 extern int32_t voxscale[MAXVOXELS];
@@ -759,7 +753,6 @@ int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
-void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);
@@ -884,8 +877,6 @@ static FORCE_INLINE CONSTEXPR int32_t E_SpriteIsValid(const int32_t i)
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t sectorofwall(int16_t wallNum);
-int32_t sectorofwall_noquick(int16_t wallNum);
-int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,

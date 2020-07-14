@@ -36,36 +36,10 @@
 #include "gl_renderer.h"
 #endif
 
-//////////
-// Compilation switches for optional/extended engine features
-
-#if !defined(__arm__) && !defined(GEKKO)
-# define HIGH_PRECISION_SPRITE
-#endif
-
-#if !defined EDUKE32_TOUCH_DEVICES && !defined GEKKO && !defined __OPENDINGUX__
-// Handle absolute z difference of floor/ceiling to camera >= 1<<24.
-// Also: higher precision view-relative x and y for drawvox().
-# define CLASSIC_Z_DIFF_64
-#endif
-
-#define MULTI_COLUMN_VLINE
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
 
-// Handle nonpow2-ysize walls the old way?
-static FORCE_INLINE int32_t oldnonpow2(void)
-{
-#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
-    return 1;
-#else
-    return (g_loadedMapVersion < 10);
-#endif
-}
-
-bool playing_rr;
-bool playing_blood;
 int32_t rendmode=0;
 int32_t glrendmode = REND_POLYMOST;
 int32_t r_rortexture = 0;
@@ -320,9 +294,8 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 #undef WALLS_ARE_CONSISTENT
 
 int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
-static int32_t yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
+static int32_t xb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
-static int32_t rx2[MAXWALLSB], ry2[MAXWALLSB];
 int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
 
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
@@ -334,11 +307,7 @@ int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
 float fxdimen = -1.f;
 int32_t ydimen;
 
-static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
-
 int32_t rxi[8], ryi[8];
-static int32_t rzi[8], rxi2[8], ryi2[8], rzi2[8];
-static int32_t xsi[8], ysi[8];
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
 fix16_t qglobalhoriz;
@@ -347,8 +316,6 @@ int16_t globalang, globalcursectnum;
 fix16_t qglobalang;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-static int32_t globaluclip, globaldclip;
-//char globparaceilclip, globparaflorclip;
 
 int32_t xyaspect;
 int32_t viewingrangerecip;
@@ -357,15 +324,7 @@ static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
-static int16_t globalshiftval;
-#ifdef HIGH_PRECISION_SPRITE
-static int64_t globalzd;
-#else
-static int32_t globalzd;
-#endif
-static int32_t globalyscale;
-static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
-static intptr_t globalbufplc;
+
 
 static int32_t globaly1, globalx2;
 
@@ -398,12 +357,6 @@ static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
 #define MAXSETVIEW 4
 
 
-#ifdef GAMENAME
-char apptitle[256] = GAMENAME;
-#else
-char apptitle[256] = "Build Engine";
-#endif
-
 //
 // Internal Engine Functions
 //
@@ -422,84 +375,6 @@ int32_t renderAddTsprite(int16_t z, int16_t sectnum)
     return 0;
 }
 
-static FORCE_INLINE vec2_t get_rel_coords(int32_t const x, int32_t const y)
-{
-    return { dmulscale6(y, cosglobalang, -x, singlobalang),
-             dmulscale6(x, cosviewingrangeglobalang, y, sinviewingrangeglobalang) };
-}
-
-// Note: the returned y coordinates are not actually screen coordinates, but
-// potentially clipped player-relative y coordinates.
-static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
-                             int32_t *sx1ptr, int32_t *sy1ptr,
-                             int32_t *sx2ptr, int32_t *sy2ptr)
-{
-    int32_t sx1, sy1, sx2, sy2;
-
-    // First point.
-
-    if (p1.x >= -p1.y)
-    {
-        if (p1.x > p1.y || p1.y == 0)
-            return 0;
-
-        sx1 = halfxdimen + scale(p1.x, halfxdimen, p1.y)
-            + (p1.x >= 0);  // Fix for SIGNED divide
-        if (sx1 >= xdimen)
-            sx1 = xdimen-1;
-
-        sy1 = p1.y;
-    }
-    else
-    {
-        if (p2.x < -p2.y)
-            return 0;
-
-        sx1 = 0;
-
-        int32_t tempint = (p1.x + p1.y) - (p2.x + p2.y);
-        if (tempint == 0)
-            return 0;
-        sy1 = p1.y + scale(p2.y-p1.y, p1.x+p1.y, tempint);
-    }
-
-    if (sy1 < 256)
-        return 0;
-
-    // Second point.
-
-    if (p2.x <= p2.y)
-    {
-        if (p2.x < -p2.y || p2.y == 0)
-            return 0;
-
-        sx2 = halfxdimen + scale(p2.x,halfxdimen,p2.y) - 1
-            + (p2.x >= 0);  // Fix for SIGNED divide
-        if (sx2 >= xdimen)
-            sx2 = xdimen-1;
-
-        sy2 = p2.y;
-    }
-    else
-    {
-        if (p1.x > p1.y)
-            return 0;
-
-        sx2 = xdimen-1;
-
-        int32_t const tempint = (p1.y - p1.x) + (p2.x - p2.y);
-
-        sy2 = p1.y + scale(p2.y-p1.y, p1.y-p1.x, tempint);
-    }
-
-    if (sy2 < 256 || sx1 > sx2)
-        return 0;
-
-    *sx1ptr = sx1; *sy1ptr = sy1;
-    *sx2ptr = sx2; *sy2ptr = sy2;
-
-    return 1;
-}
 
 //
 // wallfront (internal)
@@ -1278,12 +1153,6 @@ int32_t enginePostInit(void)
 {
     if (!(paletteloaded & PALETTE_MAIN))
         I_FatalError("No palette found.");
-#if 0
-    if (!(paletteloaded & PALETTE_SHADE))
-        I_FatalError("No shade table found.");
-    if (!(paletteloaded & PALETTE_TRANSLUC))
-        I_FatalError("No translucency table found.");
-#endif
 
     V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
     lookups.postLoadTables();
@@ -1418,9 +1287,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
     globalhoriz = fix16_to_int(qglobalhoriz);
 
-    globaluclip = (0-globalhoriz)*xdimscale;
-    globaldclip = (ydimen-globalhoriz)*xdimscale;
-
     globalcursectnum = dacursectnum;
     totalclocklock = totalclock;
 
@@ -1515,73 +1381,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum)
     return (((a2 + (2048 - a1)) & 2047) <= 1024);
 }
 
-#if 0
-// returns the intersection point between two lines
-_point2d        intersection(_equation eq1, _equation eq2)
-{
-    _point2d    ret;
-    float       det;
-
-    det = (float)(1) / (eq1.a*eq2.b - eq2.a*eq1.b);
-    ret.x = ((eq1.b*eq2.c - eq2.b*eq1.c) * det);
-    ret.y = ((eq2.a*eq1.c - eq1.a*eq2.c) * det);
-
-    return ret;
-}
-
-// check if a point that's on the line is within the segment boundaries
-int32_t             pointonmask(_point2d point, _maskleaf* wall)
-{
-    if ((min(wall->p1.x, wall->p2.x) <= point.x) && (point.x <= max(wall->p1.x, wall->p2.x)) && (min(wall->p1.y, wall->p2.y) <= point.y) && (point.y <= max(wall->p1.y, wall->p2.y)))
-        return 1;
-    return 0;
-}
-
-// returns 1 if wall2 is hidden by wall1
-int32_t             wallobstructswall(_maskleaf* wall1, _maskleaf* wall2)
-{
-    _point2d    cross;
-
-    cross = intersection(wall2->p1eq, wall1->maskeq);
-    if (pointonmask(cross, wall1))
-        return 1;
-
-    cross = intersection(wall2->p2eq, wall1->maskeq);
-    if (pointonmask(cross, wall1))
-        return 1;
-
-    cross = intersection(wall1->p1eq, wall2->maskeq);
-    if (pointonmask(cross, wall2))
-        return 1;
-
-    cross = intersection(wall1->p2eq, wall2->maskeq);
-    if (pointonmask(cross, wall2))
-        return 1;
-
-    return 0;
-}
-
-// recursive mask drawing function
-static inline void    drawmaskleaf(_maskleaf* wall)
-{
-    int32_t i;
-
-    wall->drawing = 1;
-    i = 0;
-    while (wall->branch[i] != NULL)
-    {
-        if (wall->branch[i]->drawing == 0)
-        {
-            //Printf("Drawing parent of %i : mask %i\n", wall->index, wall->branch[i]->index);
-            drawmaskleaf(wall->branch[i]);
-        }
-        i++;
-    }
-
-    //Printf("Drawing mask %i\n", wall->index);
-    drawmaskwall(wall->index);
-}
-#endif
 
 static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, const vec2f_t *p2)
 {
@@ -2668,11 +2467,7 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
         int32_t removeit = 0;
 
         if ((sprite[i].cstat & 48) == 48)
-		{
-			// If I understand this correctly, both of these essentially do the same thing...
-            if (!playing_rr) sprite[i].cstat &= ~48;
-            else sprite[i].cstat |= 32768;
-		}
+            sprite[i].cstat &= ~48;
 
         if (sprite[i].statnum == MAXSTATUS)
         {
@@ -3150,8 +2945,6 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 }
 
 
-
-#define YSAVES ((xdim*MAXSPRITES)>>7)
 
 //
 // setgamemode
@@ -4311,17 +4104,6 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 #include "v_2ddrawer.h"
 
 
-void videoInit()
-{
-    lookups.postLoadLookups();
-    V_Init2();
-    videoSetGameMode(vid_fullscreen, screen->GetWidth(), screen->GetHeight(), 32, 1);
-
-    Polymost_Startup();
-    GLInterface.Init(screen->GetWidth());
-    GLInterface.InitGLState(4, 4/*glmultisample*/);
-    screen->SetTextureFilterMode();
-}
 
 //
 // clearview
@@ -4458,14 +4240,6 @@ int32_t sectorofwall(int16_t wallNum)
     return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
 }
 
-int32_t sectorofwall_noquick(int16_t wallNum)
-{
-    if (EDUKE32_PREDICT_FALSE((unsigned) wallNum >= (unsigned) numwalls))
-        return -1;
-
-    return sectorofwall_internal(wallNum);
-}
-
 
 int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
 {
@@ -4567,104 +4341,6 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     if (sector[dasect].floorheinum == 0)
         sector[dasect].floorstat &= ~2;
     else sector[dasect].floorstat |= 2;
-}
-
-
-//
-// loopnumofsector
-//
-int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
-{
-    int32_t numloops = 0;
-    const int32_t startwall = sector[sectnum].wallptr;
-    const int32_t endwall = startwall + sector[sectnum].wallnum;
-
-    for (bssize_t i=startwall; i<endwall; i++)
-    {
-        if (i == wallnum)
-            return numloops;
-
-        if (wall[i].point2 < i)
-            numloops++;
-    }
-
-    return -1;
-}
-
-
-//
-// setfirstwall
-//
-void setfirstwall(int16_t sectnum, int16_t newfirstwall)
-{
-    int32_t i, j, numwallsofloop;
-    int32_t dagoalloop;
-    uwalltype *tmpwall;
-
-    const int32_t startwall = sector[sectnum].wallptr;
-    const int32_t danumwalls = sector[sectnum].wallnum;
-    const int32_t endwall = startwall+danumwalls;
-
-    if (newfirstwall < startwall || newfirstwall >= startwall+danumwalls)
-        return;
-
-    tmpwall = (uwalltype *)Xmalloc(danumwalls * sizeof(walltype));
-
-    Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
-
-    numwallsofloop = 0;
-    i = newfirstwall;
-    do
-    {
-        numwallsofloop++;
-        i = wall[i].point2;
-    }
-    while (i != newfirstwall);
-
-    //Put correct loop at beginning
-    dagoalloop = loopnumofsector(sectnum,newfirstwall);
-    if (dagoalloop > 0)
-    {
-        j = 0;
-        while (loopnumofsector(sectnum,j+startwall) != dagoalloop)
-            j++;
-
-        for (i=0; i<danumwalls; i++)
-        {
-            int32_t k = i+j;
-            if (k >= danumwalls) k -= danumwalls;
-            Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
-
-            wall[startwall+i].point2 += danumwalls-startwall-j;
-            if (wall[startwall+i].point2 >= danumwalls)
-                wall[startwall+i].point2 -= danumwalls;
-            wall[startwall+i].point2 += startwall;
-        }
-
-        newfirstwall += danumwalls-j;
-        if (newfirstwall >= startwall+danumwalls)
-            newfirstwall -= danumwalls;
-    }
-
-    for (i=0; i<numwallsofloop; i++)
-        Bmemcpy(&tmpwall[i], &wall[i+startwall], sizeof(walltype));
-    for (i=0; i<numwallsofloop; i++)
-    {
-        int32_t k = i+newfirstwall-startwall;
-        if (k >= numwallsofloop) k -= numwallsofloop;
-        Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
-
-        wall[startwall+i].point2 += numwallsofloop-newfirstwall;
-        if (wall[startwall+i].point2 >= numwallsofloop)
-            wall[startwall+i].point2 -= numwallsofloop;
-        wall[startwall+i].point2 += startwall;
-    }
-
-    for (i=startwall; i<endwall; i++)
-        if (wall[i].nextwall >= 0)
-            wall[wall[i].nextwall].nextwall = i;
-
-    Xfree(tmpwall);
 }
 
 

@@ -1607,7 +1607,6 @@ static void polymost_drawalls(int32_t const bunch)
 				pow2xsplit = 0;
                 skyclamphack = 0;
                 flatskyrender = 1;
-                //globalshade += globvis2*xdimscale*fviewingrange*(1.f / (64.f * 65536.f * 256.f * 1024.f));
 				GLInterface.SetVisibility(0.f);
                 polymost_domost(x0,fy0,x1,fy1);
                 flatskyrender = 0;
@@ -1848,7 +1847,6 @@ static void polymost_drawalls(int32_t const bunch)
 				pow2xsplit = 0;
 				skyclamphack = 0;
 				flatskyrender = 1;
-				//globalshade += globvis2 * xdimscale * fviewingrange * (1.f / (64.f * 65536.f * 256.f * 1024.f));
 				GLInterface.SetVisibility(0.f);
 				polymost_domost(x1, cy1, x0, cy0);
 				flatskyrender = 0;
@@ -3677,7 +3675,7 @@ void PrecacheHardwareTextures(int nTile)
 
 extern char* voxfilenames[MAXVOXELS];
 void (*PolymostProcessVoxels_Callback)(void) = NULL;
-static void PolymostProcessVoxels(void)
+void PolymostProcessVoxels(void)
 {
     if (PolymostProcessVoxels_Callback)
         PolymostProcessVoxels_Callback();
@@ -3699,9 +3697,4 @@ static void PolymostProcessVoxels(void)
             DO_FREE_AND_NULL(voxfilenames[i]);
         }
     }
-}
-
-void Polymost_Startup()
-{
-    PolymostProcessVoxels();
 }
