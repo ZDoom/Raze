@@ -1065,7 +1065,7 @@ if( UNIX )
 	endif()
 endif()
 
-target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke3d duke blood rr sw exhumed )
+target_link_libraries( ${PROJECT_NAME} ${PROJECT_LIBRARIES} ${ZMUSIC_LIBRARIES} gdtoa lzma duke blood sw exhumed )
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -1325,8 +1325,6 @@ unset( HEADER_FILES )
 unset( NOT_COMPILED_SOURCE_FILES )
 
 add_subdirectory( games/duke )
-add_subdirectory( duke3d )
 add_subdirectory( blood )
-add_subdirectory( rr )
 add_subdirectory( sw )
 add_subdirectory( exhumed )

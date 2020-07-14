@@ -104,7 +104,6 @@ FILE* hashfile;
 FStartupInfo GameStartupInfo;
 FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
-void C_CON_SetAliases();
 InputState inputState;
 void SetClipshapes();
 int ShowStartupWindow(TArray<GrpEntry> &);
@@ -419,14 +418,6 @@ namespace Duke3d
 {
 	::GameInterface* CreateInterface();
 }
-namespace Duke
-{
-	::GameInterface* CreateInterface();
-}
-namespace Redneck
-{
-	::GameInterface* CreateInterface();
-}
 namespace Blood
 {
 	::GameInterface* CreateInterface();
@@ -440,21 +431,10 @@ namespace Powerslave
 	::GameInterface* CreateInterface();
 }
 
-CVAR(Bool, duke_compatibility_15, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 extern int MinFPSRate; // this is a bit messy.
 
 void CheckFrontend(int flags)
 {
-	auto old = Args->CheckParm("-duke_old");
-	MinFPSRate = 30;
-	bool duke_compat = duke_compatibility_15;
-	// This point is too early to have cmdline CVAR checkers working so it must be with a switch.
-	auto c = Args->CheckValue("-duke_compatibility_15");
-	if (c)
-	{
-		if (strtol(c, nullptr, 0)) duke_compatibility_15 = true;
-		else duke_compatibility_15 = false;
-	}
 	if (flags & GAMEFLAG_BLOOD)
 	{
 		gi = Blood::CreateInterface();
@@ -468,27 +448,10 @@ void CheckFrontend(int flags)
 	{
 		gi = Powerslave::CreateInterface();
 	}
-	else if (old)
+	else
 	{
 		gi = Duke3d::CreateInterface();
 	}
-	else if (flags & GAMEFLAG_RRALL)
-	{
-		gi = Redneck::CreateInterface();
-	}
-	else if ((flags & GAMEFLAG_FURY) || GameStartupInfo.modern > 0)
-	{
-		gi = Duke::CreateInterface();
-	}
-	else if (GameStartupInfo.modern < 0)
-	{
-		gi = Redneck::CreateInterface();
-	}
-	else
-	{
-		gi = *duke_compatibility_15 ? Redneck::CreateInterface() : Duke::CreateInterface();
-	}
-
 }
 
 void I_StartupJoysticks();
@@ -841,7 +804,6 @@ int RunGame()
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
 	TileFiles.Init();
-	C_CON_SetAliases();
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
 	Mus_InitMusic();

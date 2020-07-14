@@ -62,6 +62,7 @@
 #include "v_video.h"
 #include "v_draw.h"
 #include "g_input.h"
+#include "timer.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
