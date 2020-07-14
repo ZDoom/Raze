@@ -3094,12 +3094,10 @@ void viewDrawScreen(bool sceneonly)
     lastUpdate = totalclock;
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
-        gInterpolate = ((totalclock-gNetFifoClock)+4).toScale16()/4;
+        gInterpolate = CalcSmoothRatio(totalclock, gNetFifoClock - 4, 30);
     }
-    if (gInterpolate < 0 || gInterpolate > 65536)
-    {
-        gInterpolate = ClipRange(gInterpolate, 0, 65536);
-    }
+    else gInterpolate = 65536;
+
     if (cl_interpolate)
     {
         CalcInterpolations();
