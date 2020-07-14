@@ -771,7 +771,6 @@ set (PCH_SOURCES
 	# Todo: Split out the license-safe code from this.
 	build/src/animvpx.cpp
 	build/src/clip.cpp
-	build/src/common.cpp
 	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
