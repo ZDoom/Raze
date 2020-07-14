@@ -5023,7 +5023,7 @@ void MoveDude(spritetype *pSprite)
                         {
                             xvel[pFX2->index] = Random2(0x6aaaa);
                             yvel[pFX2->index] = Random2(0x6aaaa);
-                            zvel[pFX2->index] = -Random(0xd5555);
+                            zvel[pFX2->index] = -(int)Random(0xd5555);
                         }
                     }
                 }

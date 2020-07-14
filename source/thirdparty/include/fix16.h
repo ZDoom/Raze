@@ -297,6 +297,4 @@ extern fix16_t fix16_from_str(const char *buf);
     ) \
 )
 
-#include "fix16.hpp"
-
 #endif

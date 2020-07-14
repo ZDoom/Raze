@@ -33,24 +33,6 @@ extern int32_t reciptable[2048];
 
 #define DIVTABLESIZE 16384
 
-extern libdivide::libdivide_s64_t divtable64[DIVTABLESIZE];
-extern libdivide::libdivide_s32_t divtable32[DIVTABLESIZE];
-extern void initdivtables(void);
-
-static inline int64_t tabledivide64(int64_t const n, int64_t const d)
-{
-    static libdivide::libdivide_s64_t sdiv;
-    static int64_t lastd;
-    auto const dptr = ((uint64_t)d < DIVTABLESIZE) ? &divtable64[d] : &sdiv;
-
-    if (d == lastd || dptr != &sdiv)
-        goto skip;
-
-    sdiv = libdivide::libdivide_s64_gen((lastd = d));
-skip:
-    return libdivide::libdivide_s64_do(n, dptr);
-}
-
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return (int64_t(eax) << ecx) / ebx; }
 
 static inline int64_t divscale64(int64_t eax, int64_t ebx, int64_t ecx) { return (eax << ecx) / ebx; }

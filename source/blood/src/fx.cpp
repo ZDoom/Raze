@@ -288,7 +288,7 @@ void fxSpawnBlood(spritetype *pSprite, int a2)
         pBlood->ang = 1024;
         xvel[pBlood->index] = Random2(0x6aaaa);
         yvel[pBlood->index] = Random2(0x6aaaa);
-        zvel[pBlood->index] = -Random(0x10aaaa)-100;
+        zvel[pBlood->index] = -(int)Random(0x10aaaa)-100;
         evPost(pBlood->index, 3, 8, kCallbackFXBloodSpurt);
     }
 }
@@ -313,7 +313,7 @@ void sub_746D4(spritetype *pSprite, int a2)
         pSpawn->ang = 1024;
         xvel[pSpawn->index] = Random2(0x6aaaa);
         yvel[pSpawn->index] = Random2(0x6aaaa);
-        zvel[pSpawn->index] = -Random(0x10aaaa)-100;
+        zvel[pSpawn->index] = -(int)Random(0x10aaaa)-100;
         evPost(pSpawn->index, 3, 8, kCallbackFXPodBloodSpray);
     }
 }

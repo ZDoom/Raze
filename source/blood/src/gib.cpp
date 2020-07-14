@@ -345,12 +345,12 @@ void GibFX(spritetype *pSprite, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *p
                     }
                     else if (dz2 > dz1 && dz1 < 0x4000)
                     {
-                        zvel[pFX->index] = -Random((klabs(pGFX->at11)<<18)/120);
+                        zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
                     }
                     else
                     {
                         if ((pGFX->at11<<18)/120 < 0)
-                            zvel[pFX->index] = -Random((klabs(pGFX->at11)<<18)/120);
+                            zvel[pFX->index] = -(int)Random((klabs(pGFX->at11)<<18)/120);
                         else
                             zvel[pFX->index] = Random2((pGFX->at11<<18)/120);
                     }
@@ -419,7 +419,7 @@ void GibThing(spritetype *pSprite, GIBTHING *pGThing, CGibPosition *pPos, CGibVe
                 }
                 else if (dz2 > dz1 && dz1 < 0x4000)
                 {
-                    zvel[pGib->index] = -Random((pGThing->at10<<18)/120);
+                    zvel[pGib->index] = -(int)Random((pGThing->at10<<18)/120);
                 }
                 else
                 {
@@ -472,13 +472,13 @@ void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity
             {
                 xvel[pGib->index] = Random2((pGFX->atd<<18)/120);
                 yvel[pGib->index] = Random2((pGFX->atd<<18)/120);
-                zvel[pGib->index] = -Random((pGFX->at11<<18)/120);
+                zvel[pGib->index] = -(int)Random((pGFX->at11<<18)/120);
             }
             else
             {
                 xvel[pGib->index] = Random2((pVel->vx<<18)/120);
                 yvel[pGib->index] = Random2((pVel->vy<<18)/120);
-                zvel[pGib->index] = -Random((pVel->vz<<18)/120);
+                zvel[pGib->index] = -(int)Random((pVel->vz<<18)/120);
             }
         }
     }

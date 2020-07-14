@@ -1017,7 +1017,6 @@ void *handle_memerr(void *);
 #define LIBDIVIDE_NONAMESPACE
 #define LIBDIVIDE_NOINLINE
 #include "fix16.h"
-#include "libdivide.h"
 #include "vectors.h"
 using ClockTicks = int;
 

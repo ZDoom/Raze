@@ -568,7 +568,7 @@ static inline void initksqrt(void)
         temp = root*root-num;
         while (klabs(int32_t(temp-2*root+1)) < klabs(temp))
         {
-            temp += -(2*root)+1;
+            temp += 1-int(2*root);
             root--;
         }
         while (klabs(int32_t(temp+2*root+1)) < klabs(temp))
@@ -1066,7 +1066,6 @@ static tspritetype tsprite_s[MAXSPRITESONSCREEN];
 int32_t enginePreInit(void)
 {
 	polymost_initosdfuncs();
-    initdivtables();
 
 #if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
