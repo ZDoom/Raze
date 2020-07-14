@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "names.h"
 #include "fix16.h"
-#include "net.h"
 #include "tarray.h"
 #include "constants.h"
 #include "types.h"
@@ -61,7 +60,6 @@ typedef struct
     uint8_t frags[MAXPLAYERS];
 
     char user_name[32];
-    char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
     double  lastInputTicks;
 
 } playerdata_t;

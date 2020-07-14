@@ -20,7 +20,6 @@
 #include "global.h"
 #include "macros.h"
 #include "names.h"
-#include "net.h"
 #include "player.h"
 #include "quotemgr.h"
 #include "rts.h"

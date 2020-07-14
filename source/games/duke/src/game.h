@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "fix16.h"
 #include "gamedef.h"
-#include "net.h"
 #include "mmulti.h"
 #include "palette.h"
 #include "cmdlib.h"

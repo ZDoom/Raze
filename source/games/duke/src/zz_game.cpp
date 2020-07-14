@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "compat.h"
 #include "baselayer.h"
-#include "net.h"
 #include "savegame.h"
 
 #include "sbar.h"
@@ -363,7 +362,7 @@ static void G_Startup(void)
 
     // These depend on having the dynamic tile and/or sound mappings set up:
     G_InitMultiPsky(TILE_CLOUDYOCEAN, TILE_MOONSKY1, TILE_BIGORBIT1, TILE_LA);
-    Net_SendClientInfo();
+    //Net_SendClientInfo();
 
 	if (userConfig.CommandMap.IsNotEmpty())
 	{
@@ -428,7 +427,7 @@ void G_UpdatePlayerFromMenu(void)
 
     if (numplayers > 1)
     {
-        Net_SendClientInfo();
+        //Net_SendClientInfo();
         if (sprite[g_player[myconnectindex].ps->i].picnum == TILE_APLAYER && sprite[g_player[myconnectindex].ps->i].pal != 1)
             sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].pcolor;
     }
@@ -547,7 +546,7 @@ int GameInterface::app_main()
 
     g_movesPerPacket = 1;
     //bufferjitter = 1;
-    initsynccrc();
+    //initsynccrc();
 
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
     // accesses g_player[0].

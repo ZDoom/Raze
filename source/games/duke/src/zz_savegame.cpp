@@ -158,7 +158,7 @@ int32_t G_LoadPlayer(const char *path)
     ud.multimode = h.numplayers;
 	S_PauseSounds(true);
 
-    Net_WaitForEverybody();
+    //Net_WaitForEverybody();
 
     FX_StopAllSounds();
 
@@ -218,7 +218,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 {
     G_SaveTimers();
 
-    Net_WaitForEverybody();
+    //Net_WaitForEverybody();
     ready2send = 0;
 
 	FString fn;
@@ -246,7 +246,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		}
 		
 		ready2send = 1;
-		Net_WaitForEverybody();
+		//Net_WaitForEverybody();
 		
 		G_RestoreTimers();
 		ototalclock = totalclock;
@@ -1120,7 +1120,7 @@ static void postloadplayer(int32_t savegamep)
     {
         ready2send = 1;
         clearfifo();
-        Net_WaitForEverybody();
+        //Net_WaitForEverybody();
     }
 
     //8
