@@ -2197,7 +2197,7 @@ drawscreen(PLAYERp pp)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        renderSetAspect(viewingRange, tabledivide32_noinline(65536 * ydim * 8, xdim * 5));
+        renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
     }
 
     UpdatePanel();
