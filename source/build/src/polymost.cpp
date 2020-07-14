@@ -3566,8 +3566,6 @@ void polymost_completeMirror()
 
 typedef struct
 {
-    uint32_t wrev;
-    uint32_t srev;
     int16_t wall;
     int8_t wdist;
     int8_t filler;
@@ -3579,6 +3577,13 @@ void Polymost_prepare_loadboard(void)
 {
     Bmemset(wsprinfo, 0, sizeof(wsprinfo));
 }
+
+void polymost_deletesprite(int num)
+{
+    wsprinfo[num].wall = -1;
+
+}
+
 
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
@@ -3897,9 +3902,8 @@ void polymost_drawsprite(int32_t snum)
             int32_t w = (s == -1) ? -1 : wsprinfo[s].wall;
 
             // find the wall most likely to be what the sprite is supposed to be ornamented against
-            // this is really slow, so cache the result
-            if (s == -1 || !wsprinfo[s].wall || (spritechanged[s] != wsprinfo[s].srev) ||
-                (w != -1 && wallchanged[w] != wsprinfo[s].wrev))
+            // this is really slow, so cache the result. Also assume that this association never changes once it is set up
+            if (s == -1 || !wsprinfo[s].wall)
             {
                 w = polymost_findwall(tspr, &tsiz, &walldist);
 
@@ -3911,8 +3915,6 @@ void polymost_drawsprite(int32_t snum)
                     if (w != -1)
                     {
                         ws->wdist = walldist;
-                        ws->wrev = wallchanged[w];
-                        ws->srev = spritechanged[s];
                     }
                 }
             }

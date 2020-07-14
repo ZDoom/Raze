@@ -217,45 +217,8 @@ enum {
 #  define EXTERN extern
 #endif
 
-#if defined __cplusplus && (defined USE_OPENGL || defined POLYMER)
-# define USE_STRUCT_TRACKERS
-#endif
-
-#ifdef USE_STRUCT_TRACKERS
-
-
-static FORCE_INLINE void sector_tracker_hook__(intptr_t address);
-static FORCE_INLINE void wall_tracker_hook__(intptr_t address);
-static FORCE_INLINE void sprite_tracker_hook__(intptr_t address);
-
-
-#define TRACKER_NAME__ SectorTracker
-#define TRACKER_HOOK_ sector_tracker_hook__
-#include "tracker.hpp"
-#undef TRACKER_NAME__
-#undef TRACKER_HOOK_
-
-#define TRACKER_NAME__ WallTracker
-#define TRACKER_HOOK_ wall_tracker_hook__
-#include "tracker.hpp"
-#undef TRACKER_NAME__
-#undef TRACKER_HOOK_
-
-#define TRACKER_NAME__ SpriteTracker
-#define TRACKER_HOOK_ sprite_tracker_hook__
-#include "tracker.hpp"
-#undef TRACKER_NAME__
-#undef TRACKER_HOOK_
-
-#define Tracker(Container, Type) Container##Tracker<Type>
-#define TrackerCast(x) x.cast()
-
-#else
-
-#define Tracker(Container, Type) Type
 #define TrackerCast(x) x
 
-#endif // __cplusplus
 
 // Links to various ABIs specifying (or documenting non-normatively) the
 // alignment requirements of aggregates:
@@ -280,38 +243,22 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
-#define UNTRACKED_STRUCTS__
-#include "buildtypes.h"
-#undef UNTRACKED_STRUCTS__
-#undef buildtypes_h__
 #include "buildtypes.h"
 
-#if !defined NEW_MAP_FORMAT
 using sectortype  = sectortypev7;
-using usectortype = usectortypev7;
+using usectortype = sectortypev7;
 
 using walltype  = walltypev7;
-using uwalltype = uwalltypev7;
-#else
-using sectortype  = sectortypevx;
-using usectortype = usectortypevx;
-
-using walltype  = walltypevx;
-using uwalltype = uwalltypevx;
-#endif
+using uwalltype = walltypev7;
 
 using spritetype  = spritetypev7;
-using uspritetype = uspritetypev7;
+using uspritetype = spritetypev7;
 
 using uspriteptr_t = uspritetype const *;
 using uwallptr_t   = uwalltype const *;
 using usectorptr_t = usectortype const *;
 using tspriteptr_t = tspritetype *;
 
-// this is probably never going to be necessary
-EDUKE32_STATIC_ASSERT(sizeof(sectortype) == sizeof(usectortype));
-EDUKE32_STATIC_ASSERT(sizeof(walltype) == sizeof(uwalltype));
-EDUKE32_STATIC_ASSERT(sizeof(spritetype) == sizeof(uspritetype));
 
 
 #include "clip.h"
@@ -400,64 +347,12 @@ EXTERN walltype *wall;
 EXTERN spritetype *sprite;
 EXTERN tspriteptr_t tsprite;
 #else
-EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
-EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
-# ifndef NEW_MAP_FORMAT
-EXTERN wallext_t wallext[MAXWALLS];
-# endif
-
-EXTERN sectortype sector[MAXSECTORS + M32_FIXME_SECTORS];
-EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];
-EXTERN spritetype sprite[MAXSPRITES];
-EXTERN uspritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
-#ifdef USE_STRUCT_TRACKERS
-EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
-EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
-EXTERN uint32_t spritechanged[MAXSPRITES];
-#endif
-
-
-
-#ifdef USE_STRUCT_TRACKERS
-static FORCE_INLINE void sector_tracker_hook__(intptr_t const address)
-{
-    intptr_t const sectnum = (address - (intptr_t)sector) / sizeof(sectortype);
-
-#if DEBUGGINGAIDS>=2
-    Bassert((unsigned)sectnum < ((MAXSECTORS + M32_FIXME_SECTORS)));
-#endif
-
-    ++sectorchanged[sectnum];
-}
-
-static FORCE_INLINE void wall_tracker_hook__(intptr_t const address)
-{
-    intptr_t const wallnum = (address - (intptr_t)wall) / sizeof(walltype);
-
-#if DEBUGGINGAIDS>=2
-    Bassert((unsigned)wallnum < ((MAXWALLS + M32_FIXME_WALLS)));
-#endif
-
-    ++wallchanged[wallnum];
-}
-
-static FORCE_INLINE void sprite_tracker_hook__(intptr_t const address)
-{
-    intptr_t const spritenum = (address - (intptr_t)sprite) / sizeof(spritetype);
-
-#if DEBUGGINGAIDS>=2
-    Bassert((unsigned)spritenum < MAXSPRITES);
-#endif
-
-    ++spritechanged[spritenum];
-}
-#endif
 
 static inline tspriteptr_t renderMakeTSpriteFromSprite(tspriteptr_t const tspr, uint16_t const spritenum)
 {
-    auto const spr = (uspriteptr_t)&sprite[spritenum];
+    auto const spr = &sprite[spritenum];
 
     tspr->pos = spr->pos;
     tspr->cstat = spr->cstat;
@@ -1239,8 +1134,6 @@ int32_t loaddefinitionsfile(const char *fn);
 // if loadboard() fails with -2 return, try loadoldboard(). if it fails with
 // -2, board is dodgy
 int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-
-#include "hash.h"
 
 #ifdef USE_OPENGL
 # include "polymost.h"

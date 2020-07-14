@@ -5,17 +5,8 @@
 #undef SECTORTYPE
 #undef SPRITETYPE
 
-#ifdef UNTRACKED_STRUCTS__
-
 #define StructTracker(tracker, type) type
-#define StructName(name) u ## name
-
-#else
-
-#define StructTracker Tracker
 #define StructName(name) name
-
-#endif
 
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"

@@ -774,7 +774,6 @@ set (PCH_SOURCES
 	build/src/common.cpp
 	build/src/defs.cpp
 	build/src/engine.cpp
-	build/src/hash.cpp
 	build/src/mdsprite.cpp
 	build/src/mhk.cpp
 	build/src/polymost.cpp

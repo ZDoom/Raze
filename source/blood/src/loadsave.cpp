@@ -566,12 +566,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     bVanilla = false;
     
 
-#ifdef USE_STRUCT_TRACKERS
-    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
-    Bmemset(spritechanged, 0, sizeof(spritechanged));
-    Bmemset(wallchanged, 0, sizeof(wallchanged));
-#endif
-
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();
 #endif

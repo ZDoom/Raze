@@ -1717,8 +1717,10 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 // deletesprite
 //
 int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
+void polymost_deletesprite(int num);
 int32_t deletesprite(int16_t spritenum)
 {
+    polymost_deletesprite(spritenum);
     if (deletesprite_replace)
         return deletesprite_replace(spritenum);
     Bassert((sprite[spritenum].statnum == MAXSTATUS)
@@ -3460,11 +3462,6 @@ static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daan
     show2dsector.Zero();
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
-#ifdef USE_STRUCT_TRACKERS
-    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
-    Bmemset(spritechanged, 0, sizeof(spritechanged));
-    Bmemset(wallchanged, 0, sizeof(wallchanged));
-#endif
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();

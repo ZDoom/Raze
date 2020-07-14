@@ -1197,12 +1197,6 @@ static void postloadplayer(int32_t savegamep)
     // if (savegamep)  ?
     resettimevars();
 
-#ifdef USE_STRUCT_TRACKERS
-    Bmemset(sectorchanged, 0, sizeof(sectorchanged));
-    Bmemset(spritechanged, 0, sizeof(spritechanged));
-    Bmemset(wallchanged, 0, sizeof(wallchanged));
-#endif
-
 #ifdef POLYMER
     //9
     if (videoGetRenderMode() == REND_POLYMER)

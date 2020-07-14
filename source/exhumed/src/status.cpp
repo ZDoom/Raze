@@ -831,10 +831,10 @@ void DrawStatus()
 
         int x = (nViewLeft + nViewRight) / 2;
 
-        snprintf(coordBuf, 50, "X %d", (int)sprite[nSprite].x.cast());
+        snprintf(coordBuf, 50, "X %d", (int)sprite[nSprite].x);
         printext(x, nViewTop + 1, coordBuf, kTile159, 255);
 
-        snprintf(coordBuf, 50, "Y %d", sprite[nSprite].y.cast());
+        snprintf(coordBuf, 50, "Y %d", sprite[nSprite].y);
         printext(x, nViewTop + 10, coordBuf, kTile159, 255);
     }
 
