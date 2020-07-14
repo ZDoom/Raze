@@ -52,8 +52,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 // Generic C
 //
 
-#ifndef pragmas_have_mulscale
-
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                                     \
     static FORCE_INLINE CONSTEXPR int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
     static FORCE_INLINE CONSTEXPR int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                           \
@@ -68,8 +66,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 #undef EDUKE32_SCALER_PRAGMA
-
-#endif
 
 
 template <typename T>
@@ -95,24 +91,17 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 }
 #endif
 
-#ifndef pragmas_have_klabs
 #define klabs(x) abs(x)
-#endif
-#ifndef pragmas_have_ksgn
 static FORCE_INLINE CONSTEXPR int ksgn(int32_t a) { return (a > 0) - (a < 0); }
-#endif
 
 inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
 
-#ifndef pragmas_have_mulscale
 static FORCE_INLINE CONSTEXPR int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 static FORCE_INLINE CONSTEXPR int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }
-#endif
 
-#ifndef pragmas_have_krecipasm
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
@@ -121,7 +110,6 @@ static inline int32_t krecipasm(int32_t i)
     i = x.i;
     return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
 }
-#endif
 
 #undef qw
 #undef dw
