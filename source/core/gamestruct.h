@@ -3,7 +3,6 @@
 bool System_WantGuiCapture();	// During playing this tells us whether the game must be paused due to active GUI elememts.
 
 #include <stdint.h>
-#include "print.h"
 #include "vectors.h"
 
 struct GameStats

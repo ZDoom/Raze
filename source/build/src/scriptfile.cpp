@@ -381,7 +381,7 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
             sscanf(name + 2, "%" PRIx64 "", &x);
 
             if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))
-                buildprint("warning: number 0x", hex(x), " truncated to 32 bits.\n");
+                Printf("warning: number 0x%x" PRIx64 " truncated to 32 bits.\n", x);
 
             *val = x;
             return 1;
