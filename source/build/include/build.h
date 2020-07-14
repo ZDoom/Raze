@@ -499,8 +499,6 @@ extern char g_haveVoxels;
 extern int32_t rendmode;
 #endif
 extern uint8_t globalr, globalg, globalb;
-EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
-EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
 enum {
     GLOBAL_NO_GL_TILESHADES = 1<<0,

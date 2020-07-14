@@ -600,47 +600,6 @@ static int32_t defsparser(scriptfile *script)
 				TileFiles.LoadArtFile(fn, nullptr, tile);
         }
         break;
-        case T_SETUPTILE:
-        {
-            int32_t tile, tmp;
-
-            if (scriptfile_getsymbol(script,&tile)) break;
-            if (check_tile("setuptile", tile, script, cmdtokptr))
-                break;
-            if (scriptfile_getsymbol(script,&tmp)) break;  // XXX
-            h_xsize[tile] = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            h_ysize[tile] = tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            h_xoffs[tile]=tmp;
-            if (scriptfile_getsymbol(script,&tmp)) break;
-            h_yoffs[tile]=tmp;
-            break;
-        }
-        case T_SETUPTILERANGE:
-        {
-            int32_t tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
-
-            if (scriptfile_getsymbol(script,&tile1)) break;
-            if (scriptfile_getsymbol(script,&tile2)) break;
-            if (scriptfile_getnumber(script,&xsiz)) break;
-            if (scriptfile_getnumber(script,&ysiz)) break;
-            if (scriptfile_getsymbol(script,&xoffs)) break;
-            if (scriptfile_getsymbol(script,&yoffs)) break;
-
-            if (check_tile_range("setuptilerange", &tile1, &tile2, script, cmdtokptr))
-                break;
-
-            for (i=tile1; i<=tile2; i++)
-            {
-                h_xsize[i] = xsiz;
-                h_ysize[i] = ysiz;
-                h_xoffs[i] = xoffs;
-                h_yoffs[i] = yoffs;
-            }
-
-            break;
-        }
         case T_ANIMTILERANGE:
         {
             int32_t tile1, tile2, spd, type;

@@ -3598,11 +3598,7 @@ char pzLoadingScreenText1[256], pzLoadingScreenText2[256], pzLoadingScreenText3[
 
 void viewLoadingScreenWide(void)
 {
-#ifdef USE_OPENGL
-    if ((blood_globalflags&BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch && !(hw_hightile && h_xsize[kLoadScreen])))
-#else
-    if ((blood_globalflags&BLOOD_FORCE_WIDELOADSCREEN) || bLoadScreenCrcMatch)
-#endif
+    if ((blood_globalflags&BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch))
     {
         if (yxaspect >= 65536)
         {

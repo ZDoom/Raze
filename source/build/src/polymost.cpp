@@ -3041,13 +3041,6 @@ void polymost_drawsprite(int32_t snum)
 
     vec2_t off = { 0, 0 };
 
-    if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
-    {
-        int const flag = hw_hightile && h_xsize[globalpicnum];
-        off = { (int32_t)tspr->xoffset + (flag ? h_xoffs[globalpicnum] : tileLeftOffset(globalpicnum)),
-                (int32_t)tspr->yoffset + (flag ? h_yoffs[globalpicnum] : tileTopOffset(globalpicnum)) };
-    }
-
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
 
     if (tspr->cstat & 2)
@@ -3103,9 +3096,6 @@ void polymost_drawsprite(int32_t snum)
 
     vec2_16_t const oldsiz = tilesiz[globalpicnum];
     vec2_t tsiz = { oldsiz.x, oldsiz.y };
-
-    if (hw_hightile && h_xsize[globalpicnum])
-        tsiz = { h_xsize[globalpicnum], h_ysize[globalpicnum] };
 
     if (tsiz.x <= 0 || tsiz.y <= 0)
         return;
