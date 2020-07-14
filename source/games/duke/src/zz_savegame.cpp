@@ -238,7 +238,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		fw.Close();
 		bool res = FinishSavegameWrite();
 
-		if (!g_netServer && ud.multimode < 2)
+		if (ud.multimode < 2)
 		{
 			Printf("Saved: %s\n", fn.GetChars());
 			quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Game Saved");
@@ -257,7 +257,7 @@ bool G_SavePlayer(FSaveGameNode *sv)
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
-    if (g_netServer || ud.multimode > 1)
+    if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
         FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);
@@ -276,7 +276,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
 bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
-    if (g_netServer || ud.multimode > 1)
+    if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
         FTA(QUOTE_RESERVED4, g_player[myconnectindex].ps);

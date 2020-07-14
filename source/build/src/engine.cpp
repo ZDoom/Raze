@@ -140,12 +140,6 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 }
 
 
-void faketimerhandler()
-{
-}
-
-
-
 //
 // setslope
 //

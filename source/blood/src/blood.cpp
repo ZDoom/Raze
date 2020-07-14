@@ -1208,7 +1208,7 @@ RESTART:
                             break;
                     if (i >= 0)
                         break;
-                    faketimerhandler();
+                    //faketimerhandler();
                     ProcessFrame();
                     gameUpdate = true;
                 }

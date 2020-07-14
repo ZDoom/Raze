@@ -47,7 +47,6 @@ set( PCH_SOURCES
 	src/zz_common.cpp
 	src/zz_game.cpp
 	src/zz_global.cpp
-	src/zz_net.cpp
 	src/zz_player.cpp
 	src/zz_premap.cpp
 	src/zz_savegame.cpp

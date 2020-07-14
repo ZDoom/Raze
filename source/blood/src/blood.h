@@ -139,7 +139,6 @@ void sndPlaySpecialMusicOrNothing(int nMusic);
 struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
-	void faketimerhandler() override;
 	int app_main() override;
 	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;

@@ -487,8 +487,6 @@ EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 extern uint32_t drawlinepat;
 
-extern void faketimerhandler(void);
-
 extern int32_t novoxmips;
 
 extern int16_t tiletovox[MAXTILES];

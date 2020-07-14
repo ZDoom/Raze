@@ -52,7 +52,6 @@ struct GameInterface
 	virtual const char* Name() { return "$"; }
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
-	virtual void faketimerhandler() {} // This is a remnant of older versions, but Blood backend has not updated yet.
 	virtual int app_main() = 0;
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}

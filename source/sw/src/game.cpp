@@ -1404,7 +1404,6 @@ void LogoLevel(void)
 
         handleevents();
 
-        // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
         if (totalclock >= ototalclock + synctics)
         {
@@ -1478,7 +1477,6 @@ void CreditsLevel(void)
     {
         handleevents();
 
-        // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
         if (totalclock >= ototalclock + synctics)
         {
@@ -1630,7 +1628,6 @@ void MenuLevel(void)
         handleevents();
         C_RunDelayedCommands();
 
-        // taken from top of faketimerhandler
         // limits checks to max of 40 times a second
         if (totalclock >= ototalclock + synctics)
         {
@@ -1902,7 +1899,6 @@ void BonusScreen()
     {
         handleevents();
 
-        // taken from top of faketimerhandler
         if (totalclock < ototalclock + limit)
         {
             continue;
@@ -2429,8 +2425,6 @@ void InitRunLevel(void)
     if (snd_ambience)
         StartAmbientSound();
 }
-
-void faketimerhandler();
 
 void RunLevel(void)
 {

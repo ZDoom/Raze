@@ -30,7 +30,6 @@ struct ENetPacket;
 
 BEGIN_DUKE_NS
 
-extern void       *g_netServer;
 
 #define MAXSYNCBYTES 16
 #define SYNCFIFOSIZ 1024
@@ -50,7 +49,6 @@ extern int syncvaltail, syncvaltottail;
 
 void    Net_ClearFIFO(void);
 void    Net_GetInput(void);
-void    Net_GetPackets(void);
 /* NETCODE_ENABLE is not defined */
 
 // Connect/Disconnect

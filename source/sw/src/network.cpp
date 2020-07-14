@@ -908,8 +908,6 @@ AddSyncInfoToPacket(int *j)
     }
 }
 
-void faketimerhandler(void) { ; }
-
 void
 UpdateInputs(void)
 {

@@ -160,7 +160,7 @@ void G_HandleLocalKeys(void)
         if (screenpeek == -1) screenpeek = 0;
     }
 
-    if ((g_netServer || ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
+    if ((ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
     {
         buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
@@ -588,7 +588,7 @@ int GameInterface::app_main()
 
     connectpoint2[0] = -1;
 
-    Net_GetPackets();
+    //Net_GetPackets();
 
     for (bssize_t i=0; i<MAXPLAYERS; i++)
         G_MaybeAllocPlayer(i);
@@ -628,7 +628,7 @@ int GameInterface::app_main()
 
     // getnames();
 
-    if (g_netServer || ud.multimode > 1)
+    if (ud.multimode > 1)
     {
         ud.m_monsters_off = 1;
         ud.m_player_skill = 0;
@@ -662,7 +662,7 @@ MAIN_LOOP_RESTART:
     //if (ud.warp_on == 0)
     {
 #if 0 // fixme once the game loop has been done.
-        if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
+        if ((ud.multimode > 1) && boardfilename[0] != 0)
         {
             auto maprecord = FindMap(boardfilename);
             ud.m_respawn_monsters = ud.m_player_skill == 4;
@@ -708,7 +708,7 @@ MAIN_LOOP_RESTART:
 			goto MAIN_LOOP_RESTART;
 		}
 
-        Net_GetPackets();
+        //Net_GetPackets();
 
         G_HandleLocalKeys();
  
@@ -745,7 +745,7 @@ MAIN_LOOP_RESTART:
 
             advancequeue(myconnectindex);
 
-            if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+            if (((!System_WantGuiCapture() && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (ud.multimode > 1)) &&
                     (g_player[myconnectindex].ps->gm&MODE_GAME))
             {
                 moveloop();

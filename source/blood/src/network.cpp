@@ -619,7 +619,7 @@ void netWaitForEveryone(char a1)
         if (inputState.EscapePressed() && a1)
             Bexit(0);
         gameHandleEvents();
-        faketimerhandler();
+        //faketimerhandler();
         for (p = connecthead; p >= 0; p = connectpoint2[p])
             if (gPlayerReady[p] < gPlayerReady[myconnectindex])
                 break;
@@ -1321,11 +1321,6 @@ void faketimerhandler(void)
 #endif
     //if (gNetMode != NETWORK_NONE && gNetENetInit)
     //    enet_host_service(gNetMode == NETWORK_SERVER ? gNetENetServer : gNetENetClient, NULL, 0);
-}
-
-void GameInterface::faketimerhandler()
-{
-	::Blood::faketimerhandler();
 }
 
 void netPlayerQuit(int nPlayer)
