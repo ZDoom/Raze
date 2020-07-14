@@ -248,11 +248,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz2 = sec2->ceilingz;
 
     if ((sec2->floorstat|sec2->ceilingstat) & 2)
-#ifdef YAX_ENABLE
-            yax_getzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
-#else
         getcorrectzsofslope(nextsect, pos.x, pos.y, &dacz2, &daz2);
-#endif
 
     if (daz2 <= dacz2)
         return 1;
@@ -263,11 +259,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz = sec->ceilingz;
 
     if ((sec->floorstat|sec->ceilingstat) & 2)
-#ifdef YAX_ENABLE
-            yax_getzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
-#else
         getcorrectzsofslope(dasect, pos.x, pos.y, &dacz, &daz);
-#endif
 
     int32_t const sec2height = klabs(daz2-dacz2);
 
@@ -555,20 +547,6 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
                 if (wal->nextsector < 0 || (wal->cstat&dawalclipmask))
                 {
                     clipyou = 1;
-#ifdef YAX_ENABLE
-                    int const cb = yax_getbunch(dasect, YAX_CEILING);
-
-                    if (cb >= 0 && (sec->ceilingstat & yax_waltosecmask(dawalclipmask)) == 0)
-                    {
-                        int const ynw = yax_getnextwall(j, YAX_CEILING);
-
-                        if (ynw >= 0 && wall[ynw].nextsector >= 0 && (wall[ynw].cstat & dawalclipmask) == 0)
-                        {
-                            clipmove_tweak_pos(pos, diff.x, diff.y, p1.x, p1.y, p2.x, p2.y, &v.x, &v.y);
-                            clipyou = cliptestsector(dasect, wall[ynw].nextsector, flordist, ceildist, v, pos->z);
-                        }
-                    }
-#endif
                 }
                 else if (editstatus == 0)
                 {
@@ -1025,11 +1003,6 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 
     int32_t clipsectcnt = 0;
 
-#ifdef YAX_ENABLE
-    // YAX round, -1:center, 0:ceiling, 1:floor
-    int32_t mcf=-1;
-#endif
-
     uspriteptr_t curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
     int32_t curidx=-1, clipspritecnt = 0;
 
@@ -1053,20 +1026,12 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
         getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
-#ifdef YAX_ENABLE
-    origclipsectorlist[0] = sectnum;
-    origclipsectnum = 1;
-#endif
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
     clipspritenum = 0;
     Bmemset(clipsectormap, 0, (numsectors+7)>>3);
     bitmap_set(clipsectormap, sectnum);
 
-
-#ifdef YAX_ENABLE
-restart_grand:
-#endif
     do  //Collect sectors inside your square first
     {
         ////////// Walls //////////
@@ -1119,10 +1084,6 @@ restart_grand:
                 if (d.y > 0) da.y -= d.y*MAXCLIPDIST; else da.y += d.y*MAXCLIPDIST;
                 if (da.x >= da.y)
                     continue;
-#ifdef YAX_ENABLE
-                if (mcf==-1 && curspr==NULL)
-                    origclipsectorlist[origclipsectnum++] = k;
-#endif
                 //It actually got here, through all the continue's!!!
                 int32_t daz, daz2;
                 closest = pos->vec2;
@@ -1137,20 +1098,10 @@ restart_grand:
                     getzsofslope(k, closest.x,closest.y, &daz,&daz2);
 
                 {
-#ifdef YAX_ENABLE
-                    int16_t cb, fb;
-                    yax_getbunches(k, &cb, &fb);
-#endif
                     if (daz > *ceilz)
-#ifdef YAX_ENABLE
-                        if (mcf!=YAX_FLOOR && cb < 0)
-#endif
                         *ceilz = daz, *ceilhit = k+16384;
 
                     if (daz2 < *florz)
-#ifdef YAX_ENABLE
-                        if (mcf!=YAX_CEILING && fb < 0)
-#endif
                         *florz = daz2, *florhit = k+16384;
                 }
             }
@@ -1228,22 +1179,13 @@ restart_grand:
 
                 if (clipyou != 0)
                 {
-                    if ((pos->z > daz) && (daz > *ceilz
-#ifdef YAX_ENABLE
-                                           || (daz == *ceilz && yax_getbunch(clipsectorlist[i], YAX_CEILING)>=0)
-#endif
-                            ))
+                    if ((pos->z > daz) && (daz > *ceilz))
                     {
                         *ceilz = daz;
                         *ceilhit = j+49152;
                     }
 
-                    if ((pos->z < daz2) && (daz2 < *florz
-#ifdef YAX_ENABLE
-                                            // can have a floor-sprite lying directly on the floor!
-                                            || (daz2 == *florz && yax_getbunch(clipsectorlist[i], YAX_FLOOR)>=0)
-#endif
-                            ))
+                    if ((pos->z < daz2) && (daz2 < *florz))
                     {
                         *florz = daz2;
                         *florhit = j+49152;
@@ -1253,104 +1195,6 @@ restart_grand:
         }
     }
 
-#ifdef YAX_ENABLE
-    if (numyaxbunches > 0)
-    {
-        int const dasecclipmask = yax_waltosecmask(dawalclipmask);
-        int16_t cb, fb;
-
-        yax_getbunches(sectnum, &cb, &fb);
-
-        mcf++;
-        clipsectcnt = 0; clipsectnum = 0;
-
-        int didchange = 0;
-        if (cb>=0 && mcf==0 && *ceilhit==sectnum+16384)
-        {
-            int i;
-            for (i=0; i<origclipsectnum; i++)
-            {
-                int const j = origclipsectorlist[i];
-                if (yax_getbunch(j, YAX_CEILING) >= 0)
-                    if (sector[j].ceilingstat&dasecclipmask)
-                        break;
-            }
-
-            if (i==origclipsectnum)
-                for (i=0; i<origclipsectnum; i++)
-                {
-                    cb = yax_getbunch(origclipsectorlist[i], YAX_CEILING);
-                    if (cb < 0)
-                        continue;
-
-                    for (bssize_t SECTORS_OF_BUNCH(cb,YAX_FLOOR, j))
-                        if (inside(pos->x,pos->y, j)==1)
-                        {
-                            addclipsect(j);
-
-                            closest = pos->vec2;
-                            if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                                getsectordist(closest, j, &closest);
-                            int const daz = getceilzofslope(j, closest.x, closest.y);
-
-                            if (!didchange || daz > *ceilz)
-                                didchange=1, *ceilhit = j+16384, *ceilz = daz;
-                        }
-                }
-
-            if (clipsectnum==0)
-                mcf++;
-        }
-        else if (mcf==0)
-            mcf++;
-
-        didchange = 0;
-        if (fb>=0 && mcf==1 && *florhit==sectnum+16384)
-        {
-            int i=0;
-            for (; i<origclipsectnum; i++)
-            {
-                int const j = origclipsectorlist[i];
-                if (yax_getbunch(j, YAX_FLOOR) >= 0)
-                    if (sector[j].floorstat&dasecclipmask)
-                        break;
-            }
-
-            // (almost) same as above, but with floors...
-            if (i==origclipsectnum)
-                for (i=0; i<origclipsectnum; i++)
-                {
-                    fb = yax_getbunch(origclipsectorlist[i], YAX_FLOOR);
-                    if (fb < 0)
-                        continue;
-
-                    for (bssize_t SECTORS_OF_BUNCH(fb, YAX_CEILING, j))
-                        if (inside(pos->x,pos->y, j)==1)
-                        {
-                            addclipsect(j);
-
-                            closest = pos->vec2;
-                            if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                                getsectordist(closest, j, &closest);
-                            int const daz = getflorzofslope(j, closest.x,closest.y);
-
-                            if (!didchange || daz < *florz)
-                                didchange=1, *florhit = j+16384, *florz = daz;
-                        }
-                }
-        }
-
-        if (clipsectnum > 0)
-        {
-            // sector-like sprite re-init:
-            curidx = -1;
-            curspr = NULL;
-            clipspritecnt = 0; clipspritenum = 0;
-
-            goto restart_grand;
-        }
-    }
-#endif
 }
 
 
@@ -1490,11 +1334,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     uspriteptr_t curspr = NULL;
     int32_t clipspritecnt, curidx=-1;
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
-    intptr_t tmp[3], *tmpptr=NULL;
-#ifdef YAX_ENABLE
-    vec3_t newsv;
-    int32_t oldhitsect = -1, oldhitsect2 = -2;
-#endif
+    intptr_t *tmpptr=NULL;
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype>>16);
 
@@ -1502,9 +1342,6 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     if (sectnum < 0)
         return -1;
 
-#ifdef YAX_ENABLE
-restart_grand:
-#endif
     hit->pos.vec2 = hitscangoal;
 
     clipsectorlist[0] = sectnum;
@@ -1720,48 +1557,6 @@ restart_grand:
         }
     }
     while (++tempshortcnt < tempshortnum || clipspritecnt < clipspritenum);
-
-#ifdef YAX_ENABLE
-    if (numyaxbunches == 0 || editstatus)
-        return 0;
-
-    if (hit->sprite==-1 && hit->wall==-1 && hit->sect!=oldhitsect
-        && hit->sect != oldhitsect2)  // 'ping-pong' infloop protection
-    {
-        if (hit->sect == -1 && oldhitsect >= 0)
-        {
-            // this is bad: we didn't hit anything after going through a ceiling/floor
-            Bmemcpy(&hit->pos, &newsv, sizeof(vec3_t));
-            hit->sect = oldhitsect;
-
-            return 0;
-        }
-
-        // 1st, 2nd, ... ceil/floor hit
-        // hit->sect is >=0 because if oldhitsect's init and check above
-        if (SECTORFLD(hit->sect,stat, hitscan_hitsectcf)&yax_waltosecmask(dawalclipmask))
-            return 0;
-
-        i = yax_getneighborsect(hit->pos.x, hit->pos.y, hit->sect, hitscan_hitsectcf);
-        if (i >= 0)
-        {
-            Bmemcpy(&newsv, &hit->pos, sizeof(vec3_t));
-            sectnum = i;
-            sv = &newsv;
-
-            oldhitsect2 = oldhitsect;
-            oldhitsect = hit->sect;
-            hit->sect = -1;
-
-            // sector-like sprite re-init:
-            curspr = 0;
-            curidx = -1;
-            tmpptr = NULL;
-
-            goto restart_grand;
-        }
-    }
-#endif
 
     return 0;
 }

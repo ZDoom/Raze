@@ -124,56 +124,8 @@ enum rendmode_t {
 #  define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
 #  define YAX_NEXTWALLBITS (YAX_NEXTWALLBIT(0)|YAX_NEXTWALLBIT(1))
 
-#ifdef YAX_ENABLE
-
-   // More user tag hijacking: lotag/extra. :/
-#  define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + (playing_blood ? 1 : 2)*Cf))
-#  define YAX_NEXTWALLDEFAULT(Cf) (playing_blood ? 0 : ((Cf)==YAX_CEILING) ? 0 : -1)
-   extern int16_t yax_bunchnum[MAXSECTORS][2];
-   extern int16_t yax_nextwall[MAXWALLS][2];
-
-
-# define YAX_NEXTWALL(Wall, Cf) YAX_PTRNEXTWALL(wall, Wall, Cf)
-
-# define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
-    Itervar=yax_getnextwall(Itervar, Cfvar), \
-        (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
-
-# define SECTORS_OF_BUNCH(Bunchnum, Cf, Itervar) Itervar = headsectbunch[Cf][Bunchnum]; \
-    Itervar != -1; Itervar = nextsectbunch[Cf][Itervar]
-
-extern int32_t r_tror_nomaskpass;
-
-
-int16_t yax_getbunch(int16_t i, int16_t cf);
-static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
-{
-    *cb = yax_getbunch(i, YAX_CEILING);
-    *fb = yax_getbunch(i, YAX_FLOOR);
-}
-int16_t yax_getnextwall(int16_t wal, int16_t cf);
-void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
-
-
-void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
-void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
-int16_t yax_vnextsec(int16_t line, int16_t cf);
-void yax_update(int32_t resetstat);
-int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf);
-
-static FORCE_INLINE CONSTEXPR int32_t yax_waltosecmask(int32_t const walclipmask)
-{
-    // blocking: walstat&1 --> secstat&512
-    // hitscan: walstat&64 --> secstat&2048
-    return ((walclipmask&1)<<9) | ((walclipmask&64)<<5);
-}
-void yax_preparedrawrooms(void);
-void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t,int32_t),
-                   int16_t sectnum, int32_t didmirror, int32_t smoothr);
-#else
 # define yax_preparedrawrooms()
 # define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
-#endif
 
 #define CLIPMASK0 (((1)<<16)+1)
 #define CLIPMASK1 (((256)<<16)+64)
@@ -410,18 +362,6 @@ struct validmode_t {
 };
 EXTERN struct validmode_t validmode[MAXVALIDMODES];
 
-EXTERN int32_t numyaxbunches;
-#ifdef YAX_ENABLE
-// Singly-linked list of sectnums grouped by bunches and ceiling (0)/floor (1)
-// Usage e.g.:
-//   int16_t bunchnum = yax_getbunch(somesector, YAX_CEILING);
-// Iteration over all sectors whose floor bunchnum equals 'bunchnum' (i.e. "all
-// floors of the other side"):
-//   for (i=headsectbunch[1][bunchnum]; i!=-1; i=nextsectbunch[1][i])
-//       <do stuff with sector i...>
-
-EXTERN int16_t headsectbunch[2][YAX_MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
-#endif
 
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;

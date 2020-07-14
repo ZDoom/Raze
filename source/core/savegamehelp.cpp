@@ -490,11 +490,6 @@ void SaveEngineState()
 	fw->Write(&show2dsector, sizeof(show2dsector));
 	WriteMagic(fw);
 
-	fw->Write(&numyaxbunches, sizeof(numyaxbunches));
-	fw->Write(yax_bunchnum, sizeof(yax_bunchnum));
-	fw->Write(yax_nextwall, sizeof(yax_nextwall));
-	WriteMagic(fw);
-
 	fw->Write(&Numsprites, sizeof(Numsprites));
 	sv_prespriteextsave();
 	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
@@ -556,12 +551,6 @@ void LoadEngineState()
 		fr.Read(show2dwall, sizeof(show2dwall));
 		fr.Read(show2dsprite, sizeof(show2dsprite));
 		fr.Read(&show2dsector, sizeof(show2dsector));
-		CheckMagic(fr);
-
-		fr.Read(&numyaxbunches, sizeof(numyaxbunches));
-		fr.Read(yax_bunchnum, sizeof(yax_bunchnum));
-		fr.Read(yax_nextwall, sizeof(yax_nextwall));
-		yax_update(numyaxbunches > 0 ? 2 : 1);
 		CheckMagic(fr);
 
 		fr.Read(&Numsprites, sizeof(Numsprites));

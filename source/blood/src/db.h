@@ -300,19 +300,8 @@ extern unsigned short nextXSprite[kMaxXSprites];
 extern unsigned short nextXWall[kMaxXWalls];
 extern unsigned short nextXSector[kMaxXSectors];
 
-#ifdef YAX_ENABLE
-static inline bool yax_hasnextwall(int nWall)
-{
-    return yax_getnextwall(nWall, YAX_CEILING) >= 0 || yax_getnextwall(nWall, YAX_FLOOR) >= 0;
-}
-#endif
-
 static inline int GetWallType(int nWall)
 {
-#ifdef YAX_ENABLE
-    if (yax_hasnextwall(nWall))
-        return 0;
-#endif
     return wall[nWall].type;
 }
 

@@ -19,10 +19,6 @@
 // FIXME: doesn't work with mirrors.
 //#define ENGINE_CLEAR_SCREEN
 
-#ifdef YAX_ENABLE
-# define YAX_MAXDRAWS 8
-#endif
-
     extern intptr_t asm1, asm2;
     extern int32_t globalx1, globaly2;
 
@@ -154,27 +150,6 @@ static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(da
 extern void polymost_scansector(int32_t sectnum);
 #endif
 int32_t renderAddTsprite(int16_t z, int16_t sectnum);
-#ifdef YAX_ENABLE
-extern int32_t g_nodraw, scansector_retfast, scansector_collectsprites;
-extern int32_t yax_globallev, yax_globalbunch;
-extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
-extern uint8_t haveymost[(YAX_MAXBUNCHES+7)>>3];
-extern uint8_t yax_gotsector[(MAXSECTORS+7)>>3];
-extern int32_t yax_polymostclearzbuffer;
-
-static FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return (yax_vnextsec(line, cf) >= 0); }
-#endif
-
-#ifdef YAX_DEBUG
-extern char m32_debugstr[64][128];
-extern int32_t m32_numdebuglines;
-# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) snprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
-# define yaxprintf(fmt, ...) do { Printf(fmt, ##__VA_ARGS__); } while (0)
-#else
-# define yaxdebug(fmt, ...)
-# define yaxprintf(fmt, ...)
-#endif
-
 
 
 static FORCE_INLINE void setgotpic(int32_t tilenume)

@@ -1203,10 +1203,6 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
     }
 
-#ifdef YAX_ENABLE
-    yax_update((header.version & 0xff00) > 0x700 ? 0 : 1);
-#endif
-
     g_loadedMapVersion = 7;
 
     return 0;

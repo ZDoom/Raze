@@ -153,10 +153,6 @@ uint8_t LoadLevel(int nMap)
     inity = startPos.y;
     initz = startPos.z;
 
-#ifdef YAX_ENABLE
-    yax_update(1);
-#endif
-
     int i;
 
     for (i = 0; i < kMaxPlayers; i++)
