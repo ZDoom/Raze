@@ -1022,10 +1022,9 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 {
 	const double TICRATE = 120.;
 
-	double rfreq = refreshfreq * TICRATE / timerGetClockRate();
 	double elapsedTime = (totalclk - ototalclk).toScale16F();
-	double elapsedFrames = elapsedTime * rfreq * (1. / TICRATE);
-	double ratio = (elapsedFrames * realgameticspersec) / rfreq;
+	double elapsedFrames = elapsedTime * (1. / TICRATE);
+	double ratio = (elapsedFrames * realgameticspersec);
 	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
 }
 
