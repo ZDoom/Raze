@@ -41,6 +41,50 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
+// callback for playercolor CVAR
+//
+//---------------------------------------------------------------------------
+
+inline int playercolor2lookup(int color)
+{
+	static int8_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
+	if (color >= 0 && color < 10) return player_pals[color];
+	return 0;
+}
+
+void PlayerColorChanged(void)
+{
+	if (ud.recstat != 0)
+		return;
+
+	if (ud.multimode > 1)
+	{
+		//Net_SendClientInfo();
+	}
+	else
+	{
+		ps[myconnectindex].palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
+	}
+	if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
+		sprite[ps[myconnectindex].i].pal = ud.user_pals[myconnectindex];
+}
+
+//---------------------------------------------------------------------------
+//
+// Sync local player with CVARs.
+//
+//---------------------------------------------------------------------------
+
+void setlocalplayerinput(player_struct* pp)
+{
+	pp->aim_mode = in_mousemode;
+	pp->auto_aim = cl_autoaim;
+	pp->weaponswitch = cl_weaponswitch;
+}
+
+
+//---------------------------------------------------------------------------
+//
 // why is this such a mess?
 //
 //---------------------------------------------------------------------------
@@ -502,8 +546,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 				ps[p->frag_ps].frag++;
 				frags[p->frag_ps][snum]++;
 
-				auto pname = &g_player[p->frag_ps].user_name[0];	 // TRANSITIONAL
-				//&ud.user_name[p->frag_ps][0]);
+				auto pname = &ud.user_name[p->frag_ps][0];
 				if (snum == screenpeek)
 				{
 					quoteMgr.InitializeQuote(QUOTE_RESERVED, "Killed by %s", pname);

@@ -318,7 +318,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
 	if (map)
 	{
-		G_NewGame_EnterLevel(map, ud.m_player_skill);
+		startnewgame(map, ud.m_player_skill);
 	}
 
 }

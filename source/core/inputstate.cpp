@@ -203,3 +203,9 @@ void CONTROL_GetInput(ControlInfo* info)
 		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
 }
+
+
+CCMD(pause)
+{
+	inputState.SetPause();
+}

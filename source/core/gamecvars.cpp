@@ -462,13 +462,7 @@ CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 CUSTOM_CVAR(Int, playercolor, 0, CVAR_ARCHIVE|CVAR_USERINFO)
 {
 	if (self < 0 || self > 10) self = 0;
-	else ;// gi->UpdatePlayerColor(); // this part is game specific
-}
-
-CUSTOM_CVAR(Int, playerteam, 0, CVAR_USERINFO) // this one is transient and won't be saved.
-{
-	if (self < 0 || self > 3) self = 0;
-	else ;// gi->UpdatePlayerTeam(); // this part is game specific
+	else ;// gi->PlayerColorChanged(); // this part is game specific
 }
 
 // Will only become useful if the obituary system gets overhauled and for localization

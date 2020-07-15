@@ -195,4 +195,5 @@ enum
 };
 
 void updatePauseStatus();
+void updatePauseStatus(bool state, bool multiplayer);
 extern int paused;

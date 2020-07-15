@@ -42,6 +42,7 @@ Home "+Aim_Up"
 End "+Aim_Down"
 RCtrl "+Fire"
 Scroll "+Holster_Weapon"
+Pause "pause"
 
 Enter "+Inventory"
 KP-Enter "+Inventory"

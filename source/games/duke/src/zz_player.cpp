@@ -98,7 +98,7 @@ void P_GetInput(int const playerNum)
         return;
 
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    if (paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -114,9 +114,7 @@ void P_GetInput(int const playerNum)
 
     if (numplayers == 1)
     {
-        pPlayer->aim_mode = in_mousemode;
-        pPlayer->auto_aim = cl_autoaim;
-        pPlayer->weaponswitch = cl_weaponswitch;
+        setlocalplayerinput(pPlayer);
     }
 
 
@@ -327,7 +325,7 @@ void P_GetInput(int const playerNum)
 
     localInput.bits |= (mouseaim << SK_AIMMODE);
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
     //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (isRR())
@@ -391,14 +389,13 @@ void P_GetInput(int const playerNum)
         = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
         pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
     }
-    else if (pPlayer->return_to_center > 0 || thisPlayer.horizRecenter)
+    else if (pPlayer->return_to_center > 0)
     {
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_from_dbl(200 / 3) - fix16_sdiv(pPlayer->q16horiz, F16(1.5))))));
 
-        if ((!pPlayer->return_to_center && thisPlayer.horizRecenter) || (pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
+        if ((pPlayer->q16horiz >= F16(99.9) && pPlayer->q16horiz <= F16(100.1)))
         {
             pPlayer->q16horiz = F16(100);
-            thisPlayer.horizRecenter = false;
         }
 
         if (pPlayer->q16horizoff >= F16(-0.1) && pPlayer->q16horizoff <= F16(0.1))
@@ -446,7 +443,7 @@ void P_GetInputMotorcycle(int playerNum)
     auto const pPlayer = &ps[playerNum];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    if (paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -462,9 +459,7 @@ void P_GetInputMotorcycle(int playerNum)
 
     if (numplayers == 1)
     {
-        pPlayer->aim_mode = in_mousemode;
-        pPlayer->auto_aim = cl_autoaim;
-        pPlayer->weaponswitch = cl_weaponswitch;
+        setlocalplayerinput(pPlayer);
     }
 
     CONTROL_GetInput(&info);
@@ -497,7 +492,7 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
@@ -638,7 +633,7 @@ void P_GetInputBoat(int playerNum)
     auto const pPlayer    = &ps[playerNum];
     ControlInfo info;
 
-    if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !inputState.GetKeyStatus(sc_Pause)))
+    if (paused)
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info);
@@ -654,9 +649,7 @@ void P_GetInputBoat(int playerNum)
 
     if (numplayers == 1)
     {
-        pPlayer->aim_mode = in_mousemode;
-        pPlayer->auto_aim = cl_autoaim;
-        pPlayer->weaponswitch = cl_weaponswitch;
+        setlocalplayerinput(pPlayer);
     }
 
     CONTROL_GetInput(&info);
@@ -687,9 +680,9 @@ void P_GetInputBoat(int playerNum)
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Steroids) << SK_STEROIDS;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_NightVision) << SK_NIGHTVISION;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
+     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
                  (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= !!inputState.GetKeyStatus(sc_Pause) << SK_PAUSE;
+    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
@@ -805,4 +798,15 @@ void P_GetInputBoat(int playerNum)
     localInput.fvel    = clamp((input.fvel += pPlayer->MotoSpeed), -(MAXVELMOTO / 8), MAXVELMOTO);
 }
 
+void GetInput()
+{
+    updatePauseStatus();
+
+    if (isRRRA() && ps[myconnectindex].OnMotorcycle)
+        P_GetInputMotorcycle(myconnectindex);
+    else if (isRRRA() && ps[myconnectindex].OnBoat)
+        P_GetInputBoat(myconnectindex);
+    else
+        P_GetInput(myconnectindex);
+}
 END_DUKE_NS

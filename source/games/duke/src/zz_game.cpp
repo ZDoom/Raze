@@ -58,6 +58,7 @@ int32_t moveloop(void);
 int menuloop(void);
 void advancequeue(int myconnectindex);
 input_t& nextinput(int myconnectindex);
+void GetInput();
 
 int16_t max_ammo_amount[MAX_WEAPONS];
 int32_t spriteqamount = 64;
@@ -287,14 +288,6 @@ static int parsedefinitions_game(scriptfile *, int);
 ===================
 */
 
-inline int G_CheckPlayerColor(int color)
-{
-    static int32_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
-    if (color >= 0 && color < 10) return player_pals[color];
-    return 0;
-}
-
-
 static void G_Startup(void)
 {
     timerInit(TICRATE);
@@ -344,46 +337,6 @@ static void G_Startup(void)
     TileFiles.PostLoadSetup();
 
     screenpeek = myconnectindex;
-}
-
-static void P_SetupMiscInputSettings(void)
-{
-    struct player_struct *pp = &ps[myconnectindex];
-
-    pp->aim_mode = in_mousemode;
-    pp->auto_aim = cl_autoaim;
-    pp->weaponswitch = cl_weaponswitch;
-}
-
-void G_UpdatePlayerFromMenu(void)
-{
-    if (ud.recstat != 0)
-        return;
-
-    if (numplayers > 1)
-    {
-        //Net_SendClientInfo();
-        if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
-            sprite[ps[myconnectindex].i].pal = g_player[myconnectindex].pcolor;
-    }
-    else
-    {
-        P_SetupMiscInputSettings();
-        ps[myconnectindex].palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
-
-        g_player[myconnectindex].pteam = playerteam;
-
-        if (sprite[ps[myconnectindex].i].picnum == TILE_APLAYER && sprite[ps[myconnectindex].i].pal != 1)
-            sprite[ps[myconnectindex].i].pal = g_player[myconnectindex].pcolor;
-    }
-}
-
-void G_BackToMenu(void)
-{
-    ps[myconnectindex].gm = 0;
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	inputState.keyFlushChars();
 }
 
 void app_loop();
@@ -480,8 +433,7 @@ int GameInterface::app_main()
     ud.ShowOpponentWeapons = 0;
     ud.camerasprite = -1;
     ud.camera_time = 0;//4;
-    playerteam = 0;
-
+    
     S_InitSound();
 
     
@@ -513,8 +465,7 @@ int GameInterface::app_main()
 
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
-        Bsprintf(g_player[j].user_name,"%s %d", GStrings("PLAYER"),j+1);
-        g_player[j].pteam = i;
+        Bsprintf(ud.user_name[j],"%s %d", GStrings("PLAYER"),j+1);
         ps[j].weaponswitch = 3;
         ps[j].auto_aim = 0;
         i = 1-i;
@@ -606,13 +557,9 @@ MAIN_LOOP_RESTART:
     }
 
     ud.showweapons = ud.ShowOpponentWeapons;
-    P_SetupMiscInputSettings();
-    g_player[myconnectindex].pteam = playerteam;
-
-    if (playercolor) ps[myconnectindex].palookup = g_player[myconnectindex].pcolor = G_CheckPlayerColor(playercolor);
-    else ps[myconnectindex].palookup = g_player[myconnectindex].pcolor;
-
-	inputState.ClearKeyStatus(sc_Pause);   // JBF: I hate the pause key
+    setlocalplayerinput(&ps[myconnectindex]);
+	PlayerColorChanged();
+    inputState.ClearAllInput();
 
     do //main loop
     {
@@ -637,13 +584,7 @@ MAIN_LOOP_RESTART:
         {
             ototalclock += TICSPERFRAME;
 
-            if (isRRRA() && ps[myconnectindex].OnMotorcycle)
-                P_GetInputMotorcycle(myconnectindex);
-            else if (isRRRA() && ps[myconnectindex].OnBoat)
-                P_GetInputBoat(myconnectindex);
-            else
-                P_GetInput(myconnectindex);
-
+            GetInput();
             // this is where we fill the input_t struct that is actually processed by P_ProcessInput()
             auto const pPlayer = &ps[myconnectindex];
             auto const q16ang  = fix16_to_int(pPlayer->q16ang);
@@ -682,12 +623,7 @@ MAIN_LOOP_RESTART:
         
         if (G_FPSLimit())
         {
-            if (isRRRA() && ps[myconnectindex].OnMotorcycle)
-                P_GetInputMotorcycle(myconnectindex);
-            else if (isRRRA() && ps[myconnectindex].OnBoat)
-                P_GetInputBoat(myconnectindex);
-            else
-                P_GetInput(myconnectindex);
+            GetInput();
 
             int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 

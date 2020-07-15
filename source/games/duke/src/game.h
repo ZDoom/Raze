@@ -69,15 +69,6 @@ struct TileInfo
 extern TileInfo tileinfo[MAXTILES];
 
 
-extern int startrts(int lumpNum, int localPlayer);
-
-static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
-{
-    newgame(map, skill);
-
-    if (enterlevel(map, MODE_GAME))
-        G_BackToMenu();
-}
 
 extern void setupbackdrop();
 

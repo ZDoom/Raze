@@ -110,7 +110,6 @@ EXTERN_CVAR(Int, m_marker)
 EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
-EXTERN_CVAR(Int, playerteam)
 
 extern bool gNoAutoLoad;
 extern int hud_statusbarrange;	// will be set by the game's configuration setup.

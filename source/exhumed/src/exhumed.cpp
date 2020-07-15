@@ -2273,11 +2273,7 @@ GAMELOOP:
                 // loc_11FBC:
                 while (paused)
                 {
-                    inputState.ClearAllInput();
-                    if (WaitAnyKey(-1) != sc_Pause)
-                    {
-                        paused = kFalse;
-                    }
+                    updatePauseStatus();
                 }
             }
 

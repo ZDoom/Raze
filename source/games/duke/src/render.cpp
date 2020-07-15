@@ -295,7 +295,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 {
 	if (!paused)
 	{
-		if (p->DrugMode > 0 && !(p->gm & MODE_TYPE) && !ud.pause_on)
+		if (p->DrugMode > 0 && !(p->gm & MODE_TYPE) && !paused)
 		{
 			int var_8c;
 			if (p->drug_stat[0] == 0)
@@ -491,7 +491,7 @@ void displayrooms(int snum, int smoothratio)
 	videoSetCorrectedAspect();
 
 	smoothratio = min(max(smoothratio, 0), 65536);
-	if (ud.pause_on || ps[snum].on_crane > -1) smoothratio = 65536;
+	if (paused || ps[snum].on_crane > -1) smoothratio = 65536;
 
 	sect = p->cursectnum;
 	if (sect < 0 || sect >= MAXSECTORS) return;

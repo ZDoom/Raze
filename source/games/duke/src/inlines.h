@@ -160,7 +160,7 @@ inline void SetPlayerPal(player_struct* p, PalEntry pe)
 inline int calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
     if (!((ud.multimode < 2 && ((ps[myconnectindex].gm & MODE_MENU) == 0)) ||
-        ud.multimode > 1 || ud.recstat == 2) || ud.pause_on)
+        ud.multimode > 1 || ud.recstat == 2) || paused)
     {
         return 65536;
     }

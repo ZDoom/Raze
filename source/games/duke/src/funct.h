@@ -185,6 +185,7 @@ void initwaterdrip(int j, int i);
 int initreactor(int j, int i, bool isrecon);
 void spawneffector(int i);
 void gameexitfrommenu();
+int startrts(int lumpNum, int localPlayer);
 
 void pickrandomspot(int pn);
 void resetinventory(int pn);
@@ -225,5 +226,8 @@ void clearfrags(void);
 int exitlevel();
 int enterlevel(MapRecord* mi, int gm);
 void newgame(MapRecord* mi, int sk);
+void startnewgame(MapRecord* map, int skill);
+void setlocalplayerinput(player_struct *pp);
+void PlayerColorChanged(void);
 
 END_DUKE_NS

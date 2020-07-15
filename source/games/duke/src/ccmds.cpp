@@ -58,7 +58,7 @@ static void dowarp(MapRecord *map)
         newgame(map, ud.m_player_skill);
         ps[myconnectindex].gm = MODE_RESTART;
     }
-    else G_NewGame_EnterLevel(map, ud.m_player_skill);
+    else startnewgame(map, ud.m_player_skill);
 }
 
 static int ccmd_levelwarp(CCmdFuncPtr parm)

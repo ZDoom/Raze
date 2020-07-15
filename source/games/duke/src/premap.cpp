@@ -415,7 +415,7 @@ void resetprestat(int snum,int g)
     animatecnt              = 0;
     parallaxtype            = 0;
     randomseed              = 17L;
-    ud.pause_on             = 0;
+    paused             = 0;
     ud.camerasprite         =-1;
     ud.eog                  = 0;
     tempwallptr             = 0;
@@ -623,14 +623,14 @@ void resetpspritevars(int g)
                 if (s->pal == 0)
                 {
                     s->pal = ps[j].palookup = which_palookup;
-                    //ud.user_pals[j] = which_palookup;
+                    ud.user_pals[j] = which_palookup;
                     which_palookup++;
                     if (which_palookup == 17) which_palookup = 9;
                 }
-                else /*ud.user_pals[j] =*/ ps[j].palookup = s->pal;
+                else ud.user_pals[j] = ps[j].palookup = s->pal;
             }
             else
-                s->pal = ps[j].palookup = g_player[j].pcolor;// ud.user_pals[j];
+                s->pal = ps[j].palookup = ud.user_pals[j];
 
             ps[j].i = i;
             ps[j].frag_ps = j;
@@ -1007,6 +1007,24 @@ int enterlevel(MapRecord *mi, int gamemode)
     resettimevars();  // Here we go
     Printf(TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
     return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// Start a new game from the menu
+//
+//---------------------------------------------------------------------------
+
+void startnewgame(MapRecord* map, int skill)
+{
+    newgame(map, skill);
+
+    if (enterlevel(map, MODE_GAME))
+    {
+        ps[myconnectindex].gm = 0;
+        M_StartControlPanel(false);
+        M_SetMenu(NAME_Mainmenu);
+    }
 }
 
 //---------------------------------------------------------------------------

@@ -423,7 +423,7 @@ void displayrest(int smoothratio)
 
 			if (ud.scrollmode == 0)
 			{
-				if (pp->newowner == -1 && !ud.pause_on)
+				if (pp->newowner == -1 && !paused)
 				{
 					if (screenpeek == myconnectindex && numplayers > 1)
 					{
@@ -447,7 +447,7 @@ void displayrest(int smoothratio)
 			}
 			else
 			{
-				if (!ud.pause_on)
+				if (!paused)
 				{
 					ud.fola += ud.folavel >> 3;
 					ud.folx += (ud.folfvel * sintable[(512 + 2048 - ud.fola) & 2047]) >> 14;
@@ -490,7 +490,7 @@ void displayrest(int smoothratio)
 		}
 	}
 
-	if (ud.pause_on == 1 && (ps[myconnectindex].gm & MODE_MENU) == 0)
+	if (paused == 1 && (ps[myconnectindex].gm & MODE_MENU) == 0)
 		fi.PrintPaused();
 }
 

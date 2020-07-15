@@ -48,14 +48,8 @@ enum gamemode_t {
 
 typedef struct
 {
-    bool    horizRecenter;
     float   horizAngleAdjust;
     fix16_t horizSkew;
-
-    int32_t pcolor, pteam;
-    // NOTE: wchoice[HANDREMOTE_WEAPON .. MAX_WEAPONS-1] unused
-
-    char user_name[32];
     double  lastInputTicks;
 
 } playerdata_t;

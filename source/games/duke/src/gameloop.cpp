@@ -239,7 +239,7 @@ int domovethings()
 			if (numplayers < 2 && !isRR())
 				S_PlaySound(GENERIC_AMBIENCE17, CHAN_AUTO, CHANF_UI);
 
-			Printf(PRINT_NOTIFY, "%s is history!", g_player[i].user_name);
+			Printf(PRINT_NOTIFY, "%s is history!", ud.user_name[i]);
 
 			quickkill(&ps[i]);
 			deletesprite(ps[i].i);
@@ -249,7 +249,7 @@ int domovethings()
 
 	//if(ud.recstat == 1) record();
 
-	if (ud.pause_on == 0)
+	if (paused == 0)
 	{
 		global_random = krand();
 		movedummyplayers();//ST 13
@@ -257,7 +257,7 @@ int domovethings()
 
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (ud.pause_on == 0)
+		if (paused == 0)
 		{
 			auto p = &ps[i];
 			if (p->pals.a > 0)
@@ -268,7 +268,7 @@ int domovethings()
 		}
 	}
 
-	if (ud.pause_on == 0)
+	if (paused == 0)
 	{
 		if (levelTextTime > 0)
 			levelTextTime--;

@@ -3160,10 +3160,10 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         }
 #endif
     }
-    else if (inputState.GetKeyStatus(sc_Pause))
+    else if (inputState.CheckPause())
     {
-        SET_LOC_KEY(loc->bits, SK_PAUSE, inputState.GetKeyStatus(sc_Pause));
-		inputState.ClearKeyStatus(sc_Pause);
+        SET_LOC_KEY(loc->bits, SK_PAUSE, true);
+		inputState.ClearPause();
 	}
 
     SET_LOC_KEY(loc->bits, SK_CENTER_VIEW, buttonMap.ButtonDown(gamefunc_Center_View));

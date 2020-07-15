@@ -105,16 +105,8 @@ void hud_input(int snum)
 	{
 		p->interface_toggle_flag = 1;
 
-		if (PlayerInput(snum, SKB_PAUSE))
-		{
-			ud.pause_on = !ud.pause_on;
-			if (ud.pause_on == 1 && PlayerInput(snum, SKB_RUN)) ud.pause_on = 2; // Mode 2 is silent, i.e. prints no notification.
-			Mus_SetPaused(ud.pause_on);
-			S_PauseSounds(ud.pause_on);
-		}
-
 		// Don't go on if paused or dead.
-		if (ud.pause_on) return;
+		if (paused) return;
 		if (sprite[p->i].extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.

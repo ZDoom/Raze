@@ -36,6 +36,11 @@ class InputState
 		KEYFIFOSIZ = 64,
 	};
 
+	enum EAction
+	{
+		Action_Pause = 1,
+	};
+
 	uint8_t KeyStatus[NUM_KEYS];
 
 	kb_scancode g_keyFIFO[KEYFIFOSIZ];
@@ -46,6 +51,8 @@ class InputState
 	uint8_t g_keyAsciiEnd;
 
 	vec2f_t  g_mousePos;
+
+	int actions;
 
 	void keySetState(int32_t key, int32_t state);
 
@@ -166,6 +173,7 @@ public:
 		keyFlushChars();
 		keyFlushScans();
 		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+		actions = 0;
 	}
 
 	bool CheckAllInput()
@@ -177,6 +185,10 @@ public:
 		ClearAllInput();
 		return res;
 	}
+
+	void SetPause() { actions |= Action_Pause; }
+	void ClearPause() {	actions &= ~Action_Pause; }
+	bool CheckPause() { bool b = !!(actions & Action_Pause); ClearPause(); return b; }
 
 };
 

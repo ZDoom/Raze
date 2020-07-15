@@ -47,8 +47,9 @@ struct user_defs
     unsigned char show_help, scrollmode, clipping;
     char user_name[MAXPLAYERS][32];
     unsigned char overhead_on, last_overhead, showweapons;
+    unsigned char user_pals[MAXPLAYERS];
 
-    short pause_on, from_bonus;
+    short from_bonus;
     short camerasprite, last_camsprite;
     short last_level, secretlevel;
 

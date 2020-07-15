@@ -1079,7 +1079,6 @@ OptionMenu "NewPlayerMenu" //protected
 		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColorsSW"
 	}
 	Option "$PLYRMNU_PLAYERGENDER", "playergender", "Gender"
-	Option "$PLYRMNU_TEAM", "playerteam", "PlayerTeam"
 	Submenu "$PLRMNU_TAUNTS", "TauntsMenu"
 	Class "NewPlayerMenu"
 }

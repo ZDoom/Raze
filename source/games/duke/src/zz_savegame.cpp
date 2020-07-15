@@ -533,9 +533,7 @@ static void sv_restsave();
 static void sv_restload();
 static void sv_rrrafog();
 
-#define SVARDATALEN \
-    ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(struct player_struct))*MAXPLAYERS)
+#define SVARDATALEN 1
 
 static uint8_t savegame_restdata[SVARDATALEN];
 
@@ -561,7 +559,6 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.coop, sizeof(ud.coop), 1 },
     { DS_NOCHK, &ud.marker, sizeof(ud.marker), 1 },
     { DS_NOCHK, &ud.ffire, sizeof(ud.ffire), 1 },
-    { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &global_random, sizeof(global_random), 1 },
@@ -933,9 +930,6 @@ static void sv_restsave()
 #define CPDAT(ptr,sz) do { Bmemcpy(mem, ptr, sz), mem+=sz ; } while (0)
     for (int i = 0; i < MAXPLAYERS; i++)
     {
-        CPDAT(g_player[i].user_name, 32);
-        CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
-        CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&ps[i], sizeof(struct player_struct));
     }
     
@@ -949,9 +943,6 @@ static void sv_restload()
 #define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
     for (int i = 0; i < MAXPLAYERS; i++)
     {
-        CPDAT(g_player[i].user_name, 32);
-        CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
-        CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&ps[i], sizeof(struct player_struct));
     }
 #undef CPDAT
