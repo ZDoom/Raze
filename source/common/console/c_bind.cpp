@@ -155,6 +155,7 @@ const char *KeyNames[NUM_KEYS] =
 FKeyBindings Bindings;
 FKeyBindings DoubleBindings;
 FKeyBindings AutomapBindings;
+FKeyBindings ShiftBindings;
 
 static unsigned int DClickTime[NUM_KEYS];
 static FixedBitArray<NUM_KEYS> DClicked;

@@ -915,6 +915,11 @@ void setupbackdrop()
 	}
 }
 
+bool GameInterface::automapActive()
+{
+	return ud.overhead_on != 0;
+}
+
 
 END_DUKE_NS
 

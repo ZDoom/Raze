@@ -346,6 +346,11 @@ void GameInterface::set_hud_layout(int layout)
 	}
 }
 
+void GameInterface::PlayHudSound() 
+{
+	S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+}
+
 void GameInterface::set_hud_scale(int scale)
 {
     ud.statusbarscale = clamp(scale, 36, 100);

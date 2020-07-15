@@ -67,7 +67,7 @@ struct user_defs
     int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
     int m_ffire, ffire, m_player_skill, multimode;
     int player_skill, m_marker, marker, mouseflip;
-    int statusbarmode, althud, ShowOpponentWeapons;
+    int statusbarmode, althud;
     MapRecord* nextLevel;
 
 };

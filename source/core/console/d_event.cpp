@@ -49,15 +49,16 @@
 
 bool G_Responder (event_t *ev)
 {
+	FKeyBindings* binds = &Bindings;
 	switch (ev->type)
 	{
 	case EV_KeyDown:
-		if (C_DoKey (ev, &Bindings, &DoubleBindings))
+		if (C_DoKey (ev, binds, &DoubleBindings))
 			return true;
 		break;
 
 	case EV_KeyUp:
-		C_DoKey (ev, &Bindings, &DoubleBindings);
+		C_DoKey (ev, binds, &DoubleBindings);
 		break;
 
 #if 0

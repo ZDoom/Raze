@@ -72,7 +72,6 @@ int32_t g_Shareware = 0;
 int32_t tempwallptr;
 int32_t      actor_tog;
 
-static int32_t nonsharedtimer;
 weaponhit hittype[MAXSPRITES];
 ActorInfo actorinfo[MAXTILES];
 player_struct ps[MAXPLAYERS];
@@ -102,179 +101,6 @@ void G_InitTimer(int32_t ticspersec)
 
 
 
-void G_HandleLocalKeys(void)
-{
-//    CONTROL_ProcessBinds();
-
-    if (ud.recstat == 2)
-    {
-        ControlInfo noshareinfo;
-        CONTROL_GetInput(&noshareinfo);
-    }
-
-    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (ps[myconnectindex].gm & MODE_TYPE) == 0)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-        {
-            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-
-            if (!SHIFTS_IS_PRESSED)
-            {
-				if (G_ChangeHudLayout(1))
-				{
-					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
-				}
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-        {
-            buttonMap.ClearButton(gamefunc_Shrink_Screen);
-
-            if (!SHIFTS_IS_PRESSED)
-            {
-				if (G_ChangeHudLayout(-1))
-				{
-					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
-				}
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
-    }
-
-    if ((ps[myconnectindex].gm&(MODE_MENU|MODE_TYPE)) || System_WantGuiCapture())
-        return;
-
-    if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
-    {
-        buttonMap.ClearButton(gamefunc_See_Coop_View);
-        screenpeek = connectpoint2[screenpeek];
-        if (screenpeek == -1) screenpeek = 0;
-    }
-
-    if ((ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
-    {
-        buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-        ud.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
-        FTA(QUOTE_WEAPON_MODE_OFF-ud.showweapons,&ps[screenpeek]);
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
-    {
-        buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
-        cl_crosshair = !cl_crosshair;
-        FTA(QUOTE_CROSSHAIR_OFF-cl_crosshair,&ps[screenpeek]);
-    }
-
-    if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-    {
-        buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-        ud.scrollmode = 1-ud.scrollmode;
-        if (ud.scrollmode)
-        {
-            ud.folx = ps[screenpeek].oposx;
-            ud.foly = ps[screenpeek].oposy;
-            ud.fola = fix16_to_int(ps[screenpeek].oq16ang);
-        }
-        FTA(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,&ps[myconnectindex]);
-    }
-
-
-    if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED || WIN_IS_PRESSED)
-    {
-        int ridiculeNum = 0;
-
-        // NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
-        for (bssize_t j=sc_F1; j<=sc_F10; j++)
-            if (inputState.UnboundKeyPressed(j))
-            {
-                inputState.ClearKeyStatus(j);
-                ridiculeNum = j - sc_F1 + 1;
-                break;
-            }
-
-        if (ridiculeNum)
-        {
-            if (SHIFTS_IS_PRESSED)
-            {
-                Printf(PRINT_NOTIFY, *CombatMacros[ridiculeNum-1]);
-				//Net_SendTaunt(ridiculeNum);
-                return;
-            }
-
-            // Not SHIFT -- that is, either some ALT or WIN.
-            if (startrts(ridiculeNum, 1))
-            {
-				//Net_SendRTS(ridiculeNum);
-                return;
-            }
-        }
-    }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-        {
-            buttonMap.ClearButton(gamefunc_Third_Person_View);
-
-            if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
-            {
-                ps[myconnectindex].over_shoulder_on = !ps[myconnectindex].over_shoulder_on;
-
-                cameradist  = 0;
-                cameraclock = (int32_t) totalclock;
-
-                FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
-            }
-        }
-
-        if (ud.overhead_on != 0)
-        {
-            int const timerOffset = ((int) totalclock - nonsharedtimer);
-            nonsharedtimer += timerOffset;
-
-            if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-                ps[myconnectindex].zoom += mulscale6(timerOffset, max<int>(ps[myconnectindex].zoom, 256));
-
-            if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-                ps[myconnectindex].zoom -= mulscale6(timerOffset, max<int>(ps[myconnectindex].zoom, 256));
-
-            ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
-        }
-    }
-
-#if 0 // fixme: We should not query Esc here, this needs to be done differently
-    if (I_EscapeTrigger() && ud.overhead_on && ps[myconnectindex].newowner == -1)
-    {
-        I_EscapeTriggerClear();
-        ud.last_overhead = ud.overhead_on;
-        ud.overhead_on   = 0;
-        ud.scrollmode    = 0;
-    }
-#endif
-
-    if (buttonMap.ButtonDown(gamefunc_Map))
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-        if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
-        {
-            ud.overhead_on = ud.last_overhead;
-            ud.last_overhead = 0;
-        }
-        else
-        {
-            ud.overhead_on++;
-            if (ud.overhead_on == 3) ud.overhead_on = 0;
-            ud.last_overhead = ud.overhead_on;
-        }
-    }
-}
 
 
 static int parsedefinitions_game(scriptfile *, int);
@@ -430,7 +256,6 @@ int GameInterface::app_main()
     checkcommandline();
 
     ps[0].aim_mode = 1;
-    ud.ShowOpponentWeapons = 0;
     ud.camerasprite = -1;
     ud.camera_time = 0;//4;
     
@@ -556,7 +381,7 @@ MAIN_LOOP_RESTART:
         }
     }
 
-    ud.showweapons = ud.ShowOpponentWeapons;
+    ud.showweapons = cl_showweapon;
     setlocalplayerinput(&ps[myconnectindex]);
 	PlayerColorChanged();
     inputState.ClearAllInput();
@@ -572,7 +397,7 @@ MAIN_LOOP_RESTART:
 
         //Net_GetPackets();
 
-        G_HandleLocalKeys();
+        nonsharedkeys();
  
         C_RunDelayedCommands();
 

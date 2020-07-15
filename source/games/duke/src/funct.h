@@ -229,5 +229,6 @@ void newgame(MapRecord* mi, int sk);
 void startnewgame(MapRecord* map, int skill);
 void setlocalplayerinput(player_struct *pp);
 void PlayerColorChanged(void);
+void nonsharedkeys(void);
 
 END_DUKE_NS

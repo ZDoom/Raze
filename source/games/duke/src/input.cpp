@@ -39,6 +39,193 @@ source as it is released.
 
 BEGIN_DUKE_NS 
 
+
+//---------------------------------------------------------------------------
+//
+// handles UI side input not handled via CCMDs or CVARs.
+// Most of what's in here needs to be offloaded to CCMDs
+//
+//---------------------------------------------------------------------------
+
+void nonsharedkeys(void)
+{
+	static int nonsharedtimer;
+	short i, ch, weapon;
+	int j;
+
+	if (ud.recstat == 2)
+	{
+		ControlInfo noshareinfo;
+		CONTROL_GetInput(&noshareinfo);
+	}
+
+	if (System_WantGuiCapture())
+		return;
+
+	if (!ALT_IS_PRESSED && ud.overhead_on == 0)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
+		{
+			buttonMap.ClearButton(gamefunc_Enlarge_Screen);
+
+			if (!SHIFTS_IS_PRESSED)
+			{
+				if (G_ChangeHudLayout(1))
+				{
+					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+				}
+			}
+			else
+			{
+				hud_scale = hud_scale + 4;
+			}
+		}
+
+		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+		{
+			buttonMap.ClearButton(gamefunc_Shrink_Screen);
+
+			if (!SHIFTS_IS_PRESSED)
+			{
+				if (G_ChangeHudLayout(-1))
+				{
+					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+				}
+			}
+			else
+			{
+				hud_scale = hud_scale - 4;
+			}
+		}
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
+	{
+		buttonMap.ClearButton(gamefunc_See_Coop_View);
+		screenpeek = connectpoint2[screenpeek];
+		if (screenpeek == -1) screenpeek = 0;
+	}
+
+	if ((ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
+	{
+		buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
+		ud.showweapons = 1 - ud.showweapons;
+		cl_showweapon = ud.showweapons;
+		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
+	{
+		buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
+		cl_crosshair = !cl_crosshair;
+		FTA(QUOTE_CROSSHAIR_OFF - cl_crosshair, &ps[screenpeek]);
+	}
+
+	if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+	{
+		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
+		ud.scrollmode = 1 - ud.scrollmode;
+		if (ud.scrollmode)
+		{
+			ud.folx = ps[screenpeek].oposx;
+			ud.foly = ps[screenpeek].oposy;
+			ud.fola = ps[screenpeek].getoang();
+		}
+		FTA(QUOTE_MAP_FOLLOW_OFF + ud.scrollmode, &ps[myconnectindex]);
+	}
+
+	// Fixme: This really should be done via CCMD, not via hard coded key checks - but that needs alternative Shift and Alt bindings.
+	if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
+	{
+		int taunt = 0;
+
+		// NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
+		for (int j = sc_F1; j <= sc_F10; j++)
+			if (inputState.UnboundKeyPressed(j))
+			{
+				inputState.ClearKeyStatus(j);
+				taunt = j - sc_F1 + 1;
+				break;
+			}
+
+		if (taunt)
+		{
+			if (SHIFTS_IS_PRESSED)
+			{
+				Printf(PRINT_NOTIFY, *CombatMacros[taunt - 1]);
+				//Net_SendTaunt(taunt);
+				return;
+			}
+
+			if (startrts(taunt, 1))
+			{
+				//Net_SendRTS(taunt);
+				return;
+			}
+		}
+	}
+
+	if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
+		{
+			buttonMap.ClearButton(gamefunc_Third_Person_View);
+
+			if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
+			{
+				if (ps[myconnectindex].over_shoulder_on)
+					ps[myconnectindex].over_shoulder_on = 0;
+				else
+				{
+					ps[myconnectindex].over_shoulder_on = 1;
+					cameradist = 0;
+					cameraclock = (int)totalclock;
+				}
+				FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
+			}
+		}
+
+		if (ud.overhead_on != 0)
+		{
+			int j = (int)totalclock - nonsharedtimer; 
+			nonsharedtimer += j;
+
+			if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
+				ps[myconnectindex].zoom += mulscale6(j, max(ps[myconnectindex].zoom, 256));
+			if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+				ps[myconnectindex].zoom -= mulscale6(j, max(ps[myconnectindex].zoom, 256));
+
+			ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
+		}
+	}
+
+#if 0 // ESC is blocked by the menu, this function is not particularly useful anyway.
+	if (inputState.GetKeyStatus(sc_Escape) && ud.overhead_on && ps[myconnectindex].newowner == -1)
+	{
+		inputState.ClearKeyStatus(sc_Escape);
+		ud.last_overhead = ud.overhead_on;
+		ud.overhead_on = 0;
+		ud.scrollmode = 0;
+	}
+#endif
+
+	if (buttonMap.ButtonDown(gamefunc_Map))
+	{
+		buttonMap.ClearButton(gamefunc_Map);
+		if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
+		{
+			ud.overhead_on = ud.last_overhead;
+			ud.last_overhead = 0;
+		}
+		else
+		{
+			ud.overhead_on++;
+			if (ud.overhead_on == 3) ud.overhead_on = 0;
+			ud.last_overhead = ud.overhead_on;
+		}
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 // handles all HUD related input, i.e. inventory item selection and activation plus weapon selection.

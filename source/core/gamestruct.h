@@ -58,6 +58,8 @@ struct GameInterface
 	virtual bool validate_hud(int) { return true; }
 	virtual void set_hud_layout(int size) = 0;
 	virtual void set_hud_scale(int size) {}
+	virtual bool automapActive() { return false; }
+	virtual void PlayHudSound() {}
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
 	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}

@@ -178,13 +178,6 @@ CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD 
 	}
 }
 
-CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
-{
-	if (self < 35) self = 35;
-	else if (self > 100) self = 100;
-	else gi->set_hud_scale(self);
-}
-
 // This is to allow flattening the overly complicated HUD configuration to one single value and keep the complexity safely inside the HUD code.
 bool G_ChangeHudLayout(int direction)
 {
@@ -209,6 +202,37 @@ bool G_ChangeHudLayout(int direction)
 		}
 	}
 	return false;
+}
+
+CCMD(sizeup)
+{
+	if (G_ChangeHudLayout(1)) gi->PlayHudSound();
+}
+
+CCMD(sizedown)
+{
+	if (G_ChangeHudLayout(-1)) gi->PlayHudSound();
+}
+
+CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
+{
+	if (self < 36) self = 36;
+	else if (self > 100) self = 100;
+	else gi->set_hud_scale(self);
+}
+
+CCMD(scaleup)
+{
+	int oldscale = hud_scale;
+	hud_scale = hud_scale + 4;
+	if (hud_scale != oldscale) gi->PlayHudSound();
+}
+
+CCMD(scaledown)
+{
+	int oldscale = hud_scale;
+	hud_scale = hud_scale - 4;
+	if (hud_scale != oldscale) gi->PlayHudSound();
 }
 
 int hud_statusbarrange;	// will be set by the game's configuration setup.

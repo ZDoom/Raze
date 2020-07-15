@@ -1101,7 +1101,7 @@ bool CheckCheatmode(bool printmsg)
 void updatePauseStatus()
 {
 	bool GUICapture = System_WantGuiCapture();
-    if (M_Active() || GUICapture)
+    if ( GUICapture)
     {
         paused = 1;
     }

@@ -51,7 +51,6 @@ extern int32_t tempwallptr;
 
 void G_BackToMenu(void);
 
-void G_HandleLocalKeys(void);
 void G_UpdatePlayerFromMenu(void);
 
 
