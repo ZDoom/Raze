@@ -279,16 +279,6 @@ void G_HandleLocalKeys(void)
 static int parsedefinitions_game(scriptfile *, int);
 
 
-static void G_Cleanup(void)
-{
-    int32_t i;
-
-    for (i=MAXPLAYERS-1; i>=0; i--)
-    {
-        Xfree(g_player[i].input);
-    }
-}
-
 /*
 ===================
 =
@@ -396,12 +386,6 @@ void G_BackToMenu(void)
 	inputState.keyFlushChars();
 }
 
-void G_MaybeAllocPlayer(int32_t pnum)
-{
-    if (g_player[pnum].input == NULL)
-        g_player[pnum].input = (input_t *)Xcalloc(1, sizeof(input_t));
-}
-
 void app_loop();
 
 // TODO: reorder (net)weaponhit to eliminate slop and update assertion
@@ -490,10 +474,6 @@ int GameInterface::app_main()
     //bufferjitter = 1;
     //initsynccrc();
 
-    // This needs to happen before G_CheckCommandLine() because G_GameExit()
-    // accesses g_player[0].
-    G_MaybeAllocPlayer(0);
-
     checkcommandline();
 
     ps[0].aim_mode = 1;
@@ -526,11 +506,6 @@ int GameInterface::app_main()
     playerswhenstarted = ud.multimode;
 
     connectpoint2[0] = -1;
-
-    //Net_GetPackets();
-
-    for (bssize_t i=0; i<MAXPLAYERS; i++)
-        G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
 
@@ -728,12 +703,6 @@ MAIN_LOOP_RESTART:
             goto MAIN_LOOP_RESTART;
     }
     while (1);
-}
-
-void GameInterface::FreeGameData()
-{
-    setmapfog(0);
-    G_Cleanup();
 }
 
 ::GameInterface* CreateInterface()

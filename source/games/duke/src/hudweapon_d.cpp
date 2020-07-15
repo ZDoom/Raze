@@ -38,12 +38,10 @@ source as it is released.
 
 BEGIN_DUKE_NS 
   
-// wrapped in case it needs to be refactored
 int getavel(int snum)
 {
-	return (g_player[screenpeek].input->q16avel) >> FRACBITS;
+	return PlayerInputAngVel(screenpeek) >> FRACBITS;
 }
-
 
 //---------------------------------------------------------------------------
 //

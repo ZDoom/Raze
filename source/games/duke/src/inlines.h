@@ -111,37 +111,37 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
 inline bool PlayerInput(int pl, ESyncBits bit)
 {
-    return (!!((g_player[pl].input->bits) & bit));
+    return (!!((sync[pl].bits) & bit));
 }
 
 inline void PlayerSetInput(int pl, ESyncBits bit)
 {
-    g_player[pl].input->bits |= bit;
+    sync[pl].bits |= bit;
 }
 
 inline void PlayerClearInput(int pl, ESyncBits bit)
 {
-    g_player[pl].input->bits &= ~bit;
+    sync[pl].bits &= ~bit;
 }
 
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
-    return (g_player[pl].input->bits & bits);
+    return (sync[pl].bits & bits);
 }
 
 inline int PlayerInputSideVel(int pl)
 {
-    return g_player[pl].input->svel;
+    return sync[pl].svel;
 }
 
 inline int PlayerInputForwardVel(int pl)
 {
-    return g_player[pl].input->fvel;
+    return sync[pl].fvel;
 }
 
 inline fixed_t PlayerInputAngVel(int pl)
 {
-    return g_player[pl].input->q16avel;
+    return sync[pl].q16avel;
 }
 
 inline void clearfriction()

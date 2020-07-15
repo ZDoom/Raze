@@ -28,6 +28,7 @@ EDuke enhancements integrated: 04/13/2003 - Matt Saettler
 Note: This source file IS NOT USED in EDuke source.  It has been split
 into many sub-files.
 
+Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 

@@ -54,6 +54,7 @@ int32_t g_timerTicsPerSecond = TICRATE;
 int32_t g_tripbombRadius     = 3880;
 
 uint16_t frags[MAXPLAYERS][MAXPLAYERS];
+input_t sync[MAXPLAYERS];
 
 int16_t weaponsandammosprites[15];
 

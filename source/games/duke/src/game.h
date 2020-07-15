@@ -71,9 +71,6 @@ extern TileInfo tileinfo[MAXTILES];
 
 extern int startrts(int lumpNum, int localPlayer);
 
-extern void G_MaybeAllocPlayer(int32_t pnum);
-
-
 static inline void G_NewGame_EnterLevel(MapRecord *map, int skill)
 {
     newgame(map, skill);

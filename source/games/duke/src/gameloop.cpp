@@ -55,19 +55,14 @@ void clearfifo(void)
 {
 	localInput = {};
 	memset(&inputfifo, 0, sizeof(inputfifo));
-
-	for (int p = 0; p <= MAXPLAYERS - 1; ++p)
-	{
-		if (g_player[p].input != NULL)
-			*g_player[p].input = {};
-	}
+	memset(sync, 0, sizeof(sync));
 }
 
 
 static inline void GetNextInput()
 {
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-		memcpy(g_player[i].input /*originally: &sync[i] */, &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
+		memcpy(&sync[i], &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
 
 	movefifoplc++;
 }

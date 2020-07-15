@@ -48,8 +48,6 @@ enum gamemode_t {
 
 typedef struct
 {
-    input_t *input;
-
     bool    horizRecenter;
     float   horizAngleAdjust;
     fix16_t horizSkew;
@@ -63,7 +61,7 @@ typedef struct
 } playerdata_t;
 
 extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
-
+extern input_t sync[MAXPLAYERS];
 
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 
