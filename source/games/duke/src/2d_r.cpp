@@ -572,7 +572,7 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 	}
 	else if (!bonusonly && ud.multimode <= 1)
 	{
-		if (isRRRA() && !boardfilename[0] && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
+		if (isRRRA() && !(currentLevel->flags & MI_USERMAP) && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
 		{
 			jobs[job++] = { Create<DRRLevelSummaryScreen>(true) };
 			int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);

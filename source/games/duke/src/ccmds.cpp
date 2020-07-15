@@ -161,6 +161,8 @@ static int ccmd_restartmap(CCmdFuncPtr)
     return CCMD_OK;
 }
 
+int getlabelvalue(const char* text);
+
 static int ccmd_spawn(CCmdFuncPtr parm)
 {
     int x = 0, y = 0, z = 0;
@@ -191,20 +193,8 @@ static int ccmd_spawn(CCmdFuncPtr parm)
             picnum = (unsigned short)atol(parm->parms[0]);
         }
         else {
-            int i, j;
-            for (j = 0; j < 2; j++) {
-                for (i = 0; i < labelcnt; i++) {
-                    if (
-                        (j == 0 && !strcmp(label + (i * MAXLABELLEN), parm->parms[0])) ||
-                        (j == 1 && !stricmp(label + (i * MAXLABELLEN), parm->parms[0]))
-                        ) {
-                        picnum = (unsigned short)labelcode[i];
-                        break;
-                    }
-                }
-                if (i < labelcnt) break;
-            }
-            if (i == labelcnt) {
+            picnum = getlabelvalue(parm->parms[0]);
+            if (picnum < 0) {
                 Printf("spawn: Invalid tile label given\n");
                 return CCMD_OK;
             }

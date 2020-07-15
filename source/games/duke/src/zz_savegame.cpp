@@ -164,9 +164,6 @@ int32_t G_LoadPlayer(const char *path)
 
     ud.m_player_skill = h.skill;
 
-    // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
-    strcpy(boardfilename, currentLevel->fileName);
-
 	char workbuffer[BMAX_PATH];
 	Bstrcpy(workbuffer, currentLevel->fileName);
 

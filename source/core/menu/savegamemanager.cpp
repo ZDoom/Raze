@@ -58,6 +58,7 @@ FSavegameManager savegameManager;
 
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
+	inputState.ClearAllInput();
 	if (gi->CleanupForLoad())
 	{
 		if (OpenSaveGameForRead(node->Filename))

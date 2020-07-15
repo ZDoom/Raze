@@ -541,7 +541,7 @@ DEFINE_ACTION_FUNCTION(_CVar, FindCVar)
 //
 //
 //=============================================================================
-
+#if 0
 DEFINE_ACTION_FUNCTION(FKeyBindings, SetBind)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(FKeyBindings);
@@ -606,7 +606,7 @@ DEFINE_ACTION_FUNCTION(DOptionMenuItemCommand, DoCommand)
 	C_DoCommand(cmd);
 	return 0;
 }
-
+#endif
 DEFINE_ACTION_FUNCTION(_Console, MidPrint)
 {
 	PARAM_PROLOGUE;

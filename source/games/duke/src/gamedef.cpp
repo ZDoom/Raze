@@ -46,11 +46,10 @@ into many sub-files.
 
 BEGIN_DUKE_NS
 
+
 // parser state: todo: turn into a class
 char* textptr;
-char* label;
 int line_number;
-int labelcnt;
 int errorcount, warningcount;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
 int g_currentSourceFile;
 uint32_t parsing_actor, parsing_event;
@@ -60,7 +59,6 @@ int checking_ifelse;
 
 //G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
 extern char tempbuf[];
-extern int* labelcode;
 
 TArray<int> ScriptCode;
 
@@ -113,6 +111,62 @@ void SortCommands()
 
 //---------------------------------------------------------------------------
 //
+// label data
+//
+//---------------------------------------------------------------------------
+
+enum labeltypes {
+	LABEL_ANY = -1,
+	LABEL_DEFINE = 1,
+	LABEL_STATE = 2,
+	LABEL_ACTOR = 4,
+	LABEL_ACTION = 8,
+	LABEL_AI = 16,
+	LABEL_MOVE = 32,
+};
+
+static const char* labeltypenames[] = {
+	"define",
+	"state",
+	"actor",
+	"action",
+	"ai",
+	"move"
+};
+
+class labelstring
+{
+	char text[64];
+
+public:
+	char& operator[](size_t pos)
+	{
+		return text[pos];
+	}
+	operator const char* () { return text; }
+	const char* GetChars() { return text; }
+	int compare(const char* c) const { return strcmp(text, c); }
+	int comparei(const char* c) const { return stricmp(text, c); }
+	labelstring& operator=(const char* c) { strncpy(text, c, 64); text[63] = 0; }
+
+};
+
+struct labeldef
+{
+	labelstring name;
+	labeltypes type;
+	int value;
+
+	int compare(const char* c) const { return name.compare(c); }
+	const char* GetChars() { return name.GetChars(); }
+
+};
+
+TArray<labeldef> labels;
+static labelstring parselabel;
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -138,7 +192,7 @@ void ReportError(int iError)
 	{
 	case ERROR_ISAKEYWORD:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is a key word.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_PARMUNDEFINED:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Parameter '%s' is undefined.\n",
@@ -146,23 +200,23 @@ void ReportError(int iError)
 		break;
 	case WARNING_DUPLICATEDEFINITION:
 		Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Duplicate definition '%s' ignored.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_COULDNOTFIND:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Could not find '%s'.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_VARREADONLY:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Variable '%s' is read-only.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_NOTAGAMEDEF:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is not a Game Definition.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_NOTAGAMEVAR:
 		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Symbol '%s' is not a defined Game Variable.\n",
-			fn, line_number, label + (labelcnt << 6));
+			fn, line_number, parselabel.GetChars());
 		break;
 	case ERROR_OPENBRACKET:
 		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Found more '{' than '}' before '%s'.\n",
@@ -218,16 +272,46 @@ int getkeyword(const char* text)
 //
 //---------------------------------------------------------------------------
 
-int findlabel(const char* text)
+FString translatelabeltype(int type)
 {
-	for (int j = 0; j < labelcnt; j++)
+	FString buf;
+	for (int i = 0; i < 6; i++) 
 	{
-		if (strcmp(label + (j << 6), text) == 0)
+		if (!(type & (1 << i))) continue;
+		if (buf.Len()) buf += " or ";
+		buf += labeltypenames[i];
+	}
+	return buf;
+}
+
+int findlabel(const char* text, bool ignorecase = false)
+{
+	for (unsigned j = 0; j < labels.Size(); j++)
+	{
+		if (labels[j].compare(text) == 0)
 		{
 			return j;
 		}
 	}
+	if (ignorecase)
+	{
+		for (unsigned j = 0; j < labels.Size(); j++)
+		{
+			if (labels[j].name.comparei(text) == 0)
+			{
+				return j;
+			}
+		}
+	}
 	return -1;
+}
+
+// This is for the 'spawn' CCMD.
+int getlabelvalue(const char* text)
+{
+	int lnum = findlabel(text, true);
+	if (labels[lnum].type != LABEL_DEFINE) return -1;
+	return lnum < 0 ? -1 : labels[lnum].value;
 }
 
 //---------------------------------------------------------------------------
@@ -367,9 +451,9 @@ void getlabel(void)
 
 	i = 0;
 	while (ispecial(*textptr) == 0)
-		label[(labelcnt << 6) + i++] = *(textptr++);
+		parselabel[i++] = *(textptr++);
 
-	label[(labelcnt << 6) + i] = 0;
+	parselabel[i] = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -413,19 +497,18 @@ void pushlabeladdress()
 }
 */
 
-
-void appendlabeladdress(int offset = 0)
+void appendlabelvalue(labeltypes type, int value)
 {
-	labelcode[labelcnt++] = ScriptCode.Size() + offset;
-	labelcnt++;
+	labels.Reserve(1);
+	labels.Last().type = type;
+	labels.Last().name = parselabel;
+	labels.Last().value = value;
 }
 
-void appendlabelvalue(int value)
+void appendlabeladdress(labeltypes type, int offset = 0)
 {
-	labelcode[labelcnt++] = value;
-	labelcnt++;
+	appendlabelvalue(type, ScriptCode.Size() + offset);
 }
-
 
 
 //---------------------------------------------------------------------------
@@ -493,9 +576,9 @@ int transword(void) //Returns its code #
 //
 //---------------------------------------------------------------------------
 
-int transnum(void)
+int transnum(int type)
 {
-	int i, l;
+	int l;
 
 	while (isaltok(*textptr) == 0)
 	{
@@ -525,13 +608,24 @@ int transnum(void)
 	}
 
 
-	for (i = 0; i < labelcnt; i++)
+	for (unsigned i = 0; i < labels.Size(); i++)
 	{
-		if (strcmp(tempbuf, label + (i << 6)) == 0)
+		if (labels[i].compare(tempbuf) == 0)
 		{
-			appendscriptvalue(labelcode[i]);
+			// Non-values can be compared with 0.
+			if (labels[i].type & type || (labels[i].value == 0))
+			{
+				appendscriptvalue(labels[i].value);
+				textptr += l;
+				return labels[i].value;
+			}
+			appendscriptvalue(0);
 			textptr += l;
-			return labelcode[i];
+			auto el = translatelabeltype(type);
+			auto gl = translatelabeltype(labels[i].type);
+			const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
+			Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) %s: Expected a '%s' label but found a '%s' label instead.\n", fn, line_number, labels[i].GetChars(), el.GetChars(), gl.GetChars());
+			return -1;  // valid label name, but wrong type
 		}
 	}
 
@@ -553,14 +647,22 @@ int transnum(void)
 	// that ignores octal conversion.
 	int64_t value;
 	char *outp;
-	bool ishex = (textptr[0] == 0 && tolower(textptr[1]) == 'x') || (textptr[0] == '-' && textptr[1] == 0 && tolower(textptr[2]) == 'x');
-	if (*textptr == '-') value = strtoll(textptr, &outp, ishex? 16 : 10);
-	else value = strtoull(textptr, &outp, ishex ? 16 : 10);
+	bool ishex = (textptr[0] == '0' && tolower(textptr[1]) == 'x') || (textptr[0] == '-' && textptr[1] == '0' && tolower(textptr[2]) == 'x');
+	if (*textptr == '-') value = strtoll(textptr, &outp, ishex? 0 : 10);
+	else value = strtoull(textptr, &outp, ishex ? 0 : 10);
 	if (*outp != 0)
 	{
 		// conversion was not successful.
 	}
 	appendscriptvalue(int(value));	// truncate the parsed value to 32 bit.
+
+	if (type != LABEL_DEFINE && value != 0)
+	{
+		const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
+		Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Expected an identifier, got a numeric literal %d.\n", fn, line_number, (int)value);
+	}
+
+
 	textptr += l;
 	return int(value);
 }
@@ -574,7 +676,7 @@ int transnum(void)
 
 void checkforkeyword()
 {
-	if (getkeyword(label + (labelcnt << 6)) >= 0)
+	if (getkeyword(parselabel) >= 0)
 	{
 		errorcount++;
 		ReportError(ERROR_ISAKEYWORD);
@@ -614,7 +716,7 @@ int parsecommand()
 		{
 			getlabel();
 			popscriptvalue();
-			appendlabeladdress();
+			appendlabeladdress(LABEL_STATE);
 
 			parsing_state = 1;
 
@@ -624,14 +726,14 @@ int parsecommand()
 		getlabel();
 		checkforkeyword();
 
-		lnum = findlabel(label + (labelcnt << 6));
+		lnum = findlabel(parselabel);
 
 		if (lnum < 0)
 		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, label + (labelcnt << 6));
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, parselabel.GetChars());
 			errorcount++;
 		}
-		appendscriptvalue(labelcode[lnum]);
+		appendscriptvalue(labels[lnum].value);
 		return 0;
 
 	case concmd_ends:
@@ -665,25 +767,25 @@ int parsecommand()
 		// Check to see it's already defined
 		popscriptvalue();
 
-		if (getkeyword(label + (labelcnt << 6)) >= 0)
+		if (getkeyword(parselabel) >= 0)
 		{
 			errorcount++;
 			ReportError(ERROR_ISAKEYWORD);
 			return 0;
 		}
 
-		transnum();	// get initial value
+		transnum(LABEL_DEFINE);	// get initial value
 		j = popscriptvalue();
 
-		transnum();	// get flags
+		transnum(LABEL_DEFINE);	// get flags
 		lnum = popscriptvalue();
-		AddGameVar(label + (labelcnt << 6), j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
+		AddGameVar(parselabel, j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
 		return 0;
 
 	case concmd_define:
 		getlabel();
 		checkforkeyword();
-		lnum = findlabel(label + (labelcnt << 6));
+		lnum = findlabel(parselabel);
 		if (lnum >= 0)
 		{
 			warningcount++;
@@ -691,11 +793,11 @@ int parsecommand()
 			break;
 		}
 
-		transnum();
+		transnum(LABEL_DEFINE);
 		i = popscriptvalue();
 		if (lnum < 0)
 		{
-			appendlabelvalue(i);
+			appendlabelvalue(LABEL_DEFINE, i);
 		}
 		popscriptvalue();
 		return 0;
@@ -705,7 +807,7 @@ int parsecommand()
 		for (j = 0; j < 4; j++)
 		{
 			if (keyword() == -1)
-				transnum();
+				transnum(LABEL_DEFINE);
 			else break;
 		}
 
@@ -719,12 +821,12 @@ int parsecommand()
 	case concmd_move:
 		if (parsing_actor || parsing_state)
 		{
-			transnum();
+			transnum(LABEL_MOVE);
 
 			j = 0;
 			while (keyword() == -1)
 			{
-				transnum();
+				transnum(LABEL_DEFINE);
 				j |= popscriptvalue();
 			}
 			appendscriptvalue(j);
@@ -737,19 +839,19 @@ int parsecommand()
 
 			checkforkeyword();
 
-			for (i = 0; i < labelcnt; i++)
-				if (strcmp(label + (labelcnt << 6), label + (i << 6)) == 0)
+			for (i = 0; i < (int)labels.Size(); i++)
+				if (labels[i].compare(parselabel) == 0)
 				{
 					warningcount++;
-					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
+					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel);
 					break;
 				}
-			if (i == labelcnt)
-				appendlabeladdress();
+			if (i == labels.Size())
+				appendlabeladdress(LABEL_MOVE);
 			for (j = 0; j < 2; j++)
 			{
 				if (keyword() >= 0) break;
-				transnum();
+				transnum(LABEL_DEFINE);
 			}
 			for (k = j; k < 2; k++)
 			{
@@ -761,7 +863,7 @@ int parsecommand()
 	case concmd_music:
 	{
 		popscriptvalue();
-		transnum(); // Volume Number (0/4)
+		transnum(LABEL_DEFINE); // Volume Number (0/4)
 		k = popscriptvalue() - 1;
 		if (k < 0) specialmusic.Clear();
 
@@ -856,20 +958,20 @@ int parsecommand()
 
 	case concmd_ai:
 		if (parsing_actor || parsing_state)
-			transnum();
+			transnum(LABEL_AI);
 		else
 		{
 			popscriptvalue();
 			getlabel();
 			checkforkeyword();
 
-			lnum = findlabel(label + (labelcnt << 6));
+			lnum = findlabel(parselabel);
 			if (lnum >= 0)
 			{
 				warningcount++;
-				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, parselabel);
 			}
-			else appendlabeladdress();
+			else appendlabeladdress(LABEL_AI);
 
 			for (j = 0; j < 3; j++)
 			{
@@ -879,13 +981,13 @@ int parsecommand()
 					k = 0;
 					while (keyword() == -1)
 					{
-						transnum();
+						transnum(LABEL_DEFINE);
 						k |= popscriptvalue();
 					}
 					appendscriptvalue(k);
 					return 0;
 				}
-				else transnum();
+				else transnum(j==0? LABEL_ACTION : LABEL_MOVE);
 			}
 			for (k = j; k < 3; k++)
 			{
@@ -896,25 +998,25 @@ int parsecommand()
 
 	case concmd_action:
 		if (parsing_actor || parsing_state)
-			transnum();
+			transnum(LABEL_ACTION);
 		else
 		{
 			popscriptvalue();
 			getlabel();
 			checkforkeyword();
 
-			lnum = findlabel(label + (labelcnt << 6));
+			lnum = findlabel(parselabel);
 			if (lnum >= 0)
 			{
 				warningcount++;
-				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, label + (labelcnt << 6));
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, parselabel);
 			}
-			else appendlabeladdress();
+			else appendlabeladdress(LABEL_ACTION);
 
 			for (j = 0; j < 5; j++)
 			{
 				if (keyword() >= 0) break;
-				transnum();
+				transnum(LABEL_DEFINE);
 			}
 			for (k = j; k < 5; k++)
 			{
@@ -944,11 +1046,11 @@ int parsecommand()
 
 		if (tw == concmd_useractor)
 		{ 
-			transnum();
+			transnum(LABEL_DEFINE);
 			j = popscriptvalue();
 		}
 
-		transnum();
+		transnum(LABEL_DEFINE);
 		lnum = popscriptvalue();
 
 		actorinfo[lnum].scriptaddress = parsing_actor;	// TRANSITIONAL should only store an index
@@ -969,7 +1071,7 @@ int parsecommand()
 				j = 0;
 				while (keyword() == -1)
 				{
-					transnum();
+					transnum(LABEL_DEFINE);
 					
 					j |= popscriptvalue();
 				}
@@ -983,7 +1085,12 @@ int parsecommand()
 					reservescriptspace(4 - j);
 					break;
 				}
-				transnum();
+				switch (j)
+				{
+				case 0: transnum(LABEL_DEFINE); break;
+				case 1: transnum(LABEL_ACTION); break;
+				case 2: transnum(LABEL_MOVE | LABEL_DEFINE); break;
+				}
 				// This code was originally here but is a no-op, because both source and destination are the same here.			
 				//*(parsing_actor + j) = *(scriptaddress - 1);
 			}
@@ -1011,7 +1118,7 @@ int parsecommand()
 		popscriptvalue();
 		parsing_event = parsing_actor = scriptpos();
 
-		transnum();
+		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
 		if (j< 0 || j> EVENT_MAXEVENT)
 		{
@@ -1027,7 +1134,7 @@ int parsecommand()
 
 
 	case concmd_cstat:
-		transnum();
+		transnum(LABEL_DEFINE);
 #if 0
 		// the following checks are being performed by EDuke32 and RedNukem - not sure if this really should be done.
 		// DukeGDX and RedneckGDX do not perform these checks. Code pasted here for making a decision later.
@@ -1076,7 +1183,7 @@ int parsecommand()
 	case concmd_isdrunk:
 	case concmd_iseat:
 	case concmd_newpic:
-		transnum();
+		transnum(LABEL_DEFINE);
 		return 0;
 
 	case concmd_addammo:
@@ -1086,16 +1193,16 @@ int parsecommand()
 	case concmd_debris:
 	case concmd_addinventory:
 	case concmd_guts:
-		transnum();
-		transnum();
+		transnum(LABEL_DEFINE);
+		transnum(LABEL_DEFINE);
 		return 0;
 
 	case concmd_hitradius:
-		transnum();
-		transnum();
-		transnum();
-		transnum();
-		transnum();
+		transnum(LABEL_DEFINE);
+		transnum(LABEL_DEFINE);
+		transnum(LABEL_DEFINE);
+		transnum(LABEL_DEFINE);
+		transnum(LABEL_DEFINE);
 		break;
 
 	case concmd_else:
@@ -1127,7 +1234,7 @@ int parsecommand()
 		// Check to see if it's a keyword
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1143,7 +1250,7 @@ int parsecommand()
 		}
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
-		transnum();	// the number to check against...
+		transnum(LABEL_DEFINE);	// the number to check against...
 		return 0;
 
 	case concmd_setvarvar:
@@ -1157,7 +1264,7 @@ int parsecommand()
 
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1177,7 +1284,7 @@ int parsecommand()
 		getlabel();	//GetGameVarLabel();
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1197,7 +1304,7 @@ int parsecommand()
 
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1211,7 +1318,7 @@ int parsecommand()
 
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1229,7 +1336,7 @@ int parsecommand()
 		getlabel();	//GetGameVarLabel();
 
 		checkforkeyword();
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1238,7 +1345,7 @@ int parsecommand()
 		}
 		appendscriptvalue(i);	// the ID of the DEF (offset into array...)
 
-		transnum();	// the number to check against...
+		transnum(LABEL_DEFINE);	// the number to check against...
 		goto if_common;
 
 	case concmd_addlogvar:
@@ -1252,7 +1359,7 @@ int parsecommand()
 
 		checkforkeyword();
 
-		i = GetDefID(label + (labelcnt << 6));
+		i = GetDefID(parselabel);
 		if (i < 0)
 		{	// not a defined DEF
 			errorcount++;
@@ -1277,14 +1384,14 @@ int parsecommand()
 		j = 0;
 		do
 		{
-			transnum();
+			transnum(LABEL_DEFINE);
 			j |= popscriptvalue();
 		} while (keyword() == -1);
 		appendscriptvalue(j);
 		goto if_common;
 
 	case concmd_ifpinventory:
-		transnum();
+		transnum(LABEL_DEFINE);
 	case concmd_ifrnd:
 	case concmd_ifpdistl:
 	case concmd_ifpdistg:
@@ -1309,7 +1416,7 @@ int parsecommand()
 	case concmd_ifactorhealthl:
 	case concmd_ifsoundid:
 	case concmd_ifsounddist:
-		transnum();
+		transnum(tw == concmd_ifai? LABEL_AI : tw == concmd_ifaction? LABEL_ACTION : tw == concmd_ifmove? LABEL_MOVE : LABEL_DEFINE);
 	case concmd_ifonwater:
 	case concmd_ifinwater:
 	case concmd_ifactornotstayput:
@@ -1377,7 +1484,7 @@ int parsecommand()
 
 	case concmd_definevolumename:
 		popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
 		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
@@ -1394,7 +1501,7 @@ int parsecommand()
 		return 0;
 	case concmd_defineskillname:
 		popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
 		while (*textptr == ' ') textptr++;
 
@@ -1413,9 +1520,9 @@ int parsecommand()
 	case concmd_definelevelname:
 	{
 		popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		k = popscriptvalue();
 		while (*textptr == ' ') textptr++;
 
@@ -1464,7 +1571,7 @@ int parsecommand()
 	}
 	case concmd_definequote:
 		popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		k = popscriptvalue();
 		if (k >= MAXQUOTES)
 		{
@@ -1488,7 +1595,7 @@ int parsecommand()
 	case concmd_definesound:
 	{
 		popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		k = popscriptvalue();
 		i = 0;
 		while (*textptr == ' ')
@@ -1502,15 +1609,15 @@ int parsecommand()
 		}
 		parsebuffer.Push(0);
 
-		transnum();
+		transnum(LABEL_DEFINE);
 		int ps = popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		int pe = popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		int pr = popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		int m = popscriptvalue();
-		transnum();
+		transnum(LABEL_DEFINE);
 		int vo = popscriptvalue();
 		S_DefineSound(k, parsebuffer.Data(), ps, pe, pr, m, vo, 1.f);
 		return 0;
@@ -1595,7 +1702,7 @@ int parsecommand()
 	case concmd_gamestartup:
 	{
 		popscriptvalue();
-		auto parseone = []() { transnum(); return popscriptvalue(); };
+		auto parseone = []() { transnum(LABEL_DEFINE); return popscriptvalue(); };
 		ud.const_visibility = parseone();
 		impact_damage = parseone();
 		max_player_health = parseone();
@@ -1670,13 +1777,52 @@ void compilecon(const char *filenam)
 
 }
 
+//==========================================================================
+//
+// Fallback in case nothing got defined.
+//
+//==========================================================================
+
+static const char* ConFile(void)
+{
+	if (userConfig.DefaultCon.IsNotEmpty()) return userConfig.DefaultCon.GetChars();
+
+	// WW2GI anf NAM special con names got introduced by EDuke32.
+	// Do we really need these?
+	if (g_gameType & GAMEFLAG_WW2GI)
+	{
+		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
+	}
+
+	if (g_gameType & GAMEFLAG_NAM)
+	{
+		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
+		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
+	}
+
+	if (g_gameType & GAMEFLAG_NAPALM)
+	{
+		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
+		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
+	}
+
+	// This got introduced by EDuke 2.0.
+	if (g_gameType & GAMEFLAG_DUKE)
+	{
+		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";	
+	}
+
+	// the other games only use game.con.
+	return "game.con";
+}
+
 //---------------------------------------------------------------------------
 //
 // why was this called loadefs?
 //
 //---------------------------------------------------------------------------
 
-void loadcons(const char* filenam)
+void loadcons()
 {
 	for (int i = 0; i < MAXTILES; i++)
 	{
@@ -1684,8 +1830,7 @@ void loadcons(const char* filenam)
 	}
 
 	ScriptCode.Clear();
-
-	labelcnt = 0;
+	labels.Clear();
 
 	SortCommands();
 
@@ -1696,25 +1841,27 @@ void loadcons(const char* filenam)
 	auto before = I_nsTime();
 
 	ScriptCode.Push(0);
-	compilecon(filenam); //Tokenize
+	compilecon(ConFile()); //Tokenize
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
 	{
-		compilecon(filenam);
+		compilecon(m);
 	}
+	ScriptCode.ShrinkToFit();
+	labels.ShrinkToFit();
 	userConfig.AddCons.reset();
 	setscriptvalue(0, scriptpos());
 
 	if (errorcount)
 	{
-		I_FatalError("\nError in %s.", filenam);
+		I_FatalError("Failed to compile CONs.");
 	}
 	else
 	{
 		auto after = I_nsTime();
-		Printf("Compilation time:%.2f ms, Code Size:%d bytes. %d labels. %d/%d Variables.\n", (after-before) / 1000000.,
+		Printf("Compilation time:%.2f ms, Code Size:%u bytes. %u labels. %d/%d Variables.\n", (after-before) / 1000000.,
 			(ScriptCode.Size() << 2) - 4,
-			labelcnt,
+			labels.Size(),
 			0,//iGameVarCount,
 			MAXGAMEVARS
 		);
@@ -1723,11 +1870,6 @@ void loadcons(const char* filenam)
 	// These can only be retrieved AFTER loading the scripts.
 	InitGameVarPointers();
 	ResetSystemDefaults();
-	for (auto& tm : tempMusic)
-	{
-		auto map = FindMapByLevelNum(tm.levnum);
-		if (map) map->music = tm.music;
-	}
 	if (isRRRA())
 	{
 		// RRRA goes directly to the second episode after E1L7 to continue the game.
@@ -1755,6 +1897,11 @@ void loadcons(const char* filenam)
 			maprec->SetName("$TXT_CLOSEENCOUNTERS");
 			maprec->levelNumber = levelnum(1, 7);
 		}
+	}
+	for (auto& tm : tempMusic)
+	{
+		auto map = FindMapByLevelNum(tm.levnum);
+		if (map) map->music = tm.music;
 	}
 	tempMusic.Clear();
 

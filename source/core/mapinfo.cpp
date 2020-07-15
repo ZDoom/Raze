@@ -134,13 +134,3 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 	map->music = G_SetupFilenameBasedMusic(boardfilename, defaultmusic);
 	return map;
 }
-
-
-
-void InitRREndMap()
-{
-	// RR defines its end map ad-hoc so give it a proper entry to reference (the last one in episode 2 because it needs to be in Ep. 2.)
-	mapList[127].SetName("$TXT_CLOSEENCOUNTERS");
-	mapList[127].SetFileName("endgame.map");
-	mapList[127].levelNumber = 163;	// last one in Ep. 2.
-}

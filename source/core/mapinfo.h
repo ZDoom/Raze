@@ -73,7 +73,6 @@ extern MapRecord mapList[512];
 extern MapRecord *currentLevel;	
 
 bool SetMusicForMap(const char* mapname, const char* music, bool namehack = false);
-void InitRREndMap();
 
 MapRecord *FindMapByName(const char *nm);
 MapRecord *FindMapByLevelNum(int num);

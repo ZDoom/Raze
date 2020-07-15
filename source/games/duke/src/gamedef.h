@@ -62,7 +62,7 @@ void C_DefineMusic(int volumeNum, int levelNum, const char *fileName);
 
 void C_DefineVolumeFlags(int32_t vol, int32_t flags);
 void ReportError(int32_t iError);
-void loadcons(const char *filenam);
+void loadcons();
 
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;

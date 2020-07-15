@@ -218,11 +218,17 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
     }
 }
 
+static const char* DefFile(void)
+{
+    // The command line parser stores this in the CON field.
+    return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : "blood.ini";
+}
+
 void levelLoadDefaults(void)
 {
     char buffer[64];
     char buffer2[16];
-    levelInitINI(G_ConFile());	// This doubles for the INI in the global code.
+    levelInitINI(DefFile());
     memset(gEpisodeInfo, 0, sizeof(gEpisodeInfo));
     quoteMgr.InitializeQuote(MUS_INTRO, "PESTIS.MID");
     int i;

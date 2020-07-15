@@ -146,8 +146,6 @@ struct GrpEntry
 extern int g_gameType;
 const char* G_DefaultDefFile(void);
 const char* G_DefFile(void);
-const char* G_DefaultConFile(void);
-const char* G_ConFile(void);
 
 // game check shortcuts
 inline bool isNam()

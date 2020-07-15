@@ -406,6 +406,32 @@ void UserConfig::ProcessOptions()
 
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+void CheckUserMap()
+{
+	if (userConfig.CommandMap.IsEmpty()) return;
+	FString startupMap = userConfig.CommandMap;
+	if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
+	DefaultExtension(startupMap, ".map");
+	startupMap.Substitute("\\", "/");
+	NormalizeFileName(startupMap);
+
+	if (fileSystem.FileExists(startupMap))
+	{
+		Printf("Using level: \"%s\".\n", startupMap.GetChars());
+	}
+	else
+	{
+		Printf("Level \"%s\" not found.\n", startupMap.GetChars());
+		startupMap = "";
+	}
+	userConfig.CommandMap = startupMap;
+}
 
 //==========================================================================
 //
@@ -798,6 +824,7 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	TexMan.Init([]() {}, [](BuildInfo &) {});
 	V_InitFonts();
@@ -811,7 +838,6 @@ int RunGame()
 	LoadScripts();
 	M_Init();
 	SetDefaultStrings();
-	if (g_gameType & (GAMEFLAG_RR)) InitRREndMap();	// this needs to be done better later
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
 

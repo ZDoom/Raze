@@ -66,8 +66,6 @@ uint8_t shadedsector[MAXSECTORS];
 
 int32_t cameradist = 0, cameraclock = 0;
 
-char boardfilename[BMAX_PATH] = {0};
-
 int32_t g_Shareware = 0;
 
 int32_t tempwallptr;
@@ -289,9 +287,6 @@ static void G_Cleanup(void)
     {
         Xfree(g_player[i].input);
     }
-
-    if (label != (char *)&sprite[0]) Xfree(label);
-    if (labelcode != (int32_t *)&sector[0]) Xfree(labelcode);
 }
 
 /*
@@ -301,44 +296,6 @@ static void G_Cleanup(void)
 =
 ===================
 */
-
-static void G_CompileScripts(void)
-{
-    label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
-    labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
-
-    loadcons(G_ConFile());
-	fi.initactorflags();
-
-    if ((uint32_t)labelcnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
-        I_FatalError("Error: too many labels defined!");
-
-    {
-        char *newlabel;
-        int32_t *newlabelcode;
-        int32_t *newlabeltype;
-
-        newlabel     = (char *)Xmalloc(labelcnt << 6);
-        newlabelcode = (int32_t *)Xmalloc(labelcnt * sizeof(int32_t));
-        newlabeltype = (int32_t *)Xmalloc(labelcnt * sizeof(int32_t));
-
-        Bmemcpy(newlabel, label, labelcnt*64);
-        Bmemcpy(newlabelcode, labelcode, labelcnt*sizeof(int32_t));
-
-        label = newlabel;
-        labelcode = newlabelcode;
-    }
-
-    Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
-    Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
-    Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
-
-    if (IsGameEvent(EVENT_INIT))
-    {
-        SetGameVarID(g_iReturnVarID, -1, -1, -1);
-        OnEvent(EVENT_INIT);
-    }
-}
 
 inline int G_CheckPlayerColor(int color)
 {
@@ -353,7 +310,14 @@ static void G_Startup(void)
     timerInit(TICRATE);
     timerSetCallback(gameTimerHandler);
 
-    G_CompileScripts();
+    loadcons();
+    fi.initactorflags();
+
+    if (IsGameEvent(EVENT_INIT))
+    {
+        SetGameVarID(g_iReturnVarID, -1, -1, -1);
+        OnEvent(EVENT_INIT);
+    }
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
@@ -366,30 +330,11 @@ static void G_Startup(void)
 
 	if (userConfig.CommandMap.IsNotEmpty())
 	{
-		FString startupMap;
         if (VOLUMEONE)
         {
             Printf("The -map option is available in the registered version only!\n");
+			userConfig.CommandMap = "";
         }
-        else
-        {
-			startupMap = userConfig.CommandMap;
-			if (startupMap.IndexOfAny("/\\") < 0) startupMap.Insert(0, "/");
-			DefaultExtension(startupMap, ".map");
-			startupMap.Substitute("\\", "/");
-			NormalizeFileName(startupMap);
-
-			if (fileSystem.FileExists(startupMap))
-			{
-                Printf("Using level: \"%s\".\n",startupMap.GetChars());
-            }
-            else
-            {
-                Printf("Level \"%s\" not found.\n",startupMap.GetChars());
-                boardfilename[0] = 0;
-            }
-        }
-		strncpy(boardfilename, startupMap, BMAX_PATH);
     }
 
     if (numplayers > 1)
@@ -445,7 +390,6 @@ void G_UpdatePlayerFromMenu(void)
 
 void G_BackToMenu(void)
 {
-    boardfilename[0] = 0;
     ps[myconnectindex].gm = 0;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_Mainmenu);
@@ -658,9 +602,9 @@ MAIN_LOOP_RESTART:
     //if (ud.warp_on == 0)
     {
 #if 0 // fixme once the game loop has been done.
-        if ((ud.multimode > 1) && boardfilename[0] != 0)
+        if ((ud.multimode > 1) && startupMap.IsNotEmpty())
         {
-            auto maprecord = FindMap(boardfilename);
+            auto maprecord = FindMap(startupMap);
             ud.m_respawn_monsters = ud.m_player_skill == 4;
 
             for (int i = 0; i != -1; i = connectpoint2[i])

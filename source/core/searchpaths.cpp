@@ -924,53 +924,6 @@ const char* G_DefFile(void)
 }
 
 
-//==========================================================================
-//
-// Fallback in case nothing got defined.
-// Also used by 'includedefault' which forces this to be statically defined
-//
-//==========================================================================
-
-const char* G_DefaultConFile(void)
-{
-	if (g_gameType & GAMEFLAG_BLOOD)
-		return "blood.ini";	// Blood doesn't have CON files but the common code treats its INI files the same, so return that here.
-
-	if (g_gameType & GAMEFLAG_WW2GI)
-	{
-		if (fileSystem.FindFile("ww2gi.con") >= 0) return "ww2gi.con";
-	}
-
-	if (g_gameType & (GAMEFLAG_SW|GAMEFLAG_PSEXHUMED))
-		return nullptr;	// Exhumed and SW have no scripts of any kind.
-
-	if (g_gameType & GAMEFLAG_NAM)
-	{
-		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
-		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
-	}
-
-	if (g_gameType & GAMEFLAG_NAPALM)
-	{
-		if (fileSystem.FindFile("napalm.con") >= 0) return "napalm.con";
-		if (fileSystem.FindFile("nam.con") >= 0) return "nam.con";
-	}
-
-	if (g_gameType & GAMEFLAG_DUKE)
-	{
-		if (fileSystem.FindFile("eduke.con") >= 0) return "eduke.con";	// No, we're not EDUKE, but several mods expect this to work.
-	}
-
-	// the other games only use game.con.
-	return "game.con";
-}
-
-const char* G_ConFile(void)
-{
-	return userConfig.DefaultCon.IsNotEmpty() ? userConfig.DefaultCon.GetChars() : G_DefaultConFile();
-}
-
-
 #if 0
 // Should this be added to the game data collector?
 bool AddINIFile(const char* pzFile, bool bForce = false)

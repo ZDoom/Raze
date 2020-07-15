@@ -43,8 +43,6 @@ extern int rtsplaying;
 
 #ifndef ONLY_USERDEFS
 
-extern char boardfilename[BMAX_PATH];
-
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
 extern int32_t cameradist;

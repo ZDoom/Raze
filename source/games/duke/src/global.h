@@ -85,7 +85,6 @@ enum
     MAXLABELLEN = 64
 };
 
-extern char *label;
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
@@ -126,7 +125,6 @@ G_EXTERN int32_t g_freezerSelfDamage;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t global_random;
 G_EXTERN int32_t impact_damage;
-extern int32_t labelcnt;
 G_EXTERN int32_t g_maxPlayerHealth;
 G_EXTERN int32_t mirrorcnt;
 G_EXTERN int32_t playerswhenstarted;
@@ -159,10 +157,6 @@ G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
 #define cyclers g_cyclers
 G_EXTERN int16_t mirrorsector[64];
 G_EXTERN int16_t mirrorwall[64];
-G_EXTERN int32_t *labelcode;
-#if 0
-G_EXTERN int32_t *labeltype;
-#endif
 G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 
