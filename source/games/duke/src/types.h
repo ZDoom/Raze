@@ -91,6 +91,7 @@ struct player_struct
 
     // input handles angle and horizon as fixed16 numbers. We need to account for that as well.
     fixed_t q16ang, oq16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang; // oq16horiz, oq16horizoff, orotscrnang, ; // These three are currently not used but may be again later.
+    fixed_t one_eighty_target;
 
     // using a bit field for this to save a bit of space.
     FixedBitArray<MAX_WEAPONS> gotweapon;

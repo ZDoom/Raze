@@ -40,6 +40,7 @@ int32_t lastvisinc;
 #define MAXSVEL       ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL     1024
 #define MAXHORIZVEL   256
+#define ONEEIGHTYSCALE 4
 
 #define MOTOTURN      20
 #define MAXVELMOTO    120
@@ -55,6 +56,24 @@ enum inputlock_t
 
     IL_NOTHING = IL_NOANGLE|IL_NOHORIZ|IL_NOMOVE,
 };
+
+fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
+{
+    // Look at the smaller angle if > 1024 (180 degrees)
+    if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
+    {
+        if (ang1 <= fix16_from_int(1024))
+            ang1 += fix16_from_int(2048);
+
+        if (ang2 <= fix16_from_int(1024))
+            ang2 += fix16_from_int(2048);
+    }
+
+    //if (ang1 - ang2 == -fix16_from_int(1024))
+    //    return(fix16_from_int(1024));
+
+    return ang1 - ang2;
+}
 
 static int P_CheckLockedMovement(int const playerNum)
 {
@@ -403,13 +422,11 @@ void P_GetInput(int const playerNum)
             pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
         }
 
-#if 0
         if (pPlayer->one_eighty_count < 0)
         {
-            pPlayer->one_eighty_count = -fix16_to_int(fix16_abs(G_GetQ16AngleDelta(pPlayer->one_eighty_target, pPlayer->q16ang)));
+            pPlayer->one_eighty_count = -fix16_to_int(fix16_abs(GetDeltaQ16Angle(pPlayer->one_eighty_target, pPlayer->q16ang)));
             pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, fix16_max(fix16_one, fix16_from_dbl(scaleAdjustmentToInterval(-pPlayer->one_eighty_count / ONEEIGHTYSCALE)))) & 0x7FFFFFF;
         }
-#endif
 
         if (isRRRA() && pPlayer->SeaSick)
         {
