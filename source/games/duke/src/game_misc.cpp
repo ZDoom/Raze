@@ -106,38 +106,6 @@ void setmapfog(int fogtype)
 
 //---------------------------------------------------------------------------
 //
-// game specific command line args go here. 
-//
-//---------------------------------------------------------------------------
-
-void checkcommandline()
-{
-	auto val = Args->CheckValue("-skill");
-	if (!val) val = Args->CheckValue("-s");
-	if (val)
-	{
-		ud.m_player_skill = ud.player_skill = clamp((int)strtol(val, nullptr, 0), 0, 5);
-		if (ud.m_player_skill == 4) ud.m_respawn_monsters = ud.respawn_monsters = 1;
-	}
-	val = Args->CheckValue("-respawn");
-	if (!val) val = Args->CheckValue("-t");
-	if (val)
-	{
-		if (*val == '1') ud.m_respawn_monsters = 1;
-		else if (*val == '2') ud.m_respawn_items = 1;
-		else if (*val == '3') ud.m_respawn_inventory = 1;
-		else
-		{
-			ud.m_respawn_monsters = 1;
-			ud.m_respawn_items = 1;
-			ud.m_respawn_inventory = 1;
-		}
-		Printf("Respawn on.\n");
-	}
-}
-
-//---------------------------------------------------------------------------
-//
 // fixme: Menu does not call this
 //
 //---------------------------------------------------------------------------
@@ -156,101 +124,6 @@ void gameexitfrommenu()
 
 	endoomName = isRR() ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
 	ST_Endoom();
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void genspriteremaps(void)
-{
-	int j;
-
-	auto fr = fileSystem.OpenFileReader("lookup.dat");
-	if (!fr.isOpen())
-		   return;
-
-	j = lookups.loadTable(fr);
-
-	if (j < 0)
-	{
-		if (j == -1)
-			Printf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
-
-		return;
-	}
-
-	uint8_t paldata[768];
-
-	for (j=1; j<=5; j++)
-	{
-		if (fr.Read(paldata, 768) != 768)
-			return;
-
-		for (int k = 0; k < 768; k++) // Build uses 6 bit VGA palettes.
-			paldata[k] = (paldata[k] << 2) | (paldata[k] >> 6);
-
-		paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j < DREALMSPAL);
-	}
-
-	for (int i = 0; i < 256; i++)
-	{
-		// swap red and blue channels.
-		paldata[i * 3] = GPalette.BaseColors[i].b;
-		paldata[i * 3+1] = GPalette.BaseColors[i].g;
-		paldata[i * 3+2] = GPalette.BaseColors[i].r;
-	}
-	paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
-
-	if (isRR())
-	{
-		uint8_t table[256];
-		for (j = 0; j < 256; j++)
-			table[j] = j;
-		for (j = 0; j < 32; j++)
-			table[j] = j + 32;
-
-		lookups.makeTable(7, table, 0, 0, 0, 0);
-
-		for (j = 0; j < 256; j++)
-			table[j] = j;
-		lookups.makeTable(30, table, 0, 0, 0, 0);
-		lookups.makeTable(31, table, 0, 0, 0, 0);
-		lookups.makeTable(32, table, 0, 0, 0, 0);
-		lookups.makeTable(33, table, 0, 0, 0, 0);
-		if (isRRRA())
-			lookups.makeTable(105, table, 0, 0, 0, 0);
-
-		int unk = 63;
-		for (j = 64; j < 80; j++)
-		{
-			unk--;
-			table[j] = unk;
-			table[j + 16] = j - 24;
-		}
-		table[80] = 80;
-		table[81] = 81;
-		for (j = 0; j < 32; j++)
-		{
-			table[j] = j + 32;
-		}
-		lookups.makeTable(34, table, 0, 0, 0, 0);
-		for (j = 0; j < 256; j++)
-			table[j] = j;
-		for (j = 0; j < 16; j++)
-			table[j] = j + 129;
-		for (j = 16; j < 32; j++)
-			table[j] = j + 192;
-		lookups.makeTable(35, table, 0, 0, 0, 0);
-		if (isRRRA())
-		{
-			lookups.makeTable(50, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
-			lookups.makeTable(51, nullptr, 12 * 4, 12 * 4, 12 * 4, 0);
-			lookups.makeTable(54, lookups.getTable(8), 32 * 4, 32 * 4, 32 * 4, 0);
-		}
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -862,58 +735,6 @@ int startrts(int lumpNum, int localPlayer)
 	return 0;
 }
 
-
-//---------------------------------------------------------------------------
-//
-// Define sky layouts.
-// This one's easy - the other games are a total mess
-//
-//---------------------------------------------------------------------------
-
-void setupbackdrop()
-{
-	static const uint16_t pskyoff[8] = {};
-	static const uint16_t moonoff[8] = { 0, 2, 3, 0, 2, 0, 1, 0 };
-	static const uint16_t orbitoff[8] = { 0, 0, 4, 0, 0, 1, 2, 3 };
-	static const uint16_t laoff[8] = { 1, 2, 1, 3, 4, 0, 2, 3 };
-	static const uint16_t defoff[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-	static const uint16_t defoff1[8] = { 1, 2, 3, 4, 5, 6, 7, 0 };
-	static const uint16_t defoff4[8] = { 4, 5, 6, 7, 0, 1, 2, 3 };
-	static const uint16_t defoff7[8] = { 7, 0, 1, 2, 3, 4, 5, 6 };
-
-	defineSky(DEFAULTPSKY, 32768, 3, pskyoff);
-	defineSky(TILE_CLOUDYOCEAN, 65536, 3, pskyoff);
-	defineSky(TILE_MOONSKY1, 32768, 3, moonoff);
-	defineSky(TILE_BIGORBIT1, 32768, 3, orbitoff);
-	defineSky(TILE_LA, 16384 + 1024, 3, laoff);
-	if (isWorldTour())
-	{
-		defineSky(5284, 65536, 3, defoff);
-		defineSky(5412, 65536, 3, defoff, 48);
-		defineSky(5420, 65536, 3, defoff, 48);
-		defineSky(5450, 65536, 3, defoff7, 48);
-		defineSky(5548, 65536, 3, defoff, 48);
-		defineSky(5556, 65536, 3, defoff1, 48);
-		defineSky(5720, 65536, 3, defoff4, 48);
-		defineSky(5814, 65536, 3, defoff, 48);
-	}
-
-	// Ugh... Since we do not know up front which of these tiles are skies we have to set them all...
-	if (isRRRA())
-	{
-		for (int i = 0; i < MAXUSERTILES; i++)
-		{
-			if (tilesiz[i].x == 512)
-			{
-				defineSky(i, 32768, 1, pskyoff);
-			}
-			else if (tilesiz[i].x == 1024)
-			{
-				defineSky(i, 32768, 0, pskyoff);
-			}
-		}
-	}
-}
 
 bool GameInterface::automapActive()
 {

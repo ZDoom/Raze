@@ -52,6 +52,7 @@ int32_t g_shrinkerRadius     = 650;
 int32_t g_spriteGravity      = 176;
 int32_t g_timerTicsPerSecond = TICRATE;
 int32_t g_tripbombRadius     = 3880;
+int32_t g_cdTrack = -1;
 
 uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 input_t sync[MAXPLAYERS];

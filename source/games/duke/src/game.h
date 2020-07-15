@@ -68,13 +68,6 @@ struct TileInfo
 extern TileInfo tileinfo[MAXTILES];
 
 
-
-extern void setupbackdrop();
-
-//////////
-
-extern void genspriteremaps(void);
-
 extern int32_t      actor_tog;
 extern int32_t      otherp;
 

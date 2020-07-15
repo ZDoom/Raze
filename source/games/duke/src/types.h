@@ -54,12 +54,12 @@ struct user_defs
     short last_level, secretlevel;
 
     int const_visibility;
-    int camera_time, folfvel, folavel, folx, foly, fola;
+    int folfvel, folavel, folx, foly, fola;
     int reccnt;
 
     int runkey_mode, statusbarscale, mouseaiming, weaponswitch;
 
-    int entered_name, shadows, fta_on, executions, auto_run;
+    int entered_name, shadows, executions, auto_run;
     int coords, tickrate, levelstats, m_coop, coop, screen_size, lockout, crosshair;
     int wchoice[MAXPLAYERS][MAX_WEAPONS], playerai;
 

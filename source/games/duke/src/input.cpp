@@ -50,8 +50,6 @@ BEGIN_DUKE_NS
 void nonsharedkeys(void)
 {
 	static int nonsharedtimer;
-	short i, ch, weapon;
-	int j;
 
 	if (ud.recstat == 2)
 	{

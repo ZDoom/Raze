@@ -15,6 +15,7 @@ set( PCH_SOURCES
 	src/dispatch.cpp
 	src/flags_d.cpp
 	src/flags_r.cpp
+	src/game.cpp
 	src/game_misc.cpp
 	src/gamedef.cpp
 	src/gameexec.cpp

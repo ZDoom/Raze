@@ -86,7 +86,6 @@ enum
 };
 
 G_EXTERN char g_loadFromGroupOnly;
-G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 #define MAXPLAYERNAME 32
@@ -103,7 +102,7 @@ G_EXTERN int32_t movefifosendplc;
 
 G_EXTERN int32_t predictfifoplc;
 
-G_EXTERN int32_t g_networkBroadcastMode, g_movesPerPacket;
+G_EXTERN int32_t g_networkBroadcastMode;
 
 G_EXTERN int32_t g_animWallCnt;
 #define numanimwalls g_animWallCnt
@@ -211,7 +210,7 @@ G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, BellS
 #define word_119BE0 BellSprite
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
 G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, fogactive;
-G_EXTERN int32_t g_cdTrack;
+extern int32_t g_cdTrack;
 #define raat607 enemysizecheat // only as a reminder
 #define raat605 chickenphase
 #define at59d yeehaa_timer
