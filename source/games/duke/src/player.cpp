@@ -712,8 +712,12 @@ void playerLookLeft(int snum)
 	OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
+#ifdef SYNCINPUT
 		p->addlookang(-152);
 		p->addrotscrnang(24);
+#else
+		g_player[snum].lookLeft = true;
+#endif
 	}
 }
 
@@ -724,8 +728,12 @@ void playerLookRight(int snum)
 	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
+#ifdef SYNCINPUT
 		p->addlookang(152);
 		p->addrotscrnang(24);
+#else
+		g_player[snum].lookRight = true;
+#endif
 	}
 }
 
@@ -743,7 +751,7 @@ void playerCenterView(int snum)
 #pragma message("input stuff begins here")
 void horizAngleAdjust(int snum, int delta)
 {
-#if 1 // for per-frame input
+#ifndef SYNCINPUT // for per-frame input
 	g_player[snum].horizAngleAdjust = delta;
 #else // for synchronous input
 	ps[snum].addhoriz(delta);

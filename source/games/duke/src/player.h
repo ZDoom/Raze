@@ -51,6 +51,8 @@ typedef struct
     float   horizAngleAdjust;
     fix16_t horizSkew;
     double  lastInputTicks;
+    bool    lookLeft;
+    bool    lookRight;
 
 } playerdata_t;
 

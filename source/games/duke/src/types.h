@@ -90,7 +90,7 @@ struct player_struct
     };
 
     // input handles angle and horizon as fixed16 numbers. We need to account for that as well.
-    fixed_t q16ang, oq16ang, q16horiz, q16horizoff; // oq16horiz, oq16horizoff; // These two are currently not used but may be again later.
+    fixed_t q16ang, oq16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang; // oq16horiz, oq16horizoff, orotscrnang, ; // These three are currently not used but may be again later.
 
     // using a bit field for this to save a bit of space.
     FixedBitArray<MAX_WEAPONS> gotweapon;
@@ -114,7 +114,7 @@ struct player_struct
 
     int aim_mode, auto_aim, weaponswitch;
 
-    short angvel, cursectnum, look_ang, last_extra, subweapon;
+    short angvel, cursectnum, last_extra, subweapon;
     short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
 
     short curr_weapon, last_weapon, tipincs, wantweaponfire;
@@ -131,7 +131,7 @@ struct player_struct
     short weaprecs[256], weapreccnt;
     unsigned int interface_toggle_flag;
 
-    short orotscrnang, rotscrnang, dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
+    short dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
     short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
     short holoduke_on, pycount, weapon_pos, frag_ps;
     short transporter_hold, last_full_weapon, footprintshade, boot_amount;
@@ -190,12 +190,12 @@ struct player_struct
     int8_t crouch_toggle;
 
     // Access helpers for the widened angle and horizon fields.
-    int getlookang() { return look_ang; }
-    void setlookang(int b) { look_ang = b; }
-    void addlookang(int b) { look_ang += b; }
-    int getrotscrnang() { return rotscrnang; }
-    void setrotscrnang(int b) { rotscrnang = b; }
-    void addrotscrnang(int b) { rotscrnang += b; }
+    int getlookang() { return q16look_ang >> FRACBITS; }
+    void setlookang(int b) { q16look_ang = b << FRACBITS; }
+    void addlookang(int b) { q16look_ang += b << FRACBITS; }
+    int getrotscrnang() { return q16rotscrnang >> FRACBITS; }
+    void setrotscrnang(int b) { q16rotscrnang = b << FRACBITS; }
+    void addrotscrnang(int b) { q16rotscrnang += b << FRACBITS; }
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
     void setang(int v) { q16ang = v << FRACBITS; }

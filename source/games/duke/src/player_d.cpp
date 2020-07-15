@@ -2641,7 +2641,6 @@ void processinput_d(int snum)
 	p->oq16horizoff = p->q16horizoff;
 #endif
 
-#pragma message("input stuff begins here")
 	if (p->aim_mode == 0 && p->on_ground && psectlotag != 2 && (sector[psect].floorstat & 2))
 	{
 		x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
@@ -2735,8 +2734,8 @@ void processinput_d(int snum)
 		p->posz = sprite[i].z;
 		p->setang(sprite[i].ang);
 		p->posxv = p->posyv = s->xvel = 0;
-		p->look_ang = 0;
-		p->rotscrnang = 0;
+		p->setlookang(0);
+		p->setrotscrnang(0);
 
 		fi.doincrements(p);
 
@@ -2747,10 +2746,12 @@ void processinput_d(int snum)
 
 	doubvel = TICSPERFRAME;
 
-	if (p->rotscrnang > 0) p->rotscrnang -= ((p->rotscrnang >> 1) + 1);
-	else if (p->rotscrnang < 0) p->rotscrnang += (((-p->rotscrnang) >> 1) + 1);
+#ifdef SYNCINPUT
+	if (p->q16rotscrnang > 0) p->q16rotscrnang -= ((p->q16rotscrnang >> 1) + 1);
+	else if (p->q16rotscrnang < 0) p->q16rotscrnang += (((-p->q16rotscrnang) >> 1) + 1);
 
-	p->look_ang -= (p->look_ang >> 2);
+	p->q16look_ang -= p->q16look_ang >> 2;
+#endif
 
 	if (sb_snum & SKB_LOOK_LEFT)
 	{
@@ -2795,16 +2796,15 @@ void processinput_d(int snum)
 
 	p->oposz = p->posz;
 	p->opyoff = p->pyoff;
-#pragma message("input stuff begins here")
-#if 0
+#ifdef SYNCINPUT
 	p->oq16ang = p->q16ang;
-#endif
 
 	if (p->one_eighty_count < 0)
 	{
 		p->one_eighty_count += 128;
 		p->addang(128);
 	}
+#endif
 
 	// Shrinking code
 
@@ -2840,8 +2840,7 @@ void processinput_d(int snum)
 	}
 	else if (sb_avel)          //p->ang += syncangvel * constant
 	{                         //ENGINE calculates angvel for you
-#pragma message("input stuff begins here")
-#if 0
+#ifdef SYNCINPUT
 		// may still be needed later for demo recording
 		int tempang;
 
@@ -3089,10 +3088,9 @@ HORIZONLY:
 			p->q16horiz += 33*FRACUNIT - (p->q16horiz / 3);
 		}
 
-#pragma message("input stuff begins here")
 	if (p->hard_landing > 0)
 	{
-#if 1
+#ifndef SYNCINPUT
 		g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
 #else
 		p->addhoriz(-(p->hard_landing << 4));

@@ -138,10 +138,10 @@ void resetplayerstats(int snum)
     p->jetpack_on =         0;
     p->holoduke_on =       -1;
 
-    p->look_ang = 512 - ((currentLevel->levelNumber & 1) << 10);
+    p->setlookang(512 - ((currentLevel->levelNumber & 1) << 10));
 
-    p->rotscrnang        = 0;
-    p->orotscrnang       = 1;	// JBF 20031220
+    p->q16rotscrnang        = 0;
+    //p->orotscrnang       = 1;	// JBF 20031220
     p->newowner          =-1;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;

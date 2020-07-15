@@ -357,7 +357,7 @@ void displayrest(int smoothratio)
 			double crosshair_scale = cl_crosshairscale * .001;
 			if (isRR()) crosshair_scale *= .5;
 
-			DrawTexture(twod, tileGetTexture(a), 160 - (ps[myconnectindex].look_ang >> 1), 100,
+			DrawTexture(twod, tileGetTexture(a), 160 - (ps[myconnectindex].getlookang() >> 1), 100,
 				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale,
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x, DTA_ViewportY, windowxy2.y - windowxy1.y, TAG_DONE);
 		}
