@@ -261,9 +261,6 @@ void GameInterface::MenuClosed()
 	auto& gm = ps[myconnectindex].gm;
 	if (gm & MODE_GAME)
 	{
-		if (gm & MODE_MENU)
-			inputState.ClearAllInput();
-
 		// The following lines are here so that you cannot close the menu when no game is running.
 		gm &= ~MODE_MENU;
 

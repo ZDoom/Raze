@@ -2611,6 +2611,7 @@ int32_t(*loadboard_replace)(const char *filename, char flags, vec3_t *dapos, int
 //       <= -4: map-text error
 int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
+    inputState.ClearAllInput();
     if (loadboard_replace)
         return loadboard_replace(filename, flags, dapos, daang, dacursectnum);
     int32_t i;

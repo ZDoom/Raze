@@ -964,6 +964,7 @@ void M_ClearMenus (bool final)
 	CurrentMenu = nullptr;
 	menuactive = MENU_Off;
 	M_UnpauseSound();
+	inputState.ClearAllInput();
 	if (!final)
 	{
 		gi->MenuClosed();
