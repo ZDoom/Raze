@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mathutil.h"
+#include "glbackend/glbackend.h"
 
 // all inline functions.
 BEGIN_DUKE_NS
@@ -174,12 +175,12 @@ constexpr inline int levelnum(int vol, int map)
     return vol * 1000 + map;
 }
 
-constexpr int volfromlevelnum(int num)
+constexpr inline int volfromlevelnum(int num)
 {
     return num > 0 ? num / 1000 : 0;
 }
 
-constexpr int mapfromlevelnum(int num)
+constexpr inline int mapfromlevelnum(int num)
 {
     return num > 0 ? num % 1000 : -1;
 }
@@ -190,15 +191,10 @@ constexpr int mapfromlevelnum(int num)
 //
 //---------------------------------------------------------------------------
 
-inline void hud_drawsprite(int sx, int sy, int z, int16_t a, int16_t picnum, int8_t dashade, uint8_t dapalnum, int dastat)
-{
-    twod_rotatesprite(&twodpsp, sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
-}
-
-inline void hud_draw(int x, int y, int tilenum, int shade, int orientation)
+inline void hud_draw(double x, double y, int tilenum, int shade, int orientation)
 {
     int p = sector[ps[screenpeek].cursectnum].floorpal;
-    hud_drawsprite(x << 16, y << 16, 65536L, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+    hud_drawsprite(x, y, 65536, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
 }
 
 END_DUKE_NS

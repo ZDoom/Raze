@@ -532,3 +532,23 @@ void precacheMarkedTiles()
 	}
 }
 
+void hud_drawsprite(double sx, double sy, int z, int a, int picnum, int dashade, int dapalnum, int dastat)
+{
+	double dz = z / 65536.;
+	int light = Scale(numshades - clamp(dashade, 0, numshades - 1), 255, numshades);
+	PalEntry pe(255, light, light, light);
+	DrawTexture(&twodpsp, tileGetTexture(picnum, true), sx, sy,
+		DTA_ScaleX, dz, DTA_ScaleY, dz,
+		DTA_Color, pe,
+		DTA_TranslationIndex, TRANSLATION(Translation_Remap + curbasepal, dapalnum),
+		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
+		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
+		DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_CenterOffsetRel, !(dastat & (RS_TOPLEFT | RS_CENTER)),
+		DTA_TopLeft, !!(dastat & RS_TOPLEFT),
+		DTA_CenterOffset, !!(dastat & RS_CENTER),
+		DTA_FlipX, !!(dastat & RS_YFLIP),      // the weapon drawer uses y-flip+180° rotation for x-flip but no other transformation.
+		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
+		TAG_DONE);
+}
+

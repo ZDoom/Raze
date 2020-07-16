@@ -223,19 +223,19 @@ public:
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
 			DrawTexture(twod, tileGetTexture(DUKENUKEM, true), 160, 104, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-				DTA_CenterOffset, true,  DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+				DTA_CenterOffsetRel, true,  DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		scale = clamp(clock - 220, 0, 30) / 32.;
 		if (scale > 0.)
 			DrawTexture(twod, tileGetTexture(THREEDEE, true), 160, 129, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-				DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+				DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		if (PLUTOPAK) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
 				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+1, true), 160, 151, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_CenterOffset, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+					DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
 
 		if (clock > (860 + 120))
@@ -315,7 +315,7 @@ public:
 
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
-			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
 
 
 		// boss
@@ -329,7 +329,7 @@ public:
 					bonuscnt++; 
 				}
 				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_TranslationIndex, translation, TAG_DONE);
+					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 			}
 
 		// Breathe
@@ -338,7 +338,7 @@ public:
 			if (totalclock >= 750)
 			{
 				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-					DTA_TranslationIndex, translation, TAG_DONE);
+					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 				if (totalclock >= 750 && bonuscnt == 2) 
 				{ 
 					S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
@@ -354,7 +354,7 @@ public:
 						bonuscnt++;
 					}
 					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-						DTA_TranslationIndex, translation, TAG_DONE);
+						DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 				}
 		}
 		// Only end after having faded out.
@@ -686,9 +686,9 @@ public:
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
 		if (PLUTOPAK)
-			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
 
 		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);
 		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
@@ -920,7 +920,7 @@ public:
 			else
 			{
 				int tile = val == 2 || val == 3 ? gfx_offset + 4 : gfx_offset + 3;
-				DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+				DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
 			}
 		}
 		else if (totalclock > (10240 + 120L)) return 0;
@@ -928,7 +928,7 @@ public:
 		{
 			int val = (totalclock >> 5) & 3;
 			int tile = val == 2 ? gfx_offset + 2 : gfx_offset + 1;
-			DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
 		}
 
 		if (totalclock > 10240 && totalclock < 10240 + 10240)

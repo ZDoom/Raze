@@ -39,22 +39,22 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(int x, int y, int tilenum, int shade, int orientation, int p, int scale = 32768)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, int scale = 32768)
 {
-	hud_drawsprite(x << 16, y << 16, scale, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, scale, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
 }
 
-inline static void rdmyospal(int x, int y, int tilenum, int shade, int orientation, int p)
+inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, 36700);
 }
 
-inline static void rd2myospal(int x, int y, int tilenum, int shade, int orientation, int p)
+inline static void rd2myospal(double x, double y, int tilenum, int shade, int orientation, int p)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, 44040);
 }
 
-inline static void rd3myospal(int x, int y, int tilenum, int shade, int orientation, int p)
+inline static void rd3myospal(double x, double y, int tilenum, int shade, int orientation, int p)
 {
 	hud_drawpal(x, y, tilenum, shade, orientation, p, 47040);
 }
@@ -78,11 +78,11 @@ void displaymasks_r(int snum)
 	{
 		int pin = 0;
 		if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_STRETCH;
-		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15) << 16, (200 - (tilesiz[SCUBAMASK].y >> 1) + (sintable[(int)totalclock & 2047] >> 10)) << 16, 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
-		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x) << 16, (200 - tilesiz[SCUBAMASK + 4].y) << 16, 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tilesiz[SCUBAMASK + 4].x << 16, (200 - tilesiz[SCUBAMASK + 4].y) << 16, 65536, 1024, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
-		hud_drawsprite(35 << 16, (-1) << 16, 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
-		hud_drawsprite(285 << 16, 200 << 16, 65536, 1024, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (sintable[(int)totalclock & 2047] >> 10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
+		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 1024, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
+		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
+		hud_drawsprite(285, 200, 65536, 1024, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 	}
 }
 
@@ -92,15 +92,15 @@ void displaymasks_r(int snum)
 //
 //---------------------------------------------------------------------------
 
-void ShowMotorcycle(int x, int y, short tilenum, signed char shade, char orientation, char p, short a)
+void ShowMotorcycle(double x, double y, int tilenum, int shade, int orientation, int p, int a)
 {
-	hud_drawsprite(x << 16, y << 16, 34816L, a, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 34816, a, tilenum, shade, p, 2 | orientation);
 }
 
 
-void ShowBoat(int x, int y, short tilenum, signed char shade, char orientation, char p, short a)
+void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p, int a)
 {
-	hud_drawsprite(x << 16, y << 16, 66048L, a, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 66048, a, tilenum, shade, p, 2 | orientation);
 }
 
 

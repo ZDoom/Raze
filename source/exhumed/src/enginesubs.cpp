@@ -80,8 +80,7 @@ static int32_t xdim_to_320_16(int32_t x)
 
 static int32_t ydim_to_200_16(int32_t y)
 {
-    y = scale(y, 200<<16, ydim);
-    return divscale16(y - (200<<15), rotatesprite_yxaspect) - rotatesprite_y_offset + (200<<15);
+    return scale(y, 200<<16, ydim);
 }
 
 static int32_t xdim_from_320_16(int32_t x)
@@ -92,7 +91,6 @@ static int32_t xdim_from_320_16(int32_t x)
 
 static int32_t ydim_from_200_16(int32_t y)
 {
-    y = mulscale16(y + rotatesprite_y_offset - (200<<15), rotatesprite_yxaspect) + (200<<15);
     return scale(y, ydim, 200<<16);
 }
 

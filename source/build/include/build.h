@@ -344,9 +344,6 @@ EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
 
-EXTERN int32_t rotatesprite_y_offset;
-EXTERN int32_t rotatesprite_yxaspect;
-
 #ifndef GEKKO
 #define MAXVALIDMODES 256
 #else

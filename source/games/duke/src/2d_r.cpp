@@ -271,7 +271,7 @@ public:
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		double scale = 0.36;
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
-			DTA_CenterOffset, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
+			DTA_CenterOffsetRel, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
 
 		GameText(160, 58, GStrings("Multiplayer Totals"), 0, 0);
 		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);

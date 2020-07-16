@@ -49,9 +49,9 @@ int getavel(int snum)
 //
 //---------------------------------------------------------------------------
 
-inline static void hud_drawpal(int x, int y, int tilenum, int shade, int orientation, int p)
+inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p)
 {
-	hud_drawsprite(x << 16, y << 16, 65536, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
 }
 
 //---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void displayloogie(short snum)
 		x = (-getavel(snum)) + (sintable[((ps[snum].loogcnt + i) << 6) & 2047] >> 10);
 
 		hud_drawsprite(
-			(ps[snum].loogiex[i] + x) << 16, (200 + ps[snum].loogiey[i] - y) << 16, z - (i << 8), 256 - a,
+			(ps[snum].loogiex[i] + x), (200 + ps[snum].loogiey[i] - y), z - (i << 8), 256 - a,
 			LOOGIE, 0, 0, 2);
 	}
 }
@@ -109,8 +109,8 @@ int animatefist(int gs, int snum)
 		fistpal = sector[ps[snum].cursectnum].floorpal;
 
 	hud_drawsprite(
-		(-fisti + 222 + (getavel(snum) >> 4)) << 16,
-		(looking_arc + fistz) << 16,
+		(-fisti + 222 + (getavel(snum) >> 4)),
+		(looking_arc + fistz),
 		fistzoom, 0, FIST, gs, fistpal, 2);
 
 	return 1;
@@ -197,13 +197,13 @@ void displaymasks_d(int snum)
 	{
 		if (ud.screen_size > 4)
 		{
-			hud_drawsprite(44 << 16, (200 - 8 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16);
-			hud_drawsprite((320 - 43) << 16, (200 - 8 - tilesiz[SCUBAMASK].y) << 16, 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
+			hud_drawsprite(44, (200 - 8 - tilesiz[SCUBAMASK].y), 65536, 0, SCUBAMASK, 0, p, 2 + 16);
+			hud_drawsprite((320 - 43), (200 - 8 - tilesiz[SCUBAMASK].y), 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
 		}
 		else
 		{
 			hud_drawsprite(44 << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16);
-			hud_drawsprite((320 - 43) << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
+			hud_drawsprite((320 - 43), (200 - tilesiz[SCUBAMASK].y), 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
 		}
 	}
 }

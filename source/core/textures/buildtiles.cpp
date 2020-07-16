@@ -83,7 +83,6 @@ picanm_t tileConvertAnimFormat(int32_t const picanimraw, int* lo, int* to)
 int FTileTexture::CopyPixels(FBitmap* bmp, int conversion)
 {
 	TArray<uint8_t> buffer;
-	bmp->Create(Width, Height);
 	auto ppix = GetRawData();
 	if (ppix)
 	{

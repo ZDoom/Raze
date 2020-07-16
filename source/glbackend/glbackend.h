@@ -362,3 +362,5 @@ void renderSetVisibility(float v);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();
+
+void hud_drawsprite(double sx, double sy, int z, int a, int picnum, int dashade, int dapalnum, int dastat);

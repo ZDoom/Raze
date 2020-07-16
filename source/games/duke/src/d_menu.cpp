@@ -71,7 +71,7 @@ static void Menu_DrawCursor(double x, double y, double scale, bool right)
 	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + ((int)totalclock >> 3)) % frames);
 	int light = int(224 + 31 * sin((int)totalclock / 20.));
 	PalEntry pe(255, light, light, light);
-	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffset, true, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 }
 
 //----------------------------------------------------------------------------
@@ -142,20 +142,20 @@ class DukeMainMenu : public DukeListMenu
 		double x = origin.X + 160;
 		if (isRRRA())
 		{
-			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterBottomOffset, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterOffsetRel, true, TAG_DONE);
 		}
 		else if (isRR())
 		{
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffset, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffsetRel, true, TAG_DONE);
 		}
 		else
         {
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
 			if (PLUTOPAK)
 			{
 				int light = 224 + 31 * sin(int(totalclock) / 40.);
 				PalEntry pe(255, light, light, light);
-				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, pe, DTA_CenterOffset, true, TAG_DONE);
+				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 			}
         }
 		
@@ -330,7 +330,7 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	DrawTexture(twod, tileGetTexture(TILE_MENUBAR), origin.X + 160, origin.Y + 19, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff808080, DTA_CenterOffset, 1, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(TILE_MENUBAR), origin.X + 160, origin.Y + 19, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff808080, DTA_CenterOffsetRel, 1, TAG_DONE);
 
 	FString t = text;
 	size_t newlen = t.Len();

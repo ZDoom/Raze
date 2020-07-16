@@ -388,7 +388,7 @@ void DBaseStatusBar::StatusbarToRealCoords(double &x, double &y, double &w, doub
 		int vres = VerticalResolution;
 		ValidateResolution(hres, vres);
 
-		VirtualToRealCoords(twod, x, y, w, h, hres, vres, true, true);
+		VirtualToRealCoords(twod, x, y, w, h, hres, vres, true);
 	}
 	else
 	{

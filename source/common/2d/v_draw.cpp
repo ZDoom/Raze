@@ -441,7 +441,8 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 				// First calculate the destination rect for an image of the given size and then reposition this object in it.
 				DoubleRect rect;
 				CalcFullscreenScale(drawer, parms, parms->virtWidth, parms->virtHeight, parms->fsscalemode, rect);
-				parms->x = parms->viewport.left + (parms->keepratio? 0 : rect.left) + parms->x * rect.width / parms->virtWidth;
+				double adder = parms->keepratio < 0 ? 0 : parms->keepratio == 0 ? rect.left : 2 * rect.left;
+				parms->x = parms->viewport.left + adder + parms->x * rect.width / parms->virtWidth;
 				parms->y = parms->viewport.top + rect.top + parms->y * rect.height / parms->virtHeight;
 				parms->destwidth = parms->destwidth * rect.width / parms->virtWidth;
 				parms->destheight = parms->destheight * rect.height / parms->virtHeight;
@@ -454,7 +455,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		{
 			DoubleRect rect;
 			CalcFullscreenScale(drawer, parms, parms->texwidth, parms->texheight, parms->fsscalemode, rect);
-			parms->keepratio = true;
+			parms->keepratio = -1;
 			parms->x = parms->viewport.left + rect.left;
 			parms->y = parms->viewport.top + rect.top;
 			parms->destwidth = rect.width;
@@ -872,6 +873,16 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			parms->left = ListGetDouble(tags);
 			break;
 
+		case DTA_TopLeft:
+			assert(fortext == false);
+			if (fortext) return false;
+			if (ListGetInt(tags))
+			{
+				parms->left = 0;
+				parms->top = 0;
+			}
+			break;
+
 		case DTA_CenterOffset:
 			assert(fortext == false);
 			if (fortext) return false;
@@ -879,6 +890,16 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			{
 				parms->left = img->GetDisplayWidth() * 0.5;
 				parms->top = img->GetDisplayHeight() * 0.5;
+			}
+			break;
+
+		case DTA_CenterOffsetRel:
+			assert(fortext == false);
+			if (fortext) return false;
+			if (ListGetInt(tags))
+			{
+				parms->left = img->GetDisplayLeftOffset() + img->GetDisplayWidth() * 0.5;
+				parms->top = img->GetDisplayTopOffset() + img->GetDisplayHeight() * 0.5;
 			}
 			break;
 
@@ -986,8 +1007,10 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			break;
 
 		case DTA_KeepRatio:
-			// I think this is a terribly misleading name, since it actually turns
-			// *off* aspect ratio correction.
+			parms->keepratio = ListGetInt(tags) ? 0 : -1;
+			break;
+
+		case DTA_Pin:
 			parms->keepratio = ListGetInt(tags);
 			break;
 

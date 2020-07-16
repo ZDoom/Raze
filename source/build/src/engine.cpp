@@ -1128,9 +1128,6 @@ int32_t engineInit(void)
 
     xyaspect = -1;
 
-    rotatesprite_y_offset = 0;
-    rotatesprite_yxaspect = 65536;
-
     showinvisibility = 0;
 
 	voxelmemory.Reset();
@@ -1948,8 +1945,6 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
         int32_t zoomsc, sx = *sxptr, sy = *syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
-        sy += rotatesprite_y_offset;
-
         if (!(dastat & RS_STRETCH) && 4 * ydim <= 3 * xdim)
         {
             if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
@@ -1963,9 +1958,6 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
             ouryxaspect = (12 << 16) / 10;
             ourxyaspect = (10 << 16) / 12;
         }
-
-        ouryxaspect = mulscale16(ouryxaspect, rotatesprite_yxaspect);
-        ourxyaspect = divscale16(ourxyaspect, rotatesprite_yxaspect);
 
         // screen center to s[xy], 320<<16 coords.
         const int32_t normxofs = sx - (320 << 15), normyofs = sy - (200 << 15);
@@ -1981,7 +1973,6 @@ static int32_t dorotspr_handle_bit2(int32_t* sxptr, int32_t* syptr, int32_t* z, 
             sx = ((twice_midcx) << 15) + scaledxofs;
 
             zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
-            zoomsc = mulscale16(zoomsc, rotatesprite_yxaspect);
 
             if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
                 zoomsc = scale(zoomsc, ydim, oydim);
