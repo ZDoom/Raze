@@ -230,5 +230,6 @@ void startnewgame(MapRecord* map, int skill);
 void setlocalplayerinput(player_struct *pp);
 void PlayerColorChanged(void);
 void nonsharedkeys(void);
+void apply_seasick(player_struct* p, double scalefactor);
 
 END_DUKE_NS

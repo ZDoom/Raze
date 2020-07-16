@@ -195,9 +195,11 @@ struct player_struct
     int getlookang() { return q16look_ang >> FRACBITS; }
     void setlookang(int b) { q16look_ang = b << FRACBITS; }
     void addlookang(int b) { q16look_ang += b << FRACBITS; }
+    void addlookang(double b) { q16look_ang += int(b *65536.); }
     int getrotscrnang() { return q16rotscrnang >> FRACBITS; }
     void setrotscrnang(int b) { q16rotscrnang = b << FRACBITS; }
     void addrotscrnang(int b) { q16rotscrnang += b << FRACBITS; }
+    void addrotscrnang(double b) { q16rotscrnang += int(b *65536.); }
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
     void setang(int v, bool smooth = false) { q16ang = v << FRACBITS; }

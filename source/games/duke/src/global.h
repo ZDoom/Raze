@@ -85,6 +85,8 @@ enum
     MAXLABELLEN = 64
 };
 
+G_EXTERN bool synchronized_input;
+
 G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;

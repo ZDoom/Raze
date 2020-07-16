@@ -535,25 +535,31 @@ void displayrooms(int snum, int smoothratio)
 			setdrugmode(p, i);
 		}
 
-#ifndef SYNCINPUT
-		renderSetRollAngle(p->getrotscrnang());
-#else
-		renderSetRollAngle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024) & 2047) - 1024, smoothratio));
-		p->orotscrnang = p->rotscrnang; // JBF: save it for next time
-#endif
+		if (!synchronized_input)
+			renderSetRollAngle(p->getrotscrnang());
+		else
+		{
+			// The fixed point fuckery at play here means we cannot do the interpolation at full precision.
+			auto oa = p->oq16rotscrnang >> FRACUNIT;
+			renderSetRollAngle(oa + mulscale16(((p->getrotscrnang() - oa + 1024) & 2047) - 1024, smoothratio));
+			p->oq16rotscrnang = p->q16rotscrnang; // JBF: save it for next time
+		}
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cposx = omyx + mulscale16((int)(myx - omyx), smoothratio);
 			cposy = omyy + mulscale16((int)(myy - omyy), smoothratio);
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
-#ifdef SYNCINPUT
-			cang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);
-			choriz = omyhoriz + omyhorizoff + mulscale16((int)(myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothratio);
-#else
-			cang = myang;
-			choriz = (myhoriz + myhorizoff);
-#endif
+			if (synchronized_input)
+			{
+				cang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);
+				choriz = omyhoriz + omyhorizoff + mulscale16((int)(myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothratio);
+			}
+			else
+			{
+				cang = myang;
+				choriz = (myhoriz + myhorizoff);
+			}
 			sect = mycursectnum;
 		}
 		else
@@ -561,15 +567,19 @@ void displayrooms(int snum, int smoothratio)
 			cposx = p->oposx + mulscale16((int)(p->posx - p->oposx), smoothratio);
 			cposy = p->oposy + mulscale16((int)(p->posy - p->oposy), smoothratio);
 			cposz = p->oposz + mulscale16((int)(p->posz - p->oposz), smoothratio);
-#ifdef SYNCINPUT
-			// Original code for when the values are passed through the sync struct
-			cang = p->getoang() + mulscale16((int)(((p->getang() + 1024 - p->getoang()) & 2047) - 1024), smoothratio);
-			choriz = p->ohoriz+p->ohorizoff+mulscale16((int)(p->gethorizsum()-p->ohoriz-p->ohorizoff),smoothratio);
-#else
-			// This is for real time updating of the view direction.
-			cang = p->getang();
-			choriz = p->gethorizsum();
-#endif
+			if (synchronized_input /*|| smoothcamera*/)
+			{
+				// Original code for when the values are passed through the sync struct
+				cang = p->getoang() + mulscale16((int)(((p->getang() + 1024 - p->getoang()) & 2047) - 1024), smoothratio);
+				int ohorz = (p->oq16horiz + p->oq16horizoff) >> FRACBITS;
+				choriz = ohorz + mulscale16((int)(p->gethorizsum() - ohorz), smoothratio);
+			}
+			else
+			{
+				// This is for real time updating of the view direction.
+				cang = p->getang();
+				choriz = p->gethorizsum();
+			}
 		}
 		cang += p->getlookang();
 

@@ -34,6 +34,33 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS 
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void apply_seasick(player_struct* p, double scalefactor)
+{
+	if (isRRRA() && p->SeaSick)
+	{
+		if (p->SeaSick < 250)
+		{
+			if (p->SeaSick >= 180)
+				p->addrotscrnang(24*scalefactor);
+			else if (p->SeaSick >= 130)
+				p->addrotscrnang(-24*scalefactor);
+			else if (p->SeaSick >= 70)
+				p->addrotscrnang(24*scalefactor);
+			else if (p->SeaSick >= 20)
+				p->addrotscrnang(-24*scalefactor);
+		}
+		if (p->SeaSick < 250)
+			p->addlookang(((krand() & 255) - 128) * scalefactor);
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -3473,27 +3500,28 @@ void processinput_r(int snum)
 	hittype[pi].floorz = fz;
 	hittype[pi].ceilingz = cz;
 
-#ifdef SYNCINPUT
-	p->oq16horiz = p->q16horiz;
-	p->oq16horizoff = p->q16horizoff;
-
-	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
+	if (synchronized_input)
 	{
-		int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		int y = p->posy + (sintable[p->getang() & 2047] >> 5);
-		short tempsect = psect;
-		updatesector(x, y, &tempsect);
+		p->oq16horiz = p->q16horiz;
+		p->oq16horizoff = p->q16horizoff;
 
-		if (tempsect >= 0)
+		if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 		{
-			k = getflorzofslope(psect, x, y);
-			if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-				p->addhorizoff(mulscale16(j - k, 160));
+			int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
+			int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+			short tempsect = psect;
+			updatesector(x, y, &tempsect);
+
+			if (tempsect >= 0)
+			{
+				k = getflorzofslope(psect, x, y);
+				if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+					p->addhorizoff(mulscale16(j - k, 160));
+			}
 		}
+		if (p->q16horizoff > 0) p->q16horizoff -= ((p->q16horizoff >> 3) + FRACUNIT);
+		else if (p->q16horizoff < 0) p->q16horizoff += (((-p->q16horizoff) >> 3) + FRACUNIT);
 	}
-	if (p->q16horizoff > 0) p->q16horizoff -= ((p->q16horizoff >> 3) + FRACUNIT);
-	else if (p->q16horizoff < 0) p->q16horizoff += (((-p->q16horizoff) >> 3) + FRACUNIT);
-#endif
 
 	if (hz >= 0 && (hz & 49152) == 49152)
 	{
@@ -3639,10 +3667,11 @@ void processinput_r(int snum)
 
 	doubvel = TICSPERFRAME;
 
-#ifdef SYNCINPUT
-	p->q16rotscrnang -= (p->q16rotscrnang >> 1); if (p->q16rotscrnang < FRACUNIT) p->q16rotscrnang = 0;
-	p->q16look_ang -= p->q16look_ang >> 2; if (p->q16look_ang < FRACUNIT) p->q16look_ang = 0;
-#endif
+	if (synchronized_input)
+	{
+		p->q16rotscrnang -= (p->q16rotscrnang >> 1); if (p->q16rotscrnang < FRACUNIT) p->q16rotscrnang = 0;
+		p->q16look_ang -= p->q16look_ang >> 2; if (p->q16look_ang < FRACUNIT) p->q16look_ang = 0;
+	}
 
 	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
@@ -3654,24 +3683,10 @@ void processinput_r(int snum)
 		playerLookRight(snum);
 	}
 
-#ifdef SYNCINPUT
-	if (isRRRA() && p->SeaSick)
+	if (synchronized_input)
 	{
-		if (p->SeaSick < 250)
-		{
-			if (p->SeaSick >= 180)
-				p->addrotscrnang(24);
-			else if (p->SeaSick >= 130)
-				p->addrotscrnang(-24);
-			else if (p->SeaSick >= 70)
-				p->addrotscrnang(24);
-			else if (p->SeaSick >= 20)
-				p->addrotscrnang(-24);
-		}
-		if (p->SeaSick < 250)
-			p->addlookang((krand() & 255) - 128);
+		apply_seasick(p, 1);
 	}
-#endif
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -3706,15 +3721,16 @@ void processinput_r(int snum)
 
 	p->oposz = p->posz;
 	p->opyoff = p->pyoff;
-#ifdef SYNCINPUT
-	p->oq16ang = p->q16ang;
-
-	if (p->one_eighty_count < 0)
+	if (synchronized_input)
 	{
-		p->one_eighty_count += 128;
-		p->addang(128);
+		p->oq16ang = p->q16ang;
+
+		if (p->one_eighty_count < 0)
+		{
+			p->one_eighty_count += 128;
+			p->addang(128);
+		}
 	}
-#endif
 
 	// Shrinking code
 
@@ -3765,18 +3781,19 @@ void processinput_r(int snum)
 	}
 	else if (sb_avel)          //p->ang += syncangvel * constant
 	{                         //ENGINE calculates angvel for you
-#ifdef SYNCINPUT
-		// may still be needed later for demo recording
-		int tempang;
+		if (synchronized_input)
+		{
+			// may still be needed later for demo recording
+			int tempang;
 
-		tempang = sync[snum].avel << 1;
+			tempang = sb_avel << 1; // this is fixed point!
 
-		if (psectlotag == 2) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
-		else p->angvel = tempang * sgn(doubvel);
+			if (psectlotag == 2) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
+			else p->angvel = tempang * sgn(doubvel);
 
-		p->ang += p->angvel;
-		p->ang &= 2047;
-#endif
+			p->addang(p->angvel);
+			p->q16ang &= (2048 << FRACBITS) - 1;
+		}
 		p->crack_time = 777;
 	}
 
@@ -4101,10 +4118,8 @@ HORIZONLY:
 		return;
 	}
 
-#ifndef SYNCINPUT
-	if (p->return_to_center > 0)
+	if (!synchronized_input && p->return_to_center > 0)
 		p->return_to_center--;
-#endif
 
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
 	{
@@ -4134,42 +4149,36 @@ HORIZONLY:
 		p->recoil -= d;
 		p->addhoriz(-d);
 	}
-#ifdef SYNCINPUT
-	else if (p->return_to_center > 0)
-		if ((sb_snum & (SKB_LOOK_UP| SKB_LOOK_DOWN)) == 0)
-		{
-			p->return_to_center--;
-			p->q16horiz += 33*FRACUNIT - (p->q16horiz / 3);
-		}
-#endif
+	if (synchronized_input)
+	{
+		if (p->return_to_center > 0)
+			if ((sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0)
+			{
+				p->return_to_center--;
+				p->q16horiz += 33 * FRACUNIT - (p->q16horiz / 3);
+			}
+	}
 	if (p->hard_landing > 0)
 	{
-#ifndef SYNCINPUT
-		g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
-#else
-		p->addhoriz(-(p->hard_landing << 4));
-#endif
+		if (!synchronized_input)
+			g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
+		else
+			p->addhoriz(-(p->hard_landing << 4));
 		p->hard_landing--;
 	}
 
-#ifdef SYNCINPUT
-	if (p->aim_mode)
-		p->horiz += sync[snum].horz >> 1;
-	else if (!p->recoil)
+	if (synchronized_input)
 	{
-		if (p->horiz > 95 && p->horiz < 105) p->horiz = 100;
-		if (p->horizoff > -5 && p->horizoff < 5) p->horizoff = 0;
+		if (p->aim_mode)
+			p->q16horiz += (sync[snum].q16horz >> 1);
+		else
+		{
+			if (p->q16horiz > F16(95) && p->q16horiz < F16(105)) p->sethoriz(100);
+			if (p->q16horizoff > F16(-5) && p->q16horizoff < F16(5)) p->sethorizoff(0);
+		}
+
+		p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 	}
-
-	p->horiz = clamp(p->horiz, HORIZ_MIN, HORIZ_MAX);
-
-	if (centerHoriz && !p->recoil)
-	{
-		if (p->gethoriz() > 95 && pPlayer->gethoriz() < 105) pPlayer->sethoriz(100);
-		if (p->gethorizoff() > -5 && pPlayer->gethorizoff < 5) pPlayer->sethorizoff(0);
-	}
-
-#endif
 
 	//Shooting code/changes
 

@@ -348,12 +348,14 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-#ifndef SYNCINPUT
-		g_player[snum].horizSkew = -48;
-		g_player[snum].horizRecenter = true;
-#else
-		p->addhoriz(-48);
-#endif
+		if (synchronized_input)
+			p->addhoriz(-48);
+		else
+		{
+			g_player[snum].horizSkew = -48;
+			g_player[snum].horizRecenter = true;
+		}
+
 		p->return_to_center = 9;
 		if (p->knee_incs > 15)
 		{
@@ -715,12 +717,13 @@ void playerLookLeft(int snum)
 	OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-#ifdef SYNCINPUT
-		p->addlookang(-152);
-		p->addrotscrnang(24);
-#else
-		g_player[snum].lookLeft = true;
-#endif
+		if (synchronized_input)
+		{
+			p->addlookang(-152);
+			p->addrotscrnang(24);
+		}
+		else
+			g_player[snum].lookLeft = true;
 	}
 }
 
@@ -731,12 +734,13 @@ void playerLookRight(int snum)
 	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-#ifdef SYNCINPUT
-		p->addlookang(152);
-		p->addrotscrnang(24);
-#else
-		g_player[snum].lookRight = true;
-#endif
+		if (synchronized_input)
+		{
+			p->addlookang(152);
+			p->addrotscrnang(24);
+		}
+		else
+			g_player[snum].lookRight = true;
 	}
 }
 
@@ -748,19 +752,17 @@ void playerCenterView(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-#ifndef SYNCINPUT
-		g_player[snum].horizRecenter = true;
-#endif
+		if (!synchronized_input)
+			g_player[snum].horizRecenter = true;
 	}
 }
 
 void horizAngleAdjust(int snum, int delta)
 {
-#ifndef SYNCINPUT // for per-frame input
-	g_player[snum].horizAngleAdjust = delta;
-#else // for synchronous input
-	ps[snum].addhoriz(delta);
-#endif
+	if (synchronized_input)
+		ps[snum].addhoriz(delta);
+	else
+		g_player[snum].horizAngleAdjust = delta;
 }
 
 void playerLookUp(int snum, ESyncBits sb_snum)
