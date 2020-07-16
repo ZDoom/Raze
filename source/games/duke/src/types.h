@@ -207,6 +207,7 @@ struct player_struct
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
+    void addhorizoff(double v) { q16horiz += int(v * 65536.); }
     void sethoriz(int v) { q16horiz = (v << FRACBITS); }
     void sethorizoff(int v) { q16horizoff = (v << FRACBITS); }
     int gethoriz() { return q16horiz >> FRACBITS; }

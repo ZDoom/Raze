@@ -359,36 +359,9 @@ void P_GetInput(int const playerNum)
         if (pPlayer->q16horizoff >= F16(-1) && pPlayer->q16horizoff <= F16(1))
             pPlayer->q16horizoff = 0;
     }
- 
-    // calculates automatic view angle for playing without a mouse
-    if (!pPlayer->aim_mode && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER && (sector[pPlayer->cursectnum].floorstat & 2))
-    {
-        // this is some kind of horse shit approximation of where the player is looking, I guess?
-        vec2_t const adjustedPosition = { pPlayer->posx + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
-                                          pPlayer->posy + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
-        int16_t currentSector = pPlayer->cursectnum;
- 
-        updatesector(adjustedPosition.x, adjustedPosition.y, &currentSector);
- 
-        if (currentSector >= 0)
-        {
-            int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPosition.x, adjustedPosition.y);
-            if ((pPlayer->cursectnum == currentSector) || (klabs(getflorzofslope(currentSector, adjustedPosition.x, adjustedPosition.y) - slopeZ) <= ZOFFSET6))
-                pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(mulscale16(pPlayer->truefz - slopeZ, 160))));
-        }
-    }
- 
-    if (pPlayer->q16horizoff > 0)
-    {
-        pPlayer->q16horizoff = fix16_ssub(pPlayer->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((pPlayer->q16horizoff >> 3) + fix16_one))));
-        pPlayer->q16horizoff = fix16_max(pPlayer->q16horizoff, 0);
-    }
-    else if (pPlayer->q16horizoff < 0)
-    {
-        pPlayer->q16horizoff = fix16_sadd(pPlayer->q16horizoff, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl((-pPlayer->q16horizoff >> 3) + fix16_one))));
-        pPlayer->q16horizoff = fix16_min(pPlayer->q16horizoff, 0);
-    }
- 
+
+    calcviewpitch(pPlayer, sectorLotag, scaleAdjust);
+
     if (thisPlayer.horizSkew)
         pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
  

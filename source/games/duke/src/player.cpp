@@ -82,6 +82,40 @@ void setlocalplayerinput(player_struct* pp)
 	pp->weaponswitch = cl_weaponswitch;
 }
 
+//---------------------------------------------------------------------------
+//
+// calculates automatic view pitch for playing without a mouse
+//
+//---------------------------------------------------------------------------
+
+void calcviewpitch(player_struct *p, int psectlotag, double factor)
+{
+	int psect = p->cursectnum;
+	 if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
+	 {
+		 int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
+		 int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+		 short tempsect = psect;
+		 updatesector(x, y, &tempsect);
+
+		 if (tempsect >= 0)
+		 {
+			 int k = getflorzofslope(psect, x, y);
+			 if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
+				 p->addhorizoff(factor * mulscale16(p->truefz - k, 160));
+		 }
+	 }
+	 if (p->q16horizoff > 0)
+	 {
+		 p->addhorizoff(-factor * fix16_to_dbl((p->q16horizoff >> 3) + FRACUNIT));
+		 if (p->q16horizoff < 0) p->q16horizoff = 0;
+	 }
+	 else if (p->q16horizoff < 0)
+	 {
+		 p->addhorizoff(-factor * fix16_to_dbl((p->q16horizoff >> 3) + FRACUNIT));
+		 if (p->q16horizoff > 0) p->q16horizoff = 0;
+	 }
+}
 
 //---------------------------------------------------------------------------
 //

@@ -3504,23 +3504,7 @@ void processinput_r(int snum)
 	{
 		p->oq16horiz = p->q16horiz;
 		p->oq16horizoff = p->q16horizoff;
-
-		if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
-		{
-			int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-			int y = p->posy + (sintable[p->getang() & 2047] >> 5);
-			short tempsect = psect;
-			updatesector(x, y, &tempsect);
-
-			if (tempsect >= 0)
-			{
-				k = getflorzofslope(psect, x, y);
-				if (psect == tempsect || abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8))
-					p->addhorizoff(mulscale16(j - k, 160));
-			}
-		}
-		if (p->q16horizoff > 0) p->q16horizoff -= ((p->q16horizoff >> 3) + FRACUNIT);
-		else if (p->q16horizoff < 0) p->q16horizoff += (((-p->q16horizoff) >> 3) + FRACUNIT);
+		calcviewpitch(p, psectlotag, 1);
 	}
 
 	if (hz >= 0 && (hz & 49152) == 49152)
