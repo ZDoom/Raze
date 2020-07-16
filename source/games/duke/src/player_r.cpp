@@ -3383,10 +3383,10 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 
 void processinput_r(int snum)
 {
-	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y, var60;
+	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
 	ESyncBits sb_snum;
-	short psect, psectlotag, tempsect, pi;
+	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
 
@@ -3476,14 +3476,12 @@ void processinput_r(int snum)
 #ifdef SYNCINPUT
 	p->oq16horiz = p->q16horiz;
 	p->oq16horizoff = p->q16horizoff;
-#endif
 
-#pragma message("input stuff begins here")
-	if (p->aim_mode == 0 && p->on_ground && psectlotag != 2 && (sector[psect].floorstat & 2))
+	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	{
-		x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		y = p->posy + (sintable[p->getang() & 2047] >> 5);
-		tempsect = psect;
+		int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
+		int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+		short tempsect = psect;
 		updatesector(x, y, &tempsect);
 
 		if (tempsect >= 0)
@@ -3495,7 +3493,7 @@ void processinput_r(int snum)
 	}
 	if (p->q16horizoff > 0) p->q16horizoff -= ((p->q16horizoff >> 3) + FRACUNIT);
 	else if (p->q16horizoff < 0) p->q16horizoff += (((-p->q16horizoff) >> 3) + FRACUNIT);
-#pragma message("input stuff ends here")
+#endif
 
 	if (hz >= 0 && (hz & 49152) == 49152)
 	{
@@ -3607,9 +3605,10 @@ void processinput_r(int snum)
 			return;
 	}
 
-	if (s->extra <= 0)
+	if (s->extra <= 0 && !ud.god)
 	{
 		playerisdead(snum, psectlotag, fz, cz);
+		return;
 	}
 
 	if (p->transporter_hold > 0)
@@ -3641,10 +3640,8 @@ void processinput_r(int snum)
 	doubvel = TICSPERFRAME;
 
 #ifdef SYNCINPUT
-	if (p->q16rotscrnang > 0) p->q16rotscrnang -= ((p->q16rotscrnang >> 1) + 1);
-	else if (p->q16rotscrnang < 0) p->q16rotscrnang += (((-p->q16rotscrnang) >> 1) + 1);
-
-	p->q16look_ang -= p->q16look_ang >> 2;
+	p->q16rotscrnang -= (p->q16rotscrnang >> 1); if (p->q16rotscrnang < FRACUNIT) p->q16rotscrnang = 0;
+	p->q16look_ang -= p->q16look_ang >> 2; if (p->q16look_ang < FRACUNIT) p->q16look_ang = 0;
 #endif
 
 	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
@@ -3723,19 +3720,7 @@ void processinput_r(int snum)
 
 	i = 40;
 
-	if (psectlotag == 17)
-	{
-		int tmp;
-		tmp = getanimationgoal(&sector[p->cursectnum].floorz);
-		if (tmp >= 0)
-		{
-			if (!S_CheckSoundPlaying(p->i, 432))
-				spritesound(432, pi);
-		}
-		else
-			stopsound(432);
-	}
-	else if (isRRRA() && psectlotag == 18)
+	if (psectlotag == ST_17_PLATFORM_UP || (isRRRA() && psectlotag == ST_18_ELEVATOR_DOWN))
 	{
 		int tmp;
 		tmp = getanimationgoal(&sector[p->cursectnum].floorz);
@@ -3757,11 +3742,11 @@ void processinput_r(int snum)
 			p->pyoff = sintable[p->pycount] >> 7;
 	}
 
-	if (psectlotag == 2)
+	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, sb_snum, psect, fz, cz);
 	}
-	else if (psectlotag != 2)
+	else if (psectlotag != ST_2_UNDERWATER)
 	{
 		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
 	}
@@ -4116,6 +4101,11 @@ HORIZONLY:
 		return;
 	}
 
+#ifndef SYNCINPUT
+	if (p->return_to_center > 0)
+		p->return_to_center--;
+#endif
+
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
@@ -4144,13 +4134,14 @@ HORIZONLY:
 		p->recoil -= d;
 		p->addhoriz(-d);
 	}
+#ifdef SYNCINPUT
 	else if (p->return_to_center > 0)
 		if ((sb_snum & (SKB_LOOK_UP| SKB_LOOK_DOWN)) == 0)
 		{
 			p->return_to_center--;
 			p->q16horiz += 33*FRACUNIT - (p->q16horiz / 3);
 		}
-
+#endif
 	if (p->hard_landing > 0)
 	{
 #ifndef SYNCINPUT
@@ -4170,7 +4161,14 @@ HORIZONLY:
 		if (p->horizoff > -5 && p->horizoff < 5) p->horizoff = 0;
 	}
 
-	horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+	p->horiz = clamp(p->horiz, HORIZ_MIN, HORIZ_MAX);
+
+	if (centerHoriz && !p->recoil)
+	{
+		if (p->gethoriz() > 95 && pPlayer->gethoriz() < 105) pPlayer->sethoriz(100);
+		if (p->gethorizoff() > -5 && pPlayer->gethorizoff < 5) pPlayer->sethorizoff(0);
+	}
+
 #endif
 
 	//Shooting code/changes

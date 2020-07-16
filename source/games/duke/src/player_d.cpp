@@ -1562,6 +1562,10 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
+#ifndef SYNCINPUT
+	g_player[snum].horizSkew = 0;
+#endif
+
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
@@ -2586,10 +2590,10 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 
 void processinput_d(int snum)
 {
-	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, x, y;
+	int j, i, k, doubvel, fz, cz, hz, lz, truefdist;
 	char shrunk;
 	ESyncBits sb_snum;
-	short psect, psectlotag, tempsect, pi;
+	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
 
@@ -2597,8 +2601,10 @@ void processinput_d(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
+#ifndef SYNCINPUT
 	g_player[snum].horizAngleAdjust = 0;
 	g_player[snum].horizSkew = 0;
+#endif
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
@@ -2635,17 +2641,15 @@ void processinput_d(int snum)
 	hittype[pi].floorz = fz;
 	hittype[pi].ceilingz = cz;
 
-#pragma message("input stuff begins here")
-#if 0 // disabled input
+#ifdef SYNCINPUT
 	p->oq16horiz = p->q16horiz;
 	p->oq16horizoff = p->q16horizoff;
-#endif
 
-	if (p->aim_mode == 0 && p->on_ground && psectlotag != 2 && (sector[psect].floorstat & 2))
+	if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	{
-		x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
-		y = p->posy + (sintable[p->getang() & 2047] >> 5);
-		tempsect = psect;
+		int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);
+		int y = p->posy + (sintable[p->getang() & 2047] >> 5);
+		short tempsect = psect;
 		updatesector(x, y, &tempsect);
 
 		if (tempsect >= 0)
@@ -2657,7 +2661,7 @@ void processinput_d(int snum)
 	}
 	if (p->q16horizoff > 0) p->q16horizoff -= ((p->q16horizoff >> 3) + FRACUNIT);
 	else if (p->q16horizoff < 0) p->q16horizoff += (((-p->q16horizoff) >> 3) + FRACUNIT);
-#pragma message("input stuff ends here")
+#endif
 
 	if (hz >= 0 && (hz & 49152) == 49152)
 	{
@@ -2712,9 +2716,10 @@ void processinput_d(int snum)
 			return;
 	}
 
-	if (s->extra <= 0)
+	if (s->extra <= 0 && !ud.god)
 	{
 		playerisdead(snum, psectlotag, fz, cz);
+		return;
 	}
 
 	if (p->transporter_hold > 0)
@@ -2747,10 +2752,8 @@ void processinput_d(int snum)
 	doubvel = TICSPERFRAME;
 
 #ifdef SYNCINPUT
-	if (p->q16rotscrnang > 0) p->q16rotscrnang -= ((p->q16rotscrnang >> 1) + 1);
-	else if (p->q16rotscrnang < 0) p->q16rotscrnang += (((-p->q16rotscrnang) >> 1) + 1);
-
-	p->q16look_ang -= p->q16look_ang >> 2;
+	p->q16rotscrnang -= (p->q16rotscrnang >> 1); if (p->q16rotscrnang < FRACUNIT) p->q16rotscrnang = 0;
+	p->q16look_ang -= p->q16look_ang >> 2; if (p->q16look_ang < FRACUNIT) p->q16look_ang = 0;
 #endif
 
 	if (sb_snum & SKB_LOOK_LEFT)
@@ -2810,7 +2813,7 @@ void processinput_d(int snum)
 
 	i = 40;
 
-	if (psectlotag == 2)
+	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, sb_snum, psect, fz, cz);
 	}
@@ -2819,7 +2822,7 @@ void processinput_d(int snum)
 	{
 		operateJetpack(snum, sb_snum, psectlotag, fz, cz, shrunk);
 	}
-	else if (psectlotag != 2)
+	else if (psectlotag != ST_2_UNDERWATER)
 	{
 		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
 	}
@@ -2849,8 +2852,8 @@ void processinput_d(int snum)
 		if (psectlotag == 2) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
 		else p->angvel = tempang * sgn(doubvel);
 
-		p->ang += p->angvel;
-		p->ang &= 2047;
+		p->addang(p->angvel);
+		p->q16ang &= (2048<<FRACBITS)-1;
 #endif
 		p->crack_time = 777;
 	}
@@ -3060,6 +3063,11 @@ HORIZONLY:
 			fi.activatebysector(psect, pi);
 	}
 
+#ifndef SYNCINPUT
+	if (p->return_to_center > 0)
+		p->return_to_center--;
+#endif
+
 	// center_view
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
 	{
@@ -3081,13 +3089,14 @@ HORIZONLY:
 	{	// aim_down
 		playerAimDown(snum, sb_snum);
 	}
+#ifdef SYNCINPUT
 	if (p->return_to_center > 0)
 		if ((sb_snum & (SKB_LOOK_UP| SKB_LOOK_DOWN)) == 0)
 		{
 			p->return_to_center--;
 			p->q16horiz += 33*FRACUNIT - (p->q16horiz / 3);
 		}
-
+#endif
 	if (p->hard_landing > 0)
 	{
 #ifndef SYNCINPUT
@@ -3107,7 +3116,14 @@ HORIZONLY:
 		if (p->horizoff > -5 && p->horizoff < 5) p->horizoff = 0;
 	}
 
-	horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+	p->horiz = clamp(p->horiz, HORIZ_MIN, HORIZ_MAX);
+
+	if (centerHoriz)
+	{
+		if (p->gethoriz() > 95 && pPlayer->gethoriz() < 105) pPlayer->sethoriz(100);
+		if (p->gethorizoff() > -5 && pPlayer->gethorizoff < 5) pPlayer->sethorizoff(0);
+	}
+
 #endif
 
 	//Shooting code/changes

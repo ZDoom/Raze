@@ -90,7 +90,8 @@ struct player_struct
     };
 
     // input handles angle and horizon as fixed16 numbers. We need to account for that as well.
-    fixed_t q16ang, oq16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang; // oq16horiz, oq16horizoff, orotscrnang, ; // These three are currently not used but may be again later.
+    fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang;
+    fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang; // These are only needed with synchronous mouse input.
     fixed_t one_eighty_target;
 
     // using a bit field for this to save a bit of space.
@@ -199,8 +200,8 @@ struct player_struct
     void addrotscrnang(int b) { q16rotscrnang += b << FRACBITS; }
     int getang() { return q16ang >> FRACBITS; }
     int getoang() { return oq16ang >> FRACBITS; }
-    void setang(int v) { q16ang = v << FRACBITS; }
-    void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS) - 1); }
+    void setang(int v, bool smooth = false) { q16ang = v << FRACBITS; }
+    void addang(int v, bool smooth = false) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS) - 1); }
     void setoang(int v) { oq16ang = v << FRACBITS; }
     void addhoriz(int v) { q16horiz += (v << FRACBITS); }
     void addhorizoff(int v) { q16horiz += (v << FRACBITS); }

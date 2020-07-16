@@ -348,7 +348,12 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
+#ifndef SYNCINPUT
+		g_player[snum].horizSkew = -48;
+		g_player[snum].horizRecenter = true;
+#else
 		p->addhoriz(-48);
+#endif
 		p->return_to_center = 9;
 		if (p->knee_incs > 15)
 		{
@@ -381,8 +386,6 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 			}
 			p->actorsqu = -1;
 		}
-		else if (p->actorsqu >= 0)
-			p->addang(getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
 	}
 
 }
@@ -745,10 +748,12 @@ void playerCenterView(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
+#ifndef SYNCINPUT
+		g_player[snum].horizRecenter = true;
+#endif
 	}
 }
 
-#pragma message("input stuff begins here")
 void horizAngleAdjust(int snum, int delta)
 {
 #ifndef SYNCINPUT // for per-frame input

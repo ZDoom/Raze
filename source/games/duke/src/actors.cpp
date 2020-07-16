@@ -444,7 +444,12 @@ void moveplayers(void) //Players
 
 				execute(i, s->yvel, otherx);
 
+				//thisPlayer.smoothcamera = false;
+				//p->q16angvel = G_GetQ16AngleDelta(pPlayer->oq16ang, pPlayer->q16ang);
 				p->oq16ang = p->q16ang;
+				p->oq16horiz = p->q16horiz;
+				p->oq16horizoff = p->q16horizoff;
+
 
 				if (ud.multimode > 1)
 					if (sprite[ps[otherp].i].extra > 0)
@@ -459,6 +464,12 @@ void moveplayers(void) //Players
 							}
 						}
 					}
+
+				if (p->actorsqu >= 0)
+				{
+					p->addang(getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2, true);
+				}
+
 				if (ud.god)
 				{
 					s->extra = max_player_health;
@@ -466,7 +477,6 @@ void moveplayers(void) //Players
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;
 				}
-
 
 				if (s->extra > 0)
 				{
@@ -491,7 +501,7 @@ void moveplayers(void) //Players
 					{
 						int ang = p->getang();
 						ang += getincangle(ang, getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1;
-						p->setang(ang & 2047);
+						p->setang(ang & 2047, true);
 					}
 
 				}
@@ -750,7 +760,7 @@ void movecrane(int i, int crane)
 				s->owner = -2;
 				ps[p].on_crane = i;
 				spritesound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				ps[p].setang(s->ang + 1024);
+				ps[p].setang(s->ang + 1024, true);
 			}
 			else
 			{
@@ -2674,7 +2684,7 @@ void handle_se00(int i, int LASERLINE)
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
 
-				ps[p].addang(l * q);
+				ps[p].addang(l * q, true);
 
 				ps[p].posz += zchange;
 
@@ -2866,7 +2876,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					ps[p].addang(q);
+					ps[p].addang(q, true);
 
 					if (numplayers > 1)
 					{

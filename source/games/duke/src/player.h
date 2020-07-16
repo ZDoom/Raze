@@ -53,6 +53,7 @@ typedef struct
     double  lastInputTicks;
     bool    lookLeft;
     bool    lookRight;
+    bool horizRecenter;
 
 } playerdata_t;
 
