@@ -494,6 +494,8 @@ void P_GetInput(int const playerNum)
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
+int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
+
 void P_GetInputMotorcycle(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
@@ -585,84 +587,11 @@ void P_GetInputMotorcycle(int playerNum)
     localInput.bits |= turnLeft << SK_AIM_DOWN;
     localInput.bits |= turnRight << SK_LOOK_LEFT;
 
-    static int32_t turnHeldTime;
-    static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
-
     int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->MotoSpeed <= 0;
 
-    if (pPlayer->MotoSpeed == 0 || !pPlayer->on_ground)
-    {
-        if (turnLeft)
-        {
-            pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-            if (pPlayer->TiltStatus < -10)
-                pPlayer->TiltStatus = -10;
-        }
-        else if (turnRight)
-        {
-            pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-            if (pPlayer->TiltStatus > 10)
-                pPlayer->TiltStatus = 10;
-        }
-    }
-    else
-    {
-        if (turnLeft || pPlayer->moto_drink < 0)
-        {
-            turnHeldTime += elapsedTics;
-            pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-            if (pPlayer->TiltStatus < -10)
-                pPlayer->TiltStatus = -10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->MotoSpeed > 0)
-            {
-                if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-                else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-            }
-            else
-            {
-                if (moveBack)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
-                else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
-            }
-        }
-        else if (turnRight || pPlayer->moto_drink > 0)
-        {
-            turnHeldTime += elapsedTics;
-            pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-            if (pPlayer->TiltStatus > 10)
-                pPlayer->TiltStatus = 10;
-            if (turnHeldTime >= TURBOTURNTIME && pPlayer->MotoSpeed > 0)
-            {
-                if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-                else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-            }
-            else
-            {
-                if (moveBack)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
-                else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 20 : 6)));
-            }
-        }
-        else
-        {
-            turnHeldTime = 0;
-
-            if (pPlayer->TiltStatus > 0)
-                pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-            else if (pPlayer->TiltStatus < 0)
-                pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-        }
-    }
-
-    if (pPlayer->TiltStatus > -0.025 && pPlayer->TiltStatus < 0.025)
-        pPlayer->TiltStatus = 0;
+    // turn is truncated to integer precision to avoid having micro-movement affect the result, which makes a significant difference here.
+    int turnvel = motoApplyTurn(pPlayer, turnLeft, turnRight, turn >> FRACBITS, moveBack, scaleAdjust);
+    input.q16avel += int(turnvel * scaleAdjust * FRACUNIT * 2);
 
     if (pPlayer->moto_underwater)
     {
@@ -817,7 +746,7 @@ void P_GetInputBoat(int playerNum)
 
     // turn is truncated to integer precision to avoid having micro-movement affect the result, which makes a significant difference here.
     int turnvel = boatApplyTurn(pPlayer, turnLeft, turnRight, turn >> FRACBITS, scaleAdjust); 
-    input.q16avel += int(turnvel * scaleAdjust * FRACUNIT);
+    input.q16avel += int(turnvel * scaleAdjust * FRACUNIT * 2);
 
     input.fvel += pPlayer->MotoSpeed;
     input.q16avel = fix16_mul(input.q16avel, avelScale);

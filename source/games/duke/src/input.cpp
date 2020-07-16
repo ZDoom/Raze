@@ -682,9 +682,92 @@ enum
 	TURBOTURNTIME =  (TICRATE/8) // 7
 };
 
+
 //---------------------------------------------------------------------------
 //
-// split out of playerinputboat for readability purposes and condensed using ?: operators
+// split out of playerinputmotocycle for readability purposes and condensed using ?: operators
+//
+//---------------------------------------------------------------------------
+
+int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
+{
+	static int turnheldtime;
+	static int lastcontroltime;
+
+	int tics = totalclock - lastcontroltime;
+	lastcontroltime = totalclock;
+
+	if (p->MotoSpeed == 0 || !p->on_ground)
+	{
+		if (turnl)
+		{
+			p->TiltStatus -= (float)factor;
+			if (p->TiltStatus < -10)
+				p->TiltStatus = -10;
+		}
+		else if (turnr)
+		{
+			p->TiltStatus += (float)factor;
+			if (p->TiltStatus > 10)
+				p->TiltStatus = 10;
+		}
+	}
+	else
+	{
+		if (turnl || p->moto_drink < 0)
+		{
+			turnheldtime += tics;
+			p->TiltStatus -= (float)factor;
+			if (p->TiltStatus < -10)
+				p->TiltStatus = -10;
+			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
+			{
+				if (goback) return bike_turn ? 20 : 10;
+				else return bike_turn ? -20 : -10;
+			}
+			else
+			{
+				if (goback) return bike_turn ? 10 : 3;
+				else return bike_turn ? -10 : -3;
+			}
+		}
+		else if (turnr || p->moto_drink > 0)
+		{
+			turnheldtime += tics;
+			p->TiltStatus += (float)factor;
+			if (p->TiltStatus > 10)
+				p->TiltStatus = 10;
+			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
+			{
+				if (goback) return bike_turn ? -20 : -10;
+				else return bike_turn ? 20 : 10;
+			}
+			else
+			{
+				if (goback) return bike_turn ? -10 : -3;
+				else return bike_turn ? 10 : 3;
+			}
+		}
+		else
+		{
+			turnheldtime = 0;
+
+			if (p->TiltStatus > 0)
+				p->TiltStatus -= (float)factor;
+			else if (p->TiltStatus < 0)
+				p->TiltStatus += (float)factor;
+
+			if (fabs(p->TiltStatus) < 0.025)
+				p->TiltStatus = 0;
+
+		}
+	}
+	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// same for the boat
 //
 //---------------------------------------------------------------------------
 
