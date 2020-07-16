@@ -97,7 +97,7 @@ MAIN_LOOP_RESTART:
         else
 #endif
         {
-            //fi.ShowLogo([](bool) {});
+            fi.ShowLogo([](bool) {});
         }
 
         M_StartControlPanel(false);
