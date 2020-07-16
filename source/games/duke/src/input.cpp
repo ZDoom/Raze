@@ -428,7 +428,7 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) >> SK_WEAPON_BITS) - 1;
+		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) / SKB_FIRST_WEAPON_BIT) - 1;
 		if (j > 0 && p->kickback_pic > 0)
 			p->wantweaponfire = j;
 
@@ -740,6 +740,40 @@ void processCommonInput(input_t &input)
 		input.svel = 0;
 		input.q16avel = 0;
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+// weapon selection bits.
+// This should all be remapped to CCMDs, except for the controller check
+// For the next and prev weapon functions this is particularly necessary 
+// due to how the mouse wheel works.
+//
+//---------------------------------------------------------------------------
+
+void processSelectWeapon(input_t& input)
+{
+	int j = 0;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_1)) j = 1;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_2))	j = 2;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_3))	j = 3;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_4))	j = 4;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_5))	j = 5;
+	if (buttonMap.ButtonPressed(gamefunc_Weapon_6))	j = 6;
+
+	if (!VOLUMEONE)
+	{
+		if (buttonMap.ButtonPressed(gamefunc_Weapon_7))	j = 7;
+		if (buttonMap.ButtonPressed(gamefunc_Weapon_8))	j = 8;
+		if (buttonMap.ButtonPressed(gamefunc_Weapon_9))	j = 9;
+		if (buttonMap.ButtonPressed(gamefunc_Weapon_10)) j = 10;
+	}
+
+	if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0)) j = 11;
+	if (buttonMap.ButtonPressed(gamefunc_Next_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0)) j = 12;
+
+	if ((localInput.bits & SKB_WEAPONMASK_BITS) == 0)
+		localInput.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
 
 }
 

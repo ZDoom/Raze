@@ -217,8 +217,7 @@ enum dukeinvicon_t
     ICON_MAX
 };
 
-// And yet another bit field that was for all intents and purposes undocumented, depending on numeric literals again.
-// And again, the symbolic names are from EDuke32.
+
 enum ESyncVals
 {
     // Todo: Make this bit masks - cannot be done before eliminating all old code using it
@@ -230,10 +229,6 @@ enum ESyncVals
     SK_LOOK_LEFT    = 6 ,
     SK_LOOK_RIGHT   = 7 ,
     // weapons take up 4 bits...
-    SK_WEAPON_BITS  = 8 ,
-    SK_WEAPON_BITS1 = 9 ,
-    SK_WEAPON_BITS2 = 10,
-    SK_WEAPON_BITS3 = 11,
     SK_LOOK_UP      = 13,
     SK_LOOK_DOWN    = 14,
     SK_MULTIFLAG    = 17,
@@ -254,6 +249,7 @@ enum ESyncBits_ : uint32_t
     SKB_RUN = 1 << 5,
     SKB_LOOK_LEFT = 1 << 6,
     SKB_LOOK_RIGHT = 1 << 7,
+	SKB_FIRST_WEAPON_BIT = 1 << 8,
     SKB_STEROIDS = 1 << 12,
     SKB_LOOK_UP = 1 << 13,
     SKB_LOOK_DOWN = 1 << 14,
@@ -275,7 +271,7 @@ enum ESyncBits_ : uint32_t
     SKB_INVENTORY = 1 << 30,
     SKB_ESCAPE = 1u << 31,
 
-    SKB_WEAPONMASK_BITS = (15u << int(SK_WEAPON_BITS)),
+    SKB_WEAPONMASK_BITS = (15u * SKB_FIRST_WEAPON_BIT),
     SKB_INTERFACE_BITS = (SKB_WEAPONMASK_BITS | SKB_STEROIDS | SKB_NIGHTVISION | SKB_MEDKIT | SKB_QUICK_KICK | \
         SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_HOLODUKE | SKB_JETPACK | SKB_INV_RIGHT | \
         SKB_TURNAROUND | SKB_OPEN | SKB_INVENTORY | SKB_ESCAPE),

@@ -29,6 +29,7 @@ BEGIN_DUKE_NS
 
 fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2);
 void processCommonInput(input_t& input);
+void processSelectWeapon(input_t& input);
 int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
 int boatApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, double factor);
 
@@ -210,36 +211,8 @@ void P_GetInput(int const playerNum)
         }
     }
 
-    int weaponSelection;
+    processSelectWeapon(input);
 
-    for (weaponSelection = gamefunc_Weapon_10; weaponSelection >= gamefunc_Weapon_1; --weaponSelection)
-    {
-        if (buttonMap.ButtonDown(weaponSelection))
-        {
-            weaponSelection -= (gamefunc_Weapon_1 - 1);
-            break;
-        }
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Last_Weapon))
-        weaponSelection = 14;
-    else if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
-        weaponSelection = 13;
-    else if (buttonMap.ButtonPressed(gamefunc_Next_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel > 0))
-    {
-        weaponSelection = 12;
-        buttonMap.ClearButton(gamefunc_Next_Weapon);
-    }
-    else if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0))
-    {
-        weaponSelection = 11;
-        buttonMap.ClearButton(gamefunc_Previous_Weapon);
-    }
-    else if (weaponSelection == gamefunc_Weapon_1-1)
-        weaponSelection = 0;
-
-    if ((localInput.bits & SKB_WEAPONMASK_BITS) == 0)
-        localInput.bits |= (weaponSelection << SK_WEAPON_BITS);
 
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
