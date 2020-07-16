@@ -712,6 +712,8 @@ void P_GetInputMotorcycle(int playerNum)
     }
 }
 
+int boatApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, double factor);
+
 void P_GetInputBoat(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
@@ -813,68 +815,9 @@ void P_GetInputBoat(int playerNum)
     static int32_t lastInputClock;  // MED
     int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
 
-    if (pPlayer->MotoSpeed != 0)
-    {
-        if (turnLeft || pPlayer->moto_drink < 0)
-        {
-            turnHeldTime += elapsedTics;
-            if (!pPlayer->NotOnWater)
-            {
-                pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-                if (pPlayer->TiltStatus < -10)
-                    pPlayer->TiltStatus = -10;
-                if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-                else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
-            }
-            else
-                if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
-                else
-                    input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
-        }
-        else if (turnRight || pPlayer->moto_drink > 0)
-        {
-            turnHeldTime += elapsedTics;
-            if (!pPlayer->NotOnWater)
-            {
-                pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-                if (pPlayer->TiltStatus > 10)
-                    pPlayer->TiltStatus = 10;
-                if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 40 : 20)));
-                else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
-            }
-            else
-                if (turnHeldTime >= TURBOTURNTIME)
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 12 : 6)));
-                else
-                    input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(turn ? 4 : 2)));
-        }
-        else if (!pPlayer->NotOnWater)
-        {
-            turnHeldTime = 0;
-
-            if (pPlayer->TiltStatus > 0)
-                pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-            else if (pPlayer->TiltStatus < 0)
-                pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-        }
-    }
-    else if (!pPlayer->NotOnWater)
-    {
-        turnHeldTime = 0;
-
-        if (pPlayer->TiltStatus > 0)
-            pPlayer->TiltStatus -= scaleAdjustmentToInterval(1);
-        else if (pPlayer->TiltStatus < 0)
-            pPlayer->TiltStatus += scaleAdjustmentToInterval(1);
-    }
-
-    if (pPlayer->TiltStatus > -0.025 && pPlayer->TiltStatus < 0.025)
-        pPlayer->TiltStatus = 0;
+    // turn is truncated to integer precision to avoid having micro-movement affect the result, which makes a significant difference here.
+    int turnvel = boatApplyTurn(pPlayer, turnLeft, turnRight, turn >> FRACBITS, scaleAdjust); 
+    input.q16avel += int(turnvel * scaleAdjust * FRACUNIT);
 
     input.fvel += pPlayer->MotoSpeed;
     input.q16avel = fix16_mul(input.q16avel, avelScale);

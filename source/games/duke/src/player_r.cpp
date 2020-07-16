@@ -2545,8 +2545,8 @@ void onMotorcycleHit(int snum, int var60)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 8,
-					sintable[(p->TiltStatus * 20 + p->getang()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
+				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 8,
+					sintable[int(p->TiltStatus * 20 + p->getang()) & 2047] >> 8, sprite[var60].zvel, CLIPMASK0);
 			}
 		}
 		else
@@ -2602,8 +2602,8 @@ void onBoatHit(int snum, int var60)
 		{
 			if (numplayers == 1)
 			{
-				fi.movesprite(var60, sintable[(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 9,
-					sintable[(p->TiltStatus * 20 + p->getang()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
+				fi.movesprite(var60, sintable[int(p->TiltStatus * 20 + p->getang() + 512) & 2047] >> 9,
+					sintable[int(p->TiltStatus * 20 + p->getang()) & 2047] >> 9, sprite[var60].zvel, CLIPMASK0);
 			}
 		}
 		else

@@ -675,4 +675,82 @@ void hud_input(int snum)
 		}
 	}
 }
+
+
+enum
+{
+	TURBOTURNTIME =  (TICRATE/8) // 7
+};
+
+//---------------------------------------------------------------------------
+//
+// split out of playerinputboat for readability purposes and condensed using ?: operators
+//
+//---------------------------------------------------------------------------
+
+int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double factor)
+{
+	static int turnheldtime;
+	static int lastcontroltime;
+
+	int tics = totalclock - lastcontroltime;
+	lastcontroltime = totalclock;
+
+	if (p->MotoSpeed)
+	{
+		if (turnl || p->moto_drink < 0)
+		{
+			turnheldtime += tics;
+			if (!p->NotOnWater)
+			{
+				p->TiltStatus -= (float)factor;
+				if (p->TiltStatus < -10)
+					p->TiltStatus = -10;
+			}
+			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed != 0)
+			{
+				if (p->NotOnWater) return bike_turn ? -6 : -3;
+				else return bike_turn ? -20 : -10;
+			}
+			else if (turnheldtime < TURBOTURNTIME && p->MotoSpeed != 0)
+			{
+				if (p->NotOnWater) return bike_turn ? -2 : -1;
+				else return bike_turn ? -6 : -3;
+			}
+		}
+		else if (turnr || p->moto_drink > 0)
+		{
+			turnheldtime += tics;
+			if (!p->NotOnWater)
+			{
+				p->TiltStatus += (float)factor;
+				if (p->TiltStatus > 10)
+					p->TiltStatus = 10;
+			}
+			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed != 0)
+			{
+				if (p->NotOnWater) return bike_turn ? 6 : 3;
+				else return bike_turn ? 20 : 10;
+			}
+			else if (turnheldtime < TURBOTURNTIME && p->MotoSpeed != 0)
+			{
+				if (p->NotOnWater) return bike_turn ? 2 : 1;
+				else return bike_turn ? 6 : 3;
+			}
+		}
+		else if (!p->NotOnWater)
+		{
+			turnheldtime = 0;
+
+			if (p->TiltStatus > 0)
+				p->TiltStatus -= (float)factor;
+			else if (p->TiltStatus < 0)
+				p->TiltStatus += (float)factor;
+
+			if (fabs(p->TiltStatus) < 0.025)
+				p->TiltStatus = 0;
+		}
+	}
+	return 0;
+}
 END_DUKE_NS
