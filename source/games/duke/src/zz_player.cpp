@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2);
+void processCommonInput(input_t& input);
+int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
+int boatApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, double factor);
+
 
 int32_t PHEIGHT = PHEIGHT_DUKE;
 
@@ -56,24 +61,6 @@ enum inputlock_t
 
     IL_NOTHING = IL_NOANGLE|IL_NOHORIZ|IL_NOMOVE,
 };
-
-fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
-    {
-        if (ang1 <= fix16_from_int(1024))
-            ang1 += fix16_from_int(2048);
-
-        if (ang2 <= fix16_from_int(1024))
-            ang2 += fix16_from_int(2048);
-    }
-
-    //if (ang1 - ang2 == -fix16_from_int(1024))
-    //    return(fix16_from_int(1024));
-
-    return ang1 - ang2;
-}
 
 static int P_CheckLockedMovement(int const playerNum)
 {
@@ -109,31 +96,9 @@ void P_GetInput(int const playerNum)
     auto const pPlayer = &ps[playerNum];
     auto const pSprite = &sprite[pPlayer->i];
     ControlInfo info;
-
-    auto const currentHiTicks = timerGetHiTicks();
-    elapsedInputTicks = currentHiTicks - thisPlayer.lastInputTicks;
-    thisPlayer.lastInputTicks = currentHiTicks;
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
-
-    if (paused)
-    {
-        if (!(pPlayer->gm&MODE_MENU))
-            CONTROL_GetInput(&info);
-
-        localInput = {};
-        localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        return;
-    }
-
-	D_ProcessEvents();
-
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    if (numplayers == 1)
-    {
-        setlocalplayerinput(pPlayer);
-    }
 
 
     CONTROL_GetInput(&info);
@@ -175,10 +140,10 @@ void P_GetInput(int const playerNum)
     {
         if (!localInput.svel)
         {
-            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !(pPlayer->movement_lock & 4) && !localInput.svel)
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !localInput.svel)
                 input.svel = keyMove;
 
-            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !(pPlayer->movement_lock & 8) && !localInput.svel)
+            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !localInput.svel)
                 input.svel = -keyMove;
         }
     }
@@ -206,60 +171,41 @@ void P_GetInput(int const playerNum)
 
     if (localInput.svel < keyMove && localInput.svel > -keyMove)
     {
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !(pPlayer->movement_lock & 4))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
             input.svel += keyMove;
 
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !(pPlayer->movement_lock & 8))
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
             input.svel += -keyMove;
     }
 
     if (localInput.fvel < keyMove && localInput.fvel > -keyMove)
     {
-        if (isRR())
+        if (isRR() && pPlayer->drink_amt >= 66 && pPlayer->drink_amt <= 87)
         {
-            /*if (buttonMap.ButtonDown(gamefunc_Quick_Kick))
+            if (buttonMap.ButtonDown(gamefunc_Move_Forward))
             {
-                localInput.bits |= buttonMap.ButtonDown(gamefunc_Move_Forward)<<SK_AIM_UP;
-                localInput.bits |= buttonMap.ButtonDown(gamefunc_Move_Backward)<<SK_AIM_DOWN;
-            }
-            else*/
-            {
-                if (pPlayer->drink_amt >= 66 && pPlayer->drink_amt <= 87)
-                {
-                    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-                    {
-                        input.fvel += keyMove;
-                        if (pPlayer->drink_amt & 1)
-                            input.svel += keyMove;
-                        else
-                            input.svel -= keyMove;
-                    }
-
-                    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-                    {
-                        input.fvel += -keyMove;
-                        if (pPlayer->drink_amt & 1)
-                            input.svel -= keyMove;
-                        else
-                            input.svel += keyMove;
-                    }
-                }
+                input.fvel += keyMove;
+                if (pPlayer->drink_amt & 1)
+                    input.svel += keyMove;
                 else
-                {
-                    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-                        input.fvel += keyMove;
+                    input.svel -= keyMove;
+            }
 
-                    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-                        input.fvel += -keyMove;
-                }
+            if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+            {
+                input.fvel += -keyMove;
+                if (pPlayer->drink_amt & 1)
+                    input.svel -= keyMove;
+                else
+                    input.svel += keyMove;
             }
         }
         else
         {
-            if (buttonMap.ButtonDown(gamefunc_Move_Forward) && !(pPlayer->movement_lock & 1))
+            if (buttonMap.ButtonDown(gamefunc_Move_Forward))
                 input.fvel += keyMove;
 
-            if (buttonMap.ButtonDown(gamefunc_Move_Backward) && !(pPlayer->movement_lock & 2))
+            if (buttonMap.ButtonDown(gamefunc_Move_Backward))
                 input.fvel += -keyMove;
         }
     }
@@ -295,9 +241,6 @@ void P_GetInput(int const playerNum)
     if ((localInput.bits & SKB_WEAPONMASK_BITS) == 0)
         localInput.bits |= (weaponSelection << SK_WEAPON_BITS);
 
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE);
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN);
-
     int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
     int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
 
@@ -312,6 +255,8 @@ void P_GetInput(int const playerNum)
     if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
         pPlayer->crouch_toggle = 0;
 
+    processCommonInput(input);
+
     int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
 
     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
@@ -325,22 +270,11 @@ void P_GetInput(int const playerNum)
 
     localInput.bits |= (playerRunning << SK_RUN);
 
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Right) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory) << SK_INVENTORY);
-
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Steroids) << SK_STEROIDS) | (buttonMap.ButtonDown(gamefunc_NightVision) << SK_NIGHTVISION);
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT) | (buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE);
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK);
-
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Holster_Weapon) << SK_HOLSTER;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
 
     localInput.bits |= (mouseaim << SK_AIMMODE);
-    localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
-    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
 
     if (isRR())
     {
@@ -352,13 +286,7 @@ void P_GetInput(int const playerNum)
             localInput.bits |= SKB_LOOK_DOWN;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-    {
-        input.fvel = 0;
-        input.svel = 0;
-        input.q16avel = 0;
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+    if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
 
     int const movementLocked = P_CheckLockedMovement(playerNum);
@@ -494,7 +422,6 @@ void P_GetInput(int const playerNum)
     pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
-int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
 
 void P_GetInputMotorcycle(int playerNum)
 {
@@ -502,30 +429,9 @@ void P_GetInputMotorcycle(int playerNum)
     auto const pPlayer = &ps[playerNum];
     auto const pSprite = &sprite[pPlayer->i]; 
     ControlInfo info;
-
-    auto const currentHiTicks = timerGetHiTicks();
-    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
-    thisPlayer.lastInputTicks = currentHiTicks;
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
-    if (paused)
-    {
-        if (!(pPlayer->gm&MODE_MENU))
-            CONTROL_GetInput(&info);
-
-        localInput = {};
-        localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        return;
-    }
-
-    D_ProcessEvents();
-
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    if (numplayers == 1)
-    {
-        setlocalplayerinput(pPlayer);
-    }
 
     CONTROL_GetInput(&info);
 
@@ -542,29 +448,7 @@ void P_GetInputMotorcycle(int playerNum)
     input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     pPlayer->crouch_toggle = 0;
-
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Steroids) << SK_STEROIDS;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_NightVision) << SK_NIGHTVISION;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
-                 (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
-    localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Right) ||
-                 (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Inventory) << SK_INVENTORY;
-    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
-
-    if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-    {
-        input.fvel = 0;
-        input.svel = 0;
-        input.q16avel = 0;
-    }
+    processCommonInput(input);
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
@@ -641,38 +525,15 @@ void P_GetInputMotorcycle(int playerNum)
     }
 }
 
-int boatApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, double factor);
-
 void P_GetInputBoat(int playerNum)
 {
     auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer    = &ps[playerNum];
     auto const pSprite = &sprite[pPlayer->i];
     ControlInfo info;
-
-    auto const currentHiTicks = timerGetHiTicks();
-    elapsedInputTicks         = currentHiTicks - thisPlayer.lastInputTicks;
-    thisPlayer.lastInputTicks = currentHiTicks;
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
-    if (paused)
-    {
-        if (!(pPlayer->gm&MODE_MENU))
-            CONTROL_GetInput(&info);
-
-        localInput = {};
-        localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
-        return;
-    }
-
-    D_ProcessEvents();
-
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    if (numplayers == 1)
-    {
-        setlocalplayerinput(pPlayer);
-    }
 
     CONTROL_GetInput(&info);
 
@@ -691,29 +552,7 @@ void P_GetInputBoat(int playerNum)
     input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     pPlayer->crouch_toggle = 0;
-
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Fire) << SK_FIRE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Steroids) << SK_STEROIDS;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_NightVision) << SK_NIGHTVISION;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_MedKit) << SK_MEDKIT;
-     localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Left) ||
-                 (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel > 0 || input.q16avel < 0))) << SK_INV_LEFT;
-    localInput.bits |= inputState.CheckPause() << SK_PAUSE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Holo_Duke) << SK_HOLODUKE;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Jetpack) << SK_JETPACK;
-    localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
-    localInput.bits |= (buttonMap.ButtonDown(gamefunc_Inventory_Right) ||
-                 (buttonMap.ButtonDown(gamefunc_Dpad_Select) && (input.svel < 0 || input.q16avel > 0))) << SK_INV_RIGHT;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Open) << SK_OPEN;
-    localInput.bits |= buttonMap.ButtonDown(gamefunc_Inventory) << SK_INVENTORY;
-    //localInput.bits |= ((uint32_t)inputState.GetKeyStatus(sc_Escape)) << SK_ESCAPE; fixme.This needs to be done differently
-
-    if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-    {
-        input.fvel = 0;
-        input.svel = 0;
-        input.q16avel = 0;
-    }
+    processCommonInput(input);
 
     if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
         input.fvel = 0;
@@ -787,11 +626,31 @@ void P_GetInputBoat(int playerNum)
 
 void GetInput()
 {
+    static uint64_t lastCheck;
+
+    auto const p = &ps[myconnectindex];
     updatePauseStatus();
 
-    if (isRRRA() && ps[myconnectindex].OnMotorcycle)
+    auto now = I_msTimeF();
+    elapsedInputTicks = now - lastCheck;
+    lastCheck = now;
+
+    if (paused)
+    {
+        localInput = {};
+        if (g_gameQuit) localInput.bits |= SKB_GAMEQUIT;
+        return;
+    }
+
+    D_ProcessEvents();
+    if (numplayers == 1)
+    {
+        setlocalplayerinput(p);
+    }
+
+    if (isRRRA() && p->OnMotorcycle)
         P_GetInputMotorcycle(myconnectindex);
-    else if (isRRRA() && ps[myconnectindex].OnBoat)
+    else if (isRRRA() && p->OnBoat)
         P_GetInputBoat(myconnectindex);
     else
         P_GetInput(myconnectindex);

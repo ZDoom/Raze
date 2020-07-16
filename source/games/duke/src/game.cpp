@@ -309,7 +309,7 @@ static void ticker(void)
     S_Update();
 
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (!(ps[myconnectindex].gm & MODE_GAME))
+    if (!(ps[myconnectindex].gm & MODE_GAME) || (paused && !System_WantGuiCapture()))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);

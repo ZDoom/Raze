@@ -101,8 +101,7 @@ struct player_struct
     unsigned int palette;
     PalEntry pals;
 
-    // these did not exist in JFDuke.
-    uint8_t movement_lock;
+    // this was a global variable originally.
     vec2_t fric;
 
     // From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.

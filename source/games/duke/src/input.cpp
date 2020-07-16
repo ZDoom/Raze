@@ -682,6 +682,66 @@ enum
 	TURBOTURNTIME =  (TICRATE/8) // 7
 };
 
+//---------------------------------------------------------------------------
+//
+// This one's from VoidSW, not EDuke32
+//
+//---------------------------------------------------------------------------
+
+fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
+{
+	// Look at the smaller angle if > 1024 (180 degrees)
+	if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
+	{
+		if (ang1 <= fix16_from_int(1024))
+			ang1 += fix16_from_int(2048);
+
+		if (ang2 <= fix16_from_int(1024))
+			ang2 += fix16_from_int(2048);
+	}
+
+	//if (ang1 - ang2 == -fix16_from_int(1024))
+	//    return(fix16_from_int(1024));
+
+	return ang1 - ang2;
+}
+
+//---------------------------------------------------------------------------
+//
+// common handler for all 3 input methods.
+//
+//---------------------------------------------------------------------------
+
+void processCommonInput(input_t &input)
+{
+	if (buttonMap.ButtonDown(gamefunc_Fire)) localInput.bits |= SKB_FIRE;
+	if (buttonMap.ButtonDown(gamefunc_Open)) localInput.bits |= SKB_OPEN;
+
+	// todo: handle these with CCMDs instead.
+	if (buttonMap.ButtonDown(gamefunc_Inventory)) localInput.bits |= SKB_INVENTORY;
+	if (buttonMap.ButtonDown(gamefunc_MedKit)) localInput.bits |= SKB_MEDKIT;
+	if (buttonMap.ButtonDown(gamefunc_Steroids)) localInput.bits |= SKB_STEROIDS;
+	if (buttonMap.ButtonDown(gamefunc_NightVision)) localInput.bits |= SKB_NIGHTVISION;
+	if (buttonMap.ButtonDown(gamefunc_Holo_Duke)) localInput.bits |= SKB_HOLODUKE;
+	if (buttonMap.ButtonDown(gamefunc_Jetpack)) localInput.bits |= SKB_JETPACK;
+
+	// the way this checks for controller axis movement will also catch mouse and keyboard input.
+	bool dpad_select = buttonMap.ButtonDown(gamefunc_Dpad_Select);
+	if (buttonMap.ButtonDown(gamefunc_Inventory_Left) || (dpad_select && (input.svel > 0 || input.q16avel < 0))) localInput.bits |= SKB_INV_LEFT;
+	if (buttonMap.ButtonDown(gamefunc_Inventory_Right) || (dpad_select && (input.svel < 0 || input.q16avel > 0))) localInput.bits |= SKB_INV_RIGHT;
+
+	if (inputState.CheckPause()) localInput.bits |= SKB_PAUSE;
+	if (g_gameQuit) localInput.bits |= SKB_GAMEQUIT;
+	//if (inputState.GetKeyStatus(sc_Escape))  localInput.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
+
+	if (dpad_select)
+	{
+		input.fvel = 0;
+		input.svel = 0;
+		input.q16avel = 0;
+	}
+
+}
 
 //---------------------------------------------------------------------------
 //

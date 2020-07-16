@@ -1017,7 +1017,6 @@ int parse(void)
 
 			resetinventory(g_p);
 			resetweapons(g_p);
-			ps[g_p].movement_lock = 0;
 
 			//cameradist = 0;
 			//cameraclock = totalclock;
