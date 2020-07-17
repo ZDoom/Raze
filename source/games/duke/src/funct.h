@@ -233,5 +233,6 @@ void nonsharedkeys(void);
 void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, int sb_snum, double factor, bool frominput = false);
+bool movementBlocked(int snum);
 
 END_DUKE_NS

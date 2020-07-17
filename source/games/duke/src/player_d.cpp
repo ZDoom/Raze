@@ -2789,13 +2789,7 @@ void processinput_d(int snum)
 
 	//Do the quick lefts and rights
 
-	if (p->fist_incs ||
-		p->transporter_hold > 2 ||
-		p->hard_landing ||
-		p->access_incs > 0 ||
-		p->knee_incs > 0 ||
-		(((!isWW2GI() && p->curr_weapon == TRIPBOMB_WEAPON) || (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON)) &&
-				p->kickback_pic > 1 && p->kickback_pic < 4))
+	if (movementBlocked(snum))
 	{
 		doubvel = 0;
 		p->posxv = 0;

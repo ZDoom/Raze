@@ -952,6 +952,38 @@ void playerAimDown(int snum, ESyncBits sb_snum)
 
 //---------------------------------------------------------------------------
 //
+// split out so that the weapon check can be done right.
+//
+//---------------------------------------------------------------------------
+
+bool movementBlocked(int snum)
+{
+	auto p = &ps[snum];
+
+	auto blockingweapon = [=]()
+	{
+		if (isRR()) return false;
+		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][snum] == TRIPBOMB_WEAPON;
+		else return p->curr_weapon == TRIPBOMB_WEAPON;
+	};
+
+	auto weapondelay = [=]()
+	{
+		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][snum];
+		else return 4;
+	};
+
+	return (p->fist_incs ||
+		p->transporter_hold > 2 ||
+		p->hard_landing ||
+		p->access_incs > 0 ||
+		p->knee_incs > 0 ||
+		(blockingweapon() && p->kickback_pic > 1 && p->kickback_pic < weapondelay()));
+}
+
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------

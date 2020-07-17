@@ -3698,11 +3698,7 @@ void processinput_r(int snum)
 
 	//Do the quick lefts and rights
 
-	if (p->fist_incs ||
-		p->transporter_hold > 2 ||
-		p->hard_landing ||
-		p->access_incs > 0 ||
-		p->knee_incs > 0)
+	if (movementBlocked(snum))
 	{
 		doubvel = 0;
 		p->posxv = 0;

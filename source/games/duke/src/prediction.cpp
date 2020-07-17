@@ -394,14 +394,7 @@ void fakedomovethings(void)
 
         }
 
-        if ( p->fist_incs ||
-                     p->transporter_hold > 2 ||
-                     myhardlanding ||
-                     p->access_incs > 0 ||
-                     p->knee_incs > 0 ||
-                     (p->curr_weapon == TRIPBOMB_WEAPON &&
-                      p->kickback_pic > 1 &&
-                      p->kickback_pic < 4 ) )
+        if (movementBlocked(snum) || myhardlanding)
         {
                  doubvel = 0;
                  myxvel = 0;
