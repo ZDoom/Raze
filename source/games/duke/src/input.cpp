@@ -39,7 +39,8 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-static int WeaponToSend, BitsToSend;
+static int WeaponToSend;
+static ESyncBits BitsToSend;
 
 extern double elapsedInputTicks;
 
@@ -723,6 +724,8 @@ void processCommonInput(ControlInfo &info, bool onVehicle)
 
 	// These 3 bits are only available when not riding a bike or boat.
 	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
+	loc.bits |= BitsToSend;
+	BitsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
@@ -963,7 +966,6 @@ void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, do
 	else
 	{
 		turnvel = boatApplyTurn(p, turnl, turnr, turnspeed != 0, scaleAdjust) * scaleAdjust * 2;
-
 	}
 
 	// What is this? Optimization for playing with a mouse which the original did not have?
