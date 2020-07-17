@@ -1562,9 +1562,6 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (!synchronized_input)
-		g_player[snum].horizSkew = 0;
-
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
@@ -2736,21 +2733,7 @@ void processinput_d(int snum)
 
 	doubvel = TICSPERFRAME;
 
-	if (synchronized_input)
-	{
-		p->q16rotscrnang -= (p->q16rotscrnang >> 1); if (p->q16rotscrnang < FRACUNIT) p->q16rotscrnang = 0;
-		p->q16look_ang -= p->q16look_ang >> 2; if (p->q16look_ang < FRACUNIT) p->q16look_ang = 0;
-	}
-
-	if (sb_snum & SKB_LOOK_LEFT)
-	{
-		playerLookLeft(snum);
-	}
-
-	if (sb_snum & SKB_LOOK_RIGHT)
-	{
-		playerLookRight(snum);
-	}
+	checklook(snum,sb_snum);
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -2785,16 +2768,6 @@ void processinput_d(int snum)
 
 	p->oposz = p->posz;
 	p->opyoff = p->pyoff;
-	if (synchronized_input)
-	{
-		p->oq16ang = p->q16ang;
-
-		if (p->one_eighty_count < 0)
-		{
-			p->one_eighty_count += 128;
-			p->addang(128);
-		}
-	}
 
 	// Shrinking code
 
@@ -2837,7 +2810,7 @@ void processinput_d(int snum)
 
 			tempang = sb_avel << 1; // this is fixed point!
 
-			if (psectlotag == 2) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
+			if (psectlotag == ST_2_UNDERWATER) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
 			else p->angvel = tempang * sgn(doubvel);
 
 			p->addang(p->angvel);
@@ -3078,35 +3051,17 @@ HORIZONLY:
 	{	// aim_down
 		playerAimDown(snum, sb_snum);
 	}
-	if (synchronized_input)
-	{
-		if (p->return_to_center > 0)
-			if ((sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0)
-			{
-				p->return_to_center--;
-				p->q16horiz += 33 * FRACUNIT - (p->q16horiz / 3);
-			}
-	}
+
 	if (p->hard_landing > 0)
 	{
-		if (!synchronized_input)
-			g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
-		else
-			p->addhoriz(-(p->hard_landing << 4));
+		g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
 		p->hard_landing--;
 	}
 
 	if (synchronized_input)
 	{
-		if (p->aim_mode)
-			p->q16horiz += (sync[snum].q16horz >> 1);
-		else
-		{
-			if (p->q16horiz > F16(95) && p->q16horiz < F16(105)) p->sethoriz(100);
-			if (p->q16horizoff > F16(-5) && p->q16horizoff < F16(5)) p->sethorizoff(0);
-		}
-
-		p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+		p->q16horiz += (sync[snum].q16horz >> 1);
+		sethorizon(snum, sb_snum, 1);
 	}
 
 	//Shooting code/changes

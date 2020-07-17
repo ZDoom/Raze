@@ -65,6 +65,7 @@ enum inputlock_t
 
 static int P_CheckLockedMovement(int const playerNum)
 {
+    auto& thisPlayer = g_player[playerNum]; 
     auto const pPlayer = &ps[playerNum];
 
     if (pPlayer->on_crane >= 0)
@@ -81,10 +82,13 @@ static int P_CheckLockedMovement(int const playerNum)
             && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
         return IL_NOTHING;
 
+    if (pPlayer->return_to_center > 0)
+        return IL_NOHORIZ;
+
     return 0;
 }
 
-static double elapsedInputTicks;
+static double elapsedInputTicks = -1;
 
 static double scaleAdjustmentToInterval(double x)
 {
@@ -100,7 +104,6 @@ void P_GetInput(int const playerNum)
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
 
     CONTROL_GetInput(&info);
 
@@ -301,71 +304,21 @@ void P_GetInput(int const playerNum)
         {
             localInput.q16horz = fix16_clamp(fix16_sadd(localInput.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
             if (!synchronized_input)
-                pPlayer->q16horiz  = fix16_clamp(fix16_sadd(pPlayer->q16horiz, input.q16horz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+                pPlayer->q16horiz += input.q16horz; // will be clamped below in sethorizon.
         }
     }
-    if (synchronized_input) return;
-
-    // don't adjust rotscrnang and look_ang if dead.
-    if (pSprite->extra > 0)
+    if (!synchronized_input)
     {
-        pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_int(2))))));
-
-        if (pPlayer->q16rotscrnang && !fix16_sdiv(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(2))))
-            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16rotscrnang)))));
-
-        pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_sdiv(pPlayer->q16look_ang, fix16_from_int(4))))));
-
-        if (pPlayer->q16look_ang && !fix16_sdiv(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(4))))
-            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(ksgn(fix16_to_int(pPlayer->q16look_ang)))));
-
-        if (thisPlayer.lookLeft)
+        // don't adjust rotscrnang and look_ang if dead.
+        if (pSprite->extra > 0)
         {
-            pPlayer->q16look_ang = fix16_ssub(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
-            pPlayer->q16rotscrnang = fix16_sadd(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
-        }
-        if (thisPlayer.lookRight)
-        {
-            pPlayer->q16look_ang = fix16_sadd(pPlayer->q16look_ang, fix16_from_dbl(scaleAdjustmentToInterval(152)));
-            pPlayer->q16rotscrnang = fix16_ssub(pPlayer->q16rotscrnang, fix16_from_dbl(scaleAdjustmentToInterval(24)));
+            applylook(playerNum, scaleAdjust);
         }
 
-        if (pPlayer->one_eighty_count < 0)
-        {
-            pPlayer->one_eighty_count = -fix16_to_int(fix16_abs(GetDeltaQ16Angle(pPlayer->one_eighty_target, pPlayer->q16ang)));
-            pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, fix16_max(fix16_one, fix16_from_dbl(scaleAdjustmentToInterval(-pPlayer->one_eighty_count / ONEEIGHTYSCALE)))) & 0x7FFFFFF;
-        }
-
-        apply_seasick(pPlayer, scaleAdjust);
+        // Do these in the same order as the old code.
+        calcviewpitch(pPlayer, sectorLotag, scaleAdjust);
+        sethorizon(playerNum, localInput.bits, scaleAdjust, true);
     }
-    // A horiz diff of 128 equal 45 degrees, so we convert horiz to 1024 angle units
-
-    if (thisPlayer.horizAngleAdjust)
-    {
-        float const horizAngle
-        = atan2f(pPlayer->q16horiz - F16(100), F16(128)) * (512.f / fPI) + scaleAdjustmentToInterval(thisPlayer.horizAngleAdjust);
-        pPlayer->q16horiz = F16(100) + Blrintf(F16(128) * tanf(horizAngle * (fPI / 512.f)));
-    }
-    else if (pPlayer->return_to_center > 0)
-    {
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(fix16_to_dbl(fix16_from_dbl(66.535) - fix16_sdiv(pPlayer->q16horiz, fix16_from_dbl(1.505))))));
-
-        if (pPlayer->q16horiz >= F16(99) && pPlayer->q16horiz <= F16(101))
-        {
-            pPlayer->q16horiz = F16(100);
-            pPlayer->return_to_center = 0;
-        }
-
-        if (pPlayer->q16horizoff >= F16(-1) && pPlayer->q16horizoff <= F16(1))
-            pPlayer->q16horizoff = 0;
-    }
-
-    calcviewpitch(pPlayer, sectorLotag, scaleAdjust);
-
-    if (thisPlayer.horizSkew)
-        pPlayer->q16horiz = fix16_sadd(pPlayer->q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(thisPlayer.horizSkew)));
- 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
 
@@ -572,13 +525,16 @@ void P_GetInputBoat(int playerNum)
 
 void GetInput()
 {
-    static uint64_t lastCheck;
+    static double lastCheck;
 
     auto const p = &ps[myconnectindex];
     updatePauseStatus();
 
     auto now = I_msTimeF();
-    elapsedInputTicks = now - lastCheck;
+    // do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.
+    // This really needs to have the timer fixed to be robust, doing it ad-hoc here is not really safe.
+    if (elapsedInputTicks >= 0) elapsedInputTicks = min(now - lastCheck, 10.);  
+    else elapsedInputTicks = 1;
     lastCheck = now;
 
     if (paused)

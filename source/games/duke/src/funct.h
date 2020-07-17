@@ -108,8 +108,8 @@ void footprints(int snum);
 int makepainsounds(int snum, int type);
 void playerCrouch(int snum);
 void playerJump(int snum, int fz, int cz);
-void playerLookLeft(int snum);
-void playerLookRight(int snum);
+void applylook(int snum, double factor); 
+void checklook(int snum, int sb_snum);
 void playerCenterView(int snum);
 void playerLookUp(int snum, ESyncBits sb_snum);
 void playerLookDown(int snum, ESyncBits sb_snum);
@@ -232,5 +232,6 @@ void PlayerColorChanged(void);
 void nonsharedkeys(void);
 void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, int psectlotag, double factor);
+void sethorizon(int snum, int sb_snum, double factor, bool frominput = false);
 
 END_DUKE_NS

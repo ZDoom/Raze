@@ -92,7 +92,7 @@ struct player_struct
     // input handles angle and horizon as fixed16 numbers. We need to account for that as well.
     fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang;
     fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang; // These are only needed with synchronous mouse input.
-    fixed_t one_eighty_target;
+    fixed_t one_eighty_count;
 
     // using a bit field for this to save a bit of space.
     FixedBitArray<MAX_WEAPONS> gotweapon;
@@ -125,7 +125,7 @@ struct player_struct
     short kickback_pic, got_access, weapon_ang, firstaid_amount;
     short somethingonplayer, on_crane, i, one_parallax_sectnum;
     short over_shoulder_on, random_club_frame, fist_incs;
-    short one_eighty_count, cheat_phase;
+    short cheat_phase;
     short dummyplayersprite, extra_extra8, quick_kick;
     short heat_amount, actorsqu, timebeforeexit, customexitsound;
 

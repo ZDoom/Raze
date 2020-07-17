@@ -387,7 +387,6 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 		else
 		{
 			g_player[snum].horizSkew = -48;
-			g_player[snum].horizRecenter = true;
 		}
 
 		p->return_to_center = 9;
@@ -744,39 +743,149 @@ void playerJump(int snum, int fz, int cz)
 	}
 }
 
-void playerLookLeft(int snum)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void apply_seasick(player_struct* p, double factor)
 {
-	auto p = &ps[snum];
-	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+	if (isRRRA() && p->SeaSick)
 	{
-		if (synchronized_input)
+		if (p->SeaSick < 250)
 		{
-			p->addlookang(-152);
-			p->addrotscrnang(24);
+			if (p->SeaSick >= 180)
+				p->addrotscrnang(24 * factor);
+			else if (p->SeaSick >= 130)
+				p->addrotscrnang(-24 * factor);
+			else if (p->SeaSick >= 70)
+				p->addrotscrnang(24 * factor);
+			else if (p->SeaSick >= 20)
+				p->addrotscrnang(-24 * factor);
 		}
-		else
-			g_player[snum].lookLeft = true;
+		if (p->SeaSick < 250)
+			p->addlookang(((krand() & 255) - 128) * factor);
 	}
 }
 
-void playerLookRight(int snum)
+//---------------------------------------------------------------------------
+//
+// split off because it can be called from multiple places.
+//
+//---------------------------------------------------------------------------
+
+void applylook(int snum, double factor)
 {
 	auto p = &ps[snum];
-	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
-	OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
-	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+
+	p->addrotscrnang(factor * -0.5 * fix16_to_dbl(p->q16rotscrnang));
+	if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
+
+	p->addlookang(factor * -0.25 * fix16_to_dbl(p->q16look_ang));
+	if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
+
+	if (g_player[snum].lookLeft)
 	{
-		if (synchronized_input)
-		{
-			p->addlookang(152);
-			p->addrotscrnang(24);
-		}
-		else
-			g_player[snum].lookRight = true;
+		p->addlookang(factor * -152);
+		p->addrotscrnang(factor * 24);
 	}
+
+	if (g_player[snum].lookRight)
+	{
+		p->addlookang(factor * 152);
+		p->addrotscrnang(factor * 24);
+	}
+
+	if (p->one_eighty_count < 0 && p->on_crane == 0)
+	{
+		fixed_t add = fix16_from_dbl(factor * 128);
+		p->one_eighty_count += add;
+		if (p->one_eighty_count > 0)
+		{
+			// Don't overshoot our target. With variable factor this is possible.
+			add -= p->one_eighty_count;
+			p->one_eighty_count = 0;
+		}
+		p->q16ang += add;
+	}
+	apply_seasick(p, factor);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void checklook(int snum, int sb_snum)
+{
+	auto p = &ps[snum];
+
+	g_player[snum].lookLeft = false;
+	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
+	{
+		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		{
+			g_player[snum].lookLeft = true;
+		}
+	}
+
+	if ((sb_snum & SKB_LOOK_RIGHT) && !p->OnMotorcycle)
+	{
+		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
+		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
+		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
+		{
+			g_player[snum].lookRight = true;
+		}
+	}
+	p->oq16ang = p->q16ang;
+
+	if (synchronized_input)
+		applylook(snum, 1);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void sethorizon(int snum, int sb_snum, double factor, bool frominput)
+{
+	auto p = &ps[snum];
+
+	// Calculate adjustment as true pitch (Fixed point nath really sucks...)
+	if (g_player[snum].horizAngleAdjust)
+	{
+		double horizAngle = atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) +factor * g_player[snum].horizAngleAdjust;
+		p->q16horiz = F16(100) + int(F16(128) * tan(horizAngle * (pi::pi() / 512.)));
+	}
+	else if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
+	{
+		p->return_to_center--;
+		p->q16horiz += factor * (frominput? 2.016 : 1.) * (F16(33) - (p->q16horiz / 3)); // in P_GetInput this used different factors than in the original code. Hm...
+	}
+
+	p->q16horiz += int(factor * g_player[snum].horizSkew);
+
+	if (p->aim_mode == 0)
+	{
+		// threshold was 5
+		if (p->q16horiz > F16(99) && p->q16horiz < F16(101)) p->sethoriz(100);
+		if (p->q16horizoff > F16(-1) && p->q16horizoff < F16(1)) p->sethorizoff(0);
+	}
+	p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void playerCenterView(int snum)
 {
@@ -786,17 +895,12 @@ void playerCenterView(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		if (!synchronized_input)
-			g_player[snum].horizRecenter = true;
 	}
 }
 
 void horizAngleAdjust(int snum, int delta)
 {
-	if (synchronized_input)
-		ps[snum].addhoriz(delta);
-	else
-		g_player[snum].horizAngleAdjust = delta;
+	g_player[snum].horizAngleAdjust = delta;
 }
 
 void playerLookUp(int snum, ESyncBits sb_snum)

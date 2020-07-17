@@ -52,7 +52,6 @@ typedef struct
     fix16_t horizSkew;
     bool    lookLeft;
     bool    lookRight;
-    bool horizRecenter;
 
 } playerdata_t;
 

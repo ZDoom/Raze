@@ -669,8 +669,7 @@ void hud_input(int snum)
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				p->one_eighty_count = -1024;
-				p->one_eighty_target = (p->q16ang + F16(1024)) & 0x7FFFFFF;
+				p->one_eighty_count = -F16(1024);
 			}
 		}
 	}
