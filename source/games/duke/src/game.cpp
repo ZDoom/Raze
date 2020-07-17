@@ -46,6 +46,7 @@ BEGIN_DUKE_NS
 void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
+void registerinputcommands(void);
 
 //---------------------------------------------------------------------------
 //
@@ -243,7 +244,6 @@ static void SetupGameButtons()
         "Fire",
         "Open",
         "Run",
-        "Alt_Fire",	// Duke3D", Blood
         "Jump",
         "Crouch",
         "Look_Up",
@@ -254,46 +254,19 @@ static void SetupGameButtons()
         "Strafe_Right",
         "Aim_Up",
         "Aim_Down",
-        "Weapon_1",
-        "Weapon_2",
-        "Weapon_3",
-        "Weapon_4",
-        "Weapon_5",
-        "Weapon_6",
-        "Weapon_7",
-        "Weapon_8",
-        "Weapon_9",
-        "Weapon_10",
-        "Inventory",
-        "Inventory_Left",
-        "Inventory_Right",
-        "Holo_Duke",			// Duke3D", isRR()
-        "Jetpack",
-        "NightVision",
-        "MedKit",
-        "TurnAround",
-        "SendMessage",
         "Map",
         "Shrink_Screen",
         "Enlarge_Screen",
-        "Center_View",
-        "Holster_Weapon",
         "Show_Opponents_Weapon",
         "Map_Follow_Mode",
         "See_Coop_View",
         "Mouse_Aiming",
         "Toggle_Crosshair",
-        "Steroids",
         "Quick_Kick",
-        "Next_Weapon",
-        "Previous_Weapon",
         "Dpad_Select",
         "Dpad_Aiming",
-        "Last_Weapon",
-        "Alt_Weapon",
         "Third_Person_View",
-        "Show_DukeMatch_Scores",
-        "Toggle_Crouch",	// This is the last one used by EDuke32.
+        "Toggle_Crouch",
     };
     buttonMap.SetButtons(actions, NUM_ACTIONS);
 }
@@ -421,6 +394,7 @@ static void Startup(void)
     InitCheats();
     checkcommandline();
     registerosdcommands();
+    registerinputcommands();
 	
     screenpeek = myconnectindex;
     ps[myconnectindex].palette = BASEPAL;

@@ -94,7 +94,7 @@ G_EXTERN char ready2send;
 G_EXTERN char tempbuf[MAXSECTORS<<1],buf[1024];
 
 
-G_EXTERN input_t localInput;
+G_EXTERN input_t loc;
 
 G_EXTERN int32_t avgfvel, avgsvel, avgbits;
 G_EXTERN fix16_t avgavel, avghorz;

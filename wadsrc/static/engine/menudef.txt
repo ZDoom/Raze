@@ -282,150 +282,6 @@ LISTMENU "SkillMenu"
 
 //-------------------------------------------------------------------------------------------
 //
-// The custom menus are only supported by the EDuke32 frontend.
-//
-//-------------------------------------------------------------------------------------------
-
-LISTMENU "CustomGameMenu"
-{
-	caption "$MNU_NEWGAME"
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	ScriptId 102
-	class "$.ListMenu"
-	centermenu
-}
-
-LISTMENU "CustomSubMenu1"
-{
-	position 160, 48, 142
-	centermenu
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu2"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu3"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu4"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu5"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu6"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-LISTMENU "CustomSubMenu7"
-{
-	position 160, 48, 142
-	ifgame(fury)
-	{
-		fixedspacing 2
-	}
-	else
-	{
-		fixedspacing 5
-		animatedtransition
-	}
-	centermenu
-	ScriptId 103
-	class "$.ListMenu"
-}
-
-//-------------------------------------------------------------------------------------------
-//
 //
 //
 //-------------------------------------------------------------------------------------------
@@ -708,11 +564,11 @@ OptionMenu "ActionControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_ATTACK"           , "+fire"
-	ifgame(Blood, Duke, Nam, WW2GI, Fury)
+	ifgame(Blood)
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury, ShadowWarrior)
+	ifgame(ShadowWarrior)
 	{
 		Control    "$CNTRLMNU_ALTWEAPON"        , "+alt_weapon"
 	}
@@ -734,7 +590,7 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
 	{
 		// Fixme: Make this work in all games
 		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
@@ -781,25 +637,25 @@ OptionMenu "WeaponsControlMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTWEAPON"     , "+next_weapon"
-	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "+previous_weapon"
+	Control    "$CNTRLMNU_NEXTWEAPON"     , "weapnext"
+	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "weapprev"
 
 	StaticText ""
-	Control    "$CNTRLMNU_SLOT1"          , "+weapon_1"
-	Control    "$CNTRLMNU_SLOT2"          , "+weapon_2"
-	Control    "$CNTRLMNU_SLOT3"          , "+weapon_3"
-	Control    "$CNTRLMNU_SLOT4"          , "+weapon_4"
-	Control    "$CNTRLMNU_SLOT5"          , "+weapon_5"
-	Control    "$CNTRLMNU_SLOT6"          , "+weapon_6"
-	Control    "$CNTRLMNU_SLOT7"          , "+weapon_7"
-	Control    "$CNTRLMNU_SLOT8"          , "+weapon_8"
-	Control    "$CNTRLMNU_SLOT9"          , "+weapon_9"
-	Control    "$CNTRLMNU_SLOT0"          , "+weapon_10"
+	Control    "$CNTRLMNU_SLOT1"          , "slot 1"
+	Control    "$CNTRLMNU_SLOT2"          , "slot 2"
+	Control    "$CNTRLMNU_SLOT3"          , "slot 3"
+	Control    "$CNTRLMNU_SLOT4"          , "slot 4"
+	Control    "$CNTRLMNU_SLOT5"          , "slot 5"
+	Control    "$CNTRLMNU_SLOT6"          , "slot 6"
+	Control    "$CNTRLMNU_SLOT7"          , "slot 7"
+	Control    "$CNTRLMNU_SLOT8"          , "slot 8"
+	Control    "$CNTRLMNU_SLOT9"          , "slot 9"
+	Control    "$CNTRLMNU_SLOT0"          , "slot 10"
 	StaticText ""
-	Control    "$CNTRLMNU_HOLSTER"        , "+holster_weapon"
+	Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
 	ifgame(Fury)
 	{
-		Control    "$CNTRLMNU_RELOAD" , "+steroids"
+		Control    "$CNTRLMNU_RELOAD" , "steroids"
 	}
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
@@ -832,52 +688,46 @@ OptionMenu "InventoryControlsMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_USEITEM"      , "+inventory"
+	Control    "$CNTRLMNU_USEITEM"      , "invuse"
 
 	StaticText ""
-	Control    "$CNTRLMNU_NEXTITEM"     , "+inventory_right"
-	Control    "$CNTRLMNU_PREVIOUSITEM" , "+inventory_left"
+	Control    "$CNTRLMNU_NEXTITEM"     , "invnext"
+	Control    "$CNTRLMNU_PREVIOUSITEM" , "invprev"
 	
 	ifgame(Duke)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLODUKE" , "+holo_duke"
-		Control    "$CNTRLMNU_JETPACK" , "+jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_STEROIDS" , "+steroids"
-	}
-	ifgame(Fury)
-	{
-		StaticText ""
-		Control    "$CNTRLMNU_RADAR" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_HOLODUKE" , "holoduke"
+		Control    "$CNTRLMNU_JETPACK" , "jetpack"
+		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "medkit"
+		Control    "$CNTRLMNU_STEROIDS" , "steroids"
 	}
 	ifgame(Nam)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLOSOLDIER" , "+holo_duke"
-		Control    "$CNTRLMNU_HUEY" , "+jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_TANKMODE" , "+steroids"
+		Control    "$CNTRLMNU_HOLOSOLDIER" , "holoduke"
+		Control    "$CNTRLMNU_HUEY" , "jetpack"
+		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "medkit"
+		Control    "$CNTRLMNU_TANKMODE" , "steroids"
 	}
 	ifgame(WW2GI)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_FIRE MISSION" , "+holo_duke"
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
-		Control    "$CNTRLMNU_SMOKES" , "+steroids"
+		Control    "$CNTRLMNU_FIRE MISSION" , "holoduke"
+		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "medkit"
+		Control    "$CNTRLMNU_SMOKES" , "steroids"
 	}
 	ifgame(Redneck, RedneckRides)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_BEER" , "+holo_duke"
-		Control    "$CNTRLMNU_COWPIE" , "+jetpack"
-		Control    "$CNTRLMNU_YEEHAA" , "+nightvision"
-		Control    "$CNTRLMNU_WHISKEY" , "+medkit"
-		Control    "$CNTRLMNU_MOONSHINE" , "+steroids"
+		Control    "$CNTRLMNU_BEER" , "holoduke"
+		Control    "$CNTRLMNU_COWPIE" , "jetpack"
+		Control    "$CNTRLMNU_YEEHAA" , "nightvision"
+		Control    "$CNTRLMNU_WHISKEY" , "medkit"
+		Control    "$CNTRLMNU_MOONSHINE" , "steroids"
 	}
 	ifgame(Blood)
 	{

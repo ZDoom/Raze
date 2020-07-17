@@ -143,14 +143,14 @@ MAIN_LOOP_RESTART:
             auto const q16ang  = fix16_to_int(pPlayer->q16ang);
             auto& input = nextinput(myconnectindex);
 
-            input = localInput;
-            input.fvel = mulscale9(localInput.fvel, sintable[(q16ang + 2560) & 2047]) +
-                         mulscale9(localInput.svel, sintable[(q16ang + 2048) & 2047]) +
+            input = loc;
+            input.fvel = mulscale9(loc.fvel, sintable[(q16ang + 2560) & 2047]) +
+                         mulscale9(loc.svel, sintable[(q16ang + 2048) & 2047]) +
                          pPlayer->fric.x;
-            input.svel = mulscale9(localInput.fvel, sintable[(q16ang + 2048) & 2047]) +
-                         mulscale9(localInput.svel, sintable[(q16ang + 1536) & 2047]) +
+            input.svel = mulscale9(loc.fvel, sintable[(q16ang + 2048) & 2047]) +
+                         mulscale9(loc.svel, sintable[(q16ang + 1536) & 2047]) +
                          pPlayer->fric.y;
-            localInput = {};
+            loc = {};
 
             advancequeue(myconnectindex);
 

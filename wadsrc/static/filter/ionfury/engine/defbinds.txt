@@ -1,8 +1,0 @@
-//
-X "+Last_Used_Weapon"
-C "+Toggle_Crouch"
-Mouse2 "+Steroids"
-Mouse3 "+MediKit"
-Pad_Y "+Steroids"
-DPadLeft "+MedKit"
-DPadRight "+Nightvision"

@@ -1,13 +1,13 @@
 //
-R "+Steroids"
+R "Steroids"
 ` "+Quick_Kick"
 W "+Show_Opponents_Weapon"
-H "+Holo_Duke"
-J "+Jetpack"
-N "+NightVision"
-M "+MedKit"
+H "Holo_Duke"
+J "Jetpack"
+N "NightVision"
+M "MedKit"
 C "toggleconsole"
-Mouse2 "+Jetpack"
-Mouse3 "+MediKit"
+Mouse2 "Jetpack"
+Mouse3 "MediKit"
 
 	

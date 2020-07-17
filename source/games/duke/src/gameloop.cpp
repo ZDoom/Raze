@@ -53,7 +53,7 @@ static int bufferjitter;
 
 void clearfifo(void)
 {
-	localInput = {};
+	loc = {};
 	memset(&inputfifo, 0, sizeof(inputfifo));
 	memset(sync, 0, sizeof(sync));
 }

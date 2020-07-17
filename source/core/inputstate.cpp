@@ -123,6 +123,22 @@ void InputState::AddEvent(const event_t *ev)
 //
 //==========================================================================
 
+void InputState::ClearAllInput()
+{
+	memset(KeyStatus, 0, sizeof(KeyStatus));
+	keyFlushChars();
+	keyFlushScans();
+	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
+	gi->clearlocalinputstate();		// also clear game local input state.
+}
+
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void I_StartTic();
 bool ToggleFullscreen;
 
@@ -202,10 +218,4 @@ void CONTROL_GetInput(ControlInfo* info)
 		info->dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
 		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
-}
-
-
-CCMD(pause)
-{
-	inputState.SetPause();
 }

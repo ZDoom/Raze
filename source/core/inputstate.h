@@ -52,8 +52,6 @@ class InputState
 
 	vec2f_t  g_mousePos;
 
-	int actions;
-
 	void keySetState(int32_t key, int32_t state);
 
 public:
@@ -167,15 +165,7 @@ public:
 	}
 	void GetMouseDelta(ControlInfo* info);
 
-	void ClearAllInput()
-	{
-		memset(KeyStatus, 0, sizeof(KeyStatus));
-		keyFlushChars();
-		keyFlushScans();
-		buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
-		actions = 0;
-	}
-
+	void ClearAllInput();
 	bool CheckAllInput()
 	{
 		int res;
@@ -185,11 +175,6 @@ public:
 		ClearAllInput();
 		return res;
 	}
-
-	void SetPause() { actions |= Action_Pause; }
-	void ClearPause() {	actions &= ~Action_Pause; }
-	bool CheckPause() { bool b = !!(actions & Action_Pause); ClearPause(); return b; }
-
 };
 
 extern InputState inputState;

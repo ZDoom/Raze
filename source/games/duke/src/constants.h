@@ -14,7 +14,6 @@ enum GameFunction_t
 	gamefunc_Fire,
 	gamefunc_Open,
 	gamefunc_Run,
-	gamefunc_Alt_Fire,
 	gamefunc_Jump,
 	gamefunc_Crouch,
 	gamefunc_Look_Up,
@@ -25,45 +24,18 @@ enum GameFunction_t
 	gamefunc_Strafe_Right,
 	gamefunc_Aim_Up,
 	gamefunc_Aim_Down,
-	gamefunc_Weapon_1, // CCMD
-	gamefunc_Weapon_2, // CCMD
-	gamefunc_Weapon_3, // CCMD
-	gamefunc_Weapon_4, // CCMD
-	gamefunc_Weapon_5, // CCMD
-	gamefunc_Weapon_6, // CCMD
-	gamefunc_Weapon_7, // CCMD
-	gamefunc_Weapon_8, // CCMD
-	gamefunc_Weapon_9, // CCMD
-	gamefunc_Weapon_10, // CCMD
-	gamefunc_Inventory, // CCMD
-	gamefunc_Inventory_Left, // CCMD
-	gamefunc_Inventory_Right, // CCMD
-	gamefunc_Holo_Duke, // CCMD
-	gamefunc_Jetpack, // CCMD
-	gamefunc_NightVision, // CCMD
-	gamefunc_MedKit, // CCMD
-	gamefunc_TurnAround,
-	gamefunc_SendMessage,
 	gamefunc_Map, // CCMD
 	gamefunc_Shrink_Screen, // CCMD
 	gamefunc_Enlarge_Screen, // CCMD
-	gamefunc_Center_View, // CCMD
-	gamefunc_Holster_Weapon, // CCMD
 	gamefunc_Show_Opponents_Weapon, // CCMD
 	gamefunc_Map_Follow_Mode, // CCMD
 	gamefunc_See_Coop_View, // CCMD
 	gamefunc_Mouse_Aiming, // CCMD
 	gamefunc_Toggle_Crosshair, // CCMD
-	gamefunc_Steroids, // CCMD
 	gamefunc_Quick_Kick,
-	gamefunc_Next_Weapon, // CCMD
-	gamefunc_Previous_Weapon, // CCMD
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
-	gamefunc_Last_Weapon, // CCMD
-	gamefunc_Alt_Weapon,
 	gamefunc_Third_Person_View, // CCMD
-	gamefunc_Show_DukeMatch_Scores, // CCMD
 	gamefunc_Toggle_Crouch,
 	NUM_ACTIONS
 };

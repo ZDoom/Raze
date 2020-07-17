@@ -53,6 +53,7 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual int app_main() = 0;
+	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
 	virtual bool validate_hud(int) { return true; }

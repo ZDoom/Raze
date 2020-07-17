@@ -38,6 +38,7 @@ struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	int app_main() override;
+	void clearlocalinputstate() override;
 	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;
 	bool validate_hud(int) override;

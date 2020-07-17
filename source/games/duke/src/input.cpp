@@ -37,8 +37,11 @@ source as it is released.
 #include "global.h"
 #include "game.h"
 
-BEGIN_DUKE_NS 
+BEGIN_DUKE_NS
 
+static int WeaponToSend, BitsToSend;
+
+extern double elapsedInputTicks;
 
 //---------------------------------------------------------------------------
 //
@@ -282,8 +285,6 @@ void hud_input(int snum)
 		}
 	}
 
-	// WTF??? In the original source this was a soup of numeric literals, i.e. totally incomprehensible.
-	// The bit mask has been exported to the bit type enum.
 	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
@@ -429,6 +430,10 @@ void hud_input(int snum)
 		}
 
 		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) / SKB_FIRST_WEAPON_BIT) - 1;
+		if (j >= 0)
+		{
+			int a = 0;
+		}
 		if (j > 0 && p->kickback_pic > 0)
 			p->wantweaponfire = j;
 
@@ -711,34 +716,49 @@ fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
 //
 //---------------------------------------------------------------------------
 
-void processCommonInput(input_t &input)
+void processCommonInput(ControlInfo &info, bool onVehicle)
 {
-	if (buttonMap.ButtonDown(gamefunc_Fire)) localInput.bits |= SKB_FIRE;
-	if (buttonMap.ButtonDown(gamefunc_Open)) localInput.bits |= SKB_OPEN;
+	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.bits |= SKB_FIRE;
+	if (buttonMap.ButtonDown(gamefunc_Open)) loc.bits |= SKB_OPEN;
 
+#if 0
 	// todo: handle these with CCMDs instead.
-	if (buttonMap.ButtonDown(gamefunc_Inventory)) localInput.bits |= SKB_INVENTORY;
-	if (buttonMap.ButtonDown(gamefunc_MedKit)) localInput.bits |= SKB_MEDKIT;
-	if (buttonMap.ButtonDown(gamefunc_Steroids)) localInput.bits |= SKB_STEROIDS;
-	if (buttonMap.ButtonDown(gamefunc_NightVision)) localInput.bits |= SKB_NIGHTVISION;
-	if (buttonMap.ButtonDown(gamefunc_Holo_Duke)) localInput.bits |= SKB_HOLODUKE;
-	if (buttonMap.ButtonDown(gamefunc_Jetpack)) localInput.bits |= SKB_JETPACK;
+	if (buttonMap.ButtonDown(gamefunc_Inventory)) loc.bits |= SKB_INVENTORY;
+	if (buttonMap.ButtonDown(gamefunc_MedKit)) loc.bits |= SKB_MEDKIT;
+	if (buttonMap.ButtonDown(gamefunc_Steroids)) loc.bits |= SKB_STEROIDS;
+	if (buttonMap.ButtonDown(gamefunc_NightVision)) loc.bits |= SKB_NIGHTVISION;
+	if (buttonMap.ButtonDown(gamefunc_Holo_Duke)) loc.bits |= SKB_HOLODUKE;
+	if (buttonMap.ButtonDown(gamefunc_Jetpack)) loc.bits |= SKB_JETPACK;
+	//if (inputState.CheckPause()) loc.bits |= SKB_PAUSE;
+	if (buttonMap.ButtonDown(gamefunc_Inventory_Left)) loc.bits |= SKB_INV_LEFT;
+	if (buttonMap.ButtonDown(gamefunc_Inventory_Right)) loc.bits |= SKB_INV_RIGHT;
 
-	// the way this checks for controller axis movement will also catch mouse and keyboard input.
-	bool dpad_select = buttonMap.ButtonDown(gamefunc_Dpad_Select);
-	if (buttonMap.ButtonDown(gamefunc_Inventory_Left) || (dpad_select && (input.svel > 0 || input.q16avel < 0))) localInput.bits |= SKB_INV_LEFT;
-	if (buttonMap.ButtonDown(gamefunc_Inventory_Right) || (dpad_select && (input.svel < 0 || input.q16avel > 0))) localInput.bits |= SKB_INV_RIGHT;
+	/*
+	loc.bits |= (buttonMap.ButtonDown(gamefunc_Center_View) << SK_CENTER_VIEW);
+	loc.bits |= buttonMap.ButtonDown(gamefunc_Holster_Weapon) << SK_HOLSTER;
+	loc.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
+	*/
 
-	if (inputState.CheckPause()) localInput.bits |= SKB_PAUSE;
-	if (g_gameQuit) localInput.bits |= SKB_GAMEQUIT;
-	//if (inputState.GetKeyStatus(sc_Escape))  localInput.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
+#else
+	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
+#endif
 
-	if (dpad_select)
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
-		input.fvel = 0;
-		input.svel = 0;
-		input.q16avel = 0;
+		if (info.dx < 0 || info.dyaw < 0) loc.bits |= SKB_INV_LEFT;
+		if (info.dx > 0 || info.dyaw < 0) loc.bits |= SKB_INV_RIGHT;
+		// This eats the controller input for regular use
+		info.dx = 0;
+		info.dz = 0;
+		info.dyaw = 0;
 	}
+
+	if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
+	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
+
+
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+		info.dz = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -752,7 +772,11 @@ void processCommonInput(input_t &input)
 
 void processSelectWeapon(input_t& input)
 {
-	int j = 0;
+	int j = WeaponToSend;
+	WeaponToSend = 0;
+	if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
+
+#if 0 // must be removed once the CCMDs are hooked up
 	if (buttonMap.ButtonPressed(gamefunc_Weapon_1)) j = 1;
 	if (buttonMap.ButtonPressed(gamefunc_Weapon_2))	j = 2;
 	if (buttonMap.ButtonPressed(gamefunc_Weapon_3))	j = 3;
@@ -767,12 +791,15 @@ void processSelectWeapon(input_t& input)
 		if (buttonMap.ButtonPressed(gamefunc_Weapon_9))	j = 9;
 		if (buttonMap.ButtonPressed(gamefunc_Weapon_10)) j = 10;
 	}
+	if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon)) j = 11;
+	if (buttonMap.ButtonPressed(gamefunc_Next_Weapon)) j = 12;
+#endif
 
-	if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0)) j = 11;
-	if (buttonMap.ButtonPressed(gamefunc_Next_Weapon) || (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0)) j = 12;
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 11;
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 12;
 
-	if ((localInput.bits & SKB_WEAPONMASK_BITS) == 0)
-		localInput.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+	if (j && (loc.bits & SKB_WEAPONMASK_BITS) == 0)
+		loc.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
 
 }
 
@@ -864,7 +891,7 @@ int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool go
 //
 //---------------------------------------------------------------------------
 
-int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double factor)
+static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double factor)
 {
 	static int turnheldtime;
 	static int lastcontroltime;
@@ -929,4 +956,94 @@ int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double 
 	}
 	return 0;
 }
+
+//---------------------------------------------------------------------------
+//
+// much of this was rewritten from scratch to make the logic easier to follow.
+//
+//---------------------------------------------------------------------------
+
+void processBoatInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
+{
+	auto boat_turn = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
+	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
+	int turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+
+	// Cancel out micro-movement
+	const double turn_threshold = 1 / 65536.;
+	if (boat_turn < -turn_threshold)
+		turnl = 1;
+	else if (boat_turn > turn_threshold)
+		turnr = 1;
+	else
+		boat_turn = 0;
+
+	if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
+		loc.bits |= SKB_JUMP;
+	if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+		loc.bits |= SKB_AIM_UP;
+	if (buttonMap.ButtonDown(gamefunc_Run))
+		loc.bits |= SKB_CROUCH;
+
+	if (turnl)
+		loc.bits |= SKB_AIM_DOWN;
+	if (turnr)
+		loc.bits |= SKB_LOOK_LEFT;
+
+	double turnvel = boatApplyTurn(p, turnl, turnr, boat_turn != 0, scaleAdjust) * scaleAdjust * 2;
+
+	// What is this? Optimization for playing with a mouse which the original did not have?
+	if (boat_turn)
+		turnvel *= clamp(boat_turn * boat_turn, 0., 1.);
+
+	input.fvel = p->MotoSpeed;
+	input.q16avel = fix16_from_dbl(turnvel);
+}
+
+//---------------------------------------------------------------------------
+//
+// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
+// registration to only have the commands active when this game module runs.
+//
+//---------------------------------------------------------------------------
+
+static int ccmd_slot(CCmdFuncPtr parm)
+{
+	if (parm->numparms != 1) return CCMD_SHOWHELP;
+
+	auto slot = atoi(parm->parms[0]);
+	if (slot >= 1 && slot <= 10)
+	{
+		WeaponToSend = slot;
+		return CCMD_OK;
+	}
+	return CCMD_SHOWHELP;
+}
+
+void registerinputcommands()
+{
+	C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
+	C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
+	C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
+	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_PAUSE; return CCMD_OK; });
+	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_STEROIDS; return CCMD_OK; });
+	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_NIGHTVISION; return CCMD_OK; });
+	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_MEDKIT; return CCMD_OK; });
+	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_CENTER_VIEW; return CCMD_OK; });
+	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_HOLSTER; return CCMD_OK; });
+	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INV_LEFT; return CCMD_OK; });
+	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INV_RIGHT; return CCMD_OK; });
+	C_RegisterFunction("holoduke", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_HOLODUKE; return CCMD_OK; });
+	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_JETPACK; return CCMD_OK; });
+	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_TURNAROUND; return CCMD_OK; });
+	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INVENTORY; return CCMD_OK; });
+}
+
+// This is called from ImputState::ClearAllInput
+void GameInterface::clearlocalinputstate()
+{
+	WeaponToSend = 0;
+	BitsToSend = 0;
+}
+
 END_DUKE_NS
