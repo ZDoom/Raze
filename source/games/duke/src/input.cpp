@@ -42,8 +42,6 @@ BEGIN_DUKE_NS
 static int WeaponToSend;
 static ESyncBits BitsToSend;
 
-extern double elapsedInputTicks;
-
 //---------------------------------------------------------------------------
 //
 // handles UI side input not handled via CCMDs or CVARs.
@@ -709,7 +707,7 @@ enum
 //
 //---------------------------------------------------------------------------
 
-fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
+static fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
 {
 	// Look at the smaller angle if > 1024 (180 degrees)
 	if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
@@ -733,7 +731,7 @@ fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
 //
 //---------------------------------------------------------------------------
 
-void processInputBits(player_struct *p, ControlInfo &info)
+static void processInputBits(player_struct *p, ControlInfo &info)
 {
 	bool onVehicle = p->OnMotorcycle || p->OnBoat;
 	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.bits |= SKB_FIRE;
@@ -801,7 +799,7 @@ void processInputBits(player_struct *p, ControlInfo &info)
 //
 //---------------------------------------------------------------------------
 
-void processMovement(player_struct *p, input_t &input, ControlInfo &info, double scaleFactor)
+static void processMovement(player_struct *p, input_t &input, ControlInfo &info, double scaleFactor)
 {
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
@@ -906,7 +904,7 @@ void processMovement(player_struct *p, input_t &input, ControlInfo &info, double
 //
 //---------------------------------------------------------------------------
 
-int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
+static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
 {
 	static int turnheldtime;
 	static int lastcontroltime;
@@ -1060,7 +1058,7 @@ static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, 
 //
 //---------------------------------------------------------------------------
 
-void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
+static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
 {
 	auto turnspeed = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -1112,6 +1110,82 @@ void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, do
 	input.q16avel = fix16_from_dbl(turnvel);
 }
 
+//---------------------------------------------------------------------------
+//
+// main input handler routine
+//
+//---------------------------------------------------------------------------
+void checkCrouchToggle(player_struct* p);
+void FinalizeInput(int playerNum, input_t& input, bool vehicle);
+
+void GetInput()
+{
+	static double lastCheck;
+	double elapsedInputTicks;
+	auto const p = &ps[myconnectindex];
+	updatePauseStatus();
+
+	auto now = I_msTimeF();
+	// do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.
+	// This really needs to have the timer fixed to be robust, doing it ad-hoc here is not really safe.
+	if (lastCheck > 0) elapsedInputTicks = min(now - lastCheck, 10.);
+	else elapsedInputTicks = 1;
+	lastCheck = now;
+
+	if (paused)
+	{
+		loc = {};
+		if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
+		return;
+	}
+
+	D_ProcessEvents();
+	if (numplayers == 1)
+	{
+		setlocalplayerinput(p);
+	}
+
+	double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
+	ControlInfo info;
+	CONTROL_GetInput(&info);
+	input_t input{};
+
+	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
+	{
+		p->crouch_toggle = 0;
+		processInputBits(p, info);
+		processVehicleInput(p, info, input, scaleAdjust);
+		FinalizeInput(myconnectindex, input, true);
+
+		if (!synchronized_input)
+		{
+			p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+			if (sprite[p->i].extra > 0)
+			{
+				apply_seasick(p, scaleAdjust);
+			}
+		}
+	}
+	else
+	{
+		processMovement(p, input, info, scaleAdjust);
+		checkCrouchToggle(p);
+		processInputBits(p, info);
+		FinalizeInput(myconnectindex, input, false);
+
+		if (!synchronized_input)
+		{
+			if (sprite[p->i].extra > 0)
+			{
+				applylook(myconnectindex, scaleAdjust);
+			}
+
+			// Do these in the same order as the old code.
+			calcviewpitch(p, scaleAdjust);
+			sethorizon(myconnectindex, loc.bits, scaleAdjust, true);
+		}
+	}
+}
 
 //---------------------------------------------------------------------------
 //

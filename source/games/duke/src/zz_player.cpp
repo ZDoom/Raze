@@ -27,12 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2);
-void processInputBits(player_struct *p, ControlInfo& info);
-int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
-void processVehicleInput(player_struct* p, ControlInfo& info, input_t& input, double scaleAdjust);
-void processMovement(player_struct* p, input_t& input, ControlInfo& info, double scaleFactor);
-
 
 int32_t PHEIGHT = PHEIGHT_DUKE;
 
@@ -71,22 +65,19 @@ enum inputlock_t
 
 static int P_CheckLockedMovement(int const playerNum)
 {
-    auto& thisPlayer = g_player[playerNum]; 
     auto const pPlayer = &ps[playerNum];
 
-    if (pPlayer->on_crane >= 0)
-        return IL_NOMOVE|IL_NOANGLE;
-
-    if (pPlayer->newowner != -1)
-        return IL_NOANGLE|IL_NOHORIZ;
-
-    if (pPlayer->curr_weapon > 11) return 0;
-
-    if (pPlayer->dead_flag || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
+    if (sprite[pPlayer->i].extra <= 0 || (pPlayer->dead_flag && !ud.god) || pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0
         || pPlayer->knee_incs > 0
         || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON && pPlayer->kickback_pic > 1
             && pPlayer->kickback_pic < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
         return IL_NOTHING;
+
+    if (pPlayer->on_crane >= 0)
+        return IL_NOMOVE | IL_NOANGLE;
+
+    if (pPlayer->newowner != -1)
+        return IL_NOANGLE | IL_NOHORIZ;
 
     if (pPlayer->return_to_center > 0)
         return IL_NOHORIZ;
@@ -175,93 +166,4 @@ void FinalizeInput(int playerNum, input_t &input, bool vehicle)
     }
 }
 
-double elapsedInputTicks = -1;
-
-void P_GetInput(int const playerNum)
-{
-    auto const pPlayer = &ps[playerNum];
-    ControlInfo info;
-    double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
-
-    CONTROL_GetInput(&info);
-
-    input_t input {};
-
-    // here it goes
-    processMovement(pPlayer, input, info, scaleAdjust);
-    checkCrouchToggle(pPlayer);
-    processInputBits(pPlayer, info);
-    FinalizeInput(playerNum, input, false);
-
-    if (!synchronized_input)
-    {
-        // don't adjust rotscrnang and look_ang if dead.
-        if (sprite[pPlayer->i].extra > 0)
-        {
-            applylook(playerNum, scaleAdjust);
-        }
-
-        // Do these in the same order as the old code.
-        calcviewpitch(pPlayer, scaleAdjust);
-        sethorizon(playerNum, loc.bits, scaleAdjust, true);
-    }
-}
-
-
-void P_GetInputVehicle(int playerNum)
-{
-    auto const pPlayer = &ps[playerNum];
-    ControlInfo info;
-    double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
-
-    CONTROL_GetInput(&info);
-
-    input_t input {};
-
-    pPlayer->crouch_toggle = 0;
-    processInputBits(pPlayer, info);
-    processVehicleInput(pPlayer, info, input, scaleAdjust);
-
-    FinalizeInput(playerNum, input, true);
-
-    // don't adjust rotscrnang and look_ang if dead.
-    if (sprite[pPlayer->i].extra > 0 && !synchronized_input)
-    {
-        apply_seasick(pPlayer, scaleAdjust);
-    }
-}
-
-
-void GetInput()
-{
-    static double lastCheck;
-
-    auto const p = &ps[myconnectindex];
-    updatePauseStatus();
-
-    auto now = I_msTimeF();
-    // do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.
-    // This really needs to have the timer fixed to be robust, doing it ad-hoc here is not really safe.
-    if (elapsedInputTicks >= 0) elapsedInputTicks = min(now - lastCheck, 10.);  
-    else elapsedInputTicks = 1;
-    lastCheck = now;
-
-    if (paused)
-    {
-        loc = {};
-        if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
-        return;
-    }
-
-    D_ProcessEvents();
-    if (numplayers == 1)
-    {
-        setlocalplayerinput(p);
-    }
-
-    if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
-        P_GetInputVehicle(myconnectindex);
-    else
-        P_GetInput(myconnectindex);
-}
 END_DUKE_NS
