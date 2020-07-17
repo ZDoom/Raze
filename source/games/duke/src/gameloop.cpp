@@ -263,6 +263,7 @@ int domovethings()
 			if (p->pals.a > 0)
 				p->pals.a--;
 
+			hud_input(i);
 			fi.processinput(i);
 			fi.checksectors(i);
 		}
