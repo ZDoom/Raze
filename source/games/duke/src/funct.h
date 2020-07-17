@@ -231,7 +231,7 @@ void setlocalplayerinput(player_struct *pp);
 void PlayerColorChanged(void);
 void nonsharedkeys(void);
 void apply_seasick(player_struct* p, double scalefactor);
-void calcviewpitch(player_struct* p, int psectlotag, double factor);
+void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, int sb_snum, double factor, bool frominput = false);
 
 END_DUKE_NS

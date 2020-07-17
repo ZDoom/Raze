@@ -681,10 +681,26 @@ void hud_input(int snum)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 enum
 {
-	TURBOTURNTIME =  (TICRATE/8) // 7
+	TURBOTURNTIME =  (TICRATE/8), // 7
+	NORMALTURN    = 15,
+	PREAMBLETURN  = 5,
+	NORMALKEYMOVE = 40,
+	MAXVEL        = ((NORMALKEYMOVE*2)+10),
+	MAXSVEL       = ((NORMALKEYMOVE*2)+10),
+	MAXANGVEL     = 1024,
+	MAXHORIZVEL   = 256,
+	ONEEIGHTYSCALE = 4,
+
+	MOTOTURN      = 20,
+	MAXVELMOTO    = 120,
 };
 
 //---------------------------------------------------------------------------
@@ -713,12 +729,13 @@ fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
 
 //---------------------------------------------------------------------------
 //
-// common handler for all 3 input methods.
+// handles the input bits
 //
 //---------------------------------------------------------------------------
 
-void processCommonInput(ControlInfo &info, bool onVehicle)
+void processInputBits(player_struct *p, ControlInfo &info)
 {
+	bool onVehicle = p->OnMotorcycle || p->OnBoat;
 	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.bits |= SKB_FIRE;
 	if (buttonMap.ButtonDown(gamefunc_Open)) loc.bits |= SKB_OPEN;
 
@@ -731,14 +748,48 @@ void processCommonInput(ControlInfo &info, bool onVehicle)
 	{
 		if (info.dx < 0 || info.dyaw < 0) loc.bits |= SKB_INV_LEFT;
 		if (info.dx > 0 || info.dyaw < 0) loc.bits |= SKB_INV_RIGHT;
+	}
+
+	if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
+	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
+
+	if (!onVehicle)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.bits |= SKB_JUMP;
+		if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
+		{
+			loc.bits |= SKB_CROUCH;
+			if (isRR()) loc.bits &= ~SKB_JUMP;
+		}
+		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.bits |= SKB_AIM_UP;
+		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.bits |= SKB_AIM_DOWN;
+		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.bits |= SKB_RUN;
+		if (buttonMap.ButtonDown(gamefunc_Look_Left) || (isRR() && p->drink_amt > 88)) loc.bits |= SKB_LOOK_LEFT;
+		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.bits |= SKB_LOOK_RIGHT;
+		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.bits |= SKB_LOOK_UP;
+		if (buttonMap.ButtonDown(gamefunc_Look_Down) || (isRR() && p->drink_amt > 99)) loc.bits |= SKB_LOOK_DOWN;
+		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.bits |= SKB_QUICK_KICK;
+		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.bits |= SKB_AIMMODE;
+
+		int j = WeaponToSend;
+		WeaponToSend = 0;
+		if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
+
+		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
+		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
+
+		if (j && (loc.bits & SKB_WEAPONMASK_BITS) == 0)
+			loc.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	{
 		// This eats the controller input for regular use
 		info.dx = 0;
 		info.dz = 0;
 		info.dyaw = 0;
 	}
-
-	if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
-	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		info.dz = 0;
@@ -746,27 +797,112 @@ void processCommonInput(ControlInfo &info, bool onVehicle)
 
 //---------------------------------------------------------------------------
 //
-// weapon selection bits. Using CVARs now instead of buttons.
+// handles movement
 //
 //---------------------------------------------------------------------------
 
-void processSelectWeapon(input_t& input)
+void processMovement(player_struct *p, input_t &input, ControlInfo &info, double scaleFactor)
 {
-	int j = WeaponToSend;
-	WeaponToSend = 0;
-	if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
+	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 11;
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 12;
+	// JBF: Run key behaviour is selectable
+	int running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+	int turnamount = NORMALTURN << running;
+	int keymove = NORMALKEYMOVE << running;
 
-	if (j && (loc.bits & SKB_WEAPONMASK_BITS) == 0)
-		loc.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+	if (buttonMap.ButtonDown(gamefunc_Strafe))
+		input.svel -= info.mousex * 4.f + scaleFactor * info.dyaw * keymove;
+	else
+		input.q16avel += fix16_from_float(info.mousex + scaleFactor * info.dyaw);
 
+	if (mouseaim)
+		input.q16horz += fix16_from_float(info.mousey);
+	else
+		input.fvel -= info.mousey * 8.f;
+
+	if (!in_mouseflip) input.q16horz = -input.q16horz;
+
+	input.q16horz -= fix16_from_dbl(scaleFactor * (info.dpitch));
+	input.svel -= scaleFactor * (info.dx * keymove);
+	input.fvel -= scaleFactor * (info.dz * keymove);
+
+	if (buttonMap.ButtonDown(gamefunc_Strafe))
+	{
+		if (!loc.svel)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+				input.svel = keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+				input.svel = -keymove;
+		}
+	}
+	else
+	{
+		static int turnheldtime;
+		static int lastcontroltime;  // MED
+		int  tics = (int)totalclock - lastcontroltime;
+		lastcontroltime = (int)totalclock;
+
+		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+		{
+			turnheldtime += tics;
+			input.q16avel -= fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN);
+		}
+		else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+		{
+			turnheldtime += tics;
+			input.q16avel += fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN);
+		}
+		else
+			turnheldtime = 0;
+	}
+
+	if (loc.svel < abs(keymove))
+	{
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
+			input.svel += keymove;
+
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
+			input.svel += -keymove;
+	}
+
+	if (loc.fvel < abs(keymove))
+	{
+		if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+			{
+				input.fvel += keymove;
+				if (p->drink_amt & 1)
+					input.svel += keymove;
+				else
+					input.svel -= keymove;
+			}
+
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+			{
+				input.fvel += -keymove;
+				if (p->drink_amt & 1)
+					input.svel -= keymove;
+				else
+					input.svel += keymove;
+			}
+		}
+		else
+		{
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+				input.fvel += keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+				input.fvel += -keymove;
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
 //
-// split out of playerinputmotocycle for readability purposes and condensed using ?: operators
+// split out for readability
 //
 //---------------------------------------------------------------------------
 
@@ -958,9 +1094,9 @@ void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, do
 
 	if (p->OnMotorcycle)
 	{
-		bool moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && p->MotoSpeed <= 0;
+		bool backward = buttonMap.ButtonDown(gamefunc_Move_Backward) && p->MotoSpeed <= 0;
 
-		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, moveBack, scaleAdjust);
+		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, backward, scaleAdjust);
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else

@@ -88,9 +88,10 @@ void setlocalplayerinput(player_struct* pp)
 //
 //---------------------------------------------------------------------------
 
-void calcviewpitch(player_struct *p, int psectlotag, double factor)
+void calcviewpitch(player_struct *p, double factor)
 {
 	int psect = p->cursectnum;
+	int psectlotag = sector[psect].lotag;
 	 if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[psect].floorstat & 2))
 	 {
 		 int x = p->posx + (sintable[(p->getang() + 512) & 2047] >> 5);

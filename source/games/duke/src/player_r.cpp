@@ -3478,7 +3478,7 @@ void processinput_r(int snum)
 	{
 		p->oq16horiz = p->q16horiz;
 		p->oq16horizoff = p->q16horizoff;
-		calcviewpitch(p, psectlotag, 1);
+		calcviewpitch(p, 1);
 	}
 
 	if (hz >= 0 && (hz & 49152) == 49152)

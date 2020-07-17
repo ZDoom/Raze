@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2);
-void processCommonInput(ControlInfo& info, bool onVehicle);
-void processSelectWeapon(input_t& input);
+void processInputBits(player_struct *p, ControlInfo& info);
 int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
 void processVehicleInput(player_struct* p, ControlInfo& info, input_t& input, double scaleAdjust);
+void processMovement(player_struct* p, input_t& input, ControlInfo& info, double scaleFactor);
 
 
 int32_t PHEIGHT = PHEIGHT_DUKE;
@@ -63,6 +63,12 @@ enum inputlock_t
     IL_NOTHING = IL_NOANGLE|IL_NOHORIZ|IL_NOMOVE,
 };
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static int P_CheckLockedMovement(int const playerNum)
 {
     auto& thisPlayer = g_player[playerNum]; 
@@ -88,6 +94,34 @@ static int P_CheckLockedMovement(int const playerNum)
     return 0;
 }
 
+//---------------------------------------------------------------------------
+//
+// split off so that it can later be integrated into the other games more easily.
+//
+//---------------------------------------------------------------------------
+
+void checkCrouchToggle(player_struct* p)
+{
+    int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
+    int const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    {
+        p->crouch_toggle = !p->crouch_toggle && crouchable;
+
+        if (crouchable)
+            buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || p->jetpack_on || (!crouchable && p->on_ground))
+        p->crouch_toggle = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// common code for all input modes (with one minor special check)
+//
+//---------------------------------------------------------------------------
 
 void FinalizeInput(int playerNum, input_t &input, bool vehicle)
 {
@@ -143,187 +177,32 @@ void FinalizeInput(int playerNum, input_t &input, bool vehicle)
 
 double elapsedInputTicks = -1;
 
-static double scaleAdjustmentToInterval(double x)
-{
-    return x * REALGAMETICSPERSEC / (1000.0 / elapsedInputTicks);
-}
-
 void P_GetInput(int const playerNum)
 {
-    auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer = &ps[playerNum];
-    auto const pSprite = &sprite[pPlayer->i];
     ControlInfo info;
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
     CONTROL_GetInput(&info);
-
-
-    // JBF: Run key behaviour is selectable
-	
-	int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const     turnAmount       = playerRunning ? (NORMALTURN << 1) : NORMALTURN;
-    constexpr int analogTurnAmount = (NORMALTURN << 1);
-    int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-    constexpr int analogExtent     = 32767; // KEEPINSYNC sdlayer.cpp
 
     input_t input {};
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        input.svel -= info.mousex * 4.f;
-        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
-    }
-    else
-    {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
-    }
-
-    if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
-    else
-        input.fvel -= info.mousey * 8.f;
-
-    if (!in_mouseflip) input.q16horz = -input.q16horz;
-
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
-    input.svel -= scaleAdjustmentToInterval(info.dx * keyMove);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        if (!loc.svel)
-        {
-            if (buttonMap.ButtonDown(gamefunc_Turn_Left) && !loc.svel)
-                input.svel = keyMove;
-
-            if (buttonMap.ButtonDown(gamefunc_Turn_Right) && !loc.svel)
-                input.svel = -keyMove;
-        }
-    }
-    else
-    {
-        static int32_t turnHeldTime;
-        static int32_t lastInputClock;  // MED
-        int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
-
-        lastInputClock = (int32_t) totalclock;
-
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-        {
-            turnHeldTime += elapsedTics;
-            input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-        {
-            turnHeldTime += elapsedTics;
-            input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1))));
-        }
-        else
-            turnHeldTime = 0;
-    }
-
-    if (loc.svel < keyMove && loc.svel > -keyMove)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-            input.svel += keyMove;
-
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-            input.svel += -keyMove;
-    }
-
-    if (loc.fvel < keyMove && loc.fvel > -keyMove)
-    {
-        if (isRR() && pPlayer->drink_amt >= 66 && pPlayer->drink_amt <= 87)
-        {
-            if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-            {
-                input.fvel += keyMove;
-                if (pPlayer->drink_amt & 1)
-                    input.svel += keyMove;
-                else
-                    input.svel -= keyMove;
-            }
-
-            if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-            {
-                input.fvel += -keyMove;
-                if (pPlayer->drink_amt & 1)
-                    input.svel -= keyMove;
-                else
-                    input.svel += keyMove;
-            }
-        }
-        else
-        {
-            if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-                input.fvel += keyMove;
-
-            if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-                input.fvel += -keyMove;
-        }
-    }
-
-    processSelectWeapon(input); // this must be done before processcommoninput!
-
-
-    int const sectorLotag = pPlayer->cursectnum != -1 ? sector[pPlayer->cursectnum].lotag : 0;
-    int const crouchable = sectorLotag != 2 && (sectorLotag != 1 || pPlayer->spritebridge);
-
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
-    {
-        pPlayer->crouch_toggle = !pPlayer->crouch_toggle && crouchable;
-
-        if (crouchable)
-            buttonMap.ClearButton(gamefunc_Toggle_Crouch);
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || pPlayer->jetpack_on || (!crouchable && pPlayer->on_ground))
-        pPlayer->crouch_toggle = 0;
-
-    processCommonInput(info, false);
-
-    int const crouching = buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || pPlayer->crouch_toggle;
-
-    loc.bits |= (buttonMap.ButtonDown(gamefunc_Jump) << SK_JUMP) | (crouching << SK_CROUCH);
-
-    loc.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel > 0)) << SK_AIM_UP;
-    loc.bits |= (buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && input.fvel < 0)) << SK_AIM_DOWN;
-
-    loc.bits |= (buttonMap.ButtonDown(gamefunc_Look_Left) << SK_LOOK_LEFT) | (buttonMap.ButtonDown(gamefunc_Look_Right) << SK_LOOK_RIGHT);
-    loc.bits |= (buttonMap.ButtonDown(gamefunc_Look_Up) << SK_LOOK_UP) | (buttonMap.ButtonDown(gamefunc_Look_Down) << SK_LOOK_DOWN);
-
-    loc.bits |= (playerRunning << SK_RUN);
-
-    loc.bits |= buttonMap.ButtonDown(gamefunc_Quick_Kick) << SK_QUICK_KICK;
-
-    loc.bits |= (mouseaim << SK_AIMMODE);
-
-    if (isRR())
-    {
-        if (loc.bits & SKB_CROUCH)
-            loc.bits &= ~SKB_JUMP;
-        if (pPlayer->drink_amt > 88)
-            loc.bits |= SKB_LOOK_LEFT;
-        if (pPlayer->drink_amt > 99)
-            loc.bits |= SKB_LOOK_DOWN;
-    }
-
+    // here it goes
+    processMovement(pPlayer, input, info, scaleAdjust);
+    checkCrouchToggle(pPlayer);
+    processInputBits(pPlayer, info);
     FinalizeInput(playerNum, input, false);
 
     if (!synchronized_input)
     {
         // don't adjust rotscrnang and look_ang if dead.
-        if (pSprite->extra > 0)
+        if (sprite[pPlayer->i].extra > 0)
         {
             applylook(playerNum, scaleAdjust);
         }
 
         // Do these in the same order as the old code.
-        calcviewpitch(pPlayer, sectorLotag, scaleAdjust);
+        calcviewpitch(pPlayer, scaleAdjust);
         sethorizon(playerNum, loc.bits, scaleAdjust, true);
     }
 }
@@ -340,7 +219,7 @@ void P_GetInputVehicle(int playerNum)
     input_t input {};
 
     pPlayer->crouch_toggle = 0;
-    processCommonInput(info, true);
+    processInputBits(pPlayer, info);
     processVehicleInput(pPlayer, info, input, scaleAdjust);
 
     FinalizeInput(playerNum, input, true);
