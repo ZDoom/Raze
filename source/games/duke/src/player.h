@@ -61,7 +61,6 @@ extern input_t sync[MAXPLAYERS];
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 
 extern playerdata_t     *const g_player;
-extern int32_t          mouseyaxismode;
 
 
 void    P_GetInput(int playerNum);

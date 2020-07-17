@@ -27,26 +27,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+enum
+{
+    NORMALKEYMOVE = 40,
+    MAXVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXSVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXANGVEL = 1024,
+    MAXHORIZVEL = 256,
 
-int32_t PHEIGHT = PHEIGHT_DUKE;
-
-int32_t lastvisinc;
-
-#define TURBOTURNTIME (TICRATE/8) // 7
-#define NORMALTURN    15
-#define PREAMBLETURN  5
-#define NORMALKEYMOVE 40
-#define MAXVEL        ((NORMALKEYMOVE*2)+10)
-#define MAXSVEL       ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL     1024
-#define MAXHORIZVEL   256
-#define ONEEIGHTYSCALE 4
-
-#define MOTOTURN      20
-#define MAXVELMOTO    120
-
-int32_t g_myAimStat = 0, g_oldAimStat = 0;
-int32_t mouseyaxismode = -1;
+    MOTOTURN = 20,
+    MAXVELMOTO = 120,
+};
 
 enum inputlock_t
 {
@@ -158,7 +149,7 @@ void FinalizeInput(int playerNum, input_t &input, bool vehicle)
         {
             loc.q16horz = fix16_clamp(fix16_sadd(loc.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
             if (!synchronized_input)
-                p->q16horiz += input.q16horz; // will be clamped below in sethorizon.
+                p->q16horiz += input.q16horz; // will be clamped by the caller because further operations on q16horiz follow.
         }
     }
 }

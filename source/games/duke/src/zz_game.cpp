@@ -68,6 +68,10 @@ weaponhit hittype[MAXSPRITES];
 ActorInfo actorinfo[MAXTILES];
 player_struct ps[MAXPLAYERS];
 
+int32_t PHEIGHT = PHEIGHT_DUKE;
+
+int32_t lastvisinc;
+
 void app_loop()
 {
 
