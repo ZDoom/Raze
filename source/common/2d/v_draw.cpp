@@ -1007,7 +1007,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			break;
 
 		case DTA_KeepRatio:
-			parms->keepratio = ListGetInt(tags) ? 0 : -1;
+			parms->keepratio = ListGetInt(tags) ? -1 : 0;
 			break;
 
 		case DTA_Pin:
