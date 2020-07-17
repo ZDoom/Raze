@@ -31,7 +31,7 @@ fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2);
 void processCommonInput(ControlInfo& info, bool onVehicle);
 void processSelectWeapon(input_t& input);
 int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor);
-void processBoatInput(player_struct* p, ControlInfo& info, input_t& input, double scaleAdjust);
+void processVehicleInput(player_struct* p, ControlInfo& info, input_t& input, double scaleAdjust);
 
 
 int32_t PHEIGHT = PHEIGHT_DUKE;
@@ -86,6 +86,59 @@ static int P_CheckLockedMovement(int const playerNum)
         return IL_NOHORIZ;
 
     return 0;
+}
+
+
+void FinalizeInput(int playerNum, input_t &input, bool vehicle)
+{
+    auto p = &ps[playerNum];
+    int const movementLocked = P_CheckLockedMovement(playerNum);
+
+    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
+    {
+        if (ud.scrollmode && ud.overhead_on)
+        {
+            ud.folfvel = input.fvel;
+            ud.folavel = fix16_to_int(input.q16avel);
+        }
+
+        loc.fvel = loc.svel = 0;
+        loc.q16avel = loc.q16horz = 0;
+    }
+    else
+    {
+        if (!(movementLocked & IL_NOMOVE))
+        {
+            if (!vehicle)
+            {
+                loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
+                loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
+            }
+            else
+                loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+        }
+
+        if (!(movementLocked & IL_NOANGLE))
+        {
+            loc.q16avel = fix16_sadd(loc.q16avel, input.q16avel);
+            if (!synchronized_input)
+            {
+                p->q16ang = fix16_sadd(p->q16ang, input.q16avel) & 0x7FFFFFF;
+
+                if (input.q16avel)
+                {
+                    p->one_eighty_count = 0;
+                }
+            }
+        }
+
+        if (!(movementLocked & IL_NOHORIZ))
+        {
+            loc.q16horz = fix16_clamp(fix16_sadd(loc.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+            if (!synchronized_input)
+                p->q16horiz += input.q16horz; // will be clamped below in sethorizon.
+        }
+    }
 }
 
 double elapsedInputTicks = -1;
@@ -259,48 +312,8 @@ void P_GetInput(int const playerNum)
             loc.bits |= SKB_LOOK_DOWN;
     }
 
-    int const movementLocked = P_CheckLockedMovement(playerNum);
+    FinalizeInput(playerNum, input, false);
 
-    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
-    {
-        if (ud.scrollmode && ud.overhead_on)
-        {
-            ud.folfvel = input.fvel;
-            ud.folavel = fix16_to_int(input.q16avel);
-        }
-
-        loc.fvel = loc.svel = 0;
-        loc.q16avel = loc.q16horz = 0;
-    }
-    else
-    {
-        if (!(movementLocked & IL_NOMOVE))
-        {
-            loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
-            loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
-        }
-
-        if (!(movementLocked & IL_NOANGLE))
-        {
-            loc.q16avel = fix16_sadd(loc.q16avel, input.q16avel);
-            if (!synchronized_input)
-            {
-                pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-
-                if (input.q16avel)
-                {
-                    pPlayer->one_eighty_count = 0;
-                }
-            }
-        }
-
-        if (!(movementLocked & IL_NOHORIZ))
-        {
-            loc.q16horz = fix16_clamp(fix16_sadd(loc.q16horz, input.q16horz), F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-            if (!synchronized_input)
-                pPlayer->q16horiz += input.q16horz; // will be clamped below in sethorizon.
-        }
-    }
     if (!synchronized_input)
     {
         // don't adjust rotscrnang and look_ang if dead.
@@ -316,100 +329,9 @@ void P_GetInput(int const playerNum)
 }
 
 
-void P_GetInputMotorcycle(int playerNum)
+void P_GetInputVehicle(int playerNum)
 {
-    auto      &thisPlayer = g_player[playerNum];
     auto const pPlayer = &ps[playerNum];
-    auto const pSprite = &sprite[pPlayer->i]; 
-    ControlInfo info;
-    double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
-
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    CONTROL_GetInput(&info);
-
-    // JBF: Run key behaviour is selectable
-    int const     playerRunning    = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const     keyMove          = playerRunning ? (NORMALKEYMOVE << 1) : NORMALKEYMOVE;
-
-    input_t input {};
-
-    pPlayer->crouch_toggle = 0;
-    processCommonInput(info, true);
-
-    int const turn = input.q16avel / 32;
-    int turnLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
-    int turnRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
-    int avelScale = F16((turnLeft || turnRight) ? 1 : 0);
-    if (turn)
-    {
-        avelScale = fix16_max(avelScale, fix16_clamp(fix16_mul(turn, turn),0,F16(1)));
-        if (turn < 0)
-            turnLeft = 1;
-        else if (turn > 0)
-            turnRight = 1;
-    }
-
-    loc.bits |= turnLeft << SK_AIM_DOWN;
-    loc.bits |= turnRight << SK_LOOK_LEFT;
-
-    int const moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && pPlayer->MotoSpeed <= 0;
-
-    // turn is truncated to integer precision to avoid having micro-movement affect the result, which makes a significant difference here.
-    int turnvel = motoApplyTurn(pPlayer, turnLeft, turnRight, turn >> FRACBITS, moveBack, scaleAdjust);
-    input.q16avel += int(turnvel * scaleAdjust * FRACUNIT * 2);
-
-    if (pPlayer->moto_underwater)
-    {
-        pPlayer->MotoSpeed = 0;
-    }
-    else
-    {
-        loc.bits |= (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) << SK_JUMP;
-        loc.bits |= buttonMap.ButtonDown(gamefunc_Move_Backward) << SK_AIM_UP;
-        loc.bits |= buttonMap.ButtonDown(gamefunc_Run) << SK_CROUCH;
-    }
-
-    input.fvel += pPlayer->MotoSpeed;
-    input.q16avel = fix16_mul(input.q16avel, avelScale);
-
-    int const movementLocked = P_CheckLockedMovement(playerNum);
-
-    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
-    {
-        if (ud.scrollmode && ud.overhead_on)
-        {
-            ud.folfvel = input.fvel;
-            ud.folavel = fix16_to_int(input.q16avel);
-        }
-
-        loc.fvel = loc.svel = 0;
-        loc.q16avel = loc.q16horz = 0;
-    }
-    else
-    {
-        if (!(movementLocked & IL_NOMOVE))
-        {
-            loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
-        }
-
-        if (!(movementLocked & IL_NOANGLE))
-        {
-            loc.q16avel = fix16_sadd(loc.q16avel, input.q16avel);
-            if (!synchronized_input) pPlayer->q16ang    = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-        }
-    }
-
-    // don't adjust rotscrnang and look_ang if dead.
-    if (pSprite->extra > 0 && !synchronized_input)
-    {
-        apply_seasick(pPlayer, scaleAdjust);
-    }
-}
-
-void P_GetInputBoat(int playerNum)
-{
-    auto const pPlayer    = &ps[playerNum];
     ControlInfo info;
     double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
 
@@ -419,34 +341,9 @@ void P_GetInputBoat(int playerNum)
 
     pPlayer->crouch_toggle = 0;
     processCommonInput(info, true);
-    processBoatInput(pPlayer, info, input, scaleAdjust);
+    processVehicleInput(pPlayer, info, input, scaleAdjust);
 
-    int const movementLocked = P_CheckLockedMovement(playerNum);
-
-    if ((ud.scrollmode && ud.overhead_on) || (movementLocked & IL_NOTHING) == IL_NOTHING)
-    {
-        if (ud.scrollmode && ud.overhead_on)
-        {
-            ud.folfvel = input.fvel;
-            ud.folavel = fix16_to_int(input.q16avel);
-        }
-
-        loc.fvel = loc.svel = 0;
-        loc.q16avel = loc.q16horz = 0;
-    }
-    else
-    {
-        if (!(movementLocked & IL_NOMOVE))
-        {
-            loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
-        }
-
-        if (!(movementLocked & IL_NOANGLE))
-        {
-            loc.q16avel = fix16_sadd(loc.q16avel, input.q16avel);
-            if (!synchronized_input) pPlayer->q16ang = fix16_sadd(pPlayer->q16ang, input.q16avel) & 0x7FFFFFF;
-        }
-    }
+    FinalizeInput(playerNum, input, true);
 
     // don't adjust rotscrnang and look_ang if dead.
     if (sprite[pPlayer->i].extra > 0 && !synchronized_input)
@@ -454,6 +351,7 @@ void P_GetInputBoat(int playerNum)
         apply_seasick(pPlayer, scaleAdjust);
     }
 }
+
 
 void GetInput()
 {
@@ -482,10 +380,8 @@ void GetInput()
         setlocalplayerinput(p);
     }
 
-    if (isRRRA() && p->OnMotorcycle)
-        P_GetInputMotorcycle(myconnectindex);
-    else if (isRRRA() && p->OnBoat)
-        P_GetInputBoat(myconnectindex);
+    if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
+        P_GetInputVehicle(myconnectindex);
     else
         P_GetInput(myconnectindex);
 }

@@ -721,27 +721,8 @@ void processCommonInput(ControlInfo &info, bool onVehicle)
 	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.bits |= SKB_FIRE;
 	if (buttonMap.ButtonDown(gamefunc_Open)) loc.bits |= SKB_OPEN;
 
-#if 0
-	// todo: handle these with CCMDs instead.
-	if (buttonMap.ButtonDown(gamefunc_Inventory)) loc.bits |= SKB_INVENTORY;
-	if (buttonMap.ButtonDown(gamefunc_MedKit)) loc.bits |= SKB_MEDKIT;
-	if (buttonMap.ButtonDown(gamefunc_Steroids)) loc.bits |= SKB_STEROIDS;
-	if (buttonMap.ButtonDown(gamefunc_NightVision)) loc.bits |= SKB_NIGHTVISION;
-	if (buttonMap.ButtonDown(gamefunc_Holo_Duke)) loc.bits |= SKB_HOLODUKE;
-	if (buttonMap.ButtonDown(gamefunc_Jetpack)) loc.bits |= SKB_JETPACK;
-	//if (inputState.CheckPause()) loc.bits |= SKB_PAUSE;
-	if (buttonMap.ButtonDown(gamefunc_Inventory_Left)) loc.bits |= SKB_INV_LEFT;
-	if (buttonMap.ButtonDown(gamefunc_Inventory_Right)) loc.bits |= SKB_INV_RIGHT;
-
-	/*
-	loc.bits |= (buttonMap.ButtonDown(gamefunc_Center_View) << SK_CENTER_VIEW);
-	loc.bits |= buttonMap.ButtonDown(gamefunc_Holster_Weapon) << SK_HOLSTER;
-	loc.bits |= buttonMap.ButtonDown(gamefunc_TurnAround) << SK_TURNAROUND;
-	*/
-
-#else
+	// These 3 bits are only available when not riding a bike or boat.
 	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
-#endif
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
@@ -756,17 +737,13 @@ void processCommonInput(ControlInfo &info, bool onVehicle)
 	if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
 	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
 
-
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		info.dz = 0;
 }
 
 //---------------------------------------------------------------------------
 //
-// weapon selection bits.
-// This should all be remapped to CCMDs, except for the controller check
-// For the next and prev weapon functions this is particularly necessary 
-// due to how the mouse wheel works.
+// weapon selection bits. Using CVARs now instead of buttons.
 //
 //---------------------------------------------------------------------------
 
@@ -775,25 +752,6 @@ void processSelectWeapon(input_t& input)
 	int j = WeaponToSend;
 	WeaponToSend = 0;
 	if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
-
-#if 0 // must be removed once the CCMDs are hooked up
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_1)) j = 1;
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_2))	j = 2;
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_3))	j = 3;
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_4))	j = 4;
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_5))	j = 5;
-	if (buttonMap.ButtonPressed(gamefunc_Weapon_6))	j = 6;
-
-	if (!VOLUMEONE)
-	{
-		if (buttonMap.ButtonPressed(gamefunc_Weapon_7))	j = 7;
-		if (buttonMap.ButtonPressed(gamefunc_Weapon_8))	j = 8;
-		if (buttonMap.ButtonPressed(gamefunc_Weapon_9))	j = 9;
-		if (buttonMap.ButtonPressed(gamefunc_Weapon_10)) j = 10;
-	}
-	if (buttonMap.ButtonPressed(gamefunc_Previous_Weapon)) j = 11;
-	if (buttonMap.ButtonPressed(gamefunc_Next_Weapon)) j = 12;
-#endif
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 11;
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && input.fvel < 0) j = 12;
@@ -963,42 +921,59 @@ static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, 
 //
 //---------------------------------------------------------------------------
 
-void processBoatInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
+void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
 {
-	auto boat_turn = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
+	auto turnspeed = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	int turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 
 	// Cancel out micro-movement
 	const double turn_threshold = 1 / 65536.;
-	if (boat_turn < -turn_threshold)
+	if (turnspeed < -turn_threshold)
 		turnl = 1;
-	else if (boat_turn > turn_threshold)
+	else if (turnspeed > turn_threshold)
 		turnr = 1;
 	else
-		boat_turn = 0;
+		turnspeed = 0;
 
-	if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-		loc.bits |= SKB_JUMP;
-	if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-		loc.bits |= SKB_AIM_UP;
-	if (buttonMap.ButtonDown(gamefunc_Run))
-		loc.bits |= SKB_CROUCH;
+	if (p->OnBoat || !p->moto_underwater)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
+			loc.bits |= SKB_JUMP;
+		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+			loc.bits |= SKB_AIM_UP;
+		if (buttonMap.ButtonDown(gamefunc_Run))
+			loc.bits |= SKB_CROUCH;
+	}
 
 	if (turnl)
 		loc.bits |= SKB_AIM_DOWN;
 	if (turnr)
 		loc.bits |= SKB_LOOK_LEFT;
 
-	double turnvel = boatApplyTurn(p, turnl, turnr, boat_turn != 0, scaleAdjust) * scaleAdjust * 2;
+	double turnvel;
+
+	if (p->OnMotorcycle)
+	{
+		bool moveBack = buttonMap.ButtonDown(gamefunc_Move_Backward) && p->MotoSpeed <= 0;
+
+		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, moveBack, scaleAdjust);
+		if (p->moto_underwater) p->MotoSpeed = 0;
+	}
+	else
+	{
+		turnvel = boatApplyTurn(p, turnl, turnr, turnspeed != 0, scaleAdjust) * scaleAdjust * 2;
+
+	}
 
 	// What is this? Optimization for playing with a mouse which the original did not have?
-	if (boat_turn)
-		turnvel *= clamp(boat_turn * boat_turn, 0., 1.);
+	if (turnspeed)
+		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
 	input.fvel = p->MotoSpeed;
 	input.q16avel = fix16_from_dbl(turnvel);
 }
+
 
 //---------------------------------------------------------------------------
 //
