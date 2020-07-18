@@ -63,15 +63,19 @@ enum playeraction_t {
 
 
 
-// curse these global variables for parameter passing...
-static int g_i, g_p;
-static int g_x;
-static int* g_t;
-static uint8_t killit_flag;
-static spritetype* g_sp;
-static int* insptr;
+struct ParseState
+{
+	int g_i, g_p;
+	int g_x;
+	int* g_t;
+	uint8_t killit_flag;
+	spritetype* g_sp;
+	int* insptr;
 
-int parse(void);
+	int parse(void);
+	void parseifelse(int condition);
+};
+
 int furthestcanseepoint(int i, spritetype* ts, int* dax, int* day);
 bool ifsquished(int i, int p);
 void fakebubbaspawn(int g_i, int g_p);
@@ -80,7 +84,8 @@ void destroyit(int g_i);
 void mamaspawn(int g_i);
 void forceplayerangle(struct player_struct* p);
 
-static bool killthesprite = false;
+bool killthesprite = false;
+
 void addspritetodelete(int spnum)
 {
 	killthesprite = true;
@@ -93,7 +98,7 @@ void addspritetodelete(int spnum)
 //---------------------------------------------------------------------------
 void VM_Execute(native_t loop);
 
-void parseifelse(int condition)
+void ParseState::parseifelse(int condition)
 {
 	if( condition )
 	{
@@ -251,7 +256,7 @@ static bool ifcansee(int g_i, int g_p)
 
 // int *it = 0x00589a04;
 
-int parse(void)
+int ParseState::parse(void)
 {
 	int j, l, s;
 
@@ -1598,30 +1603,32 @@ void execute(int i,int p,int x)
 	if (actorinfo[sprite[i].picnum].scriptaddress == 0) return;
 
 	int done;
+	spritetype* g_sp;
 
-	g_i = i;	// Sprite ID
-	g_p = p;	// Player ID
-	g_x = x;	// ??
-	g_sp = &sprite[g_i];	// Pointer to sprite structure
-	g_t = &hittype[g_i].temp_data[0];	// Sprite's 'extra' data
+	ParseState s;
+	s.g_i = i;	// Sprite ID
+	s.g_p = p;	// Player ID
+	s.g_x = x;	// ??
+	g_sp = s.g_sp = &sprite[i];	// Pointer to sprite structure
+	s.g_t = &hittype[i].temp_data[0];	// Sprite's 'extra' data
 
 	if (actorinfo[g_sp->picnum].scriptaddress == 0) return;
-	insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
+	s.insptr = &ScriptCode[4 + (actorinfo[g_sp->picnum].scriptaddress)];
 
-	killit_flag = 0;
+	s.killit_flag = 0;
 
 	if(g_sp->sectnum < 0 || g_sp->sectnum >= MAXSECTORS)
 	{
 		if(badguy(g_sp))
-			ps[g_p].actors_killed++;
-		deletesprite(g_i);
+			ps[p].actors_killed++;
+		deletesprite(i);
 		return;
 	}
 
-	if (g_t[4])
+	if (s.g_t[4])
 	{
 		// This code was utterly cryptic in the original source.
-		auto ptr = &ScriptCode[g_t[4]];
+		auto ptr = &ScriptCode[s.g_t[4]];
 		int numframes = ptr[1];
 		int increment = ptr[3];
 		int delay =  ptr[4];
@@ -1629,28 +1636,28 @@ void execute(int i,int p,int x)
 		g_sp->lotag += TICSPERFRAME;
 		if (g_sp->lotag > delay)
 		{
-			g_t[2]++;
+			s.g_t[2]++;
 			g_sp->lotag = 0;
-			g_t[3] += increment;
+			s.g_t[3] += increment;
 		}
-		if (abs(g_t[3]) >= abs(numframes * increment))
-			g_t[3] = 0;
+		if (abs(s.g_t[3]) >= abs(numframes * increment))
+			s.g_t[3] = 0;
 	}
 
 	do
-		done = parse();
+		done = s.parse();
 	while( done == 0 );
 
-	if(killit_flag == 1)
+	if(s.killit_flag == 1)
 	{
 		// if player was set to squish, first stop that...
-		if(ps[g_p].actorsqu == g_i)
-			ps[g_p].actorsqu = -1;
+		if(ps[p].actorsqu == i)
+			ps[p].actorsqu = -1;
 		killthesprite = true;
 	}
 	else
 	{
-		fi.move(g_i, g_p, g_x);
+		fi.move(i, p, x);
 
 		if (g_sp->statnum == STAT_ACTOR)
 		{
@@ -1661,14 +1668,14 @@ void execute(int i,int p,int x)
 			}
 			else if (ud.respawn_items == 1 && (g_sp->cstat & 32768)) goto quit;
 
-			if (hittype[g_i].timetosleep > 1)
-				hittype[g_i].timetosleep--;
-			else if (hittype[g_i].timetosleep == 1)
-				changespritestat(g_i, STAT_ZOMBIEACTOR);
+			if (hittype[i].timetosleep > 1)
+				hittype[i].timetosleep--;
+			else if (hittype[i].timetosleep == 1)
+				changespritestat(i, STAT_ZOMBIEACTOR);
 		}
 
 		else if (g_sp->statnum == STAT_STANDABLE)
-			fi.checktimetosleep(g_i);
+			fi.checktimetosleep(i);
 	}
 quit:
 	if (killthesprite) deletesprite(i);
@@ -1684,13 +1691,6 @@ quit:
 
 void OnEvent(int iEventID, int p, int i, int x)
 {
-	int og_i, og_p;
-	int og_x;
-	int* og_t;
-	spritetype* og_sp;
-	uint8_t okillit_flag;
-	int* oinsptr;
-
 	char done;
 
 	if (iEventID >= MAXGAMEEVENTS)
@@ -1703,36 +1703,19 @@ void OnEvent(int iEventID, int p, int i, int x)
 		return;
 	}
 
-	// save current values...
-	og_i = g_i;
-	og_p = g_p;
-	og_x = g_x;
-	og_sp = g_sp;
-	og_t = g_t;
-	okillit_flag = killit_flag;
-	oinsptr = insptr;
+	ParseState s;
+	s.g_i = i;	// current sprite ID
+	s.g_p = p;	/// current player ID
+	s.g_x = x;	// ?
+	s.g_sp = &sprite[i];
+	s.g_t = &hittype[i].temp_data[0];
 
-	g_i = i;	// current sprite ID
-	g_p = p;	/// current player ID
-	g_x = x;	// ?
-	g_sp = &sprite[g_i];
-	g_t = &hittype[g_i].temp_data[0];
+	s.insptr = &ScriptCode[apScriptGameEvent[iEventID]];
 
-	insptr = &ScriptCode[apScriptGameEvent[iEventID]];
-
-	killit_flag = 0;
+	s.killit_flag = 0;
 	do
-		done = parse();
+		done = s.parse();
 	while (done == 0);
-
-	// restore old values...
-	g_i = og_i;
-	g_p = og_p;
-	g_x = og_x;
-	g_sp = og_sp;
-	g_t = og_t;
-	killit_flag = okillit_flag;
-	insptr = oinsptr;
 }
 
 
