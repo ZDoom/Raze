@@ -74,6 +74,7 @@ extern int32_t      otherp;
 
 extern ActorInfo   actorinfo[MAXTILES];
 extern weaponhit      hittype[MAXSPRITES];
+extern bool sound445done;
 
 #endif
 

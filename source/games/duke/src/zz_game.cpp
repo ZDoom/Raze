@@ -46,6 +46,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
+int levelTextTime; // must be serialized
+int rtsplaying;		// must be serialized
+int otherp;			// MP only
+bool sound445done; // this was local state inside a function, but this must be maintained globally and serialized
+
 int16_t max_ammo_amount[MAX_WEAPONS];
 int32_t spriteqamount = 64;
 

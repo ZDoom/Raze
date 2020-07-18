@@ -35,8 +35,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 // PRIMITIVE
 BEGIN_DUKE_NS
 
-static bool sound445done; // what is this supposed to do? Looks broken.
-
 //---------------------------------------------------------------------------
 //
 // 

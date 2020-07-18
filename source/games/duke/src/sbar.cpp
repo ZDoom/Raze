@@ -41,8 +41,6 @@ source as it is released.
 #include "texturemanager.h"
 BEGIN_DUKE_NS
 
-int levelTextTime;
-
 //==========================================================================
 //
 // very much a dummy to access the methods.

@@ -46,7 +46,6 @@ BEGIN_DUKE_NS
 
 FFont* IndexFont;
 FFont* DigiFont;
-int rtsplaying;
 
 //---------------------------------------------------------------------------
 //
