@@ -771,7 +771,7 @@ void resettimevars(void)
 //
 //---------------------------------------------------------------------------
 
-static void donewgame(MapRecord* map, int sk)
+void donewgame(MapRecord* map, int sk)
 {
     auto p = &ps[0];
     show_shareware = 26 * 34;
@@ -837,29 +837,33 @@ static void donewgame(MapRecord* map, int sk)
     }
 }
 
-void newgame(MapRecord* map, int sk)
+void newgame(MapRecord* map, int sk, CompletionFunc completion)
 {
     handleevents();
     ready2send = 0;
 
-    auto completion = [=](bool)
+    auto completion1 = [=](bool res)
     {
         if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
         {
-            e4intro([=](bool) { donewgame(map, sk); });
+            e4intro([=](bool) { donewgame(map, sk); if (completion) completion(res); });
         }
-        else donewgame(map, sk);
+        else
+        {
+            donewgame(map, sk);
+            if (completion) completion(res);
+        }
     };
 
     if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
-        dobonus(1, completion);
+        dobonus(1, completion1);
 
 #if 0 // this is one lousy hack job that's hopefully not needed anymore.
     else if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
-        dobonus(0, completion);
+        dobonus(0, completion1);
 #endif
 
-    else completion(false);
+    else completion1(false);
 }
 
 //---------------------------------------------------------------------------
@@ -1029,21 +1033,22 @@ int enterlevel(MapRecord *mi, int gamemode)
 
 void startnewgame(MapRecord* map, int skill)
 {
-    newgame(map, skill);
-
-    if (enterlevel(map, MODE_GAME))
-    {
-        ps[myconnectindex].gm = 0;
-        startmainmenu();
-    }
-    else
-    {
-        ud.showweapons = cl_showweapon;
-        setlocalplayerinput(&ps[myconnectindex]);
-        PlayerColorChanged();
-        inputState.ClearAllInput();
-        gamestate = GS_LEVEL;
-    }
+    newgame(map, skill, [=](bool)
+        {
+            if (enterlevel(map, MODE_GAME))
+            {
+                ps[myconnectindex].gm = 0;
+                startmainmenu();
+            }
+            else
+            {
+                ud.showweapons = cl_showweapon;
+                setlocalplayerinput(&ps[myconnectindex]);
+                PlayerColorChanged();
+                inputState.ClearAllInput();
+                gamestate = GS_LEVEL;
+            }
+        });
 }
 
 //---------------------------------------------------------------------------

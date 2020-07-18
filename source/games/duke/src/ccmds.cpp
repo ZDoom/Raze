@@ -55,7 +55,8 @@ static void dowarp(MapRecord *map)
 
     if (ps[myconnectindex].gm & MODE_GAME)
     {
-        newgame(map, ud.m_player_skill);
+        ready2send = 0;
+        donewgame(map, ud.m_player_skill);
         ps[myconnectindex].gm = MODE_RESTART;
     }
     else startnewgame(map, ud.m_player_skill);
