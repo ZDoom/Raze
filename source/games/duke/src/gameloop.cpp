@@ -109,23 +109,6 @@ void prediction()
 	getpackets();
 #endif
 }
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static int menuloop(void)
-{
-	FX_StopAllSounds();
-	while (menuactive != MENU_Off)
-	{
-		handleevents();
-		drawbackground();
-		videoNextPage();
-	}
-	return 0;
-}
 
 //---------------------------------------------------------------------------
 //
@@ -317,7 +300,6 @@ int moveloop()
 
 bool GameTicker()
 {
-	handleevents();
 	if (ps[myconnectindex].gm == MODE_DEMO)
 	{
 		M_ClearMenus();
@@ -429,10 +411,13 @@ void app_loop()
 
 			M_StartControlPanel(false);
 			M_SetMenu(NAME_Mainmenu);
-			if (menuloop())
+			FX_StopAllSounds();
+
+			while (menuactive != MENU_Off)
 			{
-				FX_StopAllSounds();
-				continue;
+				handleevents();
+				drawbackground();
+				videoNextPage();
 			}
 		}
 
@@ -444,6 +429,7 @@ void app_loop()
 		bool res;
 		do
 		{
+			handleevents();
 			res = GameTicker();
 			videoNextPage();
 		} while (!res);

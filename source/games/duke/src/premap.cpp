@@ -768,20 +768,9 @@ void resettimevars(void)
 //
 //---------------------------------------------------------------------------
 
-void newgame(MapRecord* map, int sk)
+static void donewgame(MapRecord* map, int sk)
 {
     auto p = &ps[0];
-    handleevents();
-    ready2send = 0;
-
-#if 0
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
-        dobonus(1);
-
-    if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
-        dobonus(0);
-#endif
-
     show_shareware = 26 * 34;
 
     ud.nextLevel = map;
@@ -790,11 +779,6 @@ void newgame(MapRecord* map, int sk)
     ud.from_bonus = 0;
 
     ud.last_level = -1;
-
-    if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
-    {
-        e4intro([](bool) {});
-    }
 
     p->zoom = 768;
     p->gm = 0;
@@ -848,6 +832,31 @@ void newgame(MapRecord* map, int sk)
         connecthead = 0;
         connectpoint2[0] = -1;
     }
+}
+
+void newgame(MapRecord* map, int sk)
+{
+    handleevents();
+    ready2send = 0;
+
+    auto completion = [=](bool)
+    {
+        if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
+        {
+            e4intro([=](bool) { donewgame(map, sk); });
+        }
+        else donewgame(map, sk);
+    };
+
+    if (ud.m_recstat != 2 && ud.last_level >= 0 && ud.multimode > 1 && ud.coop != 1)
+        dobonus(1, completion);
+
+#if 0 // this is one lousy hack job that's hopefully not needed anymore.
+    else if (isRR() && !isRRRA() && map->levelNumber == levelnum(0, 6))
+        dobonus(0, completion);
+#endif
+
+    else completion(false);
 }
 
 //---------------------------------------------------------------------------

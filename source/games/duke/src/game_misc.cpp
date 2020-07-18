@@ -178,7 +178,6 @@ void FTA(int q, struct player_struct* p)
 //==========================================================================
 //
 // Draws the background
-// todo: split up to have dedicated functions for both cases.
 //
 //==========================================================================
 
