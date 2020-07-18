@@ -32,6 +32,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 #include "secrets.h"
 #include "statistics.h"
+#include "gamestate.h"
+#include "sbar.h"
 
 BEGIN_DUKE_NS  
 
@@ -755,6 +757,7 @@ void resettimevars(void)
 {
     totalclock = 0;
     cloudtotalclock = 0;
+    levelTextTime = 85;
     ototalclock = 0;
     lockclock = 0;
     ready2send = 1;
@@ -1031,8 +1034,15 @@ void startnewgame(MapRecord* map, int skill)
     if (enterlevel(map, MODE_GAME))
     {
         ps[myconnectindex].gm = 0;
-        M_StartControlPanel(false);
-        M_SetMenu(NAME_Mainmenu);
+        startmainmenu();
+    }
+    else
+    {
+        ud.showweapons = cl_showweapon;
+        setlocalplayerinput(&ps[myconnectindex]);
+        PlayerColorChanged();
+        inputState.ClearAllInput();
+        gamestate = GS_LEVEL;
     }
 }
 

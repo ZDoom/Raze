@@ -28,6 +28,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "ns.h"	// Must come before everything else!
 
+#include "gamestate.h"
 #include "duke3d.h"
 #include "sbar.h"
 #include "baselayer.h"
@@ -376,63 +377,73 @@ bool GameTicker()
 //
 //---------------------------------------------------------------------------
 
+void startmainmenu()
+{
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_Mainmenu);
+	FX_StopAllSounds();
+	gamestate = GS_DEMOSCREEN;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void app_loop()
 {
+	gamestate = GS_STARTUP;
 
 	while (true)
 	{
-		totalclock = 0;
-		ototalclock = 0;
-		lockclock = 0;
-
-		ps[myconnectindex].ftq = 0;
-
-		//if (ud.warp_on == 0)
+		handleevents();
+		switch (gamestate)
 		{
-#if 0 // fixme once the game loop has been done.
-			if ((ud.multimode > 1) && startupMap.IsNotEmpty())
+		default:
+		case GS_STARTUP:
+			totalclock = 0;
+			ototalclock = 0;
+			lockclock = 0;
+
+			ps[myconnectindex].ftq = 0;
+
+			if (userConfig.CommandMap.IsNotEmpty())
 			{
-				auto maprecord = FindMap(startupMap);
-				ud.m_respawn_monsters = ud.m_player_skill == 4;
-
-				for (int i = 0; i != -1; i = connectpoint2[i])
+				auto maprecord = FindMapByName(userConfig.CommandMap);
+				userConfig.CommandMap = "";
+				if (maprecord)
 				{
-					resetweapons(i);
-					resetinventory(i);
-				}
+					ud.m_respawn_monsters = ud.m_player_skill == 4;
 
-				StartGame(maprecord);
+					for (int i = 0; i != -1; i = connectpoint2[i])
+					{
+						resetweapons(i);
+						resetinventory(i);
+					}
+					startnewgame(maprecord, /*userConfig.skill*/2);
+				}
 			}
 			else
-#endif
 			{
-				fi.ShowLogo([](bool) {});
+				fi.ShowLogo([](bool) { startmainmenu(); });
 			}
+			break;
 
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_Mainmenu);
-			FX_StopAllSounds();
+		case GS_DEMOSCREEN:
+			drawbackground();
+			break;
 
-			while (menuactive != MENU_Off)
-			{
-				handleevents();
-				drawbackground();
-				videoNextPage();
-			}
+		case GS_LEVEL:
+			if (GameTicker()) gamestate = GS_STARTUP;
+			break;
+
+		case GS_INTERMISSION:
+			// todo: run screen jobs here
+			break;
+
 		}
-
-		ud.showweapons = cl_showweapon;
-		setlocalplayerinput(&ps[myconnectindex]);
-		PlayerColorChanged();
-		inputState.ClearAllInput();
-
-		bool res;
-		do
-		{
-			handleevents();
-			res = GameTicker();
-			videoNextPage();
-		} while (!res);
+		videoNextPage();
 	}
 }
 

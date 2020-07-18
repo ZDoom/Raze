@@ -235,5 +235,6 @@ void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, int sb_snum, double factor, bool frominput = false);
 bool movementBlocked(int snum);
 void GetInput();
+void startmainmenu();
 
 END_DUKE_NS
