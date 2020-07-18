@@ -42,6 +42,12 @@ BEGIN_DUKE_NS
 static int WeaponToSend;
 static ESyncBits BitsToSend;
 
+// State timer counters. 
+static int nonsharedtimer;
+static int turnheldtime;
+static int lastcontroltime;
+static double lastCheck;
+
 //---------------------------------------------------------------------------
 //
 // handles UI side input not handled via CCMDs or CVARs.
@@ -51,8 +57,6 @@ static ESyncBits BitsToSend;
 
 void nonsharedkeys(void)
 {
-	static int nonsharedtimer;
-
 	if (ud.recstat == 2)
 	{
 		ControlInfo noshareinfo;
@@ -187,8 +191,17 @@ void nonsharedkeys(void)
 
 		if (ud.overhead_on != 0)
 		{
-			int j = (int)totalclock - nonsharedtimer; 
-			nonsharedtimer += j;
+			int j;
+			if (nonsharedtimer > 0 || totalclock < nonsharedtimer)
+			{
+				j = (int)totalclock - nonsharedtimer;
+				nonsharedtimer += j;
+			}
+			else
+			{
+				j = 0;
+				nonsharedtimer = (int)totalclock;
+			}
 
 			if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
 				ps[myconnectindex].zoom += mulscale6(j, max(ps[myconnectindex].zoom, 256));
@@ -820,6 +833,19 @@ static void checkCrouchToggle(player_struct* p)
 
 //---------------------------------------------------------------------------
 //
+// 
+//
+//---------------------------------------------------------------------------
+
+int getticssincelastupdate()
+{
+	int  tics = lastcontroltime == 0 || (int)totalclock < lastcontroltime ? 0 : (int)totalclock - lastcontroltime;
+	lastcontroltime = (int)totalclock;
+	return tics;
+}
+
+//---------------------------------------------------------------------------
+//
 // handles movement
 //
 //---------------------------------------------------------------------------
@@ -862,10 +888,7 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 	}
 	else
 	{
-		static int turnheldtime;
-		static int lastcontroltime;  // MED
-		int  tics = (int)totalclock - lastcontroltime;
-		lastcontroltime = (int)totalclock;
+		int tics = getticssincelastupdate();
 
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
 		{
@@ -878,7 +901,11 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 			input.q16avel += fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN);
 		}
 		else
+		{
 			turnheldtime = 0;
+			lastcontroltime = 0;
+		}
+
 	}
 
 	if (loc.svel < abs(keymove))
@@ -931,14 +958,10 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 
 static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
 {
-	static int turnheldtime;
-	static int lastcontroltime;
-
-	int tics = totalclock - lastcontroltime;
-	lastcontroltime = totalclock;
-
 	if (p->MotoSpeed == 0 || !p->on_ground)
 	{
+		turnheldtime = 0;
+		lastcontroltime = 0;
 		if (turnl)
 		{
 			p->TiltStatus -= (float)factor;
@@ -954,6 +977,7 @@ static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, 
 	}
 	else
 	{
+		int tics = getticssincelastupdate();
 		if (turnl || p->moto_drink < 0)
 		{
 			turnheldtime += tics;
@@ -991,6 +1015,7 @@ static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, 
 		else
 		{
 			turnheldtime = 0;
+			lastcontroltime = 0;
 
 			if (p->TiltStatus > 0)
 				p->TiltStatus -= (float)factor;
@@ -1013,11 +1038,7 @@ static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, 
 
 static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double factor)
 {
-	static int turnheldtime;
-	static int lastcontroltime;
-
-	int tics = totalclock - lastcontroltime;
-	lastcontroltime = totalclock;
+	int tics = getticssincelastupdate();
 
 	if (p->MotoSpeed)
 	{
@@ -1064,6 +1085,7 @@ static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, 
 		else if (!p->NotOnWater)
 		{
 			turnheldtime = 0;
+			lastcontroltime = 0;
 
 			if (p->TiltStatus > 0)
 				p->TiltStatus -= (float)factor;
@@ -1073,6 +1095,11 @@ static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, 
 			if (fabs(p->TiltStatus) < 0.025)
 				p->TiltStatus = 0;
 		}
+	}
+	else
+	{
+		turnheldtime = 0;
+		lastcontroltime = 0;
 	}
 	return 0;
 }
@@ -1199,7 +1226,6 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 
 void GetInput()
 {
-	static double lastCheck;
 	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
 	updatePauseStatus();
@@ -1305,11 +1331,16 @@ void registerinputcommands()
 	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INVENTORY; return CCMD_OK; });
 }
 
-// This is called from ImputState::ClearAllInput
+// This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
 	WeaponToSend = 0;
 	BitsToSend = 0;
+	nonsharedtimer = 0;
+	turnheldtime = 0;
+	lastcontroltime = 0;
+	lastCheck = 0;
+
 }
 
 END_DUKE_NS

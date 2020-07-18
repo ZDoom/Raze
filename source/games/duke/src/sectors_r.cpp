@@ -35,6 +35,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 // PRIMITIVE
 BEGIN_DUKE_NS
 
+static bool sound445done; // what is this supposed to do? Looks broken.
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -2616,11 +2618,10 @@ void checksectors_r(int snum)
 				if (!isRRRA()) return;
 				if (numplayers == 1)
 				{
-					static bool alreadydone; // what is this supposed to do? Looks broken.
 					// This is from RedneckGDX - the version in RR Reconstruction looked like broken nonsense.
-					if (S_CheckSoundPlaying(neartagsprite, 445) || alreadydone != 0)
+					if (S_CheckSoundPlaying(neartagsprite, 445) || sound445done != 0)
 					{
-						if (!S_CheckSoundPlaying(neartagsprite, 445) && !S_CheckSoundPlaying(neartagsprite, 446) && !S_CheckSoundPlaying(neartagsprite, 447) && alreadydone != 0)
+						if (!S_CheckSoundPlaying(neartagsprite, 445) && !S_CheckSoundPlaying(neartagsprite, 446) && !S_CheckSoundPlaying(neartagsprite, 447) && sound445done != 0)
 						{
 							if ((krand() % 2) == 1)
 								spritesound(446, neartagsprite);
@@ -2631,7 +2632,7 @@ void checksectors_r(int snum)
 					else
 					{
 						spritesound(445, neartagsprite);
-						alreadydone = 1;
+						sound445done = 1;
 					}
 				}
 				return;
