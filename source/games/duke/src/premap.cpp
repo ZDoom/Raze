@@ -1102,7 +1102,19 @@ bool setnextmap(bool checksecretexit)
 //
 //---------------------------------------------------------------------------
 
-int exitlevel(void)
+int exitlevelend()
+{
+    ready2send = 0;
+
+    if (numplayers > 1)
+        ps[myconnectindex].gm = MODE_GAME;
+
+    int res = enterlevel(ud.nextLevel, ps[myconnectindex].gm);
+    ud.nextLevel = nullptr;
+    return res;
+}
+
+void exitlevel(void)
 {
     bool endofgame = ud.eog || (currentLevel->flags & MI_FORCEEOG) || ud.nextLevel == nullptr;
     STAT_Update(endofgame);
@@ -1117,37 +1129,34 @@ int exitlevel(void)
     if (ps[myconnectindex].gm & MODE_EOL)
     {
         ready2send = 0;
-        dobonus(0, nullptr);
-
-        // Clear potentially loaded per-map ART only after the bonus screens.
-        artClearMapArt();
-
-        if (endofgame)
-        {
-            ud.eog = 0;
-            if (ud.multimode < 2)
+        dobonus(0, [=](bool)
             {
-                if (!VOLUMEALL)
-                    doorders([](bool) {});
-                ps[myconnectindex].gm = 0;
-                return 2;
-            }
-            else
-            {
-                ud.nextLevel = FindMapByLevelNum(0);
-                if (!ud.nextLevel) return 2;
-            }
-        }
+
+                // Clear potentially loaded per-map ART only after the bonus screens.
+                artClearMapArt();
+
+                if (endofgame)
+                {
+                    ud.eog = 0;
+                    if (ud.multimode < 2)
+                    {
+                        ps[myconnectindex].gm = 0;
+                        if (!VOLUMEALL)
+                            doorders([](bool) { gamestate = GS_STARTUP; });
+                        else gamestate = GS_STARTUP;
+                        return;
+                    }
+                    else
+                    {
+                        ud.nextLevel = FindMapByLevelNum(0);
+                        if (!ud.nextLevel || exitlevelend())
+                            gamestate = GS_STARTUP;
+                    }
+                }
+            });
     }
-
-    ready2send = 0;
-
-    if (numplayers > 1)
-        ps[myconnectindex].gm = MODE_GAME;
-
-    int res = enterlevel(ud.nextLevel, ps[myconnectindex].gm);
-    ud.nextLevel = nullptr;
-    return res ? 2 : 1;
+    if (exitlevelend())
+        gamestate = GS_STARTUP;
 }
 
 

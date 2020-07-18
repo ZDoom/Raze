@@ -350,11 +350,7 @@ bool GameTicker()
 
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
 	{
-		switch (exitlevel())
-		{
-		case 1: return false;
-		case 2: return true;
-		}
+		exitlevel();
 	}
 
 
