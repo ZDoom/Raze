@@ -47,7 +47,6 @@ set( PCH_SOURCES
 	src/spawn_r.cpp
 	src/zz_game.cpp
 	src/zz_global.cpp
-	src/zz_player.cpp
 	src/zz_savegame.cpp
 	)
 

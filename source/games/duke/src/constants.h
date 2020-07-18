@@ -190,27 +190,6 @@ enum dukeinvicon_t
 };
 
 
-enum ESyncVals
-{
-    // Todo: Make this bit masks - cannot be done before eliminating all old code using it
-    SK_JUMP         = 0 ,
-    SK_CROUCH       = 1 ,
-    SK_AIM_UP       = 3 ,
-    SK_AIM_DOWN     = 4 ,
-    SK_RUN          = 5 ,
-    SK_LOOK_LEFT    = 6 ,
-    SK_LOOK_RIGHT   = 7 ,
-    // weapons take up 4 bits...
-    SK_LOOK_UP      = 13,
-    SK_LOOK_DOWN    = 14,
-    SK_MULTIFLAG    = 17,
-    SK_CENTER_VIEW  = 18,
-    SK_HOLSTER      = 19,
-    SK_QUICK_KICK   = 22,
-    SK_AIMMODE      = 23,
-    SK_TURNAROUND   = 28,
-};
-
 enum ESyncBits_ : uint32_t
 {
     SKB_JUMP = 1 << 0,
@@ -255,9 +234,6 @@ enum ESyncBits_ : uint32_t
 
 // enforce type safe operations on the input bits.
 using ESyncBits = TFlags<ESyncBits_, uint32_t>;
-inline ESyncBits operator <<(int v, ESyncVals s) { return ESyncBits::FromInt(v << int(s)); }
-inline ESyncBits operator <<(unsigned v, ESyncVals s) { return ESyncBits::FromInt(v << int(s)); }
-inline ESyncBits operator <<(bool v, ESyncVals s) { return ESyncBits::FromInt(v << int(s)); }
 DEFINE_TFLAGS_OPERATORS(ESyncBits)
 
 enum EQuote

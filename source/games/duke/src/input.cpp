@@ -681,7 +681,9 @@ void hud_input(int snum)
 
 //---------------------------------------------------------------------------
 //
-//
+// Main input routine.
+// This includes several input improvements from EDuke32, but this code
+// has been mostly rewritten completely to make it clearer and reduce redundancy.
 //
 //---------------------------------------------------------------------------
 
@@ -791,6 +793,29 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
 		info.dz = 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// split off so that it can later be integrated into the other games more easily.
+//
+//---------------------------------------------------------------------------
+
+static void checkCrouchToggle(player_struct* p)
+{
+	int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
+	int const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
+
+	if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+	{
+		p->crouch_toggle = !p->crouch_toggle && crouchable;
+
+		if (crouchable)
+			buttonMap.ClearButton(gamefunc_Toggle_Crouch);
+	}
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Jump) || p->jetpack_on || (!crouchable && p->on_ground))
+		p->crouch_toggle = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -1112,11 +1137,65 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& in
 
 //---------------------------------------------------------------------------
 //
+// finalizes the input and passes it to the global input buffer
+//
+//---------------------------------------------------------------------------
+
+static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
+{
+	auto p = &ps[playerNum];
+	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
+
+	if ((ud.scrollmode && ud.overhead_on) || blocked)
+	{
+		if (ud.scrollmode && ud.overhead_on)
+		{
+			ud.folfvel = input.fvel;
+			ud.folavel = fix16_to_int(input.q16avel);
+		}
+
+		loc.fvel = loc.svel = 0;
+		loc.q16avel = loc.q16horz = 0;
+	}
+	else
+	{
+		if (p->on_crane < 0)
+		{
+			if (!vehicle)
+			{
+				loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
+				loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
+			}
+			else
+				loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+		}
+
+		if (p->on_crane < 0 && p->newowner == -1)
+		{
+			loc.q16avel += input.q16avel;
+			if (!synchronized_input)
+			{
+				p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
+
+				if (input.q16avel)
+					p->one_eighty_count = 0;
+			}
+		}
+
+		if (p->newowner == -1 && p->return_to_center <= 0)
+		{
+			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+			if (!synchronized_input)
+				p->q16horiz += input.q16horz; // will be clamped by the caller because further operations on q16horiz can follow.
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // main input handler routine
 //
 //---------------------------------------------------------------------------
-void checkCrouchToggle(player_struct* p);
-void FinalizeInput(int playerNum, input_t& input, bool vehicle);
 
 void GetInput()
 {
