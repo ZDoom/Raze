@@ -63,6 +63,7 @@ struct GameInterface : ::GameInterface
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	bool CheatAllowed(bool printmsg) override;
+	void ExitFromMenu() override;
 };
 
 struct Dispatcher

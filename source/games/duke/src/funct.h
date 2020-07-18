@@ -208,7 +208,7 @@ void drawstatusbar_d(int snum);
 void drawstatusbar_r(int snum);
 void drawoverheadmap(int cposx, int cposy, int czoom, int cang);
 void cameratext(int i);
-void dobonus(int bonusonly);
+void dobonus(int bonusonly, CompletionFunc completion);
 void dobonus_d(bool bonusonly, CompletionFunc completion);
 void dobonus_r(bool bonusonly, CompletionFunc completion);
 

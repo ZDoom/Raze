@@ -578,7 +578,7 @@ void dobonus_r(bool bonusonly, CompletionFunc completion)
 			int levnum = clamp((currentLevel->levelNumber / 100) * 7 + (currentLevel->levelNumber % 100), 0, 13);
 			char fn[20];
 			mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
-			static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't appear before the user notices.
+			static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
 			jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
 			if (ud.eog && currentLevel->levelNumber > 100)
 			{

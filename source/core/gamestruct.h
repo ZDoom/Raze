@@ -4,6 +4,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 
 #include <stdint.h>
 #include "vectors.h"
+#include "engineerrors.h"
 
 struct GameStats
 {
@@ -84,6 +85,7 @@ struct GameInterface
 	virtual void SetAmbience(bool on) {}
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual bool CheatAllowed(bool printmsg) { return true; }
+	virtual void ExitFromMenu() { throw CExitEvent(0); }
 
 };
 

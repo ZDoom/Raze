@@ -1093,7 +1093,7 @@ int exitlevel(void)
     if (ps[myconnectindex].gm & MODE_EOL)
     {
         ready2send = 0;
-        dobonus(0);
+        dobonus(0, nullptr);
 
         // Clear potentially loaded per-map ART only after the bonus screens.
         artClearMapArt();

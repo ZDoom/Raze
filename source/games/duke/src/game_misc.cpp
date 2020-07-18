@@ -109,20 +109,39 @@ void setmapfog(int fogtype)
 //
 //---------------------------------------------------------------------------
 
-void gameexitfrommenu()
+static void runbonus(CompletionFunc completion)
 {
 	// MP scoreboard
 	if (playerswhenstarted > 1 && ps[myconnectindex].gm & MODE_GAME && !ud.coop)
 	{
-		dobonus(1);
+		dobonus(1, completion);
 	}
+	else if (completion) completion(false);
 
+}
+static void runtwoscreens(CompletionFunc completion)
+{
 	// shareware and TEN screens
 	if (!VOLUMEALL && !isRR())
-		showtwoscreens([](bool) {});
+		showtwoscreens(completion);
+	else if (completion) completion(false);
+}
 
+static void endthegame(bool)
+{
 	endoomName = isRR() ? "redneck.bin" : VOLUMEALL ? "duke3d.bin" : "dukesw.bin";
 	ST_Endoom();
+}
+
+
+void gameexitfrommenu()
+{
+	runbonus([](bool aborted) { runtwoscreens(endthegame); });
+}
+
+void GameInterface::ExitFromMenu() 
+{ 
+	gameexitfrommenu();
 }
 
 //---------------------------------------------------------------------------
@@ -704,11 +723,11 @@ void cameratext(int i)
 //
 //---------------------------------------------------------------------------
 
-void dobonus(int bonusonly)
+void dobonus(int bonusonly, CompletionFunc completion)
 {
-    if (isRRRA());
-    else if (isRR()) dobonus_r(bonusonly, nullptr);
-    else dobonus_d(bonusonly, nullptr);
+	if (isRRRA()) { if (completion) completion(false); }
+    else if (isRR()) dobonus_r(bonusonly, completion);
+    else dobonus_d(bonusonly, completion);
 }
 
 //---------------------------------------------------------------------------

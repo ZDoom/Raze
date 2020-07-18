@@ -893,12 +893,12 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
 		{
 			turnheldtime += tics;
-			input.q16avel -= fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN);
+			input.q16avel -= fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
 		{
 			turnheldtime += tics;
-			input.q16avel += fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN);
+			input.q16avel += fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
 		}
 		else
 		{
@@ -1202,7 +1202,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 			loc.q16avel += input.q16avel;
 			if (!synchronized_input)
 			{
-				p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
+				p->q16ang = (p->q16ang + input.q16avel * 2) & 0x7FFFFFF;	// Why * 2 now?
 
 				if (input.q16avel)
 					p->one_eighty_count = 0;
