@@ -867,7 +867,7 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput)
 	}
 	else if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
-		p->return_to_center--;
+		if (!frominput) p->return_to_center--;
 		p->q16horiz += factor * (frominput? 2.016 : 1.) * (F16(33) - (p->q16horiz / 3)); // in P_GetInput this used different factors than in the original code. Hm...
 	}
 
