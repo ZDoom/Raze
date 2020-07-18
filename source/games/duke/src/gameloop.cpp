@@ -67,12 +67,12 @@ static inline void GetNextInput()
 	movefifoplc++;
 }
 
-void advancequeue(int myconnectindex)
+static void advancequeue(int myconnectindex)
 {
 	movefifoend[myconnectindex]++;
 }
 
-input_t& nextinput(int myconnectindex)
+static input_t& nextinput(int myconnectindex)
 {
 	return inputfifo[movefifoend[myconnectindex] & (MOVEFIFOSIZ - 1)][myconnectindex];
 }
@@ -115,7 +115,7 @@ void prediction()
 //
 //---------------------------------------------------------------------------
 
-int menuloop(void)
+static int menuloop(void)
 {
 	FX_StopAllSounds();
 	while (menuactive != MENU_Off)
@@ -297,7 +297,6 @@ int domovethings()
 //
 //---------------------------------------------------------------------------
 
-
 int moveloop()
 {
 	prediction();
@@ -308,6 +307,147 @@ int moveloop()
 		if( domovethings() ) return 1;
 	}
 	return 0;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool GameTicker()
+{
+	handleevents();
+	if (ps[myconnectindex].gm == MODE_DEMO)
+	{
+		M_ClearMenus();
+		return true;
+	}
+
+	//Net_GetPackets();
+
+	nonsharedkeys();
+
+	C_RunDelayedCommands();
+
+	char gameUpdate = false;
+	gameupdatetime.Reset();
+	gameupdatetime.Clock();
+
+	while ((!(ps[myconnectindex].gm & (MODE_MENU | MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+	{
+		ototalclock += TICSPERFRAME;
+
+		GetInput();
+		// this is where we fill the input_t struct that is actually processed by P_ProcessInput()
+		auto const pPlayer = &ps[myconnectindex];
+		auto const q16ang = fix16_to_int(pPlayer->q16ang);
+		auto& input = nextinput(myconnectindex);
+
+		input = loc;
+		input.fvel = mulscale9(loc.fvel, sintable[(q16ang + 2560) & 2047]) +
+			mulscale9(loc.svel, sintable[(q16ang + 2048) & 2047]) +
+			pPlayer->fric.x;
+		input.svel = mulscale9(loc.fvel, sintable[(q16ang + 2048) & 2047]) +
+			mulscale9(loc.svel, sintable[(q16ang + 1536) & 2047]) +
+			pPlayer->fric.y;
+		loc = {};
+
+		advancequeue(myconnectindex);
+
+		if (((!System_WantGuiCapture() && (ps[myconnectindex].gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (ud.multimode > 1)) &&
+			(ps[myconnectindex].gm & MODE_GAME))
+		{
+			moveloop();
+		}
+	}
+
+	gameUpdate = true;
+	gameupdatetime.Unclock();
+
+	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
+	{
+		switch (exitlevel())
+		{
+		case 1: return false;
+		case 2: return true;
+		}
+	}
+
+
+	GetInput();
+
+	int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
+
+	drawtime.Reset();
+	drawtime.Clock();
+	displayrooms(screenpeek, smoothRatio);
+	displayrest(smoothRatio);
+	drawtime.Unclock();
+
+	return (ps[myconnectindex].gm & MODE_DEMO);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void app_loop()
+{
+
+	while (true)
+	{
+		totalclock = 0;
+		ototalclock = 0;
+		lockclock = 0;
+
+		ps[myconnectindex].ftq = 0;
+
+		//if (ud.warp_on == 0)
+		{
+#if 0 // fixme once the game loop has been done.
+			if ((ud.multimode > 1) && startupMap.IsNotEmpty())
+			{
+				auto maprecord = FindMap(startupMap);
+				ud.m_respawn_monsters = ud.m_player_skill == 4;
+
+				for (int i = 0; i != -1; i = connectpoint2[i])
+				{
+					resetweapons(i);
+					resetinventory(i);
+				}
+
+				StartGame(maprecord);
+			}
+			else
+#endif
+			{
+				fi.ShowLogo([](bool) {});
+			}
+
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_Mainmenu);
+			if (menuloop())
+			{
+				FX_StopAllSounds();
+				continue;
+			}
+		}
+
+		ud.showweapons = cl_showweapon;
+		setlocalplayerinput(&ps[myconnectindex]);
+		PlayerColorChanged();
+		inputState.ClearAllInput();
+
+		bool res;
+		do
+		{
+			res = GameTicker();
+			videoNextPage();
+		} while (!res);
+	}
 }
 
 

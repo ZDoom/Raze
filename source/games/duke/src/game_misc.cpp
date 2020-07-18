@@ -741,6 +741,12 @@ bool GameInterface::automapActive()
 	return ud.overhead_on != 0;
 }
 
+::GameInterface* CreateInterface()
+{
+	return new GameInterface;
+}
+
+
 
 END_DUKE_NS
 
