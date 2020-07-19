@@ -58,13 +58,7 @@ typedef struct
 extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 extern input_t sync[MAXPLAYERS];
 
-# define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
-
 extern playerdata_t g_player[MAXPLAYERS];
-
-void    P_GetInput(int playerNum);
-void    P_GetInputMotorcycle(int playerNum);
-void    P_GetInputBoat(int playerNum);
 
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 

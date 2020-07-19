@@ -22,10 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-#ifndef ONLY_USERDEFS
-#include "premap.h" // XXX
-#endif
-
 #include "fix16.h"
 #include "mmulti.h"
 #include "palette.h"

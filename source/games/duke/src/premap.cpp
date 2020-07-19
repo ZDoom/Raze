@@ -28,7 +28,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #include "ns.h"
 #include "global.h"
-#include "premap.h"
 #include "mapinfo.h"
 #include "secrets.h"
 #include "statistics.h"
