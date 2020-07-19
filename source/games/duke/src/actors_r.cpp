@@ -2812,7 +2812,7 @@ DETONATEB:
 			int m = 0;
 			switch (s->picnum)
 			{
-			case TRIPBOMBSPRITE: m = powderkegblastradius; break;
+			case TRIPBOMBSPRITE: m = tripbombblastradius; break;	// powder keg
 			case HEAVYHBOMB: m = pipebombblastradius; break;
 			case HBOMBAMMO: m = pipebombblastradius; break;
 			case MORTER: m = morterblastradius; break;

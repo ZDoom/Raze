@@ -384,6 +384,11 @@ enum sflags_t
 
 enum
 {
+    TFLAG_WALLSWITCH = 1
+};
+
+enum
+{
 	EVENT_INIT = 0,
 	EVENT_ENTERLEVEL,
 	EVENT_RESETWEAPONS,	// for each player
@@ -442,9 +447,23 @@ enum miscConstants
     HORIZ_MAX       =299,
     AUTO_AIM_ANGLE  =48,
     PHEIGHT_DUKE    =(38<<8),
-    PHEIGHT_RR      =(40<<8)
+    PHEIGHT_RR      =(40<<8),
 
+    MAXMINECARTS = 16,
+    MAXJAILDOORS = 32,
+    MAXLIGHTNINSECTORS = 64,
+    MAXTORCHSECTORS = 64,
+    MAXGEOSECTORS = 64,
+
+    DUKE3D_NO_WIDESCREEN_PINNING = 1 << 0,
 };
+
+enum {
+    MUS_INTRO = 0,
+    MUS_BRIEFING = 1,
+    MUS_LOADING = 2,
+};
+
 
 enum
 {
@@ -463,3 +482,16 @@ enum EFlamethrowerState
     kHitSprite = 0xC000,
 };
 
+enum gamemode_t {
+    MODE_MENU = 0x00000001,
+    MODE_DEMO = 0x00000002,
+    MODE_GAME = 0x00000004,
+    MODE_EOL = 0x00000008,
+    MODE_TYPE = 0x00000010,
+    MODE_RESTART = 0x00000020,
+};
+
+
+#define VOLUMEALL           ((g_gameType & GAMEFLAG_SHAREWARE) == 0)
+#define PLUTOPAK            ((g_gameType & GAMEFLAG_PLUTOPAK) != 0)
+#define VOLUMEONE           ((g_gameType & GAMEFLAG_SHAREWARE) != 0)

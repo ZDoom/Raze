@@ -568,7 +568,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (sprite[i].picnum == RRTILE8660)
 			{
 				BellTime = 132;
-				word_119BE0 = i;
+				BellSprite = i;
 			}
 			sprite[i].picnum++;
 			break;
@@ -756,7 +756,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (picnum == RRTILE8660)
 			{
 				BellTime = 132;
-				word_119BE0 = w;
+				BellSprite = w;
 				sprite[w].picnum++;
 			}
 			else if (picnum == RRTILE8464)

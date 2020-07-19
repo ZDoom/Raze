@@ -34,62 +34,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_DUKE_NS
 
-
-
-
 extern user_defs ud;
-extern int rtsplaying;
 
-extern int32_t cameraclock;
-extern int32_t cameradist;
-extern int32_t tempwallptr;
+// Variables that do not need to be saved.
+extern int respawnactortime;
+extern int bouncemineblastradius;
+extern int respawnitemtime;
+extern int morterblastradius;
+extern int numfreezebounces;
+extern int pipebombblastradius;
+extern int dukefriction;
+extern int rpgblastradius;
+extern int seenineblastradius;
+extern int shrinkerblastradius;
+extern int gc;
+extern int tripbombblastradius;
 
-enum
-{
-    TFLAG_WALLSWITCH = 1
-};
-// for now just flags not related to actors, may get more info later.
-struct TileInfo
-{
-    int flags;
-};
-extern TileInfo tileinfo[MAXTILES];
-
-
-extern int32_t      actor_tog;
-extern int32_t      otherp;
-
-
-extern ActorInfo   actorinfo[MAXTILES];
-extern weaponhit      hittype[MAXSPRITES];
-extern bool sound445done;
-
+extern int cameraclock;
+extern int cameradist;
+extern int otherp; // transient helper, MP only
+extern TileInfo tileinfo[MAXTILES]; // static state
+extern ActorInfo actorinfo[MAXTILES]; // static state
+extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];
-
 extern TArray<int> ScriptCode;
+extern input_t sync[MAXPLAYERS];
+extern int16_t max_ammo_amount[MAX_WEAPONS];
+extern int16_t weaponsandammosprites[15];
+extern int32_t PHEIGHT;
+
+// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
+// Interpolations are reconstructed on load and do not need to be saved.
+#define MAXINTERPOLATIONS MAXSPRITES
+extern int numinterpolations;
+extern int* curipos[MAXINTERPOLATIONS];
+extern int bakipos[MAXINTERPOLATIONS];
+
+
+// Variables that must be saved
+
+extern int rtsplaying;
+extern int tempwallptr;
+extern weaponhit hittype[MAXSPRITES];
+extern bool sound445done;
+extern int levelTextTime;
+extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
+extern player_struct ps[MAXPLAYERS];
+extern int spriteqamount;
+extern uint8_t shadedsector[MAXSECTORS];
+extern int lastvisinc;
 
 
 
-#define VOLUMEALL           ((g_gameType & GAMEFLAG_SHAREWARE) == 0)
-#define PLUTOPAK            ((g_gameType & GAMEFLAG_PLUTOPAK) != 0)
-#define VOLUMEONE           ((g_gameType & GAMEFLAG_SHAREWARE) != 0)
-
-#define MOVEFIFOSIZ         256
-
-#define MAXGAMETYPES        16
-
-enum {
-    MUS_INTRO = 0,
-    MUS_BRIEFING = 1,
-    MUS_LOADING = 2,
-};
+// todo
 
 
-#define MAXMINECARTS 16
-#define MAXJAILDOORS 32
-#define MAXLIGHTNINSECTORS 64
-#define MAXTORCHSECTORS 64
-#define MAXGEOSECTORS 64
+
+
+
+
+
 
 #ifdef global_c_
     #define G_EXTERN
@@ -97,219 +101,101 @@ enum {
     #define G_EXTERN extern
 #endif
 
-#define MAXINTERPOLATIONS MAXSPRITES
-
-
-G_EXTERN int32_t duke3d_globalflags;
-
-// KEEPINSYNC astub.c (used values only)
-enum DUKE3D_GLOBALFLAGS {
-    DUKE3D_NO_WIDESCREEN_PINNING = 1<<0,
-    DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
-    DUKE3D_NO_PALETTE_CHANGES = 1<<2,
-};
-
-struct animwalltype
-{
-    int16_t wallnum, tag;
-};
-
+G_EXTERN int duke3d_globalflags;
 
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-enum
-{
-    MAXLABELLEN = 64
-};
-
 G_EXTERN bool synchronized_input;
 
-G_EXTERN char g_loadFromGroupOnly;
-G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
-#define MAXPLAYERNAME 32
 G_EXTERN char tempbuf[MAXSECTORS<<1],buf[1024];
-
 
 G_EXTERN input_t loc;
 
-G_EXTERN int32_t avgfvel, avgsvel, avgbits;
+G_EXTERN int avgfvel, avgsvel, avgbits;
 G_EXTERN fix16_t avgavel, avghorz;
 G_EXTERN int8_t avgextbits;
 
-G_EXTERN int32_t movefifosendplc;
+G_EXTERN int movefifosendplc;
 
-G_EXTERN int32_t predictfifoplc;
+G_EXTERN int predictfifoplc;
 
-G_EXTERN int32_t g_networkBroadcastMode;
+G_EXTERN int g_networkBroadcastMode;
 
-G_EXTERN int32_t g_animWallCnt;
-#define numanimwalls g_animWallCnt
-G_EXTERN int32_t g_animateCnt;
-#define animatecnt g_animateCnt
-G_EXTERN int32_t numclouds;
-G_EXTERN int32_t camsprite;
-G_EXTERN int32_t g_frameRate;
-G_EXTERN int32_t g_cyclerCnt;
-#define numcyclers g_cyclerCnt
-G_EXTERN int32_t g_damageCameras;
-#define camerashitable g_damageCameras
-G_EXTERN int32_t g_defaultLabelCnt;
-G_EXTERN int32_t g_earthquakeTime;
-#define earthquaketime g_earthquakeTime
-G_EXTERN int32_t g_freezerSelfDamage;
-#define freezerhurtowner g_freezerSelfDamage
-G_EXTERN int32_t g_gameQuit;
-G_EXTERN int32_t global_random;
-G_EXTERN int32_t impact_damage;
-G_EXTERN int32_t g_maxPlayerHealth;
-G_EXTERN int32_t mirrorcnt;
-G_EXTERN int32_t playerswhenstarted;
-G_EXTERN int32_t g_musicSize;
-G_EXTERN int32_t numplayersprites;
-G_EXTERN int32_t g_scriptDebug;
-G_EXTERN int32_t show_shareware;
-G_EXTERN int32_t g_spriteDeleteQueuePos;
-G_EXTERN int32_t max_player_health;
-G_EXTERN int32_t max_armour_amount;
-G_EXTERN int32_t lasermode;
-G_EXTERN int32_t screenpeek;
+G_EXTERN int numanimwalls;
+G_EXTERN int animatecnt;
+G_EXTERN int numclouds;
+G_EXTERN int camsprite;
+G_EXTERN int numcyclers;
+G_EXTERN int camerashitable;
+G_EXTERN int earthquaketime;
+G_EXTERN int freezerhurtowner;
+G_EXTERN int gamequit;
+G_EXTERN int global_random;
+G_EXTERN int impact_damage;
+G_EXTERN int mirrorcnt;
+G_EXTERN int playerswhenstarted;
+G_EXTERN int numplayersprites;
+G_EXTERN int show_shareware;
+G_EXTERN int spriteqloc;
+G_EXTERN int max_player_health;
+G_EXTERN int max_armour_amount;
+G_EXTERN int lasermode;
+G_EXTERN int screenpeek;
 
-G_EXTERN int16_t g_animateSect[MAXANIMATES];
-#define animatesect g_animateSect
-G_EXTERN int32_t *g_animatePtr[MAXANIMATES];
-#define animateptr g_animatePtr
-G_EXTERN int32_t g_animateGoal[MAXANIMATES];
-#define animategoal g_animateGoal
-G_EXTERN int32_t g_animateVel[MAXANIMATES];
-#define animatevel g_animateVel
+G_EXTERN int16_t animatesect[MAXANIMATES];
+G_EXTERN int * animateptr[MAXANIMATES];
+G_EXTERN int animategoal[MAXANIMATES];
+G_EXTERN int animatevel[MAXANIMATES];
 
 G_EXTERN int16_t clouds[256];
 G_EXTERN int16_t cloudx;
 G_EXTERN int16_t cloudy;
 G_EXTERN ClockTicks cloudtotalclock;
 
-G_EXTERN int16_t SpriteDeletionQueue[1024];
-G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
-#define cyclers g_cyclers
+G_EXTERN int16_t spriteq[1024];
+G_EXTERN int16_t cyclers[MAXCYCLERS][6];
 G_EXTERN int16_t mirrorsector[64];
 G_EXTERN int16_t mirrorwall[64];
 G_EXTERN ClockTicks lockclock;
 G_EXTERN ClockTicks ototalclock;
 
-G_EXTERN int32_t wupass;
-G_EXTERN int32_t chickenplant;
-G_EXTERN int32_t thunderon;
-G_EXTERN int32_t g_ufoSpawn;
-#define ufospawn g_ufoSpawn
-G_EXTERN int32_t g_ufoCnt;
-#define ufocnt g_ufoCnt
-G_EXTERN int32_t g_hulkSpawn;
-#define hulkspawn g_hulkSpawn
-G_EXTERN int32_t g_lastLevel;
-#define lastlevel g_lastLevel
+G_EXTERN int wupass;
+G_EXTERN int chickenplant;
+G_EXTERN int thunderon;
+G_EXTERN int ufospawn;
+G_EXTERN int ufocnt;
+G_EXTERN int hulkspawn;
+G_EXTERN int lastlevel;
 
-
-G_EXTERN int32_t geosectorwarp[MAXGEOSECTORS];
-G_EXTERN int32_t geosectorwarp2[MAXGEOSECTORS];
-G_EXTERN int32_t geosector[MAXGEOSECTORS];
-G_EXTERN int32_t geox[MAXGEOSECTORS];
-G_EXTERN int32_t geoy[MAXGEOSECTORS];
-G_EXTERN int32_t geox2[MAXGEOSECTORS];
-G_EXTERN int32_t geoy2[MAXGEOSECTORS];
+G_EXTERN int geosectorwarp[MAXGEOSECTORS];
+G_EXTERN int geosectorwarp2[MAXGEOSECTORS];
+G_EXTERN int geosector[MAXGEOSECTORS];
+G_EXTERN int geox[MAXGEOSECTORS];
+G_EXTERN int geoy[MAXGEOSECTORS];
+G_EXTERN int geox2[MAXGEOSECTORS];
+G_EXTERN int geoy2[MAXGEOSECTORS];
 G_EXTERN uint32_t geocnt;
 
-G_EXTERN int32_t g_thunderFlash;
-G_EXTERN int32_t g_thunderTime;
-G_EXTERN int32_t g_winderFlash;
-G_EXTERN int32_t g_winderTime;
-G_EXTERN int32_t g_brightness;
+G_EXTERN int g_thunderFlash;
+G_EXTERN int g_thunderTime;
+G_EXTERN int g_winderFlash;
+G_EXTERN int g_winderTime;
+G_EXTERN int g_brightness;
 
 G_EXTERN int16_t ambientlotag[64];
 G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t ambientfx;
 
-
 G_EXTERN int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
 
-G_EXTERN int32_t WindTime, WindDir;
-G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, BellSprite;
-#define BellTime g_bellTime
-#define word_119BE0 BellSprite
+G_EXTERN int WindTime, WindDir;
+G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, BellTime, BellSprite /* word_119BE0*/;
 G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat, ufospawnsminion, pistonsound, chickenphase, RRRA_ExitedLevel, fogactive;
-extern int32_t g_cdTrack;
-#define raat607 enemysizecheat // only as a reminder
-#define raat605 chickenphase
-#define at59d yeehaa_timer
+G_EXTERN uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 
 G_EXTERN player_orig po[MAXPLAYERS];
 
 G_EXTERN uint32_t everyothertime;
-G_EXTERN double g_gameUpdateTime;
-G_EXTERN double g_gameUpdateAndDrawTime;
-#define GAMEUPDATEAVGTIMENUMSAMPLES 100
-extern float g_gameUpdateAvgTime;
-
-#ifndef global_c_
-extern char CheatKeys[2];
-extern char g_gametypeNames[MAXGAMETYPES][33];
-
-extern int32_t respawnactortime;
-extern int32_t bouncemineblastradius;
-extern int32_t g_deleteQueueSize;
-extern int32_t g_gametypeCnt;
-extern int32_t respawnitemtime;
-extern int32_t g_morterRadius;
-#define morterblastradius g_morterRadius
-extern int32_t numfreezebounces;
-extern int32_t g_pipebombRadius;
-#define pipebombblastradius g_pipebombRadius
-extern int32_t dukefriction;
-extern int32_t rpgblastradius;
-extern int32_t g_scriptSize;
-extern int32_t g_seenineRadius;
-#define seenineblastradius g_seenineRadius
-extern int32_t g_shrinkerRadius;
-#define shrinkerblastradius g_shrinkerRadius
-extern int32_t g_spriteGravity;
-extern int32_t g_timerTicsPerSecond;
-extern int32_t g_tripbombRadius;
-#define tripbombblastradius g_tripbombRadius
-#define powderkegblastradius g_tripbombRadius
-extern int32_t g_volumeCnt;
-#define gc g_spriteGravity
-
-extern int16_t weaponsandammosprites[15];
-extern int32_t g_gametypeFlags[MAXGAMETYPES];
-
-#endif  
-
-// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
-extern int32_t numinterpolations;
-extern int32_t* curipos[MAXINTERPOLATIONS];
-extern int32_t bakipos[MAXINTERPOLATIONS];
-
-
-// old names as porting help.
-void updateinterpolations();
-void restoreinterpolations();
-void setinterpolation(int* posptr);
-void stopinterpolation(int* posptr);
-void dointerpolations(int smoothratio);
-
-
-extern player_struct ps[MAXPLAYERS];
-
-
-extern int spriteqamount;
-#define spriteq SpriteDeletionQueue
-#define spriteqloc g_spriteDeleteQueuePos
-
-
-
-extern uint8_t shadedsector[MAXSECTORS];
-
-
 
 
 END_DUKE_NS

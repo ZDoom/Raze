@@ -1161,7 +1161,7 @@ int doincrements_r(struct player_struct* p)
 		{
 			BellTime--;
 			if (BellTime == 0)
-				sprite[word_119BE0].picnum++;
+				sprite[BellSprite].picnum++;
 		}
 		if (chickenphase > 0)
 			chickenphase--;
@@ -3058,7 +3058,6 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic > 3)
 		{
 			p->kickback_pic = 0;
-			if (screenpeek == snum) pus = 1;
 			fi.shoot(pi, GROWSPARK);
 			p->noise_radius = 1024;
 			madenoise(snum);

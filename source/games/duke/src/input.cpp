@@ -762,7 +762,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (info.dx > 0 || info.dyaw < 0) loc.bits |= SKB_INV_RIGHT;
 	}
 
-	if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
+	if (gamequit) loc.bits |= SKB_GAMEQUIT;
 	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
 
 	if (!onVehicle)
@@ -1239,7 +1239,7 @@ void GetInput()
 	if (paused)
 	{
 		loc = {};
-		if (g_gameQuit) loc.bits |= SKB_GAMEQUIT;
+		if (gamequit) loc.bits |= SKB_GAMEQUIT;
 		return;
 	}
 

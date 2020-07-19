@@ -238,4 +238,10 @@ void GetInput();
 void startmainmenu();
 void loadcons();
 
+void updateinterpolations();
+void restoreinterpolations();
+void setinterpolation(int* posptr);
+void stopinterpolation(int* posptr);
+void dointerpolations(int smoothratio);
+
 END_DUKE_NS

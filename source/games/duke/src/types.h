@@ -26,6 +26,10 @@ struct weaponhit
 	int temp_data[6];
 };
 
+struct animwalltype
+{
+    short wallnum, tag;
+};
 
 // Todo - put more state in here
 struct ActorInfo
@@ -33,6 +37,12 @@ struct ActorInfo
 	uint32_t scriptaddress;
 	uint32_t flags;
 	int aimoffset;
+};
+
+// for now just flags not related to actors, may get more info later.
+struct TileInfo
+{
+    int flags;
 };
 
 struct input_t  // original name was input which is too generic for a type name.

@@ -17,7 +17,6 @@
 #include "gamevar.h"
 #include "global.h"
 #include "names.h"
-#include "player.h"
 #include "quotemgr.h"
 #include "rts.h"
 #include "sounds.h"

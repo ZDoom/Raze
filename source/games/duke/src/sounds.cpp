@@ -605,6 +605,8 @@ void S_PlaySpecialMusic(unsigned int m)
 
 void S_PlayRRMusic(int newTrack)
 {
+	static int32_t g_cdTrack = -1;
+
 	if (!isRR() || !mus_redbook || cd_disabled || currentLevel->music.IsNotEmpty())
 		return;
 	Mus_Stop();

@@ -36,7 +36,6 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "gamevar.h"
-#include "player.h"
 #include "names_d.h"
 
 BEGIN_DUKE_NS 
@@ -2309,7 +2308,6 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			}
 			else
 				p->kickback_pic = 0;
-			if (screenpeek == snum) pus = 1;
 			p->ammo_amount[p->curr_weapon]--;
 			fi.shoot(pi, GROWSPARK);
 

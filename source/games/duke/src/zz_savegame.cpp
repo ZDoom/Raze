@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 BEGIN_DUKE_NS
 
-
+#if 0
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
 //  back_p==1: "small int" -> ptr
@@ -248,10 +248,13 @@ bool G_SavePlayer(FSaveGameNode *sv)
 		
 		return res;
 	}
+    return 0;
 }
+#endif
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
+#if 0
     if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Loading Not Yet Supported");
@@ -267,10 +270,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
             ps[myconnectindex].gm = MODE_GAME;
         return !c;
     }
+#endif
+    return 0;
 }
 
 bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
+#if 0
     if (ud.multimode > 1)
     {
 		quoteMgr.InitializeQuote(QUOTE_RESERVED4, "Multiplayer Saving Not Yet Supported");
@@ -283,8 +289,11 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 		videoNextPage();	// no idea if this is needed here.
         return G_SavePlayer(sv);
     }
+#endif
+    return 0;
 }
 
+#if 0
 ////////// GENERIC SAVING/LOADING SYSTEM //////////
 
 typedef struct dataspec_
@@ -609,7 +618,7 @@ static const dataspec_t svgm_anmisc[] =
     { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
     { 0, &camsprite, sizeof(camsprite), 1 },
    // { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) }, type has changed
-    { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
+    { 0, &spriteqloc, sizeof(spriteqloc), 1 },
     { DS_NOCHK, &spriteqamount, sizeof(spriteqamount), 1 },
     { DS_CNT(spriteqamount), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&spriteqamount },
     { DS_NOCHK, &numclouds, sizeof(numclouds), 1 },
@@ -1122,7 +1131,7 @@ static void postloadplayer(int32_t savegamep)
         ps[i].drug_timer = 0;
 
 }
-
+#endif
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
 
 

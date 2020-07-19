@@ -2,7 +2,7 @@
 
 #include "mathutil.h"
 #include "glbackend/glbackend.h"
-#include "player.h"
+#include "global.h"
 
 // all inline functions.
 BEGIN_DUKE_NS

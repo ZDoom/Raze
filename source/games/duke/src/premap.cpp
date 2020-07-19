@@ -125,7 +125,6 @@ void resetplayerstats(int snum)
         p->got_access = 7;
     else p->got_access      = 0;
     p->random_club_frame= 0;
-    pus = 1;
     p->on_warping_sector = 0;
     p->spritebridge      = 0;
     p->palette = 0;
