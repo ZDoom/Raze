@@ -109,22 +109,25 @@ void setmapfog(int fogtype)
 //
 //---------------------------------------------------------------------------
 
-static void runbonus(CompletionFunc completion)
+template<class func>
+void runbonus(func completion)
 {
 	// MP scoreboard
 	if (playerswhenstarted > 1 && ps[myconnectindex].gm & MODE_GAME && !ud.coop)
 	{
 		dobonus(1, completion);
 	}
-	else if (completion) completion(false);
+	else completion(false);
 
 }
-static void runtwoscreens(CompletionFunc completion)
+
+template <class func>
+void runtwoscreens(func completion)
 {
 	// shareware and TEN screens
 	if (!VOLUMEALL && !isRR())
 		showtwoscreens(completion);
-	else if (completion) completion(false);
+	else completion(false);
 }
 
 static void endthegame(bool)
@@ -722,7 +725,7 @@ void cameratext(int i)
 //
 //---------------------------------------------------------------------------
 
-void dobonus(int bonusonly, CompletionFunc completion)
+void dobonus(int bonusonly, const CompletionFunc& completion)
 {
 	if (isRRRA()) { if (completion) completion(false); }
     else if (isRR()) dobonus_r(bonusonly, completion);

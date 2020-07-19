@@ -837,7 +837,8 @@ void donewgame(MapRecord* map, int sk)
     }
 }
 
-void newgame(MapRecord* map, int sk, CompletionFunc completion)
+template<class func>
+void newgame(MapRecord* map, int sk, func completion)
 {
     handleevents();
     ready2send = 0;
@@ -846,12 +847,12 @@ void newgame(MapRecord* map, int sk, CompletionFunc completion)
     {
         if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
         {
-            e4intro([=](bool) { donewgame(map, sk); if (completion) completion(res); });
+            e4intro([=](bool) { donewgame(map, sk); completion(res); });
         }
         else
         {
             donewgame(map, sk);
-            if (completion) completion(res);
+            completion(res);
         }
     };
 

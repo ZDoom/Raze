@@ -253,7 +253,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void Logo_d(CompletionFunc completion)
+void Logo_d(const CompletionFunc &completion)
 {
 	Mus_Stop();
 	FX_StopAllSounds(); // JBF 20031228
@@ -636,7 +636,7 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 //
 //---------------------------------------------------------------------------
 
-void showtwoscreens(CompletionFunc completion)
+void showtwoscreens(const CompletionFunc& completion)
 {
 	JobDesc jobs[2];
 	int job = 0;
@@ -646,7 +646,7 @@ void showtwoscreens(CompletionFunc completion)
 	RunScreenJob(jobs, job, completion);
 }
 
-void doorders(CompletionFunc completion)
+void doorders(const CompletionFunc& completion)
 {
 	JobDesc jobs[4];
 	int job = 0;
@@ -956,7 +956,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void dobonus_d(bool bonusonly, CompletionFunc completion)
+void dobonus_d(bool bonusonly, const CompletionFunc& completion)
 {
 	JobDesc jobs[20];
 	int job = 0;
@@ -988,7 +988,7 @@ void dobonus_d(bool bonusonly, CompletionFunc completion)
 //
 //---------------------------------------------------------------------------
 
-void e4intro(CompletionFunc completion)
+void e4intro(const CompletionFunc& completion)
 {
 	JobDesc jobs[5];
 	int job = 0;

@@ -4,6 +4,7 @@
 
 using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
+class ScreenJobRunner;
 
 class DScreenJob : public DObject
 {
@@ -14,6 +15,7 @@ class DScreenJob : public DObject
 	int fadestate = fadein;
 
 	friend void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore);
+	friend class ScreenJobRunner;
 
 public:
 	enum
@@ -79,6 +81,7 @@ struct JobDesc
 
 
 void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true);
+void RunScreenJobSync(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore = true);
 
 struct AnimSound
 {

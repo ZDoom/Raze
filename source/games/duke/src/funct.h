@@ -156,8 +156,8 @@ void   setsectinterpolate(int sprnum);
 int LocateTheLocator(int const tag, int const sectnum);
 void clearcamera(player_struct* ps);
 
-void showtwoscreens(CompletionFunc func);
-void doorders(CompletionFunc func);
+void showtwoscreens(const CompletionFunc& func);
+void doorders(const CompletionFunc& func);
 
 void execute(int s, int p, int d);
 void makeitfall(int s);
@@ -208,9 +208,9 @@ void drawstatusbar_d(int snum);
 void drawstatusbar_r(int snum);
 void drawoverheadmap(int cposx, int cposy, int czoom, int cang);
 void cameratext(int i);
-void dobonus(int bonusonly, CompletionFunc completion);
-void dobonus_d(bool bonusonly, CompletionFunc completion);
-void dobonus_r(bool bonusonly, CompletionFunc completion);
+void dobonus(int bonusonly, const CompletionFunc& completion);
+void dobonus_d(bool bonusonly, const CompletionFunc& completion);
+void dobonus_r(bool bonusonly, const CompletionFunc& completion);
 
 void displayrest(int32_t smoothratio);
 void drawbackground(void);
@@ -221,11 +221,10 @@ void resettimevars();
 bool setnextmap(bool checksecretexit);
 void prelevel_d(int g);
 void prelevel_r(int g);
-void e4intro(CompletionFunc completion);
+void e4intro(const CompletionFunc& completion);
 void clearfrags(void);
 void exitlevel();
 int enterlevel(MapRecord* mi, int gm);
-void newgame(MapRecord* mi, int sk, CompletionFunc completion);
 void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 void setlocalplayerinput(player_struct *pp);

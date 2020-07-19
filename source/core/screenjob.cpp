@@ -67,95 +67,6 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	return skiprequest ? -1 : 1;
 }
 
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore)
-{
-	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected.
-	for (int i = 0; i < count; i++)
-	{
-		jobs[i].job->Release();
-	}
-	bool skipped = false;
-	for (int i = 0; i < count; i++)
-	{
-		auto job = jobs[i];
-		if (job.job != nullptr && (!skipped || !job.ignoreifskipped))
-		{
-			skipped = false;
-			if (clearbefore)
-			{
-				twod->ClearScreen();
-				videoNextPage();
-			}
-
-			auto startTime = I_nsTime();
-
-			// Input later needs to be event based so that these screens can do more than be skipped.
-			inputState.ClearAllInput();
-
-			float screenfade = job.job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
-
-			while (true)
-			{
-				auto now = I_nsTime();
-				handleevents();
-				bool skiprequest = inputState.CheckAllInput();
-				auto clock = now - startTime;
-				if (screenfade < 1.f)
-				{
-					float ms = (clock / 1'000'000) / job.job->fadetime;
-					screenfade = clamp(ms, 0.f, 1.f);
-					twod->SetScreenFade(screenfade);
-					job.job->fadestate = DScreenJob::fadein;
-				}
-				else job.job->fadestate = DScreenJob::visible;
-				job.job->SetClock(clock);
-				int state = job.job->Frame(clock, skiprequest);
-				startTime -= job.job->GetClock() - clock;
-				// Must lock before displaying.
-				if (state < 1 && job.job->fadestyle & DScreenJob::fadeout)
-					twod->Lock();
-
-				videoNextPage();
-				if (state < 1)
-				{
-					if (job.job->fadestyle & DScreenJob::fadeout)
-					{
-						job.job->fadestate = DScreenJob::fadeout;
-						startTime = now;
-						float screenfade2;
-						do
-						{
-							now = I_nsTime();
-							auto clock = now - startTime;
-							float ms = (clock / 1'000'000) / job.job->fadetime;
-							screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
-							twod->SetScreenFade(screenfade2);
-							if (screenfade2 <= 0.f) twod->Unlock(); // must unlock before displaying.
-							videoNextPage();
-							
-						} while (screenfade2 > 0.f);
-					}
-					skipped = state < 0;
-					job.job->Destroy();
-					job.job->ObjectFlags |= OF_YesReallyDelete;
-					delete job.job;
-					twod->SetScreenFade(1);
-					break;
-				}
-			}
-		}
-		if (job.postAction) job.postAction();
-	}
-	if (completion) completion(false);
-}
-
 //---------------------------------------------------------------------------
 //
 // 
@@ -304,4 +215,236 @@ DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	}
 	return nothing();
 }
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class ScreenJobRunner
+{
+	enum
+	{
+		State_Clear,
+		State_Run,
+		State_Fadeout
+	};
+	TArray<JobDesc> jobs;
+	CompletionFunc completion;
+	int index = -1;
+	float screenfade;
+	bool clearbefore;
+	bool skipped = false;
+	uint64_t startTime;
+	int actionState;
+	int terminateState;
+
+public:
+	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
+		: completion(std::move(completion_)), clearbefore(clearbefore_)
+	{
+		jobs.Resize(count);
+		memcpy(jobs.Data(), jobs_, count * sizeof(JobDesc));
+		// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected. This should be removed later once the GC is working.
+		for (int i = 0; i < count; i++)
+		{
+			jobs[i].job->Release();
+		}
+		AdvanceJob(false);
+	}
+
+	void AdvanceJob(bool skip)
+	{
+		index++;
+		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped))) index++;
+		actionState = clearbefore ? State_Clear : State_Run;
+		if (index < jobs.Size()) screenfade = jobs[index].job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
+	}
+
+	int DisplayFrame()
+	{
+		auto& job = jobs[index];
+		auto now = I_nsTime();
+		bool skiprequest = inputState.CheckAllInput();
+		auto clock = now - startTime;
+		if (screenfade < 1.f)
+		{
+			float ms = (clock / 1'000'000) / job.job->fadetime;
+			screenfade = clamp(ms, 0.f, 1.f);
+			twod->SetScreenFade(screenfade);
+			job.job->fadestate = DScreenJob::fadein;
+		}
+		else job.job->fadestate = DScreenJob::visible;
+		job.job->SetClock(clock);
+		int state = job.job->Frame(clock, skiprequest);
+		startTime -= job.job->GetClock() - clock;
+		return state;
+	}
+
+	int FadeoutFrame()
+	{
+		auto now = I_nsTime();
+		auto clock = now - startTime;
+		float ms = (clock / 1'000'000) / jobs[index].job->fadetime;
+		float screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
+		twod->SetScreenFade(screenfade2);
+		if (screenfade2 <= 0.f)
+		{
+			twod->Unlock(); // must unlock before displaying.
+			return 0;
+		}
+		return 1;
+	}
+
+	bool RunFrame()
+	{
+		if (index >= jobs.Size())
+		{
+			for (auto& job : jobs)
+			{
+				job.job->Destroy();
+				job.job->ObjectFlags |= OF_YesReallyDelete;
+				delete job.job;
+			}
+ 			twod->SetScreenFade(1);
+			if (completion) completion(false);
+			return false;
+		}
+		handleevents();
+		if (actionState == State_Clear)
+		{
+			actionState = State_Run;
+			twod->ClearScreen();
+		}
+		else if (actionState == State_Run)
+		{
+			terminateState = DisplayFrame();
+			if (terminateState < 1)
+			{
+				// Must lock before displaying.
+				if (jobs[index].job->fadestyle & DScreenJob::fadeout)
+				{
+					twod->Lock();
+					startTime = I_nsTime();
+					jobs[index].job->fadestate = DScreenJob::fadeout;
+					actionState = State_Fadeout;
+				}
+				else
+				{
+					AdvanceJob(terminateState < 0);
+				}
+			}
+		}
+		else if (actionState == State_Fadeout)
+		{
+			int ended = FadeoutFrame();
+			if (ended < 1)
+			{
+				AdvanceJob(terminateState < 0);
+			}
+		}
+		return true;
+	}
+};
+
+void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore)
+{
+	ScreenJobRunner runner(jobs, count, completion, clearbefore);
+
+	while (runner.RunFrame())
+	{
+		videoNextPage();
+	}
+}
+#if 0
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void RunScreenJobSync(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore)
+{
+	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected.
+	for (int i = 0; i < count; i++)
+	{
+		jobs[i].job->Release();
+	}
+	bool skipped = false;
+	for (int i = 0; i < count; i++)
+	{
+		auto job = jobs[i];
+		if (job.job != nullptr && (!skipped || !job.ignoreifskipped))
+		{
+			skipped = false;
+			if (clearbefore)
+			{
+				twod->ClearScreen();
+				videoNextPage();
+			}
+
+			auto startTime = I_nsTime();
+
+			// Input later needs to be event based so that these screens can do more than be skipped.
+			inputState.ClearAllInput();
+
+			float screenfade = job.job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
+
+			while (true)
+			{
+				auto now = I_nsTime();
+				handleevents();
+				bool skiprequest = inputState.CheckAllInput();
+				auto clock = now - startTime;
+				if (screenfade < 1.f)
+				{
+					float ms = (clock / 1'000'000) / job.job->fadetime;
+					screenfade = clamp(ms, 0.f, 1.f);
+					twod->SetScreenFade(screenfade);
+					job.job->fadestate = DScreenJob::fadein;
+				}
+				else job.job->fadestate = DScreenJob::visible;
+				job.job->SetClock(clock);
+				int state = job.job->Frame(clock, skiprequest);
+				startTime -= job.job->GetClock() - clock;
+				// Must lock before displaying.
+				if (state < 1 && job.job->fadestyle & DScreenJob::fadeout)
+					twod->Lock();
+
+				videoNextPage();
+				if (state < 1)
+				{
+					if (job.job->fadestyle & DScreenJob::fadeout)
+					{
+						job.job->fadestate = DScreenJob::fadeout;
+						startTime = now;
+						float screenfade2;
+						do
+						{
+							now = I_nsTime();
+							auto clock = now - startTime;
+							float ms = (clock / 1'000'000) / job.job->fadetime;
+							screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
+							twod->SetScreenFade(screenfade2);
+							if (screenfade2 <= 0.f) twod->Unlock(); // must unlock before displaying.
+							videoNextPage();
+
+						} while (screenfade2 > 0.f);
+					}
+					skipped = state < 0;
+					job.job->Destroy();
+					job.job->ObjectFlags |= OF_YesReallyDelete;
+					delete job.job;
+					twod->SetScreenFade(1);
+					break;
+				}
+			}
+		}
+		if (job.postAction) job.postAction();
+	}
+	if (completion) completion(false);
+}
+#endif
 

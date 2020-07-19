@@ -69,7 +69,7 @@ struct GameInterface : ::GameInterface
 struct Dispatcher
 {
     // global stuff
-    void (*ShowLogo)(CompletionFunc completion);
+    void (*ShowLogo)(const CompletionFunc& completion);
     void (*InitFonts)();
 	void (*PrintPaused)();
 

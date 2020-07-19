@@ -164,7 +164,7 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 //
 //---------------------------------------------------------------------------
 
-void Logo_r(CompletionFunc completion)
+void Logo_r(const CompletionFunc& completion)
 {
 	Mus_Stop();
 	FX_StopAllSounds(); // JBF 20031228
@@ -552,7 +552,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void dobonus_r(bool bonusonly, CompletionFunc completion)
+void dobonus_r(bool bonusonly, const CompletionFunc& completion)
 {
 	JobDesc jobs[20];
 	int job = 0;

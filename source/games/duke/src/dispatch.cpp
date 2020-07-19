@@ -114,8 +114,8 @@ void think_r();
 void animatesprites_d(int x, int y, int a, int smoothratio);
 void animatesprites_r(int x, int y, int a, int smoothratio);
 
-void Logo_d(CompletionFunc);
-void Logo_r(CompletionFunc);
+void Logo_d(const CompletionFunc&);
+void Logo_r(const CompletionFunc&);
 void InitFonts_d();
 void InitFonts_r();
 void PrintPaused_d();
