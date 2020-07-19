@@ -1081,8 +1081,8 @@ void checkhitwall_r(int spr, int dawallnum, int x, int y, int z, int atwith)
 			if (s->lotag == 6)
 			{
 				for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1);
-				g_spriteExtra[jj]++; // TRANSITIONAL move to sprite or actor
-				if (g_spriteExtra[jj] == 25)
+				spriteextra[jj]++; // TRANSITIONAL move to sprite or actor
+				if (spriteextra[jj] == 25)
 				{
 					startwall = sector[s->sectnum].wallptr;
 					endwall = startwall + sector[s->sectnum].wallnum;
@@ -2576,7 +2576,7 @@ void checksectors_r(int snum)
 					case TOUGHGAL:
 						return;
 					case COW:
-						g_spriteExtra[neartagsprite] = 1; // TRANSITIONAL move to sprite or actor
+						spriteextra[neartagsprite] = 1; // TRANSITIONAL move to sprite or actor
 						return;
 					}
 				}
@@ -2739,7 +2739,7 @@ void checksectors_r(int snum)
 				operatesectors(neartagsector, p->i);
 			else
 			{
-				if (g_spriteExtra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
+				if (spriteextra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
 					spritesound(99, p->i);
 				else
 					spritesound(419, p->i);
@@ -2760,7 +2760,7 @@ void checksectors_r(int snum)
 					operatesectors(sprite[p->i].sectnum, p->i);
 				else
 				{
-					if (g_spriteExtra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
+					if (spriteextra[neartagsprite] > 3) // TRANSITIONAL move to sprite or actor
 						spritesound(99, p->i);
 					else
 						spritesound(419, p->i);

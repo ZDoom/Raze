@@ -416,6 +416,7 @@ public:
 
 	void PrintKills(int totalclock)
 	{
+		char tempbuf[32];
 		BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
 		BigText(30, 128, GStrings("TXT_VarmintsLeft"), -1);
 
@@ -448,6 +449,7 @@ public:
 
 	void PrintSecrets(int totalclock)
 	{
+		char tempbuf[32];
 		BigText(30, 144, GStrings("TXT_SECFND"), -1);
 		BigText(30, 160, GStrings("TXT_SECMISS"), -1);
 		if (bonuscnt == 4) bonuscnt++;

@@ -35,6 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_DUKE_NS
 
 extern user_defs ud;
+// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
+// Interpolations are reconstructed on load and do not need to be saved.
+#define MAXINTERPOLATIONS MAXSPRITES
+extern int numinterpolations;
+extern int* curipos[MAXINTERPOLATIONS];
+extern int bakipos[MAXINTERPOLATIONS];
 
 // Variables that do not need to be saved.
 extern int respawnactortime;
@@ -49,6 +55,10 @@ extern int seenineblastradius;
 extern int shrinkerblastradius;
 extern int gc;
 extern int tripbombblastradius;
+extern int camerashitable;
+extern int max_player_health;
+extern int max_armour_amount;
+extern int lasermode;
 
 extern int cameraclock;
 extern int cameradist;
@@ -62,16 +72,18 @@ extern input_t sync[MAXPLAYERS];
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 extern int16_t weaponsandammosprites[15];
 extern int32_t PHEIGHT;
-
-// Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
-// Interpolations are reconstructed on load and do not need to be saved.
-#define MAXINTERPOLATIONS MAXSPRITES
-extern int numinterpolations;
-extern int* curipos[MAXINTERPOLATIONS];
-extern int bakipos[MAXINTERPOLATIONS];
-
+extern int duke3d_globalflags;
+extern bool synchronized_input;
+extern uint8_t ready2send;
+extern input_t loc;
+extern int gamequit;
+extern int playerswhenstarted;
+extern int show_shareware;
+extern int screenpeek;
+extern ClockTicks ototalclock;
 
 // Variables that must be saved
+extern uint8_t spriteextra[MAXSPRITES], sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
 
 extern int rtsplaying;
 extern int tempwallptr;
@@ -83,120 +95,64 @@ extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
 extern uint8_t shadedsector[MAXSECTORS];
 extern int lastvisinc;
+extern animwalltype animwall[MAXANIMWALLS];
+extern int numanimwalls;
+extern int animatecnt;
+extern int numclouds;
+extern int camsprite;
+extern int numcyclers;
+extern int earthquaketime;
+extern int freezerhurtowner;
+extern int global_random;
+extern int impact_damage;
+extern int mirrorcnt;
+extern int numplayersprites;
+extern int spriteqloc;
 
+extern int16_t animatesect[MAXANIMATES];
+extern int* animateptr[MAXANIMATES];
+extern int animategoal[MAXANIMATES];
+extern int animatevel[MAXANIMATES];
 
+extern int16_t clouds[256];
+extern int16_t cloudx;
+extern int16_t cloudy;
+extern ClockTicks cloudtotalclock;
 
-// todo
+extern int16_t spriteq[1024];
+extern int16_t cyclers[MAXCYCLERS][6];
+extern int16_t mirrorsector[64];
+extern int16_t mirrorwall[64];
 
+extern ClockTicks lockclock;
 
+extern int wupass;
+extern int chickenplant;
+extern int thunderon;
+extern int ufospawn;
+extern int ufocnt;
+extern int hulkspawn;
+extern int lastlevel;
 
+extern int geosectorwarp[MAXGEOSECTORS];
+extern int geosectorwarp2[MAXGEOSECTORS];
+extern int geosector[MAXGEOSECTORS];
+extern int geox[MAXGEOSECTORS];
+extern int geoy[MAXGEOSECTORS];
+extern int geox2[MAXGEOSECTORS];
+extern int geoy2[MAXGEOSECTORS];
+extern int geocnt;
 
-
-
-
-
-#ifdef global_c_
-    #define G_EXTERN
-#else
-    #define G_EXTERN extern
-#endif
-
-G_EXTERN int duke3d_globalflags;
-
-G_EXTERN animwalltype animwall[MAXANIMWALLS];
-G_EXTERN bool synchronized_input;
-
-G_EXTERN char ready2send;
-G_EXTERN char tempbuf[MAXSECTORS<<1],buf[1024];
-
-G_EXTERN input_t loc;
-
-G_EXTERN int avgfvel, avgsvel, avgbits;
-G_EXTERN fix16_t avgavel, avghorz;
-G_EXTERN int8_t avgextbits;
-
-G_EXTERN int movefifosendplc;
-
-G_EXTERN int predictfifoplc;
-
-G_EXTERN int g_networkBroadcastMode;
-
-G_EXTERN int numanimwalls;
-G_EXTERN int animatecnt;
-G_EXTERN int numclouds;
-G_EXTERN int camsprite;
-G_EXTERN int numcyclers;
-G_EXTERN int camerashitable;
-G_EXTERN int earthquaketime;
-G_EXTERN int freezerhurtowner;
-G_EXTERN int gamequit;
-G_EXTERN int global_random;
-G_EXTERN int impact_damage;
-G_EXTERN int mirrorcnt;
-G_EXTERN int playerswhenstarted;
-G_EXTERN int numplayersprites;
-G_EXTERN int show_shareware;
-G_EXTERN int spriteqloc;
-G_EXTERN int max_player_health;
-G_EXTERN int max_armour_amount;
-G_EXTERN int lasermode;
-G_EXTERN int screenpeek;
-
-G_EXTERN int16_t animatesect[MAXANIMATES];
-G_EXTERN int * animateptr[MAXANIMATES];
-G_EXTERN int animategoal[MAXANIMATES];
-G_EXTERN int animatevel[MAXANIMATES];
-
-G_EXTERN int16_t clouds[256];
-G_EXTERN int16_t cloudx;
-G_EXTERN int16_t cloudy;
-G_EXTERN ClockTicks cloudtotalclock;
-
-G_EXTERN int16_t spriteq[1024];
-G_EXTERN int16_t cyclers[MAXCYCLERS][6];
-G_EXTERN int16_t mirrorsector[64];
-G_EXTERN int16_t mirrorwall[64];
-G_EXTERN ClockTicks lockclock;
-G_EXTERN ClockTicks ototalclock;
-
-G_EXTERN int wupass;
-G_EXTERN int chickenplant;
-G_EXTERN int thunderon;
-G_EXTERN int ufospawn;
-G_EXTERN int ufocnt;
-G_EXTERN int hulkspawn;
-G_EXTERN int lastlevel;
-
-G_EXTERN int geosectorwarp[MAXGEOSECTORS];
-G_EXTERN int geosectorwarp2[MAXGEOSECTORS];
-G_EXTERN int geosector[MAXGEOSECTORS];
-G_EXTERN int geox[MAXGEOSECTORS];
-G_EXTERN int geoy[MAXGEOSECTORS];
-G_EXTERN int geox2[MAXGEOSECTORS];
-G_EXTERN int geoy2[MAXGEOSECTORS];
-G_EXTERN uint32_t geocnt;
-
-G_EXTERN int g_thunderFlash;
-G_EXTERN int g_thunderTime;
-G_EXTERN int g_winderFlash;
-G_EXTERN int g_winderTime;
-G_EXTERN int g_brightness;
-
-G_EXTERN int16_t ambientlotag[64];
-G_EXTERN int16_t ambienthitag[64];
-G_EXTERN uint32_t ambientfx;
-
-G_EXTERN int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
-
-G_EXTERN int WindTime, WindDir;
-G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, BellTime, BellSprite /* word_119BE0*/;
-G_EXTERN uint8_t g_spriteExtra[MAXSPRITES], g_sectorExtra[MAXSECTORS]; // move these back into the base structs!
-G_EXTERN uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
-
-G_EXTERN player_orig po[MAXPLAYERS];
-
-G_EXTERN uint32_t everyothertime;
-
+extern short ambientlotag[64];
+extern short ambienthitag[64];
+extern unsigned ambientfx;
+extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+extern int WindTime, WindDir;
+extern short fakebubba_spawn, mamaspawn_count, banjosound;
+extern short BellTime, BellSprite /* word_119BE0*/;
+extern uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
+extern uint32_t everyothertime;
+extern player_orig po[MAXPLAYERS];
 
 END_DUKE_NS
 

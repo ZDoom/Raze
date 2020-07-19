@@ -681,7 +681,7 @@ void prelevel_r(int g)
             deletesprite(i);
         if (sprite[i].picnum == RRTILE34)
         {
-            g_sectorExtra[sprite[i].sectnum] = sprite[i].lotag;
+            sectorextra[sprite[i].sectnum] = sprite[i].lotag;
             deletesprite(i);
         }
     }

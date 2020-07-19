@@ -567,10 +567,10 @@ int ParseState::parse(void)
 		break;
 	case concmd_iftipcow:
 	case concmd_ifhittruck: // both have the same code.
-		if (g_spriteExtra[g_i] == 1) // TRANSITIONAL 'filler' no longer exists
+		if (spriteextra[g_i] == 1) // TRANSITIONAL 'filler' no longer exists
 		{
 			j = 1;
-			g_spriteExtra[g_i]++;
+			spriteextra[g_i]++;
 		}
 		else
 			j = 0;
@@ -631,7 +631,7 @@ int ParseState::parse(void)
 		insptr++;
 		if (isRR())
 		{
-			if (g_spriteExtra[g_i] < 1 || g_spriteExtra[g_i] == 128)
+			if (spriteextra[g_i] < 1 || spriteextra[g_i] == 128)
 			{
 				if (actorfella(g_i))
 					ps[g_p].actors_killed += *insptr;

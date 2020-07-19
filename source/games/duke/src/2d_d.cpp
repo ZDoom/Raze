@@ -828,6 +828,7 @@ public:
 
 	void PrintKills(int totalclock)
 	{
+		char tempbuf[32];
 		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
 		GameText(10, 99 + 4 + 9, GStrings("TXT_EnemiesLeft"), 0);
 
@@ -863,6 +864,7 @@ public:
 
 	void PrintSecrets(int totalclock)
 	{
+		char tempbuf[32];
 		GameText(10, 120 + 9, GStrings("TXT_SECFND"), 0);
 		GameText(10, 130 + 9, GStrings("TXT_SECMISS"), 0);
 		if (bonuscnt == 4) bonuscnt++;

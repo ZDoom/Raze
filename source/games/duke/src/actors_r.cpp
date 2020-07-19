@@ -4432,17 +4432,17 @@ static int fallspecial(int g_i, int g_p)
 			addspritetodelete(g_i);
 			return 0;
 		}
-		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || g_spriteExtra[g_i] < 128))
+		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || spriteextra[g_i] < 128))
 		{
 			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
 			g_sp->zvel = 8000;
 			g_sp->extra = 0;
-			g_spriteExtra[g_i]++;
+			spriteextra[g_i]++;
 			sphit = 1;
 		}
 		else if (g_sp->picnum != APLAYER)
 		{
-			if (!g_spriteExtra[g_i])
+			if (!spriteextra[g_i])
 				addspritetodelete(g_i);
 			return 0;
 		}
@@ -4586,7 +4586,7 @@ void destroyit(int g_i)
 				sector[sectnum].floorxpanning = sector[js->sectnum].floorxpanning;
 				sector[sectnum].floorypanning = sector[js->sectnum].floorypanning;
 				sector[sectnum].visibility = sector[js->sectnum].visibility;
-				g_sectorExtra[sectnum] = g_sectorExtra[js->sectnum]; // TRANSITIONAL: at least rename this.
+				sectorextra[sectnum] = sectorextra[js->sectnum]; // TRANSITIONAL: at least rename this.
 				sector[sectnum].lotag = sector[js->sectnum].lotag;
 				sector[sectnum].hitag = sector[js->sectnum].hitag;
 				sector[sectnum].extra = sector[js->sectnum].extra;

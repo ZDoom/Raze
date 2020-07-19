@@ -991,17 +991,17 @@ bool movementBlocked(int snum)
 int haskey(int sect, int snum)
 {
 	auto p = &ps[snum];
-	if (!g_sectorExtra[sect])
+	if (!sectorextra[sect])
 		return 1;
-	if (g_sectorExtra[sect] > 6)
+	if (sectorextra[sect] > 6)
 		return 1;
-	int wk = g_sectorExtra[sect];
+	int wk = sectorextra[sect];
 	if (wk > 3)
 		wk -= 3;
 
 	if (p->keys[wk] == 1)
 	{
-		g_sectorExtra[sect] = 0;
+		sectorextra[sect] = 0;
 		return 1;
 	}
 

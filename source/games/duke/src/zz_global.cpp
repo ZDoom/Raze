@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"	// Must come before everything else!
 
-#define global_c_
 #include "global.h"
 #include "duke3d.h"
 
@@ -42,6 +41,10 @@ int seenineblastradius		= 2048;
 int shrinkerblastradius		= 650;
 int gc						= 176;
 int tripbombblastradius		= 3880;
+int camerashitable;
+int max_player_health;
+int max_armour_amount;
+int lasermode;
 
 int cameradist = 0, cameraclock = 0;
 int otherp;	
@@ -52,10 +55,21 @@ input_t sync[MAXPLAYERS];
 int16_t max_ammo_amount[MAX_WEAPONS];
 int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;
+int duke3d_globalflags;
+input_t loc;
+bool synchronized_input;
+uint8_t ready2send;
+int gamequit;
+int playerswhenstarted;
+int show_shareware;
+int screenpeek;
+ClockTicks ototalclock;
 
 
 
 // Variables that must be saved
+uint8_t spriteextra[MAXSPRITES], sectorextra[MAXSECTORS]; // move these back into the base structs!
+
 int rtsplaying;
 int tempwallptr;
 weaponhit hittype[MAXSPRITES];
@@ -66,13 +80,64 @@ player_struct ps[MAXPLAYERS];
 int spriteqamount = 64;
 uint8_t shadedsector[MAXSECTORS];
 int lastvisinc;
+animwalltype animwall[MAXANIMWALLS];
+int numanimwalls;
+int animatecnt;
+int numclouds;
+int camsprite;
+int numcyclers;
+int earthquaketime;
+int freezerhurtowner;
+int global_random;
+int impact_damage;
+int mirrorcnt;
+int numplayersprites;
+int spriteqloc;
 
+int16_t animatesect[MAXANIMATES];
+int* animateptr[MAXANIMATES];
+int animategoal[MAXANIMATES];
+int animatevel[MAXANIMATES];
 
+int16_t clouds[256];
+int16_t cloudx;
+int16_t cloudy;
+ClockTicks cloudtotalclock;
 
+int16_t spriteq[1024];
+int16_t cyclers[MAXCYCLERS][6];
+int16_t mirrorsector[64];
+int16_t mirrorwall[64];
 
+ClockTicks lockclock;
 
+// Redneck Rampage
+int wupass;
+int chickenplant;
+int thunderon;
+int ufospawn;
+int ufocnt;
+int hulkspawn;
+int lastlevel;
 
+int geosectorwarp[MAXGEOSECTORS];
+int geosectorwarp2[MAXGEOSECTORS];
+int geosector[MAXGEOSECTORS];
+int geox[MAXGEOSECTORS];
+int geoy[MAXGEOSECTORS];
+int geox2[MAXGEOSECTORS];
+int geoy2[MAXGEOSECTORS];
+int geocnt;
 
-
+short ambientlotag[64];
+short ambienthitag[64];
+unsigned ambientfx;
+int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+int WindTime, WindDir;
+short fakebubba_spawn, mamaspawn_count, banjosound;
+short BellTime, BellSprite /* word_119BE0*/;
+uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
+uint32_t everyothertime;
+player_orig po[MAXPLAYERS];
 
 END_DUKE_NS

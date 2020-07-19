@@ -628,8 +628,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
     // RR stuff
-    { 0, &g_spriteExtra[0], sizeof(g_spriteExtra[0]), MAXSPRITES },
-    { 0, &g_sectorExtra[0], sizeof(g_sectorExtra[0]), MAXSECTORS },
+    { 0, &spriteextra[0], sizeof(spriteextra[0]), MAXSPRITES },
+    { 0, &sectorextra[0], sizeof(sectorextra[0]), MAXSECTORS },
 
     { 0, &shadedsector[0], sizeof(shadedsector[0]), MAXSECTORS },
 

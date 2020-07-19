@@ -698,8 +698,8 @@ void prelevel_common(int g)
     resetprestat(0, g);
     numclouds = 0;
 
-    memset(g_spriteExtra, 0, sizeof(g_spriteExtra));
-    memset(g_sectorExtra, 0, sizeof(g_sectorExtra));
+    memset(spriteextra, 0, sizeof(spriteextra));
+    memset(sectorextra, 0, sizeof(sectorextra));
     memset(shadedsector, 0, sizeof(shadedsector));
     memset(geosectorwarp, -1, sizeof(geosectorwarp));
     memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
