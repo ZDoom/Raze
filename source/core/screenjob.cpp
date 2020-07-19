@@ -120,12 +120,15 @@ public:
 			return -1;
 		}
 
+		Printf("Movie clock = %d - %d = %d", ototalclock, totalclock, ototalclock - totalclock);
 		if (totalclock < ototalclock - 1)
 		{
+			Printf("\n");
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
 			return skiprequest? -1 : 1;
 		}
+		Printf(" advancing\n");
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
 		frametime = totalclock;
@@ -237,7 +240,7 @@ class ScreenJobRunner
 	float screenfade;
 	bool clearbefore;
 	bool skipped = false;
-	uint64_t startTime;
+	uint64_t startTime = -1;
 	int actionState;
 	int terminateState;
 
@@ -261,6 +264,7 @@ public:
 		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped))) index++;
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size()) screenfade = jobs[index].job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
+		startTime = -1;
 	}
 
 	int DisplayFrame()
@@ -268,6 +272,7 @@ public:
 		auto& job = jobs[index];
 		auto now = I_nsTime();
 		bool skiprequest = inputState.CheckAllInput();
+		if (startTime == -1) startTime = now;
 		auto clock = now - startTime;
 		if (screenfade < 1.f)
 		{
