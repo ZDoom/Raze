@@ -62,4 +62,29 @@ int16_t weaponsandammosprites[15];
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 
 
+int levelTextTime; // must be serialized
+int rtsplaying;		// must be serialized
+int otherp;			// MP only
+bool sound445done; // this was local state inside a function, but this must be maintained globally and serialized
+
+int16_t max_ammo_amount[MAX_WEAPONS];
+int32_t spriteqamount = 64;
+
+uint8_t shadedsector[MAXSECTORS];
+
+int32_t cameradist = 0, cameraclock = 0;
+
+int32_t g_Shareware = 0;
+
+int32_t tempwallptr;
+int32_t      actor_tog;
+
+weaponhit hittype[MAXSPRITES];
+ActorInfo actorinfo[MAXTILES];
+player_struct ps[MAXPLAYERS];
+
+int32_t PHEIGHT = PHEIGHT_DUKE;
+
+int32_t lastvisinc;
+
 END_DUKE_NS

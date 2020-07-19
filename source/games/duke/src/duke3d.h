@@ -14,7 +14,6 @@
 #include "menu/menu.h"
 #include "funct.h"
 #include "gamecontrol.h"
-#include "game.h"
 #include "gamevar.h"
 #include "global.h"
 #include "names.h"

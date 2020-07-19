@@ -31,7 +31,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "duke3d.h"
 
 #include "savegame.h"
-#include "game.h"
 #include "superfasthash.h"
 #include "gamecvars.h"
 #include "gamecontrol.h"

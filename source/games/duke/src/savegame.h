@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef savegame_h_
 #define savegame_h_
 
-#include "game.h"
+#include "global.h"
 
 BEGIN_DUKE_NS
 

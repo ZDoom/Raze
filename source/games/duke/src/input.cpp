@@ -35,7 +35,6 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "game.h"
 
 BEGIN_DUKE_NS
 

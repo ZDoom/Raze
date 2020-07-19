@@ -34,7 +34,6 @@ source as it is released.
 #include <utility>
 #include "ns.h"
 #include "global.h"
-#include "game.h"
 #include "sounds.h"
 #include "names_d.h"
 

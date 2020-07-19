@@ -35,7 +35,6 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "game.h"
 #include "prediction.h"
 #include "names_d.h"
 

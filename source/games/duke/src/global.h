@@ -30,8 +30,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "quotemgr.h"
 #include "sounds.h"
 #include "constants.h"
+#include "types.h"
 
 BEGIN_DUKE_NS
+
+
+
+
+extern user_defs ud;
+extern int rtsplaying;
+
+extern int32_t g_Shareware;
+extern int32_t cameraclock;
+extern int32_t cameradist;
+extern int32_t tempwallptr;
+
+enum
+{
+    TFLAG_WALLSWITCH = 1
+};
+// for now just flags not related to actors, may get more info later.
+struct TileInfo
+{
+    int flags;
+};
+extern TileInfo tileinfo[MAXTILES];
+
+
+extern int32_t      actor_tog;
+extern int32_t      otherp;
+
+
+extern ActorInfo   actorinfo[MAXTILES];
+extern weaponhit      hittype[MAXSPRITES];
+extern bool sound445done;
+
+extern intptr_t apScriptGameEvent[];
+
+extern TArray<int> ScriptCode;
+
 
 
 #define VOLUMEALL           (g_Shareware == 0)
