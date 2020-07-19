@@ -34,7 +34,6 @@ source as it is released.
 #include "ns.h"
 #include "concmd.h"
 #include "duke3d.h"
-#include "gamedef.h"
 #include "gamevar.h"
 #include "mapinfo.h"
 

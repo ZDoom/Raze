@@ -39,7 +39,6 @@ source as it is released.
 #include "gamevar.h"
 #include "player.h"
 #include "names_d.h"
-#include "macros.h"
 
 BEGIN_DUKE_NS
 

@@ -610,7 +610,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_animatePtr[0], sizeof(g_animatePtr[0]), MAXANIMATES },
     { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
     { 0, &camsprite, sizeof(camsprite), 1 },
-    { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) },
+   // { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) }, type has changed
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
     { DS_NOCHK, &spriteqamount, sizeof(spriteqamount), 1 },
     { DS_CNT(spriteqamount), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&spriteqamount },

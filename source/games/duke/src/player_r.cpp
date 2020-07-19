@@ -1691,7 +1691,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 		}
 		else
 		{
-			p->sethoriz(100 + ((krand2() & 15) - 7));
+			p->sethoriz(100 + ((krand() & 15) - 7));
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}

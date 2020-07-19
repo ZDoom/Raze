@@ -45,7 +45,6 @@ extern int rtsplaying;
 extern int32_t g_Shareware;
 extern int32_t cameraclock;
 extern int32_t cameradist;
-extern int32_t g_doQuickSave;
 extern int32_t tempwallptr;
 
 enum

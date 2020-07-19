@@ -452,3 +452,14 @@ enum
     TRIPBOMB_TRIPWIRE = 1,
     TRIPBOMB_TIMER = 2
 };
+
+// World tour
+enum EFlamethrowerState
+{
+    kHitTypeMask = 0xC000,
+    //kHitIndexMask = 0x3FFF,
+    kHitSector = 0x4000,
+    kHitWall = 0x8000,
+    kHitSprite = 0xC000,
+};
+

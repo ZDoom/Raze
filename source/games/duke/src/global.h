@@ -118,7 +118,6 @@ G_EXTERN int32_t g_cyclerCnt;
 G_EXTERN int32_t g_damageCameras;
 #define camerashitable g_damageCameras
 G_EXTERN int32_t g_defaultLabelCnt;
-G_EXTERN int32_t g_doQuickSave;
 G_EXTERN int32_t g_earthquakeTime;
 #define earthquaketime g_earthquakeTime
 G_EXTERN int32_t g_freezerSelfDamage;
@@ -194,17 +193,7 @@ G_EXTERN int16_t ambienthitag[64];
 G_EXTERN uint32_t ambientfx;
 
 
-G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
-struct msx_
-{
-    int &operator[](int v) { return g_origins[v].x; }
-};
-struct msy_
-{
-    int &operator[](int v) { return g_origins[v].y; }
-};
-G_EXTERN msx_ msx;
-G_EXTERN msy_ msy;
+G_EXTERN int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
 
 G_EXTERN int32_t WindTime, WindDir;
 G_EXTERN int16_t fakebubba_spawn, mamaspawn_count, banjosound, g_bellTime, BellSprite;
@@ -217,10 +206,6 @@ extern int32_t g_cdTrack;
 #define raat605 chickenphase
 #define at59d yeehaa_timer
 
-// XXX: I think this pragma pack is meaningless here.
-// MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
-// "pack takes effect at the first struct, union, or class declaration after
-//  the pragma is seen; pack has no effect on definitions."
 G_EXTERN player_orig po[MAXPLAYERS];
 
 G_EXTERN uint32_t everyothertime;
@@ -263,11 +248,6 @@ extern int32_t g_gametypeFlags[MAXGAMETYPES];
 
 #endif  
 
-enum
-{
-    EF_HIDEFROMSP = 1<<0,
-};
-
 // Interpolation code is the same in all games with slightly different naming - this needs to be unified and cleaned up.
 extern int32_t numinterpolations;
 extern int32_t* curipos[MAXINTERPOLATIONS];
@@ -290,15 +270,6 @@ extern int spriteqamount;
 #define spriteqloc g_spriteDeleteQueuePos
 
 
-
-enum
-{
-    kHitTypeMask = 0xC000,
-    //kHitIndexMask = 0x3FFF,
-    kHitSector = 0x4000,
-    kHitWall = 0x8000,
-    kHitSprite = 0xC000,
-};
 
 extern uint8_t shadedsector[MAXSECTORS];
 

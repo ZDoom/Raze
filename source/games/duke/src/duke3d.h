@@ -17,7 +17,6 @@
 #include "game.h"
 #include "gamevar.h"
 #include "global.h"
-#include "macros.h"
 #include "names.h"
 #include "player.h"
 #include "quotemgr.h"
