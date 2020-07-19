@@ -48,20 +48,38 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 BEGIN_DUKE_NS
 
 
-// parser state: todo: turn into a class
-char* textptr;
-int line_number;
-int errorcount, warningcount;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
-int g_currentSourceFile;
-uint32_t parsing_actor, parsing_event;
-int parsing_state;
-int num_squigilly_brackets;
-int checking_ifelse;
+//---------------------------------------------------------------------------
+//
+// definitions needed by the parser.
+//
+//---------------------------------------------------------------------------
 
-//G_EXTERN char tempbuf[MAXSECTORS << 1], buf[1024]; todo - move to compile state. tempbuf gets used nearly everywhere as scratchpad memory.
-extern char tempbuf[];
+enum labeltypes {
+	LABEL_ANY = -1,
+	LABEL_DEFINE = 1,
+	LABEL_STATE = 2,
+	LABEL_ACTOR = 4,
+	LABEL_ACTION = 8,
+	LABEL_AI = 16,
+	LABEL_MOVE = 32,
+};
 
-TArray<int> ScriptCode;
+class labelstring
+{
+	char text[64];
+
+public:
+	char& operator[](size_t pos)
+	{
+		return text[pos];
+	}
+	operator const char* () { return text; }
+	const char* GetChars() { return text; }
+	int compare(const char* c) const { return strcmp(text, c); }
+	int comparei(const char* c) const { return stricmp(text, c); }
+	labelstring& operator=(const char* c) { strncpy(text, c, 64); text[63] = 0; }
+
+};
 
 struct TempMusic
 {
@@ -69,9 +87,80 @@ struct TempMusic
 	FString music;
 };
 
-// This is for situations where the music gets defined before the map. Since the map records do not exist yet, we need a temporary buffer.
-static TArray<TempMusic> tempMusic;
+//---------------------------------------------------------------------------
+//
+// the actual parser
+//
+//---------------------------------------------------------------------------
 
+class ConCompiler
+{
+	char* textptr = nullptr;
+	int line_number = 0;
+	int errorcount = 0, warningcount = 0;	// was named 'error' and 'warning' which is too generic for public variables and may clash with other code.
+	int currentsourcefile = -1;
+	unsigned parsing_actor = 0, parsing_event = 0;
+	int parsing_state = 0;
+	int num_squigilly_brackets = 0;
+	int checking_ifelse = 0;
+	labelstring parselabel= {};
+	// This is for situations where the music gets defined before the map. Since the map records do not exist yet, we need a temporary buffer.
+	TArray<TempMusic> tempMusic;
+	char parsebuf[1024];
+	TArray<char> parsebuffer; // global so that the storage is persistent across calls.
+
+	void ReportError(int error);
+	int getkeyword(const char* text);
+	FString translatelabeltype(int type);
+	bool ispecial(char c);
+	void skiptoendofline();
+	void skipwhitespace();
+	void skipblockcomment();
+	bool skipcomments();
+	int keyword(void);
+	void getlabel(void);
+	void appendlabelvalue(labeltypes type, int value);
+	void appendlabeladdress(labeltypes type, int offset = 0);
+	int transword(void);
+	int transnum(int type);
+	void checkforkeyword();
+	int parsecommand();
+
+public:
+	void compilecon(const char* filenam);
+	void setmusic();
+	int getErrorCount() { return errorcount; }
+};
+
+//---------------------------------------------------------------------------
+//
+// label data
+//
+//---------------------------------------------------------------------------
+
+static const char* labeltypenames[] = {
+	"define",
+	"state",
+	"actor",
+	"action",
+	"ai",
+	"move"
+};
+
+struct labeldef
+{
+	labelstring name;
+	labeltypes type;
+	int value;
+
+	int compare(const char* c) const { return name.compare(c); }
+	const char* GetChars() { return name.GetChars(); }
+
+};
+
+// These arrays contain the global output from the compiler.
+static TArray<labeldef> labels;
+TArray<int> ScriptCode;
 
 //---------------------------------------------------------------------------
 //
@@ -112,62 +201,6 @@ void SortCommands()
 
 //---------------------------------------------------------------------------
 //
-// label data
-//
-//---------------------------------------------------------------------------
-
-enum labeltypes {
-	LABEL_ANY = -1,
-	LABEL_DEFINE = 1,
-	LABEL_STATE = 2,
-	LABEL_ACTOR = 4,
-	LABEL_ACTION = 8,
-	LABEL_AI = 16,
-	LABEL_MOVE = 32,
-};
-
-static const char* labeltypenames[] = {
-	"define",
-	"state",
-	"actor",
-	"action",
-	"ai",
-	"move"
-};
-
-class labelstring
-{
-	char text[64];
-
-public:
-	char& operator[](size_t pos)
-	{
-		return text[pos];
-	}
-	operator const char* () { return text; }
-	const char* GetChars() { return text; }
-	int compare(const char* c) const { return strcmp(text, c); }
-	int comparei(const char* c) const { return stricmp(text, c); }
-	labelstring& operator=(const char* c) { strncpy(text, c, 64); text[63] = 0; }
-
-};
-
-struct labeldef
-{
-	labelstring name;
-	labeltypes type;
-	int value;
-
-	int compare(const char* c) const { return name.compare(c); }
-	const char* GetChars() { return name.GetChars(); }
-
-};
-
-TArray<labeldef> labels;
-static labelstring parselabel;
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
@@ -186,10 +219,10 @@ enum
 	ERROR_NOENDSWITCH,
 };
 
-void ReportError(int iError)
+void ConCompiler::ReportError(int error)
 {
-	const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
-	switch (iError)
+	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+	switch (error)
 	{
 	case ERROR_ISAKEYWORD:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is a key word.\n",
@@ -197,7 +230,7 @@ void ReportError(int iError)
 		break;
 	case ERROR_PARMUNDEFINED:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Parameter '%s' is undefined.\n",
-			fn, line_number, tempbuf);
+			fn, line_number, parsebuf);
 		break;
 	case WARNING_DUPLICATEDEFINITION:
 		Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Duplicate definition '%s' ignored.\n",
@@ -221,15 +254,15 @@ void ReportError(int iError)
 		break;
 	case ERROR_OPENBRACKET:
 		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Found more '{' than '}' before '%s'.\n",
-			fn, line_number, tempbuf);
+			fn, line_number, parsebuf);
 		break;
 	case ERROR_CLOSEBRACKET:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '}' than '{' before '%s'.\n",
-			fn, line_number, tempbuf);
+			fn, line_number, parsebuf);
 		break;
 	case ERROR_NOENDSWITCH:
 		Printf(TEXTCOLOR_RED "  * ERROR!%s(%s, line %d) Did not find endswitch before '%s'.\n",
-			fn, line_number, tempbuf);
+			fn, line_number, parsebuf);
 		break;
 
 	}
@@ -241,7 +274,7 @@ void ReportError(int iError)
 //
 //---------------------------------------------------------------------------
 
-int getkeyword(const char* text)
+int ConCompiler::getkeyword(const char* text)
 {
 	ptrdiff_t min = 0;
 	ptrdiff_t max = countof(cmdList) - 1;
@@ -273,7 +306,7 @@ int getkeyword(const char* text)
 //
 //---------------------------------------------------------------------------
 
-FString translatelabeltype(int type)
+FString ConCompiler::translatelabeltype(int type)
 {
 	FString buf;
 	for (int i = 0; i < 6; i++) 
@@ -321,7 +354,7 @@ int getlabelvalue(const char* text)
 //
 //---------------------------------------------------------------------------
 
-bool ispecial(char c)
+bool ConCompiler::ispecial(char c)
 {
 	if (c == 0x0a)
 	{
@@ -336,7 +369,7 @@ bool ispecial(char c)
 	return false;
 }
 
-bool isaltok(char c)
+static bool isaltok(char c)
 {
 	// isalnum pukes on negative input.
 	return c > 0 && (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '*' || c == '-' || c == '_' || c == '.');
@@ -348,13 +381,13 @@ bool isaltok(char c)
 //
 //---------------------------------------------------------------------------
 
-void skiptoendofline()
+void ConCompiler::skiptoendofline()
 {
 	while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
 		textptr++;
 }
 
-void skipwhitespace()
+void ConCompiler::skipwhitespace()
 {
 	while (*textptr == ' ' || *textptr == '\t' || *textptr == '\r' || *textptr == '\n')
 	{
@@ -363,7 +396,7 @@ void skipwhitespace()
 	}
 }
 
-void skipblockcomment()
+void ConCompiler::skipblockcomment()
 {
 	while (*textptr != '*' || textptr[1] != '/')
 	{
@@ -374,7 +407,7 @@ void skipblockcomment()
 	textptr += 2;
 }
 
-bool skipcomments()
+bool ConCompiler::skipcomments()
 {
 	while (true)
 	{
@@ -404,7 +437,7 @@ bool skipcomments()
 //
 //---------------------------------------------------------------------------
 
-int keyword(void)
+int ConCompiler::keyword(void)
 {
 	int i;
 	const char* temptextptr;
@@ -422,12 +455,12 @@ int keyword(void)
 	i = 0;
 	while (isaltok(*temptextptr))
 	{
-		tempbuf[i] = *(temptextptr++);
+		parsebuf[i] = *(temptextptr++);
 		i++;
 	}
-	tempbuf[i] = 0;
+	parsebuf[i] = 0;
 
-	return getkeyword(tempbuf);
+	return getkeyword(parsebuf);
 }
 
 //---------------------------------------------------------------------------
@@ -436,7 +469,7 @@ int keyword(void)
 //
 //---------------------------------------------------------------------------
 
-void getlabel(void)
+void ConCompiler::getlabel(void)
 {
 	long i;
 
@@ -459,8 +492,7 @@ void getlabel(void)
 
 //---------------------------------------------------------------------------
 //
-// script buffer access wrappers. These are here to reduce the affected code
-// when the time comes to refactor the buffer into a dynamic array.
+// script buffer access wrappers.
 //
 //---------------------------------------------------------------------------
 
@@ -469,7 +501,7 @@ static void setscriptvalue(int offset, int value)
 	ScriptCode[offset] = value;
 }
 
-int scriptpos()
+static int scriptpos()
 {
 	return ScriptCode.Size();
 }
@@ -498,7 +530,7 @@ void pushlabeladdress()
 }
 */
 
-void appendlabelvalue(labeltypes type, int value)
+void ConCompiler::appendlabelvalue(labeltypes type, int value)
 {
 	labels.Reserve(1);
 	labels.Last().type = type;
@@ -506,7 +538,7 @@ void appendlabelvalue(labeltypes type, int value)
 	labels.Last().value = value;
 }
 
-void appendlabeladdress(labeltypes type, int offset = 0)
+void ConCompiler::appendlabeladdress(labeltypes type, int offset)
 {
 	appendlabelvalue(type, ScriptCode.Size() + offset);
 }
@@ -514,11 +546,11 @@ void appendlabeladdress(labeltypes type, int offset = 0)
 
 //---------------------------------------------------------------------------
 //
-// 
+//Returns its code #
 //
 //---------------------------------------------------------------------------
 
-int transword(void) //Returns its code #
+int ConCompiler::transword(void) 
 {
 	int i, l;
 
@@ -537,13 +569,13 @@ int transword(void) //Returns its code #
 	{
 		if (l < 31)
 		{
-			tempbuf[l] = textptr[l];
+			parsebuf[l] = textptr[l];
 			l++;
 		}
 	}
-	tempbuf[l] = 0;
+	parsebuf[l] = 0;
 
-	i = getkeyword(tempbuf);
+	i = getkeyword(parsebuf);
 	if (i >= 0)
 	{
 		appendscriptvalue(i);
@@ -553,19 +585,19 @@ int transword(void) //Returns its code #
 
 	textptr += l;
 
-	const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
-	if (tempbuf[0] == '{' && tempbuf[1] != 0)
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE or CR between '{' and '%s'.\n", fn, line_number, tempbuf + 1);
-	else if (tempbuf[0] == '}' && tempbuf[1] != 0)
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE or CR between '}' and '%s'.\n", fn, line_number, tempbuf + 1);
-	else if (tempbuf[0] == '/' && tempbuf[1] == '/' && tempbuf[2] != 0)
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '//' and '%s'.\n", fn, line_number, tempbuf + 2);
-	else if (tempbuf[0] == '/' && tempbuf[1] == '*' && tempbuf[2] != 0)
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '/*' and '%s'.\n", fn, line_number, tempbuf + 2);
-	else if (tempbuf[0] == '*' && tempbuf[1] == '/' && tempbuf[2] != 0)
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '*/' and '%s'.\n", fn, line_number, tempbuf + 2);
+	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
+	if (parsebuf[0] == '{' && parsebuf[1] != 0)
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE or CR between '{' and '%s'.\n", fn, line_number, parsebuf + 1);
+	else if (parsebuf[0] == '}' && parsebuf[1] != 0)
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE or CR between '}' and '%s'.\n", fn, line_number, parsebuf + 1);
+	else if (parsebuf[0] == '/' && parsebuf[1] == '/' && parsebuf[2] != 0)
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '//' and '%s'.\n", fn, line_number, parsebuf + 2);
+	else if (parsebuf[0] == '/' && parsebuf[1] == '*' && parsebuf[2] != 0)
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '/*' and '%s'.\n", fn, line_number, parsebuf + 2);
+	else if (parsebuf[0] == '*' && parsebuf[1] == '/' && parsebuf[2] != 0)
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Expecting a SPACE between '*/' and '%s'.\n", fn, line_number, parsebuf + 2);
 	else
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Keyword expected, got '%s'.\n", fn, line_number, tempbuf + 2);
+		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Keyword expected, got '%s'.\n", fn, line_number, parsebuf + 2);
 
 	errorcount++;
 	return -1;
@@ -577,7 +609,7 @@ int transword(void) //Returns its code #
 //
 //---------------------------------------------------------------------------
 
-int transnum(int type)
+int ConCompiler::transnum(int type)
 {
 	int l;
 
@@ -595,13 +627,13 @@ int transnum(int type)
 	{
 		if (l < 31)
 		{
-			tempbuf[l] = textptr[l];
+			parsebuf[l] = textptr[l];
 			l++;
 		}
 	}
-	tempbuf[l] = 0;
+	parsebuf[l] = 0;
 
-	if (getkeyword(tempbuf) >= 0)
+	if (getkeyword(parsebuf) >= 0)
 	{
 		errorcount++;
 		ReportError(ERROR_ISAKEYWORD);
@@ -611,7 +643,7 @@ int transnum(int type)
 
 	for (unsigned i = 0; i < labels.Size(); i++)
 	{
-		if (labels[i].compare(tempbuf) == 0)
+		if (labels[i].compare(parsebuf) == 0)
 		{
 			// Non-values can be compared with 0.
 			if (labels[i].type & type || (labels[i].value == 0))
@@ -624,7 +656,7 @@ int transnum(int type)
 			textptr += l;
 			auto el = translatelabeltype(type);
 			auto gl = translatelabeltype(labels[i].type);
-			const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
+			const char* fn = fileSystem.GetFileFullName(currentsourcefile);
 			Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) %s: Expected a '%s' label but found a '%s' label instead.\n", fn, line_number, labels[i].GetChars(), el.GetChars(), gl.GetChars());
 			return -1;  // valid label name, but wrong type
 		}
@@ -636,7 +668,7 @@ int transnum(int type)
 		errorcount++;
 		textptr += l;
 #ifdef FOR_LATER
-		if (GetDefID(tempbuf) >= 0)
+		if (GetDefID(parsebuf) >= 0)
 		{
 			Printf(TEXTCOLOR_ORANGE "     Game Variable not expected\n");
 		}
@@ -659,7 +691,7 @@ int transnum(int type)
 
 	if (type != LABEL_DEFINE && value != 0)
 	{
-		const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
+		const char* fn = fileSystem.GetFileFullName(currentsourcefile);
 		Printf(TEXTCOLOR_YELLOW "  * WARNING.(%s, line %d) Expected an identifier, got a numeric literal %d.\n", fn, line_number, (int)value);
 	}
 
@@ -675,7 +707,7 @@ int transnum(int type)
 //
 //---------------------------------------------------------------------------
 
-void checkforkeyword()
+void ConCompiler::checkforkeyword()
 {
 	if (getkeyword(parselabel) >= 0)
 	{
@@ -690,11 +722,10 @@ void checkforkeyword()
 //
 //---------------------------------------------------------------------------
 
-static TArray<char> parsebuffer; // global so that the storage is persistent across calls.
 
-int parsecommand()
+int ConCompiler::parsecommand()
 {
-	const char* fn = fileSystem.GetFileFullName(g_currentSourceFile);
+	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
 	int i, j, k;
 	int tempscrptr;
 	uint8_t done, temp_ifelse_check;// , tw;
@@ -733,6 +764,7 @@ int parsecommand()
 		{
 			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) State '%s' not found.\n", fn, line_number, parselabel.GetChars());
 			errorcount++;
+			return 0;
 		}
 		appendscriptvalue(labels[lnum].value);
 		return 0;
@@ -760,6 +792,7 @@ int parsecommand()
 		return 0;
 
 	case concmd_gamevar:
+	{
 		// syntax: gamevar <var1> <initial value> <flags>
 		// defines var1 and sets initial value.
 		// flags are used to define usage
@@ -780,9 +813,23 @@ int parsecommand()
 
 		transnum(LABEL_DEFINE);	// get flags
 		lnum = popscriptvalue();
-		AddGameVar(parselabel, j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
-		return 0;
+		if (strlen(parselabel) > (MAXVARLABEL - 1))
+		{
+			warningcount++;
+			Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Variable Name '%s' too int (max is %d)\n", fn, line_number, parselabel, MAXVARLABEL - 1);
+			return 0;
+		}
+		int res = AddGameVar(parselabel, j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
+		if (res < 0)
+		{
+			errorcount++;
+			if (res == -1) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) Duplicate game variable definition '%s'.\n", fn, line_number, parselabel);
+			else if (res == -2) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) '%s' maximum number of game variables exceeded.\n", fn, line_number, parselabel);
+			return 0;
+		}
 
+		return 0;
+	}
 	case concmd_define:
 		getlabel();
 		checkforkeyword();
@@ -934,8 +981,8 @@ int parsecommand()
 
 		auto data = fileSystem.GetFileData(fni, 1);
 
-		temp_current_file = g_currentSourceFile;
-		g_currentSourceFile = fni;
+		temp_current_file = currentsourcefile;
+		currentsourcefile = fni;
 
 		temp_line_number = line_number;
 		line_number = 1;
@@ -951,7 +998,7 @@ int parsecommand()
 		textptr = origtptr;
 		line_number = temp_line_number;
 		checking_ifelse = temp_ifelse_check;
-		g_currentSourceFile = temp_current_file;
+		currentsourcefile = temp_current_file;
 		if (*textptr == '"') textptr++;	// needed for RR.
 
 		return 0;
@@ -1352,7 +1399,7 @@ int parsecommand()
 	case concmd_addlogvar:
 		// syntax: addlogvar <var>
 
-		appendscriptvalue(g_currentSourceFile);
+		appendscriptvalue(currentsourcefile);
 		appendscriptvalue(line_number);
 
 		// get the ID of the DEF
@@ -1375,7 +1422,7 @@ int parsecommand()
 		// syntax: addlog
 
 		// source file.
-		appendscriptvalue(g_currentSourceFile);
+		appendscriptvalue(currentsourcefile);
 
 		// prints the line number in the log file.
 		appendscriptvalue(line_number);
@@ -1703,7 +1750,7 @@ int parsecommand()
 	case concmd_gamestartup:
 	{
 		popscriptvalue();
-		auto parseone = []() { transnum(LABEL_DEFINE); return popscriptvalue(); };
+		auto parseone = [=]() { transnum(LABEL_DEFINE); return popscriptvalue(); };
 		ud.const_visibility = parseone();
 		impact_damage = parseone();
 		max_player_health = parseone();
@@ -1754,15 +1801,15 @@ int parsecommand()
 //
 //---------------------------------------------------------------------------
 
-void compilecon(const char *filenam)
+void ConCompiler::compilecon(const char *filenam)
 {
-	g_currentSourceFile = fileSystem.FindFile(filenam);
-	if (g_currentSourceFile < 0)
+	currentsourcefile = fileSystem.FindFile(filenam);
+	if (currentsourcefile < 0)
 	{
 		I_FatalError("%s: Missing con file(s).", filenam);
 	}
 	Printf("Compiling: '%s'.\n", filenam);
-	auto data = fileSystem.GetFileData(g_currentSourceFile, 1);
+	auto data = fileSystem.GetFileData(currentsourcefile, 1);
 	textptr = (char*)data.Data();
 
 	line_number = 1;
@@ -1819,6 +1866,22 @@ static const char* ConFile(void)
 
 //---------------------------------------------------------------------------
 //
+// process the music definitions after all map records are set up.
+//
+//---------------------------------------------------------------------------
+
+void ConCompiler::setmusic()
+{
+	for (auto& tm : tempMusic)
+	{
+		auto map = FindMapByLevelNum(tm.levnum);
+		if (map) map->music = tm.music;
+	}
+	tempMusic.Clear();
+}
+
+//---------------------------------------------------------------------------
+//
 // why was this called loadefs?
 //
 //---------------------------------------------------------------------------
@@ -1842,18 +1905,19 @@ void loadcons()
 	auto before = I_nsTime();
 
 	ScriptCode.Push(0);
-	compilecon(ConFile()); //Tokenize
+	ConCompiler comp;
+	comp.compilecon(ConFile()); //Tokenize
 
 	if (userConfig.AddCons) for (FString& m : *userConfig.AddCons.get())
 	{
-		compilecon(m);
+		comp.compilecon(m);
 	}
 	ScriptCode.ShrinkToFit();
 	labels.ShrinkToFit();
 	userConfig.AddCons.reset();
 	setscriptvalue(0, scriptpos());
 
-	if (errorcount)
+	if (comp.getErrorCount())
 	{
 		I_FatalError("Failed to compile CONs.");
 	}
@@ -1899,13 +1963,7 @@ void loadcons()
 			maprec->levelNumber = levelnum(1, 7);
 		}
 	}
-	for (auto& tm : tempMusic)
-	{
-		auto map = FindMapByLevelNum(tm.levnum);
-		if (map) map->music = tm.music;
-	}
-	tempMusic.Clear();
-
+	comp.setmusic();
 }
 
 END_DUKE_NS

@@ -680,8 +680,6 @@ static uint8_t *svinitsnap;
 static uint32_t svdiffsiz;
 static uint8_t *svdiff;
 
-#include "gamedef.h"
-
 #define SV_SKIPMASK (GAMEVAR_READONLY | GAMEVAR_PTR_MASK)
 
 static char svgm_vars_string [] = "blK:vars";

@@ -113,16 +113,7 @@ extern int g_iZRangeVarID;	// var ID of "ZRANGE"
 extern int g_iAngRangeVarID;	// var ID of "ANGRANGE"
 extern int g_iAimAngleVarID;	// var ID of "AUTOAIMANGLE"
 
-#if 0
-// global crap for event management
-extern int g_i, g_p;
-extern int g_x;
-extern int* g_t;
-extern uint8_t killit_flag;
-//extern sprite_ype* g_sp;
-#endif
-
-bool AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags);
+int AddGameVar(const char *pszLabel, intptr_t lValue, unsigned dwFlags);
 int GetGameID(const char *szGameLabel);
 int GetDefID(const char *szGameLabel);
 void ClearGameVars(void);

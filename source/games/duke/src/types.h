@@ -1,4 +1,5 @@
 #pragma once
+#include "names.h"
 
 BEGIN_DUKE_NS
 

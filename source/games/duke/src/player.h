@@ -60,8 +60,7 @@ extern input_t sync[MAXPLAYERS];
 
 # define PWEAPON(Player, Weapon, Wmember) (aplWeapon ## Wmember [Weapon][Player])
 
-extern playerdata_t     *const g_player;
-
+extern playerdata_t g_player[MAXPLAYERS];
 
 void    P_GetInput(int playerNum);
 void    P_GetInputMotorcycle(int playerNum);

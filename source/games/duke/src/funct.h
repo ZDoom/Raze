@@ -236,5 +236,6 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput = false);
 bool movementBlocked(int snum);
 void GetInput();
 void startmainmenu();
+void loadcons();
 
 END_DUKE_NS

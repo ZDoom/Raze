@@ -15,7 +15,6 @@
 #include "funct.h"
 #include "gamecontrol.h"
 #include "game.h"
-#include "gamedef.h"
 #include "gamevar.h"
 #include "global.h"
 #include "macros.h"

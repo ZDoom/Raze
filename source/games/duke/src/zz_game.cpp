@@ -71,5 +71,7 @@ int32_t PHEIGHT = PHEIGHT_DUKE;
 
 int32_t lastvisinc;
 
+playerdata_t g_player[MAXPLAYERS];
+
 
 END_DUKE_NS

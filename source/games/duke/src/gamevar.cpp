@@ -34,7 +34,6 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
-#include "gamedef.h"
 #include "serializer.h"
 #include "names.h"
 #include "build.h"
@@ -92,7 +91,7 @@ void SerializeGameVars(FSerializer &arc)
 //
 //---------------------------------------------------------------------------
 
-bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
+int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 {
 
 	int i;
@@ -103,12 +102,6 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 	if (dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC))
 		dwFlags |= GAMEVAR_FLAG_SYSTEM;	// force system if PLONG
 
-	if (strlen(pszLabel) > (MAXVARLABEL - 1))
-	{
-		warningcount++;
-		Printf(TEXTCOLOR_RED "  * WARNING.(L%ld) Variable Name '%s' too int (max is %d)\n", line_number, pszLabel, MAXVARLABEL - 1);
-		return 0;
-	}
 	for (i = 0; i < iGameVarCount; i++)
 	{
 		if (strcmp(pszLabel, aGameVars[i].szLabel) == 0)
@@ -121,13 +114,7 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 				// it's OK to replace
 				break;
 			}
-			else
-			{
-				// it's a duplicate in error
-				errorcount++;
-				Printf(TEXTCOLOR_RED "  * ERROR.(L%ld) Duplicate Game definition '%s' ignored.\n", line_number, pszLabel);
-				return 0;
-			}
+			else return -1;
 		}
 	}
 	if (i < MAXGAMEVARS)
@@ -191,7 +178,7 @@ bool AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 	else
 	{
 		// no room to add...
-		return 0;
+		return -2;
 	}
 }
 

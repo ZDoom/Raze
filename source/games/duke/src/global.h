@@ -221,15 +221,7 @@ extern int32_t g_cdTrack;
 // MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
 // "pack takes effect at the first struct, union, or class declaration after
 //  the pragma is seen; pack has no effect on definitions."
-#pragma pack(push,1)
-#ifdef global_c_
-static playerdata_t g_player_s[1 + MAXPLAYERS];
-playerdata_t *const g_player = &g_player_s[1];
-#else
-extern playerdata_t *const g_player;
-#endif
 G_EXTERN player_orig po[MAXPLAYERS];
-#pragma pack(pop)
 
 G_EXTERN uint32_t everyothertime;
 G_EXTERN double g_gameUpdateTime;

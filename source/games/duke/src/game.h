@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #include "fix16.h"
-#include "gamedef.h"
 #include "mmulti.h"
 #include "palette.h"
 #include "cmdlib.h"
@@ -48,13 +47,6 @@ extern int32_t cameraclock;
 extern int32_t cameradist;
 extern int32_t g_doQuickSave;
 extern int32_t tempwallptr;
-
-void G_BackToMenu(void);
-
-void G_UpdatePlayerFromMenu(void);
-
-
-void G_InitTimer(int32_t ticspersec);
 
 enum
 {
@@ -77,5 +69,13 @@ extern weaponhit      hittype[MAXSPRITES];
 extern bool sound445done;
 
 #endif
+
+
+extern intptr_t apScriptGameEvent[];
+
+extern TArray<int> ScriptCode;
+
+
+#include "concmd.h"
 
 END_DUKE_NS
