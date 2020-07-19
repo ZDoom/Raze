@@ -342,7 +342,7 @@ void movecyclers(void)
 				{
 					wal->shade = j;
 
-					if ((wal->cstat & 2) && wal->nextwall >= 0)
+					if ((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && wal->nextwall >= 0)
 						wall[wal->nextwall].shade = j;
 
 				}
@@ -379,7 +379,7 @@ void movedummyplayers(void)
 		{
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && sector[ps[p].cursectnum].lotag == 1)
 			{
-				sprite[i].cstat = 257;
+				sprite[i].cstat = CSTAT_SPRITE_BLOCK_ALL;
 				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (27 << 8);
 				sprite[i].ang = ps[p].getang();
 				if (hittype[i].temp_data[0] == 8)
