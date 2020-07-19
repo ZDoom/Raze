@@ -359,8 +359,8 @@ static void Startup(void)
     ps[0].aim_mode = 1;
     ud.camerasprite = -1;
 
-    if (fileSystem.FileExists("DUKESW.BIN"))
-        g_Shareware = 1;
+	if (fileSystem.FileExists("DUKESW.BIN"))
+		g_gameType |= GAMEFLAG_SHAREWARE;
 
     numplayers = 1;
     playerswhenstarted = ud.multimode;

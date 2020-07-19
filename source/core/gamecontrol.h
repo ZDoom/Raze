@@ -100,11 +100,10 @@ enum
 	GAMEFLAG_ADDON      = 0x00000010,
 	GAMEFLAG_SHAREWARE  = 0x00000020,
 	GAMEFLAG_DUKEBETA   = 0x00000060, // includes 0x20 since it's a shareware beta
-	GAMEFLAG_FURY       = 0x00000080,
+	GAMEFLAG_PLUTOPAK	= 0x00000080,
 	GAMEFLAG_RR         = 0x00000100,
 	GAMEFLAG_RRRA       = 0x00000200,
-	GAMEFLAG_DEER		= 0x00000400,
-	GAMEFLAG_RRALL		= GAMEFLAG_RR | GAMEFLAG_RRRA | GAMEFLAG_DEER,
+	GAMEFLAG_RRALL		= GAMEFLAG_RR | GAMEFLAG_RRRA,
 	GAMEFLAG_BLOOD      = 0x00000800,
 	GAMEFLAG_SW			= 0x00001000,
 	GAMEFLAG_POWERSLAVE	= 0x00002000,
@@ -113,6 +112,10 @@ enum
 	GAMEFLAG_WORLDTOUR = 0x00008000,
 	GAMEFLAG_STANDALONE = 0x00010000,
 	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
+
+	// We still need these for the parsers.
+	GAMEFLAG_FURY = 0,
+	GAMEFLAG_DEER = 0,
 
 };
 
@@ -176,6 +179,11 @@ inline bool isRRRA()
 inline bool isWorldTour()
 {
 	return g_gameType & GAMEFLAG_WORLDTOUR;
+}
+
+inline bool isPlutoPak()
+{
+	return g_gameType & GAMEFLAG_PLUTOPAK;
 }
 
 TArray<GrpEntry> GrpScan();

@@ -40,7 +40,6 @@ BEGIN_DUKE_NS
 extern user_defs ud;
 extern int rtsplaying;
 
-extern int32_t g_Shareware;
 extern int32_t cameraclock;
 extern int32_t cameradist;
 extern int32_t tempwallptr;
@@ -71,9 +70,9 @@ extern TArray<int> ScriptCode;
 
 
 
-#define VOLUMEALL           (g_Shareware == 0)
-#define PLUTOPAK            (true)//g_scriptVersion >= 14)
-#define VOLUMEONE           (g_Shareware == 1)
+#define VOLUMEALL           ((g_gameType & GAMEFLAG_SHAREWARE) == 0)
+#define PLUTOPAK            ((g_gameType & GAMEFLAG_PLUTOPAK) != 0)
+#define VOLUMEONE           ((g_gameType & GAMEFLAG_SHAREWARE) != 0)
 
 #define MOVEFIFOSIZ         256
 

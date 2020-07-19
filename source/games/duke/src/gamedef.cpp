@@ -1743,14 +1743,33 @@ int ConCompiler::parsecommand()
 	case concmd_garybanjo:
 	case concmd_motoloopsnd:
 	case concmd_rndmove:
-	//case concmd_leavetrax:		// RRDH
-	//case concmd_leavedroppings:
-	//case concmd_deploybias:
+		//case concmd_leavetrax:		// RRDH
+		//case concmd_leavedroppings:
+		//case concmd_deploybias:
 		return 0;
 	case concmd_gamestartup:
 	{
+		// What a mess. The only way to detect which game version we are running is to count the parsed values here.
+		int params[34]; // 34 is the maximum for RRRA.
+		int pcount = 0;
+		for (int i = 0; i < 34; i++)
+		{
+			transnum(LABEL_DEFINE);
+			params[pcount++] = popscriptvalue();
+			if (keyword() != -1) break;
+		}
+		int pget = 0;
+
+		if (!isRR())
+		{
+			if (pcount == 30) g_gameType |= GAMEFLAG_PLUTOPAK;
+			else if (pcount == 31) g_gameType |= GAMEFLAG_PLUTOPAK | GAMEFLAG_WORLDTOUR;
+			else if (pcount != 26) I_FatalError("Invalid CONs. Cannot detect version. gamestartup has %d entries", pcount);
+		}
+
 		popscriptvalue();
-		auto parseone = [=]() { transnum(LABEL_DEFINE); return popscriptvalue(); };
+		auto parseone = [&]() { return params[pget++]; };
+
 		ud.const_visibility = parseone();
 		impact_damage = parseone();
 		max_player_health = parseone();
@@ -1758,7 +1777,7 @@ int ConCompiler::parsecommand()
 		respawnactortime = parseone();
 		respawnitemtime = parseone();
 		dukefriction = parseone();
-		gc = parseone();
+		if (isPlutoPak() || isRR()) gc = parseone();
 		rpgblastradius = parseone();
 		pipebombblastradius = parseone();
 		shrinkerblastradius = parseone();
@@ -1776,21 +1795,24 @@ int ConCompiler::parsecommand()
 		max_ammo_amount[7] = parseone();
 		max_ammo_amount[8] = parseone();
 		max_ammo_amount[9] = parseone();
-		 max_ammo_amount[11] = parseone();
+		if (isPlutoPak() || isRR()) max_ammo_amount[11] = parseone();
 		if (isRR() || isWorldTour()) max_ammo_amount[12] = parseone();
 		camerashitable = parseone();
 		numfreezebounces = parseone();
 		freezerhurtowner = parseone();
-		spriteqamount = clamp(parseone(), 0, 1024);
-		lasermode = parseone();
+		if (PLUTOPAK || isRR())
+		{
+			spriteqamount = clamp(parseone(), 0, 1024);
+			lasermode = parseone();
+		}
 		if (isRRRA())
 		{
 			max_ammo_amount[13] = parseone();
 			max_ammo_amount[14] = parseone();
 			max_ammo_amount[16] = parseone();
 		}
+		return 0;
 	}
-	return 0;
 	}
 	return 0;
 }
