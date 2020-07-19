@@ -192,6 +192,13 @@ struct player_struct
 
     int8_t crouch_toggle;
 
+    // input stuff.
+    float   horizAngleAdjust;
+    fix16_t horizSkew;
+    bool    lookLeft;
+    bool    lookRight;
+
+
     // Access helpers for the widened angle and horizon fields.
     int getlookang() { return q16look_ang >> FRACBITS; }
     void setlookang(int b) { q16look_ang = b << FRACBITS; }

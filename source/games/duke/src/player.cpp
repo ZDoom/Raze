@@ -387,7 +387,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 			p->addhoriz(-48);
 		else
 		{
-			g_player[snum].horizSkew = -48;
+			p->horizSkew = -48;
 		}
 
 		p->return_to_center = 9;
@@ -786,13 +786,13 @@ void applylook(int snum, double factor)
 	p->addlookang(factor * -0.25 * fix16_to_dbl(p->q16look_ang));
 	if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
 
-	if (g_player[snum].lookLeft)
+	if (p->lookLeft)
 	{
 		p->addlookang(factor * -152);
 		p->addrotscrnang(factor * 24);
 	}
 
-	if (g_player[snum].lookRight)
+	if (p->lookRight)
 	{
 		p->addlookang(factor * 152);
 		p->addrotscrnang(factor * 24);
@@ -823,14 +823,14 @@ void checklook(int snum, int sb_snum)
 {
 	auto p = &ps[snum];
 
-	g_player[snum].lookLeft = false;
+	p->lookLeft = false;
 	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
 		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 		{
-			g_player[snum].lookLeft = true;
+			p->lookLeft = true;
 		}
 	}
 
@@ -840,7 +840,7 @@ void checklook(int snum, int sb_snum)
 		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
 		if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 		{
-			g_player[snum].lookRight = true;
+			p->lookRight = true;
 		}
 	}
 	p->oq16ang = p->q16ang;
@@ -860,9 +860,9 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput)
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point nath really sucks...)
-	if (g_player[snum].horizAngleAdjust)
+	if (p->horizAngleAdjust)
 	{
-		double horizAngle = atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) +factor * g_player[snum].horizAngleAdjust;
+		double horizAngle = atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) +factor * p->horizAngleAdjust;
 		p->q16horiz = F16(100) + int(F16(128) * tan(horizAngle * (pi::pi() / 512.)));
 	}
 	else if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
@@ -871,7 +871,7 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput)
 		p->q16horiz += factor * (frominput? 2.016 : 1.) * (F16(33) - (p->q16horiz / 3)); // in P_GetInput this used different factors than in the original code. Hm...
 	}
 
-	p->q16horiz += int(factor * g_player[snum].horizSkew);
+	p->q16horiz += int(factor * p->horizSkew);
 
 	if (p->aim_mode == 0)
 	{
@@ -901,7 +901,7 @@ void playerCenterView(int snum)
 
 void horizAngleAdjust(int snum, int delta)
 {
-	g_player[snum].horizAngleAdjust = delta;
+	ps[snum].horizAngleAdjust = delta;
 }
 
 void playerLookUp(int snum, ESyncBits sb_snum)

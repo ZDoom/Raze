@@ -46,19 +46,8 @@ enum gamemode_t {
 };
 
 
-typedef struct
-{
-    float   horizAngleAdjust;
-    fix16_t horizSkew;
-    bool    lookLeft;
-    bool    lookRight;
-
-} playerdata_t;
-
 extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 extern input_t sync[MAXPLAYERS];
-
-extern playerdata_t g_player[MAXPLAYERS];
 
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 

@@ -3395,8 +3395,8 @@ void processinput_r(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	g_player[snum].horizAngleAdjust = 0;
-	g_player[snum].horizSkew = 0;
+	p->horizAngleAdjust = 0;
+	p->horizSkew = 0;
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
@@ -4076,7 +4076,7 @@ HORIZONLY:
 	}
 	if (p->hard_landing > 0)
 	{
-		g_player[snum].horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
+		p->horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
 		p->hard_landing--;
 	}
 
