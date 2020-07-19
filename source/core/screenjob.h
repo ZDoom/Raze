@@ -14,7 +14,6 @@ class DScreenJob : public DObject
 	const float fadetime;	// in milliseconds
 	int fadestate = fadein;
 
-	friend void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore);
 	friend class ScreenJobRunner;
 
 public:
@@ -81,7 +80,8 @@ struct JobDesc
 
 
 void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true);
-void RunScreenJobSync(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore = true);
+void DeleteScreenJob();
+void RunScreenJobFrame();
 
 struct AnimSound
 {

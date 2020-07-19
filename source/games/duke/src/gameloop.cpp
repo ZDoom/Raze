@@ -435,7 +435,7 @@ void app_loop()
 			break;
 
 		case GS_INTERMISSION:
-			// todo: run screen jobs here
+			RunScreenJobFrame();	// This handles continuation through its completion callback.
 			break;
 
 		}

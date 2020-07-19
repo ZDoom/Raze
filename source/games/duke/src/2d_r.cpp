@@ -38,6 +38,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "screenjob.h"
 #include "texturemanager.h"
 #include "c_dispatch.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -644,6 +645,14 @@ CCMD(testrscreen)
 	C_HideConsole();
 	FX_StopAllSounds();
 	Mus_Stop();
+
+	auto gs = gamestate;
+	auto completion = [=](bool)
+	{
+		if (gs == GS_LEVEL || gs == GS_DEMOSCREEN) gamestate = gs;
+		else gamestate = GS_STARTUP;
+	};
+
 	if (argv.argc() > 1)
 	{
 		int screen = strtol(argv[1], nullptr, 0);
@@ -654,23 +663,23 @@ CCMD(testrscreen)
 			if (!isRRRA())
 			{
 				bonussequence_r(screen, jobs, job);
-				RunScreenJob(jobs, job, nullptr);
+				RunScreenJob(jobs, job, completion);
 			}
 			break;
 
 		case 2:
 			jobs[job++] = { Create<DRRMultiplayerBonusScreen>(6) };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		case 3:
 			jobs[job++] = { Create<DRRLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		case 4:
 			jobs[job++] = { Create<DRRRAEndOfGame>() };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		default:

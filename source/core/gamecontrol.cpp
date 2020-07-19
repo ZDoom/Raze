@@ -66,6 +66,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "startupinfo.h"
 #include "mapinfo.h"
 #include "menustate.h"
+#include "screenjob.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -518,6 +519,7 @@ int GameMain()
 		I_ShowFatalError(err.what());
 		r = -1;
 	}
+	DeleteScreenJob();
 	M_ClearMenus(true);
 	if (gi)
 	{

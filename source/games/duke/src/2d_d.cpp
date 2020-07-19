@@ -40,6 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "buildtiles.h"
 #include "mapinfo.h"
 #include "c_dispatch.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -1077,6 +1078,15 @@ CCMD(testscreen)
 	C_HideConsole();
 	FX_StopAllSounds();
 	Mus_Stop();
+
+	auto gs = gamestate;
+	auto completion = [=](bool)
+	{
+		if (gs == GS_LEVEL || gs == GS_DEMOSCREEN) gamestate = gs;
+		else gamestate = GS_STARTUP;
+	};
+
+
 	if (argv.argc() > 1)
 	{
 		int screen = strtol(argv[1], nullptr, 0);
@@ -1088,7 +1098,7 @@ CCMD(testscreen)
 		case 3:
 		case 4:
 			bonussequence_d(screen, jobs, job);
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		case 5:
@@ -1097,7 +1107,7 @@ CCMD(testscreen)
 
 		case 6:
 			jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(6) };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		case 7:
@@ -1110,13 +1120,13 @@ CCMD(testscreen)
 
 		case 9:
 			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			break;
 
 		case 10:
 			ud.eog = true;
 			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, nullptr);
+			RunScreenJob(jobs, job, completion);
 			ud.eog = false;
 			break;
 

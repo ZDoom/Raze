@@ -42,6 +42,7 @@
 #include "v_draw.h"
 #include "s_soundinternal.h"
 #include "animtexture.h"
+#include "gamestate.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
@@ -258,6 +259,22 @@ public:
 		AdvanceJob(false);
 	}
 
+	~ScreenJobRunner()
+	{
+		DeleteJobs();
+	}
+
+	void DeleteJobs()
+	{
+		for (auto& job : jobs)
+		{
+			job.job->Destroy();
+			job.job->ObjectFlags |= OF_YesReallyDelete;
+			delete job.job;
+		}
+		jobs.Clear();
+	}
+
 	void AdvanceJob(bool skip)
 	{
 		index++;
@@ -307,12 +324,7 @@ public:
 	{
 		if (index >= jobs.Size())
 		{
-			for (auto& job : jobs)
-			{
-				job.job->Destroy();
-				job.job->ObjectFlags |= OF_YesReallyDelete;
-				delete job.job;
-			}
+			DeleteJobs();
  			twod->SetScreenFade(1);
 			if (completion) completion(false);
 			return false;
@@ -354,102 +366,32 @@ public:
 	}
 };
 
+ScreenJobRunner *runner;
+
 void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore)
 {
-	ScreenJobRunner runner(jobs, count, completion, clearbefore);
-
-	while (runner.RunFrame())
+	assert(completion != nullptr);
+	if (count)
 	{
-		videoNextPage();
+		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
+		gamestate = GS_INTERMISSION;
 	}
 }
-#if 0
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
-void RunScreenJobSync(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore)
+void DeleteScreenJob()
 {
-	// Release all jobs from the garbage collector - the code as it is cannot deal with them getting collected.
-	for (int i = 0; i < count; i++)
+	if (runner)
 	{
-		jobs[i].job->Release();
+		delete runner;
+		runner = nullptr;
 	}
-	bool skipped = false;
-	for (int i = 0; i < count; i++)
-	{
-		auto job = jobs[i];
-		if (job.job != nullptr && (!skipped || !job.ignoreifskipped))
-		{
-			skipped = false;
-			if (clearbefore)
-			{
-				twod->ClearScreen();
-				videoNextPage();
-			}
-
-			auto startTime = I_nsTime();
-
-			// Input later needs to be event based so that these screens can do more than be skipped.
-			inputState.ClearAllInput();
-
-			float screenfade = job.job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
-
-			while (true)
-			{
-				auto now = I_nsTime();
-				handleevents();
-				bool skiprequest = inputState.CheckAllInput();
-				auto clock = now - startTime;
-				if (screenfade < 1.f)
-				{
-					float ms = (clock / 1'000'000) / job.job->fadetime;
-					screenfade = clamp(ms, 0.f, 1.f);
-					twod->SetScreenFade(screenfade);
-					job.job->fadestate = DScreenJob::fadein;
-				}
-				else job.job->fadestate = DScreenJob::visible;
-				job.job->SetClock(clock);
-				int state = job.job->Frame(clock, skiprequest);
-				startTime -= job.job->GetClock() - clock;
-				// Must lock before displaying.
-				if (state < 1 && job.job->fadestyle & DScreenJob::fadeout)
-					twod->Lock();
-
-				videoNextPage();
-				if (state < 1)
-				{
-					if (job.job->fadestyle & DScreenJob::fadeout)
-					{
-						job.job->fadestate = DScreenJob::fadeout;
-						startTime = now;
-						float screenfade2;
-						do
-						{
-							now = I_nsTime();
-							auto clock = now - startTime;
-							float ms = (clock / 1'000'000) / job.job->fadetime;
-							screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
-							twod->SetScreenFade(screenfade2);
-							if (screenfade2 <= 0.f) twod->Unlock(); // must unlock before displaying.
-							videoNextPage();
-
-						} while (screenfade2 > 0.f);
-					}
-					skipped = state < 0;
-					job.job->Destroy();
-					job.job->ObjectFlags |= OF_YesReallyDelete;
-					delete job.job;
-					twod->SetScreenFade(1);
-					break;
-				}
-			}
-		}
-		if (job.postAction) job.postAction();
-	}
-	if (completion) completion(false);
 }
-#endif
+
+void RunScreenJobFrame()
+{
+	// we cannot recover from this because we have no completion callback to call.
+	if (!runner) I_Error("Trying to run a non-existent screen job");
+	auto res = runner->RunFrame();
+	if (!res) DeleteScreenJob();
+}
 
