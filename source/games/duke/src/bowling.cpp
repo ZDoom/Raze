@@ -72,13 +72,13 @@ short pinsectorresetdown(short sect)
 {
 	int vel, j;
 	
-	j = getanimationgoal(&sector[sect].ceilingz);
+	j = getanimationgoal(anim_ceilingz, sect);
 
 	if (j == -1)
 	{
 		j = sector[sect].floorz;
 		vel = 64;
-		setanimation(sect,&sector[sect].ceilingz,j,vel);
+		setanimation(sect, anim_ceilingz, sect, j, vel);
 		return 1;
 	}
 	return 0;
@@ -87,14 +87,14 @@ short pinsectorresetdown(short sect)
 short pinsectorresetup(short sect)
 {
 	int vel, j;
-	
-	j = getanimationgoal(&sector[sect].ceilingz);
+
+	j = getanimationgoal(anim_ceilingz, sect);
 
 	if (j == -1)
 	{
-		j = sector[nextsectorneighborz(sect,sector[sect].ceilingz,-1,-1)].ceilingz;
+		j = sector[nextsectorneighborz(sect, sector[sect].ceilingz, -1, -1)].ceilingz;
 		vel = 64;
-		setanimation(sect,&sector[sect].ceilingz,j,vel);
+		setanimation(sect, anim_ceilingz, sect, j, vel);
 		return 1;
 	}
 	return 0;

@@ -3666,7 +3666,7 @@ void processinput_r(int snum)
 	if (psectlotag == ST_17_PLATFORM_UP || (isRRRA() && psectlotag == ST_18_ELEVATOR_DOWN))
 	{
 		int tmp;
-		tmp = getanimationgoal(&sector[p->cursectnum].floorz);
+		tmp = getanimationgoal(anim_floorz, p->cursectnum);
 		if (tmp >= 0)
 		{
 			if (!S_CheckSoundPlaying(p->i, 432))

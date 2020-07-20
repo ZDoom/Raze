@@ -272,27 +272,58 @@ int findotherplayer(int p, int* d)
 //
 //---------------------------------------------------------------------------
 
+int* animateptr(int type, int index)
+{
+	static int scratch;
+	switch (type)
+	{
+	case anim_floorz:
+		return &sector[index].floorz;
+	case anim_ceilingz:
+		return &sector[index].ceilingz;
+	case anim_vertexx:
+		return &wall[index].x;
+	case anim_vertexy:
+		return &wall[index].y;
+	default:
+		assert(false);
+		return &scratch;
+	}
+}
+
+int* animateptr(int i)
+{
+	return animateptr(animatetype[i], animatetarget[i]);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void doanimations(void)
 {
 	int i, j, a, p, v, dasect;
 
 	for (i = animatecnt - 1; i >= 0; i--)
 	{
-		a = *animateptr[i];
+		a = *animateptr(i);
 		v = animatevel[i] * TICSPERFRAME;
 		dasect = animatesect[i];
 
 		if (a == animategoal[i])
 		{
-			stopinterpolation(animateptr[i]);
+			stopinterpolation(animateptr(i));
 
 			animatecnt--;
-			animateptr[i] = animateptr[animatecnt];
+			animatetype[i] = animatetype[animatecnt];
+			animatetarget[i] = animatetarget[animatecnt];
 			animategoal[i] = animategoal[animatecnt];
 			animatevel[i] = animatevel[animatecnt];
 			animatesect[i] = animatesect[animatecnt];
 			if (sector[animatesect[i]].lotag == ST_18_ELEVATOR_DOWN || sector[animatesect[i]].lotag == ST_19_ELEVATOR_UP)
-				if (animateptr[i] == &sector[animatesect[i]].ceilingz)
+				if (animatetype[i] == anim_ceilingz)
 					continue;
 
 			if ((sector[dasect].lotag & 0xff) != ST_22_SPLITTING_DOOR)
@@ -304,7 +335,7 @@ void doanimations(void)
 		if (v > 0) { a = min(a + v, animategoal[i]); }
 		else { a = max(a + v, animategoal[i]); }
 
-		if (animateptr[i] == &sector[animatesect[i]].floorz)
+		if (animatetype[i] == anim_floorz)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursectnum == dasect)
@@ -324,7 +355,7 @@ void doanimations(void)
 				}
 		}
 
-		*animateptr[i] = a;
+		*animateptr(i) = a;
 	}
 }
 
@@ -334,13 +365,13 @@ void doanimations(void)
 //
 //---------------------------------------------------------------------------
 
-int getanimationgoal(const int* animptr)
+int getanimationgoal(int animtype, int animtarget)
 {
 	int i, j;
 
 	j = -1;
 	for (i = animatecnt - 1; i >= 0; i--)
-		if (animptr == animateptr[i])
+		if (animtype == animatetype[i] && animtarget == animatetarget[i])
 		{
 			j = i;
 			break;
@@ -354,7 +385,7 @@ int getanimationgoal(const int* animptr)
 //
 //---------------------------------------------------------------------------
 
-int setanimation(short animsect, int* animptr, int thegoal, int thevel)
+int setanimation(short animsect, int animtype, int animtarget, int thegoal, int thevel)
 {
 	int i, j;
 
@@ -363,14 +394,16 @@ int setanimation(short animsect, int* animptr, int thegoal, int thevel)
 
 	j = animatecnt;
 	for (i = 0; i < animatecnt; i++)
-		if (animptr == animateptr[i])
+		if (animtype == animatetype[i] && animtarget == animatetarget[i])
 		{
 			j = i;
 			break;
 		}
 
+	auto animptr = animateptr(animtype, animtarget);
 	animatesect[j] = animsect;
-	animateptr[j] = animptr;
+	animatetype[j] = animtype;
+	animatetarget[j] = animtarget;
 	animategoal[j] = thegoal;
 	if (thegoal >= *animptr)
 		animatevel[j] = thevel;
@@ -466,8 +499,8 @@ void operatesectors(int sn, int ii)
 		endwall = startwall + sptr->wallnum;
 		for (j = startwall; j < endwall; j++)
 		{
-			setanimation(sn, &wall[j].x, wall[j].x + 1024, 4);
-			setanimation(sn, &wall[wall[j].nextwall].x, wall[wall[j].nextwall].x + 1024, 4);
+			setanimation(sn, anim_vertexx, j, wall[j].x + 1024, 4);
+			setanimation(sn, anim_vertexx, wall[j].nextwall, wall[wall[j].nextwall].x + 1024, 4);
 		}
 		break;
 
@@ -491,7 +524,7 @@ void operatesectors(int sn, int ii)
 		break;
 
 	case ST_26_SPLITTING_ST_DOOR: //The split doors
-		i = getanimationgoal(&sptr->ceilingz);
+		i = getanimationgoal(anim_ceilingz, sn);
 		if (i == -1) //if the door has stopped
 		{
 			haltsoundhack = 1;
@@ -551,18 +584,18 @@ void operatesectors(int sn, int ii)
 				{
 					dax2 = wall[wall[wall[wallfind[j]].point2].point2].x;
 					dax2 -= wall[wall[wallfind[j]].point2].x;
-					setanimation(sn, &wall[wallfind[j]].x, wall[wallfind[j]].x + dax2, sp);
-					setanimation(sn, &wall[i].x, wall[i].x + dax2, sp);
-					setanimation(sn, &wall[wall[wallfind[j]].point2].x, wall[wall[wallfind[j]].point2].x + dax2, sp);
+					setanimation(sn, anim_vertexx, wallfind[j], wall[wallfind[j]].x + dax2, sp);
+					setanimation(sn, anim_vertexx, i, wall[i].x + dax2, sp);
+					setanimation(sn, anim_vertexx, wall[wallfind[j]].point2, wall[wall[wallfind[j]].point2].x + dax2, sp);
 					callsound(sn, ii);
 				}
 				else if (day2 != 0)
 				{
 					day2 = wall[wall[wall[wallfind[j]].point2].point2].y;
 					day2 -= wall[wall[wallfind[j]].point2].y;
-					setanimation(sn, &wall[wallfind[j]].y, wall[wallfind[j]].y + day2, sp);
-					setanimation(sn, &wall[i].y, wall[i].y + day2, sp);
-					setanimation(sn, &wall[wall[wallfind[j]].point2].y, wall[wall[wallfind[j]].point2].y + day2, sp);
+					setanimation(sn, anim_vertexy, wallfind[j], wall[wallfind[j]].y + day2, sp);
+					setanimation(sn, anim_vertexy, i, wall[i].y + day2, sp);
+					setanimation(sn, anim_vertexy, wall[wallfind[j]].point2, wall[wall[wallfind[j]].point2].y + day2, sp);
 					callsound(sn, ii);
 				}
 			}
@@ -573,16 +606,16 @@ void operatesectors(int sn, int ii)
 				day2 = ((wall[i].y + wall[wall[wallfind[j]].point2].y) >> 1) - wall[wallfind[j]].y;
 				if (dax2 != 0)
 				{
-					setanimation(sn, &wall[wallfind[j]].x, dax, sp);
-					setanimation(sn, &wall[i].x, dax + dax2, sp);
-					setanimation(sn, &wall[wall[wallfind[j]].point2].x, dax + dax2, sp);
+					setanimation(sn, anim_vertexx, wallfind[j], dax, sp);
+					setanimation(sn, anim_vertexx, i, dax + dax2, sp);
+					setanimation(sn, anim_vertexx, wall[wallfind[j]].point2, dax + dax2, sp);
 					callsound(sn, ii);
 				}
 				else if (day2 != 0)
 				{
-					setanimation(sn, &wall[wallfind[j]].y, day, sp);
-					setanimation(sn, &wall[i].y, day + day2, sp);
-					setanimation(sn, &wall[wall[wallfind[j]].point2].y, day + day2, sp);
+					setanimation(sn, anim_vertexy, wallfind[j], day, sp);
+					setanimation(sn, anim_vertexy, i, day + day2, sp);
+					setanimation(sn, anim_vertexy, wall[wallfind[j]].point2, day + day2, sp);
 					callsound(sn, ii);
 				}
 			}
@@ -624,7 +657,7 @@ void operatesectors(int sn, int ii)
 	case ST_16_PLATFORM_DOWN:
 	case ST_17_PLATFORM_UP:
 
-		i = getanimationgoal(&sptr->floorz);
+		i = getanimationgoal(anim_floorz, sn);
 
 		if (i == -1)
 		{
@@ -634,12 +667,12 @@ void operatesectors(int sn, int ii)
 				i = nextsectorneighborz(sn, sptr->floorz, 1, -1);
 				if (i == -1) return;
 				j = sector[i].floorz;
-				setanimation(sn, &sptr->floorz, j, sptr->extra);
+				setanimation(sn, anim_floorz, sn, j, sptr->extra);
 			}
 			else
 			{
 				j = sector[i].floorz;
-				setanimation(sn, &sptr->floorz, j, sptr->extra);
+				setanimation(sn, anim_floorz, sn, j, sptr->extra);
 			}
 			callsound(sn, ii);
 		}
@@ -649,7 +682,7 @@ void operatesectors(int sn, int ii)
 	case ST_18_ELEVATOR_DOWN:
 	case ST_19_ELEVATOR_UP:
 
-		i = getanimationgoal(&sptr->floorz);
+		i = getanimationgoal(anim_floorz, sn);
 
 		if (i == -1)
 		{
@@ -659,8 +692,8 @@ void operatesectors(int sn, int ii)
 			j = sector[i].floorz;
 			q = sptr->extra;
 			l = sptr->ceilingz - sptr->floorz;
-			setanimation(sn, &sptr->floorz, j, q);
-			setanimation(sn, &sptr->ceilingz, j + l, q);
+			setanimation(sn, anim_floorz, sn, j, q);
+			setanimation(sn, anim_ceilingz, sn, j + l, q);
 			callsound(sn, ii);
 		}
 		return;
@@ -688,7 +721,7 @@ void operatesectors(int sn, int ii)
 
 		sptr->lotag ^= 0x8000;
 
-		setanimation(sn, &sptr->ceilingz, j, sptr->extra);
+		setanimation(sn, anim_ceilingz, sn, j, sptr->extra);
 
 		callsound(sn, ii);
 
@@ -726,13 +759,13 @@ void operatesectors(int sn, int ii)
 
 		sptr->lotag ^= 0x8000;
 
-		setanimation(sn, &sptr->ceilingz, j, sptr->extra);
+		setanimation(sn, anim_ceilingz, sn, j, sptr->extra);
 		callsound(sn, ii);
 
 		return;
 
 	case ST_21_FLOOR_DOOR:
-		i = getanimationgoal(&sptr->floorz);
+		i = getanimationgoal(anim_floorz, sn);
 		if (i >= 0)
 		{
 			if (animategoal[sn] == sptr->ceilingz)
@@ -748,7 +781,7 @@ void operatesectors(int sn, int ii)
 
 			sptr->lotag ^= 0x8000;
 
-			if (setanimation(sn, &sptr->floorz, j, sptr->extra) >= 0)
+			if (setanimation(sn, anim_floorz, sn, j, sptr->extra) >= 0)
 				callsound(sn, ii);
 		}
 		return;
@@ -758,15 +791,15 @@ void operatesectors(int sn, int ii)
 		if ((sptr->lotag & 0x8000))
 		{
 			q = (sptr->ceilingz + sptr->floorz) >> 1;
-			j = setanimation(sn, &sptr->floorz, q, sptr->extra);
-			j = setanimation(sn, &sptr->ceilingz, q, sptr->extra);
+			j = setanimation(sn, anim_floorz, sn, q, sptr->extra);
+			j = setanimation(sn, anim_ceilingz, sn, q, sptr->extra);
 		}
 		else
 		{
 			q = sector[nextsectorneighborz(sn, sptr->floorz, 1, 1)].floorz;
-			j = setanimation(sn, &sptr->floorz, q, sptr->extra);
+			j = setanimation(sn, anim_floorz, sn, q, sptr->extra);
 			q = sector[nextsectorneighborz(sn, sptr->ceilingz, -1, -1)].ceilingz;
-			j = setanimation(sn, &sptr->ceilingz, q, sptr->extra);
+			j = setanimation(sn, anim_ceilingz, sn, q, sptr->extra);
 		}
 
 		sptr->lotag ^= 0x8000;

@@ -3464,7 +3464,7 @@ void handle_se08(int i, bool checkhitag1)
 		}
 		j = 1;
 	}
-	else j = getanimationgoal(&sc->ceilingz);
+	else j = getanimationgoal(anim_ceilingz, s->sectnum);
 
 	if (j >= 0)
 	{
@@ -3556,7 +3556,7 @@ void handle_se10(int i, const int* specialtags)
 			{
 				if (specialtags) for (int i = 0; specialtags[i]; i++)
 				{
-					if (sector[s->sectnum].lotag == specialtags[i] && getanimationgoal(&sector[s->sectnum].ceilingz) >= 0)
+					if (sector[s->sectnum].lotag == specialtags[i] && getanimationgoal(anim_ceilingz, s->sectnum) >= 0)
 					{
 						return;
 					}
@@ -4357,7 +4357,7 @@ void handle_se22(int i)
 	auto sc = &sector[s->sectnum];
 	if (t[1])
 	{
-		if (getanimationgoal(&sector[t[0]].ceilingz) >= 0)
+		if (getanimationgoal(anim_ceilingz, t[0]) >= 0)
 			sc->ceilingz += sc->extra * 9;
 		else t[1] = 0;
 	}

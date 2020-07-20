@@ -142,10 +142,10 @@ void operateforcefields_common(int s, int low, const std::initializer_list<int>&
 void operatemasterswitches(int lotag);
 void operatesectors(int s, int i);
 void hud_input(int playerNum);
-int getanimationgoal(const int* animPtr);
+int getanimationgoal(int animtype, int animindex);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
-int setanimation(short animsect, int* animptr, int thegoal, int thevel);
+int setanimation(short animsect, int animtype, int animindex, int thegoal, int thevel);
 void dofurniture(int wallNum, int sectnum, int playerNum);
 void dotorch();
 int hitawall(struct player_struct* pl, int* hitWall);

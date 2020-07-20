@@ -95,7 +95,8 @@ int numplayersprites;
 int spriteqloc;
 
 int16_t animatesect[MAXANIMATES];
-int* animateptr[MAXANIMATES];
+int8_t animatetype[MAXANIMATES];
+int16_t animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];
 int animatevel[MAXANIMATES];
 

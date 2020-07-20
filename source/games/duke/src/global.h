@@ -109,8 +109,16 @@ extern int mirrorcnt;
 extern int numplayersprites;
 extern int spriteqloc;
 
+enum animtype_t
+{
+	anim_floorz,
+	anim_ceilingz,
+	anim_vertexx,
+	anim_vertexy,
+};
 extern int16_t animatesect[MAXANIMATES];
-extern int* animateptr[MAXANIMATES];
+extern int16_t animatetarget[MAXANIMATES];
+extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
