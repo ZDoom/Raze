@@ -58,8 +58,8 @@ int adjustfall(spritetype* s, int c);
 
 void RANDOMSCRAP(spritetype *s, int i)
 {
-    int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand(), r5 = krand(), r6 = krand(), r7 = krand();
-    int v = isRR() ? 16 : 48;
+	int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand(), r5 = krand(), r6 = krand(), r7 = krand();
+	int v = isRR() ? 16 : 48;
 	EGS(s->sectnum, s->x + (r7 & 255) - 128, s->y + (r6 & 255) - 128, s->z - (8 << 8) - (r5 & 8191), TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), i, 5); 
 }
 

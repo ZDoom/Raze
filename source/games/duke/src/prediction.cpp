@@ -50,7 +50,7 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-      myx = omyx = ps[myconnectindex].posx;
+	  myx = omyx = ps[myconnectindex].posx;
 	  myy = omyy = ps[myconnectindex].posy;
 	  myz = omyz = ps[myconnectindex].posz;
 	  myxvel = myyvel = myzvel = 0;
@@ -60,472 +60,472 @@ void resetmys()
 	  mycursectnum = ps[myconnectindex].cursectnum;
 	  myjumpingcounter = ps[myconnectindex].jumping_counter;
 	  myjumpingtoggle = ps[myconnectindex].jumping_toggle;
-      myonground = ps[myconnectindex].on_ground;
-      myhardlanding = ps[myconnectindex].hard_landing;
-      myreturntocenter = ps[myconnectindex].return_to_center;
+	  myonground = ps[myconnectindex].on_ground;
+	  myhardlanding = ps[myconnectindex].hard_landing;
+	  myreturntocenter = ps[myconnectindex].return_to_center;
  }
 
 #if 0 // todo: fix this when networking works again
 void fakedomovethingscorrect(void)
 {
-     int i;
-     struct player_struct *p;
+	 int i;
+	 struct player_struct *p;
 
-     if (numplayers < 2) return;
+	 if (numplayers < 2) return;
 
-     i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
-     p = &ps[myconnectindex];
+	 i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
+	 p = &ps[myconnectindex];
 
-     if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
-          && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
+	 if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
+		  && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
 
-     myx = p->posx; omyx = p->oposx; myxvel = p->posxv;
-     myy = p->posy; omyy = p->oposy; myyvel = p->posyv;
-     myz = p->posz; omyz = p->oposz; myzvel = p->poszv;
-     myang = p->ang; omyang = p->oang;
-     mycursectnum = p->cursectnum;
-     myhoriz = p->horiz; omyhoriz = p->ohoriz;
-     myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
-     myjumpingcounter = p->jumping_counter;
-     myjumpingtoggle = p->jumping_toggle;
-     myonground = p->on_ground;
-     myhardlanding = p->hard_landing;
-     myreturntocenter = p->return_to_center;
+	 myx = p->posx; omyx = p->oposx; myxvel = p->posxv;
+	 myy = p->posy; omyy = p->oposy; myyvel = p->posyv;
+	 myz = p->posz; omyz = p->oposz; myzvel = p->poszv;
+	 myang = p->ang; omyang = p->oang;
+	 mycursectnum = p->cursectnum;
+	 myhoriz = p->horiz; omyhoriz = p->ohoriz;
+	 myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
+	 myjumpingcounter = p->jumping_counter;
+	 myjumpingtoggle = p->jumping_toggle;
+	 myonground = p->on_ground;
+	 myhardlanding = p->hard_landing;
+	 myreturntocenter = p->return_to_center;
 
-     fakemovefifoplc = movefifoplc;
-     while (fakemovefifoplc < movefifoend[myconnectindex])
-          fakedomovethings();
+	 fakemovefifoplc = movefifoplc;
+	 while (fakemovefifoplc < movefifoend[myconnectindex])
+		  fakedomovethings();
 
 }
 
 void fakedomovethings(void)
 {
-        input *syn;
-        struct player_struct *p;
-        int i, j, k, doubvel, fz, cz, hz, lz, x, y;
-        ESyncBits sb_snum;
-        short psect, psectlotag, tempsect, backcstat;
-        uint8_t shrunk, spritebridge;
+		input *syn;
+		struct player_struct *p;
+		int i, j, k, doubvel, fz, cz, hz, lz, x, y;
+		ESyncBits sb_snum;
+		short psect, psectlotag, tempsect, backcstat;
+		uint8_t shrunk, spritebridge;
 
-        syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
+		syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
-        p = &ps[myconnectindex];
+		p = &ps[myconnectindex];
 
-        backcstat = sprite[p->i].cstat;
-        sprite[p->i].cstat &= ~257;
+		backcstat = sprite[p->i].cstat;
+		sprite[p->i].cstat &= ~257;
 
-        sb_snum = syn->bits;
+		sb_snum = syn->bits;
 
-        psect = mycursectnum;
-        psectlotag = sector[psect].lotag;
-        spritebridge = 0;
+		psect = mycursectnum;
+		psectlotag = sector[psect].lotag;
+		spritebridge = 0;
 
-        shrunk = (sprite[p->i].yrepeat < (isRR()? 8 : 32));
+		shrunk = (sprite[p->i].yrepeat < (isRR()? 8 : 32));
 
-        if( ud.clipping == 0 && ( sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS) )
-        {
-            myx = omyx;
-            myy = omyy;
-        }
-        else
-        {
-            omyx = myx;
-            omyy = myy;
-        }
+		if( ud.clipping == 0 && ( sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS) )
+		{
+			myx = omyx;
+			myy = omyy;
+		}
+		else
+		{
+			omyx = myx;
+			omyy = myy;
+		}
 
-        omyhoriz = myhoriz;
-        omyhorizoff = myhorizoff;
-        omyz = myz;
-        omyang = myang;
+		omyhoriz = myhoriz;
+		omyhorizoff = myhorizoff;
+		omyz = myz;
+		omyang = myang;
 
-        getzrange(myx,myy,myz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
+		getzrange(myx,myy,myz,psect,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
-        j = getflorzofslope(psect,myx,myy);
+		j = getflorzofslope(psect,myx,myy);
 
-        if( (lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
-            psectlotag = 0;
+		if( (lz&49152) == 16384 && psectlotag == 1 && klabs(myz-j) > PHEIGHT+(16<<8) )
+			psectlotag = 0;
 
-        if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
-        {
-                x = myx+(sintable[(myang+512)&2047]>>5);
-                y = myy+(sintable[myang&2047]>>5);
-                tempsect = psect;
-                updatesector(x,y,&tempsect);
-                if (tempsect >= 0)
-                {
-                     k = getflorzofslope(psect,x,y);
-                     if (psect == tempsect)
-                          myhorizoff += mulscale16(j-k,160);
-                     else if (klabs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
-                          myhorizoff += mulscale16(j-k,160);
-                }
-        }
-        if (myhorizoff > 0) myhorizoff -= ((myhorizoff>>3)+1);
-        else if (myhorizoff < 0) myhorizoff += (((-myhorizoff)>>3)+1);
+		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
+		{
+				x = myx+(sintable[(myang+512)&2047]>>5);
+				y = myy+(sintable[myang&2047]>>5);
+				tempsect = psect;
+				updatesector(x,y,&tempsect);
+				if (tempsect >= 0)
+				{
+					 k = getflorzofslope(psect,x,y);
+					 if (psect == tempsect)
+						  myhorizoff += mulscale16(j-k,160);
+					 else if (klabs(getflorzofslope(tempsect,x,y)-k) <= (4<<8))
+						  myhorizoff += mulscale16(j-k,160);
+				}
+		}
+		if (myhorizoff > 0) myhorizoff -= ((myhorizoff>>3)+1);
+		else if (myhorizoff < 0) myhorizoff += (((-myhorizoff)>>3)+1);
 
-        if(hz >= 0 && (hz&49152) == 49152)
-        {
-                hz &= (MAXSPRITES-1);
-                if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
-                {
-                    hz = 0;
-                    cz = getceilzofslope(psect,myx,myy);
-                }
-        }
+		if(hz >= 0 && (hz&49152) == 49152)
+		{
+				hz &= (MAXSPRITES-1);
+				if (sprite[hz].statnum == 1 && sprite[hz].extra >= 0)
+				{
+					hz = 0;
+					cz = getceilzofslope(psect,myx,myy);
+				}
+		}
 
-        if(lz >= 0 && (lz&49152) == 49152)
-        {
-                 j = lz&(MAXSPRITES-1);
-                 if ((sprite[j].cstat&33) == 33)
-                 {
-                        psectlotag = 0;
-                        spritebridge = 1;
-                 }
-                 if(badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8) )
-                 {
-                    j = getangle( sprite[j].x-myx,sprite[j].y-myy);
-                    myxvel -= sintable[(j+512)&2047]<<4;
-                    myyvel -= sintable[j&2047]<<4;
-                }
-        }
+		if(lz >= 0 && (lz&49152) == 49152)
+		{
+				 j = lz&(MAXSPRITES-1);
+				 if ((sprite[j].cstat&33) == 33)
+				 {
+						psectlotag = 0;
+						spritebridge = 1;
+				 }
+				 if(badguy(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(sprite[p->i].z-sprite[j].z) < (84<<8) )
+				 {
+					j = getangle( sprite[j].x-myx,sprite[j].y-myy);
+					myxvel -= sintable[(j+512)&2047]<<4;
+					myyvel -= sintable[j&2047]<<4;
+				}
+		}
 
-        if( sprite[p->i].extra <= 0 )
-        {
-                 if( psectlotag == 2 )
-                 {
-                            if(p->on_warping_sector == 0)
-                            {
-                                     if( klabs(myz-fz) > (PHEIGHT>>1))
-                                             myz += 348;
-                            }
-                            clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
-                 }
+		if( sprite[p->i].extra <= 0 )
+		{
+				 if( psectlotag == 2 )
+				 {
+							if(p->on_warping_sector == 0)
+							{
+									 if( klabs(myz-fz) > (PHEIGHT>>1))
+											 myz += 348;
+							}
+							clipmove(&myx,&myy,&myz,&mycursectnum,0,0,164L,(4L<<8),(4L<<8),CLIPMASK0);
+				 }
 
-                 updatesector(myx,myy,&mycursectnum);
-                 pushmove(&myx,&myy,&myz,&mycursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
+				 updatesector(myx,myy,&mycursectnum);
+				 pushmove(&myx,&myy,&myz,&mycursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
 
-                myhoriz = 100;
-                myhorizoff = 0;
+				myhoriz = 100;
+				myhorizoff = 0;
 
-                 goto ENDFAKEPROCESSINPUT;
-        }
+				 goto ENDFAKEPROCESSINPUT;
+		}
 
-        doubvel = TICSPERFRAME;
+		doubvel = TICSPERFRAME;
 
-        if(p->on_crane >= 0) goto FAKEHORIZONLY;
+		if(p->on_crane >= 0) goto FAKEHORIZONLY;
 
-        if(p->one_eighty_count < 0) myang += 128;
+		if(p->one_eighty_count < 0) myang += 128;
 
-        i = 40;
+		i = 40;
 
-        if( psectlotag == 2)
-        {
-                 myjumpingcounter = 0;
+		if( psectlotag == 2)
+		{
+				 myjumpingcounter = 0;
 
-                 if ( (sb_snum&1) && !(p->OnMotorcycle || p->OnBoat) )
-                 {
-                            if(myzvel > 0) myzvel = 0;
-                            myzvel -= 348;
-                            if(myzvel < -(256*6)) myzvel = -(256*6);
-                 }
-                 else if ( (sb_snum&(1<<1)) && !(p->OnMotorcycle || p->OnBoat) )
-                 {
-                            if(myzvel < 0) myzvel = 0;
-                            myzvel += 348;
-                            if(myzvel > (256*6)) myzvel = (256*6);
-                 }
-                 else
-                 {
-                    if(myzvel < 0)
-                    {
-                        myzvel += 256;
-                        if(myzvel > 0)
-                            myzvel = 0;
-                    }
-                    if(myzvel > 0)
-                    {
-                        myzvel -= 256;
-                        if(myzvel < 0)
-                            myzvel = 0;
-                    }
-                }
+				 if ( (sb_snum&1) && !(p->OnMotorcycle || p->OnBoat) )
+				 {
+							if(myzvel > 0) myzvel = 0;
+							myzvel -= 348;
+							if(myzvel < -(256*6)) myzvel = -(256*6);
+				 }
+				 else if ( (sb_snum&(1<<1)) && !(p->OnMotorcycle || p->OnBoat) )
+				 {
+							if(myzvel < 0) myzvel = 0;
+							myzvel += 348;
+							if(myzvel > (256*6)) myzvel = (256*6);
+				 }
+				 else
+				 {
+					if(myzvel < 0)
+					{
+						myzvel += 256;
+						if(myzvel > 0)
+							myzvel = 0;
+					}
+					if(myzvel > 0)
+					{
+						myzvel -= 256;
+						if(myzvel < 0)
+							myzvel = 0;
+					}
+				}
 
-                if(myzvel > 2048) myzvel >>= 1;
+				if(myzvel > 2048) myzvel >>= 1;
 
-                 myz += myzvel;
+				 myz += myzvel;
 
-                 if(myz > (fz-(15<<8)) )
-                            myz += ((fz-(15<<8))-myz)>>1;
+				 if(myz > (fz-(15<<8)) )
+							myz += ((fz-(15<<8))-myz)>>1;
 
-                 if(myz < (cz+(4<<8)) )
-                 {
-                            myz = cz+(4<<8);
-                            myzvel = 0;
-                 }
-        }
+				 if(myz < (cz+(4<<8)) )
+				 {
+							myz = cz+(4<<8);
+							myzvel = 0;
+				 }
+		}
 
-        else if(p->jetpack_on)
-        {
-                 myonground = 0;
-                 myjumpingcounter = 0;
-                 myhardlanding = 0;
+		else if(p->jetpack_on)
+		{
+				 myonground = 0;
+				 myjumpingcounter = 0;
+				 myhardlanding = 0;
 
-                 if(p->jetpack_on < 11)
-                            myz -= (p->jetpack_on<<7); //Goin up
+				 if(p->jetpack_on < 11)
+							myz -= (p->jetpack_on<<7); //Goin up
 
-                 if(shrunk) j = 512;
-                 else j = 2048;
-                 
-                 if ((sb_snum&1) && !(p->OnMotorcycle || p->OnBoat))
-                            myz -= j;
-                 if ((sb_snum&(1<<1)) && !(p->OnMotorcycle || p->OnBoat))
-                            myz += j;
+				 if(shrunk) j = 512;
+				 else j = 2048;
+				 
+				 if ((sb_snum&1) && !(p->OnMotorcycle || p->OnBoat))
+							myz -= j;
+				 if ((sb_snum&(1<<1)) && !(p->OnMotorcycle || p->OnBoat))
+							myz += j;
 
-                 if(shrunk == 0 && ( psectlotag == 0 || psectlotag == 2 ) ) k = 32;
-                 else k = 16;
+				 if(shrunk == 0 && ( psectlotag == 0 || psectlotag == 2 ) ) k = 32;
+				 else k = 16;
 
-                 if(myz > (fz-(k<<8)) )
-                            myz += ((fz-(k<<8))-myz)>>1;
-                 if(myz < (cz+(18<<8)) )
-                            myz = cz+(18<<8);
-        }
-        else if( psectlotag != 2 )
-        {
-            if (psectlotag == 1 && p->spritebridge == 0)
-            {
-                 if(shrunk == 0) i = 34;
-                 else i = 12;
-            }
-                 if(myz < (fz-(i<<8)) && (floorspace(psect)|ceilingspace(psect)) == 0 ) //falling
-                 {
-                            if( (sb_snum&3) == 0 && !(p->OnMotorcycle || p->OnBoat) && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8) ) )
-                                     myz = fz-(i<<8);
-                            else
-                            {
-                                     myonground = 0;
+				 if(myz > (fz-(k<<8)) )
+							myz += ((fz-(k<<8))-myz)>>1;
+				 if(myz < (cz+(18<<8)) )
+							myz = cz+(18<<8);
+		}
+		else if( psectlotag != 2 )
+		{
+			if (psectlotag == 1 && p->spritebridge == 0)
+			{
+				 if(shrunk == 0) i = 34;
+				 else i = 12;
+			}
+				 if(myz < (fz-(i<<8)) && (floorspace(psect)|ceilingspace(psect)) == 0 ) //falling
+				 {
+							if( (sb_snum&3) == 0 && !(p->OnMotorcycle || p->OnBoat) && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8) ) )
+									 myz = fz-(i<<8);
+							else
+							{
+									 myonground = 0;
 
-                                     myzvel += (gc+80);
+									 myzvel += (gc+80);
 
-                                     if(myzvel >= (4096+2048)) myzvel = (4096+2048);
-                            }
-                 }
+									 if(myzvel >= (4096+2048)) myzvel = (4096+2048);
+							}
+				 }
 
-                 else
-                 {
-                            if(psectlotag != 1 && psectlotag != 2 && myonground == 0 && myzvel > (6144>>1))
-                                 myhardlanding = myzvel>>10;
-                            myonground = 1;
+				 else
+				 {
+							if(psectlotag != 1 && psectlotag != 2 && myonground == 0 && myzvel > (6144>>1))
+								 myhardlanding = myzvel>>10;
+							myonground = 1;
 
-                            if(i==40)
-                            {
-                                     //Smooth on the ground
+							if(i==40)
+							{
+									 //Smooth on the ground
 
-                                     k = ((fz-(i<<8))-myz)>>1;
-                                     if( klabs(k) < 256 ) k = 0;
-                                     myz += k; // ((fz-(i<<8))-myz)>>1;
-                                     myzvel -= 768; // 412;
-                                     if(myzvel < 0) myzvel = 0;
-                            }
-                            else if(myjumpingcounter == 0)
-                            {
-                                myz += ((fz-(i<<7))-myz)>>1; //Smooth on the water
-                                if(p->on_warping_sector == 0 && myz > fz-(16<<8))
-                                {
-                                    myz = fz-(16<<8);
-                                    myzvel >>= 1;
-                                }
-                            }
+									 k = ((fz-(i<<8))-myz)>>1;
+									 if( klabs(k) < 256 ) k = 0;
+									 myz += k; // ((fz-(i<<8))-myz)>>1;
+									 myzvel -= 768; // 412;
+									 if(myzvel < 0) myzvel = 0;
+							}
+							else if(myjumpingcounter == 0)
+							{
+								myz += ((fz-(i<<7))-myz)>>1; //Smooth on the water
+								if(p->on_warping_sector == 0 && myz > fz-(16<<8))
+								{
+									myz = fz-(16<<8);
+									myzvel >>= 1;
+								}
+							}
 
-                            if( (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat) )
-                                     myz += (2048+768);
+							if( (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat) )
+									 myz += (2048+768);
 
-                            if( (sb_snum&1) == 0 && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 1)
-                                     myjumpingtoggle = 0;
+							if( (sb_snum&1) == 0 && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 1)
+									 myjumpingtoggle = 0;
 
-                            else if( (sb_snum&1) && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 0 )
-                            {
-                                     if( myjumpingcounter == 0 )
-                                             if( (fz-cz) > (56<<8) )
-                                             {
-                                                myjumpingcounter = 1;
-                                                myjumpingtoggle = 1;
-                                             }
-                            }
-                            if(!isRR() && myjumpingcounter && (sb_snum&1) == 0 )
-                                myjumpingcounter = 0;
-                 }
+							else if( (sb_snum&1) && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 0 )
+							{
+									 if( myjumpingcounter == 0 )
+											 if( (fz-cz) > (56<<8) )
+											 {
+												myjumpingcounter = 1;
+												myjumpingtoggle = 1;
+											 }
+							}
+							if(!isRR() && myjumpingcounter && (sb_snum&1) == 0 )
+								myjumpingcounter = 0;
+				 }
 
-                 if(myjumpingcounter)
-                 {
-                            if( (sb_snum&1) == 0 && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 1)
-                                     myjumpingtoggle = 0;
+				 if(myjumpingcounter)
+				 {
+							if( (sb_snum&1) == 0 && !(p->OnMotorcycle || p->OnBoat) && myjumpingtoggle == 1)
+									 myjumpingtoggle = 0;
 
-                            if( myjumpingcounter < (1024+256) )
-                            {
-                                     if(psectlotag == 1 && myjumpingcounter > 768)
-                                     {
-                                             myjumpingcounter = 0;
-                                             myzvel = -512;
-                                     }
-                                     else
-                                     {
-                                             myzvel -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
-                                             myjumpingcounter += 180;
+							if( myjumpingcounter < (1024+256) )
+							{
+									 if(psectlotag == 1 && myjumpingcounter > 768)
+									 {
+											 myjumpingcounter = 0;
+											 myzvel = -512;
+									 }
+									 else
+									 {
+											 myzvel -= (sintable[(2048-128+myjumpingcounter)&2047])/12;
+											 myjumpingcounter += 180;
 
-                                             myonground = 0;
-                                     }
-                            }
-                            else
-                            {
-                                     myjumpingcounter = 0;
-                                     myzvel = 0;
-                            }
-                 }
+											 myonground = 0;
+									 }
+							}
+							else
+							{
+									 myjumpingcounter = 0;
+									 myzvel = 0;
+							}
+				 }
 
-                 myz += myzvel;
+				 myz += myzvel;
 
-                 if(myz < (cz+(4<<8)) )
-                 {
-                            myjumpingcounter = 0;
-                            if(myzvel < 0) myxvel = myyvel = 0;
-                            myzvel = 128;
-                            myz = cz+(4<<8);
-                 }
+				 if(myz < (cz+(4<<8)) )
+				 {
+							myjumpingcounter = 0;
+							if(myzvel < 0) myxvel = myyvel = 0;
+							myzvel = 128;
+							myz = cz+(4<<8);
+				 }
 
-        }
+		}
 
-        if (movementBlocked(snum) || myhardlanding)
-        {
-                 doubvel = 0;
-                 myxvel = 0;
-                 myyvel = 0;
-        }
-        else if ( syn->avel )          //p->ang += syncangvel * constant
-        {                         //ENGINE calculates angvel for you
-            int tempang;
+		if (movementBlocked(snum) || myhardlanding)
+		{
+				 doubvel = 0;
+				 myxvel = 0;
+				 myyvel = 0;
+		}
+		else if ( syn->avel )          //p->ang += syncangvel * constant
+		{                         //ENGINE calculates angvel for you
+			int tempang;
 
-            tempang = syn->avel<<1;
+			tempang = syn->avel<<1;
 
-            if(psectlotag == 2)
-                myang += (tempang-(tempang>>3))*sgn(doubvel);
-            else myang += (tempang)*sgn(doubvel);
-            myang &= 2047;
-        }
+			if(psectlotag == 2)
+				myang += (tempang-(tempang>>3))*sgn(doubvel);
+			else myang += (tempang)*sgn(doubvel);
+			myang &= 2047;
+		}
 
-        if ( myxvel || myyvel || syn->fvel || syn->svel )
-        {
-                 if(p->steroids_amount > 0 && p->steroids_amount < 400)
-                     doubvel <<= 1;
+		if ( myxvel || myyvel || syn->fvel || syn->svel )
+		{
+				 if(p->steroids_amount > 0 && p->steroids_amount < 400)
+					 doubvel <<= 1;
 
-                 myxvel += ((syn->fvel*doubvel)<<6);
-                 myyvel += ((syn->svel*doubvel)<<6);
+				 myxvel += ((syn->fvel*doubvel)<<6);
+				 myyvel += ((syn->svel*doubvel)<<6);
 
-                 if( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat)) )
-                 {
-                            myxvel = mulscale16(myxvel,dukefriction-0x2000);
-                            myyvel = mulscale16(myyvel,dukefriction-0x2000);
-                 }
-                 else
-                 {
-                    if(psectlotag == 2)
-                    {
-                        myxvel = mulscale16(myxvel,dukefriction-0x1400);
-                        myyvel = mulscale16(myyvel,dukefriction-0x1400);
-                    }
-                    else
-                    {
-                        myxvel = mulscale16(myxvel,dukefriction);
-                        myyvel = mulscale16(myyvel,dukefriction);
-                    }
-                 }
+				 if( ( p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && myonground ) || ( myonground && (sb_snum&2) && !(p->OnMotorcycle || p->OnBoat)) )
+				 {
+							myxvel = mulscale16(myxvel,dukefriction-0x2000);
+							myyvel = mulscale16(myyvel,dukefriction-0x2000);
+				 }
+				 else
+				 {
+					if(psectlotag == 2)
+					{
+						myxvel = mulscale16(myxvel,dukefriction-0x1400);
+						myyvel = mulscale16(myyvel,dukefriction-0x1400);
+					}
+					else
+					{
+						myxvel = mulscale16(myxvel,dukefriction);
+						myyvel = mulscale16(myyvel,dukefriction);
+					}
+				 }
 
-                 if( abs(myxvel) < 2048 && abs(myyvel) < 2048 )
-                     myxvel = myyvel = 0;
+				 if( abs(myxvel) < 2048 && abs(myyvel) < 2048 )
+					 myxvel = myyvel = 0;
 
-                 if( shrunk )
-                 {
-                     myxvel =
-                         mulscale16(myxvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
-                     myyvel =
-                         mulscale16(myyvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
-                 }
-        }
+				 if( shrunk )
+				 {
+					 myxvel =
+						 mulscale16(myxvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
+					 myyvel =
+						 mulscale16(myyvel,(dukefriction)-(dukefriction>>1)+(dukefriction>>2));
+				 }
+		}
 
 FAKEHORIZONLY:
-        if(psectlotag == 1 || spritebridge == 1) i = (4L<<8); else i = (20L<<8);
+		if(psectlotag == 1 || spritebridge == 1) i = (4L<<8); else i = (20L<<8);
 
-        clipmove(&myx,&myy,&myz,&mycursectnum,myxvel,myyvel,164L,4L<<8,i,CLIPMASK0);
-        pushmove(&myx,&myy,&myz,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
+		clipmove(&myx,&myy,&myz,&mycursectnum,myxvel,myyvel,164L,4L<<8,i,CLIPMASK0);
+		pushmove(&myx,&myy,&myz,&mycursectnum,164L,4L<<8,4L<<8,CLIPMASK0);
 
-        if( p->jetpack_on == 0 && psectlotag != 1 && psectlotag != 2 && shrunk)
-            myz += 30<<8;
+		if( p->jetpack_on == 0 && psectlotag != 1 && psectlotag != 2 && shrunk)
+			myz += 30<<8;
 
-        if ((sb_snum&(1<<18)) || myhardlanding)
-            myreturntocenter = 9;
+		if ((sb_snum&(1<<18)) || myhardlanding)
+			myreturntocenter = 9;
 
-        if (sb_snum&(1<<13))
-        {
-                myreturntocenter = 9;
-                if (sb_snum&(1<<5)) myhoriz += 6;
-                myhoriz += 6;
-        }
-        else if (sb_snum&(1<<14))
-        {
-                myreturntocenter = 9;
-                if (sb_snum&(1<<5)) myhoriz -= 6;
-                myhoriz -= 6;
-        }
-        else if ((sb_snum&(1<<3)) && !(p->OnMotorcycle || p->OnBoat))
-        {
-                if (sb_snum&(1<<5)) myhoriz += 6;
-                myhoriz += 6;
-        }
-        else if ((sb_snum&(1<<4)) && !(p->OnMotorcycle || p->OnBoat))
-        {
-                if (sb_snum&(1<<5)) myhoriz -= 6;
-                myhoriz -= 6;
-        }
+		if (sb_snum&(1<<13))
+		{
+				myreturntocenter = 9;
+				if (sb_snum&(1<<5)) myhoriz += 6;
+				myhoriz += 6;
+		}
+		else if (sb_snum&(1<<14))
+		{
+				myreturntocenter = 9;
+				if (sb_snum&(1<<5)) myhoriz -= 6;
+				myhoriz -= 6;
+		}
+		else if ((sb_snum&(1<<3)) && !(p->OnMotorcycle || p->OnBoat))
+		{
+				if (sb_snum&(1<<5)) myhoriz += 6;
+				myhoriz += 6;
+		}
+		else if ((sb_snum&(1<<4)) && !(p->OnMotorcycle || p->OnBoat))
+		{
+				if (sb_snum&(1<<5)) myhoriz -= 6;
+				myhoriz -= 6;
+		}
 
-        if (myreturntocenter > 0)
-            if ((sb_snum&(1<<13)) == 0 && (sb_snum&(1<<14)) == 0)
-        {
-             myreturntocenter--;
-             myhoriz += 33-(myhoriz/3);
-        }
+		if (myreturntocenter > 0)
+			if ((sb_snum&(1<<13)) == 0 && (sb_snum&(1<<14)) == 0)
+		{
+			 myreturntocenter--;
+			 myhoriz += 33-(myhoriz/3);
+		}
 
-        if(p->aim_mode)
-            myhoriz += syn->horz>>1;
-        else
-        {
-            if( myhoriz > 95 && myhoriz < 105) myhoriz = 100;
-            if( myhorizoff > -5 && myhorizoff < 5) myhorizoff = 0;
-        }
+		if(p->aim_mode)
+			myhoriz += syn->horz>>1;
+		else
+		{
+			if( myhoriz > 95 && myhoriz < 105) myhoriz = 100;
+			if( myhorizoff > -5 && myhorizoff < 5) myhorizoff = 0;
+		}
 
-        if (myhardlanding > 0)
-        {
-            myhardlanding--;
-            myhoriz -= (myhardlanding<<4);
-        }
+		if (myhardlanding > 0)
+		{
+			myhardlanding--;
+			myhoriz -= (myhardlanding<<4);
+		}
 
-        myhoriz = clamp(myhoriz, HORIZ_MIN, HORIZ_MAX);
+		myhoriz = clamp(myhoriz, HORIZ_MIN, HORIZ_MAX);
 
-        if(p->knee_incs > 0)
-        {
-            myhoriz -= 48;
-            myreturntocenter = 9;
-        }
+		if(p->knee_incs > 0)
+		{
+			myhoriz -= 48;
+			myreturntocenter = 9;
+		}
 
 
 ENDFAKEPROCESSINPUT:
 
-        myxbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myx;
-        myybak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myy;
-        myzbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myz;
-        myangbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myang;
-        myhorizbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
-        fakemovefifoplc++;
+		myxbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myx;
+		myybak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myy;
+		myzbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myz;
+		myangbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myang;
+		myhorizbak[fakemovefifoplc&(MOVEFIFOSIZ-1)] = myhoriz;
+		fakemovefifoplc++;
 
-        sprite[p->i].cstat = backcstat;
+		sprite[p->i].cstat = backcstat;
 }
 #endif
 

@@ -222,12 +222,12 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
  void setgamepalette(int palid)
 {
-    if (palid >= MAXBASEPALS || palid < 0) palid = 0;
+	if (palid >= MAXBASEPALS || palid < 0) palid = 0;
 	auto& fstint = lookups.tables[MAXPALOOKUPS - 1];
 	if (palid == WATERPAL) fstint.tintColor = PalEntry(224, 192, 255);
 	else if (palid == SLIMEPAL) fstint.tintColor = PalEntry(208, 255, 192);
 	else fstint.tintColor = 0xffffff;
-    videoSetPalette(palid);
+	videoSetPalette(palid);
 }
 
 //---------------------------------------------------------------------------
@@ -716,8 +716,8 @@ void cameratext(int i)
 void dobonus(int bonusonly, const CompletionFunc& completion)
 {
 	if (isRRRA()) { if (completion) completion(false); }
-    else if (isRR()) dobonus_r(bonusonly, completion);
-    else dobonus_d(bonusonly, completion);
+	else if (isRR()) dobonus_r(bonusonly, completion);
+	else dobonus_d(bonusonly, completion);
 }
 
 //---------------------------------------------------------------------------

@@ -4153,27 +4153,27 @@ void processmove_r(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int s
 
 void OnMotorcycle(struct player_struct *p, int motosprite)
 {
-    if (!p->OnMotorcycle && !(sector[p->cursectnum].lotag == 2))
-    {
-        if (motosprite)
-        {
-            p->posx = sprite[motosprite].x;
-            p->posy = sprite[motosprite].y;
-            p->setang(sprite[motosprite].ang);
-            p->ammo_amount[MOTORCYCLE_WEAPON] = sprite[motosprite].owner;
-            deletesprite(motosprite);
-        }
-        p->over_shoulder_on = 0;
-        p->OnMotorcycle = 1;
-        p->last_full_weapon = p->curr_weapon;
-        p->curr_weapon = MOTORCYCLE_WEAPON;
-        p->gotweapon.Set(MOTORCYCLE_WEAPON);
-        p->posxv = 0;
-        p->posyv = 0;
-        p->sethoriz(100);
-    }
-    if (!A_CheckSoundPlaying(p->i,186))
-        A_PlaySound(186, p->i);
+	if (!p->OnMotorcycle && !(sector[p->cursectnum].lotag == 2))
+	{
+		if (motosprite)
+		{
+			p->posx = sprite[motosprite].x;
+			p->posy = sprite[motosprite].y;
+			p->setang(sprite[motosprite].ang);
+			p->ammo_amount[MOTORCYCLE_WEAPON] = sprite[motosprite].owner;
+			deletesprite(motosprite);
+		}
+		p->over_shoulder_on = 0;
+		p->OnMotorcycle = 1;
+		p->last_full_weapon = p->curr_weapon;
+		p->curr_weapon = MOTORCYCLE_WEAPON;
+		p->gotweapon.Set(MOTORCYCLE_WEAPON);
+		p->posxv = 0;
+		p->posyv = 0;
+		p->sethoriz(100);
+	}
+	if (!A_CheckSoundPlaying(p->i,186))
+		A_PlaySound(186, p->i);
 }
 
 //---------------------------------------------------------------------------
@@ -4184,42 +4184,42 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 
 void OffMotorcycle(struct player_struct *p)
 {
-    short j;
-    if (p->OnMotorcycle)
-    {
-        if (A_CheckSoundPlaying(p->i,188))
-            S_StopEnvSound(188,p->i);
-        if (A_CheckSoundPlaying(p->i,187))
-            S_StopEnvSound(187,p->i);
-        if (A_CheckSoundPlaying(p->i,186))
-            S_StopEnvSound(186,p->i);
-        if (A_CheckSoundPlaying(p->i,214))
-            S_StopEnvSound(214,p->i);
-        if (!A_CheckSoundPlaying(p->i,42))
-            A_PlaySound(42, p->i);
-        p->OnMotorcycle = 0;
-        p->gotweapon.Clear(MOTORCYCLE_WEAPON);
-        p->curr_weapon = p->last_full_weapon;
-        checkavailweapon(p);
-        p->sethoriz(100);
-        p->moto_do_bump = 0;
-        p->MotoSpeed = 0;
-        p->TiltStatus = 0;
-        p->moto_drink = 0;
-        p->VBumpTarget = 0;
-        p->VBumpNow = 0;
-        p->TurbCount = 0;
-        p->posxv = 0;
-        p->posyv = 0;
-        p->posxv -= sintable[(p->getang()+512)&2047]<<7;
-        p->posyv -= sintable[p->getang()&2047]<<7;
-        p->moto_underwater = 0;
-        j = fi.spawn(p->i, EMPTYBIKE);
-        sprite[j].ang = p->getang();
-        sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
-        sprite[j].yvel += sintable[p->getang()&2047]<<7;
-        sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
-    }
+	short j;
+	if (p->OnMotorcycle)
+	{
+		if (A_CheckSoundPlaying(p->i,188))
+			S_StopEnvSound(188,p->i);
+		if (A_CheckSoundPlaying(p->i,187))
+			S_StopEnvSound(187,p->i);
+		if (A_CheckSoundPlaying(p->i,186))
+			S_StopEnvSound(186,p->i);
+		if (A_CheckSoundPlaying(p->i,214))
+			S_StopEnvSound(214,p->i);
+		if (!A_CheckSoundPlaying(p->i,42))
+			A_PlaySound(42, p->i);
+		p->OnMotorcycle = 0;
+		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
+		p->curr_weapon = p->last_full_weapon;
+		checkavailweapon(p);
+		p->sethoriz(100);
+		p->moto_do_bump = 0;
+		p->MotoSpeed = 0;
+		p->TiltStatus = 0;
+		p->moto_drink = 0;
+		p->VBumpTarget = 0;
+		p->VBumpNow = 0;
+		p->TurbCount = 0;
+		p->posxv = 0;
+		p->posyv = 0;
+		p->posxv -= sintable[(p->getang()+512)&2047]<<7;
+		p->posyv -= sintable[p->getang()&2047]<<7;
+		p->moto_underwater = 0;
+		j = fi.spawn(p->i, EMPTYBIKE);
+		sprite[j].ang = p->getang();
+		sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
+		sprite[j].yvel += sintable[p->getang()&2047]<<7;
+		sprite[j].owner = p->ammo_amount[MOTORCYCLE_WEAPON];
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -4230,25 +4230,25 @@ void OffMotorcycle(struct player_struct *p)
 
 void OnBoat(struct player_struct *p, int boatsprite)
 {
-    if (!p->OnBoat)
-    {
-        if (boatsprite)
-        {
-            p->posx = sprite[boatsprite].x;
-            p->posy = sprite[boatsprite].y;
-            p->setang(sprite[boatsprite].ang);
-            p->ammo_amount[BOAT_WEAPON] = sprite[boatsprite].owner;
-            deletesprite(boatsprite);
-        }
-        p->over_shoulder_on = 0;
-        p->OnBoat = 1;
-        p->last_full_weapon = p->curr_weapon;
-        p->curr_weapon = BOAT_WEAPON;
-        p->gotweapon.Set(BOAT_WEAPON);
-        p->posxv = 0;
-        p->posyv = 0;
-        p->sethoriz(100);
-    }
+	if (!p->OnBoat)
+	{
+		if (boatsprite)
+		{
+			p->posx = sprite[boatsprite].x;
+			p->posy = sprite[boatsprite].y;
+			p->setang(sprite[boatsprite].ang);
+			p->ammo_amount[BOAT_WEAPON] = sprite[boatsprite].owner;
+			deletesprite(boatsprite);
+		}
+		p->over_shoulder_on = 0;
+		p->OnBoat = 1;
+		p->last_full_weapon = p->curr_weapon;
+		p->curr_weapon = BOAT_WEAPON;
+		p->gotweapon.Set(BOAT_WEAPON);
+		p->posxv = 0;
+		p->posyv = 0;
+		p->sethoriz(100);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -4259,32 +4259,32 @@ void OnBoat(struct player_struct *p, int boatsprite)
 
 void OffBoat(struct player_struct *p)
 {
-    short j;
-    if (p->OnBoat)
-    {
-        p->OnBoat = 0;
-        p->gotweapon.Clear(BOAT_WEAPON);
-        p->curr_weapon = p->last_full_weapon;
-        checkavailweapon(p);
+	short j;
+	if (p->OnBoat)
+	{
+		p->OnBoat = 0;
+		p->gotweapon.Clear(BOAT_WEAPON);
+		p->curr_weapon = p->last_full_weapon;
+		checkavailweapon(p);
 		p->sethoriz(100);
 		p->moto_do_bump = 0;
 		p->MotoSpeed = 0;
-        p->TiltStatus = 0;
-        p->moto_drink = 0;
-        p->VBumpTarget = 0;
-        p->VBumpNow = 0;
-        p->TurbCount = 0;
-        p->posxv = 0;
-        p->posyv = 0;
-        p->posxv -= sintable[(p->getang()+512)&2047]<<7;
-        p->posyv -= sintable[p->getang()&2047]<<7;
-        p->moto_underwater = 0;
-        j = fi.spawn(p->i, EMPTYBOAT);
-        sprite[j].ang = p->getang();
-        sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
-        sprite[j].yvel += sintable[p->getang()&2047]<<7;
-        sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
-    }
+		p->TiltStatus = 0;
+		p->moto_drink = 0;
+		p->VBumpTarget = 0;
+		p->VBumpNow = 0;
+		p->TurbCount = 0;
+		p->posxv = 0;
+		p->posyv = 0;
+		p->posxv -= sintable[(p->getang()+512)&2047]<<7;
+		p->posyv -= sintable[p->getang()&2047]<<7;
+		p->moto_underwater = 0;
+		j = fi.spawn(p->i, EMPTYBOAT);
+		sprite[j].ang = p->getang();
+		sprite[j].xvel += sintable[(p->getang()+512)&2047]<<7;
+		sprite[j].yvel += sintable[p->getang()&2047]<<7;
+		sprite[j].owner = p->ammo_amount[BOAT_WEAPON];
+	}
 }
 
 

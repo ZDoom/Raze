@@ -401,7 +401,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 		if (foundone) return -1;
 	}
 
-	int32_t    sndist;
+	int32_t sndist;
 	FVector3 sndpos;    // this is in sound engine space.
 
 	vec3_t* campos;
@@ -409,7 +409,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 
 	S_GetCamera(&campos, nullptr, &camsect);
 	GetPositionInfo(spriteNum, sndnum, camsect, campos, pos, &sndist, &sndpos);
-	int        pitch = S_GetPitch(sndnum);
+	int pitch = S_GetPitch(sndnum);
 
 	bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
 

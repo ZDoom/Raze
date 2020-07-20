@@ -148,7 +148,7 @@ class DukeMainMenu : public DukeListMenu
 			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffsetRel, true, TAG_DONE);
 		}
 		else
-        {
+		{
 			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
 			if (PLUTOPAK)
 			{
@@ -156,7 +156,7 @@ class DukeMainMenu : public DukeListMenu
 				PalEntry pe(255, light, light, light);
 				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 			}
-        }
+		}
 		
 	}
 };

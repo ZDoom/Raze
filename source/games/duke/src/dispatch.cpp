@@ -9,7 +9,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -61,16 +61,16 @@ bool ceilingspace_d(int sectnum);
 bool ceilingspace_r(int sectnum);
 bool floorspace_d(int sectnum);
 bool floorspace_r(int sectnum);
-void addweapon_d(struct player_struct *p, int weapon);
-void addweapon_r(struct player_struct *p, int weapon);
+void addweapon_d(struct player_struct* p, int weapon);
+void addweapon_r(struct player_struct* p, int weapon);
 void hitradius_d(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 void hitradius_r(short i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 int movesprite_d(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
 int movesprite_r(short spritenum, int xchange, int ychange, int zchange, unsigned int cliptype);
-void lotsofmoney_d(spritetype *s, short n);
-void lotsofmail_d(spritetype *s, short n);
-void lotsofpaper_d(spritetype *s, short n);
-void lotsoffeathers_r(spritetype *s, short n);
+void lotsofmoney_d(spritetype* s, short n);
+void lotsofmail_d(spritetype* s, short n);
+void lotsofpaper_d(spritetype* s, short n);
+void lotsoffeathers_r(spritetype* s, short n);
 void guts_d(spritetype* s, short gtype, short n, short p);
 void guts_r(spritetype* s, short gtype, short n, short p);
 void gutsdir_d(spritetype* s, short gtype, short n, short p);
@@ -132,7 +132,7 @@ void SetDispatcher()
 		Logo_d,
 		InitFonts_d,
 		PrintPaused_d,
-		
+
 		think_d,
 		initactorflags_d,
 		isadoorwall_d,
@@ -145,20 +145,20 @@ void SetDispatcher()
 		checkplayerhurt_d,
 		checkhitceiling_d,
 		checkhitsprite_d,
-		checksectors_d,        
+		checksectors_d,
 
-		ceilingspace_d,        
-		floorspace_d,          
-		addweapon_d,           
-		hitradius_d,           
-		movesprite_d,          
-		lotsofmoney_d,         
-		lotsofmail_d,          
-		lotsofpaper_d,         
-		guts_d,                
-		gutsdir_d,             
-		ifhitsectors_d,        
-		ifhitbyweapon_d,       
+		ceilingspace_d,
+		floorspace_d,
+		addweapon_d,
+		hitradius_d,
+		movesprite_d,
+		lotsofmoney_d,
+		lotsofmail_d,
+		lotsofpaper_d,
+		guts_d,
+		gutsdir_d,
+		ifhitsectors_d,
+		ifhitbyweapon_d,
 		fall_d,
 		spawnweapondebris_d,
 		respawnhitag_d,
@@ -178,13 +178,13 @@ void SetDispatcher()
 		animatesprites_d,
 		};
 	}
-	else	
+	else
 	{
 		fi = {
 		Logo_r,
 		InitFonts_r,
 		PrintPaused_r,
-		
+
 		think_r,
 		initactorflags_r,
 		isadoorwall_r,
@@ -197,20 +197,20 @@ void SetDispatcher()
 		checkplayerhurt_r,
 		checkhitceiling_r,
 		checkhitsprite_r,
-		checksectors_r,        
+		checksectors_r,
 
-		ceilingspace_r,        
-		floorspace_r,          
-		addweapon_r,           
-		hitradius_r,           
-		movesprite_r,          
-		lotsoffeathers_r,         
-		lotsoffeathers_r,          
-		lotsoffeathers_r,         
-		guts_r,                
-		gutsdir_r,             
-		ifhitsectors_r,        
-		ifhitbyweapon_r,       
+		ceilingspace_r,
+		floorspace_r,
+		addweapon_r,
+		hitradius_r,
+		movesprite_r,
+		lotsoffeathers_r,
+		lotsoffeathers_r,
+		lotsoffeathers_r,
+		guts_r,
+		gutsdir_r,
+		ifhitsectors_r,
+		ifhitbyweapon_r,
 		fall_r,
 		spawnweapondebris_r,
 		respawnhitag_r,

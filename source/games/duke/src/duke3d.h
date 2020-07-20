@@ -64,13 +64,13 @@ struct GameInterface : ::GameInterface
 
 struct Dispatcher
 {
-    // global stuff
-    void (*ShowLogo)(const CompletionFunc& completion);
-    void (*InitFonts)();
+	// global stuff
+	void (*ShowLogo)(const CompletionFunc& completion);
+	void (*InitFonts)();
 	void (*PrintPaused)();
 
 	// sectors_?.cpp
-    void (*think)();
+	void (*think)();
 	void (*initactorflags)();
 	bool (*isadoorwall)(int dapic);
 	void (*animatewalls)();
@@ -79,7 +79,7 @@ struct Dispatcher
 	bool (*checkhitswitch)(int snum, int w, int switchtype);
 	void (*activatebysector)(int sect, int j);
 	void (*checkhitwall)(int spr, int dawallnum, int x, int y, int z, int atwith);
-    void (*checkplayerhurt)(struct player_struct* p, int j);
+	void (*checkplayerhurt)(struct player_struct* p, int j);
 	bool (*checkhitceiling)(int sn);
 	void (*checkhitsprite)(int i, int sn);
 	void (*checksectors)(int low);
@@ -97,24 +97,24 @@ struct Dispatcher
 	int  (*ifhitsectors)(int sectnum);
 	int  (*ifhitbyweapon)(int sectnum);
 	void (*fall)(int g_i, int g_p);
-    bool (*spawnweapondebris)(int picnum, int dnum);
-    void (*respawnhitag)(spritetype* g_sp);
-    void (*checktimetosleep)(int g_i);
-    void (*move)(int g_i, int g_p, int g_x);
+	bool (*spawnweapondebris)(int picnum, int dnum);
+	void (*respawnhitag)(spritetype* g_sp);
+	void (*checktimetosleep)(int g_i);
+	void (*move)(int g_i, int g_p, int g_x);
 	int (*spawn)(int j, int pn);
-    void (*check_fta_sounds)(int i);
+	void (*check_fta_sounds)(int i);
 
-    // player
-    void (*incur_damage)(struct player_struct* p);
-    void (*shoot)(int, int);
-    void (*selectweapon)(int snum, int j);
-    int (*doincrements)(struct player_struct* p);
-    void (*checkweapons)(struct player_struct* p);
-    void (*processinput)(int snum);
-    void (*displayweapon)(int snum);
-    void (*displaymasks)(int snum);
+	// player
+	void (*incur_damage)(struct player_struct* p);
+	void (*shoot)(int, int);
+	void (*selectweapon)(int snum, int j);
+	int (*doincrements)(struct player_struct* p);
+	void (*checkweapons)(struct player_struct* p);
+	void (*processinput)(int snum);
+	void (*displayweapon)(int snum);
+	void (*displaymasks)(int snum);
 
-    void (*animatesprites)(int x, int y, int a, int smoothratio);
+	void (*animatesprites)(int x, int y, int a, int smoothratio);
 
 
 };

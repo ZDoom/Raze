@@ -92,7 +92,7 @@ static void genspriteremaps(void)
 
 	auto fr = fileSystem.OpenFileReader("lookup.dat");
 	if (!fr.isOpen())
-		   return;
+		return;
 
 	j = lookups.loadTable(fr);
 
@@ -106,7 +106,7 @@ static void genspriteremaps(void)
 
 	uint8_t paldata[768];
 
-	for (j=1; j<=5; j++)
+	for (j = 1; j <= 5; j++)
 	{
 		if (fr.Read(paldata, 768) != 768)
 			return;
@@ -121,8 +121,8 @@ static void genspriteremaps(void)
 	{
 		// swap red and blue channels.
 		paldata[i * 3] = GPalette.BaseColors[i].b;
-		paldata[i * 3+1] = GPalette.BaseColors[i].g;
-		paldata[i * 3+2] = GPalette.BaseColors[i].r;
+		paldata[i * 3 + 1] = GPalette.BaseColors[i].g;
+		paldata[i * 3 + 2] = GPalette.BaseColors[i].r;
 	}
 	paletteSetColorTable(DRUGPAL, paldata, false, false); // todo: implement this as a shader effect (swap R and B in postprocessing.)
 
@@ -235,40 +235,40 @@ static void setupbackdrop()
 
 static void SetupGameButtons()
 {
-    static const char* actions[] = {
-        "Move_Forward",
-        "Move_Backward",
-        "Turn_Left",
-        "Turn_Right",
-        "Strafe",
-        "Fire",
-        "Open",
-        "Run",
-        "Jump",
-        "Crouch",
-        "Look_Up",
-        "Look_Down",
-        "Look_Left",
-        "Look_Right",
-        "Strafe_Left",
-        "Strafe_Right",
-        "Aim_Up",
-        "Aim_Down",
-        "Map",
-        "Shrink_Screen",
-        "Enlarge_Screen",
-        "Show_Opponents_Weapon",
-        "Map_Follow_Mode",
-        "See_Coop_View",
-        "Mouse_Aiming",
-        "Toggle_Crosshair",
-        "Quick_Kick",
-        "Dpad_Select",
-        "Dpad_Aiming",
-        "Third_Person_View",
-        "Toggle_Crouch",
-    };
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
+	static const char* actions[] = {
+		"Move_Forward",
+		"Move_Backward",
+		"Turn_Left",
+		"Turn_Right",
+		"Strafe",
+		"Fire",
+		"Open",
+		"Run",
+		"Jump",
+		"Crouch",
+		"Look_Up",
+		"Look_Down",
+		"Look_Left",
+		"Look_Right",
+		"Strafe_Left",
+		"Strafe_Right",
+		"Aim_Up",
+		"Aim_Down",
+		"Map",
+		"Shrink_Screen",
+		"Enlarge_Screen",
+		"Show_Opponents_Weapon",
+		"Map_Follow_Mode",
+		"See_Coop_View",
+		"Mouse_Aiming",
+		"Toggle_Crosshair",
+		"Quick_Kick",
+		"Dpad_Select",
+		"Dpad_Aiming",
+		"Third_Person_View",
+		"Toggle_Crouch",
+	};
+	buttonMap.SetButtons(actions, NUM_ACTIONS);
 }
 
 //---------------------------------------------------------------------------
@@ -279,15 +279,15 @@ static void SetupGameButtons()
 
 static void ticker(void)
 {
-    S_Update();
+	S_Update();
 
-    // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (!(ps[myconnectindex].gm & MODE_GAME) || (paused && !System_WantGuiCapture()))
-    {
-        ControlInfo noshareinfo;
-        CONTROL_GetInput(&noshareinfo);
-        C_RunDelayedCommands();
-    }
+	// we need CONTROL_GetInput in order to pick up joystick button presses
+	if (!(ps[myconnectindex].gm & MODE_GAME) || (paused && !System_WantGuiCapture()))
+	{
+		ControlInfo noshareinfo;
+		CONTROL_GetInput(&noshareinfo);
+		C_RunDelayedCommands();
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -298,15 +298,15 @@ static void ticker(void)
 
 static void loaddefs()
 {
-    const char *defsfile = G_DefFile();
-    cycle_t deftimer;
-    deftimer.Reset();
-    deftimer.Clock();
-    if (!loaddefinitionsfile(defsfile))
-    {
-        deftimer.Unclock();
-        Printf("Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
-    }
+	const char* defsfile = G_DefFile();
+	cycle_t deftimer;
+	deftimer.Reset();
+	deftimer.Clock();
+	if (!loaddefinitionsfile(defsfile))
+	{
+		deftimer.Unclock();
+		Printf("Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
+	}
 	userConfig.AddDefs.reset();
 }
 
@@ -318,16 +318,16 @@ static void loaddefs()
 
 static void initTiles()
 {
-    if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
-        I_FatalError("Failed loading art.");
+	if (TileFiles.artLoadFiles("tiles%03i.art") < 0)
+		I_FatalError("Failed loading art.");
 
-    tileDelete(TILE_MIRROR);
-    skiptile = TILE_W_FORCEFIELD + 1;
+	tileDelete(TILE_MIRROR);
+	skiptile = TILE_W_FORCEFIELD + 1;
 
-    if (isRR())
-        tileDelete(0);
+	if (isRR())
+		tileDelete(0);
 
-    tileDelete(FOF);
+	tileDelete(FOF);
 }
 
 //---------------------------------------------------------------------------
@@ -338,85 +338,85 @@ static void initTiles()
 
 static void Startup(void)
 {
-    ud.god = 0;
-    ud.m_respawn_items = 0;
-    ud.m_respawn_monsters = 0;
-    ud.m_respawn_inventory = 0;
-    ud.cashman = 0;
-    ud.m_player_skill = ud.player_skill = 2;
-    ud.wchoice[0][0] = 3;
-    ud.wchoice[0][1] = 4;
-    ud.wchoice[0][2] = 5;
-    ud.wchoice[0][3] = 7;
-    ud.wchoice[0][4] = 8;
-    ud.wchoice[0][5] = 6;
-    ud.wchoice[0][6] = 0;
-    ud.wchoice[0][7] = 2;
-    ud.wchoice[0][8] = 9;
-    ud.wchoice[0][9] = 1;
-    ud.multimode = 1;
+	ud.god = 0;
+	ud.m_respawn_items = 0;
+	ud.m_respawn_monsters = 0;
+	ud.m_respawn_inventory = 0;
+	ud.cashman = 0;
+	ud.m_player_skill = ud.player_skill = 2;
+	ud.wchoice[0][0] = 3;
+	ud.wchoice[0][1] = 4;
+	ud.wchoice[0][2] = 5;
+	ud.wchoice[0][3] = 7;
+	ud.wchoice[0][4] = 8;
+	ud.wchoice[0][5] = 6;
+	ud.wchoice[0][6] = 0;
+	ud.wchoice[0][7] = 2;
+	ud.wchoice[0][8] = 9;
+	ud.wchoice[0][9] = 1;
+	ud.multimode = 1;
 	ud.m_monsters_off = userConfig.nomonsters;
-    ps[0].aim_mode = 1;
-    ud.camerasprite = -1;
+	ps[0].aim_mode = 1;
+	ud.camerasprite = -1;
 
 	if (fileSystem.FileExists("DUKESW.BIN"))
 		g_gameType |= GAMEFLAG_SHAREWARE;
 
-    numplayers = 1;
-    playerswhenstarted = ud.multimode;
+	numplayers = 1;
+	playerswhenstarted = ud.multimode;
 
-    connectpoint2[0] = -1;
-	
-    SetDispatcher();
-    S_InitSound();
+	connectpoint2[0] = -1;
 
-    timerInit(TICRATE);
-    timerSetCallback(ticker);
+	SetDispatcher();
+	S_InitSound();
 
-    loadcons();
-    fi.initactorflags();
+	timerInit(TICRATE);
+	timerSetCallback(ticker);
 
-    OnEvent(EVENT_INIT);
+	loadcons();
+	fi.initactorflags();
 
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
+	OnEvent(EVENT_INIT);
 
-    if (engineInit())
-        G_FatalEngineError();
+	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
-    setupbackdrop();
-    //Net_SendClientInfo();
+	if (engineInit())
+		G_FatalEngineError();
+
+	setupbackdrop();
+	//Net_SendClientInfo();
 
 	initTiles();
-    fi.InitFonts();
-    genspriteremaps();
-    TileFiles.PostLoadSetup();
-    SetupGameButtons();
-    InitCheats();
-    checkcommandline();
-    registerosdcommands();
-    registerinputcommands();
-	
-    screenpeek = myconnectindex;
-    ps[myconnectindex].palette = BASEPAL;
+	fi.InitFonts();
+	genspriteremaps();
+	TileFiles.PostLoadSetup();
+	SetupGameButtons();
+	InitCheats();
+	checkcommandline();
+	registerosdcommands();
+	registerinputcommands();
 
-    for (int j=numplayers; j<ud.multimode; j++)
-    {
-        mysnprintf(ud.user_name[j], sizeof(ud.user_name[j]),"%s %d", GStrings("PLAYER"),j+1);
-        ps[j].weaponswitch = 3;
-        ps[j].auto_aim = 0;
-    }
+	screenpeek = myconnectindex;
+	ps[myconnectindex].palette = BASEPAL;
 
-    loaddefs();
-	
-    if (ud.multimode > 1)
-    {
-        ud.m_monsters_off = 1;
-        ud.m_player_skill = 0;
-    }
+	for (int j = numplayers; j < ud.multimode; j++)
+	{
+		mysnprintf(ud.user_name[j], sizeof(ud.user_name[j]), "%s %d", GStrings("PLAYER"), j + 1);
+		ps[j].weaponswitch = 3;
+		ps[j].auto_aim = 0;
+	}
 
-    ud.last_level = -1;
-    hud_size.Callback();
-    hud_scale.Callback();
+	loaddefs();
+
+	if (ud.multimode > 1)
+	{
+		ud.m_monsters_off = 1;
+		ud.m_player_skill = 0;
+	}
+
+	ud.last_level = -1;
+	hud_size.Callback();
+	hud_scale.Callback();
 }
 
 //---------------------------------------------------------------------------
@@ -428,13 +428,13 @@ static void Startup(void)
 void app_loop();
 int GameInterface::app_main()
 {
-    Startup();
-    enginePostInit();
-    videoInit();
-    videoSetPalette(BASEPAL);
+	Startup();
+	enginePostInit();
+	videoInit();
+	videoSetPalette(BASEPAL);
 	app_loop();
 	return 0;
 }
-	
+
 
 END_DUKE_NS

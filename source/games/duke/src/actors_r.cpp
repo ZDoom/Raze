@@ -186,7 +186,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 	case SLINGBLADE_WEAPON:
 		if (!isRRRA()) break;
 	case KNEE_WEAPON:
- 	case DYNAMITE_WEAPON:	 
+	case DYNAMITE_WEAPON:	 
 	case TRIPBOMB_WEAPON:
 	case THROWINGDYNAMITE_WEAPON:
 		break;
@@ -4050,10 +4050,10 @@ void moveeffectors_r(void)   //STATNUM 3
 
 int adjustfall(spritetype *s, int c)
 {
-    if ((s->picnum == BIKERB || s->picnum == CHEERB) && c == gc)
-        c = gc>>2;
-    else if (s->picnum == BIKERBV2 && c == gc)
-        c = gc>>3;
+	if ((s->picnum == BIKERB || s->picnum == CHEERB) && c == gc)
+		c = gc>>2;
+	else if (s->picnum == BIKERBV2 && c == gc)
+		c = gc>>3;
 	return c;
 }
 

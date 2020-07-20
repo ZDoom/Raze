@@ -105,45 +105,45 @@ void restoreinterpolations()  //Stick at end of drawscreen
 
 void setsectinterpolate(int i)
 {
-    int j, k, startwall,endwall;
-    auto sect = &sector[sprite[i].sectnum];
+	int j, k, startwall,endwall;
+	auto sect = &sector[sprite[i].sectnum];
 
-    startwall = sect->wallptr;
-    endwall = startwall+sect->wallnum;
+	startwall = sect->wallptr;
+	endwall = startwall+sect->wallnum;
 
-    for(j=startwall;j<endwall;j++)
-    {
-        setinterpolation(&wall[j].x);
-        setinterpolation(&wall[j].y);
-        k = wall[j].nextwall;
-        if(k >= 0)
-        {
-            setinterpolation(&wall[k].x);
-            setinterpolation(&wall[k].y);
-            k = wall[k].point2;
-            setinterpolation(&wall[k].x);
-            setinterpolation(&wall[k].y);
-        }
-    }
+	for(j=startwall;j<endwall;j++)
+	{
+		setinterpolation(&wall[j].x);
+		setinterpolation(&wall[j].y);
+		k = wall[j].nextwall;
+		if(k >= 0)
+		{
+			setinterpolation(&wall[k].x);
+			setinterpolation(&wall[k].y);
+			k = wall[k].point2;
+			setinterpolation(&wall[k].x);
+			setinterpolation(&wall[k].y);
+		}
+	}
 }
 
 void clearsectinterpolate(short i)
 {
-    short j,startwall,endwall;
-    auto sect = &sector[sprite[i].sectnum];
+	short j,startwall,endwall;
+	auto sect = &sector[sprite[i].sectnum];
 
-    startwall = sect->wallptr;
-    endwall = startwall + sect->wallnum;
-    for(j=startwall;j<endwall;j++)
-    {
-        stopinterpolation(&wall[j].x);
-        stopinterpolation(&wall[j].y);
-        if(wall[j].nextwall >= 0)
-        {
-            stopinterpolation(&wall[wall[j].nextwall].x);
-            stopinterpolation(&wall[wall[j].nextwall].y);
-        }
-    }
+	startwall = sect->wallptr;
+	endwall = startwall + sect->wallnum;
+	for(j=startwall;j<endwall;j++)
+	{
+		stopinterpolation(&wall[j].x);
+		stopinterpolation(&wall[j].y);
+		if(wall[j].nextwall >= 0)
+		{
+			stopinterpolation(&wall[wall[j].nextwall].x);
+			stopinterpolation(&wall[wall[j].nextwall].y);
+		}
+	}
 }
 
 END_DUKE_NS
