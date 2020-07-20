@@ -54,8 +54,7 @@ struct GameInterface : ::GameInterface
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	double SmallFontScale() override { return isRR() ? 0.5 : 1.; }
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
-	bool SaveGame(FSaveGameNode*) override;
-	bool LoadGame(FSaveGameNode*) override;
+	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	bool CheatAllowed(bool printmsg) override;

@@ -238,6 +238,12 @@ FSerializer &Serialize(FSerializer &arc, const char *key, TArray<T, TT> &value, 
 	return arc;
 }
 
+template<int size> 
+FSerializer& Serialize(FSerializer& arc, const char* key, FixedBitArray<size>& value, FixedBitArray<size>* def)
+{
+	return arc.Array(key, value.Storage(), def ? def->Storage() : nullptr, value.StorageSize());
+}
+
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, PClass*& clst, PClass** def);
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, FFont*& font, FFont** def);
 template<> FSerializer &Serialize(FSerializer &arc, const char *key, Dictionary *&dict, Dictionary **def);

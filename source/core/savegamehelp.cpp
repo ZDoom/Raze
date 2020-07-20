@@ -96,6 +96,20 @@ bool OpenSaveGameForRead(const char *name)
 
 	if (savereader != nullptr)
 	{
+		auto file = ReadSavegameChunk("info.json");
+		if (!file.isOpen())
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+		if (G_ValidateSavegame(file, nullptr, false) <= 0)
+		{
+			FinishSavegameRead();
+			delete savereader;
+			return false;
+		}
+
 		FResourceLump* info = savereader->FindLump("session.json");
 		if (info == nullptr)
 		{
@@ -114,20 +128,7 @@ bool OpenSaveGameForRead(const char *name)
 		// Load system-side data from savegames.
 		SerializeSession(arc);
 		LoadEngineState();
-
-		auto file = ReadSavegameChunk("info.json");
-		if (!file.isOpen())
-		{
-			FinishSavegameRead();
-			delete savereader;
-			return false;
-		}
-		if (G_ValidateSavegame(file, nullptr, false) <= 0)
-		{
-			FinishSavegameRead();
-			delete savereader;
-			return false;
-		}
+		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
 }
@@ -220,10 +221,11 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	// Handle system-side modules that need to persist data in savegames here, in a central place.
 	savegamesession.OpenWriter(save_formatted);
 	SerializeSession(savegamesession);
+	SaveEngineState();
+	gi->SerializeGameState(savegamesession);
 	buff = savegamesession.GetCompressedOutput();
 	AddCompressedSavegameChunk("session.json", buff);
 
-	SaveEngineState();
 	auto picfile = WriteSavegameChunk("savepic.png");
 	WriteSavePic(picfile, 240, 180);
 	return true;
@@ -494,6 +496,7 @@ void SaveEngineState()
 	sv_prespriteextsave();
 	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
 	fw->Write(wallext, sizeof(wallext_t) * MAXWALLS);
+	fw->Write(&randomseed, sizeof(randomseed));
 	sv_postspriteext();
 	WriteMagic(fw);
 
@@ -556,6 +559,7 @@ void LoadEngineState()
 		fr.Read(&Numsprites, sizeof(Numsprites));
 		fr.Read(spriteext, sizeof(spriteext_t) * MAXSPRITES);
 		fr.Read(wallext, sizeof(wallext_t) * MAXWALLS);
+		fr.Read(&randomseed, sizeof(randomseed));
 		sv_postspriteext();
 	CheckMagic(fr);
 

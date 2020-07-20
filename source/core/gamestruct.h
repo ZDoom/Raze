@@ -77,8 +77,9 @@ struct GameInterface
 	virtual void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool withbg = true);
 	virtual double SmallFontScale() { return 1; }
 	virtual void DrawMenuCaption(const DVector2& origin, const char* text) {}
-	virtual bool SaveGame(FSaveGameNode*) { return false; }
-	virtual bool LoadGame(FSaveGameNode*) { return false; }
+	virtual bool SaveGame(FSaveGameNode*) { return true; }
+	virtual bool LoadGame(FSaveGameNode*) { return true; }
+	virtual void SerializeGameState(FSerializer& arc) {}
 	virtual bool CleanupForLoad() { return true; }
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void QuitToTitle() {}

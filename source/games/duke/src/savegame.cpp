@@ -328,7 +328,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weap
 }
 
 
-void SerializeGlobals(FSerializer& arc)
+void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isReading())
 	{
@@ -340,7 +340,7 @@ void SerializeGlobals(FSerializer& arc)
 		memset(ambienthitag, -1, sizeof(ambienthitag));
 		memset(ambientlotag, -1, sizeof(ambientlotag));
 	}
-	if (arc.BeginObject("globals"))
+	if (arc.BeginObject("duke.gamestate"))
 	{
 		arc("multimode", ud.multimode);
 		if (ud.multimode > 1) arc.Array("frags", &frags[0][0], MAXPLAYERS * MAXPLAYERS);
@@ -504,17 +504,5 @@ void SerializeGlobals(FSerializer& arc)
 		ready2send = 1;
 	}
 }
-
-bool GameInterface::LoadGame(FSaveGameNode* sv)
-{
-	return 0;
-}
-
-bool GameInterface::SaveGame(FSaveGameNode* sv)
-{
-	return 0;
-}
-
-
 
 END_DUKE_NS
