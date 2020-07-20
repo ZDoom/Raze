@@ -80,6 +80,7 @@ void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 			FString fn = node->Filename;
 			FString desc = node->SaveTitle;
 			NotifyNewSave(fn, desc, ok4q, forceq);
+			Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
 		}
 	}
 }

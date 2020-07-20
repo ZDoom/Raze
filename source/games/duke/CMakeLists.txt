@@ -35,6 +35,7 @@ set( PCH_SOURCES
 	src/premap_r.cpp
 	src/prediction.cpp
 	src/render.cpp
+	src/savegame.cpp
 	src/sbar.cpp
 	src/sbar_d.cpp
 	src/sbar_r.cpp
