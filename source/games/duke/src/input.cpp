@@ -1202,7 +1202,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 			loc.q16avel += input.q16avel;
 			if (!synchronized_input)
 			{
-				p->q16ang = (p->q16ang + input.q16avel * 2) & 0x7FFFFFF;	// Why * 2 now?
+				p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
 
 				if (input.q16avel)
 					p->one_eighty_count = 0;
