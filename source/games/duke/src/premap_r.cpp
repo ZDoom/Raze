@@ -805,7 +805,7 @@ void prelevel_r(int g)
             wall[j].overpicnum = MIRROR;
         }
     }
-    videoSetBrightness(0);
+    thunder_brightness = 0;
     if (!thunderon)
     {
         g_visibility = p->visibility;

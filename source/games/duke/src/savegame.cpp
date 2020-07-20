@@ -33,6 +33,49 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
+static void recreateinterpolations()
+{
+    numinterpolations = 0;
+
+    int k = headspritestat[STAT_EFFECTOR];
+    while (k >= 0)
+    {
+        switch (sprite[k].lotag)
+        {
+        case SE_31_FLOOR_RISE_FALL:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            break;
+        case SE_32_CEILING_RISE_FALL:
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case SE_17_WARP_ELEVATOR:
+        case SE_25_PISTON:
+            setinterpolation(&sector[sprite[k].sectnum].floorz);
+            setinterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case SE_0_ROTATING_SECTOR:
+        case SE_5_BOSS:
+        case SE_6_SUBWAY:
+        case SE_11_SWINGING_DOOR:
+        case SE_14_SUBWAY_CAR:
+        case SE_15_SLIDING_DOOR:
+        case SE_16_REACTOR:
+        case SE_26:
+        case SE_30_TWO_WAY_TRAIN:
+            setsectinterpolate(k);
+            break;
+        }
+
+        k = nextspritestat[k];
+    }
+
+    for (int i = numinterpolations - 1; i >= 0; i--) bakipos[i] = *curipos[i];
+    for (int i = animatecnt - 1; i >= 0; i--)
+        setinterpolation(animateptr(i));
+}
+
+
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
 {
     if (arc.BeginObject(keyname))
@@ -235,6 +278,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
             ("moto_bump_fast", w.moto_bump_fast)
             ("moto_on_oil", w.moto_on_oil)
             ("moto_on_mud", w.moto_on_mud)
+            // new stuff
             ("crouch_toggle", w.crouch_toggle)
             .EndObject();
 
@@ -340,7 +384,7 @@ void SerializeGlobals(FSerializer& arc)
 
             .Array("animatesect", animatesect, animatecnt)
             .Array("animatetype", animatetype, animatecnt)
-           .Array("animatetarget", animatetarget, animatecnt)
+            .Array("animatetarget", animatetarget, animatecnt)
             .Array("animategoal", animategoal, animatecnt)
             .Array("animatevel", animatevel, animatecnt)
 
@@ -390,276 +434,87 @@ void SerializeGlobals(FSerializer& arc)
             ("chickenphase", chickenphase)
             ("RRRA_ExitedLevel", RRRA_ExitedLevel)
             ("fogactive", fogactive)
-            ("everyothertime", everyothertime)
+            ("thunder_brightness", thunder_brightness)
+
+            // Todo: move to backend
+            ("totalclock", totalclock)
+            ("ototalclock", ototalclock)
+            ("totalclocklock", totalclocklock)
+
+            ("lockclock", lockclock)
+
             .Array("po", po, ud.multimode)
             .EndObject();
 
-        ud.m_player_skill = ud.player_skill;
-        ud.m_respawn_monsters = ud.respawn_monsters;
-        ud.m_respawn_items = ud.respawn_items;
-        ud.m_respawn_inventory = ud.respawn_inventory;
-        ud.m_monsters_off = ud.monsters_off;
-        ud.m_coop = ud.coop;
-        ud.m_marker = ud.marker;
-        ud.m_ffire = ud.ffire;
+        if (arc.isReading())
+        {
+            screenpeek = myconnectindex;
+            ps[myconnectindex].gm = MODE_GAME;
+            ud.recstat = 0;
 
+            ud.m_player_skill = ud.player_skill;
+            ud.m_respawn_monsters = ud.respawn_monsters;
+            ud.m_respawn_items = ud.respawn_items;
+            ud.m_respawn_inventory = ud.respawn_inventory;
+            ud.m_monsters_off = ud.monsters_off;
+            ud.m_coop = ud.coop;
+            ud.m_marker = ud.marker;
+            ud.m_ffire = ud.ffire;
+            if (ps[myconnectindex].over_shoulder_on != 0)
+            {
+                cameradist = 0;
+                cameraclock = 0;
+                ps[myconnectindex].over_shoulder_on = 1;
+            }
+            setpal(&ps[myconnectindex]);
 
+            memset(gotpic, 0, sizeof(gotpic));
+            if (isRR()) cacheit_r(); else cacheit_d();
+
+            Mus_ResumeSaved();
+            Mus_SetPaused(false);
+
+            FX_SetReverb(0);
+            recreateinterpolations();
+            show_shareware = 0;
+            everyothertime = 0;
+            clearfifo();
+
+            // should be unnecessary with the sounds getting serialized as well.
+            #if 0
+            if (ps[myconnectindex].jetpack_on)
+                spritesound(DUKE_JETPACK_IDLE, ps[myconnectindex].i);
+
+                // Update sound state in SFX sprites.
+            for (int i = headspritestat[STAT_FX]; i >= 0; i = nextspritestat[i])
+                if (sprite[i].picnum == MUSICANDSFX)
+                {
+                    hittype[i].temp_data[1] = SoundEnabled();
+                    hittype[i].temp_data[0] = 0;
+                }
+
+            #endif
+            FX_SetReverb(0);
+
+        }
+        else
+        {
+            ototalclock = totalclock;
+        }
+        ready2send = 1;
     }
 }
 
-#if 0
-    if (arc.isReading())
-    {
-     if(ps[myconnectindex].over_shoulder_on != 0)
-     {
-         cameradist = 0;
-         cameraclock = 0;
-         ps[myconnectindex].over_shoulder_on = 1;
-     }
-
-     screenpeek = myconnectindex;
-
-     clearbufbyte(gotpic,sizeof(gotpic),0L);
-     clearsoundlocks();
-         cacheit();
-
-     music_select = (ud.volume_number*11) + ud.level_number;
-     playmusic(&music_fn[0][music_select][0]);
-
-     ps[myconnectindex].gm = MODE_GAME;
-         ud.recstat = 0;
-
-     if(ps[myconnectindex].jetpack_on)
-         spritesound(DUKE_JETPACK_IDLE,ps[myconnectindex].i);
-
-     restorepalette = 1;
-     setpal(&ps[myconnectindex]);
-     vscrn();
-
-     FX_SetReverb(0);
-
-
-     numinterpolations = 0;
-     startofdynamicinterpolations = 0;
-
-     k = headspritestat[3];
-     while(k >= 0)
-     {
-        switch(sprite[k].lotag)
-        {
-            case 31:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                break;
-            case 32:
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 25:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 17:
-                setinterpolation(&sector[sprite[k].sectnum].floorz);
-                setinterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 0:
-            case 5:
-            case 6:
-            case 11:
-            case 14:
-            case 15:
-            case 16:
-            case 26:
-            case 30:
-                setsectinterpolate(k);
-                break;
-        }
-
-        k = nextspritestat[k];
-     }
-
-     for(i=numinterpolations-1;i>=0;i--) bakipos[i] = *curipos[i];
-     for(i = animatecnt-1;i>=0;i--)
-         setinterpolation(animateptr(i));
-
-     show_shareware = 0;
-     everyothertime = 0;
-
-     clearbufbyte(playerquitflag,MAXPLAYERS,0x01010101);
-
-     resetmys();
-
-     ready2send = 1;
-
-     flushpackets();
-     clearfifo();
-     waitforeverybody();
-
-     resettimevars();
-
-     return(0);
-corrupt:
-     Bsprintf(buf,"Save game file \"%s\" is corrupt.",fnptr);
-     gameexit(buf);
-     return -1;
-}
-
-int saveplayer(signed char spot)
+bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
-    int i, j;
-    char fn[13];
-    char mpfn[13];
-    char *fnptr;
-    FILE *fil;
-    int bv = BYTEVERSION;
-    int ptrbuf[MAXTILES];
-
-    assert(MAXTILES > MAXANIMATES);
-
-    strcpy(fn, "game0.sav");
-    strcpy(mpfn, "gameA_00.sav");
-
-    if(spot < 0)
-    {
-        multiflag = 1;
-        multiwhat = 1;
-        multipos = -spot-1;
-        return -1;
-    }
-
-    waitforeverybody();
-
-    if( multiflag == 2 && multiwho != myconnectindex )
-    {
-        fnptr = mpfn;
-        mpfn[4] = spot + 'A';
-
-        if(ud.multimode > 9)
-        {
-            mpfn[6] = (multiwho/10) + '0';
-            mpfn[7] = multiwho + '0';
-        }
-        else mpfn[7] = multiwho + '0';
-    }
-    else
-    {
-        fnptr = fn;
-        fn[4] = spot + '0';
-    }
-
-    if ((fil = fopen(fnptr,"wb")) == 0) return(-1);
-
-    ready2send = 0;
-
-    dfwrite(&bv,4,1,fil);
-    dfwrite(&ud.multimode,sizeof(ud.multimode),1,fil);
-
-    dfwrite(&ud.savegame[spot][0],19,1,fil);
-    dfwrite(&ud.volume_number,sizeof(ud.volume_number),1,fil);
-    dfwrite(&ud.level_number,sizeof(ud.level_number),1,fil);
-    dfwrite(&ud.player_skill,sizeof(ud.player_skill),1,fil);
-    dfwrite(&boardfilename[0],BMAX_PATH,1,fil);
-
-    if (!waloff[TILE_SAVESHOT]) {
-        walock[TILE_SAVESHOT] = 254;
-        allocache((void **)&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
-        clearbuf((void*)waloff[TILE_SAVESHOT],(200*320)/4,0);
-        walock[TILE_SAVESHOT] = 1;
-    }
-    dfwrite((char *)waloff[TILE_SAVESHOT],320,200,fil);
-
-    dfwrite(&numwalls,2,1,fil);
-    dfwrite(&wall[0],sizeof(walltype),MAXWALLS,fil);
-    dfwrite(&numsectors,2,1,fil);
-    dfwrite(&sector[0],sizeof(sectortype),MAXSECTORS,fil);
-    dfwrite(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
-    dfwrite(&spriteext[0],sizeof(spriteexttype),MAXSPRITES,fil);
-    dfwrite(&headspritesect[0],2,MAXSECTORS+1,fil);
-    dfwrite(&prevspritesect[0],2,MAXSPRITES,fil);
-    dfwrite(&nextspritesect[0],2,MAXSPRITES,fil);
-    dfwrite(&headspritestat[0],2,MAXSTATUS+1,fil);
-    dfwrite(&prevspritestat[0],2,MAXSPRITES,fil);
-    dfwrite(&nextspritestat[0],2,MAXSPRITES,fil);
-    dfwrite(&numcyclers,sizeof(numcyclers),1,fil);
-    dfwrite(&cyclers[0][0],12,MAXCYCLERS,fil);
-    dfwrite(ps,sizeof(ps),1,fil);
-    dfwrite(po,sizeof(po),1,fil);
-    dfwrite(&numanimwalls,sizeof(numanimwalls),1,fil);
-    dfwrite(&animwall,sizeof(animwall),1,fil);
-    dfwrite(&msx[0],sizeof(int),sizeof(msx)/sizeof(int),fil);
-    dfwrite(&msy[0],sizeof(int),sizeof(msy)/sizeof(int),fil);
-    dfwrite(&spriteqloc,sizeof(short),1,fil);
-    dfwrite(&spriteqamount,sizeof(short),1,fil);
-    dfwrite(&spriteq[0],sizeof(short),spriteqamount,fil);
-    dfwrite(&mirrorcnt,sizeof(short),1,fil);
-    dfwrite(&mirrorwall[0],sizeof(short),64,fil);
-    dfwrite(&mirrorsector[0],sizeof(short),64,fil);
-    dfwrite(&show2dsector[0],sizeof(char),MAXSECTORS>>3,fil);
-    dfwrite(&actortype[0],sizeof(char),MAXTILES,fil);
-
-    dfwrite(&numclouds,sizeof(numclouds),1,fil);
-    dfwrite(&clouds[0],sizeof(short)<<7,1,fil);
-    dfwrite(&cloudx[0],sizeof(short)<<7,1,fil);
-    dfwrite(&cloudy[0],sizeof(short)<<7,1,fil);
-
-    dfwrite(&script[0],4,MAXSCRIPTSIZE,fil);
-
-    memset(ptrbuf, 0, sizeof(ptrbuf));
-    for(i=0;i<MAXTILES;i++)
-        if(actorscrptr[i])
-        {
-            ptrbuf[i] = (int)((intptr_t)actorscrptr[i] - (intptr_t)&script[0]);
-        }
-    dfwrite(&ptrbuf[0],4,MAXTILES,fil);
-
-    dfwrite(&lockclock,sizeof(lockclock),1,fil);
-    dfwrite(&pskybits,sizeof(pskybits),1,fil);
-    dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
-    dfwrite(&animatecnt,sizeof(animatecnt),1,fil);
-    dfwrite(&animatesect[0],2,MAXANIMATES,fil);
-    dfwrite(&ptrbuf[0],4,MAXANIMATES,fil);
-    dfwrite(&animategoal[0],4,MAXANIMATES,fil);
-    dfwrite(&animatevel[0],4,MAXANIMATES,fil);
-
-    dfwrite(&earthquaketime,sizeof(earthquaketime),1,fil);
-    dfwrite(&ud.from_bonus,sizeof(ud.from_bonus),1,fil);
-    dfwrite(&ud.secretlevel,sizeof(ud.secretlevel),1,fil);
-    dfwrite(&ud.respawn_monsters,sizeof(ud.respawn_monsters),1,fil);
-    dfwrite(&ud.respawn_items,sizeof(ud.respawn_items),1,fil);
-    dfwrite(&ud.respawn_inventory,sizeof(ud.respawn_inventory),1,fil);
-    dfwrite(&ud.god,sizeof(ud.god),1,fil);
-    dfwrite(&ud.auto_run,sizeof(ud.auto_run),1,fil);
-    dfwrite(&ud.crosshair,sizeof(ud.crosshair),1,fil);
-    dfwrite(&ud.monsters_off,sizeof(ud.monsters_off),1,fil);
-    dfwrite(&ud.last_level,sizeof(ud.last_level),1,fil);
-    dfwrite(&ud.eog,sizeof(ud.eog),1,fil);
-    dfwrite(&ud.coop,sizeof(ud.coop),1,fil);
-    dfwrite(&ud.marker,sizeof(ud.marker),1,fil);
-    dfwrite(&ud.ffire,sizeof(ud.ffire),1,fil);
-    dfwrite(&camsprite,sizeof(camsprite),1,fil);
-    dfwrite(&connecthead,sizeof(connecthead),1,fil);
-    dfwrite(connectpoint2,sizeof(connectpoint2),1,fil);
-    dfwrite(&numplayersprites,sizeof(numplayersprites),1,fil);
-    dfwrite((short *)&frags[0][0],sizeof(frags),1,fil);
-
-    dfwrite(&randomseed,sizeof(randomseed),1,fil);
-    dfwrite(&global_random,sizeof(global_random),1,fil);
-    dfwrite(&parallaxyscale,sizeof(parallaxyscale),1,fil);
-
-    fclose(fil);
-
-    if(ud.multimode < 2)
-    {
-    strcpy(fta_quotes[122],"GAME SAVED");
-    FTA(122,&ps[myconnectindex]);
-    }
-
-    ready2send = 1;
-
-    waitforeverybody();
-
-    ototalclock = totalclock;
-
-    return(0);
+    return 0;
 }
-#endif
+
+bool GameInterface::SaveGame(FSaveGameNode* sv)
+{
+    return 0;
+}
+
+
+
 END_DUKE_NS

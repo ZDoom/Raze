@@ -110,7 +110,6 @@ int spawn_r(int j, int pn)
                 if (!isRRRA()) goto default_case;
                 sp->xrepeat = 0;
                 sp->yrepeat = 0;
-                setmapfog(2);
                 fogactive = 1;
                 break;
             case RRTILE6144:

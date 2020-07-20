@@ -193,7 +193,6 @@ void resetplayerstats(int pn);
 void resetweapons(int pn);
 void resetprestat(int snum, int g);
 void clearfifo(void);
-void setmapfog(int fogtype);
 void prelevel_common(int g);
 void cacheit_d();
 void cacheit_r();
@@ -243,5 +242,6 @@ void restoreinterpolations();
 void setinterpolation(int* posptr);
 void stopinterpolation(int* posptr);
 void dointerpolations(int smoothratio);
+int* animateptr(int i);
 
 END_DUKE_NS

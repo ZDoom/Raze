@@ -496,6 +496,7 @@ void displayrooms(int snum, int smoothratio)
 	sect = p->cursectnum;
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
+	GLInterface.SetMapFog(fogactive != 0);
 	dointerpolations(smoothratio);
 
 	setgamepalette(BASEPAL);
@@ -641,6 +642,7 @@ void displayrooms(int snum, int smoothratio)
 			renderDrawMasks();
 		}
 	}
+	GLInterface.SetMapFog(false);
 	restoreinterpolations();
 
 	if (!isRRRA() || !fogactive)

@@ -21,6 +21,7 @@ set( PCH_SOURCES
 	src/gameexec.cpp
 	src/gameloop.cpp
 	src/gamevar.cpp
+	src/global.cpp
 	src/hudweapon_d.cpp
 	src/hudweapon_r.cpp
 	src/input.cpp
@@ -46,8 +47,6 @@ set( PCH_SOURCES
 	src/spawn.cpp
 	src/spawn_d.cpp
 	src/spawn_r.cpp
-	src/zz_global.cpp
-	src/zz_savegame.cpp
 	)
 
 add_game_library2( duke )

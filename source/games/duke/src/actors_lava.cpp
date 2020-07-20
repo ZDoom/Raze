@@ -584,7 +584,7 @@ void thunder(void)
 		{
 			thunderflash = 0;
 			brightness = ud.brightness >> 2;
-			videoSetBrightness(brightness);
+			thunder_brightness = brightness;
 			g_visibility = p->visibility;
 		}
 	}
@@ -642,7 +642,7 @@ void thunder(void)
 		}
 		if (brightness > 8)
 			brightness = 0;
-		videoSetBrightness(brightness);
+		thunder_brightness = brightness;
 	}
 	if (winderflash == 1)
 	{

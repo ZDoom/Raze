@@ -688,7 +688,6 @@ void prelevel_common(int g)
     BellSprite = 0;
 
     // RRRA E2L1 fog handling.
-    setmapfog(0);
     fogactive = 0;
 
     show2dsector.Zero();

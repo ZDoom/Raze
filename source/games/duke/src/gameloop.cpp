@@ -432,6 +432,7 @@ void app_loop()
 
 		case GS_LEVEL:
 			if (GameTicker()) gamestate = GS_STARTUP;
+			else videoSetBrightness(thunder_brightness);
 			break;
 
 		case GS_INTERMISSION:
@@ -440,6 +441,7 @@ void app_loop()
 
 		}
 		videoNextPage();
+		videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
 	}
 }
 
