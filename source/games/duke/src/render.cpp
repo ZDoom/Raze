@@ -295,7 +295,7 @@ void setdrugmode(player_struct *p, int oyrepeat)
 {
 	if (playrunning())
 	{
-		if (p->DrugMode > 0 && !(p->gm & MODE_TYPE))
+		if (p->DrugMode > 0)
 		{
 			int var_8c;
 			if (p->drug_stat[0] == 0)

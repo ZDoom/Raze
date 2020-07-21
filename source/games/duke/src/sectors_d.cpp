@@ -1518,7 +1518,7 @@ void checksectors_d(int snum)
 
 	//After this point the the player effects the map with space
 
-	if (p->gm & MODE_TYPE || sprite[p->i].extra <= 0) return;
+	if (chatmodeon || sprite[p->i].extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SKB_OPEN))
 		fi.lotsofmoney(&sprite[p->i], 2);

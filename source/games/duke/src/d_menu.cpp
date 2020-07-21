@@ -39,6 +39,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "version.h"
 #include "names.h"
 #include "mapinfo.h"
+#include "gamestate.h"
 #include "../../glbackend/glbackend.h"
 
 
