@@ -221,12 +221,6 @@ void GameInterface::MenuOpened()
 		totalclock = ototalclock;
 		screenpeek = myconnectindex;
 	}
-
-	auto& gm = ps[myconnectindex].gm;
-	if (gm & MODE_GAME)
-	{
-		gm |= MODE_MENU;
-	}
 }
 
 void GameInterface::MenuSound(EMenuSounds snd)
@@ -260,7 +254,6 @@ void GameInterface::MenuClosed()
 	if (gm & MODE_GAME)
 	{
 		// The following lines are here so that you cannot close the menu when no game is running.
-		gm &= ~MODE_MENU;
 
 		if (ud.multimode < 2 && ud.recstat != 2)
 		{

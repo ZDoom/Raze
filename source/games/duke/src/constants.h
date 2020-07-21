@@ -483,7 +483,6 @@ enum EFlamethrowerState
 };
 
 enum gamemode_t {
-	MODE_MENU = 0x00000001,
 	MODE_DEMO = 0x00000002,
 	MODE_GAME = 0x00000004,
 	MODE_EOL = 0x00000008,

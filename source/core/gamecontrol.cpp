@@ -1103,11 +1103,12 @@ bool CheckCheatmode(bool printmsg)
 void updatePauseStatus()
 {
 	bool GUICapture = System_WantGuiCapture();
-    if ( GUICapture)
+    if (M_Active() || ConsoleState != c_up)
     {
         paused = 1;
+		return;
     }
-    else if ((!M_Active() || !GUICapture) && !pausedWithKey)
+    else if (!pausedWithKey)
     {
         paused = 0;
     }
@@ -1115,7 +1116,7 @@ void updatePauseStatus()
     if (inputState.GetKeyStatus(sc_Pause))
     {
         inputState.ClearKeyStatus(sc_Pause);
-        paused = !paused;
+		paused = pausedWithKey ? 0 : 2;
 
         if (paused)
         {
@@ -1123,10 +1124,10 @@ void updatePauseStatus()
         }
         else
         {
-            S_ResumeSound(paused);
+            S_ResumeSound(!!paused);
         }
 
-        pausedWithKey = paused;
+        pausedWithKey = !!paused;
     }
 }
 

@@ -29,6 +29,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "serializer.h"
 #include "mapinfo.h"
 #include "duke3d.h"
+#include "gamestate.h"
 
 
 BEGIN_DUKE_NS
@@ -483,6 +484,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		{
 			screenpeek = myconnectindex;
 			ps[myconnectindex].gm = MODE_GAME;
+			gamestate = GS_LEVEL;
 			ud.recstat = 0;
 
 			ud.m_player_skill = ud.player_skill;

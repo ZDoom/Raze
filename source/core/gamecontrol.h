@@ -202,6 +202,7 @@ enum
 	PAUSESFX_CONSOLE = 2
 };
 
+bool UIActive();
 void updatePauseStatus();
 void updatePauseStatus(bool state, bool multiplayer);
 extern int paused;

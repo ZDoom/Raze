@@ -233,7 +233,7 @@ int domovethings()
 
 	//if(ud.recstat == 1) record();
 
-	if (paused == 0)
+	if (playrunning())
 	{
 		global_random = krand();
 		movedummyplayers();//ST 13
@@ -241,7 +241,7 @@ int domovethings()
 
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (paused == 0)
+		if (playrunning())
 		{
 			auto p = &ps[i];
 			if (p->pals.a > 0)
@@ -253,7 +253,7 @@ int domovethings()
 		}
 	}
 
-	if (paused == 0)
+	if (playrunning())
 	{
 		if (levelTextTime > 0)
 			levelTextTime--;
@@ -317,12 +317,11 @@ bool GameTicker()
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
 
-	while ((!(ps[myconnectindex].gm & (MODE_MENU | MODE_DEMO))) && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+	while (playrunning() && (int)(totalclock - ototalclock) >= TICSPERFRAME)
 	{
 		ototalclock += TICSPERFRAME;
 
 		GetInput();
-		// this is where we fill the input_t struct that is actually processed by P_ProcessInput()
 		auto const pPlayer = &ps[myconnectindex];
 		auto const q16ang = fix16_to_int(pPlayer->q16ang);
 		auto& input = nextinput(myconnectindex);
@@ -338,11 +337,14 @@ bool GameTicker()
 
 		advancequeue(myconnectindex);
 
-		if (((!System_WantGuiCapture() && (ps[myconnectindex].gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (ud.multimode > 1)) &&
-			(ps[myconnectindex].gm & MODE_GAME))
+		if (playrunning())
 		{
 			moveloop();
 		}
+	}
+	if (!playrunning())
+	{
+		ototalclock = totalclock - 1;
 	}
 
 	gameUpdate = true;
@@ -394,6 +396,7 @@ void app_loop()
 	while (true)
 	{
 		handleevents();
+		updatePauseStatus();
 		switch (gamestate)
 		{
 		default:

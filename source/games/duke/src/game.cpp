@@ -40,6 +40,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "i_interface.h"
 #include "prediction.h"
 #include "glbackend/glbackend.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -282,7 +283,7 @@ static void ticker(void)
 	S_Update();
 
 	// we need CONTROL_GetInput in order to pick up joystick button presses
-	if (!(ps[myconnectindex].gm & MODE_GAME) || (paused && !System_WantGuiCapture()))
+	if (gamestate != GS_LEVEL || (paused && !System_WantGuiCapture()))
 	{
 		ControlInfo noshareinfo;
 		CONTROL_GetInput(&noshareinfo);

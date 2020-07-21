@@ -1227,7 +1227,6 @@ void GetInput()
 {
 	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
-	updatePauseStatus();
 
 	auto now = I_msTimeF();
 	// do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.

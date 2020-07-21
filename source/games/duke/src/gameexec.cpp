@@ -961,7 +961,6 @@ int ParseState::parse(void)
 #if 0
 			if( lastsavedpos >= 0 && ud.recstat != 2 )
 			{
-				ps[g_p].gm = MODE_MENU;
 				KB_ClearKeyDown(sc_Space);
 				cmenu(15000);
 			}

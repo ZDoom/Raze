@@ -174,17 +174,13 @@ void FTA(int q, struct player_struct* p)
 
 void drawbackground(void)
 {
-	if ((ps[myconnectindex].gm & MODE_GAME) == 0 && ud.recstat != 2)
-	{
-		twod->ClearScreen();
-		auto tex = tileGetTexture(TILE_MENUSCREEN);
-		PalEntry color = 0xff808080;
-		if (!hud_bgstretch)
-			DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
-		else
-			DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
-		return;
-	}
+	twod->ClearScreen();
+	auto tex = tileGetTexture(TILE_MENUSCREEN);
+	PalEntry color = 0xff808080;
+	if (!hud_bgstretch)
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
+	else
+		DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
 }
 
 //---------------------------------------------------------------------------
@@ -304,7 +300,7 @@ void displayrest(int smoothratio)
 
 			if (ud.scrollmode == 0)
 			{
-				if (pp->newowner == -1 && !paused)
+				if (pp->newowner == -1 && playrunning())
 				{
 					if (screenpeek == myconnectindex && numplayers > 1)
 					{
@@ -328,7 +324,7 @@ void displayrest(int smoothratio)
 			}
 			else
 			{
-				if (!paused)
+				if (playrunning())
 				{
 					ud.fola += ud.folavel >> 3;
 					ud.folx += (ud.folfvel * sintable[(512 + 2048 - ud.fola) & 2047]) >> 14;
@@ -371,7 +367,7 @@ void displayrest(int smoothratio)
 		}
 	}
 
-	if (paused == 1 && (ps[myconnectindex].gm & MODE_MENU) == 0)
+	if (paused == 2)
 		fi.PrintPaused();
 }
 
