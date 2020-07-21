@@ -60,7 +60,7 @@ extern int screenpeek;
 extern ClockTicks ototalclock;
 
 // Variables that must be saved
-extern uint8_t spriteextra[MAXSPRITES], sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
+extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
 
 extern int rtsplaying;
 extern int tempwallptr;

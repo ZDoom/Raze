@@ -670,10 +670,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(BossSpriteNum, sizeof(BossSpriteNum), 1, fil);
     //MWRITE(&Zombies, sizeof(Zombies), 1, fil);
 
-	if (!saveisshot)
-		return FinishSavegameWrite();
-
-    return false;
+    return !saveisshot;
 }
 
 

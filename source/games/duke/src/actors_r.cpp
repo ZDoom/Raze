@@ -4432,17 +4432,17 @@ static int fallspecial(int g_i, int g_p)
 			addspritetodelete(g_i);
 			return 0;
 		}
-		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || spriteextra[g_i] < 128))
+		if (g_sp->picnum != APLAYER && (badguy(g_sp) || g_sp->picnum == HEN || g_sp->picnum == COW || g_sp->picnum == PIG || g_sp->picnum == DOGRUN || g_sp->picnum == RABBIT) && (!isRRRA() || hittype[g_i].spriteextra < 128))
 		{
 			g_sp->z = hittype[g_i].floorz - FOURSLEIGHT;
 			g_sp->zvel = 8000;
 			g_sp->extra = 0;
-			spriteextra[g_i]++;
+			hittype[g_i].spriteextra++;
 			sphit = 1;
 		}
 		else if (g_sp->picnum != APLAYER)
 		{
-			if (!spriteextra[g_i])
+			if (!hittype[g_i].spriteextra)
 				addspritetodelete(g_i);
 			return 0;
 		}

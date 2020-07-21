@@ -75,7 +75,7 @@ void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 {
 	if (OpenSaveGameForWrite(node->Filename, node->SaveTitle))
 	{
-		if (gi->SaveGame(node))
+		if (gi->SaveGame(node) && FinishSavegameWrite())
 		{
 			FString fn = node->Filename;
 			FString desc = node->SaveTitle;

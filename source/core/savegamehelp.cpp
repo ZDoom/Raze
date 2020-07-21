@@ -162,7 +162,7 @@ void FinishSavegameRead()
 	savereader = nullptr;
 }
 
-CVAR(Bool, save_formatted, true, 0)	// should be set to false once the conversion is done
+CVAR(Bool, save_formatted, false, 0)	// should be set to false once the conversion is done
 
 //=============================================================================
 //

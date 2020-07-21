@@ -42,7 +42,6 @@ bool GameInterface::SaveGame(FSaveGameNode* sv)
 {
     for (auto sgh : sghelpers) sgh->Save();
     SaveTextureState();
-    FinishSavegameWrite();
     return 1; // CHECKME
 }
 

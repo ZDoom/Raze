@@ -56,15 +56,6 @@ void Quotes::InitializeQuote(int num, const char *text, bool fromscript)
 	}
 }
 
-void Quotes::InitializeExQuote(int num, const char *text, bool fromscript)
-{
-	exquotes[num] = text;
-	if (fromscript)	// means this is the initial setup from the source data.
-	{
-		MakeStringLabel(quotes[num]);
-	}
-}
-
 void Quotes::AppendQuote(int dst, int src, int len)
 {
 	// This needs to apply the localization because the combined string is not localizable anymore.
@@ -89,6 +80,7 @@ void Quotes::Substitute(int dst, const char* text, const char* replc)
 
 void Quotes::Serialize(FSerializer &arc)
 {
+#if 0 // not needed without EDuke's extensions.
 	// This only saves the regular quotes. The ExQuotes array is immutable once initialized.
 	if (arc.BeginObject("quotes"))
 	{
@@ -101,6 +93,7 @@ void Quotes::Serialize(FSerializer &arc)
 		}
 		arc.EndObject();
 	}
+#endif
 }
 
 Quotes quoteMgr;

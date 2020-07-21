@@ -75,7 +75,6 @@ static void recreateinterpolations()
 }
 
 
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
 {
 	if (arc.BeginObject(keyname))
@@ -303,25 +302,26 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, weaponhit& w, weap
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("cgg", w.cgg)
-			("picnum", w.picnum)
-			("ang", w.ang)
-			("extra", w.extra)
-			("owner", w.owner)
-			("movflag", w.movflag)
-			("tempang", w.tempang)
-			("actorstayput", w.actorstayput)
-			("dispicnum", w.dispicnum)
-			("timetosleep", w.timetosleep)
-			("floorz", w.floorz)
-			("ceilingz", w.ceilingz)
-			("lastvx", w.lastvx)
-			("lastvy", w.lastvy)
-			("bposx", w.bposx)
-			("bposy", w.bposy)
-			("bposz", w.bposz)
-			("aflags", w.aflags)
-			.Array("temp_data", w.temp_data, 6)
+		arc("cgg", w.cgg, def->cgg)
+			("spriteextra", w.spriteextra, def->spriteextra)
+			("picnum", w.picnum, def->picnum)
+			("ang", w.ang, def->ang)
+			("extra", w.extra, def->extra)
+			("owner", w.owner, def->owner)
+			("movflag", w.movflag, def->movflag)
+			("tempang", w.tempang, def->tempang)
+			("actorstayput", w.actorstayput, def->actorstayput)
+			("dispicnum", w.dispicnum, def->dispicnum)
+			("timetosleep", w.timetosleep, def->timetosleep)
+			("floorz", w.floorz, def->floorz)
+			("ceilingz", w.ceilingz, def->ceilingz)
+			("lastvx", w.lastvx, def->lastvx)
+			("lastvy", w.lastvy, def->lastvy)
+			("bposx", w.bposx, def->bposx)
+			("bposy", w.bposy, def->bposy)
+			("bposz", w.bposz, def->bposz)
+			("aflags", w.aflags, def->aflags)
+			.Array("temp_data", w.temp_data, def->temp_data, 6)
 			.EndObject();
 	}
 	return arc;
@@ -332,8 +332,8 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isReading())
 	{
+		memset(hittype, 0, sizeof(hittype));
 		memset(sectorextra, 0, sizeof(sectorextra));
-		memset(spriteextra, 0, sizeof(spriteextra));
 		memset(shadedsector, 0, sizeof(shadedsector));
 		memset(geosectorwarp, -1, sizeof(geosectorwarp));
 		memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
@@ -344,6 +344,41 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	{
 		arc("multimode", ud.multimode);
 		if (ud.multimode > 1) arc.Array("frags", &frags[0][0], MAXPLAYERS * MAXPLAYERS);
+
+		// Here we must only save the used entries, otherwise the savegame would get too large.
+		weaponhit def = {};
+		if (arc.isWriting())
+		{
+			if (arc.BeginArray("weaponhit"))
+			{
+				// Save this in a way that's easy to read out again. RapidJSON sucks at iterating over objects. :(
+				for (int i = 0; i < MAXSPRITES; i++)
+				{
+					if (sprite[i].statnum != MAXSTATUS)
+					{
+						arc(nullptr, i);
+						arc(nullptr, hittype[i], def);
+					}
+				}
+			}
+			arc.EndArray();
+		}
+		else
+		{
+			if (arc.BeginArray("weaponhit"))
+			{
+				auto s = arc.ArraySize()/2;
+				for (unsigned i = 0; i < s; i++)
+				{
+					int ii;
+					arc(nullptr, ii);
+					arc(nullptr, hittype[ii], def);
+				}
+				arc.EndArray();
+			}
+		}
+
+
 		arc("skill", ud.player_skill)
 
 			("from_bonus", ud.from_bonus)
@@ -360,8 +395,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
 
-			.Array("spriteextra", spriteextra, MAXSPRITES)
-			.Array("weaponhit", hittype, MAXSPRITES)
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
 			("tempwallptr", tempwallptr)

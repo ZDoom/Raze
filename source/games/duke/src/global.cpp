@@ -75,7 +75,7 @@ ClockTicks ototalclock;
 
 
 // Variables that must be saved
-uint8_t spriteextra[MAXSPRITES], sectorextra[MAXSECTORS]; // move these back into the base structs!
+uint8_t sectorextra[MAXSECTORS]; // move these back into the base structs!
 
 int rtsplaying;
 int tempwallptr;

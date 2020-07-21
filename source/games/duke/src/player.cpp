@@ -588,13 +588,11 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 				auto pname = &ud.user_name[p->frag_ps][0];
 				if (snum == screenpeek)
 				{
-					quoteMgr.InitializeQuote(QUOTE_RESERVED, "Killed by %s", pname);
-					FTA(QUOTE_RESERVED, p);
+					Printf(PRINT_NOTIFY, "Killed by %s", pname);
 				}
 				else
 				{
-					quoteMgr.InitializeQuote(QUOTE_RESERVED2, "Killed %s", pname);
-					FTA(QUOTE_RESERVED2, p);
+					Printf(PRINT_NOTIFY, "Killed %s", pname);
 				}
 
 			}

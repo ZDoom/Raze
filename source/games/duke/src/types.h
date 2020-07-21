@@ -19,6 +19,7 @@ struct STATUSBARTYPE
 struct weaponhit
 {
 	uint8_t cgg;
+	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	short picnum, ang, extra, owner, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;

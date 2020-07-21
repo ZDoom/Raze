@@ -614,7 +614,7 @@ bool GameInterface::SaveGame(FSaveGameNode* node)
 	}
 	LoadSave::hSFile = NULL;
 
-	return FinishSavegameWrite();
+	return 1;
 }
 
 class MyLoadSave : public LoadSave
