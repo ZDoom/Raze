@@ -63,6 +63,8 @@
 #include "v_draw.h"
 #include "g_input.h"
 #include "timer.h"
+#include "menu.h"
+#include "raze_music.h"
 
 #define LEFTMARGIN 8
 #define RIGHTMARGIN 8
@@ -87,7 +89,7 @@ static bool TabbedList;		// True if tab list was shown
 CVAR(Bool, con_notablist, false, CVAR_ARCHIVE)
 
 
-static FGameTexture* conback;
+static FGameTexture *conback;
 static uint32_t conshade;
 static bool conline;
 
@@ -780,8 +782,8 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 
 	if (hud_messages != 2 ||
 		source.IsEmpty() ||
-		//gamestate == GS_FULLCONSOLE ||
-		//gamestate == GS_DEMOSCREEN ||
+		gamestate == GS_FULLCONSOLE ||
+		gamestate == GS_DEMOSCREEN ||
 		con_notifylines == 0)
 		return;
 
@@ -977,9 +979,9 @@ void C_FlushDisplay ()
 
 void C_AdjustBottom ()
 {
-	/*if (gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP)
-		ConBottom = screen->GetHeight();
-	else*/ if (ConBottom > twod->GetHeight() / 2 || ConsoleState == c_down)
+	if (gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP)
+		ConBottom = twod->GetHeight();
+	else if (ConBottom > twod->GetHeight() / 2 || ConsoleState == c_down)
 		ConBottom = twod->GetHeight() / 2;
 }
 
@@ -1016,7 +1018,6 @@ void C_Ticker()
 			ConBottom += (consoletic - lasttic) * (twod->GetHeight() * 2 / 25);
 			if (ConBottom >= twod->GetHeight() / 2)
 			{
-				GSnd->SetSfxPaused(true, PAUSESFX_CONSOLE);
 				ConBottom = twod->GetHeight() / 2;
 				ConsoleState = c_down;
 			}
@@ -1026,7 +1027,6 @@ void C_Ticker()
 			ConBottom -= (consoletic - lasttic) * (twod->GetHeight() * 2 / 25);
 			if (ConBottom <= 0)
 			{
-				GSnd->SetSfxPaused(false, PAUSESFX_CONSOLE);
 				ConsoleState = c_up;
 				ConBottom = 0;
 			}
@@ -1035,10 +1035,6 @@ void C_Ticker()
 
 	lasttic = consoletic;
 	NotifyStrings.Tick();
-	if (ConsoleState == c_down)
-	{
-		D_ProcessEvents();
-	}
 }
 
 void FNotifyBuffer::Tick()
@@ -1078,8 +1074,8 @@ void FNotifyBuffer::Draw()
 	int line, lineadv, color, j;
 	bool canskip;
 	
-	//if (gamestate == GS_FULLCONSOLE || gamestate == GS_DEMOSCREEN/* || menuactive != MENU_Off*/)
-		//return;
+	if (gamestate == GS_FULLCONSOLE || gamestate == GS_DEMOSCREEN)
+		return;
 
 	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
 
@@ -1210,12 +1206,10 @@ void C_DrawConsole ()
 
 	}
 
-#if 0
 	if (menuactive != MENU_Off)
 	{
 		return;
 	}
-#endif
 
 	if (lines > 0)
 	{
@@ -1270,15 +1264,16 @@ void C_DrawConsole ()
 	}
 }
 
-#if 0
 void C_FullConsole ()
 {
+	/*
 	if (hud_toggled)
 		D_ToggleHud();
 	if (demoplayback)
 		G_CheckDemoStatus ();
 	D_QuitNetGame ();
 	advancedemo = false;
+	*/
 	ConsoleState = c_down;
 	HistPos = NULL;
 	TabbedLast = false;
@@ -1286,29 +1281,24 @@ void C_FullConsole ()
 	if (gamestate != GS_STARTUP)
 	{
 		gamestate = GS_FULLCONSOLE;
-		primaryLevel->Music = "";
-		S_Start ();
-		S_StopMusic(true);
-		P_FreeLevelData ();
+		Mus_Stop();
 	}
-	else
-	{
-		C_AdjustBottom ();
-	}
+	C_AdjustBottom ();
 }
-#endif
 
 
 void C_ToggleConsole ()
 {
-	/*
-	if (gamestate == GS_DEMOSCREEN || demoplayback)
+	if (gamestate == GS_INTRO) // blocked
 	{
-		gameaction = ga_fullconsole;
+		return;
 	}
-	else if (!chatmodeon && (ConsoleState == c_up || ConsoleState == c_rising) && menuactive == MENU_Off)*/
-
-	if (ConsoleState == c_up || ConsoleState == c_rising)// && menuactive == MENU_Off)
+	if (gamestate == GS_DEMOSCREEN)
+	{
+		gamestate = GS_FULLCONSOLE;
+		C_FullConsole();
+	}
+	else if (!chatmodeon && (ConsoleState == c_up || ConsoleState == c_rising) && menuactive == MENU_Off)
 	{
 		ConsoleState = c_falling;
 		HistPos = NULL;
@@ -1316,7 +1306,7 @@ void C_ToggleConsole ()
 		TabbedList = false;
 	
 	}
-	else //if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
+	else if (gamestate != GS_FULLCONSOLE && gamestate != GS_STARTUP)
 	{
 		ConsoleState = c_rising;
 		C_FlushDisplay ();
@@ -1390,7 +1380,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer up one page
 				RowAdjust += (screen->GetHeight()-4)/active_con_scale(twod) /
-					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
+					((gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 			}
 			else if (RowAdjust < conbuffer->GetFormattedLineCount())
 			{ // Scroll console buffer up
@@ -1413,7 +1403,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			if (ev->data3 & (GKM_SHIFT|GKM_CTRL))
 			{ // Scroll console buffer down one page
 				const int scrollamt = (screen->GetHeight()-4)/active_con_scale(twod) /
-					((/*gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP*/false) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
+					((gamestate == GS_FULLCONSOLE || gamestate == GS_STARTUP) ? CurrentConsoleFont->GetHeight() : CurrentConsoleFont->GetHeight()*2) - 3;
 				if (RowAdjust < scrollamt)
 				{
 					RowAdjust = 0;
@@ -1615,6 +1605,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			}
 			else if (gamestate == GS_FULLCONSOLE)
 			{
+				gamestate = GS_DEMOSCREEN;
 				C_DoCommand ("menu_main");
 			}
 			else
@@ -1723,8 +1714,8 @@ bool C_Responder (event_t *ev)
 {
 	if (ev->type != EV_GUI_Event ||
 		ConsoleState == c_up ||
-		ConsoleState == c_rising /*||
-		menuactive != MENU_Off*/)
+		ConsoleState == c_rising ||
+		menuactive != MENU_Off)
 	{
 		return false;
 	}

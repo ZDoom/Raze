@@ -79,7 +79,7 @@ struct JobDesc
 };
 
 
-void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true);
+void RunScreenJob(JobDesc *jobs, int count, CompletionFunc completion, bool clearbefore = true, bool blockingui = false);
 void DeleteScreenJob();
 void RunScreenJobFrame();
 

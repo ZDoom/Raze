@@ -2714,11 +2714,8 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     fr.Read( sprite, sizeof(spritetype)*numsprites);
 
     fr.Seek(0, FileReader::SeekSet);
-    int32_t boardsize = fr.GetLength();
-    uint8_t *fullboard = (uint8_t*)Xmalloc(boardsize);
-    fr.Read( fullboard, boardsize);
-    md4once(fullboard, boardsize, g_loadedMapHack.md4);
-    Xfree(fullboard);
+    auto buffer = fr.Read();
+    md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
 
     // Done reading file.
 
@@ -3019,10 +3016,10 @@ void videoNextPage(void)
 		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
 		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
 		recursion = true;
-		M_Drawer();
 		FStat::PrintStat(twod);
 		C_DrawConsole();
-		recursion = false;
+        M_Drawer();
+        recursion = false;
 	}
 
     // Handle the final 2D overlays.

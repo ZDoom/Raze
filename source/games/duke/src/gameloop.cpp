@@ -395,56 +395,67 @@ void app_loop()
 
 	while (true)
 	{
-		handleevents();
-		updatePauseStatus();
-		switch (gamestate)
+		try
 		{
-		default:
-		case GS_STARTUP:
-			totalclock = 0;
-			ototalclock = 0;
-			lockclock = 0;
-
-			ps[myconnectindex].ftq = 0;
-
-			if (userConfig.CommandMap.IsNotEmpty())
+			handleevents();
+			updatePauseStatus();
+			D_ProcessEvents();
+			switch (gamestate)
 			{
-				auto maprecord = FindMapByName(userConfig.CommandMap);
-				userConfig.CommandMap = "";
-				if (maprecord)
+			default:
+			case GS_STARTUP:
+				totalclock = 0;
+				ototalclock = 0;
+				lockclock = 0;
+
+				ps[myconnectindex].ftq = 0;
+
+				if (userConfig.CommandMap.IsNotEmpty())
 				{
-					ud.m_respawn_monsters = ud.m_player_skill == 4;
-
-					for (int i = 0; i != -1; i = connectpoint2[i])
+					auto maprecord = FindMapByName(userConfig.CommandMap);
+					userConfig.CommandMap = "";
+					if (maprecord)
 					{
-						resetweapons(i);
-						resetinventory(i);
+						ud.m_respawn_monsters = ud.m_player_skill == 4;
+
+						for (int i = 0; i != -1; i = connectpoint2[i])
+						{
+							resetweapons(i);
+							resetinventory(i);
+						}
+						startnewgame(maprecord, /*userConfig.skill*/2);
 					}
-					startnewgame(maprecord, /*userConfig.skill*/2);
 				}
+				else
+				{
+					fi.ShowLogo([](bool) { startmainmenu(); });
+				}
+				break;
+
+			case GS_DEMOSCREEN:
+			case GS_FULLCONSOLE:
+				drawbackground();
+				break;
+
+			case GS_LEVEL:
+				if (GameTicker()) gamestate = GS_STARTUP;
+				else videoSetBrightness(thunder_brightness);
+				break;
+
+			case GS_INTERMISSION:
+			case GS_INTRO:
+				RunScreenJobFrame();	// This handles continuation through its completion callback.
+				break;
+
 			}
-			else
-			{
-				fi.ShowLogo([](bool) { startmainmenu(); });
-			}
-			break;
-
-		case GS_DEMOSCREEN:
-			drawbackground();
-			break;
-
-		case GS_LEVEL:
-			if (GameTicker()) gamestate = GS_STARTUP;
-			else videoSetBrightness(thunder_brightness);
-			break;
-
-		case GS_INTERMISSION:
-			RunScreenJobFrame();	// This handles continuation through its completion callback.
-			break;
-
+			videoNextPage();
+			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
 		}
-		videoNextPage();
-		videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
+		catch (CRecoverableError& err)
+		{
+			C_FullConsole();
+			Printf(TEXTCOLOR_RED "%s\n", err.what());
+		}
 	}
 }
 

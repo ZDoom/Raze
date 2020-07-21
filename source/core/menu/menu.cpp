@@ -55,6 +55,7 @@
 #include "raze_sound.h"
 #include "texturemanager.h"
 #include "v_video.h"
+#include "gamestate.h"
 
 void RegisterDuke3dMenus();
 void RegisterBloodMenus();
@@ -204,7 +205,7 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 	{
 	case MKEY_Back:
 	{
-		if (scriptID != 0)
+		//if (scriptID != 0)
 		{
 			M_MenuSound(CurrentMenu->mParentMenu? BackSound : CloseSound);
 			Close();
@@ -824,8 +825,12 @@ bool M_DoResponder (event_t *ev)
 			// Pop-up menu?
 			if (ev->data1 == KEY_ESCAPE) // Should we let the games handle Escape for special actions, like backing out of cameras?
 			{
-				M_StartControlPanel(true);
-				M_SetMenu(NAME_IngameMenu, -1);
+				if (gamestate != GS_STARTUP && gamestate != GS_INTRO)
+				{
+					M_StartControlPanel(true);
+					M_SetMenu(gi->CanSave()? NAME_IngameMenu : NAME_Mainmenu, -1);
+					if (gamestate == GS_FULLCONSOLE) gamestate = GS_DEMOSCREEN;
+				}
 				return true;
 			}
 			return false;
@@ -872,7 +877,6 @@ void M_Ticker (void)
 	if (DMenu::MenuTime & 3) return;
 	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
-		if (DMenu::MenuTime != 0) D_ProcessEvents();	// The main loop is blocked when the menu is open and cannot dispatch the events.
 		if (transition.previous) transition.previous->Ticker();
 		if (CurrentMenu == nullptr) return; // In case one of the sub-screens has closed the menu.
 		CurrentMenu->Ticker();

@@ -6,6 +6,7 @@
 enum gamestate_t : int
 {
 	GS_LEVEL,
+	GS_INTRO,
 	GS_INTERMISSION,
 	GS_FINALE,
 	GS_DEMOSCREEN,

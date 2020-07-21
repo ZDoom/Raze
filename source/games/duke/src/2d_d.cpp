@@ -272,7 +272,7 @@ void Logo_d(const CompletionFunc &completion)
 	if (VOLUMEALL && !inputState.CheckAllInput()) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
 	if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
 	jobs[job++] = { Create<DTitleScreen>(), []() { S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI); } };
-	RunScreenJob(jobs, job, completion);
+	RunScreenJob(jobs, job, completion, true, true);
 }
 
 //---------------------------------------------------------------------------

@@ -43,6 +43,7 @@
 #include "s_soundinternal.h"
 #include "animtexture.h"
 #include "gamestate.h"
+#include "menu.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
@@ -242,6 +243,7 @@ class ScreenJobRunner
 	bool clearbefore;
 	bool skipped = false;
 	uint64_t startTime = -1;
+	uint64_t lastTime = -1;
 	int actionState;
 	int terminateState;
 
@@ -290,12 +292,19 @@ public:
 		auto now = I_nsTime();
 		bool skiprequest = inputState.CheckAllInput();
 		if (startTime == -1) startTime = now;
+
+		if (M_Active())
+		{
+			startTime += now - lastTime;
+		}
+		lastTime = now;
+
 		auto clock = now - startTime;
 		if (screenfade < 1.f)
 		{
 			float ms = (clock / 1'000'000) / job.job->fadetime;
 			screenfade = clamp(ms, 0.f, 1.f);
-			twod->SetScreenFade(screenfade);
+			if (!M_Active()) twod->SetScreenFade(screenfade);
 			job.job->fadestate = DScreenJob::fadein;
 		}
 		else job.job->fadestate = DScreenJob::visible;
@@ -308,10 +317,17 @@ public:
 	int FadeoutFrame()
 	{
 		auto now = I_nsTime();
+
+		if (M_Active())
+		{
+			startTime += now - lastTime;
+		}
+		lastTime = now;
+
 		auto clock = now - startTime;
 		float ms = (clock / 1'000'000) / jobs[index].job->fadetime;
 		float screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
-		twod->SetScreenFade(screenfade2);
+		if (!M_Active()) twod->SetScreenFade(screenfade2);
 		if (screenfade2 <= 0.f)
 		{
 			twod->Unlock(); // must unlock before displaying.
@@ -368,13 +384,13 @@ public:
 
 ScreenJobRunner *runner;
 
-void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore)
+void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui)
 {
 	assert(completion != nullptr);
 	if (count)
 	{
 		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
-		gamestate = GS_INTERMISSION;
+		gamestate = blockingui? GS_INTRO : GS_INTERMISSION;
 	}
 }
 
