@@ -793,7 +793,7 @@ void applylook(int snum, double factor)
 	if (p->lookRight)
 	{
 		p->addlookang(factor * 152);
-		p->addrotscrnang(factor * 24);
+		p->addrotscrnang(factor * -24);
 	}
 
 	if (p->one_eighty_count < 0 && p->on_crane == 0)
