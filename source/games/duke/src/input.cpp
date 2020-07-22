@@ -907,7 +907,7 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 
 	}
 
-	if (loc.svel < abs(keymove))
+	if (loc.svel < keymove && loc.svel > -keymove)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
 			input.svel += keymove;
@@ -916,7 +916,7 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 			input.svel += -keymove;
 	}
 
-	if (loc.fvel < abs(keymove))
+	if (loc.fvel < keymove && loc.fvel > -keymove)
 	{
 		if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
 		{
