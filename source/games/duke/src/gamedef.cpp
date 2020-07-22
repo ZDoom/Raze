@@ -722,7 +722,6 @@ void ConCompiler::checkforkeyword()
 //
 //---------------------------------------------------------------------------
 
-
 int ConCompiler::parsecommand()
 {
 	const char* fn = fileSystem.GetFileFullName(currentsourcefile);
@@ -1499,6 +1498,7 @@ int ConCompiler::parsecommand()
 	// case concmd_ifpupwind:
 
 	if_common:	// this code is identical for all 'if...'instructions.
+	{
 		tempscrptr = scriptpos();
 		reservescriptspace(1); //Leave a spot for the fail location
 
@@ -1506,10 +1506,15 @@ int ConCompiler::parsecommand()
 		parsecommand();
 
 		setscriptvalue(tempscrptr, scriptpos());
-		if (keyword() == concmd_else)	// only increment checking_ifelse if there actually is an else. Otherwise this would break the entire checking logic and render it non-functional
+		auto k = keyword();
+		// Cannot be done - the code starts misbehaving with this check, it is especially noticeable on the soldiers in NAM.
+		// Unfortunately this means one less error check, but ultimately CON is too broken to begin with anyway
+#if 0
+		if (k == concmd_else)	/ only increment checking_ifelse if there actually is an else. Otherwise this would break the entire checking logic and render it non-functional
+#endif
 			checking_ifelse++;
 		return 0;
-
+	}
 	case concmd_leftbrace:
 		num_squigilly_brackets++;
 		do
