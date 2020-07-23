@@ -39,8 +39,9 @@ BEGIN_DUKE_NS
 
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
-short myhoriz, omyhoriz, myhorizoff, omyhorizoff, globalskillsound;
-short myang, omyang, mycursectnum, myjumpingcounter;
+short globalskillsound;
+fix16_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
+short mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;
 int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
@@ -50,20 +51,20 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-	  myx = omyx = ps[myconnectindex].posx;
-	  myy = omyy = ps[myconnectindex].posy;
-	  myz = omyz = ps[myconnectindex].posz;
-	  myxvel = myyvel = myzvel = 0;
-	  myang = omyang = ps[myconnectindex].getang();
-	  myhoriz = omyhoriz = ps[myconnectindex].gethoriz();
-	  myhorizoff = omyhorizoff = ps[myconnectindex].gethorizof();
-	  mycursectnum = ps[myconnectindex].cursectnum;
-	  myjumpingcounter = ps[myconnectindex].jumping_counter;
-	  myjumpingtoggle = ps[myconnectindex].jumping_toggle;
-	  myonground = ps[myconnectindex].on_ground;
-	  myhardlanding = ps[myconnectindex].hard_landing;
-	  myreturntocenter = ps[myconnectindex].return_to_center;
- }
+	myx = omyx = ps[myconnectindex].posx;
+	myy = omyy = ps[myconnectindex].posy;
+	myz = omyz = ps[myconnectindex].posz;
+	myxvel = myyvel = myzvel = 0;
+	q16myang = oq16myang = ps[myconnectindex].q16ang;
+	q16myhoriz = oq16myhoriz = ps[myconnectindex].q16horiz;
+	q16myhorizoff = oq16myhorizoff = ps[myconnectindex].q16horizoff;
+	mycursectnum = ps[myconnectindex].cursectnum;
+	myjumpingcounter = ps[myconnectindex].jumping_counter;
+	myjumpingtoggle = ps[myconnectindex].jumping_toggle;
+	myonground = ps[myconnectindex].on_ground;
+	myhardlanding = ps[myconnectindex].hard_landing;
+	myreturntocenter = ps[myconnectindex].return_to_center;
+}
 
 #if 0 // todo: fix this when networking works again
 void fakedomovethingscorrect(void)

@@ -306,6 +306,8 @@ void displayrest(int smoothratio)
 					{
 						cposx = omyx + mulscale16(myx - omyx, smoothratio);
 						cposy = omyy + mulscale16(myy - omyy, smoothratio);
+						int omyang = fix16_to_int(oq16myang);
+						int myang = fix16_to_int(q16myang);
 						cang = fix16_to_int(omyang) + mulscale16((fix16_to_int(myang + F16(1024) - omyang) & 2047) - 1024, smoothratio);
 					}
 					else

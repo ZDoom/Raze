@@ -95,6 +95,14 @@ public:
 		return binangle(value - other.value);
 	}
 	
+	void interpolate(binangle a1, binangle a2, fix16_t smoothratio)
+	{
+		// Calculate in floating point to reduce the error caused by overflows which are to be expected here and then downconvert using a method that is safe to overflow.
+		// We do not want fixed point multiplications here to trash the result.
+		double smooth = smoothratio / 65536.f;
+		value = xs_CRoundToUInt(double(a1.asbam()) + smooth * (double(a2.asbam()) - double(a1.asbam())));
+	}
+
 
 };
 
@@ -170,7 +178,6 @@ public:
 	{
 		return fixedhoriz(value - other.value);
 	}
-	
 
 };
 

@@ -58,7 +58,7 @@ static int tempsectorz[MAXSECTORS];
 static int tempsectorpicnum[MAXSECTORS];
 //short tempcursectnum;
 
-void SE40_Draw(int tag, int spnum, int x, int y, int z, int a, int h, int smoothratio)
+void SE40_Draw(int tag, int spnum, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
 	int i, j = 0, k = 0;
 	int floor1, floor2 = 0, ok = 0, fofmode = 0;
@@ -135,13 +135,9 @@ void SE40_Draw(int tag, int spnum, int x, int y, int z, int a, int h, int smooth
 	offx = x - sprite[i].x;
 	offy = y - sprite[i].y;
 	i = floor2;
-#if 0
-	drawrooms(offx + sprite[i].x, offy + sprite[i].y, z, a, h, sprite[i].sectnum);
-#else
-	renderDrawRoomsQ16(sprite[i].x + offx, sprite[i].y + offy, z, a, h, sprite[i].sectnum);
-#endif
 
-	fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, fix16_to_int(a), smoothratio);
+	renderDrawRoomsQ16(sprite[i].x + offx, sprite[i].y + offy, z, a.asq16(), h.asq16(), sprite[i].sectnum);
+	fi.animatesprites(offx + sprite[i].x, offy + sprite[i].y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 
 	for (j = 0; j < MAXSPRITES; j++)  // restore ceiling or floor
@@ -173,7 +169,7 @@ void SE40_Draw(int tag, int spnum, int x, int y, int z, int a, int h, int smooth
 //
 //---------------------------------------------------------------------------
 
-void se40code(int x, int y, int z, int a, int h, int smoothratio)
+void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
 	int i, tag;
 	if (!isRR()) tag = 40;
@@ -208,7 +204,7 @@ void se40code(int x, int y, int z, int a, int h, int smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void renderMirror(int cposx, int cposy, int cposz, int cang, int choriz, int smoothratio)
+void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int smoothratio)
 {
 	if ((gotpic[TILE_MIRROR >> 3] & (1 << (TILE_MIRROR & 7))) > 0)
 	{
@@ -221,14 +217,15 @@ void renderMirror(int cposx, int cposy, int cposz, int cang, int choriz, int smo
 
 		if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
 		{
-			int tposx, tposy, tang;
+			int tposx, tposy;
+			fix16_t tang;
 
-			renderPrepareMirror(cposx, cposy, cposz, cang << FRACBITS, choriz<<FRACBITS, mirrorwall[i], &tposx, &tposy, &tang);
+			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), mirrorwall[i], &tposx, &tposy, &tang);
 
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz << FRACBITS, mirrorsector[i] + MAXSECTORS);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i] + MAXSECTORS);
 
 			display_mirror = 1;
 			fi.animatesprites(tposx, tposy, tang, smoothratio);
@@ -380,12 +377,12 @@ void setdrugmode(player_struct *p, int oyrepeat)
 //
 //---------------------------------------------------------------------------
 
-static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz, int sect, int smoothratio)
+static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
 	short gs, tgsect, nextspr, geosect, geoid = 0;
 	int spr;
-	drawrooms(cposx, cposy, cposz, cang, choriz, sect);
-	fi.animatesprites(cposx, cposy, cang, smoothratio);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
 	for (gs = 0; gs < geocnt; gs++)
 	{
@@ -406,7 +403,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 	}
 	cposx -= geox[geoid];
 	cposy -= geoy[geoid];
-	drawrooms(cposx, cposy, cposz, cang, choriz, sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
 	cposx += geox[geoid];
 	cposy += geoy[geoid];
 	for (gs = 0; gs < geocnt; gs++)
@@ -421,7 +418,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 			spr = nextspr;
 		}
 	}
-	fi.animatesprites(cposx, cposy, cang, smoothratio);
+	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
 	for (gs = 0; gs < geocnt; gs++)
 	{
@@ -442,7 +439,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 	}
 	cposx -= geox2[geoid];
 	cposy -= geoy2[geoid];
-	drawrooms(cposx, cposy, cposz, cang, choriz, sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
 	cposx += geox2[geoid];
 	cposy += geoy2[geoid];
 	for (gs = 0; gs < geocnt; gs++)
@@ -457,7 +454,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 			spr = nextspr;
 		}
 	}
-	fi.animatesprites(cposx, cposy, cang, smoothratio);
+	fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
 }
 //---------------------------------------------------------------------------
@@ -469,7 +466,9 @@ static void geometryEffect(int cposx, int cposy, int cposz, int cang, int choriz
 void displayrooms(int snum, int smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
-	short sect, cang, choriz;
+	short sect;
+	binangle cang;
+	fixedhoriz choriz;
 	struct player_struct* p;
 	int tiltcs = 0; // JBF 20030807
 
@@ -514,12 +513,13 @@ void displayrooms(int snum, int smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = hittype[ud.camerasprite].tempang + mulscale16((int)(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024), smoothratio);
+		cang = buildang(hittype[ud.camerasprite].tempang + mulscale16((int)(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024), smoothratio));
 
-		se40code(s->x, s->y, s->z, cang, s->yvel, smoothratio);
-		renderMirror(s->x, s->y, s->z, cang, s->yvel, smoothratio);
-		drawrooms(s->x, s->y, s->z - (4 << 8), cang, s->yvel, s->sectnum);
-		fi.animatesprites(s->x, s->y, cang, smoothratio);
+		auto bh = buildhoriz(s->yvel);
+		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
+		renderMirror(s->x, s->y, s->z, cang, bh, smoothratio);
+		renderDrawRoomsQ16(s->x, s->y, s->z - (4 << 8), cang.asq16(), bh.asq16(), s->sectnum);
+		fi.animatesprites(s->x, s->y, cang.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
 	else
@@ -553,13 +553,15 @@ void displayrooms(int snum, int smoothratio)
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
 			if (synchronized_input)
 			{
-				cang = omyang + mulscale16((int)(((myang + 1024 - omyang) & 2047) - 1024), smoothratio);
-				choriz = omyhoriz + omyhorizoff + mulscale16((int)(myhoriz + myhorizoff - omyhoriz - omyhorizoff), smoothratio);
+				cang.interpolate(q16ang(oq16myang), q16ang(q16myang), smoothratio);
+				fix16_t osum = (oq16myhoriz + oq16myhorizoff);
+				fix16_t sum = (q16myhoriz + q16myhorizoff);
+				choriz = q16horiz(osum + mulscale16(sum - osum, smoothratio));
 			}
 			else
 			{
-				cang = myang;
-				choriz = (myhoriz + myhorizoff);
+				cang = q16ang(q16myang);
+				choriz = q16horiz(q16myhoriz + q16myhorizoff);
 			}
 			sect = mycursectnum;
 		}
@@ -571,23 +573,24 @@ void displayrooms(int snum, int smoothratio)
 			if (synchronized_input /*|| smoothcamera*/)
 			{
 				// Original code for when the values are passed through the sync struct
-				cang = p->getoang() + mulscale16((int)(((p->getang() + 1024 - p->getoang()) & 2047) - 1024), smoothratio);
-				int ohorz = (p->oq16horiz + p->oq16horizoff) >> FRACBITS;
-				choriz = ohorz + mulscale16((int)(p->gethorizsum() - ohorz), smoothratio);
+				cang.interpolate(q16ang(p->oq16ang), q16ang(p->q16ang), smoothratio);
+				fix16_t osum = (p->oq16horiz + p->oq16horizoff);
+				fix16_t sum = (p->q16horiz + p->q16horizoff);
+				choriz = q16horiz(osum + mulscale16(sum - osum, smoothratio));
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = p->getang();
-				choriz = p->gethorizsum();
+				cang = q16ang(p->q16ang);
+				choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			}
 		}
-		cang += p->getlookang();
+		cang += q16ang(p->q16look_ang);
 
 		if (p->newowner >= 0)
 		{
-			cang = p->getang() + p->getlookang();
-			choriz = p->gethorizsum();
+			cang = q16ang(p->q16ang + p->q16look_ang);
+			choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			cposx = p->posx;
 			cposy = p->posy;
 			cposz = p->posz;
@@ -598,7 +601,7 @@ void displayrooms(int snum, int smoothratio)
 		{
 			if (cl_viewbob) cposz += p->opyoff + mulscale16((int)(p->pyoff - p->opyoff), smoothratio);
 		}
-		else view(p, &cposx, &cposy, &cposz, &sect, cang, choriz);
+		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild());
 
 		cz = hittype[p->i].ceilingz;
 		fz = hittype[p->i].floorz;
@@ -606,13 +609,13 @@ void displayrooms(int snum, int smoothratio)
 		if (earthquaketime > 0 && p->on_ground == 1)
 		{
 			cposz += 256 - (((earthquaketime) & 1) << 9);
-			cang += (2 - ((earthquaketime) & 2)) << 2;
+			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
 		}
 
 		if (sprite[p->i].pal == 1) cposz -= (18 << 8);
 
 		if (p->newowner >= 0)
-			choriz = 100 + sprite[p->newowner].shade;
+			choriz = buildhoriz(100 + sprite[p->newowner].shade);
 
 		else if (p->spritebridge == 0)
 		{
@@ -627,7 +630,7 @@ void displayrooms(int snum, int smoothratio)
 			if (cposz > fz - (4 << 8)) cposz = fz - (4 << 8);
 		}
 
-		choriz = clamp(choriz, HORIZ_MIN, HORIZ_MAX);
+		choriz = clamp(choriz, buildhoriz(HORIZ_MIN), buildhoriz(HORIZ_MAX));
 
 		if (isRR() && sector[sect].lotag == 848)
 		{
@@ -637,8 +640,8 @@ void displayrooms(int snum, int smoothratio)
 		{
 			se40code(cposx, cposy, cposz, cang, choriz, smoothratio);
 			renderMirror(cposx, cposy, cposz, cang, choriz, smoothratio);
-			drawrooms(cposx, cposy, cposz, cang, choriz, sect);
-			fi.animatesprites(cposx, cposy, cang, smoothratio);
+			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+			fi.animatesprites(cposx, cposy, cang.asbuild(), smoothratio);
 			renderDrawMasks();
 		}
 	}
