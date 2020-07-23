@@ -432,7 +432,7 @@ void CDemo::LoadDemoInfo(void)
 #if B_BIG_ENDIAN == 1
         atf.signature = B_LITTLE32(atf.signature);
         atf.nVersion = B_LITTLE16(atf.nVersion);
-#endif, "."
+#endif
         if ((atf.signature == 0x1a4d4544 /* '\x1aMED' */&& atf.nVersion == BloodVersion)
             || (atf.signature == 0x1a4d4445 /* '\x1aMDE' */ && atf.nVersion == BYTEVERSION))
         {

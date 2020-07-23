@@ -552,7 +552,7 @@ bool checkhitswitch_d(int snum, int w, int switchtype)
 		x = headspritestat[3];
 		while (x >= 0)
 		{
-			if (((sprite[x].hitag) == lotag))
+			if (sprite[x].hitag == lotag)
 			{
 				switch (sprite[x].lotag)
 				{

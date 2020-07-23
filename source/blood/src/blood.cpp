@@ -1337,33 +1337,6 @@ RESTART:
     return 0;
 }
 
-// Returns:
-//   0: all OK
-//  -1: ID declaration was invalid:
-static int32_t S_DefineMusic(const char *ID, const char *name)
-{
-    int32_t sel = MUS_FIRST_SPECIAL;
-
-    Bassert(ID != NULL);
-
-    if (!Bstrcmp(ID,"intro"))
-    {
-        sel = MUS_INTRO;
-    }
-    else if (!Bstrcmp(ID,"loading"))
-    {
-        sel = MUS_LOADING;
-    }
-    else
-    {
-        sel = levelGetMusicIdx(ID);
-        if (sel < 0)
-            return -1;
-    }
-
-    quoteMgr.InitializeQuote(sel, name);
-    return 0;
-}
 
 static int parsedefinitions_game(scriptfile *, int);
 

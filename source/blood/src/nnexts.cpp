@@ -416,7 +416,7 @@ void nnExtInitModernStuff(bool bSaveLoad) {
                                 //ThrowError("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
-                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index, pXSprite->data1);
+                                ThrowError("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", pSprite->index);
 
                             if (pXSprite->txID && pXSprite->txID < kChannelUser)
                                 ThrowError("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", pSprite->index, kChannelUser, kChannelMax);
@@ -2506,7 +2506,7 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer2, pzFormat, args);
-    ThrowError(Bstrcat(buffer, buffer2));
+    ThrowError("%s%s", buffer, buffer2);
 }
 
 

@@ -70,8 +70,8 @@ public:
 
 	int GetNamespace() const override { return Namespace; }
 
-	int GetFileOffset() { return Position; }
-	FileReader *GetReader()
+	int GetFileOffset() override { return Position; }
+	FileReader *GetReader() override
 	{
 		if(!Compressed)
 		{
@@ -80,7 +80,7 @@ public:
 		}
 		return NULL;
 	}
-	int FillCache()
+	int FillCache() override
 	{
 		if(!Compressed)
 		{

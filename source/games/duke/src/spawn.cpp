@@ -533,7 +533,7 @@ void initwaterdrip(int j, int i)
 	auto sp = &sprite[i];
 	int sect = sp->sectnum;
 	auto t = hittype[i].temp_data;
-	if (j >= 0 && sprite[j].statnum == 10 || sprite[j].statnum == 1)
+	if (j >= 0 && (sprite[j].statnum == 10 || sprite[j].statnum == 1))
 	{
 		sp->shade = 32;
 		if (sprite[j].pal != 1)
@@ -971,7 +971,7 @@ void spawneffector(int i)
 				}
 				if (j == MAXSPRITES)
 				{
-					I_Error("Found lonely Sector Effector (lotag 0) at (%ld,%ld)\n", sp->x, sp->y);
+					I_Error("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
 				}
 				sp->owner = j;
 			}
@@ -987,7 +987,7 @@ void spawneffector(int i)
 				tempwallptr++;
 				if (tempwallptr > 2047)
 				{
-					I_Error("Too many moving sectors at (%ld,%ld).\n", wall[s].x, wall[s].y);
+					I_Error("Too many moving sectors at (%d,%d).\n", wall[s].x, wall[s].y);
 				}
 			}
 			if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
@@ -1018,7 +1018,7 @@ void spawneffector(int i)
 
 				if (j == 0)
 				{
-					I_Error("Subway found no zero'd sectors with locators\nat (%ld,%ld).\n", sp->x, sp->y);
+					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", sp->x, sp->y);
 				}
 
 				sp->owner = -1;

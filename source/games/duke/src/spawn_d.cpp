@@ -702,8 +702,8 @@ int spawn_d(int j, int pn)
                 }
                 else { // Twentieth Anniversary World Tour addition
                     if ((sp->pal == 1 && ud.multimode > 1) // Single-game Only
-                        || (sp->pal == 2 && (ud.multimode == 1 || ud.multimode > 1 && ud.coop != 1)) // Co-op Only
-                        || (sp->pal == 3 && (ud.multimode == 1 || ud.multimode > 1 && ud.coop == 1))) // Dukematch Only
+                        || (sp->pal == 2 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop != 1))) // Co-op Only
+                        || (sp->pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
                     {
                         sp->xrepeat = sp->yrepeat = 0;
                         changespritestat(i, 5);

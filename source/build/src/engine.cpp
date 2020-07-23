@@ -404,48 +404,6 @@ int32_t wallfront(int32_t l1, int32_t l2)
 }
 
 //
-// spritewallfront (internal)
-//
-static inline int32_t spritewallfront(tspritetype const * const s, int32_t w)
-{
-    auto const wal = (uwallptr_t)&wall[w];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
-    const vec2_t v = { wal->x, wal->y };
-
-    return dmulscale32(wal2->x - v.x, s->y - v.y, -(s->x - v.x), wal2->y - v.y) >= 0;
-}
-
-//
-// bunchfront (internal)
-//
-static inline int32_t bunchfront(int32_t b1, int32_t b2)
-{
-    int b1f = bunchfirst[b1];
-    int const x1b1 = xb1[b1f];
-    int const x2b2 = xb2[bunchlast[b2]] + 1;
-
-    if (x1b1 >= x2b2)
-        return -1;
-
-    int b2f = bunchfirst[b2];
-    int const x1b2 = xb1[b2f];
-    int const x2b1 = xb2[bunchlast[b1]] + 1;
-
-    if (x1b2 >= x2b1)
-        return -1;
-
-    if (x1b1 >= x1b2)
-    {
-        for (; xb2[b2f] < x1b1; b2f = bunchp2[b2f]) { }
-        return wallfront(b1f, b2f);
-    }
-
-    for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]) { }
-    return wallfront(b1f, b2f);
-}
-
-
-//
 // animateoffs (internal)
 //
 int32_t (*animateoffs_replace)(int const tilenum, int fakevar) = NULL;

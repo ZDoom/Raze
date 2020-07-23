@@ -159,6 +159,7 @@ public:
 	};
 
 	DBaseStatusBar ();
+	virtual ~DBaseStatusBar() = default;
 	void SetSize(int reltop = 32, int hres = 320, int vres = 200, int hhres = -1, int hvres = -1);
 
 	void ShowPlayerName ();

@@ -155,7 +155,7 @@ void nonsharedkeys(void)
 		{
 			if (SHIFTS_IS_PRESSED)
 			{
-				Printf(PRINT_NOTIFY, *CombatMacros[taunt - 1]);
+				Printf(PRINT_NOTIFY, "%s", **CombatMacros[taunt - 1]);
 				//Net_SendTaunt(taunt);
 				return;
 			}
@@ -714,30 +714,6 @@ enum
 	MOTOTURN      = 20,
 	MAXVELMOTO    = 120,
 };
-
-//---------------------------------------------------------------------------
-//
-// This one's from VoidSW, not EDuke32
-//
-//---------------------------------------------------------------------------
-
-static fix16_t GetDeltaQ16Angle(fix16_t ang1, fix16_t ang2)
-{
-	// Look at the smaller angle if > 1024 (180 degrees)
-	if (fix16_abs(ang1 - ang2) > fix16_from_int(1024))
-	{
-		if (ang1 <= fix16_from_int(1024))
-			ang1 += fix16_from_int(2048);
-
-		if (ang2 <= fix16_from_int(1024))
-			ang2 += fix16_from_int(2048);
-	}
-
-	//if (ang1 - ang2 == -fix16_from_int(1024))
-	//    return(fix16_from_int(1024));
-
-	return ang1 - ang2;
-}
 
 //---------------------------------------------------------------------------
 //

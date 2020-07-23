@@ -257,11 +257,11 @@ void ConCompiler::ReportError(int error)
 			fn, line_number, parsebuf);
 		break;
 	case ERROR_CLOSEBRACKET:
-		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '}' than '{' before '%s'.\n",
+		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Found more '}' than '{' before '%s'.\n",
 			fn, line_number, parsebuf);
 		break;
 	case ERROR_NOENDSWITCH:
-		Printf(TEXTCOLOR_RED "  * ERROR!%s(%s, line %d) Did not find endswitch before '%s'.\n",
+		Printf(TEXTCOLOR_RED "  * ERROR! (%s, line %d) Did not find endswitch before '%s'.\n",
 			fn, line_number, parsebuf);
 		break;
 
@@ -815,15 +815,15 @@ int ConCompiler::parsecommand()
 		if (strlen(parselabel) > (MAXVARLABEL - 1))
 		{
 			warningcount++;
-			Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Variable Name '%s' too int (max is %d)\n", fn, line_number, parselabel, MAXVARLABEL - 1);
+			Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Variable Name '%s' too int (max is %d)\n", fn, line_number, parselabel.GetChars(), MAXVARLABEL - 1);
 			return 0;
 		}
 		int res = AddGameVar(parselabel, j, lnum & (~(GAMEVAR_FLAG_DEFAULT | GAMEVAR_FLAG_SECRET)));
 		if (res < 0)
 		{
 			errorcount++;
-			if (res == -1) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) Duplicate game variable definition '%s'.\n", fn, line_number, parselabel);
-			else if (res == -2) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) '%s' maximum number of game variables exceeded.\n", fn, line_number, parselabel);
+			if (res == -1) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) Duplicate game variable definition '%s'.\n", fn, line_number, parselabel.GetChars());
+			else if (res == -2) Printf(TEXTCOLOR_RED "  * ERROR.(%s, line %d) '%s' maximum number of game variables exceeded.\n", fn, line_number, parselabel.GetChars());
 			return 0;
 		}
 
@@ -890,7 +890,7 @@ int ConCompiler::parsecommand()
 				if (labels[i].compare(parselabel) == 0)
 				{
 					warningcount++;
-					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel);
+					Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate move '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 					break;
 				}
 			if (i == labels.Size())
@@ -1016,7 +1016,7 @@ int ConCompiler::parsecommand()
 			if (lnum >= 0)
 			{
 				warningcount++;
-				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, parselabel);
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate ai '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 			}
 			else appendlabeladdress(LABEL_AI);
 
@@ -1056,7 +1056,7 @@ int ConCompiler::parsecommand()
 			if (lnum >= 0)
 			{
 				warningcount++;
-				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, parselabel);
+				Printf(TEXTCOLOR_RED "  * WARNING.(%s, line %d) Duplicate event '%s' ignored.\n", fn, line_number, parselabel.GetChars());
 			}
 			else appendlabeladdress(LABEL_ACTION);
 
@@ -1628,7 +1628,7 @@ int ConCompiler::parsecommand()
 		k = popscriptvalue();
 		if (k >= MAXQUOTES)
 		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Quote number exceeds limit of %d.\n", line_number, MAXQUOTES);
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Quote number exceeds limit of %d.\n", fn, line_number, MAXQUOTES);
 			errorcount++;
 		}
 		
@@ -1679,14 +1679,14 @@ int ConCompiler::parsecommand()
 	case concmd_endevent:
 		if (parsing_event == 0)
 		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'endevent' without defining 'onevent'.\n", line_number);
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'endevent' without defining 'onevent'.\n", fn, line_number);
 			errorcount++;
 		}
 		//			  else
 		{
 			if (num_squigilly_brackets > 0)
 			{
-				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '{' than '}' before 'endevent'.\n", line_number);
+				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '{' than '}' before 'endevent'.\n", fn, line_number);
 				errorcount++;
 			}
 			parsing_event = 0;
@@ -1698,14 +1698,14 @@ int ConCompiler::parsecommand()
 	case concmd_enda:
 		if (parsing_actor == 0)
 		{
-			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'enda' without defining 'actor'.\n", line_number);
+			Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found 'enda' without defining 'actor'.\n", fn, line_number);
 			errorcount++;
 		}
 		//			  else
 		{
 			if (num_squigilly_brackets > 0)
 			{
-				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '{' than '}' before 'enda'.\n", line_number);
+				Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Found more '{' than '}' before 'enda'.\n", fn, line_number);
 				errorcount++;
 			}
 			parsing_actor = 0;

@@ -166,6 +166,7 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
     }
 }
 
+#if 0
 static void ServeSample(const char** ptr, uint32_t* length)
 {
     //mutex_lock(&mutex);
@@ -183,6 +184,7 @@ static void ServeSample(const char** ptr, uint32_t* length)
 
     //mutex_unlock(&mutex);
 }
+#endif
 
 void PlayMovie(const char* fileName)
 {
@@ -276,4 +278,5 @@ void PlayMovie(const char* fileName)
         inputState.keyGetChar();
     }
 }
+
 END_PS_NS

@@ -82,7 +82,6 @@ class DAnmPlayer : public DScreenJob
 	TArray<uint8_t> buffer;
 	int numframes = 0;
 	int curframe = 1;
-	int lastframe = -1;
 	int frametime = 0;
 	int ototalclock = 0;
 	AnimTextures animtex;
@@ -241,7 +240,6 @@ class ScreenJobRunner
 	int index = -1;
 	float screenfade;
 	bool clearbefore;
-	bool skipped = false;
 	uint64_t startTime = -1;
 	uint64_t lastTime = -1;
 	int actionState;

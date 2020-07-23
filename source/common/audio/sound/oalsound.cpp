@@ -181,7 +181,7 @@ class OpenALSoundStream : public SoundStream
 	ALuint Source;
 
 	std::atomic<bool> Playing;
-	bool Looping;
+	//bool Looping;
 	ALfloat Volume;
 
 	bool SetupSource()
@@ -227,7 +227,7 @@ class OpenALSoundStream : public SoundStream
 
 public:
 	OpenALSoundStream(OpenALSoundRenderer *renderer)
-	  : Renderer(renderer), Source(0), Playing(false), Looping(false), Volume(1.0f)
+	  : Renderer(renderer), Source(0), Playing(false), Volume(1.0f)
 	{
 		memset(Buffers, 0, sizeof(Buffers));
 		Renderer->AddStream(this);

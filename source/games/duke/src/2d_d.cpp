@@ -695,14 +695,14 @@ public:
 
 		for (int i = 0; i < playerswhenstarted; i++)
 		{
-			mysnprintf(tempbuf, 32, "%-4ld", i + 1);
+			mysnprintf(tempbuf, 32, "%-4d", i + 1);
 			MiniText(92 + (i * 23), 80, tempbuf, 0, -1, 3);
 		}
 
 		for (int i = 0; i < playerswhenstarted; i++)
 		{
 			int xfragtotal = 0;
-			mysnprintf(tempbuf, 32, "%ld", i + 1);
+			mysnprintf(tempbuf, 32, "%d", i + 1);
 
 			MiniText(30, 90 + t, tempbuf, 0);
 			MiniText(38, 90 + t, ud.user_name[i], 0, -1, ps[i].palookup);
@@ -712,13 +712,13 @@ public:
 				int frag = frags[i][y];
 				if (i == y)
 				{
-					mysnprintf(tempbuf, 32, "%-4ld", ps[y].fraggedself);
+					mysnprintf(tempbuf, 32, "%-4d", ps[y].fraggedself);
 					MiniText(92 + (y * 23), 90 + t, tempbuf, 0, -1, 2);
 					xfragtotal -= ps[y].fraggedself;
 				}
 				else
 				{
-					mysnprintf(tempbuf, 32, "%-4ld", frag);
+					mysnprintf(tempbuf, 32, "%-4d", frag);
 					MiniText(92 + (y * 23), 90 + t, tempbuf, 0);
 					xfragtotal += frag;
 				}
@@ -731,7 +731,7 @@ public:
 				*/
 			}
 
-			mysnprintf(tempbuf, 32, "%-4ld", xfragtotal);
+			mysnprintf(tempbuf, 32, "%-4d", xfragtotal);
 			MiniText(101 + (8 * 23), 90 + t, tempbuf, 0, -1, 2);
 
 			t += 7;
@@ -747,7 +747,7 @@ public:
 				int frag = frags[i][y];
 				yfragtotal += frag;
 			}
-			mysnprintf(tempbuf, 32, "%-4ld", yfragtotal);
+			mysnprintf(tempbuf, 32, "%-4d", yfragtotal);
 			MiniText(92 + (y * 23), 96 + (8 * 7), tempbuf, 0, -1, 2);
 		}
 
@@ -784,7 +784,7 @@ public:
 
 	void FormatTime(int time, char* tempbuf)
 	{
-		mysnprintf(tempbuf, 32, "%02ld:%02ld", (time / (26 * 60)) % 60, (time / 26) % 60);
+		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
 	void PrintTime(int totalclock)
@@ -838,18 +838,18 @@ public:
 				bonuscnt++;
 				S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI);
 			}
-			mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].actors_killed);
+			mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].actors_killed);
 			GameText((320 >> 2) + 70, 93 + 9, tempbuf, 0);
 			if (ud.player_skill > 3)
 			{
-				mysnprintf(tempbuf, 32, GStrings("TXT_N_A"));
+				mysnprintf(tempbuf, 32, "%s", GStrings("TXT_N_A"));
 				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
 			}
 			else
 			{
 				if ((ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed) < 0)
-					mysnprintf(tempbuf, 32, "%-3ld", 0);
-				else mysnprintf(tempbuf, 32, "%-3ld", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
+					mysnprintf(tempbuf, 32, "%-3d", 0);
+				else mysnprintf(tempbuf, 32, "%-3d", ps[myconnectindex].max_actors_killed - ps[myconnectindex].actors_killed);
 				GameText((320 >> 2) + 70, 99 + 4 + 9, tempbuf, 0);
 			}
 		}

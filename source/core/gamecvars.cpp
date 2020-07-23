@@ -302,7 +302,7 @@ CCMD(togglemouseaim)
 	in_mousemode = !in_mousemode;
 	if (!silentmouseaimtoggle)
 	{
-		Printf(PRINT_MEDIUM|PRINT_NOTIFY, in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
+		Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s\n", in_mousemode? GStrings("TXT_MOUSEAIMON") : GStrings("TXT_MOUSEAIMOFF"));
 	}
 }
 

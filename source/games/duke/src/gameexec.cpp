@@ -666,7 +666,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_debug:
 		insptr++;
-		Printf("%ld\n",*insptr);
+		Printf("%d\n",*insptr);
 		insptr++;
 		break;
 	case concmd_endofgame:
@@ -1346,7 +1346,7 @@ int ParseState::parse(void)
 		{
 			DPrintf(DMSG_NOTIFY, " (Global)");
 		}
-		DPrintf(DMSG_NOTIFY, " =%ld",	GetGameVarID(*insptr, g_i, g_p));
+		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_i, g_p));
 		insptr++;
 		break;
 	}
@@ -1588,8 +1588,8 @@ int ParseState::parse(void)
 		break;
 
 	default:
-		Printf(TEXTCOLOR_RED "Unrecognized PCode of %ld  in parse.  Killing current sprite.\n",*insptr);
-		Printf(TEXTCOLOR_RED "Offset=%0lX\n",insptr-ScriptCode.Data());
+		Printf(TEXTCOLOR_RED "Unrecognized PCode of %d  in parse.  Killing current sprite.\n",*insptr);
+		Printf(TEXTCOLOR_RED "Offset=%0X\n",int(insptr-ScriptCode.Data()));
 		killit_flag = 1;
 		break;
 	}

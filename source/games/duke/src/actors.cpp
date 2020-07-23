@@ -2781,7 +2781,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 
 	if (s->owner == -1)
 	{
-		I_Error("Could not find any locators for SE# 6 and 14 with a hitag of %ld.", t[3]);
+		I_Error("Could not find any locators for SE# 6 and 14 with a hitag of %d.", t[3]);
 	}
 
 	int j = ldist(&sprite[s->owner], s);
