@@ -121,6 +121,7 @@ InterplayDecoder::InterplayDecoder()
 
     memset(palette, 0, sizeof(palette));
     memset(&audio, 0, sizeof(audio));
+    audio.nRead = 18000;    // skip the initial silence. This is needed to sync audio and video because OpenAL's lag is a bit on the high side.
 
 
     nFps = 0.0;
