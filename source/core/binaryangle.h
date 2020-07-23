@@ -79,11 +79,6 @@ public:
 		value -= other.value;
 		return *this;
 	}
-	
-	constexpr binangle operator- () const
-	{
-		return binangle(-value);
-	}
 
 	constexpr binangle operator+ (binangle other) const
 	{
@@ -108,9 +103,9 @@ public:
 
 class fixedhoriz
 {
-	unsigned int value;
+	int value;
 	
-	constexpr fixedhoriz(unsigned int v) : value(v) {}
+	constexpr fixedhoriz(int v) : value(v) {}
 	
 	friend constexpr fixedhoriz q16horiz(int v);
 	friend constexpr fixedhoriz buildhoriz(int v);
