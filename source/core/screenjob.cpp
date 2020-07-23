@@ -44,6 +44,7 @@
 #include "animtexture.h"
 #include "gamestate.h"
 #include "menu.h"
+#include "movie/playmve.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
@@ -175,7 +176,48 @@ public:
 //
 //---------------------------------------------------------------------------
 
-DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks)
+class DMvePlayer : public DScreenJob
+{
+	InterplayDecoder decoder;
+	bool failed = false;
+	
+public:
+	bool isvalid() { return !failed; }
+
+	DMvePlayer(FileReader& fr)
+	{
+		failed = !decoder.Open(fr);
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	int Frame(uint64_t clock, bool skiprequest) override
+	{
+		if (failed) return -1;
+		bool playon = decoder.RunFrame(clock);
+		twod->ClearScreen();
+		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+
+		return skiprequest ? -1 : playon ? 1 : 0;
+	}
+
+	void OnDestroy() override
+	{
+		decoder.Close();
+	}
+};
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks)
 {
 	auto nothing = []()->DScreenJob* { return Create<DScreenJob>(); };
 	if (!filename)
@@ -200,7 +242,7 @@ DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		{
 			Printf("%s: invalid ANM file.\n", filename);
 			anm->Destroy();
-			return nothing();
+		return nothing();
 		}
 		return anm;
 	}
@@ -208,9 +250,15 @@ DScreenJob *PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	{
 		// todo
 	}
-	else if (!memcmp(id, "Interplay MVE file", 18))
+	else if (!memcmp(id, "Interplay MVE File", 18))
 	{
-		// todo
+		auto anm = Create<DMvePlayer>(fr);
+		if (!anm->isvalid())
+		{
+			anm->Destroy();
+			return nothing();
+		}
+		return anm;
 	}
 	// add more formats here.
 	else

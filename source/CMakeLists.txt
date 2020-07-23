@@ -780,6 +780,7 @@ set (PCH_SOURCES
 	build/src/timer.cpp
 	build/src/voxmodel.cpp
 
+	core/movie/playmve.cpp
 	core/cheathandler.cpp
 	core/mathutil.cpp
 	core/rts.cpp

@@ -95,6 +95,23 @@ void S_SetMusicCallbacks(MusicCallbacks* cb)
 
 static std::unique_ptr<SoundStream> musicStream;
 
+SoundStream *S_CreateCustomStream(size_t size, int samplerate, int numchannels, StreamCallback cb, void *userdata)
+{
+	int flags = SoundStream::Float;
+	if (numchannels < 2) flags |= SoundStream::Mono;
+	auto stream = GSnd->CreateStream(cb, size, flags, samplerate, userdata);
+	if (stream) stream->Play(true, 1);
+	return stream;
+}
+
+void S_StopCustomStream(SoundStream *stream)
+{
+	stream->Stop();
+	delete stream;
+
+}
+
+
 static bool FillStream(SoundStream* stream, void* buff, int len, void* userdata)
 {
 	bool written = ZMusic_FillStream(mus_playing.handle, buff, len);
@@ -122,6 +139,7 @@ void S_CreateStream()
 		if (musicStream) musicStream->Play(true, 1);
 	}
 }
+
 
 void S_PauseStream(bool paused)
 {

@@ -51,8 +51,8 @@ void AnimTexture::SetFrameSize(int  format, int width, int height)
 
 void AnimTexture::SetFrame(const uint8_t* palette, const void* data_)
 {
-    memcpy(Palette, palette, 768);
-    memcpy(Image.Data(), data_, Width * Height * (pixelformat == Paletted ? 1 : 3));
+    if (palette) memcpy(Palette, palette, 768);
+    if (data_) memcpy(Image.Data(), data_, Width * Height * (pixelformat == Paletted ? 1 : 3));
     CleanHardwareTextures();
     pixelformat = Paletted;
 }

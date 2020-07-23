@@ -43,10 +43,12 @@
  */
 
 
+#include <algorithm>
 #include "playmve.h"
-#include "filestream.h"
+#include "printf.h"
+#include "v_draw.h"
+#include "s_music.h"
 
-#define kAudioBlocks    20 // alloc a lot of blocks - need to store lots of audio data before video frames start.
 
 
 static const int16_t delta_table[] = {
@@ -84,93 +86,11 @@ static const int16_t delta_table[] = {
         -8,     -7,     -6,     -5,     -4,     -3,     -2,     -1
 };
 
-class InterplayDecoder
-{
-public:
-    InterplayDecoder();
-    ~InterplayDecoder();
-
-    bool Open(const char* fileName);
-    void Close();
-
-    struct AudioBlock
-    {
-        int16_t buf[6000];
-        uint32_t size;
-    };
-
-    struct AudioData
-    {
-        int hFx;
-        int nChannels;
-        uint16_t nSampleRate;
-        uint8_t nBitDepth;
-
-        AudioBlock block[kAudioBlocks];
-        int nWrite;
-        int nRead;
-    };
-
-    AudioData audio;
-    mutex_t mutex;
-
-private:
-    struct DecodeMap
-    {
-        uint8_t* pData;
-        uint32_t nSize;
-    };
-
-    struct Palette
-    {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-    };
-
-    bool Run();
-    uint8_t* GetCurrentFrame();
-    uint8_t* GetPreviousFrame();
-    void SwapFrames();
-    void CopyBlock(uint8_t* pDest, uint8_t* pSrc);
-    void DecodeBlock0(int32_t offset);
-    void DecodeBlock1(int32_t offset);
-    void DecodeBlock2(int32_t offset);
-    void DecodeBlock3(int32_t offset);
-    void DecodeBlock4(int32_t offset);
-    void DecodeBlock5(int32_t offset);
-    void DecodeBlock7(int32_t offset);
-    void DecodeBlock8(int32_t offset);
-    void DecodeBlock9(int32_t offset);
-    void DecodeBlock10(int32_t offset);
-    void DecodeBlock11(int32_t offset);
-    void DecodeBlock12(int32_t offset);
-    void DecodeBlock13(int32_t offset);
-    void DecodeBlock14(int32_t offset);
-    void DecodeBlock15(int32_t offset);
-
-    RedNukem::FileStream file;
-
-    bool bIsPlaying, bAudioStarted;
-
-    uint32_t nTimerRate, nTimerDiv;
-    uint32_t nWidth, nHeight, nFrame;
-    double nFps;
-    uint32_t nFrameDuration;
-
-    uint8_t* pVideoBuffers[2];
-    uint32_t nCurrentVideoBuffer, nPreviousVideoBuffer;
-    int32_t videoStride;
-
-    DecodeMap decodeMap;
-
-    Palette palette[256];
-};
 
 // macro to fetch 16-bit little-endian words from a bytestream
 #define LE_16(x)  ((*x) | ((*(x+1)) << 8))
 
-int ClipRange(int val, int min, int max)
+static int ClipRange(int val, int min, int max)
 {
     if (val < min)
         return min;
@@ -180,22 +100,27 @@ int ClipRange(int val, int min, int max)
         return val;
 }
 
-void ServeAudioSample(const char** ptr, uint32_t* length, void *userdata)
+static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
 {
     InterplayDecoder* pId = (InterplayDecoder*)userdata;
-
-    mutex_lock(&pId->mutex);
-
-    uint32_t nSize = pId->audio.block[pId->audio.nRead].size;
-
-    *ptr = (char*)pId->audio.block[pId->audio.nRead].buf;
-    *length = nSize / 2;
-
-    pId->audio.nRead++;
-    if (pId->audio.nRead >= kAudioBlocks)
-        pId->audio.nRead = 0;
-
-    mutex_unlock(&pId->mutex);
+    uint8_t* buf = (uint8_t*)buff;
+    while (len > 0)
+    {
+        uint32_t nSize = pId->audio.block[pId->audio.nRead].size;
+        auto ptr = (uint8_t*)pId->audio.block[pId->audio.nRead].buf;
+        auto copyofs = pId->audio.nSubIndex;
+        auto copylen = std::min<unsigned>(len, nSize - copyofs);
+        memcpy(buf, ptr, copylen);
+        pId->audio.nSubIndex += copylen;
+        buf += copylen;
+        len -= copylen;
+        if (pId->audio.nSubIndex == nSize)
+        {
+            pId->audio.nSubIndex = 0;
+            pId->audio.nRead++;
+        }
+    }
+    return true;
 }
 
 InterplayDecoder::InterplayDecoder()
@@ -203,7 +128,6 @@ InterplayDecoder::InterplayDecoder()
     bIsPlaying = false;
     bAudioStarted = false;
 
-    mutex   = 0;
     nWidth  = 0;
     nHeight = 0;
     nFrame  = 0;
@@ -226,6 +150,7 @@ InterplayDecoder::InterplayDecoder()
     audio.nRead  = 0;
     audio.nWrite = 0;
     audio.hFx = 0;
+    audio.nSubIndex = 0;
 
     pVideoBuffers[0] = nullptr;
     pVideoBuffers[1] = nullptr;
@@ -237,35 +162,11 @@ InterplayDecoder::InterplayDecoder()
     nPreviousVideoBuffer = 1;
 
     videoStride = 0;
-
-    mutex_init(&mutex);
 }
 
 InterplayDecoder::~InterplayDecoder()
 {
-    file.Close();
-    mutex_destroy(&mutex);
-
-    if (decodeMap.pData) {
-        delete[] decodeMap.pData;
-    }
-
-    if (pVideoBuffers[0]) {
-        delete[] pVideoBuffers[0];
-    }
-    if (pVideoBuffers[1]) {
-        delete[] pVideoBuffers[1];
-    }
-}
-
-bool playmve(const char* filename)
-{
-    InterplayDecoder *id = new InterplayDecoder;
-    id->Open(filename);
-
-    delete id;
-
-    return true;
+    Close();
 }
 
 void InterplayDecoder::SwapFrames()
@@ -277,42 +178,51 @@ void InterplayDecoder::SwapFrames()
 
 void InterplayDecoder::Close()
 {
+    fr.Close();
     bIsPlaying = false;
+    if (stream)
+        S_StopCustomStream(stream);
+    stream = nullptr;
 
-    if (audio.hFx > 0) {
-        FX_StopSound(audio.hFx);
+    if (decodeMap.pData) {
+        delete[] decodeMap.pData;
+        decodeMap.pData = nullptr;
     }
+
+    if (pVideoBuffers[0]) {
+        delete[] pVideoBuffers[0];
+        pVideoBuffers[0] = nullptr;
+    }
+    if (pVideoBuffers[1]) {
+        delete[] pVideoBuffers[1];
+        pVideoBuffers[1] = nullptr;
+    }
+
 }
 
-bool InterplayDecoder::Open(const char* fileName)
+bool InterplayDecoder::Open(FileReader &fr_)
 {
     // open the file (read only)
-    file.Open(fileName);
-    if (!file.Is_Open())
-    {
-        initprintf("InterplayDecoder: Can't open file %s\n", fileName);
-        return false;
-    }
-
     char lsig[20];
 
     // check the file signature
-    file.ReadBytes((uint8_t*)lsig, sizeof(lsig));
+    fr_.Read((uint8_t*)lsig, sizeof(lsig));
     if (memcmp(lsig, "Interplay MVE File\x1A\0", sizeof(lsig)) != 0)
     {
-        initprintf("InterplayDecoder: Unknown MVE signature\n ");
+        Printf(TEXTCOLOR_RED "InterplayDecoder: Unknown MVE signature\n ");
         return false;
     }
 
     // skip the next 6 bytes
-    file.Skip(6);
+    fr_.Seek(6, FileReader::SeekCur);
+    fr = std::move(fr_);
 
-    Run();
+    //Run();
 
     return true;
 }
 
-bool InterplayDecoder::Run()
+bool InterplayDecoder::RunFrame(uint64_t clock)
 {
     uint8_t chunkPreamble[CHUNK_PREAMBLE_SIZE];
     uint8_t opcodePreamble[OPCODE_PREAMBLE_SIZE];
@@ -321,70 +231,31 @@ bool InterplayDecoder::Run()
     int opcodeSize, chunkSize;
     int chunkType = 0;
 
-    auto const oyxaspect = yxaspect;
-
-    int nScale = tabledivide32(scale(65536, ydim << 2, xdim * 3), ((max(nHeight, 240 + 1u) + 239) / 240));
-    int nStat = 2|4|8|64|1024;
-    renderSetAspect(viewingrange, 65536);
-
-    uint32_t nNextFrameTime = (uint32_t)totalclock + nFrameDuration;
-
-    bIsPlaying = true;
-
     // iterate through the chunks in the file
-    while (chunkType != CHUNK_END && bIsPlaying)
+    do
     {
-        handleevents();
-
         // handle timing - wait until we're ready to process the next frame.
-        if (nNextFrameTime > (uint32_t)totalclock) {
-            continue;
+        if (nNextFrameTime > clock) {
+            return true;
         }
         else {
-            nNextFrameTime = (uint32_t)totalclock + nFrameDuration;
+            nNextFrameTime = clock + nFrameDuration;
         }
 
-        if (file.ReadBytes(chunkPreamble, CHUNK_PREAMBLE_SIZE) != CHUNK_PREAMBLE_SIZE) {
-            initprintf("InterplayDecoder: could not read from file (EOF?)\n");
+        if (fr.Read(chunkPreamble, CHUNK_PREAMBLE_SIZE) != CHUNK_PREAMBLE_SIZE) {
+            Printf(TEXTCOLOR_RED "InterplayDecoder: could not read from file (EOF?)\n");
             return false;
         }
 
         chunkSize = LE_16(&chunkPreamble[0]);
         chunkType = LE_16(&chunkPreamble[2]);
 
-        switch (chunkType)
-        {
-            case CHUNK_INIT_AUDIO:
-                break;
-            case CHUNK_AUDIO_ONLY:
-                break;
-            case CHUNK_INIT_VIDEO:
-                break;
-            case CHUNK_VIDEO:
-                break;
-            case CHUNK_SHUTDOWN:
-                break;
-            case CHUNK_END:
-                bIsPlaying = false;
-                break;
-            default:
-                break;
-        }
-
         // iterate through individual opcodes
         while (chunkSize > 0)
         {
-            handleevents();
-
-            if (KB_KeyWaiting()) {
-                renderSetAspect(viewingrange, oyxaspect);
-                Close();
-                return true;
-            }
-
-            if (file.ReadBytes(opcodePreamble, OPCODE_PREAMBLE_SIZE) != OPCODE_PREAMBLE_SIZE)
+            if (fr.Read(opcodePreamble, OPCODE_PREAMBLE_SIZE) != OPCODE_PREAMBLE_SIZE)
             {
-                initprintf("InterplayDecoder: could not read from file (EOF?)\n");
+                Printf(TEXTCOLOR_RED "InterplayDecoder: could not read from file (EOF?)\n");
                 return false;
             }
 
@@ -399,38 +270,37 @@ bool InterplayDecoder::Run()
             {
             case OPCODE_END_OF_STREAM:
             {
-                file.Skip(opcodeSize);
+                fr.Seek(opcodeSize, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_END_OF_CHUNK:
             {
-                file.Skip(opcodeSize);
+                fr.Seek(opcodeSize, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_CREATE_TIMER:
             {
-                nTimerRate = file.ReadUint32LE();
-                nTimerDiv  = file.ReadUint16LE();
-                nFps = 1000000.0f / ((double)nTimerRate * nTimerDiv);
-                nFrameDuration = 120.0f / nFps;
+                nTimerRate = fr.ReadUInt32();
+                nTimerDiv  = fr.ReadUInt16();
+                nFrameDuration = ((double)nTimerRate * nTimerDiv) * 1000;
                 break;
             }
 
             case OPCODE_INIT_AUDIO_BUFFERS:
             {
-                file.Skip(2);
-                uint16_t flags = file.ReadUint16LE();
-                audio.nSampleRate = file.ReadUint16LE();
+                fr.Seek(2, FileReader::SeekCur);
+                uint16_t flags = fr.ReadUInt16();
+                audio.nSampleRate = fr.ReadUInt16();
 
                 uint32_t nBufferBytes;
 
                 if (opcodeVersion == 0) {
-                    nBufferBytes = file.ReadUint16LE();
+                    nBufferBytes = fr.ReadUInt16();
                 }
                 else {
-                    nBufferBytes = file.ReadUint32LE();
+                    nBufferBytes = fr.ReadUInt32();
                 }
 
                 if (flags & 0x1) {
@@ -453,22 +323,22 @@ bool InterplayDecoder::Run()
                 if (!bAudioStarted)
                 {
                     // start audio playback
-                    audio.hFx = FX_StartDemandFeedPlayback(ServeAudioSample, audio.nBitDepth, audio.nChannels, audio.nSampleRate, 0, 128, 128, 128, FX_MUSIC_PRIORITY, fix16_one, -1, this);
+                    stream = S_CreateCustomStream(6000, audio.nSampleRate, audio.nChannels, StreamCallbackFunc, this);
                     bAudioStarted = true;
                 }
 
-                file.Skip(opcodeSize);
+                fr.Seek(opcodeSize, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_INIT_VIDEO_BUFFERS:
             {
                 assert(opcodeSize == 8);
-                nWidth  = file.ReadUint16LE() * 8;
-                nHeight = file.ReadUint16LE() * 8;
+                nWidth  = fr.ReadUInt16() * 8;
+                nHeight = fr.ReadUInt16() * 8;
 
-                int count = file.ReadUint16LE();
-                int truecolour = file.ReadUint16LE();
+                int count = fr.ReadUInt16();
+                int truecolour = fr.ReadUInt16();
                 assert(truecolour == 0);
 
                 pVideoBuffers[0] = new uint8_t[nWidth * nHeight];
@@ -476,11 +346,7 @@ bool InterplayDecoder::Run()
 
                 videoStride = nWidth;
 
-                uint8_t* pFrame = (uint8_t*)Xmalloc(nWidth * nHeight);
-                memset(pFrame, 0, nWidth * nHeight);
-                walock[kMVETile] = CACHE1D_PERMANENT;
-                waloff[kMVETile] = (intptr_t)pFrame;
-                tileSetSize(kMVETile, nHeight, nWidth);
+                animtex.SetSize(AnimTexture::Paletted, nWidth, nHeight);
                 break;
             }
 
@@ -492,42 +358,39 @@ bool InterplayDecoder::Run()
             case OPCODE_UNKNOWN_14:
             case OPCODE_UNKNOWN_15:
             {
-                file.Skip(opcodeSize);
+                fr.Seek(opcodeSize, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_SEND_BUFFER:
             {
-                int nPalStart = file.ReadUint16LE();
-                int nPalCount = file.ReadUint16LE();
+                int nPalStart = fr.ReadUInt16();
+                int nPalCount = fr.ReadUInt16();
 
-                memcpy((char*)waloff[kMVETile], GetCurrentFrame(), nWidth * nHeight);
-                tileInvalidate(kMVETile, -1, -1);
+                animtex.SetFrame(&palette[0].r , GetCurrentFrame());
 
                 nFrame++;
                 SwapFrames();
 
-                file.Skip(opcodeSize - 4);
+                fr.Seek(opcodeSize-4, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_AUDIO_FRAME:
             {
-                int nStart = file.GetPosition();
-                uint16_t seqIndex   = file.ReadUint16LE();
-                uint16_t streamMask = file.ReadUint16LE();
-                uint16_t nSamples   = file.ReadUint16LE(); // number of samples this chunk
+                int nStart = fr.Tell();
+                uint16_t seqIndex   = fr.ReadUInt16();
+                uint16_t streamMask = fr.ReadUInt16();
+                uint16_t nSamples   = fr.ReadUInt16(); // number of samples this chunk
 
                 int predictor[2];
                 int i = 0;
-
-                mutex_lock(&mutex);
 
                 int16_t* pBuf = audio.block[audio.nWrite].buf;
 
                 for (int ch = 0; ch < audio.nChannels; ch++)
                 {
-                    predictor[ch] = file.ReadUint16LE();
+                    predictor[ch] = fr.ReadUInt16();
                     i++;
 
                     if (predictor[ch] & 0x8000) {
@@ -540,7 +403,7 @@ bool InterplayDecoder::Run()
                 int ch = 0;
                 for (; i < (nSamples / 2); i++)
                 {
-                    predictor[ch] += delta_table[file.ReadByte()];
+                    predictor[ch] += delta_table[fr.ReadUInt8()];
                     predictor[ch] = ClipRange(predictor[ch], -32768, 32768);
 
                     *pBuf++ = predictor[ch];
@@ -555,62 +418,57 @@ bool InterplayDecoder::Run()
                 if (audio.nWrite >= kAudioBlocks)
                     audio.nWrite = 0;
 
-                int nEnd = file.GetPosition();
+                int nEnd = fr.Tell();
                 int nRead = nEnd - nStart;
                 assert(opcodeSize == nRead);
-
-                mutex_unlock(&mutex);
                 break;
             }
 
             case OPCODE_SILENCE_FRAME:
             {
-                uint16_t seqIndex = file.ReadUint16LE();
-                uint16_t streamMask = file.ReadUint16LE();
-                uint16_t nStreamLen = file.ReadUint16LE();
+                uint16_t seqIndex = fr.ReadUInt16();
+                uint16_t streamMask = fr.ReadUInt16();
+                uint16_t nStreamLen = fr.ReadUInt16();
                 break;
             }
 
             case OPCODE_INIT_VIDEO_MODE:
             {
-                file.Skip(opcodeSize);
+                fr.Seek(opcodeSize, FileReader::SeekCur);
                 break;
             }
 
             case OPCODE_CREATE_GRADIENT:
             {
-                file.Skip(opcodeSize);
-                initprintf("InterplayDecoder: Create gradient not supported.\n");
+                fr.Seek(opcodeSize, FileReader::SeekCur);
+                Printf("InterplayDecoder: Create gradient not supported.\n");
                 break;
             }
 
             case OPCODE_SET_PALETTE:
             {
                 if (opcodeSize > 0x304 || opcodeSize < 4) {
-                    printf("set_palette opcode with invalid size\n");
+                    Printf("set_palette opcode with invalid size\n");
                     chunkType = CHUNK_BAD;
                     break;
                 }
 
-                int nPalStart = file.ReadUint16LE();
-                int nPalCount = file.ReadUint16LE();
+                int nPalStart = fr.ReadUInt16();
+                int nPalCount = fr.ReadUInt16();
 
                 for (int i = nPalStart; i <= nPalCount; i++)
                 {
-                    palette[i].r = file.ReadByte() << 2;
-                    palette[i].g = file.ReadByte() << 2;
-                    palette[i].b = file.ReadByte() << 2;
+                    palette[i].r = fr.ReadUInt8() << 2;
+                    palette[i].g = fr.ReadUInt8() << 2;
+                    palette[i].b = fr.ReadUInt8() << 2;
                 }
-
-                paletteSetColorTable(kMVEPal, (uint8_t*)palette);
-                videoSetPalette(0, kMVEPal, 0);
                 break;
             }
 
             case OPCODE_SET_PALETTE_COMPRESSED:
             {
-                file.Skip(opcodeSize);
-                initprintf("InterplayDecoder: Set palette compressed not supported.\n");
+                fr.Seek(opcodeSize, FileReader::SeekCur);
+                Printf("InterplayDecoder: Set palette compressed not supported.\n");
                 break;
             }
 
@@ -630,17 +488,17 @@ bool InterplayDecoder::Run()
                     }
                 }
 
-                int nRead = file.ReadBytes(decodeMap.pData, opcodeSize);
+                int nRead = fr.Read(decodeMap.pData, opcodeSize);
                 assert(nRead == opcodeSize);
                 break;
             }
 
             case OPCODE_VIDEO_DATA:
             {
-                int nStart = file.GetPosition();
+                int nStart = fr.Tell();
 
                 // need to skip 14 bytes
-                file.Skip(14);
+                fr.Seek(14, FileReader::SeekCur);
 
                 if (decodeMap.nSize)
                 {
@@ -717,11 +575,11 @@ bool InterplayDecoder::Run()
                     }
                 }
 
-                int nEnd = file.GetPosition();
+                int nEnd = fr.Tell();
                 int nSkipBytes = opcodeSize - (nEnd - nStart); // we can end up with 1 byte left we need to skip
                 assert(nSkipBytes <= 1);
 
-                file.Skip(nSkipBytes);
+                fr.Seek(nSkipBytes, FileReader::SeekCur);
                 break;
             }
 
@@ -730,17 +588,9 @@ bool InterplayDecoder::Run()
             }
         }
 
-        videoClearScreen(0);
-
-        rotatesprite_fs(160 << 16, 100 << 16, nScale, 512, kMVETile, 0, 0, nStat);
-        videoNextPage();
     }
-
-    renderSetAspect(viewingrange, oyxaspect);
-
-    Close();
-
-    return true;
+    while (chunkType < CHUNK_VIDEO && bIsPlaying);
+    return chunkType != CHUNK_END;
 }
 
 void InterplayDecoder::CopyBlock(uint8_t* pDest, uint8_t* pSrc)
@@ -770,7 +620,7 @@ void InterplayDecoder::DecodeBlock1(int32_t offset)
 void InterplayDecoder::DecodeBlock2(int32_t offset)
 {
     // copy block from 2 frames ago using a motion vector; need 1 more byte
-    uint8_t B = file.ReadByte();
+    uint8_t B = fr.ReadUInt8();
 
     int x, y;
 
@@ -792,7 +642,7 @@ void InterplayDecoder::DecodeBlock2(int32_t offset)
 void InterplayDecoder::DecodeBlock3(int32_t offset)
 {
     // copy 8x8 block from current frame from an up/left block
-    uint8_t B = file.ReadByte();
+    uint8_t B = fr.ReadUInt8();
 
     int x, y;
 
@@ -818,7 +668,7 @@ void InterplayDecoder::DecodeBlock4(int32_t offset)
     int x, y;
     uint8_t B, BL, BH;
 
-    B = file.ReadByte();
+    B = fr.ReadUInt8();
 
     BL = B & 0x0F;
     BH = (B >> 4) & 0x0F;
@@ -834,8 +684,8 @@ void InterplayDecoder::DecodeBlock4(int32_t offset)
 void InterplayDecoder::DecodeBlock5(int32_t offset)
 {
     // copy a block from the previous frame using an expanded range; need 2 more bytes
-    int8_t x = file.ReadByte();
-    int8_t y = file.ReadByte();
+    int8_t x = fr.ReadUInt8();
+    int8_t y = fr.ReadUInt8();
 
     uint8_t* pDest = GetCurrentFrame() + (intptr_t)offset;
     uint8_t* pSrc = GetPreviousFrame() + (intptr_t)(int64_t)offset + (int64_t)x + (int64_t(y) * (int64_t)videoStride);
@@ -851,8 +701,8 @@ void InterplayDecoder::DecodeBlock7(int32_t offset)
     uint32_t flags = 0;
 
     uint8_t P[2];
-    P[0] = file.ReadByte();
-    P[1] = file.ReadByte();
+    P[0] = fr.ReadUInt8();
+    P[1] = fr.ReadUInt8();
 
     // 2-color encoding
     if (P[0] <= P[1])
@@ -860,7 +710,7 @@ void InterplayDecoder::DecodeBlock7(int32_t offset)
         // need 8 more bytes from the stream
         for (int y = 0; y < 8; y++)
         {
-            flags = file.ReadByte() | 0x100;
+            flags = fr.ReadUInt8() | 0x100;
             for (; flags != 1; flags >>= 1) {
                 *pBuffer++ = P[flags & 1];
             }
@@ -870,7 +720,7 @@ void InterplayDecoder::DecodeBlock7(int32_t offset)
     else
     {
         // need 2 more bytes from the stream
-        flags = file.ReadUint16LE();
+        flags = fr.ReadUInt16();
 
         for (int y = 0; y < 8; y += 2)
         {
@@ -893,8 +743,8 @@ void InterplayDecoder::DecodeBlock8(int32_t offset)
     uint8_t P[4];
 
     // 2-color encoding for each 4x4 quadrant, or 2-color encoding on either top and bottom or left and right halves
-    P[0] = file.ReadByte();
-    P[1] = file.ReadByte();
+    P[0] = fr.ReadUInt8();
+    P[1] = fr.ReadUInt8();
 
     if (P[0] <= P[1])
     {
@@ -904,10 +754,10 @@ void InterplayDecoder::DecodeBlock8(int32_t offset)
             if (!(y & 3))
             {
                 if (y) {
-                    P[0] = file.ReadByte();
-                    P[1] = file.ReadByte();
+                    P[0] = fr.ReadUInt8();
+                    P[1] = fr.ReadUInt8();
                 }
-                flags = file.ReadUint16LE();
+                flags = fr.ReadUInt16();
             }
 
             for (int x = 0; x < 4; x++, flags >>= 1) {
@@ -921,9 +771,9 @@ void InterplayDecoder::DecodeBlock8(int32_t offset)
     }
     else
     {
-        flags = file.ReadUint32LE();
-        P[2] = file.ReadByte();
-        P[3] = file.ReadByte();
+        flags = fr.ReadUInt32();
+        P[2] = fr.ReadUInt8();
+        P[3] = fr.ReadUInt8();
 
         if (P[2] <= P[3])
         {
@@ -941,7 +791,7 @@ void InterplayDecoder::DecodeBlock8(int32_t offset)
                     pBuffer -= 8 * videoStride - 4;
                     P[0] = P[2];
                     P[1] = P[3];
-                    flags = file.ReadUint32LE();
+                    flags = fr.ReadUInt32();
                 }
             }
         }
@@ -953,7 +803,7 @@ void InterplayDecoder::DecodeBlock8(int32_t offset)
                 if (y == 4) {
                     P[0] = P[2];
                     P[1] = P[3];
-                    flags = file.ReadUint32LE();
+                    flags = fr.ReadUInt32();
                 }
 
                 for (int x = 0; x < 8; x++, flags >>= 1)
@@ -970,7 +820,7 @@ void InterplayDecoder::DecodeBlock9(int32_t offset)
     uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[4];
 
-    file.ReadBytes(P, 4);
+    fr.Read(P, 4);
 
     // 4-color encoding
     if (P[0] <= P[1])
@@ -981,7 +831,7 @@ void InterplayDecoder::DecodeBlock9(int32_t offset)
             for (int y = 0; y < 8; y++)
             {
                 // get the next set of 8 2-bit flags
-                int flags = file.ReadUint16LE();
+                int flags = fr.ReadUInt16();
 
                 for (int x = 0; x < 8; x++, flags >>= 2) {
                     *pBuffer++ = P[flags & 0x03];
@@ -993,7 +843,7 @@ void InterplayDecoder::DecodeBlock9(int32_t offset)
         else
         {
             // 1 of 4 colors for each 2x2 block, need 4 more bytes
-            uint32_t flags = file.ReadUint32LE();
+            uint32_t flags = fr.ReadUInt32();
 
             for (int y = 0; y < 8; y += 2)
             {
@@ -1012,7 +862,7 @@ void InterplayDecoder::DecodeBlock9(int32_t offset)
     else
     {
         // 1 of 4 colors for each 2x1 or 1x2 block, need 8 more bytes
-        uint64_t flags = file.ReadUint64LE();
+        uint64_t flags = fr.ReadUInt64();
 
         if (P[2] <= P[3])
         {
@@ -1046,7 +896,7 @@ void InterplayDecoder::DecodeBlock10(int32_t offset)
     uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[8];
 
-    file.ReadBytes(P, 4);
+    fr.Read(P, 4);
 
     // 4-color encoding for each 4x4 quadrant, or 4-color encoding on either top and bottom or left and right halves
     if (P[0] <= P[1])
@@ -1058,8 +908,8 @@ void InterplayDecoder::DecodeBlock10(int32_t offset)
         {
             // new values for each 4x4 block
             if (!(y & 3)) {
-                if (y) file.ReadBytes(P, 4);
-                flags = file.ReadUint32LE();
+                if (y) fr.Read(P, 4);
+                flags = fr.ReadUInt32();
             }
 
             for (int x = 0; x < 4; x++, flags >>= 2) {
@@ -1075,9 +925,9 @@ void InterplayDecoder::DecodeBlock10(int32_t offset)
     {
         // vertical split?
         int vert;
-        uint64_t flags = file.ReadUint64LE();
+        uint64_t flags = fr.ReadUInt64();
 
-        file.ReadBytes(P + 4, 4);
+        fr.Read(P + 4, 4);
         vert = P[4] <= P[5];
 
         // 4-color encoding for either left and right or top and bottom halves
@@ -1097,7 +947,7 @@ void InterplayDecoder::DecodeBlock10(int32_t offset)
             // load values for second half
             if (y == 7) {
                 memcpy(P, P + 4, 4);
-                flags = file.ReadUint64LE();
+                flags = fr.ReadUInt64();
             }
         }
     }
@@ -1110,7 +960,7 @@ void InterplayDecoder::DecodeBlock11(int32_t offset)
 
     for (int y = 0; y < 8; y++)
     {
-        file.ReadBytes(pBuffer, 8);
+        fr.Read(pBuffer, 8);
         pBuffer += videoStride;
     }
 }
@@ -1127,7 +977,7 @@ void InterplayDecoder::DecodeBlock12(int32_t offset)
             pBuffer[x] =
                 pBuffer[x + 1] =
                 pBuffer[x + videoStride] =
-                pBuffer[x + 1 + videoStride] = file.ReadByte();
+                pBuffer[x + 1 + videoStride] = fr.ReadUInt8();
         }
         pBuffer += videoStride * 2;
     }
@@ -1143,8 +993,8 @@ void InterplayDecoder::DecodeBlock13(int32_t offset)
     {
         if (!(y & 3))
         {
-            P[0] = file.ReadByte();
-            P[1] = file.ReadByte();
+            P[0] = fr.ReadUInt8();
+            P[1] = fr.ReadUInt8();
         }
 
         memset(pBuffer,     P[0], 4);
@@ -1157,7 +1007,7 @@ void InterplayDecoder::DecodeBlock14(int32_t offset)
 {
     // 1-color encoding : the whole block is 1 solid color
     uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
-    uint8_t pix = file.ReadByte();
+    uint8_t pix = fr.ReadUInt8();
 
     for (int y = 0; y < 8; y++)
     {
@@ -1172,8 +1022,8 @@ void InterplayDecoder::DecodeBlock15(int32_t offset)
     uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
     uint8_t P[2];
 
-    P[0] = file.ReadByte();
-    P[1] = file.ReadByte();
+    P[0] = fr.ReadUInt8();
+    P[1] = fr.ReadUInt8();
 
     for (int y = 0; y < 8; y++)
     {
