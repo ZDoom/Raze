@@ -53,6 +53,7 @@
 
 class InterplayDecoder
 {
+public:
     enum
     {
         CHUNK_PREAMBLE_SIZE = 4,
@@ -97,7 +98,6 @@ class InterplayDecoder
         kAudioBlocks    = 20 // alloc a lot of blocks - need to store lots of audio data before video frames start.
     };
 
-public:
     InterplayDecoder();
     ~InterplayDecoder();
 

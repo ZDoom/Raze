@@ -202,7 +202,7 @@ public:
 		twod->ClearScreen();
 		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
 
-		return skiprequest ? -1 : playon ? 1 : 0;
+		return /* skiprequest ? -1 :*/ playon ? 1 : 0;
 	}
 
 	void OnDestroy() override

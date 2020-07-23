@@ -97,7 +97,7 @@ static std::unique_ptr<SoundStream> musicStream;
 
 SoundStream *S_CreateCustomStream(size_t size, int samplerate, int numchannels, StreamCallback cb, void *userdata)
 {
-	int flags = SoundStream::Float;
+	int flags = 0;
 	if (numchannels < 2) flags |= SoundStream::Mono;
 	auto stream = GSnd->CreateStream(cb, size, flags, samplerate, userdata);
 	if (stream) stream->Play(true, 1);

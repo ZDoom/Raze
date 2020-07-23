@@ -103,21 +103,24 @@ static int ClipRange(int val, int min, int max)
 static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
 {
     InterplayDecoder* pId = (InterplayDecoder*)userdata;
-    uint8_t* buf = (uint8_t*)buff;
+    int16_t* buf = (int16_t*)buff;
+    len /= 2;   // we're copying 16 bit values.
     while (len > 0)
     {
         uint32_t nSize = pId->audio.block[pId->audio.nRead].size;
-        auto ptr = (uint8_t*)pId->audio.block[pId->audio.nRead].buf;
+        auto ptr = pId->audio.block[pId->audio.nRead].buf;
         auto copyofs = pId->audio.nSubIndex;
         auto copylen = std::min<unsigned>(len, nSize - copyofs);
-        memcpy(buf, ptr, copylen);
+        for(int i=0;i<copylen;i++) *buf++ = *ptr++;
+//        memcpy(buf, ptr, copylen*2);
         pId->audio.nSubIndex += copylen;
-        buf += copylen;
         len -= copylen;
         if (pId->audio.nSubIndex == nSize)
         {
             pId->audio.nSubIndex = 0;
             pId->audio.nRead++;
+            if (pId->audio.nRead >= InterplayDecoder::kAudioBlocks) pId->audio.nRead = 0;
+
         }
     }
     return true;
