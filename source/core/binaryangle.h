@@ -5,6 +5,8 @@
 #include "xs_Float.h"	// needed for reliably overflowing float->int conversions.
 #include "build.h"
 
+// type safe representations of high precision angle and horizon values. Angle uses natural 32 bit overflow to clamp to one rotation.
+
 class binangle
 {
 	unsigned int value;
@@ -20,6 +22,8 @@ class binangle
 	friend binangle degang(double v);
 	
 public:
+	binangle() = default;
+	binangle(const binangle &other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return value >> 21; }
 	constexpr fixed_t asq16() const { return value >> 5; }
@@ -94,10 +98,89 @@ public:
 
 };
 
+class fixedhoriz
+{
+	unsigned int value;
+	
+	constexpr fixedhoriz(unsigned int v) : value(v) {}
+	
+	friend constexpr fixedhoriz q16horiz(int v);
+	friend constexpr fixedhoriz buildhoriz(int v);
+	
+public:
+	fixedhoriz() = default;
+	fixedhoriz(const fixedhoriz &other) = default;
+
+	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
+	short asbuild() const { return value >> 16; }
+	constexpr fixed_t asq16() const { return value; }
+	
+	bool operator< (fixedhoriz other) const
+	{
+		return value < other.value;
+	}
+
+	bool operator> (fixedhoriz other) const
+	{
+		return value > other.value;
+	}
+
+	bool operator<= (fixedhoriz other) const
+	{
+		return value <= other.value;
+	}
+
+	bool operator>= (fixedhoriz other) const
+	{
+		return value >= other.value;
+	}
+	constexpr bool operator== (fixedhoriz other) const
+	{
+		return value == other.value;
+	}
+
+	constexpr bool operator!= (fixedhoriz other) const
+	{
+		return value != other.value;
+	}
+
+	constexpr fixedhoriz &operator+= (fixedhoriz other)
+	{
+		value += other.value;
+		return *this;
+	}
+
+	constexpr fixedhoriz &operator-= (fixedhoriz other)
+	{
+		value -= other.value;
+		return *this;
+	}
+	
+	constexpr fixedhoriz operator- () const
+	{
+		return fixedhoriz(-value);
+	}
+
+	constexpr fixedhoriz operator+ (fixedhoriz other) const
+	{
+		return fixedhoriz(value + other.value);
+	}
+
+	constexpr fixedhoriz operator- (fixedhoriz other) const
+	{
+		return fixedhoriz(value - other.value);
+	}
+	
+
+};
+
 
 inline constexpr binangle bamang(unsigned int v) { return binangle(v); }
 inline constexpr binangle q16ang(unsigned int v) { return binangle(v << 5); }
 inline constexpr binangle buildang(unsigned int v) { return binangle(v << 21); }
 inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / binangle::pi()))); }
 inline binangle degang(double v) { return binangle(xs_CRoundToUInt(v * (0x40000000 / 90.))); }
+
+inline constexpr fixedhoriz q16horiz(int v) { return fixedhoriz(v); }
+inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(v << 16); }
 
