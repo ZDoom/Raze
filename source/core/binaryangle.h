@@ -9,13 +9,13 @@ class binangle
 {
 	unsigned int value;
 	
-	inline constexpr double pi() { return 3.14159265358979323846; }
+	inline static constexpr double pi() { return 3.14159265358979323846; }
 	
 	constexpr binangle(unsigned int v) : value(v) {}
 	
-	friend binangle bamang(unsigned int v);
-	friend binangle q16ang(unsigned int v);
-	friend binangle buildang(unsigned int v);
+	friend constexpr binangle bamang(unsigned int v);
+	friend constexpr binangle q16ang(unsigned int v);
+	friend constexpr binangle buildang(unsigned int v);
 	friend binangle radang(double v);
 	friend binangle degang(double v);
 	
@@ -30,8 +30,8 @@ public:
 	double fsin() const { return sin(asrad()); }
 	double fcos() const { return cos(asrad()); }
 	double ftan() const { return tan(asrad()); }
-	int bsin() const { return sintable(asbuild()); }
-	int bcos() const { return sintable((asbuild() + 512) & 2047); }
+	int bsin() const { return sintable[asbuild()]; }
+	int bcos() const { return sintable[(asbuild() + 512) & 2047]; }
 	
 #if 0 // This makes no sense
 	bool operator< (binangle other) const
@@ -64,15 +64,15 @@ public:
 		return value != other.value;
 	}
 
-	constexpr binangle &operator+= (binangle other) const
+	constexpr binangle &operator+= (binangle other)
 	{
 		value += other.value;
 		return *this;
 	}
 
-	constexpr binangle &operator-= (binangle other) const
+	constexpr binangle &operator-= (binangle other)
 	{
-		value -+= other.value;
+		value -= other.value;
 		return *this;
 	}
 	
@@ -98,6 +98,6 @@ public:
 inline constexpr binangle bamang(unsigned int v) { return binangle(v); }
 inline constexpr binangle q16ang(unsigned int v) { return binangle(v << 5); }
 inline constexpr binangle buildang(unsigned int v) { return binangle(v << 21); }
-inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi())); }
-inline binangle degang(double v) { return binangle(xs_CRoundToUInt(v * (0x40000000 / 90.)); }
+inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / binangle::pi()))); }
+inline binangle degang(double v) { return binangle(xs_CRoundToUInt(v * (0x40000000 / 90.))); }
 

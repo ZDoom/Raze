@@ -22,6 +22,7 @@
 #include "sounds.h"
 #include "soundefs.h"
 #include "stats.h"
+#include "binaryangle.h"
 
 extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
 
