@@ -44,7 +44,7 @@ K "+See_Coop_View"
 Mouse1 "+Fire"
 
 
-Backspace "TurnAround"
+Backspace "turnaround"
 Scroll "HolsterWeapon"
 MWheelUp "weapprev"
 MWheelDown "weapnext"

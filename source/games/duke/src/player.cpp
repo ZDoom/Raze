@@ -796,7 +796,7 @@ void applylook(int snum, double factor)
 		p->addrotscrnang(factor * -24);
 	}
 
-	if (p->one_eighty_count < 0 && p->on_crane == 0)
+	if (p->one_eighty_count < 0 && p->on_crane < 0)
 	{
 		fixed_t add = fix16_from_dbl(factor * 128);
 		p->one_eighty_count += add;
