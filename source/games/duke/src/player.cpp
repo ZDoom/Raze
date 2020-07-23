@@ -822,6 +822,7 @@ void checklook(int snum, int sb_snum)
 	auto p = &ps[snum];
 
 	p->lookLeft = false;
+	p->lookRight = false;
 	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
