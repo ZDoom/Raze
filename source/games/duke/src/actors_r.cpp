@@ -4449,7 +4449,7 @@ static int fallspecial(int g_i, int g_p)
 		hittype[g_i].picnum = SHOTSPARK1;
 		hittype[g_i].extra = 1;
 	}
-	else if (isRRRA() && sector[g_sp->sectnum].floorpicnum == RRTILE7820 || sector[g_sp->sectnum].floorpicnum == RRTILE7768)
+	else if (isRRRA() && (sector[g_sp->sectnum].floorpicnum == RRTILE7820 || sector[g_sp->sectnum].floorpicnum == RRTILE7768))
 	{
 		if (g_sp->picnum != MINION && g_sp->pal != 19)
 		{

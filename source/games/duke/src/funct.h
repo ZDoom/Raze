@@ -221,7 +221,6 @@ bool setnextmap(bool checksecretexit);
 void prelevel_d(int g);
 void prelevel_r(int g);
 void e4intro(const CompletionFunc& completion);
-void clearfrags(void);
 void exitlevel();
 int enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);

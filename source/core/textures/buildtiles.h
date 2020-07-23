@@ -218,7 +218,7 @@ public:
 
 	void Reload()
 	{
-		buffer = std::move(Base->GetPalettedPixels(0));
+		buffer = Base->GetPalettedPixels(0);
 	}
 };
 
@@ -383,7 +383,7 @@ inline const uint8_t* tilePtr(int num)
 	{
 		auto tex = TileFiles.tiledata[num].texture;
 		if (!tex || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return nullptr;
-		TileFiles.tiledata[num].rawCache.data = std::move(tex->GetTexture()->Get8BitPixels(false));
+		TileFiles.tiledata[num].rawCache.data = tex->GetTexture()->Get8BitPixels(false);
 	}
 	TileFiles.tiledata[num].rawCache.lastUseTime = I_nsTime();
 	return TileFiles.tiledata[num].rawCache.data.Data();

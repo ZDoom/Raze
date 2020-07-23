@@ -454,7 +454,7 @@ public:
 			if (!S_CheckSoundPlaying(ENDSEQVOL3SND8))
 			{
 				sound++;
-				waittime = clock + SoundEnabled()? 1'000'000'000 : 5'000'000'000;	// if sound is off this wouldn't wait without a longer delay here.
+				waittime = clock + (SoundEnabled()? 1'000'000'000 : 5'000'000'000);	// if sound is off this wouldn't wait without a longer delay here.
 			}
 			break;
 
@@ -662,13 +662,6 @@ void doorders(const CompletionFunc& completion)
 //
 //
 //---------------------------------------------------------------------------
-
-static void PlayBonusMusic()
-{
-	if (MusicEnabled() && mus_enabled)
-		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
-
-}
 
 class DDukeMultiplayerBonusScreen : public DScreenJob
 {

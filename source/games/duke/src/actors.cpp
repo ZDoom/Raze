@@ -2813,7 +2813,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 		{
 			if (statstate)
 			{
-				if (!S_CheckSoundPlaying(hittype[i].lastvx) == 0)
+				if (!S_CheckSoundPlaying(hittype[i].lastvx))
 					spritesound(hittype[i].lastvx, i);
 			}
 			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & 1) && rnd(8)))

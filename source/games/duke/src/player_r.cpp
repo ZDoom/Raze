@@ -1774,7 +1774,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
-		short var9c, vara0, vara4;
+		short var9c, vara0, vara4=0;
 		var9c = p->MotoSpeed;
 		vara0 = p->getang();
 		var84 = krand() & 1;

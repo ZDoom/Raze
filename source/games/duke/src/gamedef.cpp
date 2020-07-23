@@ -77,7 +77,7 @@ public:
 	const char* GetChars() { return text; }
 	int compare(const char* c) const { return strcmp(text, c); }
 	int comparei(const char* c) const { return stricmp(text, c); }
-	labelstring& operator=(const char* c) { strncpy(text, c, 64); text[63] = 0; }
+	labelstring& operator=(const char* c) { strncpy(text, c, 64); text[63] = 0; return *this; }
 
 };
 
@@ -471,7 +471,7 @@ int ConCompiler::keyword(void)
 
 void ConCompiler::getlabel(void)
 {
-	long i;
+	int i;
 
 	skipcomments();
 

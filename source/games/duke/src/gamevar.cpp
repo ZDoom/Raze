@@ -442,7 +442,7 @@ bool IsGameEvent(int i)
 {
 	if (i<0) return 0;
 	if (i>=MAXGAMEEVENTS) return 0;
-	return (apScriptGameEvent[i]!=NULL);
+	return (apScriptGameEvent[i] != 0);
 }
 
 //---------------------------------------------------------------------------

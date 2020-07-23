@@ -38,9 +38,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
-void GetNextInput();
-
-
 //---------------------------------------------------------------------------
 //
 // abstract the queue's implementation
