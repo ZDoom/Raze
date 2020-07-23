@@ -48,6 +48,7 @@
 #include "printf.h"
 #include "v_draw.h"
 #include "s_music.h"
+#include "cmdlib.h"
 
 
 
@@ -103,26 +104,9 @@ static int ClipRange(int val, int min, int max)
 static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
 {
     InterplayDecoder* pId = (InterplayDecoder*)userdata;
-    int16_t* buf = (int16_t*)buff;
-    len /= 2;   // we're copying 16 bit values.
-    while (len > 0)
-    {
-        uint32_t nSize = pId->audio.block[pId->audio.nRead].size;
-        auto ptr = pId->audio.block[pId->audio.nRead].buf;
-        auto copyofs = pId->audio.nSubIndex;
-        auto copylen = std::min<unsigned>(len, nSize - copyofs);
-        for(int i=0;i<copylen;i++) *buf++ = *ptr++;
-//        memcpy(buf, ptr, copylen*2);
-        pId->audio.nSubIndex += copylen;
-        len -= copylen;
-        if (pId->audio.nSubIndex == nSize)
-        {
-            pId->audio.nSubIndex = 0;
-            pId->audio.nRead++;
-            if (pId->audio.nRead >= InterplayDecoder::kAudioBlocks) pId->audio.nRead = 0;
-
-        }
-    }
+    memcpy(buff, &pId->audio.samples[pId->audio.nRead], len);
+    pId->audio.nRead += len / 2;
+    if (pId->audio.nRead >= countof(pId->audio.samples)) pId->audio.nRead = 0;
     return true;
 }
 
@@ -136,24 +120,13 @@ InterplayDecoder::InterplayDecoder()
     nFrame  = 0;
 
     memset(palette, 0, sizeof(palette));
+    memset(&audio, 0, sizeof(audio));
 
-    for (int i = 0; i < kAudioBlocks; i++) {
-        memset(audio.block[i].buf, 0, sizeof(audio.block[i].buf));
-        audio.block[i].size = 0;
-    }
 
     nFps = 0.0;
     nFrameDuration = 0;
     nTimerRate = 0;
     nTimerDiv  = 0;
-
-    audio.nChannels   = 0;
-    audio.nSampleRate = 0;
-    audio.nBitDepth   = 0;
-    audio.nRead  = 0;
-    audio.nWrite = 0;
-    audio.hFx = 0;
-    audio.nSubIndex = 0;
 
     pVideoBuffers[0] = nullptr;
     pVideoBuffers[1] = nullptr;
@@ -242,7 +215,7 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
             return true;
         }
         else {
-            nNextFrameTime = clock + nFrameDuration;
+            nNextFrameTime += nFrameDuration;
         }
 
         if (fr.Read(chunkPreamble, CHUNK_PREAMBLE_SIZE) != CHUNK_PREAMBLE_SIZE) {
@@ -389,8 +362,6 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                 int predictor[2];
                 int i = 0;
 
-                int16_t* pBuf = audio.block[audio.nWrite].buf;
-
                 for (int ch = 0; ch < audio.nChannels; ch++)
                 {
                     predictor[ch] = fr.ReadUInt16();
@@ -400,7 +371,8 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                         predictor[ch] |= 0xFFFF0000; // sign extend
                     }
 
-                    *pBuf++ = predictor[ch];
+                    audio.samples[audio.nWrite++] = predictor[ch];
+                    if (audio.nWrite >= countof(audio.samples)) audio.nWrite = 0;
                 }
 
                 int ch = 0;
@@ -409,17 +381,12 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
                     predictor[ch] += delta_table[fr.ReadUInt8()];
                     predictor[ch] = ClipRange(predictor[ch], -32768, 32768);
 
-                    *pBuf++ = predictor[ch];
+                    audio.samples[audio.nWrite++] = predictor[ch];
+                    if (audio.nWrite >= countof(audio.samples)) audio.nWrite = 0;
 
                     // toggle channel
                     ch ^= audio.nChannels - 1;
                 }
-
-                audio.block[audio.nWrite].size = nSamples / 2;
-                audio.nWrite++;
-
-                if (audio.nWrite >= kAudioBlocks)
-                    audio.nWrite = 0;
 
                 int nEnd = fr.Tell();
                 int nRead = nEnd - nStart;
@@ -458,7 +425,6 @@ bool InterplayDecoder::RunFrame(uint64_t clock)
 
                 int nPalStart = fr.ReadUInt16();
                 int nPalCount = fr.ReadUInt16();
-
                 for (int i = nPalStart; i <= nPalCount; i++)
                 {
                     palette[i].r = fr.ReadUInt8() << 2;

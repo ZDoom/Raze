@@ -105,12 +105,6 @@ public:
     void Close();
     bool RunFrame(uint64_t clock);
 
-    struct AudioBlock
-    {
-        int16_t buf[6000];
-        uint32_t size;
-    };
-
     struct AudioData
     {
         int hFx;
@@ -118,10 +112,9 @@ public:
         uint16_t nSampleRate;
         uint8_t nBitDepth;
 
-        AudioBlock block[kAudioBlocks];
+        int16_t samples[6000 * kAudioBlocks]; // must be a multiple of the stream buffer size
         int nWrite;
         int nRead;
-        int nSubIndex;
     };
 
     AudioData audio;
