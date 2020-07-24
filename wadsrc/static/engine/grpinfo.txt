@@ -341,17 +341,6 @@ grpinfo
 
 grpinfo
 {
-	name "Redneck Deer Huntin'"
-	size 58061576
-	crc RRDEER_CRC
-	defname "rrdeer.def"
-	flags GAMEFLAG_DEER
-	dependency 0
-	gamefilter "Redneck.Deer"
-}
-
-grpinfo
-{
 	// This is for detecting zipped versions of the mod.
 	name "Redneck Rampage: Suckin' Grits on Route 66"
 	scriptname "GAME66.CON"
