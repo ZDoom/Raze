@@ -961,13 +961,13 @@ static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, 
 				p->TiltStatus = -10;
 			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
 			{
-				if (goback) return bike_turn ? 20 : 10;
-				else return bike_turn ? -20 : -10;
+				if (goback) return bike_turn ? 40 : 20;
+				else return bike_turn ? -40 : -20;
 			}
 			else
 			{
-				if (goback) return bike_turn ? 10 : 3;
-				else return bike_turn ? -10 : -3;
+				if (goback) return bike_turn ? 20 : 6;
+				else return bike_turn ? -20 : -6;
 			}
 		}
 		else if (turnr || p->moto_drink > 0)
@@ -978,13 +978,13 @@ static int motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, 
 				p->TiltStatus = 10;
 			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed > 0)
 			{
-				if (goback) return bike_turn ? -20 : -10;
-				else return bike_turn ? 20 : 10;
+				if (goback) return bike_turn ? -40 : -20;
+				else return bike_turn ? 40 : 20;
 			}
 			else
 			{
-				if (goback) return bike_turn ? -10 : -3;
-				else return bike_turn ? 10 : 3;
+				if (goback) return bike_turn ? -20 : -6;
+				else return bike_turn ? 20 : 6;
 			}
 		}
 		else
@@ -1121,7 +1121,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& in
 	{
 		bool backward = buttonMap.ButtonDown(gamefunc_Move_Backward) && p->MotoSpeed <= 0;
 
-		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, backward, scaleAdjust);
+		turnvel = motoApplyTurn(p, turnl, turnr, turnspeed, backward, scaleAdjust) * scaleAdjust;
 		if (p->moto_underwater) p->MotoSpeed = 0;
 	}
 	else
