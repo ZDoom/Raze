@@ -325,6 +325,7 @@ public:
 
 	void AdvanceJob(bool skip)
 	{
+		if (index >= 0 && jobs[index].postAction) jobs[index].postAction();
 		index++;
 		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped))) index++;
 		actionState = clearbefore ? State_Clear : State_Run;
