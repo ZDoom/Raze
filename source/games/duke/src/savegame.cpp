@@ -1,6 +1,7 @@
 //-------------------------------------------------------------------------
 /*
 Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2020 - Christoph Oelckers
 
 This file is part of Duke Nukem 3D version 1.5 - Atomic Edition
 
@@ -21,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 Original Source: 1996 - Todd Replogle
 Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
-Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
@@ -33,6 +33,11 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 
 BEGIN_DUKE_NS
+
+void SerializeActorGlobals(FSerializer& arc);
+void lava_serialize(FSerializer& arc);
+void SerializeGameVars(FSerializer &arc);
+
 
 static void recreateinterpolations()
 {
@@ -479,6 +484,10 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			.Array("po", po, ud.multimode)
 			.EndObject();
+
+		SerializeActorGlobals(arc);
+		lava_serialize(arc);
+		SerializeGameVars(arc);
 
 		if (arc.isReading())
 		{
