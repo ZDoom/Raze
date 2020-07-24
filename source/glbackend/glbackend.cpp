@@ -236,7 +236,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 	// Disable brightmaps if non-black fog is used.
 	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
 	{
-		state.EnableFog(FogColor.isBlack() && !(Flags & RF_MapFog) ? 1 : -1);
+		state.EnableFog(1);
 	}
 	else state.EnableFog(0);
 	state.SetFog((Flags & RF_MapFog) ? PalEntry(0x999999) : FogColor, 21.f);	// Fixme: The real density still needs to be implemented. 21 is a reasonable default only.
