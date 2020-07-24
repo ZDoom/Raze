@@ -1002,12 +1002,12 @@ static double motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_tur
 				p->TiltStatus -= (float)factor;
 			else if (p->TiltStatus < 0)
 				p->TiltStatus += (float)factor;
-
-			if (fabs(p->TiltStatus) < 0.025)
-				p->TiltStatus = 0;
-
 		}
 	}
+
+	if (fabs(p->TiltStatus) < factor)
+		p->TiltStatus = 0;
+
 	return turnvel * factor;
 }
 
