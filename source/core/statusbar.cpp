@@ -465,18 +465,19 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 	x += drawOffset.X;
 	y += drawOffset.Y;
 
+	double xo = 0, yo = 0;
 	switch (flags & DI_ITEM_HMASK)
 	{
-	case DI_ITEM_HCENTER:	x -= boxwidth / 2; break;
-	case DI_ITEM_RIGHT:		x -= boxwidth; break;
-	case DI_ITEM_HOFFSET:	x -= tex->GetDisplayLeftOffset() * boxwidth / texwidth; break;
+	case DI_ITEM_HCENTER:	xo = texwidth / 2; break;
+	case DI_ITEM_RIGHT:		xo = texwidth; break;
+	case DI_ITEM_HOFFSET:	xo = tex->GetDisplayLeftOffset(); break;
 	}
 
 	switch (flags & DI_ITEM_VMASK)
 	{
-	case DI_ITEM_VCENTER: y -= boxheight / 2; break;
-	case DI_ITEM_BOTTOM:  y -= boxheight; break;
-	case DI_ITEM_VOFFSET: y -= tex->GetDisplayTopOffset() * boxheight / texheight; break;
+	case DI_ITEM_VCENTER: yo = texheight / 2; break;
+	case DI_ITEM_BOTTOM:  yo = texheight; break;
+	case DI_ITEM_VOFFSET: yo = tex->GetDisplayTopOffset(); break;
 	}
 
 	if (!fullscreenOffsets)
@@ -513,9 +514,10 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		x += orgx;
 		y += orgy;
 	}
+	// Now reapply the texture offsets. We will need them
 	DrawTexture(twod, tex, x, y, 
-		DTA_TopOffset, 0,
-		DTA_LeftOffset, 0,
+		DTA_TopOffsetF, yo,
+		DTA_LeftOffsetF, xo,
 		DTA_DestWidthF, boxwidth,
 		DTA_DestHeightF, boxheight,
 		DTA_Color, color,
