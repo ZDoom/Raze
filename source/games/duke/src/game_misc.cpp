@@ -306,22 +306,20 @@ void displayrest(int smoothratio)
 					{
 						cposx = omyx + mulscale16(myx - omyx, smoothratio);
 						cposy = omyy + mulscale16(myy - omyy, smoothratio);
-						int omyang = fix16_to_int(oq16myang);
-						int myang = fix16_to_int(q16myang);
-						cang = fix16_to_int(omyang) + mulscale16((fix16_to_int(myang + F16(1024) - omyang) & 2047) - 1024, smoothratio);
+						cang = (oq16myang + mulscale16(((q16myang + (1024 << FRACBITS) - oq16myang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio)) >> FRACBITS;
 					}
 					else
 					{
 						cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
 						cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-						cang = pp->getang();// + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
+						cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
 					}
 				}
 				else
 				{
 					cposx = pp->oposx;
 					cposy = pp->oposy;
-					cang = fix16_to_int(pp->oq16ang);
+					cang = pp->getoang();
 				}
 			}
 			else
