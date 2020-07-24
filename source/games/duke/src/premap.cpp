@@ -950,7 +950,6 @@ int enterlevel(MapRecord *mi, int gamemode)
     ud.respawn_inventory = ud.m_respawn_inventory;
     ud.monsters_off = ud.m_monsters_off;
     ud.coop = ud.m_coop;
-    ud.marker = ud.m_marker;
     ud.ffire = ud.m_ffire;
 
     if ((gamemode & MODE_DEMO) == 0 && ud.recstat == 2)

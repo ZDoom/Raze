@@ -1630,7 +1630,7 @@ void checksectors_d(int snum)
 			case STALL:
 				if (p->last_pissed_time == 0)
 				{
-					if (ud.lockout == 0) spritesound(DUKE_URINATE, p->i);
+					if (adult_lockout == 0) spritesound(DUKE_URINATE, p->i);
 
 					p->last_pissed_time = 26 * 220;
 					p->transporter_hold = 29 * 2;

@@ -349,7 +349,7 @@ void displayrest(int smoothratio)
 	if (isRR()) drawstatusbar_r(screenpeek);
 	else drawstatusbar_d(screenpeek);
 
-	if (ps[myconnectindex].newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
+	if (ps[myconnectindex].newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
 	{
 		int32_t a = TILE_CROSSHAIR;
 
@@ -358,7 +358,7 @@ void displayrest(int smoothratio)
 			vec2_t crosshairpos = {  };
 			//vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
 			uint32_t crosshair_o = 1 | 2;
-			double crosshair_scale = cl_crosshairscale * .001;
+			double crosshair_scale = cl_crosshairscale * .01;
 			if (isRR()) crosshair_scale *= .5;
 
 			DrawTexture(twod, tileGetTexture(a), 160 - (ps[myconnectindex].getlookang() >> 1), 100,

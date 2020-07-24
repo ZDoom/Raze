@@ -2663,7 +2663,7 @@ void checksectors_r(int snum)
 			case RRTILE2122:
 				if (p->last_pissed_time == 0)
 				{
-					if (ud.lockout == 0) spritesound(435, p->i);
+					if (adult_lockout == 0) spritesound(435, p->i);
 
 					p->last_pissed_time = 26 * 220;
 					p->transporter_hold = 29 * 2;

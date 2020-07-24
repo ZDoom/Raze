@@ -502,7 +502,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			ud.m_respawn_inventory = ud.respawn_inventory;
 			ud.m_monsters_off = ud.monsters_off;
 			ud.m_coop = ud.coop;
-			ud.m_marker = ud.marker;
 			ud.m_ffire = ud.ffire;
 			if (ps[myconnectindex].over_shoulder_on != 0)
 			{
