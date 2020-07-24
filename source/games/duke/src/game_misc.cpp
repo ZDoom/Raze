@@ -93,7 +93,7 @@ FString GameInterface::statFPS()
 
 //---------------------------------------------------------------------------
 //
-// fixme: Menu does not call this
+//
 //
 //---------------------------------------------------------------------------
 
@@ -192,8 +192,8 @@ void drawbackground(void)
 void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 {
 	r = clamp(r/255.f, 0.f, 0.25f);
-	g = clamp(r/255.f, 0.f, 0.25f);
-	b = clamp(r/255.f, 0.f, 0.25f);
+	g = clamp(g/255.f, 0.f, 0.25f);
+	b = clamp(b/255.f, 0.f, 0.25f);
 	a = clamp(a/255.f, 0.f, 0.25f);
 
 	
