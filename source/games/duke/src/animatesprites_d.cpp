@@ -551,8 +551,9 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
 
                 t->picnum += k + ScriptCode[t4] + l * t3;
 
-                if(l > 0) while(tilesiz[t->picnum].x == 0 && t->picnum > 0 )
-                    t->picnum -= l;       //Hack, for actors
+                if (l > 0)
+                    while (!tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
+                        t->picnum -= l;       //Hack, for actors 
 
                 if( hittype[i].dispicnum >= 0)
                     hittype[i].dispicnum = t->picnum;
@@ -561,7 +562,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 t->cstat |= 4;
         }
 
-        if( s->statnum == 13 || badguy(s) || (s->picnum == APLAYER && s->owner >= 0) )
+        if( s->statnum == STAT_DUMMYPLAYER || badguy(s) || (s->picnum == APLAYER && s->owner >= 0) )
             if(t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
                 if(s->picnum != HOTMEAT)
         {

@@ -707,8 +707,9 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
 
                 t->picnum += k + ScriptCode[t4] + l * t3;
 
-                if(l > 0) while(tilesiz[t->picnum].x == 0 && t->picnum > 0 )
-                    t->picnum -= l;       //Hack, for actors
+                if (l > 0)
+                    while (!tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
+                        t->picnum -= l;       //Hack, for actors 
 
                 if( hittype[i].dispicnum >= 0)
                     hittype[i].dispicnum = t->picnum;
