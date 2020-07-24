@@ -1599,7 +1599,6 @@ OptionMenu "MultiOptionsMenu"
 	Option "$NETMNU_LEVEL", "m_level_number", "MultiEpisode"
 	Submenu "$MNU_USERMAP", "MultiUserMap" // todo: fileselect item
 	Option "$NETMNU_MONSTERS", "m_monsters", "OnOff"
-	Option "$NETMNU_MARKERS", "m_marker", "OnOff"
 	Option "$NETMNU_MAPEXITS", "m_noexit", "OnOff"
 	Option "$NETMNU_FFIRE", "m_ffire", "OnOff"
 	SafeCommand "$NETMNU_ACCEPT", "MultiAccept"

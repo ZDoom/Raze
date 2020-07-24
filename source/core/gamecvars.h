@@ -106,7 +106,6 @@ EXTERN_CVAR(String, usermapfolder)
 
 EXTERN_CVAR(Int, m_recstat)
 EXTERN_CVAR(Int, m_coop)
-EXTERN_CVAR(Int, m_marker)
 EXTERN_CVAR(Int, m_ffire)
 EXTERN_CVAR(Int, m_noexits)
 EXTERN_CVAR(Int, playercolor)
