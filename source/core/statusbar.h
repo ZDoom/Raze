@@ -177,8 +177,8 @@ public:
 	DVector2 GetHUDScale() const;
 	void NewGame ();
 
-	void DrawGraphic(FGameTexture *texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0);
-	void DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0);
+	void DrawGraphic(FGameTexture *texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0, double rotate = 0);
+	void DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color = 0xffffffff, int translation = 0, double rotate = 0);
 	void DrawString(FFont *font, const FString &cstring, double x, double y, int flags, double Alpha, int translation, int spacing, EMonospacing monospacing, int shadowX, int shadowY, double scaleX, double scaleY);
 	void TransformRect(double &x, double &y, double &w, double &h, int flags = 0);
 	void Fill(PalEntry color, double x, double y, double w, double h, int flags = 0);
@@ -279,6 +279,7 @@ enum DI_Flags
 	DI_DIMDEPLETED = 0x400,
 	DI_DONTANIMATE = 0x800,		// do not animate the texture
 	DI_MIRROR = 0x1000,		// flip the texture horizontally, like a mirror
+	DI_ITEM_RELCENTER = 0x2000,
 		
 	DI_SCREEN_AUTO = 0,					// decide based on given offsets.
 	DI_SCREEN_MANUAL_ALIGN = 0x4000,	// If this is on, the following flags will have an effect

@@ -346,8 +346,8 @@ public:
 		}
 		
 		// Todo: These need rotation support which currently does not exist.
-		DrawGraphic(tileGetTexture(GUTMETER), 257, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->drunkang * 360. / 2048 */ );
-		DrawGraphic(tileGetTexture(GUTMETER), 293, top + 24, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, 0 /*, p->eatang * 360. / 2048 */);
+		DrawGraphic(tileGetTexture(GUTMETER), 256, top + 15, DI_ITEM_RELCENTER, 1, -1, -1, scale, scale, 0xffffffff, 0, p->drunkang * (-360. / 2048));
+		DrawGraphic(tileGetTexture(GUTMETER), 292, top + 15, DI_ITEM_RELCENTER, 1, -1, -1, scale, scale, 0xffffffff, 0, p->eatang * (-360. / 2048));
 
 		if (p->drink_amt >= 0 && p->drink_amt <= 30)
 		{

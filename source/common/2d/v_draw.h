@@ -103,6 +103,7 @@ enum
 	DTA_CenterOffsetRel,	// Apply texture offsets relative to center, instead of top left. This is standard alignment for Build's 2D content.
 	DTA_TopLeft,			// always align to top left. Added to have a boolean condition for this alignment.
 	DTA_Pin,				// Pin a non-widescreen image to the left/right edge of the screen.
+	DTA_Rotate,
 
 };
 
@@ -172,6 +173,7 @@ struct DrawParms
 	double srcx, srcy;
 	double srcwidth, srcheight;
 	double patchscalex, patchscaley;
+	double rotateangle;
 	IntRect viewport;
 };
 

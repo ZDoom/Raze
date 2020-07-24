@@ -39,6 +39,7 @@
 #include "v_draw.h"
 #include "v_video.h"
 #include "fcolormap.h"
+#include "printf.h"
 
 static F2DDrawer drawer;
 F2DDrawer* twod = &drawer;
@@ -401,10 +402,6 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 
 	double xscale = parms.destwidth / parms.texwidth;
 	double yscale = parms.destheight / parms.texheight;
-	double x = parms.x - parms.left * xscale;
-	double y = parms.y - parms.top * yscale;
-	double w = parms.destwidth;
-	double h = parms.destheight;
 	double u1, v1, u2, v2;
 	PalEntry vertexcolor;
 
@@ -433,38 +430,86 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 	if (parms.flipY)
 		std::swap(v1, v2);
 
-	// This is crap. Only kept for backwards compatibility with scripts that may have used it.
-	// Note that this only works for unflipped full textures.
-	if (parms.windowleft > 0 || parms.windowright < parms.texwidth)
+	if (parms.rotateangle == 0)
 	{
-		double wi = std::min(parms.windowright, parms.texwidth);
-		x += parms.windowleft * xscale;
-		w -= (parms.texwidth - wi + parms.windowleft) * xscale;
+		double x = parms.x - parms.left * xscale;
+		double y = parms.y - parms.top * yscale;
+		double w = parms.destwidth;
+		double h = parms.destheight;
 
-		u1 = float(u1 + parms.windowleft / parms.texwidth);
-		u2 = float(u2 - (parms.texwidth - wi) / parms.texwidth);
+
+		// This is crap. Only kept for backwards compatibility with scripts that may have used it.
+		// Note that this only works for unflipped and unrotated full textures.
+		if (parms.windowleft > 0 || parms.windowright < parms.texwidth)
+		{
+			double wi = std::min(parms.windowright, parms.texwidth);
+			x += parms.windowleft * xscale;
+			w -= (parms.texwidth - wi + parms.windowleft) * xscale;
+
+			u1 = float(u1 + parms.windowleft / parms.texwidth);
+			u2 = float(u2 - (parms.texwidth - wi) / parms.texwidth);
+		}
+
+		if (x < (double)parms.lclip || y < (double)parms.uclip || x + w >(double)parms.rclip || y + h >(double)parms.dclip)
+		{
+			dg.mScissor[0] = parms.lclip;
+			dg.mScissor[1] = parms.uclip;
+			dg.mScissor[2] = parms.rclip;
+			dg.mScissor[3] = parms.dclip;
+			dg.mFlags |= DTF_Scissor;
+		}
+		else
+		{
+			memset(dg.mScissor, 0, sizeof(dg.mScissor));
+		}
+
+		dg.mVertCount = 4;
+		dg.mVertIndex = (int)mVertices.Reserve(4);
+		TwoDVertex* ptr = &mVertices[dg.mVertIndex];
+		ptr->Set(x, y, 0, u1, v1, vertexcolor); ptr++;
+		ptr->Set(x, y + h, 0, u1, v2, vertexcolor); ptr++;
+		ptr->Set(x + w, y, 0, u2, v1, vertexcolor); ptr++;
+		ptr->Set(x + w, y + h, 0, u2, v2, vertexcolor); ptr++;
 	}
-
-	if (x < (double)parms.lclip || y < (double)parms.uclip || x + w >(double)parms.rclip || y + h >(double)parms.dclip)
+	else
 	{
+		double radang = parms.rotateangle * (pi::pi() / 180.);
+		double cosang = cos(radang);
+		double sinang = sin(radang);
+		double xd1 = -parms.left;
+		double yd1 = -parms.top;
+		double xd2 = xd1 + parms.texwidth;
+		double yd2 = yd1 + parms.texheight;
+
+		double x1 = parms.x + xscale * (xd1 * cosang + yd1 * sinang);
+		double y1 = parms.y - yscale * (xd1 * sinang - yd1 * cosang);
+
+		double x2 = parms.x + xscale * (xd1 * cosang + yd2 * sinang);
+		double y2 = parms.y - yscale * (xd1 * sinang - yd2 * cosang);
+
+		double x3 = parms.x + xscale * (xd2 * cosang + yd1 * sinang);
+		double y3 = parms.y - yscale * (xd2 * sinang - yd1 * cosang);
+
+		double x4 = parms.x + xscale * (xd2 * cosang + yd2 * sinang);
+		double y4 = parms.y - yscale * (xd2 * sinang - yd2 * cosang);
+
+		Printf(PRINT_NOTIFY, "%f, %f\n", y2, y4);
+
 		dg.mScissor[0] = parms.lclip;
 		dg.mScissor[1] = parms.uclip;
 		dg.mScissor[2] = parms.rclip;
 		dg.mScissor[3] = parms.dclip;
 		dg.mFlags |= DTF_Scissor;
-	}
-	else
-	{
-		memset(dg.mScissor, 0, sizeof(dg.mScissor));
-	}
 
-	dg.mVertCount = 4;
-	dg.mVertIndex = (int)mVertices.Reserve(4);
-	TwoDVertex *ptr = &mVertices[dg.mVertIndex];
-	ptr->Set(x, y, 0, u1, v1, vertexcolor); ptr++;
-	ptr->Set(x, y + h, 0, u1, v2, vertexcolor); ptr++;
-	ptr->Set(x + w, y, 0, u2, v1, vertexcolor); ptr++;
-	ptr->Set(x + w, y + h, 0, u2, v2, vertexcolor); ptr++;
+		dg.mVertCount = 4;
+		dg.mVertIndex = (int)mVertices.Reserve(4);
+		TwoDVertex* ptr = &mVertices[dg.mVertIndex];
+		ptr->Set(x1, y1, 0, u1, v1, vertexcolor); ptr++;
+		ptr->Set(x2, y2, 0, u1, v2, vertexcolor); ptr++;
+		ptr->Set(x3, y3, 0, u2, v1, vertexcolor); ptr++;
+		ptr->Set(x4, y4, 0, u2, v2, vertexcolor); ptr++;
+
+	}
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 1, 3, 2);

@@ -405,16 +405,16 @@ void DBaseStatusBar::StatusbarToRealCoords(double &x, double &y, double &w, doub
 //
 //============================================================================
 
-void DBaseStatusBar::DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation)
+void DBaseStatusBar::DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate)
 {
 	if (!texture.isValid())
 		return;
 
 	FGameTexture* tex = TexMan.GetGameTexture(texture, !(flags & DI_DONTANIMATE));
-	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, color, translation);
+	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, color, translation, rotate);
 }
 
-void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation)
+void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate)
 {
 	double texwidth = tex->GetDisplayWidth() * scaleX;
 	double texheight = tex->GetDisplayHeight() * scaleY;
@@ -466,19 +466,29 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 	y += drawOffset.Y;
 
 	double xo = 0, yo = 0;
-	switch (flags & DI_ITEM_HMASK)
+	if (flags & DI_ITEM_RELCENTER)
 	{
-	case DI_ITEM_HCENTER:	xo = texwidth / 2; break;
-	case DI_ITEM_RIGHT:		xo = texwidth; break;
-	case DI_ITEM_HOFFSET:	xo = tex->GetDisplayLeftOffset(); break;
+		xo = tex->GetDisplayWidth() / 2 + tex->GetDisplayLeftOffset();
+		yo = tex->GetDisplayHeight() / 2 + tex->GetDisplayTopOffset();
 	}
+	else
+	{
+		switch (flags & DI_ITEM_HMASK)
+		{
+		case DI_ITEM_HCENTER:	xo = tex->GetDisplayWidth() / 2; break;
+		case DI_ITEM_RIGHT:		xo = tex->GetDisplayWidth(); break;
+		case DI_ITEM_HOFFSET:	xo = tex->GetDisplayLeftOffset(); break;
+		}
 
-	switch (flags & DI_ITEM_VMASK)
-	{
-	case DI_ITEM_VCENTER: yo = texheight / 2; break;
-	case DI_ITEM_BOTTOM:  yo = texheight; break;
-	case DI_ITEM_VOFFSET: yo = tex->GetDisplayTopOffset(); break;
+		switch (flags & DI_ITEM_VMASK)
+		{
+		case DI_ITEM_VCENTER: yo = tex->GetDisplayHeight() / 2; break;
+		case DI_ITEM_BOTTOM:  yo = tex->GetDisplayHeight(); break;
+		case DI_ITEM_VOFFSET: yo = tex->GetDisplayTopOffset(); break;
+		}
 	}
+	//xo *= scaleX;
+	//yo *= scaleY;
 
 	if (!fullscreenOffsets)
 	{
@@ -527,6 +537,7 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		DTA_AlphaChannel, !!(flags & DI_ALPHAMAPPED),
 		DTA_FillColor, (flags & DI_ALPHAMAPPED) ? 0 : -1,
 		DTA_FlipX, !!(flags & DI_MIRROR),
+		DTA_Rotate, rotate,
 		TAG_DONE);
 }
 
