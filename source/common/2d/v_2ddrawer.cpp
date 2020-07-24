@@ -39,7 +39,6 @@
 #include "v_draw.h"
 #include "v_video.h"
 #include "fcolormap.h"
-#include "printf.h"
 
 static F2DDrawer drawer;
 F2DDrawer* twod = &drawer;
@@ -492,8 +491,6 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 
 		double x4 = parms.x + xscale * (xd2 * cosang + yd2 * sinang);
 		double y4 = parms.y - yscale * (xd2 * sinang - yd2 * cosang);
-
-		Printf(PRINT_NOTIFY, "%f, %f\n", y2, y4);
 
 		dg.mScissor[0] = parms.lclip;
 		dg.mScissor[1] = parms.uclip;
