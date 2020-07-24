@@ -1207,7 +1207,7 @@ void GetInput()
 	auto now = I_msTimeF();
 	// do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.
 	// This really needs to have the timer fixed to be robust, doing it ad-hoc here is not really safe.
-	if (lastCheck > 0) elapsedInputTicks = min(now - lastCheck, (double)(REALGAMETICSPERSEC));
+	if (lastCheck > 0) elapsedInputTicks = min(now - lastCheck, 1000.0 / REALGAMETICSPERSEC);
 	else elapsedInputTicks = 1;
 	lastCheck = now;
 
