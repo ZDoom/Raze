@@ -1017,50 +1017,55 @@ static double motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_tur
 //
 //---------------------------------------------------------------------------
 
-static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, double factor)
+static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_turn, double factor)
 {
+	int turnvel = 0;
 	int tics = getticssincelastupdate();
 
 	if (p->MotoSpeed)
 	{
-		if (turnl || p->moto_drink < 0)
+		if (turnl || turnr || p->moto_drink != 0)
 		{
-			turnheldtime += tics;
-			if (!p->NotOnWater)
+			if (turnl || p->moto_drink < 0)
 			{
-				p->TiltStatus -= (float)factor;
-				if (p->TiltStatus < -10)
-					p->TiltStatus = -10;
+				turnheldtime += tics;
+				if (!p->NotOnWater)
+				{
+					p->TiltStatus -= (float)factor;
+					if (p->TiltStatus < -10)
+						p->TiltStatus = -10;
+				}
+				if (turnheldtime >= TURBOTURNTIME)
+				{
+					if (p->NotOnWater) turnvel += boat_turn ? -12 : -6;
+					else turnvel += boat_turn ? -40 : -20;
+				}
+				else
+				{
+					if (p->NotOnWater) turnvel += boat_turn ? -4 : -2;
+					else turnvel += boat_turn ? -12 : -6;
+				}
 			}
-			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed != 0)
+
+			if (turnr || p->moto_drink > 0)
 			{
-				if (p->NotOnWater) return bike_turn ? -6 : -3;
-				else return bike_turn ? -20 : -10;
-			}
-			else if (turnheldtime < TURBOTURNTIME && p->MotoSpeed != 0)
-			{
-				if (p->NotOnWater) return bike_turn ? -2 : -1;
-				else return bike_turn ? -6 : -3;
-			}
-		}
-		else if (turnr || p->moto_drink > 0)
-		{
-			turnheldtime += tics;
-			if (!p->NotOnWater)
-			{
-				p->TiltStatus += (float)factor;
-				if (p->TiltStatus > 10)
-					p->TiltStatus = 10;
-			}
-			if (turnheldtime >= TURBOTURNTIME && p->MotoSpeed != 0)
-			{
-				if (p->NotOnWater) return bike_turn ? 6 : 3;
-				else return bike_turn ? 20 : 10;
-			}
-			else if (turnheldtime < TURBOTURNTIME && p->MotoSpeed != 0)
-			{
-				if (p->NotOnWater) return bike_turn ? 2 : 1;
-				else return bike_turn ? 6 : 3;
+				turnheldtime += tics;
+				if (!p->NotOnWater)
+				{
+					p->TiltStatus += (float)factor;
+					if (p->TiltStatus > 10)
+						p->TiltStatus = 10;
+				}
+				if (turnheldtime >= TURBOTURNTIME)
+				{
+					if (p->NotOnWater) turnvel += boat_turn ? 12 : 6;
+					else turnvel += boat_turn ? 40 : 20;
+				}
+				else
+				{
+					if (p->NotOnWater) turnvel += boat_turn ? 4 : 2;
+					else turnvel += boat_turn ? 12 : 6;
+				}
 			}
 		}
 		else if (!p->NotOnWater)
@@ -1072,17 +1077,23 @@ static int boatApplyTurn(player_struct *p, int turnl, int turnr, int bike_turn, 
 				p->TiltStatus -= (float)factor;
 			else if (p->TiltStatus < 0)
 				p->TiltStatus += (float)factor;
-
-			if (fabs(p->TiltStatus) < 0.025)
-				p->TiltStatus = 0;
 		}
 	}
-	else
+	else if (!p->NotOnWater)
 	{
 		turnheldtime = 0;
 		lastcontroltime = 0;
+
+		if (p->TiltStatus > 0)
+			p->TiltStatus -= (float)factor;
+		else if (p->TiltStatus < 0)
+			p->TiltStatus += (float)factor;
 	}
-	return 0;
+
+	if (fabs(p->TiltStatus) < 0.025)
+		p->TiltStatus = 0;
+
+	return turnvel * factor;
 }
 
 //---------------------------------------------------------------------------
@@ -1132,7 +1143,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& in
 	}
 	else
 	{
-		turnvel = boatApplyTurn(p, turnl, turnr, turnspeed != 0, scaleAdjust) * scaleAdjust * 2;
+		turnvel = boatApplyTurn(p, turnl, turnr, turnspeed != 0, scaleAdjust);
 	}
 
 	// What is this? Optimization for playing with a mouse which the original did not have?
