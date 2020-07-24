@@ -355,9 +355,6 @@ void displayrest(int smoothratio)
 
 		if ((unsigned)a < MAXTILES)
 		{
-			vec2_t crosshairpos = {  };
-			//vec2_t crosshairpos = { ud.returnvar[0], ud.returnvar[1] };
-			uint32_t crosshair_o = 1 | 2;
 			double crosshair_scale = cl_crosshairscale * .01;
 			if (isRR()) crosshair_scale *= .5;
 
