@@ -1090,7 +1090,7 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 			p->TiltStatus += (float)factor;
 	}
 
-	if (fabs(p->TiltStatus) < 0.025)
+	if (fabs(p->TiltStatus) < factor)
 		p->TiltStatus = 0;
 
 	return turnvel * factor;
