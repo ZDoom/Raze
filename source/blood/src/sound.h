@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
-#include "resource.h"
+#include "misc.h"
 #include "raze_music.h"
 
 BEGIN_BLD_NS
@@ -31,7 +31,6 @@ struct SAMPLE2D
 {
     int at0;
     char at4;
-    DICTNODE *at5;
 }; // 9 bytes
 
 struct SFX

@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 
 #include "levels.h"
-#include "resource.h"
+#include "misc.h"
 #include "db.h"
 
 BEGIN_BLD_NS

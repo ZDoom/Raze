@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "globals.h"
 #include "config.h"
-#include "resource.h"
 #include "screen.h"
 #include "v_video.h"
 

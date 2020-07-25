@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #pragma once
 #include "compat.h"
 #include "build.h"
-#include "resource.h"
 #include "version.h"
+#include "filesystem.h"
 
 BEGIN_BLD_NS
 
@@ -35,6 +35,6 @@ extern int gFrame;
 extern int gFrameRate;
 extern bool bVanilla;
 
-extern Resource &gSysRes;
+extern FileSystem &gSysRes;
 
 END_BLD_NS

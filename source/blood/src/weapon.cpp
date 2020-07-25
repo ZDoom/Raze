@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "loadsave.h"
 #include "player.h"
 #include "qav.h"
-#include "resource.h"
 #include "seq.h"
 #include "sound.h"
 #include "trig.h"

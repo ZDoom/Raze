@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "controls.h"
 #include "globals.h"
 #include "network.h"
-#include "gamemenu.h"
 #include "player.h"
 #include "seq.h"
 #include "sound.h"

@@ -22,6 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#include "common.h"
+#include "filesystem.h"
+
+using Resource = FileSystem;
+// Map NBlood's resource system to our own.
+using DICTNODE = FResourceLump;
+
 BEGIN_BLD_NS
 
 void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
@@ -31,5 +38,18 @@ void wsrand(int);
 void ChangeExtension(char *pzFile, const char *pzExt);
 void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType);
 void ConcatPath(const char* pzPath1, const char* pzPath2, char* pzConcatPath);
+void FireInit(void);
+void FireProcess(void);
+void drawLoadingScreen(void);
+void UpdateNetworkMenus(void); 
+void InitMirrors(void);
+void sub_5571C(char mode);
+void sub_557C4(int x, int y, int interpolation);
+void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int viewPlayer);
+int32_t registerosdcommands(void); 
+int qanimateoffs(int a1, int a2);
+void qloadpalette();
+int32_t qgetpalookup(int32_t a1, int32_t a2);
+void HookReplaceFunctions();
 
 END_BLD_NS

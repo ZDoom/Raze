@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "controls.h"
 #include "demo.h"
-#include "fire.h"
-#include "gamemenu.h"
 #include "globals.h"
 #include "levels.h"
 #include "messages.h"
