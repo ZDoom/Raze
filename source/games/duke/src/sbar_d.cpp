@@ -57,6 +57,11 @@ class DDukeStatusBar : public DDukeCommonStatusBar
 public:
 	DDukeStatusBar()
 	{
+		numberFont = { BigFont, 0, Off, 1, 1 };
+		indexFont = { IndexFont, 4, CellRight, 1, 1 };
+		miniFont = { SmallFont2, 0, Off, 1, 1 };
+		digiFont = { DigiFont, 1, Off, 1, 1 };
+
 		// optionally draw at the top of the screen.
 		SetSize(tilesiz[TILE_BOTTOMSTATUSBAR].y);
 		scale = 1;

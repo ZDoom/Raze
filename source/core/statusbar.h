@@ -99,6 +99,7 @@ public:
 	int mShadowX;
 	int mShadowY;
 
+	DHUDFont() = default;
 	DHUDFont(FFont *f, int sp, EMonospacing ms, int sx, int sy)
 		: mFont(f), mSpacing(sp), mMonospacing(ms), mShadowX(sx), mShadowY(sy)
 	{}

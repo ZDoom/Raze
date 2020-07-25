@@ -49,10 +49,6 @@ BEGIN_DUKE_NS
 //==========================================================================
 
 DDukeCommonStatusBar::DDukeCommonStatusBar()
-	: numberFont(BigFont, 0, Off, 1, 1),
-	indexFont(IndexFont, 4, CellRight, 1, 1),
-	miniFont(SmallFont2, 0, Off, 1, 1),
-	digiFont(DigiFont, 1 , Off, 1, 1)
 {
 	drawOffset.Y = 0;
 }
