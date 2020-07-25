@@ -389,6 +389,7 @@ void startmainmenu()
 void app_loop()
 {
 	gamestate = GS_STARTUP;
+	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 
 	while (true)
 	{

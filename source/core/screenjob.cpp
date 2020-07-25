@@ -122,7 +122,6 @@ public:
 			return -1;
 		}
 
-		Printf("Movie clock = %d - %d = %d", ototalclock, totalclock, ototalclock - totalclock);
 		if (totalclock < ototalclock - 1)
 		{
 			Printf("\n");
@@ -130,7 +129,6 @@ public:
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
 			return skiprequest? -1 : 1;
 		}
-		Printf(" advancing\n");
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
 		frametime = totalclock;
