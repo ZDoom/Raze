@@ -60,7 +60,7 @@ inline void settileflag(int flag, const std::initializer_list<short>& types)
 
 inline bool wallswitchcheck(int s)
 {
-	return !!(tileinfo[s].flags & TFLAG_WALLSWITCH);
+	return !!(tileinfo[sprite[s].picnum].flags & TFLAG_WALLSWITCH);
 }
 
 inline int checkcursectnums(int se)
