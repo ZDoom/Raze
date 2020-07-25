@@ -40,7 +40,7 @@ BEGIN_DUKE_NS
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p, int scale = 32768)
 {
-	hud_drawsprite(x, y, scale, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, scale, 0, tilenum, shade, p, 2 | orientation);
 }
 
 inline static void rdmyospal(double x, double y, int tilenum, int shade, int orientation, int p)

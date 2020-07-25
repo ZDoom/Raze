@@ -51,7 +51,7 @@ int getavel(int snum)
 
 inline static void hud_drawpal(double x, double y, int tilenum, int shade, int orientation, int p)
 {
-	hud_drawsprite(x, y, 65536, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
 
 //---------------------------------------------------------------------------
