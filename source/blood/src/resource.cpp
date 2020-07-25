@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 
 #include "misc.h"
-#include "qheap.h"
 #include "resource.h"
 
 #if B_BIG_ENDIAN == 1
