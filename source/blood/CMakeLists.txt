@@ -41,7 +41,6 @@ set( PCH_SOURCES
 	src/fx.cpp
 	src/gamemenu.cpp
 	src/gameutil.cpp
-	src/getopt.cpp
 	src/gib.cpp
 	src/globals.cpp
 	src/inifile.cpp

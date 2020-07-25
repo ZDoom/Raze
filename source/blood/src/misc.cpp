@@ -162,23 +162,5 @@ void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType
     }
 }
 
-void ConcatPath(const char *pzPath1, const char *pzPath2, char *pzConcatPath)
-{
-    int n1 = Bstrlen(pzPath1), n2 = Bstrlen(pzPath2);
-    int i = n1, j = 0;
-    while (i > 0 && (pzPath1[i-1] == '/' || pzPath1[i-1] == '\\'))
-    {
-        i--;
-    }
-    while (j < n2 && (pzPath2[j] == '/' || pzPath1[j] == '\\'))
-    {
-        j++;
-    }
-    Bstrncpy(pzConcatPath, pzPath1, i);
-    pzConcatPath[i] = 0;
-    Bstrcat(pzConcatPath, "/");
-    Bstrcat(pzConcatPath, pzPath2+j);
-}
-
 
 END_BLD_NS

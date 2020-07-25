@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "eventq.h"
 #include "fx.h"
 #include "gib.h"
-#include "getopt.h"
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
@@ -869,107 +868,9 @@ void ProcessFrame(void)
 }
 
 
-#if 0
-SWITCH switches[] = {
-    { "broadcast", 1, 0 },
-    { "masterslave", 3, 0 },
-    { "record", 7, 1 },
-    { "robust", 8, 0 },
-    { "skill", 10, 1 },
-    { "ini", 13, 1 },
-    { "noaim", 14, 0 },
-    //{ "f", 15, 1 },
-    { "control", 16, 1 },
-    { "vector", 17, 1 },
-    { "noresend", 22, 0 },
-    { "silentaim", 23, 0 },
-    { "art", 26, 1 },
-    { "client", 31, 1 },
-    { "noautoload", 32, 0 },
-    { NULL, 0, 0 }
-};
-#endif
 
 void ParseOptions(void)
 {
-	// Stuff for later.
-#if 0
-    int option;
-    while ((option = GetOptions(switches)) != -1)
-    {
-        switch (option)
-        {
-        case 18:
-            bQuickStart = 1;
-            break;
-        //case 12:
-        //    EightyTwoFifty = 1;
-        //    break;
-        case 1:
-            gPacketMode = PACKETMODE_2;
-            break;
-        case 21:
-            break;
-        case 2:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            strcpy(gUserMapFilename, OptArgv[0]);
-            bAddUserMap = 1;
-            bNoDemo = 1;
-            break;
-        case 3:
-            gPacketMode = PACKETMODE_2;
-            break;
-        case 30:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            gNetPlayers = ClipRange(atoi(OptArgv[0]), 1, kMaxPlayers);
-            gNetMode = NETWORK_SERVER;
-            break;
-        case 31:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            gNetMode = NETWORK_CLIENT;
-            strncpy(gNetAddress, OptArgv[0], sizeof(gNetAddress)-1);
-            break;
-        case 22:
-            bNoResend = 0;
-            break;
-        case 23:
-            bSilentAim = 1;
-            break;
-        case 5:
-            gGameOptions.nMonsterSettings = 0;
-            break;
-        case 6:
-            if (OptArgc < 1)
-                gDemo.SetupPlayback(NULL);
-            else
-                gDemo.SetupPlayback(OptArgv[0]);
-            break;
-        case 7:
-            if (OptArgc < 1)
-                gDemo.Create(NULL);
-            else
-                gDemo.Create(OptArgv[0]);
-            break;
-        case 8:
-            gRobust = 1;
-            break;
-        case 10:
-            if (OptArgc < 1)
-                ThrowError("Missing argument");
-            gSkill = strtoul(OptArgv[0], NULL, 0);
-            if (gSkill < 0)
-                gSkill = 0;
-            else if (gSkill > 4)
-                gSkill = 4;
-            break;
-        case 15:
-            break;
-        }
-    }
-#endif
 #if 0
     if (bAddUserMap)
     {
