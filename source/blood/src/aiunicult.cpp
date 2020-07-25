@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "actor.h"
 #include "ai.h"
+#include "aistate.h"
 #include "aiunicult.h"
 #include "blood.h"
 #include "db.h"
@@ -54,7 +55,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 
 #include "gib.h"
-#include "aiburn.h"
 
 BEGIN_BLD_NS
 static void genDudeAttack1(int, int);

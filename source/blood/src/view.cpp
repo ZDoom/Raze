@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "common_game.h"
 
-#include "aihand.h"
+#include "aistate.h"
 #include "blood.h"
 #include "choke.h"
 #include "config.h"
