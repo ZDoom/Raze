@@ -35,48 +35,38 @@ enum esound_t
 	kMaxUserData
 };
 
-int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel = 0);
-int A_PlaySound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
-inline int spritesound(int soundnum, int spritenum)
-{
-	return A_PlaySound(soundnum, spritenum);
-}
-int A_CheckAnySoundPlaying(int spriteNum);
+void S_InitSound();
+void S_Update(void);
+void S_CacheAllSounds(void);
+int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
+
+int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0);
+int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
+int S_PlayActorSound(int soundNum, int spriteNum, int channel = CHAN_AUTO, EChanFlags flags = 0);
+void S_MenuSound(void);
+
+void S_StopSound(int sndNum, int sprNum = -1, int flags = -1);
+
 int S_CheckSoundPlaying(int soundNum);
 inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPlaying(soundNum); }
-void cacheAllSounds(void);
-void S_MenuSound(void);
-void S_PauseMusic(bool paused);
-void S_PauseSounds(bool paused);
-void S_PlayLevelMusic(MapRecord* mi);
-void S_PlaySpecialMusic(unsigned int);
-void S_ContinueLevelMusic(void);
-int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0);
-inline int sound(int num)
-{
-	return S_PlaySound(num);
-}
-int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos, int channel = CHAN_AUTO, EChanFlags flags = 0);
-void S_StopEnvSound(int sndNum,int sprNum, int flags = -1);
-inline void stopsound(int snd)
-{
-	S_StopEnvSound(snd, -1);
-}
-#define S_StopSound(num) S_StopEnvSound(num, -1)
+int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel = 0);
+int S_CheckAnyActorSoundPlaying(int spriteNum);
 
-void S_Update(void);
+void S_PauseSounds(bool paused);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);
-int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
-void S_InitSound();
-void S_PlayRRMusic(int newTrack = -1);
-void PlayBonusMusic();
 
 inline bool S_IsSoundValid(int num)
 {
 	return (!soundEngine->isValidSoundId(num + 1));
-
 }
+
+
+void S_PlayRRMusic(int newTrack = -1);
+void S_PlayBonusMusic();
+void S_PlayLevelMusic(MapRecord* mi);
+void S_PlaySpecialMusic(unsigned int);
+void S_ContinueLevelMusic(void);
 
 // Placeholders.
 inline void StopCommentary()

@@ -73,8 +73,8 @@ int callsound(int sn, int whatsprite)
 					if (snum)
 					{
 						if (sprite[i].hitag && snum != sprite[i].hitag)
-							S_StopEnvSound(sprite[i].hitag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
-						spritesound(snum, whatsprite);
+							S_StopSound(sprite[i].hitag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
+						S_PlayActorSound(snum, whatsprite);
 						hittype[i].temp_data[5] = whatsprite;
 					}
 
@@ -85,8 +85,8 @@ int callsound(int sn, int whatsprite)
 			else if (S_IsSoundValid(sprite[i].hitag))
 			{
 				if ((flags & SF_LOOP) || (sprite[i].hitag && sprite[i].hitag != sprite[i].lotag))
-					S_StopEnvSound(sprite[i].lotag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
-				if (sprite[i].hitag) spritesound(sprite[i].hitag, whatsprite);
+					S_StopSound(sprite[i].lotag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
+				if (sprite[i].hitag) S_PlayActorSound(sprite[i].hitag, whatsprite);
 				hittype[i].temp_data[0] = 0;
 				hittype[i].temp_data[5] = whatsprite;
 			}
@@ -451,8 +451,8 @@ bool activatewarpelevators(int s, int d) //Parm = sectoreffectornum
 	else
 	{
 		if (d == 0)
-			spritesound(ELEVATOR_OFF, s);
-		else spritesound(ELEVATOR_ON, s);
+			S_PlayActorSound(ELEVATOR_OFF, s);
+		else S_PlayActorSound(ELEVATOR_ON, s);
 	}
 
 
@@ -1087,8 +1087,8 @@ void operateforcefields_common(int s, int low, const std::initializer_list<int> 
 void breakwall(short newpn, short spr, short dawallnum)
 {
 	wall[dawallnum].picnum = newpn;
-	spritesound(VENT_BUST, spr);
-	spritesound(GLASS_HEAVYBREAK, spr);
+	S_PlayActorSound(VENT_BUST, spr);
+	S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 	lotsofglass(spr, dawallnum, 10);
 }
 

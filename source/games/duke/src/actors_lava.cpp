@@ -536,14 +536,14 @@ void operatejaildoors(int hitag)
 				jaildooropen[i] = 1;
 				jaildoordrag[i] = jaildoordist[i];
 				if (!isRRRA() || jaildoorsound[i] != 0)
-					spritesound(jaildoorsound[i], ps[screenpeek].i);
+					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].i);
 			}
 			if (jaildooropen[i] == 2)
 			{
 				jaildooropen[i] = 3;
 				jaildoordrag[i] = jaildoordist[i];
 				if (!isRRRA() || jaildoorsound[i] != 0)
-					spritesound(jaildoorsound[i], ps[screenpeek].i);
+					S_PlayActorSound(jaildoorsound[i], ps[screenpeek].i);
 			}
 		}
 	}
@@ -568,7 +568,7 @@ void thunder(void)
 			{
 				thunderflash = 1;
 				thundertime = 256;
-				sound(351 + (rand() % 3));
+				S_PlaySound(351 + (rand() % 3));
 			}
 		}
 		else
@@ -597,7 +597,7 @@ void thunder(void)
 			{
 				winderflash = 1;
 				windertime = 128;
-				sound(351 + (rand() % 3));
+				S_PlaySound(351 + (rand() % 3));
 			}
 		}
 	}

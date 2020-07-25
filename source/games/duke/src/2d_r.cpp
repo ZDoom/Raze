@@ -262,7 +262,7 @@ public:
 	DRRMultiplayerBonusScreen(int pws) : DScreenJob(fadein | fadeout)
 	{
 		playerswhenstarted = pws;
-		PlayBonusMusic();
+		S_PlayBonusMusic();
 	}
 
 	int Frame(uint64_t clock, bool skiprequest)
@@ -366,7 +366,7 @@ class DRRLevelSummaryScreen : public DScreenJob
 public:
 	DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
 	{
-		PlayBonusMusic();
+		S_PlayBonusMusic();
 		if (currentLevel->flags & MI_USERMAP)
 			gfx_offset = RRTILE403;
 		else if (!isRRRA())

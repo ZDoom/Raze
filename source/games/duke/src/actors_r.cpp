@@ -97,12 +97,12 @@ void check_fta_sounds_r(int i)
 	{
 	case COOT: // LIZTROOP
 		if (!isRRRA() && (krand() & 3) == 2)
-			spritesound(PRED_RECOG, i);
+			S_PlayActorSound(PRED_RECOG, i);
 		break;
 	case BILLYCOCK:
 	case BILLYRAY:
 	case BRAYSNIPER: // PIGCOP
-		spritesound(PIG_RECOG, i);
+		S_PlayActorSound(PIG_RECOG, i);
 		break;
 	}
 }
@@ -191,13 +191,13 @@ void addweapon_r(struct player_struct* p, int weapon)
 	case THROWINGDYNAMITE_WEAPON:
 		break;
 	case SHOTGUN_WEAPON:	  
-		spritesound(SHOTGUN_COCK, p->i); 
+		S_PlayActorSound(SHOTGUN_COCK, p->i); 
 		break;
 	case PISTOL_WEAPON:	   
-		spritesound(INSERT_CLIP, p->i); 
+		S_PlayActorSound(INSERT_CLIP, p->i); 
 		break;
 	default:	  
-		spritesound(EJECT_CLIP, p->i); 
+		S_PlayActorSound(EJECT_CLIP, p->i); 
 		break;
 	}
 }
@@ -1026,7 +1026,7 @@ CLEAR_THE_BOLT:
 	if (l & 1) s->cstat ^= 2;
 
 	if (s->picnum == (BOLT1 + 1) && (krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
-		spritesound(SHORT_CIRCUIT, i);
+		S_PlayActorSound(SHORT_CIRCUIT, i);
 
 	if (s->picnum == BOLT1 + 4) s->picnum = BOLT1;
 
@@ -1363,7 +1363,7 @@ void moveweapons_r(void)
 							&& (s->picnum == RPG || s->picnum == RPG2)
 							&& sprite[j].pal == 19)
 						{
-							spritesound(RPG_EXPLODE, i);
+							S_PlayActorSound(RPG_EXPLODE, i);
 							k = fi.spawn(i, EXPLOSION2);
 							sprite[k].x = dax;
 							sprite[k].y = day;
@@ -1388,7 +1388,7 @@ void moveweapons_r(void)
 					if (sprite[j].picnum == APLAYER)
 					{
 						p = sprite[j].yvel;
-						spritesound(PISTOL_BODYHIT,j);
+						S_PlayActorSound(PISTOL_BODYHIT,j);
 
 						if (s->picnum == SPIT)
 						{
@@ -1403,8 +1403,8 @@ void moveweapons_r(void)
 
 							if (ps[p].loogcnt == 0)
 							{
-								if (!A_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-									A_PlaySound(DUKE_LONGTERM_PAIN, ps[p].i);
+								if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
+									S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
 
 								j = 3 + (krand() & 3);
 								ps[p].numloogs = j;
@@ -1606,7 +1606,7 @@ void moveweapons_r(void)
 					}
 					if (s->picnum == RPG)
 					{
-						spritesound(RPG_EXPLODE, i);
+						S_PlayActorSound(RPG_EXPLODE, i);
 
 						if (s->xrepeat >= 10)
 						{
@@ -1622,7 +1622,7 @@ void moveweapons_r(void)
 					else if (isRRRA() && s->picnum == RPG2)
 					{
 						s->extra = 150;
-						spritesound(247, i);
+						S_PlayActorSound(247, i);
 
 						if (s->xrepeat >= 10)
 						{
@@ -1638,7 +1638,7 @@ void moveweapons_r(void)
 					else if (isRRRA() && s->picnum == RRTILE1790)
 					{
 						s->extra = 160;
-						spritesound(RPG_EXPLODE, i);
+						S_PlayActorSound(RPG_EXPLODE, i);
 
 						if (s->xrepeat >= 10)
 						{
@@ -1722,7 +1722,7 @@ void movetransports_r(void)
 						if (ps[p].on_ground && sectlotag == 0 && onfloorz && ps[p].jetpack_on == 0)
 						{
 							fi.spawn(i, TRANSPORTERBEAM);
-							spritesound(TELEPORTER, i);
+							S_PlayActorSound(TELEPORTER, i);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])// connectpoinhittype[i].temp_data[1][k])
 								if (ps[k].cursectnum == sprite[OW].sectnum)
@@ -1748,7 +1748,7 @@ void movetransports_r(void)
 							ps[p].cursectnum = sprite[j].sectnum;
 
 							k = fi.spawn(OW, TRANSPORTERBEAM);
-							spritesound(TELEPORTER, k);
+							S_PlayActorSound(TELEPORTER, k);
 
 							break;
 						}
@@ -1802,7 +1802,7 @@ void movetransports_r(void)
 						{
 							FX_StopAllSounds();
 						}
-						spritesound(DUKE_UNDERWATER, ps[p].i);
+						S_PlayActorSound(DUKE_UNDERWATER, ps[p].i);
 						ps[p].oposz = ps[p].posz =
 							sector[sprite[OW].sectnum].ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
@@ -1817,7 +1817,7 @@ void movetransports_r(void)
 						{
 							FX_StopAllSounds();
 						}
-						spritesound(DUKE_GASP, ps[p].i);
+						S_PlayActorSound(DUKE_GASP, ps[p].i);
 
 						ps[p].oposz = ps[p].posz =
 							sector[sprite[OW].sectnum].floorz - (7 << 8);
@@ -1965,10 +1965,10 @@ void movetransports_r(void)
 									hittype[j].bposz = sprite[j].z;
 
 									k = fi.spawn(i, TRANSPORTERBEAM);
-									spritesound(TELEPORTER, k);
+									S_PlayActorSound(TELEPORTER, k);
 
 									k = fi.spawn(OW, TRANSPORTERBEAM);
-									spritesound(TELEPORTER, k);
+									S_PlayActorSound(TELEPORTER, k);
 
 									if (sprite[OW].owner != OW)
 									{
@@ -2261,7 +2261,7 @@ static void rrra_specialstats()
 		if (sprite[i].extra)
 		{
 			if (sprite[i].extra == sprite[i].lotag)
-				sound(183);
+				S_PlaySound(183);
 			sprite[i].extra--;
 			j = fi.movesprite(i,
 				(sprite[i].hitag * sintable[(sprite[i].ang + 512) & 2047]) >> 14,
@@ -2269,12 +2269,12 @@ static void rrra_specialstats()
 				sprite[i].hitag << 1, CLIPMASK0);
 			if (j > 0)
 			{
-				spritesound(PIPEBOMB_EXPLODE, i);
+				S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 				deletesprite(i);
 			}
 			if (sprite[i].extra == 0)
 			{
-				sound(215);
+				S_PlaySound(215);
 				deletesprite(i);
 				earthquaketime = 32;
 				SetPlayerPal(&ps[myconnectindex], PalEntry(32, 32, 32, 48));
@@ -2311,7 +2311,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8162 + 2;
 						fi.spawn(i, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
-						spritesound(52, i);
+						S_PlayActorSound(52, i);
 					}
 				}
 				else if (rvar < 120)
@@ -2325,7 +2325,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8162 + 6;
 						fi.spawn(i, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
-						spritesound(52, i);
+						S_PlayActorSound(52, i);
 					}
 				}
 				else if (rvar < 126)
@@ -2339,7 +2339,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8162 + 5;
 						fi.spawn(i, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
-						spritesound(52, i);
+						S_PlayActorSound(52, i);
 					}
 				}
 				else
@@ -2353,7 +2353,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8162 + 4;
 						fi.spawn(i, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
-						spritesound(52, i);
+						S_PlayActorSound(52, i);
 					}
 				}
 			}
@@ -2389,7 +2389,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8589 + 5;
 						fi.spawn(i, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
-						spritesound(342, i);
+						S_PlayActorSound(342, i);
 					}
 				}
 				else if (rvar < 120)
@@ -2403,7 +2403,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8589 + 6;
 						fi.spawn(i, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
-						spritesound(342, i);
+						S_PlayActorSound(342, i);
 					}
 				}
 				else if (rvar < 126)
@@ -2417,7 +2417,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8589 + 2;
 						fi.spawn(i, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
-						spritesound(342, i);
+						S_PlayActorSound(342, i);
 					}
 				}
 				else
@@ -2431,7 +2431,7 @@ static void rrra_specialstats()
 						sprite[i].picnum = RRTILE8589 + 3;
 						fi.spawn(i, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
-						spritesound(342, i);
+						S_PlayActorSound(342, i);
 					}
 				}
 			}
@@ -2445,7 +2445,7 @@ static void rrra_specialstats()
 		nexti = nextspritestat[i];
 		if (sprite[i].lotag == 5)
 			if (!S_CheckSoundPlaying(330))
-				spritesound(330, i);
+				S_PlayActorSound(330, i);
 		i = nexti;
 	}
 }
@@ -2538,7 +2538,7 @@ void rr_specialstats()
 				{
 					j = fi.spawn(i, RRTILE3132);
 					sprite[i].lotag = 96;
-					if (!isRRRA()) spritesound(472, j);
+					if (!isRRRA()) S_PlayActorSound(472, j);
 				}
 				break;
 			case RRTILE289:
@@ -2646,7 +2646,7 @@ void rr_specialstats()
 						pi = ps[p].i;
 						changespritesect(pi, sprite[j].sectnum);
 						ps[p].cursectnum = sprite[pi].sectnum;
-						spritesound(70, j);
+						S_PlayActorSound(70, j);
 						deletesprite(j);
 					}
 					j = nextj;
@@ -2675,7 +2675,7 @@ static void heavyhbomb(int i)
 		t[2]--;
 		if (t[2] <= 0)
 		{
-			spritesound(TELEPORTER, i);
+			S_PlayActorSound(TELEPORTER, i);
 			fi.spawn(i, TRANSPORTERSTAR);
 			s->cstat = 257;
 		}
@@ -2707,7 +2707,7 @@ static void heavyhbomb(int i)
 		if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
 		{
 			if (s->picnum != CHEERBOMB)
-				spritesound(PIPEBOMB_BOUNCE, i);
+				S_PlayActorSound(PIPEBOMB_BOUNCE, i);
 			else
 			{
 				t[3] = 1;
@@ -2825,7 +2825,7 @@ DETONATEB:
 				fi.spawn(i, EXPLOSION2);
 				if (s->picnum == CHEERBOMB)
 					fi.spawn(i, BURNING);
-				spritesound(PIPEBOMB_EXPLODE, i);
+				S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 				for (x = 0; x < 8; x++)
 					RANDOMSCRAP(s, i);
 			}
@@ -2866,7 +2866,7 @@ DETONATEB:
 
 					addammo(DYNAMITE_WEAPON, &ps[p], 1);
 					addammo(CROSSBOW_WEAPON, &ps[p], 1);
-					spritesound(DUKE_GET, ps[p].i);
+					S_PlayActorSound(DUKE_GET, ps[p].i);
 
 					if (ps[p].gotweapon[DYNAMITE_WEAPON] == 0 || s->owner == ps[p].i)
 						fi.addweapon(&ps[p], DYNAMITE_WEAPON);
@@ -3139,7 +3139,7 @@ void moveactors_r(void)
 				if (s->xvel)
 				{
 					if(!S_CheckSoundPlaying(356))
-						spritesound(356,i);
+						S_PlayActorSound(356,i);
 				}
 				else
 				{
@@ -3149,7 +3149,7 @@ void moveactors_r(void)
 				}
 				if (sector[s->sectnum].lotag == 900)
 				{
-					S_StopEnvSound(356, -1);
+					S_StopSound(356, -1);
 				}
 			case RRTILE3440:
 			case RRTILE3440+1:
@@ -3348,7 +3348,7 @@ void moveexplosions_r(void)  // STATNUM 5
 					continue;
 				}
 				if (S_CheckSoundPlaying(22))
-					spritesound(22, i);
+					S_PlayActorSound(22, i);
 			}
 			if (t[0] == 3)
 			{
@@ -3841,7 +3841,7 @@ void moveeffectors_r(void)   //STATNUM 3
 				{
 					sc->ceilingz = sc->floorz;
 					if (isRRRA() && pistonsound)
-						spritesound(371, i);
+						S_PlayActorSound(371, i);
 				}
 			}
 			else
@@ -3851,7 +3851,7 @@ void moveeffectors_r(void)   //STATNUM 3
 				{
 					sc->ceilingz = t[4];
 					if (isRRRA() && pistonsound)
-						spritesound(167, i);
+						S_PlayActorSound(167, i);
 				}
 			}
 
@@ -4413,7 +4413,7 @@ static int fallspecial(int g_i, int g_p)
 			if (g_sp->picnum != APLAYER && badguy(g_sp) && g_sp->z == hittype[g_i].floorz - FOURSLEIGHT)
 			{
 				fi.guts(g_sp, JIBS6, 5, g_p);
-				spritesound(SQUISHED, g_i);
+				S_PlayActorSound(SQUISHED, g_i);
 				addspritetodelete(g_i);
 			}
 			return 0;

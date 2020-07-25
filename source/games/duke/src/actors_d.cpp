@@ -154,56 +154,56 @@ void check_fta_sounds_d(int i)
 	case LIZTROOPDUCKING:
 	case LIZTROOPRUNNING:
 	case LIZTROOP:
-		spritesound(PRED_RECOG, i);
+		S_PlayActorSound(PRED_RECOG, i);
 		break;
 	case LIZMAN:
 	case LIZMANSPITTING:
 	case LIZMANFEEDING:
 	case LIZMANJUMP:
-		spritesound(CAPT_RECOG, i);
+		S_PlayActorSound(CAPT_RECOG, i);
 		break;
 	case PIGCOP:
 	case PIGCOPDIVE:
-		spritesound(PIG_RECOG, i);
+		S_PlayActorSound(PIG_RECOG, i);
 		break;
 	case RECON:
-		spritesound(RECO_RECOG, i);
+		S_PlayActorSound(RECO_RECOG, i);
 		break;
 	case DRONE:
-		spritesound(DRON_RECOG, i);
+		S_PlayActorSound(DRON_RECOG, i);
 		break;
 	case COMMANDER:
 	case COMMANDERSTAYPUT:
-		spritesound(COMM_RECOG, i);
+		S_PlayActorSound(COMM_RECOG, i);
 		break;
 	case ORGANTIC:
-		spritesound(TURR_RECOG, i);
+		S_PlayActorSound(TURR_RECOG, i);
 		break;
 	case OCTABRAIN:
 	case OCTABRAINSTAYPUT:
-		spritesound(OCTA_RECOG, i);
+		S_PlayActorSound(OCTA_RECOG, i);
 		break;
 	case BOSS1:
-		sound(BOS1_RECOG);
+		S_PlaySound(BOS1_RECOG);
 		break;
 	case BOSS2:
 		if (sprite[i].pal == 1)
-			sound(BOS2_RECOG);
-		else sound(WHIPYOURASS);
+			S_PlaySound(BOS2_RECOG);
+		else S_PlaySound(WHIPYOURASS);
 		break;
 	case BOSS3:
 		if (sprite[i].pal == 1)
-			sound(BOS3_RECOG);
-		else sound(RIPHEADNECK);
+			S_PlaySound(BOS3_RECOG);
+		else S_PlaySound(RIPHEADNECK);
 		break;
 	case BOSS4:
 	case BOSS4STAYPUT:
 		if (sprite[i].pal == 1)
-			sound(BOS4_RECOG);
-		sound(BOSS4_FIRSTSEE);
+			S_PlaySound(BOS4_RECOG);
+		S_PlaySound(BOSS4_FIRSTSEE);
 		break;
 	case GREENSLIME:
-		spritesound(SLIM_RECOG, i);
+		S_PlayActorSound(SLIM_RECOG, i);
 		break;
 	}
 }
@@ -273,13 +273,13 @@ void addweapon_d(struct player_struct *p, int weapon)
 	case HANDBOMB_WEAPON:	 
 		break;
 	case SHOTGUN_WEAPON:	  
-		spritesound(SHOTGUN_COCK, p->i); 
+		S_PlayActorSound(SHOTGUN_COCK, p->i); 
 		break;
 	case PISTOL_WEAPON:	   
-		spritesound(INSERT_CLIP, p->i); 
+		S_PlayActorSound(INSERT_CLIP, p->i); 
 		break;
 	default:	  
-		spritesound(SELECT_WEAPON, p->i); 
+		S_PlayActorSound(SELECT_WEAPON, p->i); 
 		break;
 	}
 }
@@ -1111,7 +1111,7 @@ static void movetripbomb(int i)
 			if (s->extra == 0)
 			{
 				hittype[i].temp_data[2] = 16;
-				spritesound(LASERTRIP_ARMING, i);
+				S_PlayActorSound(LASERTRIP_ARMING, i);
 			}
 		}
 	}
@@ -1120,7 +1120,7 @@ static void movetripbomb(int i)
 		hittype[i].temp_data[2]--;
 		if (hittype[i].temp_data[2] == 8)
 		{
-			spritesound(LASERTRIP_EXPLODE, i);
+			S_PlayActorSound(LASERTRIP_EXPLODE, i);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(s, i);
 			x = s->extra;
 			fi.hitradius(i, tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
@@ -1211,7 +1211,7 @@ static void movetripbomb(int i)
 		if (m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
 			hittype[i].temp_data[2] = 13;
-			spritesound(LASERTRIP_ARMING, i);
+			S_PlayActorSound(LASERTRIP_ARMING, i);
 		}
 		else hittype[i].temp_data[2] = 0;
 	}
@@ -1236,7 +1236,7 @@ static void movetripbomb(int i)
 		if (hittype[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
 			hittype[i].temp_data[2] = 13;
-			spritesound(LASERTRIP_ARMING, i);
+			S_PlayActorSound(LASERTRIP_ARMING, i);
 		}
 	}
 }
@@ -1298,8 +1298,8 @@ static void movefireext(int i)
 	}
 
 	fi.spawn(i, EXPLOSION2);
-	spritesound(PIPEBOMB_EXPLODE, i);
-	spritesound(GLASS_HEAVYBREAK, i);
+	S_PlayActorSound(PIPEBOMB_EXPLODE, i);
+	S_PlayActorSound(GLASS_HEAVYBREAK, i);
 
 	if (s->hitag > 0)
 	{
@@ -1315,7 +1315,7 @@ static void movefireext(int i)
 		int x = s->extra;
 		fi.spawn(i, EXPLOSION2);
 		fi.hitradius(i, pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
-		spritesound(PIPEBOMB_EXPLODE, i);
+		S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 		detonate(i, EXPLOSION2);
 	}
 	else
@@ -1399,7 +1399,7 @@ CLEAR_THE_BOLT2:
 #endif
 
 	if ((krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
-		spritesound(SHORT_CIRCUIT, i);
+		S_PlayActorSound(SHORT_CIRCUIT, i);
 
 	if (s->picnum == SIDEBOLT1 + 4) s->picnum = SIDEBOLT1;
 }
@@ -1452,7 +1452,7 @@ CLEAR_THE_BOLT:
 	if (l & 1) s->cstat ^= 2;
 
 	if (s->picnum == (BOLT1+1) && (krand()&7) == 0 && sector[sect].floorpicnum == HURTRAIL)
-		spritesound(SHORT_CIRCUIT,i);
+		S_PlayActorSound(SHORT_CIRCUIT,i);
 
 	if (s->picnum==BOLT1+4) s->picnum=BOLT1;
 
@@ -1659,7 +1659,7 @@ void moveweapons_d(void)
 
 			if (s->picnum == COOLEXPLOSION1)
 				if (!S_CheckSoundPlaying(i, WIERDSHOT_FLY))
-					A_PlaySound(WIERDSHOT_FLY, i);
+					S_PlayActorSound(WIERDSHOT_FLY, i);
 
 			p = -1;
 
@@ -1829,7 +1829,7 @@ void moveweapons_d(void)
 							ps[p].numloogs = -1 - sprite[i].yvel;
 						}
 
-						spritesound(PISTOL_BODYHIT,j);
+						S_PlayActorSound(PISTOL_BODYHIT,j);
 
 						if (s->picnum == SPIT)
 						{
@@ -1838,8 +1838,8 @@ void moveweapons_d(void)
 
 							if (ps[p].loogcnt == 0)
 							{
-								if (!A_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
-									A_PlaySound(DUKE_LONGTERM_PAIN, ps[p].i);
+								if (!S_CheckActorSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN))
+									S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
 
 								j = 3+(krand()&3);
 								ps[p].numloogs = j;
@@ -1955,7 +1955,7 @@ void moveweapons_d(void)
 					else if (s->picnum == SHRINKSPARK)
 					{
 						fi.spawn(i,SHRINKEREXPLOSION);
-						spritesound(SHRINKER_HIT,i);
+						S_PlayActorSound(SHRINKER_HIT,i);
 						fi.hitradius(i,shrinkerblastradius,0,0,0,0);
 					}
 					else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
@@ -1972,7 +1972,7 @@ void moveweapons_d(void)
 					}
 					if (s->picnum == RPG)
 					{
-						spritesound(RPG_EXPLODE,i);
+						S_PlayActorSound(RPG_EXPLODE,i);
 
 						if (s->xrepeat >= 10)
 						{
@@ -2069,7 +2069,7 @@ void movetransports_d(void)
 							if (sprite[i].pal == 0)
 							{
 								fi.spawn(i, TRANSPORTERBEAM);
-								spritesound(TELEPORTER, i);
+								S_PlayActorSound(TELEPORTER, i);
 							}
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])
@@ -2098,7 +2098,7 @@ void movetransports_d(void)
 							if (sprite[i].pal == 0)
 							{
 								k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
-								spritesound(TELEPORTER, k);
+								S_PlayActorSound(TELEPORTER, k);
 							}
 
 							break;
@@ -2139,7 +2139,7 @@ void movetransports_d(void)
 							FX_StopAllSounds();
 						}
 						if (sprite[ps[p].i].extra > 0)
-							spritesound(DUKE_UNDERWATER, j);
+							S_PlayActorSound(DUKE_UNDERWATER, j);
 						ps[p].oposz = ps[p].posz =
 							sector[sprite[sprite[i].owner].sectnum].ceilingz + (7 << 8);
 
@@ -2156,7 +2156,7 @@ void movetransports_d(void)
 						{
 							FX_StopAllSounds();
 						}
-						spritesound(DUKE_GASP, j);
+						S_PlayActorSound(DUKE_GASP, j);
 
 						ps[p].oposz = ps[p].posz =
 							sector[sprite[sprite[i].owner].sectnum].floorz - (7 << 8);
@@ -2292,10 +2292,10 @@ void movetransports_d(void)
 									if (sprite[i].pal == 0)
 									{
 										k = fi.spawn(i, TRANSPORTERBEAM);
-										spritesound(TELEPORTER, k);
+										S_PlayActorSound(TELEPORTER, k);
 
 										k = fi.spawn(sprite[i].owner, TRANSPORTERBEAM);
-										spritesound(TELEPORTER, k);
+										S_PlayActorSound(TELEPORTER, k);
 									}
 
 									if (sprite[sprite[i].owner].owner != sprite[i].owner)
@@ -2429,7 +2429,7 @@ static void greenslime(int i)
 				int k = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
 				sprite[k].pal = 1;
 			}
-			spritesound(GLASS_BREAKING, i);
+			S_PlayActorSound(GLASS_BREAKING, i);
 			deletesprite(i);
 		}
 		else if (x < 1024 && ps[p].quick_kick == 0)
@@ -2467,8 +2467,8 @@ static void greenslime(int i)
 					sprite[j].pal = 6;
 				}
 
-				spritesound(SLIM_DYING, i);
-				spritesound(SQUISHED, i);
+				S_PlayActorSound(SLIM_DYING, i);
+				S_PlayActorSound(SQUISHED, i);
 				if ((krand() & 255) < 32)
 				{
 					j = fi.spawn(i, BLOODPOOL);
@@ -2520,7 +2520,7 @@ static void greenslime(int i)
 			if (t[3] == 5)
 			{
 				sprite[ps[p].i].extra += -(5 + (krand() & 3));
-				spritesound(SLIM_ATTACK, i);
+				S_PlayActorSound(SLIM_ATTACK, i);
 			}
 
 			if (t[3] < 7) t[3]++;
@@ -2557,7 +2557,7 @@ static void greenslime(int i)
 
 	j = fi.ifhitbyweapon(i); if (j >= 0)
 	{
-		spritesound(SLIM_DYING, i);
+		S_PlayActorSound(SLIM_DYING, i);
 
 		ps[p].actors_killed++;
 		if (ps[p].somethingonplayer == i)
@@ -2565,7 +2565,7 @@ static void greenslime(int i)
 
 		if (j == FREEZEBLAST)
 		{
-			spritesound(SOMETHINGFROZE, i); t[0] = -5; t[3] = 0;
+			S_PlayActorSound(SOMETHINGFROZE, i); t[0] = -5; t[3] = 0;
 			return;
 		}
 
@@ -2674,7 +2674,7 @@ static void greenslime(int i)
 		s->picnum = GREENSLIME;
 
 		if ((krand() & 511) == 0)
-			spritesound(SLIM_ROAM, i);
+			S_PlayActorSound(SLIM_ROAM, i);
 
 		if (t[0] == 2)
 		{
@@ -2839,7 +2839,7 @@ static void flamethrowerflame(int i)
 			j &= (MAXSPRITES - 1);
 			fi.checkhitsprite((short)j, i);
 			if (sprite[j].picnum == APLAYER)
-				spritesound(j, PISTOL_BODYHIT);
+				S_PlayActorSound(j, PISTOL_BODYHIT);
 		}
 		else if ((j & kHitTypeMask) == kHitWall)
 		{
@@ -2885,7 +2885,7 @@ static void heavyhbomb(int i)
 		t[2]--;
 		if (t[2] <= 0)
 		{
-			spritesound(TELEPORTER, i);
+			S_PlayActorSound(TELEPORTER, i);
 			fi.spawn(i, TRANSPORTERSTAR);
 			s->cstat = 257;
 		}
@@ -2917,7 +2917,7 @@ static void heavyhbomb(int i)
 		if (sector[sect].lotag != 1 && s->z >= hittype[i].floorz - (FOURSLEIGHT) && s->yvel < 3)
 		{
 			if (s->yvel > 0 || (s->yvel == 0 && hittype[i].floorz == sector[sect].floorz))
-				spritesound(PIPEBOMB_BOUNCE, i);
+				S_PlayActorSound(PIPEBOMB_BOUNCE, i);
 			s->zvel = -((4 - s->yvel) << 8);
 			if (sector[s->sectnum].lotag == 2)
 				s->zvel >>= 2;
@@ -3014,7 +3014,7 @@ DETONATEB:
 			fi.spawn(i, EXPLOSION2);
 			if (s->zvel == 0)
 				fi.spawn(i, EXPLOSION2BOT);
-			spritesound(PIPEBOMB_EXPLODE, i);
+			S_PlayActorSound(PIPEBOMB_EXPLODE, i);
 			for (x = 0; x < 8; x++)
 				RANDOMSCRAP(s, i);
 		}
@@ -3057,7 +3057,7 @@ DETONATEB:
 				}
 
 				addammo(HANDBOMB_WEAPON, &ps[p], 1);
-				spritesound(DUKE_GET, ps[p].i);
+				S_PlayActorSound(DUKE_GET, ps[p].i);
 
 				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || s->owner == ps[p].i)
 					fi.addweapon(&ps[p], HANDBOMB_WEAPON);
@@ -3187,11 +3187,11 @@ void moveactors_d(void)
 			s->z += s->zvel;
 			t[0]++;
 
-			if (t[0] == 4) spritesound(WAR_AMBIENCE2, i);
+			if (t[0] == 4) S_PlayActorSound(WAR_AMBIENCE2, i);
 
 			if (t[0] > (26 * 8))
 			{
-				sound(RPG_EXPLODE);
+				S_PlaySound(RPG_EXPLODE);
 				for (j = 0; j < 32; j++) 
 						RANDOMSCRAP(s, i);
 				earthquaketime = 16;
@@ -3829,9 +3829,9 @@ void moveeffectors_d(void)   //STATNUM 3
 					break;
 				}
 				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 1))
-					spritesound(THUNDER, i);
+					S_PlayActorSound(THUNDER, i);
 				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 3))
-					spritesound(LIGHTNING_SLAP, i);
+					S_PlayActorSound(LIGHTNING_SLAP, i);
 				else if (hittype[i].temp_data[2] == (hittype[i].temp_data[1] >> 2))
 				{
 					j = headspritestat[0];
@@ -3871,8 +3871,8 @@ void moveeffectors_d(void)   //STATNUM 3
 								if (x < 768)
 								{
 									if (S_CheckSoundPlaying(ps[p].i, DUKE_LONGTERM_PAIN) < 1)
-										spritesound(DUKE_LONGTERM_PAIN, ps[p].i);
-									spritesound(SHORT_CIRCUIT, ps[p].i);
+										S_PlayActorSound(DUKE_LONGTERM_PAIN, ps[p].i);
+									S_PlayActorSound(SHORT_CIRCUIT, ps[p].i);
 									sprite[ps[p].i].extra -= 8 + (krand() & 7);
 									SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
 								}

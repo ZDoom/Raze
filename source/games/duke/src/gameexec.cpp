@@ -403,15 +403,15 @@ int ParseState::parse(void)
 			{
 				banjosound = 273;
 			}
-			A_PlaySound(banjosound, g_i, CHAN_WEAPON);
+			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
 		}
 		else if (!S_CheckSoundPlaying(g_i, banjosound))
-			A_PlaySound(banjosound, g_i, CHAN_WEAPON);
+			S_PlayActorSound(banjosound, g_i, CHAN_WEAPON);
 		insptr++;
 		break;
 	case concmd_motoloopsnd:
 		if (!S_CheckSoundPlaying(g_i, 411))
-			A_PlaySound(411, g_i, CHAN_VOICE);
+			S_PlayActorSound(411, g_i, CHAN_VOICE);
 		insptr++;
 		break;
 	case concmd_ifgotweaponce:
@@ -452,7 +452,7 @@ int ParseState::parse(void)
 	case concmd_mikesnd:
 		insptr++;
 		if (!S_CheckSoundPlaying(g_i, g_sp->yvel))
-			A_PlaySound(g_sp->yvel, g_i, CHAN_VOICE);
+			S_PlayActorSound(g_sp->yvel, g_i, CHAN_VOICE);
 		break;
 	case concmd_pkick:
 		insptr++;
@@ -512,17 +512,17 @@ int ParseState::parse(void)
 		break;
 	case concmd_soundtag:
 		insptr++;
-		spritesound(ambientlotag[g_sp->ang], g_i);
+		S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
 		break;
 	case concmd_soundtagonce:
 		insptr++;
 		if (!S_CheckSoundPlaying(g_i, ambientlotag[g_sp->ang]))
-			A_PlaySound(ambientlotag[g_sp->ang], g_i);
+			S_PlayActorSound(ambientlotag[g_sp->ang], g_i);
 		break;
 	case concmd_soundonce:
 		insptr++;
 		if (!S_CheckSoundPlaying(g_i, *insptr++))
-			A_PlaySound(*(insptr - 1), g_i);
+			S_PlayActorSound(*(insptr - 1), g_i);
 		break;
 	case concmd_stopsound:
 		insptr++;
@@ -533,7 +533,7 @@ int ParseState::parse(void)
 	case concmd_globalsound:
 		insptr++;
 		if (g_p == screenpeek || ud.coop == 1)
-			spritesound((int)*insptr, ps[screenpeek].i);
+			S_PlayActorSound((int)*insptr, ps[screenpeek].i);
 		insptr++;
 		break;
 	case concmd_smackbubba:
@@ -558,7 +558,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_sound:
 		insptr++;
-		spritesound((short) *insptr,g_i);
+		S_PlayActorSound((short) *insptr,g_i);
 		insptr++;
 		break;
 	case concmd_tip:
@@ -693,7 +693,7 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					spritesound(DUKE_GOTHEALTHATLOW, ps[g_p].i);
+					S_PlayActorSound(DUKE_GOTHEALTHATLOW, ps[g_p].i);
 
 				ps[g_p].last_extra = j;
 			}
@@ -769,7 +769,7 @@ int ParseState::parse(void)
 			{
 				if ((j - *insptr) < (max_player_health >> 2) &&
 					j >= (max_player_health >> 2))
-					spritesound(229, ps[g_p].i);
+					S_PlayActorSound(229, ps[g_p].i);
 
 				ps[g_p].last_extra = j;
 			}
@@ -835,7 +835,7 @@ int ParseState::parse(void)
 			{
 				if( ( j - *insptr ) < (max_player_health>>2) &&
 					j >= (max_player_health>>2) )
-						spritesound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].i);
+						S_PlayActorSound(isRR()? 229 : DUKE_GOTHEALTHATLOW,ps[g_p].i);
 
 				ps[g_p].last_extra = j;
 			}
@@ -1580,7 +1580,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifnosounds:
-		parseifelse(!A_CheckAnySoundPlaying(g_i) );
+		parseifelse(!S_CheckAnyActorSoundPlaying(g_i) );
 		break;
 
 	case concmd_ifplaybackon: //Twentieth Anniversary World Tour

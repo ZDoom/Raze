@@ -471,7 +471,7 @@ void displayweapon_r(int snum)
 					}
 					else if ((krand() & 15) == 5)
 					{
-						spritesound(327, p->i);
+						S_PlayActorSound(327, p->i);
 						rdmyospal((weapon_xoffset + 210) - (p->getlookang() >> 1),
 							looking_arc + 222 - gun_pos, RPGGUN2 + 7, gs, o |  pin, pal);
 						chickenphase = 6;

@@ -401,7 +401,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 			{
 				fi.guts(&sprite[p->actorsqu], TILE_JIBS6, 7, myconnectindex);
 				fi.spawn(p->actorsqu, TILE_BLOODPOOL);
-				spritesound(SQUISHED, p->actorsqu);
+				S_PlayActorSound(SQUISHED, p->actorsqu);
 				if (isIn(sprite[p->actorsqu].picnum, respawnlist))
 				{
 					if (sprite[p->actorsqu].yvel)
@@ -448,12 +448,12 @@ int makepainsounds(int snum, int type)
 				k = 1;
 			else
 			{
-				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
-					spritesound(DUKE_LONGTERM_PAIN, pi);
+				if (!S_CheckActorSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pi);
 				SetPlayerPal(p, PalEntry(32, 64, 64, 64));
 				s->extra -= 1 + (krand() & 3);
-				if (!A_CheckSoundPlaying(pi, SHORT_CIRCUIT))
-					spritesound(SHORT_CIRCUIT, pi);
+				if (!S_CheckActorSoundPlaying(pi, SHORT_CIRCUIT))
+					S_PlayActorSound(SHORT_CIRCUIT, pi);
 			}
 		}
 		break;
@@ -464,8 +464,8 @@ int makepainsounds(int snum, int type)
 				k = 1;
 			else
 			{
-				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
-					spritesound(DUKE_LONGTERM_PAIN, pi);
+				if (!S_CheckActorSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pi);
 				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
 				s->extra -= 1 + (krand() & 3);
 			}
@@ -478,8 +478,8 @@ int makepainsounds(int snum, int type)
 				k = 1;
 			else
 			{
-				if (!A_CheckSoundPlaying(pi, DUKE_LONGTERM_PAIN))
-					spritesound(DUKE_LONGTERM_PAIN, pi);
+				if (!S_CheckActorSoundPlaying(pi, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, pi);
 				SetPlayerPal(p, PalEntry(32, 8, 0, 0));
 				s->extra -= 1 + (krand() & 3);
 			}
@@ -493,7 +493,7 @@ int makepainsounds(int snum, int type)
 					s->extra -= 2;
 				else
 					s->extra -= 4;
-				spritesound(DUKE_LONGTERM_PAIN, pi);
+				S_PlayActorSound(DUKE_LONGTERM_PAIN, pi);
 			}
 		break;
 	}
@@ -572,8 +572,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		p->jetpack_on = 0;
 		p->holoduke_on = -1;
 
-		if (!isRR())S_StopEnvSound(DUKE_JETPACK_IDLE, pi);
-		S_StopEnvSound(-1, pi, CHAN_VOICE);
+		if (!isRR())S_StopSound(DUKE_JETPACK_IDLE, pi);
+		S_StopSound(-1, pi, CHAN_VOICE);
 
 
 		if (s->pal != 1 && (s->cstat & 32768) == 0) s->cstat = 0;
@@ -667,7 +667,7 @@ int endoflevel(int snum)
 #if 0
 		if (ud.recstat == 1) closedemowrite();
 #endif
-		sound(PIPEBOMB_EXPLODE);
+		S_PlaySound(PIPEBOMB_EXPLODE);
 		SetPlayerPal(p, PalEntry(48, 64, 64, 64));
 	}
 	if (p->fist_incs > 42)
@@ -693,7 +693,7 @@ int timedexit(int snum)
 		FX_StopAllSounds();
 		if (p->customexitsound >= 0)
 		{
-			sound(p->customexitsound);
+			S_PlaySound(p->customexitsound);
 			FTA(102, p);
 		}
 	}

@@ -262,9 +262,9 @@ void shoot_r(int i, int atwith)
 					k = fi.spawn(j, SMALLSMOKE);
 					sprite[k].z -= (8 << 8);
 					if (atwith == KNEE)
-						spritesound(KICK_HIT, j);
+						S_PlayActorSound(KICK_HIT, j);
 					else if (isRRRA() && atwith == SLINGBLADE)
-						spritesound(260, j);
+						S_PlayActorSound(260, j);
 				}
 
 				if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
@@ -798,13 +798,13 @@ void shoot_r(int i, int atwith)
 			}
 			else zvel = (100 - ps[p].gethorizsum()) * 81;
 			if (atwith == RPG)
-				spritesound(RPG_SHOOT, i);
+				S_PlayActorSound(RPG_SHOOT, i);
 			else if (isRRRA())
 			{
 				if (atwith == RPG2)
-					spritesound(244, i);
+					S_PlayActorSound(244, i);
 				else if (atwith == RRTILE1790)
-					spritesound(94, i);
+					S_PlayActorSound(94, i);
 			}
 
 		}
@@ -1074,7 +1074,7 @@ void selectweapon_r(int snum, int j)
 			case SLINGBLADE_WEAPON:
 				if (isRRRA())
 				{
-					spritesound(496, ps[screenpeek].i);
+					S_PlayActorSound(496, ps[screenpeek].i);
 					fi.addweapon(p, j);
 				}
 				break;
@@ -1205,8 +1205,8 @@ int doincrements_r(struct player_struct* p)
 	}
 	if (p->drink_amt >= 100)
 	{
-		if (!A_CheckSoundPlaying(p->i, 420))
-			spritesound(420, p->i);
+		if (!S_CheckActorSoundPlaying(p->i, 420))
+			S_PlayActorSound(420, p->i);
 		p->drink_amt -= 9;
 		p->eat >>= 1;
 	}
@@ -1220,16 +1220,16 @@ int doincrements_r(struct player_struct* p)
 		switch (krand() & 3)
 		{
 		case 0:
-			spritesound(404, p->i);
+			S_PlayActorSound(404, p->i);
 			break;
 		case 1:
-			spritesound(422, p->i);
+			S_PlayActorSound(422, p->i);
 			break;
 		case 2:
-			spritesound(423, p->i);
+			S_PlayActorSound(423, p->i);
 			break;
 		case 3:
-			spritesound(424, p->i);
+			S_PlayActorSound(424, p->i);
 			break;
 		}
 		if (numplayers < 2)
@@ -1259,17 +1259,17 @@ int doincrements_r(struct player_struct* p)
 		if (adult_lockout == 0)
 		{
 			if (p->last_pissed_time == 5662)
-				spritesound(434, p->i);
+				S_PlayActorSound(434, p->i);
 			else if (p->last_pissed_time == 5567)
-				spritesound(434, p->i);
+				S_PlayActorSound(434, p->i);
 			else if (p->last_pissed_time == 5472)
-				spritesound(433, p->i);
+				S_PlayActorSound(433, p->i);
 			else if (p->last_pissed_time == 5072)
-				spritesound(435, p->i);
+				S_PlayActorSound(435, p->i);
 			else if (p->last_pissed_time == 5014)
-				spritesound(434, p->i);
+				S_PlayActorSound(434, p->i);
 			else if (p->last_pissed_time == 4919)
-				spritesound(433, p->i);
+				S_PlayActorSound(433, p->i);
 		}
 
 		if (p->last_pissed_time == 5668)
@@ -1300,7 +1300,7 @@ int doincrements_r(struct player_struct* p)
 		}
 		if (!(p->steroids_amount & 14))
 			if (snum == screenpeek || ud.coop == 1)
-				spritesound(DUKE_TAKEPILLS, p->i);
+				S_PlayActorSound(DUKE_TAKEPILLS, p->i);
 	}
 
 	if (p->access_incs && sprite[p->i].pal != 1)
@@ -1357,7 +1357,7 @@ int doincrements_r(struct player_struct* p)
 			{
 				p->extra_extra8 += 32;
 				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
-					spritesound(DUKE_LONGTERM_PAIN, p->i);
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
 			}
 		}
 	}
@@ -1398,14 +1398,14 @@ int doincrements_r(struct player_struct* p)
 				case levelnum(1, 5): snd = 255; break;
 				case levelnum(1, 6): snd = 283; break;
 				}
-				spritesound(snd, p->i);
+				S_PlayActorSound(snd, p->i);
 			}
 			else if (totalclock > 1024)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
-						spritesound(DUKE_CRACK, p->i);
-					else spritesound(DUKE_CRACK2, p->i);
+						S_PlayActorSound(DUKE_CRACK, p->i);
+					else S_PlayActorSound(DUKE_CRACK2, p->i);
 				}
 		}
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
@@ -1536,42 +1536,42 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 		{
 			if (p->MotoSpeed == 0 && var64)
 			{
-				if (!A_CheckSoundPlaying(pi, 187))
-					spritesound(187, pi);
+				if (!S_CheckActorSoundPlaying(pi, 187))
+					S_PlayActorSound(187, pi);
 			}
-			else if (p->MotoSpeed == 0 && !A_CheckSoundPlaying(pi, 214))
+			else if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pi, 214))
 			{
-				if (A_CheckSoundPlaying(pi, 187))
-					S_StopEnvSound(187, pi);
-				spritesound(214, pi);
+				if (S_CheckActorSoundPlaying(pi, 187))
+					S_StopSound(187, pi);
+				S_PlayActorSound(214, pi);
 			}
-			else if (p->MotoSpeed >= 50 && !A_CheckSoundPlaying(pi, 188))
+			else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pi, 188))
 			{
-				A_PlaySound(188, pi);
+				S_PlayActorSound(188, pi);
 			}
-			else if (!A_CheckSoundPlaying(pi, 188) && !A_CheckSoundPlaying(pi, 214))
+			else if (!S_CheckActorSoundPlaying(pi, 188) && !S_CheckActorSoundPlaying(pi, 214))
 			{
-				A_PlaySound(188, pi);
+				S_PlayActorSound(188, pi);
 			}
 		}
 	}
 	else
 	{
 		var68 = 0;
-		if (A_CheckSoundPlaying(pi, 214))
+		if (S_CheckActorSoundPlaying(pi, 214))
 		{
-			S_StopEnvSound(214, pi);
-			if (!A_CheckSoundPlaying(pi, 189))
-				A_PlaySound(189, pi);
+			S_StopSound(214, pi);
+			if (!S_CheckActorSoundPlaying(pi, 189))
+				S_PlayActorSound(189, pi);
 		}
-		if (A_CheckSoundPlaying(pi, 188))
+		if (S_CheckActorSoundPlaying(pi, 188))
 		{
-			S_StopEnvSound(188, pi);
-			if (!A_CheckSoundPlaying(pi, 189))
-				A_PlaySound(189, pi);
+			S_StopSound(188, pi);
+			if (!S_CheckActorSoundPlaying(pi, 189))
+				S_PlayActorSound(189, pi);
 		}
-		if (!A_CheckSoundPlaying(pi, 189) && !A_CheckSoundPlaying(pi, 187))
-			A_PlaySound(187, pi);
+		if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 187))
+			S_PlayActorSound(187, pi);
 	}
 	if (sb_snum & SKB_AIM_UP)
 	{
@@ -1761,8 +1761,8 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
 				p->setang((var90 - (var98 >> 4)) & 2047);
-				if (!A_CheckSoundPlaying(pi, 220))
-					A_PlaySound(220, pi);
+				if (!S_CheckActorSoundPlaying(pi, 220))
+					S_PlayActorSound(220, pi);
 			}
 			else
 			{
@@ -1811,13 +1811,13 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 	{
 		if (p->MotoSpeed > 0)
 		{
-			if (!A_CheckSoundPlaying(pi, 88))
-				A_PlaySound(88, pi);
+			if (!S_CheckActorSoundPlaying(pi, 88))
+				S_PlayActorSound(88, pi);
 		}
 		else
 		{
-			if (!A_CheckSoundPlaying(pi, 87))
-				A_PlaySound(87, pi);
+			if (!S_CheckActorSoundPlaying(pi, 87))
+				S_PlayActorSound(87, pi);
 		}
 	}
 	if (p->MotoSpeed < 0)
@@ -1835,34 +1835,34 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 	{
 		varac = 1;
 		sb_snum &= ~SKB_JUMP;
-		if (p->MotoSpeed == 0 && !A_CheckSoundPlaying(pi, 89))
+		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pi, 89))
 		{
-			if (A_CheckSoundPlaying(pi, 87))
-				S_StopEnvSound(pi, 87);
-			A_PlaySound(89, pi);
+			if (S_CheckActorSoundPlaying(pi, 87))
+				S_StopSound(pi, 87);
+			S_PlayActorSound(89, pi);
 		}
-		else if (p->MotoSpeed >= 50 && !A_CheckSoundPlaying(pi, 88))
-			A_PlaySound(88, pi);
-		else if (!A_CheckSoundPlaying(pi, 88) && !A_CheckSoundPlaying(pi, 89))
-			A_PlaySound(88, pi);
+		else if (p->MotoSpeed >= 50 && !S_CheckActorSoundPlaying(pi, 88))
+			S_PlayActorSound(88, pi);
+		else if (!S_CheckActorSoundPlaying(pi, 88) && !S_CheckActorSoundPlaying(pi, 89))
+			S_PlayActorSound(88, pi);
 	}
 	else
 	{
 		varac = 0;
-		if (A_CheckSoundPlaying(pi, 89))
+		if (S_CheckActorSoundPlaying(pi, 89))
 		{
-			S_StopEnvSound(pi, 89);
-			if (!A_CheckSoundPlaying(pi, 90))
-				A_PlaySound(90, pi);
+			S_StopSound(pi, 89);
+			if (!S_CheckActorSoundPlaying(pi, 90))
+				S_PlayActorSound(90, pi);
 		}
-		if (A_CheckSoundPlaying(pi, 88))
+		if (S_CheckActorSoundPlaying(pi, 88))
 		{
-			S_StopEnvSound(pi, 88);
-			if (!A_CheckSoundPlaying(pi, 90))
-				A_PlaySound(90, pi);
+			S_StopSound(pi, 88);
+			if (!S_CheckActorSoundPlaying(pi, 90))
+				S_PlayActorSound(90, pi);
 		}
-		if (!A_CheckSoundPlaying(pi, 90) && !A_CheckSoundPlaying(pi, 87))
-			A_PlaySound(87, pi);
+		if (!S_CheckActorSoundPlaying(pi, 90) && !S_CheckActorSoundPlaying(pi, 87))
+			S_PlayActorSound(87, pi);
 	}
 
 	if (sb_snum & SKB_CROUCH)
@@ -1883,8 +1883,8 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 		varb8 = 1;
 		varbc = 1;
 		sb_snum &= ~SKB_AIM_DOWN;
-		if (!A_CheckSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			A_PlaySound(91, pi);
+		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			S_PlayActorSound(91, pi);
 	}
 	else
 	{
@@ -1896,8 +1896,8 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 		varc0 = 1;
 		varc4 = 1;
 		sb_snum &= ~SKB_LOOK_LEFT;
-		if (!A_CheckSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
-			A_PlaySound(91, pi);
+		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
+			S_PlayActorSound(91, pi);
 	}
 	else
 	{
@@ -1931,8 +1931,8 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			if (p->MotoSpeed <= 25)
 			{
 				p->MotoSpeed++;
-				if (!A_CheckSoundPlaying(pi, 182))
-					A_PlaySound(182, pi);
+				if (!S_CheckActorSoundPlaying(pi, 182))
+					S_PlayActorSound(182, pi);
 			}
 			else
 			{
@@ -2152,15 +2152,15 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 					p->moto_bump_fast = 1;
 					p->poszv -= gc * (p->MotoSpeed >> 4);
 					p->MotoOnGround = 0;
-					if (A_CheckSoundPlaying(pi, 188))
-						S_StopEnvSound(188, pi);
-					spritesound(189, pi);
+					if (S_CheckActorSoundPlaying(pi, 188))
+						S_StopSound(188, pi);
+					S_PlayActorSound(189, pi);
 				}
 				else
 				{
 					p->poszv += gc - 80 + (120 - p->MotoSpeed);
-					if (!A_CheckSoundPlaying(pi, 189) && !A_CheckSoundPlaying(pi, 190))
-						A_PlaySound(190, pi);
+					if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 190))
+						S_PlayActorSound(190, pi);
 				}
 			}
 			else
@@ -2171,7 +2171,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38)
-					p->scream_voice = spritesound(DUKE_SCREAM, pi);
+					p->scream_voice = S_PlayActorSound(DUKE_SCREAM, pi);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
@@ -2187,12 +2187,12 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 						s->extra -= j - (krand() & 3);
 						if (s->extra <= 0)
 						{
-							spritesound(SQUISHED, pi);
+							S_PlayActorSound(SQUISHED, pi);
 						}
 						else
 						{
-							spritesound(DUKE_LAND, pi);
-							spritesound(DUKE_LAND_HURT, pi);
+							S_PlayActorSound(DUKE_LAND, pi);
+							S_PlayActorSound(DUKE_LAND_HURT, pi);
 						}
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
@@ -2201,16 +2201,16 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 					{
 						if (p->OnMotorcycle)
 						{
-							if (A_CheckSoundPlaying(pi, 190))
-								S_StopEnvSound(pi, 190);
-							spritesound(191, pi);
+							if (S_CheckActorSoundPlaying(pi, 190))
+								S_StopSound(pi, 190);
+							S_PlayActorSound(191, pi);
 							p->TurbCount = 12;
 						}
-						else spritesound(DUKE_LAND, pi);
+						else S_PlayActorSound(DUKE_LAND, pi);
 					}
 					else if (p->poszv > 1024 && p->OnMotorcycle)
 					{
-						spritesound(DUKE_LAND, pi);
+						S_PlayActorSound(DUKE_LAND, pi);
 						p->TurbCount = 12;
 					}
 				}
@@ -2220,7 +2220,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 	else
 	{
 		p->falling_counter = 0;
-		S_StopEnvSound(-1, pi, CHAN_VOICE);
+		S_StopSound(-1, pi, CHAN_VOICE);
 
 		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
 			p->hard_landing = p->poszv >> 10;
@@ -2320,8 +2320,8 @@ static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (!A_CheckSoundPlaying(pi, DUKE_UNDERWATER))
-		A_PlaySound(DUKE_UNDERWATER, pi);
+	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
+		S_PlayActorSound(DUKE_UNDERWATER, pi);
 
 	if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle)
 	{
@@ -2410,38 +2410,38 @@ void onMotorcycleMove(int snum, int psect, int j)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
 		p->MotoSpeed = 0;
-		if (A_CheckSoundPlaying(pi, 238) == 0)
-			A_PlaySound(238, pi);
+		if (S_CheckActorSoundPlaying(pi, 238) == 0)
+			S_PlayActorSound(238, pi);
 	}
 	else if (var10c >= 311 && var10c <= 711)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 11;
 		p->MotoSpeed -= (p->MotoSpeed >> 1) + (p->MotoSpeed >> 2);
-		if (A_CheckSoundPlaying(pi, 238) == 0)
-			A_PlaySound(238, pi);
+		if (S_CheckActorSoundPlaying(pi, 238) == 0)
+			S_PlayActorSound(238, pi);
 	}
 	else if (var10c >= 111 && var10c <= 911)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 14;
 		p->MotoSpeed -= (p->MotoSpeed >> 1);
-		if (A_CheckSoundPlaying(pi, 239) == 0)
-			A_PlaySound(239, pi);
+		if (S_CheckActorSoundPlaying(pi, 239) == 0)
+			S_PlayActorSound(239, pi);
 	}
 	else
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 15;
 		p->MotoSpeed -= (p->MotoSpeed >> 3);
-		if (A_CheckSoundPlaying(pi, 240) == 0)
-			A_PlaySound(240, pi);
+		if (S_CheckActorSoundPlaying(pi, 240) == 0)
+			S_PlayActorSound(240, pi);
 	}
 	s->extra -= var104;
 	if (s->extra <= 0)
 	{
-		spritesound(SQUISHED, pi);
+		S_PlayActorSound(SQUISHED, pi);
 		SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 	}
 	else if (var104)
-		spritesound(DUKE_LAND_HURT, pi);
+		S_PlayActorSound(DUKE_LAND_HURT, pi);
 
 }
 
@@ -2475,29 +2475,29 @@ void onBoatMove(int snum, int psect, int j)
 	{
 		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
 		if (psectlotag == 1)
-			if (A_CheckSoundPlaying(pi, 178) == 0)
-				A_PlaySound(178, pi);
+			if (S_CheckActorSoundPlaying(pi, 178) == 0)
+				S_PlayActorSound(178, pi);
 	}
 	else if (var118 >= 311 && var118 <= 711)
 	{
 		p->MotoSpeed -= ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 3;
 		if (psectlotag == 1)
-			if (A_CheckSoundPlaying(pi, 179) == 0)
-				A_PlaySound(179, pi);
+			if (S_CheckActorSoundPlaying(pi, 179) == 0)
+				S_PlayActorSound(179, pi);
 	}
 	else if (var118 >= 111 && var118 <= 911)
 	{
 		p->MotoSpeed -= (p->MotoSpeed >> 4);
 		if (psectlotag == 1)
-			if (A_CheckSoundPlaying(pi, 180) == 0)
-				A_PlaySound(180, pi);
+			if (S_CheckActorSoundPlaying(pi, 180) == 0)
+				S_PlayActorSound(180, pi);
 	}
 	else
 	{
 		p->MotoSpeed -= (p->MotoSpeed >> 6);
 		if (psectlotag == 1)
-			if (A_CheckSoundPlaying(pi, 181) == 0)
-				A_PlaySound(181, pi);
+			if (S_CheckActorSoundPlaying(pi, 181) == 0)
+				S_PlayActorSound(181, pi);
 	}
 
 }
@@ -2532,7 +2532,7 @@ void onMotorcycleHit(int snum, int var60)
 	else if ((sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2443 || sprite[var60].picnum == RRTILE2451 || sprite[var60].picnum == RRTILE2455)
 		&& sprite[var60].picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
 	{
-		spritesound(SQUISHED, var60);
+		S_PlayActorSound(SQUISHED, var60);
 		if (sprite[var60].picnum == RRTILE2431 || sprite[var60].picnum == RRTILE2451)
 		{
 			if (sprite[var60].lotag != 0)
@@ -2659,13 +2659,13 @@ static void fireweapon(int snum)
 				if (p->ammo_amount[BUZZSAW_WEAPON] > 0)
 				{
 					p->kickback_pic = 1;
-					spritesound(431, pi);
+					S_PlayActorSound(431, pi);
 				}
 			}
 			else if (p->ammo_amount[THROWSAW_WEAPON] > 0)
 			{
 				p->kickback_pic = 1;
-				spritesound(SHRINKER_FIRE, pi);
+				S_PlayActorSound(SHRINKER_FIRE, pi);
 			}
 			break;
 
@@ -2740,7 +2740,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case DYNAMITE_WEAPON:
 
 		if (p->kickback_pic == 1)
-			sound(401);
+			S_PlaySound(401);
 		if (p->kickback_pic == 6 && (sb_snum & SKB_FIRE))
 			p->rapid_fire_hold = 1;
 		p->kickback_pic++;
@@ -2752,7 +2752,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			p->weapon_pos = 10;
 			p->detonate_time = 45;
 			p->detonate_count = 1;
-			sound(402);
+			S_PlaySound(402);
 		}
 
 		break;
@@ -2834,7 +2834,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic == 1)
 		{
 			fi.shoot(pi, SHOTSPARK1);
-			spritesound(PISTOL_FIRE, pi);
+			S_PlayActorSound(PISTOL_FIRE, pi);
 			p->noise_radius = 8192;
 			madenoise(snum);
 
@@ -2868,10 +2868,10 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				switch (p->kickback_pic)
 				{
 				case 24:
-					spritesound(EJECT_CLIP, pi);
+					S_PlayActorSound(EJECT_CLIP, pi);
 					break;
 				case 30:
-					spritesound(INSERT_CLIP, pi);
+					S_PlayActorSound(INSERT_CLIP, pi);
 					break;
 				}
 			}
@@ -2912,7 +2912,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
-			spritesound(SHOTGUN_FIRE, pi);
+			S_PlayActorSound(SHOTGUN_FIRE, pi);
 
 			p->noise_radius = 8192;
 			madenoise(snum);
@@ -2938,7 +2938,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 				p->ammo_amount[SHOTGUN_WEAPON]--;
 
-				spritesound(SHOTGUN_FIRE, pi);
+				S_PlayActorSound(SHOTGUN_FIRE, pi);
 
 				if (psectlotag != 857)
 				{
@@ -2961,7 +2961,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				checkavailweapon(p);
 				break;
 			case 17:
-				spritesound(SHOTGUN_COCK, pi);
+				S_PlayActorSound(SHOTGUN_COCK, pi);
 				break;
 			case 28:
 				p->kickback_pic = 0;
@@ -2978,7 +2978,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				checkavailweapon(p);
 				break;
 			case 27:
-				spritesound(SHOTGUN_COCK, pi);
+				S_PlayActorSound(SHOTGUN_COCK, pi);
 				break;
 			case 38:
 				p->kickback_pic = 0;
@@ -3024,7 +3024,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 					ssp(j, CLIPMASK0);
 				}
 
-				spritesound(CHAINGUN_FIRE, pi);
+				S_PlayActorSound(CHAINGUN_FIRE, pi);
 				fi.shoot(pi, CHAINGUN);
 				p->noise_radius = 8192;
 				madenoise(snum);
@@ -3085,7 +3085,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->visibility = 0;
 			lastvisinc = (int)totalclock + 32;
-			spritesound(CHAINGUN_FIRE, pi);
+			S_PlayActorSound(CHAINGUN_FIRE, pi);
 			fi.shoot(pi, SHOTSPARK1);
 			p->noise_radius = 16384;
 			madenoise(snum);
@@ -3112,7 +3112,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->visibility = 0;
 			lastvisinc = (int)totalclock + 32;
-			spritesound(CHAINGUN_FIRE, pi);
+			S_PlayActorSound(CHAINGUN_FIRE, pi);
 			fi.shoot(pi, CHAINGUN);
 			p->noise_radius = 16384;
 			madenoise(snum);
@@ -3161,7 +3161,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 		if (p->kickback_pic == 5)
 		{
-			spritesound(CAT_FIRE, pi);
+			S_PlayActorSound(CAT_FIRE, pi);
 			p->noise_radius = 2048;
 			madenoise(snum);
 		}
@@ -3217,7 +3217,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic == 30)
 		{
 			p->ammo_amount[BOWLING_WEAPON]--;
-			spritesound(354, pi);
+			S_PlayActorSound(354, pi);
 			fi.shoot(pi, BOWLINGBALL);
 			p->noise_radius = 1024;
 			madenoise(snum);
@@ -3239,7 +3239,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case KNEE_WEAPON:
 		p->kickback_pic++;
 		if (p->kickback_pic == 3)
-			spritesound(426, pi);
+			S_PlayActorSound(426, pi);
 		if (p->kickback_pic == 12)
 		{
 			fi.shoot(pi, KNEE);
@@ -3257,7 +3257,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case SLINGBLADE_WEAPON:
 		p->kickback_pic++;
 		if (p->kickback_pic == 3)
-			spritesound(252, pi);
+			S_PlayActorSound(252, pi);
 		if (p->kickback_pic == 8)
 		{
 			fi.shoot(pi, SLINGBLADE);
@@ -3286,7 +3286,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 16)
-			spritesound(450, pi);
+			S_PlayActorSound(450, pi);
 		else if (p->kickback_pic == 34)
 			p->kickback_pic = 0;
 		break;
@@ -3304,7 +3304,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 16)
-			spritesound(450, pi);
+			S_PlayActorSound(450, pi);
 		else if (p->kickback_pic == 34)
 			p->kickback_pic = 0;
 		break;
@@ -3340,7 +3340,7 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else if (p->detonate_time <= 0 && p->kickback_pic < 5)
 		{
-			sound(14);
+			S_PlaySound(14);
 			quickkill(p);
 		}
 	}
@@ -3416,7 +3416,7 @@ void processinput_r(int snum)
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
-			spritesound(SQUISHED, pi);
+			S_PlayActorSound(SQUISHED, pi);
 		}
 		psect = 0;
 	}
@@ -3558,7 +3558,7 @@ void processinput_r(int snum)
 			if ((sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
 				{
-					spritesound(436, p->i);
+					S_PlayActorSound(436, p->i);
 					p->last_pissed_time = 4000;
 					p->eat = 0;
 				}
@@ -3670,10 +3670,10 @@ void processinput_r(int snum)
 		if (tmp >= 0)
 		{
 			if (!S_CheckSoundPlaying(p->i, 432))
-				spritesound(432, pi);
+				S_PlayActorSound(432, pi);
 		}
 		else
-			stopsound(432);
+			S_StopSound(432);
 	}
 	if (isRRRA() && p->sea_sick_stat)
 	{
@@ -3777,7 +3777,7 @@ void processinput_r(int snum)
 				case 1:
 					if ((krand() & 1) == 0)
 						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
-							spritesound(DUKE_ONWATER, pi);
+							S_PlayActorSound(DUKE_ONWATER, pi);
 					p->walking_snd_toggle = 1;
 					break;
 				}
@@ -3941,7 +3941,7 @@ HORIZONLY:
 				{
 					hittype[var60].timetosleep = 0;
 					if (sprite[var60].picnum == BILLYRAY)
-						spritesound(404, var60);
+						S_PlayActorSound(404, var60);
 					else
 						fi.check_fta_sounds(var60);
 					changespritestat(var60, 1);
@@ -3951,7 +3951,7 @@ HORIZONLY:
 				if (sprite[var60].picnum == RRTILE3410)
 				{
 					quickkill(p);
-					spritesound(446, pi);
+					S_PlayActorSound(446, pi);
 				}
 				else if (isRRRA() && sprite[var60].picnum == RRTILE2443 && sprite[var60].pal == 19)
 				{
@@ -4002,9 +4002,9 @@ HORIZONLY:
 	}
 
 	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
-		if (!A_CheckSoundPlaying(pi, DUKE_ONWATER))
+		if (!S_CheckActorSoundPlaying(pi, DUKE_ONWATER))
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
-				spritesound(DUKE_ONWATER, pi);
+				S_PlayActorSound(DUKE_ONWATER, pi);
 
 	if (p->cursectnum != s->sectnum)
 		changespritesect(pi, p->cursectnum);
@@ -4172,8 +4172,8 @@ void OnMotorcycle(struct player_struct *p, int motosprite)
 		p->posyv = 0;
 		p->sethoriz(100);
 	}
-	if (!A_CheckSoundPlaying(p->i,186))
-		A_PlaySound(186, p->i);
+	if (!S_CheckActorSoundPlaying(p->i,186))
+		S_PlayActorSound(186, p->i);
 }
 
 //---------------------------------------------------------------------------
@@ -4187,16 +4187,16 @@ void OffMotorcycle(struct player_struct *p)
 	short j;
 	if (p->OnMotorcycle)
 	{
-		if (A_CheckSoundPlaying(p->i,188))
-			S_StopEnvSound(188,p->i);
-		if (A_CheckSoundPlaying(p->i,187))
-			S_StopEnvSound(187,p->i);
-		if (A_CheckSoundPlaying(p->i,186))
-			S_StopEnvSound(186,p->i);
-		if (A_CheckSoundPlaying(p->i,214))
-			S_StopEnvSound(214,p->i);
-		if (!A_CheckSoundPlaying(p->i,42))
-			A_PlaySound(42, p->i);
+		if (S_CheckActorSoundPlaying(p->i,188))
+			S_StopSound(188,p->i);
+		if (S_CheckActorSoundPlaying(p->i,187))
+			S_StopSound(187,p->i);
+		if (S_CheckActorSoundPlaying(p->i,186))
+			S_StopSound(186,p->i);
+		if (S_CheckActorSoundPlaying(p->i,214))
+			S_StopSound(214,p->i);
+		if (!S_CheckActorSoundPlaying(p->i,42))
+			S_PlayActorSound(42, p->i);
 		p->OnMotorcycle = 0;
 		p->gotweapon.Clear(MOTORCYCLE_WEAPON);
 		p->curr_weapon = p->last_full_weapon;

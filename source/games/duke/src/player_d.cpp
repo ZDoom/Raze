@@ -364,7 +364,7 @@ void shoot_d(int i, int atwith)
 				{
 					k = fi.spawn(j, SMALLSMOKE);
 					sprite[k].z -= (8 << 8);
-					spritesound(KICK_HIT, j);
+					S_PlayActorSound(KICK_HIT, j);
 				}
 
 				if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
@@ -767,7 +767,7 @@ void shoot_d(int i, int atwith)
 			}
 			else zvel = (100 - ps[p].gethorizsum()) * 81;
 			if (atwith == RPG)
-				spritesound(RPG_SHOOT, i);
+				S_PlayActorSound(RPG_SHOOT, i);
 
 		}
 		else
@@ -934,7 +934,7 @@ void shoot_d(int i, int atwith)
 			}
 
 			sprite[k].hitag = k;
-			spritesound(LASERTRIP_ONWALL, k);
+			S_PlayActorSound(LASERTRIP_ONWALL, k);
 			sprite[k].xvel = -20;
 			ssp(k, CLIPMASK0);
 			sprite[k].cstat = 16;
@@ -1334,9 +1334,9 @@ int doincrements_d(struct player_struct* p)
 
 		if (p->last_pissed_time == (26 * 219))
 		{
-			spritesound(FLUSH_TOILET, p->i);
+			S_PlayActorSound(FLUSH_TOILET, p->i);
 			if (snum == screenpeek || ud.coop == 1)
-				spritesound(DUKE_PISSRELIEF, p->i);
+				S_PlayActorSound(DUKE_PISSRELIEF, p->i);
 		}
 
 		if (p->last_pissed_time == (26 * 218))
@@ -1363,7 +1363,7 @@ int doincrements_d(struct player_struct* p)
 			checkavailinven(p);
 		if (!(p->steroids_amount & 7))
 			if (snum == screenpeek || ud.coop == 1)
-				spritesound(DUKE_HARTBEAT, p->i);
+				S_PlayActorSound(DUKE_HARTBEAT, p->i);
 	}
 
 	if (p->heat_on && p->heat_amount > 0)
@@ -1373,7 +1373,7 @@ int doincrements_d(struct player_struct* p)
 		{
 			p->heat_on = 0;
 			checkavailinven(p);
-			spritesound(NITEVISION_ONOFF, p->i);
+			S_PlayActorSound(NITEVISION_ONOFF, p->i);
 			setpal(p);
 		}
 	}
@@ -1383,7 +1383,7 @@ int doincrements_d(struct player_struct* p)
 		p->holoduke_amount--;
 		if (p->holoduke_amount <= 0)
 		{
-			spritesound(TELEPORTER, p->i);
+			S_PlayActorSound(TELEPORTER, p->i);
 			p->holoduke_on = -1;
 			checkavailinven(p);
 		}
@@ -1396,9 +1396,9 @@ int doincrements_d(struct player_struct* p)
 		{
 			p->jetpack_on = 0;
 			checkavailinven(p);
-			spritesound(DUKE_JETPACK_OFF, p->i);
-			S_StopEnvSound(DUKE_JETPACK_IDLE, p->i);
-			S_StopEnvSound(DUKE_JETPACK_ON, p->i);
+			S_PlayActorSound(DUKE_JETPACK_OFF, p->i);
+			S_StopSound(DUKE_JETPACK_IDLE, p->i);
+			S_StopSound(DUKE_JETPACK_ON, p->i);
 		}
 	}
 
@@ -1463,7 +1463,7 @@ int doincrements_d(struct player_struct* p)
 			{
 				p->extra_extra8 += 32;
 				if (p->last_extra < (max_player_health >> 1) && (p->last_extra & 3) == 0)
-					spritesound(DUKE_LONGTERM_PAIN, p->i);
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
 			}
 		}
 	}
@@ -1486,10 +1486,10 @@ int doincrements_d(struct player_struct* p)
 				if (snum == screenpeek || ud.coop == 1)
 				{
 					if (rand() & 1)
-						spritesound(DUKE_CRACK, p->i);
-					else spritesound(DUKE_CRACK2, p->i);
+						S_PlayActorSound(DUKE_CRACK, p->i);
+					else S_PlayActorSound(DUKE_CRACK2, p->i);
 				}
-			spritesound(DUKE_CRACK_FIRST, p->i);
+			S_PlayActorSound(DUKE_CRACK_FIRST, p->i);
 		}
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
@@ -1564,8 +1564,8 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 		p->jetpack_on++;
 		p->posz -= (p->jetpack_on << 7); //Goin up
 	}
-	else if (p->jetpack_on == 11 && !A_CheckSoundPlaying(pi, DUKE_JETPACK_IDLE))
-		spritesound(DUKE_JETPACK_IDLE, pi);
+	else if (p->jetpack_on == 11 && !S_CheckActorSoundPlaying(pi, DUKE_JETPACK_IDLE))
+		S_PlayActorSound(DUKE_JETPACK_IDLE, pi);
 
 	if (shrunk) j = 512;
 	else j = 2048;
@@ -1677,7 +1677,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 			{
 				p->falling_counter++;
 				if (p->falling_counter == 38)
-					p->scream_voice = spritesound(DUKE_SCREAM, pi);
+					p->scream_voice = S_PlayActorSound(DUKE_SCREAM, pi);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
@@ -1691,18 +1691,18 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 						sprite[pi].extra -= j - (krand() & 3);
 						if (sprite[pi].extra <= 0)
 						{
-							spritesound(SQUISHED, pi);
+							S_PlayActorSound(SQUISHED, pi);
 							SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 						}
 						else
 						{
-							spritesound(DUKE_LAND, pi);
-							spritesound(DUKE_LAND_HURT, pi);
+							S_PlayActorSound(DUKE_LAND, pi);
+							S_PlayActorSound(DUKE_LAND_HURT, pi);
 						}
 
 						SetPlayerPal(p, PalEntry(32, 16, 0, 0));
 					}
-					else if (p->poszv > 2048) spritesound(DUKE_LAND, pi);
+					else if (p->poszv > 2048) S_PlayActorSound(DUKE_LAND, pi);
 				}
 		}
 	}
@@ -1710,7 +1710,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 	else
 	{
 		p->falling_counter = 0;
-		S_StopEnvSound(-1, pi, CHAN_VOICE);
+		S_StopSound(-1, pi, CHAN_VOICE);
 
 		if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->poszv > (6144 >> 1))
 			p->hard_landing = p->poszv >> 10;
@@ -1815,8 +1815,8 @@ static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
-	if (!A_CheckSoundPlaying(pi, DUKE_UNDERWATER))
-		A_PlaySound(DUKE_UNDERWATER, pi);
+	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
+		S_PlayActorSound(DUKE_UNDERWATER, pi);
 
 	if (sb_snum & SKB_JUMP)
 	{
@@ -1993,13 +1993,13 @@ static void fireweapon(int snum)
 			if (p->ammo_amount[GROW_WEAPON] > 0)
 			{
 				p->kickback_pic = 1;
-				spritesound(EXPANDERSHOOT, pi);
+				S_PlayActorSound(EXPANDERSHOOT, pi);
 			}
 		}
 		else if (p->ammo_amount[SHRINKER_WEAPON] > 0)
 		{
 			p->kickback_pic = 1;
-			spritesound(SHRINKER_FIRE, pi);
+			S_PlayActorSound(SHRINKER_FIRE, pi);
 		}
 		break;
 
@@ -2007,7 +2007,7 @@ static void fireweapon(int snum)
 		if (p->ammo_amount[FREEZE_WEAPON] > 0)
 		{
 			p->kickback_pic = 1;
-			spritesound(CAT_FIRE, pi);
+			S_PlayActorSound(CAT_FIRE, pi);
 		}
 		break;
 	case DEVISTATOR_WEAPON:
@@ -2015,7 +2015,7 @@ static void fireweapon(int snum)
 		{
 			p->kickback_pic = 1;
 			p->hbomb_hold_delay = !p->hbomb_hold_delay;
-			spritesound(CAT_FIRE, pi);
+			S_PlayActorSound(CAT_FIRE, pi);
 		}
 		break;
 
@@ -2031,7 +2031,7 @@ static void fireweapon(int snum)
 		{
 			p->kickback_pic = 1;
 			if (sector[p->cursectnum].lotag != 2)
-				spritesound(FLAMETHROWER_INTRO, pi);
+				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
 		}
 		break;
 
@@ -2153,7 +2153,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic == 1)
 		{
 			fi.shoot(pi, SHOTSPARK1);
-			spritesound(PISTOL_FIRE, pi);
+			S_PlayActorSound(PISTOL_FIRE, pi);
 			lastvisinc = (int)totalclock + 32;
 			p->visibility = 0;
 		}
@@ -2175,14 +2175,14 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				switch (p->kickback_pic)
 				{
 				case 5:
-					spritesound(EJECT_CLIP, pi);
+					S_PlayActorSound(EJECT_CLIP, pi);
 					break;
 					//#ifdef NAM								
 					//                            case WEAPON2_RELOAD_TIME - 15:
 					//#else
 				case 8:
 					//#endif
-					spritesound(INSERT_CLIP, pi);
+					S_PlayActorSound(INSERT_CLIP, pi);
 					break;
 				}
 			}
@@ -2211,7 +2211,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			fi.shoot(pi, SHOTGUN);
 			p->ammo_amount[SHOTGUN_WEAPON]--;
 
-			spritesound(SHOTGUN_FIRE, pi);
+			S_PlayActorSound(SHOTGUN_FIRE, pi);
 
 			lastvisinc = (int)totalclock + 32;
 			p->visibility = 0;
@@ -2224,7 +2224,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			checkavailweapon(p);
 			break;
 		case 15:
-			spritesound(SHOTGUN_COCK, pi);
+			S_PlayActorSound(SHOTGUN_COCK, pi);
 			break;
 		case 17:
 		case 20:
@@ -2264,7 +2264,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 					ssp(j, CLIPMASK0);
 				}
 
-				spritesound(CHAINGUN_FIRE, pi);
+				S_PlayActorSound(CHAINGUN_FIRE, pi);
 				fi.shoot(pi, CHAINGUN);
 				lastvisinc = (int)totalclock + 32;
 				p->visibility = 0;
@@ -2413,7 +2413,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			if (sb_snum & SKB_FIRE)
 			{
 				p->kickback_pic = 1;
-				spritesound(CAT_FIRE, pi);
+				S_PlayActorSound(CAT_FIRE, pi);
 			}
 			else p->kickback_pic = 0;
 		}
@@ -2439,7 +2439,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			if ((sb_snum & SKB_FIRE) != 0)
 			{
 				p->kickback_pic = 1;
-				spritesound(FLAMETHROWER_INTRO, pi);
+				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
 			}
 			else
 				p->kickback_pic = 0;
@@ -2611,7 +2611,7 @@ void processinput_d(int snum)
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
-			spritesound(SQUISHED, pi);
+			S_PlayActorSound(SQUISHED, pi);
 		}
 		psect = 0;
 	}
@@ -2824,8 +2824,8 @@ void processinput_d(int snum)
 			}
 			else
 			{
-				if (!A_CheckSoundPlaying(p->i, DUKE_LONGTERM_PAIN))
-					A_PlaySound(DUKE_LONGTERM_PAIN, p->i);
+				if (!S_CheckActorSoundPlaying(p->i, DUKE_LONGTERM_PAIN))
+					S_PlayActorSound(DUKE_LONGTERM_PAIN, p->i);
 				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
 				s->extra--;
 			}
@@ -2870,14 +2870,14 @@ void processinput_d(int snum)
 					{
 					case PANNEL1:
 					case PANNEL2:
-						spritesound(DUKE_WALKINDUCTS, pi);
+						S_PlayActorSound(DUKE_WALKINDUCTS, pi);
 						p->walking_snd_toggle = 1;
 						break;
 					}
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
-						spritesound(DUKE_ONWATER, pi);
+						S_PlayActorSound(DUKE_ONWATER, pi);
 					p->walking_snd_toggle = 1;
 					break;
 				}
@@ -2987,8 +2987,8 @@ HORIZONLY:
 	}
 
 	if (truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
-		if (!A_CheckSoundPlaying(pi, DUKE_ONWATER))
-			spritesound(DUKE_ONWATER, pi);
+		if (!S_CheckActorSoundPlaying(pi, DUKE_ONWATER))
+			S_PlayActorSound(DUKE_ONWATER, pi);
 
 	if (p->cursectnum != s->sectnum)
 		changespritesect(pi, p->cursectnum);

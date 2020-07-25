@@ -106,7 +106,7 @@ void S_PauseSounds(bool paused)
 //
 //==========================================================================
 
-void cacheAllSounds(void)
+void S_CacheAllSounds(void)
 {
 	auto& sfx = soundEngine->GetSounds();
 	int i = 0;
@@ -430,7 +430,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 
 	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
 	if (is_playing && sp->picnum != MUSICANDSFX)
-		S_StopEnvSound(sndnum, spriteNum);
+		S_StopSound(sndnum, spriteNum);
 
 	int const repeatp = (userflags & SF_LOOP);
 
@@ -478,13 +478,13 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags)
 //
 //==========================================================================
 
-int A_PlaySound(int soundNum, int spriteNum, int channel, EChanFlags flags)
+int S_PlayActorSound(int soundNum, int spriteNum, int channel, EChanFlags flags)
 {
 	return (unsigned)spriteNum >= MAXSPRITES ? S_PlaySound(soundNum, channel, flags) :
 		S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, channel, flags);
 }
 
-void S_StopEnvSound(int sndNum, int sprNum, int channel)
+void S_StopSound(int sndNum, int sprNum, int channel)
 {
 	if (sprNum < -1 || sprNum >= MAXSPRITES) return;
 
@@ -520,7 +520,7 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 //
 //==========================================================================
 
-int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel)
+int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel)
 {
 	if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
 	if ((unsigned)spriteNum >= MAXSPRITES) return false;
@@ -528,7 +528,7 @@ int A_CheckSoundPlaying(int spriteNum, int soundNum, int channel)
 }
 
 // Check if actor <i> is playing any sound.
-int A_CheckAnySoundPlaying(int spriteNum)
+int S_CheckAnyActorSoundPlaying(int spriteNum)
 {
 	if ((unsigned)spriteNum >= MAXSPRITES) return false;
 	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], CHAN_AUTO, 0);
@@ -625,7 +625,7 @@ void S_PlayRRMusic(int newTrack)
 }
 
 
-void PlayBonusMusic()
+void S_PlayBonusMusic()
 {
 	if (MusicEnabled() && mus_enabled)
 		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);

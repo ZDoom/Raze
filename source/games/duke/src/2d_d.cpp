@@ -671,7 +671,7 @@ public:
 	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
-		PlayBonusMusic();
+		S_PlayBonusMusic();
 	}
 
 	int Frame(uint64_t clock, bool skiprequest)
@@ -779,7 +779,7 @@ public:
 		int vol = volfromlevelnum(currentLevel->levelNumber);
 		gfx_offset = BONUSSCREEN + ((vol == 1) ? 5 : 0);
 		lastmapname = currentLevel->DisplayName();
-		PlayBonusMusic();
+		S_PlayBonusMusic();
 	}
 
 	void FormatTime(int time, char* tempbuf)

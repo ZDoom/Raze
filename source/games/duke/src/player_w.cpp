@@ -59,7 +59,7 @@ void DoFire(struct player_struct *p, short snum)
 	
 	if(aplWeaponFireSound[p->curr_weapon][snum])
 	{
-		spritesound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
+		S_PlayActorSound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
 	}
 	
 	SetGameVarID(g_iWeaponVarID,p->curr_weapon,p->i,snum);
@@ -172,7 +172,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -181,7 +181,7 @@ void fireweapon_ww(int snum)
 				p->kickback_pic = 1;
 				if (aplWeaponInitialSound[p->curr_weapon][snum])
 				{
-					spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+					S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 				}
 				break;
 
@@ -192,7 +192,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -204,7 +204,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -215,7 +215,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -225,7 +225,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -236,7 +236,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -247,7 +247,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -258,7 +258,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -269,7 +269,7 @@ void fireweapon_ww(int snum)
 					p->hbomb_hold_delay = !p->hbomb_hold_delay;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -280,7 +280,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -291,7 +291,7 @@ void fireweapon_ww(int snum)
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
-						spritesound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
+						S_PlayActorSound(aplWeaponInitialSound[p->curr_weapon][snum], pi);
 					}
 				}
 				break;
@@ -443,7 +443,7 @@ void operateweapon_ww(int snum, ESyncBits sb_snum, int psect)
 		{
 			if (aplWeaponSound2Sound[p->curr_weapon][snum])
 			{
-				spritesound(aplWeaponSound2Sound[p->curr_weapon][snum], pi);
+				S_PlayActorSound(aplWeaponSound2Sound[p->curr_weapon][snum], pi);
 			}
 		}
 		if (p->kickback_pic == aplWeaponSpawnTime[p->curr_weapon][snum])
@@ -500,12 +500,12 @@ void operateweapon_ww(int snum, ESyncBits sb_snum, int psect)
 
 				if (p->kickback_pic == (aplWeaponTotalTime[p->curr_weapon][snum] + 1))
 				{ // eject shortly after 'total time'
-					spritesound(EJECT_CLIP, pi);
+					S_PlayActorSound(EJECT_CLIP, pi);
 				}
 				else if (p->kickback_pic == (aplWeaponReload[p->curr_weapon][snum] - (i / 3)))
 				{
 					// insert occurs 2/3 of way through reload delay
-					spritesound(INSERT_CLIP, pi);
+					S_PlayActorSound(INSERT_CLIP, pi);
 				}
 
 				if (p->kickback_pic >= (aplWeaponReload[p->curr_weapon][snum]))
