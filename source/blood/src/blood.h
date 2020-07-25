@@ -144,7 +144,6 @@ struct GameInterface : ::GameInterface
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
 	void set_hud_layout(int size) override;
-	void set_hud_scale(int size) override;
 	FString statFPS() override;
 	FSavegameInfo GetSaveSig() override;
 	void MenuOpened() override;

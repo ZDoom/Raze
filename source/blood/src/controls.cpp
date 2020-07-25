@@ -65,11 +65,6 @@ void GameInterface::set_hud_layout(int layout)
 	viewResizeView(layout);
 }
 
-void GameInterface::set_hud_scale(int scale)
-{
-	// Not implemented, only needed as a placeholder. Maybe implement it after all? The hud is a bit large at its default size.
-}
-
 
 fix16_t gViewLook, gViewAngle;
 float gViewAngleAdjust;

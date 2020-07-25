@@ -416,8 +416,6 @@ static void Startup(void)
 	}
 
 	ud.last_level = -1;
-	hud_size.Callback();
-	hud_scale.Callback();
 }
 
 //---------------------------------------------------------------------------
@@ -432,6 +430,7 @@ int GameInterface::app_main()
 	Startup();
 	enginePostInit();
 	videoInit();
+	updateviewport();
 	videoSetPalette(BASEPAL);
 	app_loop();
 	return 0;

@@ -290,7 +290,7 @@ public:
 		BeginStatusBar(320, 200, h, true);
 		DrawInventory(p, 160, 154, 0);
 
-		if (ud.screen_size > 8)
+		if (hud_size < 7)
 			DrawWeaponBar(p, top);
 
 		DrawGraphic(tileGetTexture(BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, scale, scale);
@@ -391,9 +391,9 @@ void PrintLevelName_r(double alpha);
 void drawstatusbar_r(int snum)
 {
 	DRedneckStatusBar dsb;
-	if (ud.screen_size <= 4)
+	if (hud_size >= 9)
 	{
-		dsb.DrawHud(snum, ud.screen_size < 4 ? 0 : ud.althud ? 1 : 2);
+		dsb.DrawHud(snum, hud_size == 11 ? 0 : hud_size == 10 ? 1 : 2);
 	}
 	else
 	{

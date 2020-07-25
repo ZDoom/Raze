@@ -280,26 +280,29 @@ void DrawBorder()
 
 void updateviewport(void)
 {
-	ud.screen_size = clamp(ud.screen_size, 0, 64);
-	int ss = std::max(ud.screen_size - 8, 0);
+	static const uint8_t size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
+	static const uint8_t size_vals_rr[] = { 56, 48, 40, 32, 24, 16, 12, 8, 8, 4, 4, 0 };
+	int ss = isRR() ? size_vals_rr[hud_size] : size_vals[hud_size];
+
+	ss = std::max(ss - 8, 0);
 
 	int x1 = scale(ss, xdim, 160);
 	int x2 = xdim - x1;
 
-	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * ud.statusbarscale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
+	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * hud_scale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
 	int y2 = 200 * 100 - y1;
 
-	if (isRR() && ud.screen_size <= 12)
+	if (isRR() && hud_size > 6)
 	{
 		x1 = 0;
 		x2 = xdim;
 		y1 = 0;
-		if (ud.statusbarmode)
+		if (hud_size >= 8)
 			y2 = 200 * 100;
 	}
 
 	int fbh = 0;
-	if (ud.screen_size > 0 && ud.coop != 1 && ud.multimode > 1)
+	if (hud_size < 11 && ud.coop != 1 && ud.multimode > 1)
 	{
 		int j = 0;
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
@@ -312,8 +315,8 @@ void updateviewport(void)
 	}
 
 	y1 += fbh * 100;
-	if (ud.screen_size >= 8 && ud.statusbarmode == 0)
-		y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * ud.statusbarscale;
+	if (hud_size <= 7)
+		y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * hud_scale;
 	y1 = scale(y1, ydim, 200 * 100);
 	y2 = scale(y2, ydim, 200 * 100);
 
@@ -326,33 +329,14 @@ void updateviewport(void)
 //
 //==========================================================================
 
-bool GameInterface::validate_hud(int layout)
-{
-	return layout <= 11;
-}
-
 void GameInterface::set_hud_layout(int layout)
 {
-	static const uint8_t screen_size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
-	static const uint8_t screen_size_vals_rr[] = { 56, 48, 40, 32, 24, 16, 12, 8, 8, 4, 4, 0 };
-	if (validate_hud(layout))
-	{
-		ud.screen_size = isRR()? screen_size_vals_rr[layout] : screen_size_vals[layout];
-		ud.statusbarmode = layout >= 8;
-		ud.althud = layout >= 10;
-		if (xdim > 0 && ydim > 0) updateviewport();
-	}
+	if (xdim > 0 && ydim > 0) updateviewport();
 }
 
 void GameInterface::PlayHudSound() 
 {
 	S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
-}
-
-void GameInterface::set_hud_scale(int scale)
-{
-    ud.statusbarscale = clamp(scale, 36, 100);
-	if (xdim > 0 && ydim > 0) updateviewport();
 }
 
 void GameInterface::UpdateScreenSize()

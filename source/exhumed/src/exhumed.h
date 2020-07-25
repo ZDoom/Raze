@@ -338,9 +338,7 @@ struct GameInterface : ::GameInterface
     int app_main() override;
     void UpdateScreenSize() override;
     bool GenerateSavePic() override;
-    bool validate_hud(int) override { return true;  }
     void set_hud_layout(int size) override;
-    void set_hud_scale(int size) override {}
     void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;

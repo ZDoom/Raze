@@ -195,14 +195,14 @@ void displaymasks_d(int snum)
 
 	if (ps[snum].scuba_on)
 	{
-		if (ud.screen_size > 4)
+		if (hud_size < 9)
 		{
 			hud_drawsprite(44, (200 - 8 - tilesiz[SCUBAMASK].y), 65536, 0, SCUBAMASK, 0, p, 2 + 16);
 			hud_drawsprite((320 - 43), (200 - 8 - tilesiz[SCUBAMASK].y), 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
 		}
 		else
 		{
-			hud_drawsprite(44 << 16, (200 - tilesiz[SCUBAMASK].y) << 16, 65536, 0, SCUBAMASK, 0, p, 2 + 16);
+			hud_drawsprite(44, (200 - tilesiz[SCUBAMASK].y), 65536, 0, SCUBAMASK, 0, p, 2 + 16);
 			hud_drawsprite((320 - 43), (200 - tilesiz[SCUBAMASK].y), 65536, 1024, SCUBAMASK, 0, p, 2 + 4 + 16);
 		}
 	}

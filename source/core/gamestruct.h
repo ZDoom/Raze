@@ -57,9 +57,7 @@ struct GameInterface
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
-	virtual bool validate_hud(int) { return true; }
 	virtual void set_hud_layout(int size) = 0;
-	virtual void set_hud_scale(int size) {}
 	virtual bool automapActive() { return false; }
 	virtual void PlayHudSound() {}
 	virtual FString statFPS() { return "FPS display not available"; }

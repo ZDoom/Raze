@@ -407,9 +407,9 @@ void PrintLevelName_d(double alpha);
 void drawstatusbar_d(int snum)
 {
 	DDukeStatusBar dsb;
-	if (ud.screen_size <= 4)
+	if (hud_size >= 9)
 	{
-		dsb.DrawHud(snum, ud.screen_size < 4 ? 0 : ud.althud ? 1 : 2);
+		dsb.DrawHud(snum, hud_size == 11 ? 0 : hud_size == 10 ? 1 : 2);
 	}
 	else
 	{

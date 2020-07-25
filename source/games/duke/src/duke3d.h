@@ -38,9 +38,7 @@ struct GameInterface : ::GameInterface
 	void clearlocalinputstate() override;
 	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;
-	bool validate_hud(int) override;
 	void set_hud_layout(int size) override;
-	void set_hud_scale(int size) override;
 	void PlayHudSound() override;
 	bool automapActive() override;
 	FString statFPS() override;

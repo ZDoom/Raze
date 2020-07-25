@@ -75,7 +75,7 @@ void nonsharedkeys(void)
 			{
 				if (G_ChangeHudLayout(1))
 				{
-					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+					gi->PlayHudSound();
 				}
 			}
 			else
@@ -92,7 +92,7 @@ void nonsharedkeys(void)
 			{
 				if (G_ChangeHudLayout(-1))
 				{
-					S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
+					gi->PlayHudSound();
 				}
 			}
 			else
@@ -210,16 +210,6 @@ void nonsharedkeys(void)
 			ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
 		}
 	}
-
-#if 0 // ESC is blocked by the menu, this function is not particularly useful anyway.
-	if (inputState.GetKeyStatus(sc_Escape) && ud.overhead_on && ps[myconnectindex].newowner == -1)
-	{
-		inputState.ClearKeyStatus(sc_Escape);
-		ud.last_overhead = ud.overhead_on;
-		ud.overhead_on = 0;
-		ud.scrollmode = 0;
-	}
-#endif
 
 	if (buttonMap.ButtonDown(gamefunc_Map))
 	{
@@ -739,7 +729,6 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 	}
 
 	if (gamequit) loc.bits |= SKB_GAMEQUIT;
-	//if (inputState.GetKeyStatus(sc_Escape))  loc.bits |= SKB_ESCAPE; fixme. This never gets here because the menu eats the escape key.
 
 	if (!onVehicle)
 	{
@@ -1320,6 +1309,7 @@ void registerinputcommands()
 	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_JETPACK; return CCMD_OK; });
 	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_TURNAROUND; return CCMD_OK; });
 	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INVENTORY; return CCMD_OK; });
+	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_ESCAPE; return CCMD_OK; });
 }
 
 // This is called from ImputState::ClearAllInput and resets all static state being used here.

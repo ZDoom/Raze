@@ -3806,8 +3806,6 @@ void GameInterface::set_hud_layout(int requested_size)
     SetBorder(Player + myconnectindex, gs.BorderNum);
     SetRedrawScreen(Player + myconnectindex);
 }
-/*extern*/ void GameInterface::set_hud_scale(int requested_size) {  }
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

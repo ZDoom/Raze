@@ -242,5 +242,6 @@ void setinterpolation(int* posptr);
 void stopinterpolation(int* posptr);
 void dointerpolations(int smoothratio);
 int* animateptr(int i);
+void updateviewport(void);
 
 END_DUKE_NS

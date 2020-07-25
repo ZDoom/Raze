@@ -159,11 +159,7 @@ CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 
 // HUD
 
-// This was particularly messy. EDuke and Rednukem had no consistent setting for this but a complex combination of 4 CVARs and lots of mod flags controlling the HUD layout
-// NBlood had this differently with an inverted scale of 0-7 with 0 having no HUD.
-// For consistency all frontends now use the same scale, with 0 being the smallest and 11 being the largest, which get converted to the internal settings by the set_hud_layout callback.
-
-int hud_size_max = 11;	// 11 is for Duke Nukem and its offspring games.
+int hud_size_max = 11;	// The maximum is different for each game
 
 CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
 {
@@ -171,35 +167,22 @@ CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD 
 	else if (self > hud_size_max) self = hud_size_max;
 	else
 	{
-		if (gi->validate_hud(self))
-			gi->set_hud_layout(self);
-		else
-			Printf("Hud size %d not available\n", *self);
+		gi->set_hud_layout(self);
 	}
 }
 
-// This is to allow flattening the overly complicated HUD configuration to one single value and keep the complexity safely inside the HUD code.
+// This is for game code to change the size, so that the range checks remain isolated here.
 bool G_ChangeHudLayout(int direction)
 {
 	if (direction < 0 && hud_size > 0)
 	{
-		int layout = hud_size - 1;
-		while (!gi->validate_hud(layout) && layout >= 0) layout--;
-		if (layout >= 0 && layout < hud_size && gi->validate_hud(layout))
-		{
-			hud_size = layout;
-			return true;
-		}
+		hud_size = hud_size - 1;
+		return true;
 	}
-	else if (direction > 0 && hud_size < 11)
+	else if (direction > 0 && hud_size < hud_size_max)
 	{
-		int layout = hud_size + 1;
-		while (!gi->validate_hud(layout) && layout <= 11) layout++;
-		if (layout <= 11 && layout > hud_size && gi->validate_hud(layout))
-		{
-			hud_size = layout;
-			return true;
-		}
+		hud_size = hud_size + 1;
+		return true;
 	}
 	return false;
 }
@@ -218,7 +201,7 @@ CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the h
 {
 	if (self < 36) self = 36;
 	else if (self > 100) self = 100;
-	else gi->set_hud_scale(self);
+	else gi->UpdateScreenSize();
 }
 
 CCMD(scaleup)
@@ -233,13 +216,6 @@ CCMD(scaledown)
 	int oldscale = hud_scale;
 	hud_scale = hud_scale - 4;
 	if (hud_scale != oldscale) gi->PlayHudSound();
-}
-
-int hud_statusbarrange;	// will be set by the game's configuration setup.
-CUSTOM_CVARD(Int, hud_custom, 0, CVAR_ARCHIVE|CVAR_NOINITCALL, "change the custom hud") // this has no backing implementation, it seems to be solely for scripted HUDs.
-{
-	if (self < 0) self = 0;
-	else if (self > 0 && self >= hud_statusbarrange) self = hud_statusbarrange - 1;
 }
 
 CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")

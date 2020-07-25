@@ -657,7 +657,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 	if (/*textret == 0 &&*/ ud.overhead_on == 2)
 	{
 		double scale = isRR() ? 0.5 : 1.;
-		int top = isRR() ? 0 : ((ud.screen_size > 0) ? 147 : 179);
+		int top = isRR() ? 0 : (hud_size < 11 ? 147 : 179);
 		if (!(currentLevel->flags & MI_USERMAP))
 			DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top+6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]), 
 				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
