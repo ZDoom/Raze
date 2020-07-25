@@ -124,7 +124,6 @@ public:
 
 		if (totalclock < ototalclock - 1)
 		{
-			Printf("\n");
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
 			return skiprequest? -1 : 1;

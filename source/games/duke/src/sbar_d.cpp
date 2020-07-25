@@ -201,7 +201,7 @@ public:
 		DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
-		SBar_DrawString(this, &digiFont, format, 19, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 19, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// ammo
@@ -209,7 +209,7 @@ public:
 		DrawGraphic(tileGetTexture(AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
 		format.Format("%d", p->ammo_amount[wp]);
-		SBar_DrawString(this, &digiFont, format, 53, -digiFont.mFont->GetHeight() * scale - 7, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 53, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// inventory
@@ -229,7 +229,6 @@ public:
 
 			auto text = ontext(p);
 			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, -miniFont.mFont->GetHeight() - 14.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
-
 		}
 	}
 

@@ -627,6 +627,7 @@ void DBaseStatusBar::DrawString(FFont *font, const FString &cstring, double x, d
 		{
 			continue;
 		}
+		width += font->GetDefaultKerning();
 
 		if (!monospaced) //If we are monospaced lets use the offset
 			x += (c->GetDisplayLeftOffset() + 1); //ignore x offsets since we adapt to character size

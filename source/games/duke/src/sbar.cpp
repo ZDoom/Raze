@@ -49,9 +49,9 @@ BEGIN_DUKE_NS
 //==========================================================================
 
 DDukeCommonStatusBar::DDukeCommonStatusBar()
-	: numberFont(BigFont, 1, Off, 1, 1),
+	: numberFont(BigFont, 0, Off, 1, 1),
 	indexFont(IndexFont, 4, CellRight, 1, 1),
-	miniFont(SmallFont2, 1, Off, 1, 1),
+	miniFont(SmallFont2, 0, Off, 1, 1),
 	digiFont(DigiFont, 1 , Off, 1, 1)
 {
 	drawOffset.Y = 0;
@@ -100,10 +100,13 @@ std::pair<const char*, EColorRange> DDukeCommonStatusBar::ontext(struct player_s
 	{
 	case ICON_HOLODUKE:
 		onstate = p->holoduke_on;
+		break;
 	case ICON_JETPACK:
 		onstate = p->jetpack_on;
+		break;
 	case ICON_HEATS:
 		onstate = p->heat_on;
+		break;
 	}
 
 	// Texts are intentionally not translated because the font is too small for making localization work and the translated words are too long.

@@ -1297,19 +1297,19 @@ void registerinputcommands()
 	C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
 	C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
 	C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_PAUSE; return CCMD_OK; });
-	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_STEROIDS; return CCMD_OK; });
-	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_NIGHTVISION; return CCMD_OK; });
-	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_MEDKIT; return CCMD_OK; });
-	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_CENTER_VIEW; return CCMD_OK; });
-	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_HOLSTER; return CCMD_OK; });
-	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INV_LEFT; return CCMD_OK; });
-	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INV_RIGHT; return CCMD_OK; });
-	C_RegisterFunction("holoduke", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_HOLODUKE; return CCMD_OK; });
-	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_JETPACK; return CCMD_OK; });
-	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_TURNAROUND; return CCMD_OK; });
-	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_INVENTORY; return CCMD_OK; });
-	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend = SKB_ESCAPE; return CCMD_OK; });
+	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; return CCMD_OK; });
+	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_STEROIDS; return CCMD_OK; });
+	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_NIGHTVISION; return CCMD_OK; });
+	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_MEDKIT; return CCMD_OK; });
+	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_CENTER_VIEW; return CCMD_OK; });
+	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLSTER; return CCMD_OK; });
+	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_LEFT; return CCMD_OK; });
+	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_RIGHT; return CCMD_OK; });
+	C_RegisterFunction("holoduke", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLODUKE; return CCMD_OK; });
+	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_JETPACK; return CCMD_OK; });
+	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
+	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INVENTORY; return CCMD_OK; });
+	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
 }
 
 // This is called from ImputState::ClearAllInput and resets all static state being used here.

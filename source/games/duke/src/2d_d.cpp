@@ -111,6 +111,8 @@ void InitFonts_d()
 	fontdata.Insert('/', tileGetTexture(THREEBYFIVE + 11));
 	fontdata.Insert('%', tileGetTexture(MINIFONT + '%' - '!'));
 	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+	GlyphSet::Iterator iti(fontdata);
+	while (iti.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
 	IndexFont = new ::FFont("IndexFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
 	fontdata.Clear();
@@ -118,6 +120,8 @@ void InitFonts_d()
 	// digital font
 	for (int i = 0; i < 10; i++) fontdata.Insert('0' + i, tileGetTexture(DIGITALNUM + i));
 	fontdata.Insert(1, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+	GlyphSet::Iterator itd(fontdata);
+	while (itd.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
 	DigiFont = new ::FFont("DigiFont", nullptr, nullptr, 0, 0, 0, -1, -1, false, false, false, &fontdata);
 
 }
