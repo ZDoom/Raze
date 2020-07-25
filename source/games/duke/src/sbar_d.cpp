@@ -125,7 +125,7 @@ public:
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 40, -BigFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, 40, -BigFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
@@ -134,7 +134,7 @@ public:
 		DrawGraphic(tileGetTexture(SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &numberFont, format, 105, -numberFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &numberFont, format, 105, -numberFont.mFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		//
 		// Weapon
@@ -154,7 +154,7 @@ public:
 		if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
-			SBar_DrawString(this, &numberFont, format, -22, -numberFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, -22, -numberFont.mFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
