@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
-#include "trig.h"
 #include "nnexts.h"
 
 BEGIN_BLD_NS

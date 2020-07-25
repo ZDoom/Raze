@@ -44,7 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "qav.h"
 #include "seq.h"
 #include "sound.h"
-#include "trig.h"
 #include "nnexts.h"
 #include "view.h"
 
@@ -268,7 +267,7 @@ void WeaponPlay(PLAYER *pPlayer)
     pQAV->Play(nTicks-4, nTicks, pPlayer->qavCallback, pPlayer);
 }
 
-void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int a3 = -1, char a4 = 0)
+void StartQAV(PLAYER *pPlayer, int nWeaponQAV, int a3, char a4)
 {
     dassert(nWeaponQAV < kQAVEnd);
     pPlayer->weaponQav = nWeaponQAV;

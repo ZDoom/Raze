@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "filesystem.h"
 
-using Resource = FileSystem;
-// Map NBlood's resource system to our own.
-using DICTNODE = FResourceLump;
-
 BEGIN_BLD_NS
 
 void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
@@ -51,5 +47,82 @@ int qanimateoffs(int a1, int a2);
 void qloadpalette();
 int32_t qgetpalookup(int32_t a1, int32_t a2);
 void HookReplaceFunctions();
+
+struct QAV;
+struct PLAYER;
+extern QAV* weaponQAV[];
+
+void WeaponInit(void);
+void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5);
+void WeaponRaise(PLAYER *pPlayer);
+void WeaponLower(PLAYER *pPlayer);
+char WeaponUpgrade(PLAYER *pPlayer, char newWeapon);
+void WeaponProcess(PLAYER *pPlayer);
+void WeaponUpdateState(PLAYER* pPlayer);
+void sub_51340(spritetype *pMissile, int a2);
+void StartQAV(PLAYER* pPlayer, int nWeaponQAV, int a3 = -1, char a4 = 0);
+void WeaponPrecache(void);
+
+struct ZONE {
+    int x, y, z;
+    short sectnum, ang;
+};
+extern ZONE gStartZone[8];
+
+void warpInit(void);
+int CheckLink(spritetype *pSprite);
+int CheckLink(int *x, int *y, int *z, int *nSector);
+
+extern int costable[2048];
+
+int GetOctant(int x, int y);
+void RotateVector(int *dx, int *dy, int nAngle);
+void RotatePoint(int *x, int *y, int nAngle, int ox, int oy);
+void trigInit();
+
+inline int Sin(int ang)
+{
+    return costable[(ang - 512) & 2047];
+}
+
+inline int Cos(int ang)
+{
+    return costable[ang & 2047];
+} 
+
+enum SurfaceType {
+    kSurfNone = 0,
+    kSurfStone,
+    kSurfMetal,
+    kSurfWood,
+    kSurfFlesh,
+    kSurfWater,
+    kSurfDirt,
+    kSurfClay,
+    kSurfSnow,
+    kSurfIce,
+    kSurfLeaves,
+    kSurfCloth,
+    kSurfPlant,
+    kSurfGoo,
+    kSurfLava,
+    kSurfMax
+};
+
+extern char surfType[MAXTILES];
+extern signed char tileShade[MAXTILES];
+extern short voxelIndex[MAXTILES];
+
+extern int nPrecacheCount;
+extern char precachehightile[2][(MAXTILES+7)>>3];
+
+int tileInit(char a1, const char *a2);
+void tileProcessGLVoxels(void);
+const uint8_t * tileLoadTile(int nTile);
+uint8_t * tileAllocTile(int nTile, int x, int y);
+void tilePreloadTile(int nTile);
+void tilePrecacheTile(int nTile, int nType = 1);
+char tileGetSurfType(int hit);
+
 
 END_BLD_NS

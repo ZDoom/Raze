@@ -30,9 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "loadsave.h"
 #include "player.h"
-#include "trig.h"
 #include "view.h"
-#include "warp.h"
 
 BEGIN_BLD_NS
 

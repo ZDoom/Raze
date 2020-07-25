@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m_crc32.h"
 
 #include "globals.h"
-#include "tile.h"
 #include "screen.h"
 
 BEGIN_BLD_NS

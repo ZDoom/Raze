@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "levels.h"
 #include "map2d.h"
-#include "trig.h"
 #include "view.h"
 #include "v_2ddrawer.h"
 

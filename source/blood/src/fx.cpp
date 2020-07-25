@@ -36,8 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gameutil.h"
 #include "levels.h"
 #include "seq.h"
-#include "tile.h"
-#include "trig.h"
 #include "view.h"
 
 BEGIN_BLD_NS

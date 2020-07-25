@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "screen.h"
 #include "sound.h"
-#include "tile.h"
 #include "view.h"
 
 // we load this in to get default button and key assignments

@@ -36,8 +36,6 @@ BEGIN_BLD_NS
 #define DICT_LOAD 0
 #define DICT_LOCK 0
 
-static Resource gBarfRes;
-
 #define kMaxCmdLineDefines  5
 #define kMaxDefines         1000
 #define kMaxParseLevels     5

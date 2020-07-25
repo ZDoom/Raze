@@ -51,12 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sectorfx.h"
 #include "seq.h"
 #include "sound.h"
-#include "tile.h"
-#include "trig.h"
 #include "triggers.h"
 #include "view.h"
-#include "warp.h"
-#include "weapon.h"
+#include "misc.h"
 #include "gameconfigfile.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
@@ -64,7 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "raze_sound.h"
 #include "nnexts.h"
-#include"secrets.h"
+#include "secrets.h"
 
 BEGIN_BLD_NS
 
