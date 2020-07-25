@@ -104,7 +104,7 @@ bool Cheat_Responder (event_t *ev)
 		{
 			if (CheatAddKey (cheats, (uint8_t)ev->data2, &eat))
 			{
-				if (cheats->DontCheck || !CheckCheatmode ())
+				if (cheats->DontCheck || CheckCheatmode ())
 				{
 					eat |= cheats->Handler (cheats);
 				}

@@ -46,6 +46,7 @@
 #include "HuffmanVLC.h"
 #include "LogError.h"
 #include "printf.h"
+#include "limits.h"
 #include <assert.h>
 #include <algorithm>
 
