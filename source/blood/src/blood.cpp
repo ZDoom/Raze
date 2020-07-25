@@ -1782,10 +1782,6 @@ bool VanillaMode() {
     return gDemo.m_bLegacy && gDemo.at1;
 }
 
-bool fileExistsRFF(int id, const char *ext) {
-    return gSysRes.Lookup(id, ext);
-}
-
 int sndTryPlaySpecialMusic(int nMusic)
 {
     if (Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))

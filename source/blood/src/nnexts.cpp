@@ -948,10 +948,9 @@ int getSpriteMassBySize(spritetype* pSprite) {
     short massDiv = 30;  short addMul = 2; short subMul = 2;
 
     if (seqId >= 0) {
-        DICTNODE* hSeq = gSysRes.Lookup(seqId, "SEQ");
-        if (hSeq)
+        auto pSeq = getSequence(seqId);
+        if (pSeq)
         {
-            pSeq = (Seq*)gSysRes.Load(hSeq);
             picnum = seqGetTile(&pSeq->frames[0]);
         } else
             picnum = pSprite->picnum;
@@ -2326,7 +2325,7 @@ void useSpriteDamager(XSPRITE* pXSource, spritetype* pSprite) {
 
 void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
 
-    if (pXSource->data2 > 0 && !gSysRes.Lookup(pXSource->data2, "SEQ")) {
+    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) {
         consoleSysMsg("Missing sequence #%d", pXSource->data2);
         return;
     }

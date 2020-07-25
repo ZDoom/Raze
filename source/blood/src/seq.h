@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+
 struct SEQFRAME {
     unsigned int tile : 12;
     unsigned int at1_4 : 1; // transparent
@@ -68,7 +69,6 @@ struct ACTIVE
 
 struct SEQINST
 {
-    DICTNODE *hSeq;
     Seq *pSequence;
     int at8;
     int atc;
@@ -93,5 +93,8 @@ void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetID(int a1, int a2);
 void seqProcess(int a1);
+
+Seq* getSequence(int res_id);
+
 
 END_BLD_NS

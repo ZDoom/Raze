@@ -73,44 +73,6 @@ void ByteSwapQAV(void *p)
 	}
 }
 
-void ByteSwapSEQ(void *p)
-{
-	Seq *pSeq = (Seq*)p;
-	pSeq->version = B_LITTLE16(pSeq->version);
-	pSeq->nFrames = B_LITTLE16(pSeq->nFrames);
-	pSeq->at8 = B_LITTLE16(pSeq->at8);
-	pSeq->ata = B_LITTLE16(pSeq->ata);
-	pSeq->atc = B_LITTLE32(pSeq->atc);
-	for (int i = 0; i < pSeq->nFrames; i++)
-	{
-		SEQFRAME *pFrame = &pSeq->frames[i];
-		BitReader bitReader((char *)pFrame, sizeof(SEQFRAME));
-		SEQFRAME swapFrame;
-		swapFrame.tile = bitReader.readUnsigned(12);
-		swapFrame.at1_4 = bitReader.readBit();
-		swapFrame.at1_5 = bitReader.readBit();
-		swapFrame.at1_6 = bitReader.readBit();
-		swapFrame.at1_7 = bitReader.readBit();
-		swapFrame.at2_0 = bitReader.readUnsigned(8);
-		swapFrame.at3_0 = bitReader.readUnsigned(8);
-		swapFrame.at4_0 = bitReader.readSigned(8);
-		swapFrame.at5_0 = bitReader.readUnsigned(5);
-		swapFrame.at5_5 = bitReader.readBit();
-		swapFrame.at5_6 = bitReader.readBit();
-		swapFrame.at5_7 = bitReader.readBit();
-		swapFrame.at6_0 = bitReader.readBit();
-		swapFrame.at6_1 = bitReader.readBit();
-		swapFrame.at6_2 = bitReader.readBit();
-		swapFrame.at6_3 = bitReader.readBit();
-		swapFrame.at6_4 = bitReader.readBit();
-		swapFrame.tile2 = bitReader.readUnsigned(4);
-		swapFrame.soundRange = bitReader.readUnsigned(4);
-		swapFrame.surfaceSound = bitReader.readBit();
-		swapFrame.reserved = bitReader.readUnsigned(2);
-		*pFrame = swapFrame;
-	}
-}
-
 void ByteSwapSFX(void *p)
 {
 	SFX *pSFX = (SFX*)p;

@@ -2498,8 +2498,8 @@ void actInit(bool bSaveLoad) {
             case kThingBloodChunks: {
                 SEQINST *pInst = GetInstance(3, pSprite->extra);
                 if (pInst && pInst->at13) {
-                    DICTNODE *hSeq = gSysRes.Lookup(pInst->at8, "SEQ");
-                    if (!hSeq) break;
+                    auto seq = getSequence(pInst->at8);
+                    if (!seq) break;
                     seqSpawn(pInst->at8, 3, pSprite->extra);
                 }
                 break;
@@ -2577,7 +2577,7 @@ void actInit(bool bSaveLoad) {
                     
             }
 
-            if (gSysRes.Lookup(seqStartId, "SEQ")) seqSpawn(seqStartId, 3, pSprite->extra);
+            if (getSequence(seqStartId)) seqSpawn(seqStartId, 3, pSprite->extra);
         }
         aiInit();
     }
@@ -2966,7 +2966,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             
             playGenDudeSound(pSprite, kGenDudeSndTransforming);
             int seqId = pXSprite->data2 + kGenDudeSeqTransform;
-            if (gSysRes.Lookup(seqId, "SEQ")) seqSpawn(seqId, 3, nXSprite, -1);
+            if (getSequence(seqId)) seqSpawn(seqId, 3, nXSprite, -1);
             else {
                 seqKill(3, nXSprite);
                 spritetype* pEffect = gFX.fxSpawn((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
@@ -3152,7 +3152,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
         break;
     }
 
-    if (!gSysRes.Lookup(getDudeInfo(nType+kDudeBase)->seqStartID + nSeq, "SEQ"))
+    if (!getSequence(getDudeInfo(nType+kDudeBase)->seqStartID + nSeq))
     {
         seqKill(3, nXSprite);
         gKillMgr.AddKill(pSprite);
@@ -3227,7 +3227,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
             if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, 3, nXSprite, dudeToGib);
             else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, 3, nXSprite, dudeToGib);
             else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, 3, nXSprite, dudeToGib);
-            else if (gSysRes.Lookup(pXSprite->data2 + nSeq, "SEQ"))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
+            else if (getSequence(pXSprite->data2 + nSeq))seqSpawn(nSeq + pXSprite->data2, 3, nXSprite, dudeToGib);
             else seqSpawn(1 + pXSprite->data2, 3, nXSprite, dudeToGib);
 
          } else {
@@ -5344,7 +5344,7 @@ void actExplodeSprite(spritetype *pSprite)
         }
         #endif
 		
-        if (gSysRes.Lookup(nSeq, "SEQ"))
+        if (getSequence(nSeq))
 		    seqSpawn(nSeq, 3, nXSprite, -1);
 
 		sfxPlay3DSound(pSprite, nSnd, -1, 0);
@@ -6110,7 +6110,7 @@ spritetype *actSpawnDude(spritetype *pSource, short nType, int a3, int a4)
     pSprite2->clipdist = getDudeInfo(nDude+kDudeBase)->clipdist;
     pXSprite2->health = getDudeInfo(nDude+kDudeBase)->startHealth<<4;
     pXSprite2->respawn = 1;
-    if (gSysRes.Lookup(getDudeInfo(nDude+kDudeBase)->seqStartID, "SEQ"))
+    if (getSequence(getDudeInfo(nDude+kDudeBase)->seqStartID))
         seqSpawn(getDudeInfo(nDude+kDudeBase)->seqStartID, 3, pSprite2->extra, -1);
     
     #ifdef NOONE_EXTENSIONS

@@ -94,7 +94,7 @@ void aiNewState(spritetype *pSprite, XSPRITE *pXSprite, AISTATE *pAIState)
 
     if (pAIState->seqId >= 0) {
         seqStartId += pAIState->seqId;
-        if (gSysRes.Lookup(seqStartId, "SEQ"))
+        if (getSequence(seqStartId))
             seqSpawn(seqStartId, 3, pSprite->extra, pAIState->funcId);
     }
     

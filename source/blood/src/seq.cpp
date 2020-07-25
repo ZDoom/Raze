@@ -79,11 +79,8 @@ void Seq::Precache(void)
 
 void seqPrecacheId(int id)
 {
-    DICTNODE *hSeq = gSysRes.Lookup(id, "SEQ");
-    if (!hSeq)
-        return;
-    Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
-    pSeq->Precache();
+    auto pSeq = getSequence(id);
+    if (pSeq) pSeq->Precache();
 }
 
 SEQINST siWall[kMaxXWalls];
@@ -371,9 +368,7 @@ SEQINST * GetInstance(int a1, int a2)
 void UnlockInstance(SEQINST *pInst)
 {
     dassert(pInst != NULL);
-    dassert(pInst->hSeq != NULL);
     dassert(pInst->pSequence != NULL);
-    pInst->hSeq = NULL;
     pInst->pSequence = NULL;
     pInst->at13 = 0;
 }
@@ -383,14 +378,14 @@ void seqSpawn(int a1, int a2, int a3, int a4)
     SEQINST *pInst = GetInstance(a2, a3);
     if (!pInst) return;
     
-    DICTNODE *hSeq = gSysRes.Lookup(a1, "SEQ");
-    if (!hSeq)
+    auto pSeq = getSequence(a1);
+    if (!pSeq)
         ThrowError("Missing sequence #%d", a1);
 
     int i = activeCount;
     if (pInst->at13)
     {
-        if (hSeq == pInst->hSeq)
+        if (pSeq == pInst->pSequence)
             return;
         UnlockInstance(pInst);
         for (i = 0; i < activeCount; i++)
@@ -400,7 +395,6 @@ void seqSpawn(int a1, int a2, int a3, int a4)
         }
         dassert(i < activeCount);
     }
-    Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
     if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
         ThrowError("Invalid sequence %d", a1);
     if ((pSeq->version & 0xff00) != 0x300)
@@ -411,7 +405,6 @@ void seqSpawn(int a1, int a2, int a3, int a4)
             pSeq->frames[i].tile2 = 0;
     }
     pInst->at13 = 1;
-    pInst->hSeq = hSeq;
     pInst->pSequence = pSeq;
     pInst->at8 = a1;
     pInst->atc = a4;
@@ -557,21 +550,16 @@ void SeqLoadSave::Load(void)
     Read(&activeCount, sizeof(activeCount));
     for (int i = 0; i < kMaxXWalls; i++)
     {
-        siWall[i].hSeq = NULL;
-        siMasked[i].hSeq = NULL;
         siWall[i].pSequence = NULL;
         siMasked[i].pSequence = NULL;
     }
     for (int i = 0; i < kMaxXSectors; i++)
     {
-        siCeiling[i].hSeq = NULL;
-        siFloor[i].hSeq = NULL;
         siCeiling[i].pSequence = NULL;
         siFloor[i].pSequence = NULL;
     }
     for (int i = 0; i < kMaxXSprites; i++)
     {
-        siSprite[i].hSeq = NULL;
         siSprite[i].pSequence = NULL;
     }
     for (int i = 0; i < activeCount; i++)
@@ -580,17 +568,15 @@ void SeqLoadSave::Load(void)
         if (pInst->at13)
         {
             int nSeq = pInst->at8;
-            DICTNODE *hSeq = gSysRes.Lookup(nSeq, "SEQ");
-            if (!hSeq) {
+            auto pSeq = getSequence(nSeq);
+            if (!pSeq) {
                 ThrowError("Missing sequence #%d", nSeq);
                 continue;
             }
-            Seq *pSeq = (Seq*)gSysRes.Load(hSeq);
             if (memcmp(pSeq->signature, "SEQ\x1a", 4) != 0)
                 ThrowError("Invalid sequence %d", nSeq);
             if ((pSeq->version & 0xff00) != 0x300)
                 ThrowError("Sequence %d is obsolete version", nSeq);
-            pInst->hSeq = hSeq;
             pInst->pSequence = pSeq;
         }
     }
@@ -612,6 +598,68 @@ static SeqLoadSave *myLoadSave;
 void SeqLoadSaveConstruct(void)
 {
     myLoadSave = new SeqLoadSave();
+}
+
+
+static void ByteSwapSEQ(Seq* pSeq)
+{
+    pSeq->version = B_LITTLE16(pSeq->version);
+    pSeq->nFrames = B_LITTLE16(pSeq->nFrames);
+    pSeq->at8 = B_LITTLE16(pSeq->at8);
+    pSeq->ata = B_LITTLE16(pSeq->ata);
+    pSeq->atc = B_LITTLE32(pSeq->atc);
+    for (int i = 0; i < pSeq->nFrames; i++)
+    {
+        SEQFRAME* pFrame = &pSeq->frames[i];
+        BitReader bitReader((char*)pFrame, sizeof(SEQFRAME));
+        SEQFRAME swapFrame;
+        swapFrame.tile = bitReader.readUnsigned(12);
+        swapFrame.at1_4 = bitReader.readBit();
+        swapFrame.at1_5 = bitReader.readBit();
+        swapFrame.at1_6 = bitReader.readBit();
+        swapFrame.at1_7 = bitReader.readBit();
+        swapFrame.at2_0 = bitReader.readUnsigned(8);
+        swapFrame.at3_0 = bitReader.readUnsigned(8);
+        swapFrame.at4_0 = bitReader.readSigned(8);
+        swapFrame.at5_0 = bitReader.readUnsigned(5);
+        swapFrame.at5_5 = bitReader.readBit();
+        swapFrame.at5_6 = bitReader.readBit();
+        swapFrame.at5_7 = bitReader.readBit();
+        swapFrame.at6_0 = bitReader.readBit();
+        swapFrame.at6_1 = bitReader.readBit();
+        swapFrame.at6_2 = bitReader.readBit();
+        swapFrame.at6_3 = bitReader.readBit();
+        swapFrame.at6_4 = bitReader.readBit();
+        swapFrame.tile2 = bitReader.readUnsigned(4);
+        swapFrame.soundRange = bitReader.readUnsigned(4);
+        swapFrame.surfaceSound = bitReader.readBit();
+        swapFrame.reserved = bitReader.readUnsigned(2);
+        *pFrame = swapFrame;
+    }
+}
+
+
+// This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
+// Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
+// To avoid such unsafe operations this caches the read data separately in static memory that's guaranteed not to be touched by the file system.
+FMemArena seqcache;
+static TMap<int, Seq*> sequences;
+Seq* getSequence(int res_id)
+{
+    auto p = sequences.CheckKey(res_id);
+    if (p != nullptr) return *p;
+
+    int index = fileSystem.FindResource(res_id, "SEQ");
+    if (index < 0)
+    {
+        return nullptr;
+    }
+    auto fr = fileSystem.OpenFileReader(index);
+    auto seqdata = (Seq*)seqcache.Alloc(fr.GetLength());
+    fr.Read(seqdata, fr.GetLength());
+    sequences.Insert(res_id, seqdata);
+    ByteSwapSEQ(seqdata);
+    return seqdata;
 }
 
 END_BLD_NS

@@ -1110,7 +1110,7 @@ void aiGenDudeNewState(spritetype* pSprite, AISTATE* pAIState) {
     pXSprite->stateTimer = pAIState->stateTicks; pXSprite->aiState = pAIState;
     
     int stateSeq = pXSprite->data2 + pAIState->seqId;
-    if (pAIState->seqId >= 0 && gSysRes.Lookup(stateSeq, "SEQ")) {
+    if (pAIState->seqId >= 0 && getSequence(stateSeq)) {
         seqSpawn(stateSeq, 3, pSprite->extra, pAIState->funcId);
     }
 
@@ -1460,10 +1460,13 @@ void scaleDamage(XSPRITE* pXSprite) {
         //viewSetSystemMessage("0: %d, 1: %d, 2: %d, 3: %d, 4: %d, 5: %d, 6: %d", dc[0], dc[1], dc[2], dc[3], dc[4], dc[5], dc[6]);
 }
 
-int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp) {
+int getDispersionModifier(spritetype* pSprite, int minDisp, int maxDisp) 
+{
     // the faster fire rate, the less frames = more dispersion
-    Seq* pSeq = NULL; DICTNODE* hSeq = gSysRes.Lookup(xsprite[pSprite->extra].data2 + 6, "SEQ"); int disp = 1;
-    if (hSeq != NULL && (pSeq = (Seq*)gSysRes.Load(hSeq)) != NULL) {
+    Seq* pSeq = getSequence(xsprite[pSprite->extra].data2 + 6); 
+    int disp = 1;
+    if (pSeq != nullptr) 
+    {
         int nFrames = pSeq->nFrames; int ticks = pSeq->at8; int shots = 0;
         for (int i = 0; i <= pSeq->nFrames; i++) {
             if (pSeq->frames[i].at5_5) shots++;
@@ -1487,9 +1490,8 @@ int getRangeAttackDist(spritetype* pSprite, int minDist, int maxDist) {
     
     if (yrepeat > 0) {
         if (seqId >= 0) {
-            Seq* pSeq = NULL; DICTNODE* hSeq = gSysRes.Lookup(seqId, "SEQ");
-            if (hSeq) {
-                pSeq = (Seq*)gSysRes.Load(hSeq);
+            Seq* pSeq = getSequence(seqId);
+            if (pSeq) {
                 picnum = seqGetTile(&pSeq->frames[0]);
             }
         }
@@ -1974,7 +1976,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
             }
 
             pExtra->canAttack = false;
-            if (pExtra->curWeapon > 0 && gSysRes.Lookup(pXSprite->data2 + kGenDudeSeqAttackNormalL, "SEQ"))
+            if (pExtra->curWeapon > 0 && getSequence(pXSprite->data2 + kGenDudeSeqAttackNormalL))
                 pExtra->canAttack = true;
             
             pExtra->weaponType = kGenDudeWeaponNone;
@@ -2033,45 +2035,54 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     case kGenDudeSeqAttackNormalL:
                     case kGenDudeSeqAttackThrow:
                     case kGenDudeSeqAttackPunch:
-                        if (!gSysRes.Lookup(i, "SEQ")) {
+                    {
+                        Seq* pSeq = getSequence(i);
+                        if (!pSeq) 
+                        {
                             pXSprite->data2 = getDudeInfo(pSprite->type)->seqStartID;
                             viewSetSystemMessage("No SEQ animation id %d found for custom dude #%d!", i, pSprite->index);
                             viewSetSystemMessage("SEQ base id: %d", seqStartId);
-                        } else if ((i - seqStartId) == kGenDudeSeqAttackPunch) {
+                        } 
+                        else if ((i - seqStartId) == kGenDudeSeqAttackPunch) 
+                        {
                             pExtra->forcePunch = true; // required for those who don't have fire trigger in punch seq and for default animation
-                            Seq* pSeq = NULL; DICTNODE* hSeq = gSysRes.Lookup(i, "SEQ");
-                            pSeq = (Seq*)gSysRes.Load(hSeq);
                             for (int i = 0; i < pSeq->nFrames; i++) {
                                 if (!pSeq->frames[i].at5_5) continue;
                                 pExtra->forcePunch = false;
                                 break;
-                        }
+                            }
                         }
                         break;
+                    }
                     case kGenDudeSeqDeathExplode:
-                        pExtra->availDeaths[kDmgExplode] = (bool)gSysRes.Lookup(i, "SEQ");
+                        pExtra->availDeaths[kDmgExplode] = !!getSequence(i);
                         break;
                     case kGenDudeSeqBurning:
-                        pExtra->canBurn = gSysRes.Lookup(i, "SEQ");
+                        pExtra->canBurn = !!getSequence(i);
                         break;
                     case kGenDudeSeqElectocuted:
-                        pExtra->canElectrocute = gSysRes.Lookup(i, "SEQ");
+                        pExtra->canElectrocute = !!getSequence(i);
                         break;
                     case kGenDudeSeqRecoil:
-                        pExtra->canRecoil = gSysRes.Lookup(i, "SEQ");
+                        pExtra->canRecoil = !!getSequence(i);
                         break;
                     case kGenDudeSeqMoveL: {
                         bool oldStatus = pExtra->canWalk;
-                        pExtra->canWalk = gSysRes.Lookup(i, "SEQ");
+                        pExtra->canWalk = !!getSequence(i);
                         if (oldStatus != pExtra->canWalk) {
-                            if (!spriRangeIsFine(pXSprite->target)) {
+                            if (!spriRangeIsFine(pXSprite->target)) 
+                            {
                                 if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeIdleW);
                                 else aiGenDudeNewState(pSprite, &genDudeIdleL);
-                            } else if (pExtra->canWalk) {
+                            }
+                            else if (pExtra->canWalk) 
+                            {
                                 if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeChaseW);
                                 else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(pSprite, &genDudeChaseD);
                                 else aiGenDudeNewState(pSprite, &genDudeChaseL);
-                            } else {
+                            } 
+                            else 
+                            {
                                 if (spriteIsUnderwater(pSprite, false)) aiGenDudeNewState(pSprite, &genDudeChaseNoWalkW);
                                 else if (inDuck(pXSprite->aiState)) aiGenDudeNewState(pSprite, &genDudeChaseNoWalkD);
                                 else aiGenDudeNewState(pSprite, &genDudeChaseNoWalkL);
@@ -2080,12 +2091,13 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                         break;
                     }
                     case kGenDudeSeqAttackNormalDW:
-                        pExtra->canDuck = (gSysRes.Lookup(i, "SEQ") && gSysRes.Lookup(seqStartId + 14, "SEQ"));
-                        pExtra->canSwim = (gSysRes.Lookup(i, "SEQ") && gSysRes.Lookup(seqStartId + 13, "SEQ")
-                            && gSysRes.Lookup(seqStartId + 17, "SEQ"));
+                        pExtra->canDuck = (getSequence(i) && getSequence(seqStartId + 14));
+                        pExtra->canSwim = (getSequence(i) && getSequence(seqStartId + 13)
+                            && getSequence(seqStartId + 17));
                         break;
                     case kGenDudeSeqDeathBurn1: {
-                        bool seq15 = gSysRes.Lookup(i, "SEQ"); bool seq16 = gSysRes.Lookup(seqStartId + 16, "SEQ");
+                        bool seq15 = getSequence(i); 
+                        bool seq16 = getSequence(seqStartId + 16);
                         if (seq15 && seq16) pExtra->availDeaths[kDmgBurn] = 3;
                         else if (seq16) pExtra->availDeaths[kDmgBurn] = 2;
                         else if (seq15) pExtra->availDeaths[kDmgBurn] = 1;
@@ -2103,7 +2115,7 @@ bool genDudePrepare(spritetype* pSprite, int propId) {
                     case kGenDudeSeqReserved6:
                     case kGenDudeSeqReserved7:
                     case kGenDudeSeqReserved8:
-                        /*if (gSysRes.Lookup(i, "SEQ")) {
+                        /*if (getSequence(i)) {
                             viewSetSystemMessage("Found reserved SEQ animation (%d) for custom dude #%d!", i, pSprite->index);
                             viewSetSystemMessage("Using reserved animation is not recommended.");
                             viewSetSystemMessage("SEQ base id: %d", seqStartId);

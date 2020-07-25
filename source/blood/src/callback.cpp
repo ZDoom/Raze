@@ -275,7 +275,7 @@ void Respawn(int nSprite) // 9
                 switch (pSprite->type) {
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
-                        if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                        if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                             seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                         break;
                     case kDudeModernCustom:
@@ -285,7 +285,7 @@ void Respawn(int nSprite) // 9
                 #else
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                 pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
-                if (gSysRes.Lookup(getDudeInfo(nType + kDudeBase)->seqStartID, "SEQ"))
+                if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
                     seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
                 #endif
                 aiInitSprite(pSprite);
