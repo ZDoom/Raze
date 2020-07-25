@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "player.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
 #include "trig.h"
 #include "triggers.h"

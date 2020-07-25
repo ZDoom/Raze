@@ -54,4 +54,19 @@ void sndProcess(void);
 void sndTerm(void);
 void sndInit(void);
 
+void sfxInit(void);
+void sfxTerm(void);
+void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector);
+void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3 = -1, int a4 = 0);
+void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = -1);
+void sfxKill3DSound(spritetype *pSprite, int a2 = -1, int a3 = -1);
+void sfxKillAllSounds(void);
+void sfxUpdate3DSounds(void);
+void sfxSetReverb(bool toggle);
+void sfxSetReverb2(bool toggle);
+
+void ambProcess(void);
+void ambKillAll(void);
+void ambInit(void);
+
 END_BLD_NS

@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "common_game.h"
 
-#include "asound.h"
 #include "db.h"
 #include "blood.h"
 #include "choke.h"
@@ -57,7 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screen.h"
 #include "sectorfx.h"
 #include "seq.h"
-#include "sfx.h"
 #include "sound.h"
 #include "tile.h"
 #include "trig.h"

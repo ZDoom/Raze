@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "tile.h"
 #include "trig.h"
-#include "sfx.h"
+#include "sound.h"
 #include "seq.h"
 #include "ai.h"
 
