@@ -155,4 +155,61 @@ void QAV::Precache(void)
         }
     }
 }
+
+
+void ByteSwapQAV(void* p)
+{
+#if B_BIG_ENDIAN == 1
+    QAV* qav = (QAV*)p;
+    qav->nFrames = B_LITTLE32(qav->nFrames);
+    qav->ticksPerFrame = B_LITTLE32(qav->ticksPerFrame);
+    qav->at10 = B_LITTLE32(qav->at10);
+    qav->x = B_LITTLE32(qav->x);
+    qav->y = B_LITTLE32(qav->y);
+    qav->nSprite = B_LITTLE32(qav->nSprite);
+    for (int i = 0; i < qav->nFrames; i++)
+    {
+        FRAMEINFO* pFrame = &qav->frames[i];
+        SOUNDINFO* pSound = &pFrame->sound;
+        pFrame->nCallbackId = B_LITTLE32(pFrame->nCallbackId);
+        pSound->sound = B_LITTLE32(pSound->sound);
+        for (int j = 0; j < 8; j++)
+        {
+            TILE_FRAME* pTile = &pFrame->tiles[j];
+            pTile->picnum = B_LITTLE32(pTile->picnum);
+            pTile->x = B_LITTLE32(pTile->x);
+            pTile->y = B_LITTLE32(pTile->y);
+            pTile->z = B_LITTLE32(pTile->z);
+            pTile->stat = B_LITTLE32(pTile->stat);
+            pTile->angle = B_LITTLE16(pTile->angle);
+        }
+    }
+#endif
+}
+
+
+// This is to eliminate a huge design issue in NBlood that was apparently copied verbatim from the DOS-Version.
+// Sequences were cached in the resource and directly returned from there in writable form, with byte swapping directly performed in the cache on Big Endian systems.
+// To avoid such unsafe operations this caches the read data separately.
+extern FMemArena seqcache; // Use the same storage as the SEQs.
+static TMap<int, QAV*> sequences;
+QAV* getQAV(int res_id)
+{
+    auto p = sequences.CheckKey(res_id);
+    if (p != nullptr) return *p;
+
+    int index = fileSystem.FindResource(res_id, "QAV");
+    if (index < 0)
+    {
+        return nullptr;
+    }
+    auto fr = fileSystem.OpenFileReader(index);
+    auto qavdata = (QAV*)seqcache.Alloc(fr.GetLength());
+    fr.Read(qavdata, fr.GetLength());
+    sequences.Insert(res_id, qavdata);
+    ByteSwapQAV(qavdata);
+    return qavdata;
+}
+
+
 END_BLD_NS

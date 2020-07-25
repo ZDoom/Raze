@@ -34,7 +34,6 @@ public:
     CChoke()
     {
         at0 = NULL;
-        at4 = NULL;
         at8 = NULL;
         atc = 0;
         at10 = 0;
@@ -46,7 +45,6 @@ public:
     void sub_84110(int x, int y);
     void sub_84218();
     char *at0;
-    DICTNODE *at4;
     QAV *at8;
     int atc;
     int at10;

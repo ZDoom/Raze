@@ -44,7 +44,7 @@ void CellularFrame(char *pFrame, int sizeX, int sizeY);
 
 char FrameBuffer[17280];
 char SeedBuffer[16][128];
-char *gCLU;
+static TArray<uint8_t> gCLU;
 
 void InitSeedBuffers(void)
 {
@@ -89,10 +89,10 @@ void FireInit(void)
     memset(FrameBuffer, 0, sizeof(FrameBuffer));
     BuildCoolTable();
     InitSeedBuffers();
-    DICTNODE *pNode = gSysRes.Lookup("RFIRE", "CLU");
-    if (!pNode)
+    auto fr = fileSystem.OpenFileReader("rfire.clu");
+    if (!fr.isOpen())
         ThrowError("RFIRE.CLU not found");
-    gCLU = (char*)gSysRes.Lock(pNode);
+    gCLU = fr.Read();
     for (int i = 0; i < 100; i++)
         DoFireFrame();
 }

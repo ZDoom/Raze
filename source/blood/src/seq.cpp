@@ -603,6 +603,7 @@ void SeqLoadSaveConstruct(void)
 
 static void ByteSwapSEQ(Seq* pSeq)
 {
+#if B_BIG_ENDIAN == 1
     pSeq->version = B_LITTLE16(pSeq->version);
     pSeq->nFrames = B_LITTLE16(pSeq->nFrames);
     pSeq->at8 = B_LITTLE16(pSeq->at8);
@@ -636,6 +637,7 @@ static void ByteSwapSEQ(Seq* pSeq)
         swapFrame.reserved = bitReader.readUnsigned(2);
         *pFrame = swapFrame;
     }
+#endif
 }
 
 

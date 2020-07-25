@@ -39,12 +39,11 @@ void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
 {
     at0 = NULL;
     at1c = a2;
-    if (!at4 && a1 != -1)
+    if (!at8 && a1 != -1)
     {
-        at4 = gSysRes.Lookup(a1, "QAV");
-        if (!at4)
+        at8 = getQAV(a1);
+        if (!at8)
             ThrowError("Could not load QAV %d\n", a1);
-        at8 = (QAV*)gSysRes.Lock(at4);
         at8->nSprite = -1;
         at8->x = at14;
         at8->y = at18;
@@ -55,7 +54,7 @@ void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
 
 void CChoke::sub_84110(int x, int y)
 {
-    if (!at4)
+    if (!at8)
         return;
     ClockTicks v4 = gFrameClock;
     gFrameClock = totalclock;

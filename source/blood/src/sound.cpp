@@ -52,6 +52,17 @@ int soundRates[13] = {
 #define kChannelMax 32
 
 
+void ByteSwapSFX(SFX* pSFX)
+{
+#if B_BIG_ENDIAN == 1
+    pSFX->relVol = B_LITTLE32(pSFX->relVol);
+    pSFX->pitch = B_LITTLE32(pSFX->pitch);
+    pSFX->pitchRange = B_LITTLE32(pSFX->pitchRange);
+    pSFX->format = B_LITTLE32(pSFX->format);
+    pSFX->loopStart = B_LITTLE32(pSFX->loopStart);
+#endif
+}
+
 //==========================================================================
 //
 // S_AddBloodSFX
@@ -64,7 +75,8 @@ int soundRates[13] = {
 static void S_AddBloodSFX(int lumpnum)
 {
     auto sfxlump = fileSystem.ReadFile(lumpnum);
-    const SFX* sfx = (SFX*)sfxlump.GetMem();
+    SFX* sfx = (SFX*)sfxlump.GetMem();
+    ByteSwapSFX(sfx);
     FStringf rawname("%s.raw", sfx->rawName);
     auto rawlump = fileSystem.FindFile(rawname);
     int sfxnum;

@@ -190,8 +190,7 @@ public:
 
 	// Blood stuff
 	FResourceLump* Lookup(const char* name, const char* type);
-	FResourceLump* Lookup(unsigned int id, const char* type);
-
+	
 	FResourceLump* GetFileAt(int no);
 
 	const void* Lock(int lump);

@@ -39,8 +39,6 @@ int gFrame;
 //int volatile gGameClock;
 int gFrameRate;
 
-Resource& gSysRes = fileSystem;
-
 static const char *_module;
 static int _line;
 

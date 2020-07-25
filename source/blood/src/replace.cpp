@@ -95,7 +95,6 @@ void HookReplaceFunctions(void)
     deletesprite_replace = qdeletesprite;
     changespritesect_replace = qchangespritesect;
     changespritestat_replace = qchangespritestat;
-    loadvoxel_replace = qloadvoxel;
     loadboard_replace = qloadboard;
 }
 

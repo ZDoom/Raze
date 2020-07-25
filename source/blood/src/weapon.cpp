@@ -218,10 +218,9 @@ void WeaponInit(void)
 {
     for (int i = 0; i < kQAVEnd; i++)
     {
-        DICTNODE *hRes = gSysRes.Lookup(i, "QAV");
-        if (!hRes)
+        weaponQAV[i] = getQAV(i);
+        if (!weaponQAV[i])
             ThrowError("Could not load QAV %d\n", i);
-        weaponQAV[i] = (QAV*)gSysRes.Lock(hRes);
         weaponQAV[i]->nSprite = -1;
     }
 }

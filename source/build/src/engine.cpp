@@ -58,7 +58,6 @@ int16_t pskybits_override = -1;
 // This was on the cache but is permanently allocated, so put it into something static. This needs some rethinking anyway
 static TArray<TArray<uint8_t>> voxelmemory;
 
-void (*loadvoxel_replace)(int32_t voxindex) = NULL;
 int16_t tiletovox[MAXTILES];
 #ifdef USE_OPENGL
 char *voxfilenames[MAXVOXELS];
@@ -3030,7 +3029,6 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
 		voxelmemory.Reserve(1);
 		voxelmemory.Last() = fil.Read(dasiz);
-		voxoff[voxindex][i] = (intptr_t)voxelmemory.Last().Data();
 
         lengcnt += dasiz+4;
         if (lengcnt >= lengtot-768)
@@ -3069,11 +3067,6 @@ void vox_undefine(int32_t const tile)
     DO_FREE_AND_NULL(voxfilenames[voxindex]);
 #endif
 
-    for (ssize_t j = 0; j < MAXVOXMIPS; ++j)
-    {
-        // CACHE1D_FREE
-        voxoff[voxindex][j] = 0;
-    }
     voxscale[voxindex] = 65536;
     voxrotate[voxindex>>3] &= ~pow2char[voxindex&7];
     tiletovox[tile] = -1;

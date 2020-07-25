@@ -38,30 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void qloadvoxel(int32_t nVoxel)
-{
-    static int nLastVoxel = 0;
-    DICTNODE *hVox = gSysRes.Lookup(nVoxel, "KVX");
-    if (!hVox) {
-        Printf("Missing voxel #%d (max voxels: %d)", nVoxel, kMaxVoxels);
-        return;
-    }
-
-    if (!hVox->LockCount())
-        voxoff[nLastVoxel][0] = 0;
-    nLastVoxel = nVoxel;
-    char *pVox = (char*)gSysRes.Lock(hVox);
-    for (int i = 0; i < MAXVOXMIPS; i++)
-    {
-        int nSize = *((int*)pVox);
-#if B_BIG_ENDIAN == 1
-        nSize = B_LITTLE32(nSize);
-#endif
-        pVox += 4;
-        voxoff[nVoxel][i] = (intptr_t)pVox;
-        pVox += nSize;
-    }
-}
 
 bool artLoaded = false;
 int nTileFiles = 0;
@@ -128,11 +104,12 @@ void tileProcessGLVoxels(void)
     voxInit = true;
     for (int i = 0; i < kMaxVoxels; i++)
     {
-        DICTNODE *hVox = gSysRes.Lookup(i, "KVX");
-        if (!hVox)
-            continue;
-        char *pVox = (char*)gSysRes.Load(hVox);
-        voxmodels[i] = loadkvxfrombuf(pVox, hVox->Size());
+        auto index = fileSystem.FindResource(i, "KVX");
+        if (index >= 0)
+        {
+            auto data = fileSystem.ReadFile(index);
+            voxmodels[i] = loadkvxfrombuf((const char*)data.GetMem(), data.GetSize());
+        }
     }
 }
 #endif
@@ -175,8 +152,6 @@ void tilePreloadTile(int nTile)
             voxelIndex[nTile] = -1;
             picanm[nTile].extra &= ~7;
         }
-        else
-            qloadvoxel(voxelIndex[nTile]);
         break;
     }
     while(n--)

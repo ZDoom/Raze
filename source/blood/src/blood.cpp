@@ -1061,9 +1061,6 @@ int GameInterface::app_main()
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	bQuickStart = userConfig.nologo;
     ReadAllRFS();
-#ifdef USE_QHEAP
-    Resource::heap = new QHeap(nMaxAlloc);
-#endif
 
     HookReplaceFunctions();
 

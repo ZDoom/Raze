@@ -2398,8 +2398,6 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
                         pTSprite->cstat &= ~(4|8);
                         pTSprite->yoffset += tileTopOffset(pTSprite->picnum);
                         pTSprite->picnum = voxelIndex[pTSprite->picnum];
-                        if (!voxoff[pTSprite->picnum])
-                            qloadvoxel(pTSprite->picnum);
                         if ((picanm[nTile].extra&7) == 7)
                         {
                             pTSprite->ang = ((int)totalclock<<3)&2047;

@@ -35,6 +35,4 @@ extern int gFrame;
 extern int gFrameRate;
 extern bool bVanilla;
 
-extern FileSystem &gSysRes;
-
 END_BLD_NS

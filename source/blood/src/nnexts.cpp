@@ -4741,11 +4741,9 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
 
 // player related
 QAV* playerQavSceneLoad(int qavId) {
-    QAV* pQav = NULL; DICTNODE* hQav = gSysRes.Lookup(qavId, "QAV");
+    QAV* pQav = getQAV(qavId);
 
-    if (hQav) pQav = (QAV*)gSysRes.Lock(hQav);
-    else viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
-
+    if (!pQav) viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
     return pQav;
 }
 

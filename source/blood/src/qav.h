@@ -91,5 +91,6 @@ struct QAV
 #pragma pack(pop)
 
 int qavRegisterClient(void(*pClient)(int, void *));
+QAV* getQAV(int res_id);
 
 END_BLD_NS

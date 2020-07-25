@@ -1637,12 +1637,6 @@ FResourceLump *FileSystem::Lookup(const char *name, const char *type)
 	else return nullptr;
 }
 
-FResourceLump *FileSystem::Lookup(unsigned int id, const char *type)
-{
-	auto lump = FindResource(id, type);
-	if (lump >= 0) return FileInfo[lump].lump;
-	else return nullptr;
-}
 FResourceLump* FileSystem::GetFileAt(int no)
 {
 	return FileInfo[no].lump;
