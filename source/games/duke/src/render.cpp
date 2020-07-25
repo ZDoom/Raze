@@ -537,12 +537,10 @@ void displayrooms(int snum, int smoothratio)
 		}
 
 		if (!synchronized_input)
-			renderSetRollAngle(p->getrotscrnang());
+			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
 		else
 		{
-			// The fixed point fuckery at play here means we cannot do the interpolation at full precision.
-			auto oa = p->oq16rotscrnang >> FRACBITS;
-			renderSetRollAngle(oa + mulscale16(((p->getrotscrnang() - oa + 1024) & 2047) - 1024, smoothratio));
+			renderSetRollAngle((p->oq16rotscrnang + mulscale16(((p->q16rotscrnang - p->oq16rotscrnang + (1024 << FRACBITS)) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio)) / (float)(FRACUNIT));
 			p->oq16rotscrnang = p->q16rotscrnang; // JBF: save it for next time
 		}
 
