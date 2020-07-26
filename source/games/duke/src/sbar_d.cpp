@@ -273,7 +273,7 @@ public:
 	//
 	//==========================================================================
 
-	void DrawWeaponNum(int index, int x, int y, int num1, int num2, int shade, int numdigits)
+	void DrawWeaponNum(int index, double x, double y, int num1, int num2, int shade, int numdigits)
 	{
 		/*
 		if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
@@ -283,6 +283,7 @@ public:
 		}
 		*/
 		FString format;
+		bool parsedDivisor = false;
 
 		if (numdigits == 2)
 		{
@@ -305,7 +306,11 @@ public:
 			if (format[i] != ' ')
 			{
 				char c = format[i] == '/' ? 11 : format[i] - '0';
-				DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i, y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+				DrawGraphic(tileGetTexture(THREEBYFIVE + c), x + 4 * i + (parsedDivisor ? 1 : 0), y, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, 0, 0, 1, 1, pe);
+			}
+			if (format[i] == '/')
+			{
+				parsedDivisor = true;
 			}
 		}
 	}
@@ -316,7 +321,7 @@ public:
 	//
 	//==========================================================================
 
-	void DrawWeaponAmounts(const struct player_struct* p, int x, int y)
+	void DrawWeaponAmounts(const struct player_struct* p, double x, double y)
 	{
 		int cw = p->curr_weapon;
 
@@ -370,11 +375,11 @@ public:
 			if (p->got_access & 2) DrawGraphic(key, 288, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 21));
 			if (p->got_access & 1) DrawGraphic(key, 281, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
-		DrawWeaponAmounts(p, 96, top + 16);
+		DrawWeaponAmounts(p, 96, top + 15.5);
 
 		int num = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
-		SBar_DrawString(this, &digiFont, format, 32, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		format.Format("%d", GetMoraleOrShield(p, snum));
 		SBar_DrawString(this, &digiFont, format, 64, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
