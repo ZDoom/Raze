@@ -1525,7 +1525,6 @@ void checksectors_d(int snum)
 
 	if (p->newowner >= 0)
 	{
-		Printf("%d, %d\n", PlayerInputSideVel(snum), PlayerInputForwardVel(snum));
 		if (abs(PlayerInputSideVel(snum)) > 768 || abs(PlayerInputForwardVel(snum)) > 768)
 		{
 			i = -1;
