@@ -410,7 +410,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 			p->addhoriz(-48);
 		else
 		{
-			p->horizSkew = -48;
+			p->horizSkew = -48 * FRACUNIT;
 		}
 
 		p->return_to_center = 9;
