@@ -431,13 +431,14 @@ static FString statFPS()
 	double frameDelay = frameTime - lastFrameTime;
 	cumulativeFrameDelay += frameDelay;
 
+	frameCount++;
 	if (frameDelay >= 0)
 	{
 		output.AppendFormat("%5.1f fps (%.1f ms)\n", lastFPS, frameDelay);
 
 		if (cumulativeFrameDelay >= 1000.0)
 		{
-			lastFPS = 1000.f * frameCount / cumulativeFrameDelay;
+			lastFPS = 1000. * frameCount / cumulativeFrameDelay;
 			frameCount = 0;
 			cumulativeFrameDelay = 0.0;
 		}

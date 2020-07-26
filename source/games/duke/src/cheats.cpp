@@ -82,7 +82,7 @@ bool cheatInventory(cheatseq_t *s)
 		}
 	};
 
-	 invGet(400, EVENT_CHEATGETSTEROIDS, ps[myconnectindex].steroids_amount);
+	invGet(400, EVENT_CHEATGETSTEROIDS, ps[myconnectindex].steroids_amount);
 	if (!isRR()) invGet(1200, EVENT_CHEATGETHEAT, ps[myconnectindex].heat_amount);
 	invGet(isRR() ? 2000 : 200, EVENT_CHEATGETBOOT, ps[myconnectindex].boot_amount);
 	invGet(100, EVENT_CHEATGETSHIELD, ps[myconnectindex].shield_amount);
@@ -90,6 +90,7 @@ bool cheatInventory(cheatseq_t *s)
 	invGet(2400, EVENT_CHEATGETHOLODUKE, ps[myconnectindex].holoduke_amount);
 	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, ps[myconnectindex].jetpack_amount);
 	invGet(max_player_health, EVENT_CHEATGETFIRSTAID, ps[myconnectindex].firstaid_amount);
+	if (ps[myconnectindex].inven_icon == ICON_NONE) C_DoCommand("invnext");
 	if (s) FTA(120,&ps[myconnectindex]);
 	return true;
 }
@@ -291,10 +292,9 @@ static bool cheatHyper(cheatseq_t *)
 
 static bool cheatMonsters(cheatseq_t *)
 {
-	if(actor_tog == 3) actor_tog = 0;
-	actor_tog++;
-	static const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "$TXT_ON2" };
-	Printf(PRINT_NOTIFY, "%s: %s", GStrings("NETMNU_MONSTERS"), s[actor_tog]);
+	if(++actor_tog == 3) actor_tog = 0;
+	static const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "TXT_ON2" };
+	Printf(PRINT_NOTIFY, "%s: %s", GStrings("NETMNU_MONSTERS"), GStrings(s[actor_tog]));
 	return true;
 }
 
