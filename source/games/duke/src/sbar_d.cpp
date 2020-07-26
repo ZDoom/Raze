@@ -381,7 +381,7 @@ public:
 		format.Format("%d", num);
 		SBar_DrawString(this, &digiFont, format, 31, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &digiFont, format, 64, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &digiFont, format, 63, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		if (p->curr_weapon != KNEE_WEAPON)
 		{
@@ -395,7 +395,7 @@ public:
 		{
 			int x = 231;
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, top + 20, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, 1, 1);
+				DrawGraphic(tileGetTexture(item_icons[icon]), x, top + 20.5, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, 1, 1);
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
