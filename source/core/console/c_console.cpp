@@ -780,7 +780,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	TArray<FBrokenLines> lines;
 	int width;
 
-	if (hud_messages != 2 ||
+	if (hud_messages == 0 ||
 		source.IsEmpty() ||
 		gamestate == GS_FULLCONSOLE ||
 		gamestate == GS_DEMOSCREEN ||
