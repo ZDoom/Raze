@@ -452,6 +452,10 @@ void RunScreenJobFrame()
 	// we cannot recover from this because we have no completion callback to call.
 	if (!runner) I_Error("Trying to run a non-existent screen job");
 	auto res = runner->RunFrame();
-	if (!res) DeleteScreenJob();
+	if (!res)
+	{
+		assert(gamestate != GS_INTERMISSION && gamestate != GS_INTRO);
+		DeleteScreenJob();
+	}
 }
 

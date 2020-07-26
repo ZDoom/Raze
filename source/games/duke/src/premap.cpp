@@ -1132,7 +1132,7 @@ void exitlevel(void)
 
                 // Clear potentially loaded per-map ART only after the bonus screens.
                 artClearMapArt();
-
+                gamestate = GS_LEVEL;
                 if (endofgame)
                 {
                     ud.eog = 0;
