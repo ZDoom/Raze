@@ -340,6 +340,14 @@ static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcw
 	auto GetWidth = [=]() { return parms->viewport.width; };
 	auto GetHeight = [=]() {return parms->viewport.height; };
 
+	if (autoaspect == 4)
+	{
+		rect.left = rect.top = 0;
+		rect.width = GetWidth();
+		rect.height = GetHeight();
+		return;
+	}
+
 	double aspect;
 	if (srcheight == 200) aspect = srcwidth / 240.;
 	else if (srcheight == 400) aspect = srcwidth / 480;
@@ -763,7 +771,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			
 		case DTA_FullscreenScale:
 			intval = ListGetInt(tags);
-			if (intval >= 0 && intval <= 3)
+			if (intval >= 0 && intval <= 4)
 			{
 				parms->fsscalemode = (uint8_t)intval;
 			}

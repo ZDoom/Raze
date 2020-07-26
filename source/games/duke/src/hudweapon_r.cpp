@@ -79,7 +79,7 @@ void displaymasks_r(int snum)
 		if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_STRETCH;
 		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (sintable[(int)totalclock & 2047] >> 10)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
-		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 1024, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
+		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 		hud_drawsprite(285, 200, 65536, 1024, SCUBAMASK + 3, 0, p, 2 + 16 + pin);
 	}
