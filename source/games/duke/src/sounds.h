@@ -52,7 +52,6 @@ inline int S_CheckSoundPlaying(int sprnum, int soundNum) { return S_CheckSoundPl
 int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel = 0);
 int S_CheckAnyActorSoundPlaying(int spriteNum);
 
-void S_PauseSounds(bool paused);
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int S_GetUserFlags(int sndnum);
 

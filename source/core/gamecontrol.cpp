@@ -1102,33 +1102,26 @@ bool CheckCheatmode(bool printmsg)
 
 void updatePauseStatus()
 {
-	bool GUICapture = System_WantGuiCapture();
-    if (M_Active() || ConsoleState != c_up)
+    if (M_Active() || System_WantGuiCapture())
     {
         paused = 1;
-		return;
     }
-    else if (!pausedWithKey)
+    else if (!M_Active() || !System_WantGuiCapture())
     {
-        paused = 0;
-    }
-
-    if (inputState.GetKeyStatus(sc_Pause))
-    {
-        inputState.ClearKeyStatus(sc_Pause);
-		paused = pausedWithKey ? 0 : 2;
-
-        if (paused)
+        if (!pausedWithKey)
         {
-            S_PauseSound(!paused, !paused);
-        }
-        else
-        {
-            S_ResumeSound(!!paused);
+            paused = 0;
         }
 
-        pausedWithKey = !!paused;
+        if (inputState.GetKeyStatus(sc_Pause))
+        {
+            inputState.ClearKeyStatus(sc_Pause);
+            paused = pausedWithKey ? 0 : 2;
+            pausedWithKey = !!paused;
+        }
     }
+
+    paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
 }
 
 bool OkForLocalization(FTextureID texnum, const char* substitute)

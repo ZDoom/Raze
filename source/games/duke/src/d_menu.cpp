@@ -215,7 +215,6 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 
 void GameInterface::MenuOpened()
 {
-	S_PauseSounds(true);
 	if (ud.multimode < 2)
 	{
 		ready2send = 0;
@@ -263,8 +262,6 @@ void GameInterface::MenuClosed()
 			cameraclock = (int32_t)totalclock;
 			cameradist = 65536;
 		}
-
-		S_PauseSounds(false);
 	}
 }
 

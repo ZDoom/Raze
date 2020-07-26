@@ -959,7 +959,7 @@ int enterlevel(MapRecord *mi, int gamemode)
     OnEvent(EVENT_ENTERLEVEL);
 
     // Stop all sounds
-    S_PauseSounds(false);
+    S_ResumeSound(false);
     FX_StopAllSounds();
     FX_SetReverb(0);
 
