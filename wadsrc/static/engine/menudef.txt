@@ -191,58 +191,6 @@ LISTMENU "EpisodeMenu"
 	ScriptId 100
 }
 
-LISTMENU "HuntMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.HuntMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-		NativeTextItem "LAKE SWAMPY", "q", "WeaponsMenu", 0
-		NativeTextItem "SAGEBRUSH FLATS", "q", "WeaponsMenu", 1
-		NativeTextItem "OZARK FOREST", "q", "WeaponsMenu", 2
-		NativeTextItem "SNOWBUSH RIDGE", "q", "WeaponsMenu", 3
-	}
-}
-
-LISTMENU "TargetMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.TargetMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-		NativeTextItem "NORTH RANGE", "q", "WeaponsMenu", 4
-		NativeTextItem "SOUTH RANGE", "q", "WeaponsMenu", 5
-	}
-}
-
-LISTMENU "TrophiesMenu"
-{
-		class "$.TrophiesMenu"
-		position 160, 102, 78
-		centermenu
-		animatedtransition
-}
-
-LISTMENU "WeaponsMenu"
-{
-	ifgame(Deer)
-	{
-		class "$.WeaponMenu"
-		position 160, 102, 98
-		centermenu
-		animatedtransition
-		NativeTextItem "Pistol", "q", "StartGame", 0
-		NativeTextItem "Rifle", "q", "StartGame", 1
-		NativeTextItem "Rifle With Scope", "q", "StartGame", 2
-		NativeTextItem "Shotgun", "q", "StartGame", 3
-		NativeTextItem "Crossbow", "q", "StartGame", 4
-	}
-}
-
 LISTMENU "SkillMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
@@ -290,8 +238,8 @@ ImageScroller "HelpMenu"
 {
 	ifgame(Duke, Nam, WW2GI, Fury)
 	{
-		ImageItem "TEXTSTORY", 400
-		ImageItem "F1HELP", 401
+		ImageItem "#3280", 400
+		ImageItem "#2445", 401
 		class "$.ImageScrollerMenu"
 		ifgame(Duke, Nam, WW2GI)
 		{
@@ -300,11 +248,11 @@ ImageScroller "HelpMenu"
 	}
 	ifgame(Redneck, RedneckRides, Deer)
 	{
-		ImageItem "TEXTSTORY"
-		ImageItem "F1HELP"
+		ImageItem "#2541"
+		ImageItem "#1633"
 		ifgame(RedneckRides)
 		{
-			ImageItem "RRTILE1636"
+			ImageItem "#1636"
 		}
 		animatedtransition
 	}
@@ -345,17 +293,10 @@ ImageScroller "CreditsMenu"
 {
 	ifgame(Duke, Nam, WW2GI)
 	{
-		ImageItem "CREDITSTEXT1", 990
-		ImageItem "CREDITSTEXT2", 991
-		ImageItem "CREDITSTEXT3", 992
+		ImageItem "#2504", 990
+		ImageItem "#2505", 991
+		ImageItem "#2506", 992
 		animatedtransition
-		class "Duke.ImageScrollerMenu"
-	}
-	ifgame(fury)
-	{
-		// Ion Fury does not have a separate credits menu, so if someone tries to open it anyway, use the same screens as "Help" but start on the one for the credits.
-		ImageItem "F1HELP", 401
-		ImageItem "TEXTSTORY", 400
 		class "Duke.ImageScrollerMenu"
 	}
 	ifgame(Redneck)
