@@ -557,8 +557,9 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle cl_autorun"
 	Control    "$CNTRLMNU_STRAFE"           , "+strafe"
 
-	StaticText ""
-	Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
+	// For later. Currently we have no working multiplayer.
+	//StaticText ""
+	//Control    "$CNTRLMNU_SCOREBOARD"       , "+show_dukematch_scores"
 }
 
 OptionMenu "ChatControlsMenu"// protected
@@ -715,7 +716,7 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_OPEN_SAVE"       , "opensavemenu"
 	Control    "$CNTRLMNU_OPEN_LOAD"       , "openloadmenu"
 	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "openmenu optionsmenu"
-	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "openmenu displayoptions"
+	Control    "$CNTRLMNU_OPEN_DISPLAY"    , "openmenu videooptions"
 	Control    "$CNTRLMNU_EXIT_TO_MAIN"    , "menu_endgame"
 	Control    "$CNTRLMNU_MENU_QUIT"       , "menu_quit"
 
