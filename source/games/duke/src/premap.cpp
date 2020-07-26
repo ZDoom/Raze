@@ -1151,9 +1151,12 @@ void exitlevel(void)
                             gamestate = GS_STARTUP;
                     }
                 }
+                else if (exitlevelend())
+                    gamestate = GS_STARTUP;
+
             });
     }
-    if (exitlevelend())
+    else if (exitlevelend())
         gamestate = GS_STARTUP;
 }
 

@@ -890,7 +890,7 @@ public:
 
 		if (lastmapname) BigText(160, 20 - 6, lastmapname);
 		BigText(160, 36 - 6, GStrings("Completed"));
-		GameText(160, 192, GStrings("PRESSKEY"), 8 - int(sin(totalclock / 10.) * 8), 0);
+		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(totalclock / 10.) * 8), 0);
 
 		if (totalclock > (60 * 3))
 		{

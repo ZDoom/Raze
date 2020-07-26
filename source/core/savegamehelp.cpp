@@ -314,7 +314,7 @@ int G_ValidateSavegame(FileReader &fr, FString *savetitle, bool formenu)
 		("Game Resource", gamegrp)
 		("Map Resource", mapgrp)
 		("Title", title)
-		("Nap Label", label)
+		("Map Label", label)
 		("Map File", filename);
 
 	auto savesig = gi->GetSaveSig();
