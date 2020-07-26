@@ -49,6 +49,7 @@ EXTERN_CVAR(Int, mus_device)
 EXTERN_CVAR(Int, hud_layout)
 EXTERN_CVAR(Int, hud_scale)
 EXTERN_CVAR(Int, hud_size)
+EXTERN_CVAR(Float, hud_statscale)
 
 EXTERN_CVAR(Int, hud_custom)
 EXTERN_CVAR(Bool, hud_stats)
