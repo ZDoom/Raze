@@ -507,10 +507,11 @@ void resetprestat(int snum,int g)
 
 void resetpspritevars(int g)
 {
-    short i, j, nexti, circ;
+    int i, j;
+    short nexti, circ;
     int firstx, firsty;
     spritetype* s;
-    char aimmode[MAXPLAYERS], autoaim[MAXPLAYERS];
+    int aimmode[MAXPLAYERS], autoaim[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
     EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,

@@ -281,16 +281,39 @@ int aim(spritetype* s, int aang)
 {
 	char gotshrinker, gotfreezer;
 	int i, j, a, k, cans;
-	int aimstats[] = { 10,13,1,2 };
+	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
 
 	a = s->ang;
 
 	// Autoaim from DukeGDX.
-	if (s->picnum == TILE_APLAYER && ps[s->yvel].auto_aim == 0)
-		return -1;
+	if (s->picnum == TILE_APLAYER)
+	{
+		if (ps[s->yvel].auto_aim == 0)
+		{
+			// The chickens in RRRA are homing and must always autoaim.
+			if (!isRRRA() || ps[s->yvel].curr_weapon != CHICKEN_WEAPON)
+				return -1;
+		}
+		else if (ps[s->yvel].auto_aim == 2)
+		{
+			int weap;
+			if (!isWW2GI())
+			{
+				weap = ps[s->yvel].curr_weapon;
+			}
+			else
+			{
+				weap = aplWeaponWorksLike[ps[s->yvel].curr_weapon][s->yvel];
+			}
+			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
+			{
+				return -1;
+			}
 
+		}
+	}
 	j = -1;
 	//	  if(s->picnum == TILE_APLAYER && ps[s->yvel].aim_mode) return -1;
 
