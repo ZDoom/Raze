@@ -69,7 +69,7 @@ struct user_defs
 	int folfvel, folavel, folx, foly, fola;
 	int reccnt;
 
-	int runkey_mode, weaponswitch;
+	int runkey_mode;
 
 	int entered_name, shadows, executions, auto_run;
 	int coords, tickrate, levelstats, m_coop, coop;
@@ -124,7 +124,7 @@ struct player_struct
 	int bobcounter, weapon_sway;
 	int pals_time, randomflamex, crack_time;
 
-	int aim_mode, auto_aim, weaponswitch;
+	int aim_mode, auto_aim;
 
 	short angvel, cursectnum, last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;

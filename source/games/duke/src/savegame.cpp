@@ -149,7 +149,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("crack_time", w.crack_time)
 			("aim.mode", w.aim_mode)
 			("auto_aim", w.auto_aim)
-			("weaponswitch", w.weaponswitch)
 			("angvel", w.angvel)
 			("cursectnum", w.cursectnum)
 			("last_extra", w.last_extra)

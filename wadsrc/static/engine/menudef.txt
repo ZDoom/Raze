@@ -927,7 +927,7 @@ OptionMenu GameplayOptions //protected
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "OnOff" // does not have the 'preferred' option.
 	}
-	else
+	ifgame(Blood)
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
 	}

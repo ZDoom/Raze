@@ -79,7 +79,6 @@ void setlocalplayerinput(player_struct* pp)
 {
 	pp->aim_mode = in_mousemode;
 	pp->auto_aim = cl_autoaim;
-	pp->weaponswitch = cl_weaponswitch;
 }
 
 //---------------------------------------------------------------------------

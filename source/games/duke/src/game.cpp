@@ -115,7 +115,7 @@ static void genspriteremaps(void)
 		for (int k = 0; k < 768; k++) // Build uses 6 bit VGA palettes.
 			paldata[k] = (paldata[k] << 2) | (paldata[k] >> 6);
 
-		paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j < DREALMSPAL);
+		paletteSetColorTable(j, paldata, j == DREALMSPAL || j == ENDINGPAL, j > SLIMEPAL);
 	}
 
 	for (int i = 0; i < 256; i++)
@@ -403,7 +403,6 @@ static void Startup(void)
 	for (int j = numplayers; j < ud.multimode; j++)
 	{
 		mysnprintf(ud.user_name[j], sizeof(ud.user_name[j]), "%s %d", GStrings("PLAYER"), j + 1);
-		ps[j].weaponswitch = 3;
 		ps[j].auto_aim = 0;
 	}
 
