@@ -1693,7 +1693,7 @@ void checksectors_d(int snum)
 					if (sprite[i].picnum == CAMERA1 && sprite[i].yvel == 0 && sprite[neartagsprite].hitag == sprite[i].lotag)
 					{
 						sprite[i].yvel = 1; //Using this camera
-						S_PlayActorSound(MONITOR_ACTIVE, neartagsprite);
+						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
 						sprite[neartagsprite].owner = i;
 						sprite[neartagsprite].yvel = 1;
