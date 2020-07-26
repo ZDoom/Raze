@@ -670,6 +670,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_endofgame:
+		insptr++;
 		ps[g_p].timebeforeexit = *insptr;
 		ps[g_p].customexitsound = -1;
 		ud.eog = 1;
