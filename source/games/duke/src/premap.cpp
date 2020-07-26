@@ -1064,7 +1064,7 @@ bool setnextmap(bool checksecretexit)
     {
         if (ud.secretlevel > 0)
         {
-            int newlevnum = levelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel);
+            int newlevnum = levelnum(volfromlevelnum(currentLevel->levelNumber), ud.secretlevel-1);
             map = FindMapByLevelNum(newlevnum);
             if (map)
             {
