@@ -335,7 +335,7 @@ void displayweapon_d(int snum)
 	// rest of code should be moved to CON..
 
 	j = 14-p->quick_kick;
-	if (j != 14)
+	if (j != 14 || p->last_quick_kick)
 	{
 		if (sprite[p->i].pal == 1)
 			pal = 1;
@@ -348,10 +348,13 @@ void displayweapon_d(int snum)
 
 
 		if (j < 5 || j > 9)
-			hud_drawpal(weapon_xoffset + 80 - (p->getlookang() >> 1),
-				looking_arc + 250 - gun_pos, KNEE, gs, o | 4, pal);
-		else hud_drawpal(weapon_xoffset + 160 - 16 - (p->getlookang() >> 1),
-			looking_arc + 214 - gun_pos, KNEE + 1, gs, o | 4, pal);
+		{
+			hud_drawpal(weapon_xoffset + 80 - (p->getlookang() >> 1), looking_arc + 250 - gun_pos, KNEE, gs, o | 4, pal);
+		}
+		else
+		{
+			hud_drawpal(weapon_xoffset + 160 - 16 - (p->getlookang() >> 1), looking_arc + 214 - gun_pos, KNEE + 1, gs, o | 4, pal);
+		}
 	}
 
 	if (sprite[p->i].xrepeat < 40)

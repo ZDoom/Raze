@@ -187,6 +187,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("dummyplayersprite", w.dummyplayersprite)
 			("extra_extra8", w.extra_extra8)
 			("quick_kick", w.quick_kick)
+			("last_quick_kick", w.last_quick_kick)
 			("heat_amount", w.heat_amount)
 			("actorsqu", w.actorsqu)
 			("timebeforeexit", w.timebeforeexit)

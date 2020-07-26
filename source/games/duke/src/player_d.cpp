@@ -1404,10 +1404,13 @@ int doincrements_d(struct player_struct* p)
 
 	if (p->quick_kick > 0 && sprite[p->i].pal != 1)
 	{
+		p->last_quick_kick = p->quick_kick + 1;
 		p->quick_kick--;
 		if (p->quick_kick == 8)
 			fi.shoot(p->i, KNEE);
 	}
+	else if (p->last_quick_kick > 0)
+		p->last_quick_kick--;
 
 	if (p->access_incs && sprite[p->i].pal != 1)
 	{
