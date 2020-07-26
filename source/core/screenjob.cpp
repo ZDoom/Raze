@@ -331,6 +331,7 @@ public:
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size()) screenfade = jobs[index].job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
 		startTime = -1;
+		inputState.ClearAllInput();
 	}
 
 	int DisplayFrame()
