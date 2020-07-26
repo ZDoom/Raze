@@ -609,7 +609,7 @@ OptionMenu "ActionControlsMenu"// protected
 		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
 		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
 	}
-	Control    "$CNTRLMNU_CENTERVIEW"       , "+center_view"
+	Control    "$CNTRLMNU_CENTERVIEW"       , "centerview"
 
 	StaticText ""
 	Control    "$CNTRLMNU_RUN"              , "+run"
