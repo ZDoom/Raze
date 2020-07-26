@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 
 #include "globals.h"
-#include "config.h"
 #include "screen.h"
 #include "v_video.h"
 

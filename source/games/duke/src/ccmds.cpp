@@ -90,8 +90,10 @@ static int ccmd_map(CCmdFuncPtr parm)
 		return CCMD_SHOWHELP;
 	}
 	FString mapname = parm->parms[0];
+	FString mapfilename = mapname;
+	DefaultExtension(mapfilename, ".map");
 
-	if (!fileSystem.Lookup(mapname, "MAP"))
+	if (!fileSystem.FindFile(mapfilename))
 	{
 		Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
 		return CCMD_OK;
@@ -106,9 +108,8 @@ static int ccmd_map(CCmdFuncPtr parm)
 			Printf(TEXTCOLOR_RED "Cannot use user maps in shareware.\n");
 			return CCMD_OK;
 		}
-		DefaultExtension(mapname, ".map");
-		if (mapname[0] != '/') mapname.Insert(0, "/");
-		map = SetupUserMap(mapname, !isRR() ? "dethtoll.mid" : nullptr);
+		if (mapfilename[0] != '/') mapfilename.Insert(0, "/");
+		map = SetupUserMap(mapfilename, !isRR() ? "dethtoll.mid" : nullptr);
 	}
 	if (numplayers > 1)
 	{

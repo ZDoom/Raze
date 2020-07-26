@@ -25,12 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "compat.h"
 #include "common_game.h"
-#include "config.h"
 #include "levels.h"
 #include "sound.h"
 #include "baselayer.h"
 #include "raze_music.h"
 #include "raze_sound.h"
+#include "gamecontrol.h"
 
 BEGIN_BLD_NS
 

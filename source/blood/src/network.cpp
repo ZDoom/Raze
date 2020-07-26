@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "pragmas.h"
 #include "compat.h"
-#include "config.h"
 #include "controls.h"
 #include "globals.h"
 #include "network.h"

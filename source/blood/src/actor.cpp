@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aiunicult.h"
 #include "blood.h"
 #include "callback.h"
-#include "config.h"
 #include "db.h"
 #include "endgame.h"
 #include "eventq.h"

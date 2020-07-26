@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "SmackerDecoder.h"
 #include "common_game.h"
 #include "blood.h"
-#include "config.h"
 #include "controls.h"
 #include "globals.h"
 #include "screen.h"

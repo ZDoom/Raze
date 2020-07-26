@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistate.h"
 #include "blood.h"
 #include "choke.h"
-#include "config.h"
 #include "db.h"
 #include "endgame.h"
 #include "gameutil.h"
@@ -1834,15 +1833,10 @@ void viewInit(void)
     memset(data, TRANSPARENT_INDEX, kLensSize*kLensSize);
     gGameMessageMgr.SetState(hud_messages);
     gGameMessageMgr.SetCoordinates(1, 1);
-    char nFont;
-    if (gMessageFont == 0)
-        nFont = 3;
-    else
-        nFont = 0;
 
-    gGameMessageMgr.SetFont(nFont);
-    gGameMessageMgr.SetMaxMessages(gMessageCount);
-    gGameMessageMgr.SetMessageTime(gMessageTime);
+    gGameMessageMgr.SetFont(3);
+    gGameMessageMgr.SetMaxMessages(4);
+    gGameMessageMgr.SetMessageTime(5);
 
     for (int i = 0; i < 16; i++)
     {

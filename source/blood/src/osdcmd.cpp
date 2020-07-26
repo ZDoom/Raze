@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "mmulti.h"
 #include "common_game.h"
-#include "config.h"
 #include "blood.h"
 #include "demo.h"
 #include "globals.h"
@@ -49,20 +48,19 @@ static int osdcmd_map(CCmdFuncPtr parm)
     if (parm->numparms != 1)
         return CCMD_SHOWHELP;
 
-    char filename[BMAX_PATH];
+    FString mapname = parm->parms[0];
+    FString mapfilename = mapname;
+    DefaultExtension(mapfilename, ".map");
 
-    strcpy(filename, parm->parms[0]);
-    ChangeExtension(filename, "");
-
-    if (!fileSystem.Lookup(filename, "MAP"))
+    if (!fileSystem.FindFile(mapfilename))
     {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", filename);
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename);
         return CCMD_OK;
     }
 
     for (int i = 0; i < 512; i++)
     {
-        if (mapList[i].labelName.CompareNoCase(filename) == 0)
+        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
         {
             int e = i / kMaxLevels;
             int m = i % kMaxLevels;
@@ -75,7 +73,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
     if (gDemo.at1)
         gDemo.StopPlayback();
 
-    levelAddUserMap(filename);
+    levelAddUserMap(mapname);
 
     if (numplayers > 1)
     {

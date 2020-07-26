@@ -35,7 +35,6 @@ void ChangeExtension(char *pzFile, const char *pzExt);
 void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType);
 void FireInit(void);
 void FireProcess(void);
-void drawLoadingScreen(void);
 void UpdateNetworkMenus(void); 
 void InitMirrors(void);
 void sub_5571C(char mode);

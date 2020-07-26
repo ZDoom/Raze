@@ -68,10 +68,12 @@ static int osdcmd_map(CCmdFuncPtr parm)
         return CCMD_SHOWHELP;
     }
     FString mapname = parm->parms[0];
+    FString mapfilename = mapname;
+    DefaultExtension(mapfilename, ".map");
 
-    if (!fileSystem.Lookup(mapname, "MAP"))
+    if (!fileSystem.FindFile(mapfilename))
     {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
         return CCMD_OK;
     }
 	

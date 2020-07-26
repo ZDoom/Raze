@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "version.h"
 #include "filesystem.h"
+#include "gamecvars.h"
+#include "gamecontrol.h"
 
 BEGIN_BLD_NS
 
@@ -34,5 +36,20 @@ extern int gFrame;
 //extern ClockTicks gGameClock;
 extern int gFrameRate;
 extern bool bVanilla;
+
+#define MAXPLAYERNAME 16
+
+extern int32_t gTurnSpeed;
+extern int32_t gDetail;
+extern int32_t gFollowMap;
+extern int32_t gOverlayMap;
+extern int32_t gRotateMap;
+extern bool gNoClip;
+extern bool gInfiniteAmmo;
+extern int32_t gDeliriumBlur;
+
+///////
+extern int gWeaponsV10x;
+//////
 
 END_BLD_NS

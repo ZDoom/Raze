@@ -42,6 +42,20 @@ int gFrameRate;
 static const char *_module;
 static int _line;
 
+int32_t gTurnSpeed = 92;
+int32_t gDetail = 4;
+int32_t gFollowMap = 1;
+int32_t gOverlayMap = 0;
+int32_t gRotateMap = 0;
+bool gNoClip;
+bool gInfiniteAmmo;
+int32_t gDeliriumBlur = 1;
+
+//////////
+int gWeaponsV10x;
+/////////
+
+
 void _SetErrorLoc(const char *pzFile, int nLine)
 {
     _module = pzFile;

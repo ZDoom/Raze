@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "blood.h"
 #include "choke.h"
-#include "config.h"
 #include "controls.h"
 #include "credits.h"
 #include "demo.h"
@@ -435,6 +434,21 @@ int gHealthTemp[kMaxPlayers];
 
 vec3_t startpos;
 int16_t startang, startsectnum;
+
+static void drawLoadingScreen(void)
+{
+    char buffer[80];
+    if (gGameOptions.nGameType == 0)
+    {
+        if (gDemo.at1)
+            strcpy(buffer, GStrings("TXTB_LDEMO"));
+        else
+            strcpy(buffer, GStrings("TXTB_LLEVEL"));
+    }
+    else
+        strcpy(buffer, GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType)));
+    viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
+}
 
 void StartLevel(GAMEOPTIONS *gameOptions)
 {

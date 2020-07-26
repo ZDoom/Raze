@@ -29,7 +29,6 @@ set( PCH_SOURCES
 	src/blood.cpp
 	src/callback.cpp
 	src/choke.cpp
-	src/config.cpp
 	src/controls.cpp
 	src/credits.cpp
 	src/db.cpp
@@ -39,7 +38,6 @@ set( PCH_SOURCES
 	src/eventq.cpp
 	src/fire.cpp
 	src/fx.cpp
-	src/gamemenu.cpp
 	src/gameutil.cpp
 	src/gib.cpp
 	src/globals.cpp
