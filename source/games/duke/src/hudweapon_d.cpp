@@ -436,7 +436,7 @@ void displayweapon_d(int snum)
 			hud_drawpal(weapon_xoffset + 130 - (p->getlookang() >> 1),
 				looking_arc + 249 - gun_pos,
 				HANDHOLDINGLASER + (p->kickback_pic >> 2), gs, o, pal);
-			hud_drawpal(weapon_xoffset + 152 - (p->getlookang() >> 1),
+			hud_drawpal(weapon_xoffset + 328 - (p->getlookang() >> 1),
 				looking_arc + 249 - gun_pos,
 				HANDHOLDINGLASER + (p->kickback_pic >> 2), gs, o | 4, pal);
 		};
