@@ -223,7 +223,7 @@ public:
 	void DrawHud(int snum, int style)
 	{
 		auto p = &ps[snum];
-		BeginHUD(320, 200, 1.f, false);
+		BeginHUD(320, 200, 1.f);
 		if (style == 1)
 		{
 			double y = -40;
@@ -291,7 +291,7 @@ public:
 		auto p = &ps[snum];
 		double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
 		double top = 200 - h;
-		BeginStatusBar(320, 200, h, true);
+		BeginStatusBar(320, 200, h);
 		DrawInventory(p, 160, 154, 0);
 
 		if (hud_size < 7)

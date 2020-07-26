@@ -218,6 +218,13 @@ CCMD(scaledown)
 	if (hud_scale != oldscale) gi->PlayHudSound();
 }
 
+CUSTOM_CVARD(Float, hud_statscale, 2, CVAR_ARCHIVE, "change the scale of the stats display")
+{
+	if (self < 0.5) self = 0.5;
+	else if (self > 4) self = 4;
+}
+
+
 CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")
 CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")

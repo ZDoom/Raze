@@ -246,7 +246,7 @@ public:
 	void DrawHud(int snum, int style)
 	{
 		auto p = &ps[snum];
-		BeginHUD(320, 200, 1.f, false);
+		BeginHUD(320, 200, 1.f);
 		if (style == 1)
 		{
 			DrawInventory(p, 0, -46, DI_SCREEN_CENTER_BOTTOM);
@@ -356,7 +356,7 @@ public:
 		auto p = &ps[snum];
 		int h = tilesiz[TILE_BOTTOMSTATUSBAR].y;
 		int top = 200 - h;
-		BeginStatusBar(320, 200, h, true);
+		BeginStatusBar(320, 200, h);
 		DrawInventory(p, 160, 154, 0);
 		DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 

@@ -1017,10 +1017,9 @@ OptionMenu "HUDOptions" //protected
 {
 	Title "$OPTMNU_HUD"
 
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury)
+	ifgame(duke, nam, ww2gi, redneck, redneckrides)
 	{
 		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 11.0, 1.0, -1
-		Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				35, 100, 5, 2
 	}
 	ifgame(blood)
 	{
@@ -1034,12 +1033,13 @@ OptionMenu "HUDOptions" //protected
 	{
 		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 8.0, 1.0, -1
 	}
-	
+	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				36, 100, 4, 2
+	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, Deer)
-	{
-		Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
-	}
+	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			.5, 3, 0.25, 2
+
+	//Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
+
 	StaticText ""
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
 	StaticText ""

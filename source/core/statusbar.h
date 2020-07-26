@@ -184,9 +184,8 @@ public:
 	void TransformRect(double &x, double &y, double &w, double &h, int flags = 0);
 	void Fill(PalEntry color, double x, double y, double w, double h, int flags = 0);
 
-	void BeginStatusBar(int resW, int resH, int relTop, bool forceScaled);
-	void BeginHUD(int resW, int resH, double Alpha, bool forceScaled = false);
-	bool ForceHUDScale(bool on) { std::swap(ForcedScale, on); return on; }	// This is for SBARINFO which should not use BeginStatusBar or BeginHUD.
+	void BeginStatusBar(int resW, int resH, int relTop);
+	void BeginHUD(int resW, int resH, double Alpha);
 	void StatusbarToRealCoords(double &x, double &y, double &w, double &h) const;
 	void PrintLevelStats(FLevelStats& stats);
 	int GetTopOfStatusbar() const
@@ -217,8 +216,6 @@ public:
 	int RelTop;
 	int HorizontalResolution, VerticalResolution;
 	bool Scaled;							// This needs to go away.
-	DVector2 defaultScale;					// factor for fully scaled fullscreen display.
-	bool ForcedScale = false;
 
 	bool Centering;
 	bool FixedOrigin;
@@ -226,8 +223,6 @@ public:
 	double CrosshairSize;
 	double Displacement;
 	bool ShowLog;
-	int artiflashTick = 0;
-	double itemflashFade = 0.75;
 
 	double Alpha = 1.;
 	DVector2 drawOffset = { 0,0 };			// can be set by subclasses to offset drawing operations
@@ -235,10 +230,6 @@ public:
 	bool fullscreenOffsets = false;			// current screen is displayed with fullscreen behavior.
 
 private:
-	bool RepositionCoords (int &x, int &y, int xo, int yo, const int w, const int h) const;
-	void DrawMessages (int layer, int bottom);
-	void DrawConsistancy () const;
-	void DrawWaiting () const;
 	void SetDrawSize(int reltop, int hres, int vres);
 
 	int BaseRelTop;

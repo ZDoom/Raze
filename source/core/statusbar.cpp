@@ -54,6 +54,7 @@
 #include "v_draw.h"
 #include "v_font.h"
 #include "v_draw.h"
+#include "gamecvars.h"
 
 #include "../version.h"
 
@@ -65,14 +66,12 @@
 
 EXTERN_CVAR (Bool, am_showmonsters)
 EXTERN_CVAR (Bool, am_showsecrets)
-EXTERN_CVAR (Bool, am_showitems)
 EXTERN_CVAR (Bool, am_showtime)
 EXTERN_CVAR (Bool, am_showtotaltime)
 EXTERN_CVAR (Bool, noisedebug)
 EXTERN_CVAR (Int, con_scaletext)
 EXTERN_CVAR(Bool, vid_fps)
 EXTERN_CVAR(Bool, inter_subtitles)
-CVAR(Int, newhud_scale, 1, CVAR_ARCHIVE)
 CVAR(Bool, log_vgafont, false, CVAR_ARCHIVE)
 
 DBaseStatusBar *StatusBar;
@@ -82,29 +81,6 @@ extern int setblocks;
 FGameTexture *CrosshairImage;
 static int CrosshairNum;
 
-
-// Stretch status bar to full screen width?
-CUSTOM_CVAR (Int, st_scale, 0, CVAR_ARCHIVE)
-{
-	if (self < -1)
-	{
-		self = -1;
-		return;
-	}
-	if (StatusBar)
-	{
-		StatusBar->SetScale();
-		setsizeneeded = true;
-	}
-}
-CUSTOM_CVAR(Bool, hud_aspectscale, false, CVAR_ARCHIVE)
-{
-	if (StatusBar)
-	{
-		StatusBar->SetScale();
-		setsizeneeded = true;
-	}
-}
 
 CVAR (Bool, crosshairon, true, CVAR_ARCHIVE);
 CVAR (Int, crosshair, 0, CVAR_ARCHIVE)
@@ -151,7 +127,6 @@ DBaseStatusBar::DBaseStatusBar ()
 	CrosshairSize = 1.;
 	Displacement = 0;
 	ShowLog = false;
-	defaultScale = { (double)CleanXfac, (double)CleanYfac };
 	SetSize(0);
 }
 
@@ -182,47 +157,6 @@ void DBaseStatusBar::SetSize(int reltop, int hres, int vres, int hhres, int hvre
 	SetDrawSize(reltop, hres, vres);
 }
 
-static void ST_CalcCleanFacs(int designwidth, int designheight, int realwidth, int realheight, int *cleanx, int *cleany)
-{
-	float ratio;
-	int cwidth;
-	int cheight;
-	int cx1, cy1, cx2, cy2;
-
-	ratio = ActiveRatio(realwidth, realheight);
-	if (AspectTallerThanWide(ratio))
-	{
-		cwidth = realwidth;
-		cheight = realheight * AspectMultiplier(ratio) / 48;
-	}
-	else
-	{
-		cwidth = realwidth * AspectMultiplier(ratio) / 48;
-		cheight = realheight;
-	}
-	// Use whichever pair of cwidth/cheight or width/height that produces less difference
-	// between CleanXfac and CleanYfac.
-	cx1 = MAX(cwidth / designwidth, 1);
-	cy1 = MAX(cheight / designheight, 1);
-	cx2 = MAX(realwidth / designwidth, 1);
-	cy2 = MAX(realheight / designheight, 1);
-	if (abs(cx1 - cy1) <= abs(cx2 - cy2) || MAX(cx1, cx2) >= 4)
-	{ // e.g. 640x360 looks better with this.
-		*cleanx = cx1;
-		*cleany = cy1;
-	}
-	else
-	{ // e.g. 720x480 looks better with this.
-		*cleanx = cx2;
-		*cleany = cy2;
-	}
-
-	if (*cleanx < *cleany)
-		*cleany = *cleanx;
-	else
-		*cleanx = *cleany;
-}
-
 void DBaseStatusBar::SetDrawSize(int reltop, int hres, int vres)
 {
 	ValidateResolution(hres, vres);
@@ -230,10 +164,6 @@ void DBaseStatusBar::SetDrawSize(int reltop, int hres, int vres)
 	RelTop = reltop;
 	HorizontalResolution = hres;
 	VerticalResolution = vres;
-	int x, y;
-	ST_CalcCleanFacs(hres, vres, SCREENWIDTH, SCREENHEIGHT, &x, &y);
-	defaultScale = { (double)x, (double)y };
-
 	SetScale();	// recalculate positioning info.
 }
 
@@ -247,55 +177,41 @@ void DBaseStatusBar::SetScale ()
 {
 	ValidateResolution(HorizontalResolution, VerticalResolution);
 
-	int w = SCREENWIDTH;
-	int h = SCREENHEIGHT;
-	if (st_scale < 0 || ForcedScale)
-	{
-		// This is the classic fullscreen scale with aspect ratio compensation.
-		int sby = VerticalResolution - RelTop;
-		float aspect = ActiveRatio(w, h);
-		if (!AspectTallerThanWide(aspect))
-		{ 
-			// Wider or equal than 4:3 
-			SBarTop = Scale(sby, h, VerticalResolution);
-			double width4_3 = w * 1.333 / aspect;
-			ST_X = int((w - width4_3) / 2);
-		}
-		else
-		{ // 5:4 resolution
-			ST_X = 0;
+	double w = SCREENWIDTH;
+	double h = SCREENHEIGHT;
+	double refw, refh;
 
-			// this was far more obtuse before...
-			double height4_3 = h * aspect / 1.333;
-			SBarTop = int(h - height4_3 + sby * height4_3 / VerticalResolution);
-		}
-		Displacement = 0;
-		SBarScale.X = -1;
-		ST_Y = 0;
+	int horz = HorizontalResolution;
+	int vert = VerticalResolution;
+	double refaspect = horz / double(vert);
+	double screenaspect = w / double(h);
+
+	if ((horz == 320 && vert == 200) || (horz == 640 && vert == 400))
+	{
+		refaspect = 1.333;
+	}
+	
+	if (screenaspect < refaspect)
+	{
+		refw = w;
+		refh = w / refaspect;
 	}
 	else
 	{
-		// Since status bars and HUDs can be designed for non 320x200 screens this needs to be factored in here.
-		// The global scaling factors are for resources at 320x200, so if the actual ones are higher resolution
-		// the resulting scaling factor needs to be reduced accordingly.
-		int realscale = clamp((320 * GetUIScale(twod, st_scale)) / HorizontalResolution, 1, w / HorizontalResolution);
-
-		double realscaley = realscale * (hud_aspectscale ? 1.2 : 1.);
-
-		ST_X = (w - HorizontalResolution * realscale) / 2;
-		SBarTop = int(h - RelTop * realscaley);
-		if (RelTop > 0)
-		{
-			Displacement = double((SBarTop * VerticalResolution / h) - (VerticalResolution - RelTop))/RelTop/realscaley;
-		}
-		else
-		{
-			Displacement = 0;
-		}
-		SBarScale.X = realscale;
-		SBarScale.Y = realscaley;
-		ST_Y = int(h - VerticalResolution * realscaley);
+		refh = h;
+		refw = h * refaspect;
 	}
+	refw *= (hud_scale / 100.);
+	refh *= (hud_scale / 100.);
+
+	int sby = VerticalResolution - RelTop;
+	// Use full pixels for destination size.
+
+	ST_X = xs_CRoundToInt((w - refw) / 2);
+	ST_Y = xs_CRoundToInt(h - refh);
+	SBarTop = Scale(sby, h, VerticalResolution);
+	SBarScale.X = refw / horz;
+	SBarScale.Y = refh / vert;
 }
 
 //---------------------------------------------------------------------------
@@ -306,22 +222,7 @@ void DBaseStatusBar::SetScale ()
 
 DVector2 DBaseStatusBar::GetHUDScale() const
 {
-	int scale;
-	if (newhud_scale < 0 || ForcedScale)	// a negative value is the equivalent to the old boolean hud_scale. This can yield different values for x and y for higher resolutions.
-	{
-		return defaultScale;
-	}
-	scale = GetUIScale(twod, newhud_scale);
-
-	int hres = HorizontalResolution;
-	int vres = VerticalResolution;
-	ValidateResolution(hres, vres);
-
-	// Since status bars and HUDs can be designed for non 320x200 screens this needs to be factored in here.
-	// The global scaling factors are for resources at 320x200, so if the actual ones are higher resolution
-	// the resulting scaling factor needs to be reduced accordingly.
-	int realscale = MAX<int>(1, (320 * scale) / hres);
-	return{ double(realscale), double(realscale * (hud_aspectscale ? 1.2 : 1.)) };
+	return SBarScale;
 }
 
 //---------------------------------------------------------------------------
@@ -330,10 +231,9 @@ DVector2 DBaseStatusBar::GetHUDScale() const
 //
 //---------------------------------------------------------------------------
 
-void DBaseStatusBar::BeginStatusBar(int resW, int resH, int relTop, bool forceScaled)
+void DBaseStatusBar::BeginStatusBar(int resW, int resH, int relTop)
 {
 	SetDrawSize(relTop < 0? BaseRelTop : relTop, resW < 0? BaseSBarHorizontalResolution : resW, resH < 0? BaseSBarVerticalResolution : resH);
-	ForcedScale = forceScaled;
 	fullscreenOffsets = false;
 }
 
@@ -343,11 +243,10 @@ void DBaseStatusBar::BeginStatusBar(int resW, int resH, int relTop, bool forceSc
 //
 //---------------------------------------------------------------------------
 
-void DBaseStatusBar::BeginHUD(int resW, int resH, double Alpha, bool forcescaled)
+void DBaseStatusBar::BeginHUD(int resW, int resH, double Alpha)
 {
 	SetDrawSize(RelTop, resW < 0? BaseHUDHorizontalResolution : resW, resH < 0? BaseHUDVerticalResolution : resH);	
 	this->Alpha = Alpha;
-	ForcedScale = forcescaled;
 	CompleteBorder = false;
 	fullscreenOffsets = true;
 }
@@ -360,18 +259,6 @@ void DBaseStatusBar::BeginHUD(int resW, int resH, double Alpha, bool forcescaled
 
 void DBaseStatusBar::Tick ()
 {
-	if (artiflashTick > 0)
-		artiflashTick--;
-
-	if (itemflashFade > 0)
-	{
-		itemflashFade -= 1 / 14.;
-		if (itemflashFade < 0)
-		{
-			itemflashFade = 0;
-		}
-	}
-
 }
 
 //============================================================================
@@ -382,21 +269,10 @@ void DBaseStatusBar::Tick ()
 
 void DBaseStatusBar::StatusbarToRealCoords(double &x, double &y, double &w, double &h) const
 {
-	if (SBarScale.X == -1 || ForcedScale)
-	{
-		int hres = HorizontalResolution;
-		int vres = VerticalResolution;
-		ValidateResolution(hres, vres);
-
-		VirtualToRealCoords(twod, x, y, w, h, hres, vres, true);
-	}
-	else
-	{
-		x = ST_X + x * SBarScale.X;
-		y = ST_Y + y * SBarScale.Y;
-		w *= SBarScale.X;
-		h *= SBarScale.Y;
-	}
+	x = ST_X + x * SBarScale.X;
+	y = ST_Y + y * SBarScale.Y;
+	w *= SBarScale.X;
+	h *= SBarScale.Y;
 }
 
 //============================================================================
@@ -811,8 +687,6 @@ void FormatNumber(int number, int minsize, int maxsize, int flags, const FString
 	else if (flags & FNF_FILLZEROS) fmt.Format("%s%0*d", prefix.GetChars(), minsize, number);
 	else fmt.Format("%s%*d", prefix.GetChars(), minsize, number);
 }
-
-CVAR(Float, hud_statscale, 2, CVAR_ARCHIVE)
 
 void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 {
