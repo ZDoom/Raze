@@ -1013,11 +1013,11 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 	pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
 	pick.basepalTint = 0xffffff;
 
-	auto& h = lookups.tables[palette];
+	auto& h = lookups.tables[usepalswap];
 	bool applytint = false;
 	// Canvas textures must be treated like hightile replacements in the following code.
 	if (picnum < 0) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
-	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, palette) : nullptr;
+	auto rep = (picnum >= 0 && hw_hightile && !(h.tintFlags & TINTF_ALWAYSUSEART)) ? TileFiles.FindReplacement(picnum, usepalswap) : nullptr;
 	if (rep || tex->GetTexture()->isHardwareCanvas())
 	{
 		if (usepalette != 0)
@@ -1032,7 +1032,7 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 		{
 			tex = rep->faces[0];
 		}
-		if (!rep || rep->palnum != palette || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
+		if (!rep || rep->palnum != usepalswap || (h.tintFlags & TINTF_APPLYOVERALTPAL)) applytint = true;
 		pick.translation = 0;
 	}
 	else
