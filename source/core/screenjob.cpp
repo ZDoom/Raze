@@ -44,6 +44,7 @@
 #include "animtexture.h"
 #include "gamestate.h"
 #include "menu.h"
+#include "raze_sound.h"
 #include "movie/playmve.h"
 
 
@@ -119,6 +120,7 @@ public:
 		if (curframe > 4 && totalclock > frametime + 60)
 		{
 			Printf("WARNING: slowdown in video playback, aborting\n");
+			soundEngine->StopAllChannels();
 			return -1;
 		}
 
@@ -126,6 +128,7 @@ public:
 		{
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
+			if (skiprequest) soundEngine->StopAllChannels();
 			return skiprequest? -1 : 1;
 		}
 
