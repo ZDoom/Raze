@@ -917,7 +917,7 @@ public:
 					S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
 				}
 			}
-			else
+			//else
 			{
 				int tile = val == 2 || val == 3 ? gfx_offset + 4 : gfx_offset + 3;
 				DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
