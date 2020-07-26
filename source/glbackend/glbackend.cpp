@@ -550,6 +550,7 @@ void hud_drawsprite(double sx, double sy, int z, int a, int picnum, int dashade,
 		DTA_FlipX, !!(dastat & RS_YFLIP),      // the weapon drawer uses y-flip+180° rotation for x-flip but no other transformation.
 		DTA_Pin, (dastat & RS_ALIGN_R) ? 1 : (dastat & RS_ALIGN_L) ? -1 : 0,
 		DTA_Rotate, a * (-360./2048),
+		DTA_FlipOffsets, !(dastat & (RS_TOPLEFT | RS_CENTER)),
 		TAG_DONE);
 }
 

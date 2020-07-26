@@ -426,13 +426,11 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 	if (parms.flipX)
 	{
 		std::swap(u1, u2);
-		parms.left = parms.texwidth - parms.left;
 	}
 
 	if (parms.flipY)
 	{
 		std::swap(v1, v2);
-		parms.top = parms.texheight - parms.top;
 	}
 
 	if (parms.rotateangle == 0)

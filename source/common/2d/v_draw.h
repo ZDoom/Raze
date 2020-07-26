@@ -104,6 +104,7 @@ enum
 	DTA_TopLeft,			// always align to top left. Added to have a boolean condition for this alignment.
 	DTA_Pin,				// Pin a non-widescreen image to the left/right edge of the screen.
 	DTA_Rotate,
+	DTA_FlipOffsets,		// Flips offsets when using DTA_FlipX and DTA_FlipY, this cannot be automatic due to unexpected behavior with unoffsetted graphics.
 
 };
 
@@ -169,6 +170,7 @@ struct DrawParms
 	bool fortext;
 	bool virtBottom;
 	bool burn;
+	bool flipoffsets;
 	int8_t fsscalemode;
 	double srcx, srcy;
 	double srcwidth, srcheight;

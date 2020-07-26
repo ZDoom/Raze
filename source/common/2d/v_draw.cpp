@@ -413,6 +413,9 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		parms->destwidth *= parms->patchscalex;
 		parms->destheight *= parms->patchscaley;
 
+		if (parms->flipoffsets && parms->flipY) parms->top = parms->texwidth - parms->top;
+		if (parms->flipoffsets && parms->flipX) parms->left = parms->texwidth - parms->left;
+
 		switch (parms->cleanmode)
 		{
 		default:
@@ -637,6 +640,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->patchscalex = parms->patchscaley = 1;
 	parms->viewport = { 0,0,drawer->GetWidth(), drawer->GetHeight() };
 	parms->rotateangle = 0;
+	parms->flipoffsets = false;
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -832,6 +836,10 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 
 		case DTA_FlipY:
 			parms->flipY = ListGetInt(tags);
+			break;
+
+		case DTA_FlipOffsets:
+			parms->flipoffsets = ListGetInt(tags);
 			break;
 
 		case DTA_SrcX:
