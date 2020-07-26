@@ -613,7 +613,7 @@ OptionMenu "ActionControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_RUN"              , "+run"
-	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle autorun"
+	Control    "$CNTRLMNU_TOGGLERUN"        , "toggle cl_autorun"
 	Control    "$CNTRLMNU_STRAFE"           , "+strafe"
 
 	StaticText ""
