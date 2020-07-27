@@ -204,7 +204,7 @@ constexpr inline int mapfromlevelnum(int num)
 inline void hud_draw(double x, double y, int tilenum, int shade, int orientation)
 {
 	int p = sector[ps[screenpeek].cursectnum].floorpal;
-	hud_drawsprite(x, y, 65536, (orientation & 4) ? 1024 : 0, tilenum, shade, p, 2 | orientation);
+	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
 
 END_DUKE_NS
