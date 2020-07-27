@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "callback.h"
 #include "controls.h"
-#include "demo.h"
 #include "eventq.h"
 #include "fx.h"
 #include "gib.h"
@@ -1365,8 +1364,6 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    if (gDemo.at0)
-                        gDemo.Close();
                     pInput->keyFlags.restart = 1;
                 }
                 else

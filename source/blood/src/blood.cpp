@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "choke.h"
 #include "controls.h"
 #include "credits.h"
-#include "demo.h"
 #include "dude.h"
 #include "endgame.h"
 #include "eventq.h"
@@ -346,8 +345,6 @@ void PreloadTiles(void)
 
 void PreloadCache(void)
 {
-    if (gDemo.at1)
-        return;
     PreloadTiles();
     ClockTicks clock = totalclock;
     int cnt = 0;
@@ -440,10 +437,7 @@ static void drawLoadingScreen(void)
     char buffer[80];
     if (gGameOptions.nGameType == 0)
     {
-        if (gDemo.at1)
-            strcpy(buffer, GStrings("TXTB_LDEMO"));
-        else
-            strcpy(buffer, GStrings("TXTB_LLEVEL"));
+        strcpy(buffer, GStrings("TXTB_LLEVEL"));
     }
     else
         strcpy(buffer, GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType)));
@@ -457,8 +451,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gInput = {};
     gStartNewGame = 0;
     ready2send = 0;
-    if (gDemo.at0 && gGameStarted)
-        gDemo.Close();
     netWaitForEveryone(0);
     if (gGameOptions.nGameType == 0)
     {
@@ -467,7 +459,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
             && gEpisodeInfo[gGameOptions.nEpisode].at8f08)
             gGameOptions.uGameFlags |= 4;
-        if ((gGameOptions.uGameFlags&4) && gDemo.at1 == 0)
+        if ((gGameOptions.uGameFlags&4))
             levelPlayIntroScene(gGameOptions.nEpisode);
 
         ///////
@@ -506,7 +498,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             gHealthTemp[i] = xsprite[gPlayer[i].pSprite->extra].health;
         }
     }
-    bVanilla = gDemo.at1 && gDemo.m_bLegacy;
+    bVanilla = false;
     enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
@@ -625,8 +617,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     sub_79760();
     gFrame = 0;
     gChokeCounter = 0;
-	if (!gDemo.at1)
-		M_ClearMenus();
+	M_ClearMenus();
     levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
     // viewSetMessage("");
     viewSetErrorMessage("");
@@ -642,8 +633,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
 
 void StartNetworkLevel(void)
 {
-    if (gDemo.at0)
-        gDemo.Close();
     if (!(gGameOptions.uGameFlags&1))
     {
         gGameOptions.nEpisode = gPacketStartGame.episodeId;
@@ -803,12 +792,9 @@ void ProcessFrame(void)
         }
     }
     viewClearInterpolations();
-    if (!gDemo.at1)
     {
         if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
             return;
-        if (gDemo.at0)
-            gDemo.Write(gFifoInput[(gNetFifoTail-1)&255]);
     }
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
@@ -854,8 +840,6 @@ void ProcessFrame(void)
                 netMasterUpdate();
             }
         }
-        if (gDemo.at0)
-            gDemo.Close();
         Mus_Fade(4000);
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
@@ -885,18 +869,7 @@ void ProcessFrame(void)
 
 void ParseOptions(void)
 {
-#if 0
-    if (bAddUserMap)
-    {
-        char zNode[BMAX_PATH];
-        char zDir[BMAX_PATH];
-        char zFName[BMAX_PATH];
-        _splitpath(gUserMapFilename, zNode, zDir, zFName, NULL);
-        strcpy(g_modDir, zNode);
-        strcat(g_modDir, zDir);
-        strcpy(gUserMapFilename, zFName);
-    }
-#endif
+
 }
 
 void ClockStrobe()
@@ -1016,8 +989,6 @@ int GameInterface::app_main()
     WeaponInit();
     LoadSaveSetup();
     LoadSavedInfo();
-    gDemo.LoadDemoInfo();
-    Printf("There are %d demo(s) in the loop\n", gDemo.at59ef);
     Printf("Loading control setup\n");
     ctrlInit();
     timerInit(120);
@@ -1063,22 +1034,12 @@ RESTART:
         goto RESTART;
     }
     UpdateNetworkMenus();
-#if 0
-    if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
-        gDemo.SetupPlayback(NULL);
-#endif
     gQuitGame = 0;
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)
     {
         inputState.ClearAllInput();
     }
-#if 0
-    else if (gDemo.at1 && !bAddUserMap && !bNoDemo && demo_playloop)
-        gDemo.Playback();
-#endif
-    if (gDemo.at59ef > 0)
-        M_ClearMenus();
 	if (!bAddUserMap && !gGameStarted)
 	{
 		M_StartControlPanel(false);
@@ -1199,8 +1160,6 @@ RESTART:
 		}
     }
     ready2send = 0;
-    if (gDemo.at0)
-        gDemo.Close();
     if (gRestartGame)
     {
         Mus_Stop();
@@ -1226,10 +1185,6 @@ RESTART:
 #endif
         if (gGameOptions.nGameType != 0)
         {
-#if 0
-            if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo && demo_playloop)
-                gDemo.NextDemo();
-#endif
             videoSetViewableArea(0,0,xdim-1,ydim-1);
 			playvideo = !bQuickStart;
         }
@@ -1510,155 +1465,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         }
         break;
 
-#if 0
-        case T_CUTSCENE:
-        {
-            char *fileName = NULL;
-
-            scriptfile_getstring(pScript, &fileName);
-
-            char *animEnd;
-
-            if (scriptfile_getbraces(pScript, &animEnd))
-                break;
-
-            if (!firstPass)
-            {
-                dukeanim_t *animPtr = Anim_Find(fileName);
-
-                if (!animPtr)
-                {
-                    animPtr = Anim_Create(fileName);
-                    animPtr->framedelay = 10;
-                    animPtr->frameflags = 0;
-                }
-
-                int32_t temp;
-
-                while (pScript->textptr < animEnd)
-                {
-                    switch (getatoken(pScript, animTokens, ARRAY_SIZE(animTokens)))
-                    {
-                        case T_DELAY:
-                            scriptfile_getnumber(pScript, &temp);
-                            animPtr->framedelay = temp;
-                            break;
-                        case T_ASPECT:
-                        {
-                            double dtemp, dtemp2;
-                            scriptfile_getdouble(pScript, &dtemp);
-                            scriptfile_getdouble(pScript, &dtemp2);
-                            animPtr->frameaspect1 = dtemp;
-                            animPtr->frameaspect2 = dtemp2;
-                            break;
-                        }
-                        case T_SOUND:
-                        {
-                            char *animSoundsEnd = NULL;
-                            if (scriptfile_getbraces(pScript, &animSoundsEnd))
-                                break;
-                            parsedefinitions_game_animsounds(pScript, animSoundsEnd, fileName, animPtr);
-                            break;
-                        }
-                        case T_FORCEFILTER:
-                            animPtr->frameflags |= CUTSCENE_FORCEFILTER;
-                            break;
-                        case T_FORCENOFILTER:
-                            animPtr->frameflags |= CUTSCENE_FORCENOFILTER;
-                            break;
-                        case T_TEXTUREFILTER:
-                            animPtr->frameflags |= CUTSCENE_TEXTUREFILTER;
-                            break;
-                    }
-                }
-            }
-            else
-                pScript->textptr = animEnd;
-        }
-        break;
-        case T_ANIMSOUNDS:
-        {
-            char *tokenPtr     = pScript->ltextptr;
-            char *fileName     = NULL;
-
-            scriptfile_getstring(pScript, &fileName);
-            if (!fileName)
-                break;
-
-            char *animSoundsEnd = NULL;
-
-            if (scriptfile_getbraces(pScript, &animSoundsEnd))
-                break;
-
-            if (firstPass)
-            {
-                pScript->textptr = animSoundsEnd;
-                break;
-            }
-
-            dukeanim_t *animPtr = Anim_Find(fileName);
-
-            if (!animPtr)
-            {
-                Printf("Error: expected animation filename on line %s:%d\n",
-                    pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
-                break;
-            }
-
-            parsedefinitions_game_animsounds(pScript, animSoundsEnd, fileName, animPtr);
-        }
-        break;
-        case T_SOUND:
-        {
-            char *tokenPtr = pScript->ltextptr;
-            char *fileName = NULL;
-            char *musicEnd;
-
-            double volume = 1.0;
-
-            int32_t soundNum = -1;
-            int32_t maxpitch = 0;
-            int32_t minpitch = 0;
-            int32_t priority = 0;
-            int32_t type     = 0;
-            int32_t distance = 0;
-
-            if (scriptfile_getbraces(pScript, &musicEnd))
-                break;
-
-            while (pScript->textptr < musicEnd)
-            {
-                switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
-                {
-                    case T_ID:       scriptfile_getsymbol(pScript, &soundNum); break;
-                    case T_FILE:     scriptfile_getstring(pScript, &fileName); break;
-                    case T_MINPITCH: scriptfile_getsymbol(pScript, &minpitch); break;
-                    case T_MAXPITCH: scriptfile_getsymbol(pScript, &maxpitch); break;
-                    case T_PRIORITY: scriptfile_getsymbol(pScript, &priority); break;
-                    case T_TYPE:     scriptfile_getsymbol(pScript, &type);     break;
-                    case T_DISTANCE: scriptfile_getsymbol(pScript, &distance); break;
-                    case T_VOLUME:   scriptfile_getdouble(pScript, &volume);   break;
-                }
-            }
-
-            if (!firstPass)
-            {
-                if (soundNum==-1)
-                {
-                    Printf("Error: missing ID for sound definition near line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
-                    break;
-                }
-
-                if (fileName == NULL || fileSystem.FileExists(fileName))
-                    break;
-
-                // maybe I should have just packed this into a sound_t and passed a reference...
-                if (S_DefineSound(soundNum, fileName, minpitch, maxpitch, priority, type, distance, volume) == -1)
-                    Printf("Error: invalid sound ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
-            }
-        }
-        break;
-#endif
         case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &blood_globalflags); break;
         case T_EOF: return 0;
         default: break;
@@ -1688,11 +1494,11 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 }
 
 bool DemoRecordStatus(void) {
-    return gDemo.at0;
+    return false;
 }
 
 bool VanillaMode() {
-    return gDemo.m_bLegacy && gDemo.at1;
+    return false;
 }
 
 int sndTryPlaySpecialMusic(int nMusic)

@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
-#include "demo.h"
 #include "eventq.h"
 #include "globals.h"
 #include "levels.h"
@@ -276,18 +275,6 @@ void ToggleDelirium(void)
 void LevelWarp(int nEpisode, int nLevel)
 {
     levelSetupOptions(nEpisode, nLevel);
-    StartLevel(&gGameOptions);
-    viewResizeView(gViewSize);
-}
-
-void LevelWarpAndRecord(int nEpisode, int nLevel)
-{
-    char buffer[BMAX_PATH];
-    levelSetupOptions(nEpisode, nLevel);
-    gGameStarted = false;
-    strcpy(buffer, levelGetFilename(nEpisode, nLevel));
-    ChangeExtension(buffer, ".DEM");
-    gDemo.Create(buffer);
     StartLevel(&gGameOptions);
     viewResizeView(gViewSize);
 }
@@ -674,7 +661,6 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
 {
     dassert(nCheatCode > kCheatNone && nCheatCode < kCheatMax);
 
-    if (gDemo.at0) return;
     if (nCheatCode == kCheatRate)
     {
         r_showfps = !r_showfps;
@@ -686,8 +672,7 @@ void CCheatMgr::Process(CCheatMgr::CHEATCODE nCheatCode, char* pzArgs)
     switch (nCheatCode)
     {
     case kCheatSpielberg:
-        if (parseArgs(pzArgs, &nEpisode, &nLevel) == 2)
-            LevelWarpAndRecord(nEpisode, nLevel);
+		// demo record
         break;
     case kCheat1:
         SetAmmo(true);

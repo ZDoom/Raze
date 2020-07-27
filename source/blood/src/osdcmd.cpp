@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "common_game.h"
 #include "blood.h"
-#include "demo.h"
 #include "globals.h"
 #include "levels.h"
 #include "messages.h"
@@ -54,7 +53,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
     if (!fileSystem.FindFile(mapfilename))
     {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename);
+        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
         return CCMD_OK;
     }
 
@@ -70,9 +69,6 @@ static int osdcmd_map(CCmdFuncPtr parm)
     }
     // Map has not been defined. Treat as user map.
 
-    if (gDemo.at1)
-        gDemo.StopPlayback();
-
     levelAddUserMap(mapname);
 
     if (numplayers > 1)
@@ -86,30 +82,6 @@ static int osdcmd_map(CCmdFuncPtr parm)
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     StartLevel(&gGameOptions);
     viewResizeView(gViewSize);
-
-    return CCMD_OK;
-}
-
-static int osdcmd_demo(CCmdFuncPtr parm)
-{
-    if (numplayers > 1)
-    {
-        Printf("Command not allowed in multiplayer\n");
-        return CCMD_OK;
-    }
-
-    //if (ps[myconnectindex].gm & MODE_GAME)
-    //{
-    //    Printf("demo: Must not be in a game.\n");
-    //    return CCMD_OK;
-    //}
-
-    if (parm->numparms != 1/* && parm->numparms != 2*/)
-        return CCMD_SHOWHELP;
-
-    gDemo.SetupPlayback(parm->parms[0]);
-    gGameStarted = 0;
-    gDemo.Playback();
 
     return CCMD_OK;
 }
@@ -241,7 +213,6 @@ static int osdcmd_levelwarp(CCmdFuncPtr parm)
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
 
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);

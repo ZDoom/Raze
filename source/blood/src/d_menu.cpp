@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "qav.h"
 #include "view.h"
-#include "demo.h"
 #include "network.h"
 #include "mmulti.h"
 #include "c_bind.h"
@@ -258,8 +257,6 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	gGameOptions.nEpisode = gs.Episode;
 	gSkill = gs.Skill;
 	gGameOptions.nLevel = gs.Level;
-	if (gDemo.at1)
-		gDemo.StopPlayback();
 	gStartNewGame = true;
 	gCheatMgr.sub_5BCF4();
 }

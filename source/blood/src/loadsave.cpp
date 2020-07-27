@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "ai.h"
 #include "blood.h"
-#include "demo.h"
 #include "globals.h"
 #include "db.h"
 #include "messages.h"
@@ -477,10 +476,6 @@ void LoadSave::Write(void *pData, int nSize)
 
 bool GameInterface::LoadGame(FSaveGameNode* node)
 {
-    bool demoWasPlayed = gDemo.at1;
-    if (gDemo.at1)
-        gDemo.Close();
-
     sndKillAllSounds();
     sfxKillAllSounds();
     ambKillAll();

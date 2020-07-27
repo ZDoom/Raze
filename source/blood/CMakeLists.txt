@@ -32,7 +32,6 @@ set( PCH_SOURCES
 	src/controls.cpp
 	src/credits.cpp
 	src/db.cpp
-	src/demo.cpp
 	src/dude.cpp
 	src/endgame.cpp
 	src/eventq.cpp

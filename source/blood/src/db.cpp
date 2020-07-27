@@ -49,9 +49,6 @@ SPRITEHIT gSpriteHit[kMaxXSprites];
 
 int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
 
-#ifdef POLYMER
-PolymerLight_t gPolymerLight[kMaxSprites];
-#endif
 
 char qsprite_filler[kMaxSprites], qsector_filler[kMaxSectors];
 
@@ -65,27 +62,6 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
         nKey++;
     }
 }
-
-#ifdef POLYMER
-
-void DeleteLight(int32_t s)
-{
-    if (gPolymerLight[s].lightId >= 0)
-        polymer_deletelight(gPolymerLight[s].lightId);
-    gPolymerLight[s].lightId = -1;
-    gPolymerLight[s].lightptr = NULL;
-}
-
-
-void G_Polymer_UnInit(void)
-{
-    int32_t i;
-
-    for (i = 0; i < kMaxSprites; i++)
-        DeleteLight(i);
-}
-#endif
-
 
 void InsertSpriteSect(int nSprite, int nSector)
 {
@@ -217,10 +193,6 @@ int InsertSprite(int nSector, int nStat)
     pSprite->index = nSprite;
     xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
 
-#ifdef POLYMER
-    gPolymerLight[nSprite].lightId = -1;
-#endif
-
     Numsprites++;
 
     return nSprite;
@@ -233,10 +205,6 @@ int qinsertsprite(short nSector, short nStat) // Replace
 
 int DeleteSprite(int nSprite)
 {
-#ifdef POLYMER
-    if (gPolymerLight[nSprite].lightptr != NULL && videoGetRenderMode() == REND_POLYMER)
-        DeleteLight(nSprite);
-#endif
     if (sprite[nSprite].extra > 0)
     {
         dbDeleteXSprite(sprite[nSprite].extra);
@@ -600,7 +568,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     fr.Read(&header, 6);
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        I_Error("%d: Map file corrupted.");
+        I_Error("%s: Map file corrupted.", mapname.GetChars());
     }
     int ver = LittleShort(header.version);
     if ((ver & 0xff00) == 0x600)
@@ -612,7 +580,7 @@ unsigned int dbReadMapCRC(const char *pPath)
     }
     else
     {
-        I_Error("%s: Map file is wrong version.");
+        I_Error("%s: Map file is wrong version.", mapname.GetChars());
     }
     fr.Seek(-4, FileReader::SeekEnd);
     return fr.ReadInt32();
@@ -643,14 +611,14 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
 
     if (!fr.isOpen())
     {
-        Printf("Error opening map file %s", pPath);
+        Printf("Error opening map file %s", mapname.GetChars());
         return -1;
     }
     MAPSIGNATURE header;
     fr.Read(&header, 6);
     if (memcmp(header.signature, "BLM\x1a", 4))
     {
-        Printf("Map file corrupted");
+        Printf("%s: Map file corrupted", mapname.GetChars());
         return -1;
     }
     byte_1A76C8 = 0;
@@ -665,7 +633,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         #endif
 
     } else {
-        Printf("Map file is wrong version");
+        Printf("%s: Map file is wrong version", mapname.GetChars());
         return -1;
     }
 
@@ -710,13 +678,13 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("Corrupted Map file");
+            Printf("%s: Corrupted Map file", mapname.GetChars());
             return -1;
         }
     }
     else if (mapHeader.at16)
     {
-        Printf("Corrupted Map file");
+        Printf("%s: Corrupted Map file", mapname.GetChars());
         return -1;
     }
     parallaxtype = mapHeader.at1a;
@@ -1093,7 +1061,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
     if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
     {
-        Printf("Map File does not match CRC");
+        Printf("%s: Map File does not match CRC", mapname.GetChars());
         return -1;
     }
     if (pCRC)
@@ -1111,20 +1079,15 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         }
         else
         {
-            Printf("Corrupted Map file");
+            Printf("%s: Corrupted Map file", mapname.GetChars());
             return -1;
         }
     }
     else if (gSongId != 0)
     {
-        Printf("Corrupted Map file");
+        Printf("%s: Corrupted Map file", mapname.GetChars());
         return -1;
     }
-
-#ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
-        polymer_loadboard();
-#endif
 
     if ((header.version & 0xff00) == 0x600)
     {
