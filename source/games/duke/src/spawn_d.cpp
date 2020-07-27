@@ -1164,8 +1164,11 @@ int spawn_d(int j, int pn)
                 }
                 else
                 {
-                    if(sp->picnum == EGG)
+                    if (sp->picnum == EGG)
+                    {
                         sp->clipdist = 24;
+                        ps[connecthead].max_actors_killed++;
+                    }
                     sp->cstat = 257|(krand()&4);
                     changespritestat(i,2);
                 }

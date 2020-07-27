@@ -54,6 +54,7 @@ extern int TILE_CROSSHAIR;
 extern int TILE_BIGORBIT1;
 extern int TILE_HURTRAIL;
 extern int TILE_FLOORPLASMA;
+extern int TILE_EGG;
 
 
 

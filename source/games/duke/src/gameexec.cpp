@@ -439,7 +439,16 @@ int ParseState::parse(void)
 		insptr++;
 		if (g_sp->picnum == TILE_APLAYER)
 			g_sp->pal = ps[g_sp->yvel].palookup;
-		else g_sp->pal = hittype[g_i].tempang;
+		else
+		{
+			// Copied from DukeGDX.
+			if (g_sp->picnum == TILE_EGG && hittype[g_i].temp_data[5] == TILE_EGG + 2 && g_sp->pal == 1) 
+			{
+				ps[connecthead].max_actors_killed++; //revive the egg
+				hittype[g_i].temp_data[5] = 0;
+			}
+			g_sp->pal = hittype[g_i].tempang;
+		}
 		hittype[g_i].tempang = 0;
 		break;
 	case concmd_tossweapon:

@@ -2445,6 +2445,7 @@ static void greenslime(int i)
 				int k = EGS(sprite[i].sectnum, sprite[i].x, sprite[i].y, sprite[i].z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), i, 5);
 				sprite[k].pal = 1;
 			}
+			ps[p].actors_killed++;
 			S_PlayActorSound(GLASS_BREAKING, i);
 			deletesprite(i);
 		}
@@ -2575,7 +2576,6 @@ static void greenslime(int i)
 	{
 		S_PlayActorSound(SLIM_DYING, i);
 
-		ps[p].actors_killed++;
 		if (ps[p].somethingonplayer == i)
 			ps[p].somethingonplayer = -1;
 
@@ -2584,6 +2584,7 @@ static void greenslime(int i)
 			S_PlayActorSound(SOMETHINGFROZE, i); t[0] = -5; t[3] = 0;
 			return;
 		}
+		ps[p].actors_killed++;
 
 		if ((krand() & 255) < 32)
 		{
