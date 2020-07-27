@@ -1170,7 +1170,13 @@ static void movetripbomb(int i)
 		s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 9;
 		s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 9;
 		s->z -= (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
+
+		// Laser fix from EDuke32.
+		int16_t const oldSectNum = s->sectnum;
+		int16_t       curSectNum = s->sectnum;
+
+		updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
+		changespritesect(i, curSectNum);
 
 		int16_t m;
 		x = hitasprite(i, &m);
@@ -1191,22 +1197,32 @@ static void movetripbomb(int i)
 				sprite[j].hitag = s->hitag;
 				hittype[j].temp_data[1] = sprite[j].z;
 
-				s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 4;
-				s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 4;
-
 				if (x < 1024)
 				{
 					sprite[j].xrepeat = x >> 5;
 					break;
 				}
 				x -= 1024;
+
+				s->x += sintable[(hittype[i].temp_data[5] + 512) & 2047] >> 4;
+				s->y += sintable[(hittype[i].temp_data[5]) & 2047] >> 4;
+				updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
+
+				if (curSectNum == -1)
+					break;
+
+				changespritesect(i, curSectNum);
+
+				// this is a hack to work around the LASERLINE sprite's art tile offset
+				changespritesect(j, curSectNum);
+
 			}
 		}
 
 		hittype[i].temp_data[0]++;
 		s->x = hittype[i].temp_data[3]; s->y = hittype[i].temp_data[4];
 		s->z += (3 << 8);
-		setsprite(i, s->x, s->y, s->z);
+		changespritesect(i, oldSectNum);
 		hittype[i].temp_data[3] = 0;
 		if (m >= 0 && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
