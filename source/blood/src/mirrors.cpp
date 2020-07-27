@@ -48,40 +48,12 @@ typedef struct
 
 MIRROR mirror[16];
 
-#ifdef POLYMER
-void PolymerRORCallback(int16_t sectnum, int16_t wallnum, int8_t rorstat, int16_t* msectnum, int32_t* gx, int32_t* gy, int32_t* gz)
-{
-    UNREFERENCED_PARAMETER(wallnum);
-    int nMirror;
-    switch (rorstat)
-    {
-    case 1:
-        nMirror = sector[sectnum].ceilingpicnum-4080;
-        *msectnum = mirror[nMirror].at4;
-        *gx += mirror[nMirror].at8;
-        *gy += mirror[nMirror].atc;
-        *gz += mirror[nMirror].at10;
-        break;
-    case 2:
-        nMirror = sector[sectnum].floorpicnum-4080;
-        *msectnum = mirror[nMirror].at4;
-        *gx += mirror[nMirror].at8;
-        *gy += mirror[nMirror].atc;
-        *gz += mirror[nMirror].at10;
-        break;
-    }
-}
-#endif
-
 void InitMirrors(void)
 {
 
 #ifdef USE_OPENGL
     r_rortexture = 4080;
     r_rortexturerange = 16;
-#ifdef  POLYMER
-    polymer_setrorcallback(PolymerRORCallback);
-#endif //  POLYMER
 
 #endif
     mirrorcnt = 0;
@@ -489,9 +461,6 @@ void MirrorLoadSave::Load(void)
 #ifdef USE_OPENGL
     r_rortexture = 4080;
     r_rortexturerange = 16;
-#ifdef  POLYMER
-    polymer_setrorcallback(PolymerRORCallback);
-#endif //  POLYMER
 
 #endif
     Read(&mirrorcnt,sizeof(mirrorcnt));
