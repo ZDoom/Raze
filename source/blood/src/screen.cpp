@@ -119,18 +119,4 @@ void scrSetPalette(int palId)
     curPalette = palId;
 }
 
-void scrInit(void)
-{
-    glrendmode = REND_POLYMOST;
-    engineInit();
-    curPalette = 0;
-}
-
-void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
-{
-    videoInit();
-    videoClearViewableArea(0);
-    videoNextPage();
-}
-
 END_BLD_NS

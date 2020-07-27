@@ -155,6 +155,7 @@ void sub_2541C(int x, int y, int z, short a)
                 GetSpriteExtents(pSprite, &nTop, &nBottom);
                 int nScale = mulscale((pSprite->yrepeat+((floorZ-nBottom)>>8))*z, yxaspect, 16);
                 nScale = ClipRange(nScale, 8000, 65536<<1);
+				// Players on automap
                 rotatesprite((xdim<<15)+(x1<<4), (ydim<<15)+(y1<<4), nScale, pa, nTile, pSprite->shade, pSprite->pal, (pSprite->cstat&2)>>1,
                     windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
             }

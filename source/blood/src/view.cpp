@@ -1051,6 +1051,7 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
     }
 }
 
+// for the screen border
 void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2)
 {
     Rect rect1 = Rect(x1, y1, x2, y2);
@@ -2843,6 +2844,7 @@ struct {
      { 2101, 2, 0, 122880, 310, 220 }
 };
 
+// PSP
 void viewBurnTime(int gScale)
 {
     if (!gScale) return;

@@ -342,10 +342,6 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x,y,z,a,horiz,nWall,&cx,&cy,&ca);
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, cx, cy, z, fix16_to_int(ca), smooth);
-#endif
                 yax_preparedrawrooms();
                 int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca,horiz,mirrorsector|MAXSECTORS);
                 yax_drawrooms(viewProcessSprites, mirrorsector, didmirror, smooth);
@@ -378,10 +374,6 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
-#endif
                 yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
                 yax_drawrooms(viewProcessSprites, nSector, 0, smooth);
@@ -420,10 +412,6 @@ void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-#ifdef POLYMER
-                if (videoGetRenderMode() == REND_POLYMER)
-                    polymer_setanimatesprites(viewProcessSprites, x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, fix16_to_int(a), smooth);
-#endif
                 yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
                 yax_drawrooms(viewProcessSprites, nSector, 0, smooth);

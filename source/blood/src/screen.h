@@ -36,13 +36,9 @@ struct RGB {
 #pragma pack(pop)
 
 extern bool gFogMode;
-void scrCreateStdColors(void);
-void scrResetPalette(void);
 void scrLoadPLUs(void);
 void scrLoadPalette(void);
 void scrSetPalette(int palId);
-void scrSetGamma(int nGamma);
-void scrInit(void);
-void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits);
+
 
 END_BLD_NS

@@ -358,38 +358,13 @@ void PreloadCache(void)
 			if (videoGetRenderMode() < REND_POLYMOST)
 				tileLoad(i);
 
-#ifdef USE_OPENGL
             if (r_precache) PrecacheHardwareTextures(i);
-#endif
 
             if ((++cnt & 7) == 0)
                 gameHandleEvents();
 
-#if 0
-            if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (kTicRate>>2))
-            {
-                int const percentComplete = min(100, Scale(100 * cnt, nPrecacheCount));
-
-                // this just prevents the loading screen percentage bar from making large jumps
-                while (percentDisplayed < percentComplete)
-                {
-                    gameHandleEvents();
-                    Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", percentDisplayed, cnt, nPrecacheCount);
-                    viewLoadingScreenUpdate(tempbuf, percentDisplayed);
-                    videoNextPage();
-
-                    if (totalclock - clock >= 1)
-                    {
-                        clock = totalclock;
-                        percentDisplayed++;
                     }
                 }
-
-                clock = totalclock;
-            }
-#endif
-        }
-    }
     memset(gotpic,0,sizeof(gotpic));
 }
 
@@ -402,28 +377,6 @@ void EndLevel(void)
     ambKillAll();
     seqKillAll();
 }
-
-#ifdef POLYMER
-void G_RefreshLights(void)
-{
-    if (Numsprites && videoGetRenderMode() == REND_POLYMER)
-    {
-        int statNum = 0;
-
-        do
-        {
-            int spriteNum = headspritestat[statNum++];
-
-            while (spriteNum >= 0)
-            {
-                actDoLight(spriteNum);
-                spriteNum = nextspritestat[spriteNum];
-            }
-        }
-        while (statNum < MAXSTATUS);
-    }
-}
-#endif // POLYMER
 
 
 PLAYER gPlayerTemp[kMaxPlayers];
@@ -717,22 +670,7 @@ void LocalKeys(void)
             buttonMap.ClearButton(gamefunc_Third_Person_View);
             return;
         }
-#if 0
-        switch (key)
-        {
-        case sc_kpad_Period:
-        case sc_Delete:
-            if (ctrl && alt)
-            {
-                gQuitGame = 1;  // uh, what?
-                return;
             }
-            break;
-        case default:
-            break;
-        }
-#endif
-    }
 }
 
 bool gRestartGame = false;
@@ -950,7 +888,7 @@ int GameInterface::app_main()
     HookReplaceFunctions();
 
     Printf("Initializing Build 3D engine\n");
-    scrInit();
+    engineInit();
 
     Printf("Loading tiles\n");
     if (pUserTiles)
@@ -997,7 +935,7 @@ int GameInterface::app_main()
 
     Printf("Initializing network users\n");
     netInitialize(true);
-    scrSetGameMode(0, 0, 0, 0);
+	videoInit();
     hud_size.Callback();
     Printf("Initializing sound system\n");
     sndInit();
@@ -1050,7 +988,7 @@ RESTART:
     {
         bool bDraw;
         D_ProcessEvents();
-        if (gGameStarted)
+        if (gGameStarted) // gGameStarted: gameState == GS_LEVEL
         {
             char gameUpdate = false;
             double const gameUpdateStartTime = timerGetHiTicks();
@@ -1099,8 +1037,9 @@ RESTART:
                 }
             }
         }
-        else
+        else // gameState == GS_DEMOSCREEN
         {
+			// Menu background
             bDraw = G_FPSLimit() != 0;
             if (bDraw)
             {
@@ -1169,20 +1108,8 @@ RESTART:
         gRestartGame = 0;
         gGameStarted = 0;
         levelSetupOptions(0,0);
-#if 0
-		// What's this loop for? Needs checking
-        while (gGameMenuMgr.m_bActive)
-        {
-            gGameMenuMgr.Process();
-            if (G_FPSLimit())
-            {
-                gameHandleEvents();
-                videoClearScreen(0);
-                gGameMenuMgr.Draw();
-                videoNextPage();
-            }
-        }
-#endif
+
+		
         if (gGameOptions.nGameType != 0)
         {
             videoSetViewableArea(0,0,xdim-1,ydim-1);
