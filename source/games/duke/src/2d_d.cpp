@@ -910,7 +910,7 @@ public:
 			switch ((totalclock >> 4) % 15)
 			{
 				case 0:
-					if (bonuscnt == 6)
+					if (bonuscnt = 6)
 					{
 						bonuscnt++;
 						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
@@ -953,7 +953,11 @@ public:
 				SetTotalClock(60 * 13);
 			}
 			else if (totalclock < (1000000000))
+			{
+				// force-set bonuscnt here so that it won't desync with the rest of the logic and Duke's voice can be heard.
+				bonuscnt = 6;
 				SetTotalClock(1000000000);
+			}
 		}
 
 		return 1;
