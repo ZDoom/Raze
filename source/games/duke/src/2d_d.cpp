@@ -905,30 +905,41 @@ public:
 			PrintSecrets(totalclock);
 		}
 
-		if (totalclock > (1000000000L) && totalclock < (1000000320L))
+		if (totalclock >= (1000000000L) && totalclock < (1000000320L))
 		{
-			int val = (totalclock >> 4) % 15;
-			if (val == 0)
+			switch ((totalclock >> 4) % 15)
 			{
-				if (bonuscnt == 6)
-				{
-					bonuscnt++;
-					S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
-					S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
-				}
-			}
-			//else
-			{
-				int tile = val == 2 || val == 3 ? gfx_offset + 4 : gfx_offset + 3;
-				DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+				case 0:
+					if (bonuscnt == 6)
+					{
+						bonuscnt++;
+						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
+						S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
+					}
+				case 1:
+				case 4:
+				case 5:
+					DrawTexture(twod, tileGetTexture(gfx_offset + 3), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					break;
+				case 2:
+				case 3:
+					DrawTexture(twod, tileGetTexture(gfx_offset + 4), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					break;
 			}
 		}
 		else if (totalclock > (10240 + 120L)) return 0;
 		else
 		{
-			int val = (totalclock >> 5) & 3;
-			int tile = val == 2 ? gfx_offset + 2 : gfx_offset + 1;
-			DrawTexture(twod, tileGetTexture(tile), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+			switch((totalclock >> 5) & 3)
+			{
+				case 1:
+				case 3:
+					DrawTexture(twod, tileGetTexture(gfx_offset + 1), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					break;
+				case 2:
+					DrawTexture(twod, tileGetTexture(gfx_offset + 2), 199, 31, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					break;
+			}
 		}
 
 		if (totalclock > 10240 && totalclock < 10240 + 10240)
