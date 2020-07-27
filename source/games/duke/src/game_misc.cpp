@@ -161,8 +161,7 @@ void FTA(int q, struct player_struct* p)
 			else
 #endif
 			{
-				int printlevel = hud_messages == 1 ? PRINT_MEDIUM : PRINT_MEDIUM | PRINT_NOTIFY;
-				Printf(printlevel, "%s\n", qu);
+				Printf(PRINT_MEDIUM | PRINT_NOTIFY, "%s\n", qu);
 			}
 		}
 	}
