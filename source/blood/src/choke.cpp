@@ -52,7 +52,7 @@ void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
     }
 }
 
-void CChoke::sub_84110(int x, int y)
+void CChoke::sub_84110(int x, int y, int basepal)
 {
     if (!at8)
         return;
@@ -67,18 +67,7 @@ void CChoke::sub_84110(int x, int y)
         atc = at8->at10;
     int vdi = at8->at10-atc;
     at8->Play(vdi-vd, vdi, -1, NULL);
-    int vb = windowxy1.x;
-    int v10 = windowxy1.y;
-    int vc = windowxy2.x;
-    int v8 = windowxy2.y;
-    windowxy1.x = windowxy1.y = 0;
-    windowxy2.x = xdim-1;
-    windowxy2.y = ydim-1;
-    at8->Draw(vdi, 10, 0, 0);
-    windowxy1.x = vb;
-    windowxy1.y = v10;
-    windowxy2.x = vc;
-    windowxy2.y = v8;
+    at8->Draw(&twodpsp, vdi, 10, 0, 0, basepal, false);
     gFrameClock = v4;
 }
 

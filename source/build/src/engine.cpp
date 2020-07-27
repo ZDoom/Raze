@@ -2990,14 +2990,12 @@ void videoNextPage(void)
 		videoShowFrame(0);
     }
 
-#ifdef USE_OPENGL
     omdtims = mdtims;
     mdtims = timerGetTicks();
 
     for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
             spriteext[i].mdanimtims += mdtims - omdtims;
-#endif
 
     beforedrawrooms = 1;
     numframes++;

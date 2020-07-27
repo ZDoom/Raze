@@ -131,7 +131,6 @@ void scrSetGameMode(int vidMode, int XRes, int YRes, int nBits)
     videoInit();
     videoClearViewableArea(0);
     videoNextPage();
-    scrSetPalette(curPalette);
 }
 
 END_BLD_NS

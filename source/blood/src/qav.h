@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "blood.h"
 
+class F2DDrawer;
+
 BEGIN_BLD_NS
 
 #define kQavOrientationLeft 4096
@@ -79,7 +81,7 @@ struct QAV
     //SPRITE *pSprite; // 1c
     char pad3[4]; // 20
     FRAMEINFO frames[1]; // 24
-    void Draw(int ticks, int stat, int shade, int palnum);
+    void Draw(F2DDrawer *twod, int ticks, int stat, int shade, int palnum, int basepal, bool inviewport);
     void Play(int, int, int, void *);
     void Preload(void);
     void Precache(void);

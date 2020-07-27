@@ -210,7 +210,6 @@ void credPlaySmk(const char *_pzSMK, const char *_pzWAV, int nWav)
         }
     }
 
-    UpdateDacs(0, true);
 
     gameHandleEvents();
     ClockTicks nStartTime = totalclock;

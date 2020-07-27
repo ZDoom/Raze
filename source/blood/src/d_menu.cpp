@@ -114,13 +114,13 @@ void CGameMenuItemQAV::Draw(void)
 			int backX = data->x;
 			for (int i = 0; i < nCount; i++)
 			{
-				data->Draw(data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0);
+				data->Draw(twod, data->at10 - at2c, 10 + kQavOrientationLeft, 0, 0, 0, false);
 				data->x += 320;
 			}
 			data->x = backX;
 		}
 		else
-			data->Draw(data->at10 - at2c, 10, 0, 0);
+			data->Draw(twod, data->at10 - at2c, 10, 0, 0, 0, false);
 
 		windowxy1.x = wx1;
 		windowxy1.y = wy1;

@@ -2917,69 +2917,68 @@ void UpdateDacs(int nPalette, bool bNoTint)
         scrSetPalette(nPalette);
         oldPalette = nPalette;
     }
-
-    if (videoGetRenderMode() >= REND_POLYMOST)
+    gLastPal = 0;
+    auto& tint = lookups.tables[MAXPALOOKUPS - 1];
+    tint.tintFlags = 0;
+    switch (nPalette)
     {
-        gLastPal = 0;
-        auto &tint = lookups.tables[MAXPALOOKUPS-1];
-        int nRed = 0;
-        int nGreen = 0;
-        int nBlue = 0;
-        tint.tintFlags = 0;
-        switch (nPalette)
-        {
-        case 0:
-        default:
-            tint.tintColor.r = 255;
-            tint.tintColor.g = 255;
-            tint.tintColor.b = 255;
-            break;
-        case 1:
-            tint.tintColor.r = 132;
-            tint.tintColor.g = 164;
-            tint.tintColor.b = 255;
-            break;
-        case 2:
-            tint.tintColor.r = 255;
-            tint.tintColor.g = 126;
-            tint.tintColor.b = 105;
-            break;
-        case 3:
-            tint.tintColor.r = 162;
-            tint.tintColor.g = 186;
-            tint.tintColor.b = 15;
-            break;
-        case 4:
-            tint.tintColor.r = 255;
-            tint.tintColor.g = 255;
-            tint.tintColor.b = 255;
-            break;
-        }
-        if (!bNoTint)
-        {
-            nRed += gView->pickupEffect;
-            nGreen += gView->pickupEffect;
-            nBlue -= gView->pickupEffect;
-
-            nRed += ClipHigh(gView->painEffect, 85)*2;
-            nGreen -= ClipHigh(gView->painEffect, 85)*3;
-            nBlue -= ClipHigh(gView->painEffect, 85)*3;
-
-            nRed -= gView->blindEffect;
-            nGreen -= gView->blindEffect;
-            nBlue -= gView->blindEffect;
-
-            nRed -= gView->chokeEffect>>6;
-            nGreen -= gView->chokeEffect>>5;
-            nBlue -= gView->chokeEffect>>6;
-        }
-        nRed = ClipRange(nRed, -255, 255);
-        nGreen = ClipRange(nGreen, -255, 255);
-        nBlue = ClipRange(nBlue, -255, 255);
-
-        videoSetPalette(nPalette);
-        videoTintBlood(nRed, nGreen, nBlue);
+    case 0:
+    default:
+        tint.tintColor.r = 255;
+        tint.tintColor.g = 255;
+        tint.tintColor.b = 255;
+        break;
+    case 1:
+        tint.tintColor.r = 132;
+        tint.tintColor.g = 164;
+        tint.tintColor.b = 255;
+        break;
+    case 2:
+        tint.tintColor.r = 255;
+        tint.tintColor.g = 126;
+        tint.tintColor.b = 105;
+        break;
+    case 3:
+        tint.tintColor.r = 162;
+        tint.tintColor.g = 186;
+        tint.tintColor.b = 15;
+        break;
+    case 4:
+        tint.tintColor.r = 255;
+        tint.tintColor.g = 255;
+        tint.tintColor.b = 255;
+        break;
     }
+    videoSetPalette(nPalette);
+}
+
+void UpdateBlend()
+{
+    int nRed = 0;
+    int nGreen = 0;
+    int nBlue = 0;
+
+    nRed += gView->pickupEffect;
+    nGreen += gView->pickupEffect;
+    nBlue -= gView->pickupEffect;
+
+    nRed += ClipHigh(gView->painEffect, 85) * 2;
+    nGreen -= ClipHigh(gView->painEffect, 85) * 3;
+    nBlue -= ClipHigh(gView->painEffect, 85) * 3;
+
+    nRed -= gView->blindEffect;
+    nGreen -= gView->blindEffect;
+    nBlue -= gView->blindEffect;
+
+    nRed -= gView->chokeEffect >> 6;
+    nGreen -= gView->chokeEffect >> 5;
+    nBlue -= gView->chokeEffect >> 6;
+
+    nRed = ClipRange(nRed, -255, 255);
+    nGreen = ClipRange(nGreen, -255, 255);
+    nBlue = ClipRange(nBlue, -255, 255);
+
+    videoTintBlood(nRed, nGreen, nBlue);
 }
 
 char otherMirrorGotpic[2];
@@ -3102,6 +3101,20 @@ void viewDrawScreen(bool sceneonly)
     }
     if (gViewMode == 3 || gOverlayMap)
     {
+        int basepal = 0;
+        if (powerupCheck(gView, kPwUpDeathMask) > 0) basepal = 4;
+        else if (powerupCheck(gView, kPwUpReflectShots) > 0) basepal = 1;
+        else if (gView->isUnderwater) {
+            if (gView->nWaterPal) basepal = gView->nWaterPal;
+            else {
+                if (gView->pXSprite->medium == kMediumWater) basepal = 1;
+                else if (gView->pXSprite->medium == kMediumGoo) basepal = 3;
+                else basepal = 2;
+            }
+        }
+        UpdateDacs(basepal);
+        UpdateBlend();
+
         int yxAspect = yxaspect;
         int viewingRange = viewingrange;
         if (r_usenewaspect)
@@ -3443,12 +3456,11 @@ void viewDrawScreen(bool sceneonly)
         }
 #endif
 
-        PspTwoDSetter p2set;
         if (gViewPos == 0)
         {
             if (cl_crosshair)
             {
-                rotatesprite(160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0,  0, 2, gViewX0, gViewY0, gViewX1, gViewY1);
+                twod_rotatesprite(&twodpsp, 160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0,  0, 2, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1);
             }
             cX = (v4c >> 8) + 160;
             cY = (v48 >> 8) + 220 + (zDelta >> 7);
@@ -3461,14 +3473,14 @@ void viewDrawScreen(bool sceneonly)
             }
 
             #ifdef NOONE_EXTENSIONS
-            if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette);
-                else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette);
+            if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette, basepal);
+                else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette, basepal);
             else {
                 gView->sceneQav = gView->weaponQav = -1;
                 gView->weaponTimer = gView->curWeapon = 0;
             }
             #else
-                WeaponDraw(gView, nShade, cX, cY, nPalette);
+                WeaponDraw(gView, nShade, cX, cY, nPalette, curbasepal);
             #endif
            
 
@@ -3480,22 +3492,22 @@ void viewDrawScreen(bool sceneonly)
         }
         if (packItemActive(gView, 1))
         {
-            rotatesprite(0, 0, 65536, 0, 2344, 0, 0, 256 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320 << 16, 0, 65536, 1024, 2344, 0, 0, 512 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(0, 200 << 16, 65536, 0, 2344, 0, 0, 256 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320 << 16, 200 << 16, 65536, 1024, 2344, 0, 0, 512 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
+            twod_rotatesprite(&twodpsp, 0, 0, 65536, 0, 2344, 0, 0, 256 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
+            twod_rotatesprite(&twodpsp, 320 << 16, 0, 65536, 1024, 2344, 0, 0, 512 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
+            twod_rotatesprite(&twodpsp, 0, 200 << 16, 65536, 0, 2344, 0, 0, 256 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
+            twod_rotatesprite(&twodpsp, 320 << 16, 200 << 16, 65536, 1024, 2344, 0, 0, 512 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
             if (gDetail >= 4)
             {
-                rotatesprite(15 << 16, 3 << 16, 65536, 0, 2346, 32, 0, 256 + 19, gViewX0, gViewY0, gViewX1, gViewY1);
-                rotatesprite(212 << 16, 77 << 16, 65536, 0, 2347, 32, 0, 512 + 19, gViewX0, gViewY0, gViewX1, gViewY1);
+                twod_rotatesprite(&twodpsp, 15 << 16, 3 << 16, 65536, 0, 2346, 32, 0, 256 + 19, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
+                twod_rotatesprite(&twodpsp, 212 << 16, 77 << 16, 65536, 0, 2347, 32, 0, 512 + 19, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
             }
         }
         if (powerupCheck(gView, kPwUpAsbestArmor) > 0)
         {
-            rotatesprite(0, 200 << 16, 65536, 0, 2358, 0, 0, 256 + 22, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(320 << 16, 200 << 16, 65536, 1024, 2358, 0, 0, 512 + 18, gViewX0, gViewY0, gViewX1, gViewY1);
+            twod_rotatesprite(&twodpsp, 0, 200 << 16, 65536, 0, 2358, 0, 0, 256 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
+            twod_rotatesprite(&twodpsp, 320 << 16, 200 << 16, 65536, 1024, 2358, 0, 0, 512 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
         }
-        p2set.clear();
+
         if (v4 && gNetPlayers > 1)
         {
             DoLensEffect();
@@ -3506,18 +3518,8 @@ void viewDrawScreen(bool sceneonly)
             rotatesprite(280 << 16, 35 << 16, 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
             renderSetAspect(viewingRange, yxAspect);
         }
-
-        if (powerupCheck(gView, kPwUpDeathMask) > 0) nPalette = 4;
-        else if (powerupCheck(gView, kPwUpReflectShots) > 0) nPalette = 1;
-        else if (gView->isUnderwater) {
-            if (gView->nWaterPal) nPalette = gView->nWaterPal;
-            else {
-                if (gView->pXSprite->medium == kMediumWater) nPalette = 1;
-                else if (gView->pXSprite->medium == kMediumGoo) nPalette = 3;
-                else nPalette = 2;
-            }
-        }
     }
+    UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (gViewMode == 4)
     {
         gViewMap.sub_25DB0(gView->pSprite);
@@ -3528,7 +3530,7 @@ void viewDrawScreen(bool sceneonly)
     if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
     {
         //static int lastClock;
-        gChoke.sub_84110(160, zn);
+        gChoke.sub_84110(160, zn, 0);
         //if ((gGameClock % 5) == 0 && gGameClock != lastClock)
         //{
         //    gChoke.swayV(pPSprite);
@@ -3561,7 +3563,6 @@ void viewDrawScreen(bool sceneonly)
     {
         RestoreInterpolations();
     }
-    UpdateDacs(nPalette);
 }
 
 bool GameInterface::GenerateSavePic()
@@ -3637,7 +3638,6 @@ void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
 
 void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3)
 {
-    UpdateDacs(0, true);
     nLoadingScreenTile = nTile;
     if (pText)
         strncpy(pzLoadingScreenText1, pText, 256);

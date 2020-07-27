@@ -1044,6 +1044,7 @@ int GameInterface::app_main()
     if (playvideo)
         credLogosDos();
 
+    UpdateDacs(0, true);
 
 RESTART:
     sub_79760();
@@ -1202,7 +1203,6 @@ RESTART:
         gDemo.Close();
     if (gRestartGame)
     {
-        UpdateDacs(0, true);
         Mus_Stop();
         soundEngine->StopAllChannels();
         gQuitGame = 0;

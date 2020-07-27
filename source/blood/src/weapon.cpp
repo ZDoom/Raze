@@ -232,7 +232,7 @@ void WeaponPrecache(void)
     }
 }
 
-void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5)
+void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int basepal)
 {
     dassert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
@@ -252,7 +252,7 @@ void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5)
         a2 = -128;
         flags |= 1;
     }
-    pQAV->Draw(v4, flags, a2, a5);
+    pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, true);
 }
 
 void WeaponPlay(PLAYER *pPlayer)

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 
 #include "build.h"
+#include "v_2ddrawer.h"
 #include "compat.h"
 #include "common_game.h"
 #include "qav.h"
@@ -43,7 +44,7 @@ int qavRegisterClient(void(*pClient)(int, void *))
     return nClients++;
 }
 
-void DrawFrame(int x, int y, TILE_FRAME *pTile, int stat, int shade, int palnum)
+void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int shade, int palnum, int basepal, bool to3dview)
 {
     stat |= pTile->stat;
     int angle = pTile->angle;
@@ -60,12 +61,22 @@ void DrawFrame(int x, int y, TILE_FRAME *pTile, int stat, int shade, int palnum)
     }
     if (palnum <= 0)
         palnum = pTile->palnum;
-    rotatesprite((x + pTile->x) << 16, (y + pTile->y) << 16, pTile->z, angle,
-                 pTile->picnum, ClipRange(pTile->shade + shade, -128, 127), palnum, stat,
-                 windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+
+    if (!to3dview)
+    {
+        twod_rotatesprite(twod, (x + pTile->x) << 16, (y + pTile->y) << 16, pTile->z, angle,
+            pTile->picnum, ClipRange(pTile->shade + shade, -128, 127), palnum, stat,
+            0, 0, 0, 0, twod->GetWidth(), twod->GetHeight(), nullptr, basepal);
+    }
+    else
+    {
+        twod_rotatesprite(twod, (x + pTile->x) << 16, (y + pTile->y) << 16, pTile->z, angle,
+            pTile->picnum, ClipRange(pTile->shade + shade, -128, 127), palnum, stat,
+            0, 0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, nullptr, basepal);
+    }
 }
 
-void QAV::Draw(int ticks, int stat, int shade, int palnum)
+void QAV::Draw(F2DDrawer* twod, int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
 {
     dassert(ticksPerFrame > 0);
     int nFrame = ticks / ticksPerFrame;
@@ -74,7 +85,7 @@ void QAV::Draw(int ticks, int stat, int shade, int palnum)
     for (int i = 0; i < 8; i++)
     {
         if (pFrame->tiles[i].picnum > 0)
-            DrawFrame(x, y, &pFrame->tiles[i], stat, shade, palnum);
+            DrawFrame(twod, x, y, &pFrame->tiles[i], stat, shade, palnum, basepal, to3dview);
     }
 }
 

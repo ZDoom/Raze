@@ -4793,7 +4793,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5, int basepal) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -4813,21 +4813,12 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5) {
         if (!(pSprite->flags & kModernTypeFlag1)) {
 
             pQAV->x = a3; pQAV->y = a4;
-            pQAV->Draw(v4, flags, a2, a5);
+            pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, true);
 
             // draw fullscreen (currently 4:3 only)
         } else {
-
-            int wx1 = windowxy1.x, wy1 = windowxy1.y, wx2 = windowxy2.x, wy2 = windowxy2.y;
-
-            windowxy2.x = xdim - 1; windowxy2.y = ydim - 1;
-            windowxy1.x = windowxy1.y = 0;
-
-            pQAV->Draw(v4, flags, a2, a5);
-
-            windowxy1.x = wx1; windowxy1.y = wy1;
-            windowxy2.x = wx2; windowxy2.y = wy2;
-
+            // What an awful hack... :?
+            pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, false);
         }
 
     }
