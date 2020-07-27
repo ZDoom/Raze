@@ -90,7 +90,6 @@ bool cheatInventory(cheatseq_t *s)
 	invGet(2400, EVENT_CHEATGETHOLODUKE, ps[myconnectindex].holoduke_amount);
 	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, ps[myconnectindex].jetpack_amount);
 	invGet(max_player_health, EVENT_CHEATGETFIRSTAID, ps[myconnectindex].firstaid_amount);
-	if (ps[myconnectindex].inven_icon == ICON_NONE) C_DoCommand("invnext");
 	if (s) FTA(120,&ps[myconnectindex]);
 	return true;
 }
