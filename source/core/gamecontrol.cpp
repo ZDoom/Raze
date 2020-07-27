@@ -907,8 +907,9 @@ void CONFIG_ReadCombatMacros()
 		for (auto s : CombatMacros)
 		{
 			sc.MustGetToken(TK_StringConst);
-			if (strlen(*s) == 0)
-				*s = sc.String;
+			UCVarValue val;
+			val.String = sc.String;
+			s->SetGenericRepDefault(val, CVAR_String);
 		}
 	}
 	catch (const CRecoverableError &)
