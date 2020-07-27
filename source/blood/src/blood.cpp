@@ -1030,6 +1030,8 @@ int GameInterface::app_main()
     hud_size.Callback();
     Printf("Initializing sound system\n");
     sndInit();
+    registerosdcommands();
+
     gChoke.sub_83ff0(518, sub_84230);
     if (bAddUserMap)
     {
@@ -1037,10 +1039,11 @@ int GameInterface::app_main()
         gStartNewGame = 1;
     }
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-    if (!bQuickStart)
+	bool playvideo = !bQuickStart;
+	
+    if (playvideo)
         credLogosDos();
 
-    registerosdcommands();
 
 RESTART:
     sub_79760();
@@ -1228,9 +1231,10 @@ RESTART:
                 gDemo.NextDemo();
 #endif
             videoSetViewableArea(0,0,xdim-1,ydim-1);
-            if (!bQuickStart)
-                credLogosDos();
+			playvideo = !bQuickStart;
         }
+		else playvideo = false;
+		
         goto RESTART;
     }
     ShutDown();

@@ -3370,13 +3370,8 @@ void viewDrawScreen(bool sceneonly)
         {
             gView->pSprite->cstat |= 514;
         }
-#ifdef POLYMER
-        if (videoGetRenderMode() == REND_POLYMER)
-            polymer_setanimatesprites(viewProcessSprites, cX, cY, cZ, fix16_to_int(cA), gInterpolate);
-#endif
-        yax_preparedrawrooms();
+
         renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, nSectnum);
-        yax_drawrooms(viewProcessSprites, nSectnum, 0, gInterpolate);
         viewProcessSprites(cX, cY, cZ, fix16_to_int(cA), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
