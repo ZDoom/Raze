@@ -1184,6 +1184,7 @@ RESTART:
     while (!gQuitGame)
     {
         bool bDraw;
+        D_ProcessEvents();
         if (gGameStarted)
         {
             char gameUpdate = false;

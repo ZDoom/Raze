@@ -102,8 +102,6 @@ void ctrlGetInput(void)
 
     GINPUT input = {};
 
-    D_ProcessEvents();
-
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 	if (!mouseaim) gInput.keyFlags.lookCenter = 1;
 

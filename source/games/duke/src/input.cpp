@@ -1224,7 +1224,6 @@ void GetInput()
 		return;
 	}
 
-	D_ProcessEvents();
 	if (numplayers == 1)
 	{
 		setlocalplayerinput(p);
