@@ -186,7 +186,7 @@ public:
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 36.5, -indexFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &indexFont, format, x + 36.5, -indexFont.mFont->GetHeight() + 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
 			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 36.5, -miniFont.mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
