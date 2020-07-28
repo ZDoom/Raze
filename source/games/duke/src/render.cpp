@@ -525,6 +525,7 @@ void displayrooms(int snum, int smoothratio)
 	else
 	{
 		int i = divscale22(1, isRR() ? 64 : sprite[p->i].yrepeat + 28);
+		fixed_t dang = 1024 << FRACBITS;
 		if (!isRRRA() || !p->DrugMode)
 		{
 			// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
@@ -539,7 +540,7 @@ void displayrooms(int snum, int smoothratio)
 		if (!cl_syncinput)
 			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
 		else
-			renderSetRollAngle((p->oq16rotscrnang + mulscale16(((p->q16rotscrnang - p->oq16rotscrnang + (1024 << FRACBITS)) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio)) / (float)(FRACUNIT));
+			renderSetRollAngle((p->oq16rotscrnang + mulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)) / (float)(FRACUNIT));
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
@@ -548,10 +549,10 @@ void displayrooms(int snum, int smoothratio)
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
 			if (cl_syncinput)
 			{
-				fixed_t osum = (oq16myhoriz + oq16myhorizoff);
-				fixed_t sum = (q16myhoriz + q16myhorizoff);
-				choriz = q16horiz(osum + mulscale16(sum - osum, smoothratio));
-				cang = q16ang(oq16myang + mulscale16(((q16myang + (1024 << FRACBITS) - oq16myang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio));
+				fixed_t ohorz = (oq16myhoriz + oq16myhorizoff);
+				fixed_t horz = (q16myhoriz + q16myhorizoff);
+				choriz = q16horiz(ohorz + mulscale16(horz - ohorz, smoothratio));
+				cang = q16ang(oq16myang + mulscale16(((q16myang + dang - oq16myang) & 0x7FFFFFF) - dang, smoothratio));
 			}
 			else
 			{
@@ -565,7 +566,7 @@ void displayrooms(int snum, int smoothratio)
 			cposx = p->oposx + mulscale16((int)(p->posx - p->oposx), smoothratio);
 			cposy = p->oposy + mulscale16((int)(p->posy - p->oposy), smoothratio);
 			cposz = p->oposz + mulscale16((int)(p->posz - p->oposz), smoothratio);
-			if (cl_syncinput /*|| smoothcamera*/)
+			if (cl_syncinput)
 			{
 				// Original code for when the values are passed through the sync struct
 				fixed_t ohorz = (p->oq16horiz + p->oq16horizoff);
@@ -574,7 +575,7 @@ void displayrooms(int snum, int smoothratio)
 
 				fixed_t oang = (p->oq16ang + p->oq16look_ang);
 				fixed_t ang = (p->q16ang + p->q16look_ang);
-				cang = q16ang(oang + mulscale16(((ang + (1024 << FRACBITS) - oang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio));
+				cang = q16ang(oang + mulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio));
 			}
 			else
 			{
@@ -586,7 +587,8 @@ void displayrooms(int snum, int smoothratio)
 
 		if (p->newowner >= 0)
 		{
-			cang = q16ang((hittype[p->newowner].tempang << FRACBITS) + mulscale16(((p->q16ang + (1024 << FRACBITS) - (hittype[p->newowner].tempang << FRACBITS)) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio));
+			fixed_t oang = hittype[p->newowner].tempang << FRACBITS;
+			cang = q16ang(oang + mulscale16(((p->q16ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio));
 			choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			cposx = p->posx;
 			cposy = p->posy;
