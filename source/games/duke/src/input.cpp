@@ -1259,12 +1259,8 @@ void GetInput()
 
 		if (!synchronized_input)
 		{
-			if (sprite[p->i].extra > 0)
-			{
-				applylook(myconnectindex, scaleAdjust);
-			}
-
 			// Do these in the same order as the old code.
+			applylook(myconnectindex, scaleAdjust);
 			calcviewpitch(p, scaleAdjust);
 			sethorizon(myconnectindex, loc.bits, scaleAdjust, true);
 		}

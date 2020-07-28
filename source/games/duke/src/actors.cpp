@@ -483,20 +483,11 @@ void moveplayers(void) //Players
 				}
 				else
 				{
-
 					p->posx = s->x;
 					p->posy = s->y;
 					p->posz = s->z - (20 << 8);
 
 					p->newowner = -1;
-
-					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
-					{
-						int ang = p->getang();
-						ang += getincangle(ang, getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1;
-						p->setang(ang & 2047, true);
-					}
-
 				}
 				s->ang = p->getang();
 			}

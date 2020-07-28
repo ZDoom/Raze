@@ -800,42 +800,52 @@ void applylook(int snum, double factor)
 {
 	auto p = &ps[snum];
 
-	p->addrotscrnang(factor * -0.5 * fix16_to_dbl(p->q16rotscrnang));
-	if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
-
-	p->addlookang(factor * -0.25 * fix16_to_dbl(p->q16look_ang));
-	if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
-
-	if (p->lookLeft)
+	if (sprite[p->i].extra > 0)
 	{
-		p->addlookang(factor * -152);
-		p->addrotscrnang(factor * 24);
-	}
+		p->addrotscrnang(factor * -0.5 * fix16_to_dbl(p->q16rotscrnang));
+		if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
 
-	if (p->lookRight)
-	{
-		p->addlookang(factor * 152);
-		p->addrotscrnang(factor * -24);
-	}
+		p->addlookang(factor * -0.25 * fix16_to_dbl(p->q16look_ang));
+		if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
 
-	if (p->actorsqu >= 0)
-	{
-		p->q16ang += fix16_from_dbl(factor * (getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2));
-	}
-
-	if (p->one_eighty_count < 0 && p->on_crane < 0)
-	{
-		fixed_t add = fix16_from_dbl(factor * 128);
-		p->one_eighty_count += add;
-		if (p->one_eighty_count > 0)
+		if (p->lookLeft)
 		{
-			// Don't overshoot our target. With variable factor this is possible.
-			add -= p->one_eighty_count;
-			p->one_eighty_count = 0;
+			p->addlookang(factor * -152);
+			p->addrotscrnang(factor * 24);
 		}
-		p->q16ang += add;
+
+		if (p->lookRight)
+		{
+			p->addlookang(factor * 152);
+			p->addrotscrnang(factor * -24);
+		}
+
+		if (p->actorsqu >= 0)
+		{
+			p->q16ang += fix16_from_dbl(factor * (getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2));
+		}
+
+		if (p->one_eighty_count < 0 && p->on_crane < 0)
+		{
+			fixed_t add = fix16_from_dbl(factor * 128);
+			p->one_eighty_count += add;
+			if (p->one_eighty_count > 0)
+			{
+				// Don't overshoot our target. With variable factor this is possible.
+				add -= p->one_eighty_count;
+				p->one_eighty_count = 0;
+			}
+			p->q16ang += add;
+		}
+		apply_seasick(p, factor);
 	}
-	apply_seasick(p, factor);
+	else
+	{
+		if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
+		{
+			p->q16ang += fix16_from_dbl(factor * (getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1));
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
