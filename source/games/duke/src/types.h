@@ -25,6 +25,7 @@ struct weaponhit
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, bposx, bposy, bposz, aflags;
 	int temp_data[6];
+	fixed_t oq16ang;	// for interpolating security cameras in displayrooms() when p->newowner >= 0.
 };
 
 struct animwalltype

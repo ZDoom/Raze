@@ -587,7 +587,7 @@ void displayrooms(int snum, int smoothratio)
 
 		if (p->newowner >= 0)
 		{
-			fixed_t oang = hittype[p->newowner].tempang << FRACBITS;
+			fixed_t oang = hittype[p->newowner].oq16ang;
 			cang = q16ang(oang + mulscale16(((p->q16ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio));
 			choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			cposx = p->posx;
