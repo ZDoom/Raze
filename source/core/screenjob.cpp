@@ -46,6 +46,7 @@
 #include "menu.h"
 #include "raze_sound.h"
 #include "movie/playmve.h"
+#include "gamecontrol.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
@@ -154,7 +155,7 @@ public:
 				int sound = animSnd[i].soundnum;
 				if (sound == -1)
 					soundEngine->StopAllChannels();
-				else
+				else if (SoundEnabled())
 					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
 			}
 		}
