@@ -1158,7 +1158,7 @@ OptionMenu SoundOptions //protected
 	Option "$SNDMNU_MIDIDEVICE",		"snd_mididevice", "MidiDevices"
 	//StaticText " "
 	//Option "$SNDMNU_UNDERWATERREVERB",	"snd_waterreverb", "OnOff"
-	Slider "$SNDMNU_CHANNELS",			"snd_numchannels", 64, 128, 8, 0
+	Slider "$SNDMNU_CHANNELS",			"snd_channels", 64, 256, 16, 0
 	staticText ""
 	ifgame (Blood, ShadowWarrior, Redneck, RedneckRides)
 	{

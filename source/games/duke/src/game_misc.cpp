@@ -149,7 +149,10 @@ void FTA(int q, struct player_struct* p)
 
 	if (p->ftq != q)
 	{
-		if (q == 13) p->ftq = q;
+		if (q == QUOTE_DEAD)
+		{
+			p->ftq = q;
+		}
 		auto qu = quoteMgr.GetQuote(q);
 		if (p == &ps[screenpeek] && qu[0] != '\0')
 		{
