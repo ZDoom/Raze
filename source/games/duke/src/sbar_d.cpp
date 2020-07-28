@@ -134,7 +134,7 @@ public:
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 60, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, 25, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
@@ -145,20 +145,11 @@ public:
 		DrawGraphic(imgArmor, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &numberFont, format, 120, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &numberFont, format, 85, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		//
 		// Weapon
 		//
-
-		int wicon = ammo_sprites[p->curr_weapon];
-		if (wicon > 0)
-		{
-			auto imgWeap = tileGetTexture(wicon);
-			auto weapScale = imgScale / imgWeap->GetDisplayHeight();
-			DrawGraphic(imgWeap, -40.625, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
-		}
-
 		int weapon = p->curr_weapon;
 		if (weapon == HANDREMOTE_WEAPON) weapon = HANDBOMB_WEAPON;
 
@@ -166,6 +157,14 @@ public:
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
 			SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		}
+
+		int wicon = ammo_sprites[p->curr_weapon];
+		if (wicon > 0)
+		{
+			auto imgWeap = tileGetTexture(wicon);
+			auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+			DrawGraphic(imgWeap, -(15. * format.Len()), -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
 		}
 
 		//
