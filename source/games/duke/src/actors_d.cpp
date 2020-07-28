@@ -2649,10 +2649,6 @@ static void greenslime(int i)
 				x = ldist(s, &sprite[t[5]]);
 				if (x < 768) {
 					sprite[t[5]].xrepeat = 0;
-
-					// JBF 20041129: a slimer eating another enemy really ought
-					// to decrease the maximum kill count by one.
-					if (ps[myconnectindex].max_actors_killed > 0) ps[myconnectindex].max_actors_killed--;
 				}
 			}
 		}
