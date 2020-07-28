@@ -166,6 +166,7 @@ struct player_struct
 	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
 	unsigned char walking_snd_toggle, palookup, hard_landing;
 	unsigned char return_to_center;
+	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
 

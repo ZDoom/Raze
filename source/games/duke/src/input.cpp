@@ -281,10 +281,12 @@ void hud_input(int snum)
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
 				p->quick_kick = 14;
-				FTA(QUOTE_MIGHTY_FOOT, p);
+				if (!p->quick_kick_msg && snum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
+				p->quick_kick_msg = true;
 			}
 		}
 	}
+	if (!PlayerInput(snum, SKB_QUICK_KICK)) p->quick_kick_msg = false;
 
 	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
