@@ -206,7 +206,7 @@ public:
 		DrawGraphic(tileGetTexture(HEALTHBOX), 5, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
-		SBar_DrawString(this, &digiFont, format, 19, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 20, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// ammo
@@ -214,7 +214,7 @@ public:
 		DrawGraphic(tileGetTexture(AMMOBOX), 37, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int wp = (p->curr_weapon == HANDREMOTE_WEAPON) ? HANDBOMB_WEAPON : p->curr_weapon;
 		format.Format("%d", p->ammo_amount[wp]);
-		SBar_DrawString(this, &digiFont, format, 53, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 52, -digiFont.mFont->GetHeight() * scale - 3, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// inventory
@@ -225,15 +225,15 @@ public:
 			int x = 73;
 			DrawGraphic(tileGetTexture(INVENTORYBOX), 69, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, -14, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
+				DrawGraphic(tileGetTexture(item_icons[icon]), x, -13.5, DI_ITEM_LEFT|DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 34, -indexFont.mFont->GetHeight() - 5.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &indexFont, format, x + 34, -indexFont.mFont->GetHeight() - 3, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, -miniFont.mFont->GetHeight() - 14.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 34, -miniFont.mFont->GetHeight() - 14, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
 		}
 	}
 
@@ -371,9 +371,9 @@ public:
 		else
 		{
 			auto key = tileGetTexture(ACCESS_ICON);
-			if (p->got_access & 4) DrawGraphic(key, 275, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-			if (p->got_access & 2) DrawGraphic(key, 288, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 21));
-			if (p->got_access & 1) DrawGraphic(key, 281, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+			if (p->got_access & 4) DrawGraphic(key, 275.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+			if (p->got_access & 2) DrawGraphic(key, 288.5, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+			if (p->got_access & 1) DrawGraphic(key, 282, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
 		DrawWeaponAmounts(p, 96, top + 15.5);
 
@@ -387,13 +387,13 @@ public:
 		{
 			int wep = (p->curr_weapon == HANDREMOTE_WEAPON)? HANDBOMB_WEAPON : p->curr_weapon;
 			format.Format("%d", p->ammo_amount[wep]);
-			SBar_DrawString(this, &digiFont, format, 208, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &digiFont, format, 207, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		int icon = p->inven_icon;
 		if (icon)
 		{
-			int x = 231;
+			int x = 232;
 			if (icon < ICON_MAX)
 				DrawGraphic(tileGetTexture(item_icons[icon]), x, top + 20.5, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, 1, 1);
 
