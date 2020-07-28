@@ -116,10 +116,14 @@ public:
 
 	void FullscreenHUD1(struct player_struct* p, int snum)
 	{
+		float imgScale = 14.f;
+
 		//
 		// Health
 		//
-		DrawGraphic(tileGetTexture(COLA), 2, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+		auto imgHealth = tileGetTexture(COLA);
+		auto healthScale = imgScale / imgHealth->GetDisplayHeight();
+		DrawGraphic(imgHealth, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
 
 		FString format;
 		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
@@ -130,16 +134,18 @@ public:
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 40, -BigFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, 60, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
 		// Armor
 		//
-		DrawGraphic(tileGetTexture(SHIELD), 62, -2, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, 0.75, 0.75);
+		auto imgArmor = tileGetTexture(SHIELD);
+		auto armorScale = imgScale / imgArmor->GetDisplayHeight();
+		DrawGraphic(imgArmor, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &numberFont, format, 105, -numberFont.mFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &numberFont, format, 120, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		//
 		// Weapon
@@ -148,9 +154,9 @@ public:
 		int wicon = ammo_sprites[p->curr_weapon];
 		if (wicon > 0)
 		{
-			auto img = tileGetTexture(wicon);
-			auto scale = img && img->GetDisplayHeight() >= 50 ? 0.25 : 0.5;
-			DrawGraphic(img, -57, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+			auto imgWeap = tileGetTexture(wicon);
+			auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+			DrawGraphic(imgWeap, -40.625, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
 		}
 
 		int weapon = p->curr_weapon;
@@ -159,7 +165,7 @@ public:
 		if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
-			SBar_DrawString(this, &numberFont, format, -22, -numberFont.mFont->GetHeight() + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
@@ -169,26 +175,30 @@ public:
 		unsigned icon = p->inven_icon;
 		if (icon > 0)
 		{
-			int x = 131;
+			int x = 128;
 
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+			{
+				auto imgInv = tileGetTexture(item_icons[icon]);
+				auto invScale = imgScale / imgInv->GetDisplayHeight();
+				DrawGraphic(imgInv, x, -1.5, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, invScale, invScale);
+			}
 
 			int percentv = getinvamount(p);
 			format.Format("%3d%%", percentv);
 			EColorRange color = percentv > 50 ? CR_GREEN : percentv > 25 ? CR_GOLD : CR_RED;
-			SBar_DrawString(this, &indexFont, format, x + 35, -indexFont.mFont->GetHeight() - 0.5, DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &indexFont, format, x + 36.5, -indexFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, color, 1, 0, 0, 1, 1);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 35, -miniFont.mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
+			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 36.5, -miniFont.mFont->GetHeight() - 9.5, DI_TEXT_ALIGN_RIGHT, text.second, 1, 0, 0, 1, 1);
 		}
 
 		//
 		// keys
 		//
-		if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -29, -30, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-		if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -24, -28, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-		if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -19, -26, DI_ITEM_CENTER, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+		if (p->got_access & 1) DrawGraphic(tileGetTexture(ACCESSCARD), -12, -23.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+		if (p->got_access & 4) DrawGraphic(tileGetTexture(ACCESSCARD), -7 , -21.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+		if (p->got_access & 2) DrawGraphic(tileGetTexture(ACCESSCARD), -2 , -19.5, DI_ITEM_RIGHT, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
 	}
 
 
