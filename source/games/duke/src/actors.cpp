@@ -463,11 +463,6 @@ void moveplayers(void) //Players
 						}
 					}
 
-				if (p->actorsqu >= 0)
-				{
-					p->addang(getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2, true);
-				}
-
 				if (ud.god)
 				{
 					s->extra = max_player_health;

@@ -818,6 +818,11 @@ void applylook(int snum, double factor)
 		p->addrotscrnang(factor * -24);
 	}
 
+	if (p->actorsqu >= 0)
+	{
+		p->q16ang += fix16_from_dbl(factor * (getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2));
+	}
+
 	if (p->one_eighty_count < 0 && p->on_crane < 0)
 	{
 		fixed_t add = fix16_from_dbl(factor * 128);
