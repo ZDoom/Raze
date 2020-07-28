@@ -539,10 +539,7 @@ void displayrooms(int snum, int smoothratio)
 		if (!cl_syncinput)
 			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
 		else
-		{
 			renderSetRollAngle((p->oq16rotscrnang + mulscale16(((p->q16rotscrnang - p->oq16rotscrnang + (1024 << FRACBITS)) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio)) / (float)(FRACUNIT));
-			p->oq16rotscrnang = p->q16rotscrnang; // JBF: save it for next time
-		}
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
