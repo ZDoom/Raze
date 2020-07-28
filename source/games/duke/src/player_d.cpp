@@ -2710,6 +2710,7 @@ void processinput_d(int snum)
 	if (p->newowner >= 0)
 	{
 		i = p->newowner;
+		hittype[i].tempang = p->getang();
 		p->posx = sprite[i].x;
 		p->posy = sprite[i].y;
 		p->posz = sprite[i].z;
