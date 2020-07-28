@@ -352,8 +352,10 @@ bool GameTicker()
 		exitlevel();
 	}
 
-
-	GetInput();
+	if (!cl_syncinput)
+	{
+		GetInput();
+	}
 
 	int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 

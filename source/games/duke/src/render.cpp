@@ -551,10 +551,10 @@ void displayrooms(int snum, int smoothratio)
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
 			if (cl_syncinput)
 			{
-				cang.interpolate(q16ang(oq16myang), q16ang(q16myang), smoothratio);
-				fix16_t osum = (oq16myhoriz + oq16myhorizoff);
-				fix16_t sum = (q16myhoriz + q16myhorizoff);
+				fixed_t osum = (oq16myhoriz + oq16myhorizoff);
+				fixed_t sum = (q16myhoriz + q16myhorizoff);
 				choriz = q16horiz(osum + mulscale16(sum - osum, smoothratio));
+				cang = q16ang(oq16myang + mulscale16(((q16myang + (1024 << FRACBITS) - oq16myang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio));
 			}
 			else
 			{
@@ -571,19 +571,21 @@ void displayrooms(int snum, int smoothratio)
 			if (cl_syncinput /*|| smoothcamera*/)
 			{
 				// Original code for when the values are passed through the sync struct
-				cang.interpolate(q16ang(p->oq16ang), q16ang(p->q16ang), smoothratio);
-				fix16_t osum = (p->oq16horiz + p->oq16horizoff);
-				fix16_t sum = (p->q16horiz + p->q16horizoff);
-				choriz = q16horiz(osum + mulscale16(sum - osum, smoothratio));
+				fixed_t ohorz = (p->oq16horiz + p->oq16horizoff);
+				fixed_t horz = (p->q16horiz + p->q16horizoff);
+				choriz = q16horiz(ohorz + mulscale16(horz - ohorz, smoothratio));
+
+				fixed_t oang = (p->oq16ang + p->oq16look_ang);
+				fixed_t ang = (p->q16ang + p->q16look_ang);
+				cang = q16ang(oang + mulscale16(((ang + (1024 << FRACBITS) - oang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio));
 			}
 			else
 			{
 				// This is for real time updating of the view direction.
-				cang = q16ang(p->q16ang);
+				cang = q16ang(p->q16ang + p->q16look_ang);
 				choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			}
 		}
-		cang += q16ang(p->q16look_ang);
 
 		if (p->newowner >= 0)
 		{

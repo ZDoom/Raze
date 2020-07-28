@@ -2596,11 +2596,8 @@ void processinput_d(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	if (!cl_syncinput)
-	{
-		p->horizAngleAdjust = 0;
-		p->horizSkew = 0;
-	}
+	p->horizAngleAdjust = 0;
+	p->horizSkew = 0;
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
@@ -2794,21 +2791,23 @@ void processinput_d(int snum)
 		p->posxv = 0;
 		p->posyv = 0;
 	}
-	else if (sb_avel)          //p->ang += syncangvel * constant
-	{                         //ENGINE calculates angvel for you
-		if (cl_syncinput)
+	else if (sb_avel && cl_syncinput)
+	{
+		//p->ang += syncangvel * constant
+		//ENGINE calculates angvel for you
+		// may still be needed later for demo recording
+
+		if (psectlotag == ST_2_UNDERWATER)
 		{
-			// may still be needed later for demo recording
-			int tempang;
-
-			tempang = sb_avel << 1; // this is fixed point!
-
-			if (psectlotag == ST_2_UNDERWATER) p->angvel = (tempang - (tempang >> 3)) * sgn(doubvel);
-			else p->angvel = tempang * sgn(doubvel);
-
-			p->addang(p->angvel);
-			p->q16ang &= (2048 << FRACBITS) - 1;
+			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
 		}
+		else
+		{
+			p->q16angvel = sb_avel * sgn(doubvel);
+		}
+
+		p->q16ang += p->q16angvel;
+		p->q16ang &= 0x7FFFFFF;
 		p->crack_time = 777;
 	}
 
@@ -3053,8 +3052,8 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		p->q16horiz += (sync[snum].q16horz >> 1);
-		sethorizon(snum, sb_snum, 1);
+		p->q16horiz += sync[snum].q16horz;
+		sethorizon(snum, sb_snum, 1, false);
 	}
 
 	//Shooting code/changes

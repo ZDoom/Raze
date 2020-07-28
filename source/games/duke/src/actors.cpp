@@ -442,13 +442,6 @@ void moveplayers(void) //Players
 
 				execute(i, s->yvel, otherx);
 
-				//thisPlayer.smoothcamera = false;
-				//p->q16angvel = G_GetQ16AngleDelta(pPlayer->oq16ang, pPlayer->q16ang);
-				p->oq16ang = p->q16ang;
-				p->oq16horiz = p->q16horiz;
-				p->oq16horizoff = p->q16horizoff;
-
-
 				if (ud.multimode > 1)
 					if (sprite[ps[otherp].i].extra > 0)
 					{

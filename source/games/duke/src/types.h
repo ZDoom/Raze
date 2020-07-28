@@ -101,8 +101,8 @@ struct player_struct
 	};
 
 	// input handles angle and horizon as fixed16 numbers. We need to account for that as well.
-	fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang;
-	fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang; // These are only needed with synchronous mouse input.
+	fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang, q16angvel;
+	fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang, oq16look_ang; // These are only needed with synchronous mouse input.
 	fixed_t one_eighty_count;
 
 	// using a bit field for this to save a bit of space.
@@ -126,7 +126,7 @@ struct player_struct
 
 	int aim_mode, auto_aim;
 
-	short angvel, cursectnum, last_extra, subweapon;
+	short cursectnum, last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;

@@ -880,6 +880,7 @@ void checklook(int snum, int sb_snum)
 		}
 	}
 	p->oq16ang = p->q16ang;
+	p->oq16look_ang = p->q16look_ang;
 
 	if (cl_syncinput)
 		applylook(snum, 1);
