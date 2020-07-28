@@ -800,7 +800,7 @@ void applylook(int snum, double factor)
 {
 	auto p = &ps[snum];
 
-	if (sprite[p->i].extra >= 0)
+	if (sprite[p->i].extra > 0)
 	{
 		p->addrotscrnang(factor * -0.5 * fix16_to_dbl(p->q16rotscrnang));
 		if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
