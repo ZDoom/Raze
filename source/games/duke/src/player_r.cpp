@@ -3472,7 +3472,7 @@ void processinput_r(int snum)
 	hittype[pi].floorz = fz;
 	hittype[pi].ceilingz = cz;
 
-	if (synchronized_input)
+	if (cl_syncinput)
 	{
 		p->oq16horiz = p->q16horiz;
 		p->oq16horizoff = p->q16horizoff;
@@ -3704,7 +3704,7 @@ void processinput_r(int snum)
 	}
 	else if (sb_avel)          //p->ang += syncangvel * constant
 	{                         //ENGINE calculates angvel for you
-		if (synchronized_input)
+		if (cl_syncinput)
 		{
 			// may still be needed later for demo recording
 			int tempang;
@@ -4041,7 +4041,7 @@ HORIZONLY:
 		return;
 	}
 
-	if (!synchronized_input && p->return_to_center > 0)
+	if (!cl_syncinput && p->return_to_center > 0)
 		p->return_to_center--;
 
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
@@ -4078,7 +4078,7 @@ HORIZONLY:
 		p->hard_landing--;
 	}
 
-	if (synchronized_input)
+	if (cl_syncinput)
 	{
 		p->q16horiz += (sync[snum].q16horz >> 1);
 		sethorizon(snum, sb_snum, 1);

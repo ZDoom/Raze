@@ -536,7 +536,7 @@ void displayrooms(int snum, int smoothratio)
 			setdrugmode(p, i);
 		}
 
-		if (!synchronized_input)
+		if (!cl_syncinput)
 			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
 		else
 		{
@@ -549,7 +549,7 @@ void displayrooms(int snum, int smoothratio)
 			cposx = omyx + mulscale16((int)(myx - omyx), smoothratio);
 			cposy = omyy + mulscale16((int)(myy - omyy), smoothratio);
 			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
-			if (synchronized_input)
+			if (cl_syncinput)
 			{
 				cang.interpolate(q16ang(oq16myang), q16ang(q16myang), smoothratio);
 				fix16_t osum = (oq16myhoriz + oq16myhorizoff);
@@ -568,7 +568,7 @@ void displayrooms(int snum, int smoothratio)
 			cposx = p->oposx + mulscale16((int)(p->posx - p->oposx), smoothratio);
 			cposy = p->oposy + mulscale16((int)(p->posy - p->oposy), smoothratio);
 			cposz = p->oposz + mulscale16((int)(p->posz - p->oposz), smoothratio);
-			if (synchronized_input /*|| smoothcamera*/)
+			if (cl_syncinput /*|| smoothcamera*/)
 			{
 				// Original code for when the values are passed through the sync struct
 				cang.interpolate(q16ang(p->oq16ang), q16ang(p->q16ang), smoothratio);

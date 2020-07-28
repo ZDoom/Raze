@@ -50,7 +50,6 @@ extern int16_t max_ammo_amount[MAX_WEAPONS];
 extern int16_t weaponsandammosprites[15];
 extern int32_t PHEIGHT;
 extern int duke3d_globalflags;
-extern bool synchronized_input;
 extern uint8_t ready2send;
 extern input_t loc;
 extern int gamequit;

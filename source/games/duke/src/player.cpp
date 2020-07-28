@@ -405,7 +405,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		if (synchronized_input)
+		if (cl_syncinput)
 			p->addhoriz(-48);
 		else
 		{
@@ -881,7 +881,7 @@ void checklook(int snum, int sb_snum)
 	}
 	p->oq16ang = p->q16ang;
 
-	if (synchronized_input)
+	if (cl_syncinput)
 		applylook(snum, 1);
 }
 

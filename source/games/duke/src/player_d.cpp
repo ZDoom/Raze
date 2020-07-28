@@ -2596,7 +2596,7 @@ void processinput_d(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	if (!synchronized_input)
+	if (!cl_syncinput)
 	{
 		p->horizAngleAdjust = 0;
 		p->horizSkew = 0;
@@ -2637,7 +2637,7 @@ void processinput_d(int snum)
 	hittype[pi].floorz = fz;
 	hittype[pi].ceilingz = cz;
 
-	if (synchronized_input)
+	if (cl_syncinput)
 	{
 		p->oq16horiz = p->q16horiz;
 		p->oq16horizoff = p->q16horizoff;
@@ -2796,7 +2796,7 @@ void processinput_d(int snum)
 	}
 	else if (sb_avel)          //p->ang += syncangvel * constant
 	{                         //ENGINE calculates angvel for you
-		if (synchronized_input)
+		if (cl_syncinput)
 		{
 			// may still be needed later for demo recording
 			int tempang;
@@ -3017,7 +3017,7 @@ HORIZONLY:
 			fi.activatebysector(psect, pi);
 	}
 
-	if (!synchronized_input)
+	if (!cl_syncinput)
 	{
 		if (p->return_to_center > 0)
 			p->return_to_center--;
@@ -3051,7 +3051,7 @@ HORIZONLY:
 		p->hard_landing--;
 	}
 
-	if (synchronized_input)
+	if (cl_syncinput)
 	{
 		p->q16horiz += (sync[snum].q16horz >> 1);
 		sethorizon(snum, sb_snum, 1);

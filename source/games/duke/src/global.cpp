@@ -64,7 +64,6 @@ int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;
 int duke3d_globalflags;
 input_t loc;
-bool synchronized_input;
 uint8_t ready2send;
 int gamequit;
 int playerswhenstarted;

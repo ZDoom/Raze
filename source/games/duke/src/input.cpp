@@ -1181,7 +1181,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
 			loc.q16avel += input.q16avel;
-			if (!synchronized_input)
+			if (!cl_syncinput)
 			{
 				p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
 
@@ -1193,7 +1193,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 		if (p->newowner == -1 && p->return_to_center <= 0)
 		{
 			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-			if (!synchronized_input)
+			if (!cl_syncinput)
 				p->q16horiz += input.q16horz; // will be clamped by the caller because further operations on q16horiz can follow.
 		}
 	}
@@ -1241,7 +1241,7 @@ void GetInput()
 		processVehicleInput(p, info, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
-		if (!synchronized_input)
+		if (!cl_syncinput)
 		{
 			p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 			if (sprite[p->i].extra > 0)
@@ -1257,7 +1257,7 @@ void GetInput()
 		processInputBits(p, info);
 		FinalizeInput(myconnectindex, input, false);
 
-		if (!synchronized_input)
+		if (!cl_syncinput)
 		{
 			// Do these in the same order as the old code.
 			applylook(myconnectindex, scaleAdjust);

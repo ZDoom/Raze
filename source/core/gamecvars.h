@@ -24,6 +24,7 @@ EXTERN_CVAR(Int, cl_showweapon)
 EXTERN_CVAR(Int, cl_weaponswitch)
 EXTERN_CVAR(Int, cl_crosshairscale)
 EXTERN_CVAR(Bool, cl_sointerpolation)
+EXTERN_CVAR(Bool, cl_syncinput)
 
 EXTERN_CVAR(Bool, demorec_seeds_cvar)
 EXTERN_CVAR(Bool, demoplay_diffs)
