@@ -411,7 +411,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         SetRenderStyleFromBlend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
     }
 
-    if (!(method & (DAMETH_WALL | DAMETH_CLAMPED | DAMETH_MASK)))
+    if (!(method & (DAMETH_CLAMPED | DAMETH_MASKPROPS)))
         GLInterface.SetTextureMode(TM_OPAQUE);
 
     float pc[4];
