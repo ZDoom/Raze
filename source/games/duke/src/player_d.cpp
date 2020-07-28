@@ -1595,8 +1595,6 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 			p->posz += j;
 			p->crack_time = 777;
 		}
-		p->posz += j;
-		p->crack_time = 777;
 	}
 
 	int k;
