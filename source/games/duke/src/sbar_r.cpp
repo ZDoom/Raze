@@ -263,19 +263,28 @@ public:
 		FString format;
 		for (int i = 0; i < 9; i++) 
 		{
+			FGameTexture* img;
+
 			if ((g_gameType & GAMEFLAG_RRRA) && i == 4 && p->curr_weapon == CHICKEN_WEAPON)
 			{
-				DrawGraphic(tileGetTexture(AMMO_ICON + 10), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+				img = tileGetTexture(AMMO_ICON + 10);
 				format.Format("%d", p->ammo_amount[CHICKEN_WEAPON]);
 			}
 			else
 			{
-				if (p->gotweapon[i+1]) {
-					DrawGraphic(tileGetTexture(AMMO_ICON + i), 18 + i * 32, top - 6, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+				if (p->gotweapon[i+1])
+				{
+					img = tileGetTexture(AMMO_ICON + i);
+					format.Format("%d", p->ammo_amount[i+1]);
 				}
-				format.Format("%d", p->ammo_amount[i+1]);
 			}
-			SBar_DrawString(this, &miniFont, format, 38 + i * 32, 162 - miniFont.mFont->GetHeight() * scale * 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			
+			if (img)
+			{
+				DrawGraphic(img, 18 + i * 32, top - 6.5, DI_ITEM_OFFSETS, 1, 0, 0, sbscale, sbscale);
+			}
+
+			SBar_DrawString(this, &miniFont, format, 38 + i * 32, 162.75 - miniFont.mFont->GetHeight() * scale * 0.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale * .875, scale * .875);
 		}
 	}
 
@@ -310,36 +319,36 @@ public:
 		else
 		{
 			auto key = tileGetTexture(ACCESS_ICON);
-			if (p->keys[3]) DrawGraphic(key, 140, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-			if (p->keys[2]) DrawGraphic(key, 153, top + 16, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
-			if (p->keys[1]) DrawGraphic(key, 146, top + 23, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+			if (p->keys[3]) DrawGraphic(key, 138, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+			if (p->keys[2]) DrawGraphic(key, 152, top + 13, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+			if (p->keys[1]) DrawGraphic(key, 145, top + 21, DI_ITEM_OFFSETS, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
 		}
 
 		int num = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		format.Format("%d", num);
-		SBar_DrawString(this, &digiFont, format, 64, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 66.5, top + 16, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		if (p->curr_weapon != KNEE_WEAPON)
 		{
 			int wep = (p->curr_weapon == HANDREMOTE_WEAPON) ? DYNAMITE_WEAPON : p->curr_weapon;
 			format.Format("%d", p->ammo_amount[wep]);
-			SBar_DrawString(this, &digiFont, format, 107, top + 17, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &digiFont, format, 110, top + 16, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 		}
 
 		int icon = p->inven_icon;
 		if (icon)
 		{
-			int x = 183;
+			int x = 182;
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, top + 20, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
+				DrawGraphic(tileGetTexture(item_icons[icon]), x, top + 20.125, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
 			int percentv = getinvamount(p);
 			if (icon <= 2) format.Format("%d%%", percentv);
 			else format.Format("%d", percentv);
-			SBar_DrawString(this, &miniFont, format, x + 34, top + 24, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &miniFont, format, x + 38, top + 23.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 			if (p->inven_icon == ICON_SCUBA || p->inven_icon == ICON_BOOTS) 
-				SBar_DrawString(this, &miniFont, "AUTO", x + 34, top + 14, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+				SBar_DrawString(this, &miniFont, "AUTO", x + 39, top + 13, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 		}
 
 		p->drunkang = ((p->drink_amt * 8) + 1647) & 2047;
