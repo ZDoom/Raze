@@ -111,7 +111,7 @@ void resetplayerstats(int snum)
     p->footprintshade   = 0;
     p->jumping_toggle   = 0;
     p->sethoriz(140);                                   //!!
-    //p->oq16horiz = p->q16horiz;
+    p->oq16horiz = p->q16horiz;
     p->sethorizoff(0);
     p->bobcounter       = 0;
     p->on_ground        = 0;
@@ -140,8 +140,8 @@ void resetplayerstats(int snum)
 
     p->setlookang(512 - ((currentLevel->levelNumber & 1) << 10));
 
-    p->q16rotscrnang        = 0;
-    //p->orotscrnang       = 1;	// JBF 20031220
+    p->setrotscrnang(0);
+    p->oq16rotscrnang = p->q16rotscrnang;
     p->newowner          =-1;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;

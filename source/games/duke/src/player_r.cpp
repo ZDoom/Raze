@@ -3643,20 +3643,12 @@ void processinput_r(int snum)
 
 	if (ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
 	{
-		p->posx = p->oposx;
-		p->posy = p->oposy;
+		backuppos(p, false);
 	}
 	else
 	{
-		p->oposx = p->posx;
-		p->oposy = p->posy;
+		backuppos(p);
 	}
-
-	p->bobposx = p->posx;
-	p->bobposy = p->posy;
-
-	p->oposz = p->posz;
-	p->opyoff = p->pyoff;
 
 	// Shrinking code
 

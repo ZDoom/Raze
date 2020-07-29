@@ -178,6 +178,13 @@ inline int calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 	return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
 }
 
+inline void backupplayer(player_struct* p)
+{
+	backuppos(p);
+	backuplook(p);
+	backupview(p);
+}
+
 
 // These should be the only places converting between level numbers and volume/map pairs
 constexpr inline int levelnum(int vol, int map)

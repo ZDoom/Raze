@@ -652,11 +652,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		//			  p->bobcounter += 32;
 	}
 
-	p->oposx = p->posx;
-	p->oposy = p->posy;
-	p->oposz = p->posz;
-	p->oq16ang = p->q16ang;
-	p->opyoff = p->pyoff;
+	backupplayer(p);
 
 	p->sethoriz(100);
 	p->q16horizoff = 0;
@@ -854,6 +850,56 @@ void applylook(int snum, double factor)
 //
 //---------------------------------------------------------------------------
 
+void backuppos(player_struct* p, bool clipping)
+{
+	if (clipping)
+	{
+		p->oposx = p->posx;
+		p->oposy = p->posy;
+	}
+	else
+	{
+		p->posx = p->oposx;
+		p->posy = p->oposy;
+	}
+
+	p->oposz = p->posz;
+	p->bobposx = p->posx;
+	p->bobposy = p->posy;
+	p->opyoff = p->pyoff;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void backuplook(player_struct* p)
+{
+	p->oq16ang = p->q16ang;
+	p->oq16look_ang = p->q16look_ang;
+	p->oq16rotscrnang = p->q16rotscrnang;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void backupview(player_struct* p)
+{
+	p->oq16horiz = p->q16horiz;
+	p->oq16horizoff = p->q16horizoff;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void checklook(int snum, int sb_snum)
 {
 	auto p = &ps[snum];
@@ -879,9 +925,7 @@ void checklook(int snum, int sb_snum)
 			p->lookRight = true;
 		}
 	}
-	p->oq16ang = p->q16ang;
-	p->oq16look_ang = p->q16look_ang;
-	p->oq16rotscrnang = p->q16rotscrnang;
+	backuplook(p);
 
 	if (cl_syncinput)
 		applylook(snum, 1);

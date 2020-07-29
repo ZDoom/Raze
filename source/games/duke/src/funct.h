@@ -244,4 +244,8 @@ void dointerpolations(int smoothratio);
 int* animateptr(int i);
 void updateviewport(void);
 
+void backuppos(player_struct* p, bool clipping = true);
+void backuplook(player_struct* p);
+void backupview(player_struct* p);
+
 END_DUKE_NS
