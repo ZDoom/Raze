@@ -677,7 +677,10 @@ void guts_d(spritetype* s, short gtype, short n, short p)
 
 	if (badguy(s) && s->pal == 6)
 		pal = 6;
-	else pal = 0;
+	else if (s->picnum != LIZTROOP) // EDuke32 transfers the palette unconditionally, I'm not sure that's such a good idea.
+		pal = 0;
+	else
+		pal = s->pal;
 
 	for (j = 0; j < n; j++)
 	{
