@@ -344,7 +344,7 @@ int findlabel(const char* text, bool ignorecase = false)
 int getlabelvalue(const char* text)
 {
 	int lnum = findlabel(text, true);
-	if (labels[lnum].type != LABEL_DEFINE) return -1;
+	if (lnum >= 0 && labels[lnum].type != LABEL_DEFINE) return -1;
 	return lnum < 0 ? -1 : labels[lnum].value;
 }
 

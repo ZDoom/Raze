@@ -3240,7 +3240,7 @@ void moveactors_r(void)
 
 			case REACTOR:
 			case REACTOR2:
-				reactor(i, REACTOR, REACTOR2, REACTOR2BURNT, REACTOR2BURNT);
+				reactor(i, REACTOR, REACTOR2, REACTORBURNT, REACTOR2BURNT);
 				continue;
 
 			case CAMERA1:
