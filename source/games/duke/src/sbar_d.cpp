@@ -157,14 +157,21 @@ public:
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
 			SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
-		}
 
-		int wicon = ammo_sprites[p->curr_weapon];
-		if (wicon > 0)
-		{
-			auto imgWeap = tileGetTexture(wicon);
-			auto weapScale = imgScale / imgWeap->GetDisplayHeight();
-			DrawGraphic(imgWeap, -(15. * format.Len()), -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+			int wicon = ammo_sprites[p->curr_weapon];
+			if (wicon > 0)
+			{
+				auto imgWeap = tileGetTexture(wicon);
+				auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+				auto imgX = 20.;
+				auto strlen = format.Len();
+				if (strlen > 1)
+				{
+					auto scaler = strlen - 1;
+					imgX += ((imgX / 2.) * scaler) + ((imgX / 10.) * scaler);
+				}
+				DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+			}
 		}
 
 		//
