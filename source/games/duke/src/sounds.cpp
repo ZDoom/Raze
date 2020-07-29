@@ -459,7 +459,7 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags)
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
 
 	int userflags = S_GetUserFlags(sndnum);
-	if ((!(snd_speech & 1) && (userflags & SF_TALK)) || ((userflags & SF_ADULT)))
+	if ((!(snd_speech & 1) && (userflags & SF_TALK)))
 		return -1;
 
 	int const pitch = S_GetPitch(sndnum);
