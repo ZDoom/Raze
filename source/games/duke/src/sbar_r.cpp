@@ -186,7 +186,7 @@ public:
 		DrawGraphic(tileGetTexture(HEALTHBOX), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
 		FStringf format("%d", health);
-		SBar_DrawString(this, &digiFont, format, 22, -digiFont.mFont->GetHeight() * scale - 5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 21.5, -digiFont.mFont->GetHeight() * scale - 5.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// ammo
@@ -194,7 +194,7 @@ public:
 		DrawGraphic(tileGetTexture(AMMOBOX), 41, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 		int wp = p->curr_weapon == THROWINGDYNAMITE_WEAPON? DYNAMITE_WEAPON : p->curr_weapon;
 		format.Format("%d", p->ammo_amount[wp]);
-		SBar_DrawString(this, &digiFont, format, 62, -digiFont.mFont->GetHeight() * scale - 5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &digiFont, format, 60.25, -digiFont.mFont->GetHeight() * scale - 5.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// inventory
@@ -202,15 +202,15 @@ public:
 		unsigned icon = p->inven_icon;
 		if (icon > 0)
 		{
-			int x = 85;
+			int x = 84.5;
 			DrawGraphic(tileGetTexture(INVENTORYBOX), 77, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, -14, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
+				DrawGraphic(tileGetTexture(item_icons[icon]), x, -15.375, DI_ITEM_LEFT | DI_ITEM_VCENTER, 1, -1, -1, scale, scale);
 
 			int percentv = getinvamount(p);
 			if (icon <= 2) format.Format("%d%%", percentv);
 			else format.Format("%d", percentv);
-			SBar_DrawString(this, &miniFont, format, x + 32, -miniFont.mFont->GetHeight() * scale - 5.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &miniFont, format, x + 31.5, -miniFont.mFont->GetHeight() * scale - 6.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 		}
 	}
 
