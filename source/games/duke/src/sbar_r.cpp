@@ -94,11 +94,14 @@ public:
 
 	void FullscreenHUD1(struct player_struct* p, int snum)
 	{
+		double imgScale = (scale * numberFont.mFont->GetHeight()) * 0.76;
+
 		//
 		// Health
 		//
-
-		DrawGraphic(tileGetTexture(SPINNINGNUKEICON+1), 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
+		auto imgHealth = tileGetTexture(SPINNINGNUKEICON+1);
+		auto healthScale = imgScale / imgHealth->GetDisplayHeight();
+		DrawGraphic(imgHealth, 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, healthScale, healthScale);
 
 		FString format;
 		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
@@ -109,41 +112,52 @@ public:
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 44, -BigFont->GetHeight() * scale + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &numberFont, format, 26.5, -numberFont.mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 		}
 
 		//
 		// drink
 		//
-		DrawGraphic(tileGetTexture(COLA), 70, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 10000. / 65536., 10000. / 65536.);
+		auto imgDrink = tileGetTexture(COLA);
+		auto drinkScale = imgScale / imgDrink->GetDisplayHeight();
+		DrawGraphic(imgDrink, 74, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, drinkScale, drinkScale);
 		format.Format("%d", p->drink_amt);
-		SBar_DrawString(this, &numberFont, format, 98, -BigFont->GetHeight() * scale + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &numberFont, format, 86, -numberFont.mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// eat
 		//
-		DrawGraphic(tileGetTexture(JETPACK), 122, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, 20000. / 65536., 20000. / 65536.);
+		auto imgEat = tileGetTexture(JETPACK);
+		auto eatScale = imgScale / imgEat->GetDisplayHeight();
+		DrawGraphic(imgEat, 133.5, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, eatScale, eatScale);
 		format.Format("%d", p->eat);
-		SBar_DrawString(this, &numberFont, format, 175, -BigFont->GetHeight() * scale + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+		SBar_DrawString(this, &numberFont, format, 173, -numberFont.mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 		//
 		// selected weapon
 		//
-		int wicon = ammo_sprites[p->curr_weapon];
-		if (wicon > 0)
-		{
-			auto img = tileGetTexture(wicon);
-			auto myscale = img && img->GetDisplayHeight() >= 50 ? 0.25 : 0.5;
-			DrawGraphic(img, -50, -2, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, myscale, myscale);
-		}
-
 		int weapon = p->curr_weapon;
 		if (weapon == HANDREMOTE_WEAPON) weapon = DYNAMITE_WEAPON;
 
 		if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || (int)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
-			SBar_DrawString(this, &numberFont, format, -20, -numberFont.mFont->GetHeight() * scale + 3.5, DI_TEXT_ALIGN_CENTER, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &numberFont, format, -1, -numberFont.mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+
+			int wicon = ammo_sprites[p->curr_weapon];
+			if (wicon > 0)
+			{
+				auto imgWeap = tileGetTexture(wicon);
+				auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+				auto imgX = 22.5;
+				auto strlen = format.Len();
+				if (strlen > 1)
+				{
+					auto scaler = strlen - 1;
+					imgX += ((imgX / 2.) * scaler) + ((imgX / (7.8125 * scale)) * scaler);
+				}
+				DrawGraphic(imgWeap, -imgX, -2, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+			}
 		}
 
 		//
@@ -153,22 +167,26 @@ public:
 		unsigned icon = p->inven_icon;
 		if (icon > 0)
 		{
-			int x = -122;
+			int x = -130;
 
 			if (icon < ICON_MAX)
-				DrawGraphic(tileGetTexture(item_icons[icon]), x, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, scale, scale);
+			{
+				auto imgInv = tileGetTexture(item_icons[icon]);
+				auto invScale = imgScale / imgInv->GetDisplayHeight();
+				DrawGraphic(imgInv, x, -2, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, invScale, invScale);
+			}
 
 			int percentv = getinvamount(p);
 			if (icon <= 2) format.Format("%d%%", percentv);
 			else format.Format("%d", percentv);
-			SBar_DrawString(this, &miniFont, format, x + 34, -miniFont.mFont->GetHeight() * scale - 0.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			SBar_DrawString(this, &miniFont, format, x + 19, -miniFont.mFont->GetHeight() * scale - 1, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 
 			auto text = ontext(p);
-			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 35, -miniFont.mFont->GetHeight() * scale - 9.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
+			if (text.first) SBar_DrawString(this, &miniFont, text.first, x + 20, -miniFont.mFont->GetHeight() * scale - 15, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 		}
-		if (p->keys[1]) DrawGraphic(tileGetTexture(ACCESSCARD), -29, -32, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 0));
-		if (p->keys[3]) DrawGraphic(tileGetTexture(ACCESSCARD), -24, -30, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 23));
-		if (p->keys[2]) DrawGraphic(tileGetTexture(ACCESSCARD), -19, -28, DI_ITEM_BOTTOM, 1, -1, -1, 0.5, 0.5, 0xffffffff, TRANSLATION(Translation_Remap, 21));
+		if (p->keys[1]) DrawGraphic(tileGetTexture(ACCESSCARD), -28.5,  -32    , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 0));
+		if (p->keys[3]) DrawGraphic(tileGetTexture(ACCESSCARD), -21.25, -28.375, DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 23));
+		if (p->keys[2]) DrawGraphic(tileGetTexture(ACCESSCARD), -14,    -24.75 , DI_ITEM_BOTTOM, 1, -1, -1, scale, scale, 0xffffffff, TRANSLATION(Translation_Remap, 21));
 	}
 
 
