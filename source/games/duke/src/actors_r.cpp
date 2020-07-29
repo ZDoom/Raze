@@ -1411,8 +1411,8 @@ void moveweapons_r(void)
 								ps[p].loogcnt = 24 * 4;
 								for (x = 0; x < j; x++)
 								{
-									ps[p].loogiex[x] = krand() % xdim;
-									ps[p].loogiey[x] = krand() % ydim;
+									ps[p].loogiex[x] = krand() % 320;
+									ps[p].loogiey[x] = krand() % 200;
 								}
 							}
 						}
