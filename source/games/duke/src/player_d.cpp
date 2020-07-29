@@ -2746,14 +2746,7 @@ void processinput_d(int snum)
 		ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy));
 	if (p->on_ground) p->bobcounter += sprite[p->i].xvel >> 1;
 
-	if (ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
-	{
-		backuppos(p, false);
-	}
-	else
-	{
-		backuppos(p);
-	}
+	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
 	// Shrinking code
 

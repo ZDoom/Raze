@@ -850,9 +850,9 @@ void applylook(int snum, double factor)
 //
 //---------------------------------------------------------------------------
 
-void backuppos(player_struct* p, bool clipping)
+void backuppos(player_struct* p, bool noclipping)
 {
-	if (clipping)
+	if (!noclipping)
 	{
 		p->oposx = p->posx;
 		p->oposy = p->posy;
