@@ -75,8 +75,7 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
             case BLOODSPLAT2:
             case BLOODSPLAT3:
             case BLOODSPLAT4:
-                if(adult_lockout) t->xrepeat = t->yrepeat = 0;
-                else if(t->pal == 6)
+                if(t->pal == 6)
                 {
                     t->shade = -127;
                     continue;
@@ -591,11 +590,6 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
             case COOTJIBB:
             case COOTJIBC:
                 stuff:
-                if(adult_lockout)
-                {
-                    t->xrepeat = t->yrepeat = 0;
-                    continue;
-                }
                 if(t->pal == 6) t->shade = -120;
 
                 if (shadedsector[s->sectnum] == 1)

@@ -1256,7 +1256,6 @@ int doincrements_r(struct player_struct* p)
 		if (p->drink_amt > 66 && (p->last_pissed_time % 26) == 0)
 			p->drink_amt--;
 
-		if (adult_lockout == 0)
 		{
 			if (p->last_pissed_time == 5662)
 				S_PlayActorSound(434, p->i);

@@ -260,8 +260,7 @@ void hud_input(int snum)
 			if (!isRRRA() || sprite[p->i].extra > 0)
 			{
 				p->last_pissed_time = 4000;
-				if (!adult_lockout)
-					S_PlayActorSound(437, p->i);
+				S_PlayActorSound(437, p->i);
 				if (sprite[p->i].extra <= max_player_health - max_player_health / 10)
 				{
 					sprite[p->i].extra += 2;

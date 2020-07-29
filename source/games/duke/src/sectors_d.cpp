@@ -1629,7 +1629,7 @@ void checksectors_d(int snum)
 			case STALL:
 				if (p->last_pissed_time == 0)
 				{
-					if (adult_lockout == 0) S_PlayActorSound(DUKE_URINATE, p->i);
+					S_PlayActorSound(DUKE_URINATE, p->i);
 
 					p->last_pissed_time = 26 * 220;
 					p->transporter_hold = 29 * 2;

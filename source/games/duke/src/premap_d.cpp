@@ -457,12 +457,6 @@ void prelevel_d(int g)
 
 			wal->extra = wal->picnum;
 			animwall[numanimwalls].tag = -1;
-			if (adult_lockout)
-			{
-				if (wal->picnum == FEMPIC1)
-					wal->picnum = BLANKSCREEN;
-				else wal->picnum = SCREENBREAK6;
-			}
 
 			animwall[numanimwalls].wallnum = i;
 			animwall[numanimwalls].tag = wal->picnum;

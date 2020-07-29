@@ -931,7 +931,6 @@ OptionMenu GameplayOptions //protected
 	{
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
 	}
-	Option "$PLRMNU_PLOCK", "adult_lockout", "OnOff" // I won't bother password protecting this piece of window dressing
 	// StaticText ""
 	// Option "Record Demo", "m_recstat", "OnOff"
 	// Submenu "Cheats" "CheatsMenu
