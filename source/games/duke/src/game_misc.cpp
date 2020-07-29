@@ -149,7 +149,7 @@ void FTA(int q, struct player_struct* p)
 
 	if (p->ftq != q)
 	{
-		if (q == QUOTE_DEAD || q == QUOTE_SQUISHED)
+		if (q == QUOTE_DEAD || q == QUOTE_SQUISHED || q == QUOTE_BOOTS_ON)
 		{
 			p->ftq = q;
 		}
