@@ -103,6 +103,7 @@ void CEndGameMgr::Setup(void)
     at0 = 1;
 	STAT_Update(false);
     EndLevel();
+    Mus_Stop();
     sndStartSample(268, 128, -1, 1);
     inputState.keyFlushScans();
 }
