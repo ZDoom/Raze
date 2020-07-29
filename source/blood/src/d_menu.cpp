@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_bind.h"
 #include "menu.h"
 #include "sound.h"
+#include "gamestate.h"
 
 bool ShowOptionMenu();
 
@@ -247,7 +248,7 @@ void GameInterface::MenuClosed()
 
 bool GameInterface::CanSave()
 {
-	return (gGameStarted && gPlayer[myconnectindex].pXSprite->health != 0);
+	return (gamestate == GS_LEVEL && gPlayer[myconnectindex].pXSprite->health != 0);
 }
 
 void GameInterface::StartGame(FNewGameStartup& gs)

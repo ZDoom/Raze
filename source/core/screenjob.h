@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include "dobject.h"
+#include "v_2ddrawer.h"
 
 using CompletionFunc = std::function<void(bool)>;
 struct JobDesc;
@@ -47,20 +48,36 @@ public:
 //
 //---------------------------------------------------------------------------
 
+class DBlackScreen : public DScreenJob
+{
+	int wait;
+
+public:
+	DBlackScreen(int w) : wait(w) {}
+	int Frame(uint64_t clock, bool skiprequest) override;
+};
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 class DImageScreen : public DScreenJob
 {
 	DECLARE_CLASS(DImageScreen, DScreenJob)
 
 	int tilenum = -1;
+	int waittime; // in ms.
 	FGameTexture* tex = nullptr;
 
 public:
-	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout) : DScreenJob(fade)
+	DImageScreen(FGameTexture* tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000) : DScreenJob(fade), waittime(wait)
 	{
 		tex = tile;
 	}
 
-	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout) : DScreenJob(fade)
+	DImageScreen(int tile, int fade = DScreenJob::fadein | DScreenJob::fadeout, int wait = 3000) : DScreenJob(fade), waittime(wait)
 	{
 		tilenum = tile;
 	}

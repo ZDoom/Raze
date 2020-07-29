@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "blood.h"
 #include "choke.h"
 #include "controls.h"
-#include "credits.h"
 #include "dude.h"
 #include "endgame.h"
 #include "eventq.h"
@@ -59,15 +58,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "nnexts.h"
 #include "secrets.h"
+#include "gamestate.h"
+#include "screenjob.h"
 
 BEGIN_BLD_NS
 
-
-INPUT_MODE gInputMode;
-
-#ifdef USE_QHEAP
-unsigned int nMaxAlloc = 0x4000000;
-#endif
 
 char bAddUserMap = false;
 bool bNoDemo = false;
@@ -79,8 +74,6 @@ char gUserMapFilename[BMAX_PATH];
 short BloodVersion = 0x115;
 
 int gNetPlayers;
-
-char *pUserTiles = NULL;
 
 int gChokeCounter = 0;
 
@@ -131,21 +124,9 @@ enum gametokens
 
 int blood_globalflags;
 
-void ShutDown(void)
-{
-    if (!in3dmode())
-        return;
-	netDeinitialize();
-    //sndTerm();
-    sfxTerm();
-    // PORT_TODO: Check argument
-    DO_FREE_AND_NULL(pUserTiles);
-}
-
 void QuitGame(void)
 {
-    ShutDown();
-    Bexit(0);
+    throw CExitEvent(0);
 }
 
 void PrecacheDude(spritetype *pSprite)
@@ -412,8 +393,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
             && gEpisodeInfo[gGameOptions.nEpisode].at8f08)
             gGameOptions.uGameFlags |= 4;
-        if ((gGameOptions.uGameFlags&4))
-            levelPlayIntroScene(gGameOptions.nEpisode);
 
         ///////
         gGameOptions.weaponsV10x = gWeaponsV10x;
@@ -455,11 +434,10 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
-    drawLoadingScreen();
+    //drawLoadingScreen();
     if (dbLoadMap(gameOptions->zLevelName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC))
     {
-        gQuitGame = true;
-        return;
+        I_Error("Unable to load map");
     }
     currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
@@ -571,7 +549,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gFrame = 0;
     gChokeCounter = 0;
 	M_ClearMenus();
-    levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
     // viewSetMessage("");
     viewSetErrorMessage("");
     viewResizeView(gViewSize);
@@ -580,38 +557,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     netWaitForEveryone(0);
     totalclock = 0;
     paused = 0;
-    gGameStarted = 1;
     ready2send = 1;
-}
-
-void StartNetworkLevel(void)
-{
-    if (!(gGameOptions.uGameFlags&1))
-    {
-        gGameOptions.nEpisode = gPacketStartGame.episodeId;
-        gGameOptions.nLevel = gPacketStartGame.levelId;
-        gGameOptions.nGameType = gPacketStartGame.gameType;
-        gGameOptions.nDifficulty = gPacketStartGame.difficulty;
-        gGameOptions.nMonsterSettings = gPacketStartGame.monsterSettings;
-        gGameOptions.nWeaponSettings = gPacketStartGame.weaponSettings;
-        gGameOptions.nItemSettings = gPacketStartGame.itemSettings;
-        gGameOptions.nRespawnSettings = gPacketStartGame.respawnSettings;
-        gGameOptions.bFriendlyFire = gPacketStartGame.bFriendlyFire;
-        gGameOptions.bKeepKeysOnRespawn = gPacketStartGame.bKeepKeysOnRespawn;
-        
-        ///////
-        gGameOptions.weaponsV10x = gPacketStartGame.weaponsV10x;
-        ///////
-
-        gBlueFlagDropped = false;
-        gRedFlagDropped = false;
-
-        if (gPacketStartGame.userMap)
-            levelAddUserMap(gPacketStartGame.userMapName);
-        else
-            levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-    }
-    StartLevel(&gGameOptions);
 }
 
 
@@ -778,22 +724,33 @@ void ProcessFrame(void)
                 netMasterUpdate();
             }
         }
-        Mus_Fade(4000);
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
             STAT_Update(true);
             if (gGameOptions.nGameType == 0)
             {
+				auto completion = [] (bool) {
+					gamestate = GS_DEMOSCREEN;
+					M_StartControlPanel(false);
+					M_SetMenu(NAME_CreditsMenu);
+					gGameOptions.uGameFlags &= ~3;
+					gRestartGame = 1;
+					gQuitGame = 1;
+				};
+				
                 if (gGameOptions.uGameFlags&8)
-                    levelPlayEndScene(gGameOptions.nEpisode);
-
-				M_StartControlPanel(false);
-				M_SetMenu(NAME_CreditsMenu);
+				{
+                    levelPlayEndScene(gGameOptions.nEpisode, completion);
+				}
+				else completion(false);
             }
-            gGameOptions.uGameFlags &= ~3;
-            gRestartGame = 1;
-            gQuitGame = 1;
+			else
+			{
+				gGameOptions.uGameFlags &= ~3;
+				gRestartGame = 1;
+				gQuitGame = 1;
+			}
         }
         else
         {
@@ -876,13 +833,12 @@ static const char* actions[] = {
     "Jetpack"
 };
 
-int GameInterface::app_main()
+static void app_init()
 {
-
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
-	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
-	bQuickStart = userConfig.nologo;
+    gGameOptions.nMonsterSettings = !userConfig.nomonsters;
+    bQuickStart = userConfig.nologo;
     ReadAllRFS();
 
     HookReplaceFunctions();
@@ -891,29 +847,20 @@ int GameInterface::app_main()
     engineInit();
 
     Printf("Loading tiles\n");
-    if (pUserTiles)
-    {
-		FStringf buffer("%s%%03i.ART", pUserTiles);
-        if (!tileInit(0,buffer))
-            ThrowError("User specified ART files not found");
-    }
-    else
-    {
-        if (!tileInit(0,NULL))
-            ThrowError("TILES###.ART files not found");
-    }
+    if (!tileInit(0, NULL))
+        I_FatalError("TILES###.ART files not found");
 
     levelLoadDefaults();
 
     loaddefinitionsfile(BLOODWIDESCREENDEF);
     loaddefinitions_game(BLOODWIDESCREENDEF, FALSE);
 
-    const char *defsfile = G_DefFile();
+    const char* defsfile = G_DefFile();
     uint32_t stime = timerGetTicks();
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = timerGetTicks();
-        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
     loaddefinitions_game(defsfile, FALSE);
     powerupInit();
@@ -931,11 +878,10 @@ int GameInterface::app_main()
     ctrlInit();
     timerInit(120);
     timerSetCallback(ClockStrobe);
-    // PORT-TODO: CD audio init
 
     Printf("Initializing network users\n");
     netInitialize(true);
-	videoInit();
+    videoInit();
     hud_size.Callback();
     Printf("Initializing sound system\n");
     sndInit();
@@ -948,18 +894,17 @@ int GameInterface::app_main()
         gStartNewGame = 1;
     }
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-	bool playvideo = !bQuickStart;
-	
-    if (playvideo)
-        credLogosDos();
-
     UpdateDacs(0, true);
+}
 
-RESTART:
+static void gameInit()
+{
+//RESTART:
     sub_79760();
     gViewIndex = myconnectindex;
     gMe = gView = &gPlayer[myconnectindex];
     netBroadcastPlayerInfo(myconnectindex);
+#if 0
     Printf("Waiting for network players!\n");
     netWaitForEveryone(0);
     if (gRestartGame)
@@ -971,134 +916,94 @@ RESTART:
         netResetToSinglePlayer();
         goto RESTART;
     }
-    UpdateNetworkMenus();
+#endif
+	UpdateNetworkMenus();
     gQuitGame = 0;
     gRestartGame = 0;
     if (gGameOptions.nGameType > 0)
     {
         inputState.ClearAllInput();
     }
-	if (!bAddUserMap && !gGameStarted)
-	{
-		M_StartControlPanel(false);
-		M_SetMenu(NAME_Mainmenu);
-	}
-    ready2send = 1;
-    while (!gQuitGame)
+
+}
+
+static void gameTicker()
+{
+    bool gameUpdate = false;
+    double const gameUpdateStartTime = timerGetHiTicks();
+    while (gPredictTail < gNetFifoHead[myconnectindex] && !paused)
     {
-        bool bDraw;
-        D_ProcessEvents();
-        if (gGameStarted) // gGameStarted: gameState == GS_LEVEL
-        {
-            char gameUpdate = false;
-            double const gameUpdateStartTime = timerGetHiTicks();
-            while (gPredictTail < gNetFifoHead[myconnectindex] && !paused)
-            {
-                viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
-            }
-            if (numplayers == 1)
-                gBufferJitter = 0;
-            while (totalclock >= gNetFifoClock && ready2send)
-            {
-                gNetInput = gInput;
-                gInput = {};
-                netGetInput();
-                gNetFifoClock += 4;
-                while (gNetFifoHead[myconnectindex]-gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
-                {
-                    int i;
-                    for (i = connecthead; i >= 0; i = connectpoint2[i])
-                        if (gNetFifoHead[i] == gNetFifoTail)
-                            break;
-                    if (i >= 0)
-                        break;
-                    //faketimerhandler();
-                    ProcessFrame();
-                    gameUpdate = true;
-                }
-            }
-            if (gameUpdate)
-            {
-                g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
-                if (g_gameUpdateAvgTime < 0.f)
-                    g_gameUpdateAvgTime = g_gameUpdateTime;
-                g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-            }
-            bDraw = G_FPSLimit() != 0;
-            if (gQuitRequest && gQuitGame)
-                videoClearScreen(0);
-            else
-            {
-                netCheckSync();
-                if (bDraw)
-                {
-                    viewDrawScreen();
-                    g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
-                }
-            }
-        }
-        else // gameState == GS_DEMOSCREEN
-        {
-			// Menu background
-            bDraw = G_FPSLimit() != 0;
-            if (bDraw)
-            {
-                twod->ClearScreen();
-                rotatesprite(160<<16,100<<16,65536,0,2518,0,0,0x4a,0,0,xdim-1,ydim-1);
-            }
-            if (gQuitRequest && !gQuitGame)
-                netBroadcastMyLogoff(gQuitRequest == 2);
-        }
-        if (bDraw)
-        {
-            gameHandleEvents();
-            inputState.SetBindsEnabled(gInputMode == kInputGame);
-            switch (gInputMode)
-            {
-            case kInputGame:
-                LocalKeys();
-                break;
-            default:
-                break;
-            }
-            if (gQuitGame)
-                continue;
-
-            C_RunDelayedCommands();
-
-            ctrlGetInput();
-
-            switch (gInputMode)
-            {
-            case kInputMessage:
-                gPlayerMsg.ProcessKeys();
-                gPlayerMsg.Draw();
-                break;
-            case kInputEndGame:
-                gEndGameMgr.ProcessKeys();
-                gEndGameMgr.Draw();
-                break;
-            default:
-                break;
-            }
-            videoNextPage();
-        }
-        if (TestBitString(gotpic, 2342))
-        {
-            FireProcess();
-            ClearBitString(gotpic, 2342);
-        }
-        //if (byte_148e29 && gStartNewGame)
-        //{
-        //	gStartNewGame = 0;
-        //	gQuitGame = 1;
-        //}
-		if (gStartNewGame)
-		{
-			StartLevel(&gGameOptions);
-		}
+        viewUpdatePrediction(&gFifoInput[gPredictTail & 255][myconnectindex]);
     }
-    ready2send = 0;
+    if (numplayers == 1)
+        gBufferJitter = 0;
+    while (totalclock >= gNetFifoClock && ready2send)
+    {
+        gNetInput = gInput;
+        gInput = {};
+        netGetInput();
+        gNetFifoClock += 4;
+        while (gNetFifoHead[myconnectindex] - gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
+        {
+            int i;
+            for (i = connecthead; i >= 0; i = connectpoint2[i])
+                if (gNetFifoHead[i] == gNetFifoTail)
+                    break;
+            if (i >= 0)
+                break;
+            //faketimerhandler();
+            ProcessFrame();
+            gameUpdate = true;
+        }
+    }
+    if (gameUpdate)
+    {
+        g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+        if (g_gameUpdateAvgTime < 0.f)
+            g_gameUpdateAvgTime = g_gameUpdateTime;
+        g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
+    }
+    if (gQuitRequest && gQuitGame)
+        videoClearScreen(0);
+    else
+    {
+        netCheckSync();
+        viewDrawScreen();
+        g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
+    }
+}
+
+static void drawBackground()
+{
+    twod->ClearScreen();
+    rotatesprite(160 << 16, 100 << 16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim - 1, ydim - 1);
+    if (gQuitRequest && !gQuitGame)
+        netBroadcastMyLogoff(gQuitRequest == 2);
+}
+
+static void commonTicker(bool &playvideo)
+{
+    if (TestBitString(gotpic, 2342))
+    {
+        FireProcess();
+        ClearBitString(gotpic, 2342);
+    }
+    if (gStartNewGame)
+    {
+        StartLevel(&gGameOptions);
+		
+		auto completion = [](bool = false)
+		{
+			levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
+			gamestate = GS_LEVEL;
+		};
+		
+        if ((gGameOptions.uGameFlags & 4))
+            levelPlayIntroScene(gGameOptions.nEpisode, completion);
+        else 
+			completion(false);
+
+    }
     if (gRestartGame)
     {
         Mus_Stop();
@@ -1106,21 +1011,70 @@ RESTART:
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;
-        gGameStarted = 0;
-        levelSetupOptions(0,0);
+        levelSetupOptions(0, 0);
 
-		
+
         if (gGameOptions.nGameType != 0)
         {
-            videoSetViewableArea(0,0,xdim-1,ydim-1);
-			playvideo = !bQuickStart;
+            playvideo = !bQuickStart;
         }
-		else playvideo = false;
-		
-        goto RESTART;
+        else playvideo = false;
+        gamestate = GS_STARTUP;
     }
-    ShutDown();
+}
 
+int GameInterface::app_main()
+{
+	
+    app_init();
+    gamestate = GS_STARTUP;
+    bool playvideo = !bQuickStart;
+    while (true)
+    {
+       if (gamestate == GS_STARTUP) gameInit();
+
+        commonTicker(playvideo);
+        gameHandleEvents();
+        D_ProcessEvents();
+        ctrlGetInput();
+
+        switch (gamestate)
+        {
+			default:
+        case GS_STARTUP:
+            if (playvideo) playlogos();
+				else
+				{
+					gamestate = GS_DEMOSCREEN;
+					M_StartControlPanel(false);
+					M_SetMenu(NAME_Mainmenu);
+				}
+            break;
+
+        case GS_DEMOSCREEN:
+            drawBackground();
+            break;
+
+        case GS_INTRO:
+        case GS_INTERMISSION:
+            RunScreenJobFrame();	// This handles continuation through its completion callback.
+            break;
+
+        case GS_LEVEL:
+            gameTicker();
+            LocalKeys();
+            break;
+
+        case GS_FINALE:
+            gEndGameMgr.ProcessKeys();
+            gEndGameMgr.Draw();
+            break;
+        }
+
+        videoNextPage();
+
+
+    }
     return 0;
 }
 
@@ -1449,7 +1403,7 @@ extern  IniFile* BloodINI;
 void GameInterface::FreeGameData()
 {
     if (BloodINI) delete BloodINI;
-    ShutDown();
+    netDeinitialize();
 }
 
 void GameInterface::UpdateScreenSize()

@@ -106,13 +106,6 @@ struct INICHAIN {
 extern INICHAIN *pINIChain;
 
 
-enum INPUT_MODE {
-    kInputGame = 0,
-    kInputMessage,
-    kInputEndGame,
-};
-
-extern INPUT_MODE gInputMode;
 extern short BloodVersion;
 extern int gNetPlayers;
 extern bool gRestartGame;

@@ -373,26 +373,6 @@ public:
 //
 //---------------------------------------------------------------------------
 
-class DBlackScreen : public DScreenJob
-{
-	int wait;
-
-public:
-	DBlackScreen(int w) : wait(w) {}
-	int Frame(uint64_t clock, bool skiprequest)
-	{
-		int span = int(clock / 1'000'000);
-		twod->ClearScreen();
-		return span < wait ? 1 : -1;
-	}
-};
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 class DEpisode3End : public DImageScreen
 {
 	int sound = 0;

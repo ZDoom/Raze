@@ -337,7 +337,7 @@ void CGameMessageMgr::Display(void)
 {
     if (VanillaMode())
     {
-        if (numberOfDisplayedMessages && this->state && gInputMode != kInputMessage)
+        if (numberOfDisplayedMessages && this->state)
         {
             int initialNrOfDisplayedMsgs = numberOfDisplayedMessages;
             int initialMessagesIndex = messagesIndex;
@@ -368,7 +368,7 @@ void CGameMessageMgr::Display(void)
     }
     else
     {
-        if (this->state && gInputMode != kInputMessage)
+        if (this->state)
         {
             messageStruct* currentMessages[kMessageLogSize];
             int currentMessagesCount = 0;
@@ -500,7 +500,6 @@ void CPlayerMsg::Clear(void)
 void CPlayerMsg::Term(void)
 {
     Clear();
-    gInputMode = kInputGame;
 }
 
 void CPlayerMsg::Draw(void)

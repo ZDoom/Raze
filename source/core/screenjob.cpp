@@ -45,12 +45,21 @@
 #include "gamestate.h"
 #include "menu.h"
 #include "raze_sound.h"
+#include "SmackerDecoder.h"
 #include "movie/playmve.h"
 #include "gamecontrol.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
 IMPLEMENT_CLASS(DImageScreen, true, false)
+
+
+int DBlackScreen::Frame(uint64_t clock, bool skiprequest)
+{
+	int span = int(clock / 1'000'000);
+	twod->ClearScreen();
+	return span < wait ? 1 : -1;
+}
 
 //---------------------------------------------------------------------------
 //
@@ -69,7 +78,7 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	twod->ClearScreen();
 	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 	// Only end after having faded out.
-	return skiprequest ? -1 : 1;
+	return skiprequest ? -1 : span > waittime? 0 : 1;
 }
 
 //---------------------------------------------------------------------------
@@ -214,6 +223,103 @@ public:
 
 //---------------------------------------------------------------------------
 //
+//
+//
+//---------------------------------------------------------------------------
+
+class DSmkPlayer : public DScreenJob
+{
+	SmackerHandle hSMK{};
+	uint32_t nWidth, nHeight;
+	uint8_t palette[768];
+	AnimTextures animtex;
+	TArray<uint8_t> pFrame;
+	int nFrameRate;
+	int nFrames;
+	bool fullscreenScale;
+	uint64_t nFrameNs;
+	int nFrame = 0;
+	const AnimSound* animSnd;
+	FString filename;
+
+public:
+	bool isvalid() { return hSMK.isValid; }
+
+	DSmkPlayer(const char *fn, const AnimSound* ans, bool fixedviewport)
+	{
+		hSMK = Smacker_Open(fn);
+		if (!hSMK.isValid)
+		{
+			return;
+		}
+		Smacker_GetFrameSize(hSMK, nWidth, nHeight);
+		pFrame.Resize(nWidth * nHeight + std::max(nWidth, nHeight));
+		nFrameRate = Smacker_GetFrameRate(hSMK);
+		nFrameNs = 1'000'000'000 / nFrameRate;
+		nFrames = Smacker_GetNumFrames(hSMK);
+		Smacker_GetPalette(hSMK, palette);
+		fullscreenScale = (!fixedviewport || (nWidth <= 320 && nHeight <= 200) || nWidth >= 640 || nHeight >= 480);
+		animSnd = ans;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	//
+	//
+	//---------------------------------------------------------------------------
+
+	int Frame(uint64_t clock, bool skiprequest) override
+	{
+		int frame = clock / nFrameNs;
+
+		if (clock == 0)
+		{
+			animtex.SetSize(AnimTexture::Paletted, nWidth, nHeight);
+		}
+		twod->ClearScreen();
+		if (frame > nFrame)
+		{
+			Smacker_GetPalette(hSMK, palette);
+			Smacker_GetFrame(hSMK, pFrame.Data());
+			animtex.SetFrame(palette, pFrame.Data());
+		}
+		if (fullscreenScale)
+		{
+			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+		}
+		else
+		{
+			DrawTexture(twod, animtex.GetFrame(), 320, 240, DTA_VirtualWidth, 640, DTA_VirtualHeight, 480, DTA_CenterOffset, true, TAG_DONE);
+		}
+		if (frame > nFrame)
+		{
+			nFrame++;
+			Smacker_GetNextFrame(hSMK);
+			for (int i = 0; animSnd[i].framenum >= 0; i++)
+			{
+				if (animSnd[i].framenum == nFrame)
+				{
+					int sound = animSnd[i].soundnum;
+					if (sound == -1)
+						soundEngine->StopAllChannels();
+					else
+						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
+				}
+			}
+		}
+
+		return skiprequest ? -1 : nFrame < nFrames ? 1 : 0;
+	}
+
+	void OnDestroy() override
+	{
+		Smacker_Close(hSMK);
+		soundEngine->StopAllChannels();
+	}
+};
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -228,6 +334,13 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	auto fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
 	{
+		int nLen = strlen(filename);
+		// Strip the drive letter and retry.
+		if (nLen >= 3 && isalpha(filename[0]) && filename[1] == ':' && filename[2] == '/')
+		{
+			filename += 3;
+			fr = fileSystem.OpenFileReader(filename);
+		}
 		Printf("%s: Unable to open video\n", filename);
 		return nothing();
 	}
@@ -243,13 +356,21 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		{
 			Printf("%s: invalid ANM file.\n", filename);
 			anm->Destroy();
-		return nothing();
+			return nothing();
 		}
 		return anm;
 	}
 	else if (!memcmp(id, "SMK2", 4))
 	{
-		// todo
+		fr.Close();
+		auto anm = Create<DSmkPlayer>(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
+		if (!anm->isvalid())
+		{
+			Printf("%s: invalid SMK file.\n", filename);
+			anm->Destroy();
+			return nothing();
+		}
+		return anm;
 	}
 	else if (!memcmp(id, "Interplay MVE File", 18))
 	{
@@ -317,7 +438,6 @@ public:
 	{
 		for (auto& job : jobs)
 		{
-			job.job->Destroy();
 			job.job->ObjectFlags |= OF_YesReallyDelete;
 			delete job.job;
 		}
@@ -326,9 +446,17 @@ public:
 
 	void AdvanceJob(bool skip)
 	{
-		if (index >= 0 && jobs[index].postAction) jobs[index].postAction();
+		if (index >= 0)
+		{
+			if (jobs[index].postAction) jobs[index].postAction();
+			jobs[index].job->Destroy();
+		}
 		index++;
-		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped))) index++;
+		while (index < jobs.Size() && (jobs[index].job == nullptr || (skip && jobs[index].ignoreifskipped)))
+		{
+			if (jobs[index].job != nullptr) jobs[index].job->Destroy();
+			index++;
+		}
 		actionState = clearbefore ? State_Clear : State_Run;
 		if (index < jobs.Size()) screenfade = jobs[index].job->fadestyle & DScreenJob::fadein ? 0.f : 1.f;
 		startTime = -1;

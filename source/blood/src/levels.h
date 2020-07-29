@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
+#include "screenjob.h"
 #include "common_game.h"
 #include "inifile.h"
 #include "mapinfo.h"
@@ -98,8 +99,8 @@ extern int gLevelTime;
 
 void levelInitINI(const char *pzIni);
 void levelOverrideINI(const char *pzIni);
-void levelPlayIntroScene(int nEpisode);
-void levelPlayEndScene(int nEpisode);
+void levelPlayIntroScene(int nEpisode, CompletionFunc completion);
+void levelPlayEndScene(int nEpisode, CompletionFunc completion);
 void levelSetupSecret(int nCount);
 void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);

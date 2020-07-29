@@ -225,12 +225,6 @@ void Mus_Stop()
 	S_StopMusic(true);
 }
 
-void Mus_Fade(double seconds)
-{
-	// Todo: Blood uses this, but the streamer cannot currently fade the volume.
-	Mus_Stop();
-}
-
 void Mus_SetPaused(bool on)
 {
 	if (on) S_PauseMusic();

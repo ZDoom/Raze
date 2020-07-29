@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 #include "mapinfo.h"
+#include "gamestate.h"
 
 BEGIN_BLD_NS
 
@@ -89,7 +90,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
 static int osdcmd_give(CCmdFuncPtr parm)
 {
-    if (numplayers != 1 || !gGameStarted || gMe->pXSprite->health == 0)
+    if (numplayers != 1 || gamestate != GS_LEVEL|| gMe->pXSprite->health == 0)
     {
         Printf("give: Cannot give while dead or not in a single-player game.\n");
         return CCMD_OK;
@@ -149,7 +150,7 @@ static int osdcmd_give(CCmdFuncPtr parm)
 static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
-    if (numplayers == 1 && gGameStarted)
+    if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetGodMode(!gMe->godMode);
         gCheatMgr.m_bPlayerCheated = true;
@@ -164,7 +165,7 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
-    if (numplayers == 1 && gGameStarted)
+    if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetClipMode(!gNoClip);
         gCheatMgr.m_bPlayerCheated = true;

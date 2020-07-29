@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "view.h"
 #include "menu.h"
+#include "gamestate.h"
 
 extern bool gHaveNetworking;
 
@@ -1326,7 +1327,7 @@ void netPlayerQuit(int nPlayer)
     char buffer[128];
     sprintf(buffer, "%s left the game with %d frags.", gProfile[nPlayer].name, gPlayer[nPlayer].fragCount);
     viewSetMessage(buffer);
-    if (gGameStarted)
+    if (gamestate == GS_LEVEL)
     {
         seqKill(3, gPlayer[nPlayer].pSprite->extra);
         actPostSprite(gPlayer[nPlayer].nSprite, kStatFree);

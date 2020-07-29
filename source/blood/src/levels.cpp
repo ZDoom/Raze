@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "blood.h"
 #include "globals.h"
-#include "credits.h"
 #include "endgame.h"
 #include "inifile.h"
 #include "levels.h"
@@ -56,7 +55,6 @@ EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
 int gSkill = 2;
 int gEpisodeCount;
 int gNextLevel;
-bool gGameStarted;
 
 int gLevelTime;
 
@@ -81,35 +79,6 @@ void levelOverrideINI(const char *pzIni)
 {
     bINIOverride = true;
     strcpy(BloodIniFile, pzIni);
-}
-
-void levelPlayIntroScene(int nEpisode)
-{
-    gGameOptions.uGameFlags &= ~4;
-    Mus_SetPaused(true);
-    sndKillAllSounds();
-    sfxKillAllSounds();
-    ambKillAll();
-    seqKillAll();
-    EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-    credPlaySmk(pEpisode->at8f08, pEpisode->at9030, pEpisode->at9028);
-    viewResizeView(gViewSize);
-    credReset();
-    Mus_SetPaused(false);
-}
-
-void levelPlayEndScene(int nEpisode)
-{
-    gGameOptions.uGameFlags &= ~8;
-    Mus_Stop();
-    sndKillAllSounds();
-    sfxKillAllSounds();
-    ambKillAll();
-    seqKillAll();
-    EPISODEINFO *pEpisode = &gEpisodeInfo[nEpisode];
-    credPlaySmk(pEpisode->at8f98, pEpisode->at90c0, pEpisode->at902c);
-    viewResizeView(gViewSize);
-    credReset();
 }
 
 void levelClearSecrets(void)
@@ -412,14 +381,12 @@ void LevelsLoadSave::Load(void)
 {
     Read(&gNextLevel, sizeof(gNextLevel));
     Read(&gGameOptions, sizeof(gGameOptions));
-    Read(&gGameStarted, sizeof(gGameStarted));
 }
 
 void LevelsLoadSave::Save(void)
 {
     Write(&gNextLevel, sizeof(gNextLevel));
     Write(&gGameOptions, sizeof(gGameOptions));
-    Write(&gGameStarted, sizeof(gGameStarted));
 }
 
 void LevelsLoadSaveConstruct(void)

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "map2d.h"
 #include "view.h"
 #include "d_event.h"
+#include "gamestate.h"
 
 BEGIN_BLD_NS
 
@@ -83,7 +84,7 @@ void ctrlGetInput(void)
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * kTicsPerSec / (1000.0 / elapsedInputTicks); };
 
-    if (!gGameStarted || gInputMode != kInputGame)
+    if (gamestate != GS_LEVEL || System_WantGuiCapture())
     {
         gInput = {};
         CONTROL_GetInput(&info);
@@ -413,16 +414,5 @@ void ctrlGetInput(void)
         gViewLook = fix16_clamp(gViewLook+(input.q16mlook << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     }
 }
-
-#if 0
-if (gGameStarted && gInputMode != kInputMessage
-    && buttonMap.ButtonDown(gamefunc_SendMessage))
-{
-    buttonMap.ClearButton(gamefunc_SendMessage);
-    inputState.keyFlushScans();
-    gInputMode = kInputMessage;
-}
-
-#endif
 
 END_BLD_NS

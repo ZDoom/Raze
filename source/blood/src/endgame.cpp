@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "statistics.h"
 #include "gstrings.h"
+#include "gamestate.h"
 #include "raze_sound.h"
 
 BEGIN_BLD_NS
@@ -86,8 +87,7 @@ void CEndGameMgr::ProcessKeys(void)
     //}
     //else
     {
-        char ch = inputState.keyGetScan();
-        if (!ch)
+        if (!inputState.CheckAllInput())
             return;
         if (gGameOptions.nGameType > 0 || numplayers > 1)
             netWaitForEveryone(0);
@@ -99,8 +99,7 @@ extern void EndLevel(void);
 
 void CEndGameMgr::Setup(void)
 {
-    at1 = gInputMode;
-    gInputMode = kInputEndGame;
+	gamestate = GS_FINALE;
     at0 = 1;
 	STAT_Update(false);
     EndLevel();
@@ -119,7 +118,6 @@ void CEndGameMgr::Finish(void)
     gInitialNetPlayers = numplayers;
     soundEngine->StopAllChannels();
     gStartNewGame = 1;
-    gInputMode = (INPUT_MODE)at1;
     at0 = 0;
 }
 

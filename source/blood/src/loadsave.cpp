@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "raze_music.h"
 #include "mapinfo.h"
+#include "gamestate.h"
 
 #include "aistate.h"
 #include "aiunicult.h"
@@ -480,7 +481,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     sfxKillAllSounds();
     ambKillAll();
     seqKillAll();
-    if (!gGameStarted)
+    if (gamestate != GS_LEVEL)
     {
         memset(xsprite, 0, sizeof(xsprite));
     }
@@ -524,7 +525,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     else
         gGameMessageMgr.Clear();
     viewSetErrorMessage("");
-    if (!gGameStarted)
+    if (gamestate != GS_LEVEL)
     {
         netWaitForEveryone(0);
         memset(gPlayerReady, 0, sizeof(gPlayerReady));
@@ -534,7 +535,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gFrameRate = 0;
     totalclock = 0;
     paused = 0;
-    gGameStarted = 1;
+    gamestate = GS_LEVEL;
     bVanilla = false;
     
 

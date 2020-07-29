@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+void playlogos();
 void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
 unsigned int qrand(void);
 int wrand(void);
