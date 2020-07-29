@@ -116,7 +116,7 @@ public:
 
 	void FullscreenHUD1(struct player_struct* p, int snum)
 	{
-		float imgScale = 14.f;
+		double imgScale = (scale * numberFont.mFont->GetHeight()) * 0.7;
 
 		//
 		// Health
@@ -168,7 +168,7 @@ public:
 				if (strlen > 1)
 				{
 					auto scaler = strlen - 1;
-					imgX += ((imgX / 2.) * scaler) + ((imgX / 10.) * scaler);
+					imgX += ((imgX / 2.) * scaler) + ((imgX / (10. * scale)) * scaler);
 				}
 				DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
 			}
