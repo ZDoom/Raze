@@ -388,6 +388,14 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 			});
 		// don't play if any Duke talk sounds are already playing
 		if (foundone) return -1;
+
+		// When in single player, force all talk sounds to originate from the player actor, no matter what is being used to start them.
+		// Fixes a problem with quake06.voc in E3L4.
+		if (ud.multimode == 1)
+		{
+			spriteNum = pl->i;
+			auto sp = &sprite[spriteNum];
+		}
 	}
 
 	int32_t sndist;
