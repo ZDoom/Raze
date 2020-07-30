@@ -1092,6 +1092,16 @@ OptionValue SampleRates
 	48000,	"$OPTVAL_48000HZ"
 }
 
+OptionValue SampleRates2
+{
+	0,		"$OPTVAL_DEFAULT"
+	11025,	"$OPTVAL_11025HZ"
+	22050,	"$OPTVAL_22050HZ"
+	32000,	"$OPTVAL_32000HZ"
+	44100,	"$OPTVAL_44100HZ"
+	48000,	"$OPTVAL_48000HZ"
+}
+
 
 OptionValue BufferSizes
 {
@@ -1248,7 +1258,7 @@ OptionMenu ModReplayerOptions //protected
 {
 	Title "$MODMNU_TITLE"
 	Slider "$MODMNU_MASTERVOLUME",			"mod_dumb_mastervolume", 1, 16, 0.5, 1
-	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates"
+	Option "$ADVSNDMNU_SAMPLERATE",			"mod_samplerate", "SampleRates2"
 	Option "$MODMNU_QUALITY",				"mod_interp", "ModQuality"
 	Option "$MODMNU_VOLUMERAMPING",			"mod_volramp", "ModVolumeRamps"
 	StaticText " "
