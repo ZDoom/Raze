@@ -197,9 +197,12 @@ static int GetPositionInfo(int spriteNum, int soundNum, int sectNum,
 	int userflags = snd ? snd[kFlags] : 0;
 	int dist_adjust = snd ? snd[kVolAdjust] : 0;
 
+	FVector3 sndorg = GetSoundPos(pos);
+	FVector3 campos = GetSoundPos(cam);
+
 	if (sp->picnum != TILE_APLAYER || sp->yvel != screenpeek)
 	{
-		orgsndist = sndist = FindDistance3D(cam->x - pos->x, cam->y - pos->y, (cam->z - pos->z));
+		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
 		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && sp->picnum == MUSICANDSFX && sp->lotag < 999 && (sector[sp->sectnum].lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
 			sndist = divscale14(sndist, sp->hitag + 1);
@@ -223,8 +226,6 @@ static int GetPositionInfo(int spriteNum, int soundNum, int sectNum,
 
 	if (sndPos)
 	{
-		FVector3 sndorg = GetSoundPos(pos);
-		FVector3 campos = GetSoundPos(cam);
 		// Now calculate the virtual position in sound system coordinates.
 		FVector3 sndvec = sndorg - campos;
 		if (orgsndist > 0)
