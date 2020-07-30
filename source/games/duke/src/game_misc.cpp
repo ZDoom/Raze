@@ -147,12 +147,10 @@ void FTA(int q, struct player_struct* p)
 	if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
 		return;
 
-	if (p->ftq != q)
+	if (p->ftq != q || totalclock - p->ftt > TICRATE)
 	{
-		if (q == QUOTE_DEAD || q == QUOTE_SQUISHED || q == QUOTE_BOOTS_ON)
-		{
-			p->ftq = q;
-		}
+		p->ftq = q;
+		p->ftt = totalclock;
 		auto qu = quoteMgr.GetQuote(q);
 		if (p == &ps[screenpeek] && qu[0] != '\0')
 		{

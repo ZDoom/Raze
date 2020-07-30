@@ -125,7 +125,7 @@ struct player_struct
 	int bobcounter, weapon_sway;
 	int pals_time, randomflamex, crack_time;
 
-	int aim_mode, auto_aim;
+	int aim_mode, auto_aim, ftt;
 
 	short cursectnum, last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
