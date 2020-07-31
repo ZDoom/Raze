@@ -520,11 +520,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     bOutOfSync = 0;
     for (int i = 0; i < gNetPlayers; i++)
         playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
-    if (VanillaMode())
-        viewSetMessage("");
-    else
-        gGameMessageMgr.Clear();
-    viewSetErrorMessage("");
+	viewSetErrorMessage("");
     if (gamestate != GS_LEVEL)
     {
         netWaitForEveryone(0);

@@ -89,7 +89,6 @@ extern char gInterpolateWall[];
 extern char gInterpolateSector[];
 extern LOCATION gPrevSpriteLoc[kMaxSprites];
 extern int gViewSize;
-extern CGameMessageMgr gGameMessageMgr;
 extern int gViewXCenter, gViewYCenter;
 extern int gViewX0, gViewY0, gViewX1, gViewY1;
 extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
@@ -133,7 +132,8 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t 
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
 void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
 void viewSetMessage(const char *pMessage, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
-void viewDisplayMessage(void);
+
+
 void viewSetErrorMessage(const char *pMessage);
 void DoLensEffect(void);
 void UpdateDacs(int nPalette, bool bNoTint = false);

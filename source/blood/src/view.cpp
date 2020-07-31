@@ -129,7 +129,6 @@ int xscale, xscalecorrect, yscale, xstep, ystep;
 
 int gScreenTilt;
 
-CGameMessageMgr gGameMessageMgr;
 
 bool bLoadScreenCrcMatch = false;
 
@@ -1817,12 +1816,6 @@ void viewInit(void)
 #endif
     uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize);
     memset(data, TRANSPARENT_INDEX, kLensSize*kLensSize);
-    gGameMessageMgr.SetState(hud_messages);
-    gGameMessageMgr.SetCoordinates(1, 1);
-
-    gGameMessageMgr.SetFont(3);
-    gGameMessageMgr.SetMaxMessages(4);
-    gGameMessageMgr.SetMessageTime(5);
 
     for (int i = 0; i < 16; i++)
     {
@@ -1882,7 +1875,6 @@ void viewResizeView(int size)
         gViewY1S = divscale16(gViewY1, yscale);
     }
     videoSetViewableArea(gViewX0, gViewY0, gViewX1, gViewY1);
-    gGameMessageMgr.SetCoordinates(gViewX0S + 1, gViewY0S + 1);
     viewUpdatePages();
 }
 
@@ -2853,20 +2845,14 @@ void viewSetSystemMessage(const char* pMessage, ...) {
     vsprintf(buffer, pMessage, args);
     
     Printf(PRINT_HIGH | PRINT_NOTIFY, "%s\n", buffer); // print it also in console
-    gGameMessageMgr.Add(buffer, 15, 7, MESSAGE_PRIORITY_NORMAL);
 }
 
 void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)
 {
 	int printlevel = priority < 0 ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
     Printf(printlevel|PRINT_NOTIFY, "%s\n", pMessage);
-    gGameMessageMgr.Add(pMessage, 15, pal, priority);
 }
 
-void viewDisplayMessage(void)
-{
-    gGameMessageMgr.Display();
-}
 
 char errMsg[256];
 
@@ -3528,7 +3514,6 @@ void viewDrawScreen(bool sceneonly)
     {
         DrawStatSprite(2048, xdim-15, 20);
     }
-    viewDisplayMessage();
     CalcFrameRate();
 
     viewDrawMapTitle();

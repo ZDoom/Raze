@@ -39,47 +39,6 @@ enum MESSAGE_PRIORITY {
     MESSAGE_PRIORITY_SYSTEM = 100
 };
 
-class CGameMessageMgr
-{
-public:
-    struct messageStruct
-    {
-        ClockTicks lastTickWhenVisible;
-        char text[kMaxMessageTextLength];
-        int pal;
-        MESSAGE_PRIORITY priority;
-        bool deleted = false;
-    };
-    char state;
-    int x;
-    int y;
-    ClockTicks at9;
-    ClockTicks atd;
-    int nFont;
-    int fontHeight;
-    int maxNumberOfMessagesToDisplay;
-    int visibilityDurationInSecs;
-    char messageFlags;
-    int numberOfDisplayedMessages;
-    int messagesIndex;
-    int nextMessagesIndex;
-    messageStruct messages[kMessageLogSize];
-    CGameMessageMgr();
-    void SetState(char state);
-    void Add(const char *pText, char a2, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
-    void Display(void);
-    void Clear();
-    void SetMaxMessages(int nMessages);
-    void SetFont(int nFont);
-    void SetCoordinates(int x, int y);
-    void SetMessageTime(int nTime);
-    void SetMessageFlags(unsigned int nFlags);
-private:
-    void SortMessagesByPriority(messageStruct** messages, int count);
-    void SortMessagesByTime(messageStruct** messages, int count);
-};
-
-
 class CPlayerMsg
 {
 public:
