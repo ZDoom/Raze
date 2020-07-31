@@ -147,7 +147,7 @@ void FTA(int q, struct player_struct* p)
 	if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
 		return;
 
-	if (p->ftq != q || totalclock - p->ftt > TICRATE)
+	if (p->ftq != q || (totalclock - p->ftt > TICRATE && q != QUOTE_DEAD))
 	{
 		p->ftq = q;
 		p->ftt = totalclock;
