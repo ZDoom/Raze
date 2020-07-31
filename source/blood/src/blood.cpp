@@ -248,13 +248,6 @@ void PreloadTiles(void)
     int skyTile = -1;
     memset(gotpic,0,sizeof(gotpic));
     // Fonts
-    for (int i = 0; i < kFontNum; i++)
-    {
-        for (int j = 0; j < 96; j++)
-        {
-            tilePrecacheTile(gFont[i].tile + j, 0);
-        }
-    }
     for (int i = 0; i < numsectors; i++)
     {
         tilePrecacheTile(sector[i].floorpicnum, 0);
@@ -976,7 +969,7 @@ static void gameTicker()
 static void drawBackground()
 {
     twod->ClearScreen();
-	DrawTexture(twod, tileGetTexture(2518), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
     if (gQuitRequest && !gQuitGame)
         netBroadcastMyLogoff(gQuitRequest == 2);
 }

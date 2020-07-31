@@ -21,8 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #pragma once
-#include "common_game.h"
-#include "db.h"
+#include "build.h"
+#include "fix16.h"
 
 BEGIN_BLD_NS
 

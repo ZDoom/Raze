@@ -160,7 +160,7 @@ void sub_2541C(int x, int y, int z, short a)
 				double x = xdim/2. + x1 / double(1<<12);
 				double y = ydim/2. + y1 / double(1<<12);
 				// This very likely needs fixing later
-				DrawTexture(twod, tileGetTexture(nTile), x, y, DTA_FullscreenScale, 3, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
+				DrawTexture(twod, tileGetTexture(nTile, true), x, y, DTA_FullscreenScale, 3, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
 							DTA_ViewportWidth, windowxy2.x - windowxy1.x+1, DTA_ViewportHeight, windowxy2.y - windowxy1.y+1, DTA_Alpha, (pSprite->cstat&2? 0.5:1.), TAG_DONE);
             }
         }
@@ -216,9 +216,9 @@ void CViewMap::sub_25C74(void)
 
 #if 0 // needs to be generalized
     if (gViewMap.bFollowMode)
-        viewDrawText(3, "MAP FOLLOW MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
+        Printf(PRINT_NOTIFY, "MAP FOLLOW MODE\n");
     else
-        viewDrawText(3, "MAP SCROLL MODE", gViewX1S, nViewY+8, -128, 0, 2, 0, 256);
+        Printf(PRINT_NOTIFY, "MAP SCROLL MODE\n");
 #endif
     if (tm)
         viewResizeView(viewSize);

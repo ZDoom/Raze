@@ -75,12 +75,8 @@ enum INTERPOLATE_TYPE {
 
 #define kFontNum 5
 
-struct FONT {
-    int tile, xSize, ySize, space;
-};
-
 extern int gZoom;
-extern FONT gFont[kFontNum];
+extern FFont *gFont[kFontNum];
 extern int gViewMode;
 extern VIEWPOS gViewPos;
 extern int gViewIndex;

@@ -442,7 +442,7 @@ void CGameMessageMgr::SetMaxMessages(int nMessages)
 void CGameMessageMgr::SetFont(int nFont)
 {
     this->nFont = nFont;
-    fontHeight = gFont[nFont].ySize;
+    fontHeight = gFont[nFont]->GetHeight();
 }
 
 void CGameMessageMgr::SetCoordinates(int x, int y)

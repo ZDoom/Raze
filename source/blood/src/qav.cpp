@@ -67,13 +67,13 @@ void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int s
     if (!to3dview)
     {
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, !topleft, DTA_Color, color,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
 					DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
     }
     else
     {
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, !topleft, DTA_Color, color,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
 					DTA_FlipX, xflip, DTA_FlipY, yflip, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x+1, DTA_ViewportHeight, windowxy2.y - windowxy1.y+1, TAG_DONE);
     }
 }

@@ -55,7 +55,7 @@ void CEndGameMgr::Draw(void)
     viewLoadingScreenWide();
     int nHeight;
     viewGetFontInfo(1, NULL, NULL, &nHeight);
-	DrawTexture(twod, tileGetTexture(2038), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
     int nY = 20 - nHeight / 2;
     if (gGameOptions.nGameType == 0)
     {

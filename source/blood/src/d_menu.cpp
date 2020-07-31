@@ -25,19 +25,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 #include "compat.h"
-#include "common_game.h"
-#include "blood.h"
-#include "globals.h"
-#include "inifile.h"
-#include "levels.h"
-#include "qav.h"
-#include "view.h"
-#include "network.h"
 #include "mmulti.h"
 #include "c_bind.h"
 #include "menu.h"
-#include "sound.h"
 #include "gamestate.h"
+
+#include "blood.h"
+#include "globals.h"
+#include "qav.h"
+#include "view.h"
+#include "sound.h"
 
 bool ShowOptionMenu();
 
@@ -220,19 +217,14 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	int shade = (state != NIT_InactiveState) ? 32 : 48;
 	int pal = (state != NIT_InactiveState) ? 5 : 5;
 	if (state == NIT_SelectedState)	shade = 32 - ((int)totalclock & 63);
-	int width, height;
-	int gamefont = fontnum == NIT_BigFont ? 1 : fontnum == NIT_SmallFont ? 2 : 3;
-
-	int x = int(xpos);
-	int y = int(ypos);
-	viewGetFontInfo(gamefont, text, &width, &height);
+	auto gamefont = fontnum == NIT_BigFont ? BigFont : fontnum == NIT_SmallFont ? SmallFont : SmallFont2;
 
 	if (flags & LMF_Centered)
 	{
-		x -= width / 2;
+		int width = gamefont->StringWidth(text);
+		xpos -= width / 2;
 	}
-
-	viewDrawText(gamefont, text, x, y, shade, pal, 0, true);
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 
@@ -269,35 +261,28 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	int height, width;
-	// font #1, tile #2038.
-
-	viewGetFontInfo(1, text, &width, &height);
-
 	double scalex = 1.; // Expand the box if the text is longer
+	int width = BigFont->StringWidth(text);
 	int boxwidth = tileWidth(2038);
 	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
 	
-	DrawTexture(twod, tileGetTexture(2038), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	
-	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
+	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160, 29, text, TAG_DONE);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
 {
 	if (text)
 	{
-		int width, height = 0;
-		viewGetFontInfo(0, "T", &width, &height);
+		int height = SmallFont->GetHeight();
 
 		auto lines = FString(text).Split("\n");
 		int y = 100 - (height * lines.Size() / 2);
 		for (auto& l : lines)
 		{
-			int lheight = 0;
-			viewGetFontInfo(0, l, &width, &lheight);
+			int width = SmallFont->StringWidth(text);
 			int x = 160 - width / 2;
-			viewDrawText(0, l, x, y, 0, 0, 0, false);
+			DrawText(twod, SmallFont, CR_UNTRANSLATED, y, y, text, TAG_DONE);
 			y += height;
 		}
 	}

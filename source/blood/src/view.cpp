@@ -29,23 +29,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "pragmas.h"
 #include "mmulti.h"
-#include "common_game.h"
+#include "v_font.h"
 
-#include "aistate.h"
-#include "blood.h"
-#include "choke.h"
-#include "db.h"
 #include "endgame.h"
-#include "gameutil.h"
-#include "globals.h"
-#include "levels.h"
-#include "loadsave.h"
+#include "aistate.h"
 #include "map2d.h"
-#include "messages.h"
-#include "network.h"
-#include "player.h"
- #include "screen.h"
+#include "loadsave.h"
+#include "screen.h"
 #include "sectorfx.h"
+#include "choke.h"
 #include "view.h"
 #include "nnexts.h"
 #include "zstring.h"
@@ -53,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "v_font.h"
 #include "glbackend/glbackend.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
@@ -176,54 +169,47 @@ void RotateXY(int *pX, int *pY, int *pZ, int ang)
 	*pY = dmulscale30r(oX,angSin,oY,angCos);
 }
 
-FONT gFont[kFontNum];
+FFont *gFont[kFontNum];
 
 void FontSet(int id, int tile, int space)
 {
 	if (id < 0 || id >= kFontNum || tile < 0 || tile >= kMaxTiles)
 		return;
 
-	FONT *pFont = &gFont[id];
-	int xSize = 0;
-	int ySize = 0;
-	pFont->tile = tile;
-	for (int i = 0; i < 96; i++)
+	GlyphSet glyphs;
+	for (int i = 1; i < 96; i++)
 	{
-		if (tilesiz[tile+i].x > xSize)
-			xSize = tilesiz[tile+i].x;
-		if (tilesiz[tile+i].y > ySize)
-			ySize = tilesiz[tile+i].y;
+		auto tex = tileGetTexture(tile + i);
+		if (tex->isValid() && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0)
+			glyphs.Insert(i + 32, tex);
+
 	}
-	pFont->xSize = xSize;
-	pFont->ySize = ySize;
-	pFont->space = space;
+	const char *names[] = { "smallfont", "bigfont", "gothfont", "smallfont2", "digifont"};
+	const char *defs[] = { "defsmallfont", "defbigfont", nullptr, "defsmallfont2", nullptr};
+	const bool kerning[] = { 0, 1, 1, 1, 0};
+	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, nullptr};
+	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, kerning[id], tileWidth(tile), false, false, &glyphs);
+	if (ptrs[id]) *ptrs[id] = gFont[id];
 }
 
 void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize)
 {
 	if (id < 0 || id >= kFontNum)
 		return;
-	FONT *pFont = &gFont[id];
+	FFont *pFont = gFont[id];
 	if (!unk1)
 	{
 		if (pXSize)
-			*pXSize = pFont->xSize;
+			*pXSize = pFont->GetCharWidth('N');
 		if (pYSize)
-			*pYSize = pFont->ySize;
+			*pYSize = pFont->GetHeight();
 	}
 	else
 	{
-		int width = -pFont->space;
-		for (const char *pBuf = unk1; *pBuf != 0; pBuf++)
-		{
-			int tile = ((*pBuf-32)&127)+pFont->tile;
-			if (tileGetTexture(tile)->isValid())
-				width += tilesiz[tile].x+pFont->space;
-		}
 		if (pXSize)
-			*pXSize = width;
+			*pXSize = pFont->StringWidth(unk1);
 		if (pYSize)
-			*pYSize = pFont->ySize;
+			*pYSize = pFont->GetHeight();
 	}
 }
 
@@ -1015,29 +1001,25 @@ void RestoreInterpolations(void)
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat, uint8_t alpha)
 {
     if (nFont < 0 || nFont >= kFontNum || !pString) return;
-    FONT *pFont = &gFont[nFont];
+    FFont *pFont = gFont[nFont];
 
     //y += pFont->yoff;
 
-    if (position)
-    {
-        const char *s = pString;
-        int width = -pFont->space;
-        while (*s)
-        {
-            int nTile = ((*s-' ')&127)+pFont->tile;
-            if (tilesiz[nTile].x && tilesiz[nTile].y)
-                width += tilesiz[nTile].x+pFont->space;
-            s++;
-        }
-        if (position == 1)
-            width >>= 1;
-        x -= width;
-    }
+	if (position) x -= pFont->StringWidth(pString) / 2;
+
+	if (shadow)
+	{
+		DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0, DTA_Alpha, 0.5, TAG_DONE);
+	}
+	DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
+			 DTA_Color, shadeToLight(nShade), TAG_DONE);
+	
+	// This is just for position comparison
     const char *s = pString;
     while (*s)
     {
-        int nTile = ((*s-' ')&127) + pFont->tile;
+		int nTile = 'A' - 32 + 4096 + nFont*96;
+        //int nTile = ((*s-' ')&127) + ';
         if (tilesiz[nTile].x && tilesiz[nTile].y)
         {
             if (shadow)
@@ -1045,7 +1027,7 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
                 rotatesprite_fs_alpha((x+1)<<16, (y+1)<<16, 65536, 0, nTile, 127, nPalette, 26|nStat, alpha);
             }
             rotatesprite_fs_alpha(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 26|nStat, alpha);
-            x += tilesiz[nTile].x+pFont->space;
+			x += pFont->GetDefaultKerning();
         }
         s++;
     }
