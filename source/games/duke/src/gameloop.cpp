@@ -310,7 +310,6 @@ bool GameTicker()
 
 	C_RunDelayedCommands();
 
-	char gameUpdate = false;
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
 
@@ -343,8 +342,8 @@ bool GameTicker()
 	{
 		ototalclock = totalclock - 1;
 	}
+	int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
-	gameUpdate = true;
 	gameupdatetime.Unclock();
 
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
@@ -356,8 +355,6 @@ bool GameTicker()
 	{
 		GetInput();
 	}
-
-	int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
 	drawtime.Reset();
 	drawtime.Clock();
