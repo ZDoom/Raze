@@ -224,7 +224,11 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		int width = gamefont->StringWidth(text);
 		xpos -= width / 2;
 	}
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade), TAG_DONE);
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, DTA_Alpha, 0.5,
+			 DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
+			 DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 }
 
 
@@ -267,7 +271,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
 	
 	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160, 29, text, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
@@ -280,9 +284,9 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 		int y = 100 - (height * lines.Size() / 2);
 		for (auto& l : lines)
 		{
-			int width = SmallFont->StringWidth(text);
+			int width = SmallFont->StringWidth(l);
 			int x = 160 - width / 2;
-			DrawText(twod, SmallFont, CR_UNTRANSLATED, y, y, text, TAG_DONE);
+			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 			y += height;
 		}
 	}

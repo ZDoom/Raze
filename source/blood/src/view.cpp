@@ -180,15 +180,18 @@ void FontSet(int id, int tile, int space)
 	for (int i = 1; i < 96; i++)
 	{
 		auto tex = tileGetTexture(tile + i);
-		if (tex->isValid() && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0)
+		if (tex && tex->isValid() && tex->GetTexelWidth() > 0 && tex->GetTexelHeight() > 0)
+		{
 			glyphs.Insert(i + 32, tex);
+			tex->SetOffsetsNotForFont();
+		}
 
 	}
 	const char *names[] = { "smallfont", "bigfont", "gothfont", "smallfont2", "digifont"};
 	const char *defs[] = { "defsmallfont", "defbigfont", nullptr, "defsmallfont2", nullptr};
-	const bool kerning[] = { 0, 1, 1, 1, 0};
 	FFont ** ptrs[] = { &SmallFont, &BigFont, nullptr, &SmallFont2, nullptr};
-	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, kerning[id], tileWidth(tile), false, false, &glyphs);
+	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
+	gFont[id]->SetKerning(space);
 	if (ptrs[id]) *ptrs[id] = gFont[id];
 }
 
