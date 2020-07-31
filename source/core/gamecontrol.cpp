@@ -95,6 +95,9 @@ int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
+static ClockTicks lastototalclk;
+static uint64_t elapsedTime;
+static uint64_t lastTime;
 
 glcycle_t thinktime, actortime, gameupdatetime, drawtime;
 
@@ -1037,12 +1040,21 @@ void S_SetSoundPaused(int state)
 
 int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
 {
-	const double TICRATE = 120.;
+	const int baseValue = 65536;
+	uint64_t currentTime = I_nsTime();
 
-	double elapsedTime = (totalclk - ototalclk);
-	double elapsedFrames = elapsedTime * (1. / TICRATE);
-	double ratio = (elapsedFrames * realgameticspersec);
-	return clamp(xs_RoundToInt(ratio * 65536), 0, 65536);
+	if ((lastototalclk == ototalclk) && (lastTime != 0))
+	{
+		elapsedTime += currentTime - lastTime;
+	}
+	else
+	{
+		lastototalclk = ototalclk;
+		elapsedTime = 0;
+	}
+	lastTime = currentTime;
+
+	return clamp(baseValue * (elapsedTime / (1'000'000'000. / realgameticspersec)), 0, baseValue);
 }
 
 FString G_GetDemoPath()
