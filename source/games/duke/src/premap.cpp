@@ -113,6 +113,7 @@ void resetplayerstats(int snum)
     p->sethoriz(140);                                   //!!
     p->oq16horiz = p->q16horiz;
     p->sethorizoff(0);
+    p->oq16horizoff = p->q16horizoff;
     p->bobcounter       = 0;
     p->on_ground        = 0;
     p->player_par       = 0;
