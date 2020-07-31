@@ -1626,6 +1626,7 @@ void MenuLevel(void)
     while (TRUE)
     {
         handleevents();
+        D_ProcessEvents();
         C_RunDelayedCommands();
 
         // limits checks to max of 40 times a second
