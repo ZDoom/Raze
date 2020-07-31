@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "map2d.h"
 #include "view.h"
 #include "v_2ddrawer.h"
+#include "v_draw.h"
 
 BEGIN_BLD_NS
 
@@ -156,8 +157,11 @@ void sub_2541C(int x, int y, int z, short a)
                 int nScale = mulscale((pSprite->yrepeat+((floorZ-nBottom)>>8))*z, yxaspect, 16);
                 nScale = ClipRange(nScale, 8000, 65536<<1);
 				// Players on automap
-                rotatesprite((xdim<<15)+(x1<<4), (ydim<<15)+(y1<<4), nScale, pa, nTile, pSprite->shade, pSprite->pal, (pSprite->cstat&2)>>1,
-                    windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+				double x = xdim/2. + x1 / double(1<<12);
+				double y = ydim/2. + y1 / double(1<<12);
+				// This very likely needs fixing later
+				DrawTexture(twod, tileGetTexture(nTile), x, y, DTA_FullscreenScale, 3, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
+							DTA_ViewportWidth, windowxy2.x - windowxy1.x+1, DTA_ViewportHeight, windowxy2.y - windowxy1.y+1, DTA_Alpha, (pSprite->cstat&2? 0.5:1.), TAG_DONE);
             }
         }
     }

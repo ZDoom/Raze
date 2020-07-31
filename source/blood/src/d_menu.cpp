@@ -269,10 +269,17 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	int height;
+	int height, width;
 	// font #1, tile #2038.
-	viewGetFontInfo(1, NULL, NULL, &height);
-	rotatesprite(int(origin.X * 65536) + (320 << 15), 20 << 16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim - 1, ydim - 1);
+
+	viewGetFontInfo(1, text, &width, &height);
+
+	double scalex = 1.; // Expand the box if the text is longer
+	int boxwidth = tileWidth(2038);
+	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
+	
+	DrawTexture(twod, tileGetTexture(2038), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
+	
 	viewDrawText(1, text, 160, 20 - height / 2, -128, 0, 1, false);
 }
 

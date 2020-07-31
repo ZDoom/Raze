@@ -976,7 +976,7 @@ static void gameTicker()
 static void drawBackground()
 {
     twod->ClearScreen();
-    rotatesprite(160 << 16, 100 << 16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim - 1, ydim - 1);
+	DrawTexture(twod, tileGetTexture(2518), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
     if (gQuitRequest && !gQuitGame)
         netBroadcastMyLogoff(gQuitRequest == 2);
 }

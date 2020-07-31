@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "qav.h"
 #include "sound.h"
+#include "v_draw.h"
 
 BEGIN_BLD_NS
 
@@ -47,32 +48,35 @@ int qavRegisterClient(void(*pClient)(int, void *))
 void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int shade, int palnum, int basepal, bool to3dview)
 {
     stat |= pTile->stat;
-    int angle = pTile->angle;
-    if (stat & 0x100)
-    {
-        angle = (angle+1024)&2047;
-        stat &= ~0x100;
-        stat ^= 0x4;
-    }
-    if (stat & kQavOrientationLeft)
-    {
-        stat &= ~kQavOrientationLeft;
-        stat |= 256;
-    }
-    if (palnum <= 0)
-        palnum = pTile->palnum;
+	x += pTile->x;
+	y += pTile->y;
+	auto tex = tileGetTexture(pTile->picnum);
+	double scale = pTile->z/65536.;
+	double angle = pTile->angle * (360./2048);
+	int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
+	double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
+	int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
+    if (palnum <= 0) palnum = pTile->palnum;
+	auto translation = TRANSLATION(Translation_Remap + basepal, palnum);
+	bool topleft = !!(stat & RS_TOPLEFT);
+
+	bool xflip = !!(stat & 0x100); // repurposed flag
+	bool yflip = !!(stat & RS_YFLIP);
+	shade = clamp(pTile->shade + shade, 0, numshades-1);
+	int light = ::scale(numshades-1-shade, 255, numshades-1);
+	PalEntry color(255,light,light,light);
 
     if (!to3dview)
     {
-        twod_rotatesprite(twod, (x + pTile->x) << 16, (y + pTile->y) << 16, pTile->z, angle,
-            pTile->picnum, ClipRange(pTile->shade + shade, -128, 127), palnum, stat,
-            0, 0, 0, 0, twod->GetWidth(), twod->GetHeight(), nullptr, basepal);
+		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, !topleft, DTA_Color, color,
+					DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
     }
     else
     {
-        twod_rotatesprite(twod, (x + pTile->x) << 16, (y + pTile->y) << 16, pTile->z, angle,
-            pTile->picnum, ClipRange(pTile->shade + shade, -128, 127), palnum, stat,
-            0, 0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, nullptr, basepal);
+		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, !topleft, DTA_Color, color,
+					DTA_FlipX, xflip, DTA_FlipY, yflip, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x+1, DTA_ViewportHeight, windowxy2.y - windowxy1.y+1, TAG_DONE);
     }
 }
 
