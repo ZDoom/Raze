@@ -1929,7 +1929,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 				if (j != i)
 				{
 					deletesprite(j);
-					return;
+					break;
 				}
 				j = l;
 			}
