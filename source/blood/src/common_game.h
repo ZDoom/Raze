@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "network.h"
 #include "printf.h"
+#include "v_text.h"
 
 BEGIN_BLD_NS
 
@@ -466,7 +467,6 @@ kAiStateAttack          =  6,
 // -------------------------------
 
 // NUKE-TODO:
-#include "v_text.h"
 
 
 
