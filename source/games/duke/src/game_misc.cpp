@@ -150,7 +150,6 @@ void FTA(int q, struct player_struct* p)
 	if (p->ftq != q || (totalclock - p->ftt > TICRATE && q != QUOTE_DEAD))
 	{
 		p->ftq = q;
-		p->ftt = totalclock;
 		auto qu = quoteMgr.GetQuote(q);
 		if (p == &ps[screenpeek] && qu[0] != '\0')
 		{
@@ -166,6 +165,7 @@ void FTA(int q, struct player_struct* p)
 			}
 		}
 	}
+	p->ftt = totalclock;
 }
 
 //==========================================================================
