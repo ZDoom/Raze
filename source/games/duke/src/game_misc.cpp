@@ -649,10 +649,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			int light = Scale(numshades - sprite[pp.i].shade, 255, numshades);
-			PalEntry pe(255, light, light, light);
 			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal),
-				DTA_Color, pe, DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
+				DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
 		}
 	}
 

@@ -144,18 +144,14 @@ static void GameText(double x, double y, const char* t, int shade, int align = -
 {
 	if (align != -1)
 		x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	int light = Scale(numshades - shade, 255, numshades);
-	PalEntry pe(255, light, light, light);
-	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
+	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
 	if (align != -1)
 		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	int light = Scale(numshades - shade, 255, numshades);
-	PalEntry pe(255, light, light, light);
-	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, pe, TAG_DONE);
+	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 //---------------------------------------------------------------------------

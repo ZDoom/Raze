@@ -374,6 +374,13 @@ EXTERN int16_t sintable[2048];
 EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
 
+// Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.
+inline int shadeToLight(int shade)
+{
+	shade = clamp(shade, 0, numshades-1);
+	int light = scale(numshades-1-shade, 255, numshades-1);
+	return PalEntry(255,light,light,light);
+}
 
 EXTERN int32_t maxspritesonscreen;
 

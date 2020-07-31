@@ -62,9 +62,7 @@ void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int s
 
 	bool xflip = !!(stat & 0x100); // repurposed flag
 	bool yflip = !!(stat & RS_YFLIP);
-	shade = clamp(pTile->shade + shade, 0, numshades-1);
-	int light = ::scale(numshades-1-shade, 255, numshades-1);
-	PalEntry color(255,light,light,light);
+	auto color = shadeToLight(pTile->shade + shade);
 
     if (!to3dview)
     {
