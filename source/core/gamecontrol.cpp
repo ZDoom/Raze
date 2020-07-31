@@ -1040,7 +1040,6 @@ void S_SetSoundPaused(int state)
 
 int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
 {
-	const int baseValue = 65536;
 	uint64_t currentTime = I_nsTime();
 
 	if ((lastototalclk == ototalclk) && (lastTime != 0))
@@ -1054,7 +1053,7 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 	}
 	lastTime = currentTime;
 
-	return clamp(baseValue * (elapsedTime / (1'000'000'000. / realgameticspersec)), 0, baseValue);
+	return clamp(MaxSmoothRatio * (elapsedTime / (1'000'000'000. / realgameticspersec)), 0, MaxSmoothRatio);
 }
 
 FString G_GetDemoPath()

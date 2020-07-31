@@ -489,8 +489,7 @@ void displayrooms(int snum, int smoothratio)
 	newaspect_enable = 1;
 	videoSetCorrectedAspect();
 
-	smoothratio = min(max(smoothratio, 0), 65536);
-	if (!playrunning() || ps[snum].on_crane > -1) smoothratio = 65536;
+	if (!playrunning() || ps[snum].on_crane > -1) smoothratio = MaxSmoothRatio;
 
 	sect = p->cursectnum;
 	if (sect < 0 || sect >= MAXSECTORS) return;
@@ -594,7 +593,7 @@ void displayrooms(int snum, int smoothratio)
 			cposy = p->posy;
 			cposz = p->posz;
 			sect = sprite[p->newowner].sectnum;
-			smoothratio = 65536L;
+			smoothratio = MaxSmoothRatio;
 		}
 		else if (p->over_shoulder_on == 0)
 		{
@@ -660,7 +659,7 @@ void displayrooms(int snum, int smoothratio)
 
 bool GameInterface::GenerateSavePic()
 {
-	displayrooms(myconnectindex, 65536);
+	displayrooms(myconnectindex, MaxSmoothRatio);
 	return true;
 }
 

@@ -296,8 +296,6 @@ void displayrest(int smoothratio)
 
 		if (ud.overhead_on > 0)
 		{
-			// smoothratio = min(max(smoothratio,0),65536);
-			smoothratio = calc_smoothratio(totalclock, ototalclock);
 			dointerpolations(smoothratio);
 
 			if (ud.scrollmode == 0)

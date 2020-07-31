@@ -173,7 +173,7 @@ inline int calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
 	if (!playrunning())
 	{
-		return 65536;
+		return MaxSmoothRatio;
 	}
 	return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
 }
