@@ -139,6 +139,7 @@ void resetplayerstats(int snum)
     p->holoduke_on =       -1;
 
     p->setlookang(512 - ((currentLevel->levelNumber & 1) << 10));
+    p->oq16look_ang = p->q16look_ang;
 
     p->setrotscrnang(0);
     p->oq16rotscrnang = p->q16rotscrnang;
