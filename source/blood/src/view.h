@@ -63,15 +63,25 @@ enum INTERPOLATE_TYPE {
     INTERPOLATE_TYPE_SHORT,
 };
 
-#define kCrosshairTile 2319
-#define kLoadScreen 2049
-#define kLoadScreenCRC -2051908571
-#define kLoadScreenWideBackWidth 256
-#define kLoadScreenWideSideWidth 128
-#define kLoadScreenWideBack 9216
-#define kLoadScreenWideLeft 9217
-#define kLoadScreenWideRight 9218
-#define kLoadScreenWideMiddle 9219
+enum
+{
+    kCrosshairTile = 2319,
+    kLoadScreen = 2049,
+    kLoadScreenCRC = -2051908571,
+    kLoadScreenWideBackWidth = 256,
+    kLoadScreenWideSideWidth = 128,
+    kLoadScreenWideBack = 9216,
+    kLoadScreenWideLeft = 9217,
+    kLoadScreenWideRight = 9218,
+    kLoadScreenWideMiddle = 9219,
+
+    kSBarNumberHealth = 9220,
+    kSBarNumberAmmo = 9230,
+    kSBarNumberInv = 9240,
+    kSBarNumberArmor1 = 9250,
+    kSBarNumberArmor2 = 9260,
+    kSBarNumberArmor3 = 9270,
+};
 
 #define kFontNum 5
 
