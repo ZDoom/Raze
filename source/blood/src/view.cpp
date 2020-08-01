@@ -1011,28 +1011,11 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 	if (shadow)
 	{
-		DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0, DTA_Alpha, 0.5, TAG_DONE);
+		DrawText(twod, pFont, CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
 	}
 	DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
 			 DTA_Color, shadeToLight(nShade), TAG_DONE);
-	
-	// This is just for position comparison
-    const char *s = pString;
-    while (*s)
-    {
-		int nTile = 'A' - 32 + 4096 + nFont*96;
-        //int nTile = ((*s-' ')&127) + ';
-        if (tilesiz[nTile].x && tilesiz[nTile].y)
-        {
-            if (shadow)
-            {
-                rotatesprite_fs_alpha((x+1)<<16, (y+1)<<16, 65536, 0, nTile, 127, nPalette, 26|nStat, alpha);
-            }
-            rotatesprite_fs_alpha(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 26|nStat, alpha);
-			x += pFont->GetDefaultKerning();
-        }
-        s++;
-    }
+
 }
 
 // for the screen border
