@@ -66,6 +66,16 @@ int callsound(int sn, int whatsprite)
 
 			int snum = sprite[i].lotag;
 			auto flags = S_GetUserFlags(snum);
+
+			// Reset if the desired actor isn't playing anything.
+			bool hival = S_IsSoundValid(sprite[i].hitag);
+			if (hittype[i].temp_data[0] == 1 && !hival)
+			{
+				if (!S_CheckActorSoundPlaying(hittype[i].temp_data[5], snum))
+					hittype[i].temp_data[0] = 0;
+			}
+
+
 			if (hittype[i].temp_data[0] == 0)
 			{
 				if ((flags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL)
@@ -73,7 +83,7 @@ int callsound(int sn, int whatsprite)
 					if (snum)
 					{
 						if (sprite[i].hitag && snum != sprite[i].hitag)
-							S_StopSound(sprite[i].hitag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
+							S_StopSound(sprite[i].hitag, hittype[i].temp_data[5]);
 						S_PlayActorSound(snum, whatsprite);
 						hittype[i].temp_data[5] = whatsprite;
 					}
@@ -82,10 +92,10 @@ int callsound(int sn, int whatsprite)
 						hittype[i].temp_data[0] = 1;
 				}
 			}
-			else if (S_IsSoundValid(sprite[i].hitag))
+			else if (hival)
 			{
 				if ((flags & SF_LOOP) || (sprite[i].hitag && sprite[i].hitag != sprite[i].lotag))
-					S_StopSound(sprite[i].lotag, hittype[i].temp_data[5]);   // changed to only stop the sound on the same actor, not all of them.
+					S_StopSound(sprite[i].lotag, hittype[i].temp_data[5]);
 				if (sprite[i].hitag) S_PlayActorSound(sprite[i].hitag, whatsprite);
 				hittype[i].temp_data[0] = 0;
 				hittype[i].temp_data[5] = whatsprite;
