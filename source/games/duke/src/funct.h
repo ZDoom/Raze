@@ -46,7 +46,7 @@ bool queball(int i, int pocket, int queball, int stripeball);
 void forcesphere(int i, int forcesphere);
 void recon(int i, int explosion, int firelaser, int attacksnd, int painsnd, int roamsnd, int shift, int (*getspawn)(int i));
 void ooz(int i);
-void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT);
+void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK);
 void camera(int i);
 void forcesphere(int i);
 void watersplash2(int i);

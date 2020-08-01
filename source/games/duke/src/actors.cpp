@@ -1823,7 +1823,7 @@ void ooz(int i)
 //
 //---------------------------------------------------------------------------
 
-void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT)
+void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
 {
 	spritetype* s = &sprite[i];
 	auto t = &hittype[i].temp_data[0];
@@ -1850,7 +1850,7 @@ void reactor(int i, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BUR
 			{
 				sprite[j].picnum = REACTOR2BURNT;
 			}
-			else if (sprite[j].picnum == REACTORBURNT || sprite[j].picnum == REACTOR2BURNT)
+			else if (sprite[j].picnum == REACTORSPARK || sprite[j].picnum == REACTOR2SPARK)
 			{
 				sprite[j].cstat = (short)32768;
 			}
