@@ -30,6 +30,7 @@ extern int TILE_MENUBAR;
 extern int TILE_ATOMICHEALTH;
 extern int TILE_FLOORSLIME;
 extern int TILE_JIBS6;
+extern int TILE_FIRE;
 extern int TILE_WATERBUBBLE;
 extern int TILE_SMALLSMOKE;
 extern int TILE_BLOODPOOL;

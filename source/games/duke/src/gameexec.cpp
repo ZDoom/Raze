@@ -264,9 +264,19 @@ int ParseState::parse(void)
 	switch (*insptr)
 	{
 	case concmd_ifrnd:
+	{
 		insptr++;
+		// HACK ALERT! The fire animation uses a broken ifrnd setup to delay its start because original CON has no variables.
+		// But the chosen random value of 16/255 is too low and can cause delays of a second or more.
+		int spnum = sprite[g_i].picnum;
+		if (spnum == TILE_FIRE && g_t[4] == 0 && *insptr == 16)
+		{
+			parseifelse(rnd(64));
+			break;
+		}
 		parseifelse(rnd(*insptr));
 		break;
+	}
 	case concmd_ifcanshoottarget:
 		parseifelse(ifcanshoottarget(g_i, g_p, g_x));
 		break;
