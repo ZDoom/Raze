@@ -773,7 +773,7 @@ void viewDrawScreen(bool sceneonly)
         int cX = gView->pSprite->x;
         int cY = gView->pSprite->y;
         int cZ = gView->zView;
-        int zDelta = gView->zWeapon - gView->zView - (12 << 8);
+        double zDelta = gView->zWeapon - gView->zView - (12 << 8);
         fix16_t cA = gView->q16ang;
         fix16_t q16horiz = gView->q16horiz;
         fix16_t q16slopehoriz = gView->q16slopehoriz;
@@ -790,7 +790,7 @@ void viewDrawScreen(bool sceneonly)
                 cX = interpolate(predictOld.at50, predict.at50, gInterpolate);
                 cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
                 cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
-                zDelta = interpolate(predictOld.at34, predict.at34, gInterpolate);
+                zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
                 cA = interpolateangfix16(predictOld.at30, predict.at30, gInterpolate);
                 q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
                 q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
@@ -805,7 +805,7 @@ void viewDrawScreen(bool sceneonly)
                 cX = interpolate(pView->at50, cX, gInterpolate);
                 cY = interpolate(pView->at54, cY, gInterpolate);
                 cZ = interpolate(pView->at38, cZ, gInterpolate);
-                zDelta = interpolate(pView->at34, zDelta, gInterpolate);
+                zDelta = finterpolate(pView->at34, zDelta, gInterpolate);
                 cA = interpolateangfix16(pView->at30, cA, gInterpolate);
                 q16horiz = interpolate(pView->at24, q16horiz, gInterpolate);
                 q16slopehoriz = interpolate(pView->at28, q16slopehoriz, gInterpolate);
