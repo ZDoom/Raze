@@ -9,6 +9,8 @@ void I_SetFrameTime();
 
 // Called by D_DoomLoop, returns current time in tics.
 int I_GetTime();
+// same, but using nanoseconds
+uint64_t I_GetTimeNS();
 
 double I_GetTimeFrac();
 

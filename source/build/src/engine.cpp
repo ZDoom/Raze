@@ -2965,19 +2965,10 @@ void DrawFullscreenBlends();
 //
 void videoNextPage(void)
 {
-	static bool recursion;
-
-	if (!recursion)
-	{
-		// This protection is needed because the menu can call scripts from inside its drawers and the scripts can call the busy-looping Screen_Play script event
-		// which calls videoNextPage for page flipping again. In this loop the UI drawers may not get called again.
-		// Ideally this stuff should be moved out of videoNextPage so that all those busy loops won't call UI overlays at all.
-		recursion = true;
-		FStat::PrintStat(twod);
-		C_DrawConsole();
-        M_Drawer();
-        recursion = false;
-	}
+    // Draw overlay elements to the 2D drawer
+	FStat::PrintStat(twod);
+	C_DrawConsole();
+    M_Drawer();
 
     // Handle the final 2D overlays.
     DrawFullscreenBlends();
@@ -2999,8 +2990,10 @@ void videoNextPage(void)
 
     beforedrawrooms = 1;
     numframes++;
+    // This should be in the main loop but with some of the games still having multiple render loops it cannot be moved out of here
     twod->SetSize(screen->GetWidth(), screen->GetHeight());
     twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
+    I_SetFrameTime(); 
 }
 
 //

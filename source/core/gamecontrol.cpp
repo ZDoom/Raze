@@ -1038,7 +1038,7 @@ void S_SetSoundPaused(int state)
 	}
 }
 
-int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int realgameticspersec)
+int CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticspersec)
 {
 	double ratio;
 	int result;
@@ -1051,7 +1051,7 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 	if (!cl_legacyintrpl)
 	{
 		double const gametics = 1'000'000'000. / realgameticspersec;
-		uint64_t currentTime = I_nsTime();
+		uint64_t currentTime = I_GetTimeNS();
 
 		if ((lastototalclk == ototalclk) && (lastTime != 0))
 		{

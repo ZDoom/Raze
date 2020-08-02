@@ -192,7 +192,7 @@ void S_ResumeSound(bool notsfx);
 void S_SetSoundPaused(int state);
 
 void G_FatalEngineError(void);
-int CalcSmoothRatio(const ClockTicks& totalclk, const ClockTicks& ototalclk, int realgameticspersec);
+int CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticspersec);
 enum
 {
 	MaxSmoothRatio = FRACUNIT
