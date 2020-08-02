@@ -357,18 +357,6 @@ int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
 int16_t startang, startsectnum;
 
-static void drawLoadingScreen(void)
-{
-    char buffer[80];
-    if (gGameOptions.nGameType == 0)
-    {
-        strcpy(buffer, GStrings("TXTB_LLEVEL"));
-    }
-    else
-        strcpy(buffer, GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType)));
-    viewLoadingScreen(2049, buffer, levelGetTitle(), NULL);
-}
-
 void StartLevel(GAMEOPTIONS *gameOptions)
 {
 	STAT_Update(0);

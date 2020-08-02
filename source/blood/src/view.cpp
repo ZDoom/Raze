@@ -125,7 +125,6 @@ int xscale, yscale, xstep, ystep;
 int gScreenTilt;
 
 
-bool bLoadScreenCrcMatch = false;
 
 void RotateYZ(int *pX, int *pY, int *pZ, int ang)
 {
@@ -1156,7 +1155,6 @@ void viewInit(void)
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
     gViewMap.sub_25C38(0, 0, gZoom, 0, gFollowMap);
-    bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
 }
 
 void viewResizeView(int size)
@@ -2895,90 +2893,6 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-
-
-int nLoadingScreenTile;
-char pzLoadingScreenText1[256], pzLoadingScreenText2[256], pzLoadingScreenText3[256];
-
-void viewLoadingScreenWide(void)
-{
-    if ((blood_globalflags&BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch))
-    {
-        if (yxaspect >= 65536)
-        {
-            rotatesprite(160<<16, 100<<16, 65536, 0, kLoadScreen, 0, 0, 1024+64+8+2, 0, 0, xdim-1, ydim-1);
-        }
-        else
-        {
-            int width = scale(xdim, 240, ydim);
-            int nCount = (width+kLoadScreenWideBackWidth-1)/kLoadScreenWideBackWidth;
-            for (int i = 0; i < nCount; i++)
-            {
-                rotatesprite_fs((i*kLoadScreenWideBackWidth)<<16, 0, 65536, 0, kLoadScreenWideBack, 0, 0, 256+64+16+8+2);
-            }
-            rotatesprite_fs((kLoadScreenWideSideWidth>>1)<<16, 200<<15, 65536, 0, kLoadScreenWideLeft, 0, 0, 256+8+2);
-            rotatesprite_fs((320-(kLoadScreenWideSideWidth>>1))<<16, 200<<15, 65536, 0, kLoadScreenWideRight, 0, 0, 512+8+2);
-            rotatesprite_fs(320<<15, 200<<15, 65536, 0, kLoadScreenWideMiddle, 0, 0, 8+2);
-        }
-    }
-    else
-        rotatesprite(160<<16, 100<<16, 65536, 0, kLoadScreen, 0, 0, 64+8+2, 0, 0, xdim-1, ydim-1);
-}
-
-void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
-{
-    int vc;
-    viewGetFontInfo(1, NULL, NULL, &vc);
-    twod->ClearScreen();
-    if (nLoadingScreenTile == kLoadScreen)
-        viewLoadingScreenWide();
-    else if (nLoadingScreenTile)
-    {
-        rotatesprite(160<<16, 100<<16, 65536, 0, nLoadingScreenTile, 0, 0, 74, 0, 0, xdim-1, ydim-1);
-    }
-    if (pzLoadingScreenText1[0])
-    {
-        rotatesprite(160<<16, 20<<16, 65536, 0, 2038, -128, 0, 78, 0, 0, xdim-1, ydim-1);
-        viewDrawText(1, pzLoadingScreenText1, 160, 20-vc/2, -128, 0, 1, 1);
-    }
-    if (pzLoadingScreenText2[0])
-    {
-        viewDrawText(1, pzLoadingScreenText2, 160, 50, -128, 0, 1, 1);
-    }
-    if (pzLoadingScreenText3[0])
-    {
-        viewDrawText(1, pzLoadingScreenText3, 160, 70, -128, 0, 1, 1);
-    }
-    if (pzText4)
-    {
-        viewDrawText(3, pzText4, 160, 124, -128, 0, 1, 1);
-    }
-
-#if 0
-    if (nPercent != -1)
-        TileHGauge(2260, 86, 110, nPercent, 100, 0, 131072);
-#endif
-
-    viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
-}
-
-void viewLoadingScreen(int nTile, const char *pText, const char *pText2, const char *pText3)
-{
-    nLoadingScreenTile = nTile;
-    if (pText)
-        strncpy(pzLoadingScreenText1, pText, 256);
-    else
-        pzLoadingScreenText1[0] = 0;
-    if (pText2)
-        strncpy(pzLoadingScreenText2, pText2, 256);
-    else
-        pzLoadingScreenText2[0] = 0;
-    if (pText3)
-        strncpy(pzLoadingScreenText3, pText3, 256);
-    else
-        pzLoadingScreenText3[0] = 0;
-    viewLoadingScreenUpdate(NULL, -1);
-}
 
 #define LOW_FPS 60
 #define SLOW_FRAME_TIME 20

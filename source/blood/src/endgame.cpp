@@ -45,6 +45,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+enum
+{
+    kLoadScreenCRC = -2051908571,
+    kLoadScreenWideBackWidth = 256,
+    kLoadScreenWideSideWidth = 128,
+
+};
+
+
+static int bLoadScreenCrcMatch = -1;
+
+static void drawTextScreenBackground(void)
+{
+    if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
+
+    if ((blood_globalflags & BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch))
+    {
+        if (yxaspect >= 65536)
+        {
+            DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+        }
+        else
+        {
+            int width = scale(xdim, 240, ydim);
+            int nCount = (width + kLoadScreenWideBackWidth - 1) / kLoadScreenWideBackWidth;
+            for (int i = 0; i < nCount; i++)
+            {
+                DrawTexture(twod, tileGetTexture(kLoadScreenWideBack), (i * kLoadScreenWideBackWidth), 0,
+                    DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
+            }
+            DrawTexture(twod, tileGetTexture(kLoadScreenWideLeft), 0, 0, DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, DTA_TopLeft, true, TAG_DONE);
+            DrawTexture(twod, tileGetTexture(kLoadScreenWideRight), width - tileWidth(kLoadScreenWideRight), 0, DTA_TopLeft, true,
+                DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
+            DrawTexture(twod, tileGetTexture(kLoadScreenWideMiddle), (width - tileWidth(kLoadScreenWideMiddle))/2, 0, DTA_TopLeft, true,
+                DTA_VirtualWidth, width, DTA_VirtualHeight, 200, DTA_KeepRatio, true, TAG_DONE);
+        }
+    }
+    else
+    {
+        DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+    }
+}
+
+
 CEndGameMgr::CEndGameMgr()
 {
     at0 = 0;
@@ -52,14 +96,13 @@ CEndGameMgr::CEndGameMgr()
 
 void CEndGameMgr::Draw(void)
 {
-    viewLoadingScreenWide();
+    drawTextScreenBackground();
     int nHeight;
     viewGetFontInfo(1, NULL, NULL, &nHeight);
-	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
     int nY = 20 - nHeight / 2;
     if (gGameOptions.nGameType == 0)
     {
-        viewDrawText(1, GStrings("TXTB_LEVELSTATS"), 160, nY, -128, 0, 1, 0);
+        DrawMenuCaption(GStrings("TXTB_LEVELSTATS"));
         if (CCheatMgr::m_bPlayerCheated)
         {
             viewDrawText(3, GStrings("TXTB_CHEATED"), 160, 32, -128, 0, 1, 1);
@@ -69,7 +112,7 @@ void CEndGameMgr::Draw(void)
     }
     else
     {
-        viewDrawText(1, GStrings("TXTB_FRAGSTATS"), 160, nY, -128, 0, 1, 0);
+        DrawMenuCaption(GStrings("TXTB_FRAGSTATS"));
         gKillMgr.Draw();
     }
     if (/*dword_28E3D4 != 1 && */((int)totalclock&32))
@@ -272,5 +315,38 @@ void EndGameLoadSaveConstruct(void)
 {
     myLoadSave = new EndGameLoadSave();
 }
+
+
+class DBloodLoadScreen : public DScreenJob
+{
+    std::function<int(void)> callback;
+    const char *pzLoadingScreenText1;
+    MapRecord* rec;
+
+public:
+    DBloodLoadScreen(const char* caption, MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec)
+    {
+        if (gGameOptions.nGameType == 0) pzLoadingScreenText1 = GStrings("TXTB_LLEVEL");
+        else pzLoadingScreenText1 = GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType));
+    }
+
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        twod->ClearScreen();
+        drawTextScreenBackground();
+        DrawMenuCaption(pzLoadingScreenText1);
+        viewDrawText(1, rec->DisplayName(), 160, 50, -128, 0, 1, 1);
+        viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
+
+        // Initiate the level load once the page has been faded in completely.
+        if (callback && GetFadeState() == visible)
+        {
+            callback();
+            callback = nullptr;
+        }
+        if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
+        return skiprequest ? -1 : 1;
+    }
+};
 
 END_BLD_NS

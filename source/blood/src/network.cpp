@@ -930,13 +930,6 @@ void netInitialize(bool bConsole)
 
         numplayers = 1;
         // Wait for clients
-        if (!bConsole)
-        {
-            char buffer[128];
-            sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
-            viewLoadingScreen(2518, "Network Game", NULL, buffer);
-            videoNextPage();
-        }
         while (numplayers < gNetPlayers)
         {
             handleevents();
@@ -974,13 +967,6 @@ void netInitialize(bool bConsole)
                             break;
                         }
                     }
-                    if (!bConsole)
-                    {
-                        char buffer[128];
-                        sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
-                        viewLoadingScreen(2518, "Network Game", NULL, buffer);
-                        videoNextPage();
-                    }
                     break;
                 }
                 case ENET_EVENT_TYPE_DISCONNECT:
@@ -1005,13 +991,6 @@ void netInitialize(bool bConsole)
                                 }
                             }
                         }
-                    }
-                    if (!bConsole)
-                    {
-                        char buffer[128];
-                        sprintf(buffer, "Waiting for players (%i\\%i)", numplayers, gNetPlayers);
-                        viewLoadingScreen(2518, "Network Game", NULL, buffer);
-                        videoNextPage();
                     }
                     break;
                 }
@@ -1070,11 +1049,6 @@ void netInitialize(bool bConsole)
         ENetEvent event;
         sprintf(buffer, "Connecting to %s:%u", gNetAddress, gNetPort);
         Printf("%s\n", buffer);
-        if (!bConsole)
-        {
-            viewLoadingScreen(2518, "Network Game", NULL, buffer);
-            videoNextPage();
-        }
         gNetENetClient = enet_host_create(NULL, 1, BLOOD_ENET_CHANNEL_MAX, 0, 0);
         enet_address_set_host(&gNetENetAddress, gNetAddress);
         gNetENetAddress.port = gNetPort;
@@ -1095,11 +1069,6 @@ void netInitialize(bool bConsole)
             return;
         }
         bool bWaitServer = true;
-        if (!bConsole)
-        {
-            viewLoadingScreen(2518, "Network Game", NULL, "Waiting for server response");
-            videoNextPage();
-        }
         while (bWaitServer)
         {
             handleevents();

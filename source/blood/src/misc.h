@@ -123,5 +123,6 @@ void tilePrecacheTile(int nTile, int nType = 1);
 char tileGetSurfType(int hit);
 
 void scrLoadPalette(void);
+void DrawMenuCaption(const char* text);
 
 END_BLD_NS

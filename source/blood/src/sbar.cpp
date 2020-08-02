@@ -287,13 +287,13 @@ private:
     void drawInventory(PLAYER* pPlayer, int x, int y)
     {
         int packs[5];
-        //if (pPlayer->packItemTime)
+        if (pPlayer->packItemTime)
         {
             int nPacks = 0;
             int width = 0;
             for (int i = 0; i < 5; i++)
             {
-                //if (pPlayer->packSlots[i].curAmount)
+                if (pPlayer->packSlots[i].curAmount)
                 {
                     packs[nPacks++] = i;
                     width += tilesiz[gPackIcons[i]].x + 1;
@@ -772,7 +772,6 @@ private:
         BeginHUD(320, 200, 1);
         viewDrawPowerUps(pPlayer);
 
-        viewDrawCtfHud(arg);
         if (gGameOptions.nGameType >= 1)
         {
             if (gGameOptions.nGameType == 3)
