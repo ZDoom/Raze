@@ -70,9 +70,9 @@ void displayloogie(short snum)
 	y = (ps[snum].loogcnt << 2);
 	for (i = 0; i < ps[snum].numloogs; i++)
 	{
-		a = abs(sintable[((ps[snum].loogcnt + i) << 5) & 2047]) >> 5;
+		a = abs(xs_CRoundToInt(calcSinTableValue((ps[snum].loogcnt + i) << 5))) >> 5;
 		z = 4096 + ((ps[snum].loogcnt + i) << 9);
-		x = (-getavel(snum)) + (calcSinTableValue(((ps[snum].loogcnt + i) << 6) & 2047) / 1024.);
+		x = (-getavel(snum)) + (calcSinTableValue((ps[snum].loogcnt + i) << 6) / 1024.);
 
 		hud_drawsprite(
 			(ps[snum].loogiex[i] + x), (200 + ps[snum].loogiey[i] - y), z - (i << 8), 256 - a,
@@ -98,7 +98,7 @@ int animatefist(int gs, int snum)
 
 	looking_arc = fabs(ps[snum].q16look_ang / (double)(FRACUNIT)) / 9.;
 
-	fistzoom = 65536L - (sintable[(512 + (fisti << 6)) & 2047] << 2);
+	fistzoom = 65536L - (calcSinTableValue(512 + (fisti << 6)) * 4);
 	if (fistzoom > 90612L)
 		fistzoom = 90612L;
 	if (fistzoom < 40920)
@@ -369,14 +369,14 @@ void displayweapon_d(int snum, double smoothratio)
 			fistsign += i >> 1;
 		}
 		cw = weapon_xoffset;
-		weapon_xoffset += calcSinTableValue(fistsign & 2047) / 1024.;
+		weapon_xoffset += calcSinTableValue(fistsign) / 1024.;
 		hud_draw(weapon_xoffset + 250 - p->lookanghalf(),
-			looking_arc + 258 - (fabs(calcSinTableValue(fistsign & 2047) / 256.)),
+			looking_arc + 258 - (fabs(calcSinTableValue(fistsign) / 256.)),
 			FIST, gs, o);
 		weapon_xoffset = cw;
-		weapon_xoffset -= calcSinTableValue(fistsign & 2047) / 1024.;
+		weapon_xoffset -= calcSinTableValue(fistsign) / 1024.;
 		hud_draw(weapon_xoffset + 40 - p->lookanghalf(),
-			looking_arc + 200 + (fabs(calcSinTableValue(fistsign & 2047) / 256.)),
+			looking_arc + 200 + (fabs(calcSinTableValue(fistsign) / 256.)),
 			FIST, gs, o | 4);
 	}
 	else
@@ -460,8 +460,8 @@ void displayweapon_d(int snum, double smoothratio)
 				pal = 1;
 			else pal = sector[p->cursectnum].floorpal;
 
-			weapon_xoffset -= calcSinTableValue((768 + (p->kickback_pic << 7)) & 2047) / 2048.;
-			gun_pos += calcSinTableValue((768 + (p->kickback_pic << 7)) & 2047) / 2048.;
+			weapon_xoffset -= calcSinTableValue(768 + (p->kickback_pic << 7)) / 2048.;
+			gun_pos += calcSinTableValue(768 + (p->kickback_pic << 7)) / 2048.;
 
 			if (*kb > 0)
 			{
@@ -1127,7 +1127,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame & 2047) / 1024.),
+						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
@@ -1284,7 +1284,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame & 2047) / 1024.),
+						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
@@ -1294,7 +1294,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame & 2047) / 1024.),
+						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
