@@ -62,7 +62,8 @@ inline static void hud_drawpal(double x, double y, int tilenum, int shade, int o
 
 void displayloogie(short snum)
 {
-	int i, a, x, y, z;
+	int i, a, y, z;
+	double x;
 
 	if (ps[snum].loogcnt == 0) return;
 
@@ -71,7 +72,7 @@ void displayloogie(short snum)
 	{
 		a = abs(sintable[((ps[snum].loogcnt + i) << 5) & 2047]) >> 5;
 		z = 4096 + ((ps[snum].loogcnt + i) << 9);
-		x = (-getavel(snum)) + (sintable[((ps[snum].loogcnt + i) << 6) & 2047] >> 10);
+		x = (-getavel(snum)) + (sintablef[((ps[snum].loogcnt + i) << 6) & 2047] / 1024.);
 
 		hud_drawsprite(
 			(ps[snum].loogiex[i] + x), (200 + ps[snum].loogiey[i] - y), z - (i << 8), 256 - a,
@@ -102,7 +103,7 @@ int animatefist(int gs, int snum)
 		fistzoom = 90612L;
 	if (fistzoom < 40920)
 		fistzoom = 40290;
-	fistz = 194 + (sintable[((6 + fisti) << 7) & 2047] >> 9);
+	fistz = 194 + (sintablef[((6 + fisti) << 7) & 2047] / 512.);
 
 	if (sprite[ps[snum].i].pal == 1)
 		fistpal = 1;
@@ -302,11 +303,11 @@ void displayweapon_d(int snum, double smoothratio)
 	gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
 	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= (sintable[((xs_CRoundToInt(weapon_sway)>>1)+512)&2047]/(1024+512));
+	weapon_xoffset -= (sintablef[((xs_CRoundToInt(weapon_sway)>>1)+512)&2047] / (1024. + 512.));
 	weapon_xoffset -= 58 + p->weapon_ang;
 	if( sprite[p->i].xrepeat < 32 )
-		gun_pos -= abs(sintable[(xs_CRoundToInt(weapon_sway)<<2)&2047]>>9);
-	else gun_pos -= abs(sintable[(xs_CRoundToInt(weapon_sway)>>1)&2047]>>10);
+		gun_pos -= fabs(sintablef[(xs_CRoundToInt(weapon_sway)<<2)&2047] / 512.);
+	else gun_pos -= fabs(sintablef[(xs_CRoundToInt(weapon_sway)>>1)&2047] / 1024.);
 
 	gun_pos -= (p->hard_landing<<3);
 
@@ -366,14 +367,14 @@ void displayweapon_d(int snum, double smoothratio)
 			fistsign += i >> 1;
 		}
 		cw = weapon_xoffset;
-		weapon_xoffset += sintable[(fistsign) & 2047] >> 10;
+		weapon_xoffset += sintablef[(fistsign) & 2047] / 1024.;
 		hud_draw(weapon_xoffset + 250 - (p->q16look_ang / (2. * FRACUNIT)),
-			looking_arc + 258 - (abs(sintable[(fistsign) & 2047] >> 8)),
+			looking_arc + 258 - (fabs(sintablef[(fistsign) & 2047] / 256.)),
 			FIST, gs, o);
 		weapon_xoffset = cw;
-		weapon_xoffset -= sintable[(fistsign) & 2047] >> 10;
+		weapon_xoffset -= sintablef[(fistsign) & 2047] / 1024.;
 		hud_draw(weapon_xoffset + 40 - (p->q16look_ang / (2. * FRACUNIT)),
-			looking_arc + 200 + (abs(sintable[(fistsign) & 2047] >> 8)),
+			looking_arc + 200 + (fabs(sintablef[(fistsign) & 2047] / 256.)),
 			FIST, gs, o | 4);
 	}
 	else
@@ -457,8 +458,8 @@ void displayweapon_d(int snum, double smoothratio)
 				pal = 1;
 			else pal = sector[p->cursectnum].floorpal;
 
-			weapon_xoffset -= sintable[(768 + (p->kickback_pic << 7)) & 2047] >> 11;
-			gun_pos += sintable[(768 + (p->kickback_pic << 7) & 2047)] >> 11;
+			weapon_xoffset -= sintablef[(768 + (p->kickback_pic << 7)) & 2047] / 2048.;
+			gun_pos += sintablef[(768 + (p->kickback_pic << 7) & 2047)] / 2048.;
 
 			if (*kb > 0)
 			{
@@ -509,7 +510,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 			if (*kb > 0)
 			{
-				gun_pos -= sintable[p->kickback_pic << 7] >> 12;
+				gun_pos -= sintablef[p->kickback_pic << 7] / 4096.;
 			}
 
 			if (*kb > 0 && sprite[p->i].pal != 1)
@@ -654,7 +655,7 @@ void displayweapon_d(int snum, double smoothratio)
 				pal = sector[p->cursectnum].floorpal;
 
 			if (*kb > 0)
-				gun_pos -= sintable[p->kickback_pic << 7] >> 12;
+				gun_pos -= sintablef[p->kickback_pic << 7] / 4096.;
 
 			if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
@@ -767,7 +768,7 @@ void displayweapon_d(int snum, double smoothratio)
 				pal = sector[p->cursectnum].floorpal;
 
 			if (*kb > 0)
-				gun_pos -= sintable[p->kickback_pic << 7] >> 12;
+				gun_pos -= sintablef[p->kickback_pic << 7] / 4096.;
 
 			if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
@@ -1125,7 +1126,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 					hud_drawpal(weapon_xoffset + 184 - (p->q16look_ang / (2. * FRACUNIT)),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (sintable[p->random_club_frame & 2047] >> 10),
+						16 - (sintablef[p->random_club_frame & 2047] / 1024.),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - (p->q16look_ang / (2. * FRACUNIT)),
@@ -1282,7 +1283,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - (p->q16look_ang / (2. * FRACUNIT)),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (sintable[p->random_club_frame & 2047] >> 10),
+						16 - (sintablef[p->random_club_frame & 2047] / 1024.),
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - (p->q16look_ang / (2. * FRACUNIT)),
@@ -1292,7 +1293,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - (p->q16look_ang / (2. * FRACUNIT)),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (sintable[p->random_club_frame & 2047] >> 10),
+						16 - (sintablef[p->random_club_frame & 2047] / 1024.),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - (p->q16look_ang / (2. * FRACUNIT)),
