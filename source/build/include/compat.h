@@ -843,10 +843,10 @@ using std::max;
 #else
 // Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
 ABSTRACT_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
-ABSTRACT_DECL float fclamp(float in, float min, float max) { return in <= min ? min : (in >= max ? max : in); }
+ABSTRACT_DECL double fclamp(double in, double min, double max) { return in <= min ? min : (in >= max ? max : in); }
 // Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
 ABSTRACT_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
-ABSTRACT_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
+ABSTRACT_DECL double fclamp2(double in, double min, double max) { return in >= max ? max : (in <= min ? min : in); }
 
 #ifndef min
 # define min(a, b) (((a) < (b)) ? (a) : (b))
