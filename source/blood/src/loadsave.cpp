@@ -530,6 +530,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gFrameRate = 0;
     totalclock = 0;
     paused = 0;
+    ready2send = 1;
     gamestate = GS_LEVEL;
     bVanilla = false;
     
