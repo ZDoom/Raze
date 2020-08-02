@@ -24,6 +24,7 @@ set( PCH_SOURCES
 	src/aiunicult.cpp
 	src/aizomba.cpp
 	src/aizombf.cpp
+	src/animatesprite.cpp
 	src/asound.cpp
 	src/barf.cpp
 	src/blood.cpp
