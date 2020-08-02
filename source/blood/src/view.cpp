@@ -2118,42 +2118,6 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     pSprite->cstat = bakCstat;
 }
 
-struct {
-    short nTile;
-    unsigned char nStat;
-    unsigned char nPal;
-    int nScale;
-    short nX, nY;
-} burnTable[9] = {
-     { 2101, 2, 0, 118784, 10, 220 },
-     { 2101, 2, 0, 110592, 40, 220 },
-     { 2101, 2, 0, 81920, 85, 220 },
-     { 2101, 2, 0, 69632, 120, 220 },
-     { 2101, 2, 0, 61440, 160, 220 },
-     { 2101, 2, 0, 73728, 200, 220 },
-     { 2101, 2, 0, 77824, 235, 220 },
-     { 2101, 2, 0, 110592, 275, 220 },
-     { 2101, 2, 0, 122880, 310, 220 }
-};
-
-// PSP
-void viewBurnTime(int gScale)
-{
-    if (!gScale) return;
-
-    for (int i = 0; i < 9; i++)
-    {
-        int nTile = burnTable[i].nTile+qanimateoffs(burnTable[i].nTile,32768+i);
-        int nScale = burnTable[i].nScale;
-        if (gScale < 600)
-        {
-            nScale = scale(nScale, gScale, 600);
-        }
-        rotatesprite(burnTable[i].nX<<16, burnTable[i].nY<<16, nScale, 0, nTile,
-            0, burnTable[i].nPal, burnTable[i].nStat, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
-    }
-}
-
 // by NoOne: show warning msgs in game instead of throwing errors (in some cases)
 void viewSetSystemMessage(const char* pMessage, ...) {
     char buffer[1024]; va_list args; va_start(args, pMessage);
@@ -2495,12 +2459,12 @@ void viewDrawScreen(bool sceneonly)
         }
         CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
-        char v14 = 0;
-        char v10 = 0;
+        uint8_t v14 = 0;
+        uint8_t v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
         //int tiltcs, tiltdim;
-        char v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
+        uint8_t v4 = powerupCheck(gView, kPwUpCrystalBall) > 0;
 #ifdef USE_OPENGL
         renderSetRollAngle(0);
 #endif
@@ -2736,69 +2700,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-
-        if (gViewPos == 0)
-        {
-            if (cl_crosshair)
-            {
-                twod_rotatesprite(&twodpsp, 160<<16, defaultHoriz<<16, 65536, 0, kCrosshairTile, 0,  0, 2, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1);
-            }
-            cX = (v4c >> 8) + 160;
-            cY = (v48 >> 8) + 220 + (zDelta >> 7);
-            int nShade = sector[nSectnum].floorshade; int nPalette = 0;
-            if (sector[gView->pSprite->sectnum].extra > 0) {
-                sectortype* pSector = &sector[gView->pSprite->sectnum];
-                XSECTOR* pXSector = &xsector[pSector->extra];
-                if (pXSector->color)
-                    nPalette = pSector->floorpal;
-            }
-
-            #ifdef NOONE_EXTENSIONS
-            if (gView->sceneQav < 0) WeaponDraw(gView, nShade, cX, cY, nPalette, basepal);
-                else if (gView->pXSprite->health > 0) playerQavSceneDraw(gView, nShade, cX, cY, nPalette, basepal);
-            else {
-                gView->sceneQav = gView->weaponQav = -1;
-                gView->weaponTimer = gView->curWeapon = 0;
-            }
-            #else
-                WeaponDraw(gView, nShade, cX, cY, nPalette, curbasepal);
-            #endif
-           
-
-
-        }
-        if (gViewPos == 0 && gView->pXSprite->burnTime > 60)
-        {
-            viewBurnTime(gView->pXSprite->burnTime);
-        }
-        if (packItemActive(gView, 1))
-        {
-            twod_rotatesprite(&twodpsp, 0, 0, 65536, 0, 2344, 0, 0, 256 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            twod_rotatesprite(&twodpsp, 320 << 16, 0, 65536, 1024, 2344, 0, 0, 512 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            twod_rotatesprite(&twodpsp, 0, 200 << 16, 65536, 0, 2344, 0, 0, 256 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            twod_rotatesprite(&twodpsp, 320 << 16, 200 << 16, 65536, 1024, 2344, 0, 0, 512 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            if (gDetail >= 4)
-            {
-                twod_rotatesprite(&twodpsp, 15 << 16, 3 << 16, 65536, 0, 2346, 32, 0, 256 + 19, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-                twod_rotatesprite(&twodpsp, 212 << 16, 77 << 16, 65536, 0, 2347, 32, 0, 512 + 19, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            }
-        }
-        if (powerupCheck(gView, kPwUpAsbestArmor) > 0)
-        {
-            twod_rotatesprite(&twodpsp, 0, 200 << 16, 65536, 0, 2358, 0, 0, 256 + 22, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-            twod_rotatesprite(&twodpsp, 320 << 16, 200 << 16, 65536, 1024, 2358, 0, 0, 512 + 18, 0, 0, gViewX0, gViewY0, gViewX1, gViewY1, nullptr, basepal);
-        }
-
-        if (v4 && gNetPlayers > 1)
-        {
-            DoLensEffect();
-            viewingRange = viewingrange;
-            yxAspect = yxaspect;
-            renderSetAspect(65536, 54613);
-            rotatesprite(280 << 16, 35 << 16, 53248, 512, 4077, v10, v14, 512 + 6, gViewX0, gViewY0, gViewX1, gViewY1);
-            rotatesprite(280 << 16, 35 << 16, 53248, 0, 1683, v10, 0, 512 + 35, gViewX0, gViewY0, gViewX1, gViewY1);
-            renderSetAspect(viewingRange, yxAspect);
-        }
+        hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (gViewMode == 4)

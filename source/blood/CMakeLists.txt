@@ -40,6 +40,7 @@ set( PCH_SOURCES
 	src/gameutil.cpp
 	src/gib.cpp
 	src/globals.cpp
+	src/hudsprites.cpp
 	src/inifile.cpp
 	src/levels.cpp
 	src/loadsave.cpp
