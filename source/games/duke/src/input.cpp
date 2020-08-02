@@ -253,6 +253,9 @@ void hud_input(int snum)
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
+	// Backup weapon_pos here as this is the earliest occurence where weapon_pos can change.
+	p->oweapon_pos = p->weapon_pos;
+
 	if (isRR())
 	{
 		if (PlayerInput(snum, SKB_QUICK_KICK) && p->last_pissed_time == 0)

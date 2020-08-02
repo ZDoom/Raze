@@ -146,7 +146,7 @@ struct player_struct
 
 	short dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
 	short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
-	short holoduke_on, pycount, weapon_pos, frag_ps;
+	short holoduke_on, pycount, weapon_pos, frag_ps, oweapon_pos;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
 	int scream_voice;

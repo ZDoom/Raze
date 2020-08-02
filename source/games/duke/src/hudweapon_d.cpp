@@ -300,7 +300,9 @@ void displayweapon_d(int snum, double smoothratio)
 
 	animateknee(gs,snum);
 
-	gun_pos = 80-(p->weapon_pos*p->weapon_pos);
+	int opos = p->oweapon_pos * p->oweapon_pos;
+	int npos = p->weapon_pos * p->weapon_pos;
+	gun_pos = 80 - (opos + fmulscale16(npos - opos, smoothratio));
 
 	weapon_xoffset =  (160)-90;
 	weapon_xoffset -= calcSinTableValue(fmod((weapon_sway / 2.) + 512, 2048)) / (1024. + 512.);
