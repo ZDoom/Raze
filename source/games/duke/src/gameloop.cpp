@@ -342,7 +342,7 @@ bool GameTicker()
 	{
 		ototalclock = totalclock - 1;
 	}
-	int const smoothRatio = calc_smoothratio(totalclock, ototalclock);
+	double const smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
 	gameupdatetime.Unclock();
 

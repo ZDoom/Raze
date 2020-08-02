@@ -1038,10 +1038,9 @@ void S_SetSoundPaused(int state)
 	}
 }
 
-int CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticspersec)
+double CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticspersec)
 {
-	double ratio;
-	int result;
+	double ratio, result;
 
 	if (cl_debugintrpl)
 	{
@@ -1075,11 +1074,11 @@ int CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticsp
 		ratio = (0.5 + (totalclk - ototalclk)) / (120 / realgameticspersec);
 	}
 
-	result = clamp(xs_CRoundToInt(ratio * MaxSmoothRatio), 0, MaxSmoothRatio);
+	result = fclamp2(ratio * MaxSmoothRatio, 0., MaxSmoothRatio);
 
 	if (cl_debugintrpl)
 	{
-		Printf("ratio: %f\nresult: %d\n", ratio, result);
+		Printf("ratio: %f\nresult: %f\n", ratio, result);
 	}
 
 	return result;
