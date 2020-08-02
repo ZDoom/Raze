@@ -2207,5 +2207,5 @@ void aiGenDudeInitSprite(spritetype* pSprite, XSPRITE* pXSprite) {
     return;
 }
 
-#endif
 END_BLD_NS
+#endif
