@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "screen.h"
 #include "v_video.h"
+#include "view.h"
 
 BEGIN_BLD_NS
 
@@ -109,9 +110,6 @@ void scrLoadPalette(void)
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();
     paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
-
-    enginePostInit();
-
 }
 
 void scrSetPalette(int palId)
