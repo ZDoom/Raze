@@ -360,7 +360,7 @@ bool DMessageBoxMenu::MouseEvent(int type, int x, int y)
 		}
 		if (sel != -1 && sel != messageSelection)
 		{
-			gi->MenuSound(CursorSound);
+			M_MenuSound(CursorSound);
 		}
 		messageSelection = sel;
 		if (type == MOUSE_Release)

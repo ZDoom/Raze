@@ -375,7 +375,7 @@ void M_StartControlPanel (bool makeSound)
 	}
 	GSnd->SetSfxPaused(true, PAUSESFX_MENU);
 	gi->MenuOpened();
-	if (makeSound) gi->MenuSound(ActivateSound);
+	if (makeSound) M_MenuSound(ActivateSound);
 
 	inputState.ClearAllInput();
 	for (int i = 0; i < NUM_MKEYS; ++i)
