@@ -286,7 +286,7 @@ void displayrest(double smoothratio)
 				cameratext(pp->newowner);
 			else
 			{
-				fi.displayweapon(screenpeek);
+				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
 					fi.displaymasks(screenpeek);
 			}

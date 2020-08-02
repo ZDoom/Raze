@@ -109,7 +109,7 @@ void ShowBoat(double x, double y, int tilenum, int shade, int orientation, int p
 //
 //---------------------------------------------------------------------------
 
-void displayweapon_r(int snum)
+void displayweapon_r(int snum, double smoothratio)
 {
 	int gun_pos, looking_arc, cw;
 	int weapon_xoffset, i, j;

@@ -269,7 +269,7 @@ int animateaccess(int gs,int snum)
 //
 //---------------------------------------------------------------------------
 
-void displayweapon_d(int snum)
+void displayweapon_d(int snum, double smoothratio)
 {
 	int gun_pos, looking_arc, cw;
 	int weapon_xoffset, i, j;
