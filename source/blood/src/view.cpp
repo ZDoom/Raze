@@ -1007,28 +1007,6 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 }
 
-// for the screen border
-void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2)
-{
-    Rect rect1 = Rect(x1, y1, x2, y2);
-    Rect rect2 = Rect(0, 0, xdim, ydim);
-    rect1 &= rect2;
-
-    if (!rect1)
-        return;
-
-    dassert(nTile >= 0 && nTile < kMaxTiles);
-    int width = tilesiz[nTile].x;
-    int height = tilesiz[nTile].y;
-    int bx1 = DecBy(rect1.x0+1, width);
-    int by1 = DecBy(rect1.y0+1, height);
-    int bx2 = IncBy(rect1.x1-1, width);
-    int by2 = IncBy(rect1.y1-1, height);
-    for (int x = bx1; x < bx2; x += width)
-        for (int y = by1; y < by2; y += height)
-            rotatesprite(x<<16, y<<16, 65536, 0, nTile, nShade, nPalette, 64+16+8, x1, y1, x2-1, y2-1);
-}
-
 void InitStatusBar(void)
 {
     tileLoadTile(2200);
@@ -1210,27 +1188,9 @@ void viewResizeView(int size)
     videoSetViewableArea(gViewX0, gViewY0, gViewX1, gViewY1);
 }
 
-#define kBackTile 253
-
-void UpdateFrame(void)
-{
-    viewTileSprite(kBackTile, 0, 0, 0, 0, xdim, gViewY0-3);
-    viewTileSprite(kBackTile, 0, 0, 0, gViewY1+4, xdim, ydim);
-    viewTileSprite(kBackTile, 0, 0, 0, gViewY0-3, gViewX0-3, gViewY1+4);
-    viewTileSprite(kBackTile, 0, 0, gViewX1+4, gViewY0-3, xdim, gViewY1+4);
-
-    viewTileSprite(kBackTile, 20, 0, gViewX0-3, gViewY0-3, gViewX0, gViewY1+1);
-    viewTileSprite(kBackTile, 20, 0, gViewX0, gViewY0-3, gViewX1+4, gViewY0);
-    viewTileSprite(kBackTile, 10, 1, gViewX1+1, gViewY0, gViewX1+4, gViewY1+4);
-    viewTileSprite(kBackTile, 10, 1, gViewX0-3, gViewY1+1, gViewX1+1, gViewY1+4);
-}
 
 void viewDrawInterface(ClockTicks arg)
 {
-    if (gViewMode == 3)
-    {
-        UpdateFrame();
-    }
     UpdateStatusBar(arg);
 }
 

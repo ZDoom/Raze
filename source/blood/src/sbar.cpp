@@ -794,9 +794,30 @@ private:
     }
 };
 
+
+static void UpdateFrame(void)
+{
+    auto tex = tileGetTexture(kBackTile);
+
+    twod->AddFlatFill(0, 0, xdim, gViewY0 - 3, tex);
+    twod->AddFlatFill(0, gViewY1 + 4, xdim, ydim, tex);
+    twod->AddFlatFill(0, gViewY0 - 3, gViewX0 - 3, gViewY1 + 4, tex);
+    twod->AddFlatFill(gViewX1 + 4, gViewY0 - 3, xdim, gViewY1 + 4, tex);
+
+    twod->AddFlatFill(gViewX0 - 3, gViewY0 - 3, gViewX0, gViewY1 + 1, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(gViewX0, gViewY0 - 3, gViewX1 + 4, gViewY0, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(gViewX1 + 1, gViewY0, gViewX1 + 4, gViewY1 + 4, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(gViewX0 - 3, gViewY1 + 1, gViewX1 + 1, gViewY1 + 4, tex, 0, 1, 0xff2a2a2a);
+}
+
 void UpdateStatusBar(ClockTicks arg)
 {
     DBloodStatusBar sbar;
+
+    if (gViewMode == 3 && gViewSize > 2)
+    {
+        UpdateFrame();
+    }
 
     sbar.UpdateStatusBar(arg);
 }

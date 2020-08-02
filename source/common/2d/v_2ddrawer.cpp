@@ -739,7 +739,7 @@ float F2DDrawer::GetClassicFlatScalarHeight()
 	return sh;
 }
 
-void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTexture *src, int local_origin, double flatscale)
+void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTexture *src, int local_origin, double flatscale, PalEntry color)
 {
 	float fU1, fU2, fV1, fV2;
 
@@ -835,18 +835,18 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTextu
 	dg.mVertIndex = (int)mVertices.Reserve(4);
 	auto ptr = &mVertices[dg.mVertIndex];
 
-	ptr->Set(left, top, 0, fU1, fV1, 0xffffffff); ptr++;
+	ptr->Set(left, top, 0, fU1, fV1, color); ptr++;
 	if (local_origin < 4)
 	{
-		ptr->Set(left, bottom, 0, fU1, fV2, 0xffffffff); ptr++;
-		ptr->Set(right, top, 0, fU2, fV1, 0xffffffff); ptr++;
+		ptr->Set(left, bottom, 0, fU1, fV2, color); ptr++;
+		ptr->Set(right, top, 0, fU2, fV1, color); ptr++;
 	}
 	else
 	{
-		ptr->Set(left, bottom, 0, fU2, fV1, 0xffffffff); ptr++;
-		ptr->Set(right, top, 0, fU1, fV2, 0xffffffff); ptr++;
+		ptr->Set(left, bottom, 0, fU2, fV1, color); ptr++;
+		ptr->Set(right, top, 0, fU1, fV2, color); ptr++;
 	}
-	ptr->Set(right, bottom, 0, fU2, fV2, 0xffffffff); ptr++;
+	ptr->Set(right, bottom, 0, fU2, fV2, color); ptr++;
 	dg.mIndexIndex = mIndices.Size();
 	dg.mIndexCount += 6;
 	AddIndices(dg.mVertIndex, 6, 0, 1, 2, 1, 3, 2);

@@ -65,6 +65,8 @@ enum INTERPOLATE_TYPE {
 
 enum
 {
+    kBackTile = 253,
+
     kCrosshairTile = 2319,
     kLoadScreen = 2049,
     kLoadScreenWideBack = 9216,
