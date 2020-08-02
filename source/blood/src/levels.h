@@ -72,17 +72,16 @@ enum {
 
 struct EPISODEINFO
 {
-    //char at0[32]; removed, so that the global episode name table can be used for consistency
     int nLevels;
     unsigned int bloodbath : 1;
     unsigned int cutALevel : 4;
     MapRecord* levels;  // points into the global table.
-    char at8f08[BMAX_PATH];
-    char at8f98[BMAX_PATH];
+    char cutsceneAName[BMAX_PATH];
+    char cutsceneBName[BMAX_PATH];
     int at9028;
     int at902c;
-    char at9030[BMAX_PATH];
-    char at90c0[BMAX_PATH];
+    char cutsceneASound[BMAX_PATH];
+    char cutsceneBSound[BMAX_PATH];
 };
 
 extern EPISODEINFO gEpisodeInfo[];

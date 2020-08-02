@@ -206,18 +206,18 @@ void levelLoadDefaults(void)
         EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[i];
 		auto ep_str = BloodINI->GetKeyString(buffer, "Title", buffer);
 		gVolumeNames[i] = ep_str; // only keep one table for the names. Todo: Consolidate this across games.
-        strncpy(pEpisodeInfo->at8f08, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
+        strncpy(pEpisodeInfo->cutsceneAName, BloodINI->GetKeyString(buffer, "CutSceneA", ""), BMAX_PATH);
         pEpisodeInfo->at9028 = BloodINI->GetKeyInt(buffer, "CutWavA", -1);
         if (pEpisodeInfo->at9028 == 0)
-            strncpy(pEpisodeInfo->at9030, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
+            strncpy(pEpisodeInfo->cutsceneASound, BloodINI->GetKeyString(buffer, "CutWavA", ""), BMAX_PATH);
         else
-            pEpisodeInfo->at9030[0] = 0;
-        strncpy(pEpisodeInfo->at8f98, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
+            pEpisodeInfo->cutsceneASound[0] = 0;
+        strncpy(pEpisodeInfo->cutsceneBName, BloodINI->GetKeyString(buffer, "CutSceneB", ""), BMAX_PATH);
         pEpisodeInfo->at902c = BloodINI->GetKeyInt(buffer, "CutWavB", -1);
         if (pEpisodeInfo->at902c == 0)
-            strncpy(pEpisodeInfo->at90c0, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
+            strncpy(pEpisodeInfo->cutsceneBSound, BloodINI->GetKeyString(buffer, "CutWavB", ""), BMAX_PATH);
         else
-            pEpisodeInfo->at90c0[0] = 0;
+            pEpisodeInfo->cutsceneBSound[0] = 0;
 
         pEpisodeInfo->bloodbath = BloodINI->GetKeyInt(buffer, "BloodBathOnly", 0);
         pEpisodeInfo->cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
@@ -296,7 +296,7 @@ void levelEndLevel(int arg)
     case 0:
         if (nEndingA == -1)
         {
-            if (pEpisodeInfo->at8f98[0])
+            if (pEpisodeInfo->cutsceneBName[0])
                 gGameOptions.uGameFlags |= 8;
             gGameOptions.nLevel = 0;
             gGameOptions.uGameFlags |= 2;
@@ -309,7 +309,7 @@ void levelEndLevel(int arg)
         {
             if (gGameOptions.nEpisode + 1 < gEpisodeCount)
             {
-                if (pEpisodeInfo->at8f98[0])
+                if (pEpisodeInfo->cutsceneBName[0])
                     gGameOptions.uGameFlags |= 8;
                 gGameOptions.nLevel = 0;
                 gGameOptions.uGameFlags |= 2;

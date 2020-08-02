@@ -370,7 +370,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         if (!(gGameOptions.uGameFlags&1))
             levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
         if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
-            && gEpisodeInfo[gGameOptions.nEpisode].at8f08)
+            && gEpisodeInfo[gGameOptions.nEpisode].cutsceneAName)
             gGameOptions.uGameFlags |= 4;
 
         ///////
