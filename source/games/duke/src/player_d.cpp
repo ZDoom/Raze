@@ -2732,13 +2732,14 @@ void processinput_d(int snum)
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
 
+	p->oweapon_sway = p->weapon_sway;
 	if (s->xvel < 32 || p->on_ground == 0 || p->bobcounter == 1024)
 	{
 		if ((p->weapon_sway & 2047) > (1024 + 96))
 			p->weapon_sway -= 96;
 		else if ((p->weapon_sway & 2047) < (1024 - 96))
 			p->weapon_sway += 96;
-		else p->weapon_sway = 1024;
+		else p->oweapon_sway = p->weapon_sway = 1024;
 	}
 	else p->weapon_sway = p->bobcounter;
 

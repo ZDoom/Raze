@@ -271,9 +271,10 @@ int animateaccess(int gs,int snum)
 
 void displayweapon_d(int snum, double smoothratio)
 {
-	int gun_pos, looking_arc, cw;
-	int weapon_xoffset, i, j;
+	int looking_arc, cw;
+	int i, j;
 	int o,pal;
+	double weapon_sway, weapon_xoffset, gun_pos;
 	signed char gs;
 	struct player_struct *p;
 
@@ -284,6 +285,7 @@ void displayweapon_d(int snum, double smoothratio)
 	o = 0;
 
 	looking_arc = abs(p->getlookang())/9;
+	weapon_sway = p->oweapon_sway + (((p->weapon_sway - p->oweapon_sway) * smoothratio) / MaxSmoothRatio);
 
 	gs = sprite[p->i].shade;
 	if(gs > 24) gs = 24;
@@ -296,11 +298,11 @@ void displayweapon_d(int snum, double smoothratio)
 	gun_pos = 80-(p->weapon_pos*p->weapon_pos);
 
 	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= (sintable[((p->weapon_sway>>1)+512)&2047]/(1024+512));
+	weapon_xoffset -= (sintable[((xs_CRoundToInt(weapon_sway)>>1)+512)&2047]/(1024+512));
 	weapon_xoffset -= 58 + p->weapon_ang;
 	if( sprite[p->i].xrepeat < 32 )
-		gun_pos -= abs(sintable[(p->weapon_sway<<2)&2047]>>9);
-	else gun_pos -= abs(sintable[(p->weapon_sway>>1)&2047]>>10);
+		gun_pos -= abs(sintable[(xs_CRoundToInt(weapon_sway)<<2)&2047]>>9);
+	else gun_pos -= abs(sintable[(xs_CRoundToInt(weapon_sway)>>1)&2047]>>10);
 
 	gun_pos -= (p->hard_landing<<3);
 

@@ -122,7 +122,7 @@ struct player_struct
 	int bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
 	int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
 	int player_par, visibility;
-	int bobcounter, weapon_sway;
+	int bobcounter, weapon_sway, oweapon_sway;
 	int pals_time, randomflamex, crack_time;
 
 	int aim_mode, auto_aim, ftt;
