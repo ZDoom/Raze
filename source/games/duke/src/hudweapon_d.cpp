@@ -290,7 +290,7 @@ void displayweapon_d(int snum, double smoothratio)
 	o = 0;
 
 	looking_arc = fabs(p->q16look_ang / (double)(FRACUNIT)) / 9.;
-	weapon_sway = p->oweapon_sway + (((p->weapon_sway - p->oweapon_sway) * smoothratio) / MaxSmoothRatio);
+	weapon_sway = p->oweapon_sway + fmulscale16((p->weapon_sway - p->oweapon_sway), smoothratio);
 
 	gs = sprite[p->i].shade;
 	if(gs > 24) gs = 24;
