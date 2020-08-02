@@ -1074,7 +1074,7 @@ double CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameti
 		ratio = (0.5 + (totalclk - ototalclk)) / (120 / realgameticspersec);
 	}
 
-	result = fclamp2(ratio * MaxSmoothRatio, 0., MaxSmoothRatio);
+	result = clamp2(ratio * MaxSmoothRatio, 0., MaxSmoothRatio);
 
 	if (cl_debugintrpl)
 	{

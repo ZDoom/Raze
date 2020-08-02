@@ -1515,7 +1515,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
                    m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
 #endif
 
-        m->interpol = fclamp(m->interpol, 0.f, 1.f);
+        m->interpol = clamp(m->interpol, 0.f, 1.f);
         m->cframe = clamp(m->cframe, 0, m->numframes-1);
         m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }

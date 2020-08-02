@@ -833,28 +833,10 @@ static FORCE_INLINE CONSTEXPR uint64_t B_UNBUF64(void const * const buf) { retur
 
 #define ABSTRACT_DECL static FORCE_INLINE WARN_UNUSED_RESULT CONSTEXPR
 
-#ifdef __cplusplus
 template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
 template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
 using std::min;
 using std::max;
-# define fclamp clamp
-# define fclamp2 clamp2
-#else
-// Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
-ABSTRACT_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
-ABSTRACT_DECL double fclamp(double in, double min, double max) { return in <= min ? min : (in >= max ? max : in); }
-// Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
-ABSTRACT_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
-ABSTRACT_DECL double fclamp2(double in, double min, double max) { return in >= max ? max : (in <= min ? min : in); }
-
-#ifndef min
-# define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-# define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-#endif
 
 ////////// Mathematical operations //////////
 
