@@ -752,7 +752,7 @@ void ClockStrobe()
 void ReadAllRFS();
 
 static const char* actions[] = {
-    "Move_Forward",
+    "Move_Forward",                     
     "Move_Backward",
     "Turn_Left",
     "Turn_Right",
@@ -771,43 +771,19 @@ static const char* actions[] = {
     "Strafe_Right",
     "Aim_Up",
     "Aim_Down",
-    "Weapon_1",
-    "Weapon_2",
-    "Weapon_3",
-    "Weapon_4",
-    "Weapon_5",
-    "Weapon_6",
-    "Weapon_7",
-    "Weapon_8",
-    "Weapon_9",
-    "Weapon_10",
-    "Inventory",
-    "Inventory_Left",
-    "Inventory_Right",
-    "Nightvision",
-    "MedKit",
-    "TurnAround",
     "SendMessage",
     "Map",
     "Shrink_Screen",
     "Enlarge_Screen",
-    "Center_View",
-    "Holster_Weapon",
     "Show_Opponents_Weapon",
     "Map_Follow_Mode",
     "See_Coop_View",
     "Mouse_Aiming",
     "Toggle_Crosshair",
-    "Next_Weapon",
-    "Previous_Weapon",
     "Dpad_Select",
     "Dpad_Aiming",
     "Third_Person_View",
     "Toggle_Crouch",
-    "CrystalBall",
-    "ProximityBombs",
-    "RemoteBombs",
-    "Jetpack"
 };
 
 static void app_init()
@@ -863,6 +839,7 @@ static void app_init()
     Printf("Initializing sound system\n");
     sndInit();
     registerosdcommands();
+    registerinputcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
     if (bAddUserMap)
