@@ -1190,7 +1190,10 @@ void viewResizeView(int size)
         gViewX0 = 0;
         gViewY0 = 0;
         gViewX1 = xdim-1;
-        gViewY1 = ydim-1-(25*ydim)/200;
+        int gy1 = (25 * ydim) / 200;
+        if (gViewSize == 3) // full status bar must scale the bottom to the actual display height.
+            gy1 = Scale(gy1, hud_scale, 100);
+        gViewY1 = ydim-1- gy1;
         if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
         {
             gViewY0 = (tilesiz[2229].y*ydim*((gNetPlayers+3)/4))/200;

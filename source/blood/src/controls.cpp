@@ -134,8 +134,15 @@ void ctrlGetInput(void)
         if (gViewMode == 3)
         {
             buttonMap.ClearButton(gamefunc_Shrink_Screen);
-			G_ChangeHudLayout(-1);
-		}
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(-1);
+            }
+            else
+            {
+                hud_scale = hud_scale - 4;
+            }
+        }
         if (gViewMode == 2 || gViewMode == 4)
         {
             gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
@@ -148,7 +155,14 @@ void ctrlGetInput(void)
         if (gViewMode == 3)
         {
             buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-			G_ChangeHudLayout(1);
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(1);
+            }
+            else
+            {
+                hud_scale = hud_scale + 4;
+            }
         }
         if (gViewMode == 2 || gViewMode == 4)
         {
