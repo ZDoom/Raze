@@ -99,7 +99,6 @@ struct INTERPOLATE {
     INTERPOLATE_TYPE type;
 };
 
-int pcBackground;
 int gViewMode = 3;
 int gViewSize = 2;
 
@@ -122,7 +121,7 @@ INTERPOLATE gInterpolation[kMaxInterpolations];
 int gViewXCenter, gViewYCenter;
 int gViewX0, gViewY0, gViewX1, gViewY1;
 int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
-int xscale, xscalecorrect, yscale, xstep, ystep;
+int xscale, yscale, xstep, ystep;
 
 int gScreenTilt;
 
@@ -210,11 +209,6 @@ void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize)
 		if (pYSize)
 			*pYSize = pFont->GetHeight();
 	}
-}
-
-void viewUpdatePages(void)
-{
-	pcBackground = numpages;
 }
 
 void viewToggle(int viewMode)
@@ -1041,49 +1035,6 @@ void InitStatusBar(void)
 {
     tileLoadTile(2200);
 }
-void DrawStatSprite(int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat, int nScale)
-{
-    rotatesprite(x<<16, y<<16, nScale, 0, nTile, nShade, nPalette, nStat | 74, 0, 0, xdim-1, ydim-1);
-}
-void DrawStatMaskedSprite(int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat, int nScale)
-{
-    rotatesprite(x<<16, y<<16, nScale, 0, nTile, nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
-}
-
-void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat, int nScale)
-{
-    char tempbuf[80];
-    int width = tilesiz[nTile].x+1;
-    x <<= 16;
-    sprintf(tempbuf, pFormat, nNumber);
-    for (unsigned int i = 0; i < strlen(tempbuf); i++, x += width*nScale)
-    {
-        if (tempbuf[i] == ' ') continue;
-        rotatesprite(x, y<<16, nScale, 0, nTile+tempbuf[i]-'0', nShade, nPalette, nStat | 10, 0, 0, xdim-1, ydim-1);
-    }
-}
-
-void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat, int nScale)
-{
-    int bx = scale(mulscale16(tilesiz[nTile].x,nScale),nMult,nDiv)+x;
-    int sbx;
-    switch (nStat&(512+256))
-    {
-    case 256:
-        sbx = mulscale16(bx, xscalecorrect)-1;
-        break;
-    case 512:
-        bx -= 320;
-        sbx = xdim+mulscale16(bx, xscalecorrect)-1;
-        break;
-    default:
-        bx -= 160;
-        sbx = (xdim>>1)+mulscale16(bx, xscalecorrect)-1;
-        break;
-    }
-    rotatesprite(x<<16, y<<16, nScale, 0, nTile, 0, 0, nStat|90, 0, 0, sbx, ydim-1);
-}
-
 GameStats GameInterface::getStats()
 {
 	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at4, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
@@ -1214,7 +1165,7 @@ void viewResizeView(int size)
     gViewXCenter = xdim-xdim/2;
     gViewYCenter = ydim-ydim/2;
     xscale = divscale16(xdim, 320);
-    xscalecorrect = divscale16(xdimcorrect, 320);
+    int xscalecorrect = divscale16(xdimcorrect, 320);
     yscale = divscale16(ydim, 200);
     xstep = divscale16(320, xdim);
     ystep = divscale16(200, ydim);
@@ -1256,7 +1207,6 @@ void viewResizeView(int size)
         gViewY1S = divscale16(gViewY1, yscale);
     }
     videoSetViewableArea(gViewX0, gViewY0, gViewX1, gViewY1);
-    viewUpdatePages();
 }
 
 #define kBackTile 253
@@ -1276,10 +1226,9 @@ void UpdateFrame(void)
 
 void viewDrawInterface(ClockTicks arg)
 {
-    if (gViewMode == 3/* && gViewSize >= 3*/ && (pcBackground != 0 || videoGetRenderMode() >= REND_POLYMOST))
+    if (gViewMode == 3 && videoGetRenderMode() >= REND_POLYMOST)
     {
         UpdateFrame();
-        pcBackground--;
     }
     UpdateStatusBar(arg);
 }
@@ -2915,10 +2864,12 @@ void viewDrawScreen(bool sceneonly)
         //}
         //lastClock = gGameClock;
     }
+#if 0
     if (byte_1A76C6)
     {
         DrawStatSprite(2048, xdim-15, 20);
     }
+#endif
     CalcFrameRate();
 
     viewDrawMapTitle();
@@ -3007,8 +2958,10 @@ void viewLoadingScreenUpdate(const char *pzText4, int nPercent)
         viewDrawText(3, pzText4, 160, 124, -128, 0, 1, 1);
     }
 
+#if 0
     if (nPercent != -1)
         TileHGauge(2260, 86, 110, nPercent, 100, 0, 131072);
+#endif
 
     viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
 }

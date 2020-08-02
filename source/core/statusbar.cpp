@@ -281,16 +281,16 @@ void DBaseStatusBar::StatusbarToRealCoords(double &x, double &y, double &w, doub
 //
 //============================================================================
 
-void DBaseStatusBar::DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate)
+void DBaseStatusBar::DrawGraphic(FTextureID texture, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate, ERenderStyle style)
 {
 	if (!texture.isValid())
 		return;
 
 	FGameTexture* tex = TexMan.GetGameTexture(texture, !(flags & DI_DONTANIMATE));
-	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, color, translation, rotate);
+	DrawGraphic(tex, x, y, flags, Alpha, boxwidth, boxheight, scaleX, scaleY, color, translation, rotate, style);
 }
 
-void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate)
+void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flags, double Alpha, double boxwidth, double boxheight, double scaleX, double scaleY, PalEntry color, int translation, double rotate, ERenderStyle style)
 {
 	double texwidth = tex->GetDisplayWidth() * scaleX;
 	double texheight = tex->GetDisplayHeight() * scaleY;
@@ -414,6 +414,7 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		DTA_FillColor, (flags & DI_ALPHAMAPPED) ? 0 : -1,
 		DTA_FlipX, !!(flags & DI_MIRROR),
 		DTA_Rotate, rotate,
+		DTA_LegacyRenderStyle, style,
 		TAG_DONE);
 }
 

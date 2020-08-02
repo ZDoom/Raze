@@ -106,7 +106,6 @@ extern int gLastPal;
 
 
 void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize);
-void viewUpdatePages(void);
 void viewToggle(int viewMode);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(GINPUT *pInput);
@@ -126,12 +125,6 @@ void RestoreInterpolations(void);
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 0);
 void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2);
 void InitStatusBar(void);
-void DrawStatSprite(int nTile, int x, int y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536);
-void DrawStatMaskedSprite(int nTile, int x, int y, int nShade = 0, int nPalette = 0, unsigned int nStat = 0, int nScale = 65536);
-void DrawStatNumber(const char *pFormat, int nNumber, int nTile, int x, int y, int nShade, int nPalette, unsigned int nStat = 0, int nScale = 65536);
-void TileHGauge(int nTile, int x, int y, int nMult, int nDiv, int nStat = 0, int nScale = 65536);
-void viewDrawPack(PLAYER *pPlayer, int x, int y);
-void DrawPackItemInStatusBar(PLAYER *pPlayer, int x, int y, int x2, int y2, int nStat = 0);
 void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);
 void viewResizeView(int size);
