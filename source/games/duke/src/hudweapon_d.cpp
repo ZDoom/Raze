@@ -813,14 +813,14 @@ void displayweapon_d(int snum, double smoothratio)
 
 			if (p->kickback_pic < 5)
 			{
-				short kb_frames[] = { 0,1,2,0,0 }, l;
+				short kb_frames[] = { 0,1,2,0,0 };
 
-				l = 195 - 12 + weapon_xoffset;
+				double l = 195 - 12 + weapon_xoffset;
 
 				if (p->kickback_pic == 2)
 					l -= 3;
 				{
-					int x, y;
+					double x, y;
 					short tilenum;
 					signed char shade;
 					char orientation;
