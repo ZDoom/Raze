@@ -232,7 +232,7 @@ void WeaponPrecache(void)
     }
 }
 
-void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int basepal)
+void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int basepal)
 {
     dassert(pPlayer != NULL);
     if (pPlayer->weaponQav == -1)
@@ -243,8 +243,8 @@ void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int basepal)
         v4 = (int)totalclock % pQAV->at10;
     else
         v4 = pQAV->at10 - pPlayer->weaponTimer;
-    pQAV->x = a3;
-    pQAV->y = a4;
+    pQAV->x = int(a3);
+    pQAV->y = int(a4);
     int flags = 2;
     int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
     if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32)))
@@ -252,7 +252,7 @@ void WeaponDraw(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int basepal)
         a2 = -128;
         flags |= 1;
     }
-    pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, true);
+    pQAV->Draw(&twodpsp, a3, a4, v4, flags, a2, a5, basepal, true);
 }
 
 void WeaponPlay(PLAYER *pPlayer)

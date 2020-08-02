@@ -106,9 +106,8 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, int bobx, int boby, 
 				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
 		}
-		// This is dumb. Todo: Preserve full precision here!
-		int cX = (bobx >> 8) + 160;
-		int cY = (boby >> 8) + 220 + (zDelta >> 7);
+		double cX = (bobx / 256.) + 160;
+		double cY = (boby / 256.) + 220 + (zDelta / 128.);
 		int nShade = sector[nSectnum].floorshade; 
 		int nPalette = 0;
 		if (sector[gView->pSprite->sectnum].extra > 0) {

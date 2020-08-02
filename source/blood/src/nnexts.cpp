@@ -4793,7 +4793,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5, int basepal) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, int basepal) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -4812,8 +4812,8 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, int a3, int a4, int a5, int bas
         // draw as weapon
         if (!(pSprite->flags & kModernTypeFlag1)) {
 
-            pQAV->x = a3; pQAV->y = a4;
-            pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, true);
+            pQAV->x = int(a3); pQAV->y = int(a4);
+            pQAV->Draw(&twodpsp, a3, a4, v4, flags, a2, a5, basepal, true);
 
             // draw fullscreen (currently 4:3 only)
         } else {

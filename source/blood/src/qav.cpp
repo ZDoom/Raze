@@ -45,7 +45,7 @@ int qavRegisterClient(void(*pClient)(int, void *))
     return nClients++;
 }
 
-void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int shade, int palnum, int basepal, bool to3dview)
+void DrawFrame(F2DDrawer *twod, double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, int basepal, bool to3dview)
 {
     stat |= pTile->stat;
 	x += pTile->x;
@@ -78,7 +78,7 @@ void DrawFrame(F2DDrawer *twod, int x, int y, TILE_FRAME *pTile, int stat, int s
     }
 }
 
-void QAV::Draw(F2DDrawer* twod, int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
+void QAV::Draw(F2DDrawer* twod, double x, double y, int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
 {
     dassert(ticksPerFrame > 0);
     int nFrame = ticks / ticksPerFrame;
@@ -90,6 +90,12 @@ void QAV::Draw(F2DDrawer* twod, int ticks, int stat, int shade, int palnum, int 
             DrawFrame(twod, x, y, &pFrame->tiles[i], stat, shade, palnum, basepal, to3dview);
     }
 }
+
+void QAV::Draw(F2DDrawer* twod, int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
+{
+    Draw(twod, x, y, ticks, stat, shade, palnum, basepal, to3dview);
+}
+
 
 void QAV::Play(int start, int end, int nCallback, void *pData)
 {
