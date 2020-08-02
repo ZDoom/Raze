@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistate.h"
 #include "map2d.h"
 #include "loadsave.h"
-#include "screen.h"
 #include "sectorfx.h"
 #include "choke.h"
 #include "view.h"
@@ -2241,13 +2240,6 @@ void DoLensEffect(void)
 
 void UpdateDacs(int nPalette, bool bNoTint)
 {
-    static RGB newDAC[256];
-    static int oldPalette;
-    if (oldPalette != nPalette)
-    {
-        scrSetPalette(nPalette);
-        oldPalette = nPalette;
-    }
     gLastPal = 0;
     auto& tint = lookups.tables[MAXPALOOKUPS - 1];
     tint.tintFlags = 0;

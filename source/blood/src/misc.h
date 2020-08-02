@@ -43,7 +43,6 @@ void sub_557C4(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int viewPlayer);
 int32_t registerosdcommands(void); 
 int qanimateoffs(int a1, int a2);
-void qloadpalette();
 int32_t qgetpalookup(int32_t a1, int32_t a2);
 void HookReplaceFunctions();
 
@@ -123,5 +122,6 @@ void tilePreloadTile(int nTile);
 void tilePrecacheTile(int nTile, int nType = 1);
 char tileGetSurfType(int hit);
 
+void scrLoadPalette(void);
 
 END_BLD_NS

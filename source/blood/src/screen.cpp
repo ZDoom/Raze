@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 
 #include "globals.h"
-#include "screen.h"
 #include "v_video.h"
 #include "view.h"
 
@@ -60,12 +59,7 @@ const char *PAL[5] = {
 };
 
 
-static RGB toRGB;
-static RGB *palTable[5];
-static int curPalette;
-bool gFogMode = false;
-
-void scrLoadPLUs(void)
+static void scrLoadPLUs(void)
 {
     // load lookup tables
     for (int i = 0; i < MAXPALOOKUPS; i++) 
@@ -110,11 +104,6 @@ void scrLoadPalette(void)
     paletteloaded |= PALETTE_MAIN;
     scrLoadPLUs();
     paletteloaded |= PALETTE_SHADE | PALETTE_TRANSLUC;
-}
-
-void scrSetPalette(int palId)
-{
-    curPalette = palId;
 }
 
 END_BLD_NS

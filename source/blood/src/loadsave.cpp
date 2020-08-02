@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "network.h"
 #include "loadsave.h"
-#include "screen.h"
 #include "sectorfx.h"
 #include "seq.h"
 #include "sound.h"

@@ -50,6 +50,7 @@ int32_t gRotateMap = 0;
 bool gNoClip;
 bool gInfiniteAmmo;
 int32_t gDeliriumBlur = 1;
+bool gFogMode = false;
 
 //////////
 int gWeaponsV10x;
