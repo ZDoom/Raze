@@ -658,6 +658,11 @@ inline int interpolate(int a, int b, int c)
     return a+mulscale16(b-a,c);
 }
 
+inline double finterpolate(double a, double b, double c)
+{
+    return a+fmulscale16(b-a,c);
+}
+
 inline int interpolateang(int a, int b, int c)
 {
     return a+mulscale16(((b-a+1024)&2047)-1024, c);

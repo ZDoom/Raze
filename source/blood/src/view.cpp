@@ -64,7 +64,7 @@ struct INTERPOLATE {
 int gViewMode = 3;
 int gViewSize = 2;
 
-int gInterpolate;
+double gInterpolate;
 int nInterpolations;
 char gInterpolateSprite[(kMaxSprites+7)>>3];
 char gInterpolateWall[(kMaxWalls+7)>>3];
@@ -779,8 +779,8 @@ void viewDrawScreen(bool sceneonly)
         fix16_t q16slopehoriz = gView->q16slopehoriz;
         int v74 = gView->bobWidth;
         int v8c = gView->bobHeight;
-        int v4c = gView->swayWidth;
-        int v48 = gView->swayHeight;
+        double v4c = gView->swayWidth;
+        double v48 = gView->swayHeight;
         int nSectnum = gView->pSprite->sectnum;
         if (cl_interpolate)
         {
@@ -796,8 +796,8 @@ void viewDrawScreen(bool sceneonly)
                 q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
                 v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
                 v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
-                v4c = interpolate(predictOld.at1c, predict.at1c, gInterpolate);
-                v48 = interpolate(predictOld.at18, predict.at18, gInterpolate);
+                v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
+                v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
             }
             else
             {
@@ -811,8 +811,8 @@ void viewDrawScreen(bool sceneonly)
                 q16slopehoriz = interpolate(pView->at28, q16slopehoriz, gInterpolate);
                 v74 = interpolate(pView->atc, v74, gInterpolate);
                 v8c = interpolate(pView->at8, v8c, gInterpolate);
-                v4c = interpolate(pView->at1c, v4c, gInterpolate);
-                v48 = interpolate(pView->at18, v48, gInterpolate);
+                v4c = finterpolate(pView->at1c, v4c, gInterpolate);
+                v48 = finterpolate(pView->at18, v48, gInterpolate);
             }
         }
         if (gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
