@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistate.h"
 #include "map2d.h"
 #include "loadsave.h"
-#include "screen.h"
 #include "sectorfx.h"
 #include "choke.h"
 #include "view.h"
@@ -756,7 +755,7 @@ private:
         {
             BeginStatusBar(320, 200, 28);
             if (pPlayer->throwPower)
-                TileHGauge_Old(2260, 124, 175, pPlayer->throwPower, 65536);
+                TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
             else
                 drawInventory(pPlayer, 166, 200 - tilesiz[2201].y / 2);
         }
