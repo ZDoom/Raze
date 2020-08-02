@@ -240,6 +240,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		break;
 
 	case CloseSound:
+	case BackSound:
 		S_PlaySound(EXITMENUSOUND, CHAN_AUTO, CHANF_UI);
 		break;
 
