@@ -1060,7 +1060,7 @@ int CalcSmoothRatio(const ClockTicks &totalclk, const ClockTicks &ototalclk, int
 		else
 		{
 			lastototalclk = ototalclk;
-			elapsedTime = 0;
+			elapsedTime = lastTime != 0 ? (currentTime - lastTime) / 8 : 0;
 		}
 		lastTime = currentTime;
 		ratio = elapsedTime / gametics;
