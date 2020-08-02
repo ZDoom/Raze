@@ -31,6 +31,49 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+struct VIEW {
+    int at0;
+    int at4;
+    int at8; // bob height
+    int atc; // bob width
+    int at10;
+    int at14;
+    int at18; // bob sway y
+    int at1c; // bob sway x
+    fix16_t at20;
+    fix16_t at24; // horiz
+    int at28; // horizoff
+    int at2c;
+    fix16_t at30; // angle
+    int at34; // weapon z
+    int at38; // view z
+    int at3c;
+    int at40;
+    int at44;
+    int at48; // posture
+    int at4c; // spin
+    int at50; // x
+    int at54; // y
+    int at58; // z
+    int at5c; //xvel
+    int at60; //yvel
+    int at64; //zvel
+    short at68; // sectnum
+    unsigned int at6a; // floordist
+    char at6e; // look center
+    char at6f;
+    char at70; // run
+    char at71; // jump
+    char at72; // underwater
+    short at73; // sprite flags
+    SPRITEHIT at75;
+};
+
+extern VIEW gPrevView[kMaxPlayers];
+
+extern VIEW predict, predictOld;
+extern bool gPrediction;
+
 enum VIEW_EFFECT {
     VIEW_EFFECT_0 = 0,
     VIEW_EFFECT_1,
@@ -104,16 +147,9 @@ extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
 extern int gLastPal;
 
 void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, int bobx, int boby, int zDelta, int basepal);
-void viewGetFontInfo(int id, const char *unk1, int *pXSize, int *pYSize);
 void viewToggle(int viewMode);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(GINPUT *pInput);
-void sub_158B4(PLAYER *pPlayer);
-void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput);
-void fakePlayerProcess(PLAYER *pPlayer, GINPUT *pInput);
-void fakeMoveDude(spritetype *pSprite);
-void fakeActAirDrag(spritetype *pSprite, int num);
-void fakeActProcessSprites(void);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
@@ -122,7 +158,6 @@ void viewAddInterpolation(void *data, INTERPOLATE_TYPE type);
 void CalcInterpolations(void);
 void RestoreInterpolations(void);
 void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 0);
-void viewTileSprite(int nTile, int nShade, int nPalette, int x1, int y1, int x2, int y2);
 void InitStatusBar(void);
 void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);

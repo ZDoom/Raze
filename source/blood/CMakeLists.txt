@@ -52,6 +52,7 @@ set( PCH_SOURCES
 	src/nnexts.cpp
 	src/osdcmd.cpp
 	src/player.cpp
+	src/prediction.cpp
 	src/qav.cpp
 	src/replace.cpp
 	src/sbar.cpp

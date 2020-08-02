@@ -97,9 +97,6 @@ CEndGameMgr::CEndGameMgr()
 void CEndGameMgr::Draw(void)
 {
     drawTextScreenBackground();
-    int nHeight;
-    viewGetFontInfo(1, NULL, NULL, &nHeight);
-    int nY = 20 - nHeight / 2;
     if (gGameOptions.nGameType == 0)
     {
         DrawMenuCaption(GStrings("TXTB_LEVELSTATS"));
