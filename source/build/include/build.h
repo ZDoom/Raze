@@ -43,7 +43,7 @@ enum rendmode_t {
 #define PI 3.14159265358979323846
 #define fPI 3.14159265358979323846f
 
-#define BANG2RAD (fPI * (1.f/1024.f))
+#define BANG2RAD (PI * (1./1024.))
 
 #define MAXSECTORSV8 4096
 #define MAXWALLSV8 16384
@@ -370,6 +370,7 @@ static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
+EXTERN double sintablef[2048];
 
 EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
