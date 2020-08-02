@@ -938,7 +938,14 @@ int32_t   videoSetRenderMode(int32_t renderer);
 void    renderSetRollAngle(float rolla);
 #endif
 
-double calcSinTableValue(double index);
+//
+// Calculates and returns a sintable[] value of the equivilent index (and supports fractional indexes also)
+//
+inline double calcSinTableValue(double index)
+{
+    return 16384. * sin(BANG2RAD * index);
+}
+
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
 //  how: pass -1 to invalidate all instances of the tile in texture memory, or a bitfield

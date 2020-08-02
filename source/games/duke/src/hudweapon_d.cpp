@@ -305,11 +305,11 @@ void displayweapon_d(int snum, double smoothratio)
 	gun_pos = 80 - (opos + fmulscale16(npos - opos, smoothratio));
 
 	weapon_xoffset =  (160)-90;
-	weapon_xoffset -= calcSinTableValue(fmod((weapon_sway / 2.) + 512, 2048)) / (1024. + 512.);
+	weapon_xoffset -= calcSinTableValue((weapon_sway / 2.) + 512) / (1024. + 512.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 	if( sprite[p->i].xrepeat < 32 )
-		gun_pos -= fabs(calcSinTableValue(fmod(weapon_sway * 4., 2048)) / 512.);
-	else gun_pos -= fabs(calcSinTableValue(fmod(weapon_sway / 2., 2048)) / 1024.);
+		gun_pos -= fabs(calcSinTableValue(weapon_sway * 4.) / 512.);
+	else gun_pos -= fabs(calcSinTableValue(weapon_sway / 2.) / 1024.);
 
 	gun_pos -= (p->hard_landing<<3);
 

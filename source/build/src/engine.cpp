@@ -4323,12 +4323,3 @@ void renderSetRollAngle(float rolla)
 }
 #endif
 
-//
-// Calculates and returns a sintable[] value of the equivilent index (and supports fractional indexes also)
-//
-double calcSinTableValue(double index)
-{
-    double value = fabs(16384. * sin(BANG2RAD * (index - (fmod(index, 512) * 2))));
-    return (index >= 1024 ? -value : value);
-}
-
