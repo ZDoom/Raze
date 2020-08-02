@@ -370,7 +370,6 @@ static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
-EXTERN double sintablef[2048];
 
 EXTERN int16_t numshades;
 EXTERN uint8_t paletteloaded;
@@ -938,6 +937,8 @@ int32_t   videoSetRenderMode(int32_t renderer);
 #ifdef USE_OPENGL
 void    renderSetRollAngle(float rolla);
 #endif
+
+double calcSinTableValue(double index);
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
 //  how: pass -1 to invalidate all instances of the tile in texture memory, or a bitfield
