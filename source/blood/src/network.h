@@ -138,13 +138,10 @@ inline void GetPacketBuffer(char *&p, void *pBuffer, int size)
     p += size;
 }
 
-void sub_79760(void);
+void netReset(void);
 void netResetToSinglePlayer(void);
-void netBroadcastMessage(int nPlayer, const char *pzMessage);
 void netWaitForEveryone(char a1);
-void sub_7AC28(const char *pzString);
 void netGetPackets(void);
-void netBroadcastTaunt(int nPlayer, int nTaunt);
 void CalcGameChecksum(void);
 void netBroadcastPlayerLogoff(int nPlayer);
 void netBroadcastMyLogoff(bool bRestart);
@@ -154,7 +151,6 @@ void netCheckSync(void);
 void netMasterUpdate(void);
 void netGetInput(void);
 void netPlayerQuit(int nPlayer);
-void netUpdate(void);
 void netDeinitialize(void);
 void netBroadcastNewGame(void);
 

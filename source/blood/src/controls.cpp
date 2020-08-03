@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "d_event.h"
 #include "gamestate.h"
+#include "sound.h"
 
 BEGIN_BLD_NS
 
@@ -119,7 +120,8 @@ void LocalKeys(void)
             char fk = key - sc_F1;
             if (alt)
             {
-                netBroadcastTaunt(myconnectindex, fk);
+                sndStartSample(4400 + fk, 128, 1, 0);
+                //netBroadcastTaunt(myconnectindex, fk);
             }
             else
             {
@@ -129,7 +131,7 @@ void LocalKeys(void)
             buttonMap.ClearButton(gamefunc_Third_Person_View);
             return;
         }
-            }
+    }
 }
 
 

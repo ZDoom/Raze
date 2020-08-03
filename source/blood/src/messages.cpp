@@ -331,7 +331,7 @@ void CPlayerMsg::Send(void)
 {
     if (VanillaMode() || !IsWhitespaceOnly(text))
     {
-        netBroadcastMessage(myconnectindex, text);
+        //netBroadcastMessage(myconnectindex, text);
         if (!VanillaMode())
         {
             char *myName = gProfile[myconnectindex].name;

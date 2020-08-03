@@ -525,7 +525,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
-    sub_79760();
+    netReset();
     gFrame = 0;
     gChokeCounter = 0;
 	M_ClearMenus();
@@ -557,12 +557,14 @@ void ProcessFrame(void)
         gPlayer[i].input.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
     }
     gNetFifoTail++;
+#if 0
     if (!(gFrame&7))
     {
         CalcGameChecksum();
         memcpy(gCheckFifo[gCheckHead[myconnectindex]&255][myconnectindex], gChecksum, sizeof(gChecksum));
         gCheckHead[myconnectindex]++;
     }
+#endif
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (gPlayer[i].input.keyFlags.quit)
@@ -797,7 +799,7 @@ static void app_init()
 static void gameInit()
 {
 //RESTART:
-    sub_79760();
+    netReset();
     gViewIndex = myconnectindex;
     gMe = gView = &gPlayer[myconnectindex];
     netBroadcastPlayerInfo(myconnectindex);
@@ -848,7 +850,6 @@ static void gameTicker()
                     break;
             if (i >= 0)
                 break;
-            //faketimerhandler();
             ProcessFrame();
             gameUpdate = true;
         }

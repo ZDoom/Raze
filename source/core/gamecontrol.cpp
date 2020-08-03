@@ -113,8 +113,6 @@ int ShowStartupWindow(TArray<GrpEntry> &);
 FString GetGameFronUserFiles();
 void InitFileSystem(TArray<GrpEntry>&);
 void I_SetWindowTitle(const char* caption);
-void InitENet();
-void ShutdownENet();
 void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
@@ -548,7 +546,6 @@ int GameMain()
 		delete gi;
 		gi = nullptr;
 	}
-	InitENet();
 	DeleteStartupScreen();
 	PClass::StaticShutdown();
 	if (Args) delete Args;
@@ -763,7 +760,6 @@ int RunGame()
 	I_DetectOS();
 	userConfig.ProcessOptions();
 	G_LoadConfig();
-	ShutdownENet();
 	auto usedgroups = SetupGame();
 
 

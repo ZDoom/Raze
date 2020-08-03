@@ -957,13 +957,6 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         sprintf(buffer, "%s captured Red Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8001, 255, 2, 0);
                         viewSetMessage(buffer);
-#if 0
-                        if (dword_28E3D4 == 3 && myconnectindex == connecthead)
-                        {
-                            sprintf(buffer, "frag A killed B\n");
-                            sub_7AC28(buffer);
-                        }
-#endif
                     }
                 }
 
@@ -1001,13 +994,6 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                         sprintf(buffer, "%s captured Blue Flag!", gProfile[pPlayer->nPlayer].name);
                         sndStartSample(8000, 255, 2, 0);
                         viewSetMessage(buffer);
-#if 0
-                        if (dword_28E3D4 == 3 && myconnectindex == connecthead)
-                        {
-                            sprintf(buffer, "frag B killed A\n");
-                            sub_7AC28(buffer);
-                        }
-#endif
                     }
                 }
             }
@@ -1842,12 +1828,6 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
     dassert(nKiller >= 0 && nKiller < kMaxPlayers);
     int nVictim = pVictim->pSprite->type-kDudePlayer1;
     dassert(nVictim >= 0 && nVictim < kMaxPlayers);
-    if (myconnectindex == connecthead)
-    {
-        sprintf(buffer, "frag %d killed %d\n", pKiller->nPlayer+1, pVictim->nPlayer+1);
-        sub_7AC28(buffer);
-        buffer[0] = 0;
-    }
     if (nKiller == nVictim)
     {
         pVictim->fraggerId = -1;

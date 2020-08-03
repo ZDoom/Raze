@@ -766,7 +766,6 @@ set (PCH_SOURCES
 	thirdparty/src/base64.cpp
 	thirdparty/src/fix16.cpp
 	thirdparty/src/md4.cpp
-	thirdparty/src/enet.cpp
 
 	# Todo: Split out the license-safe code from this.
 	build/src/animvpx.cpp
