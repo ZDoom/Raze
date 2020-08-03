@@ -121,6 +121,8 @@ struct player_struct
 	int oweapon_sway;
 	short weapon_pos, kickback_pic, random_club_frame;
 	short oweapon_pos, okickback_pic, orandom_club_frame;
+	unsigned char hard_landing;
+	unsigned char ohard_landing;
 
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
@@ -172,7 +174,7 @@ struct player_struct
 	unsigned char refresh_inventory;
 
 	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
-	unsigned char walking_snd_toggle, palookup, hard_landing;
+	unsigned char walking_snd_toggle, palookup;
 	unsigned char return_to_center;
 	bool quick_kick_msg;
 
