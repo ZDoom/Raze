@@ -900,6 +900,19 @@ void backupview(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
+void backupweapon(player_struct* p)
+{
+	p->oweapon_sway = p->weapon_sway;
+	p->oweapon_pos = p->weapon_pos;
+	p->okickback_pic = p->kickback_pic;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void checklook(int snum, int sb_snum)
 {
 	auto p = &ps[snum];

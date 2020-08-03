@@ -247,5 +247,6 @@ void updateviewport(void);
 void backuppos(player_struct* p, bool noclipping = false);
 void backuplook(player_struct* p);
 void backupview(player_struct* p);
+void backupweapon(player_struct* p);
 
 END_DUKE_NS

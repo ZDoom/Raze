@@ -253,8 +253,8 @@ void hud_input(int snum)
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
-	// Backup weapon_pos here as this is the earliest occurence where weapon_pos can change.
-	p->oweapon_pos = p->weapon_pos;
+	// Backup weapon here as hud_input() is the first function where any one of the weapon variables can change.
+	backupweapon(p);
 
 	if (isRR())
 	{

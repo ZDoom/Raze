@@ -116,13 +116,20 @@ struct player_struct
 	// this was a global variable originally.
 	vec2_t fric;
 
+	// weapon drawer variables and their interpolation counterparts.
+	int weapon_sway;
+	int oweapon_sway;
+	short weapon_pos, kickback_pic;
+	short oweapon_pos, okickback_pic;
+
+
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	int zoom, exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	int invdisptime;
 	int bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
 	int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
 	int player_par, visibility;
-	int bobcounter, weapon_sway, oweapon_sway;
+	int bobcounter;
 	int pals_time, randomflamex, crack_time;
 
 	int aim_mode, auto_aim, ftt;
@@ -134,7 +141,7 @@ struct player_struct
 	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq, access_wallnum, access_spritenum;
-	short kickback_pic, got_access, weapon_ang, firstaid_amount;
+	short got_access, weapon_ang, firstaid_amount;
 	short somethingonplayer, on_crane, i, one_parallax_sectnum;
 	short over_shoulder_on, random_club_frame, fist_incs;
 	short cheat_phase;
@@ -146,7 +153,7 @@ struct player_struct
 
 	short dead_flag, show_empty_weapon;	// JBF 20031220: added orotscrnang
 	short scuba_amount, jetpack_amount, steroids_amount, shield_amount;
-	short holoduke_on, pycount, weapon_pos, frag_ps, oweapon_pos;
+	short holoduke_on, pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
 	int scream_voice;
