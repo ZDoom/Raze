@@ -109,52 +109,6 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
         ThrowError("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
 }
 
-MapRecord * levelGetInfoPtr(int nEpisode, int nLevel)
-{
-    dassert(nEpisode >= 0 && nEpisode < gEpisodeCount);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    dassert(nLevel >= 0 && nLevel < pEpisodeInfo->nLevels);
-    return &pEpisodeInfo->levels[nLevel];
-}
-
-const char * levelGetFilename(int nEpisode, int nLevel)
-{
-    dassert(nEpisode >= 0 && nEpisode < gEpisodeCount);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    dassert(nLevel >= 0 && nLevel < pEpisodeInfo->nLevels);
-    return pEpisodeInfo->levels[nLevel].labelName;
-}
-
-const char * levelGetMessage(int nMessage)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    dassert(nMessage < kMaxMessages);
-    const char *pMessage = gEpisodeInfo[nEpisode].levels[nLevel].GetMessage(nMessage);
-    if (*pMessage == 0)
-        return NULL;
-    return pMessage;
-}
-
-const char * levelGetTitle(void)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    const char *pTitle = gEpisodeInfo[nEpisode].levels[nLevel].DisplayName();
-    if (*pTitle == 0)
-        return NULL;
-    return pTitle;
-}
-
-const char * levelGetAuthor(void)
-{
-    int nEpisode = gGameOptions.nEpisode;
-    int nLevel = gGameOptions.nLevel;
-    const char *pAuthor = gEpisodeInfo[nEpisode].levels[nLevel].author;
-    if (*pAuthor == 0)
-        return NULL;
-    return pAuthor;
-}
 
 void levelSetupOptions(int nEpisode, int nLevel)
 {
@@ -244,6 +198,7 @@ void levelLoadDefaults(void)
 
 void levelAddUserMap(const char *pzMap)
 {
+	// FIXME: Make this work with the reworked map system
     char buffer[BMAX_PATH];
     strncpy(buffer, pzMap, BMAX_PATH);
     ChangeExtension(buffer, ".DEF");

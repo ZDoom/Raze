@@ -257,7 +257,7 @@ void viewDrawMapTitle(void)
 
     if (alpha != 0)
     {
-        viewDrawText(1, levelGetTitle(), 160, 50, -128, 0, 1, 1, 0, alpha);
+        viewDrawText(1, currentLevel->DisplayName(), 160, 50, -128, 0, 1, 1, 0, alpha);
     }
 }
 

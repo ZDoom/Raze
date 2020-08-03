@@ -201,8 +201,8 @@ void CViewMap::sub_25C74(void)
     twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
-    const char *pTitle = levelGetTitle();
-    const char *pFilename = levelGetFilename(gGameOptions.nEpisode, gGameOptions.nLevel);
+    const char *pTitle = currentLevel->DisplayName();
+	const char *pFilename = currentLevel->LabelName();
     if (pTitle)
         sprintf(pBuffer, "%s: %s", pFilename, pTitle);
     else
