@@ -222,7 +222,6 @@ struct player_struct
 
 	// Access helpers for the widened angle and horizon fields.
 	int getlookang() { return q16look_ang >> FRACBITS; }
-	double lookanghalf() { return q16look_ang * (0.5 / FRACUNIT); } // the weapon display code uses this.
 	void setlookang(int b) { q16look_ang = b << FRACBITS; }
 	void addlookang(int b) { q16look_ang += b << FRACBITS; }
 	void addlookang(double b) { q16look_ang += int(b *65536.); }

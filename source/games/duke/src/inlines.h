@@ -182,6 +182,13 @@ inline void backupplayer(player_struct* p)
 	backupview(p);
 }
 
+// the weapon display code uses this.
+inline double gethalflookang(int snum, bool interpolate, double smoothratio)
+{
+	struct player_struct *p = &ps[snum];
+	return (!interpolate ? p->q16look_ang : p->oq16look_ang + fmulscale16(p->q16look_ang - p->oq16look_ang, smoothratio)) * (0.5 / FRACUNIT);
+}
+
 
 // These should be the only places converting between level numbers and volume/map pairs
 constexpr inline int levelnum(int vol, int map)
