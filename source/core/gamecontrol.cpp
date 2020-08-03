@@ -1059,7 +1059,7 @@ double CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameti
 		else
 		{
 			lastototalclk = ototalclk;
-			elapsedTime = lastTime != 0 ? (currentTime - lastTime) / 8 : 0;
+			elapsedTime = lastTime != 0 ? (currentTime - lastTime) / 72 : 0;
 		}
 		lastTime = currentTime;
 		ratio = elapsedTime / gametics;
