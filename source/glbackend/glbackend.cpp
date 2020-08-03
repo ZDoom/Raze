@@ -533,7 +533,7 @@ void precacheMarkedTiles()
 	}
 }
 
-void hud_drawsprite(double sx, double sy, int z, int a, int picnum, int dashade, int dapalnum, int dastat)
+void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat)
 {
 	double dz = z / 65536.;
 	int light = Scale(numshades - clamp(dashade, 0, numshades - 1), 255, numshades);
