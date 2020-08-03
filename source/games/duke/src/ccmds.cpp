@@ -120,16 +120,6 @@ static int ccmd_map(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-
-static int ccmd_activatecheat(CCmdFuncPtr parm)
-{
-	if (parm->numparms != 1)
-		return CCMD_SHOWHELP;
-
-	PlaybackCheat(parm->parms[0]);
-	return CCMD_OK;
-}
-
 static int ccmd_god(CCmdFuncPtr)
 {
 	if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
@@ -280,7 +270,6 @@ int registerosdcommands(void)
 
 	C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
 	C_RegisterFunction("god","god: toggles god mode", ccmd_god);
-	C_RegisterFunction("activatecheat","activatecheat <string>: activates a cheat code", ccmd_activatecheat);
 
 	C_RegisterFunction("noclip","noclip: toggles clipping mode", ccmd_noclip);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);

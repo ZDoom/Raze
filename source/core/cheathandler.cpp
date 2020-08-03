@@ -29,6 +29,7 @@
 #include "cheathandler.h"
 #include "printf.h"
 #include "gamestruct.h"
+#include "utf8.h"
 
 static cheatseq_t *cheatlist;
 static int numcheats;
@@ -62,7 +63,7 @@ static bool CheatAddKey (cheatseq_t *cheat, uint8_t key, bool *eat)
 		cheat->Args[cheat->CurrentArg++] = key;
 		cheat->Pos++;
 	}
-	else if (key == *cheat->Pos)
+	else if (upperforlower[key] == upperforlower[*cheat->Pos])
 	{
 		cheat->Pos++;
 	}
@@ -137,4 +138,12 @@ void PlaybackCheat(const char *p)
 	else
 		Printf("activatecheat: Cheats not allowed.\n");
 
+}
+
+CCMD(activatecheat)
+{
+	if (argv.argc() != 1)
+		Printf("activatecheat <string>: activates a classic cheat code\n");
+	else
+		PlaybackCheat(argv[0]);
 }

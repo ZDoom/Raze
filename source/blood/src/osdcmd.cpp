@@ -104,43 +104,43 @@ static int osdcmd_give(CCmdFuncPtr parm)
         SetToys(true);
         SetArmor(true);
         SetKeys(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
     {
         actHealDude(gMe->pXSprite, 200, 200);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
     {
         SetWeapons(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
         SetAmmo(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))
     {
         SetArmor(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
     {
         SetKeys(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "inventory"))
     {
         SetToys(true);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
         return CCMD_OK;
     }
     return CCMD_SHOWHELP;
@@ -152,7 +152,7 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
     if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetGodMode(!gMe->godMode);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
     }
     else
         Printf("god: Not in a single-player game.\n");
@@ -167,7 +167,7 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
     if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetClipMode(!gNoClip);
-        gCheatMgr.m_bPlayerCheated = true;
+        bPlayerCheated = true;
     }
     else
     {
@@ -175,24 +175,6 @@ static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
     }
 
     return CCMD_OK;
-}
-
-static int osdcmd_activatecheat(CCmdFuncPtr parm)
-{
-    FString CheatEntry;
-    if (parm->numparms != 1)
-        return CCMD_SHOWHELP;
-
-    CheatEntry = (char*)(parm->parms[0]);
-    CheatEntry.ToUpper();
-
-    if (gCheatMgr.Check((char*)(CheatEntry.GetChars())))
-	    return CCMD_OK;
-    else
-    {
-        Printf("Unrecognized cheat!: %s\n", parm->parms[0]);
-        return CCMD_OK;
-    }
 }
 
 static int osdcmd_levelwarp(CCmdFuncPtr parm)
@@ -217,8 +199,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
-    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 

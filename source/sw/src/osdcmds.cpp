@@ -281,7 +281,7 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
+//    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 

@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 void LocalKeys(void);
+void InitCheats();
 
 char bAddUserMap = false;
 bool bNoDemo = false;
@@ -734,6 +735,7 @@ static const char* actions[] = {
 
 static void app_init()
 {
+    InitCheats();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
     gGameOptions.nMonsterSettings = !userConfig.nomonsters;

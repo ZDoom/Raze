@@ -678,7 +678,7 @@ void MyLoadSave::Load(void)
     psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
     Read(skyInfo, sizeof(*skyInfo));
     skyInfo->combinedtile = -1;
-    gCheatMgr.sub_5BCF4();
+    cheatReset();
 
 }
 

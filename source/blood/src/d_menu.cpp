@@ -255,7 +255,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	gSkill = gs.Skill;
 	gGameOptions.nLevel = gs.Level;
 	gStartNewGame = true;
-	gCheatMgr.sub_5BCF4();
+	cheatReset();
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

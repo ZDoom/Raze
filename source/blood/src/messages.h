@@ -57,67 +57,53 @@ private:
     bool IsWhitespaceOnly(const char* const pzString);
 };
 
-class CCheatMgr
-{
-public:
-    static bool m_bPlayerCheated;
-    enum CHEATCODE
-    {
-        kCheatNone = 0,
-        kCheat1, // refills ammo, no cheat code for it
-        kCheatGriswold,
-        kCheatSatchel,
-        kCheatEvaGalli,
-        kCheatMpkfa,
-        kCheatCapInMyAss,
-        kCheatNoCapInMyAss,
-        kCheatIdaho,
-        kCheatKevorkian,
-        kCheatMcGee,
-        kCheatEdmark,
-        kCheatKrueger,
-        kCheatSterno,
-        kCheat14, // quake effect, not used
-        kCheatSpork,
-        kCheatGoonies,
-        kCheatClarice,
-        kCheatFrankenstein,
-        kCheatCheeseHead,
-        kCheatTequila,
-        kCheatFunkyShoes,
-        kCheatKeyMaster,
-        kCheatOneRing,
-        kCheatVoorhees,
-        kCheatJoJo,
-        kCheatGateKeeper,
-        kCheatRate,
-        kCheatMario,
-        kCheatLaraCroft,
-        kCheatHongKong,
-        kCheatMontana,
-        kCheatBunz,
-        kCheatCousteau,
-        kCheatForkYou,
-        kCheatLieberMan,
-        kCheatSpielberg,
-        kCheatCalgon,
-        kCheatMax
-    };
-    struct CHEATINFO
-    {
-        const char* pzString;
-        CHEATCODE id;
-        int flags;
-    };
-    static CHEATINFO s_CheatInfo[];
-    CCheatMgr() {}
-    bool Check(char *pzString);
-    void Process(CHEATCODE nCheatCode, char* pzArgs);
-    void sub_5BCF4(void);
-};
+enum CHEATCODE
+ {
+	 kCheatNone = 0,
+	 kCheat1, // refills ammo, no cheat code for it
+	 kCheatGriswold,
+	 kCheatSatchel,
+	 kCheatEvaGalli,
+	 kCheatMpkfa,
+	 kCheatCapInMyAss,
+	 kCheatNoCapInMyAss,
+	 kCheatIdaho,
+	 kCheatKevorkian,
+	 kCheatMcGee,
+	 kCheatEdmark,
+	 kCheatKrueger,
+	 kCheatSterno,
+	 kCheat14, // quake effect, not used
+	 kCheatSpork,
+	 kCheatGoonies,
+	 kCheatClarice,
+	 kCheatFrankenstein,
+	 kCheatCheeseHead,
+	 kCheatTequila,
+	 kCheatFunkyShoes,
+	 kCheatKeyMaster,
+	 kCheatOneRing,
+	 kCheatVoorhees,
+	 kCheatJoJo,
+	 kCheatGateKeeper,
+	 kCheatRate,
+	 kCheatMario,
+	 kCheatLaraCroft,
+	 kCheatHongKong,
+	 kCheatMontana,
+	 kCheatBunz,
+	 kCheatCousteau,
+	 kCheatForkYou,
+	 kCheatLieberMan,
+	 kCheatSpielberg,
+	 kCheatCalgon,
+	 kCheatMax
+ };
+
+extern bool bPlayerCheated;
+void cheatReset(void);
 
 extern CPlayerMsg gPlayerMsg;
-extern CCheatMgr gCheatMgr;
 
 void SetAmmo(bool stat);
 void SetWeapons(bool stat);

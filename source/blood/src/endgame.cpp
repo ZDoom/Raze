@@ -100,7 +100,7 @@ void CEndGameMgr::Draw(void)
     if (gGameOptions.nGameType == 0)
     {
         DrawMenuCaption(GStrings("TXTB_LEVELSTATS"));
-        if (CCheatMgr::m_bPlayerCheated)
+        if (bPlayerCheated)
         {
             viewDrawText(3, GStrings("TXTB_CHEATED"), 160, 32, -128, 0, 1, 1);
         }
