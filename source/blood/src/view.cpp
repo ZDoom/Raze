@@ -348,7 +348,7 @@ void viewInit(void)
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < kLensSize*kLensSize; i++)
     {
-        lensTable[i] = B_LITTLE32(lensTable[i]);
+        lensTable[i] = LittleLong(lensTable[i]);
     }
 #endif
     uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize);

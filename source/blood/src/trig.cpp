@@ -66,7 +66,7 @@ void trigInit()
 #if B_BIG_ENDIAN == 1
     for (int i = 0; i < 512; i++)
     {
-        costable[i] = B_LITTLE32(costable[i]);
+        costable[i] = LittleLong(costable[i]);
     }
 #endif
     costable[512] = 0;

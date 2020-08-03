@@ -70,7 +70,7 @@ int tileInit(char a1, const char *a2)
         hFile.Read(voxelIndex, sizeof(voxelIndex));
 #if B_BIG_ENDIAN == 1
         for (int i = 0; i < kMaxTiles; i++)
-            voxelIndex[i] = B_LITTLE16(voxelIndex[i]);
+            voxelIndex[i] = LittleShort(voxelIndex[i]);
 #endif
     }
     hFile = fileSystem.OpenFileReader("SHADE.DAT");

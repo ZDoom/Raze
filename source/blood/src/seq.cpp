@@ -603,11 +603,11 @@ void SeqLoadSaveConstruct(void)
 static void ByteSwapSEQ(Seq* pSeq)
 {
 #if B_BIG_ENDIAN == 1
-    pSeq->version = B_LITTLE16(pSeq->version);
-    pSeq->nFrames = B_LITTLE16(pSeq->nFrames);
-    pSeq->at8 = B_LITTLE16(pSeq->at8);
-    pSeq->ata = B_LITTLE16(pSeq->ata);
-    pSeq->atc = B_LITTLE32(pSeq->atc);
+    pSeq->version = LittleShort(pSeq->version);
+    pSeq->nFrames = LittleShort(pSeq->nFrames);
+    pSeq->at8 = LittleShort(pSeq->at8);
+    pSeq->ata = LittleShort(pSeq->ata);
+    pSeq->atc = LittleLong(pSeq->atc);
     for (int i = 0; i < pSeq->nFrames; i++)
     {
         SEQFRAME* pFrame = &pSeq->frames[i];

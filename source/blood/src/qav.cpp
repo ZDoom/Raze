@@ -179,27 +179,27 @@ void ByteSwapQAV(void* p)
 {
 #if B_BIG_ENDIAN == 1
     QAV* qav = (QAV*)p;
-    qav->nFrames = B_LITTLE32(qav->nFrames);
-    qav->ticksPerFrame = B_LITTLE32(qav->ticksPerFrame);
-    qav->at10 = B_LITTLE32(qav->at10);
-    qav->x = B_LITTLE32(qav->x);
-    qav->y = B_LITTLE32(qav->y);
-    qav->nSprite = B_LITTLE32(qav->nSprite);
+    qav->nFrames = LittleLong(qav->nFrames);
+    qav->ticksPerFrame = LittleLong(qav->ticksPerFrame);
+    qav->at10 = LittleLong(qav->at10);
+    qav->x = LittleLong(qav->x);
+    qav->y = LittleLong(qav->y);
+    qav->nSprite = LittleLong(qav->nSprite);
     for (int i = 0; i < qav->nFrames; i++)
     {
         FRAMEINFO* pFrame = &qav->frames[i];
         SOUNDINFO* pSound = &pFrame->sound;
-        pFrame->nCallbackId = B_LITTLE32(pFrame->nCallbackId);
-        pSound->sound = B_LITTLE32(pSound->sound);
+        pFrame->nCallbackId = LittleLong(pFrame->nCallbackId);
+        pSound->sound = LittleLong(pSound->sound);
         for (int j = 0; j < 8; j++)
         {
             TILE_FRAME* pTile = &pFrame->tiles[j];
-            pTile->picnum = B_LITTLE32(pTile->picnum);
-            pTile->x = B_LITTLE32(pTile->x);
-            pTile->y = B_LITTLE32(pTile->y);
-            pTile->z = B_LITTLE32(pTile->z);
-            pTile->stat = B_LITTLE32(pTile->stat);
-            pTile->angle = B_LITTLE16(pTile->angle);
+            pTile->picnum = LittleLong(pTile->picnum);
+            pTile->x = LittleLong(pTile->x);
+            pTile->y = LittleLong(pTile->y);
+            pTile->z = LittleLong(pTile->z);
+            pTile->stat = LittleLong(pTile->stat);
+            pTile->angle = LittleShort(pTile->angle);
         }
     }
 #endif

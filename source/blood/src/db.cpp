@@ -644,20 +644,18 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         byte_1A76C7 = 1;
     }
 
-#if B_BIG_ENDIAN == 1
-    mapHeader.at0 = B_LITTLE32(mapHeader.at0);
-    mapHeader.at4 = B_LITTLE32(mapHeader.at4);
-    mapHeader.at8 = B_LITTLE32(mapHeader.at8);
-    mapHeader.atc = B_LITTLE16(mapHeader.atc);
-    mapHeader.ate = B_LITTLE16(mapHeader.ate);
-    mapHeader.at10 = B_LITTLE16(mapHeader.at10);
-    mapHeader.at12 = B_LITTLE32(mapHeader.at12);
-    mapHeader.at16 = B_LITTLE32(mapHeader.at16);
-    mapHeader.at1b = B_LITTLE32(mapHeader.at1b);
-    mapHeader.at1f = B_LITTLE16(mapHeader.at1f);
-    mapHeader.at21 = B_LITTLE16(mapHeader.at21);
-    mapHeader.at23 = B_LITTLE16(mapHeader.at23);
-#endif
+    mapHeader.at0 = LittleLong(mapHeader.at0);
+    mapHeader.at4 = LittleLong(mapHeader.at4);
+    mapHeader.at8 = LittleLong(mapHeader.at8);
+    mapHeader.atc = LittleShort(mapHeader.atc);
+    mapHeader.ate = LittleShort(mapHeader.ate);
+    mapHeader.at10 = LittleShort(mapHeader.at10);
+    mapHeader.at12 = LittleLong(mapHeader.at12);
+    mapHeader.at16 = LittleLong(mapHeader.at16);
+    mapHeader.at1b = LittleLong(mapHeader.at1b);
+    mapHeader.at1f = LittleShort(mapHeader.at1f);
+    mapHeader.at21 = LittleShort(mapHeader.at21);
+    mapHeader.at23 = LittleShort(mapHeader.at23);
 
     *pX = mapHeader.at0;
     *pY = mapHeader.at4;
@@ -696,11 +694,10 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     {
         fr.Read(&byte_19AE44, 128);
         dbCrypt((char*)&byte_19AE44, 128, numwalls);
-#if B_BIG_ENDIAN == 1
-        byte_19AE44.at40 = B_LITTLE32(byte_19AE44.at40);
-        byte_19AE44.at44 = B_LITTLE32(byte_19AE44.at44);
-        byte_19AE44.at48 = B_LITTLE32(byte_19AE44.at48);
-#endif
+
+        byte_19AE44.at40 = LittleLong(byte_19AE44.at40);
+        byte_19AE44.at44 = LittleLong(byte_19AE44.at44);
+        byte_19AE44.at48 = LittleLong(byte_19AE44.at48);
     }
     else
     {
@@ -718,7 +715,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     pSky->lognumtiles = mapHeader.at10;
     for (int i = 0; i < ClipHigh(gSkyCount, MAXPSKYTILES); i++)
     {
-        pSky->tileofs[i] = B_LITTLE16(tpskyoff[i]);
+        pSky->tileofs[i] = LittleShort(tpskyoff[i]);
     }
 
     for (int i = 0; i < numsectors; i++)
@@ -729,21 +726,20 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         {
             dbCrypt((char*)pSector, sizeof(sectortype), gMapRev*sizeof(sectortype));
         }
-#if B_BIG_ENDIAN == 1
-        pSector->wallptr = B_LITTLE16(pSector->wallptr);
-        pSector->wallnum = B_LITTLE16(pSector->wallnum);
-        pSector->ceilingz = B_LITTLE32(pSector->ceilingz);
-        pSector->floorz = B_LITTLE32(pSector->floorz);
-        pSector->ceilingstat = B_LITTLE16(pSector->ceilingstat);
-        pSector->floorstat = B_LITTLE16(pSector->floorstat);
-        pSector->ceilingpicnum = B_LITTLE16(pSector->ceilingpicnum);
-        pSector->ceilingheinum = B_LITTLE16(pSector->ceilingheinum);
-        pSector->floorpicnum = B_LITTLE16(pSector->floorpicnum);
-        pSector->floorheinum = B_LITTLE16(pSector->floorheinum);
-        pSector->type = B_LITTLE16(pSector->type);
-        pSector->hitag = B_LITTLE16(pSector->hitag);
-        pSector->extra = B_LITTLE16(pSector->extra);
-#endif
+        pSector->wallptr = LittleShort(pSector->wallptr);
+        pSector->wallnum = LittleShort(pSector->wallnum);
+        pSector->ceilingz = LittleLong(pSector->ceilingz);
+        pSector->floorz = LittleLong(pSector->floorz);
+        pSector->ceilingstat = LittleShort(pSector->ceilingstat);
+        pSector->floorstat = LittleShort(pSector->floorstat);
+        pSector->ceilingpicnum = LittleShort(pSector->ceilingpicnum);
+        pSector->ceilingheinum = LittleShort(pSector->ceilingheinum);
+        pSector->floorpicnum = LittleShort(pSector->floorpicnum);
+        pSector->floorheinum = LittleShort(pSector->floorheinum);
+        pSector->type = LittleShort(pSector->type);
+        pSector->hitag = LittleShort(pSector->hitag);
+        pSector->extra = LittleShort(pSector->extra);
+
         qsector_filler[i] = pSector->fogpal;
         pSector->fogpal = 0;
         if (sector[i].extra > 0)
@@ -854,19 +850,17 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         {
             dbCrypt((char*)pWall, sizeof(walltype), (gMapRev*sizeof(sectortype)) | 0x7474614d);
         }
-#if B_BIG_ENDIAN == 1
-        pWall->x = B_LITTLE32(pWall->x);
-        pWall->y = B_LITTLE32(pWall->y);
-        pWall->point2 = B_LITTLE16(pWall->point2);
-        pWall->nextwall = B_LITTLE16(pWall->nextwall);
-        pWall->nextsector = B_LITTLE16(pWall->nextsector);
-        pWall->cstat = B_LITTLE16(pWall->cstat);
-        pWall->picnum = B_LITTLE16(pWall->picnum);
-        pWall->overpicnum = B_LITTLE16(pWall->overpicnum);
-        pWall->type = B_LITTLE16(pWall->type);
-        pWall->hitag = B_LITTLE16(pWall->hitag);
-        pWall->extra = B_LITTLE16(pWall->extra);
-#endif
+        pWall->x = LittleLong(pWall->x);
+        pWall->y = LittleLong(pWall->y);
+        pWall->point2 = LittleShort(pWall->point2);
+        pWall->nextwall = LittleShort(pWall->nextwall);
+        pWall->nextsector = LittleShort(pWall->nextsector);
+        pWall->cstat = LittleShort(pWall->cstat);
+        pWall->picnum = LittleShort(pWall->picnum);
+        pWall->overpicnum = LittleShort(pWall->overpicnum);
+        pWall->type = LittleShort(pWall->type);
+        pWall->hitag = LittleShort(pWall->hitag);
+        pWall->extra = LittleShort(pWall->extra);
         if (wall[i].extra > 0)
         {
             char pBuffer[nXWallSize];
@@ -931,23 +925,23 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         {
             dbCrypt((char*)pSprite, sizeof(spritetype), (gMapRev*sizeof(spritetype)) | 0x7474614d);
         }
-#if B_BIG_ENDIAN == 1
-        pSprite->x = B_LITTLE32(pSprite->x);
-        pSprite->y = B_LITTLE32(pSprite->y);
-        pSprite->z = B_LITTLE32(pSprite->z);
-        pSprite->cstat = B_LITTLE16(pSprite->cstat);
-        pSprite->picnum = B_LITTLE16(pSprite->picnum);
-        pSprite->sectnum = B_LITTLE16(pSprite->sectnum);
-        pSprite->statnum = B_LITTLE16(pSprite->statnum);
-        pSprite->ang = B_LITTLE16(pSprite->ang);
-        pSprite->owner = B_LITTLE16(pSprite->owner);
-        pSprite->index = B_LITTLE16(pSprite->index);
-        pSprite->yvel = B_LITTLE16(pSprite->yvel);
-        pSprite->inittype = B_LITTLE16(pSprite->inittype);
-        pSprite->type = B_LITTLE16(pSprite->type);
-        pSprite->flags = B_LITTLE16(pSprite->hitag);
-        pSprite->extra = B_LITTLE16(pSprite->extra);
-#endif
+
+        pSprite->x = LittleLong(pSprite->x);
+        pSprite->y = LittleLong(pSprite->y);
+        pSprite->z = LittleLong(pSprite->z);
+        pSprite->cstat = LittleShort(pSprite->cstat);
+        pSprite->picnum = LittleShort(pSprite->picnum);
+        pSprite->sectnum = LittleShort(pSprite->sectnum);
+        pSprite->statnum = LittleShort(pSprite->statnum);
+        pSprite->ang = LittleShort(pSprite->ang);
+        pSprite->owner = LittleShort(pSprite->owner);
+        pSprite->index = LittleShort(pSprite->index);
+        pSprite->yvel = LittleShort(pSprite->yvel);
+        pSprite->inittype = LittleShort(pSprite->inittype);
+        pSprite->type = LittleShort(pSprite->type);
+        pSprite->flags = LittleShort(pSprite->hitag);
+        pSprite->extra = LittleShort(pSprite->extra);
+
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);
         Numsprites++;
@@ -1051,11 +1045,8 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             sprite[i].cstat &= ~0x30;
         }
     }
-    unsigned int nCRC;
-    fr.Read(&nCRC, 4);
-#if B_BIG_ENDIAN == 1
-    nCRC = B_LITTLE32(nCRC);
-#endif
+    unsigned int nCRC =  fr.ReadUInt32();
+
     fr.Seek(0, FileReader::SeekSet);
     auto buffer = fr.Read();
     md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
