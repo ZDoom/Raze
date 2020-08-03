@@ -146,7 +146,7 @@ void displayweapon_r(int snum, double smoothratio)
 		gun_pos -= fabs(calcSinTableValue(weapon_sway * 4.) / 512.);
 	else gun_pos -= fabs(calcSinTableValue(weapon_sway / 2.) / 1024.);
 
-	gun_pos -= (p->hard_landing<<3);
+	gun_pos -= (p->ohard_landing + fmulscale16(p->hard_landing - p->ohard_landing, smoothratio)) * 8.;
 
 	if(p->last_weapon >= 0)
 		cw = p->last_weapon;
