@@ -61,8 +61,8 @@ static int osdcmd_map(CCmdFuncPtr parm)
     {
         if (mapList[i].labelName.CompareNoCase(mapname) == 0)
         {
-            int e = i / kMaxLevels;
-            int m = i % kMaxLevels;
+            int e = volfromlevelnum(mapList[i].levelNumber);
+            int m = mapfromlevelnum(mapList[i].levelNumber);
             LevelWarp(e, m);
             return CCMD_OK;
         }

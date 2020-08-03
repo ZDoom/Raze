@@ -127,15 +127,15 @@ void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSectio
     pLevelInfo->author = pIni->GetKeyString(pzSection, "Author", "");
     pLevelInfo->music = pIni->GetKeyString(pzSection, "Song", ""); DefaultExtension(pLevelInfo->music, ".mid");
     pLevelInfo->cdSongId = pIni->GetKeyInt(pzSection, "Track", -1);
-    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1); //if (pLevelInfo->nextLevel >= 0) pLevelInfo->nextLevel +epinum * kMaxLevels;
-    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1); //if (pLevelInfo->nextSecret >= 0) pLevelInfo->nextSecret + epinum * kMaxLevels;
+    pLevelInfo->nextLevel = pIni->GetKeyInt(pzSection, "EndingA", -1);
+    pLevelInfo->nextSecret = pIni->GetKeyInt(pzSection, "EndingB", -1);
     pLevelInfo->fog = pIni->GetKeyInt(pzSection, "Fog", -0);
     pLevelInfo->weather = pIni->GetKeyInt(pzSection, "Weather", -0);
-    pLevelInfo->messageStart = 1024 + ((epinum * kMaxLevels) + mapnum) * kMaxMessages;
     for (int i = 0; i < kMaxMessages; i++)
     {
         sprintf(buffer, "Message%d", i+1);
-        quoteMgr.InitializeQuote(pLevelInfo->messageStart + i, pIni->GetKeyString(pzSection, buffer, ""), true);
+		auto msg = pIni->GetKeyString(pzSection, buffer, "");
+		pLevelInfo->AddMessage(i, msg);
     }
 }
 
@@ -289,22 +289,6 @@ void levelRestart(void)
 {
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     gStartNewGame = true;
-}
-
-int levelGetMusicIdx(const char *str)
-{
-    int32_t lev, ep;
-    signed char b1, b2;
-
-    int numMatches = sscanf(str, "%c%d%c%d", &b1, &ep, &b2, &lev);
-
-    if (numMatches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
-        return -1;
-
-    if ((unsigned)--lev >= kMaxLevels || (unsigned)--ep >= kMaxEpisodes)
-        return -2;
-
-    return (ep * kMaxLevels) + lev;
 }
 
 bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)

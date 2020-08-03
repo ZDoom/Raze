@@ -21,6 +21,10 @@ enum
 	MI_USERMAP = 2,
 };
 
+enum {
+	MAX_MESSAGES = 32
+};
+
 struct MapRecord
 {
 	int parTime = 0;
@@ -36,7 +40,7 @@ struct MapRecord
 	// The rest is only used by Blood
 	int nextLevel = -1;
 	int nextSecret = -1;
-	int messageStart = 0;	// messages are stored in the quote array to reduce clutter.
+	FString messages[MAX_MESSAGES];
 	FString author;
 	int8_t fog = -1, weather = -1;	// Blood defines these but they aren't used.
 	
@@ -63,8 +67,15 @@ struct MapRecord
 	}
 	const char* GetMessage(int num)
 	{
-		return quoteMgr.GetQuote(messageStart + num);
+		if (num < 0 || num>= MAX_MESSAGES) return "";
+		return GStrings(messages[num]);
 	}
+	
+	void AddMessage(int num, const FString &msg)
+	{
+		messages[num] = msg;
+	}
+	
 
 };
 

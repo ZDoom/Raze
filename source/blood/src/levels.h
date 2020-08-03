@@ -63,10 +63,8 @@ struct GAMEOPTIONS {
 #pragma pack(pop)
 
 enum {
-    MUS_FIRST_SPECIAL = kMaxEpisodes*kMaxLevels,
-
-    MUS_INTRO = MUS_FIRST_SPECIAL,
-    MUS_LOADING = MUS_FIRST_SPECIAL + 1,
+    MUS_INTRO = 0,
+    MUS_LOADING = 1,
 };
 
 struct EPISODEINFO
@@ -110,7 +108,6 @@ void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);
 void levelRestart(void);
-int levelGetMusicIdx(const char *str);
 bool levelTryPlayMusic(int nEpisode, int nlevel, bool bSetLevelSong = false);
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel);
 
