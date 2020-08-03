@@ -2594,8 +2594,7 @@ void processinput_d(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	p->horizAngleAdjust = 0;
-	p->horizSkew = 0;
+	resetinputhelpers(p);
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
@@ -2782,7 +2781,7 @@ void processinput_d(int snum)
 		p->posxv = 0;
 		p->posyv = 0;
 	}
-	else if (sb_avel && cl_syncinput)
+	else if (cl_syncinput)
 	{
 		//p->ang += syncangvel * constant
 		//ENGINE calculates angvel for you
@@ -2797,8 +2796,8 @@ void processinput_d(int snum)
 			p->q16angvel = sb_avel * sgn(doubvel);
 		}
 
-		p->q16ang += p->q16angvel;
-		p->q16ang &= 0x7FFFFFF;
+		applylook(snum, 1, p->q16angvel);
+
 		p->crack_time = 777;
 	}
 
@@ -3007,12 +3006,6 @@ HORIZONLY:
 			fi.activatebysector(psect, pi);
 	}
 
-	if (!cl_syncinput)
-	{
-		if (p->return_to_center > 0)
-			p->return_to_center--;
-	}
-
 	// center_view
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
 	{
@@ -3037,14 +3030,13 @@ HORIZONLY:
 
 	if (p->hard_landing > 0)
 	{
-		p->horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
+		p->horizAdjust -= p->hard_landing << 4;
 		p->hard_landing--;
 	}
 
 	if (cl_syncinput)
 	{
-		p->q16horiz += sync[snum].q16horz;
-		sethorizon(snum, sb_snum, 1, false);
+		sethorizon(snum, sb_snum, 1, false, sync[snum].q16horz);
 	}
 
 	//Shooting code/changes

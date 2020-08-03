@@ -296,8 +296,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.oposy = w.posy;
 		w.oposz = w.posz;
 		w.opyoff = w.pyoff;
-		w.horizAngleAdjust = 0;
-		w.horizSkew = 0;
+		w.horizAdjust = 0;
+		w.angAdjust = 0;
 		w.lookLeft = false;
 		w.lookRight = false;
 	}

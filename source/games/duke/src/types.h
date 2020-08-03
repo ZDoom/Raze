@@ -175,7 +175,7 @@ struct player_struct
 
 	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
 	unsigned char walking_snd_toggle, palookup;
-	unsigned char return_to_center;
+	double return_to_center;
 	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
@@ -214,10 +214,8 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	float   horizAngleAdjust;
-	fix16_t horizSkew;
-	bool    lookLeft;
-	bool    lookRight;
+	int     horizAdjust, angAdjust;
+	bool    lookLeft, lookRight;
 
 
 	// Access helpers for the widened angle and horizon fields.
@@ -232,9 +230,7 @@ struct player_struct
 	int getang() { return q16ang >> FRACBITS; }
 	int getoang() { return oq16ang >> FRACBITS; }
 	void setang(int v, bool smooth = false) { q16ang = v << FRACBITS; }
-	void addang(int v, bool smooth = false) { q16ang = (q16ang + (v << FRACBITS)) & ((2048 << FRACBITS) - 1); }
 	void setoang(int v) { oq16ang = v << FRACBITS; }
-	void addhoriz(int v) { q16horiz += (v << FRACBITS); }
 	void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
 	void addhorizoff(double v) { q16horiz += int(v * 65536.); }
 	void sethoriz(int v) { q16horiz = (v << FRACBITS); }

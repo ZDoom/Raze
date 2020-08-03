@@ -1410,6 +1410,14 @@ int doincrements_r(struct player_struct* p)
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
 
+		// Originally, this was called before this function in processinput_r(), however with unsynchronised input changes,
+		// we need to call sethorizon() after calling processweapon(), which happens after this function is called.
+		// Since this function returning 1 causes processinput_r() to return, we call sethorizon() here in the event this function will return 1.
+		if (cl_syncinput)
+		{	
+			sethorizon(snum, PlayerInputBits(snum, SKB_ALL), 1, !cl_syncinput, sync[snum].q16horz);
+		}
+
 		return 1;
 	}
 	return 0;
@@ -2399,10 +2407,10 @@ void onMotorcycleMove(int snum, int psect, int j)
 	switch (krand() & 1)
 	{
 	case 0:
-		p->addang(p->MotoSpeed >> 1);
+		p->angAdjust += p->MotoSpeed >> 1;
 		break;
 	case 1:
-		p->addang(-p->MotoSpeed >> 1);
+		p->angAdjust -= p->MotoSpeed >> 1;
 		break;
 	}
 	if (var10c >= 441 && var10c <= 581)
@@ -2464,10 +2472,10 @@ void onBoatMove(int snum, int psect, int j)
 	switch (krand() & 1)
 	{
 	case 0:
-		p->addang(p->MotoSpeed >> 2);
+		p->angAdjust += p->MotoSpeed >> 2;
 		break;
 	case 1:
-		p->addang(-p->MotoSpeed >> 2);
+		p->angAdjust -= p->MotoSpeed >> 2;
 		break;
 	}
 	if (var118 >= 441 && var118 <= 581)
@@ -3003,7 +3011,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->addhoriz(1);
+		p->horizAdjust += 1;
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3093,11 +3101,11 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->addang(16);
+			p->angAdjust += 16;
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->addang(-16);
+			p->angAdjust -= 16;
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3123,11 +3131,11 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->addang(4);
+			p->angAdjust += 4;
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->addang(-4);
+			p->angAdjust -= 4;
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3175,7 +3183,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
 			p->posyv -= sintable[p->getang() & 2047] << 4;
-			p->addhoriz(20);
+			p->horizAdjust += 20;
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3392,8 +3400,7 @@ void processinput_r(int snum)
 	pi = p->i;
 	s = &sprite[pi];
 
-	p->horizAngleAdjust = 0;
-	p->horizSkew = 0;
+	resetinputhelpers(p);
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
 
@@ -3473,8 +3480,7 @@ void processinput_r(int snum)
 
 	if (cl_syncinput)
 	{
-		p->oq16horiz = p->q16horiz;
-		p->oq16horizoff = p->q16horizoff;
+		backupview(p);
 		calcviewpitch(p, 1);
 	}
 
@@ -3694,7 +3700,7 @@ void processinput_r(int snum)
 		p->posxv = 0;
 		p->posyv = 0;
 	}
-	else if (sb_avel && cl_syncinput)
+	else if (cl_syncinput)
 	{
 		//p->ang += syncangvel * constant
 		//ENGINE calculates angvel for you
@@ -3709,8 +3715,8 @@ void processinput_r(int snum)
 			p->q16angvel = sb_avel * sgn(doubvel);
 		}
 
-		p->q16ang += p->q16angvel;
-		p->q16ang &= 0x7FFFFFF;
+		applylook(snum, 1, p->q16angvel);
+
 		p->crack_time = 777;
 	}
 
@@ -4064,18 +4070,12 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->addhoriz(-d);
+		p->horizAdjust -= d;
 	}
 	if (p->hard_landing > 0)
 	{
-		p->horizSkew = (-(p->hard_landing << 4)) * FRACUNIT;
+		p->horizAdjust -= p->hard_landing << 4;
 		p->hard_landing--;
-	}
-
-	if (cl_syncinput)
-	{
-		p->q16horiz += sync[snum].q16horz;
-		sethorizon(snum, sb_snum, 1, false);
 	}
 
 	//Shooting code/changes
@@ -4111,6 +4111,10 @@ HORIZONLY:
 
 	processweapon(snum, sb_snum, psect);
 
+	if (cl_syncinput)
+	{
+		sethorizon(snum, sb_snum, 1, !cl_syncinput, sync[snum].q16horz);
+	}
 }
 
 //---------------------------------------------------------------------------

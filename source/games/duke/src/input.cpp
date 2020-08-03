@@ -1185,20 +1185,15 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
 			loc.q16avel += input.q16avel;
-			if (!cl_syncinput)
+			if (!cl_syncinput && input.q16avel)
 			{
-				p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
-
-				if (input.q16avel)
-					p->one_eighty_count = 0;
+				p->one_eighty_count = 0;
 			}
 		}
 
 		if (p->newowner == -1 && p->return_to_center <= 0)
 		{
 			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
-			if (!cl_syncinput)
-				p->q16horiz += input.q16horz; // will be clamped by the caller because further operations on q16horiz can follow.
 		}
 	}
 }
@@ -1264,9 +1259,9 @@ void GetInput()
 		if (!cl_syncinput)
 		{
 			// Do these in the same order as the old code.
-			applylook(myconnectindex, scaleAdjust);
+			applylook(myconnectindex, scaleAdjust, input.q16avel);
 			calcviewpitch(p, scaleAdjust);
-			sethorizon(myconnectindex, loc.bits, scaleAdjust, true);
+			sethorizon(myconnectindex, loc.bits, scaleAdjust, true, input.q16horz);
 		}
 	}
 }

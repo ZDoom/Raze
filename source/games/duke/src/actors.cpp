@@ -2660,8 +2660,7 @@ void handle_se00(int i, int LASERLINE)
 		{
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
-
-				ps[p].addang(l * q, true);
+				ps[p].angAdjust += l * q;
 
 				ps[p].posz += zchange;
 
@@ -2853,7 +2852,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					ps[p].addang(q, true);
+					ps[p].angAdjust += q;
 
 					if (numplayers > 1)
 					{
