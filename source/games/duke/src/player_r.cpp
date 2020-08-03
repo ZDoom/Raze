@@ -1410,11 +1410,28 @@ int doincrements_r(struct player_struct* p)
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
 
-		// Originally, this was called before this function in processinput_r(), however with unsynchronised input changes,
-		// we need to call sethorizon() after calling processweapon(), which happens after this function is called.
-		// Since this function returning 1 causes processinput_r() to return, we call sethorizon() here in the event this function will return 1.
+		// Originally, these functions were called before this function in processinput_r(), however with unsynchronised input changes,
+		// we need to call them after calling processweapon(), which happens after this function is called.
+		// Since this function returning 1 causes processinput_r() to return, we call them here in the event this function will return 1.
 		if (cl_syncinput)
-		{	
+		{
+			if (!movementBlocked(snum))
+			{
+				auto sb_avel = PlayerInputAngVel(snum);
+
+				if (sector[p->cursectnum].lotag == ST_2_UNDERWATER)
+				{
+					p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(TICSPERFRAME);
+				}
+				else
+				{
+					p->q16angvel = sb_avel * sgn(TICSPERFRAME);
+				}
+
+				applylook(snum, 1, p->q16angvel);
+
+				p->crack_time = 777;
+			}
 			sethorizon(snum, PlayerInputBits(snum, SKB_ALL), 1, !cl_syncinput, sync[snum].q16horz);
 		}
 
@@ -3692,34 +3709,6 @@ void processinput_r(int snum)
 		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
 	}
 
-	//Do the quick lefts and rights
-
-	if (movementBlocked(snum))
-	{
-		doubvel = 0;
-		p->posxv = 0;
-		p->posyv = 0;
-	}
-	else if (cl_syncinput)
-	{
-		//p->ang += syncangvel * constant
-		//ENGINE calculates angvel for you
-		// may still be needed later for demo recording
-
-		if (psectlotag == ST_2_UNDERWATER)
-		{
-			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
-		}
-		else
-		{
-			p->q16angvel = sb_avel * sgn(doubvel);
-		}
-
-		applylook(snum, 1, p->q16angvel);
-
-		p->crack_time = 777;
-	}
-
 	if (p->spritebridge == 0)
 	{
 		j = sector[s->sectnum].floorpicnum;
@@ -4111,6 +4100,33 @@ HORIZONLY:
 
 	processweapon(snum, sb_snum, psect);
 
+	//Do the quick lefts and rights
+
+	if (movementBlocked(snum))
+	{
+		doubvel = 0;
+		p->posxv = 0;
+		p->posyv = 0;
+	}
+	else if (cl_syncinput)
+	{
+		//p->ang += syncangvel * constant
+		//ENGINE calculates angvel for you
+		// may still be needed later for demo recording
+
+		if (psectlotag == ST_2_UNDERWATER)
+		{
+			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
+		}
+		else
+		{
+			p->q16angvel = sb_avel * sgn(doubvel);
+		}
+
+		applylook(snum, 1, p->q16angvel);
+
+		p->crack_time = 777;
+	}
 	if (cl_syncinput)
 	{
 		sethorizon(snum, sb_snum, 1, !cl_syncinput, sync[snum].q16horz);
