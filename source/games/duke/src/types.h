@@ -119,8 +119,8 @@ struct player_struct
 	// weapon drawer variables and their interpolation counterparts.
 	int weapon_sway;
 	int oweapon_sway;
-	short weapon_pos, kickback_pic;
-	short oweapon_pos, okickback_pic;
+	short weapon_pos, kickback_pic, random_club_frame;
+	short oweapon_pos, okickback_pic, orandom_club_frame;
 
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
@@ -143,7 +143,7 @@ struct player_struct
 	short ftq, access_wallnum, access_spritenum;
 	short got_access, weapon_ang, firstaid_amount;
 	short somethingonplayer, on_crane, i, one_parallax_sectnum;
-	short over_shoulder_on, random_club_frame, fist_incs;
+	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short dummyplayersprite, extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, actorsqu, timebeforeexit, customexitsound;

@@ -905,6 +905,7 @@ void backupweapon(player_struct* p)
 	p->oweapon_sway = p->weapon_sway;
 	p->oweapon_pos = p->weapon_pos;
 	p->okickback_pic = p->kickback_pic;
+	p->orandom_club_frame = p->random_club_frame;
 }
 
 //---------------------------------------------------------------------------

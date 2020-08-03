@@ -279,7 +279,7 @@ void displayweapon_d(int snum, double smoothratio)
 	int cw;
 	int i, j;
 	int o,pal;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame;
 	signed char gs;
 	struct player_struct *p;
 
@@ -292,6 +292,7 @@ void displayweapon_d(int snum, double smoothratio)
 	looking_arc = fabs(p->q16look_ang / (double)(FRACUNIT)) / 9.;
 	weapon_sway = p->oweapon_sway + fmulscale16(p->weapon_sway - p->oweapon_sway, smoothratio);
 	kickback_pic = p->okickback_pic + fmulscale16(*kb - p->okickback_pic, smoothratio);
+	random_club_frame = p->orandom_club_frame + fmulscale16(p->random_club_frame - p->orandom_club_frame, smoothratio);
 
 	gs = sprite[p->i].shade;
 	if(gs > 24) gs = 24;
@@ -1129,7 +1130,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
+						16 - (xs_CRoundToInt(calcSinTableValue(random_club_frame)) >> 10),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
@@ -1286,7 +1287,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
+						16 - (xs_CRoundToInt(calcSinTableValue(random_club_frame)) >> 10),
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
@@ -1296,7 +1297,7 @@ void displayweapon_d(int snum, double smoothratio)
 				{
 					hud_drawpal(weapon_xoffset + 184 - p->lookanghalf(),
 						looking_arc + 240 - gun_pos, SHRINKER + 2,
-						16 - (calcSinTableValue(p->random_club_frame) / 1024.),
+						16 - (xs_CRoundToInt(calcSinTableValue(random_club_frame)) >> 10),
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - p->lookanghalf(),
