@@ -70,7 +70,7 @@ void displayloogie(short snum)
 	y = (ps[snum].loogcnt << 2);
 	for (i = 0; i < ps[snum].numloogs; i++)
 	{
-		a = abs(xs_CRoundToInt(calcSinTableValue((ps[snum].loogcnt + i) << 5))) >> 5;
+		a = abs(calcSinTableValue((ps[snum].loogcnt + i) << 5)) / 32;
 		z = 4096 + ((ps[snum].loogcnt + i) << 9);
 		x = (-getavel(snum)) + (calcSinTableValue((ps[snum].loogcnt + i) << 6) / 1024.);
 
