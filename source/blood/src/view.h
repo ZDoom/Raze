@@ -158,7 +158,7 @@ void viewClearInterpolations(void);
 void viewAddInterpolation(void *data, INTERPOLATE_TYPE type);
 void CalcInterpolations(void);
 void RestoreInterpolations(void);
-void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 0);
+void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow, unsigned int nStat = 0, uint8_t alpha = 255);
 void InitStatusBar(void);
 void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);
