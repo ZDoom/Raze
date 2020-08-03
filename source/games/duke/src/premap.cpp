@@ -158,8 +158,8 @@ void resetplayerstats(int snum)
     p->on_crane          = -1;
 
     if(p->curr_weapon == PISTOL_WEAPON)
-        p->kickback_pic  = isRR()? 22 : 5;
-    else p->kickback_pic = 0;
+        p->okickback_pic = p->kickback_pic  = isRR()? 22 : 5;
+    else p->okickback_pic = p->kickback_pic = 0;
 
     p->weapon_pos        = 6;
     p->walking_snd_toggle= 0;
@@ -274,7 +274,7 @@ void resetweapons(int snum)
 
     p->gotweapon.Zero();
     p->weapon_pos = 6;
-    p->kickback_pic = 5;
+    p->okickback_pic = p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon.Set(PISTOL_WEAPON);
     p->gotweapon.Set(KNEE_WEAPON);
@@ -401,7 +401,7 @@ void resetprestat(int snum,int g)
     p->max_actors_killed = 0;
     p->lastrandomspot = 0;
     p->weapon_pos = 6;
-    p->kickback_pic = 5;
+    p->okickback_pic = p->kickback_pic = 5;
     p->last_weapon = -1;
     p->weapreccnt = 0;
     p->show_empty_weapon= 0;
@@ -1006,7 +1006,7 @@ int enterlevel(MapRecord *mi, int gamemode)
             ps[i].gotweapon.Clear(PISTOL_WEAPON);
             ps[i].ammo_amount[PISTOL_WEAPON] = 0;
             ps[i].curr_weapon = KNEE_WEAPON;
-            ps[i].kickback_pic = 0;
+            ps[i].okickback_pic = ps[i].kickback_pic = 0;
         }
     }
     resetmys();

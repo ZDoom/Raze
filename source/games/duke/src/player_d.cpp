@@ -2115,7 +2115,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			p->hbomb_hold_delay++;
 		else if (p->kickback_pic > 19)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			// don't change to remote when in NAM: grenades are timed
 			if (isNam()) checkavailweapon(p);
 			else
@@ -2140,7 +2140,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 		if (p->kickback_pic == 10)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			int weapon = isNam() ? TRIPBOMB_WEAPON : HANDBOMB_WEAPON;
 
 			if (p->ammo_amount[weapon] > 0)
@@ -2168,7 +2168,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			if (p->ammo_amount[PISTOL_WEAPON] <= 0 || (p->ammo_amount[PISTOL_WEAPON] % (isNam() ? 20 : 12)))
 			{
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				checkavailweapon(p);
 			}
 			else
@@ -2192,7 +2192,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		// 3 second re-load time
 		if (p->kickback_pic == (isNam() ? 50 : 27))
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
 		}
 		break;
@@ -2239,7 +2239,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			p->kickback_pic++;
 			break;
 		case 31:
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			return;
 		}
 		break;
@@ -2273,15 +2273,15 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 				if ((sb_snum & SKB_FIRE) == 0)
 				{
-					p->kickback_pic = 0;
+					p->okickback_pic = p->kickback_pic = 0;
 					break;
 				}
 			}
 		}
 		else if (p->kickback_pic > 10)
 		{
-			if (sb_snum & SKB_FIRE) p->kickback_pic = 1;
-			else p->kickback_pic = 0;
+			if (sb_snum & SKB_FIRE) p->okickback_pic = p->kickback_pic = 1;
+			else p->okickback_pic = p->kickback_pic = 0;
 		}
 
 		break;
@@ -2305,10 +2305,10 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			{
 				p->kickback_pic++;
 				if (p->ammo_amount[p->curr_weapon] <= 1)
-					p->kickback_pic = 0;
+					p->okickback_pic = p->kickback_pic = 0;
 			}
 			else
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 			p->ammo_amount[p->curr_weapon]--;
 			fi.shoot(pi, GROWSPARK);
 
@@ -2327,7 +2327,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (isNam() && p->kickback_pic > aplWeaponReload[p->curr_weapon][snum])	// 30)
 		{
 			// reload now...
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
 			{
 				// make them visible if not set...
@@ -2342,7 +2342,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if ((!isNam() && p->kickback_pic > 10) || (isNam() && p->kickback_pic == 10))
 		{
 			if (isNam()) p->kickback_pic++; // fire now, but wait for reload...
-			else p->kickback_pic = 0;
+			else p->okickback_pic = p->kickback_pic = 0;
 
 			p->ammo_amount[SHRINKER_WEAPON]--;
 			fi.shoot(pi, SHRINKER);
@@ -2357,7 +2357,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else if (isNam() && p->kickback_pic > 30)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			p->visibility = 0;
 			lastvisinc = (int)totalclock + 32;
 			checkavailweapon(p);
@@ -2386,7 +2386,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
-			if (p->kickback_pic > 5) p->kickback_pic = 0;
+			if (p->kickback_pic > 5) p->okickback_pic = p->kickback_pic = 0;
 		}
 		break;
 	case FREEZE_WEAPON:
@@ -2406,14 +2406,14 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			}
 			if (sprite[p->i].xrepeat < 32)
 			{
-				p->kickback_pic = 0; break;
+				p->okickback_pic = p->kickback_pic = 0; break;
 			}
 		}
 		else
 		{
 			if (sb_snum & SKB_FIRE)
 			{
-				p->kickback_pic = 1;
+				p->okickback_pic = p->kickback_pic = 1;
 				S_PlayActorSound(CAT_FIRE, pi);
 			}
 			else p->kickback_pic = 0;
@@ -2439,11 +2439,11 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			if ((sb_snum & SKB_FIRE) != 0)
 			{
-				p->kickback_pic = 1;
+				p->okickback_pic = p->kickback_pic = 1;
 				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
 			}
 			else
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 		}
 		break;
 
@@ -2457,7 +2457,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 16)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
 			p->weapon_pos = -9;
 		}
@@ -2470,8 +2470,8 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		else if (p->kickback_pic == 14)
 		{
 			if (sb_snum & SKB_FIRE)
-				p->kickback_pic = 1 + (krand() & 3);
-			else p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 1 + (krand() & 3);
+			else p->okickback_pic = p->kickback_pic = 0;
 		}
 
 		if (p->wantweaponfire >= 0)
@@ -2489,7 +2489,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			checkavailweapon(p);
 		}
 		else if (p->kickback_pic == 20)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 		}
 }
