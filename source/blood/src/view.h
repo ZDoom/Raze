@@ -147,7 +147,7 @@ extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
 extern int gLastPal;
 extern double gInterpolate;
 
-void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, double bobx, double boby, int zDelta, int basepal);
+void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, double bobx, double boby, double zDelta, int basepal);
 void viewToggle(int viewMode);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(GINPUT *pInput);
