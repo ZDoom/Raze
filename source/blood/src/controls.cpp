@@ -183,7 +183,8 @@ void ctrlGetInput(void)
 
     gInput.keyFlags.word |= BitsToSend.word;
     gInput.useFlags.byte |= UsesToSend.byte;
-    gInput.newWeapon = WeaponToSend;
+    if (WeaponToSend != 0) 
+        gInput.newWeapon = WeaponToSend;
 
     BitsToSend.word = 0;
     UsesToSend.byte = 0;
