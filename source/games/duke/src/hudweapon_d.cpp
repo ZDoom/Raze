@@ -124,7 +124,7 @@ int animatefist(int gs, int snum, double look_anghalf)
 //
 //---------------------------------------------------------------------------
 
-int animateknee(int gs, int snum, double hard_landing, double look_anghalf)
+int animateknee(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
 {
 	static const short knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 	short pal;
@@ -145,7 +145,7 @@ int animateknee(int gs, int snum, double hard_landing, double look_anghalf)
 			pal = ps[snum].palookup;
 	}
 
-	hud_drawpal(105 + (getavel(snum) / 16.) - look_anghalf + (knee_y[ps[snum].knee_incs] >> 2), looking_arc + 280 - ((ps[snum].q16horiz - ps[snum].q16horizoff) / (16. * FRACUNIT)), KNEE, gs, 4, pal);
+	hud_drawpal(105 + (getavel(snum) / 16.) - look_anghalf + (knee_y[ps[snum].knee_incs] >> 2), looking_arc + 280 - horiz16th, KNEE, gs, 4, pal);
 
 	return 1;
 }
@@ -156,7 +156,7 @@ int animateknee(int gs, int snum, double hard_landing, double look_anghalf)
 //
 //---------------------------------------------------------------------------
 
-int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf)
+int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
 {
 	static const short knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 	short pal;
@@ -176,7 +176,7 @@ int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf)
 		pal = sector[ps[snum].cursectnum].floorpal;
 
 	auto pic = isWorldTour() ? CRACKKNUCKLESWIDE : CRACKKNUCKLES;
-	hud_drawpal(160 + (getavel(snum) / 16.) - look_anghalf, looking_arc + 180 - ((ps[snum].q16horiz - ps[snum].q16horizoff) / (16. * FRACUNIT)), pic + knuckle_frames[ps[snum].knuckle_incs >> 1], gs, 4, pal);
+	hud_drawpal(160 + (getavel(snum) / 16.) - look_anghalf, looking_arc + 180 - horiz16th, pic + knuckle_frames[ps[snum].knuckle_incs >> 1], gs, 4, pal);
 
 	return 1;
 }
@@ -210,7 +210,7 @@ void displaymasks_d(int snum)
 //
 //---------------------------------------------------------------------------
 
-static int animatetip(int gs, int snum, double hard_landing, double look_anghalf)
+static int animatetip(int gs, int snum, double hard_landing, double look_anghalf, double horiz16th)
 {
 	int p;
 	double looking_arc;
@@ -232,7 +232,7 @@ static int animatetip(int gs, int snum, double hard_landing, double look_anghalf
 			p = wall[ps[snum].access_wallnum].pal;
 	  */
 	hud_drawpal(170 + (getavel(snum) / 16.) - look_anghalf,
-		(tip_y[ps[snum].tipincs] >> 1) + looking_arc + 240 - ((ps[snum].q16horiz - ps[snum].q16horizoff) / (16. * FRACUNIT)), TIP + ((26 - ps[snum].tipincs) >> 4), gs, 0, p);
+		(tip_y[ps[snum].tipincs] >> 1) + looking_arc + 240 - horiz16th, TIP + ((26 - ps[snum].tipincs) >> 4), gs, 0, p);
 
 	return 1;
 }
@@ -243,7 +243,7 @@ static int animatetip(int gs, int snum, double hard_landing, double look_anghalf
 //
 //---------------------------------------------------------------------------
 
-int animateaccess(int gs,int snum,double hard_landing,double look_anghalf)
+int animateaccess(int gs,int snum,double hard_landing,double look_anghalf,double horiz16th)
 {
 	static const short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 	double looking_arc;
@@ -261,9 +261,9 @@ int animateaccess(int gs,int snum,double hard_landing,double look_anghalf)
 //        p = wall[ps[snum].access_wallnum].pal;
 
 	if((ps[snum].access_incs-3) > 0 && (ps[snum].access_incs-3)>>3)
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].q16horiz - ps[snum].q16horizoff) / (16. * FRACUNIT)),HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
+		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGLASER+(ps[snum].access_incs>>3),gs,0,p);
 	else
-		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-((ps[snum].q16horiz - ps[snum].q16horizoff) / (16. * FRACUNIT)),HANDHOLDINGACCESS,gs,4,p);
+		hud_drawpal(170+(getavel(snum)/16.)-look_anghalf+(access_y[ps[snum].access_incs]>>2),looking_arc+266-horiz16th,HANDHOLDINGACCESS,gs,4,p);
 
 	return 1;
 }
@@ -279,7 +279,7 @@ void displayweapon_d(int snum, double smoothratio)
 	int cw;
 	int i, j;
 	int o,pal;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th;
 	signed char gs;
 	struct player_struct *p;
 
@@ -289,7 +289,8 @@ void displayweapon_d(int snum, double smoothratio)
 
 	o = 0;
 
-	look_anghalf = gethalflookang(snum, cl_syncinput, smoothratio);
+	horiz16th = get16thOfHoriz(snum, cl_syncinput, smoothratio);
+	look_anghalf = getHalfLookAng(snum, cl_syncinput, smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
 	weapon_sway = p->oweapon_sway + fmulscale16(p->weapon_sway - p->oweapon_sway, smoothratio);
 	kickback_pic = p->okickback_pic + fmulscale16(*kb - p->okickback_pic, smoothratio);
@@ -299,10 +300,14 @@ void displayweapon_d(int snum, double smoothratio)
 	gs = sprite[p->i].shade;
 	if(gs > 24) gs = 24;
 
-	if(p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0) || animatefist(gs,snum,look_anghalf) || animateknuckles(gs,snum,hard_landing,look_anghalf) || animatetip(gs,snum,hard_landing,look_anghalf) || animateaccess(gs,snum,hard_landing,look_anghalf) )
+	bool playerVars  = p->newowner >= 0 || ud.camerasprite >= 0 || p->over_shoulder_on > 0 || (sprite[p->i].pal != 1 && sprite[p->i].extra <= 0);
+	bool playerAnims = animatefist(gs,snum,look_anghalf) || animateknuckles(gs,snum,hard_landing,look_anghalf,horiz16th) ||
+					   animatetip(gs,snum,hard_landing,look_anghalf,horiz16th) || animateaccess(gs,snum,hard_landing,look_anghalf,horiz16th);
+
+	if(playerVars || playerAnims)
 		return;
 
-	animateknee(gs,snum,hard_landing,look_anghalf);
+	animateknee(gs,snum,hard_landing,look_anghalf,horiz16th);
 
 	int opos = p->oweapon_pos * p->oweapon_pos;
 	int npos = p->weapon_pos * p->weapon_pos;
