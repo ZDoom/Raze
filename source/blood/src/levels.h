@@ -40,7 +40,6 @@ struct GAMEOPTIONS {
     unsigned char nDifficulty;
     int nEpisode;
     int nLevel;
-    char zLevelName[BMAX_PATH];
     int nTrackNumber; //at12a;
     short nSaveGameSlot;
     int picEntry;
@@ -75,7 +74,6 @@ struct EPISODEINFO
     int nLevels;
     unsigned int bloodbath : 1;
     unsigned int cutALevel : 4;
-    MapRecord* levels;  // points into the global table.
     char cutsceneAName[BMAX_PATH];
     char cutsceneBName[BMAX_PATH];
     int at9028;

@@ -198,22 +198,6 @@ inline double get16thOfHoriz(int snum, bool interpolate, double smoothratio)
 }
 
 
-// These should be the only places converting between level numbers and volume/map pairs
-constexpr inline int levelnum(int vol, int map)
-{
-	return vol * 1000 + map;
-}
-
-constexpr inline int volfromlevelnum(int num)
-{
-	return num > 0 ? num / 1000 : 0;
-}
-
-constexpr inline int mapfromlevelnum(int num)
-{
-	return num > 0 ? num % 1000 : -1;
-}
-
 //---------------------------------------------------------------------------
 //
 //

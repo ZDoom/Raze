@@ -366,6 +366,8 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     gStartNewGame = 0;
     ready2send = 0;
     netWaitForEveryone(0);
+    currentLevel = FindMapByLevelNum(levelnum(gGameOptions.nEpisode, gGameOptions.nLevel));
+
     if (gGameOptions.nGameType == 0)
     {
         if (!(gGameOptions.uGameFlags&1))
@@ -415,14 +417,13 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     //drawLoadingScreen();
-    if (dbLoadMap(gameOptions->zLevelName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC))
+    if (dbLoadMap(currentLevel->fileName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC))
     {
         I_Error("Unable to load map");
     }
-    currentLevel = &mapList[gGameOptions.nEpisode * kMaxLevels + gGameOptions.nLevel];
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
-    G_LoadMapHack(gameOptions->zLevelName);
+    G_LoadMapHack(currentLevel->fileName);
     wsrand(gameOptions->uMapCRC);
     gKillMgr.Clear();
     gSecretMgr.Clear();

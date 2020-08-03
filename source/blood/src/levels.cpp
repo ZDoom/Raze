@@ -46,7 +46,7 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 0, 0, "", 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
@@ -114,9 +114,10 @@ void levelSetupOptions(int nEpisode, int nLevel)
 {
     gGameOptions.nEpisode = nEpisode;
     gGameOptions.nLevel = nLevel;
-    strcpy(gGameOptions.zLevelName, gEpisodeInfo[nEpisode].levels[nLevel].labelName);
-    gGameOptions.uMapCRC = dbReadMapCRC(gGameOptions.zLevelName);
-    gGameOptions.nTrackNumber = gEpisodeInfo[nEpisode].levels[nLevel].cdSongId;
+	auto level = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+	if (!level) return;
+    gGameOptions.uMapCRC = dbReadMapCRC(level->LabelName());
+    gGameOptions.nTrackNumber = level->cdSongId;
 }
 
 void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
@@ -177,16 +178,16 @@ void levelLoadDefaults(void)
         pEpisodeInfo->cutALevel = BloodINI->GetKeyInt(buffer, "CutSceneALevel", 0);
         if (pEpisodeInfo->cutALevel > 0)
             pEpisodeInfo->cutALevel--;
-        pEpisodeInfo->levels = mapList + i * kMaxLevels;
         int j;
         for (j = 0; j < kMaxLevels; j++)
         {
-            auto pLevelInfo = &pEpisodeInfo->levels[j];
             sprintf(buffer2, "Map%d", j+1);
             if (!BloodINI->KeyExists(buffer, buffer2))
                 break;
+            auto pLevelInfo = AllocateMap();
             const char *pMap = BloodINI->GetKeyString(buffer, buffer2, NULL);
             CheckSectionAbend(pMap);
+			pLevelInfo->levelNumber = levelnum(i, j);
             pLevelInfo->labelName = pMap;
             pLevelInfo->fileName.Format("%s.map", pMap);
             levelLoadMapInfo(BloodINI, pLevelInfo, pMap, i, j);
@@ -198,7 +199,8 @@ void levelLoadDefaults(void)
 
 void levelAddUserMap(const char *pzMap)
 {
-	// FIXME: Make this work with the reworked map system
+// FIXME: Make this work with the reworked map system
+#if 0
     char buffer[BMAX_PATH];
     strncpy(buffer, pzMap, BMAX_PATH);
     ChangeExtension(buffer, ".DEF");
@@ -222,14 +224,16 @@ void levelAddUserMap(const char *pzMap)
     levelLoadMapInfo(&UserINI, pLevelInfo, NULL, nEpisode, nLevel);
     gGameOptions.nEpisode = nEpisode;
     gGameOptions.nLevel = nLevel;
-    gGameOptions.uMapCRC = dbReadMapCRC(pLevelInfo->name);
-    strcpy(gGameOptions.zLevelName, pLevelInfo->name);
+	gGameOptions.uMapCRC = dbReadMapCRC(pLevelInfo->name);
+#else
+	auto map = SetupUserMap(pzMap);
+#endif
 }
 
 void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB)
 {
     dassert(pnEndingA != NULL && pnEndingB != NULL);
-    auto pLevelInfo = &gEpisodeInfo[nEpisode].levels[nLevel];
+    auto pLevelInfo = FindMapByLevelNum(levelnum(nEpisode, nLevel));
     int nEndingA = pLevelInfo->nextLevel;
     if (nEndingA >= 0)
         nEndingA--;
@@ -305,15 +309,18 @@ int levelGetMusicIdx(const char *str)
 
 bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
 {
+	auto level = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+	if (!level) return false;
     FString buffer;
-    if (mus_redbook && gEpisodeInfo[nEpisode].levels[nLevel].cdSongId > 0)
-        buffer.Format("blood%02i.ogg", gEpisodeInfo[nEpisode].levels[nLevel].cdSongId);
+    if (mus_redbook && level->cdSongId > 0)
+        buffer.Format("blood%02i.ogg", level->cdSongId);
     else
     {
-        buffer = gEpisodeInfo[nEpisode].levels[nLevel].music;
+        buffer = level->music;
+		if (Mus_Play(level->labelName, buffer, true)) return true;
         DefaultExtension(buffer, ".mid");
     }
-    return !!Mus_Play(gEpisodeInfo[nEpisode].levels[nLevel].labelName, buffer, true);
+    return !!Mus_Play(level->labelName, buffer, true);
 }
 
 void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)

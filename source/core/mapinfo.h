@@ -80,6 +80,23 @@ MapRecord *FindNextMap(MapRecord *thismap);
 MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic = nullptr);
 MapRecord* AllocateMap();
 
+// These should be the only places converting between level numbers and volume/map pairs
+constexpr inline int levelnum(int vol, int map)
+{
+	return vol * 1000 + map;
+}
+
+constexpr inline int volfromlevelnum(int num)
+{
+	return num > 0 ? num / 1000 : 0;
+}
+
+constexpr inline int mapfromlevelnum(int num)
+{
+	return num > 0 ? num % 1000 : -1;
+}
+
+
 enum
 {
 	RRENDSLOT = 127
