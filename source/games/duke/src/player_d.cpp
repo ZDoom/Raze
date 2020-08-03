@@ -2122,7 +2122,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			{
 				p->curr_weapon = HANDREMOTE_WEAPON;
 				p->last_weapon = -1;
-				p->weapon_pos = 10;
+				p->oweapon_pos = p->weapon_pos = 10;
 			}
 		}
 
@@ -2459,7 +2459,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
-			p->weapon_pos = -9;
+			p->oweapon_pos = p->weapon_pos = -9;
 		}
 		else p->kickback_pic++;
 		break;

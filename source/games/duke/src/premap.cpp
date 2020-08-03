@@ -161,7 +161,7 @@ void resetplayerstats(int snum)
         p->okickback_pic = p->kickback_pic  = isRR()? 22 : 5;
     else p->okickback_pic = p->kickback_pic = 0;
 
-    p->weapon_pos        = 6;
+    p->oweapon_pos = p->weapon_pos        = 6;
     p->walking_snd_toggle= 0;
     p->weapon_ang        = 0;
 
@@ -273,7 +273,7 @@ void resetweapons(int snum)
     }
 
     p->gotweapon.Zero();
-    p->weapon_pos = 6;
+    p->oweapon_pos = p->weapon_pos = 6;
     p->okickback_pic = p->kickback_pic = 5;
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon.Set(PISTOL_WEAPON);
@@ -400,7 +400,7 @@ void resetprestat(int snum,int g)
     p->actors_killed     = 0;
     p->max_actors_killed = 0;
     p->lastrandomspot = 0;
-    p->weapon_pos = 6;
+    p->oweapon_pos = p->weapon_pos = 6;
     p->okickback_pic = p->kickback_pic = 5;
     p->last_weapon = -1;
     p->weapreccnt = 0;
