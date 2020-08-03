@@ -296,6 +296,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.oposy = w.posy;
 		w.oposz = w.posz;
 		w.opyoff = w.pyoff;
+		w.oweapon_sway = w.weapon_sway;
+		w.oweapon_pos = w.weapon_pos;
+		w.okickback_pic = w.kickback_pic;
+		w.orandom_club_frame = w.random_club_frame;
+		w.ohard_landing = w.hard_landing;
 		w.horizAdjust = 0;
 		w.angAdjust = 0;
 		w.lookLeft = false;
