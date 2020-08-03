@@ -171,11 +171,8 @@ inline bool playrunning()
 
 inline int calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
-	if (!playrunning())
-	{
-		return MaxSmoothRatio;
-	}
-	return CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
+	double smoothratio = CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
+	return (playrunning() ? smoothratio : MaxSmoothRatio);
 }
 
 inline void backupplayer(player_struct* p)
