@@ -3634,9 +3634,17 @@ void processinput_r(int snum)
 			p->weapon_sway -= 96;
 		else if ((p->weapon_sway & 2047) < (1024 - 96))
 			p->weapon_sway += 96;
-		else p->weapon_sway = 1024;
+		else p->oweapon_sway = p->weapon_sway = 1024;
 	}
-	else p->weapon_sway = p->bobcounter;
+	else
+	{
+		p->weapon_sway = p->bobcounter;
+
+		if ((p->bobcounter - p->oweapon_sway) > 256)
+		{
+			p->oweapon_sway = p->weapon_sway;
+		}
+	}
 
 	s->xvel =
 		ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy));
