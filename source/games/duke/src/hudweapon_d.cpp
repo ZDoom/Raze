@@ -786,6 +786,7 @@ void displayweapon_d(int snum, double smoothratio)
 						i = 0;
 						if (sprite[p->i].pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 140 - p->lookanghalf(),i + looking_arc - (p->kickback_pic >> 1) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),gs,o,pal);
+						if (sprite[p->i].pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 184 - p->lookanghalf(),i + looking_arc - (p->kickback_pic >> 1) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),gs,o,pal);
 					}
 					if (*kb < 8)
