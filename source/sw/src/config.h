@@ -39,34 +39,6 @@ BEGIN_SW_NS
 extern int32_t ScreenBufferMode;
 extern int32_t VesaBufferMode;
 
-
-#if 0
-// comm externs
-extern int32_t ComPort;
-extern int32_t IrqNumber;
-extern int32_t UartAddress;
-extern int32_t PortSpeed;
-
-
-extern int32_t ToneDial;
-extern char  ModemName[MAXMODEMSTRING];
-extern char  InitString[MAXMODEMSTRING];
-extern char  HangupString[MAXMODEMSTRING];
-extern char  DialoutString[MAXMODEMSTRING];
-extern int32_t SocketNumber;
-extern char  PhoneNames[MAXPHONEENTRIES][PHONENAMELENGTH];
-extern char  PhoneNumbers[MAXPHONEENTRIES][PHONENUMBERLENGTH];
-extern char  PhoneNumber[PHONENUMBERLENGTH];
-extern int32_t NumberPlayers;
-extern int32_t ConnectType;
-extern char  PlayerName[MAXPLAYERNAMELENGTH];
-extern char  UserLevel[MAXUSERLEVELNAMELENGTH];
-extern char  RTSPath[MAXRTSPATHLENGTH];
-extern char  UserPath[MAXUSERLEVELPATHLENGTH];
-
-#endif
-// controller externs
-
 extern int32_t EnableRudder;
 
 extern char setupfilename[BMAX_PATH];

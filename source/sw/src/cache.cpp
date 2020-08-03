@@ -405,15 +405,6 @@ void PreCachePachinko(void)
 
 void PreCacheSoundList(short table[], int num)
 {
-    short j;
-
-#if 0
-    for (j = 0; j < num; j++)
-    {
-        CacheSound(table[j], CACHE_SOUND_PRECACHE);
-        AnimateCacheCursor();
-    }
-#endif
 }
 
 void
@@ -438,24 +429,6 @@ PreCacheRange(short start_pic, short end_pic)
     }
 }
 
-void PreCacheAmbient(void)
-{
-    int i,nexti;
-    int num;
-    SPRITEp sp;
-    extern AMB_INFO ambarray[];
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
-    {
-        sp = &sprite[i];
-
-        num = sp->lotag;
-        num = ambarray[num].diginame;
-
-        CacheSound(num, CACHE_SOUND_PRECACHE);
-    }
-}
-
 void PreCacheOverride(void)
 {
     int i,nexti;
@@ -464,33 +437,6 @@ void PreCacheOverride(void)
     {
         ASSERT(SPRITE_TAG2(i) >= 0 && SPRITE_TAG2(i) <= MAXTILES);
         SET_GOTPIC(SPRITE_TAG2(i));
-    }
-}
-
-
-void PreCacheSoundSpot(void)
-{
-    int i,nexti;
-    int num;
-    SPRITEp sp;
-
-    TRAVERSE_SPRITE_STAT(headspritestat[STAT_SOUND_SPOT], i, nexti)
-    {
-        sp = &sprite[i];
-
-        num = SP_TAG13(sp); // tag4 is copied to tag13
-        if (num > 0 && num < DIGI_MAX)
-            CacheSound(num, CACHE_SOUND_PRECACHE);
-
-        num = SP_TAG5(sp);
-        if (num > 0 && num < DIGI_MAX)
-            CacheSound(num, CACHE_SOUND_PRECACHE);
-
-        num = SP_TAG6(sp);
-        if (num > 0 && num < DIGI_MAX)
-            CacheSound(num, CACHE_SOUND_PRECACHE);
-
-        CacheSound(num, CACHE_SOUND_PRECACHE);
     }
 }
 
@@ -626,8 +572,6 @@ void DoTheCache(void)
     extern char CacheLastLevel[32],LevelName[20];
     int i, cnt=0;
 
-    PreCacheAmbient();
-    PreCacheSoundSpot();
     PreCacheActor();
     PreCacheOverride();
 

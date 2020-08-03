@@ -26,12 +26,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define CACHE_NONE          0       // don't use this - this is for ken
-#define CACHE_LOCK_MAX      255
-#define CACHE_LOCK_START    200
-#define CACHE_UNLOCK_START  1
-#define CACHE_UNLOCK_MAX    199
-
 #define CACHE_SOUND_PRECACHE 0
 #define CACHE_SOUND_PLAY     1
 
