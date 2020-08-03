@@ -281,7 +281,7 @@ public:
 		FString format;
 		for (int i = 0; i < 9; i++) 
 		{
-			FGameTexture* img;
+			FGameTexture* img = nullptr;
 
 			if ((g_gameType & GAMEFLAG_RRRA) && i == 4 && p->curr_weapon == CHICKEN_WEAPON)
 			{
