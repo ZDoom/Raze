@@ -62,6 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+void LocalKeys(void);
 
 char bAddUserMap = false;
 bool bNoDemo = false;
@@ -537,64 +538,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     ready2send = 1;
 }
 
-
-void LocalKeys(void)
-{
-    bool alt = inputState.AltPressed();
-    bool ctrl = inputState.CtrlPressed();
-    bool shift = inputState.ShiftPressed();
-    if (buttonMap.ButtonDown(gamefunc_Third_Person_View) && !alt && !shift)
-    {
-        buttonMap.ClearButton(gamefunc_Third_Person_View);
-        if (gViewPos > VIEWPOS_0)
-            gViewPos = VIEWPOS_0;
-        else
-            gViewPos = VIEWPOS_1;
-    }
-    if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-    {
-        buttonMap.ClearButton(gamefunc_See_Coop_View);
-        if (gGameOptions.nGameType == 1)
-        {
-            gViewIndex = connectpoint2[gViewIndex];
-            if (gViewIndex == -1)
-                gViewIndex = connecthead;
-            gView = &gPlayer[gViewIndex];
-        }
-        else if (gGameOptions.nGameType == 3)
-        {
-            int oldViewIndex = gViewIndex;
-            do
-            {
-                gViewIndex = connectpoint2[gViewIndex];
-                if (gViewIndex == -1)
-                    gViewIndex = connecthead;
-                if (oldViewIndex == gViewIndex || gMe->teamId == gPlayer[gViewIndex].teamId)
-                    break;
-            } while (oldViewIndex != gViewIndex);
-            gView = &gPlayer[gViewIndex];
-        }
-    }
-    char key;
-    if ((key = inputState.keyGetScan()) != 0)
-    {
-        if ((alt || shift) && gGameOptions.nGameType > 0 && key >= sc_F1 && key <= sc_F10)
-        {
-            char fk = key - sc_F1;
-            if (alt)
-            {
-                netBroadcastTaunt(myconnectindex, fk);
-            }
-            else
-            {
-                gPlayerMsg.Set(*CombatMacros[fk]);
-                gPlayerMsg.Send();
-            }
-            buttonMap.ClearButton(gamefunc_Third_Person_View);
-            return;
-        }
-            }
-}
 
 bool gRestartGame = false;
 
