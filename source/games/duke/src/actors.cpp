@@ -675,7 +675,6 @@ void movecrane(int i, int crane)
 				s->ang = getangle(msx[t[4] + 1] - s->x, msy[t[4] + 1] - s->y);
 				setsprite(j, msx[t[4] + 1], msy[t[4] + 1], sprite[j].z);
 				t[0]++;
-				deletesprite(i);
 				return;
 			}
 			j = nextj;
