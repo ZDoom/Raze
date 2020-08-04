@@ -4030,9 +4030,6 @@ HORIZONLY:
 		return;
 	}
 
-	if (!cl_syncinput && p->return_to_center > 0)
-		p->return_to_center--;
-
 	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
