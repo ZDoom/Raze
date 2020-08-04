@@ -194,7 +194,7 @@ static int osdcmd_levelwarp(CCmdFuncPtr parm)
 
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
-    if (parm->numparms != 5)
+    if (parm->numparms < 3 || parm->numparms > 5)
         return CCMD_SHOWHELP;
 
     PLAYER *pPlayer = &gPlayer[myconnectindex];
@@ -202,9 +202,18 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     pPlayer->pSprite->x = gView->pSprite->x = atoi(parm->parms[0]);
     pPlayer->pSprite->y = gView->pSprite->y = atoi(parm->parms[1]);
     pPlayer->zView      = gView->zView      = atoi(parm->parms[2]);
-    pPlayer->q16ang     = gView->q16ang     = fix16_from_int(atoi(parm->parms[3]));
-    pPlayer->q16horiz   = gView->q16horiz   = fix16_from_int(atoi(parm->parms[4]));
-    gViewAngle = fix16_from_dbl(atan2(atoi(parm->parms[4]), 100) * (1024. / pi::pi()));
+
+    if (parm->numparms == 4)
+    {
+        pPlayer->q16ang = gView->q16ang = fix16_from_int(atoi(parm->parms[3]));
+    }
+
+    if (parm->numparms == 5)
+    {
+        // fix me, I'm broken.
+        pPlayer->q16horiz = gView->q16horiz = fix16_from_int(atoi(parm->parms[4]));
+        gViewAngle = fix16_from_dbl(atan2(atoi(parm->parms[4]), 100) * (1024. / pi::pi()));
+    }
 
     viewBackupView(pPlayer->nPlayer);
 
@@ -221,7 +230,7 @@ int32_t registerosdcommands(void)
 
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
 
-    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] [horiz]: warps the player to the specified coordinates",osdcmd_warptocoords);
+    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
 
     return 0;
 }

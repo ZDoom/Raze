@@ -125,7 +125,7 @@ static int osdcmd_changelevel(CCmdFuncPtr parm)
 
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
-    if (parm->numparms != 5)
+    if (parm->numparms < 3 || parm->numparms > 5)
         return CCMD_SHOWHELP;
 
     Player     *nPlayer = &PlayerList[nLocalPlayer];
@@ -135,8 +135,15 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     nPlayer->opos.y = pSprite->y = atoi(parm->parms[1]);
     nPlayer->opos.z = pSprite->z = atoi(parm->parms[2]);
 
-    nPlayer->q16angle = fix16_from_int(atoi(parm->parms[3]));
-    nPlayer->q16horiz = fix16_from_int(atoi(parm->parms[4]));
+    if (parm->numparms == 4)
+    {
+        nPlayer->q16angle = fix16_from_int(atoi(parm->parms[3]));
+    }
+
+    if (parm->numparms == 5)
+    {
+        nPlayer->q16horiz = fix16_from_int(atoi(parm->parms[4]));
+    }
 
     return CCMD_OK;
 }
@@ -162,7 +169,7 @@ int32_t registerosdcommands(void)
 
     //C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 
-    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] [horiz]: warps the player to the specified coordinates",osdcmd_warptocoords);
+    C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
 
     return 0;
 }
