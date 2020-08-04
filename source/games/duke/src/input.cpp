@@ -1243,6 +1243,7 @@ void GetInput()
 
 		if (!cl_syncinput)
 		{
+			p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
 			p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 			if (sprite[p->i].extra > 0)
 			{
