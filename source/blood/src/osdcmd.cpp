@@ -203,7 +203,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     pPlayer->pSprite->y = gView->pSprite->y = atoi(parm->parms[1]);
     pPlayer->zView      = gView->zView      = atoi(parm->parms[2]);
 
-    if (parm->numparms == 4)
+    if (parm->numparms >= 4)
     {
         pPlayer->q16ang = gView->q16ang = fix16_from_int(atoi(parm->parms[3]));
     }

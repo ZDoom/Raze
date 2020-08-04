@@ -272,7 +272,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 	p->oposy = p->posy = atoi(parm->parms[1]);
 	p->oposz = p->posz = atoi(parm->parms[2]);
 
-    if (parm->numparms == 4)
+    if (parm->numparms >= 4)
     {
         p->oq16ang = p->q16ang = fix16_from_int(atoi(parm->parms[3]));
     }

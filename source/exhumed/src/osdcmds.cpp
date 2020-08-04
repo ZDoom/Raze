@@ -135,7 +135,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     nPlayer->opos.y = pSprite->y = atoi(parm->parms[1]);
     nPlayer->opos.z = pSprite->z = atoi(parm->parms[2]);
 
-    if (parm->numparms == 4)
+    if (parm->numparms >= 4)
     {
         nPlayer->q16angle = fix16_from_int(atoi(parm->parms[3]));
     }

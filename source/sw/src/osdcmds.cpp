@@ -285,7 +285,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     Player->oposy = Player->posy = atoi(parm->parms[1]);
     Player->oposz = Player->posz = atoi(parm->parms[2]);
 
-    if (parm->numparms == 4)
+    if (parm->numparms >= 4)
     {
 		Player->oq16ang = Player->q16ang = Player->camq16ang = fix16_from_int(atoi(parm->parms[3]));
     }
