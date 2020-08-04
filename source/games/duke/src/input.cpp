@@ -927,6 +927,7 @@ static void processMovement(player_struct *p, input_t &input, ControlInfo &info,
 static double motoApplyTurn(player_struct* p, int turnl, int turnr, int bike_turn, bool goback, double factor)
 {
 	int turnvel = 0;
+	p->oTiltStatus = p->TiltStatus;
 
 	if (p->MotoSpeed == 0 || !p->on_ground)
 	{

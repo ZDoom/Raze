@@ -113,7 +113,7 @@ void displayweapon_r(int snum, double smoothratio)
 {
 	int cw;
 	int i, j;
-	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf;
+	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, TiltStatus;
 	char o,pal;
 	signed char gs;
 
@@ -125,6 +125,7 @@ void displayweapon_r(int snum, double smoothratio)
 	look_anghalf = getHalfLookAng(snum, cl_syncinput, smoothratio);
 	looking_arc = fabs(look_anghalf) / 4.5;
 	weapon_sway = p->oweapon_sway + fmulscale16((p->weapon_sway - p->oweapon_sway), smoothratio);
+	TiltStatus = !cl_syncinput ? p->TiltStatus : p->oTiltStatus + fmulscale16((p->TiltStatus - p->oTiltStatus), smoothratio);
 
 	if (shadedsector[p->cursectnum] == 1)
 		gs = 16;
@@ -215,17 +216,17 @@ void displayweapon_r(int snum, double smoothratio)
 		else
 			pal = sector[p->cursectnum].floorpal;
 
-		if (p->TiltStatus >= 0)
-			ShowMotorcycle(160-look_anghalf, 174, temp_kb, gs, 0, pal, p->TiltStatus*5);
+		if (TiltStatus >= 0)
+			ShowMotorcycle(160-look_anghalf, 174, temp_kb, gs, 0, pal, TiltStatus*5);
 		else if (p->TiltStatus < 0)
-			ShowMotorcycle(160-look_anghalf, 174, temp_kb, gs, 0, pal, p->TiltStatus*5+2047);
+			ShowMotorcycle(160-look_anghalf, 174, temp_kb, gs, 0, pal, TiltStatus*5+2047);
 		return;
 	}
 	if (p->OnBoat)
 	{
 		int temp2, temp_kb, temp3;
 		temp2 = 0;
-		if (p->TiltStatus > 0)
+		if (TiltStatus > 0)
 		{
 			if (*kb == 0)
 				temp_kb = BOATHIT+1;
@@ -242,7 +243,7 @@ void displayweapon_r(int snum, double smoothratio)
 			else
 				temp_kb = BOATHIT+1;
 		}
-		else if (p->TiltStatus < 0)
+		else if (TiltStatus < 0)
 		{
 			if (*kb == 0)
 				temp_kb = BOATHIT+2;
@@ -290,10 +291,10 @@ void displayweapon_r(int snum, double smoothratio)
 		if (temp2)
 			gs = -96;
 
-		if (p->TiltStatus >= 0)
-			ShowBoat(160-look_anghalf, temp3, temp_kb, gs, 0, pal, p->TiltStatus);
+		if (TiltStatus >= 0)
+			ShowBoat(160-look_anghalf, temp3, temp_kb, gs, 0, pal, TiltStatus);
 		else if (p->TiltStatus < 0)
-			ShowBoat(160-look_anghalf, temp3, temp_kb, gs, 0, pal, p->TiltStatus+2047);
+			ShowBoat(160-look_anghalf, temp3, temp_kb, gs, 0, pal, TiltStatus+2047);
 		return;
 	}
 
