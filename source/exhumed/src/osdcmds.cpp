@@ -126,7 +126,7 @@ static int osdcmd_changelevel(CCmdFuncPtr parm)
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms != 5)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     Player     *nPlayer = &PlayerList[nLocalPlayer];
     spritetype *pSprite = &sprite[nPlayer->nSprite]; 
@@ -138,7 +138,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     nPlayer->q16angle = fix16_from_int(atoi(parm->parms[3]));
     nPlayer->q16horiz = fix16_from_int(atoi(parm->parms[4]));
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 int32_t registerosdcommands(void)

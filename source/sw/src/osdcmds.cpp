@@ -279,7 +279,7 @@ static int osdcmd_give(CCmdFuncPtr parm)
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms != 5)
-        return OSDCMD_SHOWHELP;
+        return CCMD_SHOWHELP;
 
     Player->oposx = Player->posx = atoi(parm->parms[0]);
     Player->oposy = Player->posy = atoi(parm->parms[1]);
@@ -288,7 +288,7 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     Player->oq16ang   = Player->q16ang   = Player->camq16ang   = fix16_from_int(atoi(parm->parms[3]));
     Player->oq16horiz = Player->q16horiz = Player->camq16horiz = fix16_from_int(atoi(parm->parms[4]));
 
-    return OSDCMD_OK;
+    return CCMD_OK;
 }
 
 int32_t registerosdcommands(void)
