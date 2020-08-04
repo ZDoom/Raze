@@ -1261,8 +1261,8 @@ void GetInput()
 		if (!cl_syncinput)
 		{
 			// Do these in the same order as the old code.
-			applylook(myconnectindex, scaleAdjust, input.q16avel);
 			calcviewpitch(p, scaleAdjust);
+			applylook(myconnectindex, scaleAdjust, input.q16avel);
 			sethorizon(myconnectindex, loc.bits, scaleAdjust, true, input.q16horz);
 		}
 	}
