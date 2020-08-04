@@ -94,7 +94,8 @@ enum EMenuSounds : int
 	BackSound,
 	CloseSound,
 	PageSound,
-	ChangeSound
+	ChangeSound,
+	ChooseSound
 };
 
 EXTERN_CVAR(Bool, menu_sounds)

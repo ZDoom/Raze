@@ -119,7 +119,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 				delete mCurrent;
 			}
 			mCurrent = next;
-			//gi->MenuSound(GameInterface::ChooseSound);
+			gi->MenuSound(ChooseSound);
 		}
 		return true;
 
@@ -135,7 +135,7 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 				delete mCurrent;
 			}
 			mCurrent = next;
-			//gi->MenuSound(GameInterface::ChooseSound);
+			gi->MenuSound(ChooseSound);
 		}
 		return true;
 

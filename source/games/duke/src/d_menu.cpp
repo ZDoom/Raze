@@ -231,6 +231,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		S_MenuSound();
 		break;
 
+	case ChooseSound:
 	case CursorSound:
 		S_PlaySound(isRR() ? 335 : KICK_HIT, CHAN_AUTO, CHANF_UI);
 		break;
