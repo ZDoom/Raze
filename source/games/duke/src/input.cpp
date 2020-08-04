@@ -1168,6 +1168,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 
 		loc.fvel = loc.svel = 0;
 		loc.q16avel = loc.q16horz = 0;
+		input.q16avel = input.q16horz = 0;
 	}
 	else
 	{
