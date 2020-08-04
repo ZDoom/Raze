@@ -108,13 +108,32 @@ int32_t circlewall=-1;
 int16_t editstatus = 0;
 static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
+static FString printcoords(void)
+{
+    FString str;
+
+    str.Format(
+        "pos.x: %d\n"
+        "pos.y: %d\n"
+        "pos.z: %d\n"
+        "ang  : %d\n"
+        "horiz: %d\n",
+        globalposx, globalposy,
+        globalposz, globalang, 
+        fix16_to_int(global100horiz)
+    );
+
+    return str;
+}
+
 CCMD(printcoords)
 {
-    Printf("pos.x: %d\n", globalposx);
-    Printf("pos.y: %d\n", globalposy);
-    Printf("pos.z: %d\n", globalposz);
-    Printf("ang: %d\n"  , globalang);
-    Printf("horiz: %d\n", fix16_to_int(global100horiz));
+    Printf("%s", printcoords().GetChars());
+}
+
+ADD_STAT(printcoords)
+{
+    return printcoords();
 }
 
 int32_t(*getpalookup_replace)(int32_t davis, int32_t dashade) = NULL;
