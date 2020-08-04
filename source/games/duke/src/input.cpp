@@ -1230,7 +1230,7 @@ void GetInput()
 		setlocalplayerinput(p);
 	}
 
-	double scaleAdjust = elapsedInputTicks * REALGAMETICSPERSEC / 1000.0;
+	double scaleAdjust = !cl_syncinput ? elapsedInputTicks * REALGAMETICSPERSEC / 1000.0 : 1;
 	ControlInfo info;
 	CONTROL_GetInput(&info);
 	input_t input{};
