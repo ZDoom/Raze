@@ -789,6 +789,7 @@ void apply_seasick(player_struct* p, double factor)
 void applylook(int snum, double factor, fixed_t adjustment)
 {
 	auto p = &ps[snum];
+	fixed_t q16avel;
 
 	if (p->dead_flag == 0)
 	{
@@ -831,7 +832,17 @@ void applylook(int snum, double factor, fixed_t adjustment)
 		p->q16ang += fix16_from_dbl(factor * p->angAdjust);
 	}
 
-	p->q16ang = (p->q16ang + adjustment) & 0x7FFFFFF;
+	// Taken from processinput() for use with applying look while cl_syncinput is 0.
+	if (p->psectlotag == ST_2_UNDERWATER)
+	{
+		q16avel = (adjustment - (adjustment >> 3)) * sgn(TICSPERFRAME);
+	}
+	else
+	{
+		q16avel = adjustment * sgn(TICSPERFRAME);
+	}
+
+	p->q16ang = (p->q16ang + q16avel) & 0x7FFFFFF;
 }
 
 //---------------------------------------------------------------------------

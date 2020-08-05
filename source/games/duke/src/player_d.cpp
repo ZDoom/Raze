@@ -2757,6 +2757,8 @@ void processinput_d(int snum)
 		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
 	}
 
+	p->psectlotag = psectlotag;
+
 	//Do the quick lefts and rights
 
 	if (movementBlocked(snum))
@@ -2771,16 +2773,7 @@ void processinput_d(int snum)
 		//ENGINE calculates angvel for you
 		// may still be needed later for demo recording
 
-		if (psectlotag == ST_2_UNDERWATER)
-		{
-			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
-		}
-		else
-		{
-			p->q16angvel = sb_avel * sgn(doubvel);
-		}
-
-		applylook(snum, 1, p->q16angvel);
+		applylook(snum, 1, sb_avel);
 
 		p->crack_time = 777;
 	}

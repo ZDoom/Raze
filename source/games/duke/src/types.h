@@ -102,7 +102,7 @@ struct player_struct
 	};
 
 	// input handles angle and horizon as fixed16 numbers. We need to account for that as well.
-	fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang, q16angvel;
+	fixed_t q16ang, q16horiz, q16horizoff, q16rotscrnang, q16look_ang;
 	fixed_t oq16ang, oq16horiz, oq16horizoff, oq16rotscrnang, oq16look_ang; // These are only needed with synchronous mouse input.
 	fixed_t one_eighty_count;
 
@@ -124,6 +124,8 @@ struct player_struct
 	unsigned char hard_landing;
 	unsigned char ohard_landing;
 
+	// Store current psectlotag as determined in processinput() for use with scaling angle aiming.
+	short psectlotag;
 
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	int zoom, exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
