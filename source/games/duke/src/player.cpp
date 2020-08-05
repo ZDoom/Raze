@@ -927,6 +927,30 @@ void checkhardlanding(player_struct* p)
 	}
 }
 
+void playerweaponsway(player_struct* p, spritetype* s)
+{
+	if (cl_weaponsway)
+	{
+		if (s->xvel < 32 || p->on_ground == 0 || p->bobcounter == 1024)
+		{
+			if ((p->weapon_sway & 2047) > (1024 + 96))
+				p->weapon_sway -= 96;
+			else if ((p->weapon_sway & 2047) < (1024 - 96))
+				p->weapon_sway += 96;
+			else p->oweapon_sway = p->weapon_sway = 1024;
+		}
+		else
+		{
+			p->weapon_sway = p->bobcounter;
+
+			if ((p->bobcounter - p->oweapon_sway) > 256)
+			{
+				p->oweapon_sway = p->weapon_sway;
+			}
+		}
+	}
+}
+
 //---------------------------------------------------------------------------
 //
 //

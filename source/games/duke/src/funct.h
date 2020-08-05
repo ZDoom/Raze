@@ -250,6 +250,7 @@ void backupview(player_struct* p);
 void backupweapon(player_struct* p);
 void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);
+void playerweaponsway(player_struct* p, spritetype* s);
 
 void playerAddAngle(player_struct* p, int ang);
 void playerSetAngle(player_struct* p, int ang);
