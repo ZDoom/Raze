@@ -3034,11 +3034,6 @@ HORIZONLY:
 		p->hard_landing--;
 	}
 
-	if (cl_syncinput)
-	{
-		sethorizon(snum, sb_snum, 1, false, sync[snum].q16horz);
-	}
-
 	//Shooting code/changes
 
 	if (p->show_empty_weapon > 0)
@@ -3057,6 +3052,10 @@ HORIZONLY:
 
 	dokneeattack(snum, pi, { FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, PODFEM1, NAKED1, STATUE });
 
+	if (cl_syncinput)
+	{
+		sethorizon(snum, sb_snum, 1, false, sync[snum].q16horz);
+	}
 
 	if (fi.doincrements(p)) return;
 

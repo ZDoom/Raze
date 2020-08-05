@@ -214,7 +214,7 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	int     horizAdjust, angAdjust;
+	int     horizAdjust, angAdjust, pitchAdjust;
 	bool    lookLeft, lookRight;
 
 

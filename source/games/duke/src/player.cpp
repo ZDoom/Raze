@@ -914,6 +914,7 @@ void resetinputhelpers(player_struct* p)
 {
 	p->horizAdjust = 0;
 	p->angAdjust = 0;
+	p->pitchAdjust = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -961,7 +962,7 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput, fixed_t ad
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = atan2((p->q16horiz + ((factor * p->horizAdjust) * 65536)) - F16(100), F16(128)) * (512. / pi::pi()) + (adjustment / 65536.);
+	double horizAngle = atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.);
 
 	if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
@@ -981,7 +982,7 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput, fixed_t ad
 		}
 	}
 
-	p->q16horiz = clamp(F16(100) + xs_CRoundToInt(F16(128) * tan(horizAngle * (pi::pi() / 512.))), F16(HORIZ_MIN), F16(HORIZ_MAX));
+	p->q16horiz = clamp((F16(100) + xs_CRoundToInt(F16(128) * tan(horizAngle * (pi::pi() / 512.)))) + (factor * (p->horizAdjust * 65536.)), F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------
@@ -1009,7 +1010,7 @@ void playerLookUp(int snum, ESyncBits sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		p->horizAdjust += (sb_snum & SKB_RUN) ? 12 : 24;
+		p->pitchAdjust += (sb_snum & SKB_RUN) ? 12 : 24;
 	}
 }
 
@@ -1021,7 +1022,7 @@ void playerLookDown(int snum, ESyncBits sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		p->horizAdjust -= (sb_snum & SKB_RUN) ? 12 : 24;
+		p->pitchAdjust -= (sb_snum & SKB_RUN) ? 12 : 24;
 	}
 }
 
@@ -1032,7 +1033,7 @@ void playerAimUp(int snum, ESyncBits sb_snum)
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->horizAdjust += (sb_snum & SKB_RUN) ? 6 : 12;
+		p->pitchAdjust += (sb_snum & SKB_RUN) ? 6 : 12;
 	}
 }
 
@@ -1043,7 +1044,7 @@ void playerAimDown(int snum, ESyncBits sb_snum)
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->horizAdjust -= (sb_snum & SKB_RUN) ? 6 : 12;
+		p->pitchAdjust -= (sb_snum & SKB_RUN) ? 6 : 12;
 	}
 }
 
