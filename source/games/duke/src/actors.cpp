@@ -464,6 +464,19 @@ void moveplayers(void) //Players
 						p->jetpack_amount = 1599;
 				}
 
+				if (p->actorsqu >= 0)
+				{
+					int ang = getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2;
+					if (!cl_syncinput)
+					{
+						p->angAdjust += ang;
+					}
+					else
+					{
+						p->addang(ang);
+					}
+				}
+
 				if (s->extra > 0)
 				{
 					// currently alive...
@@ -481,6 +494,19 @@ void moveplayers(void) //Players
 					p->posz = s->z - (20 << 8);
 
 					p->newowner = -1;
+
+					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
+					{
+						int ang = getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1;
+						if (!cl_syncinput)
+						{
+							p->angAdjust += ang;
+						}
+						else
+						{
+							p->addang(ang);
+						}
+					}
 				}
 				s->ang = p->getang();
 			}
