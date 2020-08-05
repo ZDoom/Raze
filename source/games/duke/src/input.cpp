@@ -1183,6 +1183,11 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 			else
 				loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
 		}
+		else
+		{
+			loc.fvel = input.fvel = 0;
+			loc.svel = input.svel = 0;
+		}
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
@@ -1192,10 +1197,18 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 				p->one_eighty_count = 0;
 			}
 		}
+		else
+		{
+			loc.q16avel = input.q16avel = 0;
+		}
 
 		if (p->newowner == -1 && p->return_to_center <= 0)
 		{
 			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+		}
+		else
+		{
+			loc.q16horz = input.q16horz = 0;
 		}
 	}
 }
