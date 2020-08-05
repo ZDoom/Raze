@@ -651,11 +651,12 @@ public:
 	DDukeMultiplayerBonusScreen(int pws) : DScreenJob(fadein|fadeout)
 	{
 		playerswhenstarted = pws;
-		S_PlayBonusMusic();
 	}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		if (clock == 0) S_PlayBonusMusic();
+
 		char tempbuf[32];
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		twod->ClearScreen();
@@ -759,7 +760,6 @@ public:
 		int vol = volfromlevelnum(currentLevel->levelNumber);
 		gfx_offset = BONUSSCREEN + ((vol == 1) ? 5 : 0);
 		lastmapname = currentLevel->DisplayName();
-		S_PlayBonusMusic();
 	}
 
 	void FormatTime(int time, char* tempbuf)
@@ -860,6 +860,7 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);

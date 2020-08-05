@@ -258,11 +258,11 @@ public:
 	DRRMultiplayerBonusScreen(int pws) : DScreenJob(fadein | fadeout)
 	{
 		playerswhenstarted = pws;
-		S_PlayBonusMusic();
 	}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		if (clock == 0) S_PlayBonusMusic();
 		char tempbuf[32];
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
@@ -362,7 +362,6 @@ class DRRLevelSummaryScreen : public DScreenJob
 public:
 	DRRLevelSummaryScreen(bool dofadeout = true) : DScreenJob(dofadeout? (fadein | fadeout) : fadein)
 	{
-		S_PlayBonusMusic();
 		if (currentLevel->flags & MI_USERMAP)
 			gfx_offset = RRTILE403;
 		else if (!isRRRA())
@@ -468,6 +467,7 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
