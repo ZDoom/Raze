@@ -3033,19 +3033,7 @@ HORIZONLY:
 		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
 	}
 
-	if (p->hard_landing > 0)
-	{
-		int horiz = p->hard_landing << 4;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust -= horiz;
-		}
-		else
-		{
-			p->addhoriz(-horiz);
-		}
-		p->hard_landing--;
-	}
+	checkhardlanding(p);
 
 	//Shooting code/changes
 

@@ -1509,18 +1509,6 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static inline double calcVehicleHorizAdjust(fixed_t q16horiz, int adjustment)
-{
-	return -1. * ((q16horiz / 65536.) - adjustment);
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void onMotorcycle(int snum, ESyncBits &sb_snum)
 {
 	auto p = &ps[snum];
@@ -1706,14 +1694,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, horiz);
-		}
-		else
-		{
-			p->sethoriz(horiz);
-		}
+		playerSetHoriz(p, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -1723,14 +1704,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
-		}
-		else
-		{
-			p->sethoriz(100 + p->VBumpNow / 3);
-		}
+		playerSetHoriz(p, 100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1740,14 +1714,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
-		}
-		else
-		{
-			p->sethoriz(100 + p->VBumpNow / 3);
-		}
+		playerSetHoriz(p, 100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -1806,14 +1773,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 				ang = var98 >> 7;
 			}
 		}
-		if (!cl_syncinput)
-		{
-			p->angAdjust -= ang;
-		}
-		else
-		{
-			p->setang((var90 - ang) & 2047);
-		}
+		playerSetAngle(p, (var90 - ang) & 2047);
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
 	{
@@ -2058,14 +2018,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
 		}
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, horiz);
-		}
-		else
-		{
-			p->sethoriz(horiz);
-		}
+		playerSetHoriz(p, horiz);
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
 	{
@@ -2075,14 +2028,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
-		}
-		else
-		{
-			p->sethoriz(100 + p->VBumpNow / 3);
-		}
+		playerSetHoriz(p, 100 + p->VBumpNow / 3);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2092,14 +2038,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
-		}
-		else
-		{
-			p->sethoriz(100 + p->VBumpNow / 3);
-		}
+		playerSetHoriz(p, 100 + p->VBumpNow / 3);
 	}
 	else
 	{
@@ -2133,14 +2072,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
 			ang = vare0 >> 6;
 		}
-		if (!cl_syncinput)
-		{
-			p->angAdjust -= ang;
-		}
-		else
-		{
-			p->setang((vard8 - ang) & 2047);
-		}
+		playerSetAngle(p, (vard8 - ang) & 2047);
 	}
 	if (p->NotOnWater)
 		if (p->MotoSpeed > 50)
@@ -2482,14 +2414,7 @@ void onMotorcycleMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 1);
 		break;
 	}
-	if (!cl_syncinput)
-	{
-		p->angAdjust += ang;
-	}
-	else
-	{
-		p->addang(ang);
-	}
+	playerAddAngle(p, ang);
 	if (var10c >= 441 && var10c <= 581)
 	{
 		var104 = (p->MotoSpeed * p->MotoSpeed) >> 8;
@@ -2556,14 +2481,7 @@ void onBoatMove(int snum, int psect, int j)
 		ang = -(p->MotoSpeed >> 2);
 		break;
 	}
-	if (!cl_syncinput)
-	{
-		p->angAdjust += ang;
-	}
-	else
-	{
-		p->addang(ang);
-	}
+	playerAddAngle(p, ang);
 	if (var118 >= 441 && var118 <= 581)
 	{
 		p->MotoSpeed = ((p->MotoSpeed >> 1) + (p->MotoSpeed >> 2)) >> 2;
@@ -3097,14 +3015,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += 1;
-		}
-		else
-		{
-			p->addhoriz(1);
-		}
+		playerAddHoriz(p, 1);
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3194,25 +3105,11 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			if (!cl_syncinput)
-			{
-				p->angAdjust += 16;
-			}
-			else
-			{
-				p->addang(16);
-			}
+			playerAddAngle(p, 16);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			if (!cl_syncinput)
-			{
-				p->angAdjust -= 16;
-			}
-			else
-			{
-				p->addang(-16);
-			}
+			playerAddAngle(p, -16);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3238,26 +3135,11 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			int ang = 4;
-			if (!cl_syncinput)
-			{
-				p->angAdjust += 4;
-			}
-			else
-			{
-				p->addang(4);
-			}
+			playerAddAngle(p, 4);
 		}
 		else if (p->kickback_pic == 4)
 		{
-			if (!cl_syncinput)
-			{
-				p->angAdjust -= -4;
-			}
-			else
-			{
-				p->addang(-4);
-			}
+			playerAddAngle(p, -4);
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3305,14 +3187,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
 			p->posyv -= sintable[p->getang() & 2047] << 4;
-			if (!cl_syncinput)
-			{
-				p->horizAdjust += 20;
-			}
-			else
-			{
-				p->addhoriz(20);
-			}
+			playerAddHoriz(p, 20);
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -4196,15 +4071,7 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-
-		if (!cl_syncinput)
-		{
-			p->horizAdjust -= d;
-		}
-		else
-		{
-			p->addhoriz(-d);
-		}
+		playerAddHoriz(p, -d);
 	}
 
 	if (cl_syncinput)

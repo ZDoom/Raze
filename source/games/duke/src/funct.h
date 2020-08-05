@@ -251,4 +251,9 @@ void backupweapon(player_struct* p);
 void resetinputhelpers(player_struct* p);
 void checkhardlanding(player_struct* p);
 
+void playerAddAngle(player_struct* p, int ang);
+void playerSetAngle(player_struct* p, int ang);
+void playerAddHoriz(player_struct* p, int horiz);
+void playerSetHoriz(player_struct* p, int horiz);
+
 END_DUKE_NS

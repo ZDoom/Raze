@@ -163,15 +163,7 @@ void forceplayerangle(struct player_struct* p)
 
 	n = 128 - (krand() & 255);
 
-	int horiz = 64;
-	if (!cl_syncinput)
-	{
-		p->horizAdjust += horiz;
-	}
-	else
-	{
-		p->addhoriz(horiz);
-	}
+	playerAddHoriz(p, 64);
 	p->return_to_center = 9;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
@@ -413,15 +405,7 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		int horiz = -48;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust += horiz;
-		}
-		else
-		{
-			p->addhoriz(horiz);
-		}
+		playerAddHoriz(p, -48);
 		p->return_to_center = 9;
 		if (p->knee_incs > 15)
 		{
@@ -938,15 +922,7 @@ void checkhardlanding(player_struct* p)
 {
 	if (p->hard_landing > 0)
 	{
-		int horiz = p->hard_landing << 4;
-		if (!cl_syncinput)
-		{
-			p->horizAdjust -= horiz;
-		}
-		else
-		{
-			p->addhoriz(-horiz);
-		}
+		playerAddHoriz(p, -(p->hard_landing << 4));
 		p->hard_landing--;
 	}
 }
@@ -1082,6 +1058,60 @@ void playerAimDown(int snum, ESyncBits sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->pitchAdjust -= (sb_snum & SKB_RUN) ? 6 : 12;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerAddAngle(player_struct* p, int ang)
+{
+	if (!cl_syncinput)
+	{
+		p->angAdjust += ang;
+	}
+	else
+	{
+		p->addang(ang);
+	}
+}
+
+void playerSetAngle(player_struct* p, int ang)
+{
+	if (!cl_syncinput)
+	{
+		p->angAdjust += -1. * ((p->q16ang / 65536.) - ang);
+	}
+	else
+	{
+		p->setang(ang);
+	}
+}
+
+void playerAddHoriz(player_struct* p, int horiz)
+{
+	if (!cl_syncinput)
+	{
+		p->horizAdjust += horiz;
+	}
+	else
+	{
+		p->addhoriz(horiz);
+	}
+}
+
+void playerSetHoriz(player_struct* p, int horiz)
+{
+	if (!cl_syncinput)
+	{
+		p->horizAdjust += -1. * ((p->q16horiz / 65536.) - horiz);
+	}
+	else
+	{
+		p->sethoriz(horiz);
 	}
 }
 

@@ -466,15 +466,7 @@ void moveplayers(void) //Players
 
 				if (p->actorsqu >= 0)
 				{
-					int ang = getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2;
-					if (!cl_syncinput)
-					{
-						p->angAdjust += ang;
-					}
-					else
-					{
-						p->addang(ang);
-					}
+					playerAddAngle(p, getincangle(p->getang(), getangle(sprite[p->actorsqu].x - p->posx, sprite[p->actorsqu].y - p->posy)) >> 2);
 				}
 
 				if (s->extra > 0)
@@ -497,15 +489,7 @@ void moveplayers(void) //Players
 
 					if (p->wackedbyactor >= 0 && sprite[p->wackedbyactor].statnum < MAXSTATUS)
 					{
-						int ang = getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1;
-						if (!cl_syncinput)
-						{
-							p->angAdjust += ang;
-						}
-						else
-						{
-							p->addang(ang);
-						}
+						playerAddAngle(p, getincangle(p->getang(), getangle(sprite[p->wackedbyactor].x - p->posx, sprite[p->wackedbyactor].y - p->posy)) >> 1);
 					}
 				}
 				s->ang = p->getang();
@@ -762,15 +746,7 @@ void movecrane(int i, int crane)
 				s->owner = -2;
 				ps[p].on_crane = i;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				int ang = s->ang + 1024;
-				if (!cl_syncinput)
-				{
-					ps[p].angAdjust += ps[p].getang() + ang;
-				}
-				else
-				{
-					ps[p].setang(ang);
-				}
+				playerSetAngle(&ps[p], s->ang + 1024);
 			}
 			else
 			{
@@ -2693,15 +2669,7 @@ void handle_se00(int i, int LASERLINE)
 		{
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
-				int ang = l * q;
-				if (!cl_syncinput)
-				{
-					ps[p].angAdjust += ang;
-				}
-				else
-				{
-					ps[p].addang(ang);
-				}
+				playerAddAngle(&ps[p], l * q);
 
 				ps[p].posz += zchange;
 
@@ -2893,14 +2861,7 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					if (!cl_syncinput)
-					{
-						ps[p].angAdjust += q;
-					}
-					else
-					{
-						ps[p].addang(q);
-					}
+					playerAddAngle(&ps[p], q);
 
 					if (numplayers > 1)
 					{

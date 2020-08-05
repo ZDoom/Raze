@@ -59,6 +59,7 @@ void pickrandomspot(int snum)
     p->bobposy = p->oposy = p->posy = po[i].oy;
     p->oposz = p->posz = po[i].oz;
     p->setang(po[i].oa);
+    p->setoang(po[i].oa);
     p->cursectnum = po[i].os;
 }
 
