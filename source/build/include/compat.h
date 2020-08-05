@@ -926,12 +926,6 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
     }
 }
 
-#if RAND_MAX == 32767
-static FORCE_INLINE uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
-#else  // RAND_MAX > 32767, assumed to be of the form 2^k - 1
-static FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff; }
-#endif
-
 // Copy min(strlen(src)+1, n) characters into dst, always terminate with a NUL.
 static FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 {
@@ -940,47 +934,9 @@ static FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
     return dst;
 }
 
-// Append extension when <outbuf> contains no dot.
-// <ext> can be like ".mhk" or like "_crash.map", no need to start with a dot.
-// The ugly name is deliberate: we should be checking the sizes of all buffers!
-static inline void append_ext_UNSAFE(char *outbuf, const char *ext)
-{
-    char *p = Bstrrchr(outbuf,'.');
-
-    if (!p)
-        Bstrcat(outbuf, ext);
-    else
-        Bstrcpy(p, ext);
-}
-
-
-
-////////// Paths //////////
-
-////////// String manipulation //////////
-
-inline char* Bstrtolower(char* str)
-{
-    if (str) for (int i = 0; str[i]; i++) str[i] = tolower(str[i]);
-    return str;
-}
-
-
-////////// Miscellaneous //////////
-
-int Bgetpagesize(void);
-uint32_t Bgetsysmemsize(void);
-
 ////////// PANICKING ALLOCATION WRAPPERS //////////
 
-#ifdef DEBUGGINGAIDS
-extern void xalloc_set_location(int32_t line, const char *file, const char *func);
-#endif
-void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
-void *handle_memerr(void *);
 
-
-// This is for allowing the compiler's heap checker to do its job. When wrapped it only points to the wrapper for a memory leak, not to the real location where the allocation takes place.
 #define Xstrdup(s)    (strdup(s))
 #define Xmalloc(size) (M_Malloc(size))
 #define Xcalloc(nmemb, size) (M_Calloc(nmemb, size))
@@ -992,12 +948,6 @@ void *handle_memerr(void *);
 
 ////////// Inlined external libraries //////////
 
-#ifndef LIBDIVIDE_BODY
-# define LIBDIVIDE_HEADER_ONLY
-#endif
-#define LIBDIVIDE_C_HEADERS
-#define LIBDIVIDE_NONAMESPACE
-#define LIBDIVIDE_NOINLINE
 #include "fix16.h"
 #include "vectors.h"
 using ClockTicks = int;

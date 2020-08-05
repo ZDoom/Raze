@@ -1858,19 +1858,8 @@ typedef struct
     unsigned int size, checksum;
 } MEM_HDR,*MEM_HDRp;
 
-#if !DEBUG
-# define ValidPtr(ptr) ((SWBOOL)(TRUE))
-# define AllocMem(size) Xmalloc(size)
-# define CallocMem(size, num) Xcalloc(size, num)
-# define ReAllocMem(ptr, size) Xrealloc(ptr, size)
-# define FreeMem(ptr) Xfree(ptr)
-#else
-SWBOOL ValidPtr(void *ptr);
-void *AllocMem(int size);
-void *CallocMem(int size, int num);
-void *ReAllocMem(void *ptr, int size);
-void FreeMem(void *ptr);
-#endif
+# define CallocMem(size, num) M_Calloc(size, num)
+# define FreeMem(ptr) M_Free(ptr)
 
 typedef struct
 {

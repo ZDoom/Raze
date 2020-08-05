@@ -6711,7 +6711,6 @@ StateControl(int16_t SpriteNum)
     if (u)
     {
         ASSERT(u->State);
-        ASSERT(ValidPtr(u));
         // Set picnum to the correct pic
         if (TEST(u->State->Tics, SF_WALL_STATE))
         {

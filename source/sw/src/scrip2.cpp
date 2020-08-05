@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "panel.h"
 #include "game.h"
 
-#include "parse.h"
 #include "sprite.h"
 #include "jsector.h"
 #include "parent.h"
@@ -44,10 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mapinfo.h"
 
 BEGIN_SW_NS
-
-#define PATHSEPERATOR   '\\'
-
-//#define COMPUTE_TOTALS    1
 
 ParentalStruct aVoxelArray[MAXTILES];
 
@@ -59,13 +54,14 @@ ParentalStruct aVoxelArray[MAXTILES];
 
 =============================================================================
 */
+#define MAXTOKEN    255
 
-char    token[MAXTOKEN];
-char    *scriptbuffer,*script_p,*scriptend_p;
-int     grabbed;
-int     scriptline;
-SWBOOL    endofscript;
-SWBOOL    tokenready;                     // only TRUE if UnGetToken was just called
+static char* script_p, * scriptend_p;
+static char    token[MAXTOKEN];
+static int     grabbed;
+static int     scriptline;
+static SWBOOL    endofscript;
+static SWBOOL    tokenready;                     // only TRUE if UnGetToken was just called
 
 /*
 ==============
@@ -75,60 +71,26 @@ SWBOOL    tokenready;                     // only TRUE if UnGetToken was just ca
 ==============
 */
 
-SWBOOL LoadScriptFile(const char *filename)
+TArray<uint8_t> LoadScriptFile(const char *filename)
 {
-    size_t size, readsize;
     FileReader fp;
-
-
 
 	if (!(fp = fileSystem.OpenFileReader(filename)).isOpen())
 	{
 		// If there's no script file, forget it.
-		return FALSE;
+		return TArray<uint8_t>();
 	}
 
-	size = fp.GetLength();
+    auto scriptbuffer = fp.Read();
 
-    scriptbuffer = (char *)AllocMem(size+1);
-
-    ASSERT(scriptbuffer != NULL);
-
-    readsize = fp.Read(scriptbuffer, size);
-
-    ASSERT(readsize == size);
-
-    scriptbuffer[readsize] = '\0';
-
-    script_p = scriptbuffer;
-    scriptend_p = script_p + size;
-    scriptline = 1;
-    endofscript = FALSE;
-    tokenready = FALSE;
-    return TRUE;
-}
-
-
-/*
-==============
-=
-= UnGetToken
-=
-= Signals that the current token was not used, and should be reported
-= for the next GetToken.  Note that
-
-GetToken (TRUE);
-UnGetToken ();
-GetToken (FALSE);
-
-= could cross a line boundary.
-=
-==============
-*/
-
-void UnGetToken(void)
-{
-    tokenready = TRUE;
+    if (scriptbuffer.Size() != 0)
+    {
+        scriptbuffer.Push(0);
+        scriptline = 1;
+        endofscript = FALSE;
+        tokenready = FALSE;
+    }
+    return scriptbuffer;
 }
 
 
@@ -182,15 +144,15 @@ skipspace:
     if (script_p >= scriptend_p)
     {
         if (!crossline)
-            Printf("Error: Line %i is incomplete\n",scriptline);
-        endofscript = TRUE;
-        return;
+Printf("Error: Line %i is incomplete\n", scriptline);
+endofscript = TRUE;
+return;
     }
 
     if (*script_p == '#')   // # is comment field
     {
         if (!crossline)
-            Printf("Error: Line %i is incomplete\n",scriptline);
+            Printf("Error: Line %i is incomplete\n", scriptline);
         while (*script_p++ != '\n')
             if (script_p >= scriptend_p)
             {
@@ -200,9 +162,9 @@ skipspace:
         goto skipspace;
     }
 
-//
-// copy token
-//
+    //
+    // copy token
+    //
     token_p = token;
 
     while (*script_p > 32 && *script_p != '#')
@@ -211,47 +173,13 @@ skipspace:
         if (script_p == scriptend_p)
             break;
         ASSERT(token_p != &token[MAXTOKEN]);
-//          Printf("Error: Token too large on line %i\n",scriptline);
+        //          Printf("Error: Token too large on line %i\n",scriptline);
     }
 
     *token_p = 0;
 }
 
 
-/*
-==============
-=
-= TokenAvailable
-=
-= Returns true if there is another token on the line
-=
-==============
-*/
-
-SWBOOL TokenAvailable(void)
-{
-    char    *search_p;
-
-    search_p = script_p;
-
-    if (search_p >= scriptend_p)
-        return FALSE;
-
-    while (*search_p <= 32)
-    {
-        if (*search_p == '\n')
-            return FALSE;
-        search_p++;
-        if (search_p == scriptend_p)
-            return FALSE;
-
-    }
-
-    if (*search_p == '#')
-        return FALSE;
-
-    return TRUE;
-}
 
 
 // Load all the voxel files using swvoxfil.txt script file
@@ -263,19 +191,15 @@ SWBOOL TokenAvailable(void)
 //              1804 1 shotgun.kvx
 //              etc....
 
-void LoadKVXFromScript(const char *filename)
+void LoadKVXFromScript(const char* filename)
 {
-    int lNumber=0,lTile=0; // lNumber is the voxel no. and lTile is the editart tile being
+    int lNumber = 0, lTile = 0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
-    char *sName;            // KVS file being loaded in.
 
-    int grabbed=0;          // Number of lines parsed
-
-    sName = (char *)AllocMem(256);    // Up to 256 bytes for path
-    ASSERT(sName != NULL);
+    int grabbed = 0;          // Number of lines parsed
 
     // zero out the array memory with -1's for pics not being voxelized
-    memset(&aVoxelArray[0],-1,sizeof(struct TILE_INFO_TYPE)*MAXTILES);
+    memset(&aVoxelArray[0], -1, sizeof(struct TILE_INFO_TYPE) * MAXTILES);
     for (grabbed = 0; grabbed < MAXTILES; grabbed++)
     {
         aVoxelArray[grabbed].Voxel = -1;
@@ -285,8 +209,13 @@ void LoadKVXFromScript(const char *filename)
     grabbed = 0;
 
     // Load the file
-    if (!LoadScriptFile(filename))
-        ASSERT(TRUE==FALSE);
+    auto buffer = LoadScriptFile(filename);
+    if (!buffer.Size())
+    {
+        return;
+    }
+    script_p = (char*)buffer.Data();
+    scriptend_p = (char*)&buffer.Last();
 
     do
     {
@@ -301,10 +230,9 @@ void LoadKVXFromScript(const char *filename)
         lNumber = atol(token);
 
         GetToken(FALSE);
-        strcpy(sName,token);            // Copy the whole token as a file name and path
 
         // Load the voxel file into memory
-        if (!qloadkvx(lNumber,sName))
+        if (!qloadkvx(lNumber,token))
         {
             // Store the sprite and voxel numbers for later use
             aVoxelArray[lTile].Voxel = lNumber; // Voxel num
@@ -319,8 +247,6 @@ void LoadKVXFromScript(const char *filename)
     }
     while (script_p < scriptend_p);
 
-    FreeMem(scriptbuffer);
-    FreeMem(sName);
     script_p = NULL;
 }
 
@@ -334,16 +260,17 @@ void LoadPLockFromScript(const char *filename)
 {
     int lNumber=0,lTile=0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
-    char *sName;            // KVS file being loaded in.
 
     int grabbed=0;          // Number of lines parsed
 
-    sName = (char *)AllocMem(256);    // Up to 256 bytes for path
-    ASSERT(sName != NULL);
-
     // Load the file
-    if (!LoadScriptFile(filename))
-        ASSERT(TRUE==FALSE);
+    auto buffer = LoadScriptFile(filename);
+    if (!buffer.Size())
+    {
+        return;
+    }
+    script_p = (char*)buffer.Data();
+    scriptend_p = (char*)&buffer.Last();
 
     do
     {
@@ -366,8 +293,6 @@ void LoadPLockFromScript(const char *filename)
     }
     while (script_p < scriptend_p);
 
-    FreeMem(scriptbuffer);
-    FreeMem(sName);
     script_p = NULL;
 }
 

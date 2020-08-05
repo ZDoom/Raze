@@ -7128,7 +7128,6 @@ InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
     PANEL_SPRITEp cur, nxt;
 
     ASSERT(psp);
-    ASSERT(ValidPtr(psp));
 
     // if list is empty, insert at front
     if (EMPTY(&pp->PanelSpriteList))
@@ -7218,7 +7217,6 @@ void
 pKillSprite(PANEL_SPRITEp psp)
 {
     PRODUCTION_ASSERT(psp);
-    ASSERT(ValidPtr(psp));
 
     REMOVE(psp);
 
@@ -7320,7 +7318,6 @@ pDisplaySprites(PLAYERp pp)
     set.clear();
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
-        ASSERT(ValidPtr(psp));
         ang = psp->rotate_ang;
         shade = 0;
         flags = 0;
@@ -7646,8 +7643,6 @@ void pFlushPerms(PLAYERp pp)
 
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
-        ASSERT(ValidPtr(psp));
-
         // force kill before showing again
         if (TEST(psp->flags, PANF_KILL_AFTER_SHOW))
         {
@@ -7667,8 +7662,6 @@ pSpriteControl(PLAYERp pp)
         // somewhere else other than by themselves
         // RULE: Sprites can only kill themselves
         PRODUCTION_ASSERT(psp);
-        ASSERT(ValidPtr(psp));
-        // ASSERT((uint32_t) psp->Next != 0xCCCCCCCC);
 
         if (psp->State)
             pStateControl(psp);
@@ -7686,7 +7679,6 @@ void
 pSetState(PANEL_SPRITEp psp, PANEL_STATEp panel_state)
 {
     PRODUCTION_ASSERT(psp);
-    ASSERT(ValidPtr(psp));
     psp->tics = 0;
     psp->State = panel_state;
     psp->picndx = panel_state ? panel_state->picndx : 0;

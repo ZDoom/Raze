@@ -1125,7 +1125,6 @@ void
 InsertOrgTile(OrgTileP tp, OrgTileListP thelist)
 {
     ASSERT(tp);
-    ASSERT(ValidPtr(tp));
 
     // if list is empty, insert at front
     if (EMPTY(thelist))
@@ -1159,7 +1158,6 @@ void
 KillOrgTile(OrgTileP tp)
 {
     ASSERT(tp);
-    ASSERT(ValidPtr(tp));
 
     REMOVE(tp);
 
