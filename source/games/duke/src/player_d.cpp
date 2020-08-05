@@ -2370,23 +2370,30 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->kickback_pic++;
 
-			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_FIREEVERYOTHER)
-				// fire every other...
-
-				if ((p->kickback_pic >= aplWeaponFireDelay[p->curr_weapon][snum]) &&
-					p->kickback_pic < aplWeaponHoldDelay[p->curr_weapon][snum] &&
+			if (isNam())
+			{
+				if ((p->kickback_pic >= 2) &&
+					p->kickback_pic < 5 &&
 					(p->kickback_pic & 1))
 				{
-					{
-						// make them visible if not set...
-						p->visibility = 0;
-						lastvisinc = (int)totalclock + 32;
-					}
+					p->visibility = 0;
+					lastvisinc = (int)totalclock + 32;
 					fi.shoot(pi, RPG);
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
-			if (p->kickback_pic > 5) p->okickback_pic = p->kickback_pic = 0;
+				if (p->kickback_pic > 5) p->kickback_pic = 0;
+			}
+			else if (p->kickback_pic & 1)
+			{
+				p->visibility = 0;
+				lastvisinc = (int)totalclock + 32;
+				fi.shoot(pi, RPG);
+				p->ammo_amount[DEVISTATOR_WEAPON]--;
+				checkavailweapon(p);
+				if (p->ammo_amount[DEVISTATOR_WEAPON] <= 0) p->kickback_pic = 0;
+			}
+			if (p->kickback_pic > 5) p->kickback_pic = 0;
 		}
 		break;
 	case FREEZE_WEAPON:
