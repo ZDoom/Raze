@@ -159,7 +159,7 @@ grpinfo
 	name "Duke it out in D.C. (1.3D)"
 	size 7926624
 	crc DUKEDC13_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE13_CRC
 	gamefilter "Duke.DukeDC"
 }
@@ -169,7 +169,7 @@ grpinfo
 	name "Duke it out in D.C."
 	size 8225517
 	crc DUKEDCPP_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
 }
@@ -179,7 +179,7 @@ grpinfo
 	name "Duke it out in D.C."
 	size 8410183
 	crc DUKEDC_CRC
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
 }
@@ -190,7 +190,7 @@ grpinfo
 	scriptname "DUKEDC.CON"
 	size 8410187
 	crc 0x39A692BF
-	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_DUKEDC
 	dependency DUKE15_CRC
 	gamefilter "Duke.DukeDC"
 }

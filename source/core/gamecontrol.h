@@ -110,7 +110,7 @@ enum
 	GAMEFLAG_EXHUMED	= 0x00004000,
 	GAMEFLAG_PSEXHUMED  = GAMEFLAG_POWERSLAVE | GAMEFLAG_EXHUMED,	// the two games really are the same, except for the name and the publisher.
 	GAMEFLAG_WORLDTOUR = 0x00008000,
-	GAMEFLAG_STANDALONE = 0x00010000,
+	GAMEFLAG_DUKEDC = 0x00010000,
 	GAMEFLAGMASK        = 0x0000FFFF, // flags allowed from grpinfo
 
 	// We still need these for the parsers.

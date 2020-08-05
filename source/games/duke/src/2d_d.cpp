@@ -548,6 +548,12 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		{ -1,-1 }
 	};
 
+	static const AnimSound dukedcsound[] =
+	{
+		{ 144, ENDSEQVOL3SND3 + 1 },
+		{ -1,-1 }
+	};
+
 	static const AnimSound vol4e1[] =
 	{
 		{ 3, DUKE_UNDERWATER+1 },
@@ -591,10 +597,17 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		break;
 
 	case 2:
-		jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
-		jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
-		jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
-		if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)), []() { FX_StopAllSounds(); } };
+		if (g_gameType & GAMEFLAG_DUKEDC)
+		{
+			jobs[job++] = { PlayVideo("radlogo.anm", dukedcsound, framespeed_10), nullptr };
+		}
+		else
+		{
+			jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
+			jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
+			jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
+			if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)), []() { FX_StopAllSounds(); } };
+		}
 		break;
 
 	case 3:
