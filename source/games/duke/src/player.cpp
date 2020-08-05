@@ -972,7 +972,7 @@ void sethorizon(int snum, int sb_snum, double factor, fixed_t adjustment)
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.);
+	double horizAngle = clamp2(atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
 
 	if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
