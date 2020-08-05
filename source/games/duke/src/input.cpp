@@ -1242,14 +1242,9 @@ void GetInput()
 		processVehicleInput(p, info, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
-		if (!cl_syncinput)
+		if (!cl_syncinput && sprite[p->i].extra > 0)
 		{
-			p->q16ang = (p->q16ang + input.q16avel) & 0x7FFFFFF;
-			p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
-			if (sprite[p->i].extra > 0)
-			{
-				apply_seasick(p, scaleAdjust);
-			}
+			apply_seasick(p, scaleAdjust);
 		}
 	}
 	else
@@ -1258,14 +1253,14 @@ void GetInput()
 		checkCrouchToggle(p);
 		processInputBits(p, info);
 		FinalizeInput(myconnectindex, input, false);
+	}
 
-		if (!cl_syncinput)
-		{
-			// Do these in the same order as the old code.
-			calcviewpitch(p, scaleAdjust);
-			applylook(myconnectindex, scaleAdjust, input.q16avel);
-			sethorizon(myconnectindex, loc.bits, scaleAdjust, true, input.q16horz);
-		}
+	if (!cl_syncinput)
+	{
+		// Do these in the same order as the old code.
+		calcviewpitch(p, scaleAdjust);
+		applylook(myconnectindex, scaleAdjust, input.q16avel);
+		sethorizon(myconnectindex, loc.bits, scaleAdjust, true, input.q16horz);
 	}
 }
 

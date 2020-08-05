@@ -163,7 +163,15 @@ void forceplayerangle(struct player_struct* p)
 
 	n = 128 - (krand() & 255);
 
-	p->horizAdjust += 64;
+	int horiz = 64;
+	if (!cl_syncinput)
+	{
+		p->horizAdjust += horiz;
+	}
+	else
+	{
+		p->addhoriz(horiz);
+	}
 	p->return_to_center = 9;
 	p->setlookang(n >> 1);
 	p->setrotscrnang(n >> 1);
@@ -405,7 +413,15 @@ void dokneeattack(int snum, int pi, const std::initializer_list<int> & respawnli
 	if (p->knee_incs > 0)
 	{
 		p->knee_incs++;
-		p->horizAdjust -= 48;
+		int horiz = -48;
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += horiz;
+		}
+		else
+		{
+			p->addhoriz(horiz);
+		}
 		p->return_to_center = 9;
 		if (p->knee_incs > 15)
 		{
@@ -822,9 +838,16 @@ void applylook(int snum, double factor, fixed_t adjustment)
 			}
 			p->q16ang += add;
 		}
-		p->q16ang += fix16_from_dbl(factor * p->angAdjust) + adjustment;
 		apply_seasick(p, factor);
 	}
+
+	// Add angAdjust if input is unsynchronised.
+	if (!cl_syncinput)
+	{
+		p->q16ang += fix16_from_dbl(factor * p->angAdjust);
+	}
+
+	p->q16ang = (p->q16ang + adjustment) & 0x7FFFFFF;
 }
 
 //---------------------------------------------------------------------------
@@ -911,6 +934,29 @@ void resetinputhelpers(player_struct* p)
 //
 //---------------------------------------------------------------------------
 
+void checkhardlanding(player_struct* p)
+{
+	if (p->hard_landing > 0)
+	{
+		int horiz = p->hard_landing << 4;
+		if (!cl_syncinput)
+		{
+			p->horizAdjust -= horiz;
+		}
+		else
+		{
+			p->addhoriz(-horiz);
+		}
+		p->hard_landing--;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void checklook(int snum, int sb_snum)
 {
 	auto p = &ps[snum];
@@ -970,7 +1016,16 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput, fixed_t ad
 		}
 	}
 
-	p->q16horiz = clamp((F16(100) + xs_CRoundToInt(F16(128) * tan(horizAngle * (pi::pi() / 512.)))) + (factor * (p->horizAdjust * 65536.)), F16(HORIZ_MIN), F16(HORIZ_MAX));
+	// Convert back to Build's horizon.
+	p->q16horiz = F16(100) + xs_CRoundToInt(F16(128) * tan(horizAngle * (pi::pi() / 512.)));
+
+	// Add horizAdjust if input is unsynchronised.
+	if (!cl_syncinput)
+	{
+		p->q16horiz += xs_CRoundToInt(factor * (p->horizAdjust * 65536.));
+	}
+
+	p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------

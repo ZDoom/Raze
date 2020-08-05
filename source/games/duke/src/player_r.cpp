@@ -1410,31 +1410,6 @@ int doincrements_r(struct player_struct* p)
 		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
 			p->knuckle_incs = 0;
 
-		// Originally, these functions were called before this function in processinput_r(), however with unsynchronised input changes,
-		// we need to call them after calling processweapon(), which happens after this function is called.
-		// Since this function returning 1 causes processinput_r() to return, we call them here in the event this function will return 1.
-		if (cl_syncinput)
-		{
-			if (!movementBlocked(snum))
-			{
-				auto sb_avel = PlayerInputAngVel(snum);
-
-				if (sector[p->cursectnum].lotag == ST_2_UNDERWATER)
-				{
-					p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(TICSPERFRAME);
-				}
-				else
-				{
-					p->q16angvel = sb_avel * sgn(TICSPERFRAME);
-				}
-
-				applylook(snum, 1, p->q16angvel);
-
-				p->crack_time = 777;
-			}
-			sethorizon(snum, PlayerInputBits(snum, SKB_ALL), 1, !cl_syncinput, sync[snum].q16horz);
-		}
-
 		return 1;
 	}
 	return 0;
@@ -1527,6 +1502,18 @@ void checkweapons_r(struct player_struct* p)
 		}
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static inline double calcVehicleHorizAdjust(fixed_t q16horiz, int adjustment)
+{
+	return -1. * ((q16horiz / 65536.) - adjustment);
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -1705,18 +1692,27 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 	}
 	if (p->TurbCount)
 	{
+		int horiz;
 		if (p->TurbCount <= 1)
 		{
-			p->sethoriz(100);
+			horiz = 100;
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			p->sethoriz(100 + ((krand() & 15) - 7));
+			horiz = 100 + ((krand() & 15) - 7);
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
+		}
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, horiz);
+		}
+		else
+		{
+			p->sethoriz(horiz);
 		}
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
@@ -1727,7 +1723,14 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->sethoriz(100 + p->VBumpNow / 3);
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
+		}
+		else
+		{
+			p->sethoriz(100 + p->VBumpNow / 3);
+		}
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -1737,7 +1740,14 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->sethoriz(100 + p->VBumpNow / 3);
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
+		}
+		else
+		{
+			p->sethoriz(100 + p->VBumpNow / 3);
+		}
 	}
 	else
 	{
@@ -1757,6 +1767,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			var98 = 350;
 		else
 			var98 = -350;
+		int ang;
 		if (p->moto_on_mud || p->moto_on_oil || !p->NotOnWater)
 		{
 			if (p->moto_on_oil)
@@ -1767,13 +1778,13 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			{
 				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
-				p->setang((var90 - (var98 >> 2)) & 2047);
+				ang = var98 >> 2;
 			}
 			else
 			{
 				p->posxv += (var8c >> 7) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 7) * (sintable[(var94 * -51 + var90) & 2047] << 4);
-				p->setang((var90 - (var98 >> 6)) & 2047);
+				ang = var98 >> 6;
 			}
 			p->moto_on_mud = 0;
 			p->moto_on_oil = 0;
@@ -1784,7 +1795,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			{
 				p->posxv += (var8c >> 5) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 5) * (sintable[(var94 * -51 + var90) & 2047] << 4);
-				p->setang((var90 - (var98 >> 4)) & 2047);
+				ang = var98 >> 4;
 				if (!S_CheckActorSoundPlaying(pi, 220))
 					S_PlayActorSound(220, pi);
 			}
@@ -1792,8 +1803,16 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 			{
 				p->posxv += (var8c >> 7) * (sintable[(var94 * -51 + var90 + 512) & 2047] << 4);
 				p->posyv += (var8c >> 7) * (sintable[(var94 * -51 + var90) & 2047] << 4);
-				p->setang((var90 - (var98 >> 7)) & 2047);
+				ang = var98 >> 7;
 			}
+		}
+		if (!cl_syncinput)
+		{
+			p->angAdjust -= ang;
+		}
+		else
+		{
+			p->setang((var90 - ang) & 2047);
 		}
 	}
 	else if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->moto_on_mud || p->moto_on_oil))
@@ -2025,18 +2044,27 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 	}
 	if (p->TurbCount)
 	{
+		int horiz;
 		if (p->TurbCount <= 1)
 		{
-			p->sethoriz(100);
+			horiz = 100;
 			p->TurbCount = 0;
 			p->VBumpTarget = 0;
 			p->VBumpNow = 0;
 		}
 		else
 		{
-			p->sethoriz(100 + ((krand() & 15) - 7));
+			horiz = 100 + ((krand() & 15) - 7);
 			p->TurbCount--;
 			p->moto_drink = (krand() & 3) - 2;
+		}
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, horiz);
+		}
+		else
+		{
+			p->sethoriz(horiz);
 		}
 	}
 	else if (p->VBumpTarget > p->VBumpNow)
@@ -2047,7 +2075,14 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->VBumpNow++;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->sethoriz(100 + p->VBumpNow / 3);
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
+		}
+		else
+		{
+			p->sethoriz(100 + p->VBumpNow / 3);
+		}
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
@@ -2057,7 +2092,14 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			p->VBumpNow--;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		p->sethoriz(100 + p->VBumpNow / 3);
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += calcVehicleHorizAdjust(p->q16horiz, 100 + p->VBumpNow / 3);
+		}
+		else
+		{
+			p->sethoriz(100 + p->VBumpNow / 3);
+		}
 	}
 	else
 	{
@@ -2078,17 +2120,26 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 		else
 			vare0 = -350;
 		vard4 <<= 2;
+		int ang;
 		if (p->moto_do_bump)
 		{
 			p->posxv += (vard4 >> 6) * (sintable[(vardc * -51 + vard8 + 512) & 2047] << 4);
 			p->posyv += (vard4 >> 6) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
-			p->setang((vard8 - (vare0 >> 5)) & 2047);
+			ang = vare0 >> 5;
 		}
 		else
 		{
 			p->posxv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8 + 512) & 2047] << 4);
 			p->posyv += (vard4 >> 7) * (sintable[(vardc * -51 + vard8) & 2047] << 4);
-			p->setang((vard8 - (vare0 >> 6)) & 2047);
+			ang = vare0 >> 6;
+		}
+		if (!cl_syncinput)
+		{
+			p->angAdjust -= ang;
+		}
+		else
+		{
+			p->setang((vard8 - ang) & 2047);
 		}
 	}
 	if (p->NotOnWater)
@@ -2421,14 +2472,23 @@ void onMotorcycleMove(int snum, int psect, int j)
 	j &= (MAXWALLS - 1);
 	var108 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
 	var10c = abs(p->getang() - var108);
+	int ang;
 	switch (krand() & 1)
 	{
 	case 0:
-		p->angAdjust += p->MotoSpeed >> 1;
+		ang = p->MotoSpeed >> 1;
 		break;
 	case 1:
-		p->angAdjust -= p->MotoSpeed >> 1;
+		ang = -(p->MotoSpeed >> 1);
 		break;
+	}
+	if (!cl_syncinput)
+	{
+		p->angAdjust += ang;
+	}
+	else
+	{
+		p->addang(ang);
 	}
 	if (var10c >= 441 && var10c <= 581)
 	{
@@ -2486,14 +2546,23 @@ void onBoatMove(int snum, int psect, int j)
 	j &= (MAXWALLS - 1);
 	var114 = getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y);
 	var118 = abs(p->getang() - var114);
+	int ang;
 	switch (krand() & 1)
 	{
 	case 0:
-		p->angAdjust += p->MotoSpeed >> 2;
+		ang = p->MotoSpeed >> 2;
 		break;
 	case 1:
-		p->angAdjust -= p->MotoSpeed >> 2;
+		ang = -(p->MotoSpeed >> 2);
 		break;
+	}
+	if (!cl_syncinput)
+	{
+		p->angAdjust += ang;
+	}
+	else
+	{
+		p->addang(ang);
 	}
 	if (var118 >= 441 && var118 <= 581)
 	{
@@ -3028,7 +3097,14 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	case RIFLEGUN_WEAPON:
 
 		p->kickback_pic++;
-		p->horizAdjust += 1;
+		if (!cl_syncinput)
+		{
+			p->horizAdjust += 1;
+		}
+		else
+		{
+			p->addhoriz(1);
+		}
 		p->recoil++;
 
 		if (p->kickback_pic <= 12)
@@ -3118,11 +3194,25 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angAdjust += 16;
+			if (!cl_syncinput)
+			{
+				p->angAdjust += 16;
+			}
+			else
+			{
+				p->addang(16);
+			}
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angAdjust -= 16;
+			if (!cl_syncinput)
+			{
+				p->angAdjust -= 16;
+			}
+			else
+			{
+				p->addang(-16);
+			}
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3148,11 +3238,26 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic == 2)
 		{
-			p->angAdjust += 4;
+			int ang = 4;
+			if (!cl_syncinput)
+			{
+				p->angAdjust += 4;
+			}
+			else
+			{
+				p->addang(4);
+			}
 		}
 		else if (p->kickback_pic == 4)
 		{
-			p->angAdjust -= 4;
+			if (!cl_syncinput)
+			{
+				p->angAdjust -= -4;
+			}
+			else
+			{
+				p->addang(-4);
+			}
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
@@ -3200,7 +3305,14 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->posxv -= sintable[(p->getang() + 512) & 2047] << 4;
 			p->posyv -= sintable[p->getang() & 2047] << 4;
-			p->horizAdjust += 20;
+			if (!cl_syncinput)
+			{
+				p->horizAdjust += 20;
+			}
+			else
+			{
+				p->addhoriz(20);
+			}
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
@@ -3709,6 +3821,34 @@ void processinput_r(int snum)
 		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
 	}
 
+	//Do the quick lefts and rights
+
+	if (movementBlocked(snum))
+	{
+		doubvel = 0;
+		p->posxv = 0;
+		p->posyv = 0;
+	}
+	else if (cl_syncinput)
+	{
+		//p->ang += syncangvel * constant
+		//ENGINE calculates angvel for you
+		// may still be needed later for demo recording
+
+		if (psectlotag == ST_2_UNDERWATER)
+		{
+			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
+		}
+		else
+		{
+			p->q16angvel = sb_avel * sgn(doubvel);
+		}
+
+		applylook(snum, 1, p->q16angvel);
+
+		p->crack_time = 777;
+	}
+
 	if (p->spritebridge == 0)
 	{
 		j = sector[s->sectnum].floorpicnum;
@@ -4056,13 +4196,23 @@ HORIZONLY:
 		if (!d)
 			d = 1;
 		p->recoil -= d;
-		p->horizAdjust -= d;
+
+		if (!cl_syncinput)
+		{
+			p->horizAdjust -= d;
+		}
+		else
+		{
+			p->addhoriz(-d);
+		}
 	}
-	if (p->hard_landing > 0)
+
+	if (cl_syncinput)
 	{
-		p->horizAdjust -= p->hard_landing << 4;
-		p->hard_landing--;
+		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
 	}
+
+	checkhardlanding(p);
 
 	//Shooting code/changes
 
@@ -4096,38 +4246,6 @@ HORIZONLY:
 	}
 
 	processweapon(snum, sb_snum, psect);
-
-	//Do the quick lefts and rights
-
-	if (movementBlocked(snum))
-	{
-		doubvel = 0;
-		p->posxv = 0;
-		p->posyv = 0;
-	}
-	else if (cl_syncinput)
-	{
-		//p->ang += syncangvel * constant
-		//ENGINE calculates angvel for you
-		// may still be needed later for demo recording
-
-		if (psectlotag == ST_2_UNDERWATER)
-		{
-			p->q16angvel = (sb_avel - (sb_avel >> 3)) * sgn(doubvel);
-		}
-		else
-		{
-			p->q16angvel = sb_avel * sgn(doubvel);
-		}
-
-		applylook(snum, 1, p->q16angvel);
-
-		p->crack_time = 777;
-	}
-	if (cl_syncinput)
-	{
-		sethorizon(snum, sb_snum, 1, !cl_syncinput, sync[snum].q16horz);
-	}
 }
 
 //---------------------------------------------------------------------------

@@ -214,23 +214,25 @@ struct player_struct
 	int8_t crouch_toggle;
 
 	// input stuff.
-	int     horizAdjust, angAdjust, pitchAdjust;
+	double  horizAdjust, angAdjust, pitchAdjust;
 	bool    lookLeft, lookRight;
 
 
 	// Access helpers for the widened angle and horizon fields.
 	void setlookang(int b) { q16look_ang = b << FRACBITS; }
 	void addlookang(int b) { q16look_ang += b << FRACBITS; }
-	void addlookang(double b) { q16look_ang += int(b *65536.); }
+	void addlookang(double b) { q16look_ang += xs_CRoundToInt(b * FRACUNIT); }
 	void setrotscrnang(int b) { q16rotscrnang = b << FRACBITS; }
 	void addrotscrnang(int b) { q16rotscrnang += b << FRACBITS; }
-	void addrotscrnang(double b) { q16rotscrnang += int(b *65536.); }
+	void addrotscrnang(double b) { q16rotscrnang += xs_CRoundToInt(b * FRACUNIT); }
 	int getang() { return q16ang >> FRACBITS; }
 	int getoang() { return oq16ang >> FRACBITS; }
-	void setang(int v, bool smooth = false) { q16ang = v << FRACBITS; }
+	void setang(int v) { q16ang = v << FRACBITS; }
+	void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & 0x7FFFFFF; }
 	void setoang(int v) { oq16ang = v << FRACBITS; }
+	void addhoriz(int v) { q16horiz += (v << FRACBITS); }
 	void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
-	void addhorizoff(double v) { q16horiz += int(v * 65536.); }
+	void addhorizoff(double v) { q16horiz += xs_CRoundToInt(v * FRACUNIT); }
 	void sethoriz(int v) { q16horiz = (v << FRACBITS); }
 	void sethorizoff(int v) { q16horizoff = (v << FRACBITS); }
 	int gethoriz() { return q16horiz >> FRACBITS; }

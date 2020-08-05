@@ -3028,9 +3028,22 @@ HORIZONLY:
 		playerAimDown(snum, sb_snum);
 	}
 
+	if (cl_syncinput)
+	{
+		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
+	}
+
 	if (p->hard_landing > 0)
 	{
-		p->horizAdjust -= p->hard_landing << 4;
+		int horiz = p->hard_landing << 4;
+		if (!cl_syncinput)
+		{
+			p->horizAdjust -= horiz;
+		}
+		else
+		{
+			p->addhoriz(-horiz);
+		}
 		p->hard_landing--;
 	}
 
@@ -3051,11 +3064,6 @@ HORIZONLY:
 	}
 
 	dokneeattack(snum, pi, { FEM1, FEM2, FEM3, FEM4, FEM5, FEM6, FEM7, FEM8, FEM9, FEM10, PODFEM1, NAKED1, STATUE });
-
-	if (cl_syncinput)
-	{
-		sethorizon(snum, sb_snum, 1, false, sync[snum].q16horz);
-	}
 
 	if (fi.doincrements(p)) return;
 

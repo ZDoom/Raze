@@ -1852,7 +1852,15 @@ void moveweapons_d(void)
 
 						if (s->picnum == SPIT)
 						{
-							ps[p].horizAdjust += 32;
+							int horiz = 32;
+							if (!cl_syncinput)
+							{
+								ps[p].horizAdjust += horiz;
+							}
+							else
+							{
+								ps[p].addhoriz(horiz);
+							}
 							ps[p].return_to_center = 8;
 
 							if (ps[p].loogcnt == 0)

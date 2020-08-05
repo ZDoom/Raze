@@ -249,5 +249,6 @@ void backuplook(player_struct* p);
 void backupview(player_struct* p);
 void backupweapon(player_struct* p);
 void resetinputhelpers(player_struct* p);
+void checkhardlanding(player_struct* p);
 
 END_DUKE_NS

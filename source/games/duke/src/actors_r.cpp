@@ -1398,7 +1398,16 @@ void moveweapons_r(void)
 								guts_r(s, RABBITJIBB, 2, myconnectindex);
 								guts_r(s, RABBITJIBC, 2, myconnectindex);
 							}
-							ps[p].horizAdjust += 32;
+
+							int horiz = 32;
+							if (!cl_syncinput)
+							{
+								ps[p].horizAdjust += horiz;
+							}
+							else
+							{
+								ps[p].addhoriz(horiz);
+							}
 							ps[p].return_to_center = 8;
 
 							if (ps[p].loogcnt == 0)

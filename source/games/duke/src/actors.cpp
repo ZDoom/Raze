@@ -762,7 +762,15 @@ void movecrane(int i, int crane)
 				s->owner = -2;
 				ps[p].on_crane = i;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].i);
-				ps[p].setang(s->ang + 1024, true);
+				int ang = s->ang + 1024;
+				if (!cl_syncinput)
+				{
+					ps[p].angAdjust += ps[p].getang() + ang;
+				}
+				else
+				{
+					ps[p].setang(ang);
+				}
 			}
 			else
 			{
@@ -2685,7 +2693,15 @@ void handle_se00(int i, int LASERLINE)
 		{
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground == 1)
 			{
-				ps[p].angAdjust += l * q;
+				int ang = l * q;
+				if (!cl_syncinput)
+				{
+					ps[p].angAdjust += ang;
+				}
+				else
+				{
+					ps[p].addang(ang);
+				}
 
 				ps[p].posz += zchange;
 
@@ -2877,7 +2893,14 @@ void handle_se14(int i, bool checkstat, int RPG, int JIBS6)
 					ps[p].bobposx += m;
 					ps[p].bobposy += x;
 
-					ps[p].angAdjust += q;
+					if (!cl_syncinput)
+					{
+						ps[p].angAdjust += q;
+					}
+					else
+					{
+						ps[p].addang(q);
+					}
 
 					if (numplayers > 1)
 					{
