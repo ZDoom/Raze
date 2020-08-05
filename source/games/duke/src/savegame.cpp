@@ -303,6 +303,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.ohard_landing = w.hard_landing;
 		w.horizAdjust = 0;
 		w.angAdjust = 0;
+		w.pitchAdjust = 0;
 		w.lookLeft = false;
 		w.lookRight = false;
 	}
