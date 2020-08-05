@@ -27,11 +27,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "build.h"
 
 #include "names2.h"
-#include "game.h"
+#include "misc.h"
 #include "tags.h"
 #include "ai.h"
 #include "weapon.h"
-#include "actor.h"
 
 BEGIN_SW_NS
 

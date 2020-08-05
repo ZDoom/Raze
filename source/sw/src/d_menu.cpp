@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "jsector.h"
 #include "menus.h"
-#include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
 #include "keydef.h"
@@ -40,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "gamedefs.h"
 #include "network.h"
-#include "text.h"
+#include "misc.h"
 #include "version.h"
 #include "network.h"
 

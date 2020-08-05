@@ -31,10 +31,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "network.h"
 #include "tags.h"
-#include "slidor.h"
 #include "sector.h"
 #include "interp.h"
-#include "text.h"
+#include "misc.h"
 #include "sprite.h"
 #include "quotemgr.h"
 

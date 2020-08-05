@@ -34,11 +34,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
+#include "misc.h"
 #include "tags.h"
 #include "weapon.h"
 #include "sprite.h"
-#include "actor.h"
 
 BEGIN_SW_NS
 

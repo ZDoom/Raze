@@ -28,11 +28,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
+#include "misc.h"
 #include "network.h"
 #include "tags.h"
 #include "sector.h"
-#include "text.h"
 #include "interp.h"
 #include "sprite.h"
 #include "quotemgr.h"

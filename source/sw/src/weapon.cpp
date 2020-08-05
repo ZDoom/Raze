@@ -29,7 +29,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
+#include "misc.h"
 #include "interp.h"
 #include "interpso.h"
 #include "tags.h"
@@ -38,15 +38,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quake.h"
 #include "network.h"
 #include "pal.h"
-#include "vis.h"
 
 #include "ai.h"
 #include "weapon.h"
 #include "anim.h"
 #include "sector.h"
 #include "sprite.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 #include "player.h"
 #include "gstrings.h"
 

@@ -36,8 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "sprite.h"
 #include "weapon.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 
 BEGIN_SW_NS
 

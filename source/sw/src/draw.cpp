@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "panel.h"
 #include "game.h"
 #include "quake.h"
-#include "vis.h"
 
 #include "jsector.h"
 
@@ -49,7 +48,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "reserve.h"
 
-#include "text.h"
 #include "menus.h"
 #include "interp.h"
 #include "interpso.h"

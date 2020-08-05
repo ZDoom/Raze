@@ -79,9 +79,8 @@ Things required to make savegames work:
 #include "break.h"
 #include "ninja.h"
 #include "light.h"
-#include "track.h"
+#include "misc.h"
 #include "jsector.h"
-#include "text.h"
 
 #include "common.h"
 #include "common_game.h"

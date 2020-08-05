@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "jsector.h"
 #include "menus.h"
-#include "sw_strs.h"
 #include "pal.h"
 #include "demo.h"
 
@@ -46,7 +45,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamecontrol.h"
 #include "gamedefs.h"
 #include "network.h"
-#include "text.h"
 #include "version.h"
 #include "network.h"
 

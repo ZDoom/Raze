@@ -36,7 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interpso.h"
 #include "network.h"
 #include "sprite.h"
-#include "track.h"
+#include "misc.h"
 #include "weapon.h"
 
 BEGIN_SW_NS

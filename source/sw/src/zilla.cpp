@@ -32,8 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "ai.h"
 #include "quake.h"
-#include "actor.h"
-#include "track.h"
+#include "misc.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
 

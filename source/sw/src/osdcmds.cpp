@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "panel.h"
 #include "game.h"
 #include "mytypes.h"
-#include "text.h"
 
 #include "gamecontrol.h"
 #include "gstrings.h"
