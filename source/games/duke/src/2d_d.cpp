@@ -385,7 +385,7 @@ public:
 	}
 
 public:
-	DEpisode3End() : DImageScreen(getTexture(), fadein|fadeout)
+	DEpisode3End() : DImageScreen(getTexture(), fadein|fadeout, 0x7fffffff)
 	{
 	}
 
@@ -582,16 +582,16 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 	{
 	case 0:
 		jobs[job++] = { Create<DEpisode1End1>(), nullptr };
-		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN), nullptr };
+		jobs[job++] = { Create<DImageScreen>(E1ENDSCREEN, DScreenJob::fadein|DScreenJob::fadeout, 0x7fffffff), nullptr };
 		break;
 
 	case 1:
 		jobs[job++] = { PlayVideo("cineov2.anm", cineov2sound, framespeed_18), []() { S_PlaySound(PIPEBOMB_EXPLODE, CHAN_AUTO, CHANF_UI); } };
-		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN), []() { FX_StopAllSounds(); } };
+		jobs[job++] = { Create<DImageScreen>(E2ENDSCREEN, DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff), []() { FX_StopAllSounds(); } };
 		break;
 
 	case 2:
-		jobs[job++] = { PlayVideo("cineov3.anm", cineov3sound, framespeed_10), nullptr };
+		jobs[job++] = { PlayVideo("radlogo.anm", cineov3sound, framespeed_10), nullptr };
 		jobs[job++] = { Create<DBlackScreen>(200), []() { FX_StopAllSounds(); } };
 		jobs[job++] = { Create<DEpisode3End>(), []() { if (!PLUTOPAK) S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
 		if (!PLUTOPAK) jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)), []() { FX_StopAllSounds(); } };
@@ -602,7 +602,8 @@ static void bonussequence_d(int num, JobDesc *jobs, int &job)
 		jobs[job++] = { PlayVideo("vol4e2.anm", vol4e2, framespeed_10), nullptr };
 		jobs[job++] = { PlayVideo("vol4e3.anm", vol4e3, framespeed_10), []() { S_PlaySound(ENDSEQVOL3SND4, CHAN_AUTO, CHANF_UI); } };
 		jobs[job++] = { Create<DEpisode4Text>(), nullptr };
-		jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup)),  []() { FX_StopAllSounds(); } };
+		jobs[job++] = { Create<DImageScreen>(TexMan.GetGameTextureByName("DUKETEAM.ANM", false, FTextureManager::TEXMAN_ForceLookup), 
+			DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff),  []() { FX_StopAllSounds(); } };
 		break;
 
 	case 4:

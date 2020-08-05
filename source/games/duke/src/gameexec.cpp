@@ -1736,5 +1736,12 @@ void OnEvent(int iEventID, int p, int i, int x)
 	while (done == 0);
 }
 
+CCMD(endofgame)
+{
+	ps[0].timebeforeexit = 120;
+	ps[0].customexitsound = -1;
+	ud.eog = 1;
+
+}
 
 END_DUKE_NS
