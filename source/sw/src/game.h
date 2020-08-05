@@ -47,6 +47,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pragmas.h"
 #include "gamecvars.h"
 #include "raze_sound.h"
+#include "c_cvars.h"
+
+EXTERN_CVAR(Bool, sw_ninjahack)
+EXTERN_CVAR(Bool, sw_darts)
 
 BEGIN_SW_NS
 
@@ -240,59 +244,6 @@ extern char MessageOutputString[256];
 #define MAX_ACTIVE_RANGE 42000
 // dist at which actors roam about on their own
 #define MIN_ACTIVE_RANGE 20000
-
-#undef  KEYSC_UP
-#define KEYSC_UP        sc_UpArrow
-#undef  KEYSC_DOWN
-#define KEYSC_DOWN      sc_DownArrow
-#undef  KEYSC_LEFT
-#define KEYSC_LEFT      sc_LeftArrow
-#undef  KEYSC_RIGHT
-#define KEYSC_RIGHT     sc_RightArrow
-#undef  KEYSC_INS
-#define KEYSC_INS       sc_Insert
-#undef  KEYSC_DEL
-#define KEYSC_DEL       sc_Delete
-#undef  KEYSC_HOME
-#define KEYSC_HOME      sc_Home
-#undef  KEYSC_END
-#define KEYSC_END       sc_End
-#undef  KEYSC_PGUP
-#define KEYSC_PGUP      sc_PgUp
-#undef  KEYSC_PGDN
-#define KEYSC_PGDN      sc_PgDn
-
-#define KEYSC_RALT      sc_RightAlt
-#define KEYSC_RCTRL     sc_RightControl
-#define KEYSC_KPSLASH   sc_kpad_Slash
-#define KEYSC_KPENTER   sc_kpad_Enter
-#define KEYSC_PRINTSCREEN sc_PrintScreen
-#define KEYSC_LASTSC      sc_LastScanCode
-
-#define KEYSC_KP_1      sc_kpad_1
-#define KEYSC_KP_2      sc_kpad_2
-#define KEYSC_KP_3      sc_kpad_3
-#define KEYSC_KP_4      sc_kpad_4
-#define KEYSC_KP_6      sc_kpad_6
-#define KEYSC_KP_5     sc_kpad_5
-#define KEYSC_KP_7      sc_kpad_7
-#define KEYSC_KP_8      sc_kpad_8
-#define KEYSC_KP_9      sc_kpad_9
-#define KEYSC_KP_0      sc_kpad_0
-#define KEYSC_KPMINUS  sc_kpad_Minus
-#define KEYSC_KPPLUS   sc_kpad_Plus
-#define KEYSC_KPPERIOD sc_kpad_Period
-
-#define KEYSC_EUP        sc_UpArrow
-#define KEYSC_EDOWN      sc_DownArrow
-#define KEYSC_ELEFT      sc_LeftArrow
-#define KEYSC_ERIGHT     sc_RightArrow
-#define KEYSC_EINS       sc_Insert
-#define KEYSC_EDEL       sc_Delete
-#define KEYSC_EHOME      sc_Home
-#define KEYSC_EEND       sc_End
-#define KEYSC_EPGUP      sc_PgUp
-#define KEYSC_EPGDN      sc_PgDn
 
 //
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS

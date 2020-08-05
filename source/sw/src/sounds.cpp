@@ -28,14 +28,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "compat.h"
 #include "build.h"
 
-
-#include "keys.h"
-
 #include "names2.h"
 #include "mytypes.h"
 #include "gamedefs.h"
-#include "config.h"
-
 
 #include "panel.h"
 #include "game.h"
@@ -43,16 +38,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ai.h"
 #include "network.h"
 
-#include "cache.h"
+#include "misc.h"
 #include "text.h"
 #include "rts.h"
 #include "menus.h"
-#include "config.h"
 #include "menu.h"
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "filesystem.h"
 #include "serializer.h"
+#include "gamecontrol.h"
 
 BEGIN_SW_NS
 

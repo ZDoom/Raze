@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "build.h"
 #include "common.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "lists.h"
@@ -45,7 +44,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "weapon.h"
 #include "menu.h"
-#include "swcvar.h"
 #include "raze_sound.h"
 
 BEGIN_SW_NS
@@ -1567,24 +1565,6 @@ void
 pSwordRest(PANEL_SPRITEp psp)
 {
     SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
-
-#if 0
-    if (inputState.GetKeyStatus(KEYSC_SEMI))
-    {
-        inputState.GetKeyStatus(KEYSC_SEMI) = 0;
-        SwordAng -= 4;
-        //DSPRINTF(ds,"SwordAng %d", SwordAng);
-        MONO_PRINT(ds);
-    }
-
-    if (inputState.GetKeyStatus(KEYSC_QUOTE))
-    {
-        inputState.GetKeyStatus(KEYSC_QUOTE) = 0;
-        SwordAng += 4;
-        //DSPRINTF(ds,"SwordAng %d", SwordAng);
-        MONO_PRINT(ds);
-    }
-#endif
 
     if (pWeaponHideKeys(psp, ps_SwordHide))
         return;

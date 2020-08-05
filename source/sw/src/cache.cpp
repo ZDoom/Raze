@@ -39,7 +39,7 @@ not load" error messages.
 #include "break.h"
 #include "quake.h"
 #include "pal.h"
-#include "cache.h"
+#include "misc.h"
 #include "sounds.h"
 #include "network.h"
 

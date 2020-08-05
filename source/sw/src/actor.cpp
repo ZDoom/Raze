@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -40,7 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "sprite.h"
 #include "actor.h"
-#include "swcvar.h"
 
 BEGIN_SW_NS
 

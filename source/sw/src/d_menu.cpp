@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"	// Must come before everything else!
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -40,14 +39,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
-#include "config.h"
 #include "network.h"
 #include "text.h"
 #include "version.h"
 #include "network.h"
 
-#include "colormap.h"
-#include "config.h"
+#include "misc.h"
 #include "menu.h"
 #include "raze_sound.h"
 #include "sounds.h"

@@ -27,7 +27,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -46,14 +45,12 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
-#include "config.h"
 #include "network.h"
 #include "text.h"
 #include "version.h"
 #include "network.h"
 
-#include "colormap.h"
-#include "config.h"
+#include "misc.h"
 #include "palettecontainer.h"
 
 BEGIN_SW_NS

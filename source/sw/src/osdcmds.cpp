@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -43,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_text.h"
 #include "printf.h"
 
-#include "cheats.h"
+#include "misc.h"
 #include "demo.h"  // g_firstDemoFile[]
 #include "menus.h"
 #include "mapinfo.h"

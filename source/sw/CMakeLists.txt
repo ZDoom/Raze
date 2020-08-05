@@ -3,10 +3,8 @@ set( PCH_SOURCES
 	src/actor.cpp
 	src/ai.cpp
 	src/anim.cpp
-	#src/bldscript.cpp
 	src/border.cpp
 	src/break.cpp
-	#src/brooms.cpp
 	src/bunny.cpp
 	src/cache.cpp
 	src/cheats.cpp
@@ -28,7 +26,6 @@ set( PCH_SOURCES
 	src/interpsh.cpp
 	src/interpso.cpp
 	src/inv.cpp
-	#src/jbhlp.cpp
 	src/jplayer.cpp
 	src/jsector.cpp
 	src/jweapon.cpp
@@ -71,7 +68,6 @@ set( PCH_SOURCES
 	src/weapon.cpp
 	src/zilla.cpp
 	src/zombie.cpp
-	src/swcvar.cpp
 	src/d_menu.cpp
 )
 

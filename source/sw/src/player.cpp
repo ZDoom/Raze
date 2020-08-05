@@ -29,7 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "common.h"
 
 #include "mytypes.h"
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -58,7 +57,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "sector.h"
 #include "actor.h"
-#include "colormap.h"
+#include "misc.h"
 #include "vis.h"
 #include "track.h"
 #include "interp.h"
@@ -4195,11 +4194,13 @@ SWBOOL PlayerFlyKey(void)
     if (InputMode)
         return FALSE;
 
+#if 0
+    // Cheat or not, this simply won't do.
     key = inputState.GetKeyStatus(KEYSC_J);
 
 	if (key)
 		inputState.ClearKeyStatus(KEYSC_J);
-
+#endif
     return key;
 }
 
@@ -7402,7 +7403,6 @@ DoPlayerRun(PLAYERp pp)
     }
 
     // Crawl lock
-    // if (inputState.GetKeyStatus(KEYSC_NUM))
     if (TEST_SYNC_KEY(pp, SK_CRAWL_LOCK))
     {
         if (FLAG_KEY_PRESSED(pp, SK_CRAWL_LOCK))
@@ -7992,26 +7992,6 @@ domovethings(void)
     short_updateinterpolations();            // Stick at beginning of domovethings
     so_updateinterpolations();               // Stick at beginning of domovethings
     MoveSkipSavePos();
-
-#if 0
-    {
-        if (inputState.GetKeyStatus(KEYSC_F5) && !(inputState.GetKeyStatus(KEYSC_ALT) || inputState.GetKeyStatus(KEYSC_RALT)) && !paused)
-        {
-            inputState.GetKeyStatus(KEYSC_F5) = 0;
-            ResChange();
-        }
-    }
-#endif
-
-
-#if 0 // has been moved to draw code
-    extern SWBOOL ResCheat;
-    if (ResCheat)
-    {
-        ResCheat = FALSE;
-        ResChange();
-    }
-#endif
 
     // check for pause of multi-play game
     if (CommEnabled)

@@ -31,7 +31,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "gamecontrol.h"
 
-#include "keys.h"
 #include "game.h"
 #include "tags.h"
 #include "names2.h"
@@ -608,16 +607,12 @@ waitforeverybody(void)
     }
 #endif
 
-    //inputState.GetKeyStatus(KEYSC_ESC) = FALSE;
     Player[myconnectindex].playerreadyflag++;
 
     while (TRUE)
     {
         if (PlayerQuitMenuLevel >= 0)
         {
-            //DSPRINTF(ds,"%d, Player Quit Menu Level %d", myconnectindex, PlayerQuitMenuLevel);
-            //DebugWriteString(ds);
-
             MenuCommPlayerQuit(PlayerQuitMenuLevel);
             PlayerQuitMenuLevel = -1;
         }
@@ -627,22 +622,12 @@ waitforeverybody(void)
 
         if (wfe_ExitCallback && wfe_ExitCallback())
         {
-            // allow exit
-            //if (inputState.GetKeyStatus(KEYSC_ESC))
-            {
-//                short pnum;
-                //TRAVERSE_CONNECT(pnum)
-                {
-                    //if (pnum != myconnectindex)
-                    {
-                        tempbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
-                        //netsendpacket(pnum, tempbuf, 1);
-                        netbroadcastpacket(tempbuf, 1);
-                    }
-                }
+            tempbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
+            //netsendpacket(pnum, tempbuf, 1);
+            netbroadcastpacket(tempbuf, 1);
 
-                TerminateGame();
-            }
+            TerminateGame();
+
         }
 
 #if 0

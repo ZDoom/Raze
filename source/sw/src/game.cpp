@@ -47,7 +47,6 @@ Things required to make savegames work:
 
 #include "baselayer.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -64,21 +63,19 @@ Things required to make savegames work:
 
 
 #include "mytypes.h"
-//#include "config.h"
 
 #include "menus.h"
 
 #include "gamecontrol.h"
 #include "gamedefs.h"
-#include "config.h"
 
 #include "demo.h"
-#include "cache.h"
+#include "misc.h"
 //#include "exports.h"
 
 #include "anim.h"
 
-#include "colormap.h"
+#include "misc.h"
 #include "break.h"
 #include "ninja.h"
 #include "light.h"
@@ -104,6 +101,9 @@ Things required to make savegames work:
 #include "osdcmds.h"
 
 //#include "crc32.h"
+
+CVAR(Bool, sw_ninjahack, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(Bool, sw_darts, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 
 BEGIN_SW_NS
 
@@ -2024,7 +2024,7 @@ void StatScreen(PLAYERp mpp)
 
     PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
 
-    while (!inputState.GetKeyStatus(KEYSC_SPACE) && !inputState.GetKeyStatus(KEYSC_ENTER))
+    while (!inputState.CheckAllInput())
     {
         handleevents();
     }
@@ -2682,7 +2682,7 @@ FunctionKeys(PLAYERp pp)
     {
 		buttonMap.ClearButton(gamefunc_Third_Person_View);
 
-        if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
+        if (SHIFTS_IS_PRESSED)
         {
             if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                 pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
@@ -2818,7 +2818,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     if (M_Active() || ScrollMode2D || InputMode)
         return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, ((!!inputState.GetKeyStatus(KEYSC_SPACE)) | buttonMap.ButtonDown(gamefunc_Open)));
+    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));
 
     int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
@@ -3141,7 +3141,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     SET_LOC_KEY(loc->bits, SK_HIDE_WEAPON, buttonMap.ButtonDown(gamefunc_Holster_Weapon));
 
     // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, inputState.GetKeyStatus(KEYSC_NUM));
+    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, buttonMap.ButtonDown(gamefunc_Toggle_Crouch));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {

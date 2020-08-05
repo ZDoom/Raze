@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pragmas.h"
 
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -47,7 +46,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jtags.h"
 #include "parent.h"
 
-#include "cache.h"
+#include "misc.h"
 #include "reserve.h"
 
 #include "text.h"
@@ -55,9 +54,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "interpso.h"
 #include "sector.h"
-#include "config.h"
 #include "menu.h"
-#include "swcvar.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
@@ -1079,13 +1076,14 @@ ResizeView(PLAYERp pp)
     {
         int32_t timepassed = (int32_t)(totalclock - mapzoomclock);
         mapzoomclock += timepassed;
-        if (inputState.GetKeyStatus(KEYSC_DASH)||inputState.GetKeyStatus(KEYSC_GMINUS))            
+        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
             zoom = max<int32_t>(zoom - mulscale7(timepassed * synctics, zoom), 48);
 
-        if (inputState.GetKeyStatus(KEYSC_EQUAL)||inputState.GetKeyStatus(KEYSC_GPLUS))
+        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
             zoom = min<int32_t>(zoom + mulscale7(timepassed * synctics, zoom), 4096);
 
-        if (inputState.GetKeyStatus(KEYSC_ESC))
+#if 0
+        if (inputState.GetKeyStatus(sc_Escape))
         {
             extern SWBOOL ScrollMode2D;
 
@@ -1094,6 +1092,7 @@ ResizeView(PLAYERp pp)
             ScrollMode2D = FALSE;
             SetRedrawScreen(pp);
         }
+#endif
     }
     else
     {

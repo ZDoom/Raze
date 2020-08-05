@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define QUIET
 #include "build.h"
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -49,8 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //#define FILE_TYPE 1
 
 #include "weapon.h"
-#include "cache.h"
-#include "colormap.h"
+#include "misc.h"
 #include "player.h"
 #include "i_specialpaths.h"
 #include "savegamehelp.h"

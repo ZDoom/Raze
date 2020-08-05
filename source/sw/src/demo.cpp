@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "build.h"
 
 
-#include "keys.h"
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
@@ -476,34 +475,15 @@ DemoPlayBack(void)
 
             domovethings();
 
-            // fast forward and slow mo
-            if (DemoEdit)
+            if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
             {
-                if (inputState.GetKeyStatus(KEYSC_F))
-                {
-                    if (inputState.GetKeyStatus(KEYSC_LSHIFT) || inputState.GetKeyStatus(KEYSC_RSHIFT))
-                        totalclock += synctics;
-                    else
-                        totalclock += synctics-1;
-                }
+                buttonMap.ClearButton(gamefunc_See_Coop_View);
 
-                if (inputState.GetKeyStatus(KEYSC_S))
-                    totalclock += 1-synctics;
+                screenpeek = connectpoint2[screenpeek];
+
+                if (screenpeek < 0)
+                    screenpeek = connecthead;
             }
-            else
-            {
-
-                if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-                {
-                    buttonMap.ClearButton(gamefunc_See_Coop_View);
-
-                    screenpeek = connectpoint2[screenpeek];
-
-                    if (screenpeek < 0)
-                        screenpeek = connecthead;
-                }
-            }
-
 
             if (DemoSyncRecord)
                 demosync_record();
