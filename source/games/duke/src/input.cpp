@@ -1186,7 +1186,7 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			loc.q16avel += input.q16avel;
+			loc.q16avel = fix16_clamp(loc.q16avel + input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
 			if (!cl_syncinput && input.q16avel)
 			{
 				p->one_eighty_count = 0;
