@@ -1552,7 +1552,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 consoleSysMsg("Weapon #%d is out of a weapons range!");
                 break;
             } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
-                consoleSysMsg("Zero ammo for weapon #%d is specyfied!");
+                consoleSysMsg("Zero ammo for weapon #%d is specified!");
                 break;
             }
             switch (weapon) {
