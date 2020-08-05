@@ -1260,7 +1260,7 @@ void GetInput()
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.bits, scaleAdjust, true, input.q16horz);
+		sethorizon(myconnectindex, loc.bits, scaleAdjust, input.q16horz);
 	}
 }
 

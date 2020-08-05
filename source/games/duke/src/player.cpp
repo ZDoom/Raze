@@ -991,7 +991,7 @@ void checklook(int snum, int sb_snum)
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(int snum, int sb_snum, double factor, bool frominput, fixed_t adjustment)
+void sethorizon(int snum, int sb_snum, double factor, fixed_t adjustment)
 {
 	auto p = &ps[snum];
 
@@ -1000,19 +1000,13 @@ void sethorizon(int snum, int sb_snum, double factor, bool frominput, fixed_t ad
 
 	if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
-		p->return_to_center -= factor * 1.;
-		horizAngle += factor * -(frominput? 1.1 : 0.55) * horizAngle; // in P_GetInput this used different factors than in the original code. Hm...
+		p->return_to_center += -factor * (p->return_to_center / 2);
+		horizAngle += -factor * (horizAngle / 2);
 
-		if (horizAngle > -1. && horizAngle < 1.)
+		if (horizAngle > -0.5 && horizAngle < 0.5)
 		{
 			horizAngle = 0.;
 			p->return_to_center = 0.;
-		}
-
-		if (p->aim_mode == 0)
-		{
-			// threshold was 5
-			if (p->q16horizoff > F16(-1) && p->q16horizoff < F16(1)) p->sethorizoff(0);
 		}
 	}
 
