@@ -649,6 +649,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 break;
             case FIRE:
             case FIRE2:
+                t->cstat |= 128;
             case BURNING:
             case BURNING2:
                 if( sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2 )
