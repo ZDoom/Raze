@@ -166,14 +166,15 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
         }
 
         if( t->statnum == 99 ) continue;
-        if( s->statnum != 1 && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0 )
+        if( s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newowner == -1 && s->owner >= 0 )
         {
             t->x -= mulscale16(MaxSmoothRatio-smoothratio,ps[s->yvel].posx-ps[s->yvel].oposx);
             t->y -= mulscale16(MaxSmoothRatio-smoothratio,ps[s->yvel].posy-ps[s->yvel].oposy);
             t->z = ps[s->yvel].oposz + mulscale16(smoothratio,ps[s->yvel].posz-ps[s->yvel].oposz);
             t->z += (40<<8);
         }
-        else if( ( s->statnum == 0 && s->picnum != CRANEPOLE) || s->statnum == 10 || s->statnum == 6 || s->statnum == 4 || s->statnum == 5 || s->statnum == 1 )
+        else if( ( s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER || 
+            s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR )
         {
             t->x -= mulscale16(MaxSmoothRatio-smoothratio,s->x-hittype[i].bposx);
             t->y -= mulscale16(MaxSmoothRatio-smoothratio,s->y-hittype[i].bposy);
