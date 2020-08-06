@@ -833,9 +833,12 @@ void movecrane(int i, int crane)
 		else if (s->owner == -2)
 		{
 			auto ang = ps[p].getang();
-			ps[p].oposx = ps[p].posx = s->x - (sintable[(ang + 512) & 2047] >> 6);
-			ps[p].oposy = ps[p].posy = s->y - (sintable[ang & 2047] >> 6);
-			ps[p].oposz = ps[p].posz = s->z + (2 << 8);
+			ps[p].oposx = ps[p].posx;
+			ps[p].oposy = ps[p].posy;
+			ps[p].oposz = ps[p].posz;
+			ps[p].posx = s->x - (sintable[(ang + 512) & 2047] >> 6);
+			ps[p].posy = s->y - (sintable[ang & 2047] >> 6);
+			ps[p].posz = s->z + (2 << 8);
 			setsprite(ps[p].i, ps[p].posx, ps[p].posy, ps[p].posz);
 			ps[p].cursectnum = sprite[ps[p].i].sectnum;
 		}

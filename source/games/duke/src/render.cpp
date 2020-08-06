@@ -489,8 +489,6 @@ void displayrooms(int snum, int smoothratio)
 	newaspect_enable = 1;
 	videoSetCorrectedAspect();
 
-	if (!playrunning() || ps[snum].on_crane > -1) smoothratio = MaxSmoothRatio;
-
 	sect = p->cursectnum;
 	if (sect < 0 || sect >= MAXSECTORS) return;
 
