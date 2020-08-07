@@ -1617,12 +1617,11 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	int j;
 	auto p = &ps[snum];
 	int pi = p->i;
-	int psectlotag = sector[psect].lotag;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -1631,7 +1630,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 		p->scuba_on = 0;
 
 	int i = 40;
-	if (psectlotag == 1 && p->spritebridge == 0)
+	if (psectlotag == ST_1_ABOVE_WATER && p->spritebridge == 0)
 	{
 		if (shrunk == 0)
 		{
@@ -1713,7 +1712,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 		p->falling_counter = 0;
 		S_StopSound(-1, pi, CHAN_VOICE);
 
-		if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->poszv > (6144 >> 1))
+		if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->poszv > (6144 >> 1))
 			p->hard_landing = p->poszv >> 10;
 
 		p->on_ground = 1;
@@ -2761,7 +2760,7 @@ void processinput_d(int snum)
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -3079,7 +3078,7 @@ void processmove_d(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int s
 	}
 	else if (psectlotag != 2)
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 END_DUKE_NS

@@ -2086,12 +2086,11 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
 	auto s = &sprite[pi];
-	int psectlotag = sector[psect].lotag;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -2100,7 +2099,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 		p->scuba_on = 0;
 
 	int i = 40;
-	if (psectlotag == 1 && p->spritebridge == 0)
+	if (psectlotag == ST_1_ABOVE_WATER && p->spritebridge == 0)
 	{
 		if (shrunk == 0)
 		{
@@ -2277,7 +2276,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 
 		if (p->jumping_counter < 768)
 		{
-			if (psectlotag == 1 && p->jumping_counter > 768)
+			if (psectlotag == ST_1_ABOVE_WATER && p->jumping_counter > 768)
 			{
 				p->jumping_counter = 0;
 				p->poszv = -512;
@@ -3675,9 +3674,9 @@ void processinput_r(int snum)
 	{
 		underwater(snum, sb_snum, psect, fz, cz);
 	}
-	else if (psectlotag != ST_2_UNDERWATER)
+	else
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -4107,14 +4106,13 @@ void processmove_r(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int s
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];
-	if (psectlotag == 2)
+	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, sb_snum, psect, fz, cz);
 	}
-
-	else if (psectlotag != 2)
+	else
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist);
+		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 
