@@ -257,8 +257,8 @@ void displayrest(double smoothratio)
 	if (blend[3])
 	{
 		// result must be multiplied by 4 and normalised to 255. (4*255 = 1020)
-		auto comp = [&](int i) { return clamp(int(blend[i] * 1020), 0, 255); };
-		videoFadePalette(comp(0), comp(1), comp(2), comp(3)); 
+		auto comp = [&](int i, int maxv=255) { return clamp(int(blend[i] * 1020), 0, maxv); };
+		videoFadePalette(comp(0), comp(1), comp(2), comp(3, 192)); // Never fully saturate the alpha channel
 	}
 	else
 		videoclearFade();

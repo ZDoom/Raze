@@ -564,6 +564,7 @@ ScreenJobRunner *runner;
 void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clearbefore, bool blockingui)
 {
 	assert(completion != nullptr);
+	videoclearFade();
 	if (count)
 	{
 		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
