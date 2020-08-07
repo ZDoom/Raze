@@ -3710,8 +3710,8 @@ void processinput_r(int snum)
 
 		if (p->on_ground && truefdist <= PHEIGHT + (16 << 8))
 		{
-			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 3 :
-				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 4 : -1);
+			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 :
+				(isRRRA() && (j == RRTILE7768 || j == RRTILE7820) ? 3 : -1);
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}
 

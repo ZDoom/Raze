@@ -2813,7 +2813,7 @@ void processinput_d(int snum)
 
 		if (p->on_ground && truefdist <= PHEIGHT + (16 << 8))
 		{
-			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 3 : -1;
+			int whichsound = j == HURTRAIL ? 0 : j == FLOORSLIME ? 1 : j == FLOORPLASMA ? 2 : -1;
 			if (j >= 0) k = makepainsounds(snum, whichsound);
 		}
 
