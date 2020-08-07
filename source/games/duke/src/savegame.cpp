@@ -208,7 +208,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("last_full_weapon", w.last_full_weapon)
 			("footprintshade", w.footprintshade)
 			("boot_amount", w.boot_amount)
-			("scream_voice", w.scream_voice)
 			("gm", w.gm)
 			("on_warping_sector", w.on_warping_sector)
 			("footprintcount", w.footprintcount)

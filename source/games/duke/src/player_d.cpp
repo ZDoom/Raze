@@ -1676,11 +1676,13 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 			if (p->poszv > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
-				if (p->falling_counter == 38)
-					p->scream_voice = S_PlayActorSound(DUKE_SCREAM, pi);
+				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
+					S_PlayActorSound(DUKE_SCREAM, pi);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
+			{
+				S_StopSound(DUKE_SCREAM, pi);
 				if (sector[p->cursectnum].lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
@@ -1704,6 +1706,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 					}
 					else if (p->poszv > 2048) S_PlayActorSound(DUKE_LAND, pi);
 				}
+			}
 		}
 	}
 

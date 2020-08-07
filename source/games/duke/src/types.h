@@ -160,8 +160,6 @@ struct player_struct
 	short holoduke_on, pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
-	int scream_voice;
-
 	unsigned char gm;
 	unsigned char on_warping_sector, footprintcount;
 	unsigned char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;

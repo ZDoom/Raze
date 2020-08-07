@@ -2176,15 +2176,17 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 			if (p->poszv > 2400 && p->falling_counter < 255)
 			{
 				p->falling_counter++;
-				if (p->falling_counter == 38)
-					p->scream_voice = S_PlayActorSound(DUKE_SCREAM, pi);
+				if (p->falling_counter == 38 && !S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
+					S_PlayActorSound(DUKE_SCREAM, pi);
 			}
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
+			{
+				S_StopSound(DUKE_SCREAM, pi);
 				if (sector[p->cursectnum].lotag != 1)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
-					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && sector[p->cursectnum].lotag == 802)) 
+					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && sector[p->cursectnum].lotag == 802))
 						quickkill(p);
 
 					else if (p->falling_counter > 9)
@@ -2220,6 +2222,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 						p->TurbCount = 12;
 					}
 				}
+			}
 		}
 	}
 
