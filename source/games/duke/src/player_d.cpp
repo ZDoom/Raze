@@ -2742,8 +2742,7 @@ void processinput_d(int snum)
 
 	playerweaponsway(p, s);
 
-	s->xvel =
-		ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy));
+	s->xvel = clamp(ksqrt((p->posx - p->bobposx) * (p->posx - p->bobposx) + (p->posy - p->bobposy) * (p->posy - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += sprite[p->i].xvel >> 1;
 
 	backuppos(p, ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
