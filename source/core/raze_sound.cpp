@@ -71,7 +71,8 @@ void FX_SetReverb(int strength)
 	{
 		// todo: optimize environments. The original "reverb" was garbage and not usable as reference.
 		if (strength < 64) strength = 0x1400;
-		else if (strength < 192) strength = 0x1503;
+		else if (strength < 180) strength = 0x1503;
+		else if (strength < 220) strength = 0x1502;
 		else strength = 0x1900;
 		LastReverb = strength;
 		ForcedEnvironment = S_FindEnvironment(strength);
