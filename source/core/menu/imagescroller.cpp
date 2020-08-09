@@ -99,6 +99,11 @@ void DImageScrollerMenu::Init(DMenu* parent, FImageScrollerDescriptor* desc)
 
 bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 {
+	if (mDesc->mItems.Size() <= 1)
+	{
+		if (mkey == MKEY_Enter) mkey = MKEY_Back;
+		else if (mkey == MKEY_Right || mkey == MKEY_Left) return true;
+	}
 	switch (mkey)
 	{
 	case MKEY_Back:
@@ -127,7 +132,9 @@ bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
 	case MKEY_Enter:
 		if (pageTransition.previous == nullptr)
 		{
+			int oldindex = index;
 			if (++index >= (int)mDesc->mItems.Size()) index = 0;
+
 			auto next = newImageScreen(&mDesc->mItems[index]);
 			next->canAnimate = canAnimate;
 			if (!pageTransition.StartTransition(mCurrent, next, MA_Advance))

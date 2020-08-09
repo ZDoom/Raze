@@ -4179,7 +4179,7 @@ DoPlayerWadeSuperJump(PLAYERp pp)
 
 SWBOOL PlayerFlyKey(void)
 {
-    SWBOOL key;
+    SWBOOL key = false;
 
     if (!GodMode)
         return FALSE;

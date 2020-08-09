@@ -163,7 +163,6 @@ void InitStatusBar(void);
 void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);
 void viewResizeView(int size);
-void UpdateFrame(void);
 void viewDrawInterface(ClockTicks arg);
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);
