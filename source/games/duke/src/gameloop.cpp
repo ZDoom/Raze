@@ -296,6 +296,18 @@ int moveloop()
 //
 //---------------------------------------------------------------------------
 
+static void checkTimerActive()
+{
+	FStat *stat = FStat::FindStat("fps");
+	glcycle_t::active = (stat != NULL && stat->isActive());
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 bool GameTicker()
 {
 	if (ps[myconnectindex].gm == MODE_DEMO)
@@ -309,6 +321,8 @@ bool GameTicker()
 	nonsharedkeys();
 
 	C_RunDelayedCommands();
+
+	checkTimerActive();
 
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
