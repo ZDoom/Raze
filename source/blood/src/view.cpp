@@ -835,14 +835,17 @@ void viewDrawScreen(bool sceneonly)
         q16horiz += fix16_from_int(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
         if (gViewPos == 0)
         {
-            if (cl_viewhbob)
+            if (cl_viewbob)
             {
-                cX -= mulscale30(v74, Sin(fix16_to_int(cA))) >> 4;
-                cY += mulscale30(v74, Cos(fix16_to_int(cA))) >> 4;
-            }
-            if (cl_viewvbob)
-            {
-                cZ += v8c;
+                if (cl_viewhbob)
+                {
+                    cX -= mulscale30(v74, Sin(fix16_to_int(cA))) >> 4;
+                    cY += mulscale30(v74, Cos(fix16_to_int(cA))) >> 4;
+                }
+                if (cl_viewvbob)
+                {
+                    cZ += v8c;
+                }
             }
             if (cl_slopetilting)
             {
