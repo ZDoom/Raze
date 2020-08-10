@@ -212,7 +212,7 @@ void CViewMap::sub_25C74(void)
         nViewY = gViewY1S-16;
     else
         nViewY = gViewY0S+1;
-    viewDrawText(3, pBuffer, gViewX1S, nViewY, -128, 0, 2, 0, 256);
+    viewDrawText(3, pBuffer, gViewX1S /2, nViewY, -128, 0, 2, 0, 256);
 
 #if 0 // needs to be generalized
     if (gViewMap.bFollowMode)

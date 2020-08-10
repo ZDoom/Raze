@@ -224,7 +224,9 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
     //y += pFont->yoff;
 
-	if (position) x -= pFont->StringWidth(pString) / 2;
+	if (position == 1) x -= pFont->StringWidth(pString) / 2;
+    if (position == 2) x -= pFont->StringWidth(pString);
+
 
 	if (shadow)
 	{
