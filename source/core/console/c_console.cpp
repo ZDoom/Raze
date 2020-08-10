@@ -783,7 +783,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	if (hud_messages == 0 ||
 		source.IsEmpty() ||
 		gamestate == GS_FULLCONSOLE ||
-		gamestate == GS_DEMOSCREEN ||
+		gamestate == GS_MENUSCREEN ||
 		con_notifylines == 0)
 		return;
 
@@ -1074,7 +1074,7 @@ void FNotifyBuffer::Draw()
 	int line, lineadv, color, j;
 	bool canskip;
 	
-	if (gamestate == GS_FULLCONSOLE || gamestate == GS_DEMOSCREEN)
+	if (gamestate == GS_FULLCONSOLE || gamestate == GS_MENUSCREEN)
 		return;
 
 	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
@@ -1293,7 +1293,7 @@ void C_ToggleConsole ()
 	{
 		return;
 	}
-	if (gamestate == GS_DEMOSCREEN)
+	if (gamestate == GS_MENUSCREEN)
 	{
 		gamestate = GS_FULLCONSOLE;
 		C_FullConsole();
@@ -1605,7 +1605,7 @@ static bool C_HandleKey (event_t *ev, FCommandBuffer &buffer)
 			}
 			else if (gamestate == GS_FULLCONSOLE)
 			{
-				gamestate = GS_DEMOSCREEN;
+				gamestate = GS_MENUSCREEN;
 				C_DoCommand ("menu_main");
 			}
 			else

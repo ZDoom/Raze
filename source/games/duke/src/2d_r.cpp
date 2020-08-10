@@ -647,7 +647,7 @@ CCMD(testrscreen)
 	auto gs = gamestate;
 	auto completion = [=](bool)
 	{
-		if (gs == GS_LEVEL || gs == GS_DEMOSCREEN) gamestate = gs;
+		if (gs == GS_LEVEL || gs == GS_MENUSCREEN) gamestate = gs;
 		else gamestate = GS_STARTUP;
 	};
 

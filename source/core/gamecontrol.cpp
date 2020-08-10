@@ -173,7 +173,7 @@ bool System_WantGuiCapture()
 
 bool System_WantLeftButton()
 {
-	return false;// (gamestate == GS_DEMOSCREEN || gamestate == GS_TITLELEVEL);
+	return false;// (gamestate == GS_MENUSCREEN || gamestate == GS_TITLELEVEL);
 }
 
 bool System_NetGame()

@@ -655,7 +655,7 @@ void ProcessFrame(void)
             if (gGameOptions.nGameType == 0)
             {
 				auto completion = [] (bool) {
-					gamestate = GS_DEMOSCREEN;
+					gamestate = GS_MENUSCREEN;
 					M_StartControlPanel(false);
 					M_SetMenu(NAME_CreditsMenu);
 					gGameOptions.uGameFlags &= ~3;
@@ -948,13 +948,13 @@ int GameInterface::app_main()
             if (playvideo) playlogos();
 				else
 				{
-					gamestate = GS_DEMOSCREEN;
+					gamestate = GS_MENUSCREEN;
 					M_StartControlPanel(false);
 					M_SetMenu(NAME_Mainmenu);
 				}
             break;
 
-        case GS_DEMOSCREEN:
+        case GS_MENUSCREEN:
         case GS_FULLCONSOLE:
             drawBackground();
             break;

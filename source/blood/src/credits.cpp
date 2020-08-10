@@ -91,7 +91,7 @@ void playlogos()
 	jobs[job++] = { Create<DImageScreen>(2518, DScreenJob::fadein) };
 
 	RunScreenJob(jobs, job, [](bool) { 
-		gamestate = GS_DEMOSCREEN;
+		gamestate = GS_MENUSCREEN;
 		M_StartControlPanel(false);
 		M_SetMenu(NAME_Mainmenu);
 	}, true, true);

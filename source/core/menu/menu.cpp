@@ -67,7 +67,6 @@ void RegisterJoystickMenus();
 void UpdateJoystickMenu(IJoystickConfig* joy);
 bool help_disabled, credits_disabled;
 int g_currentMenu;	// accessible by CON scripts - contains the current menu's script ID if defined or INT_MAX if none given.
-int DrawBackground;
 TArray<DMenu*> toDelete;
 
 //
@@ -432,7 +431,6 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	NewGameStartupInfo.Episode = NewGameStartupInfo.Skill = 0;
 	menu = NAME_Startgame;
 #endif
-	DrawBackground = gamestate == GS_DEMOSCREEN;
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
 	switch (caller.GetIndex())
 	{
@@ -824,7 +822,7 @@ bool M_DoResponder (event_t *ev)
 				{
 					M_StartControlPanel(true);
 					M_SetMenu(gi->CanSave()? NAME_IngameMenu : NAME_Mainmenu, -1);
-					if (gamestate == GS_FULLCONSOLE) gamestate = GS_DEMOSCREEN;
+					if (gamestate == GS_FULLCONSOLE) gamestate = GS_MENUSCREEN;
 				}
 				return true;
 			}
@@ -912,7 +910,7 @@ void M_Drawer (void)
 
 	if (CurrentMenu != NULL && menuactive != MENU_Off)
 	{
-		if (CurrentMenu->DimAllowed() && fade && !DrawBackground) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
+		if (CurrentMenu->DimAllowed() && fade && gamestate != GS_MENUSCREEN) twod->AddColorOnlyQuad(0, 0, screen->GetWidth(), screen->GetHeight(), fade);
 
 		bool going = false;
 		if (transition.previous)

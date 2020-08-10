@@ -387,7 +387,7 @@ bool GameTicker()
 
 void startmainmenu()
 {
-	gamestate = GS_DEMOSCREEN;
+	gamestate = GS_MENUSCREEN;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_Mainmenu);
 	FX_StopAllSounds();
@@ -443,7 +443,7 @@ void app_loop()
 				}
 				break;
 
-			case GS_DEMOSCREEN:
+			case GS_MENUSCREEN:
 			case GS_FULLCONSOLE:
 				drawbackground();
 				break;
