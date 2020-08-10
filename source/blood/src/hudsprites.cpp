@@ -107,11 +107,15 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double 
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
 		}
 		double cX = 160;
-		double cY = 220 + (zDelta / 128.);
+		double cY = 220;
 		if (cl_weaponsway)
 		{
-			cX += bobx / 256.;
-			cY += boby / 256.;
+			cX += (bobx / 256.);
+			cY += (boby / 256.) + (zDelta / 128.);
+		}
+		else
+		{
+			cY += (-2048. / 128.);
 		}
 		int nShade = sector[nSectnum].floorshade; 
 		int nPalette = 0;
