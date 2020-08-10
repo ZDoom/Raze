@@ -101,7 +101,7 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double 
 	{
 		if (cl_crosshair)
 		{
-			double crosshair_scale = cl_crosshairscale * .01;
+			double crosshair_scale = cl_crosshairscale * .02;
 			DrawTexture(twod, tileGetTexture(kCrosshairTile), 160, defaultHoriz,
 				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);

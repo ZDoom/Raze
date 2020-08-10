@@ -172,7 +172,9 @@ private:
     void TileHGauge(int nTile, double x, double y, int nMult, int nDiv, int nStat = 0, int nScale = 65536)
     {
         int bx = scale(mulscale16(tilesiz[nTile].x, nScale), nMult, nDiv) + x;
-        DrawStatSprite(nTile, x, y, 0, 0, nStat|RS_TOPLEFT, nScale);
+        double scale = double(bx - x) / tileWidth(nTile);
+        double sc = nScale / 65536.;
+        DrawGraphic(tileGetTexture(nTile, true), x, y, DI_ITEM_LEFT_TOP, 1., -1, -1, scale*sc, sc, 0xffffffff, 0, 0);
     }
 
 
@@ -646,6 +648,7 @@ private:
             TileHGauge(2208, 250-320, 191 - 200, pPlayer->armor[2], 3200);
             DrawStatNumber("%3d", pPlayer->armor[2] >> 4, 2230, 255-320, 194 - 200, 0, 0);
         }
+
         DrawPackItemInStatusBar(pPlayer, 286-320, 186 - 200, 302-320, 183 - 200);
 
         for (int i = 0; i < 6; i++)
@@ -718,7 +721,7 @@ private:
 
         BeginStatusBar(320, 200, 28);
         if (pPlayer->throwPower)
-            TileHGauge(2260, 124, 175 - 210, pPlayer->throwPower, 65536);
+            TileHGauge(2260, 124, 175, pPlayer->throwPower, 65536);
         else
             drawInventory(pPlayer, 166, 200-tilesiz[2201].y / 2 - 30);
         PrintLevelStats(pPlayer, 28);
