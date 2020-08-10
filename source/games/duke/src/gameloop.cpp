@@ -387,10 +387,10 @@ bool GameTicker()
 
 void startmainmenu()
 {
+	gamestate = GS_DEMOSCREEN;
 	M_StartControlPanel(false);
 	M_SetMenu(NAME_Mainmenu);
 	FX_StopAllSounds();
-	gamestate = GS_DEMOSCREEN;
 }
 
 //---------------------------------------------------------------------------
