@@ -610,8 +610,8 @@ OptionMenu "WeaponsControlMenu"// protected
 	}
 	ifgame(Blood)
 	{
-		Control "$CNTRLMNU_PROXIMITYBOMBS","+proximitybombs"
-		Control "$CNTRLMNU_REMOTEBOMBS"   ,"+remotebombs"
+		Control "$CNTRLMNU_PROXIMITYBOMBS","proximitybombs"
+		Control "$CNTRLMNU_REMOTEBOMBS"   ,"remotebombs"
 	}
 	ifgame(ShadowWarrior)
 	{
