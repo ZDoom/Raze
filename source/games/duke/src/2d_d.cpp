@@ -906,7 +906,7 @@ public:
 						bonuscnt++;
 						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
 						static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4};
-						S_PlaySound(speeches[(rand() & 3)], CHAN_AUTO, CHANF_UI);
+						S_PlaySound(speeches[(rand() & 3)], CHAN_AUTO, CHANF_UI, 1);
 					}
 				case 1:
 				case 4:

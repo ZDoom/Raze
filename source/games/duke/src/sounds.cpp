@@ -455,7 +455,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 //
 //==========================================================================
 
-int S_PlaySound(int sndnum, int channel, EChanFlags flags)
+int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 {
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
 
@@ -466,7 +466,7 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags)
 	int const pitch = S_GetPitch(sndnum);
 
 	if (userflags & SF_LOOP) flags |= CHANF_LOOP;
-	auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, 0.8f, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
+	auto chan = soundEngine->StartSound(SOURCE_None, nullptr, nullptr, channel, flags, sndnum + 1, vol, ATTN_NONE, nullptr, S_ConvertPitch(pitch));
 	return chan ? 0 : -1;
 }
 
