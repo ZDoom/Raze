@@ -676,7 +676,7 @@ OptionMenu "InventoryControlsMenu"// protected
 		StaticText ""
 		Control    "$CNTRLMNU_CRYSTALBALL" , "crystalball"
 		Control    "$CNTRLMNU_JUMPBOOTS" , "jumpboots"
-		Control    "$CNTRLMNU_BEASTVISION" , "nightvision"
+		Control    "$CNTRLMNU_BEASTVISION" , "beastvision"
 		Control    "$CNTRLMNU_MEDKIT" , "medkit"
 	}
 	ifgame(ShadowWarrior)
