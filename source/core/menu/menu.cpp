@@ -391,7 +391,6 @@ void M_StartControlPanel (bool makeSound)
 
 	BackbuttonTime = 0;
 	BackbuttonAlpha = 0;
-	DrawBackground = -1;
 }
 
 void Menu_Open(int playerid)
@@ -433,11 +432,7 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	NewGameStartupInfo.Episode = NewGameStartupInfo.Skill = 0;
 	menu = NAME_Startgame;
 #endif
-		if (DrawBackground == -1)
-	{
-		if (menu == NAME_Mainmenu) DrawBackground = 1;
-		else DrawBackground = 0;
-	}
+	DrawBackground = gamestate == GS_DEMOSCREEN;
 	// some menus need some special treatment (needs to be adjusted for the various frontends.
 	switch (caller.GetIndex())
 	{
@@ -934,7 +929,6 @@ void M_Drawer (void)
 		{
 			assert(CurrentMenu);
 			CurrentMenu->origin = { 0,0 };
-			// else if (DrawBackground) Menu_DrawBackground(origin);
 			CurrentMenu->Drawer();
 		}
 	}
