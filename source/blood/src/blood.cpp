@@ -953,6 +953,7 @@ int GameInterface::app_main()
             break;
 
         case GS_DEMOSCREEN:
+        case GS_FULLCONSOLE:
             drawBackground();
             break;
 
