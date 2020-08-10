@@ -224,7 +224,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		int width = gamefont->StringWidth(text);
 		xpos -= width / 2;
 	}
-	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, DTA_Alpha, 0.5,
+	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, //DTA_Alpha, 0.5,
 			 DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 
 	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
