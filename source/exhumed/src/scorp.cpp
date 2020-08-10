@@ -120,13 +120,13 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
 
 //	GrabTimeSlot(3);
 
-    scorpion[ScorpCount].nHealth = 20000;
-    scorpion[ScorpCount].nFrame = 0;
-    scorpion[ScorpCount].nAction = 0;
-    scorpion[ScorpCount].nSprite = nSprite;
-    scorpion[ScorpCount].nTarget = -1;
-    scorpion[ScorpCount].g = 0;
-    scorpion[ScorpCount].i = 1;
+    scorpion[nScorp].nHealth = 20000;
+    scorpion[nScorp].nFrame = 0;
+    scorpion[nScorp].nAction = 0;
+    scorpion[nScorp].nSprite = nSprite;
+    scorpion[nScorp].nTarget = -1;
+    scorpion[nScorp].g = 0;
+    scorpion[nScorp].i = 1;
 
     ScorpChan[nScorp] = nChannel;
 
