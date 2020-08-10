@@ -560,7 +560,7 @@ static cheatseq_t s_CheatInfo[] = {
     {"GRISWOLD", doCheat<kCheatGriswold>, 0 }, // GRISWOLD (Full armor (same effect as getting super armor))
     {"EDMARK", doCheat<kCheatEdmark>, 0 }, // EDMARK (Does a lot of fire damage to you (if you have 200HP and 200 fire armor then you can survive). Displays the message "THOSE WERE THE DAYS".)
     {"TEQUILA", doCheat<kCheatTequila>, 0 }, // TEQUILA (Guns akimbo power-up)
-    {"BUNZ[", doCheat<kCheatBunz>, 0 }, // BUNZ (All weapons, full ammo, and guns akimbo power-up)
+    {"BUNZ", doCheat<kCheatBunz>, 0 }, // BUNZ (All weapons, full ammo, and guns akimbo power-up)
     {"FUNKY SHOES", doCheat<kCheatFunkyShoes>, 0 }, // FUNKY SHOES (Gives jump boots item and activates it)
     {"GATEKEEPER", doCheat<kCheatGateKeeper>, 0 }, // GATEKEEPER (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
     {"KEYMASTER", doCheat<kCheatKeyMaster>, 0 }, // KEYMASTER (All keys)
