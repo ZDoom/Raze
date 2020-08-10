@@ -111,6 +111,11 @@ void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 		FString wavv = wav;
 		FixPathSeperator(wavv);
 		id = S_FindSound(wavv);
+		// Strip the drive letter and retry.
+		if (id <= 0 && wavv.Len() > 3 && wavv[1] == ':' && isalpha(wavv[0]) && wavv[2] == '/')
+		{
+			id = S_FindSound(wavv.GetChars() + 3);
+		}
 	}
 	FString smkk = smk;
 	FixPathSeperator(smkk);
