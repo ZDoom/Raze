@@ -156,7 +156,6 @@ void ctrlGetInput(void)
         return;
     }
 
-    updatePauseStatus();
     if (paused != prevPauseState)
     {
         gInput.keyFlags.pause = 1;

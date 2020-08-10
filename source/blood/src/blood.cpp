@@ -937,6 +937,7 @@ int GameInterface::app_main()
 
         commonTicker(playvideo);
         gameHandleEvents();
+        updatePauseStatus();
         D_ProcessEvents();
         ctrlGetInput();
 
