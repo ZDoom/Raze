@@ -365,7 +365,7 @@ bool bPlayerCheated = false;
 
 static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
 {
-    if (!nArg1 || !nArg2)
+    if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
 	*nArg1 = pzArgs[0] - '0' - 1;
 	*nArg2 = (pzArgs[1] - '0')*10+(pzArgs[2]-'0') - 1;
