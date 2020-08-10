@@ -145,7 +145,7 @@ void CEndGameMgr::Setup(void)
 	STAT_Update(false);
     EndLevel();
     Mus_Stop();
-    sndStartSample(268, 128, -1, 1);
+    sndStartSample(268, 128, -1, false);
     inputState.keyFlushScans();
 }
 
