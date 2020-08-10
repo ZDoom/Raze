@@ -276,6 +276,7 @@ void LevelWarp(int nEpisode, int nLevel)
 {
     levelSetupOptions(nEpisode, nLevel);
     StartLevel(&gGameOptions);
+    levelTryPlayMusicOrNothing(nEpisode, nLevel);
     viewResizeView(gViewSize);
 }
 
