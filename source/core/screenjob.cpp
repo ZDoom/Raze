@@ -341,8 +341,11 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 			filename += 3;
 			fr = fileSystem.OpenFileReader(filename);
 		}
-		Printf("%s: Unable to open video\n", filename);
-		return nothing();
+		if (!fr.isOpen())
+		{
+			Printf("%s: Unable to open video\n", filename);
+			return nothing();
+		}
 	}
 	char id[20] = {};
 
