@@ -110,10 +110,10 @@ static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* u
     return true;
 }
 
-InterplayDecoder::InterplayDecoder()
+InterplayDecoder::InterplayDecoder(bool soundenabled)
 {
     bIsPlaying = false;
-    bAudioStarted = false;
+    bAudioStarted = !soundenabled;  // This prevents the stream from getting created
 
     nWidth  = 0;
     nHeight = 0;

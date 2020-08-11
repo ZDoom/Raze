@@ -194,7 +194,7 @@ class DMvePlayer : public DScreenJob
 public:
 	bool isvalid() { return !failed; }
 
-	DMvePlayer(FileReader& fr)
+	DMvePlayer(FileReader& fr) : decoder(SoundEnabled())
 	{
 		failed = !decoder.Open(fr);
 	}
@@ -302,7 +302,7 @@ public:
 					int sound = animSnd[i].soundnum;
 					if (sound == -1)
 						soundEngine->StopAllChannels();
-					else
+					else if (SoundEnabled())
 						soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
 				}
 			}

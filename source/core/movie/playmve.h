@@ -98,7 +98,7 @@ public:
         kAudioBlocks    = 20 // alloc a lot of blocks - need to store lots of audio data before video frames start.
     };
 
-    InterplayDecoder();
+    InterplayDecoder(bool soundenabled);
     ~InterplayDecoder();
 
     bool Open(FileReader &fr);

@@ -82,7 +82,7 @@ extern int nomusic;
 extern bool nosound;
 inline bool MusicEnabled()
 {
-	return !nomusic;
+	return mus_enabled && !nomusic;
 }
 
 inline bool SoundEnabled()
