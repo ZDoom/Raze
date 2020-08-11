@@ -88,7 +88,8 @@ void initactorflags_r()
 
 	// Why does the pig count as kill? Let's undo that.
 	actorinfo[PIG].flags &= ~SFLAG_KILLCOUNT;
-	
+	actorinfo[HEN].flags &= ~SFLAG_KILLCOUNT;
+
 	actorinfo[DRONE].flags |= SFLAG_NOWATERDIP;
 	actorinfo[VIXEN].flags |= SFLAG_NOCANSEECHECK;
 	if (isRRRA()) 
