@@ -373,9 +373,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     {
         if (!(gGameOptions.uGameFlags&1))
             levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-        if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
-            && gEpisodeInfo[gGameOptions.nEpisode].cutsceneAName)
-            gGameOptions.uGameFlags |= 4;
 
         ///////
         gGameOptions.weaponsV10x = gWeaponsV10x;
@@ -891,16 +888,17 @@ static void commonTicker(bool &playvideo)
     }
     if (gStartNewGame)
     {
-        StartLevel(&gGameOptions);
-		
-		auto completion = [](bool = false)
-		{
-			levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
+
+        auto completion = [](bool = false)
+        {
+            StartLevel(&gGameOptions);
+            levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
             gNetFifoClock = gFrameClock = totalclock;
             gamestate = GS_LEVEL;
-		};
-		
-        if ((gGameOptions.uGameFlags & 4))
+        };
+
+        if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
+            && gEpisodeInfo[gGameOptions.nEpisode].cutsceneAName[0])
             levelPlayIntroScene(gGameOptions.nEpisode, completion);
         else 
 			completion(false);
