@@ -15428,7 +15428,8 @@ InitRocket(PLAYERp pp)
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
-    if (pp->WpnRocketHeat)
+    auto const WpnRocketHeat = pp->WpnRocketHeat;
+    if (WpnRocketHeat)
     {
         switch (pp->WpnRocketType)
         {
@@ -15482,7 +15483,7 @@ InitRocket(PLAYERp pp)
     // Set default palette
     wp->pal = wu->spal = 17; // White
 
-    if (pp->WpnRocketHeat)
+    if (WpnRocketHeat)
     {
         switch (pp->WpnRocketType)
         {
@@ -15561,6 +15562,16 @@ InitBunnyRocket(PLAYERp pp)
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
+    auto const WpnRocketHeat = pp->WpnRocketHeat;
+    if (WpnRocketHeat)
+    {
+        switch (pp->WpnRocketType)
+        {
+        case 1:
+            pp->WpnRocketHeat--;
+            break;
+        }
+    }
 
     PlaySound(DIGI_BUNNYATTACK, pp, v3df_dontpan|v3df_doppler);
 
@@ -15601,13 +15612,13 @@ InitBunnyRocket(PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    if (pp->WpnRocketHeat)
+    if (WpnRocketHeat)
     {
         switch (pp->WpnRocketType)
         {
         case 1:
-            pp->WpnRocketHeat--;
             SET(wu->Flags, SPR_FIND_PLAYER);
+            break;
         }
     }
 
