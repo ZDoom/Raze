@@ -1562,6 +1562,11 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 	p->pycount &= 2047;
 	p->pyoff = sintable[p->pycount] >> 7;
 
+	if (p->jetpack_on && S_CheckActorSoundPlaying(pi, DUKE_SCREAM))
+	{
+		S_StopSound(DUKE_SCREAM, pi);
+	}
+
 	if (p->jetpack_on < 11)
 	{
 		p->jetpack_on++;
