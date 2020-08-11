@@ -47,6 +47,7 @@ void AnimTexture::SetFrameSize(int  format, int width, int height)
     FTexture::SetSize(width, height);
     Image.Resize(width * height * (format == Paletted ? 1 : 3));
     memset(Image.Data(), 0, Image.Size());
+    CleanHardwareTextures();
     pixelformat = format;
 }
 

@@ -315,6 +315,7 @@ public:
 	{
 		Smacker_Close(hSMK);
 		soundEngine->StopAllChannels();
+		animtex.Clean();
 	}
 };
 
