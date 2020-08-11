@@ -431,6 +431,7 @@ CCMD (menu_endgame)
 			if (res)
 			{
                 STAT_Cancel();
+				M_ClearMenus();
 				gi->QuitToTitle();
 			}
 		});
