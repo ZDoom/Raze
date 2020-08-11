@@ -346,8 +346,8 @@ void operateforcefields_r(int s, int low)
 
 bool checkhitswitch_r(int snum, int w, int switchtype)
 {
-	char switchpal;
-	short i, x, lotag, hitag, picnum, correctdips, numdips;
+	uint8_t switchpal;
+	int i, x, lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
 
 	if (w < 0) return 0;
@@ -429,13 +429,15 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 
 			return 0;
 		}
+		goto goOn1;
+
 	case MULTISWITCH2:
 	case MULTISWITCH2 + 1:
 	case MULTISWITCH2 + 2:
 	case MULTISWITCH2 + 3:
 	case RRTILE8464:
 	case RRTILE8660:
-		if (isRRRA()) break;
+		if (!isRRRA()) break;
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -473,6 +475,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 	case RRTILE2697 + 1:
 	case RRTILE2707:
 	case RRTILE2707 + 1:
+		goOn1:
 		if (check_activator_motion(lotag)) return 0;
 		break;
 	default:
@@ -708,6 +711,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 			if (numdips != correctdips) break;
 			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].i, &v);
 		}
+		goto goOn2;
 	case MULTISWITCH2:
 	case MULTISWITCH2 + 1:
 	case MULTISWITCH2 + 2:
@@ -751,6 +755,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 	case RRTILE2697 + 1:
 	case RRTILE2707:
 	case RRTILE2707 + 1:
+		goOn2:
 		if (isRRRA())
 		{
 			if (picnum == RRTILE8660)
@@ -823,7 +828,7 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				lotag += picnum - MULTISWITCH2;
 		}
 
-		x = headspritestat[3];
+		x = headspritestat[STAT_EFFECTOR];
 		while (x >= 0)
 		{
 			if (sprite[x].hitag == lotag)
@@ -831,25 +836,25 @@ bool checkhitswitch_r(int snum, int w, int switchtype)
 				switch (sprite[x].lotag)
 				{
 				case 46:
-				case 47:
-				case 48:
+				case SE_47_LIGHT_SWITCH:
+				case SE_48_LIGHT_SWITCH:
 					if (!isRRRA()) break;
-				case 12:
+				case SE_12_LIGHT_SWITCH:
 					sector[sprite[x].sectnum].floorpal = 0;
 					hittype[x].temp_data[0]++;
 					if (hittype[x].temp_data[0] == 2)
 						hittype[x].temp_data[0]++;
 
 					break;
-				case 24:
-				case 34:
-				case 25:
+				case SE_24_CONVEYOR:
+				case SE_34:
+				case SE_25_PISTON:
 					hittype[x].temp_data[4] = !hittype[x].temp_data[4];
 					if (hittype[x].temp_data[4])
 						FTA(15, &ps[snum]);
 					else FTA(2, &ps[snum]);
 					break;
-				case 21:
+				case SE_21_DROP_FLOOR:
 					FTA(2, &ps[screenpeek]);
 					break;
 				}
