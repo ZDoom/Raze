@@ -888,7 +888,7 @@ static void commonTicker(bool &playvideo)
     }
     if (gStartNewGame)
     {
-
+        gStartNewGame = false;
         auto completion = [](bool = false)
         {
             StartLevel(&gGameOptions);
