@@ -657,9 +657,9 @@ void ProcessFrame(void)
 				auto completion = [] (bool) {
 					gamestate = GS_MENUSCREEN;
 					M_StartControlPanel(false);
-					M_SetMenu(NAME_CreditsMenu);
+                    M_SetMenu(NAME_Mainmenu);
+                    M_SetMenu(NAME_CreditsMenu);
 					gGameOptions.uGameFlags &= ~3;
-					gRestartGame = 1;
 					gQuitGame = 1;
 				};
 				
