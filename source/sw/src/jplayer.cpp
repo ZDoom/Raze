@@ -39,7 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "lists.h"
 #include "quake.h"
 
-#include "common_game.h"
 #include "gamecontrol.h"
 
 #include "menus.h"

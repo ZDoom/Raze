@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interp.h"
 #include "interpso.h"
 #include "tags.h"
-#include "common_game.h"
 #include "break.h"
 #include "quake.h"
 #include "network.h"

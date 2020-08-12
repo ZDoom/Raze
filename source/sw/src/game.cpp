@@ -83,7 +83,6 @@ Things required to make savegames work:
 #include "jsector.h"
 
 #include "common.h"
-#include "common_game.h"
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
@@ -538,6 +537,19 @@ void AnimateCacheCursor(void)
 
 static int firstnet = 0;    // JBF
 
+typedef enum basepal_ {
+    BASEPAL = 0,
+    DREALMSPAL,
+} basepal_t;
+
+
+void SW_InitMultiPsky(void)
+{
+    // default
+    psky_t* const defaultsky = tileSetupSky(DEFAULTPSKY);
+    defaultsky->lognumtiles = 1;
+    defaultsky->horizfrac = 8192;
+}
 
 bool InitGame()
 {
@@ -551,6 +563,8 @@ bool InitGame()
     engineInit();
 
     InitAutoNet();
+
+
 
     {
         auto pal = fileSystem.LoadFile("3drealms.pal", 0);
@@ -2462,7 +2476,6 @@ int32_t GameInterface::app_main()
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
     BorderAdjust = true;
-    SW_ExtInit();
 
     CONFIG_ReadSetup();
 

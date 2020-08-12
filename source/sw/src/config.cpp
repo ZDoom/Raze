@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamedefs.h"
 #include "gamecontrol.h"
 #include "sounds.h"
-#include "common_game.h"
 
 // we load this in to get default button and key assignments
 // as well as setting up function mappings

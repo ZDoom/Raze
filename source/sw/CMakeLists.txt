@@ -9,7 +9,6 @@ set( PCH_SOURCES
 	src/cache.cpp
 	src/cheats.cpp
 	src/colormap.cpp
-	src/common.cpp
 	src/config.cpp
 	src/console.cpp
 	src/coolg.cpp
