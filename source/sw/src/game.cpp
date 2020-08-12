@@ -2477,7 +2477,7 @@ int32_t GameInterface::app_main()
     automapping = 1;
     BorderAdjust = true;
 
-    CONFIG_ReadSetup();
+    gs = gs_defaults;
 
     hud_size.Callback();
 

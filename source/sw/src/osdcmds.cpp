@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"  // g_firstDemoFile[]
 #include "menus.h"
 #include "mapinfo.h"
+#include "jsector.h"
 
 BEGIN_SW_NS
 
@@ -174,11 +175,59 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_bunny(CCmdFuncPtr parm)
+{
+    PLAYERp pp = Player + myconnectindex;
+
+    if (CommEnabled)
+        return CCMD_OK;
+
+    pp->BunnyMode = !pp->BunnyMode;
+    if (pp->BunnyMode)
+        PutStringInfo(pp, "Bunny rockets enabled!");
+    else
+        PutStringInfo(pp, "Bunny rockets disabled!");
+    return CCMD_OK;
+}
+
+static int osdcmd_mirror(CCmdFuncPtr parm)
+{
+    char base[80];
+    int16_t op1 = 0;
+
+    if (parm->numparms < 1)
+    {
+        return CCMD_SHOWHELP;
+    }
+
+    if (op1 < 0 || op1 > 9)
+    {
+        Printf("Mirror number is out of range!");
+        return CCMD_OK;
+    }
+
+    Printf("camera is the ST1 sprite used as the view spot");
+    Printf("camspite is the SpriteNum of the drawtotile tile in editart");
+    Printf("camspic is the tile number of the drawtotile in editart");
+    Printf("iscamera is whether or not this mirror is a camera type");
+    Printf(" ");
+    Printf("mirror[%d].mirrorwall = %d", op1, mirror[op1].mirrorwall);
+    Printf("mirror[%d].mirrorsector = %d", op1, mirror[op1].mirrorsector);
+    Printf("mirror[%d].camera = %d", op1, mirror[op1].camera);
+    Printf("mirror[%d].camsprite = %d", op1, mirror[op1].camsprite);
+    Printf("mirror[%d].campic = %d", op1, mirror[op1].campic);
+    Printf("mirror[%d].iscamera = %d", op1, mirror[op1].ismagic);
+    return CCMD_OK;
+}
+
+
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    C_RegisterFunction("bunny", "bunny: toggles bunny rocket mode", osdcmd_bunny);
+    C_RegisterFunction("mirror", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
 
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
