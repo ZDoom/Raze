@@ -766,7 +766,7 @@ void I_ReleaseMouseCapture();
 struct MenuClassDescriptor;
 extern TArray<MenuClassDescriptor*> menuClasses;
 
-using hFunc = std::function<void(bool)>;
+using hFunc = std::function<bool(bool)>;
 DMenu* CreateMessageBoxMenu(DMenu* parent, const char* message, int messagemode, int scriptID, bool playsound, FName action = NAME_None, hFunc handler = nullptr);
 
 

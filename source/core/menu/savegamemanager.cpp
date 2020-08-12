@@ -668,6 +668,7 @@ CCMD(quicksave)
 			{
 				savegameManager.SaveGame(savegameManager.quickSaveSlot, true, true);
 			}
+			return true;
 		});
 
 	M_ActivateMenu(newmenu);
@@ -716,6 +717,7 @@ CCMD(quickload)
 			{
 				savegameManager.LoadGame(savegameManager.quickSaveSlot);
 			}
+			return true;
 		});
 	M_ActivateMenu(newmenu);
 }

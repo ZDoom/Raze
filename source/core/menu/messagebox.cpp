@@ -77,7 +77,7 @@ class DMessageBoxMenu : public DMenu
 	int messageSelection;
 	int mMouseLeft, mMouseRight, mMouseY;
 	FName mAction;
-	std::function<void(bool)> mActionFunc;
+	std::function<bool(bool)> mActionFunc;
 
 public:
 
@@ -170,8 +170,7 @@ void DMessageBoxMenu::HandleResult(bool res)
 	{
 		if (mActionFunc)
 		{
-			mActionFunc(res);
-			Close();
+			if (mActionFunc(res)) Close();
 		}
 		else if (mAction == NAME_None && mParentMenu)
 		{
@@ -433,7 +432,9 @@ CCMD (menu_endgame)
                 STAT_Cancel();
 				M_ClearMenus();
 				gi->QuitToTitle();
+				return false;
 			}
+			return true;
 		});
 
 	M_ActivateMenu(newmenu);
@@ -456,6 +457,7 @@ CCMD (menu_quit)
 	DMenu *newmenu = CreateMessageBoxMenu(CurrentMenu, EndString, 0, 500, false, NAME_None, [](bool res)
 	{
 			if (res) gi->ExitFromMenu();
+			return true;
 	});
 
 	M_ActivateMenu(newmenu);
