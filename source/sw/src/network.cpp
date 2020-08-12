@@ -897,7 +897,6 @@ UpdateInputs(void)
 {
     int i, j, k;
     PLAYERp pp;
-    extern SWBOOL BotMode;
 
     ototalclock += synctics;
 
@@ -948,40 +947,13 @@ UpdateInputs(void)
     pp->movefifoend++;
     Bmemset(&loc, 0, sizeof(loc));
 
-#if 0
-//  AI Bot stuff
-    if (numplayers > 1)
-    {
-        if (gNet.MultiGameType == MULTI_GAME_AI_BOTS)
-        {
-            for (i=connecthead; i>=0; i=connectpoint2[i])
-            {
-                if (i != myconnectindex)
-                {
-                    if (BotMode && Player[i].IsAI == 1) // Skip it if this player is not computer controlled!
-                    {
-                        computergetinput(i,&Player[i].inputfifo[Player[i].movefifoend&(MOVEFIFOSIZ-1)]);
-                        Player[i].movefifoend++;
-                    }
-                }
-            }
-        }
-    }
-// AI Bot stuff
-#endif
-
     if (!CommEnabled)
     {
         TRAVERSE_CONNECT(i)
         {
             if (i != myconnectindex)
             {
-                if (BotMode && Player[i].IsAI == 1)
-                {
-                    computergetinput(i,&Player[i].inputfifo[Player[i].movefifoend&(MOVEFIFOSIZ-1)]);
-                }
-                else
-                    memset(&Player[i].inputfifo[Player[i].movefifoend & (MOVEFIFOSIZ - 1)], 0, sizeof(Player[i].inputfifo[0]));
+                memset(&Player[i].inputfifo[Player[i].movefifoend & (MOVEFIFOSIZ - 1)], 0, sizeof(Player[i].inputfifo[0]));
                 Player[i].movefifoend++;
             }
         }

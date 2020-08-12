@@ -384,10 +384,6 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
 
     if (sectnum < 0)
     {
-        //int cz,fz;
-        //getzsofslope(tsp->sectnum, tsp->x, tsp->y, &cz, &fz);
-        ////DSPRINTF(ds,"Shad sect !fnd x%d, y%d, z%d, sect%d, cz %d, fz %d", tsp->x, tsp->y, tsp->z, tsp->sectnum, cz, fz);
-        //MONO_PRINT(ds);
         return;
     }
 
@@ -453,27 +449,22 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
     New->xrepeat = xrepeat;
     New->yrepeat = yrepeat;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
+    if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
-        {
-            New->yrepeat = 0;
-            // cstat:    trans reverse
-            // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
-            New->clipdist |= TSPR_FLAGS_MDHACK;
-            New->cstat |= 512;
-        }
-        else
-        {
-            int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
-            vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
-
-            New->x += ofs.x;
-            New->y += ofs.y;
-        }
+        New->yrepeat = 0;
+        // cstat:    trans reverse
+        // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
+        New->clipdist |= TSPR_FLAGS_MDHACK;
+        New->cstat |= 512;
     }
-#endif
+    else
+    {
+        int const camang = mirror ? NORM_ANGLE(2048 - Player[screenpeek].siang) : Player[screenpeek].siang;
+        vec2_t const ofs = { sintable[NORM_ANGLE(camang+512)]>>11, sintable[NORM_ANGLE(camang)]>>11};
+
+        New->x += ofs.x;
+        New->y += ofs.y;
+    }
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -1107,66 +1098,6 @@ ResizeView(PLAYERp pp)
         }
     }
 }
-
-// !JIM! 08/06
-
-#if 0
-void
-ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int16_t* ang, int16_t* vsectnum)
-{
-    int nx, ny;
-    int ret;
-
-    *vx = pp->posx;
-    *vy = pp->posy;
-    *vz = pp->posz;
-    *vsectnum = pp->cursectnum;
-
-    *ang = fix16_to_int(pp->q16ang) + pp->view_outside_dang;
-
-    nx = sintable[NORM_ANGLE(*ang + 512 + 1024)] << 11;
-    ny = sintable[NORM_ANGLE(*ang + 1024)] << 11;
-
-    ret = clipmove_old(vx, vy, vz, vsectnum, nx, ny, 64L, 4 << 8, 4 << 8, CLIPMASK_PLAYER);
-
-    switch (TEST(ret, HIT_MASK))
-    {
-    case HIT_SPRITE:
-    {
-        short hit_sprite;
-        SPRITEp sp;
-
-        hit_sprite = NORM_SPRITE(ret);
-        sp = &sprite[hit_sprite];
-
-        // if you hit a sprite that's not a wall sprite - try again
-        if (!TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
-        {
-            FLIP(sp->cstat, CSTAT_SPRITE_BLOCK);
-            ViewOutsidePlayerRecurse(pp, vx, vy, vz, ang, vsectnum);
-            FLIP(sp->cstat, CSTAT_SPRITE_BLOCK);
-        }
-
-        break;
-    }
-    }
-
-    if (TEST(sector[*vsectnum].floorstat, FLOOR_STAT_SLOPE)|TEST(sector[*vsectnum].ceilingstat, CEILING_STAT_SLOPE))
-    {
-        int cz, fz;
-
-        getzsofslope(*vsectnum, *vx, *vy, &cz, &fz);
-
-        if (*vz > fz - Z(12))
-            *vz = fz - Z(12);
-
-        if (*vz < cz + Z(12))
-            *vz = cz + Z(12);
-
-    }
-}
-#endif
-
 
 
 void

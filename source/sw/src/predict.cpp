@@ -55,11 +55,6 @@ int predictmovefifoplc;
 void DoPlayerSectorUpdatePreMove(PLAYERp);
 void DoPlayerSectorUpdatePostMove(PLAYERp);
 
-#define PREDICT_DEBUG 0
-
-#if PREDICT_DEBUG
-void (*pred_last_func)(PLAYERp) = NULL;
-#endif
 
 void
 InitPrediction(PLAYERp pp)
@@ -67,50 +62,10 @@ InitPrediction(PLAYERp pp)
     if (!PredictionOn)
         return;
 
-#if PREDICT_DEBUG
-    pred_last_func = pp->DoPlayerAction;
-#endif
-
     // make a copy of player struct and sprite
     *ppp = *pp;
     PredictUser = *User[pp->PlayerSprite];
 }
-
-#if PREDICT_DEBUG
-PredictDebug(PLAYERp ppp)
-{
-    static FILE *fout = NULL;
-    static char pred_sym_name[80];
-
-    if (SymCountCode == 0)
-        LoadSymTable("swcode.sym", &SymTableCode, &SymCountCode);
-
-    if (SymCountCode <= 0)
-        return;
-
-    if (!fout)
-    {
-        if ((fout = fopen("dbgpred.txt", "wb")) == NULL)
-            return;
-    }
-
-    if (ppp->DoPlayerAction != pred_last_func)
-    {
-        extern uint32_t MoveThingsCount;
-        SYM_TABLEp st_ptr;
-        uint32_t unrelocated_offset;
-        uint32_t offset_from_symbol;
-
-        unrelocated_offset = SymCodePtrToOffset((void *)ppp->DoPlayerAction);
-        st_ptr = SearchSymTableByOffset(SymTableCode, SymCountCode, unrelocated_offset, &offset_from_symbol);
-        ASSERT(st_ptr);
-        strcpy(pred_sym_name, st_ptr->Name);
-
-        fprintf(fout, "%s, %d\n", pred_sym_name, MoveThingsCount);
-    }
-}
-#endif
-
 
 void
 DoPrediction(PLAYERp ppp)
@@ -159,10 +114,6 @@ DoPrediction(PLAYERp ppp)
     ppp->oposy = ppp->posy;
     ppp->oposz = ppp->posz;
     ppp->oq16horiz = ppp->q16horiz;
-
-#if PREDICT_DEBUG
-    PredictDebug(ppp);
-#endif
 
     // go through the player MOVEMENT code only
     Prediction = TRUE;
