@@ -27,6 +27,7 @@
 #include "menu.h"
 #include "version.h"
 #include "earcut.hpp"
+#include "gamestate.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -2999,7 +3000,7 @@ void videoNextPage(void)
     M_Drawer();
 
     // Handle the final 2D overlays.
-    DrawFullscreenBlends();
+    if (gamestate == GS_LEVEL) DrawFullscreenBlends();
     DrawRateStuff();
 
     if (in3dmode())

@@ -134,7 +134,7 @@ struct player_struct
 	int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
 	int player_par, visibility;
 	int bobcounter;
-	int pals_time, randomflamex, crack_time;
+	int randomflamex, crack_time;
 
 	int aim_mode, auto_aim, ftt;
 

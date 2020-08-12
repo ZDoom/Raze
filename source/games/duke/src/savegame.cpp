@@ -144,7 +144,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("visibility", w.visibility)
 			("bobcounter", w.bobcounter)
 			("weapon_sway", w.weapon_sway)
-			("pals_time", w.pals_time)
 			("randomflamex", w.randomflamex)
 			("crack_time", w.crack_time)
 			("aim.mode", w.aim_mode)
