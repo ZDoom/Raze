@@ -73,6 +73,8 @@ void deletesprite(int num)
 {
 	if (sprite[num].picnum == MUSICANDSFX && hittype[num].temp_data[0] == 1)
 		S_StopSound(sprite[num].lotag, num);
+	else
+		S_RelinkActorSound(num, -1);
 	::deletesprite(num);
 }
 

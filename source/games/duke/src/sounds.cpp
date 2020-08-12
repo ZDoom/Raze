@@ -482,6 +482,12 @@ int S_PlayActorSound(int soundNum, int spriteNum, int channel, EChanFlags flags)
 		S_PlaySound3D(soundNum, spriteNum, &sprite[spriteNum].pos, channel, flags);
 }
 
+void S_RelinkActorSound(int from, int to)
+{
+	FVector3 pos = GetSoundPos(&sprite[from].pos);
+	soundEngine->RelinkSound(SOURCE_Actor, &sprite[from], to == -1 ? nullptr : &sprite[to], &pos);
+}
+
 void S_StopSound(int sndNum, int sprNum, int channel)
 {
 	if (sprNum < -1 || sprNum >= MAXSPRITES) return;
