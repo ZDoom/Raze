@@ -161,7 +161,6 @@ SWBOOL NewGame = TRUE;
 SWBOOL InMenuLevel = FALSE;
 SWBOOL LoadGameOutsideMoveLoop = FALSE;
 SWBOOL LoadGameFromDemo = FALSE;
-SWBOOL ArgCheat = FALSE;
 extern SWBOOL NetBroadcastMode, NetModeOverride;
 SWBOOL MultiPlayQuitFlag = FALSE;
 //Miscellaneous variables
@@ -972,17 +971,7 @@ InitLevel(void)
     {
         DisplayDemoText();
     }
-
-
-    if (ArgCheat)
-    {
-        int bak = hud_messages;
-        hud_messages = 0;
-        EveryCheatToggle(&Player[0],NULL);
-        hud_messages = bak;
-        GodMode = TRUE;
-    }
-
+    
     // reset NewGame
     NewGame = FALSE;
 
@@ -2469,6 +2458,7 @@ int32_t GameInterface::app_main()
     void gameinput(void);
     int cnt = 0;
 
+    InitCheats();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
     BorderAdjust = true;

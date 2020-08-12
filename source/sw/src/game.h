@@ -2419,8 +2419,6 @@ void LoadKVXFromScript(const char *filename); // scrip2.c
 void LoadPLockFromScript(const char *filename);   // scrip2.c
 void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 
-void EveryCheatToggle(PLAYERp pp,const char *cheat_string);   // cheats.c
-
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c
 int PlayerInitFlashBomb(PLAYERp pp);    // jweapon.c
 int PlayerInitCaltrops(PLAYERp pp); // jweapon.c

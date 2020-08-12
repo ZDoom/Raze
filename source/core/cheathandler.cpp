@@ -122,7 +122,7 @@ bool Cheat_Responder (event_t *ev)
 
 void PlaybackCheat(const char *p)
 {
-	if (!gi->CheatAllowed(false))
+	if (gi->CheatAllowed(false))
 	{
 		event_t ev = { EV_KeyDown, 0, 0, -1 };
 		Cheat_Responder(&ev);   // Reset the parser by passing a non-existent key.
@@ -142,8 +142,8 @@ void PlaybackCheat(const char *p)
 
 CCMD(activatecheat)
 {
-	if (argv.argc() != 1)
+	if (argv.argc() < 2)
 		Printf("activatecheat <string>: activates a classic cheat code\n");
 	else
-		PlaybackCheat(argv[0]);
+		PlaybackCheat(argv[1]);
 }

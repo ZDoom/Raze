@@ -567,9 +567,6 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     WALLp nwp;
     SPRITEp bsp;
 
-    //DSPRINTF(ds,"wallnum %d, pic %d, lo %d, hi %d",wallp-wall, wallp->picnum, wallp->lotag, wallp->hitag);
-    MONO_PRINT(ds);
-
     wallp->lotag = 0;
     if (wallp->nextwall >= 0)
     {
@@ -593,9 +590,6 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
 
     if (!break_info)
     {
-        //DSPRINTF(ds,"Break Info not found - wall %d", wallp - wall);
-        MONO_PRINT(ds);
-
         return FALSE;
     }
 

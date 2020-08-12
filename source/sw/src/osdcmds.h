@@ -32,8 +32,6 @@ struct osdcmd_cheatsinfo {
 	int32_t volume,level;
 };
 
-extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-
 int32_t registerosdcommands(void);
 
 

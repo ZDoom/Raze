@@ -1530,20 +1530,8 @@ void SpriteSortList2D(int tx, int ty)
     }
 }
 
-void CheatResChange(void)
-{
-}
-
 void DrawCheckKeys(PLAYERp pp)
 {
-    extern SWBOOL ResCheat;
-
-    if (ResCheat)
-    {
-        ResCheat = FALSE;
-        CheatResChange(); // allow all modes when cheating
-    }
-
     if (ConPanel) return;
 
     if (!InputMode)

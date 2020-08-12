@@ -48,10 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_SW_NS
 
-char boardfilename[BMAX_PATH] = {0};
-
-struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat = { -1, 0, 0 };
-
 static int osdcmd_map(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1)
@@ -73,51 +69,29 @@ static int osdcmd_map(CCmdFuncPtr parm)
     {
         if (mapList[i].labelName.CompareNoCase(mapname) == 0)
         {
-			FStringf cheatcode("swtrek%02d", i);
-			WarpCheat(Player, cheatcode);
+			FStringf cheatcode("activatecheat swtrek%02d", i);
+            C_DoCommand(cheatcode);
 			return CCMD_OK;
         }
     }
     return CCMD_OK;
 }
 
-
-static int osdcmd_activatecheat(CCmdFuncPtr parm)
+static int osdcmd_god(CCmdFuncPtr)
 {
-    if (parm->numparms != 1)
-        return CCMD_SHOWHELP;
-
-    memset(MessageInputString, '\0', sizeof(MessageInputString));
-    strcpy(MessageInputString, parm->parms[0]);
-    CheatInput();
-
+    C_DoCommand("activatecheat swgod");
     return CCMD_OK;
 }
 
-static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    GodCheat(Player, "swgod");
-
+    C_DoCommand("activatecheat swghost");
     return CCMD_OK;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
+int osdcmd_restartmap(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    ClipCheat(Player, "swghost");
-
-    return CCMD_OK;
-}
-
-int osdcmd_restartmap(CCmdFuncPtr UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
-
-    RestartCheat(Player, "swstart");
-
+    C_DoCommand("activatecheat swstart");
     return CCMD_OK;
 }
 
@@ -125,110 +99,14 @@ int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1) return CCMD_SHOWHELP;
 
-    char cheatcode[9] = "swtrek##";
+    char cheatcode[] = "activatecheat swtrek##";
 
     for (int i = 0; i < 2; i++)
-        cheatcode[6+i] = parm->parms[0][i];
-
-    WarpCheat(Player, cheatcode);
+        cheatcode[20+i] = parm->parms[0][i];
+    C_DoCommand(cheatcode);
     return CCMD_OK;
 }
 
-#if 0
-static int osdcmd_spawn(CCmdFuncPtr parm)
-{
-    int32_t picnum = 0;
-    uint16_t cstat=0;
-    char pal=0;
-    int16_t ang=0;
-    int16_t set=0, idx;
-    vec3_t vect;
-
-    if (numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME))
-    {
-        Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
-        return CCMD_OK;
-    }
-
-    switch (parm->numparms)
-    {
-    case 7: // x,y,z
-        vect.x = Batol(parm->parms[4]);
-        vect.y = Batol(parm->parms[5]);
-        vect.z = Batol(parm->parms[6]);
-        set |= 8;
-        fallthrough__;
-    case 4: // ang
-        ang = Batol(parm->parms[3]) & 2047;
-        set |= 4;
-        fallthrough__;
-    case 3: // cstat
-        cstat = (uint16_t)Batol(parm->parms[2]);
-        set |= 2;
-        fallthrough__;
-    case 2: // pal
-        pal = (uint8_t)Batol(parm->parms[1]);
-        set |= 1;
-        fallthrough__;
-    case 1: // tile number
-        if (isdigit(parm->parms[0][0]))
-        {
-            picnum = Batol(parm->parms[0]);
-        }
-        else
-        {
-            int32_t i;
-            int32_t j;
-
-            for (j=0; j<2; j++)
-            {
-                for (i=0; i<g_labelCnt; i++)
-                {
-                    if ((j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
-                        (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0])))
-                    {
-                        picnum = labelcode[i];
-                        break;
-                    }
-                }
-
-                if (i < g_labelCnt)
-                    break;
-            }
-            if (i==g_labelCnt)
-            {
-                Printf("spawn: Invalid tile label given\n");
-                return CCMD_OK;
-            }
-        }
-
-        if ((uint32_t)picnum >= MAXUSERTILES)
-        {
-            Printf("spawn: Invalid tile number\n");
-            return CCMD_OK;
-        }
-        break;
-
-    default:
-        return CCMD_SHOWHELP;
-    }
-
-    idx = A_Spawn(ps[myconnectindex].i, picnum);
-    if (set & 1) sprite[idx].pal = (uint8_t)pal;
-    if (set & 2) sprite[idx].cstat = (int16_t)cstat;
-    if (set & 4) sprite[idx].ang = ang;
-    if (set & 8)
-    {
-        if (setsprite(idx, &vect) < 0)
-        {
-            Printf("spawn: Sprite can't be spawned into null space\n");
-            A_DeleteSprite(idx);
-        }
-    }
-
-    return CCMD_OK;
-}
-#endif
 
 static int osdcmd_give(CCmdFuncPtr parm)
 {
@@ -236,39 +114,39 @@ static int osdcmd_give(CCmdFuncPtr parm)
 
     if (parm->numparms != 1) return CCMD_SHOWHELP;
 
-    if (!Bstrcasecmp(parm->parms[0], "all"))
+    if (!stricmp(parm->parms[0], "all"))
     {
-        ItemCheat(Player, "swgimme");
+        C_DoCommand("activatecheat swgimme");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "health"))
+    else if (!stricmp(parm->parms[0], "health"))
     {
-        HealCheat(Player, "swmedic");
+        C_DoCommand("activatecheat swmedic");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "weapons"))
+    else if (!stricmp(parm->parms[0], "weapons"))
     {
-	WeaponCheat(Player, "swguns");
+        C_DoCommand("activatecheat swguns");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "ammo"))
+    else if (!stricmp(parm->parms[0], "ammo"))
     {
-	AmmoCheat(Player, "");
+        C_DoCommand("activatecheat swammo");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "armor"))
+    else if (!stricmp(parm->parms[0], "armor"))
     {
-        ArmorCheat(Player, ""); // this cheat did not exist before
+        C_DoCommand("activatecheat swarmor");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "keys"))
+    else if (!stricmp(parm->parms[0], "keys"))
     {
-        KeysCheat(Player, "swkeys");
+        C_DoCommand("activatecheat swkeys");
         return CCMD_OK;
     }
-    else if (!Bstrcasecmp(parm->parms[0], "inventory"))
+    else if (!stricmp(parm->parms[0], "inventory"))
     {
-        InventoryCheat(Player, ""); // this cheat did not exist before
+        C_DoCommand("activatecheat switems");
         return CCMD_OK;
     }
     return CCMD_SHOWHELP;
@@ -301,7 +179,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-//    C_RegisterFunction("activatecheat","activatecheat <string>: activates a classic cheat code", osdcmd_activatecheat);
 
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
