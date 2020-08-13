@@ -2468,6 +2468,8 @@ void AudioUpdate(void); // stupid
 extern short LastSaveNum;
 void LoadSaveMsg(const char *msg);
 
+void UpdateStatusBar(ClockTicks arg);
+
 struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }

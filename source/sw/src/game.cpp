@@ -2148,7 +2148,6 @@ void InitRunLevel(void)
         // contains what is needed from calls below
         if (snd_ambience)
             StartAmbientSound();
-        SetCrosshair();
         SetRedrawScreen(Player + myconnectindex);
         // crappy little hack to prevent play clock from being overwritten
         // for load games

@@ -45,6 +45,7 @@ set( PCH_SOURCES
 	src/rotator.cpp
 	src/save.cpp
 	src/saveable.cpp
+	src/sbar.cpp
 	src/scrip2.cpp
 	src/sector.cpp
 	src/serp.cpp

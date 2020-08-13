@@ -45,25 +45,6 @@ BEGIN_SW_NS
 
 short DebugBorderShade = 0;
 
-short RegBorderTest[] =
-{
-    51, 53, 127, 128, 140, 145, 152, 197, 198, 201, 205, 206, 213, 218, 242, 243,
-    245, 246, 247, 257, 2560, 2561, 2562, 2570, 2571, 2572, 2573, 2576, 2578,
-    2579, 2580, 2581, 2582, 2583, 2584, 2585, 2593, 2594
-};
-short SWBorderTest[] =
-{
-    51, 53, 127, 128, 140, 145, 201, 205, 206, 213, 218,
-    245, 2560, 2573, 2576, 2580, 2581, 2582, 2583, 2584, 2593
-};
-
-#undef BORDER_TILE
-#define BORDER_TILE \
-    (isShareware ? \
-     SWBorderTest[gs.BorderTile % SIZ(SWBorderTest)] : \
-     RegBorderTest[gs.BorderTile % SIZ(RegBorderTest)] \
-    )
-
 #define f_320 FIXED(320,0)
 #define f_200 FIXED(200,0)
 
@@ -78,54 +59,6 @@ int CrosshairX, CrosshairY;
 extern SWBOOL BorderAdjust;
 SWBOOL GlobSpriteBoxUpdateEveryFrame = FALSE;
 
-PANEL_SPRITEp
-pSpawnFullScreenSpriteBox(PLAYERp pp, short id, short pic, short pri, int x, int y, short x1, short y1, short x2, short y2)
-{
-    PANEL_SPRITEp psp;
-
-    psp = pSpawnSprite(pp, NULL, pri, x, y);
-
-    psp->ID = id;
-    psp->numpages = numpages;
-    if (GlobSpriteBoxUpdateEveryFrame)
-    {
-        psp->numpages = 1;
-    }
-    psp->picndx = -1;
-    psp->picnum = pic;
-    psp->x1 = x1;
-    psp->y1 = y1;
-    psp->x2 = x2;
-    psp->y2 = y2;
-    psp->shade = DebugBorderShade;
-
-    //SET(psp->flags, PANF_STATUS_AREA | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST  | PANF_DRAW_BEFORE_VIEW | PANF_NOT_ALL_PAGES);
-    SET(psp->flags, PANF_STATUS_AREA | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST | PANF_DRAW_BEFORE_VIEW);
-    //extern SWBOOL DrawBeforeView;
-    //DrawBeforeView = TRUE;
-
-    //SET(psp->flags, PANF_SCREEN_CLIP | PANF_KILL_AFTER_SHOW | PANF_IGNORE_START_MOST);
-
-    return psp;
-}
-
-void SetCrosshair(void)
-{
-    int wdx,wdy,x,y;
-
-    wdx = ((windowxy2.x-windowxy1.x)/2);
-    wdy = ((windowxy2.y-windowxy1.y)/2);
-    x = windowxy1.x + wdx;
-    y = windowxy1.y + wdy;
-
-    CrosshairX = x / (xdim/320.0);
-    CrosshairY = y / (ydim/200.0);
-
-    // rotatesprite takes FIXED point number
-    CrosshairX <<= 16;
-    CrosshairY <<= 16;
-}
-
 
 void
 SetupAspectRatio(void)
@@ -138,28 +71,6 @@ SetupAspectRatio(void)
 
     x_aspect_mul = (f_xdim / 320);
     y_aspect_mul = (f_ydim / 200);
-}
-
-void
-SetConsoleDmost(void)
-{
-    int ystart;
-
-    int i;
-    int adj=0;
-
-    // dont setup the startumost/dmost arrays if border is 0
-    if (gs.BorderNum == BORDER_NONE || gs.BorderNum == BORDER_MINI_BAR)
-        return;
-
-    //
-    // Set the whole thing to the size of the bar
-    //
-
-    ystart = f_ydim - Y_TO_FIXED(BAR_HEIGHT);
-
-    if (ydim == 480 && gs.BorderNum == 2)
-        adj = 1;
 }
 
 void
@@ -204,105 +115,6 @@ SetFragBar(PLAYERp pp)
     }
 }
 
-SWBOOL RectOverlap(short tx1, short ty1, short bx1, short by1, short tx2, short ty2, short bx2, short by2)
-{
-    if (bx1 >= tx2)
-        if (tx1 <= bx2)
-            if (ty1 <= by2)
-                if (by1 >= ty2)
-                    return TRUE;
-
-    return FALSE;
-}
-
-void DrawBorderShade(PLAYERp pp, short shade_num, short wx1, short wy1, short wx2, short wy2)
-{
-    short i,j,k,l;
-    PANEL_SPRITEp psp;
-    int dark_shade = 27 - (shade_num * 6);
-    int light_shade = 20 - (shade_num * 6);
-
-    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
-    {
-        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
-        {
-            k = i + tilesiz[BORDER_TILE].x;
-            l = j + tilesiz[BORDER_TILE].y;
-
-            if (RectOverlap(i, j, k, l, wx1 - 1, wy1 - 1, wx2 + 1, wy1))
-            {
-                // draw top box of the border
-                psp = pSpawnFullScreenSpriteBox(pp, ID_BORDER_TOP, BORDER_TILE, PRI_BACK + 1, i, j, wx1 - 1, wy1 - 1, wx2 + 1, wy1);
-                psp->shade = dark_shade;
-                psp->ID = ID_BORDER_SHADE;
-            }
-
-            if (RectOverlap(i, j, k, l, wx1 - 1, wy2, wx2 + 1, wy2 + 1))
-            {
-                // draw bottom box of the border
-                psp = pSpawnFullScreenSpriteBox(pp, ID_BORDER_BOTTOM, BORDER_TILE, PRI_BACK + 1, i, j, wx1 - 1, wy2, wx2 + 1, wy2 + 1);
-                psp->shade = light_shade;
-                psp->ID = ID_BORDER_SHADE;
-            }
-            if (RectOverlap(i, j, k, l, wx1 - 1, wy1 - 1, wx1, wy2 + 1))
-            {
-                // draw left box of the border
-                psp = pSpawnFullScreenSpriteBox(pp, ID_BORDER_LEFT, BORDER_TILE, PRI_BACK + 1, i, j, wx1 - 1, wy1 - 1, wx1, wy2 + 1);
-                psp->shade = dark_shade;
-                psp->ID = ID_BORDER_SHADE;
-            }
-            if (RectOverlap(i, j, k, l, wx2, wy1 - 1, wx2 + 1, wy2 + 1))
-            {
-                // draw right box of the border
-                psp = pSpawnFullScreenSpriteBox(pp, ID_BORDER_RIGHT, BORDER_TILE, PRI_BACK + 1, i, j, wx2, wy1 - 1, wx2 + 1, wy2 + 1);
-                psp->shade = light_shade;
-                psp->ID = ID_BORDER_SHADE;
-            }
-        }
-    }
-}
-
-void
-BorderShade(PLAYERp pp, SWBOOL refresh)
-{
-    int wx1, wx2, wy1, wy2;
-    uint8_t lines;
-
-    wx1 = windowxy1.x - 1;
-    wy1 = windowxy1.y - 1;
-    wx2 = windowxy2.x + 1;
-    wy2 = windowxy2.y + 1;
-
-    for (lines = 0; lines < 4; lines++)
-    {
-
-        // make sure that these values dont go out of bound - which they do
-        wx1 = max(wx1, 0);
-        wx2 = min(wx2, xdim - 1);
-        wy1 = max(wy1, 0);
-
-        if (refresh)
-        {
-            // silly thing seems off by 1
-            wy2 = min(wy2, ydim - (Y_TO_FIXED(BAR_HEIGHT) >> 16) - 2);
-        }
-        else
-        {
-            if (gs.BorderNum >= BORDER_BAR+1 && gs.BorderNum <= BORDER_BAR+2)
-                wy2 = min(wy2, ydim - 1);
-            else
-                wy2 = min(wy2, ydim - (Y_TO_FIXED(BAR_HEIGHT) >> 16) - 1);
-        }
-
-        DrawBorderShade(pp, lines, wx1, wy1, wx2, wy2);
-        // increase view size by one - dont do a set view though
-        wx1--;
-        wy1--;
-        wx2++;
-        wy2++;
-    }
-}
-
 
 BORDER_INFO BorderInfoValues[] =
 {
@@ -324,77 +136,6 @@ BORDER_INFO BorderInfoValues[] =
     {0, BAR_HEIGHT, (11 * 16)},
     {0, BAR_HEIGHT, (12 * 16)}
 };
-
-
-void DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
-{
-    short i,j,k,l;
-    short count = 0;
-
-    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
-    {
-        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
-        {
-            k = i + tilesiz[BORDER_TILE].x;
-            l = j + tilesiz[BORDER_TILE].y;
-
-            if (RectOverlap(i, j, k, l, x, y, windowxy1.x-1, y2))
-            {
-                // draw top box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_TOP, BORDER_TILE, PRI_BACK, i, j, x, y, windowxy1.x-1, y2);
-                count++;
-            }
-
-            if (RectOverlap(i, j, k, l, windowxy2.x+1, y, x2, y2))
-            {
-                // draw bottom box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_BOTTOM, BORDER_TILE, PRI_BACK, i, j, windowxy2.x+1, y, x2, y2);
-                count++;
-            }
-
-            if (RectOverlap(i, j, k, l, windowxy1.x, y, windowxy2.x, windowxy1.y-1))
-            {
-                // draw left box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_LEFT, BORDER_TILE, PRI_BACK, i, j, windowxy1.x, y, windowxy2.x, windowxy1.y-1);
-                count++;
-            }
-
-            if (RectOverlap(i, j, k, l, windowxy1.x, windowxy2.y+1, windowxy2.x, y2))
-            {
-                // draw right box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_RIGHT, BORDER_TILE, PRI_BACK, i, j, windowxy1.x, windowxy2.y+1, windowxy2.x, y2);
-                count++;
-            }
-        }
-    }
-}
-
-void DrawPanelBorderSides(PLAYERp pp, short x, short y, short x2, short y2, short panl, short panr)
-{
-    short i,j,k,l;
-    short count = 0;
-
-    for (i = 0; i < xdim; i += tilesiz[BORDER_TILE].x)
-    {
-        for (j = 0; j < ydim; j += tilesiz[BORDER_TILE].y)
-        {
-            k = i + tilesiz[BORDER_TILE].x;
-            l = j + tilesiz[BORDER_TILE].y;
-
-            if (RectOverlap(i, j, k, l, x, y, panl, y2))
-            {
-                pSpawnFullScreenSpriteBox(pp, ID_PANEL_BORDER_LEFT, BORDER_TILE, PRI_BACK, i, j, x, y, panl, y2);
-                count++;
-            }
-
-            if (RectOverlap(i, j, k, l, panr, y, x2, y2))
-            {
-                pSpawnFullScreenSpriteBox(pp, ID_PANEL_BORDER_RIGHT, BORDER_TILE, PRI_BACK, i, j, panr, y, x2, y2);
-                count++;
-            }
-        }
-    }
-}
 
 static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 {
@@ -422,71 +163,6 @@ static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 
     // global windowxy1, windowxy2 coords set here
     videoSetViewableArea(x, y, x2, y2);
-    SetCrosshair();
-}
-
-//
-// Redraw the border without changing the view
-//
-
-static void
-BorderRefresh(PLAYERp pp)
-{
-    int x, x2, y, y2;
-    BORDER_INFO *b;
-
-    if (pp != Player + myconnectindex)
-        return;
-
-    if (!BorderAdjust)
-        return;
-
-    if (gs.BorderNum < BORDER_BAR)
-        return;
-
-    // Redraw the BORDER_TILE only if getting smaller
-    BorderInfo = BorderInfoValues[gs.BorderNum];
-
-    b = &BorderInfo;
-
-    // A refresh does not change the view size so we dont need to do a
-    // setview
-    // We don't need the calculations for the border drawing boxes - its
-    // the whole screen
-    // minus the border if necessary
-
-    // fill in the sides of the panel when the screen is wide
-    if (gs.BorderNum >= BORDER_BAR && r_usenewaspect)
-    {
-        const int sidew = (xdim - scale(4, ydim, 3)) / 2;
-
-        x = 0;
-        x2 = xdim - 1;
-
-        y = ydim - (Y_TO_FIXED(b->Ydim) >> 16);
-        y2 = ydim - 1;
-
-        DrawPanelBorderSides(pp, x, y, x2, y2, sidew, xdim-sidew);
-    }
-
-    // only need a border if border is > BORDER_BAR
-    if (gs.BorderNum > BORDER_BAR)
-    {
-        // make sure that these values dont go out of bound - which they do
-        x = 0;
-        x2 = xdim - 1;
-
-        y = 0;
-        y2 = ydim - (Y_TO_FIXED(b->Ydim) >> 16) - 1;
-
-        DrawBorder(pp, x, y, x2, y2);
-
-        // kill ALL outstanding (not yet drawn) border shade sprites before
-        // doing more shading
-        pKillScreenSpiteIDs(pp, ID_BORDER_SHADE);
-
-        BorderShade(pp, TRUE);
-    }
 }
 
 //
@@ -523,11 +199,6 @@ void SetBorder(PLAYERp pp, int value)
 
     if (gs.BorderNum >= BORDER_BAR)
     {
-        BorderRefresh(pp);
-
-        if (gs.BorderNum == BORDER_BAR)
-            SetConsoleDmost();
-
         pSpawnFullScreenSprite(pp, STATUS_BAR, PRI_FRONT, 0, 200 - tilesiz[STATUS_BAR].y);
         PlayerUpdatePanelInfo(Player + screenpeek);
     }

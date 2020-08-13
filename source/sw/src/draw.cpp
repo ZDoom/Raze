@@ -2116,6 +2116,8 @@ drawscreen(PLAYERp pp)
         renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
     }
 
+    UpdateStatusBar(totalclock);
+
     UpdatePanel();
 
 #define SLIME 2305
