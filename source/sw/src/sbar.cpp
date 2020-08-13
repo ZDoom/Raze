@@ -84,6 +84,8 @@ class DSWStatusBar : public DBaseStatusBar
         INVENTORY_STATE_YOFF = 1,
 
         MINI_BAR_Y = 174  ,
+        MINI_BAR_HEALTH_BOX_X = 4,
+        MINI_BAR_AMMO_BOX_X = 32,
         MINI_BAR_INVENTORY_BOX_X = 64,
         MINI_BAR_INVENTORY_BOX_Y = MINI_BAR_Y,
 
@@ -107,6 +109,10 @@ class DSWStatusBar : public DBaseStatusBar
         PANEL_SKELKEY_SILVER=  2449,
         PANEL_SKELKEY_BRONZE=  2458,
         PANEL_SKELKEY_RED   = 2459,
+
+        MINI_BAR_HEALTH_BOX_PIC = 2437,
+        MINI_BAR_AMMO_BOX_PIC = 2437,
+        MINI_BAR_INVENTORY_BOX_PIC = 2438,
 
     };
 
@@ -637,7 +643,7 @@ class DSWStatusBar : public DBaseStatusBar
 
         if (pp->InventoryAmount[pp->InventoryNum])
         {
-            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff+1, InventoryYoff);
             // Auto/On/Off
             PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
             // Percent count/Item count
@@ -645,6 +651,46 @@ class DSWStatusBar : public DBaseStatusBar
         }
     }
 
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DrawHUD1()
+    {
+        BeginHUD(320, 200, 1);
+        auto pp = Player + screenpeek;
+        USERp u = User[pp->PlayerSprite];
+        int x, y;
+        INVENTORY_DATAp id;
+
+        x = MINI_BAR_HEALTH_BOX_X;
+        y = 200 - 26;
+
+        DrawGraphic(tileGetTexture(MINI_BAR_HEALTH_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+
+        x = MINI_BAR_HEALTH_BOX_X + 3;
+        DisplayMiniBarNumber(x, y + 5, u->Health);
+
+        if (u->WeaponNum != WPN_SWORD && u->WeaponNum != WPN_FIST)
+        {
+            x = MINI_BAR_AMMO_BOX_X;
+            DrawGraphic(tileGetTexture(MINI_BAR_AMMO_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+
+            x = MINI_BAR_AMMO_BOX_X + 3;
+            DisplayMiniBarNumber(x, y + 5, pp->WpnAmmo[u->WeaponNum]);
+        }
+
+        if (!pp->InventoryAmount[pp->InventoryNum])
+            return;
+
+        // Inventory Box
+        x = MINI_BAR_INVENTORY_BOX_X;
+
+        DrawGraphic(tileGetTexture(MINI_BAR_INVENTORY_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+        DisplayMinibarInventory(pp);
+    }
 
     //---------------------------------------------------------------------------
     //
@@ -664,7 +710,7 @@ public:
         }
         else*/ if (gs.BorderNum == BORDER_MINI_BAR)
         {
-            //DrawHUD1(nPalette);
+            DrawHUD1();
         }
         else
         {

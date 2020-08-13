@@ -2214,8 +2214,6 @@ drawscreen(PLAYERp pp)
 
     DrawMessageInput();   // This is only used for non-multiplayer input now
 
-    UpdateMiniBar(pp);
-
 	if (!M_Active())
     SecretInfo(pp);
 

@@ -55,7 +55,6 @@ extern INVENTORY_DATA InventoryData[MAX_INVENTORY+1];
 #define INVF_COUNT (BIT(2))
 
 void PlayerUpdateInventory(PLAYERp pp,short InventoryNum);
-void UpdateMiniBar(PLAYERp pp);
 void InventoryKeys(PLAYERp pp);
 void UseInventoryRepairKit(PLAYERp pp);
 void InventoryTimer(PLAYERp pp);
