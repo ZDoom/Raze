@@ -953,7 +953,6 @@ BossHealthMeter(void)
 
         if (metertics <= 0)
         {
-            SetRedrawScreen(pp);
             continue;
         }
 

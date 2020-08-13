@@ -51,27 +51,7 @@ short DebugBorderShade = 0;
 #define X_TO_FIXED(val) (x_aspect_mul*(val))
 #define Y_TO_FIXED(val) (y_aspect_mul*(val))
 
-SWBOOL RedrawScreen = FALSE;
-
-int f_xdim, f_ydim, x_pix_size, y_pix_size, x_aspect_mul, y_aspect_mul;
-int CrosshairX, CrosshairY;
-
 extern SWBOOL BorderAdjust;
-SWBOOL GlobSpriteBoxUpdateEveryFrame = FALSE;
-
-
-void
-SetupAspectRatio(void)
-{
-    f_xdim = FIXED(xdim, 0);
-    f_ydim = FIXED(ydim, 0);
-
-    x_pix_size = (f_320 / xdim);
-    y_pix_size = (f_200 / ydim);
-
-    x_aspect_mul = (f_xdim / 320);
-    y_aspect_mul = (f_ydim / 200);
-}
 
 void
 SetFragBar(PLAYERp pp)
@@ -140,11 +120,18 @@ BORDER_INFO BorderInfoValues[] =
 static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 {
     int x, x2, y, y2;
-    BORDER_INFO *b;
+    const BORDER_INFO *b = &BorderInfoValues[gs.BorderNum];
+    int f_xdim, f_ydim, x_pix_size, y_pix_size, x_aspect_mul, y_aspect_mul;
 
-    BorderInfo = BorderInfoValues[gs.BorderNum];
+    f_xdim = FIXED(xdim, 0);
+    f_ydim = FIXED(ydim, 0);
 
-    b = &BorderInfo;
+    x_pix_size = (f_320 / xdim);
+    y_pix_size = (f_200 / ydim);
+
+    x_aspect_mul = (f_xdim / 320);
+    y_aspect_mul = (f_ydim / 200);
+
 
     // figure out the viewing window x and y dimensions
     *Xdim = MSW(f_xdim - X_TO_FIXED(b->Xdim));
@@ -204,26 +191,6 @@ void SetBorder(PLAYERp pp, int value)
     }
 
     SetFragBar(pp);
-}
-
-void
-SetRedrawScreen(PLAYERp pp)
-{
-
-    if (pp != Player + myconnectindex)
-        return;
-
-    if (!BorderAdjust)
-        return;
-
-    if (gs.BorderNum < BORDER_NONE)
-        gs.BorderNum = BORDER_NONE;
-
-    // Redraw the BORDER_TILE only if getting smaller
-    BorderInfo = BorderInfoValues[gs.BorderNum];
-
-    // test at redrawing the whole screen
-    RedrawScreen = TRUE;
 }
 
 END_SW_NS

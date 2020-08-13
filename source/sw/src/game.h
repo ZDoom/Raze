@@ -2270,7 +2270,6 @@ extern SWBOOL ReloadPrompt;
 extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 //extern unsigned char synctics, lastsynctics;
-extern BORDER_INFO BorderInfo;
 extern short snum;
 
 extern int lockspeed,totalsynctics;
@@ -2389,10 +2388,6 @@ void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 void ManualPlayerInsert(PLAYERp pp);    // game.c
-
-void SetRedrawScreen(PLAYERp pp);   // border.c
-void SetupAspectRatio(void);    // border.c
-void SetCrosshair(void);    // border.c
 
 void initsynccrc(void);     // sync.c
 void demosync_record(void); // sync.c

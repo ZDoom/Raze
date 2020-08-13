@@ -51,7 +51,6 @@ short InventoryBarYpos[] = {172, 172, 130, 130, 130, 130, 130, 130, 130, 130, 13
 void PlayerUpdateInventory(PLAYERp pp, short InventoryNum);
 void SpawnInventoryBar(PLAYERp pp);
 void InventoryBarUpdatePosition(PLAYERp pp);
-void InvBorderRefresh(PLAYERp pp);
 void InventoryUse(PLAYERp pp);
 void InventoryStop(PLAYERp pp, short InventoryNum);
 void KillInventoryBar(PLAYERp pp);
@@ -628,7 +627,6 @@ void InventoryKeys(PLAYERp pp)
             PlayerUpdateInventory(pp, pp->InventoryNum - 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
             InventoryBarUpdatePosition(pp);
-            InvBorderRefresh(pp);
         }
     }
     else
@@ -646,7 +644,6 @@ void InventoryKeys(PLAYERp pp)
             PlayerUpdateInventory(pp, pp->InventoryNum + 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
             InventoryBarUpdatePosition(pp);
-            InvBorderRefresh(pp);
         }
     }
     else
@@ -721,20 +718,6 @@ void InventoryKeys(PLAYERp pp)
     }
 }
 
-void InvBorderRefresh(PLAYERp pp)
-{
-//    int x,y;
-
-    if (pp != Player + myconnectindex)
-        return;
-
-//    x = InventoryBarXpos[gs.BorderNum];
-//    y = InventoryBarYpos[gs.BorderNum];
-
-    SetRedrawScreen(pp);
-    //BorderRefreshClip(pp, x-5, y-5, x + (MAX_INVENTORY * INVENTORY_ICON_WIDTH), y + 24);
-}
-
 void InventoryTimer(PLAYERp pp)
 {
     // called every time through loop
@@ -754,9 +737,6 @@ void InventoryTimer(PLAYERp pp)
             KillInventoryBar(pp);
             // don't update bar anymore
             pp->InventoryBarTics = 0;
-
-            InvBorderRefresh(pp);
-            //BorderRefresh(pp);
         }
     }
 

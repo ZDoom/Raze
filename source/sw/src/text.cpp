@@ -95,8 +95,6 @@ PANEL_SPRITEp pClearTextLineID(PLAYERp pp, short id, int y, short pri)
 
         if (psp->ID == id && psp->y == y && psp->priority == pri)
         {
-            SetRedrawScreen(psp->PlayerP);
-            //SET(psp->flags, PANF_INVISIBLE);
             pSetSuicide(psp);
         }
     }
@@ -117,9 +115,7 @@ PANEL_SPRITEp pMenuClearTextLineID(PLAYERp pp, short id, int y, short pri)
 
         if (psp->ID == id && psp->y == y && psp->priority == pri)
         {
-            SetRedrawScreen(psp->PlayerP);
             pKillSprite(psp);
-            //pSetSuicide(psp);
         }
     }
 
@@ -129,7 +125,6 @@ PANEL_SPRITEp pMenuClearTextLineID(PLAYERp pp, short id, int y, short pri)
 
 void pClearTextLine(PLAYERp pp, int y)
 {
-    SetRedrawScreen(pp);
     pClearTextLineID(pp, ID_TEXT, y, PRI_FRONT_MAX);
 }
 
@@ -137,8 +132,6 @@ void StringTimer(PANEL_SPRITEp psp)
 {
     if ((psp->kill_tics -= synctics) <= 0)
     {
-        SetRedrawScreen(psp->PlayerP);
-        //pSetSuicide(psp);  // did not work here
         pKillSprite(psp);
         return;
     }

@@ -668,7 +668,6 @@ bool InitGame()
     }
 
     GraphicsMode = TRUE;
-    SetupAspectRatio();
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
 	return true;
@@ -2148,7 +2147,6 @@ void InitRunLevel(void)
         // contains what is needed from calls below
         if (snd_ambience)
             StartAmbientSound();
-        SetRedrawScreen(Player + myconnectindex);
         // crappy little hack to prevent play clock from being overwritten
         // for load games
         SavePlayClock = PlayClock;
@@ -2210,8 +2208,6 @@ void InitRunLevel(void)
     // IMPORTANT - MUST be right before game loop AFTER waitforeverybody
     InitTimingVars();
 
-    SetRedrawScreen(Player + myconnectindex);
-	
     if (snd_ambience)
         StartAmbientSound();
 }
@@ -2745,7 +2741,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
             dimensionmode = 3;
             SetFragBar(pp);
             ScrollMode2D = FALSE;
-            SetRedrawScreen(pp);
         }
     }
 
@@ -3594,8 +3589,8 @@ void GameInterface::set_hud_layout(int requested_size)
 {
     gs.BorderNum = 9 - requested_size;
     SetBorder(Player + myconnectindex, gs.BorderNum);
-    SetRedrawScreen(Player + myconnectindex);
 }
+
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
@@ -3615,7 +3610,7 @@ void GameInterface::FreeGameData()
 
 void GameInterface::UpdateScreenSize()
 {
-    SetupAspectRatio();
+    // Fixme. The underlying code here is too broken and must be refactored first.
 }
 
 

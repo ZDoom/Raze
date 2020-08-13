@@ -106,8 +106,6 @@ char UziRecoilYadj = 0;
 extern SWBOOL QuitFlag;
 extern short screenpeek;
 
-BORDER_INFO BorderInfo;
-
 ANIMATOR NullAnimator;
 pANIMATOR pNullAnimator;
 int InitStar(PLAYERp);

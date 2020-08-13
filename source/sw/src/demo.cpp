@@ -424,7 +424,6 @@ DemoPlayBack(void)
 
     // THIS STUFF DEPENDS ON MYCONNECTINDEX BEING SET RIGHT
     pp = Player + myconnectindex;
-    SetRedrawScreen(pp);
 
     if (!DemoInitOnce)
         buf_ndx = 0;

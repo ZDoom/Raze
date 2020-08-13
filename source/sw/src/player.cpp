@@ -5215,8 +5215,6 @@ DoPlayerStopDiveNoWarp(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!NoMeters) SetRedrawScreen(pp);
-
     StopPlayerSound(pp);
 
     // stop diving no warp
@@ -5244,8 +5242,6 @@ DoPlayerStopDive(PLAYERp pp)
 
     if (Prediction)
         return;
-
-    if (!NoMeters) SetRedrawScreen(pp);
 
     StopPlayerSound(pp);
 
@@ -5289,7 +5285,6 @@ DoPlayerDiveMeter(PLAYERp pp)
 
     if (metertics <= 0 && !TEST(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA))
     {
-        SetRedrawScreen(pp);
         return;
     }
 
@@ -7775,10 +7770,8 @@ void UpdateScrollingMessages(void)
 
             if (user_quote_time[i] <= 0)
             {
-                SetRedrawScreen(Player + myconnectindex);
                 user_quote_time[i] = 0;
             }
-            //if (!user_quote_time[i]) pub = NUMPAGES;
         }
     }
 

@@ -467,7 +467,6 @@ SendMulitNameChange(char *new_name)
 
     strcpy(pp->PlayerName, new_name);
     playername = new_name;
-    SetRedrawScreen(pp);
 
     //TRAVERSE_CONNECT(pnum)
     {
@@ -1505,7 +1504,6 @@ getpackets(void)
             MONO_PRINT(ds);
 
             strcpy(pp->PlayerName, p->PlayerName);
-            SetRedrawScreen(Player+myconnectindex);
             break;
         }
 

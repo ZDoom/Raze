@@ -70,7 +70,6 @@ extern SWBOOL HelpInputMode;
 extern short HelpPage;
 extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
-extern SWBOOL RedrawScreen;
 SWBOOL RedrawCompass=FALSE;
 extern int Follow_posx,Follow_posy;
 
@@ -1079,7 +1078,6 @@ ResizeView(PLAYERp pp)
 			inputState.ClearKeyStatus(sc_Escape);
             dimensionmode = 3;
             ScrollMode2D = FALSE;
-            SetRedrawScreen(pp);
         }
 #endif
     }
@@ -1923,16 +1921,12 @@ drawscreen(PLAYERp pp)
     }
 #endif
 
-    if (videoGetRenderMode() >= REND_POLYMOST)
-        RedrawScreen = TRUE;
-
     DrawScreen = TRUE;
     PreDraw();
     // part of new border refresh method
-    if (RedrawScreen && !ScreenSavePic)
+    if (!ScreenSavePic)
     {
         RedrawCompass = TRUE;
-        RedrawScreen = FALSE;
         // get rid of all PERM sprites!
         renderFlushPerms();
         // get rid of all PANF_KILL_AFTER_SHOW sprites!

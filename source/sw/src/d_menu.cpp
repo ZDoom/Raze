@@ -194,7 +194,6 @@ void GameInterface::MenuClosed()
 	if (!LoadGameOutsideMoveLoop)
 	{
 		ResumeGame();
-		SetRedrawScreen(&Player[myconnectindex]);
 	}
 }
 

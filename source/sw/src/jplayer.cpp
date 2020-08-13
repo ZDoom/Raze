@@ -213,8 +213,6 @@ void adduserquote(const char *daquote)
 {
     int i;
 
-    SetRedrawScreen(Player+myconnectindex);
-
     for (i=MAXUSERQUOTES-1; i>0; i--)
     {
         strcpy(user_quote[i],user_quote[i-1]);

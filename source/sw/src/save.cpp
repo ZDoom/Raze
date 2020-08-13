@@ -585,7 +585,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(&totalclock,sizeof(totalclock),1,fil);
     
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&BorderInfo,sizeof(BorderInfo),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MWRITE(&MoveSkip8,sizeof(MoveSkip8),1,fil);
@@ -972,7 +971,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
 
-    MREAD(&BorderInfo,sizeof(BorderInfo),1,fil);
     MREAD(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MREAD(&MoveSkip4,sizeof(MoveSkip4),1,fil);
     MREAD(&MoveSkip8,sizeof(MoveSkip8),1,fil);
@@ -1136,9 +1134,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         PlayClock = SavePlayClock;
     }
     InitNetVars();
-
-    SetupAspectRatio();
-    SetRedrawScreen(Player + myconnectindex);
 
     screenpeek = myconnectindex;
     PlayingLevel = Level;
