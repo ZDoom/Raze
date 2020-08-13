@@ -2211,7 +2211,6 @@ PlayerLevelReset(PLAYERp pp)
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
@@ -2279,7 +2278,6 @@ PlayerDeathReset(PLAYERp pp)
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
     RESET(pp->Flags, PF_WEAPON_DOWN|PF_WEAPON_RETRACT);
     RESET(pp->Flags, PF_DEAD);
@@ -2367,7 +2365,6 @@ PlayerGameReset(PLAYERp pp)
     pp->FadeAmt = 0;
     pp->DeathType = 0;
 
-    PlayerUpdatePanelInfo(pp);
     RESET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     pp->sop_control = NULL;
@@ -2466,7 +2463,6 @@ InitPlayerSprite(PLAYERp pp)
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
-    PlayerUpdatePanelInfo(pp);
 }
 
 void

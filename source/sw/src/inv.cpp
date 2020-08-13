@@ -54,9 +54,6 @@ void InventoryBarUpdatePosition(PLAYERp pp);
 void InventoryUse(PLAYERp pp);
 void InventoryStop(PLAYERp pp, short InventoryNum);
 void KillInventoryBar(PLAYERp pp);
-void PlayerUpdateInventoryPercent(PLAYERp pp);
-void PlayerUpdateInventoryPic(PLAYERp pp);
-void PlayerUpdateInventoryState(PLAYERp pp);
 
 
 //#define INVENTORY_ICON_WIDTH  32
@@ -764,7 +761,6 @@ void InventoryTimer(PLAYERp pp)
                     pp->InventoryTics[inv] = SEC(1);
                 }
 
-                //PlayerUpdateInventoryPercent(pp);
                 PlayerUpdateInventory(pp, pp->InventoryNum);
             }
         }
@@ -795,7 +791,6 @@ void InventoryTimer(PLAYERp pp)
                     pp->InventoryActive[inv] = FALSE;
                 }
 
-                //PlayerUpdateInventoryPercent(pp);
                 PlayerUpdateInventory(pp, pp->InventoryNum);
             }
         }
@@ -891,25 +886,6 @@ void InventoryStop(PLAYERp pp, short InventoryNum)
 //
 /////////////////////////////////////////////////////////////////
 
-#define INVENTORY_BOX_X 231
-#define INVENTORY_BOX_Y (176-8)
-#define INVENTORY_BOX_ERASE 2403
-
-short InventoryBoxX;
-short InventoryBoxY;
-short InventoryXoff;
-short InventoryYoff;
-void (*InventoryDisplayString)(PLAYERp, short, short, short, const char *);
-
-#define INVENTORY_PIC_XOFF 1
-#define INVENTORY_PIC_YOFF 1
-
-#define INVENTORY_PERCENT_XOFF 19
-#define INVENTORY_PERCENT_YOFF 13
-
-#define INVENTORY_STATE_XOFF 19
-#define INVENTORY_STATE_YOFF 1
-
 void PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
 {
     // Check for items that need to go translucent from use
@@ -950,103 +926,6 @@ void PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
     if (pp->InventoryNum >= MAX_INVENTORY)
         pp->InventoryNum = 0;
 
-    if (pp - Player != screenpeek)
-        return;
-
-    if (gs.BorderNum == BORDER_MINI_BAR)
-    {
-        InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
-        InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
-
-        InventoryXoff = 1;
-        InventoryYoff = 1;
-
-        InventoryDisplayString = DisplayMiniBarSmString;
-    }
-    else
-    {
-        if (gs.BorderNum < BORDER_BAR)
-            return;
-
-        InventoryBoxX = INVENTORY_BOX_X;
-        InventoryBoxY = INVENTORY_BOX_Y;
-
-        InventoryXoff = 0;
-        InventoryYoff = 0;
-
-        InventoryDisplayString = DisplaySmString;
-
-        // erase old info
-        pSpawnFullScreenSprite(pp, INVENTORY_BOX_ERASE, PRI_MID, INVENTORY_BOX_X, INVENTORY_BOX_Y);
-
-        // put pic
-        if (pp->InventoryAmount[pp->InventoryNum])
-            PlayerUpdateInventoryPic(pp);
-    }
-
-    if (pp->InventoryAmount[pp->InventoryNum])
-    {
-        // Auto/On/Off
-        PlayerUpdateInventoryState(pp);
-        // Percent count/Item count
-        PlayerUpdateInventoryPercent(pp);
-    }
 }
 
-void PlayerUpdateInventoryPercent(PLAYERp pp)
-{
-    short x,y;
-    INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
-
-    x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
-    y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
-
-    if (TEST(id->Flags, INVF_COUNT))
-    {
-        sprintf(ds,"%d", pp->InventoryAmount[pp->InventoryNum]);
-        InventoryDisplayString(pp, x, y, 0, ds);
-    }
-    else
-    {
-        sprintf(ds,"%d%c", pp->InventoryPercent[pp->InventoryNum],'%');
-        InventoryDisplayString(pp, x, y, 0, ds);
-    }
-}
-
-void PlayerUpdateInventoryPic(PLAYERp pp)
-{
-    PANEL_SPRITEp psp;
-    short pic;
-    short x,y;
-    INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
-
-    x = InventoryBoxX + INVENTORY_PIC_XOFF + InventoryXoff;
-    y = InventoryBoxY + INVENTORY_PIC_YOFF + InventoryYoff;
-
-    pic = id->State->picndx;
-
-    psp = pSpawnFullScreenSprite(pp, pic, PRI_FRONT_MAX, x, y);
-
-    psp->scale = id->Scale;
-}
-
-void PlayerUpdateInventoryState(PLAYERp pp)
-{
-    short x,y;
-    INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
-
-    x = InventoryBoxX + INVENTORY_STATE_XOFF + InventoryXoff;
-    y = InventoryBoxY + INVENTORY_STATE_YOFF + InventoryYoff;
-
-    if (TEST(id->Flags, INVF_AUTO_USE))
-    {
-        sprintf(ds,"%s", "AUTO");
-        InventoryDisplayString(pp, x, y, 0, ds);
-    }
-    else if (TEST(id->Flags, INVF_TIMED))
-    {
-        sprintf(ds,"%s", pp->InventoryActive[pp->InventoryNum] ? "ON" : "OFF");
-        InventoryDisplayString(pp, x, y, 0, ds);
-    }
-}
 END_SW_NS

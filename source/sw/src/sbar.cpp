@@ -70,6 +70,23 @@ class DSWStatusBar : public DBaseStatusBar
         PANEL_ARMOR_YOFF = 4,
 
         FRAG_YOFF = 2,
+
+        INVENTORY_BOX_X = 231,
+        INVENTORY_BOX_Y = (176-8),
+        
+        INVENTORY_PIC_XOFF = 1,
+        INVENTORY_PIC_YOFF = 1,
+        
+        INVENTORY_PERCENT_XOFF = 19,
+        INVENTORY_PERCENT_YOFF = 13,
+        
+        INVENTORY_STATE_XOFF = 19,
+        INVENTORY_STATE_YOFF = 1,
+
+        MINI_BAR_Y = 174  ,
+        MINI_BAR_INVENTORY_BOX_X = 64,
+        MINI_BAR_INVENTORY_BOX_Y = MINI_BAR_Y,
+
     };
 
     enum
@@ -174,11 +191,11 @@ class DSWStatusBar : public DBaseStatusBar
 
     //---------------------------------------------------------------------------
     //
-    // 
+    // todo: migrate to FFont to support localization
     //
     //---------------------------------------------------------------------------
 
-    void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
+    void DisplayTinyString(double xs, double ys, const char* buffer, int pal)
     {
         double x;
         const char* ptr;
@@ -194,9 +211,14 @@ class DSWStatusBar : public DBaseStatusBar
             assert(*ptr >= '!' && *ptr <= '}');
 
             auto tex = tileGetTexture(FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII));
-            DrawGraphic(tex, x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, User[pp->SpriteP - sprite]->spal));
+            DrawGraphic(tex, x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, pal));
             x += 4;
         }
+    }
+
+    void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
+    {
+        DisplayTinyString(xs, ys, buffer, User[pp->SpriteP - sprite]->spal);
     }
 
     //---------------------------------------------------------------------------
@@ -396,7 +418,129 @@ class DSWStatusBar : public DBaseStatusBar
         }
     }
 
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 
+    void PlayerUpdateInventoryPercent(PLAYERp pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
+    {
+        char ds[32];
+        INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
+
+        int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
+        int y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
+
+        if (TEST(id->Flags, INVF_COUNT))
+        {
+            mysnprintf(ds, 32, "%d", pp->InventoryAmount[pp->InventoryNum]);
+        }
+        else
+        {
+            mysnprintf(ds, 32, "%d%c", pp->InventoryPercent[pp->InventoryNum], '%');
+        }
+        DisplayTinyString(x, y, ds, 0);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void PlayerUpdateInventoryPic(PLAYERp pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
+    {
+        INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
+
+        int x = InventoryBoxX + INVENTORY_PIC_XOFF + InventoryXoff;
+        int y = InventoryBoxY + INVENTORY_PIC_YOFF + InventoryYoff;
+
+        int pic = id->State->picndx;
+        DrawGraphic(tileGetTexture(pic), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, id->Scale/65536., id->Scale / 65536.);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void PlayerUpdateInventoryState(PLAYERp pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
+    {
+        char ds[32];
+        INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
+
+        int x = InventoryBoxX + INVENTORY_STATE_XOFF + InventoryXoff;
+        int y = InventoryBoxY + INVENTORY_STATE_YOFF + InventoryYoff;
+
+        if (TEST(id->Flags, INVF_AUTO_USE))
+        {
+            DisplayTinyString(x, y, "AUTO", 0);
+        }
+        else if (TEST(id->Flags, INVF_TIMED))
+        {
+            sprintf(ds, "%s", pp->InventoryActive[pp->InventoryNum] ? "ON" : "OFF");
+            DisplayTinyString(x, y, pp->InventoryActive[pp->InventoryNum] ? "ON" : "OFF", 0);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayBarInventory(PLAYERp pp)
+    {
+        int InventoryBoxX = INVENTORY_BOX_X;
+        int InventoryBoxY = INVENTORY_BOX_Y;
+
+        int InventoryXoff = 0;
+        int InventoryYoff = 0;
+
+        // put pic
+        if (pp->InventoryAmount[pp->InventoryNum])
+
+        if (pp->InventoryAmount[pp->InventoryNum])
+        {
+            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Auto/On/Off
+            PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Percent count/Item count
+            PlayerUpdateInventoryPercent(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayMinibarInventory(PLAYERp pp)
+    {
+        int InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
+        int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
+
+        int InventoryXoff = 1;
+        int InventoryYoff = 1;
+
+        if (pp->InventoryAmount[pp->InventoryNum])
+        {
+            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Auto/On/Off
+            PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Percent count/Item count
+            PlayerUpdateInventoryPercent(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 
     void DrawStatusBar()
     {
@@ -413,7 +557,7 @@ class DSWStatusBar : public DBaseStatusBar
             DisplayKeys(pp);
         else if (gNet.TimeLimit)
             DisplayTimeLimit(pp);
-
+        DisplayBarInventory(pp);
     }
 
 

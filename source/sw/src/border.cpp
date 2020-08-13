@@ -183,11 +183,6 @@ void SetBorder(PLAYERp pp, int value)
 
     BorderSetView(pp, &Xdim, &Ydim, &ScreenSize);
 
-    if (gs.BorderNum >= BORDER_BAR)
-    {
-        PlayerUpdatePanelInfo(Player + screenpeek);
-    }
-
     SetFragBar(pp);
 }
 

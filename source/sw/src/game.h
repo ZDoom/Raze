@@ -2172,7 +2172,6 @@ void PlayerUpdateHealth(PLAYERp pp, short value);
 void PlayerUpdateAmmo(PLAYERp pp, short WeaponNum, short value);
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum);
 void PlayerUpdateKills(PLAYERp pp, short value);
-void PlayerUpdatePanelInfo(PLAYERp pp);
 void RefreshInfoLine(PLAYERp pp);
 
 void DoAnim(int numtics);

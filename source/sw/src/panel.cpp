@@ -500,16 +500,6 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 }
 
 
-void PlayerUpdatePanelInfo(PLAYERp pp)
-{
-    USERp u = User[pp->PlayerSprite];
-
-    if (Prediction)
-        return;
-
-    PlayerUpdateInventory(pp, pp->InventoryNum);
-}
-
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
