@@ -5660,7 +5660,6 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_KEY, sp, v3df_dontpan);
-            PlayerUpdateKeys(pp);
 
             // don't kill keys in coop
             if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)

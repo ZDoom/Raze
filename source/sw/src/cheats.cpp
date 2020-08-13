@@ -278,7 +278,6 @@ bool ItemCheat(cheatseq_t* c)
     }
 
     WeaponCheat(c);
-    PlayerUpdateKeys(pp);
     return true;
 }
 
@@ -383,7 +382,6 @@ bool KeyCheat(cheatseq_t* c)
            }
         }
     }
-    PlayerUpdateKeys(pp);
     PutStringInfo(pp, GStrings(str));
     return true;
 }
@@ -403,7 +401,6 @@ bool KeysCheat(cheatseq_t* c)
         p = &Player[pnum];
         memset(p->HasKey, TRUE, sizeof(p->HasKey));
     }
-    PlayerUpdateKeys(pp);
     PutStringInfo(pp, GStrings(str));
     return true;
 }

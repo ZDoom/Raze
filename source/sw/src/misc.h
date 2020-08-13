@@ -56,7 +56,6 @@ inline int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YO
 void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char* buffer);
 void DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char* buffer);
 void DisplayMiniBarNumber(short xs, short ys, int number);
-void DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number);
 void PutStringInfo(PLAYERp pp, const char* string);
 void PutStringInfoLine(PLAYERp pp, const char* string);
 void PutStringInfoLine2(PLAYERp pp, const char* string);

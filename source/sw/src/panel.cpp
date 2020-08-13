@@ -485,13 +485,6 @@ void PlayerUpdateKills(PLAYERp pp, short value)
 
 void PlayerUpdateArmor(PLAYERp pp, short value)
 {
-    short x,y;
-
-#define PANEL_ARMOR_BOX_X 56
-#define PANEL_ARMOR_XOFF 2
-#define PANEL_ARMOR_YOFF 4
-#define ARMOR_ERASE 2401
-
     if (Prediction)
         return;
 
@@ -504,99 +497,8 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
         pp->Armor = 100;
     if (pp->Armor < 0)
         pp->Armor = 0;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, ARMOR_ERASE, PRI_MID, PANEL_ARMOR_BOX_X, PANEL_BOX_Y);
-
-    x = PANEL_ARMOR_BOX_X + PANEL_ARMOR_XOFF;
-    y = PANEL_BOX_Y + PANEL_ARMOR_YOFF;
-    DisplayPanelNumber(pp, x, y, pp->Armor);
 }
 
-
-void PlayerUpdateKeys(PLAYERp pp)
-{
-#define PANEL_KEYS_BOX_X 276
-#define PANEL_KEYS_XOFF 0
-#define PANEL_KEYS_YOFF 2
-#define KEYS_ERASE 2402
-
-    short x,y;
-    short row,col;
-    short i, xsize, ysize;
-
-#define PANEL_KEY_RED       2392
-#define PANEL_KEY_GREEN     2393
-#define PANEL_KEY_BLUE      2394
-#define PANEL_KEY_YELLOW    2395
-#define PANEL_SKELKEY_GOLD  2448
-#define PANEL_SKELKEY_SILVER 2449
-#define PANEL_SKELKEY_BRONZE 2458
-#define PANEL_SKELKEY_RED   2459
-
-    static short StatusKeyPics[] =
-    {
-        PANEL_KEY_RED,
-        PANEL_KEY_BLUE,
-        PANEL_KEY_GREEN,
-        PANEL_KEY_YELLOW,
-        PANEL_SKELKEY_GOLD,
-        PANEL_SKELKEY_SILVER,
-        PANEL_SKELKEY_BRONZE,
-        PANEL_SKELKEY_RED
-    };
-
-    if (Prediction)
-        return;
-
-    if (gNet.MultiGameType == MULTI_GAME_COMMBAT)
-        return;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    xsize = tilesiz[PANEL_KEY_RED].x+1;
-    ysize = tilesiz[PANEL_KEY_RED].y+2;
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, KEYS_ERASE, PRI_MID, PANEL_KEYS_BOX_X, PANEL_BOX_Y);
-
-    i = 0;
-    for (row = 0; row < 2; row++)
-    {
-        for (col = 0; col < 2; col++)
-        {
-            if (pp->HasKey[i])
-            {
-                x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
-                y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
-                pSpawnFullScreenSprite(pp, StatusKeyPics[i], PRI_FRONT_MAX, x, y);
-            }
-
-            i++;
-        }
-    }
-
-    // Check for skeleton keys
-    i = 0;
-    for (row = 0; row < 2; row++)
-    {
-        for (col = 0; col < 2; col++)
-        {
-            if (pp->HasKey[i+4])
-            {
-                x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
-                y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
-                pSpawnFullScreenSprite(pp, StatusKeyPics[i+4], PRI_FRONT_MAX, x, y);
-            }
-
-            i++;
-        }
-    }
-}
 
 void PlayerUpdatePanelInfo(PLAYERp pp)
 {
@@ -606,10 +508,6 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
         return;
 
     PlayerUpdateInventory(pp, pp->InventoryNum);
-    PlayerUpdateAmmo(pp, u->WeaponNum, 0);
-    PlayerUpdateWeapon(pp, u->WeaponNum);
-    PlayerUpdateKeys(pp);
-    PlayerUpdateArmor(pp, 0);
 }
 
 int WeaponOperate(PLAYERp pp)

@@ -192,7 +192,6 @@ SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
 void pFlushPerms(PLAYERp pp);
 void PreUpdatePanel(void);
 void UpdatePanel(void);
-void PlayerUpdateKeys(PLAYERp pp);
 void PlayerUpdateArmor(PLAYERp pp,short value);
 void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITEp psp);

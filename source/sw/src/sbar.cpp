@@ -65,8 +65,11 @@ class DSWStatusBar : public DBaseStatusBar
         PANEL_KEYS_XOFF = 0,
         PANEL_KEYS_YOFF = 2,
 
-        FRAG_YOFF = 2,
+        PANEL_ARMOR_BOX_X = 56,
+        PANEL_ARMOR_XOFF = 2,
+        PANEL_ARMOR_YOFF = 4,
 
+        FRAG_YOFF = 2,
     };
 
     enum
@@ -78,6 +81,15 @@ class DSWStatusBar : public DBaseStatusBar
         PANEL_SM_FONT_G = 3601,
         PANEL_SM_FONT_Y = 3613,
         PANEL_SM_FONT_R = 3625,
+
+        PANEL_KEY_RED       = 2392,
+        PANEL_KEY_GREEN     = 2393,
+        PANEL_KEY_BLUE      = 2394,
+        PANEL_KEY_YELLOW    = 2395,
+        PANEL_SKELKEY_GOLD  = 2448,
+        PANEL_SKELKEY_SILVER=  2449,
+        PANEL_SKELKEY_BRONZE=  2458,
+        PANEL_SKELKEY_RED   = 2459,
 
     };
 
@@ -155,9 +167,6 @@ class DSWStatusBar : public DBaseStatusBar
 
     void DisplayTimeLimit(PLAYERp pp)
     {
-        if (gNet.MultiGameType != MULTI_GAME_COMMBAT || !gNet.TimeLimit)
-            return;
-
         int seconds = gNet.TimeLimitClock / 120;
         sprintf(ds, "%03d:%02d", seconds / 60, seconds % 60);
         DisplaySummaryString(PANEL_KEYS_BOX_X + 1, PANEL_BOX_Y + 6, 0, 0, ds);
@@ -259,9 +268,6 @@ class DSWStatusBar : public DBaseStatusBar
         }
     }
 
-
-
-
     //---------------------------------------------------------------------------
     //
     // 
@@ -330,6 +336,67 @@ class DSWStatusBar : public DBaseStatusBar
         }
     }
 
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayKeys(PLAYERp pp)
+    {
+        double x, y;
+        int row, col;
+        int i, xsize, ysize;
+
+        static short StatusKeyPics[] =
+        {
+            PANEL_KEY_RED,
+            PANEL_KEY_BLUE,
+            PANEL_KEY_GREEN,
+            PANEL_KEY_YELLOW,
+            PANEL_SKELKEY_GOLD,
+            PANEL_SKELKEY_SILVER,
+            PANEL_SKELKEY_BRONZE,
+            PANEL_SKELKEY_RED
+        };
+
+
+        xsize = tilesiz[PANEL_KEY_RED].x + 1;
+        ysize = tilesiz[PANEL_KEY_RED].y + 2;
+
+        i = 0;
+        for (row = 0; row < 2; row++)
+        {
+            for (col = 0; col < 2; col++)
+            {
+                if (pp->HasKey[i])
+                {
+                    x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
+                    y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
+                    DrawGraphic(tileGetTexture(StatusKeyPics[i]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+                }
+                i++;
+            }
+        }
+
+        // Check for skeleton keys
+        i = 0;
+        for (row = 0; row < 2; row++)
+        {
+            for (col = 0; col < 2; col++)
+            {
+                if (pp->HasKey[i + 4])
+                {
+                    x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
+                    y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
+                    DrawGraphic(tileGetTexture(StatusKeyPics[i + 4]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+                }
+                i++;
+            }
+        }
+    }
+
+
 
     void DrawStatusBar()
     {
@@ -339,8 +406,14 @@ class DSWStatusBar : public DBaseStatusBar
 
         DrawGraphic(tileGetTexture(STATUS_BAR), 0, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
         DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);
+        DisplayPanelNumber(PANEL_ARMOR_BOX_X + PANEL_ARMOR_XOFF, PANEL_BOX_Y + PANEL_ARMOR_YOFF, pp->Armor);
         DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp->WpnAmmo[u->WeaponNum]);
         PlayerUpdateWeaponSummaryAll(pp);
+        if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
+            DisplayKeys(pp);
+        else if (gNet.TimeLimit)
+            DisplayTimeLimit(pp);
+
     }
 
 

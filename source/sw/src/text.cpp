@@ -179,28 +179,6 @@ PANEL_SPRITEp pClearSpriteID(PLAYERp pp, short id)
 }
 
 
-void DisplayPanelNumber(PLAYERp pp, short xs, short ys, int number)
-{
-    char buffer[32];
-    char *ptr;
-    short x, size;
-
-    sprintf(buffer, "%03d", number);
-
-    for (ptr = buffer, x = xs; *ptr; ptr++, x += size)
-    {
-        if (!isdigit(*ptr))
-        {
-            size = 0;
-            continue;
-        }
-
-        pSpawnFullScreenSprite(pp, PANEL_FONT_G + (*ptr - '0'), PRI_FRONT_MAX, x, ys);
-
-        size = tilesiz[PANEL_FONT_G + (*ptr - '0')].x + 1;
-    }
-}
-
 void
 DisplayMiniBarNumber(short xs, short ys, int number)
 {
