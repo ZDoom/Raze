@@ -256,7 +256,6 @@ class DSWStatusBar : public DBaseStatusBar
 
     void DisplayFragNumbers()
     {
-        // must draw this in HUD mode!
         for (int pnum = 0; pnum < 4; pnum++)
         {
             char buffer[32];
@@ -292,7 +291,6 @@ class DSWStatusBar : public DBaseStatusBar
 
     void DisplayFragNames()
     {
-        // must draw this in HUD mode!
         for (int pnum = 0; pnum < 4; pnum++)
         {
             short xs, ys;
@@ -316,6 +314,49 @@ class DSWStatusBar : public DBaseStatusBar
             DisplayFragString(&Player[pnum], xs, ys, Player[pnum].PlayerName);
         }
     }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayFragBar(PLAYERp pp)
+    {
+        // must draw this in HUD mode and align to the top center
+        short i, num_frag_bars;
+        int y;
+        extern int16_t OrigCommPlayers;
+
+        if (numplayers <= 1)
+            return;
+
+        if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
+            return;
+
+        // if player sprite has not been initialized we have no business
+        // sticking a frag bar up.  Prevents processing from MenuLevel etc.
+        if (!pp->SpriteP)
+            return;
+
+        //num_frag_bars = ((numplayers-1)/4)+1;
+        num_frag_bars = ((OrigCommPlayers - 1) / 4) + 1;
+
+        for (i = windowxy1.x; i <= windowxy2.x; i++)
+        {
+            y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars - 1));
+            y = y * (ydim / 200.0);
+        }
+
+        for (i = 0, y = 0; i < num_frag_bars; i++)
+        {
+            DrawGraphic(tileGetTexture(FRAG_BAR), 0, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+            y += tilesiz[FRAG_BAR].y - 2;
+        }
+        DisplayFragNames();
+        DisplayFragNumbers();
+    }
+
 
     //---------------------------------------------------------------------------
     //

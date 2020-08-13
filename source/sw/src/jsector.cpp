@@ -901,7 +901,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
 
                 // renderDrawRoomsQ16(tx, ty, tz, tpq16ang, tpq16horiz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
-                SetFragBar(pp);
 				tileDelete(MIRROR);
                 wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
             }

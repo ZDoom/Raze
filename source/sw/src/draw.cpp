@@ -1924,10 +1924,7 @@ drawscreen(PLAYERp pp)
     // part of new border refresh method
     if (!ScreenSavePic)
     {
-        renderFlushPerms();
-        // get rid of all PANF_KILL_AFTER_SHOW sprites!
-        pFlushPerms(pp);
-        SetBorder(pp,gs.BorderNum);
+        SetBorder(pp);
     }
 
     PreUpdatePanel();

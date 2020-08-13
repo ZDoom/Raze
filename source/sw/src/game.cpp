@@ -181,7 +181,6 @@ SWBOOL FirstTimeIntoGame;
 
 SWBOOL PedanticMode;
 
-SWBOOL BorderAdjust = FALSE;
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 int DispFrameRate = FALSE;
@@ -1229,12 +1228,6 @@ void CreditsLevel(void)
 #define CREDITS1_PIC 5111
 #define CREDITS2_PIC 5118
 
-    // put up a blank screen while loading
-
-    // get rid of all PERM sprites!
-    renderFlushPerms();
-    save = gs.BorderNum;
-    gs.BorderNum = save;
     twod->ClearScreen();
     videoNextPage();
     inputState.ClearAllInput();
@@ -1393,9 +1386,6 @@ void MenuLevel(void)
 
     waitforeverybody();
 
-    // don't allow BorderAdjusting in these menus
-    BorderAdjust = FALSE;
-
     inputState.ClearAllInput();
 
     if (SW_SHAREWARE)
@@ -1469,9 +1459,7 @@ void MenuLevel(void)
         videoNextPage();
     }
 
-    BorderAdjust = TRUE;
-    //LoadGameOutsideMoveLoop = FALSE;
-	inputState.ClearAllInput();
+    inputState.ClearAllInput();
 	M_ClearMenus();
     InMenuLevel = FALSE;
     twod->ClearScreen();
@@ -2421,8 +2409,7 @@ int32_t GameInterface::app_main()
     InitCheats();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
-    BorderAdjust = true;
-
+    
     gs = gs_defaults;
 
     hud_size.Callback();
@@ -2513,8 +2500,6 @@ void BotPlayerInsert(PLAYERp pp)
 
         numplayers++;
     }
-
-//    SetFragBar(pp);
 }
 
 void
@@ -2738,7 +2723,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         {
             MirrorDelay = 1;
             dimensionmode = 3;
-            SetFragBar(pp);
             ScrollMode2D = FALSE;
         }
     }
@@ -3587,7 +3571,7 @@ void Saveable_Init_Dynamic()
 void GameInterface::set_hud_layout(int requested_size) 
 {
     gs.BorderNum = 9 - requested_size;
-    SetBorder(Player + myconnectindex, gs.BorderNum);
+    SetBorder(Player + myconnectindex);
 }
 
 ::GameInterface* CreateInterface()

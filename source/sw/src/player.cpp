@@ -7779,7 +7779,6 @@ void UpdateScrollingMessages(void)
     }
     else
     {
-        //     if ((klabs(quotebotgoal-quotebot) <= 16) && gs.BorderNum < BORDER_NONE+2)
         if ((klabs(quotebotgoal-quotebot) <= 16))
             quotebot += ksgn(quotebotgoal-quotebot);
         else

@@ -233,30 +233,6 @@ DisplayMiniBarSmString(PLAYERp UNUSED(pp), short xs, short ys, short pal, const 
     }
 }
 
-void DisplaySmString(PLAYERp pp, short xs, short ys, short pal, const char *buffer)
-{
-    short size=4,x;
-    const char *ptr;
-    PANEL_SPRITEp nsp;
-    // ID is base + (0-3)
-    //short id = ID_TEXT + MOD4(pp->pnum);
-
-#define FRAG_FIRST_ASCII ('!') //exclamation point
-#define FRAG_FIRST_TILE 2930 //exclamation point
-
-    for (ptr = buffer, x = xs; *ptr; ptr++, x += size)
-    {
-        if (*ptr == ' ')
-            continue;
-
-        ASSERT(*ptr >= '!' && *ptr <= '}');
-
-        nsp = pSpawnFullScreenSprite(pp, FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII), PRI_FRONT_MAX, x, ys);
-        nsp->pal = pal;
-        //nsp->ID = id;
-    }
-}
-
 short GlobInfoStringTime = TEXT_INFO_TIME;
 void PutStringInfo(PLAYERp pp, const char *string)
 {

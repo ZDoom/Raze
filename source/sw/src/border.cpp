@@ -51,50 +51,6 @@ short DebugBorderShade = 0;
 #define X_TO_FIXED(val) (x_aspect_mul*(val))
 #define Y_TO_FIXED(val) (y_aspect_mul*(val))
 
-extern SWBOOL BorderAdjust;
-
-void
-SetFragBar(PLAYERp pp)
-{
-    short i, num_frag_bars;
-    int y;
-    extern int16_t OrigCommPlayers;
-
-    if (numplayers <= 1)
-        return;
-
-    if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
-        return;
-
-    // if player sprite has not been initialized we have no business
-    // sticking a frag bar up.  Prevents processing from MenuLevel etc.
-    if (!pp->SpriteP)
-        return;
-
-    //num_frag_bars = ((numplayers-1)/4)+1;
-    num_frag_bars = ((OrigCommPlayers-1)/4)+1;
-
-    for (i = windowxy1.x; i <= windowxy2.x; i++)
-    {
-        y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars-1));
-        y = y * (ydim/200.0);
-    }
-
-    for (i = 0, y = 0; i < num_frag_bars; i++)
-    {
-        pSpawnFullScreenSprite(pp, FRAG_BAR, PRI_MID, 0, y);
-        y += tilesiz[FRAG_BAR].y - 2;
-    }
-
-    // write each persons kill info to everybody
-    // for (i = 0; i < numplayers; i++)
-    TRAVERSE_CONNECT(i)
-    {
-        PlayerUpdateKills(Player + i, 0);
-    }
-}
-
-
 BORDER_INFO BorderInfoValues[] =
 {
     // x,y,screensize
@@ -155,35 +111,16 @@ static void BorderSetView(PLAYERp, int *Xdim, int *Ydim, int *ScreenSize)
 // Redraw the whole screen
 //
 
-void SetBorder(PLAYERp pp, int value)
+void SetBorder(PLAYERp pp)
 {
     int Xdim, Ydim, ScreenSize;
 
     if (pp != Player + myconnectindex)
         return;
 
-    if (!BorderAdjust)
-        return;
-
-    if (value >= 0) // just refresh
-        gs.BorderNum = value;
-
-    if (gs.BorderNum < BORDER_NONE)
-    {
-        gs.BorderNum = BORDER_NONE;
-        //return;
-    }
-
-    if (gs.BorderNum > (int)SIZ(BorderInfoValues) - 1)
-    {
-        gs.BorderNum = SIZ(BorderInfoValues) - 1;
-        return;
-    }
     if (xdim == 0) return;  // game not set up yet.
 
     BorderSetView(pp, &Xdim, &Ydim, &ScreenSize);
-
-    SetFragBar(pp);
 }
 
 END_SW_NS

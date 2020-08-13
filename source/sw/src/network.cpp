@@ -549,20 +549,6 @@ Connect(void)
 {
     if (CommEnabled)
     {
-#if 0
-        int x1, x2, y1, y2;
-        int screensize = xdim;
-        extern short BorderTest[];
-
-        // put up a tile
-        x1 = (xdim >> 1) - (screensize >> 1);
-        x2 = x1 + screensize - 1;
-        y1 = ((ydim) >> 1) - (((screensize * (ydim)) / xdim) >> 1);
-        y2 = y1 + ((screensize * (ydim)) / xdim) - 1;
-        rotatespritetile(BorderTest[gs.BorderTile], 0, x1, y1, x2, y2, 0);
-        nextpage();
-#endif
-
         screenpeek = myconnectindex;
     }
 

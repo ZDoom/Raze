@@ -83,7 +83,6 @@ typedef struct
     PANEL_STATEp state[2];
 } PANEL_SHRAP, *PANEL_SHRAPp;
 
-PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y);
 void PanelInvTestSuicide(PANEL_SPRITEp psp);
 
 void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp);
@@ -208,31 +207,6 @@ PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp, short pic, short pri, int x, int 
 
     return nsp;
 }
-
-// Used to display panel info at correct aspect ratio and x,y location on the
-// status panel.  Sprites will kill themselves after writing to all pages.
-
-PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y)
-{
-    PANEL_SPRITEp nsp;
-
-    if ((nsp = pFindMatchingSprite(pp, x, y, pri)) == NULL)
-    {
-        nsp = pSpawnSprite(pp, NULL, pri, x, y);
-    }
-
-    nsp->numpages = numpages;
-    nsp->picndx = -1;
-    nsp->picnum = pic;
-    nsp->x1 = 0;
-    nsp->y1 = 0;
-    nsp->x2 = xdim - 1;
-    nsp->y2 = ydim - 1;
-    SET(nsp->flags, PANF_STATUS_AREA | PANF_SCREEN_CLIP | PANF_KILL_AFTER_SHOW);
-
-    return nsp;
-}
-
 
 void pSetSuicide(PANEL_SPRITEp psp)
 {
@@ -7042,13 +7016,6 @@ pDisplaySprites(PLAYERp pp)
             continue;
         }
 
-        // force kill before showing again
-        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW) && psp->numpages == 0)
-        {
-            pKillSprite(psp);
-            continue;
-        }
-
         // if the state is null get the picnum for other than picndx
         if (psp->picndx == -1 || !psp->State)
             picnum = psp->picnum;
@@ -7200,8 +7167,6 @@ pDisplaySprites(PLAYERp pp)
         }
         else set.clear();
 
-        //PANF_STATUS_AREA | PANF_SCREEN_CLIP | PANF_KILL_AFTER_SHOW,
-
         SET(flags, ROTATE_SPRITE_VIEW_CLIP);
 
         if (TEST(psp->flags, PANF_TRANSLUCENT))
@@ -7266,14 +7231,6 @@ pDisplaySprites(PLAYERp pp)
             }
         }
 
-#if 1
-        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW) && !TEST(psp->flags, PANF_NOT_ALL_PAGES) && !M_Active())
-        {
-            psp->numpages = 0;
-            SET(flags, ROTATE_SPRITE_ALL_PAGES);
-        }
-#endif
-
         // temporary hack to fix fist artifacts until a solution is found in the panel system itself
         switch (picnum)
         {
@@ -7332,27 +7289,6 @@ pDisplaySprites(PLAYERp pp)
                              picnum, overlay_shade, pal,
                              flags, x1, y1, x2, y2);
             }
-        }
-
-        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW))
-        {
-            psp->numpages--;
-            if (psp->numpages <= 0)
-                pKillSprite(psp);
-        }
-    }
-}
-
-void pFlushPerms(PLAYERp pp)
-{
-    PANEL_SPRITEp psp=NULL, next=NULL;
-
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
-    {
-        // force kill before showing again
-        if (TEST(psp->flags, PANF_KILL_AFTER_SHOW))
-        {
-            pKillSprite(psp);
         }
     }
 }
@@ -7506,26 +7442,6 @@ PreUpdatePanel(void)
     }
 
     DrawBeforeView = FALSE;
-}
-
-void rotatespritetile(short tilenum,
-                      signed char shade, int cx1, int cy1,
-                      int cx2, int cy2, char dapalnum)
-{
-    int x, y, xsiz, ysiz, tx1, ty1, tx2, ty2;
-
-    xsiz = tilesiz[tilenum].x; tx1 = cx1/xsiz; tx2 = cx2/xsiz;
-    ysiz = tilesiz[tilenum].y; ty1 = cy1/ysiz; ty2 = cy2/ysiz;
-
-    for (x=tx1; x<=tx2; x++)
-    {
-        for (y=ty1; y<=ty2; y++)
-        {
-            rotatesprite((x*xsiz)<<16,(y*ysiz)<<16,65536L,0,tilenum,shade,dapalnum,
-                         ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_CORNER|ROTATE_SPRITE_IGNORE_START_MOST,
-                         cx1,cy1,cx2,cy2);
-        }
-    }
 }
 
 #define EnvironSuit_RATE 10
