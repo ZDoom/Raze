@@ -70,12 +70,10 @@ extern SWBOOL HelpInputMode;
 extern short HelpPage;
 extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
-SWBOOL RedrawCompass=FALSE;
 extern int Follow_posx,Follow_posy;
 
 int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
-void DrawCompass(PLAYERp pp);
 
 #if 1
 void
@@ -1926,8 +1924,6 @@ drawscreen(PLAYERp pp)
     // part of new border refresh method
     if (!ScreenSavePic)
     {
-        RedrawCompass = TRUE;
-        // get rid of all PERM sprites!
         renderFlushPerms();
         // get rid of all PANF_KILL_AFTER_SHOW sprites!
         pFlushPerms(pp);
@@ -2218,7 +2214,6 @@ drawscreen(PLAYERp pp)
 
     DrawMessageInput();   // This is only used for non-multiplayer input now
 
-    DrawCompass(pp);
     UpdateMiniBar(pp);
 
 	if (!M_Active())
@@ -2261,103 +2256,6 @@ drawscreen(PLAYERp pp)
     PostDraw();
     DrawScreen = FALSE;
 }
-
-void
-DrawCompass(PLAYERp pp)
-{
-#define COMPASS_TIC     2380
-#define COMPASS_TIC2    2381
-
-#define COMPASS_NORTH   2382
-#define COMPASS_NORTH2  2383
-
-#define COMPASS_SOUTH   2384
-#define COMPASS_SOUTH2  2385
-
-#define COMPASS_EAST    2386
-#define COMPASS_EAST2   2387
-
-#define COMPASS_WEST    2388
-#define COMPASS_WEST2   2389
-
-#define COMPASS_MID_TIC    2390
-#define COMPASS_MID_TIC2   2391
-
-#define COMPASS_X   140
-#define COMPASS_Y   (162-5)
-
-#define NORM_CANG(ang) (((ang) + 32) & 31)
-
-    short start_ang,ang;
-    short x_size = tilesiz[COMPASS_NORTH].x;
-    short x;
-    short i;
-    int flags;
-
-    static short CompassPic[32] =
-    {
-        COMPASS_EAST, COMPASS_EAST2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_SOUTH, COMPASS_SOUTH2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_WEST, COMPASS_WEST2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-
-        COMPASS_NORTH, COMPASS_NORTH2,
-        COMPASS_TIC, COMPASS_TIC2,
-        COMPASS_MID_TIC, COMPASS_MID_TIC2,
-        COMPASS_TIC, COMPASS_TIC2,
-    };
-
-    static short CompassShade[10] =
-    {
-        //20, 16, 11, 6, 1, 1, 6, 11, 16, 20
-        25, 19, 15, 9, 1, 1, 9, 15, 19, 25
-    };
-
-    extern SWBOOL PanelUpdateMode;
-
-    if (!PanelUpdateMode)
-        return;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    ang = fix16_to_int(pp->q16ang);
-
-    if (pp->sop_remote)
-        ang = 0;
-
-    start_ang = (ang + 32) >> 6;
-
-    start_ang = NORM_CANG(start_ang - 4);
-
-    flags = ROTATE_SPRITE_SCREEN_CLIP | ROTATE_SPRITE_CORNER;
-    if (RedrawCompass && !M_Active())
-    {
-        RedrawCompass = FALSE;
-        SET(flags, ROTATE_SPRITE_ALL_PAGES);
-    }
-
-    for (i = 0, x = COMPASS_X; i < 10; i++)
-    {
-        rotatesprite(x << 16, COMPASS_Y << 16, (1 << 16), 0,
-                     CompassPic[NORM_CANG(start_ang + i)], CompassShade[i], 0,
-                     flags, 0, 0, xdim - 1, ydim - 1);
-        x += x_size;
-    }
-}
-
-
-
 
 bool GameInterface::GenerateSavePic()
 {

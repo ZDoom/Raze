@@ -518,21 +518,81 @@ class DSWStatusBar : public DBaseStatusBar
     //
     //---------------------------------------------------------------------------
 
-    void DisplayMinibarInventory(PLAYERp pp)
+    void DrawCompass(PLAYERp pp)
     {
-        int InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
-        int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
-
-        int InventoryXoff = 1;
-        int InventoryYoff = 1;
-
-        if (pp->InventoryAmount[pp->InventoryNum])
+        enum
         {
-            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
-            // Auto/On/Off
-            PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
-            // Percent count/Item count
-            PlayerUpdateInventoryPercent(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            COMPASS_TIC    = 2380,
+            COMPASS_TIC2   = 2381,
+
+            COMPASS_NORTH  = 2382,
+            COMPASS_NORTH2 = 2383,
+
+            COMPASS_SOUTH  = 2384,
+            COMPASS_SOUTH2 = 2385,
+
+            COMPASS_EAST   = 2386,
+            COMPASS_EAST2  = 2387,
+
+            COMPASS_WEST   = 2388,
+            COMPASS_WEST2  = 2389,
+
+            COMPASS_MID_TIC   = 2390,
+            COMPASS_MID_TIC2  = 2391,
+
+            COMPASS_X  = 140,
+            COMPASS_Y  = (162-5),
+        };
+
+        auto NORM_CANG = [](int ang) { return (((ang)+32) & 31); };
+
+        int start_ang, ang;
+        int x_size = tilesiz[COMPASS_NORTH].x;
+        int x;
+        int i;
+
+        static const short CompassPic[32] =
+        {
+            COMPASS_EAST, COMPASS_EAST2,
+            COMPASS_TIC, COMPASS_TIC2,
+            COMPASS_MID_TIC, COMPASS_MID_TIC2,
+            COMPASS_TIC, COMPASS_TIC2,
+
+            COMPASS_SOUTH, COMPASS_SOUTH2,
+            COMPASS_TIC, COMPASS_TIC2,
+            COMPASS_MID_TIC, COMPASS_MID_TIC2,
+            COMPASS_TIC, COMPASS_TIC2,
+
+            COMPASS_WEST, COMPASS_WEST2,
+            COMPASS_TIC, COMPASS_TIC2,
+            COMPASS_MID_TIC, COMPASS_MID_TIC2,
+            COMPASS_TIC, COMPASS_TIC2,
+
+            COMPASS_NORTH, COMPASS_NORTH2,
+            COMPASS_TIC, COMPASS_TIC2,
+            COMPASS_MID_TIC, COMPASS_MID_TIC2,
+            COMPASS_TIC, COMPASS_TIC2,
+        };
+
+        static const short CompassShade[10] =
+        {
+            //20, 16, 11, 6, 1, 1, 6, 11, 16, 20
+            25, 19, 15, 9, 1, 1, 9, 15, 19, 25
+        };
+
+        ang = fix16_to_int(pp->q16ang);
+
+        if (pp->sop_remote)
+            ang = 0;
+
+        start_ang = (ang + 32) >> 6;
+
+        start_ang = NORM_CANG(start_ang - 4);
+
+        for (i = 0, x = COMPASS_X; i < 10; i++)
+        {
+            DrawGraphic(tileGetTexture(CompassPic[NORM_CANG(start_ang + i)]), x, COMPASS_Y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(CompassShade[i]));
+            x += x_size;
         }
     }
 
@@ -558,6 +618,31 @@ class DSWStatusBar : public DBaseStatusBar
         else if (gNet.TimeLimit)
             DisplayTimeLimit(pp);
         DisplayBarInventory(pp);
+        DrawCompass(pp);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayMinibarInventory(PLAYERp pp)
+    {
+        int InventoryBoxX = MINI_BAR_INVENTORY_BOX_X;
+        int InventoryBoxY = MINI_BAR_INVENTORY_BOX_Y;
+
+        int InventoryXoff = 1;
+        int InventoryYoff = 1;
+
+        if (pp->InventoryAmount[pp->InventoryNum])
+        {
+            PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Auto/On/Off
+            PlayerUpdateInventoryState(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+            // Percent count/Item count
+            PlayerUpdateInventoryPercent(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
+        }
     }
 
 
