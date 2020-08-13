@@ -59,6 +59,13 @@ int InitMine(PLAYERp pp);
 int InitFistAttack(PLAYERp pp);
 
 
+#pragma message("delete me")
+enum
+{
+    PANEL_BOX_Y = (174 - 6),
+
+};
+
 
 
 
@@ -286,12 +293,6 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
     USERp u = User[pp->PlayerSprite];
     short x,y;
 
-#define PANEL_HEALTH_BOX_X 20
-#define PANEL_BOX_Y (174-6)
-#define PANEL_HEALTH_XOFF 2
-#define PANEL_HEALTH_YOFF 4
-#define HEALTH_ERASE 2401
-
     if (Prediction)
         return;
 
@@ -392,18 +393,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
     if (u->Health > pp->MaxHealth)
         u->Health = pp->MaxHealth;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, HEALTH_ERASE, PRI_MID, PANEL_HEALTH_BOX_X, PANEL_BOX_Y);
-
-    x = PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF;
-    y = PANEL_BOX_Y + PANEL_HEALTH_YOFF;
-    DisplayPanelNumber(pp, x, y, u->Health);
 }
-
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
@@ -759,7 +749,6 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
     if (Prediction)
         return;
 
-    PlayerUpdateHealth(pp, 0);
     PlayerUpdateInventory(pp, pp->InventoryNum);
     PlayerUpdateAmmo(pp, u->WeaponNum, 0);
     PlayerUpdateWeapon(pp, u->WeaponNum);

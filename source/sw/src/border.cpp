@@ -186,7 +186,6 @@ void SetBorder(PLAYERp pp, int value)
 
     if (gs.BorderNum >= BORDER_BAR)
     {
-        pSpawnFullScreenSprite(pp, STATUS_BAR, PRI_FRONT, 0, 200 - tilesiz[STATUS_BAR].y);
         PlayerUpdatePanelInfo(Player + screenpeek);
     }
 

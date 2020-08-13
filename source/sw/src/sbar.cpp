@@ -36,9 +36,101 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "player.h"
 #include "v_2ddrawer.h"
+#include "statusbar.h"
 
 BEGIN_SW_NS
 
+
+class DSWStatusBar : public DBaseStatusBar
+{
+
+    enum
+    {
+        PANEL_HEALTH_BOX_X = 20,
+        PANEL_BOX_Y = (174-6),
+        PANEL_HEALTH_XOFF = 2,
+        PANEL_HEALTH_YOFF = 4,
+
+    };
+
+    enum
+    {
+        PANEL_FONT_G = 3636,
+        PANEL_FONT_Y = 3646,
+        PANEL_FONT_R = 3656,
+
+        PANEL_SM_FONT_G = 3601,
+        PANEL_SM_FONT_Y = 3613,
+        PANEL_SM_FONT_R = 3625,
+
+    };
+
+    void DisplayPanelNumber(double xs, double ys, int number)
+    {
+        char buffer[32];
+        char* ptr;
+        double x;
+
+        mysnprintf(buffer, 32, "%03d", number);
+
+        for (ptr = buffer, x = xs; *ptr; ptr++)
+        {
+            if (!isdigit(*ptr))
+            {
+                continue;
+            }
+            int tex = PANEL_FONT_G + (*ptr - '0');
+            DrawGraphic(tileGetTexture(tex), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+            x += tileWidth(tex) + 1;
+        }
+    }
+
+    void DrawStatusbarHealth(int value)
+    {
+        double x = PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF;
+        double y = PANEL_BOX_Y + PANEL_HEALTH_YOFF;
+        DisplayPanelNumber(x, y, value);
+    }
+
+
+    void DrawStatusBar()
+    {
+        auto pp = Player + screenpeek;
+        USERp u = User[pp->PlayerSprite];
+        BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
+
+        DrawGraphic(tileGetTexture(STATUS_BAR), 0, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+        DrawStatusbarHealth(u->Health);
+    }
+
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+public:
+    void UpdateStatusBar(ClockTicks arg)
+    {
+        int nPalette = 0;
+
+        if (gs.BorderNum <= BORDER_NONE) return;
+
+        /*if (gs.BorderNum == BORDER_HUD)
+        {
+            DrawHUD2();
+        }
+        else*/ if (gs.BorderNum == BORDER_MINI_BAR)
+        {
+            //DrawHUD1(nPalette);
+        }
+        else
+        {
+            DrawStatusBar();
+        }
+    }
+
+};
 
 
 static void UpdateFrame(void)
@@ -59,14 +151,14 @@ static void UpdateFrame(void)
 
 void UpdateStatusBar(ClockTicks arg)
 {
-    //DSWStatusBar sbar;
+    DSWStatusBar sbar;
 
     if (gs.BorderNum >= BORDER_BAR)
     {
         UpdateFrame();
     }
 
-    //sbar.UpdateStatusBar(arg);
+    sbar.UpdateStatusBar(arg);
 }
 
 
