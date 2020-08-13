@@ -185,8 +185,6 @@ int InitBunnyRocket(PLAYERp pp);
 int GetDamage(short SpriteNum, short Weapon, short DamageNdx);
 int DoFlamesDamageTest(short Weapon);
 
-void DoActorSpawnIcon(int16_t SpriteNum);
-
 typedef struct
 {
     STATEp state;

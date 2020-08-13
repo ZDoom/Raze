@@ -1214,10 +1214,6 @@ struct PLAYERstruct
     //
     short InventoryNum;
     short InventoryBarTics;
-    PANEL_SPRITEp InventorySprite[MAX_INVENTORY];
-    PANEL_SPRITEp InventorySelectionBox;
-    PANEL_SPRITEp MiniBarHealthBox, MiniBarAmmo;
-    PANEL_SPRITEp MiniBarHealthBoxDigit[3], MiniBarAmmoDigit[3];
     short InventoryTics[MAX_INVENTORY];
     short InventoryPercent[MAX_INVENTORY];
     int8_t InventoryAmount[MAX_INVENTORY];

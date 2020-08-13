@@ -5684,7 +5684,6 @@ DoPlayerWade(PLAYERp pp)
 
     if (PlayerFlyKey())
     {
-        //pp->InventoryTics[INVENTORY_FLY] = -99;
         DoPlayerBeginFly(pp);
         pp->bob_amt = 0;
         pp->bob_ndx = 0;
@@ -7407,7 +7406,6 @@ DoPlayerRun(PLAYERp pp)
 
     if (PlayerFlyKey())
     {
-        //pp->InventoryTics[INVENTORY_FLY] = -99;
         DoPlayerBeginFly(pp);
         return;
     }
@@ -8147,7 +8145,6 @@ InitAllPlayers(void)
         {
             for (i = 0; i < MAX_INVENTORY; i++)
             {
-                //pp->InventoryAmount[i] = InventoryData[i].MaxInv = 0;
                 pp->InventoryAmount[i] = 0;
                 pp->InventoryPercent[i] = 0;
             }

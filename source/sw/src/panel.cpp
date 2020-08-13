@@ -7546,83 +7546,6 @@ PANEL_STATE ps_PanelEnvironSuit[] =
     {ID_PanelEnvironSuit, EnvironSuit_RATE, PanelInvTestSuicide, &ps_PanelEnvironSuit[0], 0,0,0}
 };
 
-#define ID_PanelCloak 2397 //2400
-PANEL_STATE ps_PanelCloak[] =
-{
-    {ID_PanelCloak, Cloak_RATE, PanelInvTestSuicide, &ps_PanelCloak[0], 0,0,0}
-};
-
-#define ID_PanelRepairKit 2399
-PANEL_STATE ps_PanelRepairKit[] =
-{
-    {ID_PanelRepairKit, RepairKit_RATE, PanelInvTestSuicide, &ps_PanelRepairKit[0], 0,0,0}
-};
-
-#define ID_PanelMedkit 2396
-PANEL_STATE ps_PanelMedkit[] =
-{
-    {ID_PanelMedkit, Medkit_RATE, PanelInvTestSuicide, &ps_PanelMedkit[0], 0,0,0}
-};
-
-#define ID_PanelNightVision 2398
-PANEL_STATE ps_PanelNightVision[] =
-{
-    {ID_PanelNightVision, Night_RATE, PanelInvTestSuicide, &ps_PanelNightVision[0], 0,0,0}
-};
-
-#define ID_PanelChemBomb 2407
-PANEL_STATE ps_PanelChemBomb[] =
-{
-    {ID_PanelChemBomb, ChemBomb_RATE, PanelInvTestSuicide, &ps_PanelChemBomb[0], 0,0,0}
-};
-
-#define ID_PanelFlashBomb 2408
-PANEL_STATE ps_PanelFlashBomb[] =
-{
-    {ID_PanelFlashBomb, FlashBomb_RATE, PanelInvTestSuicide, &ps_PanelFlashBomb[0], 0,0,0}
-};
-
-//#define ID_PanelSmokeBomb 2397
-//PANEL_STATE ps_PanelSmokeBomb[] = {
-//    {ID_PanelSmokeBomb, SmokeBomb_RATE, PanelInvTestSuicide, &ps_PanelSmokeBomb[0], 0,0,0}
-//    };
-
-#define ID_PanelCaltrops 2409
-PANEL_STATE ps_PanelCaltrops[] =
-{
-    {ID_PanelCaltrops, Caltrops_RATE, PanelInvTestSuicide, &ps_PanelCaltrops[0], 0,0,0}
-};
-
-#define ID_SelectionBox 2435
-PANEL_STATE ps_PanelSelectionBox[] =
-{
-    {ID_SelectionBox, Box_RATE, PanelInvTestSuicide, &ps_PanelSelectionBox[0], 0,0,0}
-};
-
-#define ID_KeyRed 2392
-PANEL_STATE ps_PanelKeyRed[] =
-{
-    {ID_KeyRed, Box_RATE, PanelInvTestSuicide, &ps_PanelKeyRed[0], 0,0,0}
-};
-
-#define ID_KeyGreen 2393
-PANEL_STATE ps_PanelKeyGreen[] =
-{
-    {ID_KeyGreen, Box_RATE, PanelInvTestSuicide, &ps_PanelKeyGreen[0], 0,0,0}
-};
-
-#define ID_KeyBlue 2394
-PANEL_STATE ps_PanelKeyBlue[] =
-{
-    {ID_KeyBlue, Box_RATE, PanelInvTestSuicide, &ps_PanelKeyBlue[0], 0,0,0}
-};
-
-#define ID_KeyYellow 2395
-PANEL_STATE ps_PanelKeyYellow[] =
-{
-    {ID_KeyYellow, Box_RATE, PanelInvTestSuicide, &ps_PanelKeyYellow[0], 0,0,0}
-};
-
 
 #include "saveable.h"
 
@@ -7760,18 +7683,6 @@ static saveable_data saveable_panel_data[] =
     SAVE_DATA(ps_RetractFist),
 
     SAVE_DATA(ps_PanelEnvironSuit),
-    SAVE_DATA(ps_PanelCloak),
-    SAVE_DATA(ps_PanelRepairKit),
-    SAVE_DATA(ps_PanelMedkit),
-    SAVE_DATA(ps_PanelNightVision),
-    SAVE_DATA(ps_PanelChemBomb),
-    SAVE_DATA(ps_PanelFlashBomb),
-    SAVE_DATA(ps_PanelCaltrops),
-    SAVE_DATA(ps_PanelSelectionBox),
-    SAVE_DATA(ps_PanelKeyRed),
-    SAVE_DATA(ps_PanelKeyGreen),
-    SAVE_DATA(ps_PanelKeyBlue),
-    SAVE_DATA(ps_PanelKeyYellow),
 };
 
 saveable_module saveable_panel =

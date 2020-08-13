@@ -41,7 +41,6 @@ typedef struct
     const char *Name;
     void (*Init)(PLAYERp);
     void (*Stop)(PLAYERp, short);
-    PANEL_STATEp State;
     short DecPerSec;
     short MaxInv;
     int  Scale;

@@ -44,20 +44,11 @@ BEGIN_SW_NS
 
 extern short NormalVisibility;
 
-// indexed by gs.BorderNum   130,172
-short InventoryBarXpos[] = {110, 110, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
-short InventoryBarYpos[] = {172, 172, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130};
-
 void PlayerUpdateInventory(PLAYERp pp, short InventoryNum);
-void SpawnInventoryBar(PLAYERp pp);
-void InventoryBarUpdatePosition(PLAYERp pp);
 void InventoryUse(PLAYERp pp);
 void InventoryStop(PLAYERp pp, short InventoryNum);
-void KillInventoryBar(PLAYERp pp);
 
 
-//#define INVENTORY_ICON_WIDTH  32
-#define INVENTORY_ICON_WIDTH  28
 
 void UseInventoryRepairKit(PLAYERp pp);
 void UseInventoryMedkit(PLAYERp pp);
@@ -77,29 +68,19 @@ void StopInventoryEnvironSuit(PLAYERp pp, short);
 void StopInventoryNightVision(PLAYERp pp, short);
 
 extern PANEL_STATE ps_PanelEnvironSuit[];
-extern PANEL_STATE ps_PanelCloak[];
-extern PANEL_STATE ps_PanelMedkit[];
-extern PANEL_STATE ps_PanelRepairKit[];
-extern PANEL_STATE ps_PanelSelectionBox[];
-extern PANEL_STATE ps_PanelNightVision[];
-extern PANEL_STATE ps_PanelChemBomb[];
-extern PANEL_STATE ps_PanelFlashBomb[];
-extern PANEL_STATE ps_PanelCaltrops[];
 
 
 INVENTORY_DATA InventoryData[MAX_INVENTORY+1] =
 {
-    {"PORTABLE MEDKIT",  UseInventoryMedkit,      NULL,                 ps_PanelMedkit,        0,   1, (1<<16),     0},
-    {"REPAIR KIT",       NULL,                    NULL,                 ps_PanelRepairKit,     100, 1, (1<<16),     INVF_AUTO_USE},
-    {"SMOKE BOMB",       UseInventoryCloak,       StopInventoryCloak,   ps_PanelCloak,         4,   1, (1<<16),     INVF_TIMED},
-    {"NIGHT VISION",     UseInventoryNightVision, StopInventoryNightVision, ps_PanelNightVision,3,  1, (1<<16),     INVF_TIMED},
-    {"GAS BOMB",         UseInventoryChemBomb,    NULL,                 ps_PanelChemBomb,      0,   1, (1<<16),     INVF_COUNT},
-    {"FLASH BOMB",       UseInventoryFlashBomb,   NULL,                 ps_PanelFlashBomb,     0,   2, (1<<16),     INVF_COUNT},
-    {"CALTROPS",         UseInventoryCaltrops,    NULL,                 ps_PanelCaltrops,      0,   3, (1<<16),     INVF_COUNT},
-    {NULL, NULL, NULL, NULL, 0, 0, 0, 0}
+    {"PORTABLE MEDKIT",  UseInventoryMedkit,      NULL,                      0,   1, (1<<16),     0},
+    {"REPAIR KIT",       NULL,                    NULL,                      100, 1, (1<<16),     INVF_AUTO_USE},
+    {"SMOKE BOMB",       UseInventoryCloak,       StopInventoryCloak,        4,   1, (1<<16),     INVF_TIMED},
+    {"NIGHT VISION",     UseInventoryNightVision, StopInventoryNightVision, 3,  1, (1<<16),     INVF_TIMED},
+    {"GAS BOMB",         UseInventoryChemBomb,    NULL,                      0,   1, (1<<16),     INVF_COUNT},
+    {"FLASH BOMB",       UseInventoryFlashBomb,   NULL,                      0,   2, (1<<16),     INVF_COUNT},
+    {"CALTROPS",         UseInventoryCaltrops,    NULL,                      0,   3, (1<<16),     INVF_COUNT},
+    {NULL, NULL, NULL, NULL, 0, 0, 0}
 };
-
-void PanelInvTestSuicide(PANEL_SPRITEp psp);
 
 void PanelInvTestSuicide(PANEL_SPRITEp psp)
 {
@@ -109,82 +90,19 @@ void PanelInvTestSuicide(PANEL_SPRITEp psp)
     }
 }
 
-PANEL_SPRITEp SpawnInventoryIcon(PLAYERp pp, short InventoryNum)
-{
-    PANEL_SPRITEp psp;
-    short x,y;
-
-    // check invalid value
-    ASSERT(InventoryNum < MAX_INVENTORY);
-
-    // check to see if its already spawned
-    if (pp->InventorySprite[InventoryNum])
-        return NULL;
-
-    // check for Icon panel state
-    if (!InventoryData[InventoryNum].State)
-        return NULL;
-
-    x = InventoryBarXpos[gs.BorderNum] + (InventoryNum*INVENTORY_ICON_WIDTH);
-    y = InventoryBarYpos[gs.BorderNum];
-    psp = pSpawnSprite(pp, InventoryData[InventoryNum].State, PRI_FRONT, x, y);
-    pp->InventorySprite[InventoryNum] = psp;
-
-    psp->x1 = 0;
-    psp->y1 = 0;
-    psp->x2 = xdim - 1;
-    psp->y2 = ydim - 1;
-    psp->scale = InventoryData[InventoryNum].Scale;
-    SET(psp->flags, PANF_STATUS_AREA | PANF_SCREEN_CLIP);
-
-    return psp;
-}
-
 void KillPanelInv(PLAYERp pp, short InventoryNum)
 {
-    ASSERT(pp->InventorySprite[InventoryNum]);
     ASSERT(InventoryNum < MAX_INVENTORY);
 
     pp->InventoryTics[InventoryNum] = 0;
-    SET(pp->InventorySprite[InventoryNum]->flags, PANF_SUICIDE);
-    pp->InventorySprite[InventoryNum] = NULL;
-}
-
-void
-KillPlayerIcon(PANEL_SPRITEp *pspp)
-{
-    SET((*pspp)->flags, PANF_SUICIDE);
-    (*pspp) = NULL;
 }
 
 void KillAllPanelInv(PLAYERp pp)
 {
-    short i;
-
-    for (i = 0; i < MAX_INVENTORY; i++)
+    for (int i = 0; i < MAX_INVENTORY; i++)
     {
-        if (!pp->InventorySprite[i])
-            continue;
-
         pp->InventoryTics[i] = 0;
-        SET(pp->InventorySprite[i]->flags, PANF_SUICIDE);
-        pp->InventorySprite[i]->numpages = 0;
-        pp->InventorySprite[i] = NULL;
     }
-}
-
-PANEL_SPRITEp SpawnIcon(PLAYERp pp, PANEL_STATEp state)
-{
-    PANEL_SPRITEp psp;
-
-    psp = pSpawnSprite(pp, state, PRI_FRONT, 0, 0);
-
-    psp->x1 = 0;
-    psp->y1 = 0;
-    psp->x2 = xdim - 1;
-    psp->y2 = ydim - 1;
-    SET(psp->flags, PANF_STATUS_AREA | PANF_SCREEN_CLIP);
-    return psp;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -415,47 +333,6 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 
 //////////////////////////////////////////////////////////////////////
 //
-// ENVIRONMENT SUIT
-//
-//////////////////////////////////////////////////////////////////////
-#if 0
-void UseInventoryEnvironSuit(PLAYERp pp)
-{
-    SPRITEp sp = pp->SpriteP;
-    short inv = INVENTORY_ENVIRON_SUIT;
-
-    // only activate if you have one
-    if (pp->InventoryAmount[inv])
-    {
-        pp->InventoryActive[inv] = TRUE;
-        // on/off
-        PlayerUpdateInventory(pp, inv);
-    }
-}
-
-void StopInventoryEnvironSuit(PLAYERp pp, short InventoryNum)
-{
-    SPRITEp sp = pp->SpriteP;
-    short inv = INVENTORY_ENVIRON_SUIT;
-
-    pp->InventoryActive[InventoryNum] = FALSE;
-
-    if (pp->InventoryPercent[InventoryNum] <= 0)
-    {
-        pp->InventoryPercent[InventoryNum] = 0;
-        if (--pp->InventoryAmount[InventoryNum] < 0)
-            pp->InventoryAmount[InventoryNum] = 0;
-    }
-
-    // on/off
-    PlayerUpdateInventory(pp, InventoryNum);
-
-    PlaySound(DIGI_SWCLOAKUNCLOAK, pp, v3df_none);
-}
-#endif
-
-//////////////////////////////////////////////////////////////////////
-//
 // NIGHT VISION
 //
 //////////////////////////////////////////////////////////////////////
@@ -545,10 +422,9 @@ void InventoryKeys(PLAYERp pp)
         if (FLAG_KEY_PRESSED(pp, SK_INV_LEFT))
         {
             FLAG_KEY_RELEASE(pp, SK_INV_LEFT);
-            SpawnInventoryBar(pp);
+            pp->InventoryBarTics = SEC(2);
             PlayerUpdateInventory(pp, pp->InventoryNum - 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
-            InventoryBarUpdatePosition(pp);
         }
     }
     else
@@ -562,10 +438,9 @@ void InventoryKeys(PLAYERp pp)
         if (FLAG_KEY_PRESSED(pp, SK_INV_RIGHT))
         {
             FLAG_KEY_RELEASE(pp, SK_INV_RIGHT);
-            SpawnInventoryBar(pp);
+            pp->InventoryBarTics = SEC(2);
             PlayerUpdateInventory(pp, pp->InventoryNum + 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
-            InventoryBarUpdatePosition(pp);
         }
     }
     else
@@ -649,14 +524,10 @@ void InventoryTimer(PLAYERp pp)
     // if bar is up
     if (pp->InventoryBarTics)
     {
-        InventoryBarUpdatePosition(pp);
-
         pp->InventoryBarTics -= synctics;
         // if bar time has elapsed
         if (pp->InventoryBarTics <= 0)
         {
-            // get rid of the bar
-            KillInventoryBar(pp);
             // don't update bar anymore
             pp->InventoryBarTics = 0;
         }
@@ -722,73 +593,6 @@ void InventoryTimer(PLAYERp pp)
     }
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// INVENTORY BAR
-//
-//////////////////////////////////////////////////////////////////////
-
-void SpawnInventoryBar(PLAYERp pp)
-{
-    short inv = 0;
-    INVENTORY_DATAp id;
-    PANEL_SPRITEp psp;
-
-
-    // its already up
-    if (pp->InventoryBarTics)
-    {
-        pp->InventoryBarTics = SEC(2);
-        return;
-    }
-
-    pp->InventorySelectionBox = SpawnIcon(pp, ps_PanelSelectionBox);
-
-    for (id = InventoryData; id->Name; id++, inv++)
-    {
-        psp = SpawnInventoryIcon(pp, inv);
-
-        if (!pp->InventoryAmount[inv])
-        {
-            //SET(psp->flags, PANF_TRANSLUCENT);
-            //SET(psp->flags, PANF_TRANS_FLIP);
-            psp->shade = 100; //Darken it
-        }
-    }
-
-    pp->InventoryBarTics = SEC(2);
-}
-
-void KillInventoryBar(PLAYERp pp)
-{
-    KillAllPanelInv(pp);
-    KillPlayerIcon(&pp->InventorySelectionBox);
-}
-
-// In case the BorderNum changes - move the postions
-void InventoryBarUpdatePosition(PLAYERp pp)
-{
-    short inv = 0;
-    short x,y;
-    INVENTORY_DATAp id;
-
-    x = InventoryBarXpos[gs.BorderNum] + (pp->InventoryNum * INVENTORY_ICON_WIDTH);
-    y = InventoryBarYpos[gs.BorderNum];
-
-    pp->InventorySelectionBox->x = x - 5;
-    pp->InventorySelectionBox->y = y - 5;
-
-    for (id = InventoryData; id->Name && inv < MAX_INVENTORY; id++, inv++)
-    {
-        x = InventoryBarXpos[gs.BorderNum] + (inv * INVENTORY_ICON_WIDTH);
-        y = InventoryBarYpos[gs.BorderNum];
-
-        pp->InventorySprite[inv]->x = x;
-        pp->InventorySprite[inv]->y = y;
-    }
-
-}
-
 void InventoryUse(PLAYERp pp)
 {
     INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
@@ -813,36 +617,6 @@ void InventoryStop(PLAYERp pp, short InventoryNum)
 
 void PlayerUpdateInventory(PLAYERp pp, short InventoryNum)
 {
-    // Check for items that need to go translucent from use
-    if (pp->InventoryBarTics)
-    {
-        short inv = 0;
-        INVENTORY_DATAp id;
-        PANEL_SPRITEp psp;
-
-        // Go translucent if used
-        for (id = InventoryData; id->Name && inv < MAX_INVENTORY; id++, inv++)
-        {
-            psp = pp->InventorySprite[inv];
-
-            if (!psp)
-                continue;
-
-            if (!pp->InventoryAmount[inv])
-            {
-                //SET(psp->flags, PANF_TRANSLUCENT);
-                //SET(psp->flags, PANF_TRANS_FLIP);
-                psp->shade = 100; // Darken it
-            }
-            else
-            {
-                //RESET(psp->flags, PANF_TRANSLUCENT);
-                //RESET(psp->flags, PANF_TRANS_FLIP);
-                psp->shade = 0;
-            }
-        }
-    }
-
     pp->InventoryNum = InventoryNum;
 
     if (pp->InventoryNum < 0)

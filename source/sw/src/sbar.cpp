@@ -29,9 +29,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #undef MAIN
 #include "build.h"
 
+#include "game.h"
 #include "names2.h"
 #include "panel.h"
-#include "game.h"
 #include "pal.h"
 #include "misc.h"
 #include "player.h"
@@ -41,6 +41,26 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+enum
+{
+    ID_PanelMedkit = 2396,
+    ID_PanelRepairKit = 2399,
+    ID_PanelCloak = 2397, //2400
+    ID_PanelNightVision = 2398,
+    ID_PanelChemBomb = 2407,
+    ID_PanelFlashBomb = 2408,
+    ID_PanelCaltrops = 2409,
+};
+
+static const short icons[] = {
+    ID_PanelMedkit,
+    ID_PanelRepairKit,
+    ID_PanelCloak,
+    ID_PanelNightVision,
+    ID_PanelChemBomb,
+    ID_PanelFlashBomb,
+    ID_PanelCaltrops,
+};
 
 class DSWStatusBar : public DBaseStatusBar
 {
@@ -114,6 +134,7 @@ class DSWStatusBar : public DBaseStatusBar
         MINI_BAR_AMMO_BOX_PIC = 2437,
         MINI_BAR_INVENTORY_BOX_PIC = 2438,
 
+        ID_SelectionBox = 2435,
     };
 
     //---------------------------------------------------------------------------
@@ -458,12 +479,9 @@ class DSWStatusBar : public DBaseStatusBar
     void PlayerUpdateInventoryPic(PLAYERp pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
     {
         INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
-
         int x = InventoryBoxX + INVENTORY_PIC_XOFF + InventoryXoff;
         int y = InventoryBoxY + INVENTORY_PIC_YOFF + InventoryYoff;
-
-        int pic = id->State->picndx;
-        DrawGraphic(tileGetTexture(pic), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, id->Scale/65536., id->Scale / 65536.);
+        DrawGraphic(tileGetTexture(icons[pp->InventoryNum]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, id->Scale/65536., id->Scale / 65536.);
     }
 
     //---------------------------------------------------------------------------
@@ -697,25 +715,93 @@ class DSWStatusBar : public DBaseStatusBar
     // 
     //
     //---------------------------------------------------------------------------
+
+    void DrawInventoryIcon(double xs, double ys, int align, int InventoryNum, int amount, bool selected)
+    {
+        double x, y;
+        const int INVENTORY_ICON_WIDTH = 28;
+
+        // check invalid value
+        assert(InventoryNum < MAX_INVENTORY);
+
+        x =xs + (InventoryNum * INVENTORY_ICON_WIDTH);
+        y = ys;
+        auto tex = icons[InventoryNum];
+        auto scale = InventoryData[InventoryNum].Scale / 65536.;
+        DrawGraphic(tileGetTexture(tex), x, y, align | DI_ITEM_LEFT_TOP, amount? 1. : 0.333, -1, -1, scale, scale);
+        if (selected)
+        {
+            DrawGraphic(tileGetTexture(ID_SelectionBox), x-5, y-5, align | DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    //
+    // INVENTORY BAR
+    //
+    //////////////////////////////////////////////////////////////////////
+
+    void DrawInventory(double xs, double ys, int align)
+    {
+        auto pp = Player + screenpeek;
+        short inv = 0;
+        INVENTORY_DATAp id;
+
+        if (!pp->InventoryBarTics)
+        {
+            return;
+        }
+
+        for (id = InventoryData; id->Name; id++, inv++)
+        {
+            DrawInventoryIcon(xs, ys, align, inv, pp->InventoryAmount[inv], inv == pp->InventoryNum);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 public:
     void UpdateStatusBar(ClockTicks arg)
     {
         int nPalette = 0;
+        double inv_x, inv_y;
+        int align;
 
-        if (gs.BorderNum <= BORDER_NONE) return;
+        short InventoryBarXpos[] = { 110, 110, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80 };
+        short InventoryBarYpos[] = { 172, 172, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130 };
 
-        /*if (gs.BorderNum == BORDER_HUD)
+        if (gs.BorderNum <= BORDER_NONE)
         {
+            align = DI_SCREEN_RIGHT_BOTTOM;
+            inv_x = -210 * hud_scale / 100.;
+            inv_y = -28 * hud_scale / 100.;
+        }
+        /*else if (gs.BorderNum == BORDER_HUD)
+        {
+            align = DI_SCREEN_CENTER_TOP;
+            inv_x = -80 * hud_scale / 100.;
+            inv_y = -70 * hud_scale / 100.;
             DrawHUD2();
         }
-        else*/ if (gs.BorderNum == BORDER_MINI_BAR)
+        */
+        else if (gs.BorderNum == BORDER_MINI_BAR)
         {
+            align = DI_SCREEN_RIGHT_BOTTOM;
+            inv_x = -210 * hud_scale / 100.;
+            inv_y = -28 * hud_scale / 100.;
             DrawHUD1();
         }
         else
         {
+            align = 0;
+            inv_x = 80 * hud_scale / 100.;
+            inv_y = 130 * hud_scale / 100.;
             DrawStatusBar();
         }
+        DrawInventory(inv_x, inv_y, align);
     }
 
 };

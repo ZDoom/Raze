@@ -1050,7 +1050,6 @@ TerminateLevel(void)
         pp->CurWpn = NULL;
 
         memset(pp->Wpn, 0, sizeof(pp->Wpn));
-        memset(pp->InventorySprite, 0, sizeof(pp->InventorySprite));
         memset(pp->InventoryTics, 0, sizeof(pp->InventoryTics));
 
         pp->Killer = -1;

@@ -257,15 +257,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
         for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
             pp->Wpn[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Wpn[ndx]);
         pp->Chops = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->Chops);
-        for (ndx = 0; ndx < MAX_INVENTORY; ndx++)
-            pp->InventorySprite[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->InventorySprite[ndx]);
-        pp->InventorySelectionBox = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->InventorySelectionBox);
-        pp->MiniBarHealthBox = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarHealthBox);
-        pp->MiniBarAmmo = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarAmmo);
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarHealthBoxDigit); ndx++)
-            pp->MiniBarHealthBoxDigit[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarHealthBoxDigit[ndx]);
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarAmmoDigit); ndx++)
-            pp->MiniBarAmmoDigit[ndx] = (PANEL_SPRITEp)(intptr_t)PanelSpriteToNdx(&Player[i], pp->MiniBarAmmoDigit[ndx]);
 #endif
 
         MWRITE(&tp, sizeof(PLAYER),1,fil);
@@ -1111,19 +1102,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         for (ndx = 0; ndx < MAX_WEAPONS; ndx++)
             pp->Wpn[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->Wpn[ndx]);
 
-        for (ndx = 0; ndx < MAX_INVENTORY; ndx++)
-            pp->InventorySprite[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->InventorySprite[ndx]);
-
         pp->Chops = PanelNdxToSprite(pp, (int)(intptr_t)pp->Chops);
-        pp->InventorySelectionBox = PanelNdxToSprite(pp, (int)(intptr_t)pp->InventorySelectionBox);
-        pp->MiniBarHealthBox = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarHealthBox);
-        pp->MiniBarAmmo = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarAmmo);
-
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarHealthBoxDigit); ndx++)
-            pp->MiniBarHealthBoxDigit[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarHealthBoxDigit[ndx]);
-
-        for (ndx = 0; ndx < (short)SIZ(pp->MiniBarAmmoDigit); ndx++)
-            pp->MiniBarAmmoDigit[ndx] = PanelNdxToSprite(pp, (int)(intptr_t)pp->MiniBarAmmoDigit[ndx]);
 
 #endif
     }
