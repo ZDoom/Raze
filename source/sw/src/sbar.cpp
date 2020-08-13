@@ -37,6 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "player.h"
 #include "v_2ddrawer.h"
 #include "statusbar.h"
+#include "network.h"
 
 BEGIN_SW_NS
 
@@ -47,9 +48,24 @@ class DSWStatusBar : public DBaseStatusBar
     enum
     {
         PANEL_HEALTH_BOX_X = 20,
-        PANEL_BOX_Y = (174-6),
+        PANEL_BOX_Y = (174 - 6),
         PANEL_HEALTH_XOFF = 2,
         PANEL_HEALTH_YOFF = 4,
+
+        PANEL_AMMO_BOX_X = 197,
+        PANEL_AMMO_XOFF = 1,
+        PANEL_AMMO_YOFF = 4,
+
+        WSUM_X = 93,
+        WSUM_Y = PANEL_BOX_Y+1,
+        WSUM_XOFF = 25,
+        WSUM_YOFF = 6,
+
+        PANEL_KEYS_BOX_X = 276,
+        PANEL_KEYS_XOFF = 0,
+        PANEL_KEYS_YOFF = 2,
+
+        FRAG_YOFF = 2,
 
     };
 
@@ -64,6 +80,12 @@ class DSWStatusBar : public DBaseStatusBar
         PANEL_SM_FONT_R = 3625,
 
     };
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 
     void DisplayPanelNumber(double xs, double ys, int number)
     {
@@ -85,11 +107,227 @@ class DSWStatusBar : public DBaseStatusBar
         }
     }
 
-    void DrawStatusbarHealth(int value)
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplaySummaryString(double xs, double ys, int color, int shade, const char* buffer)
     {
-        double x = PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF;
-        double y = PANEL_BOX_Y + PANEL_HEALTH_YOFF;
-        DisplayPanelNumber(x, y, value);
+        double x;
+        const char* ptr;
+        char ch;
+        int font_pic;
+        static const short font_base[] = { PANEL_SM_FONT_G, PANEL_SM_FONT_Y, PANEL_SM_FONT_R };
+
+        assert(color < 3);
+        for (ptr = buffer, x = xs; *ptr; ptr++)
+        {
+            ch = *ptr;
+            if (ch == ' ')
+            {
+                x += 4;
+                continue;
+            }
+
+            switch (ch)
+            {
+            case '\\':
+                ch = '0' - 1; // one pic before 0
+                break;
+            case ':':
+                ch = '9' + 1; // one pic after nine
+                break;
+            }
+
+            font_pic = font_base[color] + (ch - '0');
+            DrawGraphic(tileGetTexture(font_pic), x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, shadeToLight(shade));
+            x += tilesiz[font_pic].x + 1;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayTimeLimit(PLAYERp pp)
+    {
+        if (gNet.MultiGameType != MULTI_GAME_COMMBAT || !gNet.TimeLimit)
+            return;
+
+        int seconds = gNet.TimeLimitClock / 120;
+        sprintf(ds, "%03d:%02d", seconds / 60, seconds % 60);
+        DisplaySummaryString(PANEL_KEYS_BOX_X + 1, PANEL_BOX_Y + 6, 0, 0, ds);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
+    {
+        double x;
+        const char* ptr;
+
+        const int FRAG_FIRST_ASCII = ('!');
+        const int FRAG_FIRST_TILE = 2930;
+
+        for (ptr = buffer, x = xs; *ptr; ptr++)
+        {
+            if (*ptr == ' ')
+                continue;
+
+            assert(*ptr >= '!' && *ptr <= '}');
+
+            auto tex = tileGetTexture(FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII));
+            DrawGraphic(tex, x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, User[pp->SpriteP - sprite]->spal));
+            x += 4;
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayFragNumbers()
+    {
+        // must draw this in HUD mode!
+        for (int pnum = 0; pnum < 4; pnum++)
+        {
+            char buffer[32];
+            short xs, ys;
+            short frag_bar;
+
+            static int xoffs[] =
+            {
+                69, 147, 225, 303
+            };
+
+            ys = FRAG_YOFF;
+
+            // frag bar 0 or 1
+            frag_bar = ((pnum) / 4);
+            // move y down according to frag bar number
+            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+
+            // move x over according to the number of players
+            xs = xoffs[MOD4(pnum)];
+
+            mysnprintf(buffer, 32, "%03d", Player[pnum].Kills);
+
+            DisplayFragString(&Player[pnum], xs, ys, buffer);
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DisplayFragNames()
+    {
+        // must draw this in HUD mode!
+        for (int pnum = 0; pnum < 4; pnum++)
+        {
+            short xs, ys;
+            short frag_bar;
+
+            static int xoffs[] =
+            {
+                7, 85, 163, 241
+            };
+
+            ys = FRAG_YOFF;
+
+            // frag bar 0 or 1
+            frag_bar = ((pnum) / 4);
+            // move y down according to frag bar number
+            ys = ys + (tilesiz[FRAG_BAR].y - 2) * frag_bar;
+
+            // move x over according to the number of players
+            xs = xoffs[MOD4(pnum)];
+
+            DisplayFragString(&Player[pnum], xs, ys, Player[pnum].PlayerName);
+        }
+    }
+
+
+
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void PlayerUpdateWeaponSummary(PLAYERp pp, int UpdateWeaponNum)
+    {
+        USERp u = User[pp->PlayerSprite];
+        int x, y;
+        int pos;
+        int column;
+        int WeaponNum, wpntmp;
+        int color, shade;
+        char ds[32];
+
+        WeaponNum = UpdateWeaponNum;
+
+        if (DamageData[WeaponNum].with_weapon != -1)
+        {
+            WeaponNum = DamageData[WeaponNum].with_weapon;
+        }
+
+        if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
+            return;
+
+        static short wsum_xoff[3] = { 0,36,66 };
+        static const char* wsum_fmt2[3] = { "%3d/%-3d", "%2d/%-2d", "%2d/%-2d" };
+
+        pos = WeaponNum - 1;
+        column = pos / 3;
+        if (column > 2) column = 2;
+        x = WSUM_X + wsum_xoff[column];
+        y = WSUM_Y + (WSUM_YOFF * (pos % 3));
+
+        if (UpdateWeaponNum == u->WeaponNum)
+        {
+            shade = 0;
+            color = 0;
+        }
+        else
+        {
+            shade = 11;
+            color = 0;
+        }
+
+        wpntmp = WeaponNum + 1;
+        if (wpntmp > 9)
+            wpntmp = 0;
+        mysnprintf(ds, 32, "%d:", wpntmp);
+
+        if (TEST(pp->WpnFlags, BIT(WeaponNum)))
+            DisplaySummaryString(x, y, 1, shade, ds);
+        else
+            DisplaySummaryString(x, y, 2, shade + 6, ds);
+
+        mysnprintf(ds, 32, wsum_fmt2[column], pp->WpnAmmo[WeaponNum], DamageData[WeaponNum].max_ammo);
+        DisplaySummaryString(x + 6, y, color, shade, ds);
+    }
+
+    void PlayerUpdateWeaponSummaryAll(PLAYERp pp)
+    {
+        for (int i = WPN_STAR; i <= WPN_HEART; i++)
+        {
+            PlayerUpdateWeaponSummary(pp, i);
+        }
     }
 
 
@@ -100,7 +338,9 @@ class DSWStatusBar : public DBaseStatusBar
         BeginStatusBar(320, 200, tileHeight(STATUS_BAR));
 
         DrawGraphic(tileGetTexture(STATUS_BAR), 0, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
-        DrawStatusbarHealth(u->Health);
+        DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);
+        DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp->WpnAmmo[u->WeaponNum]);
+        PlayerUpdateWeaponSummaryAll(pp);
     }
 
 

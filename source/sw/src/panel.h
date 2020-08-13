@@ -198,7 +198,6 @@ void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITEp psp);
 void InitChops(PLAYERp pp);
 void ChopsSetRetract(PLAYERp pp);
-void PlayerUpdateTimeLimit(PLAYERp pp);
 
 END_SW_NS
 

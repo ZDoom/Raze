@@ -7827,11 +7827,6 @@ void MultiPlayLimits(void)
     {
         gNet.TimeLimitClock -= synctics;
 
-        if ((gNet.TimeLimitClock%120) <= 3)
-        {
-            PlayerUpdateTimeLimit(Player + screenpeek);
-        }
-
         if (gNet.TimeLimitClock <= 0)
             Done = TRUE;
     }

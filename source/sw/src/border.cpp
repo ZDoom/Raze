@@ -91,7 +91,6 @@ SetFragBar(PLAYERp pp)
     TRAVERSE_CONNECT(i)
     {
         PlayerUpdateKills(Player + i, 0);
-        DisplayFragNames(Player + i);
     }
 }
 

@@ -84,7 +84,6 @@ typedef struct
 } PANEL_SHRAP, *PANEL_SHRAPp;
 
 PANEL_SPRITEp pSpawnFullScreenSprite(PLAYERp pp, short pic, short pri, int x, int y);
-void DisplayFragNumbers(PLAYERp pp_kill_chg);
 void PanelInvTestSuicide(PANEL_SPRITEp psp);
 
 void InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp);
@@ -102,7 +101,6 @@ int DoPanelJump(PANEL_SPRITEp psp);
 int DoBeginPanelJump(PANEL_SPRITEp psp);
 void SpawnHeartBlood(PANEL_SPRITEp psp);
 void SpawnUziShell(PANEL_SPRITEp psp);
-void PlayerUpdateWeaponSummary(PLAYERp pp,short UpdateWeaponNum);
 
 SWBOOL pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 SWBOOL pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
@@ -401,22 +399,11 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     short x,y;
     short WeaponNum;
 
-#define PANEL_AMMO_BOX_X 197
-#define PANEL_AMMO_XOFF 1
-#define PANEL_AMMO_YOFF 4
-#define AMMO_ERASE 2404
-
     if (Prediction)
         return;
 
     if (DamageData[UpdateWeaponNum].max_ammo == -1)
     {
-        if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-            return;
-
-        // erase old info
-        pSpawnFullScreenSprite(pp, AMMO_ERASE, PRI_MID, PANEL_AMMO_BOX_X, PANEL_BOX_Y);
-        //pSpawnFullScreenSprite(pp, AMMO_ERASE, PRI_FRONT_MAX+1, PANEL_AMMO_BOX_X, PANEL_BOX_Y);
         return;
     }
 
@@ -443,101 +430,6 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
     {
         pp->WpnAmmo[WeaponNum] = DamageData[WeaponNum].max_ammo;
     }
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    PlayerUpdateWeaponSummary(pp, WeaponNum);
-
-    if (UpdateWeaponNum != u->WeaponNum)
-        return;
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, AMMO_ERASE, PRI_MID, PANEL_AMMO_BOX_X, PANEL_BOX_Y);
-
-    x = PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF;
-    y = PANEL_BOX_Y + PANEL_AMMO_YOFF;
-
-    DisplayPanelNumber(pp, x, y, pp->WpnAmmo[WeaponNum]);
-}
-
-void PlayerUpdateWeaponSummary(PLAYERp pp, short UpdateWeaponNum)
-{
-    USERp u = User[pp->PlayerSprite];
-    short x,y;
-    short pos;
-    short column;
-    short WeaponNum,wpntmp;
-    short color,shade;
-
-#define WSUM_X 93
-#define WSUM_Y PANEL_BOX_Y+1
-#define WSUM_XOFF 25
-#define WSUM_YOFF 6
-
-    static short wsum_xoff[3] = {0,36,66};
-    static const char *wsum_fmt1[3] = {"%d:", "%d:", "%d:"};
-    static const char *wsum_fmt2[3] = {"%3d/%-3d", "%2d/%-2d", "%2d/%-2d"};
-    static short wsum_back_pic[3] = {2405, 2406, 2406};
-
-    if (Prediction)
-        return;
-
-    WeaponNum = UpdateWeaponNum;
-
-    if (DamageData[WeaponNum].with_weapon != -1)
-    {
-        WeaponNum = DamageData[WeaponNum].with_weapon;
-    }
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    pos = WeaponNum-1;
-    column = pos/3;
-    if (column > 2) column = 2;
-    x = WSUM_X + wsum_xoff[column];
-    y = WSUM_Y + (WSUM_YOFF * (pos%3));
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, wsum_back_pic[column], PRI_MID, x, y);
-
-    if (UpdateWeaponNum == u->WeaponNum)
-    {
-        shade = 0;
-        color = 0;
-    }
-    else
-    {
-        shade = 11;
-        color = 0;
-    }
-
-    wpntmp = WeaponNum+1;
-    if (wpntmp > 9)
-        wpntmp = 0;
-    sprintf(ds, wsum_fmt1[column], wpntmp);
-
-    if (TEST(pp->WpnFlags, BIT(WeaponNum)))
-        DisplaySummaryString(pp, x, y, 1, shade, ds);
-    else
-        DisplaySummaryString(pp, x, y, 2, shade+6, ds);
-
-    sprintf(ds, wsum_fmt2[column], pp->WpnAmmo[WeaponNum], DamageData[WeaponNum].max_ammo);
-    DisplaySummaryString(pp, x+6, y, color, shade, ds);
-}
-
-void PlayerUpdateWeaponSummaryAll(PLAYERp pp)
-{
-    short i;
-
-    if (Prediction)
-        return;
-
-    for (i = WPN_STAR; i <= WPN_HEART; i++)
-    {
-        PlayerUpdateWeaponSummary(pp, i);
-    }
 }
 
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
@@ -549,12 +441,6 @@ void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
         return;
 
     u->WeaponNum = WeaponNum;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    PlayerUpdateAmmo(pp, u->WeaponNum, 0);
-    PlayerUpdateWeaponSummaryAll(pp);
 }
 
 void PlayerUpdateKills(PLAYERp pp, short value)
@@ -586,9 +472,6 @@ void PlayerUpdateKills(PLAYERp pp, short value)
                     opp->Kills = 0;
                 if (opp->Kills < -99)
                     opp->Kills = -99;
-
-                if (numplayers >= 2)
-                    DisplayFragNumbers(opp);
             }
         }
     }
@@ -598,9 +481,6 @@ void PlayerUpdateKills(PLAYERp pp, short value)
         pp->Kills = 0;
     if (pp->Kills < -99)
         pp->Kills = -99;
-
-    if (numplayers >= 2)
-        DisplayFragNumbers(pp);
 }
 
 void PlayerUpdateArmor(PLAYERp pp, short value)
@@ -718,30 +598,6 @@ void PlayerUpdateKeys(PLAYERp pp)
     }
 }
 
-void PlayerUpdateTimeLimit(PLAYERp pp)
-{
-    int seconds;
-
-    if (Prediction)
-        return;
-
-    if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-        return;
-
-    if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
-        return;
-
-    if (!gNet.TimeLimit)
-        return;
-
-    // erase old info
-    pSpawnFullScreenSprite(pp, KEYS_ERASE, PRI_MID, PANEL_KEYS_BOX_X, PANEL_BOX_Y);
-
-    seconds = gNet.TimeLimitClock/120;
-    sprintf(ds,"%03d:%02d",seconds/60, seconds%60);
-    DisplaySummaryString(pp, PANEL_KEYS_BOX_X+1, PANEL_BOX_Y+6, 0, 0, ds);
-}
-
 void PlayerUpdatePanelInfo(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
@@ -754,8 +610,6 @@ void PlayerUpdatePanelInfo(PLAYERp pp)
     PlayerUpdateWeapon(pp, u->WeaponNum);
     PlayerUpdateKeys(pp);
     PlayerUpdateArmor(pp, 0);
-    PlayerUpdateWeaponSummaryAll(pp);
-    PlayerUpdateTimeLimit(pp);
 }
 
 int WeaponOperate(PLAYERp pp)
