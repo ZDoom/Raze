@@ -706,8 +706,7 @@ void cameratext(int i)
 
 void dobonus(int bonusonly, const CompletionFunc& completion)
 {
-	if (isRRRA()) { if (completion) completion(false); }
-	else if (isRR()) dobonus_r(bonusonly, completion);
+	if (isRR()) dobonus_r(bonusonly, completion);
 	else dobonus_d(bonusonly, completion);
 }
 

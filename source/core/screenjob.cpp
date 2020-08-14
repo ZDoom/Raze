@@ -157,7 +157,7 @@ public:
 		}
 		ototalclock += delay;
 
-		for (int i = 0; animSnd[i].framenum >= 0; i++)
+		if (animSnd) for (int i = 0; animSnd[i].framenum >= 0; i++)
 		{
 			if (animSnd[i].framenum == curframe)
 			{
