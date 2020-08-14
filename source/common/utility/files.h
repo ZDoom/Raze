@@ -292,7 +292,7 @@ public:
 		return BigLong(v);
 	}
 
-	uint32_t ReadUInt64()
+	uint64_t ReadUInt64()
 	{
 		uint64_t v = 0;
 		Read(&v, 8);
