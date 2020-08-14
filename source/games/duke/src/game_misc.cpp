@@ -180,7 +180,7 @@ void drawbackground(void)
 	auto tex = tileGetTexture(TILE_MENUSCREEN);
 	PalEntry color = 0xff808080;
 	if (!hud_bgstretch)
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_Color, color, TAG_DONE);
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, color, TAG_DONE);
 	else
 		DrawTexture(twod, tex, 0, 0, DTA_VirtualWidth, twod->GetWidth(), DTA_VirtualHeight, twod->GetHeight(), DTA_KeepRatio, true, DTA_Color, color, TAG_DONE);
 }
@@ -359,7 +359,7 @@ void displayrest(double smoothratio)
 			if (isRR()) crosshair_scale *= .5;
 
 			DrawTexture(twod, tileGetTexture(a), 160 - getHalfLookAng(screenpeek, cl_syncinput, smoothratio), 100,
-				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
+				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
 		}
 	}
@@ -658,9 +658,9 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 		int top = isRR() ? 0 : (hud_size < 11 ? 147 : 179);
 		if (!(currentLevel->flags & MI_USERMAP))
 			DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top+6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]), 
-				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 		DrawText(twod, SmallFont2, CR_UNDEFINED, 5, top + 12, currentLevel->DisplayName(),
-			DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+			DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 	}
 
 }
@@ -676,7 +676,7 @@ void cameratext(int i)
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
 		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
-			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
 	};
 	if (!hittype[i].temp_data[0])
 	{

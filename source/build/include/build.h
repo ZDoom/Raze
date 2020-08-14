@@ -156,6 +156,8 @@ enum {
     RS_MODELSUBST= 4096,
     // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
     ROTATESPRITE_MAX = 8192,
+	RS_XFLIPHUD = RS_YFLIP,
+	RS_YFLIPHUD = 16384, // this is for hud_drawsprite which uses RS_YFLIP for x-flipping but needs both flags
 
     RS_CENTER = (1<<29),    // proper center align.
     RS_CENTERORIGIN = (1<<30),
@@ -1164,7 +1166,7 @@ class F2DDrawer;
 extern F2DDrawer twodpsp;
 extern F2DDrawer* twod;
 
-// This is for safely substituting the 2D drawer for a block of code.
+// This is for safely substituting the 2D drawer for a block of code. Won't be needed anymore after proper refactoring.
 class PspTwoDSetter
 {
 	F2DDrawer* old;
@@ -1175,15 +1177,6 @@ public:
 		twod = &twodpsp;
 	}
 	~PspTwoDSetter()
-	{
-		twod = old;
-	}
-	// Shadow Warrior fucked this up and draws the weapons in the same pass as the hud, meaning we have to switch this on and off depending on context.
-	void set()
-	{
-		twod = &twodpsp;
-	}
-	void clear()
 	{
 		twod = old;
 	}

@@ -136,7 +136,7 @@ static void BigText(double x, double y, const char* text, int align, double alph
 	if (align != -1)
 		x -= BigFont->StringWidth(text) * (align == 0 ? 0.2 : 0.4);
 	auto width = BigFont->StringWidth(text);
-	DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x, y - 12, text, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.4, DTA_ScaleY, 0.4, DTA_Alpha, alpha, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
@@ -144,7 +144,7 @@ static void GameText(double x, double y, const char* t, int shade, int align = -
 	x *= 2; y *= 2;
 	if (align != -1)
 		x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
+	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
@@ -152,7 +152,7 @@ static void MiniText(double x, double y, const char* t, int shade, int align = -
 	x *= 2; y *= 2;
 	if (align != -1)
 		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, 3, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
+	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 640, DTA_VirtualHeight, 400, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 //---------------------------------------------------------------------------
@@ -265,9 +265,9 @@ public:
 		if (clock == 0) S_PlayBonusMusic();
 		char tempbuf[32];
 		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		double scale = 0.36;
-		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
+		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
 			DTA_CenterOffsetRel, true, DTA_ScaleX, scale, DTA_ScaleY, 0.36, TAG_DONE);
 
 		GameText(160, 58, GStrings("Multiplayer Totals"), 0, 0);
@@ -470,7 +470,7 @@ public:
 		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
 		int totalclock = int(clock * 120 / 1'000'000'000);
-		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (lastmapname) BigText(80, 16, lastmapname, -1);
 		BigText(15, 192, GStrings("PRESSKEY"), -1);
@@ -534,7 +534,7 @@ public:
 	{
 		int totalclock = int(clock * 120 / 1'000'000'000);
 		auto tex = tileGetTexture(RRTILE8677 + ((totalclock >> 4) & 1));
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 		if (!S_CheckSoundPlaying(-1, 35) && totalclock > 15*120) return 0; // make sure it stays, even if sound is off.
 		if (skiprequest)
 		{
@@ -608,7 +608,7 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
-		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		int y = isRRRA()? 140 : 90;
 		BigText(160, y, (rec->flags & MI_USERMAP) ? GStrings("TXT_ENTRUM") : GStrings("TXT_ENTERIN"), 0);

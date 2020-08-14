@@ -335,12 +335,13 @@ DEFINE_ACTION_FUNCTION(_Screen, GetClipRect)
 }
 
 
-static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcwidth, double srcheight, int autoaspect, DoubleRect &rect)
+static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcwidth, double srcheight, int oautoaspect, DoubleRect &rect)
 {
 	auto GetWidth = [=]() { return parms->viewport.width; };
 	auto GetHeight = [=]() {return parms->viewport.height; };
 
-	if (autoaspect == 4)
+	int autoaspect = oautoaspect;
+	if (autoaspect == FSMode_ScaleToScreen)
 	{
 		rect.left = rect.top = 0;
 		rect.width = GetWidth();
@@ -354,23 +355,35 @@ static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcw
 	else aspect = srcwidth / srcheight;
 	rect.left = rect.top = 0;
 	auto screenratio = ActiveRatio(GetWidth(), GetHeight());
-	if (autoaspect == 3)
+	if (autoaspect == FSMode_ScaleToFit43 || autoaspect == FSMode_ScaleToFit43Top || autoaspect == FSMode_ScaleToFit43Bottom)
 	{
-		if (screenratio >= aspect || aspect < 1.4) autoaspect = 1; // screen is wider than the image -> pillarbox it. 4:3 images must also be pillarboxed if the screen is taller than the image
-		else if (screenratio > 1.32) autoaspect = 2;				// on anything 4:3 and wider crop the sides of the image.
+		// screen is wider than the image -> pillarbox it. 4:3 images must also be pillarboxed if the screen is taller than the image
+		if (screenratio >= aspect || aspect < 1.4) autoaspect = FSMode_ScaleToFit; 
+		else if (screenratio > 1.32) autoaspect = FSMode_ScaleToFill;				// on anything 4:3 and wider crop the sides of the image.
 		else
 		{
 			// special case: Crop image to 4:3 and then letterbox this. This avoids too much cropping on narrow windows.
 			double width4_3 = srcheight * (4. / 3.);
 			rect.width = (double)GetWidth() * srcwidth / width4_3;
 			rect.height = GetHeight() * screenratio * (3. / 4.);	// use 4:3 for the image
-			rect.top = (GetHeight() - rect.height) / 2;
 			rect.left = -(srcwidth - width4_3) / 2;
+			switch (oautoaspect)
+			{
+			default:
+				rect.top = (GetHeight() - rect.height) / 2;
+				break;
+			case FSMode_ScaleToFit43Top:
+				rect.top = 0;
+				break;
+			case FSMode_ScaleToFit43Bottom:
+				rect.top = (GetHeight() - rect.height);
+				break;
+			}
 			return;
 		}
 	}
 
-	if ((screenratio > aspect) ^ (autoaspect == 2))
+	if (autoaspect == FSMode_ScaleToHeight || (screenratio > aspect) ^ (autoaspect == FSMode_ScaleToFill))
 	{
 		// pillarboxed or vertically cropped (i.e. scale to height)
 		rect.height = GetHeight();
@@ -382,7 +395,18 @@ static void CalcFullscreenScale(F2DDrawer* drawer, DrawParms *parms, double srcw
 		// letterboxed or horizontally cropped (i.e. scale to width)
 		rect.width = GetWidth();
 		rect.height = GetHeight() * screenratio / aspect;
-		rect.top = (GetHeight() - rect.height) / 2;
+		switch (oautoaspect)
+		{
+		default:
+			rect.top = (GetHeight() - rect.height) / 2;
+			break;
+		case FSMode_ScaleToFit43Top:
+			rect.top = 0;
+			break;
+		case FSMode_ScaleToFit43Bottom:
+			rect.top = (GetHeight() - rect.height);
+			break;
+		}
 	}
 }
 
@@ -447,7 +471,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 			break;
 
 		case DTA_Base:
-			if (parms->fsscalemode != -1)
+			if (parms->fsscalemode > 0)
 			{
 				// First calculate the destination rect for an image of the given size and then reposition this object in it.
 				DoubleRect rect;
@@ -771,9 +795,9 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			
 		case DTA_FullscreenScale:
 			intval = ListGetInt(tags);
-			if (intval >= 0 && intval <= 4)
+			if (intval >= FSMode_None && intval < FSMode_Max)
 			{
-				parms->fsscalemode = (uint8_t)intval;
+				parms->fsscalemode = (int8_t)intval;
 			}
 			break;
 

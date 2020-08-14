@@ -128,6 +128,8 @@ void PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seco
         id = ID_TEXT;
     }
 
+	// Temporarily disabled because this uses a feature of the panel system that needs to be removed before this can be refactored.
+#if 0
     for (ndx = 0; (c = string[ndx]) != 0; ndx++)
     {
         ac = c - '!' + STARTALPHANUM;
@@ -145,6 +147,7 @@ void PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seco
         else if (c == asc_Space)
             offset += 4;                // Special case for space char
     }
+#endif
 }
 
 void KillString(PLAYERp pp, short y)

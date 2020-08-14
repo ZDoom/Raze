@@ -71,10 +71,12 @@ static struct {
 
 static void drawElement(int x, int y, int tile, double scale = 1, int flipx = 0, int flipy = 0, int pin = 0, int basepal = 0, double alpha = 1)
 {
-	DrawTexture(&twodpsp, tileGetTexture(tile), x, y, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_TopLeft, true, DTA_FlipOffsets, true,
-		DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ViewportX, gViewX0, DTA_ViewportY, gViewY0, DTA_Alpha, alpha,
-		DTA_ViewportWidth, gViewX1 - gViewX0 + 1, DTA_ViewportHeight, gViewY1 - gViewY0 + 1, DTA_Pin, pin, DTA_ScaleX, scale, DTA_ScaleY, scale,
-		DTA_TranslationIndex, TRANSLATION(Translation_Remap + basepal, 0), TAG_DONE);
+	int flags = RS_TOPLEFT;
+	if (flipx) flags |= RS_XFLIPHUD;
+	if (flipy) flags |= RS_YFLIPHUD;
+	if (pin == -1) flags |= RS_ALIGN_L;
+	else if (pin == 1) flags |= RS_ALIGN_R;
+	hud_drawsprite(x, y, int(scale*65536), 0, tile, 0, basepal, flags, alpha);
 }
 
 
@@ -103,7 +105,7 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double 
 		{
 			double crosshair_scale = cl_crosshairscale * .02;
 			DrawTexture(twod, tileGetTexture(kCrosshairTile), 160, defaultHoriz,
-				DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
+				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
 				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
 		}
 		double cX = 160;

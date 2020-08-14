@@ -71,7 +71,7 @@ void DDukeCommonStatusBar::displayfragbar(void)
 
 	auto tex = tileGetTexture(TILE_FRAGBAR);
 	for (int y = 0; y < 32; y += 8)
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, 3, DTA_ViewportWidth, 320, DTA_ViewportHeight, 200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_ViewportWidth, 320, DTA_ViewportHeight, 200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
 		
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{

@@ -42,8 +42,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "weapon.h"
 #include "menu.h"
 #include "raze_sound.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_SW_NS
+
 
 int InitSwordAttack(PLAYERp pp);
 PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
@@ -57,19 +59,6 @@ int InitNuke(PLAYERp pp);
 int InitGrenade(PLAYERp pp);
 int InitMine(PLAYERp pp);
 int InitFistAttack(PLAYERp pp);
-
-
-#pragma message("delete me")
-enum
-{
-    PANEL_BOX_Y = (174 - 6),
-
-};
-
-
-
-
-//#define UK_VERSION TRUE
 
 #define PANF_UZI_XFLIP (BIT(21))
 
@@ -186,27 +175,6 @@ SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id)
 
 
 // Used to sprites in the view at correct aspect ratio and x,y location.
-
-PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp, short pic, short pri, int x, int y)
-{
-    PANEL_SPRITEp nsp;
-
-    if ((nsp = pFindMatchingSprite(pp, x, y, pri)) == NULL)
-    {
-        nsp = pSpawnSprite(pp, NULL, pri, x, y);
-    }
-
-    nsp->numpages = numpages;
-    nsp->picndx = -1;
-    nsp->picnum = pic;
-    nsp->x1 = 0;
-    nsp->y1 = 0;
-    nsp->x2 = xdim - 1;
-    nsp->y2 = ydim - 1;
-    SET(nsp->flags, PANF_STATUS_AREA | PANF_SCREEN_CLIP);
-
-    return nsp;
-}
 
 void pSetSuicide(PANEL_SPRITEp psp)
 {
@@ -419,9 +387,6 @@ void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 
 void PlayerUpdateKills(PLAYERp pp, short value)
 {
-#define PANEL_KILLS_X 31
-#define PANEL_KILLS_Y 164
-
     if (Prediction)
         return;
 
@@ -6992,10 +6957,7 @@ pDisplaySprites(PLAYERp pp)
     uint8_t pal = 0;
     short ang;
     int flags;
-    int x1,y1,x2,y2;
-    PspTwoDSetter set;
 
-    set.clear();
     TRAVERSE(&pp->PanelSpriteList, psp, next)
     {
         ang = psp->rotate_ang;
@@ -7122,7 +7084,6 @@ pDisplaySprites(PLAYERp pp)
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
         if (TEST(psp->flags, PANF_WEAPON_SPRITE))
         {
-            set.set();
             SECT_USERp sectu = nullptr;
             int16_t floorshade = 0;
             if (pp->cursectnum >= 0)
@@ -7165,7 +7126,6 @@ pDisplaySprites(PLAYERp pp)
             if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
                 pal = 0;
         }
-        else set.clear();
 
         SET(flags, ROTATE_SPRITE_VIEW_CLIP);
 
@@ -7177,35 +7137,9 @@ pDisplaySprites(PLAYERp pp)
         if (TEST(psp->flags, PANF_CORNER))
             SET(flags, ROTATE_SPRITE_CORNER);
 
-        if (TEST(psp->flags, PANF_STATUS_AREA))
-        {
-            SET(flags,ROTATE_SPRITE_CORNER);
-            RESET(flags,ROTATE_SPRITE_VIEW_CLIP);
-
-            if (TEST(psp->flags, PANF_SCREEN_CLIP))
-                SET(flags, ROTATE_SPRITE_SCREEN_CLIP);
-
-            if (TEST(psp->flags, PANF_IGNORE_START_MOST))
-                SET(flags, ROTATE_SPRITE_IGNORE_START_MOST);
-
-            x1 = psp->x1;
-            y1 = psp->y1;
-            x2 = psp->x2;
-            y2 = psp->y2;
-            shade = psp->shade;
-        }
-        else
-        {
-            x1 = windowxy1.x;
-            y1 = windowxy1.y;
-            x2 = windowxy2.x;
-            y2 = windowxy2.y;
-        }
-
         if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))
         {
-            // this is what you have to do to x-flip
-            ang = NORM_ANGLE(ang + 1024);
+			// Build has no xflip, so it uses yflip plus rotation. We don't need the rotation here.
             SET(flags, ROTATE_SPRITE_YFLIP);
         }
 
@@ -7252,19 +7186,16 @@ pDisplaySprites(PLAYERp pp)
             case BLOODYFIST3_SWING0:
             case BLOODYFIST3_SWING1:
             case BLOODYFIST3_SWING2:
-                if (TEST(flags, BIT(2)) && x > 160)
+                if (TEST(flags, ROTATE_SPRITE_YFLIP) && x > 160)
                     x = 65;
-                else if (!TEST(flags, BIT(2)) && x < 160)
+                else if (!TEST(flags, ROTATE_SPRITE_YFLIP) && x < 160)
                     x = 345;
                 break;
             default:
                 break;
         }
 
-        rotatesprite(x << 16, y << 16,
-                     psp->scale, ang,
-                     picnum, shade, pal,
-                     flags, x1, y1, x2, y2);
+		hud_drawsprite(x, y, psp->scale, ang, picnum, shade, pal, flags);
 
         // do overlays (if any)
         for (i = 0; i < SIZ(psp->over); i++)
@@ -7284,10 +7215,7 @@ pDisplaySprites(PLAYERp pp)
 
             if (picnum)
             {
-                rotatesprite((x + psp->over[i].xoff) << 16, (y + psp->over[i].yoff) << 16,
-                             psp->scale, ang,
-                             picnum, overlay_shade, pal,
-                             flags, x1, y1, x2, y2);
+                hud_drawsprite((x + psp->over[i].xoff), (y + psp->over[i].yoff), psp->scale, ang, picnum, overlay_shade, pal, flags);
             }
         }
     }

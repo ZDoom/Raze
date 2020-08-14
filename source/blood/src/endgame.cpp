@@ -64,7 +64,7 @@ static void drawTextScreenBackground(void)
     {
         if (yxaspect >= 65536)
         {
-            DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+            DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
         }
         else
         {
@@ -84,7 +84,7 @@ static void drawTextScreenBackground(void)
     }
     else
     {
-        DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+        DrawTexture(twod, tileGetTexture(kLoadScreen), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
     }
 }
 

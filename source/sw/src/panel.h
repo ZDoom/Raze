@@ -79,7 +79,6 @@ struct PANEL_STATEstruct
 #define PANF_INVISIBLE       (BIT(9)) // turn invisible
 #define PANF_DEATH_HIDE      (BIT(10)) // hide done when dead
 #define PANF_SCREEN_CLIP     (BIT(12)) // maintain aspect to the screen
-#define PANF_STATUS_AREA     (BIT(13)) // maintain aspect to the screen
 #define PANF_IGNORE_START_MOST (BIT(14)) // maintain aspect to the screen
 #define PANF_XFLIP           (BIT(15)) // xflip
 #define PANF_SUICIDE         (BIT(16)) // kill myself
@@ -184,7 +183,6 @@ enum BorderTypes
 #define SHOTGUN_AUTO 2078
 
 PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y);
-PANEL_SPRITEp pSpawnFullViewSprite(PLAYERp pp,short pic,short pri,int x,int y);
 void pSetSuicide(PANEL_SPRITEp psp);
 SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
 void PreUpdatePanel(void);

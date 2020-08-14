@@ -25,6 +25,21 @@ enum tags : uint32_t
 
 enum
 {
+	FSMode_None = 0,
+	FSMode_ScaleToFit = 1,
+	FSMode_ScaleToFill = 2,
+	FSMode_ScaleToFit43 = 3,
+	FSMode_ScaleToScreen = 4,
+	FSMode_ScaleToFit43Top = 5,
+	FSMode_ScaleToFit43Bottom = 6,
+	FSMode_ScaleToHeight = 7,
+
+
+	FSMode_Max
+};
+
+enum
+{
 	DTA_Base = TAG_USER + 5000,
 	DTA_DestWidth,		// width of area to draw to
 	DTA_DestHeight,		// height of area to draw to

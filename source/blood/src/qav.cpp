@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "qav.h"
 #include "sound.h"
 #include "v_draw.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS
 
@@ -50,31 +51,35 @@ void DrawFrame(F2DDrawer *twod, double x, double y, TILE_FRAME *pTile, int stat,
     stat |= pTile->stat;
 	x += pTile->x;
 	y += pTile->y;
-	auto tex = tileGetTexture(pTile->picnum);
-	double scale = pTile->z/65536.;
-	double angle = pTile->angle * (360./2048);
-	int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
-	double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
-	int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
-    if (palnum <= 0) palnum = pTile->palnum;
-	auto translation = TRANSLATION(Translation_Remap + basepal, palnum);
-	bool topleft = !!(stat & RS_TOPLEFT);
-
-	bool xflip = !!(stat & 0x100); // repurposed flag
-	bool yflip = !!(stat & RS_YFLIP);
-	auto color = shadeToLight(pTile->shade + shade);
 
     if (!to3dview)
     {
+		auto tex = tileGetTexture(pTile->picnum);
+		double scale = pTile->z/65536.;
+		double angle = pTile->angle * (360./2048);
+		int renderstyle = (stat & RS_NOMASK)? STYLE_Normal : STYLE_Translucent;
+		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
+		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
+		if (palnum <= 0) palnum = pTile->palnum;
+		auto translation = TRANSLATION(Translation_Remap + basepal, palnum);
+		bool topleft = !!(stat & RS_TOPLEFT);
+
+		bool xflip = !!(stat & 0x100); // repurposed flag
+		bool yflip = !!(stat & RS_YFLIP);
+		auto color = shadeToLight(pTile->shade + shade);
+
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
 					DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
     }
     else
     {
-		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
-					DTA_FlipX, xflip, DTA_FlipY, yflip, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x+1, DTA_ViewportHeight, windowxy2.y - windowxy1.y+1, TAG_DONE);
+		if (stat & RS_YFLIP) stat |= RS_YFLIPHUD;
+		stat &= ~RS_YFLIP;
+		if (stat & 0x100) stat |= RS_XFLIPHUD;
+		if ((stat & kQavOrientationLeft)) stat |= RS_ALIGN_L;
+
+		hud_drawsprite(x, y, pTile->z, pTile->angle, pTile->picnum, shade, palnum, stat);
     }
 }
 

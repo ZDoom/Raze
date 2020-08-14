@@ -76,7 +76,7 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	if (!tex) return 0;
 	int span = int(clock / 1'000'000);
 	twod->ClearScreen();
-	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, 3, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 	// Only end after having faded out.
 	return skiprequest ? -1 : span > waittime? 0 : 1;
 }
@@ -137,7 +137,7 @@ public:
 		if (totalclock < ototalclock - 1)
 		{
 			twod->ClearScreen();
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
+			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 			if (skiprequest) soundEngine->StopAllChannels();
 			return skiprequest? -1 : 1;
 		}
@@ -146,7 +146,7 @@ public:
 		frametime = totalclock;
 
 		twod->ClearScreen();
-		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, DTA_Masked, false, TAG_DONE);
+		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
 
 		int delay = 20;
 		if (frameTicks)
@@ -210,7 +210,7 @@ public:
 		if (failed) return -1;
 		bool playon = decoder.RunFrame(clock);
 		twod->ClearScreen();
-		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+		DrawTexture(twod, decoder.animTex().GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 
 		return skiprequest ? -1 : playon ? 1 : 0;
 	}
@@ -285,7 +285,7 @@ public:
 		}
 		if (fullscreenScale)
 		{
-			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
 		}
 		else
 		{

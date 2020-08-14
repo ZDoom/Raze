@@ -874,7 +874,7 @@ static void gameTicker()
 static void drawBackground()
 {
     twod->ClearScreen();
-	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, 3, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
     if (gQuitRequest && !gQuitGame)
         netBroadcastMyLogoff(gQuitRequest == 2);
 }
