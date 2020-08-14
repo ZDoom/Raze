@@ -1682,9 +1682,9 @@ void movetransports_r(void)
 	short i, j, k, p, sect, sectlotag, nexti, nextj;
 	int ll2, ll, onfloorz;
 
-	i = headspritestat[STAT_TRANSPORT]; //Transporters
+	 //Transporters
 
-	while (i >= 0)
+	for (i = headspritestat[STAT_TRANSPORT]; i >= 0; i = nexti)
 	{
 		sect = sprite[i].sectnum;
 		sectlotag = sector[sect].lotag;
@@ -1695,7 +1695,6 @@ void movetransports_r(void)
 		auto PN = sprite[i].picnum;
 		if (OW == i)
 		{
-			i = nexti;
 			continue;
 		}
 
@@ -1703,8 +1702,7 @@ void movetransports_r(void)
 
 		if (hittype[i].temp_data[0] > 0) hittype[i].temp_data[0]--;
 
-		j = headspritesect[sect];
-		while (j >= 0)
+		for (j = headspritesect[sect]; j >= 0; j = nextj)
 		{
 			nextj = nextspritesect[j];
 
@@ -1857,7 +1855,7 @@ void movetransports_r(void)
 			case STAT_ACTOR:
 				if (PN == SHARK ||
 					(isRRRA() && (PN == CHEERBOAT || PN == HULKBOAT || PN == MINIONBOAT || PN == UFO1_RRRA)) ||
-					(!isRRRA() && (PN == UFO1_RR || PN == UFO2 || PN == UFO3 || PN == UFO4 || PN == UFO5))) goto JBOLT;
+					(!isRRRA() && (PN == UFO1_RR || PN == UFO2 || PN == UFO3 || PN == UFO4 || PN == UFO5))) continue;
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
@@ -1923,7 +1921,7 @@ void movetransports_r(void)
 					case BURNING:
 					case FIRE:
 					case MUD:
-						goto JBOLT;
+						continue;
 					case PLAYERONWATER:
 						if (sectlotag == ST_2_UNDERWATER)
 						{
@@ -2058,10 +2056,7 @@ void movetransports_r(void)
 				break;
 
 			}
-		JBOLT:
-			j = nextj;
 		}
-		i = nexti;
 	}
 }
 
