@@ -222,7 +222,7 @@ void MNU_DrawStringLarge(short x, short y, const char *string, int shade)
             continue;
         }
 
-        rotatesprite(offset << 16, y << 16, MZ, 0, pic, shade, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+        rotatesprite(offset << 16, y << 16, MZ, 0, pic, shade, 0, MenuDrawFlags|RS_TOPLEFT, 0, 0, xdim - 1, ydim - 1);
         offset += tilesiz[pic].x + 1;
     }
 

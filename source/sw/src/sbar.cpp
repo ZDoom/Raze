@@ -730,7 +730,7 @@ class DSWStatusBar : public DBaseStatusBar
         DrawGraphic(tileGetTexture(MINI_BAR_HEALTH_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
         x = MINI_BAR_HEALTH_BOX_X + 3;
-        DisplayMiniBarNumber(x, y + 5, u->Health);
+        DisplayPanelNumber(x, y + 5, u->Health);
 
         if (u->WeaponNum != WPN_SWORD && u->WeaponNum != WPN_FIST)
         {
@@ -738,7 +738,7 @@ class DSWStatusBar : public DBaseStatusBar
             DrawGraphic(tileGetTexture(MINI_BAR_AMMO_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
             x = MINI_BAR_AMMO_BOX_X + 3;
-            DisplayMiniBarNumber(x, y + 5, pp->WpnAmmo[u->WeaponNum]);
+            DisplayPanelNumber(x, y + 5, pp->WpnAmmo[u->WeaponNum]);
         }
 
         if (!pp->InventoryAmount[pp->InventoryNum])

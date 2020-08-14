@@ -124,7 +124,7 @@ extern int sw_snd_scratch;
 #define STAT_SCREEN_PIC 5114
 #define TITLE_PIC 2324
 #define THREED_REALMS_PIC 2325
-#define TITLE_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
+#define TITLE_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 #define PAL_SIZE (256*3)
 
 char DemoName[15][16];
@@ -165,11 +165,9 @@ SWBOOL MultiPlayQuitFlag = FALSE;
 //Miscellaneous variables
 char MessageInputString[256];
 char MessageOutputString[256];
-SWBOOL MessageInputMode = FALSE;
 SWBOOL ConInputMode = FALSE;
 SWBOOL ConPanel = FALSE;
 SWBOOL FinishedLevel = FALSE;
-SWBOOL HelpInputMode = FALSE;
 SWBOOL PanelUpdateMode = TRUE;
 short HelpPage = 0;
 short HelpPagePic[] = { 5115, 5116, 5117 };

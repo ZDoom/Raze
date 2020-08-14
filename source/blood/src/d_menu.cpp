@@ -96,15 +96,7 @@ void CGameMenuItemQAV::Draw(void)
 			at2c = data->at10;
 		}
 		data->Play(data->at10 - at2c - nTicks, data->at10 - at2c, -1, NULL);
-		int wx1, wy1, wx2, wy2;
-		wx1 = windowxy1.x;
-		wy1 = windowxy1.y;
-		wx2 = windowxy2.x;
-		wy2 = windowxy2.y;
-		windowxy1.x = 0;
-		windowxy1.y = 0;
-		windowxy2.x = xdim - 1;
-		windowxy2.y = ydim - 1;
+
 		if (bWideScreen)
 		{
 			int xdim43 = scale(ydim, 4, 3);
@@ -120,10 +112,6 @@ void CGameMenuItemQAV::Draw(void)
 		else
 			data->Draw(data->at10 - at2c, 10, 0, 0, 0, false);
 
-		windowxy1.x = wx1;
-		windowxy1.y = wy1;
-		windowxy2.x = wx2;
-		windowxy2.y = wy2;
 		gFrameClock = backFC;
 	}
 }

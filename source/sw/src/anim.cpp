@@ -221,6 +221,13 @@ void AnimZilla(int frame, int numframes)
     }
 }
 
+// Used nowhere else anymore, will go away with the rest of this file.
+static void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                                   int8_t dashade, uint8_t dapalnum, int32_t dastat, FGameTexture* pic = nullptr, int basepal = 0)
+{
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1, pic, basepal);
+}
+
 void
 playanm(short anim_num)
 {

@@ -229,8 +229,6 @@ void operatefta(void)
     j=MESSAGE_LINE; // Base line position on screen
     quotebot = min(quotebot,j);
     quotebotgoal = min(quotebotgoal,j);
-    if (MessageInputMode)
-        j -= 6; // Bump all lines up one to make room for new line
     quotebotgoal = j;
     j = quotebot;
 
@@ -275,7 +273,7 @@ void addconquote(const char *daquote)
     strcpy(con_quote[0],daquote);
 }
 
-#define CON_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
+#define CON_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 void operateconfta(void)
 {
     int i, j;

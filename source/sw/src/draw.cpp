@@ -66,7 +66,6 @@ extern char buffer[];
 SWBOOL DrawScreen;
 extern short f_c;
 
-extern SWBOOL HelpInputMode;
 extern short HelpPage;
 extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
@@ -1465,34 +1464,6 @@ void DrawCheckKeys(PLAYERp pp)
         ResizeView(pp);
 }
 
-void DrawMessageInput(void)
-{
-    short w,h;
-    static SWBOOL cur_show;
-    short c;
-
-    // Used to make cursor fade in and out
-    c = 4-(sintable[((int32_t) totalclock<<4)&2047]>>11);
-
-    if (MessageInputMode)
-    {
-        MNU_MeasureSmallString(MessageInputString, &w, &h);
-
-        cur_show ^= 1;
-        if (cur_show)
-        {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
-        }
-        else
-        {
-            minigametext(TEXT_XCENTER(w), MESSAGE_LINE, MessageInputString,ROTATE_SPRITE_SCREEN_CLIP);
-            rotatesprite((TEXT_XCENTER(w)+w+2)<<16,(MESSAGE_LINE+1)<<16,20000,0,COINCURSOR+(((int32_t) totalclock>>3)%7),c,0,ROTATE_SPRITE_SCREEN_CLIP,0,0,xdim-1,ydim-1);
-        }
-    }
-}
-
-
 void DrawCrosshair(PLAYERp pp)
 {
     extern SWBOOL DemoMode,CameraTestMode;
@@ -1513,11 +1484,8 @@ void DrawCrosshair(PLAYERp pp)
 //NORMALXHAIR:
         rotatesprite(160<<16, 100<<16, (1 << 16), 0,
                      2326, 10, 0,
-                     ROTATE_SPRITE_VIEW_CLIP, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+                     0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
     }
-
-    //#define TITLE_ROT_FLAGS (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
-
 }
 
 void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t *tq16ang, fix16_t *tq16horiz)
@@ -1890,35 +1858,6 @@ drawscreen(PLAYERp pp)
 
     int const viewingRange = viewingrange;
 
-    if (HelpInputMode)
-    {
-        renderFlushPerms();
-        // note - could put Order Info Pages at the top like this also
-
-        rotatesprite(0,0,65536L,0,HelpPagePic[HelpPage],0,0,
-                     (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
-                     0, 0, xdim-1, ydim-1);
-        videoNextPage();
-
-        return;
-    }
-
-#if 0
-    if (TenScreenMode)
-    {
-#define TEN_PIC 5109
-
-        renderFlushPerms();
-        // note - could put Order Info Pages at the top like this also
-        rotatesprite(0,0,65536L,0,TEN_PIC,0,0,
-                     (ROTATE_SPRITE_CORNER|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK|ROTATE_SPRITE_IGNORE_START_MOST),
-                     0, 0, xdim-1, ydim-1);
-
-        videoNextPage();
-        return;
-    }
-#endif
-
     DrawScreen = TRUE;
     PreDraw();
     // part of new border refresh method
@@ -2208,8 +2147,6 @@ drawscreen(PLAYERp pp)
 
     // Boss Health Meter, if Boss present
     BossHealthMeter();
-
-    DrawMessageInput();   // This is only used for non-multiplayer input now
 
 	if (!M_Active())
     SecretInfo(pp);

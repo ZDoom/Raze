@@ -227,7 +227,6 @@ y++
 //////////////////////////////////////////////////////
 
 extern SWBOOL MenuInputMode;
-extern SWBOOL MessageInputMode;
 extern SWBOOL ConInputMode;
 extern SWBOOL ConPanel;
 extern SWBOOL InputMode;
@@ -586,15 +585,8 @@ EDUKE32_STATIC_ASSERT(isPow2(MAXSECTORS));
 #define OVER_SPRITE_YFLIP       (BIT(4))
 
 // rotatesprite flags
-#define ROTATE_SPRITE_TRANSLUCENT   (BIT(0))
-#define ROTATE_SPRITE_VIEW_CLIP     (BIT(1)) // clip to view
-#define ROTATE_SPRITE_YFLIP         (BIT(2))
-#define ROTATE_SPRITE_IGNORE_START_MOST (BIT(3)) // don't clip to startumost
 #define ROTATE_SPRITE_SCREEN_CLIP   (BIT(1)|BIT(3)) // use window
-#define ROTATE_SPRITE_CORNER        (BIT(4)) // place sprite from upper left corner
-#define ROTATE_SPRITE_TRANS_FLIP    (BIT(5))
 #define ROTATE_SPRITE_NON_MASK      (BIT(6)) // non masked sprites
-#define ROTATE_SPRITE_ALL_PAGES     (BIT(7)) // copies to all pages
 
 #define RS_SCALE                    BIT(16)
 

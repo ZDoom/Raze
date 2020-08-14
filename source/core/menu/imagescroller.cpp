@@ -71,7 +71,8 @@ void ImageScreen::Drawer()
 		else tileindex = *tileindexp;
 		if (!gi->DrawSpecialScreen(origin, tileindex)) // allows the front end to do custom handling for a given image.
 		{
-			rotatesprite_fs(int(origin.X * 65536) + (160 << 16), int(origin.Y * 65536) + (100 << 16), 65536L, 0, tileindex, 0, 0, 10 + 64);
+			DrawTexture(twod, tileGetTexture(tileindex), origin.X, origin.Y, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+						DTA_TopLeft, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		}
 	}
 	else if (mDesc->type > 0)

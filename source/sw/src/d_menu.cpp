@@ -257,7 +257,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	short w, h;
 	// Draw the backdrop bar
 	rotatesprite(10 << 16, (5-3) << 16, 65536, 0, 2427,
-				 2, 0, MenuDrawFlags|ROTATE_SPRITE_CORNER, 0, 0, xdim - 1, ydim - 1);
+				 2, 0, MenuDrawFlags|RS_TOPLEFT, 0, 0, xdim - 1, ydim - 1);
 	MNU_MeasureStringLarge(text, &w, &h);
 	MNU_DrawStringLarge(TEXT_XCENTER(w), 5, text, 1);
 }

@@ -2494,7 +2494,7 @@ MoveScrollMode2D(PLAYERp pp)
     int32_t keymove;
     int32_t momx, momy;
     static int mfvel=0, mfsvel=0;
-    extern SWBOOL HelpInputMode, ScrollMode2D;
+    extern SWBOOL ScrollMode2D;
 
 
     CONTROL_GetInput(&scrl_input);
@@ -2538,7 +2538,7 @@ MoveScrollMode2D(PLAYERp pp)
         keymove = NORMALKEYMOVE;
     }
 
-    if (!HelpInputMode && !ConPanel)
+    if (!ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
         {
@@ -2550,7 +2550,7 @@ MoveScrollMode2D(PLAYERp pp)
         }
     }
 
-    if (!InputMode && !ConPanel)
+    if (!ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
         {
@@ -2563,7 +2563,7 @@ MoveScrollMode2D(PLAYERp pp)
         }
     }
 
-    if (!HelpInputMode && !ConPanel)
+    if (!ConPanel)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
         {
@@ -7645,10 +7645,9 @@ void PlayerTimers(PLAYERp pp)
 
 void ChopsCheck(PLAYERp pp)
 {
-    extern SWBOOL HelpInputMode;
     extern int ChopTics;
 
-    if (!M_Active() && !HelpInputMode && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
+    if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.q16angvel|pp->input.q16aimvel) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))

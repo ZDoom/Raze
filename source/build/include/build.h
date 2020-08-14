@@ -698,24 +698,6 @@ static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2, pic, basepal);
 }
-// Don't clip at all, i.e. the whole screen real estate is available:
-static FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                   int8_t dashade, uint8_t dapalnum, int32_t dastat, FGameTexture* pic = nullptr, int basepal = 0)
-{
-    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1, pic, basepal);
-}
-
-static FORCE_INLINE void rotatesprite_fs_alpha(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                  int8_t dashade, uint8_t dapalnum, int32_t dastat, uint8_t alpha)
-{
-    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, alpha, 0, 0, 0, xdim-1, ydim-1);
-}
-
-static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                                    int8_t dashade, uint8_t dapalnum, int32_t dastat)
-{
-    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
-}
 
 void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));

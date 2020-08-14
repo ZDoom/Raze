@@ -7106,7 +7106,7 @@ pDisplaySprites(PLAYERp pp)
 
             if (pp->InventoryActive[INVENTORY_CLOAK])
             {
-                SET(flags, ROTATE_SPRITE_TRANSLUCENT);
+                SET(flags, RS_TRANS1);
             }
 
             //shade = overlay_shade = DIV2(sector[pp->cursectnum].floorshade + sector[pp->cursectnum].ceilingshade);
@@ -7127,20 +7127,17 @@ pDisplaySprites(PLAYERp pp)
                 pal = 0;
         }
 
-        SET(flags, ROTATE_SPRITE_VIEW_CLIP);
-
         if (TEST(psp->flags, PANF_TRANSLUCENT))
-            SET(flags, ROTATE_SPRITE_TRANSLUCENT);
+            SET(flags, RS_TRANS1);
 
         SET(flags, TEST(psp->flags, PANF_TRANS_FLIP));
 
         if (TEST(psp->flags, PANF_CORNER))
-            SET(flags, ROTATE_SPRITE_CORNER);
+            SET(flags, RS_TOPLEFT);
 
         if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))
         {
-			// Build has no xflip, so it uses yflip plus rotation. We don't need the rotation here.
-            SET(flags, ROTATE_SPRITE_YFLIP);
+            SET(flags, RS_XFLIPHUD);
         }
 
         // shading
@@ -7186,9 +7183,9 @@ pDisplaySprites(PLAYERp pp)
             case BLOODYFIST3_SWING0:
             case BLOODYFIST3_SWING1:
             case BLOODYFIST3_SWING2:
-                if (TEST(flags, ROTATE_SPRITE_YFLIP) && x > 160)
+                if (TEST(flags, RS_XFLIPHUD) && x > 160)
                     x = 65;
-                else if (!TEST(flags, ROTATE_SPRITE_YFLIP) && x < 160)
+                else if (!TEST(flags, RS_XFLIPHUD) && x < 160)
                     x = 345;
                 break;
             default:
