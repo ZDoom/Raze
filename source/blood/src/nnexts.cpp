@@ -4813,12 +4813,13 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, i
         if (!(pSprite->flags & kModernTypeFlag1)) {
 
             pQAV->x = int(a3); pQAV->y = int(a4);
-            pQAV->Draw(&twodpsp, a3, a4, v4, flags, a2, a5, basepal, true);
+            pQAV->Draw(a3, a4, v4, flags, a2, a5, basepal, true);
 
             // draw fullscreen (currently 4:3 only)
         } else {
-            // What an awful hack... :?
-            pQAV->Draw(&twodpsp, v4, flags, a2, a5, basepal, false);
+            // What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
+			// From the above commit it seems to be incomplete anyway...
+            pQAV->Draw(v4, flags, a2, a5, basepal, false);
         }
 
     }

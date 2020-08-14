@@ -67,7 +67,9 @@ void CChoke::sub_84110(int x, int y, int basepal)
         atc = at8->at10;
     int vdi = at8->at10-atc;
     at8->Play(vdi-vd, vdi, -1, NULL);
-    at8->Draw(&twodpsp, vdi, 10, 0, 0, basepal, false);
+	// This originally overlaid the HUD but that simply doesn't work right with the HUD being a genuine overlay.
+	// It also never adjusted for a reduced 3D view
+    at8->Draw(vdi, 10, 0, 0, basepal, true);
     gFrameClock = v4;
 }
 

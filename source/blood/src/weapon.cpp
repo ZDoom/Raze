@@ -252,7 +252,7 @@ void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5, int basep
         a2 = -128;
         flags |= 1;
     }
-    pQAV->Draw(&twodpsp, a3, a4, v4, flags, a2, a5, basepal, true);
+    pQAV->Draw(a3, a4, v4, flags, a2, a5, basepal, true);
 }
 
 void WeaponPlay(PLAYER *pPlayer)
