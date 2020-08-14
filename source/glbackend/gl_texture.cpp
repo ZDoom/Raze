@@ -50,8 +50,22 @@
 //
 //===========================================================================
 
+// Test CVARs.
+#ifdef _DEBUG
+CVAR(Int, fixpalette, -1, 0)
+CVAR(Int, fixpalswap, -1, 0)
+#endif
+
 bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sampler)
 {
+#ifdef _DEBUG
+	int basepal = GetTranslationType(paletteid) - Translation_Remap;
+	int translation = GetTranslationIndex(paletteid);
+	int usepalette = fixpalette >= 0 ? fixpalette : basepal;
+	int usepalswap = fixpalswap >= 0 ? fixpalswap : translation;
+	paletteid = TRANSLATION(Translation_Remap + usepalette, usepalswap);
+#endif
+
 	TexturePick texpick;
 	if (!PickTexture(picnum, tex, paletteid, texpick)) return false;
 

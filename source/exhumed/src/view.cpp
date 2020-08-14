@@ -242,7 +242,6 @@ static void analyzesprites()
 void ResetView()
 {
     //videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
-    DoOverscanSet(overscanindex);
     EraseScreen(overscanindex);
     //videoUpdatePalette(0, 256);
 #ifdef USE_OPENGL

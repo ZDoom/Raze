@@ -2546,7 +2546,6 @@ void DoTitle()
     if (videoGetRenderMode() == REND_CLASSIC)
         FadeOut(0);
 
-    SetOverscan(BASEPAL);
     GrabPalette();
 
     PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);

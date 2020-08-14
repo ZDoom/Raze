@@ -1207,7 +1207,6 @@ void LogoLevel(void)
 
     twod->ClearScreen();
     videoNextPage();
-    videoSetPalette(BASEPAL);
 
     // put up a blank screen while loading
 

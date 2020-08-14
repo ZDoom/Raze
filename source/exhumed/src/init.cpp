@@ -184,8 +184,6 @@ uint8_t LoadLevel(int nMap)
 
 void ResetEngine()
 {
-    SetOverscan(BASEPAL);
-
     EraseScreen(-1);
 
     resettiming();

@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void MyLoadPalette();
 int LoadPaletteLookups();
 void WaitVBL();
 void SetGreenPal();
@@ -32,9 +31,6 @@ void FixPalette();
 void FadeToWhite();
 int HavePLURemap();
 uint8_t RemapPLU(uint8_t pal);
-
-extern void DoOverscanSet(short someval);
-void SetOverscan(int id);
 
 //extern unsigned char kenpal[];
 extern short overscanindex;

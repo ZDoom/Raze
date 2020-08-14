@@ -430,7 +430,6 @@ int GameInterface::app_main()
 	enginePostInit();
 	videoInit();
 	updateviewport();
-	videoSetPalette(BASEPAL);
 	app_loop();
 	return 0;
 }

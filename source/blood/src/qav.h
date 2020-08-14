@@ -81,8 +81,8 @@ struct QAV
     //SPRITE *pSprite; // 1c
     char pad3[4]; // 20
     FRAMEINFO frames[1]; // 24
-    void Draw(int ticks, int stat, int shade, int palnum, int basepal, bool inviewport);
-    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, int basepal, bool inviewport);
+    void Draw(int ticks, int stat, int shade, int palnum, bool in3dscene);
+    void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool in3dscene);
     void Play(int, int, int, void *);
     void Preload(void);
     void Precache(void);

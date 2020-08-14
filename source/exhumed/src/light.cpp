@@ -62,22 +62,6 @@ int bGreenPal = 0;
 // keep a local copy of the palette that would have been sent to the VGA display adapter
 uint8_t vgaPalette[768];
 
-
-void MyLoadPalette()
-{
-    //int hFile = kopen4load("PALETTE.DAT", 1);
-    //if (hFile == -1)
-    //{
-    //    Printf("Error reading palette 'PALETTE.DAT'\n");
-    //    return;
-    //}
-    //
-    //kread(hFile, kenpal, sizeof(kenpal));
-    //kclose(hFile);
-    videoSetPalette(BASEPAL);
-    SetOverscan(BASEPAL);
-}
-
 int LoadPaletteLookups()
 {
     uint8_t buffer[256*64];
@@ -163,10 +147,6 @@ void WaitVBL()
 
 void GrabPalette()
 {
-    SetOverscan(BASEPAL);
-
-    videoSetPalette(BASEPAL);
-
     nPalDiff  = 0;
     nPalDelay = 0;
 
@@ -183,7 +163,6 @@ void BlackOut()
 
 void RestorePalette()
 {
-    videoSetPalette(BASEPAL);
     videoTintBlood(0, 0, 0);
 }
 
@@ -368,17 +347,5 @@ void TintPalette(int r, int g, int b)
     nPalDelay = 0;
 }
 
-void DoOverscanSet(short someval)
-{
-}
 
-// unused
-void SetWhiteOverscan()
-{
-
-}
-
-void SetOverscan(int id)
-{
-}
 END_PS_NS

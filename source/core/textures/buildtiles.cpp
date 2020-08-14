@@ -993,9 +993,6 @@ void tileCopySection(int tilenum1, int sx1, int sy1, int xsiz, int ysiz, int til
 //
 //===========================================================================
 
-// Test CVARs.
-CVAR(Int, fixpalette, -1, 0)
-CVAR(Int, fixpalswap, -1, 0)
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick)
 {
@@ -1004,13 +1001,11 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
 	pick.texture = tex;
-	int curbasepal = GetTranslationType(paletteid) - Translation_Remap;
-	int palette = GetTranslationIndex(paletteid);
-	int usepalette = fixpalette >= 0 ? fixpalette : curbasepal;
-	int usepalswap = fixpalswap >= 0 ? fixpalswap : palette;
+	int usepalette = GetTranslationType(paletteid) - Translation_Remap;
+	int usepalswap = GetTranslationIndex(paletteid);
 	int TextureType = hw_int_useindexedcolortextures && picnum >= 0 ? TT_INDEXED : TT_TRUECOLOR;
 
-	pick.translation = TRANSLATION(usepalette + Translation_Remap, usepalswap);
+	pick.translation = paletteid;
 	pick.basepalTint = 0xffffff;
 
 	auto& h = lookups.tables[usepalswap];

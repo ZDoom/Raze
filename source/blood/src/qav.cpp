@@ -46,7 +46,7 @@ int qavRegisterClient(void(*pClient)(int, void *))
     return nClients++;
 }
 
-void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, int basepal, bool to3dview)
+void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int palnum, bool to3dview)
 {
     stat |= pTile->stat;
 	x += pTile->x;
@@ -61,7 +61,7 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
 		double alpha = (stat & RS_TRANS1)? glblend[0].def[!!(stat & RS_TRANS2)].alpha : 1.;
 		int pin = (stat & kQavOrientationLeft)? -1 : (stat & RS_ALIGN_R)? 1:0;
 		if (palnum <= 0) palnum = pTile->palnum;
-		auto translation = TRANSLATION(Translation_Remap + basepal, palnum);
+		auto translation = TRANSLATION(Translation_Remap, palnum);
 		bool topleft = !!(stat & RS_TOPLEFT);
 
 		bool xflip = !!(stat & 0x100); // repurposed flag
@@ -83,7 +83,7 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
     }
 }
 
-void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
+void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview)
 {
     dassert(ticksPerFrame > 0);
     int nFrame = ticks / ticksPerFrame;
@@ -92,13 +92,13 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, i
     for (int i = 0; i < 8; i++)
     {
         if (pFrame->tiles[i].picnum > 0)
-            DrawFrame(x, y, &pFrame->tiles[i], stat, shade, palnum, basepal, to3dview);
+            DrawFrame(x, y, &pFrame->tiles[i], stat, shade, palnum, to3dview);
     }
 }
 
-void QAV::Draw(int ticks, int stat, int shade, int palnum, int basepal, bool to3dview)
+void QAV::Draw(int ticks, int stat, int shade, int palnum, bool to3dview)
 {
-    Draw(x, y, ticks, stat, shade, palnum, basepal, to3dview);
+    Draw(x, y, ticks, stat, shade, palnum, to3dview);
 }
 
 
