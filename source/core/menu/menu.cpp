@@ -1084,14 +1084,7 @@ CCMD(reset2saved)
 CCMD(menu_main)
 {
 	M_StartControlPanel(true);
-	M_SetMenu(NAME_Mainmenu, -1);
-}
-
-CCMD(openmainmenu)
-{
-	//gi->ClearSoundLocks();
-	M_StartControlPanel(true);
-	M_SetMenu(NAME_IngameMenu);
+	M_SetMenu(gi->CanSave() ? NAME_IngameMenu : NAME_Mainmenu, -1);
 }
 
 CCMD(openhelpmenu)

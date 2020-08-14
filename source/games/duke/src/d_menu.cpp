@@ -269,15 +269,10 @@ void GameInterface::MenuClosed()
 
 bool GameInterface::CanSave()
 {
-	if (ud.recstat == 2) return false;
+	if (ud.recstat == 2 || gamestate != GS_LEVEL) return false;
 	auto &myplayer = ps[myconnectindex];
-	if (sprite[myplayer.i].extra <= 0)
-	{
-		//P_DoQuote(QUOTE_SAVE_DEAD, &myplayer); // handled by the menu.
-		return false;
+	return (sprite[myplayer.i].extra > 0);
 	}
-	return true;
-}
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
