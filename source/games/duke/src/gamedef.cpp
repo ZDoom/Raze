@@ -1979,7 +1979,7 @@ void loadcons()
 		auto maprec1 = FindMapByLevelNum(levelnum(1, 6));
 		auto maprec2 = FindMapByLevelNum(levelnum(1, 7));
 		auto maprec3 = FindMapByName("endgame");
-		int num3 = fileSystem.CheckNumForName("endgame.map");
+		int num3 = fileSystem.FindFile("endgame.map");
 		if (maprec1 && !maprec2 && !maprec3 && num3 >= 0)
 		{
 			auto maprec = AllocateMap();
