@@ -3688,7 +3688,6 @@ void PolymostProcessVoxels(void)
     g_haveVoxels = 2;
 
     Printf("Generating voxel models for Polymost. This may take a while...\n");
-    //videoNextPage();
 
     for (bssize_t i = 0; i < MAXVOXELS; i++)
     {

@@ -56,11 +56,13 @@ int spawn_d(int j, int pn)
     {
 		switch (sp->picnum) 
         {
-		case BOSS5STAYPUT:
+        case BOSS2STAYPUT:
+        case BOSS3STAYPUT:
+        case BOSS5STAYPUT:
 			hittype[i].actorstayput = sp->sectnum;
 		case FIREFLY:
 		case BOSS5:
-			if (sp->picnum == BOSS5 || sp->picnum == BOSS5STAYPUT) 
+			if (sp->picnum != FIREFLY) 
             {
 				if (j >= 0 && sprite[j].picnum == RESPAWN)
 					sp->pal = sprite[j].pal;

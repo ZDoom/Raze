@@ -97,6 +97,9 @@ Things required to make savegames work:
 #include "secrets.h"
 
 #include "osdcmds.h"
+#include "screenjob.h"
+#include "inputstate.h"
+#include "gamestate.h"
 
 //#include "crc32.h"
 
@@ -276,6 +279,29 @@ void RunLevel(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 static FILE *debug_fout = NULL;
+
+
+// Transitioning helper.
+int SyncScreenJob(JobDesc *jobs, int count)
+{
+    bool abort = false;
+    RunScreenJob(jobs, count, [&](bool) { abort = true; });
+    while (!abort)
+    {
+        handleevents();
+        updatePauseStatus();
+        D_ProcessEvents();
+        ControlInfo info;
+        CONTROL_GetInput(&info);
+        C_RunDelayedCommands();
+
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        videoNextPage();
+    }
+    gamestate = GS_LEVEL;
+    return 0;
+}
+
 
 void DebugWriteString(char *string)
 {
