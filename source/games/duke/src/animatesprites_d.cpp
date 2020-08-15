@@ -38,6 +38,8 @@ source as it is released.
 #include "prediction.h"
 #include "names_d.h"
 
+CVAR(Bool, dukewt_commentary, false, CVAR_ARCHIVE)
+
 BEGIN_DUKE_NS 
 
 void animatesprites_d(int x,int y,int a,int smoothratio)
@@ -58,7 +60,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
         {
 			case DEVELOPERCOMMENTARY:
 			case DEVELOPERCOMMENTARY + 1:
-				if(!isWorldTour() /* || !cfg.bDevCommentry)*/)
+				if(!isWorldTour() || !dukewt_commentary)
 					 t->xrepeat = t->yrepeat = 0;
 				break;
             case BLOODPOOL:
