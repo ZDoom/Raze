@@ -55,9 +55,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamecontrol.h"
 #include "gamedefs.h"
 
-#include "demo.h"
 #include "misc.h"
-//#include "exports.h"
 
 #include "misc.h"
 #include "break.h"
@@ -133,7 +131,6 @@ SWBOOL GraphicsMode = FALSE;
 char CacheLastLevel[32] = "";
 char PlayerNameArg[32] = "";
 SWBOOL CleanExit = FALSE;
-SWBOOL DemoModeMenuInit = FALSE;
 SWBOOL FinishAnim = 0;
 SWBOOL ShortGameMode = FALSE;
 SWBOOL ReloadPrompt = FALSE;
@@ -319,8 +316,6 @@ Distance(int x1, int y1, int x2, int y2)
 
 void TerminateGame(void)
 {
-    DemoTerm();
-
     ErrorCorrectionQuit();
 
  //   uninitmultiplayers();
@@ -484,7 +479,6 @@ bool InitGame()
 
     videoInit();
 
-    DemoModeMenuInit = TRUE;
     // precache as much stuff as you can
     if (UserMapName[0] == '\0')
     {
@@ -581,7 +575,7 @@ void InitLevelGlobals(void)
     zillawasseen = FALSE;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 
-    PedanticMode = (DemoPlaying || DemoRecording || DemoEdit || DemoMode);
+    PedanticMode = false;
 }
 
 void InitLevelGlobals2(void)
@@ -611,55 +605,15 @@ InitLevel(void)
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
 
-    if (!DemoMode)
-        Mus_Stop();
+    Mus_Stop();
 
     InitLevelGlobals2();
-    if (DemoMode)
-    {
-        Level = 0;
-        NewGame = TRUE;
-        DemoInitOnce = FALSE;
-        strcpy(DemoFileName, DemoName[DemoNumber]);
-        DemoNumber++;
-        if (!DemoName[DemoNumber][0])
-            DemoNumber = 0;
-
-        // read header and such
-        DemoPlaySetup();
-
-        strcpy(LevelName, DemoLevelName);
-
-        FindLevelInfo(LevelName, &Level);
-        if (Level > 0)
-        {
-            strcpy(LevelName, mapList[Level].fileName);
-            UserMapName[0] = '\0';
-        }
-        else
-        {
-            strcpy(UserMapName, DemoLevelName);
-            Level = 0;
-        }
-
-    }
-    else
     {
         if (Level < 0)
             Level = 0;
 
         if (Level > MAX_LEVELS)
             Level = 1;
-
-        // extra code in case something is resetting these values
-        if (NewGame)
-        {
-            //Level = 1;
-            //DemoPlaying = FALSE;
-            DemoMode = FALSE;
-            //DemoRecording = FALSE;
-            //DemoEdit = FALSE;
-        }
 
         if (UserMapName[0])
         {
@@ -683,10 +637,6 @@ InitLevel(void)
 
     if (NewGame)
         InitNewGame();
-
-    //LoadingLevelScreen();
-    if (!DemoMode && !DemoInitOnce)
-        DemoPlaySetup();
 
     if (!LoadLevel(LevelName))
 	{
@@ -757,10 +707,6 @@ TerminateLevel(void)
 {
     int i, nexti, stat, pnum, ndx;
     SECT_USERp *sectu;
-
-//HEAP_CHECK();
-
-    DemoTerm();
 
     // Free any track points
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
@@ -854,47 +800,22 @@ TerminateLevel(void)
 
 void NewLevel(void)
 {
-    if (DemoPlaying)
+    do
     {
         InitLevel();
-        InitRunLevel();
-
-        DemoInitOnce = FALSE;
-        if (DemoMode)
-        {
-            if (DemoModeMenuInit)
-            {
-                DemoModeMenuInit = FALSE;
-				inputState.ClearKeyStatus(sc_Escape);
-			}
-        }
-
-        DemoPlayBack();
-
-        if (DemoRecording && DemoEdit)
-        {
-            RunLevel();
-        }
+        RunLevel();
     }
-    else
+    while (LoadGameOutsideMoveLoop);
+	STAT_Update(false);
+
+    if (!QuitFlag)
     {
-        do
-        {
-            InitLevel();
-            RunLevel();
-        }
-        while (LoadGameOutsideMoveLoop);
-		STAT_Update(false);
-
-        if (!QuitFlag)
-        {
-            // for good measure do this
-            ready2send = 0;
-            waitforeverybody();
-        }
-
-        StatScreen(&Player[myconnectindex]);
+        // for good measure do this
+        ready2send = 0;
+        waitforeverybody();
     }
+
+    StatScreen(&Player[myconnectindex]);
 
     if (LoadGameFromDemo)
         LoadGameFromDemo = FALSE;
@@ -948,20 +869,6 @@ void MenuLevel(void)
 
     M_StartControlPanel(false);
     M_SetMenu(NAME_Mainmenu);
-    // do demos only if not playing multi play
-    if (!CommEnabled && numplayers <= 1 && !FinishAnim && !NoDemoStartup)
-    {
-        // demos exist - do demo instead
-        if (DemoName[0][0] != '\0')
-        {
-            DemoMode = TRUE;
-            DemoPlaying = TRUE;
-            return;
-        }
-    }
-
-    DemoMode = FALSE;
-    DemoPlaying = FALSE;
 
     twod->ClearScreen();
     videoNextPage();
@@ -1141,7 +1048,7 @@ void StatScreen(PLAYERp mpp)
 
 void GameIntro(void)
 {
-    if (DemoPlaying || (!CommEnabled && UserMapName[0]))
+    if ((!CommEnabled && UserMapName[0]))
         return;
 
     Level = 1;
@@ -1236,11 +1143,6 @@ void InitPlayerGameSettings(void)
 {
     int pnum;
 
-    // don't jack with auto aim settings if DemoMode is going
-    // what the hell did I do this for?????????
-    //if (DemoMode)
-    //    return;
-
     if (CommEnabled)
     {
         // everyone gets the same Auto Aim
@@ -1264,9 +1166,6 @@ void InitPlayerGameSettings(void)
 
 void InitRunLevel(void)
 {
-    if (DemoEdit)
-        return;
-
     if (LoadGameOutsideMoveLoop)
     {
         int SavePlayClock;
@@ -1320,12 +1219,6 @@ void InitRunLevel(void)
     }
 
     InitPrediction(&Player[myconnectindex]);
-
-    if (!DemoInitOnce)
-        DemoRecordSetup();
-
-    // everything has been inited at least once for RECORD
-    DemoInitOnce = TRUE;
 
     waitforeverybody();
 

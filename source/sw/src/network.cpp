@@ -36,7 +36,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "network.h"
 #include "pal.h"
-#include "demo.h"
 
 #include "weapon.h"
 #include "menus.h"
@@ -387,9 +386,6 @@ void
 ResumeGame(void)
 {
     if (paused)
-        return;
-
-    if (DemoPlaying || DemoRecording)
         return;
 
     if (numplayers < 2)
@@ -1341,7 +1337,7 @@ getpackets(void)
 
         case PACKET_TYPE_NEW_GAME:
         {
-            extern SWBOOL NewGame, ShortGameMode, DemoInitOnce;
+            extern SWBOOL NewGame, ShortGameMode;
             PACKET_NEW_GAMEp p;
             extern short TimeLimitTable[];
 
@@ -1389,21 +1385,10 @@ getpackets(void)
             ExitLevel = TRUE;
             NewGame = TRUE;
             // restart demo for multi-play mode
-            DemoInitOnce = FALSE;
-
-            // send a dummy packet to see when it arrives
-            //tempbuf[0] = PACKET_TYPE_DUMMY;
-            //sendpacket(otherconnectindex, tempbuf, 1);
-
-            ////DSPRINTF(ds,"Level %d, Skill %d, AutoAim %d",Level, Skill, cl_autoaim);
-            //MONO_PRINT(ds);
-
             break;
         }
 
         case PACKET_TYPE_DUMMY:
-            ////DSPRINTF(ds,"Got Dummy Packet!!!");
-            //MONO_PRINT(ds);
             break;
 
         case PACKET_TYPE_VERSION:

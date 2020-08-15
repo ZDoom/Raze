@@ -137,33 +137,6 @@ EnemySync(void)
         updatecrc(crc, (spr->ang) & 255);
     }
 
-#if 0
-    extern char DemoTmpName[];
-    //DSPRINTF(ds, "Demo Tmp Name %s", DemoTmpName);
-    MONO_PRINT(ds);
-
-    {
-        if (Once < 1 && DemoTmpName[0] != '\0')
-        {
-            FILE *fout;
-
-            Once++;
-            fout = fopen(DemoTmpName, "wb");
-
-            //DSPRINTF(ds, "Demo Tmp Name %s", DemoTmpName);
-            MONO_PRINT(ds);
-
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], j, nextj)
-            {
-                spr = &sprite[j];
-
-                fprintf(fout, "num %d, spr->x %d, spr->y %d, spr->z %d, spr->ang %d, spr->picnum %d\n", j, spr->x, spr->y, spr->z, spr->ang, spr->picnum);
-            }
-            fclose(fout);
-        }
-    }
-#endif
-
     return (uint8_t) crc & 255;
 }
 
@@ -481,74 +454,6 @@ GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnec
 }
 
 
-////////////////////////////////////////////////////////////////////////
-//
-// Demo Sync recording and testing
-//
-////////////////////////////////////////////////////////////////////////
-
-extern FILE *DemoSyncFile;
-
-void
-demosync_record(void)
-{
-    int i;
-    uint8_t sync_val;
-
-    for (i = 0; SyncFunc[i]; i++)
-    {
-        sync_val = (*SyncFunc[i])();
-        fwrite(&sync_val, sizeof(sync_val), 1, DemoSyncFile);
-    }
-}
-
-void
-demosync_test(int cnt)
-{
-    int i;
-    uint8_t sync_val;
-
-    for (i = 0; SyncFunc[i]; i++)
-    {
-        fread(&sync_val, sizeof(sync_val), 1, DemoSyncFile);
-
-        if (sync_val != (*SyncFunc[i])())
-        {
-            TerminateLevel();
-            I_Error("Demo out of sync - Sync Byte Number %d - Iteration %d.", i, cnt);
-        }
-    }
-}
-
-
-
-/*
-getsyncbyte()
-    {
-    int i, j;
-    char ch;
-    SPRITEp spr;
-    PLAYERp pp;
-    USERp u;
-
-    ch = (char) (randomseed & 255);
-
-    for (i = connecthead; i >= 0; i = connectpoint2[i])
-        {
-        pp = Player + i;
-        u = User[pp->SpriteP - sprite];
-        ch ^= (pp->posx ^ pp->posy ^ pp->posz ^ fix16_to_int(pp->q16ang) ^ fix16_to_int(pp->q16horiz) ^ u->Health);
-        }
-
-    for (j = headspritestat[STAT_ENEMY]; j >= 0; j = nextspritestat[j])
-        {
-        spr = &sprite[j];
-        ch ^= spr->x ^ spr->y ^ spr->z ^ spr->ang;
-        }
-
-    return (ch);
-    }
-*/
 #endif
 
 END_SW_NS

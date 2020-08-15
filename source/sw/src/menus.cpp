@@ -38,7 +38,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "jsector.h"
 #include "menus.h"
 #include "pal.h"
-#include "demo.h"
 
 #include "keydef.h"
 
@@ -64,7 +63,7 @@ short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
 SWBOOL
 MNU_StartNetGame(void)
 {
-    extern SWBOOL ExitLevel, ShortGameMode, DemoInitOnce, FirstTimeIntoGame;
+    extern SWBOOL ExitLevel, ShortGameMode, FirstTimeIntoGame;
     extern short Level, Skill;
     // CTW REMOVED
     //extern int gTenActivated;
@@ -77,11 +76,9 @@ MNU_StartNetGame(void)
     // Skill can go negative here
 	Skill = gs.NetMonsters - 1;
     Level = gs.NetLevel + 1;
-    DemoPlaying = FALSE;
     ExitLevel = TRUE;
     NewGame = TRUE;
     // restart demo for multi-play mode
-    DemoInitOnce = FALSE;
 
     // TENSW: return if a joiner
     if (/* CTW REMOVED gTenActivated && */ !AutoNet && FirstTimeIntoGame)

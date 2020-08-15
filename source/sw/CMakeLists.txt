@@ -12,7 +12,6 @@ set( PCH_SOURCES
 	src/coolg.cpp
 	src/coolie.cpp
 	src/copysect.cpp
-	src/demo.cpp
 	src/draw.cpp
 	src/eel.cpp
 	src/game.cpp

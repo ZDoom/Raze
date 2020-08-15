@@ -42,7 +42,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menus.h"
 #include "network.h"
 #include "pal.h"
-#include "demo.h"
 #include "mclip.h"
 
 #include "sprite.h"
@@ -6662,7 +6661,6 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 {
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
-    extern SWBOOL DemoMode,DemoDone;
 
     //if (TEST_SYNC_KEY(pp, SK_OPERATE))
     if (TEST_SYNC_KEY(pp, SK_SPACE_BAR))
@@ -6734,11 +6732,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         }
         else
         {
-            // restart the level in single play
-            if (DemoMode)
-                DemoDone = TRUE;
-            else
-                ExitLevel = TRUE;
+            ExitLevel = TRUE;
         }
 
         DoPlayerFireOutDeath(pp);
@@ -7678,38 +7672,6 @@ domovethings(void)
     // for things like sync testing
     MoveThingsCount++;
 
-    //RTS_Keys();
-
-    // recording is done here
-    if (DemoRecording)
-    {
-        TRAVERSE_CONNECT(i)
-        {
-            pp = Player + i;
-
-            DemoBuffer[DemoRecCnt] = pp->input;
-
-            if (DemoDebugMode)
-            {
-                DemoRecCnt++;
-                if (DemoRecCnt > DemoDebugBufferMax-1)
-                {
-                    DemoDebugWrite();
-                    DemoRecCnt = 0;
-                }
-            }
-            else
-            {
-                DemoRecCnt++;
-                if (DemoRecCnt > DEMO_BUFFER_MAX-1)
-                {
-                    DemoWriteBuffer();
-                    DemoRecCnt = 0;
-                }
-            }
-        }
-    }
-
     totalsynctics += synctics;
 
     updateinterpolations();                  // Stick at beginning of domovethings
@@ -7825,10 +7787,6 @@ domovethings(void)
             FinishedLevel = TRUE;
         }
     }
-
-
-    //if (DemoSyncRecord && !DemoPlaying)
-    //    demosync_record();
 }
 
 

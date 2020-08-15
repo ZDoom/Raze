@@ -1441,9 +1441,9 @@ void DrawCheckKeys(PLAYERp pp)
 
 void DrawCrosshair(PLAYERp pp)
 {
-    extern SWBOOL DemoMode,CameraTestMode;
+    extern SWBOOL CameraTestMode;
 
-    if (cl_crosshair && !(DemoMode || CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) && dimensionmode != 6)
+    if (cl_crosshair && !(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) && dimensionmode != 6)
     {
         int32_t a = 2326;
 
@@ -1809,7 +1809,7 @@ void MoveScrollMode2D(PLAYERp pp);
 void
 drawscreen(PLAYERp pp)
 {
-    extern SWBOOL DemoMode,CameraTestMode;
+    extern SWBOOL CameraTestMode;
     int tx, ty, tz;
     fix16_t tq16horiz, tq16ang;
     short tsectnum;
@@ -1951,7 +1951,7 @@ drawscreen(PLAYERp pp)
     {
         bob_amt = camerapp->bob_amt;
 
-        if (DemoMode || CameraTestMode)
+        if (CameraTestMode)
         {
             CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tq16ang, &tq16horiz);
         }

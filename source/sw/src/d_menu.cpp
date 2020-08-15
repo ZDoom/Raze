@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "jsector.h"
 #include "menus.h"
 #include "pal.h"
-#include "demo.h"
 #include "keydef.h"
 
 #include "gamecontrol.h"
@@ -180,12 +179,11 @@ void GameInterface::MenuClosed()
 }
 
 extern SWBOOL InMenuLevel;
-extern SWBOOL DemoMode;
 extern SWBOOL ExitLevel, NewGame;
 
 bool GameInterface::CanSave()
 {
-    return (!CommEnabled && numplayers ==1 && !DemoMode && !InMenuLevel && !TEST(Player[myconnectindex].Flags, PF_DEAD));
+    return (!CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !InMenuLevel && !TEST(Player[myconnectindex].Flags, PF_DEAD));
 }
 
 void GameInterface::StartGame(FNewGameStartup& gs)
@@ -203,10 +201,8 @@ void GameInterface::StartGame(FNewGameStartup& gs)
     else
         Level = 1;
 
-    DemoPlaying = FALSE;
     ExitLevel = TRUE;
     NewGame = TRUE;
-    DemoMode = FALSE;
     CameraTestMode = FALSE;
 	Skill = gs.Skill;
 	StopFX();
