@@ -33,7 +33,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 void MNU_MeasureString(const char* string, short* w, short* h);
-void MNU_DrawString(short x, short y, const char* string, short shade, short pal);
+void MNU_DrawString(short x, short y, const char* string, short shade, short pal, int align = -1);
 void MNU_MeasureSmallString(const char* string, short* w, short* h);
 void MNU_DrawSmallString(short x, short y, const char* string, short shade, short pal);
 void MNU_MeasureStringLarge(const char* string, short* w, short* h);

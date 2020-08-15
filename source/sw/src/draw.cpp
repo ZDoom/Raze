@@ -1376,10 +1376,10 @@ void SecretInfo(PLAYERp pp)
     if (hud_stats)
     {
         sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
-        DisplayMiniBarSmString(pp, x, y, PAL_XLAT_BROWN, ds);
+        DisplayMiniBarSmString(x, y, PAL_XLAT_BROWN, ds);
 
         sprintf(ds, "Secrets %d/%d", Player->SecretsFound, LevelSecrets);
-        DisplayMiniBarSmString(pp, x, y+10, PAL_XLAT_BROWN, ds);
+        DisplayMiniBarSmString(x, y+10, PAL_XLAT_BROWN, ds);
     }
 }
 

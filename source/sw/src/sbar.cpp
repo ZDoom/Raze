@@ -326,7 +326,6 @@ class DSWStatusBar : public DBaseStatusBar
         // must draw this in HUD mode and align to the top center
         short i, num_frag_bars;
         int y;
-        extern int16_t OrigCommPlayers;
 
         if (numplayers <= 1)
             return;

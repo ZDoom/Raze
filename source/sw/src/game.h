@@ -2427,6 +2427,11 @@ void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar(ClockTicks arg);
 
+extern int PlayClock;
+extern short LevelSecrets;
+extern short TotalKillable;
+extern int OrigCommPlayers;
+
 struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }

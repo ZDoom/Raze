@@ -53,7 +53,7 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics);
 #define TEXT_INFO_YOFF (10)
 inline int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YOFF)); }
 
-void DisplayMiniBarSmString(PLAYERp pp, short xs, short ys, short pal, const char* buffer);
+void DisplayMiniBarSmString(short xs, short ys, short pal, const char* buffer);
 void PutStringInfo(PLAYERp pp, const char* string);
 void PutStringInfoLine(PLAYERp pp, const char* string);
 void PutStringInfoLine2(PLAYERp pp, const char* string);

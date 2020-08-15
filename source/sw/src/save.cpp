@@ -71,12 +71,9 @@ extern int lastUpdate;
 extern char UserMapName[80];
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
-extern short TotalKillable;
-extern short LevelSecrets;
 extern short Bunny_Count;
 extern SWBOOL NewGame;
 extern char CacheLastLevel[];
-extern short PlayingLevel;
 extern int GodMode;
 extern int FinishTimer;
 extern SWBOOL FinishAnim;
@@ -1115,7 +1112,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     InitNetVars();
 
     screenpeek = myconnectindex;
-    PlayingLevel = Level;
 
     Mus_ResumeSaved();
     if (snd_ambience)

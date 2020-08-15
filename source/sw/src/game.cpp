@@ -124,7 +124,6 @@ extern int sw_snd_scratch;
 #define BETA 0
 #endif
 
-#define STAT_SCREEN_PIC 5114
 #define TITLE_PIC 2324
 #define TITLE_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 #define PAL_SIZE (256*3)
@@ -148,7 +147,6 @@ int DemoTextYstart = 0;
 int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
-short PlayingLevel = -1;
 SWBOOL GraphicsMode = FALSE;
 char CacheLastLevel[32] = "";
 char PlayerNameArg[32] = "";
@@ -236,7 +234,7 @@ int totalsynctics;
 
 short Level = 0;
 SWBOOL ExitLevel = FALSE;
-int16_t OrigCommPlayers=0;
+int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
 extern int bufferjitter;
@@ -804,8 +802,6 @@ InitLevel(void)
         }
     }
 
-    PlayingLevel = Level;
-
     if (NewGame)
         InitNewGame();
 
@@ -1180,12 +1176,6 @@ void DrawMenuLevelScreen(void)
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
 
-void DrawStatScreen(void)
-{
-    twod->ClearScreen();
-    rotatesprite(0, 0, RS_SCALE, 0, STAT_SCREEN_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-}
-
 void DrawLoadLevelScreen(void)
 {
     twod->ClearScreen();
@@ -1345,300 +1335,16 @@ LoadingLevelScreen(void)
     videoNextPage();
 }
 
-void gNextState(STATEp *State)
-{
-    // Transition to the next state
-    *State = (*State)->NextState;
-
-    if (TEST((*State)->Tics, SF_QUICK_CALL))
-    {
-        (*(*State)->Animator)(0);
-        *State = (*State)->NextState;
-    }
-}
-
-// Generic state control
-void gStateControl(STATEp *State, int *tics)
-{
-    *tics += synctics;
-
-    // Skip states if too much time has passed
-    while (*tics >= (*State)->Tics)
-    {
-        // Set Tics
-        *tics -= (*State)->Tics;
-        gNextState(State);
-    }
-
-    // Call the correct animator
-    if ((*State)->Animator)
-        (*(*State)->Animator)(0);
-}
-
-int BonusPunchSound(short UNUSED(SpriteNum))
-{
-    PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL3, pp, v3df_none);
-    return 0;
-}
-
-int BonusKickSound(short UNUSED(SpriteNum))
-{
-    PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_PLAYERYELL2, pp, v3df_none);
-    return 0;
-}
-
-int BonusGrabSound(short UNUSED(SpriteNum))
-{
-    PLAYERp pp = Player + myconnectindex;
-    PlaySound(DIGI_BONUS_GRAB, pp, v3df_none);
-    return 0;
-}
-
 extern SWBOOL FinishedLevel;
-extern int PlayClock;
-extern short LevelSecrets;
-extern short TotalKillable;
 
-void BonusScreen()
-{
-    int minutes,seconds,second_tics;
-
-    short w,h;
-    short limit;
-
-
-#define BONUS_SCREEN_PIC 5120
-#define BONUS_ANIM 5121
-#define BONUS_ANIM_FRAMES (5159-5121)
-
-#define BREAK_LIGHT_RATE 18
-
-#define BONUS_PUNCH 5121
-#define BONUS_KICK 5136
-#define BONUS_GRAB 5151
-#define BONUS_REST 5121
-
-#define BONUS_TICS 8
-#define BONUS_GRAB_TICS 20
-#define BONUS_REST_TICS 50
-
-    static STATE s_BonusPunch[] =
-    {
-        {BONUS_PUNCH + 0, BONUS_TICS, NULL, &s_BonusPunch[1]},
-        {BONUS_PUNCH + 1, BONUS_TICS, NULL, &s_BonusPunch[2]},
-        {BONUS_PUNCH + 2, BONUS_TICS, NULL, &s_BonusPunch[3]},
-        {BONUS_PUNCH + 2, 0|SF_QUICK_CALL, BonusPunchSound, &s_BonusPunch[4]},
-        {BONUS_PUNCH + 3, BONUS_TICS, NULL, &s_BonusPunch[5]},
-        {BONUS_PUNCH + 4, BONUS_TICS, NULL, &s_BonusPunch[6]},
-        {BONUS_PUNCH + 5, BONUS_TICS, NULL, &s_BonusPunch[7]},
-        {BONUS_PUNCH + 6, BONUS_TICS, NULL, &s_BonusPunch[8]},
-        {BONUS_PUNCH + 7, BONUS_TICS, NULL, &s_BonusPunch[9]},
-        {BONUS_PUNCH + 8, BONUS_TICS, NULL, &s_BonusPunch[10]},
-        {BONUS_PUNCH + 9, BONUS_TICS, NULL, &s_BonusPunch[11]},
-        {BONUS_PUNCH + 10, BONUS_TICS, NULL, &s_BonusPunch[12]},
-        {BONUS_PUNCH + 11, BONUS_TICS, NULL, &s_BonusPunch[13]},
-        {BONUS_PUNCH + 12, BONUS_TICS, NULL, &s_BonusPunch[14]},
-        {BONUS_PUNCH + 14, 90,        NULL, &s_BonusPunch[15]},
-        {BONUS_PUNCH + 14, BONUS_TICS, NULL, &s_BonusPunch[15]},
-    };
-
-    static STATE s_BonusKick[] =
-    {
-        {BONUS_KICK + 0, BONUS_TICS, NULL, &s_BonusKick[1]},
-        {BONUS_KICK + 1, BONUS_TICS, NULL, &s_BonusKick[2]},
-        {BONUS_KICK + 2, BONUS_TICS, NULL, &s_BonusKick[3]},
-        {BONUS_KICK + 2, 0|SF_QUICK_CALL, BonusKickSound, &s_BonusKick[4]},
-        {BONUS_KICK + 3, BONUS_TICS, NULL, &s_BonusKick[5]},
-        {BONUS_KICK + 4, BONUS_TICS, NULL, &s_BonusKick[6]},
-        {BONUS_KICK + 5, BONUS_TICS, NULL, &s_BonusKick[7]},
-        {BONUS_KICK + 6, BONUS_TICS, NULL, &s_BonusKick[8]},
-        {BONUS_KICK + 7, BONUS_TICS, NULL, &s_BonusKick[9]},
-        {BONUS_KICK + 8, BONUS_TICS, NULL, &s_BonusKick[10]},
-        {BONUS_KICK + 9, BONUS_TICS, NULL, &s_BonusKick[11]},
-        {BONUS_KICK + 10, BONUS_TICS, NULL, &s_BonusKick[12]},
-        {BONUS_KICK + 11, BONUS_TICS, NULL, &s_BonusKick[13]},
-        {BONUS_KICK + 12, BONUS_TICS, NULL, &s_BonusKick[14]},
-        {BONUS_KICK + 14, 90,        NULL, &s_BonusKick[15]},
-        {BONUS_KICK + 14, BONUS_TICS, NULL, &s_BonusKick[15]},
-    };
-
-    static STATE s_BonusGrab[] =
-    {
-        {BONUS_GRAB + 0, BONUS_GRAB_TICS, NULL, &s_BonusGrab[1]},
-        {BONUS_GRAB + 1, BONUS_GRAB_TICS, NULL, &s_BonusGrab[2]},
-        {BONUS_GRAB + 2, BONUS_GRAB_TICS, NULL, &s_BonusGrab[3]},
-        {BONUS_GRAB + 2, 0|SF_QUICK_CALL, BonusGrabSound, &s_BonusGrab[4]},
-        {BONUS_GRAB + 3, BONUS_GRAB_TICS, NULL, &s_BonusGrab[5]},
-        {BONUS_GRAB + 4, BONUS_GRAB_TICS, NULL, &s_BonusGrab[6]},
-        {BONUS_GRAB + 5, BONUS_GRAB_TICS, NULL, &s_BonusGrab[7]},
-        {BONUS_GRAB + 6, BONUS_GRAB_TICS, NULL, &s_BonusGrab[8]},
-        {BONUS_GRAB + 7, BONUS_GRAB_TICS, NULL, &s_BonusGrab[9]},
-        {BONUS_GRAB + 8, BONUS_GRAB_TICS, NULL, &s_BonusGrab[10]},
-        {BONUS_GRAB + 9, 90,             NULL, &s_BonusGrab[11]},
-        {BONUS_GRAB + 9, BONUS_GRAB_TICS, NULL, &s_BonusGrab[11]},
-    };
-
-#if 1 // Turned off the standing animate because he looks like a FAG!
-    static STATE s_BonusRest[] =
-    {
-        {BONUS_REST + 0, BONUS_REST_TICS, NULL, &s_BonusRest[1]},
-        {BONUS_REST + 1, BONUS_REST_TICS, NULL, &s_BonusRest[2]},
-        {BONUS_REST + 2, BONUS_REST_TICS, NULL, &s_BonusRest[3]},
-        {BONUS_REST + 1, BONUS_REST_TICS, NULL, &s_BonusRest[0]},
-    };
-#else
-    static STATE s_BonusRest[] =
-    {
-        {BONUS_REST + 0, BONUS_REST_TICS, NULL, &s_BonusRest[1]},
-        {BONUS_REST + 0, BONUS_REST_TICS, NULL, &s_BonusRest[0]},
-    };
-#endif
-
-    static STATEp s_BonusAnim[] =
-    {
-        s_BonusPunch,
-        s_BonusKick,
-        s_BonusGrab
-    };
-
-    STATEp State = s_BonusRest;
-
-    int Tics = 0;
-    int line = 0;
-    SWBOOL BonusDone;
-
-    if (Level < 0) Level = 0;
-
-    twod->ClearScreen();
-    videoNextPage();
-
-    inputState.ClearAllInput();
-
-    totalclock = ototalclock = 0;
-    limit = synctics;
-
-    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
-
-    // special case code because I don't care any more!
-    if (FinishAnim)
-    {
-        renderFlushPerms();
-        rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-        rotatesprite(158<<16, 86<<16, RS_SCALE, 0, State->Pic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-        videoNextPage();
-        //FadeIn(0,0);
-    }
-
-    BonusDone = FALSE;
-    while (!BonusDone)
-    {
-        handleevents();
-
-        if (totalclock < ototalclock + limit)
-        {
-            continue;
-        }
-        ototalclock += limit;
-
-        if (inputState.CheckAllInput())
-        {
-            if (State >= s_BonusRest && State < &s_BonusRest[SIZ(s_BonusRest)])
-            {
-                State = s_BonusAnim[STD_RANDOM_RANGE(SIZ(s_BonusAnim))];
-                Tics = 0;
-            }
-        }
-
-        gStateControl(&State, &Tics);
-
-        twod->ClearScreen();
-        rotatesprite(0, 0, RS_SCALE, 0, 5120, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-
-        if (UserMapName[0])
-        {
-            sprintf(ds,"%s",UserMapName);
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(TEXT_TEST_COL(w), 20, ds,1,19);
-        }
-        else
-        {
-            if (PlayingLevel <= 1)
-                PlayingLevel = 1;
-			auto ds = currentLevel->DisplayName();
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(TEXT_TEST_COL(w), 20, ds,1,19);
-        }
-
-        sprintf(ds,"Completed");
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(TEXT_TEST_COL(w), 30, ds,1,19);
-
-        rotatesprite(158<<16, 86<<16, RS_SCALE, 0, State->Pic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-
-#define BONUS_LINE(i) (50 + ((i)*20))
-
-        line = 0;
-        second_tics = (PlayClock/120);
-        minutes = (second_tics/60);
-        seconds = (second_tics%60);
-        sprintf(ds,"Your Time:  %2d : %02d", minutes, seconds);
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(60, BONUS_LINE(line), ds,1,16);
-
-        if (!UserMapName[0])
-        {
-            line++;
-			sprintf(ds,"3D Realms Best Time:  %d:%02d", currentLevel->designerTime/60, currentLevel->designerTime%60);
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
-
-            line++;
-			sprintf(ds,"Par Time:  %d:%02d", currentLevel->parTime/ 60, currentLevel->parTime%60);
-            MNU_MeasureString(ds, &w, &h);
-            MNU_DrawString(40, BONUS_LINE(line), ds,1,16);
-        }
-
-
-        // always read secrets and kills from the first player
-        line++;
-        sprintf(ds,"Secrets:  %d / %d", Player->SecretsFound, LevelSecrets);
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(60, BONUS_LINE(line), ds,1,16);
-
-        line++;
-        sprintf(ds,"Kills:  %d / %d", Player->Kills, TotalKillable);
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(60, BONUS_LINE(line), ds,1,16);
-
-
-        sprintf(ds,"Press SPACE to continue");
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(TEXT_TEST_COL(w), 185, ds,1,19);
-
-        videoNextPage();
-
-        if (State == State->NextState)
-            BonusDone = TRUE;
-    }
-
-    StopSound();
-}
 
 void EndGameSequence(void)
 {
-    SWBOOL anim_ok = TRUE;
-    //FadeOut(0, 5);
 	StopSound();
 
-    if ((adult_lockout || Global_PLock) && FinishAnim == ANIM_SUMO)
-        anim_ok = FALSE;
+    playanm(FinishAnim);
 
-    if (anim_ok)
-        playanm(FinishAnim);
-
-    BonusScreen();
+    //BonusScreen();
 
     ExitLevel = FALSE;
     QuitFlag = FALSE;
@@ -1674,19 +1380,7 @@ void StatScreen(PLAYERp mpp)
     short rows,cols,i,j;
     PLAYERp pp = NULL;
     int x,y;
-    short death_total[MAX_SW_PLAYERS_REG];
-    short kills[MAX_SW_PLAYERS_REG];
     short pal;
-
-#define STAT_START_X 20
-#define STAT_START_Y 85
-#define STAT_OFF_Y 9
-#define STAT_HEADER_Y 14
-
-#define SM_SIZ(num) ((num)*4)
-
-#define STAT_TABLE_X (STAT_START_X + SM_SIZ(15))
-#define STAT_TABLE_XOFF SM_SIZ(6)
 
     //ResetPalette(mpp);
     COVER_SetReverb(0); // Reset reverb
@@ -1704,129 +1398,10 @@ void StatScreen(PLAYERp mpp)
     {
         if (!FinishedLevel)
             return;
-        BonusScreen();
+        //BonusScreen();
         return;
     }
-
-    renderFlushPerms();
-    DrawStatScreen();
-
-    memset(death_total,0,sizeof(death_total));
-    memset(kills,0,sizeof(kills));
-
-    auto c = GStrings("MULTIPLAYER TOTALS");
-    MNU_MeasureString(c, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 68, c, 0, 0);
-
-    c = GStrings("TXTS_PRESSSPACE");
-    MNU_MeasureString(c, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 189, c, 0, 0);
-
-    x = STAT_START_X;
-    y = STAT_START_Y;
-
-    // Hm.... how to translate this without messing up the formatting?
-    sprintf(ds,"  NAME         1     2     3     4     5     6     7    8     KILLS");
-    DisplayMiniBarSmString(mpp, x, y, 0, ds);
-    rows = OrigCommPlayers;
-    cols = OrigCommPlayers;
-    mpp = Player + myconnectindex;
-
-    y += STAT_HEADER_Y;
-
-    for (i = 0; i < rows; i++)
-    {
-        x = STAT_START_X;
-        pp = Player + i;
-
-        sprintf(ds,"%d", i+1);
-        DisplayMiniBarSmString(mpp, x, y, 0, ds);
-
-        sprintf(ds,"  %-13s", pp->PlayerName);
-        DisplayMiniBarSmString(mpp, x, y, User[pp->PlayerSprite]->spal, ds);
-
-        x = STAT_TABLE_X;
-        for (j = 0; j < cols; j++)
-        {
-            pal = 0;
-            death_total[j] += pp->KilledPlayer[j];
-
-            if (i == j)
-            {
-                // don't add kill for self or team player
-                pal = PALETTE_PLAYER0 + 4;
-                kills[i] -= pp->KilledPlayer[j];  // subtract self kills
-            }
-            else if (gNet.TeamPlay)
-            {
-                if (User[pp->PlayerSprite]->spal == User[Player[j].PlayerSprite]->spal)
-                {
-                    // don't add kill for self or team player
-                    pal = PALETTE_PLAYER0 + 4;
-                    kills[i] -= pp->KilledPlayer[j];  // subtract self kills
-                }
-                else
-                    kills[i] += pp->KilledPlayer[j];  // kills added here
-            }
-            else
-            {
-                kills[i] += pp->KilledPlayer[j];  // kills added here
-            }
-
-            sprintf(ds,"%d", pp->KilledPlayer[j]);
-            DisplayMiniBarSmString(mpp, x, y, pal, ds);
-            x += STAT_TABLE_XOFF;
-        }
-
-        y += STAT_OFF_Y;
-    }
-
-
-    // Deaths
-
-    x = STAT_START_X;
-    y += STAT_OFF_Y;
-
-    sprintf(ds,"   %s", GStrings("DEATHS"));
-    DisplayMiniBarSmString(mpp, x, y, 0, ds);
-    x = STAT_TABLE_X;
-
-    for (j = 0; j < cols; j++)
-    {
-        sprintf(ds,"%d",death_total[j]);
-        DisplayMiniBarSmString(mpp, x, y, 0, ds);
-        x += STAT_TABLE_XOFF;
-    }
-
-    x = STAT_START_X;
-    y += STAT_OFF_Y;
-
-    // Kills
-    x = STAT_TABLE_X + SM_SIZ(50);
-    y = STAT_START_Y + STAT_HEADER_Y;
-
-    for (i = 0; i < rows; i++)
-    {
-        pp = Player + i;
-
-        sprintf(ds,"%d", kills[i]); //pp->Kills);
-        DisplayMiniBarSmString(mpp, x, y, 0, ds);
-
-        y += STAT_OFF_Y;
-    }
-
-    videoNextPage();
-
-    inputState.ClearAllInput();
-
-    PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
-
-    while (!inputState.CheckAllInput())
-    {
-        handleevents();
-    }
-
-    StopSound();
+    //MPBonusScreen();
 }
 
 void GameIntro(void)
