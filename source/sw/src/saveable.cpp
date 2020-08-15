@@ -79,7 +79,6 @@ void Saveable_Init(void)
     MODULE(zombie)
 
     MODULE(sector)
-    MODULE(text)
 }
 
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)

@@ -51,16 +51,10 @@ void MoveSectorObjects(SECTOR_OBJECTp sop, short locktics);
 #define TEXT_INFO_TIME (3)
 #define TEXT_INFO_Y (40)
 #define TEXT_INFO_YOFF (10)
-inline int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YOFF)); }
+inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TEXT_INFO_YOFF)); }
 
-void DisplayMiniBarSmString(short xs, short ys, short pal, const char* buffer);
 void PutStringInfo(PLAYERp pp, const char* string);
-void PutStringInfoLine(PLAYERp pp, const char* string);
-void PutStringInfoLine2(PLAYERp pp, const char* string);
-void pClearTextLine(PLAYERp pp, int y);
-void pMenuClearTextLine(PLAYERp pp);
 
-void StringTimer(PANEL_SPRITEp psp);
 
 short DoSlidorMatch(PLAYERp pp, short match, SWBOOL);
 SWBOOL TestSlidorMatchActive(short match);

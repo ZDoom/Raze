@@ -6356,35 +6356,6 @@ KeyMain:
             KillGetAmmo(SpriteNum);
             break;
 
-#if 0
-        case ICON_SPELL:
-        {
-            short w, h, select;
-
-#define TEXT_SPELL_INFO_LINE 20
-
-            static int8_t* SpellName[] =
-            {
-                "Icon of Flight",
-                "EnvironSuit Skin",
-                "Strength",
-                "Cloak Device",
-                "Oxygen",
-                "Night Vision"
-            };
-
-            select = RANDOM_P2(4 << 8) >> 8;    // Not allowed to get
-            // last two items.
-            MNU_MeasureString(SpellName[sp->lotag], &w, &h);
-            PutStringTimer(pp, TEXT_TEST_COL(w), TEXT_SPELL_INFO_LINE, SpellName[sp->lotag], TEXT_TEST_TIME);
-            if (pp == Player+myconnectindex)
-                PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGet(SpriteNum);
-            break;
-        }
-#endif
-
-
         case ICON_HEAT_CARD:
             if (pp->WpnRocketHeat != 5)
             {

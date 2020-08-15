@@ -1357,31 +1357,6 @@ FString GameInterface::GetCoordString()
     return out;
 }
 
-SWBOOL DebugSecret = FALSE;
-void SecretInfo(PLAYERp pp)
-{
-	if (!hud_stats) return;
-#define Y_STEP 7
-#define AVERAGEFRAMES 16
-    int x = windowxy1.x+2;
-    int y = windowxy1.y+2+8;
-    extern short LevelSecrets,TotalKillable;
-
-    if (CommEnabled || numplayers > 1)
-        return;
-
-    x = x / (xdim/320.0);
-    y = y / (ydim/200.0);
-
-    if (hud_stats)
-    {
-        sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
-        DisplayMiniBarSmString(x, y, PAL_XLAT_BROWN, ds);
-
-        sprintf(ds, "Secrets %d/%d", Player->SecretsFound, LevelSecrets);
-        DisplayMiniBarSmString(x, y+10, PAL_XLAT_BROWN, ds);
-    }
-}
 
 void PrintSpriteInfo(PLAYERp pp)
 {
@@ -2139,17 +2114,13 @@ drawscreen(PLAYERp pp)
     DrawCrosshair(pp);
 
 
-    operatefta();           // Draw all the user quotes in the quote array
-
-    operateconfta();        // Draw messages in the console
 
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 
     // Boss Health Meter, if Boss present
     BossHealthMeter();
 
-	if (!M_Active())
-    SecretInfo(pp);
+	//if (!M_Active())
 
     videoNextPage();
 
@@ -2167,14 +2138,7 @@ drawscreen(PLAYERp pp)
 
     if (paused && !M_Active())
     {
-        short w,h;
-#define MSG_GAME_PAUSED "Game Paused"
-        MNU_MeasureString(MSG_GAME_PAUSED, &w, &h);
-        PutStringTimer(pp, TEXT_TEST_COL(w), 100, MSG_GAME_PAUSED, 999);
-    }
-    else
-    {
-        pClearTextLine(pp, 100);
+        MNU_DrawString(160, 100, "Game Paused", 0, 0, 0);
     }
 
     if (!CommEnabled && TEST(pp->Flags, PF_DEAD))

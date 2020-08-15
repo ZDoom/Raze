@@ -348,18 +348,6 @@ bool LoadLevel(const char *filename)
     return true;
 }
 
-void DisplayDemoText(void)
-{
-    short w,h;
-    short i;
-
-    for (i = 0; i < 3; i++)
-    {
-        MNU_MeasureString(DemoText[i], &w, &h);
-        PutStringTimer(Player, TEXT_TEST_COL(w), DemoTextYstart+(i*12), DemoText[i], 999);
-    }
-}
-
 void MultiSharewareCheck(void)
 {
     if (!SW_SHAREWARE) return;
@@ -467,6 +455,7 @@ bool InitGame()
     }
 
     TileFiles.LoadArtSet("tiles%03d.art");
+    InitFonts();
 
     Connect();
     SortBreakInfo();
@@ -758,11 +747,6 @@ InitLevel(void)
     initlava();
 
     SongLevelNum = Level;
-
-    if (DemoMode)
-    {
-        DisplayDemoText();
-    }
     
     // reset NewGame
     NewGame = FALSE;
@@ -994,12 +978,10 @@ void MenuLevel(void)
     if (CommEnabled)
     {
         sprintf(ds,"Lo Wang is waiting for other players...");
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(TEXT_TEST_COL(w), 170, ds, 1, 16);
+        MNU_DrawString(160, 170, ds, 1, 16, 0);
 
         sprintf(ds,"They are afraid!");
-        MNU_MeasureString(ds, &w, &h);
-        MNU_DrawString(TEXT_TEST_COL(w), 180, ds, 1, 16);
+        MNU_DrawString(160, 180, ds, 1, 16, 0);
     }
 
     videoNextPage();
@@ -1701,7 +1683,7 @@ FunctionKeys(PLAYERp pp)
                 short pnum;
 
                 sprintf(ds,"SENT: %s",**CombatMacros[fn_key-1]);
-                adduserquote(ds);
+                Printf(PRINT_NOTIFY | PRINT_TEAMCHAT, "%s\n", ds);
 
                 TRAVERSE_CONNECT(pnum)
                 {
@@ -2250,12 +2232,12 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
     if (ScrollMode2D)
     {
-        minigametext(txt_x,txt_y-7,"Follow Mode",2+8);
+        MNU_DrawSmallString(txt_x, txt_y - 7, "Follow Mode", 0, 0);
     }
 
     sprintf(ds,"%s",currentLevel->DisplayName());
 
-    minigametext(txt_x,txt_y,ds,2+8);
+    MNU_DrawSmallString(txt_x,txt_y,ds,0, 0);
 
     //////////////////////////////////
 

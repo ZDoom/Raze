@@ -7396,7 +7396,6 @@ static saveable_code saveable_panel_code[] =
     SAVE_CODE(SwordBlur),
     SAVE_CODE(SpecialUziRetractFunc),
     SAVE_CODE(FistBlur),
-    SAVE_CODE(StringTimer),
 };
 
 static saveable_data saveable_panel_data[] =

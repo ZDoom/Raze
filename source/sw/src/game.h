@@ -830,34 +830,8 @@ SWBOOL DLL_ExecFunc(int procHandle, char *fName);
 // JPlayer
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
-#define MESSAGE_LINE 142    // Used to be 164
-#define MAXUSERQUOTES 6
-#define MAXCONQUOTES 13
 
-extern int quotebot, quotebotgoal;
-extern short user_quote_time[MAXUSERQUOTES];
-extern char user_quote[MAXUSERQUOTES][256];
-
-extern int conbot, conbotgoal;
-extern char con_quote[MAXCONQUOTES][256];
-
-int minitext(int x,int y,char *t,char p,char sb);
-int minitextshade(int x,int y,char *t,char s,char p,char sb);
-void operatefta(void);
 void adduserquote(const char *daquote);
-void operateconfta(void);
-void addconquote(const char *daquote);
-
-///////////////////////////////////////////////////////////////////////////////////////////
-//
-// Console
-//
-///////////////////////////////////////////////////////////////////////////////////////////
-void CON_StoreArg(const char *userarg);
-SWBOOL CON_CheckParm(const char *userarg);
-void CON_CommandHistory(signed char dir);
-SWBOOL CON_AddCommand(const char *command, void (*function)(void));
-void CON_ProcessUserCommand(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -2263,23 +2237,6 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 #define TEXT_TEST_COL(width) TEXT_XCENTER(width)
 #define TEXT_TEST_TIME 2
 
-void PutStringTimer(PLAYERp pp, short x, short y, const char *string, short seconds);
-
-///////////////////////////
-//
-// OLDER network additions
-//
-///////////////////////////
-
-/*
-int initmultiplayers(int, int, int);
-void uninitmultiplayers(void);
-
-void sendlogon(void);
-void sendlogoff(void);
-*/
-
-
 ///////////////////////////
 //
 // RECENT network additions
@@ -2356,7 +2313,6 @@ void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
-int minigametext(int x,int y,const char *t,short dabits);  // jplayer.c
 void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,fix16_t tq16ang,fix16_t tq16horiz,short tsectnum);    // rooms.c
@@ -2421,6 +2377,7 @@ extern short LastSaveNum;
 void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar(ClockTicks arg);
+void InitFonts();
 
 extern int PlayClock;
 extern short LevelSecrets;
@@ -2447,7 +2404,6 @@ struct GameInterface : ::GameInterface
 	void StartGame(FNewGameStartup& gs) override;
 	FSavegameInfo GetSaveSig() override;
 	void DrawMenuCaption(const DVector2& origin, const char* text) override;
-	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
     bool CleanupForLoad() override;
     bool LoadGame(FSaveGameNode* sv) override;
 	bool SaveGame(FSaveGameNode* sv) override;

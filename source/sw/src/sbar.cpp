@@ -38,6 +38,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "v_2ddrawer.h"
 #include "statusbar.h"
 #include "network.h"
+#include "v_draw.h"
+#include "menus.h"
+
 
 BEGIN_SW_NS
 
@@ -64,6 +67,7 @@ static const short icons[] = {
 
 class DSWStatusBar : public DBaseStatusBar
 {
+    DHUDFont miniFont;
 
     enum
     {
@@ -137,6 +141,14 @@ class DSWStatusBar : public DBaseStatusBar
         ID_SelectionBox = 2435,
     };
 
+
+public:
+    DSWStatusBar()
+    {
+        miniFont = { SmallFont2, 0, Off, 1, 1 };
+    }
+
+private:
     //---------------------------------------------------------------------------
     //
     // 
@@ -224,23 +236,7 @@ class DSWStatusBar : public DBaseStatusBar
 
     void DisplayTinyString(double xs, double ys, const char* buffer, int pal)
     {
-        double x;
-        const char* ptr;
-
-        const int FRAG_FIRST_ASCII = ('!');
-        const int FRAG_FIRST_TILE = 2930;
-
-        for (ptr = buffer, x = xs; *ptr; ptr++)
-        {
-            if (*ptr == ' ')
-                continue;
-
-            assert(*ptr >= '!' && *ptr <= '}');
-
-            auto tex = tileGetTexture(FRAG_FIRST_TILE + (*ptr - FRAG_FIRST_ASCII));
-            DrawGraphic(tex, x, ys, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1, 0xffffffff, TRANSLATION(Translation_Remap, pal));
-            x += 4;
-        }
+        SBar_DrawString(this, &miniFont, buffer, xs, ys, DI_ITEM_LEFT_TOP, TRANSLATION(Translation_Remap, pal), 1, -1, -1, 1, 1);
     }
 
     void DisplayFragString(PLAYERp pp, double xs, double ys, const char* buffer)
@@ -846,6 +842,34 @@ public:
 
 };
 
+#if 0
+SWBOOL DebugSecret = FALSE;
+void SecretInfo(PLAYERp pp)
+{
+    if (!hud_stats) return;
+#define Y_STEP 7
+#define AVERAGEFRAMES 16
+    int x = windowxy1.x + 2;
+    int y = windowxy1.y + 2 + 8;
+    extern short LevelSecrets, TotalKillable;
+
+    if (CommEnabled || numplayers > 1)
+        return;
+
+    x = x / (xdim / 320.0);
+    y = y / (ydim / 200.0);
+
+    if (hud_stats)
+    {
+        sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
+        MNU_DrawSmallString(x, y, PAL_XLAT_BROWN, ds);
+
+        sprintf(ds, "Secrets %d/%d", Player->SecretsFound, LevelSecrets);
+        MNU_DrawSmallString(x, y + 10, PAL_XLAT_BROWN, ds);
+    }
+}
+#endif
+
 
 static void UpdateFrame(void)
 {
@@ -863,6 +887,15 @@ static void UpdateFrame(void)
     twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
 }
 
+static FString cookieQuote;
+static int cookieTime;
+
+void adduserquote(const char* daquote)
+{
+    cookieQuote = daquote;
+    cookieTime = totalclock + 540;
+}
+
 void UpdateStatusBar(ClockTicks arg)
 {
     DSWStatusBar sbar;
@@ -873,6 +906,11 @@ void UpdateStatusBar(ClockTicks arg)
     }
 
     sbar.UpdateStatusBar(arg);
+    if (totalclock < cookieTime)
+    {
+        const int MESSAGE_LINE = 142;    // Used to be 164
+        MNU_DrawSmallString(160, MESSAGE_LINE, cookieQuote, 0, 0, 0, clamp((cookieTime - totalclock) / 60., 0., 1.));
+    }
 }
 
 

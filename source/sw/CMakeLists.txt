@@ -23,7 +23,6 @@ set( PCH_SOURCES
 	src/interpsh.cpp
 	src/interpso.cpp
 	src/inv.cpp
-	src/jplayer.cpp
 	src/jsector.cpp
 	src/jweapon.cpp
 	src/lava.cpp

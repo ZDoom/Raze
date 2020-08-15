@@ -6474,7 +6474,7 @@ DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
         TRAVERSE_CONNECT(pnum)
         {
             if (pnum == myconnectindex)
-                adduserquote(ds);
+                Printf(PRINT_NOTIFY|PRINT_TEAMCHAT, "%s\n", ds);
             else
                 SW_SendMessage(pnum, ds);
         }
@@ -6489,7 +6489,6 @@ DoPlayerBeginDie(PLAYERp pp)
     extern SWBOOL ReloadPrompt;
     short bak;
     int choosesnd = 0;
-    extern short GlobInfoStringTime;
 
     USERp u = User[pp->PlayerSprite];
 
@@ -6533,10 +6532,7 @@ DoPlayerBeginDie(PLAYERp pp)
     else
 #endif
     {
-        bak = GlobInfoStringTime;
-        GlobInfoStringTime = 999;
         PutStringInfo(pp, GStrings("TXTS_PRESSSPACE"));
-        GlobInfoStringTime = bak;
     }
 
     if (pp->sop_control)
@@ -6872,8 +6868,6 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
             InitBloodSpray(pp->PlayerSprite,TRUE,-1);
             InitBloodSpray(pp->PlayerSprite,TRUE,-1);
         }
-
-        pClearTextLine(pp, TEXT_INFO_LINE(0));
 
         PlayerSpawnPosition(pp);
 
@@ -7754,47 +7748,6 @@ void PlayerGlobal(PLAYERp pp)
 }
 
 
-void UpdateScrollingMessages(void)
-{
-    short i;
-
-    // Update the scrolling multiplayer messages
-    for (i=0; i<MAXUSERQUOTES; i++)
-    {
-        if (user_quote_time[i])
-        {
-            user_quote_time[i]--;
-
-            if (user_quote_time[i] <= 0)
-            {
-                user_quote_time[i] = 0;
-            }
-        }
-    }
-
-    if (gs.BorderNum > BORDER_BAR+1)
-    {
-        quotebot = quotebotgoal;
-    }
-    else
-    {
-        if ((klabs(quotebotgoal-quotebot) <= 16))
-            quotebot += ksgn(quotebotgoal-quotebot);
-        else
-            quotebot = quotebotgoal;
-    }
-}
-
-void UpdateConMessages(void)
-{
-    if (!ConInputMode) return;
-
-    if ((klabs(conbotgoal-conbot) <= 12))
-        conbot += ksgn(conbotgoal-conbot);
-    else
-        conbot = conbotgoal;
-}
-
 void MultiPlayLimits(void)
 {
     short pnum;
@@ -7842,6 +7795,7 @@ void MultiPlayLimits(void)
 
 void PauseMultiPlay(void)
 {
+#if 0
     static SWBOOL SavePrediction;
     PLAYERp pp;
     short pnum,p;
@@ -7861,13 +7815,6 @@ void PauseMultiPlay(void)
 
                 if (paused)
                 {
-                    short w,h;
-                    auto m = GStrings("Game Paused");
-                    MNU_MeasureString(m, &w, &h);
-
-                    TRAVERSE_CONNECT(p)
-                    PutStringTimer(Player + p, TEXT_TEST_COL(w), 100, m, 999);
-
                     SavePrediction = PredictionOn;
                     PredictionOn = FALSE;
                 }
@@ -7875,7 +7822,6 @@ void PauseMultiPlay(void)
                 {
                     PredictionOn = SavePrediction;
                     TRAVERSE_CONNECT(p)
-                    pClearTextLine(Player + p, 100);
                 }
             }
         }
@@ -7884,6 +7830,7 @@ void PauseMultiPlay(void)
             FLAG_KEY_RESET(pp, SK_PAUSE);
         }
     }
+#endif
 }
 
 void
@@ -7913,9 +7860,6 @@ domovethings(void)
 
     if (MyCommPlayerQuit())
         return;
-
-    UpdateScrollingMessages();  // Update the multiplayer type messages
-    UpdateConMessages();    // Update the console messages
 
 #if SYNC_TEST
     if (/* CTW REMOVED !gTenActivated ||*/ !(movefifoplc & 0x3f))

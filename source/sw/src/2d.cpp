@@ -480,7 +480,7 @@ class DSWMultiSummaryScreen : public DScreenJob
         int y = STAT_START_Y;
 
         // Hm.... how to translate this without messing up the formatting?
-        DisplayMiniBarSmString(x, y, 0, "  NAME         1     2     3     4     5     6     7    8     KILLS");
+        MNU_DrawSmallString(x, y, "  NAME         1     2     3     4     5     6     7    8     KILLS", 0, 0);
         int rows = OrigCommPlayers;
         int cols = OrigCommPlayers;
 
@@ -493,10 +493,10 @@ class DSWMultiSummaryScreen : public DScreenJob
             auto pp = Player + i;
 
             ds.Format("%d", i + 1);
-            DisplayMiniBarSmString(x, y, 0, ds);
+            MNU_DrawSmallString(x, y, ds, 0, 0);
 
             ds.Format("  %-13s", pp->PlayerName);
-            DisplayMiniBarSmString(x, y, User[pp->PlayerSprite]->spal, ds);
+            MNU_DrawSmallString(x, y, ds, 0, User[pp->PlayerSprite]->spal);
 
             x = STAT_TABLE_X;
             for (int j = 0; j < cols; j++)
@@ -527,7 +527,7 @@ class DSWMultiSummaryScreen : public DScreenJob
                 }
 
                 ds.Format("%d", pp->KilledPlayer[j]);
-                DisplayMiniBarSmString(x, y, pal, ds);
+                MNU_DrawSmallString(x, y, ds, 0, pal);
                 x += STAT_TABLE_XOFF;
             }
 
@@ -541,13 +541,13 @@ class DSWMultiSummaryScreen : public DScreenJob
         y += STAT_OFF_Y;
 
         ds.Format("   %s", GStrings("DEATHS"));
-        DisplayMiniBarSmString(x, y, 0, ds);
+        MNU_DrawSmallString(x, y, ds, 0, 0);
         x = STAT_TABLE_X;
 
         for (int j = 0; j < cols; j++)
         {
             ds.Format("%d", death_total[j]);
-            DisplayMiniBarSmString(x, y, 0, ds);
+            MNU_DrawSmallString(x, y, ds, 0, 0);
             x += STAT_TABLE_XOFF;
         }
 
@@ -563,7 +563,7 @@ class DSWMultiSummaryScreen : public DScreenJob
             auto pp = Player + i;
 
             ds.Format("%d", kills[i]); //pp->Kills);
-            DisplayMiniBarSmString(x, y, 0, ds);
+            MNU_DrawSmallString(x, y, ds, 0, 0);
 
             y += STAT_OFF_Y;
         }

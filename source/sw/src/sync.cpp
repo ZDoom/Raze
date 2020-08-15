@@ -394,16 +394,13 @@ SyncStatMessage(void)
             }
             else
             {
-                short w,h;
                 // production out of sync error
 
                 sprintf(ds,"GAME OUT OF SYNC!");
-                MNU_MeasureString(ds, &w, &h);
-                MNU_DrawString(TEXT_TEST_COL(w), 20, ds, 0, 19);
+                MNU_DrawString(160, 20, ds, 0, 19, 0);
 
                 sprintf(ds,"Restart the game.");
-                MNU_MeasureString(ds, &w, &h);
-                MNU_DrawString(TEXT_TEST_COL(w), 30, ds, 0, 19);
+                MNU_DrawString(160, 30, ds, 0, 19, 0);
             }
         }
     }

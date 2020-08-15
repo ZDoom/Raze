@@ -122,21 +122,12 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	switch (fontnum)
 	{
 		case NIT_BigFont:
-			MNU_MeasureStringLarge(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawStringLarge(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0);
+			MNU_DrawStringLarge(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, (flags & LMF_Centered)? 0 : -1);
 			break;
 		
 		case NIT_SmallFont:
-			MNU_MeasureString(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16);
-			break;
-		
-		case NIT_TinyFont:
-			MNU_MeasureSmallString(text, &w, &h);
-			if (flags & LMF_Centered) xpos -= w/2;
-			MNU_DrawSmallString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16);
+		default:
+			MNU_DrawString(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, 16, (flags & LMF_Centered) ? 0 : -1);
 			break;
 	}
 	if (state == NIT_SelectedState)
@@ -157,9 +148,8 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 			x -= ((tilesiz[pic_yinyang].x) / 2) - 3;
 			y += 8;
 		}
-
-		rotatesprite(x << 16, y << 16,
-					 scale, 0, pic_yinyang, 2, 0, MenuDrawFlags, 0, 0, xdim - 1, ydim - 1);
+		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, scale / 65536., DTA_ScaleY, scale / 65536., TAG_DONE);
 	}
 }
 
@@ -258,28 +248,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	// Draw the backdrop bar
 	rotatesprite(10 << 16, (5-3) << 16, 65536, 0, 2427,
 				 2, 0, MenuDrawFlags|RS_TOPLEFT, 0, 0, xdim - 1, ydim - 1);
-	MNU_MeasureStringLarge(text, &w, &h);
-	MNU_DrawStringLarge(TEXT_XCENTER(w), 5, text, 1);
-}
-
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		short width, height = 0;
-		MNU_MeasureString("T", &width, &height);
-
-		auto lines = FString(text).Split("\n");
-		int y = 100 - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			short lheight = 0;
-			MNU_MeasureString(l, &width, &lheight);
-			int x = 160 - width / 2;
-			MNU_DrawString(x, y, l, 0, 0);
-			y += height;
-		}
-	}
+	MNU_DrawStringLarge(160, 5, text, 1, 0);
 }
 
 

@@ -318,30 +318,21 @@ SWBOOL MNU_ShareWareMessage()
 	if (SW_SHAREWARE)
 	{
 		extra_text = "Be sure to call 800-3DREALMS today";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 110, extra_text, 1, 16);
+		MNU_DrawString(160, 110, extra_text, 1, 16, 0);
 		extra_text = "and order the game.";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 120, extra_text, 1, 16);
+		MNU_DrawString(160, 120, extra_text, 1, 16, 0);
 		extra_text = "You are only playing the first ";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 130, extra_text, 1, 16);
+		MNU_DrawString(160, 130, extra_text, 1, 16, 0);
 		extra_text = "four levels, and are missing most";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 140, extra_text, 1, 16);
+		MNU_DrawString(160, 140, extra_text, 1, 16, 0);
 		extra_text = "of the game, weapons and monsters.";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 150, extra_text, 1, 16);
+		MNU_DrawString(160, 150, extra_text, 1, 16, 0);
 		extra_text = "See the ordering information.";
-		MNU_MeasureString(extra_text, &w, &h);
-		MNU_DrawString(TEXT_XCENTER(w), 160, extra_text, 1, 16);
+		MNU_DrawString(160, 160, extra_text, 1, 16, 0);
 		//SET(item->flags, mf_disabled);
 	}
 	return TRUE;
 }
 
-#if 0
-
-#endif
 
 END_SW_NS

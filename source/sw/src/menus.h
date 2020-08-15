@@ -32,12 +32,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void MNU_MeasureString(const char* string, short* w, short* h);
-void MNU_DrawString(short x, short y, const char* string, short shade, short pal, int align = -1);
-void MNU_MeasureSmallString(const char* string, short* w, short* h);
-void MNU_DrawSmallString(short x, short y, const char* string, short shade, short pal);
-void MNU_MeasureStringLarge(const char* string, short* w, short* h);
-void MNU_DrawStringLarge(short x, short y, const char* string, int shade = 0);
+void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align = -1);
+void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align = -1, double alpha = 1);
+void MNU_DrawStringLarge(int x, int y, const char* string, int shade = 0, int align = -1);
 
 #define pic_none 0
 #define pic_radiobuttn1 2816

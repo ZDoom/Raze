@@ -522,23 +522,6 @@ CheckVersion(int GameVersion)
             {
                 Printf("CheckVersion(): player %d has version %d, expecting %d\n",
                             pnum, Player[pnum].PlayerVersion, GameVersion);
-
-                adduserquote(VERSION_MSG);
-                adduserquote(VERSION_MSG);
-                adduserquote(VERSION_MSG);
-                adduserquote(VERSION_MSG);
-                adduserquote(VERSION_MSG);
-                adduserquote(VERSION_MSG);
-
-                if (!Player[pnum].PlayerVersion)
-                {
-                    SW_SendMessage(pnum, VERSION_MSG);
-                    SW_SendMessage(pnum, VERSION_MSG);
-                    SW_SendMessage(pnum, VERSION_MSG);
-                    SW_SendMessage(pnum, VERSION_MSG);
-                    SW_SendMessage(pnum, VERSION_MSG);
-                    SW_SendMessage(pnum, VERSION_MSG);
-                }
             }
         }
     }
@@ -651,7 +634,7 @@ SWBOOL MyCommPlayerQuit(void)
             if (i != myconnectindex)
             {
                 sprintf(ds,"%s has quit the game.",Player[i].PlayerName);
-                adduserquote(ds);
+                Printf(PRINT_NOTIFY | PRINT_TEAMCHAT, "%s\n", ds);
             }
         }
     }
@@ -1340,7 +1323,7 @@ getpackets(void)
             memcpy(ds,&packbuf[3],packbufleng-3);
             ds[packbufleng-3] = 0;
             //sprintf(ds, "%s",&packbuf[3]);
-            adduserquote(ds);
+            Printf(PRINT_NOTIFY | PRINT_TEAMCHAT, "%s\n", ds);
             break;
         }
 

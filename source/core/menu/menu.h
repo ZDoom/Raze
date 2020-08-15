@@ -133,7 +133,6 @@ enum ENativeFontValues
 {
 	NIT_BigFont,
 	NIT_SmallFont,
-	NIT_TinyFont,
 
 	NIT_ActiveColor = -1,
 	NIT_InactiveColor = -2,
