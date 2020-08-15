@@ -679,6 +679,7 @@ private:
             DisplayTimeLimit(pp);
         DisplayBarInventory(pp);
         DrawCompass(pp);
+        PrintLevelStats(-1);
     }
 
     //---------------------------------------------------------------------------
@@ -735,6 +736,7 @@ private:
             x = MINI_BAR_AMMO_BOX_X + 3;
             DisplayPanelNumber(x, y + 5, pp->WpnAmmo[u->WeaponNum]);
         }
+        PrintLevelStats(30);
 
         if (!pp->InventoryAmount[pp->InventoryNum])
             return;
@@ -794,6 +796,41 @@ private:
         }
     }
 
+    //==========================================================================
+    //
+    // Statistics output
+    //
+    //==========================================================================
+
+    void PrintLevelStats(int bottomy)
+    {
+        // JBF 20040124: display level stats in screen corner
+        if (hud_stats && !(CommEnabled || numplayers > 1))
+        {
+            auto pp = Player + screenpeek;
+            FLevelStats stats{};
+
+            stats.fontscale = 1;
+            stats.spacing = 7;
+            stats.screenbottomspace = bottomy;
+
+            stats.time = Scale(PlayClock, 1000, 120);
+            stats.kills = Player->Kills;
+            stats.maxkills = TotalKillable;
+            stats.frags = -1;
+            stats.secrets = Player->SecretsFound;
+            stats.maxsecrets = LevelSecrets;
+            stats.font = SmallFont;
+
+            stats.letterColor = CR_RED;
+            stats.standardColor = CR_TAN;
+            stats.completeColor = CR_FIRE;
+
+            DBaseStatusBar::PrintLevelStats(stats);
+        }
+    }
+
+
     //---------------------------------------------------------------------------
     //
     // 
@@ -806,14 +843,12 @@ public:
         double inv_x, inv_y;
         int align;
 
-        short InventoryBarXpos[] = { 110, 110, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80 };
-        short InventoryBarYpos[] = { 172, 172, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130, 130 };
-
         if (gs.BorderNum <= BORDER_NONE)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
             inv_x = -210 * hud_scale / 100.;
             inv_y = -28 * hud_scale / 100.;
+            PrintLevelStats(2);
         }
         /*else if (gs.BorderNum == BORDER_HUD)
         {
@@ -842,34 +877,11 @@ public:
 
 };
 
-#if 0
-SWBOOL DebugSecret = FALSE;
-void SecretInfo(PLAYERp pp)
-{
-    if (!hud_stats) return;
-#define Y_STEP 7
-#define AVERAGEFRAMES 16
-    int x = windowxy1.x + 2;
-    int y = windowxy1.y + 2 + 8;
-    extern short LevelSecrets, TotalKillable;
-
-    if (CommEnabled || numplayers > 1)
-        return;
-
-    x = x / (xdim / 320.0);
-    y = y / (ydim / 200.0);
-
-    if (hud_stats)
-    {
-        sprintf(ds, "Kills %d/%d", Player->Kills, TotalKillable);
-        MNU_DrawSmallString(x, y, PAL_XLAT_BROWN, ds);
-
-        sprintf(ds, "Secrets %d/%d", Player->SecretsFound, LevelSecrets);
-        MNU_DrawSmallString(x, y + 10, PAL_XLAT_BROWN, ds);
-    }
-}
-#endif
-
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 static void UpdateFrame(void)
 {
@@ -887,6 +899,12 @@ static void UpdateFrame(void)
     twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 static FString cookieQuote;
 static int cookieTime;
 
@@ -895,6 +913,12 @@ void adduserquote(const char* daquote)
     cookieQuote = daquote;
     cookieTime = totalclock + 540;
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void UpdateStatusBar(ClockTicks arg)
 {
