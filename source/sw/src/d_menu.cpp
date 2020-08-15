@@ -53,14 +53,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_SW_NS
 
-int handle1;
-
-void Menu_Init(void)
-{
-
-
-}
-
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -86,8 +78,8 @@ class SWMainMenu : public DListMenu
 
 	void PreDraw() override
 	{
-        rotatesprite(160 << 16, 15 << 16, 65536, 0, pic_shadow_warrior,
-                     m_defshade, 0, ROTATE_SPRITE_SCREEN_CLIP, 0, 0, xdim - 1, ydim - 1);
+		DrawTexture(twod, tileGetTexture(pic_shadow_warrior), 160, 15, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_CenterOffsetRel, true, DTA_Color, 0xfff0f0f0, TAG_DONE);
 	}
 };
 
@@ -244,10 +236,8 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	short w, h;
-	// Draw the backdrop bar
-	rotatesprite(10 << 16, (5-3) << 16, 65536, 0, 2427,
-				 2, 0, MenuDrawFlags|RS_TOPLEFT, 0, 0, xdim - 1, ydim - 1);
+	DrawTexture(twod, tileGetTexture(2427), 10, 2, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_TopLeft, true, DTA_Color, 0xfff0f0f0,  TAG_DONE);
 	MNU_DrawStringLarge(160, 5, text, 1, 0);
 }
 
