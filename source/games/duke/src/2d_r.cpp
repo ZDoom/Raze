@@ -189,7 +189,12 @@ void Logo_r(const CompletionFunc& completion)
 	JobDesc jobs[3];
 	int job = 0;
 
-	if (!isRRRA())
+	if (userConfig.nologo)
+	{
+		completion(false);
+		return;
+	}
+	else if (!isRRRA())
 	{
 		jobs[job++] = { PlayVideo("rr_intro.anm", introsound, framespeed), nullptr };
 		jobs[job++] = { PlayVideo("redneck.anm", rednecksound, framespeed), nullptr };

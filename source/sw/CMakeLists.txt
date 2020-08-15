@@ -1,5 +1,6 @@
 
 set( PCH_SOURCES
+	src/2d.cpp
 	src/actor.cpp
 	src/ai.cpp
 	src/anim.cpp

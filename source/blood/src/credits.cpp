@@ -69,23 +69,26 @@ void playlogos()
 	}
 
 
-	if (fileSystem.FindFile("logo.smk"))
+	if (!userConfig.nologo)
 	{
-		jobs[job++] = { PlayVideo("logo.smk", &logosound[0], 0) };
-	}
-	else
-	{
-		jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); }};
-		jobs[job++] = { Create<DImageScreen>(2050) };
-	}
-	if (fileSystem.FindFile("gti.smk"))
-	{
-		jobs[job++] = { PlayVideo("gti.smk", &logosound[2], 0) };
-	}
-	else
-	{
-		jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); }};
-		jobs[job++] = { Create<DImageScreen>(2052) };
+		if (fileSystem.FindFile("logo.smk"))
+		{
+			jobs[job++] = { PlayVideo("logo.smk", &logosound[0], 0) };
+		}
+		else
+		{
+			jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); } };
+			jobs[job++] = { Create<DImageScreen>(2050) };
+		}
+		if (fileSystem.FindFile("gti.smk"))
+		{
+			jobs[job++] = { PlayVideo("gti.smk", &logosound[2], 0) };
+		}
+		else
+		{
+			jobs[job++] = { Create<DBlackScreen>(1), []() { sndStartSample("THUNDER2", 128, -1); } };
+			jobs[job++] = { Create<DImageScreen>(2052) };
+		}
 	}
 	jobs[job++] = { Create<DBlackScreen>(1), []() { sndPlaySpecialMusicOrNothing(MUS_INTRO); sndStartSample("THUNDER2", 128, -1); }};
 	jobs[job++] = { Create<DImageScreen>(2518, DScreenJob::fadein) };

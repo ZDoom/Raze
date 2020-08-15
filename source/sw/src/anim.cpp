@@ -43,6 +43,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "../glbackend/glbackend.h"
 #include "v_2ddrawer.h"
 #include "animtexture.h"
+#include "screenjob.h"
+#include "raze_music.h"
 
 
 BEGIN_SW_NS
@@ -66,29 +68,6 @@ const char *ANIMname[] =
 
 #define ANIM_TILE(num) (MAXTILES-11 + (num))
 
-void AnimShareIntro(int frame, int numframes)
-{
-    int zero=0;
-
-    if (frame == numframes-1)
-        ototalclock += 120;
-    else if (frame == 1)
-    {
-        PlaySound(DIGI_NOMESSWITHWANG, v3df_none, CHAN_BODY, CHANF_UI);
-        ototalclock += 120*3;
-    }
-    else
-        ototalclock += 8;
-
-    if (frame == 5)
-    {
-        PlaySound(DIGI_INTRO_SLASH, v3df_none, CHAN_BODY, CHANF_UI);
-    }
-    else if (frame == 15)
-    {
-        PlaySound(DIGI_INTRO_WHIRL, v3df_none, CHAN_BODY, CHANF_UI);
-    }
-}
 
 void AnimSerp(int frame, int numframes)
 {
@@ -306,7 +285,7 @@ playanm(short anim_num)
             switch (ANIMnum)
             {
             case ANIM_INTRO:
-                AnimShareIntro(i, numframes);
+                //AnimShareIntro(i, numframes);
                 break;
             case ANIM_SERP:
                 AnimSerp(i, numframes);

@@ -151,7 +151,7 @@ public:
 		int delay = 20;
 		if (frameTicks)
 		{
-			if (curframe == 0) delay = frameTicks[0];
+			if (curframe == 1) delay = frameTicks[0];
 			else if (curframe < numframes - 1) delay = frameTicks[1];
 			else delay = frameTicks[2];
 		}

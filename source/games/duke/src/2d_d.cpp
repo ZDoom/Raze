@@ -269,8 +269,13 @@ void Logo_d(const CompletionFunc &completion)
 
 	JobDesc jobs[3];
 	int job = 0;
-	if (VOLUMEALL) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
-	if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
+	if (!userConfig.nologo)
+	{
+		if (VOLUMEALL) jobs[job++] = { PlayVideo("logo.anm", logosound, logoframetimes), []() { S_PlaySpecialMusic(MUS_INTRO); } };
+		else jobs[job++] = { Create<DScreenJob>(), []() { S_PlaySpecialMusic(MUS_INTRO); } };
+		if (!isNam()) jobs[job++] = { Create<DDRealmsScreen>(), nullptr };
+	}
+	else S_PlaySpecialMusic(MUS_INTRO);
 	jobs[job++] = { Create<DTitleScreen>(), []() { S_PlaySound(NITEVISION_ONOFF, CHAN_AUTO, CHANF_UI); } };
 	RunScreenJob(jobs, job, completion, true, true);
 }

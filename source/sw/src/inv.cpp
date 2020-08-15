@@ -484,11 +484,7 @@ void InventoryKeys(PLAYERp pp)
 
             inv_hotkey -= 1;
 
-            ////DSPRINTF(ds,"inv_hotkey %d",inv_hotkey);
-            //MONO_PRINT(ds);
-
             // switches you to this inventory item
-            //PlayerUpdateInventory(pp, inv_hotkey);
             pp->InventoryNum = inv_hotkey;
 
             if (InventoryData[pp->InventoryNum].Init && !TEST(pp->Flags, PF_CLIMBING))
@@ -497,16 +493,7 @@ void InventoryKeys(PLAYERp pp)
                 {
                     InventoryUse(pp);
                 }
-#if 0
-                else
-                {
-                    sprintf(ds,"No %s",InventoryData[pp->InventoryNum].Name);
-                    PutStringInfo(pp,ds); // DONT have message
-                }
-#endif
             }
-
-            //PlayerUpdateInventory(pp, pp->InventoryNum);
         }
     }
     else

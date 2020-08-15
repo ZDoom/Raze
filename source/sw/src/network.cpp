@@ -580,17 +580,6 @@ waitforeverybody(void)
     else if (NetBroadcastMode)
         netbroadcastpacket(tempbuf, size);
 
-#if 0
-    for (i = connecthead; i >= 0; i = connectpoint2[i])
-    {
-        if (i != myconnectindex)
-        {
-            DSPRINTF(ds,"Ready packet sent to %d", i);
-            DebugWriteString(ds);
-        }
-    }
-#endif
-
     Player[myconnectindex].playerreadyflag++;
 
     while (TRUE)
@@ -613,14 +602,6 @@ waitforeverybody(void)
             TerminateGame();
 
         }
-
-#if 0
-        for (i = connecthead; i >= 0; i = connectpoint2[i])
-        {
-            DSPRINTF(ds,"myindex %d, myready %d, Player %d, Ready %d", myconnectindex, Player[myconnectindex].playerreadyflag, i, Player[i].playerreadyflag);
-            DebugWriteString(ds);
-        }
-#endif
 
         for (i = connecthead; i >= 0; i = connectpoint2[i])
         {
@@ -716,9 +697,6 @@ SWBOOL MyCommPlayerQuit(void)
                     screenpeek = connecthead;
             }
 
-            DSPRINTF(ds,"MyCommPlayerQuit %d", quit_player_index);
-            DebugWriteString(ds);
-
             if (i == connecthead)
                 connecthead = connectpoint2[connecthead];
             else
@@ -764,9 +742,6 @@ SWBOOL MenuCommPlayerQuit(short quit_player)
             if (screenpeek < 0)
                 screenpeek = connecthead;
         }
-
-        DSPRINTF(ds,"MenuPlayerQuit %d", quit_player);
-        DebugWriteString(ds);
 
         if (i == connecthead)
             connecthead = connectpoint2[connecthead];

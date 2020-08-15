@@ -432,14 +432,6 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
     default:
     {
         TotalKillable++;
-#if DEBUG
-        extern SWBOOL DebugSecret;
-        if (DebugSecret)
-        {
-            sprintf(ds,"COUNTED: spnum %d, pic %d, x %d, y %d",SpriteNum,sp->picnum,sp->x,sp->y);
-            DebugWriteString(ds);
-        }
-#endif
     }
 
     break;

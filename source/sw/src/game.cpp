@@ -126,7 +126,6 @@ extern int sw_snd_scratch;
 
 #define STAT_SCREEN_PIC 5114
 #define TITLE_PIC 2324
-#define THREED_REALMS_PIC 2325
 #define TITLE_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 #define PAL_SIZE (256*3)
 
@@ -149,7 +148,6 @@ int DemoTextYstart = 0;
 int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
-short IntroAnimCount = 0;
 short PlayingLevel = -1;
 SWBOOL GraphicsMode = FALSE;
 char CacheLastLevel[32] = "";
@@ -271,7 +269,6 @@ int krandcount;
 void BOT_DeleteAllBots(void);
 void BotPlayerInsert(PLAYERp pp);
 void SybexScreen(void);
-void PlayTheme(void);
 void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
@@ -282,11 +279,11 @@ static FILE *debug_fout = NULL;
 
 
 // Transitioning helper.
-int SyncScreenJob(JobDesc *jobs, int count)
+void Logo(const CompletionFunc& completion);
+
+int SyncScreenJob()
 {
-    bool abort = false;
-    RunScreenJob(jobs, count, [&](bool) { abort = true; });
-    while (!abort)
+    while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
     {
         handleevents();
         updatePauseStatus();
@@ -298,84 +295,13 @@ int SyncScreenJob(JobDesc *jobs, int count)
         RunScreenJobFrame();	// This handles continuation through its completion callback.
         videoNextPage();
     }
-    gamestate = GS_LEVEL;
     return 0;
 }
 
 
-void DebugWriteString(char *string)
-{
-
-#if BETA || !DEBUG
-    return;
-#endif
-
-    if (!debug_fout)
-    {
-        if ((debug_fout = fopen("dbg.foo", "ab+")) == NULL)
-            return;
-    }
-
-    fprintf(debug_fout, "%s\n", string);
-
-    //fclose(debug_fout);
-    //debug_fout = NULL;
-
-    fflush(debug_fout);
-}
-
-void DebugWriteLoc(char *fname, int line)
-{
-
-#if BETA || !DEBUG
-    return;
-#endif
-
-    if (!debug_fout)
-    {
-        if ((debug_fout = fopen("dbg.foo", "ab+")) == NULL)
-            return;
-    }
-
-    fprintf(debug_fout, "%s, %d\n", fname, line);
-
-    //fclose(debug_fout);
-    //debug_fout = NULL;
-
-    fflush(debug_fout);
-}
-
-void Mono_Print(char *str)
-{
-    MONO_PRINT(str);
-}
 
 
 extern SWBOOL DrawScreen;
-#if RANDOM_DEBUG
-FILE *fout_err;
-SWBOOL RandomPrint;
-int krand1(char *file, unsigned line)
-{
-    ASSERT(!DrawScreen);
-    if (RandomPrint && !Prediction)
-    {
-        extern uint32_t MoveThingsCount;
-        sprintf(ds,"mtc %d, %s, line %d, %d",MoveThingsCount,file,line,randomseed);
-        DebugWriteString(ds);
-    }
-    randomseed = ((randomseed * 21 + 1) & 65535);
-    return randomseed;
-}
-
-int krand2()
-{
-    ASSERT(!DrawScreen);
-    randomseed = ((randomseed * 21 + 1) & 65535);
-    return randomseed;
-}
-
-#else
 int krand1(void)
 {
     ASSERT(!DrawScreen);
@@ -383,8 +309,6 @@ int krand1(void)
     randomseed = ((randomseed * 21 + 1) & 65535);
     return randomseed;
 }
-
-#endif
 
 int PointOnLine(int x, int y, int x1, int y1, int x2, int y2)
 {
@@ -560,12 +484,6 @@ void AnimateCacheCursor(void)
 
 static int firstnet = 0;    // JBF
 
-typedef enum basepal_ {
-    BASEPAL = 0,
-    DREALMSPAL,
-} basepal_t;
-
-
 void SW_InitMultiPsky(void)
 {
     // default
@@ -579,9 +497,6 @@ bool InitGame()
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
     int i;
-
-    DSPRINTF(ds,"InitGame...");
-    MONO_PRINT(ds);
 
     engineInit();
 
@@ -895,7 +810,6 @@ InitLevel(void)
         InitNewGame();
 
     LoadingLevelScreen();
-    MONO_PRINT("LoadintLevelScreen");
     if (!DemoMode && !DemoInitOnce)
         DemoPlaySetup();
 
@@ -965,21 +879,6 @@ InitLevel(void)
     
     // reset NewGame
     NewGame = FALSE;
-
-    DSPRINTF(ds,"End of InitLevel...");
-    MONO_PRINT(ds);
-
-#if 0
-#if DEBUG
-    if (!cansee(43594, -92986, 0x3fffffff, 290,
-                43180, -91707, 0x3fffffff, 290))
-    {
-        DSPRINTF(ds,"cansee failed");
-        MONO_PRINT(ds);
-    }
-#endif
-#endif
-
 }
 
 
@@ -1042,8 +941,6 @@ TerminateLevel(void)
     {
         if (*sectu)
         {
-            ////DSPRINTF(ds,"Sect User Free %d",sectu-SectUser);
-            //MONO_PRINT(ds);
             FreeMem(*sectu);
             *sectu = NULL;
         }
@@ -1184,61 +1081,6 @@ void PlayTheme()
 {
     // start music at logo
     PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-
-    DSPRINTF(ds,"After music stuff...");
-    MONO_PRINT(ds);
-}
-
-void LogoLevel(void)
-{
-    int fin;
-
-    if (userConfig.nologo) return;
-    DSPRINTF(ds,"LogoLevel...");
-    MONO_PRINT(ds);
-
-    MONO_PRINT(ds);
-
-    //FadeOut(0, 0);
-    ready2send = 0;
-    totalclock = 0;
-    ototalclock = 0;
-
-    DSPRINTF(ds,"About to display 3drealms pic...");
-    MONO_PRINT(ds);
-
-    //FadeIn(0, 3);
-
-    inputState.ClearAllInput();
-    while (TRUE)
-    {
-        twod->ClearScreen();
-        rotatesprite(0, 0, RS_SCALE, 0, THREED_REALMS_PIC, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1, nullptr, DREALMSPAL);
-        videoNextPage();
-
-        handleevents();
-
-        // limits checks to max of 40 times a second
-        if (totalclock >= ototalclock + synctics)
-        {
-            ototalclock += synctics;
-        }
-
-        if (totalclock > 5*120 || inputState.CheckAllInput())
-        {
-			inputState.ClearAllInput();
-            break;
-        }
-    }
-
-    twod->ClearScreen();
-    videoNextPage();
-
-    // put up a blank screen while loading
-
-    DSPRINTF(ds,"End of LogoLevel...");
-    MONO_PRINT(ds);
-
 }
 
 void CreditsLevel(void)
@@ -1351,14 +1193,6 @@ void DrawLoadLevelScreen(void)
 }
 
 short PlayerQuitMenuLevel = -1;
-
-void IntroAnimLevel(void)
-{
-    if (userConfig.nologo) return;
-    DSPRINTF(ds,"IntroAnimLevel");
-    MONO_PRINT(ds);
-    playanm(0);
-}
 
 void MenuLevel(void)
 {
@@ -1997,32 +1831,12 @@ void StatScreen(PLAYERp mpp)
 
 void GameIntro(void)
 {
-
-    DSPRINTF(ds,"GameIntro...");
-    MONO_PRINT(ds);
-
-    if (DemoPlaying)
-        return;
-
-    // this could probably be taken out and you could select skill level
-    // from menu to start the game
-    if (!CommEnabled && UserMapName[0])
+    if (DemoPlaying || (!CommEnabled && UserMapName[0]))
         return;
 
     Level = 1;
-
-
-
-    PlayTheme();
-
-    if (!AutoNet)
-    {
-        LogoLevel();
-        //CreditsLevel();
-        IntroAnimLevel();
-        IntroAnimCount = 0;
-    }
-
+    Logo([](bool) { gamestate = GS_LEVEL; });
+    SyncScreenJob();
     MenuLevel();
 }
 
@@ -2030,8 +1844,6 @@ void Control()
 {
 	InitGame();
 
-    MONO_PRINT("InitGame done");
-    //MNU_InitMenus();
     InGame = TRUE;
     GameIntro();
 
@@ -2162,7 +1974,6 @@ void InitRunLevel(void)
         SavePlayClock = PlayClock;
         InitTimingVars();
         PlayClock = SavePlayClock;
-        MONO_PRINT("Done with InitRunLevel");
         return;
     }
 
@@ -2210,7 +2021,6 @@ void InitRunLevel(void)
     // everything has been inited at least once for RECORD
     DemoInitOnce = TRUE;
 
-//DebugWriteLoc(__FILE__, __LINE__);
     waitforeverybody();
 
     CheckVersion(GameVersion);
@@ -2885,13 +2695,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
     if (buttonMap.ButtonDown(gamefunc_Move_Forward))
     {
         vel += keymove;
-        //DSPRINTF(ds,"vel key %d",vel);
-        //DebugWriteString(ds);
-    }
-    else
-    {
-        //DSPRINTF(ds,"vel %d",vel);
-        //DebugWriteString(ds);
     }
 
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
@@ -3490,37 +3293,6 @@ SHOWSPRITE:
 }
 
 
-#if RANDOM_DEBUG
-int RandomRange(int range, char *file, unsigned line)
-{
-    uint32_t rand_num;
-    uint32_t value;
-    extern FILE *fout_err;
-    extern uint32_t MoveThingsCount;
-
-    if (RandomPrint && !Prediction)
-    {
-        sprintf(ds,"mtc %d, %s, line %d, %d",MoveThingsCount,file,line,randomseed);
-        DebugWriteString(ds);
-    }
-
-    if (range <= 0)
-        return 0;
-
-    rand_num = krand2();
-
-    if (rand_num == 65535U)
-        rand_num--;
-
-    // shift values to give more precision
-    value = (rand_num << 14) / ((65535UL << 14) / range);
-
-    if (value >= range)
-        value = range - 1;
-
-    return value;
-}
-#else
 int RandomRange(int range)
 {
     uint32_t rand_num;
@@ -3542,7 +3314,6 @@ int RandomRange(int range)
 
     return value;
 }
-#endif
 
 int StdRandomRange(int range)
 {

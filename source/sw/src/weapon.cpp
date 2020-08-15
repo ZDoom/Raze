@@ -5000,16 +5000,6 @@ void UpdateSinglePlayKills(short SpriteNum)
     // single play and coop kill count
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
     {
-#if DEBUG
-        extern SWBOOL DebugSecret;
-        if (DebugSecret)
-        {
-            SPRITEp sp = &sprite[SpriteNum];
-            sprintf(ds,"KILLED: spnum %d, pic %d, x %d, y %d",SpriteNum,sp->picnum,sp->x,sp->y);
-            DebugWriteString(ds);
-        }
-#endif
-
         ASSERT(User[SpriteNum]);
 
         if (TEST(User[SpriteNum]->Flags, SPR_SUICIDE))

@@ -117,6 +117,12 @@ enum GameFunction_t
     NUM_ACTIONS
 };
 
+enum
+{
+    DREALMSPAL = 1,
+    THREED_REALMS_PIC = 2325,
+};
+
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
 extern char isShareware;
 #define SW_SHAREWARE (isShareware)
@@ -141,28 +147,6 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine);
 #define ASSERT(f) do { } while (0)
 #endif
 
-#if DEBUG
-void HeapCheck(char *, int);
-#define HEAP_CHECK() HeapCheck(__FILE__, __LINE__)
-
-void dsprintf(char *, char *, ...);
-#define DSPRINTF dsprintf
-
-void PokeStringMono(uint8_t Attr, uint8_t* String);
-
-#if 1
-// !JIM! Frank, I redirect this for me you'll want to set this back for you
-extern int DispMono;
-#define MONO_PRINT(str) if (DispMono) PokeStringMono(/*MDA_NORMAL*/ 0, str)
-#else
-void adduserquote(const char *daquote);
-extern int DispMono;
-#define MONO_PRINT(str) if (DispMono) Printf(str); // Put it in my userquote stuff!
-//#define MONO_PRINT(str) if (DispMono) printf(str);
-#endif
-
-#define RANDOM_DEBUG 1 // Set this to 1 for network testing.
-#else
 #define MONO_PRINT(str)
 
 void dsprintf_null(char *str, const char *format, ...);
@@ -171,22 +155,13 @@ void dsprintf_null(char *str, const char *format, ...);
 
 #define HEAP_CHECK()
 #define RANDOM_DEBUG 0
-#endif
 
 
-#if RANDOM_DEBUG
-int RandomRange(int, char *, unsigned);
-int krand1(char *, unsigned);
-#define RANDOM_P2(pwr_of_2) (MOD_P2(krand1(__FILE__,__LINE__),(pwr_of_2)))
-#define RANDOM_RANGE(range) (RandomRange(range,__FILE__,__LINE__))
-#define RANDOM() (krand1(__FILE__,__LINE__))
-#else
 int RandomRange(int);
 int krand1(void);
 #define RANDOM_P2(pwr_of_2) (MOD_P2(krand1(),(pwr_of_2)))
 #define RANDOM_RANGE(range) (RandomRange(range))
 #define RANDOM() (krand1())
-#endif
 
 
 #define PRINT(line,str) DebugPrint(line,str)
@@ -2428,6 +2403,7 @@ void ScaleSectorObject(SECTOR_OBJECTp sop); // morph.c
 void MorphTornado(SECTOR_OBJECTp sop);  // morph.c
 void MorphFloor(SECTOR_OBJECTp sop);    // morph.c
 void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,int *dy);    // morph.c
+void PlayTheme(void);
 
 void CopySectorMatch(short match);  // copysect.c
 
