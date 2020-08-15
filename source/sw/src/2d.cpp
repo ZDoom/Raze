@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "network.h"
 #include "pal.h"
+#include "demo.h"
 
 
 BEGIN_SW_NS
@@ -94,6 +95,129 @@ void Logo(const CompletionFunc& completion)
 	}
 	else completion(false);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+DScreenJob* GetFinishAnim(int num)
+{
+    static const AnimSound serpsound[] =
+    {
+        { 1, DIGI_SERPTAUNTWANG },
+        { 16, DIGI_SHAREND_TELEPORT },
+        { 35, DIGI_WANGTAUNTSERP1 },
+        { 51, DIGI_SHAREND_UGLY1 },
+        { 64, DIGI_SHAREND_UGLY2 },
+        { -1, -1 }
+    };
+    static const int serpzillaframetimes[] = { 16, 16, 136 };
+
+    static const AnimSound sumosound[] =
+    {
+        { 2, DIGI_JG41012 },
+        { 30, DIGI_HOTHEADSWITCH },
+        { 42, DIGI_HOTHEADSWITCH },
+        { 59, DIGI_JG41028 },
+        { -1, -1 }
+    };
+    static const int sumoframetimes[] = { 40, 10, 130 };
+
+    static const AnimSound zillasound[] =
+    {
+        { 1, DIGI_ZC1 },
+        { 5, DIGI_JG94024 },
+        { 14, DIGI_ZC2 },
+        { 30, DIGI_ZC3 },
+        { 32, DIGI_ZC4 },
+        { 37, DIGI_ZC5 },
+        { 63, DIGI_Z16043 },
+        { 63, DIGI_ZC6 },
+        { 63, DIGI_ZC7 },
+        { 72, DIGI_ZC7 },
+        { 73, DIGI_ZC4 },
+        { 77, DIGI_ZC5 },
+        { 87, DIGI_ZC8 },
+        { 103, DIGI_ZC7 },
+        { 108, DIGI_ZC9 },
+        { 120, DIGI_JG94039 },
+        { -1, -1 }
+    };
+
+    static const char* const ANIMname[] =
+    {
+        "swend.anm",
+        "sumocinm.anm",
+        "zfcin.anm",
+    };
+
+    switch (num)
+    {
+    case ANIM_SERP: return PlayVideo("swend.anm", serpsound, serpzillaframetimes);
+    case ANIM_SUMO: return PlayVideo("sumocinm.anm", sumosound, sumoframetimes);
+    case ANIM_ZILLA:return PlayVideo("zfcin.anm", zillasound, serpzillaframetimes);
+    default: return nullptr;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DSWCreditsScreen : public DScreenJob
+{
+    enum
+    {
+        CREDITS1_PIC = 5111,
+        CREDITS2_PIC = 5118
+    };
+    int state = 0;
+    int starttime;
+    int curpic;
+
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        twod->ClearScreen();
+        int seconds = int(clock * 120 / 1'000'000'000);
+        if (clock == 0)
+        {
+            // Lo Wang feel like singing!
+            PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
+        }
+        if (state == 0)
+        {
+            if (skiprequest || !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+            {
+                skiprequest = false;
+                starttime = seconds;
+                state = 1;
+                StopSound();
+                curpic = CREDITS1_PIC;
+
+                // try 14 then 2 then quit
+                if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
+                {
+                    PlaySong(nullptr, nullptr, 2, true);
+                }
+            }
+        }
+        else
+        {
+            if (seconds >= starttime + 8)
+            {
+                curpic = CREDITS1_PIC + CREDITS2_PIC - curpic;
+                starttime = seconds;
+            }
+            DrawTexture(twod, tileGetTexture(curpic, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+        }
+        if (skiprequest) StopSound();
+        return skiprequest ? -1 : 1;
+    }
+};
 
 //---------------------------------------------------------------------------
 //
@@ -444,6 +568,57 @@ class DSWMultiSummaryScreen : public DScreenJob
             y += STAT_OFF_Y;
         }
         if (skiprequest) StopSound();
+        return skiprequest ? -1 : 1;
+    }
+};
+
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void SybexScreen(CompletionFunc completion)
+{
+    if (!SW_SHAREWARE || CommEnabled) completion(false);
+    else
+    {
+        JobDesc job = { Create<DImageScreen>(tileGetTexture(5261), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
+        RunScreenJob(&job, 1, completion, true, true);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DSWLoadScreen : public DScreenJob
+{
+    std::function<int(void)> callback;
+    MapRecord* rec;
+
+public:
+    DSWLoadScreen(MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec) {}
+
+    int Frame(uint64_t clock, bool skiprequest)
+    {
+        const int TITLE_PIC = 2324;
+        twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+
+        MNU_DrawString(160, 170, DemoMode ? GStrings("TXT_LBDEMO") : GStrings("TXT_ENTERING"), 1, 16, 0);
+        MNU_DrawString(160, 180, currentLevel->DisplayName(), 1, 16, 0);
+
+        // Initiate the level load once the page has been faded in completely.
+        if (callback && GetFadeState() == visible)
+        {
+            callback();
+            callback = nullptr;
+        }
+        if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
         return skiprequest ? -1 : 1;
     }
 };

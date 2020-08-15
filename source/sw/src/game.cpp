@@ -25,20 +25,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 
 #include "ns.h"
-// CTW NOTE
-/*
-Known remaining issues:
-- Audio stuttering.
-- CD Audio not looping properly (currently hard coded to restart about every 200 seconds.
-- Hitting F5 to change resolution causes a crash (currently disabled).
-- Multiplayer untested.
-
-Things required to make savegames work:
-- Load makesym.wpj and build it.
-- In a DOS prompt, run "makesym sw.map swdata.map swcode.map"
-- Copy swcode.map to swcode.sym and swdata.map to swdata.sym
-*/
-// CTW NOTE END
 
 #define MAIN
 #define QUIET
@@ -72,8 +58,6 @@ Things required to make savegames work:
 #include "demo.h"
 #include "misc.h"
 //#include "exports.h"
-
-#include "anim.h"
 
 #include "misc.h"
 #include "break.h"
@@ -124,7 +108,6 @@ extern int sw_snd_scratch;
 #define BETA 0
 #endif
 
-#define TITLE_PIC 2324
 #define TITLE_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 #define PAL_SIZE (256*3)
 
@@ -283,6 +266,7 @@ int SyncScreenJob()
 {
     while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
     {
+        DoUpdateSounds();
         handleevents();
         updatePauseStatus();
         D_ProcessEvents();
@@ -333,13 +317,6 @@ Distance(int x1, int y1, int x2, int y2)
     return x2 + y2 - DIV2(min);
 }
 
-void
-setup2dscreen(void)
-{
-    // qsetmode640350();
-}
-
-
 
 void TerminateGame(void)
 {
@@ -351,8 +328,7 @@ void TerminateGame(void)
 
     if (CleanExit)
     {
-        SybexScreen();
-        //TenScreen();
+        //SybexScreen();
     }
     throw CExitEvent(3);
 }
@@ -370,44 +346,6 @@ bool LoadLevel(const char *filename)
     STAT_NewLevel(currentLevel->labelName);
     Player[0].q16ang = fix16_from_int(ang);
     return true;
-}
-
-void LoadDemoRun(void)
-{
-    short i;
-    FILE *fin;
-
-    fin = fopen("demos.run","r");
-    if (fin)
-    {
-        memset(DemoName,'\0',sizeof(DemoName));
-        for (i = 0; i < ARRAY_SSIZE(DemoName); i++)
-        {
-            if (fscanf(fin, "%s", DemoName[i]) == EOF)
-                break;
-        }
-        if (i == ARRAY_SSIZE(DemoName))
-            Printf("WARNING: demos.run is too long, ignoring remaining files\n");
-
-        fclose(fin);
-    }
-
-    memset(DemoText,'\0',sizeof(DemoText));
-    fin = fopen("demotxt.run","r");
-    if (fin)
-    {
-        fgets(ds, 6, fin);
-        sscanf(ds,"%d",&DemoTextYstart);
-        for (i = 0; i < ARRAY_SSIZE(DemoText); i++)
-        {
-            if (fgets(DemoText[i], SIZ(DemoText[0])-1, fin) == NULL)
-                break;
-        }
-        if (i == ARRAY_SSIZE(DemoText))
-            Printf("WARNING: demotxt.run is too long, trimming the text\n");
-
-        fclose(fin);
-    }
 }
 
 void DisplayDemoText(void)
@@ -455,30 +393,6 @@ void InitAutoNet(void)
     gs.NetNuke          = Auto.Nuke;
 }
 
-
-void AnimateCacheCursor(void)
-{
-#if 0
-    struct rccoord old_pos;
-    static short cursor_num = 0;
-    static char cache_cursor[] =  {'|','/','-','\\'};
-
-    if (GraphicsMode)
-        return;
-
-    cursor_num++;
-    if (cursor_num > 3)
-        cursor_num = 0;
-
-    //old_pos = _gettextposition();
-    //_settextposition( old_pos.row, old_pos.col );
-    //_settextposition( 24,  25);
-    _settextposition(25,  0);
-    sprintf(ds,"Loading sound and graphics %c", cache_cursor[cursor_num]);
-    _outtext(ds);
-    //_settextposition( old_pos.row, old_pos.col );
-#endif
-}
 
 static int firstnet = 0;    // JBF
 
@@ -552,9 +466,7 @@ bool InitGame()
         gNet.MultiGameType = MULTI_GAME_COMMBAT;
     }
 
-    LoadDemoRun();
-
-	TileFiles.LoadArtSet("tiles%03d.art");
+    TileFiles.LoadArtSet("tiles%03d.art");
 
     Connect();
     SortBreakInfo();
@@ -588,17 +500,13 @@ bool InitGame()
     // precache as much stuff as you can
     if (UserMapName[0] == '\0')
     {
-        AnimateCacheCursor();
         if (!LoadLevel("$dozer.map")) return false;
-        AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
     }
     else
     {
-        AnimateCacheCursor();
 		if (!LoadLevel(UserMapName)) return false;
-        AnimateCacheCursor();
         SetupPreCache();
         DoTheCache();
     }
@@ -609,23 +517,6 @@ bool InitGame()
 	return true;
 }
 
-
-/*
-Directory of C:\DEV\SW\MIDI
-EXECUT11 MID
-HROSHMA6 MID
-HOSHIA02 MID
-INTRO131 MID
-KOTEC2   MID
-KOTOKI12 MID
-NIPPON34 MID
-NOKI41   MID
-SANAI    MID
-SIANRA23 MID
-TKYO2007 MID
-TYTAIK16 MID
-YOKOHA03 MID
-*/
 
 short SongLevelNum;
 
@@ -805,7 +696,7 @@ InitLevel(void)
     if (NewGame)
         InitNewGame();
 
-    LoadingLevelScreen();
+    //LoadingLevelScreen();
     if (!DemoMode && !DemoInitOnce)
         DemoPlaySetup();
 
@@ -1050,134 +941,17 @@ void NewLevel(void)
 }
 
 
-uint8_t* KeyPressedRange(uint8_t* kb, uint8_t* ke)
-{
-    uint8_t* k;
-
-    for (k = kb; k <= ke; k++)
-    {
-        if (*k)
-            return k;
-    }
-
-    return NULL;
-}
-
-void ResetKeyRange(uint8_t* kb, uint8_t* ke)
-{
-    uint8_t* k;
-
-    for (k = kb; k <= ke; k++)
-    {
-        *k = 0;
-    }
-}
-
 void PlayTheme()
 {
     // start music at logo
     PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 }
 
-void CreditsLevel(void)
-{
-    int curpic;
-    int handle;
-    uint32_t timer = 0;
-    int zero=0;
-    short save;
-#define CREDITS1_PIC 5111
-#define CREDITS2_PIC 5118
-
-    twod->ClearScreen();
-    videoNextPage();
-    inputState.ClearAllInput();
-
-    // Lo Wang feel like singing!
-    PlaySound(DIGI_JG95012, v3df_none, CHAN_VOICE, CHANF_UI);
-    while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
-    {
-        DoUpdateSounds();
-        handleevents();
-        if (inputState.CheckAllInput())
-            break;
-        videoNextPage();
-    }
-    StopSound();
-
-    // try 14 then 2 then quit
-    if (!PlaySong(nullptr, ThemeSongs[5], ThemeTrack[5], true))
-    {
-        PlaySong(nullptr, nullptr, 2, true);
-    }
-
-    ready2send = 0;
-    totalclock = 0;
-    ototalclock = 0;
-
-    inputState.ClearAllInput();
-    curpic = CREDITS1_PIC;
-
-    while (!inputState.CheckAllInput())
-    {
-        handleevents();
-
-        // limits checks to max of 40 times a second
-        if (totalclock >= ototalclock + synctics)
-        {
-            ototalclock += synctics;
-            timer += synctics;
-        }
-
-        rotatesprite(0, 0, RS_SCALE, 0, curpic, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-
-        videoNextPage();
-
-        if (timer > 8*120)
-        {
-            curpic = CREDITS2_PIC;
-        }
-
-        if (timer > 16*120)
-        {
-            timer = 0;
-            curpic = CREDITS1_PIC;
-        }
-		handleevents();
-    }
-
-    // put up a blank screen while loading
-    twod->ClearScreen();
-    videoNextPage();
-    inputState.ClearAllInput();
-    Mus_Stop();
-}
-
-
-void SybexScreen(void)
-{
-    if (!SW_SHAREWARE) return;
-
-    if (CommEnabled)
-        return;
-
-    rotatesprite(0, 0, RS_SCALE, 0, 5261, 0, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-    videoNextPage();
-
-    inputState.ClearAllInput();
-    while (!inputState.CheckAllInput()) handleevents();
-}
-
 // CTW REMOVED END
 
 void DrawMenuLevelScreen(void)
 {
-    twod->ClearScreen();
-    rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
-}
-
-void DrawLoadLevelScreen(void)
-{
+    const int TITLE_PIC = 2324;
     twod->ClearScreen();
     rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
 }
@@ -1313,27 +1087,6 @@ void MenuLevel(void)
     videoNextPage();
 }
 
-void
-LoadingLevelScreen(void)
-{
-    short w,h;
-    extern SWBOOL DemoMode;
-    DrawLoadLevelScreen();
-
-    if (DemoMode)
-        sprintf(ds,"DEMO");
-    else
-        sprintf(ds,"ENTERING");
-
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 170, ds,1,16);
-
-	auto ds = currentLevel->DisplayName();
-    MNU_MeasureString(ds, &w, &h);
-    MNU_DrawString(TEXT_TEST_COL(w), 180, ds,1,16);
-
-    videoNextPage();
-}
 
 extern SWBOOL FinishedLevel;
 
@@ -1342,7 +1095,7 @@ void EndGameSequence(void)
 {
 	StopSound();
 
-    playanm(FinishAnim);
+    //playanm(FinishAnim);
 
     //BonusScreen();
 
@@ -1350,8 +1103,8 @@ void EndGameSequence(void)
     QuitFlag = FALSE;
     AutoNet = FALSE;
 
-    if (FinishAnim == ANIM_ZILLA)
-        CreditsLevel();
+    //if (FinishAnim == ANIM_ZILLA)
+      //      CreditsLevel();
 
     ExitLevel = FALSE;
     QuitFlag = FALSE;
@@ -1493,10 +1246,6 @@ void MoveLoop(void)
 
         domovethings();
 
-#if DEBUG
-        //if (DemoSyncRecord)
-        //    demosync_record();
-#endif
     }
 }
 
@@ -1662,56 +1411,6 @@ void RunLevel(void)
 
     ready2send = 0;
 }
-
-typedef struct
-{
-    char    notshareware;
-    const char    *arg_switch;
-    short   arg_match_len;
-    const char    *arg_fmt;
-    const char    *arg_descr;
-} CLI_ARG;
-
-
-
-
-CLI_ARG cli_arg[] =
-{
-    {0, "/?",                  2,      "-?",                   "This help message"                     },
-//#ifndef SW_SHAREWARE
-//{"/l",                  2,      "-l#",                  "Level (1-11)"                          },
-//{"/v",                  2,      "-v#",                  "Volume (1-3)"                          },
-    {1, "/map",                4,      "-map [mapname]",       "Load a map"                            },
-    {1, "/nocdaudio",          5,      "-nocd<audio>",         "No CD Red Book Audio"                  },
-//#endif
-
-    {0, "/name",               5,      "-name [playername]",   "Player Name"                           },
-    {0, "/s",                  2,      "-s#",                  "Skill (1-4)"                           },
-    {0, "/f#",                 3,      "-f#",                  "Packet Duplication - 2, 4, 8"          },
-    {0, "/nopredict",          7,      "-nopred<ict>",         "Disable Net Prediction Method"         },
-    {0, "/level#",             5,      "-level#",              "Start at level# (Shareware: 1-4, full version 1-28)"      },
-    {0, "/dr",                 3,      "-dr[filename.dmo]",    "Demo record. NOTE: Must use -level# with this option."           },
-    {0, "/dp",                 3,      "-dp[filename.dmo]",    "Demo playback. NOTE: Must use -level# with this option."         },
-    {0, "/m",                  6,      "-monst<ers>",          "No Monsters"                           },
-    {0, "/nodemo",             6,      "-nodemo",              "No demos on game startup"              },
-    {0, "/nometers",           9,      "-nometers",            "Don't show air or boss meter bars in game"},
-    {0, "/movescale #",        9,      "-movescale",           "Adjust movement scale: 256 = 1 unit"},
-    {0, "/turnscale #",        9,      "-turnscale",           "Adjust turning scale: 256 = 1 unit"},
-    {0, "/extcompat",          9,      "-extcompat",           "Controller compatibility mode (with Duke 3D)"},
-    {1, "/g#",                 2,      "-g[filename.grp]",     "Load an extra GRP or ZIP file"},
-    {1, "/h#",                 2,      "-h[filename.def]",     "Use filename.def instead of SW.DEF"},
-    {0, "/setup",              5,      "-setup",               "Displays the configuration dialogue box"},
-#if DEBUG
-    {0, "/coop",               5,      "-coop#",               "Single Player Cooperative Mode"        },
-    {0, "/commbat",            8,      "-commbat#",            "Single Player Commbat Mode"            },
-    {0, "/debug",              6,      "-debug",               "Debug Help Options"                    },
-#endif
-
-#if 0 //def NET_MODE_MASTER_SLAVE
-    {0, "/broadcast",          6,      "-broad<cast>",         "Broadcast network method (default)"    },
-    {0, "/masterslave",        7,      "-master<slave>",       "Master/Slave network method"           },
-#endif
-};
 
 #if 0
 Map       ->    User Map Name
@@ -2501,13 +2200,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         }
     }
 
-#if DEBUG
-    DebugKeys(pp);
-
-    if (!CommEnabled)                   // Single player only keys
-        SinglePlayInput(pp);
-#endif
-
     if (!tied)
         FunctionKeys(pp);
 
@@ -2915,10 +2607,6 @@ int StdRandomRange(int range)
 
     return value;
 }
-
-// [JM] Probably will need some doing over. !CHECKME!
-void G_Polymer_UnInit(void) { }
-
 
 #include "saveable.h"
 

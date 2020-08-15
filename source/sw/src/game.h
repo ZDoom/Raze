@@ -141,11 +141,7 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine);
             _Assert(#f,ERR_STD_ARG); \
     } while (0)
 
-#if DEBUG || defined DEBUGGINGAIDS
-#define ASSERT(f) PRODUCTION_ASSERT(f)
-#else
-#define ASSERT(f) do { } while (0)
-#endif
+#define ASSERT assert
 
 #define MONO_PRINT(str)
 
@@ -2342,7 +2338,6 @@ int DoRipper2RipHeart(short SpriteNum); // ripper2.c
 int BunnyHatch2(short Weapon);  // bunny.c
 int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
-void AnimateCacheCursor(void);  // game.c
 void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
@@ -2431,6 +2426,10 @@ extern int PlayClock;
 extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;
+
+#define ANIM_SERP 1
+#define ANIM_SUMO 2
+#define ANIM_ZILLA 3
 
 struct GameInterface : ::GameInterface
 {

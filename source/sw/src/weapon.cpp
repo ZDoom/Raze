@@ -40,7 +40,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "ai.h"
 #include "weapon.h"
-#include "anim.h"
 #include "sector.h"
 #include "sprite.h"
 #include "misc.h"
