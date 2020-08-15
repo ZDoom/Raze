@@ -37,6 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"
+#include "v_draw.h"
 
 BEGIN_SW_NS
 
@@ -974,11 +975,11 @@ BossHealthMeter(void)
         else
             color = 22;
 
-        rotatesprite((73+12)<<16,y<<16,65536L,0,5407,1,1,
-                     (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+        DrawTexture(twod, tileGetTexture(5407, true), 85, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, 1), TAG_DONE);
 
-        rotatesprite((100+47)<<16,y<<16,65536L,0,5406-metertics,1,color,
-                     (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+        DrawTexture(twod, tileGetTexture(5406 - metertics, true), 147, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
     }
 
 }

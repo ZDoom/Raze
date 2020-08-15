@@ -2425,45 +2425,11 @@ DoPlayerSlide(PLAYERp pp)
     }
 }
 
-void PlayerMoveHitDebug(short ret)
-{
-    SPRITEp sp;
-
-    switch (TEST(ret, HIT_MASK))
-    {
-    case HIT_SPRITE:
-        sp = &sprite[NORM_SPRITE(ret)];
-        //DSPRINTF(ds, "Hit a Sprite %d, stat %d ", sp-sprite, (short)sp->statnum);
-        if (sp->statnum == STAT_MISSILE)
-        {
-            //DSPRINTF(ds, "Monster hit bullet %d, stat %d ", sp-sprite, (short)sp->statnum);
-        }
-        else
-        {
-            //DSPRINTF(ds, "Hit a Sprite %d, stat %d ", sp-sprite, (short)sp->statnum);
-        }
-        break;
-    case HIT_WALL:
-        //DSPRINTF(ds, "Hit a Wall %d    ", NORM_WALL(ret));
-        break;
-    case HIT_SECTOR:
-        //DSPRINTF(ds, "Hit a Sector %d  ", NORM_SECTOR(ret));
-        break;
-    }
-
-    MONO_PRINT(ds);
-}
-
 void PlayerCheckValidMove(PLAYERp pp)
 {
     if (pp->cursectnum == -1)
     {
         static int count = 0;
-
-#if DEBUG
-        //DSPRINTF(ds,"PROBLEM!!!!! Player %d is not in a sector", pp - Player);
-        MONO_PRINT(ds);
-#endif
 
         pp->posx = pp->oldposx;
         pp->posy = pp->oldposy;
@@ -2985,19 +2951,6 @@ DoPlayerMoveBoat(PLAYERp pp)
     DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
 }
 
-#if 0
-STATE s_TankTreadMove[] =
-{
-    {755, 6|SF_WALL_ANIM, NULL, s_TankTreadMove[1]},
-    {756, 6|SF_WALL_ANIM, NULL, s_TankTreadMove[0]},
-};
-
-STATE s_TankTreadStill[] =
-{
-    {755, 6|SF_WALL_ANIM, NULL, s_TankTreadMove[0]},
-};
-#endif
-
 void DoTankTreads(PLAYERp pp)
 {
     SPRITEp sp;
@@ -3026,25 +2979,6 @@ void DoTankTreads(PLAYERp pp)
             if (!TEST_BOOL1(sp))
                 continue;
 
-#if 0
-            if (sp->statnum == STAT_WALL_ANIM)
-            {
-                if (SP_TAG3(sp) == TANK_TREAD_WALL_ANIM)
-                {
-                    if (vel)
-                    {
-                        if (u->StateStart != s_TankTreadMove)
-                            ChangeState(i, s_TankTreadMove);
-                    }
-                    else
-                    {
-                        if (u->StateStart != s_TankTreadStill)
-                            ChangeState(i, s_TankTreadStill);
-                    }
-                }
-            }
-            else
-#endif
             if (sp->statnum == STAT_WALL_PAN)
             {
                 if (reverse)
@@ -3761,9 +3695,6 @@ DoPlayerFall(PLAYERp pp)
         // adjust player height by jump speed
         pp->posz += pp->jump_speed;
 
-        ////DSPRINTF(ds,"Fall velocity = %d",pp->jump_speed);
-        //MONO_PRINT(ds);
-
         if (pp->jump_speed > 2000)
         {
             PlayerSound(DIGI_FALLSCREAM, v3df_dontpan|v3df_doppler|v3df_follow,pp);
@@ -4195,83 +4126,6 @@ SWBOOL PlayerFlyKey(void)
 #endif
     return key;
 }
-
-#if 0
-void
-DoPlayerBeginSwim(PLAYERp pp)
-{
-    USERp u = User[pp->PlayerSprite];
-    SPRITEp sp = &sprite[pp->PlayerSprite];
-
-    RESET(pp->Flags, PF_FALLING | PF_JUMPING);
-    SET(pp->Flags, PF_SWIMMING);
-
-    // reset because of bobbing when wading
-    pp->SpriteP->z = pp->posz + PLAYER_SWIM_HEIGHT;
-
-    pp->friction = PLAYER_SWIM_FRICTION;
-    pp->floor_dist = PLAYER_SWIM_FLOOR_DIST;
-    pp->ceiling_dist = PLAYER_SWIM_CEILING_DIST;
-    pp->DoPlayerAction = DoPlayerSwim;
-
-    //DamageData[u->WeaponNum].Init(pp);
-
-    NewStateGroup(pp->PlayerSprite, u->ActorActionSet->Swim);
-
-    SET(sp->cstat, CSTAT_SPRITE_YCENTER);
-}
-
-
-void
-DoPlayerSwim(PLAYERp pp)
-{
-    USERp u = User[pp->PlayerSprite];
-    SPRITEp sp = &sprite[pp->PlayerSprite];
-
-    // Jump to get up
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
-    {
-        if (FLAG_KEY_PRESSED(pp, SK_JUMP))
-        {
-            FLAG_KEY_RELEASE(pp, SK_JUMP);
-            RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-            RESET(pp->Flags, PF_SWIMMING);
-            DoPlayerBeginJump(pp);
-            // return;
-        }
-    }
-    else
-    {
-        FLAG_KEY_RESET(pp, SK_JUMP);
-    }
-
-    // If too shallow to swim or stopped the "RUN" key
-    if (pp->WadeDepth < MIN_SWIM_DEPTH || !(TEST_SYNC_KEY(pp, SK_RUN) || TEST(pp->Flags, PF_LOCK_RUN)))
-    {
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(pp->Flags, PF_SWIMMING);
-        DoPlayerBeginRun(pp);
-        // smooth the transition by updating the sprite now
-        //UpdatePlayerSprite(pp);
-        return;
-    }
-
-    // Move around
-    DoPlayerMove(pp);
-
-    if (PlayerCanDive(pp))
-        return;
-
-    if (!TEST(pp->Flags, PF_PLAYER_MOVED))
-    {
-        RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-        RESET(pp->Flags, PF_SWIMMING);
-        DoPlayerBeginWade(pp);
-        DoPlayerWade(pp);
-        return;
-    }
-}
-#endif
 
 void
 DoPlayerBeginCrawl(PLAYERp pp)
@@ -5302,11 +5156,11 @@ DoPlayerDiveMeter(PLAYERp pp)
     else
         color = 22;
 
-    rotatesprite((200+8)<<16,y<<16,65536L,0,5408,1,1,
-                 (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+    DrawTexture(twod, tileGetTexture(5408, true), 208, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+        DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, 1), TAG_DONE);
 
-    rotatesprite((218+47)<<16,y<<16,65536L,0,5406-metertics,1,color,
-                 (ROTATE_SPRITE_SCREEN_CLIP),0,0,xdim-1,ydim-1);
+    DrawTexture(twod, tileGetTexture(5406 - metertics, true), 265, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+        DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
 }
 
 void
@@ -5750,16 +5604,6 @@ DoPlayerWade(PLAYERp pp)
 
     // Adjust height moving up and down sectors
     DoPlayerHeight(pp);
-
-#if 0
-    if ((TEST_SYNC_KEY(pp, SK_RUN) || TEST(pp->Flags, PF_LOCK_RUN)) && PlayerInDiveArea(pp))
-    {
-        DoPlayerBeginSwim(pp);
-        pp->bob_amt = 0;
-        pp->bob_ndx = 0;
-        return;
-    }
-#endif
 
     if (!pp->WadeDepth)
     {
@@ -6332,21 +6176,12 @@ DoPlayerDeathFall(PLAYERp pp)
         // adjust player height by jump speed
         pp->posz += pp->jump_speed;
 
-#if 0
-        if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
-        {
-            loz = pp->lo_sectp->floorz - Z(SectUser[pp->lo_sectp - sector]->depth);
-        }
-        else
-            loz = pp->loz;
-#else
         if (pp->lo_sectp && TEST(pp->lo_sectp->extra, SECTFX_SINK))
         {
             loz = pp->lo_sectp->floorz;
         }
         else
             loz = pp->loz;
-#endif
 
         if (PlayerFloorHit(pp, loz - PLAYER_DEATH_HEIGHT))
         //if (pp->posz > loz - PLAYER_DEATH_HEIGHT)
@@ -6524,16 +6359,7 @@ DoPlayerBeginDie(PLAYERp pp)
 
     PlayerSound(PlayerLowHealthPainVocs[choosesnd],v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-#if 0
-    if (!CommEnabled && numplayers <= 1 && QuickLoadNum >= 0)
-    {
-        ReloadPrompt = TRUE;
-    }
-    else
-#endif
-    {
-        PutStringInfo(pp, GStrings("TXTS_PRESSSPACE"));
-    }
+    PutStringInfo(pp, GStrings("TXTS_PRESSSPACE"));
 
     if (pp->sop_control)
         DoPlayerStopOperate(pp);
@@ -6544,20 +6370,7 @@ DoPlayerBeginDie(PLAYERp pp)
 
     RESET(pp->Flags, PF_JUMPING|PF_FALLING|PF_DIVING|PF_FLYING|PF_CLIMBING|PF_CRAWLING|PF_LOCK_CRAWL);
 
-#if 0
-    short random;
-
-    // get tilt value
-    random = RANDOM_P2(1024);
-    if (random < 128)
-        pp->tilt_dest = 0;
-    else if (random < 512+64)
-        pp->tilt_dest = PLAYER_DEATH_TILT_VALUE;
-    else
-        pp->tilt_dest = -PLAYER_DEATH_TILT_VALUE;
-#else
     pp->tilt_dest = 0;
-#endif
 
     ActorCoughItem(pp->PlayerSprite);
 
@@ -7702,17 +7515,8 @@ void PlayerGlobal(PLAYERp pp)
         {
             int min_height;
 
-#if 0
-            if (TEST(pp->Flags, PF_JUMPING))
-                // this is a special case for jumping.  Jumps have a very small
-                // z height for the box so players can jump into small areas.
-                min_height = PLAYER_MIN_HEIGHT_JUMP;
-            else
-                min_height = PLAYER_MIN_HEIGHT;
-#else
             // just adjusted min height to something small to take care of all cases
             min_height = PLAYER_MIN_HEIGHT;
-#endif
 
             if (labs(pp->loz - pp->hiz) < min_height)
             {
@@ -7966,15 +7770,8 @@ domovethings(void)
 
         if (!TEST(pp->Flags, PF_DEAD))
         {
-#if DEBUG
-            if (!DebugPanel)
-                WeaponOperate(pp);
-            if (!DebugSector)
-                PlayerOperateEnv(pp);
-#else
             WeaponOperate(pp);
             PlayerOperateEnv(pp);
-#endif
         }
 
         // do for moving sectors
@@ -8003,9 +7800,6 @@ domovethings(void)
         }
         UpdatePlayerSprite(pp);
 
-#if DEBUG
-        if (!DebugPanel)
-#endif
         pSpriteControl(pp);
 
         PlayerStateControl(pp->PlayerSprite);

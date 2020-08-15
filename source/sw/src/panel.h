@@ -121,7 +121,6 @@ struct PANEL_SPRITEstruct
     // list
     short picndx;                       // for pip stuff in conpic.h
     short picnum;                       // bypass pip stuff in conpic.h
-    short x1, y1, x2, y2;               // for rotatesprites box cliping
     short vel, vel_adj;
     short numpages;
     int xorig, yorig, flags, priority;

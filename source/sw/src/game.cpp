@@ -108,7 +108,6 @@ extern int sw_snd_scratch;
 #define BETA 0
 #endif
 
-#define TITLE_ROT_FLAGS (RS_TOPLEFT|ROTATE_SPRITE_SCREEN_CLIP|ROTATE_SPRITE_NON_MASK)
 #define PAL_SIZE (256*3)
 
 char DemoName[15][16];
@@ -937,7 +936,8 @@ void DrawMenuLevelScreen(void)
 {
     const int TITLE_PIC = 2324;
     twod->ClearScreen();
-    rotatesprite(0, 0, RS_SCALE, 0, TITLE_PIC, 20, 0, TITLE_ROT_FLAGS, 0, 0, xdim - 1, ydim - 1);
+    DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
+        DTA_Color, shadeToLight(20), TAG_DONE);
 }
 
 short PlayerQuitMenuLevel = -1;
@@ -2392,13 +2392,23 @@ SHOWSPRITE:
                                 // Special case tiles
                                 if (spr->picnum == 3123) break;
 
+                                int spnum = -1;
                                 if (sprisplayer)
                                 {
                                     if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
-                                        rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale16(czoom * (spr->yrepeat), yxaspect), daang, 1196+pspr_ndx[myconnectindex], spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+                                        spnum = 1196 + pspr_ndx[myconnectindex];
                                 }
-                                else
-                                    rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale16(czoom * (spr->yrepeat), yxaspect), daang, spr->picnum, spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+                                else spnum = spr->picnum;
+
+                                double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
+                                double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
+                                double sc = mulscale16(czoom * (spr->yrepeat), yxaspect) / 65536.;
+                                if (spnum >= 0)
+                                {
+                                    DrawTexture(twod, tileGetTexture(5407, true), xd, yd, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+                                        DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
+                                        DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
+                                }
                             }
                         }
                     }

@@ -1443,23 +1443,16 @@ void DrawCrosshair(PLAYERp pp)
 {
     extern SWBOOL DemoMode,CameraTestMode;
 
-    if (!cl_crosshair)
-        return;
-
-    if (DemoMode || CameraTestMode)
-        return;
-
-    if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-        return;
-
-    if (dimensionmode == 6)
-        return;
-
+    if (cl_crosshair && !(DemoMode || CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) && dimensionmode != 6)
     {
-//NORMALXHAIR:
-        rotatesprite(160<<16, 100<<16, (1 << 16), 0,
-                     2326, 10, 0,
-                     0, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+        int32_t a = 2326;
+
+        double crosshair_scale = cl_crosshairscale * .01;
+        if (isRR()) crosshair_scale *= .5;
+
+        DrawTexture(twod, tileGetTexture(a), 160, 100, DTA_Color, shadeToLight(10),
+            DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
+            DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
     }
 }
 

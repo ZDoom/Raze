@@ -89,7 +89,6 @@ void MNU_DrawStringLarge(int x, int y, const char* string, int shade = 0, int al
 #define pic_shadow_warrior 2366
 
 #define m_defshade      2
-#define MenuDrawFlags (ROTATE_SPRITE_SCREEN_CLIP)
 extern SWBOOL LoadGameOutsideMoveLoop;
 
 

@@ -544,22 +544,12 @@ int StdRandomRange(int range);
 #define NORM_WALL(val) ((val) & (MAXWALLS - 1))
 #define NORM_SECTOR(val) ((val) & (MAXSECTORS - 1))
 
-EDUKE32_STATIC_ASSERT(isPow2(MAXSPRITES));
-EDUKE32_STATIC_ASSERT(isPow2(MAXWALLS));
-EDUKE32_STATIC_ASSERT(isPow2(MAXSECTORS));
-
 // overwritesprite flags
 #define OVER_SPRITE_MIDDLE      (BIT(0))
 #define OVER_SPRITE_VIEW_CLIP   (BIT(1))
 #define OVER_SPRITE_TRANSLUCENT (BIT(2))
 #define OVER_SPRITE_XFLIP       (BIT(3))
 #define OVER_SPRITE_YFLIP       (BIT(4))
-
-// rotatesprite flags
-#define ROTATE_SPRITE_SCREEN_CLIP   (BIT(1)|BIT(3)) // use window
-#define ROTATE_SPRITE_NON_MASK      (BIT(6)) // non masked sprites
-
-#define RS_SCALE                    BIT(16)
 
 // system defines for status bits
 #define CEILING_STAT_PLAX           BIT(0)
