@@ -621,7 +621,7 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
 
     SPRITEp sps = sp;
     // Weed out parental lock sounds if PLock is active
-    if (adult_lockout || Global_PLock)
+    if (adult_lockout)
     {
         for (unsigned i = 0; i < sizeof(PLocked_Sounds); i++)
         {

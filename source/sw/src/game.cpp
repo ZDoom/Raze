@@ -91,32 +91,13 @@ CVAR(Bool, sw_darts, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 BEGIN_SW_NS
 
 void pClearSpriteList(PLAYERp pp);
-signed char MNU_InputSmallString(char*, short);
-signed char MNU_InputString(char*, short);
-SWBOOL IsCommand(const char* str);
 extern SWBOOL mapcheat;
 
 extern SWBOOL MultiPlayQuitFlag;
 
 extern int sw_snd_scratch;
 
-
-#if DEBUG
-#define BETA 0
-#endif
-
-#define PAL_SIZE (256*3)
-
 char DemoName[15][16];
-
-// Stupid WallMart version!
-//#define PLOCK_VERSION TRUE
-
-#if PLOCK_VERSION
-SWBOOL Global_PLock = TRUE;
-#else
-SWBOOL Global_PLock = FALSE;
-#endif
 
 int GameVersion = 20;
 
@@ -231,7 +212,7 @@ SWBOOL InGame = FALSE;
 
 SWBOOL CommandSetup = FALSE;
 
-char UserMapName[80]="", buffer[80], ch;
+char buffer[80], ch;
 char LevelName[20];
 
 uint8_t DebugPrintColor = 255;
@@ -458,19 +439,9 @@ bool InitGame()
 
     videoInit();
 
-    // precache as much stuff as you can
-    if (UserMapName[0] == '\0')
-    {
-        if (!LoadLevel("$dozer.map")) return false;
-        SetupPreCache();
-        DoTheCache();
-    }
-    else
-    {
-		if (!LoadLevel(UserMapName)) return false;
-        SetupPreCache();
-        DoTheCache();
-    }
+    if (!LoadLevel("$dozer.map")) return false;
+    SetupPreCache();
+    DoTheCache();
 
     GraphicsMode = TRUE;
 
@@ -503,23 +474,6 @@ void InitNewGame(void)
     }
 
     memset(puser, 0, sizeof(puser));
-}
-
-void FindLevelInfo(char *map_name, short *level)
-{
-    short j;
-
-    for (j = 1; j <= MAX_LEVELS; j++)
-    {
-        if (Bstrcasecmp(map_name, mapList[j].fileName.GetChars()) == 0)
-        {
-                *level = j;
-                return;
-            }
-        }
-
-    *level = 0;
-    return;
 }
 
 int ChopTics;
@@ -594,24 +548,7 @@ InitLevel(void)
         if (Level > MAX_LEVELS)
             Level = 1;
 
-        if (UserMapName[0])
-        {
-            strcpy(LevelName, UserMapName);
-
-            Level = 0;
-            FindLevelInfo(UserMapName, &Level);
-
-            if (Level > 0)
-            {
-                // user map is part of game - treat it as such
-                strcpy(LevelName, mapList[Level].fileName);
-                UserMapName[0] = '\0';
-            }
-        }
-        else
-        {
-            strcpy(LevelName, mapList[Level].fileName);
-        }
+        strcpy(LevelName, mapList[Level].fileName);
     }
 
     if (NewGame)
@@ -1007,9 +944,6 @@ void StatScreen(PLAYERp mpp)
 
 void GameIntro(void)
 {
-    if ((!CommEnabled && UserMapName[0]))
-        return;
-
     Level = 1;
     Logo([](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
@@ -1363,8 +1297,6 @@ int32_t GameInterface::app_main()
     if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
         Printf("Copyright (c) 1997 3D Realms Entertainment\n");
 
-    UserMapName[0] = '\0';
-
     registerosdcommands();
 
     Control();
@@ -1489,7 +1421,7 @@ FunctionKeys(PLAYERp pp)
 
     if (inputState.AltPressed())
     {
-        if (rts_delay > 16 && fn_key && !adult_lockout && !Global_PLock)
+        if (rts_delay > 16 && fn_key && !adult_lockout)
         {
 			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
             rts_delay = 0;

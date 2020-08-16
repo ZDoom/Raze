@@ -601,7 +601,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
         }
 
         // Diss any parentally locked sprites
-        if (adult_lockout || Global_PLock)
+        if (adult_lockout)
         {
             if (aVoxelArray[tsp->picnum].Parental == 6145)
             {

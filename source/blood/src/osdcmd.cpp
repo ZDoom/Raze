@@ -57,15 +57,13 @@ static int osdcmd_map(CCmdFuncPtr parm)
         return CCMD_OK;
     }
 
-    for (int i = 0; i < 512; i++)
+    auto maprec = FindMapByName(mapname);
+    if (maprec)
     {
-        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
-        {
-            int e = volfromlevelnum(mapList[i].levelNumber);
-            int m = mapfromlevelnum(mapList[i].levelNumber);
-            LevelWarp(e, m);
-            return CCMD_OK;
-        }
+        int e = volfromlevelnum(mapList[i].levelNumber);
+        int m = mapfromlevelnum(mapList[i].levelNumber);
+        LevelWarp(e, m);
+        return CCMD_OK;
     }
     // Map has not been defined. Treat as user map.
 

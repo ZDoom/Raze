@@ -68,7 +68,6 @@ TO DO
 */
 
 extern int lastUpdate;
-extern char UserMapName[80];
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
 extern short Bunny_Count;
@@ -646,7 +645,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
     MWRITE(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 
-    MWRITE(UserMapName,sizeof(UserMapName),1,fil);
     MWRITE(&GodMode,sizeof(GodMode),1,fil);
 
     MWRITE(&FinishTimer,sizeof(FinishTimer),1,fil);
@@ -1035,7 +1033,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     MREAD(&Bunny_Count,sizeof(Bunny_Count),1,fil);
 
-    MREAD(UserMapName,sizeof(UserMapName),1,fil);
     MREAD(&GodMode,sizeof(GodMode),1,fil);
 
     MREAD(&FinishTimer,sizeof(FinishTimer),1,fil);

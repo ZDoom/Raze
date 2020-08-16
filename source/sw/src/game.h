@@ -776,7 +776,6 @@ typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
 extern SWBOOL InGame;                                  // Declared in game.c
-extern SWBOOL Global_PLock;                            // Game.c
 int QueueFloorBlood(short hit_sprite);                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c

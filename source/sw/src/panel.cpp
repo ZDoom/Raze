@@ -6775,7 +6775,7 @@ pDisplaySprites(PLAYERp pp)
                 break;
             }
 
-        if (pp->Bloody && !adult_lockout && !Global_PLock)
+        if (pp->Bloody && !adult_lockout)
         {
             switch (picnum)
             {
