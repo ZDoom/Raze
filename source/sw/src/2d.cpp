@@ -339,13 +339,14 @@ class DSWLevelSummaryScreen : public DScreenJob
     STATE * State = s_BonusRest;
     int Tics = 0;
 
+public:
     DSWLevelSummaryScreen()
     {
         second_tics = (PlayClock / 120);
         minutes = (second_tics / 60);
         seconds = (second_tics % 60);
     }
-
+private:
     static void gNextState(STATE** State)
     {
         // Transition to the next state
@@ -462,10 +463,6 @@ class DSWMultiSummaryScreen : public DScreenJob
     short death_total[MAX_SW_PLAYERS_REG]{};
     short kills[MAX_SW_PLAYERS_REG]{};
 
-    DSWMultiSummaryScreen()
-    {
-    }
-
     int Frame(uint64_t clock, bool skiprequest)
     {
         if (clock == 0) PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
@@ -571,6 +568,41 @@ class DSWMultiSummaryScreen : public DScreenJob
     }
 };
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void StatScreen(int FinishAnim, CompletionFunc completion)
+{
+    JobDesc jobs[5];
+    int job = 0;
+
+    if (FinishAnim)
+    {
+        StopSound();
+
+        if (FinishAnim == ANIM_SUMO)    // next level hasn't been set for this.
+            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
+        else
+            NextLevel = nullptr;
+
+        jobs[job++] = { GetFinishAnim(FinishAnim) };
+        jobs[job++] = { Create<DSWLevelSummaryScreen>() };
+        if (FinishAnim == ANIM_ZILLA)
+            jobs[job++] = { Create<DSWCreditsScreen>() };
+    }
+    else if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
+    {
+        jobs[job++] = { Create<DSWLevelSummaryScreen>() };
+    }
+    else
+    {
+        jobs[job++] = { Create<DSWMultiSummaryScreen>() };
+    }
+    RunScreenJob(jobs, job, completion, true);
+}
 
 //---------------------------------------------------------------------------
 //

@@ -90,6 +90,8 @@ CVAR(Bool, sw_darts, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 BEGIN_SW_NS
 
 void Logo(const CompletionFunc& completion);
+void StatScreen(int FinishAnim, CompletionFunc completion);
+void getinput(SW_PACKET*, SWBOOL);
 
 
 void pClearSpriteList(PLAYERp pp);
@@ -100,13 +102,13 @@ int GameVersion = 20;
 
 int Follow_posx=0,Follow_posy=0;
 
-SWBOOL NoMeters = FALSE;
+SWBOOL NoMeters = false;
 SWBOOL FinishAnim = 0;
-SWBOOL ReloadPrompt = FALSE;
-SWBOOL NewGame = FALSE;
-SWBOOL SavegameLoaded = FALSE;
+SWBOOL ReloadPrompt = false;
+SWBOOL NewGame = false;
+SWBOOL SavegameLoaded = false;
 //Miscellaneous variables
-SWBOOL FinishedLevel = FALSE;
+SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
 SWBOOL PedanticMode;
@@ -114,7 +116,7 @@ SWBOOL PedanticMode;
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 SWBOOL PreCaching = TRUE;
-int GodMode = FALSE;
+int GodMode = false;
 short Skill = 2;
 short TotalKillable;
 
@@ -123,9 +125,9 @@ const GAME_SET gs_defaults =
 // Network game settings
     0, // GameType
     0, // Monsters
-    FALSE, // HurtTeammate
+    false, // HurtTeammate
     TRUE, // SpawnMarkers Markers
-    FALSE, // TeamPlay
+    false, // TeamPlay
     0, // Kill Limit
     0, // Time Limit
     0, // Color
@@ -133,12 +135,12 @@ const GAME_SET gs_defaults =
 };
 GAME_SET gs;
 
-SWBOOL PlayerTrackingMode = FALSE;
-SWBOOL SlowMode = FALSE;
+SWBOOL PlayerTrackingMode = false;
+SWBOOL SlowMode = false;
 SWBOOL FrameAdvanceTics = 3;
-SWBOOL ScrollMode2D = FALSE;
+SWBOOL ScrollMode2D = false;
 
-SWBOOL DebugOperate = FALSE;
+SWBOOL DebugOperate = false;
 void LoadingLevelScreen(void);
 
 uint8_t FakeMultiNumPlayers;
@@ -146,18 +148,18 @@ uint8_t FakeMultiNumPlayers;
 int totalsynctics;
 
 MapRecord* NextLevel = nullptr;
-SWBOOL ExitLevel = FALSE;
+SWBOOL ExitLevel = false;
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
 extern int bufferjitter;
 
-SWBOOL CameraTestMode = FALSE;
+SWBOOL CameraTestMode = false;
 
 char ds[645];                           // debug string
 
 extern short NormalVisibility;
-SWBOOL CommandSetup = FALSE;
+SWBOOL CommandSetup = false;
 
 char buffer[80], ch;
 
@@ -169,7 +171,6 @@ int ThemeTrack[6];
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void SybexScreen(void);
 void StatScreen(PLAYERp mpp);
-void InitRunLevel(void);
 void RunLevel(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -328,60 +329,9 @@ void DrawMenuLevelScreen(void)
 
     if (CommEnabled)
     {
-        sprintf(ds, "Lo Wang is waiting for other players...");
-        MNU_DrawString(160, 170, ds, 1, 16, 0);
-
-        sprintf(ds, "They are afraid!");
-        MNU_DrawString(160, 180, ds, 1, 16, 0);
+        MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
+        MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
     }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void InitNewGame(void)
-{
-    int i, ready_bak;
-    int ver_bak;
-
-    //waitforeverybody();           // since ready flag resets after this point, need to carefully sync
-
-    for (i = 0; i < MAX_SW_PLAYERS; i++)
-    {
-        // don't jack with the playerreadyflag
-        ready_bak = Player[i].playerreadyflag;
-        ver_bak = Player[i].PlayerVersion;
-        memset(&Player[i], 0, sizeof(Player[i]));
-        Player[i].playerreadyflag = ready_bak;
-        Player[i].PlayerVersion = ver_bak;
-        INITLIST(&Player[i].PanelSpriteList);
-    }
-
-    memset(puser, 0, sizeof(puser));
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-bool LoadLevel(MapRecord* maprec)
-{
-    int16_t ang;
-    if (engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum) == -1)
-    {
-        Printf("Map not found: %s", maprec->fileName.GetChars());
-        return false;
-    }
-    currentLevel = maprec;
-    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-    STAT_NewLevel(currentLevel->fileName);
-    Player[0].q16ang = fix16_from_int(ang);
-    return true;
 }
 
 //---------------------------------------------------------------------------
@@ -398,17 +348,17 @@ void InitLevelGlobals(void)
     PlayerGravity = 24;
     wait_active_check_offset = 0;
     PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);
-    FinishedLevel = FALSE;
+    FinishedLevel = false;
     AnimCnt = 0;
-    left_foot = FALSE;
+    left_foot = false;
     screenpeek = myconnectindex;
     numinterpolations = short_numinterpolations = 0;
 
     gNet.TimeLimitClock = gNet.TimeLimit;
 
-    serpwasseen = FALSE;
-    sumowasseen = FALSE;
-    zillawasseen = FALSE;
+    serpwasseen = false;
+    sumowasseen = false;
+    zillawasseen = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
 
     PedanticMode = false;
@@ -434,149 +384,8 @@ void InitLevelGlobals2(void)
 //
 //---------------------------------------------------------------------------
 
-void InitPlayerGameSettings(void)
-{
-    int pnum;
-
-    if (CommEnabled)
-    {
-        // everyone gets the same Auto Aim
-        TRAVERSE_CONNECT(pnum)
-        {
-            if (gNet.AutoAim)
-                SET(Player[pnum].Flags, PF_AUTO_AIM);
-            else
-                RESET(Player[pnum].Flags, PF_AUTO_AIM);
-        }
-    }
-    else
-    {
-        if (cl_autoaim)
-            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-        else
-            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void InitRunLevel(void)
-{
-    if (SavegameLoaded)
-    {
-        int SavePlayClock;
-        extern int PlayClock;
-        SavegameLoaded = FALSE;
-        // contains what is needed from calls below
-        if (snd_ambience)
-            StartAmbientSound();
-        // crappy little hack to prevent play clock from being overwritten
-        // for load games
-        SavePlayClock = PlayClock;
-        InitTimingVars();
-        PlayClock = SavePlayClock;
-        return;
-    }
-
-    //SendVersion(GameVersion);
-    //waitforeverybody();
-
-    Mus_Stop();
-
-    DoTheCache();
-
-    // auto aim / auto run / etc
-    InitPlayerGameSettings();
-
-    // send packets with player info
-    InitNetPlayerOptions();
-
-    // Initialize Game part of network code (When ready2send != 0)
-    InitNetVars();
-
-    if (currentLevel)
-    {
-        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
-    }
-
-    InitPrediction(&Player[myconnectindex]);
-
-    waitforeverybody();
-
-    //CheckVersion(GameVersion);
-
-    // IMPORTANT - MUST be right before game loop AFTER waitforeverybody
-    InitTimingVars();
-
-    if (snd_ambience)
-        StartAmbientSound();
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void MoveTicker(void)
-{
-    int pnum;
-
-    //getpackets();
-
-    if (PredictionOn && CommEnabled)
-    {
-        while (predictmovefifoplc < Player[myconnectindex].movefifoend)
-        {
-            DoPrediction(ppp);
-        }
-    }
-
-    //While you have new input packets to process...
-    if (!CommEnabled)
-        bufferjitter = 0;
-
-    while (Player[myconnectindex].movefifoend - movefifoplc > bufferjitter)
-    {
-        //Make sure you have at least 1 packet from everyone else
-        for (pnum = connecthead; pnum >= 0; pnum = connectpoint2[pnum])
-        {
-            if (movefifoplc == Player[pnum].movefifoend)
-            {
-                break;
-            }
-        }
-
-        //Pnum is >= 0 only if last loop was broken, meaning a player wasn't caught up
-        if (pnum >= 0)
-            break;
-
-        domovethings();
-
-    }
-}
-
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void InitLevel(void)
 {
-    if (SavegameLoaded)
-    {
-        InitLevelGlobals();
-        return;
-    }
-
-    static int DemoNumber = 0;
-
     Terminate3DSounds();
 
     // A few IMPORTANT GLOBAL RESETS
@@ -595,13 +404,30 @@ void InitLevel(void)
     InitLevelGlobals2();
 
     if (NewGame)
-        InitNewGame();
+    {
+        for (int i = 0; i < MAX_SW_PLAYERS; i++)
+        {
+            // don't jack with the playerreadyflag
+            int ready_bak = Player[i].playerreadyflag;
+            int ver_bak = Player[i].PlayerVersion;
+            memset(&Player[i], 0, sizeof(Player[i]));
+            Player[i].playerreadyflag = ready_bak;
+            Player[i].PlayerVersion = ver_bak;
+            INITLIST(&Player[i].PanelSpriteList);
+        }
 
-    if (!LoadLevel(maprec))
-	{
-		NewGame = false;
-		return;
-	}
+        memset(puser, 0, sizeof(puser));
+    }
+
+    int16_t ang;
+    if (engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum) == -1)
+    {
+        I_Error("Map not found: %s", maprec->fileName.GetChars());
+    }
+    currentLevel = maprec;
+    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+    STAT_NewLevel(currentLevel->fileName);
+    Player[0].q16ang = fix16_from_int(ang);
 
     SetupPreCache();
 
@@ -648,19 +474,96 @@ void InitLevel(void)
     PostSetupSectorObject();
     SetupMirrorTiles();
     initlava();
-    
+
     // reset NewGame
-    NewGame = FALSE;
+    NewGame = false;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void InitPlayerGameSettings(void)
+{
+    int pnum;
+
+    if (CommEnabled)
+    {
+        // everyone gets the same Auto Aim
+        TRAVERSE_CONNECT(pnum)
+        {
+            if (gNet.AutoAim)
+                SET(Player[pnum].Flags, PF_AUTO_AIM);
+            else
+                RESET(Player[pnum].Flags, PF_AUTO_AIM);
+        }
+    }
+    else
+    {
+        if (cl_autoaim)
+            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+        else
+            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void InitRunLevel(void)
+{
+    //SendVersion(GameVersion);
+    //waitforeverybody();
+
+    Mus_Stop();
+
+    DoTheCache();
+
+    // auto aim / auto run / etc
+    InitPlayerGameSettings();
+
+    // send packets with player info
+    InitNetPlayerOptions();
+
+    // Initialize Game part of network code (When ready2send != 0)
+    InitNetVars();
+
+    if (currentLevel)
+    {
+        PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
+    }
+
+    InitPrediction(&Player[myconnectindex]);
+
+    waitforeverybody();
+
+    //CheckVersion(GameVersion);
+
+    // IMPORTANT - MUST be right before game loop AFTER waitforeverybody
+    InitTimingVars();
+
+    if (snd_ambience)
+        StartAmbientSound();
 }
 
 
-void
-TerminateLevel(void)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void TerminateLevel(void)
 {
     if (!currentLevel) return;
 
     int i, nexti, stat, pnum, ndx;
-    SECT_USERp *sectu;
+    SECT_USERp* sectu;
 
     // Free any track points
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
@@ -677,7 +580,7 @@ TerminateLevel(void)
     memset(Track, 0, sizeof(Track));
 
     StopFX();
-    
+
     // Clear all anims and any memory associated with them
     // Clear before killing sprites - save a little time
     //AnimClear();
@@ -706,8 +609,8 @@ TerminateLevel(void)
 
     // Free SectUser memory
     for (sectu = &SectUser[0];
-         sectu < &SectUser[MAXSECTORS];
-         sectu++)
+        sectu < &SectUser[MAXSECTORS];
+        sectu++)
     {
         if (*sectu)
         {
@@ -748,154 +651,155 @@ TerminateLevel(void)
     }
 
     JS_UnInitLockouts();
-
-//HEAP_CHECK();
 }
 
-void NewLevel(void)
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void MoveTicker(void)
 {
-    do
+    int pnum;
+
+    //getpackets();
+
+    if (PredictionOn && CommEnabled)
     {
-        InitLevel();
-        RunLevel();
+        while (predictmovefifoplc < Player[myconnectindex].movefifoend)
+        {
+            DoPrediction(ppp);
+        }
     }
-    while (SavegameLoaded);
-	STAT_Update(false);
+
+    //While you have new input packets to process...
+    if (!CommEnabled)
+        bufferjitter = 0;
+
+    while (Player[myconnectindex].movefifoend - movefifoplc > bufferjitter)
+    {
+        //Make sure you have at least 1 packet from everyone else
+        for (pnum = connecthead; pnum >= 0; pnum = connectpoint2[pnum])
+        {
+            if (movefifoplc == Player[pnum].movefifoend)
+            {
+                break;
+            }
+        }
+
+        //Pnum is >= 0 only if last loop was broken, meaning a player wasn't caught up
+        if (pnum >= 0)
+            break;
+
+        domovethings();
+
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void EndOfLevel()
+{
+    STAT_Update(false);
 
     // for good measure do this
     ready2send = 0;
     waitforeverybody();
-
-    StatScreen(&Player[myconnectindex]);
-
-    TerminateLevel();
-
-    if (FinishAnim == ANIM_ZILLA || FinishAnim == ANIM_SERP)
+    if (FinishedLevel)
     {
-        STAT_Update(true);
-        PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-        StartMenu();
+        //ResetPalette(mpp);
+        COVER_SetReverb(0); // Reset reverb
+        Player[myconnectindex].Reverb = 0;
+        StopSound();
+        soundEngine->UpdateSounds((int)totalclock);
+
+        StatScreen(FinishAnim, [](bool)
+            {
+                TerminateLevel();
+
+                if (NextLevel == nullptr)
+                {
+                    STAT_Update(true);
+                    PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+                    StartMenu();
+                }
+                else gamestate = GS_LEVEL;
+            });
     }
+    else
+    {
+        TerminateLevel();
+    }
+
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-// CTW REMOVED END
-
-short PlayerQuitMenuLevel = -1;
-
-extern SWBOOL FinishedLevel;
-
-
-void EndGameSequence(void)
+void GameTicker(void)
 {
-	StopSound();
-
-    //playanm(FinishAnim);
-
-    //BonusScreen();
-
-    ExitLevel = FALSE;
-
-    //if (FinishAnim == ANIM_ZILLA)
-      //      CreditsLevel();
-
-    ExitLevel = FALSE;
-
-    if (currentLevel->levelNumber != 4 && currentLevel->levelNumber != 20)
+    if (SavegameLoaded)
     {
-        NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
+        InitLevelGlobals();
+        SavegameLoaded = false;
+        // contains what is needed from calls below
+        if (snd_ambience)
+            StartAmbientSound();
+        // crappy little hack to prevent play clock from being overwritten
+        // for load games
+        int SavePlayClock = PlayClock;
+        InitTimingVars();
+        PlayClock = SavePlayClock;
     }
-}
-
-void StatScreen(PLAYERp mpp)
-{
-    extern SWBOOL FinishedLevel;
-    short w,h;
-
-    short rows,cols,i,j;
-    PLAYERp pp = NULL;
-    int x,y;
-    short pal;
-
-    //ResetPalette(mpp);
-    COVER_SetReverb(0); // Reset reverb
-    mpp->Reverb = 0;
-    StopSound();
-    soundEngine->UpdateSounds((int)totalclock);
-
-    if (FinishAnim)
+    else if (NextLevel)
     {
-        EndGameSequence();
-        return;
+        InitLevel();
+        InitRunLevel();
     }
 
-    if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
-    {
-        if (!FinishedLevel)
-            return;
-        //BonusScreen();
-        return;
-    }
-    //MPBonusScreen();
-}
-
-
-
-void getinput(SW_PACKET *, SWBOOL);
-
-
-void RunLevel(void)
-{
-    InitRunLevel();
-
-#if 0
-    waitforeverybody();
-#endif
     ready2send = 1;
 
-    while (TRUE)
+
+    if (paused)
     {
-        handleevents();
-        C_RunDelayedCommands();
-		D_ProcessEvents();
-        updatePauseStatus();
-
-        if (SavegameLoaded)
+        ototalclock = (int)totalclock - (120 / synctics);
+        buttonMap.ResetButtonStates();
+    }
+    else
+    {
+        while (ready2send && (totalclock >= ototalclock + synctics))
         {
-            return; // Stop the game loop if a savegame was loaded from the menu.
+            UpdateInputs();
+            MoveTicker();
         }
 
-
-        if (paused)
-        {
-            ototalclock = (int)totalclock - (120 / synctics);
-            buttonMap.ResetButtonStates();
-        }
-        else
-        {
-            while (ready2send && (totalclock >= ototalclock + synctics))
-            {
-                UpdateInputs();
-                MoveTicker();
-            }
-
-            // Get input again to update q16ang/q16horiz.
-            if (!PedanticMode)
-                getinput(&loc, TRUE);
-        }
-
-        drawscreen(Player + screenpeek);
-        videoNextPage();
-
-        if (ExitLevel)
-        {
-            ExitLevel = FALSE;
-            break;
-        }
+        // Get input again to update q16ang/q16horiz.
+        if (!PedanticMode)
+            getinput(&loc, TRUE);
     }
 
+    drawscreen(Player + screenpeek);
     ready2send = 0;
+    if (ExitLevel)
+    {
+        ExitLevel = false;
+        EndOfLevel();
+    }
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int32_t GameInterface::app_main()
 {
@@ -937,7 +841,7 @@ int32_t GameInterface::app_main()
                 break;
 
             case GS_LEVEL:
-                //if (GameTicker()) gamestate = GS_STARTUP;
+                GameTicker();
                 break;
 
             case GS_INTERMISSION:
@@ -950,6 +854,11 @@ int32_t GameInterface::app_main()
         }
         catch (CRecoverableError& err)
         {
+            TerminateLevel();
+            NextLevel = nullptr;
+            SavegameLoaded = false;
+            ExitLevel = false;
+            FinishAnim = 0;
             C_FullConsole();
             Printf(TEXTCOLOR_RED "%s\n", err.what());
         }

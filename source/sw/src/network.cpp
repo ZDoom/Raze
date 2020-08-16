@@ -49,7 +49,6 @@ static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
 
 gNET gNet;
-extern short PlayerQuitMenuLevel;
 
 #define TIMERUPDATESIZ 32
 
@@ -102,16 +101,6 @@ int smoothratio;
 int save_totalclock;
 
 // must start out as 0
-
-void
-ResumeGame(void)
-{
-    if (paused)
-        return;
-
-    if (numplayers < 2)
-        paused = 0;
-}
 
 void
 InitNetPlayerOptions(void)

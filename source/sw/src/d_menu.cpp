@@ -173,10 +173,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	if (!SavegameLoaded)
-	{
-		ResumeGame();
-	}
 }
 
 extern SWBOOL ExitLevel, NewGame;

@@ -78,6 +78,5 @@ void InitTimingVars(void);
 void waitforeverybody(void);
 void InitNetPlayerOptions(void);
 inline void SW_SendMessage(short, const char*) {}
-void ResumeGame(void);
 
 END_SW_NS
