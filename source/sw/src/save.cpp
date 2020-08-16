@@ -672,7 +672,7 @@ extern SWBOOL InMenuLevel;
          Mus_Stop();
      else
      {
-         PauseAction();
+         //PauseAction();
          TerminateLevel();
      }
      StopFX();

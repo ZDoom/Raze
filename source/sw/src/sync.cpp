@@ -31,37 +31,20 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "network.h"
 #include "menus.h"
+#include "m_crc32.h"
 
 BEGIN_SW_NS
 
-SWBOOL SyncPrintMode = TRUE;
-short NumSyncBytes = 1;
 char sync_first[MAXSYNCBYTES][60];
 int sync_found = FALSE;
 
-static int crctable[256];
-#define updatecrc(dcrc,xz) (dcrc = (crctable[((dcrc)>>8)^((xz)&255)]^((dcrc)<<8)))
-
-void initsynccrc(void)
-{
-    int i, j, k, a;
-
-    for (j=0; j<256; j++)   //Calculate CRC table
-    {
-        k = (j<<8); a = 0;
-        for (i=7; i>=0; i--)
-        {
-            if (((k^a)&0x8000) > 0)
-                a = ((a<<1)&65535) ^ 0x1021;   //0x1021 = genpoly
-            else
-                a = ((a<<1)&65535);
-            k = ((k<<1)&65535);
-        }
-        crctable[j] = (a&65535);
-    }
-}
 
 #if SYNC_TEST
+SWBOOL SyncPrintMode = TRUE;
+short NumSyncBytes = 1;
+
+inline void updatecrc(uint16_t& dcrc, uint8_t xz) { dcrc = (uint16_t)CRC1(dcrc, uint8_t(xz), GetCRCTable()); }
+
 uint8_t
 PlayerSync(void)
 {

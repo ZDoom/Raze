@@ -312,10 +312,6 @@ Distance(int x1, int y1, int x2, int y2)
 
 void TerminateGame(void)
 {
-    ErrorCorrectionQuit();
-
- //   uninitmultiplayers();
-
     if (CleanExit)
     {
         //SybexScreen();
@@ -414,7 +410,6 @@ bool InitGame()
 
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
-    initsynccrc();
 
     // code to duplicate packets
     if (numplayers > 4 && MovesPerPacket == 1)
@@ -435,7 +430,7 @@ bool InitGame()
     TileFiles.LoadArtSet("tiles%03d.art");
     InitFonts();
 
-    Connect();
+    //Connect();
     SortBreakInfo();
     parallaxtype = 1;
     SW_InitMultiPsky();
@@ -908,26 +903,6 @@ void MenuLevel(void)
         if (totalclock >= ototalclock + synctics)
         {
             ototalclock += synctics;
-            if (CommEnabled)
-                getpackets();
-        }
-
-        if (CommEnabled)
-        {
-            if (MultiPlayQuitFlag)
-            {
-                uint8_t pbuf[1];
-                QuitFlag = TRUE;
-                pbuf[0] = PACKET_TYPE_MENU_LEVEL_QUIT;
-                netbroadcastpacket(pbuf, 1);                      // TENSW
-                break;
-            }
-
-            if (PlayerQuitMenuLevel >= 0)
-            {
-                MenuCommPlayerQuit(PlayerQuitMenuLevel);
-                PlayerQuitMenuLevel = -1;
-            }
         }
 
         if (ExitLevel)
@@ -1088,7 +1063,7 @@ void MoveLoop(void)
 {
     int pnum;
 
-    getpackets();
+    //getpackets();
 
     if (PredictionOn && CommEnabled)
     {
@@ -1166,16 +1141,8 @@ void InitRunLevel(void)
         return;
     }
 
-#if 0
-    // ensure we are through the initialization code before sending the game
-    // version. Otherwise, it is possible to send this too early and have it
-    // blown away on the other side.
-    waitforeverybody();
-#endif
-
-    SendVersion(GameVersion);
-
-    waitforeverybody();
+    //SendVersion(GameVersion);
+    //waitforeverybody();
 
     Mus_Stop();
 
@@ -1206,7 +1173,7 @@ void InitRunLevel(void)
 
     waitforeverybody();
 
-    CheckVersion(GameVersion);
+    //CheckVersion(GameVersion);
 
     // IMPORTANT - MUST be right before game loop AFTER waitforeverybody
     InitTimingVars();
@@ -1522,23 +1489,11 @@ FunctionKeys(PLAYERp pp)
 
     if (inputState.AltPressed())
     {
-        if (rts_delay > 16 && fn_key && CommEnabled && !adult_lockout && !Global_PLock)
+        if (rts_delay > 16 && fn_key && !adult_lockout && !Global_PLock)
         {
 			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
-
             rts_delay = 0;
-
             PlaySoundRTS(fn_key);
-
-            if (CommEnabled)
-            {
-                PACKET_RTS p;
-
-                p.PacketType = PACKET_TYPE_RTS;
-                p.RTSnum = fn_key;
-
-                netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
-            }
         }
 
         return;
@@ -1546,27 +1501,9 @@ FunctionKeys(PLAYERp pp)
 
     if (inputState.ShiftPressed())
     {
-        if (fn_key && CommEnabled)
+        if (fn_key)
         {
-			inputState.ClearKeyStatus(sc_Escape);
 			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
-
-            if (CommEnabled)
-            {
-                short pnum;
-
-                sprintf(ds,"SENT: %s",**CombatMacros[fn_key-1]);
-                Printf(PRINT_NOTIFY | PRINT_TEAMCHAT, "%s\n", ds);
-
-                TRAVERSE_CONNECT(pnum)
-                {
-                    if (pnum != myconnectindex)
-                    {
-                        sprintf(ds,"%s: %s",pp->PlayerName, **CombatMacros[fn_key - 1]);
-                        SW_SendMessage(pnum, ds);
-                    }
-                }
-            }
         }
 
         return;

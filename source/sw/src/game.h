@@ -2284,7 +2284,6 @@ void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 void ManualPlayerInsert(PLAYERp pp);    // game.c
 
-void initsynccrc(void);     // sync.c
 void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c
 
