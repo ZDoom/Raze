@@ -170,8 +170,6 @@ int ThemeTrack[6];
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void SybexScreen(void);
-void StatScreen(PLAYERp mpp);
-void RunLevel(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 //---------------------------------------------------------------------------
@@ -717,11 +715,16 @@ void EndOfLevel()
         Player[myconnectindex].Reverb = 0;
         StopSound();
         soundEngine->UpdateSounds((int)totalclock);
+        // NextLevel must be null while the intermission is running, but we still need the value for later
+        auto localNextLevel = NextLevel;
+        NextLevel = nullptr;
+        if (FinishAnim == ANIM_SUMO && localNextLevel == nullptr)    // next level hasn't been set for this.
+            localNextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
 
-        StatScreen(FinishAnim, [](bool)
+        StatScreen(FinishAnim, [=](bool)
             {
+                NextLevel = localNextLevel;
                 TerminateLevel();
-
                 if (NextLevel == nullptr)
                 {
                     STAT_Update(true);

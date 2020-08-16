@@ -406,7 +406,7 @@ private:
 
         int line = 0;
         FString ds;
-        ds.Format("%s  %2d : %02d", GStrings("TXT_YOURTIME"), minutes, seconds);
+        ds.Format("%s  %2d:%02d", GStrings("TXT_YOURTIME"), minutes, seconds);
         MNU_DrawString(60, BONUS_LINE(line++), ds, 1, 16);
 
         if (currentLevel->designerTime > 0)
@@ -430,7 +430,7 @@ private:
 
         MNU_DrawString(160, 185, GStrings("PRESSKEY"), 1, 19, 0);
 
-        int ret = (State == State->NextState)? 0 : skiprequest ? -1 : 1;
+        int ret = skiprequest ? -1 : 1;
         if (ret != 1) StopSound();
         return ret;
     }
@@ -582,12 +582,6 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
     if (FinishAnim)
     {
         StopSound();
-
-        if (FinishAnim == ANIM_SUMO)    // next level hasn't been set for this.
-            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
-        else
-            NextLevel = nullptr;
-
         jobs[job++] = { GetFinishAnim(FinishAnim) };
         jobs[job++] = { Create<DSWLevelSummaryScreen>() };
         if (FinishAnim == ANIM_ZILLA)
