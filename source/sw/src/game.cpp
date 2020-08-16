@@ -1277,8 +1277,6 @@ void RunLevel(void)
             ExitLevel = FALSE;
             break;
         }
-
-        timerUpdateClock();
     }
 
     ready2send = 0;
