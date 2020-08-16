@@ -746,48 +746,53 @@ void EndOfLevel()
 
 void GameTicker(void)
 {
-    if (SavegameLoaded)
+    if (!ExitLevel)
     {
-        InitLevelGlobals();
-        SavegameLoaded = false;
-        // contains what is needed from calls below
-        if (snd_ambience)
-            StartAmbientSound();
-        // crappy little hack to prevent play clock from being overwritten
-        // for load games
-        int SavePlayClock = PlayClock;
-        InitTimingVars();
-        PlayClock = SavePlayClock;
-    }
-    else if (NextLevel)
-    {
-        InitLevel();
-        InitRunLevel();
-    }
-
-    ready2send = 1;
-
-
-    if (paused)
-    {
-        ototalclock = (int)totalclock - (120 / synctics);
-        buttonMap.ResetButtonStates();
-    }
-    else
-    {
-        while (ready2send && (totalclock >= ototalclock + synctics))
+        if (SavegameLoaded)
         {
-            UpdateInputs();
-            MoveTicker();
+            InitLevelGlobals();
+            SavegameLoaded = false;
+            // contains what is needed from calls below
+            if (snd_ambience)
+                StartAmbientSound();
+            // crappy little hack to prevent play clock from being overwritten
+            // for load games
+            int SavePlayClock = PlayClock;
+            InitTimingVars();
+            PlayClock = SavePlayClock;
+            ExitLevel = false;
+        }
+        else if (NextLevel)
+        {
+            InitLevel();
+            InitRunLevel();
+            ExitLevel = false;
         }
 
-        // Get input again to update q16ang/q16horiz.
-        if (!PedanticMode)
-            getinput(&loc, TRUE);
-    }
+        ready2send = 1;
 
-    drawscreen(Player + screenpeek);
-    ready2send = 0;
+
+        if (paused)
+        {
+            ototalclock = (int)totalclock - (120 / synctics);
+            buttonMap.ResetButtonStates();
+        }
+        else
+        {
+            while (ready2send && (totalclock >= ototalclock + synctics))
+            {
+                UpdateInputs();
+                MoveTicker();
+            }
+
+            // Get input again to update q16ang/q16horiz.
+            if (!PedanticMode)
+                getinput(&loc, TRUE);
+        }
+
+        drawscreen(Player + screenpeek);
+        ready2send = 0;
+    }
     if (ExitLevel)
     {
         ExitLevel = false;
@@ -812,7 +817,7 @@ int32_t GameInterface::app_main()
         try
         {
             // if the menu initiazed a new game or loaded a savegame, switch to play mode.
-            if (NewGame || SavegameLoaded) gamestate = GS_LEVEL;
+            if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
 
             handleevents();
             updatePauseStatus();

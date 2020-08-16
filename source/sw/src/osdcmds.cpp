@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "jsector.h"
 #include "network.h"
+#include "gamestate.h"
 
 BEGIN_SW_NS
 
@@ -66,6 +67,7 @@ static void levelwarp(MapRecord *maprec)
 
     NextLevel = maprec;
     ExitLevel = TRUE;
+    if (gamestate == GS_MENUSCREEN || gamestate == GS_FULLCONSOLE) NewGame = true;
 
     sprintf(ds, "%s %s", GStrings("TXT_ENTERING"), maprec->DisplayName());
     PutStringInfo(pp, ds);

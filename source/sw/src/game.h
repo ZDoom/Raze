@@ -2121,6 +2121,7 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type);
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+extern SWBOOL NewGame;
 extern SWBOOL ExitLevel, FinishedLevel;
 extern SWBOOL Warping;
 extern uint8_t CommPlayers;
