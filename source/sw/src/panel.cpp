@@ -7091,10 +7091,6 @@ void
 UpdatePanel(void)
 {
     short pnum;
-    extern SWBOOL PanelUpdateMode;
-
-    if (!PanelUpdateMode)
-        return;
 
     TRAVERSE_CONNECT(pnum)
     {
@@ -7107,11 +7103,6 @@ void
 PreUpdatePanel(void)
 {
     short pnum;
-    extern SWBOOL PanelUpdateMode;
-
-    if (!PanelUpdateMode)
-        return;
-
     DrawBeforeView = TRUE;
 
     //if (DrawBeforeView)

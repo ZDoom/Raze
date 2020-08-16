@@ -228,8 +228,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     // workaround until the level info here has been transitioned.
 	fil = WriteSavegameChunk("snapshot.sw");
 
-    MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
-
     MWRITE(&Skill,sizeof(Skill),1,fil);
 
     MWRITE(&numplayers,sizeof(numplayers),1,fil);
@@ -692,13 +690,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 	auto filr = ReadSavegameChunk("snapshot.sw");
 	if (!filr.isOpen()) return false;
 	fil = &filr;
-
-    MREAD(&i,sizeof(i),1,fil);
-    if (i != GameVersion)
-    {
-        MCLOSE_READ(fil);
-        return false;
-    }
 
     MREAD(&Skill,sizeof(Skill),1,fil);
 

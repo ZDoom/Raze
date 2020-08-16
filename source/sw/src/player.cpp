@@ -4102,9 +4102,6 @@ SWBOOL PlayerFlyKey(void)
     if (!GodMode)
         return FALSE;
 
-    if (InputMode)
-        return FALSE;
-
 #if 0
     // Cheat or not, this simply won't do.
     key = inputState.GetKeyStatus(KEYSC_J);
@@ -7924,8 +7921,6 @@ PlayerSpawnPosition(PLAYERp pp)
     if (spawn_sprite < 0)
     {
         spawn_sprite = headspritestat[STAT_MULTI_START + 0];
-        //TerminateGame();
-        //printf("Map does not contain a spawn position for Player %d.", pp - Player);
     }
 
     ASSERT(spawn_sprite >= 0);

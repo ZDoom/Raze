@@ -66,7 +66,6 @@ extern char buffer[];
 SWBOOL DrawScreen;
 extern short f_c;
 
-extern short HelpPage;
 extern ParentalStruct aVoxelArray[MAXTILES];
 
 int ConnectCopySprite(uspritetype const * tsp);
@@ -1327,12 +1326,6 @@ void SpriteSortList2D(int tx, int ty)
     }
 }
 
-void DrawCheckKeys(PLAYERp pp)
-{
-    if (!InputMode)
-        ResizeView(pp);
-}
-
 void DrawCrosshair(PLAYERp pp)
 {
     extern SWBOOL CameraTestMode;
@@ -1981,7 +1974,7 @@ drawscreen(PLAYERp pp)
 #endif
 
     // certain input is done here - probably shouldn't be
-    DrawCheckKeys(pp);
+    ResizeView(pp);
 
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen

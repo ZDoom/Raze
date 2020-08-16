@@ -49,6 +49,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "raze_sound.h"
 #include "c_cvars.h"
 #include "mapinfo.h"
+#include "gamecontrol.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -170,7 +171,6 @@ y++
 //////////////////////////////////////////////////////
 
 extern SWBOOL MenuInputMode;
-extern SWBOOL InputMode;
 
 //
 // Defines
@@ -2232,7 +2232,6 @@ int DoRipper2RipHeart(short SpriteNum); // ripper2.c
 int BunnyHatch2(short Weapon);  // bunny.c
 int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
-void TerminateGame(void);   // game.c
 void TerminateLevel(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c

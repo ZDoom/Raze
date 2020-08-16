@@ -217,7 +217,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         MoveScrollMode2D(Player + myconnectindex);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || ScrollMode2D || InputMode)
+    if (M_Active() || ScrollMode2D)
         return;
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));

@@ -94,21 +94,12 @@ extern SWBOOL mapcheat;
 
 extern int sw_snd_scratch;
 
-char DemoName[15][16];
-
 int GameVersion = 20;
-
-char DemoText[3][64];
-int DemoTextYstart = 0;
 
 int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
-SWBOOL GraphicsMode = FALSE;
-char PlayerNameArg[32] = "";
-SWBOOL CleanExit = FALSE;
 SWBOOL FinishAnim = 0;
-SWBOOL ShortGameMode = FALSE;
 SWBOOL ReloadPrompt = FALSE;
 SWBOOL NewGame = TRUE;
 SWBOOL InMenuLevel = FALSE;
@@ -116,30 +107,16 @@ SWBOOL LoadGameOutsideMoveLoop = FALSE;
 //Miscellaneous variables
 SWBOOL FinishedLevel = FALSE;
 SWBOOL PanelUpdateMode = TRUE;
-short HelpPage = 0;
-SWBOOL InputMode = FALSE;
-SWBOOL MessageInput = FALSE;
 short screenpeek = 0;
-SWBOOL NoDemoStartup = FALSE;
-SWBOOL FirstTimeIntoGame;
 
 SWBOOL PedanticMode;
 
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
-int DispFrameRate = FALSE;
-int DispMono = TRUE;
-int Fog = FALSE;
-int FogColor;
 SWBOOL PreCaching = TRUE;
 int GodMode = FALSE;
-SWBOOL BotMode = FALSE;
 short Skill = 2;
-short BetaVersion = 900;
 short TotalKillable;
-
-SWBOOL HasAutoColor = FALSE;
-uint8_t AutoColor;
 
 const GAME_SET gs_defaults =
 {
@@ -269,15 +246,6 @@ Distance(int x1, int y1, int x2, int y2)
 }
 
 
-void TerminateGame(void)
-{
-    if (CleanExit)
-    {
-        //SybexScreen();
-    }
-    throw CExitEvent(3);
-}
-
 bool LoadLevel(MapRecord *maprec)
 {
     int16_t ang;
@@ -392,8 +360,6 @@ bool InitGame()
     enginePostInit();
 
     videoInit();
-
-    GraphicsMode = TRUE;
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
 	return true;
@@ -890,7 +856,7 @@ void Control()
         NewLevel();
     }
 
-    CleanExit = TRUE;
+    //SybexScreen();
     throw CExitEvent(0);
 }
 

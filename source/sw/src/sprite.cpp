@@ -4941,21 +4941,11 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
     FAFgetzrangepoint(x, y, z - DIV2(SPRITEp_SIZE_Z(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
     SET(sp->cstat, save_cstat);
 
-#if 0
-    if (florhit < 0 || ceilhit < 0)
-    {
-        Printf("ERROR: FAFgetzrange() returned -1 for floor or ceiling check.\n");
-        Printf("Most likely a sprite has been placed too close to a white wall.\n");
-        Printf("spnum %d, sect %d, x %d, y %d, z %d, florhit %d, pic %d\n", SpriteNum, sp->sectnum, sp->x, sp->y, z - DIV2(SPRITEp_SIZE_Z(sp)), florhit, sp->picnum);
-        TerminateGame();
-    }
-#else
     if (florhit < 0 || ceilhit < 0)
     {
         //SetSuicide(SpriteNum);
         return TRUE;
     }
-#endif
 
 
     // ASSERT(florhit >= 0);
