@@ -1974,10 +1974,6 @@ drawscreen(PLAYERp pp)
     // Boss Health Meter, if Boss present
     BossHealthMeter();
 
-	//if (!M_Active())
-
-    videoNextPage();
-
 #if SYNC_TEST
     SyncStatMessage();
 #endif

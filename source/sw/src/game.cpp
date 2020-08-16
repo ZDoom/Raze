@@ -155,7 +155,6 @@ SWBOOL CameraTestMode = FALSE;
 char ds[645];                           // debug string
 
 extern short NormalVisibility;
-SWBOOL QuitFlag = FALSE;
 SWBOOL CommandSetup = FALSE;
 
 char buffer[80], ch;
@@ -173,36 +172,74 @@ void InitRunLevel(void);
 void RunLevel(void);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-// Transitioning helper.
-void Logo(const CompletionFunc& completion);
-
-int SyncScreenJob()
-{
-    while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
-    {
-        DoUpdateSounds();
-        handleevents();
-        updatePauseStatus();
-        D_ProcessEvents();
-        ControlInfo info;
-        CONTROL_GetInput(&info);
-        C_RunDelayedCommands();
-
-        RunScreenJobFrame();	// This handles continuation through its completion callback.
-        videoNextPage();
-    }
-    return 0;
-}
-
-
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
+
+static const char* actions[] = {
+    "Move_Forward",
+    "Move_Backward",
+    "Turn_Left",
+    "Turn_Right",
+    "Strafe",
+    "Fire",
+    "Open",
+    "Run",
+    "Alt_Fire",	// Duke3D", Blood
+    "Jump",
+    "Crouch",
+    "Look_Up",
+    "Look_Down",
+    "Look_Left",
+    "Look_Right",
+    "Strafe_Left",
+    "Strafe_Right",
+    "Aim_Up",
+    "Aim_Down",
+    "SendMessage",
+    "Map",
+    "Shrink_Screen",
+    "Enlarge_Screen",
+    "Show_Opponents_Weapon",
+    "Map_Follow_Mode",
+    "See_Coop_View",
+    "Mouse_Aiming",
+    "Dpad_Select",
+    "Dpad_Aiming",
+    "Last_Weapon",
+    "Alt_Weapon",
+    "Third_Person_View",
+    "Toggle_Crouch",	// This is the last one used by EDuke32"",
+
+};
 
 bool InitGame()
 {
+    InitCheats();
+    buttonMap.SetButtons(actions, NUM_ACTIONS);
+    automapping = 1;
+
+    gs = gs_defaults;
+
+    for (int i = 0; i < MAX_SW_PLAYERS; i++)
+        INITLIST(&Player[i].PanelSpriteList);
+
+    DebugOperate = TRUE;
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
+
+    if (SW_SHAREWARE)
+        Printf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
+    else
+        Printf("SHADOW WARRIOR(tm) Version 1.2\n");
+
+    if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
+        Printf("Copyright (c) 1997 3D Realms Entertainment\n");
+
+    registerosdcommands();
+    registerinputcommands();
+
     engineInit();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);
     if (pal.Size() >= 768)
@@ -509,6 +546,7 @@ void InitLevel(void)
 
     auto maprec = NextLevel;
     NextLevel = nullptr;
+    if (!maprec) maprec = currentLevel;
     if (!maprec)
     {
         NewGame = false;
@@ -684,12 +722,9 @@ void NewLevel(void)
     while (LoadGameOutsideMoveLoop);
 	STAT_Update(false);
 
-    if (!QuitFlag)
-    {
-        // for good measure do this
-        ready2send = 0;
-        waitforeverybody();
-    }
+    // for good measure do this
+    ready2send = 0;
+    waitforeverybody();
 
     StatScreen(&Player[myconnectindex]);
 
@@ -797,12 +832,6 @@ void MenuLevel(void)
             break;
         }
 
-        if (QuitFlag)
-        {
-            // Quiting Game
-            break;
-        }
-
         // must lock the clock for drawing so animations will happen
         totalclocklock = totalclock;
 
@@ -833,13 +862,11 @@ void EndGameSequence(void)
     //BonusScreen();
 
     ExitLevel = FALSE;
-    QuitFlag = FALSE;
 
     //if (FinishAnim == ANIM_ZILLA)
       //      CreditsLevel();
 
     ExitLevel = FALSE;
-    QuitFlag = FALSE;
 
     if (currentLevel->levelNumber != 4 && currentLevel->levelNumber != 20)
     {
@@ -879,31 +906,36 @@ void StatScreen(PLAYERp mpp)
     //MPBonusScreen();
 }
 
+
+// Transitioning helper.
+void Logo(const CompletionFunc& completion);
+
+int SyncScreenJob()
+{
+    while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
+    {
+        DoUpdateSounds();
+        handleevents();
+        updatePauseStatus();
+        D_ProcessEvents();
+        ControlInfo info;
+        CONTROL_GetInput(&info);
+        C_RunDelayedCommands();
+
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        videoNextPage();
+    }
+    return 0;
+}
+
+
+
 void GameIntro(void)
 {
     Logo([](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
     MenuLevel();
 }
-
-void Control()
-{
-	InitGame();
-
-    GameIntro();
-
-    while (!QuitFlag)
-    {
-        handleevents();
-        C_RunDelayedCommands();
-
-        NewLevel();
-    }
-
-    //SybexScreen();
-    throw CExitEvent(0);
-}
-
 
 void getinput(SW_PACKET *, SWBOOL);
 
@@ -922,12 +954,13 @@ void RunLevel(void)
         handleevents();
         C_RunDelayedCommands();
 		D_ProcessEvents();
+        updatePauseStatus();
+
         if (LoadGameOutsideMoveLoop)
         {
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
 
-        updatePauseStatus();
 
         if (paused)
         {
@@ -948,9 +981,7 @@ void RunLevel(void)
         }
 
         drawscreen(Player + screenpeek);
-
-        if (QuitFlag)
-            break;
+        videoNextPage();
 
         if (ExitLevel)
         {
@@ -962,81 +993,31 @@ void RunLevel(void)
     ready2send = 0;
 }
 
-static const char* actions[] = {
-    "Move_Forward",
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Map",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "Map_Follow_Mode",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Last_Weapon",
-    "Alt_Weapon",
-    "Third_Person_View",
-    "Toggle_Crouch",	// This is the last one used by EDuke32"",
-
-};
-
 int32_t GameInterface::app_main()
 {
-    int i;
-    extern int MovesPerPacket;
-    void DoSector(void);
-    void gameinput(void);
-    int cnt = 0;
+    InitGame();
 
-    InitCheats();
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
-    automapping = 1;
-    
-    gs = gs_defaults;
+    GameIntro();
 
-    for (i = 0; i < MAX_SW_PLAYERS; i++)
-        INITLIST(&Player[i].PanelSpriteList);
+    while (true)
+    {
+        handleevents();
+        C_RunDelayedCommands();
 
-    DebugOperate = TRUE;
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
+        NewLevel();
+    }
 
-    if (SW_SHAREWARE)
-        Printf("SHADOW WARRIOR(tm) Version 1.2 (Shareware Version)\n");
-    else
-        Printf("SHADOW WARRIOR(tm) Version 1.2\n");
-
-    if (sw_snd_scratch == 0)    // This is always 0 at this point - this check is only here to prevent whole program optimization from eliminating the variable.
-        Printf("Copyright (c) 1997 3D Realms Entertainment\n");
-
-    registerosdcommands();
-    registerinputcommands();
-
-    Control();
+    //SybexScreen();
+    throw CExitEvent(0);
 
     return 0;
 }
 
-char WangBangMacro[10][64];
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int RandomRange(int range)
 {
@@ -1059,6 +1040,12 @@ int RandomRange(int range)
 
     return value;
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 int StdRandomRange(int range)
 {
@@ -1086,6 +1073,12 @@ int StdRandomRange(int range)
     return value;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 #include "saveable.h"
 
 saveable_module saveable_build{};
@@ -1103,17 +1096,21 @@ void Saveable_Init_Dynamic()
     saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
     return { 0, 48 };
 }
 
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;
 }
-
 
 GameStats GameInterface::getStats()
 {
