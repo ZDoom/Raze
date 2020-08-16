@@ -272,9 +272,8 @@ void ToggleDelirium(void)
 
 void LevelWarp(int nEpisode, int nLevel)
 {
-    levelSetupOptions(nEpisode, nLevel);
-    StartLevel(&gGameOptions);
-    levelTryPlayMusic();
+    auto map = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+    if (map) StartLevel(map);
 }
 
 bool bPlayerCheated = false;

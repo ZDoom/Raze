@@ -46,14 +46,14 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
 
 int gSkill = 2;
 int gEpisodeCount;
-int gNextLevel;
+int gNextLevel; // fixme: let this contain a full level number.
 
 int gLevelTime;
 
@@ -109,12 +109,6 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey)
         ThrowError("Key %s expected in section [%s] of BLOOD.INI", pzKey, pzSection);
 }
 
-
-void levelSetupOptions(int nEpisode, int nLevel)
-{
-    gGameOptions.nEpisode = nEpisode;
-    gGameOptions.nLevel = nLevel;
-}
 
 void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
 {
@@ -193,46 +187,13 @@ void levelLoadDefaults(void)
     gEpisodeCount = i;
 }
 
-void levelAddUserMap(const char *pzMap)
-{
-// FIXME: Make this work with the reworked map system
-#if 0
-    char buffer[BMAX_PATH];
-    strncpy(buffer, pzMap, BMAX_PATH);
-    ChangeExtension(buffer, ".DEF");
-
-    IniFile UserINI(buffer);
-    int nEpisode = ClipRange(UserINI.GetKeyInt(NULL, "Episode", 0), 0, 5);
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[nEpisode];
-    int nLevel = ClipRange(UserINI.GetKeyInt(NULL, "Level", pEpisodeInfo->nLevels), 0, 15);
-    if (nLevel >= pEpisodeInfo->nLevels)
-    {
-        if (pEpisodeInfo->nLevels == 0)
-        {
-            gEpisodeCount++;
-			gVolumeNames[nEpisode].Format("Episode %d", nEpisode+1);
-        }
-        nLevel = pEpisodeInfo->nLevels++;
-    }
-    auto pLevelInfo = &pEpisodeInfo->levels[nLevel];
-    ChangeExtension(buffer, "");
-    pLevelInfo->name = buffer;
-    levelLoadMapInfo(&UserINI, pLevelInfo, NULL, nEpisode, nLevel);
-    gGameOptions.nEpisode = nEpisode;
-    gGameOptions.nLevel = nLevel;
-#else
-	auto map = SetupUserMap(pzMap);
-#endif
-}
-
-void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB)
+void levelGetNextLevels(int *pnEndingA, int *pnEndingB)
 {
     dassert(pnEndingA != NULL && pnEndingB != NULL);
-    auto pLevelInfo = FindMapByLevelNum(levelnum(nEpisode, nLevel));
-    int nEndingA = pLevelInfo->nextLevel;
+    int nEndingA = currentLevel->nextLevel;
     if (nEndingA >= 0)
         nEndingA--;
-    int nEndingB = pLevelInfo->nextSecret;
+    int nEndingB = currentLevel->nextSecret;
     if (nEndingB >= 0)
         nEndingB--;
     *pnEndingA = nEndingA;
@@ -242,9 +203,10 @@ void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB
 void levelEndLevel(int arg)
 {
     int nEndingA, nEndingB;
-    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[gGameOptions.nEpisode];
+    auto episode = volfromlevelnum(currentLevel->levelNumber);
+    EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[episode];
     gGameOptions.uGameFlags |= 1;
-    levelGetNextLevels(gGameOptions.nEpisode, gGameOptions.nLevel, &nEndingA, &nEndingB);
+    levelGetNextLevels(&nEndingA, &nEndingB);
     switch (arg)
     {
     case 0:
@@ -252,7 +214,6 @@ void levelEndLevel(int arg)
         {
             if (pEpisodeInfo->cutsceneBName[0])
                 gGameOptions.uGameFlags |= 8;
-            gGameOptions.nLevel = 0;
             gGameOptions.uGameFlags |= 2;
         }
         else
@@ -261,16 +222,14 @@ void levelEndLevel(int arg)
     case 1:
         if (nEndingB == -1)
         {
-            if (gGameOptions.nEpisode + 1 < gEpisodeCount)
+            if (episode + 1 < gEpisodeCount)
             {
                 if (pEpisodeInfo->cutsceneBName[0])
                     gGameOptions.uGameFlags |= 8;
-                gGameOptions.nLevel = 0;
                 gGameOptions.uGameFlags |= 2;
             }
             else
             {
-                gGameOptions.nLevel = 0;
                 gGameOptions.uGameFlags |= 1;
             }
         }
@@ -282,11 +241,10 @@ void levelEndLevel(int arg)
 
 void levelRestart(void)
 {
-    levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-    gStartNewGame = true;
+    gStartNewGame = currentLevel;
 }
 
-bool levelTryPlayMusic()
+void levelTryPlayMusic()
 {
     FString buffer;
     if (mus_redbook && currentLevel->cdSongId > 0)
@@ -294,7 +252,7 @@ bool levelTryPlayMusic()
     else
     {
         buffer = currentLevel->music;
-		if (Mus_Play(currentLevel->labelName, buffer, true)) return true;
+		if (Mus_Play(currentLevel->labelName, buffer, true)) return;
         DefaultExtension(buffer, ".mid");
     }
     if (!Mus_Play(currentLevel->labelName, buffer, true))

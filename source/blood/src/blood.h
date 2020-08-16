@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "levels.h"
 #include "misc.h"
 #include "db.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -96,7 +97,7 @@ extern int gQuitRequest;
 
 void QuitGame(void);
 void PreloadCache(void);
-void StartLevel(GAMEOPTIONS *gameOptions);
+void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
 bool DemoRecordStatus(void);

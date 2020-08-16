@@ -38,8 +38,6 @@ BEGIN_BLD_NS
 struct GAMEOPTIONS {
     unsigned char nGameType;
     unsigned char nDifficulty;
-    int nEpisode;
-    int nLevel;
     short nSaveGameSlot;
     int picEntry;
     char nMonsterSettings;
@@ -98,14 +96,10 @@ void levelSetupSecret(int nCount);
 void levelTriggerSecret(int nSecret);
 void CheckSectionAbend(const char *pzSection);
 void CheckKeyAbend(const char *pzSection, const char *pzKey);
-void levelSetupOptions(int nEpisode, int nLevel);
 void levelLoadDefaults(void);
-void levelAddUserMap(const char *pzMap);
-// EndingA is normal ending, EndingB is secret level
-void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB);
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);
 void levelRestart(void);
-bool levelTryPlayMusic();
+void levelTryPlayMusic();
 
 END_BLD_NS

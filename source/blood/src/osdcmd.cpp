@@ -60,19 +60,13 @@ static int osdcmd_map(CCmdFuncPtr parm)
     auto maprec = FindMapByName(mapname);
     if (maprec)
     {
-        int e = volfromlevelnum(maprec->levelNumber);
-        int m = mapfromlevelnum(maprec->levelNumber);
-        LevelWarp(e, m);
-        return CCMD_OK;
+        StartLevel(maprec);
     }
-    // Map has not been defined. Treat as user map.
-
-#if 0 // this doesn't work yet because map progression is hardwired to the level number.
-    levelAddUserMap(mapname);
-
-    levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-    StartLevel(&gGameOptions);
-#endif
+    else
+    {
+        // Map has not been defined. Treat as user map.
+        StartLevel(SetupUserMap(mapname));
+    }
 
     return CCMD_OK;
 }

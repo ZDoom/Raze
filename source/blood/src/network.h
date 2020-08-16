@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "controls.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -43,7 +44,7 @@ enum NETWORKMODE {
 #define kNetDefaultPort 23513
 
 extern char packet[576];
-extern bool gStartNewGame;
+extern MapRecord *gStartNewGame;
 extern PACKETMODE gPacketMode;
 extern ClockTicks gNetFifoClock;
 extern int gNetFifoTail;
@@ -69,20 +70,6 @@ extern bool ready2send;
 extern NETWORKMODE gNetMode;
 extern char gNetAddress[32];
 extern int gNetPort;
-
-
-struct PKT_STARTGAME {
-    short version;
-    char gameType, difficulty, monsterSettings, weaponSettings, itemSettings, respawnSettings;
-    char episodeId, levelId;
-    int unk;
-    char userMap, userMapName[13];
-    int weaponsV10x;
-    bool bFriendlyFire;
-    bool bKeepKeysOnRespawn;
-};
-
-extern PKT_STARTGAME gPacketStartGame;
 
 
 inline void PutPacketByte(char *&p, int a2)

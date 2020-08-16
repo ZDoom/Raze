@@ -149,17 +149,14 @@ void CEndGameMgr::Setup(void)
     inputState.keyFlushScans();
 }
 
-//int gNextLevel;
-
 extern int gInitialNetPlayers;
-extern bool gStartNewGame;
 
 void CEndGameMgr::Finish(void)
 {
-    levelSetupOptions(gGameOptions.nEpisode, gNextLevel);
+    int ep = volfromlevelnum(currentLevel->levelNumber);
+    gStartNewGame = FindMapByLevelNum(levelnum(ep, gNextLevel));
     gInitialNetPlayers = numplayers;
     soundEngine->StopAllChannels();
-    gStartNewGame = 1;
     at0 = 0;
 }
 

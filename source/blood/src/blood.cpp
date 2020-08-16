@@ -60,13 +60,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "secrets.h"
 #include "gamestate.h"
 #include "screenjob.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
 void LocalKeys(void);
 void InitCheats();
 
-char bAddUserMap = false;
 bool bNoDemo = false;
 bool bQuickStart = true;
 
@@ -359,50 +359,32 @@ int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
 int16_t startang, startsectnum;
 
-void StartLevel(GAMEOPTIONS *gameOptions)
+void StartLevel(MapRecord *level)
 {
+    if (!level) return;
 	STAT_Update(0);
     EndLevel();
     gInput = {};
-    gStartNewGame = 0;
+    gStartNewGame = nullptr;
     ready2send = 0;
     netWaitForEveryone(0);
-    currentLevel = FindMapByLevelNum(levelnum(gGameOptions.nEpisode, gGameOptions.nLevel));
+    currentLevel = level;
 
     if (gGameOptions.nGameType == 0)
     {
-        if (!(gGameOptions.uGameFlags&1))
-            levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-
         ///////
         gGameOptions.weaponsV10x = gWeaponsV10x;
         ///////
     }
+#if 0
     else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags&1))
     {
-        gGameOptions.nEpisode = gPacketStartGame.episodeId;
-        gGameOptions.nLevel = gPacketStartGame.levelId;
-        gGameOptions.nGameType = gPacketStartGame.gameType;
-        gGameOptions.nDifficulty = gPacketStartGame.difficulty;
-        gGameOptions.nMonsterSettings = gPacketStartGame.monsterSettings;
-        gGameOptions.nWeaponSettings = gPacketStartGame.weaponSettings;
-        gGameOptions.nItemSettings = gPacketStartGame.itemSettings;
-        gGameOptions.nRespawnSettings = gPacketStartGame.respawnSettings;
-        gGameOptions.bFriendlyFire = gPacketStartGame.bFriendlyFire;
-        gGameOptions.bKeepKeysOnRespawn = gPacketStartGame.bKeepKeysOnRespawn;
-        if (gPacketStartGame.userMap)
-            levelAddUserMap(gPacketStartGame.userMapName);
-        else
-            levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
-
-        ///////
-        gGameOptions.weaponsV10x = gPacketStartGame.weaponsV10x;
-        ///////
-
+        // todo
         gBlueFlagDropped = false;
         gRedFlagDropped = false;
     }
-    if (gameOptions->uGameFlags&1)
+#endif
+    if (gGameOptions.uGameFlags&1)
     {
         for (int i = connecthead; i >= 0; i = connectpoint2[i])
         {
@@ -435,9 +417,9 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         if (pSprite->statnum < kMaxStatus && pSprite->extra > 0) {
             
             XSPRITE *pXSprite = &xsprite[pSprite->extra];
-            if ((pXSprite->lSkill & (1 << gameOptions->nDifficulty)) || (pXSprite->lS && gameOptions->nGameType == 0)
-                || (pXSprite->lB && gameOptions->nGameType == 2) || (pXSprite->lT && gameOptions->nGameType == 3)
-                || (pXSprite->lC && gameOptions->nGameType == 1)) {
+            if ((pXSprite->lSkill & (1 << gGameOptions.nDifficulty)) || (pXSprite->lS && gGameOptions.nGameType == 0)
+                || (pXSprite->lB && gGameOptions.nGameType == 2) || (pXSprite->lT && gGameOptions.nGameType == 3)
+                || (pXSprite->lC && gGameOptions.nGameType == 1)) {
                 
                 DeleteSprite(i);
                 continue;
@@ -487,7 +469,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     evInit();
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        if (!(gameOptions->uGameFlags&1))
+        if (!(gGameOptions.uGameFlags&1))
         {
             if (numplayers == 1)
             {
@@ -499,7 +481,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
         }
         playerStart(i, 1);
     }
-    if (gameOptions->uGameFlags&1)
+    if (gGameOptions.uGameFlags&1)
     {
         for (int i = connecthead; i >= 0; i = connectpoint2[i])
         {
@@ -516,7 +498,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
             pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
         }
     }
-    gameOptions->uGameFlags &= ~3;
+    gGameOptions.uGameFlags &= ~3;
     PreloadCache();
     InitMirrors();
     gFrameClock = 0;
@@ -534,6 +516,7 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     totalclock = 0;
     paused = 0;
     ready2send = 1;
+    levelTryPlayMusic();
 }
 
 
@@ -664,7 +647,7 @@ void ProcessFrame(void)
 				
                 if (gGameOptions.uGameFlags&8)
 				{
-                    levelPlayEndScene(gGameOptions.nEpisode, completion);
+                    levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
 				}
 				else completion(false);
             }
@@ -787,11 +770,6 @@ static void app_init()
     registerinputcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
-    if (bAddUserMap)
-    {
-        levelAddUserMap(gUserMapFilename);
-        gStartNewGame = 1;
-    }
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     UpdateDacs(0, true);
 }
@@ -888,31 +866,37 @@ static void commonTicker(bool &playvideo)
     }
     if (gStartNewGame)
     {
-        gStartNewGame = false;
+        auto sng = gStartNewGame;
+        gStartNewGame = nullptr;
         gQuitGame = false;
-        auto completion = [](bool = false)
+        auto completion = [=](bool = false)
         {
-            StartLevel(&gGameOptions);
-            levelTryPlayMusic();
+            StartLevel(sng);
             gNetFifoClock = gFrameClock = totalclock;
             gamestate = GS_LEVEL;
         };
 
-        if (gEpisodeInfo[gGameOptions.nEpisode].cutALevel == gGameOptions.nLevel
-            && gEpisodeInfo[gGameOptions.nEpisode].cutsceneAName[0])
-            levelPlayIntroScene(gGameOptions.nEpisode, completion);
-        else 
-			completion(false);
+        bool startedCutscene = false;
+        if (!(sng->flags & MI_USERMAP))
+        {
+            int episode = volfromlevelnum(sng->levelNumber);
+            int level = mapfromlevelnum(sng->levelNumber);
+            if (gEpisodeInfo[episode].cutALevel == level && gEpisodeInfo[episode].cutsceneAName[0])
+            {
+                levelPlayIntroScene(episode, completion);
+                startedCutscene = true;
+            }
 
+        }
+		if (!startedCutscene) completion(false);
     }
-    if (gRestartGame)
+    else if (gRestartGame)
     {
         Mus_Stop();
         soundEngine->StopAllChannels();
         gQuitGame = 0;
         gQuitRequest = 0;
         gRestartGame = 0;
-        levelSetupOptions(0, 0);
 
 
         if (gGameOptions.nGameType != 0)

@@ -41,7 +41,7 @@ extern bool gHaveNetworking;
 BEGIN_BLD_NS
 
 char packet[576];
-bool gStartNewGame = 0;
+MapRecord *gStartNewGame = 0;
 PACKETMODE gPacketMode = PACKETMODE_1;
 ClockTicks gNetFifoClock = 0;
 int gNetFifoTail = 0;
@@ -71,8 +71,6 @@ char gNetAddress[32];
 int gNetPort = kNetDefaultPort;
 
 const short word_1328AC = 0x214;
-
-PKT_STARTGAME gPacketStartGame;
 
 void netResetToSinglePlayer(void)
 {

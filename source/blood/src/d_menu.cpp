@@ -242,10 +242,8 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	sfxKillAllSounds();
 	gGameOptions.nDifficulty = gs.Skill;
-	gGameOptions.nEpisode = gs.Episode;
 	gSkill = gs.Skill;
-	gGameOptions.nLevel = gs.Level;
-	gStartNewGame = true;
+	gStartNewGame = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
 	cheatReset();
 }
 

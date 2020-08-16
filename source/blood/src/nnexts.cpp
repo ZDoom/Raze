@@ -5174,7 +5174,6 @@ void levelEndLevelCustom(int nLevel) {
 
     if (nLevel >= 16 || nLevel < 0) {
         gGameOptions.uGameFlags |= 2;
-        gGameOptions.nLevel = 0;
         return;
     }
 
