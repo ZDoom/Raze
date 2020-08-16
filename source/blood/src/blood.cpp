@@ -415,14 +415,14 @@ void StartLevel(GAMEOPTIONS *gameOptions)
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     //drawLoadingScreen();
-    if (dbLoadMap(currentLevel->fileName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,(unsigned int*)&gameOptions->uMapCRC))
+    if (dbLoadMap(currentLevel->fileName,(int*)&startpos.x,(int*)&startpos.y,(int*)&startpos.z,&startang,&startsectnum,nullptr))
     {
         I_Error("Unable to load map");
     }
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
     G_LoadMapHack(currentLevel->fileName);
-    wsrand(gameOptions->uMapCRC);
+    wsrand(dbReadMapCRC(currentLevel->LabelName()));
     gKillMgr.Clear();
     gSecretMgr.Clear();
     gLevelTime = 0;

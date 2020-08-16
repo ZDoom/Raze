@@ -40,10 +40,8 @@ struct GAMEOPTIONS {
     unsigned char nDifficulty;
     int nEpisode;
     int nLevel;
-    int nTrackNumber; //at12a;
     short nSaveGameSlot;
     int picEntry;
-    unsigned int uMapCRC;
     char nMonsterSettings;
     int uGameFlags;
     int uNetGameFlags;

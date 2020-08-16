@@ -46,7 +46,7 @@ BEGIN_BLD_NS
 GAMEOPTIONS gGameOptions;
 
 GAMEOPTIONS gSingleGameOptions = {
-    0, 2, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
+    0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 3600, 1800, 1800, 7200
 };
 
 EPISODEINFO gEpisodeInfo[kMaxEpisodes+1];
@@ -114,10 +114,6 @@ void levelSetupOptions(int nEpisode, int nLevel)
 {
     gGameOptions.nEpisode = nEpisode;
     gGameOptions.nLevel = nLevel;
-	auto level = FindMapByLevelNum(levelnum(nEpisode, nLevel));
-	if (!level) return;
-    gGameOptions.uMapCRC = dbReadMapCRC(level->LabelName());
-    gGameOptions.nTrackNumber = level->cdSongId;
 }
 
 void levelLoadMapInfo(IniFile *pIni, MapRecord *pLevelInfo, const char *pzSection, int epinum, int mapnum)
@@ -224,7 +220,6 @@ void levelAddUserMap(const char *pzMap)
     levelLoadMapInfo(&UserINI, pLevelInfo, NULL, nEpisode, nLevel);
     gGameOptions.nEpisode = nEpisode;
     gGameOptions.nLevel = nLevel;
-	gGameOptions.uMapCRC = dbReadMapCRC(pLevelInfo->name);
 #else
 	auto map = SetupUserMap(pzMap);
 #endif

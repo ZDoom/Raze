@@ -60,25 +60,19 @@ static int osdcmd_map(CCmdFuncPtr parm)
     auto maprec = FindMapByName(mapname);
     if (maprec)
     {
-        int e = volfromlevelnum(mapList[i].levelNumber);
-        int m = mapfromlevelnum(mapList[i].levelNumber);
+        int e = volfromlevelnum(maprec->levelNumber);
+        int m = mapfromlevelnum(maprec->levelNumber);
         LevelWarp(e, m);
         return CCMD_OK;
     }
     // Map has not been defined. Treat as user map.
 
+#if 0 // this doesn't work yet because map progression is hardwired to the level number.
     levelAddUserMap(mapname);
 
-    if (numplayers > 1)
-    {
-        gPacketStartGame.episodeId = gGameOptions.nEpisode;
-        gPacketStartGame.levelId = gGameOptions.nLevel;
-        netBroadcastNewGame();
-        gStartNewGame = 1;
-        return CCMD_OK;
-    }
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     StartLevel(&gGameOptions);
+#endif
 
     return CCMD_OK;
 }
