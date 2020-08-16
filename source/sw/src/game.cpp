@@ -89,6 +89,9 @@ CVAR(Bool, sw_darts, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 
 BEGIN_SW_NS
 
+void Logo(const CompletionFunc& completion);
+
+
 void pClearSpriteList(PLAYERp pp);
 
 extern int sw_snd_scratch;
@@ -100,9 +103,8 @@ int Follow_posx=0,Follow_posy=0;
 SWBOOL NoMeters = FALSE;
 SWBOOL FinishAnim = 0;
 SWBOOL ReloadPrompt = FALSE;
-SWBOOL NewGame = TRUE;
-SWBOOL InMenuLevel = FALSE;
-SWBOOL LoadGameOutsideMoveLoop = FALSE;
+SWBOOL NewGame = FALSE;
+SWBOOL SavegameLoaded = FALSE;
 //Miscellaneous variables
 SWBOOL FinishedLevel = FALSE;
 short screenpeek = 0;
@@ -166,7 +168,6 @@ int ThemeTrack[6];
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void SybexScreen(void);
-void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
 void InitRunLevel(void);
 void RunLevel(void);
@@ -287,6 +288,52 @@ bool InitGame()
     videoInit();
     InitFX();
 	return true;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void StartMenu()
+{
+    M_StartControlPanel(false);
+    if (SW_SHAREWARE && FinishAnim)
+    {
+        // go to ordering menu only if shareware
+        M_SetMenu(NAME_CreditsMenu);
+    }
+    else
+    {
+        M_SetMenu(NAME_Mainmenu);
+    }
+    FinishAnim = 0;
+    gamestate = GS_MENUSCREEN;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void DrawMenuLevelScreen(void)
+{
+    const int TITLE_PIC = 2324;
+    twod->ClearScreen();
+	totalclocklock = totalclock;
+    DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
+        DTA_Color, shadeToLight(20), TAG_DONE);
+
+    if (CommEnabled)
+    {
+        sprintf(ds, "Lo Wang is waiting for other players...");
+        MNU_DrawString(160, 170, ds, 1, 16, 0);
+
+        sprintf(ds, "They are afraid!");
+        MNU_DrawString(160, 180, ds, 1, 16, 0);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -419,11 +466,11 @@ void InitPlayerGameSettings(void)
 
 void InitRunLevel(void)
 {
-    if (LoadGameOutsideMoveLoop)
+    if (SavegameLoaded)
     {
         int SavePlayClock;
         extern int PlayClock;
-        LoadGameOutsideMoveLoop = FALSE;
+        SavegameLoaded = FALSE;
         // contains what is needed from calls below
         if (snd_ambience)
             StartAmbientSound();
@@ -520,16 +567,9 @@ void MoveTicker(void)
 //
 //---------------------------------------------------------------------------
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-
 void InitLevel(void)
 {
-    if (LoadGameOutsideMoveLoop)
+    if (SavegameLoaded)
     {
         InitLevelGlobals();
         return;
@@ -549,7 +589,7 @@ void InitLevel(void)
     if (!maprec) maprec = currentLevel;
     if (!maprec)
     {
-        NewGame = false;
+        I_Error("Attempt to start game without level");
         return;
     }
     InitLevelGlobals2();
@@ -719,7 +759,7 @@ void NewLevel(void)
         InitLevel();
         RunLevel();
     }
-    while (LoadGameOutsideMoveLoop);
+    while (SavegameLoaded);
 	STAT_Update(false);
 
     // for good measure do this
@@ -730,125 +770,18 @@ void NewLevel(void)
 
     TerminateLevel();
 
-    if (SW_SHAREWARE)
+    if (FinishAnim == ANIM_ZILLA || FinishAnim == ANIM_SERP)
     {
-        if (FinishAnim)
-        {
-            PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-            MenuLevel();
-			STAT_Update(true);
-    }
-    }
-    else
-    {
-        if (FinishAnim == ANIM_ZILLA || FinishAnim == ANIM_SERP)
-        {
-            PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-            MenuLevel();
-			STAT_Update(true);
-    }
+        STAT_Update(true);
+        PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+        StartMenu();
     }
 }
 
 
 // CTW REMOVED END
 
-void DrawMenuLevelScreen(void)
-{
-    const int TITLE_PIC = 2324;
-    twod->ClearScreen();
-    DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
-        DTA_Color, shadeToLight(20), TAG_DONE);
-}
-
 short PlayerQuitMenuLevel = -1;
-
-void MenuLevel(void)
-{
-    short w,h;
-
-    M_StartControlPanel(false);
-    M_SetMenu(NAME_Mainmenu);
-
-    twod->ClearScreen();
-    videoNextPage();
-
-    //FadeOut(0, 0);
-    ready2send = 0;
-    totalclock = 0;
-    ototalclock = 0;
-    ExitLevel = FALSE;
-    InMenuLevel = TRUE;
-
-    DrawMenuLevelScreen();
-
-    if (CommEnabled)
-    {
-        sprintf(ds,"Lo Wang is waiting for other players...");
-        MNU_DrawString(160, 170, ds, 1, 16, 0);
-
-        sprintf(ds,"They are afraid!");
-        MNU_DrawString(160, 180, ds, 1, 16, 0);
-    }
-
-    videoNextPage();
-    //FadeIn(0, 3);
-
-    waitforeverybody();
-
-    inputState.ClearAllInput();
-
-    if (SW_SHAREWARE)
-    {
-        // go to ordering menu only if shareware
-        if (FinishAnim)
-        {
-			inputState.ClearKeyStatus(sc_Escape);
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_CreditsMenu);
-            FinishAnim = 0;
-        }
-    }
-    else
-    {
-        FinishAnim = 0;
-    }
-
-    while (TRUE)
-    {
-        handleevents();
-        D_ProcessEvents();
-        C_RunDelayedCommands();
-
-        // limits checks to max of 40 times a second
-        if (totalclock >= ototalclock + synctics)
-        {
-            ototalclock += synctics;
-        }
-
-        if (ExitLevel)
-        {
-            ExitLevel = FALSE;
-            break;
-        }
-
-        // must lock the clock for drawing so animations will happen
-        totalclocklock = totalclock;
-
-        //drawscreen as fast as you can
-        DrawMenuLevelScreen();
-        DoUpdateSounds();
-
-        videoNextPage();
-    }
-
-    inputState.ClearAllInput();
-	M_ClearMenus();
-    InMenuLevel = FALSE;
-    twod->ClearScreen();
-    videoNextPage();
-}
-
 
 extern SWBOOL FinishedLevel;
 
@@ -907,35 +840,6 @@ void StatScreen(PLAYERp mpp)
 }
 
 
-// Transitioning helper.
-void Logo(const CompletionFunc& completion);
-
-int SyncScreenJob()
-{
-    while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
-    {
-        DoUpdateSounds();
-        handleevents();
-        updatePauseStatus();
-        D_ProcessEvents();
-        ControlInfo info;
-        CONTROL_GetInput(&info);
-        C_RunDelayedCommands();
-
-        RunScreenJobFrame();	// This handles continuation through its completion callback.
-        videoNextPage();
-    }
-    return 0;
-}
-
-
-
-void GameIntro(void)
-{
-    Logo([](bool) { gamestate = GS_LEVEL; });
-    SyncScreenJob();
-    MenuLevel();
-}
 
 void getinput(SW_PACKET *, SWBOOL);
 
@@ -956,7 +860,7 @@ void RunLevel(void)
 		D_ProcessEvents();
         updatePauseStatus();
 
-        if (LoadGameOutsideMoveLoop)
+        if (SavegameLoaded)
         {
             return; // Stop the game loop if a savegame was loaded from the menu.
         }
@@ -996,9 +900,62 @@ void RunLevel(void)
 int32_t GameInterface::app_main()
 {
     InitGame();
+    gamestate = GS_STARTUP;
 
-    GameIntro();
 
+    while (true)
+    {
+        try
+        {
+            // if the menu initiazed a new game or loaded a savegame, switch to play mode.
+            if (NewGame || SavegameLoaded) gamestate = GS_LEVEL;
+
+            handleevents();
+            updatePauseStatus();
+            D_ProcessEvents();
+            DoUpdateSounds();
+            switch (gamestate)
+            {
+            default:
+            case GS_STARTUP:
+                totalclock = 0;
+                ototalclock = 0;
+
+                if (userConfig.CommandMap.IsNotEmpty())
+                {
+                }
+                else
+                {
+                    if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
+                    else StartMenu();
+                }
+                break;
+
+            case GS_MENUSCREEN:
+            case GS_FULLCONSOLE:
+                DrawMenuLevelScreen();
+                break;
+
+            case GS_LEVEL:
+                //if (GameTicker()) gamestate = GS_STARTUP;
+                break;
+
+            case GS_INTERMISSION:
+            case GS_INTRO:
+                RunScreenJobFrame();	// This handles continuation through its completion callback.
+                break;
+
+            }
+            videoNextPage();
+        }
+        catch (CRecoverableError& err)
+        {
+            C_FullConsole();
+            Printf(TEXTCOLOR_RED "%s\n", err.what());
+        }
+    }
+
+#if 0
     while (true)
     {
         handleevents();
@@ -1009,6 +966,7 @@ int32_t GameInterface::app_main()
 
     //SybexScreen();
     throw CExitEvent(0);
+#endif
 
     return 0;
 }

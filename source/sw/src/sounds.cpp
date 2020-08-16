@@ -47,6 +47,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "filesystem.h"
 #include "serializer.h"
 #include "gamecontrol.h"
+#include "gamestate.h"
 
 BEGIN_SW_NS
 
@@ -280,9 +281,8 @@ void InitAmbient(int num, SPRITEp sp)
 void StartAmbientSound(void)
 {
     short i, nexti;
-    extern SWBOOL InMenuLevel;
-
-    if (InMenuLevel || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
+    
+    if (gamestate != GS_LEVEL || !SoundEnabled()) return; // Don't restart ambience if no level is active! Will crash game.
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_AMBIENT], i, nexti)
     {

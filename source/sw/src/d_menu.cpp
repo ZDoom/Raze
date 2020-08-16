@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "raze_sound.h"
 #include "sounds.h"
+#include "gamestate.h"
 
 #include "../../glbackend/glbackend.h"
 
@@ -172,18 +173,17 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	if (!LoadGameOutsideMoveLoop)
+	if (!SavegameLoaded)
 	{
 		ResumeGame();
 	}
 }
 
-extern SWBOOL InMenuLevel;
 extern SWBOOL ExitLevel, NewGame;
 
 bool GameInterface::CanSave()
 {
-    return (!CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !InMenuLevel && !TEST(Player[myconnectindex].Flags, PF_DEAD));
+    return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !TEST(Player[myconnectindex].Flags, PF_DEAD));
 }
 
 void GameInterface::StartGame(FNewGameStartup& gs)

@@ -654,19 +654,11 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 }
 
 
-extern SWBOOL LoadGameOutsideMoveLoop;
-extern SWBOOL InMenuLevel;
+extern SWBOOL SavegameLoaded;
 
  bool GameInterface::CleanupForLoad() 
  {
-     // Don't terminate until you've made sure conditions are valid for loading.
-     if (InMenuLevel)
-         Mus_Stop();
-     else
-     {
-         //PauseAction();
-         TerminateLevel();
-     }
+     TerminateLevel();
      StopFX();
      return true;
  }
@@ -1108,15 +1100,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-
-	
-
-    LoadGameOutsideMoveLoop = TRUE;
-    if (!InMenuLevel)
-    {
-        ready2send = 1;
-    }
-    else ExitLevel = TRUE;
+    SavegameLoaded = TRUE;
+    ready2send = 1;
     return true;
 }
 

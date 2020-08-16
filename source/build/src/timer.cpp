@@ -37,7 +37,7 @@ int timerInit(int const tickspersecond)
 
 TArray<void(*)(void)> callbacks;
 
-ATTRIBUTE((flatten)) void timerUpdateClock(void)
+void timerUpdateClock(void)
 {
     auto time = steady_clock::now();
     auto elapsedTime = time - timerlastsample;
