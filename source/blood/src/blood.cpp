@@ -916,52 +916,64 @@ int GameInterface::app_main()
     bool playvideo = !bQuickStart;
     while (true)
     {
-       if (gamestate == GS_STARTUP) gameInit();
-
-        commonTicker(playvideo);
-        netGetPackets();
-        handleevents();
-        updatePauseStatus();
-        D_ProcessEvents();
-        ctrlGetInput();
-
-        switch (gamestate)
+        try
         {
-			default:
-        case GS_STARTUP:
-            if (playvideo) playlogos();
-				else
-				{
-					gamestate = GS_MENUSCREEN;
-					M_StartControlPanel(false);
-					M_SetMenu(NAME_Mainmenu);
-				}
-            break;
+            if (gamestate == GS_STARTUP) gameInit();
 
-        case GS_MENUSCREEN:
-        case GS_FULLCONSOLE:
-            drawBackground();
-            break;
+            commonTicker(playvideo);
+            netGetPackets();
+            handleevents();
+            updatePauseStatus();
+            D_ProcessEvents();
+            ctrlGetInput();
 
-        case GS_INTRO:
-        case GS_INTERMISSION:
-            RunScreenJobFrame();	// This handles continuation through its completion callback.
-            break;
+            switch (gamestate)
+            {
+            default:
+            case GS_STARTUP:
+                if (userConfig.CommandMap.IsNotEmpty())
+                {
+                }
+                else
+                {
+                    if (playvideo) playlogos();
+                    else
+                    {
+                        gamestate = GS_MENUSCREEN;
+                        M_StartControlPanel(false);
+                        M_SetMenu(NAME_Mainmenu);
+                    }
+                }
+                break;
 
-        case GS_LEVEL:
-            gameTicker();
-            LocalKeys();
-            break;
+            case GS_MENUSCREEN:
+            case GS_FULLCONSOLE:
+                drawBackground();
+                break;
 
-        case GS_FINALE:
-            gEndGameMgr.ProcessKeys();
-            gEndGameMgr.Draw();
-            break;
+            case GS_INTRO:
+            case GS_INTERMISSION:
+                RunScreenJobFrame();	// This handles continuation through its completion callback.
+                break;
+
+            case GS_LEVEL:
+                gameTicker();
+                LocalKeys();
+                break;
+
+            case GS_FINALE:
+                gEndGameMgr.ProcessKeys();
+                gEndGameMgr.Draw();
+                break;
+            }
+
+            videoNextPage();
         }
-
-        videoNextPage();
-
-
+        catch (CRecoverableError& err)
+        {
+            C_FullConsole();
+            Printf(TEXTCOLOR_RED "%s\n", err.what());
+        }
     }
     return 0;
 }
