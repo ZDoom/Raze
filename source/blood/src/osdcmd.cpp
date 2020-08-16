@@ -65,7 +65,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
     else
     {
         // Map has not been defined. Treat as user map.
-        StartLevel(SetupUserMap(mapname));
+        StartLevel(SetupUserMap(mapfilename));
     }
 
     return CCMD_OK;

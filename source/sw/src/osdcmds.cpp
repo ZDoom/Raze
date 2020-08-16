@@ -45,8 +45,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "mapinfo.h"
 #include "jsector.h"
+#include "network.h"
 
 BEGIN_SW_NS
+
+static void levelwarp(MapRecord *maprec)
+{
+    if (CommEnabled)
+        return;
+
+    auto pp = &Player[myconnectindex];
+    if (Skill >= 3)
+    {
+        PutStringInfo(pp, GStrings("TXTS_TOOSKILLFUL"));
+        return;
+    }
+
+    if (TEST(pp->Flags, PF_DEAD))
+        return;
+
+    NextLevel = maprec;
+    ExitLevel = TRUE;
+
+    sprintf(ds, "%s %s", GStrings("TXT_ENTERING"), maprec->DisplayName());
+    PutStringInfo(pp, ds);
+}
+
 
 static int osdcmd_map(CCmdFuncPtr parm)
 {
@@ -66,11 +90,11 @@ static int osdcmd_map(CCmdFuncPtr parm)
 	
 	// Check if the map is already defined.
     auto maprec = FindMapByName(mapname);
-    if (maprec)
+    if (maprec) levelwarp(maprec);
+    else
     {
-        // This needs to be done better...
-		FStringf cheatcode("activatecheat swtrek%02d", maprec->levelNumber);
-        C_DoCommand(cheatcode);
+        maprec = SetupUserMap(mapfilename);
+        if (maprec) levelwarp(maprec);
     }
     return CCMD_OK;
 }
@@ -96,12 +120,8 @@ int osdcmd_restartmap(CCmdFuncPtr)
 int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    char cheatcode[] = "activatecheat swtrek##";
-
-    for (int i = 0; i < 2; i++)
-        cheatcode[20+i] = parm->parms[0][i];
-    C_DoCommand(cheatcode);
+    auto maprec = FindMapByLevelNum(atoi(parm->parms[0]));
+    if (maprec) levelwarp(maprec);
     return CCMD_OK;
 }
 
