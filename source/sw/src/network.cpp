@@ -1339,7 +1339,8 @@ getpackets(void)
         {
             extern SWBOOL NewGame, ShortGameMode;
             PACKET_NEW_GAMEp p;
-            extern short TimeLimitTable[];
+            static const short TimeLimitTable[9] = { 0,3,5,10,15,20,30,45,60 };
+
 
             pp = Player + otherconnectindex;
 

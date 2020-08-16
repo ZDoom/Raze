@@ -52,93 +52,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-
-//#define PLOCK_VERSION TRUE
-
 extern SWBOOL ExitLevel, NewGame;
 
 
-short TimeLimitTable[9] = {0,3,5,10,15,20,30,45,60};
-
-SWBOOL
-MNU_StartNetGame(void)
-{
-    extern SWBOOL ExitLevel, ShortGameMode, FirstTimeIntoGame;
-    extern short Level, Skill;
-    // CTW REMOVED
-    //extern int gTenActivated;
-    // CTW REMOVED END
-    int pnum;
-
-    // always assumed that a demo is playing
-
-    ready2send = 0;
-    // Skill can go negative here
-	Skill = gs.NetMonsters - 1;
-    Level = gs.NetLevel + 1;
-    ExitLevel = TRUE;
-    NewGame = TRUE;
-    // restart demo for multi-play mode
-
-    // TENSW: return if a joiner
-    if (/* CTW REMOVED gTenActivated && */ !AutoNet && FirstTimeIntoGame)
-        return TRUE;
-
-    // need to set gNet vars for self
-    // everone else gets a packet to set them
-    gNet.AutoAim            = cl_autoaim;
-    gNet.SpawnMarkers       = gs.NetSpawnMarkers;
-    gNet.HurtTeammate       = gs.NetHurtTeammate;
-    gNet.Nuke               = gs.NetNuke;
-	gNet.KillLimit = gs.NetKillLimit * 10;
-	gNet.TimeLimit = TimeLimitTable[gs.NetTimeLimit] * 60 * 120;
-
-    if (ShortGameMode)
-    {
-        gNet.KillLimit /= 10;
-        gNet.TimeLimit /= 2;
-    }
-
-    gNet.TimeLimitClock     = gNet.TimeLimit;
-    gNet.TeamPlay           = gs.NetTeamPlay;
-	gNet.MultiGameType = gs.NetGameType + 1;
-
-    if (gNet.MultiGameType == MULTI_GAME_COMMBAT_NO_RESPAWN)
-    {
-        gNet.MultiGameType = MULTI_GAME_COMMBAT;
-        gNet.NoRespawn = TRUE;
-    }
-    else
-    {
-        gNet.NoRespawn = FALSE;
-    }
-
-    if (CommEnabled)
-    {
-        PACKET_NEW_GAME p;
-
-        p.PacketType = PACKET_TYPE_NEW_GAME;
-        p.Level = Level;
-        p.Skill = Skill;
-        p.GameType = gs.NetGameType;
-        p.AutoAim = cl_autoaim;
-        p.HurtTeammate = gs.NetHurtTeammate;
-        p.TeamPlay = gs.NetTeamPlay;
-        p.SpawnMarkers = gs.NetSpawnMarkers;
-        p.KillLimit = gs.NetKillLimit;
-        p.TimeLimit = gs.NetTimeLimit;
-        p.Nuke = gs.NetNuke;
-
-        netbroadcastpacket((uint8_t*)(&p), sizeof(p));            // TENSW
-    }
-
-
-    return TRUE;
-}
-
-
 //////////////////////////////////////////////////////////////////////////////
-#define FADE_DAMAGE_FACTOR  3   // 100 health / 32 shade cycles = 3.125
 
 // Fades from 100% to 62.5% somewhat quickly,
 //  then from 62.5% to 37.5% slowly,
@@ -177,6 +94,8 @@ typedef struct RGB_color_typ
 //////////////////////////////////////////
 void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 {
+    const int FADE_DAMAGE_FACTOR = 3;   // 100 health / 32 shade cycles = 3.125
+
 	short fadedamage = 0;
     RGB_color color;
 
@@ -239,9 +158,10 @@ void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
 //////////////////////////////////////////
 // Do the screen reddness based on damage
 //////////////////////////////////////////
-#define MAXFADETICS     5
 void DoPaletteFlash(PLAYERp pp)
 {
+    const int MAXFADETICS = 5;
+
     if (pp->FadeAmt <= 1)
     {
         pp->FadeAmt = 0;

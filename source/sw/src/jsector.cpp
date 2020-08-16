@@ -277,19 +277,6 @@ JS_SpriteSetup(void)
             SET(wall[i].extra, WALLFX_DONT_STICK);
             break;
         }
-
-#if 0
-        short sndnum;
-        if ((sndnum = CheckTileSound(picnum)) != -1)
-        {
-            SpawnWallSound(sndnum, i);
-        }
-        picnum = wall[i].overpicnum;
-        if ((sndnum = CheckTileSound(picnum)) != -1)
-        {
-            SpawnWallSound(sndnum, i);
-        }
-#endif
     }
 }
 
@@ -796,12 +783,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                         dist = j;
                 }
 
-
-
-//              //DSPRINTF(ds,"mirror.tics == %ul", mirror[i].tics);
-//              MONO_PRINT(ds);
-
-
                 if (mirror[cnt].ismagic)
                 {
                     SPRITEp sp=NULL;
@@ -815,14 +796,6 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16
                     sp = &sprite[mirror[cnt].camera];
 
                     ASSERT(sp);
-
-                    // char tvisibility;
-                    // tvisibility = g_visibility;
-//                  g_visibility <<= 1;       // Make mirror darker
-
-                    // Make TV cam style mirror seem to shimmer
-//                  if (mirror[cnt].ismagic && STD_RANDOM_P2(256) > 128)
-//                      g_visibility -= STD_RANDOM_P2(128);
 
                     // Calculate the angle of the mirror wall
                     w = mirror[cnt].mirrorwall;

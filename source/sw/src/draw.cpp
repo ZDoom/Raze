@@ -60,7 +60,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 static int OverlapDraw = FALSE;
-extern SWBOOL QuitFlag, LocationInfo, ConPanel, SpriteInfo;
+extern SWBOOL QuitFlag, LocationInfo, SpriteInfo;
 extern SWBOOL Voxel;
 extern char buffer[];
 SWBOOL DrawScreen;
@@ -194,34 +194,6 @@ SetActorRotation(short tSpriteNum, int viewx, int viewy)
     // thats a big deal
     tsp->picnum = State->Pic;
 
-    //sprintf(ds,"SetActorRotation:tsp->picnum: %d",tsp->picnum);
-    //CON_Message(ds);
-
-    /*
-
-     !AIC KEY - For actor states EVERY rotation needs to have the same tics
-     animators.  The only thing different can be the picnum.  If not then sync bugs
-     will occur.  This code attempts to check to the best of its ability for this
-     problem.  Should go away with shipped compile.
-
-    */
-
-#if DEBUG
-    {
-        short i;
-
-        for (i = 0; i < tu->RotNum; i++)
-        {
-            STATEp TestStateStart, TestState;
-
-            TestStateStart = tu->Rot[i];
-            TestState = TestStateStart + StateOffset;
-
-            ASSERT(State->Tics == TestState->Tics);
-            ASSERT(State->Animator == TestState->Animator);
-        }
-    }
-#endif
     return 0;
 }
 
@@ -283,83 +255,6 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
     return loz;
 }
 
-#if 0
-#define GENERIC_SHADOW_PIC 66
-extern SWBOOL bVoxelsOn;
-void
-DoVoxelShadow(SPRITEp tspr)
-{
-    // Check for voxels
-    if (bVoxelsOn)
-    {
-        switch (tspr->picnum)
-        {
-        case ICON_STAR:             // 1793
-        case ICON_UZI:              // 1797
-        case ICON_UZIFLOOR:         // 1807
-        case ICON_LG_UZI_AMMO:      // 1799
-        case ICON_HEART:            // 1824
-        case ICON_HEART_LG_AMMO:    // 1820
-        case ICON_GUARD_HEAD:       // 1814
-        case ICON_FIREBALL_LG_AMMO: // 3035
-        case ICON_ROCKET:           // 1843
-        case ICON_SHOTGUN:          // 1794
-        case ICON_LG_ROCKET:        // 1796
-        case ICON_LG_SHOTSHELL:     // 1823
-        case ICON_MICRO_GUN:        // 1818
-        case ICON_MICRO_BATTERY:    // 1800
-        case ICON_GRENADE_LAUNCHER: // 1817
-        case ICON_LG_GRENADE:       // 1831
-        case ICON_LG_MINE:          // 1842
-        case ICON_RAIL_GUN:         // 1811
-        case ICON_RAIL_AMMO:        // 1812
-        case ICON_SM_MEDKIT:        // 1802
-        case ICON_MEDKIT:           // 1803
-        case ICON_CHEMBOMB:         // 1808
-        case ICON_FLASHBOMB:        // 1805
-        case ICON_NUKE:             // 1809
-        case ICON_CALTROPS:
-        case ICON_BOOSTER:          // 1810
-        case ICON_HEAT_CARD:        // 1819
-        case ICON_REPAIR_KIT:       // 1813
-        case ICON_EXPLOSIVE_BOX:    // 1801
-        case ICON_ENVIRON_SUIT:     // 1837
-        case ICON_FLY:              // 1782
-        case ICON_CLOAK:            // 1826
-        case ICON_NIGHT_VISION:     // 3031
-        case ICON_NAPALM:           // 3046
-        case ICON_RING:             // 3050
-        //case ICON_GOROAMMO:       // 3035
-        //case ICON_HEARTAMMO:      // 1820
-        case ICON_RINGAMMO:         // 3054
-        case ICON_NAPALMAMMO:       // 3058
-        case ICON_GRENADE:          // 3059
-        //case ICON_OXYGEN:         // 1800
-        case ICON_ARMOR:            // 3030
-        case BLUE_KEY:              // 1766
-        case RED_KEY:               // 1770
-        case GREEN_KEY:             // 1774
-        case YELLOW_KEY:            // 1778
-        case GOLD_SKELKEY:
-        case SILVER_SKELKEY:
-        case BRONZE_SKELKEY:
-        case RED_SKELKEY:
-        case BLUE_CARD:
-        case RED_CARD:
-        case GREEN_CARD:
-        case YELLOW_CARD:
-//              tspr->picnum = GENERIC_SHADOW_PIC;
-            tspr->xrepeat = 0;  // For now, don't do voxel shadows
-            tspr->yrepeat = 0;
-//              tspr->xrepeat = 27;
-//              tspr->yrepeat = 4;
-            //tspr->z+=(sintable[(rotang*2)%2047]/16);
-            break;
-        }
-    }
-}
-#endif
-
 void
 DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
 {
@@ -411,13 +306,6 @@ DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
             loz = DoShadowFindGroundPoint(tsp);
         }
     }
-
-#if 0
-    if (SectUser[tsp->sectnum] && SectUser[tsp->sectnum]->depth)
-    {
-        loz -= Z(SectUser[tsp->sectnum]->depth);
-    }
-#endif
 
     // need to find the ground here
     New->z = loz;
@@ -677,6 +565,8 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
     PLAYERp pp = Player + screenpeek;
     short newshade=0;
 
+    const int DART_PIC = 2526;
+    const int DART_REPEAT = 16;
 
     ang = NORM_ANGLE(ang + 12);
 
@@ -688,9 +578,6 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
         SpriteNum = tsprite[tSpriteNum].owner;
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         tu = User[SpriteNum];
-
-        //if(tsp->statnum == STAT_GENERIC_QUEUE)
-        //    Printf("tsp->pal = %d",tsp->pal);
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -779,12 +666,11 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     tsp->yrepeat = 29;
                 }
 
-#define DART_PIC 2526
-#define DART_REPEAT 16
             if (tu->ID == STAR1)
             {
                 if (sw_darts)
                 {
+
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
@@ -1374,7 +1260,7 @@ FString GameInterface::GetCoordString()
 
 void PrintSpriteInfo(PLAYERp pp)
 {
-#define Y_STEP 7
+    const int Y_STEP = 7;
     int x = windowxy1.x+2;
     int y = windowxy1.y+2;
     SPRITEp sp;
@@ -1447,8 +1333,6 @@ void SpriteSortList2D(int tx, int ty)
 
 void DrawCheckKeys(PLAYERp pp)
 {
-    if (ConPanel) return;
-
     if (!InputMode)
         ResizeView(pp);
 }
@@ -1616,15 +1500,6 @@ PostDraw(void)
             FreeMem(User[i]);
             User[i] = NULL;
         }
-
-#if DEBUG
-        SPRITEp sp = &sprite[i];
-        short statnum = sp->statnum;
-        short sectnum = sp->sectnum;
-        memset(sp, 0xCC, sizeof(SPRITE));
-        sp->statnum = statnum;
-        sp->sectnum = sectnum;
-#endif
 
         deletesprite(i);
     }
@@ -1888,23 +1763,9 @@ drawscreen(PLAYERp pp)
     }
     tsectnum = camerapp->cursectnum;
 
-    //ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
-    // if updatesectorz is to sensitive try COVERupdatesector
-    //updatesectorz(tx, ty, tz, &tsectnum);
-
     COVERupdatesector(tx, ty, &tsectnum);
 
-    if (tsectnum < 0)
-    {
-#if 0
-        // if we hit an invalid sector move to the last valid position for drawing
-        tsectnum = lv_sectnum;
-        tx = lv_x;
-        ty = lv_y;
-        tz = lv_z;
-#endif
-    }
-    else
+    if (tsectnum >= 0)
     {
         // last valid stuff
         lv_sectnum = tsectnum;
@@ -1912,9 +1773,6 @@ drawscreen(PLAYERp pp)
         lv_y = ty;
         lv_z = tz;
     }
-
-    // with "last valid" code this should never happen
-    // ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);
 
     if (pp->sop_riding || pp->sop_control)
     {
@@ -1951,7 +1809,6 @@ drawscreen(PLAYERp pp)
             tq16ang = GetQ16AngleFromVect(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
-    //if (TEST(camerapp->Flags, PF_VIEW_FROM_OUTSIDE))
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, fix16_to_int(tq16horiz));
@@ -1973,7 +1830,6 @@ drawscreen(PLAYERp pp)
                              pp->obob_z + mulscale16(pp->bob_z - pp->obob_z, smoothratio);
 
         // recoil only when not in camera
-        //tq16horiz = tq16horiz + fix16_from_int(camerapp->recoil_horizoff);
         tq16horiz = tq16horiz + fix16_from_int(pp->recoil_horizoff);
         tq16horiz = fix16_max(tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
         tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));

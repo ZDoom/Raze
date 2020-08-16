@@ -199,7 +199,6 @@ y++
 
 extern SWBOOL MenuInputMode;
 extern SWBOOL ConInputMode;
-extern SWBOOL ConPanel;
 extern SWBOOL InputMode;
 extern char MessageInputString[256];
 extern char MessageOutputString[256];

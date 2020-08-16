@@ -2503,42 +2503,33 @@ MoveScrollMode2D(PLAYERp pp)
         keymove = NORMALKEYMOVE;
     }
 
-    if (!ConPanel)
+    if (buttonMap.ButtonDown(gamefunc_Turn_Left))
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-        {
-            mfsvel -= -keymove;
-        }
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-        {
-            mfsvel -= keymove;
-        }
+        mfsvel -= -keymove;
+    }
+    if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+    {
+        mfsvel -= keymove;
     }
 
-    if (!ConPanel)
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
     {
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        {
-            mfsvel += keymove;
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        {
-            mfsvel += -keymove;
-        }
+        mfsvel += keymove;
     }
 
-    if (!ConPanel)
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
     {
-        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        {
-            mfvel += keymove;
-        }
+        mfsvel += -keymove;
+    }
 
-        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        {
-            mfvel += -keymove;
-        }
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+    {
+        mfvel += keymove;
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+    {
+        mfvel += -keymove;
     }
 
     if (mfvel < -MAXVEL)

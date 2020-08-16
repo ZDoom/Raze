@@ -94,7 +94,6 @@ void pClearSpriteList(PLAYERp pp);
 signed char MNU_InputSmallString(char*, short);
 signed char MNU_InputString(char*, short);
 SWBOOL IsCommand(const char* str);
-SWBOOL MNU_StartNetGame(void);
 extern SWBOOL mapcheat;
 
 extern SWBOOL MultiPlayQuitFlag;
@@ -144,7 +143,6 @@ SWBOOL MultiPlayQuitFlag = FALSE;
 char MessageInputString[256];
 char MessageOutputString[256];
 SWBOOL ConInputMode = FALSE;
-SWBOOL ConPanel = FALSE;
 SWBOOL FinishedLevel = FALSE;
 SWBOOL PanelUpdateMode = TRUE;
 short HelpPage = 0;
