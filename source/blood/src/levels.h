@@ -106,7 +106,6 @@ void levelGetNextLevels(int nEpisode, int nLevel, int *pnEndingA, int *pnEndingB
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);
 void levelRestart(void);
-bool levelTryPlayMusic(int nEpisode, int nlevel, bool bSetLevelSong = false);
-void levelTryPlayMusicOrNothing(int nEpisode, int nLevel);
+bool levelTryPlayMusic();
 
 END_BLD_NS

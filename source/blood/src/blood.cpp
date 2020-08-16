@@ -893,7 +893,7 @@ static void commonTicker(bool &playvideo)
         auto completion = [](bool = false)
         {
             StartLevel(&gGameOptions);
-            levelTryPlayMusicOrNothing(gGameOptions.nEpisode, gGameOptions.nLevel);
+            levelTryPlayMusic();
             gNetFifoClock = gFrameClock = totalclock;
             gamestate = GS_LEVEL;
         };

@@ -286,26 +286,21 @@ void levelRestart(void)
     gStartNewGame = true;
 }
 
-bool levelTryPlayMusic(int nEpisode, int nLevel, bool bSetLevelSong)
+bool levelTryPlayMusic()
 {
-	auto level = FindMapByLevelNum(levelnum(nEpisode, nLevel));
-	if (!level) return false;
     FString buffer;
-    if (mus_redbook && level->cdSongId > 0)
-        buffer.Format("blood%02i.ogg", level->cdSongId);
+    if (mus_redbook && currentLevel->cdSongId > 0)
+        buffer.Format("blood%02i.ogg", currentLevel->cdSongId);
     else
     {
-        buffer = level->music;
-		if (Mus_Play(level->labelName, buffer, true)) return true;
+        buffer = currentLevel->music;
+		if (Mus_Play(currentLevel->labelName, buffer, true)) return true;
         DefaultExtension(buffer, ".mid");
     }
-    return !!Mus_Play(level->labelName, buffer, true);
-}
-
-void levelTryPlayMusicOrNothing(int nEpisode, int nLevel)
-{
-    if (!levelTryPlayMusic(nEpisode, nLevel, true))
+    if (!Mus_Play(currentLevel->labelName, buffer, true))
+    {
         Mus_Play("", "", true);
+    }
 }
 
 class LevelsLoadSave : public LoadSave
