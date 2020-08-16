@@ -526,7 +526,6 @@ public:
 			if (completion) completion(false);
 			return false;
 		}
-		handleevents();
 		if (actionState == State_Clear)
 		{
 			actionState = State_Run;

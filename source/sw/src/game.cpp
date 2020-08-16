@@ -412,21 +412,8 @@ bool InitGame()
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
 
-#if 0
-    if (!firstnet)
-        initmultiplayers(0, NULL, 0, 0, 0);
-    else if (initmultiplayersparms(argc - firstnet, &argv[firstnet]))
-    {
-        Printf("Waiting for players...\n");
-        while (initmultiplayerscycle())
-        {
-            handleevents();
-            }
-        }
-#else
 	numplayers = 1; myconnectindex = 0;
 	connecthead = 0; connectpoint2[0] = -1;
-#endif
     initsynccrc();
 
     // code to duplicate packets

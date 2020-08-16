@@ -28,6 +28,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #include "ns.h"	// Must come before everything else!
 
+#include "g_input.h"
 #include "duke3d.h"
 
 #include "superfasthash.h"
@@ -292,7 +293,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		while (S_CheckSoundPlaying(skillsound))
 		{
 			S_Update();
-			handleevents();
+			I_GetEvent();
 		}
 	}
 	ud.m_respawn_monsters = (gs.Skill == 3);

@@ -841,7 +841,6 @@ void donewgame(MapRecord* map, int sk)
 template<class func>
 void newgame(MapRecord* map, int sk, func completion)
 {
-    handleevents();
     ready2send = 0;
 
     auto completion1 = [=](bool res)

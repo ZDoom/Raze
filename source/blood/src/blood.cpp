@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "common.h"
 #include "common_game.h"
+#include "g_input.h"
 
 #include "db.h"
 #include "blood.h"
@@ -315,7 +316,7 @@ void PreloadTiles(void)
     fxPrecache();
     gibPrecache();
 
-    gameHandleEvents();
+    I_GetEvent();
 }
 
 void PreloadCache(void)
@@ -325,21 +326,20 @@ void PreloadCache(void)
     int cnt = 0;
     int percentDisplayed = -1;
 
-    for (int i=0; i<kMaxTiles && !inputState.GetKeyStatus(sc_Space); i++)
+    for (int i = 0; i < kMaxTiles && !inputState.GetKeyStatus(sc_Space); i++)
     {
         if (TestBitString(gotpic, i))
         {
-			// For the hardware renderer precaching the raw pixel data is pointless.
-			if (videoGetRenderMode() < REND_POLYMOST)
-				tileLoad(i);
+            // For the hardware renderer precaching the raw pixel data is pointless.
+            if (videoGetRenderMode() < REND_POLYMOST)
+                tileLoad(i);
 
             if (r_precache) PrecacheHardwareTextures(i);
 
             if ((++cnt & 7) == 0)
-                gameHandleEvents();
-
-                    }
-                }
+                I_GetEvent();
+        }
+    }
     memset(gotpic,0,sizeof(gotpic));
 }
 
@@ -621,13 +621,13 @@ void ProcessFrame(void)
     sfxUpdate3DSounds();
     if (gMe->hand == 1)
     {
-#define CHOKERATE 8
-#define TICRATE 30
+        const int CHOKERATE = 8;
+        const int COUNTRATE = 30;
         gChokeCounter += CHOKERATE;
-        while (gChokeCounter >= TICRATE)
+        while (gChokeCounter >= COUNTRATE)
         {
             gChoke.at1c(gMe);
-            gChokeCounter -= TICRATE;
+            gChokeCounter -= COUNTRATE;
         }
     }
     gLevelTime++;
@@ -636,14 +636,17 @@ void ProcessFrame(void)
     if ((gGameOptions.uGameFlags&1) != 0 && !gStartNewGame)
     {
         ready2send = 0;
+#if 0
         if (gNetPlayers > 1 && gNetMode == NETWORK_SERVER && gPacketMode == PACKETMODE_1 && myconnectindex == connecthead)
         {
             while (gNetFifoMasterTail < gNetFifoTail)
             {
-                gameHandleEvents();
+                netGetPackets();
+                h andleevents();
                 netMasterUpdate();
             }
         }
+#endif
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
@@ -932,7 +935,8 @@ int GameInterface::app_main()
        if (gamestate == GS_STARTUP) gameInit();
 
         commonTicker(playvideo);
-        gameHandleEvents();
+        netGetPackets();
+        handleevents();
         updatePauseStatus();
         D_ProcessEvents();
         ctrlGetInput();

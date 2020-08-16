@@ -485,12 +485,6 @@ extern void G_ExtInit(void);
 extern void G_SetupGlobalPsky(void);
 
 
-static inline int gameHandleEvents(void)
-{
-    netGetPackets();
-    return handleevents();
-}
-
 #pragma pack(push,1)
 
 #if 0

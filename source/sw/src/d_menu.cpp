@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ns.h"	// Must come before everything else!
 #include "build.h"
+#include "g_input.h"
 
 #include "names2.h"
 #include "panel.h"
@@ -221,7 +222,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
 	{
 		DoUpdateSounds();
-		handleevents();
+		I_GetEvent();
 	}
 }
 

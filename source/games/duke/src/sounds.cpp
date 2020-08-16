@@ -36,6 +36,7 @@ source as it is released.
 #include "ns.h"	// Must come before everything else!
 
 #include "compat.h"
+#include "g_input.h"
 
 #include "duke3d.h"
 #include "raze_music.h"
@@ -103,7 +104,7 @@ void S_CacheAllSounds(void)
 	{
 		soundEngine->CacheSound(&snd);
 		if (((++i)&31) == 0)
-			handleevents();
+			I_GetEvent();
 	}
 }
 
