@@ -72,7 +72,6 @@ void pWeaponForceRest(PLAYERp pp);
 #define SO_IDLE_SOUND 1
 
 extern SWBOOL NoMeters;
-extern int Follow_posx,Follow_posy;
 
 #define TEST_UNDERWATER(pp) (TEST(sector[(pp)->cursectnum].extra, SECTFX_UNDERWATER))
 
@@ -2459,8 +2458,6 @@ MoveScrollMode2D(PLAYERp pp)
     int32_t keymove;
     int32_t momx, momy;
     static int mfvel=0, mfsvel=0;
-    extern SWBOOL ScrollMode2D;
-
 
     CONTROL_GetInput(&scrl_input);
 
@@ -2469,12 +2466,14 @@ MoveScrollMode2D(PLAYERp pp)
     if (M_Active())
         return;
 
+#if 0
     // Recenter view if told
     if (buttonMap.ButtonDown(gamefunc_Center_View))
     {
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;
     }
+#endif
 
     // Toggle follow map mode on/off
     if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
@@ -7736,8 +7735,6 @@ domovethings(void)
         // Reset flags used while tying input to framerate
         auto prevFlags2 = pp->Flags2;
         RESET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
-//        extern SWBOOL ScrollMode2D;
-        //if (!ScrollMode2D)
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         // Fix a possible jitter upon player action change;

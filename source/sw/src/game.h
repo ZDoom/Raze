@@ -76,45 +76,20 @@ enum GameFunction_t
     gamefunc_Strafe_Right,
     gamefunc_Aim_Up,
     gamefunc_Aim_Down,
-    gamefunc_Weapon_1,
-    gamefunc_Weapon_2,
-    gamefunc_Weapon_3,
-    gamefunc_Weapon_4,
-    gamefunc_Weapon_5,
-    gamefunc_Weapon_6,
-    gamefunc_Weapon_7,
-    gamefunc_Weapon_8,
-    gamefunc_Weapon_9,
-    gamefunc_Weapon_10,
-    gamefunc_Inventory,
-    gamefunc_Inventory_Left,
-    gamefunc_Inventory_Right,
-    gamefunc_NightVision,
-    gamefunc_MedKit,
-    gamefunc_TurnAround,
     gamefunc_SendMessage,
     gamefunc_Map,
     gamefunc_Shrink_Screen,
     gamefunc_Enlarge_Screen,
-    gamefunc_Center_View,
-    gamefunc_Holster_Weapon,
     gamefunc_Show_Opponents_Weapon,
     gamefunc_Map_Follow_Mode,
     gamefunc_See_Coop_View,
     gamefunc_Mouse_Aiming,
-    gamefunc_Toggle_Crosshair,
-    gamefunc_Next_Weapon,
-    gamefunc_Previous_Weapon,
     gamefunc_Dpad_Select,
     gamefunc_Dpad_Aiming,
     gamefunc_Last_Weapon,
     gamefunc_Alt_Weapon,
     gamefunc_Third_Person_View,
     gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
-    gamefunc_Smoke_Bomb,			// and these by ShadowWarrior (todo: There's quite a bit of potential for consolidation here - is it worth it?)
-    gamefunc_Gas_Bomb,
-    gamefunc_Flash_Bomb,
-    gamefunc_Caltrops,
     NUM_ACTIONS
 };
 
@@ -891,6 +866,10 @@ extern FString ThemeSongs[6];                                          //
 
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
+
+extern int Follow_posx, Follow_posy;
+extern SWBOOL ScrollMode2D;
+
 
 
 
@@ -2340,6 +2319,7 @@ void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar(ClockTicks arg);
 void InitFonts();
+void registerinputcommands();
 
 extern int PlayClock;
 extern short LevelSecrets;
@@ -2370,6 +2350,7 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
+    void clearlocalinputstate() override;
 
     FString statFPS() override;
     GameStats getStats() override;

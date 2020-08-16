@@ -599,7 +599,7 @@ OptionMenu "WeaponsControlMenu"// protected
 	{
 		Control    "$CNTRLMNU_RELOAD" , "steroids"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		Control "$CNTRLMNU_QUICKKICK"     , "+quick_kick"
 	}
@@ -615,10 +615,10 @@ OptionMenu "WeaponsControlMenu"// protected
 	}
 	ifgame(ShadowWarrior)
 	{
-		Control "$CNTRLMNU_SMOKEBOMB","+smoke_bomb"
-		Control "$CNTRLMNU_GASBOMB"   ,"+gas_bomb"
-		Control "$CNTRLMNU_FLASHBOMB","+flash_bomb"
-		Control "$CNTRLMNU_CALTROPS"   ,"+caltrops"
+		Control "$CNTRLMNU_SMOKEBOMB","smoke_bomb"
+		Control "$CNTRLMNU_GASBOMB"   ,"gas_bomb"
+		Control "$CNTRLMNU_FLASHBOMB","flash_bomb"
+		Control "$CNTRLMNU_CALTROPS"   ,"caltrops"
 	}
 
 }
@@ -682,8 +682,8 @@ OptionMenu "InventoryControlsMenu"// protected
 	ifgame(ShadowWarrior)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_NIGHTVISION" , "+nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "+medkit"
+		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
+		Control    "$CNTRLMNU_MEDKIT" , "medkit"
 	}
 }
 

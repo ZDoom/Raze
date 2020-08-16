@@ -17,6 +17,7 @@ set( PCH_SOURCES
 	src/girlninj.cpp
 	src/goro.cpp
 	src/hornet.cpp
+	src/input.cpp
 	src/interp.cpp
 	src/interpsh.cpp
 	src/interpso.cpp

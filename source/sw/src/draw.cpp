@@ -69,7 +69,6 @@ extern short f_c;
 extern short HelpPage;
 extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
-extern int Follow_posx,Follow_posy;
 
 int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
@@ -956,8 +955,6 @@ ResizeView(PLAYERp pp)
 #if 0
         if (inputState.GetKeyStatus(sc_Escape))
         {
-            extern SWBOOL ScrollMode2D;
-
 			inputState.ClearKeyStatus(sc_Escape);
             dimensionmode = 3;
             ScrollMode2D = FALSE;
@@ -1915,8 +1912,6 @@ drawscreen(PLAYERp pp)
 
     if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
     {
-        extern SWBOOL ScrollMode2D;
-
         if (ScrollMode2D)
         {
             tx = Follow_posx;
