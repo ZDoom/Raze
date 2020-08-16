@@ -1035,7 +1035,6 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getdouble(script,&scale)) break;
             if (scriptfile_getnumber(script,&shadeoffs)) break;
 
-#ifdef USE_OPENGL
             lastmodelid = md_loadmodel(modelfn);
             if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
             {
@@ -1043,11 +1042,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
-# ifdef POLYMER
-            if (glrendmode == REND_POLYMER)
-                md3postload_polymer((md3model_t *)models[lastmodelid]);
-# endif
-#endif
+
             modelskin = lastmodelskin = 0;
             seenframe = 0;
         }
@@ -1666,7 +1661,6 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-#ifdef USE_OPENGL
             if (EDUKE32_PREDICT_FALSE(!model_ok))
             {
                 if (lastmodelid >= 0)
@@ -1679,32 +1673,6 @@ static int32_t defsparser(scriptfile *script)
             }
 
             md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,(float)myoffset,flags);
-
-            // thin out the loaded model by throwing away unused frames
-            // FIXME: CURRENTLY DISABLED: interpolation may access frames we consider 'unused'?
-# if 0
-            if (models[lastmodelid]->mdnum==3 && ((md3model_t *)models[lastmodelid])->numframes <= 1024)
-            {
-#  ifdef DEBUG_MODEL_MEM
-                md3model_t *m = (md3model_t *)models[lastmodelid];
-                int32_t i, onumframes;
-                onumframes = m->numframes;
-                i =
-#  endif
-                md_thinoutmodel(lastmodelid, usedframebitmap);
-#  ifdef DEBUG_MODEL_MEM
-                if (i>=0 && i<onumframes)
-                    Printf("used %d/%d frames: %s\n", i, onumframes, modelfn);
-                else if (i<0)
-                    Printf("md_thinoutmodel returned %d: %s\n", i, modelfn);
-#  endif
-            }
-# endif
-
-            if (glrendmode == REND_POLYMER)
-                md3postload_polymer((md3model_t *)models[lastmodelid]);
-#endif
-
             modelskin = lastmodelskin = 0;
             seenframe = 0;
 
