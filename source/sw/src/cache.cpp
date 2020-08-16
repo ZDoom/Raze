@@ -50,116 +50,6 @@ BEGIN_SW_NS
 // sw -map $bullet -cacheprint > foofile
 extern SWBOOL PreCaching;
 
-// player weaponry, item usage, etc. Precache every time.
-short Player_SCTable[] =
-{
-    1,2,3,4,5,6,7,8,9,10, // weapons
-    11,12,14,16,18,20,
-    22,23,24,25,26,27,28,30,
-    31,32,33,34,35,40,145,291,445,362,269,
-    158,476, // underwater
-    47,359, // cloaking
-    48,50, // dead head
-    196,52,53,54,55, // splash & getting items
-    56,57,58,73,74,410, // bodies hitting ground
-    484,442, // teleport & respawn
-    417,418, // healing
-    238,239,240,241,242,243,244, // bring weapons up
-    181,182,183,184,187,216, // explosions
-    272,273,274,275,486, // nuke associated sounds
-    276,277,278,279,477, // chem bomb
-    280,281,282,283,284,288,289,290,450, // various player sounds
-    295, // armor hit
-    312, // sword clank
-    324,325,209, // unlocking sound
-    395,396,411, // gibs
-    175, // drip
-    435,436,311,221,220,227, // breakage
-    246,247,248,249,250,251,252,253,254,255,256, // common player talk
-    257,258,259,260,261,262,263,264,266,267,438,439,440,441,
-    326, // ancient chinese secret
-    330,331,332,333,334,335,336,337,338,339,340, // player kill talk
-    341,342,343,344,345,346,347,348,
-    376,377,378,379,380,381,382,383,384,385,386,387, // more asst. talking
-    370,443 // repair talk
-};
-
-// Actor specific sound tables. Cache only if the actor appears on the map.
-// Exceptions would include ghosts, which are spawned by coolies, and
-// rippers, which are spawned by the serpent boss.
-short Coolie_SCTable[] =
-{
-    75,76,77,78,79
-};
-
-short Ghost_SCTable[] =
-{
-    80,81,82,83,84,85,86,87,213
-};
-
-short Ninja_SCTable[] =
-{
-    88,89,90,91,92,93,94,412,
-    319, // firing sound
-    430 // death by sword
-};
-
-short Ripper_SCTable[] =
-{
-    95,96,97,98,99,100,431
-};
-
-short Ripper2_SCTable[] =
-{
-    313,314,315,316,317,318,431
-};
-
-short Head_SCTable[] =
-{
-    115,116,117,118 // accursed heads
-};
-
-short Hornet_SCTable[] =
-{
-    119,120,121,122
-};
-
-short Guardian_SCTable[] =
-{
-    101,102,103,104,105,106,107
-};
-
-short Serpent_SCTable[] =
-{
-    123,124,125,126,127,128,129,130,131 // serpent boss
-};
-
-short Sumo_SCTable[] =
-{
-    320,321,322,323 // sumo boss
-};
-
-short Bunny_SCTable[] =
-{
-    424,425,426,427,428
-};
-
-short Toilet_SCTable[] =
-{
-    388,389,390,391,392,393,488,489,490 // anime girl on toilet
-}; // I suspect some of these are no longer in use
-
-short Trash_SCTable[] =
-{
-    416 // I heard the trash can was an actor, so here is is
-};
-
-short Pachinko_SCTable[] =
-{
-    419,420,421,422,423
-};
-
-void PreCacheSoundList(short table[], int num);
 void PreCacheTable(short table[], int num);
 void PreCacheGhost(void);
 
@@ -170,8 +60,7 @@ SetupPreCache(void)
     {
         precache();
 
-        PreCacheSoundList(Player_SCTable, SIZ(Player_SCTable));
-
+       
         // actors cache ranges are called from SpriteSetup
         // only caches the actor if its on the level
 
@@ -255,64 +144,54 @@ SetupPreCache(void)
 
 void PreCacheRipper(void)
 {
-    PreCacheSoundList(Ripper_SCTable, SIZ(Ripper_SCTable));
     PreCacheRange(1580, 1644);
 }
 
 void PreCacheRipper2(void)
 {
-    PreCacheSoundList(Ripper2_SCTable, SIZ(Ripper2_SCTable));
     PreCacheRange(4320, 4427);
 }
 
 void PreCacheCoolie(void)
 {
     PreCacheGhost();
-    PreCacheSoundList(Coolie_SCTable, SIZ(Coolie_SCTable));
     PreCacheRange(1400, 1440);
     PreCacheRange(4260, 4276); // coolie explode
 }
 
 void PreCacheGhost(void)
 {
-    PreCacheSoundList(Ghost_SCTable, SIZ(Ghost_SCTable));
     PreCacheRange(4277, 4312);
 }
 
 void PreCacheSerpent(void)
 {
-    PreCacheSoundList(Serpent_SCTable, SIZ(Serpent_SCTable));
     PreCacheRange(960, 1016);
     PreCacheRange(1300, 1314);
 }
 
 void PreCacheGuardian(void)
 {
-    PreCacheSoundList(Guardian_SCTable, SIZ(Guardian_SCTable));
     PreCacheRange(1469,1497);
 }
 
 void PreCacheNinja(void)
 {
-    PreCacheSoundList(Ninja_SCTable, SIZ(Ninja_SCTable));
     PreCacheRange(4096, 4239);
 }
 
 void PreCacheNinjaGirl(void)
 {
-    //PreCacheSoundList(NinjaGirl_SCTable, SIZ(NinjaGirl_SCTable));
     PreCacheRange(5162, 5260);
 }
 
 void PreCacheSumo(void)
 {
-    PreCacheSoundList(Sumo_SCTable, SIZ(Sumo_SCTable));
     PreCacheRange(4490, 4544);
 }
 
 void PreCacheZilla(void)
 {
-    PreCacheSoundList(Sumo_SCTable, SIZ(Sumo_SCTable));
     PreCacheRange(4490, 4544);
 }
 
@@ -323,49 +202,41 @@ void PreCacheEel(void)
 
 void PreCacheToiletGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(5023, 5027);
 }
 
 void PreCacheWashGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(5032, 5035);
 }
 
 void PreCacheCarGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4594,4597);
 }
 
 void PreCacheMechanicGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4590,4593);
 }
 
 void PreCacheSailorGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4600,4602);
 }
 
 void PreCachePruneGirl(void)
 {
-    PreCacheSoundList(Toilet_SCTable, SIZ(Toilet_SCTable));
     PreCacheRange(4604,4604);
 }
 
 void PreCacheTrash(void)
 {
-    PreCacheSoundList(Trash_SCTable, SIZ(Trash_SCTable));
     PreCacheRange(2540, 2546);
 }
 
 void PreCacheBunny(void)
 {
-    PreCacheSoundList(Bunny_SCTable, SIZ(Bunny_SCTable));
     PreCacheRange(4550, 4584);
 }
 
@@ -376,13 +247,11 @@ void PreCacheSkel(void)
 
 void PreCacheHornet(void)
 {
-    PreCacheSoundList(Hornet_SCTable, SIZ(Hornet_SCTable));
     PreCacheRange(800, 811);
 }
 
 void PreCacheSkull(void)
 {
-    PreCacheSoundList(Head_SCTable, SIZ(Head_SCTable));
     PreCacheRange(820, 854);
 }
 
@@ -399,11 +268,6 @@ void PreCachePachinko(void)
     PreCacheRange(4792,4814);
     PreCacheRange(4816,4838);
     PreCacheRange(4840,4863);
-    PreCacheSoundList(Pachinko_SCTable, SIZ(Pachinko_SCTable));
-}
-
-void PreCacheSoundList(short table[], int num)
-{
 }
 
 void
