@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamecvars.h"
 #include "raze_sound.h"
 #include "c_cvars.h"
+#include "mapinfo.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -884,23 +885,6 @@ extern void (*InitWeapon[MAX_WEAPONS]) (PLAYERp);
 #define MAX_SW_PLAYERS_SW  (4)
 #define MAX_SW_PLAYERS_REG (8)
 #define MAX_SW_PLAYERS (isShareware ? MAX_SW_PLAYERS_SW : MAX_SW_PLAYERS_REG)
-
-typedef struct
-{
-    char map_name[16];
-    char numplayers;
-    char Episode,Level;
-    char LevelSong[16];
-} DEMO_HEADER, *DEMO_HEADERp;
-
-typedef struct
-{
-    int x,y,z;
-} DEMO_START_POS, *DEMO_START_POSp;
-
-#define MAX_LEVELS_REG 29
-#define MAX_LEVELS_SW 4
-#define MAX_LEVELS (isShareware ? MAX_LEVELS_SW : MAX_LEVELS_REG)
 
 extern int   ThemeTrack[6];                                          // w
 extern FString ThemeSongs[6];                                          //
@@ -2165,11 +2149,11 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type);
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-extern SWBOOL ExitLevel;
+extern SWBOOL ExitLevel, FinishedLevel;
 extern SWBOOL Warping;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
-extern short Level;
+extern MapRecord* NextLevel;
 extern short Episode;
 
 extern int LastFrameTics;

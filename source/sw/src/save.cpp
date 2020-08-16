@@ -72,7 +72,6 @@ extern char SaveGameDescr[10][80];
 extern int PlayClock;
 extern short Bunny_Count;
 extern SWBOOL NewGame;
-extern char CacheLastLevel[];
 extern int GodMode;
 extern int FinishTimer;
 extern SWBOOL FinishAnim;
@@ -88,7 +87,6 @@ extern short BossSpriteNum[3];
 #define ANIM_SAVE 1
 
 extern SW_PACKET loc;
-extern char LevelName[20];
 extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
@@ -232,7 +230,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
     MWRITE(&GameVersion,sizeof(GameVersion),1,fil);
 
-    MWRITE(&Level,sizeof(Level),1,fil);
     MWRITE(&Skill,sizeof(Skill),1,fil);
 
     MWRITE(&numplayers,sizeof(numplayers),1,fil);
@@ -479,7 +476,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     //MWRITE(&oloc,sizeof(oloc),1,fil);
     //MWRITE(&fsync,sizeof(fsync),1,fil);
 
-    MWRITE(LevelName,sizeof(LevelName),1,fil);
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
     MWRITE(&totalsynctics,sizeof(totalsynctics),1,fil);
 
@@ -704,7 +700,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         return false;
     }
 
-    MREAD(&Level,sizeof(Level),1,fil);
     MREAD(&Skill,sizeof(Skill),1,fil);
 
     MREAD(&numplayers, sizeof(numplayers),1,fil);
@@ -890,7 +885,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     MREAD(&loc,sizeof(loc),1,fil);
 
-    MREAD(LevelName,sizeof(LevelName),1,fil);
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
     MREAD(&totalsynctics,sizeof(totalsynctics),1,fil);  // same as kens lockclock
 
@@ -1069,11 +1063,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 #endif
 
-    if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
-    {
-        SetupPreCache();
-        DoTheCache();
-    }
+    SetupPreCache();
+    DoTheCache();
 
     // what is this for? don't remember
     totalclock = totalsynctics;

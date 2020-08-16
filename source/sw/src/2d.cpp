@@ -84,7 +84,7 @@ void Logo(const CompletionFunc& completion)
     };
     static const int logoframetimes[] = { 360, 8, 128 };
 
-    if (!AutoNet && !userConfig.nologo)
+    if (!userConfig.nologo)
 	{
 		JobDesc jobs[3];
 		int job = 0;

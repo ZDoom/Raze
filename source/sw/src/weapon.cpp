@@ -5336,7 +5336,7 @@ ActorHealth(short SpriteNum, short amt)
 
     u->Health += amt;
 
-    if (u->ID == SERP_RUN_R0 && sp->pal != 16 && Level == 4)
+    if (u->ID == SERP_RUN_R0 && sp->pal != 16 && currentLevel->levelNumber == 4)
     {
         if (u->Health < u->MaxHealth/2)
         {
@@ -5347,7 +5347,7 @@ ActorHealth(short SpriteNum, short amt)
         }
     }
 
-    if (u->ID == SUMO_RUN_R0 && Level == 11)
+    if (u->ID == SUMO_RUN_R0 && currentLevel->levelNumber == 11)
     {
         if (u->Health <= 0)
         {
@@ -5356,7 +5356,7 @@ ActorHealth(short SpriteNum, short amt)
         }
     }
 
-    if (u->ID == ZILLA_RUN_R0 && Level == 20)
+    if (u->ID == ZILLA_RUN_R0 && currentLevel->levelNumber == 20)
     {
         if (u->Health <= 0)
         //if (u->Health < u->MaxHealth)

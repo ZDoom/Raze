@@ -65,14 +65,12 @@ static int osdcmd_map(CCmdFuncPtr parm)
     }
 	
 	// Check if the map is already defined.
-    for (int i = 0; i < 32; i++)
+    auto maprec = FindMapByName(mapname);
+    if (maprec)
     {
-        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
-        {
-			FStringf cheatcode("activatecheat swtrek%02d", i);
-            C_DoCommand(cheatcode);
-			return CCMD_OK;
-        }
+        // This needs to be done better...
+		FStringf cheatcode("activatecheat swtrek%02d", maprec->levelNumber);
+        C_DoCommand(cheatcode);
     }
     return CCMD_OK;
 }

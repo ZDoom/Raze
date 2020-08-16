@@ -24,7 +24,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 #include "mytypes.h"
-#include "gamedefs.h"
 // Only ad to the end. These currently have to be in this order because of the
 // way they are initilized.
 BEGIN_SW_NS
@@ -33,7 +32,6 @@ typedef struct
 {
 // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
-    uint8_t NetLevel;      // 1-28
     uint8_t NetMonsters;   // Cycle skill levels
     SWBOOL NetHurtTeammate;  // Allow friendly kills
     SWBOOL NetSpawnMarkers;    // Respawn markers on/off

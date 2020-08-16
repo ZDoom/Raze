@@ -432,7 +432,6 @@ PreCacheActor(void)
 
 void DoTheCache(void)
 {
-    extern char CacheLastLevel[32],LevelName[20];
     int i, cnt=0;
 
     PreCacheActor();
@@ -449,7 +448,6 @@ void DoTheCache(void)
     }
 
     memset(gotpic,0,sizeof(gotpic));
-    strcpy(CacheLastLevel, LevelName);
 }
 
 void

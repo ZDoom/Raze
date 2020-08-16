@@ -824,17 +824,17 @@ BossHealthMeter(void)
 
     if (NoMeters) return;
 
-    if (Level != 20 && Level != 4 && Level != 11 && Level != 5) return;
+    if (currentLevel->levelNumber != 20 && currentLevel->levelNumber != 4 && currentLevel->levelNumber != 11 && currentLevel->levelNumber != 5) return;
 
     // Don't draw bar for other players
     if (pp != Player+myconnectindex)
         return;
 
     // all enemys
-    if ((Level == 20 && (BossSpriteNum[0] == -1 || BossSpriteNum[1] == -1 || BossSpriteNum[2] == -1)) ||
-        (Level == 4 && BossSpriteNum[0] == -1) ||
-        (Level == 5 && BossSpriteNum[0] == -1) ||
-        (Level == 11 && BossSpriteNum[1] == -1))
+    if ((currentLevel->levelNumber == 20 && (BossSpriteNum[0] == -1 || BossSpriteNum[1] == -1 || BossSpriteNum[2] == -1)) ||
+        (currentLevel->levelNumber == 4 && BossSpriteNum[0] == -1) ||
+        (currentLevel->levelNumber == 5 && BossSpriteNum[0] == -1) ||
+        (currentLevel->levelNumber == 11 && BossSpriteNum[1] == -1))
     {
         TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
         {
@@ -861,7 +861,7 @@ BossHealthMeter(void)
     bosswasseen = serpwasseen|sumowasseen|zillawasseen;
 
     // Only show the meter when you can see the boss
-    if ((Level == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
+    if ((currentLevel->levelNumber == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
     {
         for (i=0; i<3; i++)
         {
@@ -962,7 +962,7 @@ BossHealthMeter(void)
         else
             y = 30;
 
-        if (Level == 20 && numplayers >= 2)
+        if (currentLevel->levelNumber == 20 && numplayers >= 2)
         {
             if (u->ID == SUMO_RUN_R0 && sumowasseen) y += 10;
             else if (u->ID == ZILLA_RUN_R0 && zillawasseen) y += 20;

@@ -7573,9 +7573,11 @@ void MultiPlayLimits(void)
     {
         gNet.TimeLimitClock = gNet.TimeLimit;
 
-        // do not increment if level is 23 thru 28
-        if (Level <= 22)
-            Level++;
+        NextLevel = nullptr;
+        // do not increment if level is 23 thru 28 (should be done smarter.)
+        if (currentLevel->levelNumber <= 22)
+            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
+        if (!NextLevel) NextLevel = currentLevel;
 
         ExitLevel = TRUE;
         FinishedLevel = TRUE;

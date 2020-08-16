@@ -459,7 +459,6 @@ void LoadCustomInfoFromScript(const char *filename)
     scriptfile *script;
     char *token;
     char *braceend;
-    int curmap = -1;
 
     script = scriptfile_fromfile(filename);
     if (!script) return;
@@ -483,6 +482,7 @@ void LoadCustomInfoFromScript(const char *filename)
             scriptfile_addsymbolvalue(weaponmap[i].sym, 1+i);
     }
 
+    MapRecord* curMap = nullptr;
     while ((token = scriptfile_gettoken(script)))
     {
         switch (cm_transtok(token, cm_tokens, cm_numtokens))
@@ -490,18 +490,15 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_MAP:
         {
             char *mapnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break;
+            int mapno;
+            if (scriptfile_getnumber(script, &mapno)) break;
             mapnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
-
-            // first map entry may not be used, max. amount needs investigation
-            if (curmap < 1 || curmap > MAX_LEVELS_REG)
+            curMap = FindMapByLevelNum(mapno);
+            if (!curMap)
             {
-                Printf("Error: map number %d not in range 1-%d on line %s:%d\n",
-                            curmap, MAX_LEVELS_REG, script->filename,
-                            scriptfile_getlinum(script,mapnumptr));
-                script->textptr = braceend;
-                break;
+                curMap = AllocateMap();
+                curMap->levelNumber = mapno;
             }
 
             while (script->textptr < braceend)
@@ -515,7 +512,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-					mapList[curmap].SetFileName(t);
+					curMap->SetFileName(t);
                     break;
                 }
                 case CM_SONG:
@@ -523,7 +520,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-					mapList[curmap].music = t;
+                    curMap->music = t;
                     break;
                 }
                 case CM_TITLE:
@@ -531,7 +528,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-					mapList[curmap].SetName(t);
+                    curMap->SetName(t);
                     break;
                 }
                 case CM_BESTTIME:
@@ -539,7 +536,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     int n;
                     if (scriptfile_getnumber(script, &n)) break;
 
-					mapList[curmap].designerTime = n;
+                    curMap->designerTime = n;
                     break;
                 }
                 case CM_PARTIME:
@@ -547,14 +544,14 @@ void LoadCustomInfoFromScript(const char *filename)
                     int n;
                     if (scriptfile_getnumber(script, &n)) break;
 
-					mapList[curmap].parTime = n;
+                    curMap->parTime = n;
                     break;
                 }
                 case CM_CDATRACK:
                 {
                     int n;
                     if (scriptfile_getnumber(script, &n)) break;
-                    mapList[curmap].cdSongId = n;
+                    curMap->cdSongId = n;
                     break;
                 }
                 default:
@@ -570,14 +567,15 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_EPISODE:
         {
             char *epnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break;
+            int curep;
+            if (scriptfile_getnumber(script, &curep)) break;
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            if ((unsigned)--curmap >= 2u)
+            if ((unsigned)--curep >= 2u)
             {
                 Printf("Error: episode number %d not in range 1-2 on line %s:%d\n",
-                            curmap, script->filename,
+                            curep, script->filename,
                             scriptfile_getlinum(script,epnumptr));
                 script->textptr = braceend;
                 break;
@@ -593,14 +591,14 @@ void LoadCustomInfoFromScript(const char *filename)
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-					gVolumeNames[curmap] = t;
+					gVolumeNames[curep] = t;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
-					gVolumeSubtitles[curmap] = t;
+					gVolumeSubtitles[curep] = t;
                     break;
                 }
                 default:
@@ -615,15 +613,16 @@ void LoadCustomInfoFromScript(const char *filename)
 
         case CM_SKILL:
         {
+            int curskill;
             char *epnumptr;
-            if (scriptfile_getnumber(script, &curmap)) break;
+            if (scriptfile_getnumber(script, &curskill)) break;
             epnumptr = script->ltextptr;
             if (scriptfile_getbraces(script, &braceend)) break;
 
-            if ((unsigned)--curmap >= 4u)
+            if ((unsigned)--curskill >= 4u)
             {
                 Printf("Error: skill number %d not in range 1-4 on line %s:%d\n",
-                            curmap, script->filename,
+                            curskill, script->filename,
                             scriptfile_getlinum(script,epnumptr));
                 script->textptr = braceend;
                 break;
@@ -640,7 +639,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-					gSkillNames[curmap] = t;
+					gSkillNames[curskill] = t;
                     break;
                 }
                 default:
@@ -841,13 +840,14 @@ void LoadCustomInfoFromScript(const char *filename)
 			char *epnumptr;
 			char *name = NULL;
 			int trak = -1;
+            int curtheme;
 
-			if (scriptfile_getnumber(script, &curmap)) break; epnumptr = script->ltextptr;
+			if (scriptfile_getnumber(script, &curtheme)) break; epnumptr = script->ltextptr;
 			if (scriptfile_getbraces(script, &braceend)) break;
-			if ((unsigned)--curmap >= 6u)
+			if ((unsigned)--curtheme >= 6u)
 			{
 				Printf("Error: theme number %d not in range 1-6 on line %s:%d\n",
-						curmap, script->filename,
+						curtheme, script->filename,
 						scriptfile_getlinum(script,epnumptr));
 				script->textptr = braceend;
 			break;
@@ -873,11 +873,11 @@ void LoadCustomInfoFromScript(const char *filename)
 			}
 			if (name)
             {
-               ThemeSongs[curmap] = name;
+               ThemeSongs[curtheme] = name;
 			}
 			if (trak >= 2)
 			{
-			   ThemeTrack[curmap] = trak;
+			   ThemeTrack[curtheme] = trak;
 			}
 			break;
 		}

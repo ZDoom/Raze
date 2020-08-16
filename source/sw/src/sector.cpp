@@ -1902,17 +1902,14 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
     case TAG_LEVEL_EXIT_SWITCH:
     {
-        extern short Level;
-        extern SWBOOL ExitLevel, FinishedLevel;
-
         AnimateSwitch(sp, -1);
 
         PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
 
         if (sp->hitag)
-            Level = sp->hitag;
+            NextLevel = FindMapByLevelNum(sp->hitag);
         else
-            Level++;
+            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
         ExitLevel = TRUE;
         FinishedLevel = TRUE;
 
@@ -2112,13 +2109,10 @@ OperateTripTrigger(PLAYERp pp)
     // same tag for sector as for switch
     case TAG_LEVEL_EXIT_SWITCH:
     {
-        extern short Level;
-        extern SWBOOL ExitLevel, FinishedLevel;
-
         if (sectp->hitag)
-            Level = sectp->hitag;
+            NextLevel = FindMapByLevelNum(sectp->hitag);
         else
-            Level++;
+            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
         ExitLevel = TRUE;
         FinishedLevel = TRUE;
         break;

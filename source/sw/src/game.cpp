@@ -53,7 +53,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menus.h"
 
 #include "gamecontrol.h"
-#include "gamedefs.h"
 
 #include "misc.h"
 
@@ -108,7 +107,6 @@ int Follow_posx=0,Follow_posy=0;
 
 SWBOOL NoMeters = FALSE;
 SWBOOL GraphicsMode = FALSE;
-char CacheLastLevel[32] = "";
 char PlayerNameArg[32] = "";
 SWBOOL CleanExit = FALSE;
 SWBOOL FinishAnim = 0;
@@ -149,8 +147,6 @@ short Skill = 2;
 short BetaVersion = 900;
 short TotalKillable;
 
-AUTO_NET Auto;
-SWBOOL AutoNet = FALSE;
 SWBOOL HasAutoColor = FALSE;
 uint8_t AutoColor;
 
@@ -158,7 +154,6 @@ const GAME_SET gs_defaults =
 {
 // Network game settings
     0, // GameType
-    0, // Level
     0, // Monsters
     FALSE, // HurtTeammate
     TRUE, // SpawnMarkers Markers
@@ -188,7 +183,7 @@ uint8_t FakeMultiNumPlayers;
 
 int totalsynctics;
 
-short Level = 0;
+MapRecord* NextLevel = nullptr;
 SWBOOL ExitLevel = FALSE;
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
@@ -213,7 +208,6 @@ SWBOOL InGame = FALSE;
 SWBOOL CommandSetup = FALSE;
 
 char buffer[80], ch;
-char LevelName[20];
 
 uint8_t DebugPrintColor = 255;
 
@@ -300,17 +294,17 @@ void TerminateGame(void)
     throw CExitEvent(3);
 }
 
-bool LoadLevel(const char *filename)
+bool LoadLevel(MapRecord *maprec)
 {
     int16_t ang;
-    if (engineLoadBoard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &ang, &Player[0].cursectnum) == -1)
+    if (engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &ang, &Player[0].cursectnum) == -1)
     {
-        Printf("Level not found: %s", filename);
+        Printf("Map not found: %s", maprec->fileName.GetChars());
         return false;
-        }
-    currentLevel = &mapList[Level];
+    }
+    currentLevel = maprec;
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
-    STAT_NewLevel(currentLevel->labelName);
+    STAT_NewLevel(currentLevel->fileName);
     Player[0].q16ang = fix16_from_int(ang);
     return true;
 }
@@ -331,24 +325,6 @@ void MultiSharewareCheck(void)
 int TotalMemory = 0;
 int ActualHeap = 0;
 
-void InitAutoNet(void)
-{
-    if (!AutoNet)
-        return;
-
-    gs.NetGameType      = Auto.Rules;
-    gs.NetLevel         = Auto.Level;
-    gs.NetMonsters      = Auto.Enemy;
-    gs.NetSpawnMarkers  = Auto.Markers;
-    gs.NetTeamPlay      = Auto.Team;
-    gs.NetHurtTeammate  = Auto.HurtTeam;
-    gs.NetKillLimit     = Auto.Kill;
-    gs.NetTimeLimit     = Auto.Time;
-    gs.NetColor         = Auto.Color;
-    gs.NetNuke          = Auto.Nuke;
-}
-
-
 static int firstnet = 0;    // JBF
 
 void SW_InitMultiPsky(void)
@@ -366,12 +342,6 @@ bool InitGame()
     int i;
 
     engineInit();
-
-
-    InitAutoNet();
-
-
-
     {
         auto pal = fileSystem.LoadFile("3drealms.pal", 0);
         if (pal.Size() >= 768)
@@ -439,18 +409,12 @@ bool InitGame()
 
     videoInit();
 
-    if (!LoadLevel("$dozer.map")) return false;
-    SetupPreCache();
-    DoTheCache();
-
     GraphicsMode = TRUE;
 
     InitFX();   // JBF: do it down here so we get a hold of the window handle
 	return true;
 }
 
-
-short SongLevelNum;
 
 FString ThemeSongs[6];
 int ThemeTrack[6];
@@ -540,32 +504,25 @@ InitLevel(void)
 
     Mus_Stop();
 
-    InitLevelGlobals2();
+    auto maprec = NextLevel;
+    NextLevel = nullptr;
+    if (!maprec)
     {
-        if (Level < 0)
-            Level = 0;
-
-        if (Level > MAX_LEVELS)
-            Level = 1;
-
-        strcpy(LevelName, mapList[Level].fileName);
+        NewGame = false;
+        return;
     }
+    InitLevelGlobals2();
 
     if (NewGame)
         InitNewGame();
 
-    if (!LoadLevel(LevelName))
+    if (!LoadLevel(maprec))
 	{
 		NewGame = false;
 		return;
 	}
-	STAT_NewLevel(LevelName);
 
-    if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
-        // clears gotpic and does some bit setting
-        SetupPreCache();
-    else
-        memset(gotpic,0,sizeof(gotpic));
+    SetupPreCache();
 
     if (sector[0].extra != -1)
     {
@@ -610,8 +567,6 @@ InitLevel(void)
     PostSetupSectorObject();
     SetupMirrorTiles();
     initlava();
-
-    SongLevelNum = Level;
     
     // reset NewGame
     NewGame = FALSE;
@@ -844,7 +799,6 @@ void MenuLevel(void)
 
         if (ExitLevel)
         {
-            // Quiting Level
             ExitLevel = FALSE;
             break;
         }
@@ -886,27 +840,16 @@ void EndGameSequence(void)
 
     ExitLevel = FALSE;
     QuitFlag = FALSE;
-    AutoNet = FALSE;
 
     //if (FinishAnim == ANIM_ZILLA)
       //      CreditsLevel();
 
     ExitLevel = FALSE;
     QuitFlag = FALSE;
-    AutoNet = FALSE;
 
-    if (SW_SHAREWARE)
+    if (currentLevel->levelNumber != 4 && currentLevel->levelNumber != 20)
     {
-        Level = 0;
-    }
-    else
-    {
-        if (Level == 4 || Level == 20)
-        {
-            Level=0;
-        }
-        else
-            Level++;
+        NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
     }
 }
 
@@ -944,7 +887,6 @@ void StatScreen(PLAYERp mpp)
 
 void GameIntro(void)
 {
-    Level = 1;
     Logo([](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
     MenuLevel();
@@ -1080,8 +1022,7 @@ void InitRunLevel(void)
 
     Mus_Stop();
 
-    if (Bstrcasecmp(CacheLastLevel, LevelName) != 0)
-        DoTheCache();
+    DoTheCache();
 
     // auto aim / auto run / etc
     InitPlayerGameSettings();
@@ -1092,15 +1033,9 @@ void InitRunLevel(void)
     // Initialize Game part of network code (When ready2send != 0)
     InitNetVars();
 
+    if (currentLevel)
     {
-        if (Level == 0)
-        {
-			PlaySong(nullptr, currentLevel->music, 1 + RANDOM_RANGE(10));
-        }
-        else
-        {
-			PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
-        }
+		PlaySong(currentLevel->labelName, currentLevel->music, currentLevel->cdSongId);
     }
 
     InitPrediction(&Player[myconnectindex]);

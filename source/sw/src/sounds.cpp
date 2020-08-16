@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "names2.h"
 #include "mytypes.h"
-#include "gamedefs.h"
 
 #include "panel.h"
 #include "game.h"
@@ -933,8 +932,6 @@ int PlayerYellVocs[] =
 // PLays music
 //
 //==========================================================================
-
-extern short Level;
 
 SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {

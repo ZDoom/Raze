@@ -29,27 +29,6 @@ BEGIN_SW_NS
 #define SYNC_TEST 0
 #define MAXSYNCBYTES 16
 
-#pragma pack(push,1)
-
-typedef struct
-{
-    uint8_t PacketType;  // first byte is always packet type
-    uint8_t FirstPlayerIndex;
-    SWBOOL AutoAim;
-    uint8_t Level;
-    uint8_t Episode;
-    int8_t Skill;
-    uint8_t GameType;
-    SWBOOL HurtTeammate;
-    SWBOOL SpawnMarkers;
-    SWBOOL TeamPlay;
-    uint8_t KillLimit;
-    uint8_t TimeLimit;
-    SWBOOL Nuke;
-} PACKET_NEW_GAME,*PACKET_NEW_GAMEp;
-
-#pragma pack(pop)
-
 extern uint8_t syncstat[MAXSYNCBYTES];
 extern SWBOOL PredictionOn;
 extern PLAYER PredictPlayer;
@@ -92,23 +71,6 @@ typedef struct
 } gNET,*gNETp;
 
 extern gNET gNet;
-
-typedef struct
-{
-    int Rules,
-        Level,
-        Enemy,
-        Markers,
-        Team,
-        HurtTeam,
-        Kill,
-        Time,
-        Color,
-        Nuke;
-} AUTO_NET, *AUTO_NETp;
-
-extern AUTO_NET Auto;
-extern SWBOOL AutoNet;
 
 void UpdateInputs(void);
 void InitNetVars(void);

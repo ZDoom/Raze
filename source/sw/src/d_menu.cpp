@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keydef.h"
 
 #include "gamecontrol.h"
-#include "gamedefs.h"
 #include "network.h"
 #include "misc.h"
 #include "version.h"
@@ -198,10 +197,11 @@ void GameInterface::StartGame(FNewGameStartup& gs)
     ready2send = 0;
 
     if (gs.Episode >= 1)
-        Level = 5;
+        NextLevel = FindMapByLevelNum(5);
     else
-        Level = 1;
+		NextLevel = FindMapByLevelNum(1);
 
+	if (!NextLevel) return;
     ExitLevel = TRUE;
     NewGame = TRUE;
     CameraTestMode = FALSE;

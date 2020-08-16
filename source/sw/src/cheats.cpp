@@ -79,16 +79,18 @@ bool RoomCheat(cheatseq_t* c)
 bool NextCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
-    Level++;
-    ExitLevel = TRUE;
+    if (!currentLevel) return true;
+    NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
+    if (NextLevel) ExitLevel = TRUE;
     return true;
 }
 
 bool PrevCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
-    Level--;
-    ExitLevel = TRUE;
+    if (!currentLevel) return true;
+    NextLevel = FindMapByLevelNum(currentLevel->levelNumber - 1);
+    if (NextLevel) ExitLevel = TRUE;
     return true;
 }
 
@@ -207,18 +209,11 @@ bool WarpCheat(cheatseq_t* c)
     int level_num;
 
     level_num = atol((char*)c->Args);
-
-    //int episode_num;
-    //DSPRINTF(ds,"ep %d, lev %d",episode_num, level_num);
-    //MONO_PRINT(ds);
+    auto maprec = FindMapByLevelNum(level_num);
+    if (!maprec) return false;
 
 	if (!pp) return true;
-    if (!SW_SHAREWARE)
-    {
-        if (level_num > 28 || level_num < 1)
-            return false;
-    }
-    else
+    if (SW_SHAREWARE)
     {
         if (level_num > 4 || level_num < 1)
             return false;
@@ -227,10 +222,10 @@ bool WarpCheat(cheatseq_t* c)
         return true;
 
 
-    Level = level_num;
+    NextLevel = maprec;
     ExitLevel = TRUE;
 
-    sprintf(ds, "%s %1d", GStrings("TXT_ENTERING"), Level);
+    sprintf(ds, "%s %s", GStrings("TXT_ENTERING"), maprec->DisplayName());
     PutStringInfo(pp, ds);
     return true;
 }
