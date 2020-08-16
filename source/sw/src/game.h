@@ -100,8 +100,7 @@ enum
 };
 
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
-extern char isShareware;
-#define SW_SHAREWARE (isShareware)
+#define SW_SHAREWARE (!!(g_gameType & GAMEFLAG_SHAREWARE))
 
 // Turn warning off for unreferenced variables.
 // I really should fix them at some point
@@ -121,9 +120,6 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine);
 
 #define MONO_PRINT(str)
 
-void dsprintf_null(char *str, const char *format, ...);
-#define DSPRINTF dsprintf_null
-//#define DSPRINTF()
 
 #define HEAP_CHECK()
 #define RANDOM_DEBUG 0
@@ -174,10 +170,7 @@ y++
 //////////////////////////////////////////////////////
 
 extern SWBOOL MenuInputMode;
-extern SWBOOL ConInputMode;
 extern SWBOOL InputMode;
-extern char MessageInputString[256];
-extern char MessageOutputString[256];
 
 //
 // Defines
@@ -859,7 +852,7 @@ extern void (*InitWeapon[MAX_WEAPONS]) (PLAYERp);
 
 #define MAX_SW_PLAYERS_SW  (4)
 #define MAX_SW_PLAYERS_REG (8)
-#define MAX_SW_PLAYERS (isShareware ? MAX_SW_PLAYERS_SW : MAX_SW_PLAYERS_REG)
+#define MAX_SW_PLAYERS (SW_SHAREWARE ? MAX_SW_PLAYERS_SW : MAX_SW_PLAYERS_REG)
 
 extern int   ThemeTrack[6];                                          // w
 extern FString ThemeSongs[6];                                          //
@@ -2244,7 +2237,6 @@ void TerminateLevel(void);  // game.c
 void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
-void ManualPlayerInsert(PLAYERp pp);    // game.c
 
 void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c

@@ -113,16 +113,10 @@ SWBOOL ReloadPrompt = FALSE;
 SWBOOL NewGame = TRUE;
 SWBOOL InMenuLevel = FALSE;
 SWBOOL LoadGameOutsideMoveLoop = FALSE;
-SWBOOL LoadGameFromDemo = FALSE;
-extern SWBOOL NetBroadcastMode, NetModeOverride;
 //Miscellaneous variables
-char MessageInputString[256];
-char MessageOutputString[256];
-SWBOOL ConInputMode = FALSE;
 SWBOOL FinishedLevel = FALSE;
 SWBOOL PanelUpdateMode = TRUE;
 short HelpPage = 0;
-short HelpPagePic[] = { 5115, 5116, 5117 };
 SWBOOL InputMode = FALSE;
 SWBOOL MessageInput = FALSE;
 short screenpeek = 0;
@@ -167,13 +161,7 @@ SWBOOL SlowMode = FALSE;
 SWBOOL FrameAdvanceTics = 3;
 SWBOOL ScrollMode2D = FALSE;
 
-SWBOOL DebugSO = FALSE;
-SWBOOL DebugPanel = FALSE;
-SWBOOL DebugSector = FALSE;
-SWBOOL DebugActor = FALSE;
-SWBOOL DebugAnim = FALSE;
 SWBOOL DebugOperate = FALSE;
-SWBOOL DebugActorFreeze = FALSE;
 void LoadingLevelScreen(void);
 
 uint8_t FakeMultiNumPlayers;
@@ -212,7 +200,6 @@ int krandcount;
 
 /// L O C A L   P R O T O T Y P E S /////////////////////////////////////////////////////////
 void BOT_DeleteAllBots(void);
-void BotPlayerInsert(PLAYERp pp);
 void SybexScreen(void);
 void MenuLevel(void);
 void StatScreen(PLAYERp mpp);
@@ -687,10 +674,7 @@ void NewLevel(void)
 
     StatScreen(&Player[myconnectindex]);
 
-    if (LoadGameFromDemo)
-        LoadGameFromDemo = FALSE;
-    else
-        TerminateLevel();
+    TerminateLevel();
 
     InGame = FALSE;
 
@@ -916,22 +900,6 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine)
     I_FatalError("Assertion failed: %s %s, line %u", expr, strFile, uLine);
 }
 
-
-
-void dsprintf(char *str, const char *format, ...)
-{
-    va_list arglist;
-
-    va_start(arglist, format);
-    vsprintf(str, format, arglist);
-    va_end(arglist);
-}
-
-void dsprintf_null(char *str, const char *format, ...)
-{
-    va_list arglist;
-}
-
 void getinput(SW_PACKET *, SWBOOL);
 
 void MoveLoop(void)
@@ -1104,37 +1072,6 @@ void RunLevel(void)
     ready2send = 0;
 }
 
-#if 0
-Map       ->    User Map Name
-Auto      ->    Auto Start Game
-Rules     ->    0=WangBang 1=WangBang (No Respawn) 2=CoOperative
-Level     ->    0 to 24(?)
-Enemy     ->    0=None 1=Easy 2=Norm 3=Hard 4=Insane
-Markers   ->    0=Off 1=On
-Team      ->    0=Off 1=On
-HurtTeam  ->    0=Off 1=On
-KillLimit ->    0=Infinite 1=10 2=20 3=30 4=40 5=50 6=60 7=70 8=80 9=90 10=100
-TimeLimit ->    0=Infinite 1=3 2=5 3=10 4=20 5=30 6=45 7=60
-Color     ->    0=Brown 1=Purple 2=Red 3=Yellow 4=Olive 5=Green
-Nuke      ->    0=Off 1=On
-
-                                                                                                                                                                                                                                                                                                                                   Example Command Line :
-                                                                                                                                                                                                                                                                                                                                   sw -map testmap.map -autonet 0,0,1,1,1,0,3,2,1,1 -f4 -name 1234567890 -net 12345678
-commit -map grenade -autonet 0,0,1,1,1,0,3,2,1,1 -name frank
-#endif
-
-char isShareware = FALSE;
-
-int DetectShareware(void)
-{
-    return (isShareware = !!(g_gameType & GAMEFLAG_SHAREWARE));
-}
-
-
-void CommandLineHelp(char const * const * argv)
-{
-}
-
 static const char* actions[] = {
     "Move_Forward",
     "Move_Backward",
@@ -1186,12 +1123,6 @@ int32_t GameInterface::app_main()
     
     gs = gs_defaults;
 
-    if (!DetectShareware())
-    {
-        if (SW_SHAREWARE) Printf("Detected shareware GRP\n");
-        else Printf("Detected registered GRP\n");
-    }
-
     for (i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&Player[i].PanelSpriteList);
 
@@ -1213,100 +1144,6 @@ int32_t GameInterface::app_main()
 
     return 0;
 }
-
-void ManualPlayerInsert(PLAYERp pp)
-{
-    PLAYERp npp = Player + numplayers;
-
-    if (numplayers < MAX_SW_PLAYERS)
-    {
-        connectpoint2[numplayers - 1] = numplayers;
-        connectpoint2[numplayers] = -1;
-
-        npp->posx = pp->posx;
-        npp->posy = pp->posy;
-        npp->posz = pp->posz;
-        npp->q16ang = pp->q16ang;
-        npp->cursectnum = pp->cursectnum;
-
-        myconnectindex = numplayers;
-        screenpeek = numplayers;
-
-        sprintf(Player[myconnectindex].PlayerName,"PLAYER %d",myconnectindex+1);
-
-        Player[numplayers].movefifoend = Player[0].movefifoend;
-
-        // If IsAI = TRUE, new player will be a bot
-        Player[myconnectindex].IsAI = FALSE;
-
-        numplayers++;
-    }
-
-}
-
-void BotPlayerInsert(PLAYERp pp)
-{
-    PLAYERp npp = Player + numplayers;
-
-    if (numplayers < MAX_SW_PLAYERS)
-    {
-        connectpoint2[numplayers - 1] = numplayers;
-        connectpoint2[numplayers] = -1;
-
-        npp->posx = pp->posx;
-        npp->posy = pp->posy;
-        npp->posz = pp->posz-Z(100);
-        npp->q16ang = pp->q16ang;
-        npp->cursectnum = pp->cursectnum;
-
-        //myconnectindex = numplayers;
-        //screenpeek = numplayers;
-
-        sprintf(Player[numplayers].PlayerName,"BOT %d",numplayers+1);
-
-        Player[numplayers].movefifoend = Player[0].movefifoend;
-
-        // If IsAI = TRUE, new player will be a bot
-        Player[numplayers].IsAI = TRUE;
-
-        numplayers++;
-    }
-}
-
-void
-ManualPlayerDelete(void)
-{
-    short i, nexti;
-    USERp u;
-    PLAYERp pp;
-
-    if (numplayers > 1)
-    {
-        numplayers--;
-        connectpoint2[numplayers - 1] = -1;
-
-        pp = Player + numplayers;
-
-        KillSprite(pp->PlayerSprite);
-        pp->PlayerSprite = -1;
-
-        // Make sure enemys "forget" about deleted player
-        TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
-        {
-            u = User[i];
-            if (u->tgt_sp == pp->SpriteP)
-                u->tgt_sp = Player[0].SpriteP;
-        }
-
-        if (myconnectindex >= numplayers)
-            myconnectindex = 0;
-
-        if (screenpeek >= numplayers)
-            screenpeek = 0;
-    }
-}
-
-
 
 char WangBangMacro[10][64];
 

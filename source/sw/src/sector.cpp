@@ -3269,37 +3269,10 @@ DoSector(void)
 {
     SECTOR_OBJECTp sop;
     SWBOOL riding;
-    extern SWBOOL DebugActorFreeze;
     int sync_flag;
     short pnum;
     int min_dist,dist,a,b,c;
     PLAYERp pp;
-
-    if (DebugActorFreeze)
-        return;
-
-#if 0
-    MoveSectorObjects(synctics);
-#endif
-
-#if 0
-    if (MoveSkip2 == 0)
-        MoveSectorObjects(synctics * 2);
-#endif
-
-#if 0
-    TRAVERSE_CONNECT(pnum)
-    {
-        pp = Player + pnum;
-        pp->sop_riding = NULL;
-    }
-
-    for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
-    {
-        if (MoveSkip2 == 0)
-            MoveSectorObjects(sop, synctics * 2);
-    }
-#endif
 
 #if 1
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)

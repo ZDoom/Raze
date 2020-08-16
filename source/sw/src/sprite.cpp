@@ -142,7 +142,6 @@ STATE s_DebrisStarFish[] =
     {426, 100, DoActorDebris, &s_DebrisStarFish[0]},
 };
 
-extern SWBOOL DebugActor;
 extern int score;
 
 ANIMATOR DoGet, DoKey, DoSpriteFade;
@@ -1064,17 +1063,6 @@ ActorTestSpawn(SPRITEp sp)
         RESET(sprite[New].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return FALSE;
     }
-
-#if 1
-    if (DebugActor)
-        return FALSE;
-#else
-    if (DebugActor && !TEST(sp->extra, SPRX_BLOCK))
-    {
-        RESET(sp->extra, SPRX_BLOCK);  //reset so it can be used elsewhere
-        return FALSE;
-    }
-#endif
 
     // Skill ranges from -1 (No Monsters) to 3
     if (TEST(sp->extra, SPRX_SKILL) > Skill)
@@ -6711,11 +6699,7 @@ SpriteControl(void)
     short pnum, CloseToPlayer;
     PLAYERp pp;
     int tx, ty, tmin, dist;
-    extern SWBOOL DebugActorFreeze;
     short StateTics;
-
-    if (DebugActorFreeze)
-        return;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_MISC], i, nexti)
     {

@@ -67,7 +67,6 @@ SWBOOL DrawScreen;
 extern short f_c;
 
 extern short HelpPage;
-extern short HelpPagePic[];
 extern ParentalStruct aVoxelArray[MAXTILES];
 
 int ConnectCopySprite(uspritetype const * tsp);

@@ -61,7 +61,6 @@ BEGIN_SW_NS
 
 void pSpriteControl(PLAYERp pp);
 int WeaponOperate(PLAYERp pp);
-SWBOOL MyCommPlayerQuit(void);
 SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
 void PlayerRemoteReset(PLAYERp pp, short sectnum);
 void KillAllPanelInv(PLAYERp pp);
@@ -7626,12 +7625,6 @@ void PauseMultiPlay(void)
 void
 domovethings(void)
 {
-    extern SWBOOL DebugAnim;
-#if DEBUG
-    extern SWBOOL DebugPanel;
-#endif
-    extern SWBOOL DebugSector;
-    extern SWBOOL DebugActorFreeze;
     extern int PlayClock;
     short i, pnum;
 
@@ -7647,9 +7640,6 @@ domovethings(void)
         pp->input = pp->inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)];
     }
     movefifoplc++;
-
-    if (MyCommPlayerQuit())
-        return;
 
 #if SYNC_TEST
     if (/* CTW REMOVED !gTenActivated ||*/ !(movefifoplc & 0x3f))
@@ -7689,13 +7679,10 @@ domovethings(void)
 
     PlayClock += synctics;
 
-    if (!DebugAnim)
-        if (!DebugActorFreeze)
-            DoAnim(synctics);
+    DoAnim(synctics);
 
     // should pass pnum and use syncbits
-    if (!DebugSector)
-        DoSector();
+    DoSector();
 
     ProcessVisOn();
     if (MoveSkip4 == 0)

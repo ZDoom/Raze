@@ -104,11 +104,6 @@ int save_totalclock;
 
 // must start out as 0
 
-SWBOOL NetBroadcastMode = TRUE;
-SWBOOL NetModeOverride = FALSE;
-
-
-
 void
 ResumeGame(void)
 {
@@ -139,94 +134,6 @@ waitforeverybody(void)
 }
 
 
-SWBOOL MyCommPlayerQuit(void)
-{
-    PLAYERp pp;
-    short i;
-    short prev_player = 0;
-    short found = FALSE;
-    short quit_player_index = 0;
-
-    TRAVERSE_CONNECT(i)
-    {
-        if (TEST_SYNC_KEY(Player + i, SK_QUIT_GAME))
-        {
-            if (!NetBroadcastMode && i == connecthead)
-            {
-                // If it's the master, it should first send quit message to the slaves.
-                // Each slave should automatically quit after receiving the message.
-                if (i == myconnectindex)
-                    continue;
-                QuitFlag = TRUE;
-                ready2send = 0;
-                return TRUE;
-            }
-
-            found = TRUE;
-
-            quit_player_index = i;
-
-            if (i != myconnectindex)
-            {
-                sprintf(ds,"%s has quit the game.",Player[i].PlayerName);
-                Printf(PRINT_NOTIFY | PRINT_TEAMCHAT, "%s\n", ds);
-            }
-        }
-    }
-
-    if (found)
-    {
-        TRAVERSE_CONNECT(i)
-        {
-            pp = Player + i;
-
-            if (i == quit_player_index)
-            {
-                PLAYERp qpp = Player + quit_player_index;
-                SET(qpp->SpriteP->cstat, CSTAT_SPRITE_INVISIBLE);
-                RESET(qpp->SpriteP->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
-                InitBloodSpray(qpp->PlayerSprite,TRUE,-2);
-                InitBloodSpray(qpp->PlayerSprite,FALSE,-2);
-                qpp->SpriteP->ang = NORM_ANGLE(qpp->SpriteP->ang + 1024);
-                InitBloodSpray(qpp->PlayerSprite,FALSE,-1);
-                InitBloodSpray(qpp->PlayerSprite,TRUE,-1);
-            }
-
-            // have to reorder the connect list
-            if (!TEST_SYNC_KEY(pp, SK_QUIT_GAME))
-            {
-                prev_player = i;
-                continue;
-            }
-
-            // if I get my own messages get out to DOS QUICKLY!!!
-            if (i == myconnectindex)
-            {
-                QuitFlag = TRUE;
-                ready2send = 0;
-                return TRUE;
-            }
-
-            // for COOP mode
-            if (screenpeek == i)
-            {
-                screenpeek = connectpoint2[i];
-                if (screenpeek < 0)
-                    screenpeek = connecthead;
-            }
-
-            if (i == connecthead)
-                connecthead = connectpoint2[connecthead];
-            else
-                connectpoint2[prev_player] = connectpoint2[i];
-
-            numplayers--;
-            CommPlayers--;
-        }
-    }
-
-    return FALSE;
-}
 
 void
 InitNetVars(void)
