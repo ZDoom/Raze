@@ -67,7 +67,7 @@ static const short icons[] = {
 
 class DSWStatusBar : public DBaseStatusBar
 {
-    DHUDFont miniFont;
+    DHUDFont miniFont, numberFont;
 
     enum
     {
@@ -145,6 +145,7 @@ class DSWStatusBar : public DBaseStatusBar
 public:
     DSWStatusBar()
     {
+        numberFont = { BigFont, 0, Off, 1, 1 };
         miniFont = { SmallFont2, 0, Off, 1, 1 };
     }
 
@@ -424,7 +425,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void DisplayKeys(PLAYERp pp)
+    void DisplayKeys(PLAYERp pp, double xs, double ys)
     {
         double x, y;
         int row, col;
@@ -453,8 +454,8 @@ private:
             {
                 if (pp->HasKey[i])
                 {
-                    x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
-                    y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
+                    x = xs + PANEL_KEYS_XOFF + (row * xsize);
+                    y = ys + PANEL_KEYS_YOFF + (col * ysize);
                     DrawGraphic(tileGetTexture(StatusKeyPics[i]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
                 }
                 i++;
@@ -469,8 +470,8 @@ private:
             {
                 if (pp->HasKey[i + 4])
                 {
-                    x = PANEL_KEYS_BOX_X + PANEL_KEYS_XOFF + (row * xsize);
-                    y = PANEL_BOX_Y + PANEL_KEYS_YOFF + (col * ysize);
+                    x = xs + PANEL_KEYS_XOFF + (row * xsize);
+                    y = ys + PANEL_KEYS_YOFF + (col * ysize);
                     DrawGraphic(tileGetTexture(StatusKeyPics[i + 4]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
                 }
                 i++;
@@ -523,13 +524,13 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void PlayerUpdateInventoryState(PLAYERp pp, int InventoryBoxX, int InventoryBoxY, int InventoryXoff, int InventoryYoff)
+    void PlayerUpdateInventoryState(PLAYERp pp, double InventoryBoxX, double InventoryBoxY, int InventoryXoff, int InventoryYoff)
     {
         char ds[32];
         INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
 
-        int x = InventoryBoxX + INVENTORY_STATE_XOFF + InventoryXoff;
-        int y = InventoryBoxY + INVENTORY_STATE_YOFF + InventoryYoff;
+        double x = InventoryBoxX + INVENTORY_STATE_XOFF + InventoryXoff;
+        double y = InventoryBoxY + INVENTORY_STATE_YOFF + InventoryYoff;
 
         if (TEST(id->Flags, INVF_AUTO_USE))
         {
@@ -671,7 +672,7 @@ private:
         DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp->WpnAmmo[u->WeaponNum]);
         PlayerUpdateWeaponSummaryAll(pp);
         if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
-            DisplayKeys(pp);
+            DisplayKeys(pp, PANEL_KEYS_BOX_X, PANEL_BOX_Y);
         else if (gNet.TimeLimit)
             DisplayTimeLimit(pp);
         DisplayBarInventory(pp);
@@ -744,6 +745,92 @@ private:
         DrawGraphic(tileGetTexture(MINI_BAR_INVENTORY_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
         DisplayMinibarInventory(pp);
     }
+
+    //==========================================================================
+    //
+    // Fullscreen HUD variant #1
+    //
+    //==========================================================================
+
+    void DrawHUD2()
+    {
+        BeginHUD(320, 200, 1);
+        const int HEALTH = 0, SHIELD = 0;
+
+        auto pp = Player + screenpeek;
+        USERp u = User[pp->PlayerSprite];
+
+        double imgScale = (numberFont.mFont->GetHeight()) * 0.7;
+
+        //
+        // Health
+        //
+        auto imgHealth = tileGetTexture(HEALTH);
+        auto healthScale = imgScale / imgHealth->GetDisplayHeight();
+        DrawGraphic(imgHealth, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
+
+        FString format;
+        if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || ((int)totalclock & 32))
+        {
+            int s = -8;
+            if (althud_flashing && u->Health > u->MaxHealth)
+                s += (sintable[((int)totalclock << 5) & 2047] >> 10);
+            int intens = clamp(255 - 4 * s, 0, 255);
+            auto pe = PalEntry(255, intens, intens, intens);
+            format.Format("%d", u->Health);
+            SBar_DrawString(this, &numberFont, format, 25, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+
+        //
+        // Armor
+        //
+        auto imgArmor = tileGetTexture(SHIELD);
+        auto armorScale = imgScale / imgArmor->GetDisplayHeight();
+        DrawGraphic(imgArmor, 77.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
+
+        format.Format("%d", pp->Armor);
+        SBar_DrawString(this, &numberFont, format, 95, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+
+        //
+        // Weapon
+        //
+        int weapon = u->WeaponNum;
+
+        if (u->WeaponNum != WPN_SWORD && u->WeaponNum != WPN_FIST && (!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+        {
+            format.Format("%d", pp->WpnAmmo[weapon]);
+            SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+
+            int wicon = 0;// ammo_sprites[weapon];
+            //if (wicon > 0)
+            {
+                auto imgWeap = tileGetTexture(wicon);
+                auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+                auto imgX = 20.;
+                auto strlen = format.Len();
+                if (strlen > 1)
+                {
+                    auto scaler = strlen - 1;
+                    imgX += ((imgX / 2.) * scaler) + ((imgX / (10.)) * scaler);
+                }
+                DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+            }
+        }
+
+        //
+        // Selected inventory item
+        //
+
+        PlayerUpdateInventoryPic(pp, 148, -21.5, 1, 1);
+        PlayerUpdateInventoryState(pp, 148, -21.5, 1, 1);
+        PlayerUpdateInventoryPercent(pp, 148, -21.5, 1, 1);
+
+        //
+        // keys
+        //
+        DisplayKeys(pp, -80, -20);
+    }
+
 
     //---------------------------------------------------------------------------
     //
@@ -852,7 +939,7 @@ public:
             align = DI_SCREEN_CENTER_TOP;
             inv_x = -80 * hud_scale / 100.;
             inv_y = -70 * hud_scale / 100.;
-            DrawHUD1(); // todo: Implement a proper view for this
+            DrawHUD2(); // todo: Implement a proper view for this
         }
         else if (hud_size == Hud_Mini)
         {
