@@ -58,6 +58,25 @@ short AttackOrRun = 200;
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
 
+int
+Distance(int x1, int y1, int x2, int y2)
+{
+    int min;
+
+    if ((x2 = x2 - x1) < 0)
+        x2 = -x2;
+
+    if ((y2 = y2 - y1) < 0)
+        y2 = -y2;
+
+    if (x2 > y2)
+        min = y2;
+    else
+        min = x2;
+
+    return x2 + y2 - DIV2(min);
+}
+
 
 void DebugMoveHit(short SpriteNum)
 {

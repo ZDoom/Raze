@@ -96,7 +96,6 @@ void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
 char UziRecoilYadj = 0;
 
-extern SWBOOL QuitFlag;
 extern short screenpeek;
 
 ANIMATOR NullAnimator;

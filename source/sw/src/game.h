@@ -108,13 +108,10 @@ enum
 //#pragma off(unreferenced)
 
 
-#define ERR_STD_ARG __FILE__, __LINE__
-
-void _Assert(const char *expr, const char *strFile, unsigned uLine);
 #define PRODUCTION_ASSERT(f) \
     do { \
         if (!(f)) \
-            _Assert(#f,ERR_STD_ARG); \
+            I_FatalError("Assertion failed: %s %s, line %u", #f, __FILE__, __LINE__); \
     } while (0)
 
 #define ASSERT assert
@@ -127,10 +124,14 @@ void _Assert(const char *expr, const char *strFile, unsigned uLine);
 
 
 int RandomRange(int);
-int krand1(void);
-#define RANDOM_P2(pwr_of_2) (MOD_P2(krand1(),(pwr_of_2)))
+inline int RANDOM(void)
+{
+    randomseed = ((randomseed * 21 + 1) & 65535);
+    return randomseed;
+}
+
+#define RANDOM_P2(pwr_of_2) (MOD_P2(RANDOM(),(pwr_of_2)))
 #define RANDOM_RANGE(range) (RandomRange(range))
-#define RANDOM() (krand1())
 
 
 #define PRINT(line,str) DebugPrint(line,str)
@@ -744,7 +745,6 @@ struct STATEstruct
 typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
-extern SWBOOL InGame;                                  // Declared in game.c
 int QueueFloorBlood(short hit_sprite);                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
@@ -2286,7 +2286,6 @@ void ScaleSectorObject(SECTOR_OBJECTp sop); // morph.c
 void MorphTornado(SECTOR_OBJECTp sop);  // morph.c
 void MorphFloor(SECTOR_OBJECTp sop);    // morph.c
 void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,int *dy);    // morph.c
-void PlayTheme(void);
 
 void CopySectorMatch(short match);  // copysect.c
 
@@ -2311,11 +2310,25 @@ void LoadSaveMsg(const char *msg);
 void UpdateStatusBar(ClockTicks arg);
 void InitFonts();
 void registerinputcommands();
+void SW_InitMultiPsky(void);
 
 extern int PlayClock;
 extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;
+
+extern char PlayerGravity;
+extern short wait_active_check_offset;
+//extern short Zombies;
+extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
+extern SWBOOL left_foot;
+extern SWBOOL serpwasseen;
+extern SWBOOL sumowasseen;
+extern SWBOOL zillawasseen;
+extern short BossSpriteNum[3];
+extern int ChopTics;
+extern short Bunny_Count;
+
 
 #define ANIM_SERP 1
 #define ANIM_SUMO 2

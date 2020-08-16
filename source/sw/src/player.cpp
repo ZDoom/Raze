@@ -127,6 +127,7 @@ extern SWBOOL DebugOperate;
 //unsigned char synctics, lastsynctics;
 
 int dimensionmode, zoom;
+int ChopTics;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
@@ -7432,8 +7433,6 @@ void PlayerTimers(PLAYERp pp)
 
 void ChopsCheck(PLAYERp pp)
 {
-    extern int ChopTics;
-
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
         if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.q16angvel|pp->input.q16aimvel) ||

@@ -50,7 +50,6 @@ int PlayClock;
 
 gNET gNet;
 extern short PlayerQuitMenuLevel;
-extern SWBOOL QuitFlag;
 
 #define TIMERUPDATESIZ 32
 

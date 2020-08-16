@@ -142,8 +142,6 @@ STATE s_DebrisStarFish[] =
     {426, 100, DoActorDebris, &s_DebrisStarFish[0]},
 };
 
-extern int score;
-
 ANIMATOR DoGet, DoKey, DoSpriteFade;
 
 // temporary

@@ -73,7 +73,7 @@ public:
 void Logo(const CompletionFunc& completion)
 {
     StopSound();
-    PlayTheme();
+    PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 
     static const AnimSound logosound[] =
     {

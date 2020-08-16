@@ -71,6 +71,15 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
 
+void SW_InitMultiPsky(void)
+{
+    // default
+    psky_t* const defaultsky = tileSetupSky(DEFAULTPSKY);
+    defaultsky->lognumtiles = 1;
+    defaultsky->horizfrac = 8192;
+}
+
+
 #if 1
 void
 ShadeSprite(tspriteptr_t tsp)
