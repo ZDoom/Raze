@@ -35,7 +35,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 
 // temp - should be moved
-#include "ninja.h"
 #include "ai.h"
 
 #include "network.h"

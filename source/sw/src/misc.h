@@ -74,4 +74,24 @@ void KeepActorOnFloor(short SpriteNum);
 int DoActorSlide(short SpriteNum);
 int DoActorSectorDamage(short SpriteNum);
 int DoScaleSprite(short SpriteNum);
+
+void InitPlayerSprite(PLAYERp pp);
+void InitAllPlayerSprites(void);
+void PlayerPanelSetup(void);
+void PlayerDeathReset(PLAYERp pp);
+void SpawnPlayerUnderSprite(PLAYERp pp);
+
+void DoQuakeMatch(short match);
+void ProcessQuakeOn(void);
+void ProcessQuakeSpot(void);
+void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
+void DoQuake(PLAYERp pp);
+SWBOOL SetQuake(PLAYERp pp, short tics, short amt);
+int SetExpQuake(int16_t Weapon);
+int SetGunQuake(int16_t SpriteNum);
+int SetPlayerQuake(PLAYERp mpp);
+int SetNuclearQuake(int16_t Weapon);
+int SetSumoQuake(int16_t SpriteNum);
+int SetSumoFartQuake(int16_t SpriteNum);
+
 END_SW_NS

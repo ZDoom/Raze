@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sector.h"
 #include "player.h"
 #include "sprite.h"
-#include "reserve.h"
 #include "jsector.h"
 #include "jtags.h"
 #include "lists.h"

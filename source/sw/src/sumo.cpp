@@ -31,7 +31,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "tags.h"
 #include "ai.h"
-#include "quake.h"
 #include "misc.h"
 #include "weapon.h"
 #include "sector.h"

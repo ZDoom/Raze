@@ -41,7 +41,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "jsector.h"
 #include "parent.h"
-#include "reserve.h"
 
 //#define FILE_TYPE 1
 

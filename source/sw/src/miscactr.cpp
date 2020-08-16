@@ -32,7 +32,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "tags.h"
 #include "ai.h"
-#include "quake.h"
 #include "sector.h"
 #include "sprite.h"
 

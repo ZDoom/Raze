@@ -58,7 +58,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "misc.h"
 #include "break.h"
-#include "ninja.h"
 #include "light.h"
 #include "misc.h"
 #include "jsector.h"
@@ -77,7 +76,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "raze_sound.h"
 #include "secrets.h"
 
-#include "osdcmds.h"
 #include "screenjob.h"
 #include "inputstate.h"
 #include "gamestate.h"

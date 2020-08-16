@@ -33,7 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "sector.h"
 #include "player.h"
-#include "quake.h"
 #include "weapon.h"
 #include "jtags.h"
 

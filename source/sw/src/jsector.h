@@ -27,7 +27,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #ifndef JSECTOR_H
 #define JSECTOR_H
 
-#include "reserve.h"
 
 BEGIN_SW_NS
 

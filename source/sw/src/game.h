@@ -43,7 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "mytypes.h"
 #include "sounds.h"
-#include "settings.h"
 #include "pragmas.h"
 #include "gamecvars.h"
 #include "raze_sound.h"
@@ -55,6 +54,23 @@ EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
 
 BEGIN_SW_NS
+
+typedef struct
+{
+    // Net Options from Menus
+    uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
+    uint8_t NetMonsters;   // Cycle skill levels
+    SWBOOL NetHurtTeammate;  // Allow friendly kills
+    SWBOOL NetSpawnMarkers;    // Respawn markers on/off
+    SWBOOL NetTeamPlay;   // Team play
+    uint8_t NetKillLimit;  // Number of frags at which game ends
+    uint8_t NetTimeLimit;  // Limit time of game
+    uint8_t NetColor;      // Chosen color for player
+    SWBOOL NetNuke;
+} GAME_SET, * GAME_SETp;
+
+extern const GAME_SET gs_defaults;
+extern GAME_SET gs;
 
 enum GameFunction_t
 {
@@ -98,6 +114,12 @@ enum
 {
     DREALMSPAL = 1,
     THREED_REALMS_PIC = 2325,
+
+    MAXMIRRORS          = 8,
+    // This is just some, high, blank tile number not used
+    // by real graphics to put the MAXMIRRORS mirrors in
+    MIRRORLABEL         = 6000,
+
 };
 
 //#define SW_SHAREWARE 1     // This determines whether game is shareware compile or not!
@@ -2310,6 +2332,7 @@ void LoadSaveMsg(const char *msg);
 
 void UpdateStatusBar(ClockTicks arg);
 void InitFonts();
+int32_t registerosdcommands(void);
 void registerinputcommands();
 void SW_InitMultiPsky(void);
 

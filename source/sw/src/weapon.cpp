@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "interpso.h"
 #include "tags.h"
 #include "break.h"
-#include "quake.h"
 #include "network.h"
 #include "pal.h"
 

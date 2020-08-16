@@ -36,7 +36,6 @@ not load" error messages.
 #include "game.h"
 #include "tags.h"
 #include "break.h"
-#include "quake.h"
 #include "pal.h"
 #include "misc.h"
 #include "sounds.h"

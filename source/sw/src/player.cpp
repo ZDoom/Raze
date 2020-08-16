@@ -35,7 +35,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "player.h"
 #include "lists.h"
-#include "quake.h"
 
 #include "gamecontrol.h"
 
@@ -46,7 +45,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "sprite.h"
 #include "weapon.h"
-#include "ninja.h"
 #include "break.h"
 #include "jsector.h"
 #include "sector.h"
