@@ -81,7 +81,6 @@ static int osdcmd_map(CCmdFuncPtr parm)
     }
     levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
     StartLevel(&gGameOptions);
-    viewResizeView(gViewSize);
 
     return CCMD_OK;
 }

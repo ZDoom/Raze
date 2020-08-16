@@ -376,9 +376,6 @@ private:
             WeaponNum = DamageData[WeaponNum].with_weapon;
         }
 
-        if (gs.BorderNum < BORDER_BAR || pp - Player != screenpeek)
-            return;
-
         static short wsum_xoff[3] = { 0,36,66 };
         static const char* wsum_fmt2[3] = { "%3d/%-3d", "%2d/%-2d", "%2d/%-2d" };
 
@@ -721,7 +718,7 @@ private:
         INVENTORY_DATAp id;
 
         x = MINI_BAR_HEALTH_BOX_X;
-        y = 200 - 26;
+        y = -26;
 
         DrawGraphic(tileGetTexture(MINI_BAR_HEALTH_BOX_PIC), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
@@ -843,22 +840,21 @@ public:
         double inv_x, inv_y;
         int align;
 
-        if (gs.BorderNum <= BORDER_NONE)
+        if (hud_size == Hud_Nothing)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
             inv_x = -210 * hud_scale / 100.;
             inv_y = -28 * hud_scale / 100.;
             PrintLevelStats(2);
         }
-        /*else if (gs.BorderNum == BORDER_HUD)
+        else if (hud_size == Hud_full)
         {
             align = DI_SCREEN_CENTER_TOP;
             inv_x = -80 * hud_scale / 100.;
             inv_y = -70 * hud_scale / 100.;
-            DrawHUD2();
+            DrawHUD1(); // todo: Implement a proper view for this
         }
-        */
-        else if (gs.BorderNum == BORDER_MINI_BAR)
+        else if (hud_size == Hud_Mini)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
             inv_x = -210 * hud_scale / 100.;
@@ -924,7 +920,7 @@ void UpdateStatusBar(ClockTicks arg)
 {
     DSWStatusBar sbar;
 
-    if (gs.BorderNum >= BORDER_BAR)
+    if (hud_size <= Hud_Stbar)
     {
         UpdateFrame();
     }

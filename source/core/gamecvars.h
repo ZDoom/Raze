@@ -119,3 +119,19 @@ bool G_ChangeHudLayout(int direction);
 bool G_CheckAutorun(bool button);
 inline int G_FPSLimit(void) { return 1; }
 bool G_AllowAutoload();
+
+enum EHudSize
+{
+	Hud_Current = -1,
+	Hud_Frame50 = 0,
+	Hud_Frame60,
+	Hud_Frame70,
+	Hud_Frame80,
+	Hud_Frame90,
+	Hud_Stbar,
+	Hud_StbarOverlay,
+	Hud_Mini,
+	Hud_full,
+	Hud_Nothing,
+	Hud_MAX
+};

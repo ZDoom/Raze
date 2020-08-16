@@ -489,7 +489,7 @@ private:
 
     void viewDrawCtfHud(ClockTicks arg)
     {
-        if (0 == gViewSize)
+        if (hud_size == Hud_Nothing)
         {
             flashTeamScore(arg, 0, false);
             flashTeamScore(arg, 1, false);
@@ -748,13 +748,11 @@ private:
                 nPalette = 10;
         }
 
-        if (gViewSize < 0) return;
-
-        if (gViewSize == 1)
+        if (hud_size == Hud_full)
         {
             DrawHUD2();
         }
-        else if (gViewSize <= 2)
+        else if (hud_size > Hud_Stbar)
         {
             BeginStatusBar(320, 200, 28);
             if (pPlayer->throwPower)
@@ -762,11 +760,11 @@ private:
             else
                 drawInventory(pPlayer, 166, 200 - tilesiz[2201].y / 2);
         }
-        if (gViewSize == 2)
+        if (hud_size == Hud_Mini)
         {
             DrawHUD1(nPalette);
         }
-        else if (gViewSize > 2)
+        else if (hud_size <= Hud_StbarOverlay)
         {
             DrawStatusBar(nPalette);
         }
@@ -802,22 +800,22 @@ static void UpdateFrame(void)
 {
     auto tex = tileGetTexture(kBackTile);
 
-    twod->AddFlatFill(0, 0, xdim, gViewY0 - 3, tex);
-    twod->AddFlatFill(0, gViewY1 + 4, xdim, ydim, tex);
-    twod->AddFlatFill(0, gViewY0 - 3, gViewX0 - 3, gViewY1 + 4, tex);
-    twod->AddFlatFill(gViewX1 + 4, gViewY0 - 3, xdim, gViewY1 + 4, tex);
+    twod->AddFlatFill(0, 0, xdim, windowxy1.y - 3, tex);
+    twod->AddFlatFill(0, windowxy2.y + 4, xdim, ydim, tex);
+    twod->AddFlatFill(0, windowxy1.y - 3, windowxy1.x - 3, windowxy2.y + 4, tex);
+    twod->AddFlatFill(windowxy2.x + 4, windowxy1.y - 3, xdim, windowxy2.y + 4, tex);
 
-    twod->AddFlatFill(gViewX0 - 3, gViewY0 - 3, gViewX0, gViewY1 + 1, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(gViewX0, gViewY0 - 3, gViewX1 + 4, gViewY0, tex, 0, 1, 0xff545454);
-    twod->AddFlatFill(gViewX1 + 1, gViewY0, gViewX1 + 4, gViewY1 + 4, tex, 0, 1, 0xff2a2a2a);
-    twod->AddFlatFill(gViewX0 - 3, gViewY1 + 1, gViewX1 + 1, gViewY1 + 4, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(windowxy1.x - 3, windowxy1.y - 3, windowxy1.x, windowxy2.y + 1, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(windowxy1.x, windowxy1.y - 3, windowxy2.x + 4, windowxy1.y, tex, 0, 1, 0xff545454);
+    twod->AddFlatFill(windowxy2.x + 1, windowxy1.y, windowxy2.x + 4, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
+    twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
 }
 
 void UpdateStatusBar(ClockTicks arg)
 {
     DBloodStatusBar sbar;
 
-    if (gViewMode == 3 && gViewSize > 2)
+    if (gViewMode == 3 && hud_size <= Hud_Stbar)
     {
         UpdateFrame();
     }

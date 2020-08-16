@@ -42,6 +42,7 @@
 class player_t;
 struct FRemapTable;
 
+#if 0
 enum EHudState
 {
 	HUD_StatusBar,
@@ -50,6 +51,7 @@ enum EHudState
 
 	HUD_AltHud // Used for passing through popups to the alt hud
 };
+#endif
 
 enum EMonospacing : int;
 
@@ -339,5 +341,6 @@ enum DI_Flags
 };
 
 void SBar_DrawString(DBaseStatusBar* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY);
+void setViewport(int viewSize);
 
 #endif /* __SBAR_H__ */

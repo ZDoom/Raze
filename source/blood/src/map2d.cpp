@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "v_2ddrawer.h"
 #include "v_draw.h"
+#include "statusbar.h"
 
 BEGIN_BLD_NS
 
@@ -191,10 +192,9 @@ void CViewMap::sub_25C74(void)
     if (!bActive)
         return;
     char tm = 0;
-    int viewSize = gViewSize;
-    if (gViewSize > 3)
+    if (windowxy1.x > 0)
     {
-        viewResizeView(3);
+        setViewport(Hud_Stbar);
         tm = 1;
     }
     // only clear the actual window.
@@ -207,12 +207,17 @@ void CViewMap::sub_25C74(void)
         sprintf(pBuffer, "%s: %s", pFilename, pTitle);
     else
         sprintf(pBuffer, "%s", pFilename);
+#if 0
     int nViewY;
-    if (gViewSize > 3)
+    if (g ViewSize > 3)
         nViewY = gViewY1S-16;
     else
         nViewY = gViewY0S+1;
     viewDrawText(3, pBuffer, gViewX1S /2, nViewY, -128, 0, 2, 0, 256);
+#else
+    // This needs fixing across games, so for the time being just print the text into the upper left corner
+    viewDrawText(3, pBuffer, 3, 3, -128, 0, 0, 0, 256);
+#endif
 
 #if 0 // needs to be generalized
     if (gViewMap.bFollowMode)
@@ -221,7 +226,7 @@ void CViewMap::sub_25C74(void)
         Printf(PRINT_NOTIFY, "MAP SCROLL MODE\n");
 #endif
     if (tm)
-        viewResizeView(viewSize);
+        setViewport(hud_size);
 }
 
 void CViewMap::sub_25DB0(spritetype *pSprite)

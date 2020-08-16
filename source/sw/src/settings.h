@@ -31,8 +31,6 @@ BEGIN_SW_NS
 
 typedef struct
 {
-    int8_t BorderNum;
-    int8_t BorderTile;	// Network only - disabled
 // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
     uint8_t NetLevel;      // 1-28

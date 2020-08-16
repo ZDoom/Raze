@@ -1083,13 +1083,27 @@ ResizeView(PLAYERp pp)
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))      // &&
         {
             buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            G_ChangeHudLayout(-1);
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(-1);
+            }
+            else
+            {
+                hud_scale = hud_scale - 4;
+            }
         }
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen)) // &&
         {
             buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            G_ChangeHudLayout(1);
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(1);
+            }
+            else
+            {
+                hud_scale = hud_scale + 4;
+            }
         }
     }
 }
@@ -1828,11 +1842,6 @@ drawscreen(PLAYERp pp)
 
     DrawScreen = TRUE;
     PreDraw();
-    // part of new border refresh method
-    if (!ScreenSavePic)
-    {
-        SetBorder(pp);
-    }
 
     PreUpdatePanel();
 

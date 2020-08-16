@@ -67,6 +67,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "menustate.h"
 #include "screenjob.h"
+#include "statusbar.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -770,20 +771,11 @@ int RunGame()
 	if (g_gameType & GAMEFLAG_BLOOD)
 	{
 		mus_redbook.SetGenericRepDefault(false, CVAR_Bool);	// Blood should default to CD Audio off - all other games must default to on.
-		hud_size.SetGenericRepDefault(6, CVAR_Int);
-		hud_size_max = 7;
 	}
 	if (g_gameType & GAMEFLAG_SW)
 	{
-		hud_size.SetGenericRepDefault(8, CVAR_Int);
-		hud_size_max = 9;
 		cl_weaponswitch.SetGenericRepDefault(1, CVAR_Int);
 		if (cl_weaponswitch > 1) cl_weaponswitch = 1;
-	}
-	if (g_gameType & GAMEFLAG_PSEXHUMED)
-	{
-		hud_size.SetGenericRepDefault(7, CVAR_Int);
-		hud_size_max = 8;
 	}
 
 	G_ReadConfig(currentGame);
@@ -872,6 +864,7 @@ void videoInit()
 	GLInterface.Init(screen->GetWidth());
 	GLInterface.InitGLState(4, 4/*glmultisample*/);
 	screen->SetTextureFilterMode();
+	setViewport(hud_size);
 }
 
 void G_FatalEngineError(void)

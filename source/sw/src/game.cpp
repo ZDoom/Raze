@@ -177,8 +177,6 @@ uint8_t AutoColor;
 
 const GAME_SET gs_defaults =
 {
-    2, // border
-    0, // border tile
 // Network game settings
     0, // GameType
     0, // Level
@@ -393,6 +391,7 @@ bool InitGame()
     int i;
 
     engineInit();
+
 
     InitAutoNet();
 
@@ -1394,8 +1393,6 @@ int32_t GameInterface::app_main()
     
     gs = gs_defaults;
 
-    hud_size.Callback();
-
     if (!DetectShareware())
     {
         if (SW_SHAREWARE) Printf("Detected shareware GRP\n");
@@ -2112,7 +2109,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     renderSetAspect(65536, divscale16(tmpydim * 320, xdim * 200));
 
     // draw location text
-    if (gs.BorderNum <= BORDER_BAR-1)
+    if (hud_size == Hud_Nothing)
     {
         txt_x = 7;
         txt_y = 168;
@@ -2510,11 +2507,11 @@ void Saveable_Init_Dynamic()
     saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
 }
 
-void GameInterface::set_hud_layout(int requested_size) 
+ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
-    gs.BorderNum = 9 - requested_size;
-    SetBorder(Player + myconnectindex);
+    return { 0, 48 };
 }
+
 
 ::GameInterface* CreateInterface()
 {
@@ -2532,11 +2529,5 @@ void GameInterface::FreeGameData()
 {
     TerminateLevel();
 }
-
-void GameInterface::UpdateScreenSize()
-{
-    // Fixme. The underlying code here is too broken and must be refactored first.
-}
-
 
 END_SW_NS

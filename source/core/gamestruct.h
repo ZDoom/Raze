@@ -45,6 +45,11 @@ struct FSaveGameNode
 	}
 };
 
+struct ReservedSpace
+{
+	int top;
+	int statusbar;
+};
 
 enum EMenuSounds : int;
 
@@ -57,7 +62,6 @@ struct GameInterface
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
-	virtual void set_hud_layout(int size) = 0;
 	virtual bool automapActive() { return false; }
 	virtual void PlayHudSound() {}
 	virtual FString statFPS() { return "FPS display not available"; }
@@ -85,6 +89,7 @@ struct GameInterface
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual bool CheatAllowed(bool printmsg) { return true; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
+	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 
 };
 

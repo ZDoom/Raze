@@ -46,6 +46,7 @@
 #include "gstrings.h"
 #include "quotemgr.h"
 #include "gamestruct.h"
+#include "statusbar.h"
 
 #define CVAR_FRONTEND_BLOOD 0
 #define CVAR_FRONTEND_DUKELIKE 0
@@ -162,16 +163,11 @@ CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 
 // HUD
 
-int hud_size_max = 11;	// The maximum is different for each game
-
-CUSTOM_CVARD(Int, hud_size, 9, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
+CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
 {
 	if (self < 0) self = 0;
-	else if (self > hud_size_max) self = hud_size_max;
-	else
-	{
-		gi->set_hud_layout(self);
-	}
+	else if (self > Hud_Nothing) self = Hud_Nothing;
+	else setViewport(self);
 }
 
 // This is for game code to change the size, so that the range checks remain isolated here.
@@ -182,7 +178,7 @@ bool G_ChangeHudLayout(int direction)
 		hud_size = hud_size - 1;
 		return true;
 	}
-	else if (direction > 0 && hud_size < hud_size_max)
+	else if (direction > 0 && hud_size < Hud_Nothing)
 	{
 		hud_size = hud_size + 1;
 		return true;
@@ -204,7 +200,7 @@ CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the h
 {
 	if (self < 36) self = 36;
 	else if (self > 100) self = 100;
-	else gi->UpdateScreenSize();
+	else setViewport(hud_size);
 }
 
 CCMD(scaleup)

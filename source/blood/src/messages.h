@@ -39,24 +39,6 @@ enum MESSAGE_PRIORITY {
     MESSAGE_PRIORITY_SYSTEM = 100
 };
 
-class CPlayerMsg
-{
-public:
-    int at0;
-    char text[41];
-    CPlayerMsg() { at0 = 0; text[0] = 0; }
-    void Clear(void);
-    void Term(void);
-    void Draw(void);
-    bool AddChar(char);
-    void DelChar(void);
-    void Set(const char *pzString);
-    void Send(void);
-    void ProcessKeys(void);
-private:
-    bool IsWhitespaceOnly(const char* const pzString);
-};
-
 enum CHEATCODE
  {
 	 kCheatNone = 0,
@@ -102,8 +84,6 @@ enum CHEATCODE
 
 extern bool bPlayerCheated;
 void cheatReset(void);
-
-extern CPlayerMsg gPlayerMsg;
 
 void SetAmmo(bool stat);
 void SetWeapons(bool stat);

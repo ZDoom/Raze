@@ -968,25 +968,6 @@ static const char *safeStrtok(char *s, const char *d)
 }
 
 
-void GameInterface::set_hud_layout(int layout)
-{
-    if (layout == 8)
-    {
-        if (!bFullScreen)
-        {
-            bFullScreen = true;
-            screensize = 0;
-            UnMaskStatus();
-        }
-    }
-    else
-    {
-        screensize = (7 - clamp(layout, 0, 7)) * 2;
-        bFullScreen = false;
-        UpdateScreenSize();
-    }
-}
-
 void CheckKeys()
 {
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
@@ -3248,10 +3229,26 @@ bool GameInterface::CanSave()
     return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
 }
 
+#if 0
 void GameInterface::UpdateScreenSize()
 {
-    Powerslave::UpdateScreenSize();
+    if (hud_size == 8)
+    {
+        if (!bFullScreen)
+        {
+            bFullScreen = true;
+            screensize = 0;
+            UnMaskStatus();
+        }
+    }
+    else
+    {
+        screensize = (7 - clamp(*hud_size, 0, 7)) * 2;
+        bFullScreen = false;
+        Powerslave::UpdateScreenSize();
+    }
 }
+#endif
 
 
 ::GameInterface* CreateInterface()

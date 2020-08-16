@@ -31,14 +31,12 @@ BEGIN_DUKE_NS
 extern FFont* IndexFont;
 extern FFont* DigiFont;
 
-struct GameInterface : ::GameInterface
+struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	int app_main() override;
 	void clearlocalinputstate() override;
-	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;
-	void set_hud_layout(int size) override;
 	void PlayHudSound() override;
 	bool automapActive() override;
 	FString statFPS() override;
@@ -58,6 +56,7 @@ struct GameInterface : ::GameInterface
 	FString GetCoordString() override;
 	bool CheatAllowed(bool printmsg) override;
 	void ExitFromMenu() override;
+	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 };
 
 struct Dispatcher

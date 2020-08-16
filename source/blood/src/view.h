@@ -140,10 +140,7 @@ extern char gInterpolateSprite[];
 extern char gInterpolateWall[];
 extern char gInterpolateSector[];
 extern LOCATION gPrevSpriteLoc[kMaxSprites];
-extern int gViewSize, gViewMode;
-extern int gViewXCenter, gViewYCenter;
-extern int gViewX0, gViewY0, gViewX1, gViewY1;
-extern int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
+extern int gViewMode;
 extern int gLastPal;
 extern double gInterpolate;
 
@@ -162,7 +159,6 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 void InitStatusBar(void);
 void UpdateStatusBar(ClockTicks arg);
 void viewInit(void);
-void viewResizeView(int size);
 void viewDrawInterface(ClockTicks arg);
 void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, int zm);

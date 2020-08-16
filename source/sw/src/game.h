@@ -1616,12 +1616,6 @@ extern USERp User[MAXSPRITES];
 
 typedef struct
 {
-    short Xdim, Ydim, ScreenSize;
-} BORDER_INFO,*BORDER_INFOp;
-
-
-typedef struct
-{
     short high;
 } RANGE,*RANGEp;
 
@@ -2027,7 +2021,6 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
 ANIMATOR NullAnimator;
 
-void SetBorder(PLAYERp pp);
 int Distance(int x1, int y1, int x2, int y2);
 short GetDeltaAngle(short, short);
 fix16_t GetDeltaQ16Angle(fix16_t, fix16_t);
@@ -2380,10 +2373,8 @@ struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }
     int app_main() override;
-    void UpdateScreenSize() override;
     void FreeGameData() override;
     bool GenerateSavePic() override;
-	void set_hud_layout(int size) override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void MenuOpened() override;
 	void MenuSound(EMenuSounds snd) override;
@@ -2397,6 +2388,7 @@ struct GameInterface : ::GameInterface
 	bool SaveGame(FSaveGameNode* sv) override;
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
+    ReservedSpace GetReservedScreenSpace(int viewsize) override;
 
     FString statFPS() override;
     GameStats getStats() override;

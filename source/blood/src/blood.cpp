@@ -530,7 +530,6 @@ void StartLevel(GAMEOPTIONS *gameOptions)
 	M_ClearMenus();
     // viewSetMessage("");
     viewSetErrorMessage("");
-    viewResizeView(gViewSize);
     netWaitForEveryone(0);
     totalclock = 0;
     paused = 0;
@@ -676,7 +675,6 @@ void ProcessFrame(void)
         else
         {
             gEndGameMgr.Setup();
-            viewResizeView(gViewSize);
         }
     }
 }
@@ -780,7 +778,6 @@ static void app_init()
     Printf("Initializing network users\n");
     netInitialize(true);
     videoInit();
-    hud_size.Callback();
     Printf("Initializing sound system\n");
     sndInit();
     registerosdcommands();
@@ -1309,9 +1306,14 @@ void GameInterface::FreeGameData()
     netDeinitialize();
 }
 
-void GameInterface::UpdateScreenSize()
+ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {
-    viewResizeView(gViewSize);
+    int top = 0;
+    if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
+    {
+        top = (tilesiz[2229].y * ((gNetPlayers + 3) / 4));
+    }
+    return { top, 25 };
 }
 
 

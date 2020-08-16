@@ -429,7 +429,6 @@ int GameInterface::app_main()
 	Startup();
 	enginePostInit();
 	videoInit();
-	updateviewport();
 	app_loop();
 	return 0;
 }

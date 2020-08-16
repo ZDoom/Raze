@@ -35,6 +35,7 @@
 
 #include <assert.h>
 
+#include "build.h"
 #include "templates.h"
 #include "statusbar.h"
 #include "c_cvars.h"
@@ -55,6 +56,8 @@
 #include "v_font.h"
 #include "v_draw.h"
 #include "gamecvars.h"
+#include "m_fixed.h"
+#include "gamestruct.h"
 
 #include "../version.h"
 
@@ -662,7 +665,11 @@ static DObject *InitObject(PClass *type, int paramnum, VM_ARGS)
 	return obj;
 }
 
-
+//============================================================================
+//
+//
+//
+//============================================================================
 
 enum ENumFlags
 {
@@ -688,6 +695,12 @@ void FormatNumber(int number, int minsize, int maxsize, int flags, const FString
 	else if (flags & FNF_FILLZEROS) fmt.Format("%s%0*d", prefix.GetChars(), minsize, number);
 	else fmt.Format("%s%*d", prefix.GetChars(), minsize, number);
 }
+
+//============================================================================
+//
+//
+//
+//============================================================================
 
 void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 {
@@ -731,3 +744,48 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor+'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
 	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
+
+//============================================================================
+//
+// 
+//
+//============================================================================
+
+void setViewport(int viewSize)
+{
+	int x0, y0, x1, y1;
+	if (screen == nullptr) return;
+	int xdim = screen->GetWidth();
+	int ydim = screen->GetHeight();
+	if (xdim == 0 || ydim == 0) return;
+	auto reserved = gi->GetReservedScreenSpace(viewSize);
+	reserved.top = (reserved.top * hud_scale * ydim) / 20000;
+	reserved.statusbar = (reserved.statusbar * hud_scale * ydim) / 20000;
+
+	int xdimcorrect = std::min(Scale(ydim, 4, 3), xdim);
+	if (viewSize > Hud_Stbar)
+	{
+		x0 = 0;
+		x1 = xdim - 1;
+		y0 = reserved.top;
+		y1 = ydim - 1;
+	}
+	else
+	{
+		x0 = 0;
+		y0 = reserved.top;
+		x1 = xdim - 1;
+		y1 = ydim - 1 - reserved.statusbar;
+
+		int height = y1 - y0;
+		int frameheight = (height * (5 - viewSize) / 20);
+		int framewidth = Scale(frameheight, xdim, y1+1);
+		x0 += framewidth;
+		x1 -= framewidth;
+		y0 += frameheight;
+		y1 -= frameheight;
+	}
+	videoSetViewableArea(x0, y0, x1, y1);
+}
+
+

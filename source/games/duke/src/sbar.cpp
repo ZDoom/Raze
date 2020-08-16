@@ -268,81 +268,16 @@ void DrawBorder()
 	}
 }
 
-//---------------------------------------------------------------------------
-//
-// calculate size of 3D viewport.
-// Fixme: this needs to be adjusted to the new status bar code, 
-// once the status bar is a persistent queriable object
-// (it should also be moved out of the game code then.
-//
-//---------------------------------------------------------------------------
-
-void updateviewport(void)
-{
-	static const uint8_t size_vals[] = { 60, 54, 48, 40, 32, 24, 16, 8, 8, 4, 4, 0 };
-	static const uint8_t size_vals_rr[] = { 56, 48, 40, 32, 24, 16, 12, 8, 8, 4, 4, 0 };
-	int ss = isRR() ? size_vals_rr[hud_size] : size_vals[hud_size];
-
-	ss = std::max(ss - 8, 0);
-
-	int x1 = scale(ss, xdim, 160);
-	int x2 = xdim - x1;
-
-	int y1 = scale(ss, (200 * 100) - ((tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * hud_scale), 200 - tilesiz[TILE_BOTTOMSTATUSBAR].y);
-	int y2 = 200 * 100 - y1;
-
-	if (isRR() && hud_size > 6)
-	{
-		x1 = 0;
-		x2 = xdim;
-		y1 = 0;
-		if (hud_size >= 8)
-			y2 = 200 * 100;
-	}
-
-	int fbh = 0;
-	if (hud_size < 11 && ud.coop != 1 && ud.multimode > 1)
-	{
-		int j = 0;
-		for (int i = connecthead; i >= 0; i = connectpoint2[i])
-			if (i > j) j = i;
-
-		if (j >= 1) fbh += 8;
-		if (j >= 4) fbh += 8;
-		if (j >= 8) fbh += 8;
-		if (j >= 12) fbh += 8;
-	}
-
-	y1 += fbh * 100;
-	if (hud_size <= 7)
-		y2 -= (tilesiz[TILE_BOTTOMSTATUSBAR].y >> (isRR() ? 1 : 0)) * hud_scale;
-	y1 = scale(y1, ydim, 200 * 100);
-	y2 = scale(y2, ydim, 200 * 100);
-
-	videoSetViewableArea(x1, y1, x2 - 1, y2 - 1);
-}
-
 //==========================================================================
 //
 // view sizing game interface
 //
 //==========================================================================
 
-void GameInterface::set_hud_layout(int layout)
-{
-	if (xdim > 0 && ydim > 0) updateviewport();
-}
-
 void GameInterface::PlayHudSound() 
 {
 	S_PlaySound(isRR() ? 341 : THUD, CHAN_AUTO, CHANF_UI);
 }
-
-void GameInterface::UpdateScreenSize()
-{
-	updateviewport();
-}
-
 
 
 END_DUKE_NS

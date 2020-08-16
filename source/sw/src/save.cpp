@@ -1132,7 +1132,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
 	
 
-    hud_size.Callback();
     LoadGameOutsideMoveLoop = TRUE;
     if (!InMenuLevel)
     {

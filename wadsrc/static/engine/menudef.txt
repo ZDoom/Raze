@@ -1016,22 +1016,7 @@ OptionMenu "HUDOptions" //protected
 {
 	Title "$OPTMNU_HUD"
 
-	ifgame(duke, nam, ww2gi, redneck, redneckrides)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 11.0, 1.0, -1
-	}
-	ifgame(blood)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 7.0, 1.0, -1
-	}
-	ifgame(shadowwarrior)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
-	}
-	ifgame(exhumed)
-	{
-		Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 8.0, 1.0, -1
-	}
+	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
 	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				36, 100, 4, 2
 	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"

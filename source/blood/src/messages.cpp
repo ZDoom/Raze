@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-CPlayerMsg gPlayerMsg;
-
 void sub_5A928(void)
 {
     for (int i = 0; i < buttonMap.NumButtons(); i++)
@@ -277,89 +275,6 @@ void LevelWarp(int nEpisode, int nLevel)
     levelSetupOptions(nEpisode, nLevel);
     StartLevel(&gGameOptions);
     levelTryPlayMusicOrNothing(nEpisode, nLevel);
-    viewResizeView(gViewSize);
-}
-
-void CPlayerMsg::Clear(void)
-{
-    text[0] = 0;
-    at0 = 0;
-}
-
-void CPlayerMsg::Term(void)
-{
-    Clear();
-}
-
-void CPlayerMsg::Draw(void)
-{
-    char buffer[44];
-    strcpy(buffer, text);
-    if ((int)totalclock & 16)
-        strcat(buffer, "_");
-    int x = gViewMode == 3 ? gViewX0S : 0;
-    int y = gViewMode == 3 ? gViewY0S : 0;
-    if (gViewSize >= 1)
-        y += tilesiz[2229].y*((gNetPlayers+3)/4);
-    viewDrawText(0, buffer, x+1,y+1, -128, 0, 0, false, 256);
-}
-
-bool CPlayerMsg::AddChar(char ch)
-{
-    if (at0 < 40)
-    {
-        text[at0++] = ch;
-        text[at0] = 0;
-        return true;
-    }
-    return false;
-}
-
-void CPlayerMsg::DelChar(void)
-{
-    if (at0 > 0)
-        text[--at0] = 0;
-}
-
-void CPlayerMsg::Set(const char * pzString)
-{
-    strncpy(text, pzString, 40);
-    at0 = ClipHigh(strlen(pzString), 40);
-    text[at0] = 0;
-}
-
-void CPlayerMsg::Send(void)
-{
-    if (VanillaMode() || !IsWhitespaceOnly(text))
-    {
-        //netBroadcastMessage(myconnectindex, text);
-        if (!VanillaMode())
-        {
-            char *myName = gProfile[myconnectindex].name;
-            char szTemp[128];
-            sprintf(szTemp, "%s: %s", myName, text);
-            viewSetMessage(szTemp, 10); // 10: dark blue
-        }
-        else
-            viewSetMessage(text);
-    }
-
-    Term();
-    inputState.keyFlushScans();
-}
-
-void CPlayerMsg::ProcessKeys(void)
-{
-	if (inputState.GetKeyStatus(sc_Escape)) Term();
-}
-
-bool CPlayerMsg::IsWhitespaceOnly(const char * const pzString)
-{
-    const char *p = pzString;
-    while (*p != 0)
-        if (*p++ > 32)
-            return false;
-    return true;
 }
 
 bool bPlayerCheated = false;

@@ -108,10 +108,8 @@ struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
 	int app_main() override;
-	void UpdateScreenSize() override;
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
-	void set_hud_layout(int size) override;
 	FString statFPS() override;
 	FSavegameInfo GetSaveSig() override;
 	void MenuOpened() override;
@@ -126,6 +124,7 @@ struct GameInterface : ::GameInterface
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	void clearlocalinputstate() override;
+	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 
 	GameStats getStats() override;
 };

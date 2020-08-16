@@ -63,13 +63,6 @@ int32_t GetTime(void)
     return (int32_t)totalclock;
 }
 
-void GameInterface::set_hud_layout(int layout)
-{
-    layout = clamp(7 - layout, 0, 7);   // need to reverse the order because menu sliders always have low values to the left.
-	viewResizeView(layout);
-}
-
-
 fix16_t gViewLook, gViewAngle;
 float gViewAngleAdjust;
 float gViewLookAdjust;
@@ -125,8 +118,9 @@ void LocalKeys(void)
             }
             else
             {
-                gPlayerMsg.Set(*CombatMacros[fk]);
-                gPlayerMsg.Send();
+                // todo: Open chat editor with the specified text
+                //gPlayerMsg.Set(*CombatMacros[fk]);
+                //gPlayerMsg.Send();
             }
             buttonMap.ClearButton(gamefunc_Third_Person_View);
             return;

@@ -37,6 +37,7 @@
 #include "build.h"
 #include "gamecvars.h"
 #include "v_video.h"
+#include "statusbar.h"
 
 //==========================================================================
 //
@@ -161,7 +162,7 @@ int32_t handleevents(void)
 	if (setsizeneeded)
 	{
 		videoSetGameMode(vid_fullscreen, SCREENWIDTH, SCREENHEIGHT, 32, 1);
-		if (gi) gi->UpdateScreenSize();
+		setViewport(hud_size);
 		setsizeneeded = false;
 	}
 

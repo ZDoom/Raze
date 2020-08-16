@@ -62,7 +62,6 @@ struct INTERPOLATE {
 };
 
 int gViewMode = 3;
-int gViewSize = 2;
 
 double gInterpolate;
 int nInterpolations;
@@ -73,11 +72,6 @@ char gInterpolateSector[(kMaxSectors+7)>>3];
 #define kMaxInterpolations 16384
 
 INTERPOLATE gInterpolation[kMaxInterpolations];
-
-int gViewXCenter, gViewYCenter;
-int gViewX0, gViewY0, gViewX1, gViewY1;
-int gViewX0S, gViewY0S, gViewX1S, gViewY1S;
-int xscale, yscale, xstep, ystep;
 
 int gScreenTilt;
 
@@ -116,7 +110,6 @@ void viewToggle(int viewMode)
 	else
 	{
 		gViewMode = 3;
-		viewResizeView(gViewSize);
 	}
 }
 
@@ -364,60 +357,6 @@ void viewInit(void)
     }
     gViewMap.sub_25C38(0, 0, gZoom, 0, gFollowMap);
 }
-
-void viewResizeView(int size)
-{
-    int xdimcorrect = ClipHigh(scale(ydim, 4, 3), xdim);
-    gViewXCenter = xdim-xdim/2;
-    gViewYCenter = ydim-ydim/2;
-    xscale = divscale16(xdim, 320);
-    int xscalecorrect = divscale16(xdimcorrect, 320);
-    yscale = divscale16(ydim, 200);
-    xstep = divscale16(320, xdim);
-    ystep = divscale16(200, ydim);
-    gViewSize = ClipRange(size, 0, 7);
-    if (gViewSize <= 2)
-    {
-        gViewX0 = 0;
-        gViewX1 = xdim-1;
-        gViewY0 = 0;
-        gViewY1 = ydim-1;
-        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
-        {
-            gViewY0 = (tilesiz[2229].y*ydim*((gNetPlayers+3)/4))/200;
-        }
-        gViewX0S = divscale16(gViewX0, xscalecorrect);
-        gViewY0S = divscale16(gViewY0, yscale);
-        gViewX1S = divscale16(gViewX1, xscalecorrect);
-        gViewY1S = divscale16(gViewY1, yscale);
-    }
-    else
-    {
-        gViewX0 = 0;
-        gViewY0 = 0;
-        gViewX1 = xdim-1;
-        int gy1 = (25 * ydim) / 200;
-        if (gViewSize == 3) // full status bar must scale the bottom to the actual display height.
-            gy1 = Scale(gy1, hud_scale, 100);
-        gViewY1 = ydim-1- gy1;
-        if (gGameOptions.nGameType > 0 && gGameOptions.nGameType <= 3)
-        {
-            gViewY0 = (tilesiz[2229].y*ydim*((gNetPlayers+3)/4))/200;
-        }
-
-        int height = gViewY1-gViewY0;
-        gViewX0 += mulscale16(xdim*(gViewSize-3),4096);
-        gViewX1 -= mulscale16(xdim*(gViewSize-3),4096);
-        gViewY0 += mulscale16(height*(gViewSize-3),4096);
-        gViewY1 -= mulscale16(height*(gViewSize-3),4096);
-        gViewX0S = divscale16(gViewX0, xscalecorrect);
-        gViewY0S = divscale16(gViewY0, yscale);
-        gViewX1S = divscale16(gViewX1, xscalecorrect);
-        gViewY1S = divscale16(gViewY1, yscale);
-    }
-    videoSetViewableArea(gViewX0, gViewY0, gViewX1, gViewY1);
-}
-
 
 void viewDrawInterface(ClockTicks arg)
 {

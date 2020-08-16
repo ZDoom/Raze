@@ -3,7 +3,6 @@ set( PCH_SOURCES
 	src/2d.cpp
 	src/actor.cpp
 	src/ai.cpp
-	src/border.cpp
 	src/break.cpp
 	src/bunny.cpp
 	src/cache.cpp
