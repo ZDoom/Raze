@@ -755,17 +755,16 @@ private:
     void DrawHUD2()
     {
         BeginHUD(320, 200, 1);
-        const int HEALTH = 0, SHIELD = 0;
 
         auto pp = Player + screenpeek;
         USERp u = User[pp->PlayerSprite];
 
-        double imgScale = (numberFont.mFont->GetHeight()) * 0.7;
+        double imgScale = (numberFont.mFont->GetHeight()) * 0.9;
 
         //
         // Health
         //
-        auto imgHealth = tileGetTexture(HEALTH);
+        auto imgHealth = tileGetTexture(ICON_SM_MEDKIT);
         auto healthScale = imgScale / imgHealth->GetDisplayHeight();
         DrawGraphic(imgHealth, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
 
@@ -784,7 +783,7 @@ private:
         //
         // Armor
         //
-        auto imgArmor = tileGetTexture(SHIELD);
+        auto imgArmor = tileGetTexture(ICON_ARMOR);
         auto armorScale = imgScale / imgArmor->GetDisplayHeight();
         DrawGraphic(imgArmor, 77.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
 
@@ -796,14 +795,16 @@ private:
         //
         int weapon = u->WeaponNum;
 
-        if (u->WeaponNum != WPN_SWORD && u->WeaponNum != WPN_FIST && (!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+        if ((!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
         {
-            format.Format("%d", pp->WpnAmmo[weapon]);
-            SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			static const short ammo_sprites[] = { -1, ICON_STAR, ICON_LG_SHOTSHELL, ICON_LG_UZI_AMMO, ICON_MICRO_BATTERY, ICON_LG_GRENADE, ICON_LG_MINE, ICON_RAIL_AMMO,
+				ICON_FIREBALL_LG_AMMO, ICON_HEART_LG_AMMO, ICON_FIREBALL_LG_AMMO, ICON_FIREBALL_LG_AMMO,ICON_MICRO_BATTERY, -1 };
 
-            int wicon = 0;// ammo_sprites[weapon];
-            //if (wicon > 0)
+            int wicon = ammo_sprites[weapon];
+            if (wicon > 0)
             {
+				format.Format("%d", pp->WpnAmmo[weapon]);
+				SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
                 auto imgWeap = tileGetTexture(wicon);
                 auto weapScale = imgScale / imgWeap->GetDisplayHeight();
                 auto imgX = 20.;

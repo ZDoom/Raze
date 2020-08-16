@@ -635,7 +635,7 @@ public:
         DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
         MNU_DrawString(160, 170, /*DemoMode ? GStrings("TXT_LBDEMO") :*/ GStrings("TXT_ENTERING"), 1, 16, 0);
-        MNU_DrawString(160, 180, currentLevel->DisplayName(), 1, 16, 0);
+        MNU_DrawString(160, 180, rec->DisplayName(), 1, 16, 0);
 
         // Initiate the level load once the page has been faded in completely.
         if (callback && GetFadeState() == visible)
