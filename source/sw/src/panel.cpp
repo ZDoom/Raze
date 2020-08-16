@@ -682,28 +682,12 @@ WeaponOK(PLAYERp pp)
     WeaponNum = u->WeaponNum;
     FindWeaponNum = u->WeaponNum;
 
-    //if (WeaponNum == WPN_HOTHEAD)
-    //    {
-    //if (pp->WpnFlameType == 0)
-    //    min_ammo = 1;
-    //else
-    //    min_ammo = 10;
-    //min_ammo = DamageData[pp->WeaponType].min_ammo;
-    //    }
-    //else
     min_ammo = DamageData[WeaponNum].min_ammo;
 
     // if ran out of ammo switch to something else
     if (pp->WpnAmmo[WeaponNum] < min_ammo)
     {
         if (u->WeaponNum == WPN_UZI) pp->WpnUziType = 2; // Set it for retract
-
-        // Special HotHead check
-        //if (WeaponNum == WPN_HOTHEAD)
-        //    {
-        //    if (pp->WpnFlameType > 0 && pp->WpnAmmo[WeaponNum] > 0)
-        //        return(TRUE);
-        //    }
 
         // Still got a nuke, it's ok.
         if (WeaponNum == WPN_MICRO && pp->WpnRocketNuke)
@@ -760,21 +744,12 @@ WeaponOK(PLAYERp pp)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
-static short SwordAngTable[] =
-{
-    48,
-    128,
-    256
-};
-#else
 static short SwordAngTable[] =
 {
     82,
     168,
     256+64
 };
-#endif
 
 short SwordAng = 0;
 
@@ -2525,47 +2500,6 @@ PANEL_STATE ps_Uzi2Shell[] =
     {ID_Uzi2Shell5, UZI_SHELL_RATE, pUziShell, &ps_Uzi2Shell[0], psf_Xflip, 0,0},
 };
 
-#if 0
-void
-SpawnUziShell(PANEL_SPRITEp psp)
-{
-    PLAYERp pp = psp->PlayerP;
-    PANEL_SPRITEp shell;
-    int i, rand_val;
-
-    if (psp->State && TEST(psp->State->flags, psf_Xflip))
-    {
-        // LEFT side
-        shell = pSpawnSprite(pp, ps_Uzi2Shell, PRI_BACK, 0, 0);
-        shell->x = psp->x - 8 - RANDOM_P2(8);
-        pSetState(shell, ps_Uzi2Shell + RANDOM_P2(2));
-    }
-    else
-    {
-        // RIGHT side
-        shell = pSpawnSprite(pp, ps_UziShell, PRI_BACK, 0, 0);
-        shell->x = psp->x + 4 + RANDOM_P2(8);
-        pSetState(shell, ps_UziShell + RANDOM_P2(2));
-    }
-
-    SET(shell->flags, PANF_WEAPON_SPRITE);
-    shell->y = shell->yorig = psp->y - tileHeight(psp->picndx) + 20;
-
-    shell->sin_ndx = 0;
-    shell->sin_amt = 13 + RANDOM_P2(8);
-    shell->sin_arc_speed = 3 + RANDOM_P2(2);
-
-    rand_val = RANDOM_P2(1024);
-
-    if (rand_val < 200)
-        shell->sin_amt = 34 + RANDOM_P2(16);
-    else if (rand_val < 400)
-        shell->sin_amt = 8 + RANDOM_P2(8);
-    else
-        shell->sin_amt = 13 + RANDOM_P2(8);
-}
-#endif
-
 void
 SpawnUziShell(PANEL_SPRITEp psp)
 {
@@ -2639,39 +2573,7 @@ void
 SpawnShotgunShell(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-
-
     SpawnShell(pp->PlayerSprite,-4);
-
-#if 0
-    typedef struct
-    {
-        short xoff, yoff, skip;
-        int lo_jump_speed, hi_jump_speed, lo_xspeed, hi_xspeed;
-        PANEL_STATEp state[2];
-    } PANEL_SHRAP, *PANEL_SHRAPp;
-
-    PANEL_SPRITEp shell;
-
-    static PANEL_SHRAP ShellShrap[] =
-    {
-        {0, 0, 0, FIXED(2,0), FIXED(4,0), FIXED(3,32000), FIXED(10,32000) },
-    };
-
-    PANEL_SHRAPp ss;
-
-    ss = &ShellShrap[0];
-
-    shell = pSpawnSprite(pp, ps_ShotgunShell, PRI_FRONT, 0, 0);
-    shell->x = psp->x + 25;
-    shell->y = shell->yorig = psp->y - tileHeight(psp->picndx) + 85;
-
-    shell->xspeed = ss->lo_xspeed + (RANDOM_RANGE((ss->hi_xspeed - ss->lo_xspeed)>>4) << 4);
-    SET(shell->flags, PANF_WEAPON_SPRITE);
-
-    shell->jump_speed = -ss->lo_jump_speed - (RANDOM_RANGE((ss->hi_jump_speed - ss->lo_jump_speed)>>4) << 4);
-    DoBeginPanelJump(shell);
-#endif
 }
 
 void
@@ -3282,20 +3184,9 @@ PANEL_STATE ps_RailFire[] =
     {ID_RailCharge0,       Rail_CHARGE_RATE+5, pRailAction,    &ps_RailFire[26], psf_ShadeNone, 0,0},
     {ID_RailCharge1,       Rail_CHARGE_RATE+5, pRailAction,    &ps_RailFire[27], psf_ShadeNone, 0,0},
     {ID_RailCharge2,       Rail_CHARGE_RATE+5, pRailAction,    &ps_RailFire[28], psf_ShadeNone, 0,0},
-//    {ID_RailCharge0,       Rail_CHARGE_RATE+6, pRailAction,    &ps_RailFire[27], psf_ShadeNone, 0,0},
-//    {ID_RailCharge1,       Rail_CHARGE_RATE+6, pRailAction,    &ps_RailFire[28], psf_ShadeNone, 0,0},
-//    {ID_RailCharge2,       Rail_CHARGE_RATE+6, pRailAction,    &ps_RailFire[29], psf_ShadeNone, 0,0},
-//    {ID_RailCharge0,       Rail_CHARGE_RATE+7, pRailAction,    &ps_RailFire[30], psf_ShadeNone, 0,0},
-//    {ID_RailCharge1,       Rail_CHARGE_RATE+7, pRailAction,    &ps_RailFire[31], psf_ShadeNone, 0,0},
-//    {ID_RailCharge2,       Rail_CHARGE_RATE+7, pRailAction,    &ps_RailFire[32], psf_ShadeNone, 0,0},
-//    {ID_RailCharge1,       Rail_CHARGE_RATE+7, pRailAction,    &ps_RailFire[33], psf_ShadeNone, 0,0},
-//    {ID_RailCharge0,       Rail_CHARGE_RATE+8, pRailAction,    &ps_RailFire[34], psf_ShadeNone, 0,0},
-//    {ID_RailCharge1,       Rail_CHARGE_RATE+8, pRailAction,    &ps_RailFire[35], psf_ShadeNone, 0,0},
 
     {ID_RailCharge0,      Rail_ACTION_RATE, pRailRestTest,  &ps_RailFire[29], psf_ShadeNone, 0,0},
     {ID_RailCharge1,      Rail_ACTION_RATE, pRailRest,      &ps_RailRest[0], psf_ShadeNone, 0,0},
-//    {ID_RailFire1,      Rail_ACTION_RATE, pRailRestTest,  &ps_RailFire[27], psf_ShadeNone, 0,0},
-//    {ID_RailFire1,      Rail_ACTION_RATE, pRailRest,      &ps_RailRest[0], psf_ShadeNone, 0,0},
 };
 
 PANEL_STATE ps_RailFireEMP[] =
@@ -4153,30 +4044,6 @@ PANEL_STATE ps_MicroFire[] =
     {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[4], psf_ShadeHalf, 0,0},
     {ID_MicroPresent0, 0,              pMicroFire, &ps_MicroFire[5], psf_ShadeNone|psf_QuickCall, 0,0},
 
-#if 0
-    {ID_MicroFire0, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[6], psf_ShadeNone},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[7], psf_ShadeNone},
-    {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[8], psf_ShadeHalf},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[9], psf_ShadeNone},
-    {ID_MicroPresent0, 0,              pMicroFire, &ps_MicroFire[10], psf_ShadeNone|psf_QuickCall},
-    {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[11], psf_ShadeHalf},
-    {ID_MicroFire0, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[12], psf_ShadeNone},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[13], psf_ShadeNone},
-    {ID_MicroFire2, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[14], psf_ShadeHalf},
-    {ID_MicroPresent0, 0,              pMicroFire, &ps_MicroFire[15], psf_ShadeNone|psf_QuickCall},
-    {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[16], psf_ShadeHalf},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[17], psf_ShadeNone},
-    {ID_MicroFire0, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[18], psf_ShadeNone},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[19], psf_ShadeNone},
-    {ID_MicroPresent0, 0,              pMicroFire, &ps_MicroFire[20], psf_ShadeNone|psf_QuickCall},
-    {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[21], psf_ShadeHalf},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[22], psf_ShadeNone},
-    {ID_MicroFire0, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[23], psf_ShadeNone},
-    {ID_MicroFire1, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[24], psf_ShadeNone},
-    {ID_MicroPresent0, 0,              pMicroFire, &ps_MicroFire[25], psf_ShadeNone|psf_QuickCall},
-    {ID_MicroFire2, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[26], psf_ShadeHalf},
-    {ID_MicroFire3, Micro_ACTION_RATE, pMicroAction, &ps_MicroFire[27], psf_ShadeHalf},
-#endif
 
     // !JIM! After firing delay so rockets can't fire so fast!
     // Putting a BIG blast radius for rockets, this is better than small and fast for this weap.
@@ -4389,8 +4256,6 @@ pMicroHide(PANEL_SPRITEp psp)
 SWBOOL
 pMicroOverlays(PANEL_SPRITEp psp)
 {
-    //#define MICRO_SIGHT_XOFF 29
-    //#define MICRO_SIGHT_YOFF -58
 #define MICRO_SIGHT_XOFF 29
 #define MICRO_SIGHT_YOFF -58
 
@@ -4569,13 +4434,6 @@ pMicroFire(PANEL_SPRITEp psp)
             InitRocket(psp->PlayerP);
         break;
     case 1:
-#if 0
-        if (psp->PlayerP->WpnRocketHeat<=1)
-        {
-            // have no heat seakers so move back to regular
-            psp->PlayerP->WpnRocketType = 0;
-        }
-#endif
         if (psp->PlayerP->BunnyMode)
             InitBunnyRocket(psp->PlayerP);
         else
@@ -4922,7 +4780,6 @@ void pHeartBlood(PANEL_SPRITEp);
 
 #define HEART_BLOOD_RATE 10
 
-#if 1
 PANEL_STATE ps_HeartBlood[] =
 {
     {ID_HeartBlood0, HEART_BLOOD_RATE, pHeartBlood, &ps_HeartBlood[1], 0,0,0},
@@ -4946,15 +4803,6 @@ PANEL_STATE ps_HeartBloodSmall[] =
     {ID_HeartBlood5, HEART_BLOOD_SMALL_RATE, pHeartBlood, &ps_HeartBlood[6], 0,0,0},
     {ID_HeartBlood5, HEART_BLOOD_SMALL_RATE, pSuicide, &ps_HeartBlood[6], 0,0,0},
 };
-#else
-PANEL_STATE ps_HeartBlood[] =
-{
-    {ID_HeartBlood0, HEART_BLOOD_RATE, pHeartBlood, &ps_HeartBlood[1], 0,0,0},
-    {ID_HeartBlood1, HEART_BLOOD_RATE, pHeartBlood, &ps_HeartBlood[2], 0,0,0},
-    {ID_HeartBlood2, HEART_BLOOD_RATE, pHeartBlood, &ps_HeartBlood[3], 0,0,0},
-    {ID_HeartBlood3, HEART_BLOOD_RATE, pHeartBlood, &ps_HeartBlood[0], 0,0,0},
-};
-#endif
 
 void
 SpawnHeartBlood(PANEL_SPRITEp psp)
@@ -5942,19 +5790,13 @@ pChopsRetract(PANEL_SPRITEp psp)
 //       100 Armor + Shadow Spell ACTIVE, BLOCK 5 secs, DUCK, ATTACK
 //
 //////////////////////////////////////////////////////////////////////////////////////////
-#if 1
+
 static short FistAngTable[] =
 {
     82,
     168,
     256+64
 };
-#else
-static short FistAngTable[] =
-{
-    256+128,
-};
-#endif
 
 short FistAng = 0;
 
@@ -6061,22 +5903,6 @@ PANEL_STATE ps_Fist2Hide[] =
     {ID_Fist2Present0, Fist_BEAT_RATE, pFistHide, &ps_Fist2Hide[0], 0,0,0}
 };
 
-#if 0
-PANEL_STATE ps_PresentFist3[] =
-{
-    {ID_Fist3Present0, Fist_BEAT_RATE, pFistPresent, &ps_PresentFist3[0]}
-};
-
-PANEL_STATE ps_Fist3Rest[] =
-{
-    {ID_Fist3Present0, Fist_BEAT_RATE, pFistRest, &ps_Fist3Rest[0]}
-};
-
-PANEL_STATE ps_Fist3Hide[] =
-{
-    {ID_Fist3Present0, Fist_BEAT_RATE, pFistHide, &ps_Fist3Hide[0]}
-};
-#endif
 
 #define FIST_PAUSE_TICS 6
 #define FIST_SLIDE_TICS 6
@@ -6342,26 +6168,9 @@ pFistSlideDown(PANEL_SPRITEp psp)
                 }
                 else
                 {
-                    //if (RANDOM_RANGE(1000) > 300)
-                    //    {
                     pSetState(psp, ps_FistSwing+(psp->State - psp->ActionState)+1);
                     psp->ActionState = ps_FistSwing;
                     psp->PlayerP->WpnKungFuMove = 0;
-                    //pStatePlusOne(psp);
-                    //    }else
-                    //    {
-                    //if (RANDOM_RANGE(1000) > 400)
-                    //    {
-                    //    pSetState(psp, ps_Fist3Swing+(psp->State - psp->ActionState)+1);
-                    //    psp->ActionState = ps_Fist3Swing;
-                    //    psp->PlayerP->WpnKungFuMove = 1;
-                    //    } else
-                    //    {
-                    //    pSetState(psp, ps_Kick+(psp->State - psp->ActionState)+1);
-                    //    psp->ActionState = ps_Kick;
-                    //    psp->PlayerP->WpnKungFuMove = 2;
-                    //    }
-                    //    }
                 }
 
                 psp->x = FISTR_XOFF+100;
@@ -6451,15 +6260,8 @@ pFistSlideDownR(PANEL_SPRITEp psp)
 
                 if (RANDOM_RANGE(1000) > 500)
                 {
-                    //if(RANDOM_RANGE(1000) > 300)
-                    //    {
                     psp->ActionState = ps_FistSwing+5;
                     psp->PlayerP->WpnKungFuMove = 0;
-                    //     } else
-                    //     {
-                    //     psp->ActionState = ps_Fist3Swing+5;
-                    //     psp->PlayerP->WpnKungFuMove = 1;
-                    //     }
                     pSetState(psp, psp->ActionState);
 
                     psp->x = FISTR_XOFF+100;
@@ -6473,24 +6275,9 @@ pFistSlideDownR(PANEL_SPRITEp psp)
                 }
                 else
                 {
-                    //if (psp->ActionState == ps_FistSwing && RANDOM_RANGE(1000) > 300)
-                    //    {
                     pSetState(psp, ps_FistSwing+(psp->State - psp->ActionState)+1);
                     psp->ActionState = ps_FistSwing;
                     psp->PlayerP->WpnKungFuMove = 0;
-                    //pStatePlusOne(psp);
-                    //    }else
-                    //if (RANDOM_RANGE(1000) > 400)
-                    //    {
-                    //    pSetState(psp, ps_Fist3Swing+(psp->State - psp->ActionState)+1);
-                    //    psp->ActionState = ps_Fist3Swing;
-                    //    psp->PlayerP->WpnKungFuMove = 1;
-                    //    } else
-                    //    {
-                    //    pSetState(psp, ps_Kick+(psp->State - psp->ActionState)+1);
-                    //    psp->ActionState = ps_Kick;
-                    //    psp->PlayerP->WpnKungFuMove = 2;
-                    //    }
                 }
 
                 psp->x = FIST_XOFF;
@@ -6578,34 +6365,8 @@ pFistRest(PANEL_SPRITEp psp)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
-#if 0
-            if (!TEST(psp->PlayerP->Flags, PF_JUMPING) && RANDOM_RANGE(1000) > 300)
-            {
-                //if (TEST_SYNC_KEY(psp->PlayerP, SK_OPERATE))
-                //    {
-                //    psp->ActionState = ps_Fist2Swing;
-                //    psp->PlayerP->WpnKungFuMove = 3;
-                //    } else
-                if (RANDOM_RANGE(1000) > 500)
-                {
-                    psp->ActionState = ps_FistSwing;
-                    psp->PlayerP->WpnKungFuMove = 0;
-                }
-                else
-                {
-                    psp->ActionState = ps_Fist3Swing;
-                    psp->PlayerP->WpnKungFuMove = 1;
-                }
-            }
-            else
-            {
-                psp->ActionState = ps_Kick;
-                psp->PlayerP->WpnKungFuMove = 2;
-            }
-#else
             psp->ActionState = ps_FistSwing;
             psp->PlayerP->WpnKungFuMove = 0;
-#endif
 
             pSetState(psp, psp->ActionState);
 

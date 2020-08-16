@@ -632,21 +632,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-#if 0
-SWBOOL
-FAF_ConnectCeiling(short sectnum)
-{
-    return sector[sectnum].ceilingpicnum == FAF_MIRROR_PIC;
-}
-
-SWBOOL
-FAF_ConnectFloor(short sectnum)
-{
-    return sector[sectnum].floorpicnum == FAF_MIRROR_PIC;
-}
-#endif
-
-
 // doesn't work for blank pics
 SWBOOL
 PicInView(short tile_num, SWBOOL reset)
@@ -691,71 +676,6 @@ SetupMirrorTiles(void)
             sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC+1;
     }
 }
-
-
-//This function is like updatesector, but it takes a z-coordinate in addition
-//   to help it get the right sector when there's overlapping.  (I may be
-//   adding this function to the engine or making the standard updatesector
-//   use z's.  Until then, use this.  )
-
-#if 0
-void
-updatesectorz(int x, int y, int z, short *sectnum)
-{
-    walltype *wal;
-    int i, j, cz, fz;
-
-    ASSERT(*sectnum >=0 && *sectnum <= MAXSECTORS);
-
-    getzsofslope(*sectnum, x, y, &cz, &fz);
-    // go ahead and check the current sector
-    if ((z >= cz) && (z <= fz))
-        if (inside(x, y, *sectnum) != 0)
-            return;
-
-    // Test the sectors immediately around your current sector
-    if ((*sectnum >= 0) && (*sectnum < numsectors))
-    {
-        wal = &wall[sector[*sectnum].wallptr];
-        j = sector[*sectnum].wallnum;
-        do
-        {
-            i = wal->nextsector;
-            if (i >= 0)
-            {
-                getzsofslope(i, x, y, &cz, &fz);
-                if ((z >= cz) && (z <= fz))
-                {
-                    if (inside(x, y, (short) i) == 1)
-                    {
-                        *sectnum = i;
-                        return;
-                    }
-                }
-            }
-            wal++;
-            j--;
-        }
-        while (j != 0);
-    }
-
-    // didn't find it yet so test ALL sectors
-    for (i = numsectors - 1; i >= 0; i--)
-    {
-        getzsofslope(i, x, y, &cz, &fz);
-        if ((z >= cz) && (z <= fz))
-        {
-            if (inside(x, y, (short) i) == 1)
-            {
-                *sectnum = i;
-                return;
-            }
-        }
-    }
-
-    *sectnum = -1;
-}
-#endif
 
 short GlobStackSect[2];
 
