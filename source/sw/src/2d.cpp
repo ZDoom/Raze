@@ -89,7 +89,7 @@ void Logo(const CompletionFunc& completion)
 		JobDesc jobs[3];
 		int job = 0;
 		jobs[job++] = { Create<DSWDRealmsScreen>() };
-		jobs[job++] = { PlayVideo("sw.anm", logosound, logoframetimes)};
+		jobs[job++] = { PlayVideo("sw.anm", logosound, logoframetimes, true)};
 		RunScreenJob(jobs, job, completion, true, true);
 	}
 	else completion(false);

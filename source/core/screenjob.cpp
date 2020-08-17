@@ -99,12 +99,13 @@ class DAnmPlayer : public DScreenJob
 	AnimTextures animtex;
 	const AnimSound* animSnd;
 	const int* frameTicks;
+	bool nostopsound;
 
 public:
 	bool isvalid() { return numframes > 0; }
 
-	DAnmPlayer(FileReader& fr, const AnimSound* ans, const int *frameticks)
-		: animSnd(ans), frameTicks(frameticks)
+	DAnmPlayer(FileReader& fr, const AnimSound* ans, const int *frameticks, bool nosoundcutoff)
+		: animSnd(ans), frameTicks(frameticks), nostopsound(nosoundcutoff)
 	{
 		buffer = fr.ReadPadded(1);
 		fr.Close();
@@ -138,7 +139,7 @@ public:
 		{
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
-			if (skiprequest) soundEngine->StopAllChannels();
+			if (skiprequest && !nostopsound) soundEngine->StopAllChannels();
 			return skiprequest? -1 : 1;
 		}
 
@@ -169,7 +170,7 @@ public:
 			}
 		}
 		curframe++;
-		if (skiprequest) soundEngine->StopAllChannels();
+		if (skiprequest && !nostopsound) soundEngine->StopAllChannels();
 		return skiprequest ? -1 : curframe < numframes? 1 : 0;
 	}
 
@@ -325,7 +326,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks)
+DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* frameticks, bool nosoundcutoff)
 {
 	auto nothing = []()->DScreenJob* { return Create<DScreenJob>(); };
 	if (!filename)
@@ -355,7 +356,7 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 
 	if (!memcmp(id, "LPF ", 4))
 	{
-		auto anm = Create<DAnmPlayer>(fr, ans, frameticks);
+		auto anm = Create<DAnmPlayer>(fr, ans, frameticks, nosoundcutoff);
 		if (!anm->isvalid())
 		{
 			Printf("%s: invalid ANM file.\n", filename);

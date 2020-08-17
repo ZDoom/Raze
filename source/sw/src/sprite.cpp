@@ -5726,7 +5726,9 @@ KeyMain:
                     // print to the console, and the user quote display.
                     FStringf msg("%s %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
                     Printf(TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
-                    adduserquote(msg.GetChars());
+                    strncpy(pp->cookieQuote, msg, 255);
+                    pp->cookieQuote[255] = 0;
+                    pp->cookieTime = totalclock + 540;
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
