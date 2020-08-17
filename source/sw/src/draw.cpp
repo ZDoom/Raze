@@ -1341,7 +1341,7 @@ void DrawCrosshair(PLAYERp pp)
     {
         int32_t a = 2326;
 
-        double crosshair_scale = cl_crosshairscale * .01;
+        double crosshair_scale = cl_crosshairscale * .02;
         if (isRR()) crosshair_scale *= .5;
 
         DrawTexture(twod, tileGetTexture(a), 160, 100, DTA_Color, shadeToLight(10),
