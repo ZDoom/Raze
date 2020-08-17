@@ -992,21 +992,6 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-static FString cookieQuote;
-static int cookieTime;
-
-void adduserquote(const char* daquote)
-{
-    cookieQuote = daquote;
-    cookieTime = totalclock + 540;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void UpdateStatusBar(ClockTicks arg)
 {
     DSWStatusBar sbar;
@@ -1017,10 +1002,11 @@ void UpdateStatusBar(ClockTicks arg)
     }
 
     sbar.UpdateStatusBar(arg);
-    if (totalclock < cookieTime)
+    PLAYERp pp = &Player[screenpeek];
+    if (totalclock < pp->cookieTime)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164
-        MNU_DrawSmallString(160, MESSAGE_LINE, cookieQuote, 0, 0, 0, clamp((cookieTime - totalclock) / 60., 0., 1.));
+        MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp((pp->cookieTime - totalclock) / 60., 0., 1.));
     }
 }
 

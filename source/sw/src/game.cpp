@@ -625,6 +625,8 @@ void TerminateLevel(void)
         // Free panel sprites for players
         pClearSpriteList(pp);
 
+        pp->cookieTime = 0;
+        memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = NULL;
 
         pp->SpriteP = NULL;
