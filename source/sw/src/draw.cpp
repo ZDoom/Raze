@@ -1831,20 +1831,18 @@ drawscreen(PLAYERp pp)
         tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
     }
 
-    if (r_usenewaspect)
-    {
-        newaspect_enable = 1;
-        videoSetCorrectedAspect();
-    }
-
-    renderSetAspect(Blrintf(float(viewingrange) * tanf(r_fov * (fPI/360.f))), yxaspect);
-
     if (dimensionmode != 6)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 1;
+        videoSetCorrectedAspect();
+    }
+    renderSetAspect(Blrintf(float(viewingrange)* tanf(r_fov* (fPI / 360.f))), yxaspect);
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;
