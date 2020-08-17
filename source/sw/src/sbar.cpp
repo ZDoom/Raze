@@ -559,8 +559,6 @@ private:
 
         // put pic
         if (pp->InventoryAmount[pp->InventoryNum])
-
-        if (pp->InventoryAmount[pp->InventoryNum])
         {
             PlayerUpdateInventoryPic(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
             // Auto/On/Off
