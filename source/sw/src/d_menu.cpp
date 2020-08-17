@@ -145,6 +145,15 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	}
 }
 
+void GameInterface::QuitToTitle()
+{
+	TerminateLevel();
+	currentLevel = nullptr;
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_Mainmenu);
+	gamestate = GS_MENUSCREEN;
+}
+
 
 void GameInterface::MenuOpened()
 {
