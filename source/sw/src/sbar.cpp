@@ -667,7 +667,8 @@ private:
         DrawGraphic(tileGetTexture(STATUS_BAR), 0, 200, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
         DisplayPanelNumber(PANEL_HEALTH_BOX_X + PANEL_HEALTH_XOFF, PANEL_BOX_Y + PANEL_HEALTH_YOFF, u->Health);
         DisplayPanelNumber(PANEL_ARMOR_BOX_X + PANEL_ARMOR_XOFF, PANEL_BOX_Y + PANEL_ARMOR_YOFF, pp->Armor);
-        DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp->WpnAmmo[u->WeaponNum]);
+        if (u->WeaponNum != WPN_FIST && u->WeaponNum != WPN_SWORD)
+            DisplayPanelNumber(PANEL_AMMO_BOX_X + PANEL_AMMO_XOFF, PANEL_BOX_Y + PANEL_AMMO_YOFF, pp->WpnAmmo[u->WeaponNum]);
         PlayerUpdateWeaponSummaryAll(pp);
         if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
             DisplayKeys(pp, PANEL_KEYS_BOX_X, PANEL_BOX_Y);
