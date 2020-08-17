@@ -387,10 +387,11 @@ private:
         {
             nextclock += synctics;
 
-            if (State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
+            if (skiprequest && State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
             {
                 State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
                 Tics = 0;
+                skiprequest = false;
             }
             gStateControl(&State, &Tics);
         }
@@ -422,7 +423,7 @@ private:
         }
 
         // always read secrets and kills from the first player
-        ds.Format("%s:  %d / %d", GStrings("SECRETS"), Player->SecretsFound, LevelSecrets);
+        ds.Format("%s:  %d / %d", GStrings("TXT_SECRETS"), Player->SecretsFound, LevelSecrets);
         MNU_DrawString(60, BONUS_LINE(line++), ds, 1, 16);
 
         ds.Format("%s:  %d / %d", GStrings("KILLS"), Player->Kills, TotalKillable);
@@ -430,7 +431,7 @@ private:
 
         MNU_DrawString(160, 185, GStrings("PRESSKEY"), 1, 19, 0);
 
-        int ret = skiprequest ? -1 : 1;
+        int ret = (State == State->NextState)? 0 : skiprequest ? -1 : 1;
         if (ret != 1) StopSound();
         return ret;
     }
