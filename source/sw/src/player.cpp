@@ -6718,6 +6718,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             ExitLevel = TRUE;
+            NewGame = true;
+            NextLevel = currentLevel;
+
         }
 
         DoPlayerFireOutDeath(pp);
