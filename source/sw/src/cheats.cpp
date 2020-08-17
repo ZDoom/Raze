@@ -100,7 +100,7 @@ bool MapCheat(cheatseq_t* c)
     if (!(pp=checkCheat(c))) return false;
     mapcheat = !mapcheat;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(mapcheat ? "TXT_AMON" : "TXT_AMOFF"));
+    PutStringInfo(pp, GStrings(mapcheat ? "TXTS_AMON" : "TXTS_AMOFF"));
     return true;
 }
 
@@ -355,7 +355,7 @@ bool KeyCheat(cheatseq_t* c)
     PLAYERp p;
     short pnum;
     const char *cp = (char*)c->Args;
-	const char *str = "TXT_GIVEKEY";
+	const char *str = "TXTS_GIVEKEY";
     int keynum = 0;
 
     keynum = atol(cp);
@@ -368,12 +368,12 @@ bool KeyCheat(cheatseq_t* c)
            if (p->HasKey[keynum-1] == FALSE)
            {
               p->HasKey[keynum-1] = TRUE; // cards: 0=red 1=blue 2=green 3=yellow | keys: 4=gold 5=silver 6=bronze 7=red
-              str = "TXT_KEYGIVEN";
+              str = "TXTS_KEYGIVEN";
            }
            else
            {
               p->HasKey[keynum-1] = FALSE;
-              str = "TXT_KEYREMOVED";
+              str = "TXTS_KEYREMOVED";
            }
         }
     }
@@ -388,7 +388,7 @@ bool KeysCheat(cheatseq_t* c)
     // Get KEYS
     PLAYERp p;
     short pnum;
-    const char* str = "TXT_GIVEKEY";
+    const char* str = "TXTS_GIVEKEY";
     int keynum = 0;
 
     TRAVERSE_CONNECT(pnum)
