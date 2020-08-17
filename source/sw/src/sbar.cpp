@@ -425,7 +425,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void DisplayKeys(PLAYERp pp, double xs, double ys)
+    void DisplayKeys(PLAYERp pp, double xs, double ys, double scalex = 1, double scaley = 1)
     {
         double x, y;
         int row, col;
@@ -456,7 +456,7 @@ private:
                 {
                     x = xs + PANEL_KEYS_XOFF + (row * xsize);
                     y = ys + PANEL_KEYS_YOFF + (col * ysize);
-                    DrawGraphic(tileGetTexture(StatusKeyPics[i]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+                    DrawGraphic(tileGetTexture(StatusKeyPics[i]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, scalex, scaley);
                 }
                 i++;
             }
@@ -472,7 +472,7 @@ private:
                 {
                     x = xs + PANEL_KEYS_XOFF + (row * xsize);
                     y = ys + PANEL_KEYS_YOFF + (col * ysize);
-                    DrawGraphic(tileGetTexture(StatusKeyPics[i + 4]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+                    DrawGraphic(tileGetTexture(StatusKeyPics[i + 4]), x, y, DI_ITEM_LEFT_TOP, 1, -1, -1, scalex, scaley);
                 }
                 i++;
             }
@@ -759,14 +759,14 @@ private:
         auto pp = Player + screenpeek;
         USERp u = User[pp->PlayerSprite];
 
-        double imgScale = (numberFont.mFont->GetHeight()) * 0.9;
+        double imgScale = numberFont.mFont->GetHeight() * 0.9375;
 
         //
         // Health
         //
         auto imgHealth = tileGetTexture(ICON_SM_MEDKIT);
         auto healthScale = imgScale / imgHealth->GetDisplayHeight();
-        DrawGraphic(imgHealth, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
+        DrawGraphic(imgHealth, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
 
         FString format;
         if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || ((int)totalclock & 32))
@@ -777,7 +777,7 @@ private:
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
-            SBar_DrawString(this, &numberFont, format, 25, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            SBar_DrawString(this, &numberFont, format, 24.25, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
 
         //
@@ -785,10 +785,10 @@ private:
         //
         auto imgArmor = tileGetTexture(ICON_ARMOR);
         auto armorScale = imgScale / imgArmor->GetDisplayHeight();
-        DrawGraphic(imgArmor, 77.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
+        DrawGraphic(imgArmor, 80.75, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
 
         format.Format("%d", pp->Armor);
-        SBar_DrawString(this, &numberFont, format, 95, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        SBar_DrawString(this, &numberFont, format, 108.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
         //
         // Weapon
@@ -804,32 +804,35 @@ private:
             if (wicon > 0)
             {
 				format.Format("%d", pp->WpnAmmo[weapon]);
-				SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+				SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
                 auto imgWeap = tileGetTexture(wicon);
                 auto weapScale = imgScale / imgWeap->GetDisplayHeight();
-                auto imgX = 20.;
+                auto imgX = 21.125;
                 auto strlen = format.Len();
                 if (strlen > 1)
                 {
                     auto scaler = strlen - 1;
-                    imgX += ((imgX / 2.) * scaler) + ((imgX / (10.)) * scaler);
+                    imgX += ((imgX / 2.) * scaler) + ((imgX / 2.85) * scaler);
                 }
-                DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+                DrawGraphic(imgWeap, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
             }
         }
 
         //
         // Selected inventory item
         //
+        int x = 165;
+        auto imgInv = tileGetTexture(icons[pp->InventoryNum]);
+        auto invScale = imgScale / imgInv->GetDisplayHeight();
+        DrawGraphic(imgInv, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, invScale, invScale);
 
-        PlayerUpdateInventoryPic(pp, 148, -21.5, 1, 1);
-        PlayerUpdateInventoryState(pp, 148, -21.5, 1, 1);
-        PlayerUpdateInventoryPercent(pp, 148, -21.5, 1, 1);
+        PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
+        PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
 
         //
         // keys
         //
-        DisplayKeys(pp, -80, -20);
+        DisplayKeys(pp, -105, -18, 0.8625, 0.8625);
     }
 
 
