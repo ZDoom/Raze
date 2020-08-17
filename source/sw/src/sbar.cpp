@@ -832,6 +832,7 @@ private:
         // keys
         //
         DisplayKeys(pp, -105, -18, 0.8625, 0.8625);
+        PrintLevelStats(int(imgScale + 4));
     }
 
 
