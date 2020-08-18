@@ -643,7 +643,8 @@ void ProcessFrame(void)
                     M_SetMenu(NAME_CreditsMenu);
 					gGameOptions.uGameFlags &= ~3;
 					gQuitGame = 1;
-				};
+                    gRestartGame = true;
+                };
 				
                 if (gGameOptions.uGameFlags&8)
 				{
@@ -904,7 +905,8 @@ static void commonTicker(bool &playvideo)
             playvideo = !bQuickStart;
         }
         else playvideo = false;
-        gamestate = GS_STARTUP;
+        // Don't switch to startup if we're already outside the game.
+        if (gamestate == GS_LEVEL) gamestate = GS_STARTUP;
     }
 }
 
