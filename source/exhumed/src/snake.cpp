@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "ps_input.h"
 #include "sound.h"
-#include "trigdat.h"
 #include <string.h>
 #include <assert.h>
 

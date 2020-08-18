@@ -22,7 +22,6 @@ set( PCH_SOURCES
 	src/move.cpp
 	src/movie.cpp
 	src/mummy.cpp
-	src/network.cpp
 	src/object.cpp
 	src/osdcmds.cpp
 	src/player.cpp

@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __menu_h__
 
 #include "player.h"
-#include "typedefs.h"
 #include <stdio.h>
 
 BEGIN_PS_NS

@@ -24,21 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "player.h"
 #include "aistuff.h"
-#include "light.h"
-#include "init.h"
 #include "menu.h"
-#include "cd.h"
-#include "typedefs.h"
-#include "map.h"
 #include "sound.h"
-#include "trigdat.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
 #include <string.h>
 
 BEGIN_PS_NS
 
-short bSubTitles = kTrue;
+short bSubTitles = true;
 
 int zbob;
 
@@ -57,12 +51,12 @@ short nChunkTotal = 0;
 fix16_t nCameraa;
 fix16_t nCamerapan;
 short nViewTop;
-short bClip = kFalse;
+short bClip = false;
 short nViewBottom;
 short nViewRight;
 short besttarget;
 short nViewLeft;
-short bCamera = kFalse;
+short bCamera = false;
 
 short nViewy;
 
@@ -605,7 +599,7 @@ void NoClip()
 {
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    bClip = kFalse;
+    bClip = false;
 }
 
 void Clip()
@@ -615,7 +609,7 @@ void Clip()
         MaskStatus();
     }
 
-    bClip = kTrue;
+    bClip = true;
 }
 
 

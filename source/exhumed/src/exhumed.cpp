@@ -18,31 +18,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "baselayer.h"
-#include "typedefs.h"
 #include "common.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "osdcmds.h"
-#include "map.h"
 #include "sequence.h"
-#include "movie.h"
 #include "names.h"
 #include "menu.h"
 #include "player.h"
-#include "network.h"
 #include "ps_input.h"
 #include "sound.h"
-#include "cd.h"
 #include "view.h"
 #include "status.h"
-#include "init.h"
 #include "version.h"
-#include "light.h"
 #include "aistuff.h"
-#include "network.h"
-#include "random.h"
-#include "trigdat.h"
-#include "record.h"
 #include "mapinfo.h"
 #include <string.h>
 #include <cstdio> // for printf
@@ -66,6 +54,7 @@ BEGIN_PS_NS
 
 void FinishLevel();
 void uploadCinemaPalettes();
+int32_t registerosdcommands(void);
 
 int htimer = 0;
 
@@ -600,7 +589,7 @@ void InstallEngine()
 
     //nScreenWidth *= 2;
     //nScreenHeight *= 2;
-    bHiRes = kTrue;
+    bHiRes = true;
     // TEMP
 
     if (engineInit())
@@ -696,7 +685,7 @@ short nButtonColor;
 short nEnergyChan;
 
 
-short bModemPlay = kFalse;
+short bModemPlay = false;
 int lCountDown = 0;
 short nEnergyTowers = 0;
 
@@ -712,8 +701,8 @@ short forcelevel = -1;
 int lLocalButtons = 0;
 int lLocalCodes = 0;
 
-short bHiRes = kFalse;
-short bCoordinates = kFalse;
+short bHiRes = false;
+short bCoordinates = false;
 
 int nNetTime = -1;
 
@@ -737,7 +726,7 @@ short textpages;
 short lastfps;
 
 short nMapMode = 0;
-short bNoCreatures = kFalse;
+short bNoCreatures = false;
 
 short nTotalPlayers = 1;
 // TODO: Rename this (or make it static) so it doesn't conflict with library function
@@ -749,13 +738,13 @@ short nPasswordCount = 0;
 
 short screensize;
 
-short bSnakeCam = kFalse;
-short bRecord = kFalse;
-short bPlayback = kFalse;
-short bInDemo = kFalse;
-short bSlipMode = kFalse;
-short bDoFlashes = kTrue;
-short bHolly = kFalse;
+short bSnakeCam = false;
+short bRecord = false;
+short bPlayback = false;
+short bInDemo = false;
+short bSlipMode = false;
+short bDoFlashes = true;
+short bHolly = false;
 
 short nItemTextIndex;
 
@@ -784,7 +773,6 @@ void ShutDown(void)
     StopCD();
 
     RemoveEngine();
-    UnInitNet();
     //UnInitFX();
 }
 
@@ -867,7 +855,7 @@ void DoPassword(int nPassword)
         case 0:
         {
             if (!nNetPlayerCount) {
-                bHolly = kTrue;
+                bHolly = true;
             }
             break;
         }
@@ -891,12 +879,12 @@ void DoPassword(int nPassword)
 
         case 4: // LOBOLITE
         {
-            if (bDoFlashes == kFalse)
+            if (bDoFlashes == false)
             {
-                bDoFlashes = kTrue;
+                bDoFlashes = true;
             }
             else {
-                bDoFlashes = kFalse;
+                bDoFlashes = false;
             }
             break;
         }
@@ -911,13 +899,13 @@ void DoPassword(int nPassword)
         {
             if (!nNetPlayerCount)
             {
-                if (bSlipMode == kFalse)
+                if (bSlipMode == false)
                 {
-                    bSlipMode = kTrue;
+                    bSlipMode = true;
                     StatusMessage(300, "Slip mode ON");
                 }
                 else {
-                    bSlipMode = kFalse;
+                    bSlipMode = false;
                     StatusMessage(300, "Slip mode OFF");
                 }
             }
@@ -928,14 +916,14 @@ void DoPassword(int nPassword)
         {
             if (!nNetPlayerCount)
             {
-                if (bSnakeCam == kFalse)
+                if (bSnakeCam == false)
                 {
-                    bSnakeCam = kTrue;
+                    bSnakeCam = true;
                     StatusMessage(750, "SNAKE CAM ENABLED");
                 }
                 else
                 {
-                    bSnakeCam = kFalse;
+                    bSnakeCam = false;
                     StatusMessage(750, "SNAKE CAM DISABLED");
                 }
             }
@@ -945,7 +933,7 @@ void DoPassword(int nPassword)
         case 8: // LOBOSPHERE
         {
             GrabMap();
-            bShowTowers = kTrue;
+            bShowTowers = true;
             break;
         }
 
@@ -957,11 +945,11 @@ void DoPassword(int nPassword)
 
         case 10: // LOBOXY
         {
-            if (bCoordinates == kFalse) {
-                bCoordinates = kTrue;
+            if (bCoordinates == false) {
+                bCoordinates = true;
             }
             else {
-                bCoordinates = kFalse;
+                bCoordinates = false;
             }
             break;
         }
@@ -1004,10 +992,10 @@ void CheckKeys()
         if (!nFreeze)
         {
             if (bCamera) {
-                bCamera = kFalse;
+                bCamera = false;
             }
             else {
-                bCamera = kTrue;
+                bCamera = true;
             }
 
             if (bCamera)
@@ -1082,7 +1070,7 @@ void CheckKeys()
                             {
                                 // TODO - enums?
                                 case 0:
-                                    BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, kFalse);
+                                    BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, false);
                                     break;
                                 case 1:
                                     BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
@@ -1132,7 +1120,7 @@ void CheckKeys()
                     {
                         if (nStringLen == 0)
                         {
-                            bHolly = kFalse;
+                            bHolly = false;
                             StatusMessage(1, " ");
                         }
                         else
@@ -1294,7 +1282,7 @@ void FinishLevel()
 
     StopAllSounds();
 
-    bCamera = kFalse;
+    bCamera = false;
     nMapMode = 0;
 
     if (levelnum != kMap20)
@@ -1357,14 +1345,14 @@ uint8_t ReadPlaybackInputs()
 
         besttarget = sPlayerInput[nLocalPlayer].nTarget;
         Ra[nLocalPlayer].nTarget = besttarget;
-        return kTrue;
+        return true;
     }
     else
     {
         fclose(vcrfp);
         vcrfp = NULL;
-        bPlayback = kFalse;
-        return kFalse;
+        bPlayback = false;
+        return false;
     }
 }
 
@@ -1372,7 +1360,7 @@ void SetHiRes()
 {
     //nScreenWidth  = 640;
     //nScreenHeight = 400;
-    bHiRes = kTrue;
+    bHiRes = true;
 }
 
 void DoClockBeep()
@@ -1619,12 +1607,6 @@ void ExitGame()
         fclose(vcrfp);
     }
 
-    {
-        if (nNetPlayerCount != 0) {
-            SendGoodbye();
-        }
-    }
-
     ShutDown();
     throw CExitEvent(0);
 }
@@ -1644,7 +1626,7 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 			//strlwr(pChar);
 
 			if (Bstrcasecmp(pChar, "nocreatures") == 0) {
-				bNoCreatures = kTrue;
+				bNoCreatures = true;
             }
             else if (Bstrcasecmp(pChar, "record") == 0)
             {
@@ -1652,7 +1634,7 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
                 {
                     vcrfp = fopen("data.vcr", "wb+");
                     if (vcrfp != NULL) {
-                        bRecord = kTrue;
+                        bRecord = true;
                     }
                     else {
                         DebugOut("Can't open data file for recording\n");
@@ -1665,8 +1647,8 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
                 {
                     vcrfp = fopen("data.vcr", "rb");
                     if (vcrfp != NULL) {
-                        bPlayback = kTrue;
-                        doTitle = kFalse;
+                        bPlayback = true;
+                        doTitle = false;
                     }
                     else {
                         DebugOut("Can't open data file 'data.vcr' for reading\n");
@@ -1677,9 +1659,9 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
             {
                 nNetPlayerCount = -1;
                 forcelevel = levelnew;
-                bModemPlay = kFalse;
+                bModemPlay = false;
 
-                doTitle = kFalse;
+                doTitle = false;
             }
             else
             {
@@ -1715,7 +1697,7 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
                             levelnew = atoi(pChar);
                             forcelevel = levelnew;
 
-                            doTitle = kFalse;
+                            doTitle = false;
 
                             Printf("Jumping to level %d...\n", levelnew);
                         }
@@ -1798,8 +1780,8 @@ int GameInterface::app_main()
     int i;
     //int esi = 1;
     //int edi = esi;
-    int doTitle = kTrue; // REVERT kTrue;
-    int stopTitle = kFalse;
+    int doTitle = true; // REVERT true;
+    int stopTitle = false;
     levelnew = 1;
 
     buttonMap.SetButtons(actions, NUM_ACTIONS);
@@ -1818,8 +1800,8 @@ int GameInterface::app_main()
         mi->cdSongId = (nTrack % 8) + 11;
     }
 
-    // REVERT - change back to kTrue
-//	short bDoTitle = kFalse;
+    // REVERT - change back to true
+//	short bDoTitle = false;
 
     wConsoleNode = 0;
 
@@ -1891,7 +1873,6 @@ int GameInterface::app_main()
     enginePostInit();
 
     InitView();
-    myloadconfig();
     InitFX();
     seq_LoadSequences();
     InitStatus();
@@ -1917,7 +1898,7 @@ int GameInterface::app_main()
         while (!stopTitle)
         {
             DoTitle();
-            stopTitle = kTrue;
+            stopTitle = true;
         }
     }
     // loc_11811:
@@ -1952,8 +1933,8 @@ MENU:
         }
 
         InitRandom();
-        bInDemo = kTrue;
-        bPlayback = kTrue;
+        bInDemo = true;
+        bPlayback = true;
 
         inputState.ClearAllInput();
         break;
@@ -1966,7 +1947,7 @@ STARTGAME1:
     }
 STARTGAME2:
 
-    bCamera = kFalse;
+    bCamera = false;
     ClearCinemaSeen();
     PlayerCount = 0;
     lastlevel = -1;
@@ -2095,7 +2076,7 @@ LOOP3:
     GrabPalette();
     ResetMoveFifo();
     moveframes = 0;
-    bInMove = kFalse;
+    bInMove = false;
     tclocks = totalclock;
     nPlayerDAng = 0;
     lPlayerXVel = 0;
@@ -2135,7 +2116,7 @@ GAMELOOP:
 
         if (bRecord || bPlayback)
         {
-            bInMove = kTrue;
+            bInMove = true;
 
             moveframes = ((int)totalclock - (int)tclocks2) / 4;
 
@@ -2152,8 +2133,8 @@ GAMELOOP:
                 {
                     inputState.ClearAllInput();
 
-                    bPlayback = kFalse;
-                    bInDemo = kFalse;
+                    bPlayback = false;
+                    bInDemo = false;
 
                     if (vcrfp) {
                         fclose(vcrfp);
@@ -2225,7 +2206,7 @@ GAMELOOP:
                 // }
             }
 
-            bInMove = kFalse;
+            bInMove = false;
 
             // END YELLOW SECTION
 
@@ -2243,7 +2224,7 @@ GAMELOOP:
         }
         else
         {
-            bInMove = kTrue;
+            bInMove = true;
 
             if (paused)
             {
@@ -2292,7 +2273,7 @@ GAMELOOP:
                     }
                 }
             }
-            bInMove = kFalse;
+            bInMove = false;
 
             PlayerInterruptKeys();
 
@@ -2308,7 +2289,7 @@ GAMELOOP:
             {
                 MenuExitCondition = -2;
 // MENU2:
-                bInMove = kTrue;
+                bInMove = true;
 
                 switch (nMenu)
                 {
@@ -2332,7 +2313,7 @@ GAMELOOP:
                 }
 
                 totalclock = ototalclock = tclocks;
-                bInMove = kFalse;
+                bInMove = false;
                 RefreshStatus();
             }
             else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)

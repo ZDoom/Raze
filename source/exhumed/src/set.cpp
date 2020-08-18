@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "random.h"
-#include "trigdat.h"
 #include <assert.h>
 
 BEGIN_PS_NS

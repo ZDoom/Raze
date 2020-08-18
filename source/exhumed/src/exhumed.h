@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_buttons.h"
 #include <algorithm>
 #include "tarray.h"
-#include "save.h"
 #include "zstring.h"
 #include "filesystem.h"
 
@@ -329,6 +328,26 @@ extern char g_modDir[BMAX_PATH];
 extern int loaddefinitions_game(const char* fn, int32_t preload);
 void G_LoadGroupsInDir(const char* dirname);
 void G_DoAutoload(const char* dirname);
+
+// savegame.
+
+int savegame(int nSlot);
+int loadgame(int nSlot);
+
+
+struct SavegameHelper
+{
+    FString Name;
+    TArray<std::pair<void*, size_t>> Elements;
+    SavegameHelper(const char* name, ...);
+    void Load();
+    void Save();
+};
+
+#define SV(v) &v, sizeof(v)
+#define SA(a) &a, sizeof(a)
+
+
 
 struct GameInterface : ::GameInterface
 {

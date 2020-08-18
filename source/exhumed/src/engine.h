@@ -22,16 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "typedefs.h"
-#include "trigdat.h"
 
 BEGIN_PS_NS
 
-#define kMaxTiles	6144
 #define kMaxSprites 4096
 #define kMaxSectors 1024
 #define kMaxWalls   8192
-#define kMaxTiles   6144
 #define kMaxVoxels	4096
 
 enum
@@ -39,11 +35,122 @@ enum
 	kStatIgnited = 404
 };
 
-#define kMaxSpritesOnscreen		1024
 
 #define kMaxPalookups 256
 #define kMaxStatus   1024
 //#define MAXPSKYTILES 256
+
+
+int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
+void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum, int basepal = 0);
+void precache();
+void resettiming();
+void printext(int x, int y, const char* buffer, short tilenum, char invisiblecol);
+
+// cd
+
+bool playCDtrack(int nTrack, bool bLoop);
+void StartfadeCDaudio();
+int StepFadeCDaudio();
+bool CDplaying();
+void StopCD();
+
+// init
+#define kMap20	20
+
+enum {
+    kSectUnderwater = 0x2000,
+    kSectLava = 0x4000,
+};
+
+extern ClockTicks ototalclock;
+
+extern int initx;
+extern int inity;
+extern int initz;
+extern short inita;
+extern short initsect;
+
+extern short nCurChunkNum;
+extern short nBodyGunSprite[50];
+extern int movefifoend;
+extern int movefifopos;
+extern short nCurBodyGunNum;
+
+void SnapSectors(short nSectorA, short nSectorB, short b);
+
+extern short SectSound[];
+extern short SectDamage[];
+extern short SectSpeed[];
+extern int SectBelow[];
+extern short SectFlag[];
+extern int SectDepth[];
+extern short SectSoundSect[];
+extern int SectAbove[];
+
+uint8_t LoadLevel(int nMap);
+void LoadObjects();
+
+// light
+
+int LoadPaletteLookups();
+void WaitVBL();
+void SetGreenPal();
+void RestoreGreenPal();
+void FixPalette();
+void FadeToWhite();
+int HavePLURemap();
+uint8_t RemapPLU(uint8_t pal);
+
+//extern unsigned char kenpal[];
+extern short overscanindex;
+
+extern char *origpalookup[];
+
+extern short nPalDiff;
+
+// map
+
+extern short bShowTowers;
+extern int ldMapZoom;
+extern int lMapZoom;
+
+void InitMap();
+void GrabMap();
+void UpdateMap();
+void DrawMap();
+
+// movie
+
+void PlayMovie(const char *fileName);
+
+// network
+
+extern short nNetMoveFrames;
+
+// random
+
+void InitRandom();
+int RandomBit();
+char RandomByte();
+uint16_t RandomWord();
+int RandomLong();
+int RandomSize(int nSize);
+
+// record
+
+extern short record_mode;
+
+// save
+
+// trigdat
+
+#define kAngleMask	0x7FF
+
+int GetMyAngle(int x, int y);
+
+int AngleDiff(short a, short b);
+int AngleDelta(int a, int b, int c);
 
 inline int Sin(int angle)
 {
@@ -54,12 +161,6 @@ inline int Cos(int angle)
 {
     return sintable[(angle + 512) & kAngleMask];
 }
-
-int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, unsigned int clipmask);
-void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum, int basepal = 0);
-void precache();
-void resettiming();
-void printext(int x, int y, const char* buffer, short tilenum, char invisiblecol);
 
 END_PS_NS
 

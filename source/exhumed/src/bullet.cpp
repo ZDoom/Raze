@@ -21,10 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "init.h"
 #include "player.h"
-#include "trigdat.h"
-#include "random.h"
 #include "names.h"
 #include <string.h>
 #include <assert.h>
@@ -439,7 +436,7 @@ HITSPRITE:
                 short nPlayer = GetPlayerFromSprite(hitsprite);
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
-                    PlayerList[nPlayer].bIsMummified = kTrue;
+                    PlayerList[nPlayer].bIsMummified = true;
                     SetNewWeapon(nPlayer, kWeaponMummified);
                 }
             }

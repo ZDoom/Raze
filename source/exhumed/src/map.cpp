@@ -16,10 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "typedefs.h"
 #include <string.h>
 #include "player.h"
-#include "init.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "view.h"
@@ -28,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-short bShowTowers = kFalse;
+short bShowTowers = false;
 int ldMapZoom;
 int lMapZoom;
 

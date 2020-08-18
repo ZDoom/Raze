@@ -16,11 +16,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "light.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "view.h"
-#include "cd.h"
 #include "aistuff.h"
 #include "../glbackend/glbackend.h"
 #include <stdio.h>

@@ -19,7 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 #include "exhumed.h"
-#include "typedefs.h"
 #include "aistuff.h"
 #include "player.h"
 #include "sequence.h"
@@ -28,14 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "c_bind.h"
 #include "status.h"
-#include "random.h"
 #include "sound.h"
 #include "names.h"
-#include "init.h"
 #include "ps_input.h"
 #include "view.h"
-#include "light.h"
-#include "cd.h"
 #include "raze_sound.h"
 #include "menu.h"
 #include "v_2ddrawer.h"
@@ -626,7 +621,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     int x = 0;
     int var_2C = 0;
     int nIdleSeconds = 0;
-    int bFadeDone = kFalse;
+    int bFadeDone = false;
 
     int startTime = (int)totalclock;
 
@@ -756,7 +751,7 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         videoNextPage();
         if (!bFadeDone)
         {
-            bFadeDone = kTrue;
+            bFadeDone = true;
             FadeIn();
         }
 
@@ -1227,7 +1222,7 @@ void GoToTheCinema(int nVal)
     }
 #endif
 
-    FadeOut(kFalse);
+    FadeOut(false);
     StopAllSounds();
     NoClip();
 
@@ -1299,7 +1294,7 @@ void GoToTheCinema(int nVal)
         DoCinemaText(ebx);
     }
 
-    FadeOut(kTrue);
+    FadeOut(true);
 
     overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal, currentCinemaPalette);
     videoNextPage();

@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "player.h"
-#include "network.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -129,13 +128,15 @@ void LogoffPlayer(int nPlayer)
     nNetPlayerCount--;
 }
 
+short nNetMoveFrames = 0;
+
 void UpdateInputs()
 {
     nNetMoveFrames = moveframes;
 
     if (nNetPlayerCount)
     {
-        UpdateNetInputs();
+        //UpdateNetInputs();
 
         nNetMoves++;
 

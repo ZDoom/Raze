@@ -24,16 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "sequence.h"
 #include "view.h"
-#include "random.h"
 #include "ps_input.h"
-#include "light.h"
 #include "status.h"
 #include "sound.h"
-#include "init.h"
-#include "trigdat.h"
 #include "menu.h"
-#include "cd.h"
-#include "map.h"
 #include "sound.h"
 #include "buildtiles.h"
 #include <assert.h>
@@ -278,39 +272,39 @@ void PlayerInterruptKeys()
     // Look/aim up/down functions.
     if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
     {
-        bLockPan = kFalse;
+        bLockPan = false;
         if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
             PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
         }
 
-        bPlayerPan = kTrue;
+        bPlayerPan = true;
         nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
     else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
     {
-        bLockPan = kFalse;
+        bLockPan = false;
         if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
             PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
         }
 
-        bPlayerPan = kTrue;
+        bPlayerPan = true;
         nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
     else if (buttonMap.ButtonDown(gamefunc_Center_View))
     {
-        bLockPan = kFalse;
-        bPlayerPan = kFalse;
+        bLockPan = false;
+        bPlayerPan = false;
         PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
         nDestVertPan[nLocalPlayer] = fix16_from_int(92);
     }
 
     // loc_1C048:
     if (totalvel[nLocalPlayer] > 20) {
-        bPlayerPan = kFalse;
+        bPlayerPan = false;
     }
 
     if (g_MyAimMode)
-        bLockPan = kTrue;
+        bLockPan = true;
 
     // loc_1C05E
     fix16_t ecx = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
@@ -605,7 +599,7 @@ void RestartPlayer(short nPlayer)
 
     PlayerList[nPlayer].field_2 = 0;
     PlayerList[nPlayer].nSprite = nSprite;
-    PlayerList[nPlayer].bIsMummified = kFalse;
+    PlayerList[nPlayer].bIsMummified = false;
 
     if (PlayerList[nPlayer].invincibility >= 0) {
         PlayerList[nPlayer].invincibility = 0;

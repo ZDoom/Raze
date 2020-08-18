@@ -21,9 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "init.h"
 #include "sequence.h"
-#include "random.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -317,7 +315,7 @@ void FuncGrenade(int a, int UNUSED(nDamage), int nRun)
 
                     if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
                     {
-                        PlayerList[nPlayer].bIsFiring = kFalse;
+                        PlayerList[nPlayer].bIsFiring = false;
                     }
                     else
                     {

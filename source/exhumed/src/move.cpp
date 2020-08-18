@@ -19,21 +19,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "aistuff.h"
-#include "init.h"
 #include "player.h"
 #include "view.h"
 #include "status.h"
 #include "sound.h"
-#include "trigdat.h"
-#include "random.h"
 #include <string.h>
 #include <assert.h>
-#ifndef __WATCOMC__
-//#include <cmath>
-#else
-#include <stdlib.h>
-//#include <math.h>
-#endif
+
 
 BEGIN_PS_NS
 
@@ -312,7 +304,7 @@ int BelowNear(short nSprite)
         overridesect = nSector;
         sprite[nSprite].zvel = 0;
 
-        bTouchFloor = kTrue;
+        bTouchFloor = true;
 
         return var_24;
     }
@@ -402,7 +394,7 @@ int movespritez(short nSprite, int z, int height, int UNUSED(flordist), int clip
     {
         if (z > 0)
         {
-            bTouchFloor = kTrue;
+            bTouchFloor = true;
 
             if ((lohit & 0xC000) == 0xC000)
             {
@@ -503,7 +495,7 @@ int GetSpriteHeight(int nSprite)
 int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
-    bTouchFloor = kFalse;
+    bTouchFloor = false;
 
     int x = pSprite->x;
     int y = pSprite->y;

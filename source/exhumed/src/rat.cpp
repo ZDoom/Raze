@@ -19,9 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "engine.h"
 #include "sequence.h"
-#include "random.h"
 #include "view.h"
-#include "init.h"
 #include "exhumed.h"
 #include <assert.h>
 

@@ -17,18 +17,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "compat.h"
-#include "init.h"
 #include "aistuff.h"
 #include "player.h"
 #include "view.h"
 #include "engine.h"
 #include "sound.h"
 #include "exhumed.h"
-#include "light.h"
-#include "map.h"
 #include "menu.h"
 #include "ps_input.h"
-#include "util.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
 #include "v_video.h"
@@ -65,7 +61,7 @@ short SectSpeed[kMaxSectors]     = { 0 };
 int   SectBelow[kMaxSectors]     = { 0 };
 
 
-uint8_t bIsVersion6 = kTrue;
+uint8_t bIsVersion6 = true;
 
 
 
@@ -131,7 +127,7 @@ uint8_t LoadLevel(int nMap)
     }
 
     if (nMap < 0) {
-        return kFalse;
+        return false;
     }
 
     vec3_t startPos;
@@ -168,7 +164,7 @@ uint8_t LoadLevel(int nMap)
 
     levelnum = nMap;
 
-    return kTrue;
+    return true;
 }
 
 void SetBelow(short nCurSector, short nBelowSector)
@@ -856,16 +852,6 @@ void LoadObjects()
     nCameraz = initz;
 }
 
-int myloadconfig()
-{
-
-    return 1;
-}
-
-int mysaveconfig()
-{
-    return 1;
-}
 
 static SavegameHelper sgh("init",
     SV(initx),

@@ -18,11 +18,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "aistuff.h"
 #include "engine.h"
-#include "random.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "init.h"
-#include "trigdat.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -95,9 +92,9 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
     short nWasp = nWaspCount;
     nWaspCount++;
 
-    uint8_t bEggWasp = kFalse;
+    uint8_t bEggWasp = false;
     if (nSprite == -2) {
-        bEggWasp = kTrue;
+        bEggWasp = true;
     }
 
     if (nSprite < 0)

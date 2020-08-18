@@ -16,14 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
-#include "typedefs.h"
 #include "aistuff.h"
 #include "player.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "light.h"
-#include "random.h"
 #include <string.h>
 #include <assert.h>
 
@@ -150,8 +147,8 @@ void InitLights()
     nGlowCount = 0;
     nFlowCount = 0;
     nFlashes  = 0;
-    bDoFlicks = kFalse;
-    bDoGlows  = kFalse;
+    bDoFlicks = false;
+    bDoGlows  = false;
 
     for (i = 0; i < kMaxFlashes; i++) {
         nFreeFlash[i] = i;

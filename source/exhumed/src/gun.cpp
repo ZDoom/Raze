@@ -18,17 +18,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "aistuff.h"
 #include "engine.h"
-#include "init.h"
 #include "player.h"
 #include "exhumed.h"
 #include "view.h"
 #include "status.h"
-#include "typedefs.h"
 #include "sound.h"
-#include "light.h"
 #include "ps_input.h"
-#include "util.h"
-#include "trigdat.h"
 #include <string.h>
 #include <assert.h>
 #include "v_2ddrawer.h"
@@ -49,17 +44,17 @@ struct Weapon
 */
 
 Weapon WeaponInfo[] = {
-    { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, kTrue },
-    { kSeqPistol,  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, kFalse },
-    { kSeqM60,     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, kFalse },
-    { kSeqFlamer,  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, kFalse },
-    { kSeqGrenade, { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, kTrue },
-    { kSeqCobra,   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, kTrue },
-    { kSeqRavolt,  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, kTrue },
-    { kSeqRothands,{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, kTrue },
-    { kSeqDead,    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse },
-    { kSeqDeadEx,  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse },
-    { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, kFalse }
+    { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, true },
+    { kSeqPistol,  { 0, 3, 2,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  1, 0, 1, false },
+    { kSeqM60,     { 0, 5, 6, 16, -1, 21,  0, 0, 0, 0, 0, 0 },  2, 0, 1, false },
+    { kSeqFlamer,  { 0, 2, 5,  5,  6,  1,  0, 0, 0, 0, 0, 0 },  3, 4, 1, false },
+    { kSeqGrenade, { 0, 2, 3,  4, -1,  1,  0, 0, 0, 0, 0, 0 },  4, 0, 1, true },
+    { kSeqCobra,   { 0, 1, 2,  2, -1,  4,  0, 0, 0, 0, 0, 0 },  5, 0, 1, true },
+    { kSeqRavolt,  { 0, 1, 2,  3, -1,  4,  0, 0, 0, 0, 0, 0 },  6, 0, 1, true },
+    { kSeqRothands,{ 0, 1, 2, -1, -1, -1,  0, 0, 0, 0, 0, 0 },  7, 0, 0, true },
+    { kSeqDead,    { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { kSeqDeadEx,  { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false },
+    { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
 };
 
 short nTemperature[kMaxPlayers];
@@ -137,9 +132,9 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     if (nWeapon == kWeaponMummified)
     {
         PlayerList[nPlayer].field_3C = PlayerList[nPlayer].nCurrentWeapon;
-        PlayerList[nPlayer].bIsFiring = kFalse;
+        PlayerList[nPlayer].bIsFiring = false;
         PlayerList[nPlayer].field_3A = 5;
-        SetPlayerMummified(nPlayer, kTrue);
+        SetPlayerMummified(nPlayer, true);
 
         PlayerList[nPlayer].field_3FOUR = 0;
     }
@@ -227,20 +222,20 @@ void SelectNewWeapon(short nPlayer)
     if (nWeapon < 0)
         nWeapon = kWeaponSword;
 
-    PlayerList[nPlayer].bIsFiring = kFalse;
+    PlayerList[nPlayer].bIsFiring = false;
 
     SetNewWeapon(nPlayer, nWeapon);
 }
 
 void StopFiringWeapon(short nPlayer)
 {
-    PlayerList[nPlayer].bIsFiring = kFalse;
+    PlayerList[nPlayer].bIsFiring = false;
 }
 
 void FireWeapon(short nPlayer)
 {
     if (!PlayerList[nPlayer].bIsFiring) {
-        PlayerList[nPlayer].bIsFiring = kTrue;
+        PlayerList[nPlayer].bIsFiring = true;
     }
 }
 
@@ -273,11 +268,11 @@ uint8_t WeaponCanFire(short nPlayer)
         short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
         if (WeaponInfo[nWeapon].d <= PlayerList[nPlayer].nAmmo[nAmmoType]) {
-            return kTrue;
+            return true;
         }
     }
 
-    return kFalse;
+    return false;
 }
 
 // UNUSED
@@ -460,7 +455,7 @@ void MoveWeapons(short nPlayer)
                             PlayerList[nPlayer].field_3A = 3;
                             PlayerList[nPlayer].field_3FOUR = 0;
 
-                            nPistolClip[nPlayer] = Min(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
+                            nPistolClip[nPlayer] = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
                             break;
                         }
                         else if (nWeapon == kWeaponGrenade)
@@ -483,7 +478,7 @@ void MoveWeapons(short nPlayer)
 
                             nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-                            SetPlayerMummified(nPlayer, kFalse);
+                            SetPlayerMummified(nPlayer, false);
                             break;
                         }
                         else

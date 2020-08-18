@@ -19,12 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "names.h"
-#include "movie.h"
-#include "light.h"
 #include <cstdio>
 #include <cstring>
 #include "baselayer.h"
-#include "typedefs.h"
 #include "c_bind.h"
 #include "sound.h"
 #include "v_2ddrawer.h"
@@ -192,7 +189,7 @@ void PlayMovie(const char* fileName)
     TArray<uint8_t> f(64000, true);
     CurFrame = f.Data();
 
-    int bDoFade = kTrue;
+    int bDoFade = true;
     int hFx = -1;
 	auto fp = fileSystem.OpenFileReader(fileName);
 	if (!fp.isOpen())

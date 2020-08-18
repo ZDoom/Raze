@@ -22,15 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "status.h"
 #include "exhumed.h"
 #include "sequence.h"
-#include "init.h"
 #include "names.h"
 #include "view.h"
-#include "trigdat.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "typedefs.h"
 
 BEGIN_PS_NS
 

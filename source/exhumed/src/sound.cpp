@@ -22,13 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "sound.h"
-#include "init.h"
 #include "aistuff.h"
 #include "player.h"
-#include "random.h"
-#include "trigdat.h"
 #include "sequence.h"
-#include "cd.h"
 #include "raze_sound.h"
 
 BEGIN_PS_NS
