@@ -99,12 +99,12 @@ constexpr inline int levelnum(int vol, int map)
 
 constexpr inline int volfromlevelnum(int num)
 {
-	return num > 0 ? num / 1000 : 0;
+	return num >= 0 ? num / 1000 : 0;
 }
 
 constexpr inline int mapfromlevelnum(int num)
 {
-	return num > 0 ? num % 1000 : -1;
+	return num >= 0 ? num % 1000 : -1;
 }
 
 
