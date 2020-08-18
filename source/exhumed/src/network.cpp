@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "typedefs.h"
 #include "network.h"
-#include "serial.h"
 #include "ps_input.h"
 
 BEGIN_PS_NS
@@ -30,7 +29,6 @@ short nNetMoveFrames = 0;
 
 void SendGoodbye()
 {
-    bSendBye = kTrue;
     UpdateInputs();
 }
 
@@ -44,11 +42,6 @@ int InitNet(short nSocket, int nPlayers)
     return 0;
 }
 */
-
-int InitSerial()
-{
-    return 1;
-}
 
 void AbortNetworkPlay()
 {

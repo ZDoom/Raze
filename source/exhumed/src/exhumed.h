@@ -228,8 +228,6 @@ extern int localclock;
 
 extern int moveframes;
 
-extern short bSerialPlay;
-
 extern int nNetPlayerCount;
 
 extern int htimer;

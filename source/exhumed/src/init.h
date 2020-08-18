@@ -56,9 +56,6 @@ extern short SectSoundSect[];
 extern int SectAbove[];
 
 uint8_t LoadLevel(int nMap);
-void InstallEngine();
-void ResetEngine();
-void RemoveEngine();
 void LoadObjects();
 
 int myloadconfig();

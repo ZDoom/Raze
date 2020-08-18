@@ -18,19 +18,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "engine.h"
 #include "exhumed.h"
-#include "snake.h"
+#include "aistuff.h"
 #include "status.h"
 #include "player.h"
-#include "runlist.h"
 #include "sequence.h"
-#include "bullet.h"
 #include "ps_input.h"
-#include "anims.h"
-#include "lighting.h"
 #include "sound.h"
-#include "move.h"
 #include "trigdat.h"
-#include "gun.h"
 #include <string.h>
 #include <assert.h>
 

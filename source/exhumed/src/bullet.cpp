@@ -17,21 +17,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "engine.h"
-#include "bullet.h"
-#include "runlist.h"
-#include "anims.h"
+#include "aistuff.h"
 #include "sequence.h"
 #include "exhumed.h"
 #include "sound.h"
 #include "init.h"
-#include "move.h"
 #include "player.h"
 #include "trigdat.h"
 #include "random.h"
-#include "gun.h"
 #include "names.h"
-#include "lighting.h"
-#include "object.h"
 #include <string.h>
 #include <assert.h>
 #ifndef __WATCOMC__

@@ -59,11 +59,6 @@ void overwritesprite(int thex, int they, short tilenum, signed char shade, char 
     picanm[tilenum].sf = animbak;
 }
 
-void permanentwritesprite(int thex, int they, short tilenum, signed char shade, int cx1, int cy1, int cx2, int cy2, char dapalnum)
-{
-    rotatesprite(thex << 16, they << 16, 65536L, 0, tilenum, shade, dapalnum, 8 + 16, cx1, cy1, cx2, cy2);
-}
-
 void resettiming()
 {
     numframes = 0L;

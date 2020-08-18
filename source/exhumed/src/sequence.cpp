@@ -23,17 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "player.h"
 #include "trigdat.h"
-#include "move.h"
+#include "aistuff.h"
 #include "view.h"
 #include "init.h"
 #include "light.h"
-#ifndef __WATCOMC__
-#include <cstring>
-#include <cstdio> // for printf
-#else
 #include <string.h>
 #include <stdio.h>
-#endif
 
 // TEMP
 #include <assert.h>

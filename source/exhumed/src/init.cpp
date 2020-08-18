@@ -18,25 +18,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "init.h"
-#include "runlist.h"
-#include "switch.h"
-#include "object.h"
 #include "aistuff.h"
 #include "player.h"
-#include "mummy.h"
-#include "move.h"
-#include "ra.h"
 #include "view.h"
-#include "runlist.h"
 #include "engine.h"
 #include "sound.h"
 #include "exhumed.h"
-#include "items.h"
 #include "light.h"
 #include "map.h"
 #include "menu.h"
-#include "lighting.h"
-#include "anims.h"
 #include "ps_input.h"
 #include "util.h"
 #include "mapinfo.h"
@@ -52,7 +42,6 @@ enum
     kTagRamses = 61,
 };
 
-void uploadCinemaPalettes();
 ClockTicks ototalclock = 0;
 
 int initx, inity, initz;
@@ -180,47 +169,6 @@ uint8_t LoadLevel(int nMap)
     levelnum = nMap;
 
     return kTrue;
-}
-
-void ResetEngine()
-{
-    EraseScreen(-1);
-
-    resettiming();
-
-    totalclock  = 0;
-    ototalclock = totalclock;
-    localclock  = (int)totalclock;
-
-    numframes = 0;
-}
-
-void InstallEngine()
-{
-    // initgroupfile("stuff.dat");
-	TileFiles.LoadArtSet("tiles%03d.art");
-
-	// TEMP
-
-    //nScreenWidth *= 2;
-    //nScreenHeight *= 2;
-    bHiRes = kTrue;
-    // TEMP
-
-    if (engineInit())
-    {
-        G_FatalEngineError();
-    }
-    uploadCinemaPalettes();
-    LoadPaletteLookups();
-    videoInit();
-
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
-}
-
-void RemoveEngine()
-{
-    engineUnInit();
 }
 
 void SetBelow(short nCurSector, short nBelowSector)
@@ -856,7 +804,6 @@ void LoadObjects()
     InitSwitch();
     InitElev();
     InitWallFace();
-    InitTimeSlot();
     InitSectFlag();
 
     for (int nSector = 0; nSector < numsectors; nSector++)

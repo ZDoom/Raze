@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "view.h"
 #include "cd.h"
-#include "lighting.h"
+#include "aistuff.h"
 #include "../glbackend/glbackend.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -180,14 +180,6 @@ void WaitTicks(int nTicks)
             WaitVBL();
         }
     }
-}
-
-// unused
-void DoFadeToRed()
-{
-    // fixme
-    videoTintBlood(-255, -255, -255);
-    videoNextPage();
 }
 
 void FadeToWhite()

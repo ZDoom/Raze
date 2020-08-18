@@ -20,7 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "player.h"
-#include "serial.h"
 #include "network.h"
 #include <string.h>
 
@@ -136,12 +135,7 @@ void UpdateInputs()
 
     if (nNetPlayerCount)
     {
-        if (bSerialPlay) {
-            UpdateSerialInputs();
-        }
-        else {
-            UpdateNetInputs();
-        }
+        UpdateNetInputs();
 
         nNetMoves++;
 

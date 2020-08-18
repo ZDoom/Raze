@@ -18,7 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ns.h"
 #include "compat.h"
 #include "baselayer.h"
-#include "baselayer.h"
 #include "typedefs.h"
 #include "common.h"
 #include "engine.h"
@@ -37,32 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "status.h"
 #include "init.h"
-#include "ra.h"
 #include "version.h"
-#include "timer.h"
-#include "runlist.h"
-#include "anubis.h"
-#include "spider.h"
-#include "mummy.h"
-#include "fish.h"
-#include "lion.h"
 #include "light.h"
-#include "move.h"
-#include "lavadude.h"
-#include "rex.h"
-#include "set.h"
-#include "queen.h"
-#include "roach.h"
-#include "wasp.h"
-#include "scorp.h"
-#include "rat.h"
-#include "serial.h"
+#include "aistuff.h"
 #include "network.h"
 #include "random.h"
-#include "items.h"
 #include "trigdat.h"
 #include "record.h"
-#include "lighting.h"
 #include "mapinfo.h"
 #include <string.h>
 #include <cstdio> // for printf
@@ -85,6 +65,7 @@ BEGIN_PS_NS
 
 
 void FinishLevel();
+void uploadCinemaPalettes();
 
 int htimer = 0;
 
@@ -597,6 +578,49 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
 
 ////////
 
+void ResetEngine()
+{
+    EraseScreen(-1);
+
+    resettiming();
+
+    totalclock  = 0;
+    ototalclock = totalclock;
+    localclock  = (int)totalclock;
+
+    numframes = 0;
+}
+
+void InstallEngine()
+{
+    // initgroupfile("stuff.dat");
+	TileFiles.LoadArtSet("tiles%03d.art");
+
+	// TEMP
+
+    //nScreenWidth *= 2;
+    //nScreenHeight *= 2;
+    bHiRes = kTrue;
+    // TEMP
+
+    if (engineInit())
+    {
+        G_FatalEngineError();
+    }
+    uploadCinemaPalettes();
+    LoadPaletteLookups();
+    videoInit();
+
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
+}
+
+void RemoveEngine()
+{
+    engineUnInit();
+}
+
+
+
 const uint32_t kSpiritX = 106;
 const uint32_t kSpiritY = 97;
 
@@ -672,7 +696,6 @@ short nButtonColor;
 short nEnergyChan;
 
 
-short bSerialPlay = kFalse;
 short bModemPlay = kFalse;
 int lCountDown = 0;
 short nEnergyTowers = 0;
@@ -759,13 +782,6 @@ void DebugOut(const char *fmt, ...)
 void ShutDown(void)
 {
     StopCD();
-    if (bSerialPlay)
-    {
-        if (bModemPlay) {
-            HangUp();
-        }
-        UnInitSerial();
-    }
 
     RemoveEngine();
     UnInitNet();
@@ -1603,14 +1619,6 @@ void ExitGame()
         fclose(vcrfp);
     }
 
-    if (bSerialPlay)
-    {
-        if (nNetPlayerCount != 0) {
-            bSendBye = kTrue;
-            UpdateSerialInputs();
-        }
-    }
-    else
     {
         if (nNetPlayerCount != 0) {
             SendGoodbye();
@@ -1665,55 +1673,11 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
                     }
                 }
             }
-            else if (Bstrncasecmp(pChar, "null", 4) == 0)
-            {
-                pChar += 4;
-
-                bSerialPlay = kTrue;
-                nNetPlayerCount = 1;
-                nTotalPlayers = 2;
-
-                doTitle = kFalse;
-
-                char ch = *pChar;
-
-                // bjd - unused/unfished code in original .exe?
-                switch (ch - 1)
-                {
-                    default:
-                        break;
-
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        break;
-                }
-
-                if (forcelevel < 0)
-                {
-                    forcelevel = levelnew;
-                }
-            }
-            else if (Bstrcasecmp(pChar, "modem") == 0)
-            {
-                bModemPlay = kTrue;
-                bSerialPlay = kTrue;
-                nNetPlayerCount = 1;
-                nTotalPlayers = 2;
-
-                doTitle = kFalse;
-
-                if (forcelevel < 0) {
-                    forcelevel = levelnew;
-                }
-            }
             else if (Bstrcasecmp(pChar, "network") == 0)
             {
                 nNetPlayerCount = -1;
                 forcelevel = levelnew;
                 bModemPlay = kFalse;
-                bSerialPlay = kFalse;
 
                 doTitle = kFalse;
             }
@@ -1821,6 +1785,14 @@ static const char* actions[] =
     "Zoom_Out",
 };
 
+void InitTimer()
+{
+    htimer = 1;
+
+    timerInit(kTimerTicks);
+    timerSetCallback(timerhandler);
+}
+
 int GameInterface::app_main()
 {
     int i;
@@ -1900,26 +1872,6 @@ int GameInterface::app_main()
         if (nNetTime == 0) {
             nNetTime = -1;
         }
-
-        int nWaitTicks = 0;
-
-        if (!bSerialPlay)
-        {
-            if (InitNet(socket, nTotalPlayers))
-            {
-                DebugOut("Found network players!\n");
-                nWaitTicks = 30;
-            }
-            else
-            {
-                AbortNetworkPlay();
-                DebugOut("Network play aborted\n");
-                Printf("Network play aborted\n");
-                nWaitTicks = 60;
-            }
-
-            WaitTicks(nWaitTicks);
-        }
     }
 #endif
 
@@ -1959,10 +1911,6 @@ int GameInterface::app_main()
 
     ResetView();
     GrabPalette();
-
-    if (bSerialPlay && !InitSerial()) {
-        I_Error("Unable to connect");
-    }
 
     if (doTitle)
     {
@@ -2155,10 +2103,6 @@ LOOP3:
     movefifopos = movefifoend;
 
     RefreshStatus();
-
-    if (bSerialPlay) {
-        ClearSerialInbuf();
-    }
 
     //int edi = totalclock;
     tclocks2 = totalclock;

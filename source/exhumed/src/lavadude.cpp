@@ -17,15 +17,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "engine.h"
-#include "lavadude.h"
+#include "aistuff.h"
 #include "random.h"
-#include "runlist.h"
 #include "sequence.h"
 #include "exhumed.h"
-#include "move.h"
 #include "trigdat.h"
-#include "move.h"
-#include "bullet.h"
 #include "sound.h"
 #include <assert.h>
 

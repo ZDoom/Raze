@@ -1,6 +1,5 @@
 
 set( PCH_SOURCES
-	src/aistuff.cpp
 	src/anims.cpp
 	src/anubis.cpp
 	src/bubbles.cpp
@@ -20,7 +19,6 @@ set( PCH_SOURCES
 	src/lion.cpp
 	src/map.cpp
 	src/menu.cpp
-	src/mono.cpp
 	src/move.cpp
 	src/movie.cpp
 	src/mummy.cpp
@@ -39,14 +37,12 @@ set( PCH_SOURCES
 	src/save.cpp
 	src/scorp.cpp
 	src/sequence.cpp
-	src/serial.cpp
 	src/set.cpp
 	src/snake.cpp
 	src/sound.cpp
 	src/spider.cpp
 	src/status.cpp
 	src/switch.cpp
-	src/timer.cpp
 	src/trigdat.cpp
 	src/view.cpp
 	src/wasp.cpp
