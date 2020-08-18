@@ -68,7 +68,7 @@ int FindDistance3D(int x, int y, int z)
 {
    x= abs(x);           /* absolute values */
    y= abs(y);
-   z= abs(z);
+   z= abs(z >> 4);
 
    if (x<y)
      std::swap(x,y);

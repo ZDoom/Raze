@@ -94,7 +94,7 @@ inline int dist(const spritetype* s1, const spritetype* s2)
 	vx = s1->x - s2->x;
 	vy = s1->y - s2->y;
 	vz = s1->z - s2->z;
-	return(FindDistance3D(vx, vy, vz >> 4));
+	return(FindDistance3D(vx, vy, vz));
 }
 
 inline bool isIn(int value, int first)
