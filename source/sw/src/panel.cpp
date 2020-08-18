@@ -1093,8 +1093,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = SWORD_XOFF;
-        psp->oy = psp->y = SWORD_YOFF;
-        psp->y += tileHeight(psp->picndx);
+        psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
         psp->yorig = psp->y;
     }
 }
@@ -1179,8 +1178,7 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = SWORD_XOFF;
-        psp->oy = psp->y = SWORD_YOFF;
-        psp->y += tileHeight(psp->picndx);
+        psp->oy = psp->y = SWORD_YOFF + tileHeight(psp->picndx);
         psp->yorig = psp->y;
     }
 }
@@ -2044,6 +2042,9 @@ pUziClip(PANEL_SPRITEp oclip)
 
     x += nx;
     y += ny;
+
+    oclip->ox = oclip->x;
+    oclip->oy = oclip->y;
 
     oclip->xfract = LSW(x);
     oclip->x = x / (double)(FRACUNIT);
@@ -4765,9 +4766,6 @@ pHeartRest(PANEL_SPRITEp psp)
         psp->yorig = HEART_YOFF;
     }
 
-    psp->oy = psp->y;
-    psp->y = psp->yorig;
-
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
@@ -4801,9 +4799,6 @@ pHeartAction(PANEL_SPRITEp psp)
     {
         psp->yorig = 200;
     }
-
-    psp->oy = psp->y;
-    psp->y = psp->yorig;
 
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
@@ -6323,8 +6318,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = FIST_XOFF;
-        psp->oy = psp->y = FIST_YOFF;
-        psp->y += tileHeight(psp->picndx);
+        psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
         psp->yorig = psp->y;
     }
 }
@@ -6436,8 +6430,7 @@ pFistSlideDownR(PANEL_SPRITEp psp)
         // NOT still holding down the fire key - stop swinging
         pSetState(psp, psp->PresentState);
         psp->ox = psp->x = FIST_XOFF;
-        psp->oy = psp->y = FIST_YOFF;
-        psp->y += tileHeight(psp->picndx);
+        psp->oy = psp->y = FIST_YOFF + tileHeight(psp->picndx);
         psp->yorig = psp->y;
     }
 }
