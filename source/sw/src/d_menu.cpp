@@ -147,6 +147,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 void GameInterface::QuitToTitle()
 {
+	Mus_Stop();
 	TerminateLevel();
 	currentLevel = nullptr;
 	M_StartControlPanel(false);
