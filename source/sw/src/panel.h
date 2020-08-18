@@ -134,6 +134,9 @@ struct PANEL_SPRITEstruct
     short shade, pal;
     short kill_tics;
     short WeaponType; // remember my own weapon type for weapons with secondary function
+
+    // Weapon interpolation variables.
+    int16_t ox, oy;
 };
 
 typedef struct
