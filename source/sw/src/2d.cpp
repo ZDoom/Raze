@@ -383,17 +383,25 @@ private:
         twod->ClearScreen();
         int totalclock = int(clock * 120 / 1'000'000'000);
 
-        while (totalclock > nextclock)
+        if (clock == 0)
         {
-            nextclock += synctics;
+            PlaySong(nullptr, ThemeSongs[1], ThemeTrack[1]);
+        }
 
-            if (skiprequest && State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
+        if (skiprequest && State >= s_BonusRest && State < &s_BonusRest[countof(s_BonusRest)])
+        {
+            State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
+            Tics = 0;
+            skiprequest = false;
+            nextclock = totalclock;
+        }
+        else
+        {
+            while (totalclock > nextclock)
             {
-                State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
-                Tics = 0;
-                skiprequest = false;
+                nextclock += synctics;
+                gStateControl(&State, &Tics);
             }
-            gStateControl(&State, &Tics);
         }
         twod->ClearScreen();
         DrawTexture(twod, tileGetTexture(BONUS_SCREEN_PIC, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);

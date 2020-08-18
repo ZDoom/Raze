@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "sounds.h"
 #include "gamestate.h"
+#include "raze_music.h"
 
 #include "../../glbackend/glbackend.h"
 
