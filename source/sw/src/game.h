@@ -2205,8 +2205,9 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 //
 ///////////////////////////
 
-extern int ototalclock, save_totalclock, gotlastpacketclock,smoothratio;
+extern int ototalclock, save_totalclock, gotlastpacketclock;
 extern SWBOOL ready2send;
+extern double smoothratio;
 
 // local copy of variables updated by faketimerhandler
 extern int locselectedgun;

@@ -97,8 +97,8 @@ void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherc
 
 // when you set totalclock to 0 also set this one
 int ototalclock;
-int smoothratio;
 int save_totalclock;
+double smoothratio;
 
 // must start out as 0
 
