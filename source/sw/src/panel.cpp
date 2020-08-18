@@ -1911,7 +1911,7 @@ pUziReload(PANEL_SPRITEp nclip)
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->ox = nclip->x = gun->x - UZI_CLIP_XOFF;
-            nclip->ox = nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->oy = nclip->y = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang - 128 - 64);
             // go to retract phase
@@ -1925,7 +1925,7 @@ pUziReload(PANEL_SPRITEp nclip)
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
             nclip->ox = nclip->x = gun->x + UZI_CLIP_XOFF;
-            nclip->ox = nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->oy = nclip->y = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang + 128 + 64);
             // go to retract phase
@@ -2069,7 +2069,8 @@ pUziClip(PANEL_SPRITEp oclip)
         oclip->yfract = LSW(y);
         oclip->y = y / (double)(FRACUNIT);
 
-        oclip->y = UZI_RELOAD_YOFF;
+        oclip->ox = oclip->x;
+        oclip->oy = oclip->y = UZI_RELOAD_YOFF;
 
         gun->vel = 800;
         gun->ang = NORM_ANGLE(oclip->ang + 1024);
@@ -2183,10 +2184,9 @@ InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     pp->WpnUziType = 0; // 0 is up, 1 is retract
 
     New = pSpawnSprite(pp, ps_PresentUzi2, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    uzi_orig->sibling = New;
-
     New->y += tilesiz[New->picndx].y;
     New->oy = New->y;
+    uzi_orig->sibling = New;
 
     // Set up the New Weapon variables
     SET(New->flags, PANF_WEAPON_SPRITE);
