@@ -2290,6 +2290,8 @@ pUziStartReload(PANEL_SPRITEp psp)
 {
     SetVisNorm();
 
+    psp->ox = psp->x;
+
     // Set uzi's to reload state
     if (psp->PlayerP->WpnUziType < 3)
         psp->PlayerP->WpnUziType += 3;
