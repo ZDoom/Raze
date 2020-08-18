@@ -1020,25 +1020,25 @@ pSwordPresent(PANEL_SPRITEp psp)
 void
 pSwordSlide(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
 
-    nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 }
@@ -1046,26 +1046,26 @@ pSwordSlide(PANEL_SPRITEp psp)
 void
 pSwordSlideDown(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel, vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 20;
     vel = 2500;
 
-    nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(SwordAng + psp->ang + psp->PlayerP->SwordAng + 512)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[NORM_ANGLE(SwordAng + psp->ang + psp->PlayerP->SwordAng)] >> 6;
+    nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(SwordAng + psp->ang + psp->PlayerP->SwordAng + 512)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(SwordAng + psp->ang + psp->PlayerP->SwordAng)) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 
@@ -1106,25 +1106,25 @@ pSwordSlideDown(PANEL_SPRITEp psp)
 void
 pSwordSlideR(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
 
-    nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 1024 + 512)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[NORM_ANGLE(psp->ang + 1024)] >> 6;
+    nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 1024 + 512)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(psp->ang + 1024)) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 }
@@ -1132,26 +1132,26 @@ pSwordSlideR(PANEL_SPRITEp psp)
 void
 pSwordSlideDownR(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel, vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
     vel = 2500;
 
-    nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(SwordAng + psp->ang - psp->PlayerP->SwordAng + 1024 + 512)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[NORM_ANGLE(SwordAng + psp->ang - psp->PlayerP->SwordAng + 1024)] >> 6;
+    nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(SwordAng + psp->ang - psp->PlayerP->SwordAng + 1024 + 512)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(SwordAng + psp->ang - psp->PlayerP->SwordAng + 1024)) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 
@@ -1196,7 +1196,7 @@ pSwordBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = SWORD_SWAY_AMT;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -1483,7 +1483,7 @@ pStarBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 10;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -1497,7 +1497,7 @@ pLStarBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 6;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 4;
+    psp->bob_height_divider = 16;
 }
 
 void
@@ -1867,17 +1867,17 @@ pSpawnUziReload(PANEL_SPRITEp oclip)
 void
 pUziReload(PANEL_SPRITEp nclip)
 {
-    int nx, ny;
+    double nx, ny;
 
-    int x = FIXED(nclip->x, nclip->xfract);
-    int y = FIXED(nclip->y, nclip->yfract);
+    double x = xs_CRoundToInt(nclip->x * (double)(FRACUNIT)) | nclip->xfract;
+    double y = xs_CRoundToInt(nclip->y * (double)(FRACUNIT)) | nclip->yfract;
 
     PANEL_SPRITEp gun = nclip->sibling;
-    int xgun = FIXED(gun->x, gun->xfract);
-    int ygun = FIXED(gun->y, gun->yfract);
+    double xgun = xs_CRoundToInt(gun->x * (double)(FRACUNIT)) | gun->xfract;
+    double ygun = xs_CRoundToInt(gun->y * (double)(FRACUNIT)) | gun->yfract;
 
-    nx = nclip->vel * synctics * (int) sintable[NORM_ANGLE(nclip->ang + 512)] >> 6;
-    ny = nclip->vel * synctics * (int) -sintable[nclip->ang] >> 6;
+    nx = nclip->vel * synctics * calcSinTableValue(NORM_ANGLE(nclip->ang + 512)) / 64.;
+    ny = nclip->vel * synctics * -calcSinTableValue(nclip->ang) / 64.;
 
     nclip->vel += 14 * synctics;
 
@@ -1888,12 +1888,12 @@ pUziReload(PANEL_SPRITEp nclip)
     nclip->oy = nclip->y;
 
     nclip->xfract = LSW(x);
-    nclip->x = MSW(x);
+    nclip->x = x / (double)(FRACUNIT);
     nclip->yfract = LSW(y);
-    nclip->y = MSW(y);
+    nclip->y = y / (double)(FRACUNIT);
 
-    nx = gun->vel * synctics * (int) sintable[NORM_ANGLE(gun->ang + 512)] >> 6;
-    ny = gun->vel * synctics * (int) -sintable[gun->ang] >> 6;
+    nx = gun->vel * synctics * calcSinTableValue(NORM_ANGLE(gun->ang + 512)) / 64.;
+    ny = gun->vel * synctics * -calcSinTableValue(gun->ang) / 64.;
 
     xgun -= nx;
     ygun -= ny;
@@ -1902,9 +1902,9 @@ pUziReload(PANEL_SPRITEp nclip)
     gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
-    gun->x = MSW(xgun);
+    gun->x = xgun / (double)(FRACUNIT);
     gun->yfract = LSW(ygun);
-    gun->y = MSW(ygun);
+    gun->y = ygun / (double)(FRACUNIT);
 
     if (TEST(nclip->flags, PANF_XFLIP))
     {
@@ -1939,17 +1939,17 @@ pUziReload(PANEL_SPRITEp nclip)
 void
 pUziReloadRetract(PANEL_SPRITEp nclip)
 {
-    int nx, ny;
+    double nx, ny;
 
-    int x = FIXED(nclip->x, nclip->xfract);
-    int y = FIXED(nclip->y, nclip->yfract);
+    double x = xs_CRoundToInt(nclip->x * (double)(FRACUNIT)) | nclip->xfract;
+    double y = xs_CRoundToInt(nclip->y * (double)(FRACUNIT)) | nclip->yfract;
 
     PANEL_SPRITEp gun = nclip->sibling;
-    int xgun = FIXED(gun->x, gun->xfract);
-    int ygun = FIXED(gun->y, gun->yfract);
+    double xgun = xs_CRoundToInt(gun->x * (double)(FRACUNIT)) | gun->xfract;
+    double ygun = xs_CRoundToInt(gun->y * (double)(FRACUNIT)) | gun->yfract;
 
-    nx = nclip->vel * synctics * (int) sintable[NORM_ANGLE(nclip->ang + 512)] >> 6;
-    ny = nclip->vel * synctics * (int) -sintable[nclip->ang] >> 6;
+    nx = nclip->vel * synctics * calcSinTableValue(NORM_ANGLE(nclip->ang + 512)) / 64.;
+    ny = nclip->vel * synctics * -calcSinTableValue(nclip->ang) / 64.;
 
     nclip->vel += 18 * synctics;
 
@@ -1960,9 +1960,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     nclip->oy = nclip->y;
 
     nclip->xfract = LSW(x);
-    nclip->x = MSW(x);
+    nclip->x = x / (double)(FRACUNIT);
     nclip->yfract = LSW(y);
-    nclip->y = MSW(y);
+    nclip->y = y / (double)(FRACUNIT);
 
     xgun -= nx;
     ygun -= ny;
@@ -1971,9 +1971,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
-    gun->x = MSW(xgun);
+    gun->x = xgun / (double)(FRACUNIT);
     gun->yfract = LSW(ygun);
-    gun->y = MSW(ygun);
+    gun->y = ygun / (double)(FRACUNIT);
 
     if (gun->y > UZI_RELOAD_YOFF + tilesiz[gun->picndx].y)
     {
@@ -2030,15 +2030,15 @@ pUziDoneReload(PANEL_SPRITEp psp)
 void
 pUziClip(PANEL_SPRITEp oclip)
 {
-    int nx, ny, ox, oy;
-    int x = FIXED(oclip->x, oclip->xfract);
-    int y = FIXED(oclip->y, oclip->yfract);
+    double nx, ny, ox, oy;
+    double x = xs_CRoundToInt(oclip->x * (double)(FRACUNIT)) | oclip->xfract;
+    double y = xs_CRoundToInt(oclip->y * (double)(FRACUNIT)) | oclip->yfract;
 
     ox = x;
     oy = y;
 
-    nx = oclip->vel * synctics * (int) sintable[NORM_ANGLE(oclip->ang + 512)] >> 6;
-    ny = oclip->vel * synctics * (int) -sintable[oclip->ang] >> 6;
+    nx = oclip->vel * synctics * calcSinTableValue(NORM_ANGLE(oclip->ang + 512)) / 64.;
+    ny = oclip->vel * synctics * -calcSinTableValue(oclip->ang) / 64.;
 
     oclip->vel += 16 * synctics;
 
@@ -2046,9 +2046,9 @@ pUziClip(PANEL_SPRITEp oclip)
     y += ny;
 
     oclip->xfract = LSW(x);
-    oclip->x = MSW(x);
+    oclip->x = x / (double)(FRACUNIT);
     oclip->yfract = LSW(y);
-    oclip->y = MSW(y);
+    oclip->y = y / (double)(FRACUNIT);
 
     if (oclip->y > UZI_RELOAD_YOFF)
     {
@@ -2059,14 +2059,14 @@ pUziClip(PANEL_SPRITEp oclip)
         // so it will end up the same for all synctic values
         for (x = ox, y = oy; oclip->y < UZI_RELOAD_YOFF; )
         {
-            x += oclip->vel * (int) sintable[NORM_ANGLE(oclip->ang + 512)] >> 6;
-            y += oclip->vel * (int) -sintable[oclip->ang] >> 6;
+            x += oclip->vel * calcSinTableValue(NORM_ANGLE(oclip->ang + 512)) / 64.;
+            y += oclip->vel * -calcSinTableValue(oclip->ang) / 64.;
         }
 
         oclip->xfract = LSW(x);
-        oclip->x = MSW(x);
+        oclip->x = x / (double)(FRACUNIT);
         oclip->yfract = LSW(y);
-        oclip->y = MSW(y);
+        oclip->y = y / (double)(FRACUNIT);
 
         oclip->y = UZI_RELOAD_YOFF;
 
@@ -2281,7 +2281,7 @@ pUziBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -2581,7 +2581,7 @@ pUziShell(PANEL_SPRITEp psp)
 
     // get height
     psp->oy = psp->y = psp->yorig;
-    psp->y += psp->sin_amt * -sintable[psp->sin_ndx] >> 14;
+    psp->y += psp->sin_amt * -calcSinTableValue(psp->sin_ndx) / 16384.;
 
     // if off of the screen kill them
     if (psp->x > 330 || psp->x < -10)
@@ -2638,7 +2638,7 @@ pShotgunShell(PANEL_SPRITEp psp)
     psp->ox = psp->x;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -2823,24 +2823,24 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 {
     int targetvel;
 
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     if (psp->PlayerP->WpnShotgunType == 1)
         targetvel = 890;
     else
         targetvel = 780;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -2856,19 +2856,19 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 void
 pShotgunRecoilUp(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -2955,7 +2955,7 @@ pShotgunBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 SWBOOL
@@ -3333,19 +3333,19 @@ pRailSetRecoil(PANEL_SPRITEp psp)
 void
 pRailRecoilDown(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -3361,19 +3361,19 @@ pRailRecoilDown(PANEL_SPRITEp psp)
 void
 pRailRecoilUp(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -3422,7 +3422,7 @@ pRailBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -3846,7 +3846,7 @@ pHotheadBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = HOTHEAD_BOB_X_AMT;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 2;
+    psp->bob_height_divider = 4;
 }
 
 void
@@ -4217,19 +4217,19 @@ InitWeaponMicro(PLAYERp pp)
 void
 pMicroRecoilDown(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -4245,19 +4245,19 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
 void
 pMicroRecoilUp(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -4314,7 +4314,7 @@ pMicroBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = MICRO_BOB_X_AMT;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -4731,7 +4731,7 @@ pHeartBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -4989,7 +4989,7 @@ pHeartBlood(PANEL_SPRITEp psp)
     psp->ox = psp->x;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -5039,7 +5039,7 @@ DoPanelJump(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     return 0;
 }
@@ -5073,7 +5073,7 @@ DoPanelFall(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     return 0;
 }
@@ -5217,19 +5217,19 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
 //    short picnum = psp->picndx;
 
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel -= 24 * synctics;
 
@@ -5248,19 +5248,19 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 void
 pGrenadeRecoilUp(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->vel += 15 * synctics;
 
@@ -5279,22 +5279,22 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
 void
 pGrenadePresent(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
-    int y = FIXED(psp->y, psp->yfract);
+    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
         return;
 
-    x += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang + 512)] >> 6;
-    y += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
+    y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = MSW(x);
+    psp->x = x / (double)(FRACUNIT);
     psp->yfract = LSW(y);
-    psp->y = MSW(y);
+    psp->y = y / (double)(FRACUNIT);
 
     psp->rotate_ang = NORM_ANGLE(psp->rotate_ang + (6 * synctics));
 
@@ -5323,7 +5323,7 @@ pGrenadeBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -5575,7 +5575,7 @@ pMineBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = 12;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -6216,26 +6216,26 @@ pFistPresent(PANEL_SPRITEp psp)
 void
 pFistSlide(PANEL_SPRITEp psp)
 {
-    //int nx;
-    int ny;
+    //double nx;
+    double ny;
     short vel_adj;
 
-    //nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    //nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
 
-    //nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[psp->ang] >> 6;
+    //nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
 
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
     //psp->xfract = LSW(nx);
-    //psp->x = MSW(nx);
+    //psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 }
@@ -6243,31 +6243,31 @@ pFistSlide(PANEL_SPRITEp psp)
 void
 pFistSlideDown(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel, vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
     vel = 3500;
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
-        ny += (psp->vel * synctics * (int) -sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6);
+        ny += (psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.);
     else
     {
-        nx -= psp->vel * synctics * (int) sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6;
-        ny += 3*(psp->vel * synctics * (int) -sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6);
+        nx -= psp->vel * synctics * calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.;
+        ny += 3*(psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.);
     }
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 
@@ -6336,26 +6336,26 @@ pFistSlideDown(PANEL_SPRITEp psp)
 void
 pFistSlideR(PANEL_SPRITEp psp)
 {
-//    int nx
-    int ny;
+    //double nx
+    double ny;
     short vel_adj;
 
-    //nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    //nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
 
-    //nx += psp->vel * synctics * (int) sintable[NORM_ANGLE(psp->ang)] >> 6;
-    ny += psp->vel * synctics * (int) -sintable[NORM_ANGLE(psp->ang + 1024)] >> 6;
+    //nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang)) / 64.;
+    ny += psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(psp->ang + 1024)) / 64.;
 
     //psp->ox = psp->x;
     psp->oy = psp->y;
 
     //psp->xfract = LSW(nx);
-    //psp->x = MSW(nx);
+    //psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 }
@@ -6363,31 +6363,31 @@ pFistSlideR(PANEL_SPRITEp psp)
 void
 pFistSlideDownR(PANEL_SPRITEp psp)
 {
-    int nx, ny;
+    double nx, ny;
     short vel, vel_adj;
 
-    nx = FIXED(psp->x, psp->xfract);
-    ny = FIXED(psp->y, psp->yfract);
+    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
     vel = 3500;
 
     if (psp->ActionState == ps_Kick || psp->PlayerP->WpnKungFuMove == 3)
-        ny += (psp->vel * synctics * (int) -sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6);
+        ny += (psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.);
     else
     {
-        nx -= psp->vel * synctics * (int) sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6;
-        ny += 3*(psp->vel * synctics * (int) -sintable[NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)] >> 6);
+        nx -= psp->vel * synctics * calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.;
+        ny += 3*(psp->vel * synctics * -calcSinTableValue(NORM_ANGLE(FistAng + psp->ang + psp->PlayerP->FistAng)) / 64.);
     }
 
     psp->ox = psp->x;
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = MSW(nx);
+    psp->x = nx / (double)(FRACUNIT);
     psp->yfract = LSW(ny);
-    psp->y = MSW(ny);
+    psp->y = ny / (double)(FRACUNIT);
 
     psp->vel += vel_adj * synctics;
 
@@ -6453,7 +6453,7 @@ pFistBobSetup(PANEL_SPRITEp psp)
 
     psp->sin_amt = FIST_SWAY_AMT;
     psp->sin_ndx = 0;
-    psp->bob_height_shift = 3;
+    psp->bob_height_divider = 8;
 }
 
 void
@@ -6783,14 +6783,14 @@ pClearSpriteList(PLAYERp pp)
 void
 pWeaponBob(PANEL_SPRITEp psp, short condition)
 {
-    int xdiff = 0, ydiff = 0;
-    short bob_amt, bob_ndx;
-    short bobvel;
+    double xdiff = 0, ydiff = 0;
+    double bob_amt, bob_ndx;
+    double bobvel;
     PLAYERp pp = psp->PlayerP;
 
-    bobvel = FindDistance2D(pp->xvect, pp->yvect) >> 15;
-    bobvel = bobvel + DIV4(bobvel);
-    bobvel = min(bobvel, short(128));
+    bobvel = fFindDistance2D(pp->xvect, pp->yvect) / 32768.;
+    bobvel = bobvel + (bobvel / 4.);
+    bobvel = (bobvel < 128 ? bobvel : 128);
 
     if (condition)
     {
@@ -6819,7 +6819,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
         psp->sin_ndx &= 2047;
 
         // get height
-        xdiff = psp->sin_amt * sintable[psp->sin_ndx] >> 14;
+        xdiff = psp->sin_amt * calcSinTableValue(psp->sin_ndx) / 16384.;
 
         // //
         // bob_xxx moves the weapon up-down
@@ -6830,8 +6830,8 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
         bob_ndx = (psp->sin_ndx + 512) & 1023;
 
         // base bob_amt on the players velocity - Max of 128
-        bob_amt = bobvel >> psp->bob_height_shift;
-        ydiff = bob_amt * sintable[bob_ndx] >> 14;
+        bob_amt = bobvel / psp->bob_height_divider;
+        ydiff = bob_amt * calcSinTableValue(bob_ndx) / 16384.;
     }
 
     // Back up current coordinates for interpolating.

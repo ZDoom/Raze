@@ -110,9 +110,9 @@ struct PANEL_SPRITEstruct
     PLAYERp PlayerP;
     // Do not change the order of this line
     uint16_t xfract;
-    int16_t x;
+    double x;
     uint16_t yfract;
-    int16_t y;                            // Do not change the order of this
+    double y;                            // Do not change the order of this
     // line
 
     PANEL_SPRITE_OVERLAY over[8];
@@ -130,13 +130,13 @@ struct PANEL_SPRITEstruct
     short tics, delay;                  // time vars
     short ang, rotate_ang;
     short sin_ndx, sin_amt, sin_arc_speed;
-    short bob_height_shift;
+    double bob_height_divider;
     short shade, pal;
     short kill_tics;
     short WeaponType; // remember my own weapon type for weapons with secondary function
 
     // Weapon interpolation variables.
-    int16_t ox, oy;
+    double ox, oy;
 };
 
 typedef struct

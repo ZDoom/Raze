@@ -50,6 +50,19 @@ int FindDistance2D(int x, int y)
   return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
 }
 
+double fFindDistance2D(int x, int y)
+{
+  x= abs(x);        /* absolute values */
+  y= abs(y);
+
+  if (x<y)
+     std::swap(x,y);
+
+  double t = y + (y / 2.);
+
+  return (x - (x / 32.) - (x / 128.)  + (t / 4.) + (t / 64.));
+}
+
 
 int FindDistance3D(int x, int y, int z)
 {
