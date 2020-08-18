@@ -1910,8 +1910,8 @@ pUziReload(PANEL_SPRITEp nclip)
         {
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-            nclip->ox = nclip->x = gun->ox = gun->x - UZI_CLIP_XOFF;
-            nclip->ox = nclip->y = gun->oy = gun->y + UZI_CLIP_YOFF;
+            nclip->ox = nclip->x = gun->x - UZI_CLIP_XOFF;
+            nclip->ox = nclip->y = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang - 128 - 64);
             // go to retract phase
@@ -1924,8 +1924,8 @@ pUziReload(PANEL_SPRITEp nclip)
         {
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-            nclip->ox = nclip->x = gun->ox = gun->x + UZI_CLIP_XOFF;
-            nclip->ox = nclip->y = gun->oy = gun->y + UZI_CLIP_YOFF;
+            nclip->ox = nclip->x = gun->x + UZI_CLIP_XOFF;
+            nclip->ox = nclip->y = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang + 128 + 64);
             // go to retract phase
