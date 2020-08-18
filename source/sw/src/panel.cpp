@@ -1790,11 +1790,12 @@ pUziOverlays(PANEL_SPRITEp psp, short mode)
 void
 pUziEjectDown(PANEL_SPRITEp gun)
 {
+    gun->oy = gun->y;
     gun->y += 5 * synctics;
 
     if (gun->y > 260)
     {
-        gun->y = 260;
+        gun->oy = gun->y = 260;
         pStatePlusOne(gun);
     }
 }
@@ -1805,11 +1806,12 @@ pUziEjectUp(PANEL_SPRITEp gun)
 
     pUziOverlays(gun, CHAMBER_RELOAD);
 
+    gun->oy = gun->y;
     gun->y -= 5 * synctics;
 
     if (gun->y < UZI_RELOAD_YOFF)
     {
-        gun->y = UZI_RELOAD_YOFF;
+        gun->oy = gun->y = UZI_RELOAD_YOFF;
         pStatePlusOne(gun);
     }
 }
@@ -1882,6 +1884,9 @@ pUziReload(PANEL_SPRITEp nclip)
     x += nx;
     y += ny;
 
+    nclip->ox = nclip->x;
+    nclip->oy = nclip->y;
+
     nclip->xfract = LSW(x);
     nclip->x = MSW(x);
     nclip->yfract = LSW(y);
@@ -1892,6 +1897,9 @@ pUziReload(PANEL_SPRITEp nclip)
 
     xgun -= nx;
     ygun -= ny;
+
+    gun->ox = gun->x;
+    gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
     gun->x = MSW(xgun);
@@ -1904,8 +1912,8 @@ pUziReload(PANEL_SPRITEp nclip)
         {
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-            nclip->x = gun->x - UZI_CLIP_XOFF;
-            nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->ox = nclip->x = gun->ox = gun->x - UZI_CLIP_XOFF;
+            nclip->ox = nclip->y = gun->oy = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang - 128 - 64);
             // go to retract phase
@@ -1918,8 +1926,8 @@ pUziReload(PANEL_SPRITEp nclip)
         {
             PlaySound(DIGI_REPLACECLIP, nclip->PlayerP,v3df_follow|v3df_dontpan|v3df_doppler);
 
-            nclip->x = gun->x + UZI_CLIP_XOFF;
-            nclip->y = gun->y + UZI_CLIP_YOFF;
+            nclip->ox = nclip->x = gun->ox = gun->x + UZI_CLIP_XOFF;
+            nclip->ox = nclip->y = gun->oy = gun->y + UZI_CLIP_YOFF;
             nclip->vel = 680;
             nclip->ang = NORM_ANGLE(nclip->ang + 128 + 64);
             // go to retract phase
@@ -1948,6 +1956,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     x -= nx;
     y -= ny;
 
+    nclip->ox = nclip->x;
+    nclip->oy = nclip->y;
+
     nclip->xfract = LSW(x);
     nclip->x = MSW(x);
     nclip->yfract = LSW(y);
@@ -1955,6 +1966,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
 
     xgun -= nx;
     ygun -= ny;
+
+    gun->ox = gun->x;
+    gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
     gun->x = MSW(xgun);
@@ -4907,7 +4921,9 @@ SpawnHeartBlood(PANEL_SPRITEp psp)
         // RIGHT side
         blood = pSpawnSprite(pp, hsp->state[RANDOM_P2(2<<8)>>8], PRI_BACK, 0, 0);
         blood->x = psp->x + hsp->xoff;
+        blood->ox = blood->x;
         blood->y = psp->y + hsp->yoff;
+        blood->oy = blood->y;
         blood->xspeed = hsp->lo_xspeed + (RANDOM_RANGE((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         SET(blood->flags, PANF_WEAPON_SPRITE);
 
@@ -4941,7 +4957,9 @@ SpawnSmallHeartBlood(PANEL_SPRITEp psp)
         // RIGHT side
         blood = pSpawnSprite(pp, hsp->state[RANDOM_P2(2<<8)>>8], PRI_BACK, 0, 0);
         blood->x = psp->x + hsp->xoff;
+        blood->ox = blood->x;
         blood->y = psp->y + hsp->yoff;
+        blood->oy = blood->y;
         blood->xspeed = hsp->lo_xspeed + (RANDOM_RANGE((hsp->hi_xspeed - hsp->lo_xspeed)>>4) << 4);
         SET(blood->flags, PANF_WEAPON_SPRITE);
 
@@ -6838,7 +6856,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     USERp u = User[pp->PlayerSprite];
     PANEL_SPRITEp psp=NULL, next=NULL;
     short shade, picnum, overlay_shade = 0;
-    int x, y;
+    double x, y;
     unsigned i;
 
     uint8_t pal = 0;
@@ -6850,8 +6868,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
         ang = psp->rotate_ang;
         shade = 0;
         flags = 0;
-        x = psp->x;
-        y = psp->y;
+        x = psp->ox + fmulscale16(psp->x - psp->ox, smoothratio);
+        y = psp->oy + fmulscale16(psp->y - psp->oy, smoothratio);
         // initilize pal here - jack with it below
         pal = psp->pal;
 
