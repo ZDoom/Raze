@@ -183,7 +183,7 @@ enum BorderTypes
 #define SHOTGUN_AUTO_NUM 0
 #define SHOTGUN_AUTO 2078
 
-PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y);
+PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double y);
 void pSetSuicide(PANEL_SPRITEp psp);
 SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
 void PreUpdatePanel(double smoothratio);

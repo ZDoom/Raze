@@ -6704,7 +6704,7 @@ InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
 
 
 PANEL_SPRITEp
-pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y)
+pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double y)
 {
     unsigned i;
     PANEL_SPRITEp psp;
