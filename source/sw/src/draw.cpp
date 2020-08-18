@@ -1714,12 +1714,11 @@ drawscreen(PLAYERp pp)
     DrawScreen = TRUE;
     PreDraw();
 
-    PreUpdatePanel();
-
-
     smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
     if (paused && !ReloadPrompt) // The checks were brought over from domovethings
         smoothratio = 65536;
+
+    PreUpdatePanel(smoothratio);
 
     if (!ScreenSavePic)
     {
@@ -1871,7 +1870,7 @@ drawscreen(PLAYERp pp)
 
     UpdateStatusBar(totalclock);
 
-    UpdatePanel();
+    UpdatePanel(smoothratio);
 
 #define SLIME 2305
     // Only animate lava if its picnum is on screen

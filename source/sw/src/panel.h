@@ -183,8 +183,8 @@ enum BorderTypes
 PANEL_SPRITEp pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, int x, int y);
 void pSetSuicide(PANEL_SPRITEp psp);
 SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id);
-void PreUpdatePanel(void);
-void UpdatePanel(void);
+void PreUpdatePanel(double smoothratio);
+void UpdatePanel(double smoothratio);
 void PlayerUpdateArmor(PLAYERp pp,short value);
 void pToggleCrosshair(void);
 void pKillSprite(PANEL_SPRITEp psp);

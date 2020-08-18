@@ -6706,7 +6706,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 
 SWBOOL DrawBeforeView = FALSE;
 void
-pDisplaySprites(PLAYERp pp)
+pDisplaySprites(PLAYERp pp, double smoothratio)
 {
     USERp u = User[pp->PlayerSprite];
     PANEL_SPRITEp psp=NULL, next=NULL;
@@ -7087,19 +7087,19 @@ pStateControl(PANEL_SPRITEp psp)
 
 
 void
-UpdatePanel(void)
+UpdatePanel(double smoothratio)
 {
     short pnum;
 
     TRAVERSE_CONNECT(pnum)
     {
         if (dimensionmode != 2 && pnum == screenpeek)
-            pDisplaySprites(Player + pnum);
+            pDisplaySprites(Player + pnum, smoothratio);
     }
 }
 
 void
-PreUpdatePanel(void)
+PreUpdatePanel(double smoothratio)
 {
     short pnum;
     DrawBeforeView = TRUE;
@@ -7108,7 +7108,7 @@ PreUpdatePanel(void)
     TRAVERSE_CONNECT(pnum)
     {
         if (dimensionmode != 2 && pnum == screenpeek)
-            pDisplaySprites(Player + pnum);
+            pDisplaySprites(Player + pnum, smoothratio);
     }
 
     DrawBeforeView = FALSE;
