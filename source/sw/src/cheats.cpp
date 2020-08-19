@@ -100,7 +100,7 @@ bool MapCheat(cheatseq_t* c)
     if (!(pp=checkCheat(c))) return false;
     mapcheat = !mapcheat;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(mapcheat ? "TXTS_AMON" : "TXTS_AMOFF"));
+    PutStringInfo(pp, GStrings(mapcheat ? "TXT_AMON" : "TXT_AMOFF"));
     return true;
 }
 
@@ -355,7 +355,7 @@ bool KeyCheat(cheatseq_t* c)
     PLAYERp p;
     short pnum;
     const char *cp = (char*)c->Args;
-	const char *str = "TXTS_GIVEKEY";
+	const char *str = "TXT_GIVEKEY";
     int keynum = 0;
 
     keynum = atol(cp);
@@ -368,12 +368,12 @@ bool KeyCheat(cheatseq_t* c)
            if (p->HasKey[keynum-1] == FALSE)
            {
               p->HasKey[keynum-1] = TRUE; // cards: 0=red 1=blue 2=green 3=yellow | keys: 4=gold 5=silver 6=bronze 7=red
-              str = "TXTS_KEYGIVEN";
+              str = "TXT_KEYGIVEN";
            }
            else
            {
               p->HasKey[keynum-1] = FALSE;
-              str = "TXTS_KEYREMOVED";
+              str = "TXT_KEYREMOVED";
            }
         }
     }
@@ -388,7 +388,7 @@ bool KeysCheat(cheatseq_t* c)
     // Get KEYS
     PLAYERp p;
     short pnum;
-    const char* str = "TXTS_GIVEKEY";
+    const char* str = "TXT_GIVEKEY";
     int keynum = 0;
 
     TRAVERSE_CONNECT(pnum)
@@ -406,25 +406,25 @@ bool EveryCheatToggle(cheatseq_t* c)
     return WeaponCheat(c) && GodCheat(c) && ItemCheat(c);
 }
 
-
+// The prefix was changed from 'sw' to 'lw' so that it doesn't contain two keys of the WASD control scheme, which interferes with input control.
 static cheatseq_t swcheats[] = {
-    {"swgod",       GodCheat, 0},
-    {"swchan",      GodCheat, 0},
-    {"swgimme",     ItemCheat, 0},
-    {"swmedic",     HealCheat, 0},
-    {"swkey#",      KeyCheat, 0},
-    {"swkeys",      KeysCheat, 0},
-    {"swammo",      AmmoCheat, 0},
-    {"swarmor",      ArmorCheat, 0},
-    {"switems",      ItemCheat, 0},
-    {"swguns",      WeaponCheat, 0},
-    {"swtrek##",    WarpCheat, 0},
-    {"swgreed",     EveryCheatToggle, 0},
-    {"swghost",     ClipCheat, 0},
-    {"swstart",     RestartCheat, 0},
-    {"swloc",       LocCheat, 0},
-    {"swmap",       MapCheat, 0},
-    {"swroom",      RoomCheat, true}, // Room above room dbug
+    {"lwgod",       GodCheat, 0},
+    {"lwchan",      GodCheat, 0},
+    {"lwgimme",     ItemCheat, 0},
+    {"lwmedic",     HealCheat, 0},
+    {"lwkey#",      KeyCheat, 0},
+    {"lwkeys",      KeysCheat, 0},
+    {"lwammo",      AmmoCheat, 0},
+    {"lwarmor",      ArmorCheat, 0},
+    {"lwitems",      ItemCheat, 0},
+    {"lwguns",      WeaponCheat, 0},
+    {"lwtrek##",    WarpCheat, 0},
+    {"lwgreed",     EveryCheatToggle, 0},
+    {"lwghost",     ClipCheat, 0},
+    {"lwstart",     RestartCheat, 0},
+    {"lwloc",       LocCheat, 0},
+    {"lwmap",       MapCheat, 0},
+    {"lwroom",      RoomCheat, true}, // Room above room dbug
 };
 
 

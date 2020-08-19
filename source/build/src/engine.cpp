@@ -4169,10 +4169,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, f
 
     inpreparemirror = 1;
 
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-        polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
-#endif
+    polymost_prepareMirror(dax, day, daz, daang, dahoriz, dawall);
 }
 
 
