@@ -6808,12 +6808,8 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
         // sin_xxx moves the weapon left-right
         // //
 
-        // increment the ndx into the sin table
-        psp->sin_ndx = psp->sin_ndx + (synctics << 3);
-        // add a random factor to it
-        psp->sin_ndx += (RANDOM_P2(8) * synctics);
-        // wrap
-        psp->sin_ndx &= 2047;
+        // increment the ndx into the sin table and wrap.
+        psp->sin_ndx = (psp->sin_ndx + (synctics * 12)) & 2047;
 
         // get height
         xdiff = psp->sin_amt * calcSinTableValue(psp->sin_ndx) / 16384.;
