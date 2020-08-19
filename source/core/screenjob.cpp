@@ -95,7 +95,7 @@ class DAnmPlayer : public DScreenJob
 	int numframes = 0;
 	int curframe = 1;
 	int frametime = 0;
-	int ototalclock = 0;
+	int nextframetime = 0;
 	AnimTextures animtex;
 	const AnimSound* animSnd;
 	const int* frameTicks;
@@ -126,16 +126,16 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest) override
 	{
-		int totalclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int(clock * 120 / 1'000'000'000);
 
-		if (curframe > 4 && totalclock > frametime + 60)
+		if (curframe > 4 && currentclock > frametime + 60)
 		{
 			Printf("WARNING: slowdown in video playback, aborting\n");
 			soundEngine->StopAllChannels();
 			return -1;
 		}
 
-		if (totalclock < ototalclock - 1)
+		if (currentclock < nextframetime - 1)
 		{
 			twod->ClearScreen();
 			DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
@@ -144,7 +144,7 @@ public:
 		}
 
 		animtex.SetFrame(ANIM_GetPalette(&anim), ANIM_DrawFrame(&anim, curframe));
-		frametime = totalclock;
+		frametime = currentclock;
 
 		twod->ClearScreen();
 		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Masked, false, TAG_DONE);
@@ -156,7 +156,7 @@ public:
 			else if (curframe < numframes - 1) delay = frameTicks[1];
 			else delay = frameTicks[2];
 		}
-		ototalclock += delay;
+		nextframetime += delay;
 
 		if (animSnd) for (int i = 0; animSnd[i].framenum >= 0; i++)
 		{

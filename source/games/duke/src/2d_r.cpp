@@ -383,7 +383,7 @@ public:
 		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
-	void PrintTime(int totalclock)
+	void PrintTime(int currentclock)
 	{
 		char tempbuf[32];
 		BigText(30, 48, GStrings("TXT_YerTime"), -1);
@@ -393,7 +393,7 @@ public:
 		if (bonuscnt == 0)
 			bonuscnt++;
 
-		if (totalclock > (60 * 4))
+		if (currentclock > (60 * 4))
 		{
 			if (bonuscnt == 1)
 			{
@@ -414,7 +414,7 @@ public:
 		}
 	}
 
-	void PrintKills(int totalclock)
+	void PrintKills(int currentclock)
 	{
 		char tempbuf[32];
 		BigText(30, 112, GStrings("TXT_VarmintsKilled"), -1);
@@ -423,7 +423,7 @@ public:
 		if (bonuscnt == 2)
 			bonuscnt++;
 
-		if (totalclock > (60 * 7))
+		if (currentclock > (60 * 7))
 		{
 			if (bonuscnt == 3)
 			{
@@ -447,14 +447,14 @@ public:
 		}
 	}
 
-	void PrintSecrets(int totalclock)
+	void PrintSecrets(int currentclock)
 	{
 		char tempbuf[32];
 		BigText(30, 144, GStrings("TXT_SECFND"), -1);
 		BigText(30, 160, GStrings("TXT_SECMISS"), -1);
 		if (bonuscnt == 4) bonuscnt++;
 
-		if (totalclock > (60 * 10))
+		if (currentclock > (60 * 10))
 		{
 			if (bonuscnt == 5)
 			{
@@ -474,28 +474,28 @@ public:
 	{
 		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
-		int totalclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (lastmapname) BigText(80, 16, lastmapname, -1);
 		BigText(15, 192, GStrings("PRESSKEY"), -1);
 
-		if (totalclock > (60 * 3))
+		if (currentclock > (60 * 3))
 		{
-			PrintTime(totalclock);
+			PrintTime(currentclock);
 		}
-		if (totalclock > (60 * 6))
+		if (currentclock > (60 * 6))
 		{
-			PrintKills(totalclock);
+			PrintKills(currentclock);
 		}
-		if (totalclock > (60 * 9))
+		if (currentclock > (60 * 9))
 		{
-			PrintSecrets(totalclock);
+			PrintSecrets(currentclock);
 		}
 
-		if (totalclock > (1000000000L) && totalclock < (1000000320L))
+		if (currentclock > (1000000000L) && currentclock < (1000000320L))
 		{
-			int val = (totalclock >> 4) % 15;
+			int val = (currentclock >> 4) % 15;
 			if (val == 0)
 			{
 				if (bonuscnt == 6)
@@ -506,19 +506,19 @@ public:
 				}
 			}
 		}
-		else if (totalclock > (10240 + 120L)) return 0;
+		else if (currentclock > (10240 + 120L)) return 0;
 
-		if (totalclock > 10240 && totalclock < 10240 + 10240)
+		if (currentclock > 10240 && currentclock < 10240 + 10240)
 			SetTotalClock(1024);
 
-		if (skiprequest && totalclock > (60 * 2))
+		if (skiprequest && currentclock > (60 * 2))
 		{
 			skiprequest = false;
-			if (totalclock < (60 * 13))
+			if (currentclock < (60 * 13))
 			{
 				SetTotalClock(60 * 13);
 			}
-			else if (totalclock < (1000000000))
+			else if (currentclock < (1000000000))
 				SetTotalClock(1000000000);
 		}
 
@@ -537,10 +537,10 @@ public:
 	}
 	int Frame(uint64_t clock, bool skiprequest)
 	{
-		int totalclock = int(clock * 120 / 1'000'000'000);
-		auto tex = tileGetTexture(RRTILE8677 + ((totalclock >> 4) & 1));
+		int currentclock = int(clock * 120 / 1'000'000'000);
+		auto tex = tileGetTexture(RRTILE8677 + ((currentclock >> 4) & 1));
 		DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-		if (!S_CheckSoundPlaying(-1, 35) && totalclock > 15*120) return 0; // make sure it stays, even if sound is off.
+		if (!S_CheckSoundPlaying(-1, 35) && currentclock > 15*120) return 0; // make sure it stays, even if sound is off.
 		if (skiprequest)
 		{
 			S_StopSound(35);

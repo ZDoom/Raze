@@ -381,7 +381,7 @@ private:
     int Frame(uint64_t clock, bool skiprequest)
     {
         twod->ClearScreen();
-        int totalclock = int(clock * 120 / 1'000'000'000);
+        int currentclock = int(clock * 120 / 1'000'000'000);
 
         if (clock == 0)
         {
@@ -393,11 +393,11 @@ private:
             State = s_BonusAnim[STD_RANDOM_RANGE(countof(s_BonusAnim))];
             Tics = 0;
             skiprequest = false;
-            nextclock = totalclock;
+            nextclock = currentclock;
         }
         else
         {
-            while (totalclock > nextclock)
+            while (currentclock > nextclock)
             {
                 nextclock += synctics;
                 gStateControl(&State, &Tics);

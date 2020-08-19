@@ -315,7 +315,7 @@ public:
 
 		auto translation = TRANSLATION(Translation_BasePalettes, ENDINGPAL);
 
-		int totalclock = nsclock * 120 / 1'000'000'000;
+		int currentclock = nsclock * 120 / 1'000'000'000;
 
 		uint64_t span = nsclock / 1'000'000;
 
@@ -325,8 +325,8 @@ public:
 
 
 		// boss
-		if (totalclock > 390 && totalclock < 780)
-			for (int t = 0; t < 35; t += 5) if (bossmove[t + 2] && (totalclock % 390) > bossmove[t] && (totalclock % 390) <= bossmove[t + 1])
+		if (currentclock > 390 && currentclock < 780)
+			for (int t = 0; t < 35; t += 5) if (bossmove[t + 2] && (currentclock % 390) > bossmove[t] && (currentclock % 390) <= bossmove[t + 1])
 			{
 				if (t == 10 && bonuscnt == 1) 
 				{ 
@@ -339,20 +339,20 @@ public:
 			}
 
 		// Breathe
-		if (totalclock < 450 || totalclock >= 750)
+		if (currentclock < 450 || currentclock >= 750)
 		{
-			if (totalclock >= 750)
+			if (currentclock >= 750)
 			{
 				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
-				if (totalclock >= 750 && bonuscnt == 2) 
+				if (currentclock >= 750 && bonuscnt == 2) 
 				{ 
 					S_PlaySound(DUKETALKTOBOSS, CHAN_AUTO, CHANF_UI);
 					bonuscnt++; 
 				}
 			}
 			for (int t = 0; t < 20; t += 5)
-				if (breathe[t + 2] && (totalclock % 120) > breathe[t] && (totalclock % 120) <= breathe[t + 1])
+				if (breathe[t + 2] && (currentclock % 120) > breathe[t] && (currentclock % 120) <= breathe[t + 1])
 				{
 					if (t == 5 && bonuscnt == 0)
 					{
@@ -677,7 +677,7 @@ public:
 		if (clock == 0) S_PlayBonusMusic();
 
 		char tempbuf[32];
-		int totalclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int(clock * 120 / 1'000'000'000);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
@@ -686,7 +686,7 @@ public:
 
 		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);
 		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
-		GameText(160, 165, GStrings("Presskey"), 8 - int(sin(totalclock / 10.) * 8), 0);
+		GameText(160, 165, GStrings("Presskey"), 8 - int(sin(currentclock / 10.) * 8), 0);
 
 		int t = 0;
 
@@ -786,7 +786,7 @@ public:
 		mysnprintf(tempbuf, 32, "%02d:%02d", (time / (26 * 60)) % 60, (time / 26) % 60);
 	}
 
-	void PrintTime(int totalclock)
+	void PrintTime(int currentclock)
 	{
 		char tempbuf[32];
 		GameText(10, 59 + 9, GStrings("TXT_YourTime"), 0);
@@ -797,7 +797,7 @@ public:
 		if (bonuscnt == 0)
 			bonuscnt++;
 
-		if (totalclock > (60 * 4))
+		if (currentclock > (60 * 4))
 		{
 			if (bonuscnt == 1)
 			{
@@ -818,7 +818,7 @@ public:
 		}
 	}
 
-	void PrintKills(int totalclock)
+	void PrintKills(int currentclock)
 	{
 		char tempbuf[32];
 		GameText(10, 94 + 9, GStrings("TXT_EnemiesKilled"), 0);
@@ -830,7 +830,7 @@ public:
 			S_PlaySound(FLY_BY, CHAN_AUTO, CHANF_UI);
 		}
 
-		if (totalclock > (60 * 7))
+		if (currentclock > (60 * 7))
 		{
 			if (bonuscnt == 3)
 			{
@@ -854,14 +854,14 @@ public:
 		}
 	}
 
-	void PrintSecrets(int totalclock)
+	void PrintSecrets(int currentclock)
 	{
 		char tempbuf[32];
 		GameText(10, 120 + 9, GStrings("TXT_SECFND"), 0);
 		GameText(10, 130 + 9, GStrings("TXT_SECMISS"), 0);
 		if (bonuscnt == 4) bonuscnt++;
 
-		if (totalclock > (60 * 10))
+		if (currentclock > (60 * 10))
 		{
 			if (bonuscnt == 5)
 			{
@@ -881,29 +881,29 @@ public:
 	{
 		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
-		int totalclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int(clock * 120 / 1'000'000'000);
 		DrawTexture(twod, tileGetTexture(gfx_offset, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
 		if (lastmapname) BigText(160, 20 - 6, lastmapname);
 		BigText(160, 36 - 6, GStrings("Completed"));
-		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(totalclock / 10.) * 8), 0);
+		GameText(160, 190, GStrings("PRESSKEY"), 8 - int(sin(currentclock / 10.) * 8), 0);
 
-		if (totalclock > (60 * 3))
+		if (currentclock > (60 * 3))
 		{
-			PrintTime(totalclock);
+			PrintTime(currentclock);
 		}
-		if (totalclock > (60 * 6))
+		if (currentclock > (60 * 6))
 		{
-			PrintKills(totalclock);
+			PrintKills(currentclock);
 		}
-		if (totalclock > (60 * 9))
+		if (currentclock > (60 * 9))
 		{
-			PrintSecrets(totalclock);
+			PrintSecrets(currentclock);
 		}
 
-		if (totalclock >= (1000000000L) && totalclock < (1000000320L))
+		if (currentclock >= (1000000000L) && currentclock < (1000000320L))
 		{
-			switch ((totalclock >> 4) % 15)
+			switch ((currentclock >> 4) % 15)
 			{
 				case 0:
 					if (bonuscnt == 6)
@@ -924,10 +924,10 @@ public:
 					break;
 			}
 		}
-		else if (totalclock > (10240 + 120L)) return 0;
+		else if (currentclock > (10240 + 120L)) return 0;
 		else
 		{
-			switch((totalclock >> 5) & 3)
+			switch((currentclock >> 5) & 3)
 			{
 				case 1:
 				case 3:
@@ -939,17 +939,17 @@ public:
 			}
 		}
 
-		if (totalclock > 10240 && totalclock < 10240 + 10240)
+		if (currentclock > 10240 && currentclock < 10240 + 10240)
 			SetTotalClock(1024);
 
-		if (skiprequest && totalclock > (60 * 2))
+		if (skiprequest && currentclock > (60 * 2))
 		{
 			skiprequest = false;
-			if (totalclock < (60 * 13))
+			if (currentclock < (60 * 13))
 			{
 				SetTotalClock(60 * 13);
 			}
-			else if (totalclock < (1000000000))
+			else if (currentclock < (1000000000))
 			{
 				// force-set bonuscnt here so that it won't desync with the rest of the logic and Duke's voice can be heard.
 				if (bonuscnt < 6) bonuscnt = 6;
