@@ -40,9 +40,11 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "st_start.h"
 #include "i_interface.h"
 #include "prediction.h"
+#include "sbar.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
+
 
 FFont* IndexFont;
 FFont* DigiFont;
@@ -346,6 +348,7 @@ void displayrest(double smoothratio)
 		}
 	}
 
+	DrawBorder();
 	if (isRR()) drawstatusbar_r(screenpeek);
 	else drawstatusbar_d(screenpeek);
 

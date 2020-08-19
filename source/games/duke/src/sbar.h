@@ -28,5 +28,6 @@ public:
 };
 
 extern int levelTextTime;
+void DrawBorder();
 
 END_DUKE_NS
