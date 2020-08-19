@@ -448,122 +448,7 @@ enum gametokens
     T_USERCONTENT,
 };
 
-int exhumed_globalflags;
 PlayerInput localInput;
-
-static int parsedefinitions_game(scriptfile *, int);
-
-static void parsedefinitions_game_include(const char *fileName, scriptfile *pScript, const char *cmdtokptr, int const firstPass)
-{
-    scriptfile *included = scriptfile_fromfile(fileName);
-
-    if (!included)
-    {
-        if (!Bstrcasecmp(cmdtokptr,"null") || pScript == NULL) // this is a bit overboard to prevent unused parameter warnings
-            {
-           // Printf("Warning: Failed including %s as module\n", fn);
-            }
-/*
-        else
-            {
-            Printf("Warning: Failed including %s on line %s:%d\n",
-                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-*/
-    }
-    else
-    {
-        parsedefinitions_game(included, firstPass);
-        scriptfile_close(included);
-    }
-}
-
-static int parsedefinitions_game(scriptfile *pScript, int firstPass)
-{
-    int   token;
-    char *pToken;
-
-    static const tokenlist tokens[] =
-    {
-        { "include",         T_INCLUDE          },
-        { "#include",        T_INCLUDE          },
-        { "includedefault",  T_INCLUDEDEFAULT   },
-        { "#includedefault", T_INCLUDEDEFAULT   },
-        { "loadgrp",         T_LOADGRP          },
-        { "cachesize",       T_CACHESIZE        },
-        { "noautoload",      T_NOAUTOLOAD       },
-        { "renamefile",      T_RENAMEFILE       },
-        { "globalgameflags", T_GLOBALGAMEFLAGS  },
-    };
-
-    do
-    {
-        token  = getatoken(pScript, tokens, ARRAY_SIZE(tokens));
-        pToken = pScript->ltextptr;
-
-        switch (token)
-        {
-        case T_LOADGRP:
-        {
-            char *fileName;
-
-            if (!scriptfile_getstring(pScript,&fileName) && firstPass)
-            {
-				fileSystem.AddAdditionalFile(fileName);
-            }
-        }
-        break;
-        case T_CACHESIZE:
-        {
-            int32_t cacheSize;
-
-            if (scriptfile_getnumber(pScript, &cacheSize) || !firstPass)
-                break;
-        }
-        break;
-        case T_INCLUDE:
-        {
-            char *fileName;
-
-            if (!scriptfile_getstring(pScript, &fileName))
-                parsedefinitions_game_include(fileName, pScript, pToken, firstPass);
-
-            break;
-        }
-        case T_INCLUDEDEFAULT:
-        {
-            parsedefinitions_game_include(G_DefaultDefFile(), pScript, pToken, firstPass);
-            break;
-        }
-        case T_NOAUTOLOAD:
-            break;
-        case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &exhumed_globalflags); break;
-        case T_EOF: return 0;
-        default: break;
-        }
-    }
-    while (1);
-
-    return 0;
-}
-
-int loaddefinitions_game(const char *fileName, int32_t firstPass)
-{
-    scriptfile *pScript = scriptfile_fromfile(fileName);
-
-    if (pScript)
-        parsedefinitions_game(pScript, firstPass);
-
-    for (auto &m : *userConfig.AddDefs)
-        parsedefinitions_game_include(m, NULL, "null", firstPass);
-
-    if (pScript)
-        scriptfile_close(pScript);
-
-    scriptfile_clearsymbols();
-
-    return 0;
-}
 
 ////////
 
@@ -1812,10 +1697,6 @@ int GameInterface::app_main()
         forcelevel = 1;
     }
 
-#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
-    if (forcegl) Printf("GL driver blacklist disabled.\n");
-#endif
-
 
     PatchDemoStrings();
     // loc_115F5:
@@ -1867,7 +1748,6 @@ int GameInterface::app_main()
         uint32_t etime = timerGetTicks();
         Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
     }
-    loaddefinitions_game(defsfile, FALSE);
 
 
     enginePostInit();

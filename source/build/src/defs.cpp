@@ -188,6 +188,7 @@ enum scripttoken_t
     T_RFFDEFINEID,
     T_EXTRA,
     T_ROTATE,
+    T_SURFACE, T_VIEW,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -657,6 +658,7 @@ static int32_t defsparser(scriptfile *script)
             uint8_t have_crc32 = 0;
             uint8_t have_size = 0;
             int32_t extra = 0;
+            int havesurface = 0, surface = 0, havevox = 0, vox = 0, haveview = 0, view = 0, haveshade = 0, shade = 0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -673,6 +675,12 @@ static int32_t defsparser(scriptfile *script)
                 { "ifcrc",           T_IFCRC },
                 { "ifmatch",         T_IFMATCH },
                 { "extra",           T_EXTRA },
+                // Blood also defines these.
+                { "surface", T_SURFACE },
+                { "voxel",   T_VOXEL },
+                { "view",    T_VIEW },
+                { "shade",   T_SHADE },
+
             };
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -747,6 +755,23 @@ static int32_t defsparser(scriptfile *script)
                     haveextra = 1;
                     scriptfile_getsymbol(script, &extra);
                     break;
+                case T_SURFACE:
+                    havesurface = 1;
+                    scriptfile_getsymbol(script, &surface);
+                    break;
+                case T_VOXEL:
+                    havevox = 1;
+                    scriptfile_getsymbol(script, &vox);
+                    break;
+                case T_VIEW:
+                    haveview = 1;
+                    scriptfile_getsymbol(script, &view);
+                    break;
+                case T_SHADE:
+                    haveshade = 1;
+                    scriptfile_getsymbol(script, &shade);
+                    break;
+
                 default:
                     break;
                 }
@@ -778,6 +803,15 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
+            // fixme - forward to the game code. These are Blood specific.
+            if (havesurface)
+                ;// gi->SetSurfType(tile, surface);
+            if (havevox)
+                ;// gi->SetVoxel(tile, vox);
+            if (haveshade)
+                ;// gi->SetShade(tile, shade);
+            if (haveview)
+                picanm[tile].extra = view & 7;
 
             if (!fn)
             {
@@ -3373,19 +3407,28 @@ static int32_t defsparser(scriptfile *script)
 
         case T_RFFDEFINEID:
         {
-            char *dummy;
-            int dummy2;
+            char* resName = NULL;
+            char* resType = NULL;
+            char* rffName = NULL;
+            int resID;
 
-            if (scriptfile_getstring(script, &dummy))
+            if (scriptfile_getstring(script, &resName))
                 break;
-            if (scriptfile_getstring(script, &dummy))
+
+            if (scriptfile_getstring(script, &resType))
                 break;
-            if (scriptfile_getnumber(script, &dummy2))
+
+            if (scriptfile_getnumber(script, &resID))
                 break;
-            if (scriptfile_getstring(script, &dummy))
+
+            if (scriptfile_getstring(script, &rffName))
                 break;
+
+            FStringf name("%s.%s", resName, resType);
+            fileSystem.CreatePathlessCopy(resName, resID, 0);
         }
         break;
+
 
         default:
             Printf("Unknown token.\n"); break;

@@ -60,7 +60,7 @@ static void drawTextScreenBackground(void)
 {
     if (bLoadScreenCrcMatch == -1) bLoadScreenCrcMatch = tileGetCRC32(kLoadScreen) == kLoadScreenCRC;
 
-    if ((blood_globalflags & BLOOD_FORCE_WIDELOADSCREEN) || (bLoadScreenCrcMatch))
+    if (bLoadScreenCrcMatch)
     {
         if (yxaspect >= 65536)
         {

@@ -478,8 +478,6 @@ enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
 };
 
-extern int loaddefinitions_game(const char *fn, int32_t preload);
-
 extern void G_ExtInit(void);
 
 extern void G_SetupGlobalPsky(void);

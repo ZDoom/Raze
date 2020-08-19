@@ -1214,14 +1214,6 @@ void GoToTheCinema(int nVal)
     }
     currentCinemaPalette = nVal;
 
-#if 0
-    if (ISDEMOVER) {
-        //???
-        if (tilesiz[cinematile].x * tilesiz[cinematile].y == 0)
-            TileFiles.tileCreate(cinematile, 320, 200);
-    }
-#endif
-
     FadeOut(false);
     StopAllSounds();
     NoClip();

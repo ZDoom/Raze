@@ -325,7 +325,6 @@ enum {
 
 extern char g_modDir[BMAX_PATH];
 
-extern int loaddefinitions_game(const char* fn, int32_t preload);
 void G_LoadGroupsInDir(const char* dirname);
 void G_DoAutoload(const char* dirname);
 
