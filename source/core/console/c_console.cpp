@@ -108,6 +108,12 @@ int			ConBottom, ConScroll, RowAdjust;
 uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
+int NotifyFontScale = 1;
+
+void C_SetNotifyFontScale(int scale)
+{
+	NotifyFontScale = scale;
+}
 
 static int TopLine, InsertLine;
 
@@ -795,11 +801,11 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	if (AddType == APPENDLINE && Text.Size() > 0 && Text[Text.Size() - 1].PrintLevel == printlevel)
 	{
 		FString str = Text[Text.Size() - 1].Text + source;
-		lines = V_BreakLines (font, width, str);
+		lines = V_BreakLines (font, width * NotifyFontScale, str);
 	}
 	else
 	{
-		lines = V_BreakLines (font, width, source);
+		lines = V_BreakLines (font, width * NotifyFontScale, source);
 		if (AddType == APPENDLINE)
 		{
 			AddType = NEWLINE;
@@ -1064,7 +1070,7 @@ void FNotifyBuffer::Tick()
 	{
 		Text.Delete(0, i);
 		FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
-		Top += font->GetHeight();
+		Top += font->GetHeight() / NotifyFontScale;
 	}
 }
 
@@ -1079,10 +1085,10 @@ void FNotifyBuffer::Draw()
 
 	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
 
-	line = Top + font->GetDisplacement();
+	line = Top + font->GetDisplacement() / NotifyFontScale;
 	canskip = true;
 
-	lineadv = font->GetHeight ();
+	lineadv = font->GetHeight () / NotifyFontScale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{
@@ -1107,17 +1113,17 @@ void FNotifyBuffer::Draw()
 
 			int scale = active_con_scaletext(twod, generic_ui);
 			if (!center)
-				DrawText(twod, font, color, 0, line, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale,
-					DTA_VirtualHeight, twod->GetHeight() / scale,
+				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text,
+					DTA_VirtualWidth, twod->GetWidth() / scale * NotifyFontScale,
+					DTA_VirtualHeight, twod->GetHeight() / scale * NotifyFontScale,
 					DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			else
-				DrawText(twod, font, color, (twod->GetWidth() -
+				DrawText(twod, font, color, (twod->GetWidth() * NotifyFontScale -
 					font->StringWidth (notify.Text) * scale) / 2 / scale,
 					line, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale,
-					DTA_VirtualHeight, twod->GetHeight() / scale,
+					DTA_VirtualWidth, twod->GetWidth() / scale * NotifyFontScale,
+					DTA_VirtualHeight, twod->GetHeight() / scale * NotifyFontScale,
 					DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			line += lineadv;
