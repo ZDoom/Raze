@@ -6800,7 +6800,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
         }
     }
 
-    if (TEST(psp->flags, PANF_BOB))
+    if (cl_weaponsway && TEST(psp->flags, PANF_BOB))
     {
         // //
         // sin_xxx moves the weapon left-right
