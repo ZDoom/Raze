@@ -978,7 +978,7 @@ InitWeaponSword(PLAYERp pp)
 
     PlaySound(DIGI_SWORD_UP, pp, v3df_follow|v3df_dontpan);
 
-    if (pp == Player+myconnectindex)
+    if (pp == Player+myconnectindex && totalclock > 0)
     {
         rnd_num = STD_RANDOM_RANGE(1024);
         if (rnd_num > 900)
