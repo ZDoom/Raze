@@ -7700,6 +7700,16 @@ domovethings(void)
         pp = Player + pnum;
         GlobPlayerP = pp;
 
+        if (pp->cookieTime)
+        {
+            pp->cookieTime -= synctics;
+            if (pp->cookieTime <= 0)
+            {
+                memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
+                pp->cookieTime = 0;
+            }
+        }
+
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {

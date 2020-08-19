@@ -5728,7 +5728,7 @@ KeyMain:
                     Printf(TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
                     strncpy(pp->cookieQuote, msg, 255);
                     pp->cookieQuote[255] = 0;
-                    pp->cookieTime = totalclock + 540;
+                    pp->cookieTime = 540;
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
