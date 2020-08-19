@@ -4552,6 +4552,7 @@ pNukeAction(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
+#if 0 // Code commented out as it's causing interpolation issues when initialising a nuke.
     psp->oy = psp->y;
     psp->y -= 3 * synctics;
 
@@ -4560,6 +4561,7 @@ pNukeAction(PANEL_SPRITEp psp)
         psp->oy = psp->y = MICRO_YOFF;
         psp->yorig = psp->y;
     }
+#endif
 
     pMicroBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
