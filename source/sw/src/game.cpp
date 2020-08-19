@@ -556,6 +556,7 @@ void InitRunLevel(void)
 
 void TerminateLevel(void)
 {
+    videoFadePalette(0, 0, 0, 0);
     if (!currentLevel) return;
 
     int i, nexti, stat, pnum, ndx;
