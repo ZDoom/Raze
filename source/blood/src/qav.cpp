@@ -74,12 +74,15 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
     }
     else
     {
+        // there's some disagreements about flag values between QAV and the drawer. Shuffle these around.
 		if (stat & RS_YFLIP) stat |= RS_YFLIPHUD;
 		stat &= ~RS_YFLIP;
 		if (stat & 0x100) stat |= RS_XFLIPHUD;
+        stat &= ~0x100;
 		if ((stat & kQavOrientationLeft)) stat |= RS_ALIGN_L;
+        stat &= ~kQavOrientationLeft;
 
-		hud_drawsprite(x, y, pTile->z, pTile->angle, pTile->picnum, shade, palnum, stat);
+		hud_drawsprite(x, y, pTile->z, pTile->angle, pTile->picnum, pTile->shade + shade, palnum, stat);
     }
 }
 
