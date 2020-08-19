@@ -101,19 +101,19 @@ static int osdcmd_map(CCmdFuncPtr parm)
 
 static int osdcmd_god(CCmdFuncPtr)
 {
-    C_DoCommand("activatecheat swgod");
+    C_DoCommand("activatecheat lwgod");
     return CCMD_OK;
 }
 
 static int osdcmd_noclip(CCmdFuncPtr)
 {
-    C_DoCommand("activatecheat swghost");
+    C_DoCommand("activatecheat lwghost");
     return CCMD_OK;
 }
 
 int osdcmd_restartmap(CCmdFuncPtr)
 {
-    C_DoCommand("activatecheat swstart");
+    C_DoCommand("activatecheat lwstart");
     return CCMD_OK;
 }
 
@@ -134,37 +134,37 @@ static int osdcmd_give(CCmdFuncPtr parm)
 
     if (!stricmp(parm->parms[0], "all"))
     {
-        C_DoCommand("activatecheat swgimme");
+        C_DoCommand("activatecheat lwgimme");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "health"))
     {
-        C_DoCommand("activatecheat swmedic");
+        C_DoCommand("activatecheat lwmedic");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "weapons"))
     {
-        C_DoCommand("activatecheat swguns");
+        C_DoCommand("activatecheat lwguns");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "ammo"))
     {
-        C_DoCommand("activatecheat swammo");
+        C_DoCommand("activatecheat lwammo");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "armor"))
     {
-        C_DoCommand("activatecheat swarmor");
+        C_DoCommand("activatecheat lwarmor");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "keys"))
     {
-        C_DoCommand("activatecheat swkeys");
+        C_DoCommand("activatecheat lwkeys");
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "inventory"))
     {
-        C_DoCommand("activatecheat switems");
+        C_DoCommand("activatecheat lwitems");
         return CCMD_OK;
     }
     return CCMD_SHOWHELP;
