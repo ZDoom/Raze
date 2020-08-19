@@ -769,7 +769,6 @@ static void app_init()
     registerinputcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
     UpdateDacs(0, true);
 }
 

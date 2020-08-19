@@ -124,10 +124,16 @@ extern short nFlameHeight;
 extern short nPilotLightFrame;
 extern short nPilotLightCount;
 
-extern short laststatustile;
-
 extern int laststatusx;
 extern int laststatusy;
+
+extern short ChunkYpos[];
+extern short ChunkXpos[];
+extern short ChunkPict[];
+extern short ChunkFlag[];
+extern short FrameSize[];
+extern short FrameBase[];
+
 
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);

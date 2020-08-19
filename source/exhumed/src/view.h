@@ -24,19 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 extern short bSubTitles;
-extern short nViewTop;
-extern short bClip;
-extern short nViewBottom;
-extern short nViewRight;
-extern short nViewLeft;
 extern short besttarget;
 extern short bCamera;
 
 void InitView();
 void SetView1();
-void RefreshBackground();
+void DrawStatusBar();
 void DrawView(int smoothRatio, bool sceneonly = false);
-void MySetView(int x1, int y1, int x2, int y2);
 void ResetView();
 void NoClip();
 void Clip();

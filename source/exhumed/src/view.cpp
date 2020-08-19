@@ -42,6 +42,7 @@ int nCamerax;
 int nCameray;
 int nCameraz;
 
+
 short bTouchFloor;
 
 short nQuake[kMaxPlayers] = { 0 };
@@ -51,14 +52,7 @@ short nChunkTotal = 0;
 fix16_t nCameraa;
 fix16_t nCamerapan;
 short nViewTop;
-short bClip = false;
-short nViewBottom;
-short nViewRight;
-short besttarget;
-short nViewLeft;
 short bCamera = false;
-
-short nViewy;
 
 int viewz;
 
@@ -128,10 +122,7 @@ void viewRestoreInterpolations(void)  //Stick at end of drawscreen
 
 void InitView()
 {
-    screensize = 0;
-#ifdef USE_OPENGL
     polymostcenterhoriz = 92;
-#endif
 }
 
 // NOTE - not to be confused with Ken's analyzesprites()
@@ -237,86 +228,12 @@ void ResetView()
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
 #endif
-
-    LoadStatus();
 }
 
 void SetView1()
 {
 }
 
-void RefreshBackground()
-{
-    if (screensize <= 0)
-        return;
-    int nTileOffset = 0;
-    int tileX = tilesiz[nBackgroundPic].x;
-    int tileY = tilesiz[nBackgroundPic].y;
-
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    MaskStatus();
-
-    for (int y = 0; y < nViewTop; y += tileY)
-    {
-        nTileOffset = (y/tileY)&1;
-        for (int x = 0; x < xdim; x += tileX)
-        {
-            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, 0, xdim-1, nViewTop-1);
-            nTileOffset ^= 1;
-        }
-    }
-    for (int y = (nViewTop/tileY)*tileY; y <= nViewBottom; y += tileY)
-    {
-        nTileOffset = (y/tileY)&1;
-        for (int x = 0; x < nViewLeft; x += tileX)
-        {
-            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, nViewTop, nViewLeft-1, nViewBottom);
-            nTileOffset ^= 1;
-        }
-    }
-    for (int y = (nViewTop/tileY)*tileY; y <= nViewBottom; y += tileY)
-    {
-        nTileOffset = ((y/tileY)^((nViewRight+1)/tileX))&1;
-        for (int x = ((nViewRight+1)/tileX)*tileX; x < xdim; x += tileX)
-        {
-            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, nViewRight+1, nViewTop, xdim-1, nViewBottom);
-            nTileOffset ^= 1;
-        }
-    }
-    for (int y = ((nViewBottom+1)/tileY)*tileY; y < ydim; y += tileY)
-    {
-        nTileOffset = (y/tileY)&1;
-        for (int x = 0; x < xdim; x += tileX)
-        {
-            rotatesprite(x<<16, y<<16, 65536L, 0, nBackgroundPic + nTileOffset, -32, kPalNormal, 8 + 16 + 64, 0, nViewBottom+1, xdim-1, ydim-1);
-            nTileOffset ^= 1;
-        }
-    }
-
-    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
-}
-
-void MySetView(int x1, int y1, int x2, int y2)
-{
-    if (!bFullScreen) {
-        MaskStatus();
-    }
-
-    nViewLeft = x1;
-    nViewTop = y1;
-    nViewRight = x2;
-    nViewBottom = y2;
-
-    videoSetViewableArea(x1, y1, x2, y2);
-
-    nViewy = y1;
-}
-
-// unused function
-void TestLava()
-{
-}
 
 static inline int interpolate16(int a, int b, int smooth)
 {
@@ -331,16 +248,6 @@ void DrawView(int smoothRatio, bool sceneonly)
     short nSector;
     fix16_t nAngle;
     fix16_t pan;
-
-
-    if (!sceneonly)
-    {
-        RefreshBackground();
-
-        if (!bFullScreen) {
-            MaskStatus();
-        }
-    }
 
     zbob = Sin(2 * bobangle) >> 3;
 
@@ -359,7 +266,6 @@ void DrawView(int smoothRatio, bool sceneonly)
         nAngle = fix16_from_int(sprite[nSprite].ang);
 
         SetGreenPal();
-        UnMaskStatus();
 
         enemy = SnakeList[nSnakeCam].nEnemy;
 
@@ -445,7 +351,6 @@ void DrawView(int smoothRatio, bool sceneonly)
     {
         nSnakeCam = -1;
         videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-        UnMaskStatus();
     }
 
     UpdateMap();
@@ -547,8 +452,6 @@ void DrawView(int smoothRatio, bool sceneonly)
                             fadecdaudio();
                         }
                     }
-
-                    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
                 }
             }
         }
@@ -558,7 +461,6 @@ void DrawView(int smoothRatio, bool sceneonly)
             {
                 DrawWeapons(smoothRatio);
                 DrawMap();
-                DrawStatus();
             }
             else
             {
@@ -569,10 +471,6 @@ void DrawView(int smoothRatio, bool sceneonly)
 
                 DrawMap();
 
-                if (!bFullScreen) {
-                    MaskStatus();
-                }
-
                 DrawSnakeCamStatus();
             }
         }
@@ -580,7 +478,6 @@ void DrawView(int smoothRatio, bool sceneonly)
     else
     {
         twod->ClearScreen();
-        DrawStatus();
     }
 
     sprite[nPlayerSprite].cstat = nPlayerOldCstat;
@@ -597,19 +494,10 @@ bool GameInterface::GenerateSavePic()
 
 void NoClip()
 {
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    bClip = false;
 }
 
 void Clip()
 {
-    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
-    if (!bFullScreen) {
-        MaskStatus();
-    }
-
-    bClip = true;
 }
 
 
@@ -621,14 +509,7 @@ static SavegameHelper sgh("view",
     SV(nChunkTotal),
     SV(nCameraa),
     SV(nCamerapan),
-    SV(nViewTop),
-    SV(bClip),
-    SV(nViewBottom),
-    SV(nViewRight),
-    SV(besttarget),
-    SV(nViewLeft),
     SV(bCamera),
-    SV(nViewy),
     SV(viewz),
     SV(enemy),
     SV(nEnemyPal),

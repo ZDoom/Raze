@@ -261,11 +261,6 @@ void DrawBorder()
 		twod->AddFlatFill(x1, y2 - 4, x1 + 4, y2, ve, 2);
 		twod->AddFlatFill(x2 - 4, y2 - 4, x2, y2, ve, 4);
 	}
-	else
-	{
-		// If we got no frame just clear the screen.
-		twod->ClearScreen();
-	}
 }
 
 //==========================================================================

@@ -88,9 +88,6 @@ void DestroySnake(int nSnake)
     if (nSnake == nSnakeCam)
     {
         nSnakeCam = -1;
-        if (!bFullScreen) {
-            RefreshStatus();
-        }
     }
 }
 

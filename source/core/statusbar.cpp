@@ -416,7 +416,9 @@ void DBaseStatusBar::DrawGraphic(FGameTexture* tex, double x, double y, int flag
 		DTA_AlphaChannel, !!(flags & DI_ALPHAMAPPED),
 		DTA_FillColor, (flags & DI_ALPHAMAPPED) ? 0 : -1,
 		DTA_FlipX, !!(flags & DI_MIRROR),
+		DTA_FlipY, !!(flags& DI_MIRRORY),
 		DTA_Rotate, rotate,
+		DTA_FlipOffsets, true,
 		DTA_LegacyRenderStyle, style,
 		TAG_DONE);
 }

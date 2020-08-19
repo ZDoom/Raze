@@ -43,7 +43,6 @@ short nPilotLightFrame;
 short nPilotLightCount;
 
 short nPilotLightBase;
-short laststatustile;
 
 short nShadowWidth = 1;
 short nFlameHeight = 1;
@@ -349,47 +348,6 @@ void seq_LoadSequences()
     }
 }
 
-void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx)
-{
-    edx += SeqBase[nSequence];
-
-    short nFrameBase = FrameBase[edx];
-    int16_t nFrameSize = FrameSize[edx];
-
-    int const nPal = RemapPLU(kPalNormal);
-
-    while (1)
-    {
-        nFrameSize--;
-        if (nFrameSize < 0)
-            break;
-
-        uint8_t nStat = 1; // (thex, they) is middle
-
-        laststatusx = ChunkXpos[nFrameBase] + 160;
-        laststatusy = ChunkYpos[nFrameBase] + 100 + ebx;
-
-        short chunkFlag = ChunkFlag[nFrameBase];
-
-        if (chunkFlag & 1) {
-            nStat = 0x9; // (thex, they) is middle, and x-flipped
-        }
-
-        if (chunkFlag & 2) {
-            nStat |= 0x10; // y-flipped
-        }
-
-        laststatustile = ChunkPict[nFrameBase];
-
-        if (bHiRes) {
-            nStat |= 0x2; // scale and clip to viewing window
-        }
-
-        overwritesprite(laststatusx, laststatusy, laststatustile, 0, nStat, nPal);
-        nFrameBase++;
-    }
-}
-
 short seq_GetFrameFlag(short val, short nFrame)
 {
     return FrameFlag[SeqBase[val] + nFrame];
@@ -677,7 +635,6 @@ static SavegameHelper sgh("sequence",
     SV(nPilotLightFrame),
     SV(nPilotLightCount),
     SV(nPilotLightBase),
-    SV(laststatustile),
     SV(nShadowWidth),
     SV(nFlameHeight),
     nullptr);

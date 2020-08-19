@@ -626,7 +626,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
     int startTime = (int)totalclock;
 
     inputState.ClearAllInput();
-    UnMaskStatus();
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
     // 0-offset the level numbers
@@ -834,7 +833,6 @@ int menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest)
         }
     }
 
-    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
     return nLevelNew + 1;
 }
 
@@ -1163,8 +1161,6 @@ void DoCinemaText(short nVal)
 
 void GoToTheCinema(int nVal)
 {
-    UnMaskStatus();
-
     switch (nVal - 1)
     {
         default:
@@ -1292,7 +1288,6 @@ void GoToTheCinema(int nVal)
     videoNextPage();
 
     GrabPalette();
-    Clip();
 
     // quit the game if we've finished level 4 and displayed the advert text
     if (ISDEMOVER && nVal == 3) {
@@ -1430,7 +1425,6 @@ void DoStatic(int a, int b)
 void DoLastLevelCinema()
 {
     FadeOut(0);
-    UnMaskStatus();
 
     videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
@@ -1592,8 +1586,6 @@ LABEL_28:
     EraseScreen(-1);
     tileLoad(kTileLoboLaptop);
     FadeOut(0);
-    MySetView(nViewLeft, nViewTop, nViewRight, nViewBottom);
-    MaskStatus();
 }
 
 static SavegameHelper sgh("menu",

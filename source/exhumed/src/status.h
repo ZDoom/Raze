@@ -28,9 +28,6 @@ extern short airpages;
 
 void RefreshStatus();
 void InitStatus();
-void UnMaskStatus();
-void MaskStatus();
-void LoadStatus();
 void SetPlayerItem(short nPlayer, short nItem);
 void SetMagicFrame();
 void SetHealthFrame(short nVal);

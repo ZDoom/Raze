@@ -63,6 +63,7 @@ int menu_Menu(int nVal)
 		overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 32, 3, kPalNormal);
 
 		HandleAsync();
+		D_ProcessEvents();
 		videoNextPage();
 
 	}

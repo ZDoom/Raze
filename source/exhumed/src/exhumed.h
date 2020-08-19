@@ -277,17 +277,11 @@ extern short bNoCreatures;
 extern short nLocalSpr;
 extern short levelnew;
 
-extern short textpages;
-
 extern short nSnakeCam;
 
-extern short bHiRes;
 extern short bCoordinates;
-extern short bFullScreen;
 
 extern short bHolly;
-
-extern short screensize;
 
 extern int totalmoves;
 
@@ -364,6 +358,7 @@ struct GameInterface : ::GameInterface
     bool LoadGame(FSaveGameNode* sv) override;
     bool SaveGame(FSaveGameNode* sv) override;
     bool CanSave() override;
+    ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
 
     FString statFPS() override;
     //GameStats getStats() override;

@@ -470,7 +470,6 @@ void DrawMap()
         if (nMapMode == 2)
         {
             twod->ClearScreen();
-            RefreshBackground();
             renderDrawMapView(initx, inity, lMapZoom, inita);
         }
         G_DrawOverheadMap(initx, inity, lMapZoom, inita);

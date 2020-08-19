@@ -55,6 +55,7 @@ BEGIN_PS_NS
 void FinishLevel();
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
+void InitFonts();
 
 int htimer = 0;
 
@@ -467,15 +468,7 @@ void ResetEngine()
 
 void InstallEngine()
 {
-    // initgroupfile("stuff.dat");
 	TileFiles.LoadArtSet("tiles%03d.art");
-
-	// TEMP
-
-    //nScreenWidth *= 2;
-    //nScreenHeight *= 2;
-    bHiRes = true;
-    // TEMP
 
     if (engineInit())
     {
@@ -483,6 +476,7 @@ void InstallEngine()
     }
     uploadCinemaPalettes();
     LoadPaletteLookups();
+    InitFonts();
     videoInit();
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
@@ -548,7 +542,6 @@ short nShadowPic;
 short nCreaturesLeft = 0;
 
 short nFreeze;
-short bFullScreen;
 
 short nSnakeCam = -1;
 
@@ -586,7 +579,6 @@ short forcelevel = -1;
 int lLocalButtons = 0;
 int lLocalCodes = 0;
 
-short bHiRes = false;
 short bCoordinates = false;
 
 int nNetTime = -1;
@@ -607,7 +599,6 @@ short nCurBodyNum = 0;
 
 short nBodyTotal = 0;
 
-short textpages;
 short lastfps;
 
 short nMapMode = 0;
@@ -621,8 +612,6 @@ short nFirstPassword = 0;
 short nFirstPassInfo = 0;
 short nPasswordCount = 0;
 
-short screensize;
-
 short bSnakeCam = false;
 short bRecord = false;
 short bPlayback = false;
@@ -632,6 +621,7 @@ short bDoFlashes = true;
 short bHolly = false;
 
 short nItemTextIndex;
+short besttarget;
 
 short scan_char = 0;
 
@@ -698,21 +688,6 @@ int MyGetStringWidth(const char *str)
     }
 
     return nWidth;
-}
-
-void UpdateScreenSize()
-{
-    int xsize = xdim - scale(screensize*16, xdim, 320);
-    int ysize = scale(ydim, xsize, xdim);
-    int y1 = ((ydim >> 1) - (ysize >> 1));
-
-    MySetView(
-        (xdim >> 1) - (xsize >> 1),
-        y1,
-        (xdim >> 1) - (xsize >> 1) + xsize - 1,
-        (y1 + ysize - 1));
-
-    RefreshStatus();
 }
 
 void ResetPassword()
@@ -862,13 +837,33 @@ void CheckKeys()
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
         buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-        if (!nMapMode) G_ChangeHudLayout(1);
+        if (!nMapMode)
+        {
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(1);
+            }
+            else
+            {
+                hud_scale = hud_scale + 4;
+            }
+        }
     }
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
         buttonMap.ClearButton(gamefunc_Shrink_Screen);
-        if (!nMapMode) G_ChangeHudLayout(-1);
+        if (!nMapMode)
+        {
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(-1);
+            }
+            else
+            {
+                hud_scale = hud_scale - 4;
+            }
+        }
     }
 
     // go to 3rd person view?
@@ -1153,8 +1148,6 @@ void DoCredits()
 		HandleAsync();
 		inputState.keyGetChar();
     }
-
-    Clip();
 }
 
 void FinishLevel()
@@ -1177,8 +1170,6 @@ void FinishLevel()
         videoNextPage();
         WaitTicks(12);
         WaitVBL();
-        RefreshBackground();
-        RefreshStatus();
         DrawView(65536);
         videoNextPage();
     }
@@ -1243,9 +1234,6 @@ uint8_t ReadPlaybackInputs()
 
 void SetHiRes()
 {
-    //nScreenWidth  = 640;
-    //nScreenHeight = 400;
-    bHiRes = true;
 }
 
 void DoClockBeep()
@@ -1384,11 +1372,15 @@ static void GameDisplay(void)
     auto smoothRatio = calc_smoothratio(totalclock, tclocks);
 
     DrawView(smoothRatio);
-
+    DrawStatusBar();
     if (paused && !M_Active())
     {
         int nLen = MyGetStringWidth("PAUSED");
         myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
+    }
+    if (M_Active())
+    {
+        D_ProcessEvents();
     }
 
     videoNextPage();
@@ -1710,10 +1702,6 @@ int GameInterface::app_main()
     }
 
     ResetPassword();
-
-    // GetCurPal(NULL);
-
-    Printf("Initializing OSD...\n");
 
     registerosdcommands();
 
@@ -2289,7 +2277,6 @@ void DoGameOverScene()
 
     NoClip();
     overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal, 16);
-    Clip();
     videoNextPage();
     CinemaFadeIn();
     PlayGameOverSound();
@@ -2443,8 +2430,6 @@ void DoTitle()
     }
 
     WaitNoKey(1, KeyFn1);
-
-    videoSetViewableArea(nViewLeft, nViewTop, nViewRight, nViewBottom);
 }
 
 void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
@@ -3034,44 +3019,18 @@ bool GameInterface::CanSave()
     return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
 }
 
-#if 0
-void GameInterface::UpdateScreenSize()
-{
-    if (hud_size == 8)
-    {
-        if (!bFullScreen)
-        {
-            bFullScreen = true;
-            screensize = 0;
-            UnMaskStatus();
-        }
-    }
-    else
-    {
-        screensize = (7 - clamp(*hud_size, 0, 7)) * 2;
-        bFullScreen = false;
-        Powerslave::UpdateScreenSize();
-    }
-}
-#endif
-
-
 ::GameInterface* CreateInterface()
 {
     return new GameInterface;
 }
 
-//short lastlevel;
-//short forcelevel = -1;
-//int lLocalCodes = 0;
-//int flash;
-//short textpages;
 
 // This is only the static global data.
 static SavegameHelper sgh("exhumed",
     SA(cPupData),
     SV(nPupData),
     SV(nPixels),
+    SV(besttarget),
     SA(curx),
     SA(cury),
     SA(destvelx),
