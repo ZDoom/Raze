@@ -64,13 +64,14 @@ void InitFonts()
         }
         int left = 0;
         int right = 7;
+        /* probably not such a good idea after all...
         while (left <= right)
         {
             bool didit = false;
             if (!rowset[left]) left++, didit = true;
             if (!rowset[right]) right--, didit = true;
             if (!didit) break;
-        }
+        }*/
         if (left < right)
         {
             xpos += left;
@@ -651,18 +652,15 @@ void MoveStatus()
 }
 
 
-void DrawSnakeCamStatus()
-{
-    printext(0, 0, "S E R P E N T   C A M", kTile159, 255);
-}
-
 class DExhumedStatusBar : public DBaseStatusBar
 {
     DHUDFont textfont;
+    DHUDFont minifont;
 
 public:
     DExhumedStatusBar()
     {
+        textfont = { SmallFont, 1, Off, 1, 1 };
         textfont = { SmallFont2, 1, Off, 1, 1 };
     }
 
@@ -905,32 +903,11 @@ private:
 
         DrawMulti();
 
-#if 0
-        if (bCoordinates)
+        if (nSnakeCam >= 0)
         {
-            int nSprite = PlayerList[nLocalPlayer].nSprite;
-
-            int x = 160;
-
-            snprintf(coordBuf, 50, "X %d", (int)sprite[nSprite].x);
-            printext(x, 1, coordBuf, kTile159, 255);
-
-            snprintf(coordBuf, 50, "Y %d", sprite[nSprite].y);
-            printext(x, 10, coordBuf, kTile159, 255);
+            BeginHUD(320, 200, 1);
+            SBar_DrawString(this, &minifont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
         }
-
-        if (bHolly)
-        {
-            snprintf(message_text, 80, "HOLLY: %s", sHollyStr);
-            printext(0, 0, message_text, kTile159, 255);
-        }
-        else if (nSnakeCam < 0)
-        {
-            if (message_timer) {
-                printext(0, 0, message_text, kTile159, 255);
-            }
-        }
-#endif
     }
 
 public:
@@ -939,7 +916,7 @@ public:
         if (hud_size <= Hud_full)
         {
             DrawStatus();
-        }
+       }
     }
 };
 
