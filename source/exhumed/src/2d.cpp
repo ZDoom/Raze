@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "multipatchtexture.h"
 #include "screenjob.h"
 #include "sequence.h"
+#include "v_draw.h"
 
 #include <string>
 
@@ -160,6 +161,112 @@ void InitFonts()
 //
 //---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000 };
+
+class DMainTitle : public DScreenJob
+{
+    int String_Copyright;
+    const char* a;
+    const char* b;
+    int state = 0;
+    int var_18;
+    int var_4 = 0;
+    int esi = 130;
+    int nCount = 0;
+
+
+public:
+    DMainTitle() : DScreenJob(fadein)
+    {
+        String_Copyright = FindGString("COPYRIGHT");
+        a = gString[String_Copyright];
+        b = gString[String_Copyright + 1];
+        var_18 = skullDurations[0];
+    }
+
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+        if (clock == 0)
+        {
+            PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
+            playCDtrack(19, true);
+        }
+        if (clock > 1'000'000 && state == 0 && !soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr,CHAN_AUTO, -1))
+        {
+            if (time(0) & 0xF)
+                PlayGameOverSound();
+            else 
+                PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
+            state = 1;
+        }
+        int ticker = clock * 120 / 1'000'000'000;
+
+        menu_DoPlasma();
+
+        overwritesprite(160, 100, kSkullHead, 0, 3, kPalNormal);
+        switch (state)
+        {
+        case 0:
+            overwritesprite(161, 130, kSkullJaw, 0, 3, kPalNormal);
+            break;
+
+        case 1:
+        {
+            int nStringWidth = SmallFont->StringWidth(a);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 24, a, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+            nStringWidth = SmallFont->StringWidth(b);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 16, b, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+
+            if (ticker > var_18)
+            {
+                nCount++;
+                if (nCount > 12) return 0;
+                var_18 = skullDurations[nCount];
+                var_4 = var_4 == 0;
+            }
+
+            short nTile = kSkullJaw;
+
+            if (var_4)
+            {
+                if (esi >= 135) nTile = kTile3583;
+                else esi += 5;
+            }
+            else if (esi <= 130) esi = 130;
+            else esi -= 2;
+
+            int y;
+
+            if (nTile == kTile3583)
+            {
+                y = 131;
+            }
+            else
+            {
+                y = esi;
+                if (y > 135) y = 135;
+            }
+
+            overwritesprite(161, y, nTile, 0, 3, kPalNormal);
+            break;
+        }
+        }
+        return 1;
+    }
+};
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 DScreenJob *PlayMovie(const char* fileName);
 
 void DoTitle(CompletionFunc completion)
@@ -170,133 +277,10 @@ void DoTitle(CompletionFunc completion)
     jobs[job++] = { Create<DImageScreen>(tileGetTexture(EXHUMED ? kTileBMGLogo : kTilePIELogo), DScreenJob::fadein | DScreenJob::fadeout) };
     jobs[job++] = { Create<DImageScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout) };
     jobs[job++] = { PlayMovie("book.mov") };
+    jobs[job++] = { Create<DMainTitle>() };
 
     RunScreenJob(jobs, job, completion);
 
-#if 0
-    short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000 };
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeOut(0);
-
-    GrabPalette();
-
-    PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-
-    EraseScreen(4);
-
-    playCDtrack(19, true);
-
-    videoNextPage();
-    FadeIn();
-    WaitVBL();
-
-    int String_Copyright = FindGString("COPYRIGHT");
-
-    const char* a = gString[String_Copyright];
-    const char* b = gString[String_Copyright + 1];
-
-    menu_DoPlasma();
-
-    int nTile = kSkullHead;
-
-    overwritesprite(160, 100, kSkullHead, 0, 3, kPalNormal);
-    overwritesprite(161, 130, kSkullJaw, 0, 3, kPalNormal);
-    videoNextPage();
-
-    WaitNoKey(2, KeyFn1);
-
-    if (time(0) & 0xF) {
-        PlayGameOverSound();
-    }
-    else {
-        PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
-    }
-
-    int nStartTime = (int)totalclock;
-    int nCount = 0;
-    int var_18 = (int)totalclock + skullDurations[0];
-    int var_4 = 0;
-
-    int esi = 130;
-
-
-
-    inputState.ClearAllInput();
-    while (LocalSoundPlaying())
-    {
-        HandleAsync();
-        if (inputState.CheckAllInput()) break;
-
-        menu_DoPlasma();
-        overwritesprite(160, 100, nTile, 0, 3, kPalNormal);
-
-        int nStringWidth = MyGetStringWidth(a);
-
-        int y = 200 - 24;
-        myprintext((320 / 2 - nStringWidth / 2), y, a, 0);
-
-        nStringWidth = MyGetStringWidth(b);
-
-        y = 200 - 16;
-        myprintext((320 / 2 - nStringWidth / 2), y, b, 0);
-
-        if ((int)totalclock > var_18)
-        {
-            nCount++;
-
-            if (nCount > 12) break;
-            var_18 = nStartTime + skullDurations[nCount];
-            var_4 = var_4 == 0;
-        }
-
-        short nTile = kSkullJaw;
-
-        if (var_4)
-        {
-            if (esi >= 135) {
-                nTile = kTile3583;
-            }
-            else {
-                esi += 5;
-            }
-        }
-        else if (esi <= 130)
-        {
-            esi = 130;
-        }
-        else
-        {
-            esi -= 2;
-        }
-
-        y = 0;
-
-        if (nTile == kTile3583)
-        {
-            y = 131;
-        }
-        else
-        {
-            y = esi;
-
-            if (y > 135) {
-                y = 135;
-            }
-        }
-
-        overwritesprite(161, y, nTile, 0, 3, kPalNormal);
-        videoNextPage();
-    }
-
-    WaitNoKey(1, KeyFn1);
-#endif
 }
-
-
-
-
 
 END_PS_NS
