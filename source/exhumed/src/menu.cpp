@@ -53,9 +53,6 @@ GameStat GameStats;
 
 short nCinemaSeen[30];
 
-// this might be static within the DoPlasma function?
-uint8_t * PlasmaBuffer;
-
 uint8_t energytile[66 * 66] = {0};
 
 short nLeft[50] = {0};
@@ -66,20 +63,12 @@ short SavePosition = -1;
 uint8_t *cur;
 uint8_t *dest;
 
-unsigned int nSmokeBottom;
-unsigned int nSmokeRight;
-unsigned int nSmokeTop;
-unsigned int nSmokeLeft;
 
 unsigned int nRandom = 0x41C6167E;
 int dword_9AB57 = 0x1F;
 short word_9AB5B = 0;
 
 int keytimer = 0;
-
-int plasma_A[5] = {0};
-int plasma_B[5] = {0};
-int plasma_C[5] = {0};
 
 short nMenuKeys[] = { sc_N, sc_L, sc_M, sc_V, sc_Q, sc_None }; // select a menu item using the keys. 'N' for New Gane, 'V' for voume etc. 'M' picks Training for some reason...
 
@@ -296,231 +285,6 @@ void DoEnergyTile()
     }
 }
 
-int nPlasmaTile = kTile4092;
-int nLogoTile;
-
-#define kPlasmaWidth	320
-#define kPlasmaHeight	80
-
-int nextPlasmaTic;
-
-void menu_DoPlasma()
-{
-    int ptile = nPlasmaTile;
-    if (totalclock >= nextPlasmaTic || !PlasmaBuffer)
-    {
-        nextPlasmaTic = (int)totalclock + 4;
-
-        if (!nLogoTile)
-            nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-
-        if (!PlasmaBuffer)
-        {
-            auto pixels = TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
-            memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
-
-            PlasmaBuffer = TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
-            memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
-
-            nSmokeLeft = 160 - tilesiz[nLogoTile].x / 2;
-            nSmokeRight = nSmokeLeft + tilesiz[nLogoTile].x;
-
-            nSmokeTop = 40 - tilesiz[nLogoTile].y / 2;
-            nSmokeBottom = nSmokeTop + tilesiz[nLogoTile].y - 1;
-
-            //uint32_t t = time(0) << 16;
-            //uint32_t t2 = time(0) | t;
-            nRandom = timerGetTicksU64();
-
-            for (int i = 0; i < 5; i++)
-            {
-                int logoWidth = tilesiz[nLogoTile].x;
-                plasma_C[i] = (nSmokeLeft + rand() % logoWidth) << 16;
-                plasma_B[i] = (menu_RandomLong2() % 327680) + 0x10000;
-
-                if (menu_RandomBit2()) {
-                    plasma_B[i] = -plasma_B[i];
-                }
-
-                plasma_A[i] = menu_RandomBit2();
-            }
-        }
-
-        twod->ClearScreen();
-
-
-        uint8_t* plasmapix = tileData(nPlasmaTile);
-        uint8_t* r_ebx = plasmapix + 81;
-        const uint8_t* r_edx = tileData(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
-
-        for (int x = 0; x < kPlasmaWidth - 2; x++)
-            //	for (int x = 1; x < 318; x++)
-        {
-            //		for (int y = 1; y < 79; y++)
-            for (int y = 0; y < kPlasmaHeight - 2; y++)
-            {
-                uint8_t al = *r_edx;
-
-                if (al != 96)
-                {
-                    if (al > 158) {
-                        *r_ebx = al - 1;
-                    }
-                    else {
-                        *r_ebx = 96;
-                    }
-                }
-                else
-                {
-                    if (menu_RandomBit2()) {
-                        *r_ebx = *r_edx;
-                    }
-                    else
-                    {
-                        uint8_t al = *(r_edx + 1);
-                        uint8_t cl = *(r_edx - 1);
-
-                        if (al <= cl) {
-                            al = cl;
-                        }
-
-                        cl = al;
-                        al = *(r_edx - 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
-
-                        al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
-
-                        al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
-
-                        al = *(r_edx + 80);
-                        if (cl <= al) {
-                            cl = al;
-                        }
-
-                        al = *(r_edx - 79);
-                        if (cl > al) {
-                            al = cl;
-                        }
-
-                        cl = *(r_edx - 81);
-                        if (al <= cl) {
-                            al = cl;
-                        }
-
-                        cl = al;
-
-                        if (al <= 159) {
-                            *r_ebx = 96;
-                        }
-                        else
-                        {
-                            if (!menu_RandomBit2()) {
-                                cl--;
-                            }
-
-                            *r_ebx = cl;
-                        }
-                    }
-                }
-
-                // before restarting inner loop
-                r_edx++;
-                r_ebx++;
-            }
-
-            // before restarting outer loop
-            r_edx += 2;
-            r_ebx += 2;
-        }
-
-        auto logopix = tilePtr(nLogoTile);
-
-        for (int j = 0; j < 5; j++)
-        {
-            int pB = plasma_B[j];
-            int pC = plasma_C[j];
-            int badOffset = (pC >> 16) < nSmokeLeft || (pC >> 16) >= nSmokeRight;
-
-            const uint8_t* ptr3 = (logopix + ((pC >> 16) - nSmokeLeft)* tilesiz[nLogoTile].y);
-
-            plasma_C[j] += plasma_B[j];
-
-            if ((pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight) || (pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft))
-            {
-                int esi = plasma_A[j];
-                plasma_B[j] = -plasma_B[j];
-                plasma_A[j] = esi == 0;
-            }
-
-            if (badOffset)
-                continue;
-
-            unsigned int nSmokeOffset = 0;
-
-            if (plasma_A[j])
-            {
-                nSmokeOffset = nSmokeTop;
-
-                while (nSmokeOffset < nSmokeBottom)
-                {
-                    uint8_t al = *ptr3;
-                    if (al != TRANSPARENT_INDEX && al != 96) {
-                        break;
-                    }
-
-                    nSmokeOffset++;
-                    ptr3++;
-                }
-            }
-            else
-            {
-                nSmokeOffset = nSmokeBottom;
-
-                ptr3 += tilesiz[nLogoTile].y - 1;
-
-                while (nSmokeOffset > nSmokeTop)
-                {
-                    uint8_t al = *ptr3;
-                    if (al != TRANSPARENT_INDEX && al != 96) {
-                        break;
-                    }
-
-                    nSmokeOffset--;
-                    ptr3--;
-                }
-            }
-
-            uint8_t* v28 = plasmapix + (80 * (plasma_C[j] >> 16));
-            v28[nSmokeOffset] = 175;
-        }
-
-        tileInvalidate(nPlasmaTile, -1, -1);
-
-        // flip between tile 4092 and 4093
-        if (nPlasmaTile == kTile4092) {
-            nPlasmaTile = kTile4093;
-        }
-        else if (nPlasmaTile == kTile4093) {
-            nPlasmaTile = kTile4092;
-        }
-    }
-    overwritesprite(0,   0,  ptile,  0, 2, kPalNormal);
-    overwritesprite(160, 40, nLogoTile, 0, 3, kPalNormal);
-
-    // draw the fire urn/lamp thingies
-    int dword_9AB5F = ((int)totalclock/16) & 3;
-
-    overwritesprite(50,  150, kTile3512 + dword_9AB5F, 0, 3, kPalNormal);
-    overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 0, 3, kPalNormal);
-}
 
 
 int8_t MapLevelOffsets[] = { 0, 50, 10, 20, 0, 45, -20, 20, 5, 0, -10, 10, 30, -20, 0, 20, 0, 0, 0, 0 };

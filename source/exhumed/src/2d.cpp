@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "sequence.h"
 #include "v_draw.h"
+#include "m_random.h"
 
 #include <string>
 
@@ -155,15 +156,266 @@ void InitFonts()
 
 }
 
+
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
 
+void DrawAbs(int tile, double x, double y)
+{
+    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+}
+
 void DrawRel(int tile, double x, double y)
 {
-    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+    // This is slightly different than what the backend does here, but critical for some graphics.
+    int offx = (tileWidth(tile) >> 1) + tileLeftOffset(tile);
+    int offy = (tileHeight(tile) >> 1) + tileTopOffset(tile);
+    DrawAbs(tile, x - offx, y - offy);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+// this might be static within the DoPlasma function?
+static uint8_t* PlasmaBuffer;
+static int nPlasmaTile = kTile4092;
+static int nLogoTile;
+static unsigned int nSmokeBottom;
+static unsigned int nSmokeRight;
+static unsigned int nSmokeTop;
+static unsigned int nSmokeLeft;
+static int nextPlasmaTic;
+static int plasma_A[5] = { 0 };
+static int plasma_B[5] = { 0 };
+static int plasma_C[5] = { 0 };
+static FRandom rnd_plasma;
+
+enum
+{
+    kPlasmaWidth = 320,
+    kPlasmaHeight = 80,
+};
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void menu_DoPlasma()
+{
+    int ptile = nPlasmaTile;
+    if (totalclock >= nextPlasmaTic || !PlasmaBuffer)
+    {
+        nextPlasmaTic = (int)totalclock + 4;
+
+        if (!nLogoTile)
+            nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+
+        if (!PlasmaBuffer)
+        {
+            auto pixels = TileFiles.tileCreate(kTile4092, kPlasmaWidth, kPlasmaHeight);
+            memset(pixels, 96, kPlasmaWidth * kPlasmaHeight);
+
+            PlasmaBuffer = TileFiles.tileCreate(kTile4093, kPlasmaWidth, kPlasmaHeight);
+            memset(PlasmaBuffer, 96, kPlasmaWidth * kPlasmaHeight);
+
+            nSmokeLeft = 160 - tilesiz[nLogoTile].x / 2;
+            nSmokeRight = nSmokeLeft + tilesiz[nLogoTile].x;
+
+            nSmokeTop = 40 - tilesiz[nLogoTile].y / 2;
+            nSmokeBottom = nSmokeTop + tilesiz[nLogoTile].y - 1;
+
+            for (int i = 0; i < 5; i++)
+            {
+                int logoWidth = tilesiz[nLogoTile].x;
+                plasma_C[i] = (nSmokeLeft + rand() % logoWidth) << 16;
+                plasma_B[i] = (rnd_plasma.GenRand32() % 327680) + 0x10000;
+
+                if (rnd_plasma.GenRand32()&1) {
+                    plasma_B[i] = -plasma_B[i];
+                }
+
+                plasma_A[i] = rnd_plasma.GenRand32() & 1;
+            }
+        }
+
+        uint8_t* plasmapix = tileData(nPlasmaTile);
+        uint8_t* r_ebx = plasmapix + 81;
+        const uint8_t* r_edx = tileData(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
+
+        for (int x = 0; x < kPlasmaWidth - 2; x++)
+        {
+            for (int y = 0; y < kPlasmaHeight - 2; y++)
+            {
+                uint8_t al = *r_edx;
+
+                if (al != 96)
+                {
+                    if (al > 158) {
+                        *r_ebx = al - 1;
+                    }
+                    else {
+                        *r_ebx = 96;
+                    }
+                }
+                else
+                {
+                    if (rnd_plasma.GenRand32() & 1) {
+                        *r_ebx = *r_edx;
+                    }
+                    else
+                    {
+                        uint8_t al = *(r_edx + 1);
+                        uint8_t cl = *(r_edx - 1);
+
+                        if (al <= cl) {
+                            al = cl;
+                        }
+
+                        cl = al;
+                        al = *(r_edx - 80);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(r_edx + 80);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(r_edx + 80);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(r_edx + 80);
+                        if (cl <= al) {
+                            cl = al;
+                        }
+
+                        al = *(r_edx - 79);
+                        if (cl > al) {
+                            al = cl;
+                        }
+
+                        cl = *(r_edx - 81);
+                        if (al <= cl) {
+                            al = cl;
+                        }
+
+                        cl = al;
+
+                        if (al <= 159) {
+                            *r_ebx = 96;
+                        }
+                        else
+                        {
+                            if (!(rnd_plasma.GenRand32() & 1)) 
+                            {
+                                cl--;
+                            }
+
+                            *r_ebx = cl;
+                        }
+                    }
+                }
+
+                // before restarting inner loop
+                r_edx++;
+                r_ebx++;
+            }
+
+            // before restarting outer loop
+            r_edx += 2;
+            r_ebx += 2;
+        }
+
+        auto logopix = tilePtr(nLogoTile);
+
+        for (int j = 0; j < 5; j++)
+        {
+            int pB = plasma_B[j];
+            int pC = plasma_C[j];
+            int badOffset = (pC >> 16) < nSmokeLeft || (pC >> 16) >= nSmokeRight;
+
+            const uint8_t* ptr3 = (logopix + ((pC >> 16) - nSmokeLeft) * tilesiz[nLogoTile].y);
+
+            plasma_C[j] += plasma_B[j];
+
+            if ((pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight) || (pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft))
+            {
+                int esi = plasma_A[j];
+                plasma_B[j] = -plasma_B[j];
+                plasma_A[j] = esi == 0;
+            }
+
+            if (badOffset)
+                continue;
+
+            unsigned int nSmokeOffset = 0;
+
+            if (plasma_A[j])
+            {
+                nSmokeOffset = nSmokeTop;
+
+                while (nSmokeOffset < nSmokeBottom)
+                {
+                    uint8_t al = *ptr3;
+                    if (al != TRANSPARENT_INDEX && al != 96) {
+                        break;
+                    }
+
+                    nSmokeOffset++;
+                    ptr3++;
+                }
+            }
+            else
+            {
+                nSmokeOffset = nSmokeBottom;
+
+                ptr3 += tilesiz[nLogoTile].y - 1;
+
+                while (nSmokeOffset > nSmokeTop)
+                {
+                    uint8_t al = *ptr3;
+                    if (al != TRANSPARENT_INDEX && al != 96) {
+                        break;
+                    }
+
+                    nSmokeOffset--;
+                    ptr3--;
+                }
+            }
+
+            uint8_t* v28 = plasmapix + (80 * (plasma_C[j] >> 16));
+            v28[nSmokeOffset] = 175;
+        }
+
+        tileInvalidate(nPlasmaTile, -1, -1);
+
+        // flip between tile 4092 and 4093
+        if (nPlasmaTile == kTile4092) {
+            nPlasmaTile = kTile4093;
+        }
+        else if (nPlasmaTile == kTile4093) {
+            nPlasmaTile = kTile4092;
+        }
+    }
+    DrawAbs(ptile, 0, 0);
+    DrawRel(nLogoTile, 160, 40);
+
+    // draw the fire urn/lamp thingies
+    int dword_9AB5F = ((int)totalclock / 16) & 3;
+
+    DrawRel(kTile3512 + dword_9AB5F, 50, 150);
+    DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150);
 }
 
 //---------------------------------------------------------------------------
