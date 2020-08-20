@@ -470,8 +470,6 @@ void DrawView(int smoothRatio, bool sceneonly)
                 }
 
                 DrawMap();
-
-                DrawSnakeCamStatus();
             }
         }
     }

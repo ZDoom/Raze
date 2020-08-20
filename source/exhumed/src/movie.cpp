@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "v_2ddrawer.h"
 #include "animtexture.h"
+#include "s_music.h"
 
 BEGIN_PS_NS
 
@@ -43,15 +44,27 @@ uint8_t bankbuf[kSampleRate];
 uint32_t bankptr = 0;
 uint32_t banktail = 0;
 
-uint32_t lSoundBytesRead = 0;
-uint32_t lSoundBytesUsed = 0;
-
 uint8_t lh[32] = { 0 };
 
 static uint8_t* CurFrame = NULL;
 
 bool bServedSample = false;
 palette_t moviepal[256];
+const int numAudioBlocks = 20;
+int sfxnum = -1;
+
+struct AudioData
+{
+    int16_t samples[2205 * numAudioBlocks]; // must be a multiple of the stream buffer size
+    int nWrite;
+    int nRead;
+};
+
+SoundStream* stream;
+AudioData audio;
+bool bAudioStarted;
+
+SoundHandle shandle;
 
 int ReadFrame(FileReader &fp, uint8_t *palette)
 {
@@ -94,32 +107,16 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
             }
             case kFrameSound:
             {
-                Printf("Reading sound block size %d...\n", nSize);
-
-                if (lSoundBytesRead - lSoundBytesUsed >= kSampleRate)
+                auto sfxx = soundEngine->GetSounds();
+                auto buffer = fp.Read(nSize);
+                assert(buffer.Size() == 2205);
+                auto wbuffer = audio.samples + audio.nWrite * 2205;
+                for (int i = 0; i < 2205; i++)
                 {
-                    //DebugOut("ReadFrame() - Sound buffer full\n");
-                    fp.Seek(nSize, FileReader::SeekCur);
+                    wbuffer[i] = (buffer[i] - 128) << 8;
                 }
-                else
-                {
-                    //mutex_lock(&mutex);
-
-                    int nRead = fp.Read((char*)bankbuf + bankptr, nSize);
-
-                    lSoundBytesRead += nRead;
-                    bankptr += nSize;
-
-                    assert(nSize == nRead);
-                    assert(bankptr <= kSampleRate);
-
-                    if (bankptr >= kSampleRate) {
-                        bankptr -= kSampleRate; // loop back to start
-                    }
-
-                    //mutex_unlock(&mutex);
-                }
-
+                audio.nWrite++;
+                if (audio.nWrite >= numAudioBlocks) audio.nWrite = 0;
                 continue;
             }
             case kFrameImage:
@@ -183,6 +180,15 @@ static void ServeSample(const char** ptr, uint32_t* length)
 }
 #endif
 
+static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
+{
+    memcpy(buff, &audio.samples[audio.nRead], len);
+    audio.nRead += len / 2;
+    if (audio.nRead >= countof(audio.samples)) audio.nRead = 0;
+    return true;
+}
+
+
 void PlayMovie(const char* fileName)
 {
     uint8_t palette[768];
@@ -190,7 +196,6 @@ void PlayMovie(const char* fileName)
     CurFrame = f.Data();
 
     int bDoFade = true;
-    int hFx = -1;
 	auto fp = fileSystem.OpenFileReader(fileName);
 	if (!fp.isOpen())
 	{
@@ -207,70 +212,76 @@ void PlayMovie(const char* fileName)
     // clear keys
     inputState.ClearAllInput();
 
+    bAudioStarted = false;
     if (bDoFade) {
         StartFadeIn();
     }
+    memset(audio.samples, 0, sizeof(audio.samples));
+    audio.nWrite = 5; // play 5 blocks (i.e. half a second) of silence to get ahead of the stream. For this video it isn't necessary to sync it perfectly.
 
-    int angle = 1536;
-    int z = 0;
+    double angle = 1536;
+    double z = 0;
 
     AnimTextures animtex;
     animtex.SetSize(AnimTexture::Paletted, 200, 320);
 
+    auto sfxx = soundEngine->GetSounds();
+
+    if (!bAudioStarted)
+    {
+        // start audio playback
+        stream = S_CreateCustomStream(4410, 22050, 1, StreamCallbackFunc, nullptr);
+        bAudioStarted = true;
+    }
+
     // Read a frame in first
     if (ReadFrame(fp, palette))
     {
-        // start audio playback (fixme)
-#if 0
-        hFx = FX_StartDemandFeedPlayback(ServeSample, kSampleRate, 0, snd_fxvolume, snd_fxvolume, snd_fxvolume, FX_MUSIC_PRIORITY, fix16_one, -1);
-#else
-        hFx = -1;
-#endif
-
         int fn = 0;
-        while (!inputState.keyBufferWaiting())
+        int ototalclock = totalclock + 12;
+        int lastclock = totalclock;
+        while (true)// !inputState.keyBufferWaiting())
         {
             HandleAsync();
 
-            // audio is king for sync - if the backend doesn't need any more samples yet, 
-            // don't process any more movie file data.
-            if (!bServedSample && hFx > 0) {
-                continue;
-            }
-
-            bServedSample = false;
-
             if (z < 65536) { // Zoom - normal zoom is 65536.
-                z += 2048;
+                z += 2048 * (totalclock - lastclock) / 8.;
             }
+            if (z > 65536) z = 65536;
             if (angle != 0) {
-                angle += 16;
-                if (angle == 2048) {
+                angle += 16. * (totalclock-lastclock) / 8. ;
+                if (angle >= 2048) {
                     angle = 0;
                 }
             }
+            lastclock = totalclock;
 
             // I have no idea why this needs double buffering now.
             fn ^= 1;
             animtex.SetFrame(palette, CurFrame);
-            rotatesprite(160 << 16, 100 << 16, z, angle+512, -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
 
+
+            rotatesprite(160 << 16, 100 << 16, int(z), int(angle+512), -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
+
+#if 0
             if (bDoFade) {
                 bDoFade = DoFadeIn();
             }
+#endif
 
             videoNextPage();
 
-            if (ReadFrame(fp, palette) == 0) {
-                break;
+            if (totalclock >= ototalclock)
+            {
+                ototalclock += 12;
+                if (ReadFrame(fp, palette) == 0) {
+                    break;
+                }
             }
         }
     }
 
-    if (hFx > 0) {
-        //FX_StopSound(hFx);
-    }
-
+    S_StopCustomStream(stream);
     if (inputState.keyBufferWaiting()) {
         inputState.keyGetChar();
     }

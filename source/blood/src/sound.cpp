@@ -100,11 +100,12 @@ static void S_AddBloodSFX(int lumpnum)
         S_sfx[sfxnum].bLoadRAW = true;
         S_sfx[sfxnum].LoopStart = LittleLong(sfx->loopStart);
         //S_sfx[sfxnum].Volume = sfx->relVol / 255.f; This cannot be done because this volume setting is optional.
-        S_sfx[sfxnum].UserData.Resize(2);
+        S_sfx[sfxnum].UserData.Resize(3);
         int* udata = (int*)S_sfx[sfxnum].UserData.Data();
         udata[0] = sfx->pitch;
         udata[1] = sfx->pitchRange;
-        udata[2] = sfx->relVol;    }
+        udata[2] = sfx->relVol;   
+    }
 }
 
 void sndInit(void)

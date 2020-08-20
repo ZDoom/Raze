@@ -722,7 +722,6 @@ private:
             if (chunkFlag & 2) flags |= DI_MIRRORY;
 
             DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
-            //overwritesprite(x, y, tile, 0, nStat, 0);
             nFrameBase++;
         }
     }
