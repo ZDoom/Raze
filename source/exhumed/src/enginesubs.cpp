@@ -29,11 +29,6 @@ BEGIN_PS_NS
 
 void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum, int basepal)
 {
-#if 0
-    rotatesprite(thex << 16, they << 16, 0x10000, (short)((flags & 8) << 7), tilenum, shade, dapalnum,
-        (char)(((flags & 1 ^ 1) << 4) + (flags & 2) + ((flags & 4) >> 2) + ((flags & 16) >> 2) ^ ((flags & 8) >> 1)),
-        windowx1, windowy1, windowx2, windowy2);
-#endif
     // no animation
     uint8_t animbak = picanm[tilenum].sf;
     picanm[tilenum].sf = 0;
@@ -64,47 +59,6 @@ void resettiming()
     numframes = 0L;
     totalclock = 0L;
 // TODO	totalclocklock = 0L;
-}
-
-
-static int32_t xdim_to_320_16(int32_t x)
-{
-    const int32_t screenwidth = scale(240<<16, xdim, ydim);
-    return scale(x, screenwidth, xdim) + (160<<16) - (screenwidth>>1);
-}
-
-static int32_t ydim_to_200_16(int32_t y)
-{
-    return scale(y, 200<<16, ydim);
-}
-
-static int32_t xdim_from_320_16(int32_t x)
-{
-    const int32_t screenwidth = scale(240<<16, xdim, ydim);
-    return scale(x + (screenwidth>>1) - (160<<16), xdim, screenwidth);
-}
-
-static int32_t ydim_from_200_16(int32_t y)
-{
-    return scale(y, ydim, 200<<16);
-}
-
-void printext(int x, int y, const char *buffer, short tilenum, char UNUSED(invisiblecol))
-{
-    int i;
-    unsigned char ch;
-//    const int32_t screenwidth = scale(240<<16, xdim, ydim);
-
-    x = xdim_to_320_16(x);
-    y = ydim_to_200_16(y);
-
-    for (i = 0; buffer[i] != 0; i++)
-    {
-        ch = (unsigned char)buffer[i];
-        rotatesprite(x - ((ch & 15) << (3+16)), y - ((ch >> 4) << (3+16)), 65536L, 0, tilenum, 0, 0, 2 + 8 + 16 + 128, xdim_from_320_16(x), ydim_from_200_16(y),
-            xdim_from_320_16(x + (8<<16))-1, ydim_from_200_16(y + (8<<16))-1);
-        x += (8<<16);
-    }
 }
 
 void doTileLoad(int i)
