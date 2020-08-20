@@ -505,7 +505,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->x)*dy) / ksqrt(dx*dx+dy*dy);
                 dassert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
-                int nOffset = tileTopOffset(nPicnum);
+                int nOffset = tileLeftOffset(nPicnum);
                 width2 += nOffset + tileWidth(nPicnum) / 2;
                 if (width2 >= 0 && width2 < tileWidth(nPicnum))
                 {
