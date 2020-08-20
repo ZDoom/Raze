@@ -106,8 +106,11 @@ SoundStream *S_CreateCustomStream(size_t size, int samplerate, int numchannels, 
 
 void S_StopCustomStream(SoundStream *stream)
 {
-	stream->Stop();
-	delete stream;
+	if (stream)
+	{
+		stream->Stop();
+		delete stream;
+	}
 
 }
 
