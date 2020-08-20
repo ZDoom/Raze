@@ -717,7 +717,7 @@ private:
                     dword_9AD64[i] = (int)totalclock + 30;
                 }
 
-                DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_TOP|DI_MIRROR|DI_MIRRORY, 1, -1, -1, 1, 1);
+                DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_CENTER, 1, -1, -1, 1, 1);
 
                 if (i != nLocalPlayer) {
                     shade = -100;

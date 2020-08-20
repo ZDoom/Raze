@@ -161,13 +161,18 @@ void InitFonts()
 //
 //---------------------------------------------------------------------------
 
+void DrawRel(int tile, double x, double y)
+{
+    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+}
+
 //---------------------------------------------------------------------------
 //
 //
 //
 //---------------------------------------------------------------------------
 
-static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000 };
+static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 600 };
 
 class DMainTitle : public DScreenJob
 {
@@ -179,6 +184,7 @@ class DMainTitle : public DScreenJob
     int var_4 = 0;
     int esi = 130;
     int nCount = 0;
+    int start;
 
 
 public:
@@ -192,6 +198,7 @@ public:
 
     int Frame(uint64_t clock, bool skiprequest) override
     {
+        int ticker = clock * 120 / 1'000'000'000;
         if (clock == 0)
         {
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
@@ -204,16 +211,16 @@ public:
             else 
                 PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
             state = 1;
+            start = ticker;
         }
-        int ticker = clock * 120 / 1'000'000'000;
 
         menu_DoPlasma();
 
-        overwritesprite(160, 100, kSkullHead, 0, 3, kPalNormal);
+        DrawRel(kSkullHead, 160, 100);
         switch (state)
         {
         case 0:
-            overwritesprite(161, 130, kSkullJaw, 0, 3, kPalNormal);
+            DrawRel(kSkullJaw, 161, 130);
             break;
 
         case 1:
@@ -227,7 +234,7 @@ public:
             {
                 nCount++;
                 if (nCount > 12) return 0;
-                var_18 = skullDurations[nCount];
+                var_18 = start + skullDurations[nCount];
                 var_4 = var_4 == 0;
             }
 
@@ -253,11 +260,11 @@ public:
                 if (y > 135) y = 135;
             }
 
-            overwritesprite(161, y, nTile, 0, 3, kPalNormal);
+            DrawRel(nTile, 161, y);
             break;
         }
         }
-        return 1;
+        return skiprequest? -1 : 1;
     }
 };
 
