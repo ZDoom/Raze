@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "animtexture.h"
 #include "s_music.h"
+#include "screenjob.h"
+#include "v_draw.h"
 
 BEGIN_PS_NS
 
@@ -60,6 +62,7 @@ class LMFPlayer
 
     SoundStream* stream = nullptr;
     AudioData audio{};
+    AnimTextures animtex;
 
     int nFrame = 0;
 
@@ -146,6 +149,7 @@ public:
                         nSize -= nRead;
                     }
                 }
+                animtex.SetFrame(palette, CurFrame);
 
                 break;
             }
@@ -177,87 +181,112 @@ public:
 
         // start audio playback
         stream = S_CreateCustomStream(kSampleSize * 2, kSampleRate, 1, StreamCallbackFunc, this); // size must be doubled here or dropouts can be heard.
+        animtex.SetSize(AnimTexture::Paletted, 200, 320);
     }
 
-    const uint8_t* GetPalette() const
-    {
-        return palette;
-    }
-
-    const uint8_t* GetFrame() const
-    {
-        return CurFrame;
-    }
-
-    ~LMFPlayer()
+    void Close()
     {
         S_StopCustomStream(stream);
     }
+
+    AnimTextures& animTex()
+    {
+        return animtex;
+    }
 };
 
-void PlayMovie(const char* fileName)
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DLmfPlayer : public DScreenJob
 {
-    LMFPlayer player;
+    LMFPlayer decoder;
+    double angle = 1536;
+    double z = 0;
+    uint64_t nextclock = 0, lastclock = 0;
+    FileReader fp;
+
+public:
+
+    DLmfPlayer(FileReader& fr)
+    {
+        decoder.Open(fr);
+        lastclock = 0;
+        nextclock = 0;
+        fp = std::move(fr);
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+        if (clock >= nextclock)
+        {
+            nextclock += 100'000'000;
+            if (decoder.ReadFrame(fp) == 0)
+            {
+                return 0;
+            }
+        }
+
+        double duration = (clock - lastclock) * double(120. / 8'000'000'000);
+        if (z < 65536) { // Zoom - normal zoom is 65536.
+            z += 2048 * duration;
+        }
+        if (z > 65536) z = 65536;
+        if (angle != 0) {
+            angle += 16. * duration;
+            if (angle >= 2048) {
+                angle = 0;
+            }
+        }
+
+        {
+            twod->ClearScreen();
+            DrawTexture(twod, decoder.animTex().GetFrame(), 160, 100, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+                DTA_CenterOffset, true, DTA_FlipY, true, DTA_ScaleX, z / 65536., DTA_ScaleY, z / 65536., DTA_Rotate, (angle - 512) * (360. / 2048.), TAG_DONE);
+        }
+        
+        lastclock = clock;
+        return skiprequest ? -1 : 1;
+    }
+
+    void OnDestroy() override
+    {
+        decoder.Close();
+        fp.Close();
+    }
+};
+
+
+
+DScreenJob* PlayMovie(const char* fileName)
+{
     // clear keys
     inputState.ClearAllInput();
 
     auto fp = fileSystem.OpenFileReader(fileName);
     if (!fp.isOpen())
     {
-        Printf("Unable to open %s\n", fileName);
-        return;
+        return Create<DScreenJob>();
     }
-    player.Open(fp);
-
-    double angle = 1536;
-    double z = 0;
-
-    AnimTextures animtex;
-    animtex.SetSize(AnimTexture::Paletted, 200, 320);
-
-    auto sfxx = soundEngine->GetSounds();
-
-    // Read a frame in first
-    if (player.ReadFrame(fp))
+    char buffer[4];
+    fp.Read(buffer, 4);
+    if (memcmp(buffer, "LMF ", 4))
     {
-        int fn = 0;
-        int ototalclock = totalclock + 12;
-        int lastclock = totalclock;
-        while (!inputState.CheckAllInput())
-        {
-            HandleAsync();
-
-            if (z < 65536) { // Zoom - normal zoom is 65536.
-                z += 2048 * (totalclock - lastclock) / 8.;
-            }
-            if (z > 65536) z = 65536;
-            if (angle != 0) {
-                angle += 16. * (totalclock-lastclock) / 8. ;
-                if (angle >= 2048) {
-                    angle = 0;
-                }
-            }
-            lastclock = totalclock;
-
-            // I have no idea why this needs double buffering now.
-            fn ^= 1;
-            animtex.SetFrame(player.GetPalette(), player.GetFrame());
-
-
-            rotatesprite(160 << 16, 100 << 16, int(z), int(angle+512), -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
-
-            videoNextPage();
-
-            if (totalclock >= ototalclock)
-            {
-                ototalclock += 12;
-                if (player.ReadFrame(fp) == 0) {
-                    break;
-                }
-            }
-        }
+        fp.Close();
+        // Allpw replacement with more modern formats.
+        return PlayVideo(fileName);
     }
-    inputState.ClearAllInput();
+    fp.Seek(0, FileReader::SeekSet);
+    return Create<DLmfPlayer>(fp);
 }
 
 END_PS_NS

@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegamehelp.h"
 #include "c_dispatch.h"
 #include "raze_sound.h"
+#include "gamestate.h"
+#include "screenjob.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
@@ -1652,6 +1654,9 @@ void InitTimer()
     timerSetCallback(timerhandler);
 }
 
+int SyncScreenJob();
+void DoTitle(CompletionFunc completion);
+
 int GameInterface::app_main()
 {
     int i;
@@ -1765,7 +1770,9 @@ int GameInterface::app_main()
     {
         while (!stopTitle)
         {
-            DoTitle();
+            DoTitle([](bool) { gamestate = GS_MENUSCREEN; });
+            SyncScreenJob();
+            gamestate = GS_LEVEL;
             stopTitle = true;
         }
     }
@@ -2284,153 +2291,7 @@ void DoGameOverScene()
     FadeOut(0);
 }
 
-void DoTitle()
-{
-    short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 6000 };
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
 
-    auto showscreen = [](int tile)
-    {
-        auto start = I_msTime();
-        int shade = numshades;
-        uint64_t span;
-        inputState.ClearAllInput();
-        do
-        {
-            twod->ClearScreen();
-            overwritesprite(0, 0, tile, shade, 2, kPalNormal);
-            HandleAsync();
-            videoNextPage();
-            auto now = I_msTime();
-            span = now - start;
-            if (span < 1000) shade = Scale(1000 - span, numshades, 1000);
-            else if (span < 2000) shade = 0;
-            else shade = Scale(span - 2000, numshades, 1000);
-            if (inputState.CheckAllInput()) break;
-        } while (span < 3000);
-    };
-    showscreen(EXHUMED ? kTileBMGLogo : kTilePIELogo);
-    int nScreenTile = seq_GetSeqPicnum(kSeqScreens, 0, 0);
-    showscreen(nScreenTile);
-    inputState.ClearAllInput();
-
-    PlayMovie("book.mov");
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-        FadeOut(0);
-
-    GrabPalette();
-
-    PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-
-    EraseScreen(4);
-
-    playCDtrack(19, true);
-
-    videoNextPage();
-    FadeIn();
-    WaitVBL();
-
-    int String_Copyright = FindGString("COPYRIGHT");
-
-    const char *a = gString[String_Copyright];
-    const char *b = gString[String_Copyright + 1];
-
-    menu_DoPlasma();
-
-    int nTile = kSkullHead;
-
-    overwritesprite(160, 100, kSkullHead, 0, 3, kPalNormal);
-    overwritesprite(161, 130, kSkullJaw, 0, 3, kPalNormal);
-    videoNextPage();
-
-    WaitNoKey(2, KeyFn1);
-
-    if (time(0) & 0xF) {
-        PlayGameOverSound();
-    }
-    else {
-        PlayLocalSound(StaticSound[61], 0, false, CHANF_UI);
-    }
-
-    int nStartTime = (int)totalclock;
-    int nCount = 0;
-    int var_18 = (int)totalclock + skullDurations[0];
-    int var_4 = 0;
-
-    int esi = 130;
-
-
-
-    inputState.ClearAllInput();
-    while (LocalSoundPlaying())
-    {
-        HandleAsync();
-        if (inputState.CheckAllInput()) break;
-
-        menu_DoPlasma();
-        overwritesprite(160, 100, nTile, 0, 3, kPalNormal);
-
-        int nStringWidth = MyGetStringWidth(a);
-
-        int y = 200 - 24;
-        myprintext((320 / 2 - nStringWidth / 2), y, a, 0);
-
-        nStringWidth = MyGetStringWidth(b);
-
-        y = 200 - 16;
-        myprintext((320 / 2 - nStringWidth / 2), y, b, 0);
-
-        if ((int)totalclock > var_18)
-        {
-            nCount++;
-
-            if (nCount > 12) break;
-            var_18 = nStartTime + skullDurations[nCount];
-            var_4 = var_4 == 0;
-        }
-
-        short nTile = kSkullJaw;
-
-        if (var_4)
-        {
-            if (esi >= 135) {
-                nTile = kTile3583;
-            }
-            else {
-                esi += 5;
-            }
-        }
-        else if (esi <= 130)
-        {
-            esi = 130;
-        }
-        else
-        {
-            esi -= 2;
-        }
-
-        y = 0;
-
-        if (nTile == kTile3583)
-        {
-            y = 131;
-        }
-        else
-        {
-            y = esi;
-
-            if (y > 135) {
-                y = 135;
-            }
-        }
-
-        overwritesprite(161, y, nTile, 0, 3, kPalNormal);
-        videoNextPage();
-    }
-
-    WaitNoKey(1, KeyFn1);
-}
 
 void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
 {

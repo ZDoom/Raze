@@ -1,5 +1,6 @@
 
 set( PCH_SOURCES
+	src/2d.cpp
 	src/anims.cpp
 	src/anubis.cpp
 	src/bubbles.cpp

@@ -120,10 +120,6 @@ void GrabMap();
 void UpdateMap();
 void DrawMap();
 
-// movie
-
-void PlayMovie(const char *fileName);
-
 // network
 
 extern short nNetMoveFrames;
