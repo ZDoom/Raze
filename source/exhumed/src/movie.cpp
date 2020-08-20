@@ -30,87 +30,85 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-enum {
-    kFramePalette = 0,
-    kFrameSound,
-    kFrameImage,
-    kFrameDone
-};
 
-#define kSampleRate     22050
-#define kSampleSize     2205
-
-uint8_t bankbuf[kSampleRate];
-uint32_t bankptr = 0;
-uint32_t banktail = 0;
-
-uint8_t lh[32] = { 0 };
-
-static uint8_t* CurFrame = NULL;
-
-bool bServedSample = false;
-palette_t moviepal[256];
-const int numAudioBlocks = 20;
-int sfxnum = -1;
-
-struct AudioData
+class LMFPlayer
 {
-    int16_t samples[2205 * numAudioBlocks]; // must be a multiple of the stream buffer size
-    int nWrite;
-    int nRead;
-};
-
-SoundStream* stream;
-AudioData audio;
-bool bAudioStarted;
-
-SoundHandle shandle;
-
-int ReadFrame(FileReader &fp, uint8_t *palette)
-{
-    static int nFrame = 0;
-    Printf("Reading frame %d...\n", nFrame);
-    nFrame++;
-
-    uint8_t nType;
-    uint8_t var_1C;
-    int nSize;
-    uint16_t yOffset;
-    uint8_t xOffset;
-    uint8_t nPixels;
-
-    while (1)
+    enum
     {
-        if (fp.Read(&nType, sizeof(nType)) == 0) {
-            return 0;
-        }
+        kFramePalette = 0,
+        kFrameSound,
+        kFrameImage,
+        kFrameDone
+    };
 
-		fp.Read(&nSize, sizeof(nSize));
+    enum
+    {
+        kSampleRate = 22050,
+        kSampleSize = 2205,
+        numAudioBlocks = 20
+    };
 
-        nType--;
-        if (nType > 3) {
-            continue;
-        }
+    struct AudioData
+    {
+        int16_t samples[kSampleSize * numAudioBlocks]; // must be a multiple of the stream buffer size
+        int nWrite;
+        int nRead;
+    };
 
-        switch (nType)
+    uint8_t palette[768];
+    uint8_t CurFrame[64000];
+
+    SoundStream* stream = nullptr;
+    AudioData audio{};
+
+    int nFrame = 0;
+
+public:
+    int ReadFrame(FileReader& fp)
+    {
+        nFrame++;
+
+        uint8_t nType;
+        uint8_t var_1C;
+        int nSize;
+        uint16_t yOffset;
+        uint8_t xOffset;
+        uint8_t nPixels;
+
+        while (1)
         {
+            if (fp.Read(&nType, sizeof(nType)) == 0)
+            {
+                return 0;
+            }
+
+            fp.Read(&nSize, sizeof(nSize));
+
+            nType--;
+            if (nType > 3)
+            {
+                continue;
+            }
+
+            switch (nType)
+            {
             case kFramePalette:
             {
                 fp.Read(palette, 768);
                 fp.Read(&var_1C, sizeof(var_1C));
 
-                for (unsigned i = 0; i < 768;i++)
+                for (unsigned i = 0; i < 768; i++)
                     palette[i] <<= 2;
 
-                memset(CurFrame, overscanindex, 4); //sizeof(CurFrame));
+                memset(CurFrame, 0, 4); //sizeof(CurFrame));
                 continue;
             }
             case kFrameSound:
             {
                 auto sfxx = soundEngine->GetSounds();
                 auto buffer = fp.Read(nSize);
-                assert(buffer.Size() == 2205);
-                auto wbuffer = audio.samples + audio.nWrite * 2205;
+                assert(buffer.Size() == kSampleSize);
+                auto wbuffer = audio.samples + audio.nWrite * kSampleSize;
                 for (int i = 0; i < 2205; i++)
                 {
                     wbuffer[i] = (buffer[i] - 128) << 8;
@@ -121,12 +119,12 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
             }
             case kFrameImage:
             {
-                //Printf("Reading image block size %d...\n", nSize);
-                if (nSize == 0) {
+                if (nSize == 0)
+                {
                     continue;
                 }
 
-                uint8_t *pFrame = CurFrame;
+                uint8_t* pFrame = CurFrame;
 
                 int nRead = fp.Read(&yOffset, sizeof(yOffset));
                 nSize -= nRead;
@@ -156,68 +154,60 @@ int ReadFrame(FileReader &fp, uint8_t *palette)
                 return 1;
                 break;
             }
+            }
         }
     }
-}
 
-#if 0
-static void ServeSample(const char** ptr, uint32_t* length)
-{
-    //mutex_lock(&mutex);
 
-    *ptr = (char*)bankbuf + banktail;
-    *length = kSampleSize;
-
-    banktail += kSampleSize;
-    if (banktail >= kSampleRate) {
-        banktail -= kSampleRate; // rotate back to start
+    static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
+    {
+        LMFPlayer* pId = (LMFPlayer*)userdata;
+        memcpy(buff, &pId->audio.samples[pId->audio.nRead], len);
+        pId->audio.nRead += len / 2;
+        if (pId->audio.nRead >= countof(pId->audio.samples)) pId->audio.nRead = 0;
+        return true;
     }
 
-    lSoundBytesUsed += kSampleSize;
-    bServedSample = true;
+    void Open(FileReader& fp)
+    {
 
-    //mutex_unlock(&mutex);
-}
-#endif
+        uint8_t header[32];
+        fp.Read(header, sizeof(header));
+        audio.nWrite = 5; // play 5 blocks (i.e. half a second) of silence to get ahead of the stream. For this video it isn't necessary to sync it perfectly.
 
-static bool StreamCallbackFunc(SoundStream* stream, void* buff, int len, void* userdata)
-{
-    memcpy(buff, &audio.samples[audio.nRead], len);
-    audio.nRead += len / 2;
-    if (audio.nRead >= countof(audio.samples)) audio.nRead = 0;
-    return true;
-}
+        // start audio playback
+        stream = S_CreateCustomStream(kSampleSize * 2, kSampleRate, 1, StreamCallbackFunc, this); // size must be doubled here or dropouts can be heard.
+    }
 
+    const uint8_t* GetPalette() const
+    {
+        return palette;
+    }
+
+    const uint8_t* GetFrame() const
+    {
+        return CurFrame;
+    }
+
+    ~LMFPlayer()
+    {
+        S_StopCustomStream(stream);
+    }
+};
 
 void PlayMovie(const char* fileName)
 {
-    uint8_t palette[768];
-    TArray<uint8_t> f(64000, true);
-    CurFrame = f.Data();
-
-    int bDoFade = true;
-	auto fp = fileSystem.OpenFileReader(fileName);
-	if (!fp.isOpen())
-	{
-		Printf("Unable to open %s\n", fileName);
-		return;
-	}
-
-    fp.Read(lh, sizeof(lh));
-
-    // sound stuff
-    bankptr = 0;
-    banktail = 0;
-
+    LMFPlayer player;
     // clear keys
     inputState.ClearAllInput();
 
-    bAudioStarted = false;
-    if (bDoFade) {
-        StartFadeIn();
+    auto fp = fileSystem.OpenFileReader(fileName);
+    if (!fp.isOpen())
+    {
+        Printf("Unable to open %s\n", fileName);
+        return;
     }
-    memset(audio.samples, 0, sizeof(audio.samples));
-    audio.nWrite = 5; // play 5 blocks (i.e. half a second) of silence to get ahead of the stream. For this video it isn't necessary to sync it perfectly.
+    player.Open(fp);
 
     double angle = 1536;
     double z = 0;
@@ -227,20 +217,13 @@ void PlayMovie(const char* fileName)
 
     auto sfxx = soundEngine->GetSounds();
 
-    if (!bAudioStarted)
-    {
-        // start audio playback
-        stream = S_CreateCustomStream(4410, 22050, 1, StreamCallbackFunc, nullptr);
-        bAudioStarted = true;
-    }
-
     // Read a frame in first
-    if (ReadFrame(fp, palette))
+    if (player.ReadFrame(fp))
     {
         int fn = 0;
         int ototalclock = totalclock + 12;
         int lastclock = totalclock;
-        while (true)// !inputState.keyBufferWaiting())
+        while (!inputState.CheckAllInput())
         {
             HandleAsync();
 
@@ -258,33 +241,23 @@ void PlayMovie(const char* fileName)
 
             // I have no idea why this needs double buffering now.
             fn ^= 1;
-            animtex.SetFrame(palette, CurFrame);
+            animtex.SetFrame(player.GetPalette(), player.GetFrame());
 
 
             rotatesprite(160 << 16, 100 << 16, int(z), int(angle+512), -1, 0, 1, RS_AUTO | RS_YFLIP, 0, 0, xdim - 1, ydim - 1, animtex.GetFrame());
-
-#if 0
-            if (bDoFade) {
-                bDoFade = DoFadeIn();
-            }
-#endif
 
             videoNextPage();
 
             if (totalclock >= ototalclock)
             {
                 ototalclock += 12;
-                if (ReadFrame(fp, palette) == 0) {
+                if (player.ReadFrame(fp) == 0) {
                     break;
                 }
             }
         }
     }
-
-    S_StopCustomStream(stream);
-    if (inputState.keyBufferWaiting()) {
-        inputState.keyGetChar();
-    }
+    inputState.ClearAllInput();
 }
 
 END_PS_NS
