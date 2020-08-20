@@ -495,6 +495,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 			parms->y = parms->viewport.top + rect.top;
 			parms->destwidth = rect.width;
 			parms->destheight = rect.height;
+			parms->top = parms->left = 0;
 			return false; // Do not call VirtualToRealCoords for this!
 		}
 
