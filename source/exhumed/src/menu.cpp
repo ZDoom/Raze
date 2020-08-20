@@ -349,9 +349,9 @@ void menu_DoPlasma()
         twod->ClearScreen();
 
 
-        uint8_t* plasmapix = const_cast<uint8_t*>(tilePtr(nPlasmaTile));
+        uint8_t* plasmapix = tileData(nPlasmaTile);
         uint8_t* r_ebx = plasmapix + 81;
-        const uint8_t* r_edx = tilePtr(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
+        const uint8_t* r_edx = tileData(nPlasmaTile ^ 1) + 81; // flip between value of 4092 and 4093 with xor
 
         for (int x = 0; x < kPlasmaWidth - 2; x++)
             //	for (int x = 1; x < 318; x++)
