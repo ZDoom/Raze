@@ -727,11 +727,6 @@ void PlayTitleSound(void)
     PlayLocalSound(StaticSound[kSoundItemSpecial], 0, false, CHANF_UI);
 }
 
-void PlayLogoSound(void)
-{
-    PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
-}
-
 void PlayGameOverSound(void)
 {
     PlayLocalSound(StaticSound[kSoundJonLaugh2], 0, false, CHANF_UI);

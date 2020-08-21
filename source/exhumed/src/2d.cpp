@@ -424,6 +424,25 @@ void menu_DoPlasma()
 //
 //---------------------------------------------------------------------------
 
+class DLobotomyScreen : public DImageScreen
+{
+public:
+	DLobotomyScreen(FGameTexture *tex, int fade) : DImageScreen(tex, fade)
+	{}
+	
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+		if (clock == 0) PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
+		return DImageScreen::Frame(clock, skiprequest);
+	}
+};
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 158, 173, 230, 600 };
 
 class DMainTitle : public DScreenJob
@@ -534,7 +553,7 @@ void DoTitle(CompletionFunc completion)
     int job = 0;
 
     jobs[job++] = { Create<DImageScreen>(tileGetTexture(EXHUMED ? kTileBMGLogo : kTilePIELogo), DScreenJob::fadein | DScreenJob::fadeout) };
-    jobs[job++] = { Create<DImageScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout) };
+    jobs[job++] = { Create<DLobotomyScreen>(tileGetTexture(seq_GetSeqPicnum(kSeqScreens, 0, 0)), DScreenJob::fadein | DScreenJob::fadeout) };
     jobs[job++] = { PlayMovie("book.mov") };
     jobs[job++] = { Create<DMainTitle>() };
 
