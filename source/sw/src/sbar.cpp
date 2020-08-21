@@ -1009,7 +1009,7 @@ void UpdateStatusBar(ClockTicks arg)
     if (pp->cookieTime > 0)
     {
         const int MESSAGE_LINE = 142;    // Used to be 164
-        MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp((pp->cookieTime - totalclock) / 60., 0., 1.));
+        MNU_DrawSmallString(160, MESSAGE_LINE, pp->cookieQuote, 0, 0, 0, clamp(pp->cookieTime / 60., 0., 1.));
     }
 }
 
