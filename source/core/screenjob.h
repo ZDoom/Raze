@@ -26,6 +26,11 @@ public:
 	};
 
 	DScreenJob(int fade = 0, float fadet = 250.f) : fadestyle(fade), fadetime(fadet) {}
+	
+	virtual bool ProcessInput()
+	{
+		return false;
+	}
 
 	void SetClock(int64_t nsnow)
 	{

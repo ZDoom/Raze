@@ -163,17 +163,17 @@ void InitFonts()
 //
 //---------------------------------------------------------------------------
 
-void DrawAbs(int tile, double x, double y)
+void DrawAbs(int tile, double x, double y, int shade = 0)
 {
-    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
-void DrawRel(int tile, double x, double y)
+void DrawRel(int tile, double x, double y, int shade = 0)
 {
     // This is slightly different than what the backend does here, but critical for some graphics.
     int offx = (tileWidth(tile) >> 1) + tileLeftOffset(tile);
     int offy = (tileHeight(tile) >> 1) + tileTopOffset(tile);
-    DrawAbs(tile, x - offx, y - offy);
+    DrawAbs(tile, x - offx, y - offy, shade);
 }
 
 //---------------------------------------------------------------------------
@@ -560,5 +560,324 @@ void DoTitle(CompletionFunc completion)
     RunScreenJob(jobs, job, completion);
 
 }
+
+//---------------------------------------------------------------------------
+//
+// pre-level map display
+//
+//---------------------------------------------------------------------------
+
+ static const int8_t MapLevelOffsets[] = { 0, 50, 10, 20, 0, 45, -20, 20, 5, 0, -10, 10, 30, -20, 0, 20, 0, 0, 0, 0 };
+
+ struct TILEFRAMEDEF
+ {
+	 short nTile;
+	 short xOffs;
+	 short yOffs;
+ };
+
+ // 22 bytes
+ struct MapNamePlaque
+ {
+	 short xPos;
+	 short yPos;
+	 TILEFRAMEDEF tiles[2];
+	 TILEFRAMEDEF text;
+ };
+
+ static const MapNamePlaque mapNamePlaques[] = {
+	 { 100, 170, kTile3376, 0, 0, kTile3377, 0, 0, kTile3411, 18, 6 },
+	 { 230, 10,  kTile3378, 0, 0, kTile3379, 0, 0, kTile3414, 18, 6 }, // DENDUR (level 2)
+	 { 180, 125, kTile3380, 0, 0, kTile3381, 0, 0, kTile3417, 18, 6 }, // Kalabash
+	 { 10,  95,  kTile3382, 0, 0, kTile3383, 0, 0, kTile3420, 18, 6 },
+	 { 210, 160, kTile3384, 0, 0, kTile3385, 0, 0, kTile3423, 18, 6 },
+	 { 10,  110, kTile3371, 0, 0, kTile3386, 0, 0, kTile3426, 18, 6 },
+	 { 10,  50,  kTile3387, 0, 0, kTile3388, 0, 0, kTile3429, 18, 6 },
+	 { 140, 0,   kTile3389, 0, 0, kTile3390, 0, 0, kTile3432, 18, 6 },
+	 { 30,  20,  kTile3391, 0, 0, kTile3392, 0, 0, kTile3435, 18, 6 },
+	 { 200, 150, kTile3409, 0, 0, kTile3410, 0, 0, kTile3418, 20, 4 },
+	 { 145, 170, kTile3393, 0, 0, kTile3394, 0, 0, kTile3438, 18, 6 },
+	 { 80,  80,  kTile3395, 0, 0, kTile3396, 0, 0, kTile3441, 18, 6 },
+	 { 15,  0,   kTile3397, 0, 0, kTile3398, 0, 0, kTile3444, 18, 5 },
+	 { 220, 35,  kTile3399, 0, 0, kTile3400, 0, 0, kTile3447, 18, 6 },
+	 { 190, 40,  kTile3401, 0, 0, kTile3402, 0, 0, kTile3450, 18, 6 },
+	 { 20,  130, kTile3403, 0, 0, kTile3404, 0, 0, kTile3453, 19, 6 },
+	 { 220, 160, kTile3405, 0, 0, kTile3406, 0, 0, kTile3456, 18, 6 },
+	 { 20,  10,  kTile3407, 0, 0, kTile3408, 0, 0, kTile3459, 18, 6 },
+	 { 200, 10,  kTile3412, 0, 0, kTile3413, 0, 0, kTile3419, 18, 5 },
+	 { 20,  10,  kTile3415, 0, 0, kTile3416, 0, 0, kTile3421, 19, 4 }
+ };
+
+ // 3 different types of fire, each with 4 frames
+ static const TILEFRAMEDEF FireTiles[3][4] = {
+	 {{ kTile3484,0,3 },{ kTile3485,0,0 },{ kTile3486,0,3 },{ kTile3487,0,0 }},
+	 {{ kTile3488,1,0 },{ kTile3489,1,0 },{ kTile3490,0,1 },{ kTile3491,1,1 }},
+	 {{ kTile3492,1,2 },{ kTile3493,1,0 },{ kTile3494,1,2 },{ kTile3495,1,0 }}
+ };
+
+ struct Fire
+ {
+	 short nFireType;
+	 short xPos;
+	 short yPos;
+ };
+
+ // 20 bytes
+ struct MapFire
+ {
+	 short nFires;
+	 Fire fires[3];
+ };
+
+ /*
+  level 1 - 3 fires
+  level 2 - 3 fires
+  level 3 - 1 fire
+
+ */
+
+ static const MapFire MapLevelFires[] = {
+	 3, {{0, 107, 95}, {1, 58,  140}, {2, 28,   38}},
+	 3, {{2, 240,  0}, {0, 237,  32}, {1, 200,  30}},
+	 2, {{2, 250, 57}, {0, 250,  43}, {2, 200,  70}},
+	 2, {{1, 82,  59}, {2, 84,   16}, {0, 10,   95}},
+	 2, {{2, 237, 50}, {1, 215,  42}, {1, 210,  50}},
+	 3, {{0, 40,   7}, {1, 75,    6}, {2, 100,  10}},
+	 3, {{0, 58,  61}, {1, 85,   80}, {2, 111,  63}},
+	 3, {{0, 260, 65}, {1, 228,   0}, {2, 259,  15}},
+	 2, {{0, 81,  38}, {2, 58,   38}, {2, 30,   20}},
+	 3, {{0, 259, 49}, {1, 248,  76}, {2, 290,  65}},
+	 3, {{2, 227, 66}, {0, 224,  98}, {1, 277,  30}},
+	 2, {{0, 100, 10}, {2, 48,   76}, {2, 80,   80}},
+	 3, {{0, 17,   2}, {1, 29,   49}, {2, 53,   28}},
+	 3, {{0, 266, 42}, {1, 283,  99}, {2, 243, 108}},
+	 2, {{0, 238, 19}, {2, 240,  92}, {2, 190,  40}},
+	 2, {{0, 27,   0}, {1, 70,   40}, {0, 20,  130}},
+	 3, {{0, 275, 65}, {1, 235,   8}, {2, 274,   6}},
+	 3, {{0, 75,  45}, {1, 152, 105}, {2, 24,   68}},
+	 3, {{0, 290, 25}, {1, 225,  63}, {2, 260, 110}},
+	 0, {{1, 20,  10}, {1, 20,   10}, {1, 20,   10}}
+ };
+
+static int gLevelNew; // this is needed to get the chosen level out of the map screen class
+
+class DMapScreen : public DScreenJob
+{
+	int i;
+	int x = 0;
+	int var_2C = 0;
+	int nIdleSeconds = 0;
+	int startTime = 0;
+	int runtimer = 0;
+	
+	int curYPos, destYPos;
+	int nLevel, nLevelNew, nLevelBest;
+
+public:
+	DMapScreen(int nLevel_, int nLevelNew_, int nLevelBest_) : DScreenJob(fadein|fadeout), nLevel(nLevel_), nLevelNew(nLevelNew_), nLevelBest(nLevelBest_)
+	{
+		curYPos = MapLevelOffsets[nLevel] + (200 * (nLevel / 2));
+		destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
+
+		if (curYPos < destYPos) {
+			var_2C = 2;
+		}
+
+		if (curYPos > destYPos) {
+			var_2C = -2;
+		}
+
+		// Trim smoke in widescreen
+#if 0
+		vec2_t mapwinxy1 = windowxy1, mapwinxy2 = windowxy2;
+		int32_t width = mapwinxy2.x - mapwinxy1.x + 1, height = mapwinxy2.y - mapwinxy1.y + 1;
+		if (3 * width > 4 * height)
+		{
+			mapwinxy1.x += (width - 4 * height / 3) / 2;
+			mapwinxy2.x -= (width - 4 * height / 3) / 2;
+		}
+#endif
+	}
+	
+	int Frame(uint64_t clock, bool skiprequest) override
+	
+	{
+		int totalclock = int(clock * 120 / 1'000'000'000);
+
+		twod->ClearScreen();
+		
+		if ((totalclock - startTime) / kTimerTicks)
+		{
+			nIdleSeconds++;
+			startTime = totalclock;
+		}
+		
+		int tileY = curYPos;
+		
+		// Draw the background screens
+		for (i = 0; i < 10; i++)
+		{
+			DrawAbs(kTile3353 + i, x, tileY);
+			tileY -= 200;
+		}
+		
+		// for each level - drawing the 'level completed' on-fire smoke markers
+		for (i = 0; i < kMap20; i++)
+		{
+			int screenY = (i >> 1) * -200;
+			
+			if (nLevelBest >= i) // check if the player has finished this level
+			{
+				for (int j = 0; j < MapLevelFires[i].nFires; j++)
+				{
+					int nFireFrame = (((int)totalclock >> 4) & 3);
+					assert(nFireFrame >= 0 && nFireFrame < 4);
+					
+					int nFireType = MapLevelFires[i].fires[j].nFireType;
+					assert(nFireType >= 0 && nFireType < 3);
+					
+					int nTile = FireTiles[nFireType][nFireFrame].nTile;
+					int smokeX = MapLevelFires[i].fires[j].xPos + FireTiles[nFireType][nFireFrame].xOffs;
+					int smokeY = MapLevelFires[i].fires[j].yPos + FireTiles[nFireType][nFireFrame].yOffs + curYPos + screenY;
+					
+					// Use rotatesprite to trim smoke in widescreen
+					DrawAbs(nTile, smokeX, smokeY);
+					// Todo: mask out the sides of the screen if the background is not widescreen.
+				}
+			}
+			
+			int t = ((((int)totalclock & 16) >> 4));
+			
+			int nTile = mapNamePlaques[i].tiles[t].nTile;
+			
+			int nameX = mapNamePlaques[i].xPos + mapNamePlaques[i].tiles[t].xOffs;
+			int nameY = mapNamePlaques[i].yPos + mapNamePlaques[i].tiles[t].yOffs + curYPos + screenY;
+			
+			// Draw level name plaque
+			DrawAbs(nTile, nameX, nameY);
+			
+			int8_t shade = 96;
+			
+			if (nLevelNew == i)
+			{
+				shade = (Sin(16 * (int)totalclock) + 31) >> 8;
+			}
+			else if (nLevelBest >= i)
+			{
+				shade = 31;
+			}
+			
+			int textY = mapNamePlaques[i].yPos + mapNamePlaques[i].text.yOffs + curYPos + screenY;
+			int textX = mapNamePlaques[i].xPos + mapNamePlaques[i].text.xOffs;
+			nTile = mapNamePlaques[i].text.nTile;
+			
+			// draw the text, alternating between red and black
+			DrawAbs(nTile, textX, textY, shade);
+		}
+		
+		if (curYPos != destYPos)
+		{
+			// scroll the map every couple of ms
+			if (totalclock - runtimer >= (kTimerTicks / 32)) {
+				curYPos += var_2C;
+				runtimer = (int)totalclock;
+			}
+			
+			if (inputState.CheckAllInput())
+			{
+				if (var_2C < 8) {
+					var_2C *= 2;
+				}
+				
+			}
+			
+			if (curYPos > destYPos&& var_2C > 0) {
+				curYPos = destYPos;
+			}
+			
+			if (curYPos < destYPos && var_2C < 0) {
+				curYPos = destYPos;
+			}
+			
+			nIdleSeconds = 0;
+		}
+		gLevelNew = nLevelNew;
+		return skiprequest? -1 : nIdleSeconds < 12? 1 : 0;
+	}
+
+	bool ProcessInput() override
+	{
+		if (inputState.GetKeyStatus(sc_UpArrow))
+		{
+			inputState.ClearKeyStatus(sc_UpArrow);
+			
+			if (curYPos == destYPos && nLevelNew <= nLevelBest)
+			{
+				nLevelNew++;
+				assert(nLevelNew < 20);
+				
+				destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
+				
+				if (curYPos <= destYPos) {
+					var_2C = 2;
+				}
+				else {
+					var_2C = -2;
+				}
+				
+				nIdleSeconds = 0;
+			}
+			return true;
+		}
+		
+		if (inputState.GetKeyStatus(sc_DownArrow))
+		{
+			inputState.ClearKeyStatus(sc_DownArrow);
+			
+			if (curYPos == destYPos && nLevelNew > 0)
+			{
+				nLevelNew--;
+				assert(nLevelNew >= 0);
+				
+				destYPos = MapLevelOffsets[nLevelNew] + (200 * (nLevelNew / 2));
+				
+				if (curYPos <= destYPos) {
+					var_2C = 2;
+				}
+				else {
+					var_2C = -2;
+				}
+				
+				nIdleSeconds = 0;
+			}
+			return true;
+		}
+
+		return false;
+	}
+};
+
+ void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, std::function<void(int)> completion)
+ {
+	 if (nLevel > kMap20 || nLevelNew > kMap20) // max single player levels
+	 {
+		 completion(-1);
+		 return;
+	 }
+     nLevelBest = kMap20;
+
+	 if (nLevel < 1) nLevel = 1;
+	 if (nLevelNew < 1) nLevelNew = nLevel;
+	 
+	  auto mycompletion = [=](bool)
+	  {
+		  completion(gLevelNew+1);
+	  };
+	  // 0-offset the level numbers
+	 gLevelNew = nLevelNew;
+	 JobDesc job = { Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1) };
+	 RunScreenJob(&job, 1, mycompletion);
+ }
+
 
 END_PS_NS

@@ -472,7 +472,8 @@ public:
 	{
 		auto& job = jobs[index];
 		auto now = I_nsTime();
-		bool skiprequest = inputState.CheckAllInput();
+		bool processed = job.job->ProcessInput();
+		bool skiprequest = inputState.CheckAllInput() && !processed;
 		if (startTime == -1) startTime = now;
 
 		if (M_Active())

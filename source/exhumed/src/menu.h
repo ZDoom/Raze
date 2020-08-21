@@ -56,7 +56,7 @@ void menu_GameLoad2(FILE *fp, bool bIsDemo = false);
 void menu_GameSave2(FILE *fp);
 void menu_GameSave(int nSaveSlot);
 
-int menu_DrawTheMap(int nLevel, int param_B, int param_C);
+void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, std::function<void(int)> completion);
 
 void DoEnergyTile();
 
