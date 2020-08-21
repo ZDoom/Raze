@@ -1,6 +1,6 @@
 uparrow "+Move_Forward"
 downarrow "+Move_Backward"
-LCtrl "+Fire"
+Ctrl "+Fire"
 Space "+Open"
 A "+Jump"
 / "+Jump"
