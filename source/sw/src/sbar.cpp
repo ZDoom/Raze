@@ -792,28 +792,30 @@ private:
         //
         // Weapon
         //
+        const short ammo_sprites[] = { -1, ICON_STAR, ICON_LG_SHOTSHELL, ICON_LG_UZI_AMMO, ICON_MICRO_BATTERY, ICON_LG_GRENADE, ICON_LG_MINE, ICON_RAIL_AMMO,
+            ICON_FIREBALL_LG_AMMO, ICON_HEART_LG_AMMO, ICON_FIREBALL_LG_AMMO, ICON_FIREBALL_LG_AMMO,ICON_MICRO_BATTERY, -1 };
+
         int weapon = u->WeaponNum;
-
-        if ((!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+        int wicon = ammo_sprites[weapon];
+        if (wicon > 0)
         {
-			static const short ammo_sprites[] = { -1, ICON_STAR, ICON_LG_SHOTSHELL, ICON_LG_UZI_AMMO, ICON_MICRO_BATTERY, ICON_LG_GRENADE, ICON_LG_MINE, ICON_RAIL_AMMO,
-				ICON_FIREBALL_LG_AMMO, ICON_HEART_LG_AMMO, ICON_FIREBALL_LG_AMMO, ICON_FIREBALL_LG_AMMO,ICON_MICRO_BATTERY, -1 };
+            format.Format("%d", pp->WpnAmmo[weapon]);
+            auto imgWeap = tileGetTexture(wicon);
+            auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+            auto imgX = 21.125;
+            auto strlen = format.Len();
 
-            int wicon = ammo_sprites[weapon];
-            if (wicon > 0)
+            if (strlen > 1)
             {
-				format.Format("%d", pp->WpnAmmo[weapon]);
-				SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
-                auto imgWeap = tileGetTexture(wicon);
-                auto weapScale = imgScale / imgWeap->GetDisplayHeight();
-                auto imgX = 21.125;
-                auto strlen = format.Len();
-                if (strlen > 1)
-                {
-                    imgX += (imgX * 0.855) * (strlen - 1);
-                }
-                DrawGraphic(imgWeap, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+                imgX += (imgX * 0.855) * (strlen - 1);
             }
+
+            if ((!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+            {
+                SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            }
+
+            DrawGraphic(imgWeap, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
         }
 
         //
