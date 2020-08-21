@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void DrawRel(int tile, double x, double y, int shade = 0);
+
 int handle1;
 
 
@@ -53,14 +55,13 @@ int menu_Menu(int nVal)
 
 		twod->ClearScreen();
 
-		overwritesprite(160, 100, kSkullHead, 32, 3, kPalNormal);
-		overwritesprite(161, 130, kSkullJaw, 32, 3, kPalNormal);
-
-		overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
+		DrawRel(kSkullHead, 160, 100, 32);
+		DrawRel(kSkullJaw, 161, 130, 32);
+		DrawRel(nLogoTile, 160, 40, 32);
 
 		// draw the fire urn/lamp thingies
-		overwritesprite(50, 150, kTile3512 + dword_9AB5F, 32, 3, kPalNormal);
-		overwritesprite(270, 150, kTile3512 + ((dword_9AB5F + 2) & 3), 32, 3, kPalNormal);
+		DrawRel(kTile3512 + dword_9AB5F, 50, 150, 32);
+		DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 32);
 
 		HandleAsync();
 		D_ProcessEvents();
@@ -111,7 +112,7 @@ class PSMainMenu : public DListMenu
 		else
 		{
 			auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-			overwritesprite(160, 40, nLogoTile, 32, 3, kPalNormal);
+			DrawRel(nLogoTile, 160, 40);
 		}
 	}
 };
@@ -196,25 +197,9 @@ FSavegameInfo GameInterface::GetSaveSig()
 	return { SAVESIG_PS, MINSAVEVER_PS, SAVEVER_PS };
 }
 
-void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg)
-{
-	if (text)
-	{
-		int height = 11;
-
-		auto lines = FString(text).MakeUpper().Split("\n");
-		int y = position - (height * lines.Size() / 2);
-		for (auto& l : lines)
-		{
-			int width = MyGetStringWidth(l);
-			myprintext(int(origin.X) + 160 - width / 2, int(origin.Y) + y, l, 0);
-			y += height;
-		}
-	}
-}
-
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
+	// Fixme: should use the extracted font from the menu items
 	DrawCenteredTextScreen(origin, text, 10, false);
 }
 

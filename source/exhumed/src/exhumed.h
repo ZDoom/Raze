@@ -191,9 +191,6 @@ void WaitTicks(int nTicks);
 void FadeIn();
 void FadeOut(int bFadeMusic);
 
-int myprintext(int x, int y, const char *str, int shade, int basepal = 0);
-int MyGetStringWidth(const char *str);
-
 void mychangespritesect(int nSprite, int nSector);
 void mydeletesprite(int nSprite);
 
@@ -353,7 +350,6 @@ struct GameInterface : ::GameInterface
     void MenuClosed() override;
     void StartGame(FNewGameStartup& gs) override;
     FSavegameInfo GetSaveSig() override;
-    void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
     void DrawMenuCaption(const DVector2& origin, const char* text) override;
     bool LoadGame(FSaveGameNode* sv) override;
     bool SaveGame(FSaveGameNode* sv) override;

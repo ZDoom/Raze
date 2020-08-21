@@ -677,21 +677,6 @@ void HandleAsync()
 
 }
 
-int MyGetStringWidth(const char *str)
-{
-    int nLen = strlen(str);
-
-    int nWidth = 0;
-
-    for (int i = 0; i < nLen; i++)
-    {
-        int nPic = seq_GetSeqPicnum(kSeqFont2, 0, str[i] - 32);
-        nWidth += tilesiz[nPic].x + 1;
-    }
-
-    return nWidth;
-}
-
 void ResetPassword()
 {
     nCodeMin = nFirstPassword;
@@ -1112,8 +1097,8 @@ void DoCredits()
 
         for (int i = nStart; i < nCreditsIndex; i++)
         {
-            int nWidth = MyGetStringWidth(gString[i]);
-            myprintext((320 - nWidth) / 2, y, gString[i], 0);
+            int nStringWidth = SmallFont->StringWidth(gString[i]);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, gString[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
             y += 10;
         }
 
@@ -1377,8 +1362,9 @@ static void GameDisplay(void)
     DrawStatusBar();
     if (paused && !M_Active())
     {
-        int nLen = MyGetStringWidth("PAUSED");
-        myprintext((320 - nLen) / 2, 100, "PAUSED", 0);
+        auto tex = GStrings("TXTB_PAUSED");
+		int nStringWidth = SmallFont->StringWidth(tex);
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
     }
     if (M_Active())
     {
@@ -2268,14 +2254,6 @@ void mydeletesprite(int nSprite)
 }
 
 
-void KeyFn1()
-{
-    menu_DoPlasma();
-    overwritesprite(160, 100, kSkullHead, 0, 3, kPalNormal);
-    overwritesprite(161, 130, kSkullJaw, 0, 3, kPalNormal);
-    videoNextPage();
-}
-
 extern int currentCinemaPalette;
 void DoGameOverScene()
 {
@@ -2341,28 +2319,6 @@ int CopyCharToBitmap(char nChar, int nTile, int xPos, int yPos)
     CopyTileToBitmap(nFontTile, nTile, xPos, yPos);
 
     return tilesiz[nFontTile].x + 1;
-}
-
-// Note: strings passed should be uppercase
-int myprintext(int x, int y, const char *str, int shade, int basepal)
-{
-    if (y < -15 || y >= 200)
-        return x;
-
-    const char *c = str;
-
-    while (*c != '\0')
-    {
-        int nTile = seq_GetSeqPicnum(kSeqFont2, 0, (*c) - 32);
-        overwritesprite(x, y, nTile, shade, 2, kPalNormal, basepal);
-
-        int tileWidth = tilesiz[nTile].x;
-
-        x += tileWidth + 1;
-        c++;
-    }
-
-    return x;
 }
 
 void EraseScreen(int nVal)

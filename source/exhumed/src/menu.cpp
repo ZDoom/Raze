@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "v_2ddrawer.h"
 #include "gamestate.h"
+#include "statistics.h"
+#include "v_draw.h"
 #include <string>
 
 #include <assert.h>
@@ -504,7 +506,7 @@ void ComputeCinemaText(int nLine)
             break;
         }
 
-        int nWidth = MyGetStringWidth(gString[linecount + nLine]);
+        int nWidth = SmallFont->StringWidth(gString[linecount + nLine]);
         nLeft[linecount] = 160 - nWidth / 2;
 
         linecount++;
@@ -552,7 +554,7 @@ bool AdvanceCinemaText()
             while (i < linecount && y <= 199)
             {
                 if (y >= -10) {
-                    myprintext(nLeft[i], y, gString[line + i], 0, currentCinemaPalette);
+					DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, gString[line + i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
                 }
 
                 i++;
@@ -774,6 +776,7 @@ int showmap(short nLevel, short nLevelNew, short nLevelBest)
 	menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, [&](int lev){
 		gamestate = GS_LEVEL;
 		selectedLevel = lev;
+        if (lev != nLevelNew) STAT_Cancel();
 	});
 	SyncScreenJob();
     if (selectedLevel == 11) {
