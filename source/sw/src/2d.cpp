@@ -181,7 +181,7 @@ class DSWCreditsScreen : public DScreenJob
     int Frame(uint64_t clock, bool skiprequest)
     {
         twod->ClearScreen();
-        int seconds = int(clock * 120 / 1'000'000'000);
+        int seconds = int(clock / 1'000'000'000);
         if (clock == 0)
         {
             // Lo Wang feel like singing!
