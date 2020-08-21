@@ -167,8 +167,7 @@ public:
 				auto strlen = format.Len();
 				if (strlen > 1)
 				{
-					auto scaler = strlen - 1;
-					imgX += ((imgX / 2.) * scaler) + ((imgX / (10. * scale)) * scaler);
+					imgX += (imgX * 0.6) * (strlen - 1);
 				}
 				DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
 			}

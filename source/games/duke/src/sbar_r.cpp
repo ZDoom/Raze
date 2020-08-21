@@ -153,8 +153,7 @@ public:
 				auto strlen = format.Len();
 				if (strlen > 1)
 				{
-					auto scaler = strlen - 1;
-					imgX += ((imgX / 2.) * scaler) + ((imgX / (7.8125 * scale)) * scaler);
+					imgX += (imgX * 0.755) * (strlen - 1);
 				}
 				DrawGraphic(imgWeap, -imgX, -2, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
 			}
