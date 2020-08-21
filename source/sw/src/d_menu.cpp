@@ -170,10 +170,12 @@ void GameInterface::MenuSound(EMenuSounds snd)
 			break;
 
 		case AdvanceSound:
+		case ChooseSound:
 			PlaySound(DIGI_SWORDSWOOSH, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 			
 		case CloseSound:
+		case BackSound:
 			PlaySound(DIGI_STARCLINK, v3df_dontpan, CHAN_BODY, CHANF_UI);
 			break;
 
