@@ -758,16 +758,18 @@ private:
         auto pp = Player + screenpeek;
         USERp u = User[pp->PlayerSprite];
 
-        double imgScale = numberFont.mFont->GetHeight() * 0.9375;
+        FString format;
+        FGameTexture* img;
+        double imgScale;
+        double baseScale = numberFont.mFont->GetHeight() * 0.9375;
 
         //
         // Health
         //
-        auto imgHealth = tileGetTexture(ICON_SM_MEDKIT);
-        auto healthScale = imgScale / imgHealth->GetDisplayHeight();
-        DrawGraphic(imgHealth, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
+        img = tileGetTexture(ICON_SM_MEDKIT);
+        imgScale = baseScale / img->GetDisplayHeight();
+        DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-        FString format;
         if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || ((int)totalclock & 32))
         {
             int s = -8;
@@ -782,9 +784,9 @@ private:
         //
         // Armor
         //
-        auto imgArmor = tileGetTexture(ICON_ARMOR);
-        auto armorScale = imgScale / imgArmor->GetDisplayHeight();
-        DrawGraphic(imgArmor, 80.75, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
+        img = tileGetTexture(ICON_ARMOR);
+        imgScale = baseScale / img->GetDisplayHeight();
+        DrawGraphic(img, 80.75, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
         format.Format("%d", pp->Armor);
         SBar_DrawString(this, &numberFont, format, 108.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
@@ -800,8 +802,8 @@ private:
         if (wicon > 0)
         {
             format.Format("%d", pp->WpnAmmo[weapon]);
-            auto imgWeap = tileGetTexture(wicon);
-            auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+            img = tileGetTexture(wicon);
+            imgScale = baseScale / img->GetDisplayHeight();
             auto imgX = 21.125;
             auto strlen = format.Len();
 
@@ -815,16 +817,16 @@ private:
                 SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
 
-            DrawGraphic(imgWeap, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+            DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
         }
 
         //
         // Selected inventory item
         //
+        img = tileGetTexture(icons[pp->InventoryNum]);
+        imgScale = baseScale / img->GetDisplayHeight();
         int x = 165;
-        auto imgInv = tileGetTexture(icons[pp->InventoryNum]);
-        auto invScale = imgScale / imgInv->GetDisplayHeight();
-        DrawGraphic(imgInv, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, invScale, invScale);
+        DrawGraphic(img, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, imgScale, imgScale);
 
         PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
         PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
@@ -833,7 +835,7 @@ private:
         // keys
         //
         DisplayKeys(pp, -105, -18, 0.8625, 0.8625);
-        PrintLevelStats(int(imgScale + 4));
+        PrintLevelStats(int(baseScale + 4));
     }
 
 

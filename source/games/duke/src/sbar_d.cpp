@@ -116,16 +116,18 @@ public:
 
 	void FullscreenHUD1(struct player_struct* p, int snum)
 	{
-		double imgScale = (scale * numberFont.mFont->GetHeight()) * 0.7;
+		FString format;
+		FGameTexture* img;
+		double imgScale;
+		double baseScale = (scale * numberFont.mFont->GetHeight()) * 0.7;
 
 		//
 		// Health
 		//
-		auto imgHealth = tileGetTexture(COLA);
-		auto healthScale = imgScale / imgHealth->GetDisplayHeight();
-		DrawGraphic(imgHealth, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, healthScale, healthScale);
+		img = tileGetTexture(COLA);
+		imgScale = baseScale / img->GetDisplayHeight();
+		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-		FString format;
 		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
@@ -140,9 +142,9 @@ public:
 		//
 		// Armor
 		//
-		auto imgArmor = tileGetTexture(SHIELD);
-		auto armorScale = imgScale / imgArmor->GetDisplayHeight();
-		DrawGraphic(imgArmor, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, armorScale, armorScale);
+		img = tileGetTexture(SHIELD);
+		imgScale = baseScale / img->GetDisplayHeight();
+		DrawGraphic(img, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
 		SBar_DrawString(this, &numberFont, format, 85, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
@@ -157,8 +159,8 @@ public:
 		if (wicon > 0)
 		{
 			format.Format("%d", p->ammo_amount[weapon]);
-			auto imgWeap = tileGetTexture(wicon);
-			auto weapScale = imgScale / imgWeap->GetDisplayHeight();
+			img = tileGetTexture(wicon);
+			imgScale = baseScale / img->GetDisplayHeight();
 			auto imgX = 20.;
 			auto strlen = format.Len();
 
@@ -172,13 +174,12 @@ public:
 				SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}
 
-			DrawGraphic(imgWeap, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, weapScale, weapScale);
+			DrawGraphic(img, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
 		}
 
 		//
 		// Selected inventory item
 		//
-
 		unsigned icon = p->inven_icon;
 		if (icon > 0)
 		{
@@ -186,9 +187,9 @@ public:
 
 			if (icon < ICON_MAX)
 			{
-				auto imgInv = tileGetTexture(item_icons[icon]);
-				auto invScale = imgScale / imgInv->GetDisplayHeight();
-				DrawGraphic(imgInv, x, -1.5, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, invScale, invScale);
+				img = tileGetTexture(item_icons[icon]);
+				imgScale = baseScale / img->GetDisplayHeight();
+				DrawGraphic(img, x, -1.5, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, imgScale, imgScale);
 			}
 
 			int percentv = getinvamount(p);
