@@ -93,7 +93,7 @@ static int ccmd_map(CCmdFuncPtr parm)
 	FString mapfilename = mapname;
 	DefaultExtension(mapfilename, ".map");
 
-	if (!fileSystem.FindFile(mapfilename))
+	if (!fileSystem.FileExists(mapfilename))
 	{
 		Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
 		return CCMD_OK;

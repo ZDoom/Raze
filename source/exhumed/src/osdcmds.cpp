@@ -71,7 +71,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
     FString mapfilename = mapname;
     DefaultExtension(mapfilename, ".map");
 
-    if (!fileSystem.FindFile(mapfilename))
+    if (!fileSystem.FileExists(mapfilename))
     {
         Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
         return CCMD_OK;
