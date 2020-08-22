@@ -64,7 +64,6 @@ bool EndLevel = false;
 /* these are XORed in the original game executable then XORed back to normal when the game first starts. Here they are normally */
 const char *gString[] =
 {
-    "PASSWORDS",
     "HOLLY",
     "KIMBERLY",
     "LOBOCOP",
@@ -76,22 +75,6 @@ const char *gString[] =
     "LOBOSPHERE",
     "LOBOSWAG",
     "LOBOXY",
-    "",
-    "PASSINFO",
-    "",
-    "HI SWEETIE, I LOVE YOU",
-    "",
-    "",
-    "FLASHES TOGGLED",
-    "",
-    "",
-    "",
-    "FULL MAP",
-    "",
-    "",
-    "",
-    "EOF",
-    "",
 };
 
 
@@ -358,14 +341,6 @@ void HandleAsync()
 
 }
 
-void ResetPassword()
-{
-    nCodeMin = nFirstPassword;
-    nCodeIndex = 0;
-
-    nCodeMax = (nFirstPassword + nPasswordCount) - 1;
-}
-
 void DoPassword(int nPassword)
 {
     if (nNetPlayerCount) {
@@ -563,145 +538,6 @@ void CheckKeys()
     {
         char ch = inputState.keyGetChar();
 
-        if (bHolly)
-        {
-            if (ch)
-            {
-                size_t nStringLen = strlen(sHollyStr);
-
-                if (ch == asc_Enter)
-                {
-                    const char *pToken = safeStrtok(sHollyStr, " ");
-
-                    if (!strcmp(pToken, "GOTO"))
-                    {
-                        // move player to X, Y coordinates
-                        int nSprite = PlayerList[0].nSprite;
-
-                        pToken = safeStrtok(NULL, ",");
-                        sprite[nSprite].x = atoi(pToken);
-                        pToken = safeStrtok(NULL, ",");
-                        sprite[nSprite].y = atoi(pToken);
-
-                        setsprite(nSprite, &sprite[nSprite].pos);
-                        sprite[nSprite].z = sector[sprite[nSprite].sectnum].floorz;
-                    }
-                    else if (!strcmp(pToken, "LEVEL"))
-                    {
-                        pToken = safeStrtok(NULL, " ");
-                        levelnew = atoi(pToken);
-                    }
-                    else if (!strcmp(pToken, "DOORS"))
-                    {
-                        for (int i = 0; i < kMaxChannels; i++)
-                        {
-                            // CHECKME - does this toggle?
-                            if (sRunChannels[i].c == 0) {
-                                runlist_ChangeChannel(i, 1);
-                            }
-                            else {
-                                runlist_ChangeChannel(i, 0);
-                            }
-                        }
-                    }
-                    else if (!strcmp(pToken, "EXIT"))
-                    {
-                        EndLevel = true;
-                    }
-                    else if (!strcmp(pToken, "CREATURE"))
-                    {
-                        // i = nNetPlayerCount;
-                        if (!nNetPlayerCount)
-                        {
-                            pToken = safeStrtok(NULL, " ");
-                            switch (atoi(pToken))
-                            {
-                                // TODO - enums?
-                                case 0:
-                                    BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, false);
-                                    break;
-                                case 1:
-                                    BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                case 2:
-                                    BuildMummy(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                case 3:
-                                    BuildFish(-1, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);
-                                    break;
-                                case 4:
-                                    BuildLion(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                case 5:
-                                    BuildLava(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-                                    break;
-                                case 6:
-                                    BuildRex(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-                                    break;
-                                case 7:
-                                    BuildSet(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-                                    break;
-                                case 8:
-                                    BuildQueen(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-                                    break;
-                                case 9:
-                                    BuildRoach(0, -1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                case 10:
-                                    BuildRoach(1, -1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                case 11:
-                                    BuildWasp(-1, initx, inity, sector[initsect].floorz - 25600, initsect, inita);
-                                    break;
-                                case 12:
-                                    BuildScorp(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
-                                    break;
-                                case 13:
-                                    BuildRat(-1, initx, inity, sector[initsect].floorz, initsect, inita);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (nStringLen == 0)
-                        {
-                            bHolly = false;
-                            StatusMessage(1, " ");
-                        }
-                        else
-                        {
-                            for (int i = 0; i < nPasswordCount; ++i)
-                            {
-                                if (!strcmp(sHollyStr, gString[i + nFirstPassword]))
-                                {
-                                    DoPassword(i);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    sHollyStr[0] = '\0';
-                }
-                else if (ch == asc_BackSpace)
-                {
-                    if (nStringLen != 0) {
-                        sHollyStr[nStringLen - 1] = '\0';
-                    }
-                }
-                else if (nStringLen < (sizeof(sHollyStr) - 1)) // do we have room to add a char and null terminator?
-                {
-                    sHollyStr[nStringLen] = toupper(ch);
-                    sHollyStr[nStringLen + 1] = '\0';
-                }
-            }
-            else
-            {
-				inputState.keyGetChar(); //???
-            }
-        }
 
         if (isalpha(ch))
         {
@@ -724,7 +560,6 @@ void CheckKeys()
                         ebx -= nFirstPassword;
 
                         DoPassword(ebx);
-                        ResetPassword();
                     }
 
                     break;
@@ -1007,29 +842,6 @@ static void GameMove(void)
 
 int32_t r_maxfpsoffset = 0;
 
-void PatchDemoStrings()
-{
-#if 0
-    if (!ISDEMOVER)
-        return;
-
-    if (EXHUMED) {
-        gString[60] = "PICK UP A COPY OF EXHUMED";
-    }
-    else {
-        gString[60] = "PICK UP A COPY OF POWERSLAVE";
-    }
-
-    gString[61] = "TODAY TO CONTINUE THE ADVENTURE!";
-    gString[62] = "MORE LEVELS, NASTIER CREATURES";
-    gString[63] = "AND THE EVIL DOINGS OF THE";
-    gString[64] = "KILMAAT AWAIT YOU IN THE FULL";
-    gString[65] = "VERSION OF THE GAME.";
-    gString[66] = "TWENTY LEVELS, PLUS 12 NETWORK";
-    gString[67] = "PLAY LEVELS CAN BE YOURS!";
-    gString[68] = "END";
-#endif
-}
 
 void ExitGame()
 {
@@ -1146,7 +958,6 @@ int GameInterface::app_main()
     }
 
 
-    PatchDemoStrings();
     // loc_115F5:
     nFirstPassword = FindGString("PASSWORDS");
     nFirstPassInfo = FindGString("PASSINFO");
@@ -2253,12 +2064,6 @@ void LoadTextureState()
     TileFiles.InvalidateTile(kTile3603);
     TileFiles.InvalidateTile(kEnergy1);
     TileFiles.InvalidateTile(kEnergy2);
-}
-
-
-CCMD(ex_endlevel)
-{
-    EndLevel = true;
 }
 
 END_PS_NS

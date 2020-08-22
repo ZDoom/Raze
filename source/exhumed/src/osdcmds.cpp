@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "view.h"
 #include "mapinfo.h"
+#include "aistuff.h"
 
 BEGIN_PS_NS
 
@@ -147,27 +148,68 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_exitmap(CCmdFuncPtr parm)
+{
+    EndLevel = true;
+    return CCMD_OK;
+}
+
+static int osdcmd_doors(CCmdFuncPtr parm)
+{
+    for (int i = 0; i < kMaxChannels; i++)
+    {
+        // CHECKME - does this toggle?
+        if (sRunChannels[i].c == 0) {
+            runlist_ChangeChannel(i, 1);
+        }
+        else {
+            runlist_ChangeChannel(i, 0);
+        }
+    }
+    return CCMD_OK;
+}
+
+extern int initx;
+extern int inity;
+extern int initz;
+extern short inita;
+extern short initsect;
+
+static int osdcmd_spawn(CCmdFuncPtr parm)
+{
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
+    auto c = parm->parms[0];
+
+    if (!stricmp(c, "anubis")) BuildAnubis(-1, initx, inity, sector[initsect].floorz, initsect, inita, false);
+    else if (!stricmp(c, "spider")) BuildSpider(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "mummy")) BuildMummy(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "fish")) BuildFish(-1, initx, inity, initz + eyelevel[nLocalPlayer], initsect, inita);
+    else if (!stricmp(c, "lion")) BuildLion(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "lava")) BuildLava(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "rex")) BuildRex(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "set")) BuildSet(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "queen")) BuildQueen(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "roach")) BuildRoach(0, -1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "roach2")) BuildRoach(1, -1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else if (!stricmp(c, "wasp")) BuildWasp(-1, initx, inity, sector[initsect].floorz - 25600, initsect, inita);
+    else if (!stricmp(c, "scorp")) BuildScorp(-1, initx, inity, sector[initsect].floorz, initsect, inita, nNetPlayerCount);
+    else if (!stricmp(c, "rat")) BuildRat(-1, initx, inity, sector[initsect].floorz, initsect, inita);
+    else Printf("Unknown creature type %s\n", c);
+    return CCMD_OK;
+}
+
+
+
 int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
     C_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    //    C_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
-    //}
-
-    //C_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
-
-
-    //C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    C_RegisterFunction("exitmap", "exits current map", osdcmd_exitmap);
+    C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
-    //C_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
-
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-    //C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
-    //C_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
-
-    //C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-
+    C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
 
     return 0;
