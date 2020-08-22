@@ -265,14 +265,14 @@ class TextOverlay
 	double nCrawlY;
 	short nLeft[50];
 	int nHeight;
-	int linecount;
-    int line;
     int lastclock;
+	TArray<FString> screentext;
+
 
 public:
 
 	void Start(int starttime);
-	void ComputeCinemaText(int nLine);
+	void ComputeCinemaText();
 	void ReadyCinemaText(uint16_t nVal);
 	void DisplayText();
 	bool AdvanceCinemaText(int totalclock);

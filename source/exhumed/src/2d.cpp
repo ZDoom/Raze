@@ -861,44 +861,25 @@ void TextOverlay::Start(int starttime)
     lastclock = starttime;
 }
 
-void TextOverlay::ComputeCinemaText(int nLine)
+void TextOverlay::ComputeCinemaText()
 {
-    linecount = 0;
-
-    while (1)
-    {
-        if (!strcmp(gString[linecount + nLine], "END")) {
-            break;
-        }
-
-        int nWidth = SmallFont->StringWidth(gString[linecount + nLine]);
-        nLeft[linecount] = 160 - nWidth / 2;
-
-        linecount++;
+    int i = 0;
+    for (auto &line : screentext)
+    { 
+        int nWidth = SmallFont->StringWidth(line);
+        nLeft[i++] = 160 - nWidth / 2;
     }
 
     nCrawlY = 199;
-    nHeight = linecount * 10;
+    nHeight = screentext.Size() * 10;
 }
 
 void TextOverlay::ReadyCinemaText(uint16_t nVal)
 {
-    line = FindGString("CINEMAS");
-    if (line < 0) {
-        return;
-    }
-
-    while (nVal)
-    {
-        while (strcmp(gString[line], "END")) {
-            line++;
-        }
-
-        line++;
-        nVal--;
-    }
-
-    ComputeCinemaText(line);
+    FStringf label("TXT_EX_LASTLEVEL%d", nVal + 1);
+    label = GStrings(label);
+    screentext = label.Split("\n");
+    ComputeCinemaText();
 }
 
 void TextOverlay::DisplayText()
@@ -906,12 +887,12 @@ void TextOverlay::DisplayText()
     if (nHeight + nCrawlY > 0)
     {
         double y = nCrawlY;
-        int i = 0;
+        unsigned int i = 0;
 
-        while (i < linecount && y <= 199)
+        while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10) {
-                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, gString[line + i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
             }
 
             i++;
