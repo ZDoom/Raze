@@ -262,7 +262,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
         if (sqrtVal > INT_MAX)
         {
-            OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
             sqrtVal = INT_MAX;
         }
 
@@ -307,7 +307,7 @@ int QueenAngleChase(short nSprite, short nSprite2, int val1, int val2)
 
     if (sqrtNum > INT_MAX)
     {
-        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
         sqrtNum = INT_MAX;
     }
 
