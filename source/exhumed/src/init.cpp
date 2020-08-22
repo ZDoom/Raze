@@ -431,7 +431,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 
     int v6 = nLotag % 1000;
 
-    if (!bNoCreatures || v6 < 100 || v6 > 118)
+    if (!userConfig.nomonsters || v6 < 100 || v6 > 118)
     {
         if (v6 > 999) {
             mydeletesprite(nSprite);
@@ -452,7 +452,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 118: // Anubis with drum
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -462,7 +462,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 117:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -492,7 +492,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 111:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -502,7 +502,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 108:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -512,7 +512,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 107:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -522,7 +522,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 106:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -532,7 +532,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 105:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -542,7 +542,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 104:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -552,7 +552,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 103:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -562,7 +562,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 102:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -572,7 +572,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 101:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }
@@ -582,7 +582,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 100:
             {
-                if (bNoCreatures) {
+                if (userConfig.nomonsters) {
                     mydeletesprite(nSprite);
                     return;
                 }

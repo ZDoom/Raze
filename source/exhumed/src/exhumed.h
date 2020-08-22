@@ -214,8 +214,6 @@ extern short lastfps;
 
 extern int flash;
 
-extern short bNoCreatures;
-
 extern short nLocalSpr;
 extern short levelnew;
 
@@ -231,7 +229,6 @@ extern int lCountDown;
 
 extern short bSlipMode;
 
-extern short nItemTextIndex;
 extern const char* gString[];
 extern const char* gPSDemoString[];
 extern const char* gEXDemoString[];

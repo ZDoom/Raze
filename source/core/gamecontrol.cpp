@@ -352,7 +352,7 @@ void UserConfig::ProcessOptions()
 	Args->CollectFiles("-name", names, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
 	CommandName = Args->CheckValue("-name");
 
-	static const char* nomos[] = { "-nomonsters", "-nodudes", nullptr };
+	static const char* nomos[] = { "-nomonsters", "-nodudes", "-nocreatures", nullptr };
 	Args->CollectFiles("-nomonsters", nomos, ".---");	// this shouldn't collect any file names at all so use a nonsense extension
 	nomonsters = Args->CheckParm("-nomonsters");
 

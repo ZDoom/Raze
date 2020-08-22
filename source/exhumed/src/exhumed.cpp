@@ -64,41 +64,6 @@ bool EndLevel = false;
 /* these are XORed in the original game executable then XORed back to normal when the game first starts. Here they are normally */
 const char *gString[] =
 {
-    "ITEMS",
-    "LIFE BLOOD",
-    "LIFE",
-    "VENOM",
-    "YOU'RE LOSING YOUR GRIP",
-    "FULL LIFE",
-    "INVINCIBILITY",
-    "INVISIBILITY",
-    "TORCH",
-    "SOBEK MASK",
-    "INCREASED WEAPON POWER!",
-    "THE MAP!",
-    "AN EXTRA LIFE!",
-    ".357 MAGNUM!",
-    "GRENADE",
-    "M-60",
-    "FLAME THROWER!",
-    "COBRA STAFF!",
-    "THE EYE OF RAH GAUNTLET!",
-    "SPEED LOADER",
-    "AMMO",
-    "FUEL",
-    "COBRA!",
-    "RAW ENERGY",
-    "POWER KEY",
-    "TIME KEY",
-    "WAR KEY",
-    "EARTH KEY",
-    "MAGIC",
-    "LOCATION PRESERVED",
-    "COPYRIGHT",
-    "LOBOTOMY SOFTWARE, INC.",
-    "3D ENGINE BY 3D REALMS",
-    "",
-    "",
     "PASSWORDS",
     "HOLLY",
     "KIMBERLY",
@@ -322,7 +287,6 @@ short nBodyTotal = 0;
 short lastfps;
 
 short nMapMode = 0;
-short bNoCreatures = false;
 
 short nTotalPlayers = 1;
 // TODO: Rename this (or make it static) so it doesn't conflict with library function
@@ -340,7 +304,6 @@ short bSlipMode = false;
 short bDoFlashes = true;
 short bHolly = false;
 
-short nItemTextIndex;
 short besttarget;
 
 short scan_char = 0;
@@ -831,10 +794,6 @@ void FinishLevel()
 }
 
 
-void SetHiRes()
-{
-}
-
 void DoClockBeep()
 {
     for (int i = headspritestat[407]; i != -1; i = nextspritestat[i]) {
@@ -1046,14 +1005,6 @@ static void GameMove(void)
     moveframes--;
 }
 
-#if defined(_WIN32) && defined(DEBUGGINGAIDS)
-// See FILENAME_CASE_CHECK in cache1d.c
-static int32_t check_filename_casing(void)
-{
-    return 1;
-}
-#endif
-
 int32_t r_maxfpsoffset = 0;
 
 void PatchDemoStrings()
@@ -1087,75 +1038,6 @@ void ExitGame()
 }
 
 static int32_t nonsharedtimer;
-
-void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
-{
-	// Check for any command line arguments
-	for (int i = 1; i < argc; i++)
-	{
-		const char* pChar = argv[i];
-
-		if (*pChar == '/')
-		{
-			pChar++;
-			//strlwr(pChar);
-
-			if (Bstrcasecmp(pChar, "nocreatures") == 0) {
-				bNoCreatures = true;
-            }
-            else if (Bstrcasecmp(pChar, "network") == 0)
-            {
-                nNetPlayerCount = -1;
-                forcelevel = levelnew;
-                bModemPlay = false;
-
-                doTitle = false;
-            }
-            else
-            {
-                char c = tolower(*pChar);
-
-                switch (c)
-                {
-                    case 'h':
-                        SetHiRes();
-                        break;
-#if 0
-                    case 's':
-                        socket = atoi(pChar + 1);
-                        break;
-#endif
-                    case 't':
-                        nNetTime = atoi(pChar + 1);
-                        if (nNetTime < 0) {
-                            nNetTime = 0;
-                        }
-                        else {
-                            nNetTime = nNetTime * 1800;
-                        }
-                        break;
-                    case 'c':
-                    {
-						break;
-                    }
-                    default:
-                    {
-                        if (isdigit(c))
-                        {
-                            levelnew = atoi(pChar);
-                            forcelevel = levelnew;
-
-                            doTitle = false;
-
-                            Printf("Jumping to level %d...\n", levelnew);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
 
 static const char* actions[] =
 {
@@ -1266,7 +1148,6 @@ int GameInterface::app_main()
 
     PatchDemoStrings();
     // loc_115F5:
-    nItemTextIndex = FindGString("ITEMS");
     nFirstPassword = FindGString("PASSWORDS");
     nFirstPassInfo = FindGString("PASSINFO");
 

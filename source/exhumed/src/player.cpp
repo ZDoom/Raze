@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menu.h"
 #include "sound.h"
 #include "buildtiles.h"
+#include "gstrings.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -908,6 +909,17 @@ void DoKenTest()
     }
 }
 
+static void pickupMessage(int no)
+{
+    no = nItemText[no];
+    if (no != -1)
+    {
+        FStringf label("TXT_EX_PICKUP%d", no + 1);
+        auto str = GStrings[label];
+        if (str) Printf(PRINT_NOTIFY, "%s\n", str);
+    }
+}
+
 void FuncPlayer(int a, int nDamage, int nRun)
 {
     int var_48 = 0;
@@ -1740,7 +1752,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -1805,7 +1817,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -1896,7 +1908,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -1970,7 +1982,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -2044,7 +2056,7 @@ do_default_b:
                                         {
                                             if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                             {
-                                                StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                                pickupMessage(var_70);
                                             }
 
                                             TintPalette(var_44*4, var_8C*4, 0);
@@ -2215,7 +2227,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2277,7 +2289,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2339,7 +2351,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2401,7 +2413,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2463,7 +2475,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);
@@ -2525,7 +2537,7 @@ do_default_b:
                                 {
                                     if (nItemText[var_70] > -1 && nTotalPlayers == 1)
                                     {
-                                        StatusMessage(400, gString[nItemTextIndex + nItemText[var_70]]);
+                                        pickupMessage(var_70);
                                     }
 
                                     TintPalette(var_44*4, var_8C*4, 0);

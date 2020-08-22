@@ -353,7 +353,7 @@ short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
 
 void CheckBeforeScene(int nLevel)
 {
-    if (1)//nLevel == kMap20)
+    if (nLevel == kMap20)
     {
         RunCinemaScene(-1);
         return;
@@ -438,12 +438,6 @@ int FindGString(const char *str)
 
     return -1;
 }
-
-uint8_t CheckForEscape()
-{
-    return inputState.CheckAllInput();
-}
-
 
 static SavegameHelper sgh("menu",
     SA(nCinemaSeen),

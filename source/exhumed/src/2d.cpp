@@ -418,7 +418,6 @@ static const short skullDurations[] = { 6, 25, 43, 50, 68, 78, 101, 111, 134, 15
 
 class DMainTitle : public DScreenJob
 {
-    int String_Copyright;
     const char* a;
     const char* b;
     int state = 0;
@@ -432,9 +431,8 @@ class DMainTitle : public DScreenJob
 public:
     DMainTitle() : DScreenJob(fadein)
     {
-        String_Copyright = FindGString("COPYRIGHT");
-        a = gString[String_Copyright];
-        b = gString[String_Copyright + 1];
+        a = GStrings("TXT_EX_COPYRIGHT1");
+        b = GStrings("TXT_EX_COPYRIGHT2");
         var_18 = skullDurations[0];
     }
 
@@ -1287,7 +1285,6 @@ private:
 // temporary.
 void RunCinemaScene(int num)
 {
-    num = -1;
     JobDesc job = { num == -1? (DScreenJob*)Create<DExCredits>() : Create<DCinema>(num) };
     RunScreenJob(&job, 1, [](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
