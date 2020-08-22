@@ -353,7 +353,7 @@ short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
 
 void CheckBeforeScene(int nLevel)
 {
-    if (nLevel == kMap20)
+    if (1)//nLevel == kMap20)
     {
         RunCinemaScene(-1);
         return;

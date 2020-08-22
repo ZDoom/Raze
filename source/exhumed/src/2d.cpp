@@ -1215,11 +1215,80 @@ private:
 
 };
 
+//---------------------------------------------------------------------------
+//
+// Credits roll
+//
+//---------------------------------------------------------------------------
+
+class DExCredits : public DScreenJob
+{
+    TArray<FString> credits;
+    TArray<FString> pagelines;
+    uint64_t page;
+    uint64_t pagetime;
+
+public:
+    DExCredits()
+    {
+        auto textdata = fileSystem.LoadFile("credits.txt", 1);
+        FString text = (char*)textdata.Data();
+        text.Substitute("\r", "");
+        credits = text.Split("\n\n");
+    }
+
+private:
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+        if (clock == 0)
+        {
+            if (credits.Size() == 0) return 0;
+            playCDtrack(19, false);
+            pagetime = 0;
+            page = -1;
+        }
+        if (clock >= pagetime || skiprequest)
+        {
+            page++;
+            if (page < credits.Size())
+                pagelines = credits[page].Split("\n");
+            else
+            {
+                if (skiprequest || !CDplaying()) return 0;
+                pagelines.Clear();
+            }
+            pagetime = clock + 2'000'000'000; // 
+        }
+        twod->ClearScreen();
+
+        int y = 100 - ((10 * (pagelines.Size() - 1)) / 2);
+
+        for (unsigned i = 0; i < pagelines.Size(); i++)
+        {
+            uint64_t ptime = (pagetime-clock) / 1'000'000;
+            int light;
+
+            if (ptime < 255) light = ptime;
+            else if (ptime > 2000 - 255) light = 2000 - ptime;
+            else light = 255;
+
+            auto color = PalEntry(255, light, light, light);
+
+            int nStringWidth = SmallFont->StringWidth(pagelines[i]);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, pagelines[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, color, TAG_DONE);
+            y += 10;
+        }
+        return 1;
+    }
+};
+
+
+
 // temporary.
 void RunCinemaScene(int num)
 {
     num = -1;
-    JobDesc job = { num == -1? (DScreenJob*)Create<DLastLevelCinema>() : Create<DCinema>(num) };
+    JobDesc job = { num == -1? (DScreenJob*)Create<DExCredits>() : Create<DCinema>(num) };
     RunScreenJob(&job, 1, [](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
 }

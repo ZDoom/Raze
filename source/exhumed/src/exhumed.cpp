@@ -99,132 +99,6 @@ const char *gString[] =
     "3D ENGINE BY 3D REALMS",
     "",
     "",
-    "CREDITS",
-    "EXHUMED",
-    "",
-    "EXECUTIVE PRODUCERS",
-    " ",
-    "BRIAN MCNEELY",
-    "PAUL LANGE",
-    "",
-    "GAME CONCEPT",
-    " ",
-    "PAUL LANGE",
-    "",
-    "GAME DESIGN",
-    " ",
-    "BRIAN MCNEELY",
-    "",
-    "ADDITIONAL DESIGN",
-    " ",
-    "PAUL KNUTZEN",
-    "PAUL LANGE",
-    "JOHN VAN DEUSEN",
-    "KURT PFEIFER",
-    "DOMINICK MEISSNER",
-    "DANE EMERSON",
-    "",
-    "GAME PROGRAMMING",
-    " ",
-    "KURT PFEIFER",
-    "JOHN YUILL",
-    "",
-    "ADDITIONAL PROGRAMMING",
-    " ",
-    "PAUL HAUGERUD",
-    "",
-    "ADDITIONAL TECHNICAL SUPPORT",
-    " ",
-    "JOHN YUILL",
-    "PAUL HAUGERUD",
-    "JEFF BLAZIER",
-    "",
-    "LEVEL DESIGN",
-    " ",
-    "PAUL KNUTZEN",
-    "",
-    "ADDITIONAL LEVELS",
-    " ",
-    "BRIAN MCNEELY",
-    "",
-    "MONSTERS AND WEAPONS ",
-    " ",
-    "JOHN VAN DEUSEN",
-    "",
-    "ARTISTS",
-    " ",
-    "BRIAN MCNEELY",
-    "PAUL KNUTZEN",
-    "JOHN VAN DEUSEN",
-    "TROY JACOBSON",
-    "KEVIN CHUNG",
-    "ERIC KLOKSTAD",
-    "RICHARD NICHOLS",
-    "JOE KRESOJA",
-    "JASON WIGGIN",
-    "",
-    "MUSIC AND SOUND EFFECTS",
-    " ",
-    "SCOTT BRANSTON",
-    "",
-    "PRODUCT TESTING",
-    " ",
-    "DOMINICK MEISSNER",
-    "TOM KRISTENSEN",
-    "JASON WIGGIN",
-    "MARK COATES",
-    "",
-    "INSTRUCTION MANUAL",
-    " ",
-    "TOM KRISTENSEN",
-    "",
-    "SPECIAL THANKS",
-    " ",
-    "JACQUI LYONS",
-    "MARJACQ MICRO, LTD.",
-    "MIKE BROWN",
-    "IAN MATHIAS",
-    "CHERYL LUSCHEI",
-    "3D REALMS",
-    "KENNETH SILVERMAN",
-    "GREG MALONE",
-    "MILES DESIGN",
-    "REDMOND AM/PM MINI MART",
-    "7-11 DOUBLE GULP",
-    "",
-    "THANKS FOR PLAYING",
-    "",
-    "THE END",
-    "",
-    "GUESS YOURE STUCK HERE",
-    "UNTIL THE SONG ENDS",
-    "",
-    "MAYBE THIS IS A GOOD",
-    "TIME TO THINK ABOUT ALL",
-    "THE THINGS YOU CAN DO",
-    "AFTER THE MUSIC IS OVER.",
-    "",
-    "OR YOU COULD JUST STARE",
-    "AT THIS SCREEN",
-    "",
-    "AND WATCH THESE MESSAGES",
-    "GO BY...",
-    "",
-    "...AND WONDER JUST HOW LONG",
-    "WE WILL DRAG THIS OUT...",
-    "",
-    "AND BELIEVE ME, WE CAN DRAG",
-    "IT OUT FOR QUITE A WHILE.",
-    "",
-    "SHOULD BE OVER SOON...",
-    "",
-    "ANY MOMENT NOW...",
-    "",
-    " ",
-    "",
-    "SEE YA",
-    "",
-    "END",
     "PASSWORDS",
     "HOLLY",
     "KIMBERLY",
@@ -913,74 +787,6 @@ void CheckKeys()
     }
 }
 
-void DoCredits()
-{
-    NoClip();
-
-    playCDtrack(19, false);
-
-    int nSecretSkipKeyCount = 0;
-
-    if (videoGetRenderMode() == REND_CLASSIC)
-    FadeOut(0);
-
-    int nCreditsIndex = FindGString("CREDITS");
-
-    while (strcmp(gString[nCreditsIndex], "END") != 0)
-    {
-        EraseScreen(overscanindex);
-
-        int nStart = nCreditsIndex;
-
-        // skip blanks
-        while (strlen(gString[nCreditsIndex]) != 0) {
-            nCreditsIndex++;
-        }
-
-        int y = 100 - ((10 * (nCreditsIndex - nStart - 1)) / 2);
-
-        for (int i = nStart; i < nCreditsIndex; i++)
-        {
-            int nStringWidth = SmallFont->StringWidth(gString[i]);
-            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, gString[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
-            y += 10;
-        }
-
-        videoNextPage();
-
-        nCreditsIndex++;
-
-        if (videoGetRenderMode() == REND_CLASSIC)
-        FadeIn();
-
-        int nDuration = (int)totalclock + 600;
-
-        while ((int)totalclock <= nDuration)
-        {
-            HandleAsync();
-			if(inputState.GetKeyStatus(sc_F12))
-            {
-                nSecretSkipKeyCount++;
-
-				inputState.ClearKeyStatus(sc_F12);
-
-                if (nSecretSkipKeyCount > 5) {
-                    return;
-                }
-            }
-        }
-
-        if (videoGetRenderMode() == REND_CLASSIC)
-        FadeOut(0);
-    }
-
-    while (CDplaying())
-    {
-		HandleAsync();
-		inputState.keyGetChar();
-    }
-}
-
 void FinishLevel()
 {
     if (levelnum > nBestLevel) {
@@ -1018,7 +824,7 @@ void FinishLevel()
         DoAfterCinemaScene(levelnum);
         if (levelnum == kMap20)
         {
-            DoCredits();
+            //DoCredits();
             nPlayerLives[0] = 0;
         }
     }
@@ -1252,6 +1058,7 @@ int32_t r_maxfpsoffset = 0;
 
 void PatchDemoStrings()
 {
+#if 0
     if (!ISDEMOVER)
         return;
 
@@ -1270,6 +1077,7 @@ void PatchDemoStrings()
     gString[66] = "TWENTY LEVELS, PLUS 12 NETWORK";
     gString[67] = "PLAY LEVELS CAN BE YOURS!";
     gString[68] = "END";
+#endif
 }
 
 void ExitGame()
