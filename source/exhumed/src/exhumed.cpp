@@ -1180,44 +1180,6 @@ void FinishLevel()
     }
 }
 
-EDUKE32_STATIC_ASSERT(sizeof(demo_header) == 75);
-EDUKE32_STATIC_ASSERT(sizeof(demo_input) == 36);
-
-
-void WritePlaybackInputs()
-{
-    fwrite(&moveframes, sizeof(moveframes), 1, vcrfp);
-    fwrite(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput), 1, vcrfp);
-}
-
-uint8_t ReadPlaybackInputs()
-{
-    demo_input input;
-    if (fread(&input, 1, sizeof(input), vcrfp))
-    {
-        moveframes = input.moveframes;
-        sPlayerInput[nLocalPlayer].xVel = input.xVel;
-        sPlayerInput[nLocalPlayer].yVel = input.yVel;
-        sPlayerInput[nLocalPlayer].nAngle = fix16_from_int(input.nAngle<<2);
-        sPlayerInput[nLocalPlayer].buttons = input.buttons;
-        sPlayerInput[nLocalPlayer].nTarget = input.nTarget;
-        sPlayerInput[nLocalPlayer].horizon = fix16_from_int(input.horizon);
-        sPlayerInput[nLocalPlayer].nItem = input.nItem;
-        sPlayerInput[nLocalPlayer].h = input.h;
-        sPlayerInput[nLocalPlayer].i = input.i;
-
-        besttarget = sPlayerInput[nLocalPlayer].nTarget;
-        Ra[nLocalPlayer].nTarget = besttarget;
-        return true;
-    }
-    else
-    {
-        fclose(vcrfp);
-        vcrfp = NULL;
-        bPlayback = false;
-        return false;
-    }
-}
 
 void SetHiRes()
 {
@@ -1468,10 +1430,6 @@ void PatchDemoStrings()
 
 void ExitGame()
 {
-    if (bRecord) {
-        fclose(vcrfp);
-    }
-
     ShutDown();
     throw CExitEvent(0);
 }
@@ -1492,33 +1450,6 @@ void CheckCommandLine(int argc, char const* const* argv, int &doTitle)
 
 			if (Bstrcasecmp(pChar, "nocreatures") == 0) {
 				bNoCreatures = true;
-            }
-            else if (Bstrcasecmp(pChar, "record") == 0)
-            {
-                if (!bPlayback)
-                {
-                    vcrfp = fopen("data.vcr", "wb+");
-                    if (vcrfp != NULL) {
-                        bRecord = true;
-                    }
-                    else {
-                        DebugOut("Can't open data file for recording\n");
-                    }
-                }
-            }
-            else if (Bstrcasecmp(pChar, "playback") == 0)
-            {
-                if (!bRecord)
-                {
-                    vcrfp = fopen("data.vcr", "rb");
-                    if (vcrfp != NULL) {
-                        bPlayback = true;
-                        doTitle = false;
-                    }
-                    else {
-                        DebugOut("Can't open data file 'data.vcr' for reading\n");
-                    }
-                }
             }
             else if (Bstrcasecmp(pChar, "network") == 0)
             {
@@ -1768,11 +1699,6 @@ int GameInterface::app_main()
         levelnew = forcelevel;
         goto STARTGAME1;
     }
-    // no forcelevel specified...
-    if (bPlayback)
-    {
-        goto STARTGAME1;
-    }
 MENU:
     SavePosition = -1;
     nMenu = menu_Menu(0);
@@ -1788,17 +1714,7 @@ MENU:
     case 6:
         goto GAMELOOP;
     case 9:
-        vcrfp = fopen("demo.vcr", "rb");
-        if (vcrfp == NULL) {
-            goto MENU;
-        }
-
-        InitRandom();
-        bInDemo = true;
-        bPlayback = true;
-
-        inputState.ClearAllInput();
-        break;
+        goto MENU;
     }
 STARTGAME1:
     levelnew = 1;
@@ -1832,14 +1748,6 @@ STARTGAME2:
 
     nNetMoves = 0;
 
-    if (bPlayback)
-    {
-        menu_GameLoad2(vcrfp, true);
-        levelnew = GameStats.nMap;
-        levelnum = GameStats.nMap;
-        forcelevel = GameStats.nMap;
-    }
-
     if (forcelevel > -1)
     {
         // YELLOW SECTION
@@ -1847,9 +1755,6 @@ STARTGAME2:
         UpdateInputs();
         forcelevel = -1;
 
-        if (bRecord && !bInDemo) {
-            menu_GameSave2(vcrfp);
-        }
         goto LOOP3;
     }
 
@@ -1863,10 +1768,6 @@ STARTGAME2:
         levelnum = 1;
         levelnew = menu_GameLoad(SavePosition);
         lastlevel = -1;
-    }
-
-    if (bRecord && !bInDemo) {
-        menu_GameSave2(vcrfp);
     }
 
     nBestLevel = levelnew - 1;
@@ -1975,38 +1876,32 @@ GAMELOOP:
         updatePauseStatus();
         CheckKeys();
 
-        if (bRecord || bPlayback)
+        bInMove = true;
+
+        if (paused)
         {
-            bInMove = true;
-
-            moveframes = ((int)totalclock - (int)tclocks2) / 4;
-
-            if (moveframes > 4)
-                moveframes = 4;
-
-            if (moveframes != 0)
-                tclocks2 = totalclock;
-
-            if (bPlayback)
+            tclocks = totalclock - 4;
+            buttonMap.ResetButtonStates();
+        }
+        else
+        {
+            while ((totalclock - ototalclock) >= 1 || !bInMove)
             {
-                // YELLOW
-                if (((bInDemo && inputState.keyBufferWaiting()) || !ReadPlaybackInputs()) && inputState.keyGetChar())
-                {
-                    inputState.ClearAllInput();
+                ototalclock = ototalclock + 1;
 
-                    bPlayback = false;
-                    bInDemo = false;
+                if (!((int)ototalclock&3) && moveframes < 4)
+                    moveframes++;
 
-                    if (vcrfp) {
-                        fclose(vcrfp);
-                    }
-
-                    goto MENU;
-                }
-            }
-            else if (bRecord || moveframes)
-            {
                 GetLocalInput();
+                PlayerInterruptKeys();
+
+                nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
+                inita &= kAngleMask;
+
+                lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
+                lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
+                lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+                lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
 
                 sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
                 sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
@@ -2020,129 +1915,23 @@ GAMELOOP:
                 nPlayerDAng = 0;
 
                 sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
-            }
 
-            // loc_11F72:
-            if (bRecord && !bInDemo) {
-                WritePlaybackInputs();
-            }
-
-            if (nNetPlayerCount)
-            {
-                if (moveframes)
+                while (levelnew < 0 && totalclock >= tclocks + 4)
                 {
-                    UpdateInputs();
-                    moveframes = nNetMoveFrames;
+                    tclocks += 4;
+                    GameMove();
                 }
-            }
-            else
-            {
-                // loc_11FBC:
-                while (paused)
-                {
-                    updatePauseStatus();
-                }
-            }
-
-            // loc_11FEE:
-            tclocks += moveframes * 4;
-            while (moveframes && levelnew < 0)
-            {
-                GameMove();
-                // if (nNetTime > 0)
-                // {
-                //     nNetTime--;
-                //
-                //     if (!nNetTime) {
-                //         nFreeze = 3;
-                //     }
-                // }
-                // else if (nNetTime == 0)
-                // {
-                //     if (buttonMap.ButtonDown(gamefunc_Open))
-                //     {
-                //         buttonMap.ClearButton(gamefunc_Open);
-                //         goto MENU2;
-                //     }
-                // }
-            }
-
-            bInMove = false;
-
-            // END YELLOW SECTION
-
-            // loc_12149:
-            if (bInDemo || bPlayback)
-            {
-                while (tclocks > totalclock) { HandleAsync(); }
-                tclocks = totalclock;
-            }
-
-            if (G_FPSLimit())
-            {
-                GameDisplay();
             }
         }
-        else
+        bInMove = false;
+
+        PlayerInterruptKeys();
+
+        if (G_FPSLimit())
         {
-            bInMove = true;
-
-            if (paused)
-            {
-                tclocks = totalclock - 4;
-                buttonMap.ResetButtonStates();
-            }
-            else
-            {
-                while ((totalclock - ototalclock) >= 1 || !bInMove)
-                {
-                    ototalclock = ototalclock + 1;
-
-                    if (!((int)ototalclock&3) && moveframes < 4)
-                        moveframes++;
-
-                    GetLocalInput();
-                    PlayerInterruptKeys();
-
-                    nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
-                    inita &= kAngleMask;
-
-                    lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
-                    lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
-                    lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-                    lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
-
-                    sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-                    sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-                    sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-                    sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
-                    sPlayerInput[nLocalPlayer].nTarget = besttarget;
-
-                    Ra[nLocalPlayer].nTarget = besttarget;
-
-                    lLocalCodes = 0;
-                    nPlayerDAng = 0;
-
-                    sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
-
-                    while (levelnew < 0 && totalclock >= tclocks + 4)
-                    {
-                        // timerUpdate();
-                        tclocks += 4;
-                        GameMove();
-                        // timerUpdate();
-                    }
-                }
-            }
-            bInMove = false;
-
-            PlayerInterruptKeys();
-
-            if (G_FPSLimit())
-            {
-                GameDisplay();
-            }
+            GameDisplay();
         }
+
         if (!bInDemo)
         {
             nMenu = MenuExitCondition;

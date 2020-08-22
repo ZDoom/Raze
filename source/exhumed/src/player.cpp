@@ -2698,7 +2698,8 @@ do_default_b:
 
                             case 54: // Golden Sarcophagus (End Level)
                             {
-                                if (!bInDemo) {
+                                if (!bInDemo) 
+                                {
                                     FinishLevel();
                                 }
                                 else {
