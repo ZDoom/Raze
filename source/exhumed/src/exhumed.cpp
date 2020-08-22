@@ -60,6 +60,7 @@ int32_t registerosdcommands(void);
 void InitFonts();
 
 int htimer = 0;
+bool EndLevel = false;
 
 /* these are XORed in the original game executable then XORed back to normal when the game first starts. Here they are normally */
 const char *gString[] =
@@ -925,7 +926,7 @@ void CheckKeys()
                     }
                     else if (!strcmp(pToken, "EXIT"))
                     {
-                        FinishLevel();
+                        EndLevel = true;
                     }
                     else if (!strcmp(pToken, "CREATURE"))
                     {
@@ -1920,6 +1921,12 @@ GAMELOOP:
                 {
                     tclocks += 4;
                     GameMove();
+                    if (EndLevel)
+                    {
+                        EndLevel = false;
+                        FinishLevel();
+                        break;
+                    }
                 }
             }
         }
@@ -2729,5 +2736,10 @@ void LoadTextureState()
     TileFiles.InvalidateTile(kEnergy2);
 }
 
+
+CCMD(ex_endlevel)
+{
+    EndLevel = true;
+}
 
 END_PS_NS

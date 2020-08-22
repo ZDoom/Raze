@@ -1543,7 +1543,7 @@ void DoFinale()
             }
             else if (nFinaleStage == 3 && (int)totalclock >= dword_1542FC)
             {
-                FinishLevel();
+                EndLevel = true;
             }
         }
         else

@@ -289,42 +289,7 @@ int menu_LoadGameMenu()
 
 void menu_GameLoad2(FILE *fp, bool bIsDemo)
 {
-    if (bIsDemo)
-    {
-        demo_header header;
-        fread(&header, 1, sizeof(demo_header), fp);
-
-        GameStats.nMap = header.nMap;
-        GameStats.nWeapons = header.nWeapons;
-        GameStats.nCurrentWeapon = header.nCurrentWeapon;
-        GameStats.clip = header.clip;
-        GameStats.items = header.items;
-        GameStats.player.nHealth = header.nHealth;
-        GameStats.player.field_2 = header.field_2;
-        GameStats.player.nAction = header.nAction;
-        GameStats.player.nSprite = header.nSprite;
-        GameStats.player.bIsMummified = header.bIsMummified;
-        GameStats.player.someNetVal = header.someNetVal;
-        GameStats.player.invincibility = header.invincibility;
-        GameStats.player.nAir = header.nAir;
-        GameStats.player.nSeq = header.nSeq;
-        GameStats.player.nMaskAmount = header.nMaskAmount;
-        GameStats.player.keys = header.keys;
-        GameStats.player.nMagic = header.nMagic;
-        Bmemcpy(GameStats.player.items, header.item, sizeof(header.item));
-        Bmemcpy(GameStats.player.nAmmo, header.nAmmo, sizeof(header.nAmmo));
-        Bmemcpy(GameStats.player.pad, header.pad, sizeof(header.pad));
-        GameStats.player.nCurrentWeapon = header.nCurrentWeapon2;
-        GameStats.player.field_3FOUR = header.field_3FOUR;
-        GameStats.player.bIsFiring = header.bIsFiring;
-        GameStats.player.field_38 = header.field_38;
-        GameStats.player.field_3A = header.field_3A;
-        GameStats.player.field_3C = header.field_3C;
-        GameStats.player.nRun = header.nRun;
-        GameStats.nLives = header.nLives;
-    }
-    else
-        fread(&GameStats, sizeof(GameStats), 1, fp);
+    fread(&GameStats, sizeof(GameStats), 1, fp);
 
     nPlayerWeapons[nLocalPlayer] = GameStats.nWeapons;
 

@@ -1274,7 +1274,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 }
                 else
                 {
-                    FinishLevel();
+                    EndLevel = true;
                 }
 
                 return;
@@ -2708,7 +2708,7 @@ do_default_b:
                             {
                                 if (!bInDemo) 
                                 {
-                                    FinishLevel();
+                                    EndLevel = true;
                                 }
                                 else {
                                     //inputState.keySetState(32, 1); // Huh, what?
