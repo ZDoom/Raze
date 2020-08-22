@@ -62,9 +62,6 @@ void DoEnergyTile();
 
 void CinemaFadeIn();
 
-void ReadyCinemaText(uint16_t nVal);
-bool AdvanceCinemaText();
-
 void DoFailedFinalScene();
 
 void DoLastLevelCinema();

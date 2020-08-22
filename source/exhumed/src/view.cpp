@@ -240,6 +240,8 @@ static inline int interpolate16(int a, int b, int smooth)
     return a + mulscale16(b - a, smooth);
 }
 
+static TextOverlay subtitleOverlay;
+
 void DrawView(int smoothRatio, bool sceneonly)
 {
     int playerX;
@@ -435,15 +437,16 @@ void DrawView(int smoothRatio, bool sceneonly)
 
                     if (bSubTitles)
                     {
+                        subtitleOverlay.Start(totalclock);
                         if (levelnum == 1)
-                            ReadyCinemaText(1);
+                            subtitleOverlay.ReadyCinemaText(1);
                         else
-                            ReadyCinemaText(5);
+                            subtitleOverlay.ReadyCinemaText(5);
                     }
                 }
-                else
+                else if (nHeadStage == 6)
                 {
-                    if ((bSubTitles && !AdvanceCinemaText()) || inputState.CheckAllInput())
+                    if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(totalclock)) || inputState.CheckAllInput())
                     {
 						inputState.ClearAllInput();
                         levelnew = levelnum + 1;

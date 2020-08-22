@@ -261,6 +261,26 @@ enum {
     kPalBrite2
 };
 
+
+class TextOverlay
+{
+	double nCrawlY;
+	short nLeft[50];
+	int nHeight;
+	int linecount;
+    int line;
+    int lastclock;
+
+public:
+
+	void Start(int starttime);
+	void ComputeCinemaText(int nLine);
+	void ReadyCinemaText(uint16_t nVal);
+	void DisplayText();
+	bool AdvanceCinemaText(int totalclock);
+};
+
+
 extern char g_modDir[BMAX_PATH];
 
 void G_LoadGroupsInDir(const char* dirname);

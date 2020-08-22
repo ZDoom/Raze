@@ -58,9 +58,6 @@ short nCinemaSeen[30];
 
 uint8_t energytile[66 * 66] = {0};
 
-short nLeft[50] = {0};
-int line;
-
 short SavePosition = -1;
 
 uint8_t *cur;
@@ -86,6 +83,8 @@ enum {
     kMenuQuitGame,
     kMenuMaxItems
 };
+
+void RunCinemaScene(int num);
 
 
 void ClearCinemaSeen()
@@ -382,270 +381,10 @@ const char *cinpalfname[kMaxCinemaPals] = {
     "terror.pal"
 };
 
-int linecount;
-int nextclock;
-short nHeight;
-short nCrawlY;
-short cinematile;
-int currentCinemaPalette;
-
-
-void uploadCinemaPalettes()
-{
-    for (int i = 0; i < countof(cinpalfname); i++)
-    {
-        uint8_t palette[768] = {};
-        auto hFile = fileSystem.OpenFileReader(cinpalfname[i]);
-        if (hFile.isOpen())
-            hFile.Read(palette, 768);
-        for (auto& c : palette)
-            c <<= 2;
-        paletteSetColorTable(ANIMPAL+i, palette, false, true);
-    }
-}
-
 void CinemaFadeIn()
 {
 }
 
-void ComputeCinemaText(int nLine)
-{
-    linecount = 0;
-
-    while (1)
-    {
-        if (!strcmp(gString[linecount + nLine], "END")) {
-            break;
-        }
-
-        int nWidth = SmallFont->StringWidth(gString[linecount + nLine]);
-        nLeft[linecount] = 160 - nWidth / 2;
-
-        linecount++;
-    }
-
-    nCrawlY = 199;
-    nHeight = linecount * 10;
-
-    inputState.ClearAllInput();
-}
-
-void ReadyCinemaText(uint16_t nVal)
-{
-    line = FindGString("CINEMAS");
-    if (line < 0) {
-        return;
-    }
-
-    while (nVal)
-    {
-        while (strcmp(gString[line], "END")) {
-            line++;
-        }
-
-        line++;
-        nVal--;
-    }
-
-    ComputeCinemaText(line);
-}
-
-bool AdvanceCinemaText()
-{
-    bool bDoText = nHeight + nCrawlY > 0;
-
-    if (bDoText || CDplaying())
-    {
-        nextclock = (int)totalclock + 15; // NOTE: Value was 14 in original code but seems a touch too fast now
-
-        if (bDoText)
-        {
-            short y = nCrawlY;
-            int i = 0;
-
-            while (i < linecount && y <= 199)
-            {
-                if (y >= -10) {
-					DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, gString[line + i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
-                }
-
-                i++;
-                y += 10;
-            }
-
-            nCrawlY--;
-        }
-
-        while (1)
-        {
-            HandleAsync();
-
-            if (inputState.CheckAllInput())
-            {
-                break;
-            }
-
-            if (nextclock <= (int)totalclock) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-void DoCinemaText(short nVal)
-{
-    ReadyCinemaText(nVal);
-
-    bool bContinue = true;
-
-    while (bContinue)
-    {
-        overwritesprite(0, 0, cinematile, 0, 2, kPalNormal, currentCinemaPalette);
-
-        bContinue = AdvanceCinemaText();
-
-        WaitVBL();
-        videoNextPage();
-    }
-}
-
-void GoToTheCinema(int nVal)
-{
-    switch (nVal - 1)
-    {
-        default:
-            return;
-
-        case 0:
-        {
-            cinematile = 3454;
-            break;
-        }
-
-        case 1:
-        {
-            cinematile = 3452;
-            break;
-        }
-
-        case 2:
-        {
-            cinematile = 3449;
-            break;
-        }
-
-        case 3:
-        {
-            cinematile = 3445;
-            break;
-        }
-
-        case 4:
-        {
-            cinematile = 3451;
-            break;
-        }
-
-        case 5:
-        {
-            cinematile = 3448;
-            break;
-        }
-
-        case 6:
-        {
-            cinematile = 3446;
-            break;
-        }
-    }
-    currentCinemaPalette = nVal;
-
-    FadeOut(false);
-    StopAllSounds();
-    NoClip();
-
-    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal, currentCinemaPalette);
-    videoNextPage();
-
-//	int386(16, (const union REGS *)&val, (union REGS *)&val)
-
-    overwritesprite(0, 0, cinematile, 0, 2, kPalNormal, currentCinemaPalette);
-    videoNextPage();
-
-    CinemaFadeIn();
-    inputState.ClearAllInput();
-
-    int ebx = -1;
-    int edx = -1;
-
-    switch (nVal - 1)
-    {
-        default:
-            //WaitAnyKey(10);
-            break;
-
-        case 0:
-            ebx = 4;
-            edx = ebx;
-            break;
-
-        case 1:
-            ebx = 0;
-            break;
-
-        case 2:
-            ebx = 2;
-            edx = ebx;
-            break;
-
-        case 3:
-            ebx = 7;
-            break;
-
-        case 4:
-            ebx = 3;
-            edx = ebx;
-            break;
-
-        case 5:
-            ebx = 8;
-            edx = ebx;
-            break;
-
-        case 6:
-            ebx = 6;
-            edx = ebx;
-            break;
-    }
-
-    if (ebx != -1)
-    {
-        if (edx != -1)
-        {
-            if (CDplaying()) {
-                fadecdaudio();
-            }
-
-            playCDtrack(edx + 2, false);
-        }
-
-        DoCinemaText(ebx);
-    }
-
-    FadeOut(true);
-
-    overwritesprite(0, 0, kMovieTile, 100, 2, kPalNormal, currentCinemaPalette);
-    videoNextPage();
-
-    GrabPalette();
-
-    // quit the game if we've finished level 4 and displayed the advert text
-    if (ISDEMOVER && nVal == 3) {
-        ExitGame();
-    }
-}
 
 
 short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -665,7 +404,7 @@ void CheckBeforeScene(int nLevel)
     {
         if (!nCinemaSeen[nScene])
         {
-            GoToTheCinema(nScene);
+            RunCinemaScene(nScene);
             nCinemaSeen[nScene] = 1;
         }
     }
@@ -703,7 +442,7 @@ void DoAfterCinemaScene(int nLevel)
     short nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
 
     if (nAfterScene[nLevel]) {
-        GoToTheCinema(nAfterScene[nLevel]);
+        RunCinemaScene(nAfterScene[nLevel]);
     }
 }
 
@@ -718,7 +457,7 @@ void DoFailedFinalScene()
     playCDtrack(9, false);
     FadeToWhite();
 
-    GoToTheCinema(4);
+    RunCinemaScene(4);
 }
 
 int FindGString(const char *str)

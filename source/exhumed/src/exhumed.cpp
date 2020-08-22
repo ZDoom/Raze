@@ -2059,7 +2059,6 @@ void DoGameOverScene()
     NoClip();
     overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal, 16);
     videoNextPage();
-    CinemaFadeIn();
     PlayGameOverSound();
     //WaitAnyKey(3);
     FadeOut(0);

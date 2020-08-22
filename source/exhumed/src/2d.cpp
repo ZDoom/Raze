@@ -879,5 +879,193 @@ public:
 	 RunScreenJob(&job, 1, mycompletion);
  }
 
+//---------------------------------------------------------------------------
+//
+// text overlay
+//
+//---------------------------------------------------------------------------
+
+void TextOverlay::Start(int starttime)
+{
+    lastclock = starttime;
+}
+
+void TextOverlay::ComputeCinemaText(int nLine)
+{
+    linecount = 0;
+
+    while (1)
+    {
+        if (!strcmp(gString[linecount + nLine], "END")) {
+            break;
+        }
+
+        int nWidth = SmallFont->StringWidth(gString[linecount + nLine]);
+        nLeft[linecount] = 160 - nWidth / 2;
+
+        linecount++;
+    }
+
+    nCrawlY = 199;
+    nHeight = linecount * 10;
+}
+
+void TextOverlay::ReadyCinemaText(uint16_t nVal)
+{
+    line = FindGString("CINEMAS");
+    if (line < 0) {
+        return;
+    }
+
+    while (nVal)
+    {
+        while (strcmp(gString[line], "END")) {
+            line++;
+        }
+
+        line++;
+        nVal--;
+    }
+
+    ComputeCinemaText(line);
+}
+
+void TextOverlay::DisplayText()
+{
+    if (nHeight + nCrawlY > 0)
+    {
+        double y = nCrawlY;
+        int i = 0;
+
+        while (i < linecount && y <= 199)
+        {
+            if (y >= -10) {
+                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, gString[line + i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+            }
+
+            i++;
+            y += 10;
+        }
+    }
+}
+
+bool TextOverlay::AdvanceCinemaText(int totalclock)
+{
+    if (nHeight + nCrawlY > 0 || CDplaying())
+    {
+        nCrawlY-= (totalclock - lastclock) / 15.;   // do proper interpolation.
+        lastclock = totalclock;
+        return true;
+    }
+
+    return false;
+}
+
+
+ //---------------------------------------------------------------------------
+//
+// cinema
+//
+//---------------------------------------------------------------------------
+
+static const char * const cinpalfname[] = {
+    "3454.pal",
+    "3452.pal",
+    "3449.pal",
+    "3445.pal",
+    "set.pal",
+    "3448.pal",
+    "3446.pal",
+    "hsc1.pal",
+    "2972.pal",
+    "2973.pal",
+    "2974.pal",
+    "2975.pal",
+    "2976.pal",
+    "heli.pal",
+    "2978.pal",
+    "terror.pal"
+};
+
+extern short nCinemaSeen[30];
+
+void uploadCinemaPalettes()
+{
+    for (int i = 0; i < countof(cinpalfname); i++)
+    {
+        uint8_t palette[768] = {};
+        auto hFile = fileSystem.OpenFileReader(cinpalfname[i]);
+        if (hFile.isOpen())
+            hFile.Read(palette, 768);
+        for (auto& c : palette)
+            c <<= 2;
+        paletteSetColorTable(ANIMPAL+i, palette, false, true);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// cinema
+//
+//---------------------------------------------------------------------------
+
+class DCinema : public DScreenJob
+{
+    TextOverlay text;
+	short cinematile;
+	int currentCinemaPalette;
+    int edx;
+
+public:
+	DCinema(int nVal) : DScreenJob(fadein|fadeout)
+	{
+		static const short cinematiles[] = { 3454, 3452, 3449, 3445, 3451, 3448, 3446};
+        static const int8_t bxvals[] = { 4, 0, 2, 7, 3, 8, 6 };
+        static const int8_t dxvals[] = { 4, -1, 2, -1, 3, 8, 6 };
+
+		if (nVal < 1 || nVal >7) return;
+		cinematile = cinematiles[nVal-1];
+		currentCinemaPalette = nVal;
+        edx = dxvals[nVal - 1];
+        text.Start(0);
+        text.ReadyCinemaText(bxvals[nVal - 1]);
+    }
+	
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+
+        if (clock == 0)
+        {
+            StopAllSounds();
+            if (edx != -1)
+            {
+                playCDtrack(edx + 2, false);
+            }
+        }
+
+        twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(cinematile), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
+
+        text.DisplayText();
+        auto cont = text.AdvanceCinemaText(clock * 129 / 1'000'000'000);
+        int ret = skiprequest ? -1 : cont ? 1 : 0;
+
+        // quit the game if we've finished level 4 and displayed the advert text
+        if (ISDEMOVER && currentCinemaPalette == 3 && ret != 1) 
+        {
+            ExitGame();
+        }
+        return ret;
+    }
+};
+
+// temporary.
+void RunCinemaScene(int num)
+{
+    JobDesc job = { Create<DCinema>(num) };
+    RunScreenJob(&job, 1, [](bool) { gamestate = GS_LEVEL; });
+    SyncScreenJob();
+}
+
 
 END_PS_NS
