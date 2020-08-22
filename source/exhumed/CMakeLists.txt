@@ -28,6 +28,7 @@ set( PCH_SOURCES
 	src/player.cpp
 	src/queen.cpp
 	src/ra.cpp
+	src/ramses.cpp
 	src/random.cpp
 	src/rat.cpp
 	src/rex.cpp

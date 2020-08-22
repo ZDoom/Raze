@@ -279,6 +279,9 @@ void G_DoAutoload(const char* dirname);
 int savegame(int nSlot);
 int loadgame(int nSlot);
 
+const uint32_t kSpiritX = 106;
+const uint32_t kSpiritY = 97;
+const uint32_t WorktileSize = kSpiritX * 2 * kSpiritY * 2;
 
 struct SavegameHelper
 {
