@@ -421,24 +421,6 @@ void DoFailedFinalScene()
     RunCinemaScene(4);
 }
 
-int FindGString(const char *str)
-{
-    int i = 0;
-
-    while (1)
-    {
-        if (!strcmp(gString[i], str))
-            return i + 1;
-
-        if (!strcmp(gString[i], "EOF"))
-            break;
-
-        i++;
-    }
-
-    return -1;
-}
-
 static SavegameHelper sgh("menu",
     SA(nCinemaSeen),
     SA(energytile),

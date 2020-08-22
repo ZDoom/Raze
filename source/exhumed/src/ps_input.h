@@ -62,6 +62,7 @@ void GetLocalInput();
 extern PlayerInput sPlayerInput[];
 extern PlayerInput localInput;
 extern int nNetMoves;
+extern int lLocalCodes;
 
 END_PS_NS
 

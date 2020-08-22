@@ -28,17 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "mapinfo.h"
 #include "aistuff.h"
+#include "ps_input.h"
+#include "cheathandler.h"
 
 BEGIN_PS_NS
 
 
-static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-
     if (!nNetPlayerCount && !bInDemo)
     {
-        DoPassword(3);
+        lLocalCodes |= kButtonCheatGodMode;
     }
     else
         Printf("god: Not in a single-player game.\n");
@@ -46,13 +46,13 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
     return CCMD_OK;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
-{
-    UNREFERENCED_CONST_PARAMETER(parm);
+bool SlipCheat(cheatseq_t* c);
 
+static int osdcmd_noclip(CCmdFuncPtr)
+{
     if (!nNetPlayerCount && !bInDemo)
     {
-        DoPassword(6);
+        SlipCheat(nullptr);
     }
     else
     {

@@ -45,6 +45,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_sound.h"
 #include "gamestate.h"
 #include "screenjob.h"
+#include "c_console.h"
+#include "cheathandler.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
@@ -61,61 +63,6 @@ void InitFonts();
 int htimer = 0;
 bool EndLevel = false;
 
-/* these are XORed in the original game executable then XORed back to normal when the game first starts. Here they are normally */
-const char *gString[] =
-{
-    "HOLLY",
-    "KIMBERLY",
-    "LOBOCOP",
-    "LOBODEITY",
-    "LOBOLITE",
-    "LOBOPICK",
-    "LOBOSLIP",
-    "LOBOSNAKE",
-    "LOBOSPHERE",
-    "LOBOSWAG",
-    "LOBOXY",
-};
-
-
-//////////
-
-enum gametokens
-{
-    T_INCLUDE = 0,
-    T_INTERFACE = 0,
-    T_LOADGRP = 1,
-    T_MODE = 1,
-    T_CACHESIZE = 2,
-    T_ALLOW = 2,
-    T_NOAUTOLOAD,
-    T_INCLUDEDEFAULT,
-    T_SOUND,
-    T_FILE,
-    T_CUTSCENE,
-    T_ANIMSOUNDS,
-    T_NOFLOORPALRANGE,
-    T_ID,
-    T_MINPITCH,
-    T_MAXPITCH,
-    T_PRIORITY,
-    T_TYPE,
-    T_DISTANCE,
-    T_VOLUME,
-    T_DELAY,
-    T_RENAMEFILE,
-    T_GLOBALGAMEFLAGS,
-    T_ASPECT,
-    T_FORCEFILTER,
-    T_FORCENOFILTER,
-    T_TEXTUREFILTER,
-    T_NEWGAMECHOICES,
-    T_CHOICE,
-    T_NAME,
-    T_LOCKED,
-    T_HIDDEN,
-    T_USERCONTENT,
-};
 
 PlayerInput localInput;
 
@@ -196,7 +143,6 @@ void DoTitle();
 // void TestSaveLoad();
 void EraseScreen(int nVal);
 void LoadStatus();
-int FindGString(const char *str);
 void MySetView(int x1, int y1, int x2, int y2);
 void mysetbrightness(char al);
 void FadeIn();
@@ -341,126 +287,113 @@ void HandleAsync()
 
 }
 
-void DoPassword(int nPassword)
+static bool HollyCheat(cheatseq_t* c)
 {
-    if (nNetPlayerCount) {
-        return;
-    }
-
-    const char *str = gString[nFirstPassInfo + nPassword];
-
-    if (str[0] != '\0') {
-        StatusMessage(750, str);
-    }
-
-    switch (nPassword)
-    {
-        case 0:
-        {
-            if (!nNetPlayerCount) {
-                bHolly = true;
-            }
-            break;
-        }
-
-        case 1: // KIMBERLY
-        {
-            break;
-        }
-
-        case 2: // LOBOCOP
-        {
-            lLocalCodes |= kButtonCheatGuns;
-            break;
-        }
-
-        case 3: // LOBODEITY
-        {
-            lLocalCodes |= kButtonCheatGodMode;
-            break;
-        }
-
-        case 4: // LOBOLITE
-        {
-            if (bDoFlashes == false)
-            {
-                bDoFlashes = true;
-            }
-            else {
-                bDoFlashes = false;
-            }
-            break;
-        }
-
-        case 5: // LOBOPICK
-        {
-            lLocalCodes |= kButtonCheatKeys;
-            break;
-        }
-
-        case 6: // LOBOSLIP
-        {
-            if (!nNetPlayerCount)
-            {
-                if (bSlipMode == false)
-                {
-                    bSlipMode = true;
-                    StatusMessage(300, "Slip mode ON");
-                }
-                else {
-                    bSlipMode = false;
-                    StatusMessage(300, "Slip mode OFF");
-                }
-            }
-            break;
-        }
-
-        case 7: // LOBOSNAKE
-        {
-            if (!nNetPlayerCount)
-            {
-                if (bSnakeCam == false)
-                {
-                    bSnakeCam = true;
-                    StatusMessage(750, "SNAKE CAM ENABLED");
-                }
-                else
-                {
-                    bSnakeCam = false;
-                    StatusMessage(750, "SNAKE CAM DISABLED");
-                }
-            }
-            break;
-        }
-
-        case 8: // LOBOSPHERE
-        {
-            GrabMap();
-            bShowTowers = true;
-            break;
-        }
-
-        case 9: // LOBOSWAG
-        {
-            lLocalCodes |= kButtonCheatItems;
-            break;
-        }
-
-        case 10: // LOBOXY
-        {
-            if (bCoordinates == false) {
-                bCoordinates = true;
-            }
-            else {
-                bCoordinates = false;
-            }
-            break;
-        }
-
-        default:
-            return;
-    }
+    // Do the closest thing to this cheat that's available.
+    C_ToggleConsole();
+    return true;
 }
+
+static bool KimberlyCheat(cheatseq_t* c)
+{
+    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SWEETIE"));
+    return true;
+}
+
+static bool CopCheat(cheatseq_t* c)
+{
+    lLocalCodes |= kButtonCheatGuns;
+    return true;
+}
+
+static bool GodCheat(cheatseq_t* c)
+{
+    lLocalCodes |= kButtonCheatGodMode;
+    return true;
+}
+
+static bool LiteCheat(cheatseq_t* c)
+{
+    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FLASHES"));
+    bDoFlashes = !bDoFlashes;
+    return true;
+}
+
+static bool KeyCheat(cheatseq_t* c)
+{
+    lLocalCodes |= kButtonCheatKeys;
+    return true;
+}
+
+bool SlipCheat(cheatseq_t* c)
+{
+    if (!nNetPlayerCount)
+    {
+        if (bSlipMode == false)
+        {
+            bSlipMode = true;
+            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SLIPON"));
+        }
+        else {
+            bSlipMode = false;
+            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SLIPOFF"));
+        }
+    }
+    return true;
+}
+
+static bool SnakeCheat(cheatseq_t* c)
+{
+    if (!nNetPlayerCount)
+    {
+        if (bSnakeCam == false)
+        {
+            bSnakeCam = true;
+            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEON"));
+        }
+        else {
+            bSnakeCam = false;
+            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEOFF"));
+        }
+    }
+    return true;
+}
+
+static bool SphereCheat(cheatseq_t* c)
+{
+    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FULLMAP"));
+    GrabMap();
+    bShowTowers = true;
+    return true;
+}
+
+static bool SwagCheat(cheatseq_t* c)
+{
+    lLocalCodes |= kButtonCheatItems;
+    return true;
+}
+
+static bool CoordCheat(cheatseq_t* c)
+{
+    C_DoCommand("stat printcoords");
+    return true;
+}
+
+
+static cheatseq_t excheats[] = {
+    {"holly",       HollyCheat, 0},
+    {"kimberly",    KimberlyCheat, 0},
+    {"lobocop",     CopCheat, 0},
+    {"lobodeity",   GodCheat, 0},
+    {"lobolite",    LiteCheat, 0},
+    {"lobopick",    KeyCheat, 0},
+    {"loboslip",    SlipCheat, 0},
+    {"lobosnake",   SnakeCheat, 0},
+    {"lobosphere",  SphereCheat, 0},
+    {"loboswag",    SwagCheat, 0},
+    {"loboxy",      CoordCheat, true},
+};
+
 
 void mysetbrightness(char nBrightness)
 {
@@ -531,57 +464,6 @@ void CheckKeys()
     if (paused)
     {
         return;
-    }
-
-    // Handle cheat codes
-    if (!bInDemo && inputState.keyBufferWaiting())
-    {
-        char ch = inputState.keyGetChar();
-
-
-        if (isalpha(ch))
-        {
-            ch = toupper(ch);
-
-            int ecx = nCodeMin;
-
-            int ebx = nCodeMin;
-            int edx = nCodeMin - 1;
-
-            while (ebx <= nCodeMax)
-            {
-                if (ch == gString[ecx][nCodeIndex])
-                {
-                    nCodeMin = ebx;
-                    nCodeIndex++;
-
-                    if (gString[ecx][nCodeIndex] == 0)
-                    {
-                        ebx -= nFirstPassword;
-
-                        DoPassword(ebx);
-                    }
-
-                    break;
-                }
-                else if (gString[ecx][nCodeIndex] < ch)
-                {
-                    nCodeMin = ebx + 1;
-                }
-                else if (gString[ecx][nCodeIndex] > ch)
-                {
-                    nCodeMax = edx;
-                }
-
-                ecx++;
-                edx++;
-                ebx++;
-            }
-
-            if (nCodeMin > nCodeMax) {
-                ResetPassword();
-            }
-        }
     }
 }
 
@@ -957,18 +839,7 @@ int GameInterface::app_main()
         forcelevel = 1;
     }
 
-
-    // loc_115F5:
-    nFirstPassword = FindGString("PASSWORDS");
-    nFirstPassInfo = FindGString("PASSINFO");
-
-    // count the number of passwords available
-    for (nPasswordCount = 0; strlen(gString[nFirstPassword+nPasswordCount]) != 0; nPasswordCount++)
-    {
-    }
-
-    ResetPassword();
-
+    SetCheats(excheats, countof(excheats));
     registerosdcommands();
 
     if (nNetPlayerCount == -1)

@@ -132,8 +132,6 @@ void EraseScreen(int eax);
 
 void RestorePalette();
 
-int FindGString(const char *str);
-
 void FadeIn();
 void FadeOut(int bFadeMusic);
 
@@ -146,7 +144,6 @@ void mysetbrightness(char nBrightness);
 
 void StartFadeIn();
 int DoFadeIn();
-void DoPassword(int nPassword);
 
 void InitSpiritHead();
 
@@ -228,10 +225,6 @@ extern int totalmoves;
 extern int lCountDown;
 
 extern short bSlipMode;
-
-extern const char* gString[];
-extern const char* gPSDemoString[];
-extern const char* gEXDemoString[];
 
 extern int bVanilla;
 
