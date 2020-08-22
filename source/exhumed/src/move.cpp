@@ -684,7 +684,7 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
     if (diff > INT_MAX)
     {
-        OSD_Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
         diff = INT_MAX;
     }
 
