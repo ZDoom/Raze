@@ -134,8 +134,6 @@ void RestorePalette();
 
 int FindGString(const char *str);
 
-void WaitTicks(int nTicks);
-
 void FadeIn();
 void FadeOut(int bFadeMusic);
 

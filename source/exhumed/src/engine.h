@@ -49,7 +49,6 @@ void resettiming();
 // cd
 
 bool playCDtrack(int nTrack, bool bLoop);
-void StartfadeCDaudio();
 int StepFadeCDaudio();
 bool CDplaying();
 void StopCD();

@@ -53,10 +53,6 @@ bool playCDtrack(int nTrack, bool bLoop)
     return true;
 }
 
-void StartfadeCDaudio()
-{
-}
-
 int StepFadeCDaudio()
 {
     if (!CDplaying()) {
@@ -82,18 +78,7 @@ void FadeSong()
 
 int fadecdaudio()
 {
-    StartfadeCDaudio();
-
-    while (1)
-    {
-        if (!StepFadeCDaudio()) {
-            return 1;
-        }
-        else {
-            WaitTicks(1);
-        }
-    }
-
+    Mus_Stop();
     return 1;
 }
 

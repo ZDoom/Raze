@@ -1156,7 +1156,7 @@ void FinishLevel()
         EraseScreen(4);
         PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
         videoNextPage();
-        WaitTicks(12);
+        //WaitTicks(12);
         WaitVBL();
         DrawView(65536);
         videoNextPage();
@@ -2061,7 +2061,7 @@ void DoGameOverScene()
     videoNextPage();
     CinemaFadeIn();
     PlayGameOverSound();
-    WaitAnyKey(3);
+    //WaitAnyKey(3);
     FadeOut(0);
 }
 

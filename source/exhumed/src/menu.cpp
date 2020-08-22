@@ -404,61 +404,8 @@ void uploadCinemaPalettes()
     }
 }
 
-//int IncrementCinemaFadeIn()
-//{
-//    dest = cinemapal;
-//    cur = curpal;
-//
-//    int ebx = 0;
-//
-//    for (int i = 0; i < 768; i++)
-//    {
-//        ebx++;
-//
-//        if (*cur < *dest)
-//        {
-//            (*cur)++;
-//        }
-//        else if (*cur == *dest)
-//        {
-//            ebx--;
-//        }
-//        else
-//        {
-//            (*cur)--;
-//        }
-//
-//        cur++;
-//        dest++;
-//    }
-//
-//    MySetPalette(curpal);
-//    return ebx;
-//}
-
 void CinemaFadeIn()
 {
-    BlackOut();
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
-    {
-        videoNextPage();
-        return;
-    }
-#endif
-
-    int val;
-
-    do
-    {
-        val = DoFadeIn();
-        WaitTicks(2);
-
-        // need to page flip in each iteration of the loop for non DOS version
-        videoNextPage();
-
-    } while (val > 0);
 }
 
 void ComputeCinemaText(int nLine)
@@ -636,7 +583,7 @@ void GoToTheCinema(int nVal)
     switch (nVal - 1)
     {
         default:
-            WaitAnyKey(10);
+            //WaitAnyKey(10);
             break;
 
         case 0:

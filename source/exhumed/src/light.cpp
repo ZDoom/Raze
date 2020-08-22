@@ -164,22 +164,6 @@ void RestorePalette()
     videoTintBlood(0, 0, 0);
 }
 
-void WaitTicks(int nTicks)
-{
-    if (htimer)
-    {
-        nTicks += (int)totalclock;
-        while (nTicks > (int)totalclock) { HandleAsync(); }
-    }
-    else
-    {
-        while (nTicks > 0) {
-            nTicks--;
-            WaitVBL();
-        }
-    }
-}
-
 void FadeToWhite()
 {
     // fixme
@@ -189,17 +173,9 @@ void FadeToWhite()
 
 void FadeOut(int bFadeMusic)
 {
-    if (bFadeMusic) {
-        StartfadeCDaudio();
-    }
-
-
+    if (bFadeMusic) StopCD();
     videoTintBlood(-255, -255, -255);
     videoNextPage();
-
-    if (bFadeMusic) {
-        while (StepFadeCDaudio() != 0) {}
-    }
 
     EraseScreen(overscanindex);
 }
