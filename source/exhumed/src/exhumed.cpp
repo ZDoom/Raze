@@ -106,7 +106,6 @@ void RemoveEngine()
 
 
 void CopyTileToBitmap(short nSrcTile, short nDestTile, int xPos, int yPos);
-void DoTitle();
 
 // void TestSaveLoad();
 void EraseScreen(int nVal);
@@ -127,8 +126,6 @@ short nFreeze;
 
 short nSnakeCam = -1;
 
-short nBestLevel;
-
 short nLocalSpr;
 short levelnew = 1;
 
@@ -138,7 +135,7 @@ short nClockVal;
 short fps;
 short nRedTicks;
 short lastlevel;
-volatile short bInMove;
+short bInMove;
 short nAlarmTicks;
 short nButtonColor;
 short nEnergyChan;
@@ -204,9 +201,7 @@ int nTimeLimit;
 
 int bVanilla = 0;
 
-short wConsoleNode; // TODO - move me into network file
-
-ClockTicks tclocks, tclocks2;
+ClockTicks tclocks;
 
 void DebugOut(const char *fmt, ...)
 {
@@ -370,109 +365,6 @@ static const char *safeStrtok(char *s, const char *d)
 }
 
 
-void CheckKeys()
-{
-    if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-    {
-        buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-        if (!nMapMode)
-        {
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(1);
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-    {
-        buttonMap.ClearButton(gamefunc_Shrink_Screen);
-        if (!nMapMode)
-        {
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(-1);
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
-    }
-
-    // go to 3rd person view?
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-        if (!nFreeze)
-        {
-            if (bCamera) {
-                bCamera = false;
-            }
-            else {
-                bCamera = true;
-            }
-
-            if (bCamera)
-                GrabPalette();
-        }
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-		return;
-    }
-
-    if (paused)
-    {
-        return;
-    }
-}
-
-void FinishLevel()
-{
-    if (levelnum > nBestLevel) {
-        nBestLevel = levelnum - 1;
-    }
-
-    levelnew = levelnum + 1;
-
-    StopAllSounds();
-
-    bCamera = false;
-    nMapMode = 0;
-
-    if (levelnum != kMap20)
-    {
-        EraseScreen(4);
-        PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-        videoNextPage();
-        //WaitTicks(12);
-        WaitVBL();
-        DrawView(65536);
-        videoNextPage();
-    }
-
-    FadeOut(1);
-    EraseScreen(overscanindex);
-
-    if (levelnum == 0)
-    {
-        nPlayerLives[0] = 0;
-        levelnew = 100;
-    }
-    else
-    {
-        DoAfterCinemaScene(levelnum);
-        if (levelnum == kMap20)
-        {
-            //DoCredits();
-            nPlayerLives[0] = 0;
-        }
-    }
-}
-
-
 void DoClockBeep()
 {
     for (int i = headspritestat[407]; i != -1; i = nextspritestat[i]) {
@@ -538,30 +430,13 @@ void DrawClock()
     DoEnergyTile();
 }
 
-void M32RunScript(const char* s) { UNREFERENCED_PARAMETER(s); }
-void app_crashhandler(void)
-{
-    ShutDown();
-}
-
-void G_Polymer_UnInit(void) { }
-
-static inline int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
     if (bRecord || bPlayback || nFreeze != 0 || bCamera || paused)
         return 65536;
 
     return CalcSmoothRatio(totalclk, ototalclk, 30);
 }
-
-#define LOW_FPS ((videoGetRenderMode() == REND_CLASSIC) ? 35 : 50)
-#define SLOW_FRAME_TIME 20
-
-#if defined GEKKO
-# define FPS_YOFFSET 16
-#else
-# define FPS_YOFFSET 0
-#endif
 
 FString GameInterface::statFPS()
 {
@@ -593,38 +468,7 @@ FString GameInterface::statFPS()
     return out;
 }
 
-static void GameDisplay(void)
-{
-    // End Section B
-
-    SetView1();
-
-    if (levelnum == kMap20)
-    {
-        LockEnergyTiles();
-        DoEnergyTile();
-        DrawClock();
-    }
-
-    auto smoothRatio = calc_smoothratio(totalclock, tclocks);
-
-    DrawView(smoothRatio);
-    DrawStatusBar();
-    if (paused && !M_Active())
-    {
-        auto tex = GStrings("TXTB_PAUSED");
-		int nStringWidth = SmallFont->StringWidth(tex);
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
-    }
-    if (M_Active())
-    {
-        D_ProcessEvents();
-    }
-
-    videoNextPage();
-}
-
-static void GameMove(void)
+void GameMove(void)
 {
     FixPalette();
 
@@ -693,7 +537,13 @@ void ExitGame()
     throw CExitEvent(0);
 }
 
-static int32_t nonsharedtimer;
+void InitTimer()
+{
+    htimer = 1;
+
+    timerInit(kTimerTicks);
+    timerSetCallback(timerhandler);
+}
 
 static const char* actions[] =
 {
@@ -753,24 +603,14 @@ static const char* actions[] =
     "Zoom_Out",
 };
 
-void InitTimer()
-{
-    htimer = 1;
 
-    timerInit(kTimerTicks);
-    timerSetCallback(timerhandler);
-}
 
-int SyncScreenJob();
-void DoTitle(CompletionFunc completion);
 
-int GameInterface::app_main()
+void InitGame()
 {
     int i;
     //int esi = 1;
     //int edi = esi;
-    int doTitle = true; // REVERT true;
-    int stopTitle = false;
     levelnew = 1;
 
     buttonMap.SetButtons(actions, NUM_ACTIONS);
@@ -788,14 +628,6 @@ int GameInterface::app_main()
         if (nTrack != 0) nTrack--;
         mi->cdSongId = (nTrack % 8) + 11;
     }
-
-    // REVERT - change back to true
-//	short bDoTitle = false;
-
-    wConsoleNode = 0;
-
-    int nMenu = 0; // TEMP
-
 
     if (nNetPlayerCount && forcelevel == -1) {
         forcelevel = 1;
@@ -828,12 +660,12 @@ int GameInterface::app_main()
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
 
-    const char *defsfile = G_DefFile();
+    const char* defsfile = G_DefFile();
     uint32_t stime = timerGetTicks();
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = timerGetTicks();
-        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
+        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
 
 
@@ -849,361 +681,9 @@ int GameInterface::app_main()
         nPlayerLives[i] = kDefaultLives;
     }
 
-    nBestLevel = 0;
-
-    UpdateScreenSize();
-
-    EraseScreen(overscanindex);
     ResetEngine();
-    EraseScreen(overscanindex);
-
     ResetView();
     GrabPalette();
-
-    if (doTitle)
-    {
-        while (!stopTitle)
-        {
-            DoTitle([](bool) { gamestate = GS_MENUSCREEN; });
-            SyncScreenJob();
-            gamestate = GS_LEVEL;
-            stopTitle = true;
-        }
-    }
-    // loc_11811:
-    if (forcelevel > -1)
-    {
-        levelnew = forcelevel;
-        goto STARTGAME1;
-    }
-MENU:
-    SavePosition = -1;
-    nMenu = menu_Menu(0);
-    switch (nMenu)
-    {
-    case -1:
-        goto MENU;
-    case 0:
-        goto EXITGAME;
-    case 3:
-        forcelevel = 0;
-        goto STARTGAME2;
-    case 6:
-        goto GAMELOOP;
-    case 9:
-        goto MENU;
-    }
-STARTGAME1:
-    levelnew = 1;
-    levelnum = 1;
-    if (!nNetPlayerCount) {
-        FadeOut(0);
-    }
-STARTGAME2:
-
-    bCamera = false;
-    ClearCinemaSeen();
-    PlayerCount = 0;
-    lastlevel = -1;
-
-    for (i = 0; i < nTotalPlayers; i++)
-    {
-        int nPlayer = GrabPlayer();
-        if (nPlayer < 0) {
-            I_Error("Can't create local player\n");
-        }
-
-        InitPlayerInventory(nPlayer);
-
-        if (i == wConsoleNode) {
-            PlayerList[nPlayer].someNetVal = -3;
-        }
-        else {
-            PlayerList[nPlayer].someNetVal = -4;
-        }
-    }
-
-    nNetMoves = 0;
-
-    if (forcelevel > -1)
-    {
-        // YELLOW SECTION
-        levelnew = forcelevel;
-        UpdateInputs();
-        forcelevel = -1;
-
-        goto LOOP3;
-    }
-
-    // PINK SECTION
-    UpdateInputs();
-    nNetMoves = 1;
-
-    if (nMenu == 2)
-    {
-        levelnew = 1;
-        levelnum = 1;
-        levelnew = menu_GameLoad(SavePosition);
-        lastlevel = -1;
-    }
-
-    nBestLevel = levelnew - 1;
-LOOP1:
-
-    if (nPlayerLives[nLocalPlayer] <= 0) {
-        goto MENU;
-    }
-    if (levelnew > 99) {
-        goto EXITGAME;
-    }
-    if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
-        menu_GameSave(SavePosition);
-    }
-LOOP2:
-    if (!nNetPlayerCount && !bPlayback && levelnew > 0 && levelnew <= kMap20) {
-        levelnew = showmap(levelnum, levelnew, nBestLevel);
-    }
-
-    if (levelnew > nBestLevel) {
-        nBestLevel = levelnew;
-    }
-LOOP3:
-    while (levelnew != -1)
-    {
-        // BLUE
-        if (CDplaying()) {
-            fadecdaudio();
-        }
-
-        if (levelnew == kMap20)
-        {
-            lCountDown = 81000;
-            nAlarmTicks = 30;
-            nRedTicks = 0;
-            nClockVal = 0;
-            nEnergyTowers = 0;
-        }
-
-        if (!LoadLevel(levelnew)) {
-            // TODO "Can't load level %d...\n", nMap;
-            goto EXITGAME;
-        }
-        levelnew = -1;
-    }
-    /* don't restore mid level savepoint if re-entering just completed level
-    if (nNetPlayerCount == 0 && lastlevel == levelnum)
-    {
-        RestoreSavePoint(nLocalPlayer, &initx, &inity, &initz, &initsect, &inita);
-    }
-    */
-    lastlevel = levelnum;
-
-    for (i = 0; i < nTotalPlayers; i++)
-    {
-        SetSavePoint(i, initx, inity, initz, initsect, inita);
-        RestartPlayer(i);
-        InitPlayerKeys(i);
-    }
-
-    UpdateScreenSize();
-    fps = 0;
-    lastfps = 0;
-    InitStatus();
-    ResetView();
-    ResetEngine();
-    totalmoves = 0;
-    GrabPalette();
-    ResetMoveFifo();
-    moveframes = 0;
-    bInMove = false;
-    tclocks = totalclock;
-    nPlayerDAng = 0;
-    lPlayerXVel = 0;
-    lPlayerYVel = 0;
-    movefifopos = movefifoend;
-
-    RefreshStatus();
-
-    //int edi = totalclock;
-    tclocks2 = totalclock;
-    // Game Loop
-GAMELOOP:
-    while (1)
-    {
-        if (levelnew >= 0)
-        {
-            goto LOOP1;
-        }
-
-        HandleAsync();
-        C_RunDelayedCommands();
-
-        // Section B
-        if (!CDplaying() && !nFreeze && !nNetPlayerCount)
-        {
-            int nTrack = levelnum;
-            if (nTrack != 0) {
-                nTrack--;
-            }
-
-            playCDtrack((nTrack % 8) + 11, true);
-        }
-
-// TODO		CONTROL_GetButtonInput();
-        updatePauseStatus();
-        CheckKeys();
-
-        bInMove = true;
-
-        if (paused)
-        {
-            tclocks = totalclock - 4;
-            buttonMap.ResetButtonStates();
-        }
-        else
-        {
-            while ((totalclock - ototalclock) >= 1 || !bInMove)
-            {
-                ototalclock = ototalclock + 1;
-
-                if (!((int)ototalclock&3) && moveframes < 4)
-                    moveframes++;
-
-                GetLocalInput();
-                PlayerInterruptKeys();
-
-                nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
-                inita &= kAngleMask;
-
-                lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
-                lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
-                lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-                lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
-
-                sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-                sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-                sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-                sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
-                sPlayerInput[nLocalPlayer].nTarget = besttarget;
-
-                Ra[nLocalPlayer].nTarget = besttarget;
-
-                lLocalCodes = 0;
-                nPlayerDAng = 0;
-
-                sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
-
-                while (levelnew < 0 && totalclock >= tclocks + 4)
-                {
-                    tclocks += 4;
-                    GameMove();
-                    if (EndLevel)
-                    {
-                        goto getoutofhere;
-                    }
-                }
-            }
-        }
- getoutofhere:
-        bInMove = false;
-
-        PlayerInterruptKeys();
-
-        if (G_FPSLimit())
-        {
-            GameDisplay();
-        }
-
-        if (!EndLevel)
-        {
-            nMenu = MenuExitCondition;
-            if (nMenu != -2)
-            {
-                MenuExitCondition = -2;
-// MENU2:
-                bInMove = true;
-
-                switch (nMenu)
-                {
-                    case 0:
-                        goto EXITGAME;
-
-                    case 1:
-                        goto STARTGAME1;
-
-                    case 2:
-                        levelnum = levelnew = menu_GameLoad(SavePosition);
-                        lastlevel = -1;
-                        nBestLevel = levelnew - 1;
-                        goto LOOP2;
-
-                    case 3:
-                        forcelevel = 0;
-                        goto STARTGAME2;
-                    case 6:
-                        goto GAMELOOP;
-                }
-
-                totalclock = ototalclock = tclocks;
-                bInMove = false;
-                RefreshStatus();
-            }
-            else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
-            {
-                buttonMap.ClearButton(gamefunc_Map);
-
-                if (!nFreeze) {
-                    nMapMode = (nMapMode+1)%3;
-                }
-            }
-
-            if (nMapMode != 0)
-            {
-                int const timerOffset = ((int) totalclock - nonsharedtimer);
-                nonsharedtimer += timerOffset;
-
-                if (buttonMap.ButtonDown(gamefunc_Zoom_In))
-                    lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
-
-                if (buttonMap.ButtonDown(gamefunc_Zoom_Out))
-                    lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
-
-                lMapZoom = clamp(lMapZoom, 48, 2048);
-            }
-
-            if (PlayerList[nLocalPlayer].nHealth > 0)
-            {
-                if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
-                {
-                    SetPrevItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory_Left);
-                }
-                if (buttonMap.ButtonDown(gamefunc_Inventory_Right))
-                {
-                    SetNextItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory_Right);
-                }
-                if (buttonMap.ButtonDown(gamefunc_Inventory))
-                {
-                    UseCurItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory);
-                }
-            }
-            else {
-                SetAirFrame();
-            }
-        }
-		else
-		{
-            EndLevel = false;
-            FinishLevel();
-		}
-        fps++;
-    }
-EXITGAME:
-
-    ExitGame();
-    return 0;
 }
 
 void mychangespritesect(int nSprite, int nSector)
@@ -1224,21 +704,6 @@ void mydeletesprite(int nSprite)
     if (nSprite == besttarget) {
         besttarget = -1;
     }
-}
-
-
-extern int currentCinemaPalette;
-void DoGameOverScene()
-{
-    FadeOut(0);
-    inputState.ClearAllInput();
-
-    NoClip();
-    overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal, 16);
-    videoNextPage();
-    PlayGameOverSound();
-    //WaitAnyKey(3);
-    FadeOut(0);
 }
 
 
@@ -1321,7 +786,6 @@ static SavegameHelper sgh("exhumed",
     SV(bSlipMode),
     SV(localclock),
     SV(tclocks),
-    SV(tclocks2),
     SV(totalclock),
     nullptr);
 

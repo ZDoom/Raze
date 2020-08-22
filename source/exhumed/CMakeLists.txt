@@ -9,6 +9,7 @@ set( PCH_SOURCES
 	src/enginesubs.cpp
 	src/exhumed.cpp
 	src/fish.cpp
+	src/gameloop.cpp
 	src/grenade.cpp
 	src/gun.cpp
 	src/init.cpp

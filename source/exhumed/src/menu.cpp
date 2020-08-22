@@ -41,10 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <assert.h>
 
-#ifdef __WATCOMC__
-#include <stdlib.h>
-#endif
-
 BEGIN_PS_NS
 
 
@@ -71,9 +67,6 @@ short word_9AB5B = 0;
 int keytimer = 0;
 
 
-void RunCinemaScene(int num);
-
-
 void ClearCinemaSeen()
 {
     memset(nCinemaSeen, 0, sizeof(nCinemaSeen));
@@ -83,7 +76,7 @@ unsigned int menu_RandomBit2()
 {
     unsigned int result = nRandom & 1;
 
-    if ( --dword_9AB57 > 0 )
+    if (--dword_9AB57 > 0)
     {
         nRandom = (result << 31) | (nRandom >> 1);
     }
@@ -104,10 +97,10 @@ void DoEnergyTile()
 {
     nButtonColor += nButtonColor < 0 ? 8 : 0;
 
-	auto energy1 = TileFiles.tileMakeWritable(kEnergy1);
-	auto energy2 = TileFiles.tileMakeWritable(kEnergy2);
-	uint8_t *ptr1 = energy1 + 1984;
-    uint8_t *ptr2 = energy2 + 2048;
+    auto energy1 = TileFiles.tileMakeWritable(kEnergy1);
+    auto energy2 = TileFiles.tileMakeWritable(kEnergy2);
+    uint8_t* ptr1 = energy1 + 1984;
+    uint8_t* ptr2 = energy2 + 2048;
 
     short nColor = nButtonColor + 161;
 
@@ -132,8 +125,8 @@ void DoEnergyTile()
 
     if (nSmokeSparks)
     {
-        uint8_t *c = &energytile[67]; // skip a line
-        uint8_t *ptrW = energy2;
+        uint8_t* c = &energytile[67]; // skip a line
+        uint8_t* ptrW = energy2;
 
         for (i = 0; i < 64; i++)
         {
@@ -209,7 +202,7 @@ void DoEnergyTile()
 
                             *ptrW = cl;
                         }
-                    }     
+                    }
                 }
 
                 c++;
@@ -243,7 +236,7 @@ void DoEnergyTile()
         word_9AB5B--;
         if (word_9AB5B <= 0)
         {
-            int randSize  = (RandomSize(5) & 0x1F) + 16;
+            int randSize = (RandomSize(5) & 0x1F) + 16;
             int randSize2 = (RandomSize(5) & 0x1F) + 16;
 
             int val = randSize << 5;
@@ -260,20 +253,7 @@ void DoEnergyTile()
     }
 }
 
-
-
-int menu_NewGameMenu()
-{
-
-    return 0;
-}
-
-int menu_LoadGameMenu()
-{
-    return 0;
-}
-
-void menu_GameLoad2(FILE *fp, bool bIsDemo)
+void menu_GameLoad2(FILE* fp, bool bIsDemo)
 {
     fread(&GameStats, sizeof(GameStats), 1, fp);
 
@@ -291,7 +271,7 @@ void menu_GameLoad2(FILE *fp, bool bIsDemo)
 
     memcpy(&PlayerList[nLocalPlayer], &GameStats.player, sizeof(Player));
 
-    nPlayerItem[nLocalPlayer]  = GameStats.items;
+    nPlayerItem[nLocalPlayer] = GameStats.items;
     nPlayerLives[nLocalPlayer] = GameStats.nLives;
 
     SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
@@ -302,7 +282,7 @@ short menu_GameLoad(int nSlot)
 {
     memset(&GameStats, 0, sizeof(GameStats));
 
-    FILE *fp = fopen(kSaveFileName, "rb");
+    FILE* fp = fopen(kSaveFileName, "rb");
     if (fp == NULL) {
         return 0;
     }
@@ -316,15 +296,15 @@ short menu_GameLoad(int nSlot)
     return GameStats.nMap;
 }
 
-void menu_GameSave2(FILE *fp)
+void menu_GameSave2(FILE* fp)
 {
     memset(&GameStats, 0, sizeof(GameStats));
 
     GameStats.nMap = (uint8_t)levelnew;
     GameStats.nWeapons = nPlayerWeapons[nLocalPlayer];
     GameStats.nCurrentWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
-    GameStats.clip   = nPlayerClip[nLocalPlayer];
-    GameStats.items  = nPlayerItem[nLocalPlayer];
+    GameStats.clip = nPlayerClip[nLocalPlayer];
+    GameStats.items = nPlayerItem[nLocalPlayer];
     GameStats.nLives = nPlayerLives[nLocalPlayer];
 
     memcpy(&GameStats.player, &PlayerList[nLocalPlayer], sizeof(GameStats.player));
@@ -338,7 +318,7 @@ void menu_GameSave(int nSaveSlot)
         return;
     }
 
-    FILE *fp = fopen(kSaveFileName, "rb+");
+    FILE* fp = fopen(kSaveFileName, "rb+");
     if (fp != NULL)
     {
         fseek(fp, 125, SEEK_SET); // skip save slot names
@@ -346,79 +326,6 @@ void menu_GameSave(int nSaveSlot)
         menu_GameSave2(fp);
         fclose(fp);
     }
-}
-
-short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-
-void CheckBeforeScene(int nLevel)
-{
-    if (nLevel == kMap20)
-    {
-        RunCinemaScene(-1);
-        return;
-    }
-
-    short nScene = nBeforeScene[nLevel];
-
-    if (nScene)
-    {
-        if (!nCinemaSeen[nScene])
-        {
-            RunCinemaScene(nScene);
-            nCinemaSeen[nScene] = 1;
-        }
-    }
-}
-
-int SyncScreenJob();
-
-int showmap(short nLevel, short nLevelNew, short nLevelBest)
-{
-    FadeOut(0);
-    EraseScreen(overscanindex);
-    GrabPalette();
-    BlackOut();
-
-    if (nLevelNew != 11) {
-        CheckBeforeScene(nLevelNew);
-    }
-
-	int selectedLevel;
-	menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, [&](int lev){
-		gamestate = GS_LEVEL;
-		selectedLevel = lev;
-        if (lev != nLevelNew) STAT_Cancel();
-	});
-	SyncScreenJob();
-    if (selectedLevel == 11) {
-        CheckBeforeScene(selectedLevel);
-    }
-
-    return selectedLevel;
-}
-
-void DoAfterCinemaScene(int nLevel)
-{
-    short nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
-
-    if (nAfterScene[nLevel]) {
-        RunCinemaScene(nAfterScene[nLevel]);
-    }
-}
-
-void DoFailedFinalScene()
-{
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    if (CDplaying()) {
-        fadecdaudio();
-    }
-
-    playCDtrack(9, false);
-    FadeToWhite();
-
-    RunCinemaScene(4);
 }
 
 static SavegameHelper sgh("menu",

@@ -152,8 +152,6 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 
 int DoSpiritHead();
 
-void UpdateScreenSize();
-
 void HandleAsync();
 
 extern bool EndLevel;
