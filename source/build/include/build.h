@@ -930,20 +930,6 @@ inline double calcSinTableValue(double index)
     return 16384. * sin(BANG2RAD * index);
 }
 
-
-//  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
-//  how: pass -1 to invalidate all instances of the tile in texture memory, or a bitfield
-//         bit 0: opaque or masked (non-translucent) texture, using repeating
-//         bit 1: ignored
-//         bit 2: 33% translucence, using repeating
-//         bit 3: 67% translucence, using repeating
-//         bit 4: opaque or masked (non-translucent) texture, using clamping
-//         bit 5: ignored
-//         bit 6: 33% translucence, using clamping
-//         bit 7: 67% translucence, using clamping
-//       clamping is for sprites, repeating is for walls
-void tileInvalidate(int tilenume, int32_t pal, int32_t how);
-
 void PrecacheHardwareTextures(int nTile);
 void Polymost_Startup();
 
@@ -1027,10 +1013,8 @@ static FORCE_INLINE int tilehasmodelorvoxel(int const tilenume, int pal)
 {
     UNREFERENCED_PARAMETER(pal);
     return
-#ifdef USE_OPENGL
-    (videoGetRenderMode() >= REND_POLYMOST && mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
-#endif
-    (videoGetRenderMode() <= REND_POLYMOST && r_voxels && tiletovox[tilenume] != -1);
+    (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
+    (r_voxels && tiletovox[tilenume] != -1);
 }
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,

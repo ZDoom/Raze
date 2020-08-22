@@ -228,32 +228,6 @@ const char *gString[] =
     "LOBOTOMY SOFTWARE, INC.",
     "3D ENGINE BY 3D REALMS",
     "",
-    "LASTLEVEL",
-    "INCOMING MESSAGE",
-    "",
-    "OUR LATEST SCANS SHOW",
-    "THAT THE ALIEN CRAFT IS",
-    "POWERING UP, APPARENTLY",
-    "IN AN EFFORT TO LEAVE.",
-    "THE BAD NEWS IS THAT THEY",
-    "SEEM TO HAVE LEFT A DEVICE",
-    "BEHIND, AND ALL EVIDENCE",
-    "SAYS ITS GOING TO BLOW A",
-    "BIG HOLE IN OUR FINE PLANET.",
-    "A SQUAD IS TRYING TO DISMANTLE",
-    "IT RIGHT NOW, BUT NO LUCK SO",
-    "FAR, AND TIME IS RUNNING OUT.",
-    "",
-    "GET ABOARD THAT CRAFT NOW",
-    "BEFORE IT LEAVES, THEN FIND",
-    "AND SHOOT ALL THE ENERGY",
-    "TOWERS TO GAIN ACCESS TO THE",
-    "CONTROL ROOM. THERE YOU NEED TO",
-    "TAKE OUT THE CONTROL PANELS AND",
-    "THE CENTRAL POWER SOURCE.  THIS",
-    "IS THE BIG ONE BUDDY, BEST OF",
-    "LUCK... FOR ALL OF US.",
-    "",
     "",
     "CREDITS",
     "EXHUMED",
@@ -2100,20 +2074,7 @@ void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
         pDestB = pDest;
     }
 
-    tileInvalidate(nDestTile, -1, -1);
-}
-
-int CopyCharToBitmap(char nChar, int nTile, int xPos, int yPos)
-{
-    if (nChar == ' ') {
-        return 4;
-    }
-
-    nChar = toupper(nChar);
-    int nFontTile = seq_GetSeqPicnum(kSeqFont2, 0, nChar - 32) + 102;
-    CopyTileToBitmap(nFontTile, nTile, xPos, yPos);
-
-    return tilesiz[nFontTile].x + 1;
+    TileFiles.InvalidateTile(nDestTile);
 }
 
 void EraseScreen(int nVal)
@@ -2191,7 +2152,7 @@ void InitSpiritHead()
     nHeadTimeStart = (int)totalclock;
 
     memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
-    tileInvalidate(kTileRamsesWorkTile, -1, -1);
+    TileFiles.InvalidateTile(kTileRamsesWorkTile);
 
     nPixelsToShow = 0;
 
@@ -2271,7 +2232,7 @@ int DoSpiritHead()
 
     PlayerList[0].q16horiz = fix16_sadd(PlayerList[0].q16horiz, fix16_sdiv(fix16_ssub(nDestVertPan[0], PlayerList[0].q16horiz), fix16_from_int(4)));
 
-    tileInvalidate(kTileRamsesWorkTile, -1, -1);
+    TileFiles.InvalidateTile(kTileRamsesWorkTile);
 
     if (nHeadStage < 2)
     {

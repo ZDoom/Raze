@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sequence.h"
 #include "v_draw.h"
 #include "m_random.h"
+#include "gstrings.h"
 
 #include <string>
 
@@ -116,13 +117,12 @@ void InitFonts()
     fontdata.Insert('\'', tileGetTexture(3654));
     fontdata.Insert('`', tileGetTexture(3654));
     fontdata.Insert('.', tileGetTexture(3650));
-    fontdata.Insert(',', tileGetTexture(3551));
+    fontdata.Insert(',', tileGetTexture(3653));
     fontdata.Insert('-', tileGetTexture(3656));
     fontdata.Insert('?', tileGetTexture(3652));
     fontdata.Insert(127, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
-    GlyphSet::Iterator it(fontdata);
-    GlyphSet::Pair* pair;
-    while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+    GlyphSet::Iterator it2(fontdata);
+    while (it2.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
     SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
     SmallFont2->SetKerning(1);
 }
@@ -369,7 +369,7 @@ void menu_DoPlasma()
             v28[nSmokeOffset] = 175;
         }
 
-        tileInvalidate(nPlasmaTile, -1, -1);
+        TileFiles.InvalidateTile(nPlasmaTile);
 
         // flip between tile 4092 and 4093
         if (nPlasmaTile == kTile4092) {
@@ -1030,10 +1030,215 @@ public:
     }
 };
 
+//---------------------------------------------------------------------------
+//
+// last level cinema
+//
+//---------------------------------------------------------------------------
+
+class DLastLevelCinema : public DScreenJob
+{
+    int var_24 = 16;
+    int var_28 = 12;
+
+    int ebp;
+    int nEndTime = 240;
+    int phase = 0;
+    int nextclock = 4;
+    unsigned int nStringTypeOn, nCharTypeOn;
+    int screencnt = 0;
+
+    TArray<FString> screentext;
+
+public:
+    DLastLevelCinema() : DScreenJob(fadein | fadeout) {}
+
+private:
+    void DoStatic(int a, int b)
+    {
+        auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
+
+        int v2 = 160 - a / 2;
+        int v4 = 81 - b / 2;
+
+        int var_18 = v2 + a;
+        int v5 = v4 + b;
+
+        auto pTile = (pixels + (200 * v2)) + v4;
+
+        TileFiles.InvalidateTile(kTileLoboLaptop);
+
+        while (v2 < var_18)
+        {
+            uint8_t* pStart = pTile;
+            pTile += 200;
+
+            int v7 = v4;
+
+            while (v7 < v5)
+            {
+                *pStart = RandomBit() * 16;
+
+                v7++;
+                pStart++;
+            }
+            v2++;
+        }
+    }
+
+    void Phase1()
+    {
+        if (var_24 >= 116)
+        {
+            if (var_28 < 192)
+                var_28 += 20;
+        }
+        else
+        {
+            var_24 += 20;
+        }
+
+        DoStatic(var_28, var_24);
+    }
+
+    bool InitPhase2()
+    {
+        FStringf label("TXT_EX_LASTLEVEL%d", screencnt + 1);
+        label = GStrings(label);
+        screentext = label.Split("\n");
+        if (screentext.Size() == 0) return false;
+
+        nStringTypeOn = 0;
+        nCharTypeOn = 0;
+
+        ebp = screentext.Size() * 4;    // half height of the entire text
+        ebp = 81 - ebp;                 // offset from the screen's center.
+
+        auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
+        if (tex) tex->Reload();
+        return true;
+    }
+
+    bool Phase3()
+    {
+        DoStatic(var_28, var_24);
+
+        if (var_28 > 20) {
+            var_28 -= 20;
+            return true;
+        }
+
+        if (var_24 > 20) {
+            var_24 -= 20;
+            return true;
+        }
+        return false;
+    }
+
+    void DisplayPhase2()
+    {
+        DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+        int yy = ebp;
+        for (int i = 0; i < nStringTypeOn; i++, yy += 8)
+        {
+            DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+        }
+        DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TextLen, nCharTypeOn, TAG_DONE);
+    }
+
+    int Frame(uint64_t clock, bool skiprequest) override
+    {
+        if (clock == 0)
+        {
+            PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
+            phase = 1;
+        }
+        int totalclock = clock * 120 / 1'000'000'000;
+        switch (phase)
+        {
+        case 1:
+            if (totalclock >= nextclock)
+            {
+                Phase1();
+                nextclock += 4;
+            }
+            DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+            if (skiprequest || totalclock >= 240)
+            {
+                InitPhase2();
+                phase = 2;
+                skiprequest = 0;
+            }
+            break;
+
+        case 2:
+            if (totalclock >= nextclock)
+            {
+                if (screentext[nStringTypeOn][nCharTypeOn] != ' ')
+                    PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
+
+                nCharTypeOn++;
+                nextclock += 4;
+                if (screentext[nStringTypeOn][nCharTypeOn] == 0)
+                {
+                    nCharTypeOn = 0;
+                    nStringTypeOn++;
+                    if (nStringTypeOn >= screentext.Size())
+                    {
+                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + (int)totalclock;
+                        phase = 3;
+                    }
+
+                }
+            }
+            DisplayPhase2();
+            if (skiprequest)
+            {
+                nextclock = (kTimerTicks * (screentext.Size() + 2)) + (int)totalclock;
+                phase = 3;
+            }
+            break;
+
+        case 3:
+            DisplayPhase2();
+            if (totalclock >= nextclock || skiprequest)
+            {
+                PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
+                phase = 4;
+                nextclock = totalclock + 240;
+                skiprequest = 0;
+            }
+            break;
+
+        case 4:
+            if (totalclock >= nextclock)
+            {
+                skiprequest |= !Phase3();
+                nextclock += 4;
+            }
+            if (skiprequest || totalclock >= 240)
+            {
+                // Go to the next text page.
+                if (screencnt != 2)
+                {
+                    screencnt++;
+                    nextclock = totalclock + 240;
+                    skiprequest = 0;
+                    phase = 1;
+                }
+                else return skiprequest ? -1 : 0;
+            }
+        }
+        return 1;
+    }
+
+};
+
 // temporary.
 void RunCinemaScene(int num)
 {
-    JobDesc job = { Create<DCinema>(num) };
+    num = -1;
+    JobDesc job = { num == -1? (DScreenJob*)Create<DLastLevelCinema>() : Create<DCinema>(num) };
     RunScreenJob(&job, 1, [](bool) { gamestate = GS_LEVEL; });
     SyncScreenJob();
 }

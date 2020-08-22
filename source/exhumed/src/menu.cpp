@@ -70,19 +70,6 @@ short word_9AB5B = 0;
 
 int keytimer = 0;
 
-short nMenuKeys[] = { sc_N, sc_L, sc_M, sc_V, sc_Q, sc_None }; // select a menu item using the keys. 'N' for New Gane, 'V' for voume etc. 'M' picks Training for some reason...
-
-
-void menu_ResetKeyTimer();
-
-enum {
-    kMenuNewGame = 0,
-    kMenuLoadGame,
-    kMenuTraining,
-    kMenuVolume,
-    kMenuQuitGame,
-    kMenuMaxItems
-};
 
 void RunCinemaScene(int num);
 
@@ -141,7 +128,7 @@ void DoEnergyTile()
         }
     }
 
-    tileInvalidate(kEnergy1, -1, -1);
+    TileFiles.InvalidateTile(kEnergy1);
 
     if (nSmokeSparks)
     {
@@ -269,7 +256,7 @@ void DoEnergyTile()
             energytile[val] = 175;
             word_9AB5B = 1;
         }
-        tileInvalidate(kEnergy2, -1, -1);
+        TileFiles.InvalidateTile(kEnergy2);
     }
 }
 
@@ -361,32 +348,6 @@ void menu_GameSave(int nSaveSlot)
     }
 }
 
-#define kMaxCinemaPals	16
-const char *cinpalfname[kMaxCinemaPals] = {
-    "3454.pal",
-    "3452.pal",
-    "3449.pal",
-    "3445.pal",
-    "set.pal",
-    "3448.pal",
-    "3446.pal",
-    "hsc1.pal",
-    "2972.pal",
-    "2973.pal",
-    "2974.pal",
-    "2975.pal",
-    "2976.pal",
-    "heli.pal",
-    "2978.pal",
-    "terror.pal"
-};
-
-void CinemaFadeIn()
-{
-}
-
-
-
 short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
@@ -394,7 +355,7 @@ void CheckBeforeScene(int nLevel)
 {
     if (nLevel == kMap20)
     {
-        DoLastLevelCinema();
+        RunCinemaScene(-1);
         return;
     }
 
@@ -483,209 +444,6 @@ uint8_t CheckForEscape()
     return inputState.CheckAllInput();
 }
 
-void DoStatic(int a, int b)
-{
-    RandomLong(); // nothing done with the result of this?
-
-    auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
-
-    int v2 = 160 - a / 2;
-    int v4 = 81  - b / 2;
-
-    int var_18 = v2 + a;
-    int v5 = v4 + b;
-
-    auto pTile = (pixels + (200 * v2)) + v4;
-
-    tileInvalidate(kTileLoboLaptop, -1, -1);
-
-    while (v2 < var_18)
-    {
-        uint8_t *pStart = pTile;
-        pTile += 200;
-
-        int v7 = v4;
-
-        while (v7 < v5)
-        {
-            *pStart = RandomBit() * 16;
-
-            v7++;
-            pStart++;
-        }
-        v2++;
-    }
-
-	tileInvalidate(kTileLoboLaptop, 0, 0);
-    overwritesprite(0, 0, kTileLoboLaptop, 0, 2, kPalNormal);
-    videoNextPage();
-}
-
-void DoLastLevelCinema()
-{
-    FadeOut(0);
-
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    EraseScreen(-1);
-    RestorePalette();
-
-    int nString = FindGString("LASTLEVEL");
-
-    PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
-
-	auto pixels = TileFiles.tileMakeWritable(kTileLoboLaptop);
-	// uh, what?
-    //memcpy((void*)waloff[kTileLoboLaptop], (void*)waloff[kTileLoboLaptop], tilesiz[kTileLoboLaptop].x * tilesiz[kTileLoboLaptop].y);
-
-    int var_24 = 16;
-    int var_28 = 12;
-
-    int nEndTime = (int)totalclock + 240;
-
-    while (inputState.keyBufferWaiting()) {
-        inputState.keyGetChar();
-    }
-
-    while (nEndTime > (int)totalclock)
-    {
-        HandleAsync();
-
-        if (var_24 >= 116)
-        {
-            if (var_28 < 192)
-                var_28 += 20;
-        }
-        else
-        {
-            var_24 += 20;
-        }
-
-        DoStatic(var_28, var_24);
-
-        // WaitVBL();
-        int time = (int)totalclock + 4;
-        while ((int)totalclock < time) {
-            HandleAsync();
-        }
-    }
-
-    // loc_3AD75
-
-    do
-    {  
-    LABEL_11:
-
-        HandleAsync();
-
-        if (strlen(gString[nString]) == 0)
-            break;
-
-        int esi = nString;
-
-        while (strlen(gString[esi]) != 0)
-            esi++;
-
-        int ebp = esi;
-
-        ebp -= nString;
-        ebp <<= 2;
-        ebp = 81 - ebp;
-
-        int var_1C = esi - nString;
-
-        // loc_3ADD7
-        while (1)
-        {
-            HandleAsync();
-
-            if (strlen(gString[nString]) == 0)
-                break;
-
-            int xPos = 70;
-
-            const char *nChar = gString[nString];
-
-            nString++;
-
-			TileFiles.tileMakeWritable(kTileLoboLaptop);
-            while (*nChar)
-            {
-                HandleAsync();
-
-                if (*nChar != ' ') {
-                    PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
-                }
-
-                xPos += CopyCharToBitmap(*nChar, kTileLoboLaptop, xPos, ebp);
-                nChar++;
-
-                overwritesprite(0, 0, kTileLoboLaptop, 0, 2, kPalNormal);
-                videoNextPage();
-
-                // WaitVBL();
-                int time = (int)totalclock + 4;
-                while ((int)totalclock < time) {
-                    HandleAsync();
-                }
-
-                if (CheckForEscape())
-                    goto LABEL_28;
-            }
-
-            ebp += 8;
-        }
-
-        nString++;
-
-        inputState.ClearAllInput();
-
-        int v11 = (kTimerTicks * (var_1C + 2)) + (int)totalclock;
-
-        do
-        {
-            HandleAsync();
-
-            if (v11 <= (int)totalclock)
-                goto LABEL_11;
-        } while (!inputState.keyBufferWaiting());
-    }
-    while (inputState.keyGetChar() != 27);
-
-LABEL_28:
-    PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
-
-    nEndTime = (int)totalclock + 240;
-
-    while (nEndTime > (int)totalclock)
-    {
-        HandleAsync();
-
-        DoStatic(var_28, var_24);
-
-        // WaitVBL();
-        int time = (int)totalclock + 4;
-        while ((int)totalclock < time) {
-            HandleAsync();
-        }
-
-        if (var_28 > 20) {
-            var_28 -= 20;
-            continue;
-        }
-
-        if (var_24 > 20) {
-            var_24 -= 20;
-            continue;
-        }
-
-        break;
-    }
-
-    EraseScreen(-1);
-    tileLoad(kTileLoboLaptop);
-    FadeOut(0);
-}
 
 static SavegameHelper sgh("menu",
     SA(nCinemaSeen),

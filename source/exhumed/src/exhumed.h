@@ -150,8 +150,6 @@ void DoPassword(int nPassword);
 
 void InitSpiritHead();
 
-int CopyCharToBitmap(char nChar, int nTile, int xPos, int yPos);
-
 // TODO - relocate
 void StatusMessage(int messageTime, const char *fmt, ...);
 

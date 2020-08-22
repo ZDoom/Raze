@@ -103,7 +103,7 @@ void FireProcess(void)
     {
         DoFireFrame();
         lastUpdate = totalclock;
-        tileInvalidate(2342, -1, -1);
+        TileFiles.InvalidateTile(2342);
     }
 }
 

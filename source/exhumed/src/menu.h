@@ -60,11 +60,8 @@ void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, std::function<vo
 
 void DoEnergyTile();
 
-void CinemaFadeIn();
-
 void DoFailedFinalScene();
 
-void DoLastLevelCinema();
 void DoAfterCinemaScene(int nLevel);
 
 void InitEnergyTile();

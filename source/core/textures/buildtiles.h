@@ -476,11 +476,6 @@ inline rottile_t& RotTile(int tile)
 }
 
 
-inline void tileInvalidate(int tilenume, int32_t, int32_t)
-{
-	TileFiles.InvalidateTile(tilenume);
-}
-
 int32_t animateoffs(int const tilenum, int fakevar);
 
 inline FGameTexture* tileGetTexture(int tile, bool animate = false)

@@ -2133,3 +2133,28 @@ Level 29,TXT_EX_MAP29,,,,,,,,,,,,,,,,,,,,,,
 Level 30,TXT_EX_MAP30,,,,,,,,,,,,,,,,,,,,,,
 Level 31,TXT_EX_MAP31,,,,,,,,,,,,,,,,,,,,,,
 Level 32,TXT_EX_MAP32,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,
+incoming Message,TXT_EX_LASTLEVEL1,,,,,,,,,,,,,,,,,,,,,,
+"Our latest scans show
+that the alien craft is
+powering up, apparently
+in an effort to leave.
+The bad news is that they
+seem to have left a device
+behind, and all evidence
+says its going to blow a
+big hole in our fine planet.
+A squad is trying to dismantle
+it right now, but no luck so
+far, and time is running out.
+",TXT_EX_LASTLEVEL2,,,,,,,,,,,,,,,,,,,,,,
+"Get aboard that craft now
+before it leaves, then find
+and shoot all the energy
+towers to gain access to the
+control room. There you need to
+take out the control panels and
+the central power source.  This
+is the big one buddy, best of
+luck... For all of us.
+",TXT_EX_LASTLEVEL3,,,,,,,,,,,,,,,,,,,,,,

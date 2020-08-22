@@ -497,7 +497,7 @@ void DoLensEffect(void)
     for (int i = 0; i < kLensSize*kLensSize; i++, d++)
         if (lensTable[i] >= 0)
             *d = s[lensTable[i]];
-    tileInvalidate(4077, -1, -1);
+    TileFiles.InvalidateTile(4077);
 }
 
 void UpdateDacs(int nPalette, bool bNoTint)

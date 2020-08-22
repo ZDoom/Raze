@@ -934,7 +934,7 @@ void DrawWeapons(int smooth)
     if (nWeapon < -1) {
         return;
     }
-    PspTwoDSetter set;
+    PspTwoDSetter set; // this is the last one.
 
     short var_34 = PlayerList[nLocalPlayer].field_3A;
 
