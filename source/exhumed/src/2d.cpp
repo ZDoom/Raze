@@ -76,60 +76,6 @@ void InitFonts()
     GlyphSet fontdata;
     fontdata.Insert(127, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
 
-    auto tile = tileGetTexture(159);
-    auto pixels = tile->GetTexture()->Get8BitPixels(false);
-    // Convert the sheet font to a proportional font by checking the actual character sizes.
-    for (int i = 1; i < 128; i++)
-    {
-        int xpos = (i % 16) * 8;
-        int ypos = (i / 16) * 8;
-        bool rowset[8]{};
-        for (int x = 0; x < 8; x++)
-        {
-            for (int y = 0; y < 8; y++)
-            {
-                int pixel = pixels[xpos + x + 128 * (ypos + y)];
-                if (pixel)
-                {
-                    rowset[x] = true;
-                    break;
-                }
-            }
-        }
-        int left = 0;
-        int right = 7;
-        /* probably not such a good idea after all...
-        while (left <= right)
-        {
-            bool didit = false;
-            if (!rowset[left]) left++, didit = true;
-            if (!rowset[right]) right--, didit = true;
-            if (!didit) break;
-        }*/
-        if (left < right)
-        {
-            xpos += left;
-            int width = right - left + 1;
-            int height = 8;
-
-            TArray<TexPartBuild> part(1, true);
-            part[0].OriginX = -xpos;
-            part[0].OriginY = -ypos;
-            part[0].TexImage = static_cast<FImageTexture*>(tile->GetTexture());
-            FMultiPatchTexture* image = new FMultiPatchTexture(width, height, part, false, false);
-            FImageTexture* tex = new FImageTexture(image);
-            auto gtex = MakeGameTexture(tex, nullptr, ETextureType::FontChar);
-            gtex->SetWorldPanning(true);
-            gtex->SetOffsets(0, 0, 0);
-            gtex->SetOffsets(1, 0, 0);
-            TexMan.AddGameTexture(gtex);
-            fontdata.Insert(i, gtex);
-        }
-    }
-    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
-    SmallFont2->SetKerning(1);
-    fontdata.Clear();
-
     for (int i = 0; i < 26; i++)
     {
         fontdata.Insert('A' + i, tileGetTexture(3522 + i));
@@ -143,6 +89,7 @@ void InitFonts()
     fontdata.Insert('?', tileGetTexture(3550));
     fontdata.Insert(',', tileGetTexture(3551));
     fontdata.Insert('`', tileGetTexture(3552));
+    fontdata.Insert('\'', tileGetTexture(3552));
     fontdata.Insert('"', tileGetTexture(3553));
     fontdata.Insert('-', tileGetTexture(3554));
     fontdata.Insert('_', tileGetTexture(3554));
@@ -154,6 +101,30 @@ void InitFonts()
     SmallFont->SetKerning(1);
     fontdata.Clear();
 
+    fontdata.Insert(127, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+
+    for (int i = 0; i < 26; i++)
+    {
+        fontdata.Insert('A' + i, tileGetTexture(3624 + i));
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        fontdata.Insert('0' + i, tileGetTexture(3657 + i));
+    }
+    fontdata.Insert('!', tileGetTexture(3651));
+    fontdata.Insert('"', tileGetTexture(3655));
+    fontdata.Insert('\'', tileGetTexture(3654));
+    fontdata.Insert('`', tileGetTexture(3654));
+    fontdata.Insert('.', tileGetTexture(3650));
+    fontdata.Insert(',', tileGetTexture(3551));
+    fontdata.Insert('-', tileGetTexture(3656));
+    fontdata.Insert('?', tileGetTexture(3652));
+    fontdata.Insert(127, TexMan.FindGameTexture("TINYBLAK")); // this is only here to widen the color range of the font to produce a better translation.
+    GlyphSet::Iterator it(fontdata);
+    GlyphSet::Pair* pair;
+    while (it.NextPair(pair)) pair->Value->SetOffsetsNotForFont();
+    SmallFont2 = new ::FFont("SmallFont2", nullptr, "defsmallfont2", 0, 0, 0, -1, 4, false, false, false, &fontdata);
+    SmallFont2->SetKerning(1);
 }
 
 

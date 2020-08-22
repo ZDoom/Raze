@@ -570,13 +570,11 @@ void MoveStatus()
 class DExhumedStatusBar : public DBaseStatusBar
 {
     DHUDFont textfont;
-    DHUDFont minifont;
 
 public:
     DExhumedStatusBar()
     {
         textfont = { SmallFont, 1, Off, 1, 1 };
-        textfont = { SmallFont2, 1, Off, 1, 1 };
     }
 
 private:
@@ -820,7 +818,7 @@ private:
         if (nSnakeCam >= 0)
         {
             BeginHUD(320, 200, 1);
-            SBar_DrawString(this, &minifont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
+            SBar_DrawString(this, &textfont, "S E R P E N T   C A M", 0, 0, DI_TEXT_ALIGN_CENTER | DI_SCREEN_CENTER_TOP, CR_UNTRANSLATED, 1, -1, 0, 1, 1);
         }
     }
 
