@@ -133,8 +133,6 @@ int RandomSize(int nSize);
 
 // record
 
-extern short record_mode;
-
 // save
 
 // trigdat

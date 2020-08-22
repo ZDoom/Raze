@@ -30,7 +30,6 @@ set( PCH_SOURCES
 	src/ra.cpp
 	src/random.cpp
 	src/rat.cpp
-	src/record.cpp
 	src/rex.cpp
 	src/roach.cpp
 	src/runlist.cpp

@@ -54,7 +54,6 @@ BEGIN_PS_NS
     extern const char* s_buildTimestamp;
 
 
-void FinishLevel();
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
 void InitFonts();
@@ -1923,13 +1922,12 @@ GAMELOOP:
                     GameMove();
                     if (EndLevel)
                     {
-                        EndLevel = false;
-                        FinishLevel();
-                        break;
+                        goto getoutofhere;
                     }
                 }
             }
         }
+ getoutofhere:
         bInMove = false;
 
         PlayerInterruptKeys();
@@ -1939,7 +1937,7 @@ GAMELOOP:
             GameDisplay();
         }
 
-        if (!bInDemo)
+        if (!EndLevel)
         {
             nMenu = MenuExitCondition;
             if (nMenu != -2)
@@ -2018,9 +2016,11 @@ GAMELOOP:
                 SetAirFrame();
             }
         }
-        if (record_mode == 3 && movefifopos == movefifoend) {
-            levelnew = 0;
-        }
+		else
+		{
+            EndLevel = false;
+            FinishLevel();
+		}
         fps++;
     }
 EXITGAME:
