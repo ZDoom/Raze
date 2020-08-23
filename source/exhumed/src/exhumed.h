@@ -158,6 +158,7 @@ void GameTicker();
 void InitLevel(int);
 void InitGame();
 void InitNewGame();
+void startmainmenu();
 
 extern bool EndLevel;
 extern int32_t g_commandSetup;
@@ -220,8 +221,6 @@ extern short levelnew;
 extern short nSnakeCam;
 
 extern short bCoordinates;
-
-extern short bHolly;
 
 extern int totalmoves;
 

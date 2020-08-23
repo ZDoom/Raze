@@ -207,6 +207,12 @@ void InitLevel(int level)
     movefifopos = movefifoend;
 
     RefreshStatus();
+
+    int nTrack = level;
+    if (nTrack != 0) nTrack--;
+
+    playCDtrack((nTrack % 8) + 11, true);
+
 }
 
 void InitNewGame()

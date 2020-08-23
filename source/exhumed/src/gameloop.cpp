@@ -232,6 +232,152 @@ static void GameDisplay(void)
     videoNextPage();
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void startmainmenu()
+{
+    gamestate = GS_MENUSCREEN;
+    M_StartControlPanel(false);
+    M_SetMenu(NAME_Mainmenu);
+    StopAllSounds();
+}
+
+void drawmenubackground()
+{
+    auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
+    int dword_9AB5F = ((int)totalclock / 16) & 3;
+
+    twod->ClearScreen();
+
+    DrawRel(kSkullHead, 160, 100, 32);
+    DrawRel(kSkullJaw, 161, 130, 32);
+    DrawRel(nLogoTile, 160, 40, 32);
+
+    // draw the fire urn/lamp thingies
+    DrawRel(kTile3512 + dword_9AB5F, 50, 150, 32);
+    DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 32);
+
+}
+
+
+void CheckProgression()
+{
+    if (EndLevel)
+    {
+        EndLevel = false;
+        FinishLevel();
+    }
+    if (levelnew > -1)
+    {
+        if (levelnew > 99)
+        {
+            // end the game (but don't abort like the original game did!)
+            gamestate = GS_STARTUP;
+        }
+        else if (levelnew == -2)
+        {
+            // A savegame was loaded. Just start the level without any further actions.
+            gamestate = GS_LEVEL;
+        }
+        else
+        {
+            // start a new game at the given level
+            if (!nNetPlayerCount && levelnew <= kMap20)
+            {
+                levelnew = showmap(levelnum, levelnew, nBestLevel);
+            }
+
+            if (levelnew > nBestLevel)
+            {
+                nBestLevel = levelnew;
+            }
+            InitNewGame();
+        }
+    }
+
+}
+
+
+void GameLoop()
+{
+    CheckKeys();
+    GameTicker();
+    PlayerInterruptKeys();
+    CheckKeys2();
+    fps++;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int app_loop()// GameInterface::app_main()
+{
+    InitGame();
+    gamestate = GS_STARTUP;
+
+    while (true)
+    {
+        try
+        {
+            HandleAsync();
+            updatePauseStatus();
+            D_ProcessEvents();
+            CheckProgression();
+            switch (gamestate)
+            {
+            default:
+            case GS_STARTUP:
+                totalclock = 0;
+                ototalclock = 0;
+
+                if (userConfig.CommandMap.IsNotEmpty())
+                {
+                    auto map = FindMapByName(userConfig.CommandMap);
+                    if (map) levelnew = map->levelNumber;
+                    userConfig.CommandMap = "";
+                    continue;
+                }
+                else
+                {
+                    DoTitle([](bool) { startmainmenu(); });
+                }
+                break;
+
+            case GS_MENUSCREEN:
+            case GS_FULLCONSOLE:
+                drawmenubackground();
+                break;
+
+            case GS_LEVEL:
+                GameLoop();
+                GameDisplay();
+                break;
+
+            case GS_INTERMISSION:
+            case GS_INTRO:
+                RunScreenJobFrame();	// This handles continuation through its completion callback.
+                break;
+
+            }
+            videoNextPage();
+            videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
+        }
+        catch (CRecoverableError& err)
+        {
+            C_FullConsole();
+            Printf(TEXTCOLOR_RED "%s\n", err.what());
+        }
+    }
+}
+
+
 
 int GameInterface::app_main()
 {
@@ -251,22 +397,15 @@ int GameInterface::app_main()
         goto STARTGAME1;
     }
 
-MENU:
     SavePosition = -1;
     nMenu = menu_Menu(0);
     switch (nMenu)
     {
-    case -1:
-        goto MENU;
-    case 0:
-        goto EXITGAME;
     case 3:
         forcelevel = 0;
         goto STARTGAME2;
     case 6:
         goto GAMELOOP;
-    case 9:
-        goto MENU;
     }
 STARTGAME1:
     levelnew = 1;
@@ -277,26 +416,13 @@ STARTGAME1:
 STARTGAME2:
 
     InitNewGame();
-    if (nMenu == 2)
-    {
-        levelnew = 1;
-        levelnum = 1;
-        levelnew = menu_GameLoad(SavePosition);
-    }
 
     nBestLevel = levelnew - 1;
 LOOP1:
 
-    if (nPlayerLives[nLocalPlayer] <= 0) {
-        goto MENU;
-    }
-    if (levelnew > 99) {
-        goto EXITGAME;
-    }
     if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
         menu_GameSave(SavePosition);
     }
-LOOP2:
     if (!nNetPlayerCount && levelnew > 0 && levelnew <= kMap20) {
         levelnew = showmap(levelnum, levelnew, nBestLevel);
     }
@@ -304,7 +430,6 @@ LOOP2:
     if (levelnew > nBestLevel) {
         nBestLevel = levelnew;
     }
-LOOP3:
     InitLevel(levelnew);
     tclocks = totalclock;
     levelnew = -1;
@@ -320,87 +445,16 @@ GAMELOOP:
         HandleAsync();
         C_RunDelayedCommands();
 
-        // Section B
-        if (!CDplaying() && !nFreeze && !nNetPlayerCount)
-        {
-            int nTrack = levelnum;
-            if (nTrack != 0) {
-                nTrack--;
-            }
-
-            playCDtrack((nTrack % 8) + 11, true);
-        }
-
-// TODO		CONTROL_GetButtonInput();
         updatePauseStatus();
-        CheckKeys();
+        GameLoop();
+        GameDisplay();
 
-        bInMove = true;
-
-        if (paused)
-        {
-            tclocks = totalclock - 4;
-            buttonMap.ResetButtonStates();
-        }
-        else
-        {
-            GameTicker();
-        }
-        bInMove = false;
-
-        PlayerInterruptKeys();
-
-        if (G_FPSLimit())
-        {
-            GameDisplay();
-        }
-
-        if (!EndLevel)
-        {
-            nMenu = MenuExitCondition;
-            if (nMenu != -2)
-            {
-                MenuExitCondition = -2;
-// MENU2:
-                bInMove = true;
-
-                switch (nMenu)
-                {
-                    case 0:
-                        goto EXITGAME;
-
-                    case 1:
-                        goto STARTGAME1;
-
-                    case 2:
-                        levelnum = levelnew = menu_GameLoad(SavePosition);
-                        nBestLevel = levelnew - 1;
-                        goto LOOP2;
-
-                    case 3:
-                        forcelevel = 0;
-                        goto STARTGAME2;
-                    case 6:
-                        goto GAMELOOP;
-                }
-
-                totalclock = ototalclock = tclocks;
-                bInMove = false;
-                RefreshStatus();
-            }
-			CheckKeys2();
-        }
-		else
+        if (EndLevel)
 		{
             EndLevel = false;
             FinishLevel();
 		}
-        fps++;
     }
-EXITGAME:
-
-    ExitGame();
-    return 0;
 }
 
 
