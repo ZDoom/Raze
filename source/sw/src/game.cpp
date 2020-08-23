@@ -712,6 +712,7 @@ void EndOfLevel()
     if (FinishedLevel)
     {
         //ResetPalette(mpp);
+        FinishedLevel = false;
         COVER_SetReverb(0); // Reset reverb
         Player[myconnectindex].Reverb = 0;
         StopSound();
@@ -857,6 +858,7 @@ void GameInterface::RunGameFrame()
         SavegameLoaded = false;
         ExitLevel = false;
         FinishAnim = 0;
+        FinishedLevel = false;
         throw;
     }
 
