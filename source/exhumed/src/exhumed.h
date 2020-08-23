@@ -111,6 +111,7 @@ void DebugOut(const char *fmt, ...);
 int ExhumedMain(int argc, char *argv[]);
 
 void FinishLevel();
+void ResetEngine();
 
 void SetHiRes();
 
@@ -151,6 +152,12 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 int DoSpiritHead();
 
 void HandleAsync();
+void CheckKeys();
+void CheckKeys2();
+void GameTicker();
+void InitLevel(int);
+void InitGame();
+void InitNewGame();
 
 extern bool EndLevel;
 extern int32_t g_commandSetup;
@@ -219,10 +226,15 @@ extern short bHolly;
 extern int totalmoves;
 
 extern int lCountDown;
+extern short nAlarmTicks;
+extern short nRedTicks;
+extern short nClockVal;
 
 extern short bSlipMode;
 
 extern int bVanilla;
+extern short fps;
+extern short bInMove;
 
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
 #define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)

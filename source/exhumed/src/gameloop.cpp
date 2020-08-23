@@ -54,12 +54,7 @@ short nBestLevel;
 int forcelevel = -1;
 static int32_t nonsharedtimer;
 
-extern short nAlarmTicks;
-extern short nRedTicks;
-extern short nClockVal;
 extern int MenuExitCondition;
-extern short fps;
-extern short bInMove;
 
 extern short nCinemaSeen[30];
 extern ClockTicks tclocks;
@@ -72,10 +67,6 @@ void DrawClock();
 int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
 int SyncScreenJob();
 void DoTitle(CompletionFunc completion);
-void ResetEngine();
-void CheckKeys();
-void CheckKeys2();
-void GameTicker();
 
 void FinishLevel()
 {
@@ -245,7 +236,6 @@ static void GameDisplay(void)
 int GameInterface::app_main()
 {
     int nMenu = 0;
-    int lastlevel;
 
     InitGame();
     if (!userConfig.nologo)
@@ -286,43 +276,12 @@ STARTGAME1:
     }
 STARTGAME2:
 
-    bCamera = false;
-    ClearCinemaSeen();
-    PlayerCount = 0;
-    lastlevel = -1;
-
-    for (int i = 0; i < nTotalPlayers; i++)
-    {
-        int nPlayer = GrabPlayer();
-        if (nPlayer < 0) {
-            I_Error("Can't create local player\n");
-        }
-
-        InitPlayerInventory(nPlayer);
-    }
-
-    nNetMoves = 0;
-
-    if (forcelevel > -1)
-    {
-        // YELLOW SECTION
-        levelnew = forcelevel;
-        UpdateInputs();
-        forcelevel = -1;
-
-        goto LOOP3;
-    }
-
-    // PINK SECTION
-    UpdateInputs();
-    nNetMoves = 1;
-
+    InitNewGame();
     if (nMenu == 2)
     {
         levelnew = 1;
         levelnum = 1;
         levelnew = menu_GameLoad(SavePosition);
-        lastlevel = -1;
     }
 
     nBestLevel = levelnew - 1;
@@ -346,61 +305,9 @@ LOOP2:
         nBestLevel = levelnew;
     }
 LOOP3:
-    while (levelnew != -1)
-    {
-        // BLUE
-        if (CDplaying()) {
-            fadecdaudio();
-        }
-
-        if (levelnew == kMap20)
-        {
-            lCountDown = 81000;
-            nAlarmTicks = 30;
-            nRedTicks = 0;
-            nClockVal = 0;
-            nEnergyTowers = 0;
-        }
-
-        if (!LoadLevel(levelnew)) {
-            // TODO "Can't load level %d...\n", nMap;
-            goto EXITGAME;
-        }
-        levelnew = -1;
-    }
-    /* don't restore mid level savepoint if re-entering just completed level
-    if (nNetPlayerCount == 0 && lastlevel == levelnum)
-    {
-        RestoreSavePoint(nLocalPlayer, &initx, &inity, &initz, &initsect, &inita);
-    }
-    */
-    lastlevel = levelnum;
-
-    for (int i = 0; i < nTotalPlayers; i++)
-    {
-        SetSavePoint(i, initx, inity, initz, initsect, inita);
-        RestartPlayer(i);
-        InitPlayerKeys(i);
-    }
-
-    fps = 0;
-    lastfps = 0;
-    InitStatus();
-    ResetView();
-    ResetEngine();
-    totalmoves = 0;
-    GrabPalette();
-    ResetMoveFifo();
-    moveframes = 0;
-    bInMove = false;
+    InitLevel(levelnew);
     tclocks = totalclock;
-    nPlayerDAng = 0;
-    lPlayerXVel = 0;
-    lPlayerYVel = 0;
-    movefifopos = movefifoend;
-
-    RefreshStatus();
-
+    levelnew = -1;
     // Game Loop
 GAMELOOP:
     while (1)
@@ -467,7 +374,6 @@ GAMELOOP:
 
                     case 2:
                         levelnum = levelnew = menu_GameLoad(SavePosition);
-                        lastlevel = -1;
                         nBestLevel = levelnew - 1;
                         goto LOOP2;
 

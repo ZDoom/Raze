@@ -134,7 +134,6 @@ int nNetPlayerCount = 0;
 short nClockVal;
 short fps;
 short nRedTicks;
-short lastlevel;
 short bInMove;
 short nAlarmTicks;
 short nButtonColor;

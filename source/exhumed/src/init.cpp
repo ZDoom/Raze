@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mapinfo.h"
 #include "gamecontrol.h"
 #include "v_video.h"
+#include "status.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -68,6 +69,15 @@ uint8_t bIsVersion6 = true;
 
 uint8_t LoadLevel(int nMap)
 {
+    if (nMap == kMap20)
+    {
+        lCountDown = 81000;
+        nAlarmTicks = 30;
+        nRedTicks = 0;
+        nClockVal = 0;
+        nEnergyTowers = 0;
+    }
+
     initspritelists();
 
     currentLevel = &mapList[nMap];
@@ -165,6 +175,61 @@ uint8_t LoadLevel(int nMap)
     levelnum = nMap;
 
     return true;
+}
+
+void InitLevel(int level)
+{
+    StopCD();
+    if (!LoadLevel(level)) {
+        I_Error("Can't load level %d...\n", level);
+    }
+
+    for (int i = 0; i < nTotalPlayers; i++)
+    {
+        SetSavePoint(i, initx, inity, initz, initsect, inita);
+        RestartPlayer(i);
+        InitPlayerKeys(i);
+    }
+
+    fps = 0;
+    lastfps = 0;
+    InitStatus();
+    ResetView();
+    ResetEngine();
+    totalmoves = 0;
+    GrabPalette();
+    ResetMoveFifo();
+    moveframes = 0;
+    bInMove = false;
+    nPlayerDAng = 0;
+    lPlayerXVel = 0;
+    lPlayerYVel = 0;
+    movefifopos = movefifoend;
+
+    RefreshStatus();
+}
+
+void InitNewGame()
+{
+    bCamera = false;
+    ClearCinemaSeen();
+    PlayerCount = 0;
+
+    for (int i = 0; i < nTotalPlayers; i++)
+    {
+        int nPlayer = GrabPlayer();
+        if (nPlayer < 0) {
+            I_Error("Can't create local player\n");
+        }
+
+        InitPlayerInventory(nPlayer);
+    }
+
+    nNetMoves = 0;
+
+    // PINK SECTION
+    UpdateInputs();
+    nNetMoves = 1;
 }
 
 void SetBelow(short nCurSector, short nBelowSector)
