@@ -472,7 +472,6 @@ void SaveEngineState()
 	fw->Write(&myconnectindex, sizeof(myconnectindex));
 	fw->Write(&connecthead, sizeof(connecthead));
 	fw->Write(connectpoint2, sizeof(connectpoint2));
-	fw->Write(&numframes, sizeof(numframes));
 	fw->Write(&randomseed, sizeof(randomseed));
 	fw->Write(&numshades, sizeof(numshades));
 	fw->Write(&automapping, sizeof(automapping));
@@ -536,7 +535,6 @@ void LoadEngineState()
 		fr.Read(&myconnectindex, sizeof(myconnectindex));
 		fr.Read(&connecthead, sizeof(connecthead));
 		fr.Read(connectpoint2, sizeof(connectpoint2));
-		fr.Read(&numframes, sizeof(numframes));
 		fr.Read(&randomseed, sizeof(randomseed));
 		fr.Read(&numshades, sizeof(numshades));
 		fr.Read(&automapping, sizeof(automapping));

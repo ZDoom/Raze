@@ -118,6 +118,7 @@ void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
 void app_loop();
+void DrawFullscreenBlends();
 
 
 bool AppActive;
@@ -847,6 +848,7 @@ int RunGame()
 	gamestate = GS_LEVEL;
 	gi->app_init();
 	app_loop();
+	return 0; // this is never reached. app_loop only exits via exception.
 }
 
 //---------------------------------------------------------------------------
@@ -863,7 +865,21 @@ void app_loop()
 	{
 		try
 		{
+			twod->SetSize(screen->GetWidth(), screen->GetHeight());
+			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
+			I_SetFrameTime();
+
 			gi->RunGameFrame();
+
+			// Draw overlay elements to the 2D drawer
+			FStat::PrintStat(twod);
+			C_DrawConsole();
+			M_Drawer();
+
+			// Handle the final 2D overlays.
+			if (gamestate == GS_LEVEL) DrawFullscreenBlends();
+			DrawRateStuff();
+
 			videoNextPage();
 			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
 		}

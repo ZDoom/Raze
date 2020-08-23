@@ -29,8 +29,7 @@ BEGIN_PS_NS
 
 void resettiming()
 {
-    numframes = 0L;
-    totalclock = 0L;
+    totalclock = 0;
 // TODO	totalclocklock = 0L;
 }
 

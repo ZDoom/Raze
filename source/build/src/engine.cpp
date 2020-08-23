@@ -1275,8 +1275,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 {
     int32_t i;
 
-    beforedrawrooms = 0;
-
     set_globalpos(daposx, daposy, daposz);
     set_globalang(daang);
 
@@ -1921,8 +1919,6 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
     renderSetAspect(65536, divscale16((320*5)/8, 200));
-
-    beforedrawrooms = 0;
 
     Bmemset(gotsector, 0, sizeof(gotsector));
 
@@ -2723,28 +2719,13 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     return 0;
 }
 
-void DrawFullscreenBlends();
-
 //
 // nextpage
 //
 void videoNextPage(void)
 {
-    // Draw overlay elements to the 2D drawer
-	FStat::PrintStat(twod);
-	C_DrawConsole();
-    M_Drawer();
-
-    // Handle the final 2D overlays.
-    if (gamestate == GS_LEVEL) DrawFullscreenBlends();
-    DrawRateStuff();
-
-    if (in3dmode())
-    {
- 		g_beforeSwapTime = timerGetHiTicks();
-
-		videoShowFrame(0);
-    }
+ 	g_beforeSwapTime = timerGetHiTicks();
+	videoShowFrame(0);
 
     omdtims = mdtims;
     mdtims = timerGetTicks();
@@ -2752,13 +2733,6 @@ void videoNextPage(void)
     for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
             spriteext[i].mdanimtims += mdtims - omdtims;
-
-    beforedrawrooms = 1;
-    numframes++;
-    // This should be in the main loop but with some of the games still having multiple render loops it cannot be moved out of here
-    twod->SetSize(screen->GetWidth(), screen->GetHeight());
-    twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
-    I_SetFrameTime(); 
 }
 
 //

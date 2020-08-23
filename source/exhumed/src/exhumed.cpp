@@ -77,8 +77,6 @@ void ResetEngine()
     totalclock  = 0;
     ototalclock = totalclock;
     localclock  = (int)totalclock;
-
-    numframes = 0;
 }
 
 void InstallEngine()

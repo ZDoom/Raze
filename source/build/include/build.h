@@ -369,7 +369,7 @@ EXTERN int32_t display_mirror;
 EXTERN ClockTicks totalclock, totalclocklock;
 static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 
-EXTERN int32_t numframes, randomseed;
+EXTERN int32_t randomseed;
 EXTERN int16_t sintable[2048];
 
 EXTERN int16_t numshades;
