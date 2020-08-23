@@ -173,15 +173,11 @@ uint8_t LoadLevel(int nMap)
     precache();
 
     LoadObjects();
-
-    levelnum = nMap;
-
     return true;
 }
 
 void InitLevel(int level)
 {
-    levelnum = level;
     StopCD();
     if (!LoadLevel(level)) {
         I_Error("Can't load level %d...\n", level);

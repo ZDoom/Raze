@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "menu.h"
 #include "sound.h"
+#include "mapinfo.h"
 #include "v_video.h"
 #include "glbackend/glbackend.h"
 #include <string.h>
@@ -433,7 +434,7 @@ void DrawView(int smoothRatio, bool sceneonly)
                     if (bSubTitles)
                     {
                         subtitleOverlay.Start(totalclock);
-                        if (levelnum == 1)
+                        if (currentLevel->levelNumber == 1)
                             subtitleOverlay.ReadyCinemaText(1);
                         else
                             subtitleOverlay.ReadyCinemaText(5);

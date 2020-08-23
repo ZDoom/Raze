@@ -158,7 +158,6 @@ short nCodeMin = 0;
 short nCodeMax = 0;
 short nCodeIndex = 0;
 
-short levelnum = -1;
 //short nScreenWidth = 320;
 //short nScreenHeight = 200;
 int moveframes;
@@ -458,7 +457,7 @@ void GameMove(void)
 {
     FixPalette();
 
-    if (levelnum == kMap20)
+    if (currentLevel->levelNumber == kMap20)
     {
         if (lCountDown <= 0)
         {
@@ -780,7 +779,6 @@ static SavegameHelper sgh("exhumed",
     SV(nEnergyChan),
     SV(lCountDown),
     SV(nEnergyTowers),
-    SV(levelnum),
     SV(moveframes),
     SV(totalmoves),
     SV(nCurBodyNum),

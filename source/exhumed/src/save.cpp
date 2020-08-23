@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "mmulti.h"
 #include "savegamehelp.h"
 #include "sound.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -62,7 +63,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     ototalclock = totalclock;
     GameAction = 1000;
 
-    if (levelnum > 15)
+    if (currentLevel->levelNumber > 15)
     {
         nSwitchSound = 35;
         nStoneSound = 23;

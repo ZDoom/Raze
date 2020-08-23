@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include "sequence.h"
 #include "player.h"
+#include "mapinfo.h"
 #include <string.h>
 #include <assert.h>
 
@@ -2099,7 +2100,7 @@ FUNCOBJECT_GOTO:
                     }
                 }
 
-                if (levelnum <= 20 || nStat != kStatExplodeTrigger)
+                if (currentLevel->levelNumber <= 20 || nStat != kStatExplodeTrigger)
                 {
                     runlist_SubRunRec(sprite[nSprite].owner);
                     runlist_SubRunRec(ObjectList[nObject].field_4);
@@ -2554,7 +2555,7 @@ void PostProcess()
         }
     }
 
-    if (levelnum != kMap20)
+    if (currentLevel->levelNumber != kMap20)
     {
         // esi is i
         for (i = 0; i < numsectors; i++)

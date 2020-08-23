@@ -183,7 +183,6 @@ extern short nBodyTotal;
 extern short bSnakeCam;
 extern uint8_t nCinemaSeen;
 
-extern short levelnum;
 //extern short nScreenWidth;
 //extern short nScreenHeight;
 

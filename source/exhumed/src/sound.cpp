@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "player.h"
 #include "sequence.h"
 #include "raze_sound.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -656,7 +657,7 @@ void CheckAmbience(short nSector)
 
 void UpdateCreepySounds()
 {
-    if (levelnum == 20 || nFreeze)
+    if (currentLevel->levelNumber == 20 || nFreeze)
         return;
     spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;

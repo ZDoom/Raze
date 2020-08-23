@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "status.h"
 #include "sound.h"
+#include "mapinfo.h"
 #include <string.h>
 #include <assert.h>
 
@@ -180,7 +181,7 @@ void MoveThings()
     DoMovingSects();
     DoRegenerates();
 
-    if (levelnum == kMap20)
+    if (currentLevel->levelNumber == kMap20)
     {
         DoFinale();
         if (lCountDown < 1800 && nDronePitch < 2400 && !lFinaleStart)

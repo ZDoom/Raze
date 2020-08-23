@@ -67,8 +67,9 @@ void DoTitle(CompletionFunc completion);
 
 static int FinishLevel(TArray<JobDesc> &jobs)
 {
-    if (levelnum > nBestLevel) {
-        nBestLevel = levelnum - 1;
+    int lnum = currentLevel->levelNumber;
+    if (lnum > nBestLevel) {
+        nBestLevel = lnum - 1;
     }
 
 
@@ -77,8 +78,8 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     bCamera = false;
     nMapMode = 0;
 
-    STAT_Update(levelnum == kMap20);
-    if (levelnum != kMap20)
+    STAT_Update(lnum == kMap20);
+    if (lnum != kMap20)
     {
         if (EndLevel != 2)
         {
@@ -90,8 +91,8 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     }
     else nPlayerLives[0] = 0;
 
-    DoAfterCinemaScene(levelnum, jobs);
-    return levelnum == kMap20? -1 : levelnum + 1;
+    DoAfterCinemaScene(lnum, jobs);
+    return lnum == kMap20? -1 : lnum + 1;
 }
 
 
@@ -112,7 +113,7 @@ static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobD
 
 static void GameDisplay(void)
 {
-    if (levelnum == kMap20)
+    if (currentLevel->levelNumber == kMap20)
     {
         DoEnergyTile();
         DrawClock();
@@ -184,6 +185,7 @@ void CheckProgression()
         if (GameAction < 1000)
         {
             // start a new game on the given level
+            currentLevel = nullptr;
             mylevelnew = GameAction;
             GameAction = -1;
             InitNewGame();
@@ -200,7 +202,7 @@ void CheckProgression()
     }
     else if (EndLevel)
     {
-        if (levelnum == 0) startmainmenu();
+        if (currentLevel->levelNumber == 0) startmainmenu();
         else mylevelnew = FinishLevel(jobs);
         EndLevel = false;
     }
@@ -210,7 +212,7 @@ void CheckProgression()
         // start a new game at the given level
         if (!nNetPlayerCount && mylevelnew > 0)
         {
-            showmap(levelnum, mylevelnew, nBestLevel, jobs);
+            showmap(currentLevel? currentLevel->levelNumber : -1, mylevelnew, nBestLevel, jobs);
         }
         else
             jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.

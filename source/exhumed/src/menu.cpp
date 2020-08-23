@@ -293,7 +293,7 @@ void menu_GameSave2(FILE* fp)
 {
     memset(&GameStats, 0, sizeof(GameStats));
 
-    GameStats.nMap = (uint8_t)levelnum;
+    //GameStats.nMap = (uint8_t)levelnum;
     GameStats.nWeapons = nPlayerWeapons[nLocalPlayer];
     GameStats.nCurrentWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
     GameStats.clip = nPlayerClip[nLocalPlayer];

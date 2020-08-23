@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "buildtiles.h"
 #include "gstrings.h"
 #include "gamestate.h"
+#include "mapinfo.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -628,7 +629,7 @@ void RestartPlayer(short nPlayer)
     PlayerList[nPlayer].nAir = 100;
     airpages = 0;
 
-    if (levelnum <= kMap20)
+    if (currentLevel->levelNumber <= kMap20)
     {
         RestoreMinAmmo(nPlayer);
     }
@@ -789,7 +790,7 @@ void StartDeathSeq(int nPlayer, int nVal)
             BuildStatusAnim((3 * (nLives - 1)) + 7, 0);
         }
 
-        if (levelnum > 0) { // if not on the training level
+        if (currentLevel->levelNumber > 0) { // if not on the training level
             nPlayerLives[nPlayer]--;
         }
 
@@ -1265,7 +1266,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
 
                         nDestVertPan[nPlayer] = F16(92);
 
-                        if (levelnum == 11)
+                        if (currentLevel->levelNumber == 11)
                         {
                             nDestVertPan[nPlayer] += F16(46);
                         }
@@ -1728,7 +1729,7 @@ do_default:
                                 // loc_1B3C7
 
                                 // CHECKME - is order of evaluation correct?
-                                if (levelnum <= 20 || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
+                                if (currentLevel->levelNumber <= 20 || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                                 {
                                     DestroyItemAnim(nValB);
                                     mydeletesprite(nValB);
@@ -2184,7 +2185,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2246,7 +2247,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2308,7 +2309,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2370,7 +2371,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2432,7 +2433,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2494,7 +2495,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (levelnum > 20)
+                                    if (currentLevel->levelNumber > 20)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2954,7 +2955,7 @@ loc_1BD2E:
                         }
                         else
                         {
-                            DoGameOverScene((levelnum == 20));
+                            DoGameOverScene((currentLevel->levelNumber == 20));
                             return;
                         }
                     }

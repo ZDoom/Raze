@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "engine.h"
 #include "sequence.h"
+#include "mapinfo.h"
 #include <assert.h>
 
 BEGIN_PS_NS
@@ -219,7 +220,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %d\n", levelnum);
+        I_Error("too many bubble machines in level %d\n", currentLevel->levelNumber);
         exit(-1);
     }
 

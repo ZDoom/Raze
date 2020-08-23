@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "status.h"
 #include "engine.h"
 #include "ps_input.h"
+#include "mapinfo.h"
 
 BEGIN_PS_NS
 
@@ -435,7 +436,7 @@ void StartRegenerate(short nSprite)
     pSprite->extra = 1350;
     pSprite->ang = nFirstRegenerate;
 
-    if (levelnum <= kMap20)
+    if (currentLevel->levelNumber <= kMap20)
     {
         pSprite->ang /= 5;
     }

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include "aistuff.h"
 #include "player.h"
+#include "mapinfo.h"
 
 
 BEGIN_PS_NS
@@ -137,7 +138,7 @@ void InitSpiritHead()
 
     int nTrack;
 
-    if (levelnum == 1)
+    if (currentLevel->levelNumber == 1)
     {
         nTrack = 3;
     }
@@ -150,7 +151,7 @@ void InitSpiritHead()
 
     StartSwirlies();
 
-    sprintf(filename, "LEV%d.PUP", levelnum);
+    sprintf(filename, "LEV%d.PUP", currentLevel->levelNumber);
     lNextStateChange = (int)totalclock;
     lHeadStartClock = (int)totalclock;
 
