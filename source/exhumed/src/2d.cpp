@@ -813,7 +813,9 @@ public:
 	 {
 		 return;
 	 }
+#ifdef _DEBUG
      nLevelBest = kMap20;
+#endif
 
 	 if (nLevel < 1) nLevel = 1;
 	 if (nLevelNew < 1) nLevelNew = nLevel;
@@ -848,7 +850,7 @@ void TextOverlay::ComputeCinemaText()
 
 void TextOverlay::ReadyCinemaText(uint16_t nVal)
 {
-    FStringf label("TXT_EX_LASTLEVEL%d", nVal + 1);
+    FStringf label("TXT_EX_CINEMA%d", nVal + 1);
     label = GStrings(label);
     screentext = label.Split("\n");
     ComputeCinemaText();

@@ -65,35 +65,37 @@ void DrawClock();
 int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
 void DoTitle(CompletionFunc completion);
 
-int levelnew = -1;
-
-void FinishLevel(TArray<JobDesc> jobs)
+static int FinishLevel(TArray<JobDesc> &jobs)
 {
     if (levelnum > nBestLevel) {
         nBestLevel = levelnum - 1;
     }
 
-    levelnew = levelnum + 1;
 
     StopAllSounds();
 
     bCamera = false;
     nMapMode = 0;
 
-    if (levelnum != kMap20 && EndLevel != 2)
+    STAT_Update(levelnum == kMap20);
+    if (levelnum != kMap20)
     {
-        // There's really no choice but to enter an active wait loop here to make the sound play out.
-        PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-        int nTicks = totalclock + 12;
-        while (nTicks > (int)totalclock) { HandleAsync(); }
+        if (EndLevel != 2)
+        {
+            // There's really no choice but to enter an active wait loop here to make the sound play out.
+            PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
+            int nTicks = totalclock + 12;
+            while (nTicks > (int)totalclock) { HandleAsync(); }
+        }
     }
     else nPlayerLives[0] = 0;
 
     DoAfterCinemaScene(levelnum, jobs);
+    return levelnum == kMap20? -1 : levelnum + 1;
 }
 
 
-void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> jobs)
+static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> &jobs)
 {
     if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
         nCinemaSeen |= 1;
@@ -175,18 +177,17 @@ void CheckProgression()
 {
     TArray<JobDesc> jobs;
     bool startlevel = false;
-    int mylevelnew = levelnew;
-
-    levelnew = -1;
+    int mylevelnew = -1;
 
     if (GameAction >= 0)
     {
         if (GameAction < 1000)
         {
             // start a new game on the given level
-            GameAction = -1;
             mylevelnew = GameAction;
+            GameAction = -1;
             InitNewGame();
+            if (mylevelnew > 0) STAT_StartNewGame("Exhumed", 1);
             if (mylevelnew != 0) nBestLevel = mylevelnew - 1;
         }
         else
@@ -200,7 +201,7 @@ void CheckProgression()
     else if (EndLevel)
     {
         if (levelnum == 0) startmainmenu();
-        else FinishLevel(jobs);
+        else mylevelnew = FinishLevel(jobs);
         EndLevel = false;
     }
     if (mylevelnew > -1 && mylevelnew < kMap20)
@@ -239,6 +240,7 @@ void CheckProgression()
 
                     if (selectedlevelnew == 11) nCinemaSeen |= 2;
                     if (mylevelnew != selectedlevelnew) STAT_Cancel();
+                    else STAT_NewLevel(currentLevel->labelName);
                 }
             });
     }
@@ -284,14 +286,13 @@ int GameInterface::app_main()
             case GS_STARTUP:
                 totalclock = 0;
                 ototalclock = 0;
-                levelnew = -1;
                 GameAction = -1;
                 EndLevel = false;
 
                 if (userConfig.CommandMap.IsNotEmpty())
                 {
                     auto map = FindMapByName(userConfig.CommandMap);
-                    if (map) levelnew = map->levelNumber;
+                    if (map) GameAction = map->levelNumber;
                     userConfig.CommandMap = "";
                     continue;
                 }
@@ -322,7 +323,6 @@ int GameInterface::app_main()
         catch (CRecoverableError& err)
         {
             // Clear all progression sensitive variables here.
-            levelnew = -1;
             GameAction = -1;
             EndLevel = false;
             C_FullConsole();

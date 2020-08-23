@@ -184,6 +184,7 @@ void InitLevel(int level)
     if (!LoadLevel(level)) {
         I_Error("Can't load level %d...\n", level);
     }
+    currentLevel = FindMapByLevelNum(level);
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
