@@ -964,12 +964,8 @@ void M_ClearMenus (bool final)
 	if (!final)
 	{
 		gi->MenuClosed();
+		if (gamestate == GS_MENUSCREEN) C_FullConsole();
 	}
-}
-
-void Menu_Close(int playerid)
-{
-	M_ClearMenus();
 }
 
 bool M_Active()

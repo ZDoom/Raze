@@ -45,7 +45,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-inline int playercolor2lookup(int color)
+int playercolor2lookup(int color)
 {
 	static int8_t player_pals[] = { 0, 9, 10, 11, 12, 13, 14, 15, 16, 21, 23, };
 	if (color >= 0 && color < 10) return player_pals[color];
