@@ -238,12 +238,6 @@ void ctrlGetInput(void)
         }
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
-    {
-        buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
-        cl_crosshair = !cl_crosshair;
-    }
-
     if (gPlayer[myconnectindex].nextWeapon == 0)
     {
     }

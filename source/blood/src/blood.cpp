@@ -708,7 +708,6 @@ static const char* actions[] = {
     "Map_Follow_Mode",
     "See_Coop_View",
     "Mouse_Aiming",
-    "Toggle_Crosshair",
     "Dpad_Select",
     "Dpad_Aiming",
     "Third_Person_View",

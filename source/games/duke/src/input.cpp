@@ -117,13 +117,6 @@ void nonsharedkeys(void)
 		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
 	}
 
-	if (buttonMap.ButtonDown(gamefunc_Toggle_Crosshair))
-	{
-		buttonMap.ClearButton(gamefunc_Toggle_Crosshair);
-		cl_crosshair = !cl_crosshair;
-		FTA(QUOTE_CROSSHAIR_OFF - cl_crosshair, &ps[screenpeek]);
-	}
-
 	if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
 	{
 		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);

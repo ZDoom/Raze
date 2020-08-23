@@ -1,5 +1,5 @@
 U "+Mouse_Aiming"
-I "+Toggle_Crosshair"
+I "toggle cl_crosshair"
 Scroll "+Holster_Weapon"
 B "BeastVision"
 C "CrystalBall"

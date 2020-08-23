@@ -59,7 +59,6 @@ enum GameFunction_t
 	gamefunc_Map_Follow_Mode,
 	gamefunc_See_Coop_View,
 	gamefunc_Mouse_Aiming,
-	gamefunc_Toggle_Crosshair,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
 	gamefunc_Third_Person_View,

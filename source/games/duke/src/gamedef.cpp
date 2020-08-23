@@ -1850,6 +1850,9 @@ void ConCompiler::compilecon(const char *filenam)
 		Printf(TEXTCOLOR_ORANGE "Found %d warning(s), %d error(s).\n", warningcount, errorcount);
 	if (errorcount > 0) I_FatalError("Failed to compile %s", filenam);
 
+
+	// Install the crosshair toggle messages in the CVAR.
+	cl_crosshair.SetToggleMessages(quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF), quoteMgr.GetRawQuote(QUOTE_CROSSHAIR_OFF-1));
 }
 
 //==========================================================================

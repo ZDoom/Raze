@@ -262,7 +262,6 @@ static void SetupGameButtons()
 		"Map_Follow_Mode",
 		"See_Coop_View",
 		"Mouse_Aiming",
-		"Toggle_Crosshair",
 		"Quick_Kick",
 		"Dpad_Select",
 		"Dpad_Aiming",

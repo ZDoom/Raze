@@ -58,33 +58,14 @@ enum GameFunction_t
 	gamefunc_Strafe_Right,
 	gamefunc_Aim_Up,
 	gamefunc_Aim_Down,
-	gamefunc_Weapon_1,
-	gamefunc_Weapon_2,
-	gamefunc_Weapon_3,
-	gamefunc_Weapon_4,
-	gamefunc_Weapon_5,
-	gamefunc_Weapon_6,
-	gamefunc_Weapon_7,
-	gamefunc_Weapon_8,
-	gamefunc_Weapon_9,
-	gamefunc_Weapon_10,
-	gamefunc_Inventory,
-	gamefunc_Inventory_Left,
-	gamefunc_Inventory_Right,
-	gamefunc_TurnAround,
 	gamefunc_SendMessage,
 	gamefunc_Map,
 	gamefunc_Shrink_Screen,
 	gamefunc_Enlarge_Screen,
-	gamefunc_Center_View,
-	gamefunc_Holster_Weapon,
 	gamefunc_Show_Opponents_Weapon,
 	gamefunc_Map_Follow_Mode,
 	gamefunc_See_Coop_View,
 	gamefunc_Mouse_Aiming,
-	gamefunc_Toggle_Crosshair,
-	gamefunc_Next_Weapon,
-	gamefunc_Previous_Weapon,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
 	gamefunc_Last_Weapon,
@@ -321,6 +302,7 @@ struct GameInterface : ::GameInterface
     bool SaveGame(FSaveGameNode* sv) override;
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
+	void clearlocalinputstate();
 
     FString statFPS() override;
 	::GameStats getStats() override;

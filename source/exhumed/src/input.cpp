@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+int WeaponToSend, BitsToSend;
+
 int nNetMoves = 0;
 
 short nInputStack = 0;
@@ -76,18 +78,15 @@ void ClearSpaceBar(short nPlayer)
 
 void GetLocalInput()
 {
-    int i;
-    for (i = 6; i >= 0; i--)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Weapon_1+i))
-            break;
-    }
-    i++;
+    int i = WeaponToSend;
+    if (WeaponToSend == PlayerList[nLocalPlayer].nCurrentWeapon)
+        WeaponToSend = 0;
 
     if (PlayerList[nLocalPlayer].nHealth)
     {
         lLocalButtons = (buttonMap.ButtonDown(gamefunc_Crouch) << 4) | (buttonMap.ButtonDown(gamefunc_Fire) << 3)
-                      | (buttonMap.ButtonDown(gamefunc_Jump)<<0) | (i<<13);
+            | (buttonMap.ButtonDown(gamefunc_Jump) << 0);
+        lLocalCodes |= (i << 13);
     }
     else
     {
@@ -210,27 +209,57 @@ void CheckKeys2()
         lMapZoom = clamp(lMapZoom, 48, 2048);
     }
 
-    if (PlayerList[nLocalPlayer].nHealth > 0)
+    if (PlayerList[nLocalPlayer].nHealth <= 0)
     {
-        if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
-        {
-            SetPrevItem(nLocalPlayer);
-            buttonMap.ClearButton(gamefunc_Inventory_Left);
-        }
-        if (buttonMap.ButtonDown(gamefunc_Inventory_Right))
-        {
-            SetNextItem(nLocalPlayer);
-            buttonMap.ClearButton(gamefunc_Inventory_Right);
-        }
-        if (buttonMap.ButtonDown(gamefunc_Inventory))
-        {
-            UseCurItem(nLocalPlayer);
-            buttonMap.ClearButton(gamefunc_Inventory);
-        }
-    }
-    else {
         SetAirFrame();
     }
+}
+
+
+//---------------------------------------------------------------------------
+//
+// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
+// registration to only have the commands active when this game module runs.
+//
+//---------------------------------------------------------------------------
+
+static int ccmd_slot(CCmdFuncPtr parm)
+{
+    if (parm->numparms != 1) return CCMD_SHOWHELP;
+
+    auto slot = atoi(parm->parms[0]);
+    if (slot >= 1 && slot <= 7)
+    {
+        WeaponToSend = slot;
+        return CCMD_OK;
+    }
+    return CCMD_SHOWHELP;
+}
+
+int ccmd_centerview(CCmdFuncPtr parm);
+
+
+void registerinputcommands()
+{
+    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
+    //C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; return CCMD_OK; });
+    C_RegisterFunction("centerview", nullptr, ccmd_centerview);
+    C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetPrevItem(nLocalPlayer); return CCMD_OK; });
+    C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetNextItem(nLocalPlayer); return CCMD_OK; });
+    C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) UseCurItem(nLocalPlayer); return CCMD_OK; });
+    // todo: 
+    //C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
+    //C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
+    //C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
+
+}
+
+// This is called from ImputState::ClearAllInput and resets all static state being used here.
+void GameInterface::clearlocalinputstate()
+{
+    WeaponToSend = 0;
+    BitsToSend = 0;
+
 }
 
   END_PS_NS

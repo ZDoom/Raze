@@ -292,13 +292,6 @@ void PlayerInterruptKeys()
         bPlayerPan = true;
         nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
     }
-    else if (buttonMap.ButtonDown(gamefunc_Center_View))
-    {
-        bLockPan = false;
-        bPlayerPan = false;
-        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
-        nDestVertPan[nLocalPlayer] = fix16_from_int(92);
-    }
 
     // loc_1C048:
     if (totalvel[nLocalPlayer] > 20) {
@@ -3089,6 +3082,16 @@ loc_1BD2E:
             return;
         }
     }
+}
+
+int ccmd_centerview(CCmdFuncPtr parm)
+{
+    return CCMD_OK;
+    bLockPan = false;
+    bPlayerPan = false;
+    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
+    nDestVertPan[nLocalPlayer] = fix16_from_int(92);
+    return CCMD_OK;
 }
 
 

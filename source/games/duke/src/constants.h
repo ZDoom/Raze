@@ -31,7 +31,6 @@ enum GameFunction_t
 	gamefunc_Map_Follow_Mode, // CCMD
 	gamefunc_See_Coop_View, // CCMD
 	gamefunc_Mouse_Aiming, // CCMD
-	gamefunc_Toggle_Crosshair, // CCMD
 	gamefunc_Quick_Kick,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,

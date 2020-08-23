@@ -58,7 +58,6 @@ static short nAnimsFree = 0;
 
 short statusmask[MAXXDIM];
 
-short message_timer = 0;
 char message_text[80];
 int magicperline;
 int airperline;
@@ -147,7 +146,6 @@ void InitStatus()
     nItemSeq = -1;
     nAnimsFree = kMaxStatusAnims;
     statusx = xdim - 320;
-    message_timer = 0;
     statusy = ydim - 200;
 }
 
@@ -461,15 +459,6 @@ void MoveStatus()
                 nItemSeq += nItemAltSeq;
                 nItemFrames = SeqSize[nStatusSeqOffset + nItemSeq];
             }
-        }
-    }
-
-    if (message_timer)
-    {
-        message_timer -= 4;
-        if (message_timer <= 0)
-        {
-            message_timer = 0;
         }
     }
 
@@ -908,7 +897,6 @@ void DrawStatusBar()
 static SavegameHelper sgh("status",
     SV(nMaskY),
     SV(nAnimsFree),
-    SV(message_timer),
     SV(magicperline),
     SV(airperline),
     SV(healthperline),

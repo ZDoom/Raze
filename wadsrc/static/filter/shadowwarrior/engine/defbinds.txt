@@ -1,5 +1,5 @@
 //
-I "+Toggle_Crosshair"
+I "toggle cl_crosshair"
 Mouse2 "MedKit"
 M "MedKit"
 B "Smoke_Bomb"
