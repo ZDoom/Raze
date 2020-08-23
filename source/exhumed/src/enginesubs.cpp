@@ -27,33 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 
-void overwritesprite(int thex, int they, short tilenum, signed char shade, char stat, char dapalnum, int basepal)
-{
-    // no animation
-    uint8_t animbak = picanm[tilenum].sf;
-    picanm[tilenum].sf = 0;
-    int offx = 0, offy = 0;
-    if (stat & 1)
-    {
-        offx -= tilesiz[tilenum].x>>1;
-        if (stat & 8)
-            offx += tileLeftOffset(tilenum);
-        else
-            offx -= tileLeftOffset(tilenum);
-        offy -= (tilesiz[tilenum].y>>1)+tileTopOffset(tilenum);
-    }
-    if (stat&8)
-        offx += tilesiz[tilenum].x;
-    if (stat&16)
-        offy += tilesiz[tilenum].y;
-    thex += offx;
-    they += offy;
-    rotatesprite(thex << 16, they << 16, 65536L, (stat & 8) << 7, tilenum, shade, dapalnum,
-        16 + (stat & 2) + ((stat & 4) >> 2) + (((stat & 16) >> 2) ^ ((stat & 8) >> 1)),
-        windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, nullptr, basepal);
-    picanm[tilenum].sf = animbak;
-}
-
 void resettiming()
 {
     numframes = 0L;

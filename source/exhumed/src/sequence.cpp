@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "glbackend/glbackend.h"
 #include "sequence.h"
 #include "engine.h"
 #include "exhumed.h"
@@ -373,7 +374,7 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
             int x = ChunkXpos[nFrameBase] + (160 + xOffset);
             int y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            rotatesprite(x << 16, y << 16, 0x10000, (-2 * fix16_to_int(nPlayerDAng)) & kAngleMask, nTile, -127, 1, 2, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+            hud_drawsprite(x, y, 65536, (-2 * fix16_to_int(nPlayerDAng)) & kAngleMask, nTile, 0, 0, 1);
             nFrameBase++;
         }
     }
@@ -388,10 +389,10 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
 
 int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nShade, int nPal)
 {
-    short nFrame = SeqBase[nSeqOffset] + dx;
-    short nFrameBase = FrameBase[nFrame];
-    short nFrameSize = FrameSize[nFrame];
-    short frameFlag = FrameFlag[nFrame];
+    int nFrame = SeqBase[nSeqOffset] + dx;
+    int nFrameBase = FrameBase[nFrame];
+    int nFrameSize = FrameSize[nFrame];
+    int frameFlag = FrameFlag[nFrame];
 
     while (1)
     {
@@ -399,29 +400,27 @@ int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nSha
         if (nFrameSize < 0)
             break;
 
-        uint8_t nStat = 3;
         int x = ChunkXpos[nFrameBase] + 160;
         int y = ChunkYpos[nFrameBase] + 100;
 
-        if (ChunkFlag[nFrameBase] & 1) {
-            nStat = 11;
-        }
+        int stat = 0;
+        if (ChunkFlag[nFrameBase] & 1)
+            stat |= RS_XFLIPHUD;
 
-        if (ChunkFlag[nFrameBase] & 2) {
-            nStat |= 0x10;
-        }
+        if (ChunkFlag[nFrameBase] & 2)
+            stat |= RS_YFLIPHUD;
 
         short nTile = ChunkPict[nFrameBase];
 
-        if (frameFlag & 4) {
+        if (frameFlag & 4)
             nShade = -100;
-        }
 
+        double alpha = 1;
         if (nPlayerInvisible[nLocalPlayer]) {
-            nStat |= 0x4;
+            alpha = 0.3;
         }
 
-        overwritesprite(x + xOffs, y + yOffs, nTile, nShade, nStat, nPal);
+        hud_drawsprite(x + xOffs, y + yOffs, 65536, 0, nTile, nShade, nPal, stat, alpha);
         nFrameBase++;
     }
 
