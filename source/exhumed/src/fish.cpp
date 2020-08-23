@@ -267,7 +267,7 @@ int BuildFish(int nSprite, int x, int y, int z, int nSector, int nAngle)
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nFish | 0x120000);
     FishList[nFish].nRun = runlist_AddRunRec(NewRun, nFish | 0x120000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nFish | 0x120000;
 }
@@ -361,7 +361,7 @@ void FuncFish(int a, int nDamage, int nRun)
             if (FishList[nFish].nHealth <= 0)
             {
                 FishList[nFish].nHealth = 0;
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 sprite[nSprite].cstat &= 0xFEFE;
 

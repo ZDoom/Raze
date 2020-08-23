@@ -1157,7 +1157,7 @@ int BuildQueen(int nSprite, int x, int y, int z, int nSector, int nAngle, int nC
 
     runlist_AddRunRec(NewRun, nQueen | 0x1A0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nQueen | 0x1A0000;
 }
@@ -1491,7 +1491,7 @@ void FuncQueen(int a, int nDamage, int nRun)
                         QueenList[nQueen].nHealth = 0;
                         QueenList[nQueen].field_C = 5;
 
-                        nCreaturesLeft--;
+                        nCreaturesKilled++;
                         break;
                     }
 

@@ -128,7 +128,7 @@ int BuildLion(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     MoveHook[nLion] = runlist_AddRunRec(NewRun, nLion | 0x130000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nLion | 0x130000;
 }
@@ -180,7 +180,7 @@ void FuncLion(int a, int nDamage, int nRun)
 
                     LionList[nLion].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 10)
                     {

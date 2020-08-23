@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "zstring.h"
 #include "filesystem.h"
 #include "screenjob.h"
+#include "gamestruct.h"
 
 BEGIN_PS_NS
 
@@ -180,7 +181,8 @@ extern short nFontFirstChar;
 extern short nBackgroundPic;
 extern short nShadowPic;
 
-extern short nCreaturesLeft;
+extern short nCreaturesTotal, nCreaturesKilled;
+extern int leveltime;
 
 extern int lLocalButtons;
 
@@ -321,7 +323,7 @@ struct GameInterface : ::GameInterface
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
 
     FString statFPS() override;
-    //GameStats getStats() override;
+	::GameStats getStats() override;
 };
 
 

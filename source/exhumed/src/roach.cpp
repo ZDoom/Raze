@@ -128,7 +128,7 @@ int BuildRoach(int nType, int nSprite, int x, int y, int z, short nSector, int a
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, RoachCount | 0x1C0000);
     RoachList[RoachCount].field_A = runlist_AddRunRec(NewRun, RoachCount | 0x1C0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return RoachCount | 0x1C0000;
 }
@@ -195,7 +195,7 @@ void FuncRoach(int a, int nDamage, int nRun)
                         RoachList[nRoach].field_2 = 0;
                     }
 
-                    nCreaturesLeft--; // NOTE: This was incrementing in original code. Bug?
+                    nCreaturesKilled++; // NOTE: This was incrementing in original code. Bug?
                 }
                 else
                 {

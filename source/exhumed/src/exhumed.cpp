@@ -119,7 +119,8 @@ short nFontFirstChar;
 short nBackgroundPic;
 short nShadowPic;
 
-short nCreaturesLeft = 0;
+short nCreaturesKilled = 0, nCreaturesTotal = 0;
+int leveltime;
 
 short nFreeze;
 
@@ -552,6 +553,7 @@ void GameTicker()
             while (!EndLevel && totalclock >= tclocks + 4)
             {
                 tclocks += 4;
+                leveltime++;
                 GameMove();
             }
         }
@@ -770,6 +772,11 @@ bool GameInterface::CanSave()
     return !bRecord && !bPlayback && !paused && !bInDemo && nTotalPlayers == 1;
 }
 
+::GameStats GameInterface::getStats()
+{
+    return { nCreaturesKilled, nCreaturesTotal, 0, 0, leveltime / 30, 0 };
+}
+
 ::GameInterface* CreateInterface()
 {
     return new GameInterface;
@@ -779,7 +786,8 @@ bool GameInterface::CanSave()
 // This is only the static global data.
 static SavegameHelper sgh("exhumed",
     SV(besttarget),
-    SV(nCreaturesLeft), // todo: also maintain a total counter.
+    SV(nCreaturesTotal),
+    SV(nCreaturesKilled),
     SV(nFreeze),
     SV(nSnakeCam),
     SV(nLocalSpr),
@@ -800,6 +808,7 @@ static SavegameHelper sgh("exhumed",
     SV(localclock),
     SV(tclocks),
     SV(totalclock),
+    SV(leveltime),
     nullptr);
 
 extern short cPupData[300];

@@ -146,7 +146,7 @@ int BuildAnubis(int nSprite, int x, int y, int z, int nSector, int nAngle, uint8
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nAnubis | 0x90000);
 
     runlist_AddRunRec(NewRun, nAnubis | 0x90000);
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nAnubis | 0x90000;
 }
@@ -480,7 +480,7 @@ void FuncAnubis(int a, int nDamage, int nRun)
 
                     AnubisList[nAnubis].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 11)
                     {

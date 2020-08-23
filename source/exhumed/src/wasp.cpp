@@ -167,7 +167,7 @@ int BuildWasp(short nSprite, int x, int y, int z, short nSector, short nAngle)
 
     WaspList[nWasp].nRun = runlist_AddRunRec(NewRun, nWasp | 0x1E0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
     return nSprite;
 }
 
@@ -242,7 +242,7 @@ void FuncWasp(int a, int nDamage, int nRun)
 
                     sprite[nSprite].zvel = 512;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
                 }
             }
             return;

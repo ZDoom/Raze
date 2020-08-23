@@ -85,9 +85,11 @@ uint8_t LoadLevel(int nMap)
     // init stuff
     {
         StopAllSounds();
-        nCreaturesLeft = 0;
+        nCreaturesKilled = 0;
+        nCreaturesTotal = 0;
         nFreeze = 0;
         nSpiritSprite = -1;
+        leveltime = 0;
 
         InitLion();
         InitRexs();

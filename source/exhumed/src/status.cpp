@@ -822,6 +822,40 @@ private:
         }
     }
 
+    //---------------------------------------------------------------------------
+    //
+    //
+    //
+    //---------------------------------------------------------------------------
+
+    void PrintLevelStats(int bottomy)
+    {
+        if (hud_stats)
+        {
+            FLevelStats stats{};
+
+            stats.fontscale = 1.;
+            stats.spacing = SmallFont->GetHeight();
+            stats.screenbottomspace = bottomy;
+            stats.font = SmallFont;
+            stats.letterColor = CR_RED;
+            stats.standardColor = CR_UNTRANSLATED;
+            stats.completeColor = CR_DARKGREEN;
+
+            stats.time = Scale(leveltime, 1000, 30);
+            stats.kills = nCreaturesKilled;
+            stats.maxkills = nCreaturesTotal;
+            stats.frags = -1;
+            stats.secrets = 0;
+            stats.maxsecrets = 0;
+
+            DBaseStatusBar::PrintLevelStats(stats);
+        }
+    }
+
+
+
+
 public:
     void Draw()
     {
@@ -829,6 +863,7 @@ public:
         {
             DrawStatus();
        }
+        PrintLevelStats(hud_size == Hud_Nothing ? 0 : 40);
     }
 };
 

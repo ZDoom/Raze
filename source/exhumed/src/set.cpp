@@ -133,7 +133,7 @@ int BuildSet(short nSprite, int x, int y, int z, short nSector, short nAngle, in
     // this isn't stored anywhere.
     runlist_AddRunRec(NewRun, nSet | 0x190000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nSet | 0x190000;
 }
@@ -272,7 +272,7 @@ void FuncSet(int a, int nDamage, int nRun)
 
                     SetList[nSet].nHealth = 0;
 
-                    nCreaturesLeft--;
+                    nCreaturesKilled++;
 
                     if (nAction < 10)
                     {

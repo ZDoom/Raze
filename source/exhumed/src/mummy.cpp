@@ -122,7 +122,7 @@ int BuildMummy(int nSprite, int x, int y, int z, int nSector, int nAngle)
 
     MummyList[nMummy].H = runlist_AddRunRec(NewRun, nMummy | 0xE0000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return (nMummy | 0xE0000);
 }
@@ -432,7 +432,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                         MummyList[nMummy].nHealth = 300;
                         MummyList[nMummy].nTarget = -1;
 
-                        nCreaturesLeft++;
+                        nCreaturesTotal++;
                     }
                     return;
                 }
@@ -493,7 +493,7 @@ void FuncMummy(int a, int nDamage, int nRun)
             {
                 MummyList[nMummy].nHealth = 0;
                 sprite[nSprite].cstat &= 0xFEFE;
-                nCreaturesLeft--;
+                nCreaturesKilled++;
 
                 DropMagic(nSprite);
 

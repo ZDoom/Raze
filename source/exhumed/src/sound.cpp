@@ -662,7 +662,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesLeft > 0 && !(SectFlag[nPlayerViewSect[nLocalPlayer]] & 0x2000))
+        if (nCreaturesKilled < nCreaturesTotal && !(SectFlag[nPlayerViewSect[nLocalPlayer]] & 0x2000))
         {
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)

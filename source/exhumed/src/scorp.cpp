@@ -133,7 +133,7 @@ int BuildScorp(short nSprite, int x, int y, int z, short nSector, short nAngle, 
     sprite[nSprite].owner = runlist_AddRunRec(sprite[nSprite].lotag - 1, nScorp | 0x220000);
     scorpion[nScorp].f = runlist_AddRunRec(NewRun, nScorp | 0x220000);
 
-    nCreaturesLeft++;
+    nCreaturesTotal++;
 
     return nScorp | 0x220000;
 }
@@ -196,7 +196,7 @@ void FuncScorp(int a, int nDamage, int nRun)
                 sprite[nSprite].zvel = 0;
                 sprite[nSprite].cstat &= 0xFEFE;
 
-                nCreaturesLeft--;
+                nCreaturesKilled++;
                 return;
             }
             else

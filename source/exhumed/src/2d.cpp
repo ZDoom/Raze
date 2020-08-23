@@ -69,6 +69,8 @@ void InitFonts()
         fontdata.Insert('0' + i, tileGetTexture(3555 + i));
     }
     fontdata.Insert('.', tileGetTexture(3548));
+    fontdata.Insert(':', tileGetTexture(3548)); // we have no colon but need something here.
+    fontdata.Insert('/', tileGetTexture(3552)); // same here
     fontdata.Insert('!', tileGetTexture(3549));
     fontdata.Insert('?', tileGetTexture(3550));
     fontdata.Insert(',', tileGetTexture(3551));
