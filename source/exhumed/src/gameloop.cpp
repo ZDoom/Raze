@@ -53,7 +53,7 @@ BEGIN_PS_NS
 short nBestLevel;
 static int32_t nonsharedtimer;
 
-int GameAction;
+int GameAction=-1;
 
 extern uint8_t nCinemaSeen;
 extern ClockTicks tclocks;
