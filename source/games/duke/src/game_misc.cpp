@@ -139,14 +139,14 @@ void GameInterface::ExitFromMenu()
 
 //---------------------------------------------------------------------------
 //
-// This now redirects the messagew to the console's notification display
+// This now redirects the messages to the console's notification display
 // which has all the features to reasonably do this in Duke style.
 //
 //---------------------------------------------------------------------------
 
 void FTA(int q, struct player_struct* p)
 {
-	if (hud_messages == 0 || q < 0 || !(p->gm & MODE_GAME))
+	if (q < 0 || !(p->gm & MODE_GAME))
 		return;
 
 	if (p->ftq != q || (totalclock - p->ftt > TICRATE && q != QUOTE_DEAD))
@@ -156,7 +156,7 @@ void FTA(int q, struct player_struct* p)
 		if (p == &ps[screenpeek] && qu[0] != '\0')
 		{
 #if 0
-			if (q >= 70 && q <= 72 && hud_messages == 2)
+			if (q >= 70 && q <= 72)
 			{
 				// Todo: redirect this to a centered message (these are "need a key" messages)
 			}

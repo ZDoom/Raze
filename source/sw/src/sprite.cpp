@@ -5720,15 +5720,18 @@ KeyMain:
                 PlayerUpdateHealth(pp, InventoryDecls[InvDecl_Booster].amount);       // This is for health
                 // over 100%
                 // Say something witty
-                if (pp == Player+myconnectindex && hud_messages)
+                if (pp == Player+myconnectindex)
                 {
                     int cookie = (adult_lockout)? STD_RANDOM_RANGE(10) : STD_RANDOM_RANGE(MAX_FORTUNES);
                     // print to the console, and the user quote display.
                     FStringf msg("%s %s", GStrings("TXTS_FORTUNE"), quoteMgr.GetQuote(QUOTE_COOKIE + cookie));
-                    Printf(TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
-                    strncpy(pp->cookieQuote, msg, 255);
-                    pp->cookieQuote[255] = 0;
-                    pp->cookieTime = 540;
+                    Printf(PRINT_NONOTIFY, TEXTCOLOR_SAPPHIRE "%s\n", msg.GetChars());
+                    if (hud_messages)
+                    {
+                        strncpy(pp->cookieQuote, msg, 255);
+                        pp->cookieQuote[255] = 0;
+                        pp->cookieTime = 540;
+                    }
                 }
 
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup

@@ -229,10 +229,7 @@ CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disab
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
 CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
 CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
-CUSTOM_CVARD(Int, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
-{
-	if (self < 0 || self > 2) self = 1;
-}
+CVARD(Bool, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
 
 // This cannot be done with the 'toggle' CCMD because it needs to control itself when to output the message
 CCMD (togglemessages)

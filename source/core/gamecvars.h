@@ -63,7 +63,7 @@ EXTERN_CVAR(Int, hud_messagetime)
 EXTERN_CVAR(Bool, hud_glowingquotes)
 EXTERN_CVAR(Int, hud_textscale)
 EXTERN_CVAR(Int, hud_weaponscale)
-EXTERN_CVAR(Int, hud_messages)
+EXTERN_CVAR(Bool, hud_messages)
 
 EXTERN_CVAR(Int, althud_numbertile)
 EXTERN_CVAR(Int, althud_numberpal)

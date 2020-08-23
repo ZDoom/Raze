@@ -167,28 +167,8 @@ void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, i
 
 void PutStringInfo(PLAYERp pp, const char *string)
 {
-    if (pp-Player == myconnectindex && hud_messages)
+    if (pp-Player == myconnectindex)
         Printf(PRINT_MEDIUM|PRINT_NOTIFY, "%s\n", string); // Put it in the console too
 }
-
-
-#if 0 // kept as a reminder to reimplement a 'native' looking display option in the backend
-void PutStringInfoLine(PLAYERp pp, const char *string)
-{
-    short GlobInfoStringTime = TEXT_INFO_TIME;
-
-    short x,y;
-    short w,h;
-
-    if (pp-Player != myconnectindex)
-        return;
-
-    x = 160;
-    y = TEXT_INFO_LINE(0);
-
-    PutStringTimer(pp, x, y, string, GlobInfoStringTime);
-
-}
-#endif
 
 END_SW_NS
