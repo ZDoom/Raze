@@ -72,6 +72,7 @@ EXTERN_CVAR(Int, althud_flashing)
 
 EXTERN_CVAR(Bool, am_textfont)
 EXTERN_CVAR(Bool, am_showlabel)
+EXTERN_CVAR(Bool, am_nameontop)
 
 
 EXTERN_CVAR(Int, r_fov)

@@ -39,6 +39,8 @@ source as it is released.
 #include "sbar.h"
 #include "v_draw.h"
 #include "texturemanager.h"
+#include "mapinfo.h"
+
 BEGIN_DUKE_NS
 
 //==========================================================================
@@ -177,9 +179,31 @@ PalEntry DDukeCommonStatusBar::LightForShade(int shade)
 
 void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 {
-	// JBF 20040124: display level stats in screen corner
-	if (ud.overhead_on != 2 && hud_stats)
+	if (ud.overhead_on == 2)
 	{
+		// Automap label printer moved here so that it is on top of the screen border.
+		FString mapname;
+		if (am_showlabel) mapname.Format(TEXTCOLOR_GOLD "%s: %s%s", currentLevel->LabelName(), (am_textfont && isNamWW2GI()) ? TEXTCOLOR_ORANGE : TEXTCOLOR_UNTRANSLATED, currentLevel->DisplayName());
+		else mapname = currentLevel->DisplayName();
+		double scale = isRR() ? 0.5 : 1.;
+		FFont* font = SmallFont2;
+		int color = CR_UNTRANSLATED;
+		if (am_textfont)
+		{
+			scale *= 0.66;
+			font = isNamWW2GI() ? ConFont : SmallFont;
+			if (isNamWW2GI()) color = CR_ORANGE;
+		}
+		int top = am_nameontop ? 0 : 200 - Scale(bottomy < 0 ? RelTop : bottomy, hud_scale, 100) - isRR()? 25 : 20;
+		if (!(currentLevel->flags & MI_USERMAP))
+			DrawText(twod, font, color, 5, top + 6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
+				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+		DrawText(twod, font, color, 5, top + ((isRR() && am_textfont) ? 15 : 12), mapname,
+			DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+	}
+	else if (hud_stats)
+	{
+		// JBF 20040124: display level stats in screen corner
 		FLevelStats stats{};
 		auto pp = &ps[myconnectindex];
 

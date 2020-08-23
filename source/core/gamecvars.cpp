@@ -475,6 +475,7 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 
 CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
 CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
+CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.

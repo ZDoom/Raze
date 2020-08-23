@@ -92,10 +92,6 @@ CVAR (Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
 CVAR (Int, crosshairhealth, 1, CVAR_ARCHIVE);
 CVAR (Float, crosshairscale, 1.0, CVAR_ARCHIVE);
 CVAR (Bool, crosshairgrow, false, CVAR_ARCHIVE);
-CUSTOM_CVAR(Int, am_showmaplabel, 2, CVAR_ARCHIVE)
-{
-	if (self < 0 || self > 2) self = 2;
-}
 
 CVAR (Bool, idmypos, false, 0);
 

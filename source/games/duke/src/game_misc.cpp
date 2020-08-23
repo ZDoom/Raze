@@ -653,29 +653,6 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 				DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
 		}
 	}
-
-	if (/*textret == 0 &&*/ ud.overhead_on == 2)
-	{
-		FString mapname;
-		if (am_showlabel) mapname.Format(TEXTCOLOR_GOLD "%s: %s%s", currentLevel->LabelName(), (am_textfont && isNamWW2GI()) ? TEXTCOLOR_ORANGE : TEXTCOLOR_UNTRANSLATED, currentLevel->DisplayName());
-		else mapname = currentLevel->DisplayName();
-		double scale = isRR() ? 0.5 : 1.;
-		FFont* font = SmallFont2;
-		int color = CR_UNTRANSLATED;
-		if (am_textfont)
-		{
-			scale *= 0.66;
-			font = isNamWW2GI()? ConFont : SmallFont;
-			if (isNamWW2GI()) color = CR_ORANGE;
-		}
-		int top = (isRR() && !am_textfont) ? 0 : (hud_size != Hud_Nothing ? 147 : 179);
-		if (!(currentLevel->flags & MI_USERMAP))
-			DrawText(twod, font, color, 5, top+6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]), 
-				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
-		DrawText(twod, font, color, 5, top + ((isRR() && am_textfont)? 15:12), mapname,
-			DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
-	}
-
 }
 
 //---------------------------------------------------------------------------
