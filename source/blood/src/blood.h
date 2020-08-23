@@ -107,7 +107,8 @@ void sndPlaySpecialMusicOrNothing(int nMusic);
 struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
-	int app_main() override;
+	void app_init() override;
+	void RunGameFrame() override;
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
 	FString statFPS() override;

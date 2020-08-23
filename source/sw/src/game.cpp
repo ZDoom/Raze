@@ -213,8 +213,9 @@ static const char* actions[] = {
 
 };
 
-bool InitGame()
+void GameInterface::app_init()
 {
+    GameTicRate = 40;
     InitCheats();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
@@ -284,7 +285,6 @@ bool InitGame()
     enginePostInit();
     videoInit();
     InitFX();
-	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -804,89 +804,62 @@ void GameTicker(void)
     }
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
 
-int32_t GameInterface::app_main()
+void GameInterface::RunGameFrame()
 {
-    InitGame();
-    gamestate = GS_STARTUP;
-
-
-    while (true)
+    try
     {
-        try
-        {
-            // if the menu initiazed a new game or loaded a savegame, switch to play mode.
-            if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
+        // if the menu initiazed a new game or loaded a savegame, switch to play mode.
+        if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
 
-            handleevents();
-            updatePauseStatus();
-            D_ProcessEvents();
-            DoUpdateSounds();
-            switch (gamestate)
-            {
-            default:
-            case GS_STARTUP:
-                totalclock = 0;
-                ototalclock = 0;
-
-                if (userConfig.CommandMap.IsNotEmpty())
-                {
-                }
-                else
-                {
-                    if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
-                    else StartMenu();
-                }
-                break;
-
-            case GS_MENUSCREEN:
-            case GS_FULLCONSOLE:
-                DrawMenuLevelScreen();
-                break;
-
-            case GS_LEVEL:
-                GameTicker();
-                break;
-
-            case GS_INTERMISSION:
-            case GS_INTRO:
-                RunScreenJobFrame();	// This handles continuation through its completion callback.
-                break;
-
-            }
-            videoNextPage();
-        }
-        catch (CRecoverableError& err)
-        {
-            TerminateLevel();
-            NextLevel = nullptr;
-            SavegameLoaded = false;
-            ExitLevel = false;
-            FinishAnim = 0;
-            C_FullConsole();
-            Printf(TEXTCOLOR_RED "%s\n", err.what());
-        }
-    }
-
-#if 0
-    while (true)
-    {
         handleevents();
-        C_RunDelayedCommands();
+        updatePauseStatus();
+        D_ProcessEvents();
+        DoUpdateSounds();
+        switch (gamestate)
+        {
+        default:
+        case GS_STARTUP:
+            totalclock = 0;
+            ototalclock = 0;
 
-        NewLevel();
+            if (userConfig.CommandMap.IsNotEmpty())
+            {
+            }
+            else
+            {
+                if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
+                else StartMenu();
+            }
+            break;
+
+        case GS_MENUSCREEN:
+        case GS_FULLCONSOLE:
+            DrawMenuLevelScreen();
+            break;
+
+        case GS_LEVEL:
+            GameTicker();
+            break;
+
+        case GS_INTERMISSION:
+        case GS_INTRO:
+            RunScreenJobFrame();	// This handles continuation through its completion callback.
+            break;
+
+        }
+    }
+    catch (CRecoverableError&)
+    {
+        // Make sure we do not leave the game in an unstable state
+        TerminateLevel();
+        NextLevel = nullptr;
+        SavegameLoaded = false;
+        ExitLevel = false;
+        FinishAnim = 0;
+        throw;
     }
 
-    //SybexScreen();
-    throw CExitEvent(0);
-#endif
-
-    return 0;
 }
 
 //---------------------------------------------------------------------------

@@ -117,6 +117,7 @@ void I_SetWindowTitle(const char* caption);
 void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
+void app_loop();
 
 
 bool AppActive;
@@ -817,6 +818,7 @@ int RunGame()
 	{
 		playername = userConfig.CommandName;
 	}
+	GameTicRate = 30;
 	CheckUserMap();
 	GPalette.Init(MAXPALOOKUPS + 2);    // one slot for each translation, plus a separate one for the base palettes and the internal one
 	TexMan.Init([]() {}, [](BuildInfo &) {});
@@ -836,15 +838,43 @@ int RunGame()
 
 	if (enginePreInit())
 	{
-		I_FatalError("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+		I_FatalError("There was a problem initializing the Build engine: %s\n", engineerrstr);
 	}
 
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
 	gamestate = GS_LEVEL;
-	return gi->app_main();
+	gi->app_init();
+	app_loop();
 }
+
+//---------------------------------------------------------------------------
+//
+// The one and only main loop in the entire engine. Yay!
+//
+//---------------------------------------------------------------------------
+
+void app_loop()
+{
+	gamestate = GS_STARTUP;
+
+	while (true)
+	{
+		try
+		{
+			gi->RunGameFrame();
+			videoNextPage();
+			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
+		}
+		catch (CRecoverableError& err)
+		{
+			C_FullConsole();
+			Printf(TEXTCOLOR_RED "%s\n", err.what());
+		}
+	}
+}
+
 
 //==========================================================================
 //

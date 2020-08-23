@@ -134,7 +134,6 @@ void CheckKeys();
 void CheckKeys2();
 void GameTicker();
 void InitLevel(int);
-void InitGame();
 void InitNewGame();
 void startmainmenu();
 
@@ -294,8 +293,9 @@ struct SavegameHelper
 struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "Exhumed"; }
-    int app_main() override;
-    bool GenerateSavePic() override;
+    void app_init() override;
+	void RunGameFrame() override;
+	bool GenerateSavePic() override;
     void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
     void MenuOpened() override;
     void MenuSound(EMenuSounds snd) override;

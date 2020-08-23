@@ -2364,7 +2364,8 @@ extern short Bunny_Count;
 struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }
-    int app_main() override;
+    void app_init() override;
+    void RunGameFrame() override;
     void FreeGameData() override;
     bool GenerateSavePic() override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;

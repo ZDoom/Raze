@@ -59,7 +59,6 @@ extern ClockTicks tclocks;
 
 void RunCinemaScene(int num);
 void GameMove(void);
-void InitGame();
 void DrawClock();
 int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
 void DoTitle(CompletionFunc completion);
@@ -262,78 +261,63 @@ void GameLoop()
     fps++;
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
-int GameInterface::app_main()
+void GameInterface::RunGameFrame()
 {
-    InitGame();
-    gamestate = GS_STARTUP;
-
-    while (true)
+    again:
+    try
     {
-        try
+        HandleAsync();
+        updatePauseStatus();
+        D_ProcessEvents();
+        CheckProgression();
+        switch (gamestate)
         {
-            HandleAsync();
-            updatePauseStatus();
-            D_ProcessEvents();
-            CheckProgression();
-            switch (gamestate)
-            {
-            default:
-            case GS_STARTUP:
-                totalclock = 0;
-                ototalclock = 0;
-                GameAction = -1;
-                EndLevel = false;
-
-                if (userConfig.CommandMap.IsNotEmpty())
-                {
-                    auto map = FindMapByName(userConfig.CommandMap);
-                    if (map) GameAction = map->levelNumber;
-                    userConfig.CommandMap = "";
-                    continue;
-                }
-                else
-                {
-                    DoTitle([](bool) { startmainmenu(); });
-                }
-                break;
-
-            case GS_MENUSCREEN:
-            case GS_FULLCONSOLE:
-                drawmenubackground();
-                break;
-
-            case GS_LEVEL:
-                GameLoop();
-                GameDisplay();
-                break;
-
-            case GS_INTERMISSION:
-            case GS_INTRO:
-                RunScreenJobFrame();	// This handles continuation through its completion callback.
-                break;
-
-            }
-            videoNextPage();
-        }
-        catch (CRecoverableError& err)
-        {
-            // Clear all progression sensitive variables here.
+        default:
+        case GS_STARTUP:
+            totalclock = 0;
+            ototalclock = 0;
             GameAction = -1;
             EndLevel = false;
-            C_FullConsole();
-            Printf(TEXTCOLOR_RED "%s\n", err.what());
+
+            if (userConfig.CommandMap.IsNotEmpty())
+            {
+                auto map = FindMapByName(userConfig.CommandMap);
+                if (map) GameAction = map->levelNumber;
+                userConfig.CommandMap = "";
+                goto again;
+            }
+            else
+            {
+                DoTitle([](bool) { startmainmenu(); });
+            }
+            break;
+
+        case GS_MENUSCREEN:
+        case GS_FULLCONSOLE:
+            drawmenubackground();
+            break;
+
+        case GS_LEVEL:
+            GameLoop();
+            GameDisplay();
+            break;
+
+        case GS_INTERMISSION:
+        case GS_INTRO:
+            RunScreenJobFrame();	// This handles continuation through its completion callback.
+            break;
+
         }
     }
+    catch (CRecoverableError&)
+    {
+        // Clear all progression sensitive variables here.
+        GameAction = -1;
+        EndLevel = false;
+        throw;
+    }
+
 }
-
-
-
-
 
 END_PS_NS

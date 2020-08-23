@@ -68,8 +68,6 @@ void LocalKeys(void);
 void InitCheats();
 
 bool bNoDemo = false;
-bool bQuickStart = true;
-
 
 char gUserMapFilename[BMAX_PATH];
 
@@ -714,13 +712,12 @@ static const char* actions[] = {
     "Toggle_Crouch",
 };
 
-static void app_init()
+void GameInterface::app_init()
 {
     InitCheats();
     buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
     gGameOptions.nMonsterSettings = !userConfig.nomonsters;
-    bQuickStart = userConfig.nologo;
     ReadAllRFS();
 
     HookReplaceFunctions();
@@ -854,7 +851,7 @@ static void drawBackground()
         netBroadcastMyLogoff(gQuitRequest == 2);
 }
 
-static void commonTicker(bool &playvideo)
+static void commonTicker()
 {
     if (TestBitString(gotpic, 2342))
     {
@@ -895,85 +892,61 @@ static void commonTicker(bool &playvideo)
         gQuitRequest = 0;
         gRestartGame = 0;
 
-
-        if (gGameOptions.nGameType != 0)
-        {
-            playvideo = !bQuickStart;
-        }
-        else playvideo = false;
         // Don't switch to startup if we're already outside the game.
         if (gamestate == GS_LEVEL) gamestate = GS_STARTUP;
     }
 }
 
-int GameInterface::app_main()
+void GameInterface::RunGameFrame()
 {
-	
-    app_init();
-    gamestate = GS_STARTUP;
-    bool playvideo = !bQuickStart;
-    while (true)
+    if (gamestate == GS_STARTUP) gameInit();
+
+    commonTicker();
+    netGetPackets();
+    handleevents();
+    updatePauseStatus();
+    D_ProcessEvents();
+    ctrlGetInput();
+
+    switch (gamestate)
     {
-        try
+    default:
+    case GS_STARTUP:
+        if (userConfig.CommandMap.IsNotEmpty())
         {
-            if (gamestate == GS_STARTUP) gameInit();
-
-            commonTicker(playvideo);
-            netGetPackets();
-            handleevents();
-            updatePauseStatus();
-            D_ProcessEvents();
-            ctrlGetInput();
-
-            switch (gamestate)
+        }
+        else
+        {
+            if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
+            else
             {
-            default:
-            case GS_STARTUP:
-                if (userConfig.CommandMap.IsNotEmpty())
-                {
-                }
-                else
-                {
-                    if (playvideo) playlogos();
-                    else
-                    {
-                        gamestate = GS_MENUSCREEN;
-                        M_StartControlPanel(false);
-                        M_SetMenu(NAME_Mainmenu);
-                    }
-                }
-                break;
-
-            case GS_MENUSCREEN:
-            case GS_FULLCONSOLE:
-                drawBackground();
-                break;
-
-            case GS_INTRO:
-            case GS_INTERMISSION:
-                RunScreenJobFrame();	// This handles continuation through its completion callback.
-                break;
-
-            case GS_LEVEL:
-                gameTicker();
-                LocalKeys();
-                break;
-
-            case GS_FINALE:
-                gEndGameMgr.ProcessKeys();
-                gEndGameMgr.Draw();
-                break;
+                gamestate = GS_MENUSCREEN;
+                M_StartControlPanel(false);
+                M_SetMenu(NAME_Mainmenu);
             }
+        }
+        break;
 
-            videoNextPage();
-        }
-        catch (CRecoverableError& err)
-        {
-            C_FullConsole();
-            Printf(TEXTCOLOR_RED "%s\n", err.what());
-        }
+    case GS_MENUSCREEN:
+    case GS_FULLCONSOLE:
+        drawBackground();
+        break;
+
+    case GS_INTRO:
+    case GS_INTERMISSION:
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        break;
+
+    case GS_LEVEL:
+        gameTicker();
+        LocalKeys();
+        break;
+
+    case GS_FINALE:
+        gEndGameMgr.ProcessKeys();
+        gEndGameMgr.Draw();
+        break;
     }
-    return 0;
 }
 
 bool DemoRecordStatus(void) {

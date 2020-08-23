@@ -621,7 +621,7 @@ static const char* actions[] =
 
 
 
-void InitGame()
+void GameInterface::app_init()
 {
     int i;
     //int esi = 1;

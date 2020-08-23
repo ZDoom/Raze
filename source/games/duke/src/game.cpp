@@ -423,14 +423,12 @@ static void Startup(void)
 //
 //---------------------------------------------------------------------------
 
-void app_loop();
-int GameInterface::app_main()
+void GameInterface::app_init()
 {
 	Startup();
 	enginePostInit();
 	videoInit();
-	app_loop();
-	return 0;
+	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 }
 
 

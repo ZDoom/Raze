@@ -58,7 +58,8 @@ struct GameInterface
 	virtual const char* Name() { return "$"; }
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
-	virtual int app_main() = 0;
+	virtual void app_init() = 0;
+	virtual void RunGameFrame() = 0;
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}

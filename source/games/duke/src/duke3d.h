@@ -34,7 +34,8 @@ extern FFont* DigiFont;
 struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
-	int app_main() override;
+	void app_init() override;
+	void RunGameFrame() override;
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
