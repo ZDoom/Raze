@@ -1009,7 +1009,12 @@ OptionValue "HUDMessages"
 {
 	0, "$OPTVAL_OFF"
 	1, "$OPTVAL_ON"
-	2, "$DSPLYMNU_GENERIC"
+}
+
+OptionValue "HUDMessageStyle"
+{
+	0, "$OPTVAL_CLASSIC"
+	1, "$OPTVAL_ADVANCED"
 }
 
 OptionMenu "HUDOptions" //protected
@@ -1026,12 +1031,14 @@ OptionMenu "HUDOptions" //protected
 
 	StaticText ""
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
+	Option "$DSPLYMNU_MESSAGEDISP",				"con_notify_advanced",		"HudMessageStyle"
+	Option "$MSGMNU_CENTERMESSAGES",			"con_centernotify", 		"OnOff", "con_notify_advanced"
+	Option "$MSGMNU_PULSEMESSAGES",				"con_pulsetext", 			"OnOff", "con_notify_advanced"
+	Slider "$MSGMNU_MESSAGESCALE", 				"con_scaletext", 			0.0, 8.0, 1.0, -1
+
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
-	ifgame(duke, nam, ww2gi, redneck, redneckrides, fury, deer)
-	{
-		Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
-	}
+	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
 }
 
 

@@ -139,11 +139,12 @@ static int worklen = 0;
 
 CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
 CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
+CVAR(Bool, con_notify_advanced, false, CVAR_ARCHIVE)
 CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale notify text at high resolutions?
 {
 	if (self < 0) self = 0;
 }
-CVAR(Bool, con_pulseText, true, CVAR_ARCHIVE)
+CVAR(Bool, con_pulsetext, false, CVAR_ARCHIVE)
 
 CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
 {
@@ -536,6 +537,7 @@ public:
 	void Clear() { Text.Clear(); }
 	void Tick();
 	void Draw();
+	void DrawNative();
 
 private:
 	TArray<FNotifyText> Text;
@@ -551,7 +553,7 @@ CUSTOM_CVAR(Int, con_notifylines, NUMNOTIFIES, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 
-int PrintColors[PRINTLEVELS+2] = { CR_RED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_GOLD };
+int PrintColors[PRINTLEVELS+2] = { CR_UNTRANSLATED, CR_GOLD, CR_GRAY, CR_GREEN, CR_GREEN, CR_UNTRANSLATED };
 
 static void setmsgcolor (int index, int color);
 
@@ -560,37 +562,37 @@ FILE *Logfile = NULL;
 
 FIntCVar msglevel ("msg", 0, CVAR_ARCHIVE);
 
-CUSTOM_CVAR (Int, msg0color, 6, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg0color, CR_UNTRANSLATED, CVAR_ARCHIVE)
 {
 	setmsgcolor (0, self);
 }
 
-CUSTOM_CVAR (Int, msg1color, 5, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg1color, CR_GOLD, CVAR_ARCHIVE)
 {
 	setmsgcolor (1, self);
 }
 
-CUSTOM_CVAR (Int, msg2color, 2, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg2color, CR_GRAY, CVAR_ARCHIVE)
 {
 	setmsgcolor (2, self);
 }
 
-CUSTOM_CVAR (Int, msg3color, 3, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg3color, CR_GREEN, CVAR_ARCHIVE)
 {
 	setmsgcolor (3, self);
 }
 
-CUSTOM_CVAR (Int, msg4color, 3, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msg4color, CR_GREEN, CVAR_ARCHIVE)
 {
 	setmsgcolor (4, self);
 }
 
-CUSTOM_CVAR (Int, msgmidcolor, 5, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msgmidcolor, CR_UNTRANSLATED, CVAR_ARCHIVE)
 {
 	setmsgcolor (PRINTLEVELS, self);
 }
 
-CUSTOM_CVAR (Int, msgmidcolor2, 4, CVAR_ARCHIVE)
+CUSTOM_CVAR (Int, msgmidcolor2, CR_BROWN, CVAR_ARCHIVE)
 {
 	setmsgcolor (PRINTLEVELS+1, self);
 }
@@ -915,9 +917,12 @@ int PrintString (int iprintlevel, const char *outline)
 			I_PrintStr(outline);
 
 			conbuffer->AddText(printlevel, outline);
-			if (vidactive && (iprintlevel & PRINT_NOTIFY)) // The logic here is inverse to ZDoom because most texts getting here should not be on screem.
+			if (!(iprintlevel & PRINT_NONOTIFY))
 			{
-				NotifyStrings.AddString(printlevel, outline);
+				if (vidactive && ((iprintlevel & PRINT_NOTIFY) || con_notify_advanced))
+				{
+					NotifyStrings.AddString(printlevel, outline);
+				}
 			}
 		}
 		if (Logfile != nullptr && !(iprintlevel & PRINT_NOLOG))
@@ -1074,21 +1079,90 @@ void FNotifyBuffer::Tick()
 	}
 }
 
+void FNotifyBuffer::DrawNative()
+{
+	// Native display is:
+	// * centered at the top and pulsing for Duke
+	// * centered shifted down and not pulsing for  Shadow Warrior
+	// * top left for Exhumed
+	// * 4 lines with the tiny font for Blood. (same mechanic as the regular one, just a different font and scale.)
+
+	bool center = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR | GAMEFLAG_SW);
+	bool pulse = g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_NAM | GAMEFLAG_WW2GI | GAMEFLAG_RR);
+	unsigned topline = g_gameType & GAMEFLAG_BLOOD ? 0 : Text.Size() - 1;
+
+	FFont* font = g_gameType & GAMEFLAG_BLOOD ? SmallFont2 : SmallFont;
+
+	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
+	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
+	int lineadv = font->GetHeight();
+
+	for (unsigned i = topline; i < Text.Size(); ++i)
+	{
+		FNotifyText& notify = Text[i];
+
+		if (notify.TimeOut == 0)
+			continue;
+
+		int j = notify.TimeOut - notify.Ticker;
+		if (j > 0)
+		{
+			double alpha = g_gameType & GAMEFLAG_BLOOD? ((j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1) : 1;
+			if (pulse)
+			{
+				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
+			}
+
+			if (!center)
+			{
+				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_KeepRatio, true,
+					DTA_Alpha, alpha, TAG_DONE);
+			}
+			else
+			{
+				int fac = isRR() ? 2 : 1;
+
+				DrawText(twod, font, CR_UNTRANSLATED, 160 * fac - font->StringWidth(notify.Text) / 2, line, notify.Text,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidth, 320 * fac, DTA_VirtualHeight, 200 * fac,
+					DTA_Alpha, alpha, TAG_DONE);
+			}
+			line += lineadv;
+			canskip = false;
+		}
+		else
+		{
+			notify.TimeOut = 0;
+		}
+	}
+	if (canskip)
+	{
+		Top = TopGoal;
+	}
+}
+
 void FNotifyBuffer::Draw()
 {
-	bool center = (con_centernotify != 0.f);
-	int line, lineadv, color, j;
-	bool canskip;
-	
 	if (gamestate == GS_FULLCONSOLE || gamestate == GS_MENUSCREEN)
 		return;
 
+	if (!con_notify_advanced)
+	{
+		DrawNative();
+		return;
+	}
+
+	bool center = (con_centernotify != 0.f);
+	int color;
+
 	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
 
-	line = Top + font->GetDisplacement() / NotifyFontScale;
-	canskip = true;
+	int line = Top + font->GetDisplacement() / NotifyFontScale;
+	bool canskip = true;
 
-	lineadv = font->GetHeight () / NotifyFontScale;
+	int lineadv = font->GetHeight () / NotifyFontScale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{
@@ -1097,11 +1171,11 @@ void FNotifyBuffer::Draw()
 		if (notify.TimeOut == 0)
 			continue;
 
-		j = notify.TimeOut - notify.Ticker;
+		int j = notify.TimeOut - notify.Ticker;
 		if (j > 0)
 		{
 			double alpha = (j < NOTIFYFADETIME) ? 1. * j / NOTIFYFADETIME : 1;
-			if (con_pulseText)
+			if (con_pulsetext)
 			{
 				alpha *= 0.7 + 0.3 * sin(I_msTime() / 100.);
 			}

@@ -507,6 +507,12 @@ None (linear mipmap),OPTVAL_NONELINEARMIPMAP,,,,Žádné (lineární mipmapa),Au
 None (trilinear),OPTVAL_NONETRILINEAR,,,,Žádné (trilineární),Aus (trilinear),,Nenio (trilinia),Ninguno (trilineal),,Ei mitään (trilineaarinen),Aucun (mipmap trilinéaire),,Nessuno (mipmap trilineare),なし(トライリニア),없음 (삼선형),Geen (trilineair),Brak (trzyliniowe),Nenhum (trilinear),,,Нет (трилинейная),Ништа (трилинеарно)
 Bilinear,OPTVAL_BILINEAR,,,,Bilineární,,,Dulinia,Bilineal,,Bilineaarinen,Bilinéaire,,Bilineare,バイリニア,쌍선형,Bilineair,Dwuliniowe,,,,Билинейная,Билинеарно
 Trilinear,OPTVAL_TRILINEAR,,,,Trilineární,,,Trilinia,Trilineal,,Trilineaarinen,Trilinéaire,,Trilineare,トライリニア,삼선형,Trilineair,Trzyliniowe,,,,Трилинейная,Трилинеарно
+Message Display Style,DSPLYMNU_MESSAGEDISP,,,,,Nachrichtenstil,,,,,,,,,,,,,,,,,
+Classic,OPTVAL_CLASSIC,,,,,Klassisch,,,,,,,,,,,,,,,,,
+Advanced,OPTVAL_ADVANCED,,,,,Erweitert,,,,,,,,,,,,,,,,,
+Center messages,MSGMNU_CENTERMESSAGES,,,Centre messages,Vycentrovat zprávy,Nachrichten zentrieren,,Centrigi mesaĝoj,Centrar mensajes,,Keskitä viestit,Messages centrés,,Messaggi centrati,メッセージを中央に,메시지 중간에 위치,Berichten centreren,Wyśrodkuj wiadomości,Centralizar mensagens,Centrar mensagens,Mesaje centrate,Центрирование сообщений,Централне поруке
+Pulsating message Display,MSGMNU_PULSEMESSAGES,,,,,Pulsierende Nachrichtenanzeige,,,,,,,,,,,,,,,,,
+Message Scale,MSGMNU_MESSAGESCALE,,,,,Nachrichtengröße,,,,,,,,,,,,,,,,,
 2x,OPTVAL_2X,,,,,,,2-oble,,,,,,,,,,,,,,,
 4x,OPTVAL_4X,,,,,,,4-oble,,,,,,,,,,,,,,,
 8x,OPTVAL_8X,,,,,,,8-oble,,,,,,,,,,,,,,,
@@ -2318,3 +2324,19 @@ War Key,TXT_EX_PICKUP26,,,,,,,,,,,,,,,,,,,,,,
 Earth Key,TXT_EX_PICKUP27,,,,,,,,,,,,,,,,,,,,,,
 Magic,TXT_EX_PICKUP28,,,,,,,,,,,,,,,,,,,,,,
 Location Preserved,TXT_EX_PICKUP29,,,,,,,,,,,,,,,,,,,,,,
+"Pick up a copy of Exhumed
+today to continue the adventure!
+More levels, nastier creatures
+and the evil doings of the
+Kilmaat await you in the full
+version of the game.
+Twenty levels, plus 12 network
+play levels can be yours!
+",TXT_EX_SHAREWARE,,,,,,,,,,,,,,,,,,,,,,
+"Hi Sweetie, I love you",TXT_EX_SWEETIE,,,,,,,,,,,,,,,,,,,,,,
+Flashes toggled,TXT_EX_FLASHES,,,,,,,,,,,,,,,,,,,,,,
+Full Map,TXT_EX_FULLMAP,,,,,,,,,,,,,,,,,,,,,,
+Slip mode ON,TXT_EX_SLIPON,,,,,,,,,,,,,,,,,,,,,,
+Slip mode OFF,TXT_EX_SLIPOFF,,,,,,,,,,,,,,,,,,,,,,
+Snake Cam Enabled,TXT_EX_SNAKEON,,,,,,,,,,,,,,,,,,,,,,
+Snake Cam Disabled,TXT_EX_SNAKEOFF,,,,,,,,,,,,,,,,,,,,,,

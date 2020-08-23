@@ -468,7 +468,7 @@ void viewSetSystemMessage(const char* pMessage, ...) {
 
 void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY priority)
 {
-	int printlevel = priority < 0 ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
+	int printlevel = priority <= MESSAGE_PRIORITY_NORMAL ? PRINT_LOW : priority < MESSAGE_PRIORITY_SYSTEM ? PRINT_MEDIUM : PRINT_HIGH;
     Printf(printlevel|PRINT_NOTIFY, "%s\n", pMessage);
 }
 
