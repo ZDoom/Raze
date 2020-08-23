@@ -323,8 +323,11 @@ public:
 	{
 		auto p = &ps[snum];
 		double h = tilesiz[BOTTOMSTATUSBAR].y * scale;
+		double wh = 0;
+		if (hud_size < Hud_Stbar) wh = tilesiz[WEAPONBAR].y * scale;
+
 		double top = 200 - h;
-		BeginStatusBar(320, 200, h);
+		BeginStatusBar(320, 200, wh + h);
 		DrawInventory(p, 160, 154, 0);
 
 		if (hud_size < Hud_Stbar)
