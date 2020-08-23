@@ -693,6 +693,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     //MREAD(Player,sizeof(PLAYER), numplayers,fil);
 
     //save players info
+
+    for (auto& pp : Player)
+    {
+        pp.cookieTime = 0;
+        memset(pp.cookieQuote, 0, sizeof(pp.cookieQuote));
+    }
+
     for (i = 0; i < numplayers; i++)
     {
         pp = &Player[i];

@@ -208,6 +208,7 @@ bool DMenu::MenuEvent (int mkey, bool fromcontroller)
 		{
 			M_MenuSound(CurrentMenu->mParentMenu? BackSound : CloseSound);
 			Close();
+			if (!CurrentMenu && gamestate == GS_MENUSCREEN) C_FullConsole();
 			return true;
 		}
 	}
@@ -964,7 +965,6 @@ void M_ClearMenus (bool final)
 	if (!final)
 	{
 		gi->MenuClosed();
-		if (gamestate == GS_MENUSCREEN) C_FullConsole();
 	}
 }
 
