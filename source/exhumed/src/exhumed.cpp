@@ -528,6 +528,56 @@ void GameMove(void)
     moveframes--;
 }
 
+
+void GameTicker()
+{
+    while ((totalclock - ototalclock) >= 1 || !bInMove)
+    {
+        ototalclock = ototalclock + 1;
+
+        if (!((int)ototalclock & 3) && moveframes < 4)
+            moveframes++;
+
+        GetLocalInput();
+        PlayerInterruptKeys();
+
+        nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
+        inita &= kAngleMask;
+
+        lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
+        lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
+        lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+        lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+
+        sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+        sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+        sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+        sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
+        sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+        Ra[nLocalPlayer].nTarget = besttarget;
+
+        lLocalCodes = 0;
+        nPlayerDAng = 0;
+
+        sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
+
+        while (!EndLevel && totalclock >= tclocks + 4)
+        {
+            tclocks += 4;
+            GameMove();
+        }
+    }
+    if (nPlayerLives[nLocalPlayer] <= 0) {
+        //startmainmenu();
+    }
+#if 0
+    if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
+        menu_GameSave(SavePosition);
+    }
+#endif
+
+}
 int32_t r_maxfpsoffset = 0;
 
 
