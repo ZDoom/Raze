@@ -36,42 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int handle1;
-
-
-int MenuExitCondition;
-
-int menu_Menu(int nVal)
-{
-	MenuExitCondition = -2;
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	while (M_Active())
-	{
-		auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-		int dword_9AB5F = ((int)totalclock / 16) & 3;
-
-		twod->ClearScreen();
-
-		DrawRel(kSkullHead, 160, 100, 32);
-		DrawRel(kSkullJaw, 161, 130, 32);
-		DrawRel(nLogoTile, 160, 40, 32);
-
-		// draw the fire urn/lamp thingies
-		DrawRel(kTile3512 + dword_9AB5F, 50, 150, 32);
-		DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 32);
-
-		HandleAsync();
-		D_ProcessEvents();
-		videoNextPage();
-
-	}
-	int me = MenuExitCondition;
-	MenuExitCondition = -2;
-	return me;
-}
-
-
 //----------------------------------------------------------------------------
 //
 // Implements the native looking menu used for the main menu
@@ -187,7 +151,7 @@ void GameInterface::MenuClosed()
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
-	MenuExitCondition = gs.Episode;	// Gross hack. The main loop needs to be redone for better handling.
+	GameAction = gs.Episode;	// 0 is training, 1 is the regular game
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

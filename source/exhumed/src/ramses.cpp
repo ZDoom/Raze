@@ -489,8 +489,7 @@ int DoSpiritHead()
             {
                 if (!CDplaying())
                 {
-                    levelnew = levelnum + 1;
-                    fadecdaudio();
+                    EndLevel = 2;
                 }
             }
         }

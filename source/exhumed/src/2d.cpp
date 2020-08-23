@@ -47,24 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int SyncScreenJob()
-{
-    while (gamestate == GS_INTERMISSION || gamestate == GS_INTRO)
-    {
-        UpdateSounds();
-        HandleAsync();
-        updatePauseStatus();
-        D_ProcessEvents();
-        ControlInfo info;
-        CONTROL_GetInput(&info);
-        C_RunDelayedCommands();
-
-        RunScreenJobFrame();	// This handles continuation through its completion callback.
-        videoNextPage();
-    }
-    return 0;
-}
-
+int selectedlevelnew;
 
 //---------------------------------------------------------------------------
 //
@@ -628,8 +611,6 @@ void DoTitle(CompletionFunc completion)
 	 0, {{1, 20,  10}, {1, 20,   10}, {1, 20,   10}}
  };
 
-static int gLevelNew; // this is needed to get the chosen level out of the map screen class
-
 class DMapScreen : public DScreenJob
 {
 	int i;
@@ -770,7 +751,7 @@ public:
 			
 			nIdleSeconds = 0;
 		}
-		gLevelNew = nLevelNew;
+		selectedlevelnew = nLevelNew + 1;
 		return skiprequest? -1 : nIdleSeconds < 12? 1 : 0;
 	}
 
@@ -826,11 +807,10 @@ public:
 	}
 };
 
- void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, std::function<void(int)> completion)
+ void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc> &jobs)
  {
 	 if (nLevel > kMap20 || nLevelNew > kMap20) // max single player levels
 	 {
-		 completion(-1);
 		 return;
 	 }
      nLevelBest = kMap20;
@@ -838,14 +818,8 @@ public:
 	 if (nLevel < 1) nLevel = 1;
 	 if (nLevelNew < 1) nLevelNew = nLevel;
 	 
-	  auto mycompletion = [=](bool)
-	  {
-		  completion(gLevelNew+1);
-	  };
-	  // 0-offset the level numbers
-	 gLevelNew = nLevelNew;
-	 JobDesc job = { Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1) };
-	 RunScreenJob(&job, 1, mycompletion);
+     // 0-offset the level numbers
+     jobs.Push( { Create<DMapScreen>(nLevel-1, nLevelNew-1, nLevelBest-1) });
  }
 
 //---------------------------------------------------------------------------
@@ -937,8 +911,6 @@ static const char * const cinpalfname[] = {
     "terror.pal"
 };
 
-extern short nCinemaSeen[30];
-
 void uploadCinemaPalettes()
 {
     for (int i = 0; i < countof(cinpalfname); i++)
@@ -965,9 +937,10 @@ class DCinema : public DScreenJob
 	short cinematile;
 	int currentCinemaPalette;
     int edx;
+    int check;
 
 public:
-	DCinema(int nVal) : DScreenJob(fadein|fadeout)
+	DCinema(int nVal, int checklevel = -1) : DScreenJob(fadein|fadeout)
 	{
 		static const short cinematiles[] = { 3454, 3452, 3449, 3445, 3451, 3448, 3446};
         static const int8_t bxvals[] = { 4, 0, 2, 7, 3, 8, 6 };
@@ -979,6 +952,7 @@ public:
         edx = dxvals[nVal - 1];
         text.Start(0);
         text.ReadyCinemaText(bxvals[nVal - 1]);
+        check = checklevel;
     }
 	
     int Frame(uint64_t clock, bool skiprequest) override
@@ -986,6 +960,7 @@ public:
 
         if (clock == 0)
         {
+            if (check > 0 && check != selectedlevelnew) return 0; // immediately abort if the player selected a different level on the map
             StopAllSounds();
             if (edx != -1)
             {
@@ -1280,15 +1255,43 @@ private:
     }
 };
 
+//---------------------------------------------------------------------------
+//
+// player died
+//
+//---------------------------------------------------------------------------
 
-
-// temporary.
-void RunCinemaScene(int num)
+void DoGameOverScene(bool finallevel)
 {
-    JobDesc job = { num == -1? (DScreenJob*)Create<DExCredits>() : Create<DCinema>(num) };
-    RunScreenJob(&job, 1, [](bool) { gamestate = GS_LEVEL; });
-    SyncScreenJob();
+    JobDesc job;
+
+    if (finallevel)
+    {
+        playCDtrack(9, false);
+        //FadeToWhite();
+        job = { Create<DCinema>(4) };
+    }
+    else
+    {
+        StopCD();
+        PlayGameOverSound();
+        job = { Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
+    }
+    RunScreenJob(&job, 1, [](bool) { gamestate = GS_STARTUP; });
 }
 
+
+void DoAfterCinemaScene(int nLevel, TArray<JobDesc>& jobs)
+{
+    static const uint8_t nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
+    if (nAfterScene[nLevel]) jobs.Push({ Create<DCinema>(nAfterScene[nLevel]) });
+    if (nLevel == 20) jobs.Push({ Create<DExCredits>() });
+}
+
+void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs)
+{
+    if (nLevel == 5) jobs.Push({ Create<DCinema>(3) });
+    else if (nLevel == 11) jobs.Push({ Create<DCinema>(1, 11) });
+}
 
 END_PS_NS

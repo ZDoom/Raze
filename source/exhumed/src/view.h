@@ -28,7 +28,6 @@ extern short besttarget;
 extern short bCamera;
 
 void InitView();
-void SetView1();
 void DrawStatusBar();
 void DrawView(int smoothRatio, bool sceneonly = false);
 void ResetView();

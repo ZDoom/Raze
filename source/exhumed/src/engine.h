@@ -95,7 +95,6 @@ int LoadPaletteLookups();
 void SetGreenPal();
 void RestoreGreenPal();
 void FixPalette();
-void FadeToWhite();
 int HavePLURemap();
 uint8_t RemapPLU(uint8_t pal);
 

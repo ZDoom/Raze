@@ -179,6 +179,7 @@ uint8_t LoadLevel(int nMap)
 
 void InitLevel(int level)
 {
+    levelnum = level;
     StopCD();
     if (!LoadLevel(level)) {
         I_Error("Can't load level %d...\n", level);
@@ -218,7 +219,7 @@ void InitLevel(int level)
 void InitNewGame()
 {
     bCamera = false;
-    ClearCinemaSeen();
+    nCinemaSeen = 0;
     PlayerCount = 0;
 
     for (int i = 0; i < nTotalPlayers; i++)

@@ -61,7 +61,7 @@ int32_t registerosdcommands(void);
 void InitFonts();
 
 int htimer = 0;
-bool EndLevel = false;
+int EndLevel = false;
 
 
 PlayerInput localInput;
@@ -112,7 +112,6 @@ void EraseScreen(int nVal);
 void LoadStatus();
 void MySetView(int x1, int y1, int x2, int y2);
 void mysetbrightness(char al);
-void FadeIn();
 
 char sHollyStr[40];
 
@@ -127,7 +126,6 @@ short nFreeze;
 short nSnakeCam = -1;
 
 short nLocalSpr;
-short levelnew = 1;
 
 int nNetPlayerCount = 0;
 
@@ -146,7 +144,6 @@ short nEnergyTowers = 0;
 
 short nCfgNetPlayers = 0;
 FILE *vcrfp = NULL;
-short forcelevel = -1;
 
 int lLocalButtons = 0;
 int lLocalCodes = 0;
@@ -234,10 +231,8 @@ void timerhandler()
     }
 }
 
-extern int MenuExitCondition;
 void HandleAsync()
 {
-    MenuExitCondition = -2;
     handleevents();
 
 }
@@ -388,15 +383,6 @@ void DoRedAlert(int nVal)
     }
 }
 
-void LockEnergyTiles()
-{
-    // old	loadtilelockmode = 1;
-    tileLoad(kTile3603);
-    tileLoad(kEnergy1);
-    tileLoad(kEnergy2);
-    // old  loadtilelockmode = 0;
-}
-
 void DrawClock()
 {
     int ebp = 49;
@@ -474,13 +460,7 @@ void GameMove(void)
     {
         if (lCountDown <= 0)
         {
-            for (int i = 0; i < nTotalPlayers; i++) {
-                nPlayerLives[i] = 0;
-            }
-
-            DoFailedFinalScene();
-            levelnew = 100;
-
+            DoGameOverScene(true);
             return;
         }
         // Pink section
@@ -578,11 +558,6 @@ void GameTicker()
         if (nPlayerLives[nLocalPlayer] <= 0) {
             startmainmenu();
         }
-#if 0
-        if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
-            menu_GameSave(SavePosition);
-        }
-#endif
     }
     bInMove = false;
 
@@ -669,7 +644,6 @@ void InitGame()
     int i;
     //int esi = 1;
     //int edi = esi;
-    levelnew = 1;
 
     buttonMap.SetButtons(actions, NUM_ACTIONS);
 
@@ -677,18 +651,15 @@ void InitGame()
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
     for (int i = 0; i <= 32; i++)
     {
-        auto mi = &mapList[i];
+        auto mi = AllocateMap();
         mi->fileName.Format("LEV%d.MAP", i);
         mi->labelName.Format("LEV%d", i);
         mi->name.Format("$TXT_EX_MAP%02d", i);
+        mi->levelNumber = i;
 
         int nTrack = i;
         if (nTrack != 0) nTrack--;
         mi->cdSongId = (nTrack % 8) + 11;
-    }
-
-    if (nNetPlayerCount && forcelevel == -1) {
-        forcelevel = 1;
     }
 
     SetCheats(excheats, countof(excheats));
@@ -812,7 +783,6 @@ static SavegameHelper sgh("exhumed",
     SV(nFreeze),
     SV(nSnakeCam),
     SV(nLocalSpr),
-    SV(levelnew),
     SV(nClockVal),  // kTile3603
     SV(nRedTicks),
     SV(nAlarmTicks),

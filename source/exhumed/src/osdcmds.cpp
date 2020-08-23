@@ -83,8 +83,7 @@ static int osdcmd_map(CCmdFuncPtr parm)
     {
         if (mapList[i].labelName.CompareNoCase(mapname) == 0)
         {
-			levelnew = i;
-			levelnum = i;
+			GameAction = i;
 			return CCMD_OK;
         }
     }
@@ -117,8 +116,7 @@ static int osdcmd_changelevel(CCmdFuncPtr parm)
         return CCMD_SHOWHELP;
     }
 
-    levelnew = nLevel;
-    levelnum = nLevel;
+    GameAction = nLevel;
 
     return CCMD_OK;
 }

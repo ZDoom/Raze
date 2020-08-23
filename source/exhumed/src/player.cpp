@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sound.h"
 #include "buildtiles.h"
 #include "gstrings.h"
+#include "gamestate.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -2960,18 +2961,8 @@ loc_1BD2E:
                         }
                         else
                         {
-                            if (CDplaying()) {
-                                fadecdaudio();
-                            }
-
-                            if (levelnum == 20) {
-                                DoFailedFinalScene();
-                            }
-                            else {
-                                DoGameOverScene();
-                            }
-
-                            levelnew = 100;
+                            DoGameOverScene((levelnum == 20));
+                            return;
                         }
                     }
                 }

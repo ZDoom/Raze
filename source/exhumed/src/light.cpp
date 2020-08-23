@@ -79,13 +79,11 @@ int LoadPaletteLookups()
         
         bGreenPal = 0;
 
-#ifdef USE_OPENGL
         // These 3 tables do not have normal gradients. The others work without adjustment.
         // Other changes than altering the fog gradient are not necessary.
         lookups.tables[kPalTorch].ShadeFactor = lookups.tables[kPalTorch2].ShadeFactor = (numshades - 2) / 20.f;
         lookups.tables[kPalNoTorch].ShadeFactor = lookups.tables[kPalNoTorch2].ShadeFactor = (numshades - 2) / 4.f;
         lookups.tables[kPalBrite].ShadeFactor = lookups.tables[kPalBrite].ShadeFactor = (numshades - 2) / 128.f;
-#endif
 
     }
 
@@ -144,48 +142,6 @@ void GrabPalette()
     gtint = 0;
     rtint = 0;
     videoTintBlood(0, 0, 0);
-}
-
-void BlackOut()
-{
-    videoTintBlood(0, 0, 0);
-}
-
-void RestorePalette()
-{
-    videoTintBlood(0, 0, 0);
-}
-
-void FadeToWhite()
-{
-    // fixme
-    videoTintBlood(255, 255, 255);
-    videoNextPage();
-}
-
-void FadeOut(int bFadeMusic)
-{
-    if (bFadeMusic) StopCD();
-    videoTintBlood(-255, -255, -255);
-    videoNextPage();
-
-    EraseScreen(overscanindex);
-}
-
-void StartFadeIn()
-{
-    //fadecurpal = curpal;
-}
-
-int DoFadeIn()
-{
-    videoNextPage();
-    return 0;
-}
-
-void FadeIn()
-{
-    videoNextPage();
 }
 
 void FixPalette()

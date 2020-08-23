@@ -51,24 +51,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 short nBestLevel;
-int forcelevel = -1;
 static int32_t nonsharedtimer;
 
-extern int MenuExitCondition;
+int GameAction;
 
-extern short nCinemaSeen[30];
+extern uint8_t nCinemaSeen;
 extern ClockTicks tclocks;
 
 void RunCinemaScene(int num);
 void GameMove(void);
 void InitGame();
-void LockEnergyTiles();
 void DrawClock();
 int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
-int SyncScreenJob();
 void DoTitle(CompletionFunc completion);
 
-void FinishLevel()
+int levelnew = -1;
+
+void FinishLevel(TArray<JobDesc> jobs)
 {
     if (levelnum > nBestLevel) {
         nBestLevel = levelnum - 1;
@@ -81,135 +80,38 @@ void FinishLevel()
     bCamera = false;
     nMapMode = 0;
 
-    if (levelnum != kMap20)
+    if (levelnum != kMap20 && EndLevel != 2)
     {
-        EraseScreen(4);
+        // There's really no choice but to enter an active wait loop here to make the sound play out.
         PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-        videoNextPage();
-        //WaitTicks(12);
-        DrawView(65536);
-        videoNextPage();
+        int nTicks = totalclock + 12;
+        while (nTicks > (int)totalclock) { HandleAsync(); }
     }
+    else nPlayerLives[0] = 0;
 
-    FadeOut(1);
-    EraseScreen(overscanindex);
-
-    if (levelnum == 0)
-    {
-        nPlayerLives[0] = 0;
-        levelnew = 100;
-    }
-    else
-    {
-        DoAfterCinemaScene(levelnum);
-        if (levelnum == kMap20)
-        {
-            //DoCredits();
-            nPlayerLives[0] = 0;
-        }
-    }
+    DoAfterCinemaScene(levelnum, jobs);
 }
 
 
-
-
-short nBeforeScene[] = { 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-
-void CheckBeforeScene(int nLevel)
+void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobDesc> jobs)
 {
-    if (nLevel == kMap20)
-    {
-        RunCinemaScene(-1);
-        return;
+    if (nLevelNew == 5 && !(nCinemaSeen & 1)) {
+        nCinemaSeen |= 1;
+        DoBeforeCinemaScene(5, jobs);
     }
 
-    short nScene = nBeforeScene[nLevel];
+    menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, jobs);
 
-    if (nScene)
-    {
-        if (!nCinemaSeen[nScene])
-        {
-            RunCinemaScene(nScene);
-            nCinemaSeen[nScene] = 1;
-        }
+    if (nLevelNew == 11 && !(nCinemaSeen & 2)) {
+        DoBeforeCinemaScene(11, jobs);
     }
 }
-
-int SyncScreenJob();
-
-int showmap(short nLevel, short nLevelNew, short nLevelBest)
-{
-    FadeOut(0);
-    EraseScreen(overscanindex);
-    GrabPalette();
-    BlackOut();
-
-    if (nLevelNew != 11) {
-        CheckBeforeScene(nLevelNew);
-    }
-
-	int selectedLevel;
-	menu_DrawTheMap(nLevel, nLevelNew, nLevelBest, [&](int lev){
-		gamestate = GS_LEVEL;
-		selectedLevel = lev;
-        if (lev != nLevelNew) STAT_Cancel();
-	});
-	SyncScreenJob();
-    if (selectedLevel == 11) {
-        CheckBeforeScene(selectedLevel);
-    }
-
-    return selectedLevel;
-}
-
-void DoAfterCinemaScene(int nLevel)
-{
-    short nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
-
-    if (nAfterScene[nLevel]) {
-        RunCinemaScene(nAfterScene[nLevel]);
-    }
-}
-
-void DoFailedFinalScene()
-{
-    videoSetViewableArea(0, 0, xdim - 1, ydim - 1);
-
-    if (CDplaying()) {
-        fadecdaudio();
-    }
-
-    playCDtrack(9, false);
-    FadeToWhite();
-
-    RunCinemaScene(4);
-}
-
-void DoGameOverScene()
-{
-    FadeOut(0);
-    inputState.ClearAllInput();
-
-    NoClip();
-    overwritesprite(0, 0, kTile3591, 0, 2, kPalNormal, 16);
-    videoNextPage();
-    PlayGameOverSound();
-    //WaitAnyKey(3);
-    FadeOut(0);
-}
-
 
 
 static void GameDisplay(void)
 {
-    // End Section B
-
-    SetView1();
-
     if (levelnum == kMap20)
     {
-        LockEnergyTiles();
         DoEnergyTile();
         DrawClock();
     }
@@ -224,12 +126,6 @@ static void GameDisplay(void)
 		int nStringWidth = SmallFont->StringWidth(tex);
 		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
     }
-    if (M_Active())
-    {
-        D_ProcessEvents();
-    }
-
-    videoNextPage();
 }
 
 //---------------------------------------------------------------------------
@@ -245,6 +141,12 @@ void startmainmenu()
     M_SetMenu(NAME_Mainmenu);
     StopAllSounds();
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void drawmenubackground()
 {
@@ -263,44 +165,90 @@ void drawmenubackground()
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void CheckProgression()
 {
-    if (EndLevel)
+    TArray<JobDesc> jobs;
+    bool startlevel = false;
+    int mylevelnew = levelnew;
+
+    levelnew = -1;
+
+    if (GameAction >= 0)
     {
-        EndLevel = false;
-        FinishLevel();
-    }
-    if (levelnew > -1)
-    {
-        if (levelnew > 99)
+        if (GameAction < 1000)
         {
-            // end the game (but don't abort like the original game did!)
-            gamestate = GS_STARTUP;
-        }
-        else if (levelnew == -2)
-        {
-            // A savegame was loaded. Just start the level without any further actions.
-            gamestate = GS_LEVEL;
+            // start a new game on the given level
+            GameAction = -1;
+            mylevelnew = GameAction;
+            InitNewGame();
+            if (mylevelnew != 0) nBestLevel = mylevelnew - 1;
         }
         else
         {
-            // start a new game at the given level
-            if (!nNetPlayerCount && levelnew <= kMap20)
-            {
-                levelnew = showmap(levelnum, levelnew, nBestLevel);
-            }
-
-            if (levelnew > nBestLevel)
-            {
-                nBestLevel = levelnew;
-            }
-            InitNewGame();
+            // A savegame was loaded. Just start the level without any further actions.
+            GameAction = -1;
+            gamestate = GS_LEVEL;
+            return;
         }
     }
+    else if (EndLevel)
+    {
+        if (levelnum == 0) startmainmenu();
+        else FinishLevel(jobs);
+        EndLevel = false;
+    }
+    if (mylevelnew > -1 && mylevelnew < kMap20)
+    {
+        startlevel = true;
+        // start a new game at the given level
+        if (!nNetPlayerCount)
+        {
+            showmap(levelnum, mylevelnew, nBestLevel, jobs);
+        }
+        else
+            jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
+    }
+    if (jobs.Size() > 0)
+    {
+        selectedlevelnew = mylevelnew;
+        RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
+            {
+                if (!startlevel) gamestate = GS_STARTUP;
+                else
+                {
+                    gamestate = GS_LEVEL;
 
+                    InitLevel(selectedlevelnew);
+                    tclocks = totalclock;
+#if 0
+                    // this would be the place to autosave upon level start
+                    if (!bInDemo && selectedlevelnew > nBestLevel && selectedlevelnew != 0 && selectedlevelnew <= kMap20) {
+                        menu_GameSave(SavePosition);
+                    }
+#endif
+                    if (selectedlevelnew > nBestLevel)
+                    {
+                        nBestLevel = selectedlevelnew;
+                    }
+
+                    if (selectedlevelnew == 11) nCinemaSeen |= 2;
+                    if (mylevelnew != selectedlevelnew) STAT_Cancel();
+                }
+            });
+    }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
 void GameLoop()
 {
@@ -317,7 +265,7 @@ void GameLoop()
 //
 //---------------------------------------------------------------------------
 
-int app_loop()// GameInterface::app_main()
+int GameInterface::app_main()
 {
     InitGame();
     gamestate = GS_STARTUP;
@@ -336,6 +284,9 @@ int app_loop()// GameInterface::app_main()
             case GS_STARTUP:
                 totalclock = 0;
                 ototalclock = 0;
+                levelnew = -1;
+                GameAction = -1;
+                EndLevel = false;
 
                 if (userConfig.CommandMap.IsNotEmpty())
                 {
@@ -367,10 +318,13 @@ int app_loop()// GameInterface::app_main()
 
             }
             videoNextPage();
-            videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
         }
         catch (CRecoverableError& err)
         {
+            // Clear all progression sensitive variables here.
+            levelnew = -1;
+            GameAction = -1;
+            EndLevel = false;
             C_FullConsole();
             Printf(TEXTCOLOR_RED "%s\n", err.what());
         }
@@ -378,84 +332,6 @@ int app_loop()// GameInterface::app_main()
 }
 
 
-
-int GameInterface::app_main()
-{
-    int nMenu = 0;
-
-    InitGame();
-    if (!userConfig.nologo)
-    {
-        DoTitle([](bool) { gamestate = GS_MENUSCREEN; });
-        SyncScreenJob();
-        gamestate = GS_LEVEL;
-    }
-    // loc_11811:
-    if (forcelevel > -1)
-    {
-        levelnew = forcelevel;
-        goto STARTGAME1;
-    }
-
-    SavePosition = -1;
-    nMenu = menu_Menu(0);
-    switch (nMenu)
-    {
-    case 3:
-        forcelevel = 0;
-        goto STARTGAME2;
-    case 6:
-        goto GAMELOOP;
-    }
-STARTGAME1:
-    levelnew = 1;
-    levelnum = 1;
-    if (!nNetPlayerCount) {
-        FadeOut(0);
-    }
-STARTGAME2:
-
-    InitNewGame();
-
-    nBestLevel = levelnew - 1;
-LOOP1:
-
-    if (!bInDemo && levelnew > nBestLevel && levelnew != 0 && levelnew <= kMap20 && SavePosition > -1) {
-        menu_GameSave(SavePosition);
-    }
-    if (!nNetPlayerCount && levelnew > 0 && levelnew <= kMap20) {
-        levelnew = showmap(levelnum, levelnew, nBestLevel);
-    }
-
-    if (levelnew > nBestLevel) {
-        nBestLevel = levelnew;
-    }
-    InitLevel(levelnew);
-    tclocks = totalclock;
-    levelnew = -1;
-    // Game Loop
-GAMELOOP:
-    while (1)
-    {
-        if (levelnew >= 0)
-        {
-            goto LOOP1;
-        }
-
-        HandleAsync();
-        C_RunDelayedCommands();
-
-        updatePauseStatus();
-        GameLoop();
-        GameDisplay();
-
-        if (EndLevel)
-		{
-            EndLevel = false;
-            FinishLevel();
-		}
-    }
-}
 
 
 

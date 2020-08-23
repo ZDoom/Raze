@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "tarray.h"
 #include "zstring.h"
 #include "filesystem.h"
+#include "screenjob.h"
 
 BEGIN_PS_NS
 
@@ -110,14 +111,15 @@ void ShutDown(void);
 void DebugOut(const char *fmt, ...);
 int ExhumedMain(int argc, char *argv[]);
 
-void FinishLevel();
 void ResetEngine();
 
 void SetHiRes();
 
 void BlackOut();
 
-void DoGameOverScene();
+void DoGameOverScene(bool finallevel);
+void DoAfterCinemaScene(int nLevel, TArray<JobDesc> &jobs);
+void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs);
 
 int Query(short n, short l, ...);
 
@@ -129,11 +131,6 @@ void TintPalette(int a, int b, int c);
 
 void EraseScreen(int eax);
 
-void RestorePalette();
-
-void FadeIn();
-void FadeOut(int bFadeMusic);
-
 void mychangespritesect(int nSprite, int nSector);
 void mydeletesprite(int nSprite);
 
@@ -142,7 +139,6 @@ void GrabPalette();
 void mysetbrightness(char nBrightness);
 
 void StartFadeIn();
-int DoFadeIn();
 
 void InitSpiritHead();
 
@@ -160,11 +156,13 @@ void InitGame();
 void InitNewGame();
 void startmainmenu();
 
-extern bool EndLevel;
+extern int EndLevel;
 extern int32_t g_commandSetup;
 extern int32_t g_noSetup;
 
 extern char sHollyStr[];
+extern int selectedlevelnew;
+extern int GameAction;
 
 extern int localclock;
 
@@ -200,6 +198,7 @@ extern short nCurBodyNum;
 extern short nBodyTotal;
 
 extern short bSnakeCam;
+extern uint8_t nCinemaSeen;
 
 extern short levelnum;
 //extern short nScreenWidth;
@@ -216,7 +215,6 @@ extern short lastfps;
 extern int flash;
 
 extern short nLocalSpr;
-extern short levelnew;
 
 extern short nSnakeCam;
 

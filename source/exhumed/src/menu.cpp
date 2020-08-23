@@ -50,11 +50,9 @@ BEGIN_PS_NS
 
 GameStat GameStats;
 
-short nCinemaSeen[30];
+uint8_t nCinemaSeen;
 
 uint8_t energytile[66 * 66] = {0};
-
-short SavePosition = -1;
 
 uint8_t *cur;
 uint8_t *dest;
@@ -66,11 +64,6 @@ short word_9AB5B = 0;
 
 int keytimer = 0;
 
-
-void ClearCinemaSeen()
-{
-    memset(nCinemaSeen, 0, sizeof(nCinemaSeen));
-}
 
 unsigned int menu_RandomBit2()
 {
@@ -300,7 +293,7 @@ void menu_GameSave2(FILE* fp)
 {
     memset(&GameStats, 0, sizeof(GameStats));
 
-    GameStats.nMap = (uint8_t)levelnew;
+    GameStats.nMap = (uint8_t)levelnum;
     GameStats.nWeapons = nPlayerWeapons[nLocalPlayer];
     GameStats.nCurrentWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
     GameStats.clip = nPlayerClip[nLocalPlayer];

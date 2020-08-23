@@ -230,11 +230,6 @@ void ResetView()
 #endif
 }
 
-void SetView1()
-{
-}
-
-
 static inline int interpolate16(int a, int b, int smooth)
 {
     return a + mulscale16(b - a, smooth);
@@ -449,7 +444,7 @@ void DrawView(int smoothRatio, bool sceneonly)
                     if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(totalclock)) || inputState.CheckAllInput())
                     {
 						inputState.ClearAllInput();
-                        levelnew = levelnum + 1;
+                        EndLevel = 2;
 
                         if (CDplaying()) {
                             fadecdaudio();

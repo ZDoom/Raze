@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-extern int MenuExitCondition;
 void SaveTextureState();
 void LoadTextureState();
 
@@ -61,7 +60,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     parallaxtype = 2;
     g_visibility = 2048;
     ototalclock = totalclock;
-    MenuExitCondition = 6;
+    GameAction = 1000;
 
     if (levelnum > 15)
     {

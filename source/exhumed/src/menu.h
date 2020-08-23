@@ -44,11 +44,8 @@ extern GameStat GameStats;
 
 extern unsigned char cinemapal[];
 
-extern short SavePosition;
-
 int showmap(short nLevel, short nLevelNew, short nLevelBest);
 
-void ClearCinemaSeen();
 void menu_DoPlasma();
 int menu_Menu(int val);
 short menu_GameLoad(int nSlot);
@@ -56,13 +53,9 @@ void menu_GameLoad2(FILE *fp, bool bIsDemo = false);
 void menu_GameSave2(FILE *fp);
 void menu_GameSave(int nSaveSlot);
 
-void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, std::function<void(int)> completion);
+void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc> &jobs);
 
 void DoEnergyTile();
-
-void DoFailedFinalScene();
-
-void DoAfterCinemaScene(int nLevel);
 
 void InitEnergyTile();
 

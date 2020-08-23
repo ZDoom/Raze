@@ -219,7 +219,7 @@ void DoBubbleMachines()
 void BuildBubbleMachine(int nSprite)
 {
     if (nMachineCount >= kMaxMachines) {
-        I_Error("too many bubble machines in level %d\n", levelnew);
+        I_Error("too many bubble machines in level %d\n", levelnum);
         exit(-1);
     }
 

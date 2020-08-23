@@ -2554,7 +2554,7 @@ void PostProcess()
         }
     }
 
-    if (levelnew != kMap20)
+    if (levelnum != kMap20)
     {
         // esi is i
         for (i = 0; i < numsectors; i++)
