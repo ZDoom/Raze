@@ -591,8 +591,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 		{
 			if (wal->nextwall >= 0) continue;
 
-			if (tilesiz[wal->picnum].x == 0) continue;
-			if (tilesiz[wal->picnum].y == 0) continue;
+			if (!tileGetTexture(wal->picnum)->isValid()) continue;
 
 			if (j == k)
 			{
