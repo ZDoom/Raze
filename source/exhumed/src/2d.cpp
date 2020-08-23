@@ -139,7 +139,7 @@ void DrawAbs(int tile, double x, double y, int shade = 0)
     DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
-void DrawRel(int tile, double x, double y, int shade = 0)
+void DrawRel(int tile, double x, double y, int shade)
 {
     // This is slightly different than what the backend does here, but critical for some graphics.
     int offx = (tileWidth(tile) >> 1) + tileLeftOffset(tile);

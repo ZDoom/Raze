@@ -73,66 +73,8 @@ int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
 int SyncScreenJob();
 void DoTitle(CompletionFunc completion);
 void ResetEngine();
-
-
-void CheckKeys()
-{
-    if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-    {
-        buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-        if (!nMapMode)
-        {
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(1);
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-    {
-        buttonMap.ClearButton(gamefunc_Shrink_Screen);
-        if (!nMapMode)
-        {
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(-1);
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
-    }
-
-    // go to 3rd person view?
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-        if (!nFreeze)
-        {
-            if (bCamera) {
-                bCamera = false;
-            }
-            else {
-                bCamera = true;
-            }
-
-            if (bCamera)
-                GrabPalette();
-        }
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-		return;
-    }
-
-    if (paused)
-    {
-        return;
-    }
-}
+void CheckKeys();
+void CheckKeys2();
 
 void FinishLevel()
 {
@@ -153,7 +95,6 @@ void FinishLevel()
         PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
         videoNextPage();
         //WaitTicks(12);
-        WaitVBL();
         DrawView(65536);
         videoNextPage();
     }
@@ -357,13 +298,6 @@ STARTGAME2:
         }
 
         InitPlayerInventory(nPlayer);
-
-        if (i == 0) {
-            PlayerList[nPlayer].someNetVal = -3;
-        }
-        else {
-            PlayerList[nPlayer].someNetVal = -4;
-        }
     }
 
     nNetMoves = 0;
@@ -588,50 +522,7 @@ GAMELOOP:
                 bInMove = false;
                 RefreshStatus();
             }
-            else if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
-            {
-                buttonMap.ClearButton(gamefunc_Map);
-
-                if (!nFreeze) {
-                    nMapMode = (nMapMode+1)%3;
-                }
-            }
-
-            if (nMapMode != 0)
-            {
-                int const timerOffset = ((int) totalclock - nonsharedtimer);
-                nonsharedtimer += timerOffset;
-
-                if (buttonMap.ButtonDown(gamefunc_Zoom_In))
-                    lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
-
-                if (buttonMap.ButtonDown(gamefunc_Zoom_Out))
-                    lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
-
-                lMapZoom = clamp(lMapZoom, 48, 2048);
-            }
-
-            if (PlayerList[nLocalPlayer].nHealth > 0)
-            {
-                if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
-                {
-                    SetPrevItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory_Left);
-                }
-                if (buttonMap.ButtonDown(gamefunc_Inventory_Right))
-                {
-                    SetNextItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory_Right);
-                }
-                if (buttonMap.ButtonDown(gamefunc_Inventory))
-                {
-                    UseCurItem(nLocalPlayer);
-                    buttonMap.ClearButton(gamefunc_Inventory);
-                }
-            }
-            else {
-                SetAirFrame();
-            }
+			CheckKeys2();
         }
 		else
 		{

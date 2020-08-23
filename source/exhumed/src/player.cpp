@@ -928,9 +928,6 @@ void FuncPlayer(int a, int nDamage, int nRun)
     short nPlayer = RunData[nRun].nVal;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
-    if (PlayerList[nPlayer].someNetVal == -1)
-        return;
-
     short nPlayerSprite = PlayerList[nPlayer].nSprite;
 
     short nDopple = nDoppleSprite[nPlayer];

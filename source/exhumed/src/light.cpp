@@ -135,14 +135,6 @@ uint8_t RemapPLU(uint8_t pal)
     return pal;
 }
 
-void WaitVBL()
-{
-#ifdef __WATCOMC__
-    while (!(inp(0x3da) & 8));
-#endif
-}
-
-
 void GrabPalette()
 {
     nPalDiff  = 0;

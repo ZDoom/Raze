@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "engine.h"
 #include "exhumed.h"
 #include "player.h"
+#include "aistuff.h"
+#include "status.h"
+#include "view.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -106,28 +109,6 @@ void SendInput()
 
 }
 
-void LogoffPlayer(int nPlayer)
-{
-    if (nPlayer == nLocalPlayer)
-        return;
-
-    if (PlayerList[nPlayer].someNetVal == -1)
-        return;
-
-    memset(&sPlayerInput[nPlayer], 0, sizeof(sPlayerInput));
-
-    sprite[nDoppleSprite[nPlayer]].cstat = 0x8000u;
-    sprite[nPlayerFloorSprite[nPlayer]].cstat = 0x8000u;
-    sprite[PlayerList[nPlayer].nSprite].cstat = 0x8000u;
-
-    PlayerList[nPlayer].someNetVal = -1;
-
-    StatusMessage(150, "Player %d has left the game", nPlayer);
-
-// TODO	ClearPlayerInput(&sPlayerInput[nPlayer]);
-    nNetPlayerCount--;
-}
-
 short nNetMoveFrames = 0;
 
 void UpdateInputs()
@@ -143,6 +124,112 @@ void UpdateInputs()
         if (!nNetMoves) {
             nNetMoves++;
         }
+    }
+}
+
+void CheckKeys()
+{
+    if (!nMapMode)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
+        {
+            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(1);
+            }
+            else
+            {
+                hud_scale = hud_scale + 4;
+            }
+        }
+
+        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+        {
+            buttonMap.ClearButton(gamefunc_Shrink_Screen);
+            if (!SHIFTS_IS_PRESSED)
+            {
+                G_ChangeHudLayout(-1);
+            }
+            else
+            {
+                hud_scale = hud_scale - 4;
+            }
+        }
+    }
+
+    // go to 3rd person view?
+    if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
+    {
+        if (!nFreeze)
+        {
+            if (bCamera) {
+                bCamera = false;
+            }
+            else {
+                bCamera = true;
+            }
+
+            if (bCamera)
+                GrabPalette();
+        }
+        buttonMap.ClearButton(gamefunc_Third_Person_View);
+        return;
+    }
+
+    if (paused)
+    {
+        return;
+    }
+}
+
+static int32_t nonsharedtimer;
+
+void CheckKeys2()
+{
+    if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
+    {
+        buttonMap.ClearButton(gamefunc_Map);
+
+        if (!nFreeze) {
+            nMapMode = (nMapMode + 1) % 3;
+        }
+    }
+
+    if (nMapMode != 0)
+    {
+        int const timerOffset = ((int)totalclock - nonsharedtimer);
+        nonsharedtimer += timerOffset;
+
+        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
+            lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
+
+        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+            lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
+
+        lMapZoom = clamp(lMapZoom, 48, 2048);
+    }
+
+    if (PlayerList[nLocalPlayer].nHealth > 0)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Inventory_Left))
+        {
+            SetPrevItem(nLocalPlayer);
+            buttonMap.ClearButton(gamefunc_Inventory_Left);
+        }
+        if (buttonMap.ButtonDown(gamefunc_Inventory_Right))
+        {
+            SetNextItem(nLocalPlayer);
+            buttonMap.ClearButton(gamefunc_Inventory_Right);
+        }
+        if (buttonMap.ButtonDown(gamefunc_Inventory))
+        {
+            UseCurItem(nLocalPlayer);
+            buttonMap.ClearButton(gamefunc_Inventory);
+        }
+    }
+    else {
+        SetAirFrame();
     }
 }
 

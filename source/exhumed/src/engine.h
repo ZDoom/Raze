@@ -92,7 +92,6 @@ void LoadObjects();
 // light
 
 int LoadPaletteLookups();
-void WaitVBL();
 void SetGreenPal();
 void RestoreGreenPal();
 void FixPalette();

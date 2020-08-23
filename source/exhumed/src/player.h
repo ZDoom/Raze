@@ -53,7 +53,6 @@ struct Player
     short nAction;
     short nSprite;
     short bIsMummified;
-    short someNetVal;
     short invincibility;
     short nAir;
     short nSeq;

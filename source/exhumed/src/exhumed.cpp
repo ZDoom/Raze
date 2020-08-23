@@ -599,8 +599,6 @@ static const char* actions[] =
     "Alt_Weapon",
     "Third_Person_View",
     "Toggle_Crouch",	// This is the last one used by EDuke32.
-    "Zoom_In",	// Map controls should not pollute the global button namespace.
-    "Zoom_Out",
 };
 
 
@@ -641,21 +639,6 @@ void InitGame()
         nNetPlayerCount = nCfgNetPlayers - 1;
         nTotalPlayers += nNetPlayerCount;
     }
-
-    // loc_116A5:
-
-#if 0
-    if (nNetPlayerCount)
-    {
-        InitInput();
-        forcelevel = nStartLevel;
-        nNetTime = 1800 * nTimeLimit;
-
-        if (nNetTime == 0) {
-            nNetTime = -1;
-        }
-    }
-#endif
 
     // temp - moving InstallEngine(); before FadeOut as we use nextpage() in FadeOut
     InstallEngine();
