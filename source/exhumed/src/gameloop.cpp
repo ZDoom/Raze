@@ -208,7 +208,7 @@ void CheckProgression()
     {
         startlevel = true;
         // start a new game at the given level
-        if (!nNetPlayerCount)
+        if (!nNetPlayerCount && mylevelnew > 0)
         {
             showmap(levelnum, mylevelnew, nBestLevel, jobs);
         }
