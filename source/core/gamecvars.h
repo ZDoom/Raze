@@ -70,6 +70,9 @@ EXTERN_CVAR(Int, althud_numberpal)
 EXTERN_CVAR(Int, althud_shadows)
 EXTERN_CVAR(Int, althud_flashing)
 
+EXTERN_CVAR(Bool, am_textfont)
+EXTERN_CVAR(Bool, am_showlabel)
+
 
 EXTERN_CVAR(Int, r_fov)
 EXTERN_CVAR(Bool, r_horizcenter)

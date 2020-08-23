@@ -473,6 +473,10 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 }
 
 
+CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
+CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
+
+
 // Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
 CVAR(Int, m_recstat, false, CVAR_NOSET)
 CVAR(Int, m_coop, 0, CVAR_NOSET)
@@ -492,23 +496,8 @@ CVAR(String, m_netport, "19014", CVAR_NOSET)
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
 	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
 
-	// This one gets changed at run time by the game code, so making it persistent does not work
-
-	// This option is not really useful anymore
-	{ "r_camrefreshdelay", "minimum delay between security camera sprite updates, 120 = 1 second", (void *)&ud.camera_time, CVAR_INT, 1, 240 },
-
 	// This requires a different approach, because it got used like a CCMD, not a CVAR.
 	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-	// just as a reminder:
-	/*
-	else if (!Bstrcasecmp(parm->name, "vid_gamma"))
-	{
-	}
-	else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
-	{
-	}
-	*/
 
 
 #endif
