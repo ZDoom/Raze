@@ -104,15 +104,20 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		shade = 25;
 	}
 
-	rotatesprite(160 << 16, int((y + tilesiz[tilenum].y) *65536), zoomsize, 0, tilenum, shade, 0, RS_AUTO|RS_CENTER, 0, 0, xdim, ydim);
+	// Todo: Replace the boxes with an empty one and draw the text with a font.
+	auto tex = tileGetTexture(tilenum);
+
+	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, 
+		DTA_Color, shadeToLight(shade), TAG_DONE);
 
 	// tilesizx is 51
 	// tilesizy is 33
 
 	if (state == NIT_SelectedState)
 	{
-		overwritesprite(62, short(ypos - 12), kMenuCursorTile, 0, 2, kPalNormal);
-		overwritesprite(62 + 146, short(ypos - 12), kMenuCursorTile, 0, 10, kPalNormal);
+		tex = tileGetTexture(kMenuCursorTile);
+		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
 	}
 }
 
