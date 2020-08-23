@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "exhumed.h"
 #include "player.h"
 #include "aistuff.h"
-#include "menu.h"
 #include "sound.h"
 #include "mapinfo.h"
 #include "v_video.h"

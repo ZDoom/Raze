@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "player.h"
 #include "sequence.h"
-#include "menu.h"
 #include "names.h"
 #include "engine.h"
 #include "c_bind.h"
@@ -32,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ps_input.h"
 #include "view.h"
 #include "raze_sound.h"
-#include "menu.h"
 #include "v_2ddrawer.h"
 #include "gamestate.h"
 #include "statistics.h"
@@ -43,12 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
-#define kSaveFileName       "savgamea.sav"
-#define kMaxSaveSlots		5
-#define kMaxSaveSlotChars	25
-
-GameStat GameStats;
 
 uint8_t nCinemaSeen;
 
@@ -243,81 +235,6 @@ void DoEnergyTile()
             word_9AB5B = 1;
         }
         TileFiles.InvalidateTile(kEnergy2);
-    }
-}
-
-void menu_GameLoad2(FILE* fp, bool bIsDemo)
-{
-    fread(&GameStats, sizeof(GameStats), 1, fp);
-
-    nPlayerWeapons[nLocalPlayer] = GameStats.nWeapons;
-
-    PlayerList[nLocalPlayer].nCurrentWeapon = GameStats.nCurrentWeapon;
-    nPlayerClip[nLocalPlayer] = GameStats.clip;
-
-    int nPistolBullets = PlayerList[nLocalPlayer].nAmmo[kWeaponPistol];
-    if (nPistolBullets >= 6) {
-        nPistolBullets = 6;
-    }
-
-    nPistolClip[nLocalPlayer] = nPistolBullets;
-
-    memcpy(&PlayerList[nLocalPlayer], &GameStats.player, sizeof(Player));
-
-    nPlayerItem[nLocalPlayer] = GameStats.items;
-    nPlayerLives[nLocalPlayer] = GameStats.nLives;
-
-    SetPlayerItem(nLocalPlayer, nPlayerItem[nLocalPlayer]);
-    CheckClip(nLocalPlayer);
-}
-
-short menu_GameLoad(int nSlot)
-{
-    memset(&GameStats, 0, sizeof(GameStats));
-
-    FILE* fp = fopen(kSaveFileName, "rb");
-    if (fp == NULL) {
-        return 0;
-    }
-
-    fseek(fp, 125, SEEK_SET);
-    fseek(fp, nSlot * sizeof(GameStats), SEEK_CUR);
-
-    menu_GameLoad2(fp);
-    fclose(fp);
-
-    return GameStats.nMap;
-}
-
-void menu_GameSave2(FILE* fp)
-{
-    memset(&GameStats, 0, sizeof(GameStats));
-
-    //GameStats.nMap = (uint8_t)levelnum;
-    GameStats.nWeapons = nPlayerWeapons[nLocalPlayer];
-    GameStats.nCurrentWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
-    GameStats.clip = nPlayerClip[nLocalPlayer];
-    GameStats.items = nPlayerItem[nLocalPlayer];
-    GameStats.nLives = nPlayerLives[nLocalPlayer];
-
-    memcpy(&GameStats.player, &PlayerList[nLocalPlayer], sizeof(GameStats.player));
-
-    fwrite(&GameStats, sizeof(GameStats), 1, fp);
-}
-
-void menu_GameSave(int nSaveSlot)
-{
-    if (nSaveSlot < 0) {
-        return;
-    }
-
-    FILE* fp = fopen(kSaveFileName, "rb+");
-    if (fp != NULL)
-    {
-        fseek(fp, 125, SEEK_SET); // skip save slot names
-        fseek(fp, sizeof(GameStat) * nSaveSlot, SEEK_CUR);
-        menu_GameSave2(fp);
-        fclose(fp);
     }
 }
 

@@ -138,6 +138,12 @@ void InitGame();
 void InitNewGame();
 void startmainmenu();
 
+int showmap(short nLevel, short nLevelNew, short nLevelBest);
+void menu_DoPlasma();
+void menu_DrawTheMap(int nLevel, int nLevelNew, int nLevelBest, TArray<JobDesc>& jobs);
+void DoEnergyTile();
+void InitEnergyTile();
+
 extern int EndLevel;
 extern int32_t g_commandSetup;
 extern int32_t g_noSetup;
