@@ -339,6 +339,22 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 	::GameInterface::DrawCenteredTextScreen(origin, text, position, bg);
 }
 
+static int GetPlayerColor(int color)
+{
+	return 0;
+}
+
+void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
+{
+	int color = TRANSLATION(Translation_Remap, playercolor2lookup(playercolor));
+	int tile = isRR() ? 3845 + 36 - ((((8 - (totalclock >> 4))) & 7) * 5) : 1441 - ((((4 - (totalclock >> 4))) & 3) * 5);
+	auto tex = tileGetTexture(tile);
+	if (!tex) return;
+	double x = origin.X + 260, y = origin.Y + tex->GetDisplayHeight() * (isRR()? 0.25 : 0.5);
+	double scale = isRR() ? 0.375 : 0.75;
+
+	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+}
 
 void GameInterface::QuitToTitle()
 {

@@ -226,6 +226,7 @@ int enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 void setlocalplayerinput(player_struct *pp);
+int playercolor2lookup(int color);
 void PlayerColorChanged(void);
 void nonsharedkeys(void);
 void apply_seasick(player_struct* p, double scalefactor);

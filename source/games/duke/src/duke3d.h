@@ -58,6 +58,7 @@ struct GameInterface : public ::GameInterface
 	bool CheatAllowed(bool printmsg) override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
+	void DrawPlayerSprite(const DVector2& origin, bool onteam);
 };
 
 struct Dispatcher
