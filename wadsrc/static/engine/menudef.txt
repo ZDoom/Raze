@@ -694,10 +694,10 @@ OptionMenu "OtherControlsMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_AUTOMAP"         , "+map"
-	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW","+map_follow_mode"
+	Control    "$CNTRLMNU_AUTOMAP"         , "togglemap"
+	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW" ,"togglefollow"
 	MapControl "$MAPCNTRLMNU_ZOOMIN"       , "+enlarge_Screen"
-	MapControl "$MAPCNTRLMNU_ZOOMOUT"     , "+shrink_screen"
+	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
 
 	StaticText ""
 	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
