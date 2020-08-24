@@ -65,7 +65,7 @@ void nonsharedkeys(void)
 	if (System_WantGuiCapture())
 		return;
 
-	if (!ALT_IS_PRESSED && ud.overhead_on == 0)
+	if (!ALT_IS_PRESSED && automapMode == am_off)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
 		{
@@ -117,17 +117,17 @@ void nonsharedkeys(void)
 		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
 	}
 
-	if (ud.overhead_on && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
+	if (automapMode != am_off && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
 	{
 		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-		ud.scrollmode = 1 - ud.scrollmode;
-		if (ud.scrollmode)
+		automapFollow = !automapFollow;
+		if (automapFollow)
 		{
 			ud.folx = ps[screenpeek].oposx;
 			ud.foly = ps[screenpeek].oposy;
 			ud.fola = ps[screenpeek].getoang();
 		}
-		FTA(QUOTE_MAP_FOLLOW_OFF + ud.scrollmode, &ps[myconnectindex]);
+		FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
 	}
 
 	// Fixme: This really should be done via CCMD, not via hard coded key checks - but that needs alternative Shift and Alt bindings.
@@ -181,7 +181,7 @@ void nonsharedkeys(void)
 			}
 		}
 
-		if (ud.overhead_on != 0)
+		if (automapMode != am_off)
 		{
 			int j;
 			if (nonsharedtimer > 0 || totalclock < nonsharedtimer)
@@ -201,22 +201,6 @@ void nonsharedkeys(void)
 				ps[myconnectindex].zoom -= mulscale6(j, max(ps[myconnectindex].zoom, 256));
 
 			ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
-		}
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Map))
-	{
-		buttonMap.ClearButton(gamefunc_Map);
-		if (ud.last_overhead != ud.overhead_on && ud.last_overhead)
-		{
-			ud.overhead_on = ud.last_overhead;
-			ud.last_overhead = 0;
-		}
-		else
-		{
-			ud.overhead_on++;
-			if (ud.overhead_on == 3) ud.overhead_on = 0;
-			ud.last_overhead = ud.overhead_on;
 		}
 	}
 }
@@ -1152,9 +1136,9 @@ static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
 
-	if ((ud.scrollmode && ud.overhead_on) || blocked)
+	if ((automapFollow && automapMode != am_off) || blocked)
 	{
-		if (ud.scrollmode && ud.overhead_on)
+		if (automapFollow && automapMode != am_off)
 		{
 			ud.folfvel = input.fvel;
 			ud.folavel = fix16_to_int(input.q16avel);

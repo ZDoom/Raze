@@ -472,7 +472,7 @@ void displayrooms(int snum, int smoothratio)
 
 	p = &ps[snum];
 
-	if (ud.overhead_on == 2 || p->cursectnum == -1)
+	if (automapMode == am_full || p->cursectnum == -1)
 		return;
 
 	// Do not light up the fog in RRRA's E2L1. Ideally this should apply to all foggy levels but all others use lookup table hacks for their fog.

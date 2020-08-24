@@ -210,7 +210,7 @@ void ctrlGetInput(void)
                 hud_scale = hud_scale - 4;
             }
         }
-        if (gViewMode == 2 || gViewMode == 4)
+        if (gViewMode == 4)
         {
             gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
             gViewMap.nZoom = gZoom;
@@ -231,7 +231,8 @@ void ctrlGetInput(void)
                 hud_scale = hud_scale + 4;
             }
         }
-        if (gViewMode == 2 || gViewMode == 4)
+        if (
+			gViewMode == 4)
         {
             gZoom = ClipHigh(gZoom + (gZoom >> 4), 4096);
             gViewMap.nZoom = gZoom;

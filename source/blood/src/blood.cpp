@@ -991,7 +991,6 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
     return { top, 25 };
 }
 
-
 ::GameInterface* CreateInterface()
 {
 	return new GameInterface;

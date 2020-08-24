@@ -277,6 +277,7 @@ enum EQuote
 	QUOTE_MIGHTY_FOOT           = 80 ,
 	QUOTE_WEAPON_MODE_OFF       = 82 ,
 	QUOTE_MAP_FOLLOW_OFF        = 83 ,
+	QUOTE_MAP_FOLLOW_ON         = 84 ,
 	QUOTE_RUN_MODE_OFF          = 85 ,
 	QUOTE_JETPACK               = 88 ,
 	QUOTE_SCUBA                 = 89 ,

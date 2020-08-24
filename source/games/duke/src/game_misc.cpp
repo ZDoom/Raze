@@ -282,7 +282,7 @@ void displayrest(double smoothratio)
 
 	if (ud.camerasprite == -1)
 	{
-		if (ud.overhead_on != 2)
+		if (automapMode != am_full)
 		{
 			if (!isRR() && pp->newowner >= 0)
 				cameratext(pp->newowner);
@@ -296,11 +296,11 @@ void displayrest(double smoothratio)
 				moveclouds();
 		}
 
-		if (ud.overhead_on > 0)
+		if (automapMode != am_off)
 		{
 			dointerpolations(smoothratio);
 
-			if (ud.scrollmode == 0)
+			if (!automapFollow)
 			{
 				if (pp->newowner == -1 && playrunning())
 				{
@@ -337,7 +337,7 @@ void displayrest(double smoothratio)
 				cang = ud.fola;
 			}
 
-			if (ud.overhead_on == 2)
+			if (automapMode == am_full)
 			{
 				twod->ClearScreen();
 				renderDrawMapView(cposx, cposy, pp->zoom, cang);
@@ -352,7 +352,7 @@ void displayrest(double smoothratio)
 	if (isRR()) drawstatusbar_r(screenpeek);
 	else drawstatusbar_d(screenpeek);
 
-	if (ps[myconnectindex].newowner == -1 && ud.overhead_on == 0 && cl_crosshair && ud.camerasprite == -1)
+	if (ps[myconnectindex].newowner == -1 && automapMode == am_off && cl_crosshair && ud.camerasprite == -1)
 	{
 		int32_t a = TILE_CROSSHAIR;
 
@@ -621,7 +621,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (ud.scrollmode && p == screenpeek) continue;
+		if (automapFollow && p == screenpeek) continue;
 
 		ox = sprite[ps[p].i].x - cposx;
 		oy = sprite[ps[p].i].y - cposy;
@@ -732,11 +732,6 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 		sbar >>= 1;
 	}
 	return { 0, sbar };
-}
-
-bool GameInterface::automapActive()
-{
-	return ud.overhead_on != 0;
 }
 
 ::GameInterface* CreateInterface()

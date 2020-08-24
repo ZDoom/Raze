@@ -94,7 +94,6 @@ static uint32_t conshade;
 static bool conline;
 
 extern int		gametic;
-extern bool		automapactive;	// in AM_map.c
 extern bool		advancedemo;
 
 extern FBaseCVar *CVars;

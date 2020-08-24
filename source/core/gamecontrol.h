@@ -210,3 +210,18 @@ void updatePauseStatus();
 void updatePauseStatus(bool state, bool multiplayer);
 extern int paused;
 extern int chatmodeon;
+
+enum AM_Mode
+{
+	am_off,
+	am_overlay,
+	am_full,
+	am_count
+};
+extern int automapMode;
+extern bool automapFollow;
+
+inline bool automapControlsActive()
+{
+	return automapMode != am_off;
+}

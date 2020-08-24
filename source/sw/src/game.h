@@ -2384,7 +2384,7 @@ struct GameInterface : ::GameInterface
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void clearlocalinputstate() override;
     void QuitToTitle() override;
-
+	
     FString statFPS() override;
     GameStats getStats() override;
 };

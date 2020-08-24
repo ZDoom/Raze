@@ -100,6 +100,17 @@ static ClockTicks lastototalclk;
 static uint64_t elapsedTime;
 static uint64_t lastTime;
 
+int automapMode;
+bool automapFollow;
+
+CCMD(togglemap)
+{
+	automapMode++;
+	if (automapMode == am_count) automapMode = am_off;
+	if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
+}
+
+
 glcycle_t thinktime, actortime, gameupdatetime, drawtime;
 
 gamestate_t gamestate = GS_STARTUP;

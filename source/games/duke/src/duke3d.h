@@ -39,7 +39,6 @@ struct GameInterface : public ::GameInterface
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
-	bool automapActive() override;
 	FString statFPS() override;
 	GameStats getStats() override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
@@ -58,7 +57,8 @@ struct GameInterface : public ::GameInterface
 	bool CheatAllowed(bool printmsg) override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
-	void DrawPlayerSprite(const DVector2& origin, bool onteam);
+	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
+
 };
 
 struct Dispatcher

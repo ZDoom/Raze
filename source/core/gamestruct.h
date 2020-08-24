@@ -63,7 +63,6 @@ struct GameInterface
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
-	virtual bool automapActive() { return false; }
 	virtual void PlayHudSound() {}
 	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }

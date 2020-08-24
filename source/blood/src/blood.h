@@ -126,7 +126,7 @@ struct GameInterface : ::GameInterface
 	FString GetCoordString() override;
 	void clearlocalinputstate() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
-
+	
 	GameStats getStats() override;
 };
 

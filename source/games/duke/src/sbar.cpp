@@ -179,7 +179,7 @@ PalEntry DDukeCommonStatusBar::LightForShade(int shade)
 
 void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 {
-	if (ud.overhead_on == 2)
+	if (automapMode == am_full)
 	{
 		// Automap label printer moved here so that it is on top of the screen border.
 		FString mapname;
@@ -194,7 +194,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 			font = isNamWW2GI() ? ConFont : SmallFont;
 			if (isNamWW2GI()) color = CR_ORANGE;
 		}
-		int top = am_nameontop ? 0 : 200 - Scale(bottomy < 0 ? RelTop : bottomy, hud_scale, 100) - isRR()? 25 : 20;
+		int top = am_nameontop ? 0 : ( 200 - Scale(bottomy < 0 ? RelTop : bottomy, hud_scale, 100) - (isRR()? 25 : 20));
 		if (!(currentLevel->flags & MI_USERMAP))
 			DrawText(twod, font, color, 5, top + 6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
 				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
