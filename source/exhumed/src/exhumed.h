@@ -188,11 +188,6 @@ extern short nBodyTotal;
 extern short bSnakeCam;
 extern uint8_t nCinemaSeen;
 
-//extern short nScreenWidth;
-//extern short nScreenHeight;
-
-extern short nMapMode;
-
 extern short nButtonColor;
 
 extern short nHeadStage;

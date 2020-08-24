@@ -74,7 +74,7 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     StopAllSounds();
 
     bCamera = false;
-    nMapMode = 0;
+    automapMode = am_off;
 
     STAT_Update(lnum == kMap20);
     if (lnum != kMap20)

@@ -335,7 +335,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
-            if (nMapMode == 2)
+            if (automapMode == am_full)
                 col = 111;
             else
                 col = 111 - min(klabs(z2 - nPlayerZ) >> 13, 12);
@@ -364,7 +364,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         endwall = sector[i].wallptr + sector[i].wallnum;
         z2 = sector[i].floorz;
 
-        if (nMapMode == 2)
+        if (automapMode == am_full)
         {
             col = 111;
         }
@@ -465,9 +465,9 @@ void UpdateMap()
 
 void DrawMap()
 {
-    if (!nFreeze && nMapMode) {
+    if (!nFreeze && automapMode != am_off) {
         //drawoverheadmap(initx, inity, lMapZoom, inita);
-        if (nMapMode == 2)
+        if (automapMode == am_full)
         {
             twod->ClearScreen();
             renderDrawMapView(initx, inity, lMapZoom, inita);

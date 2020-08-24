@@ -167,9 +167,6 @@ short nCurBodyNum = 0;
 short nBodyTotal = 0;
 
 short lastfps;
-
-short nMapMode = 0;
-
 short nTotalPlayers = 1;
 // TODO: Rename this (or make it static) so it doesn't conflict with library function
 //short socket = 0;

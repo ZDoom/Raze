@@ -128,7 +128,7 @@ void UpdateInputs()
 
 void CheckKeys()
 {
-    if (!nMapMode)
+    if (automapMode == am_off)
     {
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
         {
@@ -191,11 +191,11 @@ void CheckKeys2()
         buttonMap.ClearButton(gamefunc_Map);
 
         if (!nFreeze) {
-            nMapMode = (nMapMode + 1) % 3;
+            automapMode = (automapMode + 1) % 3;
         }
     }
 
-    if (nMapMode != 0)
+    if (automapMode != am_off)
     {
         int const timerOffset = ((int)totalclock - nonsharedtimer);
         nonsharedtimer += timerOffset;

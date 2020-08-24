@@ -958,7 +958,7 @@ void DrawWeapons(double smooth)
 
     nPal = RemapPLU(nPal);
 
-    double xOffset, yOffset;
+    double xOffset = 0, yOffset = 0;
 
     if (cl_weaponsway)
     {
