@@ -438,6 +438,8 @@ public:
             start = ticker;
         }
 
+        twod->ClearScreen();
+
         menu_DoPlasma();
 
         DrawRel(kSkullHead, 160, 100);
