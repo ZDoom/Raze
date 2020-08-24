@@ -168,28 +168,6 @@ int32_t handleevents(void)
 
 	timerUpdateClock();
 
-	// The mouse wheel is not a real key so in order to be "pressed" it may only be cleared at the end of the tic (or the start of the next.)
-	if (inputState.GetKeyStatus(KEY_MWHEELUP))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELUP };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELDOWN))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELDOWN };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELLEFT))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELLEFT };
-		D_PostEvent(&ev);
-	}
-	if (inputState.GetKeyStatus(KEY_MWHEELRIGHT))
-	{
-		event_t ev = { EV_KeyUp, 0, (int16_t)KEY_MWHEELRIGHT };
-		D_PostEvent(&ev);
-	}
-
 	I_StartFrame();
 	I_StartTic();
 	return 0;
