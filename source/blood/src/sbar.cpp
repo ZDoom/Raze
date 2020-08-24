@@ -187,7 +187,36 @@ private:
 
     void PrintLevelStats(PLAYER* pPlayer, int bottomy)
     {
-        if (gViewMode == 3 && hud_stats)
+		if (automapMode == am_full)
+		{
+			FString pBuffer;
+			const char *pTitle = currentLevel->DisplayName();
+			const char *pFilename = currentLevel->LabelName();
+			if (pTitle)
+				pBuffer.Format("%s: %s", pFilename, pTitle);
+			else
+				pBuffer = pFilename;
+#if 0
+			int nViewY;
+			if (g ViewSize > 3)
+				nViewY = gViewY1S-16;
+			else
+				nViewY = gViewY0S+1;
+			viewDrawText(3, pBuffer, gViewX1S /2, nViewY, -128, 0, 2, 0, 256);
+#else
+			// This needs fixing across games, so for the time being just print the text into the upper left corner
+			viewDrawText(3, pBuffer, 3, 3, -128, 0, 0, 0, 256);
+#endif
+			
+#if 0 // needs to be generalized
+			if (automapFollow)
+				Printf(PRINT_NOTIFY, "MAP FOLLOW MODE\n");
+			else
+				Printf(PRINT_NOTIFY, "MAP SCROLL MODE\n");
+#endif
+
+		}
+        if (automapMode == am_off && hud_stats)
         {
             FLevelStats stats{};
 
@@ -815,7 +844,7 @@ void UpdateStatusBar(ClockTicks arg)
 {
     DBloodStatusBar sbar;
 
-    if (gViewMode == 3 && hud_size <= Hud_Stbar)
+    if (automapMode == am_off && hud_size <= Hud_Stbar)
     {
         UpdateFrame();
     }

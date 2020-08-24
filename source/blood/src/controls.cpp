@@ -183,22 +183,15 @@ void ctrlGetInput(void)
     UsesToSend.byte = 0;
     WeaponToSend = 0;
 
-    if (buttonMap.ButtonDown(gamefunc_Map))
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-        viewToggle(gViewMode);
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
     {
         buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-        gFollowMap = !gFollowMap;
-        gViewMap.FollowMode(gFollowMap);
+        automapFollow = !automapFollow;
     }
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
-        if (gViewMode == 3)
+        if (automapMode == am_off)
         {
             buttonMap.ClearButton(gamefunc_Shrink_Screen);
             if (!SHIFTS_IS_PRESSED)
@@ -210,7 +203,7 @@ void ctrlGetInput(void)
                 hud_scale = hud_scale - 4;
             }
         }
-        if (gViewMode == 4)
+        if (automapMode != am_off)
         {
             gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
             gViewMap.nZoom = gZoom;
@@ -219,7 +212,7 @@ void ctrlGetInput(void)
 
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
-        if (gViewMode == 3)
+        if (automapMode == am_off)
         {
             buttonMap.ClearButton(gamefunc_Enlarge_Screen);
             if (!SHIFTS_IS_PRESSED)
@@ -231,8 +224,7 @@ void ctrlGetInput(void)
                 hud_scale = hud_scale + 4;
             }
         }
-        if (
-			gViewMode == 4)
+        if (automapMode != am_off)
         {
             gZoom = ClipHigh(gZoom + (gZoom >> 4), 4096);
             gViewMap.nZoom = gZoom;
@@ -368,7 +360,7 @@ void ctrlGetInput(void)
 
     input.q16mlook = fix16_ssub(input.q16mlook, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch / mlookScale)));
 
-    if (!gViewMap.bFollowMode && gViewMode == 4)
+    if (!automapFollow && automapMode != am_off)
     {
         gViewMap.turn += input.q16turn<<2;
         gViewMap.forward += input.forward;

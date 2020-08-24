@@ -61,8 +61,6 @@ struct INTERPOLATE {
     INTERPOLATE_TYPE type;
 };
 
-int gViewMode = 3;
-
 double gInterpolate;
 int nInterpolations;
 char gInterpolateSprite[(kMaxSprites+7)>>3];
@@ -101,16 +99,6 @@ void FontSet(int id, int tile, int space)
 	gFont[id] =	new ::FFont(names[id], nullptr, defs[id], 0, 0, 0, 0, tileWidth(tile), false, false, false, &glyphs);
 	gFont[id]->SetKerning(space);
 	if (ptrs[id]) *ptrs[id] = gFont[id];
-}
-
-void viewToggle(int viewMode)
-{
-	if (viewMode == 3)
-		gViewMode = 4;
-	else
-	{
-		gViewMode = 3;
-	}
 }
 
 void viewBackupView(int nPlayer)
@@ -355,7 +343,7 @@ void viewInit(void)
         dword_172CE0[i][1] = mulscale16(wrand(), 2048);
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
-    gViewMap.sub_25C38(0, 0, gZoom, 0, gFollowMap);
+    gViewMap.sub_25C38(0, 0, gZoom, 0);
 }
 
 void viewDrawInterface(ClockTicks arg)
@@ -680,11 +668,11 @@ void viewDrawScreen(bool sceneonly)
         CalcInterpolations();
     }
 
-    if (gViewMode == 3 || gViewMode == 4 || gOverlayMap)
+    if (automapMode != am_full)
     {
         DoSectorLighting();
     }
-    if (gViewMode == 3 || gOverlayMap)
+    if (automapMode == am_off)
     {
         int basepal = 0;
         if (powerupCheck(gView, kPwUpDeathMask) > 0) basepal = 4;
@@ -1046,7 +1034,7 @@ void viewDrawScreen(bool sceneonly)
         hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
-    if (gViewMode == 4)
+    if (automapMode != am_off)
     {
         gViewMap.sub_25DB0(gView->pSprite);
     }

@@ -133,7 +133,7 @@ void sub_2541C(int x, int y, int z, short a)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        if (gViewMap.bFollowMode || gView->nPlayer != i)
+        if (automapFollow || gView->nPlayer != i)
         {
             PLAYER *pPlayer = &gPlayer[i];
             spritetype *pSprite = pPlayer->pSprite;
@@ -168,19 +168,12 @@ void sub_2541C(int x, int y, int z, short a)
     }
 }
 
-CViewMap::CViewMap()
+void CViewMap::sub_25C38(int _x, int _y, int _angle, short zoom)
 {
-    bActive = 0;
-}
-
-void CViewMap::sub_25C38(int _x, int _y, int _angle, short zoom, char unk1)
-{
-    bActive = 1;
     x = _x;
     y = _y;
     angle = _angle;
     nZoom = zoom;
-    FollowMode(unk1);
     forward = 0;
     turn = 0;
     strafe = 0;
@@ -188,10 +181,7 @@ void CViewMap::sub_25C38(int _x, int _y, int _angle, short zoom, char unk1)
 
 void CViewMap::sub_25C74(void)
 {
-    char pBuffer[128];
-    if (!bActive)
-        return;
-    char tm = 0;
+    int tm = 0;
     if (windowxy1.x > 0)
     {
         setViewport(Hud_Stbar);
@@ -201,30 +191,6 @@ void CViewMap::sub_25C74(void)
     twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
     renderDrawMapView(x,y,nZoom>>2,angle);
     sub_2541C(x,y,nZoom>>2,angle);
-    const char *pTitle = currentLevel->DisplayName();
-	const char *pFilename = currentLevel->LabelName();
-    if (pTitle)
-        sprintf(pBuffer, "%s: %s", pFilename, pTitle);
-    else
-        sprintf(pBuffer, "%s", pFilename);
-#if 0
-    int nViewY;
-    if (g ViewSize > 3)
-        nViewY = gViewY1S-16;
-    else
-        nViewY = gViewY0S+1;
-    viewDrawText(3, pBuffer, gViewX1S /2, nViewY, -128, 0, 2, 0, 256);
-#else
-    // This needs fixing across games, so for the time being just print the text into the upper left corner
-    viewDrawText(3, pBuffer, 3, 3, -128, 0, 0, 0, 256);
-#endif
-
-#if 0 // needs to be generalized
-    if (gViewMap.bFollowMode)
-        Printf(PRINT_NOTIFY, "MAP FOLLOW MODE\n");
-    else
-        Printf(PRINT_NOTIFY, "MAP SCROLL MODE\n");
-#endif
     if (tm)
         setViewport(hud_size);
 }
@@ -232,7 +198,7 @@ void CViewMap::sub_25C74(void)
 void CViewMap::sub_25DB0(spritetype *pSprite)
 {
     nZoom = gZoom;
-    if (bFollowMode)
+    if (automapFollow)
     {
         x = pSprite->x;
         y = pSprite->y;
@@ -260,10 +226,6 @@ void CViewMap::sub_25E84(int *_x, int *_y)
         *_y = y;
 }
 
-void CViewMap::FollowMode(char mode)
-{
-    bFollowMode = mode;
-}
 
 CViewMap gViewMap;
 

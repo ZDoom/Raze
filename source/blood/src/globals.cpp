@@ -44,9 +44,6 @@ static int _line;
 
 int32_t gTurnSpeed = 92;
 int32_t gDetail = 4;
-int32_t gFollowMap = 1;
-int32_t gOverlayMap = 0;
-int32_t gRotateMap = 0;
 bool gNoClip;
 bool gInfiniteAmmo;
 int32_t gDeliriumBlur = 1;

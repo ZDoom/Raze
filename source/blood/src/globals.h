@@ -41,9 +41,6 @@ extern bool bVanilla;
 
 extern int32_t gTurnSpeed;
 extern int32_t gDetail;
-extern int32_t gFollowMap;
-extern int32_t gOverlayMap;
-extern int32_t gRotateMap;
 extern bool gNoClip;
 extern bool gInfiniteAmmo;
 extern int32_t gDeliriumBlur;

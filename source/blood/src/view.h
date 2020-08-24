@@ -129,7 +129,6 @@ enum
 
 extern int gZoom;
 extern FFont *gFont[kFontNum];
-extern int gViewMode;
 extern VIEWPOS gViewPos;
 extern int gViewIndex;
 extern int gScreenTilt;
@@ -140,12 +139,10 @@ extern char gInterpolateSprite[];
 extern char gInterpolateWall[];
 extern char gInterpolateSector[];
 extern LOCATION gPrevSpriteLoc[kMaxSprites];
-extern int gViewMode;
 extern int gLastPal;
 extern double gInterpolate;
 
 void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, double bobx, double boby, double zDelta, int basepal);
-void viewToggle(int viewMode);
 void viewInitializePrediction(void);
 void viewUpdatePrediction(GINPUT *pInput);
 void viewCorrectPrediction(void);
