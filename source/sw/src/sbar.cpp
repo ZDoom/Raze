@@ -490,7 +490,7 @@ private:
         char ds[32];
         INVENTORY_DATAp id = &InventoryData[pp->InventoryNum];
 
-        int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff;
+        int x = InventoryBoxX + INVENTORY_PERCENT_XOFF + InventoryXoff-1;
         int y = InventoryBoxY + INVENTORY_PERCENT_YOFF + InventoryYoff;
 
         if (TEST(id->Flags, INVF_COUNT))
