@@ -387,6 +387,7 @@ public:
     int Frame(uint64_t clock, bool skiprequest) override
     {
 		if (clock == 0) PlayLocalSound(StaticSound[kSoundJonLaugh2], 7000, false, CHANF_UI);
+        if (skiprequest) StopLocalSound();
 		return DImageScreen::Frame(clock, skiprequest);
 	}
 };
