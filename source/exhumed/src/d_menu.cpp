@@ -44,7 +44,7 @@ BEGIN_PS_NS
 //
 //----------------------------------------------------------------------------
 void menu_DoPlasma();
-int zoomsize = 0;
+double zoomsize = 0;
 
 class PSMainMenu : public DListMenu
 {
@@ -58,11 +58,11 @@ class PSMainMenu : public DListMenu
 	void Ticker() override
 	{
 		// handle the menu zoom-in
-		if (zoomsize < 0x10000)
+		if (zoomsize < 1.)
 		{
-			zoomsize += 4096;
-			if (zoomsize >= 0x10000) {
-				zoomsize = 0x10000;
+			zoomsize += 0.0625;
+			if (zoomsize >= 1.) {
+				zoomsize = 1.;
 			}
 		}
 	}
@@ -107,7 +107,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	// Todo: Replace the boxes with an empty one and draw the text with a font.
 	auto tex = tileGetTexture(tilenum);
 
-	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, 
+	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_ScaleX, zoomsize, DTA_ScaleY, zoomsize, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, 
 		DTA_Color, shadeToLight(shade), TAG_DONE);
 
 	// tilesizx is 51
