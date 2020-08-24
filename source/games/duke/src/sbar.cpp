@@ -182,7 +182,6 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 	FLevelStats stats{};
 	auto pp = &ps[myconnectindex];
 	stats.fontscale = isRR() ? 0.5 : 1.;
-	stats.spacing = isRR() ? 10 : 7;
 	stats.screenbottomspace = bottomy;
 	stats.time = Scale(pp->player_par, 1000, REALGAMETICSPERSEC);
 	stats.font = SmallFont;
@@ -200,6 +199,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 			stats.font = SmallFont2;
 			stats.spacing = 6;
 		}
+		else stats.spacing = ConFont->GetHeight() + 1;
 		stats.standardColor = (isNamWW2GI() && am_textfont)? CR_ORANGE : CR_UNTRANSLATED;
 		stats.letterColor = CR_GOLD;
 		DBaseStatusBar::PrintAutomapInfo(stats);
@@ -208,6 +208,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 	{
 		// JBF 20040124: display level stats in screen corner
 
+		stats.spacing = isRR() ? 10 : 7;
 		stats.kills = pp->actors_killed;
 		stats.maxkills = !isRR() && ud.player_skill > 3 ? -2 : pp->max_actors_killed;
 		stats.frags = ud.multimode > 1 && !ud.coop ? pp->frag - pp->fraggedself : -1;

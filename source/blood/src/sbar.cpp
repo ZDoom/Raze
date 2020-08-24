@@ -187,48 +187,30 @@ private:
 
     void PrintLevelStats(PLAYER* pPlayer, int bottomy)
     {
+        FLevelStats stats{};
+
+        stats.fontscale = 1.;
+        stats.spacing = SmallFont->GetHeight() + 1;
+        stats.screenbottomspace = bottomy;
+        stats.font = SmallFont;
+        stats.letterColor = CR_DARKRED;
+        stats.standardColor = CR_DARKGRAY;
+        stats.time = Scale(gLevelTime, 1000, kTicsPerSec);
+
 		if (automapMode == am_full)
 		{
-			FString pBuffer;
-			const char *pTitle = currentLevel->DisplayName();
-			const char *pFilename = currentLevel->LabelName();
-			if (pTitle)
-				pBuffer.Format("%s: %s", pFilename, pTitle);
-			else
-				pBuffer = pFilename;
-#if 0
-			int nViewY;
-			if (g ViewSize > 3)
-				nViewY = gViewY1S-16;
-			else
-				nViewY = gViewY0S+1;
-			viewDrawText(3, pBuffer, gViewX1S /2, nViewY, -128, 0, 2, 0, 256);
-#else
-			// This needs fixing across games, so for the time being just print the text into the upper left corner
-			viewDrawText(3, pBuffer, 3, 3, -128, 0, 0, 0, 256);
-#endif
-			
-#if 0 // needs to be generalized
-			if (automapFollow)
-				Printf(PRINT_NOTIFY, "MAP FOLLOW MODE\n");
-			else
-				Printf(PRINT_NOTIFY, "MAP SCROLL MODE\n");
-#endif
-
+            if (!am_textfont)
+            {
+                stats.font = SmallFont2;
+                stats.spacing = 6;
+            }
+            if (hud_size <= Hud_StbarOverlay) stats.screenbottomspace = 56;
+            DBaseStatusBar::PrintAutomapInfo(stats);
 		}
         if (automapMode == am_off && hud_stats)
         {
-            FLevelStats stats{};
-
-            stats.fontscale = 1.;
-            stats.spacing = SmallFont->GetHeight() + 1;
-            stats.screenbottomspace = bottomy;
-            stats.font = SmallFont;
-            stats.letterColor = CR_DARKRED;
-            stats.standardColor = CR_DARKGRAY;
             stats.completeColor = CR_DARKGREEN;
 
-            stats.time = Scale(gLevelTime, 1000, kTicsPerSec);
             stats.kills = gKillMgr.at4;
             stats.maxkills = gKillMgr.at0;
             stats.frags = gGameOptions.nGameType == 3? pPlayer->fragCount : -1;
