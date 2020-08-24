@@ -39,6 +39,43 @@
 #include "d_gui.h"
 #include "inputstate.h"
 #include "menu.h"
+#include "gamestate.h"
+#include "gamecontrol.h"
+
+//==========================================================================
+//
+// AM_Responder
+// Handle automap exclusive bindings.
+//
+//==========================================================================
+
+bool AM_Responder (event_t *ev, bool last)
+{
+	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
+	{
+#if 0 // this feature does not exist yet.
+		if (automapFollow)
+		{
+			// check for am_pan* and ignore in follow mode
+			const char *defbind = AutomapBindings.GetBind(ev->data1);
+			if (defbind && !strnicmp(defbind, "+am_pan", 7)) return false;
+		}
+#endif
+
+		bool res = C_DoKey(ev, &AutomapBindings, nullptr);
+		if (res && ev->type == EV_KeyUp && !last)
+		{
+			// If this is a release event we also need to check if it released a button in the main Bindings
+			// so that that button does not get stuck.
+			const char *defbind = Bindings.GetBind(ev->data1);
+			return (!defbind || defbind[0] != '+'); // Let G_Responder handle button releases
+		}
+		return res;
+	}
+	return false;
+}
+
+
 
 //==========================================================================
 //
@@ -49,16 +86,17 @@
 
 bool G_Responder (event_t *ev)
 {
-	FKeyBindings* binds = &Bindings;
+	if (gamestate == GS_LEVEL && automapMode == am_full && AM_Responder(ev, false)) return true;
+	
 	switch (ev->type)
 	{
 	case EV_KeyDown:
-		if (C_DoKey (ev, binds, &DoubleBindings))
+		if (C_DoKey (ev, &Bindings, &DoubleBindings))
 			return true;
 		break;
 
 	case EV_KeyUp:
-		C_DoKey (ev, binds, &DoubleBindings);
+		C_DoKey (ev, &Bindings, &DoubleBindings);
 		break;
 
 #if 0
@@ -71,13 +109,10 @@ bool G_Responder (event_t *ev)
 	}
 
 
-#if 0
 	// [RH] If the view is active, give the automap a chance at
 	// the events *last* so that any bound keys get precedence.
-	// An option for later. Currently the automap is insufficiently separated from the game loop
-	if (gamestate == GS_LEVEL && viewactive && primaryLevel->automap)
-		return primaryLevel->automap->Responder (ev, true);
-#endif
+	if (gamestate == GS_LEVEL && automapMode == am_overlay)
+		return AM_Responder (ev, true);
 
 	return (ev->type == EV_KeyDown ||
 			ev->type == EV_Mouse);
