@@ -412,7 +412,7 @@ void DrawClock()
     DoEnergyTile();
 }
 
-int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+double calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
 {
     if (bRecord || bPlayback || nFreeze != 0 || bCamera || paused)
         return 65536;

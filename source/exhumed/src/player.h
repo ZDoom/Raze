@@ -106,7 +106,7 @@ extern short nPlayerClip[];
 
 extern short obobangle, bobangle;
 
-extern int totalvel[];
+extern int ototalvel[], totalvel[];
 extern int16_t eyelevel[], oeyelevel[];
 
 extern short nNetStartSprite[kMaxPlayers];

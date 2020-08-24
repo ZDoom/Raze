@@ -146,6 +146,11 @@ inline int Sin(int angle)
     return sintable[angle & kAngleMask];
 }
 
+inline double FSin(double angle)
+{
+    return calcSinTableValue(fmod(angle, kAngleMask + 1));
+}
+
 inline int Cos(int angle)
 {
     return sintable[(angle + 512) & kAngleMask];

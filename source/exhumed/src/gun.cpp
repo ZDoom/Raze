@@ -924,7 +924,7 @@ loc_flag:
     }
 }
 
-void DrawWeapons(int smooth)
+void DrawWeapons(double smooth)
 {
     if (bCamera) {
         return;
@@ -958,21 +958,22 @@ void DrawWeapons(int smooth)
 
     nPal = RemapPLU(nPal);
 
-    int nVal = totalvel[nLocalPlayer] >> 1;
+    double xOffset, yOffset;
 
-    // CHECKME - not & 0x7FF?
-    int nBobAngle = angle_interpolate16(obobangle, bobangle, smooth);
-    int	yOffset = (nVal * (sintable[nBobAngle & 0x3FF] >> 8)) >> 9;
-
-    int xOffset = 0;
-
-    if (var_34 == 1)
+    if (cl_weaponsway && var_34 == 1)
     {
-        xOffset = ((Sin(nBobAngle + 512) >> 8) * nVal) >> 8;
+        // CHECKME - not & 0x7FF?
+        double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
+        double nVal = (ototalvel[nLocalPlayer] + fmulscale16(totalvel[nLocalPlayer] - ototalvel[nLocalPlayer], smooth)) / 2.;
+        yOffset = (nVal * (calcSinTableValue(fmod(nBobAngle, 1024)) / 256.)) / 512.;
+
+        if (var_34 == 1)
+        {
+            xOffset = ((FSin(nBobAngle + 512) / 256.) * nVal) / 256.;
+        }
     }
     else
     {
-        xOffset = 0;
         obobangle = bobangle = 512;
     }
 

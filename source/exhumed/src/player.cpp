@@ -112,6 +112,7 @@ short nPlayerDouble[kMaxPlayers];
 short nPlayerViewSect[kMaxPlayers];
 short nPlayerFloorSprite[kMaxPlayers];
 PlayerSave sPlayerSave[kMaxPlayers];
+int ototalvel[kMaxPlayers] = { 0 };
 int totalvel[kMaxPlayers] = { 0 };
 int16_t eyelevel[kMaxPlayers], oeyelevel[kMaxPlayers];
 short nNetStartSprite[kMaxPlayers] = { 0 };
@@ -677,7 +678,7 @@ void RestartPlayer(short nPlayer)
     sprintf(playerNames[nPlayer], "JOE%d", nPlayer);
     namelen[nPlayer] = strlen(playerNames[nPlayer]);
 
-    totalvel[nPlayer] = 0;
+    ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
     memset(&sPlayerInput[nPlayer], 0, sizeof(PlayerInput));
     sPlayerInput[nPlayer].nItem = -1;
@@ -798,7 +799,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         }
     }
 
-    totalvel[nPlayer] = 0;
+    ototalvel[nPlayer] = totalvel[nPlayer] = 0;
 
     if (nPlayer == nLocalPlayer) {
         RefreshStatus();
@@ -1425,6 +1426,7 @@ loc_1AB8E:
                 sqrtNum = INT_MAX;
             }
 
+            ototalvel[nPlayer] = totalvel[nPlayer];
             totalvel[nPlayer] = ksqrt(sqrtNum);
 
             int nViewSect = sprite[nPlayerSprite].sectnum;

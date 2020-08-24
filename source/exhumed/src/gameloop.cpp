@@ -60,7 +60,7 @@ extern ClockTicks tclocks;
 void RunCinemaScene(int num);
 void GameMove(void);
 void DrawClock();
-int32_t calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
+double calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
 void DoTitle(CompletionFunc completion);
 
 static int FinishLevel(TArray<JobDesc> &jobs)
@@ -117,7 +117,7 @@ static void GameDisplay(void)
         DrawClock();
     }
 
-    auto smoothRatio = calc_smoothratio(totalclock, tclocks);
+    double smoothRatio = calc_smoothratio(totalclock, tclocks);
 
     DrawView(smoothRatio);
     DrawStatusBar();

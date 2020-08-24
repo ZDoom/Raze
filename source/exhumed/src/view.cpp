@@ -237,7 +237,7 @@ static inline int interpolate16(int a, int b, int smooth)
 
 static TextOverlay subtitleOverlay;
 
-void DrawView(int smoothRatio, bool sceneonly)
+void DrawView(double smoothRatio, bool sceneonly)
 {
     int playerX;
     int playerY;

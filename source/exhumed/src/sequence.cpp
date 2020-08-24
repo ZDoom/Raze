@@ -354,7 +354,7 @@ short seq_GetFrameFlag(short val, short nFrame)
     return FrameFlag[SeqBase[val] + nFrame];
 }
 
-void seq_DrawPilotLightSeq(int xOffset, int yOffset)
+void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
     short nSect = nPlayerViewSect[nLocalPlayer];
 
@@ -371,10 +371,10 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
                 return;
 
             short nTile = ChunkPict[nFrameBase];
-            int x = ChunkXpos[nFrameBase] + (160 + xOffset);
-            int y = ChunkYpos[nFrameBase] + (100 + yOffset);
+            double x = ChunkXpos[nFrameBase] + (160 + xOffset);
+            double y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            hud_drawsprite(x, y, 65536, (-2 * fix16_to_int(nPlayerDAng)) & kAngleMask, nTile, 0, 0, 1);
+            hud_drawsprite(x, y, 65536, fmod(-2 * (nPlayerDAng / (double)(FRACUNIT)), kAngleMask + 1), nTile, 0, 0, 1);
             nFrameBase++;
         }
     }
@@ -387,7 +387,7 @@ void seq_DrawPilotLightSeq(int xOffset, int yOffset)
 
 */
 
-int seq_DrawGunSequence(int nSeqOffset, short dx, int xOffs, int yOffs, int nShade, int nPal)
+int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal)
 {
     int nFrame = SeqBase[nSeqOffset] + dx;
     int nFrameBase = FrameBase[nFrame];
