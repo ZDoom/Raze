@@ -766,7 +766,7 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 	double spacing = stats.spacing * (am_textfont ? *hud_statscale : 1);
 	if (am_nameontop)
 	{
-		y = spacing;
+		y = spacing + 1;
 	}
 	else if (stats.screenbottomspace < 0)
 	{
@@ -776,13 +776,14 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 	{
 		y = 200 - stats.screenbottomspace - spacing;
 	}
+	const auto &volname = gVolumeNames[volfromlevelnum(currentLevel->levelNumber)];
+	if (volname.IsEmpty() && am_nameontop) y = 1;
 
 	DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 		DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 	y -= spacing;
-
-	if (!(currentLevel->flags & MI_USERMAP) && !(g_gameType & GAMEFLAG_PSEXHUMED))
-		DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
+	if (!(currentLevel->flags & MI_USERMAP) && !(g_gameType & GAMEFLAG_PSEXHUMED) && volname.IsNotEmpty())
+		DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, GStrings.localize(volname),
 			DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 

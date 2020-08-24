@@ -819,19 +819,24 @@ private:
 
     void PrintLevelStats(int bottomy)
     {
-        if (hud_stats)
+        FLevelStats stats{};
+        stats.fontscale = 1.;
+        stats.spacing = SmallFont->GetHeight();
+        stats.screenbottomspace = bottomy;
+        stats.font = SmallFont;
+        stats.letterColor = CR_RED;
+        stats.standardColor = CR_UNTRANSLATED;
+        stats.time = Scale(leveltime, 1000, 30);
+        am_textfont = true; // Exhumed has no fallback.
+
+        if (automapMode == am_full)
         {
-            FLevelStats stats{};
+            DBaseStatusBar::PrintAutomapInfo(stats);
+        }
+        else if (hud_stats)
+        {
 
-            stats.fontscale = 1.;
-            stats.spacing = SmallFont->GetHeight();
-            stats.screenbottomspace = bottomy;
-            stats.font = SmallFont;
-            stats.letterColor = CR_RED;
-            stats.standardColor = CR_UNTRANSLATED;
             stats.completeColor = CR_DARKGREEN;
-
-            stats.time = Scale(leveltime, 1000, 30);
             stats.kills = nCreaturesKilled;
             stats.maxkills = nCreaturesTotal;
             stats.frags = -1;
