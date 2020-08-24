@@ -2473,16 +2473,6 @@ MoveScrollMode2D(PLAYERp pp)
     }
 #endif
 
-    // Toggle follow map mode on/off
-    if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-    {
-		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-        automapFollow = !automapFollow;
-        // Reset coords
-        Follow_posx = pp->posx;
-        Follow_posy = pp->posy;
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw / 4;
     mfsvel -= scrl_input.dx / 4;

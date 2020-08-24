@@ -58,6 +58,7 @@ struct GameInterface : public ::GameInterface
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
+	void ResetFollowPos(bool message) override;
 
 };
 

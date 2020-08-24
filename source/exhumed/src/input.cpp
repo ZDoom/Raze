@@ -128,35 +128,6 @@ void UpdateInputs()
 
 void CheckKeys()
 {
-    if (automapMode == am_off)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-        {
-            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(1);
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-        {
-            buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(-1);
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
-    }
-
     // go to 3rd person view?
     if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
@@ -186,15 +157,6 @@ static int32_t nonsharedtimer;
 
 void CheckKeys2()
 {
-    if (buttonMap.ButtonDown(gamefunc_Map)) // e.g. TAB (to show 2D map)
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-
-        if (!nFreeze) {
-            automapMode = (automapMode + 1) % 3;
-        }
-    }
-
     if (automapMode != am_off)
     {
         int const timerOffset = ((int)totalclock - nonsharedtimer);

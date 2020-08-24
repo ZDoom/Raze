@@ -90,6 +90,8 @@ struct GameInterface
 	virtual bool CheatAllowed(bool printmsg) { return true; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
+	virtual void ResetFollowPos(bool) {}
+
 
 };
 

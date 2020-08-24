@@ -958,34 +958,6 @@ ResizeView(PLAYERp pp)
             zoom = min<int32_t>(zoom + mulscale7(timepassed * synctics, zoom), 4096);
 
     }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))      // &&
-        {
-            buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(-1);
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
-
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen)) // &&
-        {
-            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(1);
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
-    }
 }
 
 

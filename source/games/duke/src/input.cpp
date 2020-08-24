@@ -47,6 +47,17 @@ static int turnheldtime;
 static int lastcontroltime;
 static double lastCheck;
 
+void GameInterface::ResetFollowPos(bool message)
+{
+	if (automapFollow)
+	{
+		ud.folx = ps[screenpeek].oposx;
+		ud.foly = ps[screenpeek].oposy;
+		ud.fola = ps[screenpeek].getoang();
+	}
+	if (message) FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
+
+}
 //---------------------------------------------------------------------------
 //
 // handles UI side input not handled via CCMDs or CVARs.
@@ -65,43 +76,6 @@ void nonsharedkeys(void)
 	if (System_WantGuiCapture())
 		return;
 
-	if (!ALT_IS_PRESSED && automapMode == am_off)
-	{
-		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-		{
-			buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-
-			if (!SHIFTS_IS_PRESSED)
-			{
-				if (G_ChangeHudLayout(1))
-				{
-					gi->PlayHudSound();
-				}
-			}
-			else
-			{
-				hud_scale = hud_scale + 4;
-			}
-		}
-
-		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-		{
-			buttonMap.ClearButton(gamefunc_Shrink_Screen);
-
-			if (!SHIFTS_IS_PRESSED)
-			{
-				if (G_ChangeHudLayout(-1))
-				{
-					gi->PlayHudSound();
-				}
-			}
-			else
-			{
-				hud_scale = hud_scale - 4;
-			}
-		}
-	}
-
 	if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
 	{
 		buttonMap.ClearButton(gamefunc_See_Coop_View);
@@ -115,19 +89,6 @@ void nonsharedkeys(void)
 		ud.showweapons = 1 - ud.showweapons;
 		cl_showweapon = ud.showweapons;
 		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
-	}
-
-	if (automapMode != am_off && buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-	{
-		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-		automapFollow = !automapFollow;
-		if (automapFollow)
-		{
-			ud.folx = ps[screenpeek].oposx;
-			ud.foly = ps[screenpeek].oposy;
-			ud.fola = ps[screenpeek].getoang();
-		}
-		FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
 	}
 
 	// Fixme: This really should be done via CCMD, not via hard coded key checks - but that needs alternative Shift and Alt bindings.

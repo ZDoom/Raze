@@ -170,32 +170,6 @@ CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines 
 	else setViewport(self);
 }
 
-// This is for game code to change the size, so that the range checks remain isolated here.
-bool G_ChangeHudLayout(int direction)
-{
-	if (direction < 0 && hud_size > 0)
-	{
-		hud_size = hud_size - 1;
-		return true;
-	}
-	else if (direction > 0 && hud_size < Hud_Nothing)
-	{
-		hud_size = hud_size + 1;
-		return true;
-	}
-	return false;
-}
-
-CCMD(sizeup)
-{
-	if (G_ChangeHudLayout(1)) gi->PlayHudSound();
-}
-
-CCMD(sizedown)
-{
-	if (G_ChangeHudLayout(-1)) gi->PlayHudSound();
-}
-
 CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
 {
 	if (self < 36) self = 36;
@@ -203,19 +177,40 @@ CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the h
 	else setViewport(hud_size);
 }
 
-CCMD(scaleup)
+// Note: The shift detection here should be part of the key event data, but that requires a lot more work. Ideally use a ShiftBinds mapping. For control through bound keys this should be fine, bunt not for use from the console.
+CCMD(sizeup)
 {
-	int oldscale = hud_scale;
-	hud_scale = hud_scale + 4;
-	if (hud_scale != oldscale) gi->PlayHudSound();
+	if (!inputState.ShiftPressed())
+	{
+		if (hud_size < Hud_Nothing)
+		{
+			hud_size = hud_size + 1;
+			gi->PlayHudSound();
+		}
+	}
+	else
+	{
+		hud_scale = hud_scale + 4;
+	}
 }
 
-CCMD(scaledown)
+CCMD(sizedown)
 {
-	int oldscale = hud_scale;
-	hud_scale = hud_scale - 4;
-	if (hud_scale != oldscale) gi->PlayHudSound();
+	if (!inputState.ShiftPressed())
+	{
+		if (hud_size > 0)
+		{
+			hud_size = hud_size - 1;
+			gi->PlayHudSound();
+		}
+	}
+	else
+	{
+		hud_scale = hud_scale - 4;
+	}
 }
+
+
 
 CUSTOM_CVARD(Float, hud_statscale, 2, CVAR_ARCHIVE, "change the scale of the stats display")
 {

@@ -183,26 +183,8 @@ void ctrlGetInput(void)
     UsesToSend.byte = 0;
     WeaponToSend = 0;
 
-    if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-    {
-        buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-        automapFollow = !automapFollow;
-    }
-
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
-        if (automapMode == am_off)
-        {
-            buttonMap.ClearButton(gamefunc_Shrink_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(-1);
-            }
-            else
-            {
-                hud_scale = hud_scale - 4;
-            }
-        }
         if (automapMode != am_off)
         {
             gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
@@ -212,18 +194,6 @@ void ctrlGetInput(void)
 
     if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
     {
-        if (automapMode == am_off)
-        {
-            buttonMap.ClearButton(gamefunc_Enlarge_Screen);
-            if (!SHIFTS_IS_PRESSED)
-            {
-                G_ChangeHudLayout(1);
-            }
-            else
-            {
-                hud_scale = hud_scale + 4;
-            }
-        }
         if (automapMode != am_off)
         {
             gZoom = ClipHigh(gZoom + (gZoom >> 4), 4096);

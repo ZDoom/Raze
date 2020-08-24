@@ -116,6 +116,13 @@ void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel);
 void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel);
 
 
+void GameInterface::ResetFollowPos(bool)
+{
+	auto pp = &Player[myconnectindex];
+	Follow_posx = pp->posx;
+	Follow_posy = pp->posy;
+}
+
 void
 getinput(SW_PACKET *loc, SWBOOL tied)
 {
@@ -177,34 +184,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     if (paused)
         return;
-
-    // MAP KEY
-    if (buttonMap.ButtonDown(gamefunc_Map))
-    {
-        buttonMap.ClearButton(gamefunc_Map);
-
-        // Init follow coords
-        Follow_posx = pp->posx;
-        Follow_posy = pp->posy;
-
-		automapMode++;
-		if (automapMode == am_count)
-		{
-			automapMode = am_off;
-        }
-    }
-
-    // Toggle follow map mode on/off
-    if (automapMode != am_off)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
-        {
-			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            automapFollow = !automapFollow;
-            Follow_posx = pp->posx;
-            Follow_posy = pp->posy;
-        }
-    }
 
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses

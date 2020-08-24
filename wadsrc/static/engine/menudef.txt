@@ -695,7 +695,9 @@ OptionMenu "OtherControlsMenu"// protected
 
 	StaticText ""
 	Control    "$CNTRLMNU_AUTOMAP"         , "+map"
-	Control 	"$MAPCNTRLMNU_TOGGLEFOLLOW","+map_follow_mode"
+	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW","+map_follow_mode"
+	MapControl "$MAPCNTRLMNU_ZOOMIN"       , "+enlarge_Screen"
+	MapControl "$MAPCNTRLMNU_ZOOMOUT"     , "+shrink_screen"
 
 	StaticText ""
 	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
@@ -706,8 +708,8 @@ OptionMenu "OtherControlsMenu"// protected
 	//Control    "$CNTRLMNU_PAUSE"           , "pause"
 
 	StaticText ""
-	Control    "$CNTRLMNU_DISPLAY_INC"     , "+enlarge_Screen"
-	Control    "$CNTRLMNU_DISPLAY_DEC"     , "+shrink_screen"
+	Control    "$CNTRLMNU_DISPLAY_INC"     , "sizeup"
+	Control    "$CNTRLMNU_DISPLAY_DEC"     , "sizedown"
 	Control    "$CNTRLMNU_TOGGLE_MESSAGES" , "togglemessages"
 	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
 

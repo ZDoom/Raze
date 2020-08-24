@@ -94,11 +94,9 @@ enum GameFunction_t
     gamefunc_Aim_Up,
     gamefunc_Aim_Down,
     gamefunc_SendMessage,
-    gamefunc_Map,
     gamefunc_Shrink_Screen,
     gamefunc_Enlarge_Screen,
     gamefunc_Show_Opponents_Weapon,
-    gamefunc_Map_Follow_Mode,
     gamefunc_See_Coop_View,
     gamefunc_Mouse_Aiming,
     gamefunc_Dpad_Select,
@@ -2379,7 +2377,8 @@ struct GameInterface : ::GameInterface
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void clearlocalinputstate() override;
     void QuitToTitle() override;
-	
+	void ResetFollowPos(bool message) override;
+
     FString statFPS() override;
     GameStats getStats() override;
 };

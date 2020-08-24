@@ -105,11 +105,20 @@ bool automapFollow;
 
 CCMD(togglemap)
 {
-	automapMode++;
-	if (automapMode == am_count) automapMode = am_off;
-	if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
+	if (gamestate == GS_LEVEL)
+	{
+		automapMode++;
+		if (automapMode == am_count) automapMode = am_off;
+		if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
+		gi->ResetFollowPos(false);
+	}
 }
 
+CCMD(togglefollow)
+{
+	automapFollow = !automapFollow;
+	gi->ResetFollowPos(true);
+}
 
 glcycle_t thinktime, actortime, gameupdatetime, drawtime;
 

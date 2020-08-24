@@ -24,11 +24,9 @@ enum GameFunction_t
 	gamefunc_Strafe_Right,
 	gamefunc_Aim_Up,
 	gamefunc_Aim_Down,
-	gamefunc_Map, // CCMD
 	gamefunc_Shrink_Screen, // CCMD
 	gamefunc_Enlarge_Screen, // CCMD
 	gamefunc_Show_Opponents_Weapon, // CCMD
-	gamefunc_Map_Follow_Mode, // CCMD
 	gamefunc_See_Coop_View, // CCMD
 	gamefunc_Mouse_Aiming, // CCMD
 	gamefunc_Quick_Kick,
