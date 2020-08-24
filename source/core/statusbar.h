@@ -190,6 +190,7 @@ public:
 	void BeginHUD(int resW, int resH, double Alpha);
 	void StatusbarToRealCoords(double &x, double &y, double &w, double &h) const;
 	void PrintLevelStats(FLevelStats& stats);
+	void PrintAutomapInfo(FLevelStats& stats);
 	int GetTopOfStatusbar() const
 	{
 		return SBarTop;

@@ -57,7 +57,10 @@
 #include "v_draw.h"
 #include "gamecvars.h"
 #include "m_fixed.h"
+#include "gamecontrol.h"
 #include "gamestruct.h"
+#include "menu.h"
+#include "mapinfo.h"
 
 #include "../version.h"
 
@@ -720,7 +723,8 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 	{
 		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
 			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		y -= spacing;
 	}
 
@@ -732,14 +736,57 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 
 	if (text.IsNotEmpty())
 	{
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		y -= spacing;
 	}
 
 	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor+'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
-	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
 
+//============================================================================
+//
+//
+//
+//============================================================================
+
+void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
+{
+	FString mapname;
+	if (am_showlabel) 
+		mapname.Format(TEXTCOLOR_ESCAPESTR "%c%s: " TEXTCOLOR_ESCAPESTR "%c%s", stats.letterColor+'A', currentLevel->LabelName(), stats.standardColor+'A', currentLevel->DisplayName());
+	else 
+		mapname = currentLevel->DisplayName();
+
+	double y;
+	double scale = stats.fontscale * (am_textfont? *hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
+	if (stats.spacing <= 0) stats.spacing = stats.font->GetHeight() * stats.fontscale;
+	double spacing = stats.spacing * (am_textfont ? *hud_statscale : 1);
+	if (am_nameontop)
+	{
+		y = spacing;
+	}
+	else if (stats.screenbottomspace < 0)
+	{
+		y = 200 - RelTop - spacing;
+	}
+	else
+	{
+		y = 200 - stats.screenbottomspace - spacing;
+	}
+
+	DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+	y -= spacing;
+
+	if (!(currentLevel->flags & MI_USERMAP) && !(g_gameType & GAMEFLAG_PSEXHUMED))
+		DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
+			DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+
+}
 //============================================================================
 //
 // 

@@ -214,7 +214,7 @@ CCMD(sizedown)
 
 CUSTOM_CVARD(Float, hud_statscale, 0.5, CVAR_ARCHIVE, "change the scale of the stats display")
 {
-	if (self < 0.36) self = 0.36;
+	if (self < 0.36f) self = 0.36f;
 	else if (self > 1) self = 1;
 }
 

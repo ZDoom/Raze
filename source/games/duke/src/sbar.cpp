@@ -179,50 +179,43 @@ PalEntry DDukeCommonStatusBar::LightForShade(int shade)
 
 void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 {
+	FLevelStats stats{};
+	auto pp = &ps[myconnectindex];
+	stats.fontscale = isRR() ? 0.5 : 1.;
+	stats.spacing = isRR() ? 10 : 7;
+	stats.screenbottomspace = bottomy;
+	stats.time = Scale(pp->player_par, 1000, REALGAMETICSPERSEC);
+	stats.font = SmallFont;
+	if (isNamWW2GI())
+	{
+		// The stock font of these games is totally unusable for this.
+		stats.font = ConFont;
+		stats.spacing = ConFont->GetHeight() + 1;
+	}
+
 	if (automapMode == am_full)
 	{
-		// Automap label printer moved here so that it is on top of the screen border.
-		FString mapname;
-		if (am_showlabel) mapname.Format(TEXTCOLOR_GOLD "%s: %s%s", currentLevel->LabelName(), (am_textfont && isNamWW2GI()) ? TEXTCOLOR_ORANGE : TEXTCOLOR_UNTRANSLATED, currentLevel->DisplayName());
-		else mapname = currentLevel->DisplayName();
-		double scale = isRR() ? 0.5 : 1.;
-		FFont* font = SmallFont2;
-		int color = CR_UNTRANSLATED;
-		if (am_textfont)
+		if (!am_textfont)
 		{
-			scale *= 0.66;
-			font = isNamWW2GI() ? ConFont : SmallFont;
-			if (isNamWW2GI()) color = CR_ORANGE;
+			stats.font = SmallFont2;
+			stats.spacing = 6;
 		}
-		double top = am_nameontop ? 0 : ( 200 - (bottomy < 0 ? RelTop : bottomy) * hud_scale - (isRR()? 25 : 20));
-		if (!(currentLevel->flags & MI_USERMAP))
-			DrawText(twod, font, color, 5, top + 6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
-				DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
-		DrawText(twod, font, color, 5, top + ((isRR() && am_textfont) ? 15 : 12), mapname,
-			DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+		stats.standardColor = (isNamWW2GI() && am_textfont)? CR_ORANGE : CR_UNTRANSLATED;
+		stats.letterColor = CR_GOLD;
+		DBaseStatusBar::PrintAutomapInfo(stats);
 	}
 	else if (hud_stats)
 	{
 		// JBF 20040124: display level stats in screen corner
-		FLevelStats stats{};
-		auto pp = &ps[myconnectindex];
 
-		stats.fontscale = isRR() ? 0.5 : 1.;
-		stats.spacing = isRR() ? 10 : 7;
-		stats.screenbottomspace = bottomy;
-
-		stats.time = Scale(pp->player_par, 1000, REALGAMETICSPERSEC);
 		stats.kills = pp->actors_killed;
 		stats.maxkills = !isRR() && ud.player_skill > 3 ? -2 : pp->max_actors_killed;
 		stats.frags = ud.multimode > 1 && !ud.coop ? pp->frag - pp->fraggedself : -1;
 		stats.secrets = pp->secret_rooms;
 		stats.maxsecrets = pp->max_secret_rooms;
-		stats.font = SmallFont;
 		if (isNamWW2GI())
 		{
 			// The stock font of these games is totally unusable for this.
-			stats.font = ConFont;
-			stats.spacing = ConFont->GetHeight() + 1;
 			stats.letterColor = CR_ORANGE;
 			stats.standardColor = CR_YELLOW;
 			stats.completeColor = CR_FIRE;
