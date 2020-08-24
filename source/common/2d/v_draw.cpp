@@ -445,7 +445,7 @@ bool SetTextureParms(F2DDrawer * drawer, DrawParms *parms, FGameTexture *img, do
 		parms->destwidth *= parms->patchscalex;
 		parms->destheight *= parms->patchscaley;
 
-		if (parms->flipoffsets && parms->flipY) parms->top = parms->texwidth - parms->top;
+		if (parms->flipoffsets && parms->flipY) parms->top = parms->texheight - parms->top;
 		if (parms->flipoffsets && parms->flipX) parms->left = parms->texwidth - parms->left;
 
 		switch (parms->cleanmode)
