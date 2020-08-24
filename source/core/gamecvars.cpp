@@ -163,7 +163,7 @@ CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disabl
 
 // HUD
 
-CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines the HUD size and style")
+CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE, "Defines the HUD size and style")
 {
 	if (self < 0) self = 0;
 	else if (self > Hud_Nothing) self = Hud_Nothing;
@@ -212,10 +212,10 @@ CCMD(sizedown)
 
 
 
-CUSTOM_CVARD(Float, hud_statscale, 2, CVAR_ARCHIVE, "change the scale of the stats display")
+CUSTOM_CVARD(Float, hud_statscale, 0.5, CVAR_ARCHIVE, "change the scale of the stats display")
 {
-	if (self < 0.5) self = 0.5;
-	else if (self > 4) self = 4;
+	if (self < 0.36) self = 0.36;
+	else if (self > 1) self = 1;
 }
 
 

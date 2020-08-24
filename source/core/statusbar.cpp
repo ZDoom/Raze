@@ -708,14 +708,11 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 	double spacing = stats.spacing * hud_statscale;
 	if (stats.screenbottomspace < 0)
 	{
-		double x = 0, w = 0, h = 0;
-		y = 200 - RelTop;
-		StatusbarToRealCoords(x, y, w, h);
-		y -= spacing;
+		y = 200 - RelTop - spacing;
 	}
 	else
 	{
-		y = (screen->GetHeight() - stats.screenbottomspace * GetHUDScale().Y) - spacing;
+		y = 200 - stats.screenbottomspace - spacing;
 	}
 
 	FString text;
@@ -723,7 +720,7 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 	{
 		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
 			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		y -= spacing;
 	}
 
@@ -735,12 +732,12 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 
 	if (text.IsNotEmpty())
 	{
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		y -= spacing;
 	}
 
 	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor+'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
-	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
 
 //============================================================================

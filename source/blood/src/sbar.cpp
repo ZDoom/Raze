@@ -633,7 +633,7 @@ private:
         }
         drawInventory(pPlayer, 166, 200 - tilesiz[2200].y);
         // Depending on the scale we can lower the stats display. This needs some tweaking but this catches the important default case already.
-        PrintLevelStats(pPlayer, (hud_statscale <= 2 || hud_scale < 70) && double(xdim)/ydim > 1.6? 28 : 56);
+        PrintLevelStats(pPlayer, (hud_statscale <= 0.501f || hud_scale < 70) && double(xdim)/ydim > 1.6? 28 : 56);
 
     }
 
