@@ -146,7 +146,6 @@ void CEndGameMgr::Setup(void)
     EndLevel();
     Mus_Stop();
     sndStartSample(268, 128, -1, false);
-    inputState.keyFlushScans();
 }
 
 extern int gInitialNetPlayers;

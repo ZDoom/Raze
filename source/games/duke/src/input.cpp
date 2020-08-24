@@ -35,6 +35,7 @@ source as it is released.
 
 #include "ns.h"
 #include "global.h"
+#include "gamecontrol.h"
 
 BEGIN_DUKE_NS
 
@@ -91,78 +92,44 @@ void nonsharedkeys(void)
 		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
 	}
 
-	// Fixme: This really should be done via CCMD, not via hard coded key checks - but that needs alternative Shift and Alt bindings.
-	if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED)
+	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
 	{
-		int taunt = 0;
-
-		// NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
-		for (int j = sc_F1; j <= sc_F10; j++)
-			if (inputState.UnboundKeyPressed(j))
-			{
-				inputState.ClearKeyStatus(j);
-				taunt = j - sc_F1 + 1;
-				break;
-			}
-
-		if (taunt)
+		buttonMap.ClearButton(gamefunc_Third_Person_View);
+		
+		if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
 		{
-			if (SHIFTS_IS_PRESSED)
-			{
-				Printf(PRINT_NOTIFY, "%s", **CombatMacros[taunt - 1]);
-				//Net_SendTaunt(taunt);
-				return;
-			}
-
-			if (startrts(taunt, 1))
-			{
-				//Net_SendRTS(taunt);
-				return;
-			}
-		}
-	}
-
-	if (!ALT_IS_PRESSED && !SHIFTS_IS_PRESSED)
-	{
-		if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-		{
-			buttonMap.ClearButton(gamefunc_Third_Person_View);
-
-			if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
-			{
-				if (ps[myconnectindex].over_shoulder_on)
-					ps[myconnectindex].over_shoulder_on = 0;
-				else
-				{
-					ps[myconnectindex].over_shoulder_on = 1;
-					cameradist = 0;
-					cameraclock = (int)totalclock;
-				}
-				FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
-			}
-		}
-
-		if (automapMode != am_off)
-		{
-			int j;
-			if (nonsharedtimer > 0 || totalclock < nonsharedtimer)
-			{
-				j = (int)totalclock - nonsharedtimer;
-				nonsharedtimer += j;
-			}
+			if (ps[myconnectindex].over_shoulder_on)
+				ps[myconnectindex].over_shoulder_on = 0;
 			else
 			{
-				j = 0;
-				nonsharedtimer = (int)totalclock;
+				ps[myconnectindex].over_shoulder_on = 1;
+				cameradist = 0;
+				cameraclock = (int)totalclock;
 			}
-
-			if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-				ps[myconnectindex].zoom += mulscale6(j, max(ps[myconnectindex].zoom, 256));
-			if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-				ps[myconnectindex].zoom -= mulscale6(j, max(ps[myconnectindex].zoom, 256));
-
-			ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
+			FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
 		}
+	}
+	
+	if (automapMode != am_off)
+	{
+		int j;
+		if (nonsharedtimer > 0 || totalclock < nonsharedtimer)
+		{
+			j = (int)totalclock - nonsharedtimer;
+			nonsharedtimer += j;
+		}
+		else
+		{
+			j = 0;
+			nonsharedtimer = (int)totalclock;
+		}
+		
+		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
+			ps[myconnectindex].zoom += mulscale6(j, max(ps[myconnectindex].zoom, 256));
+		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+			ps[myconnectindex].zoom -= mulscale6(j, max(ps[myconnectindex].zoom, 256));
+		
+		ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
 	}
 }
 
@@ -1240,7 +1207,7 @@ void registerinputcommands()
 	C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
 	C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
 	C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; return CCMD_OK; });
+	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; sendPause = true; return CCMD_OK; });
 	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_STEROIDS; return CCMD_OK; });
 	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_NIGHTVISION; return CCMD_OK; });
 	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_MEDKIT; return CCMD_OK; });

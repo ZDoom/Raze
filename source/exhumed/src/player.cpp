@@ -2715,9 +2715,6 @@ do_default_b:
                                 {
                                     EndLevel = true;
                                 }
-                                else {
-                                    //inputState.keySetState(32, 1); // Huh, what?
-                                }
 
                                 DestroyItemAnim(nValB);
                                 mydeletesprite(nValB);

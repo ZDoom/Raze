@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "status.h"
 #include "view.h"
+#include "gamecontrol.h"
 #include <string.h>
 
 BEGIN_PS_NS
@@ -204,7 +205,7 @@ int ccmd_centerview(CCmdFuncPtr parm);
 void registerinputcommands()
 {
     C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-    //C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; return CCMD_OK; });
+    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { /*BitsToSend |= SKB_PAUSE;*/ sendPause = true; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, ccmd_centerview);
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetPrevItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetNextItem(nLocalPlayer); return CCMD_OK; });

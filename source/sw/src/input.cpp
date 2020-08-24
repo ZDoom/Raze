@@ -44,50 +44,12 @@ int inv_hotkey = 0;
 void
 FunctionKeys(PLAYERp pp)
 {
-    static int rts_delay = 0;
-    int fn_key = 0;
-
-    rts_delay++;
-
-    if (inputState.GetKeyStatus(sc_F1))   { fn_key = 1; }
-    if (inputState.GetKeyStatus(sc_F2))   { fn_key = 2; }
-    if (inputState.GetKeyStatus(sc_F3))   { fn_key = 3; }
-    if (inputState.GetKeyStatus(sc_F4))   { fn_key = 4; }
-    if (inputState.GetKeyStatus(sc_F5))   { fn_key = 5; }
-    if (inputState.GetKeyStatus(sc_F6))   { fn_key = 6; }
-    if (inputState.GetKeyStatus(sc_F7))   { fn_key = 7; }
-    if (inputState.GetKeyStatus(sc_F8))   { fn_key = 8; }
-    if (inputState.GetKeyStatus(sc_F9))   { fn_key = 9; }
-    if (inputState.GetKeyStatus(sc_F10))  { fn_key = 10; }
-
-    if (inputState.AltPressed())
-    {
-        if (rts_delay > 16 && fn_key && !adult_lockout)
-        {
-			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
-            rts_delay = 0;
-            PlaySoundRTS(fn_key);
-        }
-
-        return;
-    }
-
-    if (inputState.ShiftPressed())
-    {
-        if (fn_key)
-        {
-			inputState.ClearKeyStatus(sc_F1 + fn_key - 1);
-        }
-
-        return;
-    }
-
     // F7 VIEW control
 	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
 		buttonMap.ClearButton(gamefunc_Third_Person_View);
 
-        if (SHIFTS_IS_PRESSED)
+        if (inputState.ShiftPressed())
         {
             if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
                 pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
@@ -367,11 +329,6 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         }
 #endif
     }
-    else if (inputState.GetKeyStatus(sc_Pause))
-    {
-        SET_LOC_KEY(loc->bits, SK_PAUSE, true);
-		inputState.ClearKeyStatus(sc_Pause);
-	}
 
     SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
     SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
@@ -543,7 +500,7 @@ void registerinputcommands()
     C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
     C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -2; return CCMD_OK; });
     C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -1; return CCMD_OK; });
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); return CCMD_OK; });
+    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); sendPause = true; return CCMD_OK; });
     C_RegisterFunction("smoke_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CLOAK + 1; return CCMD_OK; });
     C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_NIGHT_VISION + 1; return CCMD_OK; });
     C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_MEDKIT + 1; return CCMD_OK; });

@@ -760,9 +760,9 @@ public:
 
 	bool ProcessInput() override
 	{
-		if (inputState.GetKeyStatus(sc_UpArrow))
+		if (buttonMap.ButtonDown(gamefunc_Move_Forward))
 		{
-			inputState.ClearKeyStatus(sc_UpArrow);
+			buttonMap.ClearButton(gamefunc_Move_Forward);
 			
 			if (curYPos == destYPos && nLevelNew <= nLevelBest)
 			{
@@ -783,10 +783,10 @@ public:
 			return true;
 		}
 		
-		if (inputState.GetKeyStatus(sc_DownArrow))
+		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 		{
-			inputState.ClearKeyStatus(sc_DownArrow);
-			
+			buttonMap.ClearButton(gamefunc_Move_Backward);
+
 			if (curYPos == destYPos && nLevelNew > 0)
 			{
 				nLevelNew--;

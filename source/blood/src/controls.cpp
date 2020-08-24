@@ -70,10 +70,7 @@ int gViewLookRecenter;
 
 void LocalKeys(void)
 {
-    bool alt = inputState.AltPressed();
-    bool ctrl = inputState.CtrlPressed();
-    bool shift = inputState.ShiftPressed();
-    if (buttonMap.ButtonDown(gamefunc_Third_Person_View) && !alt && !shift)
+    if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
     {
         buttonMap.ClearButton(gamefunc_Third_Person_View);
         if (gViewPos > VIEWPOS_0)
@@ -103,27 +100,6 @@ void LocalKeys(void)
                     break;
             } while (oldViewIndex != gViewIndex);
             gView = &gPlayer[gViewIndex];
-        }
-    }
-    char key;
-    if ((key = inputState.keyGetScan()) != 0)
-    {
-        if ((alt || shift) && gGameOptions.nGameType > 0 && key >= sc_F1 && key <= sc_F10)
-        {
-            char fk = key - sc_F1;
-            if (alt)
-            {
-                sndStartSample(4400 + fk, 128, 1, 0);
-                //netBroadcastTaunt(myconnectindex, fk);
-            }
-            else
-            {
-                // todo: Open chat editor with the specified text
-                //gPlayerMsg.Set(*CombatMacros[fk]);
-                //gPlayerMsg.Send();
-            }
-            buttonMap.ClearButton(gamefunc_Third_Person_View);
-            return;
         }
     }
 }
@@ -390,7 +366,7 @@ void registerinputcommands()
     C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
     C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.prevWeapon = 1; return CCMD_OK; });
     C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.nextWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; return CCMD_OK; });
+    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
     C_RegisterFunction("proximitybombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
     C_RegisterFunction("remotebombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
     C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { UsesToSend.useJumpBoots = 1; return CCMD_OK; });

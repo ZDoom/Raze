@@ -220,8 +220,4 @@ enum AM_Mode
 };
 extern int automapMode;
 extern bool automapFollow;
-
-inline bool automapControlsActive()
-{
-	return automapMode != am_off;
-}
+extern bool sendPause;

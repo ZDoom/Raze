@@ -86,35 +86,15 @@ void InputState::GetMouseDelta(ControlInfo * info)
 //
 //==========================================================================
 
-void InputState::keySetState(int32_t key, int32_t state)
-{
-	KeyStatus[key] = (uint8_t)state;
-
-	if (state)
-	{
-		g_keyFIFO[g_keyFIFOend] = key;
-		g_keyFIFO[(g_keyFIFOend + 1) & (KEYFIFOSIZ - 1)] = state;
-		g_keyFIFOend = ((g_keyFIFOend + 2) & (KEYFIFOSIZ - 1));
-	}
-}
-
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
 void InputState::AddEvent(const event_t *ev)
 {
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
-		keySetState(ev->data1, ev->type == EV_KeyDown);
-		if (ev->data2 && ev->type == EV_KeyDown)
-		{
-			g_keyAsciiFIFO[g_keyAsciiEnd] = (char16_t)ev->data2;
-			g_keyAsciiEnd = ((g_keyAsciiEnd + 1) & (KEYFIFOSIZ - 1));
-		}
+		int key = ev->data1;
+		bool state = ev->type == EV_KeyDown;
+		KeyStatus[key] = (uint8_t)state;
+		if (state && !(key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT))
+			AnyKeyStatus = true;
 	}
 }
 
@@ -127,8 +107,7 @@ void InputState::AddEvent(const event_t *ev)
 void InputState::ClearAllInput()
 {
 	memset(KeyStatus, 0, sizeof(KeyStatus));
-	keyFlushChars();
-	keyFlushScans();
+	AnyKeyStatus = false;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
 }

@@ -100,6 +100,7 @@ static ClockTicks lastototalclk;
 static uint64_t elapsedTime;
 static uint64_t lastTime;
 
+bool sendPause;
 int automapMode;
 bool automapFollow;
 
@@ -1212,9 +1213,9 @@ void updatePauseStatus()
             paused = 0;
         }
 
-        if (inputState.GetKeyStatus(sc_Pause))
+        if (sendPause)
         {
-            inputState.ClearKeyStatus(sc_Pause);
+            sendPause = false;
             paused = pausedWithKey ? 0 : 2;
             pausedWithKey = !!paused;
         }
@@ -1226,4 +1227,35 @@ void updatePauseStatus()
 bool OkForLocalization(FTextureID texnum, const char* substitute)
 {
 	return false;
+}
+
+
+// Mainly a dummy.
+CCMD(taunt)
+{
+	if (argv.argc() > 2)
+	{
+		int taunt = atoi(argv[1]);
+		int mode = atoi(argv[2]);
+		
+		// In a ZDoom-style protocol this should be sent:
+		// Net_WriteByte(DEM_TAUNT);
+		// Net_WriteByte(taunt);
+		// Net_WriteByte(mode);
+		if (mode == 1)
+		{
+			// todo:
+			//gi->PlayTaunt(taunt);
+			// Duke:
+			// startrts(taunt, 1)
+			// Blood:
+			// sndStartSample(4400 + taunt, 128, 1, 0);
+			// SW:
+			// PlaySoundRTS(taunt);
+			// Exhumed does not implement RTS, should be like Duke
+			//
+		}
+		Printf(PRINT_NOTIFY, "%s", **CombatMacros[taunt - 1]);
+
+	}
 }

@@ -324,7 +324,7 @@ void PreloadCache(void)
     int cnt = 0;
     int percentDisplayed = -1;
 
-    for (int i = 0; i < kMaxTiles && !inputState.GetKeyStatus(sc_Space); i++)
+    for (int i = 0; i < kMaxTiles; i++)
     {
         if (TestBitString(gotpic, i))
         {
