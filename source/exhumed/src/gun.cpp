@@ -960,7 +960,7 @@ void DrawWeapons(double smooth)
 
     double xOffset, yOffset;
 
-    if (cl_weaponsway && var_34 == 1)
+    if (cl_weaponsway)
     {
         // CHECKME - not & 0x7FF?
         double nBobAngle = obobangle + fmulscale16(((bobangle + 1024 - obobangle) & 2047) - 1024, smooth);
