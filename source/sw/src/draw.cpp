@@ -1831,9 +1831,6 @@ drawscreen(PLAYERp pp)
         newaspect_enable = 0;
         renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
     }
-
-    UpdateStatusBar(totalclock);
-
     UpdatePanel(smoothratio);
 
 #define SLIME 2305
@@ -1924,10 +1921,8 @@ drawscreen(PLAYERp pp)
     SyncStatMessage();
 #endif
 
+    UpdateStatusBar(totalclock);
     DrawCrosshair(pp);
-
-
-
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 
     // Boss Health Meter, if Boss present

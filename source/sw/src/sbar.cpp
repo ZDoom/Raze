@@ -895,47 +895,35 @@ private:
 
     void PrintLevelStats(int bottomy)
     {
+        FLevelStats stats{};
+        stats.fontscale = 1;
+        stats.spacing = 7;
+        stats.screenbottomspace = bottomy;
+        stats.font = SmallFont;
+        stats.time = Scale(PlayClock, 1000, 120);
+
 		if (automapMode == am_full)
 		{
-			int txt_x, txt_y;
-			// draw location text (moved here so that it gets printed on top of the border)
-			if (hud_size == Hud_Nothing)
-			{
-				txt_x = 7;
-				txt_y = 168;
-			}
-			else
-			{
-				txt_x = 7;
-				txt_y = 147;
-			}
-
-			if (automapFollow)
-			{
-				MNU_DrawSmallString(txt_x, txt_y - 7, "Follow Mode", 0, 0);
-			}
-
-			sprintf(ds,"%s",currentLevel->DisplayName());
-
-			MNU_DrawSmallString(txt_x,txt_y,ds,0, 0);
+            stats.letterColor = CR_SAPPHIRE;
+            stats.standardColor = CR_UNTRANSLATED;
+            if (!am_textfont)
+            {
+                stats.font = SmallFont2;
+                stats.spacing = 6;
+            }
+            else stats.spacing = SmallFont->GetHeight() + 1;
+            DBaseStatusBar::PrintAutomapInfo(stats);
 		}
         // JBF 20040124: display level stats in screen corner
         else if (hud_stats && !(CommEnabled || numplayers > 1))
         {
             auto pp = Player + screenpeek;
-            FLevelStats stats{};
 
-            stats.fontscale = 1;
-            stats.spacing = 7;
-            stats.screenbottomspace = bottomy;
-
-            stats.time = Scale(PlayClock, 1000, 120);
             stats.kills = Player->Kills;
             stats.maxkills = TotalKillable;
             stats.frags = -1;
             stats.secrets = Player->SecretsFound;
             stats.maxsecrets = LevelSecrets;
-            stats.font = SmallFont;
 
             stats.letterColor = CR_RED;
             stats.standardColor = CR_TAN;
@@ -967,10 +955,10 @@ public:
         }
         else if (hud_size == Hud_full)
         {
-            align = DI_SCREEN_CENTER_TOP;
+            align = DI_SCREEN_CENTER_BOTTOM;
             inv_x = -80 * hud_scale;
-            inv_y = -70 * hud_scale;
-            DrawHUD2(); // todo: Implement a proper view for this
+            inv_y = -40 * hud_scale;
+            DrawHUD2();
         }
         else if (hud_size == Hud_Mini)
         {
