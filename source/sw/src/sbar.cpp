@@ -961,29 +961,29 @@ public:
         if (hud_size == Hud_Nothing)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scale / 100.;
-            inv_y = -28 * hud_scale / 100.;
+            inv_x = -210 * hud_scale;
+            inv_y = -28 * hud_scale;
             PrintLevelStats(2);
         }
         else if (hud_size == Hud_full)
         {
             align = DI_SCREEN_CENTER_TOP;
-            inv_x = -80 * hud_scale / 100.;
-            inv_y = -70 * hud_scale / 100.;
+            inv_x = -80 * hud_scale;
+            inv_y = -70 * hud_scale;
             DrawHUD2(); // todo: Implement a proper view for this
         }
         else if (hud_size == Hud_Mini)
         {
             align = DI_SCREEN_RIGHT_BOTTOM;
-            inv_x = -210 * hud_scale / 100.;
-            inv_y = -28 * hud_scale / 100.;
+            inv_x = -210 * hud_scale;
+            inv_y = -28 * hud_scale;
             DrawHUD1();
         }
         else
         {
             align = 0;
-            inv_x = 80 * hud_scale / 100.;
-            inv_y = 130 * hud_scale / 100.;
+            inv_x = 80 * hud_scale;
+            inv_y = 130 * hud_scale;
             DrawStatusBar();
         }
         DrawInventory(inv_x, inv_y, align);

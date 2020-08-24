@@ -200,8 +200,8 @@ void DBaseStatusBar::SetScale ()
 		refh = h;
 		refw = h * refaspect;
 	}
-	refw *= (hud_scale / 100.);
-	refh *= (hud_scale / 100.);
+	refw *= hud_scale;
+	refh *= hud_scale;
 
 	int sby = VerticalResolution - RelTop;
 	// Use full pixels for destination size.
@@ -757,8 +757,8 @@ void setViewport(int viewSize)
 	int ydim = screen->GetHeight();
 	if (xdim == 0 || ydim == 0) return;
 	auto reserved = gi->GetReservedScreenSpace(viewSize);
-	reserved.top = (reserved.top * hud_scale * ydim) / 20000;
-	reserved.statusbar = (reserved.statusbar * hud_scale * ydim) / 20000;
+	reserved.top = xs_CRoundToInt((reserved.top * hud_scale * ydim) / 200);
+	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scale * ydim) / 200);
 
 	int xdimcorrect = std::min(Scale(ydim, 4, 3), xdim);
 	if (viewSize > Hud_Stbar)

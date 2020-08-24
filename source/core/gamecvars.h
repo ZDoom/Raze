@@ -50,7 +50,7 @@ EXTERN_CVAR(Int, snd_speech)
 EXTERN_CVAR(Int, mus_device)
 
 EXTERN_CVAR(Int, hud_layout)
-EXTERN_CVAR(Int, hud_scale)
+EXTERN_CVAR(Float, hud_scale)
 EXTERN_CVAR(Int, hud_size)
 EXTERN_CVAR(Float, hud_statscale)
 

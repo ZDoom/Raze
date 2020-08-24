@@ -194,7 +194,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 			font = isNamWW2GI() ? ConFont : SmallFont;
 			if (isNamWW2GI()) color = CR_ORANGE;
 		}
-		int top = am_nameontop ? 0 : ( 200 - Scale(bottomy < 0 ? RelTop : bottomy, hud_scale, 100) - (isRR()? 25 : 20));
+		double top = am_nameontop ? 0 : ( 200 - (bottomy < 0 ? RelTop : bottomy) * hud_scale - (isRR()? 25 : 20));
 		if (!(currentLevel->flags & MI_USERMAP))
 			DrawText(twod, font, color, 5, top + 6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
 				DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);

@@ -170,10 +170,10 @@ CUSTOM_CVARD(Int, hud_size, Hud_Stbar, CVAR_ARCHIVE | CVAR_NOINITCALL, "Defines 
 	else setViewport(self);
 }
 
-CUSTOM_CVARD(Int, hud_scale, 100, CVAR_ARCHIVE | CVAR_NOINITCALL, "changes the hud scale")
+CUSTOM_CVARD(Float, hud_scale, 1, CVAR_ARCHIVE, "changes the hud scale")
 {
-	if (self < 36) self = 36;
-	else if (self > 100) self = 100;
+	if (self < 0.36f) self = 0.36f;
+	else if (self > 1) self = 1;
 	else setViewport(hud_size);
 }
 
@@ -190,7 +190,7 @@ CCMD(sizeup)
 	}
 	else
 	{
-		hud_scale = hud_scale + 4;
+		hud_scale = hud_scale + 0.04;
 	}
 }
 
@@ -206,7 +206,7 @@ CCMD(sizedown)
 	}
 	else
 	{
-		hud_scale = hud_scale - 4;
+		hud_scale = hud_scale - 0.04;
 	}
 }
 
