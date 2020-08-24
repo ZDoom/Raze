@@ -222,7 +222,7 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 		{
 			// The stock font of these games is totally unusable for this.
 			stats.font = ConFont;
-			stats.spacing = ConFont->GetHeight() + 2;
+			stats.spacing = ConFont->GetHeight() + 1;
 			stats.letterColor = CR_ORANGE;
 			stats.standardColor = CR_YELLOW;
 			stats.completeColor = CR_FIRE;
