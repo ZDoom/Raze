@@ -895,8 +895,32 @@ private:
 
     void PrintLevelStats(int bottomy)
     {
+		if (automapMode == am_full)
+		{
+			int txt_x, txt_y;
+			// draw location text (moved here so that it gets printed on top of the border)
+			if (hud_size == Hud_Nothing)
+			{
+				txt_x = 7;
+				txt_y = 168;
+			}
+			else
+			{
+				txt_x = 7;
+				txt_y = 147;
+			}
+
+			if (automapFollow)
+			{
+				MNU_DrawSmallString(txt_x, txt_y - 7, "Follow Mode", 0, 0);
+			}
+
+			sprintf(ds,"%s",currentLevel->DisplayName());
+
+			MNU_DrawSmallString(txt_x,txt_y,ds,0, 0);
+		}
         // JBF 20040124: display level stats in screen corner
-        if (hud_stats && !(CommEnabled || numplayers > 1))
+        else if (hud_stats && !(CommEnabled || numplayers > 1))
         {
             auto pp = Player + screenpeek;
             FLevelStats stats{};

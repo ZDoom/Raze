@@ -947,7 +947,7 @@ ResizeView(PLAYERp pp)
     if (M_Active() || paused)
         return;
 
-    if (dimensionmode == 2 || dimensionmode == 5 || dimensionmode == 6)
+    if (automapMode != am_off)
     {
         int32_t timepassed = (int32_t)(totalclock - mapzoomclock);
         mapzoomclock += timepassed;
@@ -957,14 +957,6 @@ ResizeView(PLAYERp pp)
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
             zoom = min<int32_t>(zoom + mulscale7(timepassed * synctics, zoom), 4096);
 
-#if 0
-        if (inputState.GetKeyStatus(sc_Escape))
-        {
-			inputState.ClearKeyStatus(sc_Escape);
-            dimensionmode = 3;
-            ScrollMode2D = FALSE;
-        }
-#endif
     }
     else
     {
@@ -1337,7 +1329,7 @@ void DrawCrosshair(PLAYERp pp)
 {
     extern SWBOOL CameraTestMode;
 
-    if (cl_crosshair && !(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) && dimensionmode != 6)
+    if (cl_crosshair && !(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) && automapMode == am_off)
     {
         int32_t a = 2326;
 
@@ -1830,7 +1822,7 @@ drawscreen(PLAYERp pp)
         tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
     }
 
-    if (dimensionmode != 6)// && !ScreenSavePic)
+    if (automapMode != am_full)// && !ScreenSavePic)
     {
         // Cameras must be done before the main loop.
         JS_DrawCameras(pp, tx, ty, tz);
@@ -1846,7 +1838,7 @@ drawscreen(PLAYERp pp)
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;
 
-    if (dimensionmode != 6)// && !ScreenSavePic)
+    if (automapMode != am_full)// && !ScreenSavePic)
     {
         // TEST this! Changed to camerapp
         //JS_DrawMirrors(camerapp, tx, ty, tz, tq16ang, tq16horiz);
@@ -1906,9 +1898,9 @@ drawscreen(PLAYERp pp)
         }
     }
 
-    if ((dimensionmode == 5 || dimensionmode == 6) && pp == Player+myconnectindex)
+    if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        if (ScrollMode2D)
+        if (automapFollow)
         {
             tx = Follow_posx;
             ty = Follow_posy;
@@ -1927,7 +1919,7 @@ drawscreen(PLAYERp pp)
             }
         }
 
-        if (dimensionmode == 6)
+        if (automapMode == am_full)
         {
             // only clear the actual window.
             twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);

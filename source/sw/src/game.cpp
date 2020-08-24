@@ -136,7 +136,6 @@ GAME_SET gs;
 SWBOOL PlayerTrackingMode = false;
 SWBOOL SlowMode = false;
 SWBOOL FrameAdvanceTics = 3;
-SWBOOL ScrollMode2D = false;
 
 SWBOOL DebugOperate = false;
 void LoadingLevelScreen(void);
@@ -339,7 +338,7 @@ void DrawMenuLevelScreen(void)
 void InitLevelGlobals(void)
 {
     ChopTics = 0;
-    dimensionmode = 3;
+    automapMode = am_off;
     zoom = 768;
     PlayerGravity = 24;
     wait_active_check_offset = 0;

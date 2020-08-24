@@ -65,29 +65,6 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
     int32_t tmpydim = (xdim * 5) / 8;
     renderSetAspect(65536, divscale16(tmpydim * 320, xdim * 200));
 
-    // draw location text
-    if (hud_size == Hud_Nothing)
-    {
-        txt_x = 7;
-        txt_y = 168;
-    }
-    else
-    {
-        txt_x = 7;
-        txt_y = 147;
-    }
-
-    if (ScrollMode2D)
-    {
-        MNU_DrawSmallString(txt_x, txt_y - 7, "Follow Mode", 0, 0);
-    }
-
-    sprintf(ds,"%s",currentLevel->DisplayName());
-
-    MNU_DrawSmallString(txt_x,txt_y,ds,0, 0);
-
-    //////////////////////////////////
-
     xvect = sintable[(2048 - cang) & 2047] * czoom;
     yvect = sintable[(1536 - cang) & 2047] * czoom;
     xvect2 = mulscale16(xvect, yxaspect);
@@ -123,8 +100,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
             col = 152;
 
-            //if (dimensionmode == 2)
-            if (dimensionmode == 6)
+            if (automapMode == am_full)
             {
                 if (sector[i].floorz != sector[i].ceilingz)
                     if (sector[wal->nextsector].floorz != sector[wal->nextsector].ceilingz)
@@ -200,7 +176,7 @@ SHOWSPRITE:
                         x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
                         y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
-                        if (dimensionmode == 5 && (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite))
+                        if (automapMode == am_overlay && (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite))
                         {
                             ox = (sintable[(spr->ang + 512) & 2047] >> 7);
                             oy = (sintable[(spr->ang) & 2047] >> 7);
@@ -293,7 +269,7 @@ SHOWSPRITE:
 
                     break;
                 case 32:    // Floor sprite
-                    if (dimensionmode == 5)
+                    if (automapMode == am_overlay)
                     {
                         tilenum = spr->picnum;
                         xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;

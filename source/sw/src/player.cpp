@@ -124,7 +124,7 @@ extern SWBOOL DebugOperate;
 
 //unsigned char synctics, lastsynctics;
 
-int dimensionmode, zoom;
+int zoom;
 int ChopTics;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
@@ -2477,7 +2477,7 @@ MoveScrollMode2D(PLAYERp pp)
     if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
     {
 		buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-        ScrollMode2D = !ScrollMode2D;
+        automapFollow = !automapFollow;
         // Reset coords
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;

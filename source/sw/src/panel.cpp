@@ -7235,7 +7235,7 @@ UpdatePanel(double smoothratio)
 
     TRAVERSE_CONNECT(pnum)
     {
-        if (dimensionmode != 2 && pnum == screenpeek)
+        if (pnum == screenpeek)
             pDisplaySprites(Player + pnum, smoothratio);
     }
 }
@@ -7249,7 +7249,7 @@ PreUpdatePanel(double smoothratio)
     //if (DrawBeforeView)
     TRAVERSE_CONNECT(pnum)
     {
-        if (dimensionmode != 2 && pnum == screenpeek)
+        if (pnum == screenpeek)
             pDisplaySprites(Player + pnum, smoothratio);
     }
 

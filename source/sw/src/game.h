@@ -881,11 +881,6 @@ extern FString ThemeSongs[6];                                          //
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
 extern int Follow_posx, Follow_posy;
-extern SWBOOL ScrollMode2D;
-
-
-
-
 
 enum
 {
@@ -2225,7 +2220,7 @@ extern char keys[];
 
 extern short screenpeek;
 
-extern int dimensionmode, zoom;
+extern int zoom;
 
 #define STAT_DAMAGE_LIST_SIZE 20
 extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];

@@ -187,24 +187,20 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         Follow_posx = pp->posx;
         Follow_posy = pp->posy;
 
-        if (dimensionmode == 3)
-            dimensionmode = 5;
-        else if (dimensionmode == 5)
-            dimensionmode = 6;
-        else
-        {
-            dimensionmode = 3;
-            ScrollMode2D = FALSE;
+		automapMode++;
+		if (automapMode == am_count)
+		{
+			automapMode = am_off;
         }
     }
 
     // Toggle follow map mode on/off
-    if (dimensionmode == 5 || dimensionmode == 6)
+    if (automapMode != am_off)
     {
         if (buttonMap.ButtonDown(gamefunc_Map_Follow_Mode))
         {
 			buttonMap.ClearButton(gamefunc_Map_Follow_Mode);
-            ScrollMode2D = !ScrollMode2D;
+            automapFollow = !automapFollow;
             Follow_posx = pp->posx;
             Follow_posy = pp->posy;
         }
@@ -212,12 +208,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: ScrollMode2D = Follow mode, so this get called only during follow mode
-    if (!tied && ScrollMode2D && pp == Player + myconnectindex && !Prediction)
+    // Note: this get called only during follow mode
+    if (!tied && automapFollow && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || ScrollMode2D)
+    if (M_Active() || automapFollow)
         return;
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));
@@ -522,7 +518,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
             if (screenpeek < 0)
                 screenpeek = connecthead;
 
-            if (dimensionmode != 2 && screenpeek == myconnectindex)
+            if (screenpeek == myconnectindex)
             {
                 // JBF: figure out what's going on here
                 DoPlayerDivePalette(pp);  // Check Dive again
@@ -577,7 +573,7 @@ void registerinputcommands()
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_LEFT); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_RIGHT); return CCMD_OK; });
     C_RegisterFunction("gas_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CHEMBOMB + 1; return CCMD_OK; });
-    C_RegisterFunction("flash_bomb", nullptr, [](CCmdFuncPtr)->int { if (dimensionmode == 3) inv_hotkey = INVENTORY_FLASHBOMB + 1; return CCMD_OK; });
+    C_RegisterFunction("flash_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_FLASHBOMB + 1; return CCMD_OK; });
     C_RegisterFunction("caltrops", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CALTROPS + 1; return CCMD_OK; });
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_TURN_180); return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_USE); return CCMD_OK; });
