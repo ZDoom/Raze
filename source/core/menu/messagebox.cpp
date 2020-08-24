@@ -63,7 +63,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 	for (auto& line : lines)
 	{
 		double x = origin.X + 160 - line.Width * scale * 0.5;
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, line.Text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		y += fheight;
 	}
 }

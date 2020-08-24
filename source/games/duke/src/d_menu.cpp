@@ -54,7 +54,7 @@ BEGIN_DUKE_NS
 
 static void Menu_DrawBackground(const DVector2 &origin)
 {
-	DrawTexture(twod, tileGetTexture(TILE_MENUSCREEN), origin.X + 160, origin.Y + 100, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff808080, DTA_CenterOffset, true, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(TILE_MENUSCREEN), origin.X + 160, origin.Y + 100, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff808080, DTA_CenterOffset, true, TAG_DONE);
 }
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ static void Menu_DrawCursor(double x, double y, double scale, bool right)
 	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + ((int)totalclock >> 3)) % frames);
 	int light = int(224 + 31 * sin((int)totalclock / 20.));
 	PalEntry pe(255, light, light, light);
-	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 }
 
 //----------------------------------------------------------------------------
@@ -142,20 +142,20 @@ class DukeMainMenu : public DukeListMenu
 		double x = origin.X + 160;
 		if (isRRRA())
 		{
-			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterOffsetRel, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_THREEDEE), x-5, origin.Y+57, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, 0.253, DTA_ScaleY, 0.253, DTA_CenterOffsetRel, true, TAG_DONE);
 		}
 		else if (isRR())
 		{
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffsetRel, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x+5, origin.Y + 24, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, 0.36, DTA_ScaleY, 0.36, DTA_CenterOffsetRel, true, TAG_DONE);
 		}
 		else
 		{
-			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, TAG_DONE);
 			if (PLUTOPAK)
 			{
 				int light = 224 + 31 * sin(int(totalclock) / 40.);
 				PalEntry pe(255, light, light, light);
-				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
+				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 			}
 		}
 		
@@ -195,7 +195,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 		pe = 0xffa0a0a0;
 	}
 
-	DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe,
+	DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe,
 		DTA_TranslationIndex, trans, TAG_DONE);
 
 	if (state == NIT_SelectedState)
@@ -317,7 +317,7 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	DrawTexture(twod, tileGetTexture(TILE_MENUBAR), origin.X + 160, origin.Y + 19, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff808080, DTA_CenterOffsetRel, 1, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(TILE_MENUBAR), origin.X + 160, origin.Y + 19, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, 0xff808080, DTA_CenterOffsetRel, 1, TAG_DONE);
 
 	FString t = text;
 	size_t newlen = t.Len();
@@ -326,7 +326,7 @@ void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 	t.Truncate(newlen);
 	double scale = isRR() ? 0.4 : 1.0;
 	double x = 160 + origin.X - BigFont->StringWidth(t) * scale * 0.5;
-	DrawText(twod, BigFont, CR_UNTRANSLATED, x, origin.Y + 12, t, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x, origin.Y + 12, t, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
 
 void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *text, int position, bool bg)
@@ -353,7 +353,7 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 	double x = origin.X + 260, y = origin.Y + tex->GetDisplayHeight() * (isRR()? 0.25 : 0.5);
 	double scale = isRR() ? 0.375 : 0.75;
 
-	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	DrawTexture(twod, tex, x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, color, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 }
 
 void GameInterface::QuitToTitle()

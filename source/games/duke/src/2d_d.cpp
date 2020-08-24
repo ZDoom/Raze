@@ -137,21 +137,21 @@ void InitFonts_d()
 static void BigText(double x, double y, const char* text, double alpha = 1.)
 {
 	auto width = BigFont->StringWidth(text);
-	DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 12, text, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Alpha, alpha, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNTRANSLATED, x - width / 2, y - 12, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, TAG_DONE);
 }
 
 static void GameText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
 	if (align != -1)
 		x -= SmallFont->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
+	DrawText(twod, SmallFont, CR_UNDEFINED, x, y + 2, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 static void MiniText(double x, double y, const char* t, int shade, int align = -1, int trans = 0)
 {
 	if (align != -1)
 		x -= SmallFont2->StringWidth(t) * (align == 0 ? 0.5 : 1);
-	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
+	DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, t, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, trans), DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 //---------------------------------------------------------------------------
@@ -223,19 +223,19 @@ public:
 
 		double scale = clamp(clock - 120, 0, 60) / 64.;
 		if (scale > 0.)
-			DrawTexture(twod, tileGetTexture(DUKENUKEM, true), 160, 104, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DrawTexture(twod, tileGetTexture(DUKENUKEM, true), 160, 104, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_CenterOffsetRel, true,  DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		scale = clamp(clock - 220, 0, 30) / 32.;
 		if (scale > 0.)
-			DrawTexture(twod, tileGetTexture(THREEDEE, true), 160, 129, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DrawTexture(twod, tileGetTexture(THREEDEE, true), 160, 129, DTA_FullscreenScale, FSMode_Fit320x200,
 				DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 		if (PLUTOPAK) 
 		{
 			scale = (410 - clamp(clock, 280, 395)) / 16.;
 			if (scale > 0. && clock > 280)
-				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+1, true), 160, 151, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+				DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+1, true), 160, 151, DTA_FullscreenScale, FSMode_Fit320x200,
 					DTA_CenterOffsetRel, true, DTA_TranslationIndex, translation, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
 
@@ -320,7 +320,7 @@ public:
 		uint64_t span = nsclock / 1'000'000;
 
 		twod->ClearScreen();
-		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
+		DrawTexture(twod, tileGetTexture(VICTORY1, true), 0, 50, DTA_FullscreenScale, FSMode_Fit320x200, 
 			DTA_TranslationIndex, translation, DTA_LegacyRenderStyle, STYLE_Normal, DTA_TopLeft, true, TAG_DONE);
 
 
@@ -334,7 +334,7 @@ public:
 					S_PlaySound(SQUISHED, CHAN_AUTO, CHANF_UI);
 					bonuscnt++; 
 				}
-				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+				DrawTexture(twod, tileGetTexture(bossmove[t + 2], true), bossmove[t + 3], bossmove[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
 					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 			}
 
@@ -343,7 +343,7 @@ public:
 		{
 			if (currentclock >= 750)
 			{
-				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+				DrawTexture(twod, tileGetTexture(VICTORY1 + 8, true), 86, 59, DTA_FullscreenScale, FSMode_Fit320x200,
 					DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 				if (currentclock >= 750 && bonuscnt == 2) 
 				{ 
@@ -359,7 +359,7 @@ public:
 						S_PlaySound(BOSSTALKTODUKE, CHAN_AUTO, CHANF_UI);
 						bonuscnt++;
 					}
-					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+					DrawTexture(twod, tileGetTexture(breathe[t + 2], true), breathe[t + 3], breathe[t + 4], DTA_FullscreenScale, FSMode_Fit320x200,
 						DTA_TranslationIndex, translation, DTA_TopLeft, true, TAG_DONE);
 				}
 		}
@@ -680,9 +680,9 @@ public:
 		int currentclock = int(clock * 120 / 1'000'000'000);
 		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(MENUSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_Color, 0xff808080, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+		DrawTexture(twod, tileGetTexture(INGAMEDUKETHREEDEE, true), 160, 34, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
 		if (PLUTOPAK)
-			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(PLUTOPAKSPRITE+2, true), 260, 36, DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffsetRel, true, TAG_DONE);
 
 		GameText(160, 58 + 2, GStrings("Multiplayer Totals"), 0, 0);
 		GameText(160, 58 + 10, currentLevel->DisplayName(), 0, 0);
@@ -916,11 +916,11 @@ public:
 				case 1:
 				case 4:
 				case 5:
-					DrawTexture(twod, tileGetTexture(gfx_offset + 3), 199, 31, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					DrawTexture(twod, tileGetTexture(gfx_offset + 3), 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
 					break;
 				case 2:
 				case 3:
-					DrawTexture(twod, tileGetTexture(gfx_offset + 4), 199, 31, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					DrawTexture(twod, tileGetTexture(gfx_offset + 4), 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
 					break;
 			}
 		}
@@ -931,10 +931,10 @@ public:
 			{
 				case 1:
 				case 3:
-					DrawTexture(twod, tileGetTexture(gfx_offset + 1), 199, 31, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					DrawTexture(twod, tileGetTexture(gfx_offset + 1), 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
 					break;
 				case 2:
-					DrawTexture(twod, tileGetTexture(gfx_offset + 2), 199, 31, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
+					DrawTexture(twod, tileGetTexture(gfx_offset + 2), 199, 31, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
 					break;
 			}
 		}

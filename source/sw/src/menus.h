@@ -34,7 +34,6 @@ BEGIN_SW_NS
 
 void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align = -1);
 void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, int align = -1, double alpha = 1);
-void MNU_DrawStringLarge(int x, int y, const char* string, int shade = 0, int align = -1);
 
 #define pic_yinyang 2870
 #define pic_shadow_warrior 2366

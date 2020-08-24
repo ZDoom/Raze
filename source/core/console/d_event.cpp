@@ -86,7 +86,7 @@ bool AM_Responder (event_t *ev, bool last)
 
 bool G_Responder (event_t *ev)
 {
-	if (gamestate == GS_LEVEL && automapMode == am_full && AM_Responder(ev, false)) return true;
+	if (gamestate == GS_LEVEL && automapMode != am_off && AM_Responder(ev, false)) return true;
 	
 	switch (ev->type)
 	{
@@ -108,11 +108,13 @@ bool G_Responder (event_t *ev)
 #endif
 	}
 
-
+	// This won't work as expected with Build's overlay automap.
+#if 0
 	// [RH] If the view is active, give the automap a chance at
 	// the events *last* so that any bound keys get precedence.
 	if (gamestate == GS_LEVEL && automapMode == am_overlay)
 		return AM_Responder (ev, true);
+#endif
 
 	return (ev->type == EV_KeyDown ||
 			ev->type == EV_Mouse);

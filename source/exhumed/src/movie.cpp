@@ -250,7 +250,7 @@ public:
 
         {
             twod->ClearScreen();
-            DrawTexture(twod, decoder.animTex().GetFrame(), 160, 100, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+            DrawTexture(twod, decoder.animTex().GetFrame(), 160, 100, DTA_FullscreenScale, FSMode_Fit320x200,
                 DTA_CenterOffset, true, DTA_FlipY, true, DTA_ScaleX, z / 65536., DTA_ScaleY, z / 65536., DTA_Rotate, (-angle - 512) * (360. / 2048.), TAG_DONE);
         }
         

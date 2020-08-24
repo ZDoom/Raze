@@ -408,7 +408,7 @@ private:
         MNU_DrawString(160, 20, currentLevel->DisplayName(), 1, 19, 0);
         MNU_DrawString(170, 30, GStrings("COMPLETED"), 1, 19, 0);
 
-        DrawTexture(twod, tileGetTexture(State->Pic), 158, 86, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+        DrawTexture(twod, tileGetTexture(State->Pic), 158, 86, DTA_FullscreenScale, FSMode_Fit320x200,
             DTA_TopLeft, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
         auto BONUS_LINE = [](int i) { return (50 + ((i) * 20)); };

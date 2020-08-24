@@ -73,7 +73,7 @@ void DDukeCommonStatusBar::displayfragbar(void)
 
 	auto tex = tileGetTexture(TILE_FRAGBAR);
 	for (int y = 0; y < 32; y += 8)
-		DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_ViewportWidth, 320, DTA_ViewportHeight, 200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
+		DrawTexture(twod, tex, 0, 0, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, 1.001, DTA_ScaleY, 1.001, TAG_Done);
 		
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
@@ -197,9 +197,9 @@ void DDukeCommonStatusBar::PrintLevelStats(int bottomy)
 		int top = am_nameontop ? 0 : ( 200 - Scale(bottomy < 0 ? RelTop : bottomy, hud_scale, 100) - (isRR()? 25 : 20));
 		if (!(currentLevel->flags & MI_USERMAP))
 			DrawText(twod, font, color, 5, top + 6, GStrings.localize(gVolumeNames[volfromlevelnum(currentLevel->levelNumber)]),
-				DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+				DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 		DrawText(twod, font, color, 5, top + ((isRR() && am_textfont) ? 15 : 12), mapname,
-			DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
+			DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 	}
 	else if (hud_stats)
 	{

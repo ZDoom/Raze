@@ -69,7 +69,7 @@ void DrawFrame(double x, double y, TILE_FRAME *pTile, int stat, int shade, int p
 		auto color = shadeToLight(pTile->shade + shade);
 
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_FlipOffsets, true, DTA_Color, color,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, FSMode_Fit320x200, DTA_FlipOffsets, true, DTA_Color, color,
 					DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
     }
     else

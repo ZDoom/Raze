@@ -71,8 +71,7 @@ void ImageScreen::Drawer()
 		else tileindex = *tileindexp;
 		if (!gi->DrawSpecialScreen(origin, tileindex)) // allows the front end to do custom handling for a given image.
 		{
-			DrawTexture(twod, tileGetTexture(tileindex), origin.X, origin.Y, DTA_FullscreenScale, 3, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-						DTA_TopLeft, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
+			DrawTexture(twod, tileGetTexture(tileindex), origin.X, origin.Y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		}
 	}
 	else if (mDesc->type > 0)

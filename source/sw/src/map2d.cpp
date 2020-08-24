@@ -228,7 +228,7 @@ SHOWSPRITE:
                                 double sc = mulscale16(czoom * (spr->yrepeat), yxaspect) / 65536.;
                                 if (spnum >= 0)
                                 {
-                                    DrawTexture(twod, tileGetTexture(5407, true), xd, yd, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+                                    DrawTexture(twod, tileGetTexture(5407, true), xd, yd, DTA_FullscreenScale, FSMode_Fit320x200,
                                         DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
                                         DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
                                 }

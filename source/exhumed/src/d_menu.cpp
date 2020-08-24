@@ -107,7 +107,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	// Todo: Replace the boxes with an empty one and draw the text with a font.
 	auto tex = tileGetTexture(tilenum);
 
-	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_ScaleX, zoomsize, DTA_ScaleY, zoomsize, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffset, true, 
+	DrawTexture(twod, tex, 160, y + tex->GetDisplayHeight(), DTA_FullscreenScale, FSMode_Fit320x200, DTA_CenterOffset, true, DTA_ScaleX, zoomsize, DTA_ScaleY, zoomsize, 
 		DTA_Color, shadeToLight(shade), TAG_DONE);
 
 	// tilesizx is 51
@@ -116,8 +116,8 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	if (state == NIT_SelectedState)
 	{
 		tex = tileGetTexture(kMenuCursorTile);
-		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, TAG_DONE);
-		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
+		DrawTexture(twod, tex, 62, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, TAG_DONE);
+		DrawTexture(twod, tex, 207, ypos - 12, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_FlipX, true, TAG_DONE);
 	}
 }
 
@@ -166,8 +166,8 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	// Fixme: should use the extracted font from the menu items
-	DrawCenteredTextScreen(origin, text, 10, false);
+	// Fixme: should use the extracted font from the menu items (i.e. BigFont) and a stretched box for the menu items.
+	DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - SmallFont->StringWidth(text), 10, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 

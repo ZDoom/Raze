@@ -119,7 +119,7 @@ void InitFonts()
 
 void DrawAbs(int tile, double x, double y, int shade = 0)
 {
-    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
+    DrawTexture(twod, tileGetTexture(tile), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TopLeft, true, DTA_Color, shadeToLight(shade), TAG_DONE);
 }
 
 void DrawRel(int tile, double x, double y, int shade)
@@ -452,9 +452,9 @@ public:
         case 1:
         {
             int nStringWidth = SmallFont->StringWidth(a);
-            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 24, a, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 24, a, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
             nStringWidth = SmallFont->StringWidth(b);
-            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 16, b, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 200 - 16, b, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 
             if (ticker > var_18)
             {
@@ -869,7 +869,7 @@ void TextOverlay::DisplayText()
         while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10) {
-                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
             }
 
             i++;
@@ -1100,9 +1100,9 @@ private:
         int yy = ebp;
         for (int i = 0; i < nStringTypeOn; i++, yy += 8)
         {
-            DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+            DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
         }
-        DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TextLen, nCharTypeOn, TAG_DONE);
+        DrawText(twod, SmallFont2, CR_UNTRANSLATED, 70, yy, screentext[nStringTypeOn], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TextLen, nCharTypeOn, TAG_DONE);
     }
 
     int Frame(uint64_t clock, bool skiprequest) override
@@ -1253,7 +1253,7 @@ private:
             auto color = PalEntry(255, light, light, light);
 
             int nStringWidth = SmallFont->StringWidth(pagelines[i]);
-            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, pagelines[i], DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, color, TAG_DONE);
+            DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, y, pagelines[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, color, TAG_DONE);
             y += 10;
         }
         return 1;

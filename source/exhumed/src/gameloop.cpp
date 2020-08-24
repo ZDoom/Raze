@@ -125,7 +125,7 @@ static void GameDisplay(void)
     {
         auto tex = GStrings("TXTB_PAUSED");
 		int nStringWidth = SmallFont->StringWidth(tex);
-		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
 }
 

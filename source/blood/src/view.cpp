@@ -211,9 +211,9 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 	if (shadow)
 	{
-		DrawText(twod, pFont, CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
+		DrawText(twod, pFont, CR_UNDEFINED, x+1, y+1, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, 0.5, TAG_DONE);
 	}
-	DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
+	DrawText(twod, pFont, CR_UNDEFINED, x, y, pString, DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_Remap, nPalette),
 			 DTA_Color, shadeToLight(nShade), DTA_Alpha, alpha / 255., TAG_DONE);
 
 }

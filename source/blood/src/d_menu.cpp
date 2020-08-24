@@ -216,10 +216,10 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 		xpos -= width / 2;
 	}
 	DrawText(twod, gamefont, CR_UNDEFINED, xpos+1, ypos+1, text, DTA_Color, 0xff000000, //DTA_Alpha, 0.5,
-			 DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 
 	DrawText(twod, gamefont, CR_UNDEFINED, xpos, ypos, text, DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Color, shadeToLight(shade),
-			 DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			 DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 }
 
 
@@ -260,8 +260,8 @@ void DrawMenuCaption(const char* text)
 	int boxwidth = tileWidth(2038);
 	if (boxwidth - 10 < width) scalex = double(width) / (boxwidth - 10);
 	
-	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
-	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_ScaleToFit43Top, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+	DrawTexture(twod, tileGetTexture(2038, true), 160, 20, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, DTA_ScaleX, scalex, TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - width/2, 20 - tileHeight(4193) / 2, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
@@ -281,7 +281,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 		{
 			int width = SmallFont->StringWidth(l);
 			int x = 160 - width / 2;
-			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, TAG_DONE);
+			DrawText(twod, SmallFont, CR_UNTRANSLATED, x, y, l, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 			y += height;
 		}
 	}

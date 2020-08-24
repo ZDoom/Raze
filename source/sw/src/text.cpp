@@ -108,25 +108,6 @@ void InitFonts()
 //
 //---------------------------------------------------------------------------
 
-void MNU_DrawStringLarge(int x, int y, const char* string, int shade, int align)
-{
-    if (align > -1)
-    {
-        int w = BigFont->StringWidth(string);
-        if (align == 0) x -= w / 2;
-        else x -= w;
-    }
-
-    DrawText(twod, BigFont, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, 
-        DTA_Color, shadeToLight(shade), TAG_DONE);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int align)
 {
     if (align > -1)
@@ -135,7 +116,7 @@ void MNU_DrawString(int x, int y, const char* string, int shade, int pal, int al
         if (align == 0) x -= w / 2;
         else x -= w;
     }
-    DrawText(twod, SmallFont, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+    DrawText(twod, SmallFont, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_Fit320x200,
         DTA_Color, shadeToLight(shade), DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), TAG_DONE);
 }
 
@@ -153,7 +134,7 @@ void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, i
         if (align == 0) x -= w / 2;
         else x -= w;
     }
-    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+    DrawText(twod, SmallFont2, CR_UNDEFINED, x, y, string, DTA_FullscreenScale, FSMode_Fit320x200,
         DTA_Color, shadeToLight(shade), DTA_TranslationIndex, TRANSLATION(Translation_Remap, pal), DTA_Alpha, alpha, TAG_DONE);
 
 }

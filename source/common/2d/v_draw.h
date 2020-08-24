@@ -35,7 +35,16 @@ enum
 	FSMode_ScaleToHeight = 7,
 
 
-	FSMode_Max
+	FSMode_Max,
+	
+	// These all use ScaleToFit43, their purpose is to cut down on verbosity because they imply the virtual screen size.
+	FSMode_Predefined = 1000,
+	FSMode_Fit320x200 = 1000,
+	FSMode_Fit320x240,
+	FSMode_Fit640x400,
+	FSMode_Fit640x480,
+	FSMode_Fit320x200Top,
+	FSMode_Predefined_Max,
 };
 
 enum

@@ -79,7 +79,7 @@ class SWMainMenu : public DListMenu
 
 	void PreDraw() override
 	{
-		DrawTexture(twod, tileGetTexture(pic_shadow_warrior), 160, 15, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DrawTexture(twod, tileGetTexture(pic_shadow_warrior), 160, 15, DTA_FullscreenScale, FSMode_Fit320x200,
 			DTA_CenterOffsetRel, true, DTA_Color, 0xfff0f0f0, TAG_DONE);
 	}
 };
@@ -111,11 +111,11 @@ public:
 
 void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags)
 {
-	short w, h;
 	switch (fontnum)
 	{
 		case NIT_BigFont:
-			MNU_DrawStringLarge(short(xpos), short(ypos), text, state == NIT_InactiveState? 20 : 0, (flags & LMF_Centered)? 0 : -1);
+			if (flags & LMF_Centered) xpos -= BigFont->StringWidth(text) * 0.5;
+			DrawText(twod, BigFont, CR_UNDEFINED, xpos, ypos, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, state == NIT_InactiveState? 0xff505050 : 0xffffffff, TAG_DONE);
 			break;
 		
 		case NIT_SmallFont:
@@ -141,7 +141,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 			x -= ((tilesiz[pic_yinyang].x) / 2) - 3;
 			y += 8;
 		}
-		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DrawTexture(twod, tileGetTexture(pic_yinyang, true), x, y, DTA_FullscreenScale, FSMode_Fit320x200,
 			DTA_CenterOffset, true, DTA_Color, 0xfff0f0f0, DTA_ScaleX, scale / 65536., DTA_ScaleY, scale / 65536., TAG_DONE);
 	}
 }
@@ -242,9 +242,8 @@ FSavegameInfo GameInterface::GetSaveSig()
 
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
-	DrawTexture(twod, tileGetTexture(2427), 10, 2, DTA_FullscreenScale, FSMode_ScaleToFit43, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-		DTA_TopLeft, true, DTA_Color, 0xfff0f0f0,  TAG_DONE);
-	MNU_DrawStringLarge(160, 5, text, 1, 0);
+	DrawTexture(twod, tileGetTexture(2427), 10, 2, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_TopLeft, true, DTA_Color, 0xfff0f0f0,  TAG_DONE);
+	DrawText(twod, BigFont, CR_UNDEFINED, 160 - BigFont->StringWidth(text) * 0.5, 5, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 
