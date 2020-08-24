@@ -1036,7 +1036,7 @@ OptionMenu "HUDOptions" //protected
 	Option "$DSPLYMNU_MESSAGEDISP",				"con_notify_advanced",		"HudMessageStyle"
 	Option "$MSGMNU_CENTERMESSAGES",			"con_centernotify", 		"OnOff", "con_notify_advanced"
 	Option "$MSGMNU_PULSEMESSAGES",				"con_pulsetext", 			"OnOff", "con_notify_advanced"
-	Slider "$MSGMNU_MESSAGESCALE", 				"con_scaletext", 			0.0, 8.0, 1.0, -1
+	Slider "$MSGMNU_MESSAGESCALE", 				"con_scaletext", 			0.0, 8.0, 1.0, 1
 
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
