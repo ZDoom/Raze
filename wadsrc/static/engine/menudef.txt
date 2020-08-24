@@ -1027,7 +1027,7 @@ OptionMenu "HUDOptions" //protected
 	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				36, 100, 0.04, 2
 	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			.5, 3, 0.25, 2
+	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			36, 100, 0.04, 2
 
 	//Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
 

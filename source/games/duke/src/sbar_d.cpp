@@ -120,11 +120,12 @@ public:
 		FGameTexture* img;
 		double imgScale;
 		double baseScale = (scale * numberFont.mFont->GetHeight()) * 0.7;
+		double texty = -numberFont.mFont->GetHeight() + (isNamWW2GI() ? 2 : 4.5);
 
 		//
 		// Health
 		//
-		img = tileGetTexture(COLA);
+		img = tileGetTexture(isNamWW2GI()? FIRSTAID_ICON : COLA);
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
@@ -136,7 +137,7 @@ public:
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 25, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 		}
 
 		//
@@ -147,7 +148,7 @@ public:
 		DrawGraphic(img, 67.375, -1.5, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
 		format.Format("%d", GetMoraleOrShield(p, snum));
-		SBar_DrawString(this, &numberFont, format, 85, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+		SBar_DrawString(this, &numberFont, format, 85, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 
 		//
 		// Weapon
@@ -171,7 +172,7 @@ public:
 
 			if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || (int)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
 			{
-				SBar_DrawString(this, &numberFont, format, -3, -numberFont.mFont->GetHeight() + 4.5, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+				SBar_DrawString(this, &numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}
 
 			DrawGraphic(img, -imgX, -1.5, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
