@@ -510,9 +510,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     gPredictTail = 0;
     gNetFifoMasterTail = 0;
     memset(gFifoInput, 0, sizeof(gFifoInput));
-    memset(gChecksum, 0, sizeof(gChecksum));
-    memset(gCheckFifo, 0, sizeof(gCheckFifo));
-    memset(gCheckHead, 0, sizeof(gCheckHead));
     gSendCheckTail = 0;
     gCheckTail = 0;
     gBufferJitter = 0;

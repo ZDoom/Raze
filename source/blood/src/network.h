@@ -43,7 +43,6 @@ enum NETWORKMODE {
 
 #define kNetDefaultPort 23513
 
-extern char packet[576];
 extern MapRecord *gStartNewGame;
 extern PACKETMODE gPacketMode;
 extern ClockTicks gNetFifoClock;
@@ -55,9 +54,6 @@ extern GINPUT gFifoInput[256][8];
 extern int myMinLag[8];
 extern int otherMinLag;
 extern int myMaxLag;
-extern unsigned int gChecksum[4];
-extern unsigned int gCheckFifo[256][8][4];
-extern int gCheckHead[8];
 extern int gSendCheckTail;
 extern int gCheckTail;
 extern int gInitialNetPlayers;
@@ -72,73 +68,19 @@ extern char gNetAddress[32];
 extern int gNetPort;
 
 
-inline void PutPacketByte(char *&p, int a2)
-{
-    //dassert(p - packet + 1 < sizeof(packet));
-    *p++ = a2;
-}
-
-inline void PutPacketWord(char *&p, int a2)
-{
-    //dassert(p - packet + 2 < sizeof(packet));
-    *(short*)p = a2;
-    p += 2;
-}
-
-inline void PutPacketDWord(char *&p, int a2)
-{
-    //dassert(p - packet + 4 < sizeof(packet));
-    *(int*)p = a2;
-    p += 4;
-}
-
-inline void PutPacketBuffer(char *&p, const void *pBuffer, int size)
-{
-    //dassert(p + size < packet + sizeof(packet));
-    memcpy(p, pBuffer, size);
-    p += size;
-}
-
-inline char GetPacketByte(char *&p)
-{
-    return *p++;
-}
-
-inline short GetPacketWord(char *&p)
-{
-    short t = *(short*)p;
-    p += 2;
-    return t;
-}
-
-inline int GetPacketDWord(char *&p)
-{
-    int t = *(int*)p;
-    p += 4;
-    return t;
-}
-
-inline void GetPacketBuffer(char *&p, void *pBuffer, int size)
-{
-    //dassert(p + size < packet + sizeof(packet));
-    memcpy(pBuffer, p, size);
-    p += size;
-}
-
 void netReset(void);
 void netResetToSinglePlayer(void);
-void netWaitForEveryone(char a1);
-void netGetPackets(void);
-void CalcGameChecksum(void);
-void netBroadcastPlayerLogoff(int nPlayer);
-void netBroadcastMyLogoff(bool bRestart);
+inline void netWaitForEveryone(char a1) {}
+inline void netGetPackets(void) {}
+inline void CalcGameChecksum(void) {}
+inline void netBroadcastPlayerLogoff(int nPlayer) {}
+inline void netBroadcastMyLogoff(bool bRestart) {}
 void netInitialize(bool bConsole);
 void netBroadcastPlayerInfo(int nPlayer);
-void netCheckSync(void);
+inline void netCheckSync(void) {}
 void netMasterUpdate(void);
 void netGetInput(void);
 void netPlayerQuit(int nPlayer);
 void netDeinitialize(void);
-void netBroadcastNewGame(void);
 
 END_BLD_NS

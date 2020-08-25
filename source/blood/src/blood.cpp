@@ -536,14 +536,7 @@ void ProcessFrame(void)
         gPlayer[i].input.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
     }
     gNetFifoTail++;
-#if 0
-    if (!(gFrame&7))
-    {
-        CalcGameChecksum();
-        memcpy(gCheckFifo[gCheckHead[myconnectindex]&255][myconnectindex], gChecksum, sizeof(gChecksum));
-        gCheckHead[myconnectindex]++;
-    }
-#endif
+
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (gPlayer[i].input.keyFlags.quit)

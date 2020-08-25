@@ -485,59 +485,6 @@ extern void G_SetupGlobalPsky(void);
 
 #pragma pack(push,1)
 
-#if 0
-struct sectortype
-{
-    short wallptr, wallnum;
-    int ceilingz, floorz;
-    unsigned short ceilingstat, floorstat;
-    short ceilingpicnum, ceilingheinum;
-    signed char ceilingshade;
-    char ceilingpal, ceilingxpanning, ceilingypanning;
-    short floorpicnum, floorheinum;
-    signed char floorshade;
-    char floorpal, floorxpanning, floorypanning;
-    char visibility, filler;
-    unsigned short lotag;
-    short hitag, extra;
-};
-
-struct walltype
-{
-    int x, y;
-    short point2, nextwall, nextsector;
-    unsigned short cstat;
-    short picnum, overpicnum;
-    signed char shade;
-    char pal, xrepeat, yrepeat, xpanning, ypanning;
-    short lotag, hitag, extra;
-};
-
-struct spritetype
-{
-    int x, y, z;
-    short cstat, picnum;
-    signed char shade;
-    char pal, clipdist, filler;
-    unsigned char xrepeat, yrepeat;
-    signed char xoffset, yoffset;
-    short sectnum, statnum;
-    short ang, owner, index, yvel, zvel;
-    short type, hitag, extra;
-};
-
-struct PICANM {
-    unsigned int animframes : 5;
-    unsigned int at0_5 : 1;
-    unsigned int animtype : 2;
-    signed int xoffset : 8;
-    signed int yoffset : 8;
-    unsigned int animspeed : 4;
-    unsigned int at3_4 : 3; // type
-    unsigned int at3_7 : 1; // filler
-};
-#endif
-
 struct LOCATION {
     int x, y, z;
     int ang;
@@ -589,29 +536,6 @@ inline int DecBy(int a, int b)
         a -= b;
     return a;
 }
-
-#if 0
-inline float IncByF(float a, float b)
-{
-    a += b;
-    float q = fmod(a, b);
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
-
-inline float DecByF(float a, float b)
-{
-    //a--;
-    a -= fabs(b)*0.001;
-    float q = fmod(a, b);
-    a -= q;
-    if (q < 0)
-        a -= b;
-    return a;
-}
-#endif
 
 inline int ClipLow(int a, int b)
 {
