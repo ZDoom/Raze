@@ -110,7 +110,7 @@ int animatevel[MAXANIMATES];
 int16_t clouds[256];
 int16_t cloudx;
 int16_t cloudy;
-ClockTicks cloudtotalclock;
+ClockTicks cloudclock;
 
 int16_t spriteq[1024];
 int16_t cyclers[MAXCYCLERS][6];

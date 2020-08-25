@@ -1142,9 +1142,9 @@ void allignwarpelevators(void)
 
 void moveclouds(void)
 {
-	if (gameclock > cloudtotalclock || gameclock < (cloudtotalclock - 7))
+	if (gameclock > cloudclock || gameclock < (cloudclock - 7))
 	{
-		cloudtotalclock = gameclock + 6;
+		cloudclock = gameclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
 		cloudx += (sintable[(ps[screenpeek].getang() + 512) & 2047] >> 9);

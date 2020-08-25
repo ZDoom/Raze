@@ -759,7 +759,7 @@ void resettimevars(void)
     I_ResetTime();
     lastTic = -1;
     gameclock = 0;
-    cloudtotalclock = 0;
+    cloudclock = 0;
     levelTextTime = 85;
     lockclock = 0;
     ready2send = 1;

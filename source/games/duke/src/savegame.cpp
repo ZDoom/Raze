@@ -434,7 +434,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("numclouds", numclouds)
 			("cloudx", cloudx)
 			("cloudy", cloudy)
-			("cloudtotalclock", cloudtotalclock)
+			("cloudclock", cloudclock)
 			.Array("clouds", clouds, numclouds)
 
 			.Array("spriteq", spriteq, 1024)
