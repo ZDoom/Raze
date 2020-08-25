@@ -2188,8 +2188,7 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 ///////////////////////////
 
 extern int gotlastpacketclock;
-extern int ogameclock, gameclock;
-extern int lastTic;
+extern int ogameclock;
 extern SWBOOL ready2send;
 extern double smoothratio;
 

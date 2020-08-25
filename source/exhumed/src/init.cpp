@@ -39,8 +39,6 @@ enum
 };
 
 int ogameclock = 0;
-int gameclock = 0;
-int lastTic;
 
 int initx, inity, initz;
 short inita, initsect;

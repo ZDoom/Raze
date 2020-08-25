@@ -95,8 +95,7 @@ uint8_t syncstat[MAXSYNCBYTES];
 int syncvaltail, syncvaltottail;
 void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex);
 
-int ogameclock, gameclock;
-int lastTic;
+int ogameclock;
 double smoothratio;
 
 // must start out as 0

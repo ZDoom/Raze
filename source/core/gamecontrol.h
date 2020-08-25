@@ -221,3 +221,5 @@ enum AM_Mode
 extern int automapMode;
 extern bool automapFollow;
 extern bool sendPause;
+extern int gameclock;
+extern int lastTic;

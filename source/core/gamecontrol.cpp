@@ -100,6 +100,8 @@ auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need
 static int lastototalclk;
 static uint64_t elapsedTime;
 static uint64_t lastTime;
+int gameclock;
+int lastTic;
 
 bool sendPause;
 int automapMode;

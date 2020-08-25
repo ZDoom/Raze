@@ -32,8 +32,6 @@ BEGIN_BLD_NS
 
 extern int gFrameClock;
 extern int gFrameTicks;
-extern int gameclock;
-extern int lastTic;
 extern int gFrame;
 //extern int gGameClock;
 extern int gFrameRate;
