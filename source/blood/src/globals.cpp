@@ -35,6 +35,8 @@ BEGIN_BLD_NS
 bool bVanilla = false;
 ClockTicks gFrameClock;
 ClockTicks gFrameTicks;
+int gameclock;
+int lastTic;
 int gFrame;
 //int volatile gGameClock;
 int gFrameRate;

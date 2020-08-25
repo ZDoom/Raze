@@ -60,7 +60,7 @@ int32_t mouseyaxismode = -1;
 
 int32_t GetTime(void)
 {
-    return (int32_t)totalclock;
+    return gameclock;
 }
 
 fix16_t gViewLook, gViewAngle;
@@ -262,13 +262,13 @@ void ctrlGetInput(void)
 
     static int32_t turnHeldTime;
     static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = (int32_t)totalclock - lastInputClock;
+    int32_t const  elapsedTics = gameclock - lastInputClock;
 
     // Blood's q16mlook scaling is different from the other games, therefore use the below constant to attenuate
     // the speed to match the other games.
     float const mlookScale = 3.25f;
 
-    lastInputClock = (int32_t) totalclock;
+    lastInputClock = gameclock;
 
     if (turnLeft || turnRight)
         turnHeldTime += elapsedTics;

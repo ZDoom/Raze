@@ -73,7 +73,7 @@ CGameMenuItemQAV::CGameMenuItemQAV(int a3, int a4, const char* name, bool widesc
 			data->y = m_nY;
 			data->Preload();
 			at2c = data->at10;
-			lastTick = (int)totalclock;
+			lastTick = I_GetBuildTime();
 		}
 	}
 }
@@ -87,9 +87,10 @@ void CGameMenuItemQAV::Draw(void)
 	{
 		auto data = (QAV*)raw.Data();
 		ClockTicks backFC = gFrameClock;
-		gFrameClock = totalclock;
-		int nTicks = (int)totalclock - lastTick;
-		lastTick = (int)totalclock;
+		int currentclock = I_GetBuildTime();
+		gFrameClock = currentclock;
+		int nTicks = currentclock - lastTick;
+		lastTick = currentclock;
 		at2c -= nTicks;
 		if (at2c <= 0 || at2c > data->at10)
 		{
@@ -207,7 +208,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 	if (!text) return;
 	int shade = (state != NIT_InactiveState) ? 32 : 48;
 	int pal = (state != NIT_InactiveState) ? 5 : 5;
-	if (state == NIT_SelectedState)	shade = 32 - ((int)totalclock & 63);
+	if (state == NIT_SelectedState)	shade = 32 - (I_GetBuildTime() & 63);
 	auto gamefont = fontnum == NIT_BigFont ? BigFont : fontnum == NIT_SmallFont ? SmallFont : SmallFont2;
 
 	if (flags & LMF_Centered)

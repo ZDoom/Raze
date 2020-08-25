@@ -240,14 +240,14 @@ void WeaponDraw(PLAYER *pPlayer, int a2, double a3, double a4, int a5)
     QAV * pQAV = weaponQAV[pPlayer->weaponQav];
     int v4;
     if (pPlayer->weaponTimer == 0)
-        v4 = (int)totalclock % pQAV->at10;
+        v4 = gameclock % pQAV->at10;
     else
         v4 = pQAV->at10 - pPlayer->weaponTimer;
     pQAV->x = int(a3);
     pQAV->y = int(a4);
     int flags = 2;
     int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-    if (nInv >= 120 * 8 || (nInv != 0 && ((int)totalclock & 32)))
+    if (nInv >= 120 * 8 || (nInv != 0 && (gameclock & 32)))
     {
         a2 = -128;
         flags |= 1;

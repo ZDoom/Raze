@@ -57,11 +57,11 @@ void CChoke::sub_84110(int x, int y)
     if (!at8)
         return;
     ClockTicks v4 = gFrameClock;
-    gFrameClock = totalclock;
+    gFrameClock = gameclock;
     at8->x = x;
     at8->y = y;
-    int vd = (int)totalclock-at10;
-    at10 = (int)totalclock;
+    int vd = gameclock-at10;
+    at10 = gameclock;
     atc -= vd;
     if (atc <= 0 || atc > at8->at10)
         atc = at8->at10;
@@ -76,7 +76,7 @@ void CChoke::sub_84110(int x, int y)
 void CChoke::sub_84218()
 {
     atc = at8->at10;
-    at10 = (int)totalclock;
+    at10 = gameclock;
 }
 
 void sub_84230(PLAYER *pPlayer)

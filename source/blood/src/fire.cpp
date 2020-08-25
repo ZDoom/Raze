@@ -99,10 +99,10 @@ void FireInit(void)
 void FireProcess(void)
 {
     static ClockTicks lastUpdate;
-    if (totalclock < lastUpdate || lastUpdate + 2 < totalclock)
+    if (gameclock < lastUpdate || lastUpdate + 2 < gameclock)
     {
         DoFireFrame();
-        lastUpdate = totalclock;
+        lastUpdate = gameclock;
         TileFiles.InvalidateTile(2342);
     }
 }

@@ -137,7 +137,7 @@ void sfxUpdate3DSounds(void)
 
     listener.ListenerObject = gMe->pSprite;
     soundEngine->SetListener(listener);
-    soundEngine->UpdateSounds((int)totalclock);
+    soundEngine->UpdateSounds(gameclock);
 }
 
 FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)

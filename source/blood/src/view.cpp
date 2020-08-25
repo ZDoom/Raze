@@ -393,8 +393,8 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     *pX += mulscale16(vX, othercameradist);
     *pY += mulscale16(vY, othercameradist);
     *pZ += mulscale16(vZ, othercameradist);
-    othercameradist = ClipHigh(othercameradist+(((int)(totalclock-othercameraclock))<<10), 65536);
-    othercameraclock = (int)totalclock;
+    othercameradist = ClipHigh(othercameradist+((gameclock-othercameraclock)<<10), 65536);
+    othercameraclock = gameclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -439,8 +439,8 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     *pX += mulscale16(vX, cameradist);
     *pY += mulscale16(vY, cameradist);
     *pZ += mulscale16(vZ, cameradist);
-    cameradist = ClipHigh(cameradist+(((int)(totalclock-cameraclock))<<10), 65536);
-    cameraclock = (int)totalclock;
+    cameradist = ClipHigh(cameradist+((gameclock-cameraclock)<<10), 65536);
+    cameraclock = gameclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -653,15 +653,15 @@ void viewDrawScreen(bool sceneonly)
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;
 #endif
-    ClockTicks delta = totalclock - lastUpdate;
+    ClockTicks delta = gameclock - lastUpdate;
     if (delta < 0)
         delta = 0;
-    lastUpdate = totalclock;
+    lastUpdate = gameclock;
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
-        gInterpolate = CalcSmoothRatio(totalclock, gNetFifoClock - 4, 30);
+        gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
     }
-    else gInterpolate = 65536;
+    else gInterpolate = MaxSmoothRatio;
 
     if (cl_interpolate)
     {
@@ -782,7 +782,7 @@ void viewDrawScreen(bool sceneonly)
             }
             cZ += fix16_to_int(q16horiz * 10);
             cameradist = -1;
-            cameraclock = (int)totalclock;
+            cameraclock = gameclock;
         }
         else
         {
@@ -806,7 +806,7 @@ void viewDrawScreen(bool sceneonly)
         else if (v4 && gNetPlayers > 1)
         {
 #if 0       // needs to be redone for pure hardware rendering.
-            int tmp = ((int)totalclock / 240) % (gNetPlayers - 1);
+            int tmp = (gameclock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
             {
@@ -895,7 +895,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            othercameraclock = (int)totalclock;
+            othercameraclock = gameclock;
         }
 
         if (!bDelirium)

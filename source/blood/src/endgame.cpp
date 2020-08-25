@@ -112,7 +112,7 @@ void CEndGameMgr::Draw(void)
         DrawMenuCaption(GStrings("TXTB_FRAGSTATS"));
         gKillMgr.Draw();
     }
-    if (/*dword_28E3D4 != 1 && */((int)totalclock&32))
+    if (/*dword_28E3D4 != 1 && */(gameclock&32))
     {
         viewDrawText(3, GStrings("PRESSKEY"), 160, 134, -128, 0, 1, 1);
     }

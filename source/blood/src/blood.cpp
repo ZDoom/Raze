@@ -320,7 +320,6 @@ void PreloadTiles(void)
 void PreloadCache(void)
 {
     PreloadTiles();
-    ClockTicks clock = totalclock;
     int cnt = 0;
     int percentDisplayed = -1;
 
@@ -511,7 +510,8 @@ void StartLevel(MapRecord *level)
     // viewSetMessage("");
     viewSetErrorMessage("");
     netWaitForEveryone(0);
-    totalclock = 0;
+    gameclock = 0;
+    lastTic = -1;
     paused = 0;
     ready2send = 1;
     levelTryPlayMusic();
@@ -791,12 +791,17 @@ static void gameTicker()
     }
     if (numplayers == 1)
         gBufferJitter = 0;
-    while (totalclock >= gNetFifoClock && ready2send)
+
+    int const currentTic = I_GetTime();
+    gameclock = I_GetBuildTime();
+
+    while (currentTic - lastTic >= 1 && ready2send)
     {
         gNetInput = gInput;
         gInput = {};
         netGetInput();
-        gNetFifoClock += 4;
+        lastTic = currentTic;
+        gNetFifoClock = gameclock;
         while (gNetFifoHead[myconnectindex] - gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
         {
             int i;
@@ -849,7 +854,7 @@ static void commonTicker()
         auto completion = [=](bool = false)
         {
             StartLevel(sng);
-            gNetFifoClock = gFrameClock = totalclock;
+            gNetFifoClock = gFrameClock = gameclock;
             gamestate = GS_LEVEL;
         };
 
