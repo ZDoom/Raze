@@ -638,8 +638,6 @@ void C_InitConsole (int width, int height, bool ingame)
 	ConCols = ConWidth / cwidth;
 
 	if (conbuffer == NULL) conbuffer = new FConsoleBuffer;
-
-	timerSetCallback(C_Ticker);
 }
 
 //==========================================================================
@@ -1011,11 +1009,6 @@ void C_NewModeAdjust ()
 int consoletic = 0;
 void C_Ticker()
 {
-	// The engine timer ticks at 120 fps which is 4x too fast for this.
-	static int delay = 0;
-	if (++delay < 4) return;
-	delay = 0;
-
 	static int lasttic = 0;
 	consoletic++;
 

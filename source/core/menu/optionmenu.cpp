@@ -46,6 +46,7 @@
 #include "v_draw.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "i_time.h"
 
 //=============================================================================
 //
@@ -428,7 +429,8 @@ void DOptionMenu::Drawer ()
 		int cur_indent = mDesc->mItems[i]->Draw(mDesc, y, indent, isSelected);
 		if (cur_indent >= 0 && isSelected && mDesc->mItems[i]->Selectable())
 		{
-			if ((((DMenu::MenuTime>>2)%8) < 6) || CurrentMenu != this)
+			auto time = I_msTime() / 30;
+			if ((((time>>2)%8) < 6) || CurrentMenu != this)
 			{
 				DrawOptionText(cur_indent + 3 * CleanXfac_1, y, OptionSettings.mFontColorSelection, "◄");
 				//M_DrawConText(OptionSettings.mFontColorSelection, cur_indent + 3 * CleanXfac_1, y+fontheight-9*CleanYfac_1, "\xd");

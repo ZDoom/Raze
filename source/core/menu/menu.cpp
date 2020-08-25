@@ -84,7 +84,6 @@ CVAR(Int, m_show_backbutton, 0, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 TArray<MenuClassDescriptor*> menuClasses(TArray<MenuClassDescriptor*>::ENoInit(0));
 
 DMenu *CurrentMenu;
-int DMenu::MenuTime;
 bool DMenu::InMenu;
 
 FNewGameStartup NewGameStartupInfo;
@@ -112,7 +111,7 @@ bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType 
 	}
 	else
 	{
-		start  = (int32_t) totalclock;
+		start  = I_GetTimeNS() * (120. / 1'000'000'000.);
 		length = 30;
 		dir = animtype == MA_Advance? 1 : -1;
 		previous = from;
@@ -123,10 +122,11 @@ bool MenuTransition::StartTransition(DMenu *from, DMenu *to, MenuTransitionType 
 
 bool MenuTransition::Draw()
 {
-	if (totalclock < start + length)
+	double now = I_GetTimeNS() * (120. / 1'000'000'000);
+	if (now < start + length)
 	{
 		double factor = 120 * xdim / ydim;
-		double phase = ((int32_t) totalclock - start) / double(length) * M_PI + M_PI/2;
+		double phase = (now - start) / double(length) * M_PI + M_PI/2;
 		
 		previous->origin.X = factor * dir * (sin(phase) - 1.);
 		current->origin.X = factor * dir * (sin(phase) + 1.);
@@ -414,8 +414,6 @@ void M_ActivateMenu(DMenu *menu)
 		transition.StartTransition(CurrentMenu, menu, MA_Advance);
 	}
 	CurrentMenu = menu;
-	DMenu::MenuTime = -1;
-	M_Ticker();	// This needs to be called once here to make sure that the menu actually has ticked before it gets drawn for the first time.
 }
 
 //=============================================================================
@@ -865,8 +863,6 @@ bool M_Responder(event_t* ev)
 
 void M_Ticker (void) 
 {
-	DMenu::MenuTime++;
-	if (DMenu::MenuTime & 3) return;
 	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{
 		if (transition.previous) transition.previous->Ticker();
@@ -1013,7 +1009,6 @@ void M_Init (void)
 	RegisterLoadsaveMenus();
 	RegisterOptionMenus();
 	RegisterJoystickMenus();
-	timerSetCallback(M_Ticker);
 	M_ParseMenuDefs();
 	UpdateJoystickMenu(nullptr);
 }

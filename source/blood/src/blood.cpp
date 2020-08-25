@@ -671,11 +671,6 @@ void ParseOptions(void)
 
 }
 
-void ClockStrobe()
-{
-    //gGameClock++;
-}
-
 void ReadAllRFS();
 
 static const char* actions[] = {
@@ -752,7 +747,6 @@ void GameInterface::app_init()
     Printf("Loading control setup\n");
     ctrlInit();
     timerInit(120);
-    timerSetCallback(ClockStrobe);
 
     Printf("Initializing network users\n");
     netInitialize(true);

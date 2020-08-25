@@ -190,7 +190,6 @@ void InitLevel(int level)
         InitPlayerKeys(i);
     }
 
-    fps = 0;
     lastfps = 0;
     InitStatus();
     ResetView();

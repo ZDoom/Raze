@@ -273,7 +273,7 @@ void DListMenu::PreDraw()
 		gi->DrawMenuCaption(origin, GStrings.localize(mDesc->mCaption));
 	}
 }
-
+	
 void DListMenu::Drawer ()
 {
 	PreDraw();
@@ -317,20 +317,7 @@ bool FListMenuItem::Selectable()
 
 void FListMenuItem::DrawSelector(int xofs, int yofs, FGameTexture *tex)
 {
-	if (!tex)
-	{
-		if ((DMenu::MenuTime%8) < 6)
-		{
-			DrawText(twod, ConFont, OptionSettings.mFontColorSelection,
-				(mXpos + xofs - 160) * CleanXfac + screen->GetWidth() / 2,
-				(mYpos + yofs - 100) * CleanYfac + screen->GetHeight() / 2,
-				"\xd",
-				DTA_CellX, 8 * CleanXfac,
-				DTA_CellY, 8 * CleanYfac,
-				TAG_DONE);
-		}
-	}
-	else
+	if (tex)
 	{
 		DrawTexture (twod, tex, mXpos + xofs, mYpos + yofs, DTA_Clean, true, TAG_DONE);
 	}

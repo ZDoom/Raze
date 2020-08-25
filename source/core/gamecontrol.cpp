@@ -855,7 +855,6 @@ int RunGame()
 	sfx_empty = fileSystem.FindFile("engine/dsempty.lmp"); // this must be done outside the sound code because it's initialized late.
 	I_InitSound();
 	Mus_InitMusic();
-	timerSetCallback(Mus_UpdateMusic);
 	S_ParseSndInfo();
 	InitStatistics();
 	LoadScripts();
@@ -884,6 +883,28 @@ int RunGame()
 //
 //---------------------------------------------------------------------------
 
+
+void TickSubsystems()
+{
+	// run these on an independent timer until we got something working for the games.
+	static const uint64_t tickInterval = 1'000'000'000 / 30;
+	static uint64_t nexttick = 0;
+
+	auto nowtick = I_nsTime();
+	if (nexttick == 0) nexttick = nowtick;
+	int cnt = 0;
+	while (nexttick <= nowtick && cnt < 5)
+	{
+		nexttick += tickInterval;
+		C_Ticker();
+		M_Ticker();
+		cnt++;
+	}
+	// If this took too long the engine was most likely suspended so recalibrate the timer.
+	// Perfect precision is not needed here.
+	if (cnt == 5) nexttick = nowtick + tickInterval;
+}
+
 void app_loop()
 {
 	gamestate = GS_STARTUP;
@@ -892,6 +913,7 @@ void app_loop()
 	{
 		try
 		{
+			TickSubsystems();
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			I_SetFrameTime();
@@ -910,6 +932,7 @@ void app_loop()
 
 			videoNextPage();
 			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
+			Mus_UpdateMusic();		// must be at the end.
 		}
 		catch (CRecoverableError& err)
 		{

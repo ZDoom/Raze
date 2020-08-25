@@ -35,8 +35,6 @@ int timerInit(int const tickspersecond)
     return 0;
 }
 
-TArray<void(*)(void)> callbacks;
-
 void timerUpdateClock(void)
 {
     auto time = steady_clock::now();
@@ -51,21 +49,5 @@ void timerUpdateClock(void)
     totalclock += n;
     timerlastsample += n*nanoseconds(1000000000/timerticspersec);
 
-	// This function can get called from deep within processing loops.
-	// The callbacks in here may not be called recursively, though.
-	static bool recursion;
-	if (recursion) return;
-	recursion = true;
-
-	for (; n > 0; n--)
-	{
-		for (auto cb : callbacks) cb();
-	}
-	recursion = false;
 }
 
-void(*timerSetCallback(void(*callback)(void)))(void)
-{
-	callbacks.Push(callback);
-    return nullptr;
-}

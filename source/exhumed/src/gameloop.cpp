@@ -258,7 +258,6 @@ void GameLoop()
     GameTicker();
     PlayerInterruptKeys();
     CheckKeys2();
-    fps++;
 }
 
 

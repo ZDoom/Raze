@@ -210,7 +210,6 @@ extern short nClockVal;
 extern short bSlipMode;
 
 extern int bVanilla;
-extern short fps;
 extern short bInMove;
 
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)

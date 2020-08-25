@@ -246,6 +246,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     fix16_t nAngle;
     fix16_t pan;
 
+	UpdateSounds();
+	
     zbob = Sin(2 * bobangle) >> 3;
 
     int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;

@@ -129,7 +129,6 @@ short nLocalSpr;
 int nNetPlayerCount = 0;
 
 short nClockVal;
-short fps;
 short nRedTicks;
 short bInMove;
 short nAlarmTicks;
@@ -208,22 +207,6 @@ void ShutDown(void)
 
     RemoveEngine();
     //UnInitFX();
-}
-
-void timerhandler()
-{
-    UpdateSounds();
-    scan_char++;
-    if (scan_char == kTimerTicks)
-    {
-        scan_char = 0;
-        lastfps = fps;
-        fps = 0;
-    }
-
-    if (!bInMove) {
-        C_RunDelayedCommands();
-    }
 }
 
 void HandleAsync()
@@ -573,7 +556,6 @@ void InitTimer()
     htimer = 1;
 
     timerInit(kTimerTicks);
-    timerSetCallback(timerhandler);
 }
 
 static const char* actions[] =

@@ -16,6 +16,4 @@ uint64_t timerGetFreqU64(void);
 double   timerGetHiTicks(void);
 uint32_t timerGetTicks(void);
 
-void (*timerSetCallback(void (*callback)(void)))(void);
-
 #endif // timer_h__

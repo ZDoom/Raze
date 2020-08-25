@@ -42,6 +42,7 @@
 #include "statistics.h"
 #include "v_2ddrawer.h"
 #include "v_video.h"
+#include "i_time.h"
 #include "engineerrors.h"
 
 extern FSaveGameNode *quickSaveSlot;
@@ -232,7 +233,8 @@ void DMessageBoxMenu::Drawer()
 
 			if (messageSelection >= 0)
 			{
-				if (((DMenu::MenuTime >> 2) % 8) < 6)
+				auto time = I_msTime() / 30;
+				if (((time >> 2) % 8) < 6)
 				{
 					DrawText(twod, SmallFont, OptionSettings.mFontColorSelection,
 						(150 - 160) * CleanXfac + screen->GetWidth() / 2,

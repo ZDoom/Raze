@@ -275,25 +275,6 @@ static void SetupGameButtons()
 //
 //---------------------------------------------------------------------------
 
-static void ticker(void)
-{
-	S_Update();
-
-	// we need CONTROL_GetInput in order to pick up joystick button presses
-	if (gamestate != GS_LEVEL || (paused && !System_WantGuiCapture()))
-	{
-		ControlInfo noshareinfo;
-		CONTROL_GetInput(&noshareinfo);
-		C_RunDelayedCommands();
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void loaddefs()
 {
 	const char* defsfile = G_DefFile();
@@ -370,7 +351,6 @@ static void Startup(void)
 	S_InitSound();
 
 	timerInit(TICRATE);
-	timerSetCallback(ticker);
 
 	loadcons();
 	fi.initactorflags();

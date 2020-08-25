@@ -372,6 +372,7 @@ bool GameTicker()
 
 	drawtime.Reset();
 	drawtime.Clock();
+	S_Update();
 	displayrooms(screenpeek, smoothRatio);
 	displayrest(smoothRatio);
 	drawtime.Unclock();

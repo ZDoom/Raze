@@ -48,7 +48,7 @@ struct MenuTransition
 	DMenu* previous;
 	DMenu* current;
 
-	int32_t start;
+	double start;
 	int32_t length;
 	int32_t dir;
 
@@ -319,7 +319,6 @@ public:
 		BACKBUTTON_TIME = 4*MENU_TICRATE
 	};
 
-	static int MenuTime;
 	static bool InMenu;
 
 	DMenu *mParentMenu;
