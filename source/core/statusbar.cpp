@@ -717,15 +717,29 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 		y = 200 - stats.screenbottomspace - spacing;
 	}
 
-	FString text;
+	double y1, y2, y3;
+
 	if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
 	{
-		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
-			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		y1 = y;
 		y -= spacing;
 	}
+	if (stats.frags >= 0 || stats.maxkills != -1)
+	{
+		y2 = y;
+		y -= spacing;
+	}
+	y3 = y;
+
+
+	FString text;
+	int black = 0x80000000;
+
+	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor + 'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
+	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale + scale, y3 + scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, black, TAG_DONE);
+	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y3, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 
 	text = "";
 	if (stats.frags > -1) text.Format(TEXTCOLOR_ESCAPESTR "%cF: " TEXTCOLOR_ESCAPESTR "%c%d", stats.letterColor + 'A', stats.standardColor + 'A', stats.frags);
@@ -735,14 +749,24 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 
 	if (text.IsNotEmpty())
 	{
-		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale+scale, y2+scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, black, TAG_DONE);
+
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y2, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
-		y -= spacing;
 	}
 
-	text.Format(TEXTCOLOR_ESCAPESTR "%cT: " TEXTCOLOR_ESCAPESTR "%c%d:%02d", stats.letterColor+'A', stats.standardColor + 'A', stats.time / 60000, (stats.time % 60000) / 1000);
-	DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-		DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	if (stats.maxsecrets > 0)	// don't bother if there are no secrets.
+	{
+		text.Format(TEXTCOLOR_ESCAPESTR "%cS: " TEXTCOLOR_ESCAPESTR "%c%d/%d",
+			stats.letterColor + 'A', stats.secrets == stats.maxsecrets ? stats.completeColor + 'A' : stats.standardColor + 'A', stats.secrets, stats.maxsecrets);
+
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale + scale, y1 + scale, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_LegacyRenderStyle, STYLE_TranslucentStencil, DTA_Color, black, TAG_DONE);
+
+		DrawText(twod, stats.font, CR_UNTRANSLATED, 2 * hud_statscale, y1, text, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
+			DTA_KeepRatio, true, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+	}
 }
 
 //============================================================================
