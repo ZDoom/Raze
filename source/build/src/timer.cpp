@@ -48,6 +48,4 @@ void timerUpdateClock(void)
 
     totalclock += n;
     timerlastsample += n*nanoseconds(1000000000/timerticspersec);
-
 }
-

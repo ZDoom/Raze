@@ -413,7 +413,6 @@ void GameInterface::RunGameFrame()
 	case GS_STARTUP:
 		I_ResetTime();
 		lastTic = -1;
-		totalclock = 0;
 		gameclock = 0;
 		lockclock = 0;
 

@@ -599,7 +599,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
                                    : anim ? anim->fpssc : 1;
 
-    i = (mdtims - sprext->mdanimtims) * ((fps * timerGetClockRate()) / 120);
+    i = (mdtims - sprext->mdanimtims) * ((fps * 120) / 120);
 
     j = (smooth->mdsmooth || !anim) ? 65536 : ((anim->endframe + 1 - anim->startframe) << 16);
 
@@ -607,7 +607,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
     if (anim && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        sprext->mdanimtims += j/((fps*timerGetClockRate())/120);
+        sprext->mdanimtims += j/((fps*120)/120);
 
     k = i;
 
