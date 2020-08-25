@@ -97,7 +97,7 @@ int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-static ClockTicks lastototalclk;
+static int lastototalclk;
 static uint64_t elapsedTime;
 static uint64_t lastTime;
 
@@ -1125,7 +1125,7 @@ void S_SetSoundPaused(int state)
 	}
 }
 
-double CalcSmoothRatio(ClockTicks totalclk, ClockTicks ototalclk, int realgameticspersec)
+double CalcSmoothRatio(int totalclk, int ototalclk, int realgameticspersec)
 {
 	double ratio, result;
 

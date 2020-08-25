@@ -56,7 +56,7 @@ void CChoke::sub_84110(int x, int y)
 {
     if (!at8)
         return;
-    ClockTicks v4 = gFrameClock;
+    int v4 = gFrameClock;
     gFrameClock = gameclock;
     at8->x = x;
     at8->y = y;

@@ -710,7 +710,7 @@ void MyLoadSave::Save(void)
     Write(&gFrameClock, sizeof(gFrameClock));
     Write(&gFrameTicks, sizeof(gFrameTicks));
     Write(&gFrame, sizeof(gFrame));
-    ClockTicks nGameClock = gameclock;
+    int nGameClock = gameclock;
     Write(&nGameClock, sizeof(nGameClock));
     Write(&gLevelTime, sizeof(gLevelTime));
     Write(&paused, sizeof(paused));

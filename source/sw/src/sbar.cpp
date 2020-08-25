@@ -940,7 +940,7 @@ private:
     //
     //---------------------------------------------------------------------------
 public:
-    void UpdateStatusBar(ClockTicks arg)
+    void UpdateStatusBar(int arg)
     {
         int nPalette = 0;
         double inv_x, inv_y;
@@ -1007,7 +1007,7 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-void UpdateStatusBar(ClockTicks arg)
+void UpdateStatusBar(int arg)
 {
     DSWStatusBar sbar;
 

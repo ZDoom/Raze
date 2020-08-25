@@ -856,7 +856,7 @@ void playerReset(PLAYER *pPlayer)
 }
 
 int dword_21EFB0[8];
-ClockTicks dword_21EFD0[8];
+int dword_21EFD0[8];
 
 void playerInit(int nPlayer, unsigned int a2)
 {

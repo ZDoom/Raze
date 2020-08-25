@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 bool bVanilla = false;
-ClockTicks gFrameClock;
-ClockTicks gFrameTicks;
+int gFrameClock;
+int gFrameTicks;
 int gameclock;
 int lastTic;
 int gFrame;

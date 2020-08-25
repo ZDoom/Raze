@@ -230,7 +230,7 @@ extern bool gRedFlagDropped;
 extern PROFILE gProfile[kMaxPlayers];
 
 extern int dword_21EFB0[kMaxPlayers];
-extern ClockTicks dword_21EFD0[kMaxPlayers];
+extern int dword_21EFD0[kMaxPlayers];
 extern AMMOINFO gAmmoInfo[];
 extern POWERUPINFO gPowerUpInfo[kMaxPowerUps];
 

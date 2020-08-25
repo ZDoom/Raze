@@ -103,14 +103,14 @@ extern int animatevel[MAXANIMATES];
 extern int16_t clouds[256];
 extern int16_t cloudx;
 extern int16_t cloudy;
-extern ClockTicks cloudclock;
+extern int cloudclock;
 
 extern int16_t spriteq[1024];
 extern int16_t cyclers[MAXCYCLERS][6];
 extern int16_t mirrorsector[64];
 extern int16_t mirrorwall[64];
 
-extern ClockTicks lockclock;
+extern int lockclock;
 
 extern int wupass;
 extern int chickenplant;

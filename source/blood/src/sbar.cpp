@@ -446,7 +446,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void viewDrawCtfHudVanilla(ClockTicks arg)
+    void viewDrawCtfHudVanilla(int arg)
     {
         FString gTempStr;
         int x = 1, y = 1;
@@ -477,7 +477,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void flashTeamScore(ClockTicks arg, int team, bool show)
+    void flashTeamScore(int arg, int team, bool show)
     {
         dassert(0 == team || 1 == team); // 0: blue, 1: red
 
@@ -498,7 +498,7 @@ private:
     //
     //---------------------------------------------------------------------------
 
-    void viewDrawCtfHud(ClockTicks arg)
+    void viewDrawCtfHud(int arg)
     {
         if (hud_size == Hud_Nothing)
         {
@@ -744,7 +744,7 @@ private:
     //
     //---------------------------------------------------------------------------
     public:
-    void UpdateStatusBar(ClockTicks arg)
+    void UpdateStatusBar(int arg)
     {
         PLAYER* pPlayer = gView;
         XSPRITE* pXSprite = pPlayer->pXSprite;
@@ -822,7 +822,7 @@ static void UpdateFrame(void)
     twod->AddFlatFill(windowxy1.x - 3, windowxy2.y + 1, windowxy2.x + 1, windowxy2.y + 4, tex, 0, 1, 0xff2a2a2a);
 }
 
-void UpdateStatusBar(ClockTicks arg)
+void UpdateStatusBar(int arg)
 {
     DBloodStatusBar sbar;
 

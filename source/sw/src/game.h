@@ -2317,7 +2317,7 @@ void AudioUpdate(void); // stupid
 extern short LastSaveNum;
 void LoadSaveMsg(const char *msg);
 
-void UpdateStatusBar(ClockTicks arg);
+void UpdateStatusBar(int arg);
 void InitFonts();
 int32_t registerosdcommands(void);
 void registerinputcommands();

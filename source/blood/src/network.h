@@ -45,7 +45,7 @@ enum NETWORKMODE {
 
 extern MapRecord *gStartNewGame;
 extern PACKETMODE gPacketMode;
-extern ClockTicks gNetFifoClock;
+extern int gNetFifoClock;
 extern int gNetFifoTail;
 extern int gNetFifoHead[8];
 extern int gPredictTail;

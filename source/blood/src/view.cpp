@@ -346,7 +346,7 @@ void viewInit(void)
     gViewMap.sub_25C38(0, 0, gZoom, 0);
 }
 
-void viewDrawInterface(ClockTicks arg)
+void viewDrawInterface(int arg)
 {
     UpdateStatusBar(arg);
 }
@@ -647,13 +647,13 @@ int32_t g_frameRate;
 void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
-    static ClockTicks lastUpdate;
+    static int lastUpdate;
     int defaultHoriz = r_horizcenter ? 100 : 90;
 
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;
 #endif
-    ClockTicks delta = gameclock - lastUpdate;
+    int delta = gameclock - lastUpdate;
     if (delta < 0)
         delta = 0;
     lastUpdate = gameclock;

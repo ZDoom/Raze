@@ -40,7 +40,7 @@ BEGIN_BLD_NS
 
 MapRecord *gStartNewGame = 0;
 PACKETMODE gPacketMode = PACKETMODE_1;
-ClockTicks gNetFifoClock = 0;
+int gNetFifoClock = 0;
 int gNetFifoTail = 0;
 int gNetFifoHead[8];
 int gPredictTail = 0;

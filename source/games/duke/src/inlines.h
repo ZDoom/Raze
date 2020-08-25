@@ -169,7 +169,7 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline double calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+inline double calc_smoothratio(int totalclk, int ototalclk)
 {
 	double smoothratio = CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
 	return (playrunning() ? smoothratio : MaxSmoothRatio);

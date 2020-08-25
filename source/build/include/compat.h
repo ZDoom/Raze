@@ -950,7 +950,6 @@ static FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 
 #include "fix16.h"
 #include "vectors.h"
-using ClockTicks = int;
 
 inline FVector3 GetSoundPos(const vec3_t *pos)
 {

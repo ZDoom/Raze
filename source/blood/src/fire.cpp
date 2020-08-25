@@ -98,7 +98,7 @@ void FireInit(void)
 
 void FireProcess(void)
 {
-    static ClockTicks lastUpdate;
+    static int lastUpdate;
     if (gameclock < lastUpdate || lastUpdate + 2 < gameclock)
     {
         DoFireFrame();

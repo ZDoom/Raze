@@ -30,12 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-extern ClockTicks gFrameClock;
-extern ClockTicks gFrameTicks;
+extern int gFrameClock;
+extern int gFrameTicks;
 extern int gameclock;
 extern int lastTic;
 extern int gFrame;
-//extern ClockTicks gGameClock;
+//extern int gGameClock;
 extern int gFrameRate;
 extern bool bVanilla;
 
