@@ -783,7 +783,7 @@ static void gameInit()
 static void gameTicker()
 {
     bool gameUpdate = false;
-    double const gameUpdateStartTime = timerGetHiTicks();
+    double const gameUpdateStartTime = I_msTimeF();
     while (gPredictTail < gNetFifoHead[myconnectindex] && !paused)
     {
         viewUpdatePrediction(&gFifoInput[gPredictTail & 255][myconnectindex]);
@@ -815,7 +815,7 @@ static void gameTicker()
     }
     if (gameUpdate)
     {
-        g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+        g_gameUpdateTime = I_msTimeF() - gameUpdateStartTime;
         if (g_gameUpdateAvgTime < 0.f)
             g_gameUpdateAvgTime = g_gameUpdateTime;
         g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
@@ -826,7 +826,7 @@ static void gameTicker()
     {
         netCheckSync();
         viewDrawScreen();
-        g_gameUpdateAndDrawTime = g_beforeSwapTime/* timerGetHiTicks()*/ - gameUpdateStartTime;
+        g_gameUpdateAndDrawTime = g_beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
     }
 }
 

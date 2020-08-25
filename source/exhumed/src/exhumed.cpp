@@ -401,7 +401,7 @@ FString GameInterface::statFPS()
     static float lastFPS; // , minFPS = std::numeric_limits<float>::max(), maxFPS;
     //static double minGameUpdate = std::numeric_limits<double>::max(), maxGameUpdate;
 
-    double frameTime = timerGetHiTicks();
+    double frameTime = I_msTimeF();
     double frameDelay = frameTime - lastFrameTime;
     cumulativeFrameDelay += frameDelay;
 

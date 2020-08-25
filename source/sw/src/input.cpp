@@ -115,7 +115,7 @@ getinput(SW_PACKET *loc, SWBOOL tied)
 
     static double lastInputTicks;
 
-    auto const currentHiTicks = timerGetHiTicks();
+    auto const currentHiTicks = I_msTimeF();
     elapsedInputTicks = currentHiTicks - lastInputTicks;
 
     lastInputTicks = currentHiTicks;

@@ -149,7 +149,7 @@ void PlayerInterruptKeys()
     CONTROL_GetInput(&info);
 
     static double lastInputTicks;
-    auto const    currentHiTicks    = timerGetHiTicks();
+    auto const    currentHiTicks    = I_msTimeF();
     double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
 
     lastInputTicks = currentHiTicks;

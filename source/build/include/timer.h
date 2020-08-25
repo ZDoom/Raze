@@ -8,7 +8,6 @@
 // for compatibility
 #define timerUninit()
 
-double   timerGetHiTicks(void);
 uint32_t timerGetTicks(void);
 
 #endif // timer_h__

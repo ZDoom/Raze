@@ -2722,7 +2722,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 //
 void videoNextPage(void)
 {
- 	g_beforeSwapTime = timerGetHiTicks();
+ 	g_beforeSwapTime = I_msTimeF();
 	videoShowFrame(0);
 
     omdtims = mdtims;
