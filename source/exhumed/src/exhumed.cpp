@@ -624,10 +624,10 @@ void GameInterface::app_init()
     InstallEngine();
 
     const char* defsfile = G_DefFile();
-    uint32_t stime = timerGetTicks();
+    uint32_t stime = I_msTime();
     if (!loaddefinitionsfile(defsfile))
     {
-        uint32_t etime = timerGetTicks();
+        uint32_t etime = I_msTime();
         Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
 

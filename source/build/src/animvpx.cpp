@@ -225,7 +225,7 @@ int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
     if (codec->initstate <= 0)  // not inited or error
         return 1;
 
-    t[0] = timerGetTicks();
+    t[0] = I_msTime();
 
     if (codec->decstate == 0)  // first time / begin
     {
@@ -289,7 +289,7 @@ read_ivf_frame:
         return 5;
     }
 
-    t[1] = timerGetTicks();
+    t[1] = I_msTime();
 
     uint8_t *const dstpic = codec->pic;
 
@@ -331,7 +331,7 @@ read_ivf_frame:
             dstpic[((wy1 + x + 1) << 2) + 2] = v;
         }
     }
-    t[2] = timerGetTicks();
+    t[2] = I_msTime();
 
     codec->sumtimes[0] += t[1]-t[0];
     codec->sumtimes[1] += t[2]-t[1];
@@ -369,7 +369,7 @@ void animvpx_restore_glstate(void)
 
 int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 {
-    int32_t t = timerGetTicks();
+    int32_t t = I_msTime();
 
     if (codec->initstate <= 0)  // not inited or error
         return 1;
@@ -404,7 +404,7 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
     DrawTexture(twod, vpxtex[which], screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), 
         DTA_Masked, false, DTA_KeepRatio, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 
-    t = timerGetTicks()-t;
+    t = I_msTime()-t;
     codec->sumtimes[2] += t;
     codec->maxtimes[2] = max(codec->maxtimes[2], t);
     codec->numframes++;
