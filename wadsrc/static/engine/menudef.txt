@@ -77,37 +77,17 @@ LISTMENU "IngameMenu"
 {
 	ScriptId 50
 	class "$.MainMenu"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
-		ifgame(fury)
-		{
-			position 40, 130, 60
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		NativeTextItem "$MNU_NEWGAME", "n", "EpisodeMenu"
 		NativeTextItem "$MNU_SAVEGAME", "s", "SaveGameMenu"
 		NativeTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
 		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
 		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
 		NativeTextItem "$MNU_ENDGAME", "e", "EndgameMenu"
-		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
-	}
-	ifgame(Deer)
-	{
-		position 160, 72, 108
-		centermenu
-		animatedtransition
-		NativeTextItem "Keep Huntin'!", "k", "HuntMenu"
-		NativeTextItem "Trophies", "t", "TrophiesMenu"
-		NativeTextItem "$MNU_OPTIONS", "o", "OptionsMenu"
-		NativeTextItem "$MNU_HELP", "h", "HelpMenu"
-		NativeTextItem "Leave Area", "l", "EndgameMenu"
 		NativeTextItem "$MNU_QUITGAME", "q", "QuitMenu"
 	}
 	ifgame(Blood)
@@ -164,7 +144,7 @@ LISTMENU "IngameMenu"
 
 LISTMENU "EpisodeMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides) // Ion Fury does not use this menu.
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		class "$.ListMenu"
 		caption "$MNU_SELECTEPISODE"
@@ -193,20 +173,12 @@ LISTMENU "EpisodeMenu"
 
 LISTMENU "SkillMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		class "$.ListMenu"
-		ifgame(fury)
-		{
-			position 160, 55, 115
-			fixedspacing 2
-		}
-		else
-		{
-			position 160, 55, 115
-			centermenu
-			animatedtransition
-		}
+		position 160, 55, 115
+		centermenu
+		animatedtransition
 		caption "$MNU_SELECTSKILL"
 		fixedspacing 5
 		animatedtransition
@@ -236,7 +208,7 @@ LISTMENU "SkillMenu"
 
 ImageScroller "HelpMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		ImageItem "#3280", 400
 		ImageItem "#2445", 401
@@ -246,7 +218,7 @@ ImageScroller "HelpMenu"
 			animatedtransition
 		}
 	}
-	ifgame(Redneck, RedneckRides, Deer)
+	ifgame(Redneck, RedneckRides)
 	{
 		ImageItem "#2541"
 		ImageItem "#1633"
@@ -526,12 +498,15 @@ OptionMenu "ActionControlsMenu"// protected
 	StaticText ""
 	Control    "$CNTRLMNU_TURNLEFT"         , "+turn_left"
 	Control    "$CNTRLMNU_TURNRIGHT"        , "+turn_right"
-	Control    "$CNTRLMNU_TURN180"          , "turnaround"
+	ifnotgame(Exhumed)
+	{
+		Control    "$CNTRLMNU_TURN180"          , "turnaround"
+	}
 
 	StaticText ""
 	Control    "$CNTRLMNU_JUMP"             , "+jump"
 	Control    "$CNTRLMNU_CROUCH"           , "+crouch"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		// Fixme: Make this work in all games
 		Control    "$CNTRLMNU_TOGGLECROUCH"     , "+toggle_crouch"
@@ -545,7 +520,7 @@ OptionMenu "ActionControlsMenu"// protected
 	Control    "$CNTRLMNU_AIMDOWN"         , "+aim_down"
 	Control    "$CNTRLMNU_LOOKUP"           , "+look_up"
 	Control    "$CNTRLMNU_LOOKDOWN"         , "+look_down"
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Control    "$CNTRLMNU_LOOKLEFT"           , "+look_left"
 		Control    "$CNTRLMNU_LOOKRIGHT"         , "+look_right"
@@ -593,11 +568,10 @@ OptionMenu "WeaponsControlMenu"// protected
 	Control    "$CNTRLMNU_SLOT8"          , "slot 8"
 	Control    "$CNTRLMNU_SLOT9"          , "slot 9"
 	Control    "$CNTRLMNU_SLOT0"          , "slot 10"
-	StaticText ""
-	Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
-	ifgame(Fury)
+	ifnotgame(Exhumed)
 	{
-		Control    "$CNTRLMNU_RELOAD" , "steroids"
+		StaticText ""
+		Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
 	}
 	ifgame(Duke, Nam, WW2GI)
 	{
@@ -714,7 +688,10 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_ADJUST_GAMMA"    , "bumpgamma"
 
 	StaticText ""
-	Control    "$CNTRLMNU_OPEN_HELP"       , "openhelpmenu"
+	ifnotgame(Exhumed)
+	{
+		Control    "$CNTRLMNU_OPEN_HELP"       , "openhelpmenu"
+	}
 	Control    "$CNTRLMNU_OPEN_SAVE"       , "opensavemenu"
 	Control    "$CNTRLMNU_OPEN_LOAD"       , "openloadmenu"
 	Control    "$CNTRLMNU_OPEN_OPTIONS"    , "openmenu optionsmenu"
@@ -863,7 +840,7 @@ OptionMenu "NewPlayerMenu" //protected
 {
 	Title "$MNU_PLAYERSETUP"
 	TextField "$PLYRMNU_NAME", playername
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Option "$PLYRMNU_PLAYERCOLOR", "playercolor", "PlayerColors"
 	}
@@ -983,7 +960,7 @@ OptionMenu "VideoOptions" //protected
 	{
 		Option "$DSPLYMNU_SLOPETILT",				"cl_slopetilting",					"OnOff"
 	}
-	ifgame (Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, Deer)
+	ifgame (Duke, Nam, WW2GI, Redneck, RedneckRides)
 	{
 		Option "$DSPLYMNU_VIEWBOB",					"cl_viewbob",					"OnOff"
 	}
@@ -1167,7 +1144,7 @@ OptionMenu SoundOptions //protected
 	{
 		Option "$SNDMNU_CDEMU",			"mus_redbook", "OnOff"
 	}
-	ifgame(Duke, Nam, WW2GI, Fury, Redneck, RedneckRides, ShadowWarrior)
+	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)
 	{
 		Option "$SNDMNU_AMBIENCE",		"snd_ambience", "OnOff"
 		Option "$SNDMNU_SPEECH",		"snd_speech", "OnOff"
@@ -1466,12 +1443,12 @@ OptionMenu "MiscOptions" //protected
 
 LISTMENU "MultiMenu"
 {
-	ifgame(Duke, Nam, WW2GI, Fury)
+	ifgame(Duke, Nam, WW2GI)
 	{
 		position 160, 55, 135
 		centermenu
 		fixedspacing 5
-		ifgame(Duke, Nam, WW2GI, Fury)
+		ifgame(Duke, Nam, WW2GI)
 		{
 			class "Duke.ListMenu"
 		}

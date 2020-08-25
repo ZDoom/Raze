@@ -174,7 +174,7 @@ bool validFilter(const char *str)
 }
 
 
-static bool CheckSkipGameBlock(FScanner &sc)
+static bool CheckSkipGameBlock(FScanner &sc, bool negate = false)
 {
 	int filter = 0;
 	sc.MustGetStringName("(");
@@ -186,6 +186,7 @@ static bool CheckSkipGameBlock(FScanner &sc)
 		filter |= games[gi].gameflag;
 	}
 	while (sc.CheckString(","));
+	if (negate) filter = ~filter;
 	sc.MustGetStringName(")");
 	if (!(filter & g_gameType))
 	{
@@ -282,6 +283,14 @@ static void ParseListMenuBody(FScanner &sc, FListMenuDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseListMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
 			{
 				// recursively parse sub-block
 				ParseListMenuBody(sc, desc);
@@ -590,6 +599,14 @@ static void ParseImageScrollerBody(FScanner &sc, FImageScrollerDescriptor *desc)
 				ParseImageScrollerBody(sc, desc);
 			}
 		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
+			{
+				// recursively parse sub-block
+				ParseImageScrollerBody(sc, desc);
+			}
+		}
 		else if (sc.Compare("ifshareware"))
 		{
 			if (!CheckSkipNoSwBlock(sc))
@@ -768,6 +785,14 @@ static void ParseOptionSettings(FScanner &sc)
 				ParseOptionSettings(sc);
 			}
 		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
+			{
+				// recursively parse sub-block
+				ParseOptionSettings(sc);
+			}
+		}
 		else if (sc.Compare("Linespacing"))
 		{
 			sc.MustGetNumber();
@@ -804,6 +829,14 @@ static void ParseOptionMenuBody(FScanner &sc, FOptionMenuDescriptor *desc)
 		else if (sc.Compare("ifgame"))
 		{
 			if (!CheckSkipGameBlock(sc))
+			{
+				// recursively parse sub-block
+				ParseOptionMenuBody(sc, desc);
+			}
+		}
+		else if (sc.Compare("ifnotgame"))
+		{
+			if (!CheckSkipGameBlock(sc, true))
 			{
 				// recursively parse sub-block
 				ParseOptionMenuBody(sc, desc);

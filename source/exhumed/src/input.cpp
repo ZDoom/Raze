@@ -210,10 +210,13 @@ void registerinputcommands()
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetPrevItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetNextItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) UseCurItem(nLocalPlayer); return CCMD_OK; });
-    // todo: 
-    //C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
-    //C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-    //C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
+    // todo:  These still need to be implemented.
+    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { /*WeaponToSend = 11;*/ return CCMD_OK; });
+    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { /*WeaponToSend = 12;*/ return CCMD_OK; });
+
+    // These are only here to silence the engine when the keys bound to them are pressed. The functions do not exist.
+    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
+    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
 
 }
 
