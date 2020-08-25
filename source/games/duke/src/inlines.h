@@ -169,12 +169,6 @@ inline bool playrunning()
 	return (paused == 0 || (paused == 1 && (ud.recstat == 2 || ud.multimode > 1)));
 }
 
-inline double calc_smoothratio(int totalclk, int ototalclk)
-{
-	double smoothratio = CalcSmoothRatio(totalclk, ototalclk, REALGAMETICSPERSEC);
-	return (playrunning() ? smoothratio : MaxSmoothRatio);
-}
-
 inline void backupplayer(player_struct* p)
 {
 	backuppos(p);

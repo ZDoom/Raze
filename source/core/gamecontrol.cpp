@@ -97,9 +97,6 @@ int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-static int lastototalclk;
-static uint64_t elapsedTime;
-static uint64_t lastTime;
 int gameclock;
 int lastTic;
 
@@ -1125,52 +1122,6 @@ void S_SetSoundPaused(int state)
 			}
 		}
 	}
-}
-
-double CalcSmoothRatio(int totalclk, int ototalclk, int realgameticspersec)
-{
-	double ratio, result;
-
-	if (cl_debugintrpl)
-	{
-		Printf("ototalclk: %d\ntotalclk: %d\n",	ototalclk, totalclk);
-	}
-
-	if (!cl_legacyintrpl)
-	{
-		double const gametics = 1'000'000'000. / realgameticspersec;
-		uint64_t currentTime = I_GetTimeNS();
-
-		if ((lastototalclk == ototalclk) && (lastTime != 0))
-		{
-			elapsedTime += currentTime - lastTime;
-		}
-		else
-		{
-			lastototalclk = ototalclk;
-			elapsedTime = lastTime != 0 ? (currentTime - lastTime) / 72 : 0;
-		}
-		lastTime = currentTime;
-		ratio = elapsedTime / gametics;
-
-		if (cl_debugintrpl)
-		{
-			Printf("gametics: %.3f ms\nelapsedTime: %.3f ms\n", (gametics / 1'000'000.), (elapsedTime / 1'000'000.));
-		}
-	}
-	else
-	{
-		ratio = (0.5 + (totalclk - ototalclk)) / (120 / realgameticspersec);
-	}
-
-	result = clamp2(ratio * MaxSmoothRatio, 0., MaxSmoothRatio);
-
-	if (cl_debugintrpl)
-	{
-		Printf("ratio: %f\nresult: %f\n", ratio, result);
-	}
-
-	return result;
 }
 
 FString G_GetDemoPath()
