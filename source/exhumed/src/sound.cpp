@@ -447,7 +447,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         else if (type == SOURCE_Swirly)
         {
             int which = *(int*)source;
-            float phase = ((int)totalclock << (4 + which)) * (M_PI / 1024);
+            float phase = (gameclock << (4 + which)) * (M_PI / 1024);
             pos->X = fcampos.X + 256 * cos(phase);
             pos->Z = fcampos.Z + 256 * sin(phase);
         }
@@ -522,7 +522,7 @@ void UpdateSounds()
 
 
     soundEngine->SetListener(listener);
-    soundEngine->UpdateSounds((int)totalclock);
+    soundEngine->UpdateSounds(gameclock);
     soundEngine->EnumerateChannels([](FSoundChan* chan)
         {
             if (!(chan->ChanFlags & (CHANF_UI|CHANF_FORGETTABLE)))

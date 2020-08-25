@@ -676,7 +676,7 @@ private:
 
             int shade;
 
-            if ((int)totalclock / kTimerTicks & 1) {
+            if (gameclock / kTimerTicks & 1) {
                 shade = -100;
             }
             else {
@@ -694,14 +694,14 @@ private:
                 if (word_9AD54[i] == nScore)
                 {
                     int v9 = dword_9AD64[i];
-                    if (v9 && v9 <= (int)totalclock) {
+                    if (v9 && v9 <= gameclock) {
                         dword_9AD64[i] = 0;
                     }
                 }
                 else
                 {
                     word_9AD54[i] = nScore;
-                    dword_9AD64[i] = (int)totalclock + 30;
+                    dword_9AD64[i] = gameclock + 30;
                 }
 
                 DrawGraphic(tileGetTexture(nTile), x, 7, DI_ITEM_CENTER, 1, -1, -1, 1, 1);

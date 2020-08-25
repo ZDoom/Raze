@@ -149,8 +149,6 @@ extern char sHollyStr[];
 extern int selectedlevelnew;
 extern int GameAction;
 
-extern int localclock;
-
 extern int moveframes;
 
 extern int nNetPlayerCount;
@@ -249,7 +247,7 @@ public:
 	void ComputeCinemaText();
 	void ReadyCinemaText(uint16_t nVal);
 	void DisplayText();
-	bool AdvanceCinemaText(int totalclock);
+	bool AdvanceCinemaText(int gameclock);
 };
 
 

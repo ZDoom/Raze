@@ -60,8 +60,8 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern ClockTicks ototalclock;
-
+extern int ogameclock, gameclock;
+extern int lastTic;
 extern int initx;
 extern int inity;
 extern int initz;

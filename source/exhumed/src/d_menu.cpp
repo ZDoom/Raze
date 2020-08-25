@@ -96,7 +96,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double xpos, doub
 
 	if (state == NIT_SelectedState) 
 	{ // currently selected menu item
-		shade = Sin((int)totalclock << 4) >> 9;
+		shade = Sin(I_GetBuildTime() << 4) >> 9;
 	}
 	else if (state == NIT_ActiveState) {
 		shade = 0;

@@ -165,9 +165,10 @@ enum
 void menu_DoPlasma()
 {
     int ptile = nPlasmaTile;
-    if (totalclock >= nextPlasmaTic || !PlasmaBuffer)
+    int pclock = I_GetBuildTime();
+    if (pclock >= nextPlasmaTic || !PlasmaBuffer)
     {
-        nextPlasmaTic = (int)totalclock + 4;
+        nextPlasmaTic = pclock + 4;
 
         if (!nLogoTile)
             nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
@@ -366,7 +367,7 @@ void menu_DoPlasma()
     DrawRel(nLogoTile, 160, 40);
 
     // draw the fire urn/lamp thingies
-    int dword_9AB5F = ((int)totalclock / 16) & 3;
+    int dword_9AB5F = (pclock / 16) & 3;
 
     DrawRel(kTile3512 + dword_9AB5F, 50, 150);
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150);
@@ -683,7 +684,7 @@ public:
 			{
 				for (int j = 0; j < MapLevelFires[i].nFires; j++)
 				{
-					int nFireFrame = (((int)totalclock >> 4) & 3);
+					int nFireFrame = ((totalclock >> 4) & 3);
 					assert(nFireFrame >= 0 && nFireFrame < 4);
 					
 					int nFireType = MapLevelFires[i].fires[j].nFireType;
@@ -699,7 +700,7 @@ public:
 				}
 			}
 			
-			int t = ((((int)totalclock & 16) >> 4));
+			int t = (((totalclock & 16) >> 4));
 			
 			int nTile = mapNamePlaques[i].tiles[t].nTile;
 			
@@ -713,7 +714,7 @@ public:
 			
 			if (nLevelNew == i)
 			{
-				shade = (Sin(16 * (int)totalclock) + 31) >> 8;
+				shade = (Sin(16 * totalclock) + 31) >> 8;
 			}
 			else if (nLevelBest >= i)
 			{
@@ -733,7 +734,7 @@ public:
 			// scroll the map every couple of ms
 			if (totalclock - runtimer >= (kTimerTicks / 32)) {
 				curYPos += var_2C;
-				runtimer = (int)totalclock;
+				runtimer = totalclock;
 			}
 			
 			if (inputState.CheckAllInput())
@@ -878,12 +879,12 @@ void TextOverlay::DisplayText()
     }
 }
 
-bool TextOverlay::AdvanceCinemaText(int totalclock)
+bool TextOverlay::AdvanceCinemaText(int gameclock)
 {
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
-        nCrawlY-= (totalclock - lastclock) / 15.;   // do proper interpolation.
-        lastclock = totalclock;
+        nCrawlY-= (gameclock - lastclock) / 15.;   // do proper interpolation.
+        lastclock = gameclock;
         return true;
     }
 
@@ -1144,7 +1145,7 @@ private:
                     nStringTypeOn++;
                     if (nStringTypeOn >= screentext.Size())
                     {
-                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + (int)totalclock;
+                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + totalclock;
                         phase = 3;
                     }
 
@@ -1153,7 +1154,7 @@ private:
             DisplayPhase2();
             if (skiprequest)
             {
-                nextclock = (kTimerTicks * (screentext.Size() + 2)) + (int)totalclock;
+                nextclock = (kTimerTicks * (screentext.Size() + 2)) + totalclock;
                 phase = 3;
             }
             break;

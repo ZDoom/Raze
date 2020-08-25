@@ -29,7 +29,9 @@ BEGIN_PS_NS
 
 void resettiming()
 {
-    totalclock = 0;
+    ogameclock = -1;
+    gameclock = 0;
+    lastTic = -1;
 }
 
 void doTileLoad(int i)

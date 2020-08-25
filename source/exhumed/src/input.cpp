@@ -160,7 +160,7 @@ void CheckKeys2()
 {
     if (automapMode != am_off)
     {
-        int const timerOffset = ((int)totalclock - nonsharedtimer);
+        int const timerOffset = (gameclock - nonsharedtimer);
         nonsharedtimer += timerOffset;
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))

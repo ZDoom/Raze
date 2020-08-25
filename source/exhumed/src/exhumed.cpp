@@ -71,12 +71,7 @@ PlayerInput localInput;
 void ResetEngine()
 {
     EraseScreen(-1);
-
     resettiming();
-
-    totalclock  = 0;
-    ototalclock = totalclock;
-    localclock  = (int)totalclock;
 }
 
 void InstallEngine()
@@ -158,7 +153,6 @@ short nCodeIndex = 0;
 //short nScreenHeight = 200;
 int moveframes;
 int flash;
-int localclock;
 int totalmoves;
 
 short nCurBodyNum = 0;
@@ -189,8 +183,6 @@ int nStartLevel;
 int nTimeLimit;
 
 int bVanilla = 0;
-
-ClockTicks tclocks;
 
 void DebugOut(const char *fmt, ...)
 {
@@ -392,12 +384,12 @@ void DrawClock()
     DoEnergyTile();
 }
 
-double calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk)
+double calc_smoothratio()
 {
     if (bRecord || bPlayback || nFreeze != 0 || bCamera || paused)
-        return 65536;
+        return MaxSmoothRatio;
 
-    return CalcSmoothRatio(totalclk, ototalclk, 30);
+    return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
 FString GameInterface::statFPS()
@@ -489,18 +481,20 @@ void GameTicker()
 {
     bInMove = true;
 
+    int const currentTic = I_GetTime();
+    gameclock = I_GetBuildTime();
+
     if (paused)
     {
-        tclocks = totalclock - 4;
         buttonMap.ResetButtonStates();
     }
     else
     {
-        while ((totalclock - ototalclock) >= 1 || !bInMove)
+        while ((gameclock - ogameclock) >= 1 || !bInMove)
         {
-            ototalclock = ototalclock + 1;
+            ogameclock = I_GetBuildTime();
 
-            if (!((int)ototalclock & 3) && moveframes < 4)
+            if (!((int)ogameclock & 3) && moveframes < 4)
                 moveframes++;
 
             GetLocalInput();
@@ -527,9 +521,9 @@ void GameTicker()
 
             sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
-            while (!EndLevel && totalclock >= tclocks + 4)
+            while (!EndLevel && currentTic - lastTic >= 1)
             {
-                tclocks += 4;
+                lastTic = currentTic;
                 leveltime++;
                 GameMove();
             }
@@ -759,9 +753,6 @@ static SavegameHelper sgh("exhumed",
     SV(nBodyTotal),
     SV(bSnakeCam),
     SV(bSlipMode),
-    SV(localclock),
-    SV(tclocks),
-    SV(totalclock),
     SV(leveltime),
     nullptr);
 

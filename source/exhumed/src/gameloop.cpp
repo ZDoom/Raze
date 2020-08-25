@@ -55,12 +55,11 @@ static int32_t nonsharedtimer;
 int GameAction=-1;
 
 extern uint8_t nCinemaSeen;
-extern ClockTicks tclocks;
 
 void RunCinemaScene(int num);
 void GameMove(void);
 void DrawClock();
-double calc_smoothratio(ClockTicks totalclk, ClockTicks ototalclk);
+double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
 static int FinishLevel(TArray<JobDesc> &jobs)
@@ -83,8 +82,8 @@ static int FinishLevel(TArray<JobDesc> &jobs)
         {
             // There's really no choice but to enter an active wait loop here to make the sound play out.
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-            int nTicks = totalclock + 12;
-            while (nTicks > (int)totalclock) { HandleAsync(); }
+            int nTicks = gameclock + 12;
+            while (nTicks > gameclock) { HandleAsync(); }
         }
     }
     else nPlayerLives[0] = 0;
@@ -117,9 +116,7 @@ static void GameDisplay(void)
         DrawClock();
     }
 
-    double smoothRatio = calc_smoothratio(totalclock, tclocks);
-
-    DrawView(smoothRatio);
+    DrawView(calc_smoothratio());
     DrawStatusBar();
     if (paused && !M_Active())
     {
@@ -152,7 +149,7 @@ void startmainmenu()
 void drawmenubackground()
 {
     auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
-    int dword_9AB5F = ((int)totalclock / 16) & 3;
+    int dword_9AB5F = (I_GetBuildTime() / 16) & 3;
 
     twod->ClearScreen();
 
@@ -226,7 +223,6 @@ void CheckProgression()
                     gamestate = GS_LEVEL;
 
                     InitLevel(selectedlevelnew);
-                    tclocks = totalclock;
 #if 0
                     // this would be the place to autosave upon level start
                     if (!bInDemo && selectedlevelnew > nBestLevel && selectedlevelnew != 0 && selectedlevelnew <= kMap20) {
@@ -274,8 +270,7 @@ void GameInterface::RunGameFrame()
         {
         default:
         case GS_STARTUP:
-            totalclock = 0;
-            ototalclock = 0;
+            resettiming();
             GameAction = -1;
             EndLevel = false;
 
