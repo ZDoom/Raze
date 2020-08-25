@@ -213,7 +213,7 @@ void dobonus_r(bool bonusonly, const CompletionFunc& completion);
 
 void displayrest(double smoothratio);
 void drawbackground(void);
-void displayrooms(int32_t playerNum, int32_t smoothratio);
+void displayrooms(int32_t playerNum, double smoothratio);
 void setgamepalette(int palid);
 void resetmys();
 void resettimevars();

@@ -461,7 +461,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 //
 //---------------------------------------------------------------------------
 
-void displayrooms(int snum, int smoothratio)
+void displayrooms(int snum, double smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
 	short sect;
@@ -507,7 +507,7 @@ void displayrooms(int snum, int smoothratio)
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
 
-		cang = buildang(hittype[ud.camerasprite].tempang + mulscale16((int)(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024), smoothratio));
+		cang = buildang(hittype[ud.camerasprite].tempang + xs_CRoundToInt(fmulscale16(((s->ang + 1024 - hittype[ud.camerasprite].tempang) & 2047) - 1024, smoothratio)));
 
 		auto bh = buildhoriz(s->yvel);
 		se40code(s->x, s->y, s->z, cang, bh, smoothratio);
@@ -534,19 +534,19 @@ void displayrooms(int snum, int smoothratio)
 		if (!cl_syncinput)
 			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
 		else
-			renderSetRollAngle((p->oq16rotscrnang + mulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)) / (float)(FRACUNIT));
+			renderSetRollAngle((p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)) / FRACUNIT);
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
-			cposx = omyx + mulscale16((int)(myx - omyx), smoothratio);
-			cposy = omyy + mulscale16((int)(myy - omyy), smoothratio);
-			cposz = omyz + mulscale16((int)(myz - omyz), smoothratio);
+			cposx = omyx + xs_CRoundToInt(fmulscale16(myx - omyx, smoothratio));
+			cposy = omyy + xs_CRoundToInt(fmulscale16(myy - omyy, smoothratio));
+			cposz = omyz + xs_CRoundToInt(fmulscale16(myz - omyz, smoothratio));
 			if (cl_syncinput)
 			{
 				fixed_t ohorz = (oq16myhoriz + oq16myhorizoff);
 				fixed_t horz = (q16myhoriz + q16myhorizoff);
-				choriz = q16horiz(ohorz + mulscale16(horz - ohorz, smoothratio));
-				cang = q16ang(oq16myang + mulscale16(((q16myang + dang - oq16myang) & 0x7FFFFFF) - dang, smoothratio));
+				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
+				cang = q16ang(oq16myang + xs_CRoundToInt(fmulscale16(((q16myang + dang - oq16myang) & 0x7FFFFFF) - dang, smoothratio)));
 			}
 			else
 			{
@@ -557,19 +557,19 @@ void displayrooms(int snum, int smoothratio)
 		}
 		else
 		{
-			cposx = p->oposx + mulscale16((int)(p->posx - p->oposx), smoothratio);
-			cposy = p->oposy + mulscale16((int)(p->posy - p->oposy), smoothratio);
-			cposz = p->oposz + mulscale16((int)(p->posz - p->oposz), smoothratio);
+			cposx = p->oposx + xs_CRoundToInt(fmulscale16(p->posx - p->oposx, smoothratio));
+			cposy = p->oposy + xs_CRoundToInt(fmulscale16(p->posy - p->oposy, smoothratio));
+			cposz = p->oposz + xs_CRoundToInt(fmulscale16(p->posz - p->oposz, smoothratio));
 			if (cl_syncinput)
 			{
 				// Original code for when the values are passed through the sync struct
 				fixed_t ohorz = (p->oq16horiz + p->oq16horizoff);
 				fixed_t horz = (p->q16horiz + p->q16horizoff);
-				choriz = q16horiz(ohorz + mulscale16(horz - ohorz, smoothratio));
+				choriz = q16horiz(ohorz + xs_CRoundToInt(fmulscale16(horz - ohorz, smoothratio)));
 
 				fixed_t oang = (p->oq16ang + p->oq16look_ang);
 				fixed_t ang = (p->q16ang + p->q16look_ang);
-				cang = q16ang(oang + mulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio));
+				cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
 			}
 			else
 			{
@@ -582,7 +582,7 @@ void displayrooms(int snum, int smoothratio)
 		if (p->newowner >= 0)
 		{
 			fixed_t oang = hittype[p->newowner].oq16ang;
-			cang = q16ang(oang + mulscale16(((p->q16ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio));
+			cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((p->q16ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
 			choriz = q16horiz(p->q16horiz + p->q16horizoff);
 			cposx = p->posx;
 			cposy = p->posy;
@@ -592,7 +592,7 @@ void displayrooms(int snum, int smoothratio)
 		}
 		else if (p->over_shoulder_on == 0)
 		{
-			if (cl_viewbob) cposz += p->opyoff + mulscale16((int)(p->pyoff - p->opyoff), smoothratio);
+			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
 		}
 		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild());
 
