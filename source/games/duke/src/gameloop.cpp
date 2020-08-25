@@ -328,11 +328,11 @@ bool GameTicker()
 	gameupdatetime.Clock();
 
 	int const currentTic = I_GetTime();
+	gameclock = I_GetBuildTime();
 
 	if (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
-		gameclock = currentTic * TICSPERFRAME;
 
 		GetInput();
 		auto const pPlayer = &ps[myconnectindex];
