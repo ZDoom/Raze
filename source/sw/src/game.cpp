@@ -245,7 +245,6 @@ void GameInterface::app_init()
 
         paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
     }
-    timerInit(120);
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
 

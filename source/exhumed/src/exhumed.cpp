@@ -548,8 +548,6 @@ void ExitGame()
 void InitTimer()
 {
     htimer = 1;
-
-    timerInit(kTimerTicks);
 }
 
 static const char* actions[] =

@@ -604,7 +604,7 @@ void DoUpdateSounds(void)
     soundEngine->SetListener(listener);
 
     UpdateAmbients();
-    soundEngine->UpdateSounds(totalclock);
+    soundEngine->UpdateSounds(I_GetBuildTime());
 }
 
 //==========================================================================

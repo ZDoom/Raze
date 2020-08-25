@@ -364,8 +364,6 @@ EXTERN struct validmode_t validmode[MAXVALIDMODES];
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
-EXTERN ClockTicks totalclock;
-static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 
 EXTERN int32_t randomseed;
 EXTERN int16_t sintable[2048];
@@ -596,12 +594,9 @@ TILE VARIABLES:
         NUMTILES - the number of tiles found TILES.DAT.
 
 TIMING VARIABLES:
-        TOTALCLOCK - When the engine is initialized, TOTALCLOCK is set to zero.
-            From then on, it is incremented 120 times a second by 1.  That
-            means that the number of seconds elapsed is totalclock / 120.
         NUMFRAMES - The number of times the draw3dscreen function was called
             since the engine was initialized.  This helps to determine frame
-            rate.  (Frame rate = numframes * 120 / totalclock.)
+            rate.  (Frame rate = numframes * 120 / I_GetBuildTime().)
 
 OTHER VARIABLES:
 

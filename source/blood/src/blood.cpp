@@ -737,7 +737,6 @@ void GameInterface::app_init()
     WeaponInit();
     LoadSaveSetup();
     LoadSavedInfo();
-    timerInit(120);
 
     Printf(PRINT_NONOTIFY, "Initializing network users\n");
     netInitialize(true);

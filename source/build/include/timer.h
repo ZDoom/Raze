@@ -8,8 +8,6 @@
 // for compatibility
 #define timerUninit()
 
-int      timerInit(int const tickspersecond);
-void     timerUpdateClock(void);
 double   timerGetHiTicks(void);
 uint32_t timerGetTicks(void);
 

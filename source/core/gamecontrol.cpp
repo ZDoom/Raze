@@ -914,8 +914,6 @@ void app_loop()
 	{
 		try
 		{
-			timerUpdateClock();
-
 			TickSubsystems();
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());

@@ -1127,7 +1127,6 @@ int32_t engineInit(void)
 
     searchit = 0; searchstat = -1;
 
-    totalclock = 0;
     g_visibility = 512;
     parallaxvisibility = 512;
 

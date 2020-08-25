@@ -242,8 +242,8 @@ void S_SerializeSounds(FSerializer& arc)
 			}
 			arc.EndArray();
 		}
-		// totalclock runs on 120 fps, we need to allow a small delay here.
-		soundEngine->SetRestartTime((int)totalclock + 6);
+		// Build runs at 120 fps, we need to allow a small delay here.
+		soundEngine->SetRestartTime(I_GetBuildTime() + 6);
 	}
 	GSnd->Sync(false);
 	GSnd->UpdateSounds();
