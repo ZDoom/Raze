@@ -54,6 +54,7 @@ int max_armour_amount;
 int lasermode;
 
 int gameclock = 0, cameradist = 0, cameraclock = 0;
+int lastTic = -1;
 int otherp;	
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 ActorInfo actorinfo[MAXTILES];

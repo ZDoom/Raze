@@ -308,8 +308,6 @@ static void checkTimerActive()
 //
 //---------------------------------------------------------------------------
 
-static int lastTic;
-
 bool GameTicker()
 {
 	if (ps[myconnectindex].gm == MODE_DEMO)
@@ -413,6 +411,8 @@ void GameInterface::RunGameFrame()
 	{
 	default:
 	case GS_STARTUP:
+		I_ResetTime();
+		lastTic = -1;
 		totalclock = 0;
 		gameclock = 0;
 		lockclock = 0;

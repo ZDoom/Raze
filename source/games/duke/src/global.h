@@ -38,6 +38,7 @@ extern int max_armour_amount;
 extern int lasermode;
 
 extern int gameclock;
+extern int lastTic;
 extern int cameraclock;
 extern int cameradist;
 extern int otherp; // transient helper, MP only

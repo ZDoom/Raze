@@ -756,6 +756,8 @@ void prelevel_common(int g)
 
 void resettimevars(void)
 {
+    I_ResetTime();
+    lastTic = -1;
     totalclock = 0;
     gameclock = 0;
     cloudtotalclock = 0;

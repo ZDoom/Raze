@@ -15,6 +15,9 @@ uint64_t I_GetTimeNS();
 // Called by Build games in liew of totalclock, returns current time in tics at ticrate of 120.
 int I_GetBuildTime();
 
+// Reset timer variables to zero when called.
+void I_ResetTime();
+
 double I_GetTimeFrac();
 
 // like I_GetTime, except it waits for a new tic before returning

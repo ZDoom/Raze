@@ -170,6 +170,11 @@ int I_GetBuildTime()
 	return NSToBuildTic(CurrentFrameStartTime - FirstFrameStartTime);
 }
 
+void I_ResetTime()
+{
+	FirstFrameStartTime = CurrentFrameStartTime = 0;
+}
+
 double I_GetTimeFrac()
 {
 	int currentTic = NSToTic(CurrentFrameStartTime - FirstFrameStartTime);
