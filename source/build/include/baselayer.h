@@ -8,8 +8,7 @@
 #define baselayer_h_
 
 #include "compat.h"
-#include "c_dispatch.h" 
-#include "timer.h"
+#include "c_dispatch.h"
 #include "c_cvars.h"
 #include "inputstate.h"
 #include "printf.h"

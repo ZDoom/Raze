@@ -776,7 +776,6 @@ set (PCH_SOURCES
 	build/src/mhk.cpp
 	build/src/polymost.cpp
 	build/src/scriptfile.cpp
-	build/src/timer.cpp
 	build/src/voxmodel.cpp
 
 	core/movie/playmve.cpp

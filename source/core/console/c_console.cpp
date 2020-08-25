@@ -62,7 +62,6 @@
 #include "v_video.h"
 #include "v_draw.h"
 #include "g_input.h"
-#include "timer.h"
 #include "menu.h"
 #include "raze_music.h"
 
