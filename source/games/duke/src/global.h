@@ -37,6 +37,7 @@ extern int max_player_health;
 extern int max_armour_amount;
 extern int lasermode;
 
+extern int gameclock;
 extern int cameraclock;
 extern int cameradist;
 extern int otherp; // transient helper, MP only
@@ -56,7 +57,6 @@ extern int gamequit;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;
-extern ClockTicks ototalclock;
 
 // Variables that must be saved
 extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!

@@ -1265,8 +1265,8 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	*vy = (*vy) + mulscale16(ny, cameradist);
 	*vz = (*vz) + mulscale16(nz, cameradist);
 
-	cameradist = min(cameradist + (((int)totalclock - cameraclock) << 10), 65536);
-	cameraclock = (int)totalclock;
+	cameradist = min(cameradist + ((gameclock - cameraclock) << 10), 65536);
+	cameraclock = gameclock;
 
 	updatesectorz(*vx, *vy, *vz, vsectnum);
 

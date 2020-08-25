@@ -106,11 +106,11 @@ public:
 		imgScale = baseScale / img->GetDisplayHeight();
 		DrawGraphic(img, 2, -2, DI_ITEM_LEFT_BOTTOM, 1, 0, 0, imgScale, imgScale);
 
-		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || ((int)totalclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
+		if (!althud_flashing || p->last_extra > (max_player_health >> 2) || (gameclock & 32) || (sprite[p->i].pal == 1 && p->last_extra < 2))
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > max_player_health)
-				s += (sintable[((int)totalclock << 5) & 2047] >> 10);
+				s += (sintable[(gameclock << 5) & 2047] >> 10);
 			int intens = clamp(255 - 4 * s, 0, 255);
 			auto pe = PalEntry(255, intens, intens, intens);
 			format.Format("%d", p->last_extra);
@@ -155,7 +155,7 @@ public:
 				imgX += (imgX * 0.755) * (strlen - 1);
 			}
 
-			if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || (int)totalclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
+			if (p->curr_weapon != KNEE_WEAPON && p->curr_weapon != SLINGBLADE_WEAPON && (!althud_flashing || gameclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
 			{
 				SBar_DrawString(this, &numberFont, format, -1, -numberFont.mFont->GetHeight() * scale + 4, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, scale, scale);
 			}

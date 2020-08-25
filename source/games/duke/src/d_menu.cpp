@@ -67,9 +67,9 @@ static void Menu_DrawCursor(double x, double y, double scale, bool right)
 {
 	const int frames = isRR() ? 16 : 7;
 	int picnum;
-	if (!right) picnum = TILE_SPINNINGNUKEICON + (((int)totalclock >> 3) % frames);
-	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + ((int)totalclock >> 3)) % frames);
-	int light = int(224 + 31 * sin((int)totalclock / 20.));
+	if (!right) picnum = TILE_SPINNINGNUKEICON + ((gameclock >> 3) % frames);
+	else picnum = TILE_SPINNINGNUKEICON + frames - 1 - ((frames - 1 + (gameclock >> 3)) % frames);
+	int light = int(224 + 31 * sin(gameclock / 20.));
 	PalEntry pe(255, light, light, light);
 	DrawTexture(twod, tileGetTexture(picnum), x, y, DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 }
@@ -153,7 +153,7 @@ class DukeMainMenu : public DukeListMenu
 			DrawTexture(twod, tileGetTexture(TILE_INGAMEDUKETHREEDEE), x, origin.Y + 29, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_CenterOffsetRel, true, TAG_DONE);
 			if (PLUTOPAK)
 			{
-				int light = 224 + 31 * sin(int(totalclock) / 40.);
+				int light = 224 + 31 * sin(gameclock / 40.);
 				PalEntry pe(255, light, light, light);
 				DrawTexture(twod, tileGetTexture(TILE_PLUTOPAKSPRITE + 2), x + 100, origin.Y + 36, DTA_FullscreenScale, FSMode_Fit320x200Top, DTA_Color, pe, DTA_CenterOffsetRel, true, TAG_DONE);
 			}
@@ -186,7 +186,7 @@ void GameInterface::DrawNativeMenuText(int fontnum, int state, double oxpos, dou
 	else if (state == NIT_SelectedState)
 	{
 		trans = 0;
-		int light = 224 + 31 * sin(int(totalclock) / 20.);
+		int light = 224 + 31 * sin(gameclock / 20.);
 		pe = PalEntry(255, light, light, light);
 	}
 	else
@@ -219,7 +219,7 @@ void GameInterface::MenuOpened()
 	if (ud.multimode < 2)
 	{
 		ready2send = 0;
-		totalclock = ototalclock;
+		//I_FreezeTime(true);
 		screenpeek = myconnectindex;
 	}
 }
@@ -261,8 +261,8 @@ void GameInterface::MenuClosed()
 		if (ud.multimode < 2 && ud.recstat != 2)
 		{
 			ready2send = 1;
-			totalclock = ototalclock;
-			cameraclock = (int32_t)totalclock;
+			//I_FreezeTime(false);
+			cameraclock = gameclock;
 			cameradist = 65536;
 		}
 	}
@@ -347,7 +347,7 @@ static int GetPlayerColor(int color)
 void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	int color = TRANSLATION(Translation_Remap, playercolor2lookup(playercolor));
-	int tile = isRR() ? 3845 + 36 - ((((8 - (totalclock >> 4))) & 7) * 5) : 1441 - ((((4 - (totalclock >> 4))) & 3) * 5);
+	int tile = isRR() ? 3845 + 36 - ((((8 - (gameclock >> 4))) & 7) * 5) : 1441 - ((((4 - (gameclock >> 4))) & 3) * 5);
 	auto tex = tileGetTexture(tile);
 	if (!tex) return;
 	double x = origin.X + 260, y = origin.Y + tex->GetDisplayHeight() * (isRR()? 0.25 : 0.5);

@@ -69,6 +69,11 @@ static int NSToTic(uint64_t ns)
 	return static_cast<int>(ns * GameTicRate / 1'000'000'000);
 }
 
+static int NSToBuildTic(uint64_t ns)
+{
+	return static_cast<int>(ns * 120 / 1'000'000'000);
+}
+
 static uint64_t TicToNS(int tic)
 {
 	return static_cast<uint64_t>(tic) * 1'000'000'000 / GameTicRate;
@@ -158,6 +163,11 @@ uint64_t I_GetTimeNS()
 int I_GetTime()
 {
 	return NSToTic(CurrentFrameStartTime - FirstFrameStartTime);
+}
+
+int I_GetBuildTime()
+{
+	return NSToBuildTic(CurrentFrameStartTime - FirstFrameStartTime);
 }
 
 double I_GetTimeFrac()

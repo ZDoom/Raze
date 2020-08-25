@@ -104,7 +104,7 @@ void nonsharedkeys(void)
 			{
 				ps[myconnectindex].over_shoulder_on = 1;
 				cameradist = 0;
-				cameraclock = (int)totalclock;
+				cameraclock = gameclock;
 			}
 			FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
 		}
@@ -113,15 +113,15 @@ void nonsharedkeys(void)
 	if (automapMode != am_off)
 	{
 		int j;
-		if (nonsharedtimer > 0 || totalclock < nonsharedtimer)
+		if (nonsharedtimer > 0 || gameclock < nonsharedtimer)
 		{
-			j = (int)totalclock - nonsharedtimer;
+			j = gameclock - nonsharedtimer;
 			nonsharedtimer += j;
 		}
 		else
 		{
 			j = 0;
-			nonsharedtimer = (int)totalclock;
+			nonsharedtimer = gameclock;
 		}
 		
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
@@ -712,8 +712,8 @@ static void checkCrouchToggle(player_struct* p)
 
 int getticssincelastupdate()
 {
-	int  tics = lastcontroltime == 0 || (int)totalclock < lastcontroltime ? 0 : (int)totalclock - lastcontroltime;
-	lastcontroltime = (int)totalclock;
+	int  tics = lastcontroltime == 0 || gameclock < lastcontroltime ? 0 : gameclock - lastcontroltime;
+	lastcontroltime = gameclock;
 	return tics;
 }
 

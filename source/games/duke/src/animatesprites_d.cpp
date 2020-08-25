@@ -153,7 +153,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
             case SECTOREFFECTOR:
                 if(t->lotag == 27 && ud.recstat == 1)
                 {
-                    t->picnum = 11+(((int)totalclock>>3)&1);
+                    t->picnum = 11+((gameclock>>3)&1);
                     t->cstat |= 128;
                 }
                 else
@@ -250,7 +250,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 t->z -= (4<<8);
                 break;
             case CRYSTALAMMO:
-                t->shade = (sintable[((int)totalclock<<4)&2047]>>10);
+                t->shade = (sintable[(gameclock<<4)&2047]>>10);
                 continue;
             case VIEWSCREEN:
             case VIEWSCREEN2:
@@ -268,10 +268,10 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 break;
 
             case SHRINKSPARK:
-                t->picnum = SHRINKSPARK+( ((int)totalclock>>4)&3 );
+                t->picnum = SHRINKSPARK+( (gameclock>>4)&3 );
                 break;
             case GROWSPARK:
-                t->picnum = GROWSPARK+( ((int)totalclock>>4)&3 );
+                t->picnum = GROWSPARK+( (gameclock>>4)&3 );
                 break;
             case RPG:
 				/*if (bpp > 8 && usemodels && md_tilehasmodel(s->picnum) >= 0) {
@@ -646,7 +646,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                 if(t->picnum == EXPLOSION2)
                 {
                     ps[screenpeek].visibility = -127;
-                    lastvisinc = (int)totalclock+32;
+                    lastvisinc = gameclock+32;
                 }
                 t->shade = -127;
                 break;

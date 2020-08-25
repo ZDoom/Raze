@@ -329,11 +329,13 @@ bool GameTicker()
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
 
-	int currentTic = I_GetTime();
+	int const currentTic = I_GetTime();
+	gameclock = I_GetBuildTime();
 
 	if (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
+		gameclock = currentTic << 2;
 
 		GetInput();
 		auto const pPlayer = &ps[myconnectindex];
@@ -356,11 +358,10 @@ bool GameTicker()
 			moveloop();
 		}
 	}
-	if (!playrunning())
-	{
-		ototalclock = totalclock - 1;
-	}
-	double const smoothRatio = I_GetTimeFrac() * 65536.;
+
+	//I_FreezeTime(!playrunning());
+
+	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 
 	gameupdatetime.Unclock();
 
@@ -414,7 +415,7 @@ void GameInterface::RunGameFrame()
 	default:
 	case GS_STARTUP:
 		totalclock = 0;
-		ototalclock = 0;
+		gameclock = 0;
 		lockclock = 0;
 
 		ps[myconnectindex].ftq = 0;

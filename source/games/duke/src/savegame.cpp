@@ -480,8 +480,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("thunder_brightness", thunder_brightness)
 
 			// Todo: move to backend
-			("totalclock", totalclock)
-			("ototalclock", ototalclock)
+			("gameclock", gameclock)
 			("totalclocklock", totalclocklock)
 
 			("lockclock", lockclock)
@@ -543,10 +542,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			#endif
 			FX_SetReverb(0);
 
-		}
-		else
-		{
-			ototalclock = totalclock;
 		}
 		ready2send = 1;
 	}

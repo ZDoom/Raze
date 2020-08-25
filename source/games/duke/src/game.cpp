@@ -350,7 +350,7 @@ static void Startup(void)
 	SetDispatcher();
 	S_InitSound();
 
-	timerInit(GameTicRate);
+	timerInit(TICRATE);
 
 	loadcons();
 	fi.initactorflags();

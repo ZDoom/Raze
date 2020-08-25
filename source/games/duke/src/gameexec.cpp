@@ -1042,7 +1042,7 @@ int ParseState::parse(void)
 			resetweapons(g_p);
 
 			//cameradist = 0;
-			//cameraclock = totalclock;
+			//cameraclock = gameclock;
 		}
 		setpal(&ps[g_p]);
 		break;
