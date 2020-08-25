@@ -786,6 +786,7 @@ void GameTicker(void)
             while (ready2send && currentTic - lastTic >= 1)
             {
                 lastTic = currentTic;
+                ogameclock = gameclock;
                 UpdateInputs();
                 MoveTicker();
             }
@@ -825,7 +826,7 @@ void GameInterface::RunGameFrame()
         case GS_STARTUP:
             I_ResetTime();
             lastTic = -1;
-            gameclock = 0;
+            ogameclock = gameclock = 0;
 
             if (userConfig.CommandMap.IsNotEmpty())
             {

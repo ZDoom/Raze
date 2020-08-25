@@ -300,7 +300,7 @@ void JS_InitMirrors(void)
     // Scan wall tags for mirrors
     mirrorcnt = 0;
 	tileDelete(MIRROR);
-	oscilationclock = gameclock;
+	oscilationclock = ogameclock;
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
@@ -532,7 +532,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
 
     SWBOOL bIsWallMirror = FALSE;
 
-    camloopcnt += gameclock - gameclock;
+    camloopcnt += gameclock - ogameclock;
     if (camloopcnt > (60 * 5))          // 5 seconds per player view
     {
         camloopcnt = 0;
@@ -545,7 +545,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     longptr = (int*)&gotpic[MIRRORLABEL >> 3];
     if (longptr && (longptr[0] || longptr[1]))
     {
-        uint32_t oscilation_delta = gameclock - oscilationclock;
+        uint32_t oscilation_delta = ogameclock - oscilationclock;
         oscilation_delta -= oscilation_delta % 4;
         oscilationclock += oscilation_delta;
         oscilation_delta *= 2;

@@ -95,7 +95,7 @@ uint8_t syncstat[MAXSYNCBYTES];
 int syncvaltail, syncvaltottail;
 void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex);
 
-int gameclock;
+int ogameclock, gameclock;
 int lastTic;
 double smoothratio;
 
@@ -167,7 +167,7 @@ InitTimingVars(void)
     totalsynctics = 0;
     I_ResetTime();
     lastTic = -1;
-    gameclock = 0;
+    ogameclock = gameclock = 0;
     randomseed = 17L;
 
     MoveSkip8 = 2;
