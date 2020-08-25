@@ -44,13 +44,11 @@ enum
 };
 
 
-EXTERN_CVAR (Int, con_scaletext)
-
 EXTERN_CVAR (Bool, sb_cooperative_enable)
 EXTERN_CVAR (Bool, sb_deathmatch_enable)
 EXTERN_CVAR (Bool, sb_teamdeathmatch_enable)
 
-int active_con_scaletext();
+int active_con_scale();
 
 // Public data
 
@@ -243,7 +241,7 @@ void CT_Drawer (void)
 		y = -displayfont->GetHeight()-2;
 
 		scalex = 1;
-		int scale = active_con_scaletext(drawer);
+		int scale = active_con_scale(drawer);
 		int screen_width = twod->GetWidth() / scale;
 		int screen_height= twod->GetHeight() / scale;
 #if 0 // stuff for later

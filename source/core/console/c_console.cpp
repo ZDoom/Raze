@@ -137,12 +137,14 @@ static char *work = NULL;
 static int worklen = 0;
 
 CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)
+CUSTOM_CVAR(Float, con_notifyscale, 1, CVAR_ARCHIVE)
+{
+	if (self < 0.36f) self = 0.36f;
+	if (self > 1) self = 1;
+}
+
 CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
 CVAR(Bool, con_notify_advanced, false, CVAR_ARCHIVE)
-CUSTOM_CVAR(Int, con_scaletext, 2, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)		// Scale notify text at high resolutions?
-{
-	if (self < 0) self = 0;
-}
 CVAR(Bool, con_pulsetext, false, CVAR_ARCHIVE)
 
 CUSTOM_CVAR(Int, con_scale, 0, CVAR_ARCHIVE)
@@ -794,19 +796,22 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 		con_notifylines == 0)
 		return;
 
-	width = screen->GetWidth() / active_con_scaletext(twod, generic_ui);
+	auto screenratio = ActiveRatio(screen->GetWidth(), screen->GetHeight());
 
 	FFont* font = generic_ui ? NewSmallFont : SmallFont ? SmallFont : AlternativeSmallFont;
 	if (font == nullptr) return;	// Without an initialized font we cannot handle the message (this is for those which come here before the font system is ready.)
+	double fontscale = (generic_ui? 0.7 : NotifyFontScale) * con_notifyscale;
+
+	width = int(320 * (screenratio / 1.333) / fontscale);
 
 	if (AddType == APPENDLINE && Text.Size() > 0 && Text[Text.Size() - 1].PrintLevel == printlevel)
 	{
 		FString str = Text[Text.Size() - 1].Text + source;
-		lines = V_BreakLines (font, width * NotifyFontScale, str);
+		lines = V_BreakLines (font, width, str);
 	}
 	else
 	{
-		lines = V_BreakLines (font, width * NotifyFontScale, source);
+		lines = V_BreakLines (font, width, source);
 		if (AddType == APPENDLINE)
 		{
 			AddType = NEWLINE;
@@ -1094,7 +1099,8 @@ void FNotifyBuffer::DrawNative()
 
 	int line = (g_gameType & GAMEFLAG_BLOOD)? Top : (g_gameType & GAMEFLAG_SW) ? 40 : font->GetDisplacement();
 	bool canskip = (g_gameType & GAMEFLAG_BLOOD);
-	int lineadv = font->GetHeight();
+	double scale = 1 / (NotifyFontScale * con_notifyscale);
+	int lineadv = font->GetHeight() / NotifyFontScale;
 
 	for (unsigned i = topline; i < Text.Size(); ++i)
 	{
@@ -1116,16 +1122,14 @@ void FNotifyBuffer::DrawNative()
 			{
 				DrawText(twod, font, CR_UNTRANSLATED, 0, line, notify.Text,
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidth, 320, DTA_VirtualHeight, 200, DTA_KeepRatio, true,
+					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale, DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			}
 			else
 			{
-				int fac = isRR() ? 2 : 1;
-
-				DrawText(twod, font, CR_UNTRANSLATED, 160 * fac - font->StringWidth(notify.Text) / 2, line, notify.Text,
+				DrawText(twod, font, CR_UNTRANSLATED, 160 * scale - font->StringWidth(notify.Text) / 2, line, notify.Text,
 					DTA_FullscreenScale, FSMode_ScaleToHeight,
-					DTA_VirtualWidth, 320 * fac, DTA_VirtualHeight, 200 * fac,
+					DTA_VirtualWidthF, 320 * scale, DTA_VirtualHeightF, 200 * scale,
 					DTA_Alpha, alpha, TAG_DONE);
 			}
 			line += lineadv;
@@ -1155,13 +1159,15 @@ void FNotifyBuffer::Draw()
 
 	bool center = (con_centernotify != 0.f);
 	int color;
-
-	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
-
-	int line = Top + font->GetDisplacement() / NotifyFontScale;
 	bool canskip = true;
 
-	int lineadv = font->GetHeight () / NotifyFontScale;
+
+	FFont* font = generic_ui ? NewSmallFont : SmallFont? SmallFont : AlternativeSmallFont;
+	double nfscale = (generic_ui? 0.7 : NotifyFontScale);
+	double scale = 1 / ( * con_notifyscale);
+
+	int line = Top + font->GetDisplacement() / nfscale;
+	int lineadv = font->GetHeight () / nfscale;
 
 	for (unsigned i = 0; i < Text.Size(); ++ i)
 	{
@@ -1184,20 +1190,19 @@ void FNotifyBuffer::Draw()
 			else
 				color = PrintColors[notify.PrintLevel];
 
-			int scale = active_con_scaletext(twod, generic_ui);
 			if (!center)
 				DrawText(twod, font, color, 0, line * NotifyFontScale, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale * NotifyFontScale,
-					DTA_VirtualHeight, twod->GetHeight() / scale * NotifyFontScale,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320. * scale,
+					DTA_VirtualHeightF, 200. * scale,
 					DTA_KeepRatio, true,
 					DTA_Alpha, alpha, TAG_DONE);
 			else
-				DrawText(twod, font, color, (twod->GetWidth() * NotifyFontScale -
-					font->StringWidth (notify.Text) * scale) / 2 / scale,
+				DrawText(twod, font, color, 160 * scale - font->StringWidth (notify.Text) / 2.,
 					line, notify.Text,
-					DTA_VirtualWidth, twod->GetWidth() / scale * NotifyFontScale,
-					DTA_VirtualHeight, twod->GetHeight() / scale * NotifyFontScale,
-					DTA_KeepRatio, true,
+					DTA_FullscreenScale, FSMode_ScaleToHeight,
+					DTA_VirtualWidthF, 320. * scale,
+					DTA_VirtualHeightF, 200. * scale,
 					DTA_Alpha, alpha, TAG_DONE);
 			line += lineadv;
 			canskip = false;

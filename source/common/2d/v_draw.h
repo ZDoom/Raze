@@ -231,13 +231,7 @@ int GetUIScale(F2DDrawer* drawer, int altval);
 int GetConScale(F2DDrawer* drawer, int altval);
 
 EXTERN_CVAR(Int, uiscale);
-EXTERN_CVAR(Int, con_scaletext);
 EXTERN_CVAR(Int, con_scale);
-
-inline int active_con_scaletext(F2DDrawer* drawer, bool newconfont = false)
-{
-	return newconfont ? GetConScale(drawer, con_scaletext) : GetUIScale(drawer, con_scaletext);
-}
 
 inline int active_con_scale(F2DDrawer *drawer)
 {

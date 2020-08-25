@@ -1024,10 +1024,10 @@ OptionMenu "HUDOptions" //protected
 	Title "$OPTMNU_HUD"
 
 	Slider "$DSPLYMNU_SCREENSIZE",				"hud_size", 				0.0, 9.0, 1.0, -1
-	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				36, 100, 0.04, 2
+	Slider "$DSPLYMNU_SBSCALE",					"hud_scale",				0.36, 1.0, 0.04, 2
 	StaticText ""
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
-	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			36, 100, 0.04, 2
+	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			0.36, 1.0, 0.04, 2
 
 	//Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
 
@@ -1036,7 +1036,7 @@ OptionMenu "HUDOptions" //protected
 	Option "$DSPLYMNU_MESSAGEDISP",				"con_notify_advanced",		"HudMessageStyle"
 	Option "$MSGMNU_CENTERMESSAGES",			"con_centernotify", 		"OnOff", "con_notify_advanced"
 	Option "$MSGMNU_PULSEMESSAGES",				"con_pulsetext", 			"OnOff", "con_notify_advanced"
-	Slider "$MSGMNU_MESSAGESCALE", 				"con_scaletext", 			0.0, 8.0, 1.0, 1
+	Slider "$MSGMNU_MESSAGESCALE", 				"con_notifyscale", 			0.36, 1.0, 0.04, 2
 
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
