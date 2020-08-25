@@ -335,7 +335,6 @@ bool GameTicker()
 	if (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
-		gameclock = currentTic << 2;
 
 		GetInput();
 		auto const pPlayer = &ps[myconnectindex];
