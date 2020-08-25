@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "names.h"
 #include "version.h"
 #include "raze_sound.h"
+#include "gamestate.h"
 
 
 #include "menu/menu.h"	// to override the local menu.h
@@ -146,6 +147,13 @@ void GameInterface::MenuSound(EMenuSounds snd)
 		default:
 			return;
 	}
+}
+
+void GameInterface::QuitToTitle()
+{
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_Mainmenu);
+	gamestate = GS_MENUSCREEN;
 }
 
 void GameInterface::MenuClosed()
