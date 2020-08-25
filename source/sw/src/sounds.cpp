@@ -604,7 +604,7 @@ void DoUpdateSounds(void)
     soundEngine->SetListener(listener);
 
     UpdateAmbients();
-    soundEngine->UpdateSounds(gameclock);
+    soundEngine->UpdateSounds(totalclock);
 }
 
 //==========================================================================

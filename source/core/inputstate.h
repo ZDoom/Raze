@@ -60,7 +60,5 @@ public:
 
 extern InputState inputState;
 
-void (*timerSetCallback(void (*callback)(void)))(void);
-
 void CONTROL_GetInput(ControlInfo* info);
 int32_t handleevents(void);

@@ -119,20 +119,6 @@ void InputState::ClearAllInput()
 //
 //==========================================================================
 
-TArray<void(*)(void)> callbacks;
-
-void(*timerSetCallback(void(*callback)(void)))(void)
-{
-	callbacks.Push(callback);
-    return nullptr;
-}
-
-//==========================================================================
-//
-//
-//
-//==========================================================================
-
 void I_StartTic();
 bool ToggleFullscreen;
 
@@ -158,8 +144,6 @@ int32_t handleevents(void)
 		setViewport(hud_size);
 		setsizeneeded = false;
 	}
-
-	for (auto cb : callbacks) cb();
 
 	I_StartFrame();
 	I_StartTic();
