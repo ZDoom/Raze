@@ -68,6 +68,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menustate.h"
 #include "screenjob.h"
 #include "statusbar.h"
+#include "uiinput.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -899,6 +900,7 @@ void app_loop()
 
 			// Draw overlay elements to the 2D drawer
 			FStat::PrintStat(twod);
+			CT_Drawer();
 			C_DrawConsole();
 			M_Drawer();
 

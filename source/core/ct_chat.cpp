@@ -37,6 +37,8 @@
 #include "c_buttons.h"
 #include "v_draw.h"
 #include "menu.h"
+#include "gamestruct.h"
+#include "gamecvars.h"
 
 enum
 {
@@ -69,32 +71,8 @@ static bool DoSubstitution (FString &out, const char *in);
 
 static TArray<uint8_t> ChatQueue;
 
-#if 0
-CVAR (String, chatmacro1, "I'm ready to kick butt!", CVAR_ARCHIVE)
-CVAR (String, chatmacro2, "I'm OK.", CVAR_ARCHIVE)
-CVAR (String, chatmacro3, "I'm not looking too good!", CVAR_ARCHIVE)
-CVAR (String, chatmacro4, "Help!", CVAR_ARCHIVE)
-CVAR (String, chatmacro5, "You suck!", CVAR_ARCHIVE)
-CVAR (String, chatmacro6, "Next time, scumbag...", CVAR_ARCHIVE)
-CVAR (String, chatmacro7, "Come here!", CVAR_ARCHIVE)
-CVAR (String, chatmacro8, "I'll take care of it.", CVAR_ARCHIVE)
-CVAR (String, chatmacro9, "Yes", CVAR_ARCHIVE)
-CVAR (String, chatmacro0, "No", CVAR_ARCHIVE)
+extern FStringCVar* const CombatMacros[];
 
-FStringCVar *chat_macros[10] =
-{
-	&chatmacro0,
-	&chatmacro1,
-	&chatmacro2,
-	&chatmacro3,
-	&chatmacro4,
-	&chatmacro5,
-	&chatmacro6,
-	&chatmacro7,
-	&chatmacro8,
-	&chatmacro9
-};
-#endif
 
 CVAR (Bool, chat_substitution, false, CVAR_ARCHIVE)
 
@@ -175,14 +153,12 @@ bool CT_Responder (event_t *ev)
 		else if (ev->subtype == EV_GUI_Char)
 		{
 			// send a macro
-#if 0
 			if (ev->data2 && (ev->data1 >= '0' && ev->data1 <= '9'))
 			{
-				ShoveChatStr (*chat_macros[ev->data1 - '0'], chatmodeon - 1);
+				ShoveChatStr (*CombatMacros[ev->data1 - '0'], chatmodeon - 1);
 				CT_Stop ();
 			}
 			else
-#endif
 			{
 				CT_AddChar (ev->data1);
 			}
@@ -238,17 +214,15 @@ void CT_Drawer (void)
 		FStringf prompt("%s ", GStrings("TXT_SAY"));
 		int x, scalex, y, promptwidth;
 
-		y = -displayfont->GetHeight()-2;
 
 		scalex = 1;
 		int scale = active_con_scale(drawer);
 		int screen_width = twod->GetWidth() / scale;
 		int screen_height= twod->GetHeight() / scale;
-#if 0 // stuff for later
-		int st_y = StatusBar->GetTopOfStatusbar() / scale;
+		
+		y = screen_height - displayfont->GetHeight()-2;
+		auto res = gi->GetReservedScreenSpace(hud_size);
 
-		y += ((twod->GetHeight() == viewheight && viewactive) || gamestate != GS_LEVEL) ? screen_height : st_y;
-#endif
 		promptwidth = displayfont->StringWidth (prompt) * scalex;
 		x = displayfont->GetCharWidth (displayfont->GetCursor()) * scalex * 2 + promptwidth;
 
@@ -264,6 +238,7 @@ void CT_Drawer (void)
 		}
 		printstr += displayfont->GetCursor();
 
+		twod->AddColorOnlyQuad(0, y, screen_width, screen_height, 0x80000000);
 		DrawText(drawer, displayfont, CR_GREEN, 0, y, prompt.GetChars(), 
 			DTA_VirtualWidth, screen_width, DTA_VirtualHeight, screen_height, DTA_KeepRatio, true, TAG_DONE);
 		DrawText(drawer, displayfont, CR_GREY, promptwidth, y, printstr,
@@ -357,6 +332,15 @@ static void ShoveChatStr (const char *str, uint8_t who)
 	else
 	{
 		Net_WriteString(MakeUTF8(substBuff));
+	}
+#else
+	if (*str == '#')
+	{
+		C_DoCommand(FStringf("activatecheat %s", str + 1));
+	}
+	else
+	{
+		Printf("%s %s\n", GStrings("TXT_SAY"), str);
 	}
 #endif
 }

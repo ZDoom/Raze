@@ -660,12 +660,10 @@ bool M_DoResponder (event_t *ev)
 	int mkey = NUM_MKEYS;
 	bool fromcontroller = true;
 
-	/*
 	if (chatmodeon)
 	{
 		return false;
 	}
-	*/
 
 	if (CurrentMenu != NULL && menuactive != MENU_Off) 
 	{

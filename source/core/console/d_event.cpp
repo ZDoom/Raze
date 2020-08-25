@@ -41,6 +41,7 @@
 #include "menu.h"
 #include "gamestate.h"
 #include "gamecontrol.h"
+#include "uiinput.h"
 
 //==========================================================================
 //
@@ -76,7 +77,6 @@ bool AM_Responder (event_t *ev, bool last)
 }
 
 
-
 //==========================================================================
 //
 // G_Responder
@@ -86,6 +86,11 @@ bool AM_Responder (event_t *ev, bool last)
 
 bool G_Responder (event_t *ev)
 {
+	if (CT_Responder(ev))
+		return true;					// chat ate the event
+	if (Cheat_Responder(ev))
+		return true;
+
 	if (gamestate == GS_LEVEL && automapMode != am_off && AM_Responder(ev, false)) return true;
 	
 	switch (ev->type)

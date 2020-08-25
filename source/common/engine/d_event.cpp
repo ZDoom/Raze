@@ -77,8 +77,6 @@ void D_ProcessEvents (void)
 			continue;				// console ate the event
 		if (M_Responder (ev))
 			continue;				// menu ate the event
-		if (Cheat_Responder(ev))
-			continue;
 		G_Responder (ev);
 	}
 }
