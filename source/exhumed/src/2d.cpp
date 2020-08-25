@@ -656,14 +656,14 @@ public:
 	int Frame(uint64_t clock, bool skiprequest) override
 	
 	{
-		int totalclock = int(clock * 120 / 1'000'000'000);
+		int currentclock = int(clock * 120 / 1'000'000'000);
 
 		twod->ClearScreen();
 		
-		if ((totalclock - startTime) / kTimerTicks)
+		if ((currentclock - startTime) / kTimerTicks)
 		{
 			nIdleSeconds++;
-			startTime = totalclock;
+			startTime = currentclock;
 		}
 		
 		int tileY = curYPos;
@@ -684,7 +684,7 @@ public:
 			{
 				for (int j = 0; j < MapLevelFires[i].nFires; j++)
 				{
-					int nFireFrame = ((totalclock >> 4) & 3);
+					int nFireFrame = ((currentclock >> 4) & 3);
 					assert(nFireFrame >= 0 && nFireFrame < 4);
 					
 					int nFireType = MapLevelFires[i].fires[j].nFireType;
@@ -700,7 +700,7 @@ public:
 				}
 			}
 			
-			int t = (((totalclock & 16) >> 4));
+			int t = (((currentclock & 16) >> 4));
 			
 			int nTile = mapNamePlaques[i].tiles[t].nTile;
 			
@@ -714,7 +714,7 @@ public:
 			
 			if (nLevelNew == i)
 			{
-				shade = (Sin(16 * totalclock) + 31) >> 8;
+				shade = (Sin(16 * currentclock) + 31) >> 8;
 			}
 			else if (nLevelBest >= i)
 			{
@@ -732,9 +732,9 @@ public:
 		if (curYPos != destYPos)
 		{
 			// scroll the map every couple of ms
-			if (totalclock - runtimer >= (kTimerTicks / 32)) {
+			if (currentclock - runtimer >= (kTimerTicks / 32)) {
 				curYPos += var_2C;
-				runtimer = totalclock;
+				runtimer = currentclock;
 			}
 			
 			if (inputState.CheckAllInput())
@@ -1113,17 +1113,17 @@ private:
             PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
             phase = 1;
         }
-        int totalclock = clock * 120 / 1'000'000'000;
+        int currentclock = clock * 120 / 1'000'000'000;
         switch (phase)
         {
         case 1:
-            if (totalclock >= nextclock)
+            if (currentclock >= nextclock)
             {
                 Phase1();
                 nextclock += 4;
             }
             DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-            if (skiprequest || totalclock >= 240)
+            if (skiprequest || currentclock >= 240)
             {
                 InitPhase2();
                 phase = 2;
@@ -1132,7 +1132,7 @@ private:
             break;
 
         case 2:
-            if (totalclock >= nextclock)
+            if (currentclock >= nextclock)
             {
                 if (screentext[nStringTypeOn][nCharTypeOn] != ' ')
                     PlayLocalSound(StaticSound[kSound71], 0, false, CHANF_UI);
@@ -1145,7 +1145,7 @@ private:
                     nStringTypeOn++;
                     if (nStringTypeOn >= screentext.Size())
                     {
-                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + totalclock;
+                        nextclock = (kTimerTicks * (screentext.Size() + 2)) + currentclock;
                         phase = 3;
                     }
 
@@ -1154,35 +1154,35 @@ private:
             DisplayPhase2();
             if (skiprequest)
             {
-                nextclock = (kTimerTicks * (screentext.Size() + 2)) + totalclock;
+                nextclock = (kTimerTicks * (screentext.Size() + 2)) + currentclock;
                 phase = 3;
             }
             break;
 
         case 3:
             DisplayPhase2();
-            if (totalclock >= nextclock || skiprequest)
+            if (currentclock >= nextclock || skiprequest)
             {
                 PlayLocalSound(StaticSound[kSound75], 0, false, CHANF_UI);
                 phase = 4;
-                nextclock = totalclock + 240;
+                nextclock = currentclock + 240;
                 skiprequest = 0;
             }
             break;
 
         case 4:
-            if (totalclock >= nextclock)
+            if (currentclock >= nextclock)
             {
                 skiprequest |= !Phase3();
                 nextclock += 4;
             }
-            if (skiprequest || totalclock >= 240)
+            if (skiprequest || currentclock >= 240)
             {
                 // Go to the next text page.
                 if (screencnt != 2)
                 {
                     screencnt++;
-                    nextclock = totalclock + 240;
+                    nextclock = currentclock + 240;
                     skiprequest = 0;
                     phase = 1;
                 }
