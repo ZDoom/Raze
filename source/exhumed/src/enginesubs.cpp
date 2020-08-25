@@ -30,7 +30,6 @@ BEGIN_PS_NS
 void resettiming()
 {
     totalclock = 0;
-// TODO	totalclocklock = 0L;
 }
 
 void doTileLoad(int i)

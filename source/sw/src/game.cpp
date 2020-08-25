@@ -316,7 +316,6 @@ void DrawMenuLevelScreen(void)
 {
     const int TITLE_PIC = 2324;
     twod->ClearScreen();
-	totalclocklock = gameclock;
     DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
         DTA_Color, shadeToLight(20), TAG_DONE);
 

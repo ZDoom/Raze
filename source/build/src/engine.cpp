@@ -1286,7 +1286,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     globalhoriz = fix16_to_int(qglobalhoriz);
 
     globalcursectnum = dacursectnum;
-    totalclocklock = I_GetBuildTime();
 
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();

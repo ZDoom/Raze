@@ -481,7 +481,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			// Todo: move to backend
 			("gameclock", gameclock)
-			("totalclocklock", totalclocklock)
 
 			("lockclock", lockclock)
 

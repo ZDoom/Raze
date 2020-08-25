@@ -364,9 +364,7 @@ EXTERN struct validmode_t validmode[MAXVALIDMODES];
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
-// totalclocklock: the totalclock value that is backed up once on each
-// drawrooms() and is used for animateoffs().
-EXTERN ClockTicks totalclock, totalclocklock;
+EXTERN ClockTicks totalclock;
 static inline int32_t BGetTime(void) { return (int32_t) totalclock; }
 
 EXTERN int32_t randomseed;
