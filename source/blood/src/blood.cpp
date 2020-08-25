@@ -433,7 +433,7 @@ void StartLevel(MapRecord *level)
                 
     #ifdef NOONE_EXTENSIONS
     if (!gModernMap)
-        Printf("> Modern types erased: %d.\n", modernTypesErased);
+        Printf(PRINT_NONOTIFY, "> Modern types erased: %d.\n", modernTypesErased);
     #endif
 
     startpos.z = getflorzofslope(startsectnum,startpos.x,startpos.y);
@@ -715,10 +715,10 @@ void GameInterface::app_init()
 
     HookReplaceFunctions();
 
-    Printf("Initializing Build 3D engine\n");
+    Printf(PRINT_NONOTIFY, "Initializing Build 3D engine\n");
     engineInit();
 
-    Printf("Loading tiles\n");
+    Printf(PRINT_NONOTIFY, "Loading tiles\n");
     if (!tileInit(0, NULL))
         I_FatalError("TILES###.ART files not found");
 
@@ -731,27 +731,25 @@ void GameInterface::app_init()
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = timerGetTicks();
-        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
+        Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
     powerupInit();
-    Printf("Loading cosine table\n");
+    Printf(PRINT_NONOTIFY, "Loading cosine table\n");
     trigInit();
-    Printf("Initializing view subsystem\n");
+    Printf(PRINT_NONOTIFY, "Initializing view subsystem\n");
     viewInit();
-    Printf("Initializing dynamic fire\n");
+    Printf(PRINT_NONOTIFY, "Initializing dynamic fire\n");
     FireInit();
-    Printf("Initializing weapon animations\n");
+    Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
     WeaponInit();
     LoadSaveSetup();
     LoadSavedInfo();
-    Printf("Loading control setup\n");
-    ctrlInit();
     timerInit(120);
 
-    Printf("Initializing network users\n");
+    Printf(PRINT_NONOTIFY, "Initializing network users\n");
     netInitialize(true);
     videoInit();
-    Printf("Initializing sound system\n");
+    Printf(PRINT_NONOTIFY, "Initializing sound system\n");
     sndInit();
     registerosdcommands();
     registerinputcommands();

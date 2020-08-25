@@ -3687,7 +3687,7 @@ void PolymostProcessVoxels(void)
 
     g_haveVoxels = 2;
 
-    Printf("Generating voxel models for Polymost. This may take a while...\n");
+    Printf(PRINT_NONOTIFY, "Generating voxel models for Polymost. This may take a while...\n");
 
     for (bssize_t i = 0; i < MAXVOXELS; i++)
     {
