@@ -587,7 +587,8 @@ static SavegameHelper sgh("ramses",
     SV(lHeadStartClock),
     SV(lNextStateChange),
     SV(nHeadStage),
-    SV(nHeadTimeStart)
+    SV(nHeadTimeStart),
+    nullptr
     );
 
 END_PS_NS
