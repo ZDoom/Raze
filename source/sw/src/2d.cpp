@@ -591,7 +591,7 @@ void StatScreen(int FinishAnim, CompletionFunc completion)
     if (FinishAnim)
     {
         StopSound();
-        jobs[job++] = { GetFinishAnim(FinishAnim) };
+        jobs[job++] = { GetFinishAnim(FinishAnim), []() { soundEngine->StopAllChannels(); } };
         jobs[job++] = { Create<DSWLevelSummaryScreen>() };
         if (FinishAnim == ANIM_ZILLA)
             jobs[job++] = { Create<DSWCreditsScreen>() };

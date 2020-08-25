@@ -790,6 +790,7 @@ void FNotifyBuffer::AddString(int printlevel, FString source)
 	int width;
 
 	if (hud_messages == 0 ||
+		screen == nullptr ||
 		source.IsEmpty() ||
 		gamestate == GS_FULLCONSOLE ||
 		gamestate == GS_MENUSCREEN ||
