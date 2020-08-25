@@ -978,7 +978,7 @@ public:
         DrawTexture(twod, tileGetTexture(cinematile), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
 
         text.DisplayText();
-        auto cont = text.AdvanceCinemaText(clock * 129 / 1'000'000'000);
+        auto cont = text.AdvanceCinemaText(clock * 120 / 1'000'000'000);
         int ret = skiprequest ? -1 : cont ? 1 : 0;
 
         // quit the game if we've finished level 4 and displayed the advert text
