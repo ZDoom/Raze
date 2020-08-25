@@ -921,28 +921,17 @@ enum
 
 };
 
-#pragma pack(push,1)
-typedef struct
-{
-    int16_t vel;
-    int16_t svel;
-    int8_t angvel;
-    int8_t aimvel;
-    int32_t bits;
-} OLD_SW_PACKET;
-
 // TODO: Support compatible read/write of struct for big-endian
-typedef struct
+struct SW_PACKET
 {
-    int16_t vel;
+    int16_t fvel;
     int16_t svel;
-    fix16_t q16angvel;
+    fix16_t q16avel;
     fix16_t q16aimvel;
     fix16_t q16ang;
-    fix16_t q16horiz;
+    fix16_t q16horz;
     int32_t bits;
-} SW_PACKET;
-#pragma pack(pop)
+};
 
 extern SW_PACKET loc;
 

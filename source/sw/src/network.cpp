@@ -73,16 +73,16 @@ extern char sync_first[MAXSYNCBYTES][60];
 extern int sync_found;
 
 //
-// Tic Duplication - so you can move multiple times per packet
+// Tic Duplication - so you can move multiple times per packet. This is SW_PACKET with the 16 bit values extended to 32 bit.
 //
 typedef struct
 {
-    int32_t vel;
+    int32_t fvel;
     int32_t svel;
-    fix16_t q16angvel;
+    fix16_t q16avel;
     fix16_t q16aimvel;
     fix16_t q16ang;
-    fix16_t q16horiz;
+    fix16_t q16horz;
     int32_t bits;
 } SW_AVERAGE_PACKET;
 
@@ -198,12 +198,12 @@ UpdateInputs(void)
 
     getinput(&loc, FALSE);
 
-    AveragePacket.vel += loc.vel;
+    AveragePacket.fvel += loc.fvel;
     AveragePacket.svel += loc.svel;
-    AveragePacket.q16angvel += loc.q16angvel;
+    AveragePacket.q16avel += loc.q16avel;
     AveragePacket.q16aimvel += loc.q16aimvel;
     AveragePacket.q16ang = Player[myconnectindex].camq16ang;
-    AveragePacket.q16horiz = Player[myconnectindex].camq16horiz;
+    AveragePacket.q16horz = Player[myconnectindex].camq16horiz;
     SET(AveragePacket.bits, loc.bits);
 
     Bmemset(&loc, 0, sizeof(loc));
@@ -220,12 +220,12 @@ UpdateInputs(void)
         return;
     }
 
-    loc.vel = AveragePacket.vel / MovesPerPacket;
+    loc.fvel = AveragePacket.fvel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.q16angvel = fix16_div(AveragePacket.q16angvel, fix16_from_int(MovesPerPacket));
+    loc.q16avel = fix16_div(AveragePacket.q16avel, fix16_from_int(MovesPerPacket));
     loc.q16aimvel = fix16_div(AveragePacket.q16aimvel, fix16_from_int(MovesPerPacket));
     loc.q16ang = AveragePacket.q16ang;
-    loc.q16horiz = AveragePacket.q16horiz;
+    loc.q16horz = AveragePacket.q16horz;
     loc.bits = AveragePacket.bits;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));

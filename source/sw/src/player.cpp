@@ -1663,7 +1663,7 @@ DoPlayerTurnBoat(PLAYERp pp)
     if (sop->drive_angspeed)
     {
         int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
@@ -1672,7 +1672,7 @@ DoPlayerTurnBoat(PLAYERp pp)
     }
     else
     {
-        angvel = fix16_to_int(pp->input.q16angvel) * PLAYER_TURN_SCALE;
+        angvel = fix16_to_int(pp->input.q16avel) * PLAYER_TURN_SCALE;
         angvel += angvel - DIV4(angvel);
         angvel = DIV32(angvel * synctics);
     }
@@ -1695,7 +1695,7 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
         int angslide;
 
         int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
@@ -1704,7 +1704,7 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
     }
     else
     {
-        angvel = DIV8(fix16_to_int(pp->input.q16angvel) * synctics);
+        angvel = DIV8(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
@@ -1728,7 +1728,7 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         int angslide;
 
         int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
@@ -1737,7 +1737,7 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     }
     else
     {
-        angvel = DIV8(fix16_to_int(pp->input.q16angvel) * synctics);
+        angvel = DIV8(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
@@ -1766,9 +1766,9 @@ DoPlayerTurnTurret(PLAYERp pp)
         fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
         last_input = pp->inputfifo[fifo_ndx];
 
-        if (pp->input.q16angvel && !last_input.q16angvel)
+        if (pp->input.q16avel && !last_input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16angvel && last_input.q16angvel)
+        else if (!pp->input.q16avel && last_input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -1777,7 +1777,7 @@ DoPlayerTurnTurret(PLAYERp pp)
         int angslide;
 
         int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16angvel), sop->drive_angspeed);
+        pp->drive_angvel = mulscale16(fix16_to_int(pp->input.q16avel), sop->drive_angspeed);
 
         angslide = sop->drive_angslide;
         pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
@@ -1786,7 +1786,7 @@ DoPlayerTurnTurret(PLAYERp pp)
     }
     else
     {
-        angvel = DIV4(fix16_to_int(pp->input.q16angvel) * synctics);
+        angvel = DIV4(fix16_to_int(pp->input.q16avel) * synctics);
     }
 
     if (angvel != 0)
@@ -1922,7 +1922,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
     if (!PedanticMode && (pq16horiz == &pp->q16horiz))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
-        pp->q16horiz = pp->input.q16horiz;
+        pp->q16horiz = pp->input.q16horz;
         if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
             pp->oq16horiz = pp->q16horiz;
         return;
@@ -2596,7 +2596,7 @@ DoPlayerMove(PLAYERp pp)
 
     SlipSlope(pp);
 
-    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16angvel);
+    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -2613,7 +2613,7 @@ DoPlayerMove(PLAYERp pp)
     pp->oxvect = pp->xvect;
     pp->oyvect = pp->yvect;
 
-    pp->xvect += ((pp->input.vel*synctics*2)<<6);
+    pp->xvect += ((pp->input.fvel*synctics*2)<<6);
     pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
     friction = pp->friction;
@@ -2871,9 +2871,9 @@ DoPlayerMoveBoat(PLAYERp pp)
         fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
         last_input = pp->inputfifo[fifo_ndx];
 
-        if (labs(pp->input.vel|pp->input.svel) && !labs(last_input.vel|last_input.svel))
+        if (labs(pp->input.fvel|pp->input.svel) && !labs(last_input.fvel|last_input.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!labs(pp->input.vel|pp->input.svel) && labs(last_input.vel|last_input.svel))
+        else if (!labs(pp->input.fvel|pp->input.svel) && labs(last_input.fvel|last_input.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -2889,7 +2889,7 @@ DoPlayerMoveBoat(PLAYERp pp)
 
     if (sop->drive_speed)
     {
-        pp->xvect = mulscale6(pp->input.vel, sop->drive_speed);
+        pp->xvect = mulscale6(pp->input.fvel, sop->drive_speed);
         pp->yvect = mulscale6(pp->input.svel, sop->drive_speed);
 
         // does sliding/momentum
@@ -2898,7 +2898,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     }
     else
     {
-        pp->xvect += ((pp->input.vel*synctics*2)<<6);
+        pp->xvect += ((pp->input.fvel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
         pp->xvect  = mulscale16(pp->xvect, BOAT_FRICTION);
@@ -3063,7 +3063,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
         return;
 
     // not moving - don't crush
-    if ((pp->xvect|pp->yvect) == 0 && pp->input.q16angvel == 0)
+    if ((pp->xvect|pp->yvect) == 0 && pp->input.q16avel == 0)
         return;
 
     // main sector
@@ -3235,9 +3235,9 @@ DoPlayerMoveTank(PLAYERp pp)
         fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
         last_input = pp->inputfifo[fifo_ndx];
 
-        if (labs(pp->input.vel|pp->input.svel) && !labs(last_input.vel|last_input.svel))
+        if (labs(pp->input.fvel|pp->input.svel) && !labs(last_input.fvel|last_input.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!labs(pp->input.vel|pp->input.svel) && labs(last_input.vel|last_input.svel))
+        else if (!labs(pp->input.fvel|pp->input.svel) && labs(last_input.fvel|last_input.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -3251,7 +3251,7 @@ DoPlayerMoveTank(PLAYERp pp)
 
     if (sop->drive_speed)
     {
-        pp->xvect = mulscale6(pp->input.vel, sop->drive_speed);
+        pp->xvect = mulscale6(pp->input.fvel, sop->drive_speed);
         pp->yvect = mulscale6(pp->input.svel, sop->drive_speed);
 
         // does sliding/momentum
@@ -3260,7 +3260,7 @@ DoPlayerMoveTank(PLAYERp pp)
     }
     else
     {
-        pp->xvect += ((pp->input.vel*synctics*2)<<6);
+        pp->xvect += ((pp->input.fvel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
         pp->xvect  = mulscale16(pp->xvect, TANK_FRICTION);
@@ -3841,7 +3841,7 @@ DoPlayerClimb(PLAYERp pp)
     if (Prediction)
         return;
 
-    pp->xvect += ((pp->input.vel*synctics*2)<<6);
+    pp->xvect += ((pp->input.fvel*synctics*2)<<6);
     pp->yvect += ((pp->input.svel*synctics*2)<<6);
     pp->xvect  = mulscale16(pp->xvect, PLAYER_CLIMB_FRICTION);
     pp->yvect  = mulscale16(pp->yvect, PLAYER_CLIMB_FRICTION);
@@ -5771,7 +5771,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     switch (sop->track)
     {
     case SO_TANK:
-        if (pp->input.vel|pp->input.svel)
+        if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5780,7 +5780,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16angvel)
+        if (pp->input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5788,7 +5788,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         DoPlayerBeginOperateTurret(pp);
         break;
     case SO_SPEED_BOAT:
-        if (pp->input.vel|pp->input.svel)
+        if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5859,7 +5859,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     switch (sop->track)
     {
     case SO_TANK:
-        if (pp->input.vel|pp->input.svel)
+        if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5868,7 +5868,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
-        if (pp->input.q16angvel)
+        if (pp->input.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -5876,7 +5876,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         DoPlayerBeginOperateTurret(pp);
         break;
     case SO_SPEED_BOAT:
-        if (pp->input.vel|pp->input.svel)
+        if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
@@ -6609,9 +6609,9 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     if (TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
         SET(pp->Flags2, PF2_INPUT_CAN_TURN);
 
-    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16angvel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
+    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
     {
-        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16angvel);
+        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
         return;
     }
 
@@ -7426,7 +7426,7 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.vel|pp->input.svel|pp->input.q16angvel|pp->input.q16aimvel) ||
+        if ((pp->input.bits|pp->input.fvel|pp->input.svel|pp->input.q16avel|pp->input.q16aimvel) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
         {
             // Hit a input key or other reason to stop chops

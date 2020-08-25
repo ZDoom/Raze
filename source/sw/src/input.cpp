@@ -296,12 +296,12 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
 
-    loc->vel += vel;
+    loc->fvel += vel;
     loc->svel += svel;
 
     if (!tied)
     {
-        vel = clamp(loc->vel, -MAXVEL, MAXVEL);
+        vel = clamp(loc->fvel, -MAXVEL, MAXVEL);
         svel = clamp(loc->svel, -MAXSVEL, MAXSVEL);
 
         momx = mulscale9(vel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 512)]);
@@ -310,11 +310,11 @@ getinput(SW_PACKET *loc, SWBOOL tied)
         momx += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang))]);
         momy += mulscale9(svel, sintable[NORM_ANGLE(fix16_to_int(newpp->q16ang) + 1536)]);
 
-        loc->vel = momx;
+        loc->fvel = momx;
         loc->svel = momy;
     }
 
-    loc->q16angvel += q16angvel;
+    loc->q16avel += q16angvel;
     loc->q16aimvel += q16aimvel;
 
     if (!CommEnabled)
