@@ -308,6 +308,8 @@ static void checkTimerActive()
 //
 //---------------------------------------------------------------------------
 
+static int lastTic;
+
 bool GameTicker()
 {
 	if (ps[myconnectindex].gm == MODE_DEMO)
@@ -327,9 +329,11 @@ bool GameTicker()
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
 
-	while (playrunning() && (int)(totalclock - ototalclock) >= TICSPERFRAME)
+	int currentTic = I_GetTime();
+
+	if (playrunning() && currentTic - lastTic >= 1)
 	{
-		ototalclock += TICSPERFRAME;
+		lastTic = currentTic;
 
 		GetInput();
 		auto const pPlayer = &ps[myconnectindex];
@@ -356,7 +360,7 @@ bool GameTicker()
 	{
 		ototalclock = totalclock - 1;
 	}
-	double const smoothRatio = calc_smoothratio(totalclock, ototalclock);
+	double const smoothRatio = I_GetTimeFrac() * 65536.;
 
 	gameupdatetime.Unclock();
 
