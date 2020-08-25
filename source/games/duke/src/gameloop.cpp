@@ -319,9 +319,6 @@ bool GameTicker()
 	//Net_GetPackets();
 
 	nonsharedkeys();
-
-	C_RunDelayedCommands();
-
 	checkTimerActive();
 
 	gameupdatetime.Reset();

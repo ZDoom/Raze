@@ -898,6 +898,7 @@ void TickSubsystems()
 		nexttick += tickInterval;
 		C_Ticker();
 		M_Ticker();
+		C_RunDelayedCommands();
 		cnt++;
 	}
 	// If this took too long the engine was most likely suspended so recalibrate the timer.
