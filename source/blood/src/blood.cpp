@@ -891,7 +891,12 @@ static void commonTicker()
         gRestartGame = 0;
 
         // Don't switch to startup if we're already outside the game.
-        if (gamestate == GS_LEVEL) gamestate = GS_STARTUP;
+        if (gamestate == GS_LEVEL)
+        {
+            gamestate = GS_MENUSCREEN;
+            M_StartControlPanel(false);
+            M_SetMenu(NAME_Mainmenu);
+        }
     }
 }
 
