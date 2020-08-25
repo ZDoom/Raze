@@ -847,7 +847,7 @@ loc_flag:
                     int var_50 = (fix16_to_int(sPlayerInput[nPlayer].horizon) - 92) << 2;
                     nHeight -= var_50;
 
-                    if (sPlayerInput[nPlayer].nTarget >= 0)
+                    if (sPlayerInput[nPlayer].nTarget >= 0 && cl_autoaim)
                     {
                                                 assert(sprite[sPlayerInput[nPlayer].nTarget].sectnum < kMaxSectors);
                         var_50 = sPlayerInput[nPlayer].nTarget + 10000;
