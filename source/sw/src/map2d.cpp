@@ -139,7 +139,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                 if (Player[p].PlayerSprite == j)
                 {
                     if (sprite[Player[p].PlayerSprite].xvel > 16)
-                        pspr_ndx[myconnectindex] = (((int32_t) totalclock>>4)&3);
+                        pspr_ndx[myconnectindex] = ((gameclock >> 4)&3);
                     sprisplayer = TRUE;
 
                     goto SHOWSPRITE;

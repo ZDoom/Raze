@@ -2198,7 +2198,9 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 //
 ///////////////////////////
 
-extern int ototalclock, save_totalclock, gotlastpacketclock;
+extern int gotlastpacketclock;
+extern int gameclock;
+extern int lastTic;
 extern SWBOOL ready2send;
 extern double smoothratio;
 
@@ -2259,7 +2261,7 @@ void DebugWriteString(char *string);    // game.c
 void getsyncstat(void); // sync.c
 void SyncStatMessage(void); // sync.c
 
-void drawscreen(PLAYERp pp);    // draw.c
+void drawscreen(PLAYERp pp, double smoothratio);    // draw.c
 void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c

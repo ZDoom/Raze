@@ -304,7 +304,7 @@ static void RestartAmbient(AmbientSound* amb)
     int pitch = 0;
     if (vp.pitch_hi <= vp.pitch_lo) pitch = vp.pitch_lo;
     else pitch = vp.pitch_lo + (STD_RANDOM_RANGE(vp.pitch_hi - vp.pitch_lo));
-    amb->curIndex = (int)totalclock;
+    amb->curIndex = gameclock;
 
     if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY, amb->vocIndex))
         soundEngine->StartSound(SOURCE_Ambient, amb, nullptr, CHAN_BODY, EChanFlags::FromInt(amb->ChanFlags), amb->vocIndex, 1.f, ATTN_NORM, &rolloff, S_ConvertPitch(pitch));
@@ -343,7 +343,7 @@ static int RandomizeAmbientSpecials(int handle)
 
 static void DoTimedSound(AmbientSound* amb)
 {
-    if ((int)totalclock >=  amb->curIndex + amb->maxIndex)
+    if (gameclock >= amb->curIndex + amb->maxIndex)
     {
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, amb, CHAN_BODY))
         {
@@ -604,7 +604,7 @@ void DoUpdateSounds(void)
     soundEngine->SetListener(listener);
 
     UpdateAmbients();
-    soundEngine->UpdateSounds((int)totalclock);
+    soundEngine->UpdateSounds(gameclock);
 }
 
 //==========================================================================

@@ -939,7 +939,7 @@ post_analyzesprites(void)
 }
 #endif
 
-static ClockTicks mapzoomclock;
+static int mapzoomclock;
 
 void
 ResizeView(PLAYERp pp)
@@ -949,7 +949,7 @@ ResizeView(PLAYERp pp)
 
     if (automapMode != am_off)
     {
-        int32_t timepassed = (int32_t)(totalclock - mapzoomclock);
+        int32_t timepassed = gameclock - mapzoomclock;
         mapzoomclock += timepassed;
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
             zoom = max<int32_t>(zoom - mulscale7(timepassed * synctics, zoom), 48);
@@ -1199,7 +1199,7 @@ FString GameInterface::statFPS()
     //if (LocationInfo)
     {
 
-        i = (int32_t)totalclock;
+        i = gameclock;
         if (i != frameval[framecnt])
         {
             out.AppendFormat("FPS: %d\n", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
@@ -1656,7 +1656,7 @@ void DoPlayerDiveMeter(PLAYERp pp);
 void MoveScrollMode2D(PLAYERp pp);
 
 void
-drawscreen(PLAYERp pp)
+drawscreen(PLAYERp pp, double smoothratio)
 {
     extern SWBOOL CameraTestMode;
     int tx, ty, tz;
@@ -1677,10 +1677,6 @@ drawscreen(PLAYERp pp)
 
     DrawScreen = TRUE;
     PreDraw();
-
-    smoothratio = CalcSmoothRatio(totalclock, ototalclock, 120 / synctics);
-    if (paused && !ReloadPrompt) // The checks were brought over from domovethings
-        smoothratio = 65536;
 
     PreUpdatePanel(smoothratio);
 
@@ -1921,7 +1917,7 @@ drawscreen(PLAYERp pp)
     SyncStatMessage();
 #endif
 
-    UpdateStatusBar(totalclock);
+    UpdateStatusBar(gameclock);
     DrawCrosshair(pp);
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 
@@ -1960,7 +1956,7 @@ drawscreen(PLAYERp pp)
 bool GameInterface::GenerateSavePic()
 {
     ScreenSavePic = TRUE;
-    drawscreen(Player + myconnectindex);
+    drawscreen(Player + myconnectindex, 65536);
     ScreenSavePic = FALSE;
     return true;
 }

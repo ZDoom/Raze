@@ -770,11 +770,11 @@ private:
         imgScale = baseScale / img->GetDisplayHeight();
         DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-        if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || ((int)totalclock & 32))
+        if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || (gameclock & 32))
         {
             int s = -8;
             if (althud_flashing && u->Health > u->MaxHealth)
-                s += (sintable[((int)totalclock << 5) & 2047] >> 10);
+                s += (sintable[(gameclock << 5) & 2047] >> 10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
@@ -812,7 +812,7 @@ private:
                 imgX += (imgX * 0.855) * (strlen - 1);
             }
 
-            if ((!althud_flashing || (int)totalclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+            if ((!althud_flashing || gameclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
             {
                 SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }

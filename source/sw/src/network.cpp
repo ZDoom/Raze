@@ -95,9 +95,8 @@ uint8_t syncstat[MAXSYNCBYTES];
 int syncvaltail, syncvaltottail;
 void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex);
 
-// when you set totalclock to 0 also set this one
-int ototalclock;
-int save_totalclock;
+int gameclock;
+int lastTic;
 double smoothratio;
 
 // must start out as 0
@@ -166,8 +165,9 @@ InitTimingVars(void)
 
     // resettiming();
     totalsynctics = 0;
-    totalclock = 0;
-    ototalclock = 0;
+    I_ResetTime();
+    lastTic = -1;
+    gameclock = 0;
     randomseed = 17L;
 
     MoveSkip8 = 2;
@@ -190,8 +190,6 @@ UpdateInputs(void)
 {
     int i, j, k;
     PLAYERp pp;
-
-    ototalclock += synctics;
 
     //getpackets();
 

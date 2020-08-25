@@ -562,7 +562,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 #endif
 #endif
 
-    MWRITE(&totalclock,sizeof(totalclock),1,fil);
+    MWRITE(&gameclock,sizeof(gameclock),1,fil);
     
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
@@ -936,7 +936,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 #endif
 #endif
 
-    MREAD(&totalclock,sizeof(totalclock),1,fil);
+    MREAD(&gameclock,sizeof(gameclock),1,fil);
 
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
 
@@ -1054,10 +1054,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
     SetupPreCache();
     DoTheCache();
-
-    // what is this for? don't remember
-    totalclock = totalsynctics;
-    ototalclock = totalsynctics;
 
     // this is ok - just duplicating sector list with pointers
     for (sop = SectorObject; sop < &SectorObject[SIZ(SectorObject)]; sop++)

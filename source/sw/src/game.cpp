@@ -316,7 +316,7 @@ void DrawMenuLevelScreen(void)
 {
     const int TITLE_PIC = 2324;
     twod->ClearScreen();
-	totalclocklock = totalclock;
+	totalclocklock = gameclock;
     DrawTexture(twod, tileGetTexture(TITLE_PIC), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal,
         DTA_Color, shadeToLight(20), TAG_DONE);
 
@@ -713,7 +713,7 @@ void EndOfLevel()
         COVER_SetReverb(0); // Reset reverb
         Player[myconnectindex].Reverb = 0;
         StopSound();
-        soundEngine->UpdateSounds((int)totalclock);
+        soundEngine->UpdateSounds(gameclock);
         // NextLevel must be null while the intermission is running, but we still need the value for later
         auto localNextLevel = NextLevel;
         NextLevel = nullptr;
@@ -773,26 +773,31 @@ void GameTicker(void)
 
         ready2send = 1;
 
+        int const currentTic = I_GetTime();
+        gameclock = I_GetBuildTime();
 
         if (paused)
         {
-            ototalclock = (int)totalclock - (120 / synctics);
             buttonMap.ResetButtonStates();
+            smoothratio = MaxSmoothRatio;
         }
         else
         {
-            while (ready2send && (totalclock >= ototalclock + synctics))
+            while (ready2send && currentTic - lastTic >= 1)
             {
+                lastTic = currentTic;
                 UpdateInputs();
                 MoveTicker();
             }
+
+            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
 
             // Get input again to update q16ang/q16horiz.
             if (!PedanticMode)
                 getinput(&loc, TRUE);
         }
 
-        drawscreen(Player + screenpeek);
+        drawscreen(Player + screenpeek, smoothratio);
         ready2send = 0;
     }
     if (ExitLevel)
@@ -818,8 +823,9 @@ void GameInterface::RunGameFrame()
         {
         default:
         case GS_STARTUP:
-            totalclock = 0;
-            ototalclock = 0;
+            I_ResetTime();
+            lastTic = -1;
+            gameclock = 0;
 
             if (userConfig.CommandMap.IsNotEmpty())
             {
