@@ -83,8 +83,8 @@ static int FinishLevel(TArray<JobDesc> &jobs)
         {
             // There's really no choice but to enter an active wait loop here to make the sound play out.
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
-            int nTicks = gameclock + 12;
-            while (nTicks > gameclock) 
+            int nTicks = I_msTime() + 100;
+            while (nTicks > I_msTime()) 
             { 
                 I_GetEvent();
                 soundEngine->UpdateSounds(I_GetTime());
