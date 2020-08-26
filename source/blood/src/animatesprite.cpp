@@ -143,7 +143,7 @@ static tspritetype *viewAddEffect(int nTSprite, VIEW_EFFECT nViewEffect)
         for (int i = 0; i < 16; i++)
         {
             auto pNSprite = viewInsertTSprite(pTSprite->sectnum, 32767, pTSprite);
-            int ang = ((int)gFrameClock*2048)/120;
+            int ang = (gFrameClock*2048)/120;
             int nRand1 = dword_172CE0[i][0];
             int nRand2 = dword_172CE0[i][1];
             int nRand3 = dword_172CE0[i][2];

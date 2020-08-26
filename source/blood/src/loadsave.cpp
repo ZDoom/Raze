@@ -504,7 +504,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     memset(myMinLag, 0, sizeof(myMinLag));
     otherMinLag = 0;
     myMaxLag = 0;
-    gNetFifoClock = 0;
     gNetFifoTail = 0;
     memset(gNetFifoHead, 0, sizeof(gNetFifoHead));
     gPredictTail = 0;
@@ -522,9 +521,7 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
         netWaitForEveryone(0);
         memset(gPlayerReady, 0, sizeof(gPlayerReady));
     }
-    gFrameTicks = 0;
-    gFrame = 0;
-    gFrameRate = 0;
+    gFrameCount = 0;
     gameclock = 0;
     lastTic = -1;
     paused = 0;
@@ -617,8 +614,7 @@ void MyLoadSave::Load(void)
     Read(gotpic, sizeof(gotpic));
     Read(gotsector, sizeof(gotsector));
     Read(&gFrameClock, sizeof(gFrameClock));
-    Read(&gFrameTicks, sizeof(gFrameTicks));
-    Read(&gFrame, sizeof(gFrame));
+    Read(&gFrameCount, sizeof(gFrameCount));
     Read(&gameclock, sizeof(gameclock));
     Read(&gLevelTime, sizeof(gLevelTime));
     Read(&paused, sizeof(paused));
@@ -708,8 +704,7 @@ void MyLoadSave::Save(void)
     Write(gotpic, sizeof(gotpic));
     Write(gotsector, sizeof(gotsector));
     Write(&gFrameClock, sizeof(gFrameClock));
-    Write(&gFrameTicks, sizeof(gFrameTicks));
-    Write(&gFrame, sizeof(gFrame));
+    Write(&gFrameCount, sizeof(gFrameCount));
     int nGameClock = gameclock;
     Write(&nGameClock, sizeof(nGameClock));
     Write(&gLevelTime, sizeof(gLevelTime));

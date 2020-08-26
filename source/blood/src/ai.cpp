@@ -75,12 +75,12 @@ void aiPlay3DSound(spritetype *pSprite, int a2, AI_SFX_PRIORITY a3, int a4)
     DUDEEXTRA *pDudeExtra = &gDudeExtra[pSprite->extra];
     if (a3 == AI_SFX_PRIORITY_0)
         sfxPlay3DSound(pSprite, a2, a4, 2);
-    else if (a3 > pDudeExtra->at5 || pDudeExtra->at0 <= (int)gFrameClock)
+    else if (a3 > pDudeExtra->at5 || pDudeExtra->at0 <= gFrameClock)
     {
         sfxKill3DSound(pSprite, -1, -1);
         sfxPlay3DSound(pSprite, a2, a4, 0);
         pDudeExtra->at5 = a3;
-        pDudeExtra->at0 = (int)gFrameClock+120;
+        pDudeExtra->at0 = gFrameClock+120;
     }
 }
 
@@ -935,7 +935,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[40].startHealth, dudeInfo[40].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
@@ -946,7 +946,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 pSprite->type = kDudeBurningInnocent;
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
@@ -955,7 +955,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
             if (Chance(0x4000) && gDudeExtra[pSprite->extra].at0 < gFrameClock)
             {
                 aiPlay3DSound(pSprite, 1031+Random(2), AI_SFX_PRIORITY_2, -1);
-                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
             }
             if (Chance(0x600) && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo))
             {
@@ -989,16 +989,16 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
                 pSprite->type = kDudeBurningInnocent;
                 aiNewState(pSprite, pXSprite, &cultistBurnGoto);
                 aiPlay3DSound(pSprite, 361, AI_SFX_PRIORITY_0, -1);
-                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock+360;
+                gDudeExtra[pSprite->extra].at0 = gFrameClock+360;
                 actHealDude(pXSprite, dudeInfo[39].startHealth, dudeInfo[39].startHealth);
                 evKill(nSprite, 3, kCallbackFXFlameLick);
             }
             break;
 #ifdef NOONE_EXTENSIONS
         case kDudeModernCustomBurning:
-            if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < (int)gFrameClock) {
+            if (Chance(0x2000) && gDudeExtra[pSprite->extra].at0 < gFrameClock) {
                 playGenDudeSound(pSprite, kGenDudeSndBurning);
-                gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
+                gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
             }
             if (pXSprite->burnTime == 0) pXSprite->burnTime = 2400;
             if (spriteIsUnderwater(pSprite, false)) {
@@ -1038,7 +1038,7 @@ int aiDamageSprite(spritetype *pSprite, XSPRITE *pXSprite, int nSource, DAMAGE_T
 
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-                        gDudeExtra[pSprite->extra].at0 = (int)gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
                         evKill(nSprite, 3, kCallbackFXFlameLick);
 
                     }
@@ -1453,7 +1453,7 @@ void aiProcessDudes(void) {
         if (pXSprite->aiState->moveFunc)
             pXSprite->aiState->moveFunc(pSprite, pXSprite);
 
-        if (pXSprite->aiState->thinkFunc && (gFrame & 3) == (nSprite & 3))
+        if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (nSprite & 3))
             pXSprite->aiState->thinkFunc(pSprite, pXSprite);
 
         switch (pSprite->type) {

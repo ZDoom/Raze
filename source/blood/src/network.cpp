@@ -40,7 +40,6 @@ BEGIN_BLD_NS
 
 MapRecord *gStartNewGame = 0;
 PACKETMODE gPacketMode = PACKETMODE_1;
-int gNetFifoClock = 0;
 int gNetFifoTail = 0;
 int gNetFifoHead[8];
 int gPredictTail = 0;
@@ -78,7 +77,7 @@ void netResetToSinglePlayer(void)
 
 void netReset(void)
 {
-    gNetFifoClock = gFrameClock = gameclock = 0;
+    gFrameClock = gameclock = 0;
     lastTic = -1;
     gNetFifoMasterTail = 0;
     gPredictTail = 0;

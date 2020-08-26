@@ -885,7 +885,7 @@ void nnExtProcessSuperSprites() {
 
             actAirDrag(pDebris, airVel);
 
-            if (((pDebris->index >> 8) & 15) == (gFrame & 15) && (pXDebris->physAttr & kPhysGravity))
+            if (((pDebris->index >> 8) & 15) == (gFrameCount & 15) && (pXDebris->physAttr & kPhysGravity))
                 pXDebris->physAttr |= kPhysFalling;
 
             if ((pXDebris->physAttr & 4) == 0 && xvel[pDebris->index] == 0 && yvel[pDebris->index] == 0 &&
@@ -4588,7 +4588,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
             return;
         }
         // lets try to look for target that fits better by distance
-        else if (((int)gFrameClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
+        else if ((gFrameClock & 256) != 0 && (pXSprite->target < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
             pTarget = aiFightGetTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
             if (pTarget != NULL) {
                 pXTarget = &xsprite[pTarget->extra];
@@ -4618,7 +4618,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
     
-    if ((pXSprite->target < 0 || pPlayer != NULL) && ((int)gFrameClock & 32) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && (gFrameClock & 32) != 0) {
         // try find first target that dude can see
         for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
             
@@ -4664,7 +4664,7 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     }
 
     // got no target - let's ask mates if they have targets
-    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && ((int)gFrameClock & 64) != 0) {
+    if ((pXSprite->target < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (gFrameClock & 64) != 0) {
         spritetype* pMateTarget = NULL;
         if ((pMateTarget = aiFightGetMateTargets(pXSprite)) != NULL && pMateTarget->extra > 0) {
             XSPRITE* pXMateTarget = &xsprite[pMateTarget->extra];

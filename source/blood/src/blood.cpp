@@ -504,7 +504,7 @@ void StartLevel(MapRecord *level)
         sfxSetReverb(0);
     ambInit();
     netReset();
-    gFrame = 0;
+    gFrameCount = 0;
     gChokeCounter = 0;
 	M_ClearMenus();
     // viewSetMessage("");
@@ -580,7 +580,7 @@ void ProcessFrame(void)
         playerProcess(&gPlayer[i]);
     }
     trProcessBusy();
-    evProcess((int)gFrameClock);
+    evProcess(gFrameClock);
     seqProcess(4);
     DoSectorPanning();
     actProcessSprites();
@@ -605,7 +605,7 @@ void ProcessFrame(void)
         }
     }
     gLevelTime++;
-    gFrame++;
+    gFrameCount++;
     gFrameClock += 4;
     if ((gGameOptions.uGameFlags&1) != 0 && !gStartNewGame)
     {
@@ -800,7 +800,6 @@ static void gameTicker()
         gInput = {};
         netGetInput();
         lastTic = currentTic;
-        gNetFifoClock = gameclock;
         while (gNetFifoHead[myconnectindex] - gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
         {
             int i;
@@ -853,7 +852,7 @@ static void commonTicker()
         auto completion = [=](bool = false)
         {
             StartLevel(sng);
-            gNetFifoClock = gFrameClock = gameclock;
+            gFrameClock = gameclock;
             gamestate = GS_LEVEL;
         };
 

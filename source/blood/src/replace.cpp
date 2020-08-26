@@ -38,7 +38,7 @@ int qanimateoffs(int a1, int a2)
         int frames = picanm[a1].num;
         if (frames > 0)
         {
-            int const frameClock = (int)gFrameClock;
+            int const frameClock = gFrameClock;
             int vd;
             if ((a2&0xc000) == 0x8000)
                 vd = (Bcrc32(&a2, 2, 0)+frameClock)>>(picanm[a1].sf&PICANM_ANIMSPEED_MASK);

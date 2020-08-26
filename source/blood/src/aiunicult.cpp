@@ -497,7 +497,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
     // is the target visible?
     if (dist < pDudeInfo->seeDist && klabs(losAngle) <= pDudeInfo->periphery) {
 
-        if (((int)gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
+        if ((gFrameClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(pSprite, false))
             playGenDudeSound(pSprite, kGenDudeSndChasing);
 
         gDudeSlope[pSprite->extra] = divscale(pTarget->z - pSprite->z, dist, 10);

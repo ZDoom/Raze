@@ -1781,12 +1781,12 @@ char sub_4F0E0(PLAYER *pPlayer)
         {
             pPlayer->weaponState = 7;
             pPlayer->fuseTime = 0;
-            pPlayer->throwTime = (int)gFrameClock;
+            pPlayer->throwTime = gFrameClock;
         }
         return 1;
     case 7:
     {
-        pPlayer->throwPower = ClipHigh(divscale16((int)gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         if (!pPlayer->input.buttonFlags.shoot)
         {
             if (!pPlayer->fuseTime)
@@ -1819,12 +1819,12 @@ char sub_4F200(PLAYER *pPlayer)
         {
             pPlayer->weaponState = 6;
             pPlayer->fuseTime = 0;
-            pPlayer->throwTime = (int)gFrameClock;
+            pPlayer->throwTime = gFrameClock;
         }
         return 1;
     case 6:
     {
-        pPlayer->throwPower = ClipHigh(divscale16((int)gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         if (!pPlayer->input.buttonFlags.shoot)
         {
             if (!pPlayer->fuseTime)
@@ -1843,7 +1843,7 @@ char sub_4F320(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 9:
-        pPlayer->throwPower = ClipHigh(divscale16((int)gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         pPlayer->weaponTimer = 0;
         if (!pPlayer->input.buttonFlags.shoot)
         {
@@ -1860,7 +1860,7 @@ char sub_4F3A0(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 13:
-        pPlayer->throwPower = ClipHigh(divscale16((int)gFrameClock-pPlayer->throwTime,240), 65536);
+        pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         if (!pPlayer->input.buttonFlags.shoot)
         {
             pPlayer->weaponState = 11;
@@ -2197,7 +2197,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 3:
                 pPlayer->weaponState = 6;
                 pPlayer->fuseTime = -1;
-                pPlayer->throwTime = (int)gFrameClock;
+                pPlayer->throwTime = gFrameClock;
                 StartQAV(pPlayer, 21, nClientExplodeBundle, 0);
                 return;
             }
@@ -2208,7 +2208,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 7:
                 pPlayer->weaponQav = 27;
                 pPlayer->weaponState = 9;
-                pPlayer->throwTime = (int)gFrameClock;
+                pPlayer->throwTime = gFrameClock;
                 return;
             }
             break;
@@ -2218,7 +2218,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             case 10:
                 pPlayer->weaponQav = 36;
                 pPlayer->weaponState = 13;
-                pPlayer->throwTime = (int)gFrameClock;
+                pPlayer->throwTime = gFrameClock;
                 return;
             case 11:
                 pPlayer->weaponState = 12;

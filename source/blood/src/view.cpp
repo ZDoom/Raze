@@ -572,7 +572,7 @@ void viewUpdateDelirium(void)
 	if ((powerCount = powerupCheck(gView, kPwUpDeliriumShroom)) != 0)
 	{
 		int tilt1 = 170, tilt2 = 170, pitch = 20;
-        int timer = (int)gFrameClock*4;
+        int timer = gFrameClock*4;
 		if (powerCount < 512)
 		{
 			int powerScale = (powerCount<<16) / 512;
@@ -1057,7 +1057,6 @@ void viewDrawScreen(bool sceneonly)
         DrawStatSprite(2048, xdim-15, 20);
     }
 #endif
-    CalcFrameRate();
 
     viewDrawMapTitle();
     viewDrawAimedPlayerName();

@@ -31,10 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 extern int gFrameClock;
-extern int gFrameTicks;
-extern int gFrame;
+extern int gFrameCount;
 //extern int gGameClock;
-extern int gFrameRate;
 extern bool bVanilla;
 
 #define MAXPLAYERNAME 16

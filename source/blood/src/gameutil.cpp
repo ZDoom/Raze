@@ -143,18 +143,6 @@ bool FindSector(int nX, int nY, int *nSector)
     return 0;
 }
 
-void CalcFrameRate(void)
-{
-    static int ticks[64];
-    static int index;
-    if (ticks[index] != gFrameClock)
-    {
-        gFrameRate = (120*64)/((int)gFrameClock-ticks[index]);
-        ticks[index] = (int)gFrameClock;
-    }
-    index = (index+1) & 63;
-}
-
 bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
 {
     dassert(pSprite != NULL);
