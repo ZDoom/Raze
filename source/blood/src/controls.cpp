@@ -151,7 +151,7 @@ void ctrlGetInput(void)
 
     gInput.syncFlags.value |= BitsToSend.value;
     if (WeaponToSend != 0) 
-        gInput.syncFlags.newWeapon = WeaponToSend;
+        gInput.SetNewWeapon(WeaponToSend);
 
     BitsToSend.value = 0;
     WeaponToSend = 0;

@@ -527,8 +527,8 @@ void ProcessFrame(void)
     {
         gPlayer[i].input.syncFlags.value &= ~flag_buttonmask;
         gPlayer[i].input.syncFlags.value |= gFifoInput[gNetFifoTail & 255][i].syncFlags.value;
-        if (gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon)
-            gPlayer[i].newWeapon = gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon;
+        int newweap = gFifoInput[gNetFifoTail & 255][i].getNewWeapon();
+        if (newweap) gPlayer[i].newWeapon = newweap;
         gPlayer[i].input.fvel = gFifoInput[gNetFifoTail&255][i].fvel;
         gPlayer[i].input.q16avel = gFifoInput[gNetFifoTail&255][i].q16avel;
         gPlayer[i].input.svel = gFifoInput[gNetFifoTail&255][i].svel;

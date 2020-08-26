@@ -37,7 +37,6 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_RUN = 1 << 5,
 	SKB_LOOK_LEFT = 1 << 6,
 	SKB_LOOK_RIGHT = 1 << 7,
-	SKB_FIRST_WEAPON_BIT = 1 << 8,
 	SKB_STEROIDS = 1 << 12,
 	SKB_LOOK_UP = 1 << 13,
 	SKB_LOOK_DOWN = 1 << 14,
@@ -103,7 +102,6 @@ union SYNCFLAGS
         unsigned int useCrystalBall : 1;
         unsigned int useJumpBoots : 1;
         unsigned int useMedKit : 1;
-        unsigned int newWeapon : 4;
     };
 };
 
