@@ -80,7 +80,7 @@ CVARD(Bool, cl_sointerpolation, true, CVAR_ARCHIVE, "enable/disable sector objec
 CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE, "enable/disable synchronized input with game's ticrate") // only implemented in Duke
 CVARD(Bool, cl_swaltnukeinit, false, CVAR_ARCHIVE, "enable/disable SW alternative nuke initialisation") // only implemented in SW
 CVARD(Bool, cl_dukefixrpgrecoil, false, CVAR_ARCHIVE, "soften recoil of Duke 3D's RPG")
-CVARD(Bool, cl_smoothsway, true, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
+CVARD(Bool, cl_smoothsway, false, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
 {
 	if (self < 1) self = 1;
