@@ -77,17 +77,15 @@ void ClearSpaceBar(short nPlayer)
     buttonMap.ClearButton(gamefunc_Open);
 }
 
-void GetLocalInput()
+int GetLocalInput()
 {
-    int i = WeaponToSend;
-    if (WeaponToSend == PlayerList[nLocalPlayer].nCurrentWeapon)
-        WeaponToSend = 0;
-
+    int lLocalButtons;
     if (PlayerList[nLocalPlayer].nHealth)
     {
         lLocalButtons = (buttonMap.ButtonDown(gamefunc_Crouch) << 4) | (buttonMap.ButtonDown(gamefunc_Fire) << 3)
             | (buttonMap.ButtonDown(gamefunc_Jump) << 0);
-        lLocalCodes |= (i << 13);
+        lLocalButtons |= (WeaponToSend << 13);
+        WeaponToSend = 0;
     }
     else
     {
@@ -95,8 +93,7 @@ void GetLocalInput()
     }
 
     lLocalButtons |= buttonMap.ButtonDown(gamefunc_Open) << 2;
-
-// TODO	ExecRecord(&sPlayerInput[nLocalPlayer], sizeof(PlayerInput));
+    return lLocalButtons;
 }
 
 void BackupInput()

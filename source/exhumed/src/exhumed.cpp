@@ -138,7 +138,6 @@ short nEnergyTowers = 0;
 short nCfgNetPlayers = 0;
 FILE *vcrfp = NULL;
 
-int lLocalButtons = 0;
 int lLocalCodes = 0;
 
 short bCoordinates = false;
@@ -491,7 +490,7 @@ void GameTicker()
             if (!((int)ogameclock & 3) && moveframes < 4)
                 moveframes++;
 
-            GetLocalInput();
+            int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
             PlayerInterruptKeys();
 
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
@@ -504,6 +503,8 @@ void GameTicker()
 
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+            // make weapon selection persist until it gets used up.
+            if ((lLocalButtons & kButtonWeaponBits) == 0) lLocalButtons |= sPlayerInput[nLocalPlayer].buttons & kButtonWeaponBits;
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
             sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
             sPlayerInput[nLocalPlayer].nTarget = besttarget;

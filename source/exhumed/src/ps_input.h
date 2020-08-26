@@ -32,6 +32,9 @@ enum {
     kButtonCheatGodMode = 0x40,
     kButtonCheatKeys = 0x80,
     kButtonCheatItems = 0x100,
+
+    kButtonWeaponShift = 13,
+    kButtonWeaponBits = 7 << kButtonWeaponShift, // upper 3 bits.
 };
 
 // 32 bytes
@@ -39,16 +42,11 @@ struct PlayerInput // TODO consider adjusting this for demo compatibility
 {
     int xVel;
     int yVel;
-    // short nAngle;
     fix16_t nAngle;
     uint16_t buttons;
     short nTarget;
-    // uint8_t horizon;
     fix16_t horizon;
     int8_t nItem;
-    int h;
-    char i;
-    char field_15[11];
 };
 
 void InitInput();
@@ -57,7 +55,7 @@ void UpdateInputs();
 
 void ClearSpaceBar(short nPlayer);
 
-void GetLocalInput();
+int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
 extern PlayerInput localInput;
