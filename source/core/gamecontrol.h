@@ -205,8 +205,6 @@ enum
 	PAUSESFX_CONSOLE = 2
 };
 
-void updatePauseStatus();
-void updatePauseStatus(bool state, bool multiplayer);
 extern int paused;
 extern int chatmodeon;
 

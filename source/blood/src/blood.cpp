@@ -890,19 +890,15 @@ static void commonTicker()
 
 void GameInterface::RunGameFrame()
 {
-    if (gamestate == GS_STARTUP) gameInit();
-
     commonTicker();
     netGetPackets();
-    handleevents();
-    updatePauseStatus();
-    D_ProcessEvents();
     ctrlGetInput();
 
     switch (gamestate)
     {
     default:
     case GS_STARTUP:
+        gameInit();
         if (userConfig.CommandMap.IsNotEmpty())
         {
         }

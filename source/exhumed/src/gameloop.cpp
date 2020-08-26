@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_console.h"
 #include "cheathandler.h"
 #include "statistics.h"
+#include "g_input.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
@@ -83,7 +84,11 @@ static int FinishLevel(TArray<JobDesc> &jobs)
             // There's really no choice but to enter an active wait loop here to make the sound play out.
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
             int nTicks = gameclock + 12;
-            while (nTicks > gameclock) { HandleAsync(); }
+            while (nTicks > gameclock) 
+            { 
+                I_GetEvent();
+                soundEngine->UpdateSounds(I_GetTime());
+            }
         }
     }
     else nPlayerLives[0] = 0;
@@ -263,9 +268,6 @@ void GameInterface::RunGameFrame()
     again:
     try
     {
-        HandleAsync();
-        updatePauseStatus();
-        D_ProcessEvents();
         CheckProgression();
         switch (gamestate)
         {

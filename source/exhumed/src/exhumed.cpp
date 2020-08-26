@@ -201,12 +201,6 @@ void ShutDown(void)
     //UnInitFX();
 }
 
-void HandleAsync()
-{
-    handleevents();
-
-}
-
 static bool HollyCheat(cheatseq_t* c)
 {
     // Do the closest thing to this cheat that's available.

@@ -76,10 +76,6 @@ enum GameFunction_t
 
 #define kTimerTicks		120
 
-#ifdef __WATCOMC__
-void handleevents();
-#endif
-
 enum basepal_t {
     BASEPAL = 0,
     ANIMPAL,
@@ -127,7 +123,6 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 
 int DoSpiritHead();
 
-void HandleAsync();
 void CheckKeys();
 void CheckKeys2();
 void GameTicker();

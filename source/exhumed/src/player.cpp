@@ -159,9 +159,7 @@ void PlayerInterruptKeys()
     if (paused)
         return;
 
-	D_ProcessEvents();
-
-    localInput = {};
+	localInput = {};
     PlayerInput input {};
 
     if (PlayerList[nLocalPlayer].nHealth == 0)

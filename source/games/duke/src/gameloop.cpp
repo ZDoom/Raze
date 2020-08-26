@@ -399,9 +399,6 @@ void startmainmenu()
 
 void GameInterface::RunGameFrame()
 {
-	handleevents();
-	updatePauseStatus();
-	D_ProcessEvents();
 	switch (gamestate)
 	{
 	default:

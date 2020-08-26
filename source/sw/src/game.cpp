@@ -812,10 +812,6 @@ void GameInterface::RunGameFrame()
     {
         // if the menu initiazed a new game or loaded a savegame, switch to play mode.
         if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
-
-        handleevents();
-        updatePauseStatus();
-        D_ProcessEvents();
         DoUpdateSounds();
         switch (gamestate)
         {

@@ -905,6 +905,31 @@ void TickSubsystems()
 	if (cnt == 5) nexttick = nowtick + tickInterval;
 }
 
+static void updatePauseStatus()
+{
+	if (M_Active() || System_WantGuiCapture())
+	{
+		paused = 1;
+	}
+	else if (!M_Active() || !System_WantGuiCapture())
+	{
+		if (!pausedWithKey)
+		{
+			paused = 0;
+		}
+
+		if (sendPause)
+		{
+			sendPause = false;
+			paused = pausedWithKey ? 0 : 2;
+			pausedWithKey = !!paused;
+		}
+	}
+
+	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
+}
+
+
 void app_loop()
 {
 	gamestate = GS_STARTUP;
@@ -917,6 +942,10 @@ void app_loop()
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			I_SetFrameTime();
+
+			handleevents();
+			updatePauseStatus();
+			D_ProcessEvents();
 
 			gi->RunGameFrame();
 
@@ -1180,30 +1209,6 @@ CCMD (togglemsg)
 bool CheckCheatmode(bool printmsg)
 {
 	return gi->CheatAllowed(printmsg);
-}
-
-void updatePauseStatus()
-{
-    if (M_Active() || System_WantGuiCapture())
-    {
-        paused = 1;
-    }
-    else if (!M_Active() || !System_WantGuiCapture())
-    {
-        if (!pausedWithKey)
-        {
-            paused = 0;
-        }
-
-        if (sendPause)
-        {
-            sendPause = false;
-            paused = pausedWithKey ? 0 : 2;
-            pausedWithKey = !!paused;
-        }
-    }
-
-    paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
 }
 
 bool OkForLocalization(FTextureID texnum, const char* substitute)
