@@ -665,42 +665,9 @@ void ParseOptions(void)
 
 void ReadAllRFS();
 
-static const char* actions[] = {
-    "Move_Forward",                     
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Third_Person_View",
-    "Toggle_Crouch",
-};
-
 void GameInterface::app_init()
 {
     InitCheats();
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
     gGameOptions.nMonsterSettings = !userConfig.nomonsters;
     ReadAllRFS();

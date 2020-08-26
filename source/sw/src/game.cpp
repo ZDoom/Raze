@@ -175,46 +175,10 @@ void SybexScreen(void);
 //
 //---------------------------------------------------------------------------
 
-static const char* actions[] = {
-    "Move_Forward",
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Last_Weapon",
-    "Alt_Weapon",
-    "Third_Person_View",
-    "Toggle_Crouch",	// This is the last one used by EDuke32"",
-
-};
-
 void GameInterface::app_init()
 {
     GameTicRate = 40;
     InitCheats();
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
 
     gs = gs_defaults;

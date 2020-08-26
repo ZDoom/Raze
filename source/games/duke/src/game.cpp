@@ -234,47 +234,6 @@ static void setupbackdrop()
 //
 //---------------------------------------------------------------------------
 
-static void SetupGameButtons()
-{
-	static const char* actions[] = {
-		"Move_Forward",
-		"Move_Backward",
-		"Turn_Left",
-		"Turn_Right",
-		"Strafe",
-		"Fire",
-		"Open",
-		"Run",
-		"Jump",
-		"Crouch",
-		"Look_Up",
-		"Look_Down",
-		"Look_Left",
-		"Look_Right",
-		"Strafe_Left",
-		"Strafe_Right",
-		"Aim_Up",
-		"Aim_Down",
-		"Shrink_Screen",
-		"Enlarge_Screen",
-		"Show_Opponents_Weapon",
-		"See_Coop_View",
-		"Mouse_Aiming",
-		"Quick_Kick",
-		"Dpad_Select",
-		"Dpad_Aiming",
-		"Third_Person_View",
-		"Toggle_Crouch",
-	};
-	buttonMap.SetButtons(actions, NUM_ACTIONS);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void loaddefs()
 {
 	const char* defsfile = G_DefFile();

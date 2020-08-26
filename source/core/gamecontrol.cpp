@@ -871,6 +871,7 @@ int RunGame()
 	if (exec) exec->ExecCommands();
 
 	gamestate = GS_LEVEL;
+	SetupGameButtons();
 	gi->app_init();
 	app_loop();
 	return 0; // this is never reached. app_loop only exits via exception.

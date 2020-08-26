@@ -3,41 +3,6 @@
 
 // all game constants got collected here.
 
-// Most of these should be replaced by CCMDs eventually
-enum GameFunction_t
-{
-	gamefunc_Move_Forward,
-	gamefunc_Move_Backward,
-	gamefunc_Turn_Left,
-	gamefunc_Turn_Right,
-	gamefunc_Strafe,
-	gamefunc_Fire,
-	gamefunc_Open,
-	gamefunc_Run,
-	gamefunc_Jump,
-	gamefunc_Crouch,
-	gamefunc_Look_Up,
-	gamefunc_Look_Down,
-	gamefunc_Look_Left,
-	gamefunc_Look_Right,
-	gamefunc_Strafe_Left,
-	gamefunc_Strafe_Right,
-	gamefunc_Aim_Up,
-	gamefunc_Aim_Down,
-	gamefunc_Shrink_Screen, // CCMD
-	gamefunc_Enlarge_Screen, // CCMD
-	gamefunc_Show_Opponents_Weapon, // CCMD
-	gamefunc_See_Coop_View, // CCMD
-	gamefunc_Mouse_Aiming, // CCMD
-	gamefunc_Quick_Kick,
-	gamefunc_Dpad_Select,
-	gamefunc_Dpad_Aiming,
-	gamefunc_Third_Person_View, // CCMD
-	gamefunc_Toggle_Crouch,
-	NUM_ACTIONS
-};
-
-
 enum
 {
 	TICRATE = 120,

@@ -420,9 +420,9 @@ getinput(InputPacket *loc, SWBOOL tied)
         SET(loc->bits, prev_weapon + 1);
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
+    if (false)//buttonMap.ButtonDown(gamefunc_Alt_Weapon)) will be renabled in an upcoming commit.
     {
-        buttonMap.ClearButton(gamefunc_Alt_Weapon);
+        //buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         SET(loc->bits, which_weapon);

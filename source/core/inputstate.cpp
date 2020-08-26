@@ -38,6 +38,8 @@
 #include "gamecvars.h"
 #include "v_video.h"
 #include "statusbar.h"
+#include"packet.h"
+#include "gamecontrol.h"
 
 //==========================================================================
 //
@@ -175,3 +177,46 @@ void CONTROL_GetInput(ControlInfo* info)
 		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void SetupGameButtons()
+{
+	static const char* actions[] = {
+		"Move_Forward",
+		"Move_Backward",
+		"Turn_Left",
+		"Turn_Right",
+		"Strafe",
+		"Fire",
+		"Open",
+		"Run",
+		"Alt_Fire",
+		"Jump",
+		"Crouch",
+		"Look_Up",
+		"Look_Down",
+		"Look_Left",
+		"Look_Right",
+		"Strafe_Left",
+		"Strafe_Right",
+		"Aim_Up",
+		"Aim_Down",
+		"Shrink_Screen",
+		"Enlarge_Screen",
+		"Show_Opponents_Weapon",
+		"See_Coop_View",
+		"Mouse_Aiming",
+		"Dpad_Select",
+		"Dpad_Aiming",
+		"Third_Person_View",
+		"Toggle_Crouch",
+		"Quick_Kick",
+	};
+	buttonMap.SetButtons(actions, NUM_ACTIONS);
+}
+

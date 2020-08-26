@@ -36,43 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-// Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
-enum GameFunction_t
-{
-	gamefunc_Move_Forward,
-	gamefunc_Move_Backward,
-	gamefunc_Turn_Left,
-	gamefunc_Turn_Right,
-	gamefunc_Strafe,
-	gamefunc_Fire,
-	gamefunc_Open,
-	gamefunc_Run,
-	gamefunc_Alt_Fire,	// Duke3D, Blood
-	gamefunc_Jump,
-	gamefunc_Crouch,
-	gamefunc_Look_Up,
-	gamefunc_Look_Down,
-	gamefunc_Look_Left,
-	gamefunc_Look_Right,
-	gamefunc_Strafe_Left,
-	gamefunc_Strafe_Right,
-	gamefunc_Aim_Up,
-	gamefunc_Aim_Down,
-	gamefunc_SendMessage,
-	gamefunc_Shrink_Screen,
-	gamefunc_Enlarge_Screen,
-	gamefunc_Show_Opponents_Weapon,
-	gamefunc_See_Coop_View,
-	gamefunc_Mouse_Aiming,
-	gamefunc_Dpad_Select,
-	gamefunc_Dpad_Aiming,
-	gamefunc_Last_Weapon,
-	gamefunc_Alt_Weapon,
-	gamefunc_Third_Person_View,
-	gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
-    NUM_ACTIONS,
-
-};
 
 #define kTimerTicks		120
 
