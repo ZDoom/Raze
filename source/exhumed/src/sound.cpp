@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "mmulti.h"
 #include "compat.h"
 #include "baselayer.h"
 #include "build.h"
@@ -545,7 +546,7 @@ void UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite)
+void PlayFX2(unsigned short nSound, short nSprite, int sectf)
 {
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
@@ -553,8 +554,11 @@ void PlayFX2(unsigned short nSound, short nSprite)
         return;
     }
 
+    bool fullvol = false, hiprio = false;
     if (nSprite >= 0)
     {
+        fullvol = (nSprite & 0x2000) != 0;
+        hiprio = (nSprite & 0x4000) != 0;
         nSprite &= 0xfff;
         soundx = sprite[nSprite].x;
         soundy = sprite[nSprite].y;
@@ -562,6 +566,15 @@ void PlayFX2(unsigned short nSound, short nSprite)
     }
 
     int nVolume = 255;
+
+    bool allowMultiple = (nSound & 0x2000) != 0;
+    bool forcePlay = (nSound & 0x1000) != 0;
+    bool midprio = (nSound & 0x4000) != 0;
+
+    int prio = 0;
+    if (forcePlay || midprio) prio = 1000;
+    else if (nSprite != -1 && hiprio) prio = 2000;
+
     short v10 = (nSound&0xe00)>>9;
     nSound &= 0x1ff;
 
@@ -570,16 +583,57 @@ void PlayFX2(unsigned short nSound, short nSprite)
 
     GetSpriteSoundPitch(&nVolume, &nPitch);
 
+    vec3_t v = { soundx, soundy, soundz };
+    FVector3 vv = GetSoundPos(&v);
+
+    // Check if this sound is allowed to play or if it must stop some other sound.
+    if (!forcePlay)
+    {
+        bool res = soundEngine->EnumerateChannels([=](FSoundChan* chan)
+            {
+                if (chan->SourceType == SOURCE_Actor && nSprite != -1)
+                {
+                    if (prio >= chan->UserData)
+                    {
+                        if (chan->SoundID == nSound + 1)
+                        {
+                            if (!allowMultiple && &sprite[nSprite] == chan->Source)
+                                return 1;
+                        }
+                        else if (&sprite[nSprite] == chan->Source)
+                        {
+                            soundEngine->StopChannel(chan);
+                            return -1;
+                        }
+                    }
+
+                }
+                else if (chan->SourceType == SOURCE_Unattached && nSprite == -1)
+                {
+                    if (chan->SoundID == nSound + 1)
+                    {
+                        if (vv.X == chan->Point[0] && vv.Y == chan->Point[1] && vv.Z == chan->Point[2])
+                            return 1;
+                    }
+
+                }
+                return 0;
+            });
+        if (res) return;
+    }
+    FSoundChan* chan = nullptr;
     if (nSprite >= 0)
     {
-        if (soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[nSprite], CHAN_BODY, nSound + 1)) return;
-        soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5 : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
-        vec3_t v = { soundx, soundy, soundz };
-        FVector3 vv = GetSoundPos(&v);
-        soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NONE, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &vv, CHAN_BODY, CHANF_OVERLAP, nSound+1, nVolume / 255.f, ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+    }
+    if (chan)
+    {
+        if (sectf) chan->UserData = 2000;
+        else chan->UserData = prio;
     }
 
     // Nuke: added nSprite >= 0 check
@@ -599,7 +653,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
     soundy = y;
     soundz = z;
     soundsect = nSector&0x3fff;
-    PlayFX2(ax, -1);
+    PlayFX2(ax, -1, nSector & 0x4000);
 }
 
 //==========================================================================
@@ -614,7 +668,7 @@ void CheckAmbience(short nSector)
     {
         short nSector2 = SectSoundSect[nSector];
         walltype* pWall = &wall[sector[nSector2].wallptr];
-        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, -1))
+        if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
             vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
             amb = GetSoundPos(&v);
