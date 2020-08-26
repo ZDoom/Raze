@@ -930,9 +930,11 @@ void app_loop()
 			if (gamestate == GS_LEVEL) DrawFullscreenBlends();
 			DrawRateStuff();
 
+			soundEngine->UpdateSounds(I_GetTime());
+			Mus_UpdateMusic();		// must be at the end.
+
 			videoNextPage();
 			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
-			Mus_UpdateMusic();		// must be at the end.
 		}
 		catch (CRecoverableError& err)
 		{

@@ -522,7 +522,6 @@ void UpdateSounds()
 
 
     soundEngine->SetListener(listener);
-    soundEngine->UpdateSounds(I_GetTime());
     soundEngine->EnumerateChannels([](FSoundChan* chan)
         {
             if (!(chan->ChanFlags & (CHANF_UI|CHANF_FORGETTABLE)))

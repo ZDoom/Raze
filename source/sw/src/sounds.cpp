@@ -604,7 +604,6 @@ void DoUpdateSounds(void)
     soundEngine->SetListener(listener);
 
     UpdateAmbients();
-    soundEngine->UpdateSounds(I_GetTime());
 }
 
 //==========================================================================
