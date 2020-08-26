@@ -106,9 +106,9 @@ int			ConBottom, ConScroll, RowAdjust;
 uint64_t	CursorTicker;
 constate_e	ConsoleState = c_up;
 
-int NotifyFontScale = 1;
+double NotifyFontScale = 1;
 
-void C_SetNotifyFontScale(int scale)
+void C_SetNotifyFontScale(double scale)
 {
 	NotifyFontScale = scale;
 }

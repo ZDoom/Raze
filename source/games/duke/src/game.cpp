@@ -317,7 +317,7 @@ static void initTiles()
 
 static void Startup(void)
 {
-	if (isRR()) C_SetNotifyFontScale(2);
+	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;
 	ud.m_respawn_items = 0;
 	ud.m_respawn_monsters = 0;
