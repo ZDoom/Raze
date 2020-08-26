@@ -48,17 +48,6 @@
 #include "gamestruct.h"
 #include "statusbar.h"
 
-#define CVAR_FRONTEND_BLOOD 0
-#define CVAR_FRONTEND_DUKELIKE 0
-
-/* Notes
- 
- RedNukem has this for the toggle autorun command. Todo: Check what this is supposed to accomplish. The implementation makes no sense at all.
- (!RRRA || (!ps[myconnectindex].on_motorcycle && !ps[myconnectindex].on_boat)))
- 
- 
- */
-
 CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
 CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
@@ -75,16 +64,14 @@ bool G_CheckAutorun(bool button)
 CVARD(Bool, cl_autosave, true, CVAR_ARCHIVE, "enable/disable autosaves") // Not implemented for Blood (but looks like the other games never check it either.)
 CVARD(Bool, cl_autosavedeletion, true, CVAR_ARCHIVE, "enable/disable automatic deletion of autosaves") // Not implemented for Blood
 CVARD(Int, cl_maxautosaves, 8, CVAR_ARCHIVE, "number of autosaves to keep before deleting the oldest") // Not implemented for Blood
-CVARD(Int, cl_cheatmask, ~0, CVAR_ARCHIVE, "configure what cheats show in the cheats menu")
-CVARD(Bool, cl_obituaries, true, CVAR_ARCHIVE, "enable/disable multiplayer death messages") // Not implemented for Blood
-CVARD(Bool, cl_democams, true, CVAR_ARCHIVE, "enable/disable demo playback cameras") // Not implemented for Blood
+CVARD(Bool, cl_obituaries, true, CVAR_ARCHIVE, "enable/disable multiplayer death messages") // Not implemented 
 CVARD(Bool, cl_idplayers, true, CVAR_ARCHIVE, "enable/disable name display when aiming at opponents")
-CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE, "enable/disable player weapon swaying") // Not implemented for Blood
+CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE, "enable/disable player weapon swaying")
 
 // Todo: Consolidate these to be consistent across games?
-CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable player head bobbing") // Not implemented for Blood
-CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable view horizontal bobbing") // Only implemented in Blood
-CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable view vertical bobbing") // Only implemented in Blood
+CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE, "enable/disable player head bobbing")
+CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE, "enable/disable view horizontal bobbing") // Only implemented in Blood
+CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE, "enable/disable view vertical bobbing") // Only implemented in Blood
 
 CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE, "enable/disable view interpolation") // only implemented in Blood
 CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting") // only implemented in Blood
@@ -92,7 +79,7 @@ CVARD(Int, cl_showweapon, 1, CVAR_ARCHIVE, "enable/disable show weapons") // onl
 CVARD(Bool, cl_sointerpolation, true, CVAR_ARCHIVE, "enable/disable sector object interpolation") // only implemented in SW
 CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE, "enable/disable synchronized input with game's ticrate") // only implemented in Duke
 CVARD(Bool, cl_swaltnukeinit, false, CVAR_ARCHIVE, "enable/disable SW alternative nuke initialisation") // only implemented in SW
-CVARD(Bool, cl_dukefixrpgrecoil, true, CVAR_ARCHIVE, "soften recoil of Duke 3D's RPG")
+CVARD(Bool, cl_dukefixrpgrecoil, false, CVAR_ARCHIVE, "soften recoil of Duke 3D's RPG")
 CVARD(Bool, cl_smoothsway, true, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
 {
@@ -114,22 +101,6 @@ CUSTOM_CVARD(Int, cl_weaponswitch, 3, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disabl
 	if (self > 7) self = 7;
 }
 
-
-CUSTOM_CVARD(Int, cl_autovote, 0, CVAR_ARCHIVE, "enable/disable automatic voting")
-{
-	if (self < 0 || self > 2) self = 0;
-}
-
-
-// Demos
-
-CVARD_NAMED(Bool, demorec_seeds, demorec_seeds_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable recording of random seed for later sync checking")
-CVARD_NAMED(Bool, demorec_diffs, demorec_diffs_cvar, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable diff recording in demos")
-CVARD_NAMED(Bool, demorec_force, demorec_force_cvar, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable forced demo recording")
-CVARD_NAMED(Int, demorec_difftics, demorec_difftics_cvar, 60, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sets game tic interval after which a diff is recorded")
-CVARD(Bool, demoplay_diffs, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable application of diffs in demo playback")
-CVARD(Bool, demoplay_showsync, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable display of sync status")
-
 // Sound
 
 CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL, "enables/disables ambient sounds") // Not implemented for Blood
@@ -138,22 +109,9 @@ CUSTOM_CVARD(Bool, snd_ambience, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_N
 }
 CVARD(Bool, snd_enabled, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables sound effects")
 CVARD(Bool, snd_tryformats, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables automatic discovery of replacement sounds and music in .flac and .ogg formats")
-CVARD(Bool, snd_doppler, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable 3d sound")
 
-CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not") // only implemented for Blood - todo: generalize
+CVARD(Bool, mus_restartonload, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "restart the music when loading a saved game with the same map or not")
 CVARD(Bool, mus_redbook, true, CVAR_ARCHIVE, "enables/disables redbook audio") 
-
-CUSTOM_CVARD(Int, snd_fxvolume, 255, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "controls volume for sound effects")
-{
-	if (self < 0) self = 0;
-	if (self > 255) self = 255;
-}
-
-CUSTOM_CVARD(Int, snd_mixrate, 44100, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "sound mixing rate")
-{
-	if (self < 11025) self = 11025;
-	else if (self > 48000) self = 48000;
-}
 
 CUSTOM_CVARD(Int, snd_speech, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enables/disables player speech")
 {
@@ -223,8 +181,7 @@ CUSTOM_CVARD(Float, hud_statscale, 0.5, CVAR_ARCHIVE, "change the scale of the s
 CVARD(Bool, hud_stats, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable level statistics display")
 CVARD(Bool, hud_showmapname, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable map name display on load")
 CVARD(Bool, hud_position, false, CVAR_ARCHIVE, "aligns the status bar to the bottom/top")
-CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable background image stretching in wide resolutions")
-CVARD(Int, hud_messagetime, 120, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "length of time to display multiplayer chat messages")
+CVARD(Bool, hud_bgstretch, false, CVAR_ARCHIVE, "enable/disable background image stretching in wide resolutions")
 CVARD(Bool, hud_messages, 1, CVAR_ARCHIVE, "enable/disable showing messages")
 
 // This cannot be done with the 'toggle' CCMD because it needs to control itself when to output the message
@@ -242,31 +199,14 @@ CCMD (togglemessages)
 	}
 }
 
-CVARD_NAMED(Int, hud_numbertile, althud_numbertile, 2930, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "first tile in alt hud number set")
-CVARD_NAMED(Int, hud_numberpal, althud_numberpal, 0, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "pal for alt hud numbers")
-CVARD_NAMED(Int, hud_shadows, althud_shadows, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable althud shadows")
-CVARD_NAMED(Int, hud_flashing, althud_flashing, true, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "enable/disable althud flashing")
-CVARD(Bool, hud_glowingquotes, true, CVAR_ARCHIVE, "enable/disable \"glowing\" quote text")
-
-CUSTOM_CVARD(Int, hud_textscale, 200, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "sets multiplayer chat message size")
-{
-	if (self < 100) self = 100;
-	else if (self > 400) self = 400;
-}
-
-CUSTOM_CVARD(Int, hud_weaponscale, 100, CVAR_ARCHIVE|CVAR_FRONTEND_DUKELIKE, "changes the weapon scale")
-{
-	if (self < 30) self = 30;
-	else if (self > 100) self = 100;
-}
-
+CVARD_NAMED(Int, hud_flashing, althud_flashing, true, CVAR_ARCHIVE, "enable/disable althud flashing")
 CUSTOM_CVARD(Int, r_fov, 90, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "change the field of view")
 {
 	if (self < 60) self = 60;
 	else if (self > 140) self = 140;
 }
 
-CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE|CVAR_FRONTEND_BLOOD, "enable/disable centered horizon line") // only present in Blood, maybe add to others?
+CVARD(Bool, r_horizcenter, false, CVAR_ARCHIVE, "enable/disable centered horizon line") // only present in Blood.
 
 CVARD(Bool, in_mousemode, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "toggles vertical mouse view")
 
@@ -346,58 +286,7 @@ CVARD(Bool, r_shadows, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable spr
 
 CVARD(Bool, r_precache, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable the pre-level caching routine")
 
-CUSTOM_CVARD(String, wchoice, "3457860291", CVAR_ARCHIVE | CVAR_NOINITCALL | CVAR_FRONTEND_DUKELIKE, "sets weapon autoselection order")
-{
-	char dest[11];
-	char const* c = self;
-	if (*c)
-	{
-		int j = 0;
-
-		while (*c && j < 10)
-		{
-			dest[j] = *c - '0';
-			c++;
-			j++;
-		}
-
-		while (j < 10)
-		{
-			if (j == 9)
-				dest[9] = 1;
-			else
-				dest[j] = 2;
-
-			j++;
-		}
-		// if (!gi->SetWeaponChoice(dest)) Printf("Weapon ordering not supported\n");
-	}
-	else
-	{
-		Printf("Using default weapon orders.\n");
-		self = "3457860291";
-	}
-}
-
-
 CVARD(Bool, r_voxels, true, CVAR_ARCHIVE, "enable/disable automatic sprite->voxel rendering")
-
-
-//==========================================================================
-//
-// Global setup that formerly wasn't CVARs but merely global stuff saved in the config.
-//
-//==========================================================================
-
-CVAR(Bool, displaysetup, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-bool gNoAutoLoad;	// for overrides from the def files
-CVAR(Bool, noautoload, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-bool G_AllowAutoload()
-{
-	if (noautoload || gNoAutoLoad || Args->CheckParm("-noautoload")) return false;
-	return true;
-}
 
 
 // color code format is as follows:
@@ -474,16 +363,7 @@ CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
 CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 
-// Internal settings for demo recording and the multiplayer menu. These won't get saved and only are CVARs so that the menu code can use them.
-CVAR(Int, m_recstat, false, CVAR_NOSET)
 CVAR(Int, m_coop, 0, CVAR_NOSET)
-CVAR(Int, m_ffire, 1, CVAR_NOSET)
-CVAR(Int, m_monsters, 1, CVAR_NOSET)
-CVAR(Int, m_level_number, 0, CVAR_NOSET)
-CVAR(Int, m_episode_number, 0, CVAR_NOSET)
-CVAR(Int, m_noexits, 0, CVAR_NOSET)
-CVAR(String, m_server, "localhost", CVAR_NOSET)
-CVAR(String, m_netport, "19014", CVAR_NOSET)
 
 #if 0
 

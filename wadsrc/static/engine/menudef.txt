@@ -1006,8 +1006,6 @@ OptionMenu "HUDOptions" //protected
 	Option "$DSPLYMNU_LEVELSTATS",				"hud_stats",				"OnOff"
 	Slider "$DSPLYMNU_STATSCALE",				"hud_statscale",			0.36, 1.0, 0.04, 2
 
-	//Slider "$DSPLYMNU_TEXTSCALE",				"hud_textscale",			100, 400, 20, 2
-
 	StaticText ""
 	Option "$DSPLYMNU_MESSAGES",				"hud_messages",				"HudMessages"
 	Option "$DSPLYMNU_MESSAGEDISP",				"con_notify_advanced",		"HudMessageStyle"
@@ -1167,7 +1165,6 @@ OptionMenu AdvSoundOptions //protected
 	Option "$ADVSNDMNU_LOOKUPSND",			"snd_extendedlookup", "OnOff"
 	StaticText " "
 	
-	Option "$ADVSNDMNU_SAMPLERATE",			"snd_mixrate", "SampleRates"
 	//Option "$ADVSNDMNU_HRTF",				"snd_hrtf", "AutoOffOn"
 	StaticText " "
 	//Option "$SNDMNU_BACKGROUND",			"i_soundinbackground", "OnOff"
