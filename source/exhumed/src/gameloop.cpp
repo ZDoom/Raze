@@ -253,6 +253,7 @@ void GameLoop()
     CheckKeys();
     GameTicker();
     PlayerInterruptKeys();
+    UpdateSounds();
     CheckKeys2();
 }
 
