@@ -49,7 +49,7 @@ extern int gNetFifoTail;
 extern int gNetFifoHead[8];
 extern int gPredictTail;
 extern int gNetFifoMasterTail;
-extern GINPUT gFifoInput[256][8];
+extern InputPacket gFifoInput[256][8];
 extern int myMinLag[8];
 extern int otherMinLag;
 extern int myMaxLag;

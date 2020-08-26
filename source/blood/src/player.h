@@ -86,7 +86,7 @@ struct PLAYER
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
-    GINPUT              input;
+    InputPacket              input;
     uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;

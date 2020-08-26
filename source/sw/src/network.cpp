@@ -43,7 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void getinput(SW_PACKET *, SWBOOL);
+void getinput(InputPacket *, SWBOOL);
 
 static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
@@ -52,13 +52,13 @@ gNET gNet;
 
 #define TIMERUPDATESIZ 32
 
-//SW_PACKET fsync;
+//InputPacket fsync;
 
 //Local multiplayer variables
 // should move this to a local scope of faketimerhandler - do it when able to test
-SW_PACKET loc;
+InputPacket loc;
 
-//SW_PACKET oloc;
+//InputPacket oloc;
 
 SWBOOL ready2send = 0;
 
@@ -73,7 +73,7 @@ extern char sync_first[MAXSYNCBYTES][60];
 extern int sync_found;
 
 //
-// Tic Duplication - so you can move multiple times per packet. This is SW_PACKET with the 16 bit values extended to 32 bit.
+// Tic Duplication - so you can move multiple times per packet. This is InputPacket with the 16 bit values extended to 32 bit.
 //
 typedef struct
 {
@@ -213,7 +213,7 @@ UpdateInputs(void)
     {
         memcpy(&pp->inputfifo[pp->movefifoend & (MOVEFIFOSIZ - 1)],
                &pp->inputfifo[(pp->movefifoend-1) & (MOVEFIFOSIZ - 1)],
-               sizeof(SW_PACKET));
+               sizeof(InputPacket));
 
         pp->movefifoend++;
         return;

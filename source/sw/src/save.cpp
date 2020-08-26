@@ -85,7 +85,7 @@ extern short BossSpriteNum[3];
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
-extern SW_PACKET loc;
+extern InputPacket loc;
 extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};

@@ -44,7 +44,7 @@ int gNetFifoTail = 0;
 int gNetFifoHead[8];
 int gPredictTail = 0;
 int gNetFifoMasterTail = 0;
-GINPUT gFifoInput[256][8];
+InputPacket gFifoInput[256][8];
 int myMinLag[8];
 int otherMinLag = 0;
 int myMaxLag = 0;
@@ -108,7 +108,7 @@ void netGetInput(void)
     for (int p = connecthead; p >= 0; p = connectpoint2[p])
         if (gNetFifoHead[myconnectindex]-200 > gNetFifoHead[p])
             return;
-    GINPUT &input = gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
+    InputPacket &input = gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
     input = gNetInput;
     gNetFifoHead[myconnectindex]++;
     if (gGameOptions.nGameType == 0 || numplayers == 1)
@@ -117,9 +117,9 @@ void netGetInput(void)
         {
             if (p != myconnectindex)
             {
-                GINPUT *pInput1 = &gFifoInput[(gNetFifoHead[p]-1)&255][p];
-                GINPUT *pInput2 = &gFifoInput[gNetFifoHead[p]&255][p];
-                memcpy(pInput2, pInput1, sizeof(GINPUT));
+                InputPacket *pInput1 = &gFifoInput[(gNetFifoHead[p]-1)&255][p];
+                InputPacket *pInput2 = &gFifoInput[gNetFifoHead[p]&255][p];
+                memcpy(pInput2, pInput1, sizeof(InputPacket));
                 gNetFifoHead[p]++;
             }
         }

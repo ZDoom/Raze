@@ -45,13 +45,13 @@ extern ActorInfo actorinfo[MAXTILES]; // static state
 extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];
 extern TArray<int> ScriptCode;
-extern input_t sync[MAXPLAYERS];
+extern InputPacket sync[MAXPLAYERS];
 extern int16_t max_ammo_amount[MAX_WEAPONS];
 extern int16_t weaponsandammosprites[15];
 extern int32_t PHEIGHT;
 extern int duke3d_globalflags;
 extern uint8_t ready2send;
-extern input_t loc;
+extern InputPacket loc;
 extern int gamequit;
 extern int playerswhenstarted;
 extern int show_shareware;

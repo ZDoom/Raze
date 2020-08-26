@@ -2,6 +2,7 @@
 
 #include "screenjob.h"
 #include "constants.h"
+#include "packet.h"
 
 struct MapRecord;
 

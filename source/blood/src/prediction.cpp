@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void fakePlayerProcess(PLAYER* pPlayer, GINPUT* pInput);
+void fakePlayerProcess(PLAYER* pPlayer, InputPacket* pInput);
 void fakeActProcessSprites(void);
 
 bool gPrediction = true;
@@ -101,7 +101,7 @@ void viewInitializePrediction(void)
     }
 }
 
-void viewUpdatePrediction(GINPUT *pInput)
+void viewUpdatePrediction(InputPacket *pInput)
 {
     predictOld = predict;
 	short bakCstat = gMe->pSprite->cstat;
@@ -124,7 +124,7 @@ static void sub_158B4(PLAYER *pPlayer)
     predict.at40 = predict.at58 - pPlayer->pPosture[pPlayer->lifeMode][predict.at48].weaponAboveZ;
 }
 
-static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
+static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 {
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
 
@@ -322,7 +322,7 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     predict.at2c = (-fix16_to_int(predict.at24))<<7;
 }
 
-void fakePlayerProcess(PLAYER *pPlayer, GINPUT *pInput)
+void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 {
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;

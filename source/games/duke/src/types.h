@@ -1,5 +1,6 @@
 #pragma once
 #include "names.h"
+#include "packet.h"
 
 BEGIN_DUKE_NS
 
@@ -45,13 +46,6 @@ struct ActorInfo
 struct TileInfo
 {
 	int flags;
-};
-
-struct input_t  // original name was input which is too generic for a type name.
-{
-	fixed_t q16avel, q16horz; // These were expanded to 16.16 fixed point.
-	short fvel, svel;
-	ESyncBits bits;
 };
 
 struct user_defs

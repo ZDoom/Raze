@@ -623,39 +623,39 @@ enum
 static void processInputBits(player_struct *p, ControlInfo &info)
 {
 	bool onVehicle = p->OnMotorcycle || p->OnBoat;
-	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.bits |= SKB_FIRE;
-	if (buttonMap.ButtonDown(gamefunc_Open)) loc.bits |= SKB_OPEN;
+	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.sbits |= SKB_FIRE;
+	if (buttonMap.ButtonDown(gamefunc_Open)) loc.sbits |= SKB_OPEN;
 
 	// These 3 bits are only available when not riding a bike or boat.
 	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
-	loc.bits |= BitsToSend;
+	loc.sbits |= BitsToSend;
 	BitsToSend = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
-		if (info.dx < 0 || info.dyaw < 0) loc.bits |= SKB_INV_LEFT;
-		if (info.dx > 0 || info.dyaw < 0) loc.bits |= SKB_INV_RIGHT;
+		if (info.dx < 0 || info.dyaw < 0) loc.sbits |= SKB_INV_LEFT;
+		if (info.dx > 0 || info.dyaw < 0) loc.sbits |= SKB_INV_RIGHT;
 	}
 
-	if (gamequit) loc.bits |= SKB_GAMEQUIT;
+	if (gamequit) loc.sbits |= SKB_GAMEQUIT;
 
 	if (!onVehicle)
 	{
-		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.bits |= SKB_JUMP;
+		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.sbits |= SKB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
 		{
-			loc.bits |= SKB_CROUCH;
-			if (isRR()) loc.bits &= ~SKB_JUMP;
+			loc.sbits |= SKB_CROUCH;
+			if (isRR()) loc.sbits &= ~SKB_JUMP;
 		}
-		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.bits |= SKB_AIM_UP;
-		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.bits |= SKB_AIM_DOWN;
-		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.bits |= SKB_RUN;
-		if (buttonMap.ButtonDown(gamefunc_Look_Left) || (isRR() && p->drink_amt > 88)) loc.bits |= SKB_LOOK_LEFT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.bits |= SKB_LOOK_RIGHT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.bits |= SKB_LOOK_UP;
-		if (buttonMap.ButtonDown(gamefunc_Look_Down) || (isRR() && p->drink_amt > 99)) loc.bits |= SKB_LOOK_DOWN;
-		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.bits |= SKB_QUICK_KICK;
-		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.bits |= SKB_AIMMODE;
+		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.sbits |= SKB_AIM_UP;
+		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.sbits |= SKB_AIM_DOWN;
+		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.sbits |= SKB_RUN;
+		if (buttonMap.ButtonDown(gamefunc_Look_Left) || (isRR() && p->drink_amt > 88)) loc.sbits |= SKB_LOOK_LEFT;
+		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.sbits |= SKB_LOOK_RIGHT;
+		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.sbits |= SKB_LOOK_UP;
+		if (buttonMap.ButtonDown(gamefunc_Look_Down) || (isRR() && p->drink_amt > 99)) loc.sbits |= SKB_LOOK_DOWN;
+		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
+		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
 
 		int j = WeaponToSend;
 		WeaponToSend = 0;
@@ -664,8 +664,8 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
 
-		if (j && (loc.bits & SKB_WEAPONMASK_BITS) == 0)
-			loc.bits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+		if (j && (loc.sbits & SKB_WEAPONMASK_BITS) == 0)
+			loc.sbits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
 
 	}
 
@@ -723,7 +723,7 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(player_struct *p, input_t &input, ControlInfo &info, double scaleFactor)
+static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
 {
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
@@ -1001,7 +1001,7 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& input, double scaleAdjust)
+static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket& input, double scaleAdjust)
 {
 	auto turnspeed = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -1019,17 +1019,17 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& in
 	if (p->OnBoat || !p->moto_underwater)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-			loc.bits |= SKB_JUMP;
+			loc.sbits |= SKB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			loc.bits |= SKB_AIM_UP;
+			loc.sbits |= SKB_AIM_UP;
 		if (buttonMap.ButtonDown(gamefunc_Run))
-			loc.bits |= SKB_CROUCH;
+			loc.sbits |= SKB_CROUCH;
 	}
 
 	if (turnl)
-		loc.bits |= SKB_AIM_DOWN;
+		loc.sbits |= SKB_AIM_DOWN;
 	if (turnr)
-		loc.bits |= SKB_LOOK_LEFT;
+		loc.sbits |= SKB_LOOK_LEFT;
 
 	double turnvel;
 
@@ -1059,7 +1059,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, input_t& in
 //
 //---------------------------------------------------------------------------
 
-static void FinalizeInput(int playerNum, input_t& input, bool vehicle)
+static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 {
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
@@ -1139,7 +1139,7 @@ void GetInput()
 	if (paused)
 	{
 		loc = {};
-		if (gamequit) loc.bits |= SKB_GAMEQUIT;
+		if (gamequit) loc.sbits |= SKB_GAMEQUIT;
 		return;
 	}
 
@@ -1151,7 +1151,7 @@ void GetInput()
 	double scaleAdjust = !cl_syncinput ? elapsedInputTicks * REALGAMETICSPERSEC / 1000.0 : 1;
 	ControlInfo info;
 	CONTROL_GetInput(&info);
-	input_t input{};
+	InputPacket input{};
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
@@ -1178,7 +1178,7 @@ void GetInput()
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.bits, scaleAdjust, input.q16horz);
+		sethorizon(myconnectindex, loc.sbits, scaleAdjust, input.q16horz);
 	}
 }
 

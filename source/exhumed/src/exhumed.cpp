@@ -64,7 +64,7 @@ int htimer = 0;
 int EndLevel = false;
 
 
-LocalInput localInput;
+InputPacket localInput;
 
 ////////
 

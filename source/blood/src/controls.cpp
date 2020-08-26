@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-GINPUT gInput, gNetInput;
+InputPacket gInput, gNetInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
@@ -133,7 +133,7 @@ void ctrlGetInput(void)
     if (paused)
         return;
 
-    GINPUT input = {};
+    InputPacket input = {};
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 	if (!mouseaim) gInput.syncFlags.lookCenter = 1;

@@ -49,6 +49,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "c_cvars.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
+#include "packet.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -203,56 +204,6 @@ extern SWBOOL MenuInputMode;
 #define MAX_ACTIVE_RANGE 42000
 // dist at which actors roam about on their own
 #define MIN_ACTIVE_RANGE 20000
-
-//
-// NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
-//
-
-// weapons takes up 4 bits
-#define SK_WEAPON_BIT0 0
-#define SK_WEAPON_BIT1 1
-#define SK_WEAPON_BIT2 2
-#define SK_WEAPON_BIT3 3
-#define SK_WEAPON_MASK (BIT(SK_WEAPON_BIT0)| \
-                        BIT(SK_WEAPON_BIT1)| \
-                        BIT(SK_WEAPON_BIT2)| \
-                        BIT(SK_WEAPON_BIT3))     // 16 possible numbers 0-15
-
-#define SK_INV_HOTKEY_BIT0 4
-#define SK_INV_HOTKEY_BIT1 5
-#define SK_INV_HOTKEY_BIT2 6
-#define SK_INV_HOTKEY_MASK (BIT(SK_INV_HOTKEY_BIT0)|BIT(SK_INV_HOTKEY_BIT1)|BIT(SK_INV_HOTKEY_BIT2))
-
-#define SK_AUTO_AIM    7
-#define SK_CENTER_VIEW 8
-#define SK_PAUSE       9
-
-#define SK_MESSAGE    11
-#define SK_LOOK_UP    12
-#define SK_LOOK_DOWN  13
-#define SK_CRAWL_LOCK 14
-#define SK_FLY        15
-
-#define SK_RUN        16
-#define SK_SHOOT      17
-#define SK_OPERATE    18
-#define SK_JUMP       19
-#define SK_CRAWL      20
-#define SK_SNAP_UP    21
-#define SK_SNAP_DOWN  22
-#define SK_QUIT_GAME  23
-
-#define SK_MULTI_VIEW 24
-
-#define SK_TURN_180   25
-
-#define SK_INV_LEFT   26
-#define SK_INV_RIGHT  27
-
-#define SK_INV_USE   29
-#define SK_HIDE_WEAPON  30
-#define SK_SPACE_BAR  31
-
 
 // REDEFINABLE PLAYER KEYS NUMBERS
 
@@ -921,19 +872,7 @@ enum
 
 };
 
-// TODO: Support compatible read/write of struct for big-endian
-struct SW_PACKET
-{
-    int16_t fvel;
-    int16_t svel;
-    fix16_t q16avel;
-    fix16_t q16aimvel;
-    fix16_t q16ang;
-    fix16_t q16horz;
-    int32_t bits;
-};
-
-extern SW_PACKET loc;
+extern InputPacket loc;
 
 #define PACK 1
 
@@ -1042,11 +981,11 @@ struct PLAYERstruct
     int bob_z, obob_z;
 
     //Multiplayer variables
-    SW_PACKET input;
+    InputPacket input;
 
     //FIFO queue to hold values while faketimerhandler is called from within the drawing routing
 #define MOVEFIFOSIZ 256
-    SW_PACKET inputfifo[MOVEFIFOSIZ];
+    InputPacket inputfifo[MOVEFIFOSIZ];
 
 
     int movefifoend;
@@ -2254,7 +2193,7 @@ void post_analyzesprites(void); // draw.c
 int COVERsetgamemode(int mode, int xdim, int ydim, int bpp);    // draw.c
 void ScreenCaptureKeys(void);   // draw.c
 
-void computergetinput(int snum,SW_PACKET *syn); // jplayer.c
+void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,fix16_t tq16ang,fix16_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c

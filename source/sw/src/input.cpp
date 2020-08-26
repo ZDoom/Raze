@@ -86,7 +86,7 @@ void GameInterface::ResetFollowPos(bool)
 }
 
 void
-getinput(SW_PACKET *loc, SWBOOL tied)
+getinput(InputPacket *loc, SWBOOL tied)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;

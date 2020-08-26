@@ -187,51 +187,6 @@ enum dukeinvicon_t
 };
 
 
-enum ESyncBits_ : uint32_t
-{
-	SKB_JUMP = 1 << 0,
-	SKB_CROUCH = 1 << 1,
-	SKB_FIRE = 1 << 2,
-	SKB_AIM_UP = 1 << 3,
-	SKB_AIM_DOWN = 1 << 4,
-	SKB_RUN = 1 << 5,
-	SKB_LOOK_LEFT = 1 << 6,
-	SKB_LOOK_RIGHT = 1 << 7,
-	SKB_FIRST_WEAPON_BIT = 1 << 8,
-	SKB_STEROIDS = 1 << 12,
-	SKB_LOOK_UP = 1 << 13,
-	SKB_LOOK_DOWN = 1 << 14,
-	SKB_NIGHTVISION = 1 << 15,
-	SKB_MEDKIT = 1 << 16,
-	SKB_MULTIFLAG = 1 << 17,
-	SKB_CENTER_VIEW = 1 << 18,
-	SKB_HOLSTER = 1 << 19,
-	SKB_INV_LEFT = 1 << 20,
-	SKB_PAUSE = 1 << 21,
-	SKB_QUICK_KICK = 1 << 22,
-	SKB_AIMMODE = 1 << 23,
-	SKB_HOLODUKE = 1 << 24,
-	SKB_JETPACK = 1 << 25,
-	SKB_GAMEQUIT = 1 << 26,
-	SKB_INV_RIGHT = 1 << 27,
-	SKB_TURNAROUND = 1 << 28,
-	SKB_OPEN = 1 << 29,
-	SKB_INVENTORY = 1 << 30,
-	SKB_ESCAPE = 1u << 31,
-
-	SKB_WEAPONMASK_BITS = (15u * SKB_FIRST_WEAPON_BIT),
-	SKB_INTERFACE_BITS = (SKB_WEAPONMASK_BITS | SKB_STEROIDS | SKB_NIGHTVISION | SKB_MEDKIT | SKB_QUICK_KICK | \
-		SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_HOLODUKE | SKB_JETPACK | SKB_INV_RIGHT | \
-		SKB_TURNAROUND | SKB_OPEN | SKB_INVENTORY | SKB_ESCAPE),
-
-	SKB_NONE = 0,
-	SKB_ALL = ~0u
-
-};
-
-// enforce type safe operations on the input bits.
-using ESyncBits = TFlags<ESyncBits_, uint32_t>;
-DEFINE_TFLAGS_OPERATORS(ESyncBits)
 
 enum EQuote
 {

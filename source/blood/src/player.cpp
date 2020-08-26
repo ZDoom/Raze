@@ -641,7 +641,7 @@ void playerResetPosture(PLAYER* pPlayer) {
 void playerStart(int nPlayer, int bNewLevel)
 {
     PLAYER* pPlayer = &gPlayer[nPlayer];
-    GINPUT* pInput = &pPlayer->input;
+    InputPacket* pInput = &pPlayer->input;
     ZONE* pStartZone = NULL;
 
     // normal start position
@@ -1299,7 +1299,7 @@ void ProcessInput(PLAYER *pPlayer)
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-    GINPUT *pInput = &pPlayer->input;
+    InputPacket *pInput = &pPlayer->input;
 
     if (pPlayer == gMe && numplayers == 1)
     {

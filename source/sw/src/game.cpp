@@ -89,7 +89,7 @@ BEGIN_SW_NS
 
 void Logo(const CompletionFunc& completion);
 void StatScreen(int FinishAnim, CompletionFunc completion);
-void getinput(SW_PACKET*, SWBOOL);
+void getinput(InputPacket*, SWBOOL);
 
 
 void pClearSpriteList(PLAYERp pp);

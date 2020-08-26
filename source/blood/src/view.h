@@ -144,7 +144,7 @@ extern double gInterpolate;
 
 void hudDraw(PLAYER* gView, int nSectnum, int defaultHoriz, double bobx, double boby, double zDelta, int basepal);
 void viewInitializePrediction(void);
-void viewUpdatePrediction(GINPUT *pInput);
+void viewUpdatePrediction(InputPacket *pInput);
 void viewCorrectPrediction(void);
 void viewBackupView(int nPlayer);
 void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);

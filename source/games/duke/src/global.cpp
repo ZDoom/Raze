@@ -58,12 +58,12 @@ int otherp;
 TileInfo tileinfo[MAXTILES]; // This is not from EDuke32.
 ActorInfo actorinfo[MAXTILES];
 int actor_tog;
-input_t sync[MAXPLAYERS];
+InputPacket sync[MAXPLAYERS];
 int16_t max_ammo_amount[MAX_WEAPONS];
 int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;
 int duke3d_globalflags;
-input_t loc;
+InputPacket loc;
 uint8_t ready2send;
 int gamequit;
 int playerswhenstarted;

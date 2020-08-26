@@ -20,22 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __input_h__
 
 #include "compat.h"
+#include "packet.h"
 
 BEGIN_PS_NS
-
-enum {
-    kButtonJump = 0x1,
-    kButtonOpen = 0x4,
-    kButtonFire = 0x8,
-    kButtonCrouch = 0x10,
-    kButtonCheatGuns = 0x20,
-    kButtonCheatGodMode = 0x40,
-    kButtonCheatKeys = 0x80,
-    kButtonCheatItems = 0x100,
-
-    kButtonWeaponShift = 13,
-    kButtonWeaponBits = 7 << kButtonWeaponShift, // upper 3 bits.
-};
 
 // 32 bytes
 struct PlayerInput
@@ -49,15 +36,6 @@ struct PlayerInput
     int8_t nItem;
 };
 
-struct LocalInput
-{
-    int svel;
-    int fvel;
-    fix16_t q16avel;
-    uint16_t buttons;
-    fix16_t q16horz;
-};
-
 void InitInput();
 
 void UpdateInputs();
@@ -67,7 +45,7 @@ void ClearSpaceBar(short nPlayer);
 int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
-extern LocalInput localInput;
+extern InputPacket localInput;
 extern int nNetMoves;
 extern int lLocalCodes;
 

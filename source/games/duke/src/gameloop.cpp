@@ -44,7 +44,7 @@ BEGIN_DUKE_NS
 // All access to the input queues should go through this function interface.
 //
 //---------------------------------------------------------------------------
-static input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+static InputPacket inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 static int movefifoend[MAXPLAYERS];
 static int movefifoplc;
 static int bufferjitter;
@@ -60,7 +60,7 @@ void clearfifo(void)
 static inline void GetNextInput()
 {
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-		memcpy(&sync[i], &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(input_t));
+		memcpy(&sync[i], &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(InputPacket));
 
 	movefifoplc++;
 }
@@ -70,7 +70,7 @@ static void advancequeue(int myconnectindex)
 	movefifoend[myconnectindex]++;
 }
 
-static input_t& nextinput(int myconnectindex)
+static InputPacket& nextinput(int myconnectindex)
 {
 	return inputfifo[movefifoend[myconnectindex] & (MOVEFIFOSIZ - 1)][myconnectindex];
 }

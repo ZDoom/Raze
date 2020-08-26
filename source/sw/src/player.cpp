@@ -1757,7 +1757,7 @@ DoPlayerTurnTurret(PLAYERp pp)
     short new_ang;
     short diff;
     SECTOR_OBJECTp sop = pp->sop;
-    SW_PACKET last_input;
+    InputPacket last_input;
     int fifo_ndx;
 
     if (!Prediction)
@@ -2859,7 +2859,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     short save_sectnum;
     SECTOR_OBJECTp sop = pp->sop;
 
-    SW_PACKET last_input;
+    InputPacket last_input;
     int fifo_ndx;
 
     if (Prediction)
@@ -3222,7 +3222,7 @@ DoPlayerMoveTank(PLAYERp pp)
     int j,k;
     short startwall,endwall;
 
-    SW_PACKET last_input;
+    InputPacket last_input;
     int fifo_ndx;
     SWBOOL RectClip = !!TEST(sop->flags, SOBJ_RECT_CLIP);
 
