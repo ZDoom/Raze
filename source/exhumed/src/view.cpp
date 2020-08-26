@@ -434,22 +434,24 @@ void DrawView(double smoothRatio, bool sceneonly)
                     {
                         subtitleOverlay.Start(gameclock);
                         if (currentLevel->levelNumber == 1)
-                            subtitleOverlay.ReadyCinemaText(1);
+                            subtitleOverlay.ReadyCinemaText(0);
                         else
-                            subtitleOverlay.ReadyCinemaText(5);
+                            subtitleOverlay.ReadyCinemaText(4);
                     }
+                    inputState.ClearAllInput();
                 }
-                else if (nHeadStage == 6)
+                else if (nHeadStage == 5)
                 {
                     if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(gameclock)) || inputState.CheckAllInput())
                     {
-						inputState.ClearAllInput();
+                        inputState.ClearAllInput();
                         EndLevel = 2;
 
                         if (CDplaying()) {
                             fadecdaudio();
                         }
                     }
+                    else subtitleOverlay.DisplayText();
                 }
             }
         }

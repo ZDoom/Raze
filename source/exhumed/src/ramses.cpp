@@ -147,7 +147,7 @@ void InitSpiritHead()
         nTrack = 7;
     }
 
-    bSubTitles = playCDtrack(nTrack, false) == 0;
+    playCDtrack(nTrack, false);
 
     StartSwirlies();
 
