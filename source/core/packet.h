@@ -5,6 +5,20 @@
 #include "tflags.h"
 
 
+enum ESyncBits_ : uint32_t
+{
+    SB_FIRST_WEAPON_BIT = 1 << 0, 
+
+    SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
+
+    SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS)
+};
+
+// enforce type safe operations on the input bits.
+using ESyncBits = TFlags<ESyncBits_, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(ESyncBits)
+
+
 // Blood flags
 enum
 {
@@ -13,7 +27,7 @@ enum
 };
 
 
-enum ESyncBits_ : uint32_t
+enum EDukeSyncBits_ : uint32_t
 {
 	SKB_JUMP = 1 << 0,
 	SKB_CROUCH = 1 << 1,
@@ -45,8 +59,7 @@ enum ESyncBits_ : uint32_t
 	SKB_INVENTORY = 1 << 30,
 	SKB_ESCAPE = 1u << 31,
 
-	SKB_WEAPONMASK_BITS = (15u * SKB_FIRST_WEAPON_BIT),
-	SKB_INTERFACE_BITS = (SKB_WEAPONMASK_BITS | SKB_STEROIDS | SKB_NIGHTVISION | SKB_MEDKIT | SKB_QUICK_KICK | \
+	SKB_INTERFACE_BITS = (SKB_STEROIDS | SKB_NIGHTVISION | SKB_MEDKIT | SKB_QUICK_KICK | \
 		SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_HOLODUKE | SKB_JETPACK | SKB_INV_RIGHT | \
 		SKB_TURNAROUND | SKB_OPEN | SKB_INVENTORY | SKB_ESCAPE),
 
@@ -56,7 +69,7 @@ enum ESyncBits_ : uint32_t
 };
 
 // enforce type safe operations on the input bits.
-using EDukeSyncBits = TFlags<ESyncBits_, uint32_t>;
+using EDukeSyncBits = TFlags<EDukeSyncBits_, uint32_t>;
 DEFINE_TFLAGS_OPERATORS(EDukeSyncBits)
 
 union SYNCFLAGS
@@ -175,17 +188,28 @@ struct InputPacket
     fix16_t q16horz;
     fix16_t q16aimvel;	// only used by SW
     fix16_t q16ang;		// only used by SW
+    ESyncBits actions;
 	
     // Making this a union lets some constructs fail. Since these names are transitional only the added memory use doesn't really matter.
-        // for Duke
-        EDukeSyncBits sbits;
+    // for Duke
+    EDukeSyncBits sbits;
 
-        // for SW
-        int32_t bits;
+    // for SW
+    int32_t bits;
 
-        // for Blood
-        SYNCFLAGS syncFlags;
+    // for Blood
+    SYNCFLAGS syncFlags;
 
-        // For Exhumed
-        uint16_t buttons;
+    // For Exhumed
+    uint16_t buttons;
+
+    int getNewWeapon() const
+    {
+        return (actions & SB_WEAPONMASK_BITS).GetValue();
+    }
+
+    void SetNewWeapon(int weap)
+    {
+        actions = (actions & ~SB_WEAPONMASK_BITS) | (ESyncBits::FromInt(weap) & SB_WEAPONMASK_BITS);
+    }
 };

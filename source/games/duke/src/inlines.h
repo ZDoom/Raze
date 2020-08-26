@@ -136,6 +136,16 @@ inline EDukeSyncBits PlayerInputBits(int pl, EDukeSyncBits bits)
 	return (sync[pl].sbits & bits);
 }
 
+inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
+{
+	return (sync[pl].actions & bits);
+}
+
+inline int PlayerNewWeapon(int pl)
+{
+	return sync[pl].getNewWeapon();
+}
+
 inline int PlayerInputSideVel(int pl)
 {
 	return sync[pl].svel;

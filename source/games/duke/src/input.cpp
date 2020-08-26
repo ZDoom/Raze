@@ -195,7 +195,7 @@ void hud_input(int snum)
 	}
 	if (!PlayerInput(snum, SKB_QUICK_KICK)) p->quick_kick_msg = false;
 
-	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS))
+	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS) && ! PlayerInputBits(snum, SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
@@ -339,7 +339,7 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) / SKB_FIRST_WEAPON_BIT) - 1;
+		j = PlayerNewWeapon(snum) - 1;
 		if (j >= 0)
 		{
 			int a = 0;
@@ -664,8 +664,8 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
 
-		if (j && (loc.sbits & SKB_WEAPONMASK_BITS) == 0)
-			loc.sbits |= EDukeSyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+		if (j && (loc.actions & SB_WEAPONMASK_BITS) == 0)
+			loc.SetNewWeapon(j);
 
 	}
 
