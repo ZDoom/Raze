@@ -4066,6 +4066,7 @@ void pMicroStandBy(PANEL_SPRITEp psp);
 void pMicroCount(PANEL_SPRITEp psp);
 void pMicroReady(PANEL_SPRITEp psp);
 void pNukeAction(PANEL_SPRITEp psp);
+void pMicroInitNukeAlt(PANEL_SPRITEp psp);
 
 extern PANEL_STATE ps_MicroReload[];
 
@@ -4097,6 +4098,17 @@ PANEL_STATE ps_InitNuke[] =
     {ID_MicroPresent0, 0,               pMicroReady,  &ps_InitNuke[6], psf_QuickCall, 0,0},
     {ID_MicroPresent0, 120*2,           pNukeAction, &ps_InitNuke[7], 0,0,0},
     {ID_MicroPresent0, 3,               pNukeAction, &ps_MicroRest[0], 0,0,0}
+};
+
+PANEL_STATE ps_InitNukeAlt[] =
+{
+    {ID_MicroPresent0, Micro_REST_RATE, pMicroInitNukeAlt, &ps_InitNukeAlt[1],  0,0,0},
+    {ID_MicroPresent0, 0,               pMicroStandBy,     &ps_InitNukeAlt[2],  psf_QuickCall, 0,0},
+    {ID_MicroPresent0, 120*2,           pMicroAction,      &ps_InitNukeAlt[3],  0,0,0},
+    {ID_MicroPresent0, 0,               pMicroCount,       &ps_InitNukeAlt[4],  psf_QuickCall, 0,0},
+    {ID_MicroPresent0, 120*3,           pMicroAction,      &ps_InitNukeAlt[5],  0,0,0},
+    {ID_MicroPresent0, 0,               pMicroReady,       &ps_InitNukeAlt[6],  psf_QuickCall, 0,0},
+    {ID_MicroPresent0, 120 + 60,        pMicroAction,      &ps_PresentMicro[0], 0,0,0}
 };
 
 PANEL_STATE ps_MicroRecoil[] =
@@ -4187,7 +4199,7 @@ InitWeaponMicro(PLAYERp pp)
             pp->TestNukeInit = FALSE;
             pp->InitingNuke = TRUE;
             psp = pp->Wpn[WPN_MICRO];
-            pSetState(psp, ps_InitNuke);
+            pSetState(psp, !cl_swaltnukeinit ? ps_InitNuke : ps_InitNukeAlt);
         }
         return;
     }
@@ -4299,7 +4311,7 @@ pMicroPresent(PANEL_SPRITEp psp)
         if (pp->WpnRocketType == 2 && !pp->NukeInitialized)
         {
             pp->TestNukeInit = FALSE;
-            pSetState(psp, ps_InitNuke);
+            pSetState(psp, !cl_swaltnukeinit ? ps_InitNuke : ps_InitNukeAlt);
         }
         else
             pSetState(psp, psp->RestState);
@@ -4570,12 +4582,28 @@ pNukeAction(PANEL_SPRITEp psp)
 }
 
 void
+pMicroInitNukeAlt(PANEL_SPRITEp psp)
+{
+    PLAYERp pp = psp->PlayerP;
+
+    psp->oy = psp->y;
+    psp->y += 2 * synctics;
+
+    pMicroAction(psp);
+}
+
+void
 pMicroStandBy(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
 
+    psp->ox = psp->x;
+    psp->oy = psp->y;
+
     pMicroOverlays(psp);
     PlaySound(DIGI_NUKESTDBY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
+
+    pMicroAction(psp);
 }
 
 void
@@ -4584,6 +4612,8 @@ pMicroCount(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
 
     PlaySound(DIGI_NUKECDOWN, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
+
+    pMicroAction(psp);
 }
 
 void
@@ -4593,6 +4623,8 @@ pMicroReady(PANEL_SPRITEp psp)
 
     PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
     pp->NukeInitialized = TRUE;
+
+    pMicroAction(psp);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -7365,6 +7397,7 @@ static saveable_data saveable_panel_data[] =
     SAVE_DATA(ps_MicroRest),
     SAVE_DATA(ps_MicroHide),
     SAVE_DATA(ps_InitNuke),
+    SAVE_DATA(ps_InitNukeAlt),
     SAVE_DATA(ps_MicroRecoil),
     SAVE_DATA(ps_MicroFire),
     SAVE_DATA(ps_MicroSingleFire),
