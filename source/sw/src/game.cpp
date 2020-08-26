@@ -711,7 +711,7 @@ void EndOfLevel()
         COVER_SetReverb(0); // Reset reverb
         Player[myconnectindex].Reverb = 0;
         StopSound();
-        soundEngine->UpdateSounds(I_GetBuildTime());
+        soundEngine->UpdateSounds(I_GetTime());
         // NextLevel must be null while the intermission is running, but we still need the value for later
         auto localNextLevel = NextLevel;
         NextLevel = nullptr;

@@ -242,8 +242,8 @@ void S_SerializeSounds(FSerializer& arc)
 			}
 			arc.EndArray();
 		}
-		// Build runs at 120 fps, we need to allow a small delay here.
-		soundEngine->SetRestartTime(I_GetBuildTime() + 6);
+		// Add a small delay so that eviction only runs once the game is up and runnnig.
+		soundEngine->SetRestartTime(I_GetTime() + 2);
 	}
 	GSnd->Sync(false);
 	GSnd->UpdateSounds();
