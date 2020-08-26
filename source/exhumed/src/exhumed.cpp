@@ -611,7 +611,7 @@ void GameInterface::app_init()
     if (!loaddefinitionsfile(defsfile))
     {
         uint32_t etime = I_msTime();
-        Printf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
+        Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
 
 

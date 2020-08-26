@@ -164,6 +164,7 @@ struct FSoundChan : public FISoundChannel
 	FSoundID	OrgID;		// Sound ID of sound used to start this channel.
 	float		Volume;
 	int 		EntChannel;	// Actor's sound channel.
+	int			UserData;	// Not used by the engine, the caller can use this to store some additional info.
 	int16_t		Pitch;		// Pitch variation.
 	int16_t		NearLimit;
 	int8_t		Priority;

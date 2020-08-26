@@ -284,7 +284,7 @@ static void loaddefs()
 	if (!loaddefinitionsfile(defsfile))
 	{
 		deftimer.Unclock();
-		Printf("Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
+		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
 	}
 	userConfig.AddDefs.reset();
 }

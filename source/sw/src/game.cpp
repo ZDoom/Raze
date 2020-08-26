@@ -276,7 +276,7 @@ void GameInterface::app_init()
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
  
-    if (!loaddefinitionsfile(G_DefFile())) Printf("Definitions file loaded.\n");
+    if (!loaddefinitionsfile(G_DefFile())) Printf(PRINT_NONOTIFY, "Definitions file loaded.\n");
 	userConfig.AddDefs.reset();
     enginePostInit();
     videoInit();

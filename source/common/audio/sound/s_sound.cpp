@@ -588,6 +588,7 @@ FSoundChan *SoundEngine::StartSound(int type, const void *source,
 		chan->Priority = basepriority;
 		chan->DistanceScale = float(attenuation);
 		chan->SourceType = type;
+		chan->UserData = 0;
 		if (type == SOURCE_Unattached)
 		{
 			chan->Point[0] = pt->X; chan->Point[1] = pt->Y; chan->Point[2] = pt->Z;

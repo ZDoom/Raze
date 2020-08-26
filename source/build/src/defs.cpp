@@ -3447,7 +3447,7 @@ int32_t loaddefinitionsfile(const char *fn)
 
     if (script)
     {
-        Printf("Loading \"%s\"\n",fn);
+        Printf(PRINT_NONOTIFY, "Loading \"%s\"\n",fn);
 
         defsparser(script);
     }
@@ -3468,7 +3468,7 @@ int32_t loaddefinitionsfile(const char *fn)
 
     if (!script) return -1;
 
-    Printf("\n");
+    Printf(PRINT_NONOTIFY, "\n");
 
     return 0;
 }

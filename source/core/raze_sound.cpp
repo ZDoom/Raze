@@ -174,6 +174,7 @@ static FSerializer& Serialize(FSerializer& arc, const char* key, FSoundChan& cha
 			("rolloffmin", chan.Rolloff.MinDistance)
 			("rolloffmax", chan.Rolloff.MaxDistance)
 			("limitrange", chan.LimitRange)
+			("userdata", chan.UserData)
 			.Array("point", chan.Point, 3);
 
 		int SourceIndex = 0;
