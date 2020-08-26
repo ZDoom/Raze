@@ -502,7 +502,6 @@ void GameTicker()
             // make weapon selection persist until it gets used up.
             if ((lLocalButtons & kButtonWeaponBits) == 0) lLocalButtons |= sPlayerInput[nLocalPlayer].buttons & kButtonWeaponBits;
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
-            sPlayerInput[nLocalPlayer].nAngle = nPlayerDAng;
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
             Ra[nLocalPlayer].nTarget = besttarget;

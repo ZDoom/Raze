@@ -29,7 +29,6 @@ struct PlayerInput
 {
     int xVel;
     int yVel;
-    fix16_t nAngle;
     uint16_t buttons;
     short nTarget;
     fix16_t horizon;
