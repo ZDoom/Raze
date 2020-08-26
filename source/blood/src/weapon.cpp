@@ -469,8 +469,8 @@ void WeaponRaise(PLAYER *pPlayer)
 {
     dassert(pPlayer != NULL);
     int prevWeapon = pPlayer->curWeapon;
-    pPlayer->curWeapon = pPlayer->input.newWeapon;
-    pPlayer->input.newWeapon = 0;
+    pPlayer->curWeapon = pPlayer->newWeapon;
+    pPlayer->newWeapon = 0;
     pPlayer->weaponAmmo = weaponModes[pPlayer->curWeapon].at4;
     switch (pPlayer->curWeapon)
     {
@@ -641,21 +641,21 @@ void WeaponLower(PLAYER *pPlayer)
         case 4:
             pPlayer->weaponState = 1;
             StartQAV(pPlayer, 11, -1, 0);
-            pPlayer->input.newWeapon = 0;
+            pPlayer->newWeapon = 0;
             WeaponLower(pPlayer);
             break;
         case 3:
-            if (pPlayer->input.newWeapon == 6)
+            if (pPlayer->newWeapon == 6)
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 11, -1, 0);
                 return;
             }
-            else if (pPlayer->input.newWeapon == 7)
+            else if (pPlayer->newWeapon == 7)
             {
                 pPlayer->weaponState = 1;
                 StartQAV(pPlayer, 11, -1, 0);
-                pPlayer->input.newWeapon = 0;
+                pPlayer->newWeapon = 0;
                 WeaponLower(pPlayer);
             }
             else
@@ -676,7 +676,7 @@ void WeaponLower(PLAYER *pPlayer)
             WeaponRaise(pPlayer);
             break;
         case 3:
-            if (pPlayer->input.newWeapon == 7)
+            if (pPlayer->newWeapon == 7)
             {
                 pPlayer->weaponState = 2;
                 StartQAV(pPlayer, 17, -1, 0);
@@ -1767,17 +1767,17 @@ char sub_4F0E0(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 5:
-        if (!pPlayer->input.buttonFlags.shoot2)
+        if (!pPlayer->input.syncFlags.shoot2)
             pPlayer->weaponState = 6;
         return 1;
     case 6:
-        if (pPlayer->input.buttonFlags.shoot2)
+        if (pPlayer->input.syncFlags.shoot2)
         {
             pPlayer->weaponState = 3;
             pPlayer->fuseTime = pPlayer->weaponTimer;
             StartQAV(pPlayer, 13, nClientDropCan, 0);
         }
-        else if (pPlayer->input.buttonFlags.shoot)
+        else if (pPlayer->input.syncFlags.shoot)
         {
             pPlayer->weaponState = 7;
             pPlayer->fuseTime = 0;
@@ -1787,7 +1787,7 @@ char sub_4F0E0(PLAYER *pPlayer)
     case 7:
     {
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.buttonFlags.shoot)
+        if (!pPlayer->input.syncFlags.shoot)
         {
             if (!pPlayer->fuseTime)
                 pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -1805,17 +1805,17 @@ char sub_4F200(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 4:
-        if (!pPlayer->input.buttonFlags.shoot2)
+        if (!pPlayer->input.syncFlags.shoot2)
             pPlayer->weaponState = 5;
         return 1;
     case 5:
-        if (pPlayer->input.buttonFlags.shoot2)
+        if (pPlayer->input.syncFlags.shoot2)
         {
             pPlayer->weaponState = 1;
             pPlayer->fuseTime = pPlayer->weaponTimer;
             StartQAV(pPlayer, 22, nClientDropBundle, 0);
         }
-        else if (pPlayer->input.buttonFlags.shoot)
+        else if (pPlayer->input.syncFlags.shoot)
         {
             pPlayer->weaponState = 6;
             pPlayer->fuseTime = 0;
@@ -1825,7 +1825,7 @@ char sub_4F200(PLAYER *pPlayer)
     case 6:
     {
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.buttonFlags.shoot)
+        if (!pPlayer->input.syncFlags.shoot)
         {
             if (!pPlayer->fuseTime)
                 pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -1845,7 +1845,7 @@ char sub_4F320(PLAYER *pPlayer)
     case 9:
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         pPlayer->weaponTimer = 0;
-        if (!pPlayer->input.buttonFlags.shoot)
+        if (!pPlayer->input.syncFlags.shoot)
         {
             pPlayer->weaponState = 8;
             StartQAV(pPlayer, 29, nClientThrowProx, 0);
@@ -1861,7 +1861,7 @@ char sub_4F3A0(PLAYER *pPlayer)
     {
     case 13:
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.buttonFlags.shoot)
+        if (!pPlayer->input.syncFlags.shoot)
         {
             pPlayer->weaponState = 11;
             StartQAV(pPlayer, 39, nClientThrowRemote, 0);
@@ -1880,7 +1880,7 @@ char sub_4F414(PLAYER *pPlayer)
         StartQAV(pPlayer, 114, nClientFireLifeLeech, 1);
         return 1;
     case 6:
-        if (!pPlayer->input.buttonFlags.shoot2)
+        if (!pPlayer->input.syncFlags.shoot2)
         {
             pPlayer->weaponState = 2;
             StartQAV(pPlayer, 118, -1, 0);
@@ -1907,7 +1907,7 @@ char sub_4F484(PLAYER *pPlayer)
             StartQAV(pPlayer, 77, nClientFireTesla, 1);
         return 1;
     case 5:
-        if (!pPlayer->input.buttonFlags.shoot)
+        if (!pPlayer->input.syncFlags.shoot)
         {
             pPlayer->weaponState = 2;
             if (sub_4B2C8(pPlayer, 7, 10) && powerupCheck(pPlayer, kPwUpTwoGuns))
@@ -1968,8 +1968,8 @@ void WeaponProcess(PLAYER *pPlayer) {
     WeaponPlay(pPlayer);
     UpdateAimVector(pPlayer);
     pPlayer->weaponTimer -= 4;
-    char bShoot = pPlayer->input.buttonFlags.shoot;
-    char bShoot2 = pPlayer->input.buttonFlags.shoot2;
+    char bShoot = pPlayer->input.syncFlags.shoot;
+    char bShoot2 = pPlayer->input.syncFlags.shoot2;
     if (pPlayer->qavLoop && pPlayer->pXSprite->health > 0)
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))
@@ -2023,12 +2023,12 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         sfxKill3DSound(pPlayer->pSprite, -1, 441);
         pPlayer->weaponState = 0;
-        pPlayer->input.newWeapon = pPlayer->nextWeapon;
+        pPlayer->newWeapon = pPlayer->nextWeapon;
         pPlayer->nextWeapon = 0;
     }
-    if (pPlayer->input.keyFlags.nextWeapon)
+    if (pPlayer->input.syncFlags.nextWeapon)
     {
-        pPlayer->input.keyFlags.nextWeapon = 0;
+        pPlayer->input.syncFlags.nextWeapon = 0;
         pPlayer->weaponState = 0;
         pPlayer->nextWeapon = 0;
         int t;
@@ -2040,11 +2040,11 @@ void WeaponProcess(PLAYER *pPlayer) {
             pPlayer->nextWeapon = weapon;
             return;
         }
-        pPlayer->input.newWeapon = weapon;
+        pPlayer->newWeapon = weapon;
     }
-    if (pPlayer->input.keyFlags.prevWeapon)
+    if (pPlayer->input.syncFlags.prevWeapon)
     {
-        pPlayer->input.keyFlags.prevWeapon = 0;
+        pPlayer->input.syncFlags.prevWeapon = 0;
         pPlayer->weaponState = 0;
         pPlayer->nextWeapon = 0;
         int t;
@@ -2056,7 +2056,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             pPlayer->nextWeapon = weapon;
             return;
         }
-        pPlayer->input.newWeapon = weapon;
+        pPlayer->newWeapon = weapon;
     }
     if (pPlayer->weaponState == -1)
     {
@@ -2070,54 +2070,54 @@ void WeaponProcess(PLAYER *pPlayer) {
             pPlayer->nextWeapon = weapon;
             return;
         }
-        pPlayer->input.newWeapon = weapon;
+        pPlayer->newWeapon = weapon;
     }
-    if (pPlayer->input.newWeapon)
+    if (pPlayer->newWeapon)
     {
-        if (pPlayer->input.newWeapon == 6)
+        if (pPlayer->newWeapon == 6)
         {
             if (pPlayer->curWeapon == 6)
             {
                 if (sub_4B2C8(pPlayer, 10, 1))
-                    pPlayer->input.newWeapon = 11;
+                    pPlayer->newWeapon = 11;
                 else if (sub_4B2C8(pPlayer, 11, 1))
-                    pPlayer->input.newWeapon = 12;
+                    pPlayer->newWeapon = 12;
             }
             else if (pPlayer->curWeapon == 11)
             {
                 if (sub_4B2C8(pPlayer, 11, 1))
-                    pPlayer->input.newWeapon = 12;
+                    pPlayer->newWeapon = 12;
                 else if (sub_4B2C8(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->input.newWeapon = 6;
+                    pPlayer->newWeapon = 6;
             }
             else if (pPlayer->curWeapon == 12)
             {
                 if (sub_4B2C8(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->input.newWeapon = 6;
+                    pPlayer->newWeapon = 6;
                 else if (sub_4B2C8(pPlayer, 10, 1))
-                    pPlayer->input.newWeapon = 11;
+                    pPlayer->newWeapon = 11;
             }
             else
             {
                 if (sub_4B2C8(pPlayer, 5, 1) && pPlayer->isUnderwater == 0)
-                    pPlayer->input.newWeapon = 6;
+                    pPlayer->newWeapon = 6;
                 else if (sub_4B2C8(pPlayer, 10, 1))
-                    pPlayer->input.newWeapon = 11;
+                    pPlayer->newWeapon = 11;
                 else if (sub_4B2C8(pPlayer, 11, 1))
-                    pPlayer->input.newWeapon = 12;
+                    pPlayer->newWeapon = 12;
             }
         }
-        if (pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->input.newWeapon] == 0)
+        if (pPlayer->pXSprite->health == 0 || pPlayer->hasWeapon[pPlayer->newWeapon] == 0)
         {
-            pPlayer->input.newWeapon = 0;
+            pPlayer->newWeapon = 0;
             return;
         }
-        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->input.newWeapon) && !sub_4B1A4(pPlayer))
+        if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->newWeapon) && !sub_4B1A4(pPlayer))
         {
-            pPlayer->input.newWeapon = 0;
+            pPlayer->newWeapon = 0;
             return;
         }
-        int nWeapon = pPlayer->input.newWeapon;
+        int nWeapon = pPlayer->newWeapon;
         int v4c = weaponModes[nWeapon].at0;
         if (!pPlayer->curWeapon)
         {
@@ -2126,7 +2126,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             {
                 if (CheckAmmo(pPlayer, nAmmoType, 1) || nAmmoType == 11)
                     WeaponRaise(pPlayer);
-                pPlayer->input.newWeapon = 0;
+                pPlayer->newWeapon = 0;
             }
             else
             {
@@ -2144,14 +2144,14 @@ void WeaponProcess(PLAYER *pPlayer) {
                         pPlayer->nextWeapon = weapon;
                         return;
                     }
-                    pPlayer->input.newWeapon = weapon;
+                    pPlayer->newWeapon = weapon;
                 }
             }
             return;
         }
         if (nWeapon == pPlayer->curWeapon && v4c <= 1)
         {
-            pPlayer->input.newWeapon = 0;
+            pPlayer->newWeapon = 0;
             return;
         }
         int i = 0;
@@ -2167,7 +2167,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 return;
             }
         }
-        pPlayer->input.newWeapon = 0;
+        pPlayer->newWeapon = 0;
         return;
     }
     if (pPlayer->curWeapon && !CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1) && pPlayer->weaponAmmo != 11)

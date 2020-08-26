@@ -66,7 +66,7 @@ void viewInitializePrediction(void)
 	predict.at6f = gMe->cantJump;
 	predict.at70 = gMe->isRunning;
 	predict.at72 = gMe->isUnderwater;
-	predict.at71 = gMe->input.buttonFlags.jump;
+	predict.at71 = gMe->input.syncFlags.jump;
 	predict.at50 = gMe->pSprite->x;
 	predict.at54 = gMe->pSprite->y;
 	predict.at58 = gMe->pSprite->z;
@@ -78,7 +78,7 @@ void viewInitializePrediction(void)
 	predict.at6a = gMe->pXSprite->height;
 	predict.at48 = gMe->posture;
 	predict.at4c = gMe->spin;
-	predict.at6e = gMe->input.keyFlags.lookCenter;
+	predict.at6e = gMe->input.syncFlags.lookCenter;
 	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
 	predict.at0 = gMe->bobPhase;
 	predict.at4 = gMe->bobAmp;
@@ -136,8 +136,7 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     }
 
     predict.at70 = pInput->syncFlags.run;
-    predict.at70 = 0;
-    predict.at71 = pInput->buttonFlags.jump;
+    predict.at71 = pInput->syncFlags.jump;
     if (predict.at48 == 1)
     {
         int x = Cos(fix16_to_int(predict.at30));
@@ -191,7 +190,7 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     }
     if (pInput->q16turn)
         predict.at30 = (predict.at30+pInput->q16turn)&0x7ffffff;
-    if (pInput->keyFlags.spin180)
+    if (pInput->syncFlags.spin180)
         if (!predict.at4c)
             predict.at4c = -1024;
     if (predict.at4c < 0)
@@ -216,11 +215,11 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     case 1:
         if (predict.at71)
             predict.at64 -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->buttonFlags.crouch)
+        if (pInput->syncFlags.crouch)
             predict.at64 += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->buttonFlags.crouch)
+        if (!pInput->syncFlags.crouch)
             predict.at48 = 0;
         break;
     default:
@@ -229,12 +228,12 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             else predict.at64 = pPosture->normalJumpZ;//-0xbaaaa;
             predict.at6f = 1;
         }
-        if (pInput->buttonFlags.crouch)
+        if (pInput->syncFlags.crouch)
             predict.at48 = 2;
         break;
     }
 #if 0
-    if (predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+    if (predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
     {
         if (predict.at20 < 0)
             predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(0));
@@ -245,9 +244,9 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     }
     else
     {
-        if (pInput->buttonFlags.lookUp)
+        if (pInput->syncFlags.lookUp)
             predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(60));
-        if (pInput->buttonFlags.lookDown)
+        if (pInput->syncFlags.lookDown)
             predict.at20 = fix16_max(predict.at20-fix16_from_int(4), fix16_from_int(-60));
     }
     predict.at20 = fix16_clamp(predict.at20+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
@@ -263,7 +262,7 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     int downAngle = -347;
     double lookStepUp = 4.0*upAngle/60.0;
     double lookStepDown = -4.0*downAngle/60.0;
-    if (predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+    if (predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
     {
         if (predict.at20 < 0)
             predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepDown), fix16_from_int(0));
@@ -274,22 +273,22 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     }
     else
     {
-        if (pInput->buttonFlags.lookUp)
+        if (pInput->syncFlags.lookUp)
             predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
-        if (pInput->buttonFlags.lookDown)
+        if (pInput->syncFlags.lookDown)
             predict.at20 = fix16_max(predict.at20-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
     }
     if (numplayers > 1 && gPrediction)
     {
-        if (pInput->buttonFlags.lookUp)
+        if (pInput->syncFlags.lookUp)
         {
             gViewLookAdjust += float(lookStepUp);
         }
-        if (pInput->buttonFlags.lookDown)
+        if (pInput->syncFlags.lookDown)
         {
             gViewLookAdjust -= float(lookStepDown);
         }
-        gViewLookRecenter = predict.at6e && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
+        gViewLookRecenter = predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
     }
     predict.at20 = fix16_clamp(predict.at20+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));

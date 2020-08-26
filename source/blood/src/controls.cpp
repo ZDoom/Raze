@@ -45,8 +45,7 @@ bool bSilentAim = false;
 
 int iTurnCount = 0;
 static int WeaponToSend;
-static KEYFLAGS BitsToSend;
-static USEFLAGS UsesToSend;
+static SYNCFLAGS BitsToSend;
 
 void ctrlInit(void)
 {
@@ -128,7 +127,7 @@ void ctrlGetInput(void)
 
     if (paused != prevPauseState)
     {
-        gInput.keyFlags.pause = 1;
+        gInput.syncFlags.pause = 1;
     }
 
     if (paused)
@@ -137,7 +136,7 @@ void ctrlGetInput(void)
     GINPUT input = {};
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-	if (!mouseaim) gInput.keyFlags.lookCenter = 1;
+	if (!mouseaim) gInput.syncFlags.lookCenter = 1;
 
     if (numplayers == 1)
     {
@@ -148,15 +147,13 @@ void ctrlGetInput(void)
     CONTROL_GetInput(&info);
 
     if (gQuitRequest)
-        gInput.keyFlags.quit = 1;
+        gInput.syncFlags.quit = 1;
 
-    gInput.keyFlags.word |= BitsToSend.word;
-    gInput.useFlags.byte |= UsesToSend.byte;
+    gInput.syncFlags.value |= BitsToSend.value;
     if (WeaponToSend != 0) 
-        gInput.newWeapon = WeaponToSend;
+        gInput.syncFlags.newWeapon = WeaponToSend;
 
-    BitsToSend.word = 0;
-    UsesToSend.byte = 0;
+    BitsToSend.value = 0;
     WeaponToSend = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
@@ -188,32 +185,32 @@ void ctrlGetInput(void)
     }
 
     if (buttonMap.ButtonDown(gamefunc_Jump))
-        gInput.buttonFlags.jump = 1;
+        gInput.syncFlags.jump = 1;
 
     if (buttonMap.ButtonDown(gamefunc_Crouch))
-        gInput.buttonFlags.crouch = 1;
+        gInput.syncFlags.crouch = 1;
 
     if (buttonMap.ButtonDown(gamefunc_Fire))
-        gInput.buttonFlags.shoot = 1;
+        gInput.syncFlags.shoot = 1;
 
     if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
-        gInput.buttonFlags.shoot2 = 1;
+        gInput.syncFlags.shoot2 = 1;
 
     if (buttonMap.ButtonDown(gamefunc_Open))
     {
         buttonMap.ClearButton(gamefunc_Open);
-        gInput.keyFlags.action = 1;
+        gInput.syncFlags.action = 1;
     }
 
-    gInput.buttonFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Look_Up);
-    gInput.buttonFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
+    gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Look_Up);
+    gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
 
     if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Look_Down))
-        gInput.keyFlags.lookCenter = 1;
+        gInput.syncFlags.lookCenter = 1;
     else
     {
-        gInput.buttonFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Aim_Up);
-        gInput.buttonFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Aim_Down);
+        gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Aim_Up);
+        gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Aim_Down);
     }
 
     int const run = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
@@ -369,14 +366,14 @@ void registerinputcommands()
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
     C_RegisterFunction("proximitybombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
     C_RegisterFunction("remotebombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-    C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { UsesToSend.useJumpBoots = 1; return CCMD_OK; });
-    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { UsesToSend.useMedKit = 1; return CCMD_OK; });
+    C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useJumpBoots = 1; return CCMD_OK; });
+    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useMedKit = 1; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
     C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend.prevItem = 1; return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend.nextItem = 1; return CCMD_OK; });
-    C_RegisterFunction("crystalball", nullptr, [](CCmdFuncPtr)->int { UsesToSend.useCrystalBall = 1; return CCMD_OK; });
-    C_RegisterFunction("beastvision", nullptr, [](CCmdFuncPtr)->int { UsesToSend.useBeastVision = 1; return CCMD_OK; });
+    C_RegisterFunction("crystalball", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useCrystalBall = 1; return CCMD_OK; });
+    C_RegisterFunction("beastvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useBeastVision = 1; return CCMD_OK; });
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useItem = 1; return CCMD_OK; });
 }
@@ -385,8 +382,7 @@ void registerinputcommands()
 void GameInterface::clearlocalinputstate()
 {
     WeaponToSend = 0;
-    BitsToSend.word = 0;
-    UsesToSend.byte = 0;
+    BitsToSend.value = 0;
 }
 
 

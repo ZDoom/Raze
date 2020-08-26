@@ -1350,7 +1350,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer) {
         // restore weapon
         if (pPlayer->pXSprite->health > 0) {
             int oldWeapon = (pXSource && pXSource->dropMsg != 0) ? pXSource->dropMsg : 1;
-            pPlayer->input.newWeapon = pPlayer->curWeapon = oldWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon = oldWeapon;
             WeaponRaise(pPlayer);
         }
     }
@@ -1590,7 +1590,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                     XSPRITE* pXScene = &xsprite[sprite[pCtrl->qavScene.index].extra];
                     pXScene->dropMsg = weapon;
                 } else if (pPlayer->curWeapon != weapon) {
-                    pPlayer->input.newWeapon = weapon;
+                    pPlayer->newWeapon = weapon;
                     WeaponRaise(pPlayer);
                 }
             }
@@ -1990,7 +1990,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                         xsprite[pSpr->extra].medium = kMediumNormal;
                         if (pPlayer) {
-                            pPlayer->posture = (!pPlayer->input.buttonFlags.crouch) ? kPostureStand : kPostureCrouch;
+                            pPlayer->posture = (!pPlayer->input.syncFlags.crouch) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
 
@@ -2087,7 +2087,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
             xsprite[pSprite->extra].medium = kMediumNormal;
             if (pPlayer) {
-                pPlayer->posture = (!pPlayer->input.buttonFlags.crouch) ? kPostureStand : kPostureCrouch;
+                pPlayer->posture = (!pPlayer->input.syncFlags.crouch) ? kPostureStand : kPostureCrouch;
                 pPlayer->nWaterPal = 0;
             }
 
@@ -2889,10 +2889,10 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 2:  return (pPlayer->input.forward < 0);            // backward
             case 3:  return (pPlayer->input.strafe > 0);             // left
             case 4:  return (pPlayer->input.strafe < 0);             // right
-            case 5:  return (pPlayer->input.buttonFlags.jump);       // jump
-            case 6:  return (pPlayer->input.buttonFlags.crouch);     // crouch
-            case 7:  return (pPlayer->input.buttonFlags.shoot);      // normal fire weapon
-            case 8:  return (pPlayer->input.buttonFlags.shoot2);     // alt fire weapon
+            case 5:  return (pPlayer->input.syncFlags.jump);       // jump
+            case 6:  return (pPlayer->input.syncFlags.crouch);     // crouch
+            case 7:  return (pPlayer->input.syncFlags.shoot);      // normal fire weapon
+            case 8:  return (pPlayer->input.syncFlags.shoot2);     // alt fire weapon
             default:
                 condError(pXCond, "Player conditions:\nSpecify a correct key!");
                 break;

@@ -4749,7 +4749,7 @@ void MoveDude(spritetype *pSprite)
             if (pPlayer) {
                 pPlayer->posture = 0;
                 pPlayer->bubbleTime = 0;
-                if (!pPlayer->cantJump && pPlayer->input.buttonFlags.jump) {
+                if (!pPlayer->cantJump && pPlayer->input.syncFlags.jump) {
                     zvel[nSprite] = -0x6aaaa;
                     pPlayer->cantJump = 1;
                 }

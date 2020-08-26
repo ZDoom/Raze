@@ -525,11 +525,10 @@ void ProcessFrame(void)
     char buffer[128];
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        gPlayer[i].input.buttonFlags = gFifoInput[gNetFifoTail&255][i].buttonFlags;
-        gPlayer[i].input.keyFlags.word |= gFifoInput[gNetFifoTail&255][i].keyFlags.word;
-        gPlayer[i].input.useFlags.byte |= gFifoInput[gNetFifoTail&255][i].useFlags.byte;
-        if (gFifoInput[gNetFifoTail&255][i].newWeapon)
-            gPlayer[i].input.newWeapon = gFifoInput[gNetFifoTail&255][i].newWeapon;
+        gPlayer[i].input.syncFlags.value &= ~flag_buttonmask;
+        gPlayer[i].input.syncFlags.value |= gFifoInput[gNetFifoTail & 255][i].syncFlags.value;
+        if (gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon)
+            gPlayer[i].newWeapon = gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon;
         gPlayer[i].input.forward = gFifoInput[gNetFifoTail&255][i].forward;
         gPlayer[i].input.q16turn = gFifoInput[gNetFifoTail&255][i].q16turn;
         gPlayer[i].input.strafe = gFifoInput[gNetFifoTail&255][i].strafe;
@@ -539,9 +538,9 @@ void ProcessFrame(void)
 
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        if (gPlayer[i].input.keyFlags.quit)
+        if (gPlayer[i].input.syncFlags.quit)
         {
-            gPlayer[i].input.keyFlags.quit = 0;
+            gPlayer[i].input.syncFlags.quit = 0;
             netBroadcastPlayerLogoff(i);
             if (i == myconnectindex)
             {
@@ -553,15 +552,15 @@ void ProcessFrame(void)
                 return;
             }
         }
-        if (gPlayer[i].input.keyFlags.restart)
+        if (gPlayer[i].input.syncFlags.restart)
         {
-            gPlayer[i].input.keyFlags.restart = 0;
+            gPlayer[i].input.syncFlags.restart = 0;
             levelRestart();
             return;
         }
-        if (gPlayer[i].input.keyFlags.pause)
+        if (gPlayer[i].input.syncFlags.pause)
         {
-            gPlayer[i].input.keyFlags.pause = 0;
+            gPlayer[i].input.syncFlags.pause = 0;
             if (paused && gGameOptions.nGameType > 0 && numplayers > 1)
             {
                 sprintf(buffer,"%s paused the game",gProfile[i].name);

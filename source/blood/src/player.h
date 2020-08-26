@@ -87,15 +87,7 @@ struct PLAYER
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
     GINPUT              input;
-    //short             input;                      // INPUT
-    //char              moveFunc;                        // forward
-    //short             at11;                       // turn
-    //char              hearDist;                    // strafe
-    //int               bobV;                         // buttonFlags
-    //unsigned int      bobH;                // keyFlags
-    //char              swayV;                       // useFlags;
-    //char              swayH;                       // newWeapon
-    //char              at21;                        // mlook
+    uint8_t             newWeapon;
     int                 used1;  // something related to game checksum
     int                 weaponQav;
     int                 qavCallback;

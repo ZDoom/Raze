@@ -318,7 +318,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
             pPlayer->damageControl[1]++;
             break;
         case kItemTwoGuns:
-            pPlayer->input.newWeapon = pPlayer->curWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -369,7 +369,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
             pPlayer->damageControl[1]--;
             break;
         case kItemTwoGuns:
-            pPlayer->input.newWeapon = pPlayer->curWeapon;
+            pPlayer->newWeapon = pPlayer->curWeapon;
             WeaponRaise(pPlayer);
             break;
     }
@@ -749,12 +749,10 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->q16turn = 0;
-    pInput->keyFlags.word = 0;
+    pInput->syncFlags.value = 0;
     pInput->forward = 0;
     pInput->strafe = 0;
     pInput->q16mlook = 0;
-    pInput->buttonFlags.byte = 0;
-    pInput->useFlags.byte = 0;
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = 0;
     pPlayer->tiltEffect = 0;
@@ -822,7 +820,7 @@ void playerReset(PLAYER *pPlayer)
     pPlayer->hasWeapon[1] = 1;
     pPlayer->curWeapon = 0;
     pPlayer->qavCallback = -1;
-    pPlayer->input.newWeapon = 1;
+    pPlayer->newWeapon = 1;
     for (int i = 0; i < 14; i++)
     {
         pPlayer->weaponOrder[0][i] = dword_136400[i];
@@ -1311,7 +1309,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
 
     pPlayer->isRunning = pInput->syncFlags.run;
-    if (pInput->buttonFlags.byte || pInput->forward || pInput->strafe || pInput->q16turn)
+    if ((pInput->syncFlags.value & flag_buttonmask_norun) || pInput->forward || pInput->strafe || pInput->q16turn)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1333,8 +1331,8 @@ void ProcessInput(PLAYER *pPlayer)
                 pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
         }
         if (pPlayer->curWeapon)
-            pInput->newWeapon = pPlayer->curWeapon;
-        if (pInput->keyFlags.action)
+            pInput->syncFlags.newWeapon = pPlayer->curWeapon;
+        if (pInput->syncFlags.action)
         {
             if (bSeqStat)
             {
@@ -1350,12 +1348,12 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    pInput->keyFlags.restart = 1;
+                    pInput->syncFlags.restart = 1;
                 }
                 else
                     playerStart(pPlayer->nPlayer);
             }
-            pInput->keyFlags.action = 0;
+            pInput->syncFlags.action = 0;
         }
         return;
     }
@@ -1412,11 +1410,11 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->q16turn)
         pPlayer->q16ang = (pPlayer->q16ang+pInput->q16turn)&0x7ffffff;
-    if (pInput->keyFlags.spin180)
+    if (pInput->syncFlags.spin180)
     {
         if (!pPlayer->spin)
             pPlayer->spin = -1024;
-        pInput->keyFlags.spin180 = 0;
+        pInput->syncFlags.spin180 = 0;
     }
     if (pPlayer->spin < 0)
     {
@@ -1434,22 +1432,22 @@ void ProcessInput(PLAYER *pPlayer)
         gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
     pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
-    if (!pInput->buttonFlags.jump)
+    if (!pInput->syncFlags.jump)
         pPlayer->cantJump = 0;
 
     switch (pPlayer->posture) {
     case 1:
-        if (pInput->buttonFlags.jump)
+        if (pInput->syncFlags.jump)
             zvel[nSprite] -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->buttonFlags.crouch)
+        if (pInput->syncFlags.crouch)
             zvel[nSprite] += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->buttonFlags.crouch)
+        if (!pInput->syncFlags.crouch)
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && pInput->buttonFlags.jump && pXSprite->height == 0) {
+        if (!pPlayer->cantJump && pInput->syncFlags.jump && pXSprite->height == 0) {
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
@@ -1460,11 +1458,11 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->cantJump = 1;
         }
 
-        if (pInput->buttonFlags.crouch)
+        if (pInput->syncFlags.crouch)
             pPlayer->posture = 2;
         break;
     }
-    if (pInput->keyFlags.action)
+    if (pInput->syncFlags.action)
     {
         int a2, a3;
         int hit = ActionScan(pPlayer, &a2, &a3);
@@ -1537,24 +1535,24 @@ void ProcessInput(PLAYER *pPlayer)
             zvel[pSprite2->index] = zvel[nSprite];
             pPlayer->hand = 0;
         }
-        pInput->keyFlags.action = 0;
+        pInput->syncFlags.action = 0;
     }
     if (bVanilla)
     {
-        if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->keyFlags.lookCenter = 0;
+                pInput->syncFlags.lookCenter = 0;
         }
         else
         {
-            if (pInput->buttonFlags.lookUp)
+            if (pInput->syncFlags.lookUp)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
-            if (pInput->buttonFlags.lookDown)
+            if (pInput->syncFlags.lookDown)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
@@ -1571,33 +1569,33 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if (pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown)
+        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->keyFlags.lookCenter = 0;
+                pInput->syncFlags.lookCenter = 0;
         }
         else
         {
-            if (pInput->buttonFlags.lookUp)
+            if (pInput->syncFlags.lookUp)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
-            if (pInput->buttonFlags.lookDown)
+            if (pInput->syncFlags.lookDown)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
-            if (pInput->buttonFlags.lookUp)
+            if (pInput->syncFlags.lookUp)
             {
                 gViewLookAdjust += float(lookStepUp);
             }
-            if (pInput->buttonFlags.lookDown)
+            if (pInput->syncFlags.lookDown)
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = pInput->keyFlags.lookCenter && !pInput->buttonFlags.lookUp && !pInput->buttonFlags.lookDown;
+            gViewLookRecenter = pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
@@ -1629,49 +1627,49 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->q16slopehoriz = 0;
     }
     pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
-    if (pInput->keyFlags.prevItem)
+    if (pInput->syncFlags.prevItem)
     {
-        pInput->keyFlags.prevItem = 0;
+        pInput->syncFlags.prevItem = 0;
         packPrevItem(pPlayer);
     }
-    if (pInput->keyFlags.nextItem)
+    if (pInput->syncFlags.nextItem)
     {
-        pInput->keyFlags.nextItem = 0;
+        pInput->syncFlags.nextItem = 0;
         packNextItem(pPlayer);
     }
-    if (pInput->keyFlags.useItem)
+    if (pInput->syncFlags.useItem)
     {
-        pInput->keyFlags.useItem = 0;
+        pInput->syncFlags.useItem = 0;
         if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
             packUseItem(pPlayer, pPlayer->packItemId);
     }
-    if (pInput->useFlags.useBeastVision)
+    if (pInput->syncFlags.useBeastVision)
     {
-        pInput->useFlags.useBeastVision = 0;
+        pInput->syncFlags.useBeastVision = 0;
         if (pPlayer->packSlots[3].curAmount > 0)
             packUseItem(pPlayer, 3);
     }
-    if (pInput->useFlags.useCrystalBall)
+    if (pInput->syncFlags.useCrystalBall)
     {
-        pInput->useFlags.useCrystalBall = 0;
+        pInput->syncFlags.useCrystalBall = 0;
         if (pPlayer->packSlots[2].curAmount > 0)
             packUseItem(pPlayer, 2);
     }
-    if (pInput->useFlags.useJumpBoots)
+    if (pInput->syncFlags.useJumpBoots)
     {
-        pInput->useFlags.useJumpBoots = 0;
+        pInput->syncFlags.useJumpBoots = 0;
         if (pPlayer->packSlots[4].curAmount > 0)
             packUseItem(pPlayer, 4);
     }
-    if (pInput->useFlags.useMedKit)
+    if (pInput->syncFlags.useMedKit)
     {
-        pInput->useFlags.useMedKit = 0;
+        pInput->syncFlags.useMedKit = 0;
         if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }
-    if (pInput->keyFlags.holsterWeapon)
+    if (pInput->syncFlags.holsterWeapon)
     {
-        pInput->keyFlags.holsterWeapon = 0;
+        pInput->syncFlags.holsterWeapon = 0;
         if (pPlayer->curWeapon)
         {
             WeaponLower(pPlayer);
@@ -2178,7 +2176,7 @@ void PlayerSurvive(int, int nXSprite)
                 sprintf(buffer, "%s lives again!", gProfile[pPlayer->nPlayer].name);
                 viewSetMessage(buffer);
             }
-            pPlayer->input.newWeapon = 1;
+            pPlayer->newWeapon = 1;
         }
     }
 }
