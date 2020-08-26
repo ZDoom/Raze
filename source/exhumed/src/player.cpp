@@ -160,7 +160,8 @@ void PlayerInterruptKeys()
         return;
 
 	localInput = {};
-    PlayerInput input {};
+    InputPacket input {};
+    fix16_t input_angle = 0;
 
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
@@ -177,35 +178,35 @@ void PlayerInterruptKeys()
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        input.xVel -= info.mousex * 4.f;
-        input.xVel -= info.dyaw * keyMove;
+        input.svel -= info.mousex * 4.f;
+        input.svel -= info.dyaw * keyMove;
     }
     else
     {
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_float(info.mousex));
-        input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
+        input_angle = fix16_sadd(input_angle, fix16_from_float(info.mousex));
+        input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
     g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
     if (g_MyAimMode)
-        input.horizon = fix16_sadd(input.horizon, fix16_from_float(info.mousey));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
     else
-        input.yVel -= info.mousey * 8.f;
+        input.fvel -= info.mousey * 8.f;
 
-    if (!in_mouseflip) input.horizon = -input.horizon;
+    if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-    input.horizon = fix16_ssub(input.horizon, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
-    input.xVel -= info.dx * keyMove;
-    input.yVel -= info.dz * keyMove;
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
+    input.svel -= info.dx * keyMove;
+    input.fvel -= info.dz * keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            input.xVel -= -keyMove;
+            input.svel -= -keyMove;
 
         if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            input.xVel -= keyMove;
+            input.svel -= keyMove;
     }
     else
     {
@@ -242,54 +243,58 @@ void PlayerInterruptKeys()
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-            input.nAngle = fix16_sadd(input.nAngle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
+            input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
 
     }
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        input.xVel += keyMove;
+        input.svel += keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        input.xVel += -keyMove;
+        input.svel += -keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        input.yVel += keyMove;
+        input.fvel += keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        input.yVel += -keyMove;
+        input.fvel += -keyMove;
 
-    localInput.fvel   = clamp(localInput.fvel + input.yVel, -12, 12);
-    localInput.svel   = clamp(localInput.svel + input.xVel, -12, 12);
+    localInput.fvel   = clamp(localInput.fvel + input.fvel, -12, 12);
+    localInput.svel   = clamp(localInput.svel + input.svel, -12, 12);
 
-    localInput.q16avel                 = fix16_sadd(localInput.q16avel, input.nAngle);
-    PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input.nAngle) & 0x7FFFFFF;
+    localInput.q16avel                 = fix16_sadd(localInput.q16avel, input_angle);
 
-    // A horiz diff of 128 equal 45 degrees,
-    // so we convert horiz to 1024 angle units
-
-    float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(input.horizon), -255.f, 255.f);
-    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
-
-    // Look/aim up/down functions.
-    if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
+    if (!nFreeze)
     {
-        bLockPan = false;
-        if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-        }
+        PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input_angle) & 0x7FFFFFF;
 
-        bPlayerPan = true;
-        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-    }
-    else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
-    {
-        bLockPan = false;
-        if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
-            PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-        }
+        // A horiz diff of 128 equal 45 degrees,
+        // so we convert horiz to 1024 angle units
 
-        bPlayerPan = true;
-        nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(input.q16horz), -255.f, 255.f);
+        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
+
+        // Look/aim up/down functions.
+        if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
+        {
+            bLockPan = false;
+            if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
+                PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
+            }
+
+            bPlayerPan = true;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        }
+        else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
+        {
+            bLockPan = false;
+            if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
+                PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
+            }
+
+            bPlayerPan = true;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        }
     }
 
     // loc_1C048:
@@ -308,36 +313,39 @@ void PlayerInterruptKeys()
         ecx = 0;
     }
 
-    if (ecx)
+    if (!nFreeze)
     {
-        if (ecx / 4 == 0)
+        if (ecx)
         {
-            if (ecx >= 0) {
-                ecx = 1;
+            if (ecx / 4 == 0)
+            {
+                if (ecx >= 0) {
+                    ecx = 1;
+                }
+                else
+                {
+                    ecx = -1;
+                }
             }
             else
             {
-                ecx = -1;
-            }
-        }
-        else
-        {
-            ecx /= 4;
+                ecx /= 4;
 
-            if (ecx > fix16_from_int(4))
-            {
-                ecx = fix16_from_int(4);
+                if (ecx > fix16_from_int(4))
+                {
+                    ecx = fix16_from_int(4);
+                }
+                else if (ecx < -fix16_from_int(4))
+                {
+                    ecx = -fix16_from_int(4);
+                }
             }
-            else if (ecx < -fix16_from_int(4))
-            {
-                ecx = -fix16_from_int(4);
-            }
+
+            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
         }
 
-        PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
+        PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
     }
-
-    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
 }
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)

@@ -37,15 +37,15 @@ int lNextStateChange;
 int nPixels;
 int nHeadTimeStart;
 short nHeadStage;
-short curx[97 * 106];
-short cury[97 * 106];
-int8_t destvelx[97 * 106];
-int8_t destvely[97 * 106];
-uint8_t pixelval[97 * 106];
-int8_t origy[97 * 106];
-int8_t origx[97 * 106];
-int8_t velx[97 * 106];
-int8_t vely[97 * 106];
+short curx[kSpiritY * kSpiritX];
+short cury[kSpiritY * kSpiritX];
+int8_t destvelx[kSpiritY * kSpiritX];
+int8_t destvely[kSpiritY * kSpiritX];
+uint8_t pixelval[kSpiritY * kSpiritX];
+int8_t origy[kSpiritY * kSpiritX];
+int8_t origx[kSpiritY * kSpiritX];
+int8_t velx[kSpiritY * kSpiritX];
+int8_t vely[kSpiritY * kSpiritX];
 short nMouthTile;
 
 short nPupData = 0;
@@ -88,7 +88,7 @@ void InitSpiritHead()
         {
             if (*pTile != TRANSPARENT_INDEX)
             {
-				pixelval[nPixels] = *(pGold + x * 106 + y);
+				pixelval[nPixels] = *(pGold + x * kSpiritX + y);
                 origx[nPixels] = x - 48;
                 origy[nPixels] = y - 53;
                 curx[nPixels] = 0;
@@ -123,7 +123,7 @@ void InitSpiritHead()
     nHeadStage = 0;
 
     // work tile is twice as big as the normal head size
-	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritX * 2, kSpiritY * 2);
+	Worktile = TileFiles.tileCreate(kTileRamsesWorkTile, kSpiritY * 2, kSpiritX * 2);
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
