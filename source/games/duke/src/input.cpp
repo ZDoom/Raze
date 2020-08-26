@@ -40,7 +40,7 @@ source as it is released.
 BEGIN_DUKE_NS
 
 static int WeaponToSend;
-static ESyncBits BitsToSend;
+static EDukeSyncBits BitsToSend;
 
 // State timer counters. 
 static int nonsharedtimer;
@@ -665,7 +665,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
 
 		if (j && (loc.sbits & SKB_WEAPONMASK_BITS) == 0)
-			loc.sbits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
+			loc.sbits |= EDukeSyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
 
 	}
 

@@ -56,8 +56,8 @@ enum ESyncBits_ : uint32_t
 };
 
 // enforce type safe operations on the input bits.
-using ESyncBits = TFlags<ESyncBits_, uint32_t>;
-DEFINE_TFLAGS_OPERATORS(ESyncBits)
+using EDukeSyncBits = TFlags<ESyncBits_, uint32_t>;
+DEFINE_TFLAGS_OPERATORS(EDukeSyncBits)
 
 union SYNCFLAGS
 {
@@ -178,7 +178,7 @@ struct InputPacket
 	
     // Making this a union lets some constructs fail. Since these names are transitional only the added memory use doesn't really matter.
         // for Duke
-        ESyncBits sbits;
+        EDukeSyncBits sbits;
 
         // for SW
         int32_t bits;

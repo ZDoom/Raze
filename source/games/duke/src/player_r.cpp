@@ -1509,7 +1509,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void onMotorcycle(int snum, ESyncBits &sb_snum)
+static void onMotorcycle(int snum, EDukeSyncBits &sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1802,7 +1802,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void onBoat(int snum, ESyncBits& sb_snum)
+static void onBoat(int snum, EDukeSyncBits& sb_snum)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2086,7 +2086,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2316,7 +2316,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, EDukeSyncBits sb_snum, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -2740,7 +2740,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits sb_snum, int psect)
+static void operateweapon(int snum, EDukeSyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3332,7 +3332,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits sb_snum, int psect)
+static void processweapon(int snum, EDukeSyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3397,7 +3397,7 @@ void processinput_r(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
-	ESyncBits sb_snum;
+	EDukeSyncBits sb_snum;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -4099,12 +4099,12 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void processweapon_r(int s, ESyncBits ss, int p)
+void processweapon_r(int s, EDukeSyncBits ss, int p)
 {
 	processweapon(s, ss, p);
 }
 
-void processmove_r(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_r(int snum, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];

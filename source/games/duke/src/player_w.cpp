@@ -306,7 +306,7 @@ void fireweapon_ww(int snum)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, ESyncBits sb_snum, int psect)
+void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;

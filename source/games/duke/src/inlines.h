@@ -116,22 +116,22 @@ inline bool isIn(int value, const std::initializer_list<int>& list)
 
 
 // these are mainly here to avoid directly accessing the input data so that it can be more easily refactored later.
-inline bool PlayerInput(int pl, ESyncBits bit)
+inline bool PlayerInput(int pl, EDukeSyncBits bit)
 {
 	return (!!((sync[pl].sbits) & bit));
 }
 
-inline void PlayerSetInput(int pl, ESyncBits bit)
+inline void PlayerSetInput(int pl, EDukeSyncBits bit)
 {
 	sync[pl].sbits |= bit;
 }
 
-inline void PlayerClearInput(int pl, ESyncBits bit)
+inline void PlayerClearInput(int pl, EDukeSyncBits bit)
 {
 	sync[pl].sbits &= ~bit;
 }
 
-inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
+inline EDukeSyncBits PlayerInputBits(int pl, EDukeSyncBits bits)
 {
 	return (sync[pl].sbits & bits);
 }

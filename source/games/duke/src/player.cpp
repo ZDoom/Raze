@@ -1050,7 +1050,7 @@ void playerCenterView(int snum)
 	}
 }
 
-void playerLookUp(int snum, ESyncBits sb_snum)
+void playerLookUp(int snum, EDukeSyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -1062,7 +1062,7 @@ void playerLookUp(int snum, ESyncBits sb_snum)
 	}
 }
 
-void playerLookDown(int snum, ESyncBits sb_snum)
+void playerLookDown(int snum, EDukeSyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -1074,7 +1074,7 @@ void playerLookDown(int snum, ESyncBits sb_snum)
 	}
 }
 
-void playerAimUp(int snum, ESyncBits sb_snum)
+void playerAimUp(int snum, EDukeSyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -1085,7 +1085,7 @@ void playerAimUp(int snum, ESyncBits sb_snum)
 	}
 }
 
-void playerAimDown(int snum, ESyncBits sb_snum)
+void playerAimDown(int snum, EDukeSyncBits sb_snum)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
