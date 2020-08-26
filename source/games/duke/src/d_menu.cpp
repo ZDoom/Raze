@@ -222,7 +222,6 @@ void GameInterface::MenuOpened()
 	if (ud.multimode < 2)
 	{
 		ready2send = 0;
-		//I_FreezeTime(true);
 		screenpeek = myconnectindex;
 	}
 }
@@ -264,7 +263,6 @@ void GameInterface::MenuClosed()
 		if (ud.multimode < 2 && ud.recstat != 2)
 		{
 			ready2send = 1;
-			//I_FreezeTime(false);
 			cameraclock = gameclock;
 			cameradist = 65536;
 		}

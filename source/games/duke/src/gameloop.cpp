@@ -353,8 +353,6 @@ bool GameTicker()
 		}
 	}
 
-	//I_FreezeTime(!playrunning());
-
 	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 
 	gameupdatetime.Unclock();
