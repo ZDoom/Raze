@@ -158,9 +158,6 @@ enum {
     kButtonCheatGodMode = 0x40,
     kButtonCheatKeys = 0x80,
     kButtonCheatItems = 0x100,
-
-    kButtonWeaponShift = 13,
-    kButtonWeaponBits = 7 << kButtonWeaponShift, // upper 3 bits.
 };
 
 

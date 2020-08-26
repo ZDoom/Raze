@@ -483,7 +483,7 @@ void GameTicker()
             lastTic = currentTic;
 
             int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
-            PlayerInterruptKeys();
+            PlayerInterruptKeys(false);
 
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
             inita &= kAngleMask;
@@ -500,8 +500,11 @@ void GameTicker()
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             // make weapon selection persist until it gets used up.
-            if ((lLocalButtons & kButtonWeaponBits) == 0) lLocalButtons |= sPlayerInput[nLocalPlayer].buttons & kButtonWeaponBits;
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+            int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
+            sPlayerInput[nLocalPlayer].actions = localInput.actions;
+            int weap2 = localInput.getNewWeapon();
+            if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
             Ra[nLocalPlayer].nTarget = besttarget;

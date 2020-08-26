@@ -257,7 +257,7 @@ void GameLoop()
 {
     CheckKeys();
     GameTicker();
-    PlayerInterruptKeys();
+    PlayerInterruptKeys(true);
     UpdateSounds();
     CheckKeys2();
 }
