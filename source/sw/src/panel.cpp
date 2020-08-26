@@ -191,15 +191,8 @@ void pToggleCrosshair(void)
 void DoPlayerChooseYell(PLAYERp pp)
 {
     int choose_snd = 0;
-    short weapon;
 
-    weapon = TEST(pp->input.bits, SK_WEAPON_MASK);
-
-    if (weapon == WPN_FIST)
-    {
-        if (RANDOM_RANGE(1000) < 900) return;
-    }
-    else if (RANDOM_RANGE(1000) < 990) return;
+    if (RANDOM_RANGE(1000) < 990) return;
 
     choose_snd = STD_RANDOM_RANGE(MAX_YELLSOUNDS);
 
@@ -487,13 +480,13 @@ int WeaponOperate(PLAYERp pp)
         }
     }
 
-    weapon = TEST(pp->input.bits, SK_WEAPON_MASK);
+    weapon = pp->input.getNewWeapon();
 
     if (weapon)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_WEAPON_BIT0))
+        if (pp->KeyPressBits & SB_FIRST_WEAPON_BIT)
         {
-            FLAG_KEY_RELEASE(pp, SK_WEAPON_BIT0);
+            pp->KeyPressBits &= ~SB_FIRST_WEAPON_BIT;
 
             weapon -= 1;
 
@@ -640,7 +633,7 @@ int WeaponOperate(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_WEAPON_BIT0);
+        pp->KeyPressBits |= SB_FIRST_WEAPON_BIT;
     }
 
     // Shut that computer chick up if weapon has changed!

@@ -343,8 +343,7 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     if (WeaponToSend > 0)
     {
-        loc->bits &= ~SK_WEAPON_MASK;
-        loc->bits |= WeaponToSend;
+        loc->SetNewWeapon(WeaponToSend);
         WeaponToSend = 0;
     }
     else if (WeaponToSend == -1)

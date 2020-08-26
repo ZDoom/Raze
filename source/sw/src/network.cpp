@@ -84,6 +84,7 @@ typedef struct
     fix16_t q16ang;
     fix16_t q16horz;
     int32_t bits;
+    ESyncBits actions;
 } SW_AVERAGE_PACKET;
 
 int MovesPerPacket = 1;
@@ -204,8 +205,12 @@ UpdateInputs(void)
     AveragePacket.q16ang = Player[myconnectindex].camq16ang;
     AveragePacket.q16horz = Player[myconnectindex].camq16horiz;
     SET(AveragePacket.bits, loc.bits);
+    SET(AveragePacket.actions, loc.actions);
+    // The above would or the weapon numbers together. Undo that now. The last one should win.
+    AveragePacket.actions &= ~SB_WEAPONMASK_BITS;
+    AveragePacket.actions |= ESyncBits::FromInt(loc.getNewWeapon()) & SB_WEAPONMASK_BITS;
 
-    Bmemset(&loc, 0, sizeof(loc));
+    memset(&loc, 0, sizeof(loc));
 
     pp = Player + myconnectindex;
 
@@ -226,6 +231,7 @@ UpdateInputs(void)
     loc.q16ang = AveragePacket.q16ang;
     loc.q16horz = AveragePacket.q16horz;
     loc.bits = AveragePacket.bits;
+    loc.actions = AveragePacket.actions;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
 

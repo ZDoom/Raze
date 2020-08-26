@@ -113,16 +113,6 @@ union SYNCFLAGS
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //
 
-// weapons takes up 4 bits
-#define SK_WEAPON_BIT0 0
-#define SK_WEAPON_BIT1 1
-#define SK_WEAPON_BIT2 2
-#define SK_WEAPON_BIT3 3
-#define SK_WEAPON_MASK (BIT(SK_WEAPON_BIT0)| \
-                        BIT(SK_WEAPON_BIT1)| \
-                        BIT(SK_WEAPON_BIT2)| \
-                        BIT(SK_WEAPON_BIT3))     // 16 possible numbers 0-15
-
 #define SK_INV_HOTKEY_BIT0 4
 #define SK_INV_HOTKEY_BIT1 5
 #define SK_INV_HOTKEY_BIT2 6

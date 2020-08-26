@@ -7806,6 +7806,7 @@ InitAllPlayers(void)
 
         pp->WpnGotOnceFlags = 0;
         pp->DoPlayerAction = DoPlayerBeginRun;
+        pp->KeyPressBits = ESyncBits::FromInt(0xFFFFFFFF);
         pp->KeyPressFlags = 0xFFFFFFFF;
         memset(pp->KilledPlayer,0,sizeof(pp->KilledPlayer));
 

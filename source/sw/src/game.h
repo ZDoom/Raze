@@ -1002,6 +1002,7 @@ struct PLAYERstruct
 
     PLAYER_ACTION_FUNCp DoPlayerAction;
     int Flags, Flags2;
+    ESyncBits KeyPressBits;
     int KeyPressFlags;
 
     SECTOR_OBJECTp sop_control; // sector object pointer

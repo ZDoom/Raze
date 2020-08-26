@@ -664,8 +664,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
 		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
 
-		if (j && (loc.actions & SB_WEAPONMASK_BITS) == 0)
-			loc.SetNewWeapon(j);
+		if (j) loc.SetNewWeapon(j);
 
 	}
 

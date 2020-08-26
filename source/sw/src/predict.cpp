@@ -83,12 +83,13 @@ DoPrediction(PLAYERp ppp)
 
     // get rid of input bits so it doesn't go into other code branches that would
     // get it out of sync
+    ppp->input.actions &= ~(SB_WEAPONMASK_BITS);
+    ppp->KeyPressBits |= (SB_WEAPONMASK_BITS);
     RESET(ppp->input.bits,
           BIT(SK_SHOOT)|BIT(SK_OPERATE)|BIT(SK_INV_LEFT)|BIT(SK_INV_RIGHT)|
           BIT(SK_INV_USE)|BIT(SK_HIDE_WEAPON)|
           BIT(SK_AUTO_AIM)|
           BIT(SK_CENTER_VIEW)|
-          SK_WEAPON_MASK|
           SK_INV_HOTKEY_MASK
           );
 
@@ -97,7 +98,6 @@ DoPrediction(PLAYERp ppp)
         BIT(SK_INV_USE)|BIT(SK_HIDE_WEAPON)|
         BIT(SK_AUTO_AIM)|
         BIT(SK_CENTER_VIEW)|
-        SK_WEAPON_MASK|
         SK_INV_HOTKEY_MASK
         );
 
