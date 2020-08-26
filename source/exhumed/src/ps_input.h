@@ -38,7 +38,7 @@ enum {
 };
 
 // 32 bytes
-struct PlayerInput // TODO consider adjusting this for demo compatibility
+struct PlayerInput
 {
     int xVel;
     int yVel;
@@ -47,6 +47,15 @@ struct PlayerInput // TODO consider adjusting this for demo compatibility
     short nTarget;
     fix16_t horizon;
     int8_t nItem;
+};
+
+struct LocalInput // TODO consider adjusting this for demo compatibility
+{
+    int xVel;
+    int yVel;
+    fix16_t nAngle;
+    uint16_t buttons;
+    fix16_t horizon;
 };
 
 void InitInput();
@@ -58,7 +67,7 @@ void ClearSpaceBar(short nPlayer);
 int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
-extern PlayerInput localInput;
+extern LocalInput localInput;
 extern int nNetMoves;
 extern int lLocalCodes;
 

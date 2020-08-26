@@ -64,7 +64,7 @@ int htimer = 0;
 int EndLevel = false;
 
 
-PlayerInput localInput;
+LocalInput localInput;
 
 ////////
 
