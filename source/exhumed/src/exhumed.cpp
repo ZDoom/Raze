@@ -488,10 +488,14 @@ void GameTicker()
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
             inita &= kAngleMask;
 
-            lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
-            lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
-            lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-            lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+            int i;
+            for (i = 0; i < 4; i++)
+            {
+                lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
+                lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
+                lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+                lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+            }
 
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
