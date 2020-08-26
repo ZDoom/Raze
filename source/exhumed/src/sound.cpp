@@ -282,6 +282,7 @@ void BendAmbientSound(void)
 
 void PlayLocalSound(short nSound, short nRate, bool unattached, EChanFlags cflags)
 {
+    if (!SoundEnabled()) return;
     if (nSound < 0 || nSound >= kMaxSounds || !soundEngine->isValidSoundId(nSound + 1))
     {
         Printf("PlayLocalSound: Invalid sound nSound == %i, nRate == %i\n", nSound, nRate);
@@ -342,6 +343,7 @@ int nSwirlyFrames;
 
 void StartSwirly(int nActiveSound)
 {
+    if (!SoundEnabled()) return;
     auto &swirly = swirlysources[nActiveSound];
 
     short nPitch = nNextFreq - RandomSize(9);
@@ -398,6 +400,7 @@ void UpdateSwirlies()
 
 void SoundBigEntrance(void)
 {
+    if (!SoundEnabled()) return;
     StopAllSounds();
     for (int i = 0; i < 4; i++)
     {
@@ -548,6 +551,7 @@ short soundsect;
 
 void PlayFX2(unsigned short nSound, short nSprite, int sectf)
 {
+    if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
         Printf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
@@ -664,6 +668,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector)
 
 void CheckAmbience(short nSector)
 {
+    if (!SoundEnabled()) return;
     if (SectSound[nSector] != -1)
     {
         short nSector2 = SectSoundSect[nSector];
@@ -710,7 +715,7 @@ void CheckAmbience(short nSector)
 
 void UpdateCreepySounds()
 {
-    if (currentLevel->levelNumber == 20 || nFreeze)
+    if (currentLevel->levelNumber == 20 || nFreeze || !SoundEnabled())
         return;
     spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
     nCreepyTimer--;
