@@ -141,9 +141,9 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
     {
         int x = Cos(fix16_to_int(predict.at30));
         int y = Sin(fix16_to_int(predict.at30));
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -151,9 +151,9 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             predict.at5c += mulscale30(forward, x);
             predict.at60 += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             predict.at5c += mulscale30(strafe, y);
             predict.at60 -= mulscale30(strafe, x);
@@ -166,9 +166,9 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             speed -= divscale16(predict.at6a, 0x100);
         int x = Cos(fix16_to_int(predict.at30));
         int y = Sin(fix16_to_int(predict.at30));
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -178,9 +178,9 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             predict.at5c += mulscale30(forward, x);
             predict.at60 += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             if (predict.at6a)
                 strafe = mulscale16(strafe, speed);
@@ -188,8 +188,8 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
             predict.at60 -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16turn)
-        predict.at30 = (predict.at30+pInput->q16turn)&0x7ffffff;
+    if (pInput->q16avel)
+        predict.at30 = (predict.at30+pInput->q16avel)&0x7ffffff;
     if (pInput->syncFlags.spin180)
         if (!predict.at4c)
             predict.at4c = -1024;
@@ -290,7 +290,7 @@ static void fakeProcessInput(PLAYER *pPlayer, GINPUT *pInput)
         }
         gViewLookRecenter = predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
     }
-    predict.at20 = fix16_clamp(predict.at20+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
+    predict.at20 = fix16_clamp(predict.at20+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));
 
     int nSector = predict.at68;

@@ -529,10 +529,10 @@ void ProcessFrame(void)
         gPlayer[i].input.syncFlags.value |= gFifoInput[gNetFifoTail & 255][i].syncFlags.value;
         if (gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon)
             gPlayer[i].newWeapon = gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon;
-        gPlayer[i].input.forward = gFifoInput[gNetFifoTail&255][i].forward;
-        gPlayer[i].input.q16turn = gFifoInput[gNetFifoTail&255][i].q16turn;
-        gPlayer[i].input.strafe = gFifoInput[gNetFifoTail&255][i].strafe;
-        gPlayer[i].input.q16mlook = gFifoInput[gNetFifoTail&255][i].q16mlook;
+        gPlayer[i].input.fvel = gFifoInput[gNetFifoTail&255][i].fvel;
+        gPlayer[i].input.q16avel = gFifoInput[gNetFifoTail&255][i].q16avel;
+        gPlayer[i].input.svel = gFifoInput[gNetFifoTail&255][i].svel;
+        gPlayer[i].input.q16horz = gFifoInput[gNetFifoTail&255][i].q16horz;
     }
     gNetFifoTail++;
 

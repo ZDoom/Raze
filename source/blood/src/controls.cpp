@@ -219,21 +219,21 @@ void ctrlGetInput(void)
 
     gInput.syncFlags.run |= run;
 
-    if (gInput.forward < keyMove && gInput.forward > -keyMove)
+    if (gInput.fvel < keyMove && gInput.fvel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-            input.forward += keyMove;
+            input.fvel += keyMove;
 
         if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-            input.forward -= keyMove;
+            input.fvel -= keyMove;
     }
 
-    if (gInput.strafe < keyMove && gInput.strafe > -keyMove)
+    if (gInput.svel < keyMove && gInput.svel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-            input.strafe += keyMove;
+            input.svel += keyMove;
         if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-            input.strafe -= keyMove;
+            input.svel -= keyMove;
     }
 
 
@@ -241,12 +241,12 @@ void ctrlGetInput(void)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (gInput.strafe < keyMove && gInput.strafe > -keyMove)
+        if (gInput.svel < keyMove && gInput.svel > -keyMove)
         {
             if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-                input.strafe += keyMove;
+                input.svel += keyMove;
             if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-                input.strafe -= keyMove;
+                input.svel -= keyMove;
         }
     }
     else
@@ -273,56 +273,56 @@ void ctrlGetInput(void)
         turnHeldTime = 0;
 
     if (turnLeft)
-        input.q16turn = fix16_ssub(input.q16turn, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
+        input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
     if (turnRight)
-        input.q16turn = fix16_sadd(input.q16turn, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
 
     if ((run2 || run) && turnHeldTime > 24)
-        input.q16turn <<= 1;
+        input.q16avel <<= 1;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        input.strafe -= info.mousex * 32.f;
-        input.strafe -= scaleAdjustmentToInterval(info.dyaw * keyMove);
+        input.svel -= info.mousex * 32.f;
+        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
     }
     else
     {
-        input.q16turn = fix16_sadd(input.q16turn, fix16_from_float(info.mousex));
-        input.q16turn = fix16_sadd(input.q16turn, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
+        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
-    input.strafe  -= scaleAdjustmentToInterval(info.dx * keyMove);
-    input.forward -= scaleAdjustmentToInterval(info.dz * keyMove);
+    input.svel  -= scaleAdjustmentToInterval(info.dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     if (mouseaim)
-        input.q16mlook = fix16_sadd(input.q16mlook, fix16_from_float(info.mousey / mlookScale));
+        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey / mlookScale));
     else
-        input.forward -= info.mousey * 64.f;
+        input.fvel -= info.mousey * 64.f;
     if (!in_mouseflip)
-        input.q16mlook = -input.q16mlook;
+        input.q16horz = -input.q16horz;
 
-    input.q16mlook = fix16_ssub(input.q16mlook, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch / mlookScale)));
+    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch / mlookScale)));
 
     if (!automapFollow && automapMode != am_off)
     {
-        gViewMap.turn += input.q16turn<<2;
-        gViewMap.forward += input.forward;
-        gViewMap.strafe += input.strafe;
-        input.q16turn = 0;
-        input.forward = 0;
-        input.strafe = 0;
+        gViewMap.turn += input.q16avel<<2;
+        gViewMap.forward += input.fvel;
+        gViewMap.strafe += input.svel;
+        input.q16avel = 0;
+        input.fvel = 0;
+        input.svel = 0;
     }
-    gInput.forward = clamp(gInput.forward + input.forward, -2048, 2048);
-    gInput.strafe = clamp(gInput.strafe + input.strafe, -2048, 2048);
-    gInput.q16turn = fix16_sadd(gInput.q16turn, input.q16turn);
-    gInput.q16mlook = fix16_clamp(fix16_sadd(gInput.q16mlook, input.q16mlook), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
+    gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
+    gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
+    gInput.q16avel = fix16_sadd(gInput.q16avel, input.q16avel);
+    gInput.q16horz = fix16_clamp(fix16_sadd(gInput.q16horz, input.q16horz), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
     if (gMe && gMe->pXSprite->health != 0 && !paused)
     {
         int upAngle = 289;
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        gViewAngle = (gViewAngle + input.q16turn + fix16_from_dbl(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
+        gViewAngle = (gViewAngle + input.q16avel + fix16_from_dbl(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
         if (gViewLookRecenter)
         {
             if (gViewLook < 0)
@@ -334,7 +334,7 @@ void ctrlGetInput(void)
         {
             gViewLook = fix16_clamp(gViewLook+fix16_from_dbl(scaleAdjustmentToInterval(gViewLookAdjust)), fix16_from_int(downAngle), fix16_from_int(upAngle));
         }
-        gViewLook = fix16_clamp(gViewLook+(input.q16mlook << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
+        gViewLook = fix16_clamp(gViewLook+(input.q16horz << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     }
 }
 

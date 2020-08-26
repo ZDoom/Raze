@@ -748,11 +748,11 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
-    pInput->q16turn = 0;
+    pInput->q16avel = 0;
     pInput->syncFlags.value = 0;
-    pInput->forward = 0;
-    pInput->strafe = 0;
-    pInput->q16mlook = 0;
+    pInput->fvel = 0;
+    pInput->svel = 0;
+    pInput->q16horz = 0;
     pPlayer->flickerEffect = 0;
     pPlayer->quakeEffect = 0;
     pPlayer->tiltEffect = 0;
@@ -1309,7 +1309,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
 
     pPlayer->isRunning = pInput->syncFlags.run;
-    if ((pInput->syncFlags.value & flag_buttonmask_norun) || pInput->forward || pInput->strafe || pInput->q16turn)
+    if ((pInput->syncFlags.value & flag_buttonmask_norun) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1361,9 +1361,9 @@ void ProcessInput(PLAYER *pPlayer)
     {
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -1371,9 +1371,9 @@ void ProcessInput(PLAYER *pPlayer)
             xvel[nSprite] += mulscale30(forward, x);
             yvel[nSprite] += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             xvel[nSprite] += mulscale30(strafe, y);
             yvel[nSprite] -= mulscale30(strafe, x);
@@ -1386,9 +1386,9 @@ void ProcessInput(PLAYER *pPlayer)
             speed -= divscale16(pXSprite->height, 256);
         int x = Cos(pSprite->ang);
         int y = Sin(pSprite->ang);
-        if (pInput->forward)
+        if (pInput->fvel)
         {
-            int forward = pInput->forward;
+            int forward = pInput->fvel;
             if (forward > 0)
                 forward = mulscale8(pPosture->frontAccel, forward);
             else
@@ -1398,9 +1398,9 @@ void ProcessInput(PLAYER *pPlayer)
             xvel[nSprite] += mulscale30(forward, x);
             yvel[nSprite] += mulscale30(forward, y);
         }
-        if (pInput->strafe)
+        if (pInput->svel)
         {
-            int strafe = pInput->strafe;
+            int strafe = pInput->svel;
             strafe = mulscale8(pPosture->sideAccel, strafe);
             if (pXSprite->height)
                 strafe = mulscale16(strafe, speed);
@@ -1408,8 +1408,8 @@ void ProcessInput(PLAYER *pPlayer)
             yvel[nSprite] -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16turn)
-        pPlayer->q16ang = (pPlayer->q16ang+pInput->q16turn)&0x7ffffff;
+    if (pInput->q16avel)
+        pPlayer->q16ang = (pPlayer->q16ang+pInput->q16avel)&0x7ffffff;
     if (pInput->syncFlags.spin180)
     {
         if (!pPlayer->spin)
@@ -1555,7 +1555,7 @@ void ProcessInput(PLAYER *pPlayer)
             if (pInput->syncFlags.lookDown)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
+        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16horz, fix16_from_int(-60), fix16_from_int(60));
         if (pPlayer->q16look > 0)
             pPlayer->q16horiz = fix16_from_int(mulscale30(120, Sin(fix16_to_int(pPlayer->q16look)<<3)));
         else if (pPlayer->q16look < 0)
@@ -1597,7 +1597,7 @@ void ProcessInput(PLAYER *pPlayer)
             }
             gViewLookRecenter = pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16mlook<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
+        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
     }
     int nSector = pSprite->sectnum;

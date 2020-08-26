@@ -2885,10 +2885,10 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             return true;
         case 10: // check keys pressed
             switch (arg1) {
-            case 1:  return (pPlayer->input.forward > 0);            // forward
-            case 2:  return (pPlayer->input.forward < 0);            // backward
-            case 3:  return (pPlayer->input.strafe > 0);             // left
-            case 4:  return (pPlayer->input.strafe < 0);             // right
+            case 1:  return (pPlayer->input.fvel > 0);            // forward
+            case 2:  return (pPlayer->input.fvel < 0);            // backward
+            case 3:  return (pPlayer->input.svel > 0);             // left
+            case 4:  return (pPlayer->input.svel < 0);             // right
             case 5:  return (pPlayer->input.syncFlags.jump);       // jump
             case 6:  return (pPlayer->input.syncFlags.crouch);     // crouch
             case 7:  return (pPlayer->input.syncFlags.shoot);      // normal fire weapon
