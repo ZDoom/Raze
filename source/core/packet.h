@@ -173,7 +173,7 @@ struct InputPacket
     int16_t fvel;
     fix16_t q16avel;
     fix16_t q16horz;
-    fix16_t q16aimvel;	// only used by SW
+    fix16_t q16horiz;	// only used by SW
     fix16_t q16ang;		// only used by SW
 	
     // Making this a union lets some constructs fail. Since these names are transitional only the added memory use doesn't really matter.

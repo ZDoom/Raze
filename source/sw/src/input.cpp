@@ -75,7 +75,7 @@ double elapsedInputTicks;
 double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
 
 void DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel);
-void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel);
+void DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz);
 
 
 void GameInterface::ResetFollowPos(bool)
@@ -195,7 +195,7 @@ getinput(InputPacket *loc, SWBOOL tied)
         keymove = 0;
 
     int32_t svel = 0, vel = 0;
-    fix16_t q16aimvel = 0, q16angvel = 0;
+    fix16_t q16horz = 0, q16angvel = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -209,14 +209,14 @@ getinput(InputPacket *loc, SWBOOL tied)
     }
 
     if (mouseaim)
-        q16aimvel = fix16_ssub(q16aimvel, fix16_from_float(info.mousey / aimvelScale));
+        q16horz = fix16_ssub(q16horz, fix16_from_float(info.mousey / aimvelScale));
     else
         vel -= (info.mousey * ticrateScale) * 8.f;
 
     if (in_mouseflip)
-        q16aimvel = -q16aimvel;
+        q16horz = -q16horz;
 
-    q16aimvel -= fix16_from_dbl(scaleAdjustmentToInterval((info.dpitch * ticrateScale) / aimvelScale));
+    q16horz -= fix16_from_dbl(scaleAdjustmentToInterval((info.dpitch * ticrateScale) / aimvelScale));
     svel -= info.dx * keymove;
     vel -= info.dz * keymove;
 
@@ -276,13 +276,13 @@ getinput(InputPacket *loc, SWBOOL tied)
         vel += -keymove;
 
     q16angvel = fix16_clamp(q16angvel, -fix16_from_int(MAXANGVEL), fix16_from_int(MAXANGVEL));
-    q16aimvel = fix16_clamp(q16aimvel, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
+    q16horz = fix16_clamp(q16horz, -fix16_from_int(MAXHORIZVEL), fix16_from_int(MAXHORIZVEL));
 
     void DoPlayerTeleportPause(PLAYERp pp);
     if (PedanticMode)
     {
         q16angvel = fix16_floor(q16angvel);
-        q16aimvel = fix16_floor(q16aimvel);
+        q16horz = fix16_floor(q16horz);
     }
     else
     {
@@ -291,7 +291,7 @@ getinput(InputPacket *loc, SWBOOL tied)
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
             DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-            DoPlayerHorizon(pp, &pp->camq16horiz, q16aimvel);
+            DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
         pp->oq16ang += pp->camq16ang - prevcamq16ang;
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
@@ -315,7 +315,7 @@ getinput(InputPacket *loc, SWBOOL tied)
     }
 
     loc->q16avel += q16angvel;
-    loc->q16aimvel += q16aimvel;
+    loc->q16horz += q16horz;
 
     if (!CommEnabled)
     {
