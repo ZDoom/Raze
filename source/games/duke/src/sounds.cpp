@@ -353,7 +353,7 @@ void S_Update(void)
 	}
 	listener.ListenerObject = ud.camerasprite == -1 ? nullptr : &sprite[ud.camerasprite];
 	soundEngine->SetListener(listener);
-	soundEngine->UpdateSounds(gameclock);
+	soundEngine->UpdateSounds(I_GetBuildTime());
 }
 
 
