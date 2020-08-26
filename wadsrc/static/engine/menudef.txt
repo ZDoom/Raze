@@ -565,11 +565,11 @@ OptionMenu "WeaponsControlMenu"// protected
 	Control    "$CNTRLMNU_SLOT5"          , "slot 5"
 	Control    "$CNTRLMNU_SLOT6"          , "slot 6"
 	Control    "$CNTRLMNU_SLOT7"          , "slot 7"
-	Control    "$CNTRLMNU_SLOT8"          , "slot 8"
-	Control    "$CNTRLMNU_SLOT9"          , "slot 9"
-	Control    "$CNTRLMNU_SLOT0"          , "slot 10"
 	ifnotgame(Exhumed)
 	{
+		Control    "$CNTRLMNU_SLOT8"          , "slot 8"
+		Control    "$CNTRLMNU_SLOT9"          , "slot 9"
+		Control    "$CNTRLMNU_SLOT0"          , "slot 10"
 		StaticText ""
 		Control    "$CNTRLMNU_HOLSTER"        , "holsterweapon"
 	}
