@@ -258,10 +258,10 @@ void PlayerInterruptKeys()
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         input.yVel += -keyMove;
 
-    localInput.yVel   = clamp(localInput.yVel + input.yVel, -12, 12);
-    localInput.xVel   = clamp(localInput.xVel + input.xVel, -12, 12);
+    localInput.fvel   = clamp(localInput.fvel + input.yVel, -12, 12);
+    localInput.svel   = clamp(localInput.svel + input.xVel, -12, 12);
 
-    localInput.nAngle                 = fix16_sadd(localInput.nAngle, input.nAngle);
+    localInput.q16avel                 = fix16_sadd(localInput.q16avel, input.nAngle);
     PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input.nAngle) & 0x7FFFFFF;
 
     // A horiz diff of 128 equal 45 degrees,

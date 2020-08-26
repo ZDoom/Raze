@@ -49,13 +49,13 @@ struct PlayerInput
     int8_t nItem;
 };
 
-struct LocalInput // TODO consider adjusting this for demo compatibility
+struct LocalInput
 {
-    int xVel;
-    int yVel;
-    fix16_t nAngle;
+    int svel;
+    int fvel;
+    fix16_t q16avel;
     uint16_t buttons;
-    fix16_t horizon;
+    fix16_t q16horz;
 };
 
 void InitInput();

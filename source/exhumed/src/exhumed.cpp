@@ -493,11 +493,11 @@ void GameTicker()
             int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
             PlayerInterruptKeys();
 
-            nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.nAngle);
+            nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
             inita &= kAngleMask;
 
-            lPlayerXVel += localInput.yVel * Cos(inita) + localInput.xVel * Sin(inita);
-            lPlayerYVel += localInput.yVel * Sin(inita) - localInput.xVel * Cos(inita);
+            lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
+            lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
             lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
             lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
 
