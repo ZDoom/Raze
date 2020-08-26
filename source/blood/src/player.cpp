@@ -1331,7 +1331,7 @@ void ProcessInput(PLAYER *pPlayer)
                 pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
         }
         if (pPlayer->curWeapon)
-            pInput->SetNewWeapon(pPlayer->curWeapon);
+            pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->syncFlags.action)
         {
             if (bSeqStat)

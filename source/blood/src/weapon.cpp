@@ -2026,9 +2026,9 @@ void WeaponProcess(PLAYER *pPlayer) {
         pPlayer->newWeapon = pPlayer->nextWeapon;
         pPlayer->nextWeapon = 0;
     }
-    if (pPlayer->input.syncFlags.nextWeapon)
+    if (pPlayer->input.getNewWeapon() == WeaponSel_Next)
     {
-        pPlayer->input.syncFlags.nextWeapon = 0;
+        pPlayer->input.setNewWeapon(0);
         pPlayer->weaponState = 0;
         pPlayer->nextWeapon = 0;
         int t;
@@ -2042,9 +2042,9 @@ void WeaponProcess(PLAYER *pPlayer) {
         }
         pPlayer->newWeapon = weapon;
     }
-    if (pPlayer->input.syncFlags.prevWeapon)
+    else if (pPlayer->input.getNewWeapon() == WeaponSel_Prev)
     {
-        pPlayer->input.syncFlags.prevWeapon = 0;
+        pPlayer->input.setNewWeapon(0);
         pPlayer->weaponState = 0;
         pPlayer->nextWeapon = 0;
         int t;
@@ -2057,6 +2057,10 @@ void WeaponProcess(PLAYER *pPlayer) {
             return;
         }
         pPlayer->newWeapon = weapon;
+    }
+    else if (pPlayer->input.getNewWeapon() == WeaponSel_Alt)
+    {
+        // todo
     }
     if (pPlayer->weaponState == -1)
     {

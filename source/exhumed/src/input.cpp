@@ -31,7 +31,7 @@ BEGIN_PS_NS
 extern short bPlayerPan;
 extern short bLockPan;
 
-int WeaponToSend, BitsToSend;
+int BitsToSend;
 bool g_MyAimMode;
 
 short nInputStack = 0;
@@ -187,6 +187,12 @@ void PlayerInterruptKeys(bool after)
         return;
     }
 
+    if (!after)
+    {
+        ApplyGlobalInput(localInput, &info);
+    }
+
+
     // JBF: Run key behaviour is selectable
     int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int const turnAmount = playerRunning ? 12 : 8;
@@ -279,13 +285,6 @@ void PlayerInterruptKeys(bool after)
     localInput.svel = clamp(localInput.svel + input.svel, -12, 12);
 
     localInput.q16avel = fix16_sadd(localInput.q16avel, input_angle);
-
-    if (!after)
-    {
-        if (WeaponToSend > 0)
-            localInput.SetNewWeapon(WeaponToSend);
-        WeaponToSend = 0;
-    }
 
     if (!nFreeze)
     {
@@ -380,33 +379,16 @@ void PlayerInterruptKeys(bool after)
 //
 //---------------------------------------------------------------------------
 
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    auto slot = atoi(parm->parms[0]);
-    if (slot >= 1 && slot <= 7)
-    {
-        WeaponToSend = slot;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
 int ccmd_centerview(CCmdFuncPtr parm);
 
 
 void registerinputcommands()
 {
-    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { /*BitsToSend |= SKB_PAUSE;*/ sendPause = true; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, ccmd_centerview);
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetPrevItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetNextItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) UseCurItem(nLocalPlayer); return CCMD_OK; });
-    // todo:  These still need to be implemented.
-    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { /*WeaponToSend = 11;*/ return CCMD_OK; });
-    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { /*WeaponToSend = 12;*/ return CCMD_OK; });
 
     // These are only here to silence the engine when the keys bound to them are pressed. The functions do not exist.
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
@@ -417,7 +399,6 @@ void registerinputcommands()
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
-    WeaponToSend = 0;
     BitsToSend = 0;
 
 }

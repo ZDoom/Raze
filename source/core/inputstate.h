@@ -11,6 +11,7 @@
 #include "d_event.h"
 #include "m_joy.h"
 #include "gamecvars.h"
+#include "packet.h"
 
 
 struct ControlInfo
@@ -98,3 +99,5 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
+void ApplyGlobalInput(InputPacket& input, ControlInfo *info);
+

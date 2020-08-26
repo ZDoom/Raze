@@ -1099,18 +1099,22 @@ void shoot_d(int i, int atwith)
 //
 //---------------------------------------------------------------------------
 
-void selectweapon_d(int snum, int j) // playernum, weaponnum
+void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
-	int i, k;
+	int i, j, k;
 	auto p = &ps[snum];
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
-			if (j == 10 || j == 11)
+			if (weap == WeaponSel_Alt)
+			{
+				// todo
+			}
+			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{
 				k = p->curr_weapon;
-				j = (j == 10 ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
+				j = (weap == WeaponSel_Prev ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
 				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON)) != 0)
@@ -1146,8 +1150,8 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 						if (PLUTOPAK)	// JBF 20040116: so we don't select grower with v1.3d
 							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
 								k = GROW_WEAPON;
-							if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
-								k = FLAMETHROWER_WEAPON;
+						if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
+							k = FLAMETHROWER_WEAPON;
 
 						j = k;
 						break;
@@ -1186,9 +1190,9 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 					}
 				}
 			}
+			else j = weap - 1;
 
 			k = -1;
-
 
 			if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
 			{

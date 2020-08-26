@@ -41,6 +41,8 @@
 #include"packet.h"
 #include "gamecontrol.h"
 
+static int WeaponToSend = 0;
+
 //==========================================================================
 //
 //
@@ -220,3 +222,58 @@ void SetupGameButtons()
 	buttonMap.SetButtons(actions, NUM_ACTIONS);
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+CCMD(slot)
+{
+	// The max differs between games so we have to handle this here.
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED) || (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE)) == (GAMEFLAG_DUKE | GAMEFLAG_SHAREWARE) ? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 12 : 10;
+	if (argv.argc() != 2)
+	{
+		Printf("slot <weaponslot>: select a weapon from the given slot (1-%d)", max);
+	}
+
+	auto slot = atoi(argv[1]);
+	if (slot >= 1 && slot <= max)
+	{
+		WeaponToSend = slot;
+	}
+}
+
+CCMD(weapprev)
+{
+	WeaponToSend = WeaponSel_Prev;
+}
+
+CCMD(weapnext)
+{
+	WeaponToSend = WeaponSel_Next;
+}
+
+CCMD(weapalt)
+{
+	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
+}
+
+void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
+{
+	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
+	WeaponToSend = 0;
+	if (info)
+	{
+		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info->dz > 0) input.setNewWeapon(WeaponSel_Prev);
+		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info->dz < 0) input.setNewWeapon(WeaponSel_Next);
+	}
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	{
+		// This eats the controller input for regular use
+		info->dx = 0;
+		info->dz = 0;
+		info->dyaw = 0;
+	}
+
+}

@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "c_console.h"
 #include "cheathandler.h"
+#include "inputstate.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
@@ -466,6 +467,23 @@ void GameMove(void)
     totalmoves++;
 }
 
+static int SelectNextWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
+
+static int SelectPrevWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
+
+static int SelectAltWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
 
 void GameTicker()
 {
@@ -496,6 +514,19 @@ void GameTicker()
                 lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
                 lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
             }
+            int weap2 = localInput.getNewWeapon();
+            if (weap2 == WeaponSel_Next)
+            {
+                weap2 = SelectNextWeapon(weap2);
+            }
+            else if (weap2 == WeaponSel_Prev)
+            {
+                weap2 = SelectPrevWeapon(weap2);
+            }
+            else if (weap2 == WeaponSel_Alt)
+            {
+                weap2 = SelectAltWeapon(weap2);
+            }
 
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
@@ -503,7 +534,6 @@ void GameTicker()
             sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
             int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
             sPlayerInput[nLocalPlayer].actions = localInput.actions;
-            int weap2 = localInput.getNewWeapon();
             if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 

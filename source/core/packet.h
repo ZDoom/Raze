@@ -4,14 +4,15 @@
 #include "fix16.h"
 #include "tflags.h"
 
-
 enum ESyncBits_ : uint32_t
 {
     SB_FIRST_WEAPON_BIT = 1 << 0, 
 
     SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
 
-    SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS)
+    SB_BUTTON_MASK = 0,     // all input from buttons (i.e. active while held)
+    SB_INTERFACE_MASK = 0,  // all input from CCMDs
+    SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_INTERFACE_MASK)
 };
 
 // enforce type safe operations on the input bits.
@@ -26,6 +27,20 @@ enum
     flag_buttonmask_norun = 126
 };
 
+
+enum
+{
+    // The maximum valid weapons for the respective games.
+    WeaponSel_Max = 10,
+    WeaponSel_MaxExhumed = 7,
+    WeaponSel_MaxBlood = 12,
+
+    // Use named constants instead of magic values for these. The maximum of the supported games is 12 weapons for Blood so these 3 are free.
+    // Should there ever be need for more weapons to select, the bit field needs to be expanded.
+    WeaponSel_Next = 13,
+    WeaponSel_Prev = 14,
+    WeaponSel_Alt = 15
+};
 
 enum EDukeSyncBits_ : uint32_t
 {
@@ -88,8 +103,6 @@ union SYNCFLAGS
         unsigned int prevItem : 1;
         unsigned int nextItem : 1;
         unsigned int useItem : 1;
-        unsigned int prevWeapon : 1;
-        unsigned int nextWeapon : 1;
         unsigned int holsterWeapon : 1;
         unsigned int lookCenter : 1;
         unsigned int lookLeft : 1;
@@ -193,8 +206,10 @@ struct InputPacket
         return (actions & SB_WEAPONMASK_BITS).GetValue();
     }
 
-    void SetNewWeapon(int weap)
+    void setNewWeapon(int weap)
     {
         actions = (actions & ~SB_WEAPONMASK_BITS) | (ESyncBits::FromInt(weap) & SB_WEAPONMASK_BITS);
     }
 };
+
+

@@ -947,15 +947,19 @@ void shoot_r(int i, int atwith)
 //
 //---------------------------------------------------------------------------
 
-void selectweapon_r(int snum, int j)
+void selectweapon_r(int snum, int weap)
 {
-	int i, k;
+	int i, j, k;
 	auto p = &ps[snum];
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
-			if (j == 10 || j == 11)
+			if (weap == WeaponSel_Alt)
+			{
+				// todo
+			}
+			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{
 				k = p->curr_weapon;
 				if (isRRRA())
@@ -964,7 +968,7 @@ void selectweapon_r(int snum, int j)
 					else if (k == BUZZSAW_WEAPON) k = THROWSAW_WEAPON;
 					else if (k == SLINGBLADE_WEAPON) k = KNEE_WEAPON;
 				}
-				j = (j == 10 ? -1 : 1);
+				j = (weap == WeaponSel_Prev ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
 				while (k >= 0 && k < 10)
@@ -987,9 +991,9 @@ void selectweapon_r(int snum, int j)
 					}
 				}
 			}
+			else j = weap - 1;
 
 			k = -1;
-
 
 			if (j == DYNAMITE_WEAPON && p->ammo_amount[DYNAMITE_WEAPON] == 0)
 			{

@@ -36,7 +36,6 @@ BEGIN_SW_NS
 
 SWBOOL MultiPlayQuitFlag = FALSE;
 
-int WeaponToSend = 0;
 int BitsToSend = 0;
 int inv_hotkey = 0;
 
@@ -171,6 +170,9 @@ getinput(InputPacket *loc, SWBOOL tied)
     // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
     // for dividing controller input to match speed input speed of other games.
     float const ticrateScale = 0.75f;
+
+    ApplyGlobalInput(*loc, &info);
+
 
     if (running)
     {
@@ -341,18 +343,12 @@ getinput(InputPacket *loc, SWBOOL tied)
     SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
     SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
 
-    if (WeaponToSend > 0)
-    {
-        loc->SetNewWeapon(WeaponToSend);
-        WeaponToSend = 0;
-    }
-    else if (WeaponToSend == -1)
+    if (loc->getNewWeapon() == WeaponSel_Next)
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
         short start_weapon;
 
-        WeaponToSend = 0;
         start_weapon = u->WeaponNum + 1;
 
         if (u->WeaponNum == WPN_SWORD)
@@ -381,15 +377,13 @@ getinput(InputPacket *loc, SWBOOL tied)
             }
         }
 
-        SET(loc->bits, next_weapon + 1);
+        loc->setNewWeapon(next_weapon + 1);
     }
-    else if (WeaponToSend == -2)
+    else if (loc->getNewWeapon() == WeaponSel_Prev)
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
-
-        WeaponToSend = 0;
 
         start_weapon = u->WeaponNum - 1;
 
@@ -416,16 +410,13 @@ getinput(InputPacket *loc, SWBOOL tied)
                 }
             }
         }
-
-        SET(loc->bits, prev_weapon + 1);
+        loc->setNewWeapon(prev_weapon + 1);
     }
-
-    if (false)//buttonMap.ButtonDown(gamefunc_Alt_Weapon)) will be renabled in an upcoming commit.
+    else if (loc->getNewWeapon() == WeaponSel_Alt)
     {
-        //buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        SET(loc->bits, which_weapon);
+        loc->setNewWeapon(which_weapon);
     }
 
 
@@ -480,25 +471,8 @@ getinput(InputPacket *loc, SWBOOL tied)
 //
 //---------------------------------------------------------------------------
 
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    auto slot = atoi(parm->parms[0]);
-    if (slot >= 1 && slot <= 10)
-    {
-        WeaponToSend = slot;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
-
 void registerinputcommands()
 {
-    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -2; return CCMD_OK; });
-    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -1; return CCMD_OK; });
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); sendPause = true; return CCMD_OK; });
     C_RegisterFunction("smoke_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CLOAK + 1; return CCMD_OK; });
     C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_NIGHT_VISION + 1; return CCMD_OK; });
@@ -517,7 +491,6 @@ void registerinputcommands()
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
-    WeaponToSend = 0;
     BitsToSend = 0;
     inv_hotkey = 0;
 

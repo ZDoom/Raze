@@ -150,8 +150,7 @@ void ctrlGetInput(void)
         gInput.syncFlags.quit = 1;
 
     gInput.syncFlags.value |= BitsToSend.value;
-    if (WeaponToSend != 0) 
-        gInput.SetNewWeapon(WeaponToSend);
+    ApplyGlobalInput(gInput, &info);
 
     BitsToSend.value = 0;
     WeaponToSend = 0;
@@ -345,27 +344,9 @@ void ctrlGetInput(void)
 //
 //---------------------------------------------------------------------------
 
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    auto slot = atoi(parm->parms[0]);
-    if (slot >= 1 && slot <= 10)
-    {
-        WeaponToSend = slot;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
 void registerinputcommands()
 {
-    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.prevWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.nextWeapon = 1; return CCMD_OK; });
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
-    C_RegisterFunction("proximitybombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
-    C_RegisterFunction("remotebombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
     C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useJumpBoots = 1; return CCMD_OK; });
     C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useMedKit = 1; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });

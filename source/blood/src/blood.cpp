@@ -525,14 +525,16 @@ void ProcessFrame(void)
     char buffer[128];
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        gPlayer[i].input.syncFlags.value &= ~flag_buttonmask;
-        gPlayer[i].input.syncFlags.value |= gFifoInput[gNetFifoTail & 255][i].syncFlags.value;
-        int newweap = gFifoInput[gNetFifoTail & 255][i].getNewWeapon();
-        if (newweap) gPlayer[i].newWeapon = newweap;
-        gPlayer[i].input.fvel = gFifoInput[gNetFifoTail&255][i].fvel;
-        gPlayer[i].input.q16avel = gFifoInput[gNetFifoTail&255][i].q16avel;
-        gPlayer[i].input.svel = gFifoInput[gNetFifoTail&255][i].svel;
-        gPlayer[i].input.q16horz = gFifoInput[gNetFifoTail&255][i].q16horz;
+        auto& inp = gPlayer[i].input;
+        auto oldactions = inp.actions;
+        auto oldflags = inp.syncFlags.value;
+
+        inp = gFifoInput[gNetFifoTail & 255][i];
+        inp.actions |= oldactions & SB_INTERFACE_MASK;  // should be everything non-button and non-weapon
+        inp.syncFlags.value |= oldflags & ~flag_buttonmask;
+
+        int newweap = inp.getNewWeapon();
+        if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
     }
     gNetFifoTail++;
 

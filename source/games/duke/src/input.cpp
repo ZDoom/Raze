@@ -39,7 +39,6 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-static int WeaponToSend;
 static EDukeSyncBits BitsToSend;
 
 // State timer counters. 
@@ -146,7 +145,6 @@ void hud_input(int snum)
 {
 	int i, k;
 	uint8_t dainv;
-	unsigned int j;
 	struct player_struct* p;
 	short unk;
 
@@ -339,16 +337,12 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		j = PlayerNewWeapon(snum) - 1;
-		if (j >= 0)
-		{
-			int a = 0;
-		}
-		if (j > 0 && p->kickback_pic > 0)
-			p->wantweaponfire = j;
+		int weap = PlayerNewWeapon(snum);
+		if (weap > 1 && p->kickback_pic > 0)
+			p->wantweaponfire = weap - 1;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
-		fi.selectweapon(snum, j);
+		fi.selectweapon(snum, weap);
 
 		if (PlayerInput(snum, SKB_HOLSTER))
 		{
@@ -467,7 +461,7 @@ void hud_input(int snum)
 				{
 					if (!isRR())
 					{
-						j = max_player_health - sprite[p->i].extra;
+						int j = max_player_health - sprite[p->i].extra;
 
 						if ((unsigned int)p->firstaid_amount > j)
 						{
@@ -485,7 +479,7 @@ void hud_input(int snum)
 					}
 					else
 					{
-						j = 10;
+						int j = 10;
 						if (p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
@@ -631,7 +625,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 	loc.sbits |= BitsToSend;
 	BitsToSend = 0;
 
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))	// todo: This must go to global code.
 	{
 		if (info.dx < 0 || info.dyaw < 0) loc.sbits |= SKB_INV_LEFT;
 		if (info.dx > 0 || info.dyaw < 0) loc.sbits |= SKB_INV_RIGHT;
@@ -657,23 +651,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
 		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
 
-		int j = WeaponToSend;
-		WeaponToSend = 0;
-		if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
-
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
-
-		if (j) loc.SetNewWeapon(j);
-
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-	{
-		// This eats the controller input for regular use
-		info.dx = 0;
-		info.dz = 0;
-		info.dyaw = 0;
+		ApplyGlobalInput(loc, &info);
 	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
@@ -1188,24 +1166,8 @@ void GetInput()
 //
 //---------------------------------------------------------------------------
 
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-	if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-	auto slot = atoi(parm->parms[0]);
-	if (slot >= 1 && slot <= 10)
-	{
-		WeaponToSend = slot;
-		return CCMD_OK;
-	}
-	return CCMD_SHOWHELP;
-}
-
 void registerinputcommands()
 {
-	C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-	C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
-	C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
 	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; sendPause = true; return CCMD_OK; });
 	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_STEROIDS; return CCMD_OK; });
 	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_NIGHTVISION; return CCMD_OK; });
@@ -1224,7 +1186,6 @@ void registerinputcommands()
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
-	WeaponToSend = 0;
 	BitsToSend = 0;
 	nonsharedtimer = 0;
 	turnheldtime = 0;
