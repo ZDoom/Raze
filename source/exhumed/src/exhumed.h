@@ -144,8 +144,6 @@ extern char sHollyStr[];
 extern int selectedlevelnew;
 extern int GameAction;
 
-extern int moveframes;
-
 extern int nNetPlayerCount;
 
 extern int htimer;
@@ -203,7 +201,6 @@ extern short nClockVal;
 extern short bSlipMode;
 
 extern int bVanilla;
-extern short bInMove;
 
 #define POWERSLAVE  (g_gameType & GAMEFLAG_POWERSLAVE)
 #define EXHUMED     (g_gameType & GAMEFLAG_EXHUMED)

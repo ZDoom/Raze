@@ -38,8 +38,6 @@ enum
     kTagRamses = 61,
 };
 
-int ogameclock = 0;
-
 int initx, inity, initz;
 short inita, initsect;
 
@@ -197,8 +195,6 @@ void InitLevel(int level)
     totalmoves = 0;
     GrabPalette();
     ResetMoveFifo();
-    moveframes = 0;
-    bInMove = false;
     nPlayerDAng = 0;
     lPlayerXVel = 0;
     lPlayerYVel = 0;
@@ -228,12 +224,6 @@ void InitNewGame()
 
         InitPlayerInventory(nPlayer);
     }
-
-    nNetMoves = 0;
-
-    // PINK SECTION
-    UpdateInputs();
-    nNetMoves = 1;
 }
 
 void SetBelow(short nCurSector, short nBelowSector)

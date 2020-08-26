@@ -30,8 +30,6 @@ BEGIN_PS_NS
 
 int WeaponToSend, BitsToSend;
 
-int nNetMoves = 0;
-
 short nInputStack = 0;
 
 short bStackNode[kMaxPlayers];
@@ -104,24 +102,6 @@ void BackupInput()
 void SendInput()
 {
 
-}
-
-short nNetMoveFrames = 0;
-
-void UpdateInputs()
-{
-    nNetMoveFrames = moveframes;
-
-    if (nNetPlayerCount)
-    {
-        //UpdateNetInputs();
-
-        nNetMoves++;
-
-        if (!nNetMoves) {
-            nNetMoves++;
-        }
-    }
 }
 
 void CheckKeys()

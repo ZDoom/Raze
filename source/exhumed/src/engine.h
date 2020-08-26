@@ -60,7 +60,6 @@ enum {
     kSectLava = 0x4000,
 };
 
-extern int ogameclock;
 extern int initx;
 extern int inity;
 extern int initz;
@@ -113,10 +112,6 @@ void InitMap();
 void GrabMap();
 void UpdateMap();
 void DrawMap();
-
-// network
-
-extern short nNetMoveFrames;
 
 // random
 

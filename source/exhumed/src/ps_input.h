@@ -38,15 +38,12 @@ struct PlayerInput
 
 void InitInput();
 
-void UpdateInputs();
-
 void ClearSpaceBar(short nPlayer);
 
 int GetLocalInput();
 
 extern PlayerInput sPlayerInput[];
 extern InputPacket localInput;
-extern int nNetMoves;
 extern int lLocalCodes;
 
 END_PS_NS

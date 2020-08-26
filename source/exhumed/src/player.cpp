@@ -47,8 +47,8 @@ struct PlayerSave
     short nAngle;
 };
 
-fix16_t lPlayerXVel = 0;
-fix16_t lPlayerYVel = 0;
+int lPlayerXVel = 0;
+int lPlayerYVel = 0;
 fix16_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;

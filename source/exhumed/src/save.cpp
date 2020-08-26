@@ -60,7 +60,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     pSky->yscale = 65536;
     parallaxtype = 2;
     g_visibility = 2048;
-    ogameclock = gameclock;
     GameAction = 1000;
 
     if (currentLevel->levelNumber > 15)

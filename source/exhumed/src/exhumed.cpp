@@ -125,7 +125,6 @@ int nNetPlayerCount = 0;
 
 short nClockVal;
 short nRedTicks;
-short bInMove;
 short nAlarmTicks;
 short nButtonColor;
 short nEnergyChan;
@@ -150,7 +149,6 @@ short nCodeIndex = 0;
 
 //short nScreenWidth = 320;
 //short nScreenHeight = 200;
-int moveframes;
 int flash;
 int totalmoves;
 
@@ -466,14 +464,11 @@ void GameMove(void)
 
     // loc_120E9:
     totalmoves++;
-    moveframes--;
 }
 
 
 void GameTicker()
 {
-    bInMove = true;
-
     int const currentTic = I_GetTime();
     gameclock = I_GetBuildTime();
 
@@ -483,12 +478,9 @@ void GameTicker()
     }
     else
     {
-        while ((gameclock - ogameclock) >= 1 || !bInMove)
+        while (!EndLevel && currentTic - lastTic >= 1)
         {
-            ogameclock = I_GetBuildTime();
-
-            if (!((int)ogameclock & 3) && moveframes < 4)
-                moveframes++;
+            lastTic = currentTic;
 
             int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
             PlayerInterruptKeys();
@@ -516,22 +508,14 @@ void GameTicker()
 
             sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
-            while (!EndLevel && currentTic - lastTic >= 1)
-            {
-                lastTic = currentTic;
                 leveltime++;
                 GameMove();
             }
-        }
         if (nPlayerLives[nLocalPlayer] <= 0) {
             startmainmenu();
         }
     }
-    bInMove = false;
-
-
 }
-int32_t r_maxfpsoffset = 0;
 
 
 void ExitGame()
@@ -740,7 +724,6 @@ static SavegameHelper sgh("exhumed",
     SV(nEnergyChan),
     SV(lCountDown),
     SV(nEnergyTowers),
-    SV(moveframes),
     SV(totalmoves),
     SV(nCurBodyNum),
     SV(nBodyTotal),

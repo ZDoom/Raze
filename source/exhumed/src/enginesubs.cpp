@@ -30,7 +30,6 @@ BEGIN_PS_NS
 
 void resettiming()
 {
-    ogameclock = -1;
     gameclock = 0;
     lastTic = -1;
 }
