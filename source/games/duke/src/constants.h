@@ -408,6 +408,8 @@ enum miscConstants
 	MAXTORCHSECTORS = 64,
 	MAXGEOSECTORS = 64,
 
+	CRACK_TIME = 777,
+
 	DUKE3D_NO_WIDESCREEN_PINNING = 1 << 0,
 };
 
@@ -423,12 +425,6 @@ enum
 	// Control flags for WW2GI weapons.
 	TRIPBOMB_TRIPWIRE = 1,
 	TRIPBOMB_TIMER = 2
-};
-
-// Miscellaenous constants in use throughout the game.
-enum
-{
-	CRACK_TIME = 777
 };
 
 // World tour
