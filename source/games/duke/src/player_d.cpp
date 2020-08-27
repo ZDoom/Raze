@@ -1264,7 +1264,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SKB_HOLSTER);
+				PlayerSetInput(snum, SB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
@@ -2518,14 +2518,14 @@ static void operateweapon(int snum, EDukeSyncBits sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, EDukeSyncBits sb_snum, int psect)
+static void processweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
 	auto s = &sprite[pi];
 	int shrunk = (s->yrepeat < 32);
 
-	if (isNamWW2GI() && (sb_snum & SKB_HOLSTER)) // 'Holster Weapon
+	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
 		if (isWW2GI())
 		{
@@ -2604,6 +2604,7 @@ void processinput_d(int snum)
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist;
 	char shrunk;
 	EDukeSyncBits sb_snum;
+	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -2615,6 +2616,7 @@ void processinput_d(int snum)
 	resetinputhelpers(p);
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
+	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -2737,8 +2739,8 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
+		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions, sb_snum, psect);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions, sb_snum, psect);
 		return;
 	}
 
@@ -3001,7 +3003,7 @@ HORIZONLY:
 	}
 
 	// center_view
-	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
+	if (actions & SB_CENTERVIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
 	}
@@ -3066,12 +3068,7 @@ HORIZONLY:
 	}
 
 	// HACKS
-	processweapon(snum, sb_snum, psect);
-}
-
-void processweapon_d(int s, EDukeSyncBits ss, int p)
-{
-	processweapon(s, ss, p);
+	processweapon(snum, actions, sb_snum, psect);
 }
 
 void processmove_d(int snum, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)

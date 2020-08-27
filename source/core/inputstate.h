@@ -66,11 +66,11 @@ int32_t handleevents(void);
 
 enum GameFunction_t
 {
-	gamefunc_Move_Forward,
-	gamefunc_Move_Backward,
-	gamefunc_Turn_Left,
-	gamefunc_Turn_Right,
-	gamefunc_Strafe,
+	gamefunc_Move_Forward,		//
+	gamefunc_Move_Backward,		//
+	gamefunc_Turn_Left,			//
+	gamefunc_Turn_Right,		//
+	gamefunc_Strafe,			//
 	gamefunc_Fire,
 	gamefunc_Open,
 	gamefunc_Run,
@@ -81,8 +81,8 @@ enum GameFunction_t
 	gamefunc_Look_Down,
 	gamefunc_Look_Left,
 	gamefunc_Look_Right,
-	gamefunc_Strafe_Left,
-	gamefunc_Strafe_Right,
+	gamefunc_Strafe_Left,		//
+	gamefunc_Strafe_Right,		//
 	gamefunc_Aim_Up,
 	gamefunc_Aim_Down,
 	gamefunc_Shrink_Screen, // Automap only

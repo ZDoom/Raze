@@ -295,8 +295,7 @@ void GameInterface::QuitToTitle()
 		gQuitGame = true;
 		gRestartGame = true;
 	}
-	else
-		gQuitRequest = 2;
+	//else gQuitRequest = 2;
 }
 
 END_BLD_NS

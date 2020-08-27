@@ -52,7 +52,6 @@ extern int32_t PHEIGHT;
 extern int duke3d_globalflags;
 extern uint8_t ready2send;
 extern InputPacket loc;
-extern int gamequit;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;

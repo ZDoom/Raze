@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+extern short bPlayerPan;
+extern short bLockPan;
 
     extern const char* s_buildRev;
     extern const char* s_buildTimestamp;
@@ -58,7 +60,6 @@ BEGIN_PS_NS
 
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
-void registerinputcommands();
 void InitFonts();
 
 int htimer = 0;
@@ -584,7 +585,17 @@ void GameTicker()
                 }
             }
 
-
+            if (localInput.actions & SB_CENTERVIEW)
+            {
+                bLockPan = false;
+                bPlayerPan = false;
+                PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
+                nDestVertPan[nLocalPlayer] = fix16_from_int(92);
+            }
+            if (localInput.actions & SB_TURNAROUND)
+            {
+                // todo
+            }
 
 
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
@@ -687,7 +698,6 @@ void GameInterface::app_init()
 
     SetCheats(excheats, countof(excheats));
     registerosdcommands();
-    registerinputcommands();
     if (nNetPlayerCount == -1)
     {
         nNetPlayerCount = nCfgNetPlayers - 1;

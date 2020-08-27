@@ -6627,18 +6627,18 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         return FALSE;
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_HIDE_WEAPON))
+    if (psp->PlayerP->input.actions & SB_HOLSTER)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_HIDE_WEAPON))
+        if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {
-            FLAG_KEY_RELEASE(psp->PlayerP, SK_HIDE_WEAPON);
+            psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             pSetState(psp, state);
             return TRUE;
         }
     }
     else
     {
-        FLAG_KEY_RESET(psp->PlayerP, SK_HIDE_WEAPON);
+        psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
     if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
@@ -6671,19 +6671,19 @@ pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         return TRUE;
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_HIDE_WEAPON))
+    if (psp->PlayerP->input.actions & SB_HOLSTER)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_HIDE_WEAPON))
+        if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {
+            psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             PutStringInfo(psp->PlayerP,"Weapon Holstered");
-            FLAG_KEY_RELEASE(psp->PlayerP, SK_HIDE_WEAPON);
             pSetState(psp, state);
             return TRUE;
         }
     }
     else
     {
-        FLAG_KEY_RESET(psp->PlayerP, SK_HIDE_WEAPON);
+        psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
     return FALSE;

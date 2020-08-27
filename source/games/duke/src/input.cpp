@@ -39,8 +39,6 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-static EDukeSyncBits BitsToSend;
-
 // State timer counters. 
 static int nonsharedtimer;
 static int turnheldtime;
@@ -336,7 +334,7 @@ void hud_input(int snum)
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
 		fi.selectweapon(snum, weap);
 
-		if (PlayerInput(snum, SKB_HOLSTER))
+		if (PlayerInput(snum, SB_HOLSTER))
 		{
 			if (p->curr_weapon > KNEE_WEAPON)
 			{
@@ -564,7 +562,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_TURNAROUND) && p->one_eighty_count == 0)
+		if (PlayerInput(snum, SB_TURNAROUND) && p->one_eighty_count == 0)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
@@ -612,13 +610,6 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.sbits |= SKB_FIRE;
 	if (buttonMap.ButtonDown(gamefunc_Open)) loc.sbits |= SKB_OPEN;
 
-	// These 3 bits are only available when not riding a bike or boat.
-	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
-	loc.sbits |= BitsToSend;
-	BitsToSend = 0;
-
-	if (gamequit) loc.sbits |= SKB_GAMEQUIT;
-
 	if (!onVehicle)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.sbits |= SKB_JUMP;
@@ -637,7 +628,12 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
 		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
 
-		ApplyGlobalInput(loc, &info);
+	}
+	ApplyGlobalInput(loc, &info);
+	if (onVehicle)
+	{
+		// mask out all actions not compatible with vehicles.
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER);
 	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
@@ -1102,7 +1098,6 @@ void GetInput()
 	if (paused)
 	{
 		loc = {};
-		if (gamequit) loc.sbits |= SKB_GAMEQUIT;
 		return;
 	}
 
@@ -1145,26 +1140,9 @@ void GetInput()
 	}
 }
 
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-void registerinputcommands()
-{
-	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_CENTER_VIEW; return CCMD_OK; });
-	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLSTER; return CCMD_OK; });
-
-	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
-	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
-}
-
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
-	BitsToSend = 0;
 	nonsharedtimer = 0;
 	turnheldtime = 0;
 	lastcontroltime = 0;

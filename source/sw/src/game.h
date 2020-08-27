@@ -2223,7 +2223,6 @@ void LoadSaveMsg(const char *msg);
 void UpdateStatusBar(int arg);
 void InitFonts();
 int32_t registerosdcommands(void);
-void registerinputcommands();
 void SW_InitMultiPsky(void);
 
 extern int PlayClock;
@@ -2269,7 +2268,6 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
-    void clearlocalinputstate() override;
     void QuitToTitle() override;
 	void ResetFollowPos(bool message) override;
 

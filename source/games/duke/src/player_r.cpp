@@ -1067,7 +1067,7 @@ void selectweapon_r(int snum, int weap)
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SKB_HOLSTER);
+				PlayerSetInput(snum, SB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
@@ -3402,6 +3402,7 @@ void processinput_r(int snum)
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
 	EDukeSyncBits sb_snum;
+	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -3413,6 +3414,7 @@ void processinput_r(int snum)
 	resetinputhelpers(p);
 
 	sb_snum = PlayerInputBits(snum, SKB_ALL);
+	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -4027,7 +4029,7 @@ HORIZONLY:
 		return;
 	}
 
-	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
+	if (actions & SB_CENTERVIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
 	}
@@ -4102,11 +4104,6 @@ HORIZONLY:
 //
 //
 //---------------------------------------------------------------------------
-
-void processweapon_r(int s, EDukeSyncBits ss, int p)
-{
-	processweapon(s, ss, p);
-}
 
 void processmove_r(int snum, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
 {

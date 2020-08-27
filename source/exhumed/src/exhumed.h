@@ -252,7 +252,6 @@ struct GameInterface : ::GameInterface
     bool SaveGame(FSaveGameNode* sv) override;
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
-	void clearlocalinputstate() override;
 	void QuitToTitle();
 
     FString statFPS() override;

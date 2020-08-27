@@ -197,6 +197,7 @@ int domovethings()
 	GetNextInput();
 	updateinterpolations();
 
+#if 0
 	j = -1;
 	for (i = connecthead; i >= 0; i = connectpoint2[i])
 	{
@@ -227,6 +228,7 @@ int domovethings()
 		}
 		else j = i;
 	}
+#endif
 
 	//if(ud.recstat == 1) record();
 

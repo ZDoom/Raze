@@ -2870,17 +2870,6 @@ loc_1BD2E:
     }
 }
 
-int ccmd_centerview(CCmdFuncPtr parm)
-{
-    return CCMD_OK;
-    bLockPan = false;
-    bPlayerPan = false;
-    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
-    nDestVertPan[nLocalPlayer] = fix16_from_int(92);
-    return CCMD_OK;
-}
-
-
 static SavegameHelper sgh("player",
     SV(lPlayerXVel),
     SV(lPlayerYVel),

@@ -198,7 +198,6 @@ void GameInterface::app_init()
         Printf("Copyright (c) 1997 3D Realms Entertainment\n");
 
     registerosdcommands();
-    registerinputcommands();
 
     engineInit();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);

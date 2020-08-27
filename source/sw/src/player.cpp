@@ -1566,13 +1566,13 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
 
     if (!TEST(pp->Flags, PF_TURN_180))
     {
-        if (TEST_SYNC_KEY(pp, SK_TURN_180))
+        if (pp->input.actions & SB_TURNAROUND)
         {
-            if (FLAG_KEY_PRESSED(pp, SK_TURN_180))
+            if (pp->KeyPressBits & SB_TURNAROUND)
             {
                 short delta_ang;
 
-                FLAG_KEY_RELEASE(pp, SK_TURN_180);
+                pp->KeyPressBits &= ~SB_TURNAROUND;
 
                 pp->turn180_target = NORM_ANGLE(fix16_to_int(*pq16ang) + 1024);
 
@@ -1591,7 +1591,7 @@ DoPlayerTurn(PLAYERp pp, fix16_t *pq16ang, fix16_t q16angvel)
         }
         else
         {
-            FLAG_KEY_RESET(pp, SK_TURN_180);
+            pp->KeyPressBits |= SB_TURNAROUND;
         }
     }
 
@@ -1938,7 +1938,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
-    if (TEST_SYNC_KEY(pp, SK_CENTER_VIEW))
+    if (pp->input.actions & SB_CENTERVIEW)
     {
         if (PedanticMode)
             pp->q16horizbase = fix16_from_int(100);

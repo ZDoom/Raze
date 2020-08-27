@@ -65,7 +65,6 @@ int PHEIGHT = PHEIGHT_DUKE;
 int duke3d_globalflags;
 InputPacket loc;
 uint8_t ready2send;
-int gamequit;
 int playerswhenstarted;
 int show_shareware;
 int screenpeek;

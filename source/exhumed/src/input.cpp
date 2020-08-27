@@ -31,7 +31,6 @@ BEGIN_PS_NS
 extern short bPlayerPan;
 extern short bLockPan;
 
-int BitsToSend;
 bool g_MyAimMode;
 
 short nInputStack = 0;
@@ -371,32 +370,4 @@ void PlayerInterruptKeys(bool after)
 }
 
 
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-int ccmd_centerview(CCmdFuncPtr parm);
-
-
-void registerinputcommands()
-{
-    C_RegisterFunction("centerview", nullptr, ccmd_centerview);
-
-    // These are only here to silence the engine when the keys bound to them are pressed. The functions do not exist.
-    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
-    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
-
-}
-
-// This is called from ImputState::ClearAllInput and resets all static state being used here.
-void GameInterface::clearlocalinputstate()
-{
-    BitsToSend = 0;
-
-}
-
-  END_PS_NS
+END_PS_NS

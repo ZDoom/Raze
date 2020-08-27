@@ -146,6 +146,12 @@ inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 	return (sync[pl].actions & bits);
 }
 
+inline void PlayerSetInput(int pl, ESyncBits bit)
+{
+	sync[pl].actions |= bit;
+}
+
+
 inline int PlayerNewWeapon(int pl)
 {
 	return sync[pl].getNewWeapon();

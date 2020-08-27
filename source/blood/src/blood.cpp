@@ -74,6 +74,7 @@ char gUserMapFilename[BMAX_PATH];
 short BloodVersion = 0x115;
 
 int gNetPlayers;
+int gQuitRequest;
 
 int gChokeCounter = 0;
 
@@ -81,7 +82,6 @@ double g_gameUpdateTime, g_gameUpdateAndDrawTime;
 double g_gameUpdateAvgTime = 0.001;
 
 bool gQuitGame;
-int gQuitRequest;
 
 enum gametokens
 {
@@ -522,7 +522,6 @@ bool gRestartGame = false;
 
 void ProcessFrame(void)
 {
-    char buffer[128];
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         auto& inp = gPlayer[i].input;
@@ -538,6 +537,7 @@ void ProcessFrame(void)
     }
     gNetFifoTail++;
 
+#if 0
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (gPlayer[i].input.syncFlags.quit)
@@ -561,6 +561,7 @@ void ProcessFrame(void)
             return;
         }
     }
+#endif
     viewClearInterpolations();
     {
         if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
@@ -703,7 +704,6 @@ void GameInterface::app_init()
     Printf(PRINT_NONOTIFY, "Initializing sound system\n");
     sndInit();
     registerosdcommands();
-    registerinputcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
     UpdateDacs(0, true);
@@ -792,8 +792,10 @@ static void drawBackground()
 {
     twod->ClearScreen();
 	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+#if 0
     if (gQuitRequest && !gQuitGame)
         netBroadcastMyLogoff(gQuitRequest == 2);
+#endif
 }
 
 static void commonTicker()

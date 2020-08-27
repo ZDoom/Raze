@@ -34,11 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL MultiPlayQuitFlag = FALSE;
-
-int BitsToSend = 0;
-
-
 void
 FunctionKeys(PLAYERp pp)
 {
@@ -117,9 +112,6 @@ getinput(InputPacket *loc, SWBOOL tied)
     elapsedInputTicks = currentHiTicks - lastInputTicks;
 
     lastInputTicks = currentHiTicks;
-
-    // MAKE SURE THIS WILL GET SET
-    SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
 
     bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
@@ -419,9 +411,6 @@ getinput(InputPacket *loc, SWBOOL tied)
     }
 
 
-    loc->bits |= BitsToSend;
-    BitsToSend = 0;
-
     SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
     SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
     SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
@@ -457,29 +446,6 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     if (!tied)
         FunctionKeys(pp);
-}
-
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-void registerinputcommands()
-{
-    C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_CENTER_VIEW); return CCMD_OK; });
-    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_HIDE_WEAPON); return CCMD_OK; });
-
-    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_TURN_180); return CCMD_OK; });
-}
-
-// This is called from ImputState::ClearAllInput and resets all static state being used here.
-void GameInterface::clearlocalinputstate()
-{
-    BitsToSend = 0;
-
 }
 
 END_SW_NS

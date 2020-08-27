@@ -44,8 +44,6 @@ InputPacket gInput, gNetInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
-static int WeaponToSend;
-static SYNCFLAGS BitsToSend;
 
 void ctrlInit(void)
 {
@@ -131,7 +129,7 @@ void ctrlGetInput(void)
     InputPacket input = {};
 
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-	if (!mouseaim) gInput.syncFlags.lookCenter = 1;
+	if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
 
     if (numplayers == 1)
     {
@@ -141,14 +139,7 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-    if (gQuitRequest)
-        gInput.syncFlags.quit = 1;
-
-    gInput.syncFlags.value |= BitsToSend.value;
     ApplyGlobalInput(gInput, &info);
-
-    BitsToSend.value = 0;
-    WeaponToSend = 0;
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
@@ -200,7 +191,7 @@ void ctrlGetInput(void)
     gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
 
     if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Look_Down))
-        gInput.syncFlags.lookCenter = 1;
+        gInput.actions |= SB_CENTERVIEW;
     else
     {
         gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Aim_Up);
@@ -331,27 +322,5 @@ void ctrlGetInput(void)
         gViewLook = fix16_clamp(gViewLook+(input.q16horz << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     }
 }
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-void registerinputcommands()
-{
-    C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
-    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
-}
-
-// This is called from ImputState::ClearAllInput and resets all static state being used here.
-void GameInterface::clearlocalinputstate()
-{
-    WeaponToSend = 0;
-    BitsToSend.value = 0;
-}
-
 
 END_BLD_NS

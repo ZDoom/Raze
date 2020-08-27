@@ -295,6 +295,21 @@ CCMD(invuse)
 	ActionsToSend |= SB_INVUSE;
 }
 
+CCMD(centerview)
+{
+	ActionsToSend |= SB_CENTERVIEW;
+}
+
+CCMD(turnaround)
+{
+	ActionsToSend |= SB_TURNAROUND;
+}
+
+CCMD(holsterweapon)
+{
+	ActionsToSend |= SB_HOLSTER;
+}
+
 CCMD(pause)
 {
 	sendPause = true;
@@ -329,3 +344,24 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	ActionsToSend = 0;
 
 }
+
+#if 0
+void registerinputcommands()
+{
+	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
+	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
+	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
+}
+
+//---------------------------------------------------------------------------
+//
+// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
+// registration to only have the commands active when this game module runs.
+//
+//---------------------------------------------------------------------------
+
+	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
+}
+
+
+#endif

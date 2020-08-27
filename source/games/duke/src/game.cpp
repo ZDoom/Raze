@@ -47,7 +47,6 @@ BEGIN_DUKE_NS
 void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
-void registerinputcommands(void);
 
 //---------------------------------------------------------------------------
 //
@@ -331,7 +330,6 @@ static void Startup(void)
 	InitCheats();
 	checkcommandline();
 	registerosdcommands();
-	registerinputcommands();
 
 	screenpeek = myconnectindex;
 	ps[myconnectindex].palette = BASEPAL;

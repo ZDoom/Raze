@@ -87,7 +87,6 @@ struct GameInterface : ::GameInterface
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
-	void clearlocalinputstate() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	
 	GameStats getStats() override;
