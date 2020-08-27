@@ -43,6 +43,8 @@
 
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
+static int dpad_lock = 0;
+
 //==========================================================================
 //
 //
@@ -112,6 +114,9 @@ void InputState::ClearAllInput()
 {
 	memset(KeyStatus, 0, sizeof(KeyStatus));
 	AnyKeyStatus = false;
+	ActionsToSend = 0;
+	WeaponToSend = 0;
+	dpad_lock = 0;
 	buttonMap.ResetButtonStates();	// this is important. If all input is cleared, the buttons must be cleared as well.
 	gi->clearlocalinputstate();		// also clear game local input state.
 }
@@ -274,6 +279,20 @@ CCMD(useitem)
 	}
 }
 
+CCMD(invprev)
+{
+	ActionsToSend |= SB_INVPREV;
+}
+
+CCMD(invnext)
+{
+	ActionsToSend |= SB_INVNEXT;
+}
+
+CCMD(invuse)
+{
+	ActionsToSend |= SB_INVUSE;
+}
 
 
 
@@ -281,18 +300,25 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
-	if (info)
+	if (info && buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info->dz > 0) input.setNewWeapon(WeaponSel_Prev);
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info->dz < 0) input.setNewWeapon(WeaponSel_Next);
-	}
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-	{
+		// These buttons should not autorepeat. The game handlers are not really equipped for that.
+		if (info->dz > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
+		else dpad_lock &= ~1;
+		if (info->dz < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
+		else dpad_lock &= ~2;
+		if ((info->dx < 0 || info->dyaw < 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		else dpad_lock &= ~4;
+		if ((info->dx > 0 || info->dyaw > 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		else dpad_lock &= ~8;
+
 		// This eats the controller input for regular use
 		info->dx = 0;
 		info->dz = 0;
 		info->dyaw = 0;
 	}
+	else dpad_lock = 0;
+
 	input.actions |= ActionsToSend;
 	ActionsToSend = 0;
 

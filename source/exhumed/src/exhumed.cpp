@@ -528,6 +528,46 @@ void GameTicker()
                 weap2 = SelectAltWeapon(weap2);
             }
 
+            if (localInput.actions & SB_INVPREV)
+            {
+                int nItem = nPlayerItem[nLocalPlayer];
+
+                for (int i = 6; i > 0; i--)
+                {
+                    nItem--;
+                    if (nItem < 0) nItem = 5;
+
+                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                        break;
+                }
+
+                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            }
+
+            if (localInput.actions & SB_INVNEXT)
+            {
+                int nItem = nPlayerItem[nLocalPlayer];
+
+                for (int i = 6; i > 0; i--)
+                {
+                    nItem++;
+                    if (nItem == 6) nItem = 0;
+
+                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                        break;
+                }
+
+                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            }
+
+            if (localInput.actions & SB_INVUSE)
+            {
+                if (nPlayerItem[nLocalPlayer] != -1)
+                {
+                    localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
+                }
+            }
+
             for (int i = 0; i < 6; i++)
             {
                 if (localInput.isItemUsed(i))

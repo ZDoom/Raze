@@ -136,6 +136,11 @@ inline EDukeSyncBits PlayerInputBits(int pl, EDukeSyncBits bits)
 	return (sync[pl].sbits & bits);
 }
 
+inline bool PlayerInput(int pl, ESyncBits bit)
+{
+	return (!!((sync[pl].actions) & bit));
+}
+
 inline ESyncBits PlayerInputBits(int pl, ESyncBits bits)
 {
 	return (sync[pl].actions & bits);

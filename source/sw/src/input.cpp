@@ -37,7 +37,6 @@ BEGIN_SW_NS
 SWBOOL MultiPlayQuitFlag = FALSE;
 
 int BitsToSend = 0;
-int inv_hotkey = 0;
 
 
 void
@@ -473,17 +472,14 @@ void registerinputcommands()
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); sendPause = true; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_CENTER_VIEW); return CCMD_OK; });
     C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_HIDE_WEAPON); return CCMD_OK; });
-    C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_LEFT); return CCMD_OK; });
-    C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_RIGHT); return CCMD_OK; });
+
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_TURN_180); return CCMD_OK; });
-    C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_USE); return CCMD_OK; });
 }
 
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
 void GameInterface::clearlocalinputstate()
 {
     BitsToSend = 0;
-    inv_hotkey = 0;
 
 }
 

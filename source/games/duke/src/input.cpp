@@ -204,7 +204,7 @@ void hud_input(int snum)
 		if (sprite[p->i].extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(snum, SKB_INVENTORY) && p->newowner == -1)
+		if (PlayerInput(snum, SB_INVUSE) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_INVENTORY, -1, snum, -1);
@@ -245,11 +245,11 @@ void hud_input(int snum)
 			return;
 		}
 
-		if (PlayerInput(snum, SKB_INV_LEFT) || PlayerInput(snum, SKB_INV_RIGHT))
+		if (PlayerInput(snum, SB_INVPREV) || PlayerInput(snum, SB_INVNEXT))
 		{
 			p->invdisptime = 26 * 2;
 
-			if (PlayerInput(snum, SKB_INV_RIGHT)) k = 1;
+			if (PlayerInput(snum, SB_INVNEXT)) k = 1;
 			else k = 0;
 
 			dainv = p->inven_icon;
@@ -311,13 +311,13 @@ void hud_input(int snum)
 			else dainv = 0;
 
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-			if (PlayerInput(snum, SKB_INV_LEFT))
+			if (PlayerInput(snum, SB_INVPREV))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
 				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
 			}
-			if (PlayerInput(snum, SKB_INV_RIGHT))
+			if (PlayerInput(snum, SB_INVNEXT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
@@ -616,12 +616,6 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
 	loc.sbits |= BitsToSend;
 	BitsToSend = 0;
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))	// todo: This must go to global code.
-	{
-		if (info.dx < 0 || info.dyaw < 0) loc.sbits |= SKB_INV_LEFT;
-		if (info.dx > 0 || info.dyaw < 0) loc.sbits |= SKB_INV_RIGHT;
-	}
 
 	if (gamequit) loc.sbits |= SKB_GAMEQUIT;
 
@@ -1163,10 +1157,8 @@ void registerinputcommands()
 	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; sendPause = true; return CCMD_OK; });
 	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_CENTER_VIEW; return CCMD_OK; });
 	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLSTER; return CCMD_OK; });
-	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_LEFT; return CCMD_OK; });
-	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_RIGHT; return CCMD_OK; });
+
 	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
-	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INVENTORY; return CCMD_OK; });
 	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
 }
 

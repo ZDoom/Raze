@@ -1635,19 +1635,19 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->q16slopehoriz = 0;
     }
     pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
-    if (pInput->syncFlags.prevItem)
+    if (pInput->actions & SB_INVPREV)
     {
-        pInput->syncFlags.prevItem = 0;
+        pInput->actions&= ~SB_INVPREV;
         packPrevItem(pPlayer);
     }
-    if (pInput->syncFlags.nextItem)
+    if (pInput->actions & SB_INVNEXT)
     {
-        pInput->syncFlags.nextItem = 0;
+        pInput->actions &= ~SB_INVNEXT;
         packNextItem(pPlayer);
     }
-    if (pInput->syncFlags.useItem)
+    if (pInput->actions & SB_INVUSE)
     {
-        pInput->syncFlags.useItem = 0;
+        pInput->actions &= ~SB_INVUSE;
         if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
             packUseItem(pPlayer, pPlayer->packItemId);
     }

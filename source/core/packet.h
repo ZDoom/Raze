@@ -15,14 +15,16 @@ enum ESyncBits_ : uint32_t
     SB_ITEM_BIT_6 = 1 << 9,
     SB_ITEM_BIT_7 = 1 << 10,
 
-    // Exhumed has 6 items but doesn't use the network packet to activate them. Need to change
+    SB_INVPREV = 1 << 11,
+    SB_INVNEXT = 1 << 12,
+    SB_INVUSE = 1 << 13,
 
 
     SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
     SB_ITEMUSE_BITS = (127u * SB_ITEM_BIT_1),
 
     SB_BUTTON_MASK = 0,     // all input from buttons (i.e. active while held)
-    SB_INTERFACE_MASK = 0,  // all input from CCMDs
+    SB_INTERFACE_MASK = (SB_INVPREV|SB_INVNEXT|SB_INVUSE),  // all input from CCMDs
     SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_ITEMUSE_BITS | SB_INTERFACE_MASK)
 };
 
@@ -68,20 +70,17 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_MULTIFLAG = 1 << 17,
 	SKB_CENTER_VIEW = 1 << 18,
 	SKB_HOLSTER = 1 << 19,
-	SKB_INV_LEFT = 1 << 20,
 	SKB_PAUSE = 1 << 21,
 	SKB_QUICK_KICK = 1 << 22,
 	SKB_AIMMODE = 1 << 23,
 	SKB_GAMEQUIT = 1 << 26,
-	SKB_INV_RIGHT = 1 << 27,
 	SKB_TURNAROUND = 1 << 28,
 	SKB_OPEN = 1 << 29,
-	SKB_INVENTORY = 1 << 30,
 	SKB_ESCAPE = 1u << 31,
 
 	SKB_INTERFACE_BITS = (SKB_QUICK_KICK | \
-		SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_INV_RIGHT | \
-		SKB_TURNAROUND | SKB_OPEN | SKB_INVENTORY | SKB_ESCAPE),
+		SKB_HOLSTER | SKB_PAUSE | \
+		SKB_TURNAROUND | SKB_OPEN | SKB_ESCAPE),
 
 	SKB_NONE = 0,
 	SKB_ALL = ~0u
@@ -106,9 +105,6 @@ union SYNCFLAGS
         unsigned int lookDown : 1;
         unsigned int action : 1;
         unsigned int jab : 1;
-        unsigned int prevItem : 1;
-        unsigned int nextItem : 1;
-        unsigned int useItem : 1;
         unsigned int holsterWeapon : 1;
         unsigned int lookCenter : 1;
         unsigned int lookLeft : 1;
@@ -148,10 +144,6 @@ union SYNCFLAGS
 
 #define SK_TURN_180   25
 
-#define SK_INV_LEFT   26
-#define SK_INV_RIGHT  27
-
-#define SK_INV_USE   29
 #define SK_HIDE_WEAPON  30
 #define SK_SPACE_BAR  31
 

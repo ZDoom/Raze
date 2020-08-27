@@ -412,14 +412,12 @@ StopInventoryNightVision(PLAYERp pp, short InventoryNum)
 
 void InventoryKeys(PLAYERp pp)
 {
-    short inv_hotkey;
-
     // scroll SPELLs left
-    if (TEST_SYNC_KEY(pp, SK_INV_LEFT))
+    if (pp->input.actions & SB_INVPREV)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_INV_LEFT))
+        if (pp->KeyPressBits & SB_INVPREV)
         {
-            FLAG_KEY_RELEASE(pp, SK_INV_LEFT);
+            pp->KeyPressBits &= ~SB_INVPREV;
             pp->InventoryBarTics = SEC(2);
             PlayerUpdateInventory(pp, pp->InventoryNum - 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
@@ -427,15 +425,15 @@ void InventoryKeys(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_INV_LEFT);
+        pp->KeyPressBits |= SB_INVPREV;
     }
 
     // scroll SPELLs right
-    if (TEST_SYNC_KEY(pp, SK_INV_RIGHT))
+    if (pp->input.actions & SB_INVNEXT)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_INV_RIGHT))
+        if (pp->KeyPressBits & SB_INVNEXT)
         {
-            FLAG_KEY_RELEASE(pp, SK_INV_RIGHT);
+            pp->KeyPressBits &= ~SB_INVNEXT;
             pp->InventoryBarTics = SEC(2);
             PlayerUpdateInventory(pp, pp->InventoryNum + 1);
             PutStringInfo(pp, InventoryData[pp->InventoryNum].Name);
@@ -443,15 +441,14 @@ void InventoryKeys(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_INV_RIGHT);
+        pp->KeyPressBits |= SB_INVNEXT;
     }
 
-    if (TEST_SYNC_KEY(pp, SK_INV_USE))
+    if (pp->input.actions & SB_INVUSE)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_INV_USE))
+        if (pp->KeyPressBits & SB_INVUSE)
         {
-            FLAG_KEY_RELEASE(pp, SK_INV_USE);
-
+            pp->KeyPressBits &= ~SB_INVUSE;
             if (InventoryData[pp->InventoryNum].Init)
             {
                 if (pp->InventoryAmount[pp->InventoryNum])
@@ -468,7 +465,7 @@ void InventoryKeys(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_INV_USE);
+        pp->KeyPressBits |= SB_INVUSE;
     }
 
     // test all 7 items
