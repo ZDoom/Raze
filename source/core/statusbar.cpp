@@ -809,8 +809,26 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 		DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, GStrings.localize(volname),
 			DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
-
 }
+
+//============================================================================
+//
+// 
+//
+//============================================================================
+
+short DBaseStatusBar::CalcMagazineAmount(short ammo_remaining, short clip_capacity, bool reloading)
+{
+	// Determine amount in clip.
+	short clip_amount = ammo_remaining % clip_capacity;
+
+	// Set current clip value to clip capacity if wrapped around to zero, otherwise use determined value.
+	short clip_current = ammo_remaining != 0 && clip_amount == 0 ? clip_capacity : clip_amount;
+
+	// Return current clip value if weapon has rounds or is not on a reload cycle.
+	return ammo_remaining == 0 || reloading && clip_amount == 0 ? 0 : clip_current;
+}
+
 //============================================================================
 //
 // 

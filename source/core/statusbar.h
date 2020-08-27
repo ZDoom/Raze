@@ -196,6 +196,7 @@ public:
 		return SBarTop;
 	}
 	void DoDrawAutomapHUD(int crdefault, int highlight);
+	short CalcMagazineAmount(short ammo_remaining, short clip_capacity, bool reloading);
 
 //protected:
 	void DrawPowerups ();
