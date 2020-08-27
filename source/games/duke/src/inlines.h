@@ -146,6 +146,16 @@ inline int PlayerNewWeapon(int pl)
 	return sync[pl].getNewWeapon();
 }
 
+inline void PlayerSetItemUsed(int pl, int num)
+{
+	sync[pl].setItemUsed(num - 1);
+}
+
+inline bool PlayerUseItem(int pl, int num)
+{
+	return sync[pl].isItemUsed(num - 1);
+}
+
 inline int PlayerInputSideVel(int pl)
 {
 	return sync[pl].svel;

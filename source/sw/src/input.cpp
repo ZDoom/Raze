@@ -423,9 +423,6 @@ getinput(InputPacket *loc, SWBOOL tied)
     loc->bits |= BitsToSend;
     BitsToSend = 0;
 
-    SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
-    inv_hotkey = 0;
-
     SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
     SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
     SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
@@ -474,16 +471,10 @@ getinput(InputPacket *loc, SWBOOL tied)
 void registerinputcommands()
 {
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); sendPause = true; return CCMD_OK; });
-    C_RegisterFunction("smoke_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CLOAK + 1; return CCMD_OK; });
-    C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_NIGHT_VISION + 1; return CCMD_OK; });
-    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_MEDKIT + 1; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_CENTER_VIEW); return CCMD_OK; });
     C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_HIDE_WEAPON); return CCMD_OK; });
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_LEFT); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_RIGHT); return CCMD_OK; });
-    C_RegisterFunction("gas_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CHEMBOMB + 1; return CCMD_OK; });
-    C_RegisterFunction("flash_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_FLASHBOMB + 1; return CCMD_OK; });
-    C_RegisterFunction("caltrops", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CALTROPS + 1; return CCMD_OK; });
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_TURN_180); return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_USE); return CCMD_OK; });
 }

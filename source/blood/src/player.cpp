@@ -1295,6 +1295,14 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
 
 void ProcessInput(PLAYER *pPlayer)
 {
+    enum
+    {
+        Item_MedKit = 0,
+        Item_CrystalBall = 1,
+        Item_BeastVision = 2,
+        Item_JumpBoots = 3
+    };
+
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
@@ -1643,27 +1651,27 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
             packUseItem(pPlayer, pPlayer->packItemId);
     }
-    if (pInput->syncFlags.useBeastVision)
+    if (pInput->isItemUsed(Item_BeastVision))
     {
-        pInput->syncFlags.useBeastVision = 0;
+        pInput->clearItemUsed(Item_BeastVision);
         if (pPlayer->packSlots[3].curAmount > 0)
             packUseItem(pPlayer, 3);
     }
-    if (pInput->syncFlags.useCrystalBall)
+    if (pInput->isItemUsed(Item_CrystalBall))
     {
-        pInput->syncFlags.useCrystalBall = 0;
+        pInput->clearItemUsed(Item_CrystalBall);
         if (pPlayer->packSlots[2].curAmount > 0)
             packUseItem(pPlayer, 2);
     }
-    if (pInput->syncFlags.useJumpBoots)
+    if (pInput->isItemUsed(Item_JumpBoots))
     {
-        pInput->syncFlags.useJumpBoots = 0;
+        pInput->clearItemUsed(Item_JumpBoots);
         if (pPlayer->packSlots[4].curAmount > 0)
             packUseItem(pPlayer, 4);
     }
-    if (pInput->syncFlags.useMedKit)
+    if (pInput->isItemUsed(Item_MedKit))
     {
-        pInput->syncFlags.useMedKit = 0;
+        pInput->clearItemUsed(Item_MedKit);
         if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }

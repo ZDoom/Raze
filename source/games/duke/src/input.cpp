@@ -210,19 +210,11 @@ void hud_input(int snum)
 			OnEvent(EVENT_INVENTORY, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				switch (p->inven_icon)
-				{
-					// Yet another place where no symbolic constants were used. :(
-				case ICON_JETPACK: PlayerSetInput(snum, SKB_JETPACK); break;
-				case ICON_HOLODUKE: PlayerSetInput(snum, SKB_HOLODUKE); break;
-				case ICON_HEATS: PlayerSetInput(snum, SKB_NIGHTVISION); break;
-				case ICON_FIRSTAID: PlayerSetInput(snum, SKB_MEDKIT); break;
-				case ICON_STEROIDS: PlayerSetInput(snum, SKB_STEROIDS); break;
-				}
+				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(snum, p->inven_icon);
 			}
 		}
 
-		if (!isRR() && PlayerInput(snum, SKB_NIGHTVISION))
+		if (!isRR() && PlayerUseItem(snum, ICON_HEATS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -236,7 +228,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_STEROIDS))
+		if (PlayerUseItem(snum, ICON_STEROIDS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
@@ -363,7 +355,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_HOLODUKE) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(snum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
@@ -419,7 +411,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (isRR() && PlayerInput(snum, SKB_NIGHTVISION) && p->newowner == -1)
+		if (isRR() && PlayerUseItem(snum, ICON_HEATS) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -451,7 +443,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_MEDKIT))
+		if (PlayerUseItem(snum, ICON_FIRSTAID))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
@@ -504,7 +496,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_JETPACK) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(snum, ICON_JETPACK) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEJETPACK, -1, snum, -1);
@@ -1169,15 +1161,10 @@ void GetInput()
 void registerinputcommands()
 {
 	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; sendPause = true; return CCMD_OK; });
-	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_STEROIDS; return CCMD_OK; });
-	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_NIGHTVISION; return CCMD_OK; });
-	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_MEDKIT; return CCMD_OK; });
 	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_CENTER_VIEW; return CCMD_OK; });
 	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLSTER; return CCMD_OK; });
 	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_LEFT; return CCMD_OK; });
 	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_RIGHT; return CCMD_OK; });
-	C_RegisterFunction("holoduke", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLODUKE; return CCMD_OK; });
-	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_JETPACK; return CCMD_OK; });
 	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
 	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INVENTORY; return CCMD_OK; });
 	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });

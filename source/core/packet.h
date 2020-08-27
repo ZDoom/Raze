@@ -6,13 +6,24 @@
 
 enum ESyncBits_ : uint32_t
 {
-    SB_FIRST_WEAPON_BIT = 1 << 0, 
+    SB_FIRST_WEAPON_BIT = 1 << 0,
+    SB_ITEM_BIT_1 = 1 << 4,
+    SB_ITEM_BIT_2 = 1 << 5,
+    SB_ITEM_BIT_3 = 1 << 6,
+    SB_ITEM_BIT_4 = 1 << 7,
+    SB_ITEM_BIT_5 = 1 << 8,
+    SB_ITEM_BIT_6 = 1 << 9,
+    SB_ITEM_BIT_7 = 1 << 10,
+
+    // Exhumed has 6 items but doesn't use the network packet to activate them. Need to change
+
 
     SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
+    SB_ITEMUSE_BITS = (127u * SB_ITEM_BIT_1),
 
     SB_BUTTON_MASK = 0,     // all input from buttons (i.e. active while held)
     SB_INTERFACE_MASK = 0,  // all input from CCMDs
-    SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_INTERFACE_MASK)
+    SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_ITEMUSE_BITS | SB_INTERFACE_MASK)
 };
 
 // enforce type safe operations on the input bits.
@@ -52,11 +63,8 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_RUN = 1 << 5,
 	SKB_LOOK_LEFT = 1 << 6,
 	SKB_LOOK_RIGHT = 1 << 7,
-	SKB_STEROIDS = 1 << 12,
 	SKB_LOOK_UP = 1 << 13,
 	SKB_LOOK_DOWN = 1 << 14,
-	SKB_NIGHTVISION = 1 << 15,
-	SKB_MEDKIT = 1 << 16,
 	SKB_MULTIFLAG = 1 << 17,
 	SKB_CENTER_VIEW = 1 << 18,
 	SKB_HOLSTER = 1 << 19,
@@ -64,8 +72,6 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_PAUSE = 1 << 21,
 	SKB_QUICK_KICK = 1 << 22,
 	SKB_AIMMODE = 1 << 23,
-	SKB_HOLODUKE = 1 << 24,
-	SKB_JETPACK = 1 << 25,
 	SKB_GAMEQUIT = 1 << 26,
 	SKB_INV_RIGHT = 1 << 27,
 	SKB_TURNAROUND = 1 << 28,
@@ -73,8 +79,8 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_INVENTORY = 1 << 30,
 	SKB_ESCAPE = 1u << 31,
 
-	SKB_INTERFACE_BITS = (SKB_STEROIDS | SKB_NIGHTVISION | SKB_MEDKIT | SKB_QUICK_KICK | \
-		SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_HOLODUKE | SKB_JETPACK | SKB_INV_RIGHT | \
+	SKB_INTERFACE_BITS = (SKB_QUICK_KICK | \
+		SKB_HOLSTER | SKB_INV_LEFT | SKB_PAUSE | SKB_INV_RIGHT | \
 		SKB_TURNAROUND | SKB_OPEN | SKB_INVENTORY | SKB_ESCAPE),
 
 	SKB_NONE = 0,
@@ -111,10 +117,6 @@ union SYNCFLAGS
         unsigned int pause : 1;
         unsigned int quit : 1;
         unsigned int restart : 1;
-        unsigned int useBeastVision : 1;
-        unsigned int useCrystalBall : 1;
-        unsigned int useJumpBoots : 1;
-        unsigned int useMedKit : 1;
     };
 };
 
@@ -124,10 +126,6 @@ union SYNCFLAGS
 // NETWORK - REDEFINABLE SHARED (SYNC) KEYS BIT POSITIONS
 //
 
-#define SK_INV_HOTKEY_BIT0 4
-#define SK_INV_HOTKEY_BIT1 5
-#define SK_INV_HOTKEY_BIT2 6
-#define SK_INV_HOTKEY_MASK (BIT(SK_INV_HOTKEY_BIT0)|BIT(SK_INV_HOTKEY_BIT1)|BIT(SK_INV_HOTKEY_BIT2))
 
 #define SK_AUTO_AIM    7
 #define SK_CENTER_VIEW 8
@@ -147,8 +145,6 @@ union SYNCFLAGS
 #define SK_SNAP_UP    21
 #define SK_SNAP_DOWN  22
 #define SK_QUIT_GAME  23
-
-#define SK_MULTI_VIEW 24
 
 #define SK_TURN_180   25
 
@@ -210,6 +206,22 @@ struct InputPacket
     {
         actions = (actions & ~SB_WEAPONMASK_BITS) | (ESyncBits::FromInt(weap) & SB_WEAPONMASK_BITS);
     }
+
+    bool isItemUsed(int num)
+    {
+        return !!(actions & ESyncBits::FromInt(SB_ITEM_BIT_1 << num));
+    }
+
+    void setItemUsed(int num)
+    {
+        actions |= ESyncBits::FromInt(SB_ITEM_BIT_1 << num);
+    }
+
+    void clearItemUsed(int num)
+    {
+        actions &= ~ESyncBits::FromInt(SB_ITEM_BIT_1 << num);
+    }
+
 };
 
 

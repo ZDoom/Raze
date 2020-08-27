@@ -528,6 +528,25 @@ void GameTicker()
                 weap2 = SelectAltWeapon(weap2);
             }
 
+            for (int i = 0; i < 6; i++)
+            {
+                if (localInput.isItemUsed(i))
+                {
+                    localInput.clearItemUsed(i);
+                    if (PlayerList[nLocalPlayer].items[i] > 0)
+                    {
+                        if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
+                        {
+                            sPlayerInput[nLocalPlayer].nItem = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+
+
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             // make weapon selection persist until it gets used up.

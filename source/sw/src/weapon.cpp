@@ -7518,7 +7518,7 @@ const char *DeathString(short SpriteNum)
     case RADIATION_CLOUD:
         return GStrings("radiation");
     case CALTROPS:
-        return GStrings("caltrops");
+        return GStrings("useitem 7");
     }
     return "";
 }

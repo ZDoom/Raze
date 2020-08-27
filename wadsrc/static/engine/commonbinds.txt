@@ -34,7 +34,7 @@ RCtrl "+Fire"
 Pause "pause"
 ` "toggleconsole"
 
-T "+Send_Message"
+T "messagemode"
 Tab "togglemap"
 mapbind F "togglefollow"
 mapbind - "+Shrink_Screen"

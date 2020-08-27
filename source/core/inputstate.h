@@ -100,4 +100,4 @@ enum GameFunction_t
 
 void SetupGameButtons();
 void ApplyGlobalInput(InputPacket& input, ControlInfo *info);
-
+extern ESyncBits ActionsToSend;

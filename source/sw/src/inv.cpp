@@ -367,8 +367,6 @@ DoPlayerNightVisionPalette(PLAYERp pp)
 void
 UseInventoryNightVision(PLAYERp pp)
 {
-#define NIGHT_INVENTORY_TIME 30
-
     if (pp->InventoryActive[pp->InventoryNum])
     {
         StopInventoryNightVision(pp, pp->InventoryNum);
@@ -473,32 +471,32 @@ void InventoryKeys(PLAYERp pp)
         FLAG_KEY_RESET(pp, SK_INV_USE);
     }
 
-    // get hotkey number out of input bits
-    inv_hotkey = TEST(pp->input.bits, SK_INV_HOTKEY_MASK) >> SK_INV_HOTKEY_BIT0;
-
-    if (inv_hotkey)
+    // test all 7 items
+    for (int i = 0; i <= 7; i++)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_INV_HOTKEY_BIT0))
+        ESyncBits bit = ESyncBits::FromInt(SB_ITEM_BIT_1 << i);
+        if (pp->input.isItemUsed(i))
         {
-            FLAG_KEY_RELEASE(pp, SK_INV_HOTKEY_BIT0);
-
-            inv_hotkey -= 1;
-
-            // switches you to this inventory item
-            pp->InventoryNum = inv_hotkey;
-
-            if (InventoryData[pp->InventoryNum].Init && !TEST(pp->Flags, PF_CLIMBING))
+            if (pp->KeyPressBits & bit)
             {
-                if (pp->InventoryAmount[pp->InventoryNum])
-                {
-                    InventoryUse(pp);
-                }
-            }
+                pp->KeyPressBits &= ~bit;
+
+	            // switches you to this inventory item
+	            pp->InventoryNum = i;
+
+	            if (InventoryData[pp->InventoryNum].Init && !TEST(pp->Flags, PF_CLIMBING))
+	            {
+	                if (pp->InventoryAmount[pp->InventoryNum])
+	                {
+	                    InventoryUse(pp);
+	                }
+	            }
+	        }
+	    }
+	    else
+	    {
+             pp->KeyPressBits |= bit;
         }
-    }
-    else
-    {
-        FLAG_KEY_RESET(pp, SK_INV_HOTKEY_BIT0);
     }
 }
 

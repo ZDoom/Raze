@@ -42,7 +42,7 @@
 #include "gamecontrol.h"
 
 static int WeaponToSend = 0;
-
+ESyncBits ActionsToSend = 0;
 //==========================================================================
 //
 //
@@ -259,6 +259,24 @@ CCMD(weapalt)
 	WeaponToSend = WeaponSel_Alt;	// Only used by SW - should also be made usable by Blood ans Duke which put multiple weapons in the same slot.
 }
 
+CCMD(useitem)
+{
+	int max = (g_gameType & GAMEFLAG_PSEXHUMED)? 6 : (g_gameType & GAMEFLAG_SW)? 7 : (g_gameType & GAMEFLAG_BLOOD) ? 4 : 5;
+	if (argv.argc() != 2)
+	{
+		Printf("useitem <itemnum>: activates an inventory item (1-%d)", max);
+	}
+
+	auto slot = atoi(argv[1]);
+	if (slot >= 1 && slot <= max)
+	{
+		ActionsToSend |= ESyncBits::FromInt(SB_ITEM_BIT_1 << (slot - 1));
+	}
+}
+
+
+
+
 void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
@@ -275,5 +293,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 		info->dz = 0;
 		info->dyaw = 0;
 	}
+	input.actions |= ActionsToSend;
+	ActionsToSend = 0;
 
 }

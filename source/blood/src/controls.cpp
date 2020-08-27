@@ -347,14 +347,10 @@ void ctrlGetInput(void)
 void registerinputcommands()
 {
     C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
-    C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useJumpBoots = 1; return CCMD_OK; });
-    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useMedKit = 1; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
     C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend.prevItem = 1; return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend.nextItem = 1; return CCMD_OK; });
-    C_RegisterFunction("crystalball", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useCrystalBall = 1; return CCMD_OK; });
-    C_RegisterFunction("beastvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useBeastVision = 1; return CCMD_OK; });
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
     C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useItem = 1; return CCMD_OK; });
 }

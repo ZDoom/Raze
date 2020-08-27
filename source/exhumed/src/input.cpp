@@ -388,7 +388,7 @@ void registerinputcommands()
     C_RegisterFunction("centerview", nullptr, ccmd_centerview);
     C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetPrevItem(nLocalPlayer); return CCMD_OK; });
     C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) SetNextItem(nLocalPlayer); return CCMD_OK; });
-    C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) UseCurItem(nLocalPlayer); return CCMD_OK; });
+    //C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { if (PlayerList[nLocalPlayer].nHealth > 0) UseCurItem(nLocalPlayer); return CCMD_OK; });
 
     // These are only here to silence the engine when the keys bound to them are pressed. The functions do not exist.
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { return CCMD_OK; });
