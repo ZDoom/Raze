@@ -2239,6 +2239,11 @@ pUziPresent(PANEL_SPRITEp psp)
     psp->oy = psp->y;
     psp->y -= 3 * synctics;
 
+    if (psp->PlayerP->WpnUziType)
+    {
+        psp->PlayerP->WpnReloadState = 2;
+    }
+
     if (psp->y < UZI_YOFF)
     {
         RESET(psp->flags, PANF_RELOAD);
@@ -2260,6 +2265,8 @@ pUziPresentReload(PANEL_SPRITEp psp)
 
     psp->oy = psp->y;
     psp->y -= 5 * synctics;
+
+    psp->PlayerP->WpnReloadState = 2;
 
     if (psp->y < UZI_YOFF)
     {
@@ -2912,6 +2919,8 @@ pShotgunReloadUp(PANEL_SPRITEp psp)
     psp->ox = psp->x = SHOTGUN_XOFF;
     psp->oy = psp->y;
     psp->y -= 3 * synctics;
+
+    psp->PlayerP->WpnReloadState = 2;
 
     if (psp->y < SHOTGUN_YOFF)
     {

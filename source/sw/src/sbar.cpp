@@ -65,6 +65,22 @@ static const short icons[] = {
     ID_PanelCaltrops,
 };
 
+static bool DoReloadStatus(char *reloadstate, int ammo)
+{
+    bool reloading = ammo == 0 && *reloadstate != 2;
+
+    if (ammo == 0 && *reloadstate == 0)
+    {
+        *reloadstate = 1;
+    }
+    if (ammo)
+    {
+        *reloadstate = 0;
+    }
+
+    return reloading;
+}
+
 class DSWStatusBar : public DBaseStatusBar
 {
     DHUDFont miniFont, numberFont;
@@ -801,7 +817,29 @@ private:
         int wicon = ammo_sprites[weapon];
         if (wicon > 0)
         {
-            format.Format("%d", pp->WpnAmmo[weapon]);
+            int ammo = pp->WpnAmmo[weapon];
+            bool reloadableWeapon = weapon == WPN_SHOTGUN || weapon == WPN_UZI;
+            if (!reloadableWeapon || (reloadableWeapon && !cl_showmagamt))
+            {
+                format.Format("%d", ammo);
+            }
+            else
+            {
+                short clip;
+                short capacity;
+                switch (weapon)
+                {
+                    case WPN_SHOTGUN:
+                        capacity = 4;
+                        clip = CalcMagazineAmount(ammo, capacity, DoReloadStatus(&pp->WpnReloadState, ammo % capacity));
+                        break;
+                    case WPN_UZI:
+                        capacity = pp->WpnUziType ? 50 : 100;
+                        clip = CalcMagazineAmount(ammo, capacity, DoReloadStatus(&pp->WpnReloadState, ammo % capacity));
+                        break;
+                }
+                format.Format("%d/%d", clip, ammo - clip);
+            }
             img = tileGetTexture(wicon);
             imgScale = baseScale / img->GetDisplayHeight();
             auto imgX = 21.125;
@@ -812,7 +850,7 @@ private:
                 imgX += (imgX * 0.855) * (strlen - 1);
             }
 
-            if ((!althud_flashing || gameclock & 32 || pp->WpnAmmo[weapon] > (DamageData[weapon].max_ammo / 10)))
+            if ((!althud_flashing || gameclock & 32 || ammo > (DamageData[weapon].max_ammo / 10)))
             {
                 SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }

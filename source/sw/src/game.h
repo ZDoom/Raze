@@ -1091,6 +1091,7 @@ struct PLAYERstruct
     char cookieQuote[256];          // Should be an FString but must be POD for now to be storable in a savegame.
     int cookieTime;
 
+    char WpnReloadState;
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

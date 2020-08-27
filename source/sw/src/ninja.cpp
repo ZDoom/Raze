@@ -2250,6 +2250,7 @@ PlayerDeathReset(PLAYERp pp)
     pp->InitingNuke = FALSE;
     pp->NukeInitialized = FALSE;
     pp->BunnyMode = FALSE;
+    pp->WpnReloadState = 2;
 
     memset(pp->WpnAmmo,0,sizeof(pp->WpnAmmo));
     memset(pp->InventoryTics,0,sizeof(pp->InventoryTics));
@@ -2339,6 +2340,7 @@ PlayerGameReset(PLAYERp pp)
     pp->NukeInitialized = FALSE;
     pp->BunnyMode = FALSE;
     pp->SecretsFound = 0;
+    pp->WpnReloadState = 2;
 
     pp->WpnAmmo[WPN_STAR] = 30;
     pp->WpnAmmo[WPN_SWORD] = pp->WpnAmmo[WPN_FIST] = 30;
