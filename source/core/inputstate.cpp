@@ -86,14 +86,32 @@ void InputState::GetMouseDelta(ControlInfo * info)
 //
 //==========================================================================
 
+static int exclKeys[] = { KEY_VOLUMEDOWN, KEY_VOLUMEUP };
+
 void InputState::AddEvent(const event_t *ev)
 {
 	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
 	{
 		int key = ev->data1;
 		bool state = ev->type == EV_KeyDown;
+		bool ignore = false;
 		KeyStatus[key] = (uint8_t)state;
-		if (state && !(key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT))
+
+		// Check if key is to be excluded from setting AnyKeyStatus.
+		for (int i = 0; i < 2; i++)
+		{
+			if (exclKeys[i] == key)
+			{
+				ignore = true;
+				break;
+			}
+		}
+		if (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT)
+		{
+			ignore = true;
+		}
+
+		if (state && !ignore)
 			AnyKeyStatus = true;
 	}
 }
