@@ -545,29 +545,42 @@ void packPrevItem(PLAYER *pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nPrev = ClipLow(pPlayer->packItemId-1,0); nPrev >= 0; nPrev--)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nPrev].curAmount)
+            for (int nPrev = pPlayer->packItemId-1; nPrev >= 0; nPrev--)
             {
-                pPlayer->packItemId = nPrev;
-                break;
+                if (pPlayer->packSlots[nPrev].curAmount)
+                {
+                    pPlayer->packItemId = nPrev;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 4;
+            if (pPlayer->packSlots[4].curAmount) break;
         }
     }
+    
     pPlayer->packItemTime = 600;
 }
 
-void packNextItem(PLAYER *pPlayer)
+void packNextItem(PLAYER* pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nNext = ClipHigh(pPlayer->packItemId+1,5); nNext < 5; nNext++)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nNext].curAmount)
+            for (int nNext = pPlayer->packItemId + 1; nNext < 5; nNext++)
             {
-                pPlayer->packItemId = nNext;
-                break;
+                if (pPlayer->packSlots[nNext].curAmount)
+                {
+                    pPlayer->packItemId = nNext;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 0;
+            if (pPlayer->packSlots[0].curAmount) break;
         }
     }
     pPlayer->packItemTime = 600;
