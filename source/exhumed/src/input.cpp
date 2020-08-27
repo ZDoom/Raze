@@ -384,7 +384,6 @@ int ccmd_centerview(CCmdFuncPtr parm);
 
 void registerinputcommands()
 {
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { /*BitsToSend |= SKB_PAUSE;*/ sendPause = true; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, ccmd_centerview);
 
     // These are only here to silence the engine when the keys bound to them are pressed. The functions do not exist.

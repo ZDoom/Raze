@@ -125,11 +125,6 @@ void ctrlGetInput(void)
         return;
     }
 
-    if (paused != prevPauseState)
-    {
-        gInput.syncFlags.pause = 1;
-    }
-
     if (paused)
         return;
 
@@ -346,7 +341,6 @@ void ctrlGetInput(void)
 
 void registerinputcommands()
 {
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
     C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
     C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
     C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });

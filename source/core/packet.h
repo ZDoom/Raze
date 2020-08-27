@@ -70,7 +70,6 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_MULTIFLAG = 1 << 17,
 	SKB_CENTER_VIEW = 1 << 18,
 	SKB_HOLSTER = 1 << 19,
-	SKB_PAUSE = 1 << 21,
 	SKB_QUICK_KICK = 1 << 22,
 	SKB_AIMMODE = 1 << 23,
 	SKB_GAMEQUIT = 1 << 26,
@@ -79,7 +78,7 @@ enum EDukeSyncBits_ : uint32_t
 	SKB_ESCAPE = 1u << 31,
 
 	SKB_INTERFACE_BITS = (SKB_QUICK_KICK | \
-		SKB_HOLSTER | SKB_PAUSE | \
+		SKB_HOLSTER | \
 		SKB_TURNAROUND | SKB_OPEN | SKB_ESCAPE),
 
 	SKB_NONE = 0,
@@ -110,7 +109,6 @@ union SYNCFLAGS
         unsigned int lookLeft : 1;
         unsigned int lookRight : 1;
         unsigned int spin180 : 1;
-        unsigned int pause : 1;
         unsigned int quit : 1;
         unsigned int restart : 1;
     };
@@ -125,7 +123,6 @@ union SYNCFLAGS
 
 #define SK_AUTO_AIM    7
 #define SK_CENTER_VIEW 8
-#define SK_PAUSE       9
 
 #define SK_MESSAGE    11
 #define SK_LOOK_UP    12

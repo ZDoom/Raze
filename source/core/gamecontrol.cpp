@@ -100,7 +100,6 @@ auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need
 int gameclock;
 int lastTic;
 
-bool sendPause;
 int automapMode;
 bool automapFollow;
 
@@ -908,6 +907,7 @@ void TickSubsystems()
 
 static void updatePauseStatus()
 {
+	// This must go through the network in multiplayer games.
 	if (M_Active() || System_WantGuiCapture())
 	{
 		paused = 1;

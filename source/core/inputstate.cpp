@@ -44,6 +44,7 @@
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
+bool sendPause;
 
 //==========================================================================
 //
@@ -292,6 +293,11 @@ CCMD(invnext)
 CCMD(invuse)
 {
 	ActionsToSend |= SB_INVUSE;
+}
+
+CCMD(pause)
+{
+	sendPause = true;
 }
 
 

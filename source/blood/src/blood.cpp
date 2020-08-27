@@ -560,15 +560,6 @@ void ProcessFrame(void)
             levelRestart();
             return;
         }
-        if (gPlayer[i].input.syncFlags.pause)
-        {
-            gPlayer[i].input.syncFlags.pause = 0;
-            if (paused && gGameOptions.nGameType > 0 && numplayers > 1)
-            {
-                sprintf(buffer,"%s paused the game",gProfile[i].name);
-                viewSetMessage(buffer);
-            }
-        }
     }
     viewClearInterpolations();
     {
