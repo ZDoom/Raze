@@ -3698,8 +3698,6 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		applylook(snum, 1, sb_avel);
-
-		p->crack_time = CRACK_TIME;
 	}
 
 	if (p->spritebridge == 0)
