@@ -732,7 +732,7 @@ void playerCrouch(int snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->posz += (2048 + 768);
-		p->crack_time = 777;
+		p->crack_time = CRACK_TIME;
 	}
 }
 

@@ -425,6 +425,12 @@ enum
 	TRIPBOMB_TIMER = 2
 };
 
+// Miscellaenous constants in use throughout the game.
+enum
+{
+	CRACK_TIME = 777
+};
+
 // World tour
 enum EFlamethrowerState
 {

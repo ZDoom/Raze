@@ -107,7 +107,7 @@ void shoot_r(int i, int atwith)
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
 		sa = ps[p].getang();
 
-		if (isRRRA()) ps[p].crack_time = 777;
+		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
 	else
 	{
@@ -1284,7 +1284,7 @@ int doincrements_r(struct player_struct* p)
 		if (p->crack_time == 0)
 		{
 			p->knuckle_incs = 1;
-			p->crack_time = 777;
+			p->crack_time = CRACK_TIME;
 		}
 	}
 
@@ -2612,7 +2612,7 @@ static void fireweapon(int snum)
 	auto p = &ps[snum];
 	int pi = p->i;
 
-	p->crack_time = 777;
+	p->crack_time = CRACK_TIME;
 
 	if (p->holster_weapon == 1)
 	{
@@ -3699,7 +3699,7 @@ void processinput_r(int snum)
 
 		applylook(snum, 1, sb_avel);
 
-		p->crack_time = 777;
+		p->crack_time = CRACK_TIME;
 	}
 
 	if (p->spritebridge == 0)
@@ -3725,7 +3725,7 @@ void processinput_r(int snum)
 
 	if (p->posxv || p->posyv || sb_fvel || sb_svel)
 	{
-		p->crack_time = 777;
+		p->crack_time = CRACK_TIME;
 
 		k = sintable[p->bobcounter & 2047] >> 12;
 

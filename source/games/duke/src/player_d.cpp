@@ -112,7 +112,7 @@ void shoot_d(int i, int atwith)
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
 		sa = ps[p].getang();
 
-		ps[p].crack_time = 777;
+		ps[p].crack_time = CRACK_TIME;
 
 	}
 	else
@@ -1352,7 +1352,7 @@ int doincrements_d(struct player_struct* p)
 		if (p->crack_time == 0)
 		{
 			p->knuckle_incs = 1;
-			p->crack_time = 777;
+			p->crack_time = CRACK_TIME;
 		}
 	}
 
@@ -1586,7 +1586,7 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 		{
 			p->posz -= j;
-			p->crack_time = 777;
+			p->crack_time = CRACK_TIME;
 		}
 	}
 
@@ -1598,7 +1598,7 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 		if (GetGameVarID(g_iReturnVarID, pi, snum) == 0)
 		{
 			p->posz += j;
-			p->crack_time = 777;
+			p->crack_time = CRACK_TIME;
 		}
 	}
 
@@ -1945,7 +1945,7 @@ static void fireweapon(int snum)
 	auto p = &ps[snum];
 	int pi = p->i;
 
-	p->crack_time = 777;
+	p->crack_time = CRACK_TIME;
 
 	if (p->holster_weapon == 1)
 	{
@@ -2787,8 +2787,6 @@ void processinput_d(int snum)
 		// may still be needed later for demo recording
 
 		applylook(snum, 1, sb_avel);
-
-		p->crack_time = 777;
 	}
 
 	if (p->spritebridge == 0)
@@ -2832,7 +2830,7 @@ void processinput_d(int snum)
 
 	if (p->posxv || p->posyv || sb_fvel || sb_svel)
 	{
-		p->crack_time = 777;
+		p->crack_time = CRACK_TIME;
 
 		k = sintable[p->bobcounter & 2047] >> 12;
 

@@ -144,7 +144,7 @@ void fireweapon_ww(int snum)
 	auto p = &ps[snum];
 	int pi = p->i;
 
-	p->crack_time = 777;
+	p->crack_time = CRACK_TIME;
 
 	if (p->holster_weapon == 1)
 	{
