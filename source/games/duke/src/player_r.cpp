@@ -2994,7 +2994,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				S_PlayActorSound(SHOTGUN_COCK, pi);
 				break;
 			case 38:
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				p->shotgun_state[0] = 0;
 				p->shotgun_state[1] = 0;
 				return;
@@ -3006,7 +3006,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			{
 			case 16:
 				checkavailweapon(p);
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				p->shotgun_state[0] = 1;
 				p->shotgun_state[1] = 0;
 				return;
