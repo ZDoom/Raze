@@ -156,10 +156,19 @@ public:
 		int weapon = p->curr_weapon;
 		if (weapon == HANDREMOTE_WEAPON) weapon = HANDBOMB_WEAPON;
 
-		int wicon = ammo_sprites[p->curr_weapon];
+		int wicon = ammo_sprites[weapon];
 		if (wicon > 0)
 		{
-			format.Format("%d", p->ammo_amount[weapon]);
+			int ammo = p->ammo_amount[weapon];
+			if (weapon != PISTOL_WEAPON || (weapon == PISTOL_WEAPON && !cl_showmagamt))
+			{
+				format.Format("%d", ammo);
+			}
+			else
+			{
+				short clip = CalcMagazineAmount(ammo, isNam() ? 20 : 12, p->kickback_pic >= 1);
+				format.Format("%d/%d", clip, ammo - clip);
+			}
 			img = tileGetTexture(wicon);
 			imgScale = baseScale / img->GetDisplayHeight();
 			auto imgX = 20.;
@@ -170,7 +179,7 @@ public:
 				imgX += (imgX * 0.6) * (strlen - 1);
 			}
 
-			if (p->curr_weapon != KNEE_WEAPON && (!althud_flashing || gameclock & 32 || p->ammo_amount[weapon] > (max_ammo_amount[weapon] / 10)))
+			if (weapon != KNEE_WEAPON && (!althud_flashing || gameclock & 32 || ammo > (max_ammo_amount[weapon] / 10)))
 			{
 				SBar_DrawString(this, &numberFont, format, -3, texty, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
 			}
