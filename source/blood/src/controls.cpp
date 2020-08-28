@@ -180,11 +180,8 @@ void ctrlGetInput(void)
         gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Aim_Down);
     }
 
-    int const run = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const run2 = false; // What??? buttonMap.ButtonDown(gamefunc_Run);
+    int const run = !!(gInput.actions & SB_RUN);
     int const keyMove = (1 + run) << 10;
-
-    gInput.syncFlags.run |= run;
 
     if (gInput.fvel < keyMove && gInput.fvel > -keyMove)
     {
@@ -244,7 +241,7 @@ void ctrlGetInput(void)
     if (turnRight)
         input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
 
-    if ((run2 || run) && turnHeldTime > 24)
+    if (run && turnHeldTime > 24)
         input.q16avel <<= 1;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))

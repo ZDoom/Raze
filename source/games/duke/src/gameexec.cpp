@@ -1171,15 +1171,15 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& pstanding) && s >= 0 && s < 8)
 					j = 1;
-			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SKB_RUN)) )
+			else if( (l& pwalking) && s >= 8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
-			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SKB_RUN) )
+			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
 			else if( (l& phigher) && ps[g_p].posz < (g_sp->z-(48<<8)) )
 					j = 1;
-			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SKB_RUN)) )
+			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
-			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SKB_RUN)) )
+			else if( (l& prunningback) && s <= -8 && (PlayerInput(g_p, SB_RUN)) )
 					j = 1;
 			else if( (l& pkicking) && ( ps[g_p].quick_kick > 0 || ( ps[g_p].curr_weapon == KNEE_WEAPON && ps[g_p].kickback_pic > 0 ) ) )
 					j = 1;

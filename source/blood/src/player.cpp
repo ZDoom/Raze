@@ -1332,7 +1332,7 @@ void ProcessInput(PLAYER *pPlayer)
         gViewLookAdjust = 0.f;
     }
 
-    pPlayer->isRunning = pInput->syncFlags.run;
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN);
     if ((pInput->syncFlags.value & flag_buttonmask_norun) || (pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)

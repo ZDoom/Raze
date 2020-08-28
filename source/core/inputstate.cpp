@@ -360,6 +360,8 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 		if (g_gameType & GAMEFLAG_BLOOD) buttonMap.ClearButton(gamefunc_Open);
 		input.actions |= SB_OPEN;
 	}
+	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
+		input.actions |= SB_RUN;
 
 }
 

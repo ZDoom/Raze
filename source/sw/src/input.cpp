@@ -149,7 +149,6 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));
 
-    int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
     int32_t turnamount;
     int32_t keymove;
 
@@ -165,7 +164,7 @@ getinput(InputPacket *loc, SWBOOL tied)
     ApplyGlobalInput(*loc, &info);
 
 
-    if (running)
+    if (loc->actions & SB_RUN)
     {
         if (pp->sop_control)
             turnamount = RUNTURN * 3;

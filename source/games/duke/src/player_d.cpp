@@ -3009,19 +3009,19 @@ HORIZONLY:
 	}
 	else if (sb_snum & SKB_LOOK_UP)
 	{
-		playerLookUp(snum, sb_snum);
+		playerLookUp(snum, actions);
 	}
 	else if (sb_snum & SKB_LOOK_DOWN)
 	{
-		playerLookDown(snum, sb_snum);
+		playerLookDown(snum, actions);
 	}
 	else if (sb_snum & SKB_AIM_UP)
 	{
-		playerAimUp(snum, sb_snum);
+		playerAimUp(snum, actions);
 	}
 	else if (sb_snum & SKB_AIM_DOWN)
 	{	// aim_down
-		playerAimDown(snum, sb_snum);
+		playerAimDown(snum, actions);
 	}
 
 	if (cl_syncinput)

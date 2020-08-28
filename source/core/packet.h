@@ -69,7 +69,6 @@ enum EDukeSyncBits_ : uint32_t
 {
 	SKB_AIM_UP = 1 << 3,
 	SKB_AIM_DOWN = 1 << 4,
-	SKB_RUN = 1 << 5,
 	SKB_LOOK_LEFT = 1 << 6,
 	SKB_LOOK_RIGHT = 1 << 7,
 	SKB_LOOK_UP = 1 << 13,
@@ -95,7 +94,7 @@ union SYNCFLAGS
     uint32_t value;
     struct
     {
-        unsigned int run : 1;
+        unsigned int _run : 1;
         unsigned int _jump : 1;
         unsigned int _crouch : 1;
         unsigned int _shoot : 1;
@@ -124,7 +123,6 @@ union SYNCFLAGS
 #define SK_CRAWL_LOCK 14
 #define SK_FLY        15
 
-#define SK_RUN        16
 #define SK_AIM_UP    21
 #define SK_AIM_DOWN  22
 

@@ -616,7 +616,6 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 		}
 		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.sbits |= SKB_AIM_UP;
 		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.sbits |= SKB_AIM_DOWN;
-		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.sbits |= SKB_RUN;
 		if (buttonMap.ButtonDown(gamefunc_Look_Left)) loc.sbits |= SKB_LOOK_LEFT;
 		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.sbits |= SKB_LOOK_RIGHT;
 		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.sbits |= SKB_LOOK_UP;
@@ -634,7 +633,7 @@ static void processInputBits(player_struct *p, ControlInfo &info)
 	if (onVehicle)
 	{
 		// mask out all actions not compatible with vehicles.
-		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH);
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN);
 	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
@@ -688,7 +687,7 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo &i
 	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
 
 	// JBF: Run key behaviour is selectable
-	int running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+	int running = !!(loc.actions & SB_RUN);
 	int turnamount = NORMALTURN << running;
 	int keymove = NORMALKEYMOVE << running;
 
@@ -982,7 +981,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 			loc.sbits |= SKB_AIM_UP;
-		if (buttonMap.ButtonDown(gamefunc_Run))
+		if (loc.buttons & SB_RUN)
 			loc.actions |= SB_CROUCH;
 	}
 
@@ -1126,9 +1125,9 @@ void GetInput()
 	}
 	else
 	{
+		processInputBits(p, info);
 		processMovement(p, input, info, scaleAdjust);
 		checkCrouchToggle(p);
-		processInputBits(p, info);
 		FinalizeInput(myconnectindex, input, false);
 	}
 

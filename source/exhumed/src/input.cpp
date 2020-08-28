@@ -178,7 +178,7 @@ void PlayerInterruptKeys(bool after)
 
 
     // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+    int const playerRunning = !!(localInput.actions & SB_RUN);
     int const turnAmount = playerRunning ? 12 : 8;
     int const keyMove = playerRunning ? 12 : 6;
 

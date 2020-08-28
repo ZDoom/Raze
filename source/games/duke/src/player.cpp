@@ -1050,7 +1050,7 @@ void playerCenterView(int snum)
 	}
 }
 
-void playerLookUp(int snum, EDukeSyncBits sb_snum)
+void playerLookUp(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -1058,11 +1058,11 @@ void playerLookUp(int snum, EDukeSyncBits sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		p->pitchAdjust += (sb_snum & SKB_RUN) ? 12 : 24;
+		p->pitchAdjust += (actions & SB_RUN) ? 12 : 24;
 	}
 }
 
-void playerLookDown(int snum, EDukeSyncBits sb_snum)
+void playerLookDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
@@ -1070,29 +1070,29 @@ void playerLookDown(int snum, EDukeSyncBits sb_snum)
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
 		p->return_to_center = 9;
-		p->pitchAdjust -= (sb_snum & SKB_RUN) ? 12 : 24;
+		p->pitchAdjust -= (actions & SB_RUN) ? 12 : 24;
 	}
 }
 
-void playerAimUp(int snum, EDukeSyncBits sb_snum)
+void playerAimUp(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMUP, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->pitchAdjust += (sb_snum & SKB_RUN) ? 6 : 12;
+		p->pitchAdjust += (actions & SB_RUN) ? 6 : 12;
 	}
 }
 
-void playerAimDown(int snum, EDukeSyncBits sb_snum)
+void playerAimDown(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 	OnEvent(EVENT_AIMDOWN, p->i, snum, -1);
 	if (GetGameVarID(g_iReturnVarID, p->i, snum) == 0)
 	{
-		p->pitchAdjust -= (sb_snum & SKB_RUN) ? 6 : 12;
+		p->pitchAdjust -= (actions & SB_RUN) ? 6 : 12;
 	}
 }
 

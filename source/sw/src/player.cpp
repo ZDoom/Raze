@@ -2073,7 +2073,7 @@ DoPlayerBob(PLAYERp pp)
         dist = 0;
 
     // if running make a longer stride
-    if (G_CheckAutorun(TEST_SYNC_KEY(pp, SK_RUN)))
+    if (pp->input.actions & SB_RUN)
     {
         //amt = 10;
         amt = 12;
@@ -2464,31 +2464,12 @@ MoveScrollMode2D(PLAYERp pp)
     if (M_Active())
         return;
 
-#if 0
-    // Recenter view if told
-    if (buttonMap.ButtonDown(gamefunc_Center_View))
-    {
-        Follow_posx = pp->posx;
-        Follow_posy = pp->posy;
-    }
-#endif
-
     if (buttonMap.ButtonDown(gamefunc_Strafe))
         mfsvel -= scrl_input.dyaw / 4;
     mfsvel -= scrl_input.dx / 4;
     mfvel = -scrl_input.dz /4;
 
-#if 0
-    int const running = !!BUTTON(gamefunc_Run) ^ !!TEST(pp->Flags, PF_LOCK_RUN);
-    if (running)
-    {
-        keymove = NORMALKEYMOVE << 1;
-    }
-    else
-#endif
-    {
-        keymove = NORMALKEYMOVE;
-    }
+    keymove = NORMALKEYMOVE;
 
     if (buttonMap.ButtonDown(gamefunc_Turn_Left))
     {
