@@ -2724,7 +2724,6 @@ void videoNextPage(void)
 {
  	g_beforeSwapTime = I_msTimeF();
 	videoShowFrame(0);
-    I_SetFrameTime();
 
     omdtims = mdtims;
     mdtims = I_msTime();
