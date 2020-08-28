@@ -164,10 +164,37 @@ private:
     }
 
     //---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
+
+    void DrawCharArray(const char* string, int nTile, double x, double y, int nShade, int nPalette, unsigned int nStat = 0, int nScale = 65536, int align = 0)
+    {
+        double width = (tileWidth(nTile) + 1) * (nScale / 65536.);
+
+        x += 0.5;
+        y += 0.5;   // This is needed because due to using floating point math, this code rounds slightly differently which for the numbers can be a problem.
+
+        for (unsigned int i = 0; string[i]; i++, x += width)
+        {
+            // Hackasaurus rex to give me a slash when drawing the weapon count of a reloadable gun.
+            if (string[i] == 47 && nTile == kSBarNumberAmmo)
+            {
+                DrawStatSprite(4207, x, y, nShade, nPalette, nStat, nScale, STYLE_Translucent, align);
+            }
+            else
+            {
+                DrawStatSprite(nTile + string[i] - '0', x, y, nShade, nPalette, nStat, nScale, STYLE_Translucent, align);
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // 
+    //
+    //---------------------------------------------------------------------------
 
     void TileHGauge(int nTile, double x, double y, int nMult, int nDiv, int nStat = 0, int nScale = 65536)
     {
@@ -721,7 +748,22 @@ private:
             if ((unsigned int)gAmmoIcons[pPlayer->weaponAmmo].nTile < kMaxTiles)
                 DrawStatMaskedSprite(gAmmoIcons[pPlayer->weaponAmmo].nTile, 304-320, -8 + gAmmoIcons[pPlayer->weaponAmmo].nYOffs,
                     0, 0, 512, gAmmoIcons[pPlayer->weaponAmmo].nScale);
-            DrawStatNumber("%3d", num, kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
+
+            if (pPlayer->curWeapon != 3 || (pPlayer->curWeapon == 3 && !cl_showmagamt))
+            {
+                DrawStatNumber("%3d", num, kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
+            }
+            else
+            {
+                FString format;
+                bool twoGuns = powerupCheck(pPlayer, kPwUpTwoGuns);
+                short reload = !twoGuns ? 1 : 6;
+                short capacity = !twoGuns ? 2 : 4;
+                short clip = CalcMagazineAmount(num, capacity, pPlayer->weaponState == reload);
+                format.Format("%d/%d", clip, num - clip);
+
+                DrawCharArray(format.GetChars(), kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
+            }
         }
 
         for (int i = 0; i < 6; i++)
