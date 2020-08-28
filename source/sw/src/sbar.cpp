@@ -65,22 +65,6 @@ static const short icons[] = {
     ID_PanelCaltrops,
 };
 
-static bool DoReloadStatus(char *reloadstate, int ammo)
-{
-    bool reloading = ammo == 0 && *reloadstate != 2;
-
-    if (ammo == 0 && *reloadstate == 0)
-    {
-        *reloadstate = 1;
-    }
-    if (ammo)
-    {
-        *reloadstate = 0;
-    }
-
-    return reloading;
-}
-
 class DSWStatusBar : public DBaseStatusBar
 {
     DHUDFont miniFont, numberFont;
@@ -717,6 +701,28 @@ private:
             // Percent count/Item count
             PlayerUpdateInventoryPercent(pp, InventoryBoxX, InventoryBoxY, InventoryXoff, InventoryYoff);
         }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // Used in DrawHUD2() for determining whether a reloadable weapon is reloading.
+    //
+    //---------------------------------------------------------------------------
+
+    bool DoReloadStatus(char *reloadstate, int ammo)
+    {
+        bool reloading = ammo == 0 && *reloadstate != 2;
+
+        if (ammo == 0 && *reloadstate == 0)
+        {
+            *reloadstate = 1;
+        }
+        else if (ammo)
+        {
+            *reloadstate = 0;
+        }
+
+        return reloading;
     }
 
     //---------------------------------------------------------------------------
