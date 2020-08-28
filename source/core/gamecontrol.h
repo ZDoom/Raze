@@ -42,8 +42,6 @@ void CONFIG_SetGameControllerDefaultsClear();
 extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
-int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4);
-int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm);
 int GameMain();
 
 struct UserConfig

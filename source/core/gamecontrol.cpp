@@ -1042,36 +1042,6 @@ void CONFIG_ReadCombatMacros()
 //
 //==========================================================================
 
-static FString CONFIG_GetMD4EntryName(uint8_t const* const md4)
-{
-	return FStringf("MD4_%08x%08x%08x%08x",
-		B_BIG32(B_UNBUF32(&md4[0])), B_BIG32(B_UNBUF32(&md4[4])),
-		B_BIG32(B_UNBUF32(&md4[8])), B_BIG32(B_UNBUF32(&md4[12])));
-}
-
-int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4)
-{
-
-	auto m = CONFIG_GetMD4EntryName(mapmd4);
-	if (GameConfig->SetSection("MapTimes"))
-	{
-		auto s = GameConfig->GetValueForKey(m);
-		if (s) return (int)strtoull(s, nullptr, 0);
-	}
-	return -1;
-}
-
-int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm)
-{
-	FStringf t("%d", tm);
-	auto m = CONFIG_GetMD4EntryName(mapmd4);
-	if (GameConfig->SetSection("MapTimes"))
-	{
-		GameConfig->SetValueForKey(m, t);
-	}
-	return 0;
-}
-
 
 CCMD(snd_reset)
 {
