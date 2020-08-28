@@ -327,7 +327,7 @@ bool GameTicker()
 	int const currentTic = I_GetTime();
 	gameclock = I_GetBuildTime();
 
-	if (playrunning() && currentTic - lastTic >= 1)
+	while (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
 
