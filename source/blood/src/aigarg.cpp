@@ -138,8 +138,6 @@ static void BlastSSeqCallback(int, int nXSprite)
     int height = (pSprite->yrepeat*getDudeInfo(pSprite->type)->eyeHeight) << 2;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nDist) = approxDist(dx, dy);
-    int UNUSED(nAngle) = getangle(dx, dy);
     int x = pSprite->x;
     int y = pSprite->y;
     int z = height;
@@ -583,7 +581,6 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
         return;
@@ -621,7 +618,6 @@ static void MoveSlow(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -665,7 +661,6 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x600) && nDist <= 0x400)
         return;
@@ -708,7 +703,6 @@ static void MoveFly(spritetype *pSprite, XSPRITE *pXSprite)
     }
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x400)
         return;

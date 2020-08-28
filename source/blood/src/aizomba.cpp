@@ -86,7 +86,6 @@ static void HackSeqCallback(int, int nXSprite)
     DUDEINFO *pDudeInfoT = getDudeInfo(pTarget->type);
     int tx = pXSprite->targetX-pSprite->x;
     int ty = pXSprite->targetY-pSprite->y;
-    int UNUSED(nDist) = approxDist(tx, ty);
     int nAngle = getangle(tx, ty);
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;

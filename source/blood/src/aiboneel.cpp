@@ -351,7 +351,6 @@ static void MoveForward(spritetype *pSprite, XSPRITE *pXSprite)
         pSprite->ang = (pSprite->ang+256)&2047;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (nDist <= 0x399)
         return;
@@ -382,7 +381,6 @@ static void MoveSwoop(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x8000) && nDist <= 0x399)
         return;
@@ -411,7 +409,6 @@ static void MoveAscend(spritetype *pSprite, XSPRITE *pXSprite)
         return;
     int dx = pXSprite->targetX-pSprite->x;
     int dy = pXSprite->targetY-pSprite->y;
-    int UNUSED(nAngle) = getangle(dx, dy);
     int nDist = approxDist(dx, dy);
     if (Chance(0x4000) && nDist <= 0x399)
         return;

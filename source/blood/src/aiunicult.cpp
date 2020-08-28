@@ -991,8 +991,7 @@ void aiGenDudeMoveForward(spritetype* pSprite, XSPRITE* pXSprite ) {
             pSprite->ang = (pSprite->ang + 256) & 2047;
         int dx = pXSprite->targetX - pSprite->x;
         int dy = pXSprite->targetY - pSprite->y;
-        int UNUSED(nAngle) = getangle(dx, dy);
-        int nDist = approxDist(dx, dy);
+         int nDist = approxDist(dx, dy);
         if ((unsigned int)Random(64) < 32 && nDist <= 0x400)
             return;
         int nCos = Cos(pSprite->ang);

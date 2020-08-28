@@ -137,7 +137,6 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     if (!FindSector(x, y, z, &nSector))
         return false;
     int floorZ = getflorzofslope(nSector, x, y);
-    int UNUSED(ceilZ) = getceilzofslope(nSector, x, y);
     int nXSector = sector[nSector].extra;
     char Underwater = 0; char Water = 0; char Depth = 0; char Crusher = 0;
     XSECTOR* pXSector = NULL;
@@ -239,7 +238,6 @@ void aiChooseDirection(spritetype *pSprite, XSPRITE *pXSprite, int a3)
     int dx = xvel[nSprite];
     int dy = yvel[nSprite];
     int t1 = dmulscale30(dx, nCos, dy, nSin);
-    int UNUSED(t2) = dmulscale30(dx, nSin, -dy, nCos);
     int vsi = ((t1*15)>>12) / 2;
     int v8 = 341;
     if (vc < 0)
@@ -1431,7 +1429,6 @@ void sub_5F15C(spritetype *pSprite, XSPRITE *pXSprite)
                     DUDEINFO *pDudeInfo = getDudeInfo(pSprite2->type);
                     if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
                         continue;
-                    int UNUSED(nAngle) = getangle(dx,dy);
                     aiSetTarget(pXSprite, pSprite2->index);
                     aiActivateDude(pSprite, pXSprite);
                     return;

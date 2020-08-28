@@ -5637,7 +5637,6 @@ void actProcessSprites(void)
                             if ((hit&0xc000) != 0xc000 && (nObject < 0 || nObject >= 4096))
                                 break;
                             dassert(nObject >= 0 && nObject < kMaxSprites);
-                            int UNUSED(nOwner) = actSpriteOwnerToSpriteId(pSprite);
                             actExplodeSprite(pSprite);
                             break;
                         }

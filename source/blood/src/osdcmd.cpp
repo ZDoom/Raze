@@ -130,9 +130,8 @@ static int osdcmd_give(CCmdFuncPtr parm)
     return CCMD_SHOWHELP;
 }
 
-static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_god(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetGodMode(!gMe->godMode);
@@ -144,10 +143,8 @@ static int osdcmd_god(CCmdFuncPtr UNUSED(parm))
     return CCMD_OK;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr UNUSED(parm))
+static int osdcmd_noclip(CCmdFuncPtr)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
-
     if (numplayers == 1 && gamestate == GS_LEVEL)
     {
         SetClipMode(!gNoClip);
