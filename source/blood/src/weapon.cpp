@@ -1767,17 +1767,17 @@ char sub_4F0E0(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 5:
-        if (!pPlayer->input.syncFlags.shoot2)
+        if (!(pPlayer->input.actions & SB_ALTFIRE))
             pPlayer->weaponState = 6;
         return 1;
     case 6:
-        if (pPlayer->input.syncFlags.shoot2)
+        if (pPlayer->input.actions & SB_ALTFIRE)
         {
             pPlayer->weaponState = 3;
             pPlayer->fuseTime = pPlayer->weaponTimer;
             StartQAV(pPlayer, 13, nClientDropCan, 0);
         }
-        else if (pPlayer->input.syncFlags.shoot)
+        else if (pPlayer->input.actions & SB_FIRE)
         {
             pPlayer->weaponState = 7;
             pPlayer->fuseTime = 0;
@@ -1787,7 +1787,7 @@ char sub_4F0E0(PLAYER *pPlayer)
     case 7:
     {
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.syncFlags.shoot)
+        if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
                 pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -1805,17 +1805,17 @@ char sub_4F200(PLAYER *pPlayer)
     switch (pPlayer->weaponState)
     {
     case 4:
-        if (!pPlayer->input.syncFlags.shoot2)
+        if (!(pPlayer->input.actions & SB_ALTFIRE))
             pPlayer->weaponState = 5;
         return 1;
     case 5:
-        if (pPlayer->input.syncFlags.shoot2)
+        if (pPlayer->input.actions & SB_ALTFIRE)
         {
             pPlayer->weaponState = 1;
             pPlayer->fuseTime = pPlayer->weaponTimer;
             StartQAV(pPlayer, 22, nClientDropBundle, 0);
         }
-        else if (pPlayer->input.syncFlags.shoot)
+        else if (pPlayer->input.actions & SB_FIRE)
         {
             pPlayer->weaponState = 6;
             pPlayer->fuseTime = 0;
@@ -1825,7 +1825,7 @@ char sub_4F200(PLAYER *pPlayer)
     case 6:
     {
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.syncFlags.shoot)
+        if (!(pPlayer->input.actions & SB_FIRE))
         {
             if (!pPlayer->fuseTime)
                 pPlayer->fuseTime = pPlayer->weaponTimer;
@@ -1845,7 +1845,7 @@ char sub_4F320(PLAYER *pPlayer)
     case 9:
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
         pPlayer->weaponTimer = 0;
-        if (!pPlayer->input.syncFlags.shoot)
+        if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 8;
             StartQAV(pPlayer, 29, nClientThrowProx, 0);
@@ -1861,7 +1861,7 @@ char sub_4F3A0(PLAYER *pPlayer)
     {
     case 13:
         pPlayer->throwPower = ClipHigh(divscale16(gFrameClock-pPlayer->throwTime,240), 65536);
-        if (!pPlayer->input.syncFlags.shoot)
+        if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 11;
             StartQAV(pPlayer, 39, nClientThrowRemote, 0);
@@ -1880,7 +1880,7 @@ char sub_4F414(PLAYER *pPlayer)
         StartQAV(pPlayer, 114, nClientFireLifeLeech, 1);
         return 1;
     case 6:
-        if (!pPlayer->input.syncFlags.shoot2)
+        if (!(pPlayer->input.actions & SB_ALTFIRE))
         {
             pPlayer->weaponState = 2;
             StartQAV(pPlayer, 118, -1, 0);
@@ -1907,7 +1907,7 @@ char sub_4F484(PLAYER *pPlayer)
             StartQAV(pPlayer, 77, nClientFireTesla, 1);
         return 1;
     case 5:
-        if (!pPlayer->input.syncFlags.shoot)
+        if (!(pPlayer->input.actions & SB_FIRE))
         {
             pPlayer->weaponState = 2;
             if (sub_4B2C8(pPlayer, 7, 10) && powerupCheck(pPlayer, kPwUpTwoGuns))
@@ -1968,8 +1968,8 @@ void WeaponProcess(PLAYER *pPlayer) {
     WeaponPlay(pPlayer);
     UpdateAimVector(pPlayer);
     pPlayer->weaponTimer -= 4;
-    char bShoot = pPlayer->input.syncFlags.shoot;
-    char bShoot2 = pPlayer->input.syncFlags.shoot2;
+    bool bShoot = pPlayer->input.actions & SB_FIRE;
+    bool bShoot2 = pPlayer->input.actions & SB_ALTFIRE;
     if (pPlayer->qavLoop && pPlayer->pXSprite->health > 0)
     {
         if (bShoot && CheckAmmo(pPlayer, pPlayer->weaponAmmo, 1))

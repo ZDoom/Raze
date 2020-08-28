@@ -1755,13 +1755,13 @@ void movetransports_r(void)
 					else break;
 
 					if (onfloorz == 0 && abs(sprite[i].z - ps[p].posz) < 6144)
-						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SKB_JUMP)) ||
-							(ps[p].jetpack_on && PlayerInput(p, SKB_CROUCH)))
+						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
+							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].oposx = ps[p].posx += sprite[OW].x - sprite[i].x;
 							ps[p].oposy = ps[p].posy += sprite[OW].y - sprite[i].y;
 
-							if (ps[p].jetpack_on && (PlayerInput(p, SKB_JUMP) || ps[p].jetpack_on < 11))
+							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].posz = sprite[OW].z - 6144;
 							else ps[p].posz = sprite[OW].z + 6144;
 							ps[p].oposz = ps[p].posz;

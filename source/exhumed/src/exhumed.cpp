@@ -501,7 +501,6 @@ void GameTicker()
         {
             lastTic = currentTic;
 
-            int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
             PlayerInterruptKeys(false);
 
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
@@ -601,7 +600,7 @@ void GameTicker()
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             // make weapon selection persist until it gets used up.
-            sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+            sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
             int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
             sPlayerInput[nLocalPlayer].actions = localInput.actions;
             if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
@@ -635,51 +634,11 @@ void InitTimer()
     htimer = 1;
 }
 
-static const char* actions[] =
-{
-    "Move_Forward",
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Last_Weapon",
-    "Alt_Weapon",
-    "Third_Person_View",
-    "Toggle_Crouch",	// This is the last one used by EDuke32.
-};
-
-
-
-
 void GameInterface::app_init()
 {
     int i;
     //int esi = 1;
     //int edi = esi;
-
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
 
     help_disabled = true;
     // Create the global level table. Parts of the engine need it, even though the game itself does not.

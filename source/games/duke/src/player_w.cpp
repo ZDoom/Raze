@@ -306,7 +306,7 @@ void fireweapon_ww(int snum)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
+void operateweapon_ww(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -318,7 +318,7 @@ void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 	{
 		if (aplWeaponHoldDelay[p->curr_weapon][snum]	// there is a hold delay
 			&& (p->kickback_pic == aplWeaponFireDelay[p->curr_weapon][snum])	// and we are 'at' hold
-			&& (sb_snum & SKB_FIRE)	// and 'fire' button is still down
+			&& (actions & SB_FIRE)	// and 'fire' button is still down
 			)
 			// just hold here...
 		{
@@ -330,7 +330,7 @@ void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 		{
 			p->ammo_amount[p->curr_weapon]--;
 
-			if (p->on_ground && (sb_snum & SKB_CROUCH))
+			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
 				i = ((p->gethorizsum() - 100) * 20);
@@ -374,7 +374,7 @@ void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 
 		}
 		else if (p->kickback_pic < aplWeaponHoldDelay[p->curr_weapon][snum] &&
-			(sb_snum & SKB_CROUCH))
+			(actions & SB_CROUCH))
 		{
 			p->hbomb_hold_delay++;
 		}
@@ -461,7 +461,7 @@ void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 
 			if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
 			{ // an 'automatic'
-				if ((sb_snum & SKB_FIRE) == 0)
+				if ((actions & SB_FIRE) == 0)
 				{
 					p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum];
 				}
@@ -518,7 +518,7 @@ void operateweapon_ww(int snum, EDukeSyncBits sb_snum, int psect)
 			{
 				if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_AUTOMATIC)
 				{ // an 'automatic'
-					if (sb_snum & SKB_FIRE)
+					if (actions & SB_FIRE)
 					{
 						// we are an AUTOMATIC.  Fire again...
 						if (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_RANDOMRESTART)

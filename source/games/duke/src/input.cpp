@@ -607,33 +607,34 @@ enum
 static void processInputBits(player_struct *p, ControlInfo &info)
 {
 	bool onVehicle = p->OnMotorcycle || p->OnBoat;
-	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.sbits |= SKB_FIRE;
-	if (buttonMap.ButtonDown(gamefunc_Open)) loc.sbits |= SKB_OPEN;
 
 	if (!onVehicle)
 	{
-		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.sbits |= SKB_JUMP;
-		if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
+		if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
 		{
-			loc.sbits |= SKB_CROUCH;
-			if (isRR()) loc.sbits &= ~SKB_JUMP;
+			loc.actions |= SB_CROUCH;
 		}
 		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.sbits |= SKB_AIM_UP;
 		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.sbits |= SKB_AIM_DOWN;
 		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.sbits |= SKB_RUN;
-		if (buttonMap.ButtonDown(gamefunc_Look_Left) || (isRR() && p->drink_amt > 88)) loc.sbits |= SKB_LOOK_LEFT;
+		if (buttonMap.ButtonDown(gamefunc_Look_Left)) loc.sbits |= SKB_LOOK_LEFT;
 		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.sbits |= SKB_LOOK_RIGHT;
 		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.sbits |= SKB_LOOK_UP;
-		if (buttonMap.ButtonDown(gamefunc_Look_Down) || (isRR() && p->drink_amt > 99)) loc.sbits |= SKB_LOOK_DOWN;
+		if (buttonMap.ButtonDown(gamefunc_Look_Down)) loc.sbits |= SKB_LOOK_DOWN;
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
 		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
 
+		if ((isRR() && p->drink_amt > 88)) loc.sbits |= SKB_LOOK_LEFT;
+		if ((isRR() && p->drink_amt > 99)) loc.sbits |= SKB_LOOK_DOWN;
+
 	}
 	ApplyGlobalInput(loc, &info);
+	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
+
 	if (onVehicle)
 	{
 		// mask out all actions not compatible with vehicles.
-		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER);
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH);
 	}
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
@@ -978,11 +979,11 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 	if (p->OnBoat || !p->moto_underwater)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-			loc.sbits |= SKB_JUMP;
+			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 			loc.sbits |= SKB_AIM_UP;
 		if (buttonMap.ButtonDown(gamefunc_Run))
-			loc.sbits |= SKB_CROUCH;
+			loc.actions |= SB_CROUCH;
 	}
 
 	if (turnl)

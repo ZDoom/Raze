@@ -1957,13 +1957,13 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
     }
 
     // this is the locked type
-    if (TEST_SYNC_KEY(pp, SK_SNAP_UP) || TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+    if (TEST_SYNC_KEY(pp, SK_AIM_UP) || TEST_SYNC_KEY(pp, SK_AIM_DOWN))
     {
         // set looking because player is manually looking
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
         // adjust *pq16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_SNAP_DOWN))
+        if (TEST_SYNC_KEY(pp, SK_AIM_DOWN))
         {
             if (PedanticMode)
                 pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
@@ -1972,7 +1972,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
         }
 
         // adjust *pq16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_SNAP_UP))
+        if (TEST_SYNC_KEY(pp, SK_AIM_UP))
         {
             if (PedanticMode)
                 pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
@@ -3485,16 +3485,16 @@ DoPlayerJump(PLAYERp pp)
     short i;
 
     // reset flag key for double jumps
-    if (!TEST_SYNC_KEY(pp, SK_JUMP))
+    if (!(pp->input.actions & SB_JUMP))
     {
-        FLAG_KEY_RESET(pp, SK_JUMP);
+        pp->KeyPressBits |= SB_JUMP;
     }
 
     // instead of multiplying by synctics, use a loop for greater accuracy
     for (i = 0; i < synctics; i++)
     {
         // PlayerGravity += synctics;  // See how increase gravity as we go?
-        if (TEST_SYNC_KEY(pp, SK_JUMP))
+        if (pp->input.actions & SB_JUMP)
         {
             if (pp->JumpDuration > 0)
             {
@@ -3650,9 +3650,9 @@ DoPlayerFall(PLAYERp pp)
     int depth;
 
     // reset flag key for double jumps
-    if (!TEST_SYNC_KEY(pp, SK_JUMP))
+    if (!(pp->input.actions & SB_JUMP))
     {
-        FLAG_KEY_RESET(pp, SK_JUMP);
+        pp->KeyPressBits |= SB_JUMP;
     }
 
     if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
@@ -3727,7 +3727,7 @@ DoPlayerFall(PLAYERp pp)
             StopPlayerSound(pp, DIGI_FALLSCREAM);
 
             // i any kind of crawl key get rid of recoil
-            if (DoPlayerTestCrawl(pp) || TEST_SYNC_KEY(pp, SK_CRAWL))
+            if (DoPlayerTestCrawl(pp) || (pp->input.actions & SB_CROUCH))
             {
                 pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
             }
@@ -3767,7 +3767,7 @@ DoPlayerFall(PLAYERp pp)
                     return;
             }
 
-            if (TEST_SYNC_KEY(pp, SK_CRAWL))
+            if (pp->input.actions & SB_CROUCH)
             {
                 StackedWaterSplash(pp);
                 DoPlayerBeginCrawl(pp);
@@ -3856,7 +3856,7 @@ DoPlayerClimb(PLAYERp pp)
     // need to rewrite this for FAF stuff
 
     // Jump off of the ladder
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
+    if (pp->input.actions & SB_JUMP)
     {
         RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
@@ -4188,7 +4188,7 @@ DoPlayerCrawl(PLAYERp pp)
         }
 
         // Jump to get up
-        if (TEST_SYNC_KEY(pp, SK_JUMP))
+        if (pp->input.actions & SB_JUMP)
         {
             if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
             {
@@ -4204,7 +4204,7 @@ DoPlayerCrawl(PLAYERp pp)
     else
     {
         // Let off of crawl to get up
-        if (!TEST_SYNC_KEY(pp, SK_CRAWL))
+        if (!(pp->input.actions & SB_CROUCH))
         {
             if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
             {
@@ -4331,7 +4331,7 @@ DoPlayerFly(PLAYERp pp)
         return;
     }
 
-    if (TEST_SYNC_KEY(pp, SK_CRAWL))
+    if (pp->input.actions & SB_CROUCH)
     {
         pp->z_speed += PLAYER_FLY_INC;
 
@@ -4339,7 +4339,7 @@ DoPlayerFly(PLAYERp pp)
             pp->z_speed = PLAYER_FLY_MAX_SPEED;
     }
 
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
+    if (pp->input.actions & SB_JUMP)
     {
         pp->z_speed -= PLAYER_FLY_INC;
 
@@ -4550,7 +4550,7 @@ PlayerCanDive(PLAYERp pp)
         return FALSE;
 
     // Crawl - check for diving
-    if (TEST_SYNC_KEY(pp, SK_CRAWL) || pp->jump_speed > 0)
+    if ((pp->input.actions & SB_CROUCH) || pp->jump_speed > 0)
     {
         if (PlayerInDiveArea(pp))
         {
@@ -5183,7 +5183,7 @@ DoPlayerDive(PLAYERp pp)
         }
     }
 
-    if (TEST_SYNC_KEY(pp, SK_CRAWL))
+    if (pp->input.actions & SB_CROUCH)
     {
         pp->z_speed += PLAYER_DIVE_INC;
 
@@ -5191,7 +5191,7 @@ DoPlayerDive(PLAYERp pp)
             pp->z_speed = PLAYER_DIVE_MAX_SPEED;
     }
 
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
+    if (pp->input.actions & SB_JUMP)
     {
         pp->z_speed -= PLAYER_DIVE_INC;
 
@@ -5456,13 +5456,13 @@ DoPlayerWade(PLAYERp pp)
 
     if (DebugOperate)
     {
-        if (TEST_SYNC_KEY(pp, SK_OPERATE))
+        if (pp->input.actions & SB_OPEN)
         {
-            if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+            if (pp->KeyPressBits & SB_OPEN)
             {
                 if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
                 {
-                    FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                    pp->KeyPressBits &= ~SB_OPEN;
                     DoPlayerBeginOperate(pp);
                     pp->bob_amt = 0;
                     pp->bob_ndx = 0;
@@ -5472,7 +5472,7 @@ DoPlayerWade(PLAYERp pp)
         }
         else
         {
-            FLAG_KEY_RESET(pp, SK_OPERATE);
+            pp->KeyPressBits |= SB_OPEN;
         }
     }
 
@@ -5484,17 +5484,17 @@ DoPlayerWade(PLAYERp pp)
     }
 
     // Crawl Commanded
-    if (TEST_SYNC_KEY(pp, SK_CRAWL) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
+    if ((pp->input.actions & SB_CROUCH) && pp->WadeDepth <= PLAYER_CRAWL_WADE_DEPTH)
     {
         DoPlayerBeginCrawl(pp);
         return;
     }
 
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
+    if (pp->input.actions & SB_JUMP)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_JUMP))
+        if (pp->KeyPressBits & SB_JUMP)
         {
-            FLAG_KEY_RELEASE(pp, SK_JUMP);
+            pp->KeyPressBits &= ~SB_JUMP;
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
@@ -5507,7 +5507,7 @@ DoPlayerWade(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_JUMP);
+        pp->KeyPressBits |= SB_JUMP;
     }
 
     if (PlayerFlyKey())
@@ -5980,18 +5980,18 @@ DoPlayerOperateTurret(PLAYERp pp)
 {
     short save_sectnum;
 
-    if (TEST_SYNC_KEY(pp, SK_OPERATE))
+    if (pp->input.actions & SB_OPEN)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+        if (pp->KeyPressBits & SB_OPEN)
         {
-            FLAG_KEY_RELEASE(pp, SK_OPERATE);
+            pp->KeyPressBits &= ~SB_OPEN;
             DoPlayerStopOperate(pp);
             return;
         }
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_OPERATE);
+        pp->KeyPressBits |= SB_OPEN;
     }
 
     if (pp->sop->max_damage != -9999 && pp->sop->max_damage <= 0)
@@ -6020,18 +6020,18 @@ DoPlayerOperateBoat(PLAYERp pp)
 {
     short save_sectnum;
 
-    if (TEST_SYNC_KEY(pp, SK_OPERATE))
+    if (pp->input.actions & SB_OPEN)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+        if (pp->KeyPressBits & SB_OPEN)
         {
-            FLAG_KEY_RELEASE(pp, SK_OPERATE);
+            pp->KeyPressBits &= ~SB_OPEN;
             DoPlayerStopOperate(pp);
             return;
         }
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_OPERATE);
+        pp->KeyPressBits |= SB_OPEN;
     }
 
     if (pp->sop->max_damage != -9999 && pp->sop->max_damage <= 0)
@@ -6060,18 +6060,18 @@ DoPlayerOperateTank(PLAYERp pp)
     short save_sectnum;
 
     //ASSERT(!TEST_SYNC_KEY(pp, SK_OPERATE));
-    if (TEST_SYNC_KEY(pp, SK_OPERATE))
+    if (pp->input.actions & SB_OPEN)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+        if (pp->KeyPressBits & SB_OPEN)
         {
-            FLAG_KEY_RELEASE(pp, SK_OPERATE);
+            pp->KeyPressBits &= ~SB_OPEN;
             DoPlayerStopOperate(pp);
             return;
         }
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_OPERATE);
+        pp->KeyPressBits |= SB_OPEN;
     }
 
     if (pp->sop->max_damage != -9999 && pp->sop->max_damage <= 0)
@@ -6574,9 +6574,9 @@ void DoPlayerDeathHurl(PLAYERp pp)
 {
     if (numplayers > 1)
     {
-        if (TEST_SYNC_KEY(pp, SK_SHOOT))
+        if (pp->input.actions & SB_FIRE)
         {
-            if (FLAG_KEY_PRESSED(pp, SK_SHOOT))
+            if (pp->KeyPressBits & SB_FIRE)
             {
 
 
@@ -6637,7 +6637,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
 
-    //if (TEST_SYNC_KEY(pp, SK_OPERATE))
+    //if (pp->input.actions & SB_OPEN)
     if (TEST_SYNC_KEY(pp, SK_SPACE_BAR))
     {
         // Spawn a dead LoWang body for non-head deaths
@@ -7139,18 +7139,18 @@ DoPlayerRun(PLAYERp pp)
     }
 
     // Crawl Commanded
-    if (TEST_SYNC_KEY(pp, SK_CRAWL))
+    if (pp->input.actions & SB_CROUCH)
     {
         DoPlayerBeginCrawl(pp);
         return;
     }
 
     // Jump
-    if (TEST_SYNC_KEY(pp, SK_JUMP))
+    if (pp->input.actions & SB_JUMP)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_JUMP))
+        if (pp->KeyPressBits & SB_JUMP)
         {
-            FLAG_KEY_RELEASE(pp, SK_JUMP);
+            pp->KeyPressBits &= ~SB_JUMP;
             // make sure you stand at full heights for jumps/double jumps
             //DoPlayerHeight(pp);
             //DoPlayerHeight(pp);
@@ -7164,7 +7164,7 @@ DoPlayerRun(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_JUMP);
+        pp->KeyPressBits |= SB_JUMP;
     }
 
     // Crawl lock
@@ -7193,13 +7193,13 @@ DoPlayerRun(PLAYERp pp)
     {
         if (!TEST(pp->Flags, PF_DEAD) && !Prediction)
         {
-            if (TEST_SYNC_KEY(pp, SK_OPERATE))
+            if (pp->input.actions & SB_OPEN)
             {
-                if (FLAG_KEY_PRESSED(pp, SK_OPERATE) && pp->cursectnum >= 0)
+                if ((pp->KeyPressBits & SB_OPEN) && pp->cursectnum >= 0)
                 {
                     if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
                     {
-                        FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                        pp->KeyPressBits &= ~SB_OPEN;
                         DoPlayerBeginOperate(pp);
                         return;
                     }
@@ -7211,7 +7211,7 @@ DoPlayerRun(PLAYERp pp)
                         if (sp && SP_TAG5(sp) == TRIGGER_TYPE_REMOTE_SO)
                         {
                             pp->remote_sprite = sp;
-                            FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                            pp->KeyPressBits &= ~SB_OPEN;
                             ASSERT(pp->remote_sprite);
                             DoPlayerBeginRemoteOperate(pp, &SectorObject[SP_TAG7(pp->remote_sprite)]);
                             return;
@@ -7221,7 +7221,7 @@ DoPlayerRun(PLAYERp pp)
             }
             else
             {
-                FLAG_KEY_RESET(pp, SK_OPERATE);
+                pp->KeyPressBits |= SB_OPEN;
             }
         }
     }

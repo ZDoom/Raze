@@ -169,24 +169,6 @@ void ctrlGetInput(void)
         cl_showweapon = (cl_showweapon + 1) & 3;
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Jump))
-        gInput.syncFlags.jump = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Crouch))
-        gInput.syncFlags.crouch = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Fire))
-        gInput.syncFlags.shoot = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
-        gInput.syncFlags.shoot2 = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Open))
-    {
-        buttonMap.ClearButton(gamefunc_Open);
-        gInput.syncFlags.action = 1;
-    }
-
     gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Look_Up);
     gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
 

@@ -323,12 +323,10 @@ getinput(InputPacket *loc, SWBOOL tied)
 #endif
     }
 
-    SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
-    SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
 
     // actually snap
-    SET_LOC_KEY(loc->bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
+    SET_LOC_KEY(loc->bits, SK_AIM_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
+    SET_LOC_KEY(loc->bits, SK_AIM_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
 
     // actually just look
     SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
@@ -409,11 +407,6 @@ getinput(InputPacket *loc, SWBOOL tied)
         short const which_weapon = u->WeaponNum + 1;
         loc->setNewWeapon(which_weapon);
     }
-
-
-    SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
-    SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
-    SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
 
     // need BUTTON
     SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, buttonMap.ButtonDown(gamefunc_Toggle_Crouch));

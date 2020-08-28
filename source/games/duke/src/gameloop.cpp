@@ -178,7 +178,7 @@ void mploadsave()
 
 int domovethings()
 {
-	int i, j;
+	int i;
 
 	// mplpadsave();
 

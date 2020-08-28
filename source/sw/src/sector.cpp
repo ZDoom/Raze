@@ -2585,9 +2585,9 @@ PlayerOperateEnv(PLAYERp pp)
     // Switch & door activations
     //
 
-    if (TEST_SYNC_KEY(pp, SK_OPERATE))
+    if (pp->input.actions & SB_OPEN)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_OPERATE))
+        if (pp->KeyPressBits & SB_OPEN)
         {
             // if space bar pressed
             short nt_ndx;
@@ -2595,7 +2595,7 @@ PlayerOperateEnv(PLAYERp pp)
 
             if (DoPlayerGrabStar(pp))
             {
-                FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                pp->KeyPressBits &= ~SB_OPEN;
             }
             else
             {
@@ -2613,7 +2613,7 @@ PlayerOperateEnv(PLAYERp pp)
                 {
                     if (OperateSprite(nti[nt_ndx].spritenum, TRUE))
                     {
-                        FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                        pp->KeyPressBits &= ~SB_OPEN;
                         found = TRUE;
                     }
                 }
@@ -2642,7 +2642,7 @@ PlayerOperateEnv(PLAYERp pp)
                         {
                             if (OperateSprite(nti[nt_ndx].spritenum, TRUE))
                             {
-                                FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                                pp->KeyPressBits &= ~SB_OPEN;
                                 break;
                             }
                         }
@@ -2663,7 +2663,7 @@ PlayerOperateEnv(PLAYERp pp)
                     if (OperateSector(neartagsector, TRUE))
                     {
                         // Release the key
-                        FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                        pp->KeyPressBits &= ~SB_OPEN;
                     }
                 }
 
@@ -2671,7 +2671,7 @@ PlayerOperateEnv(PLAYERp pp)
                 {
                     if (OperateWall(neartagwall, TRUE))
                     {
-                        FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                        pp->KeyPressBits &= ~SB_OPEN;
                     }
                 }
             }
@@ -2690,11 +2690,11 @@ PlayerOperateEnv(PLAYERp pp)
                 break;
             case TAG_SPRING_BOARD:
                 DoSpringBoard(pp/*, pp->cursectnum*/);
-                FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                pp->KeyPressBits &= ~SB_OPEN;
                 break;
             case TAG_DOOR_ROTATE:
                 if (OperateSector(pp->cursectnum, TRUE))
-                    FLAG_KEY_RELEASE(pp, SK_OPERATE);
+                    pp->KeyPressBits &= ~SB_OPEN;
                 break;
             }
         }
@@ -2702,7 +2702,7 @@ PlayerOperateEnv(PLAYERp pp)
     else
     {
         // Reset the key when syncbit key is not in use
-        FLAG_KEY_RESET(pp, SK_OPERATE);
+        pp->KeyPressBits |= SB_OPEN;
     }
 
     // ////////////////////////////

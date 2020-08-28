@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+extern bool gameRestart;
+
 PROFILE gProfile[kMaxPlayers];
 
 PLAYER gPlayer[kMaxPlayers];
@@ -762,6 +764,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->q16avel = 0;
+    pInput->actions = 0;
     pInput->syncFlags.value = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
@@ -1330,7 +1333,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
 
     pPlayer->isRunning = pInput->syncFlags.run;
-    if ((pInput->syncFlags.value & flag_buttonmask_norun) || pInput->fvel || pInput->svel || pInput->q16avel)
+    if ((pInput->syncFlags.value & flag_buttonmask_norun) || (pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1353,7 +1356,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
-        if (pInput->syncFlags.action)
+        if (pInput->actions & SB_OPEN)
         {
             if (bSeqStat)
             {
@@ -1369,12 +1372,12 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    pInput->syncFlags.restart = 1;
+                    gameRestart = 1;
                 }
                 else
                     playerStart(pPlayer->nPlayer);
             }
-            pInput->syncFlags.action = 0;
+            pInput->actions &= ~SB_OPEN;
         }
         return;
     }
@@ -1431,11 +1434,11 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->q16avel)
         pPlayer->q16ang = (pPlayer->q16ang+pInput->q16avel)&0x7ffffff;
-    if (pInput->syncFlags.spin180)
+    if (pInput->actions & SB_TURNAROUND)
     {
         if (!pPlayer->spin)
             pPlayer->spin = -1024;
-        pInput->syncFlags.spin180 = 0;
+        pInput->actions &= ~SB_TURNAROUND;
     }
     if (pPlayer->spin < 0)
     {
@@ -1453,22 +1456,22 @@ void ProcessInput(PLAYER *pPlayer)
         gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
     pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
-    if (!pInput->syncFlags.jump)
+    if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
 
     switch (pPlayer->posture) {
     case 1:
-        if (pInput->syncFlags.jump)
+        if (pInput->actions & SB_JUMP)
             zvel[nSprite] -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             zvel[nSprite] += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->syncFlags.crouch)
+        if (!(pInput->actions & SB_CROUCH))
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && pInput->syncFlags.jump && pXSprite->height == 0) {
+        if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && pXSprite->height == 0) {
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
@@ -1479,11 +1482,11 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->cantJump = 1;
         }
 
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             pPlayer->posture = 2;
         break;
     }
-    if (pInput->syncFlags.action)
+    if (pInput->actions & SB_OPEN)
     {
         int a2, a3;
         int hit = ActionScan(pPlayer, &a2, &a3);
@@ -1556,18 +1559,18 @@ void ProcessInput(PLAYER *pPlayer)
             zvel[pSprite2->index] = zvel[nSprite];
             pPlayer->hand = 0;
         }
-        pInput->syncFlags.action = 0;
+        pInput->actions &= ~SB_OPEN;
     }
     if (bVanilla)
     {
-        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->syncFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
@@ -1590,14 +1593,14 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->syncFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
@@ -1616,7 +1619,7 @@ void ProcessInput(PLAYER *pPlayer)
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
+            gViewLookRecenter = (pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
@@ -1688,9 +1691,9 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }
-    if (pInput->syncFlags.holsterWeapon)
+    if (pInput->actions & SB_HOLSTER)
     {
-        pInput->syncFlags.holsterWeapon = 0;
+        pInput->actions &= ~SB_HOLSTER;
         if (pPlayer->curWeapon)
         {
             WeaponLower(pPlayer);

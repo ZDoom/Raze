@@ -73,6 +73,7 @@ char gUserMapFilename[BMAX_PATH];
 
 short BloodVersion = 0x115;
 
+bool gameRestart;
 int gNetPlayers;
 int gQuitRequest;
 
@@ -529,7 +530,7 @@ void ProcessFrame(void)
         auto oldflags = inp.syncFlags.value;
 
         inp = gFifoInput[gNetFifoTail & 255][i];
-        inp.actions |= oldactions & SB_INTERFACE_MASK;  // should be everything non-button and non-weapon
+        inp.actions |= oldactions & ~(SB_BUTTON_MASK|SB_RUN|SB_WEAPONMASK_BITS);  // should be everything non-button and non-weapon
         inp.syncFlags.value |= oldflags & ~flag_buttonmask;
 
         int newweap = inp.getNewWeapon();
@@ -562,6 +563,13 @@ void ProcessFrame(void)
         }
     }
 #endif
+    // This is single player only.
+    if (gameRestart)
+    {
+        gameRestart = false;
+        levelRestart();
+        return;
+    }
     viewClearInterpolations();
     {
         if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))

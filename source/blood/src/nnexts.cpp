@@ -1990,7 +1990,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 
                         xsprite[pSpr->extra].medium = kMediumNormal;
                         if (pPlayer) {
-                            pPlayer->posture = (!pPlayer->input.syncFlags.crouch) ? kPostureStand : kPostureCrouch;
+                            pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
 
@@ -2087,7 +2087,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
             xsprite[pSprite->extra].medium = kMediumNormal;
             if (pPlayer) {
-                pPlayer->posture = (!pPlayer->input.syncFlags.crouch) ? kPostureStand : kPostureCrouch;
+                pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                 pPlayer->nWaterPal = 0;
             }
 
@@ -2889,10 +2889,10 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 2:  return (pPlayer->input.fvel < 0);            // backward
             case 3:  return (pPlayer->input.svel > 0);             // left
             case 4:  return (pPlayer->input.svel < 0);             // right
-            case 5:  return (pPlayer->input.syncFlags.jump);       // jump
-            case 6:  return (pPlayer->input.syncFlags.crouch);     // crouch
-            case 7:  return (pPlayer->input.syncFlags.shoot);      // normal fire weapon
-            case 8:  return (pPlayer->input.syncFlags.shoot2);     // alt fire weapon
+            case 5:  return !!(pPlayer->input.actions & SB_JUMP);       // jump
+            case 6:  return !!(pPlayer->input.actions & SB_CROUCH);     // crouch
+            case 7:  return !!(pPlayer->input.actions & SB_FIRE);      // normal fire weapon
+            case 8:  return !!(pPlayer->input.actions & SB_ALTFIRE);     // alt fire weapon
             default:
                 condError(pXCond, "Player conditions:\nSpecify a correct key!");
                 break;

@@ -343,25 +343,28 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	input.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
+	if (buttonMap.ButtonDown(gamefunc_Jump))
+		input.actions |= SB_JUMP;
+
+	if (buttonMap.ButtonDown(gamefunc_Crouch))
+		input.actions |= SB_CROUCH;
+
+	if (buttonMap.ButtonDown(gamefunc_Fire))
+		input.actions |= SB_FIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
+		input.actions |= SB_ALTFIRE;
+
+	if (buttonMap.ButtonDown(gamefunc_Open))
+	{
+		if (g_gameType & GAMEFLAG_BLOOD) buttonMap.ClearButton(gamefunc_Open);
+		input.actions |= SB_OPEN;
+	}
+
 }
 
 #if 0
-void registerinputcommands()
-{
-	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
-	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
-	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
-}
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
 
 	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
-}
-
 
 #endif

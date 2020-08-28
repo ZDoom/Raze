@@ -1279,6 +1279,7 @@ loc_1AB8E:
             int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
+            auto actions = sPlayerInput[nPlayer].actions;
 
             if (buttons & kButtonCheatGodMode) // LOBODEITY cheat
             {
@@ -2535,7 +2536,7 @@ do_default_b:
 
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
-                    if (buttons & kButtonOpen)
+                    if (actions & SB_OPEN)
                     {
                         ClearSpaceBar(nPlayer);
 
@@ -2551,7 +2552,7 @@ do_default_b:
                     }
 
                     // was int var_38 = buttons & 0x8
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2568,7 +2569,7 @@ do_default_b:
                     }
 
                     // Jumping
-                    if (buttons & kButtonJump)
+                    if (actions & SB_JUMP)
                     {
                         if (bUnderwater)
                         {
@@ -2586,7 +2587,7 @@ do_default_b:
 
                         // goto loc_1BE70:
                     }
-                    else if (buttons & kButtonCrouch)
+                    else if (actions & SB_CROUCH)
                     {
                         if (bUnderwater)
                         {
@@ -2647,7 +2648,7 @@ loc_1BD2E:
                             }
                         }
                         // loc_1BE30
-                        if (buttons & kButtonFire) // was var_38
+                        if (actions & SB_FIRE) // was var_38
                         {
                             if (bUnderwater)
                             {
@@ -2679,7 +2680,7 @@ loc_1BD2E:
                 }
                 else // player is mummified
                 {
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2708,7 +2709,7 @@ loc_1BD2E:
             else // else, player's health is less than 0
             {
                 // loc_1C0E9
-                if (buttons & kButtonOpen)
+                if (actions & SB_OPEN)
                 {
                     ClearSpaceBar(nPlayer);
 

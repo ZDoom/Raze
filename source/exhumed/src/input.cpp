@@ -74,26 +74,10 @@ void InitInput()
 
 void ClearSpaceBar(short nPlayer)
 {
-    sPlayerInput[nPlayer].buttons &= 0x0FB;
+    sPlayerInput[nPlayer].actions &= SB_OPEN;
     buttonMap.ClearButton(gamefunc_Open);
 }
 
-int GetLocalInput()
-{
-    int lLocalButtons;
-    if (PlayerList[nLocalPlayer].nHealth)
-    {
-        lLocalButtons = (buttonMap.ButtonDown(gamefunc_Crouch) << 4) | (buttonMap.ButtonDown(gamefunc_Fire) << 3)
-            | (buttonMap.ButtonDown(gamefunc_Jump) << 0);
-    }
-    else
-    {
-        lLocalButtons = 0;
-    }
-
-    lLocalButtons |= buttonMap.ButtonDown(gamefunc_Open) << 2;
-    return lLocalButtons;
-}
 
 void BackupInput()
 {
@@ -189,6 +173,7 @@ void PlayerInterruptKeys(bool after)
     if (!after)
     {
         ApplyGlobalInput(localInput, &info);
+        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= ~(SB_FIRE | SB_JUMP | SB_CROUCH);
     }
 
 

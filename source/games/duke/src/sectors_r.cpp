@@ -2484,11 +2484,11 @@ void checksectors_r(int snum)
 
 	if (chatmodeon || sprite[p->i].extra <= 0) return;
 
-	if (ud.cashman && PlayerInput(snum, SKB_OPEN))
+	if (ud.cashman && PlayerInput(snum, SB_OPEN))
 		fi.lotsofmoney(&sprite[p->i], 2);
 
 
-	if (!(PlayerInput(snum, SKB_OPEN)) && !PlayerInput(snum, SKB_ESCAPE))
+	if (!(PlayerInput(snum, SB_OPEN)) && !PlayerInput(snum, SKB_ESCAPE))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)
@@ -2709,7 +2709,7 @@ void checksectors_r(int snum)
 			}
 		}
 
-		if (!PlayerInput(snum, SKB_OPEN)) return;
+		if (!PlayerInput(snum, SB_OPEN)) return;
 
 		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
 			if (abs(hits(p->i)) < 512)
