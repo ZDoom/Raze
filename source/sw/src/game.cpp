@@ -788,11 +788,11 @@ void GameTicker(void)
                 MoveTicker();
             }
 
-            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
-
             // Get input again to update q16ang/q16horiz.
             if (!PedanticMode)
                 getinput(&loc, TRUE);
+
+            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
         }
 
         drawscreen(Player + screenpeek, smoothratio);

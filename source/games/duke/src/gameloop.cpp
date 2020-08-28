@@ -353,8 +353,6 @@ bool GameTicker()
 		}
 	}
 
-	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
-
 	gameupdatetime.Unclock();
 
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
@@ -370,6 +368,7 @@ bool GameTicker()
 	drawtime.Reset();
 	drawtime.Clock();
 	S_Update();
+	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 	displayrooms(screenpeek, smoothRatio);
 	displayrest(smoothRatio);
 	drawtime.Unclock();
