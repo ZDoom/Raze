@@ -9,7 +9,6 @@
 #define engine_c_
 
 #include "gl_load.h"
-#include "baselayer.h"
 #include "build.h"
 
 #include "imagehelpers.h"
@@ -28,6 +27,8 @@
 #include "version.h"
 #include "earcut.hpp"
 #include "gamestate.h"
+#include "inputstate.h"
+#include "printf.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -78,10 +79,6 @@ int32_t voxscale[MAXVOXELS];
 static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
-
-// r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
-CVAR(Bool, r_usenewaspect, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-int32_t newaspect_enable=0;
 
 int32_t globalflags;
 
@@ -2141,10 +2138,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         }
     }
 
-    if (r_usenewaspect)
+
         renderSetAspect(oviewingrange, oyxaspect);
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
@@ -3695,8 +3690,6 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
 
 void videoSetCorrectedAspect()
 {
-    if (/*r_usenewaspect &&*/ newaspect_enable && videoGetRenderMode() != REND_POLYMER)
-    {
         // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
         // meaning we have to stretch it by a factor of 1.25 instead of 1.2
         // to get perfect squares
@@ -3709,9 +3702,6 @@ void videoSetCorrectedAspect()
         vr = divscale16(x*3, y*4);
 
         renderSetAspect(vr, yx);
-    }
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //

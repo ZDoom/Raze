@@ -48,6 +48,7 @@
 #include "hw_viewpointbuffer.h"
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
+#include "gamestruct.h"
 
 CVAR(Bool, gl_texture, true, 0)
 

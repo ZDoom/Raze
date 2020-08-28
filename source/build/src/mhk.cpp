@@ -1,8 +1,8 @@
 
 #include "compat.h"
 #include "build.h"
-#include "baselayer.h"
 #include "scriptfile.h"
+#include "printf.h"
 
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 

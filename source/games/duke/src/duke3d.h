@@ -1,8 +1,6 @@
 #ifndef duke3d_h_
 #define duke3d_h_
 
-// JBF
-#include "baselayer.h"
 #include "build.h"
 
 #include "compat.h"

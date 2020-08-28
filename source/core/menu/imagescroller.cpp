@@ -39,7 +39,6 @@
 #include "d_event.h"
 #include "menu.h"
 #include "v_draw.h"
-#include "baselayer.h"
 #include "gamecontrol.h"
 #include "build.h"
 #include "zstring.h"

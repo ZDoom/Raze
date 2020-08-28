@@ -38,6 +38,7 @@
 #include "gamecvars.h"
 #include "v_video.h"
 #include "statusbar.h"
+#include "gamestruct.h"
 
 //==========================================================================
 //

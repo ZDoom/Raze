@@ -7,10 +7,10 @@
 
 #include "compat.h"
 #include "scriptfile.h"
-#include "baselayer.h"
 #include "compat.h"
 #include "common.h"
 #include "filesystem.h"
+#include "printf.h"
 
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))

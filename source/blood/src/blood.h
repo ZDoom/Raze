@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "misc.h"
 #include "db.h"
 #include "mapinfo.h"
+#include "gamestruct.h"
 
 BEGIN_BLD_NS
 

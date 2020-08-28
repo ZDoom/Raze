@@ -5,7 +5,6 @@
 #include "compat.h"
 #include "build.h"
 #include "pragmas.h"
-#include "baselayer.h"
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"
@@ -18,6 +17,7 @@
 #include "flatvertices.h"
 #include "texturemanager.h"
 #include "hw_renderstate.h"
+#include "printf.h"
 #include "../../glbackend/glbackend.h"
 
 static int32_t curextra=MAXTILES;
