@@ -749,17 +749,15 @@ private:
                 DrawStatMaskedSprite(gAmmoIcons[pPlayer->weaponAmmo].nTile, 304-320, -8 + gAmmoIcons[pPlayer->weaponAmmo].nYOffs,
                     0, 0, 512, gAmmoIcons[pPlayer->weaponAmmo].nScale);
 
-            if (pPlayer->curWeapon != 3 || (pPlayer->curWeapon == 3 && !cl_showmagamt))
+            bool reloadableWeapon = pPlayer->curWeapon == 3 && !powerupCheck(pPlayer, kPwUpTwoGuns);
+            if (!reloadableWeapon || (reloadableWeapon && !cl_showmagamt))
             {
                 DrawStatNumber("%3d", num, kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
             }
             else
             {
                 FString format;
-                bool twoGuns = powerupCheck(pPlayer, kPwUpTwoGuns);
-                short reload = !twoGuns ? 1 : 6;
-                short capacity = !twoGuns ? 2 : 4;
-                short clip = CalcMagazineAmount(num, capacity, pPlayer->weaponState == reload);
+                short clip = CalcMagazineAmount(num, 2, pPlayer->weaponState == 1);
                 format.Format("%d/%d", clip, num - clip);
 
                 DrawCharArray(format.GetChars(), kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
