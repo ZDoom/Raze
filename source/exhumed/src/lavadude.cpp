@@ -99,7 +99,7 @@ int BuildLavaLimb(int nSprite, int edx, int ebx)
     return nLimbSprite;
 }
 
-void FuncLavaLimb(int a, int UNUSED(nDamage), int nRun)
+void FuncLavaLimb(int a, int, int nRun)
 {
     short nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);
@@ -140,7 +140,7 @@ void FuncLavaLimb(int a, int UNUSED(nDamage), int nRun)
     }
 }
 
-int BuildLava(short nSprite, int x, int y, int UNUSED(z), short nSector, short nAngle, int nChannel)
+int BuildLava(short nSprite, int x, int y, int, short nSector, short nAngle, int nChannel)
 {
     short nLava = LavaCount;
     LavaCount++;

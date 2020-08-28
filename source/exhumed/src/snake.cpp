@@ -307,7 +307,7 @@ int FindSnakeEnemy(short nSnake)
     return nEnemy;
 }
 
-void FuncSnake(int a, int UNUSED(nDamage), int nRun)
+void FuncSnake(int a, int, int nRun)
 {
     int nMessage = a & kMessageMask;
 

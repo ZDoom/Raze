@@ -559,7 +559,7 @@ void StartElevSound(short nSprite, int nVal)
     D3PlayFX(StaticSound[nSound], nSprite);
 }
 
-void FuncElev(int a, int UNUSED(b), int nRun)
+void FuncElev(int a, int, int nRun)
 {
     short nElev = RunData[nRun].nVal;
     assert(nElev >= 0 && nElev < kMaxElevs);
@@ -815,7 +815,7 @@ int BuildWallFace(short nChannel, short nWall, int nCount, ...)
     return WallFaceCount | 0x70000;
 }
 
-void FuncWallFace(int a, int UNUSED(b), int nRun)
+void FuncWallFace(int a, int, int nRun)
 {
     int nWallFace = RunData[nRun].nVal;
     assert(nWallFace >= 0 && nWallFace < kMaxWallFace);
@@ -972,7 +972,7 @@ int BuildSlide(int nChannel, int nStartWall, int ebx, int ecx, int nWall2, int n
     return nSlide | 0x80000;
 }
 
-void FuncSlide(int a, int UNUSED(b), int nRun)
+void FuncSlide(int a, int, int nRun)
 {
     int nSlide = RunData[nRun].nVal;
     assert(nSlide >= 0 && nSlide < kMaxSlides);
@@ -1219,7 +1219,7 @@ int BuildTrap(int nSprite, int edx, int ebx, int ecx)
     }
 }
 
-void FuncTrap(int a, int UNUSED(b), int nRun)
+void FuncTrap(int a, int, int nRun)
 {
     short nTrap = RunData[nRun].nVal;
     short nSprite = sTrap[nTrap].nSprite;
@@ -1408,7 +1408,7 @@ int BuildSpark(int nSprite, int nVal)
     return var_14;
 }
 
-void FuncSpark(int a, int UNUSED(b), int nRun)
+void FuncSpark(int a, int, int nRun)
 {
     int nSprite = RunData[nRun].nVal;
     assert(nSprite >= 0 && nSprite < kMaxSprites);

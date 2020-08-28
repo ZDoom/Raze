@@ -534,7 +534,7 @@ void SetBulletEnemy(short nBullet, short nEnemy)
     }
 }
 
-int BuildBullet(short nSprite, int nType, int UNUSED(ebx), int UNUSED(ecx), int val1, int nAngle, int val2, int val3)
+int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int val2, int val3)
 {
     Bullet sBullet;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
@@ -785,7 +785,7 @@ int BuildBullet(short nSprite, int nType, int UNUSED(ebx), int UNUSED(ecx), int 
     return nBulletSprite | (nBullet << 16);
 }
 
-void FuncBullet(int a, int UNUSED(b), int nRun)
+void FuncBullet(int a, int, int nRun)
 {
     short nBullet = RunData[nRun].nVal;
     assert(nBullet >= 0 && nBullet < kMaxBullets);

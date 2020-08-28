@@ -314,7 +314,7 @@ int BelowNear(short nSprite)
     }
 }
 
-int movespritez(short nSprite, int z, int height, int UNUSED(flordist), int clipdist)
+int movespritez(short nSprite, int z, int height, int, int clipdist)
 {
     spritetype* pSprite = &sprite[nSprite];
     short nSector = pSprite->sectnum;
@@ -492,7 +492,7 @@ int GetSpriteHeight(int nSprite)
     return tilesiz[sprite[nSprite].picnum].y * sprite[nSprite].yrepeat * 4;
 }
 
-int movesprite(short nSprite, int dx, int dy, int dz, int UNUSED(ceildist), int flordist, unsigned int clipmask)
+int movesprite(short nSprite, int dx, int dy, int dz, int, int flordist, unsigned int clipmask)
 {
     spritetype *pSprite = &sprite[nSprite];
     bTouchFloor = false;

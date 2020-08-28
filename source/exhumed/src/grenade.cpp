@@ -94,7 +94,7 @@ void BounceGrenade(short nGrenade, short nAngle)
     D3PlayFX(StaticSound[kSound3], GrenadeList[nGrenade].nSprite);
 }
 
-int ThrowGrenade(short nPlayer, int UNUSED(edx), int UNUSED(ebx), int ecx, int push1)
+int ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
 {
     if (nPlayerGrenade[nPlayer] < 0)
         return -1;
@@ -265,7 +265,7 @@ void ExplodeGrenade(short nGrenade)
     DestroyGrenade(nGrenade);
 }
 
-void FuncGrenade(int a, int UNUSED(nDamage), int nRun)
+void FuncGrenade(int a, int, int nRun)
 {
     short nGrenade = RunData[nRun].nVal;
     assert(nGrenade >= 0 && nGrenade < kMaxGrenades);

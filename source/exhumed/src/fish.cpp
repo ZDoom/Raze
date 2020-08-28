@@ -142,7 +142,7 @@ void BuildBlood(int x, int y, int z, short nSector)
     BuildAnim(-1, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
 
-void FuncFishLimb(int a, int UNUSED(nDamage), int nRun)
+void FuncFishLimb(int a, int, int nRun)
 {
     short nFish = RunData[nRun].nVal;
     short nSprite = FishChunk[nFish].nSprite;

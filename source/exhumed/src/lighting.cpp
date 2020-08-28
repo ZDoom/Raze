@@ -773,7 +773,7 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     StatusMessage(150, buf);
 }
 
-void BuildFlash(short nPlayer, short UNUSED(nSector), int nVal)
+void BuildFlash(short nPlayer, short, int nVal)
 {
     if (nPlayer == nLocalPlayer)
     {
