@@ -1677,6 +1677,16 @@ static void mdfree(mdmodel_t *vm)
     if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
+static void updateModelInterpolation()
+{
+	// sigh...
+	omdtims = mdtims;
+	mdtims = I_msTime();
+	
+	for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
+		if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
+			spriteext[i].mdanimtims += mdtims - omdtims;
+}
 #endif
 
 //---------------------------------------- MD LIBRARY ENDS  ----------------------------------------

@@ -823,8 +823,9 @@ static void gameTicker()
     else
     {
         netCheckSync();
+		auto beforeSwapTime = I_msTimeF();
         viewDrawScreen();
-        g_gameUpdateAndDrawTime = g_beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
+        g_gameUpdateAndDrawTime = beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
     }
 }
 
