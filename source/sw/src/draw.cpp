@@ -1796,11 +1796,8 @@ drawscreen(PLAYERp pp, double smoothratio)
         JS_DrawCameras(pp, tx, ty, tz);
     }
 
-    if (r_usenewaspect)
-    {
-        newaspect_enable = 1;
-        videoSetCorrectedAspect();
-    }
+
+    videoSetCorrectedAspect();
     renderSetAspect(Blrintf(float(viewingrange)* tanf(r_fov* (fPI / 360.f))), yxaspect);
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
@@ -1822,11 +1819,8 @@ drawscreen(PLAYERp pp, double smoothratio)
     post_analyzesprites();
     renderDrawMasks();
 
-    if (r_usenewaspect)
-    {
-        newaspect_enable = 0;
-        renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
-    }
+
+    renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
     UpdatePanel(smoothratio);
 
 #define SLIME 2305

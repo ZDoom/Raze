@@ -38,7 +38,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 #include "compat.h"
-#include "baselayer.h"
 #include "mmulti.h"
 
 #include "mytypes.h"
@@ -49,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "c_cvars.h"
 #include "mapinfo.h"
 #include "gamecontrol.h"
+#include "gamestruct.h"
 #include "packet.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)

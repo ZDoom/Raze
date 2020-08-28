@@ -8,7 +8,6 @@
 #include "build.h"
 #include "compat.h"
 #include "engine_priv.h"
-#include "baselayer.h"
 #include "scriptfile.h"
 
 #include "common.h"

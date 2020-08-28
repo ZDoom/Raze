@@ -7,9 +7,9 @@
 // by the EDuke32 team (development@voidpoint.com)
 
 #include "build.h"
-#include "baselayer.h"
 #include "clip.h"
 #include "engine_priv.h"
+#include "printf.h"
 
 
 static int16_t clipnum;

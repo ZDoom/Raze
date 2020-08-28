@@ -690,11 +690,7 @@ void viewDrawScreen(bool sceneonly)
 
         int yxAspect = yxaspect;
         int viewingRange = viewingrange;
-        if (r_usenewaspect)
-        {
-            newaspect_enable = 1;
-            videoSetCorrectedAspect();
-        }
+        videoSetCorrectedAspect();
 
         int v1 = Blrintf(double(viewingrange) * tan(r_fov * (PI / 360.)));
 
@@ -1004,8 +1000,6 @@ void viewDrawScreen(bool sceneonly)
 
         bDeliriumOld = bDelirium && gDeliriumBlur;
 
-        if (r_usenewaspect)
-            newaspect_enable = 0;
         renderSetAspect(viewingRange, yxAspect);
         int nClipDist = gView->pSprite->clipdist << 2;
         int ve8, vec, vf0, vf4;

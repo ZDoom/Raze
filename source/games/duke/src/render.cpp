@@ -483,7 +483,6 @@ void displayrooms(int snum, double smoothratio)
 
 	g_visibility = p->visibility;
 
-	newaspect_enable = 1;
 	videoSetCorrectedAspect();
 
 	sect = p->cursectnum;

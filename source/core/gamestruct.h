@@ -96,7 +96,6 @@ struct GameInterface
 };
 
 extern GameInterface* gi;
-extern double g_beforeSwapTime;
 
 
 void ImGui_Begin_Frame();

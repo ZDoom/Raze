@@ -107,7 +107,7 @@ void shoot_r(int i, int atwith)
 		sz = ps[p].posz + ps[p].pyoff + (4 << 8);
 		sa = ps[p].getang();
 
-		if (isRRRA()) ps[p].crack_time = 777;
+		if (isRRRA()) ps[p].crack_time = CRACK_TIME;
 	}
 	else
 	{
@@ -1288,7 +1288,7 @@ int doincrements_r(struct player_struct* p)
 		if (p->crack_time == 0)
 		{
 			p->knuckle_incs = 1;
-			p->crack_time = 777;
+			p->crack_time = CRACK_TIME;
 		}
 	}
 
@@ -2616,7 +2616,7 @@ static void fireweapon(int snum)
 	auto p = &ps[snum];
 	int pi = p->i;
 
-	p->crack_time = 777;
+	p->crack_time = CRACK_TIME;
 
 	if (p->holster_weapon == 1)
 	{
@@ -2998,7 +2998,7 @@ static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 				S_PlayActorSound(SHOTGUN_COCK, pi);
 				break;
 			case 38:
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				p->shotgun_state[0] = 0;
 				p->shotgun_state[1] = 0;
 				return;
@@ -3010,7 +3010,7 @@ static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 			{
 			case 16:
 				checkavailweapon(p);
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				p->shotgun_state[0] = 1;
 				p->shotgun_state[1] = 0;
 				return;
@@ -3704,8 +3704,6 @@ void processinput_r(int snum)
 		// may still be needed later for demo recording
 
 		applylook(snum, 1, sb_avel);
-
-		p->crack_time = 777;
 	}
 
 	if (p->spritebridge == 0)
@@ -3731,7 +3729,7 @@ void processinput_r(int snum)
 
 	if (p->posxv || p->posyv || sb_fvel || sb_svel)
 	{
-		p->crack_time = 777;
+		p->crack_time = CRACK_TIME;
 
 		k = sintable[p->bobcounter & 2047] >> 12;
 

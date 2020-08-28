@@ -66,7 +66,7 @@ void viewInitializePrediction(void)
 	predict.at6f = gMe->cantJump;
 	predict.at70 = gMe->isRunning;
 	predict.at72 = gMe->isUnderwater;
-	predict.at71 = gMe->input.syncFlags.jump;
+    predict.at71 = !!(gMe->input.actions & SB_JUMP);
 	predict.at50 = gMe->pSprite->x;
 	predict.at54 = gMe->pSprite->y;
 	predict.at58 = gMe->pSprite->z;
@@ -78,7 +78,7 @@ void viewInitializePrediction(void)
 	predict.at6a = gMe->pXSprite->height;
 	predict.at48 = gMe->posture;
 	predict.at4c = gMe->spin;
-	predict.at6e = gMe->input.syncFlags.lookCenter;
+	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
 	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
 	predict.at0 = gMe->bobPhase;
 	predict.at4 = gMe->bobAmp;
@@ -135,8 +135,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         gViewLookAdjust = 0.f;
     }
 
-    predict.at70 = pInput->syncFlags.run;
-    predict.at71 = pInput->syncFlags.jump;
+    predict.at70 = !!(gMe->input.actions & SB_RUN);
+    predict.at71 = !!(gMe->input.actions & SB_JUMP);
     if (predict.at48 == 1)
     {
         int x = Cos(fix16_to_int(predict.at30));
@@ -190,7 +190,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     }
     if (pInput->q16avel)
         predict.at30 = (predict.at30+pInput->q16avel)&0x7ffffff;
-    if (pInput->syncFlags.spin180)
+    if (pInput->actions & SB_TURNAROUND)
         if (!predict.at4c)
             predict.at4c = -1024;
     if (predict.at4c < 0)
@@ -215,11 +215,11 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     case 1:
         if (predict.at71)
             predict.at64 -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             predict.at64 += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->syncFlags.crouch)
+        if (!(pInput->actions & SB_CROUCH))
             predict.at48 = 0;
         break;
     default:
@@ -228,7 +228,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             else predict.at64 = pPosture->normalJumpZ;//-0xbaaaa;
             predict.at6f = 1;
         }
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             predict.at48 = 2;
         break;
     }

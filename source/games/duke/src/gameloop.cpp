@@ -31,10 +31,10 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "gamestate.h"
 #include "duke3d.h"
 #include "sbar.h"
-#include "baselayer.h"
 #include "m_argv.h"
 #include "mapinfo.h"
 #include "texturemanager.h"
+#include "glbackend/glbackend.h"
 
 BEGIN_DUKE_NS
 
@@ -329,7 +329,7 @@ bool GameTicker()
 	int const currentTic = I_GetTime();
 	gameclock = I_GetBuildTime();
 
-	if (playrunning() && currentTic - lastTic >= 1)
+	while (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
 

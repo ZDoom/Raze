@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "mmulti.h"
 #include "compat.h"
-#include "baselayer.h"
 #include "common.h"
 #include "common_game.h"
 #include "g_input.h"
@@ -791,8 +790,9 @@ static void gameTicker()
     else
     {
         netCheckSync();
+		auto beforeSwapTime = I_msTimeF();
         viewDrawScreen();
-        g_gameUpdateAndDrawTime = g_beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
+        g_gameUpdateAndDrawTime = beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
     }
 }
 

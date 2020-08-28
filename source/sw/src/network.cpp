@@ -26,7 +26,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "ns.h"
 
 #include "build.h"
-#include "baselayer.h"
 #include "mmulti.h"
 
 #include "gamecontrol.h"
@@ -80,9 +79,9 @@ typedef struct
     int32_t fvel;
     int32_t svel;
     fix16_t q16avel;
-    fix16_t q16aimvel;
-    fix16_t q16ang;
     fix16_t q16horz;
+    fix16_t q16ang;
+    fix16_t q16horiz;
     int32_t bits;
     ESyncBits actions;
 } SW_AVERAGE_PACKET;
@@ -201,9 +200,9 @@ UpdateInputs(void)
     AveragePacket.fvel += loc.fvel;
     AveragePacket.svel += loc.svel;
     AveragePacket.q16avel += loc.q16avel;
-    AveragePacket.q16aimvel += loc.q16aimvel;
+    AveragePacket.q16horz += loc.q16horz;
     AveragePacket.q16ang = Player[myconnectindex].camq16ang;
-    AveragePacket.q16horz = Player[myconnectindex].camq16horiz;
+    AveragePacket.q16horiz = Player[myconnectindex].camq16horiz;
     SET(AveragePacket.bits, loc.bits);
     SET(AveragePacket.actions, loc.actions);
     // The above would or the weapon numbers together. Undo that now. The last one should win.
@@ -227,9 +226,9 @@ UpdateInputs(void)
     loc.fvel = AveragePacket.fvel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
     loc.q16avel = fix16_div(AveragePacket.q16avel, fix16_from_int(MovesPerPacket));
-    loc.q16aimvel = fix16_div(AveragePacket.q16aimvel, fix16_from_int(MovesPerPacket));
+    loc.q16horz = fix16_div(AveragePacket.q16horz, fix16_from_int(MovesPerPacket));
     loc.q16ang = AveragePacket.q16ang;
-    loc.q16horz = AveragePacket.q16horz;
+    loc.q16horiz = AveragePacket.q16horiz;
     loc.bits = AveragePacket.bits;
     loc.actions = AveragePacket.actions;
 

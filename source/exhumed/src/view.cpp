@@ -222,9 +222,7 @@ static void analyzesprites()
 
 void ResetView()
 {
-    //videoSetGameMode(gSetup.fullscreen, gSetup.xdim, gSetup.ydim, gSetup.bpp, 0);
     EraseScreen(overscanindex);
-    //videoUpdatePalette(0, 256);
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
 #endif
@@ -360,14 +358,9 @@ void DrawView(double smoothRatio, bool sceneonly)
         int const viewingRange = viewingrange;
         int const vr = Blrintf(65536.f * tanf(r_fov * (fPI / 360.f)));
 
-        if (r_usenewaspect)
-        {
-            newaspect_enable = 1;
-            videoSetCorrectedAspect();
-            renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
-        }
-        else
-            renderSetAspect(vr, yxaspect);
+
+        videoSetCorrectedAspect();
+        renderSetAspect(mulscale16(vr, viewingrange), yxaspect);
 
         if (HavePLURemap())
         {
@@ -402,11 +395,8 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
 
-        if (r_usenewaspect)
-        {
-            newaspect_enable = 0;
-            renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
-        }
+
+        renderSetAspect(viewingRange, divscale16(ydim * 8, xdim * 5));
 
         if (nFreeze)
         {

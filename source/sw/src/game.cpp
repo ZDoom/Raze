@@ -29,10 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define MAIN
 #define QUIET
 #include "build.h"
-#include "baselayer.h"
-
-#include "baselayer.h"
-
 #include "names2.h"
 #include "panel.h"
 #include "game.h"

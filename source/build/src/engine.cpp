@@ -9,7 +9,6 @@
 #define engine_c_
 
 #include "gl_load.h"
-#include "baselayer.h"
 #include "build.h"
 
 #include "imagehelpers.h"
@@ -28,6 +27,8 @@
 #include "version.h"
 #include "earcut.hpp"
 #include "gamestate.h"
+#include "inputstate.h"
+#include "printf.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -79,11 +80,6 @@ static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
-// r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
-CVAR(Bool, r_usenewaspect, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-int32_t newaspect_enable=0;
-
-int32_t r_fpgrouscan = 1;
 int32_t globalflags;
 
 static int8_t tempbuf[MAXWALLS];
@@ -350,7 +346,6 @@ int16_t globalpicnum;
 static int32_t globaly1, globalx2;
 
 int16_t sectorborder[256];
-int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
 int32_t halfxdim16, midydim16;
@@ -2143,10 +2138,8 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         }
     }
 
-    if (r_usenewaspect)
+
         renderSetAspect(oviewingrange, oyxaspect);
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
@@ -2681,14 +2674,8 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && 
-        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp))
-        return 0;
-
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
-
-    j = bpp;
 
     rendmode = REND_POLYMOST;
 
@@ -2713,24 +2700,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
-    qsetmode = 200;
     return 0;
-}
-
-//
-// nextpage
-//
-void videoNextPage(void)
-{
- 	g_beforeSwapTime = I_msTimeF();
-	videoShowFrame(0);
-
-    omdtims = mdtims;
-    mdtims = I_msTime();
-
-    for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
-        if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
-            spriteext[i].mdanimtims += mdtims - omdtims;
 }
 
 //
@@ -3718,30 +3688,20 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
     p2->y = dmulscale14(p.y, dacos, p.x, dasin) + pivot.y;
 }
 
-int32_t setaspect_new_use_dimen = 0;
-
 void videoSetCorrectedAspect()
 {
-    if (/*r_usenewaspect &&*/ newaspect_enable && videoGetRenderMode() != REND_POLYMER)
-    {
         // In DOS the game world is displayed with an aspect of 1.28 instead 1.333,
         // meaning we have to stretch it by a factor of 1.25 instead of 1.2
         // to get perfect squares
         int32_t yx = (65536 * 5) / 4;
         int32_t vr, y, x;
 
-        const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
-        const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;
-
-        x = xd;
-        y = yd;
+        x = xdim;
+        y = ydim;
 
         vr = divscale16(x*3, y*4);
 
         renderSetAspect(vr, yx);
-    }
-    else
-        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //

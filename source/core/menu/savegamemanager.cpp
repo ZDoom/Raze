@@ -52,6 +52,7 @@
 #include "build.h"
 #include "serializer.h"
 #include "findfile.h"
+#include "inputstate.h"
 
 
 FSavegameManager savegameManager;

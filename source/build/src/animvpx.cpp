@@ -5,9 +5,8 @@
 #include "compat.h"
 
 #include "compat.h"
-#include "baselayer.h"
 #include "build.h"
-
+#include "printf.h"
 #include "matrix.h"
 #include "../../glbackend/glbackend.h"
 #include "textures.h"

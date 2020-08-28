@@ -21,6 +21,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "palettecontainer.h"
 #include "texturemanager.h"
 #include "hw_renderstate.h"
+#include "printf.h"
 
 CVAR(Bool, hw_detailmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, hw_glowmapping, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)

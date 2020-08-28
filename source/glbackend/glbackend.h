@@ -362,5 +362,5 @@ void renderSetVisibility(float v);
 void renderBeginScene();
 void renderFinishScene();
 void DrawRateStuff();
-
+void videoShowFrame(int32_t);
 void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dashade, int dapalnum, int dastat, double alpha = 1);

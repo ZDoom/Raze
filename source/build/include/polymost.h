@@ -2,7 +2,6 @@
 # define polymost_h_
 
 
-#include "baselayer.h"  // glinfo
 #include "mdsprite.h"
 
 void Polymost_CacheHitList(uint8_t* hash);

@@ -91,11 +91,9 @@ CUSTOM_CVAR(Int, mouse_capturemode, 1, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 }
 
 // The last remains of sdlayer.cpp
-double g_beforeSwapTime;
 GameInterface* gi;
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
-int32_t xres = -1, yres = -1, bpp = 0;
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 int gameclock;
 int lastTic;
@@ -939,10 +937,10 @@ void app_loop()
 	{
 		try
 		{
+			I_SetFrameTime();
 			TickSubsystems();
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
-			I_SetFrameTime();
 
 			handleevents();
 			updatePauseStatus();
@@ -963,7 +961,7 @@ void app_loop()
 			soundEngine->UpdateSounds(I_GetTime());
 			Mus_UpdateMusic();		// must be at the end.
 
-			videoNextPage();
+			videoShowFrame(0);
 			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
 		}
 		catch (CRecoverableError& err)

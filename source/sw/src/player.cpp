@@ -1911,7 +1911,7 @@ PlayerAutoLook(PLAYERp pp)
 
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void
-DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
+DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
 {
     int i;
 #define HORIZ_SPEED (16)
@@ -1922,7 +1922,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
     if (!PedanticMode && (pq16horiz == &pp->q16horiz))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
-        pp->q16horiz = pp->input.q16horz;
+        pp->q16horiz = pp->input.q16horiz;
         if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
             pp->oq16horiz = pp->q16horiz;
         return;
@@ -1932,9 +1932,9 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16aimvel)
     if (cl_slopetilting)
         PlayerAutoLook(pp);
 
-    if (q16aimvel)
+    if (q16horz)
     {
-        pp->q16horizbase += q16aimvel;
+        pp->q16horizbase += q16horz;
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
@@ -2698,7 +2698,7 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2906,7 +2906,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 }
 
 void DoTankTreads(PLAYERp pp)
@@ -3385,7 +3385,7 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     DoTankTreads(pp);
 }
@@ -3402,7 +3402,7 @@ DoPlayerMoveTurret(PLAYERp pp)
 
     OperateSectorObject(pp->sop, fix16_to_int(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 }
 
 void
@@ -3979,7 +3979,7 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16aimvel);
+    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
 
     if (FAF_ConnectArea(pp->cursectnum))
     {
@@ -7407,7 +7407,7 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.fvel|pp->input.svel|pp->input.q16avel|pp->input.q16aimvel) ||
+        if ((pp->input.bits|pp->input.fvel|pp->input.svel|pp->input.q16avel|pp->input.q16horz) ||
             TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
