@@ -825,19 +825,17 @@ private:
             }
             else
             {
-                short clip;
                 short capacity;
                 switch (weapon)
                 {
                     case WPN_SHOTGUN:
                         capacity = 4;
-                        clip = CalcMagazineAmount(ammo, capacity, DoReloadStatus(&pp->WpnReloadState, ammo % capacity));
                         break;
                     case WPN_UZI:
                         capacity = pp->WpnUziType ? 50 : 100;
-                        clip = CalcMagazineAmount(ammo, capacity, DoReloadStatus(&pp->WpnReloadState, ammo % capacity));
                         break;
                 }
+                short clip = CalcMagazineAmount(ammo, capacity, DoReloadStatus(&pp->WpnReloadState, ammo % capacity));
                 format.Format("%d/%d", clip, ammo - clip);
             }
             img = tileGetTexture(wicon);
