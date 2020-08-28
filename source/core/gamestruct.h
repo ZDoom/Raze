@@ -5,6 +5,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include <stdint.h>
 #include "vectors.h"
 #include "engineerrors.h"
+#include "stats.h"
 
 struct GameStats
 {
@@ -53,6 +54,8 @@ struct ReservedSpace
 
 enum EMenuSounds : int;
 
+extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
+
 struct GameInterface
 {
 	virtual const char* Name() { return "$"; }
@@ -64,7 +67,6 @@ struct GameInterface
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
-	virtual FString statFPS() { return "FPS display not available"; }
 	virtual GameStats getStats() { return {}; }
 	virtual void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) {}
 	virtual void MainMenuOpened() {}
@@ -91,6 +93,17 @@ struct GameInterface
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
+	virtual FString statFPS()
+	{
+		FString output;
+
+		output.AppendFormat("Actor think time: %.3f ms\n", actortime.TimeMS());
+		output.AppendFormat("Total think time: %.3f ms\n", thinktime.TimeMS());
+		output.AppendFormat("Game Update: %.3f ms\n", gameupdatetime.TimeMS());
+		output.AppendFormat("Draw time: %.3f ms\n", drawtime.TimeMS());
+
+		return output;
+	}
 
 
 };

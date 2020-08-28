@@ -160,6 +160,9 @@ signed int lsqrt(int a1)
 
 void MoveThings()
 {
+    thinktime.Reset();
+    thinktime.Clock();
+
     UndoFlashes();
     DoLights();
 
@@ -171,8 +174,11 @@ void MoveThings()
     }
     else
     {
+        actortime.Reset();
+        actortime.Clock();
         runlist_ExecObjects();
         runlist_CleanRunRecs();
+        actortime.Unclock();
     }
 
     MoveStatus();
@@ -190,6 +196,8 @@ void MoveThings()
             BendAmbientSound();
         }
     }
+
+    thinktime.Unclock();
 }
 
 void ResetMoveFifo()

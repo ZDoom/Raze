@@ -114,6 +114,9 @@ static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobD
 
 static void GameDisplay(void)
 {
+    drawtime.Reset();
+    drawtime.Clock();
+
     if (currentLevel->levelNumber == kMap20)
     {
         DoEnergyTile();
@@ -128,6 +131,8 @@ static void GameDisplay(void)
 		int nStringWidth = SmallFont->StringWidth(tex);
 		DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - nStringWidth / 2, 100, tex, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
     }
+
+    drawtime.Unclock();
 }
 
 //---------------------------------------------------------------------------

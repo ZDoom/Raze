@@ -927,6 +927,12 @@ static void updatePauseStatus()
 	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
 }
 
+static void checkTimerActive()
+{
+	FStat *stat = FStat::FindStat("fps");
+	glcycle_t::active = (stat != NULL && stat->isActive());
+}
+
 
 void app_loop()
 {
@@ -944,6 +950,7 @@ void app_loop()
 			handleevents();
 			updatePauseStatus();
 			D_ProcessEvents();
+			checkTimerActive();
 
 			gi->RunGameFrame();
 

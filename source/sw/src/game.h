@@ -2308,7 +2308,6 @@ struct GameInterface : ::GameInterface
     void QuitToTitle() override;
 	void ResetFollowPos(bool message) override;
 
-    FString statFPS() override;
     GameStats getStats() override;
 };
 

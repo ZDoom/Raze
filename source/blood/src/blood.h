@@ -84,9 +84,6 @@ extern INICHAIN *pINIChain;
 extern short BloodVersion;
 extern int gNetPlayers;
 extern bool gRestartGame;
-#define GAMEUPDATEAVGTIMENUMSAMPLES 100
-extern double g_gameUpdateTime, g_gameUpdateAndDrawTime;
-extern double g_gameUpdateAvgTime;
 extern int blood_globalflags;
 
 extern bool gSavingGame;
@@ -110,7 +107,6 @@ struct GameInterface : ::GameInterface
 	void RunGameFrame() override;
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
-	FString statFPS() override;
 	FSavegameInfo GetSaveSig() override;
 	void MenuOpened() override;
 	void MenuClosed() override;

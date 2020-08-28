@@ -291,7 +291,6 @@ struct GameInterface : ::GameInterface
 	void clearlocalinputstate() override;
 	void QuitToTitle() override;
 
-    FString statFPS() override;
 	::GameStats getStats() override;
 };
 

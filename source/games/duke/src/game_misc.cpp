@@ -76,24 +76,6 @@ GameStats GameInterface::getStats()
 
 //---------------------------------------------------------------------------
 //
-// 
-//
-//---------------------------------------------------------------------------
-
-FString GameInterface::statFPS()
-{
-	FString output;
-
-	output.AppendFormat("Actor think time: %.3f ms\n", actortime.TimeMS());
-	output.AppendFormat("Total think time: %.3f ms\n", thinktime.TimeMS());
-	output.AppendFormat("Game Update: %.3f ms\n", gameupdatetime.TimeMS());
-	output.AppendFormat("Draw time: %.3f ms\n", drawtime.TimeMS());
-
-	return output;
-}
-
-//---------------------------------------------------------------------------
-//
 //
 //
 //---------------------------------------------------------------------------

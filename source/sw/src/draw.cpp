@@ -1189,28 +1189,6 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     *nq16ang = fix16_from_int(ang);
 }
 
-FString GameInterface::statFPS()
-{
-#define AVERAGEFRAMES 16
-    static int frameval[AVERAGEFRAMES], framecnt = 0;
-    int i;
-
-    FString out;
-    //if (LocationInfo)
-    {
-
-        i = gameclock;
-        if (i != frameval[framecnt])
-        {
-            out.AppendFormat("FPS: %d\n", ((120 * AVERAGEFRAMES) / (i - frameval[framecnt])) + f_c);
-            frameval[framecnt] = i;
-        }
-
-        framecnt = ((framecnt + 1) & (AVERAGEFRAMES - 1));
-    }
-    return out;
-}
-
 FString GameInterface::GetCoordString()
 {
     PLAYERp pp = Player + myconnectindex;

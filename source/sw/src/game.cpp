@@ -776,6 +776,9 @@ void GameTicker(void)
         }
         else
         {
+            gameupdatetime.Reset();
+            gameupdatetime.Clock();
+
             while (ready2send && currentTic - lastTic >= 1)
             {
                 lastTic = currentTic;
@@ -784,14 +787,20 @@ void GameTicker(void)
                 MoveTicker();
             }
 
-            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+            gameupdatetime.Unclock();
 
             // Get input again to update q16ang/q16horiz.
             if (!PedanticMode)
                 getinput(&loc, TRUE);
+
+            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
         }
 
+        drawtime.Reset();
+        drawtime.Clock();
         drawscreen(Player + screenpeek, smoothratio);
+        drawtime.Unclock();
+
         ready2send = 0;
     }
     if (ExitLevel)

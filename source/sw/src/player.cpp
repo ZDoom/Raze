@@ -7666,6 +7666,9 @@ domovethings(void)
 
     PlayClock += synctics;
 
+    thinktime.Reset();
+    thinktime.Clock();
+
     DoAnim(synctics);
 
     // should pass pnum and use syncbits
@@ -7681,6 +7684,8 @@ domovethings(void)
 
     SpriteControl();
 
+    actortime.Reset();
+    actortime.Clock();
     TRAVERSE_CONNECT(pnum)
     {
         extern short screenpeek;
@@ -7743,12 +7748,14 @@ domovethings(void)
         DoPlayerSectorUpdatePostMove(pp);
         PlayerGlobal(pp);
     }
-
+    actortime.Unclock();
 
     MultiPlayLimits();
 
     //if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
         DoUpdateSounds();
+
+    thinktime.Unclock();
 
     CorrectPrediction(movefifoplc - 1);
 

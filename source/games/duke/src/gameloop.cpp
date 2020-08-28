@@ -296,18 +296,6 @@ int moveloop()
 //
 //---------------------------------------------------------------------------
 
-static void checkTimerActive()
-{
-	FStat *stat = FStat::FindStat("fps");
-	glcycle_t::active = (stat != NULL && stat->isActive());
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 bool GameTicker()
 {
 	if (ps[myconnectindex].gm == MODE_DEMO)
@@ -319,7 +307,6 @@ bool GameTicker()
 	//Net_GetPackets();
 
 	nonsharedkeys();
-	checkTimerActive();
 
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
@@ -353,8 +340,6 @@ bool GameTicker()
 		}
 	}
 
-	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
-
 	gameupdatetime.Unclock();
 
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
@@ -367,9 +352,11 @@ bool GameTicker()
 		GetInput();
 	}
 
+	S_Update();
+
 	drawtime.Reset();
 	drawtime.Clock();
-	S_Update();
+	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 	displayrooms(screenpeek, smoothRatio);
 	displayrest(smoothRatio);
 	drawtime.Unclock();

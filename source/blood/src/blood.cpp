@@ -76,9 +76,6 @@ int gNetPlayers;
 
 int gChokeCounter = 0;
 
-double g_gameUpdateTime, g_gameUpdateAndDrawTime;
-double g_gameUpdateAvgTime = 0.001;
-
 bool gQuitGame;
 int gQuitRequest;
 
@@ -572,11 +569,19 @@ void ProcessFrame(void)
         if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
             return;
     }
+
+    thinktime.Reset();
+    thinktime.Clock();
+
+    actortime.Reset();
+    actortime.Clock();
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         viewBackupView(i);
         playerProcess(&gPlayer[i]);
     }
+    actortime.Unclock();
+
     trProcessBusy();
     evProcess(gFrameClock);
     seqProcess(4);
@@ -602,6 +607,9 @@ void ProcessFrame(void)
             gChokeCounter -= COUNTRATE;
         }
     }
+
+    thinktime.Unclock();
+
     gLevelTime++;
     gFrameCount++;
     gFrameClock += 4;
@@ -792,6 +800,9 @@ static void gameTicker()
     int const currentTic = I_GetTime();
     gameclock = I_GetBuildTime();
 
+    gameupdatetime.Reset();
+    gameupdatetime.Clock();
+
     while (currentTic - lastTic >= 1 && ready2send)
     {
         gNetInput = gInput;
@@ -810,21 +821,19 @@ static void gameTicker()
             gameUpdate = true;
         }
     }
-    if (gameUpdate)
-    {
-        g_gameUpdateTime = I_msTimeF() - gameUpdateStartTime;
-        if (g_gameUpdateAvgTime < 0.f)
-            g_gameUpdateAvgTime = g_gameUpdateTime;
-        g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
-    }
+
+    gameupdatetime.Unclock();
+
     if (gQuitRequest && gQuitGame)
         videoClearScreen(0);
     else
     {
         netCheckSync();
-		auto beforeSwapTime = I_msTimeF();
+
+        drawtime.Reset();
+        drawtime.Clock();
         viewDrawScreen();
-        g_gameUpdateAndDrawTime = beforeSwapTime/* I_msTimeF()*/ - gameUpdateStartTime;
+        drawtime.Unclock();
     }
 }
 

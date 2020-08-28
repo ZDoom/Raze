@@ -19,10 +19,7 @@
 #include "rts.h"
 #include "sounds.h"
 #include "soundefs.h"
-#include "stats.h"
 #include "binaryangle.h"
-
-extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 BEGIN_DUKE_NS
 
@@ -37,7 +34,6 @@ struct GameInterface : public ::GameInterface
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
-	FString statFPS() override;
 	GameStats getStats() override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
 	void MenuOpened() override;

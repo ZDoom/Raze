@@ -382,36 +382,6 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
-FString GameInterface::statFPS()
-{
-    FString out;
-    static int32_t frameCount;
-    static double cumulativeFrameDelay;
-    static double lastFrameTime;
-    static float lastFPS; // , minFPS = std::numeric_limits<float>::max(), maxFPS;
-    //static double minGameUpdate = std::numeric_limits<double>::max(), maxGameUpdate;
-
-    double frameTime = I_msTimeF();
-    double frameDelay = frameTime - lastFrameTime;
-    cumulativeFrameDelay += frameDelay;
-
-    if (frameDelay >= 0)
-    {
-       out.Format("%.1f ms, %5.1f fps", frameDelay, lastFPS);
-
-        if (cumulativeFrameDelay >= 1000.0)
-        {
-            lastFPS = 1000.f * frameCount / cumulativeFrameDelay;
-            // g_frameRate = Blrintf(lastFPS);
-            frameCount = 0;
-            cumulativeFrameDelay = 0.0;
-        }
-        frameCount++;
-    }
-    lastFrameTime = frameTime;
-    return out;
-}
-
 void GameMove(void)
 {
     FixPalette();
@@ -477,6 +447,9 @@ void GameTicker()
     }
     else
     {
+        gameupdatetime.Reset();
+        gameupdatetime.Clock();
+
         while (!EndLevel && currentTic - lastTic >= 1)
         {
             lastTic = currentTic;
@@ -487,8 +460,7 @@ void GameTicker()
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
             inita &= kAngleMask;
 
-            int i;
-            for (i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
                 lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
@@ -510,9 +482,12 @@ void GameTicker()
 
             sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
-                leveltime++;
-                GameMove();
-            }
+            leveltime++;
+            GameMove();
+        }
+
+        gameupdatetime.Unclock();
+
         if (nPlayerLives[nLocalPlayer] <= 0) {
             startmainmenu();
         }
