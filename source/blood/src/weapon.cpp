@@ -2060,7 +2060,35 @@ void WeaponProcess(PLAYER *pPlayer) {
     }
     else if (pPlayer->input.getNewWeapon() == WeaponSel_Alt)
     {
-        // todo
+        char weapon;
+
+        switch (pPlayer->curWeapon)
+        {
+            case 6:
+                weapon = 11;
+                break;
+            case 11:
+                weapon = 12;
+                break;
+            case 12:
+                weapon = 6;
+                break;
+            default:
+                return;
+        }
+
+        pPlayer->input.setNewWeapon(0);
+        pPlayer->weaponState = 0;
+        pPlayer->nextWeapon = 0;
+        int t = 0;
+        pPlayer->weaponMode[weapon] = t;
+        if (pPlayer->curWeapon)
+        {
+            WeaponLower(pPlayer);
+            pPlayer->nextWeapon = weapon;
+            return;
+        }
+        pPlayer->newWeapon = weapon;
     }
     if (pPlayer->weaponState == -1)
     {
