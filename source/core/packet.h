@@ -103,7 +103,6 @@ union SYNCFLAGS
         unsigned int lookDown : 1;
 
 
-        unsigned int jab : 1;
         unsigned int lookLeft : 1;
         unsigned int lookRight : 1;
     };
@@ -127,20 +126,6 @@ union SYNCFLAGS
 #define SK_AIM_DOWN  22
 
 #define SK_SPACE_BAR  31
-
-
-// Exhumed
-
-enum {
-    kButtonCheatGuns = 0x20,
-    kButtonCheatGodMode = 0x40,
-    kButtonCheatKeys = 0x80,
-    kButtonCheatItems = 0x100,
-};
-
-
-
-
 
 
 struct InputPacket
