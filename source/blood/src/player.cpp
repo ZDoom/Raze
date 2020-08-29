@@ -1562,7 +1562,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (bVanilla)
     {
-        if ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
@@ -1592,7 +1592,7 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN))
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));

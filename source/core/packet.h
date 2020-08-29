@@ -24,15 +24,14 @@ enum ESyncBits_ : uint32_t
     SB_OPEN = 1 << 17,
 
     SB_AIMMODE = 1 << 18,   
+    SB_QUICK_KICK = 1 << 19,    // Duke only.
+    SB_CROUCH_LOCK = 1 << 19,   // SW only.
+    SB_ESCAPE = 1 << 20,
 
-    SB_AIM_UP = 1 << 19,
-    SB_AIM_DOWN = 1 << 20,
-    SB_LOOK_LEFT = 1 << 21,
-    SB_LOOK_RIGHT = 1 << 22,
-    SB_QUICK_KICK = 1 << 23,    // Duke only.
-    SB_CROUCH_LOCK = 1 << 23,   // SW only.
-    SB_ESCAPE = 1 << 24,
-
+    SB_AIM_UP = 1 << 21,
+    SB_AIM_DOWN = 1 << 22,
+    SB_LOOK_LEFT = 1 << 23,
+    SB_LOOK_RIGHT = 1 << 24,
     SB_LOOK_UP = 1 << 25,
     SB_LOOK_DOWN = 1 << 26,
     SB_RUN = 1 << 27,
@@ -44,7 +43,7 @@ enum ESyncBits_ : uint32_t
     SB_WEAPONMASK_BITS = (15u * SB_FIRST_WEAPON_BIT), // Weapons take up 4 bits
     SB_ITEMUSE_BITS = (127u * SB_ITEM_BIT_1),
 
-    SB_BUTTON_MASK = SB_ALTFIRE|SB_FIRE|SB_CROUCH|SB_JUMP,     // all input from buttons (i.e. active while held)
+    SB_BUTTON_MASK = SB_ALTFIRE|SB_FIRE|SB_CROUCH|SB_JUMP|SB_LOOK_UP|SB_LOOK_DOWN|SB_AIM_UP|SB_AIM_DOWN|SB_LOOK_LEFT|SB_LOOK_RIGHT,     // all input from buttons (i.e. active while held)
     SB_INTERFACE_MASK = (SB_INVPREV|SB_INVNEXT|SB_INVUSE|SB_CENTERVIEW|SB_TURNAROUND|SB_HOLSTER|SB_OPEN|SB_ESCAPE|SB_QUICK_KICK),  // all input from CCMDs
     SB_INTERFACE_BITS = (SB_WEAPONMASK_BITS | SB_ITEMUSE_BITS | SB_INTERFACE_MASK),
     SB_ALL = ~0u
