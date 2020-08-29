@@ -229,8 +229,6 @@ CUSTOM_CVARD(Int, in_mousebias, 0, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "emulates the
 	else if (self > 32) self = 32;
 }
 
-CVARD(Bool, in_mousesmoothing, false, CVAR_GLOBALCONFIG|CVAR_ARCHIVE, "enable/disable mouse input smoothing")
-
 CUSTOM_CVARD(Float, in_mousesensitivity, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "changes the mouse sensitivity")
 {
 	if (self < 0) self = 0;

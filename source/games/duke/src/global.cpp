@@ -63,7 +63,6 @@ int16_t max_ammo_amount[MAX_WEAPONS];
 int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;
 int duke3d_globalflags;
-InputPacket loc;
 uint8_t ready2send;
 int playerswhenstarted;
 int show_shareware;

@@ -5,6 +5,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include <stdint.h>
 #include "vectors.h"
 #include "engineerrors.h"
+#include "packet.h"
 
 struct GameStats
 {
@@ -91,6 +92,7 @@ struct GameInterface
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
+	virtual void GetInput(InputPacket* packet) {}
 
 
 };

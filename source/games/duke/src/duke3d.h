@@ -22,7 +22,7 @@
 #include "stats.h"
 #include "binaryangle.h"
 
-extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 BEGIN_DUKE_NS
 
@@ -57,6 +57,7 @@ struct GameInterface : public ::GameInterface
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void ResetFollowPos(bool message) override;
+	void GetInput(InputPacket* packet) override;
 
 };
 

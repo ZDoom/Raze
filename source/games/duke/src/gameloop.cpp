@@ -51,7 +51,6 @@ static int bufferjitter;
 
 void clearfifo(void)
 {
-	loc = {};
 	memset(&inputfifo, 0, sizeof(inputfifo));
 	memset(sync, 0, sizeof(sync));
 }
@@ -280,48 +279,17 @@ int domovethings()
 //
 //---------------------------------------------------------------------------
 
-int moveloop()
-{
-	prediction();
-
-	if (numplayers < 2) bufferjitter = 0;
-	while (shouldprocessinput(myconnectindex))
-	{
-		if( domovethings() ) return 1;
-	}
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-static void checkTimerActive()
-{
-	FStat *stat = FStat::FindStat("fps");
-	glcycle_t::active = (stat != NULL && stat->isActive());
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-bool GameTicker()
+void GameTicker()
 {
 	if (ps[myconnectindex].gm == MODE_DEMO)
 	{
 		M_ClearMenus();
-		return true;
+		gamestate = GS_STARTUP;
+		return;
 	}
 
 	//Net_GetPackets();
 
-	nonsharedkeys();
-	checkTimerActive();
 
 	gameupdatetime.Reset();
 	gameupdatetime.Clock();
@@ -332,30 +300,23 @@ bool GameTicker()
 	while (playrunning() && currentTic - lastTic >= 1)
 	{
 		lastTic = currentTic;
-
-		GetInput();
-		auto const pPlayer = &ps[myconnectindex];
-		auto const q16ang = fix16_to_int(pPlayer->q16ang);
 		auto& input = nextinput(myconnectindex);
 
-		input = loc;
-		input.fvel = mulscale9(loc.fvel, sintable[(q16ang + 2560) & 2047]) +
-			mulscale9(loc.svel, sintable[(q16ang + 2048) & 2047]) +
-			pPlayer->fric.x;
-		input.svel = mulscale9(loc.fvel, sintable[(q16ang + 2048) & 2047]) +
-			mulscale9(loc.svel, sintable[(q16ang + 1536) & 2047]) +
-			pPlayer->fric.y;
-		loc = {};
+		gi->GetInput(&input);
 
 		advancequeue(myconnectindex);
 
 		if (playrunning())
 		{
-			moveloop();
+			prediction();
+
+			if (numplayers < 2) bufferjitter = 0;
+			while (shouldprocessinput(myconnectindex))
+			{
+				if (domovethings()) break;
+			}
 		}
 	}
-
-	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 
 	gameupdatetime.Unclock();
 
@@ -366,17 +327,23 @@ bool GameTicker()
 
 	if (!cl_syncinput)
 	{
-		GetInput();
+		gi->GetInput(nullptr);
 	}
 
+	nonsharedkeys();
+	S_Update();
 	drawtime.Reset();
 	drawtime.Clock();
-	S_Update();
+	videoSetBrightness(thunder_brightness);
+	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
 	displayrooms(screenpeek, smoothRatio);
-	displayrest(smoothRatio);
+	drawoverlays(smoothRatio);
 	drawtime.Unclock();
 
-	return (ps[myconnectindex].gm & MODE_DEMO);
+	if (ps[myconnectindex].gm == MODE_DEMO)
+	{
+		gamestate = GS_STARTUP;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -393,18 +360,9 @@ void startmainmenu()
 	FX_StopAllSounds();
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 
-void GameInterface::RunGameFrame()
+static void Startup()
 {
-	switch (gamestate)
-	{
-	default:
-	case GS_STARTUP:
 		I_ResetTime();
 		lastTic = -1;
 		gameclock = 0;
@@ -432,6 +390,21 @@ void GameInterface::RunGameFrame()
 		{
 			fi.ShowLogo([](bool) { startmainmenu(); });
 		}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::RunGameFrame()
+{
+	switch (gamestate)
+	{
+	default:
+	case GS_STARTUP:
+		Startup();
 		break;
 
 	case GS_MENUSCREEN:
@@ -440,13 +413,12 @@ void GameInterface::RunGameFrame()
 		break;
 
 	case GS_LEVEL:
-		if (GameTicker()) gamestate = GS_STARTUP;
-		else videoSetBrightness(thunder_brightness);
+		GameTicker();
 		break;
 
 	case GS_INTERMISSION:
 	case GS_INTRO:
-		RunScreenJobFrame();	// This handles continuation through its completion callback.
+		RunScreenJobFrame();
 		break;
 
 	}

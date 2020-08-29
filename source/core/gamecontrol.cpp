@@ -118,7 +118,7 @@ CCMD(togglefollow)
 	gi->ResetFollowPos(true);
 }
 
-glcycle_t thinktime, actortime, gameupdatetime, drawtime;
+cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
 gamestate_t gamestate = GS_STARTUP;
 

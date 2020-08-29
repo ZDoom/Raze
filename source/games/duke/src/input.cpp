@@ -44,6 +44,7 @@ static int nonsharedtimer;
 static int turnheldtime;
 static int lastcontroltime;
 static double lastCheck;
+static InputPacket loc; // input accumulation buffer.
 
 void GameInterface::ResetFollowPos(bool message)
 {
@@ -1033,7 +1034,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 //
 //---------------------------------------------------------------------------
 
-void GetInput()
+static void GetInputInternal(InputPacket &locInput)
 {
 	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
@@ -1090,14 +1091,47 @@ void GetInput()
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// External entry point
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::GetInput(InputPacket* packet)
+{
+	GetInputInternal(loc);
+	if (packet)
+	{
+		auto const pPlayer = &ps[myconnectindex];
+		auto const q16ang = fix16_to_int(pPlayer->q16ang);
+
+		*packet = loc;
+		auto fvel = loc.fvel;
+		auto svel = loc.svel;
+		packet->fvel = mulscale9(fvel, sintable[(q16ang + 2560) & 2047]) +
+			mulscale9(svel, sintable[(q16ang + 2048) & 2047]) +
+			pPlayer->fric.x;
+		packet->svel = mulscale9(fvel, sintable[(q16ang + 2048) & 2047]) +
+			mulscale9(svel, sintable[(q16ang + 1536) & 2047]) +
+			pPlayer->fric.y;
+		loc = {};
+	}
+}
+
+//---------------------------------------------------------------------------
+//
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::clearlocalinputstate()
 {
+	loc = {};
 	nonsharedtimer = 0;
 	turnheldtime = 0;
 	lastcontroltime = 0;
 	lastCheck = 0;
-
 }
+
 
 END_DUKE_NS

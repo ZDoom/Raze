@@ -212,7 +212,7 @@ void dobonus(int bonusonly, const CompletionFunc& completion);
 void dobonus_d(bool bonusonly, const CompletionFunc& completion);
 void dobonus_r(bool bonusonly, const CompletionFunc& completion);
 
-void displayrest(double smoothratio);
+void drawoverlays(double smoothratio);
 void drawbackground(void);
 void displayrooms(int32_t playerNum, double smoothratio);
 void setgamepalette(int palid);
@@ -234,7 +234,6 @@ void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
-void GetInput();
 void startmainmenu();
 void loadcons();
 
