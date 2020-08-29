@@ -234,7 +234,7 @@ void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
-void GetInput();
+void GetInput(InputPacket &loc);
 void startmainmenu();
 void loadcons();
 
