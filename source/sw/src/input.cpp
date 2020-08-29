@@ -113,7 +113,37 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     lastInputTicks = currentHiTicks;
 
-    bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+    ControlInfo info;
+    CONTROL_GetInput(&info);
+
+    if (paused)
+        return;
+
+    // If in 2D follow mode, scroll around using glob vars
+    // Tried calling this in domovethings, but key response it too poor, skips key presses
+    // Note: this get called only during follow mode
+    if (!tied && automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
+        MoveScrollMode2D(Player + myconnectindex);
+
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || automapFollow)
+        return;
+
+    int32_t turnamount;
+    int32_t keymove;
+
+    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
+    // and use to scale back player's aim and ang values for a consistent feel between games.
+    float const angvelScale = 1.40625f;
+    float const aimvelScale = 1.203125f;
+
+    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
+    // for dividing controller input to match speed input speed of other games.
+    float const ticrateScale = 0.75f;
+
+    ApplyGlobalInput(*loc, &info);
+
+    bool mouseaim = !!(loc->actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {
@@ -131,37 +161,10 @@ getinput(InputPacket *loc, SWBOOL tied)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-    ControlInfo info;
-    CONTROL_GetInput(&info);
 
-    if (paused)
-        return;
 
-    // If in 2D follow mode, scroll around using glob vars
-    // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: this get called only during follow mode
-    if (!tied && automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex);
-
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || automapFollow)
-        return;
-
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));
-
-    int32_t turnamount;
-    int32_t keymove;
-
-    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
-    // and use to scale back player's aim and ang values for a consistent feel between games.
-    float const angvelScale = 1.40625f;
-    float const aimvelScale = 1.203125f;
-
-    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
-    // for dividing controller input to match speed input speed of other games.
-    float const ticrateScale = 0.75f;
-
-    ApplyGlobalInput(*loc, &info);
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch)) // this shares a bit with another function so cannot be in the common code.
+        loc->actions |= SB_CROUCH_LOCK;
 
 
     if (loc->actions & SB_RUN)
@@ -310,14 +313,6 @@ getinput(InputPacket *loc, SWBOOL tied)
     loc->q16horz += q16horz;
 
 
-    // actually snap
-    SET_LOC_KEY(loc->bits, SK_AIM_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_AIM_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
-
-    // actually just look
-    SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
-    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
-
     if (loc->getNewWeapon() == WeaponSel_Next)
     {
         USERp u = User[pp->PlayerSprite];
@@ -393,9 +388,6 @@ getinput(InputPacket *loc, SWBOOL tied)
         short const which_weapon = u->WeaponNum + 1;
         loc->setNewWeapon(which_weapon);
     }
-
-    // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, buttonMap.ButtonDown(gamefunc_Toggle_Crouch));
 
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
     {

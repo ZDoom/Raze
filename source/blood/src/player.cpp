@@ -765,7 +765,6 @@ void playerStart(int nPlayer, int bNewLevel)
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->q16avel = 0;
     pInput->actions = 0;
-    pInput->syncFlags.value = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
     pInput->q16horz = 0;
@@ -1333,7 +1332,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
 
     pPlayer->isRunning = !!(pInput->actions & SB_RUN);
-    if ((pInput->syncFlags.value & flag_buttonmask_norun) || (pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
+    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1563,7 +1562,7 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (bVanilla)
     {
-        if ((pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP|SB_LOOK_DOWN))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
@@ -1574,9 +1573,9 @@ void ProcessInput(PLAYER *pPlayer)
         }
         else
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16horz, fix16_from_int(-60), fix16_from_int(60));
@@ -1593,7 +1592,7 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if ((pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
@@ -1604,22 +1603,22 @@ void ProcessInput(PLAYER *pPlayer)
         }
         else
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
             {
                 gViewLookAdjust += float(lookStepUp);
             }
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = (pInput->actions & SB_CENTERVIEW) && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
+            gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));

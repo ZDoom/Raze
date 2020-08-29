@@ -968,13 +968,13 @@ void playerweaponsway(player_struct* p, spritetype* s)
 //
 //---------------------------------------------------------------------------
 
-void checklook(int snum, int sb_snum)
+void checklook(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 
 	p->lookLeft = false;
 	p->lookRight = false;
-	if ((sb_snum & SKB_LOOK_LEFT) && !p->OnMotorcycle)
+	if ((actions & SB_LOOK_LEFT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKLEFT, p->i, snum, -1);
@@ -984,7 +984,7 @@ void checklook(int snum, int sb_snum)
 		}
 	}
 
-	if ((sb_snum & SKB_LOOK_RIGHT) && !p->OnMotorcycle)
+	if ((actions & SB_LOOK_RIGHT) && !p->OnMotorcycle)
 	{
 		SetGameVarID(g_iReturnVarID, 0, p->i, snum);
 		OnEvent(EVENT_LOOKRIGHT, p->i, snum, -1);
@@ -1002,14 +1002,14 @@ void checklook(int snum, int sb_snum)
 //
 //---------------------------------------------------------------------------
 
-void sethorizon(int snum, int sb_snum, double factor, fixed_t adjustment)
+void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
 {
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
 	double horizAngle = clamp2(atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
 
-	if (p->return_to_center > 0 && (sb_snum & (SKB_LOOK_UP | SKB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
+	if (p->return_to_center > 0 && (actions & (SB_LOOK_UP | SB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
 		p->return_to_center += -factor * (p->return_to_center / 2);
 		horizAngle += -factor * (horizAngle / 2);

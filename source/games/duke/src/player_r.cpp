@@ -1542,7 +1542,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void onMotorcycle(int snum, ESyncBits &actions, EDukeSyncBits &sb_snum)
+static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1605,29 +1605,29 @@ static void onMotorcycle(int snum, ESyncBits &actions, EDukeSyncBits &sb_snum)
 		if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 187))
 			S_PlayActorSound(187, pi);
 	}
-	if (sb_snum & SKB_AIM_UP)
+	if (actions & SB_AIM_UP)
 	{
 		var6c = 1;
-		sb_snum &= ~SKB_AIM_UP;
+		actions &= ~SB_AIM_UP;
 	}
 	else
 		var6c = 0;
-	if (sb_snum & SKB_AIM_DOWN)
+	if (actions & SB_AIM_DOWN)
 	{
 		var70 = 1;
 		var74 = 1;
-		sb_snum &= ~SKB_AIM_DOWN;
+		actions &= ~SB_AIM_DOWN;
 	}
 	else
 	{
 		var70 = 0;
 		var74 = 0;
 	}
-	if (sb_snum & SKB_LOOK_LEFT)
+	if (actions & SB_LOOK_LEFT)
 	{
 		var78 = 1;
 		var7c = 1;
-		sb_snum &= ~SKB_LOOK_LEFT;
+		actions &= ~SB_LOOK_LEFT;
 	}
 	else
 	{
@@ -1835,7 +1835,7 @@ static void onMotorcycle(int snum, ESyncBits &actions, EDukeSyncBits &sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void onBoat(int snum, ESyncBits &actions, EDukeSyncBits& sb_snum)
+static void onBoat(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1908,17 +1908,17 @@ static void onBoat(int snum, ESyncBits &actions, EDukeSyncBits& sb_snum)
 	}
 	else
 		varb0 = 0;
-	if (sb_snum & SKB_AIM_UP)
+	if (actions & SB_AIM_UP)
 	{
 		varb4 = 1;
-		sb_snum &= ~SKB_AIM_UP;
+		actions &= ~SB_AIM_UP;
 	}
 	else varb4 = 0;
-	if (sb_snum & SKB_AIM_DOWN)
+	if (actions & SB_AIM_DOWN)
 	{
 		varb8 = 1;
 		varbc = 1;
-		sb_snum &= ~SKB_AIM_DOWN;
+		actions &= ~SB_AIM_DOWN;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -1927,11 +1927,11 @@ static void onBoat(int snum, ESyncBits &actions, EDukeSyncBits& sb_snum)
 		varb8 = 0;
 		varbc = 0;
 	}
-	if (sb_snum & SKB_LOOK_LEFT)
+	if (actions & SB_LOOK_LEFT)
 	{
 		varc0 = 1;
 		varc4 = 1;
-		sb_snum &= ~SKB_LOOK_LEFT;
+		actions &= ~SB_LOOK_LEFT;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -2119,7 +2119,7 @@ static void onBoat(int snum, ESyncBits &actions, EDukeSyncBits& sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2349,7 +2349,7 @@ static void movement(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int pse
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -2773,7 +2773,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3365,7 +3365,7 @@ static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
+static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -3416,7 +3416,7 @@ static void processweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 	}
 	else if (p->kickback_pic)
 	{
-		operateweapon(snum, actions, sb_snum, psect);
+		operateweapon(snum, actions, psect);
 	}
 }
 
@@ -3430,7 +3430,6 @@ void processinput_r(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
-	EDukeSyncBits sb_snum;
 	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
@@ -3442,7 +3441,6 @@ void processinput_r(int snum)
 
 	resetinputhelpers(p);
 
-	sb_snum = PlayerInputBits(snum, SKB_ALL);
 	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
@@ -3452,11 +3450,11 @@ void processinput_r(int snum)
 	psect = p->cursectnum;
 	if (p->OnMotorcycle && s->extra > 0)
 	{
-		onMotorcycle(snum, actions, sb_snum);
+		onMotorcycle(snum, actions);
 	}
 	else if (p->OnBoat && s->extra > 0)
 	{
-		onBoat(snum, actions, sb_snum);
+		onBoat(snum, actions);
 	}
 	if (psect == -1)
 	{
@@ -3663,13 +3661,13 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, sb_snum, psect);
+		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, psect);
 		return;
 	}
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum, sb_snum);
+	checklook(snum, actions);
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -3709,11 +3707,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 	else
 	{
-		movement(snum, actions, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -4060,19 +4058,19 @@ HORIZONLY:
 	{
 		playerCenterView(snum);
 	}
-	else if (sb_snum & SKB_LOOK_UP)
+	else if (actions & SB_LOOK_UP)
 	{
 		playerLookUp(snum, actions);
 	}
-	else if (sb_snum & SKB_LOOK_DOWN)
+	else if (actions & SB_LOOK_DOWN)
 	{
 		playerLookDown(snum, actions);
 	}
-	else if ((sb_snum & SKB_AIM_UP) && !p->OnMotorcycle)
+	else if ((actions & SB_AIM_UP) && !p->OnMotorcycle)
 	{
 		playerAimUp(snum, actions);
 	}
-	else if ((sb_snum & SKB_AIM_DOWN) && !p->OnMotorcycle)
+	else if ((actions & SB_AIM_DOWN) && !p->OnMotorcycle)
 	{
 		playerAimDown(snum, actions);
 	}
@@ -4087,7 +4085,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
+		sethorizon(snum, actions, 1, sync[snum].q16horz);
 	}
 
 	checkhardlanding(p);
@@ -4123,7 +4121,7 @@ HORIZONLY:
 		else p->weapon_pos--;
 	}
 
-	processweapon(snum, actions, sb_snum, psect);
+	processweapon(snum, actions, psect);
 }
 
 //---------------------------------------------------------------------------
@@ -4132,17 +4130,17 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void processmove_r(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 	else
 	{
-		movement(snum, actions, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 

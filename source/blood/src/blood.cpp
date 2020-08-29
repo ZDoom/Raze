@@ -526,11 +526,9 @@ void ProcessFrame(void)
     {
         auto& inp = gPlayer[i].input;
         auto oldactions = inp.actions;
-        auto oldflags = inp.syncFlags.value;
 
         inp = gFifoInput[gNetFifoTail & 255][i];
         inp.actions |= oldactions & ~(SB_BUTTON_MASK|SB_RUN|SB_WEAPONMASK_BITS);  // should be everything non-button and non-weapon
-        inp.syncFlags.value |= oldflags & ~flag_buttonmask;
 
         int newweap = inp.getNewWeapon();
         if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;

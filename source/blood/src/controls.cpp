@@ -127,9 +127,6 @@ void ctrlGetInput(void)
 
     InputPacket input = {};
 
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-	if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
-
     if (numplayers == 1)
     {
         gProfile[myconnectindex].nAutoAim = cl_autoaim;
@@ -139,6 +136,9 @@ void ctrlGetInput(void)
     CONTROL_GetInput(&info);
 
     ApplyGlobalInput(gInput, &info);
+
+    bool mouseaim = !!(gInput.actions & SB_AIMMODE);
+    if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
@@ -168,16 +168,8 @@ void ctrlGetInput(void)
         cl_showweapon = (cl_showweapon + 1) & 3;
     }
 
-    gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Look_Up);
-    gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
-
-    if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Look_Down))
+    if (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
         gInput.actions |= SB_CENTERVIEW;
-    else
-    {
-        gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Aim_Up);
-        gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Aim_Down);
-    }
 
     int const run = !!(gInput.actions & SB_RUN);
     int const keyMove = (1 + run) << 10;

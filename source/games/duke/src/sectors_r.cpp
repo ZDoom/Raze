@@ -2488,7 +2488,7 @@ void checksectors_r(int snum)
 		fi.lotsofmoney(&sprite[p->i], 2);
 
 
-	if (!(PlayerInput(snum, SB_OPEN)) && !PlayerInput(snum, SKB_ESCAPE))
+	if (!(PlayerInput(snum, SB_OPEN)))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)

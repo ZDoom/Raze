@@ -1938,7 +1938,7 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
-    if (pp->input.actions & SB_CENTERVIEW)
+    if ((pp->input.actions & SB_CENTERVIEW) || pp->centering)
     {
         if (PedanticMode)
             pp->q16horizbase = fix16_from_int(100);
@@ -1952,18 +1952,19 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
             pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED*6))));
             pp->q16horizbase = fix16_min(pp->q16horizbase, fix16_from_int(100));
         }
+        pp->centering = pp->q16horizbase != fix16_from_int(100);
         *pq16horiz = pp->q16horizbase;
         pp->q16horizoff = 0;
     }
 
     // this is the locked type
-    if (TEST_SYNC_KEY(pp, SK_AIM_UP) || TEST_SYNC_KEY(pp, SK_AIM_DOWN))
+    if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
     {
         // set looking because player is manually looking
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
         // adjust *pq16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_AIM_DOWN))
+        if (pp->input.actions & SB_AIM_DOWN)
         {
             if (PedanticMode)
                 pp->q16horizbase -= fix16_from_int((HORIZ_SPEED/2));
@@ -1972,23 +1973,24 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
         }
 
         // adjust *pq16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_AIM_UP))
+        if (pp->input.actions & SB_AIM_UP)
         {
             if (PedanticMode)
                 pp->q16horizbase += fix16_from_int((HORIZ_SPEED/2));
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval((HORIZ_SPEED/2))));
         }
+        pp->centering = false;
     }
 
     // this is the unlocked type
-    if (TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
     {
         RESET(pp->Flags, PF_LOCK_HORIZ);
         SET(pp->Flags, PF_LOOKING);
 
         // adjust *pq16horiz negative
-        if (TEST_SYNC_KEY(pp, SK_LOOK_DOWN))
+        if (pp->input.actions & SB_LOOK_DOWN)
         {
             if (PedanticMode)
                 pp->q16horizbase -= fix16_from_int(HORIZ_SPEED);
@@ -1997,18 +1999,19 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
         }
 
         // adjust *pq16horiz positive
-        if (TEST_SYNC_KEY(pp, SK_LOOK_UP))
+        if (pp->input.actions & SB_LOOK_UP)
         {
             if (PedanticMode)
                 pp->q16horizbase += fix16_from_int(HORIZ_SPEED);
             else
                 pp->q16horizbase = fix16_sadd(pp->q16horizbase, fix16_from_float(scaleAdjustmentToInterval(HORIZ_SPEED)));
         }
+        pp->centering = false;
     }
 
     if (!TEST(pp->Flags, PF_LOCK_HORIZ))
     {
-        if (!(TEST_SYNC_KEY(pp, SK_LOOK_UP) || TEST_SYNC_KEY(pp, SK_LOOK_DOWN)))
+        if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
         {
             // not pressing the *pq16horiz keys
             if (pp->q16horizbase != fix16_from_int(100))
@@ -2042,9 +2045,6 @@ DoPlayerHorizon(PLAYERp pp, fix16_t *pq16horiz, fix16_t q16horz)
         pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MIN) - pp->q16horizbase;
     else if (pp->q16horizbase + pp->q16horizoff > fix16_from_int(PLAYER_HORIZ_MAX))
         pp->q16horizoff = fix16_from_int(PLAYER_HORIZ_MAX) - pp->q16horizbase;
-
-    ////DSPRINTF(ds,"base %d, off %d, base + off %d",fix16_to_int(pp->q16horizbase), fix16_to_int(pp->q16horizoff), fix16_to_int(pp->q16horizbase + pp->q16horizoff));
-    //MONO_PRINT(ds);
 
     // add base and offsets
     *pq16horiz = pp->q16horizbase + pp->q16horizoff;
@@ -4148,14 +4148,14 @@ DoPlayerCrawl(PLAYERp pp)
 
     if (TEST(pp->Flags, PF_LOCK_CRAWL))
     {
-        if (TEST_SYNC_KEY(pp, SK_CRAWL_LOCK))
+        if (pp->input.actions & SB_CROUCH_LOCK)
         {
-            if (FLAG_KEY_PRESSED(pp, SK_CRAWL_LOCK))
+            if (pp->KeyPressBits & SB_CROUCH_LOCK)
             {
                 //if (pp->hiz < PLAYER_STANDING_ROOM(pp))
                 if (labs(pp->loz - pp->hiz) >= PLAYER_STANDING_ROOM)
                 {
-                    FLAG_KEY_RELEASE(pp, SK_CRAWL_LOCK);
+                    pp->KeyPressBits&= ~SB_CROUCH_LOCK;
 
                     RESET(pp->Flags, PF_CRAWLING);
                     DoPlayerBeginRun(pp);
@@ -4165,7 +4165,7 @@ DoPlayerCrawl(PLAYERp pp)
         }
         else
         {
-            FLAG_KEY_RESET(pp, SK_CRAWL_LOCK);
+            pp->KeyPressBits |= SB_CROUCH_LOCK;
         }
 
         // Jump to get up
@@ -6040,7 +6040,6 @@ DoPlayerOperateTank(PLAYERp pp)
 {
     short save_sectnum;
 
-    //ASSERT(!TEST_SYNC_KEY(pp, SK_OPERATE));
     if (pp->input.actions & SB_OPEN)
     {
         if (pp->KeyPressBits & SB_OPEN)
@@ -6618,8 +6617,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite];
 
-    //if (pp->input.actions & SB_OPEN)
-    if (TEST_SYNC_KEY(pp, SK_SPACE_BAR))
+    if (pp->input.actions & SB_OPEN)
     {
         // Spawn a dead LoWang body for non-head deaths
         // Hey Frank, if you think of a better check, go ahead and put it in.
@@ -7149,11 +7147,11 @@ DoPlayerRun(PLAYERp pp)
     }
 
     // Crawl lock
-    if (TEST_SYNC_KEY(pp, SK_CRAWL_LOCK))
+    if (pp->input.actions & SB_CROUCH_LOCK)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_CRAWL_LOCK))
+        if (pp->KeyPressBits & SB_CROUCH_LOCK)
         {
-            FLAG_KEY_RELEASE(pp, SK_CRAWL_LOCK);
+            pp->KeyPressBits &= ~SB_CROUCH_LOCK;
             SET(pp->Flags, PF_LOCK_CRAWL);
             DoPlayerBeginCrawl(pp);
             return;
@@ -7161,7 +7159,7 @@ DoPlayerRun(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_CRAWL_LOCK);
+        pp->KeyPressBits |= SB_CROUCH_LOCK;
     }
 
     if (PlayerFlyKey())
@@ -7407,8 +7405,8 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if ((pp->input.bits|pp->input.fvel|pp->input.svel|pp->input.q16avel|pp->input.q16horz) ||
-            TEST(pp->Flags, PF_CLIMBING|PF_FALLING|PF_DIVING))
+        if (pp->input.actions || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.q16horz ||
+            TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
             //if (pp->Chops && pp->Chops->State != pp->Chops->State->RetractState)
@@ -7788,7 +7786,6 @@ InitAllPlayers(void)
         pp->WpnGotOnceFlags = 0;
         pp->DoPlayerAction = DoPlayerBeginRun;
         pp->KeyPressBits = ESyncBits::FromInt(0xFFFFFFFF);
-        pp->KeyPressFlags = 0xFFFFFFFF;
         memset(pp->KilledPlayer,0,sizeof(pp->KilledPlayer));
 
         if (NewGame)

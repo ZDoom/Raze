@@ -329,6 +329,11 @@ CCMD(holsterweapon)
 	ActionsToSend |= SB_HOLSTER;
 }
 
+CCMD(backoff)
+{
+	ActionsToSend |= SB_ESCAPE;
+}
+
 CCMD(pause)
 {
 	sendPause = true;
@@ -362,6 +367,15 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	input.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
+	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info->dz > 0)) 
+		input.actions |= SB_AIM_UP;
+
+	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info->dz < 0))) 
+		input.actions |= SB_AIM_DOWN;
+
+	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
+		info->dz = 0;
+
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		input.actions |= SB_JUMP;
 
@@ -382,10 +396,20 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
 		input.actions |= SB_RUN;
 
+	if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
+		input.actions |= SB_AIMMODE;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 
+		input.actions |= SB_LOOK_UP;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Down)) 
+		input.actions |= SB_LOOK_DOWN;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Left)) 
+		input.actions |= SB_LOOK_LEFT;
+
+	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
+		input.actions |= SB_LOOK_RIGHT;
+
 }
 
-#if 0
-
-	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
-
-#endif

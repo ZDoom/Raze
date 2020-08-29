@@ -616,9 +616,6 @@ int DoEelMove(short SpriteNum)
     else
         (*u->ActorActionFunc)(SpriteNum);
 
-    //if (TEST_SYNC_KEY((Player+myconnectindex), SK_OPERATE))
-    //    CON_Message("Stop");
-
     DoEelMatchPlayerZ(SpriteNum);
 
     DoActorSectorDamage(SpriteNum);

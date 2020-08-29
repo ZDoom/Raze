@@ -150,7 +150,7 @@ void hud_input(int snum)
 	p = &ps[snum];
 
 	i = p->aim_mode;
-	p->aim_mode = PlayerInput(snum, SKB_AIMMODE);
+	p->aim_mode = PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
@@ -159,7 +159,7 @@ void hud_input(int snum)
 
 	if (isRR())
 	{
-		if (PlayerInput(snum, SKB_QUICK_KICK) && p->last_pissed_time == 0)
+		if (PlayerInput(snum, SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
 			if (!isRRRA() || sprite[p->i].extra > 0)
 			{
@@ -177,7 +177,7 @@ void hud_input(int snum)
 	}
 	else
 	{
-		if (PlayerInput(snum, SKB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
+		if (PlayerInput(snum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_QUICKKICK, -1, snum, -1);
@@ -189,9 +189,9 @@ void hud_input(int snum)
 			}
 		}
 	}
-	if (!PlayerInput(snum, SKB_QUICK_KICK)) p->quick_kick_msg = false;
+	if (!PlayerInput(snum, SB_QUICK_KICK)) p->quick_kick_msg = false;
 
-	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS) && ! PlayerInputBits(snum, SB_INTERFACE_BITS))
+	if (!PlayerInputBits(snum, SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
@@ -606,38 +606,27 @@ enum
 
 static void processInputBits(player_struct *p, ControlInfo &info)
 {
-	bool onVehicle = p->OnMotorcycle || p->OnBoat;
+	ApplyGlobalInput(loc, &info);
+	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
-	if (!onVehicle)
+	if (p->OnMotorcycle || p->OnBoat)
 	{
+		// mask out all actions not compatible with vehicles.
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
+	}
+	else
+	{
+		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.
+			loc.actions |= SB_QUICK_KICK;
+
 		if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
 		{
 			loc.actions |= SB_CROUCH;
 		}
-		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.sbits |= SKB_AIM_UP;
-		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.sbits |= SKB_AIM_DOWN;
-		if (buttonMap.ButtonDown(gamefunc_Look_Left)) loc.sbits |= SKB_LOOK_LEFT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.sbits |= SKB_LOOK_RIGHT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.sbits |= SKB_LOOK_UP;
-		if (buttonMap.ButtonDown(gamefunc_Look_Down)) loc.sbits |= SKB_LOOK_DOWN;
-		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
-		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
-
-		if ((isRR() && p->drink_amt > 88)) loc.sbits |= SKB_LOOK_LEFT;
-		if ((isRR() && p->drink_amt > 99)) loc.sbits |= SKB_LOOK_DOWN;
-
+		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
+		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
 	}
-	ApplyGlobalInput(loc, &info);
-	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
-
-	if (onVehicle)
-	{
-		// mask out all actions not compatible with vehicles.
-		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN);
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
-		info.dz = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -684,7 +673,7 @@ int getticssincelastupdate()
 
 static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
 {
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+	bool mouseaim = !!(loc.actions & SB_AIMMODE);
 
 	// JBF: Run key behaviour is selectable
 	int running = !!(loc.actions & SB_RUN);
@@ -980,15 +969,15 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
 			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			loc.sbits |= SKB_AIM_UP;
-		if (loc.buttons & SB_RUN)
+			loc.actions |= SB_AIM_UP;
+		if (loc.actions & SB_RUN)
 			loc.actions |= SB_CROUCH;
 	}
 
 	if (turnl)
-		loc.sbits |= SKB_AIM_DOWN;
+		loc.actions |= SB_AIM_DOWN;
 	if (turnr)
-		loc.sbits |= SKB_LOOK_LEFT;
+		loc.actions |= SB_LOOK_LEFT;
 
 	double turnvel;
 
@@ -1136,7 +1125,7 @@ void GetInput()
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.sbits, scaleAdjust, input.q16horz);
+		sethorizon(myconnectindex, loc.actions, scaleAdjust, input.q16horz);
 	}
 }
 

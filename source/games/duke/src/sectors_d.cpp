@@ -1532,13 +1532,13 @@ void checksectors_d(int snum)
 		}
 	}
 
-	if (!(PlayerInput(snum, SB_OPEN)) && !PlayerInput(snum, SKB_ESCAPE))
+	if (!(PlayerInput(snum, SB_OPEN)))
 		p->toggle_key_flag = 0;
 
 	else if (!p->toggle_key_flag)
 	{
 
-		if (PlayerInput(snum, SKB_ESCAPE))
+		if (PlayerInput(snum, SB_ESCAPE))
 		{
 			if (p->newowner >= 0)
 			{

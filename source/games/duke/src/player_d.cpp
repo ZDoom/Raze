@@ -41,7 +41,7 @@ source as it is released.
 BEGIN_DUKE_NS 
 
 void fireweapon_ww(int snum);
-void operateweapon_ww(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect);
+void operateweapon_ww(int snum, ESyncBits actions, int psect);
 
 //---------------------------------------------------------------------------
 //
@@ -2073,7 +2073,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2529,7 +2529,7 @@ static void operateweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, int psect)
+static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2600,8 +2600,8 @@ static void processweapon(int snum, ESyncBits actions, EDukeSyncBits sb_snum, in
 	}
 	else if (p->kickback_pic)
 	{
-		if (!isWW2GI()) operateweapon(snum, actions, sb_snum, psect);
-		else operateweapon_ww(snum, actions, sb_snum, psect);
+		if (!isWW2GI()) operateweapon(snum, actions, psect);
+		else operateweapon_ww(snum, actions, psect);
 	}
 }
 //---------------------------------------------------------------------------
@@ -2614,7 +2614,6 @@ void processinput_d(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist;
 	char shrunk;
-	EDukeSyncBits sb_snum;
 	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
@@ -2626,7 +2625,6 @@ void processinput_d(int snum)
 
 	resetinputhelpers(p);
 
-	sb_snum = PlayerInputBits(snum, SKB_ALL);
 	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
@@ -2750,14 +2748,14 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions, sb_snum, psect);
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions, sb_snum, psect);
+		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
 		return;
 	}
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum,sb_snum);
+	checklook(snum,actions);
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -3016,26 +3014,26 @@ HORIZONLY:
 	{
 		playerCenterView(snum);
 	}
-	else if (sb_snum & SKB_LOOK_UP)
+	else if (actions & SB_LOOK_UP)
 	{
 		playerLookUp(snum, actions);
 	}
-	else if (sb_snum & SKB_LOOK_DOWN)
+	else if (actions & SB_LOOK_DOWN)
 	{
 		playerLookDown(snum, actions);
 	}
-	else if (sb_snum & SKB_AIM_UP)
+	else if (actions & SB_AIM_UP)
 	{
 		playerAimUp(snum, actions);
 	}
-	else if (sb_snum & SKB_AIM_DOWN)
+	else if (actions & SB_AIM_DOWN)
 	{	// aim_down
 		playerAimDown(snum, actions);
 	}
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
+		sethorizon(snum, actions, 1, sync[snum].q16horz);
 	}
 
 	checkhardlanding(p);
@@ -3077,7 +3075,7 @@ HORIZONLY:
 	}
 
 	// HACKS
-	processweapon(snum, actions, sb_snum, psect);
+	processweapon(snum, actions, psect);
 }
 
 void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)

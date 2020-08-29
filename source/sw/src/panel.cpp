@@ -6509,10 +6509,8 @@ pFistRest(PANEL_SPRITEp psp)
     // Reset move to default
     psp->PlayerP->WpnKungFuMove = 0;
 
-    //if ((psp->PlayerP->input.actions & SB_FIRE) || force || TEST_SYNC_KEY(psp->PlayerP, SK_OPERATE))
     if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        //if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force || FLAG_KEY_PRESSED(psp->PlayerP, SK_OPERATE))
         if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
