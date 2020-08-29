@@ -85,13 +85,6 @@ DoPrediction(PLAYERp ppp)
     // get it out of sync
     ppp->input.actions &= ~(SB_WEAPONMASK_BITS|SB_ITEMUSE_BITS|SB_INVNEXT|SB_INVPREV|SB_INVUSE|SB_HOLSTER|SB_CENTERVIEW|SB_FIRE|SB_OPEN);;
     ppp->KeyPressBits |= (SB_WEAPONMASK_BITS|SB_ITEMUSE_BITS|SB_INVNEXT|SB_INVPREV|SB_INVUSE|SB_HOLSTER|SB_CENTERVIEW|SB_FIRE|SB_OPEN);
-    RESET(ppp->input.bits,
-          BIT(SK_AUTO_AIM)
-          );
-
-    SET(ppp->KeyPressFlags,
-        BIT(SK_AUTO_AIM)
-        );
 
     // back up things so they won't get stepped on
     bakrandomseed = randomseed;

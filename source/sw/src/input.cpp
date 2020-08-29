@@ -309,19 +309,6 @@ getinput(InputPacket *loc, SWBOOL tied)
     loc->q16avel += q16angvel;
     loc->q16horz += q16horz;
 
-    if (!CommEnabled)
-    {
-		// What a mess...:?
-#if 0
-        if (MenuButtonAutoAim)
-        {
-            MenuButtonAutoAim = FALSE;
-            if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
-                SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
-        }
-#endif
-    }
-
 
     // actually snap
     SET_LOC_KEY(loc->bits, SK_AIM_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));

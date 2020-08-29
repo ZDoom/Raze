@@ -115,8 +115,6 @@ union SYNCFLAGS
 //
 
 
-#define SK_AUTO_AIM    7
-
 #define SK_LOOK_UP    12
 #define SK_LOOK_DOWN  13
 #define SK_CRAWL_LOCK 14
