@@ -565,28 +565,28 @@ enum
 //
 //---------------------------------------------------------------------------
 
-static void processInputBits(InputPacket &locInput, player_struct *p, ControlInfo &info)
+static void processInputBits(player_struct *p, ControlInfo &info)
 {
 	ApplyGlobalInput(loc, &info);
-	if (isRR() && (locInput.actions & SB_CROUCH)) locInput.actions &= ~SB_JUMP;
+	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
 	if (p->OnMotorcycle || p->OnBoat)
 	{
 		// mask out all actions not compatible with vehicles.
-		locInput.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
 			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 	}
 	else
 	{
 		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.
-			locInput.actions |= SB_QUICK_KICK;
+			loc.actions |= SB_QUICK_KICK;
 
 		if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
 		{
-			locInput.actions |= SB_CROUCH;
+			loc.actions |= SB_CROUCH;
 		}
-		if ((isRR() && p->drink_amt > 88)) locInput.actions |= SB_LOOK_LEFT;
-		if ((isRR() && p->drink_amt > 99)) locInput.actions |= SB_LOOK_DOWN;
+		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
+		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
 	}
 }
 
@@ -632,12 +632,12 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(player_struct *p, InputPacket& locInput, InputPacket &input, ControlInfo &info, double scaleFactor)
+static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
 {
-	bool mouseaim = !!(locInput.actions & SB_AIMMODE);
+	bool mouseaim = !!(loc.actions & SB_AIMMODE);
 
 	// JBF: Run key behaviour is selectable
-	int running = !!(locInput.actions & SB_RUN);
+	int running = !!(loc.actions & SB_RUN);
 	int turnamount = NORMALTURN << running;
 	int keymove = NORMALKEYMOVE << running;
 
@@ -659,7 +659,7 @@ static void processMovement(player_struct *p, InputPacket& locInput, InputPacket
 
 	if (buttonMap.ButtonDown(gamefunc_Strafe))
 	{
-		if (!locInput.svel)
+		if (!loc.svel)
 		{
 			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
 				input.svel = keymove;
@@ -690,7 +690,7 @@ static void processMovement(player_struct *p, InputPacket& locInput, InputPacket
 
 	}
 
-	if (abs(locInput.svel) < keymove)
+	if (abs(loc.svel) < keymove)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
 			input.svel += keymove;
@@ -699,7 +699,7 @@ static void processMovement(player_struct *p, InputPacket& locInput, InputPacket
 			input.svel += -keymove;
 	}
 
-	if (abs(locInput.fvel) < keymove)
+	if (abs(loc.fvel) < keymove)
 	{
 		if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
 		{
@@ -910,7 +910,7 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket& locInput, InputPacket& input, double scaleAdjust)
+static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket& input, double scaleAdjust)
 {
 	auto turnspeed = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
@@ -928,17 +928,17 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 	if (p->OnBoat || !p->moto_underwater)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-			locInput.actions |= SB_JUMP;
+			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			locInput.actions |= SB_AIM_UP;
-		if (locInput.actions & SB_RUN)
-			locInput.actions |= SB_CROUCH;
+			loc.actions |= SB_AIM_UP;
+		if (loc.actions & SB_RUN)
+			loc.actions |= SB_CROUCH;
 	}
 
 	if (turnl)
-		locInput.actions |= SB_AIM_DOWN;
+		loc.actions |= SB_AIM_DOWN;
 	if (turnr)
-		locInput.actions |= SB_LOOK_LEFT;
+		loc.actions |= SB_LOOK_LEFT;
 
 	double turnvel;
 
@@ -968,7 +968,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 //
 //---------------------------------------------------------------------------
 
-static void FinalizeInput(int playerNum, InputPacket& locInput, InputPacket& input, bool vehicle)
+static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 {
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
@@ -981,8 +981,8 @@ static void FinalizeInput(int playerNum, InputPacket& locInput, InputPacket& inp
 			ud.folavel = fix16_to_int(input.q16avel);
 		}
 
-		locInput.fvel = locInput.svel = 0;
-		locInput.q16avel = locInput.q16horz = 0;
+		loc.fvel = loc.svel = 0;
+		loc.q16avel = loc.q16horz = 0;
 		input.q16avel = input.q16horz = 0;
 	}
 	else
@@ -991,21 +991,21 @@ static void FinalizeInput(int playerNum, InputPacket& locInput, InputPacket& inp
 		{
 			if (!vehicle)
 			{
-				locInput.fvel = clamp(locInput.fvel + input.fvel, -MAXVEL, MAXVEL);
-				locInput.svel = clamp(locInput.svel + input.svel, -MAXSVEL, MAXSVEL);
+				loc.fvel = clamp(loc.fvel + input.fvel, -MAXVEL, MAXVEL);
+				loc.svel = clamp(loc.svel + input.svel, -MAXSVEL, MAXSVEL);
 			}
 			else
-				locInput.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
+				loc.fvel = clamp(input.fvel, -(MAXVELMOTO / 8), MAXVELMOTO);
 		}
 		else
 		{
-			locInput.fvel = input.fvel = 0;
-			locInput.svel = input.svel = 0;
+			loc.fvel = input.fvel = 0;
+			loc.svel = input.svel = 0;
 		}
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			locInput.q16avel = fix16_clamp(locInput.q16avel + input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
+			loc.q16avel = fix16_clamp(loc.q16avel + input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
 			if (!cl_syncinput && input.q16avel)
 			{
 				p->one_eighty_count = 0;
@@ -1013,16 +1013,16 @@ static void FinalizeInput(int playerNum, InputPacket& locInput, InputPacket& inp
 		}
 		else
 		{
-			locInput.q16avel = input.q16avel = 0;
+			loc.q16avel = input.q16avel = 0;
 		}
 
 		if (p->newowner == -1 && p->return_to_center <= 0)
 		{
-			locInput.q16horz = fix16_clamp(locInput.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
 		}
 		else
 		{
-			locInput.q16horz = input.q16horz = 0;
+			loc.q16horz = input.q16horz = 0;
 		}
 	}
 }
@@ -1033,7 +1033,7 @@ static void FinalizeInput(int playerNum, InputPacket& locInput, InputPacket& inp
 //
 //---------------------------------------------------------------------------
 
-void GetInput(InputPacket &locInput)
+void GetInput()
 {
 	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
@@ -1064,9 +1064,9 @@ void GetInput(InputPacket &locInput)
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
 		p->crouch_toggle = 0;
-		processInputBits(locInput, p, info);
-		processVehicleInput(p, info, locInput, input, scaleAdjust);
-		FinalizeInput(myconnectindex, locInput, input, true);
+		processInputBits(p, info);
+		processVehicleInput(p, info, input, scaleAdjust);
+		FinalizeInput(myconnectindex, input, true);
 
 		if (!cl_syncinput && sprite[p->i].extra > 0)
 		{
@@ -1075,10 +1075,10 @@ void GetInput(InputPacket &locInput)
 	}
 	else
 	{
-		processInputBits(locInput, p, info);
-		processMovement(p, input, locInput, info, scaleAdjust);
+		processInputBits(p, info);
+		processMovement(p, input, info, scaleAdjust);
 		checkCrouchToggle(p);
-		FinalizeInput(myconnectindex, locInput, input, false);
+		FinalizeInput(myconnectindex, input, false);
 	}
 
 	if (!cl_syncinput)
@@ -1086,7 +1086,7 @@ void GetInput(InputPacket &locInput)
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, locInput.actions, scaleAdjust, input.q16horz);
+		sethorizon(myconnectindex, loc.actions, scaleAdjust, input.q16horz);
 	}
 }
 

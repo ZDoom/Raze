@@ -333,7 +333,7 @@ bool GameTicker()
 	{
 		lastTic = currentTic;
 
-		GetInput(loc);
+		GetInput();
 		auto const pPlayer = &ps[myconnectindex];
 		auto const q16ang = fix16_to_int(pPlayer->q16ang);
 		auto& input = nextinput(myconnectindex);
@@ -366,7 +366,7 @@ bool GameTicker()
 
 	if (!cl_syncinput)
 	{
-		GetInput(loc);
+		GetInput();
 	}
 
 	drawtime.Reset();
