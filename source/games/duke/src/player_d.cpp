@@ -1117,6 +1117,12 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					case GROW_WEAPON:
 						j = SHRINKER_WEAPON;
 						break;
+					case FREEZE_WEAPON:
+						j = isWorldTour() ? FLAMETHROWER_WEAPON : p->curr_weapon;
+						break;
+					case FLAMETHROWER_WEAPON:
+						j = FREEZE_WEAPON;
+						break;
 					default:
 						j = p->curr_weapon;
 						break;
