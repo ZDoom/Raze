@@ -65,48 +65,9 @@ void GameInterface::ResetFollowPos(bool message)
 
 void nonsharedkeys(void)
 {
-	if (ud.recstat == 2)
-	{
-		ControlInfo noshareinfo;
-		CONTROL_GetInput(&noshareinfo);
-	}
-
 	if (System_WantGuiCapture())
 		return;
 
-	if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
-	{
-		buttonMap.ClearButton(gamefunc_See_Coop_View);
-		screenpeek = connectpoint2[screenpeek];
-		if (screenpeek == -1) screenpeek = 0;
-	}
-
-	if ((ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
-	{
-		buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-		ud.showweapons = 1 - ud.showweapons;
-		cl_showweapon = ud.showweapons;
-		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-	{
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-		
-		if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
-		{
-			if (ps[myconnectindex].over_shoulder_on)
-				ps[myconnectindex].over_shoulder_on = 0;
-			else
-			{
-				ps[myconnectindex].over_shoulder_on = 1;
-				cameradist = 0;
-				cameraclock = gameclock;
-			}
-			FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
-		}
-	}
-	
 	if (automapMode != am_off)
 	{
 		int j;

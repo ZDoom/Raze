@@ -85,7 +85,6 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 
 int DoSpiritHead();
 
-void CheckKeys();
 void CheckKeys2();
 void GameTicker();
 void InitLevel(int);

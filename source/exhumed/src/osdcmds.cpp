@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "aistuff.h"
 #include "ps_input.h"
 #include "cheathandler.h"
+#include "gamestate.h"
 
 BEGIN_PS_NS
 
@@ -196,7 +197,29 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_third_person_view(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (!nFreeze)
+    {
+        if (bCamera) {
+            bCamera = false;
+        }
+        else {
+            bCamera = true;
+        }
 
+        if (bCamera)
+            GrabPalette();
+    }
+    return CCMD_OK;
+}
+
+static int osdcmd_noop(CCmdFuncPtr parm)
+{
+	// this is for silencing key bindings only.
+	return CCMD_OK;
+}
 
 int32_t registerosdcommands(void)
 {
@@ -209,6 +232,9 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
+    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
+	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_noop);
+	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
 
     return 0;
 }

@@ -1,7 +1,7 @@
 //
 R "useitem 2"
 ` "+Quick_Kick"
-W "+Show_Opponents_Weapon"
+W "show_weapon"
 H "useitem 3"
 J "useitem 4"
 N "useitem 5"

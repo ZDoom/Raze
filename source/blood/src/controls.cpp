@@ -64,44 +64,6 @@ float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
 
-void LocalKeys(void)
-{
-    if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-        buttonMap.ClearButton(gamefunc_Third_Person_View);
-        if (gViewPos > VIEWPOS_0)
-            gViewPos = VIEWPOS_0;
-        else
-            gViewPos = VIEWPOS_1;
-    }
-    if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-    {
-        buttonMap.ClearButton(gamefunc_See_Coop_View);
-        if (gGameOptions.nGameType == 1)
-        {
-            gViewIndex = connectpoint2[gViewIndex];
-            if (gViewIndex == -1)
-                gViewIndex = connecthead;
-            gView = &gPlayer[gViewIndex];
-        }
-        else if (gGameOptions.nGameType == 3)
-        {
-            int oldViewIndex = gViewIndex;
-            do
-            {
-                gViewIndex = connectpoint2[gViewIndex];
-                if (gViewIndex == -1)
-                    gViewIndex = connecthead;
-                if (oldViewIndex == gViewIndex || gMe->teamId == gPlayer[gViewIndex].teamId)
-                    break;
-            } while (oldViewIndex != gViewIndex);
-            gView = &gPlayer[gViewIndex];
-        }
-    }
-}
-
-
-
 void ctrlGetInput(void)
 {
     int prevPauseState = paused;
@@ -160,12 +122,6 @@ void ctrlGetInput(void)
 
     if (gPlayer[myconnectindex].nextWeapon == 0)
     {
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
-    {
-        buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-        cl_showweapon = (cl_showweapon + 1) & 3;
     }
 
     if (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN))

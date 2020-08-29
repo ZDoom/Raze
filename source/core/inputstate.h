@@ -87,12 +87,9 @@ enum GameFunction_t
 	gamefunc_Aim_Down,
 	gamefunc_Shrink_Screen, // Automap only
 	gamefunc_Enlarge_Screen, // Automap only
-	gamefunc_Show_Opponents_Weapon, // CCMD
-	gamefunc_See_Coop_View, // CCMD
 	gamefunc_Mouse_Aiming,
 	gamefunc_Dpad_Select,
 	gamefunc_Dpad_Aiming,
-	gamefunc_Third_Person_View, // CCMD
 	gamefunc_Toggle_Crouch,
 	gamefunc_Quick_Kick,
 	NUM_ACTIONS

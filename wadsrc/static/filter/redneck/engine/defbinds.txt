@@ -1,5 +1,5 @@
 //
-V "+Show_Opponents_Weapon"
+V "show_weapon"
 B "useitem 3"
 C "useitem 4"
 Y "useitem 5"

@@ -1,5 +1,5 @@
 //
-W "+Show_Opponents_Weapon"
+W "show_weapon"
 B "useitem 3"
 C "useitem 2"
 P "slot 11"

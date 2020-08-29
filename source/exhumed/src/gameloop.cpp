@@ -254,7 +254,6 @@ void CheckProgression()
 
 void GameLoop()
 {
-    CheckKeys();
     GameTicker();
     PlayerInterruptKeys(true);
     UpdateSounds();

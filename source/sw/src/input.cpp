@@ -34,36 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void
-FunctionKeys(PLAYERp pp)
-{
-    // F7 VIEW control
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-
-        if (inputState.ShiftPressed())
-        {
-            if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-                pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
-        }
-        else
-        {
-            if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-            {
-                RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-            }
-            else
-            {
-                SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-                pp->camera_dist = 0;
-            }
-        }
-    }
-}
-
-
-
 double elapsedInputTicks;
 double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
 
@@ -388,35 +358,6 @@ getinput(InputPacket *loc, SWBOOL tied)
         short const which_weapon = u->WeaponNum + 1;
         loc->setNewWeapon(which_weapon);
     }
-
-    if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
-    {
-        if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-        {
-            buttonMap.ClearButton(gamefunc_See_Coop_View);
-
-            screenpeek = connectpoint2[screenpeek];
-
-            if (screenpeek < 0)
-                screenpeek = connecthead;
-
-            if (screenpeek == myconnectindex)
-            {
-                // JBF: figure out what's going on here
-                DoPlayerDivePalette(pp);  // Check Dive again
-                DoPlayerNightVisionPalette(pp);  // Check Night Vision again
-            }
-            else
-            {
-                PLAYERp tp = Player+screenpeek;
-                DoPlayerDivePalette(tp);
-                DoPlayerNightVisionPalette(tp);
-            }
-        }
-    }
-
-    if (!tied)
-        FunctionKeys(pp);
 }
 
 END_SW_NS

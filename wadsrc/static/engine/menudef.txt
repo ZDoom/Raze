@@ -685,7 +685,7 @@ OptionMenu "OtherControlsMenu"// protected
 	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
 
 	StaticText ""
-	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
+	Control    "$CNTRLMNU_CHASECAM"        , "third_person_view"
 
 	StaticText ""
 	Control    "$CNTRLMNU_SCREENSHOT"      , "screenshot"

@@ -87,33 +87,6 @@ void SendInput()
 
 }
 
-void CheckKeys()
-{
-    // go to 3rd person view?
-    if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-        if (!nFreeze)
-        {
-            if (bCamera) {
-                bCamera = false;
-            }
-            else {
-                bCamera = true;
-            }
-
-            if (bCamera)
-                GrabPalette();
-        }
-        buttonMap.ClearButton(gamefunc_Third_Person_View);
-        return;
-    }
-
-    if (paused)
-    {
-        return;
-    }
-}
-
 static int32_t nonsharedtimer;
 
 void CheckKeys2()

@@ -63,7 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void LocalKeys(void);
 void InitCheats();
 
 bool bNoDemo = false;
@@ -893,7 +892,6 @@ void GameInterface::RunGameFrame()
 
     case GS_LEVEL:
         gameTicker();
-        LocalKeys();
         break;
 
     case GS_FINALE:

@@ -1,4 +1,4 @@
-E "+Show_Opponents_Weapon"
+E "show_weapon"
 M "useitem 2"
 Q "+Quick_Kick"
 B "useitem 3"

@@ -235,12 +235,9 @@ void SetupGameButtons()
 		"Aim_Down",
 		"Shrink_Screen",
 		"Enlarge_Screen",
-		"Show_Opponents_Weapon",
-		"See_Coop_View",
 		"Mouse_Aiming",
 		"Dpad_Select",
 		"Dpad_Aiming",
-		"Third_Person_View",
 		"Toggle_Crouch",
 		"Quick_Kick",
 	};

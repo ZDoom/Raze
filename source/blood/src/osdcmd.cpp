@@ -204,17 +204,62 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_third_person_view(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gViewPos > VIEWPOS_0)
+        gViewPos = VIEWPOS_0;
+    else
+        gViewPos = VIEWPOS_1;
+    return CCMD_OK;
+}
+
+static int osdcmd_coop_view(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gGameOptions.nGameType == 1)
+    {
+        gViewIndex = connectpoint2[gViewIndex];
+        if (gViewIndex == -1)
+            gViewIndex = connecthead;
+        gView = &gPlayer[gViewIndex];
+    }
+    else if (gGameOptions.nGameType == 3)
+    {
+        int oldViewIndex = gViewIndex;
+        do
+        {
+            gViewIndex = connectpoint2[gViewIndex];
+            if (gViewIndex == -1)
+                gViewIndex = connecthead;
+            if (oldViewIndex == gViewIndex || gMe->teamId == gPlayer[gViewIndex].teamId)
+                break;
+        } while (oldViewIndex != gViewIndex);
+        gView = &gPlayer[gViewIndex];
+    }
+    return CCMD_OK;
+}
+
+static int osdcmd_show_weapon(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    cl_showweapon = (cl_showweapon + 1) & 3;
+    return CCMD_OK;
+}
+
+
+
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
-
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
+    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
+    C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
+    C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_show_weapon);
 
     return 0;
 }

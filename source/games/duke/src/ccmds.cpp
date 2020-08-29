@@ -33,6 +33,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "mapinfo.h"
 #include "cheathandler.h"
 #include "c_dispatch.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -285,22 +286,62 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
+static int osdcmd_third_person_view(CCmdFuncPtr parm)
+{
+	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
+	{
+		if (ps[myconnectindex].over_shoulder_on)
+			ps[myconnectindex].over_shoulder_on = 0;
+		else
+		{
+			ps[myconnectindex].over_shoulder_on = 1;
+			cameradist = 0;
+			cameraclock = gameclock;
+		}
+		FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
+	}
+	return CCMD_OK;
+}
+
+static int osdcmd_coop_view(CCmdFuncPtr parm)
+{
+	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (ud.coop || ud.recstat == 2)
+	{
+		screenpeek = connectpoint2[screenpeek];
+		if (screenpeek == -1) screenpeek = 0;
+	}
+	return CCMD_OK;
+}
+
+static int osdcmd_show_weapon(CCmdFuncPtr parm)
+{
+	if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+	if (ud.multimode > 1)
+	{
+		ud.showweapons = 1 - ud.showweapons;
+		cl_showweapon = ud.showweapons;
+		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
+	}
+
+	return CCMD_OK;
+}
 
 
 int registerosdcommands(void)
 {
 	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
 	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
-
 	C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
 	C_RegisterFunction("god","god: toggles god mode", ccmd_god);
-
 	C_RegisterFunction("noclip","noclip: toggles clipping mode", ccmd_noclip);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
-
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
-
 	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
+	C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
+	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
+	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_show_weapon);
 
 	return 0;
 }
