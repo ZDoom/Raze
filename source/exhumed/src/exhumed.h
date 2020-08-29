@@ -251,6 +251,8 @@ struct GameInterface : ::GameInterface
     bool CanSave() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override { return { 0, 24 }; }
 	void QuitToTitle() override;
+    void UpdateSounds() override;
+    void ErrorCleanup() override;
 
     FString statFPS() override;
 	::GameStats getStats() override;

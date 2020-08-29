@@ -51,14 +51,15 @@
 #include "i_time.h"
 #include "d_ticcmd.h"
 
+extern bool pauseext;
+extern int gametic;
+
 // Placeholders to make it compile.
 FILE* debugfile;
-int gametic;
 extern bool netgame;
 bool demoplayback;
 int Net_Arbitrator;
 bool playeringame[MAXPLAYERS];
-bool pauseext;
 bool singletics;
 char* startmap;
 int rngseed;
@@ -68,12 +69,6 @@ void D_ReadUserInfoStrings(int, uint8_t**, bool) {}
 void D_WriteUserInfoStrings(int, uint8_t**, bool) {}
 FString GetPlayerName(int num);
 void G_BuildTiccmd(ticcmd_t*) {}
-
-
-
-EXTERN_CVAR (Int, disableautosave)
-EXTERN_CVAR (Int, autosavecount)
-EXTERN_CVAR(Bool, cl_capfps)
 
 //#define SIMULATEERRORS		(RAND_MAX/3)
 #define SIMULATEERRORS			0
@@ -1812,212 +1807,6 @@ void D_QuitNetGame (void)
 		fclose (debugfile);
 }
 
-// Forces playsim processing time to be consistent across frames.
-// This improves interpolation for frames in between tics.
-//
-// With this cvar off the mods with a high playsim processing time will appear
-// less smooth as the measured time used for interpolation will vary.
-
-CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
-
-static uint64_t stabilityticduration = 0;
-static uint64_t stabilitystarttime = 0;
-
-static void TicStabilityWait()
-{
-	using namespace std::chrono;
-	using namespace std::this_thread;
-
-	if (!r_ticstability)
-		return;
-
-	uint64_t start = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-	while (true)
-	{
-		uint64_t cur = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-		if (cur - start > stabilityticduration)
-			break;
-	}
-}
-
-static void TicStabilityBegin()
-{
-	using namespace std::chrono;
-	stabilitystarttime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-}
-
-static void TicStabilityEnd()
-{
-	using namespace std::chrono;
-	uint64_t stabilityendtime = duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-	stabilityticduration = std::min(stabilityendtime - stabilitystarttime, (uint64_t)1'000'000);
-}
-
-//
-// TryRunTics
-//
-void TryRunTics (void)
-{
-#if 0
-	int 		i;
-	int 		lowtic;
-	int 		realtics;
-	int 		availabletics;
-	int 		counts;
-	int 		numplaying;
-
-	// If paused, do not eat more CPU time than we need, because it
-	// will all be wasted anyway.
-	if (pauseext) 
-		r_NoInterpolate = true;
-	bool doWait = cl_capfps || r_NoInterpolate /*|| netgame*/;
-
-	// get real tics
-	if (doWait)
-	{
-		entertic = I_WaitForTic (oldentertics);
-	}
-	else
-	{
-		entertic = I_GetTime ();
-	}
-	realtics = entertic - oldentertics;
-	oldentertics = entertic;
-
-	// get available tics
-	NetUpdate ();
-
-	if (pauseext)
-		return;
-
-	lowtic = INT_MAX;
-	numplaying = 0;
-	for (i = 0; i < doomcom.numnodes; i++)
-	{
-		if (nodeingame[i])
-		{
-			numplaying++;
-			if (nettics[i] < lowtic)
-				lowtic = nettics[i];
-		}
-	}
-
-	if (ticdup == 1)
-	{
-		availabletics = lowtic - gametic;
-	}
-	else
-	{
-		availabletics = lowtic - gametic / ticdup;
-	}
-
-	// decide how many tics to run
-	if (realtics < availabletics-1)
-		counts = realtics+1;
-	else if (realtics < availabletics)
-		counts = realtics;
-	else
-		counts = availabletics;
-	
-	// Uncapped framerate needs seprate checks
-	if (counts == 0 && !doWait)
-	{
-		TicStabilityWait();
-
-		// Check possible stall conditions
-		Net_CheckLastReceived(counts);
-		if (realtics >= 1)
-		{
-			C_Ticker();
-			M_Ticker();
-			// Repredict the player for new buffered movement
-			P_UnPredictPlayer();
-			P_PredictPlayer(&players[myconnectindex]);
-		}
-		return;
-	}
-
-	if (counts < 1)
-		counts = 1;
-
-	if (debugfile)
-		fprintf (debugfile,
-				 "=======real: %i  avail: %i  game: %i\n",
-				 realtics, availabletics, counts);
-
-	// wait for new tics if needed
-	while (lowtic < gametic + counts)
-	{
-		NetUpdate ();
-		lowtic = INT_MAX;
-
-		for (i = 0; i < doomcom.numnodes; i++)
-			if (nodeingame[i] && nettics[i] < lowtic)
-				lowtic = nettics[i];
-
-		lowtic = lowtic * ticdup;
-
-		if (lowtic < gametic)
-			I_Error ("TryRunTics: lowtic < gametic");
-
-		// Check possible stall conditions
-		Net_CheckLastReceived (counts);
-
-		// Update time returned by I_GetTime, but only if we are stuck in this loop
-		if (lowtic < gametic + counts)
-			I_SetFrameTime();
-
-		// don't stay in here forever -- give the menu a chance to work
-		if (I_GetTime () - entertic >= 1)
-		{
-			C_Ticker ();
-			M_Ticker ();
-			// Repredict the player for new buffered movement
-			P_UnPredictPlayer();
-			P_PredictPlayer(&players[myconnectindex]);
-			return;
-		}
-	}
-
-	//Tic lowtic is high enough to process this gametic. Clear all possible waiting info
-	hadlate = false;
-	for (i = 0; i < MAXPLAYERS; i++)
-		players[i].waiting = false;
-	lastglobalrecvtime = I_GetTime (); //Update the last time the game tic'd over
-
-	// run the count tics
-	if (counts > 0)
-	{
-		P_UnPredictPlayer();
-		while (counts--)
-		{
-			TicStabilityBegin();
-			if (gametic > lowtic)
-			{
-				I_Error ("gametic>lowtic");
-			}
-			if (advancedemo)
-			{
-				D_DoAdvanceDemo ();
-			}
-			if (debugfile) fprintf (debugfile, "run tic %d\n", gametic);
-			C_Ticker ();
-			M_Ticker ();
-			G_Ticker();
-			gametic++;
-
-			NetUpdate ();	// check for new console commands
-			TicStabilityEnd();
-		}
-		P_PredictPlayer(&players[myconnectindex]);
-		S_UpdateSounds (players[myconnectindex].camera);	// move positional sounds
-	}
-	else
-	{
-		TicStabilityWait();
-	}
-#endif
-}
 
 void Net_CheckLastReceived (int counts)
 {

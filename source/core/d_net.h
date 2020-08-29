@@ -69,6 +69,9 @@ extern	int 			nodeforplayer[MAXPLAYERS];
 
 extern	ticcmd_t		netcmds[MAXPLAYERS][BACKUPTICS];
 extern	int 			ticdup;
+extern bool 			nodeingame[MAXNETNODES];				// set false as nodes leave game
+extern bool			hadlate;
+extern uint64_t		lastglobalrecvtime;						// Identify the last time a packet was received.
 
 
 #endif

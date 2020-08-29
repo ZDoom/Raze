@@ -121,7 +121,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 }
 
 
-void sfxUpdate3DSounds(void)
+void GameInterface::UpdateSounds()
 {
     SoundListener listener;
 

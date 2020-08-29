@@ -585,7 +585,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 //
 //==========================================================================
 
-void DoUpdateSounds(void)
+void GameInterface::UpdateSounds(void)
 {
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;

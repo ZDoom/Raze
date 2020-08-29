@@ -256,7 +256,7 @@ void GameLoop()
 {
     GameTicker();
     PlayerInterruptKeys(true);
-    UpdateSounds();
+    gi->UpdateSounds();
     CheckKeys2();
 }
 
@@ -264,55 +264,51 @@ void GameLoop()
 void GameInterface::RunGameFrame()
 {
     again:
-    try
+    CheckProgression();
+    switch (gamestate)
     {
-        CheckProgression();
-        switch (gamestate)
-        {
-        default:
-        case GS_STARTUP:
-            resettiming();
-            GameAction = -1;
-            EndLevel = false;
-
-            if (userConfig.CommandMap.IsNotEmpty())
-            {
-                auto map = FindMapByName(userConfig.CommandMap);
-                if (map) GameAction = map->levelNumber;
-                userConfig.CommandMap = "";
-                goto again;
-            }
-            else
-            {
-                DoTitle([](bool) { startmainmenu(); });
-            }
-            break;
-
-        case GS_MENUSCREEN:
-        case GS_FULLCONSOLE:
-            drawmenubackground();
-            break;
-
-        case GS_LEVEL:
-            GameLoop();
-            GameDisplay();
-            break;
-
-        case GS_INTERMISSION:
-        case GS_INTRO:
-            RunScreenJobFrame();	// This handles continuation through its completion callback.
-            break;
-
-        }
-    }
-    catch (CRecoverableError&)
-    {
-        // Clear all progression sensitive variables here.
+    default:
+    case GS_STARTUP:
+        resettiming();
         GameAction = -1;
         EndLevel = false;
-        throw;
-    }
 
+        if (userConfig.CommandMap.IsNotEmpty())
+        {
+            auto map = FindMapByName(userConfig.CommandMap);
+            if (map) GameAction = map->levelNumber;
+            userConfig.CommandMap = "";
+            goto again;
+        }
+        else
+        {
+            DoTitle([](bool) { startmainmenu(); });
+        }
+        break;
+
+    case GS_MENUSCREEN:
+    case GS_FULLCONSOLE:
+        drawmenubackground();
+        break;
+
+    case GS_LEVEL:
+        GameLoop();
+        GameDisplay();
+        break;
+
+    case GS_INTERMISSION:
+    case GS_INTRO:
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        break;
+
+    }
+}
+
+void GameInterface::ErrorCleanup()
+{
+    // Clear all progression sensitive variables here.
+    GameAction = -1;
+    EndLevel = false;
 }
 
 END_PS_NS

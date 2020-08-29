@@ -589,7 +589,7 @@ void ProcessFrame(void)
     ambProcess();
     viewUpdateDelirium();
     viewUpdateShake();
-    sfxUpdate3DSounds();
+    gi->UpdateSounds();
     if (gMe->hand == 1)
     {
         const int CHOKERATE = 8;

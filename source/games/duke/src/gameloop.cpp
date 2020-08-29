@@ -331,7 +331,7 @@ void GameTicker()
 	}
 
 	nonsharedkeys();
-	S_Update();
+	gi->UpdateSounds();
 	drawtime.Reset();
 	drawtime.Clock();
 	videoSetBrightness(thunder_brightness);

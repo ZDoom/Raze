@@ -785,6 +785,7 @@ set (PCH_SOURCES
 	core/ct_chat.cpp
 	core/d_net.cpp
 	core/d_protocol.cpp
+	core/mainloop.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp

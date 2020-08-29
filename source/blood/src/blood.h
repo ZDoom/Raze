@@ -89,7 +89,8 @@ struct GameInterface : ::GameInterface
 	void QuitToTitle() override;
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
-	
+	void UpdateSounds() override;
+
 	GameStats getStats() override;
 };
 

@@ -767,59 +767,55 @@ void GameTicker(void)
 
 void GameInterface::RunGameFrame()
 {
-    try
+    // if the menu initiazed a new game or loaded a savegame, switch to play mode.
+    if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
+    gi->UpdateSounds();
+    switch (gamestate)
     {
-        // if the menu initiazed a new game or loaded a savegame, switch to play mode.
-        if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
-        DoUpdateSounds();
-        switch (gamestate)
+    default:
+    case GS_STARTUP:
+        I_ResetTime();
+        lastTic = -1;
+        ogameclock = gameclock = 0;
+
+        if (userConfig.CommandMap.IsNotEmpty())
         {
-        default:
-        case GS_STARTUP:
-            I_ResetTime();
-            lastTic = -1;
-            ogameclock = gameclock = 0;
-
-            if (userConfig.CommandMap.IsNotEmpty())
-            {
-            }
-            else
-            {
-                if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
-                else StartMenu();
-            }
-            break;
-
-        case GS_MENUSCREEN:
-        case GS_FULLCONSOLE:
-            DrawMenuLevelScreen();
-            break;
-
-        case GS_LEVEL:
-            GameTicker();
-            break;
-
-        case GS_INTERMISSION:
-        case GS_INTRO:
-            RunScreenJobFrame();	// This handles continuation through its completion callback.
-            break;
-
         }
-    }
-    catch (CRecoverableError&)
-    {
-        // Make sure we do not leave the game in an unstable state
-        TerminateLevel();
-        NextLevel = nullptr;
-        SavegameLoaded = false;
-        ExitLevel = false;
-        FinishAnim = 0;
-        FinishedLevel = false;
-        throw;
-    }
+        else
+        {
+            if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
+            else StartMenu();
+        }
+        break;
 
+    case GS_MENUSCREEN:
+    case GS_FULLCONSOLE:
+        DrawMenuLevelScreen();
+        break;
+
+    case GS_LEVEL:
+        GameTicker();
+        break;
+
+    case GS_INTERMISSION:
+    case GS_INTRO:
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        break;
+
+    }
 }
 
+
+void GameInterface::ErrorCleanup()
+{
+    // Make sure we do not leave the game in an unstable state
+    TerminateLevel();
+    NextLevel = nullptr;
+    SavegameLoaded = false;
+    ExitLevel = false;
+    FinishAnim = 0;
+    FinishedLevel = false;
+}
 //---------------------------------------------------------------------------
 //
 //

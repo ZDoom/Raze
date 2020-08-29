@@ -230,7 +230,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
 	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
 	{
-		DoUpdateSounds();
+		gi->UpdateSounds();
 		soundEngine->UpdateSounds(I_GetTime());
 		I_GetEvent();
 	}

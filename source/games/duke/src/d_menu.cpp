@@ -293,7 +293,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
 		while (S_CheckSoundPlaying(skillsound))
 		{
-			S_Update();
+			gi->UpdateSounds();
 			soundEngine->UpdateSounds(I_GetTime());
 			I_GetEvent();
 		}

@@ -966,6 +966,7 @@ void app_loop()
 		}
 		catch (CRecoverableError& err)
 		{
+			gi->ErrorCleanup();
 			C_FullConsole();
 			Printf(TEXTCOLOR_RED "%s\n", err.what());
 		}

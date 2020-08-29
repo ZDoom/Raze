@@ -93,6 +93,9 @@ struct GameInterface
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
 	virtual void GetInput(InputPacket* packet) {}
+	virtual void UpdateSounds() {}
+	virtual void ErrorCleanup() {}
+	virtual void Render() {}
 
 
 };
