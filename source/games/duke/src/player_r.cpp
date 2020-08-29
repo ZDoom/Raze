@@ -957,7 +957,36 @@ void selectweapon_r(int snum, int weap)
 		{
 			if (weap == WeaponSel_Alt)
 			{
-				// todo
+				switch (p->curr_weapon)
+				{
+					case THROWSAW_WEAPON:
+						j = BUZZSAW_WEAPON;
+						break;
+					case BUZZSAW_WEAPON:
+						j = THROWSAW_WEAPON;
+						break;
+					case POWDERKEG_WEAPON:
+						j = BOWLING_WEAPON;
+						break;
+					case BOWLING_WEAPON:
+						j = POWDERKEG_WEAPON;
+						break;
+					case KNEE_WEAPON:
+						j = isRRRA() ? SLINGBLADE_WEAPON : p->curr_weapon;
+						break;
+					case SLINGBLADE_WEAPON:
+						j = KNEE_WEAPON;
+						break;
+					case DYNAMITE_WEAPON:
+						j = isRRRA() ? CHICKEN_WEAPON : p->curr_weapon;
+						break;
+					case CHICKEN_WEAPON:
+						j = DYNAMITE_WEAPON;
+						break;
+					default:
+						j = p->curr_weapon;
+						break;
+				}
 			}
 			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{

@@ -1109,7 +1109,18 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 		{
 			if (weap == WeaponSel_Alt)
 			{
-				// todo
+				switch (p->curr_weapon)
+				{
+					case SHRINKER_WEAPON:
+						j = PLUTOPAK ? GROW_WEAPON : p->curr_weapon;
+						break;
+					case GROW_WEAPON:
+						j = SHRINKER_WEAPON;
+						break;
+					default:
+						j = p->curr_weapon;
+						break;
+				}
 			}
 			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{

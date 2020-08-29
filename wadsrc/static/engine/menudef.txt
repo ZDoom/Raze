@@ -481,9 +481,9 @@ OptionMenu "ActionControlsMenu"// protected
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifgame(ShadowWarrior)
+	ifgame(ShadowWarrior, Duke, Redneck)
 	{
-		Control    "$CNTRLMNU_ALTWEAPON"        , "+alt_weapon"
+		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
 	}
 
 	StaticText ""
