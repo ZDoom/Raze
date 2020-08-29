@@ -55,21 +55,8 @@ bool sendPause;
 
 void InputState::GetMouseDelta(ControlInfo * info)
 {
-    vec2f_t input, finput;
-
-	input = g_mousePos;
+    vec2f_t finput = g_mousePos;
 	g_mousePos = {};
-
-    if (in_mousesmoothing)
-    {
-        static vec2f_t last;
-        finput = { (input.x + last.x) * 0.5f, (input.y + last.y) * 0.5f };
-        last = input;
-    }
-    else
-    {
-    	finput = { input.x, input.y };
-    }
 
     info->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
     info->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
