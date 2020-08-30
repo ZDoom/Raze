@@ -201,7 +201,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
 int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
-    C_RegisterFunction("changelevel","changelevel <level>: warps to the given level", osdcmd_changelevel);
+    C_RegisterFunction("levelwarp","levelwarp <level>: warps to the given level", osdcmd_changelevel);
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     C_RegisterFunction("exitmap", "exits current map", osdcmd_exitmap);
     C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
