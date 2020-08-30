@@ -507,9 +507,9 @@ void MainLoop ()
 			}
 			I_SetFrameTime();
 
+			I_StartTic ();
 			TryRunTics (); // will run at least one tic
 			// Update display, next frame, with current state.
-			I_StartTic ();
 
 			Display();
 			Mus_UpdateMusic();		// must be at the end.
