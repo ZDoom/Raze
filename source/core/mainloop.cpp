@@ -179,6 +179,7 @@ static void GameTicker()
 	}
 
 	C_RunDelayedCommands();
+	updatePauseStatus();
 
 	switch (gamestate)
 	{
@@ -191,6 +192,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
+		gameclock += 120 / GameTicRate;
 		gi->Ticker();
 		gameupdatetime.Unclock();
 		break;
@@ -238,6 +240,12 @@ void Display()
 	case GS_LEVEL:
 		if (gametic != 0)
 		{
+			screen->BeginFrame();
+			screen->SetSceneRenderTarget(gl_ssao != 0);
+			twodpsp.Clear();
+			twod->Clear();
+			twod->SetSize(screen->GetWidth(), screen->GetHeight());
+			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			gi->Render();
 			DrawFullscreenBlends();
 		}
@@ -259,7 +267,7 @@ void Display()
 		DrawRateStuff();
 	}
 
-	videoShowFrame(0);
+	videoShowFrame(1);
 }
 
 //==========================================================================

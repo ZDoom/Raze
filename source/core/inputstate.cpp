@@ -160,6 +160,7 @@ int32_t handleevents(void)
 		setViewport(hud_size);
 		setsizeneeded = false;
 	}
+#pragma message ("only for old game loop")
 	twod->SetSize(screen->GetWidth(), screen->GetHeight());
 	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 

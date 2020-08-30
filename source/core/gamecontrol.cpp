@@ -138,7 +138,6 @@ void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
 void app_loop();
-void DrawFullscreenBlends();
 void MainLoop();
 
 
@@ -904,7 +903,7 @@ void TickSubsystems()
 	if (cnt == 5) nexttick = nowtick + tickInterval;
 }
 
-static void updatePauseStatus()
+void updatePauseStatus()
 {
 	// This must go through the network in multiplayer games.
 	if (M_Active() || System_WantGuiCapture())

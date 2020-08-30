@@ -68,7 +68,9 @@ void GameInterface::Ticker()
 	{
 		global_random = krand();
 		movedummyplayers();//ST 13
+		r_NoInterpolate = false;
 	}
+	else r_NoInterpolate = true;
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
