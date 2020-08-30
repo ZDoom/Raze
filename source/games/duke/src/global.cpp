@@ -63,9 +63,7 @@ int16_t max_ammo_amount[MAX_WEAPONS];
 int16_t weaponsandammosprites[15];
 int PHEIGHT = PHEIGHT_DUKE;
 int duke3d_globalflags;
-InputPacket loc;
 uint8_t ready2send;
-int gamequit;
 int playerswhenstarted;
 int show_shareware;
 int screenpeek;
@@ -115,8 +113,6 @@ int16_t spriteq[1024];
 int16_t cyclers[MAXCYCLERS][6];
 int16_t mirrorsector[64];
 int16_t mirrorwall[64];
-
-int lockclock;
 
 // Redneck Rampage
 int wupass;

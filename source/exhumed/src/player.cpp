@@ -53,7 +53,6 @@ fix16_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
-bool g_MyAimMode;
 
 static actionSeq ActionSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
@@ -129,224 +128,6 @@ short PlayerCount;
 
 short nNetStartSprites;
 short nCurStartSprite;
-
-/*
-typedef struct
-{
-fixed     dx;
-fixed     dy;
-fixed     dz;
-fixed     dyaw;
-fixed     dpitch;
-fixed     droll;
-} ControlInfo;
-*/
-
-void PlayerInterruptKeys()
-{
-    ControlInfo info;
-	memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
-    CONTROL_GetInput(&info);
-
-    static double lastInputTicks;
-    auto const    currentHiTicks    = I_msTimeF();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * (120 / 4) / (1000.0 / elapsedInputTicks); };
-
-    if (paused)
-        return;
-
-	localInput = {};
-    InputPacket input {};
-    fix16_t input_angle = 0;
-
-    if (PlayerList[nLocalPlayer].nHealth == 0)
-    {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-        nPlayerDAng = 0;
-        return;
-    }
-
-    // JBF: Run key behaviour is selectable
-    int const playerRunning = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const turnAmount = playerRunning ? 12 : 8;
-    int const keyMove    = playerRunning ? 12 : 6;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        input.svel -= info.mousex * 4.f;
-        input.svel -= info.dyaw * keyMove;
-    }
-    else
-    {
-        input_angle = fix16_sadd(input_angle, fix16_from_float(info.mousex));
-        input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
-    }
-
-    g_MyAimMode = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-
-    if (g_MyAimMode)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey));
-    else
-        input.fvel -= info.mousey * 8.f;
-
-    if (!in_mouseflip) input.q16horz = -input.q16horz;
-
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
-    input.svel -= info.dx * keyMove;
-    input.fvel -= info.dz * keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            input.svel -= -keyMove;
-
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            input.svel -= keyMove;
-    }
-    else
-    {
-        static int turn = 0;
-        static int counter = 0;
-        // normal, non strafing movement
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-        {
-            turn -= 2;
-
-            if (turn < -turnAmount)
-                turn = -turnAmount;
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-        {
-            turn += 2;
-
-            if (turn > turnAmount)
-                turn = turnAmount;
-        }
-
-        if (turn < 0)
-        {
-            turn++;
-            if (turn > 0)
-                turn = 0;
-        }
-
-        if (turn > 0)
-        {
-            turn--;
-            if (turn < 0)
-                turn = 0;
-        }
-
-        //if ((counter++) % 4 == 0) // what was this for???
-            input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
-
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-        input.svel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-        input.svel += -keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        input.fvel += keyMove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        input.fvel += -keyMove;
-
-    localInput.fvel   = clamp(localInput.fvel + input.fvel, -12, 12);
-    localInput.svel   = clamp(localInput.svel + input.svel, -12, 12);
-
-    localInput.q16avel                 = fix16_sadd(localInput.q16avel, input_angle);
-
-    if (!nFreeze)
-    {
-        PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input_angle) & 0x7FFFFFF;
-
-        // A horiz diff of 128 equal 45 degrees,
-        // so we convert horiz to 1024 angle units
-
-        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(input.q16horz), -255.f, 255.f);
-        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
-
-        // Look/aim up/down functions.
-        if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Aim_Up))
-        {
-            bLockPan = false;
-            if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
-                PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-            }
-
-            bPlayerPan = true;
-            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Look_Down) || buttonMap.ButtonDown(gamefunc_Aim_Down))
-        {
-            bLockPan = false;
-            if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
-                PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
-            }
-
-            bPlayerPan = true;
-            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
-        }
-    }
-
-    // loc_1C048:
-    if (totalvel[nLocalPlayer] > 20) {
-        bPlayerPan = false;
-    }
-
-    if (g_MyAimMode)
-        bLockPan = true;
-
-    // loc_1C05E
-    fix16_t ecx = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
-
-    if (g_MyAimMode)
-    {
-        ecx = 0;
-    }
-
-    if (!nFreeze)
-    {
-        if (ecx)
-        {
-            if (ecx / 4 == 0)
-            {
-                if (ecx >= 0) {
-                    ecx = 1;
-                }
-                else
-                {
-                    ecx = -1;
-                }
-            }
-            else
-            {
-                ecx /= 4;
-
-                if (ecx > fix16_from_int(4))
-                {
-                    ecx = fix16_from_int(4);
-                }
-                else if (ecx < -fix16_from_int(4))
-                {
-                    ecx = -fix16_from_int(4);
-                }
-            }
-
-            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
-        }
-
-        PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
-    }
-}
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
 {
@@ -1498,6 +1279,7 @@ loc_1AB8E:
             int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
+            auto actions = sPlayerInput[nPlayer].actions;
 
             if (buttons & kButtonCheatGodMode) // LOBODEITY cheat
             {
@@ -2754,7 +2536,7 @@ do_default_b:
 
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
-                    if (buttons & kButtonOpen)
+                    if (actions & SB_OPEN)
                     {
                         ClearSpaceBar(nPlayer);
 
@@ -2770,7 +2552,7 @@ do_default_b:
                     }
 
                     // was int var_38 = buttons & 0x8
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2787,7 +2569,7 @@ do_default_b:
                     }
 
                     // Jumping
-                    if (buttons & kButtonJump)
+                    if (actions & SB_JUMP)
                     {
                         if (bUnderwater)
                         {
@@ -2805,7 +2587,7 @@ do_default_b:
 
                         // goto loc_1BE70:
                     }
-                    else if (buttons & kButtonCrouch)
+                    else if (actions & SB_CROUCH)
                     {
                         if (bUnderwater)
                         {
@@ -2866,7 +2648,7 @@ loc_1BD2E:
                             }
                         }
                         // loc_1BE30
-                        if (buttons & kButtonFire) // was var_38
+                        if (actions & SB_FIRE) // was var_38
                         {
                             if (bUnderwater)
                             {
@@ -2884,7 +2666,7 @@ loc_1BD2E:
 
                     // loc_1BE70:
                     // Handle player pressing number keys to change weapon
-                    uint8_t var_90 = (buttons >> 13) & 0xF;
+                    uint8_t var_90 = sPlayerInput[nPlayer].getNewWeapon();
 
                     if (var_90)
                     {
@@ -2898,7 +2680,7 @@ loc_1BD2E:
                 }
                 else // player is mummified
                 {
-                    if (buttons & kButtonFire)
+                    if (actions & SB_FIRE)
                     {
                         FireWeapon(nPlayer);
                     }
@@ -2927,7 +2709,7 @@ loc_1BD2E:
             else // else, player's health is less than 0
             {
                 // loc_1C0E9
-                if (buttons & kButtonOpen)
+                if (actions & SB_OPEN)
                 {
                     ClearSpaceBar(nPlayer);
 
@@ -3089,17 +2871,6 @@ loc_1BD2E:
     }
 }
 
-int ccmd_centerview(CCmdFuncPtr parm)
-{
-    return CCMD_OK;
-    bLockPan = false;
-    bPlayerPan = false;
-    PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
-    nDestVertPan[nLocalPlayer] = fix16_from_int(92);
-    return CCMD_OK;
-}
-
-
 static SavegameHelper sgh("player",
     SV(lPlayerXVel),
     SV(lPlayerYVel),
@@ -3108,7 +2879,6 @@ static SavegameHelper sgh("player",
     SV(bobangle),
     SV(bPlayerPan),
     SV(bLockPan),
-    SV(g_MyAimMode),
     SV(nStandHeight),
     SV(PlayerCount),
     SV(nNetStartSprites),

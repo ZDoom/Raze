@@ -355,6 +355,7 @@ public:
 };
 
 extern GLInstance GLInterface;
+extern F2DDrawer twodpsp;
 
 void renderSetProjectionMatrix(const float* p);
 void renderSetViewMatrix(const float* p);

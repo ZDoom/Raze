@@ -318,7 +318,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 //
 //==========================================================================
 
-void S_Update(void)
+void GameInterface::UpdateSounds(void)
 {
 	SoundListener listener;
 	vec3_t* c;

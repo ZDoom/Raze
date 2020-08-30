@@ -69,6 +69,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "statusbar.h"
 #include "uiinput.h"
+#include "d_net.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -95,12 +96,12 @@ GameInterface* gi;
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-int gameclock;
+int gameclock, gameclockstart;
 int lastTic;
 
-bool sendPause;
 int automapMode;
 bool automapFollow;
+extern bool pauseext;
 
 CCMD(togglemap)
 {
@@ -119,7 +120,7 @@ CCMD(togglefollow)
 	gi->ResetFollowPos(true);
 }
 
-glcycle_t thinktime, actortime, gameupdatetime, drawtime;
+cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
 gamestate_t gamestate = GS_STARTUP;
 
@@ -137,10 +138,10 @@ void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
 void app_loop();
-void DrawFullscreenBlends();
+void MainLoop();
 
 
-bool AppActive;
+bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
@@ -281,15 +282,6 @@ void UserConfig::ProcessOptions()
 		Printf("Build-format config files not supported and will be ignored\n");
 	}
 
-#if 0 // MP disabled pending evaluation
-	auto v = Args->CheckValue("-port");
-	if (v) netPort = strtol(v, nullptr, 0);
-
-	netServerMode = Args->CheckParm("-server");
-	netServerAddress = Args->CheckValue("-connect");
-	netPassword = Args->CheckValue("-password");
-#endif
-
 	auto v = Args->CheckValue("-addon");
 	if (v)
 	{
@@ -426,7 +418,6 @@ void UserConfig::ProcessOptions()
 	{
 		C_DoCommand("stat coord");
 	}
-
 
 }
 
@@ -868,9 +859,18 @@ int RunGame()
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
-	gamestate = GS_LEVEL;
+	SetupGameButtons();
 	gi->app_init();
-	app_loop();
+	enginePostInit(); // This must not be done earlier!
+	videoInit();
+
+	// Duke has transitioned to the new main loop, the other games haven't yet.
+	if (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_RRALL | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+	{
+		D_CheckNetGame();
+		MainLoop();
+	}
+	else app_loop();
 	return 0; // this is never reached. app_loop only exits via exception.
 }
 
@@ -903,8 +903,9 @@ void TickSubsystems()
 	if (cnt == 5) nexttick = nowtick + tickInterval;
 }
 
-static void updatePauseStatus()
+void updatePauseStatus()
 {
+	// This must go through the network in multiplayer games.
 	if (M_Active() || System_WantGuiCapture())
 	{
 		paused = 1;
@@ -927,13 +928,6 @@ static void updatePauseStatus()
 	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
 }
 
-static void checkTimerActive()
-{
-	FStat *stat = FStat::FindStat("fps");
-	glcycle_t::active = (stat != NULL && stat->isActive());
-}
-
-
 void app_loop()
 {
 	gamestate = GS_STARTUP;
@@ -944,13 +938,10 @@ void app_loop()
 		{
 			I_SetFrameTime();
 			TickSubsystems();
-			twod->SetSize(screen->GetWidth(), screen->GetHeight());
-			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 
 			handleevents();
 			updatePauseStatus();
 			D_ProcessEvents();
-			checkTimerActive();
 
 			gi->RunGameFrame();
 
@@ -972,6 +963,7 @@ void app_loop()
 		}
 		catch (CRecoverableError& err)
 		{
+			gi->ErrorCleanup();
 			C_FullConsole();
 			Printf(TEXTCOLOR_RED "%s\n", err.what());
 		}
@@ -1128,6 +1120,16 @@ void S_SetSoundPaused(int state)
 			}
 		}
 	}
+#if 0
+	if (!netgame
+#if 0 //def _DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+#endif
 }
 
 FString G_GetDemoPath()
@@ -1221,3 +1223,18 @@ CCMD(taunt)
 
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void startmainmenu()
+{
+	gamestate = GS_MENUSCREEN;
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_Mainmenu);
+	FX_StopAllSounds();
+}
+

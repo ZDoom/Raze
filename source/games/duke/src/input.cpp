@@ -39,14 +39,12 @@ source as it is released.
 
 BEGIN_DUKE_NS
 
-static int WeaponToSend;
-static ESyncBits BitsToSend;
-
 // State timer counters. 
 static int nonsharedtimer;
 static int turnheldtime;
 static int lastcontroltime;
 static double lastCheck;
+static InputPacket loc; // input accumulation buffer.
 
 void GameInterface::ResetFollowPos(bool message)
 {
@@ -68,48 +66,9 @@ void GameInterface::ResetFollowPos(bool message)
 
 void nonsharedkeys(void)
 {
-	if (ud.recstat == 2)
-	{
-		ControlInfo noshareinfo;
-		CONTROL_GetInput(&noshareinfo);
-	}
-
 	if (System_WantGuiCapture())
 		return;
 
-	if (buttonMap.ButtonDown(gamefunc_See_Coop_View) && (ud.coop || ud.recstat == 2))
-	{
-		buttonMap.ClearButton(gamefunc_See_Coop_View);
-		screenpeek = connectpoint2[screenpeek];
-		if (screenpeek == -1) screenpeek = 0;
-	}
-
-	if ((ud.multimode > 1) && buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
-	{
-		buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-		ud.showweapons = 1 - ud.showweapons;
-		cl_showweapon = ud.showweapons;
-		FTA(QUOTE_WEAPON_MODE_OFF - ud.showweapons, &ps[screenpeek]);
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-	{
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-		
-		if (!isRRRA() || (!ps[myconnectindex].OnMotorcycle && !ps[myconnectindex].OnBoat))
-		{
-			if (ps[myconnectindex].over_shoulder_on)
-				ps[myconnectindex].over_shoulder_on = 0;
-			else
-			{
-				ps[myconnectindex].over_shoulder_on = 1;
-				cameradist = 0;
-				cameraclock = gameclock;
-			}
-			FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
-		}
-	}
-	
 	if (automapMode != am_off)
 	{
 		int j;
@@ -146,7 +105,6 @@ void hud_input(int snum)
 {
 	int i, k;
 	uint8_t dainv;
-	unsigned int j;
 	struct player_struct* p;
 	short unk;
 
@@ -154,7 +112,7 @@ void hud_input(int snum)
 	p = &ps[snum];
 
 	i = p->aim_mode;
-	p->aim_mode = PlayerInput(snum, SKB_AIMMODE);
+	p->aim_mode = PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
@@ -163,7 +121,7 @@ void hud_input(int snum)
 
 	if (isRR())
 	{
-		if (PlayerInput(snum, SKB_QUICK_KICK) && p->last_pissed_time == 0)
+		if (PlayerInput(snum, SB_QUICK_KICK) && p->last_pissed_time == 0)
 		{
 			if (!isRRRA() || sprite[p->i].extra > 0)
 			{
@@ -181,7 +139,7 @@ void hud_input(int snum)
 	}
 	else
 	{
-		if (PlayerInput(snum, SKB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
+		if (PlayerInput(snum, SB_QUICK_KICK) && p->quick_kick == 0 && (p->curr_weapon != KNEE_WEAPON || p->kickback_pic == 0))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_QUICKKICK, -1, snum, -1);
@@ -193,9 +151,9 @@ void hud_input(int snum)
 			}
 		}
 	}
-	if (!PlayerInput(snum, SKB_QUICK_KICK)) p->quick_kick_msg = false;
+	if (!PlayerInput(snum, SB_QUICK_KICK)) p->quick_kick_msg = false;
 
-	if (!PlayerInputBits(snum, SKB_INTERFACE_BITS))
+	if (!PlayerInputBits(snum, SB_INTERFACE_BITS))
 		p->interface_toggle_flag = 0;
 	else if (p->interface_toggle_flag == 0)
 	{
@@ -206,25 +164,17 @@ void hud_input(int snum)
 		if (sprite[p->i].extra <= 0) return;
 
 		// Activate an inventory item. This just forwards to the other inventory bits. If the inventory selector was taken out of the playsim this could be removed.
-		if (PlayerInput(snum, SKB_INVENTORY) && p->newowner == -1)
+		if (PlayerInput(snum, SB_INVUSE) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_INVENTORY, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				switch (p->inven_icon)
-				{
-					// Yet another place where no symbolic constants were used. :(
-				case ICON_JETPACK: PlayerSetInput(snum, SKB_JETPACK); break;
-				case ICON_HOLODUKE: PlayerSetInput(snum, SKB_HOLODUKE); break;
-				case ICON_HEATS: PlayerSetInput(snum, SKB_NIGHTVISION); break;
-				case ICON_FIRSTAID: PlayerSetInput(snum, SKB_MEDKIT); break;
-				case ICON_STEROIDS: PlayerSetInput(snum, SKB_STEROIDS); break;
-				}
+				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(snum, p->inven_icon);
 			}
 		}
 
-		if (!isRR() && PlayerInput(snum, SKB_NIGHTVISION))
+		if (!isRR() && PlayerUseItem(snum, ICON_HEATS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -238,7 +188,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_STEROIDS))
+		if (PlayerUseItem(snum, ICON_STEROIDS))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USESTEROIDS, -1, snum, -1);
@@ -255,11 +205,11 @@ void hud_input(int snum)
 			return;
 		}
 
-		if (PlayerInput(snum, SKB_INV_LEFT) || PlayerInput(snum, SKB_INV_RIGHT))
+		if (PlayerInput(snum, SB_INVPREV) || PlayerInput(snum, SB_INVNEXT))
 		{
 			p->invdisptime = 26 * 2;
 
-			if (PlayerInput(snum, SKB_INV_RIGHT)) k = 1;
+			if (PlayerInput(snum, SB_INVNEXT)) k = 1;
 			else k = 0;
 
 			dainv = p->inven_icon;
@@ -321,13 +271,13 @@ void hud_input(int snum)
 			else dainv = 0;
 
 			// These events force us to keep the inventory selector in the playsim as opposed to the UI where it really belongs.
-			if (PlayerInput(snum, SKB_INV_LEFT))
+			if (PlayerInput(snum, SB_INVPREV))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYLEFT, -1, snum, -1);
 				dainv = GetGameVarID(g_iReturnVarID, -1, snum);
 			}
-			if (PlayerInput(snum, SKB_INV_RIGHT))
+			if (PlayerInput(snum, SB_INVNEXT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, -1, snum);
 				OnEvent(EVENT_INVENTORYRIGHT, -1, snum, -1);
@@ -339,18 +289,14 @@ void hud_input(int snum)
 			if (dainv >= 1 && dainv < 8) FTA(invquotes[dainv - 1], p);
 		}
 
-		j = (PlayerInputBits(snum, SKB_WEAPONMASK_BITS) / SKB_FIRST_WEAPON_BIT) - 1;
-		if (j >= 0)
-		{
-			int a = 0;
-		}
-		if (j > 0 && p->kickback_pic > 0)
-			p->wantweaponfire = j;
+		int weap = PlayerNewWeapon(snum);
+		if (weap > 1 && p->kickback_pic > 0)
+			p->wantweaponfire = weap - 1;
 
 		// Here we have to be extra careful that the weapons do not get mixed up, so let's keep the code for Duke and RR completely separate.
-		fi.selectweapon(snum, j);
+		fi.selectweapon(snum, weap);
 
-		if (PlayerInput(snum, SKB_HOLSTER))
+		if (PlayerInput(snum, SB_HOLSTER))
 		{
 			if (p->curr_weapon > KNEE_WEAPON)
 			{
@@ -369,7 +315,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_HOLODUKE) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(snum, ICON_HOLODUKE) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_HOLODUKEON, -1, snum, -1);
@@ -425,7 +371,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (isRR() && PlayerInput(snum, SKB_NIGHTVISION) && p->newowner == -1)
+		if (isRR() && PlayerUseItem(snum, ICON_HEATS) && p->newowner == -1)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USENIGHTVISION, -1, snum, -1);
@@ -457,7 +403,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_MEDKIT))
+		if (PlayerUseItem(snum, ICON_FIRSTAID))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEMEDKIT, -1, snum, -1);
@@ -467,7 +413,7 @@ void hud_input(int snum)
 				{
 					if (!isRR())
 					{
-						j = max_player_health - sprite[p->i].extra;
+						int j = max_player_health - sprite[p->i].extra;
 
 						if ((unsigned int)p->firstaid_amount > j)
 						{
@@ -485,7 +431,7 @@ void hud_input(int snum)
 					}
 					else
 					{
-						j = 10;
+						int j = 10;
 						if (p->firstaid_amount > j)
 						{
 							p->firstaid_amount -= j;
@@ -510,7 +456,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_JETPACK) && (isRR() || p->newowner == -1))
+		if (PlayerUseItem(snum, ICON_JETPACK) && (isRR() || p->newowner == -1))
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_USEJETPACK, -1, snum, -1);
@@ -578,7 +524,7 @@ void hud_input(int snum)
 			}
 		}
 
-		if (PlayerInput(snum, SKB_TURNAROUND) && p->one_eighty_count == 0)
+		if (PlayerInput(snum, SB_TURNAROUND) && p->one_eighty_count == 0)
 		{
 			SetGameVarID(g_iReturnVarID, 0, -1, snum);
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
@@ -622,63 +568,27 @@ enum
 
 static void processInputBits(player_struct *p, ControlInfo &info)
 {
-	bool onVehicle = p->OnMotorcycle || p->OnBoat;
-	if (buttonMap.ButtonDown(gamefunc_Fire)) loc.sbits |= SKB_FIRE;
-	if (buttonMap.ButtonDown(gamefunc_Open)) loc.sbits |= SKB_OPEN;
+	ApplyGlobalInput(loc, &info);
+	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
-	// These 3 bits are only available when not riding a bike or boat.
-	if (onVehicle) BitsToSend &= ~(SKB_HOLSTER|SKB_TURNAROUND|SKB_CENTER_VIEW);
-	loc.sbits |= BitsToSend;
-	BitsToSend = 0;
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	if (p->OnMotorcycle || p->OnBoat)
 	{
-		if (info.dx < 0 || info.dyaw < 0) loc.sbits |= SKB_INV_LEFT;
-		if (info.dx > 0 || info.dyaw < 0) loc.sbits |= SKB_INV_RIGHT;
+		// mask out all actions not compatible with vehicles.
+		loc.actions &= ~(SB_WEAPONMASK_BITS | SB_TURNAROUND | SB_CENTERVIEW | SB_HOLSTER | SB_JUMP | SB_CROUCH | SB_RUN | 
+			SB_AIM_UP | SB_AIM_DOWN | SB_AIMMODE | SB_LOOK_UP | SB_LOOK_DOWN | SB_LOOK_LEFT | SB_LOOK_RIGHT);
 	}
-
-	if (gamequit) loc.sbits |= SKB_GAMEQUIT;
-
-	if (!onVehicle)
+	else
 	{
-		if (buttonMap.ButtonDown(gamefunc_Jump)) loc.sbits |= SKB_JUMP;
-		if (buttonMap.ButtonDown(gamefunc_Crouch) || buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
+		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) // this shares a bit with another function so cannot be in the common code.
+			loc.actions |= SB_QUICK_KICK;
+
+		if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch) || p->crouch_toggle)
 		{
-			loc.sbits |= SKB_CROUCH;
-			if (isRR()) loc.sbits &= ~SKB_JUMP;
+			loc.actions |= SB_CROUCH;
 		}
-		if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz > 0)) loc.sbits |= SKB_AIM_UP;
-		if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info.dz < 0))) loc.sbits |= SKB_AIM_DOWN;
-		if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run))) loc.sbits |= SKB_RUN;
-		if (buttonMap.ButtonDown(gamefunc_Look_Left) || (isRR() && p->drink_amt > 88)) loc.sbits |= SKB_LOOK_LEFT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Right)) loc.sbits |= SKB_LOOK_RIGHT;
-		if (buttonMap.ButtonDown(gamefunc_Look_Up)) loc.sbits |= SKB_LOOK_UP;
-		if (buttonMap.ButtonDown(gamefunc_Look_Down) || (isRR() && p->drink_amt > 99)) loc.sbits |= SKB_LOOK_DOWN;
-		if (buttonMap.ButtonDown(gamefunc_Quick_Kick)) loc.sbits |= SKB_QUICK_KICK;
-		if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) loc.sbits |= SKB_AIMMODE;
-
-		int j = WeaponToSend;
-		WeaponToSend = 0;
-		if (VOLUMEONE && (j >= 7 && j <= 10)) j = 0;
-
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz > 0) j = 11;
-		if (buttonMap.ButtonDown(gamefunc_Dpad_Select) && info.dz < 0) j = 12;
-
-		if (j && (loc.sbits & SKB_WEAPONMASK_BITS) == 0)
-			loc.sbits |= ESyncBits::FromInt(j * SKB_FIRST_WEAPON_BIT);
-
+		if ((isRR() && p->drink_amt > 88)) loc.actions |= SB_LOOK_LEFT;
+		if ((isRR() && p->drink_amt > 99)) loc.actions |= SB_LOOK_DOWN;
 	}
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Select))
-	{
-		// This eats the controller input for regular use
-		info.dx = 0;
-		info.dz = 0;
-		info.dyaw = 0;
-	}
-
-	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
-		info.dz = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -725,10 +635,10 @@ int getticssincelastupdate()
 
 static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
 {
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+	bool mouseaim = !!(loc.actions & SB_AIMMODE);
 
 	// JBF: Run key behaviour is selectable
-	int running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
+	int running = !!(loc.actions & SB_RUN);
 	int turnamount = NORMALTURN << running;
 	int keymove = NORMALKEYMOVE << running;
 
@@ -1019,17 +929,17 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 	if (p->OnBoat || !p->moto_underwater)
 	{
 		if (buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe))
-			loc.sbits |= SKB_JUMP;
+			loc.actions |= SB_JUMP;
 		if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-			loc.sbits |= SKB_AIM_UP;
-		if (buttonMap.ButtonDown(gamefunc_Run))
-			loc.sbits |= SKB_CROUCH;
+			loc.actions |= SB_AIM_UP;
+		if (loc.actions & SB_RUN)
+			loc.actions |= SB_CROUCH;
 	}
 
 	if (turnl)
-		loc.sbits |= SKB_AIM_DOWN;
+		loc.actions |= SB_AIM_DOWN;
 	if (turnr)
-		loc.sbits |= SKB_LOOK_LEFT;
+		loc.actions |= SB_LOOK_LEFT;
 
 	double turnvel;
 
@@ -1124,7 +1034,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 //
 //---------------------------------------------------------------------------
 
-void GetInput()
+static void GetInputInternal(InputPacket &locInput)
 {
 	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
@@ -1139,7 +1049,6 @@ void GetInput()
 	if (paused)
 	{
 		loc = {};
-		if (gamequit) loc.sbits |= SKB_GAMEQUIT;
 		return;
 	}
 
@@ -1167,9 +1076,9 @@ void GetInput()
 	}
 	else
 	{
+		processInputBits(p, info);
 		processMovement(p, input, info, scaleAdjust);
 		checkCrouchToggle(p);
-		processInputBits(p, info);
 		FinalizeInput(myconnectindex, input, false);
 	}
 
@@ -1178,60 +1087,51 @@ void GetInput()
 		// Do these in the same order as the old code.
 		calcviewpitch(p, scaleAdjust);
 		applylook(myconnectindex, scaleAdjust, input.q16avel);
-		sethorizon(myconnectindex, loc.sbits, scaleAdjust, input.q16horz);
+		sethorizon(myconnectindex, loc.actions, scaleAdjust, input.q16horz);
 	}
 }
 
 //---------------------------------------------------------------------------
 //
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
+// External entry point
 //
 //---------------------------------------------------------------------------
 
-static int ccmd_slot(CCmdFuncPtr parm)
+void GameInterface::GetInput(InputPacket* packet)
 {
-	if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-	auto slot = atoi(parm->parms[0]);
-	if (slot >= 1 && slot <= 10)
+	GetInputInternal(loc);
+	if (packet)
 	{
-		WeaponToSend = slot;
-		return CCMD_OK;
+		auto const pPlayer = &ps[myconnectindex];
+		auto const q16ang = fix16_to_int(pPlayer->q16ang);
+
+		*packet = loc;
+		auto fvel = loc.fvel;
+		auto svel = loc.svel;
+		packet->fvel = mulscale9(fvel, sintable[(q16ang + 2560) & 2047]) +
+			mulscale9(svel, sintable[(q16ang + 2048) & 2047]) +
+			pPlayer->fric.x;
+		packet->svel = mulscale9(fvel, sintable[(q16ang + 2048) & 2047]) +
+			mulscale9(svel, sintable[(q16ang + 1536) & 2047]) +
+			pPlayer->fric.y;
+		loc = {};
 	}
-	return CCMD_SHOWHELP;
 }
 
-void registerinputcommands()
-{
-	C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-	C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
-	C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-	C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_PAUSE; sendPause = true; return CCMD_OK; });
-	C_RegisterFunction("steroids", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_STEROIDS; return CCMD_OK; });
-	C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_NIGHTVISION; return CCMD_OK; });
-	C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_MEDKIT; return CCMD_OK; });
-	C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_CENTER_VIEW; return CCMD_OK; });
-	C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLSTER; return CCMD_OK; });
-	C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_LEFT; return CCMD_OK; });
-	C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INV_RIGHT; return CCMD_OK; });
-	C_RegisterFunction("holoduke", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_HOLODUKE; return CCMD_OK; });
-	C_RegisterFunction("jetpack", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_JETPACK; return CCMD_OK; });
-	C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_TURNAROUND; return CCMD_OK; });
-	C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_INVENTORY; return CCMD_OK; });
-	C_RegisterFunction("backoff", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= SKB_ESCAPE; return CCMD_OK; });
-}
-
+//---------------------------------------------------------------------------
+//
 // This is called from ImputState::ClearAllInput and resets all static state being used here.
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::clearlocalinputstate()
 {
-	WeaponToSend = 0;
-	BitsToSend = 0;
+	loc = {};
 	nonsharedtimer = 0;
 	turnheldtime = 0;
 	lastcontroltime = 0;
 	lastCheck = 0;
-
 }
+
 
 END_DUKE_NS

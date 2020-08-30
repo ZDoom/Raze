@@ -443,7 +443,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("mirrorcnt", mirrorcnt)
 			.Array("mirrorsector", mirrorsector, mirrorcnt)
 			.Array("mirrorwall", mirrorwall, mirrorcnt)
-			("lockclock", lockclock)
 			("wupass", wupass)
 			("chickenplant", chickenplant)
 			("thunderon", thunderon)
@@ -481,8 +480,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			// Todo: move to backend
 			("gameclock", gameclock)
-
-			("lockclock", lockclock)
 
 			.Array("po", po, ud.multimode)
 			.EndObject();
@@ -523,7 +520,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			recreateinterpolations();
 			show_shareware = 0;
 			everyothertime = 0;
-			clearfifo();
+			Net_ClearFifo();
 
 			// should be unnecessary with the sounds getting serialized as well.
 			#if 0

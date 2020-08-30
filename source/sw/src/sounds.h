@@ -71,7 +71,6 @@ struct ambientstruct;
 typedef struct ambientstruct AMB_INFO, *AMB_INFOp;
 
 
-void DoUpdateSounds(void);
 void Terminate3DSounds(void);
 
 void Set3DSoundOwner(short spritenum);

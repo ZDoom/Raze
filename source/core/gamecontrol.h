@@ -8,11 +8,15 @@
 #include "tarray.h"
 #include "name.h"
 #include "memarena.h"
+#include "stats.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
 extern bool GUICapture;
+extern bool AppActive;
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
+extern bool r_NoInterpolate;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
@@ -43,6 +47,8 @@ extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
 int GameMain();
+void startmainmenu();
+void updatePauseStatus();
 
 struct UserConfig
 {
@@ -217,4 +223,5 @@ extern int automapMode;
 extern bool automapFollow;
 extern bool sendPause;
 extern int gameclock;
+extern int gameclockstart;
 extern int lastTic;

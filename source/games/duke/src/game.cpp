@@ -46,7 +46,6 @@ BEGIN_DUKE_NS
 void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
-void registerinputcommands(void);
 
 //---------------------------------------------------------------------------
 //
@@ -233,47 +232,6 @@ static void setupbackdrop()
 //
 //---------------------------------------------------------------------------
 
-static void SetupGameButtons()
-{
-	static const char* actions[] = {
-		"Move_Forward",
-		"Move_Backward",
-		"Turn_Left",
-		"Turn_Right",
-		"Strafe",
-		"Fire",
-		"Open",
-		"Run",
-		"Jump",
-		"Crouch",
-		"Look_Up",
-		"Look_Down",
-		"Look_Left",
-		"Look_Right",
-		"Strafe_Left",
-		"Strafe_Right",
-		"Aim_Up",
-		"Aim_Down",
-		"Shrink_Screen",
-		"Enlarge_Screen",
-		"Show_Opponents_Weapon",
-		"See_Coop_View",
-		"Mouse_Aiming",
-		"Quick_Kick",
-		"Dpad_Select",
-		"Dpad_Aiming",
-		"Third_Person_View",
-		"Toggle_Crouch",
-	};
-	buttonMap.SetButtons(actions, NUM_ACTIONS);
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 static void loaddefs()
 {
 	const char* defsfile = G_DefFile();
@@ -314,7 +272,7 @@ static void initTiles()
 //
 //---------------------------------------------------------------------------
 
-static void Startup(void)
+void GameInterface::app_init()
 {
 	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;
@@ -355,8 +313,6 @@ static void Startup(void)
 
 	OnEvent(EVENT_INIT);
 
-	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
-
 	if (engineInit())
 		G_FatalEngineError();
 
@@ -371,7 +327,6 @@ static void Startup(void)
 	InitCheats();
 	checkcommandline();
 	registerosdcommands();
-	registerinputcommands();
 
 	screenpeek = myconnectindex;
 	ps[myconnectindex].palette = BASEPAL;
@@ -391,21 +346,7 @@ static void Startup(void)
 	}
 
 	ud.last_level = -1;
-}
-
-//---------------------------------------------------------------------------
-//
-// main entry point, sets up the game module and the engine, then enters the main loop
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::app_init()
-{
-	Startup();
-	enginePostInit();
-	videoInit();
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 }
-
 
 END_DUKE_NS

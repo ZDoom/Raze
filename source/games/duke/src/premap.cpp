@@ -756,12 +756,8 @@ void prelevel_common(int g)
 
 void resettimevars(void)
 {
-    I_ResetTime();
-    lastTic = -1;
-    gameclock = 0;
-    cloudclock = 0;
+    resetGameClock();
     levelTextTime = 85;
-    lockclock = 0;
     ready2send = 1;
     if (camsprite >= 0)
         hittype[camsprite].temp_data[0] = 0;
@@ -1017,7 +1013,7 @@ int enterlevel(MapRecord *mi, int gamemode)
     global_random = 0;
 
     ud.last_level = currentLevel->levelNumber;
-    clearfifo();
+    Net_ClearFifo();
     for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();

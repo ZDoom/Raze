@@ -24,6 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+enum {
+    kButtonCheatGuns = 0x20,
+    kButtonCheatGodMode = 0x40,
+    kButtonCheatKeys = 0x80,
+    kButtonCheatItems = 0x100,
+};
+
 // 32 bytes
 struct PlayerInput
 {
@@ -33,6 +40,18 @@ struct PlayerInput
     short nTarget;
     fix16_t horizon;
     int8_t nItem;
+    ESyncBits actions;
+
+    int getNewWeapon() const
+    {
+        return (actions & SB_WEAPONMASK_BITS).GetValue();
+    }
+
+    void SetNewWeapon(int weap)
+    {
+        actions = (actions & ~SB_WEAPONMASK_BITS) | (ESyncBits::FromInt(weap) & SB_WEAPONMASK_BITS);
+    }
+
 };
 
 void InitInput();

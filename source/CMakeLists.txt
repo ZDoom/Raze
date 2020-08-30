@@ -783,6 +783,9 @@ set (PCH_SOURCES
 	core/mathutil.cpp
 	core/rts.cpp
 	core/ct_chat.cpp
+	core/d_net.cpp
+	core/d_protocol.cpp
+	core/mainloop.cpp
 	core/gameconfigfile.cpp
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
@@ -912,6 +915,7 @@ set (PCH_SOURCES
 	common/engine/sc_man.cpp
 	common/engine/palettecontainer.cpp
 	common/engine/stringtable.cpp
+	common/engine/i_net.cpp
 	common/engine/i_interface.cpp
 	common/engine/renderstyle.cpp
 	common/engine/v_colortables.cpp

@@ -43,8 +43,6 @@ InputPacket gInput, gNetInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
-static int WeaponToSend;
-static SYNCFLAGS BitsToSend;
 
 void ctrlInit(void)
 {
@@ -66,44 +64,6 @@ float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
 
-void LocalKeys(void)
-{
-    if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-        buttonMap.ClearButton(gamefunc_Third_Person_View);
-        if (gViewPos > VIEWPOS_0)
-            gViewPos = VIEWPOS_0;
-        else
-            gViewPos = VIEWPOS_1;
-    }
-    if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-    {
-        buttonMap.ClearButton(gamefunc_See_Coop_View);
-        if (gGameOptions.nGameType == 1)
-        {
-            gViewIndex = connectpoint2[gViewIndex];
-            if (gViewIndex == -1)
-                gViewIndex = connecthead;
-            gView = &gPlayer[gViewIndex];
-        }
-        else if (gGameOptions.nGameType == 3)
-        {
-            int oldViewIndex = gViewIndex;
-            do
-            {
-                gViewIndex = connectpoint2[gViewIndex];
-                if (gViewIndex == -1)
-                    gViewIndex = connecthead;
-                if (oldViewIndex == gViewIndex || gMe->teamId == gPlayer[gViewIndex].teamId)
-                    break;
-            } while (oldViewIndex != gViewIndex);
-            gView = &gPlayer[gViewIndex];
-        }
-    }
-}
-
-
-
 void ctrlGetInput(void)
 {
     int prevPauseState = paused;
@@ -124,18 +84,10 @@ void ctrlGetInput(void)
         return;
     }
 
-    if (paused != prevPauseState)
-    {
-        gInput.syncFlags.pause = 1;
-    }
-
     if (paused)
         return;
 
     InputPacket input = {};
-
-	bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
-	if (!mouseaim) gInput.syncFlags.lookCenter = 1;
 
     if (numplayers == 1)
     {
@@ -145,15 +97,10 @@ void ctrlGetInput(void)
 
     CONTROL_GetInput(&info);
 
-    if (gQuitRequest)
-        gInput.syncFlags.quit = 1;
+    ApplyGlobalInput(gInput, &info);
 
-    gInput.syncFlags.value |= BitsToSend.value;
-    if (WeaponToSend != 0) 
-        gInput.syncFlags.newWeapon = WeaponToSend;
-
-    BitsToSend.value = 0;
-    WeaponToSend = 0;
+    bool mouseaim = !!(gInput.actions & SB_AIMMODE);
+    if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
     {
@@ -177,46 +124,11 @@ void ctrlGetInput(void)
     {
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Show_Opponents_Weapon))
-    {
-        buttonMap.ClearButton(gamefunc_Show_Opponents_Weapon);
-        cl_showweapon = (cl_showweapon + 1) & 3;
-    }
+    if (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+        gInput.actions |= SB_CENTERVIEW;
 
-    if (buttonMap.ButtonDown(gamefunc_Jump))
-        gInput.syncFlags.jump = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Crouch))
-        gInput.syncFlags.crouch = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Fire))
-        gInput.syncFlags.shoot = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Alt_Fire))
-        gInput.syncFlags.shoot2 = 1;
-
-    if (buttonMap.ButtonDown(gamefunc_Open))
-    {
-        buttonMap.ClearButton(gamefunc_Open);
-        gInput.syncFlags.action = 1;
-    }
-
-    gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Look_Up);
-    gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Look_Down);
-
-    if (buttonMap.ButtonDown(gamefunc_Look_Up) || buttonMap.ButtonDown(gamefunc_Look_Down))
-        gInput.syncFlags.lookCenter = 1;
-    else
-    {
-        gInput.syncFlags.lookUp |= buttonMap.ButtonDown(gamefunc_Aim_Up);
-        gInput.syncFlags.lookDown |= buttonMap.ButtonDown(gamefunc_Aim_Down);
-    }
-
-    int const run = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int const run2 = false; // What??? buttonMap.ButtonDown(gamefunc_Run);
+    int const run = !!(gInput.actions & SB_RUN);
     int const keyMove = (1 + run) << 10;
-
-    gInput.syncFlags.run |= run;
 
     if (gInput.fvel < keyMove && gInput.fvel > -keyMove)
     {
@@ -276,7 +188,7 @@ void ctrlGetInput(void)
     if (turnRight)
         input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
 
-    if ((run2 || run) && turnHeldTime > 24)
+    if (run && turnHeldTime > 24)
         input.q16avel <<= 1;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
@@ -336,53 +248,5 @@ void ctrlGetInput(void)
         gViewLook = fix16_clamp(gViewLook+(input.q16horz << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     }
 }
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    auto slot = atoi(parm->parms[0]);
-    if (slot >= 1 && slot <= 10)
-    {
-        WeaponToSend = slot;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
-void registerinputcommands()
-{
-    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.prevWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { if (gPlayer[myconnectindex].nextWeapon == 0) BitsToSend.nextWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend.pause = 1; sendPause = true; return CCMD_OK; });
-    C_RegisterFunction("proximitybombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 11; return CCMD_OK; });
-    C_RegisterFunction("remotebombs", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = 12; return CCMD_OK; });
-    C_RegisterFunction("jumpboots", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useJumpBoots = 1; return CCMD_OK; });
-    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useMedKit = 1; return CCMD_OK; });
-    C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend.lookCenter = 1; return CCMD_OK; });
-    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend.holsterWeapon = 1; return CCMD_OK; });
-    C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend.prevItem = 1; return CCMD_OK; });
-    C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend.nextItem = 1; return CCMD_OK; });
-    C_RegisterFunction("crystalball", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useCrystalBall = 1; return CCMD_OK; });
-    C_RegisterFunction("beastvision", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useBeastVision = 1; return CCMD_OK; });
-    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend.spin180 = 1; return CCMD_OK; });
-    C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend.useItem = 1; return CCMD_OK; });
-}
-
-// This is called from ImputState::ClearAllInput and resets all static state being used here.
-void GameInterface::clearlocalinputstate()
-{
-    WeaponToSend = 0;
-    BitsToSend.value = 0;
-}
-
 
 END_BLD_NS

@@ -63,7 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void LocalKeys(void);
 void InitCheats();
 
 bool bNoDemo = false;
@@ -72,12 +71,13 @@ char gUserMapFilename[BMAX_PATH];
 
 short BloodVersion = 0x115;
 
+bool gameRestart;
 int gNetPlayers;
+int gQuitRequest;
 
 int gChokeCounter = 0;
 
 bool gQuitGame;
-int gQuitRequest;
 
 enum gametokens
 {
@@ -386,7 +386,6 @@ void StartLevel(MapRecord *level)
         }
     }
     bVanilla = false;
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     //drawLoadingScreen();
@@ -518,20 +517,20 @@ bool gRestartGame = false;
 
 void ProcessFrame(void)
 {
-    char buffer[128];
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
-        gPlayer[i].input.syncFlags.value &= ~flag_buttonmask;
-        gPlayer[i].input.syncFlags.value |= gFifoInput[gNetFifoTail & 255][i].syncFlags.value;
-        if (gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon)
-            gPlayer[i].newWeapon = gFifoInput[gNetFifoTail&255][i].syncFlags.newWeapon;
-        gPlayer[i].input.fvel = gFifoInput[gNetFifoTail&255][i].fvel;
-        gPlayer[i].input.q16avel = gFifoInput[gNetFifoTail&255][i].q16avel;
-        gPlayer[i].input.svel = gFifoInput[gNetFifoTail&255][i].svel;
-        gPlayer[i].input.q16horz = gFifoInput[gNetFifoTail&255][i].q16horz;
+        auto& inp = gPlayer[i].input;
+        auto oldactions = inp.actions;
+
+        inp = gFifoInput[gNetFifoTail & 255][i];
+        inp.actions |= oldactions & ~(SB_BUTTON_MASK|SB_RUN|SB_WEAPONMASK_BITS);  // should be everything non-button and non-weapon
+
+        int newweap = inp.getNewWeapon();
+        if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
     }
     gNetFifoTail++;
 
+#if 0
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         if (gPlayer[i].input.syncFlags.quit)
@@ -554,15 +553,14 @@ void ProcessFrame(void)
             levelRestart();
             return;
         }
-        if (gPlayer[i].input.syncFlags.pause)
-        {
-            gPlayer[i].input.syncFlags.pause = 0;
-            if (paused && gGameOptions.nGameType > 0 && numplayers > 1)
-            {
-                sprintf(buffer,"%s paused the game",gProfile[i].name);
-                viewSetMessage(buffer);
-            }
-        }
+    }
+#endif
+    // This is single player only.
+    if (gameRestart)
+    {
+        gameRestart = false;
+        levelRestart();
+        return;
     }
     viewClearInterpolations();
     {
@@ -595,7 +593,7 @@ void ProcessFrame(void)
     ambProcess();
     viewUpdateDelirium();
     viewUpdateShake();
-    sfxUpdate3DSounds();
+    gi->UpdateSounds();
     if (gMe->hand == 1)
     {
         const int CHOKERATE = 8;
@@ -672,42 +670,9 @@ void ParseOptions(void)
 
 void ReadAllRFS();
 
-static const char* actions[] = {
-    "Move_Forward",                     
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Third_Person_View",
-    "Toggle_Crouch",
-};
-
 void GameInterface::app_init()
 {
     InitCheats();
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
     memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
     gGameOptions.nMonsterSettings = !userConfig.nomonsters;
     ReadAllRFS();
@@ -746,14 +711,14 @@ void GameInterface::app_init()
 
     Printf(PRINT_NONOTIFY, "Initializing network users\n");
     netInitialize(true);
-    videoInit();
     Printf(PRINT_NONOTIFY, "Initializing sound system\n");
     sndInit();
     registerosdcommands();
-    registerinputcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
     UpdateDacs(0, true);
+
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
 }
 
 static void gameInit()
@@ -841,8 +806,10 @@ static void drawBackground()
 {
     twod->ClearScreen();
 	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
+#if 0
     if (gQuitRequest && !gQuitGame)
         netBroadcastMyLogoff(gQuitRequest == 2);
+#endif
 }
 
 static void commonTicker()
@@ -934,7 +901,6 @@ void GameInterface::RunGameFrame()
 
     case GS_LEVEL:
         gameTicker();
-        LocalKeys();
         break;
 
     case GS_FINALE:

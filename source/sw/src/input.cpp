@@ -34,43 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL MultiPlayQuitFlag = FALSE;
-
-int WeaponToSend = 0;
-int BitsToSend = 0;
-int inv_hotkey = 0;
-
-
-void
-FunctionKeys(PLAYERp pp)
-{
-    // F7 VIEW control
-	if (buttonMap.ButtonDown(gamefunc_Third_Person_View))
-    {
-		buttonMap.ClearButton(gamefunc_Third_Person_View);
-
-        if (inputState.ShiftPressed())
-        {
-            if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-                pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
-        }
-        else
-        {
-            if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
-            {
-                RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-            }
-            else
-            {
-                SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
-                pp->camera_dist = 0;
-            }
-        }
-    }
-}
-
-
-
 double elapsedInputTicks;
 double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
 
@@ -120,10 +83,37 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     lastInputTicks = currentHiTicks;
 
-    // MAKE SURE THIS WILL GET SET
-    SET_LOC_KEY(loc->bits, SK_QUIT_GAME, MultiPlayQuitFlag);
+    ControlInfo info;
+    CONTROL_GetInput(&info);
 
-    bool mouseaim = in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming);
+    if (paused)
+        return;
+
+    // If in 2D follow mode, scroll around using glob vars
+    // Tried calling this in domovethings, but key response it too poor, skips key presses
+    // Note: this get called only during follow mode
+    if (!tied && automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
+        MoveScrollMode2D(Player + myconnectindex);
+
+    // !JIM! Added M_Active() so that you don't move at all while using menus
+    if (M_Active() || automapFollow)
+        return;
+
+    int32_t turnamount;
+    int32_t keymove;
+
+    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
+    // and use to scale back player's aim and ang values for a consistent feel between games.
+    float const angvelScale = 1.40625f;
+    float const aimvelScale = 1.203125f;
+
+    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
+    // for dividing controller input to match speed input speed of other games.
+    float const ticrateScale = 0.75f;
+
+    ApplyGlobalInput(*loc, &info);
+
+    bool mouseaim = !!(loc->actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {
@@ -141,38 +131,13 @@ getinput(InputPacket *loc, SWBOOL tied)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-    ControlInfo info;
-    CONTROL_GetInput(&info);
 
-    if (paused)
-        return;
 
-    // If in 2D follow mode, scroll around using glob vars
-    // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: this get called only during follow mode
-    if (!tied && automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex);
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch)) // this shares a bit with another function so cannot be in the common code.
+        loc->actions |= SB_CROUCH_LOCK;
 
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || automapFollow)
-        return;
 
-    SET_LOC_KEY(loc->bits, SK_SPACE_BAR, buttonMap.ButtonDown(gamefunc_Open));
-
-    int const running = G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run));
-    int32_t turnamount;
-    int32_t keymove;
-
-    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
-    // and use to scale back player's aim and ang values for a consistent feel between games.
-    float const angvelScale = 1.40625f;
-    float const aimvelScale = 1.203125f;
-
-    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
-    // for dividing controller input to match speed input speed of other games.
-    float const ticrateScale = 0.75f;
-
-    if (running)
+    if (loc->actions & SB_RUN)
     {
         if (pp->sop_control)
             turnamount = RUNTURN * 3;
@@ -317,43 +282,13 @@ getinput(InputPacket *loc, SWBOOL tied)
     loc->q16avel += q16angvel;
     loc->q16horz += q16horz;
 
-    if (!CommEnabled)
-    {
-		// What a mess...:?
-#if 0
-        if (MenuButtonAutoAim)
-        {
-            MenuButtonAutoAim = FALSE;
-            if ((!!TEST(pp->Flags, PF_AUTO_AIM)) != !!cl_autoaim)
-                SET_LOC_KEY(loc->bits, SK_AUTO_AIM, TRUE);
-        }
-#endif
-    }
 
-    SET_LOC_KEY(loc->bits, SK_RUN, buttonMap.ButtonDown(gamefunc_Run));
-    SET_LOC_KEY(loc->bits, SK_SHOOT, buttonMap.ButtonDown(gamefunc_Fire));
-
-    // actually snap
-    SET_LOC_KEY(loc->bits, SK_SNAP_UP, buttonMap.ButtonDown(gamefunc_Aim_Up));
-    SET_LOC_KEY(loc->bits, SK_SNAP_DOWN, buttonMap.ButtonDown(gamefunc_Aim_Down));
-
-    // actually just look
-    SET_LOC_KEY(loc->bits, SK_LOOK_UP, buttonMap.ButtonDown(gamefunc_Look_Up));
-    SET_LOC_KEY(loc->bits, SK_LOOK_DOWN, buttonMap.ButtonDown(gamefunc_Look_Down));
-
-    if (WeaponToSend > 0)
-    {
-        loc->bits &= ~SK_WEAPON_MASK;
-        loc->bits |= WeaponToSend;
-        WeaponToSend = 0;
-    }
-    else if (WeaponToSend == -1)
+    if (loc->getNewWeapon() == WeaponSel_Next)
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
         short start_weapon;
 
-        WeaponToSend = 0;
         start_weapon = u->WeaponNum + 1;
 
         if (u->WeaponNum == WPN_SWORD)
@@ -382,15 +317,13 @@ getinput(InputPacket *loc, SWBOOL tied)
             }
         }
 
-        SET(loc->bits, next_weapon + 1);
+        loc->setNewWeapon(next_weapon + 1);
     }
-    else if (WeaponToSend == -2)
+    else if (loc->getNewWeapon() == WeaponSel_Prev)
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
-
-        WeaponToSend = 0;
 
         start_weapon = u->WeaponNum - 1;
 
@@ -417,111 +350,14 @@ getinput(InputPacket *loc, SWBOOL tied)
                 }
             }
         }
-
-        SET(loc->bits, prev_weapon + 1);
+        loc->setNewWeapon(prev_weapon + 1);
     }
-
-    if (buttonMap.ButtonDown(gamefunc_Alt_Weapon))
+    else if (loc->getNewWeapon() == WeaponSel_Alt)
     {
-        buttonMap.ClearButton(gamefunc_Alt_Weapon);
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        SET(loc->bits, which_weapon);
+        loc->setNewWeapon(which_weapon);
     }
-
-
-    loc->bits |= BitsToSend;
-    BitsToSend = 0;
-
-    SET(loc->bits, inv_hotkey<<SK_INV_HOTKEY_BIT0);
-    inv_hotkey = 0;
-
-    SET_LOC_KEY(loc->bits, SK_OPERATE, buttonMap.ButtonDown(gamefunc_Open));
-    SET_LOC_KEY(loc->bits, SK_JUMP, buttonMap.ButtonDown(gamefunc_Jump));
-    SET_LOC_KEY(loc->bits, SK_CRAWL, buttonMap.ButtonDown(gamefunc_Crouch));
-
-    // need BUTTON
-    SET_LOC_KEY(loc->bits, SK_CRAWL_LOCK, buttonMap.ButtonDown(gamefunc_Toggle_Crouch));
-
-    if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
-    {
-        if (buttonMap.ButtonDown(gamefunc_See_Coop_View))
-        {
-            buttonMap.ClearButton(gamefunc_See_Coop_View);
-
-            screenpeek = connectpoint2[screenpeek];
-
-            if (screenpeek < 0)
-                screenpeek = connecthead;
-
-            if (screenpeek == myconnectindex)
-            {
-                // JBF: figure out what's going on here
-                DoPlayerDivePalette(pp);  // Check Dive again
-                DoPlayerNightVisionPalette(pp);  // Check Night Vision again
-            }
-            else
-            {
-                PLAYERp tp = Player+screenpeek;
-                DoPlayerDivePalette(tp);
-                DoPlayerNightVisionPalette(tp);
-            }
-        }
-    }
-
-    if (!tied)
-        FunctionKeys(pp);
-}
-
-
-//---------------------------------------------------------------------------
-//
-// CCMD based input. The basics are from Randi's ZDuke but this uses dynamic
-// registration to only have the commands active when this game module runs.
-//
-//---------------------------------------------------------------------------
-
-static int ccmd_slot(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    auto slot = atoi(parm->parms[0]);
-    if (slot >= 1 && slot <= 10)
-    {
-        WeaponToSend = slot;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
-
-void registerinputcommands()
-{
-    C_RegisterFunction("slot", "slot <weaponslot>: select a weapon from the given slot (1-10)", ccmd_slot);
-    C_RegisterFunction("weapprev", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -2; return CCMD_OK; });
-    C_RegisterFunction("weapnext", nullptr, [](CCmdFuncPtr)->int { WeaponToSend = -1; return CCMD_OK; });
-    C_RegisterFunction("pause", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_PAUSE); sendPause = true; return CCMD_OK; });
-    C_RegisterFunction("smoke_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CLOAK + 1; return CCMD_OK; });
-    C_RegisterFunction("nightvision", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_NIGHT_VISION + 1; return CCMD_OK; });
-    C_RegisterFunction("medkit", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_MEDKIT + 1; return CCMD_OK; });
-    C_RegisterFunction("centerview", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_CENTER_VIEW); return CCMD_OK; });
-    C_RegisterFunction("holsterweapon", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_HIDE_WEAPON); return CCMD_OK; });
-    C_RegisterFunction("invprev", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_LEFT); return CCMD_OK; });
-    C_RegisterFunction("invnext", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_RIGHT); return CCMD_OK; });
-    C_RegisterFunction("gas_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CHEMBOMB + 1; return CCMD_OK; });
-    C_RegisterFunction("flash_bomb", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_FLASHBOMB + 1; return CCMD_OK; });
-    C_RegisterFunction("caltrops", nullptr, [](CCmdFuncPtr)->int { inv_hotkey = INVENTORY_CALTROPS + 1; return CCMD_OK; });
-    C_RegisterFunction("turnaround", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_TURN_180); return CCMD_OK; });
-    C_RegisterFunction("invuse", nullptr, [](CCmdFuncPtr)->int { BitsToSend |= BIT(SK_INV_USE); return CCMD_OK; });
-}
-
-// This is called from ImputState::ClearAllInput and resets all static state being used here.
-void GameInterface::clearlocalinputstate()
-{
-    WeaponToSend = 0;
-    BitsToSend = 0;
-    inv_hotkey = 0;
-
 }
 
 END_SW_NS

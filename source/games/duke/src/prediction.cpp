@@ -98,14 +98,15 @@ void fakedomovethingscorrect(void)
 
 }
 
+// This still needs fixing for the magic numbers in the input bits
 void fakedomovethings(void)
 {
 		input *syn;
 		struct player_struct *p;
 		int i, j, k, doubvel, fz, cz, hz, lz, x, y;
-		ESyncBits sb_snum;
 		short psect, psectlotag, tempsect, backcstat;
 		uint8_t shrunk, spritebridge;
+		ESyncBits actions;
 
 		syn = (input *)&inputfifo[fakemovefifoplc&(MOVEFIFOSIZ-1)][myconnectindex];
 
@@ -114,7 +115,7 @@ void fakedomovethings(void)
 		backcstat = sprite[p->i].cstat;
 		sprite[p->i].cstat &= ~257;
 
-		sb_snum = syn->bits;
+		actions = syn->actions;
 
 		psect = mycursectnum;
 		psectlotag = sector[psect].lotag;

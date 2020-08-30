@@ -171,46 +171,10 @@ void SybexScreen(void);
 //
 //---------------------------------------------------------------------------
 
-static const char* actions[] = {
-    "Move_Forward",
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Last_Weapon",
-    "Alt_Weapon",
-    "Third_Person_View",
-    "Toggle_Crouch",	// This is the last one used by EDuke32"",
-
-};
-
 void GameInterface::app_init()
 {
     GameTicRate = 40;
     InitCheats();
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
     automapping = 1;
 
     gs = gs_defaults;
@@ -230,7 +194,6 @@ void GameInterface::app_init()
         Printf("Copyright (c) 1997 3D Realms Entertainment\n");
 
     registerosdcommands();
-    registerinputcommands();
 
     engineInit();
     auto pal = fileSystem.LoadFile("3drealms.pal", 0);
@@ -274,8 +237,6 @@ void GameInterface::app_init()
  
     if (!loaddefinitionsfile(G_DefFile())) Printf(PRINT_NONOTIFY, "Definitions file loaded.\n");
 	userConfig.AddDefs.reset();
-    enginePostInit();
-    videoInit();
     InitFX();
 }
 
@@ -767,7 +728,7 @@ void GameTicker(void)
         ready2send = 1;
 
         int const currentTic = I_GetTime();
-        gameclock = I_GetBuildTime();
+        gameclock = I_GetBuildTime() - gameclockstart;
 
         if (paused)
         {
@@ -811,61 +772,62 @@ void GameTicker(void)
 }
 
 
-void GameInterface::RunGameFrame()
+void resetGameClock()
 {
-    try
-    {
-        // if the menu initiazed a new game or loaded a savegame, switch to play mode.
-        if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
-        DoUpdateSounds();
-        switch (gamestate)
-        {
-        default:
-        case GS_STARTUP:
-            I_ResetTime();
-            lastTic = -1;
-            ogameclock = gameclock = 0;
-
-            if (userConfig.CommandMap.IsNotEmpty())
-            {
-            }
-            else
-            {
-                if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
-                else StartMenu();
-            }
-            break;
-
-        case GS_MENUSCREEN:
-        case GS_FULLCONSOLE:
-            DrawMenuLevelScreen();
-            break;
-
-        case GS_LEVEL:
-            GameTicker();
-            break;
-
-        case GS_INTERMISSION:
-        case GS_INTRO:
-            RunScreenJobFrame();	// This handles continuation through its completion callback.
-            break;
-
-        }
-    }
-    catch (CRecoverableError&)
-    {
-        // Make sure we do not leave the game in an unstable state
-        TerminateLevel();
-        NextLevel = nullptr;
-        SavegameLoaded = false;
-        ExitLevel = false;
-        FinishAnim = 0;
-        FinishedLevel = false;
-        throw;
-    }
-
+    I_SetFrameTime();
+    gameclockstart = I_GetBuildTime();
+    ogameclock = gameclock = 0;
 }
 
+void GameInterface::RunGameFrame()
+{
+    // if the menu initiazed a new game or loaded a savegame, switch to play mode.
+    if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
+    gi->UpdateSounds();
+    switch (gamestate)
+    {
+    default:
+    case GS_STARTUP:
+        resetGameClock();
+
+        if (userConfig.CommandMap.IsNotEmpty())
+        {
+        }
+        else
+        {
+            if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
+            else StartMenu();
+        }
+        break;
+
+    case GS_MENUSCREEN:
+    case GS_FULLCONSOLE:
+        DrawMenuLevelScreen();
+        break;
+
+    case GS_LEVEL:
+        GameTicker();
+        break;
+
+    case GS_INTERMISSION:
+    case GS_INTRO:
+        RunScreenJobFrame();	// This handles continuation through its completion callback.
+        break;
+
+    }
+}
+
+
+void GameInterface::ErrorCleanup()
+{
+    // Make sure we do not leave the game in an unstable state
+    TerminateLevel();
+    NextLevel = nullptr;
+    SavegameLoaded = false;
+    ExitLevel = false;
+    FinishAnim = 0;
+    FinishedLevel = false;
+}
 //---------------------------------------------------------------------------
 //
 //

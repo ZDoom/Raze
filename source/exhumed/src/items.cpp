@@ -316,22 +316,6 @@ void UseItem(short nPlayer, short nItem)
     }
 }
 
-void UseCurItem(short nPlayer)
-{
-    int nItem = nPlayerItem[nPlayer];
-
-    if (nItem >= 0)
-    {
-        if (PlayerList[nPlayer].items[nItem] > 0)
-        {
-            if (nItemMagic[nItem] <= PlayerList[nPlayer].nMagic)
-            {
-                sPlayerInput[nPlayer].nItem = nItem;
-            }
-        }
-    }
-}
-
 // TODO - bool return type?
 int GrabItem(short nPlayer, short nItem)
 {

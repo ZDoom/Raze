@@ -947,15 +947,48 @@ void shoot_r(int i, int atwith)
 //
 //---------------------------------------------------------------------------
 
-void selectweapon_r(int snum, int j)
+void selectweapon_r(int snum, int weap)
 {
-	int i, k;
+	int i, j, k;
 	auto p = &ps[snum];
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 8 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
-			if (j == 10 || j == 11)
+			if (weap == WeaponSel_Alt)
+			{
+				switch (p->curr_weapon)
+				{
+					case THROWSAW_WEAPON:
+						j = BUZZSAW_WEAPON;
+						break;
+					case BUZZSAW_WEAPON:
+						j = THROWSAW_WEAPON;
+						break;
+					case POWDERKEG_WEAPON:
+						j = BOWLING_WEAPON;
+						break;
+					case BOWLING_WEAPON:
+						j = POWDERKEG_WEAPON;
+						break;
+					case KNEE_WEAPON:
+						j = isRRRA() ? SLINGBLADE_WEAPON : p->curr_weapon;
+						break;
+					case SLINGBLADE_WEAPON:
+						j = KNEE_WEAPON;
+						break;
+					case DYNAMITE_WEAPON:
+						j = isRRRA() ? CHICKEN_WEAPON : p->curr_weapon;
+						break;
+					case CHICKEN_WEAPON:
+						j = DYNAMITE_WEAPON;
+						break;
+					default:
+						j = p->curr_weapon;
+						break;
+				}
+			}
+			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{
 				k = p->curr_weapon;
 				if (isRRRA())
@@ -964,7 +997,7 @@ void selectweapon_r(int snum, int j)
 					else if (k == BUZZSAW_WEAPON) k = THROWSAW_WEAPON;
 					else if (k == SLINGBLADE_WEAPON) k = KNEE_WEAPON;
 				}
-				j = (j == 10 ? -1 : 1);
+				j = (weap == WeaponSel_Prev ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
 				while (k >= 0 && k < 10)
@@ -987,9 +1020,9 @@ void selectweapon_r(int snum, int j)
 					}
 				}
 			}
+			else j = weap - 1;
 
 			k = -1;
-
 
 			if (j == DYNAMITE_WEAPON && p->ammo_amount[DYNAMITE_WEAPON] == 0)
 			{
@@ -1063,7 +1096,7 @@ void selectweapon_r(int snum, int j)
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SKB_HOLSTER);
+				PlayerSetInput(snum, SB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
@@ -1174,8 +1207,6 @@ int doincrements_r(struct player_struct* p)
 	}
 
 	snum = sprite[p->i].yvel;
-	//    j = sync[snum].avel;
-	//    p->weapon_ang = -(j/5);
 
 	p->player_par++;
 	if (p->yehaa_timer)
@@ -1407,7 +1438,7 @@ int doincrements_r(struct player_struct* p)
 					else S_PlayActorSound(DUKE_CRACK2, p->i);
 				}
 		}
-		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SB_FIRE))
 			p->knuckle_incs = 0;
 
 		return 1;
@@ -1509,7 +1540,7 @@ void checkweapons_r(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void onMotorcycle(int snum, ESyncBits &sb_snum)
+static void onMotorcycle(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1519,18 +1550,18 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 	short var84;
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
-	if (sb_snum & SKB_CROUCH)
+	if (actions & SB_CROUCH)
 	{
 		var64 = 1;
-		sb_snum &= ~SKB_CROUCH;
+		actions &= ~SB_CROUCH;
 	}
 	else
 		var64 = 0;
 
-	if (sb_snum & SKB_JUMP)
+	if (actions & SB_JUMP)
 	{
 		var68 = 1;
-		sb_snum &= ~SKB_JUMP;
+		actions &= ~SB_JUMP;
 		if (p->on_ground)
 		{
 			if (p->MotoSpeed == 0 && var64)
@@ -1572,29 +1603,29 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 		if (!S_CheckActorSoundPlaying(pi, 189) && !S_CheckActorSoundPlaying(pi, 187))
 			S_PlayActorSound(187, pi);
 	}
-	if (sb_snum & SKB_AIM_UP)
+	if (actions & SB_AIM_UP)
 	{
 		var6c = 1;
-		sb_snum &= ~SKB_AIM_UP;
+		actions &= ~SB_AIM_UP;
 	}
 	else
 		var6c = 0;
-	if (sb_snum & SKB_AIM_DOWN)
+	if (actions & SB_AIM_DOWN)
 	{
 		var70 = 1;
 		var74 = 1;
-		sb_snum &= ~SKB_AIM_DOWN;
+		actions &= ~SB_AIM_DOWN;
 	}
 	else
 	{
 		var70 = 0;
 		var74 = 0;
 	}
-	if (sb_snum & SKB_LOOK_LEFT)
+	if (actions & SB_LOOK_LEFT)
 	{
 		var78 = 1;
 		var7c = 1;
-		sb_snum &= ~SKB_LOOK_LEFT;
+		actions &= ~SB_LOOK_LEFT;
 	}
 	else
 	{
@@ -1802,7 +1833,7 @@ static void onMotorcycle(int snum, ESyncBits &sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void onBoat(int snum, ESyncBits& sb_snum)
+static void onBoat(int snum, ESyncBits &actions)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -1825,19 +1856,19 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 	}
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
-	if ((sb_snum & SKB_CROUCH) && (sb_snum & SKB_JUMP))
+	if ((actions & SB_CROUCH) && (actions & SB_JUMP))
 	{
 		vara8 = 1;
 		varac = 0;
 		varb0 = 0;
-		sb_snum &= ~(SKB_JUMP|SKB_CROUCH);
+		actions &= ~(SB_JUMP|SB_CROUCH);
 	}
 	else
 		vara8 = 0;
-	if (sb_snum & SKB_JUMP)
+	if (actions & SB_JUMP)
 	{
 		varac = 1;
-		sb_snum &= ~SKB_JUMP;
+		actions &= ~SB_JUMP;
 		if (p->MotoSpeed == 0 && !S_CheckActorSoundPlaying(pi, 89))
 		{
 			if (S_CheckActorSoundPlaying(pi, 87))
@@ -1868,24 +1899,24 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 			S_PlayActorSound(87, pi);
 	}
 
-	if (sb_snum & SKB_CROUCH)
+	if (actions & SB_CROUCH)
 	{
 		varb0 = 1;
-		sb_snum &= ~SKB_CROUCH;
+		actions &= ~SB_CROUCH;
 	}
 	else
 		varb0 = 0;
-	if (sb_snum & SKB_AIM_UP)
+	if (actions & SB_AIM_UP)
 	{
 		varb4 = 1;
-		sb_snum &= ~SKB_AIM_UP;
+		actions &= ~SB_AIM_UP;
 	}
 	else varb4 = 0;
-	if (sb_snum & SKB_AIM_DOWN)
+	if (actions & SB_AIM_DOWN)
 	{
 		varb8 = 1;
 		varbc = 1;
-		sb_snum &= ~SKB_AIM_DOWN;
+		actions &= ~SB_AIM_DOWN;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -1894,11 +1925,11 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 		varb8 = 0;
 		varbc = 0;
 	}
-	if (sb_snum & SKB_LOOK_LEFT)
+	if (actions & SB_LOOK_LEFT)
 	{
 		varc0 = 1;
 		varc4 = 1;
-		sb_snum &= ~SKB_LOOK_LEFT;
+		actions &= ~SB_LOOK_LEFT;
 		if (!S_CheckActorSoundPlaying(pi, 91) && p->MotoSpeed > 30 && !p->NotOnWater)
 			S_PlayActorSound(91, pi);
 	}
@@ -2086,7 +2117,7 @@ static void onBoat(int snum, ESyncBits& sb_snum)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pi = p->i;
@@ -2144,7 +2175,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 
 	if (p->posz < (fz - (i << 8))) //falling
 	{
-		if ((sb_snum & (SKB_JUMP|SKB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
 			p->posz = fz - (i << 8);
 		else
 		{
@@ -2258,15 +2289,15 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 
 		p->on_warping_sector = 0;
 
-		if ((sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+		if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 		{
 			playerCrouch(snum);
 		}
 
-		if ((sb_snum & SKB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
+		if ((actions & SB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
 			p->jumping_toggle = 0;
 
-		else if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
+		else if ((actions & SB_JUMP) && !p->OnMotorcycle && p->jumping_toggle == 0)
 		{
 			playerJump(snum, fz, cz);
 		}
@@ -2274,7 +2305,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 
 	if (p->jumping_counter)
 	{
-		if ((sb_snum & SKB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
+		if ((actions & SB_JUMP) == 0 && !p->OnMotorcycle && p->jumping_toggle == 1)
 			p->jumping_toggle = 0;
 
 		if (p->jumping_counter < 768)
@@ -2316,7 +2347,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -2332,13 +2363,13 @@ static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pi);
 
-	if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle)
+	if ((actions & SB_JUMP) && !p->OnMotorcycle)
 	{
 		if (p->poszv > 0) p->poszv = 0;
 		p->poszv -= 348;
 		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
 	}
-	else if ((sb_snum & SKB_CROUCH) || p->OnMotorcycle)
+	else if ((actions & SB_CROUCH) || p->OnMotorcycle)
 	{
 		if (p->poszv < 0) p->poszv = 0;
 		p->poszv += 348;
@@ -2740,7 +2771,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2754,7 +2785,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 		if (p->kickback_pic == 1)
 			S_PlaySound(401);
-		if (p->kickback_pic == 6 && (sb_snum & SKB_FIRE))
+		if (p->kickback_pic == 6 && (actions & SB_FIRE))
 			p->rapid_fire_hold = 1;
 		p->kickback_pic++;
 		if (p->kickback_pic > 19)
@@ -2791,7 +2822,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			p->ammo_amount[DYNAMITE_WEAPON]--;
 			if (p->ammo_amount[CROSSBOW_WEAPON])
 				p->ammo_amount[CROSSBOW_WEAPON]--;
-			if (p->on_ground && (sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
 				i = ((p->gethorizsum() - 100) * 20);
@@ -2824,7 +2855,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 
 			p->hbomb_on = 1;
 		}
-		else if (p->kickback_pic < 12 && (sb_snum & SKB_FIRE))
+		else if (p->kickback_pic < 12 && (actions & SB_FIRE))
 			p->hbomb_hold_delay++;
 
 		if (p->kickback_pic == 40)
@@ -2907,7 +2938,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic == 6)
 			if (p->shotgun_state[0] == 0)
 				if (p->ammo_amount[SHOTGUN_WEAPON] > 1)
-					if (sb_snum & SKB_FIRE)
+					if (actions & SB_FIRE)
 						p->shotgun_state[1] = 1;
 
 		if (p->kickback_pic == 4)
@@ -3051,7 +3082,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				}
 				checkavailweapon(p);
 
-				if ((sb_snum & SKB_FIRE) == 0)
+				if ((actions & SB_FIRE) == 0)
 				{
 					p->kickback_pic = 0;
 					break;
@@ -3060,7 +3091,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else if (p->kickback_pic > 10)
 		{
-			if (sb_snum & SKB_FIRE) p->kickback_pic = 1;
+			if (actions & SB_FIRE) p->kickback_pic = 1;
 			else p->kickback_pic = 0;
 		}
 
@@ -3115,7 +3146,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
-		if (!(sb_snum & SKB_FIRE))
+		if (!(actions & SB_FIRE))
 			p->kickback_pic = 0;
 		break;
 
@@ -3145,7 +3176,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
-		if (!(sb_snum & SKB_FIRE))
+		if (!(actions & SB_FIRE))
 			p->kickback_pic = 0;
 		break;
 	case BOAT_WEAPON:
@@ -3201,7 +3232,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->ammo_amount[POWDERKEG_WEAPON]--;
 			p->gotweapon.Clear(POWDERKEG_WEAPON);
-			if (p->on_ground && (sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+			if (p->on_ground && (actions & SB_CROUCH) && !p->OnMotorcycle)
 			{
 				k = 15;
 				i = ((p->gethorizsum() - 100) * 20);
@@ -3332,14 +3363,14 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits sb_snum, int psect)
+static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
 	auto s = &sprite[pi];
 	int shrunk = (s->yrepeat < 8);
 
-	if (sb_snum & SKB_FIRE)
+	if (actions & SB_FIRE)
 	{
 		int a = 0;
 	}
@@ -3370,20 +3401,20 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 
 	if (p->rapid_fire_hold == 1)
 	{
-		if (sb_snum & SKB_FIRE) return;
+		if (actions & SB_FIRE) return;
 		p->rapid_fire_hold = 0;
 	}
 
 	if (shrunk || p->tipincs || p->access_incs)
-		sb_snum &= ~SKB_FIRE;
-	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
+		actions &= ~SB_FIRE;
+	else if (shrunk == 0 && (actions & SB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
 		fireweapon(snum);
 	}
 	else if (p->kickback_pic)
 	{
-		operateweapon(snum, sb_snum, psect);
+		operateweapon(snum, actions, psect);
 	}
 }
 
@@ -3397,7 +3428,7 @@ void processinput_r(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist, var60;
 	char shrunk;
-	ESyncBits sb_snum;
+	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -3408,7 +3439,7 @@ void processinput_r(int snum)
 
 	resetinputhelpers(p);
 
-	sb_snum = PlayerInputBits(snum, SKB_ALL);
+	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -3417,11 +3448,11 @@ void processinput_r(int snum)
 	psect = p->cursectnum;
 	if (p->OnMotorcycle && s->extra > 0)
 	{
-		onMotorcycle(snum, sb_snum);
+		onMotorcycle(snum, actions);
 	}
 	else if (p->OnBoat && s->extra > 0)
 	{
-		onBoat(snum, sb_snum);
+		onBoat(snum, actions);
 	}
 	if (psect == -1)
 	{
@@ -3504,7 +3535,7 @@ void processinput_r(int snum)
 			if (!p->stairs)
 			{
 				p->stairs = 10;
-				if ((sb_snum & SKB_JUMP) && !p->OnMotorcycle)
+				if ((actions & SB_JUMP) && !p->OnMotorcycle)
 				{
 					hz = 0;
 					cz = p->truecz;
@@ -3554,7 +3585,7 @@ void processinput_r(int snum)
 			if (!p->stairs)
 			{
 				p->stairs = 10;
-				if ((sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+				if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				{
 					cz = sprite[j].z;
 					hz = 0;
@@ -3566,7 +3597,7 @@ void processinput_r(int snum)
 		}
 		else if (sprite[j].picnum == TOILET || sprite[j].picnum == RRTILE2121)
 		{
-			if ((sb_snum & SKB_CROUCH) && !p->OnMotorcycle)
+			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
 				{
 					S_PlayActorSound(436, p->i);
@@ -3628,13 +3659,13 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, sb_snum, psect);
+		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, psect);
 		return;
 	}
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum, sb_snum);
+	checklook(snum, actions);
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -3674,11 +3705,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 	else
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -3772,7 +3803,7 @@ void processinput_r(int snum)
 		p->posxv += ((sb_fvel * doubvel) << 6);
 		p->posyv += ((sb_svel * doubvel) << 6);
 
-		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & SKB_CROUCH))))
+		if (!isRRRA() && ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH))))
 		{
 			p->posxv = mulscale(p->posxv, dukefriction - 0x2000, 16);
 			p->posyv = mulscale(p->posyv, dukefriction - 0x2000, 16);
@@ -4021,25 +4052,25 @@ HORIZONLY:
 		return;
 	}
 
-	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
+	if (actions & SB_CENTERVIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
 	}
-	else if (sb_snum & SKB_LOOK_UP)
+	else if (actions & SB_LOOK_UP)
 	{
-		playerLookUp(snum, sb_snum);
+		playerLookUp(snum, actions);
 	}
-	else if (sb_snum & SKB_LOOK_DOWN)
+	else if (actions & SB_LOOK_DOWN)
 	{
-		playerLookDown(snum, sb_snum);
+		playerLookDown(snum, actions);
 	}
-	else if ((sb_snum & SKB_AIM_UP) && !p->OnMotorcycle)
+	else if ((actions & SB_AIM_UP) && !p->OnMotorcycle)
 	{
-		playerAimUp(snum, sb_snum);
+		playerAimUp(snum, actions);
 	}
-	else if ((sb_snum & SKB_AIM_DOWN) && !p->OnMotorcycle)
+	else if ((actions & SB_AIM_DOWN) && !p->OnMotorcycle)
 	{
-		playerAimDown(snum, sb_snum);
+		playerAimDown(snum, actions);
 	}
 	if (p->recoil && p->kickback_pic == 0)
 	{
@@ -4052,7 +4083,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
+		sethorizon(snum, actions, 1, PlayerHorizon(snum));
 	}
 
 	checkhardlanding(p);
@@ -4088,7 +4119,7 @@ HORIZONLY:
 		else p->weapon_pos--;
 	}
 
-	processweapon(snum, sb_snum, psect);
+	processweapon(snum, actions, psect);
 }
 
 //---------------------------------------------------------------------------
@@ -4097,22 +4128,17 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void processweapon_r(int s, ESyncBits ss, int p)
-{
-	processweapon(s, ss, p);
-}
-
-void processmove_r(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 	else
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 

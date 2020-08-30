@@ -41,7 +41,7 @@ source as it is released.
 BEGIN_DUKE_NS 
 
 void fireweapon_ww(int snum);
-void operateweapon_ww(int snum, ESyncBits sb_snum, int psect);
+void operateweapon_ww(int snum, ESyncBits actions, int psect);
 
 //---------------------------------------------------------------------------
 //
@@ -1099,18 +1099,39 @@ void shoot_d(int i, int atwith)
 //
 //---------------------------------------------------------------------------
 
-void selectweapon_d(int snum, int j) // playernum, weaponnum
+void selectweapon_d(int snum, int weap) // playernum, weaponnum
 {
-	int i, k;
+	int i, j, k;
 	auto p = &ps[snum];
 	if (p->last_pissed_time <= (26 * 218) && p->show_empty_weapon == 0 && p->kickback_pic == 0 && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
 	{
 		if ((p->weapon_pos == 0 || (p->holster_weapon && p->weapon_pos == -9)))
 		{
-			if (j == 10 || j == 11)
+			if (weap == WeaponSel_Alt)
+			{
+				switch (p->curr_weapon)
+				{
+					case SHRINKER_WEAPON:
+						j = PLUTOPAK ? GROW_WEAPON : p->curr_weapon;
+						break;
+					case GROW_WEAPON:
+						j = SHRINKER_WEAPON;
+						break;
+					case FREEZE_WEAPON:
+						j = isWorldTour() ? FLAMETHROWER_WEAPON : p->curr_weapon;
+						break;
+					case FLAMETHROWER_WEAPON:
+						j = FREEZE_WEAPON;
+						break;
+					default:
+						j = p->curr_weapon;
+						break;
+				}
+			}
+			else if (weap == WeaponSel_Next || weap == WeaponSel_Prev)
 			{
 				k = p->curr_weapon;
-				j = (j == 10 ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
+				j = (weap == WeaponSel_Prev ? -1 : 1);	// JBF: prev (-1) or next (1) weapon choice
 				i = 0;
 
 				while ((k >= 0 && k < 10) || (PLUTOPAK && k == GROW_WEAPON && (p->subweapon & (1 << GROW_WEAPON)) != 0)
@@ -1186,9 +1207,9 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 					}
 				}
 			}
+			else j = weap - 1;
 
 			k = -1;
-
 
 			if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
 			{
@@ -1260,7 +1281,7 @@ void selectweapon_d(int snum, int j) // playernum, weaponnum
 
 			if (p->holster_weapon)
 			{
-				PlayerSetInput(snum, SKB_HOLSTER);
+				PlayerSetInput(snum, SB_HOLSTER);
 				p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
@@ -1318,8 +1339,6 @@ int doincrements_d(struct player_struct* p)
 	int snum;
 
 	snum = sprite[p->i].yvel;
-	//    j = sync[snum].avel;
-	//    p->weapon_ang = -(j/5);
 
 	p->player_par++;
 
@@ -1494,7 +1513,7 @@ int doincrements_d(struct player_struct* p)
 				}
 			S_PlayActorSound(DUKE_CRACK_FIRST, p->i);
 		}
-		else if (p->knuckle_incs == 22 || PlayerInput(snum, SKB_FIRE))
+		else if (p->knuckle_incs == 22 || PlayerInput(snum, SB_FIRE))
 			p->knuckle_incs = 0;
 
 		return 1;
@@ -1548,7 +1567,7 @@ void checkweapons_d(struct player_struct* p)
 //
 //---------------------------------------------------------------------------
 
-static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, int cz, int shrunk)
+static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, int cz, int shrunk)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1578,7 +1597,7 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 	if (shrunk) j = 512;
 	else j = 2048;
 
-	if (sb_snum & SKB_JUMP)                            //A (soar high)
+	if (actions & SB_JUMP)                            //A (soar high)
 	{
 		// jump
 		SetGameVarID(g_iReturnVarID, 0, pi, snum);
@@ -1590,7 +1609,7 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 		}
 	}
 
-	if (sb_snum & SKB_CROUCH)                            //Z (soar low)
+	if (actions & SB_CROUCH)                            //Z (soar low)
 	{
 		// crouch
 		SetGameVarID(g_iReturnVarID, 0, pi, snum);
@@ -1622,7 +1641,7 @@ static void operateJetpack(int snum, ESyncBits sb_snum, int psectlotag, int fz, 
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1671,7 +1690,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 	{
 
 		// not jumping or crouching
-		if ((sb_snum & (SKB_JUMP|SKB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->posz >= (fz - (i << 8) - (16 << 8)))
 			p->posz = fz - (i << 8);
 		else
 		{
@@ -1747,27 +1766,27 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 
 		p->on_warping_sector = 0;
 
-		if (sb_snum & SKB_CROUCH)
+		if (actions & SB_CROUCH)
 		{
 			playerCrouch(snum);
 		}
 
 		// jumping
-		if ((sb_snum & SKB_JUMP) == 0 && p->jumping_toggle == 1)
+		if ((actions & SB_JUMP) == 0 && p->jumping_toggle == 1)
 			p->jumping_toggle = 0;
 
-		else if ((sb_snum & SKB_JUMP))
+		else if ((actions & SB_JUMP))
 		{
 			playerJump(snum, fz, cz);
 		}
 
-		if (p->jumping_counter && (sb_snum & SKB_JUMP) == 0)
+		if (p->jumping_counter && (actions & SB_JUMP) == 0)
 			p->jumping_toggle = 0;
 	}
 
 	if (p->jumping_counter)
 	{
-		if ((sb_snum & SKB_JUMP) == 0 && p->jumping_toggle == 1)
+		if ((actions & SB_JUMP) == 0 && p->jumping_toggle == 1)
 			p->jumping_toggle = 0;
 
 		if (p->jumping_counter < (1024 + 256))
@@ -1809,7 +1828,7 @@ static void movement(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1826,14 +1845,14 @@ static void underwater(int snum, ESyncBits sb_snum, int psect, int fz, int cz)
 	if (!S_CheckActorSoundPlaying(pi, DUKE_UNDERWATER))
 		S_PlayActorSound(DUKE_UNDERWATER, pi);
 
-	if (sb_snum & SKB_JUMP)
+	if (actions & SB_JUMP)
 	{
 		// jump
 		if (p->poszv > 0) p->poszv = 0;
 		p->poszv -= 348;
 		if (p->poszv < -(256 * 6)) p->poszv = -(256 * 6);
 	}
-	else if (sb_snum & SKB_CROUCH)
+	else if (actions & SB_CROUCH)
 	{
 		// crouch
 		if (p->poszv < 0) p->poszv = 0;
@@ -2058,7 +2077,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits sb_snum, int psect)
+static void operateweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2069,7 +2088,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 	switch (p->curr_weapon)
 	{
 	case HANDBOMB_WEAPON:	// grenade in NAM
-		if (p->kickback_pic == 6 && (sb_snum & SKB_FIRE))
+		if (p->kickback_pic == 6 && (actions & SB_FIRE))
 		{
 			p->rapid_fire_hold = 1;
 			break;
@@ -2079,7 +2098,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		{
 			p->ammo_amount[HANDBOMB_WEAPON]--;
 
-			if (p->on_ground && (sb_snum & SKB_CROUCH))
+			if (p->on_ground && (actions & SB_CROUCH))
 			{
 				k = 15;
 				i = ((p->gethorizsum() - 100) * 20);
@@ -2118,7 +2137,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 			p->hbomb_on = 1;
 
 		}
-		else if (p->kickback_pic < 12 && (sb_snum & SKB_FIRE))
+		else if (p->kickback_pic < 12 && (actions & SB_FIRE))
 			p->hbomb_hold_delay++;
 		else if (p->kickback_pic > 19)
 		{
@@ -2278,7 +2297,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 				p->visibility = 0;
 				checkavailweapon(p);
 
-				if ((sb_snum & SKB_FIRE) == 0)
+				if ((actions & SB_FIRE) == 0)
 				{
 					p->okickback_pic = p->kickback_pic = 0;
 					break;
@@ -2287,7 +2306,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else if (p->kickback_pic > 10)
 		{
-			if (sb_snum & SKB_FIRE) p->okickback_pic = p->kickback_pic = 1;
+			if (actions & SB_FIRE) p->okickback_pic = p->kickback_pic = 1;
 			else p->okickback_pic = p->kickback_pic = 0;
 		}
 
@@ -2425,7 +2444,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else
 		{
-			if (sb_snum & SKB_FIRE)
+			if (actions & SB_FIRE)
 			{
 				p->okickback_pic = p->kickback_pic = 1;
 				S_PlayActorSound(CAT_FIRE, pi);
@@ -2451,7 +2470,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		}
 		else if (p->kickback_pic == 16) 
 		{
-			if ((sb_snum & SKB_FIRE) != 0)
+			if ((actions & SB_FIRE) != 0)
 			{
 				p->okickback_pic = p->kickback_pic = 1;
 				S_PlayActorSound(FLAMETHROWER_INTRO, pi);
@@ -2483,7 +2502,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 		if (p->kickback_pic == 7) fi.shoot(pi, KNEE);
 		else if (p->kickback_pic == 14)
 		{
-			if (sb_snum & SKB_FIRE)
+			if (actions & SB_FIRE)
 				p->okickback_pic = p->kickback_pic = 1 + (krand() & 3);
 			else p->okickback_pic = p->kickback_pic = 0;
 		}
@@ -2514,7 +2533,7 @@ static void operateweapon(int snum, ESyncBits sb_snum, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits sb_snum, int psect)
+static void processweapon(int snum, ESyncBits actions, int psect)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -2542,7 +2561,7 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 			max_ammo_amount[PISTOL_WEAPON] = pistolNewMaximum;
 	}
 
-	if (isNamWW2GI() && (sb_snum & SKB_HOLSTER)) // 'Holster Weapon
+	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
 		if (isWW2GI())
 		{
@@ -2564,7 +2583,7 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 							p->ammo_amount[p->curr_weapon] % aplWeaponClip[p->curr_weapon][snum];
 						//				p->kickback_pic = aplWeaponFireDelay[p->curr_weapon][snum]+1;	// animate, but don't shoot...
 						p->kickback_pic = aplWeaponTotalTime[p->curr_weapon][snum] + 1;	// animate, but don't shoot...
-						sb_snum &= ~SKB_FIRE; // not firing...
+						actions &= ~SB_FIRE; // not firing...
 					}
 					return;
 				}
@@ -2577,7 +2596,7 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 				// throw away the remaining clip
 				p->ammo_amount[PISTOL_WEAPON] -= p->ammo_amount[PISTOL_WEAPON] % 20;
 				p->kickback_pic = 3;	// animate, but don't shoot...
-				sb_snum &= ~SKB_FIRE; // not firing...
+				actions &= ~SB_FIRE; // not firing...
 			}
 			return;
 		}
@@ -2592,13 +2611,13 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 
 	if (p->rapid_fire_hold == 1)
 	{
-		if (sb_snum & SKB_FIRE) return;
+		if (actions & SB_FIRE) return;
 		p->rapid_fire_hold = 0;
 	}
 
 	if (shrunk || p->tipincs || p->access_incs)
-		sb_snum &= ~SKB_FIRE;
-	else if (shrunk == 0 && (sb_snum & SKB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
+		actions &= ~SB_FIRE;
+	else if (shrunk == 0 && (actions & SB_FIRE) && p->kickback_pic == 0 && p->fist_incs == 0 &&
 		p->last_weapon == -1 && (p->weapon_pos == 0 || p->holster_weapon == 1))
 	{
 		if (!isWW2GI()) fireweapon(snum);
@@ -2606,8 +2625,8 @@ static void processweapon(int snum, ESyncBits sb_snum, int psect)
 	}
 	else if (p->kickback_pic)
 	{
-		if (!isWW2GI()) operateweapon(snum, sb_snum, psect);
-		else operateweapon_ww(snum, sb_snum, psect);
+		if (!isWW2GI()) operateweapon(snum, actions, psect);
+		else operateweapon_ww(snum, actions, psect);
 	}
 }
 //---------------------------------------------------------------------------
@@ -2620,7 +2639,7 @@ void processinput_d(int snum)
 {
 	int j, i, k, doubvel, fz, cz, hz, lz, truefdist;
 	char shrunk;
-	ESyncBits sb_snum;
+	ESyncBits actions;
 	short psect, psectlotag, pi;
 	struct player_struct* p;
 	spritetype* s;
@@ -2631,7 +2650,7 @@ void processinput_d(int snum)
 
 	resetinputhelpers(p);
 
-	sb_snum = PlayerInputBits(snum, SKB_ALL);
+	actions = PlayerInputBits(snum, SB_ALL);
 
 	auto sb_fvel = PlayerInputForwardVel(snum);
 	auto sb_svel = PlayerInputSideVel(snum);
@@ -2754,14 +2773,14 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, sb_snum, psect);
+		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
 		return;
 	}
 
 	doubvel = TICSPERFRAME;
 
-	checklook(snum,sb_snum);
+	checklook(snum,actions);
 
 	if (p->on_crane >= 0)
 		goto HORIZONLY;
@@ -2779,16 +2798,16 @@ void processinput_d(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 
 	else if (p->jetpack_on)
 	{
-		operateJetpack(snum, sb_snum, psectlotag, fz, cz, shrunk);
+		operateJetpack(snum, actions, psectlotag, fz, cz, shrunk);
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -2895,8 +2914,8 @@ void processinput_d(int snum)
 
 		bool check;
 
-		if (!isWW2GI()) check = ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & SKB_CROUCH)));
-		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (sb_snum & SKB_CROUCH)));
+		if (!isWW2GI()) check = ((p->curr_weapon == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
+		else check = ((aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON && p->kickback_pic > 10 && p->on_ground) || (p->on_ground && (actions & SB_CROUCH)));
 		if (check)
 		{
 			p->posxv = mulscale(p->posxv, dukefriction - 0x2000, 16);
@@ -3016,30 +3035,30 @@ HORIZONLY:
 	}
 
 	// center_view
-	if (sb_snum & SKB_CENTER_VIEW || p->hard_landing)
+	if (actions & SB_CENTERVIEW || p->hard_landing)
 	{
 		playerCenterView(snum);
 	}
-	else if (sb_snum & SKB_LOOK_UP)
+	else if (actions & SB_LOOK_UP)
 	{
-		playerLookUp(snum, sb_snum);
+		playerLookUp(snum, actions);
 	}
-	else if (sb_snum & SKB_LOOK_DOWN)
+	else if (actions & SB_LOOK_DOWN)
 	{
-		playerLookDown(snum, sb_snum);
+		playerLookDown(snum, actions);
 	}
-	else if (sb_snum & SKB_AIM_UP)
+	else if (actions & SB_AIM_UP)
 	{
-		playerAimUp(snum, sb_snum);
+		playerAimUp(snum, actions);
 	}
-	else if (sb_snum & SKB_AIM_DOWN)
+	else if (actions & SB_AIM_DOWN)
 	{	// aim_down
-		playerAimDown(snum, sb_snum);
+		playerAimDown(snum, actions);
 	}
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, sb_snum, 1, sync[snum].q16horz);
+		sethorizon(snum, actions, 1, PlayerHorizon(snum));
 	}
 
 	checkhardlanding(p);
@@ -3081,30 +3100,25 @@ HORIZONLY:
 	}
 
 	// HACKS
-	processweapon(snum, sb_snum, psect);
+	processweapon(snum, actions, psect);
 }
 
-void processweapon_d(int s, ESyncBits ss, int p)
-{
-	processweapon(s, ss, p);
-}
-
-void processmove_d(int snum, ESyncBits sb_snum, int psect, int fz, int cz, int shrunk, int truefdist)
+void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
 	auto p = &ps[snum];
 	if (psectlotag == 2)
 	{
-		underwater(snum, sb_snum, psect, fz, cz);
+		underwater(snum, actions, psect, fz, cz);
 	}
 
 	else if (p->jetpack_on)
 	{
-		operateJetpack(snum, sb_snum, psectlotag, fz, cz, shrunk);
+		operateJetpack(snum, actions, psectlotag, fz, cz, shrunk);
 	}
 	else if (psectlotag != 2)
 	{
-		movement(snum, sb_snum, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 END_DUKE_NS

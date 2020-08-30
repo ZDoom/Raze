@@ -1522,7 +1522,7 @@ bool queball(int i, int pocket, int queball, int stripeball)
 			//						if(s->pal == 12)
 			{
 				j = getincangle(ps[p].getang(), getangle(s->x - ps[p].posx, s->y - ps[p].posy));
-				if (j > -64 && j < 64 && PlayerInput(p, SKB_OPEN))
+				if (j > -64 && j < 64 && PlayerInput(p, SB_OPEN))
 					if (ps[p].toggle_key_flag == 1)
 					{
 						int a = headspritestat[STAT_ACTOR];

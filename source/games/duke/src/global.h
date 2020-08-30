@@ -8,6 +8,7 @@
 #include "sounds.h"
 #include "constants.h"
 #include "types.h"
+#include "d_net.h"
 
 BEGIN_DUKE_NS
 
@@ -51,8 +52,6 @@ extern int16_t weaponsandammosprites[15];
 extern int32_t PHEIGHT;
 extern int duke3d_globalflags;
 extern uint8_t ready2send;
-extern InputPacket loc;
-extern int gamequit;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;
@@ -107,8 +106,6 @@ extern int16_t spriteq[1024];
 extern int16_t cyclers[MAXCYCLERS][6];
 extern int16_t mirrorsector[64];
 extern int16_t mirrorwall[64];
-
-extern int lockclock;
 
 extern int wupass;
 extern int chickenplant;

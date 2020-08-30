@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "jsector.h"
 #include "network.h"
 #include "gamestate.h"
+#include "player.h"
 
 BEGIN_SW_NS
 
@@ -237,6 +238,62 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+static int osdcmd_third_person_view(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    auto pp = &Player[myconnectindex];
+    if (inputState.ShiftPressed())
+    {
+        if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+            pp->view_outside_dang = NORM_ANGLE(pp->view_outside_dang + 256);
+    }
+    else
+    {
+        if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
+        {
+            RESET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
+        }
+        else
+        {
+            SET(pp->Flags, PF_VIEW_FROM_OUTSIDE);
+            pp->camera_dist = 0;
+        }
+    }
+    return CCMD_OK;
+}
+
+static int osdcmd_coop_view(CCmdFuncPtr parm)
+{
+    if (gamestate != GS_LEVEL || System_WantGuiCapture()) return CCMD_OK;
+    if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
+    {
+        screenpeek = connectpoint2[screenpeek];
+
+        if (screenpeek < 0)
+            screenpeek = connecthead;
+
+        if (screenpeek == myconnectindex)
+        {
+            // JBF: figure out what's going on here
+            auto pp = &Player[myconnectindex];
+            DoPlayerDivePalette(pp);  // Check Dive again
+            DoPlayerNightVisionPalette(pp);  // Check Night Vision again
+        }
+        else
+        {
+            PLAYERp tp = Player + screenpeek;
+            DoPlayerDivePalette(tp);
+            DoPlayerNightVisionPalette(tp);
+        }
+    }
+    return CCMD_OK;
+}
+
+static int osdcmd_noop(CCmdFuncPtr parm)
+{
+	// this is for silencing key bindings only.
+	return CCMD_OK;
+}
 
 int32_t registerosdcommands(void)
 {
@@ -244,17 +301,14 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("bunny", "bunny: toggles bunny rocket mode", osdcmd_bunny);
-    C_RegisterFunction("mirror", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
-
+    C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
-
     C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
-
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
-
-//    C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
-
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
+    C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
+    C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
+	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
 
     return 0;
 }

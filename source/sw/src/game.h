@@ -73,42 +73,6 @@ typedef struct
 extern const GAME_SET gs_defaults;
 extern GAME_SET gs;
 
-enum GameFunction_t
-{
-    gamefunc_Move_Forward,
-    gamefunc_Move_Backward,
-    gamefunc_Turn_Left,
-    gamefunc_Turn_Right,
-    gamefunc_Strafe,
-    gamefunc_Fire,
-    gamefunc_Open,
-    gamefunc_Run,
-    gamefunc_Alt_Fire,	// Duke3D, Blood
-    gamefunc_Jump,
-    gamefunc_Crouch,
-    gamefunc_Look_Up,
-    gamefunc_Look_Down,
-    gamefunc_Look_Left,
-    gamefunc_Look_Right,
-    gamefunc_Strafe_Left,
-    gamefunc_Strafe_Right,
-    gamefunc_Aim_Up,
-    gamefunc_Aim_Down,
-    gamefunc_SendMessage,
-    gamefunc_Shrink_Screen,
-    gamefunc_Enlarge_Screen,
-    gamefunc_Show_Opponents_Weapon,
-    gamefunc_See_Coop_View,
-    gamefunc_Mouse_Aiming,
-    gamefunc_Dpad_Select,
-    gamefunc_Dpad_Aiming,
-    gamefunc_Last_Weapon,
-    gamefunc_Alt_Weapon,
-    gamefunc_Third_Person_View,
-    gamefunc_Toggle_Crouch,	// This is the last one used by EDuke32.
-    NUM_ACTIONS
-};
-
 enum
 {
     DREALMSPAL = 1,
@@ -286,17 +250,6 @@ extern SWBOOL MenuInputMode;
 
 #define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
 #define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)
-
-// Key Press Flags macros
-#define FLAG_KEY_PRESSED(pp,sync_key) TEST(pp->KeyPressFlags,1<<sync_key)
-#define FLAG_KEY_RELEASE(pp,sync_key) RESET(pp->KeyPressFlags,1<<sync_key)
-#define FLAG_KEY_RESET(pp,sync_key) SET(pp->KeyPressFlags,1<<sync_key)
-
-// syncbit manipulation macros
-// key_test MUST be a boolean - force it to be
-#define SET_SYNC_KEY(player, sync_num, key_test) SET((player)->input.bits, ((!!(key_test)) << (sync_num)))
-#define TEST_SYNC_KEY(player, sync_num) TEST((player)->input.bits, (1 << (sync_num)))
-#define RESET_SYNC_KEY(player, sync_num) RESET((player)->input.bits, (1 << (sync_num)))
 
 #define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
 #define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))
@@ -948,6 +901,7 @@ struct PLAYERstruct
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
+    bool centering;
     fix16_t q16horiz, q16horizbase, q16horizoff, q16ang;
     fix16_t camq16horiz, camq16ang;
     short recoil_amt;
@@ -998,7 +952,7 @@ struct PLAYERstruct
 
     PLAYER_ACTION_FUNCp DoPlayerAction;
     int Flags, Flags2;
-    int KeyPressFlags;
+    ESyncBits KeyPressBits;
 
     SECTOR_OBJECTp sop_control; // sector object pointer
     SECTOR_OBJECTp sop_riding; // sector object pointer
@@ -2100,7 +2054,6 @@ extern short numplayers, myconnectindex;
 extern short connecthead, connectpoint2[MAXPLAYERS];
 */
 extern int *lastpacket2clock;
-extern char username[MAXPLAYERS][50];
 
 // save player info when moving to a new level
 extern USER puser[MAX_SW_PLAYERS_REG];
@@ -2255,7 +2208,6 @@ void LoadSaveMsg(const char *msg);
 void UpdateStatusBar(int arg);
 void InitFonts();
 int32_t registerosdcommands(void);
-void registerinputcommands();
 void SW_InitMultiPsky(void);
 
 extern int PlayClock;
@@ -2301,9 +2253,10 @@ struct GameInterface : ::GameInterface
     void SetAmbience(bool on) override { if (on) StartAmbientSound(); else StopAmbientSound(); }
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
-    void clearlocalinputstate() override;
     void QuitToTitle() override;
 	void ResetFollowPos(bool message) override;
+    void UpdateSounds() override;
+    void ErrorCleanup() override;
 
     GameStats getStats() override;
 };

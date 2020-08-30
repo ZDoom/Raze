@@ -384,51 +384,6 @@ void SetPlayerItem(short nPlayer, short nItem)
     }
 }
 
-void SetNextItem(int nPlayer)
-{
-    short nItem = nPlayerItem[nPlayer];
-
-    int i;
-
-    for (i = 6; i > 0; i--)
-    {
-        nItem++;
-        if (nItem == 6)
-            nItem = 0;
-
-        if (PlayerList[nPlayer].items[nItem] != 0)
-            break;
-    }
-
-    if (i > 0) {
-        SetPlayerItem(nPlayer, nItem);
-    }
-}
-
-void SetPrevItem(int nPlayer)
-{
-    if (nPlayerItem[nPlayer] == -1)
-        return;
-
-    int nItem = nPlayerItem[nPlayer];
-
-    int i;
-
-    for (i = 6; i > 0; i--)
-    {
-        nItem--;
-        if (nItem < 0)
-            nItem = 5;
-
-        if (PlayerList[nPlayer].items[nItem] != 0)
-            break;
-    }
-
-    if (i > 0) {
-        SetPlayerItem(nPlayer, nItem);
-    }
-}
-
 void MoveStatus()
 {
     if (nItemSeq >= 0)

@@ -310,6 +310,7 @@ void seq_LoadSequences()
         }
     }
 
+#if 0
     FILE* f = fopen("seq.dump", "wb");
 
     fwrite(SeqBase, 1, sizeof(SeqBase), f);
@@ -326,6 +327,7 @@ void seq_LoadSequences()
     fwrite(ChunkPict, 1, sizeof(ChunkPict), f);
     fwrite(ChunkFlag, 1, sizeof(ChunkFlag), f);
     fclose(f);
+#endif
 
     nShadowPic = seq_GetFirstSeqPicnum(kSeqShadow);
     nShadowWidth = tilesiz[nShadowPic].x;

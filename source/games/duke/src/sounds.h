@@ -36,7 +36,6 @@ enum esound_t
 };
 
 void S_InitSound();
-void S_Update(void);
 void S_CacheAllSounds(void);
 int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
 

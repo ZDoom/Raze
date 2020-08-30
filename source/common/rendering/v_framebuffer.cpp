@@ -58,7 +58,7 @@
 CVAR(Bool, gl_scale_viewport, true, CVAR_ARCHIVE);
 
 EXTERN_CVAR(Int, vid_maxfps)
-CVAR(Bool, cl_capfps, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Int, screenblocks)
 
 //==========================================================================

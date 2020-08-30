@@ -481,9 +481,9 @@ OptionMenu "ActionControlsMenu"// protected
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifgame(ShadowWarrior)
+	ifgame(ShadowWarrior, Duke, Redneck, Blood)
 	{
-		Control    "$CNTRLMNU_ALTWEAPON"        , "+alt_weapon"
+		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
 	}
 
 	StaticText ""
@@ -584,15 +584,15 @@ OptionMenu "WeaponsControlMenu"// protected
 	}
 	ifgame(Blood)
 	{
-		Control "$CNTRLMNU_PROXIMITYBOMBS","proximitybombs"
-		Control "$CNTRLMNU_REMOTEBOMBS"   ,"remotebombs"
+		Control "$CNTRLMNU_PROXIMITYBOMBS","slot 11"
+		Control "$CNTRLMNU_REMOTEBOMBS"   ,"slot 12"
 	}
 	ifgame(ShadowWarrior)
 	{
-		Control "$CNTRLMNU_SMOKEBOMB","smoke_bomb"
-		Control "$CNTRLMNU_GASBOMB"   ,"gas_bomb"
-		Control "$CNTRLMNU_FLASHBOMB","flash_bomb"
-		Control "$CNTRLMNU_CALTROPS"   ,"caltrops"
+		Control "$CNTRLMNU_SMOKEBOMB","useitem 3"
+		Control "$CNTRLMNU_GASBOMB"   ,"useitem 5"
+		Control "$CNTRLMNU_FLASHBOMB","useitem 6"
+		Control "$CNTRLMNU_CALTROPS"   ,"useitem 7"
 	}
 
 }
@@ -610,54 +610,65 @@ OptionMenu "InventoryControlsMenu"// protected
 	Control    "$CNTRLMNU_NEXTITEM"     , "invnext"
 	Control    "$CNTRLMNU_PREVIOUSITEM" , "invprev"
 	
+	// Item numbers here are are defined by the games' internal order.
 	ifgame(Duke)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLODUKE" , "holoduke"
-		Control    "$CNTRLMNU_JETPACK" , "jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "medkit"
-		Control    "$CNTRLMNU_STEROIDS" , "steroids"
+		Control    "$CNTRLMNU_HOLODUKE" , "useitem 3"
+		Control    "$CNTRLMNU_JETPACK" , "useitem 4"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_STEROIDS" , "useitem 2"
 	}
 	ifgame(Nam)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_HOLOSOLDIER" , "holoduke"
-		Control    "$CNTRLMNU_HUEY" , "jetpack"
-		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "medkit"
-		Control    "$CNTRLMNU_TANKMODE" , "steroids"
+		Control    "$CNTRLMNU_HOLOSOLDIER" , "useitem 3"
+		Control    "$CNTRLMNU_HUEY" , "useitem 4"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_TANKMODE" , "useitem 2"
 	}
 	ifgame(WW2GI)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_FIRE MISSION" , "holoduke"
-		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "medkit"
-		Control    "$CNTRLMNU_SMOKES" , "steroids"
+		Control    "$CNTRLMNU_FIRE MISSION" , "useitem 3"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 5"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+		Control    "$CNTRLMNU_SMOKES" , "useitem 2"
 	}
 	ifgame(Redneck, RedneckRides)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_BEER" , "holoduke"
-		Control    "$CNTRLMNU_COWPIE" , "jetpack"
-		Control    "$CNTRLMNU_YEEHAA" , "nightvision"
-		Control    "$CNTRLMNU_WHISKEY" , "medkit"
-		Control    "$CNTRLMNU_MOONSHINE" , "steroids"
+		Control    "$CNTRLMNU_BEER" , "useitem 3"
+		Control    "$CNTRLMNU_COWPIE" , "useitem 4"
+		Control    "$CNTRLMNU_YEEHAA" , "useitem 5"
+		Control    "$CNTRLMNU_WHISKEY" , "useitem 1"
+		Control    "$CNTRLMNU_MOONSHINE" , "useitem 2"
 	}
 	ifgame(Blood)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_CRYSTALBALL" , "crystalball"
-		Control    "$CNTRLMNU_JUMPBOOTS" , "jumpboots"
-		Control    "$CNTRLMNU_BEASTVISION" , "beastvision"
-		Control    "$CNTRLMNU_MEDKIT" , "medkit"
+		Control    "$CNTRLMNU_CRYSTALBALL" , "useitem 2"
+		Control    "$CNTRLMNU_JUMPBOOTS" , "useitem 4"
+		Control    "$CNTRLMNU_BEASTVISION" , "useitem 3"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
 	}
 	ifgame(ShadowWarrior)
 	{
 		StaticText ""
-		Control    "$CNTRLMNU_NIGHTVISION" , "nightvision"
-		Control    "$CNTRLMNU_MEDKIT" , "medkit"
+		Control    "$CNTRLMNU_NIGHTVISION" , "useitem 4"
+		Control    "$CNTRLMNU_MEDKIT" , "useitem 1"
+	}
+	ifgame(Exhumed)
+	{
+		StaticText ""
+		Control    "$TXT_USEINV1" , "useitem 1"
+		Control    "$TXT_USEINV2" , "useitem 2"
+		Control    "$TXT_USEINV3" , "useitem 3"
+		Control    "$TXT_USEINV4" , "useitem 4"
+		Control    "$TXT_USEINV5" , "useitem 5"
+		Control    "$TXT_USEINV6" , "useitem 6"
 	}
 }
 
@@ -674,7 +685,7 @@ OptionMenu "OtherControlsMenu"// protected
 	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
 
 	StaticText ""
-	Control    "$CNTRLMNU_CHASECAM"        , "+third_person_view"
+	Control    "$CNTRLMNU_CHASECAM"        , "third_person_view"
 
 	StaticText ""
 	Control    "$CNTRLMNU_SCREENSHOT"      , "screenshot"

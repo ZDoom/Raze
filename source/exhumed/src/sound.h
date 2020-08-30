@@ -117,7 +117,6 @@ extern short nCreepyTimer;
 extern short StaticSound[];
 
 
-void UpdateSounds();
 void UpdateCreepySounds();
 
 void InitFX();

@@ -30,41 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-// Order is that of EDuke32 by necessity because it exposes the key binds to scripting  by index instead of by name.
-enum GameFunction_t
-{
-	gamefunc_Move_Forward,
-	gamefunc_Move_Backward,
-	gamefunc_Turn_Left,
-	gamefunc_Turn_Right,
-	gamefunc_Strafe,
-	gamefunc_Fire,
-	gamefunc_Open,
-	gamefunc_Run,
-	gamefunc_Alt_Fire,	// Duke3D, Blood
-	gamefunc_Jump,
-	gamefunc_Crouch,
-	gamefunc_Look_Up,
-	gamefunc_Look_Down,
-	gamefunc_Look_Left,
-	gamefunc_Look_Right,
-	gamefunc_Strafe_Left,
-	gamefunc_Strafe_Right,
-	gamefunc_Aim_Up,
-	gamefunc_Aim_Down,
-	gamefunc_SendMessage,
-	gamefunc_Shrink_Screen,
-	gamefunc_Enlarge_Screen,
-	gamefunc_Show_Opponents_Weapon,
-	gamefunc_See_Coop_View,
-	gamefunc_Mouse_Aiming,
-	gamefunc_Dpad_Select,
-	gamefunc_Dpad_Aiming,
-	gamefunc_Third_Person_View,
-	gamefunc_Toggle_Crouch,
-	NUM_ACTIONS
-};
-
 struct INIDESCRIPTION {
     const char *pzName;
     const char *pzFilename;
@@ -119,9 +84,9 @@ struct GameInterface : ::GameInterface
 	void DrawCenteredTextScreen(const DVector2& origin, const char* text, int position, bool bg) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
-	void clearlocalinputstate() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
-	
+	void UpdateSounds() override;
+
 	GameStats getStats() override;
 };
 

@@ -45,10 +45,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "c_console.h"
 #include "cheathandler.h"
+#include "inputstate.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
 
+extern short bPlayerPan;
+extern short bLockPan;
 
     extern const char* s_buildRev;
     extern const char* s_buildTimestamp;
@@ -56,10 +59,8 @@ BEGIN_PS_NS
 
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
-void registerinputcommands();
 void InitFonts();
 
-int htimer = 0;
 int EndLevel = false;
 
 
@@ -84,9 +85,6 @@ void InstallEngine()
     uploadCinemaPalettes();
     LoadPaletteLookups();
     InitFonts();
-    videoInit();
-
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void RemoveEngine()
@@ -435,6 +433,23 @@ void GameMove(void)
     totalmoves++;
 }
 
+static int SelectNextWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
+
+static int SelectPrevWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
+
+static int SelectAltWeapon(int weap2)
+{
+    // todo
+    return 0;
+}
 
 void GameTicker()
 {
@@ -454,8 +469,7 @@ void GameTicker()
         {
             lastTic = currentTic;
 
-            int lLocalButtons = GetLocalInput(); // shouldn't this be placed in localInput?
-            PlayerInterruptKeys();
+            PlayerInterruptKeys(false);
 
             nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
             inita &= kAngleMask;
@@ -467,12 +481,98 @@ void GameTicker()
                 lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
                 lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
             }
+            int weap2 = localInput.getNewWeapon();
+            if (weap2 == WeaponSel_Next)
+            {
+                weap2 = SelectNextWeapon(weap2);
+            }
+            else if (weap2 == WeaponSel_Prev)
+            {
+                weap2 = SelectPrevWeapon(weap2);
+            }
+            else if (weap2 == WeaponSel_Alt)
+            {
+                weap2 = SelectAltWeapon(weap2);
+            }
+
+            if (localInput.actions & SB_INVPREV)
+            {
+                int nItem = nPlayerItem[nLocalPlayer];
+
+                int i;
+                for (i = 6; i > 0; i--)
+                {
+                    nItem--;
+                    if (nItem < 0) nItem = 5;
+
+                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                        break;
+                }
+
+                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            }
+
+            if (localInput.actions & SB_INVNEXT)
+            {
+                int nItem = nPlayerItem[nLocalPlayer];
+
+                int i;
+                for (i = 6; i > 0; i--)
+                {
+                    nItem++;
+                    if (nItem == 6) nItem = 0;
+
+                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                        break;
+                }
+
+                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+            }
+
+            if (localInput.actions & SB_INVUSE)
+            {
+                if (nPlayerItem[nLocalPlayer] != -1)
+                {
+                    localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
+                }
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (localInput.isItemUsed(i))
+                {
+                    localInput.clearItemUsed(i);
+                    if (PlayerList[nLocalPlayer].items[i] > 0)
+                    {
+                        if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
+                        {
+                            sPlayerInput[nLocalPlayer].nItem = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (localInput.actions & SB_CENTERVIEW)
+            {
+                bLockPan = false;
+                bPlayerPan = false;
+                PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
+                nDestVertPan[nLocalPlayer] = fix16_from_int(92);
+            }
+            if (localInput.actions & SB_TURNAROUND)
+            {
+                // todo
+            }
+
 
             sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
             sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
             // make weapon selection persist until it gets used up.
-            if ((lLocalButtons & kButtonWeaponBits) == 0) lLocalButtons |= sPlayerInput[nLocalPlayer].buttons & kButtonWeaponBits;
-            sPlayerInput[nLocalPlayer].buttons = lLocalButtons | lLocalCodes;
+            sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
+            int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
+            sPlayerInput[nLocalPlayer].actions = localInput.actions;
+            if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
             sPlayerInput[nLocalPlayer].nTarget = besttarget;
 
             Ra[nLocalPlayer].nTarget = besttarget;
@@ -501,56 +601,11 @@ void ExitGame()
     throw CExitEvent(0);
 }
 
-void InitTimer()
-{
-    htimer = 1;
-}
-
-static const char* actions[] =
-{
-    "Move_Forward",
-    "Move_Backward",
-    "Turn_Left",
-    "Turn_Right",
-    "Strafe",
-    "Fire",
-    "Open",
-    "Run",
-    "Alt_Fire",	// Duke3D", Blood
-    "Jump",
-    "Crouch",
-    "Look_Up",
-    "Look_Down",
-    "Look_Left",
-    "Look_Right",
-    "Strafe_Left",
-    "Strafe_Right",
-    "Aim_Up",
-    "Aim_Down",
-    "SendMessage",
-    "Shrink_Screen",
-    "Enlarge_Screen",
-    "Show_Opponents_Weapon",
-    "See_Coop_View",
-    "Mouse_Aiming",
-    "Dpad_Select",
-    "Dpad_Aiming",
-    "Last_Weapon",
-    "Alt_Weapon",
-    "Third_Person_View",
-    "Toggle_Crouch",	// This is the last one used by EDuke32.
-};
-
-
-
-
 void GameInterface::app_init()
 {
     int i;
     //int esi = 1;
     //int edi = esi;
-
-    buttonMap.SetButtons(actions, NUM_ACTIONS);
 
     help_disabled = true;
     // Create the global level table. Parts of the engine need it, even though the game itself does not.
@@ -569,7 +624,6 @@ void GameInterface::app_init()
 
     SetCheats(excheats, countof(excheats));
     registerosdcommands();
-    registerinputcommands();
     if (nNetPlayerCount == -1)
     {
         nNetPlayerCount = nCfgNetPlayers - 1;
@@ -587,22 +641,18 @@ void GameInterface::app_init()
         Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
 
-
-    enginePostInit();
-
     InitView();
     InitFX();
     seq_LoadSequences();
     InitStatus();
-    InitTimer();
-
+    
     for (i = 0; i < kMaxPlayers; i++) {
         nPlayerLives[i] = kDefaultLives;
     }
-
-    ResetEngine();
-    ResetView();
+    resettiming();
     GrabPalette();
+
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void mychangespritesect(int nSprite, int nSector)

@@ -43,6 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 void getinput(InputPacket *, SWBOOL);
+void resetGameClock();
 
 static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
@@ -82,7 +83,7 @@ typedef struct
     fix16_t q16horz;
     fix16_t q16ang;
     fix16_t q16horiz;
-    int32_t bits;
+    ESyncBits actions;
 } SW_AVERAGE_PACKET;
 
 int MovesPerPacket = 1;
@@ -163,9 +164,7 @@ InitTimingVars(void)
 
     // resettiming();
     totalsynctics = 0;
-    I_ResetTime();
-    lastTic = -1;
-    ogameclock = gameclock = 0;
+    resetGameClock();
     randomseed = 17L;
 
     MoveSkip8 = 2;
@@ -202,9 +201,12 @@ UpdateInputs(void)
     AveragePacket.q16horz += loc.q16horz;
     AveragePacket.q16ang = Player[myconnectindex].camq16ang;
     AveragePacket.q16horiz = Player[myconnectindex].camq16horiz;
-    SET(AveragePacket.bits, loc.bits);
+    SET(AveragePacket.actions, loc.actions);
+    // The above would or the weapon numbers together. Undo that now. The last one should win.
+    AveragePacket.actions &= ~SB_WEAPONMASK_BITS;
+    AveragePacket.actions |= ESyncBits::FromInt(loc.getNewWeapon()) & SB_WEAPONMASK_BITS;
 
-    Bmemset(&loc, 0, sizeof(loc));
+    memset(&loc, 0, sizeof(loc));
 
     pp = Player + myconnectindex;
 
@@ -224,7 +226,7 @@ UpdateInputs(void)
     loc.q16horz = fix16_div(AveragePacket.q16horz, fix16_from_int(MovesPerPacket));
     loc.q16ang = AveragePacket.q16ang;
     loc.q16horiz = AveragePacket.q16horiz;
-    loc.bits = AveragePacket.bits;
+    loc.actions = AveragePacket.actions;
 
     memset(&AveragePacket, 0, sizeof(AveragePacket));
 

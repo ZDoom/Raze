@@ -293,7 +293,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
 		while (S_CheckSoundPlaying(skillsound))
 		{
-			S_Update();
+			gi->UpdateSounds();
 			soundEngine->UpdateSounds(I_GetTime());
 			I_GetEvent();
 		}
@@ -356,8 +356,7 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 
 void GameInterface::QuitToTitle()
 {
-	ps[myconnectindex].gm = MODE_DEMO;
-	artClearMapArt();
+	gamestate = GS_STARTUP;
 }
 
 END_DUKE_NS

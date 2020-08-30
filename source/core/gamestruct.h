@@ -6,6 +6,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "vectors.h"
 #include "engineerrors.h"
 #include "stats.h"
+#include "packet.h"
 
 struct GameStats
 {
@@ -54,7 +55,7 @@ struct ReservedSpace
 
 enum EMenuSounds : int;
 
-extern glcycle_t drawtime, actortime, thinktime, gameupdatetime;
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 struct GameInterface
 {
@@ -62,7 +63,6 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual void app_init() = 0;
-	virtual void RunGameFrame() = 0;
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
@@ -93,6 +93,18 @@ struct GameInterface
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
+	virtual void GetInput(InputPacket* packet) {}
+	virtual void UpdateSounds() {}
+	virtual void ErrorCleanup() {}
+	virtual void Startup() {}
+	virtual void DrawBackground() {}
+	virtual void Render() {}
+	virtual void Ticker() {}
+	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
+
+	virtual void RunGameFrame() {} // this must go away once things are done.
+
+
 	virtual FString statFPS()
 	{
 		FString output;

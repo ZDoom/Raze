@@ -51,6 +51,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+extern bool gameRestart;
+
 PROFILE gProfile[kMaxPlayers];
 
 PLAYER gPlayer[kMaxPlayers];
@@ -545,29 +547,42 @@ void packPrevItem(PLAYER *pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nPrev = ClipLow(pPlayer->packItemId-1,0); nPrev >= 0; nPrev--)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nPrev].curAmount)
+            for (int nPrev = pPlayer->packItemId-1; nPrev >= 0; nPrev--)
             {
-                pPlayer->packItemId = nPrev;
-                break;
+                if (pPlayer->packSlots[nPrev].curAmount)
+                {
+                    pPlayer->packItemId = nPrev;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 4;
+            if (pPlayer->packSlots[4].curAmount) break;
         }
     }
+    
     pPlayer->packItemTime = 600;
 }
 
-void packNextItem(PLAYER *pPlayer)
+void packNextItem(PLAYER* pPlayer)
 {
     if (pPlayer->packItemTime > 0)
     {
-        for (int nNext = ClipHigh(pPlayer->packItemId+1,5); nNext < 5; nNext++)
+        for (int i = 0; i < 2; i++)
         {
-            if (pPlayer->packSlots[nNext].curAmount)
+            for (int nNext = pPlayer->packItemId + 1; nNext < 5; nNext++)
             {
-                pPlayer->packItemId = nNext;
-                break;
+                if (pPlayer->packSlots[nNext].curAmount)
+                {
+                    pPlayer->packItemId = nNext;
+                    pPlayer->packItemTime = 600;
+                    return;
+                }
             }
+            pPlayer->packItemId = 0;
+            if (pPlayer->packSlots[0].curAmount) break;
         }
     }
     pPlayer->packItemTime = 600;
@@ -749,7 +764,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->nextWeapon = 0;
     xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
     pInput->q16avel = 0;
-    pInput->syncFlags.value = 0;
+    pInput->actions = 0;
     pInput->fvel = 0;
     pInput->svel = 0;
     pInput->q16horz = 0;
@@ -1295,6 +1310,14 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
 
 void ProcessInput(PLAYER *pPlayer)
 {
+    enum
+    {
+        Item_MedKit = 0,
+        Item_CrystalBall = 1,
+        Item_BeastVision = 2,
+        Item_JumpBoots = 3
+    };
+
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     int nSprite = pPlayer->nSprite;
@@ -1308,8 +1331,8 @@ void ProcessInput(PLAYER *pPlayer)
         gViewLookAdjust = 0.f;
     }
 
-    pPlayer->isRunning = pInput->syncFlags.run;
-    if ((pInput->syncFlags.value & flag_buttonmask_norun) || pInput->fvel || pInput->svel || pInput->q16avel)
+    pPlayer->isRunning = !!(pInput->actions & SB_RUN);
+    if ((pInput->actions & SB_BUTTON_MASK) || pInput->fvel || pInput->svel || pInput->q16avel)
         pPlayer->restTime = 0;
     else if (pPlayer->restTime >= 0)
         pPlayer->restTime += 4;
@@ -1331,8 +1354,8 @@ void ProcessInput(PLAYER *pPlayer)
                 pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
         }
         if (pPlayer->curWeapon)
-            pInput->syncFlags.newWeapon = pPlayer->curWeapon;
-        if (pInput->syncFlags.action)
+            pInput->setNewWeapon(pPlayer->curWeapon);
+        if (pInput->actions & SB_OPEN)
         {
             if (bSeqStat)
             {
@@ -1348,12 +1371,12 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    pInput->syncFlags.restart = 1;
+                    gameRestart = 1;
                 }
                 else
                     playerStart(pPlayer->nPlayer);
             }
-            pInput->syncFlags.action = 0;
+            pInput->actions &= ~SB_OPEN;
         }
         return;
     }
@@ -1410,11 +1433,11 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->q16avel)
         pPlayer->q16ang = (pPlayer->q16ang+pInput->q16avel)&0x7ffffff;
-    if (pInput->syncFlags.spin180)
+    if (pInput->actions & SB_TURNAROUND)
     {
         if (!pPlayer->spin)
             pPlayer->spin = -1024;
-        pInput->syncFlags.spin180 = 0;
+        pInput->actions &= ~SB_TURNAROUND;
     }
     if (pPlayer->spin < 0)
     {
@@ -1432,22 +1455,22 @@ void ProcessInput(PLAYER *pPlayer)
         gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
     pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
     pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
-    if (!pInput->syncFlags.jump)
+    if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
 
     switch (pPlayer->posture) {
     case 1:
-        if (pInput->syncFlags.jump)
+        if (pInput->actions & SB_JUMP)
             zvel[nSprite] -= pPosture->normalJumpZ;//0x5b05;
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             zvel[nSprite] += pPosture->normalJumpZ;//0x5b05;
         break;
     case 2:
-        if (!pInput->syncFlags.crouch)
+        if (!(pInput->actions & SB_CROUCH))
             pPlayer->posture = 0;
         break;
     default:
-        if (!pPlayer->cantJump && pInput->syncFlags.jump && pXSprite->height == 0) {
+        if (!pPlayer->cantJump && (pInput->actions & SB_JUMP) && pXSprite->height == 0) {
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
@@ -1458,11 +1481,11 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->cantJump = 1;
         }
 
-        if (pInput->syncFlags.crouch)
+        if (pInput->actions & SB_CROUCH)
             pPlayer->posture = 2;
         break;
     }
-    if (pInput->syncFlags.action)
+    if (pInput->actions & SB_OPEN)
     {
         int a2, a3;
         int hit = ActionScan(pPlayer, &a2, &a3);
@@ -1535,24 +1558,24 @@ void ProcessInput(PLAYER *pPlayer)
             zvel[pSprite2->index] = zvel[nSprite];
             pPlayer->hand = 0;
         }
-        pInput->syncFlags.action = 0;
+        pInput->actions &= ~SB_OPEN;
     }
     if (bVanilla)
     {
-        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->syncFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16horz, fix16_from_int(-60), fix16_from_int(60));
@@ -1569,33 +1592,33 @@ void ProcessInput(PLAYER *pPlayer)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        if (pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+        if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
             if (pPlayer->q16look > 0)
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
             if (!pPlayer->q16look)
-                pInput->syncFlags.lookCenter = 0;
+                pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
                 pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
                 pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
-            if (pInput->syncFlags.lookUp)
+            if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
             {
                 gViewLookAdjust += float(lookStepUp);
             }
-            if (pInput->syncFlags.lookDown)
+            if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = pInput->syncFlags.lookCenter && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown;
+            gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
@@ -1627,49 +1650,49 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->q16slopehoriz = 0;
     }
     pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
-    if (pInput->syncFlags.prevItem)
+    if (pInput->actions & SB_INVPREV)
     {
-        pInput->syncFlags.prevItem = 0;
+        pInput->actions&= ~SB_INVPREV;
         packPrevItem(pPlayer);
     }
-    if (pInput->syncFlags.nextItem)
+    if (pInput->actions & SB_INVNEXT)
     {
-        pInput->syncFlags.nextItem = 0;
+        pInput->actions &= ~SB_INVNEXT;
         packNextItem(pPlayer);
     }
-    if (pInput->syncFlags.useItem)
+    if (pInput->actions & SB_INVUSE)
     {
-        pInput->syncFlags.useItem = 0;
+        pInput->actions &= ~SB_INVUSE;
         if (pPlayer->packSlots[pPlayer->packItemId].curAmount > 0)
             packUseItem(pPlayer, pPlayer->packItemId);
     }
-    if (pInput->syncFlags.useBeastVision)
+    if (pInput->isItemUsed(Item_BeastVision))
     {
-        pInput->syncFlags.useBeastVision = 0;
+        pInput->clearItemUsed(Item_BeastVision);
         if (pPlayer->packSlots[3].curAmount > 0)
             packUseItem(pPlayer, 3);
     }
-    if (pInput->syncFlags.useCrystalBall)
+    if (pInput->isItemUsed(Item_CrystalBall))
     {
-        pInput->syncFlags.useCrystalBall = 0;
+        pInput->clearItemUsed(Item_CrystalBall);
         if (pPlayer->packSlots[2].curAmount > 0)
             packUseItem(pPlayer, 2);
     }
-    if (pInput->syncFlags.useJumpBoots)
+    if (pInput->isItemUsed(Item_JumpBoots))
     {
-        pInput->syncFlags.useJumpBoots = 0;
+        pInput->clearItemUsed(Item_JumpBoots);
         if (pPlayer->packSlots[4].curAmount > 0)
             packUseItem(pPlayer, 4);
     }
-    if (pInput->syncFlags.useMedKit)
+    if (pInput->isItemUsed(Item_MedKit))
     {
-        pInput->syncFlags.useMedKit = 0;
+        pInput->clearItemUsed(Item_MedKit);
         if (pPlayer->packSlots[0].curAmount > 0)
             packUseItem(pPlayer, 0);
     }
-    if (pInput->syncFlags.holsterWeapon)
+    if (pInput->actions & SB_HOLSTER)
     {
-        pInput->syncFlags.holsterWeapon = 0;
+        pInput->actions &= ~SB_HOLSTER;
         if (pPlayer->curWeapon)
         {
             WeaponLower(pPlayer);

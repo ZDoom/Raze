@@ -490,7 +490,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
 //
 //==========================================================================
 
-void UpdateSounds()
+void GameInterface::UpdateSounds()
 {
     if (nFreeze)
         return;

@@ -36,8 +36,6 @@ void MoveStatus();
 void DrawSnakeCamStatus();
 void DrawStatus();
 int BuildStatusAnim(int val, int nFlags);
-void SetNextItem(int nPlayer);
-void SetPrevItem(int nPlayer);
 void SetCounter(short nVal);
 void SetCounterImmediate(short nVal);
 

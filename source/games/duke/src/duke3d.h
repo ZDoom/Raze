@@ -30,7 +30,6 @@ struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	void app_init() override;
-	void RunGameFrame() override;
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;
@@ -53,6 +52,12 @@ struct GameInterface : public ::GameInterface
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
 	void ResetFollowPos(bool message) override;
+	void GetInput(InputPacket* packet) override;
+	void UpdateSounds() override;
+	void Startup() override;
+	void DrawBackground() override;
+	void Render() override;
+	void Ticker() override;
 
 };
 

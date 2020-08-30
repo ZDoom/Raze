@@ -119,8 +119,8 @@ struct PLAYER
     char                hasFlag;
     short               used2[8];  // ??
     int                 damageControl[7];
-    char                curWeapon;
-    char                nextWeapon;
+    int8_t              curWeapon;
+    int8_t              nextWeapon;
     int                 weaponTimer;
     int                 weaponState;
     int                 weaponAmmo;  //rename

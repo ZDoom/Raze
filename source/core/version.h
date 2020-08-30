@@ -82,6 +82,8 @@ const char *GetVersionString();
 #define SAVEVER_SW 7
 #define SAVEVER_PS 6
 
+#define NETGAMEVERSION 1
+
 #if defined(__APPLE__) || defined(_WIN32)
 #define GAME_DIR GAMENAME
 #else

@@ -191,15 +191,8 @@ void pToggleCrosshair(void)
 void DoPlayerChooseYell(PLAYERp pp)
 {
     int choose_snd = 0;
-    short weapon;
 
-    weapon = TEST(pp->input.bits, SK_WEAPON_MASK);
-
-    if (weapon == WPN_FIST)
-    {
-        if (RANDOM_RANGE(1000) < 900) return;
-    }
-    else if (RANDOM_RANGE(1000) < 990) return;
+    if (RANDOM_RANGE(1000) < 990) return;
 
     choose_snd = STD_RANDOM_RANGE(MAX_YELLSOUNDS);
 
@@ -472,9 +465,9 @@ int WeaponOperate(PLAYERp pp)
             if (!TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
                 break;
 
-            if (TEST_SYNC_KEY(pp, SK_SHOOT))
+            if (pp->input.actions & SB_FIRE)
             {
-                if (FLAG_KEY_PRESSED(pp, SK_SHOOT))
+                if (pp->KeyPressBits & SB_FIRE)
                 {
                     if (!pp->FirePause)
                     {
@@ -487,13 +480,13 @@ int WeaponOperate(PLAYERp pp)
         }
     }
 
-    weapon = TEST(pp->input.bits, SK_WEAPON_MASK);
+    weapon = pp->input.getNewWeapon();
 
     if (weapon)
     {
-        if (FLAG_KEY_PRESSED(pp, SK_WEAPON_BIT0))
+        if (pp->KeyPressBits & SB_FIRST_WEAPON_BIT)
         {
-            FLAG_KEY_RELEASE(pp, SK_WEAPON_BIT0);
+            pp->KeyPressBits &= ~SB_FIRST_WEAPON_BIT;
 
             weapon -= 1;
 
@@ -640,7 +633,7 @@ int WeaponOperate(PLAYERp pp)
     }
     else
     {
-        FLAG_KEY_RESET(pp, SK_WEAPON_BIT0);
+        pp->KeyPressBits |= SB_FIRST_WEAPON_BIT;
     }
 
     // Shut that computer chick up if weapon has changed!
@@ -700,7 +693,7 @@ WeaponOK(PLAYERp pp)
             return TRUE;
         }
 
-        FLAG_KEY_RELEASE(pp, SK_SHOOT);
+        pp->KeyPressBits &= ~SB_FIRE;
 
         FindWeaponNum = WPN_SHOTGUN; // Start at the top
 
@@ -991,8 +984,7 @@ InitWeaponSword(PLAYERp pp)
             PlayerSound(DIGI_ILIKESWORD, v3df_follow|v3df_dontpan,pp);
     }
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 
@@ -1072,9 +1064,9 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     if (psp->x < -40)
     {
         // if still holding down the fire key - continue swinging
-        if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->input.actions & SB_FIRE)
         {
-            if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+            if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
                 DoPlayerChooseYell(psp->PlayerP);
                 // continue to next state to swing right
@@ -1157,9 +1149,9 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     if (psp->x > 350)
     {
         // if still holding down the fire key - continue swinging
-        if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->input.actions & SB_FIRE)
         {
-            if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+            if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
                 DoPlayerChooseYell(psp->PlayerP);
                 // back to action state
@@ -1234,9 +1226,9 @@ pSwordRest(PANEL_SPRITEp psp)
 
     force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -1368,9 +1360,9 @@ PANEL_STATE ps_RetractStar[] =
 void
 pStarRestTest(PANEL_SPRITEp psp)
 {
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+    if (psp->PlayerP->input.actions & SB_FIRE)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
             if (!WeaponOK(psp->PlayerP))
                 return;
@@ -1446,8 +1438,7 @@ InitWeaponStar(PLAYERp pp)
             PlayerSound(DIGI_ILIKESHURIKEN, v3df_follow|v3df_dontpan,pp);
     }
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -1525,9 +1516,9 @@ pStarRest(PANEL_SPRITEp psp)
     pStarBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -2163,8 +2154,7 @@ InitWeaponUzi(PLAYERp pp)
 
     PlaySound(DIGI_UZI_UP, pp, v3df_follow);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 PANEL_SPRITEp
@@ -2372,7 +2362,7 @@ pUziRest(PANEL_SPRITEp psp)
 
     SetVisNorm();
 
-    shooting = TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) && FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT);
+    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
     shooting |= force;
 
     pUziBobSetup(psp);
@@ -2397,7 +2387,7 @@ pUziAction(PANEL_SPRITEp psp)
     char shooting;
     static SWBOOL alternate = FALSE;
 
-    shooting = TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) && FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT);
+    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -2817,8 +2807,7 @@ InitWeaponShotgun(PLAYERp pp)
 
     PlaySound(DIGI_SHOTGUN_UP, pp, v3df_follow);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -3072,9 +3061,9 @@ pShotgunRest(PANEL_SPRITEp psp)
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -3116,9 +3105,9 @@ pShotgunRestTest(PANEL_SPRITEp psp)
     pShotgunBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -3331,8 +3320,7 @@ InitWeaponRail(PLAYERp pp)
     PlaySound(DIGI_RAILREADY, pp, v3df_follow | v3df_dontpan, CHAN_ITEM); // this one needs to be on a dedicated channel to allow switching it off without too many checks.
     Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -3476,9 +3464,9 @@ pRailRest(PANEL_SPRITEp psp)
     pRailBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -3509,9 +3497,9 @@ pRailRestTest(PANEL_SPRITEp psp)
     pRailBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -3789,8 +3777,7 @@ InitWeaponHothead(PLAYERp pp)
     psp->ang = 768;
     psp->vel = 512;
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
     pHotHeadOverlays(psp, pp->WpnFlameType);
     psp->over[0].xoff = HOTHEAD_FINGER_XOFF;
     psp->over[0].yoff = HOTHEAD_FINGER_YOFF;
@@ -3801,9 +3788,9 @@ InitWeaponHothead(PLAYERp pp)
 void
 pHotheadRestTest(PANEL_SPRITEp psp)
 {
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+    if (psp->PlayerP->input.actions & SB_FIRE)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
             //if (!TEST(psp->PlayerP->Flags,PF_DIVING))
             {
@@ -3899,9 +3886,9 @@ pHotheadRest(PANEL_SPRITEp psp)
     pHotheadBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -3933,7 +3920,7 @@ pHotheadAction(PANEL_SPRITEp psp)
 {
     char shooting;
 
-    shooting = TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) && FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT);
+    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -4232,8 +4219,7 @@ InitWeaponMicro(PLAYERp pp)
 
     PlaySound(DIGI_ROCKET_UP, pp, v3df_follow);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 
 }
 
@@ -4483,9 +4469,9 @@ pMicroRest(PANEL_SPRITEp psp)
         }
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -4745,8 +4731,7 @@ InitWeaponHeart(PLAYERp pp)
     psp->RestState = ps_HeartRest;
     pSetState(psp, psp->PresentState);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -4814,11 +4799,11 @@ pHeartRest(PANEL_SPRITEp psp)
     pHeartBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
-            FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
+            psp->PlayerP->KeyPressBits &= ~SB_FIRE;
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
             if (!WeaponOK(psp->PlayerP))
@@ -4830,7 +4815,7 @@ pHeartRest(PANEL_SPRITEp psp)
     }
     else
     {
-        FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+        psp->PlayerP->KeyPressBits |= SB_FIRE;
         WeaponOK(psp->PlayerP);
     }
 }
@@ -5248,8 +5233,7 @@ InitWeaponGrenade(PLAYERp pp)
 
     PlaySound(DIGI_GRENADE_UP, pp, v3df_follow);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -5396,9 +5380,9 @@ pGrenadeRest(PANEL_SPRITEp psp)
     pGrenadeBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -5546,8 +5530,7 @@ InitWeaponMine(PLAYERp pp)
 
     PlaySound(DIGI_PULL, pp, v3df_follow|v3df_dontpan);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 void
@@ -5646,9 +5629,9 @@ pMineRest(PANEL_SPRITEp psp)
     pMineBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -6213,8 +6196,7 @@ InitWeaponFist(PLAYERp pp)
     else if (rnd_num > 700)
         PlaySound(DIGI_PLAYERYELL2, pp, v3df_follow|v3df_dontpan);
 
-    FLAG_KEY_RELEASE(psp->PlayerP, SK_SHOOT);
-    FLAG_KEY_RESET(psp->PlayerP, SK_SHOOT);
+    psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
 
 
@@ -6314,9 +6296,9 @@ pFistSlideDown(PANEL_SPRITEp psp)
     if (psp->y > 440)
     {
         // if still holding down the fire key - continue swinging
-        if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->input.actions & SB_FIRE)
         {
-            if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+            if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
                 DoPlayerChooseYell(psp->PlayerP);
 
@@ -6433,9 +6415,9 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     if (psp->y > 440)
     {
         // if still holding down the fire key - continue swinging
-        if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->input.actions & SB_FIRE)
         {
-            if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+            if (psp->PlayerP->KeyPressBits & SB_FIRE)
             {
                 DoPlayerChooseYell(psp->PlayerP);
 
@@ -6536,11 +6518,9 @@ pFistRest(PANEL_SPRITEp psp)
     // Reset move to default
     psp->PlayerP->WpnKungFuMove = 0;
 
-    //if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force || TEST_SYNC_KEY(psp->PlayerP, SK_OPERATE))
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT) || force)
+    if ((psp->PlayerP->input.actions & SB_FIRE) || force)
     {
-        //if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force || FLAG_KEY_PRESSED(psp->PlayerP, SK_OPERATE))
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT) || force)
+        if ((psp->PlayerP->KeyPressBits & SB_FIRE) || force)
         {
             RESET(psp->flags, PANF_UNHIDE_SHOOT);
 
@@ -6601,7 +6581,7 @@ pFistBlock(PANEL_SPRITEp psp)
     pFistBobSetup(psp);
     pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP));
 
-    if (!TEST_SYNC_KEY(psp->PlayerP, SK_OPERATE))
+    if (!(psp->PlayerP->input.actions & SB_OPEN))
     {
         pStatePlusOne(psp);
     }
@@ -6643,23 +6623,23 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         return FALSE;
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_HIDE_WEAPON))
+    if (psp->PlayerP->input.actions & SB_HOLSTER)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_HIDE_WEAPON))
+        if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {
-            FLAG_KEY_RELEASE(psp->PlayerP, SK_HIDE_WEAPON);
+            psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             pSetState(psp, state);
             return TRUE;
         }
     }
     else
     {
-        FLAG_KEY_RESET(psp->PlayerP, SK_HIDE_WEAPON);
+        psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_SHOOT))
+    if (psp->PlayerP->input.actions & SB_FIRE)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_SHOOT))
+        if (psp->PlayerP->KeyPressBits & SB_FIRE)
         {
             SET(psp->flags, PANF_UNHIDE_SHOOT);
             pSetState(psp, state);
@@ -6687,19 +6667,19 @@ pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         return TRUE;
     }
 
-    if (TEST_SYNC_KEY(psp->PlayerP, SK_HIDE_WEAPON))
+    if (psp->PlayerP->input.actions & SB_HOLSTER)
     {
-        if (FLAG_KEY_PRESSED(psp->PlayerP, SK_HIDE_WEAPON))
+        if (psp->PlayerP->KeyPressBits & SB_HOLSTER)
         {
+            psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             PutStringInfo(psp->PlayerP,"Weapon Holstered");
-            FLAG_KEY_RELEASE(psp->PlayerP, SK_HIDE_WEAPON);
             pSetState(psp, state);
             return TRUE;
         }
     }
     else
     {
-        FLAG_KEY_RESET(psp->PlayerP, SK_HIDE_WEAPON);
+        psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
     return FALSE;
