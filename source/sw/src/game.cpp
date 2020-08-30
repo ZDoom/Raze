@@ -728,7 +728,7 @@ void GameTicker(void)
         ready2send = 1;
 
         int const currentTic = I_GetTime();
-        gameclock = I_GetBuildTime() - gameclockstart;
+        updateGameClock();
 
         if (paused)
         {
@@ -775,7 +775,7 @@ void GameTicker(void)
 void resetGameClock()
 {
     I_SetFrameTime();
-    gameclockstart = I_GetBuildTime();
+    setGameClockStart();
     ogameclock = gameclock = 0;
 }
 

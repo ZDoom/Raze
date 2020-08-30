@@ -9,6 +9,7 @@
 #include "name.h"
 #include "memarena.h"
 #include "stats.h"
+#include "i_time.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
@@ -223,5 +224,16 @@ extern int automapMode;
 extern bool automapFollow;
 extern bool sendPause;
 extern int gameclock;
-extern int gameclockstart;
+extern uint64_t gameclockstart;
 extern int lastTic;
+
+inline void setGameClockStart()
+{
+	gameclockstart = I_GetTimeNS();
+	gameclock = 0;
+}
+
+inline void updateGameClock()
+{
+	gameclock = static_cast<int>((I_GetTimeNS() - gameclockstart) * 120 / 1'000'000'000);
+}

@@ -194,7 +194,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
-		gameclock = I_GetBuildTime() - gameclockstart;
+		updateGameClock();
 		gi->Ticker();
 		gameupdatetime.Unclock();
 		break;
@@ -248,7 +248,7 @@ void Display()
 			twod->Clear();
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
-			gameclock = I_GetBuildTime() - gameclockstart;
+			updateGameClock();
 			gi->Render();
 			DrawFullscreenBlends();
 		}
