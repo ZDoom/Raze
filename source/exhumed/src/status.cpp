@@ -897,7 +897,6 @@ void DrawStatusBar()
 }
 
 
-#if 0
 // I'm not sure this really needs to be saved.
 static SavegameHelper sgh("status",
     SV(nMaskY),
@@ -935,7 +934,8 @@ static SavegameHelper sgh("status",
     SA(StatusAnimsFree),
     SA(StatusAnimFlags),
     SA(nItemSeqOffset),
+    SA(word_9AD54),
+    SA(dword_9AD64),
     nullptr);
-#endif
 
 END_PS_NS
