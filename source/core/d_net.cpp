@@ -1745,10 +1745,10 @@ bool D_CheckNetGame (void)
 
 	if (myconnectindex != Net_Arbitrator && doomcom.numnodes > 1)
 	{
-		Printf("Arbitrator selected " TEXTCOLOR_BLUE "%s" TEXTCOLOR_NORMAL " networking mode.\n", NetMode == NET_PeerToPeer ? "peer to peer" : "packet server");
+		Printf(PRINT_NONOTIFY, "Arbitrator selected " TEXTCOLOR_BLUE "%s" TEXTCOLOR_NORMAL " networking mode.\n", NetMode == NET_PeerToPeer ? "peer to peer" : "packet server");
 	}
 
-	if (!batchrun) Printf ("player %i of %i (%i nodes)\n",
+	if (!batchrun) Printf (PRINT_NONOTIFY, "player %i of %i (%i nodes)\n",
 			myconnectindex+1, doomcom.numplayers, doomcom.numnodes);
 	
 	return true;

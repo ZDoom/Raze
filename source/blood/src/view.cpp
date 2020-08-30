@@ -322,7 +322,6 @@ void viewInit(void)
     FontSet(2, 4288, 1);
     FontSet(3, 4384, 1);
     FontSet(4, 4480, 0);
-    enginePostInit(); // This must not be done earlier!
 
     lensdata = fileSystem.LoadFile("lens.dat");
     dassert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));

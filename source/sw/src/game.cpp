@@ -237,8 +237,6 @@ void GameInterface::app_init()
  
     if (!loaddefinitionsfile(G_DefFile())) Printf(PRINT_NONOTIFY, "Definitions file loaded.\n");
 	userConfig.AddDefs.reset();
-    enginePostInit();
-    videoInit();
     InitFX();
 }
 

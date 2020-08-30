@@ -272,7 +272,7 @@ static void initTiles()
 //
 //---------------------------------------------------------------------------
 
-static void Startup(void)
+void GameInterface::app_init()
 {
 	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;
@@ -313,8 +313,6 @@ static void Startup(void)
 
 	OnEvent(EVENT_INIT);
 
-	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
-
 	if (engineInit())
 		G_FatalEngineError();
 
@@ -348,21 +346,7 @@ static void Startup(void)
 	}
 
 	ud.last_level = -1;
-}
-
-//---------------------------------------------------------------------------
-//
-// main entry point, sets up the game module and the engine, then enters the main loop
-//
-//---------------------------------------------------------------------------
-
-void GameInterface::app_init()
-{
-	Startup();
-	enginePostInit();
-	videoInit();
 	enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;//bVanilla;
 }
-
 
 END_DUKE_NS

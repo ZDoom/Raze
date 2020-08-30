@@ -61,7 +61,6 @@ void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
 void InitFonts();
 
-int htimer = 0;
 int EndLevel = false;
 
 
@@ -86,9 +85,6 @@ void InstallEngine()
     uploadCinemaPalettes();
     LoadPaletteLookups();
     InitFonts();
-    videoInit();
-
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void RemoveEngine()
@@ -628,11 +624,6 @@ void ExitGame()
     throw CExitEvent(0);
 }
 
-void InitTimer()
-{
-    htimer = 1;
-}
-
 void GameInterface::app_init()
 {
     int i;
@@ -673,22 +664,18 @@ void GameInterface::app_init()
         Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
 
-
-    enginePostInit();
-
     InitView();
     InitFX();
     seq_LoadSequences();
     InitStatus();
-    InitTimer();
-
+    
     for (i = 0; i < kMaxPlayers; i++) {
         nPlayerLives[i] = kDefaultLives;
     }
-
-    ResetEngine();
-    ResetView();
+    resettiming();
     GrabPalette();
+
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19950829;
 }
 
 void mychangespritesect(int nSprite, int nSector)

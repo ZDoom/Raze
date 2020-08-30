@@ -389,7 +389,6 @@ void StartLevel(MapRecord *level)
         }
     }
     bVanilla = false;
-    enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
     memset(xsprite,0,sizeof(xsprite));
     memset(sprite,0,kMaxSprites*sizeof(spritetype));
     //drawLoadingScreen();
@@ -704,13 +703,14 @@ void GameInterface::app_init()
 
     Printf(PRINT_NONOTIFY, "Initializing network users\n");
     netInitialize(true);
-    videoInit();
     Printf(PRINT_NONOTIFY, "Initializing sound system\n");
     sndInit();
     registerosdcommands();
 
     gChoke.sub_83ff0(518, sub_84230);
     UpdateDacs(0, true);
+
+    enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
 }
 
 static void gameInit()

@@ -106,8 +106,6 @@ extern int GameAction;
 
 extern int nNetPlayerCount;
 
-extern int htimer;
-
 extern int nNetTime;
 
 extern short nTotalPlayers;

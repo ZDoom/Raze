@@ -229,7 +229,8 @@ void Display()
 		gi->DrawBackground();
 		break;
 
-	case GS_FINALE:
+	case GS_INTRO:
+	case GS_INTERMISSION:
 		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
 		RunScreenJobFrame();
 		break;
@@ -248,12 +249,15 @@ void Display()
 
 	NetUpdate();			// send out any new accumulation
 
-	// Draw overlay elements
-	CT_Drawer();
-	C_DrawConsole();
-	M_Drawer();
-	FStat::PrintStat(twod);
-	DrawRateStuff();
+	if (gamestate != GS_INTRO) // do not draw overlays on the intros
+	{
+		// Draw overlay elements
+		CT_Drawer();
+		C_DrawConsole();
+		M_Drawer();
+		FStat::PrintStat(twod);
+		DrawRateStuff();
+	}
 
 	videoShowFrame(0);
 }

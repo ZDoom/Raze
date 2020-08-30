@@ -142,7 +142,7 @@ void DrawFullscreenBlends();
 void MainLoop();
 
 
-bool AppActive;
+bool AppActive = true;
 
 FString currentGame;
 FString LumpFilter;
@@ -862,9 +862,11 @@ int RunGame()
 
 	SetupGameButtons();
 	gi->app_init();
+	enginePostInit(); // This must not be done earlier!
+	videoInit();
 
 	// Duke has transitioned to the new main loop, the other games haven't yet.
-	if (g_gameType & GAMEFLAG_DUKE | GAMEFLAG_RRALL | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI)
+	if (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_RRALL | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
 	{
 		D_CheckNetGame();
 		MainLoop();
@@ -1150,6 +1152,7 @@ void S_SetSoundPaused(int state)
 			}
 		}
 	}
+#if 0
 	if (!netgame
 #if 0 //def _DEBUG
 		&& !demoplayback
@@ -1158,7 +1161,7 @@ void S_SetSoundPaused(int state)
 	{
 		pauseext = !state;
 	}
-
+#endif
 }
 
 FString G_GetDemoPath()
