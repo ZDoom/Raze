@@ -955,7 +955,7 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 	pINIIter->pNext = NULL;
 	pINIIter->pDescription = NULL;
 	Bstrncpy(pINIIter->zName, pzFile, BMAX_PATH);
-	for (int i = 0; i < ARRAY_SSIZE(gINIDescription); i++)
+	for (int i = 0; i < countof(gINIDescription); i++)
 	{
 		if (!Bstrncasecmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
 		{

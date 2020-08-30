@@ -71,7 +71,7 @@ int viewSetInterpolation(int32_t *const posptr)
     if (g_interpolationCnt >= MAXINTERPOLATIONS)
         return 1;
 
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+    for (int i = 0; i < g_interpolationCnt; ++i)
         if (curipos[i] == posptr)
             return 0;
 
@@ -83,7 +83,7 @@ int viewSetInterpolation(int32_t *const posptr)
 
 void viewStopInterpolation(const int32_t * const posptr)
 {
-    for (bssize_t i = 0; i < g_interpolationCnt; ++i)
+    for (int i = 0; i < g_interpolationCnt; ++i)
         if (curipos[i] == posptr)
         {
             g_interpolationCnt--;
@@ -97,7 +97,7 @@ void viewDoInterpolations(int smoothRatio)
 {
     int32_t ndelta = 0;
 
-    for (bssize_t i = 0, j = 0; i < g_interpolationCnt; ++i)
+    for (int i = 0, j = 0; i < g_interpolationCnt; ++i)
     {
         int32_t const odelta = ndelta;
         bakipos[i] = *curipos[i];
@@ -110,7 +110,7 @@ void viewDoInterpolations(int smoothRatio)
 
 void viewUpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    for (bssize_t i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
+    for (int i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
 }
 
 void viewRestoreInterpolations(void)  //Stick at end of drawscreen

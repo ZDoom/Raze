@@ -48,8 +48,8 @@ int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr
 
     hdr->width = B_LITTLE16(hdr->width);
     hdr->height = B_LITTLE16(hdr->height);
-    hdr->fpsnumer = B_LITTLE16(hdr->fpsnumer);
-    hdr->fpsdenom = B_LITTLE16(hdr->fpsdenom);
+    hdr->fpsnumer = B_LITTLE32(hdr->fpsnumer);
+    hdr->fpsdenom = B_LITTLE32(hdr->fpsdenom);
 
     hdr->numframes = B_LITTLE32(hdr->numframes);
 
@@ -209,11 +209,7 @@ const char *animvpx_nextpic_errmsg[] = {
 // retrieves one picture-frame from the stream
 //  pic format:  lines of [Y U V 0] pixels
 //  *picptr==NULL means EOF has been reached
-#ifdef DEBUGGINGAIDS
-ATTRIBUTE_OPTIMIZE("O1")
-#else
-ATTRIBUTE_OPTIMIZE("O3")
-#endif
+
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
 {
     int32_t ret, corrupted;

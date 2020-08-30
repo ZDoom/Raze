@@ -5097,7 +5097,6 @@ int MoveMissile(spritetype *pSprite)
         if (pTarget->statnum == kStatDude && pXTarget && pXTarget->health > 0)
         {
             int nTargetAngle = getangle(-(pTarget->y-pSprite->y), pTarget->x-pSprite->x);
-            int UNUSED(nAngle) = getangle(xvel[nSprite]>>12,yvel[nSprite]>>12);
             int vx = missileInfo[pSprite->type - kMissileBase].velocity;
             int vy = 0;
             RotatePoint(&vx, &vy, (nTargetAngle+1536)&2047, 0, 0);

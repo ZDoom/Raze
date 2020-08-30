@@ -71,7 +71,7 @@ static FORCE_INLINE int check_nonpow2(int32_t const x)
 
 static inline float polymost_invsqrt_approximation(float x)
 {
-#ifdef B_LITTLE_ENDIAN
+#if !B_BIG_ENDIAN
     float const haf = x * .5f;
     union { float f; uint32_t i; } n = { x };
     n.i = 0x5f375a86 - (n.i >> 1);

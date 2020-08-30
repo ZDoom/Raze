@@ -2500,7 +2500,7 @@ bool condCmpb(int val, int arg1, int arg2, int comOp) {
 void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
    
     char buffer[256]; char buffer2[512];
-    Bsprintf(buffer, "\nCONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n----------\n\n", pXCond->rxID, pXCond->txID, pXCond->reference);
+    sprintf(buffer, "\nCONDITION RX: %d, TX: %d, SPRITE: #%d RETURNS:\n----------\n\n", pXCond->rxID, pXCond->txID, pXCond->reference);
     va_list args;
     va_start(args, pzFormat);
     vsprintf(buffer2, pzFormat, args);

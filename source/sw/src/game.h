@@ -230,15 +230,11 @@ extern SWBOOL MenuInputMode;
 #define MK_FIXED(msw,lsw) (((int32_t)(msw)<<16)|(lsw))
 #define FIXED(msw,lsw) MK_FIXED(msw,lsw)
 
-#if B_LITTLE_ENDIAN != 0
-# define MSW_VAR(fixed) (*(((uint16_t*)&(fixed)) + 1))
-# define LSW_VAR(fixed) (*((uint16_t*)&(fixed)))
-
+// Ouch...
+#if B_BIG_ENDIAN == 0
 # define MSB_VAR(fixed) (*(((uint8_t*)&(fixed)) + 1))
 # define LSB_VAR(fixed) (*((uint8_t*)&(fixed)))
 #else
-# define LSW_VAR(fixed) (*(((uint16_t*)&(fixed)) + 1))
-# define MSW_VAR(fixed) (*((uint16_t*)&(fixed)))
 
 # define LSB_VAR(fixed) (*(((uint8_t*)&(fixed)) + 1))
 # define MSB_VAR(fixed) (*((uint8_t*)&(fixed)))
@@ -263,8 +259,8 @@ extern SWBOOL MenuInputMode;
 #define SP_TAG13(sp) B_LITTLE16(*((short*)&(sp)->xoffset))
 #define SP_TAG14(sp) B_LITTLE16(*((short*)&(sp)->xrepeat))
 #define SP_TAG15(sp) ((sp)->z)
-#define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = B_LITTLE16(val)
-#define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = B_LITTLE16(val)
+#define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = B_LITTLE16((short)val)
+#define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = B_LITTLE16((short)val)
 
 #define SPRITE_TAG1(sp) (sprite[sp].hitag)
 #define SPRITE_TAG2(sp) (sprite[sp].lotag)
@@ -281,8 +277,8 @@ extern SWBOOL MenuInputMode;
 #define SPRITE_TAG13(sp) B_LITTLE16(*((short*)&sprite[sp].xoffset))
 #define SPRITE_TAG14(sp) B_LITTLE16(*((short*)&sprite[sp].xrepeat))
 #define SPRITE_TAG15(sp) (sprite[sp].z)
-#define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = B_LITTLE16(val)
-#define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16(val)
+#define SET_SPRITE_TAG13(sp,val) (*((short*)&sprite[sp].xoffset)) = B_LITTLE16((short)val)
+#define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16((short)val)
 
 // OVER and UNDER water macros
 #define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)

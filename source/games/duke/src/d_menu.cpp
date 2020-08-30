@@ -341,11 +341,6 @@ void GameInterface::DrawCenteredTextScreen(const DVector2 &origin, const char *t
 	::GameInterface::DrawCenteredTextScreen(origin, text, position, bg);
 }
 
-static int GetPlayerColor(int color)
-{
-	return 0;
-}
-
 void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 {
 	int mclock = I_GetBuildTime();

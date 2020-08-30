@@ -614,7 +614,7 @@ static void read_pal(FileReader &fil, int32_t pal[256])
         char c[3];
         fil.Read(c, 3);
 //#if B_BIG_ENDIAN != 0
-        pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
+        pal[i] = B_LITTLE32(unsigned((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24)));
 //#endif
     }
 }
@@ -942,7 +942,7 @@ voxmodel_t *loadkvxfrombuf(const char *kvxbuffer, int32_t length)
     {
         const char *c = &paloff[i*3];
 //#if B_BIG_ENDIAN != 0
-        pal[i] = B_LITTLE32((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24));
+        pal[i] = B_LITTLE32(int((c[0]<<18) + (c[1]<<10) + (c[2]<<2) + (i<<24)));
 //#endif
     }
 

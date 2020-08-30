@@ -740,7 +740,7 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 
     if (newspritenum >= 0)
     {
-        Bassert((unsigned)sectnum < MAXSECTORS);
+        assert((unsigned)sectnum < MAXSECTORS);
 
         do_insertsprite_at_headofsect(newspritenum, sectnum);
         Numsprites++;
@@ -760,7 +760,7 @@ int32_t deletesprite(int16_t spritenum)
     polymost_deletesprite(spritenum);
     if (deletesprite_replace)
         return deletesprite_replace(spritenum);
-    Bassert((sprite[spritenum].statnum == MAXSTATUS)
+    assert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
     if (sprite[spritenum].statnum == MAXSTATUS)
@@ -988,7 +988,7 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
     t = (topu<<16) / bot;
 
-    Bassert((unsigned)t < 65536);
+    assert((unsigned)t < 65536);
 
     return t;
 }
@@ -1304,7 +1304,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 				auto owner = w.picnum + animateoffs(w.picnum, 16384);
 
 				tile.newtile = TileFiles.tileCreateRotated(owner);
-                Bassert(tile.newtile != -1);
+                assert(tile.newtile != -1);
 
                 RotTile(tile.newtile).owner = w.picnum+animateoffs(w.picnum,16384);
 
@@ -2218,7 +2218,7 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
 
     numremoved = (numsprites-realnumsprites);
     numsprites = realnumsprites;
-    Bassert(numsprites == Numsprites);
+    assert(numsprites == Numsprites);
 
     //Must be after loading sectors, etc!
     updatesector(dapos->x, dapos->y, dacursectnum);
@@ -2334,7 +2334,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
 
 #ifdef NEW_MAP_FORMAT
         // Check for map-text first.
-        if (!Bmemcmp(&mapversion, "--ED", 4))
+        if (!memcmp(&mapversion, "--ED", 4))
         {
             mapversion = 10;
             ok = 1;
@@ -2465,8 +2465,6 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
         // Per-map ART
         artSetupMapArt(filename);
     }
-
-    // Printf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
 
     return engineFinishLoadBoard(dapos, dacursectnum, numsprites, myflags);
 }
@@ -2913,7 +2911,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
+int32_t getangle(int32_t xvect, int32_t yvect)
 {
     int32_t rv;
 
@@ -2934,7 +2932,7 @@ int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
     return rv;
 }
 
-fix16_t __fastcall gethiq16angle(int32_t xvect, int32_t yvect)
+fix16_t gethiq16angle(int32_t xvect, int32_t yvect)
 {
     fix16_t rv;
 

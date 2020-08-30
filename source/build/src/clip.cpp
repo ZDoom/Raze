@@ -206,7 +206,7 @@ int32_t getflorzofslope_old(int32_t sectnum, int32_t dax, int32_t day)
 // Returns: should clip?
 static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
-    Bassert((unsigned)dasect < (unsigned)numsectors && (unsigned)nextsect < (unsigned)numsectors);
+    assert((unsigned)dasect < (unsigned)numsectors && (unsigned)nextsect < (unsigned)numsectors);
 
     auto const sec2 = (usectorptr_t)&sector[nextsect];
 

@@ -990,7 +990,7 @@ static md3model_t *md3load(FileReader & fil)
     // NOTE: We assume that NULL is represented by all-zeros.
     // surfs[0].geometry is for POLYMER_MD_PROCESS_CHECK (else: crashes).
     // surfs[i].geometry is for FREE_SURFS_GEOMETRY.
-    Bassert(m->head.surfs[0].geometry == NULL);
+    assert(m->head.surfs[0].geometry == NULL);
 
 #if B_BIG_ENDIAN != 0
     {

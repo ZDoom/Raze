@@ -2032,7 +2032,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 char msgend[BMAX_PATH+64];
 
-                Bsprintf(msgend, "for palookup definition near line %s:%d",
+                sprintf(msgend, "for palookup definition near line %s:%d",
                          script->filename, scriptfile_getlinum(script,starttokptr));
 
                 if (EDUKE32_PREDICT_FALSE((havepal & HAVE_PAL)==0))

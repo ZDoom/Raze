@@ -305,7 +305,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     setgotpic(globalpicnum);
 	vec2_t tsiz = { tilesize.x, tilesize.y };
 
-    Bassert(n <= MAX_DRAWPOLY_VERTS);
+    assert(n <= MAX_DRAWPOLY_VERTS);
 
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
@@ -2058,7 +2058,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         float const ogux = xtex.u, oguy = ytex.u, oguo = otex.u;
 
-        Bassert(domostpolymethod == DAMETH_NOMASK);
+        assert(domostpolymethod == DAMETH_NOMASK);
         domostpolymethod = DAMETH_WALL;
 
         if (nextsectnum >= 0)
@@ -2269,7 +2269,7 @@ void polymost_scansector(int32_t sectnum)
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
-            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < ARRAY_SSIZE(sectorborder))
+            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < countof(sectorborder))
             if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
                 double const d = fp1.x*fp2.y - fp2.x*fp1.y;
@@ -2584,7 +2584,7 @@ void polymost_drawrooms()
     maskwallcnt = 0;
 
     // NOTE: globalcursectnum has been already adjusted in ADJUST_GLOBALCURSECTNUM.
-    Bassert((unsigned)globalcursectnum < MAXSECTORS);
+    assert((unsigned)globalcursectnum < MAXSECTORS);
     polymost_scansector(globalcursectnum);
 
     grhalfxdown10x = grhalfxdown10;

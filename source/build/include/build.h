@@ -741,10 +741,10 @@ int32_t    krand(void);
 #endif
 
 int32_t   ksqrt(uint32_t num);
-int32_t   __fastcall getangle(int32_t xvect, int32_t yvect);
-fix16_t   __fastcall gethiq16angle(int32_t xvect, int32_t yvect);
+int32_t   getangle(int32_t xvect, int32_t yvect);
+fix16_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
-static FORCE_INLINE fix16_t __fastcall getq16angle(int32_t xvect, int32_t yvect)
+static FORCE_INLINE fix16_t getq16angle(int32_t xvect, int32_t yvect)
 {
     return fix16_from_int(getangle(xvect, yvect));
 }
