@@ -160,6 +160,8 @@ int32_t handleevents(void)
 		setViewport(hud_size);
 		setsizeneeded = false;
 	}
+	twod->SetSize(screen->GetWidth(), screen->GetHeight());
+	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 
 	I_StartFrame();
 	I_StartTic();

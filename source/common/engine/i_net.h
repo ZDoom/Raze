@@ -80,5 +80,6 @@ struct doomcom_t
 }; 
 
 extern doomcom_t doomcom;
+extern bool netgame, multiplayer;
 
 #endif

@@ -56,10 +56,9 @@ extern int gametic;
 
 // Placeholders to make it compile.
 FILE* debugfile;
-extern bool netgame;
 bool demoplayback;
 int Net_Arbitrator;
-bool playeringame[MAXPLAYERS];
+bool playeringame[MAXPLAYERS] = { true }; // as long as network isn't working - true for the first player, false for all others.
 bool singletics;
 char* startmap;
 int rngseed;
@@ -68,7 +67,6 @@ bool usergame;
 void D_ReadUserInfoStrings(int, uint8_t**, bool) {}
 void D_WriteUserInfoStrings(int, uint8_t**, bool) {}
 FString GetPlayerName(int num);
-void G_BuildTiccmd(ticcmd_t*) {}
 
 //#define SIMULATEERRORS		(RAND_MAX/3)
 #define SIMULATEERRORS			0

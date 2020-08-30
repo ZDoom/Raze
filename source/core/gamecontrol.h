@@ -13,6 +13,7 @@ extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
 extern bool GUICapture;
+extern bool AppActive;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 

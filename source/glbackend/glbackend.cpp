@@ -495,6 +495,7 @@ void videoShowFrame(int32_t w)
 	screen->SetSceneRenderTarget(useSSAO);
 	twodpsp.Clear();
 	twod->Clear();
+	videoSetBrightness(0);	// immediately reset this after rendering so that the value doesn't stick around in the backend.
 }
 
 TMap<int64_t, bool> cachemap;

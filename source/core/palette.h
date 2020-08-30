@@ -186,5 +186,6 @@ extern glblend_t glblend[MAXBLENDTABS];
 FRenderStyle GetRenderStyle(int blend, int def);
 extern void SetRenderStyleFromBlend(uint8_t enable, uint8_t blend, uint8_t def);
 float GetAlphaFromBlend(uint32_t maskprops, uint32_t blend);
+void DrawFullscreenBlends();
 
 #endif

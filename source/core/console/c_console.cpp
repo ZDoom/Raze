@@ -92,7 +92,6 @@ static FGameTexture *conback;
 static uint32_t conshade;
 static bool conline;
 
-extern int		gametic;
 extern bool		advancedemo;
 
 extern FBaseCVar *CVars;

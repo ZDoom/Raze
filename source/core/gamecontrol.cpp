@@ -426,7 +426,6 @@ void UserConfig::ProcessOptions()
 		C_DoCommand("stat coord");
 	}
 
-
 }
 
 //==========================================================================
@@ -939,8 +938,6 @@ void app_loop()
 		{
 			I_SetFrameTime();
 			TickSubsystems();
-			twod->SetSize(screen->GetWidth(), screen->GetHeight());
-			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 
 			handleevents();
 			updatePauseStatus();

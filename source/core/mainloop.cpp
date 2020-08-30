@@ -33,7 +33,7 @@
 */
 
 
-// For TryRunTics the following applies:
+// For G_Ticker and TryRunTics the following applies:
 //-----------------------------------------------------------------------------
 //
 // $Id:$
@@ -72,17 +72,21 @@
 #include "raze_sound.h"
 #include "raze_music.h"
 #include "vm.h"
+#include "gamestate.h"
+#include "screenjob.h"
+#include "mmulti.h"
+#include "c_console.h"
+#include "menu.h"
+#include "uiinput.h"
+#include "v_video.h"
+#include "glbackend/glbackend.h"
+#include "palette.h"
 
-
-
-// Forces playsim processing time to be consistent across frames.
-// This improves interpolation for frames in between tics.
-//
-// With this cvar off the mods with a high playsim processing time will appear
-// less smooth as the measured time used for interpolation will vary.
-
+CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, cl_capfps, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+ticcmd_t playercmds[MAXPLAYERS];
 
 static uint64_t stabilityticduration = 0;
 static uint64_t stabilitystarttime = 0;
@@ -93,6 +97,158 @@ int entertic;
 int oldentertics;
 int gametic;
 
+
+
+void G_BuildTiccmd(ticcmd_t* cmd) 
+{
+	gi->GetInput(&cmd->ucmd);
+	cmd->consistancy = consistancy[myconnectindex][(maketic / ticdup) % BACKUPTICS];
+}
+
+
+void G_Ticker()
+{
+	int i;
+
+	handleevents();
+
+#if 0
+	// Todo: Migrate state changes to here instead of doing them ad-hoc
+	while (gameaction != ga_nothing)
+	{
+		if (gameaction == ga_newgame2)
+		{
+			gameaction = ga_newgame;
+			break;
+		}
+		switch (gameaction)
+		{
+		}
+		C_AdjustBottom();
+	}
+#endif
+
+	// get commands, check consistancy, and build new consistancy check
+	int buf = (gametic / ticdup) % BACKUPTICS;
+
+	for (i = 0; i < MAXPLAYERS; i++)
+	{
+		if (playeringame[i])
+		{
+			ticcmd_t* cmd = &playercmds[i];
+			ticcmd_t* newcmd = &netcmds[i][buf];
+
+			if ((gametic % ticdup) == 0)
+			{
+				RunNetSpecs(i, buf);
+			}
+#if 0
+			if (demorecording)
+			{
+				G_WriteDemoTiccmd(newcmd, i, buf);
+			}
+			if (demoplayback)
+			{
+				G_ReadDemoTiccmd(cmd, i);
+			}
+			else
+#endif
+			{
+				*cmd = *newcmd;
+			}
+
+
+			if (netgame && /*!demoplayback &&*/ (gametic % ticdup) == 0)
+			{
+#if 0
+				//players[i].inconsistant = 0;
+				if (gametic > BACKUPTICS * ticdup && consistancy[i][buf] != cmd->consistancy)
+				{
+					players[i].inconsistant = gametic - BACKUPTICS * ticdup;
+				}
+#endif
+				consistancy[i][buf] = gi->GetPlayerChecksum(i);
+			}
+		}
+	}
+
+	C_RunDelayedCommands();
+
+	switch (gamestate)
+	{
+	default:
+	case GS_STARTUP:
+		gi->Startup();
+		break;
+
+	case GS_MENUSCREEN:
+	case GS_FULLCONSOLE:
+		gi->DrawBackground();
+		break;
+
+	case GS_LEVEL:
+		gi->Ticker();
+		break;
+
+	case GS_INTERMISSION:
+	case GS_INTRO:
+		RunScreenJobFrame();
+		break;
+
+	}
+}
+
+
+//==========================================================================
+//
+// D_Display
+//
+// Draw current display, possibly wiping it from the previous
+//
+//==========================================================================
+
+void D_Display()
+{
+	FGameTexture* wipe = nullptr;
+
+	if (screen == NULL)
+		return; 				// for comparative timing / profiling
+
+	if (!AppActive && (screen->IsFullscreen() || !vid_activeinbackground))
+	{
+		return;
+	}
+
+	screen->FrameTime = I_msTimeFS();
+	screen->BeginFrame();
+	twod->ClearClipRect();
+	if ((gamestate == GS_LEVEL) && gametic != 0)
+	{
+		// [ZZ] execute event hook that we just started the frame
+		//E_RenderFrame();
+		//
+		gi->Render();
+	}
+
+	// Draw overlay elements to the 2D drawer
+	NetUpdate();			// send out any new accumulation
+	CT_Drawer();
+	C_DrawConsole();
+	M_Drawer();
+	FStat::PrintStat(twod);
+
+	// Handle the final 2D overlays.
+	if (gamestate == GS_LEVEL) DrawFullscreenBlends();
+	DrawRateStuff();
+
+	videoShowFrame(0);
+}
+
+// Forces playsim processing time to be consistent across frames.
+// This improves interpolation for frames in between tics.
+//
+// With this cvar off the mods with a high playsim processing time will appear
+// less smooth as the measured time used for interpolation will vary.
 
 static void TicStabilityWait()
 {
@@ -278,7 +434,7 @@ void TryRunTics (void)
 			//if (debugfile) fprintf (debugfile, "run tic %d\n", gametic);
 			C_Ticker ();
 			M_Ticker ();
-			gi->Ticker();
+			G_Ticker();
 			gametic++;
 
 			NetUpdate ();	// check for new console commands
@@ -299,10 +455,7 @@ void TryRunTics (void)
 
 //==========================================================================
 //
-// D_DoomLoop
-//
-// Manages timing and IO, calls all ?_Responder, ?_Ticker, and ?_Drawer,
-// calls I_GetTime, I_StartFrame, and I_StartTic
+// MainLoop - will never return aside from exceptions being thrown.
 //
 //==========================================================================
 
@@ -312,8 +465,6 @@ void MainLoop ()
 
 	// Clamp the timer to TICRATE until the playloop has been entered.
 	r_NoInterpolate = true;
-
-	//vid_cursor.Callback();
 
 	for (;;)
 	{
@@ -330,7 +481,8 @@ void MainLoop ()
 			TryRunTics (); // will run at least one tic
 			// Update display, next frame, with current state.
 			I_StartTic ();
-			gi->Render();
+
+			D_Display();
 			Mus_UpdateMusic();		// must be at the end.
 		}
 		catch (CRecoverableError &error)
@@ -352,102 +504,3 @@ void MainLoop ()
 	}
 }
 
-
-//---------------------------------------------------------------------------
-//
-// The one and only main loop in the entire engine. Yay!
-//
-//---------------------------------------------------------------------------
-#if 0
-
-void _TickSubsystems()
-{
-	// run these on an independent timer until we got something working for the games.
-	static const uint64_t tickInterval = 1'000'000'000 / 30;
-	static uint64_t nexttick = 0;
-
-	auto nowtick = I_nsTime();
-	if (nexttick == 0) nexttick = nowtick;
-	int cnt = 0;
-	while (nexttick <= nowtick && cnt < 5)
-	{
-		nexttick += tickInterval;
-		C_Ticker();
-		M_Ticker();
-		C_RunDelayedCommands();
-		cnt++;
-	}
-	// If this took too long the engine was most likely suspended so recalibrate the timer.
-	// Perfect precision is not needed here.
-	if (cnt == 5) nexttick = nowtick + tickInterval;
-}
-
-static void _updatePauseStatus()
-{
-	// This must go through the network in multiplayer games.
-	if (M_Active() || System_WantGuiCapture())
-	{
-		paused = 1;
-	}
-	else if (!M_Active() || !System_WantGuiCapture())
-	{
-		if (!pausedWithKey)
-		{
-			paused = 0;
-		}
-
-		if (sendPause)
-		{
-			sendPause = false;
-			paused = pausedWithKey ? 0 : 2;
-			pausedWithKey = !!paused;
-		}
-	}
-
-	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
-}
-
-
-void _app_loop()
-{
-	gamestate = GS_STARTUP;
-
-	while (true)
-	{
-		try
-		{
-			I_SetFrameTime();
-			TickSubsystems();
-			twod->SetSize(screen->GetWidth(), screen->GetHeight());
-			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
-
-			handleevents();
-			updatePauseStatus();
-			D_ProcessEvents();
-
-			gi->RunGameFrame();
-
-			// Draw overlay elements to the 2D drawer
-			FStat::PrintStat(twod);
-			CT_Drawer();
-			C_DrawConsole();
-			M_Drawer();
-
-			// Handle the final 2D overlays.
-			if (gamestate == GS_LEVEL) DrawFullscreenBlends();
-			DrawRateStuff();
-
-
-			videoShowFrame(0);
-			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
-		}
-		catch (CRecoverableError& err)
-		{
-			C_FullConsole();
-			Printf(TEXTCOLOR_RED "%s\n", err.what());
-		}
-	}
-}
-
-
-#endif

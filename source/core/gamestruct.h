@@ -95,8 +95,11 @@ struct GameInterface
 	virtual void GetInput(InputPacket* packet) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
+	virtual void Startup() {}
+	virtual void DrawBackground() {}
 	virtual void Render() {}
 	virtual void Ticker() {}
+	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
 
 
 };
