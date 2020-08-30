@@ -89,7 +89,6 @@ void CheckKeys2();
 void GameTicker();
 void InitLevel(int);
 void InitNewGame();
-void startmainmenu();
 
 int showmap(short nLevel, short nLevelNew, short nLevelBest);
 void menu_DoPlasma();

@@ -22,8 +22,6 @@
 #include "stats.h"
 #include "binaryangle.h"
 
-extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
-
 BEGIN_DUKE_NS
 
 extern FFont* IndexFont;
@@ -33,7 +31,6 @@ struct GameInterface : public ::GameInterface
 {
 	const char* Name() override { return "Duke"; }
 	void app_init() override;
-	void RunGameFrame() override;
 	void clearlocalinputstate() override;
 	bool GenerateSavePic() override;
 	void PlayHudSound() override;

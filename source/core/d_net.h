@@ -55,6 +55,8 @@ void Net_ClearBuffers ();
 
 bool D_CheckNetGame(void);
 
+void Net_ClearFifo(void);
+
 
 // Netgame stuff (buffers and pointers, i.e. indices).
 

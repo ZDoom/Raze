@@ -101,7 +101,7 @@ int lastTic;
 
 int automapMode;
 bool automapFollow;
-extern int pauseext;
+extern bool pauseext;
 
 CCMD(togglemap)
 {
@@ -863,7 +863,13 @@ int RunGame()
 	SetupGameButtons();
 	gi->app_init();
 
-	app_loop();
+	// Duke has transitioned to the new main loop, the other games haven't yet.
+	if (g_gameType & GAMEFLAG_DUKE | GAMEFLAG_RRALL | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI)
+	{
+		D_CheckNetGame();
+		MainLoop();
+	}
+	else app_loop();
 	return 0; // this is never reached. app_loop only exits via exception.
 }
 
@@ -1246,3 +1252,18 @@ CCMD(taunt)
 
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void startmainmenu()
+{
+	gamestate = GS_MENUSCREEN;
+	M_StartControlPanel(false);
+	M_SetMenu(NAME_Mainmenu);
+	FX_StopAllSounds();
+}
+

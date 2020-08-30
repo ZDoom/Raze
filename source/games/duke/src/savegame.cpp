@@ -520,7 +520,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			recreateinterpolations();
 			show_shareware = 0;
 			everyothertime = 0;
-			clearfifo();
+			Net_ClearFifo();
 
 			// should be unnecessary with the sounds getting serialized as well.
 			#if 0

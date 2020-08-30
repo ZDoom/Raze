@@ -8,12 +8,14 @@
 #include "tarray.h"
 #include "name.h"
 #include "memarena.h"
+#include "stats.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
 class FArgs;
 extern bool GUICapture;
 extern bool AppActive;
+extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
@@ -46,6 +48,7 @@ void CONFIG_ReadCombatMacros();
 int32_t CONFIG_GetMapBestTime(char const* const mapname, uint8_t const* const mapmd4);
 int CONFIG_SetMapBestTime(uint8_t const* const mapmd4, int32_t tm);
 int GameMain();
+void startmainmenu();
 
 struct UserConfig
 {

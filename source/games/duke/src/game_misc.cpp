@@ -175,7 +175,7 @@ void FTA(int q, struct player_struct* p)
 //
 //==========================================================================
 
-void drawbackground(void)
+void GameInterface::DrawBackground()
 {
 	twod->ClearScreen();
 	auto tex = tileGetTexture(TILE_MENUSCREEN);

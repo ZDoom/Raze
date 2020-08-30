@@ -60,7 +60,6 @@ struct GameInterface
 	virtual ~GameInterface() {}
 	virtual bool GenerateSavePic() { return false; }
 	virtual void app_init() = 0;
-	virtual void RunGameFrame() = 0;
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
 	virtual void FreeGameData() {}
@@ -100,6 +99,8 @@ struct GameInterface
 	virtual void Render() {}
 	virtual void Ticker() {}
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
+
+	virtual void RunGameFrame() {} // this must go away once things are done.
 
 
 };

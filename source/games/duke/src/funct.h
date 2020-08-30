@@ -193,7 +193,6 @@ void resetinventory(int pn);
 void resetplayerstats(int pn);
 void resetweapons(int pn);
 void resetprestat(int snum, int g);
-void clearfifo(void);
 void prelevel_common(int g);
 void cacheit_d();
 void cacheit_r();
@@ -234,7 +233,6 @@ void apply_seasick(player_struct* p, double scalefactor);
 void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
-void startmainmenu();
 void loadcons();
 
 void updateinterpolations();

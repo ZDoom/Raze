@@ -40,147 +40,12 @@ BEGIN_DUKE_NS
 
 //---------------------------------------------------------------------------
 //
-// abstract the queue's implementation
-// All access to the input queues should go through this function interface.
-//
-//---------------------------------------------------------------------------
-static InputPacket inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-static int movefifoend[MAXPLAYERS];
-static int movefifoplc;
-static int bufferjitter;
-
-void clearfifo(void)
-{
-	memset(&inputfifo, 0, sizeof(inputfifo));
-	memset(sync, 0, sizeof(sync));
-}
-
-
-static inline void GetNextInput()
-{
-	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-		memcpy(&sync[i], &inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)][i], sizeof(InputPacket));
-
-	movefifoplc++;
-}
-
-static void advancequeue(int myconnectindex)
-{
-	movefifoend[myconnectindex]++;
-}
-
-static InputPacket& nextinput(int myconnectindex)
-{
-	return inputfifo[movefifoend[myconnectindex] & (MOVEFIFOSIZ - 1)][myconnectindex];
-}
-
-bool shouldprocessinput(int myconnectindex)
-{
-	if (movefifoend[myconnectindex] - movefifoplc > bufferjitter)
-	{
-		int i;
-		for (i = connecthead; i >= 0; i = connectpoint2[i])
-			if (movefifoplc == movefifoend[i]) return false;
-		if (i >= 0) return false;
-		return true;
-	}
-	return false;
-}
-
-static void fakedomovethings()
-{
-	// prediction
-}
-
-static void fakedomovethingscorrect()
-{
-	// unprediction
-}
-
-void prediction()
-{
-#if 0
-	// We currently have no net code driving this.
-	if (numplayers > 1)
-		while (fakemovefifoplc < movefifoend[myconnectindex]) fakedomovethings();
-	getpackets();
-#endif
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-/*
-void mploadsave()
-{
-	for(int i=connecthead;i>=0;i=connectpoint2[i])
-		if( sync[i].bits&(1<<17) )
-	{
-		multiflag = 2;
-		multiwhat = (sync[i].bits>>18)&1;
-		multipos = (unsigned) (sync[i].bits>>19)&15;
-		multiwho = i;
-
-		if( multiwhat )
-		{
-			saveplayer( multipos );
-			multiflag = 0;
-
-			if(multiwho != myconnectindex)
-			{
-				strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
-				strcat(&fta_quotes[122]," SAVED A MULTIPLAYER GAME");
-				FTA(122,&ps[myconnectindex]);
-			}
-			else
-			{
-				strcpy(&fta_quotes[122],"MULTIPLAYER GAME SAVED");
-				FTA(122,&ps[myconnectindex]);
-			}
-			break;
-		}
-		else
-		{
-//            waitforeverybody();
-
-			j = loadplayer( multipos );
-
-			multiflag = 0;
-
-			if(j == 0 && !isRR())
-			{
-				if(multiwho != myconnectindex)
-				{
-					strcpy(&fta_quotes[122],&ud.user_name[multiwho][0]);
-					strcat(&fta_quotes[122]," LOADED A MULTIPLAYER GAME");
-					FTA(122,&ps[myconnectindex]);
-				}
-				else
-				{
-					strcpy(&fta_quotes[122],"MULTIPLAYER GAME LOADED");
-					FTA(122,&ps[myconnectindex]);
-				}
-				return 1;
-			}
-		}
-	}
-}
-*/
-
-//---------------------------------------------------------------------------
-//
 // 
 //
 //---------------------------------------------------------------------------
 
-int domovethings()
+void GameInterface::Ticker()
 {
-	int i;
-
-	// mplpadsave();
-
 	ud.camerasprite = -1;
 
 	if (earthquaketime > 0) earthquaketime--;
@@ -192,43 +57,7 @@ int domovethings()
 	}
 
 	everyothertime++;
-	GetNextInput();
 	updateinterpolations();
-
-#if 0
-	j = -1;
-	for (i = connecthead; i >= 0; i = connectpoint2[i])
-	{
-		if (PlayerInput(i, SKB_GAMEQUIT))
-		{
-			if (i == myconnectindex) gameexitfrommenu();
-			if (screenpeek == i)
-			{
-				screenpeek = connectpoint2[i];
-				if (screenpeek < 0) screenpeek = connecthead;
-			}
-
-			if (i == connecthead) connecthead = connectpoint2[connecthead];
-			else connectpoint2[j] = connectpoint2[i];
-
-			numplayers--;
-			ud.multimode--;
-
-			//closedemowrite();
-
-			if (numplayers < 2 && !isRR())
-				S_PlaySound(GENERIC_AMBIENCE17, CHAN_AUTO, CHANF_UI);
-
-			Printf(PRINT_NOTIFY, "%s is history!", ud.user_name[i]);
-
-			quickkill(&ps[i]);
-			deletesprite(ps[i].i);
-		}
-		else j = i;
-	}
-#endif
-
-	//if(ud.recstat == 1) record();
 
 	if (playrunning())
 	{
@@ -236,7 +65,7 @@ int domovethings()
 		movedummyplayers();//ST 13
 	}
 
-	for (i = connecthead; i >= 0; i = connectpoint2[i])
+	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		if (playrunning())
 		{
@@ -258,8 +87,6 @@ int domovethings()
 		fi.think();
 	}
 
-	fakedomovethingscorrect();
-
 	if ((everyothertime & 1) == 0)
 	{
 		fi.animatewalls();
@@ -269,80 +96,11 @@ int domovethings()
 	if (isRR() && ud.recstat == 0 && ud.multimode < 2)
 		dotorch();
 
-	return 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void GameTicker()
-{
-	if (ps[myconnectindex].gm == MODE_DEMO)
-	{
-		M_ClearMenus();
-		gamestate = GS_STARTUP;
-		return;
-	}
-
-	//Net_GetPackets();
-
-
-	gameupdatetime.Reset();
-	gameupdatetime.Clock();
-
-	int const currentTic = I_GetTime();
-	gameclock = I_GetBuildTime() - gameclockstart;
-
-	while (playrunning() && currentTic - lastTic >= 1)
-	{
-		lastTic = currentTic;
-		auto& input = nextinput(myconnectindex);
-
-		gi->GetInput(&input);
-
-		advancequeue(myconnectindex);
-
-		if (playrunning())
-		{
-			prediction();
-
-			if (numplayers < 2) bufferjitter = 0;
-			while (shouldprocessinput(myconnectindex))
-			{
-				if (domovethings()) break;
-			}
-		}
-	}
-
-	gameupdatetime.Unclock();
-
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
 	{
 		exitlevel();
 	}
-
-	if (!cl_syncinput)
-	{
-		gi->GetInput(nullptr);
-	}
-
-	nonsharedkeys();
-	gi->UpdateSounds();
-	drawtime.Reset();
-	drawtime.Clock();
-	videoSetBrightness(thunder_brightness);
-	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
-	displayrooms(screenpeek, smoothRatio);
-	drawoverlays(smoothRatio);
-	drawtime.Unclock();
-
-	if (ps[myconnectindex].gm == MODE_DEMO)
-	{
-		gamestate = GS_STARTUP;
-	}
+ 	nonsharedkeys();
 }
 
 //---------------------------------------------------------------------------
@@ -350,14 +108,6 @@ void GameTicker()
 // 
 //
 //---------------------------------------------------------------------------
-
-void startmainmenu()
-{
-	gamestate = GS_MENUSCREEN;
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	FX_StopAllSounds();
-}
 
 void resetGameClock()
 {
@@ -365,33 +115,6 @@ void resetGameClock()
 	gameclockstart = I_GetBuildTime();
 	gameclock = 0;
 	cloudclock = 0;
-}
-
-static void Startup()
-{
-	resetGameClock();
-		ps[myconnectindex].ftq = 0;
-
-		if (userConfig.CommandMap.IsNotEmpty())
-		{
-			auto maprecord = FindMapByName(userConfig.CommandMap);
-			userConfig.CommandMap = "";
-			if (maprecord)
-			{
-				ud.m_respawn_monsters = ud.m_player_skill == 4;
-
-				for (int i = 0; i != -1; i = connectpoint2[i])
-				{
-					resetweapons(i);
-					resetinventory(i);
-				}
-				startnewgame(maprecord, /*userConfig.skill*/2);
-			}
-		}
-		else
-		{
-			fi.ShowLogo([](bool) { startmainmenu(); });
-		}
 }
 
 //---------------------------------------------------------------------------
@@ -402,47 +125,48 @@ static void Startup()
 
 void GameInterface::Startup()
 {
+	resetGameClock();
+	ps[myconnectindex].ftq = 0;
 
-}
-void GameInterface::DrawBackground()
-{
-
-}
-void GameInterface::Render()
-{
-
-}
-void GameInterface::Ticker()
-{
-
-}
-
-
-void GameInterface::RunGameFrame()
-{
-	switch (gamestate)
+	if (userConfig.CommandMap.IsNotEmpty())
 	{
-	default:
-	case GS_STARTUP:
-		Startup();
-		break;
+		auto maprecord = FindMapByName(userConfig.CommandMap);
+		userConfig.CommandMap = "";
+		if (maprecord)
+		{
+			ud.m_respawn_monsters = ud.m_player_skill == 4;
 
-	case GS_MENUSCREEN:
-	case GS_FULLCONSOLE:
-		drawbackground();
-		break;
-
-	case GS_LEVEL:
-		GameTicker();
-		break;
-
-	case GS_INTERMISSION:
-	case GS_INTRO:
-		RunScreenJobFrame();
-		break;
-
+			for (int i = 0; i != -1; i = connectpoint2[i])
+			{
+				resetweapons(i);
+				resetinventory(i);
+			}
+			startnewgame(maprecord, /*userConfig.skill*/2);
+		}
+	}
+	else
+	{
+		fi.ShowLogo([](bool) { startmainmenu(); });
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::Render()
+{
+	drawtime.Reset();
+	drawtime.Clock();
+	videoSetBrightness(thunder_brightness);
+	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
+	displayrooms(screenpeek, smoothRatio);
+	drawoverlays(smoothRatio);
+	drawtime.Unclock();
+}
+
 
 END_DUKE_NS
 

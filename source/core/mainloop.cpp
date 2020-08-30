@@ -81,6 +81,7 @@
 #include "v_video.h"
 #include "glbackend/glbackend.h"
 #include "palette.h"
+#include "build.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -183,11 +184,15 @@ static void GameTicker()
 	{
 	default:
 	case GS_STARTUP:
+		artClearMapArt();
 		gi->Startup();
 		break;
 
 	case GS_LEVEL:
+		gameupdatetime.Reset();
+		gameupdatetime.Clock();
 		gi->Ticker();
+		gameupdatetime.Unclock();
 		break;
 
 	case GS_MENUSCREEN:
@@ -371,7 +376,10 @@ void TryRunTics (void)
 			gi->Predict(myconnectindex);
 #endif
 		}
-		gi->GetInput(nullptr);
+		if (!cl_syncinput)
+		{
+			gi->GetInput(nullptr);
+		}
 		return;
 	}
 

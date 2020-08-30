@@ -1972,6 +1972,12 @@ void Net_SkipCommand (int type, uint8_t **stream)
 #endif
 }
 
+void Net_ClearFifo(void)
+{
+	// Q: Do we need this?
+}
+
+
 // This was taken out of shared_hud, because UI code shouldn't do low level calculations that may change if the backing implementation changes.
 int Net_GetLatency(int *ld, int *ad)
 {

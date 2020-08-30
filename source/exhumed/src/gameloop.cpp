@@ -136,20 +136,6 @@ static void GameDisplay(void)
 //
 //---------------------------------------------------------------------------
 
-void startmainmenu()
-{
-    gamestate = GS_MENUSCREEN;
-    M_StartControlPanel(false);
-    M_SetMenu(NAME_Mainmenu);
-    StopAllSounds();
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void drawmenubackground()
 {
     auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
