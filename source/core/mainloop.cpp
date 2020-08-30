@@ -82,6 +82,7 @@
 #include "glbackend/glbackend.h"
 #include "palette.h"
 #include "build.h"
+#include "g_input.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -107,6 +108,7 @@ int gametic;
 
 void G_BuildTiccmd(ticcmd_t* cmd) 
 {
+	I_GetEvent();
 	gi->GetInput(&cmd->ucmd);
 	cmd->consistancy = consistancy[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
@@ -192,7 +194,7 @@ static void GameTicker()
 	case GS_LEVEL:
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
-		gameclock += 120 / GameTicRate;
+		gameclock = I_GetBuildTime() - gameclockstart;
 		gi->Ticker();
 		gameupdatetime.Unclock();
 		break;
@@ -246,6 +248,7 @@ void Display()
 			twod->Clear();
 			twod->SetSize(screen->GetWidth(), screen->GetHeight());
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
+			gameclock = I_GetBuildTime() - gameclockstart;
 			gi->Render();
 			DrawFullscreenBlends();
 		}
@@ -390,6 +393,7 @@ void TryRunTics (void)
 		}
 		if (!cl_syncinput)
 		{
+			I_GetEvent();
 			gi->GetInput(nullptr);
 		}
 		return;
@@ -507,9 +511,9 @@ void MainLoop ()
 			}
 			I_SetFrameTime();
 
-			I_StartTic ();
 			TryRunTics (); // will run at least one tic
 			// Update display, next frame, with current state.
+			I_StartTic();
 
 			Display();
 			Mus_UpdateMusic();		// must be at the end.
