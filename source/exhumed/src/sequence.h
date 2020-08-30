@@ -124,9 +124,6 @@ extern short nFlameHeight;
 extern short nPilotLightFrame;
 extern short nPilotLightCount;
 
-extern int laststatusx;
-extern int laststatusy;
-
 extern short ChunkYpos[];
 extern short ChunkXpos[];
 extern short ChunkPict[];
