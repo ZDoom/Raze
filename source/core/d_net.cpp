@@ -50,6 +50,7 @@
 #include "printf.h"
 #include "i_time.h"
 #include "d_ticcmd.h"
+#include "m_random.h"
 
 extern bool pauseext;
 extern int gametic;
@@ -61,7 +62,6 @@ int Net_Arbitrator;
 bool playeringame[MAXPLAYERS] = { true }; // as long as network isn't working - true for the first player, false for all others.
 bool singletics;
 char* startmap;
-int rngseed;
 bool autostart;
 bool usergame;
 void D_ReadUserInfoStrings(int, uint8_t**, bool) {}
