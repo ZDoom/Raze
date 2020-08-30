@@ -96,6 +96,7 @@ struct GameInterface
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Render() {}
+	virtual void Ticker() {}
 
 
 };
