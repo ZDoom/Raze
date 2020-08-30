@@ -243,6 +243,7 @@ void setinterpolation(int* posptr);
 void stopinterpolation(int* posptr);
 void dointerpolations(int smoothratio);
 int* animateptr(int i);
+void resetGameClock();
 
 void backuppos(player_struct* p, bool noclipping = false);
 void backuplook(player_struct* p);

@@ -106,8 +106,6 @@ extern int16_t cyclers[MAXCYCLERS][6];
 extern int16_t mirrorsector[64];
 extern int16_t mirrorwall[64];
 
-extern int lockclock;
-
 extern int wupass;
 extern int chickenplant;
 extern int thunderon;

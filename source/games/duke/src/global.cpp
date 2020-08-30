@@ -114,8 +114,6 @@ int16_t cyclers[MAXCYCLERS][6];
 int16_t mirrorsector[64];
 int16_t mirrorwall[64];
 
-int lockclock;
-
 // Redneck Rampage
 int wupass;
 int chickenplant;

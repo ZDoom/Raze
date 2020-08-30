@@ -182,7 +182,6 @@ int domovethings()
 	// mplpadsave();
 
 	ud.camerasprite = -1;
-	lockclock += TICSPERFRAME;
 
 	if (earthquaketime > 0) earthquaketime--;
 	if (rtsplaying > 0) rtsplaying--;
@@ -360,14 +359,17 @@ void startmainmenu()
 	FX_StopAllSounds();
 }
 
+void resetGameClock()
+{
+	I_ResetTime();
+	lastTic = -1;
+	gameclock = 0;
+	cloudclock = 0;
+}
 
 static void Startup()
 {
-		I_ResetTime();
-		lastTic = -1;
-		gameclock = 0;
-		lockclock = 0;
-
+	resetGameClock();
 		ps[myconnectindex].ftq = 0;
 
 		if (userConfig.CommandMap.IsNotEmpty())
