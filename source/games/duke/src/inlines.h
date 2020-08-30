@@ -162,6 +162,11 @@ inline fixed_t PlayerInputAngVel(int pl)
 	return sync[pl].q16avel;
 }
 
+inline fixed_t PlayerHorizon(int pl)
+{
+	return sync[pl].q16horz;
+}
+
 inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])

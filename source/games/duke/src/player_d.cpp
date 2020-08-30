@@ -1339,8 +1339,6 @@ int doincrements_d(struct player_struct* p)
 	int snum;
 
 	snum = sprite[p->i].yvel;
-	//    j = sync[snum].avel;
-	//    p->weapon_ang = -(j/5);
 
 	p->player_par++;
 
@@ -3039,7 +3037,7 @@ HORIZONLY:
 
 	if (cl_syncinput)
 	{
-		sethorizon(snum, actions, 1, sync[snum].q16horz);
+		sethorizon(snum, actions, 1, PlayerHorizon(snum));
 	}
 
 	checkhardlanding(p);

@@ -46,6 +46,11 @@ BEGIN_DUKE_NS
 
 void GameInterface::Ticker()
 {
+	// Make copies so that the originals do not have to be modified.
+	for (int i = 0; i < MAXPLAYERS; i++)
+	{
+		sync[i] = playercmds[i].ucmd;
+	}
 	ud.camerasprite = -1;
 
 	if (earthquaketime > 0) earthquaketime--;
