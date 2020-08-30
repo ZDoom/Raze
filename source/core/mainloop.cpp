@@ -218,7 +218,7 @@ static void GameTicker()
 
 void Display()
 {
-	if (screen == nullptr || !AppActive && (screen->IsFullscreen() || !vid_activeinbackground))
+	if (screen == nullptr || (!AppActive && (screen->IsFullscreen() || !vid_activeinbackground)))
 	{
 		return;
 	}

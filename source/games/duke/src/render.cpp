@@ -642,7 +642,7 @@ void displayrooms(int snum, double smoothratio)
 
 	if (!isRRRA() || !fogactive)
 	{
-		if (gameclock < lastvisinc)
+		if (ud.levelclock < lastvisinc)
 		{
 			if (abs(p->visibility - ud.const_visibility) > 8)
 				p->visibility += (ud.const_visibility - p->visibility) >> 2;

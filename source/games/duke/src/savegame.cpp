@@ -404,6 +404,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("coop", ud.coop)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
+			("levelclock", ud.levelclock)
 
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
@@ -477,10 +478,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("RRRA_ExitedLevel", RRRA_ExitedLevel)
 			("fogactive", fogactive)
 			("thunder_brightness", thunder_brightness)
-
-			// Todo: move to backend
-			("gameclock", gameclock)
-
 			.Array("po", po, ud.multimode)
 			.EndObject();
 

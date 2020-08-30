@@ -757,6 +757,7 @@ void prelevel_common(int g)
 void resettimevars(void)
 {
     resetGameClock();
+	ud.levelclock = 0;
     levelTextTime = 85;
     ready2send = 1;
     if (camsprite >= 0)

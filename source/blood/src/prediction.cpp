@@ -262,7 +262,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     int downAngle = -347;
     double lookStepUp = 4.0*upAngle/60.0;
     double lookStepDown = -4.0*downAngle/60.0;
-    if (predict.at6e && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN))
+    if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
     {
         if (predict.at20 < 0)
             predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepDown), fix16_from_int(0));
@@ -288,7 +288,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         {
             gViewLookAdjust -= float(lookStepDown);
         }
-        gViewLookRecenter = predict.at6e && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN);
+        gViewLookRecenter = predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
     }
     predict.at20 = fix16_clamp(predict.at20+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
     predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));

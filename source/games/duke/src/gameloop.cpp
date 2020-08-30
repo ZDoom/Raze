@@ -51,9 +51,6 @@ void GameInterface::Ticker()
 	{
 		sync[i] = playercmds[i].ucmd;
 	}
-	ud.camerasprite = -1;
-
-	if (earthquaketime > 0) earthquaketime--;
 	if (rtsplaying > 0) rtsplaying--;
 
 	if (show_shareware > 0)
@@ -61,53 +58,56 @@ void GameInterface::Ticker()
 		show_shareware--;
 	}
 
-	everyothertime++;
 	updateinterpolations();
 
 	if (playrunning())
 	{
+		ud.levelclock+= 4;
+		if (earthquaketime > 0) earthquaketime--;
+
+		ud.camerasprite = -1;
+		everyothertime++;
+
 		global_random = krand();
 		movedummyplayers();//ST 13
-		r_NoInterpolate = false;
-	}
-	else r_NoInterpolate = true;
-
-	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-	{
-		if (playrunning())
+		
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			auto p = &ps[i];
-			if (p->pals.a > 0)
-				p->pals.a--;
+			if (playrunning())
+			{
+				auto p = &ps[i];
+				if (p->pals.a > 0)
+					p->pals.a--;
 
-			hud_input(i);
-			fi.processinput(i);
-			fi.checksectors(i);
+				hud_input(i);
+				fi.processinput(i);
+				fi.checksectors(i);
+			}
 		}
-	}
-
-	if (playrunning())
-	{
+		
 		if (levelTextTime > 0)
 			levelTextTime--;
 
 		fi.think();
-	}
 
-	if ((everyothertime & 1) == 0)
-	{
-		fi.animatewalls();
-		movecyclers();
-	}
+		if ((everyothertime & 1) == 0)
+		{
+			fi.animatewalls();
+			movecyclers();
+		}
 
-	if (isRR() && ud.recstat == 0 && ud.multimode < 2)
-		dotorch();
+		if (isRR() && ud.recstat == 0 && ud.multimode < 2)
+			dotorch();
+
+		r_NoInterpolate = false;
+	}
+	else r_NoInterpolate = true;
 
 	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
 	{
 		exitlevel();
 	}
- 	nonsharedkeys();
+ 	nonsharedkeys(); // this must go elsewhere later!
 }
 
 //---------------------------------------------------------------------------

@@ -130,7 +130,7 @@ void FTA(int q, struct player_struct* p)
 	if (q < 0 || !(p->gm & MODE_GAME))
 		return;
 
-	if (p->ftq != q || (gameclock - p->ftt > TICRATE && q != QUOTE_DEAD))
+	if (p->ftq != q || (ud.levelclock - p->ftt > TICRATE && q != QUOTE_DEAD))
 	{
 		p->ftq = q;
 		auto qu = quoteMgr.GetQuote(q);
@@ -148,7 +148,7 @@ void FTA(int q, struct player_struct* p)
 			}
 		}
 	}
-	p->ftt = gameclock;
+	p->ftt = ud.levelclock;
 }
 
 //==========================================================================

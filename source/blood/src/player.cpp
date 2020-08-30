@@ -1618,7 +1618,7 @@ void ProcessInput(PLAYER *pPlayer)
             {
                 gViewLookAdjust -= float(lookStepDown);
             }
-            gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
+            gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)));
         }
         pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
         pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
