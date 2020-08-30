@@ -294,7 +294,7 @@ void GameTicker()
 	gameupdatetime.Clock();
 
 	int const currentTic = I_GetTime();
-	gameclock = I_GetBuildTime();
+	gameclock = I_GetBuildTime() - gameclockstart;
 
 	while (playrunning() && currentTic - lastTic >= 1)
 	{
@@ -361,8 +361,8 @@ void startmainmenu()
 
 void resetGameClock()
 {
-	I_ResetTime();
-	lastTic = -1;
+	I_SetFrameTime();
+	gameclockstart = I_GetTime();
 	gameclock = 0;
 	cloudclock = 0;
 }

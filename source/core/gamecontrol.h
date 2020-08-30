@@ -219,4 +219,5 @@ extern int automapMode;
 extern bool automapFollow;
 extern bool sendPause;
 extern int gameclock;
+extern int gameclockstart;
 extern int lastTic;

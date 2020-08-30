@@ -95,7 +95,7 @@ GameInterface* gi;
 int myconnectindex, numplayers;
 int connecthead, connectpoint2[MAXMULTIPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
-int gameclock;
+int gameclock, gameclockstart;
 int lastTic;
 
 int automapMode;
