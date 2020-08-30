@@ -133,11 +133,10 @@ public:
 		{
 			int s = -8;
 			if (althud_flashing && p->last_extra > max_player_health)
-				s += (sintable[(gameclock << 5) & 2047] >> 10);
-			int intens = clamp(255 - 4 * s, 0, 255);
-			auto pe = PalEntry(255, intens, intens, intens);
+				s += (sintable[(gameclock << 6) & 2047] >> 10);
+			int intens = clamp(255 - 6 * s, 0, 255);
 			format.Format("%d", p->last_extra);
-			SBar_DrawString(this, &numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+			SBar_DrawString(this, &numberFont, format, 25, texty, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, intens / 255., 0, 0, 1, 1);
 		}
 
 		//
