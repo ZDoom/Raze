@@ -79,13 +79,10 @@ static int osdcmd_map(CCmdFuncPtr parm)
     }
 	
 	// Check if the map is already defined.
-    for (int i = 0; i <= ISDEMOVER? 4 : 32; i++)
+    auto map = FindMapByName(mapname);
+    if (map)
     {
-        if (mapList[i].labelName.CompareNoCase(mapname) == 0)
-        {
-			GameAction = i;
-			return CCMD_OK;
-        }
+        GameAction = map->levelNumber;
     }
     return CCMD_OK;
 }

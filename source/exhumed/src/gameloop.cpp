@@ -117,7 +117,7 @@ static void GameDisplay(void)
     drawtime.Reset();
     drawtime.Clock();
 
-    if (currentLevel->levelNumber == kMap20)
+    if (currentLevel && currentLevel->levelNumber == kMap20)
     {
         DoEnergyTile();
         DrawClock();
@@ -191,6 +191,7 @@ void CheckProgression()
             // start a new game on the given level
             currentLevel = nullptr;
             mylevelnew = GameAction;
+            currentLevel = FindMapByLevelNum(mylevelnew);
             GameAction = -1;
             InitNewGame();
             if (mylevelnew > 0) STAT_StartNewGame("Exhumed", 1);

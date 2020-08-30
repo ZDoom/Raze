@@ -77,7 +77,7 @@ uint8_t LoadLevel(int nMap)
 
     initspritelists();
 
-    currentLevel = &mapList[nMap];
+    currentLevel = FindMapByLevelNum(nMap);
 
     // init stuff
     {
