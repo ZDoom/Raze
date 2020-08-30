@@ -306,7 +306,7 @@ void fireweapon_ww(int snum)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, ESyncBits actions, int psect)
+void operateweapon_ww(int snum, ESyncBits actions, int psect, int ticker)
 {
 	auto p = &ps[snum];
 	int pi = p->i;
@@ -400,7 +400,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				if (!(aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_NOVISIBLE))
 				{
 					// make them visible if not set...
-					lastvisinc = gameclock + 32;
+					lastvisinc = ticker + 32;
 					p->visibility = 0;
 				}
 				SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->i, snum);
