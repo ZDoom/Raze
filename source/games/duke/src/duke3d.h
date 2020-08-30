@@ -59,6 +59,10 @@ struct GameInterface : public ::GameInterface
 	void ResetFollowPos(bool message) override;
 	void GetInput(InputPacket* packet) override;
 	void UpdateSounds() override;
+	void Startup() override;
+	void DrawBackground() override;
+	void Render() override;
+	void Ticker() override;
 
 };
 

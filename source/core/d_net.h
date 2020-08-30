@@ -53,6 +53,8 @@ void Net_SkipCommand (int type, uint8_t **stream);
 
 void Net_ClearBuffers ();
 
+bool D_CheckNetGame(void);
+
 
 // Netgame stuff (buffers and pointers, i.e. indices).
 

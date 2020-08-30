@@ -2057,7 +2057,6 @@ extern short numplayers, myconnectindex;
 extern short connecthead, connectpoint2[MAXPLAYERS];
 */
 extern int *lastpacket2clock;
-extern char username[MAXPLAYERS][50];
 
 // save player info when moving to a new level
 extern USER puser[MAX_SW_PLAYERS_REG];

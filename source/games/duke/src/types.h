@@ -1,6 +1,7 @@
 #pragma once
 #include "names.h"
 #include "packet.h"
+#include "d_net.h"
 
 BEGIN_DUKE_NS
 

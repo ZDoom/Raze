@@ -8,6 +8,7 @@
 #include "sounds.h"
 #include "constants.h"
 #include "types.h"
+#include "d_net.h"
 
 BEGIN_DUKE_NS
 

@@ -400,6 +400,24 @@ static void Startup()
 //
 //---------------------------------------------------------------------------
 
+void GameInterface::Startup()
+{
+
+}
+void GameInterface::DrawBackground()
+{
+
+}
+void GameInterface::Render()
+{
+
+}
+void GameInterface::Ticker()
+{
+
+}
+
+
 void GameInterface::RunGameFrame()
 {
 	switch (gamestate)

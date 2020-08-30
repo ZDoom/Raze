@@ -98,6 +98,11 @@ int oldentertics;
 int gametic;
 
 
+//==========================================================================
+//
+// 
+//
+//==========================================================================
 
 void G_BuildTiccmd(ticcmd_t* cmd) 
 {
@@ -105,8 +110,13 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	cmd->consistancy = consistancy[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
 
-void G_Ticker()
+static void GameTicker()
 {
 	int i;
 
@@ -116,11 +126,6 @@ void G_Ticker()
 	// Todo: Migrate state changes to here instead of doing them ad-hoc
 	while (gameaction != ga_nothing)
 	{
-		if (gameaction == ga_newgame2)
-		{
-			gameaction = ga_newgame;
-			break;
-		}
 		switch (gameaction)
 		{
 		}
@@ -181,18 +186,15 @@ void G_Ticker()
 		gi->Startup();
 		break;
 
-	case GS_MENUSCREEN:
-	case GS_FULLCONSOLE:
-		gi->DrawBackground();
-		break;
-
 	case GS_LEVEL:
 		gi->Ticker();
 		break;
 
+	case GS_MENUSCREEN:
+	case GS_FULLCONSOLE:
 	case GS_INTERMISSION:
 	case GS_INTRO:
-		RunScreenJobFrame();
+		// These elements do not tick at game rate.
 		break;
 
 	}
@@ -201,54 +203,65 @@ void G_Ticker()
 
 //==========================================================================
 //
-// D_Display
-//
-// Draw current display, possibly wiping it from the previous
+// Display
 //
 //==========================================================================
 
-void D_Display()
+void Display()
 {
-	FGameTexture* wipe = nullptr;
-
-	if (screen == NULL)
-		return; 				// for comparative timing / profiling
-
-	if (!AppActive && (screen->IsFullscreen() || !vid_activeinbackground))
+	if (screen == nullptr || !AppActive && (screen->IsFullscreen() || !vid_activeinbackground))
 	{
 		return;
 	}
 
 	screen->FrameTime = I_msTimeFS();
 	screen->BeginFrame();
+	twodpsp.ClearClipRect();
 	twod->ClearClipRect();
-	if ((gamestate == GS_LEVEL) && gametic != 0)
+	switch (gamestate)
 	{
-		// [ZZ] execute event hook that we just started the frame
-		//E_RenderFrame();
-		//
-		gi->Render();
+	case GS_MENUSCREEN:
+		gi->DrawBackground();
+		break;
+
+	case GS_FINALE:
+		// screen jobs are not bound by the game ticker so they need to be ticked in the display loop.
+		RunScreenJobFrame();
+		break;
+
+	case GS_LEVEL:
+		if (gametic != 0)
+		{
+			gi->Render();
+			DrawFullscreenBlends();
+		}
+		break;
+
+	default:
+		break;
 	}
 
-	// Draw overlay elements to the 2D drawer
 	NetUpdate();			// send out any new accumulation
+
+	// Draw overlay elements
 	CT_Drawer();
 	C_DrawConsole();
 	M_Drawer();
 	FStat::PrintStat(twod);
-
-	// Handle the final 2D overlays.
-	if (gamestate == GS_LEVEL) DrawFullscreenBlends();
 	DrawRateStuff();
 
 	videoShowFrame(0);
 }
 
+//==========================================================================
+//
 // Forces playsim processing time to be consistent across frames.
 // This improves interpolation for frames in between tics.
 //
 // With this cvar off the mods with a high playsim processing time will appear
 // less smooth as the measured time used for interpolation will vary.
+//
+//==========================================================================
 
 static void TicStabilityWait()
 {
@@ -280,9 +293,12 @@ static void TicStabilityEnd()
 	stabilityticduration = std::min(stabilityendtime - stabilitystarttime, (uint64_t)1'000'000);
 }
 
+//==========================================================================
 //
-// TryRunTics
+// The most important function in the engine.
 //
+//==========================================================================
+
 void TryRunTics (void)
 {
 	int 		i;
@@ -296,7 +312,7 @@ void TryRunTics (void)
 	// will all be wasted anyway.
 	if (pauseext) 
 		r_NoInterpolate = true;
-	bool doWait = cl_capfps || r_NoInterpolate /*|| netgame*/;
+	bool doWait = cl_capfps || r_NoInterpolate;
 
 	// get real tics
 	if (doWait)
@@ -328,14 +344,7 @@ void TryRunTics (void)
 		}
 	}
 
-	if (ticdup == 1)
-	{
-		availabletics = lowtic - gametic;
-	}
-	else
-	{
-		availabletics = lowtic - gametic / ticdup;
-	}
+	availabletics = lowtic - gametic / ticdup;
 
 	// decide how many tics to run
 	if (realtics < availabletics-1)
@@ -362,6 +371,7 @@ void TryRunTics (void)
 			gi->Predict(myconnectindex);
 #endif
 		}
+		gi->GetInput(nullptr);
 		return;
 	}
 
@@ -431,10 +441,9 @@ void TryRunTics (void)
 				D_DoAdvanceDemo ();
 			}
 #endif
-			//if (debugfile) fprintf (debugfile, "run tic %d\n", gametic);
 			C_Ticker ();
 			M_Ticker ();
-			G_Ticker();
+			GameTicker();
 			gametic++;
 
 			NetUpdate ();	// check for new console commands
@@ -482,7 +491,7 @@ void MainLoop ()
 			// Update display, next frame, with current state.
 			I_StartTic ();
 
-			D_Display();
+			Display();
 			Mus_UpdateMusic();		// must be at the end.
 		}
 		catch (CRecoverableError &error)

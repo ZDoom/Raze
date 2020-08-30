@@ -69,6 +69,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "screenjob.h"
 #include "statusbar.h"
 #include "uiinput.h"
+#include "d_net.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -100,6 +101,7 @@ int lastTic;
 
 int automapMode;
 bool automapFollow;
+extern int pauseext;
 
 CCMD(togglemap)
 {
@@ -137,6 +139,7 @@ void I_DetectOS(void);
 void LoadScripts();
 void app_loop();
 void DrawFullscreenBlends();
+void MainLoop();
 
 
 bool AppActive;
@@ -279,15 +282,6 @@ void UserConfig::ProcessOptions()
 	{
 		Printf("Build-format config files not supported and will be ignored\n");
 	}
-
-#if 0 // MP disabled pending evaluation
-	auto v = Args->CheckValue("-port");
-	if (v) netPort = strtol(v, nullptr, 0);
-
-	netServerMode = Args->CheckParm("-server");
-	netServerAddress = Args->CheckValue("-connect");
-	netPassword = Args->CheckValue("-password");
-#endif
 
 	auto v = Args->CheckValue("-addon");
 	if (v)
@@ -866,9 +860,9 @@ int RunGame()
 	auto exec = C_ParseCmdLineParams(nullptr);
 	if (exec) exec->ExecCommands();
 
-	gamestate = GS_LEVEL;
 	SetupGameButtons();
 	gi->app_init();
+
 	app_loop();
 	return 0; // this is never reached. app_loop only exits via exception.
 }
@@ -1150,6 +1144,15 @@ void S_SetSoundPaused(int state)
 			}
 		}
 	}
+	if (!netgame
+#if 0 //def _DEBUG
+		&& !demoplayback
+#endif
+		)
+	{
+		pauseext = !state;
+	}
+
 }
 
 FString G_GetDemoPath()
