@@ -3039,6 +3039,7 @@ void polymost_drawrooms()
     GLInterface.EnableAlphaTest(false);
     GLInterface.EnableDepthTest(true);
 	GLInterface.SetDepthFunc(DF_LEqual);
+    GLInterface.SetRenderStyle(LegacyRenderStyles[STYLE_Translucent]);
 
     gvrcorrection = viewingrange*(1.f/65536.f);
     //if (glprojectionhacks == 2)
