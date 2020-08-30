@@ -6,13 +6,12 @@ Quit,MNU_QUITGAME,,,,Ukončit hru,Spiel verlassen,,Ĉesigi Ludon,Salir del juego
 Load Game,MNU_LOADGAME,,,,Načíst hru,Spiel laden,,Ŝarĝi Ludon,Cargar Partida,,Lataa peli,Chargement,,Carica gioco,ロード,게임 불러오기,Laden spel,Wczytaj Grę,Carregar,,,Загрузка,Учитај игру
 Save Game,MNU_SAVEGAME,,,,Uložit hru,Spiel sichern,,Konservi Ludon,Guardar Partida,,Tallenna peli,Sauvegarde,,Salva gioco,セーブ,게임 저장하기,Opslaan spel,Zapisz Grę,Salvar,Gravar,,Сохранение,Сачувај игру
 Help,MNU_HELP,,,,,Hilfe,,,,,,Aide,,,,,,,,,,,
-Continue,MNU_CONTINUE,,,,,Fortfahren,,,,,,,,,,,,,,,,,
 Credits,MNU_CREDITS,,,,,,,,,,,,,,,,,,,,,,
 How to Order,MNU_HOWTOORDER,,,,,Bestellen,,,,,,,,,,,,,,,,,
 Multiplayer,MNU_MULTIPLAYER,,,,,Mehrspieler,,,,,,,,,,,,,,,,,
 End Game,MNU_ENDGAME,,,,,Spiel beenden,,,,,,,,,,,,,,,,,
-User Map,MNU_USERMAP,,,,,Benutzerlevel,,,,,,,,,,,,,,,,,
-Select a user map to play,MNU_SELECTUSERMAP,,,,,"Wähle ein Level zum Spielen
+User Map,MNU_USERMAP,not used yet,,,,Benutzerlevel,,,,,,,,,,,,,,,,,
+Select a user map to play,MNU_SELECTUSERMAP,not used yet,,,,"Wähle ein Level zum Spielen
 ",,,,,,,,,,,,,,,,,
 Select an Episode,MNU_SELECTEPISODE,DN3D et.al.,,,,"Welche Episode?
 ",,,,,,,,,,,,,,,,,
@@ -500,6 +499,7 @@ Gamma correction,DSPLYMNU_GAMMA,,,,Korekce gama,Gammakorrektur,,Gamaa korektado,
 Contrast,DSPLYMNU_CONTRAST,,,,Kontrast,Kontrast,,Kontrasto,Contraste,,Sävykkyys,Contraste,,Contrasto,コントラスト,대비,,Kontrast,Contraste,,,Контраст,Контраст
 Saturation,DSPLYMNU_SATURATION,,,,Sytost,Sättigung,,Satureco,Saturación,,Värikylläisyys,,,Saturazione,サチュレーション,채도,Verzadiging,Nasycenie,Saturação,,,Насыщенность,Сатурација
 Status Bar Scale,DSPLYMNU_SBSCALE,,,,,Statusleistengröße,,,,,,,,,,,,,,,,,
+Show clip amount in fullscreen HUD,DSPLYMNU_CLIPAMT,,,,,Zeige Magazin im Vollbild-HUD,,,,,,,,,,,,,,,,,
 Level Statistics,DSPLYMNU_LEVELSTATS,,,,,Levelstatistik,,,,,,,,,,,,,,,,,
 Level Statistics Scale,DSPLYMNU_STATSCALE,,,,,Textgröße für Levelstatistik,,,,,,,,,,,,,,,,,
 Text Scale,DSPLYMNU_TEXTSCALE,,,,,Textgröße,,,,,,,,,,,,,,,,,
@@ -729,14 +729,14 @@ are missing over 75% of the total
 game, along with other great extras
 which you'll get when you order
 the complete version and get
-the final three episodes.",BUYDUKE,,,,,,,,,,,,,,,,,,,,,,
+the final three episodes.",BUYDUKE,not used,,,,,,,,,,,,,,,,,,,,,
 "Buy the complete version of
 Blood for three new episodes
-plus eight BloodBath-only levels!",BUYBLOOD,,,,,,,,,,,,,,,,,,,,,,
+plus eight BloodBath-only levels!",BUYBLOOD,not used,,,,,,,,,,,,,,,,,,,,,
 "Loading and saving games
 not supported
 in this demo version of Blood.","BLOOD_SW_BLOCK
-",,,,,,,,,,,,,,,,,,,,,,
+",not used,,,,,,,,,,,,,,,,,,,,,
 "Are you sure you want to end the game?
 ",ENDGAME,,,,"Opravdu si přeješ ukončit hru?
 ","Willst du das Spiel wirklich beenden?
@@ -759,8 +759,9 @@ Are you sure you want to quit this game?,CONFIRM_QUITMSG,,,,Přeješ si odejít?
 Reset controls to defaults?,CONFIRM_CTRL1,,,,,Steuerung auf Standard zurücksetzen?,,,,,,,,,,,,,,,,,
 Reset controls to classic defaults?,CONFIRM_CTRL2,,,,,Steuerung auf klassischen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
 Reset controls to left-handed defaults?,CONFIRM_CTRL3,,,,,Steuerung auf linkshändigen Standard zurücksetzen?,,,,,,,,,,,,,,,,,
+Say:,TXT_SAY,,,,Říct:,Sage:,Πές:,Diru:,,,Sano:,Parler:,Üzenet:,Parla:,発言:,,Zeg:,Powiedz:,Fala:,Diz:,Vorbește:,Чат:,Пиши:
 ,Obituaries,,,,,,,,,,,,,,,,,,,,,,
-%k boned %o like a fish,TXT_OBITUARY1,,,,%o byl@[ao_cs] vykoštěn@[ao_cs] jako ryba hráčem %k,%k hat %o zerlegt wie einen Fisch,,%k senostigis %o kiel fiŝon,%k deshuesó a %o como a un pescado,,%k perkasi %o paran kuin kalan,%k désossa %o comme un poisson,%k kifilézte %o -t mint a halat,%k ha dissossato %o come un pesce,%k は %o の骨を魚のように引っこ抜いた。,%k 은(는) %o 의 뼈를 발랐다.,%k uitgebeend %o zoals een vis,%k odfiletował@[ao_pl] %o jak rybę,%k desossou %o como um peixe,,,Игрок %k пересчитал косточки игрока %o,%k је очистио %o као рибу
+%k boned %o like a fish,TXT_OBITUARY1,"Currently not used, still exist in raw form.",,,%o byl@[ao_cs] vykoštěn@[ao_cs] jako ryba hráčem %k,%k hat %o zerlegt wie einen Fisch,,%k senostigis %o kiel fiŝon,%k deshuesó a %o como a un pescado,,%k perkasi %o paran kuin kalan,%k désossa %o comme un poisson,%k kifilézte %o -t mint a halat,%k ha dissossato %o come un pesce,%k は %o の骨を魚のように引っこ抜いた。,%k 은(는) %o 의 뼈를 발랐다.,%k uitgebeend %o zoals een vis,%k odfiletował@[ao_pl] %o jak rybę,%k desossou %o como um peixe,,,Игрок %k пересчитал косточки игрока %o,%k је очистио %o као рибу
 %k castrated %o,TXT_OBITUARY2,,,,%o byl@[ao_cs] vykastrován@[ao_cs] hráčem %k,%k hat %o kastriert,,%k kastris %o,%k castró a %o,,%k kastroi %o paran,%k castra %o,%k kasztrálta %o -t,%k ha castrato %o,%k は %o を去勢した。,%k 은(는) %o 을(를) 거세시켰다.,%k gecastreerd %o,%k wykastrował@[ao_pl] %o,%k castrou %o,,,Игрок %k кастрировал игрока %o,%k је кастрирао %o
 %k creamed %o,TXT_OBITUARY3,,,,%o byl@[ao_cs] rozšlehán@[ao_cs] hráčem %k,%k hat %o eingeseift,,%k kremigis %o,%k cremó a %o,,%k kermasi %o paran,%k a battu %o à plate couture ,%k elkente %o -t,%k ha cremato %o,%k は %o に反吐ブチ撒けさせた。,%k 은(는) %o 을(를) 양념시켰다.,%k romed %o,%k spienił@[ao_pl] %o,%k fez creme de %o,,,Игрок %k взбил игрока %o,%k је истукао %o
 %k decimated %o,TXT_OBITUARY4,,,,%o byl@[ao_cs] zdecimován@[ao_cs] hráčem %k,%k hat %o dezimiert,,%k detruegis %o,%k diezmó a %o,,%k hävitti %o paran,%k a décimé %o,%k megtizedelte %o -t,%k ha decimato %o,%k は %o の居場所を間引いた。,%k 은(는) %o 을(를) 망가뜨렸다.,%k gedecimeerd %o,%k przetrzebił@[ao_pl] %o,%k decimou %o,,,Игрок %k скосил игрока %o,%k је десетковао %o
@@ -792,30 +793,12 @@ Reset controls to left-handed defaults?,CONFIRM_CTRL3,,,,,Steuerung auf linkshä
 %k sprayed %o,TXT_OBITUARY29,,,,%o byl@[ao_cs] postříkán@[ao_cs] hráčem %k,%k hat %o pulverisiert,,%k ŝprucigis %o,%k pulverizó a %o,,%k ruiskutti %o paran,%k a pulvérise %o,,%k ha vaporizzato %o,%k は %o を撒き散らした。,%o 의 피는 %k 의 물감으로 쓰였다.,%k gespoten %o,%k rozpryskał@[ao_pl] %o,%k pulverizou %o,,,Игрок %k распылил игрока %o,%k је испрскао %o
 %k made dog meat out of %o,TXT_OBITUARY30,,,,%o byl@[ao_cs] hozen@[ao_cs] psům hráčem %k,%k hat Hundefutter aus %o gemacht,,%k faris hundan viandon el %o,%k hizo comida para perro de %o,,%k teki %o parasta koiranruokaa,%k a fait de la pâtée pour chien de %o,,%k ha fatto di %o polpette,%k は %o を犬の餌にした。,%k 은(는) %o 로 개밥을 만들었다.,%k gemaakt hondenvlees van %o,%k zrobił@[ao_pl] mięso dla psów z %o,%k fez almôndegas de %o,,,Игрок %k скормил псам игрока %o,%k је направио псеће месо од %o
 %k beat %o like a cur,TXT_OBITUARY31,,,,%o byl@[ao_cs] zmlácen@[ao_cs] jako pes hráčem %k,%k hat %o wie einen Hund geschlagen,,%k batis %o kiel kur,%k pateó a %o como a un perro callejero,,%k huitoi %o parkaa kuin rakkia,%k a battu %o,,%k ha battuto %o come un cane,%k は %o を狂犬の様に扱った。,%o 은(는) %k 에게 똥개처럼 맞았다.,%k beat %o als een hond,%k pobił@[ao_pl] %o jak kundla,%k espancou %o como um cachorro,%k espancou %o como um cão,,Игрок %k сделал игрока %o как худую свинью,%k је превио %o ко мачку
-%k body bagged %o,TXT_OBITUARY32,,,,,,,,,,,,,,,,,,,,,,
-%k crushed %o,TXT_OBITUARY33,,,,,,,,,,,,,,,,,,,,,,
-%k erased %o,TXT_OBITUARY34,,,,,,,,,,,,,,,,,,,,,,
-%k eviscerated %o,TXT_OBITUARY35,,,,,,,,,,,,,,,,,,,,,,
-%k flailed %o,TXT_OBITUARY36,,,,,,,,,,,,,,,,,,,,,,
-%k hurt %o real bad,TXT_OBITUARY37,,,,,,,,,,,,,,,,,,,,,,
-%k manhandled %o,TXT_OBITUARY38,,,,,,,,,,,,,,,,,,,,,,
-%k murdered %o,TXT_OBITUARY39,,,,,,,,,,,,,,,,,,,,,,
-%k neutered %o,TXT_OBITUARY40,,,,,,,,,,,,,,,,,,,,,,
-%k punted %o,TXT_OBITUARY41,,,,,,,,,,,,,,,,,,,,,,
-%k shredded %o,TXT_OBITUARY42,,,,,,,,,,,,,,,,,,,,,,
-%k slashed %o,TXT_OBITUARY43,,,,,,,,,,,,,,,,,,,,,,
-%k sliced %o,TXT_OBITUARY44,,,,,,,,,,,,,,,,,,,,,,
-%k smacked %o around,TXT_OBITUARY45,,,,,,,,,,,,,,,,,,,,,,
-%k vented %o,TXT_OBITUARY46,,,,,,,,,,,,,,,,,,,,,,
-%k ventilated %o,TXT_OBITUARY47,,,,,,,,,,,,,,,,,,,,,,
-%k wrecked %o,TXT_OBITUARY48,,,,,,,,,,,,,,,,,,,,,,
 %o is excrement,TXT_SELFOBIT1,,,,%o je exkrement,%o wurde zu Exkrement verarbeitet,,%o estas ekskremento,%o es excremento,,%o on ulostetta,%o est une merde,,%o è un escremento,%o はもはや排泄物のようだ。,%o 은(는) 배설물이 되었다.,%o is uitwerpselen,%o został@[ao_pl] odpadkami,%o virou escremento,,,%o теперь экскремент,%o је сада измет
 %o is hamburger,TXT_SELFOBIT2,,,,%o je hamburger,%o ist Hamburger,,%o estas hamburgero,%o es una hamburguesa,,%o on hakkelusta,%o est un hamburger,,%o è un hamburger,%o はハンバーガーになった。,%o 은(는) 고기 반죽이 되었다.,%o is hamburger,%o został@[ao_pl] hamburgerem,%o virou hamburguer,,,%o теперь гамбургер,%o је сада пљескавица
 %o suffered scrotum separation,TXT_SELFOBIT3,,,,%o prodělal@[ao_cs] separaci šourku,%os Eier wurden gebraten,,%o suferis skrotan disigon,%o sufrió separación de escroto,,%o kärsii kivespussin erotuksesta,%o a souffert d'une séparation du scrotum,,%o ha subito la separazione dello scroto,%o の陰嚢は剥離していた。,%o 은(는) 고자가 되었다.,%o leed aan scrotumscheiding...,%o doznał@[ao_pl] oddzielenia moszny,%o sofreu separação escrotal,,,%o страдает от потери тестикул,%o му је исечена патка
 %o volunteered for population control,TXT_SELFOBIT4,,,,%o se zůčastnil@[ao_cs] čistky obyvatelstva,%o hat sich freiwillig zur Bevölkerungskontrolle gemeldet,,%o volontulis por loĝantarkontrolo,%o fue voluntario para control de población,,%o ilmoittautui vapaaehtoiseksi väestönhallintaan,%o s'est proposé pour un contrôle de la population,,%o si è offerto per il controllo della popolazione,%o は人口削減政策の実験台に志願した。,%o 은(는) 자연에 의해 낙태 당했다.,%o vrijwilliger voor bevolkingscontrole,%o zgłosił@[ao_pl] się na kontrolę ludności,%o se voluntariou para o controle populacional,%o se voluntariou para o controlo populacional,,%o борется с перенаселением,%o је волунтирао за контролу популације
 %o has suicided,TXT_SELFOBIT5,,,,%o spáchal@[ao_cs] sebevraždu,%o hat Selbstmord begangen,,%o sin mortigis,%o se ha suicidado,,%o on tehnyt itsemurhan,%o s'est suicidé,%o öngyilkos lett,%o si è suicidato,%o は勝手にくたばった。,%o 은(는) 한심하게 자살했다.,%o heeft zelfmoord gepleegd.,%o popełnił@[ao_pl] samobójstwo,%o se suicidou,%o suicidou-se,,Игрок %o самоубился,%o је убио самог себе
 %o received the Darwin Award,TXT_SELFOBIT6,,,,%o dostal@[ao_cs] darwinovu cenu,%o hat den Darwinpreis erhalten,,%o ricevis la Darwin-Premion,%o recibió el premio Darwin,,%o sai Darwin-palkinnon,%o a recu la médaille Darwin,És a Darwin Díj nyertese : %o,%o ha ricevuto il Darwin Award,%o にはダーウィン賞が授与された。,%o 은(는) 다윈상을 받을 자격이 있다.,%o ontving de Darwin Award....,%o otrzymał@[ao_pl] Nagrodę Darwina,%o ganhou o Prêmio Darwin,,,Игрок %o получил премию Дарвина,%o је добио Дарвиново признање
-,,,,,,,,,,,,,,,,,,,,,,,
 ,Duke Nukem Script quotes,,,,,,,,,,,,,,,,,,,,,,
 Auto Aiming,AUTO AIMING,,,,,,,,,,,,,,,,,,,,,,
 Show Map: OFF,SHOW MAP: OFF,,,,,,,,,,,,,,,,,,,,,,
@@ -1601,7 +1584,6 @@ Multiplayer Totals,Multiplayer Totals,,,,,Mehrspielerergebnis,,,,,,,,,,,,,,,,,
 Name,Name,,,,Jméno,Name,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam,Nazwa,Nome,,,Имя,Име
 Frags,Frags,,,,Fragy,,,Ĉesoj,Bajas,,Frägit,,Fragek,Frags,フラグ,플레이어 킬수,Frags,Fragi,,,,Фраги,Фрагови
 Deaths,Deaths,,,,Smrti,Tode,,Mortoj,Muertes,,Kuolemat,Morts,Halálok,Morti,デス,사망한 횟수,Overlijden,Śmierci,Mortes,,,Смерти,Смрти
-Ping,Ping,,,,,,,,,,,,,,,,,,,,,,
 Game Paused,Game Paused,,,,,Spiel pausiert,,,,,,,,,,,,,,,,,
 Thanks to all our,Thanks to all our,,,,,Danke an alle,,,,,,,,,,,,,,,,,
 fans for giving,fans for giving,,,,,unsere Fans für,,,,,,,,,,,,,,,,,
@@ -1629,14 +1611,10 @@ Varmints Left:,TXT_VARMINTSLEFT,,,,,Lebendes Ungeziefer:,,,,,,,,,,,,,,,,,
 N/A,TXT_N_A,,,,,N/V,,,,,,,,,,,,,,,,,
 Secrets Found:,TXT_SECFND,,,,,Gefundene Geheimnisse,,,,,,,,,,,,,,,,,
 Secrets Missed:,TXT_SECMISS,,,,,Verpasste Geheimnisse,,,,,,,,,,,,,,,,,
-Vote cast,VOTECAST,,,,,Stimme abgegeben,,,,,,,,,,,,,,,,,
-"Press F1 to Accept, F2 to Decline",TXT_PRESSF1_F2,,,,,"Drücke F1 zum Akzeptieren, F2 zum Ablehnen",,,,,,,,,,,,,,,,,
 Enterin',TXT_ENTERIN,,,,,Starte,,,,,,,,,,,,,,,,,
 Close Encounters,TXT_CLOSEENCOUNTERS,,,,,Unheimliche Begegnung,,,,,,,,,,,,,,,,,
 Enterin' User Map,TXT_ENTRUM,,,,,Starte Benutzerlevel,,,,,,,,,,,,,,,,,
 Loadin',TXT_LOADIN,,,,,Laden,,,,,,,,,,,,,,,,,
-"Loading...
-",TXT_LOADING...,,,,,Laden...,,,,,,,,,,,,,,,,,
 ,Blood,,,,,,,,,,,,,,,,,,,,,,
 Still Kicking,STILL KICKING,,,,,Bewegt sich noch,,,,,,,,,,,,,,,,,
 Pink On The Inside,PINK ON THE INSIDE,,,,,Innen noch rot,,,,,,,,,,,,,,,,,
@@ -1759,6 +1737,7 @@ Map Scroll Mode,FOLLOW MODE OFF,"
 ",Blood,,,,,,,,,,,,,,,,,,,,
 You are immortal.,TXTB_GODMODE,,,,,,,,,,,,,,,,,,,,,,
 You are mortal.,TXTB_NOTGODMODE,,,,,,,,,,,,,,,,,,,,,,
+Frags,Frags,,,,Fragy,,,Ĉesoj,Bajas,,Frägit,,Fragek,Frags,フラグ,플레이어 킬수,Frags,Fragi,,,,Фраги,Фрагови
 Paused,TXTB_PAUSED,,,,,,,,,,,,,,,,,,,,,,
 Please Wait,TXTB_PLSWAIT,,,,,,,,,,,,,,,,,,,,,,
 Unclipped movement.,TXTB_NOCLIP,,,,,,,,,,,,,,,,,,,,,,
@@ -2116,7 +2095,7 @@ Ninja Training Camp (dm),TXTS_T_MAP23,,,,,,,,,,,,,,,,,,,,,,
 The Morgue/mortuary (dm),TXTS_T_MAP24,,,,,,,,,,,,,,,,,,,,,,
 Island Caves (dm),TXTS_T_MAP25,,,,,,,,,,,,,,,,,,,,,,
 Twin Dragon,TXTS_T_TITLE,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,
+,Exhumed,,,,,,,,,,,,,,,,,,,,,,
 Training,TXT_EX_MAP00,,,,,,,,,,,,,,,,,,,,,,
 Abu Simbel,TXT_EX_MAP01,,,,,,,,,,,,,,,,,,,,,,
 Dendur,TXT_EX_MAP02,,,,,,,,,,,,,,,,,,,,,,
@@ -2261,7 +2240,7 @@ continued their monsterous
 animal-human experiments in
 an effort to solve the key of
 animating my corpse. The
-victory defeating set didn't
+victory defeating Set didn't
 slow you down as much as
 they had planned. They are
 actively robbing a slave
@@ -2351,3 +2330,9 @@ Slip mode ON,TXT_EX_SLIPON,,,,,,,,,,,,,,,,,,,,,,
 Slip mode OFF,TXT_EX_SLIPOFF,,,,,,,,,,,,,,,,,,,,,,
 Snake Cam Enabled,TXT_EX_SNAKEON,,,,,,,,,,,,,,,,,,,,,,
 Snake Cam Disabled,TXT_EX_SNAKEOFF,,,,,,,,,,,,,,,,,,,,,,
+Use Hand,TXT_EX_USEINV1,,,,,,,,,,,,,,,,,,,,,,
+Use Eye,TXT_EX_USEINV2,,,,,,,,,,,,,,,,,,,,,,
+Use Mask,TXT_EX_USEINV3,,,,,,,,,,,,,,,,,,,,,,
+Use Heart,TXT_EY_USEINV4,,,,,,,,,,,,,,,,,,,,,,
+Use Torch,TXT_EX_USEINV5,,,,,,,,,,,,,,,,,,,,,,
+Use Scarab,TXT_EX_USEINV6,,,,,,,,,,,,,,,,,,,,,,
