@@ -730,7 +730,7 @@ void GameTicker(void)
         ready2send = 1;
 
         int const currentTic = I_GetTime();
-        gameclock = I_GetBuildTime();
+        gameclock = I_GetBuildTime() - gameclockstart;
 
         if (paused)
         {
@@ -765,6 +765,13 @@ void GameTicker(void)
 }
 
 
+void resetGameClock()
+{
+    I_SetFrameTime();
+    gameclockstart = I_GetBuildTime();
+    ogameclock = gameclock = 0;
+}
+
 void GameInterface::RunGameFrame()
 {
     // if the menu initiazed a new game or loaded a savegame, switch to play mode.
@@ -774,9 +781,7 @@ void GameInterface::RunGameFrame()
     {
     default:
     case GS_STARTUP:
-        I_ResetTime();
-        lastTic = -1;
-        ogameclock = gameclock = 0;
+        resetGameClock();
 
         if (userConfig.CommandMap.IsNotEmpty())
         {

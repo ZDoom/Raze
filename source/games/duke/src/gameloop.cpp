@@ -362,7 +362,7 @@ void startmainmenu()
 void resetGameClock()
 {
 	I_SetFrameTime();
-	gameclockstart = I_GetTime();
+	gameclockstart = I_GetBuildTime();
 	gameclock = 0;
 	cloudclock = 0;
 }
