@@ -339,9 +339,9 @@ void hud_input(int snum)
 							hittype[i].temp_data[3] = hittype[i].temp_data[4] = 0;
 							sprite[i].yvel = snum;
 							sprite[i].extra = 0;
-							FTA(47, p);
+							FTA(QUOTE_HOLODUKE_ON, p);
 						}
-						else FTA(QUOTE_HOLODUKE_ON, p);
+						else FTA(QUOTE_HOLODUKE_NOT_FOUND, p);
 						S_PlayActorSound(TELEPORTER, p->holoduke_on);
 
 					}
@@ -349,7 +349,7 @@ void hud_input(int snum)
 					{
 						S_PlayActorSound(TELEPORTER, p->holoduke_on);
 						p->holoduke_on = -1;
-						FTA(QUOTE_HOLODUKE_NOT_FOUND, p);
+						FTA(QUOTE_HOLODUKE_OFF, p);
 					}
 				}
 				else // In RR this means drinking whiskey.
