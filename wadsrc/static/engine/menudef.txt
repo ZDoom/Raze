@@ -754,7 +754,7 @@ OptionMenu "MouseOptions" //protected
 	StaticText 	""
 	Slider "$MOUSEMNU_SENSITIVITY",		"in_mousesensitivity", 0.5, 2.5, 0.1
 	Option "$MOUSEMNU_NOPRESCALE",		"m_noprescale", "NoYes"
-	Option "$MOUSEMNU_SMOOTHMOUSE",		"in_mousesmoothing", "YesNo"
+	Option "$MOUSEMNU_SMOOTHMOUSE",		"m_filter", "YesNo"
 	StaticText 	""
 	Slider "$MOUSEMNU_TURNSPEED",		"in_mousescalex", -4, 4, 0.2
 	Slider "$MOUSEMNU_MOUSELOOKSPEED",	"in_mousescaley", -4, 4, 0.2
