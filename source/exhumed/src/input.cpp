@@ -250,12 +250,18 @@ void PlayerInterruptKeys(bool after)
         // so we convert horiz to 1024 angle units
 
         float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(tempinput.q16horz), -255.f, 255.f);
-        PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
+        auto newq16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
+        if (PlayerList[nLocalPlayer].q16horiz != newq16horiz)
+        {
+            bLockPan = true;
+            PlayerList[nLocalPlayer].q16horiz = newq16horiz;
+            nDestVertPan[nLocalPlayer] = PlayerList[nLocalPlayer].q16horiz;
+        }
 
         // Look/aim up/down functions.
         if (localInput.actions & (SB_LOOK_UP|SB_AIM_UP))
         {
-            bLockPan = (localInput.actions & SB_LOOK_UP);
+            bLockPan |= (localInput.actions & SB_LOOK_UP);
             if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
                 PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
             }
@@ -265,7 +271,7 @@ void PlayerInterruptKeys(bool after)
         }
         else if (localInput.actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
         {
-            bLockPan = (localInput.actions & SB_LOOK_DOWN);
+            bLockPan |= (localInput.actions & SB_LOOK_DOWN);
             if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
                 PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
             }
