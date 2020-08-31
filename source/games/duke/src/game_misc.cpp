@@ -620,7 +620,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 		{
 			auto& pp = ps[p];
 			if (sprite[pp.i].xvel > 16 && pp.on_ground)
-				i = TILE_APLAYERTOP + ((gameclock >> 4) & 3);
+				i = TILE_APLAYERTOP + ((ud.levelclock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 
@@ -656,16 +656,16 @@ void cameratext(int i)
 		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
 		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
 
-		if (gameclock & 16)
+		if (ud.levelclock & 16)
 			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
 	}
 	else
 	{
-		int flipbits = (gameclock << 1) & 48;
+		int flipbits = (ud.levelclock << 1) & 48;
 
 		for (int x = -64; x < 394; x += 64)
 			for (int y = 0; y < 200; y += 64)
-				drawitem(TILE_STATIC, x, y, !!(gameclock & 8), !!(gameclock & 16));
+				drawitem(TILE_STATIC, x, y, !!(ud.levelclock & 8), !!(ud.levelclock & 16));
 	}
 }
 
