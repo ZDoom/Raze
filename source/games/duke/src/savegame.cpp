@@ -536,7 +536,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			FX_SetReverb(0);
 
 		}
-		ready2send = 1;
 	}
 }
 

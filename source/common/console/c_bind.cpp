@@ -698,6 +698,7 @@ void ReadBindings(int lump, bool override)
 			sc.MustGetString();
 		}
 		key = GetConfigKeyFromName(sc.String);
+		assert(key);
 		sc.MustGetString();
 		dest->SetBind(key, sc.String, override);
 	}

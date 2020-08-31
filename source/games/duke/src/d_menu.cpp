@@ -221,7 +221,6 @@ void GameInterface::MenuOpened()
 {
 	if (ud.multimode < 2)
 	{
-		ready2send = 0;
 		screenpeek = myconnectindex;
 	}
 }
@@ -255,16 +254,6 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::MenuClosed()
 {
-	auto& gm = ps[myconnectindex].gm;
-	if (gm & MODE_GAME)
-	{
-		if (ud.multimode < 2 && ud.recstat != 2)
-		{
-			ready2send = 1;
-			cameraclock = INT_MIN;
-			cameradist = 65536;
-		}
-	}
 }
 
 bool GameInterface::CanSave()
@@ -272,7 +261,7 @@ bool GameInterface::CanSave()
 	if (ud.recstat == 2 || gamestate != GS_LEVEL) return false;
 	auto &myplayer = ps[myconnectindex];
 	return (sprite[myplayer.i].extra > 0);
-	}
+}
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {

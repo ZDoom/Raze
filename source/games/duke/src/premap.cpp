@@ -759,7 +759,6 @@ void resettimevars(void)
     resetGameClock();
 	ud.levelclock = 0;
     levelTextTime = 85;
-    ready2send = 1;
     if (camsprite >= 0)
         hittype[camsprite].temp_data[0] = 0;
 }
@@ -839,8 +838,6 @@ void donewgame(MapRecord* map, int sk)
 template<class func>
 void newgame(MapRecord* map, int sk, func completion)
 {
-    ready2send = 0;
-
     auto completion1 = [=](bool res)
     {
         if (!isRR() && map->levelNumber == levelnum(3, 0) && (ud.multimode < 2))
@@ -1102,8 +1099,6 @@ bool setnextmap(bool checksecretexit)
 
 int exitlevelend()
 {
-    ready2send = 0;
-
     if (numplayers > 1)
         ps[myconnectindex].gm = MODE_GAME;
 
@@ -1126,7 +1121,6 @@ void exitlevel(void)
 
     if (ps[myconnectindex].gm & MODE_EOL)
     {
-        ready2send = 0;
         dobonus(0, [=](bool)
             {
 

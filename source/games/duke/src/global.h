@@ -51,7 +51,6 @@ extern int16_t max_ammo_amount[MAX_WEAPONS];
 extern int16_t weaponsandammosprites[15];
 extern int32_t PHEIGHT;
 extern int duke3d_globalflags;
-extern uint8_t ready2send;
 extern int playerswhenstarted;
 extern int show_shareware;
 extern int screenpeek;
