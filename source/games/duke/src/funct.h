@@ -23,7 +23,7 @@ void resetlanepics(void);
 void moveplayers();
 void doanimations();
 void movefx();
-void moveclouds(void);
+void moveclouds(double smoothratio);
 
 void RANDOMSCRAP(spritetype* s, int i);
 void ms(short i);

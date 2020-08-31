@@ -1140,11 +1140,13 @@ void allignwarpelevators(void)
 //
 //---------------------------------------------------------------------------
 
-void moveclouds(void)
+void moveclouds(double smoothratio)
 {
-	if (gameclock > cloudclock || gameclock < (cloudclock - 7))
+	// The math here is very messy... :(
+	int myclock = smoothratio < 32768? ud.levelclock-2 : ud.levelclock;
+	if (myclock > cloudclock || myclock < (cloudclock - 7))
 	{
-		cloudclock = gameclock + 6;
+		cloudclock = myclock + 6;
 
 		// cloudx/y were an array, but all entries were always having the same value so a single pair is enough.
 		cloudx += (sintable[(ps[screenpeek].getang() + 512) & 2047] >> 9);
