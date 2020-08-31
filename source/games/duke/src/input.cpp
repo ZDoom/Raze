@@ -624,8 +624,8 @@ static void checkCrouchToggle(player_struct* p)
 
 int getticssincelastupdate()
 {
-	int  tics = lastcontroltime == 0 || gameclock < lastcontroltime ? 0 : gameclock - lastcontroltime;
-	lastcontroltime = gameclock;
+	int  tics = lastcontroltime == 0 || ud.levelclock < lastcontroltime ? 0 : ud.levelclock - lastcontroltime;
+	lastcontroltime = ud.levelclock;
 	return tics;
 }
 
