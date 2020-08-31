@@ -62,7 +62,6 @@ void GameInterface::Ticker()
 
 	if (playrunning())
 	{
-		ud.levelclock+= 4;
 		if (earthquaketime > 0) earthquaketime--;
 
 		ud.camerasprite = -1;
@@ -100,6 +99,8 @@ void GameInterface::Ticker()
 			dotorch();
 
 		r_NoInterpolate = false;
+		ud.levelclock+= 4;		// This must be at the end of this block so that the first tic receives a value of 0!
+
 	}
 	else r_NoInterpolate = true;
 
