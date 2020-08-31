@@ -322,6 +322,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 
 	// Switch to render buffers dimensioned for the savepic
 	screen->SetSaveBuffers(true);
+
 	screen->ImageTransitionScene(true);
 
 	RenderState.SetVertexBuffer(screen->mVertexData);
@@ -338,6 +339,10 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	ydim = height;
 	videoSetViewableArea(0, 0, width - 1, height - 1);
 	renderSetAspect(65536, 65536);
+	screen->SetSceneRenderTarget(false);
+	RenderState.SetPassType(NORMAL_PASS);
+	RenderState.EnableDrawBuffers(1, true);
+
 	bool didit = gi->GenerateSavePic();
 
 	xdim = oldx;
