@@ -340,9 +340,9 @@ void hud_input(int snum)
 							sprite[i].yvel = snum;
 							sprite[i].extra = 0;
 							FTA(QUOTE_HOLODUKE_ON, p);
+							S_PlayActorSound(TELEPORTER, p->holoduke_on);
 						}
 						else FTA(QUOTE_HOLODUKE_NOT_FOUND, p);
-						S_PlayActorSound(TELEPORTER, p->holoduke_on);
 
 					}
 					else
