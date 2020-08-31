@@ -258,12 +258,10 @@ void GameInterface::MenuClosed()
 	auto& gm = ps[myconnectindex].gm;
 	if (gm & MODE_GAME)
 	{
-		// The following lines are here so that you cannot close the menu when no game is running.
-
 		if (ud.multimode < 2 && ud.recstat != 2)
 		{
 			ready2send = 1;
-			cameraclock = gameclock;
+			cameraclock = INT_MIN;
 			cameradist = 65536;
 		}
 	}

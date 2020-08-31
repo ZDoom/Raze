@@ -1215,7 +1215,7 @@ int haskey(int sect, int snum)
 //
 //---------------------------------------------------------------------------
 
-bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz)
+bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz, double smoothratio)
 {
 	spritetype* sp;
 	int i, nx, ny, nz, hx, hy, hitx, hity, hitz;
@@ -1264,9 +1264,12 @@ bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, 
 	*vx = (*vx) + mulscale16(nx, cameradist);
 	*vy = (*vy) + mulscale16(ny, cameradist);
 	*vz = (*vz) + mulscale16(nz, cameradist);
+	
+	int myclock = ud.levelclock + int(TICSPERFRAME/65536. * smoothratio);
+	if (cameraclock == INT_MIN) cameraclock = myclock;	// third person view was just started.
 
-	cameradist = min(cameradist + ((gameclock - cameraclock) << 10), 65536);
-	cameraclock = gameclock;
+	cameradist = min(cameradist + ((myclock - cameraclock) << 10), 65536);
+	cameraclock = myclock;
 
 	updatesectorz(*vx, *vy, *vz, vsectnum);
 

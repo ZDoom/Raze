@@ -116,7 +116,7 @@ void playerLookUp(int snum, ESyncBits actions);
 void playerLookDown(int snum, ESyncBits actions);
 void playerAimUp(int snum, ESyncBits actions);
 void playerAimDown(int snum, ESyncBits actions);
-bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz);
+bool view(struct player_struct* pp, int* vx, int* vy, int* vz, short* vsectnum, int ang, int horiz, double smoothratio);
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n);
 int hits(int i);
 int hitasprite(int i, short* hitsp);

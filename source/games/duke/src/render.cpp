@@ -593,7 +593,7 @@ void displayrooms(int snum, double smoothratio)
 		{
 			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
 		}
-		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild());
+		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild(), smoothratio);
 
 		cz = hittype[p->i].ceilingz;
 		fz = hittype[p->i].floorz;

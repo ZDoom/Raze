@@ -297,7 +297,7 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
 		{
 			ps[myconnectindex].over_shoulder_on = 1;
 			cameradist = 0;
-			cameraclock = gameclock;
+			cameraclock = INT_MIN;
 		}
 		FTA(QUOTE_VIEW_MODE_OFF + ps[myconnectindex].over_shoulder_on, &ps[myconnectindex]);
 	}

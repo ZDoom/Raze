@@ -274,7 +274,7 @@ void drawoverlays(double smoothratio)
 					fi.displaymasks(screenpeek, smoothratio);
 			}
 			if (!isRR())
-				moveclouds();
+				moveclouds(smoothratio);
 		}
 
 		if (automapMode != am_off)

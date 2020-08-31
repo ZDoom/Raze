@@ -228,7 +228,7 @@ static bool cheatView(cheatseq_t *)
 		{
 			ps[myconnectindex].over_shoulder_on = 1;
 			cameradist = 0;
-			cameraclock = gameclock;
+			cameraclock = INT_MIN;
 		}
 		//FTA(22,&ps[myconnectindex]); this message makes no sense.
 	}
