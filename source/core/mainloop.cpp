@@ -331,9 +331,7 @@ void TryRunTics (void)
 
 	// If paused, do not eat more CPU time than we need, because it
 	// will all be wasted anyway.
-	if (pauseext) 
-		r_NoInterpolate = true;
-	bool doWait = cl_capfps || r_NoInterpolate;
+	bool doWait = cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated());
 
 	// get real tics
 	if (doWait)

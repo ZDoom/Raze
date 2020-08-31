@@ -325,6 +325,7 @@ public:
 	DVector2 origin = { 0,0 };
 	int scriptID = INT_MAX;
 	bool canAnimate = false;
+	bool isAnimated = false;	// set to true when uncapped frame rate is needed.
 
 	DMenu(DMenu *parent = NULL);
 	virtual ~DMenu() = default;
@@ -339,6 +340,7 @@ public:
 	virtual void Close();
 	virtual bool MouseEvent(int type, int x, int y);
 	virtual void Destroy() {}
+	bool IsAnimated() const { return isAnimated; }
 	bool MouseEventBack(int type, int x, int y);
 	void SetCapture();
 	void ReleaseCapture();
@@ -835,5 +837,8 @@ public:
 
 extern FSavegameManager savegameManager;
 extern DMenu* CurrentMenu;
+
+bool M_IsAnimated();
+
 
 #endif

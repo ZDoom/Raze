@@ -1026,6 +1026,16 @@ void M_EnableMenu (bool on)
 }
 
 
+bool M_IsAnimated()
+{
+	if (ConsoleState == c_down) return false;
+	if (!CurrentMenu) return false;
+	if (CurrentMenu->IsAnimated()) return true;
+	if(transition.previous) return true;
+	return false;
+}
+
+
 //=============================================================================
 //
 // [RH] Most menus can now be accessed directly

@@ -94,6 +94,7 @@ void DImageScrollerMenu::Init(DMenu* parent, FImageScrollerDescriptor* desc)
 
 	mCurrent = newImageScreen(&mDesc->mItems[0]);
 	mCurrent->canAnimate = canAnimate;
+	isAnimated = true;
 }
 
 bool DImageScrollerMenu::MenuEvent(int mkey, bool fromcontroller)
