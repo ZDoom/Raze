@@ -64,7 +64,7 @@ inline static void rd3myospal(double x, double y, int tilenum, int shade, int or
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_r(int snum)
+void displaymasks_r(int snum, double smoothratio)
 {
 	short p;
 
@@ -76,8 +76,10 @@ void displaymasks_r(int snum)
 	if (ps[snum].scuba_on)
 	{
 		int pin = 0;
+		// to get the proper clock value with regards to interpolation we have add a smoothratio based offset to the value.
+		double interpclock = ud.levelclock + (TICSPERFRAME/65536.) * smoothratio;
 		if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_STRETCH;
-		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (calcSinTableValue(gameclock) / 1024.)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
+		hud_drawsprite((320 - (tilesiz[SCUBAMASK].x >> 1) - 15), (200 - (tilesiz[SCUBAMASK].y >> 1) + (calcSinTableValue(interpclock) / 1024.)), 49152, 0, SCUBAMASK, 0, p, 2 + 16 + pin);
 		hud_drawsprite((320 - tilesiz[SCUBAMASK + 4].x), (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 16 + pin);
 		hud_drawsprite(tilesiz[SCUBAMASK + 4].x, (200 - tilesiz[SCUBAMASK + 4].y), 65536, 0, SCUBAMASK + 4, 0, p, 2 + 4 + 16 + pin);
 		hud_drawsprite(35, (-1), 65536, 0, SCUBAMASK + 3, 0, p, 2 + 16 + pin);

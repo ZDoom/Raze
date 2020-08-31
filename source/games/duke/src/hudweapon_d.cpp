@@ -188,7 +188,7 @@ int animateknuckles(int gs, int snum, double hard_landing, double look_anghalf, 
 //
 //---------------------------------------------------------------------------
 
-void displaymasks_d(int snum)
+void displaymasks_d(int snum, double)
 {
 	int p;
 

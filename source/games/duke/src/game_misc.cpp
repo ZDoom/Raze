@@ -271,7 +271,7 @@ void drawoverlays(double smoothratio)
 			{
 				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek);
+					fi.displaymasks(screenpeek, smoothratio);
 			}
 			if (!isRR())
 				moveclouds();
