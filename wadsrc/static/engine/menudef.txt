@@ -663,12 +663,12 @@ OptionMenu "InventoryControlsMenu"// protected
 	ifgame(Exhumed)
 	{
 		StaticText ""
-		Control    "$TXT_USEINV1" , "useitem 1"
-		Control    "$TXT_USEINV2" , "useitem 2"
-		Control    "$TXT_USEINV3" , "useitem 3"
-		Control    "$TXT_USEINV4" , "useitem 4"
-		Control    "$TXT_USEINV5" , "useitem 5"
-		Control    "$TXT_USEINV6" , "useitem 6"
+		Control    "$TXT_EX_USEINV1" , "useitem 1"
+		Control    "$TXT_EX_USEINV2" , "useitem 2"
+		Control    "$TXT_EX_USEINV3" , "useitem 3"
+		Control    "$TXT_EX_USEINV4" , "useitem 4"
+		Control    "$TXT_EX_USEINV5" , "useitem 5"
+		Control    "$TXT_EX_USEINV6" , "useitem 6"
 	}
 }
 
