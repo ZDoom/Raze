@@ -826,7 +826,7 @@ short DBaseStatusBar::CalcMagazineAmount(short ammo_remaining, short clip_capaci
 	short clip_current = ammo_remaining != 0 && clip_amount == 0 ? clip_capacity : clip_amount;
 
 	// Return current clip value if weapon has rounds or is not on a reload cycle.
-	return ammo_remaining == 0 || reloading && clip_amount == 0 ? 0 : clip_current;
+	return ammo_remaining == 0 || (reloading && clip_amount == 0) ? 0 : clip_current;
 }
 
 //============================================================================

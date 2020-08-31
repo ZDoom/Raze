@@ -1002,7 +1002,6 @@ class DLastLevelCinema : public DScreenJob
     int var_28 = 12;
 
     int ebp;
-    int nEndTime = 240;
     int phase = 0;
     int nextclock = 4;
     unsigned int nStringTypeOn, nCharTypeOn;

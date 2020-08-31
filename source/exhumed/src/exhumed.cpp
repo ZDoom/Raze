@@ -308,13 +308,6 @@ void mysetbrightness(char nBrightness)
     g_visibility = 2048 - (nBrightness << 9);
 }
 
-// Replicate original DOS EXE behaviour when pointer is null
-static const char *safeStrtok(char *s, const char *d)
-{
-    const char *r = strtok(s, d);
-    return r ? r : "";
-}
-
 
 void DoClockBeep()
 {
