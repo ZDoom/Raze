@@ -255,7 +255,7 @@ void PlayerInterruptKeys(bool after)
         // Look/aim up/down functions.
         if (localInput.actions & (SB_LOOK_UP|SB_AIM_UP))
         {
-            bLockPan = false;
+            bLockPan = (localInput.actions & SB_LOOK_UP);
             if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
                 PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
             }
@@ -265,7 +265,7 @@ void PlayerInterruptKeys(bool after)
         }
         else if (localInput.actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
         {
-            bLockPan = false;
+            bLockPan = (localInput.actions & SB_LOOK_DOWN);
             if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
                 PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
             }
@@ -279,51 +279,30 @@ void PlayerInterruptKeys(bool after)
     if (totalvel[nLocalPlayer] > 20) {
         bPlayerPan = false;
     }
-
-    if (mouseaim)
-        bLockPan = true;
+    if (nFreeze) return;
 
     // loc_1C05E
-    fix16_t ecx = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
-
-    if (mouseaim)
+    fix16_t dVertPan = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
+    if (dVertPan != 0 && !bLockPan)
     {
-        ecx = 0;
-    }
-
-    if (!nFreeze)
-    {
-        if (ecx)
+        int val = dVertPan / 4;
+        if (abs(val) >= 4)
         {
-            if (ecx / 4 == 0)
-            {
-                if (ecx >= 0) {
-                    ecx = 1;
-                }
-                else
-                {
-                    ecx = -1;
-                }
-            }
-            else
-            {
-                ecx /= 4;
-
-                if (ecx > fix16_from_int(4))
-                {
-                    ecx = fix16_from_int(4);
-                }
-                else if (ecx < -fix16_from_int(4))
-                {
-                    ecx = -fix16_from_int(4);
-                }
-            }
-
-            PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, ecx);
+            if (val >= 4)
+                PlayerList[nLocalPlayer].q16horiz += fix16_from_int(4);
+            else if (val <= -4)
+                PlayerList[nLocalPlayer].q16horiz -= fix16_from_int(4);
         }
-
-        PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
+        else if (abs(dVertPan) >= fix16_one)
+            PlayerList[nLocalPlayer].q16horiz += dVertPan / 2.0f;
+        else
+        {
+            if (mouseaim) bLockPan = true;
+            PlayerList[nLocalPlayer].q16horiz = nDestVertPan[nLocalPlayer];
+        }
     }
+    else bLockPan = mouseaim;
+    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
 }
 
 

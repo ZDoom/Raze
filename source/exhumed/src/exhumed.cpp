@@ -550,7 +550,7 @@ void GameTicker()
             {
                 bLockPan = false;
                 bPlayerPan = false;
-                PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
+                //PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
                 nDestVertPan[nLocalPlayer] = fix16_from_int(92);
             }
             if (localInput.actions & SB_TURNAROUND)
