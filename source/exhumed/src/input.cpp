@@ -165,7 +165,7 @@ void PlayerInterruptKeys(bool after)
         input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
     }
 
-    bool mouseaim = !!(localInput.actions & SB_AIMMODE);
+    bool mouseaim = !(localInput.actions & SB_AIMMODE);
 
     if (mouseaim)
         tempinput.q16horz = fix16_sadd(tempinput.q16horz, fix16_from_float(info.mousey));

@@ -113,7 +113,7 @@ getinput(InputPacket *loc, SWBOOL tied)
 
     ApplyGlobalInput(*loc, &info);
 
-    bool mouseaim = !!(loc->actions & SB_AIMMODE);
+    bool mouseaim = !(loc->actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {

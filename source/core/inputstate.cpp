@@ -383,7 +383,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	if (G_CheckAutorun(buttonMap.ButtonDown(gamefunc_Run)))
 		input.actions |= SB_RUN;
 
-	if (in_mousemode || buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
+	if (!in_mousemode && !buttonMap.ButtonDown(gamefunc_Mouse_Aiming)) 
 		input.actions |= SB_AIMMODE;
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Up)) 

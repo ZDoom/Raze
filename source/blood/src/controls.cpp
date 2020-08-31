@@ -99,7 +99,7 @@ void ctrlGetInput(void)
 
     ApplyGlobalInput(gInput, &info);
 
-    bool mouseaim = !!(gInput.actions & SB_AIMMODE);
+    bool mouseaim = !(gInput.actions & SB_AIMMODE);
     if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
 
     if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))

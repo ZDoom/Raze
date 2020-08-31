@@ -114,7 +114,7 @@ void hud_input(int snum)
 	p = &ps[snum];
 
 	i = p->aim_mode;
-	p->aim_mode = PlayerInput(snum, SB_AIMMODE);
+	p->aim_mode = !PlayerInput(snum, SB_AIMMODE);
 	if (p->aim_mode < i)
 		p->return_to_center = 9;
 
@@ -637,7 +637,7 @@ int getticssincelastupdate()
 
 static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
 {
-	bool mouseaim = !!(loc.actions & SB_AIMMODE);
+	bool mouseaim = !(loc.actions & SB_AIMMODE);
 
 	// JBF: Run key behaviour is selectable
 	int running = !!(loc.actions & SB_RUN);
