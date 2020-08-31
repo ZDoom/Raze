@@ -107,7 +107,6 @@ void GameInterface::Ticker()
 	{
 		exitlevel();
 	}
- 	nonsharedkeys(); // this must go elsewhere later!
 }
 
 //---------------------------------------------------------------------------
@@ -164,6 +163,7 @@ void GameInterface::Startup()
 
 void GameInterface::Render()
 {
+ 	nonsharedkeys(); // automap zoom
 	drawtime.Reset();
 	drawtime.Clock();
 	videoSetBrightness(thunder_brightness);

@@ -242,6 +242,7 @@ void Display()
 	case GS_LEVEL:
 		if (gametic != 0)
 		{
+			screen->FrameTime = I_msTimeFS();
 			screen->BeginFrame();
 			screen->SetSceneRenderTarget(gl_ssao != 0);
 			twodpsp.Clear();

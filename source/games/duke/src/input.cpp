@@ -36,6 +36,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "gamecontrol.h"
+#include "v_video.h"
 
 BEGIN_DUKE_NS
 
@@ -59,34 +60,35 @@ void GameInterface::ResetFollowPos(bool message)
 }
 //---------------------------------------------------------------------------
 //
-// handles UI side input not handled via CCMDs or CVARs.
-// Most of what's in here needs to be offloaded to CCMDs
+//
 //
 //---------------------------------------------------------------------------
 
 void nonsharedkeys(void)
 {
+	int ms = screen->FrameTime;
+	int interval;
+	if (nonsharedtimer > 0 || ms < nonsharedtimer)
+	{
+		interval = ms - nonsharedtimer;
+	}
+	else
+	{
+		interval = 0;
+	}
+	nonsharedtimer = screen->FrameTime;
+
 	if (System_WantGuiCapture())
 		return;
 
 	if (automapMode != am_off)
 	{
-		int j;
-		if (nonsharedtimer > 0 || gameclock < nonsharedtimer)
-		{
-			j = gameclock - nonsharedtimer;
-			nonsharedtimer += j;
-		}
-		else
-		{
-			j = 0;
-			nonsharedtimer = gameclock;
-		}
+		double j = interval * (120./1000);
 		
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			ps[myconnectindex].zoom += mulscale6(j, max(ps[myconnectindex].zoom, 256));
+			ps[myconnectindex].zoom += (int)fmulscale6(j, max(ps[myconnectindex].zoom, 256));
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			ps[myconnectindex].zoom -= mulscale6(j, max(ps[myconnectindex].zoom, 256));
+			ps[myconnectindex].zoom -= (int)fmulscale6(j, max(ps[myconnectindex].zoom, 256));
 		
 		ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
 	}
@@ -1127,7 +1129,6 @@ void GameInterface::GetInput(InputPacket* packet)
 void GameInterface::clearlocalinputstate()
 {
 	loc = {};
-	nonsharedtimer = 0;
 	turnheldtime = 0;
 	lastcontroltime = 0;
 	lastCheck = 0;
