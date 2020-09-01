@@ -299,6 +299,15 @@ struct BuildTiles
 		CloseAll();
 	}
 
+	void SetBackup()
+	{
+		for (auto& td : tiledata)
+		{
+			td.backup = td.texture;
+			td.picanmbackup = td.picanm;
+		}
+	}
+
 	void CloseAll();
 
 	void AddTile(int tilenum, FGameTexture* tex, bool permap = false);

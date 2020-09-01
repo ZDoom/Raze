@@ -633,6 +633,7 @@ void GameInterface::app_init()
         uint32_t etime = I_msTime();
         Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime - stime);
     }
+    TileFiles.SetBackup();
 
     InitView();
     InitFX();

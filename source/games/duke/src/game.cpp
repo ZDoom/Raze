@@ -243,6 +243,7 @@ static void loaddefs()
 		deftimer.Unclock();
 		Printf(PRINT_NONOTIFY, "Definitions file \"%s\" loaded in %.3f ms.\n", defsfile, deftimer.TimeMS());
 	}
+	TileFiles.SetBackup();
 	userConfig.AddDefs.reset();
 }
 

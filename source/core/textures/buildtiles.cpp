@@ -676,6 +676,7 @@ void tileCopy(int tile, int source, int pal, int xoffset, int yoffset, int flags
 // Clear map specific ART
 //
 //==========================================================================
+static FString currentMapArt;
 
 void artClearMapArt(void)
 {
@@ -685,6 +686,7 @@ void artClearMapArt(void)
 		td.picanm = td.picanmbackup;
 	}
 	TileFiles.SetupReverseTileMap();
+	currentMapArt = "";
 }
 
 //==========================================================================
@@ -692,7 +694,6 @@ void artClearMapArt(void)
 // Load map specficied ART
 //
 //==========================================================================
-static FString currentMapArt;
 
 void artSetupMapArt(const char* filename)
 {
