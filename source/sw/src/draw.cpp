@@ -378,11 +378,11 @@ DoMotionBlur(tspritetype const * const tsp)
 
     if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
     {
-        z_amt_per_pixel = (((int)-tu->jump_speed * ACTORMOVETICS)<<16)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-tu->jump_speed * ACTORMOVETICS)/tsp->xvel;
     }
     else
     {
-        z_amt_per_pixel = (((int)-tsp->zvel)<<16)/tsp->xvel;
+        z_amt_per_pixel = IntToFixed((int)-tsp->zvel)/tsp->xvel;
     }
 
     switch (tu->motion_blur_dist)
@@ -390,22 +390,22 @@ DoMotionBlur(tspritetype const * const tsp)
     case 64:
         dx = nx = MOVEx(64, ang);
         dy = ny = MOVEy(64, ang);
-        nz = (z_amt_per_pixel * 64)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 64);
         break;
     case 128:
         dx = nx = MOVEx(128, ang);
         dy = ny = MOVEy(128, ang);
-        nz = (z_amt_per_pixel * 128)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 128);
         break;
     case 256:
         dx = nx = MOVEx(256, ang);
         dy = ny = MOVEy(256, ang);
-        nz = (z_amt_per_pixel * 256)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 256);
         break;
     case 512:
         dx = nx = MOVEx(512, ang);
         dy = ny = MOVEy(512, ang);
-        nz = (z_amt_per_pixel * 512)>>16;
+        nz = FixedToInt(z_amt_per_pixel * 512);
         break;
     default:
         dx = nx = MOVEx(tu->motion_blur_dist, ang);
@@ -574,8 +574,8 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
     ang = NORM_ANGLE(ang + 12);
 
-    smr4 = smoothratio + (((int) MoveSkip4) << 16);
-    smr2 = smoothratio + (((int) MoveSkip2) << 16);
+    smr4 = smoothratio + IntToFixed(MoveSkip4);
+    smr2 = smoothratio + IntToFixed(MoveSkip2);
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
@@ -798,7 +798,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
                 tsp->y -= mulscale16(pp->posy - pp->oposy, 65536-smoothratio);
                 tsp->z -= mulscale16(pp->posz - pp->oposz, 65536-smoothratio);
-                tsp->ang -= fix16_to_int(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
+                tsp->ang -= FixedToInt(mulscale16(pp->q16ang - pp->oq16ang, 65536-smoothratio));
             }
         }
 
@@ -962,7 +962,7 @@ ResizeView(PLAYERp pp)
 
 
 void
-BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
+BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -974,7 +974,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
 
     ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
 
-    ang = fix16_to_int(*nq16ang) + pp->view_outside_dang;
+    ang = FixedToInt(*nq16ang) + pp->view_outside_dang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 3);
@@ -1055,9 +1055,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
         }
 
         if (klabs(vx) > klabs(vy))
-            i = (hx << 16) / vx;
+            i = IntToFixed(hx) / vx;
         else
-            i = (hy << 16) / vy;
+            i = IntToFixed(hy) / vy;
 
         if (i < pp->camera_dist)
             pp->camera_dist = i;
@@ -1077,7 +1077,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, fix16_t *nq16ang, short horiz)
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = fix16_from_int(ang);
+    *nq16ang = IntToFixed(ang);
 }
 
 void
@@ -1091,7 +1091,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     PLAYERp pp = &Player[screenpeek];
     short ang;
 
-    ang = fix16_to_int(*nq16ang) + pp->circle_camera_ang;
+    ang = FixedToInt(*nq16ang) + pp->circle_camera_ang;
 
     // Calculate the vector (nx,ny,nz) to shoot backwards
     vx = (sintable[NORM_ANGLE(ang + 1536)] >> 4);
@@ -1164,18 +1164,18 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
         }
 
         if (klabs(vx) > klabs(vy))
-            i = (hx << 16) / vx;
+            i = IntToFixed(hx) / vx;
         else
-            i = (hy << 16) / vy;
+            i = IntToFixed(hy) / vy;
 
         if (i < pp->circle_camera_dist)
             pp->circle_camera_dist = i;
     }
 
     // Actually move you!  (Camerdist is 65536 if nothing is in the way)
-    *nx = (*nx) + ((vx * pp->circle_camera_dist) >> 16);
-    *ny = (*ny) + ((vy * pp->circle_camera_dist) >> 16);
-    *nz = (*nz) + ((vz * pp->circle_camera_dist) >> 16);
+    *nx = (*nx) + FixedToInt(vx * pp->circle_camera_dist);
+    *ny = (*ny) + FixedToInt(vy * pp->circle_camera_dist);
+    *nz = (*nz) + FixedToInt(vz * pp->circle_camera_dist);
 
     // Slowly increase pp->circle_camera_dist until it reaches 65536
     // Synctics is a timer variable so it increases the same rate
@@ -1186,7 +1186,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, int *nq16ang, short horiz)
     // Make sure vsect is correct
     updatesectorz(*nx, *ny, *nz, vsect);
 
-    *nq16ang = fix16_from_int(ang);
+    *nq16ang = IntToFixed(ang);
 }
 
 FString GameInterface::GetCoordString()
@@ -1196,7 +1196,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", fix16_to_int(pp->camq16ang));
+    out.AppendFormat("ANG:%d\n", FixedToInt(pp->camq16ang));
 
     return out;
 }
@@ -1292,7 +1292,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t *tq16ang, fix16_t *tq16horiz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t *tq16ang, fixed_t *tq16horiz)
 {
     int i,nexti;
     short ang;
@@ -1359,14 +1359,14 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fix16_t 
                         zvect = 0;
 
                     // new horiz to player
-                    *tq16horiz = fix16_from_int(100 - (zvect/256));
-                    *tq16horiz = fix16_max(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-                    *tq16horiz = fix16_min(*tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+                    *tq16horiz = IntToFixed(100 - (zvect/256));
+                    *tq16horiz = max(*tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
+                    *tq16horiz = min(*tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
 
                     //DSPRINTF(ds,"xvect %d,yvect %d,zvect %d,tq16horiz %d",xvect,yvect,zvect,*tq16horiz);
                     MONO_PRINT(ds);
 
-                    *tq16ang = fix16_from_int(ang);
+                    *tq16ang = IntToFixed(ang);
                     *tx = sp->x;
                     *ty = sp->y;
                     *tz = sp->z;
@@ -1572,7 +1572,7 @@ void PreDrawStackedWater(void)
 }
 
 
-void FAF_DrawRooms(int x, int y, int z, fix16_t q16ang, fix16_t q16horiz, short sectnum)
+void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
 {
     short i,nexti;
 
@@ -1638,7 +1638,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 {
     extern SWBOOL CameraTestMode;
     int tx, ty, tz;
-    fix16_t tq16horiz, tq16ang;
+    fixed_t tq16horiz, tq16ang;
     short tsectnum;
     short i,j;
     int bob_amt = 0;
@@ -1681,12 +1681,12 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (PedanticMode || (pp != Player+myconnectindex) ||
         (TEST(pp->Flags, PF_DEAD) && (loc.q16avel == 0)))
     {
-        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + fix16_from_int(1024) - camerapp->oq16ang) - fix16_from_int(1024), smoothratio));
+        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
     }
     else if (cl_sointerpolation && !CommEnabled)
     {
-        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(((pp->camq16ang + fix16_from_int(1024) - camerapp->oq16ang) & 0x7FFFFFF) - fix16_from_int(1024), smoothratio));
+        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(((pp->camq16ang + IntToFixed(1024) - camerapp->oq16ang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio));
     }
     else
@@ -1724,27 +1724,27 @@ drawscreen(PLAYERp pp, double smoothratio)
     pp->six = tx;
     pp->siy = ty;
     pp->siz = tz - pp->posz;
-    pp->siang = fix16_to_int(tq16ang);
+    pp->siang = FixedToInt(tq16ang);
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
     VisViewChange(camerapp, &g_visibility);
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;
-    //tq16horiz = tq16horiz + fix16_from_int(quake_x);
-    tq16ang = fix16_from_int(NORM_ANGLE(fix16_to_int(tq16ang) + quake_ang));
+    //tq16horiz = tq16horiz + IntToFixed(quake_x);
+    tq16ang = IntToFixed(NORM_ANGLE(FixedToInt(tq16ang) + quake_ang));
 
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            tq16ang = fix16_from_int(pp->remote_sprite->ang);
+            tq16ang = IntToFixed(pp->remote_sprite->ang);
         else
             tq16ang = GetQ16AngleFromVect(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
-        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, fix16_to_int(tq16horiz));
+        BackView(&tx, &ty, &tz, &tsectnum, &tq16ang, FixedToInt(tq16horiz));
     }
     else
     {
@@ -1763,9 +1763,9 @@ drawscreen(PLAYERp pp, double smoothratio)
                              pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
 
         // recoil only when not in camera
-        tq16horiz = tq16horiz + fix16_from_int(pp->recoil_horizoff);
-        tq16horiz = fix16_max(tq16horiz, fix16_from_int(PLAYER_HORIZ_MIN));
-        tq16horiz = fix16_min(tq16horiz, fix16_from_int(PLAYER_HORIZ_MAX));
+        tq16horiz = tq16horiz + IntToFixed(pp->recoil_horizoff);
+        tq16horiz = max(tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
+        tq16horiz = min(tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
     }
 
     if (automapMode != am_full)// && !ScreenSavePic)
@@ -1860,11 +1860,11 @@ drawscreen(PLAYERp pp, double smoothratio)
         {
             // only clear the actual window.
             twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-            renderDrawMapView(tx, ty, zoom, fix16_to_int(tq16ang));
+            renderDrawMapView(tx, ty, zoom, FixedToInt(tq16ang));
         }
 
         // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom, fix16_to_int(tq16ang));
+        drawoverheadmap(tx, ty, zoom, FixedToInt(tq16ang));
     }
 
     for (j = 0; j < MAXSPRITES; j++)

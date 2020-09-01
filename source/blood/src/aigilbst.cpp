@@ -78,8 +78,8 @@ static void GillBiteSeqCallback(int, int nXSprite)
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
     spritetype *pTarget = &sprite[pXSprite->target];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = pSprite->z-pTarget->z;
     dx += Random3(2000);
     dy += Random3(2000);

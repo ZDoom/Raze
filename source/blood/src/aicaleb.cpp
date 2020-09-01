@@ -76,8 +76,8 @@ static void SeqAttackCallback(int, int nXSprite)
 {
     int nSprite = xsprite[nXSprite].reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     int dz = gDudeSlope[nXSprite];
     dx += Random2(1500);
     dy += Random2(1500);

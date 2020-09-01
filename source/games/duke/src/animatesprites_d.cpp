@@ -327,7 +327,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
                         t->x = omyx + mulscale16((int)(myx - omyx), smoothratio);
                         t->y = omyy + mulscale16((int)(myy - omyy), smoothratio);
                         t->z = omyz + mulscale16((int)(myz - omyz), smoothratio) + (40 << 8);
-                        t->ang = (oq16myang + mulscale16((int)(((q16myang + (1024 << FRACBITS) - oq16myang) & 0x7FFFFFF) - (1024 << FRACBITS)), smoothratio)) >> FRACBITS;
+                        t->ang = FixedToInt(oq16myang + mulscale16((int)(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024)), smoothratio));
                         t->sectnum = mycursectnum;
                     }
                 }

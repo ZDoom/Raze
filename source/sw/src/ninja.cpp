@@ -2400,7 +2400,7 @@ InitPlayerSprite(PLAYERp pp)
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
     sp_num = pp->PlayerSprite = SpawnSprite(STAT_PLAYER0 + pnum, NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx,
-                                            pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+                                            pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
 
     pp->SpriteP = sp = &sprite[sp_num];
     pp->pnum = pnum;
@@ -2475,7 +2475,7 @@ SpawnPlayerUnderSprite(PLAYERp pp)
     int pnum = pp - Player, sp_num;
 
     sp_num = pp->PlayerUnderSprite = SpawnSprite(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, fix16_to_int(pp->q16ang), 0);
+                                                 NINJA_RUN_R0, NULL, pp->cursectnum, pp->posx, pp->posy, pp->posz, FixedToInt(pp->q16ang), 0);
 
     sp = &sprite[sp_num];
     u = User[sp_num];

@@ -70,13 +70,13 @@ unsigned int GetWaveValue(unsigned int nPhase, int nType)
     switch (nType)
     {
     case 0:
-        return 0x8000-(Cos((nPhase<<10)>>16)>>15);
+        return 0x8000-(Cos(FixedToInt(nPhase<<10))>>15);
     case 1:
         return nPhase;
     case 2:
-        return 0x10000-(Cos((nPhase<<9)>>16)>>14);
+        return 0x10000-(Cos(FixedToInt(nPhase<<9))>>14);
     case 3:
-        return Sin((nPhase<<9)>>16)>>14;
+        return Sin(FixedToInt(nPhase<<9))>>14;
     }
     return nPhase;
 }
@@ -85,7 +85,7 @@ char SetSpriteState(int nSprite, XSPRITE* pXSprite, int nState)
 {
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
-    pXSprite->busy = nState << 16;
+    pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
     evKill(nSprite, 3);
     if ((sprite[nSprite].flags & kHitagRespawn) != 0 && sprite[nSprite].inittype >= kDudeBase && sprite[nSprite].inittype < kDudeMax)
@@ -112,7 +112,7 @@ char SetWallState(int nWall, XWALL *pXWall, int nState)
 {
     if ((pXWall->busy&0xffff) == 0 && pXWall->state == nState)
         return 0;
-    pXWall->busy = nState<<16;
+    pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
     evKill(nWall, 0);
     if (pXWall->restState != nState && pXWall->waitTime > 0)
@@ -131,7 +131,7 @@ char SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 {
     if ((pXSector->busy&0xffff) == 0 && pXSector->state == nState)
         return 0;
-    pXSector->busy = nState<<16;
+    pXSector->busy = IntToFixed(nState);
     pXSector->state = nState;
     evKill(nSector, 6);
     if (nState == 1)
@@ -293,8 +293,8 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
                         y += (yvel[nTarget]*t)>>12;
                         int angBak = pSprite->ang;
                         pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
-                        int dx = Cos(pSprite->ang)>>16;
-                        int dy = Sin(pSprite->ang)>>16;
+                        int dx = CosScale16(pSprite->ang);
+                        int dy = SinScale16(pSprite->ang);
                         int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = divscale(tz - top - 256, nDist, 10);
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
@@ -1102,8 +1102,8 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1151,8 +1151,8 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1250,8 +1250,8 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1278,8 +1278,8 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1305,8 +1305,8 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1338,8 +1338,8 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         pXSector->data = vbp&2047;
         return 3;
     }
@@ -1358,8 +1358,8 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
         evSend(nSector, 6, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(nSector, pXSector, a2>>16);
-        SectorEndSound(nSector, a2>>16);
+        SetSectorState(nSector, pXSector, FixedToInt(a2));
+        SectorEndSound(nSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1700,7 +1700,7 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
         default:
             pXSector->busy = nBusy;
             if ((pXSector->busy&0xffff) == 0)
-                SetSectorState(nSector, pXSector, nBusy>>16);
+                SetSectorState(nSector, pXSector, FixedToInt(nBusy));
             break;
     }
 }
@@ -1729,7 +1729,7 @@ void LinkSprite(int nSprite, XSPRITE *pXSprite, EVENT event) {
         {
             pXSprite->busy = nBusy;
             if ((pXSprite->busy & 0xffff) == 0)
-                SetSpriteState(nSprite, pXSprite, nBusy >> 16);
+                SetSpriteState(nSprite, pXSprite, FixedToInt(nBusy));
         }
         break;
     }
@@ -1740,7 +1740,7 @@ void LinkWall(int nWall, XWALL *pXWall, EVENT event)
     int nBusy = GetSourceBusy(event);
     pXWall->busy = nBusy;
     if ((pXWall->busy & 0xffff) == 0)
-        SetWallState(nWall, pXWall, nBusy>>16);
+        SetWallState(nWall, pXWall, FixedToInt(nBusy));
 }
 
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
@@ -2257,7 +2257,7 @@ void FireballTrapSeqCallback(int, int nXSprite)
     if (pSprite->cstat&32)
         actFireMissile(pSprite, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
     else
-        actFireMissile(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileFireball);
+        actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFireball);
 }
 
 
@@ -2274,8 +2274,8 @@ void MGunFireSeqCallback(int, int nXSprite)
             if (pXSprite->data2 == 0)
                 evPost(nSprite, 3, 1, kCmdOff);
         }
-        int dx = (Cos(pSprite->ang)>>16)+Random2(1000);
-        int dy = (Sin(pSprite->ang)>>16)+Random2(1000);
+        int dx = CosScale16(pSprite->ang)+Random2(1000);
+        int dy = SinScale16(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
         actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_2);
         sfxPlay3DSound(pSprite, 359, -1, 0);

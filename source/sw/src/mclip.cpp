@@ -61,7 +61,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
     {
         // move the box to position instead of using offset- this prevents small rounding errors
         // allowing you to move through wall
-        ang = NORM_ANGLE(fix16_to_int(pp->q16ang) + sop->clipbox_ang[i]);
+        ang = NORM_ANGLE(FixedToInt(pp->q16ang) + sop->clipbox_ang[i]);
 
         xs = pp->posx;
         ys = pp->posy;

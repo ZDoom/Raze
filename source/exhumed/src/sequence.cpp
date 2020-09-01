@@ -376,7 +376,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
             double x = ChunkXpos[nFrameBase] + (160 + xOffset);
             double y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
-            hud_drawsprite(x, y, 65536, fmod(-2 * (nPlayerDAng / (double)(FRACUNIT)), kAngleMask + 1), nTile, 0, 0, 1);
+            hud_drawsprite(x, y, 65536, fmod(-2 * FixedToFloat(nPlayerDAng), kAngleMask + 1), nTile, 0, 0, 1);
             nFrameBase++;
         }
     }

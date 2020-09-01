@@ -90,8 +90,8 @@ static void HackSeqCallback(int, int nXSprite)
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     int dz = height-height2;
-    int dx = Cos(nAngle)>>16;
-    int dy = Sin(nAngle)>>16;
+    int dx = CosScale16(nAngle);
+    int dy = SinScale16(nAngle);
     sfxPlay3DSound(pSprite, 1101, 1, 0);
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_10);
 }

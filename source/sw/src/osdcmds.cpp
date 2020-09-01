@@ -182,12 +182,12 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms >= 4)
     {
-		Player->oq16ang = Player->q16ang = Player->camq16ang = fix16_from_int(atoi(parm->parms[3]));
+		Player->oq16ang = Player->q16ang = Player->camq16ang = IntToFixed(atoi(parm->parms[3]));
     }
 
     if (parm->numparms == 5)
     {
-    	Player->oq16horiz = Player->q16horiz = Player->camq16horiz = fix16_from_int(atoi(parm->parms[4]));
+    	Player->oq16horiz = Player->q16horiz = Player->camq16horiz = IntToFixed(atoi(parm->parms[4]));
     }
 
     return CCMD_OK;

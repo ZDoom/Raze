@@ -90,7 +90,7 @@ public:
 		return binangle(value - other.value);
 	}
 	
-	void interpolate(binangle a1, binangle a2, fix16_t smoothratio)
+	void interpolate(binangle a1, binangle a2, fixed_t smoothratio)
 	{
 		// Calculate in floating point to reduce the error caused by overflows which are to be expected here and then downconvert using a method that is safe to overflow.
 		// We do not want fixed point multiplications here to trash the result.
@@ -115,7 +115,7 @@ public:
 	fixedhoriz(const fixedhoriz &other) = default;
 
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
-	short asbuild() const { return value >> 16; }
+	short asbuild() const { return FixedToInt(value); }
 	constexpr fixed_t asq16() const { return value; }
 	
 	bool operator< (fixedhoriz other) const
@@ -184,5 +184,5 @@ inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x800000
 inline binangle degang(double v) { return binangle(xs_CRoundToUInt(v * (0x40000000 / 90.))); }
 
 inline constexpr fixedhoriz q16horiz(int v) { return fixedhoriz(v); }
-inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(v << 16); }
+inline constexpr fixedhoriz buildhoriz(int v) { return fixedhoriz(IntToFixed(v)); }
 

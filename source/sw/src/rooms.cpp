@@ -32,7 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void FAF_DrawRooms(int posx, int posy, int posz, fix16_t q16ang, fix16_t q16horiz, short cursectnum);
+void FAF_DrawRooms(int posx, int posy, int posz, fixed_t q16ang, fixed_t q16horiz, short cursectnum);
 
 ////////////////////////////////////////////////////////////////////
 //
@@ -1008,7 +1008,7 @@ ViewSectorInScene(short cursectnum, short level)
 }
 
 void
-DrawOverlapRoom(int tx, int ty, int tz, fix16_t tq16ang, fix16_t tq16horiz, short tsectnum)
+DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, short tsectnum)
 {
     short i;
     short match;

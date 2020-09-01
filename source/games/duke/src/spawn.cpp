@@ -437,7 +437,7 @@ void initshell(int j, int i, bool isshell)
 			a = ps[snum].getang() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
-			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].posz - ((ps[snum].q16horizoff + ps[snum].q16horiz - (100 << FRACBITS)) >> (FRACBITS - 4)) + (!isshell ? (3 << 8) : 0);
+			sp->z = (3 << 8) + ps[snum].pyoff + ps[snum].posz - ((ps[snum].q16horizoff + ps[snum].q16horiz - IntToFixed(100)) >> 12) + (!isshell ? (3 << 8) : 0);
 			sp->zvel = -(krand() & 255);
 		}
 		else

@@ -122,7 +122,7 @@ bool CanMove(spritetype *pSprite, int a2, int nAngle, int nRange)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    HitScan(pSprite, z, Cos(nAngle)>>16, Sin(nAngle)>>16, 0, CLIPMASK0, nRange);
+    HitScan(pSprite, z, CosScale16(nAngle), SinScale16(nAngle), 0, CLIPMASK0, nRange);
     int nDist = approxDist(x-gHitInfo.hitx, y-gHitInfo.hity);
     if (nDist - (pSprite->clipdist << 2) < nRange)
     {

@@ -40,7 +40,7 @@ void viewDoInterpolations(int smoothRatio);
 void viewUpdateInterpolations(void);
 void viewRestoreInterpolations(void);
 
-extern fix16_t nDestVertPan[];
+extern fixed_t nDestVertPan[];
 extern short dVertPan[];
 extern short nQuake[];
 extern int nCamerax;

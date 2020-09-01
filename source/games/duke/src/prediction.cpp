@@ -39,7 +39,7 @@ BEGIN_DUKE_NS
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 short globalskillsound;
-fix16_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
+fixed_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
 short mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;

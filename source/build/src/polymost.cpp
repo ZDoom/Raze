@@ -1299,7 +1299,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         xys[i].y = v.y * r + ghalfy;
     }
     
-    float const fglobalang = fix16_to_float(qglobalang);
+    float const fglobalang = FixedToFloat(qglobalang);
     int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
     int16_t const * dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
@@ -1482,7 +1482,7 @@ static void polymost_drawalls(int32_t const bunch)
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
     auto const sec = (usectorptr_t)&sector[sectnum];
-    float const fglobalang = fix16_to_float(qglobalang);
+    float const fglobalang = FixedToFloat(qglobalang);
 
     polymost_outputGLDebugMessage(3, "polymost_drawalls(bunch:%d)", bunch);
 
@@ -2483,8 +2483,8 @@ void polymost_drawrooms()
     ghalfx = (float)(xdimen>>1);
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
-    ghoriz = fix16_to_float(qglobalhoriz);
-    ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
+    ghoriz = FixedToFloat(qglobalhoriz);
+    ghorizcorrect = FixedToFloat((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
 
     GLInterface.SetShadeInterpolate(hw_shadeinterpolate);
 
@@ -2852,7 +2852,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     polymost_drawmaskwallinternal(thewall[z]);
 }
 
-void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t mirrorWall)
+void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall)
 {
     polymost_outputGLDebugMessage(3, "polymost_prepareMirror(%u)", mirrorWall);
 
@@ -2871,8 +2871,8 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
 
     set_globalpos(dax, day, daz);
     set_globalang(daang);
-    globalhoriz = mulscale16(fix16_to_int(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
-    qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
+    globalhoriz = mulscale16(FixedToInt(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
+    qglobalhoriz = mulscale16(dahoriz-IntToFixed(100), divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((double)xyaspect*fviewingrange)*(5.0/(65536.0*262144.0));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
@@ -2883,8 +2883,8 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang
     ghalfx = (float)(xdimen>>1);
     ghalfy = (float)(ydimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
-    ghoriz = fix16_to_float(qglobalhoriz);
-    ghorizcorrect = fix16_to_float((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
+    ghoriz = FixedToFloat(qglobalhoriz);
+    ghorizcorrect = FixedToFloat((100-polymostcenterhoriz)*divscale16(xdimenscale, viewingrange));
     resizeglcheck();
     if (r_yshearing)
     {

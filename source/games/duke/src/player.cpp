@@ -107,12 +107,12 @@ void calcviewpitch(player_struct *p, double factor)
 	 }
 	 if (p->q16horizoff > 0)
 	 {
-		 p->addhorizoff(-factor * fix16_to_dbl((p->q16horizoff >> 3) + FRACUNIT));
+		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
 		 if (p->q16horizoff < 0) p->q16horizoff = 0;
 	 }
 	 else if (p->q16horizoff < 0)
 	 {
-		 p->addhorizoff(-factor * fix16_to_dbl((p->q16horizoff >> 3) + FRACUNIT));
+		 p->addhorizoff(-factor * FixedToFloat((p->q16horizoff >> 3) + FRACUNIT));
 		 if (p->q16horizoff > 0) p->q16horizoff = 0;
 	 }
 }
@@ -793,10 +793,10 @@ void applylook(int snum, double factor, fixed_t adjustment)
 
 	if (p->dead_flag == 0)
 	{
-		p->addrotscrnang(factor * -0.5 * fix16_to_dbl(p->q16rotscrnang));
+		p->addrotscrnang(factor * -0.5 * FixedToFloat(p->q16rotscrnang));
 		if (abs(p->q16rotscrnang) < FRACUNIT) p->q16rotscrnang = 0;
 
-		p->addlookang(factor * -0.25 * fix16_to_dbl(p->q16look_ang));
+		p->addlookang(factor * -0.25 * FixedToFloat(p->q16look_ang));
 		if (abs(p->q16look_ang) < FRACUNIT) p->q16look_ang = 0;
 
 		if (p->lookLeft)
@@ -813,7 +813,7 @@ void applylook(int snum, double factor, fixed_t adjustment)
 
 		if (p->one_eighty_count < 0 && p->on_crane < 0)
 		{
-			fixed_t add = fix16_from_dbl(factor * 128);
+			fixed_t add = FloatToFixed(factor * 128);
 			p->one_eighty_count += add;
 			if (p->one_eighty_count > 0)
 			{
@@ -829,7 +829,7 @@ void applylook(int snum, double factor, fixed_t adjustment)
 	// Add angAdjust if input is unsynchronised.
 	if (!cl_syncinput)
 	{
-		p->q16ang += fix16_from_dbl(factor * p->angAdjust);
+		p->q16ang += FloatToFixed(factor * p->angAdjust);
 	}
 
 	// Taken from processinput() for use with applying look while cl_syncinput is 0.
@@ -1007,7 +1007,7 @@ void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = clamp2(atan2(p->q16horiz - F16(100), F16(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
+	double horizAngle = clamp2(atan2(p->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
 
 	if (p->return_to_center > 0 && (actions & (SB_LOOK_UP | SB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{
@@ -1022,7 +1022,7 @@ void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
 	}
 
 	// Convert back to Build's horizon.
-	p->q16horiz = F16(100) + xs_CRoundToInt(F16(128) * tan(horizAngle * (pi::pi() / 512.)));
+	p->q16horiz = IntToFixed(100) + xs_CRoundToInt(IntToFixed(128) * tan(horizAngle * (pi::pi() / 512.)));
 
 	// Add horizAdjust if input is unsynchronised.
 	if (!cl_syncinput)
@@ -1030,7 +1030,7 @@ void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
 		p->q16horiz += xs_CRoundToInt(factor * (p->horizAdjust * 65536.));
 	}
 
-	p->q16horiz = clamp(p->q16horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+	p->q16horiz = clamp(p->q16horiz, IntToFixed(HORIZ_MIN), IntToFixed(HORIZ_MAX));
 }
 
 //---------------------------------------------------------------------------

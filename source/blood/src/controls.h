@@ -29,7 +29,7 @@ BEGIN_BLD_NS
 extern InputPacket gInput, gNetInput;
 extern bool bSilentAim;
 
-extern fix16_t gViewLook, gViewAngle;
+extern fixed_t gViewLook, gViewAngle;
 extern float gViewAngleAdjust;
 extern float gViewLookAdjust;
 extern int gViewLookRecenter;

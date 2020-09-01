@@ -636,7 +636,7 @@ private:
             25, 19, 15, 9, 1, 1, 9, 15, 19, 25
         };
 
-        ang = fix16_to_int(pp->q16ang);
+        ang = FixedToInt(pp->q16ang);
 
         if (pp->sop_remote)
             ang = 0;

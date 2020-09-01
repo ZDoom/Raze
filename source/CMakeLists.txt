@@ -764,7 +764,6 @@ set (PCH_SOURCES
 	glbackend/gl_texture.cpp
 
 	thirdparty/src/base64.cpp
-	thirdparty/src/fix16.cpp
 	thirdparty/src/md4.cpp
 
 	# Todo: Split out the license-safe code from this.

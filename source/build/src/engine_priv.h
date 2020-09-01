@@ -88,7 +88,7 @@ extern tspriteptr_t tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
-extern fix16_t qglobalhoriz, qglobalang;
+extern fixed_t qglobalhoriz, qglobalang;
 extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
@@ -121,7 +121,7 @@ extern int32_t rxi[8], ryi[8];
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
 
-void set_globalang(fix16_t const ang);
+void set_globalang(fixed_t const ang);
 
 int32_t animateoffs(int tilenum, int fakevar);
 

@@ -1491,8 +1491,8 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer) {
     CONSTEXPR double lookStepDown = -4.0 * downAngle / 60.0;
 
     int look = pXSource->data2 << 5;
-    if (look > 0) pPlayer->q16look = fix16_min(mulscale8(F16(lookStepUp), look), F16(upAngle));
-    else if (look < 0) pPlayer->q16look = -fix16_max(mulscale8(F16(lookStepDown), abs(look)), F16(downAngle));
+    if (look > 0) pPlayer->q16look = min(mulscale8(FloatToFixed(lookStepUp), look), FloatToFixed(upAngle));
+    else if (look < 0) pPlayer->q16look = -max(mulscale8(FloatToFixed(lookStepDown), abs(look)), FloatToFixed(downAngle));
     else pPlayer->q16look = 0;
 
 }
@@ -2109,7 +2109,7 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
     if (pXSource->data2 == 1) {
         
-        if (pPlayer) pPlayer->q16ang = fix16_from_int(pSource->ang);
+        if (pPlayer) pPlayer->q16ang = IntToFixed(pSource->ang);
         else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
     }
@@ -3066,9 +3066,9 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
                     var = HitScan(pSpr, pPlayer->zWeapon - pSpr->z, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
                 else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, gDudeSlope[pSpr->extra], arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), gDudeSlope[pSpr->extra], arg1, arg3 << 1);
                 else
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, 0, arg1, arg3 << 1);
+                    var = HitScan(pSpr, pSpr->z, CosScale16(pSpr->ang), SinScale16(pSpr->ang), 0, arg1, arg3 << 1);
 
                 if (var >= 0) {
                     switch (cond) {
@@ -3217,7 +3217,8 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
         return 0;
 
-    pXSprite->busy = nState << 16; pXSprite->state = nState;
+    pXSprite->busy  = IntToFixed(nState);
+    pXSprite->state = nState;
     
     evKill(nSprite, 3);
     if (pXSprite->restState != nState && pXSprite->waitTime > 0)
@@ -3960,8 +3961,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 case 9: // 73 (set player's sprite angle, TO-DO: if tx > 0, take a look on TX ID sprite)
                     //data4 is reserved
                     if (pXSprite->data4 != 0) break;
-                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->q16ang = fix16_from_int(pSprite->ang);
-                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->q16ang = fix16_from_int(pXSprite->data2);
+                    else if (pSprite->flags & kModernTypeFlag1) pPlayer->q16ang = IntToFixed(pSprite->ang);
+                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) pPlayer->q16ang = IntToFixed(pXSprite->data2);
                     break;
             }
         }
@@ -4273,8 +4274,8 @@ void useUniMissileGen(int, int nXSprite) {
         if (pSprite->cstat & 8) dz = 0x4000;
         else dz = -0x4000;
     } else {
-        dx = Cos(pSprite->ang) >> 16;
-        dy = Sin(pSprite->ang) >> 16;
+        dx = CosScale16(pSprite->ang);
+        dy = SinScale16(pSprite->ang);
         dz = pXSprite->data3 << 6; // add slope controlling
         if (dz > 0x10000) dz = 0x10000;
         else if (dz < -0x10000) dz = -0x10000;

@@ -139,8 +139,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     predict.at71 = !!(gMe->input.actions & SB_JUMP);
     if (predict.at48 == 1)
     {
-        int x = Cos(fix16_to_int(predict.at30));
-        int y = Sin(fix16_to_int(predict.at30));
+        int x = Cos(FixedToInt(predict.at30));
+        int y = Sin(FixedToInt(predict.at30));
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -164,8 +164,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         int speed = 0x10000;
         if (predict.at6a > 0)
             speed -= divscale16(predict.at6a, 0x100);
-        int x = Cos(fix16_to_int(predict.at30));
-        int y = Sin(fix16_to_int(predict.at30));
+        int x = Cos(FixedToInt(predict.at30));
+        int y = Sin(FixedToInt(predict.at30));
         if (pInput->fvel)
         {
             int forward = pInput->fvel;
@@ -202,7 +202,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             speed = 128;
 
         predict.at4c = min(predict.at4c+speed, 0);
-        predict.at30 += fix16_from_int(speed);
+        predict.at30 += IntToFixed(speed);
         if (numplayers > 1 && gPrediction)
             gViewAngleAdjust += float(speed);
     }
@@ -236,25 +236,25 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
     {
         if (predict.at20 < 0)
-            predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(0));
+            predict.at20 = min(predict.at20+IntToFixed(4), 0);
         if (predict.at20 > 0)
-            predict.at20 = fix16_max(predict.at20-fix16_from_int(4), fix16_from_int(0));
+            predict.at20 = max(predict.at20-IntToFixed(4), 0);
         if (predict.at20 == 0)
             predict.at6e = 0;
     }
     else
     {
         if (pInput->syncFlags.lookUp)
-            predict.at20 = fix16_min(predict.at20+fix16_from_int(4), fix16_from_int(60));
+            predict.at20 = min(predict.at20+IntToFixed(4), IntToFixed(60));
         if (pInput->syncFlags.lookDown)
-            predict.at20 = fix16_max(predict.at20-fix16_from_int(4), fix16_from_int(-60));
+            predict.at20 = max(predict.at20-IntToFixed(4), IntToFixed(-60));
     }
-    predict.at20 = fix16_clamp(predict.at20+pInput->q16mlook, fix16_from_int(-60), fix16_from_int(60));
+    predict.at20 = clamp(predict.at20+pInput->q16mlook, IntToFixed(-60), IntToFixed(60));
 
     if (predict.at20 > 0)
-        predict.at24 = mulscale30(fix16_from_int(120), Sin(fix16_to_int(predict.at20<<3)));
+        predict.at24 = mulscale30(IntToFixed(120), Sin(FixedToInt(predict.at20<<3)));
     else if (predict.at20 < 0)
-        predict.at24 = mulscale30(fix16_from_int(180), Sin(fix16_to_int(predict.at20<<3)));
+        predict.at24 = mulscale30(IntToFixed(180), Sin(FixedToInt(predict.at20<<3)));
     else
         predict.at24 = 0;
 #endif
@@ -265,18 +265,18 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
     {
         if (predict.at20 < 0)
-            predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepDown), fix16_from_int(0));
+            predict.at20 = min(predict.at20+FloatToFixed(lookStepDown), 0);
         if (predict.at20 > 0)
-            predict.at20 = fix16_max(predict.at20-fix16_from_dbl(lookStepUp), fix16_from_int(0));
+            predict.at20 = max(predict.at20-FloatToFixed(lookStepUp), 0);
         if (predict.at20 == 0)
             predict.at6e = 0;
     }
     else
     {
         if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
-            predict.at20 = fix16_min(predict.at20+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
+            predict.at20 = min(predict.at20+FloatToFixed(lookStepUp), IntToFixed(upAngle));
         if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
-            predict.at20 = fix16_max(predict.at20-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
+            predict.at20 = max(predict.at20-FloatToFixed(lookStepDown), IntToFixed(downAngle));
     }
     if (numplayers > 1 && gPrediction)
     {
@@ -290,8 +290,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         }
         gViewLookRecenter = predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
     }
-    predict.at20 = fix16_clamp(predict.at20+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
-    predict.at24 = fix16_from_float(100.f*tanf(fix16_to_float(predict.at20)*fPI/1024.f));
+    predict.at20 = clamp(predict.at20+(pInput->q16horz<<3), IntToFixed(downAngle), IntToFixed(upAngle));
+    predict.at24 = FloatToFixed(100.f*tanf(FixedToFloat(predict.at20)*fPI/1024.f));
 
     int nSector = predict.at68;
     int florhit = predict.at75.florhit & 0xc000;
@@ -303,14 +303,14 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     if (va && (sector[nSector].floorstat&2) != 0)
     {
         int z1 = getflorzofslope(nSector, predict.at50, predict.at54);
-        int x2 = predict.at50+mulscale30(64, Cos(fix16_to_int(predict.at30)));
-        int y2 = predict.at54+mulscale30(64, Sin(fix16_to_int(predict.at30)));
+        int x2 = predict.at50+mulscale30(64, Cos(FixedToInt(predict.at30)));
+        int y2 = predict.at54+mulscale30(64, Sin(FixedToInt(predict.at30)));
         short nSector2 = nSector;
         updatesector(x2, y2, &nSector2);
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            predict.at28 = interpolate(predict.at28, fix16_from_int(z1-z2)>>3, 0x4000);
+            predict.at28 = interpolate(predict.at28, IntToFixed(z1-z2)>>3, 0x4000);
         }
     }
     else
@@ -319,7 +319,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (klabs(predict.at28) < 4)
             predict.at28 = 0;
     }
-    predict.at2c = (-fix16_to_int(predict.at24))<<7;
+    predict.at2c = (-FixedToInt(predict.at24))<<7;
 }
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
@@ -369,7 +369,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
     predict.at0 = ClipLow(predict.at0-4, 0);
 
-    nSpeed >>= 16;
+    nSpeed >>= FRACBITS;
 	if (predict.at48 == 1)
 	{
 		predict.at4 = (predict.at4+17)&2047;

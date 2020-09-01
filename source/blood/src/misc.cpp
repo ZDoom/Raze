@@ -84,7 +84,7 @@ int wRandSeed = 1;
 int wrand(void)
 {
     wRandSeed = (wRandSeed*1103515245)+12345;
-    return (wRandSeed>>16)&0x7fff;
+    return FixedToInt(wRandSeed)&0x7fff;
 }
 
 void wsrand(int seed)

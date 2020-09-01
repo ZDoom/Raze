@@ -838,7 +838,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSector->bobCeiling = bitReader.readUnsigned(1);
             pXSector->bobRotate = bitReader.readUnsigned(1);
             xsector[sector[i].extra].reference = i;
-            xsector[sector[i].extra].busy = xsector[sector[i].extra].state<<16;
+            xsector[sector[i].extra].busy = IntToFixed(xsector[sector[i].extra].state);
 
         }
     }
@@ -911,7 +911,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXWall->unused3 = bitReader.readUnsigned(4);
             pXWall->unused4 = bitReader.readUnsigned(32);
             xwall[wall[i].extra].reference = i;
-            xwall[wall[i].extra].busy = xwall[wall[i].extra].state << 16;
+            xwall[wall[i].extra].busy = IntToFixed(xwall[wall[i].extra].state);
 
         }
     }
@@ -1028,7 +1028,7 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
             pXSprite->aiState = NULL;
             bitReader.skipBits(32);
             xsprite[sprite[i].extra].reference = i;
-            xsprite[sprite[i].extra].busy = xsprite[sprite[i].extra].state << 16;
+            xsprite[sprite[i].extra].busy = IntToFixed(xsprite[sprite[i].extra].state);
             if (!byte_1A76C8) {
                 xsprite[sprite[i].extra].lT |= xsprite[sprite[i].extra].lB;
             }

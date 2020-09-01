@@ -375,7 +375,7 @@ void InitLevel(void)
     currentLevel = maprec;
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
-    Player[0].q16ang = fix16_from_int(ang);
+    Player[0].q16ang = IntToFixed(ang);
 
     SetupPreCache();
 

@@ -464,7 +464,7 @@ void GameTicker()
 
             PlayerInterruptKeys(false);
 
-            nPlayerDAng = fix16_sadd(nPlayerDAng, localInput.q16avel);
+            nPlayerDAng += localInput.q16avel;
             inita &= kAngleMask;
 
             for (int i = 0; i < 4; i++)
@@ -550,8 +550,8 @@ void GameTicker()
             {
                 bLockPan = false;
                 bPlayerPan = false;
-                //PlayerList[nLocalPlayer].q16horiz = fix16_from_int(92);
-                nDestVertPan[nLocalPlayer] = fix16_from_int(92);
+                //PlayerList[nLocalPlayer].q16horiz = IntToFixed(92);
+                nDestVertPan[nLocalPlayer] = IntToFixed(92);
             }
             if (localInput.actions & SB_TURNAROUND)
             {

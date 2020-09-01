@@ -110,8 +110,8 @@ static void SlashFSeqCallback(int, int nXSprite)
     int height = (pSprite->yrepeat*pDudeInfo->eyeHeight)<<2;
     int height2 = (pTarget->yrepeat*pDudeInfoT->eyeHeight)<<2;
     int dz = height-height2;
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     actFireVector(pSprite, 0, 0, dx, dy, dz, VECTOR_TYPE_13);
     int r1 = Random(50);
     int r2 = Random(50);
@@ -143,8 +143,8 @@ static void BlastSSeqCallback(int, int nXSprite)
     int z = height;
     TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
     Aim aim;
-    aim.dx = Cos(pSprite->ang)>>16;
-    aim.dy = Sin(pSprite->ang)>>16;
+    aim.dx = CosScale16(pSprite->ang);
+    aim.dy = SinScale16(pSprite->ang);
     aim.dz = gDudeSlope[nXSprite];
     int nClosest = 0x7fffffff;
     for (short nSprite2 = headspritestat[kStatDude]; nSprite2 >= 0; nSprite2 = nextspritestat[nSprite2])
@@ -187,8 +187,8 @@ static void BlastSSeqCallback(int, int nXSprite)
                 if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(nAngle)>>16;
-                    aim.dy = Sin(nAngle)>>16;
+                    aim.dx = CosScale16(nAngle);
+                    aim.dy = SinScale16(nAngle);
                     aim.dz = divscale(tz, nDist, 10);
                     if (tz > -0x333)
                         aim.dz = divscale(tz, nDist, 10);

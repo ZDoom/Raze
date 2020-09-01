@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 #include "build.h"
-#include "fix16.h"
 
 BEGIN_BLD_NS
 
@@ -32,7 +31,7 @@ public:
     int x, y, nZoom;
     short angle;
     int forward, strafe;
-    fix16_t turn;
+    fixed_t turn;
     void sub_25C38(int, int, int, short);
     void sub_25C74(void);
     void sub_25DB0(spritetype *pSprite);

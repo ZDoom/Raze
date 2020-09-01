@@ -398,7 +398,7 @@ void FuncMummy(int a, int nDamage, int nRun)
                             {
                                 // FIXME CHECKME - nBullet & 0xFFFF can be -1. Original code doesn't handle this??
 
-                                SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
+                                SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
                                 sprite[nBullet & 0xFFFF].pal = 5;
                             }
                         }

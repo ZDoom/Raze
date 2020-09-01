@@ -711,7 +711,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pSprite->z -= bottom - pSprite->z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pPlayer->angold = pSprite->ang = pStartZone->ang;
-    pPlayer->q16ang = fix16_from_int(pSprite->ang);
+    pPlayer->q16ang = IntToFixed(pSprite->ang);
     pSprite->type = kDudePlayer1+nPlayer;
     pSprite->clipdist = pDudeInfo->clipdist;
     pSprite->flags = 15;
@@ -1236,8 +1236,8 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     *a2 = 0;
     *a3 = 0;
     spritetype *pSprite = pPlayer->pSprite;
-    int x = Cos(pSprite->ang)>>16;
-    int y = Sin(pSprite->ang)>>16;
+    int x = CosScale16(pSprite->ang);
+    int y = SinScale16(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
@@ -1343,15 +1343,15 @@ void ProcessInput(PLAYER *pPlayer)
         if (pPlayer->fraggerId != -1)
         {
             pPlayer->angold = pSprite->ang = getangle(sprite[pPlayer->fraggerId].x - pSprite->x, sprite[pPlayer->fraggerId].y - pSprite->y);
-            pPlayer->q16ang = fix16_from_int(pSprite->ang);
+            pPlayer->q16ang = IntToFixed(pSprite->ang);
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
         {
             if (bVanilla)
-                pPlayer->q16horiz = fix16_from_int(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
+                pPlayer->q16horiz = IntToFixed(mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), 120));
             else
-                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), fix16_from_int(120));
+                pPlayer->q16horiz = mulscale16(0x8000-(Cos(ClipHigh(pPlayer->deathTime*8, 1024))>>15), IntToFixed(120));
         }
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
@@ -1447,14 +1447,14 @@ void ProcessInput(PLAYER *pPlayer)
         else
             speed = 128;
         pPlayer->spin = min(pPlayer->spin+speed, 0);
-        pPlayer->q16ang += fix16_from_int(speed);
+        pPlayer->q16ang += IntToFixed(speed);
         if (pPlayer == gMe && numplayers == 1)
             gViewAngleAdjust += float(speed);
     }
     if (pPlayer == gMe && numplayers == 1)
         gViewAngleAdjust += float(pSprite->ang - pPlayer->angold);
-    pPlayer->q16ang = (pPlayer->q16ang+fix16_from_int(pSprite->ang-pPlayer->angold))&0x7ffffff;
-    pPlayer->angold = pSprite->ang = fix16_to_int(pPlayer->q16ang);
+    pPlayer->q16ang = (pPlayer->q16ang+IntToFixed(pSprite->ang-pPlayer->angold))&0x7ffffff;
+    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
     if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
 
@@ -1551,8 +1551,8 @@ void ProcessInput(PLAYER *pPlayer)
             spritetype *pSprite2 = actSpawnDude(pPlayer->pSprite, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
             int nSprite = pPlayer->pSprite->index;
-            int x = Cos(pPlayer->pSprite->ang)>>16;
-            int y = Sin(pPlayer->pSprite->ang)>>16;
+            int x = CosScale16(pPlayer->pSprite->ang);
+            int y = SinScale16(pPlayer->pSprite->ang);
             xvel[pSprite2->index] = xvel[nSprite] + mulscale14(0x155555, x);
             yvel[pSprite2->index] = yvel[nSprite] + mulscale14(0x155555, y);
             zvel[pSprite2->index] = zvel[nSprite];
@@ -1565,24 +1565,24 @@ void ProcessInput(PLAYER *pPlayer)
         if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(0));
+                pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), 0);
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(0));
+                pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), 0);
             if (!pPlayer->q16look)
                 pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
             if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_int(4), fix16_from_int(60));
+                pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), IntToFixed(60));
             if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_int(4), fix16_from_int(-60));
+                pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), IntToFixed(-60));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+pInput->q16horz, fix16_from_int(-60), fix16_from_int(60));
+        pPlayer->q16look = clamp(pPlayer->q16look+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
         if (pPlayer->q16look > 0)
-            pPlayer->q16horiz = fix16_from_int(mulscale30(120, Sin(fix16_to_int(pPlayer->q16look)<<3)));
+            pPlayer->q16horiz = IntToFixed(mulscale30(120, Sin(FixedToInt(pPlayer->q16look)<<3)));
         else if (pPlayer->q16look < 0)
-            pPlayer->q16horiz = fix16_from_int(mulscale30(180, Sin(fix16_to_int(pPlayer->q16look)<<3)));
+            pPlayer->q16horiz = IntToFixed(mulscale30(180, Sin(FixedToInt(pPlayer->q16look)<<3)));
         else
             pPlayer->q16horiz = 0;
     }
@@ -1595,18 +1595,18 @@ void ProcessInput(PLAYER *pPlayer)
         if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
         {
             if (pPlayer->q16look < 0)
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepDown), fix16_from_int(0));
+                pPlayer->q16look = min(pPlayer->q16look+FloatToFixed(lookStepDown), 0);
             if (pPlayer->q16look > 0)
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepUp), fix16_from_int(0));
+                pPlayer->q16look = max(pPlayer->q16look-FloatToFixed(lookStepUp), 0);
             if (!pPlayer->q16look)
                 pInput->actions &= ~SB_CENTERVIEW;
         }
         else
         {
             if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
-                pPlayer->q16look = fix16_min(pPlayer->q16look+fix16_from_dbl(lookStepUp), fix16_from_int(upAngle));
+                pPlayer->q16look = min(pPlayer->q16look+FloatToFixed(lookStepUp), IntToFixed(upAngle));
             if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
-                pPlayer->q16look = fix16_max(pPlayer->q16look-fix16_from_dbl(lookStepDown), fix16_from_int(downAngle));
+                pPlayer->q16look = max(pPlayer->q16look-FloatToFixed(lookStepDown), IntToFixed(downAngle));
         }
         if (pPlayer == gMe && numplayers == 1)
         {
@@ -1620,8 +1620,8 @@ void ProcessInput(PLAYER *pPlayer)
             }
             gViewLookRecenter = ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)));
         }
-        pPlayer->q16look = fix16_clamp(pPlayer->q16look+(pInput->q16horz<<3), fix16_from_int(downAngle), fix16_from_int(upAngle));
-        pPlayer->q16horiz = fix16_from_float(100.f*tanf(fix16_to_float(pPlayer->q16look)*fPI/1024.f));
+        pPlayer->q16look = clamp(pPlayer->q16look+(pInput->q16horz<<3), IntToFixed(downAngle), IntToFixed(upAngle));
+        pPlayer->q16horiz = FloatToFixed(100.f*tanf(FixedToFloat(pPlayer->q16look)*fPI/1024.f));
     }
     int nSector = pSprite->sectnum;
     int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
@@ -1640,16 +1640,16 @@ void ProcessInput(PLAYER *pPlayer)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, fix16_from_int(z1-z2)>>3, 0x4000);
+            pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, IntToFixed(z1-z2)>>3, 0x4000);
         }
     }
     else
     {
-        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, fix16_from_int(0), 0x4000);
+        pPlayer->q16slopehoriz = interpolate(pPlayer->q16slopehoriz, 0, 0x4000);
         if (klabs(pPlayer->q16slopehoriz) < 4)
             pPlayer->q16slopehoriz = 0;
     }
-    pPlayer->slope = (-fix16_to_int(pPlayer->q16horiz))<<7;
+    pPlayer->slope = (-FixedToInt(pPlayer->q16horiz))<<7;
     if (pInput->actions & SB_INVPREV)
     {
         pInput->actions&= ~SB_INVPREV;
@@ -1748,7 +1748,7 @@ void playerProcess(PLAYER *pPlayer)
         pPlayer->zWeaponVel += mulscale16(dz<<8, 0xc00);
     pPlayer->zWeapon += pPlayer->zWeaponVel>>8;
     pPlayer->bobPhase = ClipLow(pPlayer->bobPhase-4, 0);
-    nSpeed >>= 16;
+    nSpeed >>= FRACBITS;
     if (pPlayer->posture == 1)
     {
         pPlayer->bobAmp = (pPlayer->bobAmp+17)&2047;
@@ -2141,9 +2141,9 @@ void sub_41250(PLAYER *pPlayer)
     for (int i = 0; i < 4; i++)
     {
         int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, Cos(ang1)>>16, Sin(ang1)>>16, v4, VECTOR_TYPE_21);
+        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, VECTOR_TYPE_21);
         int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
-        actFireVector(pPlayer->pSprite, 0, dz, Cos(ang2)>>16, Sin(ang2)>>16, v4, VECTOR_TYPE_21);
+        actFireVector(pPlayer->pSprite, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, VECTOR_TYPE_21);
     }
     pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }

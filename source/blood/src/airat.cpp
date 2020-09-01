@@ -62,8 +62,8 @@ static void BiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     dassert(pXSprite->target >= 0 && pXSprite->target < kMaxSprites);
     spritetype *pTarget = &sprite[pXSprite->target];

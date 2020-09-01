@@ -186,14 +186,14 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
 
     if (parm->numparms >= 4)
     {
-        pPlayer->q16ang = gView->q16ang = fix16_from_int(atoi(parm->parms[3]));
+        pPlayer->q16ang = gView->q16ang = IntToFixed(atoi(parm->parms[3]));
     }
 
     if (parm->numparms == 5)
     {
         // fix me, I'm broken.
-        pPlayer->q16horiz = gView->q16horiz = fix16_from_int(atoi(parm->parms[4]));
-        gViewAngle = fix16_from_dbl(atan2(atoi(parm->parms[4]), 100) * (1024. / pi::pi()));
+        pPlayer->q16horiz = gView->q16horiz = IntToFixed(atoi(parm->parms[4]));
+        gViewAngle = FloatToFixed(atan2(atoi(parm->parms[4]), 100) * (1024. / pi::pi()));
     }
 
     viewBackupView(pPlayer->nPlayer);

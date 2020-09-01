@@ -79,10 +79,10 @@ typedef struct
 {
     int32_t fvel;
     int32_t svel;
-    fix16_t q16avel;
-    fix16_t q16horz;
-    fix16_t q16ang;
-    fix16_t q16horiz;
+    fixed_t q16avel;
+    fixed_t q16horz;
+    fixed_t q16ang;
+    fixed_t q16horiz;
     ESyncBits actions;
 } SW_AVERAGE_PACKET;
 
@@ -222,8 +222,8 @@ UpdateInputs(void)
 
     loc.fvel = AveragePacket.fvel / MovesPerPacket;
     loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.q16avel = fix16_div(AveragePacket.q16avel, fix16_from_int(MovesPerPacket));
-    loc.q16horz = fix16_div(AveragePacket.q16horz, fix16_from_int(MovesPerPacket));
+    loc.q16avel = AveragePacket.q16avel / MovesPerPacket;
+    loc.q16horz = AveragePacket.q16horz / MovesPerPacket;
     loc.q16ang = AveragePacket.q16ang;
     loc.q16horiz = AveragePacket.q16horiz;
     loc.actions = AveragePacket.actions;

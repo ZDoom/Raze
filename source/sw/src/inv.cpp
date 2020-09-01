@@ -72,13 +72,13 @@ extern PANEL_STATE ps_PanelEnvironSuit[];
 
 INVENTORY_DATA InventoryData[MAX_INVENTORY+1] =
 {
-    {"PORTABLE MEDKIT",  UseInventoryMedkit,      NULL,                      0,   1, (1<<16),     0},
-    {"REPAIR KIT",       NULL,                    NULL,                      100, 1, (1<<16),     INVF_AUTO_USE},
-    {"SMOKE BOMB",       UseInventoryCloak,       StopInventoryCloak,        4,   1, (1<<16),     INVF_TIMED},
-    {"NIGHT VISION",     UseInventoryNightVision, StopInventoryNightVision, 3,  1, (1<<16),     INVF_TIMED},
-    {"GAS BOMB",         UseInventoryChemBomb,    NULL,                      0,   1, (1<<16),     INVF_COUNT},
-    {"FLASH BOMB",       UseInventoryFlashBomb,   NULL,                      0,   2, (1<<16),     INVF_COUNT},
-    {"CALTROPS",         UseInventoryCaltrops,    NULL,                      0,   3, (1<<16),     INVF_COUNT},
+    {"PORTABLE MEDKIT",  UseInventoryMedkit,      NULL,                      0,   1, (FRACUNIT),     0},
+    {"REPAIR KIT",       NULL,                    NULL,                      100, 1, (FRACUNIT),     INVF_AUTO_USE},
+    {"SMOKE BOMB",       UseInventoryCloak,       StopInventoryCloak,        4,   1, (FRACUNIT),     INVF_TIMED},
+    {"NIGHT VISION",     UseInventoryNightVision, StopInventoryNightVision, 3,  1, (FRACUNIT),     INVF_TIMED},
+    {"GAS BOMB",         UseInventoryChemBomb,    NULL,                      0,   1, (FRACUNIT),     INVF_COUNT},
+    {"FLASH BOMB",       UseInventoryFlashBomb,   NULL,                      0,   2, (FRACUNIT),     INVF_COUNT},
+    {"CALTROPS",         UseInventoryCaltrops,    NULL,                      0,   3, (FRACUNIT),     INVF_COUNT},
     {NULL, NULL, NULL, NULL, 0, 0, 0}
 };
 

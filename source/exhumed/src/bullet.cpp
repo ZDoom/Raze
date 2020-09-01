@@ -782,7 +782,7 @@ int BuildBullet(short nSprite, int nType, int, int, int val1, int nAngle, int va
         pBullet->z = var_18 >> 3;
     }
 
-    return nBulletSprite | (nBullet << 16);
+    return nBulletSprite | IntToFixed(nBullet);
 }
 
 void FuncBullet(int a, int, int nRun)

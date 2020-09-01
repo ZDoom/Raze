@@ -36,7 +36,7 @@ short bSubTitles = true;
 
 int zbob;
 
-fix16_t nDestVertPan[kMaxPlayers] = { 0 };
+fixed_t nDestVertPan[kMaxPlayers] = { 0 };
 short dVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
@@ -49,8 +49,8 @@ short nQuake[kMaxPlayers] = { 0 };
 
 short nChunkTotal = 0;
 
-fix16_t nCameraa;
-fix16_t nCamerapan;
+fixed_t nCameraa;
+fixed_t nCamerapan;
 short nViewTop;
 short bCamera = false;
 
@@ -241,8 +241,8 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerY;
     int playerZ;
     short nSector;
-    fix16_t nAngle;
-    fix16_t pan;
+    fixed_t nAngle;
+    fixed_t pan;
 
     zbob = Sin(2 * bobangle) >> 3;
 
@@ -258,7 +258,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerY = sprite[nSprite].y;
         playerZ = sprite[nSprite].z;
         nSector = sprite[nSprite].sectnum;
-        nAngle = fix16_from_int(sprite[nSprite].ang);
+        nAngle = IntToFixed(sprite[nSprite].ang);
 
         SetGreenPal();
 
@@ -296,7 +296,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     {
         if (nSnakeCam >= 0 && !sceneonly)
         {
-            pan = F16(92);
+            pan = IntToFixed(92);
             viewz = playerZ;
         }
         else
@@ -309,7 +309,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             if (viewz > floorZ)
                 viewz = floorZ;
 
-            nCameraa += fix16_from_int((nQuake[nLocalPlayer] >> 7) % 31);
+            nCameraa += IntToFixed((nQuake[nLocalPlayer] >> 7) % 31);
             nCameraa &= 0x7FFFFFF;
         }
     }
@@ -320,7 +320,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             -2000 * Sin(inita),
             4, 0, 0, CLIPMASK1);
 
-        pan = F16(92);
+        pan = IntToFixed(92);
         viewz = playerZ;
     }
 
@@ -410,7 +410,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     sprite[nPlayerSprite].cstat |= 0x8000;
 
-                    int ang2 = fix16_to_int(nCameraa) - sprite[nPlayerSprite].ang;
+                    int ang2 = FixedToInt(nCameraa) - sprite[nPlayerSprite].ang;
                     if (ang2 < 0)
                         ang2 = -ang2;
 

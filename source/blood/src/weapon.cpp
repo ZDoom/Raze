@@ -315,8 +315,8 @@ void UpdateAimVector(PLAYER * pPlayer)
     int y = pPSprite->y;
     int z = pPlayer->zWeapon;
     Aim aim;
-    aim.dx = Cos(pPSprite->ang)>>16;
-    aim.dy = Sin(pPSprite->ang)>>16;
+    aim.dx = CosScale16(pPSprite->ang);
+    aim.dy = SinScale16(pPSprite->ang);
     aim.dz = pPlayer->slope;
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
     int nTarget = -1;
@@ -374,8 +374,8 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (cansee(x, y, z, pPSprite->sectnum, x2, y2, z2, pSprite->sectnum))
             {
                 nClosest = nDist2;
-                aim.dx = Cos(angle)>>16;
-                aim.dy = Sin(angle)>>16;
+                aim.dx = CosScale16(angle);
+                aim.dy = SinScale16(angle);
                 aim.dz = divscale(dzCenter, nDist, 10);
                 nTarget = nSprite;
             }
@@ -421,8 +421,8 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (cansee(x, y, z, pPSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = Cos(angle)>>16;
-                    aim.dy = Sin(angle)>>16;
+                    aim.dx = CosScale16(angle);
+                    aim.dy = SinScale16(angle);
                     aim.dz = divscale(dz, nDist, 10);
                     nTarget = nSprite;
                 }
@@ -1200,8 +1200,8 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
     dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = Cos(angle)>>16;
-    int dy = Sin(angle)>>16;
+    int dx = CosScale16(angle);
+    int dy = SinScale16(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
@@ -1221,8 +1221,8 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
     dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = Cos(angle)>>16;
-    int dy = Sin(angle)>>16;
+    int dx = CosScale16(angle);
+    int dy = SinScale16(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
@@ -1250,8 +1250,8 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
     dassert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = Cos(angle)>>16;
-    int dy = Sin(angle)>>16;
+    int dx = CosScale16(angle);
+    int dy = SinScale16(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     if (powerupCheck(pPlayer, kPwUpTwoGuns) && sub_4B2C8(pPlayer, 3, 2))
     {

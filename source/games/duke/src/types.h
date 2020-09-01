@@ -215,25 +215,25 @@ struct player_struct
 
 
 	// Access helpers for the widened angle and horizon fields.
-	void setlookang(int b) { q16look_ang = b << FRACBITS; }
-	void addlookang(int b) { q16look_ang += b << FRACBITS; }
-	void addlookang(double b) { q16look_ang += xs_CRoundToInt(b * FRACUNIT); }
-	void setrotscrnang(int b) { q16rotscrnang = b << FRACBITS; }
-	void addrotscrnang(int b) { q16rotscrnang += b << FRACBITS; }
-	void addrotscrnang(double b) { q16rotscrnang += xs_CRoundToInt(b * FRACUNIT); }
-	int getang() { return q16ang >> FRACBITS; }
-	int getoang() { return oq16ang >> FRACBITS; }
-	void setang(int v) { q16ang = v << FRACBITS; }
-	void addang(int v) { q16ang = (q16ang + (v << FRACBITS)) & 0x7FFFFFF; }
-	void setoang(int v) { oq16ang = v << FRACBITS; }
-	void addhoriz(int v) { q16horiz += (v << FRACBITS); }
-	void addhorizoff(int v) { q16horiz += (v << FRACBITS); }
-	void addhorizoff(double v) { q16horiz += xs_CRoundToInt(v * FRACUNIT); }
-	void sethoriz(int v) { q16horiz = (v << FRACBITS); }
-	void sethorizoff(int v) { q16horizoff = (v << FRACBITS); }
-	int gethoriz() { return q16horiz >> FRACBITS; }
-	int gethorizof() { return q16horizoff >> FRACBITS; }
-	int gethorizsum() { return (q16horiz + q16horizoff) >> FRACBITS; }
+	void setlookang(int b) { q16look_ang = IntToFixed(b); }
+	void addlookang(int b) { q16look_ang += IntToFixed(b); }
+	void addlookang(double b) { q16look_ang += FloatToFixed(b); }
+	void setrotscrnang(int b) { q16rotscrnang = IntToFixed(b); }
+	void addrotscrnang(int b) { q16rotscrnang += IntToFixed(b); }
+	void addrotscrnang(double b) { q16rotscrnang += FloatToFixed(b); }
+	int getang() { return FixedToInt(q16ang); }
+	int getoang() { return FixedToInt(oq16ang); }
+	void setang(int v) { q16ang = IntToFixed(v); }
+	void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
+	void setoang(int v) { oq16ang = IntToFixed(v); }
+	void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
+	void addhorizoff(int v) { q16horiz += (IntToFixed(v)); }
+	void addhorizoff(double v) { q16horiz += FloatToFixed(v); }
+	void sethoriz(int v) { q16horiz = IntToFixed(v); }
+	void sethorizoff(int v) { q16horizoff = IntToFixed(v); }
+	int gethoriz() { return FixedToInt(q16horiz); }
+	int gethorizof() { return FixedToInt(q16horizoff); }
+	int gethorizsum() { return FixedToInt(q16horiz + q16horizoff); }
 
 };
 

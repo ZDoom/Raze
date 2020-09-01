@@ -206,7 +206,7 @@ void CViewMap::sub_25DB0(spritetype *pSprite)
     }
     else
     {
-        angle += fix16_to_int(turn)>>3;
+        angle += FixedToInt(turn)>>3;
         x += mulscale24(forward>>8, Cos(angle));
         y += mulscale24(forward>>8, Sin(angle));
         x -= mulscale24(strafe>>8, Cos(angle+512));

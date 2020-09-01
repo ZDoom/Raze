@@ -532,7 +532,7 @@ void hud_input(int snum)
 			OnEvent(EVENT_TURNAROUND, -1, snum, -1);
 			if (GetGameVarID(g_iReturnVarID, -1, snum) == 0)
 			{
-				p->one_eighty_count = -F16(1024);
+				p->one_eighty_count = -IntToFixed(1024);
 			}
 		}
 	}
@@ -647,16 +647,16 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo &i
 	if (buttonMap.ButtonDown(gamefunc_Strafe))
 		input.svel -= info.mousex * 4.f + scaleFactor * info.dyaw * keymove;
 	else
-		input.q16avel += fix16_from_float(info.mousex + scaleFactor * info.dyaw);
+		input.q16avel += FloatToFixed(info.mousex + scaleFactor * info.dyaw);
 
 	if (mouseaim)
-		input.q16horz += fix16_from_float(info.mousey);
+		input.q16horz += FloatToFixed(info.mousey);
 	else
 		input.fvel -= info.mousey * 8.f;
 
 	if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-	input.q16horz -= fix16_from_dbl(scaleFactor * (info.dpitch));
+	input.q16horz -= FloatToFixed(scaleFactor * (info.dpitch));
 	input.svel -= scaleFactor * (info.dx * keymove);
 	input.fvel -= scaleFactor * (info.dz * keymove);
 
@@ -678,12 +678,12 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo &i
 		if (buttonMap.ButtonDown(gamefunc_Turn_Left))
 		{
 			turnheldtime += tics;
-			input.q16avel -= fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+			input.q16avel -= FloatToFixed(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
 		}
 		else if (buttonMap.ButtonDown(gamefunc_Turn_Right))
 		{
 			turnheldtime += tics;
-			input.q16avel += fix16_from_dbl(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+			input.q16avel += FloatToFixed(2 * scaleFactor * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
 		}
 		else
 		{
@@ -962,7 +962,7 @@ static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket
 		turnvel *= clamp(turnspeed * turnspeed, 0., 1.);
 
 	input.fvel = p->MotoSpeed;
-	input.q16avel = fix16_from_dbl(turnvel);
+	input.q16avel = FloatToFixed(turnvel);
 }
 
 //---------------------------------------------------------------------------
@@ -981,7 +981,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 		if (automapFollow && automapMode != am_off)
 		{
 			ud.folfvel = input.fvel;
-			ud.folavel = fix16_to_int(input.q16avel);
+			ud.folavel = FixedToInt(input.q16avel);
 		}
 
 		loc.fvel = loc.svel = 0;
@@ -1008,7 +1008,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->on_crane < 0 && p->newowner == -1)
 		{
-			loc.q16avel = fix16_clamp(loc.q16avel + input.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
+			loc.q16avel = clamp(loc.q16avel + input.q16avel, IntToFixed(-MAXANGVEL), IntToFixed(MAXANGVEL));
 			if (!cl_syncinput && input.q16avel)
 			{
 				p->one_eighty_count = 0;
@@ -1021,7 +1021,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 
 		if (p->newowner == -1 && p->return_to_center <= 0)
 		{
-			loc.q16horz = fix16_clamp(loc.q16horz + input.q16horz, F16(-MAXHORIZVEL), F16(MAXHORIZVEL));
+			loc.q16horz = clamp(loc.q16horz + input.q16horz, IntToFixed(-MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 		}
 		else
 		{
@@ -1105,7 +1105,7 @@ void GameInterface::GetInput(InputPacket* packet)
 	if (packet)
 	{
 		auto const pPlayer = &ps[myconnectindex];
-		auto const q16ang = fix16_to_int(pPlayer->q16ang);
+		auto const q16ang = FixedToInt(pPlayer->q16ang);
 
 		*packet = loc;
 		auto fvel = loc.fvel;

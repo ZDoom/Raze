@@ -150,7 +150,7 @@ bool genDudeAdjustSlope(spritetype* pSprite, XSPRITE* pXSprite, int dist, int we
         int fStart = 0; int fEnd = 0; GENDUDEEXTRA* pExtra = genDudeExtra(pSprite);
         unsigned int clipMask = (weaponType == kGenDudeWeaponMissile) ? CLIPMASK0 : CLIPMASK1;
         for (int i = -8191; i < 8192; i += by) {
-            HitScan(pSprite, pSprite->z, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, i, clipMask, dist);
+            HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), i, clipMask, dist);
             if (!fStart && pXSprite->target == gHitInfo.hitsprite) fStart = i;
             else if (fStart && pXSprite->target != gHitInfo.hitsprite) { fEnd = i; break; }
         }
@@ -197,8 +197,8 @@ static void punchCallback(int, int nXIndex) {
         if(IsDudeSprite(pTarget))
             nZOffset2 = getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat << 2;
 
-        int dx = Cos(pSprite->ang) >> 16;
-        int dy = Sin(pSprite->ang) >> 16;
+        int dx = CosScale16(pSprite->ang);
+        int dy = SinScale16(pSprite->ang);
         int dz = nZOffset1 - nZOffset2;
 
         if (!playGenDudeSound(pSprite, kGenDudeSndAttackMelee))
@@ -231,7 +231,7 @@ static void genDudeAttack1(int, int nXIndex) {
 
     if (pExtra->weaponType == kGenDudeWeaponHitscan) {
 
-        dx = Cos(pSprite->ang) >> 16; dy = Sin(pSprite->ang) >> 16; dz = gDudeSlope[nXIndex];
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = gDudeSlope[nXIndex];
         // dispersal modifiers here in case if non-melee enemy
         if (!dudeIsMelee(pXSprite)) {
             dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion);
@@ -263,7 +263,7 @@ static void genDudeAttack1(int, int nXIndex) {
 
     } else if (pExtra->weaponType == kGenDudeWeaponMissile) {
 
-        dx = Cos(pSprite->ang) >> 16; dy = Sin(pSprite->ang) >> 16; dz = gDudeSlope[nXIndex];
+        dx = CosScale16(pSprite->ang); dy = SinScale16(pSprite->ang); dz = gDudeSlope[nXIndex];
 
         // dispersal modifiers here
         dx += Random3(dispersion); dy += Random3(dispersion); dz += Random3(dispersion >> 1);
@@ -669,9 +669,9 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                 if (pExtra->canWalk) {
                     int objDist = -1; int targetDist = -1; int hit = -1;
                     if (weaponType == kGenDudeWeaponHitscan)
-                        hit = HitScan(pSprite, pSprite->z, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], CLIPMASK1, dist);
+                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), gDudeSlope[pSprite->extra], CLIPMASK1, dist);
                     else if (weaponType == kGenDudeWeaponMissile)
-                        hit = HitScan(pSprite, pSprite->z, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], CLIPMASK0, dist);
+                        hit = HitScan(pSprite, pSprite->z, CosScale16(pSprite->ang), SinScale16(pSprite->ang), gDudeSlope[pSprite->extra], CLIPMASK0, dist);
                     
                     if (hit >= 0) {
                         targetDist = dist - (pTarget->clipdist << 2);
@@ -766,7 +766,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                                 break;
                             } else if (weaponType == kGenDudeWeaponHitscan && hscn) {
                                 if (genDudeAdjustSlope(pSprite, pXSprite, dist, weaponType)) break;
-                                VectorScan(pSprite, 0, 0, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], dist, 1);
+                                VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), gDudeSlope[pSprite->extra], dist, 1);
                                 if (pXSprite->target == gHitInfo.hitsprite) break;
                                 
                                 bool immune = nnExtIsImmune(pHSprite, gVectorData[curWeapon].dmgType);
@@ -818,7 +818,7 @@ static void thinkChase( spritetype* pSprite, XSPRITE* pXSprite ) {
                         case 4:
                             if (hit == 4 && weaponType == kGenDudeWeaponHitscan && hscn) {
                                 bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
-                                if (masked) VectorScan(pSprite, 0, 0, Cos(pSprite->ang) >> 16, Sin(pSprite->ang) >> 16, gDudeSlope[pSprite->extra], dist, 1);
+                                if (masked) VectorScan(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), gDudeSlope[pSprite->extra], dist, 1);
 
                                 //viewSetSystemMessage("WALL VHIT: %d", gHitInfo.hitwall);
                                 if ((pXSprite->target != gHitInfo.hitsprite) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) {
@@ -1556,8 +1556,8 @@ void dudeLeechOperate(spritetype* pSprite, XSPRITE* pXSprite, EVENT event)
                 y += (yvel[nTarget] * t) >> 12;
                 int angBak = pSprite->ang;
                 pSprite->ang = getangle(x - pSprite->x, y - pSprite->y);
-                int dx = Cos(pSprite->ang) >> 16;
-                int dy = Sin(pSprite->ang) >> 16;
+                int dx = CosScale16(pSprite->ang);
+                int dy = SinScale16(pSprite->ang);
                 int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
                 int dz = divscale(tz - top - 256, nDist, 10);
                 int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);

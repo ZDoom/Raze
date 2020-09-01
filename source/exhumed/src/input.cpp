@@ -130,7 +130,7 @@ void PlayerInterruptKeys(bool after)
         return;
 
     InputPacket tempinput{};
-    fix16_t input_angle = 0;
+    fixed_t input_angle = 0;
 
     if (PlayerList[nLocalPlayer].nHealth == 0)
     {
@@ -161,20 +161,19 @@ void PlayerInterruptKeys(bool after)
     }
     else
     {
-        input_angle = fix16_sadd(input_angle, fix16_from_float(info.mousex));
-        input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
+        input_angle += FloatToFixed(info.mousex + scaleAdjustmentToInterval(info.dyaw));
     }
 
     bool mouseaim = !(localInput.actions & SB_AIMMODE);
 
     if (mouseaim)
-        tempinput.q16horz = fix16_sadd(tempinput.q16horz, fix16_from_float(info.mousey));
+        tempinput.q16horz += FloatToFixed(info.mousey);
     else
         tempinput.fvel -= info.mousey * 8.f;
 
     if (!in_mouseflip) tempinput.q16horz = -tempinput.q16horz;
 
-    tempinput.q16horz = fix16_ssub(tempinput.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch)));
+    tempinput.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch));
     tempinput.svel -= info.dx * keyMove;
     tempinput.fvel -= info.dz * keyMove;
 
@@ -221,7 +220,7 @@ void PlayerInterruptKeys(bool after)
         }
 
         //if ((counter++) % 4 == 0) // what was this for???
-        input_angle = fix16_sadd(input_angle, fix16_from_dbl(scaleAdjustmentToInterval(turn * 2)));
+        input_angle += FloatToFixed(scaleAdjustmentToInterval(turn * 2));
 
     }
 
@@ -240,17 +239,17 @@ void PlayerInterruptKeys(bool after)
     localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
     localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
 
-    localInput.q16avel = fix16_sadd(localInput.q16avel, input_angle);
+    localInput.q16avel += input_angle;
 
     if (!nFreeze)
     {
-        PlayerList[nLocalPlayer].q16angle = fix16_sadd(PlayerList[nLocalPlayer].q16angle, input_angle) & 0x7FFFFFF;
+        PlayerList[nLocalPlayer].q16angle = (PlayerList[nLocalPlayer].q16angle + input_angle) & 0x7FFFFFF;
 
         // A horiz diff of 128 equal 45 degrees,
         // so we convert horiz to 1024 angle units
 
-        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - fix16_from_int(92), fix16_from_int(128)) * (512.f / fPI) + fix16_to_float(tempinput.q16horz), -255.f, 255.f);
-        auto newq16horiz = fix16_from_int(92) + Blrintf(fix16_from_int(128) * tanf(horizAngle * (fPI / 512.f)));
+        float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - IntToFixed(92), IntToFixed(128)) * (512.f / fPI) + FixedToFloat(tempinput.q16horz), -255.f, 255.f);
+        auto newq16horiz = IntToFixed(92) + Blrintf(IntToFixed(128) * tanf(horizAngle * (fPI / 512.f)));
         if (PlayerList[nLocalPlayer].q16horiz != newq16horiz)
         {
             bLockPan = true;
@@ -262,8 +261,8 @@ void PlayerInterruptKeys(bool after)
         if (localInput.actions & (SB_LOOK_UP|SB_AIM_UP))
         {
             bLockPan |= (localInput.actions & SB_LOOK_UP);
-            if (PlayerList[nLocalPlayer].q16horiz < fix16_from_int(180)) {
-                PlayerList[nLocalPlayer].q16horiz = fix16_sadd(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
+            if (PlayerList[nLocalPlayer].q16horiz < IntToFixed(180)) {
+                PlayerList[nLocalPlayer].q16horiz += FloatToFixed(scaleAdjustmentToInterval(4));
             }
 
             bPlayerPan = true;
@@ -272,8 +271,8 @@ void PlayerInterruptKeys(bool after)
         else if (localInput.actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
         {
             bLockPan |= (localInput.actions & SB_LOOK_DOWN);
-            if (PlayerList[nLocalPlayer].q16horiz > fix16_from_int(4)) {
-                PlayerList[nLocalPlayer].q16horiz = fix16_ssub(PlayerList[nLocalPlayer].q16horiz, fix16_from_dbl(scaleAdjustmentToInterval(4)));
+            if (PlayerList[nLocalPlayer].q16horiz > IntToFixed(4)) {
+                PlayerList[nLocalPlayer].q16horiz -= FloatToFixed(scaleAdjustmentToInterval(4));
             }
 
             bPlayerPan = true;
@@ -288,18 +287,18 @@ void PlayerInterruptKeys(bool after)
     if (nFreeze) return;
 
     // loc_1C05E
-    fix16_t dVertPan = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
+    fixed_t dVertPan = nDestVertPan[nLocalPlayer] - PlayerList[nLocalPlayer].q16horiz;
     if (dVertPan != 0 && !bLockPan)
     {
         int val = dVertPan / 4;
         if (abs(val) >= 4)
         {
             if (val >= 4)
-                PlayerList[nLocalPlayer].q16horiz += fix16_from_int(4);
+                PlayerList[nLocalPlayer].q16horiz += IntToFixed(4);
             else if (val <= -4)
-                PlayerList[nLocalPlayer].q16horiz -= fix16_from_int(4);
+                PlayerList[nLocalPlayer].q16horiz -= IntToFixed(4);
         }
-        else if (abs(dVertPan) >= fix16_one)
+        else if (abs(dVertPan) >= FRACUNIT)
             PlayerList[nLocalPlayer].q16horiz += dVertPan / 2.0f;
         else
         {
@@ -308,7 +307,7 @@ void PlayerInterruptKeys(bool after)
         }
     }
     else bLockPan = mouseaim;
-    PlayerList[nLocalPlayer].q16horiz = fix16_clamp(PlayerList[nLocalPlayer].q16horiz, fix16_from_int(0), fix16_from_int(184));
+    PlayerList[nLocalPlayer].q16horiz = clamp(PlayerList[nLocalPlayer].q16horiz, 0, IntToFixed(184));
 }
 
 

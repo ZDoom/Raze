@@ -40,7 +40,7 @@ BEGIN_DUKE_NS
   
 double getavel(int snum)
 {
-	return PlayerInputAngVel(screenpeek) / (double)(FRACUNIT);
+	return FixedToFloat(PlayerInputAngVel(screenpeek));
 }
 
 //---------------------------------------------------------------------------

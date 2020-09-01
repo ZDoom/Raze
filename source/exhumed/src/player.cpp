@@ -49,7 +49,7 @@ struct PlayerSave
 
 int lPlayerXVel = 0;
 int lPlayerYVel = 0;
-fix16_t nPlayerDAng = 0;
+fixed_t nPlayerDAng = 0;
 short obobangle = 0, bobangle  = 0;
 short bPlayerPan = 0;
 short bLockPan  = 0;
@@ -310,8 +310,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].y = sprite[nNStartSprite].y;
         sprite[nSprite].z = sprite[nNStartSprite].z;
         mychangespritesect(nSprite, sprite[nNStartSprite].sectnum);
-        PlayerList[nPlayer].q16angle = fix16_from_int(sprite[nNStartSprite].ang&kAngleMask);
-        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].q16angle = IntToFixed(sprite[nNStartSprite].ang&kAngleMask);
+        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
         floorspr = insertsprite(sprite[nSprite].sectnum, 0);
         assert(floorspr >= 0 && floorspr < kMaxSprites);
@@ -329,8 +329,8 @@ void RestartPlayer(short nPlayer)
         sprite[nSprite].x = sPlayerSave[nPlayer].x;
         sprite[nSprite].y = sPlayerSave[nPlayer].y;
         sprite[nSprite].z = sector[sPlayerSave[nPlayer].nSector].floorz;
-        PlayerList[nPlayer].q16angle = fix16_from_int(sPlayerSave[nPlayer].nAngle&kAngleMask);
-        sprite[nSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+        PlayerList[nPlayer].q16angle = IntToFixed(sPlayerSave[nPlayer].nAngle&kAngleMask);
+        sprite[nSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
         floorspr = -1;
     }
@@ -435,8 +435,8 @@ void RestartPlayer(short nPlayer)
     nYDamage[nPlayer] = 0;
     nXDamage[nPlayer] = 0;
 
-    PlayerList[nPlayer].q16horiz = F16(92);
-    nDestVertPan[nPlayer] = F16(92);
+    PlayerList[nPlayer].q16horiz = IntToFixed(92);
+    nDestVertPan[nPlayer] = IntToFixed(92);
     nBreathTimer[nPlayer] = 90;
 
     nTauntTimer[nPlayer] = RandomSize(3) + 3;
@@ -537,7 +537,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     StopFiringWeapon(nPlayer);
 
-    PlayerList[nPlayer].q16horiz = F16(92);
+    PlayerList[nPlayer].q16horiz = IntToFixed(92);
     oeyelevel[nPlayer] = eyelevel[nPlayer] = -14080;
     nPlayerInvisible[nPlayer] = 0;
     dVertPan[nPlayer] = 15;
@@ -935,7 +935,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
             }
 
             // loc_1A494:
-            sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+            sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
             // sprite[nPlayerSprite].zvel is modified within Gravity()
             short zVel = sprite[nPlayerSprite].zvel;
@@ -1030,10 +1030,10 @@ void FuncPlayer(int a, int nDamage, int nRun)
             {
                 if (nTotalPlayers <= 1)
                 {
-                    PlayerList[nPlayer].q16angle = fix16_from_int(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
-                    sprite[nPlayerSprite].ang = fix16_to_int(PlayerList[nPlayer].q16angle);
+                    PlayerList[nPlayer].q16angle = IntToFixed(GetAngleToSprite(nPlayerSprite, nSpiritSprite) & kAngleMask);
+                    sprite[nPlayerSprite].ang = FixedToInt(PlayerList[nPlayer].q16angle);
 
-                    PlayerList[nPlayer].q16horiz = F16(92);
+                    PlayerList[nPlayer].q16horiz = IntToFixed(92);
 
                     lPlayerXVel = 0;
                     lPlayerYVel = 0;
@@ -1051,15 +1051,15 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         StopLocalSound();
                         InitSpiritHead();
 
-                        nDestVertPan[nPlayer] = F16(92);
+                        nDestVertPan[nPlayer] = IntToFixed(92);
 
                         if (currentLevel->levelNumber == 11)
                         {
-                            nDestVertPan[nPlayer] += F16(46);
+                            nDestVertPan[nPlayer] += IntToFixed(46);
                         }
                         else
                         {
-                            nDestVertPan[nPlayer] += F16(11);
+                            nDestVertPan[nPlayer] += IntToFixed(11);
                         }
                     }
                 }
@@ -1088,7 +1088,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                         }
 
                         if (zVelB > 512 && !bLockPan) {
-                            nDestVertPan[nPlayer] = F16(92);
+                            nDestVertPan[nPlayer] = IntToFixed(92);
                         }
                     }
 
@@ -1189,14 +1189,14 @@ void FuncPlayer(int a, int nDamage, int nRun)
 loc_1AB8E:
             if (!bPlayerPan && !bLockPan)
             {
-                fix16_t nPanVal = fix16_from_int(spr_z - sprite[nPlayerSprite].z) / 32 + F16(92);
+                fixed_t nPanVal = IntToFixed(spr_z - sprite[nPlayerSprite].z) / 32 + IntToFixed(92);
 
-                if (nPanVal < F16(0)) {
-                    nPanVal = F16(0);
+                if (nPanVal < 0) {
+                    nPanVal = 0;
                 }
-                else if (nPanVal > F16(183))
+                else if (nPanVal > IntToFixed(183))
                 {
-                    nPanVal = F16(183);
+                    nPanVal = IntToFixed(183);
                 }
 
                 nDestVertPan[nPlayer] = nPanVal;
@@ -2823,19 +2823,19 @@ loc_1BD2E:
                 }
                 else
                 {
-                    if (PlayerList[nPlayer].q16horiz < fix16_from_int(92))
+                    if (PlayerList[nPlayer].q16horiz < IntToFixed(92))
                     {
-                        PlayerList[nPlayer].q16horiz = fix16_from_int(91);
+                        PlayerList[nPlayer].q16horiz = IntToFixed(91);
                         eyelevel[nPlayer] -= (dVertPan[nPlayer] << 8);
                     }
                     else
                     {
-                        PlayerList[nPlayer].q16horiz = fix16_sadd(PlayerList[nPlayer].q16horiz, fix16_from_int(dVertPan[nPlayer]));
-                        if (PlayerList[nPlayer].q16horiz >= fix16_from_int(200))
+                        PlayerList[nPlayer].q16horiz += IntToFixed(dVertPan[nPlayer]);
+                        if (PlayerList[nPlayer].q16horiz >= IntToFixed(200))
                         {
-                            PlayerList[nPlayer].q16horiz = fix16_from_int(199);
+                            PlayerList[nPlayer].q16horiz = IntToFixed(199);
                         }
-                        else if (PlayerList[nPlayer].q16horiz <= fix16_from_int(92))
+                        else if (PlayerList[nPlayer].q16horiz <= IntToFixed(92))
                         {
                             if (!(SectFlag[sprite[nPlayerSprite].sectnum] & kSectUnderwater))
                             {

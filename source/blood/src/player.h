@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "controls.h"
 #include "db.h"
 #include "dude.h"
-#include "fix16.h"
 #include "levels.h"
 #include "qav.h"
 
@@ -110,7 +109,7 @@ struct PLAYER
     int                 zViewVel;
     int                 zWeapon;
     int                 zWeaponVel;
-    fix16_t             q16look;
+    fixed_t             q16look;
     int                 q16horiz;       // horiz
     int                 q16slopehoriz;  // horizoff
     int                 slope;
@@ -182,7 +181,7 @@ struct PLAYER
     int                 pickupEffect;
     bool                flashEffect;  // if true, reduce pPlayer->visibility counter
     int                 quakeEffect;
-    fix16_t             q16ang;
+    fixed_t             q16ang;
     int                 angold;
     int                 player_par;
     int                 nWaterPal;

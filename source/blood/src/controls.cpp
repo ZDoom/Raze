@@ -59,7 +59,7 @@ int32_t GetTime(void)
     return gameclock;
 }
 
-fix16_t gViewLook, gViewAngle;
+fixed_t gViewLook, gViewAngle;
 float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
@@ -184,9 +184,9 @@ void ctrlGetInput(void)
         turnHeldTime = 0;
 
     if (turnLeft)
-        input.q16avel = fix16_ssub(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
+        input.q16avel -= FloatToFixed(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2));
     if (turnRight)
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2)));
+        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2));
 
     if (run && turnHeldTime > 24)
         input.q16avel <<= 1;
@@ -198,21 +198,21 @@ void ctrlGetInput(void)
     }
     else
     {
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_float(info.mousex));
-        input.q16avel = fix16_sadd(input.q16avel, fix16_from_dbl(scaleAdjustmentToInterval(info.dyaw)));
+        input.q16avel += FloatToFixed(info.mousex);
+        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(info.dyaw));
     }
 
     input.svel  -= scaleAdjustmentToInterval(info.dx * keyMove);
     input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
 
     if (mouseaim)
-        input.q16horz = fix16_sadd(input.q16horz, fix16_from_float(info.mousey / mlookScale));
+        input.q16horz += FloatToFixed(info.mousey / mlookScale);
     else
         input.fvel -= info.mousey * 64.f;
     if (!in_mouseflip)
         input.q16horz = -input.q16horz;
 
-    input.q16horz = fix16_ssub(input.q16horz, fix16_from_dbl(scaleAdjustmentToInterval(info.dpitch / mlookScale)));
+    input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch / mlookScale));
 
     if (!automapFollow && automapMode != am_off)
     {
@@ -225,27 +225,27 @@ void ctrlGetInput(void)
     }
     gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
     gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
-    gInput.q16avel = fix16_sadd(gInput.q16avel, input.q16avel);
-    gInput.q16horz = fix16_clamp(fix16_sadd(gInput.q16horz, input.q16horz), fix16_from_int(-127)>>2, fix16_from_int(127)>>2);
+    gInput.q16avel += input.q16avel;
+    gInput.q16horz = clamp(gInput.q16horz + input.q16horz, IntToFixed(-127)>>2, IntToFixed(127)>>2);
     if (gMe && gMe->pXSprite->health != 0 && !paused)
     {
         int upAngle = 289;
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        gViewAngle = (gViewAngle + input.q16avel + fix16_from_dbl(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
+        gViewAngle = (gViewAngle + input.q16avel + FloatToFixed(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
         if (gViewLookRecenter)
         {
             if (gViewLook < 0)
-                gViewLook = fix16_min(gViewLook+fix16_from_dbl(scaleAdjustmentToInterval(lookStepDown)), fix16_from_int(0));
+                gViewLook = min(gViewLook+FloatToFixed(scaleAdjustmentToInterval(lookStepDown)), 0);
             if (gViewLook > 0)
-                gViewLook = fix16_max(gViewLook-fix16_from_dbl(scaleAdjustmentToInterval(lookStepUp)), fix16_from_int(0));
+                gViewLook = max(gViewLook-FloatToFixed(scaleAdjustmentToInterval(lookStepUp)), 0);
         }
         else
         {
-            gViewLook = fix16_clamp(gViewLook+fix16_from_dbl(scaleAdjustmentToInterval(gViewLookAdjust)), fix16_from_int(downAngle), fix16_from_int(upAngle));
+            gViewLook = clamp(gViewLook+FloatToFixed(scaleAdjustmentToInterval(gViewLookAdjust)), IntToFixed(downAngle), IntToFixed(upAngle));
         }
-        gViewLook = fix16_clamp(gViewLook+(input.q16horz << 3), fix16_from_int(downAngle), fix16_from_int(upAngle));
+        gViewLook = clamp(gViewLook+(input.q16horz << 3), IntToFixed(downAngle), IntToFixed(upAngle));
     }
 }
 

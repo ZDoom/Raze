@@ -191,8 +191,10 @@ extern SWBOOL MenuInputMode;
 #define PK_ZOOM_OUT     17
 #define PK_MESSAGE      18
 
-#define MK_FIXED(msw,lsw) (((int32_t)(msw)<<16)|(lsw))
-#define FIXED(msw,lsw) MK_FIXED(msw,lsw)
+inline int32_t FIXED(int32_t msw, int32_t lsw)
+{
+    return IntToFixed(msw) | lsw;
+}
 
 // Ouch...
 #if B_BIG_ENDIAN == 0
@@ -260,14 +262,14 @@ extern SWBOOL MenuInputMode;
 #define ANGLE_2_PLAYER(pp,x,y) (NORM_ANGLE(getangle(pp->posx-(x), pp->posy-(y))))
 #define NORM_Q16ANGLE(ang) ((ang) & 0x7FFFFFF)
 
-static fix16_t FORCE_INLINE GetQ16AngleFromVect(int32_t xvect, int32_t yvect)
+static fixed_t FORCE_INLINE GetQ16AngleFromVect(int32_t xvect, int32_t yvect)
 {
     return (PedanticMode ? getq16angle : gethiq16angle)(xvect, yvect);
 }
 
-static fix16_t FORCE_INLINE PedanticQ16AngleFloor(fix16_t ang)
+static fixed_t FORCE_INLINE PedanticQ16AngleFloor(fixed_t ang)
 {
-    return PedanticMode ? fix16_floor(ang) : ang;
+    return PedanticMode ? xs_FloorToInt(ang) : ang;
 }
 
 int StdRandomRange(int range);
@@ -372,11 +374,11 @@ int StdRandomRange(int range);
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
-#define PLAYER_FACING(pp,sp) (abs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
+#define PLAYER_FACING(pp,sp) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
 #define FACING(sp1,sp2) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
 
 #define FACING_PLAYER_RANGE(pp,sp,range) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(GetDeltaAngle(fix16_to_int((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
 #define FACING_RANGE(sp1,sp2,range) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
 
 // two vectors
@@ -511,7 +513,7 @@ int StdRandomRange(int range);
 // new define more readable defines
 
 // Clip Sprite adjustment
-#define CS(sprite_bit) ((sprite_bit)<<16)
+#define CS(sprite_bit) IntToFixed(sprite_bit)
 
 // for players to clip against walls
 #define CLIPMASK_PLAYER (CS(CSTAT_SPRITE_BLOCK) | CSTAT_WALL_BLOCK)
@@ -851,7 +853,7 @@ struct PLAYERstruct
     // interpolation
     int
         oposx, oposy, oposz;
-    fix16_t oq16horiz, oq16ang;
+    fixed_t oq16horiz, oq16ang;
 
     // holds last valid move position
     short lv_sectnum;
@@ -902,8 +904,8 @@ struct PLAYERstruct
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
     bool centering;
-    fix16_t q16horiz, q16horizbase, q16horizoff, q16ang;
-    fix16_t camq16horiz, camq16ang;
+    fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
+    fixed_t camq16horiz, camq16ang;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
@@ -912,7 +914,7 @@ struct PLAYERstruct
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
     short RevolveDeltaAng;
-    fix16_t RevolveQ16Ang;
+    fixed_t RevolveQ16Ang;
 
     // under vars are for wading and swimming
     short PlayerSprite, PlayerUnderSprite;
@@ -1873,7 +1875,7 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 short GetDeltaAngle(short, short);
-fix16_t GetDeltaQ16Angle(fix16_t, fix16_t);
+fixed_t GetDeltaQ16Angle(fixed_t, fixed_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
@@ -2145,7 +2147,7 @@ void ScreenCaptureKeys(void);   // draw.c
 
 void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
-void DrawOverlapRoom(int tx,int ty,int tz,fix16_t tq16ang,fix16_t tq16horiz,short tsectnum);    // rooms.c
+void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
 SWBOOL FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c

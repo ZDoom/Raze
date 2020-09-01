@@ -45,7 +45,7 @@ PLAYERp ppp = &PredictPlayer;
 typedef struct
 {
     int x,y,z;
-    fix16_t q16horiz, q16ang;
+    fixed_t q16horiz, q16ang;
     short filler;
 } PREDICT, *PREDICTp;
 
@@ -142,7 +142,7 @@ CorrectPrediction(int actualfifoplc)
         return;
     }
 
-//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", fix16_to_int(predict->q16ang),  fix16_to_int(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  fix16_to_int(predict->q16horiz),fix16_to_int(Player[myconnectindex].q16horiz));
+//    //DSPRINTF(ds,"PREDICT ERROR: %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld", FixedToInt(predict->q16ang),  FixedToInt(Player[myconnectindex].q16ang), predict->x,    Player[myconnectindex].posx, predict->y,    Player[myconnectindex].posy, predict->z,    Player[myconnectindex].posz,  FixedToInt(predict->q16horiz),FixedToInt(Player[myconnectindex].q16horiz));
 //    MONO_PRINT(ds);
 
     InitPrediction(&Player[myconnectindex]);

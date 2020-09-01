@@ -5,7 +5,7 @@ BEGIN_DUKE_NS
 extern int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
 extern short globalskillsound;
 extern short mycursectnum, myjumpingcounter;
-extern fix16_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
+extern fixed_t q16myang, oq16myang, q16myhoriz, oq16myhoriz, q16myhorizoff, oq16myhorizoff;
 extern char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 extern int fakemovefifoplc;
 extern int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];

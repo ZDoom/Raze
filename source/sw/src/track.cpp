@@ -1662,7 +1662,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         pp->RevolveY += BOUND_4PIX(ny);
 
         // Last known angle is now adjusted by the delta angle
-        pp->RevolveQ16Ang = NORM_Q16ANGLE(pp->q16ang - fix16_from_int(pp->RevolveDeltaAng));
+        pp->RevolveQ16Ang = NORM_Q16ANGLE(pp->q16ang - IntToFixed(pp->RevolveDeltaAng));
     }
 
     // increment Players delta angle
@@ -1676,9 +1676,9 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->camq16ang += NORM_Q16ANGLE(pp->RevolveQ16Ang + fix16_from_int(pp->RevolveDeltaAng)) - pp->q16ang;
+    pp->camq16ang += NORM_Q16ANGLE(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng)) - pp->q16ang;
     pp->camq16ang = NORM_Q16ANGLE(pp->camq16ang);
-    pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + fix16_from_int(pp->RevolveDeltaAng));
+    pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng));
 
     UpdatePlayerSprite(pp);
 }
@@ -2291,7 +2291,7 @@ void CallbackSOsink(ANIMp ap, void *data)
             // Added a depth_fract to the struct so I could do a
             // 16.16 Fixed point representation to change the depth
             // in a more precise way
-            ndx = AnimSet((int *)&su->depth_fract, tgt_depth<<16, (ap->vel<<8)>>8);
+            ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
             AnimSetVelAdj(ndx, ap->vel_adj);
 
             found = TRUE;
@@ -2309,7 +2309,7 @@ void CallbackSOsink(ANIMp ap, void *data)
                 // Added a depth_fract to the struct so I could do a
                 // 16.16 Fixed point representation to change the depth
                 // in a more precise way
-                ndx = AnimSet((int *)&su->depth_fract, tgt_depth<<16, (ap->vel<<8)>>8);
+                ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
                 AnimSetVelAdj(ndx, ap->vel_adj);
                 found = TRUE;
                 break;

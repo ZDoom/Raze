@@ -58,7 +58,7 @@ PlayerSync(void)
         updatecrc(crc, pp->posx & 255);
         updatecrc(crc, pp->posy & 255);
         updatecrc(crc, pp->posz & 255);
-        updatecrc(crc, fix16_to_int(pp->q16ang) & 255);
+        updatecrc(crc, FixedToInt(pp->q16ang) & 255);
     }
 
     return (uint8_t) crc & 255;
@@ -75,7 +75,7 @@ PlayerSync2(void)
     {
         pp = Player + i;
 
-        updatecrc(crc, fix16_to_int(pp->q16horiz) & 255);
+        updatecrc(crc, FixedToInt(pp->q16horiz) & 255);
         updatecrc(crc, User[pp->PlayerSprite]->Health & 255);
         updatecrc(crc, pp->bcnt & 255);
     }

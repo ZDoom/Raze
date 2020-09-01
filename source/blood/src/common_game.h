@@ -583,7 +583,7 @@ inline int interpolateang(int a, int b, int c)
     return a+mulscale16(((b-a+1024)&2047)-1024, c);
 }
 
-inline fix16_t interpolateangfix16(fix16_t a, fix16_t b, int c)
+inline fixed_t interpolateangfix16(fixed_t a, fixed_t b, int c)
 {
     return a+mulscale16(((b-a+0x4000000)&0x7ffffff)-0x4000000, c);
 }

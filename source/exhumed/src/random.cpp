@@ -70,7 +70,7 @@ uint16_t RandomWord()
 
 int RandomLong()
 {
-    int randLong = RandomWord() << 16;
+    int randLong = IntToFixed(RandomWord());
     randLong |= RandomWord();
     return randLong;
 }

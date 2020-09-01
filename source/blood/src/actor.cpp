@@ -4142,7 +4142,7 @@ void ProcessTouchObjects(spritetype *pSprite, int nXSprite)
                     if (mass1 > mass2) {
                         actKickObject(pSprite, pSprite2);
                         sfxPlay3DSound(pSprite, 357, -1, 1);
-                        int dmg = (mass1 - mass2) + abs(xvel[pSprite->index] >> 16);
+                        int dmg = (mass1 - mass2) + abs(FixedToInt(xvel[pSprite->index]));
                         if (dmg > 0)
                             actDamageSprite(nSprite, pSprite2, (Chance(0x2000)) ? DAMAGE_TYPE_0 : DAMAGE_TYPE_2, dmg);
                     }
@@ -5848,8 +5848,8 @@ void actProcessSprites(void)
                     x += (dx/2)>>12;
                     y += (dy/2)>>12;
                 }
-                dy = Sin(pSprite->ang)>>16;
-                dx = Cos(pSprite->ang)>>16;
+                dy = SinScale16(pSprite->ang);
+                dx = CosScale16(pSprite->ang);
                 gVectorData[VECTOR_TYPE_20].maxDist = pXSprite->data1<<9;
                 actFireVector(pSprite, 0, 0, dx, dy, Random2(0x8888), VECTOR_TYPE_20);
             }

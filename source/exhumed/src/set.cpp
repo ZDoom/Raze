@@ -563,7 +563,7 @@ void FuncSet(int a, int nDamage, int nRun)
                     {
                         // low 16 bits of returned var contains the sprite index, the high 16 the bullet number
                         int nBullet = BuildBullet(nSprite, 11, 0, 0, -1, sprite[nSprite].ang, nTarget + 10000, 1);
-                        SetBulletEnemy(nBullet >> 16, nTarget); // isolate the bullet number (shift off the sprite index)
+                        SetBulletEnemy(FixedToInt(nBullet), nTarget); // isolate the bullet number (shift off the sprite index)
 
                         SetList[nSet].field_E--;
                         if (SetList[nSet].field_E <= 0 || !RandomBit())

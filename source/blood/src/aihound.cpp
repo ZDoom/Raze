@@ -67,8 +67,8 @@ static void BiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     ///dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
         consoleSysMsg("pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -95,7 +95,7 @@ static void BurnSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    actFireMissile(pSprite, 0, 0, Cos(pSprite->ang)>>16, Sin(pSprite->ang)>>16, 0, kMissileFlameHound);
+    actFireMissile(pSprite, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
 }
 
 static void thinkSearch(spritetype *pSprite, XSPRITE *pXSprite)

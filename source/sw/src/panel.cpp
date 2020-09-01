@@ -1015,8 +1015,8 @@ pSwordSlide(PANEL_SPRITEp psp)
     double nx, ny;
     short vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -1028,9 +1028,9 @@ pSwordSlide(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 }
@@ -1041,8 +1041,8 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 20;
@@ -1055,9 +1055,9 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 
@@ -1100,8 +1100,8 @@ pSwordSlideR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -1113,9 +1113,9 @@ pSwordSlideR(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 }
@@ -1126,8 +1126,8 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -1140,9 +1140,9 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 
@@ -1858,12 +1858,12 @@ pUziReload(PANEL_SPRITEp nclip)
 {
     double nx, ny;
 
-    double x = xs_CRoundToInt(nclip->x * (double)(FRACUNIT)) | nclip->xfract;
-    double y = xs_CRoundToInt(nclip->y * (double)(FRACUNIT)) | nclip->yfract;
+    double x = xs_CRoundToInt(nclip->x * FRACUNIT) | nclip->xfract;
+    double y = xs_CRoundToInt(nclip->y * FRACUNIT) | nclip->yfract;
 
     PANEL_SPRITEp gun = nclip->sibling;
-    double xgun = xs_CRoundToInt(gun->x * (double)(FRACUNIT)) | gun->xfract;
-    double ygun = xs_CRoundToInt(gun->y * (double)(FRACUNIT)) | gun->yfract;
+    double xgun = xs_CRoundToInt(gun->x * FRACUNIT) | gun->xfract;
+    double ygun = xs_CRoundToInt(gun->y * FRACUNIT) | gun->yfract;
 
     nx = nclip->vel * synctics * calcSinTableValue(NORM_ANGLE(nclip->ang + 512)) / 64.;
     ny = nclip->vel * synctics * -calcSinTableValue(nclip->ang) / 64.;
@@ -1877,9 +1877,9 @@ pUziReload(PANEL_SPRITEp nclip)
     nclip->oy = nclip->y;
 
     nclip->xfract = LSW(x);
-    nclip->x = x / (double)(FRACUNIT);
+    nclip->x = x / FRACUNIT;
     nclip->yfract = LSW(y);
-    nclip->y = y / (double)(FRACUNIT);
+    nclip->y = y / FRACUNIT;
 
     nx = gun->vel * synctics * calcSinTableValue(NORM_ANGLE(gun->ang + 512)) / 64.;
     ny = gun->vel * synctics * -calcSinTableValue(gun->ang) / 64.;
@@ -1891,9 +1891,9 @@ pUziReload(PANEL_SPRITEp nclip)
     gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
-    gun->x = xgun / (double)(FRACUNIT);
+    gun->x = xgun / FRACUNIT;
     gun->yfract = LSW(ygun);
-    gun->y = ygun / (double)(FRACUNIT);
+    gun->y = ygun / FRACUNIT;
 
     if (TEST(nclip->flags, PANF_XFLIP))
     {
@@ -1930,12 +1930,12 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
 {
     double nx, ny;
 
-    double x = xs_CRoundToInt(nclip->x * (double)(FRACUNIT)) | nclip->xfract;
-    double y = xs_CRoundToInt(nclip->y * (double)(FRACUNIT)) | nclip->yfract;
+    double x = xs_CRoundToInt(nclip->x * FRACUNIT) | nclip->xfract;
+    double y = xs_CRoundToInt(nclip->y * FRACUNIT) | nclip->yfract;
 
     PANEL_SPRITEp gun = nclip->sibling;
-    double xgun = xs_CRoundToInt(gun->x * (double)(FRACUNIT)) | gun->xfract;
-    double ygun = xs_CRoundToInt(gun->y * (double)(FRACUNIT)) | gun->yfract;
+    double xgun = xs_CRoundToInt(gun->x * FRACUNIT) | gun->xfract;
+    double ygun = xs_CRoundToInt(gun->y * FRACUNIT) | gun->yfract;
 
     nx = nclip->vel * synctics * calcSinTableValue(NORM_ANGLE(nclip->ang + 512)) / 64.;
     ny = nclip->vel * synctics * -calcSinTableValue(nclip->ang) / 64.;
@@ -1949,9 +1949,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     nclip->oy = nclip->y;
 
     nclip->xfract = LSW(x);
-    nclip->x = x / (double)(FRACUNIT);
+    nclip->x = x / FRACUNIT;
     nclip->yfract = LSW(y);
-    nclip->y = y / (double)(FRACUNIT);
+    nclip->y = y / FRACUNIT;
 
     xgun -= nx;
     ygun -= ny;
@@ -1960,9 +1960,9 @@ pUziReloadRetract(PANEL_SPRITEp nclip)
     gun->oy = gun->y;
 
     gun->xfract = LSW(xgun);
-    gun->x = xgun / (double)(FRACUNIT);
+    gun->x = xgun / FRACUNIT;
     gun->yfract = LSW(ygun);
-    gun->y = ygun / (double)(FRACUNIT);
+    gun->y = ygun / FRACUNIT;
 
     if (gun->y > UZI_RELOAD_YOFF + tilesiz[gun->picndx].y)
     {
@@ -2020,8 +2020,8 @@ void
 pUziClip(PANEL_SPRITEp oclip)
 {
     double nx, ny, ox, oy;
-    double x = xs_CRoundToInt(oclip->x * (double)(FRACUNIT)) | oclip->xfract;
-    double y = xs_CRoundToInt(oclip->y * (double)(FRACUNIT)) | oclip->yfract;
+    double x = xs_CRoundToInt(oclip->x * FRACUNIT) | oclip->xfract;
+    double y = xs_CRoundToInt(oclip->y * FRACUNIT) | oclip->yfract;
 
     ox = x;
     oy = y;
@@ -2038,9 +2038,9 @@ pUziClip(PANEL_SPRITEp oclip)
     oclip->oy = oclip->y;
 
     oclip->xfract = LSW(x);
-    oclip->x = x / (double)(FRACUNIT);
+    oclip->x = x / FRACUNIT;
     oclip->yfract = LSW(y);
-    oclip->y = y / (double)(FRACUNIT);
+    oclip->y = y / FRACUNIT;
 
     if (oclip->y > UZI_RELOAD_YOFF)
     {
@@ -2056,9 +2056,9 @@ pUziClip(PANEL_SPRITEp oclip)
         }
 
         oclip->xfract = LSW(x);
-        oclip->x = x / (double)(FRACUNIT);
+        oclip->x = x / FRACUNIT;
         oclip->yfract = LSW(y);
-        oclip->y = y / (double)(FRACUNIT);
+        oclip->y = y / FRACUNIT;
 
         oclip->ox = oclip->x;
         oclip->oy = oclip->y = UZI_RELOAD_YOFF;
@@ -2622,7 +2622,7 @@ SpawnShotgunShell(PANEL_SPRITEp psp)
 void
 pShotgunShell(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
 
     if (TEST(psp->flags, PANF_JUMPING))
     {
@@ -2638,7 +2638,7 @@ pShotgunShell(PANEL_SPRITEp psp)
     psp->ox = psp->x;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -2822,8 +2822,8 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 {
     int targetvel;
 
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     if (psp->PlayerP->WpnShotgunType == 1)
         targetvel = 890;
@@ -2837,9 +2837,9 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel -= 24 * synctics;
 
@@ -2855,8 +2855,8 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 void
 pShotgunRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -2865,9 +2865,9 @@ pShotgunRecoilUp(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel += 15 * synctics;
 
@@ -3333,8 +3333,8 @@ pRailSetRecoil(PANEL_SPRITEp psp)
 void
 pRailRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -3343,9 +3343,9 @@ pRailRecoilDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel -= 24 * synctics;
 
@@ -3361,8 +3361,8 @@ pRailRecoilDown(PANEL_SPRITEp psp)
 void
 pRailRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -3371,9 +3371,9 @@ pRailRecoilUp(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel += 15 * synctics;
 
@@ -4227,8 +4227,8 @@ InitWeaponMicro(PLAYERp pp)
 void
 pMicroRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -4237,9 +4237,9 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel -= 24 * synctics;
 
@@ -4255,8 +4255,8 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
 void
 pMicroRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -4265,9 +4265,9 @@ pMicroRecoilUp(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel += 15 * synctics;
 
@@ -4998,7 +4998,7 @@ SpawnSmallHeartBlood(PANEL_SPRITEp psp)
 void
 pHeartBlood(PANEL_SPRITEp psp)
 {
-    int x = FIXED(psp->x, psp->xfract);
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
 
     if (TEST(psp->flags, PANF_JUMPING))
     {
@@ -5014,7 +5014,7 @@ pHeartBlood(PANEL_SPRITEp psp)
     psp->ox = psp->x;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
 
     if (psp->x > 320 || psp->x < 0 || psp->y > 200)
     {
@@ -5044,7 +5044,7 @@ DoPanelJump(PANEL_SPRITEp psp)
 {
     int jump_adj;
 
-    int y = FIXED(psp->y, psp->yfract);
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     // precalculate jump value to adjust jump speed by
     jump_adj = psp->jump_grav;
@@ -5064,7 +5064,7 @@ DoPanelJump(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     return 0;
 }
@@ -5087,7 +5087,7 @@ DoBeginPanelFall(PANEL_SPRITEp psp)
 int
 DoPanelFall(PANEL_SPRITEp psp)
 {
-    int y = FIXED(psp->y, psp->yfract);
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     // adjust jump speed by gravity
     psp->jump_speed += psp->jump_grav;
@@ -5098,7 +5098,7 @@ DoPanelFall(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     return 0;
 }
@@ -5241,8 +5241,8 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
 //    short picnum = psp->picndx;
 
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -5251,9 +5251,9 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel -= 24 * synctics;
 
@@ -5272,8 +5272,8 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 void
 pGrenadeRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -5282,9 +5282,9 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->vel += 15 * synctics;
 
@@ -5303,8 +5303,8 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
 void
 pGrenadePresent(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    double y = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
         return;
@@ -5316,9 +5316,9 @@ pGrenadePresent(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(x);
-    psp->x = x / (double)(FRACUNIT);
+    psp->x = x / FRACUNIT;
     psp->yfract = LSW(y);
-    psp->y = y / (double)(FRACUNIT);
+    psp->y = y / FRACUNIT;
 
     psp->rotate_ang = NORM_ANGLE(psp->rotate_ang + (6 * synctics));
 
@@ -6242,8 +6242,8 @@ pFistSlide(PANEL_SPRITEp psp)
     double ny;
     short vel_adj;
 
-    //nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    //nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
@@ -6255,9 +6255,9 @@ pFistSlide(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     //psp->xfract = LSW(nx);
-    //psp->x = nx / (double)(FRACUNIT);
+    //psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 }
@@ -6268,8 +6268,8 @@ pFistSlideDown(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
@@ -6287,9 +6287,9 @@ pFistSlideDown(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 
@@ -6361,8 +6361,8 @@ pFistSlideR(PANEL_SPRITEp psp)
     double ny;
     short vel_adj;
 
-    //nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    //nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
@@ -6374,9 +6374,9 @@ pFistSlideR(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     //psp->xfract = LSW(nx);
-    //psp->x = nx / (double)(FRACUNIT);
+    //psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 }
@@ -6387,8 +6387,8 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(psp->x * (double)(FRACUNIT)) | psp->xfract;
-    ny = xs_CRoundToInt(psp->y * (double)(FRACUNIT)) | psp->yfract;
+    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
+    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
@@ -6406,9 +6406,9 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     psp->oy = psp->y;
 
     psp->xfract = LSW(nx);
-    psp->x = nx / (double)(FRACUNIT);
+    psp->x = FixedToFloat(nx);
     psp->yfract = LSW(ny);
-    psp->y = ny / (double)(FRACUNIT);
+    psp->y = FixedToFloat(ny);
 
     psp->vel += vel_adj * synctics;
 
@@ -6757,7 +6757,7 @@ pSpawnSprite(PLAYERp pp, PANEL_STATEp state, uint8_t priority, double x, double 
     psp->ang = 0;
     psp->vel = 0;
     psp->rotate_ang = 0;
-    psp->scale = 1 << 16;
+    psp->scale = FRACUNIT;
     psp->ID = 0;
 
     for (i = 0; i < SIZ(psp->over); i++)

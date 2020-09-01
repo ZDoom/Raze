@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-static fix16_t gCameraAng;
+static fixed_t gCameraAng;
 int dword_172CE0[16][3];
 
 static void RotateYZ(int *, int *pY, int *pZ, int ang)

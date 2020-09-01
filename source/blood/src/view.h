@@ -40,11 +40,11 @@ struct VIEW {
     int at14;
     int at18; // bob sway y
     int at1c; // bob sway x
-    fix16_t at20;
-    fix16_t at24; // horiz
+    fixed_t at20;
+    fixed_t at24; // horiz
     int at28; // horizoff
     int at2c;
-    fix16_t at30; // angle
+    fixed_t at30; // angle
     int at34; // weapon z
     int at38; // view z
     int at3c;

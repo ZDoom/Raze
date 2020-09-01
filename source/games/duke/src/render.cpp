@@ -216,7 +216,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 		if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
 		{
 			int tposx, tposy;
-			fix16_t tang;
+			fixed_t tang;
 
 			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), mirrorwall[i], &tposx, &tposy, &tang);
 
@@ -518,7 +518,7 @@ void displayrooms(int snum, double smoothratio)
 	else
 	{
 		int i = divscale22(1, isRR() ? 64 : sprite[p->i].yrepeat + 28);
-		fixed_t dang = 1024 << FRACBITS;
+		fixed_t dang = IntToFixed(1024);
 		if (!isRRRA() || !p->DrugMode)
 		{
 			// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
@@ -531,9 +531,9 @@ void displayrooms(int snum, double smoothratio)
 		}
 
 		if (!cl_syncinput)
-			renderSetRollAngle(p->q16rotscrnang / (float)(FRACUNIT));
+			renderSetRollAngle(FixedToFloat(p->q16rotscrnang));
 		else
-			renderSetRollAngle((p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)) / FRACUNIT);
+			renderSetRollAngle(FixedToFloat(p->oq16rotscrnang + fmulscale16(((p->q16rotscrnang - p->oq16rotscrnang + dang) & 0x7FFFFFF) - dang, smoothratio)));
 
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{

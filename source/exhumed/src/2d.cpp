@@ -190,7 +190,7 @@ void menu_DoPlasma()
             for (int i = 0; i < 5; i++)
             {
                 int logoWidth = tilesiz[nLogoTile].x;
-                plasma_C[i] = (nSmokeLeft + rand() % logoWidth) << 16;
+                plasma_C[i] = IntToFixed(nSmokeLeft + rand() % logoWidth);
                 plasma_B[i] = (rnd_plasma.GenRand32() % 327680) + 0x10000;
 
                 if (rnd_plasma.GenRand32()&1) {
@@ -298,13 +298,13 @@ void menu_DoPlasma()
         {
             int pB = plasma_B[j];
             int pC = plasma_C[j];
-            int badOffset = (pC >> 16) < nSmokeLeft || (pC >> 16) >= nSmokeRight;
+            int badOffset = FixedToInt(pC) < nSmokeLeft || FixedToInt(pC) >= nSmokeRight;
 
-            const uint8_t* ptr3 = (logopix + ((pC >> 16) - nSmokeLeft) * tilesiz[nLogoTile].y);
+            const uint8_t* ptr3 = (logopix + (FixedToInt(pC) - nSmokeLeft) * tilesiz[nLogoTile].y);
 
             plasma_C[j] += plasma_B[j];
 
-            if ((pB > 0 && (plasma_C[j] >> 16) >= nSmokeRight) || (pB < 0 && (plasma_C[j] >> 16) <= nSmokeLeft))
+            if ((pB > 0 && FixedToInt(plasma_C[j]) >= nSmokeRight) || (pB < 0 && FixedToInt(plasma_C[j]) <= nSmokeLeft))
             {
                 int esi = plasma_A[j];
                 plasma_B[j] = -plasma_B[j];
@@ -349,7 +349,7 @@ void menu_DoPlasma()
                 }
             }
 
-            uint8_t* v28 = plasmapix + (80 * (plasma_C[j] >> 16));
+            uint8_t* v28 = plasmapix + (80 * FixedToInt(plasma_C[j]));
             v28[nSmokeOffset] = 175;
         }
 

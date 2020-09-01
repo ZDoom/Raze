@@ -601,7 +601,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
     i = (mdtims - sprext->mdanimtims) * ((fps * 120) / 120);
 
-    j = (smooth->mdsmooth || !anim) ? 65536 : ((anim->endframe + 1 - anim->startframe) << 16);
+    j = (smooth->mdsmooth || !anim) ? 65536 : IntToFixed(anim->endframe + 1 - anim->startframe);
 
     // XXX: Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
@@ -636,7 +636,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
     else
     {
         if (anim)
-            m->cframe = (i>>16)+anim->startframe;
+            m->cframe = FixedToInt(i)+anim->startframe;
 
 
         m->nframe = m->cframe+1;

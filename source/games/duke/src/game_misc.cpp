@@ -289,7 +289,7 @@ void drawoverlays(double smoothratio)
 					{
 						cposx = omyx + mulscale16(myx - omyx, smoothratio);
 						cposy = omyy + mulscale16(myy - omyy, smoothratio);
-						cang = (oq16myang + mulscale16(((q16myang + (1024 << FRACBITS) - oq16myang) & 0x7FFFFFF) - (1024 << FRACBITS), smoothratio)) >> FRACBITS;
+						cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
 					}
 					else
 					{

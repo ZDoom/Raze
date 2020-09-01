@@ -90,8 +90,8 @@ static void SpidBiteSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dx += Random2(2000);
     dy += Random2(2000);
     int dz = Random2(2000);
@@ -140,8 +140,8 @@ static void SpidJumpSeqCallback(int, int nXSprite)
     XSPRITE *pXSprite = &xsprite[nXSprite];
     int nSprite = pXSprite->reference;
     spritetype *pSprite = &sprite[nSprite];
-    int dx = Cos(pSprite->ang)>>16;
-    int dy = Sin(pSprite->ang)>>16;
+    int dx = CosScale16(pSprite->ang);
+    int dy = SinScale16(pSprite->ang);
     dx += Random2(200);
     dy += Random2(200);
     int dz = Random2(200);
@@ -154,9 +154,9 @@ static void SpidJumpSeqCallback(int, int nXSprite)
             case kDudeSpiderBrown:
             case kDudeSpiderRed:
             case kDudeSpiderBlack:
-                xvel[nSprite] = dx << 16;
-                yvel[nSprite] = dy << 16;
-                zvel[nSprite] = dz << 16;
+                xvel[nSprite] = IntToFixed(dx);
+                yvel[nSprite] = IntToFixed(dy);
+                zvel[nSprite] = IntToFixed(dz);
                 break;
         }
     }

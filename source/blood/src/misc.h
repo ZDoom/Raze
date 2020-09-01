@@ -40,7 +40,7 @@ void UpdateNetworkMenus(void);
 void InitMirrors(void);
 void sub_5571C(char mode);
 void sub_557C4(int x, int y, int interpolation);
-void DrawMirrors(int x, int y, int z, fix16_t a, fix16_t horiz, int smooth, int viewPlayer);
+void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer);
 int32_t registerosdcommands(void); 
 int qanimateoffs(int a1, int a2);
 int32_t qgetpalookup(int32_t a1, int32_t a2);
@@ -78,6 +78,8 @@ void RotateVector(int *dx, int *dy, int nAngle);
 void RotatePoint(int *x, int *y, int nAngle, int ox, int oy);
 void trigInit();
 
+#include "m_fixed.h"
+
 inline int Sin(int ang)
 {
     return costable[(ang - 512) & 2047];
@@ -86,7 +88,17 @@ inline int Sin(int ang)
 inline int Cos(int ang)
 {
     return costable[ang & 2047];
-} 
+}
+
+inline int SinScale16(int ang)
+{
+    return FixedToInt(costable[(ang - 512) & 2047]);
+}
+
+inline int CosScale16(int ang)
+{
+    return FixedToInt(costable[ang & 2047]);
+}
 
 enum SurfaceType {
     kSurfNone = 0,

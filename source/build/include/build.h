@@ -126,8 +126,8 @@ enum rendmode_t {
 # define yax_preparedrawrooms()
 # define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
 
-#define CLIPMASK0 (((1)<<16)+1)
-#define CLIPMASK1 (((256)<<16)+64)
+#define CLIPMASK0 (IntToFixed(1)+1)
+#define CLIPMASK1 (IntToFixed(256)+64)
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])
@@ -653,15 +653,15 @@ inline void   renderFlushPerms(void) {}
 void   plotpixel(int32_t x, int32_t y, char col);
 FCanvasTexture *renderSetTarget(int16_t tilenume);
 void   renderRestoreTarget();
-void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t dawall,
-                           int32_t *tposx, int32_t *tposy, fix16_t *tang);
+void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+                           int32_t *tposx, int32_t *tposy, fixed_t *tang);
 void   renderCompleteMirror(void);
 
-int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, fix16_t dahoriz, int16_t dacursectnum);
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int16_t dacursectnum);
 
 static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int16_t dahoriz, int16_t dacursectnum)
 {
-    return renderDrawRoomsQ16(daposx, daposy, daposz, fix16_from_int(daang), fix16_from_int(dahoriz), dacursectnum);
+    return renderDrawRoomsQ16(daposx, daposy, daposz, IntToFixed(daang), IntToFixed(dahoriz), dacursectnum);
 }
 
 void   renderDrawMasks(void);
@@ -733,7 +733,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 static FORCE_INLINE int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
-    return ((uint32_t) randomseed)>>16;
+    return FixedToInt(randomseed);
 }
 #else
 int32_t    krand(void);
@@ -741,11 +741,11 @@ int32_t    krand(void);
 
 int32_t   ksqrt(uint32_t num);
 int32_t   getangle(int32_t xvect, int32_t yvect);
-fix16_t   gethiq16angle(int32_t xvect, int32_t yvect);
+fixed_t   gethiq16angle(int32_t xvect, int32_t yvect);
 
-static FORCE_INLINE fix16_t getq16angle(int32_t xvect, int32_t yvect)
+static FORCE_INLINE fixed_t getq16angle(int32_t xvect, int32_t yvect)
 {
-    return fix16_from_int(getangle(xvect, yvect));
+    return IntToFixed(getangle(xvect, yvect));
 }
 
 static FORCE_INLINE CONSTEXPR uint32_t uhypsq(int32_t const dx, int32_t const dy)

@@ -354,11 +354,11 @@ int othercameradist = 1280;
 int cameradist = -1;
 int othercameraclock, cameraclock;
 
-void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fix16_t zm)
+void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm)
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
-    int vZ = fix16_to_int(mulscale(zm, 1280, 3))-(16<<8);
+    int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
@@ -399,11 +399,11 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     pSprite->cstat = bakCstat;
 }
 
-void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fix16_t zm)
+void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm)
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
-    int vZ = fix16_to_int(mulscale(zm, 1280, 3))-(16<<8);
+    int vZ = FixedToInt(mulscale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
@@ -574,7 +574,7 @@ void viewUpdateDelirium(void)
         int timer = gFrameClock*4;
 		if (powerCount < 512)
 		{
-			int powerScale = (powerCount<<16) / 512;
+			int powerScale = IntToFixed(powerCount) / 512;
 			tilt1 = mulscale16(tilt1, powerScale);
 			tilt2 = mulscale16(tilt2, powerScale);
 			pitch = mulscale16(pitch, powerScale);
@@ -698,9 +698,9 @@ void viewDrawScreen(bool sceneonly)
         int cY = gView->pSprite->y;
         int cZ = gView->zView;
         double zDelta = gView->zWeapon - gView->zView - (12 << 8);
-        fix16_t cA = gView->q16ang;
-        fix16_t q16horiz = gView->q16horiz;
-        fix16_t q16slopehoriz = gView->q16slopehoriz;
+        fixed_t cA = gView->q16ang;
+        fixed_t q16horiz = gView->q16horiz;
+        fixed_t q16slopehoriz = gView->q16slopehoriz;
         int v74 = gView->bobWidth;
         int v8c = gView->bobHeight;
         double v4c = gView->swayWidth;
@@ -743,28 +743,28 @@ void viewDrawScreen(bool sceneonly)
         {
             int upAngle = 289;
             int downAngle = -347;
-            fix16_t q16look;
+            fixed_t q16look;
             cA = gViewAngle;
             q16look = gViewLook;
-            q16horiz = fix16_from_float(100.f * tanf(fix16_to_float(q16look) * fPI / 1024.f));
+            q16horiz = FloatToFixed(100.f * tanf(FixedToFloat(q16look) * fPI / 1024.f));
         }
         viewUpdateShake();
-        q16horiz += fix16_from_int(shakeHoriz);
-        cA += fix16_from_int(shakeAngle);
+        q16horiz += IntToFixed(shakeHoriz);
+        cA += IntToFixed(shakeAngle);
         cX += shakeX;
         cY += shakeY;
         cZ += shakeZ;
         v4c += shakeBobX;
         v48 += shakeBobY;
-        q16horiz += fix16_from_int(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
+        q16horiz += IntToFixed(mulscale30(0x40000000 - Cos(gView->tiltEffect << 2), 30));
         if (gViewPos == 0)
         {
             if (cl_viewbob)
             {
                 if (cl_viewhbob)
                 {
-                    cX -= mulscale30(v74, Sin(fix16_to_int(cA))) >> 4;
-                    cY += mulscale30(v74, Cos(fix16_to_int(cA))) >> 4;
+                    cX -= mulscale30(v74, Sin(FixedToInt(cA))) >> 4;
+                    cY += mulscale30(v74, Cos(FixedToInt(cA))) >> 4;
                 }
                 if (cl_viewvbob)
                 {
@@ -775,13 +775,13 @@ void viewDrawScreen(bool sceneonly)
             {
                 q16horiz += q16slopehoriz;
             }
-            cZ += fix16_to_int(q16horiz * 10);
+            cZ += FixedToInt(q16horiz * 10);
             cameradist = -1;
             cameraclock = gameclock;
         }
         else
         {
-            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, fix16_to_int(cA), q16horiz);
+            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, FixedToInt(cA), q16horiz);
         }
         CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
@@ -869,7 +869,7 @@ void viewDrawScreen(bool sceneonly)
             for (int i = 0; i < 16; i++)
                 ror_status[i] = TestBitString(gotpic, 4080 + i);
             yax_preparedrawrooms();
-            DrawMirrors(vd8, vd4, vd0, fix16_from_int(v50), fix16_from_int(v54 + defaultHoriz), gInterpolate, -1);
+            DrawMirrors(vd8, vd4, vd0, IntToFixed(v50), IntToFixed(v54 + defaultHoriz), gInterpolate, -1);
             drawrooms(vd8, vd4, vd0, v50, v54 + defaultHoriz, vcc);
             yax_drawrooms(viewProcessSprites, vcc, 0, gInterpolate);
             bool do_ror_hack = false;
@@ -927,7 +927,7 @@ void viewDrawScreen(bool sceneonly)
             nSprite = nextspritestat[nSprite];
         }
         g_visibility = (int32_t)(ClipLow(gVisibility - 32 * gView->visibility - unk, 0));
-        cA = (cA + interpolateangfix16(fix16_from_int(deliriumTurnO), fix16_from_int(deliriumTurn), gInterpolate)) & 0x7ffffff;
+        cA = (cA + interpolateangfix16(IntToFixed(deliriumTurnO), IntToFixed(deliriumTurn), gInterpolate)) & 0x7ffffff;
         int vfc, vf8;
         getzsofslope(nSectnum, cX, cY, &vfc, &vf8);
         if (cZ >= vf8)
@@ -938,13 +938,13 @@ void viewDrawScreen(bool sceneonly)
         {
             cZ = vfc + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
         }
-        q16horiz = ClipRange(q16horiz, fix16_from_int(-200), fix16_from_int(200));
+        q16horiz = ClipRange(q16horiz, IntToFixed(-200), IntToFixed(200));
     RORHACK:
         int ror_status[16];
         for (int i = 0; i < 16; i++)
             ror_status[i] = TestBitString(gotpic, 4080 + i);
-        fix16_t deliriumPitchI = interpolate(fix16_from_int(deliriumPitchO), fix16_from_int(deliriumPitch), gInterpolate);
-        DrawMirrors(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
+        fixed_t deliriumPitchI = interpolate(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
+        DrawMirrors(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, gInterpolate, gViewIndex);
         int bakCstat = gView->pSprite->cstat;
         if (gViewPos == 0)
         {
@@ -955,8 +955,8 @@ void viewDrawScreen(bool sceneonly)
             gView->pSprite->cstat |= 514;
         }
 
-        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + fix16_from_int(defaultHoriz) + deliriumPitchI, nSectnum);
-        viewProcessSprites(cX, cY, cZ, fix16_to_int(cA), gInterpolate);
+        renderDrawRoomsQ16(cX, cY, cZ, cA, q16horiz + IntToFixed(defaultHoriz) + deliriumPitchI, nSectnum);
+        viewProcessSprites(cX, cY, cZ, FixedToInt(cA), gInterpolate);
         bool do_ror_hack = false;
         for (int i = 0; i < 16; i++)
             if (ror_status[i] != TestBitString(gotpic, 4080 + i))

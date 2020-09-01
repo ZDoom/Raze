@@ -208,7 +208,7 @@ int DoSpiritHead()
 {
     static short word_964E6 = 0;
 
-    PlayerList[0].q16horiz = fix16_sadd(PlayerList[0].q16horiz, fix16_sdiv(fix16_ssub(nDestVertPan[0], PlayerList[0].q16horiz), fix16_from_int(4)));
+    PlayerList[0].q16horiz += (nDestVertPan[0] - PlayerList[0].q16horiz) / 4;
 
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
 

@@ -457,7 +457,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     fix16_t daq16ang, fix16_t daq16horiz, short dacursectnum, short tilenume)
+                     fixed_t daq16ang, fixed_t daq16horiz, short dacursectnum, short tilenume)
 {
 	TileFiles.MakeCanvas(tilenume, tilesiz[tilenume].x, tilesiz[tilenume].y);
 
@@ -710,7 +710,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, fix16_from_int(SP_TAG5(sp)), fix16_from_int(camhoriz), sp->sectnum, mirror[cnt].campic);
+                                drawroomstotile(sp->x, sp->y, sp->z, IntToFixed(SP_TAG5(sp)), IntToFixed(camhoriz), sp->sectnum, mirror[cnt].campic);
                             }
                         }
                     }
@@ -720,13 +720,13 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     }
 }
 
-void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fix16_t tpq16ang, fix16_t tpq16horiz)
+void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed_t tpq16horiz)
 {
     int j, cnt;
     int dist;
     int tposx, tposy; // Camera
     int *longptr;
-    fix16_t tang;
+    fixed_t tang;
 
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!

@@ -518,7 +518,7 @@ static FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 
 ////////// Inlined external libraries //////////
 
-#include "fix16.h"
+#include "m_fixed.h"
 #include "vectors.h"
 
 inline FVector3 GetSoundPos(const vec3_t *pos)

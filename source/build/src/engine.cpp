@@ -103,7 +103,7 @@ int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
 int16_t editstatus = 0;
-static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+static fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 static FString printcoords(void)
 {
@@ -117,7 +117,7 @@ static FString printcoords(void)
         "horiz: %d\n",
         globalposx, globalposy,
         globalposz, globalang, 
-        fix16_to_int(global100horiz)
+        FixedToInt(global100horiz)
     );
 
     return str;
@@ -327,10 +327,10 @@ int32_t ydimen;
 int32_t rxi[8], ryi[8];
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
-fix16_t qglobalhoriz;
+fixed_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
-fix16_t qglobalang;
+fixed_t qglobalang;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 
@@ -577,11 +577,11 @@ static void dosetaspect(void)
         oviewingrange = viewingrange;
 
         xinc = mulscale32(viewingrange*2560,xdimenrecip);
-        x = (5120<<16)-mulscale1(xinc,xdimen);
+        x = IntToFixed(5120)-mulscale1(xinc,xdimen);
 
         for (i=0; i<xdimen; i++)
         {
-            j = (x&65535); k = (x>>16); x += xinc;
+            j = (x&65535); k = FixedToInt(x); x += xinc;
 
             if (k < 0 || k >= (int32_t)ARRAY_SIZE(qradarang)-1)
             {
@@ -624,7 +624,7 @@ static int32_t engineLoadTables(void)
             radarang[1279-i] = -radarang[i];
 
         for (i=0; i<5120; i++)
-            qradarang[i] = fix16_from_float(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
+            qradarang[i] = FloatToFixed(atanf(((float)(5120-i)-0.5f) * (1.f/1280.f)) * (-64.f * (1.f/BANG2RAD)));
         for (i=0; i<5120; i++)
             qradarang[10239-i] = -qradarang[i];
 
@@ -921,7 +921,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 //
 // rintersect (internal)
 //
-// returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
+// returns: -1 if didn't intersect, coefficient IntToFixed(x3--x4 fraction) else
 int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
                    int32_t vx, int32_t vy, int32_t vz,
                    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
@@ -981,12 +981,12 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int64_t t = (topt<<16) / bot;
-    *intx = x1 + ((vx*t)>>16);
-    *inty = y1 + ((vy*t)>>16);
-    *intz = z1 + ((vz*t)>>16);
+    int64_t t = IntToFixed(topt) / bot;
+    *intx = x1 + FixedToInt(vx*t);
+    *inty = y1 + FixedToInt(vy*t);
+    *intz = z1 + FixedToInt(vz*t);
 
-    t = (topu<<16) / bot;
+    t = IntToFixed(topu) / bot;
 
     assert((unsigned)t < 65536);
 
@@ -1238,12 +1238,12 @@ void initspritelists(void)
 }
 
 
-void set_globalang(fix16_t const ang)
+void set_globalang(fixed_t const ang)
 {
-    globalang = fix16_to_int(ang)&2047;
+    globalang = FixedToInt(ang)&2047;
     qglobalang = ang & 0x7FFFFFF;
 
-    float const f_ang = fix16_to_float(ang);
+    float const f_ang = FixedToFloat(ang);
     float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
 
     float const fcosang = cosf(f_ang_radians) * 16384.f;
@@ -1265,7 +1265,7 @@ void set_globalang(fix16_t const ang)
 // drawrooms
 //
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
-                           fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
+                           fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
 {
     int32_t i;
 
@@ -1276,8 +1276,8 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
-    globalhoriz = fix16_to_int(qglobalhoriz);
+    qglobalhoriz = mulscale16(dahoriz-IntToFixed(100), divscale16(xdimenscale, viewingrange))+IntToFixed(ydimen>>1);
+    globalhoriz = FixedToInt(qglobalhoriz);
 
     globalcursectnum = dacursectnum;
 
@@ -2932,23 +2932,23 @@ int32_t getangle(int32_t xvect, int32_t yvect)
     return rv;
 }
 
-fix16_t gethiq16angle(int32_t xvect, int32_t yvect)
+fixed_t gethiq16angle(int32_t xvect, int32_t yvect)
 {
-    fix16_t rv;
+    fixed_t rv;
 
     if ((xvect | yvect) == 0)
         rv = 0;
     else if (xvect == 0)
-        rv = fix16_from_int(512 + ((yvect < 0) << 10));
+        rv = IntToFixed(512 + ((yvect < 0) << 10));
     else if (yvect == 0)
-        rv = fix16_from_int(((xvect < 0) << 10));
+        rv = IntToFixed(((xvect < 0) << 10));
     else if (xvect == yvect)
-        rv = fix16_from_int(256 + ((xvect < 0) << 10));
+        rv = IntToFixed(256 + ((xvect < 0) << 10));
     else if (xvect == -yvect)
-        rv = fix16_from_int(768 + ((xvect > 0) << 10));
+        rv = IntToFixed(768 + ((xvect > 0) << 10));
     else if (klabs(xvect) > klabs(yvect))
-        rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + fix16_from_int(((xvect < 0) << 10))) & 0x7FFFFFF;
-    else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + fix16_from_int(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
+        rv = ((qradarang[5120 + scale(1280, yvect, xvect)] >> 6) + IntToFixed(((xvect < 0) << 10))) & 0x7FFFFFF;
+    else rv = ((qradarang[5120 - scale(1280, xvect, yvect)] >> 6) + IntToFixed(512 + ((yvect < 0) << 10))) & 0x7FFFFFF;
 
     return rv;
 }
@@ -3819,8 +3819,8 @@ void renderRestoreTarget()
 //
 // preparemirror
 //
-void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, fix16_t dahoriz, int16_t dawall,
-                         int32_t *tposx, int32_t *tposy, fix16_t *tang)
+void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
+                         int32_t *tposx, int32_t *tposy, fixed_t *tang)
 {
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
@@ -3833,7 +3833,7 @@ void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fix16_t daang, f
 
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang  = (fix16_from_int(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
+    *tang  = (IntToFixed(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
 
     inpreparemirror = 1;
 

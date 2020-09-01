@@ -53,9 +53,20 @@ inline fixed_t FloatToFixed(double f)
 	return xs_Fix<16>::ToFix(f);
 }
 
+inline fixed_t IntToFixed(int32_t f)
+{
+	// Negative shifts are undefined, so multiply instead of shifting left.
+	return f * FRACUNIT;
+}
+
 inline double FixedToFloat(fixed_t f)
 {
 	return f / 65536.;
+}
+
+inline int32_t FixedToInt(fixed_t f)
+{
+	return xs_CRoundToInt(FixedToFloat(f));
 }
 
 inline unsigned FloatToAngle(double f)
