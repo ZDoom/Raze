@@ -263,49 +263,6 @@ void viewDrawAimedPlayerName(void)
     }
 }
 
-void viewPrecacheTiles(void)
-{
-    tilePrecacheTile(2173, 0);
-    tilePrecacheTile(2200, 0);
-    tilePrecacheTile(2201, 0);
-    tilePrecacheTile(2202, 0);
-    tilePrecacheTile(2207, 0);
-    tilePrecacheTile(2208, 0);
-    tilePrecacheTile(2209, 0);
-    tilePrecacheTile(2229, 0);
-    tilePrecacheTile(2260, 0);
-    tilePrecacheTile(2559, 0);
-    tilePrecacheTile(2169, 0);
-    tilePrecacheTile(2578, 0);
-    tilePrecacheTile(2586, 0);
-    tilePrecacheTile(2602, 0);
-    for (int i = 0; i < 10; i++)
-    {
-        tilePrecacheTile(2190 + i, 0);
-        tilePrecacheTile(2230 + i, 0);
-        tilePrecacheTile(2240 + i, 0);
-        tilePrecacheTile(2250 + i, 0);
-        tilePrecacheTile(kSBarNumberHealth + i, 0);
-        tilePrecacheTile(kSBarNumberAmmo + i, 0);
-        tilePrecacheTile(kSBarNumberInv + i, 0);
-        tilePrecacheTile(kSBarNumberArmor1 + i, 0);
-        tilePrecacheTile(kSBarNumberArmor2 + i, 0);
-        tilePrecacheTile(kSBarNumberArmor3 + i, 0);
-    }
-    /*
-    for (int i = 0; i < 5; i++)
-    {
-        tilePrecacheTile(gPackIcons[i], 0);
-        tilePrecacheTile(gPackIcons2[i].nTile, 0);
-    }
-    */
-    for (int i = 0; i < 6; i++)
-    {
-        tilePrecacheTile(2220 + i, 0);
-        tilePrecacheTile(2552 + i, 0);
-    }
-}
-
 static TArray<uint8_t> lensdata;
 int *lensTable;
 

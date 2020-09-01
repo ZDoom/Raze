@@ -54,6 +54,7 @@ set( PCH_SOURCES
 	src/osdcmd.cpp
 	src/player.cpp
 	src/prediction.cpp
+	src/preload.cpp
 	src/qav.cpp
 	src/replace.cpp
 	src/sbar.cpp

@@ -170,7 +170,6 @@ void viewDrawScreen(bool sceneonly = false);
 void viewUpdateDelirium(void);
 void viewUpdateShake(void);
 void viewSetSystemMessage(const char* pMessage, ...);
-void viewPrecacheTiles(void);
 
 inline void viewInterpolateSector(int nSector, sectortype *pSector)
 {
