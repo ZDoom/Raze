@@ -1761,7 +1761,7 @@ char WeaponFindLoaded(PLAYER *pPlayer, int *a2)
     return v4;
 }
 
-char sub_4F0E0(PLAYER *pPlayer)
+int sub_4F0E0(PLAYER *pPlayer)
 {
     switch (pPlayer->weaponState)
     {

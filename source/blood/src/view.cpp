@@ -220,7 +220,7 @@ void viewDrawText(int nFont, const char *pString, int x, int y, int nShade, int 
 
 void InitStatusBar(void)
 {
-    tileLoadTile(2200);
+    if (r_precache) PrecacheHardwareTextures(2200);
 }
 GameStats GameInterface::getStats()
 {
@@ -290,7 +290,7 @@ void viewInit(void)
         lensTable[i] = LittleLong(lensTable[i]);
     }
 #endif
-    uint8_t *data = tileAllocTile(4077, kLensSize, kLensSize);
+    uint8_t *data = TileFiles.tileCreate(4077, kLensSize, kLensSize);
     memset(data, TRANSPARENT_INDEX, kLensSize*kLensSize);
 
     for (int i = 0; i < 16; i++)
@@ -773,7 +773,7 @@ void viewDrawScreen(bool sceneonly)
             //othercameraclock = gGameClock;
             if (!tileData(4079))
             {
-                tileAllocTile(4079, 128, 128);
+                TileFiles.tileCreate(4079, 128, 128);
             }
             r enderSetTarget(4079, 128, 128);
             renderSetAspect(65536, 78643);

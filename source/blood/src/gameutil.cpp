@@ -497,7 +497,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
                 width2 += nOffset + tileWidth(nPicnum) / 2;
                 if (width2 >= 0 && width2 < tileWidth(nPicnum))
                 {
-                    auto pData = tileLoadTile(nPicnum);
+                    auto pData = tilePtr(nPicnum);
                     if (pData[width2*tileHeight(nPicnum)+height2] != TRANSPARENT_INDEX)
                         return 3;
                 }
@@ -569,7 +569,7 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
             nHOffset = pWall->xpanning + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
             nOffset %= nSizY;
-            auto pData = tileLoadTile(nPicnum);
+            auto pData = tilePtr(nPicnum);
             int nPixel;
             nPixel = nHOffset*nSizY + nOffset;
 

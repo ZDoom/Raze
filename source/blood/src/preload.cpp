@@ -270,6 +270,7 @@ void PreloadTiles(void)
 
 void PreloadCache(void)
 {
+	if (!r_precache) return;
     PreloadTiles();
     int cnt = 0;
     int percentDisplayed = -1;
@@ -278,7 +279,7 @@ void PreloadCache(void)
     {
         if (TestBitString(gotpic, i))
         {
-            if (r_precache) PrecacheHardwareTextures(i);
+            PrecacheHardwareTextures(i);
 
             if ((++cnt & 7) == 0)
                 I_GetEvent();

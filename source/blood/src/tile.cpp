@@ -112,22 +112,9 @@ void tileProcessGLVoxels(void)
 }
 #endif
 
-const uint8_t * tileLoadTile(int nTile)
-{
-	tileLoad(nTile);
-    return (const uint8_t*)tilePtr(nTile);
-}
-
-uint8_t * tileAllocTile(int nTile, int x, int y)
-{
-    dassert(nTile >= 0 && nTile < kMaxTiles);
-    uint8_t *p = TileFiles.tileCreate(nTile, x, y);
-    dassert(p != NULL);
-    return p;
-}
-
 void tilePreloadTile(int nTile)
 {
+	if (!r_precache) return;
     int n = 1;
     switch (picanm[nTile].extra&7)
     {
@@ -152,6 +139,7 @@ void tilePreloadTile(int nTile)
         }
         break;
     }
+
     while(n--)
     {
         if (picanm[nTile].sf&PICANM_ANIMTYPE_MASK)
@@ -159,13 +147,13 @@ void tilePreloadTile(int nTile)
             for (int frame = picanm[nTile].num; frame >= 0; frame--)
             {
                 if ((picanm[nTile].sf&PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-                    tileLoadTile(nTile-frame);
+                    PrecacheHardwareTextures(nTile-frame);
                 else
-                    tileLoadTile(nTile+frame);
+                    PrecacheHardwareTextures(nTile+frame);
             }
         }
         else
-            tileLoadTile(nTile);
+            PrecacheHardwareTextures(nTile);
         nTile += 1+picanm[nTile].num;
     }
 }
