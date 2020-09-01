@@ -1580,7 +1580,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
                 // the rest will follow
                 delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
                 if (cl_syncinput)
-                    *pq16ang = NORM_Q16ANGLE(*pq16ang + ((labs(delta_ang) >> TURN_SHIFT) << FRACBITS));
+                    *pq16ang = NORM_Q16ANGLE(*pq16ang + IntToFixed(labs(delta_ang) >> TURN_SHIFT));
                 else
                     // Add at least 1 unit to ensure the turn direction is clockwise
                     *pq16ang = NORM_Q16ANGLE(*pq16ang + max(FRACUNIT, FloatToFixed(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))));
