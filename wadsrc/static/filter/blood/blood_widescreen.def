@@ -64,3 +64,4 @@ tilefromtexture 9276 { file "tiles/9276.png" }
 tilefromtexture 9277 { file "tiles/9277.png" }
 tilefromtexture 9278 { file "tiles/9278.png" }
 tilefromtexture 9279 { file "tiles/9279.png" }
+tilefromtexture 9280 { file "tiles/9280.png" }

@@ -181,7 +181,7 @@ private:
             // Hackasaurus rex to give me a slash when drawing the weapon count of a reloadable gun.
             if (string[i] == 47 && nTile == kSBarNumberAmmo)
             {
-                DrawStatSprite(4207, x, y, nShade, nPalette, nStat, nScale, STYLE_Translucent, align);
+                DrawStatSprite(9280, x, y, nShade, nPalette, nStat, nScale, STYLE_Translucent, align);
             }
             else
             {
