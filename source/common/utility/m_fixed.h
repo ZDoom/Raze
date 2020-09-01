@@ -43,7 +43,7 @@ inline int32_t FixedDiv (int32_t a, int32_t b)
 	return (int32_t)(((int64_t)a << 16) / b);
 }
 
-__forceinline int32_t FixedMul(int32_t a, int32_t b) 
+__forceinline constexpr int32_t FixedMul(int32_t a, int32_t b) 
 { 
 	return (int32_t)(((int64_t)a * b) >> 16); 
 }
@@ -53,33 +53,33 @@ inline fixed_t FloatToFixed(double f)
 	return xs_Fix<16>::ToFix(f);
 }
 
-inline fixed_t IntToFixed(int32_t f)
+inline constexpr fixed_t IntToFixed(int32_t f)
 {
 	// Negative shifts are undefined, so multiply instead of shifting left.
 	return f * FRACUNIT;
 }
 
-inline double FixedToFloat(fixed_t f)
+inline constexpr double FixedToFloat(fixed_t f)
 {
-	return f / 65536.;
+	return f * (1/65536.);
 }
 
-inline int32_t FixedToInt(fixed_t f)
+inline constexpr int32_t FixedToInt(fixed_t f)
 {
 	return xs_CRoundToInt(FixedToFloat(f));
 }
 
-inline unsigned FloatToAngle(double f)
+inline constexpr unsigned FloatToAngle(double f)
 {
 	return xs_CRoundToInt((f)* (0x40000000 / 90.));
 }
 
-inline double AngleToFloat(unsigned f)
+inline constexpr double AngleToFloat(unsigned f)
 {
 	return f * (90. / 0x40000000);
 }
 
-inline double AngleToFloat(int f)
+inline constexpr double AngleToFloat(int f)
 {
 	return f * (90. / 0x40000000);
 }
