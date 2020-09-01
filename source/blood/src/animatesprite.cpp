@@ -441,8 +441,10 @@ static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector
     }
 }
 
-void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t)
+void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
 {
+	// shift before interpolating to increase precision.
+	int myclock = (gFrameClock<<3) + mulscale16(4<<3, smoothratio);
     dassert(spritesortcnt <= kMaxViewSprites);
     gCameraAng = cA;
     int nViewSprites = spritesortcnt;
@@ -559,7 +561,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t)
                         pTSprite->picnum = voxelIndex[pTSprite->picnum];
                         if ((picanm[nTile].extra&7) == 7)
                         {
-                            pTSprite->ang = (gameclock<<3)&2047;
+                            pTSprite->ang = myclock & 2047;
                         }
                     }
                 }
@@ -588,7 +590,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t)
             int const nVoxel = tiletovox[pTSprite->picnum];
 
             if (nVoxel != -1 && ((voxrotate[nVoxel>>3]&pow2char[nVoxel&7]) != 0 || (picanm[nRootTile].extra&7) == 7))
-                pTSprite->ang = (pTSprite->ang+(gameclock<<3))&2047;
+                pTSprite->ang = (pTSprite->ang+myclock)&2047;
         }
 
         if ((pTSprite->cstat&48) != 48 && hw_models && !(spriteext[nSprite].flags&SPREXT_NOTMD))
@@ -603,7 +605,7 @@ void viewProcessSprites(int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t)
                 pTSprite->xoffset += tileLeftOffset(nAnimTile);
 
                 if ((picanm[nRootTile].extra&7) == 7)
-                    pTSprite->ang = (pTSprite->ang+(gameclock<<3))&2047;
+                    pTSprite->ang = (pTSprite->ang+myclock)&2047;
             }
         }
 
