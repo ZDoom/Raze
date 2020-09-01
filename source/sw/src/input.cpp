@@ -196,7 +196,7 @@ getinput(InputPacket *loc, SWBOOL tied)
         if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
         {
             turnheldtime += synctics;
-            if (PedanticMode)
+            if (cl_syncinput)
             {
                 if (turnheldtime >= TURBOTURNTIME)
                     q16angvel -= IntToFixed(turnamount);
@@ -209,7 +209,7 @@ getinput(InputPacket *loc, SWBOOL tied)
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
         {
             turnheldtime += synctics;
-            if (PedanticMode)
+            if (cl_syncinput)
             {
                 if (turnheldtime >= TURBOTURNTIME)
                     q16angvel += IntToFixed(turnamount);
@@ -243,10 +243,10 @@ getinput(InputPacket *loc, SWBOOL tied)
     q16horz = clamp(q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 
     void DoPlayerTeleportPause(PLAYERp pp);
-    if (PedanticMode)
+    if (cl_syncinput)
     {
-        q16angvel = xs_FloorToInt(q16angvel);
-        q16horz = xs_FloorToInt(q16horz);
+        q16angvel = q16angvel;
+        q16horz = q16horz;
     }
     else
     {

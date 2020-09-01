@@ -792,7 +792,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     //SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE);
                 }
             }
-            else if (!PedanticMode) // Otherwise just interpolate the player sprite
+            else // Otherwise just interpolate the player sprite
             {
                 PLAYERp pp = tu->PlayerP;
                 tsp->x -= mulscale16(pp->posx - pp->oposx, 65536-smoothratio);
@@ -1678,7 +1678,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     tz = camerapp->oposz + xs_CRoundToInt(fmulscale16(camerapp->posz - camerapp->oposz, smoothratio));
     // TODO: It'd be better to check pp->input.q16angvel instead, problem is that
     // it's been repurposed for the q16ang diff while tying input to framerate
-    if (PedanticMode || (pp != Player+myconnectindex) ||
+    if (cl_syncinput || (pp != Player+myconnectindex) ||
         (TEST(pp->Flags, PF_DEAD) && (loc.q16avel == 0)))
     {
         tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
@@ -1739,7 +1739,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         if (TEST_BOOL1(pp->remote_sprite))
             tq16ang = IntToFixed(pp->remote_sprite->ang);
         else
-            tq16ang = GetQ16AngleFromVect(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
+            tq16ang = gethiq16angle(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
@@ -1759,8 +1759,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
         tz += bob_amt;
-        tz += PedanticMode ? camerapp->bob_z :
-                             pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
+        tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
 
         // recoil only when not in camera
         tq16horiz = tq16horiz + IntToFixed(pp->recoil_horizoff);

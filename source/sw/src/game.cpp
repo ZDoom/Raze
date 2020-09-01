@@ -105,8 +105,6 @@ SWBOOL SavegameLoaded = false;
 SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
-SWBOOL PedanticMode;
-
 SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 SWBOOL PreCaching = TRUE;
@@ -308,8 +306,6 @@ void InitLevelGlobals(void)
     sumowasseen = false;
     zillawasseen = false;
     memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
-
-    PedanticMode = false;
 }
 
 //---------------------------------------------------------------------------
@@ -751,7 +747,7 @@ void GameTicker(void)
             gameupdatetime.Unclock();
 
             // Get input again to update q16ang/q16horiz.
-            if (!PedanticMode)
+            if (!cl_syncinput)
                 getinput(&loc, TRUE);
 
             smoothratio = I_GetTimeFrac() * MaxSmoothRatio;

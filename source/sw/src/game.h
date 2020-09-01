@@ -123,8 +123,6 @@ inline int RANDOM(void)
 
 #include "pragmas.h"
 
-extern SWBOOL PedanticMode;
-
 //
 // Map directions/degrees
 //
@@ -262,29 +260,12 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define ANGLE_2_PLAYER(pp,x,y) (NORM_ANGLE(getangle(pp->posx-(x), pp->posy-(y))))
 #define NORM_Q16ANGLE(ang) ((ang) & 0x7FFFFFF)
 
-static fixed_t FORCE_INLINE GetQ16AngleFromVect(int32_t xvect, int32_t yvect)
-{
-    return (PedanticMode ? getq16angle : gethiq16angle)(xvect, yvect);
-}
-
-static fixed_t FORCE_INLINE PedanticQ16AngleFloor(fixed_t ang)
-{
-    return PedanticMode ? xs_FloorToInt(ang) : ang;
-}
-
 int StdRandomRange(int range);
 #define STD_RANDOM_P2(pwr_of_2) (MOD_P2(rand(),(pwr_of_2)))
 #define STD_RANDOM_RANGE(range) (StdRandomRange(range))
 #define STD_RANDOM() (rand())
 
-#if 0
-// TODO: PedanticMode
-#define RANDOM_NEG(x,y) (PedanticMode \
-                        ? ((RANDOM_P2(((x)<<(y))<<1) -  (x))<<(y)) \
-                        :  (RANDOM_P2(((x)<<(y))<<1) - ((x) <<(y))))
-#else
 #define RANDOM_NEG(x,y) ((RANDOM_P2(((x)<<(y))<<1) - (x))<<(y))
-#endif
 
 #define MOVEx(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang) + 512)]) >> 14)
 #define MOVEy(vel,ang) (((int)(vel) * (int)sintable[NORM_ANGLE((ang))]) >> 14)

@@ -1549,7 +1549,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
 {
 #define TURN_SHIFT 2
 
-    if (!PedanticMode && (pq16ang == &pp->q16ang))
+    if (!cl_syncinput && (pq16ang == &pp->q16ang))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN);
         pp->q16ang = pp->input.q16ang;
@@ -1579,8 +1579,8 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
                 // make the first turn in the clockwise direction
                 // the rest will follow
                 delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
-                if (PedanticMode)
-                    *pq16ang = IntToFixed(NORM_ANGLE(FixedToInt(*pq16ang) + (labs(delta_ang) >> TURN_SHIFT)));
+                if (cl_syncinput)
+                    *pq16ang = NORM_Q16ANGLE(*pq16ang + ((labs(delta_ang) >> TURN_SHIFT) << FRACBITS));
                 else
                     // Add at least 1 unit to ensure the turn direction is clockwise
                     *pq16ang = NORM_Q16ANGLE(*pq16ang + max(FRACUNIT, FloatToFixed(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))));
@@ -1599,8 +1599,8 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
         short delta_ang;
 
         delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
-        if (PedanticMode)
-            *pq16ang = IntToFixed(NORM_ANGLE(FixedToInt(*pq16ang) + (delta_ang >> TURN_SHIFT)));
+        if (cl_syncinput)
+             *pq16ang = IntToFixed(NORM_ANGLE(FixedToInt(*pq16ang) + (delta_ang >> TURN_SHIFT)));
         else
             *pq16ang = NORM_Q16ANGLE(*pq16ang + FloatToFixed(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT)));
 
@@ -1634,7 +1634,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
         q16angvel += q16angvel / 4;
 
         *pq16ang += (q16angvel * synctics) / 32;
-        *pq16ang = PedanticQ16AngleFloor(NORM_Q16ANGLE(*pq16ang));
+        *pq16ang = NORM_Q16ANGLE(*pq16ang);
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
@@ -1837,8 +1837,7 @@ PlayerAutoLook(PLAYERp pp)
 
     if (!TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING))
     {
-        if ((PedanticMode || !TEST(pp->Flags, PF_MOUSE_AIMING_ON))
-            && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
+        if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
             x = pp->posx + (sintable[(FixedToInt(pp->q16ang) + 512) & 2047] >> 5);
@@ -1861,7 +1860,7 @@ PlayerAutoLook(PLAYERp pp)
                 if ((pp->cursectnum == tempsect) ||
                     (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    if (PedanticMode)
+                    if (cl_syncinput)
                         pp->q16horizoff += (j - k) * 160;
                     else
                         pp->q16horizoff += FloatToFixed(scaleAdjustmentToInterval(mulscale16((j - k), 160)));
@@ -1875,7 +1874,7 @@ PlayerAutoLook(PLAYERp pp)
         // tilt when climbing but you can't even really tell it
         if (pp->q16horizoff < IntToFixed(100))
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizoff += IntToFixed((((100 - FixedToInt(pp->q16horizoff)) >> 3) + 1));
             else
                 pp->q16horizoff += FloatToFixed(scaleAdjustmentToInterval(FixedToFloat(((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT)));
@@ -1887,7 +1886,7 @@ PlayerAutoLook(PLAYERp pp)
         // you're not on a slope
         if (pp->q16horizoff > 0)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizoff -= IntToFixed(((FixedToInt(pp->q16horizoff) >> 3) + 1));
             else
             {
@@ -1897,7 +1896,7 @@ PlayerAutoLook(PLAYERp pp)
         }
         if (pp->q16horizoff < 0)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizoff += IntToFixed((((FixedToInt(-pp->q16horizoff)) >> 3) + 1));
             else
             {
@@ -1918,7 +1917,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
 //    //DSPRINTF(ds,"FixedToInt(pp->q16horizoff), %d", FixedToInt(pp->q16horizoff));
 //    MONO_PRINT(ds);
 
-    if (!PedanticMode && (pq16horiz == &pp->q16horiz))
+    if (!cl_syncinput && (pq16horiz == &pp->q16horiz))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
         pp->q16horiz = pp->input.q16horiz;
@@ -1939,7 +1938,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
 
     if ((pp->input.actions & SB_CENTERVIEW) || pp->centering)
     {
-        if (PedanticMode)
+        if (cl_syncinput)
             pp->q16horizbase = IntToFixed(100);
         else if (pp->q16horizbase > IntToFixed(100))
         {
@@ -1965,7 +1964,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
         // adjust *pq16horiz negative
         if (pp->input.actions & SB_AIM_DOWN)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizbase -= IntToFixed((HORIZ_SPEED/2));
             else
                 pp->q16horizbase -= FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED/2)));
@@ -1974,7 +1973,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
         // adjust *pq16horiz positive
         if (pp->input.actions & SB_AIM_UP)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizbase += IntToFixed((HORIZ_SPEED/2));
             else
                 pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED/2)));
@@ -1991,7 +1990,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
         // adjust *pq16horiz negative
         if (pp->input.actions & SB_LOOK_DOWN)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizbase -= IntToFixed(HORIZ_SPEED);
             else
                 pp->q16horizbase -= FloatToFixed(scaleAdjustmentToInterval(HORIZ_SPEED));
@@ -2000,7 +1999,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
         // adjust *pq16horiz positive
         if (pp->input.actions & SB_LOOK_UP)
         {
-            if (PedanticMode)
+            if (cl_syncinput)
                 pp->q16horizbase += IntToFixed(HORIZ_SPEED);
             else
                 pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval(HORIZ_SPEED));
@@ -2020,7 +2019,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
                 for (i = 1; i; i--)
                 {
                     // this formula does not work for *pq16horiz = 101-103
-                    if (PedanticMode)
+                    if (cl_syncinput)
                         pp->q16horizbase += IntToFixed(25) - (pp->q16horizbase >> 2);
                     else
                         pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval(FixedToFloat(IntToFixed(25) - (pp->q16horizbase >> 2))));
@@ -6603,10 +6602,10 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum,
                       pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            q16ang2 = GetQ16AngleFromVect(kp->x - pp->posx, kp->y - pp->posy);
+            q16ang2 = gethiq16angle(kp->x - pp->posx, kp->y - pp->posy);
 
             delta_q16ang = GetDeltaQ16Angle(q16ang2, pp->q16ang);
-            pp->camq16ang = pp->q16ang = NORM_Q16ANGLE(pp->q16ang + PedanticQ16AngleFloor(delta_q16ang >> 4));
+            pp->camq16ang = pp->q16ang = NORM_Q16ANGLE(pp->q16ang + (delta_q16ang >> 4));
         }
     }
 }
@@ -7708,7 +7707,7 @@ domovethings(void)
         // Mostly done in order to force updates to oq16ang/oq16horiz.
         // Don't do so for a dead player which may follow
         // the killer if present, due to angle interpolation.
-        if (!PedanticMode && !TEST(pp->Flags, PF_DEAD))
+        if (!cl_syncinput && !TEST(pp->Flags, PF_DEAD))
         {
             auto currFlags2 = pp->Flags2;
             if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_TURN)
