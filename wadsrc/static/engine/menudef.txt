@@ -481,7 +481,7 @@ OptionMenu "ActionControlsMenu"// protected
 	{
 		Control    "$CNTRLMNU_ALTATTACK"        , "+alt_fire"
 	}
-	ifgame(ShadowWarrior, Duke, Redneck, Blood)
+	ifnotgame(Exhumed)
 	{
 		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
 	}
