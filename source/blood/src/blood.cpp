@@ -335,6 +335,14 @@ void ProcessFrame(void)
     gLevelTime++;
     gFrameCount++;
     gFrameClock += 4;
+	
+	for(int i=0;i<8;i++)
+	{
+		dword_21EFD0[i] = dword_21EFD0[i] -= 4;
+		if (dword_21EFD0[i] < 0)
+			dword_21EFD0[i] = 0;
+	}
+
     if ((gGameOptions.uGameFlags&1) != 0 && !gStartNewGame)
     {
         seqKillAll();

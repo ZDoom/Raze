@@ -302,16 +302,11 @@ void viewInit(void)
     gViewMap.sub_25C38(0, 0, gZoom, 0);
 }
 
-void viewDrawInterface(int arg)
-{
-    UpdateStatusBar(arg);
-}
-
 int othercameradist = 1280;
 int cameradist = -1;
 int othercameraclock, cameraclock;
 
-void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm)
+void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
@@ -349,14 +344,15 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     *pX += mulscale16(vX, othercameradist);
     *pY += mulscale16(vY, othercameradist);
     *pZ += mulscale16(vZ, othercameradist);
-    othercameradist = ClipHigh(othercameradist+((gameclock-othercameraclock)<<10), 65536);
-    othercameraclock = gameclock;
+	int myclock = gFrameClock + mulscale16(4, smoothratio);
+    othercameradist = ClipHigh(othercameradist+((myclock-othercameraclock)<<10), 65536);
+    othercameraclock = myclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
 }
 
-void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm)
+void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
 {
     int vX = mulscale30(-Cos(nAng), 1280);
     int vY = mulscale30(-Sin(nAng), 1280);
@@ -395,8 +391,9 @@ void CalcPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum,
     *pX += mulscale16(vX, cameradist);
     *pY += mulscale16(vY, cameradist);
     *pZ += mulscale16(vZ, cameradist);
-    cameradist = ClipHigh(cameradist+((gameclock-cameraclock)<<10), 65536);
-    cameraclock = gameclock;
+	int myclock = gFrameClock + mulscale16(4, smoothratio);
+    cameradist = ClipHigh(cameradist+((myclock-cameraclock)<<10), 65536);
+    cameraclock = myclock;
     dassert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
@@ -603,16 +600,11 @@ int32_t g_frameRate;
 void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
-    static int lastUpdate;
     int defaultHoriz = r_horizcenter ? 100 : 90;
 
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;
 #endif
-    int delta = gameclock - lastUpdate;
-    if (delta < 0)
-        delta = 0;
-    lastUpdate = gameclock;
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
         gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
@@ -734,11 +726,11 @@ void viewDrawScreen(bool sceneonly)
             }
             cZ += FixedToInt(q16horiz * 10);
             cameradist = -1;
-            cameraclock = gameclock;
+            cameraclock = gFrameClock +mulscale16(4, (int)gInterpolate);
         }
         else
         {
-            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, FixedToInt(cA), q16horiz);
+            CalcPosition(gView->pSprite, (int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum, FixedToInt(cA), q16horiz, (int)gInterpolate);
         }
         CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
         int v78 = interpolateang(gScreenTiltO, gScreenTilt, gInterpolate);
@@ -758,7 +750,7 @@ void viewDrawScreen(bool sceneonly)
         else if (v4 && gNetPlayers > 1)
         {
 #if 0       // needs to be redone for pure hardware rendering.
-            int tmp = (gameclock / 240) % (gNetPlayers - 1);
+            int tmp = (gFrameClock / 240) % (gNetPlayers - 1);
             int i = connecthead;
             while (1)
             {
@@ -801,7 +793,7 @@ void viewDrawScreen(bool sceneonly)
                 vd4 += QRandom2(nValue >> 4);
                 vd0 += QRandom2(nValue);
             }
-            CalcOtherPosition(pOther->pSprite, &vd8, &vd4, &vd0, &vcc, v50, 0);
+            CalcOtherPosition(pOther->pSprite, &vd8, &vd4, &vd0, &vcc, v50, 0, (int)gInterpolate);
             CheckLink(&vd8, &vd4, &vd0, &vcc);
             if (IsUnderwaterSector(vcc))
             {
@@ -847,7 +839,7 @@ void viewDrawScreen(bool sceneonly)
         }
         else
         {
-            othercameraclock = gameclock;
+            othercameraclock = gFrameClock + mulscale16(4, (int)gInterpolate);
         }
 
         if (!bDelirium)
@@ -988,7 +980,7 @@ void viewDrawScreen(bool sceneonly)
     {
         gViewMap.sub_25DB0(gView->pSprite);
     }
-    viewDrawInterface(delta);
+    UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;
     PLAYER *pPSprite = &gPlayer[gMe->pSprite->type-kDudePlayer1];
     if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
