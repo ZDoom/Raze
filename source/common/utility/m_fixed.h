@@ -68,7 +68,7 @@ inline constexpr int32_t FixedToInt(fixed_t f)
 	return (f + FRACUNIT/2) >> FRACBITS;
 }
 
-inline constexpr unsigned FloatToAngle(double f)
+inline unsigned FloatToAngle(double f)
 {
 	return xs_CRoundToInt((f)* (0x40000000 / 90.));
 }
