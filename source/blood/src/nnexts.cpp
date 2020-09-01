@@ -4792,7 +4792,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) {
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5, int smoothratio) {
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
@@ -4801,7 +4801,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
     if (pQavScene->qavResrc != NULL) {
 
         QAV* pQAV = pQavScene->qavResrc;
-        int v4 = (pPlayer->weaponTimer == 0) ? gameclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
+        int v4 = (pPlayer->weaponTimer == 0) ? ((gFrameClock + mulscale16(4, smoothratio)) % pQAV->at10) : pQAV->at10 - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
         if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {

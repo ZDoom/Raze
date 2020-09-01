@@ -981,7 +981,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal);
+        hudDraw(gView, nSectnum, defaultHoriz, v4c, v48, zDelta, basepal, (int)gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
