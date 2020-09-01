@@ -273,8 +273,6 @@ void nnExtInitModernStuff(bool bSaveLoad) {
 
     }*/
 
-	if (!gAllowTrueRandom) Printf("> STD randomness is not available, using in-game random function(s)");
-    else Printf("> Using STD randomness function(s).");
     
     for (int i = 0; i < kMaxXSprites; i++) {
 

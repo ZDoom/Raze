@@ -30,44 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes)
-{
-    unsigned int i;
-    char ch;
-    if (!pRes || !*pRes || *((char*)*pRes) == 0)
-        return NULL;
-    for (i = 0; i < nBytes; i++)
-    {
-        ch = *((char*)*pRes);
-        if(ch == 0 || ch == '\n')
-            break;
-        buffer[i] = ch;
-        *pRes = ((char*)*pRes)+1;
-    }
-    if (*((char*)*pRes) == '\n' && i < nBytes)
-    {
-        ch = *((char*)*pRes);
-        buffer[i] = ch;
-        *pRes = ((char*)*pRes)+1;
-        i++;
-    }
-    else
-    {
-        while (true)
-        {
-            ch = *((char*)*pRes);
-            if (ch == 0 || ch == '\n')
-                break;
-            *pRes = ((char*)*pRes)+1;
-        }
-        if (*((char*)*pRes) == '\n')
-            *pRes = ((char*)*pRes)+1;
-    }
-    if (i < nBytes)
-        buffer[i] = 0;
-    return *pRes;
-}
-
 unsigned int randSeed = 1;
 
 unsigned int qrand(void)
@@ -90,76 +52,6 @@ int wrand(void)
 void wsrand(int seed)
 {
     wRandSeed = seed;
-}
-
-void ChangeExtension(char *pzFile, const char *pzExt)
-{
-#if 0
-    char drive[BMAX_PATH];
-    char dir[BMAX_PATH];
-    char filename[BMAX_PATH];
-    _splitpath(pzFile, drive, dir, filename, NULL);
-    _makepath(pzFile, drive, dir, filename, pzExt);
-#else
-    int const nLength = Bstrlen(pzFile);
-    char * pDot = pzFile+nLength;
-    for (int i = nLength-1; i >= 0; i--)
-    {
-        if (pzFile[i] == '/' || pzFile[i] == '\\')
-            break;
-        if (pzFile[i] == '.')
-        {
-            pDot = pzFile+i;
-            break;
-        }
-    }
-    *pDot = '\0';
-    Bstrcat(pDot, pzExt);
-#endif
-}
-
-void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
-{
-    int const nLength = Bstrlen(pzPath);
-    const char *pDirectory = pzPath+nLength;
-    const char *pDot = NULL;
-    for (int i = nLength-1; i >= 0; i--)
-    {
-        if (pzPath[i] == '/' || pzPath[i] == '\\')
-        {
-            Bstrncpy(pzDirectory, pzPath, i);
-            pzDirectory[i] = 0;
-            if (!pDot)
-            {
-                Bstrcpy(pzFile, pzPath+i+1);
-                Bstrcpy(pzType, "");
-            }
-            else
-            {
-                Bstrncpy(pzFile, pzPath+i+1, pDot-(pzPath+i+1));
-                pzFile[pDot-(pzPath+i+1)] = 0;
-                Bstrcpy(pzType, pDot+1);
-            }
-           
-            return;
-        }
-        else if (pzPath[i] == '.')
-        {
-            pDot = pzPath+i;
-        }
-    }
-    Bstrcpy(pzDirectory, "/");
-    if (!pDot)
-    {
-        Bstrcpy(pzFile, pzPath);
-        Bstrcpy(pzType, "");
-    }
-    else
-    {
-        Bstrncpy(pzFile, pzPath, pDot-pzPath);
-        pzFile[pDot-pzPath] = 0;
-        Bstrcpy(pzType, pDot+1);
-    }
 }
 
 

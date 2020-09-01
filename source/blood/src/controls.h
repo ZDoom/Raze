@@ -34,7 +34,6 @@ extern float gViewAngleAdjust;
 extern float gViewLookAdjust;
 extern int gViewLookRecenter;
 
-void ctrlInit();
 void ctrlGetInput();
 
 END_BLD_NS

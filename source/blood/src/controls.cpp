@@ -44,20 +44,7 @@ bool bSilentAim = false;
 
 int iTurnCount = 0;
 
-void ctrlInit(void)
-{
-}
-
-void ctrlTerm(void)
-{
-}
-
 int32_t mouseyaxismode = -1;
-
-int32_t GetTime(void)
-{
-    return gameclock;
-}
 
 fixed_t gViewLook, gViewAngle;
 float gViewAngleAdjust;

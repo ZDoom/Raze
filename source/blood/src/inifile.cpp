@@ -35,6 +35,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+static void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes)
+{
+    unsigned int i;
+    char ch;
+    if (!pRes || !*pRes || *((char*)*pRes) == 0)
+        return NULL;
+    for (i = 0; i < nBytes; i++)
+    {
+        ch = *((char*)*pRes);
+        if(ch == 0 || ch == '\n')
+            break;
+        buffer[i] = ch;
+        *pRes = ((char*)*pRes)+1;
+    }
+    if (*((char*)*pRes) == '\n' && i < nBytes)
+    {
+        ch = *((char*)*pRes);
+        buffer[i] = ch;
+        *pRes = ((char*)*pRes)+1;
+        i++;
+    }
+    else
+    {
+        while (true)
+        {
+            ch = *((char*)*pRes);
+            if (ch == 0 || ch == '\n')
+                break;
+            *pRes = ((char*)*pRes)+1;
+        }
+        if (*((char*)*pRes) == '\n')
+            *pRes = ((char*)*pRes)+1;
+    }
+    if (i < nBytes)
+        buffer[i] = 0;
+    return *pRes;
+}
+
+
 
 IniFile::IniFile(const char *fileName)
 {

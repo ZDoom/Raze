@@ -39,39 +39,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 MapRecord *gStartNewGame = 0;
-PACKETMODE gPacketMode = PACKETMODE_1;
 int gNetFifoTail = 0;
 int gNetFifoHead[8];
 int gPredictTail = 0;
-int gNetFifoMasterTail = 0;
 InputPacket gFifoInput[256][8];
-int myMinLag[8];
-int otherMinLag = 0;
-int myMaxLag = 0;
-int gSendCheckTail = 0;
-int gCheckTail = 0;
-int gInitialNetPlayers = 0;
-int gBufferJitter = 1;
-int gPlayerReady[8];
-bool bNoResend = true;
-bool gRobust = false;
-bool bOutOfSync = false;
-bool ready2send = false;
-
-NETWORKMODE gNetMode = NETWORK_NONE;
-char gNetAddress[32];
-// PORT-TODO: Use different port?
-int gNetPort = kNetDefaultPort;
-
-const short word_1328AC = 0x214;
 
 void netResetToSinglePlayer(void)
 {
     myconnectindex = connecthead = 0;
-    gInitialNetPlayers = gNetPlayers = numplayers = 1;
+    gNetPlayers = numplayers = 1;
     connectpoint2[0] = -1;
     gGameOptions.nGameType = 0;
-    gNetMode = NETWORK_NONE;
     UpdateNetworkMenus();
 }
 
@@ -79,17 +57,9 @@ void netReset(void)
 {
     gFrameClock = gameclock = 0;
     lastTic = -1;
-    gNetFifoMasterTail = 0;
     gPredictTail = 0;
     gNetFifoTail = 0;
     memset(gNetFifoHead, 0, sizeof(gNetFifoHead));
-    memset(myMinLag, 0, sizeof(myMinLag));
-    otherMinLag = 0;
-    myMaxLag = 0;
-    gSendCheckTail = 0;
-    gCheckTail = 0;
-    bOutOfSync = 0;
-    gBufferJitter = 1;
 }
 
 void netBroadcastPlayerInfo(int nPlayer)
@@ -99,8 +69,6 @@ void netBroadcastPlayerInfo(int nPlayer)
     pProfile->skill = gSkill;
     pProfile->nAutoAim = cl_autoaim;
     pProfile->nWeaponSwitch = cl_weaponswitch;
-    if (numplayers < 2)
-        return;
 }
 
 void netGetInput(void)
@@ -111,35 +79,13 @@ void netGetInput(void)
     InputPacket &input = gFifoInput[gNetFifoHead[myconnectindex]&255][myconnectindex];
     input = gNetInput;
     gNetFifoHead[myconnectindex]++;
-    if (gGameOptions.nGameType == 0 || numplayers == 1)
-    {
-        for (int p = connecthead; p >= 0; p = connectpoint2[p])
-        {
-            if (p != myconnectindex)
-            {
-                InputPacket *pInput1 = &gFifoInput[(gNetFifoHead[p]-1)&255][p];
-                InputPacket *pInput2 = &gFifoInput[gNetFifoHead[p]&255][p];
-                memcpy(pInput2, pInput1, sizeof(InputPacket));
-                gNetFifoHead[p]++;
-            }
-        }
-        return;
-    }
 }
 
 void netInitialize(bool bConsole)
 {
-    memset(gPlayerReady, 0, sizeof(gPlayerReady));
     netReset();
     netResetToSinglePlayer();
 }
 
-void netDeinitialize(void)
-{
-}
-
-void netPlayerQuit(int nPlayer)
-{
-}
 
 END_BLD_NS

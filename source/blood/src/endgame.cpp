@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "gamestate.h"
 #include "raze_sound.h"
+#include "d_net.h"
 
 BEGIN_BLD_NS
 
@@ -120,20 +121,9 @@ void CEndGameMgr::Draw(void)
 
 void CEndGameMgr::ProcessKeys(void)
 {
-    //if (dword_28E3D4 == 1)
-    //{
-    //    if (gGameOptions.gameType >= 0 || numplayers > 1)
-    //        netWaitForEveryone(0);
-    //    Finish();
-    //}
-    //else
-    {
         if (!inputState.CheckAllInput())
             return;
-        if (gGameOptions.nGameType > 0 || numplayers > 1)
-            netWaitForEveryone(0);
         Finish();
-    }
 }
 
 extern void EndLevel(void);
@@ -148,13 +138,11 @@ void CEndGameMgr::Setup(void)
     sndStartSample(268, 128, -1, false);
 }
 
-extern int gInitialNetPlayers;
 
 void CEndGameMgr::Finish(void)
 {
     int ep = volfromlevelnum(currentLevel->levelNumber);
     gStartNewGame = FindMapByLevelNum(levelnum(ep, gNextLevel));
-    gInitialNetPlayers = numplayers;
     soundEngine->StopAllChannels();
     at0 = 0;
 }
@@ -211,13 +199,13 @@ void CKillMgr::Draw(void)
         viewDrawText(3, GStrings("NAME"), 100, 35, -128, 0, 0, 1);
         viewDrawText(3, GStrings("FRAGS"), 210, 35, -128, 0, 0, 1);
         int nStart = 0;
-        int nEnd = gInitialNetPlayers;
+        int nEnd = kMaxPlayers;
         //if (dword_28E3D4 == 1)
         //{
         //    nStart++;
         //    nEnd++;
         //}
-        for (int i = nStart; i < nEnd; i++)
+        for (int i = nStart; i < nEnd; i++) if (playeringame[i])
         {
             sprintf(pBuffer, "%-2d", i);
             viewDrawText(3, pBuffer, 85, 50+8*i, -128, 0, 0, 1);

@@ -58,7 +58,6 @@ int gNextLevel; // fixme: let this contain a full level number.
 int gLevelTime;
 
 char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
-char BloodIniPre[BMAX_PATH];
 bool bINIOverride = false;
 IniFile *BloodINI;
 
@@ -69,8 +68,6 @@ void levelInitINI(const char *pzIni)
         ThrowError("Initialization: %s does not exist", pzIni);
     BloodINI = new IniFile(pzIni);
     Bstrncpy(BloodIniFile, pzIni, BMAX_PATH);
-    Bstrncpy(BloodIniPre, pzIni, BMAX_PATH);
-    ChangeExtension(BloodIniPre, "");
 }
 
 

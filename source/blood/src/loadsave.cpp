@@ -501,31 +501,17 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
-    memset(myMinLag, 0, sizeof(myMinLag));
-    otherMinLag = 0;
-    myMaxLag = 0;
     gNetFifoTail = 0;
     memset(gNetFifoHead, 0, sizeof(gNetFifoHead));
     gPredictTail = 0;
-    gNetFifoMasterTail = 0;
     memset(gFifoInput, 0, sizeof(gFifoInput));
-    gSendCheckTail = 0;
-    gCheckTail = 0;
-    gBufferJitter = 0;
-    bOutOfSync = 0;
     for (int i = 0; i < gNetPlayers; i++)
         playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
 	viewSetErrorMessage("");
-    if (gamestate != GS_LEVEL)
-    {
-        netWaitForEveryone(0);
-        memset(gPlayerReady, 0, sizeof(gPlayerReady));
-    }
     gFrameCount = 0;
     gameclock = 0;
     lastTic = -1;
     paused = 0;
-    ready2send = 1;
     gamestate = GS_LEVEL;
     bVanilla = false;
     
@@ -760,14 +746,6 @@ void MyLoadSave::Save(void)
 #endif
     psky_t *skyInfo = tileSetupSky(DEFAULTPSKY);
     Write(skyInfo, sizeof(*skyInfo));
-}
-
-void LoadSavedInfo(void)
-{
-}
-
-void UpdateSavedInfo(int nSlot)
-{
 }
 
 static MyLoadSave *myLoadSave;

@@ -110,8 +110,6 @@ void StartLevel(MapRecord *level)
     EndLevel();
     gInput = {};
     gStartNewGame = nullptr;
-    ready2send = 0;
-    netWaitForEveryone(0);
     currentLevel = level;
 
     if (gGameOptions.nGameType == 0)
@@ -255,11 +253,9 @@ void StartLevel(MapRecord *level)
 	M_ClearMenus();
     // viewSetMessage("");
     viewSetErrorMessage("");
-    netWaitForEveryone(0);
     gameclock = 0;
     lastTic = -1;
     paused = 0;
-    ready2send = 1;
     levelTryPlayMusic();
 }
 
@@ -281,31 +277,6 @@ void ProcessFrame(void)
     }
     gNetFifoTail++;
 
-#if 0
-    for (int i = connecthead; i >= 0; i = connectpoint2[i])
-    {
-        if (gPlayer[i].input.syncFlags.quit)
-        {
-            gPlayer[i].input.syncFlags.quit = 0;
-            netBroadcastPlayerLogoff(i);
-            if (i == myconnectindex)
-            {
-                // netBroadcastMyLogoff(gQuitRequest == 2);
-                gQuitGame = true;
-                gRestartGame = gQuitRequest == 2;
-                netDeinitialize();
-                netResetToSinglePlayer();
-                return;
-            }
-        }
-        if (gPlayer[i].input.syncFlags.restart)
-        {
-            gPlayer[i].input.syncFlags.restart = 0;
-            levelRestart();
-            return;
-        }
-    }
-#endif
     // This is single player only.
     if (gameRestart)
     {
@@ -364,18 +335,6 @@ void ProcessFrame(void)
     gFrameClock += 4;
     if ((gGameOptions.uGameFlags&1) != 0 && !gStartNewGame)
     {
-        ready2send = 0;
-#if 0
-        if (gNetPlayers > 1 && gNetMode == NETWORK_SERVER && gPacketMode == PACKETMODE_1 && myconnectindex == connecthead)
-        {
-            while (gNetFifoMasterTail < gNetFifoTail)
-            {
-                netGetPackets();
-                h andleevents();
-                netMasterUpdate();
-            }
-        }
-#endif
         seqKillAll();
         if (gGameOptions.uGameFlags&2)
         {
@@ -413,11 +372,6 @@ void ProcessFrame(void)
 }
 
 
-
-void ParseOptions(void)
-{
-
-}
 
 void ReadAllRFS();
 
@@ -458,7 +412,6 @@ void GameInterface::app_init()
     Printf(PRINT_NONOTIFY, "Initializing weapon animations\n");
     WeaponInit();
     LoadSaveSetup();
-    LoadSavedInfo();
 
     Printf(PRINT_NONOTIFY, "Initializing network users\n");
     netInitialize(true);
@@ -479,19 +432,7 @@ static void gameInit()
     gViewIndex = myconnectindex;
     gMe = gView = &gPlayer[myconnectindex];
     netBroadcastPlayerInfo(myconnectindex);
-#if 0
-    Printf("Waiting for network players!\n");
-    netWaitForEveryone(0);
-    if (gRestartGame)
-    {
-        // Network error
-        gQuitGame = false;
-        gRestartGame = false;
-        netDeinitialize();
-        netResetToSinglePlayer();
-        goto RESTART;
-    }
-#endif
+
 	UpdateNetworkMenus();
     gQuitGame = 0;
     gRestartGame = 0;
@@ -510,8 +451,8 @@ static void gameTicker()
     {
         viewUpdatePrediction(&gFifoInput[gPredictTail & 255][myconnectindex]);
     }
-    if (numplayers == 1)
-        gBufferJitter = 0;
+
+       int gBufferJitter = 0;
 
     int const currentTic = I_GetTime();
     gameclock = I_GetBuildTime();
@@ -519,7 +460,7 @@ static void gameTicker()
     gameupdatetime.Reset();
     gameupdatetime.Clock();
 
-    while (currentTic - lastTic >= 1 && ready2send)
+    while (currentTic - lastTic >= 1)
     {
         gNetInput = gInput;
         gInput = {};
@@ -544,8 +485,6 @@ static void gameTicker()
         videoClearScreen(0);
     else
     {
-        netCheckSync();
-
         drawtime.Reset();
         drawtime.Clock();
         viewDrawScreen();
@@ -557,10 +496,6 @@ static void drawBackground()
 {
     twod->ClearScreen();
 	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-#if 0
-    if (gQuitRequest && !gQuitGame)
-        netBroadcastMyLogoff(gQuitRequest == 2);
-#endif
 }
 
 static void commonTicker()
@@ -617,7 +552,6 @@ static void commonTicker()
 void GameInterface::RunGameFrame()
 {
     commonTicker();
-    netGetPackets();
     ctrlGetInput();
 
     switch (gamestate)
@@ -661,26 +595,10 @@ void GameInterface::RunGameFrame()
     }
 }
 
-bool DemoRecordStatus(void) {
-    return false;
-}
-
-bool VanillaMode() {
-    return false;
-}
-
-int sndTryPlaySpecialMusic(int nMusic)
-{
-    if (Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
-    {
-        return 0;
-    }
-    return 1;
-}
 
 void sndPlaySpecialMusicOrNothing(int nMusic)
 {
-    if (sndTryPlaySpecialMusic(nMusic))
+    if (!Mus_Play(nullptr, quoteMgr.GetQuote(nMusic), true))
     {
         Mus_Stop();
     }
@@ -690,7 +608,6 @@ extern  IniFile* BloodINI;
 void GameInterface::FreeGameData()
 {
     if (BloodINI) delete BloodINI;
-    netDeinitialize();
 }
 
 ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)

@@ -50,12 +50,9 @@ MIRROR mirror[16];
 
 void InitMirrors(void)
 {
-
-#ifdef USE_OPENGL
     r_rortexture = 4080;
     r_rortexturerange = 16;
 
-#endif
     mirrorcnt = 0;
     tileDelete(504);
     
@@ -342,9 +339,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x,y,z,a,horiz,nWall,&cx,&cy,&ca);
                 }
-                yax_preparedrawrooms();
                 int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca,horiz,mirrorsector|MAXSECTORS);
-                yax_drawrooms(viewProcessSprites, mirrorsector, didmirror, smooth);
                 viewProcessSprites(cx,cy,z,FixedToInt(ca),smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
@@ -357,9 +352,6 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             }
             case 1:
             {
-#ifdef USE_OPENGL
-                r_rorphase = 1;
-#endif
                 int nSector = mirror[i].at4;
                 int bakCstat;
                 if (viewPlayer >= 0)
@@ -374,9 +366,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                yax_preparedrawrooms();
                 renderDrawRoomsQ16(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, a, horiz, nSector|MAXSECTORS);
-                yax_drawrooms(viewProcessSprites, nSector, 0, smooth);
                 viewProcessSprites(x+mirror[i].at8, y+mirror[i].atc, z+mirror[i].at10, FixedToInt(a), smooth);
                 short fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
@@ -388,16 +378,10 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
-#ifdef USE_OPENGL
-                r_rorphase = 0;
-#endif
                 return;
             }
             case 2:
             {
-#ifdef USE_OPENGL
-                r_rorphase = 1;
-#endif
                 int nSector = mirror[i].at4;
                 int bakCstat;
                 if (viewPlayer >= 0)
@@ -426,9 +410,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     gPlayer[viewPlayer].pSprite->cstat = bakCstat;
                 }
-#ifdef USE_OPENGL
-                r_rorphase = 0;
-#endif
+
                 return;
             }
             }

@@ -60,9 +60,16 @@ void PreloadCache(void);
 void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
-bool DemoRecordStatus(void);
-bool VanillaMode(void);
-int sndTryPlaySpecialMusic(int nMusic);
+
+inline bool DemoRecordStatus(void)
+{
+    return false;
+}
+
+inline bool VanillaMode()
+{
+    return false;
+}
 void sndPlaySpecialMusicOrNothing(int nMusic);
 
 struct GameInterface : ::GameInterface

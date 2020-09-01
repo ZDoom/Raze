@@ -28,12 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 void playlogos();
-void *ResReadLine(char *buffer, unsigned int nBytes, void **pRes);
 unsigned int qrand(void);
 int wrand(void);
 void wsrand(int);
-void ChangeExtension(char *pzFile, const char *pzExt);
-void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType);
 void FireInit(void);
 void FireProcess(void);
 void UpdateNetworkMenus(void); 

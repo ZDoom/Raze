@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "messages.h"
 #include "nnexts.h"
+#include "d_net.h"
 
 BEGIN_BLD_NS
 
@@ -250,7 +251,7 @@ void LifeLeechOperate(spritetype *pSprite, XSPRITE *pXSprite, EVENT event)
     case kCmdSpritePush:
     {
         int nPlayer = pXSprite->data4;
-        if (nPlayer >= 0 && nPlayer < gNetPlayers)
+        if (nPlayer >= 0 && nPlayer < kMaxPlayers && playeringame[nPlayer])
         {
             PLAYER *pPlayer = &gPlayer[nPlayer];
             if (pPlayer->pXSprite->health > 0)
