@@ -1015,8 +1015,8 @@ pSwordSlide(PANEL_SPRITEp psp)
     double nx, ny;
     short vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -1041,8 +1041,8 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 20;
@@ -1100,8 +1100,8 @@ pSwordSlideR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -1126,8 +1126,8 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnSwordBlur(psp);
     vel_adj = 24;
@@ -2822,8 +2822,8 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 {
     int targetvel;
 
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     if (psp->PlayerP->WpnShotgunType == 1)
         targetvel = 890;
@@ -2855,8 +2855,8 @@ pShotgunRecoilDown(PANEL_SPRITEp psp)
 void
 pShotgunRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -3333,8 +3333,8 @@ pRailSetRecoil(PANEL_SPRITEp psp)
 void
 pRailRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -3361,8 +3361,8 @@ pRailRecoilDown(PANEL_SPRITEp psp)
 void
 pRailRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -4227,8 +4227,8 @@ InitWeaponMicro(PLAYERp pp)
 void
 pMicroRecoilDown(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -4255,8 +4255,8 @@ pMicroRecoilDown(PANEL_SPRITEp psp)
 void
 pMicroRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -5241,8 +5241,8 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
 //    short picnum = psp->picndx;
 
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -5272,8 +5272,8 @@ pGrenadeRecoilDown(PANEL_SPRITEp psp)
 void
 pGrenadeRecoilUp(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     x += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
     y += psp->vel * synctics * -calcSinTableValue(psp->ang) / 64.;
@@ -5303,8 +5303,8 @@ pGrenadeRecoilUp(PANEL_SPRITEp psp)
 void
 pGrenadePresent(PANEL_SPRITEp psp)
 {
-    double x = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    double y = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    double x = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    double y = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_RETRACT))
         return;
@@ -6242,8 +6242,8 @@ pFistSlide(PANEL_SPRITEp psp)
     double ny;
     short vel_adj;
 
-    //nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
@@ -6268,8 +6268,8 @@ pFistSlideDown(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
@@ -6361,8 +6361,8 @@ pFistSlideR(PANEL_SPRITEp psp)
     double ny;
     short vel_adj;
 
-    //nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 68;
@@ -6387,8 +6387,8 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     double nx, ny;
     short vel, vel_adj;
 
-    nx = xs_CRoundToInt(FloatToFixed(psp->x)) | psp->xfract;
-    ny = xs_CRoundToInt(FloatToFixed(psp->y)) | psp->yfract;
+    nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
+    ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
     SpawnFistBlur(psp);
     vel_adj = 48;
