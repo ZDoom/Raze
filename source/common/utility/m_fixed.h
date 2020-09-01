@@ -55,8 +55,7 @@ inline fixed_t FloatToFixed(double f)
 
 inline constexpr fixed_t IntToFixed(int32_t f)
 {
-	// Negative shifts are undefined, so multiply instead of shifting left.
-	return f * FRACUNIT;
+	return f << FRACBITS;
 }
 
 inline constexpr double FixedToFloat(fixed_t f)
@@ -66,7 +65,7 @@ inline constexpr double FixedToFloat(fixed_t f)
 
 inline constexpr int32_t FixedToInt(fixed_t f)
 {
-	return xs_CRoundToInt(FixedToFloat(f));
+	return (f + FRACUNIT/2) >> FRACBITS;
 }
 
 inline constexpr unsigned FloatToAngle(double f)
