@@ -98,11 +98,13 @@ void FireInit(void)
 
 void FireProcess(void)
 {
+	// This assumes a smooth high frame rate. Ugh...
     static int lastUpdate;
-    if (gameclock < lastUpdate || lastUpdate + 2 < gameclock)
+	int clock = I_GetBuildTime()/ 2;
+    if (clock < lastUpdate || lastUpdate + 2 < clock)
     {
         DoFireFrame();
-        lastUpdate = gameclock;
+        lastUpdate = clock;
         TileFiles.InvalidateTile(2342);
     }
 }

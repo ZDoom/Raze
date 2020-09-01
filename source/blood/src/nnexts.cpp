@@ -4804,7 +4804,7 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
         int v4 = (pPlayer->weaponTimer == 0) ? gameclock % pQAV->at10 : pQAV->at10 - pPlayer->weaponTimer;
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && (gameclock & 32))) {
+        if (nInv >= 120 * 8 || (nInv != 0 && (gFrameClock & 32))) {
             a2 = -128; flags |= 1;
         }
 

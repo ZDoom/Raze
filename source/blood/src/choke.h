@@ -41,9 +41,9 @@ public:
         at14 = 0;
         at18 = 0;
     };
-    void sub_83ff0(int a1, void(*a2)(PLAYER*));
-    void sub_84110(int x, int y);
-    void sub_84218();
+    void init(int a1, void(*a2)(PLAYER*));
+    void animateChoke(int x, int y, int smoothratio);
+	void reset() { at10 = 0; }
     char *at0;
     QAV *at8;
     int atc;

@@ -55,7 +55,6 @@ void netResetToSinglePlayer(void)
 
 void netReset(void)
 {
-    gFrameClock = gameclock = 0;
     lastTic = -1;
     gPredictTail = 0;
     gNetFifoTail = 0;

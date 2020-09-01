@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
+void CChoke::init(int a1, void(*a2)(PLAYER*))
 {
     at0 = NULL;
     at1c = a2;
@@ -47,21 +47,21 @@ void CChoke::sub_83ff0(int a1, void(*a2)(PLAYER*))
         at8->nSprite = -1;
         at8->x = at14;
         at8->y = at18;
-        at8->Preload();
-        sub_84218();
+        //at8->Preload();
+		atc = at8->at10;
+		at10 = 0;
     }
 }
 
-void CChoke::sub_84110(int x, int y)
+void CChoke::animateChoke(int x, int y, int smoothratio)
 {
     if (!at8)
         return;
-    int v4 = gFrameClock;
-    gFrameClock = gameclock;
+	int myclock = gFrameClock +  mulscale16(4, smoothratio);
     at8->x = x;
     at8->y = y;
-    int vd = gameclock-at10;
-    at10 = gameclock;
+    int vd = myclock-at10;
+    at10 = myclock;
     atc -= vd;
     if (atc <= 0 || atc > at8->at10)
         atc = at8->at10;
@@ -70,14 +70,8 @@ void CChoke::sub_84110(int x, int y)
 	// This originally overlaid the HUD but that simply doesn't work right with the HUD being a genuine overlay.
 	// It also never adjusted for a reduced 3D view
     at8->Draw(vdi, 10, 0, 0, true);
-    gFrameClock = v4;
 }
 
-void CChoke::sub_84218()
-{
-    atc = at8->at10;
-    at10 = gameclock;
-}
 
 void sub_84230(PLAYER *pPlayer)
 {

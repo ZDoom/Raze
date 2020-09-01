@@ -60,6 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestate.h"
 #include "screenjob.h"
 #include "mapinfo.h"
+#include "choke.h"
 
 BEGIN_BLD_NS
 
@@ -242,7 +243,6 @@ void StartLevel(MapRecord *level)
     gGameOptions.uGameFlags &= ~3;
     PreloadCache();
     InitMirrors();
-    gFrameClock = 0;
     trInit();
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
@@ -257,6 +257,8 @@ void StartLevel(MapRecord *level)
     lastTic = -1;
     paused = 0;
     levelTryPlayMusic();
+	gFrameClock = 0;
+	gChoke.reset();
 }
 
 
@@ -419,7 +421,7 @@ void GameInterface::app_init()
     sndInit();
     registerosdcommands();
 
-    gChoke.sub_83ff0(518, sub_84230);
+    gChoke.init(518, sub_84230);
     UpdateDacs(0, true);
 
     enginecompatibility_mode = ENGINECOMPATIBILITY_19960925;//bVanilla;
@@ -513,7 +515,7 @@ static void commonTicker()
         auto completion = [=](bool = false)
         {
             StartLevel(sng);
-            gFrameClock = gameclock;
+
             gamestate = GS_LEVEL;
         };
 

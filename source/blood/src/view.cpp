@@ -994,7 +994,7 @@ void viewDrawScreen(bool sceneonly)
     if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
     {
         //static int lastClock;
-        gChoke.sub_84110(160, zn);
+        gChoke.animateChoke(160, zn, (int)gInterpolate);
         //if ((gGameClock % 5) == 0 && gGameClock != lastClock)
         //{
         //    gChoke.swayV(pPSprite);

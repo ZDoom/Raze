@@ -307,7 +307,7 @@ private:
             if (powerups[i].remainingDuration)
             {
                 int remainingSeconds = powerups[i].remainingDuration / 100;
-                if (remainingSeconds > warningTime || (gameclock & 32))
+                if (remainingSeconds > warningTime || (gFrameClock & 32))
                 {
                     DrawStatMaskedSprite(powerups[i].nTile, x, y + powerups[i].yOffset, 0, 0, 256, (int)(65536 * powerups[i].nScaleRatio), DI_SCREEN_LEFT_CENTER);
                 }
@@ -477,7 +477,7 @@ private:
     {
         FString gTempStr;
         int x = 1, y = 1;
-        if (dword_21EFD0[0] == 0 || (gameclock & 8))
+        if (dword_21EFD0[0] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, &smallf, GStrings("TXT_COLOR_BLUE"), x, y, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
             dword_21EFD0[0] = dword_21EFD0[0] - arg;
@@ -487,7 +487,7 @@ private:
             SBar_DrawString(this, &smallf, gTempStr, x, y + 10, 0, CR_LIGHTBLUE, 1., -1, -1, 1, 1);
         }
         x = -2;
-        if (dword_21EFD0[1] == 0 || (gameclock & 8))
+        if (dword_21EFD0[1] == 0 || (gFrameClock & 8))
         {
             SBar_DrawString(this, &smallf, GStrings("TXT_COLOR_RED"), x, y, DI_TEXT_ALIGN_RIGHT, CR_BRICK, 1., -1, -1, 1, 1);
             dword_21EFD0[1] = dword_21EFD0[1] - arg;
@@ -508,7 +508,7 @@ private:
     {
         dassert(0 == team || 1 == team); // 0: blue, 1: red
 
-        if (dword_21EFD0[team] == 0 || (gameclock & 8))
+        if (dword_21EFD0[team] == 0 || (gFrameClock & 8))
         {
             dword_21EFD0[team] = dword_21EFD0[team] - arg;
             if (dword_21EFD0[team] < 0)
@@ -585,7 +585,7 @@ private:
         DrawStatMaskedSprite(2200, 160, 200, 0, nPalette, RS_CENTERBOTTOM);
         DrawPackItemInStatusBar(pPlayer, 265, 186, 260, 172);
 
-        if (pXSprite->health >= 16 || (gameclock & 16) || pXSprite->health == 0)
+        if (pXSprite->health >= 16 || (gFrameClock & 16) || pXSprite->health == 0)
         {
             DrawStatNumber("%3d", pXSprite->health >> 4, 2190, 86, 183, 0, 0);
         }
@@ -659,7 +659,7 @@ private:
 
         BeginHUD(320, 200, 1);
         DrawStatSprite(2201, 34, 187 - 200, 16, nPalette);
-        if (pXSprite->health >= 16 || (gameclock & 16) || pXSprite->health == 0)
+        if (pXSprite->health >= 16 || (gFrameClock & 16) || pXSprite->health == 0)
         {
             DrawStatNumber("%3d", pXSprite->health >> 4, 2190, 8, 183 - 200, 0, 0);
         }
