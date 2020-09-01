@@ -53,21 +53,21 @@ enum AI_SFX_PRIORITY {
 
 struct DUDEEXTRA_at6_u1
 {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     char at8;
 };
 
 struct DUDEEXTRA_at6_u2
 {
-    int at0;
-    char at4;
+    int TotalKills;
+    char Kills;
 };
 
 struct DUDEEXTRA
 {
-    int at0;
-    char at4;
+    int TotalKills;
+    char Kills;
     AI_SFX_PRIORITY at5;
     union
     {
@@ -78,8 +78,8 @@ struct DUDEEXTRA
 };
 
 struct TARGETTRACK {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8; // view angle
     int atc;
     int at10; // Move predict

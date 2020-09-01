@@ -238,11 +238,11 @@ private:
         {
             stats.completeColor = CR_DARKGREEN;
 
-            stats.kills = gKillMgr.at4;
-            stats.maxkills = gKillMgr.at0;
+            stats.kills = gKillMgr.Kills;
+            stats.maxkills = gKillMgr.TotalKills;
             stats.frags = gGameOptions.nGameType == 3? pPlayer->fragCount : -1;
-            stats.secrets = gSecretMgr.at4 + gSecretMgr.at8;
-            stats.maxsecrets = gSecretMgr.at0;
+            stats.secrets = gSecretMgr.Founds + gSecretMgr.Super;
+            stats.maxsecrets = gSecretMgr.Total;
 
             DBaseStatusBar::PrintLevelStats(stats);
         }

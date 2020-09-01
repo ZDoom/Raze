@@ -94,11 +94,11 @@ static void thinkTarget(spritetype *pSprite, XSPRITE *pXSprite)
     dassert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     DUDEEXTRA_at6_u1 *pDudeExtraE = &gDudeExtra[pSprite->extra].at6.u1;
-    if (pDudeExtraE->at8 && pDudeExtraE->at4 < 10)
-        pDudeExtraE->at4++;
-    else if (pDudeExtraE->at4 >= 10 && pDudeExtraE->at8)
+    if (pDudeExtraE->at8 && pDudeExtraE->Kills < 10)
+        pDudeExtraE->Kills++;
+    else if (pDudeExtraE->Kills >= 10 && pDudeExtraE->at8)
     {
-        pDudeExtraE->at4 = 0;
+        pDudeExtraE->Kills = 0;
         pXSprite->goalAng += 256;
         POINT3D *pTarget = &baseSprite[pSprite->index];
         aiSetTarget(pXSprite, pTarget->x, pTarget->y, pTarget->z);

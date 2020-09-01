@@ -80,8 +80,8 @@ void viewInitializePrediction(void)
 	predict.at4c = gMe->spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
 	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
-	predict.at0 = gMe->bobPhase;
-	predict.at4 = gMe->bobAmp;
+	predict.TotalKills = gMe->bobPhase;
+	predict.Kills = gMe->bobAmp;
 	predict.at8 = gMe->bobHeight;
 	predict.atc = gMe->bobWidth;
 	predict.at10 = gMe->swayPhase;
@@ -367,39 +367,39 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
     predict.at34 = predict.at40 - predict.at38 - (12<<8);
 
-    predict.at0 = ClipLow(predict.at0-4, 0);
+    predict.TotalKills = ClipLow(predict.TotalKills-4, 0);
 
     nSpeed >>= FRACBITS;
 	if (predict.at48 == 1)
 	{
-		predict.at4 = (predict.at4+17)&2047;
+		predict.Kills = (predict.Kills+17)&2047;
 		predict.at14 = (predict.at14+17)&2047;
-		predict.at8 = mulscale30(10*pPosture->bobV,Sin(predict.at4*2));
-		predict.atc = mulscale30(predict.at0*pPosture->bobH,Sin(predict.at4-256));
-		predict.at18 = mulscale30(predict.at0*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.at0*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.at8 = mulscale30(10*pPosture->bobV,Sin(predict.Kills*2));
+		predict.atc = mulscale30(predict.TotalKills*pPosture->bobH,Sin(predict.Kills-256));
+		predict.at18 = mulscale30(predict.TotalKills*pPosture->swayV,Sin(predict.at14*2));
+		predict.at1c = mulscale30(predict.TotalKills*pPosture->swayH,Sin(predict.at14-0x155));
 	}
 	else
 	{
 		if (pXSprite->height < 256)
 		{
-			predict.at4 = (predict.at4+(pPosture->pace[predict.at70]*4))&2047;
+			predict.Kills = (predict.Kills+(pPosture->pace[predict.at70]*4))&2047;
 			predict.at14 = (predict.at14+(pPosture->pace[predict.at70]*4)/2)&2047;
 			if (predict.at70)
 			{
-				if (predict.at0 < 60)
-                    predict.at0 = ClipHigh(predict.at0 + nSpeed, 60);
+				if (predict.TotalKills < 60)
+                    predict.TotalKills = ClipHigh(predict.TotalKills + nSpeed, 60);
 			}
 			else
 			{
-				if (predict.at0 < 30)
-                    predict.at0 = ClipHigh(predict.at0 + nSpeed, 30);
+				if (predict.TotalKills < 30)
+                    predict.TotalKills = ClipHigh(predict.TotalKills + nSpeed, 30);
 			}
 		}
-		predict.at8 = mulscale30(predict.at0*pPosture->bobV,Sin(predict.at4*2));
-		predict.atc = mulscale30(predict.at0*pPosture->bobH,Sin(predict.at4-256));
-		predict.at18 = mulscale30(predict.at0*pPosture->swayV,Sin(predict.at14*2));
-		predict.at1c = mulscale30(predict.at0*pPosture->swayH,Sin(predict.at14-0x155));
+		predict.at8 = mulscale30(predict.TotalKills*pPosture->bobV,Sin(predict.Kills*2));
+		predict.atc = mulscale30(predict.TotalKills*pPosture->bobH,Sin(predict.Kills-256));
+		predict.at18 = mulscale30(predict.TotalKills*pPosture->swayV,Sin(predict.at14*2));
+		predict.at1c = mulscale30(predict.TotalKills*pPosture->swayH,Sin(predict.at14-0x155));
 	}
 	if (!pXSprite->health)
         return;

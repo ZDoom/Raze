@@ -141,7 +141,7 @@ int sndGetRate(int format)
 void SoundCallback(intptr_t val)
 {
     SAMPLE2D *pChannel = (SAMPLE2D*)val;
-    pChannel->at0 = 0;
+    pChannel->TotalKills = 0;
 }
 
 void sndStartSample(const char *pzSound, int nVolume, int nChannel)

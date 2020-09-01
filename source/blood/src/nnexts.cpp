@@ -3676,7 +3676,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     return false; // go normal OperateSprite();
             
                 XSPRITE* pXSpawn = &xsprite[pSpawn->extra];
-                gKillMgr.sub_263E0(1);
+                gKillMgr.AddNewKill(1);
                 switch (pXSprite->data1) {
                     case kDudeBurningInnocent:
                     case kDudeBurningCultist:
@@ -3739,7 +3739,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
             return true;
         case kModernCustomDudeSpawn:
-            if (gGameOptions.nMonsterSettings && genDudeSpawn(pSprite, -1) != NULL) gKillMgr.sub_263E0(1);
+            if (gGameOptions.nMonsterSettings && genDudeSpawn(pSprite, -1) != NULL) gKillMgr.AddNewKill(1);
             return true;
         case kModernSeqSpawner:
         case kModernEffectSpawner:

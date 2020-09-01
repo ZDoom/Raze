@@ -167,8 +167,8 @@ AMMOINFO gAmmoInfo[] = {
 };
 
 struct ARMORDATA {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     int atc;
     int at10;
@@ -189,8 +189,8 @@ int nPlayerSurviveClient = seqRegisterClient(PlayerSurvive);
 int nPlayerKneelClient = seqRegisterClient(PlayerKneelsOver);
 
 struct VICTORY {
-    const char *at0;
-    int at4;
+    const char *TotalKills;
+    int Kills;
 };
 
 VICTORY gVictory[] = {
@@ -222,8 +222,8 @@ VICTORY gVictory[] = {
 };
 
 struct SUICIDE {
-    const char *at0;
-    int at4;
+    const char *TotalKills;
+    int Kills;
 };
 
 SUICIDE gSuicide[] = {
@@ -235,8 +235,8 @@ SUICIDE gSuicide[] = {
 };
 
 struct DAMAGEINFO {
-    int at0;
-    int at4[3];
+    int TotalKills;
+    int Kills[3];
     int at10[3];
 };
 
@@ -1037,8 +1037,8 @@ char PickupItem(PLAYER *pPlayer, spritetype *pItem) {
                 pickedUp = true;
             }
         
-            if (pPlayer->armor[0] < pArmorData->at4) {
-                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->at0, pArmorData->at4);
+            if (pPlayer->armor[0] < pArmorData->Kills) {
+                pPlayer->armor[0] = ClipHigh(pPlayer->armor[0]+pArmorData->TotalKills, pArmorData->Kills);
                 pickedUp = true;
             }
 
@@ -1860,7 +1860,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         if (gGameOptions.nGameType == 3)
             dword_21EFB0[pVictim->teamId]--;
         int nMessage = Random(5);
-        int nSound = gSuicide[nMessage].at4;
+        int nSound = gSuicide[nMessage].Kills;
         if (pVictim == gMe && gMe->handTime <= 0)
         {
 			strcpy(buffer, GStrings("TXTB_KILLSELF"));
@@ -1869,7 +1869,7 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
         }
         else
         {
-            sprintf(buffer, gSuicide[nMessage].at0, gProfile[nVictim].name);
+            sprintf(buffer, gSuicide[nMessage].TotalKills, gProfile[nVictim].name);
         }
     }
     else
@@ -1890,8 +1890,8 @@ void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
             }
         }
         int nMessage = Random(25);
-        int nSound = gVictory[nMessage].at4;
-        const char* pzMessage = gVictory[nMessage].at0;
+        int nSound = gVictory[nMessage].Kills;
+        const char* pzMessage = gVictory[nMessage].TotalKills;
         sprintf(buffer, pzMessage, gProfile[nKiller].name, gProfile[nVictim].name);
         if (gGameOptions.nGameType > 0 && nSound >= 0 && pKiller == gMe)
             sndStartSample(nSound, 255, 2, 0);
@@ -1930,7 +1930,7 @@ void FragPlayer(PLAYER *pPlayer, int nSprite)
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 {
     DAMAGEINFO *pDamageInfo = &damageInfo[nType];
-    int nArmorType = pDamageInfo->at0;
+    int nArmorType = pDamageInfo->TotalKills;
     if (nArmorType >= 0 && pPlayer->armor[nArmorType])
     {
 #if 0
@@ -2043,9 +2043,9 @@ int playerDamageSprite(int nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, in
             DAMAGEINFO *pDamageInfo = &damageInfo[nDamageType];
             int nSound;
             if (nDamage >= (10<<4))
-                nSound = pDamageInfo->at4[0];
+                nSound = pDamageInfo->Kills[0];
             else
-                nSound = pDamageInfo->at4[Random(3)];
+                nSound = pDamageInfo->Kills[Random(3)];
             if (nDamageType == DAMAGE_TYPE_4 && pXSprite->medium == kMediumWater && !pPlayer->hand)
                 nSound = 714;
             sfxPlay3DSound(pSprite, nSound, 0, 6);

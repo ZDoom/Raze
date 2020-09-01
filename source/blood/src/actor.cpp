@@ -2362,7 +2362,7 @@ const int nDudeToGibClient2 = seqRegisterClient(DudeToGibCallback2);
 int gPostCount = 0;
 
 struct POSTPONE {
-    short at0;
+    short TotalKills;
     short at2;
 };
 
@@ -2527,7 +2527,7 @@ void actInit(bool bSaveLoad) {
             unk[pSprite->type - kDudeBase] = 1;
         }
         
-        gKillMgr.sub_2641C();
+        gKillMgr.CountTotalKills();
         ///////////////
 
         for (int i = 0; i < kDudeMax - kDudeBase; i++)
@@ -2935,7 +2935,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
                         aiGenDudeNewState(pSprite, &genDudeBurnGoto);
                         actHealDude(pXSprite, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
                         if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
-                        gDudeExtra[pSprite->extra].at0 = gFrameClock + 360;
+                        gDudeExtra[pSprite->extra].TotalKills = gFrameClock + 360;
                         return;
                     }
 
@@ -3325,7 +3325,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBrown:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3335,7 +3335,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderRed:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -3345,7 +3345,7 @@ void actKillDude(int nKillerSprite, spritetype *pSprite, DAMAGE_TYPE damageType,
     case kDudeSpiderBlack:
         if (pSprite->owner != -1) {
             spritetype *pOwner = &sprite[actSpriteOwnerToSpriteId(pSprite)];
-            gDudeExtra[pOwner->extra].at6.u1.at4--;
+            gDudeExtra[pOwner->extra].at6.u1.Kills--;
         }
         
         if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(pSprite, 1805, -1, 0);
@@ -6859,7 +6859,7 @@ void actPostSprite(int nSprite, int nStatus)
     if (sprite[nSprite].flags&32)
     {
         for (n = 0; n < gPostCount; n++)
-            if (gPost[n].at0 == nSprite)
+            if (gPost[n].TotalKills == nSprite)
                 break;
         dassert(n < gPostCount);
     }
@@ -6869,7 +6869,7 @@ void actPostSprite(int nSprite, int nStatus)
         sprite[nSprite].flags |= 32;
         gPostCount++;
     }
-    gPost[n].at0 = nSprite;
+    gPost[n].TotalKills = nSprite;
     gPost[n].at2 = nStatus;
 }
 
@@ -6878,7 +6878,7 @@ void actPostProcess(void)
     for (int i = 0; i < gPostCount; i++)
     {
         POSTPONE *pPost = &gPost[i];
-        int nSprite = pPost->at0;
+        int nSprite = pPost->TotalKills;
         spritetype *pSprite = &sprite[nSprite];
         pSprite->flags &= ~32;
         int nStatus = pPost->at2;

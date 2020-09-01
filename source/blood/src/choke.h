@@ -33,7 +33,7 @@ class CChoke
 public:
     CChoke()
     {
-        at0 = NULL;
+        TotalKills = NULL;
         at8 = NULL;
         atc = 0;
         at10 = 0;
@@ -44,7 +44,7 @@ public:
     void init(int a1, void(*a2)(PLAYER*));
     void animateChoke(int x, int y, int smoothratio);
 	void reset() { at10 = 0; }
-    char *at0;
+    char *TotalKills;
     QAV *at8;
     int atc;
     int at10;

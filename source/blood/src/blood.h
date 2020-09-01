@@ -60,6 +60,7 @@ void PreloadCache(void);
 void StartLevel(MapRecord *gameOptions);
 void ProcessFrame(void);
 void ScanINIFiles(void);
+void EndLevel();
 
 inline bool DemoRecordStatus(void)
 {

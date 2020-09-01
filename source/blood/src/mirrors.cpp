@@ -38,8 +38,8 @@ int mirrorcnt, mirrorsector, mirrorwall[4];
 
 typedef struct
 {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     int atc;
     int at10;
@@ -71,7 +71,7 @@ void InitMirrors(void)
             {
                 wall[i].overpicnum = nTile;
                 mirror[mirrorcnt].at14 = i;
-                mirror[mirrorcnt].at0 = 0;
+                mirror[mirrorcnt].TotalKills = 0;
                 wall[i].cstat |= 32;
                 int tmp = xwall[wall[i].extra].data;
                 int j;
@@ -85,7 +85,7 @@ void InitMirrors(void)
                             continue;
                         wall[i].hitag = j;
                         wall[j].hitag = i;
-                        mirror[mirrorcnt].at4 = j;
+                        mirror[mirrorcnt].Kills = j;
                         break;
                     }
                 }
@@ -97,10 +97,10 @@ void InitMirrors(void)
         }
         if (wall[i].picnum == 504)
         {
-            mirror[mirrorcnt].at4 = i;
+            mirror[mirrorcnt].Kills = i;
             mirror[mirrorcnt].at14 = i;
             wall[i].picnum = nTile;
-            mirror[mirrorcnt].at0 = 0;
+            mirror[mirrorcnt].TotalKills = 0;
             wall[i].cstat |= 32;
             mirrorcnt++;
             continue;
@@ -120,20 +120,20 @@ void InitMirrors(void)
             int j = sprite[nLink2].sectnum;
             if (sector[j].ceilingpicnum != 504)
                 ThrowError("Lower link sector %d doesn't have mirror picnum\n", j);
-            mirror[mirrorcnt].at0 = 2;
+            mirror[mirrorcnt].TotalKills = 2;
             mirror[mirrorcnt].at8 = sprite[nLink2].x-sprite[nLink].x;
             mirror[mirrorcnt].atc = sprite[nLink2].y-sprite[nLink].y;
             mirror[mirrorcnt].at10 = sprite[nLink2].z-sprite[nLink].z;
             mirror[mirrorcnt].at14 = i;
-            mirror[mirrorcnt].at4 = j;
+            mirror[mirrorcnt].Kills = j;
             sector[i].floorpicnum = 4080+mirrorcnt;
             mirrorcnt++;
-            mirror[mirrorcnt].at0 = 1;
+            mirror[mirrorcnt].TotalKills = 1;
             mirror[mirrorcnt].at8 = sprite[nLink].x-sprite[nLink2].x;
             mirror[mirrorcnt].atc = sprite[nLink].y-sprite[nLink2].y;
             mirror[mirrorcnt].at10 = sprite[nLink].z-sprite[nLink2].z;
             mirror[mirrorcnt].at14 = j;
-            mirror[mirrorcnt].at4 = i;
+            mirror[mirrorcnt].Kills = i;
             sector[j].ceilingpicnum = 4080+mirrorcnt;
             mirrorcnt++;
         }
@@ -167,7 +167,7 @@ void sub_5571C(char mode)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            switch (mirror[i].at0)
+            switch (mirror[i].TotalKills)
             {
                 case 1:
                     if (mode)
@@ -200,9 +200,9 @@ void sub_557C4(int x, int y, int interpolation)
         int nTile = 4080+i;
         if (TestBitString(gotpic, nTile))
         {
-            if (mirror[i].at0 == 1 || mirror[i].at0 == 2)
+            if (mirror[i].TotalKills == 1 || mirror[i].TotalKills == 2)
             {
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int nSector2 = mirror[i].at14;
                 for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite])
                 {
@@ -216,7 +216,7 @@ void sub_557C4(int x, int y, int interpolation)
                     if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
                     {
                         int j = i;
-                        if (mirror[i].at0 == 2)
+                        if (mirror[i].TotalKills == 2)
                             j++;
                         else
                             j--;
@@ -305,11 +305,11 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
         if (TestBitString(gotpic, nTile))
         {
             ClearBitString(gotpic, nTile);
-            switch (mirror[i].at0)
+            switch (mirror[i].TotalKills)
             {
             case 0:
             {
-                int nWall = mirror[i].at4;
+                int nWall = mirror[i].Kills;
                 int nSector = sectorofwall(nWall);
                 walltype *pWall = &wall[nWall];
                 int nNextWall = pWall->nextwall;
@@ -352,7 +352,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             }
             case 1:
             {
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {
@@ -382,7 +382,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             }
             case 2:
             {
-                int nSector = mirror[i].at4;
+                int nSector = mirror[i].Kills;
                 int bakCstat;
                 if (viewPlayer >= 0)
                 {

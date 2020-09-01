@@ -29,8 +29,8 @@ BEGIN_BLD_NS
 
 struct SAMPLE2D
 {
-    int at0;
-    char at4;
+    int TotalKills;
+    char Kills;
 }; // 9 bytes
 
 struct SFX

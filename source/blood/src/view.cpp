@@ -224,7 +224,7 @@ void InitStatusBar(void)
 }
 GameStats GameInterface::getStats()
 {
-	return { gKillMgr.at4, gKillMgr.at0, gSecretMgr.at4, gSecretMgr.at0, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
 }
 
 void viewDrawMapTitle(void)

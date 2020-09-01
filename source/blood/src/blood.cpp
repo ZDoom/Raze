@@ -288,7 +288,7 @@ void ProcessFrame(void)
     }
     viewClearInterpolations();
     {
-        if (paused || gEndGameMgr.at0 || (gGameOptions.nGameType == 0 && M_Active()))
+        if (paused || (gGameOptions.nGameType == 0 && M_Active()))
             return;
     }
 
@@ -376,7 +376,7 @@ void ProcessFrame(void)
         }
         else
         {
-            gEndGameMgr.Setup();
+            ShowSummaryScreen();
         }
     }
 }
@@ -596,11 +596,6 @@ void GameInterface::RunGameFrame()
 
     case GS_LEVEL:
         gameTicker();
-        break;
-
-    case GS_FINALE:
-        gEndGameMgr.ProcessKeys();
-        gEndGameMgr.Draw();
         break;
     }
 }

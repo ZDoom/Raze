@@ -644,8 +644,8 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
         byte_1A76C7 = 1;
     }
 
-    mapHeader.at0 = LittleLong(mapHeader.at0);
-    mapHeader.at4 = LittleLong(mapHeader.at4);
+    mapHeader.TotalKills = LittleLong(mapHeader.TotalKills);
+    mapHeader.Kills = LittleLong(mapHeader.Kills);
     mapHeader.at8 = LittleLong(mapHeader.at8);
     mapHeader.atc = LittleShort(mapHeader.atc);
     mapHeader.ate = LittleShort(mapHeader.ate);
@@ -657,8 +657,8 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     mapHeader.at21 = LittleShort(mapHeader.at21);
     mapHeader.at23 = LittleShort(mapHeader.at23);
 
-    *pX = mapHeader.at0;
-    *pY = mapHeader.at4;
+    *pX = mapHeader.TotalKills;
+    *pY = mapHeader.Kills;
     *pZ = mapHeader.at8;
     *pAngle = mapHeader.atc;
     *pSector = mapHeader.ate;

@@ -31,31 +31,31 @@ BEGIN_BLD_NS
 
 template <typename T> struct queueItem
 {
-    uint32_t at0; // priority
-    T at4; // data
+    uint32_t TotalKills; // priority
+    T Kills; // data
     bool operator>(const queueItem& other) const
     {
-        return at0 > other.at0;
+        return TotalKills > other.TotalKills;
     }
     bool operator<(const queueItem& other) const
     {
-        return at0 < other.at0;
+        return TotalKills < other.TotalKills;
     }
     bool operator>=(const queueItem& other) const
     {
-        return at0 >= other.at0;
+        return TotalKills >= other.TotalKills;
     }
     bool operator<=(const queueItem& other) const
     {
-        return at0 <= other.at0;
+        return TotalKills <= other.TotalKills;
     }
     bool operator!=(const queueItem& other) const
     {
-        return at0 != other.at0;
+        return TotalKills != other.TotalKills;
     }
     bool operator==(const queueItem& other) const
     {
-        return at0 == other.at0;
+        return TotalKills == other.TotalKills;
     }
 };
 
@@ -86,7 +86,7 @@ public:
     void Upheap(void)
     {
         queueItem<T> item = queueItems[fNodeCount];
-        queueItems[0].at0 = 0;
+        queueItems[0].TotalKills = 0;
         uint32_t x = fNodeCount;
         while (queueItems[x>>1] > item)
         {
@@ -120,13 +120,13 @@ public:
     {
         dassert(fNodeCount < kPQueueSize);
         fNodeCount++;
-        queueItems[fNodeCount].at0 = a1;
-        queueItems[fNodeCount].at4 = a2;
+        queueItems[fNodeCount].TotalKills = a1;
+        queueItems[fNodeCount].Kills = a2;
         Upheap();
     }
     T Remove(void)
     {
-        T data = queueItems[1].at4;
+        T data = queueItems[1].Kills;
         queueItems[1] = queueItems[fNodeCount--];
         Downheap(1);
         return data;
@@ -134,13 +134,13 @@ public:
     uint32_t LowestPriority(void)
     {
         dassert(fNodeCount > 0);
-        return queueItems[1].at0;
+        return queueItems[1].TotalKills;
     }
     void Kill(std::function<bool(T)> pMatch)
     {
         for (unsigned int i = 1; i <= fNodeCount;)
         {
-            if (pMatch(queueItems[i].at4))
+            if (pMatch(queueItems[i].Kills))
                 Delete(i);
             else
                 i++;
@@ -168,19 +168,19 @@ public:
     T Remove(void)
     {
         dassert(stdQueue.size() > 0);
-        T data = stdQueue.begin()->at4;
+        T data = stdQueue.begin()->Kills;
         stdQueue.erase(stdQueue.begin());
         return data;
     }
     uint32_t LowestPriority(void)
     {
-        return stdQueue.begin()->at0;
+        return stdQueue.begin()->TotalKills;
     }
     void Kill(std::function<bool(T)> pMatch)
     {
         for (auto i = stdQueue.begin(); i != stdQueue.end();)
         {
-            if (pMatch(i->at4))
+            if (pMatch(i->Kills))
                 i = stdQueue.erase(i);
             else
                 i++;

@@ -46,7 +46,7 @@ struct FXDATA {
     CALLBACK_ID funcID; // callback
     char at1; // detail
     short at2; // seq
-    short at4; // flags
+    short Kills; // flags
     int at6; // gravity
     int ata; // air drag
     int ate;
@@ -186,9 +186,9 @@ spritetype * CFX::fxSpawn(FX_ID nFx, int nSector, int x, int y, int z, unsigned 
         pSprite->xrepeat = pFX->at14;
     if (pFX->at15 > 0)
         pSprite->yrepeat = pFX->at15;
-    if ((pFX->at4 & 1) && Chance(0x8000))
+    if ((pFX->Kills & 1) && Chance(0x8000))
         pSprite->cstat |= 4;
-    if ((pFX->at4 & 2) && Chance(0x8000))
+    if ((pFX->Kills & 2) && Chance(0x8000))
         pSprite->cstat |= 8;
     if (pFX->at2)
     {

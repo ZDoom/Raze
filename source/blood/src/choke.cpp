@@ -37,7 +37,7 @@ BEGIN_BLD_NS
 
 void CChoke::init(int a1, void(*a2)(PLAYER*))
 {
-    at0 = NULL;
+    TotalKills = NULL;
     at1c = a2;
     if (!at8 && a1 != -1)
     {

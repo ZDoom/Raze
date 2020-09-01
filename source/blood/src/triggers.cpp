@@ -176,8 +176,8 @@ enum BUSYID {
 };
 
 struct BUSY {
-    int at0;
-    int at4;
+    int TotalKills;
+    int Kills;
     int at8;
     BUSYID atc;
 };
@@ -190,19 +190,19 @@ void AddBusy(int a1, BUSYID a2, int nDelta)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].at0 == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
             break;
     }
     if (i == gBusyCount)
     {
         if (gBusyCount == 128)
             return;
-        gBusy[i].at0 = a1;
+        gBusy[i].TotalKills = a1;
         gBusy[i].atc = a2;
         gBusy[i].at8 = nDelta > 0 ? 0 : 65536;
         gBusyCount++;
     }
-    gBusy[i].at4 = nDelta;
+    gBusy[i].Kills = nDelta;
 }
 
 void ReverseBusy(int a1, BUSYID a2)
@@ -210,9 +210,9 @@ void ReverseBusy(int a1, BUSYID a2)
     int i;
     for (i = 0; i < gBusyCount; i++)
     {
-        if (gBusy[i].at0 == a1 && gBusy[i].atc == a2)
+        if (gBusy[i].TotalKills == a1 && gBusy[i].atc == a2)
         {
-            gBusy[i].at4 = -gBusy[i].at4;
+            gBusy[i].Kills = -gBusy[i].Kills;
             break;
         }
     }
@@ -507,7 +507,7 @@ void OperateSprite(int nSprite, XSPRITE *pXSprite, EVENT event)
             spritetype* pSpawn = actSpawnDude(pSprite, pXSprite->data1, -1, 0);
             if (pSpawn) {
                 XSPRITE *pXSpawn = &xsprite[pSpawn->extra];
-                gKillMgr.sub_263E0(1);
+                gKillMgr.AddNewKill(1);
                 switch (pXSprite->data1) {
                     case kDudeBurningInnocent:
                     case kDudeBurningCultist:
@@ -1981,15 +1981,15 @@ void trProcessBusy(void)
     for (int i = gBusyCount-1; i >= 0; i--)
     {
         int oldBusy = gBusy[i].at8;
-        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].at4*4, 0, 65536);
-        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].at0, gBusy[i].at8);
+        gBusy[i].at8 = ClipRange(oldBusy+gBusy[i].Kills*4, 0, 65536);
+        int nStatus = gBusyProc[gBusy[i].atc](gBusy[i].TotalKills, gBusy[i].at8);
         switch (nStatus) {
             case 1:
                 gBusy[i].at8 = oldBusy;
                 break;
             case 2:
                 gBusy[i].at8 = oldBusy;
-                gBusy[i].at4 = -gBusy[i].at4;
+                gBusy[i].Kills = -gBusy[i].Kills;
                 break;
             case 3:
                 gBusy[i] = gBusy[--gBusyCount];

@@ -246,8 +246,8 @@ struct MAPSIGNATURE {
 };
 
 struct MAPHEADER  {
-    int at0; // x
-    int at4; // y
+    int TotalKills; // x
+    int Kills; // y
     int at8; // z
     short atc; // ang
     short ate; // sect
@@ -262,7 +262,7 @@ struct MAPHEADER  {
 };
 
 struct MAPHEADER2 {
-    char at0[64];
+    char TotalKills[64];
     int at40; // xsprite size
     int at44; // xwall size
     int at48; // xsector size
