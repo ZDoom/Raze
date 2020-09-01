@@ -336,25 +336,23 @@ void GameInterface::Ticker()
 
 	thinktime.Reset();
 	thinktime.Clock();
-
-	actortime.Reset();
-	actortime.Clock();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		viewBackupView(i);
 		playerProcess(&gPlayer[i]);
 	}
-	actortime.Unclock();
 
 	trProcessBusy();
 	evProcess(gFrameClock);
 	seqProcess(4);
 	DoSectorPanning();
+
+	actortime.Reset();
+	actortime.Clock();	
 	actProcessSprites();
 	actPostProcess();
-#ifdef POLYMER
-	G_RefreshLights();
-#endif
+	actortime.Unclock();
+
 	viewCorrectPrediction();
 	ambProcess();
 	viewUpdateDelirium();
@@ -371,7 +369,6 @@ void GameInterface::Ticker()
 			gChokeCounter -= COUNTRATE;
 		}
 	}
-
 	thinktime.Unclock();
 
 	gLevelTime++;
