@@ -7659,10 +7659,11 @@ domovethings(void)
         JS_ProcessEchoSpot();
     }
 
-    SpriteControl();
-
     actortime.Reset();
     actortime.Clock();
+    SpriteControl();
+    actortime.Unclock();
+
     TRAVERSE_CONNECT(pnum)
     {
         extern short screenpeek;
@@ -7725,7 +7726,6 @@ domovethings(void)
         DoPlayerSectorUpdatePostMove(pp);
         PlayerGlobal(pp);
     }
-    actortime.Unclock();
 
     MultiPlayLimits();
 
