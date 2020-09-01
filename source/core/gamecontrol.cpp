@@ -866,7 +866,7 @@ int RunGame()
 	videoInit();
 
 	// Duke has transitioned to the new main loop, the other games haven't yet.
-	if (g_gameType & (GAMEFLAG_DUKE | GAMEFLAG_RRALL | GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI))
+	if (!(g_gameType & (GAMEFLAG_SW | GAMEFLAG_PSEXHUMED)))
 	{
 		D_CheckNetGame();
 		MainLoop();

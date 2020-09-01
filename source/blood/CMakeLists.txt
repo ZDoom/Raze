@@ -49,7 +49,6 @@ set( PCH_SOURCES
 	src/messages.cpp
 	src/mirrors.cpp
 	src/misc.cpp
-	src/network.cpp
 	src/nnexts.cpp
 	src/osdcmd.cpp
 	src/player.cpp

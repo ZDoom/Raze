@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keydef.h"
 
 #include "gamecontrol.h"
-#include "network.h"
 #include "misc.h"
 #include "version.h"
 #include "network.h"

@@ -29,7 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 #include "sounds.h"
 #include "v_draw.h"
-#include "network.h"
 #include "menus.h"
 #include "gamecontrol.h"
 #include "mapinfo.h"

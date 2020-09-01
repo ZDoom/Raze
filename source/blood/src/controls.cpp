@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-InputPacket gInput, gNetInput;
+InputPacket gInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
@@ -51,7 +51,7 @@ float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
 
-void ctrlGetInput(void)
+void GetInputInternal(InputPacket &inputParm)
 {
     int prevPauseState = paused;
     ControlInfo info;
@@ -64,60 +64,26 @@ void ctrlGetInput(void)
 
     auto scaleAdjustmentToInterval = [=](double x) { return x * kTicsPerSec / (1000.0 / elapsedInputTicks); };
 
-    if (gamestate != GS_LEVEL || System_WantGuiCapture())
-    {
-        gInput = {};
-        CONTROL_GetInput(&info);
-        return;
-    }
-
-    if (paused)
-        return;
-
     InputPacket input = {};
-
-    if (numplayers == 1)
-    {
-        gProfile[myconnectindex].nAutoAim = cl_autoaim;
-        gProfile[myconnectindex].nWeaponSwitch = cl_weaponswitch;
-    }
 
     CONTROL_GetInput(&info);
 
-    ApplyGlobalInput(gInput, &info);
+    ApplyGlobalInput(inputParm, &info);
 
-    bool mouseaim = !(gInput.actions & SB_AIMMODE);
-    if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
-
-    if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-    {
-        if (automapMode != am_off)
-        {
-            gZoom = ClipLow(gZoom - (gZoom >> 4), 64);
-            gViewMap.nZoom = gZoom;
-        }
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-    {
-        if (automapMode != am_off)
-        {
-            gZoom = ClipHigh(gZoom + (gZoom >> 4), 4096);
-            gViewMap.nZoom = gZoom;
-        }
-    }
+    bool mouseaim = !(inputParm.actions & SB_AIMMODE);
+    if (!mouseaim) inputParm.actions |= SB_CENTERVIEW;
 
     if (gPlayer[myconnectindex].nextWeapon == 0)
     {
     }
 
-    if (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-        gInput.actions |= SB_CENTERVIEW;
+    if (inputParm.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+        inputParm.actions |= SB_CENTERVIEW;
 
-    int const run = !!(gInput.actions & SB_RUN);
+    int const run = !!(inputParm.actions & SB_RUN);
     int const keyMove = (1 + run) << 10;
 
-    if (gInput.fvel < keyMove && gInput.fvel > -keyMove)
+    if (inputParm.fvel < keyMove && inputParm.fvel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
             input.fvel += keyMove;
@@ -126,7 +92,7 @@ void ctrlGetInput(void)
             input.fvel -= keyMove;
     }
 
-    if (gInput.svel < keyMove && gInput.svel > -keyMove)
+    if (inputParm.svel < keyMove && inputParm.svel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
             input.svel += keyMove;
@@ -139,7 +105,7 @@ void ctrlGetInput(void)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (gInput.svel < keyMove && gInput.svel > -keyMove)
+        if (inputParm.svel < keyMove && inputParm.svel > -keyMove)
         {
             if (buttonMap.ButtonDown(gamefunc_Turn_Left))
                 input.svel += keyMove;
@@ -210,11 +176,11 @@ void ctrlGetInput(void)
         input.fvel = 0;
         input.svel = 0;
     }
-    gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
-    gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
-    gInput.q16avel += input.q16avel;
-    gInput.q16horz = clamp(gInput.q16horz + input.q16horz, IntToFixed(-127)>>2, IntToFixed(127)>>2);
-    if (gMe && gMe->pXSprite->health != 0 && !paused)
+    inputParm.fvel = clamp(inputParm.fvel + input.fvel, -2048, 2048);
+    inputParm.svel = clamp(inputParm.svel + input.svel, -2048, 2048);
+    inputParm.q16avel += input.q16avel;
+    inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127)>>2, IntToFixed(127)>>2);
+    if (gMe && gMe->pXSprite && gMe->pXSprite->health != 0 && !paused)
     {
         int upAngle = 289;
         int downAngle = -347;
@@ -233,6 +199,16 @@ void ctrlGetInput(void)
             gViewLook = clamp(gViewLook+FloatToFixed(scaleAdjustmentToInterval(gViewLookAdjust)), IntToFixed(downAngle), IntToFixed(upAngle));
         }
         gViewLook = clamp(gViewLook+(input.q16horz << 3), IntToFixed(downAngle), IntToFixed(upAngle));
+    }
+}
+
+void GameInterface::GetInput(InputPacket* packet)
+{
+    GetInputInternal(gInput);
+    if (packet)
+    {
+        *packet = gInput;
+        gInput = {};
     }
 }
 

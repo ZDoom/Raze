@@ -125,15 +125,23 @@ void GameInterface::UpdateSounds()
 {
     SoundListener listener;
 
-    listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
-    listener.velocity.Zero();
-    listener.position = GetSoundPos(&gMe->pSprite->pos);
+    if (gMe->pSprite)
+    {
+        listener.angle = -(float)gMe->pSprite->ang * pi::pi() / 1024; // Build uses a period of 2048.
+        listener.velocity.Zero();
+        listener.position = GetSoundPos(&gMe->pSprite->pos);
+        listener.valid = true;
+    }
+    else
+    {
+        listener.position.Zero();
+        listener.valid = false;
+    }
     listener.underwater = false;
     // This should probably use a real environment instead of the pitch hacking in S_PlaySound3D.
     // listenactor->waterlevel == 3;
     //assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
     listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
-    listener.valid = true;
 
     listener.ListenerObject = gMe->pSprite;
     soundEngine->SetListener(listener);

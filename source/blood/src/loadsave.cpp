@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "db.h"
 #include "messages.h"
-#include "network.h"
 #include "loadsave.h"
 #include "sectorfx.h"
 #include "seq.h"
@@ -44,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "raze_music.h"
 #include "mapinfo.h"
 #include "gamestate.h"
+#include "d_net.h"
 
 #include "aistate.h"
 #include "aiunicult.h"
@@ -501,15 +501,11 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     if (!bVanilla && !gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
         sfxSetReverb(0);
     ambInit();
-    gNetFifoTail = 0;
-    memset(gNetFifoHead, 0, sizeof(gNetFifoHead));
-    gPredictTail = 0;
-    memset(gFifoInput, 0, sizeof(gFifoInput));
     for (int i = 0; i < gNetPlayers; i++)
         playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
 	viewSetErrorMessage("");
     gFrameCount = 0;
-    lastTic = -1;
+    Net_ClearFifo();
     paused = 0;
     gamestate = GS_LEVEL;
     bVanilla = false;
@@ -535,8 +531,10 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 
 	Mus_ResumeSaved();
 
-    netBroadcastPlayerInfo(myconnectindex);
-	return true;
+    PROFILE* pProfile = &gProfile[myconnectindex];
+    strcpy(pProfile->name, playername);
+    pProfile->skill = gSkill;
+    return true;
 }
 
 bool GameInterface::SaveGame(FSaveGameNode* node)

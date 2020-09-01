@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "mapinfo.h"
 #include "gamestruct.h"
+#include "mapinfo.h"
 
 BEGIN_BLD_NS
 
@@ -45,8 +46,8 @@ struct INICHAIN {
 
 extern INICHAIN *pINIChain;
 
+extern MapRecord* gStartNewGame;
 
-extern short BloodVersion;
 extern int gNetPlayers;
 extern bool gRestartGame;
 extern int blood_globalflags;
@@ -77,7 +78,6 @@ struct GameInterface : ::GameInterface
 {
 	const char* Name() override { return "Blood"; }
 	void app_init() override;
-	void RunGameFrame() override;
 	bool GenerateSavePic() override;
 	void FreeGameData() override;
 	FSavegameInfo GetSaveSig() override;
@@ -94,6 +94,11 @@ struct GameInterface : ::GameInterface
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
+	void GetInput(InputPacket* gInput) override;
+	void Ticker() override;
+	void DrawBackground() override;
+	void Startup() override;
+	void Render() override;
 
 	GameStats getStats() override;
 };

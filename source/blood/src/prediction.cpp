@@ -109,8 +109,8 @@ void viewUpdatePrediction(InputPacket *pInput)
     fakePlayerProcess(gMe, pInput);
     fakeActProcessSprites();
     gMe->pSprite->cstat = bakCstat;
-    predictFifo[gPredictTail&255] = predict;
-    gPredictTail++;
+    //predictFifo[gPredictTail&255] = predict;
+    //gPredictTail++;
     if (numplayers != 1)
     {
         gViewAngle = predict.at30;
@@ -706,6 +706,7 @@ void fakeActProcessSprites(void)
 
 void viewCorrectPrediction(void)
 {
+#if 0
     if (numplayers == 1)
     {
         gViewLook = gMe->q16look;
@@ -724,6 +725,7 @@ void viewCorrectPrediction(void)
             viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
         }
     }
+#endif
 }
 
 END_BLD_NS

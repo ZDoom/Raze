@@ -189,8 +189,8 @@ void CViewMap::sub_25C74(void)
     }
     // only clear the actual window.
     twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-    renderDrawMapView(x,y,nZoom>>2,angle);
-    sub_2541C(x,y,nZoom>>2,angle);
+    renderDrawMapView(x,y,nZoom>>1,angle);
+    sub_2541C(x,y,nZoom>>1,angle);
     if (tm)
         setViewport(hud_size);
 }
