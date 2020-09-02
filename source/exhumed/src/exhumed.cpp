@@ -570,34 +570,6 @@ void GameInterface::Ticker()
     CheckProgression(); // todo: Get rid of this.
 }
 
-void GameTicker()
-{
-    int const currentTic = I_GetTime();
-
-    if (paused)
-    {
-        buttonMap.ResetButtonStates();
-    }
-    else
-    {
-        gameupdatetime.Reset();
-        gameupdatetime.Clock();
-
-        while (!EndLevel && currentTic - lastTic >= 1)
-        {
-            lastTic = currentTic;
-            gi->Ticker();
-        }
-
-        gameupdatetime.Unclock();
-
-        if (nPlayerLives[nLocalPlayer] <= 0) {
-            startmainmenu();
-        }
-    }
-}
-
-
 void ExitGame()
 {
     ShutDown();

@@ -102,9 +102,6 @@ struct GameInterface
 	virtual void Ticker() {}
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
 
-	virtual void RunGameFrame() {} // this must go away once things are done.
-
-
 	virtual FString statFPS()
 	{
 		FString output;

@@ -250,14 +250,6 @@ void CheckProgression()
 //
 //---------------------------------------------------------------------------
 
-void GameLoop()
-{
-    GameTicker();
-    PlayerInterruptKeys(true);
-    gi->UpdateSounds();
-}
-
-
 void GameInterface::Startup()
 {
     resettiming();
@@ -278,34 +270,6 @@ void GameInterface::Startup()
         DoTitle([](bool) { startmainmenu(); });
     }
 
-}
-
-void GameInterface::RunGameFrame()
-{
-    again:
-    CheckProgression();
-    switch (gamestate)
-    {
-    default:
-    case GS_STARTUP:
-        break;
-
-    case GS_MENUSCREEN:
-    case GS_FULLCONSOLE:
-        gi->DrawBackground();
-        break;
-
-    case GS_LEVEL:
-        GameLoop();
-        gi->Render();
-        break;
-
-    case GS_INTERMISSION:
-    case GS_INTRO:
-        RunScreenJobFrame();	// This handles continuation through its completion callback.
-        break;
-
-    }
 }
 
 void GameInterface::ErrorCleanup()

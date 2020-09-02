@@ -136,7 +136,6 @@ void I_SetWindowTitle(const char* caption);
 void S_ParseSndInfo();
 void I_DetectOS(void);
 void LoadScripts();
-void app_loop();
 void MainLoop();
 
 
@@ -865,7 +864,7 @@ int RunGame()
 
 	D_CheckNetGame();
 	MainLoop();
-	return 0; // this is never reached. app_loop only exits via exception.
+	return 0; // this is never reached. MainLoop only exits via exception.
 }
 
 //---------------------------------------------------------------------------
@@ -921,49 +920,6 @@ void updatePauseStatus()
 
 	paused ? S_PauseSound(!pausedWithKey, !paused) : S_ResumeSound(paused);
 }
-
-void app_loop()
-{
-	gamestate = GS_STARTUP;
-
-	while (true)
-	{
-		try
-		{
-			I_SetFrameTime();
-			TickSubsystems();
-
-			handleevents();
-			updatePauseStatus();
-			D_ProcessEvents();
-
-			gi->RunGameFrame();
-
-			// Draw overlay elements to the 2D drawer
-			FStat::PrintStat(twod);
-			CT_Drawer();
-			C_DrawConsole();
-			M_Drawer();
-
-			// Handle the final 2D overlays.
-			if (gamestate == GS_LEVEL) DrawFullscreenBlends();
-			DrawRateStuff();
-
-			soundEngine->UpdateSounds(I_GetTime());
-			Mus_UpdateMusic();		// must be at the end.
-
-			videoShowFrame(0);
-			videoSetBrightness(0);	// immediately reset this so that the value doesn't stick around in the backend.
-		}
-		catch (CRecoverableError& err)
-		{
-			gi->ErrorCleanup();
-			C_FullConsole();
-			Printf(TEXTCOLOR_RED "%s\n", err.what());
-		}
-	}
-}
-
 
 //==========================================================================
 //
