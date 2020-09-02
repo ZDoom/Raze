@@ -1756,18 +1756,12 @@ DoPlayerTurnTurret(PLAYERp pp)
     short new_ang;
     short diff;
     SECTOR_OBJECTp sop = pp->sop;
-    InputPacket last_input;
-    int fifo_ndx;
 
     if (!Prediction)
     {
-        // this code looks at the fifo to get the last value for comparison
-        fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
-        last_input = pp->inputfifo[fifo_ndx];
-
-        if (pp->input.q16avel && !last_input.q16avel)
+        if (pp->input.q16avel && !pp->lastinput.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && last_input.q16avel)
+        else if (!pp->input.q16avel && pp->lastinput.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
@@ -2526,11 +2520,6 @@ MoveScrollMode2D(PLAYERp pp)
 
 }
 
-void
-DoPlayerMenuKeys(PLAYERp pp)
-{
-}
-
 void PlayerSectorBound(PLAYERp pp, int amt)
 {
     if (pp->cursectnum < 9)
@@ -2838,21 +2827,14 @@ DoPlayerMoveBoat(PLAYERp pp)
     short save_sectnum;
     SECTOR_OBJECTp sop = pp->sop;
 
-    InputPacket last_input;
-    int fifo_ndx;
-
     if (Prediction)
         return;
 
     if (!Prediction)
     {
-        // this code looks at the fifo to get the last value for comparison
-        fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
-        last_input = pp->inputfifo[fifo_ndx];
-
-        if (labs(pp->input.fvel|pp->input.svel) && !labs(last_input.fvel|last_input.svel))
+        if (labs(pp->input.fvel|pp->input.svel) && !labs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!labs(pp->input.fvel|pp->input.svel) && labs(last_input.fvel|last_input.svel))
+        else if (!labs(pp->input.fvel|pp->input.svel) && labs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -3201,8 +3183,6 @@ DoPlayerMoveTank(PLAYERp pp)
     int j,k;
     short startwall,endwall;
 
-    InputPacket last_input;
-    int fifo_ndx;
     SWBOOL RectClip = !!TEST(sop->flags, SOBJ_RECT_CLIP);
 
     if (Prediction)
@@ -3210,13 +3190,9 @@ DoPlayerMoveTank(PLAYERp pp)
 
     if (!Prediction)
     {
-        // this code looks at the fifo to get the last value for comparison
-        fifo_ndx = (movefifoplc-2) & (MOVEFIFOSIZ - 1);
-        last_input = pp->inputfifo[fifo_ndx];
-
-        if (labs(pp->input.fvel|pp->input.svel) && !labs(last_input.fvel|last_input.svel))
+        if (labs(pp->input.fvel|pp->input.svel) && !labs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_DRIVE_SOUND);
-        else if (!labs(pp->input.fvel|pp->input.svel) && labs(last_input.fvel|last_input.svel))
+        else if (!labs(pp->input.fvel|pp->input.svel) && labs(pp->lastinput.fvel| pp->lastinput.svel))
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
@@ -7596,42 +7572,10 @@ domovethings(void)
     extern int FinishTimer;
 
 
-    // grab values stored in the fifo and put them in the players vars
-    TRAVERSE_CONNECT(i)
-    {
-        pp = Player + i;
-        pp->input = pp->inputfifo[movefifoplc & (MOVEFIFOSIZ - 1)];
-    }
-    movefifoplc++;
-
-#if SYNC_TEST
-    if (/* CTW REMOVED !gTenActivated ||*/ !(movefifoplc & 0x3f))
-        getsyncstat();
-#ifdef DEBUG                            // in DEBUG mode even TEN does sync all the time
-    else
-        getsyncstat();
-#endif
-#endif
-
-    // count the number of times this loop is called and use
-    // for things like sync testing
-
-    totalsynctics += synctics;
-
     updateinterpolations();                  // Stick at beginning of domovethings
     short_updateinterpolations();            // Stick at beginning of domovethings
     so_updateinterpolations();               // Stick at beginning of domovethings
     MoveSkipSavePos();
-
-    // check for pause of multi-play game
-    if (CommEnabled)
-        PauseMultiPlay();
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        pp = Player + pnum;
-        DoPlayerMenuKeys(pp);
-    }
 
     if (paused)
     {
@@ -7727,13 +7671,11 @@ domovethings(void)
 
     MultiPlayLimits();
 
-    //if (MoveSkip8 == 0)     // 8=5x 4=10x, 2=20x, 0=40x per second
-        gi->UpdateSounds();
-
     thinktime.Unclock();
 
+#if 0
     CorrectPrediction(movefifoplc - 1);
-
+#endif
     if (FinishTimer)
     {
         if ((FinishTimer -= synctics) <= 0)

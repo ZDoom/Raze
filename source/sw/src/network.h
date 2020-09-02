@@ -32,7 +32,7 @@ BEGIN_SW_NS
 extern SWBOOL PredictionOn;
 extern PLAYER PredictPlayer;
 extern PLAYERp ppp;
-extern short predictangpos[MOVEFIFOSIZ];
+extern short predictangpos[];
 extern int predictmovefifoplc;
 extern SWBOOL Prediction;
 
@@ -74,7 +74,6 @@ extern gNET gNet;
 void UpdateInputs(void);
 void InitNetVars(void);
 void InitTimingVars(void);
-void waitforeverybody(void);
 void InitNetPlayerOptions(void);
 inline void SW_SendMessage(short, const char*) {}
 

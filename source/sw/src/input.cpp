@@ -40,6 +40,25 @@ double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000
 void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel);
 void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
 
+InputPacket loc;
+
+void
+InitNetVars(void)
+{
+    loc = {};
+}
+
+void
+InitTimingVars(void)
+{
+    PlayClock = 0;
+    randomseed = 17L;
+    MoveSkip8 = 2;
+    MoveSkip2 = 0;
+    MoveSkip4 = 1;                      // start slightly offset so these
+}
+
+
 
 void GameInterface::ResetFollowPos(bool)
 {
@@ -356,6 +375,19 @@ getinput(InputPacket *loc, SWBOOL tied)
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
         loc->setNewWeapon(which_weapon);
+    }
+}
+
+void GameInterface::GetInput(InputPacket *packet)
+{
+    getinput(&loc, FALSE);
+    if (packet)
+    {
+        PLAYERp pp = &Player[myconnectindex];
+        loc.q16ang = pp->camq16ang;
+        loc.q16horiz = pp->camq16horiz;
+        *packet = loc;
+        loc = {};
     }
 }
 

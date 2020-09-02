@@ -2182,7 +2182,7 @@ MoveZ(SECTOR_OBJECTp sop)
 
     if (sop->bob_amt)
     {
-        sop->bob_sine_ndx = (totalsynctics << sop->bob_speed) & 2047;
+        sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
         sop->bob_diff = ((sop->bob_amt * (int) sintable[sop->bob_sine_ndx]) >> 14);
 
         // for all sectors
@@ -2790,7 +2790,7 @@ OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy,
 
     if (sop->bob_amt)
     {
-        sop->bob_sine_ndx = (totalsynctics << sop->bob_speed) & 2047;
+        sop->bob_sine_ndx = (PlayClock << sop->bob_speed) & 2047;
         sop->bob_diff = ((sop->bob_amt * (int) sintable[sop->bob_sine_ndx]) >> 14);
 
         // for all sectors

@@ -75,6 +75,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "screenjob.h"
 #include "inputstate.h"
 #include "gamestate.h"
+#include "d_net.h"
 
 //#include "crc32.h"
 
@@ -267,7 +268,7 @@ void StartMenu()
 //
 //---------------------------------------------------------------------------
 
-void DrawMenuLevelScreen(void)
+void GameInterface::DrawBackground(void)
 {
     const int TITLE_PIC = 2324;
     twod->ClearScreen();
@@ -278,6 +279,13 @@ void DrawMenuLevelScreen(void)
     {
         MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
         MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
+    }
+    // hack alert. This needs to go away.
+    if (SavegameLoaded || NextLevel)
+    {
+        TerminateLevel();
+        ExitLevel = false;
+        gamestate = GS_LEVEL;
     }
 }
 
@@ -462,9 +470,6 @@ void InitPlayerGameSettings(void)
 
 void InitRunLevel(void)
 {
-    //SendVersion(GameVersion);
-    //waitforeverybody();
-
     Mus_Stop();
 
     DoTheCache();
@@ -485,11 +490,6 @@ void InitRunLevel(void)
 
     InitPrediction(&Player[myconnectindex]);
 
-    waitforeverybody();
-
-    //CheckVersion(GameVersion);
-
-    // IMPORTANT - MUST be right before game loop AFTER waitforeverybody
     InitTimingVars();
 
     if (snd_ambience)
@@ -607,57 +607,10 @@ void TerminateLevel(void)
 //
 //---------------------------------------------------------------------------
 
-void MoveTicker(void)
-{
-    int pnum;
-
-    //getpackets();
-
-    if (PredictionOn && CommEnabled)
-    {
-        while (predictmovefifoplc < Player[myconnectindex].movefifoend)
-        {
-            DoPrediction(ppp);
-        }
-    }
-
-    //While you have new input packets to process...
-    if (!CommEnabled)
-        bufferjitter = 0;
-
-    while (Player[myconnectindex].movefifoend - movefifoplc > bufferjitter)
-    {
-        //Make sure you have at least 1 packet from everyone else
-        for (pnum = connecthead; pnum >= 0; pnum = connectpoint2[pnum])
-        {
-            if (movefifoplc == Player[pnum].movefifoend)
-            {
-                break;
-            }
-        }
-
-        //Pnum is >= 0 only if last loop was broken, meaning a player wasn't caught up
-        if (pnum >= 0)
-            break;
-
-        domovethings();
-
-    }
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void EndOfLevel()
 {
     STAT_Update(false);
 
-    // for good measure do this
-    ready2send = 0;
-    waitforeverybody();
     if (FinishedLevel)
     {
         //ResetPalette(mpp);
@@ -697,7 +650,7 @@ void EndOfLevel()
 //
 //---------------------------------------------------------------------------
 
-void GameTicker(void)
+void GameInterface::Ticker(void)
 {
     if (!ExitLevel)
     {
@@ -708,11 +661,6 @@ void GameTicker(void)
             // contains what is needed from calls below
             if (snd_ambience)
                 StartAmbientSound();
-            // crappy little hack to prevent play clock from being overwritten
-            // for load games
-            int SavePlayClock = PlayClock;
-            InitTimingVars();
-            PlayClock = SavePlayClock;
             ExitLevel = false;
         }
         else if (NextLevel)
@@ -721,84 +669,60 @@ void GameTicker(void)
             InitRunLevel();
             ExitLevel = false;
         }
-
-        ready2send = 1;
-
-        int const currentTic = I_GetTime();
-
-        if (paused)
-        {
-            smoothratio = MaxSmoothRatio;
-        }
-        else
-        {
-            gameupdatetime.Reset();
-            gameupdatetime.Clock();
-
-            while (ready2send && currentTic - lastTic >= 1)
-            {
-                lastTic = currentTic;
-                UpdateInputs();
-                MoveTicker();
-            }
-
-            gameupdatetime.Unclock();
-
-            // Get input again to update q16ang/q16horiz.
-            if (!cl_syncinput)
-                getinput(&loc, TRUE);
-
-            smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
-        }
-
-        drawtime.Reset();
-        drawtime.Clock();
-        drawscreen(Player + screenpeek, smoothratio);
-        drawtime.Unclock();
-
-        ready2send = 0;
     }
+
+    int i;
+    TRAVERSE_CONNECT(i)
+    {
+        auto pp = Player + i;
+        pp->lastinput = pp->input;
+        pp->input = playercmds[i].ucmd;
+    }
+
+    domovethings();
+    r_NoInterpolate = paused;
+
     if (ExitLevel)
     {
         ExitLevel = false;
         EndOfLevel();
     }
+
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::Render()
+{
+    if (paused)
+    {
+        smoothratio = MaxSmoothRatio;
+    }
+    else
+    {
+        smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+    }
+
+    drawtime.Reset();
+    drawtime.Clock();
+    drawscreen(Player + screenpeek, smoothratio);
+    drawtime.Unclock();
 }
 
 
-void GameInterface::RunGameFrame()
+void GameInterface::Startup()
 {
-    // if the menu initiazed a new game or loaded a savegame, switch to play mode.
-    if (SavegameLoaded || NextLevel) gamestate = GS_LEVEL;
-    gi->UpdateSounds();
-    switch (gamestate)
+    if (userConfig.CommandMap.IsNotEmpty())
     {
-    default:
-    case GS_STARTUP:
-        if (userConfig.CommandMap.IsNotEmpty())
-        {
-        }
-        else
-        {
-            if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
-            else StartMenu();
-        }
-        break;
-
-    case GS_MENUSCREEN:
-    case GS_FULLCONSOLE:
-        DrawMenuLevelScreen();
-        break;
-
-    case GS_LEVEL:
-        GameTicker();
-        break;
-
-    case GS_INTERMISSION:
-    case GS_INTRO:
-        RunScreenJobFrame();	// This handles continuation through its completion callback.
-        break;
-
+    }
+    else
+    {
+        if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
+        else StartMenu();
     }
 }
 

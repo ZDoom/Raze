@@ -470,11 +470,8 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     }
 
     MWRITE(&loc,sizeof(loc),1,fil);
-    //MWRITE(&oloc,sizeof(oloc),1,fil);
-    //MWRITE(&fsync,sizeof(fsync),1,fil);
-
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
-    MWRITE(&totalsynctics,sizeof(totalsynctics),1,fil);
+    MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 
@@ -873,7 +870,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(&loc,sizeof(loc),1,fil);
 
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
-    MREAD(&totalsynctics,sizeof(totalsynctics),1,fil);  // same as kens lockclock
+    MREAD(&randomseed, sizeof(randomseed), 1, fil);
 
     // do all sector manipulation structures
 

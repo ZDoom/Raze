@@ -49,7 +49,7 @@ typedef struct
     short filler;
 } PREDICT, *PREDICTp;
 
-PREDICT Predict[MOVEFIFOSIZ];
+PREDICT Predict[/*MOVEFIFOSIZ*/256];
 int predictmovefifoplc;
 
 void DoPlayerSectorUpdatePreMove(PLAYERp);
@@ -70,6 +70,7 @@ InitPrediction(PLAYERp pp)
 void
 DoPrediction(PLAYERp ppp)
 {
+#if 0
     USERp u;
     SPRITE spr;
     int bakrandomseed;
@@ -118,11 +119,13 @@ DoPrediction(PLAYERp ppp)
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].z = ppp->posz;
     Predict[predictmovefifoplc & (MOVEFIFOSIZ-1)].q16horiz = ppp->q16horiz;
     predictmovefifoplc++;
+#endif
 }
 
 void
 CorrectPrediction(int actualfifoplc)
 {
+#if 0
     PREDICTp predict = &Predict[actualfifoplc & (MOVEFIFOSIZ-1)];
 
     if (!PredictionOn)
@@ -153,6 +156,7 @@ CorrectPrediction(int actualfifoplc)
     {
         DoPrediction(ppp);
     }
+#endif
 }
 
 END_SW_NS

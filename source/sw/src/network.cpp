@@ -55,7 +55,6 @@ gNET gNet;
 
 //Local multiplayer variables
 // should move this to a local scope of faketimerhandler - do it when able to test
-InputPacket loc;
 
 //InputPacket oloc;
 
@@ -63,7 +62,6 @@ SWBOOL ready2send = 0;
 
 SWBOOL CommEnabled = FALSE;
 uint8_t CommPlayers = 0;
-int movefifoplc, movefifosendplc; //, movefifoend[MAX_SW_PLAYERS];
 
 int bufferjitter = 1;
 
@@ -85,84 +83,6 @@ InitNetPlayerOptions(void)
     {
         pp->SpriteP->pal = PALETTE_PLAYER0 + pp->TeamColor;
         User[pp->SpriteP - sprite]->spal = pp->SpriteP->pal;
-    }
-}
-
-void
-waitforeverybody(void)
-{
-}
-
-
-
-void
-InitNetVars(void)
-{
-    short pnum;
-    PLAYERp pp;
-
-    memset(&loc, 0, sizeof(loc));
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        pp = Player + pnum;
-        pp->movefifoend = 0;
-        memset(pp->inputfifo,0,sizeof(pp->inputfifo));
-    }
-    movefifoplc = 0;
-    movefifosendplc = 0;
-    predictmovefifoplc = 0;
-}
-
-void
-InitTimingVars(void)
-{
-    PlayClock = 0;
-
-    // resettiming();
-    totalsynctics = 0;
-    randomseed = 17L;
-
-    MoveSkip8 = 2;
-    MoveSkip2 = 0;
-    MoveSkip4 = 1;                      // start slightly offset so these
-}
-
-
-void
-UpdateInputs(void)
-{
-    int i, j, k;
-    PLAYERp pp;
-
-    //getpackets();
-
-    if (Player[myconnectindex].movefifoend - movefifoplc >= 100)
-        return;
-
-    getinput(&loc, FALSE);
-
-
-    pp = Player + myconnectindex;
-
-    loc.q16ang = pp->camq16ang;
-    loc.q16horiz = pp->camq16horiz;
-
-    pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
-    pp->movefifoend++;
-    Bmemset(&loc, 0, sizeof(loc));
-
-    if (!CommEnabled)
-    {
-        TRAVERSE_CONNECT(i)
-        {
-            if (i != myconnectindex)
-            {
-                memset(&Player[i].inputfifo[Player[i].movefifoend & (MOVEFIFOSIZ - 1)], 0, sizeof(Player[i].inputfifo[0]));
-                Player[i].movefifoend++;
-            }
-        }
-        return;
     }
 }
 

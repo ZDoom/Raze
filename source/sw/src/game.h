@@ -915,13 +915,7 @@ struct PLAYERstruct
 
     //Multiplayer variables
     InputPacket input;
-
-    //FIFO queue to hold values while faketimerhandler is called from within the drawing routing
-#define MOVEFIFOSIZ 256
-    InputPacket inputfifo[MOVEFIFOSIZ];
-
-
-    int movefifoend;
+    InputPacket lastinput;
 
     // must start out as 0
     int playerreadyflag;
@@ -2013,7 +2007,7 @@ extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 //extern unsigned char synctics, lastsynctics;
 extern short snum;
 
-extern int lockspeed,totalsynctics;
+extern int lockspeed;
 
 #define synctics 3
 #define ACTORMOVETICS (synctics<<1)
@@ -2058,10 +2052,6 @@ extern double smoothratio;
 
 // local copy of variables updated by faketimerhandler
 extern int locselectedgun;
-
-//FIFO queue to hold values while faketimerhandler is called from within the drawing routing
-extern int movefifoplc, movefifoend[];
-
 
 extern SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
 
@@ -2211,7 +2201,6 @@ struct GameInterface : ::GameInterface
 {
     const char* Name() override { return "ShadowWarrior"; }
     void app_init() override;
-    void RunGameFrame() override;
     void FreeGameData() override;
     bool GenerateSavePic() override;
 	void DrawNativeMenuText(int fontnum, int state, double xpos, double ypos, float fontscale, const char* text, int flags) override;
@@ -2232,6 +2221,11 @@ struct GameInterface : ::GameInterface
 	void ResetFollowPos(bool message) override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
+    void GetInput(InputPacket* input) override;
+    void DrawBackground(void) override;
+    void Ticker(void) override;
+    void Render() override;
+    void Startup() override;
 
     GameStats getStats() override;
 };
