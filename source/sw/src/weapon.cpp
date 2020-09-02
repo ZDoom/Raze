@@ -17797,16 +17797,16 @@ InitUzi(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
-    if (uziclock > gameclock)
+    if (uziclock > PlayClock)
     {
-        uziclock = gameclock;
+        uziclock = PlayClock;
         FireSnd = TRUE;
     }
 
-    clockdiff = gameclock - uziclock;
+    clockdiff = PlayClock - uziclock;
     if (clockdiff > UZIFIRE_WAIT)
     {
-        uziclock = gameclock;
+        uziclock = PlayClock;
         FireSnd = TRUE;
     }
 

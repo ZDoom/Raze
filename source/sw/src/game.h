@@ -2053,7 +2053,6 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 ///////////////////////////
 
 extern int gotlastpacketclock;
-extern int ogameclock;
 extern SWBOOL ready2send;
 extern double smoothratio;
 
@@ -2181,7 +2180,7 @@ void AudioUpdate(void); // stupid
 extern short LastSaveNum;
 void LoadSaveMsg(const char *msg);
 
-void UpdateStatusBar(int arg);
+void UpdateStatusBar();
 void InitFonts();
 int32_t registerosdcommands(void);
 void SW_InitMultiPsky(void);

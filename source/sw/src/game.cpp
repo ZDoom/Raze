@@ -291,7 +291,7 @@ void InitLevelGlobals(void)
 {
     ChopTics = 0;
     automapMode = am_off;
-    zoom = 768;
+    zoom = 768 / 2;
     PlayerGravity = 24;
     wait_active_check_offset = 0;
     PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);
@@ -725,11 +725,9 @@ void GameTicker(void)
         ready2send = 1;
 
         int const currentTic = I_GetTime();
-        updateGameClock();
 
         if (paused)
         {
-            buttonMap.ResetButtonStates();
             smoothratio = MaxSmoothRatio;
         }
         else
@@ -740,7 +738,6 @@ void GameTicker(void)
             while (ready2send && currentTic - lastTic >= 1)
             {
                 lastTic = currentTic;
-                ogameclock = gameclock;
                 UpdateInputs();
                 MoveTicker();
             }

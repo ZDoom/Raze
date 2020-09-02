@@ -300,7 +300,7 @@ void JS_InitMirrors(void)
     // Scan wall tags for mirrors
     mirrorcnt = 0;
 	tileDelete(MIRROR);
-	oscilationclock = ogameclock;
+	oscilationclock = I_GetBuildTime();
 
     for (i = 0; i < MAXMIRRORS; i++)
     {
@@ -517,6 +517,7 @@ JS_ProcessEchoSpot()
 #define MAXCAMDIST 8000
 
 int camloopcnt = 0;                    // Timer to cycle through player
+int lastcamclock;
 // views
 short camplayerview = 1;                // Don't show yourself!
 
@@ -531,8 +532,9 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     int* longptr;
 
     SWBOOL bIsWallMirror = FALSE;
+    int camclock = I_GetBuildTime();
 
-    camloopcnt += gameclock - ogameclock;
+    camloopcnt += camclock - lastcamclock;
     if (camloopcnt > (60 * 5))          // 5 seconds per player view
     {
         camloopcnt = 0;
@@ -540,12 +542,13 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
         if (camplayerview >= numplayers)
             camplayerview = 1;
     }
+    lastcamclock = camclock;
 
     // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
     longptr = (int*)&gotpic[MIRRORLABEL >> 3];
     if (longptr && (longptr[0] || longptr[1]))
     {
-        uint32_t oscilation_delta = ogameclock - oscilationclock;
+        uint32_t oscilation_delta = camclock - oscilationclock;
         oscilation_delta -= oscilation_delta % 4;
         oscilationclock += oscilation_delta;
         oscilation_delta *= 2;

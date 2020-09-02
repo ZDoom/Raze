@@ -939,24 +939,36 @@ post_analyzesprites(void)
 }
 #endif
 
-static int mapzoomclock;
+static int nonsharedtimer;
 
 void
 ResizeView(PLAYERp pp)
 {
-    if (M_Active() || paused)
+    int ms = screen->FrameTime;
+    int interval;
+    if (nonsharedtimer > 0 || ms < nonsharedtimer)
+    {
+        interval = ms - nonsharedtimer;
+    }
+    else
+    {
+        interval = 0;
+    }
+    nonsharedtimer = screen->FrameTime;
+
+    if (System_WantGuiCapture())
         return;
 
     if (automapMode != am_off)
     {
-        int32_t timepassed = gameclock - mapzoomclock;
-        mapzoomclock += timepassed;
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-            zoom = max<int32_t>(zoom - mulscale7(timepassed * synctics, zoom), 48);
+        double j = interval * (120. / 1000);
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-            zoom = min<int32_t>(zoom + mulscale7(timepassed * synctics, zoom), 4096);
+            zoom += (int)fmulscale6(j, max(zoom, 256));
+        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
+            zoom -= (int)fmulscale6(j, max(zoom, 256));
 
+        zoom = clamp(zoom, 48, 2048);
     }
 }
 
@@ -1859,11 +1871,11 @@ drawscreen(PLAYERp pp, double smoothratio)
         {
             // only clear the actual window.
             twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-            renderDrawMapView(tx, ty, zoom, FixedToInt(tq16ang));
+            renderDrawMapView(tx, ty, zoom*2, FixedToInt(tq16ang));
         }
 
         // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom, FixedToInt(tq16ang));
+        drawoverheadmap(tx, ty, zoom*2, FixedToInt(tq16ang));
     }
 
     for (j = 0; j < MAXSPRITES; j++)
@@ -1888,7 +1900,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     SyncStatMessage();
 #endif
 
-    UpdateStatusBar(gameclock);
+    UpdateStatusBar();
     DrawCrosshair(pp);
     DoPlayerDiveMeter(pp); // Do the underwater breathing bar
 

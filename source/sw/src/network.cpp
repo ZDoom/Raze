@@ -67,7 +67,6 @@ int movefifoplc, movefifosendplc; //, movefifoend[MAX_SW_PLAYERS];
 
 int bufferjitter = 1;
 
-int ogameclock;
 double smoothratio;
 
 // must start out as 0

@@ -792,11 +792,11 @@ private:
         imgScale = baseScale / img->GetDisplayHeight();
         DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
 
-        if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || (gameclock & 32))
+        if (!althud_flashing || u->Health > (u->MaxHealth >> 2) || (PlayClock & 32))
         {
             int s = -8;
             if (althud_flashing && u->Health > u->MaxHealth)
-                s += (sintable[(gameclock << 5) & 2047] >> 10);
+                s += (sintable[(PlayClock << 5) & 2047] >> 10);
             int intens = clamp(255 - 4 * s, 0, 255);
             auto pe = PalEntry(255, intens, intens, intens);
             format.Format("%d", u->Health);
@@ -854,7 +854,7 @@ private:
                 imgX += (imgX * 0.855) * (strlen - 1);
             }
 
-            if ((!althud_flashing || gameclock & 32 || ammo > (DamageData[weapon].max_ammo / 10)))
+            if ((!althud_flashing || PlayClock & 32 || ammo > (DamageData[weapon].max_ammo / 10)))
             {
                 SBar_DrawString(this, &numberFont, format, -1.5, -numberFont.mFont->GetHeight(), DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
             }
@@ -982,7 +982,7 @@ private:
     //
     //---------------------------------------------------------------------------
 public:
-    void UpdateStatusBar(int arg)
+    void UpdateStatusBar()
     {
         int nPalette = 0;
         double inv_x, inv_y;
@@ -1049,7 +1049,7 @@ static void UpdateFrame(void)
 //
 //---------------------------------------------------------------------------
 
-void UpdateStatusBar(int arg)
+void UpdateStatusBar()
 {
     DSWStatusBar sbar;
 
@@ -1058,7 +1058,7 @@ void UpdateStatusBar(int arg)
         UpdateFrame();
     }
 
-    sbar.UpdateStatusBar(arg);
+    sbar.UpdateStatusBar();
     PLAYERp pp = &Player[screenpeek];
     if (pp->cookieTime > 0)
     {

@@ -562,8 +562,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 #endif
 #endif
 
-    MWRITE(&gameclock,sizeof(gameclock),1,fil);
-    
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
     MWRITE(&MoveSkip2,sizeof(MoveSkip2),1,fil);
     MWRITE(&MoveSkip4,sizeof(MoveSkip4),1,fil);
@@ -935,8 +933,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 #endif
 #endif
-
-    MREAD(&gameclock,sizeof(gameclock),1,fil);
 
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
 
