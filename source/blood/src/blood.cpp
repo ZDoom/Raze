@@ -261,6 +261,15 @@ static void commonTicker()
 		FireProcess();
 		ClearBitString(gotpic, 2342);
 	}
+	// This is single player only.
+	if (gameRestart)
+	{
+		gameRestart = false;
+		levelRestart();
+		gamestate = GS_LEVEL;
+		return;
+	}
+
 	if (gStartNewGame)
 	{
 		auto sng = gStartNewGame;
@@ -321,103 +330,96 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	// This is single player only.
-	if (gameRestart)
-	{
-		gameRestart = false;
-		levelRestart();
-		return;
-	}
 	viewClearInterpolations();
+	if (!(paused || (gGameOptions.nGameType == 0 && M_Active())))
 	{
-		if (paused || (gGameOptions.nGameType == 0 && M_Active()))
-			return;
-	}
-
-	thinktime.Reset();
-	thinktime.Clock();
-	for (int i = connecthead; i >= 0; i = connectpoint2[i])
-	{
-		viewBackupView(i);
-		playerProcess(&gPlayer[i]);
-	}
-
-	trProcessBusy();
-	evProcess(gFrameClock);
-	seqProcess(4);
-	DoSectorPanning();
-
-	actortime.Reset();
-	actortime.Clock();	
-	actProcessSprites();
-	actPostProcess();
-	actortime.Unclock();
-
-	viewCorrectPrediction();
-	ambProcess();
-	viewUpdateDelirium();
-	viewUpdateShake();
-	gi->UpdateSounds();
-	if (gMe->hand == 1)
-	{
-		const int CHOKERATE = 8;
-		const int COUNTRATE = 30;
-		gChokeCounter += CHOKERATE;
-		while (gChokeCounter >= COUNTRATE)
+		thinktime.Reset();
+		thinktime.Clock();
+		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
-			gChoke.at1c(gMe);
-			gChokeCounter -= COUNTRATE;
+			viewBackupView(i);
+			playerProcess(&gPlayer[i]);
 		}
-	}
-	thinktime.Unclock();
 
-	gLevelTime++;
-	gFrameCount++;
-	gFrameClock += 4;
+		trProcessBusy();
+		evProcess(gFrameClock);
+		seqProcess(4);
+		DoSectorPanning();
 
-	for (int i = 0; i < 8; i++)
-	{
-		dword_21EFD0[i] = dword_21EFD0[i] -= 4;
-		if (dword_21EFD0[i] < 0)
-			dword_21EFD0[i] = 0;
-	}
+		actortime.Reset();
+		actortime.Clock();
+		actProcessSprites();
+		actPostProcess();
+		actortime.Unclock();
 
-	if ((gGameOptions.uGameFlags & 1) != 0 && !gStartNewGame)
-	{
-		seqKillAll();
-		if (gGameOptions.uGameFlags & 2)
+		viewCorrectPrediction();
+		ambProcess();
+		viewUpdateDelirium();
+		viewUpdateShake();
+		gi->UpdateSounds();
+		if (gMe->hand == 1)
 		{
-			STAT_Update(true);
-			if (gGameOptions.nGameType == 0)
+			const int CHOKERATE = 8;
+			const int COUNTRATE = 30;
+			gChokeCounter += CHOKERATE;
+			while (gChokeCounter >= COUNTRATE)
 			{
-				auto completion = [](bool) {
-					gamestate = GS_MENUSCREEN;
-					M_StartControlPanel(false);
-					M_SetMenu(NAME_Mainmenu);
-					M_SetMenu(NAME_CreditsMenu);
-					gGameOptions.uGameFlags &= ~3;
-					gQuitGame = 1;
-					gRestartGame = true;
-				};
+				gChoke.at1c(gMe);
+				gChokeCounter -= COUNTRATE;
+			}
+		}
+		thinktime.Unclock();
 
-				if (gGameOptions.uGameFlags & 8)
+		gLevelTime++;
+		gFrameCount++;
+		gFrameClock += 4;
+
+		for (int i = 0; i < 8; i++)
+		{
+			dword_21EFD0[i] = dword_21EFD0[i] -= 4;
+			if (dword_21EFD0[i] < 0)
+				dword_21EFD0[i] = 0;
+		}
+
+		if ((gGameOptions.uGameFlags & 1) != 0 && !gStartNewGame)
+		{
+			seqKillAll();
+			if (gGameOptions.uGameFlags & 2)
+			{
+				STAT_Update(true);
+				if (gGameOptions.nGameType == 0)
 				{
-					levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
+					auto completion = [](bool) {
+						gamestate = GS_MENUSCREEN;
+						M_StartControlPanel(false);
+						M_SetMenu(NAME_Mainmenu);
+						M_SetMenu(NAME_CreditsMenu);
+						gGameOptions.uGameFlags &= ~3;
+						gQuitGame = 1;
+						gRestartGame = true;
+					};
+
+					if (gGameOptions.uGameFlags & 8)
+					{
+						levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
+					}
+					else completion(false);
 				}
-				else completion(false);
+				else
+				{
+					gGameOptions.uGameFlags &= ~3;
+					gRestartGame = 1;
+					gQuitGame = 1;
+				}
 			}
 			else
 			{
-				gGameOptions.uGameFlags &= ~3;
-				gRestartGame = 1;
-				gQuitGame = 1;
+				ShowSummaryScreen();
 			}
 		}
-		else
-		{
-			ShowSummaryScreen();
-		}
+		r_NoInterpolate = false;
 	}
+	else r_NoInterpolate = true;
 	commonTicker();
 }
 
