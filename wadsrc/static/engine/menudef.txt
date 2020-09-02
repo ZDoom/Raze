@@ -1562,7 +1562,7 @@ OptionMenu "EngineCredits1a"
 	StaticText "Raze QA"
 	
 	StaticText "Nash Muhandes     Martin Howe       ", 0
-	StaticText "Lowskill.         Dynamo            ", 0
+	StaticText "sinisterseed      Dynamo            ", 0
 	StaticText "SanyaWaffles      Nigel Rowand      ", 0
 	StaticText "Major Cooke                         ", 0
 }
