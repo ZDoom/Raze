@@ -100,12 +100,6 @@ static int osdcmd_map(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr)
-{
-    C_DoCommand("activatecheat lwghost");
-    return CCMD_OK;
-}
-
 int osdcmd_restartmap(CCmdFuncPtr)
 {
     C_DoCommand("activatecheat lwstart");
@@ -295,7 +289,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("bunny", "bunny: toggles bunny rocket mode", osdcmd_bunny);
     C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
-    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);

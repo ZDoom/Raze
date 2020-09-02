@@ -38,7 +38,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 BEGIN_DUKE_NS
 
 bool cheatGod(cheatseq_t*);
-bool cheatClip(cheatseq_t*);
 bool cheatWeapons(cheatseq_t* s);
 bool cheatStuff(cheatseq_t* s);
 bool cheatKeys(cheatseq_t* s);
@@ -117,20 +116,6 @@ static int ccmd_map(CCmdFuncPtr parm)
 	}
 
 	dowarp(map);
-	return CCMD_OK;
-}
-
-static int ccmd_noclip(CCmdFuncPtr)
-{
-	if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
-	{
-		cheatClip(nullptr);
-	}
-	else
-	{
-		Printf("noclip: Not in a single-player game.\n");
-	}
-
 	return CCMD_OK;
 }
 
@@ -323,7 +308,6 @@ int registerosdcommands(void)
 	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
 	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
 	C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
-	C_RegisterFunction("noclip","noclip: toggles clipping mode", ccmd_noclip);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
 	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);

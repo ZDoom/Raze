@@ -121,4 +121,13 @@ CCMD(godoff)
 	}
 }
 
+CCMD(noclip)
+{
+	if (!CheckCheatmode(true, true))
+	{
+		Net_WriteByte(DEM_GENERICCHEAT);
+		Net_WriteByte(CHT_NOCLIP);
+	}
+}
+
 

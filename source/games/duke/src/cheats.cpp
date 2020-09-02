@@ -105,6 +105,10 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	case CHT_GODON:
 		return cheatGod(player, 1);
 
+	case CHT_NOCLIP:
+		ud.clipping = 1 - ud.clipping;
+		return quoteMgr.GetQuote(ud.clipping ? QUOTE_CHEAT_NOCLIP : QUOTE_CHEAT_NOCLIP);
+
 	default:
 		return nullptr;
 	}
@@ -167,13 +171,6 @@ static bool cheatDebug(cheatseq_t *)
 	// Let's do something useful with this.
 	if (developer == 0) developer = 3;
 	else developer = 0;
-	return true;
-}
-
-bool cheatClip(cheatseq_t *)
-{
-	ud.clipping = 1-ud.clipping;
-	FTA(112+ud.clipping,&ps[myconnectindex]);
 	return true;
 }
 
@@ -458,7 +455,7 @@ static cheatseq_t dukecheats[] = {
 	{ "dnshowmap",    nullptr,          cheatMap },
 	{ "dnkroz",       "god" },
 	{ "dnallen",      nullptr,          cheatAllen },
-	{ "dnclip",       nullptr,          cheatClip },
+	{ "dnclip",       "noclip" },
 	{ "dnweapons",    nullptr,          cheatWeapons },
 	{ "dninventory",  nullptr,          cheatInventory },
 	{ "dnkeys",       nullptr,          cheatKeys },
@@ -481,7 +478,7 @@ static cheatseq_t ww2cheats[] =
 	{ "gi2matt",      nullptr,          cheatTodd },
 	{ "gi2showmap",   nullptr,          cheatMap },
 	{ "gi2ryan",      "god" },
-	{ "gi2clip",      nullptr,          cheatClip },
+	{ "gi2clip",      "noclip" },
 	{ "gi2weapons",   nullptr,          cheatWeapons },
 	{ "gi2inventory", nullptr,          cheatInventory },
 	{ "gi2debug",     nullptr,          cheatDebug, 1 },
@@ -502,7 +499,7 @@ static cheatseq_t namcheats[] = {
 	{ "nvamatt",     nullptr,           cheatTodd },
 	{ "nvashowmap",  nullptr,           cheatMap },
 	{ "nvagod",      "god" },
-	{ "nvaclip",     nullptr,           cheatClip },
+	{ "nvaclip",     "noclip" },
 	{ "nvaweapons",  nullptr,           cheatWeapons }, 
 	{ "nvainventory",nullptr,           cheatInventory },
 	{ "nvadebug",    nullptr,           cheatDebug, 1 },
@@ -527,7 +524,7 @@ static cheatseq_t rrcheats[] = {
 	{ "rdrafael",    nullptr,           cheatTodd },
 	{ "rdshowmap",   nullptr,           cheatMap },
 	{ "rdelvis",     "god" },
-	{ "rdclip",      nullptr,           cheatClip },
+	{ "rdclip",      "noclip" },
 	{ "rdguns",      nullptr,           cheatWeapons }, 
 	{ "rdinventory", nullptr,           cheatInventory },
 	{ "rdkeys",      nullptr,           cheatKeys },

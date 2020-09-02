@@ -74,8 +74,6 @@ void mydeletesprite(int nSprite);
 
 void GrabPalette();
 
-void mysetbrightness(char nBrightness);
-
 void StartFadeIn();
 
 void InitSpiritHead();
@@ -157,6 +155,7 @@ extern short nRedTicks;
 extern short nClockVal;
 
 extern short bSlipMode;
+extern short bDoFlashes;
 
 extern int bVanilla;
 

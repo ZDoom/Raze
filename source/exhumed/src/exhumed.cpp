@@ -61,6 +61,7 @@ extern short bLockPan;
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
 void InitFonts();
+void InitCheats();
 
 int EndLevel = false;
 
@@ -102,7 +103,6 @@ void CopyTileToBitmap(short nSrcTile, short nDestTile, int xPos, int yPos);
 void EraseScreen(int nVal);
 void LoadStatus();
 void MySetView(int x1, int y1, int x2, int y2);
-void mysetbrightness(char al);
 
 char sHollyStr[40];
 
@@ -195,147 +195,6 @@ void ShutDown(void)
     RemoveEngine();
     //UnInitFX();
 }
-
-
-static const char* GodCheat(int nPlayer, int state)
-{
-    if (state == -1)
-    {
-        if (PlayerList[nPlayer].invincibility >= 0)
-            PlayerList[nPlayer].invincibility = -1;
-        else
-            PlayerList[nPlayer].invincibility = 0;
-    }
-    else PlayerList[nPlayer].invincibility = -state;
-
-    return GStrings(PlayerList[nPlayer].invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
-}
-
-const char* GameInterface::GenericCheat(int player, int cheat)
-{
-    switch (cheat)
-    {
-    case CHT_GOD:
-        return GodCheat(player, -1);
-
-    case CHT_GODOFF:
-        return GodCheat(player, 0);
-
-    case CHT_GODON:
-        return GodCheat(player, 1);
-
-    default:
-        return nullptr;
-    }
-}
-
-static bool HollyCheat(cheatseq_t* c)
-{
-    // Do the closest thing to this cheat that's available.
-    C_ToggleConsole();
-    return true;
-}
-
-static bool KimberlyCheat(cheatseq_t* c)
-{
-    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SWEETIE"));
-    return true;
-}
-
-static bool CopCheat(cheatseq_t* c)
-{
-    lLocalCodes |= kButtonCheatGuns;
-    return true;
-}
-
-static bool LiteCheat(cheatseq_t* c)
-{
-    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FLASHES"));
-    bDoFlashes = !bDoFlashes;
-    return true;
-}
-
-static bool KeyCheat(cheatseq_t* c)
-{
-    lLocalCodes |= kButtonCheatKeys;
-    return true;
-}
-
-bool SlipCheat(cheatseq_t* c)
-{
-    if (!nNetPlayerCount)
-    {
-        if (bSlipMode == false)
-        {
-            bSlipMode = true;
-            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SLIPON"));
-        }
-        else {
-            bSlipMode = false;
-            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SLIPOFF"));
-        }
-    }
-    return true;
-}
-
-static bool SnakeCheat(cheatseq_t* c)
-{
-    if (!nNetPlayerCount)
-    {
-        if (bSnakeCam == false)
-        {
-            bSnakeCam = true;
-            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEON"));
-        }
-        else {
-            bSnakeCam = false;
-            Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_SNAKEOFF"));
-        }
-    }
-    return true;
-}
-
-static bool SphereCheat(cheatseq_t* c)
-{
-    Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FULLMAP"));
-    GrabMap();
-    bShowTowers = true;
-    return true;
-}
-
-static bool SwagCheat(cheatseq_t* c)
-{
-    lLocalCodes |= kButtonCheatItems;
-    return true;
-}
-
-static bool CoordCheat(cheatseq_t* c)
-{
-    C_DoCommand("stat printcoords");
-    return true;
-}
-
-
-static cheatseq_t excheats[] = {
-    {"holly",       nullptr,   HollyCheat, 0},
-    {"kimberly",    nullptr,   KimberlyCheat, 0},
-    {"lobocop",     nullptr,   CopCheat, 0},
-    {"lobodeity",   "god" },
-    {"lobolite",    nullptr,   LiteCheat, 0},
-    {"lobopick",    nullptr,   KeyCheat, 0},
-    {"loboslip",    nullptr,   SlipCheat, 0},
-    {"lobosnake",   nullptr,   SnakeCheat, 0},
-    {"lobosphere",  nullptr,   SphereCheat, 0},
-    {"loboswag",    nullptr,   SwagCheat, 0},
-    {"loboxy",      nullptr,   CoordCheat, true},
-};
-
-
-void mysetbrightness(char nBrightness)
-{
-    g_visibility = 2048 - (nBrightness << 9);
-}
-
 
 void DoClockBeep()
 {
@@ -625,7 +484,7 @@ void GameInterface::app_init()
         mi->cdSongId = (nTrack % 8) + 11;
     }
 
-    SetCheats(excheats, countof(excheats));
+	InitCheats();
     registerosdcommands();
     if (nNetPlayerCount == -1)
     {

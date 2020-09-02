@@ -115,9 +115,15 @@ bool Cheat_Responder (event_t *ev)
 		{
 			if (CheatAddKey (cheats, (uint8_t)ev->data2, &eat))
 			{
-				if (cheats->DontCheck || CheckCheatmode ())
+				if (cheats->DontCheck || !CheckCheatmode ())
 				{
-					eat |= cheats->Handler (cheats);
+					if (cheats->Handler)
+						eat |= cheats->Handler (cheats);
+					else if (cheats->ccmd)
+					{
+						eat = true;
+						C_DoCommand(cheats->ccmd);
+					}
 				}
 			}
 			else if (cheats->Pos - cheats->Sequence > 2)

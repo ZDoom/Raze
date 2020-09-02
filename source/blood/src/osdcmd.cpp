@@ -129,21 +129,6 @@ static int osdcmd_give(CCmdFuncPtr parm)
     return CCMD_SHOWHELP;
 }
 
-static int osdcmd_noclip(CCmdFuncPtr)
-{
-    if (numplayers == 1 && gamestate == GS_LEVEL)
-    {
-        SetClipMode(!gNoClip);
-        bPlayerCheated = true;
-    }
-    else
-    {
-        Printf("noclip: Not in a single-player game.\n");
-    }
-
-    return CCMD_OK;
-}
-
 static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 2)
@@ -236,7 +221,6 @@ int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);

@@ -91,6 +91,5 @@ void SetWeapons(bool stat);
 void SetToys(bool stat);
 void SetArmor(bool stat);
 void SetKeys(bool stat);
-void SetClipMode(bool noclip);
 
 END_BLD_NS

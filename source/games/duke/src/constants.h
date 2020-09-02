@@ -210,6 +210,7 @@ enum EQuote
 	QUOTE_NVG_OFF               = 107,
 	QUOTE_VIEW_MODE_OFF         = 109,
 	QUOTE_SHOW_MAP_ON           = 111,
+	QUOTE_CHEAT_CLIP            = 112,
 	QUOTE_CHEAT_NOCLIP          = 113,
 	QUOTE_SAVE_BAD_VERSION      = 114,
 	QUOTE_RESERVED              = 115,

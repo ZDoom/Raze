@@ -6,6 +6,7 @@ set( PCH_SOURCES
 	src/bubbles.cpp
 	src/bullet.cpp
 	src/cd.cpp
+	src/cheats.cpp
 	src/enginesubs.cpp
 	src/exhumed.cpp
 	src/fish.cpp

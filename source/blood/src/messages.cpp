@@ -50,16 +50,15 @@ void sub_5A928(void)
 const char *SetGodMode(bool god)
 {
     playerSetGodMode(gMe, god);
+    bPlayerCheated = true;
     return gMe->godMode? GStrings("TXTB_GODMODE") : GStrings("TXTB_NOTGODMODE");
 }
 
-void SetClipMode(bool noclip)
+const char *SetClipMode(bool noclip)
 {
     gNoClip = noclip;
-    if (gNoClip)
-		viewSetMessage(GStrings("TXTB_NOCLIP"));
-    else
-        viewSetMessage(GStrings("TXTB_NOCLIPOFF"));
+    bPlayerCheated = true;
+    return gNoClip? GStrings("TXTB_NOCLIP") : GStrings("TXTB_NOCLIPOFF");
 }
 
 void packStuff(PLAYER *pPlayer)
@@ -312,18 +311,6 @@ void ProcessCheat(CHEATCODE nCheatCode, char* pzArgs)
     case kCheatSatchel:
         SetToys(true);
         break;
-    case kCheatEvaGalli:
-        SetClipMode(!gNoClip);
-        break;
-    case kCheatMpkfa:
-        viewSetMessage(SetGodMode(!gMe->godMode));
-        break;
-    case kCheatCapInMyAss:
-        viewSetMessage(SetGodMode(false));
-        break;
-    case kCheatNoCapInMyAss:
-        viewSetMessage(SetGodMode(true));
-        break;
     case kCheatIdaho:
         SetWeapons(true);
         break;
@@ -468,6 +455,9 @@ const char* GameInterface::GenericCheat(int player, int cheat)
     case CHT_GODON:
         return SetGodMode(true);
 
+    case CHT_NOCLIP:
+        return SetClipMode(!gNoClip);
+
     default:
         return nullptr;
     }
@@ -514,7 +504,7 @@ static cheatseq_t s_CheatInfo[] = {
     {"CLARICE",               nullptr,           doCheat<kCheatClarice>, 0 }, // CLARICE (Gives 100% body armor, 100% fire armor, 100% spirit armor)
     {"FORK YOU",              nullptr,           doCheat<kCheatForkYou>, 0 }, // FORK YOU (Drunk mode, 1HP, no armor, no weapons, no ammo, no items, no keys, no map, guns akimbo power-up)
     {"LIEBERMAN",             nullptr,           doCheat<kCheatLieberMan>, 0 }, // LIEBERMAN (Sets the you cheated flag to true, at the end of the level you will see that you have cheated)
-    {"EVA GALLI",             nullptr,           doCheat<kCheatEvaGalli>, 0 }, // EVA GALLI (Disable/enable clipping (grant the ability to walk through walls))
+    {"EVA GALLI",             "noclip" },       // EVA GALLI (Disable/enable clipping (grant the ability to walk through walls))
     {"RATE",                  nullptr,           doCheat<kCheatRate>, 1 }, // RATE (Display frame rate (doesn't count as a cheat))
     {"GOONIES",               nullptr,           doCheat<kCheatGoonies>, 0 }, // GOONIES (Enable full map. Displays the message "YOU HAVE THE MAP".)
     //{"SPIELBERG",           nullptr,           doCheat<kCheatSpielberg, 1 }, // SPIELBERG (Disables all cheats. If number values corresponding to a level and episode number are entered after the cheat word (i.e. "spielberg 1 3" for Phantom Express), you will be spawned to said level and the game will begin recording a demo from your actions.)

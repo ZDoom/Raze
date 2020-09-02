@@ -99,7 +99,8 @@ enum ECheat
 	CHT_NONE,
 	CHT_GOD,
 	CHT_GODON,
-	CHT_GODOFF
+	CHT_GODOFF,
+	CHT_NOCLIP,
 };
 
 typedef void(*NetCommandHandler)(int player, uint8_t **stream, bool skip);

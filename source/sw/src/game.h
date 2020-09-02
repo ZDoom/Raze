@@ -1021,41 +1021,42 @@ extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
 // Player Flags
 //
 
-#define PF_DEAD             (BIT(1))
-#define PF_JUMPING          (BIT(2))
-#define PF_FALLING          (BIT(3))
-#define PF_LOCK_CRAWL       (BIT(4))
-#define PF_LOCK_HORIZ       (BIT(5))
-#define PF_LOOKING          (BIT(6))
-#define PF_PLAYER_MOVED     (BIT(7))
-#define PF_PLAYER_RIDING    (BIT(8))
-#define PF_AUTO_AIM         (BIT(9))
-#define PF_RECOIL           (BIT(10))
-
-#define PF_FLYING           (BIT(11))
-#define PF_WEAPON_RETRACT   (BIT(12))
-#define PF_PICKED_UP_AN_UZI (BIT(13))
-#define PF_CRAWLING         (BIT(14))
-#define PF_CLIMBING         (BIT(15))
-#define PF_SWIMMING         (BIT(16))
-#define PF_DIVING           (BIT(17))
-#define PF_DIVING_IN_LAVA   (BIT(18))
-#define PF_TWO_UZI          (BIT(19))
-#define PF_TURN_180         (BIT(21))
-#define PF_DEAD_HEAD        (BIT(22)) // are your a dead head
-#define PF_HEAD_CONTROL     (BIT(23)) // have control of turning when a head?
-#define PF_CLIP_CHEAT       (BIT(24)) // cheat for wall clipping
-#define PF_SLIDING          (BIT(25)) // cheat for wall clipping
-#define PF_VIEW_FROM_OUTSIDE   (BIT(26))
-#define PF_VIEW_OUTSIDE_WEAPON (BIT(27))
-#define PF_VIEW_FROM_CAMERA   (BIT(28))
-#define PF_TANK             (BIT(29)) // Doin the tank thang
-#define PF_MOUSE_AIMING_ON (BIT(30))
-#define PF_WEAPON_DOWN       (BIT(31))
-
-#define PF2_TELEPORTED        (BIT(0))
-#define PF2_INPUT_CAN_TURN    (BIT(1)) // Allow calling DoPlayerTurn from getinput
-#define PF2_INPUT_CAN_AIM     (BIT(2)) // Allow calling DoPlayerHorizon from getinput
+enum
+{
+    PF_DEAD             = (BIT(1)),
+    PF_JUMPING          = (BIT(2)),
+    PF_FALLING          = (BIT(3)),
+    PF_LOCK_CRAWL       = (BIT(4)),
+    PF_LOCK_HORIZ       = (BIT(5)),
+    PF_LOOKING          = (BIT(6)),
+    PF_PLAYER_MOVED     = (BIT(7)),
+    PF_PLAYER_RIDING    = (BIT(8)),
+    PF_AUTO_AIM         = (BIT(9)),
+    PF_RECOIL           = (BIT(10)),
+    PF_FLYING           = (BIT(11)),
+    PF_WEAPON_RETRACT   = (BIT(12)),
+    PF_PICKED_UP_AN_UZI = (BIT(13)),
+    PF_CRAWLING         = (BIT(14)),
+    PF_CLIMBING         = (BIT(15)),
+    PF_SWIMMING         = (BIT(16)),
+    PF_DIVING           = (BIT(17)),
+    PF_DIVING_IN_LAVA   = (BIT(18)),
+    PF_TWO_UZI          = (BIT(19)),
+    PF_TURN_180         = (BIT(21)),
+    PF_DEAD_HEAD        = (BIT(22)), // are your a dead head
+    PF_HEAD_CONTROL     = (BIT(23)), // have control of turning when a head?
+    PF_CLIP_CHEAT       = (BIT(24)), // cheat for wall clipping
+    PF_SLIDING          = (BIT(25)), // cheat for wall clipping
+    PF_VIEW_FROM_OUTSIDE  = (BIT(26)),
+    PF_VIEW_OUTSIDE_WEAPON= (BIT(27)),
+    PF_VIEW_FROM_CAMERA  = (BIT(28)),
+    PF_TANK            = (BIT(29)), // Doin the tank thang
+    PF_MOUSE_AIMING_ON = (BIT(30)),
+    PF_WEAPON_DOWN     = (BIT(31)),
+    PF2_TELEPORTED       = (BIT(0)),
+    PF2_INPUT_CAN_TURN   = (BIT(1)), // Allow calling DoPlayerTurn from getinput
+    PF2_INPUT_CAN_AIM    = (BIT(2)), // Allow calling DoPlayerHorizon from getinput
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //

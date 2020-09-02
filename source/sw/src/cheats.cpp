@@ -74,7 +74,6 @@ const char *GameInterface::CheckCheatMode()
      return nullptr;
  }
 
-
 const char *GameInterface::GenericCheat(int player, int cheat)
 {
     switch (cheat)
@@ -90,6 +89,10 @@ const char *GameInterface::GenericCheat(int player, int cheat)
     case CHT_GODON:
         GodMode = 1;   // fixme: Make god mode a player property.
         return GStrings("GOD MODE: ON");
+
+    case CHT_NOCLIP:
+        Player[player].Flags ^= PF_CLIP_CHEAT;
+        return GStrings(Player[player].Flags & PF_CLIP_CHEAT ? "CLIPPING: OFF" : "CLIPPING: ON");
 
     default:
         return nullptr;
@@ -211,15 +214,6 @@ bool AmmoCheat(cheatseq_t* c)
 
         PlayerUpdateWeapon(p, u->WeaponNum);
     }
-    return true;
-}
-
-bool ClipCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    FLIP(pp->Flags, PF_CLIP_CHEAT);
-    PutStringInfo(pp, GStrings(TEST(pp->Flags, PF_CLIP_CHEAT) ? "CLIPPING: OFF" : "CLIPPING: ON"));
     return true;
 }
 
@@ -442,7 +436,7 @@ static cheatseq_t swcheats[] = {
     {"lwguns",     nullptr,     WeaponCheat, 0},
     {"lwtrek##",   nullptr,     WarpCheat, 0},
     {"lwgreed",    nullptr,     EveryCheatToggle, 0},
-    {"lwghost",    nullptr,     ClipCheat, 0},
+    {"lwghost",    "noclip" },
     {"lwstart",    nullptr,     RestartCheat, 0},
     {"lwloc",      nullptr,     LocCheat, 0},
     {"lwmap",      nullptr,     MapCheat, 0},

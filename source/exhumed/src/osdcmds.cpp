@@ -34,21 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-bool SlipCheat(cheatseq_t* c);
-
-static int osdcmd_noclip(CCmdFuncPtr)
-{
-    if (!nNetPlayerCount && !bInDemo)
-    {
-        SlipCheat(nullptr);
-    }
-    else
-    {
-        Printf("noclip: Not in a single-player game.\n");
-    }
-
-    return CCMD_OK;
-}
 
 static int osdcmd_map(CCmdFuncPtr parm)
 {
@@ -212,7 +197,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     C_RegisterFunction("exitmap", "exits current map", osdcmd_exitmap);
     C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
-    C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
