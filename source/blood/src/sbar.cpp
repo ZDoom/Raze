@@ -748,9 +748,10 @@ private:
             {
                 FString format;
                 short clip = CalcMagazineAmount(num, 2, pPlayer->weaponState == 1);
+                short total = num - clip;
                 format.Format("%d/%d", clip, num - clip);
 
-                DrawCharArray(format.GetChars(), kSBarNumberAmmo, 258-320, 187 - 200, 0, 0, 512);
+                DrawCharArray(format.GetChars(), kSBarNumberAmmo, (total < 10 ? 267 : 258) - 320, 187 - 200, 0, 0, 512);
             }
         }
 
