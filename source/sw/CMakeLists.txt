@@ -55,7 +55,6 @@ set( PCH_SOURCES
 	src/spike.cpp
 	src/sprite.cpp
 	src/sumo.cpp
-	src/sync.cpp
 	src/text.cpp
 	src/track.cpp
 	src/vator.cpp

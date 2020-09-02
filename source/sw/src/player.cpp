@@ -7593,7 +7593,6 @@ domovethings(void)
     short i, pnum;
 
     PLAYERp pp;
-    extern unsigned int MoveThingsCount;
     extern int FinishTimer;
 
 
@@ -7616,7 +7615,6 @@ domovethings(void)
 
     // count the number of times this loop is called and use
     // for things like sync testing
-    MoveThingsCount++;
 
     totalsynctics += synctics;
 

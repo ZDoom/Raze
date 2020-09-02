@@ -64,12 +64,9 @@ SWBOOL ready2send = 0;
 SWBOOL CommEnabled = FALSE;
 uint8_t CommPlayers = 0;
 int movefifoplc, movefifosendplc; //, movefifoend[MAX_SW_PLAYERS];
-unsigned int MoveThingsCount;
 
 //int myminlag[MAX_SW_PLAYERS];
 int mymaxlag, otherminlag, bufferjitter = 1;
-extern char sync_first[MAXSYNCBYTES][60];
-extern int sync_found;
 
 // GAME.C sync state variables
 uint8_t syncstat[MAXSYNCBYTES];
@@ -128,8 +125,6 @@ InitNetVars(void)
     predictmovefifoplc = 0;
 
     memset(&syncstat, 0, sizeof(syncstat));
-    memset(sync_first, 0, sizeof(sync_first));
-    sync_found = FALSE;
 
     TRAVERSE_CONNECT(pnum)
     {
@@ -151,15 +146,6 @@ InitTimingVars(void)
     MoveSkip8 = 2;
     MoveSkip2 = 0;
     MoveSkip4 = 1;                      // start slightly offset so these
-    // don't move the same
-    // as the Skip2's
-    MoveThingsCount = 0;
-
-    // CTW REMOVED
-    //if (gTenActivated)
-    //	tenResetClock();
-    // CTW REMOVED END
-
 }
 
 
