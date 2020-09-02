@@ -504,7 +504,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
     for (int i = 0; i < gNetPlayers; i++)
         playerSetRace(&gPlayer[i], gPlayer[i].lifeMode);
 	viewSetErrorMessage("");
-    gFrameCount = 0;
     Net_ClearFifo();
     paused = 0;
     gamestate = GS_LEVEL;
@@ -598,7 +597,6 @@ void MyLoadSave::Load(void)
     Read(gotsector, sizeof(gotsector));
     Read(&gFrameClock, sizeof(gFrameClock));
     Read(&gFrameCount, sizeof(gFrameCount));
-    Read(&gLevelTime, sizeof(gLevelTime));
     Read(&paused, sizeof(paused));
     Read(baseWall, sizeof(baseWall[0])*numwalls);
     Read(baseSprite, sizeof(baseSprite[0])*nNumSprites);
@@ -687,7 +685,6 @@ void MyLoadSave::Save(void)
     Write(gotsector, sizeof(gotsector));
     Write(&gFrameClock, sizeof(gFrameClock));
     Write(&gFrameCount, sizeof(gFrameCount));
-    Write(&gLevelTime, sizeof(gLevelTime));
     Write(&paused, sizeof(paused));
     Write(baseWall, sizeof(baseWall[0])*numwalls);
     Write(baseSprite, sizeof(baseSprite[0])*nNumSprites);

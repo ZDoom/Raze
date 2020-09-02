@@ -50,8 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-extern bool gameRestart;
-
 PROFILE gProfile[kMaxPlayers];
 
 PLAYER gPlayer[kMaxPlayers];
@@ -1370,7 +1368,7 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    gameRestart = 1;
+                    gStartNewGame = currentLevel;
                 }
                 else
                     playerStart(pPlayer->nPlayer);

@@ -54,8 +54,6 @@ int gSkill = 2;
 int gEpisodeCount;
 int gNextLevel; // fixme: let this contain a full level number.
 
-int gLevelTime;
-
 char BloodIniFile[BMAX_PATH] = "BLOOD.INI";
 bool bINIOverride = false;
 IniFile *BloodINI;
@@ -233,11 +231,6 @@ void levelEndLevel(int arg)
             gNextLevel = nEndingB;
         break;
     }
-}
-
-void levelRestart(void)
-{
-    gStartNewGame = currentLevel;
 }
 
 void levelTryPlayMusic()

@@ -32,7 +32,6 @@ BEGIN_BLD_NS
 
 extern int gFrameClock;
 extern int gFrameCount;
-//extern int gGameClock;
 extern bool bVanilla;
 
 #define MAXPLAYERNAME 16

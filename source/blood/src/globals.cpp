@@ -35,7 +35,6 @@ BEGIN_BLD_NS
 bool bVanilla = false;
 int gFrameClock;
 int gFrameCount;
-//int volatile gGameClock;
 
 static const char *_module;
 static int _line;

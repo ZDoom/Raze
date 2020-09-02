@@ -123,13 +123,13 @@ void GetInputInternal(InputPacket &inputParm)
 
     static int32_t turnHeldTime;
     static int32_t lastInputClock;  // MED
-    int32_t const  elapsedTics = gameclock - lastInputClock;
+    int32_t const  elapsedTics = gFrameClock - lastInputClock;
 
     // Blood's q16mlook scaling is different from the other games, therefore use the below constant to attenuate
     // the speed to match the other games.
     float const mlookScale = 3.25f;
 
-    lastInputClock = gameclock;
+    lastInputClock = gFrameClock;
 
     if (turnLeft || turnRight)
         turnHeldTime += elapsedTics;

@@ -85,7 +85,6 @@ extern bool bINIOverride;
 extern int gEpisodeCount;
 extern int gNextLevel;
 extern bool gGameStarted;
-extern int gLevelTime;
 
 void levelInitINI(const char *pzIni);
 void levelOverrideINI(const char *pzIni);
@@ -98,7 +97,6 @@ void CheckKeyAbend(const char *pzSection, const char *pzKey);
 void levelLoadDefaults(void);
 // arg: 0 is normal exit, 1 is secret level
 void levelEndLevel(int arg);
-void levelRestart(void);
 void levelTryPlayMusic();
 
 END_BLD_NS

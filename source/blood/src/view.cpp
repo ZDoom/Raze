@@ -224,7 +224,7 @@ void InitStatusBar(void)
 }
 GameStats GameInterface::getStats()
 {
-	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gLevelTime / kTicsPerSec, gPlayer[myconnectindex].fragCount };
+	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
 }
 
 void viewDrawMapTitle(void)
@@ -234,9 +234,9 @@ void viewDrawMapTitle(void)
 
     int const fadeStartTic = kTicsPerSec;
     int const fadeEndTic = int(1.5f*kTicsPerSec);
-    if (gLevelTime > fadeEndTic)
+    if (gFrameCount > fadeEndTic)
         return;
-    int const alpha = 255 - clamp((gLevelTime-fadeStartTic)*255/(fadeEndTic-fadeStartTic), 0, 255);
+    int const alpha = 255 - clamp((gFrameCount-fadeStartTic)*255/(fadeEndTic-fadeStartTic), 0, 255);
 
     if (alpha != 0)
     {
@@ -762,7 +762,7 @@ void viewDrawScreen(bool sceneonly)
                 tmp--;
             }
             PLAYER* pOther = &gPlayer[i];
-            //othercameraclock = gGameClock;
+            //othercameraclock = gFrameClock + mulscale16(4, (int)gInterpolate);;
             if (!tileData(4079))
             {
                 TileFiles.tileCreate(4079, 128, 128);

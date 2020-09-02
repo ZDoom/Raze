@@ -69,7 +69,6 @@ BEGIN_BLD_NS
 void InitCheats();
 
 bool bNoDemo = false;
-bool gameRestart;
 int gNetPlayers;
 int gQuitRequest;
 int gChokeCounter = 0;
@@ -100,6 +99,8 @@ void EndLevel(void)
 void StartLevel(MapRecord* level)
 {
 	if (!level) return;
+	gFrameCount = 0;
+	gFrameClock = 0;
 	STAT_Update(0);
 	EndLevel();
 	gInput = {};
@@ -142,7 +143,6 @@ void StartLevel(MapRecord* level)
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
 	gKillMgr.Clear();
 	gSecretMgr.Clear();
-	gLevelTime = 0;
 	automapping = 1;
 
 	int modernTypesErased = 0;
@@ -239,15 +239,12 @@ void StartLevel(MapRecord* level)
 		sfxSetReverb(0);
 	ambInit();
 	Net_ClearFifo();
-	gFrameCount = 0;
 	gChokeCounter = 0;
 	M_ClearMenus();
 	// viewSetMessage("");
 	viewSetErrorMessage("");
-	gameclock = 0;
 	paused = 0;
 	levelTryPlayMusic();
-	gFrameClock = 0;
 	gChoke.reset();
 }
 
@@ -261,15 +258,6 @@ static void commonTicker()
 		FireProcess();
 		ClearBitString(gotpic, 2342);
 	}
-	// This is single player only.
-	if (gameRestart)
-	{
-		gameRestart = false;
-		levelRestart();
-		gamestate = GS_LEVEL;
-		return;
-	}
-
 	if (gStartNewGame)
 	{
 		auto sng = gStartNewGame;
@@ -331,6 +319,7 @@ void GameInterface::Ticker()
 	}
 
 	viewClearInterpolations();
+
 	if (!(paused || (gGameOptions.nGameType == 0 && M_Active())))
 	{
 		thinktime.Reset();
@@ -370,7 +359,6 @@ void GameInterface::Ticker()
 		}
 		thinktime.Unclock();
 
-		gLevelTime++;
 		gFrameCount++;
 		gFrameClock += 4;
 
