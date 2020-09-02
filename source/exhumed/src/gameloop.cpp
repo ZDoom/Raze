@@ -50,6 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+void CheckProgression();
+
 short nBestLevel;
 static int32_t nonsharedtimer;
 
@@ -114,8 +116,9 @@ static void showmap(short nLevel, short nLevelNew, short nLevelBest, TArray<JobD
 }
 
 
-static void GameDisplay(void)
+void GameInterface::Render()
 {
+    CheckKeys2();
     drawtime.Reset();
     drawtime.Clock();
 
@@ -142,8 +145,9 @@ static void GameDisplay(void)
 // 
 //
 //---------------------------------------------------------------------------
+void CheckProgression();
 
-void drawmenubackground()
+void GameInterface::DrawBackground()
 {
     auto nLogoTile = EXHUMED ? kExhumedLogo : kPowerslaveLogo;
     int dword_9AB5F = (I_GetBuildTime() / 16) & 3;
@@ -157,7 +161,7 @@ void drawmenubackground()
     // draw the fire urn/lamp thingies
     DrawRel(kTile3512 + dword_9AB5F, 50, 150, 32);
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 32);
-
+    CheckProgression();
 }
 
 //---------------------------------------------------------------------------
@@ -251,9 +255,30 @@ void GameLoop()
     GameTicker();
     PlayerInterruptKeys(true);
     gi->UpdateSounds();
-    CheckKeys2();
 }
 
+
+void GameInterface::Startup()
+{
+    resettiming();
+    GameAction = -1;
+    EndLevel = false;
+
+    if (userConfig.CommandMap.IsNotEmpty())
+    {
+        /*
+        auto map = FindMapByName(userConfig.CommandMap);
+        if (map) GameAction = map->levelNumber;
+        userConfig.CommandMap = "";
+        goto again;
+        */
+    }
+    else
+    {
+        DoTitle([](bool) { startmainmenu(); });
+    }
+
+}
 
 void GameInterface::RunGameFrame()
 {
@@ -263,31 +288,16 @@ void GameInterface::RunGameFrame()
     {
     default:
     case GS_STARTUP:
-        resettiming();
-        GameAction = -1;
-        EndLevel = false;
-
-        if (userConfig.CommandMap.IsNotEmpty())
-        {
-            auto map = FindMapByName(userConfig.CommandMap);
-            if (map) GameAction = map->levelNumber;
-            userConfig.CommandMap = "";
-            goto again;
-        }
-        else
-        {
-            DoTitle([](bool) { startmainmenu(); });
-        }
         break;
 
     case GS_MENUSCREEN:
     case GS_FULLCONSOLE:
-        drawmenubackground();
+        gi->DrawBackground();
         break;
 
     case GS_LEVEL:
         GameLoop();
-        GameDisplay();
+        gi->Render();
         break;
 
     case GS_INTERMISSION:

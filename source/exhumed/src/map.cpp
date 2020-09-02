@@ -434,7 +434,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         if (p == screenpeek || GTFLAGS(GAMETYPE_OTHERPLAYERSINMAP))
         {
             if (pSprite->xvel > 16 && pPlayer->on_ground)
-                i = APLAYERTOP+(((int32_t) gameclock>>4)&3);
+                i = APLAYERTOP+(((int32_t) leveltime>>4)&3);
             else
                 i = APLAYERTOP;
 

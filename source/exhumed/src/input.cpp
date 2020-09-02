@@ -325,4 +325,10 @@ void PlayerInterruptKeys(bool after)
 }
 
 
+void GameInterface::GetInput(InputPacket* packet)
+{
+    PlayerInterruptKeys(packet == nullptr);
+    if (packet) *packet = localInput;
+}
+
 END_PS_NS

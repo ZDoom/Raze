@@ -127,7 +127,7 @@ void InitSpiritHead()
 
     sprite[nSpiritSprite].cstat &= 0x7FFF;
 
-    nHeadTimeStart = gameclock;
+    nHeadTimeStart = leveltime;
 
     memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
@@ -152,8 +152,8 @@ void InitSpiritHead()
     StartSwirlies();
 
     sprintf(filename, "LEV%d.PUP", currentLevel->levelNumber);
-    lNextStateChange = gameclock;
-    lHeadStartClock = gameclock;
+    lNextStateChange = leveltime;
+    lHeadStartClock = leveltime;
 
 	auto headfd = fileSystem.OpenFileReader(filename);
 	if (!headfd.isOpen())
@@ -219,7 +219,7 @@ int DoSpiritHead()
 
     if (nHeadStage < 2 || nHeadStage != 5)
     {
-        nPixelsToShow = (gameclock - nHeadTimeStart) * 15;
+        nPixelsToShow = (leveltime - nHeadTimeStart) * 15;
 
         if (nPixelsToShow > nPixels) {
             nPixelsToShow = nPixels;
@@ -242,10 +242,10 @@ int DoSpiritHead()
 
             if (!nHeadStage)
             {
-                if ((gameclock - nHeadTimeStart) > 480)
+                if ((leveltime - nHeadTimeStart) > 480)
                 {
                     nHeadStage = 1;
-                    nHeadTimeStart = gameclock + 480;
+                    nHeadTimeStart = leveltime + 480;
                 }
 
                 for (int i = 0; i < nPixelsToShow; i++)
@@ -426,7 +426,7 @@ int DoSpiritHead()
                     Worktile[kSpiritX + ecx] = pixelval[i];
                 }
 
-                if ((gameclock - lHeadStartClock) > 600)
+                if ((leveltime - lHeadStartClock) > 600)
                 {
                     CopyHeadToWorkTile(kTileRamsesGold);
                 }
@@ -467,7 +467,7 @@ int DoSpiritHead()
     }
     else
     {
-        if (lNextStateChange <= gameclock)
+        if (lNextStateChange <= leveltime)
         {
             if (nPupData)
             {

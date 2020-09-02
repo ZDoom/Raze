@@ -373,6 +373,8 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
+void CheckProgression();
+
 void GameMove(void)
 {
     FixPalette();
@@ -444,10 +446,133 @@ static int SelectAltWeapon(int weap2)
     return 0;
 }
 
+
+void GameInterface::Ticker()
+{
+    if (!paused)
+    {
+        nPlayerDAng += localInput.q16avel;
+        inita &= kAngleMask;
+
+        for (int i = 0; i < 4; i++)
+        {
+            lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
+            lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
+            lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
+            lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
+        }
+        int weap2 = localInput.getNewWeapon();
+        if (weap2 == WeaponSel_Next)
+        {
+            weap2 = SelectNextWeapon(weap2);
+        }
+        else if (weap2 == WeaponSel_Prev)
+        {
+            weap2 = SelectPrevWeapon(weap2);
+        }
+        else if (weap2 == WeaponSel_Alt)
+        {
+            weap2 = SelectAltWeapon(weap2);
+        }
+
+        if (localInput.actions & SB_INVPREV)
+        {
+            int nItem = nPlayerItem[nLocalPlayer];
+
+            int i;
+            for (i = 6; i > 0; i--)
+            {
+                nItem--;
+                if (nItem < 0) nItem = 5;
+
+                if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                    break;
+            }
+
+            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+        }
+
+        if (localInput.actions & SB_INVNEXT)
+        {
+            int nItem = nPlayerItem[nLocalPlayer];
+
+            int i;
+            for (i = 6; i > 0; i--)
+            {
+                nItem++;
+                if (nItem == 6) nItem = 0;
+
+                if (PlayerList[nLocalPlayer].items[nItem] != 0)
+                    break;
+            }
+
+            if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
+        }
+
+        if (localInput.actions & SB_INVUSE)
+        {
+            if (nPlayerItem[nLocalPlayer] != -1)
+            {
+                localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
+            }
+        }
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (localInput.isItemUsed(i))
+            {
+                localInput.clearItemUsed(i);
+                if (PlayerList[nLocalPlayer].items[i] > 0)
+                {
+                    if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
+                    {
+                        sPlayerInput[nLocalPlayer].nItem = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (localInput.actions & SB_CENTERVIEW)
+        {
+            bLockPan = false;
+            bPlayerPan = false;
+            //PlayerList[nLocalPlayer].q16horiz = IntToFixed(92);
+            nDestVertPan[nLocalPlayer] = IntToFixed(92);
+        }
+        if (localInput.actions & SB_TURNAROUND)
+        {
+            // todo
+        }
+
+
+        sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
+        sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
+        // make weapon selection persist until it gets used up.
+        sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
+        int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
+        sPlayerInput[nLocalPlayer].actions = localInput.actions;
+        if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
+        sPlayerInput[nLocalPlayer].nTarget = besttarget;
+
+        Ra[nLocalPlayer].nTarget = besttarget;
+
+        lLocalCodes = 0;
+        nPlayerDAng = 0;
+
+        sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
+
+        leveltime++;
+        GameMove();
+        r_NoInterpolate = false;
+    }
+    else r_NoInterpolate = true;
+    CheckProgression(); // todo: Get rid of this.
+}
+
 void GameTicker()
 {
     int const currentTic = I_GetTime();
-    gameclock = I_GetBuildTime();
 
     if (paused)
     {
@@ -461,122 +586,7 @@ void GameTicker()
         while (!EndLevel && currentTic - lastTic >= 1)
         {
             lastTic = currentTic;
-
-            PlayerInterruptKeys(false);
-
-            nPlayerDAng += localInput.q16avel;
-            inita &= kAngleMask;
-
-            for (int i = 0; i < 4; i++)
-            {
-                lPlayerXVel += localInput.fvel * Cos(inita) + localInput.svel * Sin(inita);
-                lPlayerYVel += localInput.fvel * Sin(inita) - localInput.svel * Cos(inita);
-                lPlayerXVel -= (lPlayerXVel >> 5) + (lPlayerXVel >> 6);
-                lPlayerYVel -= (lPlayerYVel >> 5) + (lPlayerYVel >> 6);
-            }
-            int weap2 = localInput.getNewWeapon();
-            if (weap2 == WeaponSel_Next)
-            {
-                weap2 = SelectNextWeapon(weap2);
-            }
-            else if (weap2 == WeaponSel_Prev)
-            {
-                weap2 = SelectPrevWeapon(weap2);
-            }
-            else if (weap2 == WeaponSel_Alt)
-            {
-                weap2 = SelectAltWeapon(weap2);
-            }
-
-            if (localInput.actions & SB_INVPREV)
-            {
-                int nItem = nPlayerItem[nLocalPlayer];
-
-                int i;
-                for (i = 6; i > 0; i--)
-                {
-                    nItem--;
-                    if (nItem < 0) nItem = 5;
-
-                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
-                        break;
-                }
-
-                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
-            }
-
-            if (localInput.actions & SB_INVNEXT)
-            {
-                int nItem = nPlayerItem[nLocalPlayer];
-
-                int i;
-                for (i = 6; i > 0; i--)
-                {
-                    nItem++;
-                    if (nItem == 6) nItem = 0;
-
-                    if (PlayerList[nLocalPlayer].items[nItem] != 0)
-                        break;
-                }
-
-                if (i > 0) SetPlayerItem(nLocalPlayer, nItem);
-            }
-
-            if (localInput.actions & SB_INVUSE)
-            {
-                if (nPlayerItem[nLocalPlayer] != -1)
-                {
-                    localInput.setItemUsed(nPlayerItem[nLocalPlayer]);
-                }
-            }
-
-            for (int i = 0; i < 6; i++)
-            {
-                if (localInput.isItemUsed(i))
-                {
-                    localInput.clearItemUsed(i);
-                    if (PlayerList[nLocalPlayer].items[i] > 0)
-                    {
-                        if (nItemMagic[i] <= PlayerList[nLocalPlayer].nMagic)
-                        {
-                            sPlayerInput[nLocalPlayer].nItem = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (localInput.actions & SB_CENTERVIEW)
-            {
-                bLockPan = false;
-                bPlayerPan = false;
-                //PlayerList[nLocalPlayer].q16horiz = IntToFixed(92);
-                nDestVertPan[nLocalPlayer] = IntToFixed(92);
-            }
-            if (localInput.actions & SB_TURNAROUND)
-            {
-                // todo
-            }
-
-
-            sPlayerInput[nLocalPlayer].xVel = lPlayerXVel;
-            sPlayerInput[nLocalPlayer].yVel = lPlayerYVel;
-            // make weapon selection persist until it gets used up.
-            sPlayerInput[nLocalPlayer].buttons = lLocalCodes;
-            int weap = sPlayerInput[nLocalPlayer].getNewWeapon();
-            sPlayerInput[nLocalPlayer].actions = localInput.actions;
-            if (weap2 <= 0 || weap2 > 7) sPlayerInput[nLocalPlayer].SetNewWeapon(weap);
-            sPlayerInput[nLocalPlayer].nTarget = besttarget;
-
-            Ra[nLocalPlayer].nTarget = besttarget;
-
-            lLocalCodes = 0;
-            nPlayerDAng = 0;
-
-            sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
-
-            leveltime++;
-            GameMove();
+            gi->Ticker();
         }
 
         gameupdatetime.Unclock();

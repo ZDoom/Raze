@@ -30,18 +30,12 @@ BEGIN_PS_NS
 
 void resettiming()
 {
-    gameclock = 0;
     lastTic = -1;
 }
 
 void doTileLoad(int i)
 {
-	tileLoad(i);
-
-#ifdef USE_OPENGL
 	if (r_precache) PrecacheHardwareTextures(i);
-#endif
-
 }
 
 void precache()

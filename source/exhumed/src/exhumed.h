@@ -197,7 +197,7 @@ public:
 	void ComputeCinemaText();
 	void ReadyCinemaText(uint16_t nVal);
 	void DisplayText();
-	bool AdvanceCinemaText(int gameclock);
+	bool AdvanceCinemaText(int clock);
 };
 
 
@@ -250,6 +250,11 @@ struct GameInterface : ::GameInterface
 	void QuitToTitle() override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
+    void Ticker() override;
+    void DrawBackground() override;
+    void Render() override;
+    void GetInput(InputPacket* packet) override;
+    void Startup() override;
 
 	::GameStats getStats() override;
 };

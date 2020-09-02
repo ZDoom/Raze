@@ -1492,7 +1492,7 @@ void DimLights()
 void DoFinale()
 {
     static int dword_96788 = 0;
-    static int dword_1542FC = 0;
+    static int nextstage = 0;
 
     if (!lFinaleStart)
         return;
@@ -1529,20 +1529,20 @@ void DoFinale()
                 {
                     StopLocalSound();
                     PlayLocalSound(StaticSound[kSound76], 0);
-                    dword_1542FC = gameclock + 120;
+                    nextstage = leveltime + 120;
                     nFinaleStage++;
                 }
             }
             else if (nFinaleStage <= 2)
             {
-                if (gameclock >= dword_1542FC)
+                if (leveltime >= nextstage)
                 {
                     PlayLocalSound(StaticSound[kSound77], 0);
                     nFinaleStage++;
-                    dword_1542FC = gameclock + 360;
+                    nextstage = leveltime + 360;
                 }
             }
-            else if (nFinaleStage == 3 && gameclock >= dword_1542FC)
+            else if (nFinaleStage == 3 && leveltime >= nextstage)
             {
                 EndLevel = true;
             }
@@ -1706,7 +1706,7 @@ void ExplodeEnergyBlock(int nSprite)
     else
     {
         nFinaleSpr = nSprite;
-        lFinaleStart = gameclock;
+        lFinaleStart = leveltime;
 
         if (!lFinaleStart) {
             lFinaleStart = lFinaleStart + 1;

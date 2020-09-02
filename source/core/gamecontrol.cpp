@@ -863,13 +863,8 @@ int RunGame()
 	enginePostInit(); // This must not be done earlier!
 	videoInit();
 
-	// Duke has transitioned to the new main loop, the other games haven't yet.
-	if (!(g_gameType & (GAMEFLAG_PSEXHUMED)))
-	{
-		D_CheckNetGame();
-		MainLoop();
-	}
-	else app_loop();
+	D_CheckNetGame();
+	MainLoop();
 	return 0; // this is never reached. app_loop only exits via exception.
 }
 
