@@ -922,13 +922,6 @@ struct PLAYERstruct
 
 
     int movefifoend;
-    int myminlag;
-    int syncvalhead;
-#define MAXSYNCBYTES 16
-    // TENSW: on really bad network connections, the sync FIFO queue can overflow if it is the
-    // same size as the move fifo.
-#define SYNCFIFOSIZ 1024
-    uint8_t syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
 
     // must start out as 0
     int playerreadyflag;

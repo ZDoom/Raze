@@ -65,14 +65,7 @@ SWBOOL CommEnabled = FALSE;
 uint8_t CommPlayers = 0;
 int movefifoplc, movefifosendplc; //, movefifoend[MAX_SW_PLAYERS];
 
-//int myminlag[MAX_SW_PLAYERS];
-int mymaxlag, otherminlag, bufferjitter = 1;
-
-// GAME.C sync state variables
-uint8_t syncstat[MAXSYNCBYTES];
-//int syncvalhead[MAX_SW_PLAYERS];
-int syncvaltail, syncvaltottail;
-void GetSyncInfoFromPacket(uint8_t *packbuf, int packbufleng, int *j, int otherconnectindex);
+int bufferjitter = 1;
 
 int ogameclock;
 double smoothratio;
@@ -115,23 +108,11 @@ InitNetVars(void)
     {
         pp = Player + pnum;
         pp->movefifoend = 0;
-        Player[pnum].syncvalhead = 0;
         memset(pp->inputfifo,0,sizeof(pp->inputfifo));
     }
     movefifoplc = 0;
     movefifosendplc = 0;
-    syncvaltail = 0;
-    syncvaltottail = 0;
     predictmovefifoplc = 0;
-
-    memset(&syncstat, 0, sizeof(syncstat));
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        Player[pnum].myminlag = 0;
-    }
-
-    otherminlag = mymaxlag = 0;
 }
 
 void

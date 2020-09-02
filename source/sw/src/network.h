@@ -29,7 +29,6 @@ BEGIN_SW_NS
 #define SYNC_TEST 0
 #define MAXSYNCBYTES 16
 
-extern uint8_t syncstat[MAXSYNCBYTES];
 extern SWBOOL PredictionOn;
 extern PLAYER PredictPlayer;
 extern PLAYERp ppp;
