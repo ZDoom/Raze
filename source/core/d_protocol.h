@@ -88,7 +88,14 @@ enum EDemoCommand
 	DEM_BAD,			//  0 Bad command
 	DEM_USERCMD,
 	DEM_EMPTYUSERCMD,
+	DEM_CHEAT_GOD,
+
+	DEM_MAX
 };
+
+typedef void(*NetCommandHandler)(uint8_t **stream, bool skip);
+
+void Net_SetCommandHandler(EDemoCommand cmd, NetCommandHandler handler) noexcept;
 
 void StartChunk (int id, uint8_t **stream);
 void FinishChunk (uint8_t **stream);

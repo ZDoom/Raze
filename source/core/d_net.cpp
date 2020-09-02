@@ -1931,45 +1931,35 @@ uint8_t *FDynamicBuffer::GetData (int *len)
 }
 
 
+NetCommandHandler nethandlers[DEM_MAX];
+
+void Net_SetCommandHandler(EDemoCommand cmd, NetCommandHandler handler) noexcept
+{
+	assert(cmd >= 0 && cmd < DEM_MAX);
+	if (cmd >= 0 && cmd < DEM_MAX) nethandlers[cmd] = handler;
+}
+
 // [RH] Execute a special "ticcmd". The type byte should
 //		have already been read, and the stream is positioned
 //		at the beginning of the command's actual data.
-void Net_DoCommand (int type, uint8_t **stream, int player)
+void Net_DoCommand (int cmd, uint8_t **stream, int player)
 {
-#if 0
-	uint8_t pos = 0;
-	char *s = NULL;
-	int i;
-
-	switch (type)
+	assert(cmd >= 0 && cmd < DEM_MAX);
+	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
 	{
-
-	default:
-		I_Error ("Unknown net command: %d", type);
-		break;
+		nethandlers[cmd](stream, false);
 	}
-
-	if (s)
-		delete[] s;
-#endif
+	else
+		I_Error("Unknown net command: %d", cmd);
 }
 
 
-void Net_SkipCommand (int type, uint8_t **stream)
+void Net_SkipCommand (int cmd, uint8_t **stream)
 {
-#if 0
-	uint8_t t;
-	size_t skip = 0;
-
-	switch (type)
+	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
 	{
-
-		default:
-			return;
+		nethandlers[cmd](stream, true);
 	}
-
-	*stream += skip;
-#endif
 }
 
 // Reset the network ticker after finishing a lengthy operation.
