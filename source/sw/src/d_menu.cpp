@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "pal.h"
 #include "keydef.h"
+#include "d_net.h"
 
 #include "gamecontrol.h"
 #include "misc.h"
@@ -218,20 +219,24 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
     //InitNewGame();
 
-    if (Skill == 0)
-        PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 1)
-        PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 2)
-        PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
-    else if (Skill == 3)
-        PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
-
-	while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+	if (!netgame)
 	{
-		gi->UpdateSounds();
-		soundEngine->UpdateSounds(I_GetTime());
-		I_GetEvent();
+		if (Skill == 0)
+			PlaySound(DIGI_TAUNTAI3, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 1)
+			PlaySound(DIGI_NOFEAR, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 2)
+			PlaySound(DIGI_WHOWANTSWANG, v3df_none, CHAN_VOICE, CHANF_UI);
+		else if (Skill == 3)
+			PlaySound(DIGI_NOPAIN, v3df_none, CHAN_VOICE, CHANF_UI);
+
+		while (soundEngine->IsSourcePlayingSomething(SOURCE_None, nullptr, CHAN_VOICE))
+		{
+			gi->UpdateSounds();
+			soundEngine->UpdateSounds(I_GetTime());
+			I_GetEvent();
+		}
+		Net_ClearFifo();
 	}
 }
 

@@ -274,7 +274,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
 
 	ud.m_player_skill = gs.Skill + 1;
-	if (menu_sounds && skillsound >= 0 && SoundEnabled())
+	if (menu_sounds && skillsound >= 0 && SoundEnabled() && !netgame)
 	{
 		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
 
@@ -284,6 +284,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 			soundEngine->UpdateSounds(I_GetTime());
 			I_GetEvent();
 		}
+		Net_ClearFifo();
 	}
 	ud.m_respawn_monsters = (gs.Skill == 3);
 

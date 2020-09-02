@@ -1972,9 +1972,12 @@ void Net_SkipCommand (int type, uint8_t **stream)
 #endif
 }
 
+// Reset the network ticker after finishing a lengthy operation.
+// Q: How does this affect network sync? Only allowed in SP games?
 void Net_ClearFifo(void)
 {
-	// Q: Do we need this?
+	I_SetFrameTime();
+	gametime = I_GetTime();
 }
 
 

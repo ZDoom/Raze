@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statistics.h"
 #include "g_input.h"
 #include "core/menu/menu.h"
+#include "d_net.h"
 
 BEGIN_PS_NS
 
@@ -78,7 +79,7 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     STAT_Update(lnum == kMap20);
     if (lnum != kMap20)
     {
-        if (EndLevel != 2)
+        if (EndLevel != 2 && !netgame)
         {
             // There's really no choice but to enter an active wait loop here to make the sound play out.
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
@@ -88,6 +89,7 @@ static int FinishLevel(TArray<JobDesc> &jobs)
                 I_GetEvent();
                 soundEngine->UpdateSounds(I_GetTime());
             }
+            Net_ClearFifo();
         }
     }
     else nPlayerLives[0] = 0;

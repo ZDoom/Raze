@@ -1011,7 +1011,6 @@ int enterlevel(MapRecord *mi, int gamemode)
     global_random = 0;
 
     ud.last_level = currentLevel->levelNumber;
-    Net_ClearFifo();
     for (int i=numinterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
