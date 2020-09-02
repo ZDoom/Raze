@@ -71,23 +71,6 @@ int mymaxlag, otherminlag, bufferjitter = 1;
 extern char sync_first[MAXSYNCBYTES][60];
 extern int sync_found;
 
-//
-// Tic Duplication - so you can move multiple times per packet. This is InputPacket with the 16 bit values extended to 32 bit.
-//
-typedef struct
-{
-    int32_t fvel;
-    int32_t svel;
-    fixed_t q16avel;
-    fixed_t q16horz;
-    fixed_t q16ang;
-    fixed_t q16horiz;
-    ESyncBits actions;
-} SW_AVERAGE_PACKET;
-
-int MovesPerPacket = 1;
-SW_AVERAGE_PACKET AveragePacket;
-
 // GAME.C sync state variables
 uint8_t syncstat[MAXSYNCBYTES];
 //int syncvalhead[MAX_SW_PLAYERS];
@@ -193,40 +176,11 @@ UpdateInputs(void)
 
     getinput(&loc, FALSE);
 
-    AveragePacket.fvel += loc.fvel;
-    AveragePacket.svel += loc.svel;
-    AveragePacket.q16avel += loc.q16avel;
-    AveragePacket.q16horz += loc.q16horz;
-    AveragePacket.q16ang = Player[myconnectindex].camq16ang;
-    AveragePacket.q16horiz = Player[myconnectindex].camq16horiz;
-    SET(AveragePacket.actions, loc.actions);
-    // The above would or the weapon numbers together. Undo that now. The last one should win.
-    AveragePacket.actions &= ~SB_WEAPONMASK_BITS;
-    AveragePacket.actions |= ESyncBits::FromInt(loc.getNewWeapon()) & SB_WEAPONMASK_BITS;
-
-    memset(&loc, 0, sizeof(loc));
 
     pp = Player + myconnectindex;
 
-    if (pp->movefifoend & (MovesPerPacket-1))
-    {
-        memcpy(&pp->inputfifo[pp->movefifoend & (MOVEFIFOSIZ - 1)],
-               &pp->inputfifo[(pp->movefifoend-1) & (MOVEFIFOSIZ - 1)],
-               sizeof(InputPacket));
-
-        pp->movefifoend++;
-        return;
-    }
-
-    loc.fvel = AveragePacket.fvel / MovesPerPacket;
-    loc.svel = AveragePacket.svel / MovesPerPacket;
-    loc.q16avel = AveragePacket.q16avel / MovesPerPacket;
-    loc.q16horz = AveragePacket.q16horz / MovesPerPacket;
-    loc.q16ang = AveragePacket.q16ang;
-    loc.q16horiz = AveragePacket.q16horiz;
-    loc.actions = AveragePacket.actions;
-
-    memset(&AveragePacket, 0, sizeof(AveragePacket));
+    loc.q16ang = pp->camq16ang;
+    loc.q16horiz = pp->camq16horiz;
 
     pp->inputfifo[Player[myconnectindex].movefifoend & (MOVEFIFOSIZ - 1)] = loc;
     pp->movefifoend++;

@@ -227,12 +227,6 @@ extern int gameclock;
 extern uint64_t gameclockstart;
 extern int lastTic;
 
-inline void setGameClockStart()
-{
-	gameclockstart = I_GetTimeNS();
-	gameclock = 0;
-}
-
 inline void updateGameClock()
 {
 	gameclock = static_cast<int>((I_GetTimeNS() - gameclockstart) * 120 / 1'000'000'000);
