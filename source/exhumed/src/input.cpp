@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "gamecontrol.h"
 #include <string.h>
+#include "v_video.h"
 
 BEGIN_PS_NS
 
@@ -91,20 +92,33 @@ static int32_t nonsharedtimer;
 
 void CheckKeys2()
 {
+    static int nonsharedtimer;
+    int ms = screen->FrameTime;
+    int interval;
+    if (nonsharedtimer > 0 || ms < nonsharedtimer)
+    {
+        interval = ms - nonsharedtimer;
+    }
+    else
+    {
+        interval = 0;
+    }
+    nonsharedtimer = screen->FrameTime;
+
+    if (System_WantGuiCapture())
+        return;
+
     if (automapMode != am_off)
     {
-        int const timerOffset = (gameclock - nonsharedtimer);
-        nonsharedtimer += timerOffset;
+        double j = interval * (120. / 1000);
 
         if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-            lMapZoom += mulscale6(timerOffset, max<int>(lMapZoom, 256));
-
+            lMapZoom += (int)fmulscale6(j, max(lMapZoom, 256));
         if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-            lMapZoom -= mulscale6(timerOffset, max<int>(lMapZoom, 256));
+            lMapZoom -= (int)fmulscale6(j, max(lMapZoom, 256));
 
         lMapZoom = clamp(lMapZoom, 48, 2048);
     }
-
     if (PlayerList[nLocalPlayer].nHealth <= 0)
     {
         SetAirFrame();

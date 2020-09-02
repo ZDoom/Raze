@@ -985,13 +985,7 @@ void viewDrawScreen(bool sceneonly)
     PLAYER *pPSprite = &gPlayer[gMe->pSprite->type-kDudePlayer1];
     if (IsPlayerSprite(gMe->pSprite) && pPSprite->hand == 1)
     {
-        //static int lastClock;
         gChoke.animateChoke(160, zn, (int)gInterpolate);
-        //if ((gGameClock % 5) == 0 && gGameClock != lastClock)
-        //{
-        //    gChoke.swayV(pPSprite);
-        //}
-        //lastClock = gGameClock;
     }
 #if 0
     if (byte_1A76C6)

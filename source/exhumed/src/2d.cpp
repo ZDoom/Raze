@@ -879,12 +879,12 @@ void TextOverlay::DisplayText()
     }
 }
 
-bool TextOverlay::AdvanceCinemaText(int gameclock)
+bool TextOverlay::AdvanceCinemaText(int clock)
 {
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
-        nCrawlY-= (gameclock - lastclock) / 15.;   // do proper interpolation.
-        lastclock = gameclock;
+        nCrawlY-= (clock - lastclock) / 15.;   // do proper interpolation.
+        lastclock = clock;
         return true;
     }
 
