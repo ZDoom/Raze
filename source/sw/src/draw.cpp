@@ -58,7 +58,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 static int OverlapDraw = FALSE;
-extern SWBOOL QuitFlag, LocationInfo, SpriteInfo;
+extern SWBOOL QuitFlag, SpriteInfo;
 extern SWBOOL Voxel;
 extern char buffer[];
 SWBOOL DrawScreen;

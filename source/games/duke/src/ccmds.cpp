@@ -42,6 +42,7 @@ bool cheatWeapons(cheatseq_t* s);
 bool cheatStuff(cheatseq_t* s);
 bool cheatKeys(cheatseq_t* s);
 bool cheatInventory(cheatseq_t* s);
+bool cheatItems(cheatseq_t* s);
 
 static void dowarp(MapRecord *map)
 {
@@ -231,6 +232,10 @@ static int ccmd_give(CCmdFuncPtr parm)
 	else if (!stricmp(parm->parms[0], "inventory"))
 	{
 		cheatInventory(cs);
+	}
+	else if (!stricmp(parm->parms[0], "items"))
+	{
+		cheatItems(cs);
 	}
 	else return CCMD_SHOWHELP;
 	return CCMD_OK;

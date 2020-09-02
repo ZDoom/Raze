@@ -33,6 +33,7 @@
 **
 */
 
+#include "build.h"
 #include "gamestruct.h"
 #include "printf.h"
 #include "c_cvars.h"
@@ -130,4 +131,11 @@ CCMD(noclip)
 	}
 }
 
-
+CCMD(allmap)
+{
+	if (!CheckCheatmode(true, false))
+	{
+		gFullMap = !gFullMap;
+		Printf("%s\n", GStrings(gFullMap ? "SHOW MAP: ON" : "SHOW MAP: OFF"));
+	}
+}

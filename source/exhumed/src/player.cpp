@@ -1286,13 +1286,13 @@ loc_1AB8E:
                 FillWeapons(nPlayer);
                 StatusMessage(150, "All weapons loaded for player");
             }
-            else if (buttons & kButtonCheatKeys) // LOBOPICK cheat
+            if (buttons & kButtonCheatKeys) // LOBOPICK cheat
             {
                 PlayerList[nPlayer].keys = 0xFFFF;
                 StatusMessage(150, "All keys loaded for player");
                 RefreshStatus();
             }
-            else if (buttons & kButtonCheatItems) // LOBOSWAG cheat
+            if (buttons & kButtonCheatItems) // LOBOSWAG cheat
             {
                 FillItems(nPlayer);
                 StatusMessage(150, "All items loaded for player");

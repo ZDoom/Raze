@@ -40,6 +40,8 @@
 #include "printf.h"
 #include "gamestruct.h"
 #include "utf8.h"
+#include "d_protocol.h"
+#include "d_net.h"
 
 static cheatseq_t *cheatlist;
 static int numcheats;
@@ -134,6 +136,13 @@ bool Cheat_Responder (event_t *ev)
 		}
 	}
 	return eat;
+}
+
+bool SendGenericCheat(cheatseq_t* cheat)
+{
+	Net_WriteByte(DEM_GENERICCHEAT);
+	Net_WriteByte(cheat->Param);
+	return true;
 }
 
 void PlaybackCheat(const char *p)

@@ -53,6 +53,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
+EXTERN_CVAR(Bool, sw_bunnyrockets)
 
 BEGIN_SW_NS
 
@@ -1002,7 +1003,6 @@ struct PLAYERstruct
     SWBOOL NukeInitialized;           // Nuke already has counted down
     short FistAng;                  // KungFu attack angle
     unsigned char WpnKungFuMove;             // KungFu special moves
-    SWBOOL BunnyMode;                 // Can shoot Bunnies out of rocket launcher
     short HitBy;                    // SpriteNum of whatever player was last hit by
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player

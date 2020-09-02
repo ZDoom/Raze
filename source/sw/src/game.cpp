@@ -79,8 +79,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 //#include "crc32.h"
 
-CVAR(Bool, sw_ninjahack, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(Bool, sw_ninjahack, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_SERVERINFO);
 CVAR(Bool, sw_darts, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR(Bool, sw_bunnyrockets, false, CVAR_SERVERINFO | CVAR_CHEAT);   // This is a cheat, so don't save.
 
 BEGIN_SW_NS
 
@@ -106,7 +107,6 @@ SWBOOL SavegameLoaded = false;
 SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
-SWBOOL LocationInfo = 0;
 void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 SWBOOL PreCaching = TRUE;
 int GodMode = false;

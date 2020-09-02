@@ -141,16 +141,6 @@ bool MapCheat(cheatseq_t* c)
     return true;
 }
 
-bool LocCheat(cheatseq_t* c)
-{
-    if (!checkCheat(c)) return false;
-    extern SWBOOL LocationInfo;
-    LocationInfo++;
-    if (LocationInfo > 2)
-        LocationInfo = 0;
-    return true;
-}
-
 bool WeaponCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
@@ -438,7 +428,7 @@ static cheatseq_t swcheats[] = {
     {"lwgreed",    nullptr,     EveryCheatToggle, 0},
     {"lwghost",    "noclip" },
     {"lwstart",    nullptr,     RestartCheat, 0},
-    {"lwloc",      nullptr,     LocCheat, 0},
+    {"lwloc",      "stat coord", nullptr, true},
     {"lwmap",      nullptr,     MapCheat, 0},
     {"lwroom",     nullptr,     RoomCheat, true}, // Room above room dbug
 };

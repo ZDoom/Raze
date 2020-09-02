@@ -181,21 +181,6 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-static int osdcmd_bunny(CCmdFuncPtr parm)
-{
-    PLAYERp pp = Player + myconnectindex;
-
-    if (CommEnabled)
-        return CCMD_OK;
-
-    pp->BunnyMode = !pp->BunnyMode;
-    if (pp->BunnyMode)
-        PutStringInfo(pp, "Bunny rockets enabled!");
-    else
-        PutStringInfo(pp, "Bunny rockets disabled!");
-    return CCMD_OK;
-}
-
 static int osdcmd_mirror(CCmdFuncPtr parm)
 {
     char base[80];
@@ -287,7 +272,6 @@ int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    C_RegisterFunction("bunny", "bunny: toggles bunny rocket mode", osdcmd_bunny);
     C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
     C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);

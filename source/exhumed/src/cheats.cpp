@@ -106,23 +106,11 @@ static bool KimberlyCheat(cheatseq_t* c)
 	return true;
 }
 
-static bool CopCheat(cheatseq_t* c)
-{
-	lLocalCodes |= kButtonCheatGuns;
-	return true;
-}
-
 static bool LiteCheat(cheatseq_t* c)
 {
 	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FLASHES"));
 	bDoFlashes = !bDoFlashes;
 	g_visibility = 2048 + 512 - g_visibility;	// let there be light - for real!
-	return true;
-}
-
-static bool KeyCheat(cheatseq_t* c)
-{
-	lLocalCodes |= kButtonCheatKeys;
 	return true;
 }
 
@@ -151,23 +139,17 @@ static bool SphereCheat(cheatseq_t* c)
 	return true;
 }
 
-static bool SwagCheat(cheatseq_t* c)
-{
-	lLocalCodes |= kButtonCheatItems;
-	return true;
-}
-
 static cheatseq_t excheats[] = {
 	{"holly",       nullptr,   HollyCheat, 0},
 	{"kimberly",    nullptr,   KimberlyCheat, 0},
-	{"lobocop",     nullptr,   CopCheat, 0},
+	{"lobocop",     "give weapons" },
 	{"lobodeity",   "god" },
 	{"lobolite",    nullptr,   LiteCheat, 0},
-	{"lobopick",    nullptr,   KeyCheat, 0},
+	{"lobopick",    "give keys" },
 	{"loboslip",    "noclip" },
-	{"lobosnake",   nullptr,   SnakeCheat, 0},
+	{"lobosnake",   nullptr,   SnakeCheat },
 	{"lobosphere",  nullptr,   SphereCheat, 0},
-	{"loboswag",    nullptr,   SwagCheat, 0},
+	{"loboswag",    "give inventory" },
 	{"loboxy",      "stat printcoords",   nullptr, true},
 };
 

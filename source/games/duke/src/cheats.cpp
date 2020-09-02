@@ -55,7 +55,7 @@ const char *GameInterface::CheckCheatMode()
 }
 
 
-const char *cheatGod(int myconnectindex, int state)
+static const char *cheatGod(int myconnectindex, int state)
 {
 	if (state == -1) state = 1 - ud.god;
 	ud.god = state;
@@ -91,6 +91,46 @@ const char *cheatGod(int myconnectindex, int state)
 	}
 }
 
+static const char* cheatUnlock()
+{
+	if (VOLUMEONE) return nullptr;
+	for (int i = numsectors - 1; i >= 0; i--) //Unlock
+	{
+		int j = sector[i].lotag;
+		if (j == -1 || j == 32767) continue;
+		if ((j & 0x7fff) > 2)
+		{
+			if (j & (0xffff - 16384))
+				sector[i].lotag &= (0xffff - 16384);
+			operatesectors(i, ps[myconnectindex].i);
+		}
+	}
+	fi.operateforcefields(ps[myconnectindex].i, -1);
+	return quoteMgr.GetQuote(QUOTE_CHEAT_UNLOCK);
+}
+
+static const char *cheatKfc(int player)
+{
+	for (int i = 0; i < 7; i++)
+	{
+		int spr = fi.spawn(ps[player].i, TILE_HEN);
+		sprite[spr].pal = 1;
+		sprite[spr].xrepeat = sprite[spr].xrepeat << 2;
+		sprite[spr].yrepeat = sprite[spr].yrepeat << 2;
+	}
+	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
+}
+
+static const char * cheatMonsters()
+{
+	static char textbuf[64];
+	if (++actor_tog == 3) actor_tog = 0;
+	static const char* s[] = { "OPTVAL_ON", "OPTVAL_OFF", "TXT_ON2" };
+	mysnprintf(textbuf, 64, "%s: %s", GStrings("NETMNU_MONSTERS"), GStrings(s[actor_tog]));
+	return textbuf;
+}
+
+
 
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
@@ -108,6 +148,69 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	case CHT_NOCLIP:
 		ud.clipping = 1 - ud.clipping;
 		return quoteMgr.GetQuote(ud.clipping ? QUOTE_CHEAT_NOCLIP : QUOTE_CHEAT_NOCLIP);
+
+	case CHT_UNLOCK:
+		return cheatUnlock();
+
+	case CHT_CASHMAN:
+		ud.cashman = 1 - ud.cashman;
+		return nullptr;
+
+	case CHT_HYPER:
+		ps[player].steroids_amount = 399;
+		return quoteMgr.GetQuote(QUOTE_CHEAT_STEROIDS);
+
+	case CHT_KILL:
+		quickkill(&ps[player]);
+		return quoteMgr.GetQuote(QUOTE_CHEAT_KILL);
+
+	case CHT_MONSTERS:
+		return cheatMonsters();
+
+	case CHT_BIKE:
+		OnMotorcycle(&ps[player], 0);
+		ps[player].ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
+		return quoteMgr.GetQuote(QUOTE_ON_BIKE);
+
+	case CHT_BOAT:
+		OnBoat(&ps[player], 0);
+		ps[player].ammo_amount[BOAT_WEAPON] = max_ammo_amount[BOAT_WEAPON];
+		return quoteMgr.GetQuote(QUOTE_ON_BOAT);
+
+	case CHT_TONY:
+		enemysizecheat = 2;
+		return nullptr;
+
+	case CHT_VAN:
+		enemysizecheat = 3;
+		return nullptr;
+
+	case CHT_RHETT:
+		ud.god = 0;
+		ps[player].gotweapon.Zero();
+		ps[player].curr_weapon = KNEE_WEAPON;
+		ps[player].nocheat = 1;
+		sprite[ps[player].i].extra = 1;
+		return quoteMgr.GetQuote(QUOTE_YERFUCKED);
+
+	case CHT_AARON:
+		ps[player].DrugMode = !ps[player].DrugMode;
+		return nullptr;
+
+	case CHT_NOCHEAT:
+		ps[player].nocheat = 1;
+		return quoteMgr.GetQuote(QUOTE_NOCHEATS);
+
+	case CHT_DRINK:
+		ps[player].drink_amt = ps[player].drink_amt ? 0 : 90;
+		return quoteMgr.GetQuote(ps[player].drink_amt ? QUOTE_INSTADRUNK : QUOTE_INSTASOBER);
+
+	case CHT_SEASICK:
+		ps[player].sea_sick_stat = !ps[player].sea_sick_stat;
+		return quoteMgr.GetQuote(ps[player].sea_sick_stat ? QUOTE_BOATMODEON : QUOTE_BOATMODEOFF);
+
+	case CHT_KFC:
+		return cheatKfc(player);
 
 	default:
 		return nullptr;
@@ -210,25 +313,7 @@ static bool cheatLevel(cheatseq_t *s)
 	return true;
 }
 
-static bool cheatCoord(cheatseq_t *)
-{
-	C_DoCommand("stat coord");
-	return true;
-}
-
-static bool cheatTime(cheatseq_t *)
-{
-	C_DoCommand("stat fps");
-	return true;
-}
-
-static bool cheatRate(cheatseq_t *)
-{
-	C_DoCommand("toggle vid_fps");
-	return true;
-}
-
-static bool cheatItems(cheatseq_t *)
+bool cheatItems(cheatseq_t *)
 {
 	cheatInventory(nullptr);
 	if (!isNamWW2GI()) cheatKeys(nullptr);
@@ -236,48 +321,6 @@ static bool cheatItems(cheatseq_t *)
 	return true;
 }
 
-
-static bool cheatView(cheatseq_t *)
-{
-	if (ps[myconnectindex].OnMotorcycle == 0 && ps[myconnectindex].OnBoat == 0)
-	{
-		if( ps[myconnectindex].over_shoulder_on )
-			ps[myconnectindex].over_shoulder_on = 0;
-		else
-		{
-			ps[myconnectindex].over_shoulder_on = 1;
-			cameradist = 0;
-			cameraclock = INT_MIN;
-		}
-		//FTA(22,&ps[myconnectindex]); this message makes no sense.
-	}
-	return true;
-}
-
-static bool cheatUnlock(cheatseq_t *)
-{
-	if (VOLUMEONE) return false;
-	for(int i=numsectors-1;i>=0;i--) //Unlock
-	{
-		int j = sector[i].lotag;
-		if(j == -1 || j == 32767) continue;
-		if( (j & 0x7fff) > 2 )
-		{
-			if( j&(0xffff-16384) )
-				sector[i].lotag &= (0xffff-16384);
-			operatesectors(i,ps[myconnectindex].i);
-		}
-	}
-	fi.operateforcefields(ps[myconnectindex].i,-1);
-	FTA(100,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatCashman(cheatseq_t *)
-{
-	ud.cashman = 1-ud.cashman;
-	return true;
-}
 
 static bool cheatSkill(cheatseq_t *s)
 {
@@ -288,6 +331,8 @@ static bool cheatSkill(cheatseq_t *s)
 	FX_SetReverb(0);
 	return true;
 }
+
+// The remaining cheats are client side only.
 
 static bool cheatBeta(cheatseq_t *)
 {
@@ -301,21 +346,6 @@ static bool cheatTodd(cheatseq_t *)
 	return true;
 }
 
-static bool cheatHyper(cheatseq_t *)
-{
-	ps[myconnectindex].steroids_amount = 399;
-	FTA(37,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatMonsters(cheatseq_t *)
-{
-	if(++actor_tog == 3) actor_tog = 0;
-	static const char *s [] = { "OPTVAL_ON", "OPTVAL_OFF", "TXT_ON2" };
-	Printf(PRINT_NOTIFY, "%s: %s", GStrings("NETMNU_MONSTERS"), GStrings(s[actor_tog]));
-	return true;
-}
-
 static bool cheatMap(cheatseq_t *)
 {
 	gFullMap = !gFullMap;
@@ -323,42 +353,7 @@ static bool cheatMap(cheatseq_t *)
 	return true;
 }
 
-static bool cheatKill(cheatseq_t *)
-{
-	quickkill(&ps[myconnectindex]);
-	FTA(127,&ps[myconnectindex]);
-	return true;
-}
-
 // RRRA only cheats
-
-static bool cheatMotorcycle(cheatseq_t *)
-{
-	OnMotorcycle(&ps[myconnectindex],0);
-	ps[myconnectindex].ammo_amount[MOTORCYCLE_WEAPON] = max_ammo_amount[MOTORCYCLE_WEAPON];
-	FTA(126,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatBoat(cheatseq_t *)
-{
-	OnBoat(&ps[myconnectindex],0);
-	ps[myconnectindex].ammo_amount[BOAT_WEAPON] = max_ammo_amount[BOAT_WEAPON];
-	FTA(136,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatTony(cheatseq_t *)
-{
-	enemysizecheat = 2;
-	return true;
-}
-
-static bool cheatVan(cheatseq_t *)
-{
-	enemysizecheat = 3;
-	return true;
-}
 
 static bool cheatGary(cheatseq_t *)
 {
@@ -366,186 +361,116 @@ static bool cheatGary(cheatseq_t *)
 	return true;
 }
 
-static bool cheatRhett(cheatseq_t *)
-{
-	ud.god = 0;
-	ps[myconnectindex].gotweapon.Zero();
-	ps[myconnectindex].curr_weapon = KNEE_WEAPON;
-	ps[myconnectindex].nocheat = 1;
-	sprite[ps[myconnectindex].i].extra = 1;
-	FTA(128,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatAaron(cheatseq_t *)
-{
-	if (ps[myconnectindex].DrugMode)
-		ps[myconnectindex].DrugMode = 0;
-	else
-		ps[myconnectindex].DrugMode = 5;
-	return true;
-}
-
-static bool cheatNocheat(cheatseq_t *)
-{
-	ps[myconnectindex].nocheat = 1;
-	FTA(130,&ps[myconnectindex]);
-	return true;
-}
-
-static bool cheatDrink(cheatseq_t *)
-{
-	if (ps[myconnectindex].drink_amt)
-	{
-		ps[myconnectindex].drink_amt = 0;
-		FTA(132,&ps[myconnectindex]);
-	}
-	else
-	{
-		ps[myconnectindex].drink_amt = 90;
-		FTA(131,&ps[myconnectindex]);
-	}
-	return true;
-}
-
-static bool cheatSeasick(cheatseq_t *)
-{
-	if (ps[myconnectindex].sea_sick_stat)
-	{
-		ps[myconnectindex].sea_sick_stat = 0;
-		FTA(129,&ps[myconnectindex]);
-	}
-	else
-	{
-		ps[myconnectindex].sea_sick_stat = 1;
-		FTA(137, &ps[myconnectindex]);
-	}
-	return true;
-}
-
-static bool cheatKfc(cheatseq_t *)
-{
-	for (int i = 0; i < 7; i++)
-	{
-		int spr = fi.spawn(ps[screenpeek].i,TILE_HEN);
-		sprite[spr].pal = 1;
-		sprite[spr].xrepeat = sprite[spr].xrepeat<<2;
-		sprite[spr].yrepeat = sprite[spr].yrepeat<<2;
-	}
-	FTA(139,&ps[myconnectindex]);
-	return true;
-}
-
 static cheatseq_t dukecheats[] = {
-	{ "dncornholio",  "god" },
-	{ "dnstuff",      nullptr,          cheatStuff },
-	{ "dnscotty###",  nullptr,          cheatLevel },
-	{ "dncoords",     nullptr,          cheatCoord, 1 },
-	{ "dnview",       nullptr,          cheatView, 1 },
-	{ "dntime",       nullptr,          cheatTime, 1 },
-	{ "dnunlock",     nullptr,          cheatUnlock },
-	{ "dncashman",    nullptr,          cheatCashman },
-	{ "dnitems",      nullptr,          cheatItems },
-	{ "dnrate",       nullptr,          cheatRate, 1 },
-	{ "dnskill#",     nullptr,          cheatSkill },
+	{ "dncornholio",  nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "dnstuff",      "give all", },
+	{ "dnscotty###",  nullptr,          cheatLevel }, // -> levelwarp
+	{ "dncoords",     "stat coord",		nullptr, 1 },
+	{ "dnview",       "third_person_view",nullptr, 1 },
+	{ "dntime",       "stat fps",       nullptr, 1 },
+	{ "dnunlock",     nullptr,          SendGenericCheat, 0, CHT_UNLOCK },
+	{ "dncashman",    nullptr,          SendGenericCheat, 0, CHT_CASHMAN },
+	{ "dnitems",      "give items", },
+	{ "dnrate",       "toggle vid_fps", nullptr, 1 },
+	{ "dnskill#",     nullptr,          cheatSkill }, // restartmap <skill>
 	{ "dnbeta",       nullptr,          cheatBeta },
-	{ "dnhyper",      nullptr,          cheatHyper },
-	{ "dnmonsters",   nullptr,          cheatMonsters },
+	{ "dnhyper",      nullptr,          SendGenericCheat, 0, CHT_HYPER },
+	{ "dnmonsters",   nullptr,          SendGenericCheat, 0, CHT_MONSTERS },
 	{ "dntodd",       nullptr,          cheatTodd },
 	{ "dnshowmap",    nullptr,          cheatMap },
-	{ "dnkroz",       "god" },
+	{ "dnkroz",       nullptr,			SendGenericCheat, 0, CHT_GOD },
 	{ "dnallen",      nullptr,          cheatAllen },
-	{ "dnclip",       "noclip" },
-	{ "dnweapons",    nullptr,          cheatWeapons },
-	{ "dninventory",  nullptr,          cheatInventory },
-	{ "dnkeys",       nullptr,          cheatKeys },
+	{ "dnclip",       nullptr,			SendGenericCheat, 0, CHT_NOCLIP },
+	{ "dnweapons",    "give weapons" },
+	{ "dninventory",  "give inventory" },
+	{ "dnkeys",       "give keys" },
 	{ "dndebug",      nullptr,          cheatDebug, 1 },
-	{ "dncgs",        nullptr,          cheatKill },
+	{ "dncgs",        nullptr,          SendGenericCheat, 0, CHT_KILL },
 };
 
 static cheatseq_t ww2cheats[] = 
 {
 	// Use the same code prefix as EDuke because 'ww' is not usable here. Since the cheat parser eats input after the second key, this could easily cause interference for WASD users.
-	{ "gi2god",       "god" },
-	{ "gi2blood",     nullptr,          cheatStuff },
+	{ "gi2god",       nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "gi2blood",     "give all", },
 	{ "gi2level###",  nullptr,          cheatLevel },
-	{ "gi2coords",    nullptr,          cheatCoord, 1 },
-	{ "gi2view",      nullptr,          cheatView, 1 },
-	{ "gi2time",      nullptr,          cheatTime, 1 },
-	{ "gi2rate",      nullptr,          cheatRate, 1 },
+	{ "gi2coords",    "stat coord",		nullptr, 1 },
+	{ "gi2view",      "third_person_view",nullptr, 1 },
+	{ "gi2time",      "stat fps",       nullptr, 1 },
+	{ "gi2rate",      "toggle vid_fps", nullptr, 1 },
 	{ "gi2skill",     nullptr,          cheatSkill },
-	{ "gi2enemies",   nullptr,          cheatMonsters },
+	{ "gi2enemies",   nullptr,          SendGenericCheat, 0, CHT_MONSTERS },
 	{ "gi2matt",      nullptr,          cheatTodd },
 	{ "gi2showmap",   nullptr,          cheatMap },
-	{ "gi2ryan",      "god" },
-	{ "gi2clip",      "noclip" },
-	{ "gi2weapons",   nullptr,          cheatWeapons },
-	{ "gi2inventory", nullptr,          cheatInventory },
+	{ "gi2ryan",      nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "gi2clip",      nullptr,			SendGenericCheat, 0, CHT_NOCLIP },
+	{ "gi2weapons",   "give weapons" },
+	{ "gi2inventory", "give inventory" },
 	{ "gi2debug",     nullptr,          cheatDebug, 1 },
-	{ "gi2cgs",       nullptr,          cheatKill },
+	{ "gi2cgs",       nullptr,          SendGenericCheat, 0, CHT_KILL },
 };
 
 static cheatseq_t namcheats[] = {
-	{ "nvacaleb",    "god" },
-	{ "nvablood",    nullptr,           cheatStuff },
+	{ "nvacaleb",    nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "nvablood",    "give all", },
 	{ "nvalevel###", nullptr,           cheatLevel },
-	{ "nvacoords",   nullptr,           cheatCoord, 1 },
-	{ "nvaview",     nullptr,           cheatView, 1 },
-	{ "nvatime",     nullptr,           cheatTime, 1 },
-	{ "nvarate",     nullptr,           cheatRate, 1 },
+	{ "nvacoords",   "stat coord",		nullptr, 1 },
+	{ "nvaview",     "third_person_view",nullptr, 1 },
+	{ "nvatime",     "stat fps",       nullptr, 1 },
+	{ "nvarate",     "toggle vid_fps", nullptr, 1 },
 	{ "nvaskill",    nullptr,           cheatSkill },
-	{ "nvahyper",    nullptr,           cheatHyper },
-	{ "nvaenemies",  nullptr,           cheatMonsters },
+	{ "nvahyper",    nullptr,          SendGenericCheat, 0, CHT_HYPER },
+	{ "nvaenemies",  nullptr,          SendGenericCheat, 0, CHT_MONSTERS },
 	{ "nvamatt",     nullptr,           cheatTodd },
 	{ "nvashowmap",  nullptr,           cheatMap },
-	{ "nvagod",      "god" },
-	{ "nvaclip",     "noclip" },
-	{ "nvaweapons",  nullptr,           cheatWeapons }, 
-	{ "nvainventory",nullptr,           cheatInventory },
+	{ "nvagod",      nullptr,			SendGenericCheat, 0, CHT_GOD },
+	{ "nvaclip",     nullptr,			SendGenericCheat, 0, CHT_NOCLIP },
+	{ "nvaweapons",  "give weapons" },
+	{ "nvainventory","give inventory" },
 	{ "nvadebug",    nullptr,           cheatDebug, 1 },
-	{ "nvacgs",      nullptr,           cheatKill },
+	{ "nvacgs",      nullptr,           SendGenericCheat, 0, CHT_KILL },
 };
 
 static cheatseq_t rrcheats[] = {
 	{ "rdhounddog",  "god" },
-	{ "rdall",       nullptr,           cheatStuff },
+	{ "rdall",       "give all", },
 	{ "rdmeadow###", nullptr,           cheatLevel },
-	{ "rdyerat",     nullptr,           cheatCoord, 1 },
-	{ "rdview",      nullptr,           cheatView, 1 },
-	{ "rdtime",      nullptr,           cheatTime, 1 },
-	{ "rdunlock",    nullptr,           cheatUnlock },
-	{ "rdcluck",     nullptr,           cheatCashman },
-	{ "rditems",     nullptr,           cheatItems },
-	{ "rdrate",      nullptr,           cheatRate, 1 },
+	{ "rdyerat",     "stat coord",		nullptr, 1 },
+	{ "rdview",      "third_person_view",nullptr, 1 },
+	{ "rdtime",      "stat fps",       nullptr, 1 },
+	{ "rdunlock",    nullptr,          SendGenericCheat, 0, CHT_UNLOCK },
+	{ "rdcluck",     nullptr,          SendGenericCheat, 0, CHT_CASHMAN },
+	{ "rditems",     "give items", },
+	{ "rdrate",      "toggle vid_fps", nullptr, 1 },
 	{ "rdskill#",    nullptr,           cheatSkill },
 	{ "rdteachers",  nullptr,           cheatBeta },
-	{ "rdmoonshine", nullptr,           cheatHyper },
-	{ "rdcritters",  nullptr,           cheatMonsters },
+	{ "rdmoonshine", nullptr,          SendGenericCheat, 0, CHT_HYPER },
+	{ "rdcritters",  nullptr,          SendGenericCheat, 0, CHT_MONSTERS },
 	{ "rdrafael",    nullptr,           cheatTodd },
 	{ "rdshowmap",   nullptr,           cheatMap },
 	{ "rdelvis",     "god" },
 	{ "rdclip",      "noclip" },
-	{ "rdguns",      nullptr,           cheatWeapons }, 
-	{ "rdinventory", nullptr,           cheatInventory },
-	{ "rdkeys",      nullptr,           cheatKeys },
+	{ "rdguns",      "give weapons" },
+	{ "rdinventory", "give inventory" },
+	{ "rdkeys",      "give keys" },
 	{ "rddebug",     nullptr,           cheatDebug, 1 },
-	{ "rdcgs",       nullptr,           cheatKill }, // 23 for RR
+	{ "rdcgs",       nullptr,           SendGenericCheat, 0, CHT_KILL },
 	// RRRA only!
-	{ "rdjoseph",    nullptr,           cheatMotorcycle },
-	{ "rdmrbill",    nullptr,           cheatKill },
-	{ "rdtony",      nullptr,           cheatTony },
+	{ "rdjoseph",    nullptr,           SendGenericCheat, 0, CHT_BIKE },
+	{ "rdmrbill",    nullptr,           SendGenericCheat, 0, CHT_KILL },
+	{ "rdtony",      nullptr,           SendGenericCheat, 0, CHT_TONY },
 	{ "rdgary",      nullptr,           cheatGary },
-	{ "rdrhett",     nullptr,           cheatRhett },
-	{ "rdaaron",     nullptr,           cheatAaron },
-	{ "rdnocheat",   nullptr,           cheatNocheat },
-	{ "rdwoleslagle",nullptr,           cheatDrink },
-	{ "rdmikael",    nullptr,           cheatStuff },
-	{ "rdgreg",      nullptr,           cheatSeasick },
+	{ "rdrhett",     nullptr,           SendGenericCheat, 0, CHT_RHETT },
+	{ "rdaaron",     nullptr,           SendGenericCheat, 0, CHT_AARON },
+	{ "rdnocheat",   nullptr,           SendGenericCheat, 0, CHT_NOCHEAT },
+	{ "rdwoleslagle",nullptr,           SendGenericCheat, 0, CHT_DRINK },
+	{ "rdmikael",    "give all", },
+	{ "rdgreg",      nullptr,           SendGenericCheat, 0, CHT_SEASICK },
 	//"rdnoah",      nullptr,           // no-op
-	{ "rdarijit",    nullptr,           cheatBoat },
-	{ "rddonut",     nullptr,           cheatBoat },
-	{ "rdkfc",       nullptr,           cheatKfc },
-	{ "rdvan",       nullptr,           cheatVan },
+	{ "rdarijit",    nullptr,           SendGenericCheat, 0, CHT_BOAT },
+	{ "rddonut",     nullptr,           SendGenericCheat, 0, CHT_BOAT },
+	{ "rdkfc",       nullptr,           SendGenericCheat, 0, CHT_KFC },
+	{ "rdvan",       nullptr,           SendGenericCheat, 0, CHT_VAN },
 };
 
 void InitCheats()

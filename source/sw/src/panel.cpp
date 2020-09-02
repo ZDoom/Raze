@@ -4519,13 +4519,13 @@ pMicroFire(PANEL_SPRITEp psp)
     switch (psp->PlayerP->WpnRocketType)
     {
     case 0:
-        if (psp->PlayerP->BunnyMode)
+        if (sw_bunnyrockets)
             InitBunnyRocket(psp->PlayerP);
         else
             InitRocket(psp->PlayerP);
         break;
     case 1:
-        if (psp->PlayerP->BunnyMode)
+        if (sw_bunnyrockets)
             InitBunnyRocket(psp->PlayerP);
         else
             InitRocket(psp->PlayerP);

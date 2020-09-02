@@ -2249,7 +2249,6 @@ PlayerDeathReset(PLAYERp pp)
     pp->TestNukeInit = FALSE;
     pp->InitingNuke = FALSE;
     pp->NukeInitialized = FALSE;
-    pp->BunnyMode = FALSE;
     pp->WpnReloadState = 2;
 
     memset(pp->WpnAmmo,0,sizeof(pp->WpnAmmo));
@@ -2338,7 +2337,6 @@ PlayerGameReset(PLAYERp pp)
     pp->TestNukeInit = FALSE;
     pp->InitingNuke = FALSE;
     pp->NukeInitialized = FALSE;
-    pp->BunnyMode = FALSE;
     pp->SecretsFound = 0;
     pp->WpnReloadState = 2;
 

@@ -101,6 +101,53 @@ enum ECheat
 	CHT_GODON,
 	CHT_GODOFF,
 	CHT_NOCLIP,
+
+	// Duke et.al.
+	CHT_UNLOCK,
+	CHT_CASHMAN,
+	CHT_HYPER,
+	CHT_KILL,
+	CHT_BIKE,
+	CHT_BOAT,
+	CHT_TONY,
+	CHT_VAN,
+	CHT_RHETT,
+	CHT_AARON,
+	CHT_NOCHEAT,
+	CHT_DRINK,
+	CHT_SEASICK,
+	CHT_KFC,
+	CHT_MONSTERS,
+
+	// Blood 
+	kCheatSatchel,
+	kCheatKevorkian,
+	kCheatMcGee,
+	kCheatEdmark,
+	kCheatKrueger,
+	kCheatSterno,
+	kCheat14, // quake effect, not used
+	kCheatSpork,
+	kCheatClarice,
+	kCheatFrankenstein,
+	kCheatCheeseHead,
+	kCheatTequila,
+	kCheatFunkyShoes,
+	kCheatKeyMaster,
+	kCheatOneRing,
+	kCheatVoorhees,
+	kCheatJoJo,
+	kCheatGateKeeper,
+	kCheatLaraCroft,
+	kCheatHongKong,
+	kCheatMontana,
+	kCheatBunz,
+	kCheatCousteau,
+	kCheatForkYou,
+	kCheatLieberMan,
+	kCheatSpielberg,
+
+	CHT_MAX
 };
 
 typedef void(*NetCommandHandler)(int player, uint8_t **stream, bool skip);

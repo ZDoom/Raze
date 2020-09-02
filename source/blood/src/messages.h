@@ -39,50 +39,6 @@ enum MESSAGE_PRIORITY {
     MESSAGE_PRIORITY_SYSTEM = 100
 };
 
-enum CHEATCODE
- {
-	 kCheatNone = 0,
-
-	 kCheat1 = 1000, // refills ammo, no cheat code for it
-	 kCheatGriswold,
-	 kCheatSatchel,
-	 kCheatEvaGalli,
-	 kCheatMpkfa,
-	 kCheatCapInMyAss,
-	 kCheatNoCapInMyAss,
-	 kCheatIdaho,
-	 kCheatKevorkian,
-	 kCheatMcGee,
-	 kCheatEdmark,
-	 kCheatKrueger,
-	 kCheatSterno,
-	 kCheat14, // quake effect, not used
-	 kCheatSpork,
-	 kCheatGoonies,
-	 kCheatClarice,
-	 kCheatFrankenstein,
-	 kCheatCheeseHead,
-	 kCheatTequila,
-	 kCheatFunkyShoes,
-	 kCheatKeyMaster,
-	 kCheatOneRing,
-	 kCheatVoorhees,
-	 kCheatJoJo,
-	 kCheatGateKeeper,
-	 kCheatRate,
-	 kCheatMario,
-	 kCheatLaraCroft,
-	 kCheatHongKong,
-	 kCheatMontana,
-	 kCheatBunz,
-	 kCheatCousteau,
-	 kCheatForkYou,
-	 kCheatLieberMan,
-	 kCheatSpielberg,
-	 kCheatCalgon,
-	 kCheatMax
- };
-
 extern bool bPlayerCheated;
 void cheatReset(void);
 
