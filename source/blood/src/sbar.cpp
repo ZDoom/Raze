@@ -728,7 +728,7 @@ private:
             DrawStatNumber("%3d", pPlayer->armor[2] >> 4, kSBarNumberArmor3, 170, 187 - 200, 0, 0, 256, (int)(65536 * 0.65));
         }
 
-        DrawPackItemInStatusBar2(pPlayer, 225 - 320, 194 - 200, 240 - 320, 187 - 200, 512, (int)(65536 * 0.7));
+        DrawPackItemInStatusBar2(pPlayer, 216 - 320, 194 - 200, 231 - 320, 187 - 200, 512, (int)(65536 * 0.7));
 
         if (pPlayer->curWeapon && pPlayer->weaponAmmo != -1)
         {
@@ -750,7 +750,7 @@ private:
                 short clip = CalcMagazineAmount(num, 2, pPlayer->weaponState == 1);
                 format.Format("%d/%d", clip, num - clip);
 
-                DrawCharArray(format.GetChars(), kSBarNumberAmmo, 267-320, 187 - 200, 0, 0, 512);
+                DrawCharArray(format.GetChars(), kSBarNumberAmmo, 258-320, 187 - 200, 0, 0, 512);
             }
         }
 
