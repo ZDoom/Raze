@@ -120,16 +120,6 @@ static int ccmd_map(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-static int ccmd_god(CCmdFuncPtr)
-{
-	if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
-		cheatGod(nullptr);
-	else
-		Printf("god: Not in a single-player game.\n");
-
-	return CCMD_OK;
-}
-
 static int ccmd_noclip(CCmdFuncPtr)
 {
 	if (numplayers == 1 && ps[myconnectindex].gm & MODE_GAME)
@@ -333,7 +323,6 @@ int registerosdcommands(void)
 	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
 	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
 	C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
-	C_RegisterFunction("god","god: toggles god mode", ccmd_god);
 	C_RegisterFunction("noclip","noclip: toggles clipping mode", ccmd_noclip);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);

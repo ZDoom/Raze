@@ -254,6 +254,7 @@ struct GameInterface : ::GameInterface
     void Render() override;
     void GetInput(InputPacket* packet) override;
     void Startup() override;
+    const char* GenericCheat(int player, int cheat) override;
 
 	::GameStats getStats() override;
 };

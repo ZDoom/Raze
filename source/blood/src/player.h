@@ -269,7 +269,7 @@ void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);
 char        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
-void playerSetGodMode(PLAYER *pPlayer, char bGodMode);
+void playerSetGodMode(PLAYER *pPlayer, bool bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
 void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void        playerStart(int nPlayer, int bNewLevel = 0);

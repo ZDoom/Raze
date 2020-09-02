@@ -88,12 +88,21 @@ enum EDemoCommand
 	DEM_BAD,			//  0 Bad command
 	DEM_USERCMD,
 	DEM_EMPTYUSERCMD,
-	DEM_CHEAT_GOD,
+	DEM_GENERICCHEAT,
 
 	DEM_MAX
 };
 
-typedef void(*NetCommandHandler)(uint8_t **stream, bool skip);
+enum ECheat
+{
+	// must contain all cheats from all games
+	CHT_NONE,
+	CHT_GOD,
+	CHT_GODON,
+	CHT_GODOFF
+};
+
+typedef void(*NetCommandHandler)(int player, uint8_t **stream, bool skip);
 
 void Net_SetCommandHandler(EDemoCommand cmd, NetCommandHandler handler) noexcept;
 
@@ -111,8 +120,8 @@ int SkipTicCmd (uint8_t **stream, int count);
 void ReadTicCmd (uint8_t **stream, int player, int tic);
 void RunNetSpecs (int player, int buf);
 
-int Readuint8_t (uint8_t **stream);
-int Reauint32_t (uint8_t **stream);
+int ReadByte (uint8_t **stream);
+int ReadShort (uint8_t **stream);
 int ReadLong (uint8_t **stream);
 float ReadFloat (uint8_t **stream);
 char *ReadString (uint8_t **stream);

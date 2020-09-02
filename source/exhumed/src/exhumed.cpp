@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "c_console.h"
 #include "cheathandler.h"
 #include "inputstate.h"
+#include "d_protocol.h"
 #include "core/menu/menu.h"
 
 BEGIN_PS_NS
@@ -195,6 +196,39 @@ void ShutDown(void)
     //UnInitFX();
 }
 
+
+static const char* GodCheat(int nPlayer, int state)
+{
+    if (state == -1)
+    {
+        if (PlayerList[nPlayer].invincibility >= 0)
+            PlayerList[nPlayer].invincibility = -1;
+        else
+            PlayerList[nPlayer].invincibility = 0;
+    }
+    else PlayerList[nPlayer].invincibility = -state;
+
+    return GStrings(PlayerList[nPlayer].invincibility ? "TXT_EX_DEITYON" : "TXT_EX_DEITYOFF");
+}
+
+const char* GameInterface::GenericCheat(int player, int cheat)
+{
+    switch (cheat)
+    {
+    case CHT_GOD:
+        return GodCheat(player, -1);
+
+    case CHT_GODOFF:
+        return GodCheat(player, 0);
+
+    case CHT_GODON:
+        return GodCheat(player, 1);
+
+    default:
+        return nullptr;
+    }
+}
+
 static bool HollyCheat(cheatseq_t* c)
 {
     // Do the closest thing to this cheat that's available.
@@ -211,12 +245,6 @@ static bool KimberlyCheat(cheatseq_t* c)
 static bool CopCheat(cheatseq_t* c)
 {
     lLocalCodes |= kButtonCheatGuns;
-    return true;
-}
-
-static bool GodCheat(cheatseq_t* c)
-{
-    lLocalCodes |= kButtonCheatGodMode;
     return true;
 }
 
@@ -289,17 +317,17 @@ static bool CoordCheat(cheatseq_t* c)
 
 
 static cheatseq_t excheats[] = {
-    {"holly",       HollyCheat, 0},
-    {"kimberly",    KimberlyCheat, 0},
-    {"lobocop",     CopCheat, 0},
-    {"lobodeity",   GodCheat, 0},
-    {"lobolite",    LiteCheat, 0},
-    {"lobopick",    KeyCheat, 0},
-    {"loboslip",    SlipCheat, 0},
-    {"lobosnake",   SnakeCheat, 0},
-    {"lobosphere",  SphereCheat, 0},
-    {"loboswag",    SwagCheat, 0},
-    {"loboxy",      CoordCheat, true},
+    {"holly",       nullptr,   HollyCheat, 0},
+    {"kimberly",    nullptr,   KimberlyCheat, 0},
+    {"lobocop",     nullptr,   CopCheat, 0},
+    {"lobodeity",   "god" },
+    {"lobolite",    nullptr,   LiteCheat, 0},
+    {"lobopick",    nullptr,   KeyCheat, 0},
+    {"loboslip",    nullptr,   SlipCheat, 0},
+    {"lobosnake",   nullptr,   SnakeCheat, 0},
+    {"lobosphere",  nullptr,   SphereCheat, 0},
+    {"loboswag",    nullptr,   SwagCheat, 0},
+    {"loboxy",      nullptr,   CoordCheat, true},
 };
 
 

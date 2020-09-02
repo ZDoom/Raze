@@ -51,6 +51,7 @@
 #include "i_time.h"
 #include "d_ticcmd.h"
 #include "m_random.h"
+#include "cheats.h"
 
 extern bool pauseext;
 extern int gametic;
@@ -1660,6 +1661,10 @@ bool D_CheckNetGame (void)
 	const char *v;
 	int i;
 
+	// First install the global net command handlers
+
+	Net_SetCommandHandler(DEM_GENERICCHEAT, genericCheat);
+
 	for (i = 0; i < MAXNETNODES; i++)
 	{
 		nodeingame[i] = false;
@@ -1947,7 +1952,7 @@ void Net_DoCommand (int cmd, uint8_t **stream, int player)
 	assert(cmd >= 0 && cmd < DEM_MAX);
 	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
 	{
-		nethandlers[cmd](stream, false);
+		nethandlers[cmd](player, stream, false);
 	}
 	else
 		I_Error("Unknown net command: %d", cmd);
@@ -1958,7 +1963,7 @@ void Net_SkipCommand (int cmd, uint8_t **stream)
 {
 	if (cmd >= 0 && cmd < DEM_MAX && nethandlers[cmd])
 	{
-		nethandlers[cmd](stream, true);
+		nethandlers[cmd](0, stream, true);
 	}
 }
 

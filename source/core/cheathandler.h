@@ -3,6 +3,7 @@
 struct cheatseq_t
 {
 	const char *Sequence;
+	const char* ccmd;
 	bool (*Handler)(cheatseq_t *);
 	uint8_t DontCheck;
 	// This is working data for processing the cheat

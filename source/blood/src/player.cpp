@@ -607,8 +607,9 @@ void playerSetRace(PLAYER *pPlayer, int nLifeMode)
         pDudeInfo->at70[i] = mulscale8(Handicap[gProfile[pPlayer->nPlayer].skill], pDudeInfo->startDamage[i]);
 }
 
-void playerSetGodMode(PLAYER *pPlayer, char bGodMode)
+void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 {
+    if (pPlayer->godMode == bGodMode) return;
     if (bGodMode)
     {
         for (int i = 0; i < 7; i++)

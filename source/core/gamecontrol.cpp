@@ -1132,12 +1132,6 @@ CCMD (togglemsg)
 	}
 }
 
-// Just a placeholder for now.
-bool CheckCheatmode(bool printmsg)
-{
-	return gi->CheatAllowed(printmsg);
-}
-
 bool OkForLocalization(FTextureID texnum, const char* substitute)
 {
 	return false;

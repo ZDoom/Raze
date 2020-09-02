@@ -41,18 +41,77 @@ source as it is released.
 #include "c_dispatch.h"
 
 EXTERN_CVAR(Int, developer)
+EXTERN_CVAR(Bool, sv_cheats)
 
 BEGIN_DUKE_NS
 
-bool GameInterface::CheatAllowed(bool printmsg)
+const char *GameInterface::CheckCheatMode()
 {
-	if (ud.player_skill == 4 || (isRR() && ud.player_skill > 3) || (isRRRA() && ps[myconnectindex].nocheat))
+	if (sv_cheats && (ud.player_skill == 4 || (isRR() && ud.player_skill > 3) || (isRRRA() && ps[myconnectindex].nocheat)))
 	{
-		if (printmsg) FTA(22, &ps[myconnectindex]);
-		return false;
+		return quoteMgr.GetQuote(QUOTE_CHEATS_DISABLED);
 	}
-	return true;
+	return nullptr;
 }
+
+
+const char *cheatGod(int myconnectindex, int state)
+{
+	if (state == -1) state = 1 - ud.god;
+	ud.god = state;
+
+	sprite[ps[myconnectindex].i].extra = max_player_health;
+	hittype[ps[myconnectindex].i].extra = 0;
+	if (ud.god)
+	{
+		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
+		sprite[ps[myconnectindex].i].cstat = 257;
+
+		hittype[ps[myconnectindex].i].temp_data[0] = 0;
+		hittype[ps[myconnectindex].i].temp_data[1] = 0;
+		hittype[ps[myconnectindex].i].temp_data[2] = 0;
+		hittype[ps[myconnectindex].i].temp_data[3] = 0;
+		hittype[ps[myconnectindex].i].temp_data[4] = 0;
+		hittype[ps[myconnectindex].i].temp_data[5] = 0;
+
+		sprite[ps[myconnectindex].i].hitag = 0;
+		sprite[ps[myconnectindex].i].lotag = 0;
+		sprite[ps[myconnectindex].i].pal =
+			ps[myconnectindex].palookup;
+
+		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_ON);
+	}
+	else
+	{
+		ud.god = 0;
+		sprite[ps[myconnectindex].i].extra = max_player_health;
+		hittype[ps[myconnectindex].i].extra = -1;
+		ps[myconnectindex].last_extra = max_player_health;
+		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
+	}
+}
+
+
+const char* GameInterface::GenericCheat(int player, int cheat)
+{
+	switch (cheat)
+	{
+	case CHT_GOD:
+		return cheatGod(player, -1);
+
+	case CHT_GODOFF:
+		return cheatGod(player, 0);
+
+	case CHT_GODON:
+		return cheatGod(player, 1);
+
+	default:
+		return nullptr;
+	}
+}
+
+
+
 
 bool cheatWeapons(cheatseq_t *s)
 {
@@ -123,43 +182,6 @@ static bool cheatAllen(cheatseq_t *)
 	FTA(79,&ps[myconnectindex]);
 	return true;
 }
-
-bool cheatGod(cheatseq_t *)
-{
-	ud.god = 1-ud.god;
-
-	if(ud.god)
-	{
-		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
-		sprite[ps[myconnectindex].i].cstat = 257;
-
-		hittype[ps[myconnectindex].i].temp_data[0] = 0;
-		hittype[ps[myconnectindex].i].temp_data[1] = 0;
-		hittype[ps[myconnectindex].i].temp_data[2] = 0;
-		hittype[ps[myconnectindex].i].temp_data[3] = 0;
-		hittype[ps[myconnectindex].i].temp_data[4] = 0;
-		hittype[ps[myconnectindex].i].temp_data[5] = 0;
-
-		sprite[ps[myconnectindex].i].hitag = 0;
-		sprite[ps[myconnectindex].i].lotag = 0;
-		sprite[ps[myconnectindex].i].pal =
-			ps[myconnectindex].palookup;
-
-		FTA(17,&ps[myconnectindex]);
-	}
-	else
-	{
-		ud.god = 0;
-		sprite[ps[myconnectindex].i].extra = max_player_health;
-		hittype[ps[myconnectindex].i].extra = -1;
-		ps[myconnectindex].last_extra = max_player_health;
-		FTA(18,&ps[myconnectindex]);
-	}
-
-	sprite[ps[myconnectindex].i].extra = max_player_health;
-	hittype[ps[myconnectindex].i].extra = 0;
-	return true;
-}	
 
 bool cheatStuff(cheatseq_t *)
 {
@@ -418,115 +440,115 @@ static bool cheatKfc(cheatseq_t *)
 }
 
 static cheatseq_t dukecheats[] = {
-	{ "dncornholio", cheatGod },
-	{ "dnstuff", cheatStuff },
-	{ "dnscotty###", cheatLevel },
-	{ "dncoords", cheatCoord, 1 },
-	{ "dnview", cheatView, 1 },
-	{ "dntime", cheatTime, 1 },
-	{ "dnunlock", cheatUnlock },
-	{ "dncashman", cheatCashman },
-	{ "dnitems", cheatItems },
-	{ "dnrate", cheatRate, 1 },
-	{ "dnskill#", cheatSkill },
-	{ "dnbeta", cheatBeta },
-	{ "dnhyper", cheatHyper },
-	{ "dnmonsters", cheatMonsters },
-	{ "dntodd", cheatTodd },
-	{ "dnshowmap", cheatMap },
-	{ "dnkroz", cheatGod },
-	{ "dnallen", cheatAllen },
-	{ "dnclip", cheatClip },
-	{ "dnweapons", cheatWeapons },
-	{ "dninventory", cheatInventory },
-	{ "dnkeys", cheatKeys },
-	{ "dndebug", cheatDebug, 1 },
-	{ "dncgs", cheatKill },
+	{ "dncornholio",  "god" },
+	{ "dnstuff",      nullptr,          cheatStuff },
+	{ "dnscotty###",  nullptr,          cheatLevel },
+	{ "dncoords",     nullptr,          cheatCoord, 1 },
+	{ "dnview",       nullptr,          cheatView, 1 },
+	{ "dntime",       nullptr,          cheatTime, 1 },
+	{ "dnunlock",     nullptr,          cheatUnlock },
+	{ "dncashman",    nullptr,          cheatCashman },
+	{ "dnitems",      nullptr,          cheatItems },
+	{ "dnrate",       nullptr,          cheatRate, 1 },
+	{ "dnskill#",     nullptr,          cheatSkill },
+	{ "dnbeta",       nullptr,          cheatBeta },
+	{ "dnhyper",      nullptr,          cheatHyper },
+	{ "dnmonsters",   nullptr,          cheatMonsters },
+	{ "dntodd",       nullptr,          cheatTodd },
+	{ "dnshowmap",    nullptr,          cheatMap },
+	{ "dnkroz",       "god" },
+	{ "dnallen",      nullptr,          cheatAllen },
+	{ "dnclip",       nullptr,          cheatClip },
+	{ "dnweapons",    nullptr,          cheatWeapons },
+	{ "dninventory",  nullptr,          cheatInventory },
+	{ "dnkeys",       nullptr,          cheatKeys },
+	{ "dndebug",      nullptr,          cheatDebug, 1 },
+	{ "dncgs",        nullptr,          cheatKill },
 };
 
 static cheatseq_t ww2cheats[] = 
 {
 	// Use the same code prefix as EDuke because 'ww' is not usable here. Since the cheat parser eats input after the second key, this could easily cause interference for WASD users.
-	{ "gi2god", cheatGod },
-	{ "gi2blood", cheatStuff },
-	{ "gi2level###", cheatLevel },
-	{ "gi2coords", cheatCoord, 1 },
-	{ "gi2view", cheatView, 1 },
-	{ "gi2time", cheatTime, 1 },
-	{ "gi2rate", cheatRate, 1 },
-	{ "gi2skill", cheatSkill },
-	{ "gi2enemies", cheatMonsters },
-	{ "gi2matt", cheatTodd },
-	{ "gi2showmap", cheatMap },
-	{ "gi2ryan", cheatGod },
-	{ "gi2clip", cheatClip },
-	{ "gi2weapons", cheatWeapons },
-	{ "gi2inventory", cheatInventory },
-	{ "gi2debug", cheatDebug, 1 },
-	{ "gi2cgs", cheatKill },
+	{ "gi2god",       "god" },
+	{ "gi2blood",     nullptr,          cheatStuff },
+	{ "gi2level###",  nullptr,          cheatLevel },
+	{ "gi2coords",    nullptr,          cheatCoord, 1 },
+	{ "gi2view",      nullptr,          cheatView, 1 },
+	{ "gi2time",      nullptr,          cheatTime, 1 },
+	{ "gi2rate",      nullptr,          cheatRate, 1 },
+	{ "gi2skill",     nullptr,          cheatSkill },
+	{ "gi2enemies",   nullptr,          cheatMonsters },
+	{ "gi2matt",      nullptr,          cheatTodd },
+	{ "gi2showmap",   nullptr,          cheatMap },
+	{ "gi2ryan",      "god" },
+	{ "gi2clip",      nullptr,          cheatClip },
+	{ "gi2weapons",   nullptr,          cheatWeapons },
+	{ "gi2inventory", nullptr,          cheatInventory },
+	{ "gi2debug",     nullptr,          cheatDebug, 1 },
+	{ "gi2cgs",       nullptr,          cheatKill },
 };
 
 static cheatseq_t namcheats[] = {
-	{ "nvacaleb", cheatGod },
-	{ "nvablood", cheatStuff },
-	{ "nvalevel###", cheatLevel },
-	{ "nvacoords", cheatCoord, 1 },
-	{ "nvaview", cheatView, 1 },
-	{ "nvatime", cheatTime, 1 },
-	{ "nvarate", cheatRate, 1 },
-	{ "nvaskill", cheatSkill },
-	{ "nvahyper", cheatHyper },
-	{ "nvaenemies", cheatMonsters },
-	{ "nvamatt", cheatTodd },
-	{ "nvashowmap", cheatMap },
-	{ "nvagod", cheatGod },
-	{ "nvaclip", cheatClip },
-	{ "nvaweapons", cheatWeapons }, 
-	{ "nvainventory", cheatInventory },
-	{ "nvadebug", cheatDebug, 1 },
-	{ "nvacgs", cheatKill },
+	{ "nvacaleb",    "god" },
+	{ "nvablood",    nullptr,           cheatStuff },
+	{ "nvalevel###", nullptr,           cheatLevel },
+	{ "nvacoords",   nullptr,           cheatCoord, 1 },
+	{ "nvaview",     nullptr,           cheatView, 1 },
+	{ "nvatime",     nullptr,           cheatTime, 1 },
+	{ "nvarate",     nullptr,           cheatRate, 1 },
+	{ "nvaskill",    nullptr,           cheatSkill },
+	{ "nvahyper",    nullptr,           cheatHyper },
+	{ "nvaenemies",  nullptr,           cheatMonsters },
+	{ "nvamatt",     nullptr,           cheatTodd },
+	{ "nvashowmap",  nullptr,           cheatMap },
+	{ "nvagod",      "god" },
+	{ "nvaclip",     nullptr,           cheatClip },
+	{ "nvaweapons",  nullptr,           cheatWeapons }, 
+	{ "nvainventory",nullptr,           cheatInventory },
+	{ "nvadebug",    nullptr,           cheatDebug, 1 },
+	{ "nvacgs",      nullptr,           cheatKill },
 };
 
 static cheatseq_t rrcheats[] = {
-	{ "rdhounddog", cheatGod },
-	{ "rdall", cheatStuff },
-	{ "rdmeadow###", cheatLevel },
-	{ "rdyerat", cheatCoord, 1 },
-	{ "rdview", cheatView, 1 },
-	{ "rdtime", cheatTime, 1 },
-	{ "rdunlock", cheatUnlock },
-	{ "rdcluck", cheatCashman },
-	{ "rditems", cheatItems },
-	{ "rdrate", cheatRate, 1 },
-	{ "rdskill#", cheatSkill },
-	{ "rdteachers", cheatBeta },
-	{ "rdmoonshine", cheatHyper },
-	{ "rdcritters", cheatMonsters },
-	{ "rdrafael", cheatTodd },
-	{ "rdshowmap", cheatMap },
-	{ "rdelvis", cheatGod },
-	{ "rdclip", cheatClip },
-	{ "rdguns", cheatWeapons }, 
-	{ "rdinventory", cheatInventory },
-	{ "rdkeys", cheatKeys },
-	{ "rddebug", cheatDebug, 1 },
-	{ "rdcgs", cheatKill }, // 23 for RR
+	{ "rdhounddog",  "god" },
+	{ "rdall",       nullptr,           cheatStuff },
+	{ "rdmeadow###", nullptr,           cheatLevel },
+	{ "rdyerat",     nullptr,           cheatCoord, 1 },
+	{ "rdview",      nullptr,           cheatView, 1 },
+	{ "rdtime",      nullptr,           cheatTime, 1 },
+	{ "rdunlock",    nullptr,           cheatUnlock },
+	{ "rdcluck",     nullptr,           cheatCashman },
+	{ "rditems",     nullptr,           cheatItems },
+	{ "rdrate",      nullptr,           cheatRate, 1 },
+	{ "rdskill#",    nullptr,           cheatSkill },
+	{ "rdteachers",  nullptr,           cheatBeta },
+	{ "rdmoonshine", nullptr,           cheatHyper },
+	{ "rdcritters",  nullptr,           cheatMonsters },
+	{ "rdrafael",    nullptr,           cheatTodd },
+	{ "rdshowmap",   nullptr,           cheatMap },
+	{ "rdelvis",     "god" },
+	{ "rdclip",      nullptr,           cheatClip },
+	{ "rdguns",      nullptr,           cheatWeapons }, 
+	{ "rdinventory", nullptr,           cheatInventory },
+	{ "rdkeys",      nullptr,           cheatKeys },
+	{ "rddebug",     nullptr,           cheatDebug, 1 },
+	{ "rdcgs",       nullptr,           cheatKill }, // 23 for RR
 	// RRRA only!
-	{ "rdjoseph", cheatMotorcycle },
-	{ "rdmrbill", cheatKill },
-	{ "rdtony", cheatTony },
-	{ "rdgary", cheatGary },
-	{ "rdrhett", cheatRhett },
-	{ "rdaaron", cheatAaron },
-	{ "rdnocheat", cheatNocheat },
-	{ "rdwoleslagle", cheatDrink },
-	{ "rdmikael", cheatStuff },
-	{ "rdgreg", cheatSeasick },
-	//"rdnoah",       // no-op
-	{ "rdarijit", cheatBoat },
-	{ "rddonut", cheatBoat },
-	{ "rdkfc", cheatKfc },
-	{ "rdvan", cheatVan },
+	{ "rdjoseph",    nullptr,           cheatMotorcycle },
+	{ "rdmrbill",    nullptr,           cheatKill },
+	{ "rdtony",      nullptr,           cheatTony },
+	{ "rdgary",      nullptr,           cheatGary },
+	{ "rdrhett",     nullptr,           cheatRhett },
+	{ "rdaaron",     nullptr,           cheatAaron },
+	{ "rdnocheat",   nullptr,           cheatNocheat },
+	{ "rdwoleslagle",nullptr,           cheatDrink },
+	{ "rdmikael",    nullptr,           cheatStuff },
+	{ "rdgreg",      nullptr,           cheatSeasick },
+	//"rdnoah",      nullptr,           // no-op
+	{ "rdarijit",    nullptr,           cheatBoat },
+	{ "rddonut",     nullptr,           cheatBoat },
+	{ "rdkfc",       nullptr,           cheatKfc },
+	{ "rdvan",       nullptr,           cheatVan },
 };
 
 void InitCheats()

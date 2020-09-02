@@ -37,6 +37,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamecontrol.h"
 #include "gstrings.h"
 #include "cheathandler.h"
+#include "d_protocol.h"
+#include "cheats.h"
 //#include "inv.h"
 
 BEGIN_SW_NS
@@ -54,7 +56,7 @@ static PLAYERp checkCheat(cheatseq_t* c)
     if (CommEnabled)
         return nullptr;
 
-    if (Skill >= 3 && !c->DontCheck)
+    if (Skill >= 3 && !c->DontCheck && !sv_cheats)
     {
         PutStringInfo(&Player[screenpeek], GStrings("TXTS_TOOSKILLFUL"));
         return nullptr;
@@ -62,6 +64,38 @@ static PLAYERp checkCheat(cheatseq_t* c)
 
     return &Player[screenpeek];
 }
+
+const char *GameInterface::CheckCheatMode() 
+{
+     if (Skill >= 3 && !sv_cheats)
+     {
+         return GStrings("TXTS_TOOSKILLFUL");
+     }
+     return nullptr;
+ }
+
+
+const char *GameInterface::GenericCheat(int player, int cheat)
+{
+    switch (cheat)
+    {
+    case CHT_GOD:
+        GodMode ^= 1;   // fixme: Make god mode a player property.
+        return GStrings(GodMode ? "GOD MODE: ON" : "GOD MODE: OFF");
+
+    case CHT_GODOFF:
+        GodMode = 0;   // fixme: Make god mode a player property.
+        return GStrings("GOD MODE: OFF");
+
+    case CHT_GODON:
+        GodMode = 1;   // fixme: Make god mode a player property.
+        return GStrings("GOD MODE: ON");
+
+    default:
+        return nullptr;
+    }
+}
+
 
 bool RestartCheat(cheatseq_t* c)
 {
@@ -177,19 +211,6 @@ bool AmmoCheat(cheatseq_t* c)
 
         PlayerUpdateWeapon(p, u->WeaponNum);
     }
-    return true;
-}
-
-bool GodCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    //
-    // GOD mode
-    //
-    GodMode ^= 1;
-
-    PutStringInfo(pp, GStrings(GodMode? "GOD MODE: ON" : "GOD MODE: OFF"));
     return true;
 }
 
@@ -403,28 +424,29 @@ bool KeysCheat(cheatseq_t* c)
 bool EveryCheatToggle(cheatseq_t* c)
 {
     EveryCheat ^= 1;
-    return WeaponCheat(c) && GodCheat(c) && ItemCheat(c);
+    C_DoCommand("god");
+    return WeaponCheat(c) && ItemCheat(c);
 }
 
 // The prefix was changed from 'sw' to 'lw' so that it doesn't contain two keys of the WASD control scheme, which interferes with input control.
 static cheatseq_t swcheats[] = {
-    {"lwgod",       GodCheat, 0},
-    {"lwchan",      GodCheat, 0},
-    {"lwgimme",     ItemCheat, 0},
-    {"lwmedic",     HealCheat, 0},
-    {"lwkey#",      KeyCheat, 0},
-    {"lwkeys",      KeysCheat, 0},
-    {"lwammo",      AmmoCheat, 0},
-    {"lwarmor",      ArmorCheat, 0},
-    {"lwitems",      ItemCheat, 0},
-    {"lwguns",      WeaponCheat, 0},
-    {"lwtrek##",    WarpCheat, 0},
-    {"lwgreed",     EveryCheatToggle, 0},
-    {"lwghost",     ClipCheat, 0},
-    {"lwstart",     RestartCheat, 0},
-    {"lwloc",       LocCheat, 0},
-    {"lwmap",       MapCheat, 0},
-    {"lwroom",      RoomCheat, true}, // Room above room dbug
+    {"lwgod",      "god" },
+    {"lwchan",     "god" },
+    {"lwgimme",    nullptr,     ItemCheat, 0},
+    {"lwmedic",    nullptr,     HealCheat, 0},
+    {"lwkey#",     nullptr,     KeyCheat, 0},
+    {"lwkeys",     nullptr,     KeysCheat, 0},
+    {"lwammo",     nullptr,     AmmoCheat, 0},
+    {"lwarmor",    nullptr,     ArmorCheat, 0},
+    {"lwitems",    nullptr,     ItemCheat, 0},
+    {"lwguns",     nullptr,     WeaponCheat, 0},
+    {"lwtrek##",   nullptr,     WarpCheat, 0},
+    {"lwgreed",    nullptr,     EveryCheatToggle, 0},
+    {"lwghost",    nullptr,     ClipCheat, 0},
+    {"lwstart",    nullptr,     RestartCheat, 0},
+    {"lwloc",      nullptr,     LocCheat, 0},
+    {"lwmap",      nullptr,     MapCheat, 0},
+    {"lwroom",     nullptr,     RoomCheat, true}, // Room above room dbug
 };
 
 

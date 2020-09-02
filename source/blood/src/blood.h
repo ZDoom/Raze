@@ -99,6 +99,7 @@ struct GameInterface : ::GameInterface
 	void DrawBackground() override;
 	void Startup() override;
 	void Render() override;
+	const char* GenericCheat(int player, int cheat) override;
 
 	GameStats getStats() override;
 };

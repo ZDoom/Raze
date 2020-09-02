@@ -8,6 +8,8 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "stats.h"
 #include "packet.h"
 
+class FSerializer;
+
 struct GameStats
 {
 	int kill, tkill;
@@ -89,7 +91,6 @@ struct GameInterface
 	virtual void QuitToTitle() {}
 	virtual void SetAmbience(bool on) {}
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
-	virtual bool CheatAllowed(bool printmsg) { return true; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
@@ -101,6 +102,8 @@ struct GameInterface
 	virtual void Render() {}
 	virtual void Ticker() {}
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
+	virtual const char *CheckCheatMode() { return nullptr; }
+	virtual const char* GenericCheat(int player, int cheat) = 0;
 
 	virtual FString statFPS()
 	{

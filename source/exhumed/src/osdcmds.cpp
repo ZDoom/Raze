@@ -34,19 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
-static int osdcmd_god(CCmdFuncPtr)
-{
-    if (!nNetPlayerCount && !bInDemo)
-    {
-        lLocalCodes |= kButtonCheatGodMode;
-    }
-    else
-        Printf("god: Not in a single-player game.\n");
-
-    return CCMD_OK;
-}
-
 bool SlipCheat(cheatseq_t* c);
 
 static int osdcmd_noclip(CCmdFuncPtr)
@@ -225,7 +212,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     C_RegisterFunction("exitmap", "exits current map", osdcmd_exitmap);
     C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
-    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);

@@ -168,9 +168,9 @@ int UnpackUserCmd (InputPacket *ucmd, const InputPacket *basis, uint8_t **stream
 		if (flags & UCMDF_SIDEMOVE)
 			ucmd->svel = ReadWord (stream);
 		if (flags & UCMDF_UPMOVE)
-			ucmd->q16horiz = ReadWord (stream);
+			ucmd->q16horiz = ReadLong (stream);
 		if (flags & UCMDF_ROLL)
-			ucmd->q16ang = ReadWord (stream);
+			ucmd->q16ang = ReadLong (stream);
 	}
 
 	return int(*stream - start);

@@ -42,7 +42,8 @@ enum MESSAGE_PRIORITY {
 enum CHEATCODE
  {
 	 kCheatNone = 0,
-	 kCheat1, // refills ammo, no cheat code for it
+
+	 kCheat1 = 1000, // refills ammo, no cheat code for it
 	 kCheatGriswold,
 	 kCheatSatchel,
 	 kCheatEvaGalli,
@@ -90,7 +91,6 @@ void SetWeapons(bool stat);
 void SetToys(bool stat);
 void SetArmor(bool stat);
 void SetKeys(bool stat);
-void SetGodMode(bool god);
 void SetClipMode(bool noclip);
 
 END_BLD_NS

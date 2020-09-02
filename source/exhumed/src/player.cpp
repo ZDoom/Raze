@@ -1281,29 +1281,7 @@ loc_1AB8E:
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
             auto actions = sPlayerInput[nPlayer].actions;
 
-            if (buttons & kButtonCheatGodMode) // LOBODEITY cheat
-            {
-                char strDeity[96]; // TODO - reduce in size?
-
-                const char *strDMode = NULL;
-
-                if (PlayerList[nPlayer].invincibility >= 0)
-                {
-                    PlayerList[nPlayer].invincibility = -1;
-                    strDMode = "ON";
-                }
-                else
-                {
-                    PlayerList[nPlayer].invincibility = 0;
-                    strDMode = "OFF";
-                }
-
-                sPlayerInput[nPlayer].buttons &= 0xBF;
-
-                sprintf(strDeity, "Deity mode %s for player", strDMode);
-                StatusMessage(150, strDeity);
-            }
-            else if (buttons & kButtonCheatGuns) // LOBOCOP cheat
+            if (buttons & kButtonCheatGuns) // LOBOCOP cheat
             {
                 FillWeapons(nPlayer);
                 StatusMessage(150, "All weapons loaded for player");

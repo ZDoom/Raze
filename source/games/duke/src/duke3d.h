@@ -47,7 +47,6 @@ struct GameInterface : public ::GameInterface
 	void SerializeGameState(FSerializer& arc) override;
 	void QuitToTitle() override;
 	FString GetCoordString() override;
-	bool CheatAllowed(bool printmsg) override;
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
@@ -58,6 +57,8 @@ struct GameInterface : public ::GameInterface
 	void DrawBackground() override;
 	void Render() override;
 	void Ticker() override;
+	const char* GenericCheat(int player, int cheat) override;
+	const char* CheckCheatMode();
 
 };
 

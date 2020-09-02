@@ -129,19 +129,6 @@ static int osdcmd_give(CCmdFuncPtr parm)
     return CCMD_SHOWHELP;
 }
 
-static int osdcmd_god(CCmdFuncPtr)
-{
-    if (numplayers == 1 && gamestate == GS_LEVEL)
-    {
-        SetGodMode(!gMe->godMode);
-        bPlayerCheated = true;
-    }
-    else
-        Printf("god: Not in a single-player game.\n");
-
-    return CCMD_OK;
-}
-
 static int osdcmd_noclip(CCmdFuncPtr)
 {
     if (numplayers == 1 && gamestate == GS_LEVEL)
@@ -249,7 +236,6 @@ int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
     C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
-    C_RegisterFunction("god","god: toggles god mode", osdcmd_god);
     C_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);

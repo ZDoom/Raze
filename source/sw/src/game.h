@@ -2226,6 +2226,9 @@ struct GameInterface : ::GameInterface
     void Ticker(void) override;
     void Render() override;
     void Startup() override;
+    const char *CheckCheatMode() override;
+    const char* GenericCheat(int player, int cheat) override;
+
 
     GameStats getStats() override;
 };
