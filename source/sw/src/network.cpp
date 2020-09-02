@@ -43,7 +43,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 void getinput(InputPacket *, SWBOOL);
-void resetGameClock();
 
 static uint8_t tempbuf[576], packbuf[576];
 int PlayClock;
@@ -164,7 +163,6 @@ InitTimingVars(void)
 
     // resettiming();
     totalsynctics = 0;
-    resetGameClock();
     randomseed = 17L;
 
     MoveSkip8 = 2;

@@ -116,22 +116,8 @@ void GameInterface::Ticker()
 //
 //---------------------------------------------------------------------------
 
-void resetGameClock()
-{
-	I_SetFrameTime();
-	setGameClockStart();
-	cloudclock = 0;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void GameInterface::Startup()
 {
-	resetGameClock();
 		ps[myconnectindex].ftq = 0;
 
 		if (userConfig.CommandMap.IsNotEmpty())
