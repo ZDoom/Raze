@@ -647,8 +647,8 @@ void viewDrawScreen(bool sceneonly)
         int cY = gView->pSprite->y;
         int cZ = gView->zView;
         double zDelta = gView->zWeapon - gView->zView - (12 << 8);
-        fixed_t cA = gView->q16ang;
-        fixed_t q16horiz = gView->q16horiz;
+        fixed_t cA;
+        fixed_t q16horiz;
         fixed_t q16slopehoriz = gView->q16slopehoriz;
         int v74 = gView->bobWidth;
         int v8c = gView->bobHeight;
@@ -679,8 +679,8 @@ void viewDrawScreen(bool sceneonly)
                 cY = interpolate(pView->at54, cY, gInterpolate);
                 cZ = interpolate(pView->at38, cZ, gInterpolate);
                 zDelta = finterpolate(pView->at34, zDelta, gInterpolate);
-                cA = interpolateangfix16(pView->at30, cA, gInterpolate);
-                q16horiz = interpolate(pView->at24, q16horiz, gInterpolate);
+                cA = interpolateangfix16(pView->at30, gView->q16ang, gInterpolate);
+                q16horiz = interpolate(pView->at24, gView->q16horiz, gInterpolate);
                 q16slopehoriz = interpolate(pView->at28, q16slopehoriz, gInterpolate);
                 v74 = interpolate(pView->atc, v74, gInterpolate);
                 v8c = interpolate(pView->at8, v8c, gInterpolate);
@@ -688,7 +688,7 @@ void viewDrawScreen(bool sceneonly)
                 v48 = finterpolate(pView->at18, v48, gInterpolate);
             }
         }
-        if (gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
+        if (!cl_syncinput && gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
         {
             int upAngle = 289;
             int downAngle = -347;
