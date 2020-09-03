@@ -166,7 +166,7 @@ void GameInterface::NextLevel(MapRecord* map, int skill)
 {
 	ud.m_player_skill = skill + 1;
 	int res = enterlevel(map, 0);
-	if (!res) gameaction = ga_startup;
+	if (res) gameaction = ga_startup;
 }
 
 //---------------------------------------------------------------------------

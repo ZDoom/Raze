@@ -415,8 +415,8 @@ class ScreenJobRunner
 	int index = -1;
 	float screenfade;
 	bool clearbefore;
-	uint64_t startTime = -1;
-	uint64_t lastTime = -1;
+	int64_t startTime = -1;
+	int64_t lastTime = -1;
 	int actionState;
 	int terminateState;
 
@@ -474,7 +474,7 @@ public:
 		auto now = I_nsTime();
 		bool processed = job.job->ProcessInput();
 		bool skiprequest = inputState.CheckAllInput() && !processed;
-		if (startTime == -1) startTime = now;
+		if (startTime == -1) lastTime = startTime = now;
 
 		if (M_Active())
 		{

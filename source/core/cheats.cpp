@@ -236,7 +236,7 @@ void ChangeLevel(MapRecord* map, int skill)
 {
 	Net_WriteByte(DEM_CHANGEMAP);
 	Net_WriteByte(skill);
-	Net_WriteString(map->labelName);
+	Net_WriteString(map? map->labelName : nullptr);
 }
 
 //---------------------------------------------------------------------------

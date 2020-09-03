@@ -139,7 +139,9 @@ static void GameTicker()
 			g_nextskill = -1;
 			FX_StopAllSounds();
 			FX_SetReverb(0);
-			gi->NextLevel(currentLevel, -1);
+			gi->FreeLevelData();
+			gamestate = GS_LEVEL;
+			gi->NextLevel(g_nextmap, -1);
 			break;
 
 		case ga_completed:
@@ -149,7 +151,8 @@ static void GameTicker()
 			{
 				// if the same level is restarted, skip any progression stuff like summary screens or cutscenes.
 				gi->FreeLevelData();
-				gi->NextLevel(currentLevel, g_nextskill);
+				gamestate = GS_LEVEL;
+				gi->NextLevel(g_nextmap, g_nextskill);
 			}
 			else
 				gi->LevelCompleted(g_nextmap, g_nextskill);
@@ -157,13 +160,15 @@ static void GameTicker()
 
 		case ga_nextlevel:
 			gi->FreeLevelData();
-			gi->NextLevel(currentLevel, g_nextskill);
+			gamestate = GS_LEVEL;
+			gi->NextLevel(g_nextmap, g_nextskill);
 			break;
 
 		case ga_newgame:
 			FX_StopAllSounds();
 			FX_SetReverb(0);
 			gi->FreeLevelData();
+			gamestate = GS_LEVEL;
 			gi->NewGame(g_nextmap, g_nextskill);
 			break;
 
@@ -289,6 +294,7 @@ void Display()
 	switch (gamestate)
 	{
 	case GS_MENUSCREEN:
+	case GS_FULLCONSOLE:
 		gi->DrawBackground();
 		break;
 
@@ -314,6 +320,7 @@ void Display()
 		break;
 
 	default:
+		twod->ClearScreen();
 		break;
 	}
 
@@ -392,7 +399,7 @@ void TryRunTics (void)
 	bool doWait = cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated());
 
 	// get real tics
-	if (doWait && gamestate != GS_INTERMISSION)	// GS_INTERMISSION needs uncapped frame rate.
+	if (doWait && gamestate != GS_INTERMISSION && gamestate != GS_INTRO)	// GS_INTERMISSION needs uncapped frame rate.
 	{
 		entertic = I_WaitForTic (oldentertics);
 	}
