@@ -646,6 +646,8 @@ void MyLoadSave::Load(void)
     Read(&gMapRev, sizeof(gMapRev));
     Read(&gSongId, sizeof(gSkyCount));
     Read(&gFogMode, sizeof(gFogMode));
+    Read(&gViewAngle, sizeof(gViewAngle));
+    Read(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Read(&gModernMap, sizeof(gModernMap));
 #endif
@@ -732,6 +734,8 @@ void MyLoadSave::Save(void)
     Write(&gMapRev, sizeof(gMapRev));
     Write(&gSongId, sizeof(gSkyCount));
     Write(&gFogMode, sizeof(gFogMode));
+    Write(&gViewAngle, sizeof(gViewAngle));
+    Write(&gViewLook, sizeof(gViewLook));
 #ifdef NOONE_EXTENSIONS
     Write(&gModernMap, sizeof(gModernMap));
 #endif
