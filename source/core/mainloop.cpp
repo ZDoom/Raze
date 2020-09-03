@@ -332,7 +332,7 @@ void TryRunTics (void)
 	bool doWait = cl_capfps || pauseext || (r_NoInterpolate && !M_IsAnimated());
 
 	// get real tics
-	if (doWait)
+	if (doWait && gamestate != GS_INTERMISSION)	// GS_INTERMISSION needs uncapped frame rate.
 	{
 		entertic = I_WaitForTic (oldentertics);
 	}
