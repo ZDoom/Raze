@@ -58,7 +58,10 @@ struct GameInterface : public ::GameInterface
 	void Render() override;
 	void Ticker() override;
 	const char* GenericCheat(int player, int cheat) override;
-	const char* CheckCheatMode();
+	const char* CheckCheatMode() override;
+	void NextLevel(MapRecord* map, int skill) override;
+	void NewGame(MapRecord* map, int skill) override;
+	void LevelCompleted(MapRecord* map, int skill) override;
 
 };
 

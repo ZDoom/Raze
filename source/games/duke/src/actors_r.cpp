@@ -2133,9 +2133,7 @@ static void rrra_specialstats()
 		ps[screenpeek].MamaEnd--;
 		if (ps[screenpeek].MamaEnd == 0)
 		{
-			ps[screenpeek].gm = MODE_EOL;
-			ud.eog = 1;
-			ud.nextLevel = nullptr;
+			CompleteLevel(nullptr);
 		}
 	}
 

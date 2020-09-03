@@ -434,37 +434,15 @@ bool M_SetMenu(FName menu, int param, FName caller)
 	switch (caller.GetIndex())
 	{
 	case NAME_Episodemenu:
-	case NAME_HuntMenu:
 	case NAME_TargetMenu:
 		// sent from the episode menu
 		NewGameStartupInfo.Episode = param;
 		NewGameStartupInfo.Level = 0;
-		NewGameStartupInfo.CustomLevel1 = NewGameStartupInfo.CustomLevel2 = -1;
 		NewGameStartupInfo.Skill = gDefaultSkill;
 		break;
 
 	case NAME_WeaponMenu:
 		NewGameStartupInfo.Skill = param;
-		break;
-
-	case NAME_CustomGameMenu:
-		NewGameStartupInfo.CustomLevel1 = param;
-		NewGameStartupInfo.CustomLevel2 = -1;
-		NewGameStartupInfo.Episode = 0;	// Set start to E1L1 so that even if the script fails to set the starting level it is set to something valid.
-		NewGameStartupInfo.Level = 0;
-		NewGameStartupInfo.Skill = gDefaultSkill;
-		gi->CustomMenuSelection(param, -1);
-		break;
-
-	case NAME_CustomSubMenu1:
-	case NAME_CustomSubMenu2:
-	case NAME_CustomSubMenu3:
-	case NAME_CustomSubMenu4:
-	case NAME_CustomSubMenu5:
-	case NAME_CustomSubMenu6:
-	case NAME_CustomSubMenu7:
-		NewGameStartupInfo.CustomLevel2 = param;
-		gi->CustomMenuSelection(NewGameStartupInfo.CustomLevel1, param);
 		break;
 
 	case NAME_Skillmenu:

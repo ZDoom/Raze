@@ -556,7 +556,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void dobonus_r(bool bonusonly, const CompletionFunc& completion)
+void dobonus_r(int bonusonly, const CompletionFunc& completion)
 {
 	JobDesc jobs[20];
 	int job = 0;
@@ -564,7 +564,7 @@ void dobonus_r(bool bonusonly, const CompletionFunc& completion)
 	FX_StopAllSounds();
 	Mus_Stop();
 
-	if (!bonusonly && !isRRRA() && numplayers < 2 && ud.eog && ud.from_bonus == 0)
+	if (bonusonly < 0 && !isRRRA() && numplayers < 2 && ud.from_bonus == 0)
 	{
 		int vol = volfromlevelnum(currentLevel->levelNumber);
 		bonussequence_r(vol, jobs, job);
@@ -574,7 +574,7 @@ void dobonus_r(bool bonusonly, const CompletionFunc& completion)
 	{
 		jobs[job++] = { Create<DRRMultiplayerBonusScreen>(playerswhenstarted) };
 	}
-	else if (!bonusonly && ud.multimode <= 1)
+	else if (bonusonly <= 0 && ud.multimode <= 1)
 	{
 		if (isRRRA() && !(currentLevel->flags & MI_USERMAP) && currentLevel->levelNumber < 106) // fixme: The logic here is awful. Shift more control to the map records.
 		{
@@ -584,7 +584,7 @@ void dobonus_r(bool bonusonly, const CompletionFunc& completion)
 			mysnprintf(fn, 20, "lvl%d.anm", levnum + 1);
 			static const int framespeed[] = { 20, 20, 7200 };   // wait for one minute on the final frame so that the video doesn't stop  before the user notices.
 			jobs[job++] = { PlayVideo(fn, nullptr, framespeed) };
-			if (ud.eog && currentLevel->levelNumber > 100)
+			if (bonusonly < 0 && currentLevel->levelNumber > 100)
 			{
 				jobs[job++] = { Create<DRRRAEndOfGame>() };
 			}

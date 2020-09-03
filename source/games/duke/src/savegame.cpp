@@ -207,7 +207,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("last_full_weapon", w.last_full_weapon)
 			("footprintshade", w.footprintshade)
 			("boot_amount", w.boot_amount)
-			("gm", w.gm)
 			("on_warping_sector", w.on_warping_sector)
 			("footprintcount", w.footprintcount)
 			("hbomb_on", w.hbomb_on)
@@ -400,7 +399,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			//("auto_run", ud.auto_run)
 			("monsters_off", ud.monsters_off)
 			("last_level", ud.last_level)
-			("eog", ud.eog)
 			("coop", ud.coop)
 			("marker", ud.marker)
 			("ffire", ud.ffire)
@@ -488,7 +486,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		if (arc.isReading())
 		{
 			screenpeek = myconnectindex;
-			ps[myconnectindex].gm = MODE_GAME;
 			gamestate = GS_LEVEL;
 			ud.recstat = 0;
 

@@ -42,6 +42,7 @@ source as it is released.
 #include "raze_music.h"
 #include "mapinfo.h"
 #include "raze_sound.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -324,8 +325,7 @@ void GameInterface::UpdateSounds(void)
 	vec3_t* c;
 	int32_t ca, cs;
 	
-	auto& gm = ps[myconnectindex].gm;
-	if (isRR() && !Mus_IsPlaying() && (gm && gm & MODE_GAME))
+	if (isRR() && !Mus_IsPlaying() && !paused && gamestate == GS_LEVEL)
 		S_PlayRRMusic(); 
 
 	S_GetCamera(&c, &ca, &cs);

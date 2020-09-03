@@ -19,6 +19,12 @@ extern bool AppActive;
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 extern bool r_NoInterpolate;
 
+struct MapRecord;
+struct FSaveGameNode;
+extern MapRecord* g_nextmap;
+extern int g_nextskill;
+extern FSaveGameNode* g_savenode;
+
 extern FMemArena dump;	// this is for memory blocks than cannot be deallocated without some huge effort. Put them in here so that they do not register on shutdown.
 
 extern TMap<FName, int32_t> NameToTileIndex;
@@ -50,6 +56,9 @@ void CONFIG_ReadCombatMacros();
 int GameMain();
 void startmainmenu();
 void updatePauseStatus();
+void DeferedStartGame(MapRecord* map, int skill);
+void ChangeLevel(MapRecord* map, int skill);
+void CompleteLevel(MapRecord* map);
 
 struct UserConfig
 {

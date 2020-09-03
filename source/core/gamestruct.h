@@ -23,8 +23,6 @@ struct FNewGameStartup
 	int Episode;
 	int Level;
 	int Skill;
-	int CustomLevel1;
-	int CustomLevel2;
 };
 
 struct FSavegameInfo
@@ -56,6 +54,7 @@ struct ReservedSpace
 };
 
 enum EMenuSounds : int;
+struct MapRecord;
 
 extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
@@ -67,6 +66,7 @@ struct GameInterface
 	virtual void app_init() = 0;
 	virtual void clearlocalinputstate() {}
 	virtual void UpdateScreenSize() {}
+	virtual void FreeLevelData();
 	virtual void FreeGameData() {}
 	virtual void PlayHudSound() {}
 	virtual GameStats getStats() { return {}; }
@@ -86,7 +86,6 @@ struct GameInterface
 	virtual bool SaveGame(FSaveGameNode*) { return true; }
 	virtual bool LoadGame(FSaveGameNode*) { return true; }
 	virtual void SerializeGameState(FSerializer& arc) {}
-	virtual bool CleanupForLoad() { return true; }
 	virtual void DrawPlayerSprite(const DVector2& origin, bool onteam) {}
 	virtual void QuitToTitle() {}
 	virtual void SetAmbience(bool on) {}
@@ -104,6 +103,9 @@ struct GameInterface
 	virtual int GetPlayerChecksum(int pnum) { return 0x12345678 + pnum; }
 	virtual const char *CheckCheatMode() { return nullptr; }
 	virtual const char* GenericCheat(int player, int cheat) = 0;
+	virtual void NextLevel(MapRecord* map, int skill) {}
+	virtual void NewGame(MapRecord* map, int skill) {}
+	virtual void LevelCompleted(MapRecord* map, int skill) {}
 
 	virtual FString statFPS()
 	{

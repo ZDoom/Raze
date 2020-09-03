@@ -103,11 +103,6 @@ void GameInterface::Ticker()
 
 	}
 	else r_NoInterpolate = true;
-
-	if (ps[myconnectindex].gm & (MODE_EOL | MODE_RESTART))
-	{
-		exitlevel();
-	}
 }
 
 //---------------------------------------------------------------------------
@@ -138,7 +133,8 @@ void GameInterface::Startup()
 		}
 		else
 		{
-			fi.ShowLogo([](bool) { startmainmenu(); });
+			if (!userConfig.nologo) fi.ShowLogo([](bool) { startmainmenu(); });
+			else startmainmenu();
 		}
 }
 
@@ -160,6 +156,44 @@ void GameInterface::Render()
 	drawtime.Unclock();
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::NextLevel(MapRecord* map, int skill)
+{
+	ud.m_player_skill = skill + 1;
+	int res = enterlevel(map, 0);
+	if (!res) gameaction = ga_startup;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::NewGame(MapRecord* map, int skill)
+{
+	// Hmm... What about the other players?
+	ps[0].last_extra = max_player_health;
+	resetweapons(0);
+	resetinventory(0);
+	NextLevel(map, skill);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::LevelCompleted(MapRecord* map, int skill)
+{
+	exitlevel(map);
+}
 
 END_DUKE_NS
 

@@ -273,7 +273,6 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 	static const short sounds_r[] = { 427, 428, 196, 195, 197 };
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
 
-	ud.m_player_skill = gs.Skill + 1;
 	if (menu_sounds && skillsound >= 0 && SoundEnabled() && !netgame)
 	{
 		S_PlaySound(skillsound, CHAN_AUTO, CHANF_UI);
@@ -286,16 +285,10 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
-	ud.m_respawn_monsters = (gs.Skill == 3);
-
-	ud.m_monsters_off = ud.monsters_off = 0;
-	ud.m_respawn_items = 0;
-	ud.m_respawn_inventory = 0;
-	ud.multimode = 1;
 	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
 	if (map)
 	{
-		startnewgame(map, ud.m_player_skill);
+		DeferedStartGame(map, gs.Skill);
 	}
 
 }

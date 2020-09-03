@@ -280,13 +280,6 @@ void GameInterface::DrawBackground(void)
         MNU_DrawString(160, 170, "Lo Wang is waiting for other players...", 1, 16, 0);
         MNU_DrawString(160, 180, "They are afraid!", 1, 16, 0);
     }
-    // hack alert. This needs to go away.
-    if (SavegameLoaded || NextLevel)
-    {
-        TerminateLevel();
-        ExitLevel = false;
-        gamestate = GS_LEVEL;
-    }
 }
 
 //---------------------------------------------------------------------------
@@ -663,7 +656,7 @@ void GameInterface::Ticker(void)
                 StartAmbientSound();
             ExitLevel = false;
         }
-        else if (NextLevel)
+        else if (ShadowWarrior::NextLevel)
         {
             InitLevel();
             InitRunLevel();
@@ -731,7 +724,7 @@ void GameInterface::ErrorCleanup()
 {
     // Make sure we do not leave the game in an unstable state
     TerminateLevel();
-    NextLevel = nullptr;
+    ShadowWarrior::NextLevel = nullptr;
     SavegameLoaded = false;
     ExitLevel = false;
     FinishAnim = 0;
@@ -845,6 +838,12 @@ GameStats GameInterface::getStats()
 void GameInterface::FreeGameData()
 {
     TerminateLevel();
+}
+
+void GameInterface::FreeLevelData()
+{
+    TerminateLevel();
+    ::GameInterface::FreeLevelData();
 }
 
 END_SW_NS

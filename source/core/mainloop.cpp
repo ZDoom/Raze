@@ -83,6 +83,7 @@
 #include "palette.h"
 #include "build.h"
 #include "g_input.h"
+#include "mapinfo.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -125,16 +126,75 @@ static void GameTicker()
 
 	handleevents();
 
-#if 0
 	// Todo: Migrate state changes to here instead of doing them ad-hoc
 	while (gameaction != ga_nothing)
 	{
-		switch (gameaction)
+		auto ga = gameaction;
+		gameaction = ga_nothing;
+		switch (ga)
 		{
+		case ga_autoloadgame:
+			// todo: for now just handle the restart case
+			g_nextmap = currentLevel;
+			g_nextskill = -1;
+			FX_StopAllSounds();
+			FX_SetReverb(0);
+			gi->NextLevel(currentLevel, -1);
+			break;
+
+		case ga_completed:
+			FX_StopAllSounds();
+			FX_SetReverb(0);
+			if (g_nextmap == currentLevel)
+			{
+				// if the same level is restarted, skip any progression stuff like summary screens or cutscenes.
+				gi->FreeLevelData();
+				gi->NextLevel(currentLevel, g_nextskill);
+			}
+			else
+				gi->LevelCompleted(g_nextmap, g_nextskill);
+			break;
+
+		case ga_nextlevel:
+			gi->FreeLevelData();
+			gi->NextLevel(currentLevel, g_nextskill);
+			break;
+
+		case ga_newgame:
+			FX_StopAllSounds();
+			FX_SetReverb(0);
+			gi->FreeLevelData();
+			gi->NewGame(g_nextmap, g_nextskill);
+			break;
+
+		case ga_startup:
+			gi->FreeLevelData();
+			gamestate = GS_STARTUP;
+			break;
+
+		case ga_mainmenu:
+			gi->FreeLevelData();
+			startmainmenu();
+			break;
+
+		case ga_savegame:
+			// We only need this for multiplayer saves that need to go through the network.
+			// gi->SaveGame();
+			break;
+
+		case ga_autosave:
+			M_Autosave();
+			break;
+
+			// for later
+		// case ga_recordgame,			// start a new demo recording (later)
+		// case ga_loadgameplaydemo,	// load a savegame and play a demo.
+
+		default:
+			break;
 		}
 		C_AdjustBottom();
 	}
-#endif
 
 	// get commands, check consistancy, and build new consistancy check
 	int buf = (gametic / ticdup) % BACKUPTICS;

@@ -41,6 +41,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "prediction.h"
 #include "sbar.h"
 #include "glbackend/glbackend.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -84,7 +85,7 @@ template<class func>
 void runbonus(func completion)
 {
 	// MP scoreboard
-	if (playerswhenstarted > 1 && ps[myconnectindex].gm & MODE_GAME && !ud.coop)
+	if (playerswhenstarted > 1 && !ud.coop)
 	{
 		dobonus(1, completion);
 	}
@@ -127,7 +128,7 @@ void GameInterface::ExitFromMenu()
 
 void FTA(int q, struct player_struct* p)
 {
-	if (q < 0 || !(p->gm & MODE_GAME))
+	if (q < 0 || gamestate != GS_LEVEL)
 		return;
 
 	if (p->ftq != q || (ud.levelclock - p->ftt > TICRATE && q != QUOTE_DEAD))

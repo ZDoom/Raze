@@ -509,9 +509,7 @@ void GameInterface::Startup()
 		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
 		else
 		{
-			gamestate = GS_MENUSCREEN;
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_Mainmenu);
+			startmainmenu();
 		}
 	}
 }
@@ -572,6 +570,13 @@ void GameInterface::FreeGameData()
 {
 	if (BloodINI) delete BloodINI;
 }
+
+void GameInterface::FreeLevelData()
+{
+	EndLevel();
+	::GameInterface::FreeLevelData();
+}
+
 
 ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 {

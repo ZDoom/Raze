@@ -36,6 +36,7 @@ source as it is released.
 #include "duke3d.h"
 #include "gamevar.h"
 #include "mapinfo.h"
+#include "gamestate.h"
 
 BEGIN_DUKE_NS
 
@@ -692,7 +693,7 @@ int ParseState::parse(void)
 		insptr++;
 		ps[g_p].timebeforeexit = *insptr;
 		ps[g_p].customexitsound = -1;
-		ud.eog = 1;
+		ChangeLevel(nullptr, -1);
 		insptr++;
 		break;
 
@@ -975,18 +976,9 @@ int ParseState::parse(void)
 	case concmd_resetplayer:
 		insptr++;
 
-//AddLog("resetplayer");				
 		if(ud.multimode < 2)
 		{
-#if 0
-			if( lastsavedpos >= 0 && ud.recstat != 2 )
-			{
-				KB_ClearKeyDown(sc_Space);
-				cmenu(15000);
-			}
-			else
-#endif
-			ps[g_p].gm = MODE_RESTART;
+			gameaction = ga_autoloadgame;
 			killit_flag = 2;
 		}
 		else
@@ -1737,8 +1729,7 @@ CCMD(endofgame)
 {
 	ps[0].timebeforeexit = 120;
 	ps[0].customexitsound = -1;
-	ud.eog = 1;
-
+	ChangeLevel(nullptr, -1);
 }
 
 END_DUKE_NS

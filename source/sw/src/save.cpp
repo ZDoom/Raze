@@ -650,13 +650,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 
 extern SWBOOL SavegameLoaded;
 
- bool GameInterface::CleanupForLoad() 
- {
-     TerminateLevel();
-     StopFX();
-     return true;
- }
-
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
     MFILE_READ fil;
@@ -1089,7 +1082,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 
     // this is not a new game
-    NewGame = FALSE;
+    ShadowWarrior::NewGame = FALSE;
 
 
     DoPlayerDivePalette(Player+myconnectindex);

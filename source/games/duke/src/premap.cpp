@@ -420,7 +420,6 @@ void resetprestat(int snum,int g)
     randomseed              = 17L;
     paused             = 0;
     ud.camerasprite         =-1;
-    ud.eog                  = 0;
     tempwallptr             = 0;
     camsprite               =-1;
     earthquaketime          = 0;
@@ -435,12 +434,7 @@ void resetprestat(int snum,int g)
     numinterpolations = 0;
     //startofdynamicinterpolations = 0;
 
-    if( ( (g&MODE_EOL) != MODE_EOL && numplayers < 2) || (ud.coop != 1 && numplayers > 1) )
-    {
-        resetweapons(snum);
-        resetinventory(snum);
-    }
-    else if(p->curr_weapon == HANDREMOTE_WEAPON)
+    if(p->curr_weapon == HANDREMOTE_WEAPON)
     {
         p->ammo_amount[HANDBOMB_WEAPON]++;
         p->curr_weapon = HANDBOMB_WEAPON;
@@ -581,7 +575,7 @@ void resetpspritevars(int g)
 
     which_palookup = 9;
     j = connecthead;
-    i = headspritestat[10];	// 10 == players...
+    i = headspritestat[STAT_PLAYER];
     while (i >= 0)
     {
         nexti = nextspritestat[i];
@@ -613,7 +607,7 @@ void resetpspritevars(int g)
             s->xoffset = 0;
             s->clipdist = 64;
 
-            if ((g & MODE_EOL) != MODE_EOL || ps[j].last_extra == 0)
+            if (ps[j].last_extra == 0)
             {
                 ps[j].last_extra = max_player_health;
                 s->extra = max_player_health;
@@ -774,7 +768,7 @@ void donewgame(MapRecord* map, int sk)
     auto p = &ps[0];
     show_shareware = 26 * 34;
 
-    ud.nextLevel = map;
+    //ud.nextLevel = map;
     ud.player_skill = sk;
     ud.secretlevel = 0;
     ud.from_bonus = 0;
@@ -782,7 +776,6 @@ void donewgame(MapRecord* map, int sk)
     ud.last_level = -1;
 
     p->zoom = 768;
-    p->gm = 0;
     M_ClearMenus();
     ResetGameVars();
 
@@ -950,9 +943,6 @@ int enterlevel(MapRecord *mi, int gamemode)
     ud.coop = ud.m_coop;
     ud.ffire = ud.m_ffire;
 
-    if ((gamemode & MODE_DEMO) == 0 && ud.recstat == 2)
-        ud.recstat = 0;
-
     OnEvent(EVENT_ENTERLEVEL);
 
     // Stop all sounds
@@ -970,23 +960,12 @@ int enterlevel(MapRecord *mi, int gamemode)
     if (res != 0) return res;
 
     // Try this first so that it can disable the CD player if no tracks are found.
-    if (isRR() && !(gamemode & MODE_DEMO))
+    if (isRR())
         S_PlayRRMusic();
 
     if (ud.recstat != 2)
     {
         S_PlayLevelMusic(mi);
-    }
-
-    if (gamemode & (MODE_GAME|MODE_EOL))
-    {
-        ps[myconnectindex].gm = MODE_GAME;
-    }
-    else if (gamemode & MODE_RESTART)
-    {
-        if (ud.recstat == 2)
-            ps[myconnectindex].gm = MODE_DEMO;
-        else ps[myconnectindex].gm = MODE_GAME;
     }
 
     if (VOLUMEONE && mi->levelNumber == 0 && ud.recstat != 2) FTA(QUOTE_F1HELP, &ps[myconnectindex]);
@@ -1027,11 +1006,17 @@ int enterlevel(MapRecord *mi, int gamemode)
 
 void startnewgame(MapRecord* map, int skill)
 {
+    ud.m_player_skill = skill;
+    ud.m_respawn_monsters = (skill == 4);
+    ud.m_monsters_off = ud.monsters_off = 0;
+    ud.m_respawn_items = 0;
+    ud.m_respawn_inventory = 0;
+    ud.multimode = 1;
+
     newgame(map, skill, [=](bool)
         {
-            if (enterlevel(map, MODE_GAME))
+            if (enterlevel(map, 0))
             {
-                ps[myconnectindex].gm = 0;
                 startmainmenu();
             }
             else
@@ -1077,16 +1062,11 @@ bool setnextmap(bool checksecretexit)
         map = FindNextMap(currentLevel);
     }
 
-    for (int i = connecthead; i >= 0; i = connectpoint2[i])
-        ps[i].gm = MODE_EOL;
-
     if (map)
     {
         ud.from_bonus = from_bonus;
-        ud.nextLevel = map;
-        return true;
     }
-    ud.eog = true;
+    CompleteLevel(map);
     return false;
 }
 
@@ -1096,61 +1076,42 @@ bool setnextmap(bool checksecretexit)
 //
 //---------------------------------------------------------------------------
 
-int exitlevelend()
+void exitlevel(MapRecord *nextlevel)
 {
-    if (numplayers > 1)
-        ps[myconnectindex].gm = MODE_GAME;
-
-    int res = enterlevel(ud.nextLevel, ps[myconnectindex].gm);
-    ud.nextLevel = nullptr;
-    return res;
-}
-
-void exitlevel(void)
-{
-    bool endofgame = ud.eog || (currentLevel->flags & MI_FORCEEOG) || ud.nextLevel == nullptr;
+    bool endofgame = nextlevel == nullptr;
     STAT_Update(endofgame);
     setpal(&ps[myconnectindex]);
 
-    if (ps[myconnectindex].gm & MODE_RESTART)
-    {
-        // If no level was set, restart the current one.
-        if (!ud.nextLevel) ud.nextLevel = currentLevel;
-    }
+    dobonus(endofgame? -1 : 0, [=](bool)
+        {
 
-    if (ps[myconnectindex].gm & MODE_EOL)
-    {
-        dobonus(0, [=](bool)
+            // Clear potentially loaded per-map ART only after the bonus screens.
+            artClearMapArt();
+            gamestate = GS_LEVEL;
+            if (endofgame)
             {
-
-                // Clear potentially loaded per-map ART only after the bonus screens.
-                artClearMapArt();
-                gamestate = GS_LEVEL;
-                if (endofgame)
+                if (ud.multimode < 2)
                 {
-                    ud.eog = 0;
-                    if (ud.multimode < 2)
+                    if (!VOLUMEALL)
+                        doorders([](bool) { gameaction = ga_startup; });
+                    else gameaction = ga_startup;
+                    return;
+                }
+                else
+                {
+                    auto nextlevel = FindMapByLevelNum(0);
+                    if (!nextlevel)
                     {
-                        ps[myconnectindex].gm = 0;
-                        if (!VOLUMEALL)
-                            doorders([](bool) { gamestate = GS_STARTUP; });
-                        else gamestate = GS_STARTUP;
+                        gameaction = ga_startup;
                         return;
                     }
-                    else
-                    {
-                        ud.nextLevel = FindMapByLevelNum(0);
-                        if (!ud.nextLevel || exitlevelend())
-                            gamestate = GS_STARTUP;
-                    }
+                    else gameaction = ga_nextlevel;
                 }
-                else if (exitlevelend())
-                    gamestate = GS_STARTUP;
+            }
+            else 
+                gameaction = ga_nextlevel;
 
-            });
-    }
-    else if (exitlevelend())
-        gamestate = GS_STARTUP;
+        });
 }
 
 

@@ -61,6 +61,7 @@ struct MapRecord
 	}
 	void SetFileName(const char* n)
 	{
+		if (*n == '/' || *n == '\\') n++;
 		fileName = n;
 		FixPathSeperator(fileName);
 		labelName = ExtractFileBase(n);

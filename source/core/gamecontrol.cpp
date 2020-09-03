@@ -122,6 +122,11 @@ CCMD(togglefollow)
 cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
 gamestate_t gamestate = GS_STARTUP;
+gameaction_t gameaction = ga_nothing;
+// gameaction state
+MapRecord* g_nextmap;
+int g_nextskill;
+
 
 FILE* hashfile;
 
@@ -1182,3 +1187,11 @@ void startmainmenu()
 	FX_StopAllSounds();
 }
 
+
+void GameInterface::FreeLevelData()
+{
+	// Make sure that there is no more level to toy around with.
+	initspritelists();
+	numsectors = numwalls = 0;
+	currentLevel = nullptr;
+}

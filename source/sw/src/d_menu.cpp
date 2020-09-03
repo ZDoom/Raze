@@ -205,16 +205,14 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
     ready2send = 0;
 
+	MapRecord* map;
     if (gs.Episode >= 1)
-        NextLevel = FindMapByLevelNum(5);
+		map = FindMapByLevelNum(5);
     else
-		NextLevel = FindMapByLevelNum(1);
+		map = FindMapByLevelNum(1);
 
-	if (!NextLevel) return;
-    ExitLevel = TRUE;
-    NewGame = TRUE;
+	if (!map) return;
     CameraTestMode = FALSE;
-	Skill = gs.Skill;
 	StopFX();
 
     //InitNewGame();
@@ -238,6 +236,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		}
 		Net_ClearFifo();
 	}
+	DeferedStartGame(map, gs.Skill);
 }
 
 FSavegameInfo GameInterface::GetSaveSig()

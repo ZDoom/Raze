@@ -267,7 +267,8 @@ void GameInterface::Startup()
     }
     else
     {
-        DoTitle([](bool) { startmainmenu(); });
+        if (!userConfig.nologo) DoTitle([](bool) { startmainmenu(); });
+        else startmainmenu();
     }
 
 }

@@ -99,17 +99,6 @@ enum rendmode_t {
     Iter>=0 && (Next=nextspritestat[Iter], 1); Iter=Next
 
 
-////////// True Room over Room (YAX == rot -17 of "PRO") //////////
-#define YAX_ENABLE
-//#define YAX_DEBUG
-//#define ENGINE_SCREENSHOT_DEBUG
-
-#ifdef YAX_ENABLE
-# if !defined NEW_MAP_FORMAT
-#  define YAX_ENABLE__COMPAT
-# endif
-#endif
-
 ////////// yax defs //////////
 #define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 
@@ -648,7 +637,6 @@ int32_t   videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t dau
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
-inline void   renderFlushPerms(void) {}
 
 void   plotpixel(int32_t x, int32_t y, char col);
 FCanvasTexture *renderSetTarget(int16_t tilenume);

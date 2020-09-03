@@ -968,7 +968,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void dobonus_d(bool bonusonly, const CompletionFunc& completion)
+void dobonus_d(int bonusonly, const CompletionFunc& completion)
 {
 	JobDesc jobs[20];
 	int job = 0;
@@ -976,7 +976,7 @@ void dobonus_d(bool bonusonly, const CompletionFunc& completion)
 	FX_StopAllSounds();
 	Mus_Stop();
 
-	if (!bonusonly && numplayers < 2 && ud.eog && ud.from_bonus == 0)
+	if (bonusonly < 0 && numplayers < 2 && ud.from_bonus == 0)
 	{
 		bonussequence_d(volfromlevelnum(currentLevel->levelNumber), jobs, job);
 	}
@@ -985,7 +985,7 @@ void dobonus_d(bool bonusonly, const CompletionFunc& completion)
 	{
 		jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(playerswhenstarted) };
 	}
-	else if (!bonusonly && ud.multimode <= 1)
+	else if (bonusonly <= 0 && ud.multimode <= 1)
 	{
 		jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
 	}
@@ -1079,70 +1079,6 @@ void PrintPaused_d()
 void PrintLevelName_d(double alpha)
 {
 	BigText(160, 114, currentLevel->DisplayName(), alpha);
-}
-
-// Utility for testing the above screens
-CCMD(testscreen)
-{
-	JobDesc jobs[10];
-	int job = 0;
-	C_HideConsole();
-	FX_StopAllSounds();
-	Mus_Stop();
-
-	auto gs = gamestate;
-	auto completion = [=](bool)
-	{
-		if (gs == GS_LEVEL || gs == GS_MENUSCREEN) gamestate = gs;
-		else gamestate = GS_STARTUP;
-	};
-
-
-	if (argv.argc() > 1)
-	{
-		int screen = strtol(argv[1], nullptr, 0);
-		switch (screen)
-		{
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-			bonussequence_d(screen, jobs, job);
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		case 5:
-			e4intro(nullptr);
-			break;
-
-		case 6:
-			jobs[job++] = { Create<DDukeMultiplayerBonusScreen>(6) };
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		case 7:
-			showtwoscreens(nullptr);
-			break;
-
-		case 8:
-			doorders(nullptr);
-			break;
-
-		case 9:
-			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		case 10:
-			ud.eog = true;
-			jobs[job++] = { Create<DDukeLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, completion);
-			ud.eog = false;
-			break;
-
-		}
-	}
 }
 
 END_DUKE_NS

@@ -35,6 +35,8 @@
 
 #include "mapinfo.h"
 #include "raze_music.h"
+#include "filesystem.h"
+#include "printf.h"
 
 MapRecord mapList[512];		// Due to how this gets used it needs to be static. EDuke defines 7 episode plus one spare episode with 64 potential levels each and relies on the static array which is freely accessible by scripts.
 MapRecord *currentLevel;	// level that is currently played. (The real level, not what script hacks modfifying the current level index can pretend.)
@@ -127,6 +129,13 @@ MapRecord* SetupUserMap(const char* boardfilename, const char *defaultmusic)
 			return &map;
 		}
 	}
+
+	if (!fileSystem.FileExists(boardfilename))
+	{
+		Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", boardfilename);
+		return nullptr;
+	}
+
 	auto map = AllocateMap();
 	map->name = "";
 	map->SetFileName(boardfilename);

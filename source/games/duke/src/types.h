@@ -52,7 +52,7 @@ struct TileInfo
 struct user_defs
 {
 	int levelclock;
-	unsigned char god, cashman, eog;
+	unsigned char god, cashman;
 	unsigned char show_help, scrollmode, clipping;
 	char user_name[MAXPLAYERS][32];
 	unsigned char showweapons;
@@ -76,7 +76,7 @@ struct user_defs
 	int m_respawn_items, m_respawn_monsters, m_respawn_inventory, m_recstat, m_monsters_off, detail;
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
-	MapRecord* nextLevel;
+	//MapRecord* nextLevel;
 
 };
 
@@ -156,7 +156,6 @@ struct player_struct
 	short holoduke_on, pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
-	unsigned char gm;
 	unsigned char on_warping_sector, footprintcount;
 	unsigned char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
 	char name[32];

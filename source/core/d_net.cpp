@@ -1664,6 +1664,7 @@ bool D_CheckNetGame (void)
 	// First install the global net command handlers
 
 	Net_SetCommandHandler(DEM_GENERICCHEAT, genericCheat);
+	Net_SetCommandHandler(DEM_CHANGEMAP, changeMap);
 
 	for (i = 0; i < MAXNETNODES; i++)
 	{

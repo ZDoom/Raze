@@ -53,6 +53,7 @@
 #include "serializer.h"
 #include "findfile.h"
 #include "inputstate.h"
+#include "gamestate.h"
 
 
 FSavegameManager savegameManager;
@@ -60,14 +61,12 @@ FSavegameManager savegameManager;
 void FSavegameManager::LoadGame(FSaveGameNode* node)
 {
 	inputState.ClearAllInput();
-	if (gi->CleanupForLoad())
+	gi->FreeLevelData();
+	if (OpenSaveGameForRead(node->Filename))
 	{
-		if (OpenSaveGameForRead(node->Filename))
+		if (gi->LoadGame(node))
 		{
-			if (gi->LoadGame(node))
-			{
-				// do something here?
-			}
+			// do something here?
 		}
 	}
 }
@@ -576,6 +575,7 @@ static int nextquicksave = -1;
 
 void M_Autosave()
 {
+	if (disableautosave) return;
 	if (!gi->CanSave()) return;
 	FString description;
 	FString file;
@@ -602,8 +602,7 @@ void M_Autosave()
 
 CCMD(autosave)
 {
-	if (disableautosave) return;
-	M_Autosave();
+	gameaction = ga_autosave;
 }
 
 CCMD(rotatingquicksave)

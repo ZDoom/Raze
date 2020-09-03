@@ -295,21 +295,16 @@ static bool cheatLevel(cheatseq_t *s)
 	auto map = FindMapByLevelNum(levelnum(volnume, levnume));
 	if (map)
 	{
-		ud.nextLevel = map;
-		FX_StopAllSounds();
-		FX_SetReverb(0);
-		ps[myconnectindex].gm |= MODE_RESTART;
+		ChangeLevel(map, -1);
 	}
 	return true;
 }
 
 static bool cheatSkill(cheatseq_t *s)
 {
-	lastlevel = 0;
-	ud.m_player_skill = ud.player_skill = s->Args[0] - '1';
-	ps[myconnectindex].gm |= MODE_RESTART;
-	FX_StopAllSounds();
-	FX_SetReverb(0);
+	ChangeLevel(currentLevel, s->Args[0] - '1');
+	//FX_StopAllSounds();
+	//FX_SetReverb(0);
 	return true;
 }
 

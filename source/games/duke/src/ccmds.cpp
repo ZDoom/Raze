@@ -37,90 +37,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
-static void dowarp(MapRecord *map)
-{
-	ud.m_monsters_off = ud.monsters_off = 0;
-
-	ud.m_respawn_items = 0;
-	ud.m_respawn_inventory = 0;
-
-	ud.multimode = 1;
-
-	if (ps[myconnectindex].gm & MODE_GAME)
-	{
-		donewgame(map, ud.m_player_skill);
-		ps[myconnectindex].gm = MODE_RESTART;
-	}
-	else startnewgame(map, ud.m_player_skill);
-}
-
-static int ccmd_levelwarp(CCmdFuncPtr parm)
-{
-	if (parm->numparms != 2)
-		return CCMD_SHOWHELP;
-	int e = atoi(parm->parms[0]);
-	int m = atoi(parm->parms[1]);
-	if (e == 0 || m == 0)
-	{
-		Printf(TEXTCOLOR_RED "Invalid level!: E%sL%s\n", parm->parms[0], parm->parms[1]);
-		return CCMD_OK;
-	}
-	auto map = FindMapByLevelNum(levelnum(e - 1, m - 1));
-	if (!map)
-	{
-		Printf(TEXTCOLOR_RED "Level not found!: E%sL%s\n", parm->parms[0], parm->parms[1]);
-		return CCMD_OK;
-	}
-	dowarp(map);
-
-	return CCMD_OK;
-}
-
-static int ccmd_map(CCmdFuncPtr parm)
-{
-	if (parm->numparms != 1)
-	{
-		return CCMD_SHOWHELP;
-	}
-	FString mapname = parm->parms[0];
-	FString mapfilename = mapname;
-	DefaultExtension(mapfilename, ".map");
-
-	if (!fileSystem.FileExists(mapfilename))
-	{
-		Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapname.GetChars());
-		return CCMD_OK;
-	}
-	// Check if the map is already defined.
-	auto map = FindMapByName(mapname);
-	if (map == nullptr)
-	{
-		// got a user map
-		if (VOLUMEONE)
-		{
-			Printf(TEXTCOLOR_RED "Cannot use user maps in shareware.\n");
-			return CCMD_OK;
-		}
-		if (mapfilename[0] != '/') mapfilename.Insert(0, "/");
-		map = SetupUserMap(mapfilename, !isRR() ? "dethtoll.mid" : nullptr);
-	}
-	if (numplayers > 1)
-	{
-		return CCMD_OK;
-	}
-
-	dowarp(map);
-	return CCMD_OK;
-}
-
-static int ccmd_restartmap(CCmdFuncPtr)
-{
-	if (ps[myconnectindex].gm & MODE_GAME && ud.multimode == 1)
-		ps[myconnectindex].gm = MODE_RESTART;
-
-	return CCMD_OK;
-}
-
 int getlabelvalue(const char* text);
 
 static int ccmd_spawn(CCmdFuncPtr parm)
@@ -131,10 +47,12 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	int ang = 0;
 	int set = 0, idx;
 
-	if (numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME)) {
+#if 0 // fixme - route through the network and this limitation becomes irrelevant
+	if (netgame || numplayers > 1 || !(ps[myconnectindex].gm & MODE_GAME)) {
 		Printf("spawn: Can't spawn sprites in multiplayer games or demos\n");
 		return CCMD_OK;
 	}
+#endif
 
 	switch (parm->numparms) {
 	case 7: // x,y,z
@@ -252,9 +170,6 @@ static int osdcmd_show_weapon(CCmdFuncPtr parm)
 
 int registerosdcommands(void)
 {
-	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
-	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
-	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
 	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
 	C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);

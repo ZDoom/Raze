@@ -21,4 +21,20 @@ enum gamestate_t : int
 	GS_FORCEWIPEMELT = -4
 };
 
+enum gameaction_t : int
+{
+	ga_nothing,
+	ga_startup,				// go back to intro after uninitializing the game state
+	ga_mainmenu,			// go back to main menu after uninitializing the game state
+	ga_newgame,				// start a new game
+	ga_recordgame,			// start a new demo recording (later)
+	ga_loadgame,			// load a savegame and resume play.
+	ga_loadgameplaydemo,	// load a savegame and play a demo.
+	ga_autoloadgame,		// load last autosave and resume play.
+	ga_savegame,			// save the game
+	ga_autosave,			// autosave the game (for triggering a save from within the game.)
+	ga_completed,			// Level was exited.
+	ga_nextlevel			// Actually start the next level.
+};
 extern	gamestate_t 	gamestate;
+extern gameaction_t		gameaction;

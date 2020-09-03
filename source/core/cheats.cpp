@@ -43,9 +43,17 @@
 #include "gamestate.h"
 #include "mmulti.h"
 #include "gstrings.h"
+#include "gamecontrol.h"
+#include "mapinfo.h"
 
 CVAR(Bool, sv_cheats, true, CVAR_ARCHIVE|CVAR_SERVERINFO)
 CVAR(Bool, cl_blockcheats, false, 0)
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 bool CheckCheatmode (bool printmsg, bool sponly)
 {
@@ -76,6 +84,12 @@ bool CheckCheatmode (bool printmsg, bool sponly)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 void genericCheat(int player, uint8_t** stream, bool skip)
 {
     int cheat = ReadByte(stream);
@@ -94,6 +108,11 @@ void genericCheat(int player, uint8_t** stream, bool skip)
     }
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 CCMD(god)
 {
@@ -140,6 +159,12 @@ CCMD(allmap)
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 CCMD(give)
 {
 	static const char* type[] = { "ALL","AMMO","ARMOR","HEALTH","INVENTORY","ITEMS","KEYS","WEAPONS",nullptr };
@@ -166,4 +191,251 @@ CCMD(give)
 		Net_WriteByte(DEM_GIVE);
 		Net_WriteByte(found);
 	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void CompleteLevel(MapRecord* map)
+{
+	gameaction = ga_completed;
+	g_nextmap = !currentLevel || !(currentLevel->flags & MI_FORCEEOG)? map : nullptr;
+	g_nextskill = -1;	// This does not change the skill
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void changeMap(int player, uint8_t** stream, bool skip)
+{
+	int skill = (int8_t)ReadByte(stream);
+	auto mapname = ReadStringConst(stream);
+	if (skip) return;
+	auto map = FindMapByName(mapname);
+	if (map || *mapname == 0)	// mapname = "" signals end of episode
+	{
+		gameaction = ga_completed;
+		g_nextmap = map;
+		g_nextskill = skill;
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void ChangeLevel(MapRecord* map, int skill)
+{
+	Net_WriteByte(DEM_CHANGEMAP);
+	Net_WriteByte(skill);
+	Net_WriteString(map->labelName);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void DeferedStartGame(MapRecord* map, int skill)
+{
+	g_nextmap = map;
+	g_nextskill = skill;
+	gameaction = ga_newgame;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, const char *t2)
+{
+	int numparm = g_gameType & (GAMEFLAG_SW | GAMEFLAG_PSEXHUMED) ? 1 : 2;	// Handle games with episodic and non-episodic level order.
+	if (argv.argc() <= numparm)
+	{
+		if (numparm == 2) Printf(PRINT_BOLD,  "%s <e> <m>: %s episode 'e' and map 'm'\n", cmdname, t2);
+		else Printf(PRINT_BOLD, "%s <m>: %s map 'm'\n", cmdname, t2);
+		return nullptr;
+	}
+	// Values are one-based.
+	int e = numparm == 2 ? atoi(argv[1]) : 0;
+	int m = atoi(numparm == 2 ? argv[2] : argv[1]);
+	if (e <= 0 || m <= 0)
+	{
+		Printf(PRINT_BOLD, "Invalid level! Numbers must be > 0\n");
+		return nullptr;
+	}
+	auto map = FindMapByLevelNum(levelnum(e - 1, m - 1));
+	if (!map)
+	{
+		if (numparm == 2) Printf(PRINT_BOLD, "Level E%s L%s not found!\n", argv[1], argv[2]);
+		else Printf(PRINT_BOLD, "Level %s not found!\n", argv[1]);
+		return nullptr;
+	}
+	return map;
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(levelwarp)
+{
+	if (gamestate != GS_LEVEL)
+	{
+		Printf("Use the startgame command when not in a game.\n");
+		return;
+	}
+
+#if 0
+	if (/*!players[consoleplayer].settings_controller &&*/ netgame)
+	{
+		Printf("Only setting controllers can change the map.\n");
+		return;
+	}
+#endif
+
+	auto map = levelwarp_common(argv, "levelwarp", "warp to");
+	if (map)
+	{
+		ChangeLevel(map, -1);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(startgame)
+{
+	if (netgame)
+	{
+		Printf("Use " TEXTCOLOR_BOLD "levelwarp" TEXTCOLOR_NORMAL " instead. " TEXTCOLOR_BOLD "startgame"
+			TEXTCOLOR_NORMAL " is for single-player only.\n");
+		return;
+	}
+	auto map = levelwarp_common(argv, "start game", "start new game at");
+	if (map)
+	{
+		DeferedStartGame(map, -1);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(changemap)
+{
+	if (argv.argc() < 2)
+	{
+		Printf(PRINT_BOLD, "changemap <mapname>: warp to the given map, identified by its name.\n");
+		return;
+	}
+	if (gamestate != GS_LEVEL)
+	{
+		Printf("Use the map command when not in a game.\n");
+		return;
+	}
+
+#if 0
+	if (/*!players[consoleplayer].settings_controller &&*/ netgame)
+	{
+		Printf("Only setting controllers can change the map.\n");
+		return;
+	}
+#endif
+
+	FString mapname = argv[1];
+	FString mapfilename = mapname;
+	DefaultExtension(mapfilename, ".map");
+
+	auto map = FindMapByName(mapname);
+	if (map == nullptr)
+	{
+		// got a user map
+		Printf(PRINT_BOLD, "%s: Map not defined.\n", mapname.GetChars());
+		return;
+	}
+	if (map->flags & MI_USERMAP)
+	{
+		// got a user map
+		Printf(PRINT_BOLD, "%s: Cannot warp to user maps.\n", mapname.GetChars());
+		return;
+	}
+	ChangeLevel(map, -1);
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(map)
+{
+	if (argv.argc() < 2)
+	{
+		Printf(PRINT_BOLD, "map <mapname>: start new game at the given map, identified by its name.\n");
+		return;
+	}
+	if (netgame)
+	{
+		Printf("Use " TEXTCOLOR_BOLD "changemap" TEXTCOLOR_NORMAL " instead. " TEXTCOLOR_BOLD "map"
+			TEXTCOLOR_NORMAL " is for single-player only.\n");
+		return;
+	}
+
+	FString mapname = argv[1];
+	FString mapfilename = mapname;
+	DefaultExtension(mapfilename, ".map");
+
+	// Check if the map is already defined.
+	auto map = FindMapByName(mapname);
+	if (map == nullptr)
+	{
+		// got a user map
+		if (g_gameType & GAMEFLAG_SHAREWARE)
+		{
+			Printf(PRINT_BOLD, "Cannot use user maps in shareware.\n");
+			return;
+		}
+		map = SetupUserMap(mapfilename, g_gameType & GAMEFLAG_DUKE? "dethtoll.mid" : nullptr);
+	}
+	if (map)
+	{
+		DeferedStartGame(map, -1);
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+CCMD(restartmap)
+{
+	if (gamestate != GS_LEVEL || currentLevel == nullptr)
+	{
+		Printf("Must be in a game to restart a level.\n");
+		return;
+	}
+	ChangeLevel(currentLevel, -1);
 }
