@@ -39,6 +39,7 @@ source as it is released.
 #include "mapinfo.h"
 #include "cheathandler.h"
 #include "c_dispatch.h"
+#include "gamestate.h"
 
 EXTERN_CVAR(Int, developer)
 EXTERN_CVAR(Bool, sv_cheats)
@@ -217,81 +218,70 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 	}
 }
 
-
-
-
-bool cheatWeapons(cheatseq_t *s)
+static bool cheatWeapons(int player)
 {
 	int weaponLimit = (VOLUMEONE) ? SHRINKER_WEAPON : MAX_WEAPONS;
 
 	for (int weapon = PISTOL_WEAPON; weapon < weaponLimit; weapon++ )
 	{
-		addammo( weapon, &ps[myconnectindex], max_ammo_amount[weapon] );
-		ps[myconnectindex].gotweapon.Set(weapon);
+		addammo( weapon, &ps[player], max_ammo_amount[weapon] );
+		ps[player].gotweapon.Set(weapon);
 	}
 	if (isRRRA())
-		ps[myconnectindex].ammo_amount[SLINGBLADE_WEAPON] = 1;
+		ps[player].ammo_amount[SLINGBLADE_WEAPON] = 1;
 
-	if (s) FTA(119,&ps[myconnectindex]);
 	return true;
 }
 
-bool cheatInventory(cheatseq_t *s)
+static bool cheatInventory(int player)
 {
-	auto invGet = [](int defvalue, int evtype, int16_t &dest)
+	auto invGet = [=](int defvalue, int evtype, int16_t &dest)
 	{
-		SetGameVarID(g_iReturnVarID, defvalue, -1, myconnectindex);
-		OnEvent(evtype, -1, myconnectindex, -1);
-		if (GetGameVarID(g_iReturnVarID, -1, myconnectindex) >= 0)
+		SetGameVarID(g_iReturnVarID, defvalue, -1, player);
+		OnEvent(evtype, -1, player, -1);
+		if (GetGameVarID(g_iReturnVarID, -1, player) >= 0)
 		{
-			dest = GetGameVarID(g_iReturnVarID, -1, myconnectindex);
+			dest = GetGameVarID(g_iReturnVarID, -1, player);
 		}
 	};
 
-	invGet(400, EVENT_CHEATGETSTEROIDS, ps[myconnectindex].steroids_amount);
-	if (!isRR()) invGet(1200, EVENT_CHEATGETHEAT, ps[myconnectindex].heat_amount);
-	invGet(isRR() ? 2000 : 200, EVENT_CHEATGETBOOT, ps[myconnectindex].boot_amount);
-	invGet(100, EVENT_CHEATGETSHIELD, ps[myconnectindex].shield_amount);
-	invGet(6400, EVENT_CHEATGETSCUBA, ps[myconnectindex].scuba_amount);
-	invGet(2400, EVENT_CHEATGETHOLODUKE, ps[myconnectindex].holoduke_amount);
-	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, ps[myconnectindex].jetpack_amount);
-	invGet(max_player_health, EVENT_CHEATGETFIRSTAID, ps[myconnectindex].firstaid_amount);
-	if (s) FTA(120,&ps[myconnectindex]);
+	invGet(400, EVENT_CHEATGETSTEROIDS, ps[player].steroids_amount);
+	if (!isRR()) invGet(1200, EVENT_CHEATGETHEAT, ps[player].heat_amount);
+	invGet(isRR() ? 2000 : 200, EVENT_CHEATGETBOOT, ps[player].boot_amount);
+	invGet(100, EVENT_CHEATGETSHIELD, ps[player].shield_amount);
+	invGet(6400, EVENT_CHEATGETSCUBA, ps[player].scuba_amount);
+	invGet(2400, EVENT_CHEATGETHOLODUKE, ps[player].holoduke_amount);
+	invGet(isRR() ? 600 : 1600, EVENT_CHEATGETJETPACK, ps[player].jetpack_amount);
+	invGet(max_player_health, EVENT_CHEATGETFIRSTAID, ps[player].firstaid_amount);
 	return true;
 }
 
-bool cheatKeys(cheatseq_t *s)
+static bool cheatKeys(int player)
 {
-	ps[myconnectindex].got_access = 7;
+	ps[player].got_access = 7;
 	if (isRR()) for (int ikey = 0; ikey < 5; ikey++)
-		ps[myconnectindex].keys[ikey] = 1;
-	if (s) FTA(121,&ps[myconnectindex]);
+		ps[player].keys[ikey] = 1;
 	return true;
 }
 
-static bool cheatDebug(cheatseq_t *)
+static bool cheatStuff(int player)
 {
-	// Let's do something useful with this.
-	if (developer == 0) developer = 3;
-	else developer = 0;
+	cheatWeapons(player);
+	cheatInventory(player);
+	if (!isNamWW2GI()) cheatKeys(player);
 	return true;
+
 }
 
-static bool cheatAllen(cheatseq_t *)
+static bool cheatItems(int player)
 {
-	FTA(79,&ps[myconnectindex]);
+	cheatInventory(player);
+	if (!isNamWW2GI()) cheatKeys(player);
 	return true;
 }
 
-bool cheatStuff(cheatseq_t *)
-{
-	cheatWeapons(nullptr);
-	cheatInventory(nullptr);
-	if (!isNamWW2GI()) cheatKeys(nullptr);
-	FTA(5,&ps[myconnectindex]);
-	return true;
 
-}
+
 
 static bool cheatLevel(cheatseq_t *s)
 {
@@ -313,15 +303,6 @@ static bool cheatLevel(cheatseq_t *s)
 	return true;
 }
 
-bool cheatItems(cheatseq_t *)
-{
-	cheatInventory(nullptr);
-	if (!isNamWW2GI()) cheatKeys(nullptr);
-	FTA(5,&ps[myconnectindex]);
-	return true;
-}
-
-
 static bool cheatSkill(cheatseq_t *s)
 {
 	lastlevel = 0;
@@ -333,6 +314,20 @@ static bool cheatSkill(cheatseq_t *s)
 }
 
 // The remaining cheats are client side only.
+
+static bool cheatDebug(cheatseq_t*)
+{
+	// Let's do something useful with this.
+	if (developer == 0) developer = 3;
+	else developer = 0;
+	return true;
+}
+
+static bool cheatAllen(cheatseq_t*)
+{
+	FTA(79, &ps[myconnectindex]);
+	return true;
+}
 
 static bool cheatBeta(cheatseq_t *)
 {
@@ -473,6 +468,64 @@ static cheatseq_t rrcheats[] = {
 	{ "rdvan",       nullptr,           SendGenericCheat, 0, CHT_VAN },
 };
 
+
+static void cmd_Give(int player, uint8_t** stream, bool skip)
+{
+	int type = ReadByte(stream);
+	if (skip) return;
+
+	if (numplayers != 1 || gamestate != GS_LEVEL || ps[player].dead_flag != 0)
+	{
+		Printf("give: Cannot give while dead or not in a single-player game.\n");
+		return;
+	}
+
+	switch (type)
+	{
+	case GIVE_ALL:
+		cheatStuff(player);
+		FTA(5, &ps[player]);
+		break;
+
+	case GIVE_HEALTH:
+		sprite[ps[player].i].extra = max_player_health << 1;
+		break;
+
+	case GIVE_WEAPONS:
+		cheatWeapons(player);
+		FTA(119, &ps[player]);
+		break;
+
+	case GIVE_AMMO:
+	{
+		int maxw = VOLUMEONE ? SHRINKER_WEAPON : MAX_WEAPONS;
+		for (int i = maxw; i >= PISTOL_WEAPON; i--)
+			addammo(i, &ps[player], max_ammo_amount[i]);
+		break;
+	}
+
+	case GIVE_ARMOR:
+		ps[player].shield_amount = 100;
+		break;
+
+	case GIVE_KEYS:
+		cheatKeys(player);
+		FTA(121, &ps[player]);
+		break;
+
+	case GIVE_INVENTORY:
+		cheatInventory(player);
+		FTA(120, &ps[player]);
+		break;
+
+	case GIVE_ITEMS:
+		cheatItems(player);
+		FTA(5, &ps[player]);
+		break;
+	}
+}
+
+
 void InitCheats()
 {
 	if (isRRRA()) SetCheats(rrcheats, countof(rrcheats));
@@ -480,6 +533,7 @@ void InitCheats()
 	else if (isWW2GI()) SetCheats(ww2cheats, countof(ww2cheats));
 	else if (isNam()) SetCheats(namcheats, countof(namcheats));
 	else SetCheats(dukecheats, countof(dukecheats));
+	Net_SetCommandHandler(DEM_GIVE, cmd_Give);
 }
 
 END_DUKE_NS

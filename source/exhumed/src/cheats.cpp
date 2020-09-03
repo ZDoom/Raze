@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "inputstate.h"
 #include "d_protocol.h"
 #include "gstrings.h"
+#include "aistuff.h"
+#include "mmulti.h"
 
 BEGIN_PS_NS
 
@@ -154,9 +156,74 @@ static cheatseq_t excheats[] = {
 };
 
 
+static void cmd_Give(int player, uint8_t** stream, bool skip)
+{
+	int type = ReadByte(stream);
+	if (skip) return;
+
+	if (PlayerList[player].nHealth <= 0 || nNetPlayerCount || gamestate != GS_LEVEL)
+	{
+		Printf("give: Cannot give while dead or not in a single-player game.\n");
+		return;
+	}
+	int buttons = 0;
+
+	switch (type)
+	{
+	case GIVE_ALL:
+		buttons |= kButtonCheatGuns | kButtonCheatItems | kButtonCheatKeys;
+		break;
+
+	case GIVE_HEALTH:
+		PlayerList[player].nHealth = 800;
+		return;
+
+	case GIVE_WEAPONS:
+	case GIVE_AMMO:
+		buttons |= kButtonCheatGuns;
+		break;
+
+	case GIVE_ARMOR:
+		// not implemented
+		break;
+
+	case GIVE_KEYS:
+		buttons |= kButtonCheatKeys;
+		break;
+
+	case GIVE_INVENTORY:
+		buttons |= kButtonCheatItems;
+		break;
+
+	case GIVE_ITEMS:
+		buttons |= kButtonCheatItems | kButtonCheatKeys;
+		break;
+	}
+
+	if (buttons & kButtonCheatGuns) // LOBOCOP cheat
+	{
+		FillWeapons(player);
+		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_WEAPONS"));
+	}
+	if (buttons & kButtonCheatKeys) // LOBOPICK cheat
+	{
+		PlayerList[player].keys = 0xFFFF;
+		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_KEYS"));
+		RefreshStatus();
+	}
+	if (buttons & kButtonCheatItems) // LOBOSWAG cheat
+	{
+		FillItems(player);
+		if (player == myconnectindex) StatusMessage(150, GStrings("TXT_EX_ITEMS"));
+	}
+
+}
+
+
 void InitCheats()
 {
 	SetCheats(excheats, countof(excheats));
+	Net_SetCommandHandler(DEM_GIVE, cmd_Give);
 }
 
 END_PS_NS

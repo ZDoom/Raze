@@ -39,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "cheathandler.h"
 #include "d_protocol.h"
 #include "cheats.h"
+#include "gamestate.h"
 //#include "inv.h"
 
 BEGIN_SW_NS
@@ -141,71 +142,6 @@ bool MapCheat(cheatseq_t* c)
     return true;
 }
 
-bool WeaponCheat(cheatseq_t* c)
-{
-    if (!checkCheat(c)) return false;
-    PLAYERp p;
-    short pnum;
-    unsigned int i;
-    USERp u;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        u = User[p->PlayerSprite];
-
-        if (!TEST(p->Flags, PF_TWO_UZI))
-        {
-            SET(p->Flags, PF_TWO_UZI);
-            SET(p->Flags, PF_PICKED_UP_AN_UZI);
-        }
-
-        // ALL WEAPONS
-        if (!SW_SHAREWARE)
-            p->WpnFlags = 0xFFFFFFFF;
-        else
-            p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
-
-        for (i = 0; i < SIZ(p->WpnAmmo); i++)
-        {
-            p->WpnAmmo[i] = DamageData[i].max_ammo;
-        }
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-
-        PlayerUpdateWeapon(p, u->WeaponNum);
-    }
-    return true;
-}
-
-bool AmmoCheat(cheatseq_t* c)
-{
-    if (!checkCheat(c)) return false;
-    PLAYERp p;
-    short pnum;
-    unsigned int i;
-    USERp u;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        u = User[p->PlayerSprite];
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-
-        for (i = 0; i < SIZ(p->WpnAmmo); i++)
-        {
-            p->WpnAmmo[i] = DamageData[i].max_ammo;
-        }
-
-        PlayerUpdateWeapon(p, u->WeaponNum);
-    }
-    return true;
-}
 
 bool WarpCheat(cheatseq_t* c)
 {
@@ -235,176 +171,6 @@ bool WarpCheat(cheatseq_t* c)
     return true;
 }
 
-bool ItemCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    //
-    // Get all ITEMS
-    //
-    PLAYERp p;
-    short pnum;
-    short inv;
-    int i;
-
-    PutStringInfo(pp, "ITEMS");
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        memset(p->HasKey, TRUE, sizeof(p->HasKey));
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-        p->Armor = 100;
-
-        for (inv = 0; inv < MAX_INVENTORY; inv++)
-        {
-            p->InventoryPercent[inv] = 100;
-            //p->InventoryAmount[inv] = 1;
-            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
-            //PlayerUpdateInventory(p, inv);
-        }
-
-        PlayerUpdateInventory(p, p->InventoryNum);
-        //p->InventoryNum = 0;
-    }
-
-    for (i=0; i<numsectors; i++)
-    {
-        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR)
-            SectUser[i]->number = 0;  // unlock all doors of this type
-    }
-
-    WeaponCheat(c);
-    return true;
-}
-
-bool InventoryCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    //
-    // Get all ITEMS
-    //
-    PLAYERp p;
-    short pnum;
-    short inv;
-    int i;
-
-    PutStringInfo(pp, "INVENTORY");
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-
-        p->WpnShotgunAuto = 50;
-        p->WpnRocketHeat = 5;
-        p->WpnRocketNuke = 1;
-        p->Armor = 100;
-
-        for (inv = 0; inv < MAX_INVENTORY; inv++)
-        {
-            p->InventoryPercent[inv] = 100;
-            //p->InventoryAmount[inv] = 1;
-            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
-            //PlayerUpdateInventory(p, inv);
-        }
-
-        PlayerUpdateInventory(p, p->InventoryNum);
-        //p->InventoryNum = 0;
-    }
-    return true;
-}
-
-bool ArmorCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    short pnum;
-    const char *str = nullptr;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
-            str = "ARMOR";
-        Player[pnum].Armor = 100;
-    }
-    if (str) PutStringInfo(pp, GStrings(str));
-    return true;
-}
-
-bool HealCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    short pnum;
-    const char *str = nullptr;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        if (User[Player[pnum].PlayerSprite]->Health < pp->MaxHealth)
-            str = "TXTS_ADDEDHEALTH";
-        User[Player[pnum].PlayerSprite]->Health += 25;
-    }
-    if (str) PutStringInfo(pp, GStrings(str));
-    return true;
-}
-
-bool KeyCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    // Get KEYS
-    PLAYERp p;
-    short pnum;
-    const char *cp = (char*)c->Args;
-	const char *str = "TXTS_GIVEKEY";
-    int keynum = 0;
-
-    keynum = atol(cp);
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        if (keynum >= 1 && keynum <= 8)
-        {
-           if (p->HasKey[keynum-1] == FALSE)
-           {
-              p->HasKey[keynum-1] = TRUE; // cards: 0=red 1=blue 2=green 3=yellow | keys: 4=gold 5=silver 6=bronze 7=red
-              str = "TXTS_KEYGIVEN";
-           }
-           else
-           {
-              p->HasKey[keynum-1] = FALSE;
-              str = "TXTS_KEYREMOVED";
-           }
-        }
-    }
-    PutStringInfo(pp, GStrings(str));
-    return true;
-}
-
-bool KeysCheat(cheatseq_t* c)
-{
-    PLAYERp pp;
-    if (!(pp = checkCheat(c))) return false;
-    // Get KEYS
-    PLAYERp p;
-    short pnum;
-    const char* str = "TXTS_GIVEKEY";
-    int keynum = 0;
-
-    TRAVERSE_CONNECT(pnum)
-    {
-        p = &Player[pnum];
-        memset(p->HasKey, TRUE, sizeof(p->HasKey));
-    }
-    PutStringInfo(pp, GStrings(str));
-    return true;
-}
-
 bool EveryCheatToggle(cheatseq_t* c)
 {
     EveryCheat ^= 1;
@@ -420,7 +186,6 @@ static cheatseq_t swcheats[] = {
     {"lwchan",     "god" },
     {"lwgimme",    "give all" },
     {"lwmedic",    "give health" },
-    {"lwkey#",     nullptr,     KeyCheat, 0},
     {"lwkeys",     "give keys" },
     {"lwammo",     "give ammo" },
     {"lwarmor",    "give armor" },
@@ -435,10 +200,151 @@ static cheatseq_t swcheats[] = {
     {"lwroom",     nullptr,     RoomCheat, true}, // Room above room debug
 };
 
+static void WeaponCheat(int player)
+{
+    auto p = &Player[player];
+    auto u = User[p->PlayerSprite];
+
+    if (!TEST(p->Flags, PF_TWO_UZI))
+    {
+        SET(p->Flags, PF_TWO_UZI);
+        SET(p->Flags, PF_PICKED_UP_AN_UZI);
+    }
+
+    // ALL WEAPONS
+    if (!SW_SHAREWARE) p->WpnFlags = 0xFFFFFFFF;
+    else p->WpnFlags = 0x0000207F;  // Disallows high weapon cheat in shareware
+
+    for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+    {
+        p->WpnAmmo[i] = DamageData[i].max_ammo;
+    }
+
+    p->WpnShotgunAuto = 50;
+    p->WpnRocketHeat = 5;
+    p->WpnRocketNuke = 1;
+
+    PlayerUpdateWeapon(p, u->WeaponNum);
+}
+
+static void ItemCheat(int player)
+{
+    auto p = &Player[player];
+    PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
+    memset(p->HasKey, TRUE, sizeof(p->HasKey));
+
+    p->WpnShotgunAuto = 50;
+    p->WpnRocketHeat = 5;
+    p->WpnRocketNuke = 1;
+    p->Armor = 100;
+
+    for (int inv = 0; inv < MAX_INVENTORY; inv++)
+    {
+        p->InventoryPercent[inv] = 100;
+        p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+    }
+
+    PlayerUpdateInventory(p, p->InventoryNum);
+
+    for (int i = 0; i < numsectors; i++)
+    {
+        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR)
+            SectUser[i]->number = 0;  // unlock all doors of this type
+    }
+}
+
+
+static void cmd_Give(int player, uint8_t** stream, bool skip)
+{
+    int type = ReadByte(stream);
+    if (skip) return;
+
+    if (numplayers != 1 || gamestate != GS_LEVEL || (Player[player].Flags & PF_DEAD))
+    {
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
+        return;
+    }
+
+    switch (type)
+    {
+    case GIVE_ALL:
+        ItemCheat(player);
+        WeaponCheat(player);
+        break;
+
+    case GIVE_HEALTH:
+        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        {
+            User[Player[player].PlayerSprite]->Health += 25;
+            PutStringInfo(&Player[player], GStrings("TXTS_ADDEDHEALTH"));
+        }
+        break;
+
+    case GIVE_WEAPONS:
+        WeaponCheat(player);
+        break;
+
+    case GIVE_AMMO:
+    {
+        auto p = &Player[player];
+        auto u = User[p->PlayerSprite];
+
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+
+        for (int i = 0; i < SIZ(p->WpnAmmo); i++)
+        {
+            p->WpnAmmo[i] = DamageData[i].max_ammo;
+        }
+
+        PlayerUpdateWeapon(p, u->WeaponNum);
+        break;
+    }
+
+    case GIVE_ARMOR:
+        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        {
+            Player[player].Armor = 100;
+            PutStringInfo(&Player[player], GStrings("TXTB_FULLARM"));
+        }
+        break;
+
+    case GIVE_KEYS:
+        memset(Player[player].HasKey, TRUE, sizeof(Player[player].HasKey));
+        PutStringInfo(&Player[player], GStrings("TXTS_GIVEKEY"));
+        break;
+
+    case GIVE_INVENTORY:
+    {
+        auto p = &Player[player];
+        PutStringInfo(p, GStrings("GOT ALL INVENTORY"));
+
+        p->WpnShotgunAuto = 50;
+        p->WpnRocketHeat = 5;
+        p->WpnRocketNuke = 1;
+        p->Armor = 100;
+
+        for (int inv = 0; inv < MAX_INVENTORY; inv++)
+        {
+            p->InventoryPercent[inv] = 100;
+            p->InventoryAmount[inv] = InventoryData[inv].MaxInv;
+        }
+
+        PlayerUpdateInventory(p, p->InventoryNum);
+    }
+    break;
+
+    case GIVE_ITEMS:
+        ItemCheat(player);
+        break;
+    }
+}
 
 void InitCheats()
 {
     SetCheats(swcheats, countof(swcheats));
+    Net_SetCommandHandler(DEM_GIVE, cmd_Give);
 }
 
 END_SW_NS

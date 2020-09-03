@@ -1281,23 +1281,6 @@ loc_1AB8E:
             uint16_t buttons = sPlayerInput[nPlayer].buttons;
             auto actions = sPlayerInput[nPlayer].actions;
 
-            if (buttons & kButtonCheatGuns) // LOBOCOP cheat
-            {
-                FillWeapons(nPlayer);
-                StatusMessage(150, "All weapons loaded for player");
-            }
-            if (buttons & kButtonCheatKeys) // LOBOPICK cheat
-            {
-                PlayerList[nPlayer].keys = 0xFFFF;
-                StatusMessage(150, "All keys loaded for player");
-                RefreshStatus();
-            }
-            if (buttons & kButtonCheatItems) // LOBOSWAG cheat
-            {
-                FillItems(nPlayer);
-                StatusMessage(150, "All items loaded for player");
-            }
-
             // loc_1AEF5:
             if (PlayerList[nPlayer].nHealth > 0)
             {

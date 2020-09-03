@@ -185,45 +185,6 @@ static int osdcmd_third_person_view(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-static int ccmd_give(CCmdFuncPtr parm)
-{
-    if (PlayerList[myconnectindex].nHealth <= 0 || nNetPlayerCount)
-    {
-        Printf("give: Cannot give while dead or not in a single-player game.\n");
-        return CCMD_OK;
-    }
-
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    cheatseq_t* cs = (cheatseq_t*)(intptr_t)1;
-    if (!stricmp(parm->parms[0], "all"))
-    {
-        lLocalCodes |= kButtonCheatGuns | kButtonCheatItems | kButtonCheatKeys;
-    }
-    else if (!stricmp(parm->parms[0], "health"))
-    {
-        PlayerList[myconnectindex].nHealth = 800;
-    }
-    else if (!stricmp(parm->parms[0], "weapons"))
-    {
-        lLocalCodes |= kButtonCheatGuns;
-    }
-    else if (!stricmp(parm->parms[0], "keys"))
-    {
-        lLocalCodes |= kButtonCheatKeys;
-    }
-    else if (!stricmp(parm->parms[0], "inventory"))
-    {
-        lLocalCodes |= kButtonCheatItems;
-    }
-    else if (!stricmp(parm->parms[0], "items"))
-    {
-        lLocalCodes |= kButtonCheatItems | kButtonCheatKeys;
-    }
-    else return CCMD_SHOWHELP;
-    return CCMD_OK;
-}
-
 
 static int osdcmd_noop(CCmdFuncPtr parm)
 {
@@ -243,7 +204,6 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
 	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_noop);
 	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
-    //C_RegisterFunction("give", "give <all|health|weapons|keys|inventory>: gives requested item", ccmd_give);
 
     return 0;
 }

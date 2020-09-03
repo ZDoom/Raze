@@ -37,13 +37,6 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 BEGIN_DUKE_NS
 
-bool cheatGod(cheatseq_t*);
-bool cheatWeapons(cheatseq_t* s);
-bool cheatStuff(cheatseq_t* s);
-bool cheatKeys(cheatseq_t* s);
-bool cheatInventory(cheatseq_t* s);
-bool cheatItems(cheatseq_t* s);
-
 static void dowarp(MapRecord *map)
 {
 	ud.m_monsters_off = ud.monsters_off = 0;
@@ -190,57 +183,6 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	return CCMD_OK;
 }
 
-// Strangely enough JFDuke does not have a 'give' CCMD, so this is based on the version in EDuke32.
-static int ccmd_give(CCmdFuncPtr parm)
-{
-	if (numplayers != 1 || (ps[myconnectindex].gm & MODE_GAME) == 0 ||
-			ps[myconnectindex].dead_flag != 0)
-	{
-		Printf("give: Cannot give while dead or not in a single-player game.\n");
-		return CCMD_OK;
-	}
-
-	if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-	cheatseq_t* cs = (cheatseq_t*)(intptr_t)1;
-	if (!stricmp(parm->parms[0], "all"))
-	{
-		cheatStuff(cs);
-	}
-	else if (!stricmp(parm->parms[0], "health"))
-	{
-		sprite[ps[myconnectindex].i].extra = max_player_health<<1;
-	}
-	else if (!stricmp(parm->parms[0], "weapons"))
-	{
-		cheatWeapons(cs);
-	}
-	else if (!stricmp(parm->parms[0], "ammo"))
-	{
-		int maxw = VOLUMEONE ? SHRINKER_WEAPON : MAX_WEAPONS;
-		for (int i = maxw; i >= PISTOL_WEAPON; i--)
-			addammo(i, &ps[myconnectindex], max_ammo_amount[i]);
-	}
-	else if (!stricmp(parm->parms[0], "armor"))
-	{
-		ps[myconnectindex].shield_amount = 100;
-	}
-	else if (!stricmp(parm->parms[0], "keys"))
-	{
-		cheatKeys(cs);
-	}
-	else if (!stricmp(parm->parms[0], "inventory"))
-	{
-		cheatInventory(cs);
-	}
-	else if (!stricmp(parm->parms[0], "items"))
-	{
-		cheatItems(cs);
-	}
-	else return CCMD_SHOWHELP;
-	return CCMD_OK;
-}
-
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
 	if (parm->numparms < 3 || parm->numparms > 5)
@@ -312,7 +254,6 @@ int registerosdcommands(void)
 {
 	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
 	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
-	//C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
 	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
