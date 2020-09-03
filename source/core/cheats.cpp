@@ -139,3 +139,31 @@ CCMD(allmap)
 		Printf("%s\n", GStrings(gFullMap ? "SHOW MAP: ON" : "SHOW MAP: OFF"));
 	}
 }
+
+CCMD(give)
+{
+	static const char* type[] = { "ALL","AMMO","ARMOR","HEALTH","INVENTORY","ITEMS","KEYS","WEAPONS",nullptr };
+	if (argv.argc() < 2)
+	{
+		Printf("give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item\n");
+		return;
+	}
+	size_t found = -1;
+	for (size_t i = 0; i < countof(type); i++)
+	{
+		if (!stricmp(argv[1], type[i]))
+		{
+			found = i;
+			break;
+		}
+	}
+	if (found == -1)
+	{
+		Printf("Unable to give %s\n", argv[1]);
+	}
+	if (!CheckCheatmode(true, true))
+	{
+		Net_WriteByte(DEM_GIVE);
+		Net_WriteByte(found);
+	}
+}

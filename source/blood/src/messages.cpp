@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "cheathandler.h"
 #include "d_protocol.h"
+#include "gamestate.h"
 
 BEGIN_BLD_NS
 
@@ -288,10 +289,14 @@ static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
 const char* GameInterface::GenericCheat(int player, int cheat)
 {
     // message processing is not perfect because many cheats output multiple messages.
-    if (gGameOptions.nGameType != 0) // sp only for now.
-        return nullptr;
-    int nEpisode, nLevel;
 
+    if (gGameOptions.nGameType != 0 || numplayers > 1) // sp only for now.
+        return nullptr;
+
+    if (gamestate != GS_LEVEL || gMe->pXSprite->health == 0) // must be alive and in a level to cheat.
+        return nullptr;
+
+    bPlayerCheated = true;
     switch (cheat)
     {
     case CHT_GOD:
@@ -479,7 +484,6 @@ static cheatseq_t s_CheatInfo[] = {
     //{"SPIELBERG",           nullptr,           doCheat<kCheatSpielberg, 1 }, // SPIELBERG (Disables all cheats. If number values corresponding to a level and episode number are entered after the cheat word (i.e. "spielberg 1 3" for Phantom Express), you will be spawned to said level and the game will begin recording a demo from your actions.)
 }; 
 
-
 void cheatReset(void)
 {
     bPlayerCheated = 0;
@@ -489,6 +493,65 @@ void cheatReset(void)
     gInfiniteAmmo = 0;
     gFullMap = 0;
 }
+
+
+static void cmd_Give(int player, uint8_t **stream, bool skip)
+{
+    int type = ReadByte(stream);
+    if (skip) return;
+
+    if (numplayers != 1 || gamestate != GS_LEVEL || gMe->pXSprite->health == 0)
+    {
+        Printf("give: Cannot give while dead or not in a single-player game.\n");
+        return;
+    }
+
+    switch (type)
+    {
+    case GIVE_ALL:
+        SetWeapons(true);
+        SetAmmo(true);
+        SetToys(true);
+        SetArmor(true);
+        SetKeys(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_HEALTH:
+        actHealDude(gMe->pXSprite, 200, 200);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_WEAPONS:
+        SetWeapons(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_AMMO:
+        SetAmmo(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_ARMOR:
+        SetArmor(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_KEYS:
+        SetKeys(true);
+        bPlayerCheated = true;
+        break;
+
+    case GIVE_INVENTORY:
+        SetToys(true);
+        bPlayerCheated = true;
+        break;
+
+    default:
+        break;
+    }
+}
+
 
 class MessagesLoadSave : public LoadSave
 {
@@ -517,6 +580,7 @@ void MessagesLoadSaveConstruct(void)
 void InitCheats()
 {
     SetCheats(s_CheatInfo, countof(s_CheatInfo));
+    Net_SetCommandHandler(DEM_GIVE, cmd_Give);
 }
 
 END_BLD_NS

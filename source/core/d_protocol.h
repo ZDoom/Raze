@@ -89,6 +89,8 @@ enum EDemoCommand
 	DEM_USERCMD,
 	DEM_EMPTYUSERCMD,
 	DEM_GENERICCHEAT,
+	DEM_GIVE,
+	DEM_CHANGEMAP,
 
 	DEM_MAX
 };
@@ -148,6 +150,18 @@ enum ECheat
 	kCheatSpielberg,
 
 	CHT_MAX
+};
+
+enum EGiveType
+{
+	GIVE_ALL,
+	GIVE_AMMO,
+	GIVE_ARMOR,
+	GIVE_HEALTH,
+	GIVE_INVENTORY,
+	GIVE_ITEMS,
+	GIVE_KEYS,
+	GIVE_WEAPONS
 };
 
 typedef void(*NetCommandHandler)(int player, uint8_t **stream, bool skip);

@@ -56,7 +56,7 @@ static PLAYERp checkCheat(cheatseq_t* c)
     if (CommEnabled)
         return nullptr;
 
-    if (Skill >= 3 && !c->DontCheck && !sv_cheats)
+    if (Skill >= 3 && (!c || !c->DontCheck) && !sv_cheats)
     {
         PutStringInfo(&Player[screenpeek], GStrings("TXTS_TOOSKILLFUL"));
         return nullptr;
@@ -409,28 +409,30 @@ bool EveryCheatToggle(cheatseq_t* c)
 {
     EveryCheat ^= 1;
     C_DoCommand("god");
-    return WeaponCheat(c) && ItemCheat(c);
+    C_DoCommand("give weapons");
+    C_DoCommand("give items");
+    return true;
 }
 
 // The prefix was changed from 'sw' to 'lw' so that it doesn't contain two keys of the WASD control scheme, which interferes with input control.
 static cheatseq_t swcheats[] = {
     {"lwgod",      "god" },
     {"lwchan",     "god" },
-    {"lwgimme",    nullptr,     ItemCheat, 0},
-    {"lwmedic",    nullptr,     HealCheat, 0},
+    {"lwgimme",    "give all" },
+    {"lwmedic",    "give health" },
     {"lwkey#",     nullptr,     KeyCheat, 0},
-    {"lwkeys",     nullptr,     KeysCheat, 0},
-    {"lwammo",     nullptr,     AmmoCheat, 0},
-    {"lwarmor",    nullptr,     ArmorCheat, 0},
-    {"lwitems",    nullptr,     ItemCheat, 0},
-    {"lwguns",     nullptr,     WeaponCheat, 0},
+    {"lwkeys",     "give keys" },
+    {"lwammo",     "give ammo" },
+    {"lwarmor",    "give armor" },
+    {"lwitems",    "give items" },
+    {"lwguns",     "give weapons" },
     {"lwtrek##",   nullptr,     WarpCheat, 0},
     {"lwgreed",    nullptr,     EveryCheatToggle, 0},
     {"lwghost",    "noclip" },
     {"lwstart",    nullptr,     RestartCheat, 0},
     {"lwloc",      "stat coord", nullptr, true},
     {"lwmap",      nullptr,     MapCheat, 0},
-    {"lwroom",     nullptr,     RoomCheat, true}, // Room above room dbug
+    {"lwroom",     nullptr,     RoomCheat, true}, // Room above room debug
 };
 
 

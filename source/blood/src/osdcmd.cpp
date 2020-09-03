@@ -70,65 +70,6 @@ static int osdcmd_map(CCmdFuncPtr parm)
 }
 
 
-static int osdcmd_give(CCmdFuncPtr parm)
-{
-    if (numplayers != 1 || gamestate != GS_LEVEL|| gMe->pXSprite->health == 0)
-    {
-        Printf("give: Cannot give while dead or not in a single-player game.\n");
-        return CCMD_OK;
-    }
-
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    if (!Bstrcasecmp(parm->parms[0], "all"))
-    {
-        SetWeapons(true);
-        SetAmmo(true);
-        SetToys(true);
-        SetArmor(true);
-        SetKeys(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "health"))
-    {
-        actHealDude(gMe->pXSprite, 200, 200);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "weapons"))
-    {
-        SetWeapons(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "ammo"))
-    {
-        SetAmmo(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "armor"))
-    {
-        SetArmor(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "keys"))
-    {
-        SetKeys(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    else if (!Bstrcasecmp(parm->parms[0], "inventory"))
-    {
-        SetToys(true);
-        bPlayerCheated = true;
-        return CCMD_OK;
-    }
-    return CCMD_SHOWHELP;
-}
-
 static int osdcmd_levelwarp(CCmdFuncPtr parm)
 {
     if (parm->numparms != 2)
@@ -220,7 +161,6 @@ static int osdcmd_show_weapon(CCmdFuncPtr parm)
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);

@@ -243,7 +243,7 @@ int32_t registerosdcommands(void)
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
 	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_noop);
 	C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_noop);
-    C_RegisterFunction("give", "give <all|health|weapons|keys|inventory>: gives requested item", ccmd_give);
+    //C_RegisterFunction("give", "give <all|health|weapons|keys|inventory>: gives requested item", ccmd_give);
 
     return 0;
 }

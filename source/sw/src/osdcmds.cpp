@@ -114,6 +114,15 @@ int osdcmd_levelwarp(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
+struct cheatseq_t;
+bool WeaponCheat(cheatseq_t* c);
+bool AmmoCheat(cheatseq_t* c);
+bool ItemCheat(cheatseq_t* c);
+bool InventoryCheat(cheatseq_t* c);
+bool ArmorCheat(cheatseq_t* c);
+bool HealCheat(cheatseq_t* c);
+bool KeysCheat(cheatseq_t* c);
+
 
 static int osdcmd_give(CCmdFuncPtr parm)
 {
@@ -123,37 +132,37 @@ static int osdcmd_give(CCmdFuncPtr parm)
 
     if (!stricmp(parm->parms[0], "all"))
     {
-        C_DoCommand("activatecheat lwgimme");
+        ItemCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "health"))
     {
-        C_DoCommand("activatecheat lwmedic");
+        HealCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "weapons"))
     {
-        C_DoCommand("activatecheat lwguns");
+        WeaponCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "ammo"))
     {
-        C_DoCommand("activatecheat lwammo");
+        AmmoCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "armor"))
     {
-        C_DoCommand("activatecheat lwarmor");
+        ArmorCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "keys"))
     {
-        C_DoCommand("activatecheat lwkeys");
+        KeysCheat(nullptr);
         return CCMD_OK;
     }
     else if (!stricmp(parm->parms[0], "inventory"))
     {
-        C_DoCommand("activatecheat lwitems");
+        InventoryCheat(nullptr);
         return CCMD_OK;
     }
     return CCMD_SHOWHELP;
@@ -271,7 +280,7 @@ static int osdcmd_noop(CCmdFuncPtr parm)
 int32_t registerosdcommands(void)
 {
     C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
-    C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
+    //C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
     C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
     C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);

@@ -312,7 +312,7 @@ int registerosdcommands(void)
 {
 	C_RegisterFunction("map","map <mapname>: warp to the given map, identified by its name", ccmd_map);
 	C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", ccmd_levelwarp);
-	C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
+	//C_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", ccmd_give);
 	C_RegisterFunction("restartmap", "restartmap: restarts the current map", ccmd_restartmap);
 	C_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",ccmd_spawn);
 	C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
