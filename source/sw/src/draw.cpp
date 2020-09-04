@@ -939,39 +939,6 @@ post_analyzesprites(void)
 }
 #endif
 
-static int nonsharedtimer;
-
-void
-ResizeView(PLAYERp pp)
-{
-    int ms = screen->FrameTime;
-    int interval;
-    if (nonsharedtimer > 0 || ms < nonsharedtimer)
-    {
-        interval = ms - nonsharedtimer;
-    }
-    else
-    {
-        interval = 0;
-    }
-    nonsharedtimer = screen->FrameTime;
-
-    if (System_WantGuiCapture())
-        return;
-
-    if (automapMode != am_off)
-    {
-        double j = interval * (120. / 1000);
-
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-            zoom += (int)fmulscale6(j, max(zoom, 256));
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-            zoom -= (int)fmulscale6(j, max(zoom, 256));
-
-        zoom = clamp(zoom, 48, 2048);
-    }
-}
-
 
 void
 BackView(int *nx, int *ny, int *nz, short *vsect, fixed_t *nq16ang, short horiz)
@@ -1911,8 +1878,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     SyncStatMessage();
 #endif
 
-    // certain input is done here - probably shouldn't be
-    ResizeView(pp);
+    zoom = GetAutomapZoom(zoom);
 
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen

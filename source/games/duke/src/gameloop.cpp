@@ -146,7 +146,7 @@ void GameInterface::Startup()
 
 void GameInterface::Render()
 {
- 	nonsharedkeys(); // automap zoom
+	ps[myconnectindex].zoom = GetAutomapZoom(ps[myconnectindex].zoom);
 	drawtime.Reset();
 	drawtime.Clock();
 	videoSetBrightness(thunder_brightness);

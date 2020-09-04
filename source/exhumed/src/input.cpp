@@ -88,37 +88,11 @@ void SendInput()
 
 }
 
-static int32_t nonsharedtimer;
 
 void CheckKeys2()
 {
-    static int nonsharedtimer;
-    int ms = screen->FrameTime;
-    int interval;
-    if (nonsharedtimer > 0 || ms < nonsharedtimer)
-    {
-        interval = ms - nonsharedtimer;
-    }
-    else
-    {
-        interval = 0;
-    }
-    nonsharedtimer = screen->FrameTime;
+    lMapZoom = GetAutomapZoom(lMapZoom);
 
-    if (System_WantGuiCapture())
-        return;
-
-    if (automapMode != am_off)
-    {
-        double j = interval * (120. / 1000);
-
-        if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-            lMapZoom += (int)fmulscale6(j, max(lMapZoom, 256));
-        if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-            lMapZoom -= (int)fmulscale6(j, max(lMapZoom, 256));
-
-        lMapZoom = clamp(lMapZoom, 48, 2048);
-    }
     if (PlayerList[nLocalPlayer].nHealth <= 0)
     {
         SetAirFrame();

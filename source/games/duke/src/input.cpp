@@ -41,7 +41,6 @@ source as it is released.
 BEGIN_DUKE_NS
 
 // State timer counters. 
-static int nonsharedtimer;
 static int turnheldtime;
 static int lastcontroltime;
 static double lastCheck;
@@ -58,42 +57,6 @@ void GameInterface::ResetFollowPos(bool message)
 	if (message) FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
 
 }
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-void nonsharedkeys(void)
-{
-	int ms = screen->FrameTime;
-	int interval;
-	if (nonsharedtimer > 0 || ms < nonsharedtimer)
-	{
-		interval = ms - nonsharedtimer;
-	}
-	else
-	{
-		interval = 0;
-	}
-	nonsharedtimer = screen->FrameTime;
-
-	if (System_WantGuiCapture())
-		return;
-
-	if (automapMode != am_off)
-	{
-		double j = interval * (120./1000);
-		
-		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			ps[myconnectindex].zoom += (int)fmulscale6(j, max(ps[myconnectindex].zoom, 256));
-		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			ps[myconnectindex].zoom -= (int)fmulscale6(j, max(ps[myconnectindex].zoom, 256));
-		
-		ps[myconnectindex].zoom = clamp(ps[myconnectindex].zoom, 48, 2048);
-	}
-}
-
 //---------------------------------------------------------------------------
 //
 // handles all HUD related input, i.e. inventory item selection and activation plus weapon selection.

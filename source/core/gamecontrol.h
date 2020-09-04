@@ -55,6 +55,7 @@ void CONFIG_ReadCombatMacros();
 
 int GameMain();
 void startmainmenu();
+int GetAutomapZoom(int gZoom);
 void updatePauseStatus();
 void DeferedStartGame(MapRecord* map, int skill);
 void ChangeLevel(MapRecord* map, int skill);

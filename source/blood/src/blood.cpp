@@ -491,41 +491,11 @@ void GameInterface::Startup()
 }
 
 
-static void nonsharedkeys(void)
-{
-	static int nonsharedtimer;
-	int ms = screen->FrameTime;
-	int interval;
-	if (nonsharedtimer > 0 || ms < nonsharedtimer)
-	{
-		interval = ms - nonsharedtimer;
-	}
-	else
-	{
-		interval = 0;
-	}
-	nonsharedtimer = screen->FrameTime;
-
-	if (System_WantGuiCapture())
-		return;
-
-	if (automapMode != am_off)
-	{
-		double j = interval * (120. / 1000);
-
-		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += (int)fmulscale6(j, max(gZoom, 256));
-		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= (int)fmulscale6(j, max(gZoom, 256));
-
-		gZoom = clamp(gZoom, 48, 2048);
-		gViewMap.nZoom = gZoom;
-	}
-}
 
 void GameInterface::Render()
 {
-	nonsharedkeys();
+	gZoom = GetAutomapZoom(gZoom);
+	gViewMap.nZoom = gZoom;
 	drawtime.Reset();
 	drawtime.Clock();
 	viewDrawScreen();

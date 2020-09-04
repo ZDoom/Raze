@@ -51,7 +51,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 short nBestLevel;
-static int32_t nonsharedtimer;
 
 extern uint8_t nCinemaSeen;
 
