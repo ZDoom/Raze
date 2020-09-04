@@ -490,7 +490,7 @@ int DoSpiritHead()
             {
                 if (!CDplaying())
                 {
-                    EndLevel = 2;
+                    EndLevel = 1;
                 }
             }
         }

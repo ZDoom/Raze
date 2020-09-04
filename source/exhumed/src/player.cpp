@@ -1065,7 +1065,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
                 }
                 else
                 {
-                    EndLevel = true;
+                    EndLevel = 13;
                 }
 
                 return;
@@ -2462,7 +2462,7 @@ do_default_b:
                             {
                                 if (!bInDemo) 
                                 {
-                                    EndLevel = true;
+                                    EndLevel = 13;
                                 }
 
                                 DestroyItemAnim(nValB);

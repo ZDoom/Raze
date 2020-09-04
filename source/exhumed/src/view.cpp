@@ -436,7 +436,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                     if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(myclock)) || inputState.CheckAllInput())
                     {
                         inputState.ClearAllInput();
-                        EndLevel = 2;
+                        EndLevel = 1;
 
                         if (CDplaying()) {
                             fadecdaudio();

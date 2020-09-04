@@ -173,7 +173,7 @@ uint8_t LoadLevel(int nMap)
     return true;
 }
 
-void InitLevel(int level)
+void InitLevel(int level) // todo: use a map record
 {
     StopCD();
     if (!LoadLevel(level)) {
@@ -187,7 +187,7 @@ void InitLevel(int level)
         RestartPlayer(i);
         InitPlayerKeys(i);
     }
-
+    EndLevel = 0;
     lastfps = 0;
     InitStatus();
     ResetView();

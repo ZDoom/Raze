@@ -63,7 +63,7 @@ int32_t registerosdcommands(void);
 void InitFonts();
 void InitCheats();
 
-int EndLevel = false;
+int EndLevel = 0;
 
 
 InputPacket localInput;
@@ -260,8 +260,6 @@ double calc_smoothratio()
     return I_GetTimeFrac() * MaxSmoothRatio;
 }
 
-void CheckProgression();
-
 void GameMove(void)
 {
     FixPalette();
@@ -336,7 +334,12 @@ static int SelectAltWeapon(int weap2)
 
 void GameInterface::Ticker()
 {
-    if (!paused)
+
+	if (paused)
+	{
+		r_NoInterpolate = true;
+	}
+    else if (EndLevel == 0)
     {
         nPlayerDAng += localInput.q16avel;
         inita &= kAngleMask;
@@ -453,8 +456,17 @@ void GameInterface::Ticker()
         GameMove();
         r_NoInterpolate = false;
     }
-    else r_NoInterpolate = true;
-    CheckProgression(); // todo: Get rid of this.
+	else
+	{
+		// Wait for the end of level sound to play out, but stop updating the playsim.
+		EndLevel--;
+		r_NoInterpolate = false;
+		if (EndLevel == 0)
+		{
+			auto map = currentLevel->levelNumber == 20? nullptr : FindMapByLevelNum(currentLevel->levelNumber+1); // todo: Use the map record for progression
+			CompleteLevel(map);
+		}
+	}
 }
 
 void ExitGame()

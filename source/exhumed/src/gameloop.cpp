@@ -50,12 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void CheckProgression();
-
 short nBestLevel;
 static int32_t nonsharedtimer;
-
-int GameAction=-1;
 
 extern uint8_t nCinemaSeen;
 
@@ -65,14 +61,8 @@ void DrawClock();
 double calc_smoothratio();
 void DoTitle(CompletionFunc completion);
 
-static int FinishLevel(TArray<JobDesc> &jobs)
+static void FinishLevel(int lnum, TArray<JobDesc> &jobs)
 {
-    int lnum = currentLevel->levelNumber;
-    if (lnum > nBestLevel) {
-        nBestLevel = lnum - 1;
-    }
-
-
     StopAllSounds();
 
     bCamera = false;
@@ -81,7 +71,7 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     STAT_Update(lnum == kMap20);
     if (lnum != kMap20)
     {
-        if (EndLevel != 2 && !netgame)
+        if (EndLevel == 13 && !netgame)
         {
             // There's really no choice but to enter an active wait loop here to make the sound play out.
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
@@ -97,7 +87,6 @@ static int FinishLevel(TArray<JobDesc> &jobs)
     else nPlayerLives[0] = 0;
 
     DoAfterCinemaScene(lnum, jobs);
-    return lnum == kMap20? -1 : lnum + 1;
 }
 
 
@@ -145,7 +134,6 @@ void GameInterface::Render()
 // 
 //
 //---------------------------------------------------------------------------
-void CheckProgression();
 
 void GameInterface::DrawBackground()
 {
@@ -161,7 +149,6 @@ void GameInterface::DrawBackground()
     // draw the fire urn/lamp thingies
     DrawRel(kTile3512 + dword_9AB5F, 50, 150, 32);
     DrawRel(kTile3512 + ((dword_9AB5F + 2) & 3), 270, 150, 32);
-    CheckProgression();
 }
 
 //---------------------------------------------------------------------------
@@ -170,78 +157,73 @@ void GameInterface::DrawBackground()
 //
 //---------------------------------------------------------------------------
 
-void CheckProgression()
+static void Intermission(MapRecord *from_map, MapRecord *to_map)
 {
     TArray<JobDesc> jobs;
-    bool startlevel = false;
-    int mylevelnew = -1;
 
-    if (GameAction >= 0)
-    {
-        if (GameAction < 1000)
-        {
-            // start a new game on the given level
-            currentLevel = nullptr;
-            mylevelnew = GameAction;
-            currentLevel = FindMapByLevelNum(mylevelnew);
-            GameAction = -1;
-            InitNewGame();
-            if (mylevelnew > 0) STAT_StartNewGame("Exhumed", 1);
-            if (mylevelnew != 0) nBestLevel = mylevelnew - 1;
-        }
-        else
-        {
-            // A savegame was loaded. Just start the level without any further actions.
-            GameAction = -1;
-            gamestate = GS_LEVEL;
-            return;
-        }
-    }
-    else if (EndLevel)
-    {
-        if (currentLevel->levelNumber == 0) startmainmenu();
-        else mylevelnew = FinishLevel(jobs);
-        EndLevel = false;
-    }
-    if (mylevelnew > -1 && mylevelnew < kMap20)
-    {
-        startlevel = true;
-        // start a new game at the given level
-        if (!nNetPlayerCount && mylevelnew > 0)
-        {
-            showmap(currentLevel? currentLevel->levelNumber : -1, mylevelnew, nBestLevel, jobs);
-        }
-        else
-            jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
-    }
-    if (jobs.Size() > 0)
-    {
-        selectedlevelnew = mylevelnew;
-        RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
-            {
-                if (!startlevel) gamestate = GS_STARTUP;
-                else
-                {
-                    gamestate = GS_LEVEL;
+	if (to_map && to_map->levelNumber != 0)
+	{
+		nBestLevel = to_map->levelNumber - 1;
+		FinishLevel(to_map->levelNumber, jobs);
+	}
+	
+	if (to_map->levelNumber > -1 && to_map->levelNumber < kMap20)
+	{
+		// start a new game at the given level
+		if (!nNetPlayerCount && to_map->levelNumber > 0)
+		{
+			showmap(from_map? from_map->levelNumber : -1, to_map->levelNumber, nBestLevel, jobs);
+		}
+		else
+			jobs.Push({ Create<DScreenJob>() }); // we need something in here even in the multiplayer case.
+	}
+	if (jobs.Size() > 0)
+	{
+		RunScreenJob(jobs.Data(), jobs.Size(), [=](bool)
+		{
+			if (!to_map) gameaction = ga_startup; // this was the end of the game
+			else
+			{
+				if (to_map->levelNumber != selectedlevelnew)
+				{
+					// User can switch destination on the scrolling map.
+					g_nextmap = FindMapByLevelNum(selectedlevelnew);
+					STAT_Cancel();
+				}
+				gameaction = ga_nextlevel;
 
-                    InitLevel(selectedlevelnew);
-#if 0
-                    // this would be the place to autosave upon level start
-                    if (!bInDemo && selectedlevelnew > nBestLevel && selectedlevelnew != 0 && selectedlevelnew <= kMap20) {
-                        menu_GameSave(SavePosition);
-                    }
-#endif
-                    if (selectedlevelnew > nBestLevel)
-                    {
-                        nBestLevel = selectedlevelnew;
-                    }
+			}
+		});
+	}
+	
+}
 
-                    if (selectedlevelnew == 11) nCinemaSeen |= 2;
-                    if (mylevelnew != selectedlevelnew) STAT_Cancel();
-                    else STAT_NewLevel(currentLevel->labelName);
-                }
-            });
-    }
+void GameInterface::NextLevel(MapRecord *map, int skill)
+{
+	InitLevel(map->levelNumber);
+
+	if (map->levelNumber > nBestLevel)
+	{
+		nBestLevel = selectedlevelnew;
+	}
+	
+	if (map->levelNumber == 11) nCinemaSeen |= 2;
+	STAT_NewLevel(currentLevel->labelName);
+	
+}
+
+void GameInterface::NewGame(MapRecord *map, int skill)
+{
+	// start a new game on the given level
+	InitNewGame();
+	if (map->levelNumber == 1) STAT_StartNewGame("Exhumed", 1);
+	Intermission(nullptr, map);
+}
+
+void GameInterface::LevelCompleted(MapRecord *map, int skill)
+{
+	if (currentLevel->levelNumber == 0) startmainmenu();
+	else Intermission(currentLevel, map);
 }
 
 //---------------------------------------------------------------------------
@@ -253,14 +235,13 @@ void CheckProgression()
 void GameInterface::Startup()
 {
     resettiming();
-    GameAction = -1;
-    EndLevel = false;
+    EndLevel = 0;
 
     if (userConfig.CommandMap.IsNotEmpty())
     {
         /*
         auto map = FindMapByName(userConfig.CommandMap);
-        if (map) GameAction = map->levelNumber;
+        if (map) DeferedStartMap(map, 0);
         userConfig.CommandMap = "";
         goto again;
         */
@@ -276,8 +257,7 @@ void GameInterface::Startup()
 void GameInterface::ErrorCleanup()
 {
     // Clear all progression sensitive variables here.
-    GameAction = -1;
-    EndLevel = false;
+    EndLevel = 0;
 }
 
 END_PS_NS

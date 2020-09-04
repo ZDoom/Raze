@@ -35,63 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-
-static int osdcmd_map(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1)
-    {
-        return CCMD_SHOWHELP;
-    }
-    FString mapname = parm->parms[0];
-    FString mapfilename = mapname;
-    DefaultExtension(mapfilename, ".map");
-
-    if (!fileSystem.FileExists(mapfilename))
-    {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
-        return CCMD_OK;
-    }
-	
-	// Check if the map is already defined.
-    auto map = FindMapByName(mapname);
-    if (map)
-    {
-        GameAction = map->levelNumber;
-    }
-    return CCMD_OK;
-}
-
-static int osdcmd_changelevel(CCmdFuncPtr parm)
-{
-    char* p;
-
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-
-    int nLevel = strtol(parm->parms[0], &p, 10);
-    if (p[0]) return CCMD_SHOWHELP;
-
-    if (nLevel < 0) return CCMD_SHOWHELP;
-
-    int nMaxLevels;
-
-    if (!ISDEMOVER) {
-        nMaxLevels = 32;
-    }
-    else {
-        nMaxLevels = 4;
-    }
-
-    if (nLevel > nMaxLevels)
-    {
-        Printf("changelevel: invalid level number\n");
-        return CCMD_SHOWHELP;
-    }
-
-    GameAction = nLevel;
-
-    return CCMD_OK;
-}
-
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms < 3 || parm->numparms > 5)
@@ -114,12 +57,6 @@ static int osdcmd_warptocoords(CCmdFuncPtr parm)
         nPlayer->q16horiz = IntToFixed(atoi(parm->parms[4]));
     }
 
-    return CCMD_OK;
-}
-
-static int osdcmd_exitmap(CCmdFuncPtr parm)
-{
-    EndLevel = true;
     return CCMD_OK;
 }
 
@@ -195,9 +132,6 @@ static int osdcmd_noop(CCmdFuncPtr parm)
 int32_t registerosdcommands(void)
 {
     //if (VOLUMEONE)
-    C_RegisterFunction("levelwarp","levelwarp <level>: warps to the given level", osdcmd_changelevel);
-    C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    C_RegisterFunction("exitmap", "exits current map", osdcmd_exitmap);
     C_RegisterFunction("doors", "opens/closes doors", osdcmd_doors);
     C_RegisterFunction("spawn","spawn <creaturetype>: spawns a creature",osdcmd_spawn);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);

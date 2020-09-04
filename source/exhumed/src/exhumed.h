@@ -100,7 +100,6 @@ extern int32_t g_noSetup;
 
 extern char sHollyStr[];
 extern int selectedlevelnew;
-extern int GameAction;
 
 extern int nNetPlayerCount;
 
@@ -254,6 +253,10 @@ struct GameInterface : ::GameInterface
     void GetInput(InputPacket* packet) override;
     void Startup() override;
     const char* GenericCheat(int player, int cheat) override;
+	void NewGame(MapRecord *map, int skill) override;
+	void LevelCompleted(MapRecord *map, int skill) override;
+	void NextLevel(MapRecord *map, int skill) override;
+
 
 	::GameStats getStats() override;
 };

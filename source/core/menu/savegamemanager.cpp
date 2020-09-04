@@ -66,8 +66,16 @@ void FSavegameManager::LoadGame(FSaveGameNode* node)
 	{
 		if (gi->LoadGame(node))
 		{
-			// do something here?
+			gamestate = GS_LEVEL;
 		}
+		else
+		{
+			I_Error("%s: Failed to load savegame", node->Filename.GetChars());
+		}
+	}
+	else
+	{
+		I_Error("%s: Failed to open savegame", node->Filename.GetChars());
 	}
 }
 

@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "version.h"
 #include "raze_sound.h"
 #include "gamestate.h"
+#include "mapinfo.h"
+#include "gamecontrol.h"
 
 
 #include "menu/menu.h"	// to override the local menu.h
@@ -151,9 +153,7 @@ void GameInterface::MenuSound(EMenuSounds snd)
 
 void GameInterface::QuitToTitle()
 {
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	gamestate = GS_MENUSCREEN;
+	gameaction = ga_mainmenu;
 }
 
 void GameInterface::MenuClosed()
@@ -164,7 +164,8 @@ void GameInterface::MenuClosed()
 
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
-	GameAction = gs.Episode;	// 0 is training, 1 is the regular game
+	auto map = FindMapByLevelNum(gs.Episode);
+	DeferedStartGame(map, 0);	// 0 is training, 1 is the regular game - the game does not have skill levels.
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
