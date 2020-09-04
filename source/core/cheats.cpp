@@ -268,14 +268,14 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 		return nullptr;
 	}
 	// Values are one-based.
-	int e = numparm == 2 ? atoi(argv[1]) : 0;
+	int e = numparm == 2 ? atoi(argv[1]) : 1;
 	int m = atoi(numparm == 2 ? argv[2] : argv[1]);
 	if (e <= 0 || m <= 0)
 	{
 		Printf(PRINT_BOLD, "Invalid level! Numbers must be > 0\n");
 		return nullptr;
 	}
-	auto map = FindMapByLevelNum(levelnum(e - 1, m - 1));
+	auto map = FindMapByLevelNum(numparm == 1 ? m : levelnum(e - 1, m - 1));
 	if (!map)
 	{
 		if (numparm == 2) Printf(PRINT_BOLD, "Level E%s L%s not found!\n", argv[1], argv[2]);
