@@ -2047,13 +2047,7 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 //
 ///////////////////////////
 
-extern int gotlastpacketclock;
-extern SWBOOL ready2send;
 extern double smoothratio;
-
-// local copy of variables updated by faketimerhandler
-extern int locselectedgun;
-
 extern SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
 
 #define MASTER_SWITCHING 1

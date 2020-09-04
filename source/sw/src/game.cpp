@@ -144,7 +144,6 @@ SWBOOL ExitLevel = false;
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
-extern int bufferjitter;
 
 SWBOOL CameraTestMode = false;
 
@@ -473,7 +472,7 @@ void InitRunLevel(void)
     // send packets with player info
     InitNetPlayerOptions();
 
-    // Initialize Game part of network code (When ready2send != 0)
+    // Initialize Game part of network code
     InitNetVars();
 
     if (currentLevel)

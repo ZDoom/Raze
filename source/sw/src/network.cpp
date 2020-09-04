@@ -56,14 +56,8 @@ gNET gNet;
 //Local multiplayer variables
 // should move this to a local scope of faketimerhandler - do it when able to test
 
-//InputPacket oloc;
-
-SWBOOL ready2send = 0;
-
 SWBOOL CommEnabled = FALSE;
 uint8_t CommPlayers = 0;
-
-int bufferjitter = 1;
 
 double smoothratio;
 

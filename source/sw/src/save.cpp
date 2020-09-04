@@ -1089,7 +1089,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
     SavegameLoaded = TRUE;
-    ready2send = 1;
     return true;
 }
 

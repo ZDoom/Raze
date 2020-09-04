@@ -203,8 +203,6 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 
     // always assumed that a demo is playing
 
-    ready2send = 0;
-
 	MapRecord* map;
     if (gs.Episode >= 1)
 		map = FindMapByLevelNum(5);
