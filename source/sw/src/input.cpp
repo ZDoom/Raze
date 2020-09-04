@@ -115,7 +115,7 @@ getinput(InputPacket *loc, SWBOOL tied)
         MoveScrollMode2D(Player + myconnectindex);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || automapFollow)
+    if (M_Active() || (automapFollow && automapMode != am_off))
         return;
 
     int32_t turnamount;
