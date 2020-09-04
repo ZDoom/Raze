@@ -54,6 +54,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "menu.h"
 #include "gstrings.h"
 #include "raze_music.h"
+#include "gamestate.h"
 
 BEGIN_SW_NS
 
@@ -6661,7 +6662,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         }
         else
         {
-			DeferedStartGame(currentLevel, -1);
+            gameaction = ga_autoloadgame;
         }
 
         DoPlayerFireOutDeath(pp);

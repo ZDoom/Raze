@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "nnexts.h"
 #include "gstrings.h"
+#include "gamestate.h"
 
 BEGIN_BLD_NS
 
@@ -1369,7 +1370,7 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-					DeferedStartGame(currentLevel, -1);
+                    gameaction = ga_autoloadgame;
                 }
                 else
                     playerStart(pPlayer->nPlayer);

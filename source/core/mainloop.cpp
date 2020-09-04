@@ -136,12 +136,11 @@ static void GameTicker()
 		case ga_autoloadgame:
 			// todo: for now just handle the restart case
 			g_nextmap = currentLevel;
-			g_nextskill = -1;
 			FX_StopAllSounds();
 			FX_SetReverb(0);
 			gi->FreeLevelData();
-			gamestate = GS_LEVEL;
-			gi->NextLevel(g_nextmap, -1);
+			C_ClearMessages();
+			gi->NewGame(g_nextmap, -1);
 			break;
 
 		case ga_completed:
@@ -168,6 +167,7 @@ static void GameTicker()
 			FX_StopAllSounds();
 			FX_SetReverb(0);
 			gi->FreeLevelData();
+			C_ClearMessages();
 			gamestate = GS_LEVEL;
 			gi->NewGame(g_nextmap, g_nextskill);
 			break;

@@ -935,6 +935,11 @@ int PrintString (int iprintlevel, const char *outline)
 	return 0;	// Don't waste time on calculating this if nothing at all was printed...
 }
 
+void C_ClearMessages()
+{
+	NotifyStrings.Clear();
+}
+
 int VPrintf (int printlevel, const char *format, va_list parms)
 {
 	FString outline;
