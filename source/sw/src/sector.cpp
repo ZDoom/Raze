@@ -1905,12 +1905,12 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
 
+		MapRecord *map;
         if (sp->hitag)
-            NextLevel = FindMapByLevelNum(sp->hitag);
+            map = FindMapByLevelNum(sp->hitag);
         else
-            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
-        ExitLevel = TRUE;
-        FinishedLevel = TRUE;
+            map = FindMapByLevelNum(currentLevel->levelNumber + 1);
+		ChangeLevel(map, -1);
 
         return TRUE;
     }
@@ -2108,12 +2108,12 @@ OperateTripTrigger(PLAYERp pp)
     // same tag for sector as for switch
     case TAG_LEVEL_EXIT_SWITCH:
     {
+		MapRecord *map;
         if (sectp->hitag)
-            NextLevel = FindMapByLevelNum(sectp->hitag);
+            map = FindMapByLevelNum(sectp->hitag);
         else
-            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
-        ExitLevel = TRUE;
-        FinishedLevel = TRUE;
+            map = FindMapByLevelNum(currentLevel->levelNumber + 1);
+		ChangeLevel(map, -1);
         break;
     }
 

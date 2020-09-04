@@ -81,7 +81,8 @@ USER puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
 SWBOOL NightVision = FALSE;
-extern SWBOOL FinishedLevel;
+extern SWBOOL FinishAnim;
+
 
 //#define PLAYER_TURN_SCALE (8)
 #define PLAYER_TURN_SCALE (12)
@@ -6660,10 +6661,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         }
         else
         {
-            ExitLevel = TRUE;
-            NewGame = true;
-            NextLevel = currentLevel;
-
+			DeferedStartGame(currentLevel, -1);
         }
 
         DoPlayerFireOutDeath(pp);
@@ -7481,9 +7479,6 @@ void MultiPlayLimits(void)
     PLAYERp pp;
     SWBOOL Done = FALSE;
 
-    if (ExitLevel)
-        return;
-
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
         return;
 
@@ -7511,14 +7506,11 @@ void MultiPlayLimits(void)
     {
         gNet.TimeLimitClock = gNet.TimeLimit;
 
-        NextLevel = nullptr;
+        MapRecord *next = nullptr;
         // do not increment if level is 23 thru 28 (should be done smarter.)
         if (currentLevel->levelNumber <= 22)
-            NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
-        if (!NextLevel) NextLevel = currentLevel;
-
-        ExitLevel = TRUE;
-        FinishedLevel = TRUE;
+            next = FindMapByLevelNum(currentLevel->levelNumber + 1);
+		ChangeLevel(next, -1);
     }
 }
 
@@ -7681,8 +7673,12 @@ domovethings(void)
         if ((FinishTimer -= synctics) <= 0)
         {
             FinishTimer = 0;
-            ExitLevel = TRUE;
-            FinishedLevel = TRUE;
+			MapRecord *map = nullptr;
+			if (FinishAnim == ANIM_SUMO)
+			{
+				map = FindMapByLevelNum(currentLevel->levelNumber+1);
+			}
+			ChangeLevel(map, -1);
         }
     }
 }

@@ -49,71 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_SW_NS
 
-static void levelwarp(MapRecord *maprec)
-{
-    if (CommEnabled)
-        return;
-
-    auto pp = &Player[myconnectindex];
-    if (Skill >= 3)
-    {
-        PutStringInfo(pp, GStrings("TXTS_TOOSKILLFUL"));
-        return;
-    }
-
-    if (TEST(pp->Flags, PF_DEAD))
-        return;
-
-    NextLevel = maprec;
-    ExitLevel = TRUE;
-    if (gamestate == GS_MENUSCREEN || gamestate == GS_FULLCONSOLE) NewGame = true;
-
-    sprintf(ds, "%s %s", GStrings("TXT_ENTERING"), maprec->DisplayName());
-    PutStringInfo(pp, ds);
-}
-
-
-static int osdcmd_map(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1)
-    {
-        return CCMD_SHOWHELP;
-    }
-    FString mapname = parm->parms[0];
-    FString mapfilename = mapname;
-    DefaultExtension(mapfilename, ".map");
-
-    if (!fileSystem.FileExists(mapfilename))
-    {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
-        return CCMD_OK;
-    }
-	
-	// Check if the map is already defined.
-    auto maprec = FindMapByName(mapname);
-    if (maprec) levelwarp(maprec);
-    else
-    {
-        maprec = SetupUserMap(mapfilename);
-        if (maprec) levelwarp(maprec);
-    }
-    return CCMD_OK;
-}
-
-int osdcmd_restartmap(CCmdFuncPtr)
-{
-    C_DoCommand("activatecheat lwstart");
-    return CCMD_OK;
-}
-
-int osdcmd_levelwarp(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1) return CCMD_SHOWHELP;
-    auto maprec = FindMapByLevelNum(atoi(parm->parms[0]));
-    if (maprec) levelwarp(maprec);
-    return CCMD_OK;
-}
-
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms < 3 || parm->numparms > 5)
@@ -225,10 +160,7 @@ static int osdcmd_noop(CCmdFuncPtr parm)
 
 int32_t registerosdcommands(void)
 {
-    C_RegisterFunction("map","map <mapfile>: loads the given map", osdcmd_map);
     C_RegisterFunction("mirror_debug", "mirror [mirrornum]: print mirror debug info", osdcmd_mirror);
-    C_RegisterFunction("levelwarp", "levelwarp <num>: warp to level", osdcmd_levelwarp);
-    C_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
     C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);

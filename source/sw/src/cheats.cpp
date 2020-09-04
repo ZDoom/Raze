@@ -54,15 +54,7 @@ void KeysCheat(PLAYERp pp, const char *cheat_string);
 
 static PLAYERp checkCheat(cheatseq_t* c)
 {
-    if (CommEnabled)
-        return nullptr;
-
-    if (Skill >= 3 && (!c || !c->DontCheck) && !sv_cheats)
-    {
-        PutStringInfo(&Player[screenpeek], GStrings("TXTS_TOOSKILLFUL"));
-        return nullptr;
-    }
-
+	if (::CheckCheatmode(true, true)) return nullptr;
     return &Player[screenpeek];
 }
 
@@ -104,8 +96,7 @@ const char *GameInterface::GenericCheat(int player, int cheat)
 bool RestartCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
-    ExitLevel = TRUE;
-    return true;
+	DeferedStartGame(currentLevel, -1);
 }
 
 bool RoomCheat(cheatseq_t* c)
@@ -118,8 +109,8 @@ bool NextCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
-    NextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
-    if (NextLevel) ExitLevel = TRUE;
+    auto map = FindMapByLevelNum(currentLevel->levelNumber + 1);
+	if (map) DeferedStartGame(map, -1);
     return true;
 }
 
@@ -127,8 +118,8 @@ bool PrevCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
     if (!currentLevel) return true;
-    NextLevel = FindMapByLevelNum(currentLevel->levelNumber - 1);
-    if (NextLevel) ExitLevel = TRUE;
+    auto map = FindMapByLevelNum(currentLevel->levelNumber - 1);
+	if (map) DeferedStartGame(map, -1);
     return true;
 }
 
@@ -162,12 +153,7 @@ bool WarpCheat(cheatseq_t* c)
     if (TEST(pp->Flags, PF_DEAD))
         return true;
 
-
-    NextLevel = maprec;
-    ExitLevel = TRUE;
-
-    sprintf(ds, "%s %s", GStrings("TXT_ENTERING"), maprec->DisplayName());
-    PutStringInfo(pp, ds);
+	DeferedStartGame(maprec, -1);
     return true;
 }
 

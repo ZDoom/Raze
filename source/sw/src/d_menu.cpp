@@ -188,8 +188,6 @@ void GameInterface::MenuClosed()
 {
 }
 
-extern SWBOOL ExitLevel, NewGame;
-
 bool GameInterface::CanSave()
 {
     return (gamestate == GS_LEVEL && !CommEnabled && numplayers ==1 && /*!DemoMode &&*/ !TEST(Player[myconnectindex].Flags, PF_DEAD));
@@ -200,9 +198,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
     PLAYERp pp = Player + screenpeek;
     int handle = 0;
     int zero = 0;
-
-    // always assumed that a demo is playing
-
+	
 	MapRecord* map;
     if (gs.Episode >= 1)
 		map = FindMapByLevelNum(5);

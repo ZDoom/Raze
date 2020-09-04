@@ -5322,7 +5322,6 @@ ActorHealth(short SpriteNum, short amt)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     extern SWBOOL FinishAnim;
-    extern SWBOOL FinishedLevel;
 
     if (u->ID == TRASHCAN && amt > -75)
     {
@@ -5338,9 +5337,8 @@ ActorHealth(short SpriteNum, short amt)
     {
         if (u->Health < u->MaxHealth/2)
         {
-            ExitLevel = TRUE;
             FinishAnim = ANIM_SERP;
-            FinishedLevel = TRUE;
+			ChangeLevel(nullptr, -1);
             return TRUE;
         }
     }

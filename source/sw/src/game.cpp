@@ -139,8 +139,6 @@ uint8_t FakeMultiNumPlayers;
 
 int totalsynctics;
 
-MapRecord* NextLevel = nullptr;
-SWBOOL ExitLevel = false;
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
@@ -245,28 +243,6 @@ void GameInterface::app_init()
 //
 //---------------------------------------------------------------------------
 
-void StartMenu()
-{
-    M_StartControlPanel(false);
-    if (SW_SHAREWARE && FinishAnim)
-    {
-        // go to ordering menu only if shareware
-        M_SetMenu(NAME_CreditsMenu);
-    }
-    else
-    {
-        M_SetMenu(NAME_Mainmenu);
-    }
-    FinishAnim = 0;
-    gamestate = GS_MENUSCREEN;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void GameInterface::DrawBackground(void)
 {
     const int TITLE_PIC = 2324;
@@ -329,7 +305,7 @@ void InitLevelGlobals2(void)
 //
 //---------------------------------------------------------------------------
 
-void InitLevel(void)
+void InitLevel(MapRecord *maprec)
 {
     Terminate3DSounds();
 
@@ -338,9 +314,6 @@ void InitLevel(void)
 
     Mus_Stop();
 
-    auto maprec = NextLevel;
-    NextLevel = nullptr;
-    if (!maprec) maprec = currentLevel;
     if (!maprec)
     {
         I_Error("Attempt to start game without level");
@@ -593,47 +566,54 @@ void TerminateLevel(void)
     JS_UnInitLockouts();
 }
 
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
 
-void EndOfLevel()
+void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-    STAT_Update(false);
+	//ResetPalette(mpp);
+	COVER_SetReverb(0); // Reset reverb
+	Player[myconnectindex].Reverb = 0;
+	StopSound();
 
-    if (FinishedLevel)
-    {
-        //ResetPalette(mpp);
-        FinishedLevel = false;
-        COVER_SetReverb(0); // Reset reverb
-        Player[myconnectindex].Reverb = 0;
-        StopSound();
-        // NextLevel must be null while the intermission is running, but we still need the value for later
-        auto localNextLevel = NextLevel;
-        NextLevel = nullptr;
-        if (FinishAnim == ANIM_SUMO && localNextLevel == nullptr)    // next level hasn't been set for this.
-            localNextLevel = FindMapByLevelNum(currentLevel->levelNumber + 1);
+	StatScreen(FinishAnim, [=](bool)
+		{
+			if (map == nullptr)
+			{
+				STAT_Update(true);
+				FinishAnim = 0;
+				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
+				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
+				else gameaction = ga_mainmenu;
+			}
+			else gameaction = ga_nextlevel;
+		});
 
-        StatScreen(FinishAnim, [=](bool)
-            {
-                NextLevel = localNextLevel;
-                TerminateLevel();
-                if (NextLevel == nullptr)
-                {
-                    STAT_Update(true);
-                    PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
-                    StartMenu();
-                }
-                else gamestate = GS_LEVEL;
-            });
-    }
-    else
-    {
-        TerminateLevel();
-    }
+}
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
+void GameInterface::NextLevel(MapRecord *map, int skill)
+{
+	if (skill != -1) Skill = skill;
+	ShadowWarrior::NewGame = false;
+	InitLevel(map);
+	InitRunLevel();
+}
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void GameInterface::NewGame(MapRecord *map, int skill)
+{
+	if (skill != -1) Skill = skill;
+	ShadowWarrior::NewGame = true;
+	InitLevel(map);
+	InitRunLevel();
 }
 
 //---------------------------------------------------------------------------
@@ -644,24 +624,14 @@ void EndOfLevel()
 
 void GameInterface::Ticker(void)
 {
-    if (!ExitLevel)
-    {
-        if (SavegameLoaded)
-        {
-            InitLevelGlobals();
-            SavegameLoaded = false;
-            // contains what is needed from calls below
-            if (snd_ambience)
-                StartAmbientSound();
-            ExitLevel = false;
-        }
-        else if (ShadowWarrior::NextLevel)
-        {
-            InitLevel();
-            InitRunLevel();
-            ExitLevel = false;
-        }
-    }
+	if (SavegameLoaded)
+	{
+		InitLevelGlobals();
+		SavegameLoaded = false;
+		// contains what is needed from calls below
+		if (snd_ambience)
+			StartAmbientSound();
+	}
 
     int i;
     TRAVERSE_CONNECT(i)
@@ -673,13 +643,6 @@ void GameInterface::Ticker(void)
 
     domovethings();
     r_NoInterpolate = paused;
-
-    if (ExitLevel)
-    {
-        ExitLevel = false;
-        EndOfLevel();
-    }
-
 }
 
 //---------------------------------------------------------------------------
@@ -713,8 +676,8 @@ void GameInterface::Startup()
     }
     else
     {
-        if (!userConfig.nologo) Logo([](bool) { StartMenu(); });
-        else StartMenu();
+		if (!userConfig.nologo) Logo([](bool) { gameaction = ga_mainmenu; });
+        else gameaction = ga_mainmenu;
     }
 }
 
@@ -723,11 +686,8 @@ void GameInterface::ErrorCleanup()
 {
     // Make sure we do not leave the game in an unstable state
     TerminateLevel();
-    ShadowWarrior::NextLevel = nullptr;
     SavegameLoaded = false;
-    ExitLevel = false;
     FinishAnim = 0;
-    FinishedLevel = false;
 }
 //---------------------------------------------------------------------------
 //

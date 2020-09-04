@@ -1989,13 +1989,8 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type);
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 extern SWBOOL NewGame;
-extern SWBOOL ExitLevel, FinishedLevel;
-extern SWBOOL Warping;
 extern uint8_t CommPlayers;
 extern SWBOOL CommEnabled;
-extern MapRecord* NextLevel;
-extern short Episode;
-
 extern int LastFrameTics;
 extern char ds[];
 extern short Skill;
@@ -2223,6 +2218,9 @@ struct GameInterface : ::GameInterface
     void Startup() override;
     const char *CheckCheatMode() override;
     const char* GenericCheat(int player, int cheat) override;
+	void LevelCompleted(MapRecord *map, int skill) override;
+	void NextLevel(MapRecord *map, int skill) override;
+	void NewGame(MapRecord *map, int skill) override;
 
 
     GameStats getStats() override;
