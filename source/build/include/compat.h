@@ -102,15 +102,6 @@
 # define ATTRIBUTE(attrlist)
 #endif
 
-#if EDUKE32_GCC_PREREQ(4,0)
-# define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#else
-# define WARN_UNUSED_RESULT
-#endif
-
-#if defined _MSC_VER && _MSC_VER < 1800
-# define inline __inline
-#endif
 
 #ifndef MAY_ALIAS
 # ifdef _MSC_VER
@@ -132,70 +123,12 @@
 # endif
 #endif
 
-
-#if 0 && defined(__OPTIMIZE__) && (defined __GNUC__ || __has_builtin(__builtin_expect))
-#define EDUKE32_PREDICT_FALSE(x)     __builtin_expect(!!(x),0)
-#else
-#define EDUKE32_PREDICT_FALSE(x) (x)
-#endif
-
-
 #if EDUKE32_GCC_PREREQ(2,0) || defined _MSC_VER
 # define EDUKE32_FUNCTION __FUNCTION__
 #elif CSTD >= 1999 || CXXSTD >= 2011
 # define EDUKE32_FUNCTION __func__
 #else
 # define EDUKE32_FUNCTION "???"
-#endif
-
-#ifdef _MSC_VER
-# define EDUKE32_PRETTY_FUNCTION __FUNCSIG__
-#elif EDUKE32_GCC_PREREQ(2,0)
-# define EDUKE32_PRETTY_FUNCTION __PRETTY_FUNCTION__
-#else
-# define EDUKE32_PRETTY_FUNCTION EDUKE32_FUNCTION
-#endif
-
-#ifdef __COUNTER__
-# define EDUKE32_UNIQUE_SRC_ID __COUNTER__
-#else
-# define EDUKE32_UNIQUE_SRC_ID __LINE__
-#endif
-
-#if CXXSTD >= 2017
-# define EDUKE32_STATIC_ASSERT(cond) static_assert(cond)
-#elif CXXSTD >= 2011 || CSTD >= 2011 || EDUKE32_MSVC_CXX_PREREQ(1600)
-# define EDUKE32_STATIC_ASSERT(cond) static_assert(cond, "")
-#else
-/* C99 / C++03 static assertions based on source found in LuaJIT's src/lj_def.h. */
-# define EDUKE32_ASSERT_NAME2(name, line) name ## line
-# define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
-# define EDUKE32_STATIC_ASSERT(cond) \
-    extern void EDUKE32_ASSERT_NAME(EDUKE32_UNIQUE_SRC_ID)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
-#endif
-
-#ifndef FP_OFF
-# define FP_OFF(__p) ((uintptr_t)(__p))
-#endif
-
-
-#if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr) || EDUKE32_MSVC_PREREQ(1900))
-# define HAVE_CONSTEXPR
-# define CONSTEXPR constexpr
-#else
-# define CONSTEXPR
-#endif
-
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1700)
-# define FINAL final
-#else
-# define FINAL
-#endif
-
-#if CXXSTD >= 2014
-# define CONSTEXPR_CXX14 CONSTEXPR
-#else
-# define CONSTEXPR_CXX14
 #endif
 
 #if CXXSTD >= 2011
@@ -328,27 +261,6 @@ typedef ssize_t bssize_t;
 
 ////////// Standard library wrappers //////////
 
-#if defined(_MSC_VER)
-# define Bstrcasecmp _stricmp
-# define Bstrncasecmp _strnicmp
-#elif defined(__QNX__)
-# define Bstrcasecmp stricmp
-# define Bstrncasecmp strnicmp
-#else
-# define Bstrcasecmp strcasecmp
-# define Bstrncasecmp strncasecmp
-#endif
-
-static inline int32_t atoi_safe(const char *str) { return (int32_t)strtoll(str, NULL, 10); }
-
-#define Batoi(x) atoi_safe(x)
-#define Batol(str) (strtol(str, NULL, 10))
-
-static inline int Blrintf(const double x)
-{
-    return xs_CRoundToInt(x);
-}
-
 #if defined(__arm__)
 # define Bsqrtf __builtin_sqrtf
 #else
@@ -409,7 +321,7 @@ typedef struct {
     };
 } vec3f_t;
 
-EDUKE32_STATIC_ASSERT(sizeof(vec3f_t) == sizeof(float) * 3);
+static_assert(sizeof(vec3f_t) == sizeof(float) * 3);
 
 typedef struct {
     union { double x; double d; };
@@ -417,7 +329,7 @@ typedef struct {
     union { double z; double v; };
 } vec3d_t;
 
-EDUKE32_STATIC_ASSERT(sizeof(vec3d_t) == sizeof(double) * 3);
+static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 
 
 ////////// Language tricks that depend on size_t //////////
@@ -443,38 +355,32 @@ inline int32_t B_LITTLE16(int16_t val) { return LittleShort(val); }
 inline uint32_t B_LITTLE16(uint16_t val) { return LittleShort(val); }
 
 static FORCE_INLINE void B_BUF32(void * const buf, uint32_t const x) { *(uint32_t *) buf = x; }
-static FORCE_INLINE CONSTEXPR uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
-static FORCE_INLINE CONSTEXPR uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
+static FORCE_INLINE uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
+static FORCE_INLINE uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
 
 
 
 ////////// Abstract data operations //////////
 
-#define ABSTRACT_DECL static FORCE_INLINE WARN_UNUSED_RESULT CONSTEXPR
-
-template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
-template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
+template <typename T, typename X, typename Y> constexpr T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
+template <typename T, typename X, typename Y> constexpr T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
 using std::min;
 using std::max;
 
 ////////// Bitfield manipulation //////////
 
-#if 0
-// Behold the probably most useless (de)optimization I ever discovered. 
-// Replacing a simple bit shift with a memory access through a global pointer is surely going to improve matters... >(
-// Constexpr means shit here if the index is not a constant!
-static CONSTEXPR const char pow2char[8] = {1,2,4,8,16,32,64,128u};
-#else
+// This once was a static array, requiring a memory acces where a shift would suffice.
 // Revert the above to a real bit shift through some C++ operator magic. That saves me from reverting all the code that uses this construct.
+// Note: Only occurs 25 times in the code, should be removed for good.
 static struct 
 {
 	constexpr uint8_t operator[](int index) const { return 1 << index; };
 } pow2char;
-#endif
+
 
 static FORCE_INLINE void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= pow2char[n&7]; }
 static FORCE_INLINE void bitmap_clear(uint8_t *const ptr, int const n) { ptr[n>>3] &= ~pow2char[n&7]; }
-static FORCE_INLINE CONSTEXPR char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & pow2char[n&7]; }
+static FORCE_INLINE char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & pow2char[n&7]; }
 
 ////////// Utility functions //////////
 
@@ -542,7 +448,5 @@ inline FVector3 GetSoundPos(const vec3_t *pos)
 #ifndef FALSE
 # define FALSE 0
 #endif
-
-#define WITHKPLIB
 
 #endif // compat_h_

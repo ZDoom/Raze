@@ -31,7 +31,7 @@ const char *animvpx_read_ivf_header_errmsg[] = {
     "invalid framerate numerator or denominator after correction, must not be 0",
 };
 
-EDUKE32_STATIC_ASSERT(sizeof(animvpx_ivf_header_t) == 32);
+static_assert(sizeof(animvpx_ivf_header_t) == 32);
 
 int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr)
 {

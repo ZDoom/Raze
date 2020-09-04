@@ -804,7 +804,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 
         if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
         {
-            EDUKE32_STATIC_ASSERT(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
+            static_assert(sizeof(uspritetype) == sizeof(tspritetype)); // see TSPRITE_SIZE
             ConnectCopySprite((uspriteptr_t)tsp);
         }
 
@@ -1787,7 +1787,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
 
     videoSetCorrectedAspect();
-    renderSetAspect(Blrintf(float(viewingrange)* tanf(r_fov* (fPI / 360.f))), yxaspect);
+    renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
     OverlapDraw = TRUE;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
     OverlapDraw = FALSE;

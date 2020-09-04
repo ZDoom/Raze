@@ -381,7 +381,7 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
             uint64_t x;
             sscanf(name + 2, "%" PRIx64 "", &x);
 
-            if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))
+            if (x > UINT32_MAX)
                 Printf("warning: number 0x%" PRIx64 " truncated to 32 bits.\n", x);
 
             *val = x;
@@ -393,7 +393,7 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
     if (!symbtab) return 0;
     while (scanner - symbtab < symbtablength)
     {
-        if (!Bstrcasecmp(name, scanner))
+        if (!stricmp(name, scanner))
         {
             *val = B_UNBUF32(scanner + strlen(scanner) + 1);
             return 1;
@@ -415,7 +415,7 @@ int32_t scriptfile_addsymbolvalue(char const *name, int32_t val)
         char *scanner = symbtab;
         while (scanner - symbtab < symbtablength)
         {
-            if (!Bstrcasecmp(name, scanner))
+            if (!stricmp(name, scanner))
             {
                 B_BUF32(scanner + strlen(scanner) + 1, val);
                 return 1;
@@ -451,7 +451,7 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 
     for (i=ntokens-1; i>=0; i--)
     {
-        if (!Bstrcasecmp(tok, tl[i].text))
+        if (!stricmp(tok, tl[i].text))
             return tl[i].tokenid;
     }
     return T_ERROR;

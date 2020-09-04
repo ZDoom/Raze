@@ -3028,7 +3028,7 @@ void polymost_drawsprite(int32_t snum)
 {
     auto const tspr = tspriteptr[snum];
 
-    if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))
+    if (bad_tspr(tspr))
         return;
 
     usectorptr_t sec;
@@ -3500,7 +3500,7 @@ void polymost_drawsprite(int32_t snum)
 
                 if (pos.z < globalposz)  // if floor sprite is above you, reverse order of points
                 {
-                    EDUKE32_STATIC_ASSERT(sizeof(uint64_t) == sizeof(vec2f_t));
+                    static_assert(sizeof(uint64_t) == sizeof(vec2f_t));
 
                     swap64bit(&pxy[0], &pxy[1]);
                     swap64bit(&pxy[2], &pxy[3]);
@@ -3632,7 +3632,7 @@ _drawsprite_return:
     ;
 }
 
-EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
+static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 
 void polymost_initosdfuncs(void)
 {

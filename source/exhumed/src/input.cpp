@@ -263,7 +263,7 @@ void PlayerInterruptKeys(bool after)
         // so we convert horiz to 1024 angle units
 
         float const horizAngle = clamp(atan2f(PlayerList[nLocalPlayer].q16horiz - IntToFixed(92), IntToFixed(128)) * (512.f / fPI) + FixedToFloat(tempinput.q16horz), -255.f, 255.f);
-        auto newq16horiz = IntToFixed(92) + Blrintf(IntToFixed(128) * tanf(horizAngle * (fPI / 512.f)));
+        auto newq16horiz = IntToFixed(92) + xs_CRoundToInt(IntToFixed(128) * tanf(horizAngle * (fPI / 512.f)));
         if (PlayerList[nLocalPlayer].q16horiz != newq16horiz)
         {
             bLockPan = true;

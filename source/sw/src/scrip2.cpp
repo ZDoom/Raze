@@ -419,7 +419,7 @@ static int cm_transtok(const char *tok, const struct _tokset *set, const unsigne
 
     for (i=0; i<num; i++)
     {
-        if (!Bstrcasecmp(tok, set[i].str))
+        if (!stricmp(tok, set[i].str))
             return set[i].tokn;
     }
 

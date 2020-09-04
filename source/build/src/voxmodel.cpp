@@ -867,10 +867,10 @@ voxmodel_t *voxload(const char *filnam)
     if (i < 0)
         return NULL;
 
-    if (!Bstrcasecmp(&filnam[i], ".vox")) { ret = loadvox(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i], ".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
-    else if (!Bstrcasecmp(&filnam[i], ".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
-    //else if (!Bstrcasecmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
+    if (!stricmp(&filnam[i], ".vox")) { ret = loadvox(filnam); is8bit = 1; }
+    else if (!stricmp(&filnam[i], ".kvx")) { ret = loadkvx(filnam); is8bit = 1; }
+    else if (!stricmp(&filnam[i], ".kv6")) { ret = loadkv6(filnam); is8bit = 0; }
+    //else if (!stricmp(&filnam[i],".vxl")) { ret = loadvxl(filnam); is8bit = 0; }
     else return NULL;
 
     voxmodel_t *const vm = (ret >= 0) ? vox2poly() : NULL;

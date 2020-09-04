@@ -64,7 +64,7 @@ static FORCE_INLINE int32_t fogshade(int32_t const shade, int32_t const pal)
     return (globalflags & GLOBAL_NO_GL_FOGSHADE) ? 0 : shade;
 }
 
-static FORCE_INLINE int check_nonpow2(int32_t const x)
+static constexpr inline int check_nonpow2(int32_t const x)
 {
     return (x > 1 && (x&(x-1)));
 }
@@ -102,7 +102,7 @@ enum {
 };
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
-EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
+static_assert(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
 
 extern float fcosglobalang, fsinglobalang;
 extern float fxdim, fydim, fydimen, fviewingrange;

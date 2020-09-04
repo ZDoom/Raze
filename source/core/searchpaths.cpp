@@ -957,7 +957,7 @@ bool AddINIFile(const char* pzFile, bool bForce = false)
 	Bstrncpy(pINIIter->zName, pzFile, BMAX_PATH);
 	for (int i = 0; i < countof(gINIDescription); i++)
 	{
-		if (!Bstrncasecmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
+		if (!strnicmp(pINIIter->zName, gINIDescription[i].pzFilename, BMAX_PATH))
 		{
 			pINIIter->pDescription = &gINIDescription[i];
 			break;
@@ -985,7 +985,7 @@ void ScanINIFiles(void)
 	pINISelected = pINIChain;
 	for (auto pIter = pINIChain; pIter; pIter = pIter->pNext)
 	{
-		if (!Bstrncasecmp(BloodIniFile, pIter->zName, BMAX_PATH))
+		if (!strnicmp(BloodIniFile, pIter->zName, BMAX_PATH))
 		{
 			pINISelected = pIter;
 			break;

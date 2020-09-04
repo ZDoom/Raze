@@ -647,7 +647,7 @@ void viewDrawScreen(bool sceneonly)
         int viewingRange = viewingrange;
         videoSetCorrectedAspect();
 
-        int v1 = Blrintf(double(viewingrange) * tan(r_fov * (PI / 360.)));
+        int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (PI / 360.)));
 
         renderSetAspect(v1, yxaspect);
         int cX = gView->pSprite->x;

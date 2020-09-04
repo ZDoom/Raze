@@ -55,21 +55,21 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 //
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                                     \
-    static FORCE_INLINE CONSTEXPR int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
-    static FORCE_INLINE CONSTEXPR double fmulscale##a(double eax, double edx) { return (eax * edx) / (double)(qw(1) << a); }         \
-    static FORCE_INLINE CONSTEXPR int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                           \
+    static FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
+    static FORCE_INLINE double fmulscale##a(double eax, double edx) { return (eax * edx) / (double)(qw(1) << a); }         \
+    static FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                           \
     {                                                                                                                                \
         return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                                     \
     }                                                                                                                                \
-    static FORCE_INLINE CONSTEXPR double fdmulscale##a(double eax, double edx, double esi, double edi)                               \
+    static FORCE_INLINE double fdmulscale##a(double eax, double edx, double esi, double edi)                               \
     {                                                                                                                                \
         return ((eax * edx) + (esi * edi)) / (double)(qw(1) << a);                                                                   \
     }                                                                                                                                \
-    static FORCE_INLINE CONSTEXPR int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
+    static FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
     {                                                                                                                                \
         return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                                                   \
     }                                                                                                                                \
-    static FORCE_INLINE CONSTEXPR double ftmulscale##a(double eax, double edx, double ebx, double ecx, double esi, double edi)       \
+    static FORCE_INLINE double ftmulscale##a(double eax, double edx, double ebx, double ecx, double esi, double edi)       \
     {                                                                                                                                \
         return ((eax * edx) + (ebx * ecx) + (esi * edi)) / (double)(qw(1) << a);                                                     \
     }
@@ -103,17 +103,17 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 #endif
 
 #define klabs(x) abs(x)
-static FORCE_INLINE CONSTEXPR int ksgn(int32_t a) { return (a > 0) - (a < 0); }
+static inline constexpr int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 
 inline int sgn(int32_t a) { return (a > 0) - (a < 0); }
 
-static FORCE_INLINE CONSTEXPR int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
-static FORCE_INLINE CONSTEXPR double fmulscale(double eax, double edx, int32_t ecx) { return (eax * edx) / (double)(qw(1) << ecx); }
-static FORCE_INLINE CONSTEXPR int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
+static inline int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
+static inline double fmulscale(double eax, double edx, int32_t ecx) { return (eax * edx) / (double)(qw(1) << ecx); }
+static inline int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }
-static FORCE_INLINE CONSTEXPR double fdmulscale(double eax, double edx, double esi, double edi, int32_t ecx)
+static inline double fdmulscale(double eax, double edx, double esi, double edi, int32_t ecx)
 {
     return ((eax * edx) + (esi * edi)) / (double)(qw(1) << ecx);
 }

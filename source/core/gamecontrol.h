@@ -82,11 +82,6 @@ struct UserConfig
 	bool nologo = false;
 	int setupstate = -1;
 
-	int netPort = 0;			// g_netPort = Batoi(argv[i + 1]);
-	int netServerMode = -1;		// g_networkMode = NET_SERVER;	g_noSetup = g_noLogo = TRUE;
-	FString netServerAddress;	// Net_Connect(argv[i + 1]); g_noSetup = g_noLogo = TRUE;
-	FString netPassword;		// Bstrncpyz(g_netPassword, argv[i + 1], sizeof(g_netPassword));
-
 	void ProcessOptions();
 };
 

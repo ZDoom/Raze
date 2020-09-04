@@ -216,7 +216,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     tile2model[tilenume].modelid = modelid;
     tile2model[tilenume].framenum = i;
     tile2model[tilenume].skinnum = skinnum;
-    tile2model[tilenume].smoothduration = Blrintf((float)UINT16_MAX * smoothduration);
+    tile2model[tilenume].smoothduration = xs_CRoundToInt((float)UINT16_MAX * smoothduration);
 
     return i;
 }
@@ -596,7 +596,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         goto prep_return;
     }
 
-    fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
+    fps = smooth->mdsmooth ? xs_CRoundToInt((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
                                    : anim ? anim->fpssc : 1;
 
     i = (mdtims - sprext->mdanimtims) * ((fps * 120) / 120);

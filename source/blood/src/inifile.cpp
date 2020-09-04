@@ -208,7 +208,7 @@ bool IniFile::FindSection(const char *section)
             curNode = curNode->next;
             if (curNode == &head)
                 return false;
-        } while(Bstrcasecmp(curNode->name, buffer) != 0);
+        } while(stricmp(curNode->name, buffer) != 0);
     }
     return true;
 }

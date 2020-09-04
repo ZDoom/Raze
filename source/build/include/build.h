@@ -435,17 +435,6 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-static CONSTEXPR const int32_t pow2long[32] =
-{
-    1, 2, 4, 8,
-    16, 32, 64, 128,
-    256, 512, 1024, 2048,
-    4096, 8192, 16384, 32768,
-    65536, 131072, 262144, 524288,
-    1048576, 2097152, 4194304, 8388608,
-    16777216, 33554432, 67108864, 134217728,
-    268435456, 536870912, 1073741824, 2147483647
-};
 
     //These variables are for auto-mapping with the draw2dscreen function.
     //When you load a new board, these bits are all set to 0 - since
@@ -736,7 +725,7 @@ static FORCE_INLINE fixed_t getq16angle(int32_t xvect, int32_t yvect)
     return IntToFixed(getangle(xvect, yvect));
 }
 
-static FORCE_INLINE CONSTEXPR uint32_t uhypsq(int32_t const dx, int32_t const dy)
+static FORCE_INLINE constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
@@ -808,12 +797,12 @@ static FORCE_INLINE int32_t getcorrectflorzofslope(int16_t sectnum, int32_t dax,
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-static FORCE_INLINE CONSTEXPR int32_t redwallp(uwallptr_t wal)
+static FORCE_INLINE int32_t redwallp(uwallptr_t wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-static FORCE_INLINE CONSTEXPR int32_t E_SpriteIsValid(const int32_t i)
+static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -1007,7 +996,7 @@ extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
-static FORCE_INLINE CONSTEXPR int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+static FORCE_INLINE int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

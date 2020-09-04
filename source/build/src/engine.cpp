@@ -350,7 +350,7 @@ int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
 int32_t halfxdim16, midydim16;
 
-EDUKE32_STATIC_ASSERT(MAXWALLSB < INT16_MAX);
+static_assert(MAXWALLSB < INT16_MAX);
 int16_t numscans, numbunches;
 static int16_t numhits;
 
@@ -2115,7 +2115,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             ox = widthBits(globalpicnum); 
             oy = heightBits(globalpicnum);
-            if (pow2long[ox] != xspan)
+            if ((1 << ox) != xspan)
             {
                 ox++;
                 globalx1 = mulscale(globalx1,xspan,ox);
@@ -3385,7 +3385,7 @@ int32_t lastwall(int16_t point)
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
 
-static FORCE_INLINE CONSTEXPR int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
+static inline int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
 {
     return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
 }
@@ -3872,12 +3872,12 @@ static int32_t sectorofwall_internal(int16_t wallNum)
 
 int32_t sectorofwall(int16_t wallNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
-        return -1;
-
-    native_t const w = wall[wallNum].nextwall;
-
-    return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
+	if ((unsigned)wallNum < (unsigned)numwalls)
+	{
+		native_t const w = wall[wallNum].nextwall;
+		return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
+	}
+	return -1;
 }
 
 

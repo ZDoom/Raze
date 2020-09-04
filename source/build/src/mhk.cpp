@@ -129,7 +129,7 @@ int32_t engineLoadMHK(const char *filename)
     {
         tok = scriptfile_gettoken(script);
         if (!tok) break;
-        for (i=0; legaltokens[i].text; i++) if (!Bstrcasecmp(tok, legaltokens[i].text)) break;
+        for (i=0; legaltokens[i].text; i++) if (!stricmp(tok, legaltokens[i].text)) break;
         cmdtokptr = script->ltextptr;
 
         if (!filename && legaltokens[i].tokenid != T_LIGHT) continue;
