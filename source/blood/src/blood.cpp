@@ -242,6 +242,7 @@ void StartLevel(MapRecord* level)
 	paused = 0;
 	levelTryPlayMusic();
 	gChoke.reset();
+    Printf(TEXTCOLOR_GOLD "%s: %s\n", level->LabelName(), level->DisplayName());
 }
 
 

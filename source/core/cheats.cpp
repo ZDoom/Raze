@@ -282,6 +282,10 @@ static MapRecord* levelwarp_common(FCommandLine& argv, const char *cmdname, cons
 		else Printf(PRINT_BOLD, "Level %s not found!\n", argv[1]);
 		return nullptr;
 	}
+	if (fileSystem.FindFile(map->fileName) < 0)
+	{
+		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
+	}
 	return map;
 }
 
@@ -363,9 +367,6 @@ CCMD(changemap)
 #endif
 
 	FString mapname = argv[1];
-	FString mapfilename = mapname;
-	DefaultExtension(mapfilename, ".map");
-
 	auto map = FindMapByName(mapname);
 	if (map == nullptr)
 	{
@@ -379,6 +380,11 @@ CCMD(changemap)
 		Printf(PRINT_BOLD, "%s: Cannot warp to user maps.\n", mapname.GetChars());
 		return;
 	}
+	if (fileSystem.FindFile(map->fileName) < 0)
+	{
+		Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
+	}
+
 	ChangeLevel(map, -1);
 }
 
@@ -420,6 +426,11 @@ CCMD(map)
 	}
 	if (map)
 	{
+		if (fileSystem.FindFile(map->fileName) < 0)
+		{
+			Printf(PRINT_BOLD, "%s: map file not found\n", map->fileName.GetChars());
+		}
+
 		DeferedStartGame(map, -1);
 	}
 }
