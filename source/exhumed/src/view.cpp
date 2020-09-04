@@ -281,6 +281,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerZ = interpolate16(PlayerList[nLocalPlayer].opos.z, sprite[nPlayerSprite].z, smoothRatio)
                 + interpolate16(oeyelevel[nLocalPlayer], eyelevel[nLocalPlayer], smoothRatio);
         nSector = nPlayerViewSect[nLocalPlayer];
+        updatesector(playerX, playerY, &nSector);
         nAngle  = PlayerList[nLocalPlayer].q16angle;
 
         if (!bCamera)
