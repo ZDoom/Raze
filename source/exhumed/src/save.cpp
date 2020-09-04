@@ -99,6 +99,7 @@ SavegameHelper::SavegameHelper(const char* name, ...)
 void SavegameHelper::Load()
 {
     auto fr = ReadSavegameChunk(Name);
+    if (!fr.isOpen()) return;
     for (auto& entry : Elements)
     {
         auto read = fr.Read(entry.first, entry.second);

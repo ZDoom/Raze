@@ -176,7 +176,7 @@ FSavegameInfo GameInterface::GetSaveSig()
 void GameInterface::DrawMenuCaption(const DVector2& origin, const char* text)
 {
 	// Fixme: should use the extracted font from the menu items (i.e. BigFont) and a stretched box for the menu items.
-	DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - SmallFont->StringWidth(text), 10, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
+	DrawText(twod, SmallFont, CR_UNTRANSLATED, 160 - SmallFont->StringWidth(text)/2, 10, text, DTA_FullscreenScale, FSMode_Fit320x200Top, TAG_DONE);
 }
 
 
