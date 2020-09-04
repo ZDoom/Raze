@@ -49,6 +49,5 @@ public:
 extern CSecretMgr gSecretMgr;
 extern CKillMgr gKillMgr;
 
-void ShowSummaryScreen();
 
 END_BLD_NS

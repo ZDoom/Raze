@@ -129,7 +129,6 @@ void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)
 
 void levelPlayIntroScene(int nEpisode, CompletionFunc completion)
 {
-    gGameOptions.uGameFlags &= ~4;
 	Mus_Stop();
     sndKillAllSounds();
     sfxKillAllSounds();
@@ -141,7 +140,7 @@ void levelPlayIntroScene(int nEpisode, CompletionFunc completion)
 
 void levelPlayEndScene(int nEpisode, CompletionFunc completion)
 {
-    gGameOptions.uGameFlags &= ~8;
+    gGameOptions.uGameFlags &= ~GF_PlayCutscene;
     Mus_Stop();
     sndKillAllSounds();
     sfxKillAllSounds();

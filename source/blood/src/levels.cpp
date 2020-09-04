@@ -199,7 +199,7 @@ void levelEndLevel(int arg)
     int nEndingA, nEndingB;
     auto episode = volfromlevelnum(currentLevel->levelNumber);
     EPISODEINFO *pEpisodeInfo = &gEpisodeInfo[episode];
-    gGameOptions.uGameFlags |= 1;
+    gGameOptions.uGameFlags |= GF_AdvanceLevel;
     levelGetNextLevels(&nEndingA, &nEndingB);
     switch (arg)
     {
@@ -207,8 +207,8 @@ void levelEndLevel(int arg)
         if (nEndingA == -1)
         {
             if (pEpisodeInfo->cutsceneBName[0])
-                gGameOptions.uGameFlags |= 8;
-            gGameOptions.uGameFlags |= 2;
+                gGameOptions.uGameFlags |= GF_PlayCutscene;
+            gGameOptions.uGameFlags |= GF_EndGame;
         }
         else
             gNextLevel = nEndingA;
@@ -219,12 +219,12 @@ void levelEndLevel(int arg)
             if (episode + 1 < gEpisodeCount)
             {
                 if (pEpisodeInfo->cutsceneBName[0])
-                    gGameOptions.uGameFlags |= 8;
-                gGameOptions.uGameFlags |= 2;
+                    gGameOptions.uGameFlags |= GF_PlayCutscene;
+                gGameOptions.uGameFlags |= GF_EndGame;
             }
             else
             {
-                gGameOptions.uGameFlags |= 1;
+                gGameOptions.uGameFlags |= GF_AdvanceLevel;
             }
         }
         else

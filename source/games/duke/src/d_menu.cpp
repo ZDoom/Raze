@@ -337,7 +337,7 @@ void GameInterface::DrawPlayerSprite(const DVector2& origin, bool onteam)
 
 void GameInterface::QuitToTitle()
 {
-	gamestate = GS_STARTUP;
+	gameaction = ga_startup;
 }
 
 END_DUKE_NS

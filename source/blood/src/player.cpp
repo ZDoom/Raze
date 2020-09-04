@@ -1369,7 +1369,7 @@ void ProcessInput(PLAYER *pPlayer)
                 playerReset(pPlayer);
                 if (gGameOptions.nGameType == 0 && numplayers == 1)
                 {
-                    gStartNewGame = currentLevel;
+					DeferedStartGame(currentLevel, -1);
                 }
                 else
                     playerStart(pPlayer->nPlayer);

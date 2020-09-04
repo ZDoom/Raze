@@ -601,6 +601,13 @@ void viewDrawScreen(bool sceneonly)
 {
     int nPalette = 0;
     int defaultHoriz = r_horizcenter ? 100 : 90;
+	
+	if (TestBitString(gotpic, 2342))
+	{
+		FireProcess();
+		ClearBitString(gotpic, 2342);
+	}
+
 
 #ifdef USE_OPENGL
     polymostcenterhoriz = defaultHoriz;

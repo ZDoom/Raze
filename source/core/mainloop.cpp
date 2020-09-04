@@ -182,6 +182,12 @@ static void GameTicker()
 			startmainmenu();
 			break;
 
+		case ga_creditsmenu:
+			gi->FreeLevelData();
+			startmainmenu();
+			M_SetMenu(NAME_CreditsMenu);
+			break;
+
 		case ga_savegame:
 			// We only need this for multiplayer saves that need to go through the network.
 			// gi->SaveGame();

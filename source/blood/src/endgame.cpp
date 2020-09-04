@@ -164,24 +164,17 @@ class DBloodSummaryScreen : public DScreenJob
 	}
 };
 
-
-void ShowSummaryScreen()
+void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
 	JobDesc job = { Create<DBloodSummaryScreen>() };
-
-	STAT_Update(false);
-	EndLevel();
-	Mus_Stop();
 	sndStartSample(268, 128, -1, false);
-	RunScreenJob(&job, 1, [](bool)
+	RunScreenJob(&job, 1, [=](bool)
 		{
-			int ep = volfromlevelnum(currentLevel->levelNumber);
-			gStartNewGame = FindMapByLevelNum(levelnum(ep, gNextLevel));
-			gamestate = GS_LEVEL;
 			soundEngine->StopAllChannels();
+			gameaction = ga_nextlevel;
 		});
-}
 
+}
 
 
 CKillMgr::CKillMgr()

@@ -38,53 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-void LevelWarp(int nEpisode, int nLevel);
-
-static int osdcmd_map(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 1)
-        return CCMD_SHOWHELP;
-
-    FString mapname = parm->parms[0];
-    FString mapfilename = mapname;
-    DefaultExtension(mapfilename, ".map");
-
-    if (!fileSystem.FileExists(mapfilename))
-    {
-        Printf(TEXTCOLOR_RED "map: file \"%s\" not found.\n", mapfilename.GetChars());
-        return CCMD_OK;
-    }
-
-    auto maprec = FindMapByName(mapname);
-    if (maprec)
-    {
-        StartLevel(maprec);
-    }
-    else
-    {
-        // Map has not been defined. Treat as user map.
-        StartLevel(SetupUserMap(mapfilename));
-    }
-
-    return CCMD_OK;
-}
-
-
-static int osdcmd_levelwarp(CCmdFuncPtr parm)
-{
-    if (parm->numparms != 2)
-        return CCMD_SHOWHELP;
-    int e = atoi(parm->parms[0]);
-    int m = atoi(parm->parms[1]);
-    if (e == 0 || m == 0)
-    {
-        Printf(TEXTCOLOR_RED "Invalid level!: E%sM%s\n", parm->parms[0], parm->parms[1]);
-        return CCMD_OK;
-    }
-    LevelWarp(e - 1, m - 1);
-    return CCMD_OK;
-}
-
 static int osdcmd_warptocoords(CCmdFuncPtr parm)
 {
     if (parm->numparms < 3 || parm->numparms > 5)
@@ -160,8 +113,6 @@ static int osdcmd_show_weapon(CCmdFuncPtr parm)
 
 int32_t registerosdcommands(void)
 {
-    C_RegisterFunction("map","map <mapname>: loads the given map", osdcmd_map);
-    C_RegisterFunction("levelwarp","levelwarp <e> <m>: warp to episode 'e' and map 'm'", osdcmd_levelwarp);
     C_RegisterFunction("warptocoords","warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates",osdcmd_warptocoords);
     C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
     C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);

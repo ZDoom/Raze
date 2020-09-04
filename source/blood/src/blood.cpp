@@ -70,15 +70,12 @@ void InitCheats();
 
 bool bNoDemo = false;
 int gNetPlayers;
-int gQuitRequest;
 int gChokeCounter = 0;
-bool gQuitGame;
 int blood_globalflags;
 PLAYER gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
 int16_t startang, startsectnum;
-MapRecord* gStartNewGame = nullptr;
 
 
 void QuitGame(void)
@@ -104,7 +101,6 @@ void StartLevel(MapRecord* level)
 	STAT_Update(0);
 	EndLevel();
 	gInput = {};
-	gStartNewGame = nullptr;
 	currentLevel = level;
 
 	if (gGameOptions.nGameType == 0)
@@ -114,14 +110,14 @@ void StartLevel(MapRecord* level)
 		///////
 	}
 #if 0
-	else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags & 1))
+	else if (gGameOptions.nGameType > 0 && !(gGameOptions.uGameFlags & GF_AdvanceLevel))
 	{
 		// todo
 		gBlueFlagDropped = false;
 		gRedFlagDropped = false;
 	}
 #endif
-	if (gGameOptions.uGameFlags & 1)
+	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -204,7 +200,7 @@ void StartLevel(MapRecord* level)
 	evInit();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
-		if (!(gGameOptions.uGameFlags & 1))
+		if (!(gGameOptions.uGameFlags & GF_AdvanceLevel))
 		{
 			if (numplayers == 1)
 			{
@@ -214,7 +210,7 @@ void StartLevel(MapRecord* level)
 		}
 		playerStart(i, 1);
 	}
-	if (gGameOptions.uGameFlags & 1)
+	if (gGameOptions.uGameFlags & GF_AdvanceLevel)
 	{
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
@@ -231,7 +227,7 @@ void StartLevel(MapRecord* level)
 			pPlayer->nextWeapon = gPlayerTemp[i].nextWeapon;
 		}
 	}
-	gGameOptions.uGameFlags &= ~3;
+	gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
 	PreloadCache();
 	InitMirrors();
 	trInit();
@@ -249,60 +245,44 @@ void StartLevel(MapRecord* level)
 }
 
 
-bool gRestartGame = false;
-
-static void commonTicker()
+void NewLevel(MapRecord *sng, int skill)
 {
-	if (TestBitString(gotpic, 2342))
+	auto completion = [=](bool = false)
 	{
-		FireProcess();
-		ClearBitString(gotpic, 2342);
-	}
-	if (gStartNewGame)
+		gGameOptions.nDifficulty = skill;
+		gSkill = skill;
+		cheatReset();
+		StartLevel(sng);
+		gamestate = GS_LEVEL;
+	};
+
+	bool startedCutscene = false;
+	if (!(sng->flags & MI_USERMAP))
 	{
-		auto sng = gStartNewGame;
-		gStartNewGame = nullptr;
-		gQuitGame = false;
-		auto completion = [=](bool = false)
+		int episode = volfromlevelnum(sng->levelNumber);
+		int level = mapfromlevelnum(sng->levelNumber);
+		if (gEpisodeInfo[episode].cutALevel == level && gEpisodeInfo[episode].cutsceneAName[0])
 		{
-			StartLevel(sng);
-
-			gamestate = GS_LEVEL;
-		};
-
-		bool startedCutscene = false;
-		if (!(sng->flags & MI_USERMAP))
-		{
-			int episode = volfromlevelnum(sng->levelNumber);
-			int level = mapfromlevelnum(sng->levelNumber);
-			if (gEpisodeInfo[episode].cutALevel == level && gEpisodeInfo[episode].cutsceneAName[0])
-			{
-				levelPlayIntroScene(episode, completion);
-				startedCutscene = true;
-			}
-
+			levelPlayIntroScene(episode, completion);
+			startedCutscene = true;
 		}
-		if (!startedCutscene) completion(false);
-	}
-	else if (gRestartGame)
-	{
-		Mus_Stop();
-		soundEngine->StopAllChannels();
-		gQuitGame = 0;
-		gQuitRequest = 0;
-		gRestartGame = 0;
 
-		// Don't switch to startup if we're already outside the game.
-		if (gamestate == GS_LEVEL)
-		{
-			gamestate = GS_MENUSCREEN;
-			M_StartControlPanel(false);
-			M_SetMenu(NAME_Mainmenu);
-		}
 	}
+	if (!startedCutscene) completion(false);
+
 }
 
+void GameInterface::NewGame(MapRecord *sng, int skill)
+{
+	gGameOptions.uGameFlags = 0;
+	NewLevel(sng, skill);
+}
 
+void GameInterface::NextLevel(MapRecord *map, int skill)
+{
+	gGameOptions.uGameFlags = GF_AdvanceLevel;
+	NewLevel(map, skill);
+}
 
 void GameInterface::Ticker()
 {
@@ -369,25 +349,20 @@ void GameInterface::Ticker()
 				dword_21EFD0[i] = 0;
 		}
 
-		if ((gGameOptions.uGameFlags & 1) != 0 && !gStartNewGame)
+		if ((gGameOptions.uGameFlags & GF_AdvanceLevel) != 0)
 		{
 			seqKillAll();
-			if (gGameOptions.uGameFlags & 2)
+			if (gGameOptions.uGameFlags & GF_EndGame)
 			{
 				STAT_Update(true);
 				if (gGameOptions.nGameType == 0)
 				{
 					auto completion = [](bool) {
-						gamestate = GS_MENUSCREEN;
-						M_StartControlPanel(false);
-						M_SetMenu(NAME_Mainmenu);
-						M_SetMenu(NAME_CreditsMenu);
-						gGameOptions.uGameFlags &= ~3;
-						gQuitGame = 1;
-						gRestartGame = true;
+						gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
+						gameaction = ga_creditsmenu;
 					};
 
-					if (gGameOptions.uGameFlags & 8)
+					if (gGameOptions.uGameFlags & GF_PlayCutscene)
 					{
 						levelPlayEndScene(volfromlevelnum(currentLevel->levelNumber), completion);
 					}
@@ -395,27 +370,29 @@ void GameInterface::Ticker()
 				}
 				else
 				{
-					gGameOptions.uGameFlags &= ~3;
-					gRestartGame = 1;
-					gQuitGame = 1;
+					gGameOptions.uGameFlags &= ~(GF_AdvanceLevel|GF_EndGame);
 				}
 			}
 			else
 			{
-				ShowSummaryScreen();
+				STAT_Update(false);
+				EndLevel();
+				Mus_Stop();
+				// Fixme: Link maps, not episode/level pairs.
+				int ep = volfromlevelnum(currentLevel->levelNumber);
+				auto map = FindMapByLevelNum(levelnum(ep, gNextLevel));
+				CompleteLevel(map);
 			}
 		}
 		r_NoInterpolate = false;
 	}
 	else r_NoInterpolate = true;
-	commonTicker();
 }
 
 void GameInterface::DrawBackground()
 {
 	twod->ClearScreen();
 	DrawTexture(twod, tileGetTexture(2518, true), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
-	commonTicker();
 }
 
 
@@ -488,8 +465,6 @@ static void gameInit()
 	pProfile->skill = gSkill;
 
 	UpdateNetworkMenus();
-	gQuitGame = 0;
-	gRestartGame = 0;
 	if (gGameOptions.nGameType > 0)
 	{
 		inputState.ClearAllInput();

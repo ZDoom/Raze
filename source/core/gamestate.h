@@ -26,6 +26,7 @@ enum gameaction_t : int
 	ga_nothing,
 	ga_startup,				// go back to intro after uninitializing the game state
 	ga_mainmenu,			// go back to main menu after uninitializing the game state
+	ga_creditsmenu,			// go to the credits menu after uninitializing the game state
 	ga_newgame,				// start a new game
 	ga_recordgame,			// start a new demo recording (later)
 	ga_loadgame,			// load a savegame and resume play.

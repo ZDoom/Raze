@@ -589,11 +589,17 @@ void DeleteScreenJob()
 void RunScreenJobFrame()
 {
 	// we cannot recover from this because we have no completion callback to call.
-	if (!runner) I_Error("Trying to run a non-existent screen job");
+	if (!runner)
+	{
+		// We can get here before a gameaction has been processed. In that case just draw a black screen and wait.
+		if (gameaction == ga_nothing) I_Error("Trying to run a non-existent screen job");
+		twod->ClearScreen();
+		return;
+	}
 	auto res = runner->RunFrame();
 	if (!res)
 	{
-		assert(gamestate != GS_INTERMISSION && gamestate != GS_INTRO);
+		assert((gamestate != GS_INTERMISSION && gamestate != GS_INTRO) || gameaction != ga_nothing);
 		DeleteScreenJob();
 	}
 }

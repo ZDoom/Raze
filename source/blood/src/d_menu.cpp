@@ -242,10 +242,8 @@ bool GameInterface::CanSave()
 void GameInterface::StartGame(FNewGameStartup& gs)
 {
 	sfxKillAllSounds();
-	gGameOptions.nDifficulty = gs.Skill;
-	gSkill = gs.Skill;
-	gStartNewGame = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
-	cheatReset();
+	auto map = FindMapByLevelNum(levelnum(gs.Episode, gs.Level));
+	DeferedStartGame(map, gs.Skill);
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
@@ -290,12 +288,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 
 void GameInterface::QuitToTitle()
 {
-	if (gGameOptions.nGameType == 0 || numplayers == 1)
-	{
-		gQuitGame = true;
-		gRestartGame = true;
-	}
-	//else gQuitRequest = 2;
+	gameaction = ga_mainmenu;
 }
 
 END_BLD_NS

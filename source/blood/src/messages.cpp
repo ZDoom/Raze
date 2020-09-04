@@ -267,12 +267,6 @@ void ToggleDelirium(void)
     }
 }
 
-void LevelWarp(int nEpisode, int nLevel)
-{
-    auto map = FindMapByLevelNum(levelnum(nEpisode, nLevel));
-    if (map) StartLevel(map);
-}
-
 bool bPlayerCheated = false;
 
 static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
@@ -434,7 +428,10 @@ static bool cheatMario(cheatseq_t* c)
 {
     int nEpisode, nLevel;
     if (parseArgs((char*)c->Args, &nEpisode, &nLevel) == 2)
-        LevelWarp(nEpisode, nLevel);
+	{
+		auto map = FindMapByLevelNum(levelnum(nEpisode, nLevel));
+		if (map) DeferedStartGame(map, -1);
+	}
     return true;
 }
 

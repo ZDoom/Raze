@@ -46,15 +46,8 @@ struct INICHAIN {
 
 extern INICHAIN *pINIChain;
 
-extern MapRecord* gStartNewGame;
-
 extern int gNetPlayers;
-extern bool gRestartGame;
 extern int blood_globalflags;
-
-extern bool gSavingGame;
-extern bool gQuitGame;
-extern int gQuitRequest;
 
 void QuitGame(void);
 void PreloadCache(void);
@@ -101,6 +94,10 @@ struct GameInterface : ::GameInterface
 	void Startup() override;
 	void Render() override;
 	const char* GenericCheat(int player, int cheat) override;
+	void NewGame(MapRecord *sng, int skill) override;
+	void NextLevel(MapRecord* map, int skill) override;
+	void LevelCompleted(MapRecord* map, int skill) override;
+
 
 	GameStats getStats() override;
 };
