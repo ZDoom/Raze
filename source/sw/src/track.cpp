@@ -1564,7 +1564,7 @@ PlaceActorsOnTracks(void)
         u->track = tag - TAG_ACTOR_TRACK_BEGIN;
 
         // if facing left go backward
-        if (BETWEEN(sp->ang, 513, 1535))
+        if (sp->ang >= 513 && sp->ang <= 1535)
         {
             u->track_dir = -1;
         }

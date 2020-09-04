@@ -73,7 +73,11 @@ int DImageScreen::Frame(uint64_t clock, bool skiprequest)
 	{
 		tex = tileGetTexture(tilenum, true);
 	}
-	if (!tex) return 0;
+	if (!tex)
+	{
+		twod->ClearScreen();
+		return 0;
+	}
 	int span = int(clock / 1'000'000);
 	twod->ClearScreen();
 	DrawTexture(twod, tex, 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);

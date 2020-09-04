@@ -97,6 +97,7 @@ bool RestartCheat(cheatseq_t* c)
 {
     if (!checkCheat(c)) return false;
 	DeferedStartGame(currentLevel, -1);
+    return true;
 }
 
 bool RoomCheat(cheatseq_t* c)
