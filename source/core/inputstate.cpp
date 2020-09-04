@@ -47,6 +47,8 @@ ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
 bool sendPause;
 
+static double lastCheck;
+
 //==========================================================================
 //
 //
@@ -400,5 +402,20 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput)
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
 		input.actions |= SB_LOOK_RIGHT;
 
+}
+
+double InputScale()
+{
+	if (!cl_syncinput)
+	{
+		double now = I_msTimeF();
+		double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, 1000.0 / GameTicRate) : 1;
+		lastCheck = now;
+		return elapsedInputTicks * GameTicRate / 1000.0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
