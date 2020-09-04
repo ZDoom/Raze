@@ -332,7 +332,7 @@ void Display()
 
 	NetUpdate();			// send out any new accumulation
 
-	if (gamestate != GS_INTRO) // do not draw overlays on the intros
+	if (gamestate != GS_INTRO && gamestate != GS_INTERMISSION) // do not draw overlays on the intros
 	{
 		// Draw overlay elements
 		CT_Drawer();
