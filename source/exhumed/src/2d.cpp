@@ -854,7 +854,7 @@ void TextOverlay::ComputeCinemaText()
 
 void TextOverlay::ReadyCinemaText(uint16_t nVal)
 {
-    FStringf label("TXT_EX_CINEMA%d", nVal + 1);
+    FStringf label("TXT_EX_CINEMA%d", nVal);
     label = GStrings(label);
     screentext = label.Split("\n");
     ComputeCinemaText();
@@ -870,7 +870,7 @@ void TextOverlay::DisplayText()
         while (i < screentext.Size() && y <= 199)
         {
             if (y >= -10) {
-                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+                DrawText(twod, SmallFont, CR_UNDEFINED, nLeft[i], y, screentext[i], DTA_FullscreenScale, FSMode_Fit320x200, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
             }
 
             i++;
@@ -958,6 +958,7 @@ public:
         edx = dxvals[nVal - 1];
         text.Start(0);
         text.ReadyCinemaText(bxvals[nVal - 1]);
+        text.SetPalette(nVal);
         check = checklevel;
     }
 	

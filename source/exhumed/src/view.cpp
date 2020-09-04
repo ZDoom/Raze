@@ -425,9 +425,9 @@ void DrawView(double smoothRatio, bool sceneonly)
                     {
                         subtitleOverlay.Start(myclock);
                         if (currentLevel->levelNumber == 1)
-                            subtitleOverlay.ReadyCinemaText(0);
+                            subtitleOverlay.ReadyCinemaText(1);
                         else
-                            subtitleOverlay.ReadyCinemaText(4);
+                            subtitleOverlay.ReadyCinemaText(5);
                     }
                     inputState.ClearAllInput();
                 }
