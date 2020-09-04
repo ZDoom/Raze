@@ -676,7 +676,12 @@ void GameInterface::Startup()
     }
     else
     {
-		if (!userConfig.nologo) Logo([](bool) { gameaction = ga_mainmenu; });
+		if (!userConfig.nologo) Logo([](bool) 
+            { 
+                gamestate = GS_MENUSCREEN;
+                M_StartControlPanel(false);
+                M_SetMenu(NAME_Mainmenu);
+            });
         else gameaction = ga_mainmenu;
     }
 }
