@@ -1529,20 +1529,20 @@ void DoFinale()
                 {
                     StopLocalSound();
                     PlayLocalSound(StaticSound[kSound76], 0);
-                    nextstage = leveltime + 120;
+                    nextstage = leveltime*4 + 120;
                     nFinaleStage++;
                 }
             }
             else if (nFinaleStage <= 2)
             {
-                if (leveltime >= nextstage)
+                if (leveltime*4 >= nextstage)
                 {
                     PlayLocalSound(StaticSound[kSound77], 0);
                     nFinaleStage++;
-                    nextstage = leveltime + 360;
+                    nextstage = leveltime*4 + 360;
                 }
             }
-            else if (nFinaleStage == 3 && leveltime >= nextstage)
+            else if (nFinaleStage == 3 && leveltime*4 >= nextstage)
             {
                 EndLevel = 13;
             }
@@ -1706,7 +1706,7 @@ void ExplodeEnergyBlock(int nSprite)
     else
     {
         nFinaleSpr = nSprite;
-        lFinaleStart = leveltime;
+        lFinaleStart = leveltime*4;
 
         if (!lFinaleStart) {
             lFinaleStart = lFinaleStart + 1;
