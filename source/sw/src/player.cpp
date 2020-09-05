@@ -7577,6 +7577,7 @@ domovethings(void)
     }
 
     PlayClock += synctics;
+    if (PlayClock == 2*synctics) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
     thinktime.Reset();
     thinktime.Clock();

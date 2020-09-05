@@ -453,6 +453,7 @@ void GameInterface::Ticker()
         sPlayerInput[nLocalPlayer].horizon = PlayerList[nLocalPlayer].q16horiz;
 
         leveltime++;
+        if (leveltime == 2) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
         GameMove();
         r_NoInterpolate = false;
     }

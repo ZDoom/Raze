@@ -342,6 +342,7 @@ void GameInterface::Ticker()
 
 		gFrameCount++;
 		gFrameClock += 4;
+		if (gFrameClock == 8) gameaction = ga_autosave;	// let the game run for 1 frame before saving.
 
 		for (int i = 0; i < 8; i++)
 		{
