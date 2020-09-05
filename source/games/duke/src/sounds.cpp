@@ -163,7 +163,11 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	if (sndinf[kFlags] & SF_LOOP)
 		sndinf[kFlags] |= SF_ONEINST_INTERNAL;
 
-	sfx->lumpnum = S_LookupSound(filename);
+	// Take care of backslashes in sound names. Also double backslashes which occur in World Tour.
+	FString fn = filename;
+	fn.Substitute("\\\\", "\\");
+	FixPathSeperator(fn);
+	sfx->lumpnum = S_LookupSound(fn);
 	sndinf[kPitchStart] = clamp(minpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPitchEnd] = clamp(maxpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPriority] = priority & 255;
@@ -171,7 +175,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sfx->Volume = volume;
 	sfx->NearLimit = 6;
 	sfx->bTentative = false;
-	sfx->name = filename;
+	sfx->name = std::move(fn);
 	return 0;
 }
 
