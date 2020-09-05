@@ -101,13 +101,8 @@ void hudDraw(PLAYER *gView, int nSectnum, int defaultHoriz, double bobx, double 
 {
 	if (gViewPos == 0)
 	{
-		if (cl_crosshair)
-		{
-			double crosshair_scale = cl_crosshairscale * .02;
-			DrawTexture(twod, tileGetTexture(kCrosshairTile), 160, defaultHoriz,
-				DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
-				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
-		}
+		DrawCrosshair(kCrosshairTile, gView->pXSprite->health >> 4, 0, 2);
+
 		double cX = 160;
 		double cY = 220;
 		if (cl_weaponsway)

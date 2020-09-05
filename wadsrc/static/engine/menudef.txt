@@ -1007,6 +1007,18 @@ OptionValue "HUDMessageStyle"
 	1, "$OPTVAL_ADVANCED"
 }
 
+OptionValue Crosshairs
+{
+	// will be filled in from the XHAIRS lump
+}
+
+OptionValue CrosshairHealthTypes
+{
+	0.0, "$TXT_NO"
+	1.0, "$OPTVAL_YES_STANDARD"
+	2.0, "$OPTVAL_YES_ENHANCED"
+}
+
 OptionMenu "HUDOptions" //protected
 {
 	Title "$OPTMNU_HUD"
@@ -1032,6 +1044,9 @@ OptionMenu "HUDOptions" //protected
 	StaticText ""
 	Option "$DSPLYMNU_CROSSHAIR",				"cl_crosshair",	OnOff
 	Slider "$DSPLYMNU_CROSSHAIRSCALE",			"cl_crosshairscale",		50, 100, 10, 1
+	Option "$HUDMNU_CROSSHAIR",				"crosshair", "Crosshairs"
+	//ColorPicker "$HUDMNU_CROSSHAIRCOLOR", 	"crosshaircolor" fixme: Does not exist yet in Raze.
+	Option "$HUDMNU_CROSSHAIRHEALTH",		"crosshairhealth", "CrosshairHealthTypes"
 }
 
 

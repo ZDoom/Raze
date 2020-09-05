@@ -10,6 +10,7 @@
 #include "memarena.h"
 #include "stats.h"
 #include "i_time.h"
+#include "palentry.h"
 
 extern FString currentGame;
 extern FString LumpFilter;
@@ -56,6 +57,7 @@ void CONFIG_ReadCombatMacros();
 int GameMain();
 void startmainmenu();
 int GetAutomapZoom(int gZoom);
+void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
 void DeferedStartGame(MapRecord* map, int skill);
 void ChangeLevel(MapRecord* map, int skill);

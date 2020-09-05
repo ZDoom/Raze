@@ -334,19 +334,9 @@ void drawoverlays(double smoothratio)
 	if (isRR()) drawstatusbar_r(screenpeek);
 	else drawstatusbar_d(screenpeek);
 
-	if (ps[myconnectindex].newowner == -1 && automapMode == am_off && cl_crosshair && ud.camerasprite == -1)
+	if (ps[myconnectindex].newowner == -1 && ud.camerasprite == -1)
 	{
-		int32_t a = TILE_CROSSHAIR;
-
-		if ((unsigned)a < MAXTILES)
-		{
-			double crosshair_scale = cl_crosshairscale * .01;
-			if (isRR()) crosshair_scale *= .5;
-
-			DrawTexture(twod, tileGetTexture(a), 160 - getHalfLookAng(screenpeek, cl_syncinput, smoothratio), 100,
-				DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
-				DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
-		}
+		DrawCrosshair(TILE_CROSSHAIR, ps[screenpeek].last_extra, -getHalfLookAng(screenpeek, cl_syncinput, smoothratio), isRR() ? 0.5 : 1);
 	}
 
 	if (paused == 2)

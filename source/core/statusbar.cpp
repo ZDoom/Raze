@@ -83,23 +83,10 @@ DBaseStatusBar *StatusBar;
 
 extern int setblocks;
 
-FGameTexture *CrosshairImage;
-static int CrosshairNum;
-
-
-CVAR (Bool, crosshairon, true, CVAR_ARCHIVE);
-CVAR (Int, crosshair, 0, CVAR_ARCHIVE)
-CVAR (Bool, crosshairforce, false, CVAR_ARCHIVE)
-CVAR (Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
-CVAR (Int, crosshairhealth, 1, CVAR_ARCHIVE);
-CVAR (Float, crosshairscale, 1.0, CVAR_ARCHIVE);
-CVAR (Bool, crosshairgrow, false, CVAR_ARCHIVE);
-
 CVAR (Bool, idmypos, false, 0);
 
 
 //---------------------------------------------------------------------------
-//
 // ST_Clear
 //
 //---------------------------------------------------------------------------
@@ -111,8 +98,6 @@ void ST_Clear()
 		delete StatusBar;
 		StatusBar = NULL;
 	}
-	CrosshairImage = NULL;
-	CrosshairNum = 0;
 }
 
 //---------------------------------------------------------------------------

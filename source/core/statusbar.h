@@ -252,7 +252,6 @@ DBaseStatusBar *CreateCustomStatusBar(int script=0);
 
 // Crosshair stuff ----------------------------------------------------------
 
-void ST_LoadCrosshair(bool alwaysload=false);
 void ST_Clear();
 void ST_CreateStatusBar(bool bTitleLevel);
 extern FGameTexture *CrosshairImage;

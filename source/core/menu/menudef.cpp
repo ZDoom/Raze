@@ -1406,7 +1406,6 @@ static void BuildEpisodeMenu()
 
 static void InitCrosshairsList()
 {
-#if 0
 	int lastlump, lump;
 
 	lastlump = 0;
@@ -1421,7 +1420,7 @@ static void InitCrosshairsList()
 	pair->Value = 0;
 	pair->Text = "None";
 
-	while ((lump = Wads.FindLump("XHAIRS", &lastlump)) != -1)
+	while ((lump = fileSystem.FindLump("XHAIRS", &lastlump)) != -1)
 	{
 		FScanner sc(lump);
 		while (sc.GetNumber())
@@ -1452,7 +1451,6 @@ static void InitCrosshairsList()
 			}
 		}
 	}
-#endif
 }
 
 //=============================================================================

@@ -1253,3 +1253,167 @@ CCMD(am_zoom)
 		am_zoomdir = (float)atof(argv[1]);
 	}
 }
+
+//---------------------------------------------------------------------------
+//
+// Load crosshair definitions
+//
+//---------------------------------------------------------------------------
+
+FGameTexture* CrosshairImage;
+int CrosshairNum;
+
+CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
+CVAR(Color, crosshaircolor, 0xff0000, CVAR_ARCHIVE);
+CVAR(Int, crosshairhealth, 2, CVAR_ARCHIVE);
+
+void ST_LoadCrosshair(int num, bool alwaysload)
+{
+	char name[16], size;
+
+	if (!alwaysload && CrosshairNum == num && CrosshairImage != NULL)
+	{ // No change.
+		return;
+	}
+
+	if (num == 0)
+	{
+		CrosshairNum = 0;
+		CrosshairImage = NULL;
+		return;
+	}
+	if (num < 0)
+	{
+		num = -num;
+	}
+
+	mysnprintf(name, countof(name), "XHAIRB%d", num);
+	FTextureID texid = TexMan.CheckForTexture(name, ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+	if (!texid.isValid())
+	{
+		mysnprintf(name, countof(name), "XHAIRB1");
+		texid = TexMan.CheckForTexture(name, ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+		if (!texid.isValid())
+		{
+			texid = TexMan.CheckForTexture("XHAIRS1", ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_ShortNameOnly);
+		}
+	}
+	CrosshairNum = num;
+	CrosshairImage = TexMan.GetGameTexture(texid);
+}
+
+//---------------------------------------------------------------------------
+//
+// DrawCrosshair
+//
+//---------------------------------------------------------------------------
+
+void DrawGenericCrosshair(int num, int phealth, double xdelta)
+{
+	uint32_t color;
+	double size;
+	int w, h;
+
+	ST_LoadCrosshair(num, false);
+
+	// Don't draw the crosshair if there is none
+	if (CrosshairImage == NULL)
+	{
+		return;
+	}
+
+	float crosshairscale = cl_crosshairscale * 0.005;
+	if (crosshairscale > 0.0f)
+	{
+		size = twod->GetHeight() * crosshairscale / 200.;
+	}
+	else
+	{
+		size = 1.;
+	}
+
+	w = int(CrosshairImage->GetDisplayWidth() * size);
+	h = int(CrosshairImage->GetDisplayHeight() * size);
+
+	if (crosshairhealth == 1) 
+	{
+		// "Standard" crosshair health (green-red)
+		int health = phealth;
+
+		if (health >= 85)
+		{
+			color = 0x00ff00;
+		}
+		else
+		{
+			int red, green;
+			health -= 25;
+			if (health < 0)
+			{
+				health = 0;
+			}
+			if (health < 30)
+			{
+				red = 255;
+				green = health * 255 / 30;
+			}
+			else
+			{
+				red = (60 - health) * 255 / 30;
+				green = 255;
+			}
+			color = (red << 16) | (green << 8);
+		}
+	}
+	else if (crosshairhealth == 2)
+	{
+		// "Enhanced" crosshair health (blue-green-yellow-red)
+		int health = clamp(phealth, 0, 200);
+		float rr, gg, bb;
+
+		float saturation = health < 150 ? 1.f : 1.f - (health - 150) / 100.f;
+
+		HSVtoRGB(&rr, &gg, &bb, health * 1.2f, saturation, 1);
+		int red = int(rr * 255);
+		int green = int(gg * 255);
+		int blue = int(bb * 255);
+
+		color = (red << 16) | (green << 8) | blue;
+	}
+	else
+	{
+		color = crosshaircolor;
+	}
+
+	DrawTexture(twod, CrosshairImage,
+		(windowxy1.x + windowxy2.x) / 2 + xdelta * (windowxy2.y - windowxy1.y) / 240.,
+		(windowxy1.y + windowxy2.y) / 2,
+		DTA_DestWidth, w,
+		DTA_DestHeight, h,
+		DTA_AlphaChannel, true,
+		DTA_FillColor, color & 0xFFFFFF,
+		TAG_DONE);
+}
+
+
+void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color)
+{
+	int type = -1;
+	if (automapMode == am_off && cl_crosshair)
+	{
+		if (deftile < MAXTILES && crosshair == 0)
+		{
+			auto tile = tileGetTexture(deftile);
+			if (tile)
+			{
+				double crosshair_scale = cl_crosshairscale * .01 * scale;
+				DrawTexture(twod, tile, 160 + xdelta, 100, DTA_Color, color,
+					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
+					DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
+
+				return;
+			}
+		}
+		DrawGenericCrosshair(crosshair == 0 ? 2 : *crosshair, health, xdelta);
+	}
+}
