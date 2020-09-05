@@ -1619,7 +1619,7 @@ int ConCompiler::parsecommand()
 			textptr++, i++;
 		}
 		parsebuffer.Push(0);
-		map->name = parsebuffer.Data();
+		map->name = FStringTable::MakeMacro(parsebuffer.Data());
 		return 0;
 	}
 	case concmd_definequote:
