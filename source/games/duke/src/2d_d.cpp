@@ -436,7 +436,7 @@ public:
 			break;
 
 		case 5:
-			if (!S_CheckSoundPlaying(ENDSEQVOL3SND8))
+			if (!S_CheckSoundPlaying(ENDSEQVOL3SND9))
 			{
 				sound++;
 				waittime = clock + (SoundEnabled()? 1'000'000'000 : 5'000'000'000);	// if sound is off this wouldn't wait without a longer delay here.
