@@ -36,7 +36,7 @@ typedef struct
 extern const char *animvpx_read_ivf_header_errmsg[7];
 int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr);
 
-typedef struct
+struct animvpx_codec_ctx
 {
     const char *errmsg;  // non-NULL if codec error? better always check...
     const char *errmsg_detail;  // may be NULL even if codec error
@@ -74,7 +74,7 @@ typedef struct
     int32_t numframes;
     int32_t sumtimes[3];
     int32_t maxtimes[3];
-} animvpx_codec_ctx;
+};
 
 
 int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, FileReader & inhandle, animvpx_codec_ctx *codec);
@@ -90,19 +90,5 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect);
 void animvpx_print_stats(const animvpx_codec_ctx *codec);
 #endif
 
-static inline int32_t animvpx_check_header(const animvpx_ivf_header_t *hdr)
-{
-    if (memcmp(hdr->magic,"DKIF",4))
-        return 2;  // "not an IVF file"
-
-    if (hdr->version != 0)
-        return 3;  // "unrecognized IVF version"
-
-    // fourcc is left as-is
-    if (memcmp(hdr->fourcc, "VP80", 4))
-        return 4;  // "only VP8 supported"
-
-    return 0;
-}
 
 #endif  // !defined ANIM_VPX_H

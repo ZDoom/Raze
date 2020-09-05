@@ -48,6 +48,8 @@
 #include "SmackerDecoder.h"
 #include "movie/playmve.h"
 #include "gamecontrol.h"
+#include "animvpx.h"
+#include "raze_music.h"
 
 
 IMPLEMENT_CLASS(DScreenJob, true, false)
@@ -134,7 +136,7 @@ public:
 
 		if (curframe > 4 && currentclock > frametime + 60)
 		{
-			Printf("WARNING: slowdown in video playback, aborting\n");
+			Printf(PRINT_BOLD, "WARNING: slowdown in video playback, aborting\n");
 			soundEngine->StopAllChannels();
 			return -1;
 		}
@@ -223,6 +225,136 @@ public:
 	void OnDestroy() override
 	{
 		decoder.Close();
+	}
+};
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+class DVpxPlayer : public DScreenJob
+{
+	bool failed = false;
+	FileReader fr;
+	AnimTextures animtex;
+	animvpx_codec_ctx codec;
+	const AnimSound* animSnd;
+
+	uint32_t convnumer;
+	uint32_t convdenom;
+
+	uint32_t msecsperframe;
+	uint64_t nextframetime;
+
+	int framenum = 0;
+	int lastsoundframe = -1;
+public:
+	int soundtrack = -1;
+
+
+public:
+	bool isvalid() { return !failed; }
+
+	DVpxPlayer(FileReader& fr_, const AnimSound* animSnd_, int origframedelay)
+	{
+		fr = std::move(fr_);
+		animSnd = animSnd_;
+
+		animvpx_ivf_header_t info;
+
+		int err = animvpx_read_ivf_header(fr, &info);
+
+		if (err)
+		{
+			Printf(PRINT_BOLD, "Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[err]);
+			failed = true;
+		}
+
+		if (animvpx_init_codec(&info, fr, &codec))
+		{
+			Printf(PRINT_BOLD, "Error initializing VPX codec.\n");
+			failed = true;
+		}
+
+		convnumer = 120 * info.fpsdenom;
+		convdenom = info.fpsnumer * origframedelay;
+
+		msecsperframe = scale(info.fpsdenom, 1000, info.fpsnumer);
+		nextframetime = 0;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+
+	int Frame(uint64_t clock, bool skiprequest) override
+	{
+		if (clock == 0)
+		{
+			if (soundtrack > 0)
+			{
+				Mus_Play(nullptr, fileSystem.GetFileFullName(soundtrack, false), false);
+			}
+			animtex.SetSize(AnimTexture::YUV, codec.width, codec.height);
+		}
+		bool stop = false;
+		if (clock > nextframetime)
+		{
+			nextframetime += 1'000'000 * msecsperframe;
+
+			uint8_t* pic;
+			int i = animvpx_nextpic(&codec, &pic);
+			if (i)
+			{
+				Printf(PRINT_BOLD, "Failed getting next pic: %s\n", animvpx_nextpic_errmsg[i]);
+				if (codec.errmsg)
+				{
+					Printf(PRINT_BOLD, "  %s\n", codec.errmsg);
+					if (codec.errmsg_detail)
+						Printf(PRINT_BOLD, "  detail: %s\n", codec.errmsg_detail);
+				}
+				stop = true;
+			}
+			if (!pic) stop = true;
+
+			if (!stop)
+			{
+				animtex.SetFrame(nullptr, pic);
+			}
+
+			framenum++;
+
+			int soundframe = convdenom ? scale(framenum, convnumer, convdenom) : framenum;
+			if (soundframe > lastsoundframe)
+			{
+				if (animSnd && soundtrack == -1) for (int i = 0; animSnd[i].framenum >= 0; i++)
+				{
+					if (animSnd[i].framenum == soundframe)
+					{
+						int sound = animSnd[i].soundnum;
+						if (sound == -1)
+							soundEngine->StopAllChannels();
+						else if (SoundEnabled())
+							soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
+					}
+				}
+				lastsoundframe = soundframe;
+			}
+		}
+		DrawTexture(twod, animtex.GetFrame(), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit, TAG_DONE);
+		if (stop || skiprequest) Mus_Stop();
+		if (stop) return 0;
+		return skiprequest ? -1 : 1;
+	}
+
+	void OnDestroy() override
+	{
+		animvpx_uninit_codec(&codec);
 	}
 };
 
@@ -337,7 +469,16 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 	{
 		return nothing();
 	}
-	auto fr = fileSystem.OpenFileReader(filename);
+	FileReader fr;
+	// first try as .ivf - but only if sounds are provided - the decoder is video only.
+	if (ans)
+	{
+		auto fn = StripExtension(filename);
+		DefaultExtension(fn, ".ivf");
+		fr = fileSystem.OpenFileReader(fn);
+	}
+
+	if (!fr.isOpen()) fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen())
 	{
 		int nLen = strlen(filename);
@@ -349,7 +490,7 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		}
 		if (!fr.isOpen())
 		{
-			Printf("%s: Unable to open video\n", filename);
+			Printf(PRINT_BOLD, "%s: Unable to open video\n", filename);
 			return nothing();
 		}
 	}
@@ -363,7 +504,7 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		auto anm = Create<DAnmPlayer>(fr, ans, frameticks, nosoundcutoff);
 		if (!anm->isvalid())
 		{
-			Printf("%s: invalid ANM file.\n", filename);
+			Printf(PRINT_BOLD, "%s: invalid ANM file.\n", filename);
 			anm->Destroy();
 			return nothing();
 		}
@@ -375,7 +516,7 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		auto anm = Create<DSmkPlayer>(filename, ans, true); // Fixme: Handle Blood's video scaling behavior more intelligently.
 		if (!anm->isvalid())
 		{
-			Printf("%s: invalid SMK file.\n", filename);
+			Printf(PRINT_BOLD, "%s: invalid SMK file.\n", filename);
 			anm->Destroy();
 			return nothing();
 		}
@@ -391,10 +532,21 @@ DScreenJob* PlayVideo(const char* filename, const AnimSound* ans, const int* fra
 		}
 		return anm;
 	}
+	else if (!memcmp(id, "DKIF\0\0 \0VP80", 12))
+	{
+		auto anm = Create<DVpxPlayer>(fr, ans, frameticks? frameticks[1] : 0 );
+		if (!anm->isvalid())
+		{
+			anm->Destroy();
+			return nothing();
+		}
+		anm->soundtrack = LookupMusic(filename, true);
+		return anm;
+	}
 	// add more formats here.
 	else
 	{
-		Printf("%s: Unknown video format\n", filename);
+		Printf(PRINT_BOLD, "%s: Unknown video format\n", filename);
 	}
 	return nothing();
 }

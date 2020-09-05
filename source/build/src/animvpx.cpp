@@ -14,7 +14,6 @@
 #include "v_draw.h"
 #include "v_video.h"
 #include "texturemanager.h"
-#include "animtexture.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
@@ -33,6 +32,22 @@ const char *animvpx_read_ivf_header_errmsg[] = {
 
 static_assert(sizeof(animvpx_ivf_header_t) == 32);
 
+inline int32_t animvpx_check_header(const animvpx_ivf_header_t* hdr)
+{
+    if (memcmp(hdr->magic, "DKIF", 4))
+        return 2;  // "not an IVF file"
+
+    if (hdr->version != 0)
+        return 3;  // "unrecognized IVF version"
+
+    // fourcc is left as-is
+    if (memcmp(hdr->fourcc, "VP80", 4))
+        return 4;  // "only VP8 supported"
+
+    return 0;
+}
+
+
 int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr)
 {
     int32_t err;
@@ -44,14 +59,14 @@ int32_t animvpx_read_ivf_header(FileReader & inhandle, animvpx_ivf_header_t *hdr
     if (err)
         return err;
 
-    hdr->hdrlen = B_LITTLE16(hdr->hdrlen);
+    hdr->hdrlen = LittleShort(hdr->hdrlen);
 
-    hdr->width = B_LITTLE16(hdr->width);
-    hdr->height = B_LITTLE16(hdr->height);
-    hdr->fpsnumer = B_LITTLE32(hdr->fpsnumer);
-    hdr->fpsdenom = B_LITTLE32(hdr->fpsdenom);
+    hdr->width = LittleShort(hdr->width);
+    hdr->height = LittleShort(hdr->height);
+    hdr->fpsnumer = LittleLong(hdr->fpsnumer);
+    hdr->fpsdenom = LittleLong(hdr->fpsdenom);
 
-    hdr->numframes = B_LITTLE32(hdr->numframes);
+    hdr->numframes = LittleLong(hdr->numframes);
 
     // the rest is based on vpxdec.c --> file_is_ivf()
 
@@ -336,91 +351,6 @@ read_ivf_frame:
 
     *picptr = codec->pic;
     return 0;
-}
-
-
-/////////////// DRAWING! ///////////////
-static int sampler;
-static FGameTexture* vpxtex[2];
-static int which;
-
-void animvpx_setup_glstate(int32_t animvpx_flags)
-{
-    ////////// GL STATE //////////
-    vpxtex[0] = TexMan.FindGameTexture("AnimTextureFrame1", ETextureType::Override);
-    vpxtex[1] = TexMan.FindGameTexture("AnimTextureFrame2", ETextureType::Override);
-
-    sampler = CLAMP_XY;
-    GLInterface.ClearScreen(0, true);
-}
-
-void animvpx_restore_glstate(void)
-{
-	vpxtex[0]->CleanHardwareData();
-	vpxtex[0] = nullptr;
-    vpxtex[1]->CleanHardwareData();
-    vpxtex[1] = nullptr;
-}
-
-int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
-{
-    int32_t t = I_msTime();
-
-    if (codec->initstate <= 0)  // not inited or error
-        return 1;
-
-    if (codec->pic == NULL)
-        return 2;  // shouldn't happen
-
-    which ^= 1;
-    static_cast<AnimTexture*>(vpxtex[which]->GetTexture())->SetFrameSize(AnimTexture::YUV, codec->width, codec->height);
-    static_cast<AnimTexture*>(vpxtex[which]->GetTexture())->SetFrame(nullptr, codec->pic);
-
-    float vid_wbyh = ((float)codec->width)/codec->height;
-    if (animvpx_aspect > 0)
-        vid_wbyh = animvpx_aspect;
-    float scr_wbyh = ((float)xdim)/ydim;
-
-    float x=1.0, y=1.0;
-#if 1
-    // aspect correction by pillarboxing/letterboxing
-    // TODO: fullscreen? can't assume square pixels there
-    if (vid_wbyh != scr_wbyh)
-    {
-        if (vid_wbyh < scr_wbyh)
-            x = vid_wbyh/scr_wbyh;
-        else
-            y = scr_wbyh/vid_wbyh;
-    }
-#endif
-
-    x *= screen->GetWidth() / 2;
-    y *= screen->GetHeight() / 2;
-    DrawTexture(twod, vpxtex[which], screen->GetWidth() / 2 - int(x), screen->GetHeight()/2 - int(y), DTA_DestWidth, 2*int(x), DTA_DestHeight, 2*int(y), 
-        DTA_Masked, false, DTA_KeepRatio, true, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
-
-    t = I_msTime()-t;
-    codec->sumtimes[2] += t;
-    codec->maxtimes[2] = max(codec->maxtimes[2], t);
-    codec->numframes++;
-
-    return 0;
-}
-
-void animvpx_print_stats(const animvpx_codec_ctx *codec)
-{
-    if (codec->numframes != 0)
-    {
-        const int32_t *s = codec->sumtimes;
-        const int32_t *m = codec->maxtimes;
-        int32_t n = codec->numframes;
-
-        Printf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
-                   " read and decode frame: %.02f, %d\n"
-                   " 3 planes -> packed conversion: %.02f, %d\n"
-                   " upload and display: %.02f, %d\n",
-                   n, (double)s[0]/n, m[0], (double)s[1]/n, m[1], (double)s[2]/n, m[2]);
-    }
 }
 
 #endif
