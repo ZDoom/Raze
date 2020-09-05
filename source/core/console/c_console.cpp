@@ -1236,7 +1236,7 @@ void C_DrawConsole ()
 
 	oldbottom = ConBottom;
 
-	if (ConsoleState == c_up)
+	if (ConsoleState == c_up && gamestate != GS_INTRO && gamestate != GS_INTERMISSION)
 	{
 		NotifyStrings.Draw();
 		return;
