@@ -575,6 +575,7 @@ class ScreenJobRunner
 	int64_t lastTime = -1;
 	int actionState;
 	int terminateState;
+	uint64_t clock = 0;
 
 public:
 	ScreenJobRunner(JobDesc* jobs_, int count, CompletionFunc completion_, bool clearbefore_)
@@ -630,15 +631,17 @@ public:
 		auto now = I_nsTime();
 		bool processed = job.job->ProcessInput();
 		bool skiprequest = inputState.CheckAllInput() && !processed;
-		if (startTime == -1) lastTime = startTime = now;
-
-		if (M_Active())
+		if (startTime == -1)
 		{
-			startTime += now - lastTime;
+			lastTime = startTime = now;
+		}
+		else if (!M_Active())
+		{
+			clock += now - lastTime;
+			if (clock == 0) clock = 1;
 		}
 		lastTime = now;
 
-		auto clock = now - startTime;
 		if (screenfade < 1.f)
 		{
 			float ms = (clock / 1'000'000) / job.job->fadetime;
@@ -649,7 +652,8 @@ public:
 		else job.job->fadestate = DScreenJob::visible;
 		job.job->SetClock(clock);
 		int state = job.job->Frame(clock, skiprequest);
-		startTime -= job.job->GetClock() - clock;
+		clock = job.job->GetClock();
+		if (clock == 0) clock = 1;
 		return state;
 	}
 
@@ -657,13 +661,13 @@ public:
 	{
 		auto now = I_nsTime();
 
-		if (M_Active())
+		if (!M_Active())
 		{
-			startTime += now - lastTime;
+			clock += now - lastTime;
+			if (clock == 0) clock = 1;
 		}
 		lastTime = now;
 
-		auto clock = now - startTime;
 		float ms = (clock / 1'000'000) / jobs[index].job->fadetime;
 		float screenfade2 = clamp(screenfade - ms, 0.f, 1.f);
 		if (!M_Active()) twod->SetScreenFade(screenfade2);

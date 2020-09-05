@@ -879,7 +879,6 @@ public:
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
-		Printf("Clock = %llu\n", clock);
 		if (clock == 0) S_PlayBonusMusic();
 		twod->ClearScreen();
 		int currentclock = int(clock * 120 / 1'000'000'000);
