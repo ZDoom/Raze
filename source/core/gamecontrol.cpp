@@ -1201,6 +1201,7 @@ void GameInterface::FreeLevelData()
 // 
 //
 //---------------------------------------------------------------------------
+static float am_zoomdir;
 
 int GetAutomapZoom(int gZoom)
 {
@@ -1222,6 +1223,16 @@ int GetAutomapZoom(int gZoom)
 
 	if (automapMode != am_off)
 	{
+		if (am_zoomdir > 0)
+		{
+			gZoom = xs_CRoundToInt(gZoom * am_zoomdir);
+		}
+		else if (am_zoomdir < 0)
+		{
+			gZoom = xs_CRoundToInt(gZoom / -am_zoomdir);
+		}
+		am_zoomdir = 0;
+
 		double j = interval * (120. / 1000);
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
@@ -1233,4 +1244,12 @@ int GetAutomapZoom(int gZoom)
 		
 	}
 	return gZoom;
+}
+
+CCMD(am_zoom)
+{
+	if (argv.argc() >= 2)
+	{
+		am_zoomdir = (float)atof(argv[1]);
+	}
 }
