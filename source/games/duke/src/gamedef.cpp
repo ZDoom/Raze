@@ -226,7 +226,7 @@ void ConCompiler::ReportError(int error)
 	{
 	case ERROR_ISAKEYWORD:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Symbol '%s' is a key word.\n",
-			fn, line_number, parselabel.GetChars());
+			fn, line_number, parsebuf);
 		break;
 	case ERROR_PARMUNDEFINED:
 		Printf(TEXTCOLOR_RED "  * ERROR!(%s, line %d) Parameter '%s' is undefined.\n",
@@ -363,7 +363,7 @@ bool ConCompiler::ispecial(char c)
 	}
 
 	// oh joy - we need to skip some more characters here to allow running broken scripts.
-	if (c == ' ' || c == 0x0d || c == '(' || c == ')' || c == ',' || c == ';')
+	if (c == ' ' || c == '\t' || c == 0x0d || c == '(' || c == ')' || c == ',' || c == ';')
 		return true;
 
 	return false;
@@ -1556,7 +1556,7 @@ int ConCompiler::parsecommand()
 		popscriptvalue();
 		transnum(LABEL_DEFINE);
 		j = popscriptvalue();
-		while (*textptr == ' ') textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		i = 0;
 
@@ -1577,11 +1577,11 @@ int ConCompiler::parsecommand()
 		j = popscriptvalue();
 		transnum(LABEL_DEFINE);
 		k = popscriptvalue();
-		while (*textptr == ' ') textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		i = 0;
 		parsebuffer.Clear();
-		while (*textptr != ' ' && *textptr != 0x0a && *textptr != 0x0d && *textptr != 0)	// JBF 20040127: end of file checked
+		while (*textptr != ' ' && *textptr != '\t' && *textptr != 0x0a && *textptr != 0x0d && *textptr != 0)	// JBF 20040127: end of file checked
 		{
 			parsebuffer.Push(*textptr);
 			textptr++, i++;
@@ -1592,14 +1592,14 @@ int ConCompiler::parsecommand()
 		if (!map) map = AllocateMap();
 		map->SetFileName(parsebuffer.Data());
 
-		while (*textptr == ' ') textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->parTime =
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
 			(((*(textptr + 3) - '0') * 10 + (*(textptr + 4) - '0')) * 26);
 
 		textptr += 5;
-		while (*textptr == ' ') textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		map->designerTime =
 			(((*(textptr + 0) - '0') * 10 + (*(textptr + 1) - '0')) * 26 * 60) +
@@ -1608,7 +1608,7 @@ int ConCompiler::parsecommand()
 		map->levelNumber = levnum;
 
 		textptr += 5;
-		while (*textptr == ' ') textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		i = 0;
 
@@ -1633,8 +1633,7 @@ int ConCompiler::parsecommand()
 		}
 		
 		i = 0;
-		while (*textptr == ' ')
-			textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		parsebuffer.Clear();
 		while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)		// JBF 20040127: end of file checked
@@ -1651,11 +1650,10 @@ int ConCompiler::parsecommand()
 		transnum(LABEL_DEFINE);
 		k = popscriptvalue();
 		i = 0;
-		while (*textptr == ' ')
-			textptr++;
+		while (*textptr == ' ' || *textptr == '\t') textptr++;
 
 		parsebuffer.Clear();
-		while (*textptr != ' ' && *textptr != 0)		// JBF 20040127: end of file checked
+		while (*textptr != ' ' && *textptr != '\t' && *textptr != 0)		// JBF 20040127: end of file checked
 		{
 			parsebuffer.Push(*textptr);
 			textptr++, i++;
