@@ -215,6 +215,11 @@ public:
 	void SetClipRect(int x, int y, int w, int h);
 	void GetClipRect(int* x, int* y, int* w, int* h);
 
+	int DrawCount() const
+	{
+		return mData.Size();
+	}
+
 	bool mIsFirstPass = true;
 };
 

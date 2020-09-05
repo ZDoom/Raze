@@ -347,8 +347,9 @@ void Display()
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			gi->Render();
 			DrawFullscreenBlends();
+			break;
 		}
-		break;
+		[[fallthrough]];
 
 	default:
 		twod->ClearScreen();

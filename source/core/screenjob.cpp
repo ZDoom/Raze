@@ -681,6 +681,7 @@ public:
 		{
 			DeleteJobs();
  			twod->SetScreenFade(1);
+			twod->ClearScreen(); // This must not leave the 2d buffer empty.
 			if (completion) completion(false);
 			return false;
 		}
