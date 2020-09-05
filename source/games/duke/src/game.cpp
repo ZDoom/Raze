@@ -55,13 +55,7 @@ int registerosdcommands(void);
 
 static void checkcommandline()
 {
-	auto val = Args->CheckValue("-skill");
-	if (!val) val = Args->CheckValue("-s");
-	if (val)
-	{
-		ud.m_player_skill = ud.player_skill = clamp((int)strtol(val, nullptr, 0), 0, 5);
-		if (ud.m_player_skill == 4) ud.m_respawn_monsters = ud.respawn_monsters = 1;
-	}
+#if 0
 	val = Args->CheckValue("-respawn");
 	if (!val) val = Args->CheckValue("-t");
 	if (val)
@@ -77,6 +71,7 @@ static void checkcommandline()
 		}
 		Printf("Respawn on.\n");
 	}
+#endif
 }
 
 //---------------------------------------------------------------------------
@@ -281,7 +276,7 @@ void GameInterface::app_init()
 	ud.m_respawn_monsters = 0;
 	ud.m_respawn_inventory = 0;
 	ud.cashman = 0;
-	ud.m_player_skill = ud.player_skill = 2;
+	ud.player_skill = 2;
 	ud.wchoice[0][0] = 3;
 	ud.wchoice[0][1] = 4;
 	ud.wchoice[0][2] = 5;
@@ -343,7 +338,7 @@ void GameInterface::app_init()
 	if (ud.multimode > 1)
 	{
 		ud.m_monsters_off = 1;
-		ud.m_player_skill = 0;
+		//ud.player_skill = 0;
 	}
 
 	ud.last_level = -1;

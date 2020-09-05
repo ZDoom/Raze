@@ -363,17 +363,7 @@ CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 
 CVAR(Int, m_coop, 0, CVAR_NOSET)
-
-#if 0
-
-/*
-
+//CVAR(Int, skill, 2, CVAR_ARCHIVE)
 
 	// Currently unavailable due to dependency on an obsolete OpenGL feature
-	{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },
-
-	// This requires a different approach, because it got used like a CCMD, not a CVAR.
-	{ "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOSAVE/*|CVAR_NOMULTI*/, 0, 5 },
-
-
-#endif
+	//{ "deliriumblur", "enable/disable delirium blur effect(polymost)", (void *)&gDeliriumBlur, CVAR_BOOL, 0, 1 },

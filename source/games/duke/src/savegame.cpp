@@ -488,7 +488,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			screenpeek = myconnectindex;
 			ud.recstat = 0;
 
-			ud.m_player_skill = ud.player_skill;
 			ud.m_respawn_monsters = ud.respawn_monsters;
 			ud.m_respawn_items = ud.respawn_items;
 			ud.m_respawn_inventory = ud.respawn_inventory;

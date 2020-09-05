@@ -243,9 +243,9 @@ void resetplayerstats(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = isRRRA()? 3 : std::min(ud.m_player_skill*4+1, 32);
+        ufospawn = isRRRA()? 3 : std::min(ud.player_skill*4+1, 32);
         ufocnt = 0;
-        hulkspawn = ud.m_player_skill + 1;
+        hulkspawn = ud.player_skill + 1;
     }
     else
     {
@@ -363,9 +363,9 @@ void resetinventory(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.m_player_skill*4+1, 32);
+        ufospawn = std::min(ud.player_skill*4+1, 32);
         ufocnt = 0;
-        hulkspawn = ud.m_player_skill + 1;
+        hulkspawn = ud.player_skill + 1;
     }
     else
     {
@@ -483,9 +483,9 @@ void resetprestat(int snum,int g)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.m_player_skill*4+1, 32);
+        ufospawn = std::min(ud.player_skill*4+1, 32);
         ufocnt = 0;
-        hulkspawn = ud.m_player_skill + 1;
+        hulkspawn = ud.player_skill + 1;
     }
     else
     {
@@ -1006,7 +1006,7 @@ int enterlevel(MapRecord *mi, int gamemode)
 
 void startnewgame(MapRecord* map, int skill)
 {
-    ud.m_player_skill = skill;
+    ud.player_skill = skill;
     ud.m_respawn_monsters = (skill == 4);
     ud.m_monsters_off = ud.monsters_off = 0;
     ud.m_respawn_items = 0;

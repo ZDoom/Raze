@@ -121,7 +121,7 @@ void GameInterface::Startup()
 			userConfig.CommandMap = "";
 			if (maprecord)
 			{
-				ud.m_respawn_monsters = ud.m_player_skill == 4;
+				ud.m_respawn_monsters = ud.player_skill == 4;
 
 				for (int i = 0; i != -1; i = connectpoint2[i])
 				{
@@ -164,7 +164,7 @@ void GameInterface::Render()
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
-	if (skill != -1) ud.m_player_skill = skill + 1;
+	if (skill != -1) ud.player_skill = skill + 1;
 	int res = enterlevel(map, 0);
 	if (res) gameaction = ga_startup;
 }
