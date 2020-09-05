@@ -133,8 +133,8 @@ void GameInterface::Startup()
 		}
 		else
 		{
-			if (!userConfig.nologo) fi.ShowLogo([](bool) { startmainmenu(); });
-			else startmainmenu();
+			if (!userConfig.nologo) fi.ShowLogo([](bool) { gameaction = ga_mainmenu; });
+			else gameaction = ga_mainmenu;
 		}
 }
 

@@ -678,9 +678,7 @@ void GameInterface::Startup()
     {
 		if (!userConfig.nologo) Logo([](bool) 
             { 
-                gamestate = GS_MENUSCREEN;
-                M_StartControlPanel(false);
-                M_SetMenu(NAME_Mainmenu);
+                gameaction = ga_mainmenunostopsound;
             });
         else gameaction = ga_mainmenu;
     }

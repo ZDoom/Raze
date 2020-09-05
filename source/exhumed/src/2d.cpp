@@ -1283,7 +1283,7 @@ void DoGameOverScene(bool finallevel)
         PlayGameOverSound();
         job = { Create<DImageScreen>(tileGetTexture(kTile3591), DScreenJob::fadein | DScreenJob::fadeout, 0x7fffffff) };
     }
-    RunScreenJob(&job, 1, [](bool) { gamestate = GS_STARTUP; });
+    RunScreenJob(&job, 1, [](bool) { gameaction = ga_startup; });
 }
 
 

@@ -640,56 +640,5 @@ void PrintLevelName_r(double alpha)
 	BigText(160, 114, currentLevel->DisplayName(), 0, alpha);
 }
 
-// Utility for testing the above screens
-CCMD(testrscreen)
-{
-	JobDesc jobs[10];
-	int job = 0;
-	C_HideConsole();
-	FX_StopAllSounds();
-	Mus_Stop();
-
-	auto gs = gamestate;
-	auto completion = [=](bool)
-	{
-		if (gs == GS_LEVEL || gs == GS_MENUSCREEN) gamestate = gs;
-		else gamestate = GS_STARTUP;
-	};
-
-	if (argv.argc() > 1)
-	{
-		int screen = strtol(argv[1], nullptr, 0);
-		switch (screen)
-		{
-		case 0:
-		case 1:
-			if (!isRRRA())
-			{
-				bonussequence_r(screen, jobs, job);
-				RunScreenJob(jobs, job, completion);
-			}
-			break;
-
-		case 2:
-			jobs[job++] = { Create<DRRMultiplayerBonusScreen>(6) };
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		case 3:
-			jobs[job++] = { Create<DRRLevelSummaryScreen>() };
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		case 4:
-			jobs[job++] = { Create<DRRRAEndOfGame>() };
-			RunScreenJob(jobs, job, completion);
-			break;
-
-		default:
-			break;
-		}
-	}
-}
-
 
 END_DUKE_NS

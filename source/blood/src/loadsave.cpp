@@ -506,7 +506,6 @@ bool GameInterface::LoadGame(FSaveGameNode* node)
 	viewSetErrorMessage("");
     Net_ClearFifo();
     paused = 0;
-    gamestate = GS_LEVEL;
     bVanilla = false;
     
 

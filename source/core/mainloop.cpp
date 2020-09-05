@@ -140,6 +140,7 @@ static void GameTicker()
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_ClearMessages();
+			gameaction = ga_level;
 			gi->NewGame(g_nextmap, -1);
 			break;
 
@@ -150,16 +151,19 @@ static void GameTicker()
 			{
 				// if the same level is restarted, skip any progression stuff like summary screens or cutscenes.
 				gi->FreeLevelData();
-				gamestate = GS_LEVEL;
+				gameaction = ga_level;
 				gi->NextLevel(g_nextmap, g_nextskill);
 			}
 			else
+			{
 				gi->LevelCompleted(g_nextmap, g_nextskill);
+				assert(gameaction != ga_nothing);
+			}
 			break;
 
 		case ga_nextlevel:
 			gi->FreeLevelData();
-			gamestate = GS_LEVEL;
+			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
 			break;
 
@@ -168,23 +172,32 @@ static void GameTicker()
 			FX_SetReverb(0);
 			gi->FreeLevelData();
 			C_ClearMessages();
-			gamestate = GS_LEVEL;
+			gameaction = ga_level;
 			gi->NewGame(g_nextmap, g_nextskill);
 			break;
 
 		case ga_startup:
+			Mus_Stop();
+			FX_StopAllSounds();
 			gi->FreeLevelData();
 			gamestate = GS_STARTUP;
 			break;
 
 		case ga_mainmenu:
+			FX_StopAllSounds();
+		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
-			startmainmenu();
+			gamestate = GS_MENUSCREEN;
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_Mainmenu);
 			break;
 
 		case ga_creditsmenu:
+			FX_StopAllSounds();
 			gi->FreeLevelData();
-			startmainmenu();
+			gamestate = GS_MENUSCREEN;
+			M_StartControlPanel(false);
+			M_SetMenu(NAME_Mainmenu);
 			M_SetMenu(NAME_CreditsMenu);
 			break;
 
@@ -194,7 +207,19 @@ static void GameTicker()
 			break;
 
 		case ga_autosave:
-			M_Autosave();
+			if (gamestate == GS_LEVEL) M_Autosave();
+			break;
+
+		case ga_level:
+			gamestate = GS_LEVEL;
+			break;
+
+		case ga_intro:
+			gamestate = GS_INTRO;
+			break;
+
+		case ga_intermission:
+			gamestate = GS_INTERMISSION;
 			break;
 
 			// for later

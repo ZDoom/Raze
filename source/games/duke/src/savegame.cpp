@@ -486,7 +486,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		if (arc.isReading())
 		{
 			screenpeek = myconnectindex;
-			gamestate = GS_LEVEL;
 			ud.recstat = 0;
 
 			ud.m_player_skill = ud.player_skill;

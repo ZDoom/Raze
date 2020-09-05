@@ -55,7 +55,6 @@ extern FStringCVar* const CombatMacros[];
 void CONFIG_ReadCombatMacros();
 
 int GameMain();
-void startmainmenu();
 int GetAutomapZoom(int gZoom);
 void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();

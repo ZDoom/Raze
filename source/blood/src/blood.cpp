@@ -254,7 +254,7 @@ void NewLevel(MapRecord *sng, int skill)
 		gSkill = skill;
 		cheatReset();
 		StartLevel(sng);
-		gamestate = GS_LEVEL;
+		gameaction = ga_level;
 	};
 
 	bool startedCutscene = false;
@@ -485,7 +485,7 @@ void GameInterface::Startup()
 		if (!userConfig.nologo && gGameOptions.nGameType == 0) playlogos();
 		else
 		{
-			startmainmenu();
+			gameaction = ga_mainmenu;
 		}
 	}
 }

@@ -94,10 +94,8 @@ void playlogos()
 	jobs[job++] = { Create<DImageScreen>(2518, DScreenJob::fadein) };
 
 	RunScreenJob(jobs, job, [](bool) { 
-		gamestate = GS_MENUSCREEN;
-		M_StartControlPanel(false);
-		M_SetMenu(NAME_Mainmenu);
-	}, true, true);
+		gameaction = ga_mainmenu;
+		}, true, true);
 }
 
 void playSmk(const char *smk, const char *wav, int wavid, CompletionFunc func)

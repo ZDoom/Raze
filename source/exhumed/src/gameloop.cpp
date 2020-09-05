@@ -221,7 +221,7 @@ void GameInterface::NewGame(MapRecord *map, int skill)
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-	if (currentLevel->levelNumber == 0) startmainmenu();
+	if (currentLevel->levelNumber == 0) gameaction = ga_mainmenu;
 	else Intermission(currentLevel, map);
 }
 
@@ -247,8 +247,8 @@ void GameInterface::Startup()
     }
     else
     {
-        if (!userConfig.nologo) DoTitle([](bool) { startmainmenu(); });
-        else startmainmenu();
+        if (!userConfig.nologo) DoTitle([](bool) { gameaction = ga_mainmenu; });
+        else gameaction = ga_mainmenu;
     }
 
 }

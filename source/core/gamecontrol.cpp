@@ -1179,15 +1179,6 @@ CCMD(taunt)
 //
 //---------------------------------------------------------------------------
 
-void startmainmenu()
-{
-	gamestate = GS_MENUSCREEN;
-	M_StartControlPanel(false);
-	M_SetMenu(NAME_Mainmenu);
-	FX_StopAllSounds();
-}
-
-
 void GameInterface::FreeLevelData()
 {
 	// Make sure that there is no more level to toy around with.

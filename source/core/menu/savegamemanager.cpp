@@ -66,7 +66,7 @@ void FSavegameManager::LoadGame(FSaveGameNode* node)
 	{
 		if (gi->LoadGame(node))
 		{
-			gamestate = GS_LEVEL;
+			gameaction = ga_level;
 		}
 		else
 		{

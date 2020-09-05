@@ -729,7 +729,11 @@ void RunScreenJob(JobDesc* jobs, int count, CompletionFunc completion, bool clea
 	if (count)
 	{
 		runner = new ScreenJobRunner(jobs, count, completion, clearbefore);
-		gamestate = blockingui? GS_INTRO : GS_INTERMISSION;
+		gameaction = blockingui? ga_intro : ga_intermission;
+	}
+	else
+	{
+		completion(false);
 	}
 }
 

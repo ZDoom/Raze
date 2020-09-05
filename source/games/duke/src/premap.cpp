@@ -1017,7 +1017,7 @@ void startnewgame(MapRecord* map, int skill)
         {
             if (enterlevel(map, 0))
             {
-                startmainmenu();
+                gameaction = ga_mainmenu;
             }
             else
             {
@@ -1025,7 +1025,7 @@ void startnewgame(MapRecord* map, int skill)
                 setlocalplayerinput(&ps[myconnectindex]);
                 PlayerColorChanged();
                 inputState.ClearAllInput();
-                gamestate = GS_LEVEL;
+                gameaction = ga_level;
             }
         });
 }
@@ -1087,7 +1087,7 @@ void exitlevel(MapRecord *nextlevel)
 
             // Clear potentially loaded per-map ART only after the bonus screens.
             artClearMapArt();
-            gamestate = GS_LEVEL;
+            gameaction = ga_level;
             if (endofgame)
             {
                 if (ud.multimode < 2)
