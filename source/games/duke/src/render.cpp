@@ -637,7 +637,7 @@ void displayrooms(int snum, double smoothratio)
 			renderDrawMasks();
 		}
 	}
-	GLInterface.SetMapFog(false);
+	//GLInterface.SetMapFog(false);
 	restoreinterpolations();
 
 	if (!isRRRA() || !fogactive)
