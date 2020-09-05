@@ -176,11 +176,10 @@ void FillItems(short nPlayer)
     }
 }
 
-void UseEye(short nPlayer)
+static bool UseEye(short nPlayer)
 {
-    if (nPlayerInvisible[nPlayer] >= 0) {
+    if (nPlayerInvisible[nPlayer] >= 0) 
         nPlayerInvisible[nPlayer] = 900;
-    }
 
     int nSprite = PlayerList[nPlayer].nSprite;
 
@@ -195,9 +194,10 @@ void UseEye(short nPlayer)
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], nSprite);
     }
+    return true;
 }
 
-void UseMask(short nPlayer)
+static bool UseMask(short nPlayer)
 {
     PlayerList[nPlayer].nMaskAmount = 1350;
     PlayerList[nPlayer].nAir = 100;
@@ -207,47 +207,52 @@ void UseMask(short nPlayer)
         SetAirFrame();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
-void UseTorch(short nPlayer)
+bool UseTorch(short nPlayer)
 {
-    if (!nPlayerTorch[nPlayer]) {
+    if (!nPlayerTorch[nPlayer]) 
+    {
         SetTorch(nPlayer, 1);
     }
 
     nPlayerTorch[nPlayer] = 900;
+    return true;
 }
 
-void UseHeart(short nPlayer)
+bool UseHeart(short nPlayer)
 {
     if (PlayerList[nPlayer].nHealth < kMaxHealth) {
         PlayerList[nPlayer].nHealth = kMaxHealth;
-    }
 
-    if (nPlayer == nLocalPlayer)
-    {
-        ItemFlash();
-        SetHealthFrame(1);
-        D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
+        if (nPlayer == nLocalPlayer)
+        {
+            ItemFlash();
+            SetHealthFrame(1);
+            D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
+        }
+        return true;
     }
+    return false;
 }
 
 // invincibility
-void UseScarab(short nPlayer)
+bool UseScarab(short nPlayer)
 {
-    if (PlayerList[nPlayer].invincibility > 0 && PlayerList[nPlayer].invincibility < 900) {
+    if (PlayerList[nPlayer].invincibility > 0 && PlayerList[nPlayer].invincibility < 900)
         PlayerList[nPlayer].invincibility = 900;
-    }
 
     if (nPlayer == nLocalPlayer)
     {
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
 // faster firing
-void UseHand(short nPlayer)
+static bool UseHand(short nPlayer)
 {
     nPlayerDouble[nPlayer] = 1350;
 
@@ -256,33 +261,36 @@ void UseHand(short nPlayer)
         ItemFlash();
         D3PlayFX(StaticSound[kSound31], PlayerList[nPlayer].nSprite);
     }
+    return true;
 }
 
 void UseItem(short nPlayer, short nItem)
 {
+    bool didit = false;
     switch (nItem)
     {
         case 0:
-            UseHeart(nPlayer);
+            didit = UseHeart(nPlayer);
             break;
         case 1:
-            UseScarab(nPlayer);
+            didit = UseScarab(nPlayer);
             break;
         case 2:
-            UseTorch(nPlayer);
+            didit = UseTorch(nPlayer);
             break;
         case 3:
-            UseHand(nPlayer);
+            didit = UseHand(nPlayer);
             break;
         case 4:
-            UseEye(nPlayer);
+            didit = UseEye(nPlayer);
             break;
         case 5:
-            UseMask(nPlayer);
+            didit = UseMask(nPlayer);
             break;
         default:
             break;
     }
+    if (!didit) return;
 
     PlayerList[nPlayer].items[nItem]--;
     int nItemCount = PlayerList[nPlayer].items[nItem];
