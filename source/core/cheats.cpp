@@ -324,11 +324,11 @@ CCMD(levelwarp)
 //
 //---------------------------------------------------------------------------
 
-CCMD(startgame)
+CCMD(levelstart)
 {
 	if (netgame)
 	{
-		Printf("Use " TEXTCOLOR_BOLD "levelwarp" TEXTCOLOR_NORMAL " instead. " TEXTCOLOR_BOLD "startgame"
+		Printf("Use " TEXTCOLOR_BOLD "levelwarp" TEXTCOLOR_NORMAL " instead. " TEXTCOLOR_BOLD "levelstart"
 			TEXTCOLOR_NORMAL " is for single-player only.\n");
 		return;
 	}
