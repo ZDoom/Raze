@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "misc.h"
 #include "raze_music.h"
+#include "s_soundinternal.h"
 
 BEGIN_BLD_NS
 
@@ -45,7 +46,7 @@ struct SFX
 
 int sndGetRate(int format);
 void sndStartSample(const char *pzSound, int nVolume, int nChannel = -1);
-void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false);
+void sndStartSample(unsigned int nSound, int nVolume, int nChannel = -1, bool bLoop = false, EChanFlags soundflags = CHANF_NONE);
 void sndStartWavID(unsigned int nSound, int nVolume, int nChannel = -1);
 void sndStartWavDisk(const char *pzFile, int nVolume, int nChannel = -1);
 void sndKillAllSounds(void);

@@ -288,6 +288,7 @@ void GameInterface::DrawCenteredTextScreen(const DVector2& origin, const char* t
 
 void GameInterface::QuitToTitle()
 {
+	Mus_Stop();
 	gameaction = ga_mainmenu;
 }
 

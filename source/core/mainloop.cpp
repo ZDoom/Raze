@@ -147,6 +147,7 @@ static void GameTicker()
 		case ga_completed:
 			FX_StopAllSounds();
 			FX_SetReverb(0);
+			Mus_Stop();
 			if (g_nextmap == currentLevel)
 			{
 				// if the same level is restarted, skip any progression stuff like summary screens or cutscenes.

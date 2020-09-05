@@ -158,7 +158,7 @@ void sndStartSample(const char *pzSound, int nVolume, int nChannel)
     }
 }
 
-void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
+void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop, EChanFlags chanflags)
 {
     if (!SoundEnabled())
         return;
@@ -173,7 +173,8 @@ void sndStartSample(unsigned int nSound, int nVolume, int nChannel, bool bLoop)
             if (udata) nVolume = std::min(Scale(udata[2], 255, 100), 255);
             else nVolume = 255;
         }
-        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), (bLoop? CHANF_LOOP : EChanFlags::FromInt(0)), snd, nVolume / 255.f, ATTN_NONE);
+        if (bLoop) chanflags |= CHANF_LOOP;
+        soundEngine->StartSound(SOURCE_None, nullptr, nullptr, (nChannel + 1), chanflags, snd, nVolume / 255.f, ATTN_NONE);
     }
 }
 
