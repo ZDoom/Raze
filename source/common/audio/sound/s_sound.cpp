@@ -1071,6 +1071,16 @@ int SoundEngine::GetSoundPlayingInfo (int sourcetype, const void *source, int so
 			}
 		}
 	}
+	else
+	{
+		for (FSoundChan* chan = Channels; chan != NULL; chan = chan->NextChan)
+		{
+			if ((sourcetype == SOURCE_Any || (chan->SourceType == sourcetype &&	chan->Source == source)))
+			{
+				count++;
+			}
+		}
+	}
 	return count;
 }
 

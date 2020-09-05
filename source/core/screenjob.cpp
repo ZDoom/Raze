@@ -175,6 +175,7 @@ public:
 					soundEngine->StartSound(SOURCE_None, nullptr, nullptr, CHAN_AUTO, CHANF_UI, sound, 1.f, ATTN_NONE);
 			}
 		}
+		if (!skiprequest && !nostopsound && curframe == numframes && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
 		curframe++;
 		if (skiprequest && !nostopsound) soundEngine->StopAllChannels();
 		return skiprequest ? -1 : curframe < numframes? 1 : 0;
