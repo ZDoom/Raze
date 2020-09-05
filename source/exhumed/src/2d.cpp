@@ -834,7 +834,7 @@ public:
 //
 //---------------------------------------------------------------------------
 
-void TextOverlay::Start(int starttime)
+void TextOverlay::Start(double starttime)
 {
     lastclock = starttime;
 }
@@ -879,12 +879,12 @@ void TextOverlay::DisplayText()
     }
 }
 
-bool TextOverlay::AdvanceCinemaText(int clock)
+bool TextOverlay::AdvanceCinemaText(double clock)
 {
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
         nCrawlY-= (clock - lastclock) / 15.;   // do proper interpolation.
-        Printf("Scroll: crawlY = %f, clock = %d, time = %d, real time = %u\n", nCrawlY, clock, lastclock - clock, I_msTime());
+        Printf("Scroll: crawlY = %f, clock = %f, time = %f, real time = %u\n", nCrawlY, clock, lastclock - clock, I_msTime());
         lastclock = clock;
         return true;
     }
@@ -980,7 +980,7 @@ public:
         DrawTexture(twod, tileGetTexture(cinematile), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_TranslationIndex, TRANSLATION(Translation_BasePalettes, currentCinemaPalette), TAG_DONE);
 
         text.DisplayText();
-        auto cont = text.AdvanceCinemaText(clock * 120 / 1'000'000'000);
+        auto cont = text.AdvanceCinemaText(clock * (120. / 1'000'000'000));
         int ret = skiprequest ? -1 : cont ? 1 : 0;
 
         // quit the game if we've finished level 4 and displayed the advert text

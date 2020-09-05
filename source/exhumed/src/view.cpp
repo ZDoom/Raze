@@ -405,7 +405,6 @@ void DrawView(double smoothRatio, bool sceneonly)
 
             if (nFreeze == 2)
             {
-                int myclock = leveltime + mulscale16(4, (int)smoothRatio);
                 if (nHeadStage == 4)
                 {
                     nHeadStage = 5;
@@ -424,7 +423,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
                     if (bSubTitles)
                     {
-                        subtitleOverlay.Start(myclock);
+                        subtitleOverlay.Start(I_GetTimeNS());
                         if (currentLevel->levelNumber == 1)
                             subtitleOverlay.ReadyCinemaText(1);
                         else
@@ -434,7 +433,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                 }
                 else if (nHeadStage == 5)
                 {
-                    if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(myclock)) || inputState.CheckAllInput())
+                    if ((bSubTitles && !subtitleOverlay.AdvanceCinemaText(I_GetTimeNS())) || inputState.CheckAllInput())
                     {
                         inputState.ClearAllInput();
                         EndLevel = 1;

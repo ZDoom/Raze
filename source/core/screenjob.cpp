@@ -630,7 +630,7 @@ public:
 	int DisplayFrame()
 	{
 		auto& job = jobs[index];
-		auto now = I_nsTime();
+		auto now = I_GetTimeNS();
 		bool processed = job.job->ProcessInput();
 		bool skiprequest = inputState.CheckAllInput() && !processed;
 		if (startTime == -1)
@@ -661,7 +661,7 @@ public:
 
 	int FadeoutFrame()
 	{
-		auto now = I_nsTime();
+		auto now = I_GetTimeNS();
 
 		if (!M_Active())
 		{

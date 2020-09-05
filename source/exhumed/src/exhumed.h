@@ -185,18 +185,18 @@ class TextOverlay
 	double nCrawlY;
 	short nLeft[50];
 	int nHeight;
-    int lastclock;
+    double lastclock;
 	TArray<FString> screentext;
     int currentCinemaPalette = 0;
 
 
 public:
 
-	void Start(int starttime);
+	void Start(double starttime);
 	void ComputeCinemaText();
 	void ReadyCinemaText(uint16_t nVal);
 	void DisplayText();
-	bool AdvanceCinemaText(int clock);
+	bool AdvanceCinemaText(double clock);
     void SetPalette(int pal) { currentCinemaPalette = pal; }
 };
 
