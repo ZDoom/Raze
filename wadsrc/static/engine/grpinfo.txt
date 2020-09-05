@@ -84,6 +84,16 @@ grpinfo
 	dependency 0
 }
 
+grpinfo // another variant? I got this one, dated 2016-10-12
+{
+	name "Duke Nukem 3D: Atomic Edition (WT)"
+	size 44486702
+	crc 0x89792E05
+	flags GAMEFLAG_DUKE
+	gamefilter "Duke.Duke"
+	dependency 0
+}
+
 grpinfo
 {
 	name "Duke Nukem 3D: Plutonium Pak"

@@ -300,6 +300,12 @@ void FScanner :: OpenLumpNum (int lump)
 
 void FScanner::PrepareScript ()
 {
+	// If the file got a UTF-8 byte order mark, remove that.
+	if (ScriptBuffer.Len() > 3 && ScriptBuffer[0] == (char)0xEF && ScriptBuffer[1] == (char)0xBB && ScriptBuffer[2] == (char)0xBF)
+	{
+		ScriptBuffer = ScriptBuffer.Mid(3);
+	}
+
 	// The scanner requires the file to end with a '\n', so add one if
 	// it doesn't already.
 	if (ScriptBuffer.Len() == 0 || ScriptBuffer.Back() != '\n')
