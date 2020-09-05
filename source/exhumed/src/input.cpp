@@ -120,22 +120,20 @@ void PlayerInterruptKeys(bool after)
     InputPacket tempinput{};
     fixed_t input_angle = 0;
 
-    if (PlayerList[nLocalPlayer].nHealth == 0)
+    if (!after)
     {
         localInput = {};
+        ApplyGlobalInput(localInput, &info);
+        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
+    }
+
+    if (PlayerList[nLocalPlayer].nHealth == 0)
+    {
         lPlayerYVel = 0;
         lPlayerXVel = 0;
         nPlayerDAng = 0;
         return;
     }
-
-    if (!after)
-    {
-        localInput = {};
-        ApplyGlobalInput(localInput, &info);
-        if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= ~(SB_FIRE | SB_JUMP | SB_CROUCH);
-    }
-
 
     // JBF: Run key behaviour is selectable
     int const playerRunning = !!(localInput.actions & SB_RUN);
