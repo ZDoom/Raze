@@ -52,7 +52,7 @@ struct TileInfo
 struct user_defs
 {
 	int levelclock;
-	unsigned char god, cashman;
+	unsigned char god, cashman, eog;
 	unsigned char show_help, scrollmode, clipping;
 	char user_name[MAXPLAYERS][32];
 	unsigned char showweapons;

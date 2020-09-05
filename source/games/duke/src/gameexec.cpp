@@ -693,7 +693,7 @@ int ParseState::parse(void)
 		insptr++;
 		ps[g_p].timebeforeexit = *insptr;
 		ps[g_p].customexitsound = -1;
-		ChangeLevel(nullptr, -1);
+		ud.eog = true;
 		insptr++;
 		break;
 

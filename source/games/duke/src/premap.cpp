@@ -1038,10 +1038,13 @@ void startnewgame(MapRecord* map, int skill)
 
 bool setnextmap(bool checksecretexit)
 {
-    MapRecord *map;
+    MapRecord* map = nullptr;;
     int from_bonus = 0;
 
-    if (checksecretexit && ud.from_bonus == 0)
+    if (ud.eog)
+    {
+    }
+    else if (checksecretexit && ud.from_bonus == 0)
     {
         if (ud.secretlevel > 0)
         {
