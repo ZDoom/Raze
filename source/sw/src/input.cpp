@@ -41,6 +41,7 @@ void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel);
 void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
 
 static InputPacket loc;
+static int32_t turnheldtime;
 
 void
 InitNetVars(void)
@@ -67,6 +68,19 @@ void GameInterface::ResetFollowPos(bool)
 	Follow_posy = pp->posy;
 }
 
+
+enum
+{
+    TURBOTURNTIME = (120 / 8),
+    NORMALTURN = (12 + 6),
+    RUNTURN = (28),
+    PREAMBLETURN = 3,
+    NORMALKEYMOVE = 35,
+    MAXVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXSVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXANGVEL = 100,
+    MAXHORIZVEL = 128
+};
 
 //---------------------------------------------------------------------------
 //
@@ -189,32 +203,14 @@ static void processWeapon(PLAYERp const pp)
     }
 }
 
-static void getinput(ControlInfo* const hidInput, bool const mouseaim)
+//---------------------------------------------------------------------------
+//
+// handles movement
+//
+//---------------------------------------------------------------------------
+
+static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
 {
-    PLAYERp pp = Player + myconnectindex;
-    PLAYERp newpp = Player + myconnectindex;
-
-#define TURBOTURNTIME (120/8)
-#define NORMALTURN   (12+6)
-#define RUNTURN      (28)
-#define PREAMBLETURN 3
-#define NORMALKEYMOVE 35
-#define MAXVEL       ((NORMALKEYMOVE*2)+10)
-#define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    100
-#define MAXHORIZVEL  128
-#define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
-
-    static int32_t turnheldtime;
-    int32_t momx, momy;
-
-    extern SWBOOL MenuButtonAutoAim;
-
-    if (Prediction && CommEnabled)
-    {
-        newpp = ppp;
-    }
-
     static double lastInputTicks;
 
     auto const currentHiTicks = I_msTimeF();
@@ -222,18 +218,11 @@ static void getinput(ControlInfo* const hidInput, bool const mouseaim)
 
     lastInputTicks = currentHiTicks;
 
-    if (paused)
-        return;
-
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
     // Note: this get called only during follow mode
     if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex, hidInput);
-
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || (automapFollow && automapMode != am_off))
-        return;
 
     int32_t turnamount;
     int32_t keymove;
@@ -376,13 +365,16 @@ static void getinput(ControlInfo* const hidInput, bool const mouseaim)
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
+    if (paused || M_Active() || (automapFollow && automapMode != am_off))
+    {
+        return;
+    }
+
     PLAYERp pp = &Player[myconnectindex];
     bool mouseaim;
 
     processInputBits(pp, hidInput, &mouseaim);
-
-    getinput(hidInput, &mouseaim);
-
+    processMovement(pp, hidInput, mouseaim);
     processWeapon(pp);
 
     if (packet)
