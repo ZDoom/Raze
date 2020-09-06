@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common.h"
 #include "common_game.h"
 #include "g_input.h"
+#include "automap.h"
 
 #include "db.h"
 #include "blood.h"
@@ -62,7 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "choke.h"
 #include "d_net.h"
 #include "v_video.h"
-#include "map2d.h"
 
 BEGIN_BLD_NS
 
@@ -495,8 +495,6 @@ void GameInterface::Startup()
 
 void GameInterface::Render()
 {
-	gZoom = GetAutomapZoom(gZoom);
-	gViewMap.nZoom = gZoom;
 	drawtime.Reset();
 	drawtime.Clock();
 	viewDrawScreen();

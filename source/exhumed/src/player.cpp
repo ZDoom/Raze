@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gstrings.h"
 #include "gamestate.h"
 #include "mapinfo.h"
+#include "automap.h"
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>

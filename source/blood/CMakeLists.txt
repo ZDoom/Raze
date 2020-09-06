@@ -45,7 +45,6 @@ set( PCH_SOURCES
 	src/inifile.cpp
 	src/levels.cpp
 	src/loadsave.cpp
-	src/map2d.cpp
 	src/messages.cpp
 	src/mirrors.cpp
 	src/misc.cpp

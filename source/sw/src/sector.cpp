@@ -92,7 +92,6 @@ short AnimCnt = 0;
 SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 SPRING_BOARD SpringBoard[20];
-int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL set_nextwall)
 {
@@ -178,11 +177,7 @@ WallSetup(void)
 
     memset(SineWall, -1, sizeof(SineWall));
 
-    x_min_bound = 999999;
-    y_min_bound = 999999;
-    x_max_bound = -999999;
-    y_max_bound = -999999;
-
+    extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
     for (wp = wall, i = 0; wp < &wall[numwalls]; i++, wp++)
     {
@@ -191,12 +186,6 @@ WallSetup(void)
 
         if (wall[i].picnum == FAF_PLACE_MIRROR_PIC+1)
             wall[i].picnum = FAF_MIRROR_PIC+1;
-
-        // get map min and max coordinates
-        x_min_bound = min(TrackerCast(wp->x), x_min_bound);
-        y_min_bound = min(TrackerCast(wp->y), y_min_bound);
-        x_max_bound = max(TrackerCast(wp->x), x_max_bound);
-        y_max_bound = max(TrackerCast(wp->y), y_max_bound);
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);

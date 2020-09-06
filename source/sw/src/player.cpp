@@ -126,7 +126,6 @@ extern SWBOOL DebugOperate;
 
 //unsigned char synctics, lastsynctics;
 
-int zoom;
 int ChopTics;
 
 PLAYER Player[MAX_SW_PLAYERS_REG + 1];
@@ -2432,94 +2431,6 @@ void PlayerCheckValidMove(PLAYERp pp)
             ASSERT(TRUE == FALSE);
         }
     }
-}
-
-void
-MoveScrollMode2D(PLAYERp pp)
-{
-#define TURBOTURNTIME (120/8)
-#define NORMALTURN   (12+6)
-#define RUNTURN      (28)
-#define PREAMBLETURN 3
-#define NORMALKEYMOVE 35
-#define MAXVEL       ((NORMALKEYMOVE*2)+10)
-#define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    100
-
-    ControlInfo scrl_input;
-    int32_t keymove;
-    int32_t momx, momy;
-    static int mfvel=0, mfsvel=0;
-
-    CONTROL_GetInput(&scrl_input);
-
-    mfsvel = mfvel = 0;
-
-    if (M_Active())
-        return;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe))
-        mfsvel -= scrl_input.dyaw / 4;
-    mfsvel -= scrl_input.dx / 4;
-    mfvel = -scrl_input.dz /4;
-
-    keymove = NORMALKEYMOVE;
-
-    if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-    {
-        mfsvel -= -keymove;
-    }
-    if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-    {
-        mfsvel -= keymove;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-    {
-        mfsvel += keymove;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-    {
-        mfsvel += -keymove;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-    {
-        mfvel += keymove;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-    {
-        mfvel += -keymove;
-    }
-
-    if (mfvel < -MAXVEL)
-        mfvel = -MAXVEL;
-    if (mfvel > MAXVEL)
-        mfvel = MAXVEL;
-    if (mfsvel < -MAXSVEL)
-        mfsvel = -MAXSVEL;
-    if (mfsvel > MAXSVEL)
-        mfsvel = MAXSVEL;
-
-    momx = mulscale9(mfvel, sintable[NORM_ANGLE(FixedToInt(pp->q16ang) + 512)]);
-    momy = mulscale9(mfvel, sintable[NORM_ANGLE(FixedToInt(pp->q16ang))]);
-
-    momx += mulscale9(mfsvel, sintable[NORM_ANGLE(FixedToInt(pp->q16ang))]);
-    momy += mulscale9(mfsvel, sintable[NORM_ANGLE(FixedToInt(pp->q16ang) + 1536)]);
-
-    //mfvel = momx;
-    //mfsvel = momy;
-
-    Follow_posx += momx;
-    Follow_posy += momy;
-
-    Follow_posx = max(Follow_posx, x_min_bound);
-    Follow_posy = max(Follow_posy, y_min_bound);
-    Follow_posx = min(Follow_posx, x_max_bound);
-    Follow_posy = min(Follow_posy, y_max_bound);
-
 }
 
 void PlayerSectorBound(PLAYERp pp, int amt)

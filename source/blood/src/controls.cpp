@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "controls.h"
 #include "globals.h"
 #include "levels.h"
-#include "map2d.h"
 #include "view.h"
 #include "d_event.h"
 #include "gamestate.h"
@@ -167,19 +166,11 @@ void GetInputInternal(InputPacket &inputParm)
 
     input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch / mlookScale));
 
-    if (!automapFollow && automapMode != am_off)
-    {
-        gViewMap.turn += input.q16avel<<2;
-        gViewMap.forward += input.fvel;
-        gViewMap.strafe += input.svel;
-        input.q16avel = 0;
-        input.fvel = 0;
-        input.svel = 0;
-    }
     inputParm.fvel = clamp(inputParm.fvel + input.fvel, -2048, 2048);
     inputParm.svel = clamp(inputParm.svel + input.svel, -2048, 2048);
     inputParm.q16avel += input.q16avel;
-    inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127)>>2, IntToFixed(127)>>2);
+    inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
+
     if (gMe && gMe->pXSprite && gMe->pXSprite->health != 0 && !paused)
     {
         int upAngle = 289;

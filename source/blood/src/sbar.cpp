@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "endgame.h"
 #include "aistate.h"
-#include "map2d.h"
 #include "loadsave.h"
 #include "sectorfx.h"
 #include "choke.h"
@@ -47,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_font.h"
 #include "glbackend/glbackend.h"
 #include "statusbar.h"
+#include "automap.h"
 
 CVARD(Bool, hud_powerupduration, true, CVAR_ARCHIVE/*|CVAR_FRONTEND_BLOOD*/, "enable/disable displaying the remaining seconds for power-ups")
 

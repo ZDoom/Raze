@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheathandler.h"
 #include "d_protocol.h"
 #include "gamestate.h"
+#include "automap.h"
 
 BEGIN_BLD_NS
 

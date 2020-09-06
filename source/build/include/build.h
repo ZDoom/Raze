@@ -435,26 +435,6 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-
-    //These variables are for auto-mapping with the draw2dscreen function.
-    //When you load a new board, these bits are all set to 0 - since
-    //you haven't mapped out anything yet.  Note that these arrays are
-    //bit-mapped.
-    //If you want draw2dscreen() to show sprite #54 then you say:
-    //   spritenum = 54;
-    //   show2dsprite[spritenum>>3] |= (1<<(spritenum&7));
-    //And if you want draw2dscreen() to not show sprite #54 then you say:
-    //   spritenum = 54;
-    //   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
-
-EXTERN int automapping;
-EXTERN FixedBitArray<MAXSECTORS> show2dsector;
-EXTERN bool gFullMap;
-
-EXTERN char show2dwall[(MAXWALLS+7)>>3];
-EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
-
-
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
@@ -646,9 +626,6 @@ void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
-void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
-void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
 
 class F2DDrawer;
 

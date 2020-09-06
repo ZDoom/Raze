@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "endgame.h"
 #include "aistate.h"
-#include "map2d.h"
 #include "loadsave.h"
 #include "sectorfx.h"
 #include "choke.h"
@@ -45,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "v_font.h"
+#include "statusbar.h"
+#include "automap.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS
@@ -266,8 +267,6 @@ void viewDrawAimedPlayerName(void)
 static TArray<uint8_t> lensdata;
 int *lensTable;
 
-int gZoom = 1024;
-
 extern int dword_172CE0[16][3];
 
 void viewInit(void)
@@ -299,7 +298,6 @@ void viewInit(void)
         dword_172CE0[i][1] = mulscale16(wrand(), 2048);
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
-    gViewMap.sub_25C38(0, 0, gZoom, 0);
 }
 
 int othercameradist = 1280;
@@ -596,6 +594,21 @@ void viewUpdateShake(void)
 int gLastPal = 0;
 
 int32_t g_frameRate;
+
+static void DrawMap(spritetype* pSprite)
+{
+    int tm = 0;
+    if (windowxy1.x > 0)
+    {
+        setViewport(Hud_Stbar);
+        tm = 1;
+    }
+    DrawOverheadMap(pSprite->x, pSprite->y, pSprite->ang);
+    if (tm)
+        setViewport(hud_size);
+}
+
+
 
 void viewDrawScreen(bool sceneonly)
 {
@@ -985,7 +998,7 @@ void viewDrawScreen(bool sceneonly)
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
     {
-        gViewMap.sub_25DB0(gView->pSprite);
+        DrawMap (gView->pSprite);
     }
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;
@@ -1040,7 +1053,50 @@ bool GameInterface::GenerateSavePic()
 
 FString GameInterface::GetCoordString()
 {
-    return "Player pos is unknown"; // todo: output at least something useful.
+    FString out;
+
+    out.Format("pos= %d, %d, %d - angle = %2.3f",
+        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang);
+
+    return out;
+}
+
+
+bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
+{
+    int nCos = z * sintable[(0 - a) & 2047];
+    int nSin = z * sintable[(1536 - a) & 2047];
+    int nCos2 = mulscale16(nCos, yxaspect);
+    int nSin2 = mulscale16(nSin, yxaspect);
+    int nPSprite = gView->pSprite->index;
+
+    for (int i = connecthead; i >= 0; i = connectpoint2[i])
+    {
+        PLAYER* pPlayer = &gPlayer[i];
+        spritetype* pSprite = pPlayer->pSprite;
+        int px = pSprite->x - x;
+        int py = pSprite->y - y;
+        int pa = (pSprite->ang - a) & 2047;
+        int x1 = dmulscale16(px, nCos, -py, nSin);
+        int y1 = dmulscale16(py, nCos2, px, nSin2);
+        if (i == gView->nPlayer || gGameOptions.nGameType == 1)
+        {
+            int nTile = pSprite->picnum;
+            int ceilZ, ceilHit, floorZ, floorHit;
+            GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+            int nTop, nBottom;
+            GetSpriteExtents(pSprite, &nTop, &nBottom);
+            int nScale = mulscale((pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z, yxaspect, 16);
+            nScale = ClipRange(nScale, 8000, 65536 << 1);
+            // Players on automap
+            double x = xdim / 2. + x1 / double(1 << 12);
+            double y = ydim / 2. + y1 / double(1 << 12);
+            // This very likely needs fixing later
+            DrawTexture(twod, tileGetTexture(nTile, true), x, y, DTA_ClipLeft, windowxy1.x, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
+                DTA_ClipRight, windowxy2.x + 1, DTA_ClipBottom, windowxy2.y + 1, DTA_Alpha, (pSprite->cstat & 2 ? 0.5 : 1.), TAG_DONE);
+        }
+    }
+    return true;
 }
 
 

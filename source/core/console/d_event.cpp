@@ -42,40 +42,7 @@
 #include "gamestate.h"
 #include "gamecontrol.h"
 #include "uiinput.h"
-
-//==========================================================================
-//
-// AM_Responder
-// Handle automap exclusive bindings.
-//
-//==========================================================================
-
-bool AM_Responder (event_t *ev, bool last)
-{
-	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
-	{
-#if 0 // this feature does not exist yet.
-		if (automapFollow)
-		{
-			// check for am_pan* and ignore in follow mode
-			const char *defbind = AutomapBindings.GetBind(ev->data1);
-			if (defbind && !strnicmp(defbind, "+am_pan", 7)) return false;
-		}
-#endif
-
-		bool res = C_DoKey(ev, &AutomapBindings, nullptr);
-		if (res && ev->type == EV_KeyUp && !last)
-		{
-			// If this is a release event we also need to check if it released a button in the main Bindings
-			// so that that button does not get stuck.
-			const char *defbind = Bindings.GetBind(ev->data1);
-			return (!defbind || defbind[0] != '+'); // Let G_Responder handle button releases
-		}
-		return res;
-	}
-	return false;
-}
-
+#include "automap.h"
 
 //==========================================================================
 //

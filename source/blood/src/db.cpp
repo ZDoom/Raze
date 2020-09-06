@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "zstring.h"
 #include "m_crc32.h"
 #include "md4.h"
+#include "automap.h"
 
 //#include "actor.h"
 #include "globals.h"
@@ -594,9 +595,7 @@ const int nXWallSize = 24;
 
 int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
-    show2dsector.Zero();
-    memset(show2dwall, 0, sizeof(show2dwall));
-    memset(show2dsprite, 0, sizeof(show2dsprite));
+    ClearAutomap();
     #ifdef NOONE_EXTENSIONS
     gModernMap = false;
     #endif

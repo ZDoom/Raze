@@ -6,6 +6,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 
 #include "build.h"
+#include "automap.h"
 #include "common.h"
 #include "engine_priv.h"
 #include "mdsprite.h"
@@ -2633,7 +2634,7 @@ void polymost_drawrooms()
         if (automapping)
         {
             for (int z=bunchfirst[closest]; z>=0; z=bunchp2[z])
-                show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
+                show2dwall.Set(thewall[z]);
         }
 
         numbunches--;
@@ -3626,7 +3627,7 @@ void polymost_drawsprite(int32_t snum)
     }
 
     if (automapping == 1 && (unsigned)spritenum < MAXSPRITES)
-        show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+        show2dsprite.Set(spritenum);
 
 _drawsprite_return:
     ;

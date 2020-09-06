@@ -762,8 +762,6 @@ extern FString ThemeSongs[6];                                          //
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
-extern int Follow_posx, Follow_posy;
-
 enum
 {
     MAX_KEYS = 8,
@@ -1625,7 +1623,6 @@ typedef struct
 
 extern SPIN Spin[17];
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
-extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 #define MAXANIM 256
 typedef void ANIM_CALLBACK (ANIMp, void *);
@@ -1998,8 +1995,6 @@ extern int GodMode;
 
 extern SWBOOL ReloadPrompt;
 
-extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
-
 //extern unsigned char synctics, lastsynctics;
 extern short snum;
 
@@ -2052,8 +2047,6 @@ extern char keys[];
 
 extern short screenpeek;
 
-extern int zoom;
-
 #define STAT_DAMAGE_LIST_SIZE 20
 extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 
@@ -2086,7 +2079,6 @@ int BunnyHatch2(short Weapon);  // bunny.c
 int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
 void TerminateLevel(void);  // game.c
-void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 
@@ -2208,8 +2200,7 @@ struct GameInterface : ::GameInterface
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void QuitToTitle() override;
-	void ResetFollowPos(bool message) override;
-    void UpdateSounds() override;
+	void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(InputPacket* input) override;
     void DrawBackground(void) override;
@@ -2221,6 +2212,7 @@ struct GameInterface : ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
 	void NewGame(MapRecord *map, int skill) override;
+    bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 
 
     GameStats getStats() override;

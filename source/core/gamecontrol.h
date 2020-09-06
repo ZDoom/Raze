@@ -56,6 +56,7 @@ void CONFIG_ReadCombatMacros();
 
 int GameMain();
 int GetAutomapZoom(int gZoom);
+
 void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
 void DeferedStartGame(MapRecord* map, int skill);
@@ -219,15 +220,6 @@ enum
 extern int paused;
 extern int chatmodeon;
 
-enum AM_Mode
-{
-	am_off,
-	am_overlay,
-	am_full,
-	am_count
-};
-extern int automapMode;
-extern bool automapFollow;
 extern bool sendPause;
 extern int lastTic;
 

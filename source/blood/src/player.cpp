@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <stdlib.h>
 #include <string.h>
+#include "automap.h"
 #include "compat.h"
 #include "build.h"
 #include "mmulti.h"
@@ -37,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "levels.h"
 #include "loadsave.h"
-#include "map2d.h"
 #include "player.h"
 #include "seq.h"
 #include "sound.h"
@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "nnexts.h"
 #include "gstrings.h"
 #include "gamestate.h"
+#include "automap.h"
 
 BEGIN_BLD_NS
 
@@ -704,7 +705,7 @@ void playerStart(int nPlayer, int bNewLevel)
     playerResetPosture(pPlayer);
     seqSpawn(pDudeInfo->seqStartID, 3, pSprite->extra, -1);
     if (pPlayer == gMe)
-        SetBitString(show2dsprite, pSprite->index);
+        show2dsprite.Set(pSprite->index);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
@@ -806,9 +807,6 @@ void playerStart(int nPlayer, int bNewLevel)
         viewInitializePrediction();
         gViewLook = pPlayer->q16look;
         gViewAngle = pPlayer->q16ang;
-        gViewMap.x = pPlayer->pSprite->x;
-        gViewMap.y = pPlayer->pSprite->y;
-        gViewMap.angle = pPlayer->pSprite->ang;
     }
     if (IsUnderwaterSector(pSprite->sectnum))
     {

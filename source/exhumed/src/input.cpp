@@ -91,8 +91,6 @@ void SendInput()
 
 void CheckKeys2()
 {
-    lMapZoom = GetAutomapZoom(lMapZoom);
-
     if (PlayerList[nLocalPlayer].nHealth <= 0)
     {
         SetAirFrame();
@@ -224,7 +222,6 @@ void PlayerInterruptKeys(bool after)
 
     localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
     localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
-
     localInput.q16avel += input_angle;
 
     if (!nFreeze)
