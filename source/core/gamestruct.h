@@ -105,6 +105,7 @@ struct GameInterface
 	virtual void NextLevel(MapRecord* map, int skill) {}
 	virtual void NewGame(MapRecord* map, int skill) {}
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
+	virtual bool DrawAutomapPlayer(int x, int y, int z, int a) { return false; }
 
 	virtual FString statFPS()
 	{

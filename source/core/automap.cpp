@@ -546,7 +546,8 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle)
 
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);
-	DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
+	if (!gi->DrawAutomapPlayer(x, y, gZoom, follow_a))
+		DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
 
 }
 
