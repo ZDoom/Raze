@@ -40,6 +40,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "d_protocol.h"
 #include "cheats.h"
 #include "gamestate.h"
+#include "automap.h"
 //#include "inv.h"
 
 BEGIN_SW_NS
@@ -128,9 +129,9 @@ bool MapCheat(cheatseq_t* c)
 {
     PLAYERp pp;
     if (!(pp=checkCheat(c))) return false;
-    mapcheat = !mapcheat;
+    gFullMap = !gFullMap;
     // Need to do this differently. The code here was completely broken.
-    PutStringInfo(pp, GStrings(mapcheat ? "TXTS_AMON" : "TXTS_AMOFF"));
+    PutStringInfo(pp, GStrings(gFullMap ? "TXTS_AMON" : "TXTS_AMOFF"));
     return true;
 }
 

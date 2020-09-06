@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "texturemanager.h"
 #include "statusbar.h"
 #include "v_draw.h"
+#include "automap.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>

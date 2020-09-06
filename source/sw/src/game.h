@@ -762,8 +762,6 @@ extern FString ThemeSongs[6];                                          //
 #define MAX_EPISODE_NAME_LEN 24
 extern char EpisodeNames[3][MAX_EPISODE_NAME_LEN+2];
 
-extern int Follow_posx, Follow_posy;
-
 enum
 {
     MAX_KEYS = 8,
@@ -1625,7 +1623,6 @@ typedef struct
 
 extern SPIN Spin[17];
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
-extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
 #define MAXANIM 256
 typedef void ANIM_CALLBACK (ANIMp, void *);
@@ -1998,8 +1995,6 @@ extern int GodMode;
 
 extern SWBOOL ReloadPrompt;
 
-extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
-
 //extern unsigned char synctics, lastsynctics;
 extern short snum;
 
@@ -2205,8 +2200,7 @@ struct GameInterface : ::GameInterface
     FString GetCoordString() override;
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void QuitToTitle() override;
-	void ResetFollowPos(bool message) override;
-    void UpdateSounds() override;
+	void UpdateSounds() override;
     void ErrorCleanup() override;
     void GetInput(InputPacket* input) override;
     void DrawBackground(void) override;

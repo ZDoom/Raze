@@ -220,15 +220,6 @@ enum
 extern int paused;
 extern int chatmodeon;
 
-enum AM_Mode
-{
-	am_off,
-	am_overlay,
-	am_full,
-	am_count
-};
-extern int automapMode;
-extern bool automapFollow;
 extern bool sendPause;
 extern int lastTic;
 

@@ -357,9 +357,6 @@ CUSTOM_CVAR(Int, playergender, 0, CVAR_USERINFO|CVAR_ARCHIVE)
 }
 
 
-CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
-CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
-CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 
 CVAR(Int, m_coop, 0, CVAR_NOSET)

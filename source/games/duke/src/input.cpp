@@ -928,7 +928,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
 
-	if ((automapFollow && automapMode != am_off) || blocked)
+	if (blocked)
 	{
 		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;

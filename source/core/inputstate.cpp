@@ -230,6 +230,11 @@ void SetupGameButtons()
 		"Dpad_Aiming",
 		"Toggle_Crouch",
 		"Quick_Kick",
+		"AM_PanLeft",
+		"AM_PanRight",
+		"AM_PanUp",
+		"AM_PanDown",
+
 	};
 	buttonMap.SetButtons(actions, NUM_ACTIONS);
 }

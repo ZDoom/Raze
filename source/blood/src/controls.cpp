@@ -166,20 +166,10 @@ void GetInputInternal(InputPacket &inputParm)
 
     input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch / mlookScale));
 
-    if (automapFollow && automapMode != am_off)
-    {
-        inputParm.q16horz = 0;
-        inputParm.q16avel = 0;
-        inputParm.fvel = 0;
-        inputParm.svel = 0;
-    }
-    else
-    {
-        inputParm.fvel = clamp(inputParm.fvel + input.fvel, -2048, 2048);
-        inputParm.svel = clamp(inputParm.svel + input.svel, -2048, 2048);
-        inputParm.q16avel += input.q16avel;
-        inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
-    }
+    inputParm.fvel = clamp(inputParm.fvel + input.fvel, -2048, 2048);
+    inputParm.svel = clamp(inputParm.svel + input.svel, -2048, 2048);
+    inputParm.q16avel += input.q16avel;
+    inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
 
     if (gMe && gMe->pXSprite && gMe->pXSprite->health != 0 && !paused)
     {

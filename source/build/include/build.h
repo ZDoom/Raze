@@ -626,9 +626,6 @@ void videoInit();
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
 void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
-void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col);
-void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
 
 class F2DDrawer;
 

@@ -220,19 +220,9 @@ void PlayerInterruptKeys(bool after)
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
         tempinput.fvel += -keyMove;
 
-    if ((automapFollow && automapMode != am_off))
-    {
-        // neutralize all movement when in automap follow mode
-        localInput.fvel = localInput.svel = 0;
-        localInput.q16avel = localInput.q16horz = 0;
-        input_angle = 0;
-    }
-    else
-    {
-        localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
-        localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
-        localInput.q16avel += input_angle;
-    }
+    localInput.fvel = clamp(localInput.fvel + tempinput.fvel, -12, 12);
+    localInput.svel = clamp(localInput.svel + tempinput.svel, -12, 12);
+    localInput.q16avel += input_angle;
 
     if (!nFreeze)
     {

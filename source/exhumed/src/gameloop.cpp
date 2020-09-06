@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "g_input.h"
 #include "core/menu/menu.h"
 #include "d_net.h"
+#include "automap.h"
 
 BEGIN_PS_NS
 

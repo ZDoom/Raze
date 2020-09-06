@@ -96,8 +96,6 @@ extern int sw_snd_scratch;
 
 int GameVersion = 20;
 
-int Follow_posx=0,Follow_posy=0;
-
 SWBOOL NoMeters = false;
 SWBOOL FinishAnim = 0;
 SWBOOL ReloadPrompt = false;

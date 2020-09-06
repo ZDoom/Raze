@@ -70,6 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "statusbar.h"
 #include "uiinput.h"
 #include "d_net.h"
+#include "automap.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -98,26 +99,7 @@ int connecthead, connectpoint2[MAXMULTIPLAYERS];
 auto vsnprintfptr = vsnprintf;	// This is an inline in Visual Studio but we need an address for it to satisfy the MinGW compiled libraries.
 int lastTic;
 
-int automapMode;
-bool automapFollow;
 extern bool pauseext;
-
-CCMD(togglemap)
-{
-	if (gamestate == GS_LEVEL)
-	{
-		automapMode++;
-		if (automapMode == am_count) automapMode = am_off;
-		if ((g_gameType & GAMEFLAG_BLOOD) && automapMode == am_overlay) automapMode = am_full; // todo: investigate if this can be re-enabled
-		gi->ResetFollowPos(false);
-	}
-}
-
-CCMD(togglefollow)
-{
-	automapFollow = !automapFollow;
-	gi->ResetFollowPos(true);
-}
 
 cycle_t thinktime, actortime, gameupdatetime, drawtime;
 
@@ -1263,64 +1245,6 @@ void GameInterface::FreeLevelData()
 	initspritelists();
 	numsectors = numwalls = 0;
 	currentLevel = nullptr;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-static float am_zoomdir;
-
-int GetAutomapZoom(int gZoom)
-{
-	static int nonsharedtimer;
-	int ms = screen->FrameTime;
-	int interval;
-	if (nonsharedtimer > 0 || ms < nonsharedtimer)
-	{
-		interval = ms - nonsharedtimer;
-	}
-	else
-	{
-		interval = 0;
-	}
-	nonsharedtimer = screen->FrameTime;
-
-	if (System_WantGuiCapture())
-		return gZoom;
-
-	if (automapMode != am_off)
-	{
-		if (am_zoomdir > 0)
-		{
-			gZoom = xs_CRoundToInt(gZoom * am_zoomdir);
-		}
-		else if (am_zoomdir < 0)
-		{
-			gZoom = xs_CRoundToInt(gZoom / -am_zoomdir);
-		}
-		am_zoomdir = 0;
-
-		double j = interval * (120. / 1000);
-
-		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
-			gZoom += (int)fmulscale6(j, max(gZoom, 256));
-		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
-			gZoom -= (int)fmulscale6(j, max(gZoom, 256));
-
-		gZoom = clamp(gZoom, 48, 2048);
-		
-	}
-	return gZoom;
-}
-
-CCMD(am_zoom)
-{
-	if (argv.argc() >= 2)
-	{
-		am_zoomdir = (float)atof(argv[1]);
-	}
 }
 
 //---------------------------------------------------------------------------

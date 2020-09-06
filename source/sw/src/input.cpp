@@ -60,13 +60,6 @@ InitTimingVars(void)
 
 
 
-void GameInterface::ResetFollowPos(bool)
-{
-	auto pp = &Player[myconnectindex];
-	Follow_posx = pp->posx;
-	Follow_posy = pp->posy;
-}
-
 static void getinput(InputPacket *loc)
 {
     int i;
@@ -105,10 +98,6 @@ static void getinput(InputPacket *loc)
     CONTROL_GetInput(&info);
 
     if (paused)
-        return;
-
-    // !JIM! Added M_Active() so that you don't move at all while using menus
-    if (M_Active() || (automapFollow && automapMode != am_off))
         return;
 
     int32_t turnamount;

@@ -92,7 +92,6 @@ struct GameInterface
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
-	virtual void ResetFollowPos(bool) {}
 	virtual void GetInput(InputPacket* packet) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}

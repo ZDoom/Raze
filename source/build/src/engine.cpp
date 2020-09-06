@@ -1851,22 +1851,6 @@ void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int 
     twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
 }
 
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
-{
-    twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
-}
-
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
-{
-    drawlinergb(x1, y1, x2, y2, PalEntry(p.r, p.g, p.b));
-}
-
-void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
-{
-    drawlinergb(x1, y1, x2, y2, GPalette.BaseColors[GPalette.Remap[col]]);
-}
-
-
 //==========================================================================
 //
 //
