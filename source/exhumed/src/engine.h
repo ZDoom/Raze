@@ -106,7 +106,6 @@ extern short nPalDiff;
 
 extern short bShowTowers;
 extern int ldMapZoom;
-extern int lMapZoom;
 
 void InitMap();
 void GrabMap();
