@@ -40,9 +40,6 @@ void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double con
 static InputPacket loc;
 static int32_t turnheldtime;
 
-// Constant used for scaling input down to match other games. May not last long after true re-factoring.
-static constexpr double const inputScale = 263. / 360.;
-
 void
 InitNetVars(void)
 {
@@ -207,6 +204,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     int32_t turnamount, keymove;
     int32_t fvel = 0, svel = 0;
     fixed_t q16avel = 0, q16horz = 0;
+
+    // Constant used for scaling input down to match other games. May not last long after true re-factoring.
+    constexpr double inputScale = 263. / 360.;
 
     if (loc.actions & SB_RUN)
     {
