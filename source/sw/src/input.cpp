@@ -43,6 +43,9 @@ void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
 static InputPacket loc;
 static int32_t turnheldtime;
 
+// Constant used for scaling input down to match other games. May not last long after true re-factoring.
+static constexpr double const inputScale = 263. / 360.;
+
 void
 InitNetVars(void)
 {
@@ -227,15 +230,6 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     int32_t turnamount;
     int32_t keymove;
 
-    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
-    // and use to scale back player's aim and ang values for a consistent feel between games.
-    float const angvelScale = 1.40625f;
-    float const aimvelScale = 1.203125f;
-
-    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
-    // for dividing controller input to match speed input speed of other games.
-    float const ticrateScale = 0.75f;
-
     if (loc.actions & SB_RUN)
     {
         if (pp->sop_control)
@@ -260,23 +254,23 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        svel -= (hidInput->mousex * ticrateScale) * 4.f;
+        svel -= (hidInput->mousex * inputScale) * 4.f;
         svel -= hidInput->dyaw * keymove;
     }
     else
     {
-        q16angvel += FloatToFixed((hidInput->mousex / angvelScale) + scaleAdjustmentToInterval((hidInput->dyaw * ticrateScale) / angvelScale));
+        q16angvel += FloatToFixed((hidInput->mousex + scaleAdjustmentToInterval(hidInput->dyaw)) * inputScale);
     }
 
     if (mouseaim)
-        q16horz -= FloatToFixed(hidInput->mousey / aimvelScale);
+        q16horz -= FloatToFixed(hidInput->mousey * inputScale);
     else
-        vel -= (hidInput->mousey * ticrateScale) * 8.f;
+        vel -= (hidInput->mousey * inputScale) * 8.f;
 
     if (in_mouseflip)
         q16horz = -q16horz;
 
-    q16horz -= FloatToFixed(scaleAdjustmentToInterval((hidInput->dpitch * ticrateScale) / aimvelScale));
+    q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch * inputScale));
     svel -= hidInput->dx * keymove;
     vel -= hidInput->dz * keymove;
 
