@@ -67,7 +67,7 @@ void GameInterface::ResetFollowPos(bool)
 	Follow_posy = pp->posy;
 }
 
-static void getinput(InputPacket *loc)
+static void getinput(InputPacket *loc, ControlInfo* const hidInput)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;
@@ -101,9 +101,6 @@ static void getinput(InputPacket *loc)
 
     lastInputTicks = currentHiTicks;
 
-    ControlInfo info;
-    CONTROL_GetInput(&info);
-
     if (paused)
         return;
 
@@ -111,7 +108,7 @@ static void getinput(InputPacket *loc)
     // Tried calling this in domovethings, but key response it too poor, skips key presses
     // Note: this get called only during follow mode
     if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex);
+        MoveScrollMode2D(Player + myconnectindex, hidInput);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
     if (M_Active() || (automapFollow && automapMode != am_off))
@@ -129,7 +126,7 @@ static void getinput(InputPacket *loc)
     // for dividing controller input to match speed input speed of other games.
     float const ticrateScale = 0.75f;
 
-    ApplyGlobalInput(*loc, &info);
+    ApplyGlobalInput(*loc, hidInput);
 
     bool mouseaim = !(loc->actions & SB_AIMMODE);
 
@@ -179,25 +176,25 @@ static void getinput(InputPacket *loc)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
-        svel -= (info.mousex * ticrateScale) * 4.f;
-        svel -= info.dyaw * keymove;
+        svel -= (hidInput->mousex * ticrateScale) * 4.f;
+        svel -= hidInput->dyaw * keymove;
     }
     else
     {
-        q16angvel += FloatToFixed((info.mousex / angvelScale) + scaleAdjustmentToInterval((info.dyaw * ticrateScale) / angvelScale));
+        q16angvel += FloatToFixed((hidInput->mousex / angvelScale) + scaleAdjustmentToInterval((hidInput->dyaw * ticrateScale) / angvelScale));
     }
 
     if (mouseaim)
-        q16horz -= FloatToFixed(info.mousey / aimvelScale);
+        q16horz -= FloatToFixed(hidInput->mousey / aimvelScale);
     else
-        vel -= (info.mousey * ticrateScale) * 8.f;
+        vel -= (hidInput->mousey * ticrateScale) * 8.f;
 
     if (in_mouseflip)
         q16horz = -q16horz;
 
-    q16horz -= FloatToFixed(scaleAdjustmentToInterval((info.dpitch * ticrateScale) / aimvelScale));
-    svel -= info.dx * keymove;
-    vel -= info.dz * keymove;
+    q16horz -= FloatToFixed(scaleAdjustmentToInterval((hidInput->dpitch * ticrateScale) / aimvelScale));
+    svel -= hidInput->dx * keymove;
+    vel -= hidInput->dz * keymove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
     {
@@ -359,9 +356,9 @@ static void getinput(InputPacket *loc)
     }
 }
 
-void GameInterface::GetInput(InputPacket *packet)
+void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
-    getinput(&loc);
+    getinput(&loc, hidInput);
     if (packet)
     {
         PLAYERp pp = &Player[myconnectindex];

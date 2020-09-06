@@ -51,10 +51,9 @@ float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
 
-void GetInputInternal(InputPacket &inputParm)
+void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
 {
     int prevPauseState = paused;
-    ControlInfo info;
 
     static double lastInputTicks;
     auto const    currentHiTicks    = I_msTimeF();
@@ -66,9 +65,7 @@ void GetInputInternal(InputPacket &inputParm)
 
     InputPacket input = {};
 
-    CONTROL_GetInput(&info);
-
-    ApplyGlobalInput(inputParm, &info);
+    ApplyGlobalInput(inputParm, hidInput);
 
     bool mouseaim = !(inputParm.actions & SB_AIMMODE);
     if (!mouseaim) inputParm.actions |= SB_CENTERVIEW;
@@ -146,26 +143,26 @@ void GetInputInternal(InputPacket &inputParm)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        input.svel -= info.mousex * 32.f;
-        input.svel -= scaleAdjustmentToInterval(info.dyaw * keyMove);
+        input.svel -= hidInput->mousex * 32.f;
+        input.svel -= scaleAdjustmentToInterval(hidInput->dyaw * keyMove);
     }
     else
     {
-        input.q16avel += FloatToFixed(info.mousex);
-        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(info.dyaw));
+        input.q16avel += FloatToFixed(hidInput->mousex);
+        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(hidInput->dyaw));
     }
 
-    input.svel  -= scaleAdjustmentToInterval(info.dx * keyMove);
-    input.fvel -= scaleAdjustmentToInterval(info.dz * keyMove);
+    input.svel  -= scaleAdjustmentToInterval(hidInput->dx * keyMove);
+    input.fvel -= scaleAdjustmentToInterval(hidInput->dz * keyMove);
 
     if (mouseaim)
-        input.q16horz += FloatToFixed(info.mousey / mlookScale);
+        input.q16horz += FloatToFixed(hidInput->mousey / mlookScale);
     else
-        input.fvel -= info.mousey * 64.f;
+        input.fvel -= hidInput->mousey * 64.f;
     if (!in_mouseflip)
         input.q16horz = -input.q16horz;
 
-    input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch / mlookScale));
+    input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch / mlookScale));
 
     if (!automapFollow && automapMode != am_off)
     {
@@ -202,9 +199,9 @@ void GetInputInternal(InputPacket &inputParm)
     }
 }
 
-void GameInterface::GetInput(InputPacket* packet)
+void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    GetInputInternal(gInput);
+    GetInputInternal(gInput, hidInput);
     if (packet)
     {
         *packet = gInput;

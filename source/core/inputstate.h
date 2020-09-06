@@ -48,7 +48,7 @@ public:
 		g_mousePos.y += y;
 	}
 
-	void GetMouseDelta(ControlInfo* info);
+	void GetMouseDelta(ControlInfo* hidInput);
 
 	void ClearAllInput();
 	bool CheckAllInput()
@@ -61,7 +61,7 @@ public:
 
 extern InputState inputState;
 
-void CONTROL_GetInput(ControlInfo* info);
+ControlInfo CONTROL_GetInput();
 int32_t handleevents(void);
 
 enum GameFunction_t
@@ -96,5 +96,5 @@ enum GameFunction_t
 };
 
 void SetupGameButtons();
-void ApplyGlobalInput(InputPacket& input, ControlInfo *info);
+void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput);
 extern ESyncBits ActionsToSend;

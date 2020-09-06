@@ -1604,7 +1604,6 @@ short ScreenSavePic = FALSE;
 
 SWBOOL PicInView(short, SWBOOL);
 void DoPlayerDiveMeter(PLAYERp pp);
-void MoveScrollMode2D(PLAYERp pp);
 
 void
 drawscreen(PLAYERp pp, double smoothratio)

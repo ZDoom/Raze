@@ -7,6 +7,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 #include "engineerrors.h"
 #include "stats.h"
 #include "packet.h"
+#include "inputstate.h"
 
 class FSerializer;
 
@@ -93,7 +94,7 @@ struct GameInterface
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
 	virtual void ResetFollowPos(bool) {}
-	virtual void GetInput(InputPacket* packet) {}
+	virtual void GetInput(InputPacket* packet, ControlInfo* const hidInput) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}

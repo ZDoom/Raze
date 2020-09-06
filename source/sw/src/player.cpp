@@ -2435,7 +2435,7 @@ void PlayerCheckValidMove(PLAYERp pp)
 }
 
 void
-MoveScrollMode2D(PLAYERp pp)
+MoveScrollMode2D(PLAYERp pp, ControlInfo* const hidInput)
 {
 #define TURBOTURNTIME (120/8)
 #define NORMALTURN   (12+6)
@@ -2446,12 +2446,9 @@ MoveScrollMode2D(PLAYERp pp)
 #define MAXSVEL      ((NORMALKEYMOVE*2)+10)
 #define MAXANGVEL    100
 
-    ControlInfo scrl_input;
     int32_t keymove;
     int32_t momx, momy;
     static int mfvel=0, mfsvel=0;
-
-    CONTROL_GetInput(&scrl_input);
 
     mfsvel = mfvel = 0;
 
@@ -2459,9 +2456,9 @@ MoveScrollMode2D(PLAYERp pp)
         return;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
-        mfsvel -= scrl_input.dyaw / 4;
-    mfsvel -= scrl_input.dx / 4;
-    mfvel = -scrl_input.dz /4;
+        mfsvel -= hidInput->dyaw / 4;
+    mfsvel -= hidInput->dx / 4;
+    mfvel = -hidInput->dz /4;
 
     keymove = NORMALKEYMOVE;
 

@@ -130,7 +130,7 @@ void DoPlayer(void);
 void domovethings(void);
 void InitAllPlayers(void);
 void InitMultiPlayerInfo(void);
-void MoveScrollMode2D(PLAYERp pp);
+void MoveScrollMode2D(PLAYERp pp, ControlInfo* const hidInput);
 void DoPlayerDivePalette(PLAYERp pp);
 void DoPlayerNightVisionPalette(PLAYERp pp);
 void DoPlayerStopDiveNoWarp(PLAYERp pp);

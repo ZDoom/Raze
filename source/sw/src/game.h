@@ -2211,7 +2211,7 @@ struct GameInterface : ::GameInterface
 	void ResetFollowPos(bool message) override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(InputPacket* input) override;
+    void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;
