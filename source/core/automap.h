@@ -3,6 +3,7 @@
 #include "tarray.h"
 #include "build.h"
 #include "c_cvars.h"
+#include "palentry.h"
 
 class FSerializer;
 struct event_t;
@@ -18,6 +19,7 @@ void ClearAutomap();
 void MarkSectorSeen(int sect);
 void DrawOverheadMap(int x, int y, int ang);
 bool AM_Responder(event_t* ev, bool last);
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p);
 
 enum AM_Mode
 {
