@@ -775,7 +775,6 @@ void donewgame(MapRecord* map, int sk)
 
     ud.last_level = -1;
 
-    p->zoom = 768;
     M_ClearMenus();
     ResetGameVars();
 
