@@ -1799,7 +1799,7 @@ int ConCompiler::parsecommand()
 		max_ammo_amount[8] = parseone();
 		max_ammo_amount[9] = parseone();
 		if (isPlutoPak() || isRR()) max_ammo_amount[11] = parseone();
-		if (isRR() || isWorldTour()) max_ammo_amount[12] = parseone();
+		if (isRR()) max_ammo_amount[12] = parseone();
 		camerashitable = parseone();
 		numfreezebounces = parseone();
 		freezerhurtowner = parseone();
@@ -1808,6 +1808,7 @@ int ConCompiler::parsecommand()
 			spriteqamount = clamp(parseone(), 0, 1024);
 			lasermode = parseone();
 		}
+		if (isWorldTour()) max_ammo_amount[12] = parseone();
 		if (isRRRA())
 		{
 			max_ammo_amount[13] = parseone();
