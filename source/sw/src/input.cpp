@@ -67,8 +67,7 @@ void GameInterface::ResetFollowPos(bool)
 	Follow_posy = pp->posy;
 }
 
-void
-getinput(InputPacket *loc, SWBOOL tied)
+static void getinput(InputPacket *loc)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;
@@ -111,7 +110,7 @@ getinput(InputPacket *loc, SWBOOL tied)
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
     // Note: this get called only during follow mode
-    if (!tied && automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
+    if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex);
 
     // !JIM! Added M_Active() so that you don't move at all while using menus
@@ -174,9 +173,6 @@ getinput(InputPacket *loc, SWBOOL tied)
 
         keymove = NORMALKEYMOVE;
     }
-
-    if (tied)
-        keymove = 0;
 
     int32_t svel = 0, vel = 0;
     fixed_t q16horz = 0, q16angvel = 0;
@@ -279,23 +275,8 @@ getinput(InputPacket *loc, SWBOOL tied)
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
 
-    loc->fvel += vel;
-    loc->svel += svel;
-
-    if (!tied)
-    {
-        vel = clamp(loc->fvel, -MAXVEL, MAXVEL);
-        svel = clamp(loc->svel, -MAXSVEL, MAXSVEL);
-
-        momx = mulscale9(vel, sintable[NORM_ANGLE(FixedToInt(newpp->q16ang) + 512)]);
-        momy = mulscale9(vel, sintable[NORM_ANGLE(FixedToInt(newpp->q16ang))]);
-
-        momx += mulscale9(svel, sintable[NORM_ANGLE(FixedToInt(newpp->q16ang))]);
-        momy += mulscale9(svel, sintable[NORM_ANGLE(FixedToInt(newpp->q16ang) + 1536)]);
-
-        loc->fvel = momx;
-        loc->svel = momy;
-    }
+    loc->fvel = clamp(loc->fvel + vel, -MAXVEL, MAXVEL);
+    loc->svel = clamp(loc->svel + svel, -MAXSVEL, MAXSVEL);
 
     loc->q16avel += q16angvel;
     loc->q16horz += q16horz;
@@ -380,10 +361,17 @@ getinput(InputPacket *loc, SWBOOL tied)
 
 void GameInterface::GetInput(InputPacket *packet)
 {
-    getinput(&loc, FALSE);
+    getinput(&loc);
     if (packet)
     {
         PLAYERp pp = &Player[myconnectindex];
+
+        auto fvel = loc.fvel;
+        auto svel = loc.svel;
+        auto ang  = FixedToInt(pp->camq16ang);
+
+        loc.fvel = mulscale9(fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(svel, sintable[NORM_ANGLE(ang)]);
+        loc.svel = mulscale9(fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(svel, sintable[NORM_ANGLE(ang + 1536)]);
         loc.q16ang = pp->camq16ang;
         loc.q16horiz = pp->camq16horiz;
         *packet = loc;
