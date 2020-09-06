@@ -95,6 +95,7 @@ public:
 	virtual FSerializer &Sprite(const char *key, int32_t &spritenum, int32_t *def);
 	// This is only needed by the type system.
 	virtual FSerializer& StatePointer(const char* key, void* ptraddr, bool *res);
+	FSerializer& SerializeMemory(const char* key, void* mem, size_t length);
 
 	FSerializer &StringPtr(const char *key, const char *&charptr);	// This only retrieves the address but creates no permanent copy of the string unlike the regular char* serializer.
 	FSerializer &AddString(const char *key, const char *charptr);

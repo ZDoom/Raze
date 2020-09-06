@@ -51,6 +51,7 @@
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "gamestruct.h"
+#include "automap.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -73,6 +74,7 @@ static void SerializeSession(FSerializer& arc)
 	Mus_Serialize(arc);
 	quoteMgr.Serialize(arc);
 	S_SerializeSounds(arc);
+	SerializeAutomap(arc);
 }
 
 //=============================================================================
@@ -126,8 +128,8 @@ bool OpenSaveGameForRead(const char *name)
 		info->Unlock();
 
 		// Load system-side data from savegames.
-		SerializeSession(arc);
 		LoadEngineState();
+		SerializeSession(arc); // must be AFTER LoadEngineState because it needs info from it.
 		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;

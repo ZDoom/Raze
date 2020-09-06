@@ -32,6 +32,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "c_cvars.h"
 #include "gstrings.h"
 #include "printf.h"
+#include "serializer.h"
 
 
 bool automapping;
@@ -39,6 +40,27 @@ bool gFullMap;
 FixedBitArray<MAXSECTORS> show2dsector;
 FixedBitArray<MAXWALLS> show2dwall;
 FixedBitArray<MAXSPRITES> show2dsprite;
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void SerializeAutomap(FSerializer& arc)
+{
+    if (arc.BeginObject("automap"))
+    {
+        arc("automapping", automapping)
+            ("fullmap", gFullMap)
+            // Only store what's needed. Unfortunately for sprites it is not that easy
+            .SerializeMemory("mappedsectors", show2dsector.Storage(), (numsectors + 7) / 8)
+            .SerializeMemory("mappedwalls", show2dwall.Storage(), (numwalls + 7) / 8)
+            .SerializeMemory("mappedsprites", show2dsprite.Storage(), MAXSPRITES / 8)
+            .EndObject();
+    }
+}
+
 
 //---------------------------------------------------------------------------
 //
