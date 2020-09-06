@@ -1339,8 +1339,7 @@ DoPlayerTeleportPause(PLAYERp pp)
 void
 DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 {
-    pp->camq16ang = pp->q16ang = pp->oq16ang = IntToFixed(sp->ang);
-    pp->camq16horiz = pp->q16horiz; // Ensure horiz is initially locked
+    pp->q16ang = pp->oq16ang = IntToFixed(sp->ang);
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
@@ -1547,7 +1546,7 @@ void
 DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scaleAdjust = 1.)
 {
 #define TURN_SHIFT 2
-
+#if 0
     if (!cl_syncinput && (pq16ang == &pp->q16ang))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN);
@@ -1562,7 +1561,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scale
         }
         return;
     }
-
+#endif
     if (!TEST(pp->Flags, PF_TURN_180))
     {
         if (pp->input.actions & SB_TURNAROUND)
@@ -1677,7 +1676,7 @@ DoPlayerTurnBoat(PLAYERp pp)
 
     if (angvel != 0)
     {
-        pp->camq16ang = pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+        pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
 }
@@ -1709,7 +1708,7 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
     {
         if (MultiClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang) + angvel), z, floor_dist))
         {
-            pp->camq16ang = pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+            pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
             sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
         }
     }
@@ -1742,7 +1741,7 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
     {
         if (RectClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang) + angvel), x, y, ox, oy))
         {
-            pp->camq16ang = pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+            pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
             sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
         }
     }
@@ -1799,7 +1798,7 @@ DoPlayerTurnTurret(PLAYERp pp)
             }
         }
 
-        pp->camq16ang = pp->q16ang = IntToFixed(new_ang);
+        pp->q16ang = IntToFixed(new_ang);
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
 }
@@ -1909,7 +1908,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const sc
 
 //    //DSPRINTF(ds,"FixedToInt(pp->q16horizoff), %d", FixedToInt(pp->q16horizoff));
 //    MONO_PRINT(ds);
-
+#if 0
     if (!cl_syncinput && (pq16horiz == &pp->q16horiz))
     {
         SET(pp->Flags2, PF2_INPUT_CAN_AIM);
@@ -1918,7 +1917,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const sc
             pp->oq16horiz = pp->q16horiz;
         return;
     }
-
+#endif
     // Fixme: This should probably be made optional.
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
@@ -3910,7 +3909,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            pp->camq16ang = pp->q16ang = IntToFixed(pp->LadderAngle);
+            pp->q16ang = IntToFixed(pp->LadderAngle);
         }
     }
 }
@@ -4371,7 +4370,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    pp->camq16ang = pp->q16ang = IntToFixed(pp->LadderAngle);
+    pp->q16ang = IntToFixed(pp->LadderAngle);
 
     return TRUE;
 }
@@ -5611,7 +5610,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    pp->camq16ang = pp->q16ang = IntToFixed(sop->ang);
+    pp->q16ang = IntToFixed(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5696,7 +5695,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    pp->camq16ang = pp->q16ang = IntToFixed(sop->ang);
+    pp->q16ang = IntToFixed(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5825,9 +5824,9 @@ DoPlayerStopOperate(PLAYERp pp)
     if (pp->sop_remote)
     {
         if (TEST_BOOL1(pp->remote_sprite))
-            pp->camq16ang = pp->q16ang = pp->oq16ang = IntToFixed(pp->remote_sprite->ang);
+            pp->q16ang = pp->oq16ang = IntToFixed(pp->remote_sprite->ang);
         else
-            pp->camq16ang = pp->q16ang = pp->oq16ang = IntToFixed(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->q16ang = pp->oq16ang = IntToFixed(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
     }
 
     if (pp->sop_control)
@@ -6187,10 +6186,6 @@ DoPlayerBeginDie(PLAYERp pp)
     if (GodMode)
         return;
 
-    // Ensure these are initially locked
-    pp->camq16ang = pp->q16ang;
-    pp->camq16horiz = pp->q16horiz;
-
     StopPlayerSound(pp);
 
     // Do the death scream
@@ -6393,7 +6388,6 @@ DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
             pp->q16horiz = IntToFixed(target);
     }
 
-    pp->camq16horiz = pp->q16horiz;
     return pp->q16horiz == IntToFixed(target);
 }
 
@@ -6492,7 +6486,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
             q16ang2 = gethiq16angle(kp->x - pp->posx, kp->y - pp->posy);
 
             delta_q16ang = GetDeltaQ16Angle(q16ang2, pp->q16ang);
-            pp->camq16ang = pp->q16ang = NORM_Q16ANGLE(pp->q16ang + (delta_q16ang >> 4));
+            pp->q16ang = NORM_Q16ANGLE(pp->q16ang + (delta_q16ang >> 4));
         }
     }
 }
@@ -6549,7 +6543,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->yrepeat = PLAYER_NINJA_YREPEAT;
 
         //pp->tilt = 0;
-        pp->camq16horiz = pp->q16horiz = pp->q16horizbase = IntToFixed(100);
+        pp->q16horiz = pp->q16horizbase = IntToFixed(100);
         DoPlayerResetMovement(pp);
         u->ID = NINJA_RUN_R0;
         PlayerDeathReset(pp);
@@ -7531,7 +7525,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].camq16ang = Player[screenpeek].q16ang = IntToFixed(getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
+            Player[screenpeek].q16ang = IntToFixed(getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
@@ -7614,8 +7608,8 @@ InitAllPlayers(void)
         pp->posx = pp->oposx = pfirst->posx;
         pp->posy = pp->oposy = pfirst->posy;
         pp->posz = pp->oposz = pfirst->posz;
-        pp->camq16ang = pp->q16ang = pp->oq16ang = pfirst->q16ang;
-        pp->camq16horiz = pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
+        pp->q16ang = pp->oq16ang = pfirst->q16ang;
+        pp->q16horiz = pp->oq16horiz = pfirst->q16horiz;
         pp->cursectnum = pfirst->cursectnum;
         // set like this so that player can trigger something on start of the level
         pp->lastcursectnum = pfirst->cursectnum+1;
@@ -7762,7 +7756,7 @@ PlayerSpawnPosition(PLAYERp pp)
     pp->posx = pp->oposx = sp->x;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
-    pp->camq16ang = pp->q16ang = pp->oq16ang = IntToFixed(sp->ang);
+    pp->q16ang = pp->oq16ang = IntToFixed(sp->ang);
     pp->cursectnum = sp->sectnum;
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);

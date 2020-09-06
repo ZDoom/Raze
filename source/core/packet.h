@@ -74,8 +74,6 @@ struct InputPacket
     int16_t fvel;
     fixed_t q16avel;
     fixed_t q16horz;
-    fixed_t q16horiz;	// only used by SW
-    fixed_t q16ang;		// only used by SW
     ESyncBits actions;
 	
 

@@ -1176,7 +1176,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", FixedToInt(pp->camq16ang));
+    out.AppendFormat("ANG:%d\n", FixedToInt(pp->q16ang));
 
     return out;
 }
@@ -1656,15 +1656,10 @@ drawscreen(PLAYERp pp, double smoothratio)
         tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
     }
-    else if (cl_sointerpolation && !CommEnabled)
-    {
-        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(((pp->camq16ang + IntToFixed(1024) - camerapp->oq16ang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
-        tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio));
-    }
     else
     {
-        tq16ang = pp->camq16ang;
-        tq16horiz = pp->camq16horiz;
+        tq16ang = pp->q16ang;
+        tq16horiz = pp->q16horiz;
     }
     tsectnum = camerapp->cursectnum;
 

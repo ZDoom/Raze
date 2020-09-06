@@ -1021,8 +1021,6 @@ void NetUpdate (void)
 				int fvel;
 				int64_t q16avel;
 				int64_t q16horz;
-				int64_t q16horiz;	// only used by SW
-				int64_t q16ang;		// only used by SW
 
 				for (j = 0; j < ticdup; ++j)
 				{
@@ -1031,16 +1029,12 @@ void NetUpdate (void)
 					fvel += localcmds[modp].ucmd.fvel;
 					q16avel += localcmds[modp].ucmd.q16avel;
 					q16horz += localcmds[modp].ucmd.q16horz;
-					q16horiz += localcmds[modp].ucmd.q16horiz;
-					q16ang += localcmds[modp].ucmd.q16ang;
 				}
 
 				svel /= ticdup;
 				fvel /= ticdup;
 				q16avel /= ticdup;
 				q16horz /= ticdup;
-				q16horiz /= ticdup;
-				q16ang /= ticdup;
 
 				for (j = 0; j < ticdup; ++j)
 				{
@@ -1049,8 +1043,6 @@ void NetUpdate (void)
 					localcmds[modp].ucmd.fvel = fvel;
 					localcmds[modp].ucmd.q16avel = q16avel;
 					localcmds[modp].ucmd.q16horz = q16horz;
-					localcmds[modp].ucmd.q16horiz = q16horiz;
-					localcmds[modp].ucmd.q16ang = q16ang;
 				}
 
 				Net_NewMakeTic ();

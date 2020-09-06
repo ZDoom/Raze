@@ -883,7 +883,6 @@ struct PLAYERstruct
     int hvel,tilt,tilt_dest;
     bool centering;
     fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
-    fixed_t camq16horiz, camq16ang;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;

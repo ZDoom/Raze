@@ -280,15 +280,10 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
     if (!cl_syncinput)
     {
-        fixed_t const prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
-
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, &pp->camq16ang, q16avel, scaleAdjust);
+            DoPlayerTurn(pp, &pp->q16ang, q16avel, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-            DoPlayerHorizon(pp, &pp->camq16horiz, q16horz, scaleAdjust);
-
-        pp->oq16ang += pp->camq16ang - prevcamq16ang;
-        pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
+            DoPlayerHorizon(pp, &pp->q16horiz, q16horz, scaleAdjust);
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
@@ -321,8 +316,6 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
         packet->fvel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang)]);
         packet->svel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang + 1536)]);
-        packet->q16ang = pp->camq16ang;
-        packet->q16horiz = pp->camq16horiz;
 
         loc = {};
     }
