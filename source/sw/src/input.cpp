@@ -67,9 +67,96 @@ void GameInterface::ResetFollowPos(bool)
 	Follow_posy = pp->posy;
 }
 
+
+//---------------------------------------------------------------------------
+//
+// handles movement
+//
+//---------------------------------------------------------------------------
+
+static void processWeapon(PLAYERp const pp)
+{
+    USERp u = User[pp->PlayerSprite];
+    int i;
+
+    if (loc.getNewWeapon() == WeaponSel_Next)
+    {
+        short next_weapon = u->WeaponNum + 1;
+        short start_weapon;
+
+        start_weapon = u->WeaponNum + 1;
+
+        if (u->WeaponNum == WPN_SWORD)
+            start_weapon = WPN_STAR;
+
+        if (u->WeaponNum == WPN_FIST)
+        {
+            next_weapon = 14;
+        }
+        else
+        {
+            next_weapon = -1;
+            for (i = start_weapon; TRUE; i++)
+            {
+                if (i >= MAX_WEAPONS_KEYS)
+                {
+                    next_weapon = 13;
+                    break;
+                }
+
+                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
+                {
+                    next_weapon = i;
+                    break;
+                }
+            }
+        }
+
+        loc.setNewWeapon(next_weapon + 1);
+    }
+    else if (loc.getNewWeapon() == WeaponSel_Prev)
+    {
+        USERp u = User[pp->PlayerSprite];
+        short prev_weapon = u->WeaponNum - 1;
+        short start_weapon;
+
+        start_weapon = u->WeaponNum - 1;
+
+        if (u->WeaponNum == WPN_SWORD)
+        {
+            prev_weapon = 13;
+        }
+        else if (u->WeaponNum == WPN_STAR)
+        {
+            prev_weapon = 14;
+        }
+        else
+        {
+            prev_weapon = -1;
+            for (i = start_weapon; TRUE; i--)
+            {
+                if (i <= -1)
+                    i = WPN_HEART;
+
+                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
+                {
+                    prev_weapon = i;
+                    break;
+                }
+            }
+        }
+        loc.setNewWeapon(prev_weapon + 1);
+    }
+    else if (loc.getNewWeapon() == WeaponSel_Alt)
+    {
+        USERp u = User[pp->PlayerSprite];
+        short const which_weapon = u->WeaponNum + 1;
+        loc.setNewWeapon(which_weapon);
+    }
+}
+
 static void getinput(ControlInfo* const hidInput)
 {
-    int i;
     PLAYERp pp = Player + myconnectindex;
     PLAYERp newpp = Player + myconnectindex;
 
@@ -277,92 +364,18 @@ static void getinput(ControlInfo* const hidInput)
 
     loc.q16avel += q16angvel;
     loc.q16horz += q16horz;
-
-
-    if (loc.getNewWeapon() == WeaponSel_Next)
-    {
-        USERp u = User[pp->PlayerSprite];
-        short next_weapon = u->WeaponNum + 1;
-        short start_weapon;
-
-        start_weapon = u->WeaponNum + 1;
-
-        if (u->WeaponNum == WPN_SWORD)
-            start_weapon = WPN_STAR;
-
-        if (u->WeaponNum == WPN_FIST)
-        {
-            next_weapon = 14;
-        }
-        else
-        {
-            next_weapon = -1;
-            for (i = start_weapon; TRUE; i++)
-            {
-                if (i >= MAX_WEAPONS_KEYS)
-                {
-                    next_weapon = 13;
-                    break;
-                }
-
-                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
-                {
-                    next_weapon = i;
-                    break;
-                }
-            }
-        }
-
-        loc.setNewWeapon(next_weapon + 1);
-    }
-    else if (loc.getNewWeapon() == WeaponSel_Prev)
-    {
-        USERp u = User[pp->PlayerSprite];
-        short prev_weapon = u->WeaponNum - 1;
-        short start_weapon;
-
-        start_weapon = u->WeaponNum - 1;
-
-        if (u->WeaponNum == WPN_SWORD)
-        {
-            prev_weapon = 13;
-        }
-        else if (u->WeaponNum == WPN_STAR)
-        {
-            prev_weapon = 14;
-        }
-        else
-        {
-            prev_weapon = -1;
-            for (i = start_weapon; TRUE; i--)
-            {
-                if (i <= -1)
-                    i = WPN_HEART;
-
-                if (TEST(pp->WpnFlags, BIT(i)) && pp->WpnAmmo[i])
-                {
-                    prev_weapon = i;
-                    break;
-                }
-            }
-        }
-        loc.setNewWeapon(prev_weapon + 1);
-    }
-    else if (loc.getNewWeapon() == WeaponSel_Alt)
-    {
-        USERp u = User[pp->PlayerSprite];
-        short const which_weapon = u->WeaponNum + 1;
-        loc.setNewWeapon(which_weapon);
-    }
 }
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
+    PLAYERp pp = &Player[myconnectindex];
+
     getinput(hidInput);
+
+    processWeapon(pp);
+
     if (packet)
     {
-        PLAYERp pp = &Player[myconnectindex];
-
         auto fvel = loc.fvel;
         auto svel = loc.svel;
         auto ang  = FixedToInt(pp->camq16ang);
