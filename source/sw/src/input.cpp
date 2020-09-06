@@ -329,15 +329,15 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
     if (packet)
     {
-        auto fvel = loc.fvel;
-        auto svel = loc.svel;
-        auto ang  = FixedToInt(pp->camq16ang);
+        auto const ang = FixedToInt(pp->camq16ang);
 
-        loc.fvel = mulscale9(fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(svel, sintable[NORM_ANGLE(ang)]);
-        loc.svel = mulscale9(fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(svel, sintable[NORM_ANGLE(ang + 1536)]);
-        loc.q16ang = pp->camq16ang;
-        loc.q16horiz = pp->camq16horiz;
         *packet = loc;
+
+        packet->fvel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang)]);
+        packet->svel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang + 1536)]);
+        packet->q16ang = pp->camq16ang;
+        packet->q16horiz = pp->camq16horiz;
+
         loc = {};
     }
 }
