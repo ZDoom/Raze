@@ -506,7 +506,11 @@ public:
 				}
 			}
 		}
-		else if (currentclock > (10240 + 120L)) return 0;
+		else if (currentclock > (10240 + 120L))
+		{
+			if (!skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
+			return 0;
+		}
 
 		if (currentclock > 10240 && currentclock < 10240 + 10240)
 			SetTotalClock(1024);
