@@ -205,7 +205,6 @@ void OffBoat(player_struct *pl);
 
 void drawstatusbar_d(int snum);
 void drawstatusbar_r(int snum);
-void drawoverheadmap(int cposx, int cposy, int czoom, int cang);
 void cameratext(int i);
 void dobonus(int bonusonly, const CompletionFunc& completion);
 void dobonus_d(int bonusonly, const CompletionFunc& completion);

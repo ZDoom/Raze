@@ -106,7 +106,6 @@ SWBOOL SavegameLoaded = false;
 SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
-void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 SWBOOL PreCaching = TRUE;
 int GodMode = false;
 short Skill = 2;
@@ -266,7 +265,6 @@ void InitLevelGlobals(void)
 {
     ChopTics = 0;
     automapMode = am_off;
-    zoom = 768 / 2;
     PlayerGravity = 24;
     wait_active_check_offset = 0;
     PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);

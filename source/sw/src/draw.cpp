@@ -1788,33 +1788,10 @@ drawscreen(PLAYERp pp, double smoothratio)
 #endif
 
 
-    i = pp->cursectnum;
-
-    if (i >= 0)
-    {
-        show2dsector.Set(i);
-        walltype *wal = &wall[sector[i].wallptr];
-        for (j=sector[i].wallnum; j>0; j--,wal++)
-        {
-            i = wal->nextsector;
-            if (i < 0) continue;
-            if (wal->cstat&0x0071) continue;
-            uint16_t const nextwall = wal->nextwall;
-            if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
-            if (sector[i].lotag == 32767) continue;
-            if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector.Set(i);
-        }
-    }
+    MarkSectorSeen(pp->cursectnum);
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        if (automapFollow)
-        {
-            tx = Follow_posx;
-            ty = Follow_posy;
-        }
-
         for (j = 0; j < MAXSPRITES; j++)
         {
             // Don't show sprites tagged with 257
@@ -1827,16 +1804,7 @@ drawscreen(PLAYERp pp, double smoothratio)
                 }
             }
         }
-
-        if (automapMode == am_full)
-        {
-            // only clear the actual window.
-            twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-            renderDrawMapView(tx, ty, zoom*2, FixedToInt(tq16ang));
-        }
-
-        // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom*2, FixedToInt(tq16ang));
+        DrawOverheadMap(tx, ty, FixedToInt(tq16ang));
     }
 
     for (j = 0; j < MAXSPRITES; j++)
@@ -1871,8 +1839,6 @@ drawscreen(PLAYERp pp, double smoothratio)
 #if SYNC_TEST
     SyncStatMessage();
 #endif
-
-    zoom = GetAutomapZoom(zoom);
 
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen

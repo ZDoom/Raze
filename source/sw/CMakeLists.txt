@@ -26,7 +26,6 @@ set( PCH_SOURCES
 	src/jweapon.cpp
 	src/lava.cpp
 	src/light.cpp
-	src/map2d.cpp
 	src/mclip.cpp
 	src/menus.cpp
 	src/miscactr.cpp

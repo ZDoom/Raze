@@ -486,11 +486,6 @@ void SaveEngineState()
 	fw->Write(&pskybits_override, sizeof(pskybits_override));
 	WriteMagic(fw);
 
-	fw->Write(show2dwall, sizeof(show2dwall));
-	fw->Write(show2dsprite, sizeof(show2dsprite));
-	fw->Write(&show2dsector, sizeof(show2dsector));
-	WriteMagic(fw);
-
 	fw->Write(&Numsprites, sizeof(Numsprites));
 	sv_prespriteextsave();
 	fw->Write(spriteext, sizeof(spriteext_t) * MAXSPRITES);
@@ -547,11 +542,6 @@ void LoadEngineState()
 		fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
 		fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
 		fr.Read(&pskybits_override, sizeof(pskybits_override));
-		CheckMagic(fr);
-
-		fr.Read(show2dwall, sizeof(show2dwall));
-		fr.Read(show2dsprite, sizeof(show2dsprite));
-		fr.Read(&show2dsector, sizeof(show2dsector));
 		CheckMagic(fr);
 
 		fr.Read(&Numsprites, sizeof(Numsprites));

@@ -107,12 +107,6 @@ static void getinput(InputPacket *loc)
     if (paused)
         return;
 
-    // If in 2D follow mode, scroll around using glob vars
-    // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: this get called only during follow mode
-    if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex);
-
     // !JIM! Added M_Active() so that you don't move at all while using menus
     if (M_Active() || (automapFollow && automapMode != am_off))
         return;

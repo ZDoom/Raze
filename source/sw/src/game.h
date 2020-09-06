@@ -2052,8 +2052,6 @@ extern char keys[];
 
 extern short screenpeek;
 
-extern int zoom;
-
 #define STAT_DAMAGE_LIST_SIZE 20
 extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 
@@ -2086,7 +2084,6 @@ int BunnyHatch2(short Weapon);  // bunny.c
 int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
 void TerminateLevel(void);  // game.c
-void drawoverheadmap(int cposx,int cposy,int czoom,short cang); // game.c
 void DrawMenuLevelScreen(void); // game.c
 void DebugWriteString(char *string);    // game.c
 
