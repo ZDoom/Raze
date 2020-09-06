@@ -217,12 +217,6 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     int32_t fvel = 0, svel = 0;
     fixed_t q16avel = 0, q16horz = 0;
 
-    // If in 2D follow mode, scroll around using glob vars
-    // Tried calling this in domovethings, but key response it too poor, skips key presses
-    // Note: this get called only during follow mode
-    if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
-        MoveScrollMode2D(Player + myconnectindex, hidInput);
-
     if (loc.actions & SB_RUN)
     {
         turnamount = pp->sop_control ? RUNTURN * 3 : RUNTURN;
