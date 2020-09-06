@@ -81,7 +81,7 @@ void InitSpiritHead();
 // TODO - relocate
 void StatusMessage(int messageTime, const char *fmt, ...);
 
-int DoSpiritHead();
+void DoSpiritHead();
 
 void CheckKeys2();
 void GameTicker();

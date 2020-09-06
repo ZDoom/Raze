@@ -204,285 +204,36 @@ void CopyHeadToWorkTile(short nTile)
     }
 }
 
-int DoSpiritHead()
+// This is based on BuildGDX's version of this function which was a lot less cryptic than PCExhumed's.
+void DoSpiritHead() 
 {
-    static short word_964E6 = 0;
+    static short dimSectCount = 0;
 
     PlayerList[0].q16horiz += (nDestVertPan[0] - PlayerList[0].q16horiz) / 4;
-
     TileFiles.InvalidateTile(kTileRamsesWorkTile);
+    int totalclock = leveltime * 4;
 
-    if (nHeadStage < 2)
+    switch (nHeadStage) 
     {
+    case 0:
+    case 1:
         memset(Worktile, TRANSPARENT_INDEX, WorktileSize);
-    }
-
-    if (nHeadStage < 2 || nHeadStage != 5)
-    {
-        nPixelsToShow = (leveltime*4 - nHeadTimeStart) * 15;
-
-        if (nPixelsToShow > nPixels) {
-            nPixelsToShow = nPixels;
-        }
-
-        if (nHeadStage < 3)
+        break;
+    case 5:
+        if (lNextStateChange <= totalclock) 
         {
-            UpdateSwirlies();
-
-            if (sprite[nSpiritSprite].shade > -127) {
-                sprite[nSpiritSprite].shade--;
-            }
-
-            word_964E6--;
-            if (word_964E6 < 0)
+            if (nPupData != 0) 
             {
-                DimSector(sprite[nSpiritSprite].sectnum);
-                word_964E6 = 5;
-            }
-
-            if (!nHeadStage)
-            {
-                if ((leveltime*4 - nHeadTimeStart) > 480)
-                {
-                    nHeadStage = 1;
-                    nHeadTimeStart = leveltime*4 + 480;
-                }
-
-                for (int i = 0; i < nPixelsToShow; i++)
-                {
-                    if (destvely[i] >= 0)
-                    {
-                        vely[i]++;
-
-                        if (vely[i] >= destvely[i])
-                        {
-                            destvely[i] = -(RandomSize(2) + 1);
-                        }
-                    }
-                    else
-                    {
-                        vely[i]--;
-
-                        if (vely[i] <= destvely[i])
-                        {
-                            destvely[i] = RandomSize(2) + 1;
-                        }
-                    }
-
-                    if (destvelx[i] >= 0)
-                    {
-                        velx[i]++;
-
-                        if (velx[i] >= destvelx[i])
-                        {
-                            destvelx[i] = -(RandomSize(2) + 1);
-                        }
-                    }
-                    else
-                    {
-                        velx[i]--;
-
-                        if (velx[i] <= destvelx[i])
-                        {
-                            destvelx[i] = RandomSize(2) + 1;
-                        }
-                    }
-
-                    int esi = vely[i] + (cury[i] >> 8);
-
-                    if (esi < kSpiritX)
-                    {
-                        if (esi < -105)
-                        {
-                            vely[i] = 0;
-                            esi = 0;
-                        }
-                    }
-                    else
-                    {
-                        vely[i] = 0;
-                        esi = 0;
-                    }
-
-                    int ebx = velx[i] + (curx[i] >> 8);
-
-                    if (ebx < kSpiritY)
-                    {
-                        if (ebx < -96)
-                        {
-                            velx[i] = 0;
-                            ebx = 0;
-                        }
-                    }
-                    else
-                    {
-                        velx[i] = 0;
-                        ebx = 0;
-                    }
-
-                    curx[i] = ebx * 256;
-                    cury[i] = esi * 256;
-
-                    esi += (ebx + kSpiritY) * 212;
-
-                    Worktile[kSpiritX + esi] = pixelval[i];
-                }
-
-                return 1;
-            }
-            else
-            {
-                if (nHeadStage != 1) {
-                    return 1;
-                }
-
-                uint8_t nXRepeat = sprite[nSpiritSprite].xrepeat;
-                if (nXRepeat > nSpiritRepeatX)
-                {
-                    sprite[nSpiritSprite].xrepeat -= 2;
-
-                    nXRepeat = sprite[nSpiritSprite].xrepeat;
-                    if (nXRepeat < nSpiritRepeatX)
-                    {
-                        sprite[nSpiritSprite].xrepeat = nSpiritRepeatX;
-                    }
-                }
-
-                uint8_t nYRepeat = sprite[nSpiritSprite].yrepeat;
-                if (nYRepeat > nSpiritRepeatY)
-                {
-                    sprite[nSpiritSprite].yrepeat -= 2;
-
-                    nYRepeat = sprite[nSpiritSprite].yrepeat;
-                    if (nYRepeat < nSpiritRepeatY)
-                    {
-                        sprite[nSpiritSprite].yrepeat = nSpiritRepeatY;
-                    }
-                }
-
-                int esi = 0;
-
-                for (int i = 0; i < nPixels; i++)
-                {
-                    int eax = (origx[i] << 8) - curx[i];
-                    int ecx = eax;
-
-                    if (eax)
-                    {
-                        if (eax < 0) {
-                            eax = -eax;
-                        }
-
-                        if (eax < 8)
-                        {
-                            curx[i] = origx[i] << 8;
-                            ecx = 0;
-                        }
-                        else {
-                            ecx >>= 3;
-                        }
-                    }
-                    else
-                    {
-                        ecx >>= 3;
-                    }
-
-                    int var_1C = (origy[i] << 8) - cury[i];
-                    int ebp = var_1C;
-
-                    if (var_1C)
-                    {
-                        eax = ebp;
-
-                        if (eax < 0) {
-                            eax = -eax;
-                        }
-
-                        if (eax < 8)
-                        {
-                            cury[i] = origy[i] << 8;
-                            var_1C = 0;
-                        }
-                        else
-                        {
-                            var_1C >>= 3;
-                        }
-                    }
-                    else
-                    {
-                        var_1C >>= 3;
-                    }
-
-                    if (var_1C || ecx)
-                    {
-                        curx[i] += ecx;
-                        cury[i] += var_1C;
-
-                        esi++;
-                    }
-
-                    ecx = (((curx[i] >> 8) + kSpiritY) * 212) + (cury[i] >> 8);
-
-                    Worktile[kSpiritX + ecx] = pixelval[i];
-                }
-
-                if ((leveltime*4 - lHeadStartClock) > 600)
-                {
-                    CopyHeadToWorkTile(kTileRamsesGold);
-                }
-
-                int eax = ((nPixels << 4) - nPixels) / 16;
-
-                if (esi < eax)
-                {
-                    SoundBigEntrance();
-                    AddGlow(sprite[nSpiritSprite].sectnum, 20);
-                    AddFlash(
-                        sprite[nSpiritSprite].sectnum,
-                        sprite[nSpiritSprite].x,
-                        sprite[nSpiritSprite].y,
-                        sprite[nSpiritSprite].z,
-                        128);
-
-                    nHeadStage = 3;
-                    TintPalette(255, 255, 255);
-                    CopyHeadToWorkTile(kTileRamsesNormal);
-                }
-
-                return 1;
-            }
-        }
-        else
-        {
-            FixPalette();
-
-            if (!nPalDiff)
-            {
-                nFreeze = 2;
-                nHeadStage++;
-            }
-
-            return 0;
-        }
-    }
-    else
-    {
-        if (lNextStateChange <= leveltime*4)
-        {
-            if (nPupData)
-            {
-                short nPupVal = *pPupData;
-                pPupData++;
+                short clock = *pPupData++;
                 nPupData -= 2;
-
-                if (nPupData > 0)
+                if (nPupData > 0) 
                 {
-                    lNextStateChange = (nPupVal + lHeadStartClock) - 10;
+                    lNextStateChange = lHeadStartClock + clock - 10;
                     nTalkTime = !nTalkTime;
                 }
-                else
+                else 
                 {
-                    nTalkTime = 0;
+                    nTalkTime = false;
                     nPupData = 0;
                 }
             }
@@ -495,70 +246,207 @@ int DoSpiritHead()
             }
         }
 
-        word_964E8--;
-        if (word_964E8 <= 0)
+        if (--word_964E8 <= 0) 
         {
-            word_964EA = RandomBit() * 2;
+            word_964EA = 2 * RandomBit();
             word_964E8 = RandomSize(5) + 4;
         }
 
-        int ebx = 592;
-        word_964EC--;
-
-        if (word_964EC < 3)
+        int tilenum = kTileRamsesNormal;
+        if (--word_964EC < 3) 
         {
-            ebx = 593;
-            if (word_964EC <= 0) {
+            tilenum = 593;
+            if (word_964EC <= 0)
                 word_964EC = RandomSize(6) + 4;
-            }
         }
 
-        ebx += word_964EA;
+        CopyHeadToWorkTile(word_964EA + tilenum);
 
-        uint8_t *pDest = &Worktile[10441];
-		const uint8_t* pSrc = tilePtr(ebx);
-
-        for (int i = 0; i < kSpiritY; i++)
+        if (nTalkTime) 
         {
-            memcpy(pDest, pSrc, kSpiritX);
-
-            pDest += 212;
-            pSrc += kSpiritX;
-        }
-
-        if (nTalkTime)
-        {
-            if (nMouthTile < 2) {
+            if (nMouthTile < 2)
                 nMouthTile++;
-            }
         }
         else if (nMouthTile != 0)
-        {
             nMouthTile--;
+
+        if (nMouthTile != 0) 
+        {
+            int srctile = nMouthTile + 598;
+            auto src = tilePtr(srctile);
+            int sizx = tilesiz[srctile].x;
+            int sizy = tilesiz[srctile].y;
+            int workptr = 212 * (97 - sizx / 2) + 159 - sizy;
+            int srcptr = 0;
+            while (sizx > 0) 
+            {
+                memcpy(Worktile + workptr, src + srcptr, sizy);
+                workptr += 212;
+                srcptr += sizy;
+                sizx--;
+            }
+        }
+        return;
+    }
+
+    nPixelsToShow = 15 * (totalclock - nHeadTimeStart);
+    if (nPixelsToShow > nPixels)
+        nPixelsToShow = nPixels;
+
+    switch (nHeadStage) 
+    {
+    case 3:
+        FixPalette();
+        if (nPalDiff == 0) 
+        {
+            nFreeze = 2;
+            nHeadStage++;
+        }
+        return;
+    case 0:
+    case 1:
+    case 2:
+        UpdateSwirlies();
+        if (sprite[nSpiritSprite].shade > -127)
+            sprite[nSpiritSprite].shade--;
+        if (--dimSectCount < 0) 
+        {
+            DimSector(sprite[nSpiritSprite].sectnum);
+            dimSectCount = 5;
         }
 
-        if (nMouthTile)
+        if (nHeadStage == 0) 
         {
-            short nTileSizeX = tilesiz[nMouthTile + 598].x;
-            short nTileSizeY = tilesiz[nMouthTile + 598].y;
-
-            uint8_t *pDest = &Worktile[212 * (kSpiritY - nTileSizeX / 2)] + (159 - nTileSizeY);
-            const uint8_t *pSrc = tilePtr(nMouthTile + 598);
-
-            while (nTileSizeX > 0)
+            if (totalclock - nHeadTimeStart > 480) 
             {
-                memcpy(pDest, pSrc, nTileSizeY);
+                nHeadStage = 1;
+                nHeadTimeStart = totalclock + 480;
+            }
 
-                nTileSizeX--;
-                pDest += 212;
-                pSrc += nTileSizeY;
+            for (int i = 0; i < nPixelsToShow; i++) 
+            {
+                if (destvely[i] >= 0) 
+                {
+                    if (++vely[i] >= destvely[i]) 
+                    {
+                        destvely[i] = (int8_t)-(RandomSize(2) + 1);
+                    }
+                }
+                else {
+                    if (--vely[i] <= destvely[i]) 
+                    {
+                        destvely[i] = (int8_t)(RandomSize(2) + 1);
+                    }
+                }
+
+                if (destvelx[i] >= 0) {
+                    if (++velx[i] >= destvelx[i]) 
+                    {
+                        destvelx[i] = (int8_t)-(RandomSize(2) + 1);
+                    }
+                }
+                else {
+                    if (--velx[i] <= destvelx[i]) 
+                    {
+                        destvelx[i] = (int8_t)(RandomSize(2) + 1);
+                    }
+                }
+
+                int x = (curx[i] >> 8) + velx[i];
+                if (x < 97) 
+                {
+                    if (x < -96) 
+                    {
+                        x = 0;
+                        velx[i] = 0;
+                    }
+                }
+                else 
+                {
+                    x = 0;
+                    velx[i] = 0;
+                }
+
+                int y = (cury[i] >> 8) + vely[i];
+                if (y < 106) 
+                {
+                    if (y < -105) 
+                    {
+                        y = 0;
+                        vely[i] = 0;
+                    }
+                }
+                else 
+                {
+                    y = 0;
+                    vely[i] = 0;
+                }
+
+                curx[i] = (short)(x << 8);
+                cury[i] = (short)(y << 8);
+
+                Worktile[212 * (x + 97) + 106 + y] = pixelval[i++];
             }
         }
 
-        return 1;
-    }
+        if (nHeadStage == 1) 
+        {
+            if (sprite[nSpiritSprite].xrepeat > nSpiritRepeatX) 
+            {
+                sprite[nSpiritSprite].xrepeat -= 2;
+                if (sprite[nSpiritSprite].xrepeat < nSpiritRepeatX)
+                    sprite[nSpiritSprite].xrepeat = nSpiritRepeatX;
+            }
+            if (sprite[nSpiritSprite].yrepeat > nSpiritRepeatY) 
+            {
+                sprite[nSpiritSprite].yrepeat -= 2;
+                if (sprite[nSpiritSprite].yrepeat < nSpiritRepeatY)
+                    sprite[nSpiritSprite].yrepeat = nSpiritRepeatY;
+            }
 
-    return 0;
+            int nCount = 0;
+            for (int i = 0; i < nPixels; i++) 
+            {
+                int dx, dy;
+                if (origx[i] << 8 == curx[i] || abs((origx[i] << 8) - curx[i]) >= 8)
+                    dx = ((origx[i] << 8) - curx[i]) >> 3;
+                else {
+                    dx = 0;
+                    curx[i] = (short)(origx[i] << 8);
+                }
+
+                if (origy[i] << 8 == cury[i] || abs((origy[i] << 8) - cury[i]) >= 8)
+                    dy = ((origy[i] << 8) - cury[i]) >> 3;
+                else {
+                    dy = 0;
+                    cury[i] = (short)(origy[i] << 8);
+                }
+
+                if ((dx | dy) != 0) 
+                {
+                    curx[i] += dx;
+                    cury[i] += dy;
+                    nCount++;
+                }
+
+                Worktile[((cury[i] >> 8) + (212 * ((curx[i] >> 8) + 97))) + 106] = pixelval[i];
+            }
+
+            if (totalclock - lHeadStartClock > 600)
+                CopyHeadToWorkTile(590);
+
+            if (nCount < (15 * nPixels) / 16) {
+                SoundBigEntrance();
+                AddGlow(sprite[nSpiritSprite].sectnum, 20);
+                AddFlash(sprite[nSpiritSprite].sectnum, sprite[nSpiritSprite].x, sprite[nSpiritSprite].y,
+                    sprite[nSpiritSprite].z, 128);
+                nHeadStage = 3;
+                TintPalette(255, 255, 255);
+                CopyHeadToWorkTile(kTileRamsesNormal);
+            }
+        }
+        break;
+    }
 }
 
 // This is only the static global data.
