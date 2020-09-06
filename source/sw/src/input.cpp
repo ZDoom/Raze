@@ -70,6 +70,40 @@ void GameInterface::ResetFollowPos(bool)
 
 //---------------------------------------------------------------------------
 //
+// handles the input bits
+//
+//---------------------------------------------------------------------------
+
+static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput, bool* mouseaim)
+{
+    ApplyGlobalInput(loc, hidInput);
+    *mouseaim = !(loc.actions & SB_AIMMODE);
+
+    if (!CommEnabled)
+    {
+        // Go back to the source to set this - the old code here was catastrophically bad.
+        // this needs to be fixed properly - as it is this can never be compatible with demo playback.
+
+        if (mouseaim)
+            SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+        else
+            RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
+
+        if (cl_autoaim)
+            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+        else
+            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
+    {
+        // this shares a bit with another function so cannot be in the common code.
+        loc.actions |= SB_CROUCH_LOCK;
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // handles movement
 //
 //---------------------------------------------------------------------------
@@ -155,7 +189,7 @@ static void processWeapon(PLAYERp const pp)
     }
 }
 
-static void getinput(ControlInfo* const hidInput)
+static void getinput(ControlInfo* const hidInput, bool const mouseaim)
 {
     PLAYERp pp = Player + myconnectindex;
     PLAYERp newpp = Player + myconnectindex;
@@ -212,32 +246,6 @@ static void getinput(ControlInfo* const hidInput)
     // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
     // for dividing controller input to match speed input speed of other games.
     float const ticrateScale = 0.75f;
-
-    ApplyGlobalInput(loc, hidInput);
-
-    bool mouseaim = !(loc.actions & SB_AIMMODE);
-
-    if (!CommEnabled)
-    {
-        // Go back to the source to set this - the old code here was catastrophically bad.
-        // this needs to be fixed properly - as it is this can never be compatible with demo playback.
-
-        if (mouseaim)
-            SET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-        else
-            RESET(Player[myconnectindex].Flags, PF_MOUSE_AIMING_ON);
-
-        if (cl_autoaim)
-            SET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-        else
-            RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
-    }
-
-
-
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch)) // this shares a bit with another function so cannot be in the common code.
-        loc.actions |= SB_CROUCH_LOCK;
-
 
     if (loc.actions & SB_RUN)
     {
@@ -369,8 +377,11 @@ static void getinput(ControlInfo* const hidInput)
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
     PLAYERp pp = &Player[myconnectindex];
+    bool mouseaim;
 
-    getinput(hidInput);
+    processInputBits(pp, hidInput, &mouseaim);
+
+    getinput(hidInput, &mouseaim);
 
     processWeapon(pp);
 
