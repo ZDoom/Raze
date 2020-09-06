@@ -51,6 +51,7 @@
 #include "raze_music.h"
 #include "raze_sound.h"
 #include "gamestruct.h"
+#include "automap.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -73,6 +74,7 @@ static void SerializeSession(FSerializer& arc)
 	Mus_Serialize(arc);
 	quoteMgr.Serialize(arc);
 	S_SerializeSounds(arc);
+	SerializeAutomap(arc);
 }
 
 //=============================================================================
@@ -126,8 +128,8 @@ bool OpenSaveGameForRead(const char *name)
 		info->Unlock();
 
 		// Load system-side data from savegames.
-		SerializeSession(arc);
 		LoadEngineState();
+		SerializeSession(arc); // must be AFTER LoadEngineState because it needs info from it.
 		gi->SerializeGameState(arc);
 	}
 	return savereader != nullptr;
@@ -474,7 +476,6 @@ void SaveEngineState()
 	fw->Write(connectpoint2, sizeof(connectpoint2));
 	fw->Write(&randomseed, sizeof(randomseed));
 	fw->Write(&numshades, sizeof(numshades));
-	fw->Write(&automapping, sizeof(automapping));
 	fw->Write(&showinvisibility, sizeof(showinvisibility));
 	WriteMagic(fw);
 
@@ -484,11 +485,6 @@ void SaveEngineState()
 	fw->Write(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
 	fw->Write(&parallaxyscale_override, sizeof(parallaxyscale_override));
 	fw->Write(&pskybits_override, sizeof(pskybits_override));
-	WriteMagic(fw);
-
-	fw->Write(show2dwall, sizeof(show2dwall));
-	fw->Write(show2dsprite, sizeof(show2dsprite));
-	fw->Write(&show2dsector, sizeof(show2dsector));
 	WriteMagic(fw);
 
 	fw->Write(&Numsprites, sizeof(Numsprites));
@@ -537,7 +533,6 @@ void LoadEngineState()
 		fr.Read(connectpoint2, sizeof(connectpoint2));
 		fr.Read(&randomseed, sizeof(randomseed));
 		fr.Read(&numshades, sizeof(numshades));
-		fr.Read(&automapping, sizeof(automapping));
 		fr.Read(&showinvisibility, sizeof(showinvisibility));
 		CheckMagic(fr);
 
@@ -547,11 +542,6 @@ void LoadEngineState()
 		fr.Read(&parallaxyoffs_override, sizeof(parallaxyoffs_override));
 		fr.Read(&parallaxyscale_override, sizeof(parallaxyscale_override));
 		fr.Read(&pskybits_override, sizeof(pskybits_override));
-		CheckMagic(fr);
-
-		fr.Read(show2dwall, sizeof(show2dwall));
-		fr.Read(show2dsprite, sizeof(show2dsprite));
-		fr.Read(&show2dsector, sizeof(show2dsector));
 		CheckMagic(fr);
 
 		fr.Read(&Numsprites, sizeof(Numsprites));

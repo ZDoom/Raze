@@ -42,6 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "lists.h"
 #include "network.h"
 #include "pal.h"
+#include "automap.h"
 
 
 #include "mytypes.h"
@@ -95,8 +96,6 @@ extern int sw_snd_scratch;
 
 int GameVersion = 20;
 
-int Follow_posx=0,Follow_posy=0;
-
 SWBOOL NoMeters = false;
 SWBOOL FinishAnim = 0;
 SWBOOL ReloadPrompt = false;
@@ -106,7 +105,6 @@ SWBOOL SavegameLoaded = false;
 SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
-void drawoverheadmap(int cposx, int cposy, int czoom, short cang);
 SWBOOL PreCaching = TRUE;
 int GodMode = false;
 short Skill = 2;
@@ -266,7 +264,6 @@ void InitLevelGlobals(void)
 {
     ChopTics = 0;
     automapMode = am_off;
-    zoom = 768 / 2;
     PlayerGravity = 24;
     wait_active_check_offset = 0;
     PlaxCeilGlobZadjust = PlaxFloorGlobZadjust = Z(500);

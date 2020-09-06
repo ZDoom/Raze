@@ -40,6 +40,7 @@ source as it is released.
 #include "v_draw.h"
 #include "texturemanager.h"
 #include "mapinfo.h"
+#include "automap.h"
 
 BEGIN_DUKE_NS
 

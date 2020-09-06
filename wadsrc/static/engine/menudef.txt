@@ -461,7 +461,7 @@ OptionMenu "CustomizeControls"// protected
 	Submenu    "$CNTRLMNU_WEAPONS"     , "WeaponsControlMenu"
 	Submenu    "$CNTRLMNU_INVENTORY"   , "InventoryControlsMenu"
 	Submenu    "$CNTRLMNU_OTHER"       , "OtherControlsMenu"
-	//Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
+	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu" // todo after thorough cleanup
 	StaticText ""
 	StaticText "$CTRL_PRESET"
 	SafeCommand		"$CTRL_DEFAULT",		"controlpreset 0" //engine/defbinds.txt
@@ -679,12 +679,6 @@ OptionMenu "OtherControlsMenu"// protected
 	StaticTextSwitchable "$CNTRLMNU_SWITCHTEXT1", "$CNTRLMNU_SWITCHTEXT2", "ControlMessage"
 
 	StaticText ""
-	Control    "$CNTRLMNU_AUTOMAP"         , "togglemap"
-	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW" ,"togglefollow"
-	MapControl "$MAPCNTRLMNU_ZOOMIN"       , "+enlarge_Screen"
-	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
-
-	StaticText ""
 	Control    "$CNTRLMNU_CHASECAM"        , "third_person_view"
 
 	StaticText ""
@@ -715,6 +709,24 @@ OptionMenu "OtherControlsMenu"// protected
 	Control    "$CNTRLMNU_QUICKLOAD"       , "quickload"
 }
 
+
+OptionMenu "MapControlsMenu"
+{
+	Title "$MAPCNTRLMNU_CONTROLS"
+
+	StaticText ""
+	Control    "$CNTRLMNU_AUTOMAP"         , "togglemap"
+	MapControl "$MAPCNTRLMNU_TOGGLEFOLLOW" ,"togglefollow"
+	MapControl "$MAPCNTRLMNU_ROTATE"			,"togglerotate"
+	StaticText ""
+	MapControl "$MAPCNTRLMNU_ZOOMIN"       , "+enlarge_Screen"
+	MapControl "$MAPCNTRLMNU_ZOOMOUT"      , "+shrink_screen"
+	StaticText ""
+	MapControl "$MAPCNTRLMNU_PANLEFT",			"+am_panleft"
+	MapControl "$MAPCNTRLMNU_PANRIGHT",			"+am_panright"
+	MapControl "$MAPCNTRLMNU_PANUP",			"+am_panup"
+	MapControl "$MAPCNTRLMNU_PANDOWN",			"+am_pandown"
+	}
 //-------------------------------------------------------------------------------------------
 //
 // Mouse Menu
@@ -958,6 +970,8 @@ OptionMenu "VideoOptions" //protected
 	
 	Submenu "$OPTMNU_HUD", "HUDOptions"
 	Submenu "$OPTMNU_POLYMOST", "PolymostOptions"
+	Submenu "$AUTOMAPMNU_TITLE", "AutomapOptions"
+	StaticText ""
 
 	Slider "$DSPLYMNU_GAMMA",					"vid_gamma",					0.75, 3.0, 0.05, 2
 	Slider "$DSPLYMNU_BRIGHTNESS",				"vid_brightness",				-0.8,0.8, 0.05,2
@@ -989,6 +1003,28 @@ OptionMenu "VideoOptions" //protected
 }
 
 
+OptionMenu "AutomapOptions"
+{
+	Title "$AUTOMAPMNU_TITLE"
+	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu"
+	StaticText ""
+	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
+	Option "$AUTOMAPMNU_FOLLOW",				"am_follow",					"OnOff"
+
+	// move map controls here.
+	// todo:
+	//CVAR(Bool, am_textfont, false, CVAR_ARCHIVE)
+	//CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
+	//CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
+
+	//CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_onesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_playercolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovtwosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovonesidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
+	//CVAR(Color, am_ovplayercolor, 0xaaaaaa, CVAR_ARCHIVE)
+
+}
 //-------------------------------------------------------------------------------------------
 //
 // HUD options

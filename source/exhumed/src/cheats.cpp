@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "automap.h"
 #include "compat.h"
 #include "common.h"
 #include "engine.h"
@@ -136,8 +137,8 @@ static bool SnakeCheat(cheatseq_t* c)
 static bool SphereCheat(cheatseq_t* c)
 {
 	Printf(PRINT_NOTIFY, "%s\n", GStrings("TXT_EX_FULLMAP"));
-	GrabMap();
-	bShowTowers = true;
+	gFullMap = !gFullMap; // only set the cheat flag so it can be toggled.
+	bShowTowers = gFullMap;
 	return true;
 }
 

@@ -16,6 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 #include "ns.h"
+#include "automap.h"
 #include "compat.h"
 #include "aistuff.h"
 #include "player.h"
@@ -102,7 +103,7 @@ uint8_t LoadLevel(int nMap)
         InitSnakes();
         InitFishes();
         InitLights();
-        InitMap();
+        ClearAutomap();
         InitBubbles();
         InitObjects();
         InitLava();

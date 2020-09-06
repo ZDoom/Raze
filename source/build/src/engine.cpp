@@ -10,6 +10,7 @@
 
 #include "gl_load.h"
 #include "build.h"
+#include "automap.h"
 
 #include "imagehelpers.h"
 #include "common.h"
@@ -1850,22 +1851,6 @@ void FillPolygon(int* rx1, int* ry1, int* xb1, int32_t npoints, int picnum, int 
     twod->AddPoly(tileGetTexture(picnum), points.Data(), points.Size(), indices.data(), indices.size(), translation, pe, rs, clipx1, clipy1, clipx2, clipy2);
 }
 
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, PalEntry p)
-{
-    twod->AddLine(x1 / 4096.f, y1 / 4096.f, x2 / 4096.f, y2 / 4096.f, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y, p);
-}
-
-void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
-{
-    drawlinergb(x1, y1, x2, y2, PalEntry(p.r, p.g, p.b));
-}
-
-void renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t col)
-{
-    drawlinergb(x1, y1, x2, y2, GPalette.BaseColors[GPalette.Remap[col]]);
-}
-
-
 //==========================================================================
 //
 //
@@ -2151,10 +2136,7 @@ static FORCE_INLINE int32_t have_maptext(void)
 static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     initspritelists();
-
-    show2dsector.Zero();
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
+    ClearAutomap();
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();

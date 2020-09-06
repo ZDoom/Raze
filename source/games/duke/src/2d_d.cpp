@@ -924,7 +924,11 @@ public:
 					break;
 			}
 		}
-		else if (currentclock > (10240 + 120L)) return 0;
+		else if (currentclock > (10240 + 120L))
+		{
+			if (!skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
+			return 0;
+		}
 		else
 		{
 			switch((currentclock >> 5) & 3)

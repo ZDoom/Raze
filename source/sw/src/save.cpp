@@ -450,12 +450,6 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
     MWRITE(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
     MWRITE(SineWall, sizeof(SineWall),1,fil);
     MWRITE(SpringBoard, sizeof(SpringBoard),1,fil);
-    //MWRITE(Rotate, sizeof(Rotate),1,fil);
-    //MWRITE(DoorAutoClose, sizeof(DoorAutoClose),1,fil);
-    MWRITE(&x_min_bound, sizeof(x_min_bound),1,fil);
-    MWRITE(&y_min_bound, sizeof(y_min_bound),1,fil);
-    MWRITE(&x_max_bound, sizeof(x_max_bound),1,fil);
-    MWRITE(&y_max_bound, sizeof(y_max_bound),1,fil);
 
 
     MWRITE(Track, sizeof(Track),1,fil);
@@ -837,12 +831,6 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     MREAD(SineWaveFloor, sizeof(SineWaveFloor),1,fil);
     MREAD(SineWall, sizeof(SineWall),1,fil);
     MREAD(SpringBoard, sizeof(SpringBoard),1,fil);
-    //MREAD(Rotate, sizeof(Rotate),1,fil);
-    //MREAD(DoorAutoClose, sizeof(DoorAutoClose),1,fil);
-    MREAD(&x_min_bound, sizeof(x_min_bound),1,fil);
-    MREAD(&y_min_bound, sizeof(y_min_bound),1,fil);
-    MREAD(&x_max_bound, sizeof(x_max_bound),1,fil);
-    MREAD(&y_max_bound, sizeof(y_max_bound),1,fil);
 
     MREAD(Track, sizeof(Track),1,fil);
     for (i = 0; i < MAX_TRACKS; i++)

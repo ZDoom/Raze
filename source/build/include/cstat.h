@@ -1,3 +1,4 @@
+#pragma once
 // nobody uses these. What's so cool about naked numbers? :(
 
 // system defines for status bits

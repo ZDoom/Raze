@@ -40,6 +40,7 @@ source as it is released.
 #include "cheathandler.h"
 #include "c_dispatch.h"
 #include "gamestate.h"
+#include "automap.h"
 
 EXTERN_CVAR(Int, developer)
 EXTERN_CVAR(Bool, sv_cheats)

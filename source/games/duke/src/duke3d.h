@@ -50,7 +50,6 @@ struct GameInterface : public ::GameInterface
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void ResetFollowPos(bool message) override;
 	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
 	void UpdateSounds() override;
 	void Startup() override;
@@ -62,6 +61,7 @@ struct GameInterface : public ::GameInterface
 	void NextLevel(MapRecord* map, int skill) override;
 	void NewGame(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
+	bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 
 };
 

@@ -60,15 +60,6 @@ InitTimingVars(void)
 }
 
 
-
-void GameInterface::ResetFollowPos(bool)
-{
-	auto pp = &Player[myconnectindex];
-	Follow_posx = pp->posx;
-	Follow_posy = pp->posy;
-}
-
-
 enum
 {
     TURBOTURNTIME = (120 / 8),

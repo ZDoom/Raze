@@ -46,17 +46,6 @@ static int lastcontroltime;
 static double lastCheck;
 static InputPacket loc; // input accumulation buffer.
 
-void GameInterface::ResetFollowPos(bool message)
-{
-	if (automapFollow)
-	{
-		ud.folx = ps[screenpeek].oposx;
-		ud.foly = ps[screenpeek].oposy;
-		ud.fola = ps[screenpeek].getoang();
-	}
-	if (message) FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
-
-}
 //---------------------------------------------------------------------------
 //
 // handles all HUD related input, i.e. inventory item selection and activation plus weapon selection.
@@ -939,14 +928,9 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 	auto p = &ps[playerNum];
 	bool blocked = movementBlocked(playerNum) || sprite[p->i].extra <= 0 || (p->dead_flag && !ud.god);
 
-	if ((automapFollow && automapMode != am_off) || blocked)
+	if (blocked)
 	{
-		if (automapFollow && automapMode != am_off)
-		{
-			ud.folfvel = input.fvel;
-			ud.folavel = FixedToInt(input.q16avel);
-		}
-
+		// neutralize all movement when blocked or in automap follow mode
 		loc.fvel = loc.svel = 0;
 		loc.q16avel = loc.q16horz = 0;
 		input.q16avel = input.q16horz = 0;

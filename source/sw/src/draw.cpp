@@ -27,6 +27,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define QUIET
 #include "build.h"
+#include "automap.h"
 #include "pragmas.h"
 
 
@@ -1786,33 +1787,10 @@ drawscreen(PLAYERp pp, double smoothratio)
 #endif
 
 
-    i = pp->cursectnum;
-
-    if (i >= 0)
-    {
-        show2dsector.Set(i);
-        walltype *wal = &wall[sector[i].wallptr];
-        for (j=sector[i].wallnum; j>0; j--,wal++)
-        {
-            i = wal->nextsector;
-            if (i < 0) continue;
-            if (wal->cstat&0x0071) continue;
-            uint16_t const nextwall = wal->nextwall;
-            if (nextwall < MAXWALLS && wall[nextwall].cstat&0x0071) continue;
-            if (sector[i].lotag == 32767) continue;
-            if (sector[i].ceilingz >= sector[i].floorz) continue;
-            show2dsector.Set(i);
-        }
-    }
+    MarkSectorSeen(pp->cursectnum);
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        if (automapFollow)
-        {
-            tx = Follow_posx;
-            ty = Follow_posy;
-        }
-
         for (j = 0; j < MAXSPRITES; j++)
         {
             // Don't show sprites tagged with 257
@@ -1825,16 +1803,7 @@ drawscreen(PLAYERp pp, double smoothratio)
                 }
             }
         }
-
-        if (automapMode == am_full)
-        {
-            // only clear the actual window.
-            twod->AddColorOnlyQuad(windowxy1.x, windowxy1.y, (windowxy2.x + 1) - windowxy1.x, (windowxy2.y + 1) - windowxy1.y, 0xff000000);
-            renderDrawMapView(tx, ty, zoom*2, FixedToInt(tq16ang));
-        }
-
-        // Draw the line map on top of texture 2d map or just stand alone
-        drawoverheadmap(tx, ty, zoom*2, FixedToInt(tq16ang));
+        DrawOverheadMap(tx, ty, FixedToInt(tq16ang));
     }
 
     for (j = 0; j < MAXSPRITES; j++)
@@ -1870,8 +1839,6 @@ drawscreen(PLAYERp pp, double smoothratio)
     SyncStatMessage();
 #endif
 
-    zoom = GetAutomapZoom(zoom);
-
     restoreinterpolations();                 // Stick at end of drawscreen
     short_restoreinterpolations();                 // Stick at end of drawscreen
     if (cl_sointerpolation)
@@ -1901,6 +1868,209 @@ bool GameInterface::GenerateSavePic()
     ScreenSavePic = FALSE;
     return true;
 }
+
+
+
+
+bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
+{
+    int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
+    int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+    int xvect, yvect, xvect2, yvect2;
+    walltype* wal, * wal2;
+    spritetype* spr;
+    short p;
+    static int pspr_ndx[8] = { 0,0,0,0,0,0,0,0 };
+    bool sprisplayer = false;
+    short txt_x, txt_y;
+
+    xvect = sintable[(2048 - cang) & 2047] * czoom;
+    yvect = sintable[(1536 - cang) & 2047] * czoom;
+    xvect2 = mulscale16(xvect, yxaspect);
+    yvect2 = mulscale16(yvect, yxaspect);
+
+
+    // Draw sprites
+    k = Player[screenpeek].PlayerSprite;
+    for (i = 0; i < numsectors; i++)
+        for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
+        {
+            for (p = connecthead; p >= 0; p = connectpoint2[p])
+            {
+                if (Player[p].PlayerSprite == j)
+                {
+                    if (sprite[Player[p].PlayerSprite].xvel > 16)
+                        pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
+                    sprisplayer = TRUE;
+
+                    goto SHOWSPRITE;
+                }
+            }
+            if (gFullMap || show2dsprite[j])
+            {
+            SHOWSPRITE:
+                spr = &sprite[j];
+
+                PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
+                if ((spr->cstat & 1) > 0)
+                    col = GPalette.BaseColors[248];
+                if (j == k)
+                    col = GPalette.BaseColors[31];
+
+                sprx = spr->x;
+                spry = spr->y;
+
+                k = spr->statnum;
+                if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving
+                {
+                    sprx = sprite[j].x;
+                    spry = sprite[j].y;
+                }
+
+                switch (spr->cstat & 48)
+                {
+                case 0:  // Regular sprite
+                    if (Player[p].PlayerSprite == j)
+                    {
+                        ox = sprx - cposx;
+                        oy = spry - cposy;
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        if (((gotsector[i >> 3] & (1 << (i & 7))) > 0) && (czoom > 192))
+                        {
+                            daang = (spr->ang - cang) & 2047;
+
+                            // Special case tiles
+                            if (spr->picnum == 3123) break;
+
+                            int spnum = -1;
+                            if (sprisplayer)
+                            {
+                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
+                                    spnum = 1196 + pspr_ndx[myconnectindex];
+                            }
+                            else spnum = spr->picnum;
+
+                            double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
+                            double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
+                            double sc = mulscale16(czoom * (spr->yrepeat), yxaspect) / 32768.;
+                            if (spnum >= 0)
+                            {
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * (-360. / 2048),
+                                    DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
+                                    DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
+                            }
+                        }
+                    }
+                    break;
+                case 16: // Rotated sprite
+                    x1 = sprx;
+                    y1 = spry;
+                    tilenum = spr->picnum;
+                    xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+                    if ((spr->cstat & 4) > 0)
+                        xoff = -xoff;
+                    k = spr->ang;
+                    l = spr->xrepeat;
+                    dax = sintable[k & 2047] * l;
+                    day = sintable[(k + 1536) & 2047] * l;
+                    l = tilesiz[tilenum].x;
+                    k = (l >> 1) + xoff;
+                    x1 -= mulscale16(dax, k);
+                    x2 = x1 + mulscale16(dax, l);
+                    y1 -= mulscale16(day, k);
+                    y2 = y1 + mulscale16(day, l);
+
+                    ox = x1 - cposx;
+                    oy = y1 - cposy;
+                    x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                    ox = x2 - cposx;
+                    oy = y2 - cposy;
+                    x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                    drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+                        x2 + (xdim << 11), y2 + (ydim << 11), col);
+
+                    break;
+                case 32:    // Floor sprite
+                    if (automapMode == am_overlay)
+                    {
+                        tilenum = spr->picnum;
+                        xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
+                        yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
+                        if ((spr->cstat & 4) > 0)
+                            xoff = -xoff;
+                        if ((spr->cstat & 8) > 0)
+                            yoff = -yoff;
+
+                        k = spr->ang;
+                        cosang = sintable[(k + 512) & 2047];
+                        sinang = sintable[k];
+                        xspan = tilesiz[tilenum].x;
+                        xrepeat = spr->xrepeat;
+                        yspan = tilesiz[tilenum].y;
+                        yrepeat = spr->yrepeat;
+
+                        dax = ((xspan >> 1) + xoff) * xrepeat;
+                        day = ((yspan >> 1) + yoff) * yrepeat;
+                        x1 = sprx + mulscale16(sinang, dax) + mulscale16(cosang, day);
+                        y1 = spry + mulscale16(sinang, day) - mulscale16(cosang, dax);
+                        l = xspan * xrepeat;
+                        x2 = x1 - mulscale16(sinang, l);
+                        y2 = y1 + mulscale16(cosang, l);
+                        l = yspan * yrepeat;
+                        k = -mulscale16(cosang, l);
+                        x3 = x2 + k;
+                        x4 = x1 + k;
+                        k = -mulscale16(sinang, l);
+                        y3 = y2 + k;
+                        y4 = y1 + k;
+
+                        ox = x1 - cposx;
+                        oy = y1 - cposy;
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x2 - cposx;
+                        oy = y2 - cposy;
+                        x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x3 - cposx;
+                        oy = y3 - cposy;
+                        x3 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y3 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        ox = x4 - cposx;
+                        oy = y4 - cposy;
+                        x4 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y4 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
+
+                        drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
+                            x2 + (xdim << 11), y2 + (ydim << 11), col);
+
+                        drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
+                            x3 + (xdim << 11), y3 + (ydim << 11), col);
+
+                        drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
+                            x4 + (xdim << 11), y4 + (ydim << 11), col);
+
+                        drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
+                            x1 + (xdim << 11), y1 + (ydim << 11), col);
+
+                    }
+                    break;
+                }
+            }
+        }
+        return true;
+}
+
 
 
 END_SW_NS

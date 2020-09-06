@@ -31,6 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "ns.h"	// Must come before everything else!
 
+#include "automap.h"
 #include "duke3d.h"
 #include "m_argv.h"
 #include "mapinfo.h"
@@ -220,11 +221,9 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	int i, j;
 	unsigned char fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
 
 	struct player_struct* pp;
-	walltype* wal;
 	int cposx, cposy, cang;
 
 	pp = &ps[screenpeek];
@@ -247,20 +246,7 @@ void drawoverlays(double smoothratio)
 	else
 		videoclearFade();
 
-	i = pp->cursectnum;
-
-	if (i >= 0) show2dsector.Set(i);
-	wal = &wall[sector[i].wallptr];
-	for (j = sector[i].wallnum; j > 0; j--, wal++)
-	{
-		i = wal->nextsector;
-		if (i < 0) continue;
-		if (wal->cstat & 0x0071) continue;
-		if (wall[wal->nextwall].cstat & 0x0071) continue;
-		if (sector[i].lotag == 32767) continue;
-		if (sector[i].ceilingz >= sector[i].floorz) continue;
-		show2dsector.Set(i);
-	}
+	MarkSectorSeen(pp->cursectnum);
 
 	if (ud.camerasprite == -1)
 	{
@@ -282,50 +268,28 @@ void drawoverlays(double smoothratio)
 		{
 			dointerpolations(smoothratio);
 
-			if (!automapFollow)
+			if (pp->newowner == -1 && playrunning())
 			{
-				if (pp->newowner == -1 && playrunning())
+				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					if (screenpeek == myconnectindex && numplayers > 1)
-					{
-						cposx = omyx + mulscale16(myx - omyx, smoothratio);
-						cposy = omyy + mulscale16(myy - omyy, smoothratio);
-						cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
-					}
-					else
-					{
-						cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
-						cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-						cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
-					}
+					cposx = omyx + mulscale16(myx - omyx, smoothratio);
+					cposy = omyy + mulscale16(myy - omyy, smoothratio);
+					cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
 				}
 				else
 				{
-					cposx = pp->oposx;
-					cposy = pp->oposy;
-					cang = pp->getoang();
+					cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
+					cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
+					cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
 				}
 			}
 			else
 			{
-				if (playrunning())
-				{
-					ud.fola += ud.folavel >> 3;
-					ud.folx += (ud.folfvel * sintable[(512 + 2048 - ud.fola) & 2047]) >> 14;
-					ud.foly += (ud.folfvel * sintable[(512 + 1024 - 512 - ud.fola) & 2047]) >> 14;
-				}
-				cposx = ud.folx;
-				cposy = ud.foly;
-				cang = ud.fola;
+				cposx = pp->oposx;
+				cposy = pp->oposy;
+				cang = pp->getoang();
 			}
-
-			if (automapMode == am_full)
-			{
-				twod->ClearScreen();
-				renderDrawMapView(cposx, cposy, pp->zoom, cang);
-			}
-			drawoverheadmap(cposx, cposy, pp->zoom, cang);
-
+			DrawOverheadMap(cposx, cposy, cang);
 			restoreinterpolations();
 		}
 	}
@@ -349,61 +313,104 @@ void drawoverlays(double smoothratio)
 //
 //---------------------------------------------------------------------------
 
-void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
+void cameratext(int i)
+{
+	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
+	{
+		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
+			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
+	};
+	if (!hittype[i].temp_data[0])
+	{
+		drawitem(TILE_CAMCORNER, 24, 33, false, false);
+		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);
+		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
+		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
+
+		if (ud.levelclock & 16)
+			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
+	}
+	else
+	{
+		int flipbits = (ud.levelclock << 1) & 48;
+
+		for (int x = -64; x < 394; x += 64)
+			for (int y = 0; y < 200; y += 64)
+				drawitem(TILE_STATIC, x, y, !!(ud.levelclock & 8), !!(ud.levelclock & 16));
+	}
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void dobonus(int bonusonly, const CompletionFunc& completion)
+{
+	if (isRR()) dobonus_r(bonusonly, completion);
+	else dobonus_d(bonusonly, completion);
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int startrts(int lumpNum, int localPlayer)
+{
+	if (SoundEnabled() &&
+		RTS_IsInitialized() && rtsplaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
+	{
+		auto sid = RTS_GetSoundID(lumpNum - 1);
+		if (sid != -1)
+		{
+			S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
+			rtsplaying = 7;
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
+{
+	// todo: factor in the frag bar: tilesiz[TILE_FRAGBAR].y
+	int sbar = tilesiz[TILE_BOTTOMSTATUSBAR].y;
+	if (isRR())
+	{
+		sbar >>= 1;
+	}
+	return { 0, sbar };
+}
+
+::GameInterface* CreateInterface()
+{
+	return new GameInterface;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
 {
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-	int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
+	int xrepeat, yrepeat, tilenum, daang;
 	int xvect, yvect, xvect2, yvect2;
 	int p;
 	PalEntry col;
-	walltype* wal, * wal2;
 	spritetype* spr;
-
-	renderSetAspect(65536, 65536);
 
 	xvect = sintable[(-cang) & 2047] * czoom;
 	yvect = sintable[(1536 - cang) & 2047] * czoom;
 	xvect2 = mulscale16(xvect, yxaspect);
 	yvect2 = mulscale16(yvect, yxaspect);
-
-	//Draw red lines
-	for (i = 0; i < numsectors; i++)
-	{
-		if (!gFullMap && !show2dsector[i]) continue;
-
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
-
-		z1 = sector[i].ceilingz;
-		z2 = sector[i].floorz;
-
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
-		{
-			k = wal->nextwall;
-			if (k < 0) continue;
-
-			if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
-				if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0) continue;
-
-			if (!gFullMap && !show2dsector[wal->nextsector])
-			{
-				col = PalEntry(170, 170, 170);
-				ox = wal->x - cposx;
-				oy = wal->y - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-				wal2 = &wall[wal->point2];
-				ox = wal2->x - cposx;
-				oy = wal2->y - cposy;
-				x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-				drawlinergb(x1, y1, x2, y2, col);
-			}
-		}
-	}
 
 	//Draw sprites
 	k = ps[screenpeek].i;
@@ -550,60 +557,12 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 		}
 	}
 
-	//Draw white lines
-	for (i = numsectors - 1; i >= 0; i--)
-	{
-		if (!gFullMap && !show2dsector[i]) continue;
-
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
-
-		k = -1;
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
-		{
-			if (wal->nextwall >= 0) continue;
-
-			if (!tileGetTexture(wal->picnum)->isValid()) continue;
-
-			if (j == k)
-			{
-				x1 = x2;
-				y1 = y2;
-			}
-			else
-			{
-				ox = wal->x - cposx;
-				oy = wal->y - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-			}
-
-			k = wal->point2;
-			wal2 = &wall[k];
-			ox = wal2->x - cposx;
-			oy = wal2->y - cposy;
-			x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-			drawlinergb(x1, y1, x2, y2, PalEntry(170, 170, 170));
-		}
-	}
-
-	videoSetCorrectedAspect();
-
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (automapFollow && p == screenpeek) continue;
-
 		ox = sprite[ps[p].i].x - cposx;
 		oy = sprite[ps[p].i].y - cposy;
 		daang = (sprite[ps[p].i].ang - cang) & 2047;
-		if (p == screenpeek)
-		{
-			ox = 0;
-			oy = 0;
-			daang = 0;
-		}
+
 		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
 		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
 
@@ -621,95 +580,13 @@ void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal),
-				DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
+			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal), DTA_CenterOffset, true,
+				DTA_Rotate, daang * (-360./2048), DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
+	return true;
 }
 
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void cameratext(int i)
-{
-	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
-	{
-		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
-			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
-	};
-	if (!hittype[i].temp_data[0])
-	{
-		drawitem(TILE_CAMCORNER, 24, 33, false, false);
-		drawitem(TILE_CAMCORNER + 1, 320 - 26, 33, false, false);
-		drawitem(TILE_CAMCORNER + 1, 24, 163, true, true);
-		drawitem(TILE_CAMCORNER + 1, 320 - 26, 163, false, true);
-
-		if (ud.levelclock & 16)
-			drawitem(TILE_CAMLIGHT, 46, 32, false, false);
-	}
-	else
-	{
-		int flipbits = (ud.levelclock << 1) & 48;
-
-		for (int x = -64; x < 394; x += 64)
-			for (int y = 0; y < 200; y += 64)
-				drawitem(TILE_STATIC, x, y, !!(ud.levelclock & 8), !!(ud.levelclock & 16));
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void dobonus(int bonusonly, const CompletionFunc& completion)
-{
-	if (isRR()) dobonus_r(bonusonly, completion);
-	else dobonus_d(bonusonly, completion);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-int startrts(int lumpNum, int localPlayer)
-{
-	if (SoundEnabled() &&
-		RTS_IsInitialized() && rtsplaying == 0 && (snd_speech & (localPlayer ? 1 : 4)))
-	{
-		auto sid = RTS_GetSoundID(lumpNum - 1);
-		if (sid != -1)
-		{
-			S_PlaySound(sid, CHAN_AUTO, CHANF_UI);
-			rtsplaying = 7;
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
-ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
-{
-	// todo: factor in the frag bar: tilesiz[TILE_FRAGBAR].y
-	int sbar = tilesiz[TILE_BOTTOMSTATUSBAR].y;
-	if (isRR())
-	{
-		sbar >>= 1;
-	}
-	return { 0, sbar };
-}
-
-::GameInterface* CreateInterface()
-{
-	return new GameInterface;
-}
 
 
 
