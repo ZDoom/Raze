@@ -34,11 +34,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-double elapsedInputTicks;
-double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
-
-void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel);
-void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
+void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scaleAdjust);
+void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const scaleAdjust);
 
 static InputPacket loc;
 static int32_t turnheldtime;
@@ -214,12 +211,7 @@ static void processWeapon(PLAYERp const pp)
 
 static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
 {
-    static double lastInputTicks;
-
-    auto const currentHiTicks = I_msTimeF();
-    elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
+    double const scaleAdjust = InputScale();
 
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
@@ -259,7 +251,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     }
     else
     {
-        q16angvel += FloatToFixed((hidInput->mousex + scaleAdjustmentToInterval(hidInput->dyaw)) * inputScale);
+        q16angvel += FloatToFixed((hidInput->mousex + (scaleAdjust * hidInput->dyaw)) * inputScale);
     }
 
     if (mouseaim)
@@ -270,7 +262,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     if (in_mouseflip)
         q16horz = -q16horz;
 
-    q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch * inputScale));
+    q16horz -= FloatToFixed(scaleAdjust * (hidInput->dpitch * inputScale));
     svel -= hidInput->dx * keymove;
     vel -= hidInput->dz * keymove;
 
@@ -294,7 +286,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
                     q16angvel -= IntToFixed(PREAMBLETURN);
             }
             else
-                q16angvel -= FloatToFixed(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN));
+                q16angvel -= FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
         {
@@ -307,7 +299,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
                     q16angvel += IntToFixed(PREAMBLETURN);
             }
             else
-                q16angvel += FloatToFixed(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN));
+                q16angvel += FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
         }
         else
         {
@@ -343,9 +335,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         fixed_t prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
+            DoPlayerTurn(pp, &pp->camq16ang, q16angvel, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-            DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
+            DoPlayerHorizon(pp, &pp->camq16horiz, q16horz, scaleAdjust);
         pp->oq16ang += pp->camq16ang - prevcamq16ang;
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }

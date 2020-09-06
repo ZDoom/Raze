@@ -1544,10 +1544,8 @@ DoPlayerCrawlHeight(PLAYERp pp)
     pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
 }
 
-double scaleAdjustmentToInterval(double x);
-
 void
-DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
+DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scaleAdjust = 1.)
 {
 #define TURN_SHIFT 2
 
@@ -1585,7 +1583,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
                     *pq16ang = NORM_Q16ANGLE(*pq16ang + IntToFixed(labs(delta_ang) >> TURN_SHIFT));
                 else
                     // Add at least 1 unit to ensure the turn direction is clockwise
-                    *pq16ang = NORM_Q16ANGLE(*pq16ang + max(FRACUNIT, FloatToFixed(scaleAdjustmentToInterval(labs(delta_ang) >> TURN_SHIFT))));
+                    *pq16ang = NORM_Q16ANGLE(*pq16ang + max(FRACUNIT, FloatToFixed(scaleAdjust * (labs(delta_ang) >> TURN_SHIFT))));
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -1604,7 +1602,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel)
         if (cl_syncinput)
              *pq16ang = IntToFixed(NORM_ANGLE(FixedToInt(*pq16ang) + (delta_ang >> TURN_SHIFT)));
         else
-            *pq16ang = NORM_Q16ANGLE(*pq16ang + FloatToFixed(scaleAdjustmentToInterval(delta_ang >> TURN_SHIFT)));
+            *pq16ang = NORM_Q16ANGLE(*pq16ang + FloatToFixed(scaleAdjust * (delta_ang >> TURN_SHIFT)));
 
         if (pq16ang == &pp->q16ang)
         {
@@ -1826,7 +1824,7 @@ void SlipSlope(PLAYERp pp)
 }
 
 void
-PlayerAutoLook(PLAYERp pp)
+PlayerAutoLook(PLAYERp pp, double const scaleAdjust = 1.)
 {
     int x,y,k,j;
     short tempsect;
@@ -1859,7 +1857,7 @@ PlayerAutoLook(PLAYERp pp)
                     if (cl_syncinput)
                         pp->q16horizoff += (j - k) * 160;
                     else
-                        pp->q16horizoff += FloatToFixed(scaleAdjustmentToInterval(mulscale16((j - k), 160)));
+                        pp->q16horizoff += FloatToFixed(scaleAdjust * (mulscale16((j - k), 160)));
                 }
             }
         }
@@ -1873,7 +1871,7 @@ PlayerAutoLook(PLAYERp pp)
             if (cl_syncinput)
                 pp->q16horizoff += IntToFixed((((100 - FixedToInt(pp->q16horizoff)) >> 3) + 1));
             else
-                pp->q16horizoff += FloatToFixed(scaleAdjustmentToInterval(FixedToFloat(((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT)));
+                pp->q16horizoff += FloatToFixed(scaleAdjust * (FixedToFloat(((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT)));
         }
     }
     else
@@ -1886,7 +1884,7 @@ PlayerAutoLook(PLAYERp pp)
                 pp->q16horizoff -= IntToFixed(((FixedToInt(pp->q16horizoff) >> 3) + 1));
             else
             {
-                pp->q16horizoff -= FloatToFixed(scaleAdjustmentToInterval(FixedToFloat((pp->q16horizoff >> 3) + FRACUNIT)));
+                pp->q16horizoff -= FloatToFixed(scaleAdjust * (FixedToFloat((pp->q16horizoff >> 3) + FRACUNIT)));
                 pp->q16horizoff = max(pp->q16horizoff, 0);
             }
         }
@@ -1896,7 +1894,7 @@ PlayerAutoLook(PLAYERp pp)
                 pp->q16horizoff += IntToFixed((((FixedToInt(-pp->q16horizoff)) >> 3) + 1));
             else
             {
-                pp->q16horizoff += FloatToFixed(scaleAdjustmentToInterval(FixedToFloat((-pp->q16horizoff >> 3) + FRACUNIT)));
+                pp->q16horizoff += FloatToFixed(scaleAdjust * (FixedToFloat((-pp->q16horizoff >> 3) + FRACUNIT)));
                 pp->q16horizoff = min(pp->q16horizoff, 0);
             }
         }
@@ -1905,7 +1903,7 @@ PlayerAutoLook(PLAYERp pp)
 
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void
-DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
+DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const scaleAdjust = 1.)
 {
     int i;
 #define HORIZ_SPEED (16)
@@ -1924,7 +1922,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
 
     // Fixme: This should probably be made optional.
     if (cl_slopetilting)
-        PlayerAutoLook(pp);
+        PlayerAutoLook(pp, scaleAdjust);
 
     if (q16horz)
     {
@@ -1938,12 +1936,12 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
             pp->q16horizbase = IntToFixed(100);
         else if (pp->q16horizbase > IntToFixed(100))
         {
-            pp->q16horizbase -= FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED*6)));
+            pp->q16horizbase -= FloatToFixed(scaleAdjust * ((HORIZ_SPEED*6)));
             pp->q16horizbase = max(pp->q16horizbase, IntToFixed(100));
         }
         else if (pp->q16horizbase < IntToFixed(100))
         {
-            pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED*6)));
+            pp->q16horizbase += FloatToFixed(scaleAdjust * ((HORIZ_SPEED*6)));
             pp->q16horizbase = min(pp->q16horizbase, IntToFixed(100));
         }
         pp->centering = pp->q16horizbase != IntToFixed(100);
@@ -1963,7 +1961,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
             if (cl_syncinput)
                 pp->q16horizbase -= IntToFixed((HORIZ_SPEED/2));
             else
-                pp->q16horizbase -= FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED/2)));
+                pp->q16horizbase -= FloatToFixed(scaleAdjust * ((HORIZ_SPEED/2)));
         }
 
         // adjust *pq16horiz positive
@@ -1972,7 +1970,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
             if (cl_syncinput)
                 pp->q16horizbase += IntToFixed((HORIZ_SPEED/2));
             else
-                pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval((HORIZ_SPEED/2)));
+                pp->q16horizbase += FloatToFixed(scaleAdjust * ((HORIZ_SPEED/2)));
         }
         pp->centering = false;
     }
@@ -1989,7 +1987,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
             if (cl_syncinput)
                 pp->q16horizbase -= IntToFixed(HORIZ_SPEED);
             else
-                pp->q16horizbase -= FloatToFixed(scaleAdjustmentToInterval(HORIZ_SPEED));
+                pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED));
         }
 
         // adjust *pq16horiz positive
@@ -1998,7 +1996,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
             if (cl_syncinput)
                 pp->q16horizbase += IntToFixed(HORIZ_SPEED);
             else
-                pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval(HORIZ_SPEED));
+                pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED));
         }
         pp->centering = false;
     }
@@ -2018,7 +2016,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz)
                     if (cl_syncinput)
                         pp->q16horizbase += IntToFixed(25) - (pp->q16horizbase >> 2);
                     else
-                        pp->q16horizbase += FloatToFixed(scaleAdjustmentToInterval(FixedToFloat(IntToFixed(25) - (pp->q16horizbase >> 2))));
+                        pp->q16horizbase += FloatToFixed(scaleAdjust * (FixedToFloat(IntToFixed(25) - (pp->q16horizbase >> 2))));
                 }
             }
             else
@@ -2563,7 +2561,7 @@ DoPlayerMove(PLAYERp pp)
 
     SlipSlope(pp);
 
-    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
+    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel, 1);
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -6564,7 +6562,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
     if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
     {
-        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel);
+        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel, 1);
         return;
     }
 
@@ -7645,9 +7643,9 @@ domovethings(void)
         {
             auto currFlags2 = pp->Flags2;
             if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_TURN)
-                DoPlayerTurn(pp, &pp->q16ang, 0);
+                DoPlayerTurn(pp, &pp->q16ang, 0, 1);
             if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_AIM)
-                DoPlayerHorizon(pp, &pp->q16horiz, 0);
+                DoPlayerHorizon(pp, &pp->q16horiz, 0, 1);
             pp->Flags2 = currFlags2;
         }
         UpdatePlayerSprite(pp);
