@@ -1650,8 +1650,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     tz = camerapp->oposz + xs_CRoundToInt(fmulscale16(camerapp->posz - camerapp->oposz, smoothratio));
     // TODO: It'd be better to check pp->input.q16angvel instead, problem is that
     // it's been repurposed for the q16ang diff while tying input to framerate
-    if (cl_syncinput || (pp != Player+myconnectindex) ||
-        (TEST(pp->Flags, PF_DEAD) && (loc.q16avel == 0)))
+    if (cl_syncinput || (pp != Player+myconnectindex) || TEST(pp->Flags, PF_DEAD))
     {
         tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));

@@ -85,7 +85,6 @@ extern short BossSpriteNum[3];
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
-extern InputPacket loc;
 extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
@@ -469,7 +468,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
-    MWRITE(&loc,sizeof(loc),1,fil);
+    // MWRITE(&loc,sizeof(loc),1,fil);
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
     MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
@@ -860,7 +859,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         }
     }
 
-    MREAD(&loc,sizeof(loc),1,fil);
+    // MREAD(&loc,sizeof(loc),1,fil);
 
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
     MREAD(&randomseed, sizeof(randomseed), 1, fil);

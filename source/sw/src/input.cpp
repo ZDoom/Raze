@@ -40,7 +40,7 @@ double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000
 void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel);
 void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
 
-InputPacket loc;
+static InputPacket loc;
 
 void
 InitNetVars(void)
@@ -67,7 +67,7 @@ void GameInterface::ResetFollowPos(bool)
 	Follow_posy = pp->posy;
 }
 
-static void getinput(InputPacket *loc, ControlInfo* const hidInput)
+static void getinput(ControlInfo* const hidInput)
 {
     int i;
     PLAYERp pp = Player + myconnectindex;
@@ -126,9 +126,9 @@ static void getinput(InputPacket *loc, ControlInfo* const hidInput)
     // for dividing controller input to match speed input speed of other games.
     float const ticrateScale = 0.75f;
 
-    ApplyGlobalInput(*loc, hidInput);
+    ApplyGlobalInput(loc, hidInput);
 
-    bool mouseaim = !(loc->actions & SB_AIMMODE);
+    bool mouseaim = !(loc.actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {
@@ -149,10 +149,10 @@ static void getinput(InputPacket *loc, ControlInfo* const hidInput)
 
 
     if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch)) // this shares a bit with another function so cannot be in the common code.
-        loc->actions |= SB_CROUCH_LOCK;
+        loc.actions |= SB_CROUCH_LOCK;
 
 
-    if (loc->actions & SB_RUN)
+    if (loc.actions & SB_RUN)
     {
         if (pp->sop_control)
             turnamount = RUNTURN * 3;
@@ -272,14 +272,14 @@ static void getinput(InputPacket *loc, ControlInfo* const hidInput)
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
 
-    loc->fvel = clamp(loc->fvel + vel, -MAXVEL, MAXVEL);
-    loc->svel = clamp(loc->svel + svel, -MAXSVEL, MAXSVEL);
+    loc.fvel = clamp(loc.fvel + vel, -MAXVEL, MAXVEL);
+    loc.svel = clamp(loc.svel + svel, -MAXSVEL, MAXSVEL);
 
-    loc->q16avel += q16angvel;
-    loc->q16horz += q16horz;
+    loc.q16avel += q16angvel;
+    loc.q16horz += q16horz;
 
 
-    if (loc->getNewWeapon() == WeaponSel_Next)
+    if (loc.getNewWeapon() == WeaponSel_Next)
     {
         USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
@@ -313,9 +313,9 @@ static void getinput(InputPacket *loc, ControlInfo* const hidInput)
             }
         }
 
-        loc->setNewWeapon(next_weapon + 1);
+        loc.setNewWeapon(next_weapon + 1);
     }
-    else if (loc->getNewWeapon() == WeaponSel_Prev)
+    else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
@@ -346,19 +346,19 @@ static void getinput(InputPacket *loc, ControlInfo* const hidInput)
                 }
             }
         }
-        loc->setNewWeapon(prev_weapon + 1);
+        loc.setNewWeapon(prev_weapon + 1);
     }
-    else if (loc->getNewWeapon() == WeaponSel_Alt)
+    else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        loc->setNewWeapon(which_weapon);
+        loc.setNewWeapon(which_weapon);
     }
 }
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
-    getinput(&loc, hidInput);
+    getinput(hidInput);
     if (packet)
     {
         PLAYERp pp = &Player[myconnectindex];

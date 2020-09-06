@@ -805,8 +805,6 @@ enum
 
 };
 
-extern InputPacket loc;
-
 #define PACK 1
 
 extern SWBOOL CameraTestMode;
