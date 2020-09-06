@@ -51,7 +51,7 @@ CVAR(Bool, am_showlabel, false, CVAR_ARCHIVE)
 CVAR(Bool, am_nameontop, false, CVAR_ARCHIVE)
 
 int automapMode;
-static int am_zoomdir;
+static float am_zoomdir;
 int follow_x = INT_MAX, follow_y = INT_MAX, follow_a = INT_MAX;
 static int gZoom = 768;
 bool automapping;
@@ -98,9 +98,18 @@ CCMD(togglefollow)
 	am_followplayer = !am_followplayer;
 	auto msg = quoteMgr.GetQuote(am_followplayer ? 84 : 83);
 	if (!msg || !*msg) msg = am_followplayer ? GStrings("FOLLOW MODE ON") : GStrings("FOLLOW MODE Off");
-	Printf("%s\n", msg);
-	follow_x = follow_y = 0;
+	Printf(PRINT_NOTIFY, "%s\n", msg);
+	if (am_followplayer) follow_x = INT_MAX;
 }
+
+CCMD(togglerotate)
+{
+	am_rotate = !am_rotate;
+	auto msg = am_followplayer ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
+	Printf(PRINT_NOTIFY, "%s\n", msg);
+	if (am_followplayer) follow_x = INT_MAX;
+}
+
 
 CCMD(am_zoom)
 {
@@ -149,19 +158,19 @@ bool AM_Responder(event_t* ev, bool last)
 
 static void CalcMapBounds()
 {
-	x_min_bound = 999999;
-	y_min_bound = 999999;
-	x_max_bound = -999999;
-	y_max_bound = -999999;
+	x_min_bound = INT_MAX;
+	y_min_bound = INT_MAX;
+	x_max_bound = INT_MIN;
+	y_max_bound = INT_MIN;
 
 
 	for (int i = 0; i < numwalls; i++)
 	{
 		// get map min and max coordinates
-		x_min_bound = min(TrackerCast(wall[i].x), x_min_bound);
-		y_min_bound = min(TrackerCast(wall[i].y), y_min_bound);
-		x_max_bound = max(TrackerCast(wall[i].x), x_max_bound);
-		y_max_bound = max(TrackerCast(wall[i].y), y_max_bound);
+		if (wall[i].x < x_min_bound) x_min_bound = wall[i].x;
+		if (wall[i].y < y_min_bound) y_min_bound = wall[i].y;
+		if (wall[i].x > x_max_bound) x_max_bound = wall[i].x;
+		if (wall[i].y > y_max_bound) y_max_bound = wall[i].y;
 	}
 }
 
@@ -176,7 +185,7 @@ void AutomapControl()
 	static int nonsharedtimer;
 	int ms = screen->FrameTime;
 	int interval;
-	static int panvert = 0, panhorz = 0;
+	int panvert = 0, panhorz = 0;
 
 	if (nonsharedtimer > 0 || ms < nonsharedtimer)
 	{
@@ -193,7 +202,7 @@ void AutomapControl()
 
 	if (automapMode != am_off)
 	{
-		const int keymove = 35;
+		const int keymove = 4;
 		if (am_zoomdir > 0)
 		{
 			gZoom = xs_CRoundToInt(gZoom * am_zoomdir);
@@ -211,30 +220,35 @@ void AutomapControl()
 		if (buttonMap.ButtonDown(gamefunc_Shrink_Screen))
 			gZoom -= (int)fmulscale6(j, max(gZoom, 256));
 
-		if (buttonMap.ButtonDown(gamefunc_AM_PanLeft))
-			panhorz += keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_AM_PanRight))
-			panhorz -= keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_AM_PanUp))
-			panvert += keymove;
-
-		if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
-			panvert -= keymove;
-
-		int momx = mulscale9(panvert, sintable[(follow_a + 512) & 2047]);
-		int momy = mulscale9(panvert, sintable[follow_a]);
-
-		momx += mulscale9(panhorz, sintable[follow_a]);
-		momy += mulscale9(panhorz, sintable[(follow_a + 1536) & 2047]);
-
-		follow_x += Scale(momx, gZoom, 768);
-		follow_y += Scale(momy, gZoom, 768);
-
-		follow_x = clamp(follow_x, x_min_bound, x_max_bound);
-		follow_y = clamp(follow_y, y_min_bound, y_max_bound);
 		gZoom = clamp(gZoom, 48, 2048);
+
+		if (!am_followplayer)
+		{
+			if (buttonMap.ButtonDown(gamefunc_AM_PanLeft))
+				panhorz += keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_AM_PanRight))
+				panhorz -= keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_AM_PanUp))
+				panvert += keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_AM_PanDown))
+				panvert -= keymove;
+
+			int momx = mulscale9(panvert, sintable[(follow_a + 512) & 2047]);
+			int momy = mulscale9(panvert, sintable[(follow_a) & 2047]);
+
+			momx += mulscale9(panhorz, sintable[(follow_a) & 2047]);
+			momy += mulscale9(panhorz, sintable[(follow_a + 1536) & 2047]);
+
+			follow_x += int((momx * j) / (gZoom * 4000.));
+			follow_y += int((momy * j) / (gZoom * 4000.));
+
+			if (x_min_bound == INT_MAX) CalcMapBounds();
+			follow_x = clamp(follow_x, x_min_bound, x_max_bound);
+			follow_y = clamp(follow_y, y_min_bound, y_max_bound);
+		}
 	}
 }
 
@@ -532,9 +546,15 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 
 void DrawOverheadMap(int pl_x, int pl_y, int pl_angle)
 {
-	int x = am_followplayer ? pl_x : follow_x;
-	int y = am_followplayer ? pl_y : follow_y;
+	if (am_followplayer || follow_x == INT_MAX)
+	{
+		follow_x = pl_x;
+		follow_y = pl_y;
+	}
+	int x = follow_x;
+	int y = follow_y;
 	follow_a = am_rotate ? pl_angle : 0;
+	AutomapControl();
 
 	if (automapMode == am_full)
 	{
