@@ -76,7 +76,7 @@ enum
     RUNTURN = (28),
     PREAMBLETURN = 3,
     NORMALKEYMOVE = 35,
-    MAXVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXFVEL = ((NORMALKEYMOVE * 2) + 10),
     MAXSVEL = ((NORMALKEYMOVE * 2) + 10),
     MAXANGVEL = 100,
     MAXHORIZVEL = 128
@@ -212,6 +212,10 @@ static void processWeapon(PLAYERp const pp)
 static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
 {
     double const scaleAdjust = InputScale();
+    bool const strafeKey = buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop;
+    int32_t turnamount, keymove;
+    int32_t fvel = 0, svel = 0;
+    fixed_t q16avel = 0, q16horz = 0;
 
     // If in 2D follow mode, scroll around using glob vars
     // Tried calling this in domovethings, but key response it too poor, skips key presses
@@ -219,57 +223,43 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     if (automapFollow && automapMode != am_off && pp == Player + myconnectindex && !Prediction)
         MoveScrollMode2D(Player + myconnectindex, hidInput);
 
-    int32_t turnamount;
-    int32_t keymove;
-
     if (loc.actions & SB_RUN)
     {
-        if (pp->sop_control)
-            turnamount = RUNTURN * 3;
-        else
-            turnamount = RUNTURN;
-
+        turnamount = pp->sop_control ? RUNTURN * 3 : RUNTURN;
         keymove = NORMALKEYMOVE << 1;
     }
     else
     {
-        if (pp->sop_control)
-            turnamount = NORMALTURN * 3;
-        else
-            turnamount = NORMALTURN;
-
+        turnamount = pp->sop_control ? NORMALTURN * 3 : NORMALTURN;
         keymove = NORMALKEYMOVE;
     }
 
-    int32_t svel = 0, vel = 0;
-    fixed_t q16horz = 0, q16angvel = 0;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
+    if (strafeKey)
     {
         svel -= (hidInput->mousex * inputScale) * 4.f;
         svel -= hidInput->dyaw * keymove;
     }
     else
     {
-        q16angvel += FloatToFixed((hidInput->mousex + (scaleAdjust * hidInput->dyaw)) * inputScale);
+        q16avel += FloatToFixed((hidInput->mousex + (scaleAdjust * hidInput->dyaw)) * inputScale);
     }
 
     if (mouseaim)
         q16horz -= FloatToFixed(hidInput->mousey * inputScale);
     else
-        vel -= (hidInput->mousey * inputScale) * 8.f;
+        fvel -= (hidInput->mousey * inputScale) * 8.f;
 
     if (in_mouseflip)
         q16horz = -q16horz;
 
     q16horz -= FloatToFixed(scaleAdjust * (hidInput->dpitch * inputScale));
     svel -= hidInput->dx * keymove;
-    vel -= hidInput->dz * keymove;
+    fvel -= hidInput->dz * keymove;
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
+    if (strafeKey)
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            svel -= -keymove;
+            svel += keymove;
         if (buttonMap.ButtonDown(gamefunc_Turn_Right))
             svel -= keymove;
     }
@@ -278,28 +268,12 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
         {
             turnheldtime += synctics;
-            if (cl_syncinput)
-            {
-                if (turnheldtime >= TURBOTURNTIME)
-                    q16angvel -= IntToFixed(turnamount);
-                else
-                    q16angvel -= IntToFixed(PREAMBLETURN);
-            }
-            else
-                q16angvel -= FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+            q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
         }
         else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
         {
             turnheldtime += synctics;
-            if (cl_syncinput)
-            {
-                if (turnheldtime >= TURBOTURNTIME)
-                    q16angvel += IntToFixed(turnamount);
-                else
-                    q16angvel += IntToFixed(PREAMBLETURN);
-            }
-            else
-                q16angvel += FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+            q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
         }
         else
         {
@@ -311,42 +285,32 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         svel += keymove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-        svel += -keymove;
+        svel -= keymove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-    {
-        vel += keymove;
-    }
+        fvel += keymove;
 
     if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        vel += -keymove;
+        fvel -= keymove;
 
-    q16angvel = clamp(q16angvel, -IntToFixed(MAXANGVEL), IntToFixed(MAXANGVEL));
-    q16horz = clamp(q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
-
-    void DoPlayerTeleportPause(PLAYERp pp);
-    if (cl_syncinput)
+    if (!cl_syncinput)
     {
-        q16angvel = q16angvel;
-        q16horz = q16horz;
-    }
-    else
-    {
-        fixed_t prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
+        fixed_t const prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, &pp->camq16ang, q16angvel, scaleAdjust);
+            DoPlayerTurn(pp, &pp->camq16ang, q16avel, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, &pp->camq16horiz, q16horz, scaleAdjust);
+
         pp->oq16ang += pp->camq16ang - prevcamq16ang;
         pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
     }
 
-    loc.fvel = clamp(loc.fvel + vel, -MAXVEL, MAXVEL);
+    loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
     loc.svel = clamp(loc.svel + svel, -MAXSVEL, MAXSVEL);
 
-    loc.q16avel += q16angvel;
-    loc.q16horz += q16horz;
+    loc.q16avel = clamp(loc.q16avel + q16avel, -IntToFixed(MAXANGVEL), IntToFixed(MAXANGVEL));
+    loc.q16horz = clamp(loc.q16horz + q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
 }
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
