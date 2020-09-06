@@ -368,7 +368,7 @@ void GameInterface::GetInput(InputPacket *packet)
 
         auto fvel = loc.fvel;
         auto svel = loc.svel;
-        auto ang  = FixedToInt(pp->camq16ang);
+        auto ang  = FixedToInt(pp->q16ang);
 
         loc.fvel = mulscale9(fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(svel, sintable[NORM_ANGLE(ang)]);
         loc.svel = mulscale9(fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(svel, sintable[NORM_ANGLE(ang + 1536)]);
