@@ -324,7 +324,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 
     if (packet)
     {
-        auto const ang = FixedToInt(pp->camq16ang);
+        auto const ang = FixedToInt(pp->q16ang);
 
         *packet = loc;
 
