@@ -2212,6 +2212,7 @@ struct GameInterface : ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
 	void NewGame(MapRecord *map, int skill) override;
+    bool DrawAutomapPlayer(int x, int y, int z, int a) override;
 
 
     GameStats getStats() override;
