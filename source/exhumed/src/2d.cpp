@@ -884,7 +884,6 @@ bool TextOverlay::AdvanceCinemaText(double clock)
     if (nHeight + nCrawlY > 0 || CDplaying())
     {
         nCrawlY-= (clock - lastclock) / 15.;   // do proper interpolation.
-        Printf("Scroll: crawlY = %f, clock = %f, time = %f, real time = %u\n", nCrawlY, clock, lastclock - clock, I_msTime());
         lastclock = clock;
         return true;
     }
