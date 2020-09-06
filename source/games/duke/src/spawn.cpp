@@ -36,6 +36,7 @@ source as it is released.
 #include "ns.h"
 #include "global.h"
 #include "sounds.h"
+#include "automap.h"
 
 BEGIN_DUKE_NS
 
@@ -115,8 +116,8 @@ short EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s
 		s->hitag = 0;
 	}
 
-	if (show2dsector[s->sectnum]) show2dsprite[i >> 3] |= (1 << (i & 7));
-	else show2dsprite[i >> 3] &= ~(1 << (i & 7));
+	if (show2dsector[s->sectnum]) show2dsprite.Set(i);
+	else show2dsprite.Clear(i);
 
 	spriteext[i] = {};
 	spritesmooth[i] = {};

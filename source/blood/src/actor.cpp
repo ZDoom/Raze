@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 
 #include "build.h"
+#include "automap.h"
 #include "pragmas.h"
 #include "mmulti.h"
 #include "common.h"
@@ -6191,7 +6192,7 @@ spritetype * actSpawnThing(int nSector, int x, int y, int z, int nThingType)
         pSprite->xrepeat = pThingInfo->xrepeat;
     if (pThingInfo->yrepeat)
         pSprite->yrepeat = pThingInfo->yrepeat;
-    SetBitString(show2dsprite, pSprite->index);
+    show2dsprite.Set(pSprite->index);
     switch (nThingType) {
     case kThingVoodooHead:
         pXThing->data1 = 0;
@@ -6307,7 +6308,7 @@ spritetype* actFireMissile(spritetype *pSprite, int a2, int a3, int a4, int a5, 
     }
     spritetype *pMissile = actSpawnSprite(pSprite->sectnum, x, y, z, 5, 1);
     int nMissile = pMissile->index;
-    SetBitString(show2dsprite, nMissile);
+    show2dsprite.Set(nMissile);
     pMissile->type = nType;
     pMissile->shade = pMissileInfo->shade;
     pMissile->pal = 0;

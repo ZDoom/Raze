@@ -27,6 +27,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define QUIET
 #include "build.h"
+#include "automap.h"
 #include "pragmas.h"
 
 

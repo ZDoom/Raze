@@ -57,12 +57,6 @@ void CONFIG_ReadCombatMacros();
 int GameMain();
 int GetAutomapZoom(int gZoom);
 
-// transitional helper inlines to define the interface before rewriting the code.
-inline void ClearAutomap() {}
-inline void MarkSectorSeen(int sect) {}
-inline void DrawOverheadMap(int x, int y, int ang) {} 
-
-
 void DrawCrosshair(int deftile, int health, double xdelta, double scale, PalEntry color = 0xffffffff);
 void updatePauseStatus();
 void DeferedStartGame(MapRecord* map, int skill);

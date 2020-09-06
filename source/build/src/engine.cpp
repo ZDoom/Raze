@@ -10,6 +10,7 @@
 
 #include "gl_load.h"
 #include "build.h"
+#include "automap.h"
 
 #include "imagehelpers.h"
 #include "common.h"

@@ -435,26 +435,6 @@ EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-
-    //These variables are for auto-mapping with the draw2dscreen function.
-    //When you load a new board, these bits are all set to 0 - since
-    //you haven't mapped out anything yet.  Note that these arrays are
-    //bit-mapped.
-    //If you want draw2dscreen() to show sprite #54 then you say:
-    //   spritenum = 54;
-    //   show2dsprite[spritenum>>3] |= (1<<(spritenum&7));
-    //And if you want draw2dscreen() to not show sprite #54 then you say:
-    //   spritenum = 54;
-    //   show2dsprite[spritenum>>3] &= ~(1<<(spritenum&7));
-
-EXTERN int automapping;
-EXTERN FixedBitArray<MAXSECTORS> show2dsector;
-EXTERN bool gFullMap;
-
-EXTERN char show2dwall[(MAXWALLS+7)>>3];
-EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
-
-
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 

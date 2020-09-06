@@ -474,7 +474,6 @@ void SaveEngineState()
 	fw->Write(connectpoint2, sizeof(connectpoint2));
 	fw->Write(&randomseed, sizeof(randomseed));
 	fw->Write(&numshades, sizeof(numshades));
-	fw->Write(&automapping, sizeof(automapping));
 	fw->Write(&showinvisibility, sizeof(showinvisibility));
 	WriteMagic(fw);
 
@@ -532,7 +531,6 @@ void LoadEngineState()
 		fr.Read(connectpoint2, sizeof(connectpoint2));
 		fr.Read(&randomseed, sizeof(randomseed));
 		fr.Read(&numshades, sizeof(numshades));
-		fr.Read(&automapping, sizeof(automapping));
 		fr.Read(&showinvisibility, sizeof(showinvisibility));
 		CheckMagic(fr);
 

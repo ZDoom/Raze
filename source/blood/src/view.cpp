@@ -45,6 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_video.h"
 #include "v_font.h"
 #include "statusbar.h"
+#include "automap.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS

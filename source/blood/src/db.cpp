@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "zstring.h"
 #include "m_crc32.h"
 #include "md4.h"
+#include "automap.h"
 
 //#include "actor.h"
 #include "globals.h"

@@ -31,6 +31,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #include "ns.h"	// Must come before everything else!
 
+#include "automap.h"
 #include "duke3d.h"
 #include "m_argv.h"
 #include "mapinfo.h"
