@@ -220,11 +220,9 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	int i, j;
 	unsigned char fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
 
 	struct player_struct* pp;
-	walltype* wal;
 	int cposx, cposy, cang;
 
 	pp = &ps[screenpeek];
@@ -247,20 +245,7 @@ void drawoverlays(double smoothratio)
 	else
 		videoclearFade();
 
-	i = pp->cursectnum;
-
-	if (i >= 0) show2dsector.Set(i);
-	wal = &wall[sector[i].wallptr];
-	for (j = sector[i].wallnum; j > 0; j--, wal++)
-	{
-		i = wal->nextsector;
-		if (i < 0) continue;
-		if (wal->cstat & 0x0071) continue;
-		if (wall[wal->nextwall].cstat & 0x0071) continue;
-		if (sector[i].lotag == 32767) continue;
-		if (sector[i].ceilingz >= sector[i].floorz) continue;
-		show2dsector.Set(i);
-	}
+	MarkSectorSeen(pp->cursectnum);
 
 	if (ud.camerasprite == -1)
 	{

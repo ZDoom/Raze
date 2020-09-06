@@ -27,42 +27,11 @@ BEGIN_PS_NS
 
 
 short bShowTowers = false;
-int ldMapZoom;
-
-void MarkSectorSeen(short nSector);
-
-
-void InitMap()
-{
-    show2dsector.Zero();
-    memset(show2dwall,   0, sizeof(show2dwall));
-    memset(show2dsprite, 0, sizeof(show2dsprite));
-
-    ldMapZoom = 64;
-}
 
 void GrabMap()
 {
     for (int i = 0; i < numsectors; i++) {
         MarkSectorSeen(i);
-    }
-}
-
-void MarkSectorSeen(short nSector)
-{
-    if (!show2dsector[nSector])
-    {
-        show2dsector.Set(nSector);
-
-        short startwall = sector[nSector].wallptr;
-        short nWalls = sector[nSector].wallnum;
-        short endwall = startwall + nWalls;
-
-        while (startwall <= endwall)
-        {
-            show2dwall[startwall >> 3] = (1 << (startwall & 7)) | show2dwall[startwall >> 3];
-            startwall++;
-        }
     }
 }
 

@@ -688,10 +688,6 @@ void prelevel_common(int g)
     // RRRA E2L1 fog handling.
     fogactive = 0;
 
-    show2dsector.Zero();
-    memset(show2dwall, 0, sizeof(show2dwall));
-    memset(show2dsprite, 0, sizeof(show2dsprite));
-
     resetprestat(0, g);
     numclouds = 0;
 

@@ -102,7 +102,7 @@ uint8_t LoadLevel(int nMap)
         InitSnakes();
         InitFishes();
         InitLights();
-        InitMap();
+        ClearAutomap();
         InitBubbles();
         InitObjects();
         InitLava();
