@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "endgame.h"
 #include "aistate.h"
-#include "map2d.h"
 #include "loadsave.h"
 #include "sectorfx.h"
 #include "choke.h"

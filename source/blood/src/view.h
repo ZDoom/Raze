@@ -127,7 +127,6 @@ enum
 
 #define kFontNum 5
 
-extern int gZoom;
 extern FFont *gFont[kFontNum];
 extern VIEWPOS gViewPos;
 extern int gViewIndex;

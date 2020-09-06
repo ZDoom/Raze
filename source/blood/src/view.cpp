@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "endgame.h"
 #include "aistate.h"
-#include "map2d.h"
 #include "loadsave.h"
 #include "sectorfx.h"
 #include "choke.h"
@@ -45,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "v_2ddrawer.h"
 #include "v_video.h"
 #include "v_font.h"
+#include "statusbar.h"
 #include "glbackend/glbackend.h"
 
 BEGIN_BLD_NS
@@ -266,8 +266,6 @@ void viewDrawAimedPlayerName(void)
 static TArray<uint8_t> lensdata;
 int *lensTable;
 
-int gZoom = 1024;
-
 extern int dword_172CE0[16][3];
 
 void viewInit(void)
@@ -299,7 +297,6 @@ void viewInit(void)
         dword_172CE0[i][1] = mulscale16(wrand(), 2048);
         dword_172CE0[i][2] = mulscale16(wrand(), 2048);
     }
-    gViewMap.sub_25C38(0, 0, gZoom, 0);
 }
 
 int othercameradist = 1280;
@@ -596,6 +593,21 @@ void viewUpdateShake(void)
 int gLastPal = 0;
 
 int32_t g_frameRate;
+
+static void DrawMap(spritetype* pSprite)
+{
+    int tm = 0;
+    if (windowxy1.x > 0)
+    {
+        setViewport(Hud_Stbar);
+        tm = 1;
+    }
+    DrawOverheadMap(pSprite->x, pSprite->y, pSprite->ang);
+    if (tm)
+        setViewport(hud_size);
+}
+
+
 
 void viewDrawScreen(bool sceneonly)
 {
@@ -985,7 +997,7 @@ void viewDrawScreen(bool sceneonly)
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)
     {
-        gViewMap.sub_25DB0(gView->pSprite);
+        DrawMap (gView->pSprite);
     }
     UpdateStatusBar();
     int zn = ((gView->zWeapon-gView->zView-(12<<8))>>7)+220;

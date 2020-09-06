@@ -62,7 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "choke.h"
 #include "d_net.h"
 #include "v_video.h"
-#include "map2d.h"
 
 BEGIN_BLD_NS
 
@@ -495,8 +494,6 @@ void GameInterface::Startup()
 
 void GameInterface::Render()
 {
-	gZoom = GetAutomapZoom(gZoom);
-	gViewMap.nZoom = gZoom;
 	drawtime.Reset();
 	drawtime.Clock();
 	viewDrawScreen();

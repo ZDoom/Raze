@@ -46,11 +46,6 @@ static int lastcontroltime;
 static double lastCheck;
 static InputPacket loc; // input accumulation buffer.
 
-void GameInterface::ResetFollowPos(bool message)
-{
-	if (message) FTA(automapFollow? QUOTE_MAP_FOLLOW_ON : QUOTE_MAP_FOLLOW_OFF, &ps[myconnectindex]);
-
-}
 //---------------------------------------------------------------------------
 //
 // handles all HUD related input, i.e. inventory item selection and activation plus weapon selection.
