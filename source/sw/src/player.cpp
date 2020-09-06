@@ -7378,7 +7378,7 @@ void ChopsCheck(PLAYERp pp)
 {
     if (!M_Active() && !TEST(pp->Flags, PF_DEAD) && !pp->sop_riding && numplayers <= 1)
     {
-        if (pp->input.actions || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.q16horz ||
+        if (pp->input.actions & ~SB_RUN || pp->input.fvel || pp->input.svel || pp->input.q16avel || pp->input.q16horz ||
             TEST(pp->Flags, PF_CLIMBING | PF_FALLING | PF_DIVING))
         {
             // Hit a input key or other reason to stop chops
