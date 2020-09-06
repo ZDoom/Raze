@@ -383,9 +383,10 @@ public:
 		auto p = &ps[snum];
 		int h = tilesiz[TILE_BOTTOMSTATUSBAR].y;
 		int top = 200 - h;
+		int left = (320 - tilesiz[TILE_BOTTOMSTATUSBAR].x) / 2;
 		BeginStatusBar(320, 200, h);
 		DrawInventory(p, 160, 154, 0);
-		DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), 0, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
+		DrawGraphic(tileGetTexture(TILE_BOTTOMSTATUSBAR), left, top, DI_ITEM_LEFT_TOP, 1, -1, -1, 1, 1);
 
 		FString format;
 
