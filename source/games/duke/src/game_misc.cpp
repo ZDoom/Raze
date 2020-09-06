@@ -282,50 +282,28 @@ void drawoverlays(double smoothratio)
 		{
 			dointerpolations(smoothratio);
 
-			if (!automapFollow)
+			if (pp->newowner == -1 && playrunning())
 			{
-				if (pp->newowner == -1 && playrunning())
+				if (screenpeek == myconnectindex && numplayers > 1)
 				{
-					if (screenpeek == myconnectindex && numplayers > 1)
-					{
-						cposx = omyx + mulscale16(myx - omyx, smoothratio);
-						cposy = omyy + mulscale16(myy - omyy, smoothratio);
-						cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
-					}
-					else
-					{
-						cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
-						cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
-						cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
-					}
+					cposx = omyx + mulscale16(myx - omyx, smoothratio);
+					cposy = omyy + mulscale16(myy - omyy, smoothratio);
+					cang = FixedToInt(oq16myang + mulscale16(((q16myang + IntToFixed(1024) - oq16myang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
 				}
 				else
 				{
-					cposx = pp->oposx;
-					cposy = pp->oposy;
-					cang = pp->getoang();
+					cposx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
+					cposy = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
+					cang = pp->getoang() + mulscale16(((pp->getang() + 1024 - pp->getoang()) & 2047) - 1024, smoothratio);
 				}
 			}
 			else
 			{
-				if (playrunning())
-				{
-					ud.fola += ud.folavel >> 3;
-					ud.folx += (ud.folfvel * sintable[(512 + 2048 - ud.fola) & 2047]) >> 14;
-					ud.foly += (ud.folfvel * sintable[(512 + 1024 - 512 - ud.fola) & 2047]) >> 14;
-				}
-				cposx = ud.folx;
-				cposy = ud.foly;
-				cang = ud.fola;
+				cposx = pp->oposx;
+				cposy = pp->oposy;
+				cang = pp->getoang();
 			}
-
-			if (automapMode == am_full)
-			{
-				twod->ClearScreen();
-				renderDrawMapView(cposx, cposy, pp->zoom, cang);
-			}
-			drawoverheadmap(cposx, cposy, pp->zoom, cang);
-
+			DrawOverheadMap(cposx, cposy, cang);
 			restoreinterpolations();
 		}
 	}
@@ -341,290 +319,6 @@ void drawoverlays(double smoothratio)
 
 	if (paused == 2)
 		fi.PrintPaused();
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void drawoverheadmap(int cposx, int cposy, int czoom, int cang)
-{
-	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
-	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
-	int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
-	int xvect, yvect, xvect2, yvect2;
-	int p;
-	PalEntry col;
-	walltype* wal, * wal2;
-	spritetype* spr;
-
-	renderSetAspect(65536, 65536);
-
-	xvect = sintable[(-cang) & 2047] * czoom;
-	yvect = sintable[(1536 - cang) & 2047] * czoom;
-	xvect2 = mulscale16(xvect, yxaspect);
-	yvect2 = mulscale16(yvect, yxaspect);
-
-	//Draw red lines
-	for (i = 0; i < numsectors; i++)
-	{
-		if (!gFullMap && !show2dsector[i]) continue;
-
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
-
-		z1 = sector[i].ceilingz;
-		z2 = sector[i].floorz;
-
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
-		{
-			k = wal->nextwall;
-			if (k < 0) continue;
-
-			if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
-				if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0) continue;
-
-			if (!gFullMap && !show2dsector[wal->nextsector])
-			{
-				col = PalEntry(170, 170, 170);
-				ox = wal->x - cposx;
-				oy = wal->y - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-				wal2 = &wall[wal->point2];
-				ox = wal2->x - cposx;
-				oy = wal2->y - cposy;
-				x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-				drawlinergb(x1, y1, x2, y2, col);
-			}
-		}
-	}
-
-	//Draw sprites
-	k = ps[screenpeek].i;
-	for (i = 0; i < numsectors; i++)
-	{
-		if (!gFullMap || !show2dsector[i]) continue;
-		for (j = headspritesect[i]; j >= 0; j = nextspritesect[j])
-		{
-			spr = &sprite[j];
-
-			if (j == k || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
-
-			col = PalEntry(0, 170, 170);
-			if (spr->cstat & 1) col = PalEntry(170, 0, 170);
-
-			sprx = spr->x;
-			spry = spr->y;
-
-			if ((spr->cstat & 257) != 0) switch (spr->cstat & 48)
-			{
-			case 0:
-				//                    break;
-
-				ox = sprx - cposx;
-				oy = spry - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-				ox = (sintable[(spr->ang + 512) & 2047] >> 7);
-				oy = (sintable[(spr->ang) & 2047] >> 7);
-				x2 = dmulscale16(ox, xvect, -oy, yvect);
-				y2 = dmulscale16(oy, xvect, ox, yvect);
-
-				x3 = mulscale16(x2, yxaspect);
-				y3 = mulscale16(y2, yxaspect);
-
-				drawlinergb(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
-				drawlinergb(x1 - y2 + (xdim << 11), y1 + x3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
-				drawlinergb(x1 + y2 + (xdim << 11), y1 - x3 + (ydim << 11),
-					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
-				break;
-
-			case 16:
-				if (spr->picnum == TILE_LASERLINE)
-				{
-					x1 = sprx;
-					y1 = spry;
-					tilenum = spr->picnum;
-					xoff = tileLeftOffset(tilenum) + spr->xoffset;
-					if ((spr->cstat & 4) > 0) xoff = -xoff;
-					k = spr->ang;
-					l = spr->xrepeat;
-					dax = sintable[k & 2047] * l;
-					day = sintable[(k + 1536) & 2047] * l;
-					l = tilesiz[tilenum].x;
-					k = (l >> 1) + xoff;
-					x1 -= mulscale16(dax, k);
-					x2 = x1 + mulscale16(dax, l);
-					y1 -= mulscale16(day, k);
-					y2 = y1 + mulscale16(day, l);
-
-					ox = x1 - cposx;
-					oy = y1 - cposy;
-					x1 = dmulscale16(ox, xvect, -oy, yvect);
-					y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-					ox = x2 - cposx;
-					oy = y2 - cposy;
-					x2 = dmulscale16(ox, xvect, -oy, yvect);
-					y2 = dmulscale16(oy, xvect2, ox, yvect2);
-
-					drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-						x2 + (xdim << 11), y2 + (ydim << 11), col);
-				}
-
-				break;
-
-			case 32:
-				tilenum = spr->picnum;
-				xoff = tileLeftOffset(tilenum) + spr->xoffset;
-				yoff = tileTopOffset(tilenum) + spr->yoffset;
-				if ((spr->cstat & 4) > 0) xoff = -xoff;
-				if ((spr->cstat & 8) > 0) yoff = -yoff;
-
-				k = spr->ang;
-				cosang = sintable[(k + 512) & 2047];
-				sinang = sintable[k & 2047];
-				xspan = tilesiz[tilenum].x;
-				xrepeat = spr->xrepeat;
-				yspan = tilesiz[tilenum].y;
-				yrepeat = spr->yrepeat;
-
-				dax = ((xspan >> 1) + xoff) * xrepeat;
-				day = ((yspan >> 1) + yoff) * yrepeat;
-				x1 = sprx + dmulscale16(sinang, dax, cosang, day);
-				y1 = spry + dmulscale16(sinang, day, -cosang, dax);
-				l = xspan * xrepeat;
-				x2 = x1 - mulscale16(sinang, l);
-				y2 = y1 + mulscale16(cosang, l);
-				l = yspan * yrepeat;
-				k = -mulscale16(cosang, l);
-				x3 = x2 + k;
-				x4 = x1 + k;
-				k = -mulscale16(sinang, l);
-				y3 = y2 + k;
-				y4 = y1 + k;
-
-				ox = x1 - cposx;
-				oy = y1 - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2);
-
-				ox = x2 - cposx;
-				oy = y2 - cposy;
-				x2 = dmulscale16(ox, xvect, -oy, yvect);
-				y2 = dmulscale16(oy, xvect2, ox, yvect2);
-
-				ox = x3 - cposx;
-				oy = y3 - cposy;
-				x3 = dmulscale16(ox, xvect, -oy, yvect);
-				y3 = dmulscale16(oy, xvect2, ox, yvect2);
-
-				ox = x4 - cposx;
-				oy = y4 - cposy;
-				x4 = dmulscale16(ox, xvect, -oy, yvect);
-				y4 = dmulscale16(oy, xvect2, ox, yvect2);
-
-				drawlinergb(x1 + (xdim << 11), y1 + (ydim << 11),
-					x2 + (xdim << 11), y2 + (ydim << 11), col);
-
-				drawlinergb(x2 + (xdim << 11), y2 + (ydim << 11),
-					x3 + (xdim << 11), y3 + (ydim << 11), col);
-
-				drawlinergb(x3 + (xdim << 11), y3 + (ydim << 11),
-					x4 + (xdim << 11), y4 + (ydim << 11), col);
-
-				drawlinergb(x4 + (xdim << 11), y4 + (ydim << 11),
-					x1 + (xdim << 11), y1 + (ydim << 11), col);
-
-				break;
-			}
-		}
-	}
-
-	//Draw white lines
-	for (i = numsectors - 1; i >= 0; i--)
-	{
-		if (!gFullMap && !show2dsector[i]) continue;
-
-		startwall = sector[i].wallptr;
-		endwall = sector[i].wallptr + sector[i].wallnum;
-
-		k = -1;
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
-		{
-			if (wal->nextwall >= 0) continue;
-
-			if (!tileGetTexture(wal->picnum)->isValid()) continue;
-
-			if (j == k)
-			{
-				x1 = x2;
-				y1 = y2;
-			}
-			else
-			{
-				ox = wal->x - cposx;
-				oy = wal->y - cposy;
-				x1 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-				y1 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-			}
-
-			k = wal->point2;
-			wal2 = &wall[k];
-			ox = wal2->x - cposx;
-			oy = wal2->y - cposy;
-			x2 = dmulscale16(ox, xvect, -oy, yvect) + (xdim << 11);
-			y2 = dmulscale16(oy, xvect2, ox, yvect2) + (ydim << 11);
-
-			drawlinergb(x1, y1, x2, y2, PalEntry(170, 170, 170));
-		}
-	}
-
-	videoSetCorrectedAspect();
-
-	for (p = connecthead; p >= 0; p = connectpoint2[p])
-	{
-		if (automapFollow && p == screenpeek) continue;
-
-		ox = sprite[ps[p].i].x - cposx;
-		oy = sprite[ps[p].i].y - cposy;
-		daang = (sprite[ps[p].i].ang - cang) & 2047;
-		if (p == screenpeek)
-		{
-			ox = 0;
-			oy = 0;
-			daang = 0;
-		}
-		x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-		y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
-
-		if (p == screenpeek || ud.coop == 1)
-		{
-			auto& pp = ps[p];
-			if (sprite[pp.i].xvel > 16 && pp.on_ground)
-				i = TILE_APLAYERTOP + ((ud.levelclock >> 4) & 3);
-			else
-				i = TILE_APLAYERTOP;
-
-			j = klabs(pp.truefz - pp.posz) >> 8;
-			j = mulscale(czoom * (sprite[pp.i].yrepeat + j), yxaspect, 16);
-
-			if (j < 22000) j = 22000;
-			else if (j > (65536 << 1)) j = (65536 << 1);
-
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + x1 / 4096., ydim / 2. + y1 / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + pp.palette, sprite[pp.i].pal),
-				DTA_Color, shadeToLight(sprite[pp.i].shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j/65536., TAG_DONE);
-		}
-	}
 }
 
 //---------------------------------------------------------------------------

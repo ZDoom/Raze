@@ -63,7 +63,6 @@ struct user_defs
 	short last_level, secretlevel;
 
 	int const_visibility;
-	int folfvel, folavel, folx, foly, fola;
 	int reccnt;
 
 	int runkey_mode;
