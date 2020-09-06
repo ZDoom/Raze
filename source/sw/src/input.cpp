@@ -300,7 +300,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
 void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
-    if (paused || M_Active() || (automapFollow && automapMode != am_off))
+    if (paused || M_Active())
     {
         loc = {};
         return;
