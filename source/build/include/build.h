@@ -710,7 +710,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 static FORCE_INLINE int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
-    return FixedToInt(randomseed);
+    return ((uint32_t) randomseed)>>16;
 }
 #else
 int32_t    krand(void);
