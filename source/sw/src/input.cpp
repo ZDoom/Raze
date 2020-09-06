@@ -311,6 +311,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
 {
     if (paused || M_Active() || (automapFollow && automapMode != am_off))
     {
+        loc = {};
         return;
     }
 
