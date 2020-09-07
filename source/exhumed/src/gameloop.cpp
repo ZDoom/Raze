@@ -86,7 +86,7 @@ static void FinishLevel(int lnum, TArray<JobDesc> &jobs)
     }
     else nPlayerLives[0] = 0;
 
-    DoAfterCinemaScene(lnum, jobs);
+    DoAfterCinemaScene(lnum-1, jobs);
 }
 
 
