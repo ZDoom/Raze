@@ -1551,63 +1551,66 @@ DoPlayerCrawlHeight(PLAYERp pp)
 void
 DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 {
-    if (!TEST(pp->Flags, PF_TURN_180))
+    if (!TEST(pp->Flags, PF_DEAD) || TEST(pp->Flags, PF_DEAD) && TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
     {
-        if (pp->input.actions & SB_TURNAROUND)
+        if (!TEST(pp->Flags, PF_TURN_180))
         {
-            if (pp->KeyPressBits & SB_TURNAROUND)
+            if (pp->input.actions & SB_TURNAROUND)
             {
-                fixed_t delta_ang;
+                if (pp->KeyPressBits & SB_TURNAROUND)
+                {
+                    fixed_t delta_ang;
 
-                pp->KeyPressBits &= ~SB_TURNAROUND;
+                    pp->KeyPressBits &= ~SB_TURNAROUND;
 
-                pp->turn180_target = pp->q16ang + IntToFixed(1024);
+                    pp->turn180_target = pp->q16ang + IntToFixed(1024);
 
-                // make the first turn in the clockwise direction
-                // the rest will follow
-                delta_ang = labs(GetDeltaQ16Angle(pp->turn180_target, pp->q16ang)) >> TURN_SHIFT;
-                pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
+                    // make the first turn in the clockwise direction
+                    // the rest will follow
+                    delta_ang = labs(GetDeltaQ16Angle(pp->turn180_target, pp->q16ang)) >> TURN_SHIFT;
+                    pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
 
-                SET(pp->Flags, PF_TURN_180);
+                    SET(pp->Flags, PF_TURN_180);
+                }
+            }
+            else
+            {
+                pp->KeyPressBits |= SB_TURNAROUND;
             }
         }
-        else
+
+        if (TEST(pp->Flags, PF_TURN_180))
         {
-            pp->KeyPressBits |= SB_TURNAROUND;
+            fixed_t delta_ang;
+
+            delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang) >> TURN_SHIFT;
+            pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
+
+            sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+            if (!Prediction && pp->PlayerUnderSprite >= 0)
+            {
+                sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
+            }
+
+            // get new delta to see how close we are
+            delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang);
+
+            if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
+            {
+                pp->q16ang = pp->turn180_target;
+                RESET(pp->Flags, PF_TURN_180);
+            }
+            else
+            {
+                return;
+            }
         }
-    }
 
-    if (TEST(pp->Flags, PF_TURN_180))
-    {
-        fixed_t delta_ang;
-
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang) >> TURN_SHIFT;
-        pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
-
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
-
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
+        if (q16avel != 0)
         {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
+            pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
         }
-
-        // get new delta to see how close we are
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang);
-
-        if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
-        {
-            pp->q16ang = pp->turn180_target;
-            RESET(pp->Flags, PF_TURN_180);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    if (q16avel != 0)
-    {
-        pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
     }
 
     if (!cl_syncinput && pp->angAdjust)
@@ -1859,67 +1862,70 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
 void
 DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
 {
-    // Fixme: This should probably be made optional.
-    if (cl_slopetilting)
-        PlayerAutoLook(pp, scaleAdjust);
-
-    if (q16horz)
+    if (!TEST(pp->Flags, PF_DEAD))
     {
-        pp->q16horizbase += q16horz;
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-    }
+        // Fixme: This should probably be made optional.
+        if (cl_slopetilting)
+            PlayerAutoLook(pp, scaleAdjust);
 
-    // this is the locked type
-    if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
-    {
-        // set looking because player is manually looking.
-        SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_AIM_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_AIM_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
-    }
-
-    // this is the unlocked type
-    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN|SB_CENTERVIEW))
-    {
-        RESET(pp->Flags, PF_LOCK_HORIZ);
-        SET(pp->Flags, PF_LOOKING);
-
-        // adjust q16horiz negative
-        if (pp->input.actions & SB_LOOK_DOWN)
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * HORIZ_SPEED);
-
-        // adjust q16horiz positive
-        if (pp->input.actions & SB_LOOK_UP)
-            pp->q16horizbase += FloatToFixed(scaleAdjust * HORIZ_SPEED);
-
-        if (pp->input.actions & SB_CENTERVIEW)
-            pp->q16horizoff = 0;
-    }
-
-    if (!TEST(pp->Flags, PF_LOCK_HORIZ))
-    {
-        if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
+        if (q16horz)
         {
-            // not pressing the q16horiz keys
-            if (pp->q16horizbase != IntToFixed(100))
+            pp->q16horizbase += q16horz;
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+        }
+
+        // this is the locked type
+        if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
+        {
+            // set looking because player is manually looking.
+            SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
+
+            // adjust q16horiz negative
+            if (pp->input.actions & SB_AIM_DOWN)
+                pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
+
+            // adjust q16horiz positive
+            if (pp->input.actions & SB_AIM_UP)
+                pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
+        }
+
+        // this is the unlocked type
+        if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN|SB_CENTERVIEW))
+        {
+            RESET(pp->Flags, PF_LOCK_HORIZ);
+            SET(pp->Flags, PF_LOOKING);
+
+            // adjust q16horiz negative
+            if (pp->input.actions & SB_LOOK_DOWN)
+                pp->q16horizbase -= FloatToFixed(scaleAdjust * HORIZ_SPEED);
+
+            // adjust q16horiz positive
+            if (pp->input.actions & SB_LOOK_UP)
+                pp->q16horizbase += FloatToFixed(scaleAdjust * HORIZ_SPEED);
+
+            if (pp->input.actions & SB_CENTERVIEW)
+                pp->q16horizoff = 0;
+        }
+
+        if (!TEST(pp->Flags, PF_LOCK_HORIZ))
+        {
+            if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
             {
-                // move q16horiz back to 100
-                for (int i = 1; i; i--)
+                // not pressing the q16horiz keys
+                if (pp->q16horizbase != IntToFixed(100))
                 {
-                    // this formula does not work for q16horiz = 101-103
-                    pp->q16horizbase += xs_CRoundToInt(scaleAdjust * (IntToFixed(25) - (pp->q16horizbase >> 2)));
+                    // move q16horiz back to 100
+                    for (int i = 1; i; i--)
+                    {
+                        // this formula does not work for q16horiz = 101-103
+                        pp->q16horizbase += xs_CRoundToInt(scaleAdjust * (IntToFixed(25) - (pp->q16horizbase >> 2)));
+                    }
                 }
-            }
-            else
-            {
-                // not looking anymore because q16horiz is back at 100
-                RESET(pp->Flags, PF_LOOKING);
+                else
+                {
+                    // not looking anymore because q16horiz is back at 100
+                    RESET(pp->Flags, PF_LOOKING);
+                }
             }
         }
     }
