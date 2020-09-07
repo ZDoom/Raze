@@ -1381,6 +1381,9 @@ void checkhitsprite_d(int i, int sn)
 		{
 			if (badguy(&sprite[i]) == 1)
 			{
+				if (isWorldTour() && sprite[i].picnum == FIREFLY && sprite[i].xrepeat < 48)
+					break;
+
 				if (sprite[sn].picnum == RPG) sprite[sn].extra <<= 1;
 
 				if ((sprite[i].picnum != DRONE) && (sprite[i].picnum != ROTATEGUN) && (sprite[i].picnum != COMMANDER) && (sprite[i].picnum < GREENSLIME || sprite[i].picnum > GREENSLIME + 7))
@@ -1407,7 +1410,7 @@ void checkhitsprite_d(int i, int sn)
 						fi.shoot(i, BLOODSPLAT4);
 					}
 
-				if (sprite[i].picnum != TANK && sprite[i].picnum != BOSS1 && sprite[i].picnum != BOSS4 && sprite[i].picnum != BOSS2 && sprite[i].picnum != BOSS3 && sprite[i].picnum != RECON && sprite[i].picnum != ROTATEGUN)
+				if (sprite[i].picnum != TANK && !bossguy(&sprite[i]) && sprite[i].picnum != RECON && sprite[i].picnum != ROTATEGUN)
 				{
 					if ((sprite[i].cstat & 48) == 0)
 						sprite[i].ang = (sprite[sn].ang + 1024) & 2047;
@@ -1430,6 +1433,17 @@ void checkhitsprite_d(int i, int sn)
 			{
 				if (sprite[sn].picnum == FREEZEBLAST && ((sprite[i].picnum == APLAYER && sprite[i].pal == 1) || (freezerhurtowner == 0 && sprite[sn].owner == i)))
 					return;
+
+
+				int hitpic = sprite[sn].picnum;
+				if (sprite[sprite[sn].owner].picnum == APLAYER)
+				{
+					if (sprite[i].picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
+						return;
+
+					if (isWorldTour() && hitpic == FIREBALL && sprite[sprite[i].owner].picnum != FIREBALL)
+						hitpic = FLAMETHROWERFLAME;
+				}
 
 				hittype[i].picnum = sprite[sn].picnum;
 				hittype[i].extra += sprite[sn].extra;

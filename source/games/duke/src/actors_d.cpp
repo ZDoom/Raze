@@ -491,7 +491,7 @@ SKIPWALLCHECK:
 							hittype[j].extra = hp1 + (krand() % (hp2 - hp1));
 						}
 
-						if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && sprite[j].picnum != BOSS1 && sprite[j].picnum != BOSS2 && sprite[j].picnum != BOSS3 && sprite[j].picnum != BOSS4)
+						if (sprite[j].picnum != TANK && sprite[j].picnum != ROTATEGUN && sprite[j].picnum != RECON && !bossguy(&sprite[j]))
 						{
 							if (sj->xvel < 0) sj->xvel = 0;
 							sj->xvel += (s->extra << 2);
@@ -2807,6 +2807,8 @@ static void flamethrowerflame(int i)
 	int dax = s->x;
 	int day = s->y;
 	int daz = s->z;
+	int xvel = s->xvel;
+	int zvel = s->zvel;
 
 	getglobalz(i);
 
@@ -2823,8 +2825,8 @@ static void flamethrowerflame(int i)
 		return;
 	}
 
-	j = fi.movesprite(i, (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
-		(s->xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1);
+	j = fi.movesprite(i, (xvel * (sintable[(s->ang + 512) & 2047])) >> 14,
+		(xvel * (sintable[s->ang & 2047])) >> 14, s->zvel, CLIPMASK1);
 
 	if (s->sectnum < 0)
 	{
@@ -2849,7 +2851,7 @@ static void flamethrowerflame(int i)
 	}
 
 	if (j != 0) {
-		s->xvel = s->yvel = 0;
+		s->xvel = s->yvel = s->zvel = 0;
 		if ((j & kHitTypeMask) == kHitSprite)
 		{
 			j &= (MAXSPRITES - 1);

@@ -624,6 +624,14 @@ int spawn_d(int j, int pn)
                         sp->z = x-(12<<8);
                 }
 
+				if (sp->picnum == ONFIRE)
+				{
+					sp->x += krand() % 256 - 128;
+					sp->y += krand() % 256 - 128;
+					sp->z -= krand() % 10240;
+					sp->cstat |= 0x80;
+				}
+
                 changespritestat(i,5);
 
                 break;
