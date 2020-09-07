@@ -1699,7 +1699,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     tx = tx + quake_x;
     ty = ty + quake_y;
     //tq16horiz = tq16horiz + IntToFixed(quake_x);
-    tq16ang = IntToFixed(NORM_ANGLE(FixedToInt(tq16ang) + quake_ang));
+    tq16ang = NORM_Q16ANGLE(tq16ang + quake_ang);
 
     if (pp->sop_remote)
     {

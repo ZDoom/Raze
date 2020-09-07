@@ -278,7 +278,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     if (!cl_syncinput)
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, q16avel, scaleAdjust);
+            DoPlayerTurn(pp, !TEST(pp->Flags, PF_DEAD) || TEST(pp->Flags, PF_DEAD) && TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL) ? q16avel : 0, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, q16horz, scaleAdjust);
     }

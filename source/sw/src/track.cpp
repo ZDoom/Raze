@@ -1676,7 +1676,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng));
+    playerSetAngle(pp, (pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng)) / (double)(FRACUNIT));
 
     UpdatePlayerSprite(pp);
 }

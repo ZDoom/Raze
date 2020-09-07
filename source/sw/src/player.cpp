@@ -1608,17 +1608,22 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
     if (q16avel != 0)
     {
         pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
+    }
 
-        // update players sprite angle
-        // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
-        // here to cover
-        // all cases.
-        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+    if (!cl_syncinput && pp->angAdjust)
+    {
+        pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
+    }
 
-        if (!Prediction && pp->PlayerUnderSprite >= 0)
-        {
-            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
-        }
+    // update players sprite angle
+    // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
+    // here to cover
+    // all cases.
+    sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+    if (!Prediction && pp->PlayerUnderSprite >= 0)
+    {
+        sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
     }
 }
 
@@ -3826,7 +3831,7 @@ DoPlayerClimb(PLAYERp pp)
             pp->lx = lsp->x + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
-            pp->q16ang = IntToFixed(pp->LadderAngle);
+            playerSetAngle(pp, pp->LadderAngle);
         }
     }
 }
@@ -4285,7 +4290,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    pp->q16ang = IntToFixed(pp->LadderAngle);
+    playerSetAngle(pp, pp->LadderAngle);
 
     return TRUE;
 }
@@ -5522,7 +5527,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->sop = pp->sop_control = sop;
     sop->controller = pp->SpriteP;
 
-    pp->q16ang = IntToFixed(sop->ang);
+    playerSetAngle(pp, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5607,7 +5612,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     save_sectnum = pp->cursectnum;
 
-    pp->q16ang = IntToFixed(sop->ang);
+    playerSetAngle(pp, sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
@@ -5738,7 +5743,7 @@ DoPlayerStopOperate(PLAYERp pp)
         if (TEST_BOOL1(pp->remote_sprite))
             pp->q16ang = pp->oq16ang = IntToFixed(pp->remote_sprite->ang);
         else
-            pp->q16ang = pp->oq16ang = IntToFixed(getangle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy));
+            pp->q16ang = pp->oq16ang = gethiq16angle(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
     }
 
     if (pp->sop_control)
@@ -6393,15 +6398,14 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     if (pp->Killer > -1)
     {
         SPRITEp kp = &sprite[pp->Killer];
-        fixed_t q16ang2, delta_q16ang;
 
-        if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum,
-                      pp->posx, pp->posy, pp->posz, pp->cursectnum))
+        if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            q16ang2 = gethiq16angle(kp->x - pp->posx, kp->y - pp->posy);
-
-            delta_q16ang = GetDeltaQ16Angle(q16ang2, pp->q16ang);
-            pp->q16ang = NORM_Q16ANGLE(pp->q16ang + (delta_q16ang >> 4));
+            if (!cl_syncinput)
+            {
+                SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+            }
+            playerAddAngle(pp, GetDeltaQ16Angle(gethiq16angle(kp->x - pp->posx, kp->y - pp->posy), pp->q16ang) / (double)(FRACUNIT << 4));
         }
     }
 }
@@ -7439,7 +7443,7 @@ domovethings(void)
         // auto tracking mode for single player multi-game
         if (numplayers <= 1 && PlayerTrackingMode && pnum == screenpeek && screenpeek != myconnectindex)
         {
-            Player[screenpeek].q16ang = IntToFixed(getangle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy));
+            playerSetAngle(&Player[screenpeek], gethiq16angle(Player[myconnectindex].posx - Player[screenpeek].posx, Player[myconnectindex].posy - Player[screenpeek].posy) / (double)(FRACUNIT));
         }
 
         if (!TEST(pp->Flags, PF_DEAD))
