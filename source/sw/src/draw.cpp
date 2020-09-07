@@ -1729,7 +1729,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
 
         // recoil only when not in camera
-        tq16horiz = tq16horiz + IntToFixed(pp->recoil_horizoff);
+        tq16horiz = tq16horiz + pp->recoil_horizoff;
         tq16horiz = max(tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
         tq16horiz = min(tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
     }

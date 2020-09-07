@@ -2012,7 +2012,7 @@ DoPlayerRecoil(PLAYERp pp)
     }
 
     // move pp->q16horiz up and down
-    pp->recoil_horizoff = ((pp->recoil_amt * sintable[pp->recoil_ndx]) >> 14);
+    pp->recoil_horizoff = (pp->recoil_amt * sintable[pp->recoil_ndx]) << 2;
 }
 
 
