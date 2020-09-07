@@ -283,6 +283,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, q16horz, scaleAdjust);
 
+        if (pp->horizAdjust)
+            pp->q16horiz += FloatToFixed(scaleAdjust * pp->horizAdjust);
+
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
             DoPlayerTurn(pp, q16avel, scaleAdjust);
 
@@ -294,6 +297,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
             DoPlayerTurnTurret(pp, q16avel);
+
+        if (pp->angAdjust)
+            pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
