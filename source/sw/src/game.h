@@ -1007,6 +1007,13 @@ struct PLAYERstruct
     int cookieTime;
 
     char WpnReloadState;
+
+    // Input helper variables and setters.
+    double horizAdjust, angAdjust, pitchAdjust;
+    void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
+    void setang(int v) { q16ang = IntToFixed(v); }
+    void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
+    void sethoriz(int v) { q16horiz = IntToFixed(v); }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

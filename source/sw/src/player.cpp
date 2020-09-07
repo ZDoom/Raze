@@ -7787,6 +7787,60 @@ void CheckFootPrints(PLAYERp pp)
 
 //---------------------------------------------------------------------------
 //
+// Unsynchronised input helpers.
+//
+//---------------------------------------------------------------------------
+
+void playerAddAngle(PLAYERp pp, int ang)
+{
+    if (!cl_syncinput)
+    {
+        pp->angAdjust += ang;
+    }
+    else
+    {
+        pp->addang(ang);
+    }
+}
+
+void playerSetAngle(PLAYERp pp, int ang)
+{
+    if (!cl_syncinput)
+    {
+        pp->angAdjust += -1. * ((pp->q16ang / 65536.) - ang);
+    }
+    else
+    {
+        pp->setang(ang);
+    }
+}
+
+void playerAddHoriz(PLAYERp pp, int horiz)
+{
+    if (!cl_syncinput)
+    {
+        pp->horizAdjust += horiz;
+    }
+    else
+    {
+        pp->addhoriz(horiz);
+    }
+}
+
+void playerSetHoriz(PLAYERp pp, int horiz)
+{
+    if (!cl_syncinput)
+    {
+        pp->horizAdjust += -1. * ((pp->q16horiz / 65536.) - horiz);
+    }
+    else
+    {
+        pp->sethoriz(horiz);
+    }
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
