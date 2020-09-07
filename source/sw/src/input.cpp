@@ -34,7 +34,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scaleAdjust);
+void DoPlayerTurn(PLAYERp pp, fixed_t q16angvel, double const scaleAdjust);
 void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const scaleAdjust);
 
 static InputPacket loc;
@@ -281,7 +281,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     if (!cl_syncinput)
     {
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, &pp->q16ang, q16avel, scaleAdjust);
+            DoPlayerTurn(pp, q16avel, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, &pp->q16horiz, q16horz, scaleAdjust);
     }

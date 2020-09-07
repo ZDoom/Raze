@@ -877,7 +877,7 @@ struct PLAYERstruct
     short camera_check_time_delay;
 
     short cursectnum,lastcursectnum;
-    short turn180_target; // 180 degree turn
+    fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;

@@ -1542,46 +1542,30 @@ DoPlayerCrawlHeight(PLAYERp pp)
     pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
 }
 
-void
-DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scaleAdjust = 1.)
+enum
 {
-#define TURN_SHIFT 2
-#if 0
-    if (!cl_syncinput && (pq16ang == &pp->q16ang))
-    {
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN);
-        pp->q16ang = pp->input.q16ang;
-        if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
-            pp->oq16ang = pp->q16ang;
-        sprite[pp->PlayerSprite].ang = FixedToInt(*pq16ang);
-        if (!Prediction)
-        {
-            if (pp->PlayerUnderSprite >= 0)
-                sprite[pp->PlayerUnderSprite].ang = FixedToInt(*pq16ang);
-        }
-        return;
-    }
-#endif
+    TURN_SHIFT = 2
+};
+
+void
+DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
+{
     if (!TEST(pp->Flags, PF_TURN_180))
     {
         if (pp->input.actions & SB_TURNAROUND)
         {
             if (pp->KeyPressBits & SB_TURNAROUND)
             {
-                short delta_ang;
+                fixed_t delta_ang;
 
                 pp->KeyPressBits &= ~SB_TURNAROUND;
 
-                pp->turn180_target = NORM_ANGLE(FixedToInt(*pq16ang) + 1024);
+                pp->turn180_target = pp->q16ang + IntToFixed(1024);
 
                 // make the first turn in the clockwise direction
                 // the rest will follow
-                delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
-                if (cl_syncinput)
-                    *pq16ang = NORM_Q16ANGLE(*pq16ang + IntToFixed(labs(delta_ang) >> TURN_SHIFT));
-                else
-                    // Add at least 1 unit to ensure the turn direction is clockwise
-                    *pq16ang = NORM_Q16ANGLE(*pq16ang + max(FRACUNIT, FloatToFixed(scaleAdjust * (labs(delta_ang) >> TURN_SHIFT))));
+                delta_ang = labs(GetDeltaQ16Angle(pp->turn180_target, pp->q16ang)) >> TURN_SHIFT;
+                pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
 
                 SET(pp->Flags, PF_TURN_180);
             }
@@ -1594,58 +1578,45 @@ DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel, double const scale
 
     if (TEST(pp->Flags, PF_TURN_180))
     {
-        short delta_ang;
+        fixed_t delta_ang;
 
-        delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
-        if (cl_syncinput)
-             *pq16ang = IntToFixed(NORM_ANGLE(FixedToInt(*pq16ang) + (delta_ang >> TURN_SHIFT)));
-        else
-            *pq16ang = NORM_Q16ANGLE(*pq16ang + FloatToFixed(scaleAdjust * (delta_ang >> TURN_SHIFT)));
+        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang) >> TURN_SHIFT;
+        pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
 
-        if (pq16ang == &pp->q16ang)
+        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+        if (!Prediction && pp->PlayerUnderSprite >= 0)
         {
-            sprite[pp->PlayerSprite].ang = FixedToInt(*pq16ang);
-            if (!Prediction)
-            {
-                if (pp->PlayerUnderSprite >= 0)
-                    sprite[pp->PlayerUnderSprite].ang = FixedToInt(*pq16ang);
-            }
+            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
         }
 
         // get new delta to see how close we are
-        delta_ang = GetDeltaAngle(pp->turn180_target, FixedToInt(*pq16ang));
+        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang);
 
-        if (labs(delta_ang) < (3<<TURN_SHIFT))
+        if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
         {
-            *pq16ang = IntToFixed(pp->turn180_target);
+            pp->q16ang = pp->turn180_target;
             RESET(pp->Flags, PF_TURN_180);
         }
         else
+        {
             return;
+        }
     }
 
-    q16angvel *= PLAYER_TURN_SCALE;
-
-    if (q16angvel != 0)
+    if (q16avel != 0)
     {
-        // running is not handled here now
-        q16angvel += q16angvel / 4;
-
-        *pq16ang += (q16angvel * synctics) / 32;
-        *pq16ang = NORM_Q16ANGLE(*pq16ang);
+        pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
 
         // update players sprite angle
         // NOTE: It's also updated in UpdatePlayerSprite, but needs to be
         // here to cover
         // all cases.
-        if (pq16ang == &pp->q16ang)
+        sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
+
+        if (!Prediction && pp->PlayerUnderSprite >= 0)
         {
-            sprite[pp->PlayerSprite].ang = FixedToInt(*pq16ang);
-            if (!Prediction)
-            {
-                if (pp->PlayerUnderSprite >= 0)
-                    sprite[pp->PlayerUnderSprite].ang = FixedToInt(*pq16ang);
-            }
+            sprite[pp->PlayerUnderSprite].ang = FixedToInt(pp->q16ang);
         }
     }
 }
@@ -2105,7 +2076,7 @@ DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
     return;
 #else
     SET(pp->Flags, PF_RECOIL);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
@@ -2474,7 +2445,14 @@ DoPlayerMove(PLAYERp pp)
 
     SlipSlope(pp);
 
-    DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel, 1);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+    }
+    else
+    {
+        DoPlayerTurn(pp, pp->input.q16avel, 1);
+    }
 
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
@@ -3298,7 +3276,7 @@ DoPlayerBeginJump(PLAYERp pp)
     RESET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
@@ -3328,7 +3306,7 @@ DoPlayerBeginForceJump(PLAYERp pp)
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
@@ -3479,7 +3457,7 @@ DoPlayerBeginFall(PLAYERp pp)
     RESET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_FALL_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_FALL_CEILING_DIST;
@@ -3973,7 +3951,7 @@ DoPlayerBeginCrawl(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
     SET(pp->Flags, PF_CRAWLING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
     pp->floor_dist = PLAYER_CRAWL_FLOOR_DIST;
@@ -4129,7 +4107,7 @@ DoPlayerBeginFly(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
     SET(pp->Flags, PF_FLYING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_FLY_FRICTION;
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -4816,7 +4794,7 @@ DoPlayerBeginDive(PLAYERp pp)
     if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
 
     SET(pp->Flags, PF_DIVING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -4882,7 +4860,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     }
 
     SET(pp->Flags, PF_DIVING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -5289,7 +5267,7 @@ DoPlayerBeginWade(PLAYERp pp)
 
     RESET(pp->Flags, PF_JUMPING | PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_WADE_FRICTION;
     pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
@@ -6466,12 +6444,15 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
     // allow turning
     if (TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL))
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN);
-
-    if ((TEST(pp->Flags, PF_DEAD_HEAD) && pp->input.q16avel != 0) || TEST(pp->Flags, PF_HEAD_CONTROL))
-    {
-        DoPlayerTurn(pp, &pp->q16ang, pp->input.q16avel, 1);
-        return;
+    {  
+        if (!cl_syncinput)
+        {
+            SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+        }
+        else
+        {
+            DoPlayerTurn(pp, pp->input.q16avel, 1);
+        }
     }
 
     // follow what killed you if its available
@@ -6952,7 +6933,7 @@ DoPlayerBeginRun(PLAYERp pp)
     }
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
-    SET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     if (pp->WadeDepth)
     {
@@ -7539,23 +7520,9 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        auto prevFlags2 = pp->Flags2;
         RESET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
-        // Fix a possible jitter upon player action change;
-        // Mostly done in order to force updates to oq16ang/oq16horiz.
-        // Don't do so for a dead player which may follow
-        // the killer if present, due to angle interpolation.
-        if (!cl_syncinput && !TEST(pp->Flags, PF_DEAD))
-        {
-            auto currFlags2 = pp->Flags2;
-            if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_TURN)
-                DoPlayerTurn(pp, &pp->q16ang, 0, 1);
-            if (prevFlags2 & currFlags2 & PF2_INPUT_CAN_AIM)
-                DoPlayerHorizon(pp, &pp->q16horiz, 0, 1);
-            pp->Flags2 = currFlags2;
-        }
         UpdatePlayerSprite(pp);
 
         pSpriteControl(pp);
