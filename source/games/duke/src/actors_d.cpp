@@ -473,7 +473,7 @@ SKIPWALLCHECK:
 							hittype[j].picnum = FLAMETHROWERFLAME;
 					}
 
-					if (s->picnum != SHRINKSPARK && (!isWorldTour() && s->picnum != LAVAPOOL))
+					if (s->picnum != SHRINKSPARK && (!isWorldTour() || s->picnum != LAVAPOOL))
 					{
 						if (d < r / 3)
 						{
