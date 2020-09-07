@@ -767,6 +767,7 @@ class DDukeLevelSummaryScreen : public DScreenJob
 	const char* lastmapname;
 	int gfx_offset;
 	int bonuscnt = 0;
+	int speech = -1;
 
 	void SetTotalClock(int tc)
 	{
@@ -911,7 +912,8 @@ public:
 						bonuscnt++;
 						S_PlaySound(SHOTGUN_COCK, CHAN_AUTO, CHANF_UI);
 						static const uint16_t speeches[] = { BONUS_SPEECH1, BONUS_SPEECH2, BONUS_SPEECH3, BONUS_SPEECH4};
-						S_PlaySound(speeches[(rand() & 3)], CHAN_AUTO, CHANF_UI, 1);
+						speech = speeches[(rand() & 3)];
+						S_PlaySound(speech, CHAN_AUTO, CHANF_UI, 1);
 					}
 				case 1:
 				case 4:
@@ -926,7 +928,7 @@ public:
 		}
 		else if (currentclock > (10240 + 120L))
 		{
-			if (!skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
+			if (speech > 0 && !skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) return 1;
 			return 0;
 		}
 		else

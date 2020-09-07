@@ -358,6 +358,7 @@ class DRRLevelSummaryScreen : public DScreenJob
 	const char* lastmapname;
 	int gfx_offset;
 	int bonuscnt = 0;
+	int speech = -1;
 
 	void SetTotalClock(int tc)
 	{
@@ -502,13 +503,14 @@ public:
 				{
 					bonuscnt++;
 					S_PlaySound(425, CHAN_AUTO, CHANF_UI);
-					S_PlaySound(BONUS_SPEECH1 + (rand() & 3), CHAN_AUTO, CHANF_UI);
+					speech = BONUS_SPEECH1 + (rand() & 3);
+					S_PlaySound(speech, CHAN_AUTO, CHANF_UI);
 				}
 			}
 		}
 		else if (currentclock > (10240 + 120L))
 		{
-			if (!skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, -1)) return 1;
+			if (speech > 0 && !skiprequest && soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, speech)) return 1;
 			return 0;
 		}
 
