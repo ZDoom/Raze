@@ -1055,12 +1055,12 @@ enum
     PF_MOUSE_AIMING_ON          = (BIT(30)),
     PF_WEAPON_DOWN              = (BIT(31)),
     PF2_TELEPORTED              = (BIT(0)),
-    PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon from getinput
-    PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn from getinput
-    PF2_INPUT_CAN_TURN_BOAT     = (BIT(3)), // Allow calling DoPlayerTurnBoat from getinput
-    PF2_INPUT_CAN_TURN_TANK     = (BIT(4)), // Allow calling DoPlayerTurnTank from getinput
-    PF2_INPUT_CAN_TURN_TANKRECT = (BIT(5)), // Allow calling DoPlayerTurnTankRect from getinput
-    PF2_INPUT_CAN_TURN_TURRET   = (BIT(6)), // Allow calling DoPlayerTurnTurret from getinput
+    PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()
+    PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn() from processMovement()
+    PF2_INPUT_CAN_TURN_BOAT     = (BIT(3)), // Allow calling DoPlayerTurnBoat() from processMovement()
+    PF2_INPUT_CAN_TURN_TANK     = (BIT(4)), // Allow calling DoPlayerTurnTank() from processMovement()
+    PF2_INPUT_CAN_TURN_TANKRECT = (BIT(5)), // Allow calling DoPlayerTurnTankRect() from processMovement()
+    PF2_INPUT_CAN_TURN_TURRET   = (BIT(6)), // Allow calling DoPlayerTurnTurret() from processMovement()
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
