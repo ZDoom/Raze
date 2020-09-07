@@ -144,6 +144,7 @@ void PlaySOsound(short sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
 
+void resetinputhelpers(PLAYERp pp);
 void playerAddAngle(PLAYERp pp, double ang);
 void playerSetAngle(PLAYERp pp, double ang);
 void playerAddHoriz(PLAYERp pp, double horiz);

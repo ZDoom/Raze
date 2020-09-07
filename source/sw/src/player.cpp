@@ -7454,6 +7454,8 @@ domovethings(void)
 
         // Reset flags used while tying input to framerate
         RESET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+        resetinputhelpers(pp);
+
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
 
         UpdatePlayerSprite(pp);
@@ -7790,6 +7792,13 @@ void CheckFootPrints(PLAYERp pp)
 // Unsynchronised input helpers.
 //
 //---------------------------------------------------------------------------
+
+void resetinputhelpers(PLAYERp pp)
+{
+    pp->horizAdjust = 0;
+    pp->angAdjust = 0;
+    pp->pitchAdjust = 0;
+}
 
 void playerAddAngle(PLAYERp pp, double ang)
 {
