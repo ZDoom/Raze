@@ -7791,7 +7791,7 @@ void CheckFootPrints(PLAYERp pp)
 //
 //---------------------------------------------------------------------------
 
-void playerAddAngle(PLAYERp pp, int ang)
+void playerAddAngle(PLAYERp pp, double ang)
 {
     if (!cl_syncinput)
     {
@@ -7803,7 +7803,7 @@ void playerAddAngle(PLAYERp pp, int ang)
     }
 }
 
-void playerSetAngle(PLAYERp pp, int ang)
+void playerSetAngle(PLAYERp pp, double ang)
 {
     if (!cl_syncinput)
     {
@@ -7815,7 +7815,7 @@ void playerSetAngle(PLAYERp pp, int ang)
     }
 }
 
-void playerAddHoriz(PLAYERp pp, int horiz)
+void playerAddHoriz(PLAYERp pp, double horiz)
 {
     if (!cl_syncinput)
     {
@@ -7827,7 +7827,7 @@ void playerAddHoriz(PLAYERp pp, int horiz)
     }
 }
 
-void playerSetHoriz(PLAYERp pp, int horiz)
+void playerSetHoriz(PLAYERp pp, double horiz)
 {
     if (!cl_syncinput)
     {
