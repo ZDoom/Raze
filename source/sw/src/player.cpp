@@ -124,6 +124,12 @@ char PlayerGravity = PLAYER_JUMP_GRAV;
 
 extern SWBOOL DebugOperate;
 
+enum
+{
+    TURN_SHIFT = 2,
+    HORIZ_SPEED = 16
+};
+
 //unsigned char synctics, lastsynctics;
 
 int ChopTics;
@@ -1542,11 +1548,6 @@ DoPlayerCrawlHeight(PLAYERp pp)
     pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
 }
 
-enum
-{
-    TURN_SHIFT = 2
-};
-
 void
 DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 {
@@ -1793,7 +1794,7 @@ void SlipSlope(PLAYERp pp)
 }
 
 void
-PlayerAutoLook(PLAYERp pp, double const scaleAdjust = 1.)
+PlayerAutoLook(PLAYERp pp, double const scaleAdjust)
 {
     int x,y,k,j;
     short tempsect;
@@ -1803,8 +1804,9 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust = 1.)
         if (!TEST(pp->Flags, PF_MOUSE_AIMING_ON) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE)) // If the floor is sloped
         {
             // Get a point, 512 units ahead of player's position
-            x = pp->posx + (sintable[(FixedToInt(pp->q16ang) + 512) & 2047] >> 5);
-            y = pp->posy + (sintable[FixedToInt(pp->q16ang) & 2047] >> 5);
+            auto const ang = FixedToInt(pp->q16ang);
+            x = pp->posx + (sintable[(ang + 512) & 2047] >> 5);
+            y = pp->posy + (sintable[ang & 2047] >> 5);
             tempsect = pp->cursectnum;
             COVERupdatesector(x, y, &tempsect);
 
@@ -1820,75 +1822,38 @@ PlayerAutoLook(PLAYERp pp, double const scaleAdjust = 1.)
                 // closely (to avoid accidently looking straight out when
                 // you're at the edge of a sector line) then adjust horizon
                 // accordingly
-                if ((pp->cursectnum == tempsect) ||
-                    (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+                if ((pp->cursectnum == tempsect) || (klabs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
                 {
-                    if (cl_syncinput)
-                        pp->q16horizoff += (j - k) * 160;
-                    else
-                        pp->q16horizoff += FloatToFixed(scaleAdjust * (mulscale16((j - k), 160)));
+                    pp->q16horizoff += xs_CRoundToInt(scaleAdjust * ((j - k) * 160));
                 }
             }
         }
     }
 
-    if (TEST(pp->Flags, PF_CLIMBING))
+    if (TEST(pp->Flags, PF_CLIMBING) && pp->q16horizoff < IntToFixed(100))
     {
-        // tilt when climbing but you can't even really tell it
-        if (pp->q16horizoff < IntToFixed(100))
-        {
-            if (cl_syncinput)
-                pp->q16horizoff += IntToFixed((((100 - FixedToInt(pp->q16horizoff)) >> 3) + 1));
-            else
-                pp->q16horizoff += FloatToFixed(scaleAdjust * (FixedToFloat(((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT)));
-        }
+        // tilt when climbing but you can't even really tell it.
+        pp->q16horizoff += xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - pp->q16horizoff) >> 3) + FRACUNIT));
     }
     else
     {
-        // Make q16horizoff grow towards 0 since q16horizoff is not modified when
-        // you're not on a slope
+        // Make q16horizoff grow towards 0 since q16horizoff is not modified when you're not on a slope.
         if (pp->q16horizoff > 0)
         {
-            if (cl_syncinput)
-                pp->q16horizoff -= IntToFixed(((FixedToInt(pp->q16horizoff) >> 3) + 1));
-            else
-            {
-                pp->q16horizoff -= FloatToFixed(scaleAdjust * (FixedToFloat((pp->q16horizoff >> 3) + FRACUNIT)));
-                pp->q16horizoff = max(pp->q16horizoff, 0);
-            }
+            pp->q16horizoff -= xs_CRoundToInt(scaleAdjust * ((pp->q16horizoff >> 3) + FRACUNIT));
+            pp->q16horizoff = max(pp->q16horizoff, 0);
         }
         if (pp->q16horizoff < 0)
         {
-            if (cl_syncinput)
-                pp->q16horizoff += IntToFixed((((FixedToInt(-pp->q16horizoff)) >> 3) + 1));
-            else
-            {
-                pp->q16horizoff += FloatToFixed(scaleAdjust * (FixedToFloat((-pp->q16horizoff >> 3) + FRACUNIT)));
-                pp->q16horizoff = min(pp->q16horizoff, 0);
-            }
+            pp->q16horizoff += xs_CRoundToInt(scaleAdjust * ((pp->q16horizoff >> 3) + FRACUNIT));
+            pp->q16horizoff = min(pp->q16horizoff, 0);
         }
     }
 }
 
-extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void
-DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const scaleAdjust = 1.)
+DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
 {
-    int i;
-#define HORIZ_SPEED (16)
-
-//    //DSPRINTF(ds,"FixedToInt(pp->q16horizoff), %d", FixedToInt(pp->q16horizoff));
-//    MONO_PRINT(ds);
-#if 0
-    if (!cl_syncinput && (pq16horiz == &pp->q16horiz))
-    {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
-        pp->q16horiz = pp->input.q16horiz;
-        if ((pp == &Player[myconnectindex]) || (pp == ppp)) // No coop view?
-            pp->oq16horiz = pp->q16horiz;
-        return;
-    }
-#endif
     // Fixme: This should probably be made optional.
     if (cl_slopetilting)
         PlayerAutoLook(pp, scaleAdjust);
@@ -1899,104 +1864,61 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const sc
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
     }
 
-    if ((pp->input.actions & SB_CENTERVIEW) || pp->centering)
-    {
-        if (cl_syncinput)
-            pp->q16horizbase = IntToFixed(100);
-        else if (pp->q16horizbase > IntToFixed(100))
-        {
-            pp->q16horizbase -= FloatToFixed(scaleAdjust * ((HORIZ_SPEED*6)));
-            pp->q16horizbase = max(pp->q16horizbase, IntToFixed(100));
-        }
-        else if (pp->q16horizbase < IntToFixed(100))
-        {
-            pp->q16horizbase += FloatToFixed(scaleAdjust * ((HORIZ_SPEED*6)));
-            pp->q16horizbase = min(pp->q16horizbase, IntToFixed(100));
-        }
-        pp->centering = pp->q16horizbase != IntToFixed(100);
-        *pq16horiz = pp->q16horizbase;
-        pp->q16horizoff = 0;
-    }
-
     // this is the locked type
     if (pp->input.actions & (SB_AIM_UP|SB_AIM_DOWN))
     {
-        // set looking because player is manually looking
+        // set looking because player is manually looking.
         SET(pp->Flags, PF_LOCK_HORIZ | PF_LOOKING);
 
-        // adjust *pq16horiz negative
+        // adjust q16horiz negative
         if (pp->input.actions & SB_AIM_DOWN)
-        {
-            if (cl_syncinput)
-                pp->q16horizbase -= IntToFixed((HORIZ_SPEED/2));
-            else
-                pp->q16horizbase -= FloatToFixed(scaleAdjust * ((HORIZ_SPEED/2)));
-        }
+            pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
 
-        // adjust *pq16horiz positive
+        // adjust q16horiz positive
         if (pp->input.actions & SB_AIM_UP)
-        {
-            if (cl_syncinput)
-                pp->q16horizbase += IntToFixed((HORIZ_SPEED/2));
-            else
-                pp->q16horizbase += FloatToFixed(scaleAdjust * ((HORIZ_SPEED/2)));
-        }
-        pp->centering = false;
+            pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED >> 1));
     }
 
     // this is the unlocked type
-    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+    if (pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN|SB_CENTERVIEW))
     {
         RESET(pp->Flags, PF_LOCK_HORIZ);
         SET(pp->Flags, PF_LOOKING);
 
-        // adjust *pq16horiz negative
+        // adjust q16horiz negative
         if (pp->input.actions & SB_LOOK_DOWN)
-        {
-            if (cl_syncinput)
-                pp->q16horizbase -= IntToFixed(HORIZ_SPEED);
-            else
-                pp->q16horizbase -= FloatToFixed(scaleAdjust * (HORIZ_SPEED));
-        }
+            pp->q16horizbase -= FloatToFixed(scaleAdjust * HORIZ_SPEED);
 
-        // adjust *pq16horiz positive
+        // adjust q16horiz positive
         if (pp->input.actions & SB_LOOK_UP)
-        {
-            if (cl_syncinput)
-                pp->q16horizbase += IntToFixed(HORIZ_SPEED);
-            else
-                pp->q16horizbase += FloatToFixed(scaleAdjust * (HORIZ_SPEED));
-        }
-        pp->centering = false;
+            pp->q16horizbase += FloatToFixed(scaleAdjust * HORIZ_SPEED);
+
+        if (pp->input.actions & SB_CENTERVIEW)
+            pp->q16horizoff = 0;
     }
 
     if (!TEST(pp->Flags, PF_LOCK_HORIZ))
     {
         if (!(pp->input.actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
         {
-            // not pressing the *pq16horiz keys
+            // not pressing the q16horiz keys
             if (pp->q16horizbase != IntToFixed(100))
             {
-
-                // move *pq16horiz back to 100
-                for (i = 1; i; i--)
+                // move q16horiz back to 100
+                for (int i = 1; i; i--)
                 {
-                    // this formula does not work for *pq16horiz = 101-103
-                    if (cl_syncinput)
-                        pp->q16horizbase += IntToFixed(25) - (pp->q16horizbase >> 2);
-                    else
-                        pp->q16horizbase += FloatToFixed(scaleAdjust * (FixedToFloat(IntToFixed(25) - (pp->q16horizbase >> 2))));
+                    // this formula does not work for q16horiz = 101-103
+                    pp->q16horizbase += xs_CRoundToInt(scaleAdjust * (IntToFixed(25) - (pp->q16horizbase >> 2)));
                 }
             }
             else
             {
-                // not looking anymore because *pq16horiz is back at 100
+                // not looking anymore because q16horiz is back at 100
                 RESET(pp->Flags, PF_LOOKING);
             }
         }
     }
 
-#if 1
     // bound the base
     pp->q16horizbase = max(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MIN));
     pp->q16horizbase = min(pp->q16horizbase, IntToFixed(PLAYER_HORIZ_MAX));
@@ -2008,16 +1930,7 @@ DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz, double const sc
         pp->q16horizoff = IntToFixed(PLAYER_HORIZ_MAX) - pp->q16horizbase;
 
     // add base and offsets
-    *pq16horiz = pp->q16horizbase + pp->q16horizoff;
-#else
-    if (pp->q16horizbase + pp->q16horizoff < IntToFixed(PLAYER_HORIZ_MIN))
-        pp->q16horizbase += IntToFixed(HORIZ_SPEED);
-    else if (pp->q16horizbase + pp->q16horizoff > IntToFixed(PLAYER_HORIZ_MAX))
-        pp->q16horizbase -= HORIZ_SPEED;
-
-    *pq16horiz = pp->q16horizbase + pp->q16horizoff;
-#endif
-
+    pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
 }
 
 void
@@ -2072,17 +1985,12 @@ DoPlayerBob(PLAYERp pp)
 void
 DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
 {
-#if 0
-    return;
-#else
     SET(pp->Flags, PF_RECOIL);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
     pp->recoil_ndx = 0;
     pp->recoil_horizoff = 0;
-#endif
 }
 
 void
@@ -2573,7 +2481,14 @@ DoPlayerMove(PLAYERp pp)
 
     DoPlayerSetWadeDepth(pp);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 
     if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
     {
@@ -2774,7 +2689,14 @@ DoPlayerMoveBoat(PLAYERp pp)
     OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 }
 
 void DoTankTreads(PLAYERp pp)
@@ -3247,7 +3169,14 @@ DoPlayerMoveTank(PLAYERp pp)
     OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 
     DoTankTreads(pp);
 }
@@ -3264,7 +3193,14 @@ DoPlayerMoveTurret(PLAYERp pp)
 
     OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 }
 
 void
@@ -3276,7 +3212,6 @@ DoPlayerBeginJump(PLAYERp pp)
     RESET(pp->Flags, PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_JUMP_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_JUMP_CEILING_DIST;
@@ -3306,7 +3241,6 @@ DoPlayerBeginForceJump(PLAYERp pp)
 
     SET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_FALLING|PF_CRAWLING|PF_CLIMBING|PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->JumpDuration = MAX_JUMP_DURATION;
     pp->DoPlayerAction = DoPlayerForceJump;
@@ -3457,7 +3391,6 @@ DoPlayerBeginFall(PLAYERp pp)
     RESET(pp->Flags, PF_JUMPING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->floor_dist = PLAYER_FALL_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_FALL_CEILING_DIST;
@@ -3654,7 +3587,6 @@ DoPlayerBeginClimb(PLAYERp pp)
     RESET(pp->Flags, PF_JUMPING|PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
     RESET(pp->Flags, PF_LOCK_CRAWL);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->DoPlayerAction = DoPlayerClimb;
 
@@ -3841,7 +3773,14 @@ DoPlayerClimb(PLAYERp pp)
     sp->z = pp->posz + PLAYER_HEIGHT;
     changespritesect(pp->PlayerSprite, pp->cursectnum);
 
-    DoPlayerHorizon(pp, &pp->q16horiz, pp->input.q16horz);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 
     if (FAF_ConnectArea(pp->cursectnum))
     {
@@ -3951,7 +3890,6 @@ DoPlayerBeginCrawl(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING);
     SET(pp->Flags, PF_CRAWLING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_CRAWL_FRICTION;
     pp->floor_dist = PLAYER_CRAWL_FLOOR_DIST;
@@ -4107,7 +4045,6 @@ DoPlayerBeginFly(PLAYERp pp)
 
     RESET(pp->Flags, PF_FALLING | PF_JUMPING | PF_CRAWLING);
     SET(pp->Flags, PF_FLYING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_FLY_FRICTION;
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
@@ -4794,7 +4731,6 @@ DoPlayerBeginDive(PLAYERp pp)
     if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
 
     SET(pp->Flags, PF_DIVING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -4860,7 +4796,6 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     }
 
     SET(pp->Flags, PF_DIVING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
 
@@ -5267,7 +5202,6 @@ DoPlayerBeginWade(PLAYERp pp)
 
     RESET(pp->Flags, PF_JUMPING | PF_FALLING);
     RESET(pp->Flags, PF_CRAWLING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     pp->friction = PLAYER_WADE_FRICTION;
     pp->floor_dist = PLAYER_WADE_FLOOR_DIST;
@@ -6933,7 +6867,6 @@ DoPlayerBeginRun(PLAYERp pp)
     }
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL|PF_CLIMBING);
-    SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
     if (pp->WadeDepth)
     {
