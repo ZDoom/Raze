@@ -2707,7 +2707,3 @@ static SavegameHelper sgh("objects",
 
 END_PS_NS
 
-CCMD(endit)
-{
-    Powerslave::EndLevel = 13;
-}
