@@ -881,7 +881,6 @@ struct PLAYERstruct
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
-    bool centering;
     fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
     short recoil_amt;
     short recoil_speed;
