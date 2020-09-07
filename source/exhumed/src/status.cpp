@@ -545,8 +545,13 @@ private:
 
             int flags = DI_ITEM_RELCENTER;
 
-            int x = ChunkXpos[nFrameBase];
-            int y = ChunkYpos[nFrameBase] + ebx;
+            double x = ChunkXpos[nFrameBase];
+            double y = ChunkYpos[nFrameBase] + ebx;
+
+            if (x > 0)
+            {
+                if (xoffset == 0) { x += 0.5; y += 0.5; }
+            }
 
             if (hud_size <= Hud_StbarOverlay)
             {
@@ -710,7 +715,7 @@ private:
         {
             // draw the main bar itself
             BeginStatusBar(320, 200, 40);
-            DrawStatusSequence(nStatusSeqOffset, 0, 0);
+            DrawGraphic(tileGetTexture(kTileStatusBar), 160, 200, DI_ITEM_CENTER_BOTTOM, 1, -1, -1, 1, 1);
         }
         else if (hud_size == Hud_Mini)
         {

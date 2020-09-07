@@ -1009,7 +1009,7 @@ OptionMenu "AutomapOptions"
 	Submenu    "$MAPCNTRLMNU_CONTROLS" , "MapControlsMenu"
 	StaticText ""
 	Option "$AUTOMAPMNU_ROTATE",				"am_rotate",					"OnOff"
-	Option "$AUTOMAPMNU_FOLLOW",				"am_follow",					"OnOff"
+	Option "$AUTOMAPMNU_FOLLOW",				"am_followplayer",				"OnOff"
 
 	// move map controls here.
 	// todo:

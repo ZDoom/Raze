@@ -158,7 +158,7 @@ void shoot_d(int i, int atwith)
 			}
 			else
 			{
-				zvel = 98 * (100 + ps[p].gethorizsum());
+				zvel = 98 * (100 - ps[p].gethorizsum());
 				sx += sintable[(sa + 860) & 0x7FF] / 448;
 				sy += sintable[(sa + 348) & 0x7FF] / 448;
 				sz += (3 << 8);
@@ -849,11 +849,28 @@ void shoot_d(int i, int atwith)
 			}
 			else if (s->picnum == BOSS2)
 			{
+				int xoffs = sintable[sa & 2047] / 56;
+				int yoffs = sintable[(sa + 1024 + 512) & 2047] / 56;
+				int aoffs = 8 + (krand() & 255) - 128;
+
+				if (isWorldTour()) { // Twentieth Anniversary World Tour
+					int siz = sprite[i].yrepeat;
+					xoffs = Scale(xoffs, siz, 80);
+					yoffs = Scale(yoffs, siz, 80);
+					aoffs = Scale(aoffs, siz, 80);
+				}
+
+				sprite[j].x -= xoffs;
+				sprite[j].y -= yoffs;
+				sprite[j].ang -= aoffs;
+
 				sprite[j].x -= sintable[sa & 2047] / 56;
 				sprite[j].y -= sintable[(sa + 1024 + 512) & 2047] / 56;
 				sprite[j].ang -=  8 + (krand() & 255) - 128;
 				sprite[j].xrepeat = 24;
 				sprite[j].yrepeat = 24;
+				
+				
 			}
 			else if (atwith != FREEZEBLAST)
 			{

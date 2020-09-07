@@ -587,12 +587,44 @@ void S_MenuSound(void)
 //
 //==========================================================================
 
+CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
+
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
+
+static void MusPlay(const char* label, const char* music, bool loop)
+{
+	if (isWorldTour())
+	{
+		if (wt_forcemidi)
+		{
+			FString alternative = music;
+			alternative.Substitute(".ogg", ".mid");
+			int num = fileSystem.FindFile(alternative);
+			if (num >= 0)
+			{
+				int file = fileSystem.GetFileContainer(num);
+				if (file == 1)
+				{
+					Mus_Play(label, alternative, loop);
+					return;
+				}
+			}
+		}
+	}
+	int result = Mus_Play(label, music, loop);
+	// do not remain silent if playing World Tour when the user has deleted the music.
+	if (!result && isWorldTour())
+	{
+		FString alternative = music;
+		alternative.Substitute(".ogg", ".mid");
+		Mus_Play(label, alternative, loop);
+	}
+}
 
 void S_PlayLevelMusic(MapRecord *mi)
 {
 	if (isRR() && mi->music.IsEmpty() && mus_redbook && !cd_disabled) return;
-	Mus_Play(mi->labelName, mi->music, true);
+	MusPlay(mi->labelName, mi->music, true);
 }
 
 void S_PlaySpecialMusic(unsigned int m)
@@ -601,7 +633,7 @@ void S_PlaySpecialMusic(unsigned int m)
 	auto& musicfn = specialmusic[m];
 	if (musicfn.IsNotEmpty())
 	{
-		Mus_Play(nullptr, musicfn, true);
+		MusPlay(nullptr, musicfn, true);
 	}
 }
 

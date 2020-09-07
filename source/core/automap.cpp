@@ -105,9 +105,8 @@ CCMD(togglefollow)
 CCMD(togglerotate)
 {
 	am_rotate = !am_rotate;
-	auto msg = am_followplayer ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
+	auto msg = am_rotate ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
 	Printf(PRINT_NOTIFY, "%s\n", msg);
-	if (am_followplayer) follow_x = INT_MAX;
 }
 
 
@@ -213,7 +212,7 @@ void AutomapControl()
 		}
 		am_zoomdir = 0;
 
-		double j = interval * (120. / 1000);
+		double j = interval * 35. / gZoom;
 
 		if (buttonMap.ButtonDown(gamefunc_Enlarge_Screen))
 			gZoom += (int)fmulscale6(j, max(gZoom, 256));
@@ -242,8 +241,8 @@ void AutomapControl()
 			momx += mulscale9(panhorz, sintable[(follow_a) & 2047]);
 			momy += mulscale9(panhorz, sintable[(follow_a + 1536) & 2047]);
 
-			follow_x += int((momx * j) / (gZoom * 4000.));
-			follow_y += int((momy * j) / (gZoom * 4000.));
+			follow_x += int(momx * j);
+			follow_y += int(momy * j);
 
 			if (x_min_bound == INT_MAX) CalcMapBounds();
 			follow_x = clamp(follow_x, x_min_bound, x_max_bound);

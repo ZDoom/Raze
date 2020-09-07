@@ -27,6 +27,16 @@ inline int badguy(void const * const pSprite)
 	return badguypic(((uspritetype const *) pSprite)->picnum);
 }
 
+inline int bossguypic(int const tileNum)
+{
+	return ((actorinfo[tileNum].flags & (SFLAG_BOSS)) != 0);
+}
+
+inline int bossguy(void const* const pSprite)
+{
+	return badguypic(((uspritetype const*)pSprite)->picnum);
+}
+
 inline int actorflag(int spritenum, int mask)
 {
 	return (((actorinfo[sprite[spritenum].picnum].flags/* ^ hittype[spritenum].flags*/) & mask) != 0);
