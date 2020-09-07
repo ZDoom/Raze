@@ -205,9 +205,6 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     int32_t fvel = 0, svel = 0;
     fixed_t q16avel = 0, q16horz = 0;
 
-    // Constant used for scaling input down to match other games. May not last long after true re-factoring.
-    constexpr double inputScale = 263. / 360.;
-
     if (loc.actions & SB_RUN)
     {
         turnamount = pp->sop_control ? RUNTURN * 3 : RUNTURN;
@@ -221,23 +218,23 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
     if (strafeKey)
     {
-        svel -= (hidInput->mousex * inputScale) * 4.f;
+        svel -= xs_CRoundToInt(hidInput->mousex * 4.);
         svel -= hidInput->dyaw * keymove;
     }
     else
     {
-        q16avel += FloatToFixed((hidInput->mousex + (scaleAdjust * hidInput->dyaw)) * inputScale);
+        q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
     }
 
     if (mouseaim)
-        q16horz -= FloatToFixed(hidInput->mousey * inputScale);
+        q16horz -= FloatToFixed(hidInput->mousey);
     else
-        fvel -= (hidInput->mousey * inputScale) * 8.f;
+        fvel -= xs_CRoundToInt(hidInput->mousey * 8.);
 
     if (in_mouseflip)
         q16horz = -q16horz;
 
-    q16horz -= FloatToFixed(scaleAdjust * (hidInput->dpitch * inputScale));
+    q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
     svel -= hidInput->dx * keymove;
     fvel -= hidInput->dz * keymove;
 
