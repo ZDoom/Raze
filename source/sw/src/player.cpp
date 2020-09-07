@@ -1936,6 +1936,11 @@ DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust)
 
     // add base and offsets
     pp->q16horiz = pp->q16horizbase + pp->q16horizoff;
+
+    if (!cl_syncinput)
+    {
+        pp->q16horiz += xs_CRoundToInt(scaleAdjust * pp->horizAdjust);
+    }
 }
 
 void
@@ -6288,24 +6293,30 @@ DoPlayerBeginDie(PLAYERp pp)
     RESET(pp->Flags, PF_HEAD_CONTROL);
 }
 
-int
+void
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
     if (pp->q16horiz > IntToFixed(target))
-    {
-        pp->q16horiz -= IntToFixed(speed);
+    {   
+        if (!cl_syncinput)
+            SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+
+        playerAddHoriz(pp, -speed);
+
         if (pp->q16horiz <= IntToFixed(target))
-            pp->q16horiz = IntToFixed(target);
+            playerSetHoriz(pp, target);
     }
 
     if (pp->q16horiz < IntToFixed(target))
     {
-        pp->q16horiz += IntToFixed(speed);
-        if (pp->q16horiz >= IntToFixed(target))
-            pp->q16horiz = IntToFixed(target);
-    }
+        if (!cl_syncinput)
+            SET(pp->Flags2, PF2_INPUT_CAN_AIM);
 
-    return pp->q16horiz == IntToFixed(target);
+        playerAddHoriz(pp, speed);
+
+        if (pp->q16horiz >= IntToFixed(target))
+            playerSetHoriz(pp, target);
+    }
 }
 
 int

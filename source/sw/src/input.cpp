@@ -280,7 +280,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
             DoPlayerTurn(pp, !TEST(pp->Flags, PF_DEAD) || TEST(pp->Flags, PF_DEAD) && TEST(pp->Flags, PF_DEAD_HEAD|PF_HEAD_CONTROL) ? q16avel : 0, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-            DoPlayerHorizon(pp, q16horz, scaleAdjust);
+            DoPlayerHorizon(pp, !TEST(pp->Flags, PF_DEAD) ? q16horz : 0, scaleAdjust);
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
