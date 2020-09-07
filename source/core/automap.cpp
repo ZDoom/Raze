@@ -105,9 +105,8 @@ CCMD(togglefollow)
 CCMD(togglerotate)
 {
 	am_rotate = !am_rotate;
-	auto msg = am_followplayer ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
+	auto msg = am_rotate ? GStrings("TXT_ROTATE_ON") : GStrings("TXT_ROTATE_OFF");
 	Printf(PRINT_NOTIFY, "%s\n", msg);
-	if (am_followplayer) follow_x = INT_MAX;
 }
 
 

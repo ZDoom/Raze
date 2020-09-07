@@ -201,6 +201,8 @@ Apasă Y sau N.","Загрузить быстрое сохранение
 Yes,TXT_YES,,,,Ano,Ja,Ναι,Jes,Sí,,Kyllä,Oui,Igen,Si,はい,네,Ja,Tak,Sim,,Da,Да,Да
 No,TXT_NO,,,,Ne,Nein,Όχι,Ne,No,,Ei,Non,Nem,No,いいえ,아니요,Nee,Nie,Não,,Nu,Нет,Не
 %s cheats,TXT_X_CHEATS,This is a gender sensitive message where %s represents the player,,,%s cheatuje,%s schummelt,@[art_gr] %s απατάει,%s trompas,%s hace trampa,,%s huijaa,%s triche.,,%s imbroglia,%s はチート使用,%s 이(가) 치트를 사용 함,%s bedriegt,%s oszukuje,%s está trapaceando,%s está a fazer batota,%s trișează,%s использует чит-коды,%s вара
+Rotate mode on,TXT_ROTATE_ON,,,,,Rotiermodus an,,,,,,,,,,,,,,,,,
+Rotate mode off,TXT_ROTATE_OFF,,,,,Rotiermodus aus,,,,,,,,,,,,,,,,,
 ,,Savegame,,,,,,,,,,,,,,,,,,,,,
 Empty slot,EMPTYSTRING,,,,Prázdný slot,nicht belegt,,Malplena Ingo,Ranura Vacía,,Tyhjä lokero,Emplacement Vide,Üres,Slot libero,空きスロット,빈 슬롯,Lege sleuf,Puste miejsce,Vazio,,Loc disponibil,Пустой слот,Празни слот
 <New Save Game>,NEWSAVE,,,,<Nová uložená hra>,<Neuer Spielstand>,,<Novan Konservita Ludo>,<Nueva Partida Guardada>,,<Uusi tallennettu peli>,<Nouveau Fichier de Sauvegarde>,<Új mentés>,<Nuovo Salvataggio>,<新規セーブ>,<새로운 게임 저장>,<Nieuw sparen spel>,<Nowy zapis gry>,<Novo jogo salvo>,<Novo jogo gravado>,<Salvare Nouă>,<Новое сохранение>,<Нова сачувана игра>
@@ -2218,7 +2220,7 @@ into the heart of karnak...
 Home to the celebrated
 burial crypt of the great
 King Ramses.
-",TXT_EX_CINEMA1,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA1,Intro movie subtitles,,,,,,,,,,,,,,,,,,,,,
 "An evil force known as the
 Kilmaat has besieged the
 sanctity of my palace and
@@ -2235,7 +2237,7 @@ chaos will prevail. I am
 being torn between worlds
 and this insidious
 experiment must be stopped.
-",TXT_EX_CINEMA1,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA1,Level 1,,,,,,,,,,,,,,,,,,,,,
 "I have hidden a mystical
 gauntlet at el kab that will
 channel my energy through
@@ -2251,13 +2253,13 @@ restless with your progress.
 Seek out a temple in this
 citadel where I will provide
 more information.
-",TXT_EX_CINEMA3,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA3,After Level 10,,,,,,,,,,,,,,,,,,,,,
 "Set was a formidable foe.
 No mortal has even conquered
 their own fear, much less
 entered mortal battle and
 taken his life.
-",TXT_EX_CINEMA4,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA4,Before Level 11,,,,,,,,,,,,,,,,,,,,,
 "the Kilmaat race has
 continued their monsterous
 animal-human experiments in
@@ -2274,7 +2276,7 @@ and insect intent on slaying
 you.  Prepare yourself for
 battle as she will be waiting
 for you at the Luxor temple. 
-",TXT_EX_CINEMA5,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA5,In Level 11,,,,,,,,,,,,,,,,,,,,,
 "You've done well to defeat
 Selkis. You have distracted
 the Kilmaat with your
@@ -2287,7 +2289,7 @@ against you. Arrogance is
 her weakness, and if you can
 defeat Kilmaatikhan, the
 battle will be won.
-",TXT_EX_CINEMA6,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA6,After Level 15,,,,,,,,,,,,,,,,,,,,,
 "The Kilmaat have been
 destroyed. Unfortunately,
 your recklessness has
@@ -2295,7 +2297,7 @@ destroyed the Earth and all
 of its inhabitants.  All that
 remains is a smoldering hunk
 of rock.
-",TXT_EX_CINEMA7,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA7,Bad ending,,,,,,,,,,,,,,,,,,,,,
 "The Kilmaat have been
 defeated and you single
 handedly saved the Earth
@@ -2305,7 +2307,7 @@ from destruction.
  
 Your bravery and heroism
 are legendary.
-",TXT_EX_CINEMA8,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA8,After Level 20,,,,,,,,,,,,,,,,,,,,,
 "LOBOTOMY SOFTWARE, INC.,",TXT_EX_COPYRIGHT1,,,,,,,,,,,,,,,,,,,,,,
 "3D ENGINE BY 3D REALMS,",TXT_EX_COPYRIGHT2,,,,,,,,,,,,,,,,,,,,,,
 Life Blood,TXT_EX_PICKUP1,,,,,,,,,,,,,,,,,,,,,,
