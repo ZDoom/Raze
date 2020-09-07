@@ -1628,15 +1628,14 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 }
 
 void
-DoPlayerTurnBoat(PLAYERp pp)
+DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel)
 {
-    fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
         fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         q16avel = pp->drive_q16avel;
     }
@@ -1653,21 +1652,20 @@ DoPlayerTurnBoat(PLAYERp pp)
 }
 
 void
-DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
+DoPlayerTurnTank(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
 {
-    fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
         fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         q16avel = pp->drive_q16avel;
     }
     else
     {
-        q16avel = DIV8(pp->input.q16avel * synctics);
+        q16avel = DIV8(q16avel * synctics);
     }
 
     if (q16avel != 0)
@@ -1709,29 +1707,29 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 }
 
 void
-DoPlayerTurnTurret(PLAYERp pp)
+DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
 {
-    fixed_t q16avel, new_ang, diff;
+    fixed_t new_ang, diff;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (!Prediction)
     {
-        if (pp->input.q16avel && !pp->lastinput.q16avel)
+        if (q16avel && !pp->lastinput.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && pp->lastinput.q16avel)
+        else if (!q16avel && pp->lastinput.q16avel)
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
     }
 
     if (sop->drive_angspeed)
     {
         fixed_t drive_oq16avel = pp->drive_q16avel;
-        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
+        pp->drive_q16avel = (mulscale16(q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
         q16avel = pp->drive_q16avel;
     }
     else
     {
-        q16avel = DIV4(pp->input.q16avel * synctics);
+        q16avel = DIV4(q16avel * synctics);
     }
 
     if (q16avel != 0)
@@ -2344,7 +2342,7 @@ DoPlayerMove(PLAYERp pp)
 
     if (!cl_syncinput)
     {
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+        SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
     }
     else
     {
@@ -2630,7 +2628,14 @@ DoPlayerMoveBoat(PLAYERp pp)
             PlaySOsound(pp->sop->mid_sector,SO_IDLE_SOUND);
     }
 
-    DoPlayerTurnBoat(pp);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_TURN_BOAT);
+    }
+    else
+    {
+        DoPlayerTurnBoat(pp, pp->input.q16avel);
+    }
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -3120,7 +3125,14 @@ DoPlayerMoveTank(PLAYERp pp)
     }
     else
     {
-        DoPlayerTurnTank(pp, z, floor_dist);
+        if (!cl_syncinput)
+        {
+            SET(pp->Flags2, PF2_INPUT_CAN_TURN_TANK);
+        }
+        else
+        {
+            DoPlayerTurnTank(pp, pp->input.q16avel, z, floor_dist);
+        }
 
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
@@ -3173,7 +3185,14 @@ DoPlayerMoveTank(PLAYERp pp)
 void
 DoPlayerMoveTurret(PLAYERp pp)
 {
-    DoPlayerTurnTurret(pp);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
+    }
+    else
+    {
+        DoPlayerTurnTurret(pp, pp->input.q16avel);
+    }
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -6376,7 +6395,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     {  
         if (!cl_syncinput)
         {
-            SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+            SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
         }
         else
         {
@@ -6393,7 +6412,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
         {
             if (!cl_syncinput)
             {
-                SET(pp->Flags2, PF2_INPUT_CAN_TURN);
+                SET(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL);
             }
             playerAddAngle(pp, GetDeltaQ16Angle(gethiq16angle(kp->x - pp->posx, kp->y - pp->posy), pp->q16ang) / (double)(FRACUNIT << 4));
         }
@@ -7447,7 +7466,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_TURN|PF2_INPUT_CAN_AIM);
+        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_TANK|PF2_INPUT_CAN_TURN_TANKRECT|PF2_INPUT_CAN_TURN_TURRET);
         resetinputhelpers(pp);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);

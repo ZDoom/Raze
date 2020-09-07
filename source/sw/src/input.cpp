@@ -34,8 +34,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
 void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
+void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
+void DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel);
+void DoPlayerTurnTank(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
+void DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel);
 
 static InputPacket loc;
 static int32_t turnheldtime;
@@ -277,10 +280,20 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
     if (!cl_syncinput)
     {
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, q16avel, scaleAdjust);
         if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
             DoPlayerHorizon(pp, q16horz, scaleAdjust);
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
+            DoPlayerTurn(pp, q16avel, scaleAdjust);
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_BOAT))
+            DoPlayerTurnBoat(pp, q16avel);
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TANK))
+            DoPlayerTurnTank(pp, q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
+            DoPlayerTurnTurret(pp, q16avel);
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
