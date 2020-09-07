@@ -319,7 +319,7 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 
 	if (!force && PlayList.GetNumSongs())
 	{ // Don't change if a playlist is active
-		return false;
+		return true; // do not report an error here.
 	}
 	// Do game specific lookup.
 	FString musicname_;

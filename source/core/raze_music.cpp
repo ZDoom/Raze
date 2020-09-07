@@ -197,7 +197,7 @@ int Mus_Play(const char *mapname, const char *fn, bool loop)
 	
 	if (!MusicEnabled())
 	{
-		return 0;
+		return 1;
 	}
 
 	// Allow per level music substitution.
