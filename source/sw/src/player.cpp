@@ -85,9 +85,6 @@ SWBOOL NightVision = FALSE;
 extern SWBOOL FinishAnim;
 
 
-//#define PLAYER_TURN_SCALE (8)
-#define PLAYER_TURN_SCALE (12)
-
 // the smaller the number the slower the going
 #define PLAYER_RUN_FRICTION (50000L)
 //#define PLAYER_RUN_FRICTION 0xcb00
@@ -1313,7 +1310,7 @@ DoPlayerResetMovement(PLAYERp pp)
     pp->yvect = pp->oxvect = 0;
     pp->slide_xvect = 0;
     pp->slide_yvect = 0;
-    pp->drive_angvel = 0;
+    pp->drive_q16avel = 0;
     RESET(pp->Flags, PF_PLAYER_MOVED);
 }
 
@@ -1633,30 +1630,24 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 void
 DoPlayerTurnBoat(PLAYERp pp)
 {
-    int angvel;
-    int angslide;
+    fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(FixedToInt(pp->input.q16avel), sop->drive_angspeed);
+        fixed_t drive_oq16avel = pp->drive_q16avel;
+        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
-
-        angvel = pp->drive_angvel;
+        q16avel = pp->drive_q16avel;
     }
     else
     {
-        angvel = FixedToInt(pp->input.q16avel) * PLAYER_TURN_SCALE;
-        angvel += angvel - DIV4(angvel);
-        angvel = DIV32(angvel * synctics);
+        q16avel = xs_CRoundToInt(q16avel * 1.4);
     }
 
-    if (angvel != 0)
+    if (q16avel != 0)
     {
-        pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+        pp->q16ang = (pp->q16ang * q16avel) & 0x7FFFFFF;
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
 }
@@ -1664,31 +1655,26 @@ DoPlayerTurnBoat(PLAYERp pp)
 void
 DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
 {
-    int angvel;
+    fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        int angslide;
+        fixed_t drive_oq16avel = pp->drive_q16avel;
+        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(FixedToInt(pp->input.q16avel), sop->drive_angspeed);
-
-        angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
-
-        angvel = pp->drive_angvel;
+        q16avel = pp->drive_q16avel;
     }
     else
     {
-        angvel = DIV8(FixedToInt(pp->input.q16avel) * synctics);
+        q16avel = DIV8(pp->input.q16avel * synctics);
     }
 
-    if (angvel != 0)
+    if (q16avel != 0)
     {
-        if (MultiClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang) + angvel), z, floor_dist))
+        if (MultiClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang + q16avel)), z, floor_dist))
         {
-            pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+            pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
             sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
         }
     }
@@ -1697,31 +1683,26 @@ DoPlayerTurnTank(PLAYERp pp, int z, int floor_dist)
 void
 DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 {
-    int angvel;
+    fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (sop->drive_angspeed)
     {
-        int angslide;
+        fixed_t drive_oq16avel = pp->drive_q16avel;
+        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(FixedToInt(pp->input.q16avel), sop->drive_angspeed);
-
-        angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
-
-        angvel = pp->drive_angvel;
+        q16avel = pp->drive_q16avel;
     }
     else
     {
-        angvel = DIV8(FixedToInt(pp->input.q16avel) * synctics);
+        q16avel = DIV8(pp->input.q16avel * synctics);
     }
 
-    if (angvel != 0)
+    if (q16avel != 0)
     {
-        if (RectClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang) + angvel), x, y, ox, oy))
+        if (RectClipTurn(pp, NORM_ANGLE(FixedToInt(pp->q16ang + q16avel)), x, y, ox, oy))
         {
-            pp->q16ang = IntToFixed(NORM_ANGLE(FixedToInt(pp->q16ang) + angvel));
+            pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
             sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
         }
     }
@@ -1730,9 +1711,7 @@ DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 void
 DoPlayerTurnTurret(PLAYERp pp)
 {
-    int angvel;
-    short new_ang;
-    short diff;
+    fixed_t q16avel, new_ang, diff;
     SECTOR_OBJECTp sop = pp->sop;
 
     if (!Prediction)
@@ -1745,40 +1724,34 @@ DoPlayerTurnTurret(PLAYERp pp)
 
     if (sop->drive_angspeed)
     {
-        int angslide;
+        fixed_t drive_oq16avel = pp->drive_q16avel;
+        pp->drive_q16avel = (mulscale16(pp->input.q16avel, sop->drive_angspeed) + (drive_oq16avel * (sop->drive_angslide - 1))) / sop->drive_angslide;
 
-        int drive_oangvel = pp->drive_angvel;
-        pp->drive_angvel = mulscale16(FixedToInt(pp->input.q16avel), sop->drive_angspeed);
-
-        angslide = sop->drive_angslide;
-        pp->drive_angvel = (pp->drive_angvel + (drive_oangvel*(angslide-1)))/angslide;
-
-        angvel = pp->drive_angvel;
+        q16avel = pp->drive_q16avel;
     }
     else
     {
-        angvel = DIV4(FixedToInt(pp->input.q16avel) * synctics);
+        q16avel = DIV4(pp->input.q16avel * synctics);
     }
 
-    if (angvel != 0)
+    if (q16avel != 0)
     {
-        new_ang = NORM_ANGLE(FixedToInt(pp->q16ang) + angvel);
+        new_ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = GetDeltaAngle(new_ang, sop->limit_ang_center);
+            diff = GetDeltaQ16Angle(new_ang, IntToFixed(sop->limit_ang_center));
 
-            if (labs(diff) >= sop->limit_ang_delta)
+            if (labs(diff) >= IntToFixed(sop->limit_ang_delta))
             {
                 if (diff < 0)
-                    new_ang = sop->limit_ang_center - sop->limit_ang_delta;
+                    new_ang = IntToFixed(sop->limit_ang_center - sop->limit_ang_delta);
                 else
-                    new_ang = sop->limit_ang_center + sop->limit_ang_delta;
-
+                    new_ang = IntToFixed(sop->limit_ang_center + sop->limit_ang_delta);
             }
         }
 
-        pp->q16ang = IntToFixed(new_ang);
+        pp->q16ang = new_ang;
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
 }
