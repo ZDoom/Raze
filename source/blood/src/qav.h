@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "common_game.h"
 #include "blood.h"
+#include "misc.h"
 
 class F2DDrawer;
 
@@ -85,7 +86,7 @@ struct QAV
     void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool in3dscene);
     void Play(int, int, int, void *);
     void Preload(void);
-    void Precache(void);
+    void Precache(HitList &hits);
 
     void PlaySound(int nSound);
     void PlaySound3D(spritetype *pSprite, int nSound, int a3, int a4);

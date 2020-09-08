@@ -22,10 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#include "build.h"
 #include "m_fixed.h"
 #include "filesystem.h"
 
 BEGIN_BLD_NS
+
+using HitList = FixedBitArray<MAXTILES>;
 
 void playlogos();
 unsigned int qrand(void);
@@ -56,7 +59,7 @@ void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
 void sub_51340(spritetype *pMissile, int a2);
 void StartQAV(PLAYER* pPlayer, int nWeaponQAV, int a3 = -1, char a4 = 0);
-void WeaponPrecache(void);
+void WeaponPrecache(HitList &hits);
 
 struct ZONE {
     int x, y, z;
@@ -121,13 +124,12 @@ extern signed char tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 
 extern int nPrecacheCount;
-extern char precachehightile[2][(MAXTILES+7)>>3];
 
 int tileInit(char a1, const char *a2);
 void tileProcessGLVoxels(void);
 void tilePreloadTile(int nTile);
+void tilePrecacheTile(int nTile, int nType, HitList& hits);
 
-void tilePrecacheTile(int nTile, int nType = 1);
 char tileGetSurfType(int hit);
 
 void scrLoadPalette(void);

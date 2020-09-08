@@ -66,20 +66,20 @@ void Seq::Preload(void)
         tilePreloadTile(seqGetTile(&frames[i]));
 }
 
-void Seq::Precache(void)
+void Seq::Precache(HitList &hits)
 {
     if (memcmp(signature, "SEQ\x1a", 4) != 0)
         ThrowError("Invalid sequence");
     if ((version & 0xff00) != 0x300)
         ThrowError("Obsolete sequence version");
     for (int i = 0; i < nFrames; i++)
-        tilePrecacheTile(seqGetTile(&frames[i]));
+        tilePrecacheTile(seqGetTile(&frames[i]), -1, hits);
 }
 
-void seqPrecacheId(int id)
+void seqPrecacheId(int id, HitList &hits)
 {
     auto pSeq = getSequence(id);
-    if (pSeq) pSeq->Precache();
+    if (pSeq) pSeq->Precache(hits);
 }
 
 SEQINST siWall[kMaxXWalls];
