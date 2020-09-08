@@ -10,7 +10,6 @@
 #include "engine_priv.h"
 #include "scriptfile.h"
 
-#include "common.h"
 #include "mdsprite.h"  // md3model_t
 #include "buildtiles.h"
 #include "bitmap.h"
@@ -56,7 +55,7 @@ if (sc.Compare("music"))
 
     while (pScript->textptr < musicEnd)
     {
-        switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
+        switch (getatoken(pScript, soundTokens, countof(soundTokens)))
         {
         case T_ID: scriptfile_getstring(pScript, &musicID); break;
         case T_FILE: scriptfile_getstring(pScript, &fileName); break;
@@ -362,7 +361,7 @@ static int32_t defsparser(scriptfile *script)
             iter = 0;
         }
 #endif
-        tokn = getatoken(script,basetokens,ARRAY_SIZE(basetokens));
+        tokn = getatoken(script,basetokens,countof(basetokens));
         cmdtokptr = script->ltextptr;
         switch (tokn)
         {
@@ -575,7 +574,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&blockend)) break;
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,artfiletokens,ARRAY_SIZE(artfiletokens));
+                int32_t token = getatoken(script,artfiletokens,countof(artfiletokens));
                 switch (token)
                 {
                 case T_FILE:
@@ -686,7 +685,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
             {
-                int32_t token = getatoken(script,tilefromtexturetokens,ARRAY_SIZE(tilefromtexturetokens));
+                int32_t token = getatoken(script,tilefromtexturetokens,countof(tilefromtexturetokens));
                 switch (token)
                 {
                 case T_FILE:
@@ -723,7 +722,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&ifmatchend)) break;
                     while (script->textptr < ifmatchend)
                     {
-                        int32_t token = getatoken(script,ifmatchtokens,ARRAY_SIZE(ifmatchtokens));
+                        int32_t token = getatoken(script,ifmatchtokens,countof(ifmatchtokens));
                         switch (token)
                         {
                         case T_CRC32:
@@ -902,7 +901,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&blockend)) break;
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,copytiletokens,ARRAY_SIZE(copytiletokens));
+                int32_t token = getatoken(script,copytiletokens,countof(copytiletokens));
                 switch (token)
                 {
                 case T_TILE:
@@ -1296,7 +1295,7 @@ static int32_t defsparser(scriptfile *script)
                 { "flags",    T_FLAGS    },
             };
 
-            Bmemset(usedframebitmap, 0, sizeof(usedframebitmap));
+            memset(usedframebitmap, 0, sizeof(usedframebitmap));
 
             modelskin = lastmodelskin = 0;
             seenframe = 0;
@@ -1314,7 +1313,7 @@ static int32_t defsparser(scriptfile *script)
 #endif
             while (script->textptr < modelend)
             {
-                int32_t token = getatoken(script,modeltokens,ARRAY_SIZE(modeltokens));
+                int32_t token = getatoken(script,modeltokens,countof(modeltokens));
                 switch (token)
                 {
                     //case T_ERROR: Printf("Error on line %s:%d in model tokens\n", script->filename,script->linenum); break;
@@ -1353,7 +1352,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
                     {
-                        switch (getatoken(script,modelframetokens,ARRAY_SIZE(modelframetokens)))
+                        switch (getatoken(script,modelframetokens,countof(modelframetokens)))
                         {
                         case T_PAL:
                             scriptfile_getsymbol(script,&pal); break;
@@ -1438,7 +1437,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&animend)) break;
                     while (script->textptr < animend)
                     {
-                        switch (getatoken(script,modelanimtokens,ARRAY_SIZE(modelanimtokens)))
+                        switch (getatoken(script,modelanimtokens,countof(modelanimtokens)))
                         {
                         case T_FRAME0:
                             scriptfile_getstring(script,&startframe); break;
@@ -1513,7 +1512,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&skinend)) break;
                     while (script->textptr < skinend)
                     {
-                        switch (getatoken(script,modelskintokens,ARRAY_SIZE(modelskintokens)))
+                        switch (getatoken(script,modelskintokens,countof(modelskintokens)))
                         {
                         case T_PAL:
                             scriptfile_getsymbol(script,&palnum); break;
@@ -1616,7 +1615,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
                     {
-                        switch (getatoken(script,modelhudtokens,ARRAY_SIZE(modelhudtokens)))
+                        switch (getatoken(script,modelhudtokens,countof(modelhudtokens)))
                         {
                         case T_TILE:
                             scriptfile_getsymbol(script,&ftilenume); ltilenume = ftilenume; break;
@@ -1739,7 +1738,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
-                switch (getatoken(script, voxeltokens, ARRAY_SIZE(voxeltokens)))
+                switch (getatoken(script, voxeltokens, countof(voxeltokens)))
                 {
                     //case T_ERROR: Printf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
@@ -1812,7 +1811,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
             {
-                switch (getatoken(script,skyboxtokens,ARRAY_SIZE(skyboxtokens)))
+                switch (getatoken(script,skyboxtokens,countof(skyboxtokens)))
                 {
                     //case T_ERROR: Printf("Error on line %s:%d in skybox tokens\n",script->filename,linenum); break;
                 case T_TILE:
@@ -1864,7 +1863,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&highpalend)) break;
             while (script->textptr < highpalend)
             {
-                switch (getatoken(script,highpaltokens,ARRAY_SIZE(highpaltokens)))
+                switch (getatoken(script,highpaltokens,countof(highpaltokens)))
                 {
                 case T_BASEPAL:
                     scriptfile_getsymbol(script,&basepal);   break;
@@ -1921,7 +1920,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&tintend)) break;
             while (script->textptr < tintend)
             {
-                switch (getatoken(script,tinttokens,ARRAY_SIZE(tinttokens)))
+                switch (getatoken(script,tinttokens,countof(tinttokens)))
                 {
                 case T_PAL:
                     scriptfile_getsymbol(script,&pal);        break;
@@ -1983,7 +1982,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&endtextptr)) break;
             while (script->textptr < endtextptr)
             {
-                switch (getatoken(script, palookuptokens, ARRAY_SIZE(palookuptokens)))
+                switch (getatoken(script, palookuptokens, countof(palookuptokens)))
                 {
                 case T_PAL:
                     scriptfile_getsymbol(script, &pal);
@@ -2079,7 +2078,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
             {
-                token = getatoken(script,texturetokens,ARRAY_SIZE(texturetokens));
+                token = getatoken(script,texturetokens,countof(texturetokens));
                 switch (token)
                 {
                 case T_PAL:
@@ -2109,7 +2108,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&palend)) break;
                     while (script->textptr < palend)
                     {
-                        switch (getatoken(script,texturetokens_pal,ARRAY_SIZE(texturetokens_pal)))
+                        switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
@@ -2189,7 +2188,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&detailend)) break;
                     while (script->textptr < detailend)
                     {
-                        switch (getatoken(script,texturetokens_pal,ARRAY_SIZE(texturetokens_pal)))
+                        switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
                         case T_FILE:
                             scriptfile_getstring(script,&fn); break;
@@ -2366,7 +2365,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&dummy)) break;
             while (script->textptr < dummy)
             {
-                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
+                switch (getatoken(script,sound_musictokens,countof(sound_musictokens)))
                 {
                 case T_ID:
                     scriptfile_getstring(script,&dummy2);
@@ -2395,7 +2394,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getbraces(script,&mapinfoend)) break;
             while (script->textptr < mapinfoend)
             {
-                switch (getatoken(script,mapinfotokens,ARRAY_SIZE(mapinfotokens)))
+                switch (getatoken(script,mapinfotokens,countof(mapinfotokens)))
                 {
                 case T_MAPFILE:
                     scriptfile_getstring(script,&dummy);
@@ -2416,7 +2415,7 @@ static int32_t defsparser(scriptfile *script)
                         char smallbuf[3] = { 0, 0, 0 };
                         smallbuf[0] = mapmd4string[2*i];
                         smallbuf[1] = mapmd4string[2*i+1];
-                        newusermaphack->md4[i] = Bstrtol(smallbuf, NULL, 16);
+                        newusermaphack->md4[i] = strtol(smallbuf, NULL, 16);
                     }
 
                     break;
@@ -2486,7 +2485,7 @@ static int32_t defsparser(scriptfile *script)
 
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_HORIZFRAC:
@@ -2574,7 +2573,7 @@ static int32_t defsparser(scriptfile *script)
 
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
@@ -2597,7 +2596,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < rawblockend)
                     {
-                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
                         {
                         case T_FILE:
@@ -2753,7 +2752,7 @@ static int32_t defsparser(scriptfile *script)
 
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
@@ -2776,7 +2775,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < subblockend)
                     {
-                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
                         {
                         case T_FILE:
@@ -2897,7 +2896,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < subblockend)
                     {
-                        switch (getatoken(script, fogpaltokens, ARRAY_SIZE(fogpaltokens)))
+                        switch (getatoken(script, fogpaltokens, countof(fogpaltokens)))
                         {
                         case T_RED:
                             scriptfile_getnumber(script,&red);
@@ -2945,7 +2944,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < subblockend)
                     {
-                        switch (getatoken(script, makepalookuptokens, ARRAY_SIZE(makepalookuptokens)))
+                        switch (getatoken(script, makepalookuptokens, countof(makepalookuptokens)))
                         {
                         case T_RED:
                             scriptfile_getnumber(script,&red);
@@ -3045,7 +3044,7 @@ static int32_t defsparser(scriptfile *script)
 
             while (script->textptr < blockend)
             {
-                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
@@ -3066,7 +3065,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < rawblockend)
                     {
-                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
                         {
                         case T_FILE:
@@ -3169,7 +3168,7 @@ static int32_t defsparser(scriptfile *script)
 
                     while (script->textptr < glblendblockend)
                     {
-                        int32_t glblendtoken = getatoken(script,glblendtokens,ARRAY_SIZE(glblendtokens));
+                        int32_t glblendtoken = getatoken(script,glblendtokens,countof(glblendtokens));
                         switch (glblendtoken)
                         {
                         case T_FORWARD:
@@ -3200,7 +3199,7 @@ static int32_t defsparser(scriptfile *script)
 
                             while (script->textptr < glblenddefblockend)
                             {
-                                int32_t glblenddeftoken = getatoken(script,glblenddeftokens,ARRAY_SIZE(glblenddeftokens));
+                                int32_t glblenddeftoken = getatoken(script,glblenddeftokens,countof(glblenddeftokens));
                                 switch (glblenddeftoken)
                                 {
                                 case T_SRC:
@@ -3220,7 +3219,7 @@ static int32_t defsparser(scriptfile *script)
                                         { "ONE_MINUS_DST_COLOR", T_ONE_MINUS_DST_COLOR },
                                     };
 
-                                    int32_t factortoken = getatoken(script,blendFuncTokens,ARRAY_SIZE(blendFuncTokens));
+                                    int32_t factortoken = getatoken(script,blendFuncTokens,countof(blendFuncTokens));
 
 #ifdef USE_OPENGL
                                     uint8_t * const factor = glblenddeftoken == T_SRC ? &glbdef->src : &glbdef->dst;

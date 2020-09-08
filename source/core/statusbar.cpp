@@ -762,11 +762,12 @@ void DBaseStatusBar::PrintLevelStats(FLevelStats &stats)
 
 void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 {
+	auto lev = currentLevel;
 	FString mapname;
 	if (am_showlabel) 
-		mapname.Format(TEXTCOLOR_ESCAPESTR "%c%s: " TEXTCOLOR_ESCAPESTR "%c%s", stats.letterColor+'A', currentLevel->LabelName(), stats.standardColor+'A', currentLevel->DisplayName());
+		mapname.Format(TEXTCOLOR_ESCAPESTR "%c%s: " TEXTCOLOR_ESCAPESTR "%c%s", stats.letterColor+'A', lev->LabelName(), stats.standardColor+'A', lev->DisplayName());
 	else 
-		mapname = currentLevel->DisplayName();
+		mapname = lev->DisplayName();
 
 	double y;
 	double scale = stats.fontscale * (am_textfont? *hud_statscale : 1);	// the tiny default font used by all games here cannot be scaled for readability purposes.
@@ -784,13 +785,13 @@ void DBaseStatusBar::PrintAutomapInfo(FLevelStats& stats)
 	{
 		y = 200 - stats.screenbottomspace - spacing;
 	}
-	const auto &volname = gVolumeNames[volfromlevelnum(currentLevel->levelNumber)];
+	const auto &volname = gVolumeNames[volfromlevelnum(lev->levelNumber)];
 	if (volname.IsEmpty() && am_nameontop) y = 1;
 
 	DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, mapname, DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 		DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
 	y -= spacing;
-	if (!(currentLevel->flags & MI_USERMAP) && !(g_gameType & GAMEFLAG_PSEXHUMED) && volname.IsNotEmpty())
+	if (!(lev->flags & MI_USERMAP) && !(g_gameType & GAMEFLAG_PSEXHUMED) && volname.IsNotEmpty())
 		DrawText(twod, stats.font, stats.standardColor, 2 * hud_statscale, y, GStrings.localize(volname),
 			DTA_FullscreenScale, FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
 			DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_KeepRatio, true, TAG_DONE);
@@ -856,5 +857,52 @@ void setViewport(int viewSize)
 	}
 	videoSetViewableArea(x0, y0, x1, y1);
 }
+
+//============================================================================
+//
+//
+//
+//============================================================================
+
+int levelTextTime;
+
+void SerializeHud(FSerializer &arc)
+{
+	if (arc.BeginObject("hud"))
+	{
+		arc("texttimer", levelTextTime)
+		.EndObject();
+	}
+}
+
+void setLevelStarted(MapRecord *mi)
+{
+	levelTextTime = 85;
+	Printf(TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
+}
+
+void drawMapTitle()
+{
+    if (!hud_showmapname || levelTextTime <= 0 || M_Active())
+        return;
+	
+	double alpha = levelTextTime > 16? 1.0 : levelTextTime / 16.;
+    if (alpha > 0)
+    {
+		double scale = (g_gameType & GAMEFLAG_RRALL)? 0.4 : (g_gameType & GAMEFLAG_SW)? 0.7 : 1.0;
+		auto text = currentLevel->DisplayName();
+		double x = 160 - BigFont->StringWidth(text) * scale / 2.;
+		double y = (g_gameType & GAMEFLAG_BLOOD)? 50 : 100 - BigFont->GetHeight()/2.;
+		bool shadow = true;
+
+		if (shadow)
+		{
+			DrawText(twod, BigFont, CR_UNDEFINED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+		}
+		DrawText(twod, BigFont, CR_UNDEFINED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
+    }
+}
+
+
 
 

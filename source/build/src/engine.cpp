@@ -13,7 +13,6 @@
 #include "automap.h"
 
 #include "imagehelpers.h"
-#include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
 #include "palette.h"
@@ -584,7 +583,7 @@ static void dosetaspect(void)
         {
             j = (x&65535); k = FixedToInt(x); x += xinc;
 
-            if (k < 0 || k >= (int32_t)ARRAY_SIZE(qradarang)-1)
+            if (k < 0 || k >= (int32_t)countof(qradarang)-1)
             {
                 no_radarang2 = 1;
                 break;
@@ -1288,7 +1287,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();
 
-    Bmemset(gotsector, 0, sizeof(gotsector));
+    memset(gotsector, 0, sizeof(gotsector));
 
     i = xdimen-1;
 
@@ -1897,7 +1896,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     renderSetAspect(65536, divscale16((320*5)/8, 200));
 
-    Bmemset(gotsector, 0, sizeof(gotsector));
+    memset(gotsector, 0, sizeof(gotsector));
 
     vec2_t const c1 = { (windowxy1.x<<12), (windowxy1.y<<12) };
     vec2_t const c2 = { ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
@@ -2205,13 +2204,13 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
     updatesector(dapos->x, dapos->y, dacursectnum);
 
     {
-        Bmemset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
+        memset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
 #ifndef NEW_MAP_FORMAT
-        Bmemset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
+        memset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
 #endif
 
 #ifdef USE_OPENGL
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
+        memset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
         if (videoGetRenderMode() == REND_POLYMER)
@@ -2237,7 +2236,7 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
 
 static void remove_sprite(int32_t i)
 {
-    Bmemset(&sprite[i], 0, sizeof(spritetype));
+    memset(&sprite[i], 0, sizeof(spritetype));
     sprite[i].statnum = MAXSTATUS;
     sprite[i].sectnum = MAXSECTORS;
 }
@@ -2653,7 +2652,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     daupscaledxdim = max(320, daupscaledxdim);
     daupscaledydim = max(200, daupscaledydim);
 
-    Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
+    strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
 
     rendmode = REND_POLYMOST;
@@ -3095,7 +3094,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
     static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-    Bmemset(sectbitmap, 0, sizeof(sectbitmap));
+    memset(sectbitmap, 0, sizeof(sectbitmap));
     if (x1 == x2 && y1 == y2)
         return (sect1 == sect2);
 
@@ -3276,7 +3275,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
     uint8_t *const walbitmap = (uint8_t *)tempbuf;
 
     if ((flags&1)==0)
-        Bmemset(walbitmap, 0, (numwalls+7)>>3);
+        memset(walbitmap, 0, (numwalls+7)>>3);
     yaxwalls[numyaxwalls++] = pointhighlight;
 
     for (i=0; i<numyaxwalls; i++)

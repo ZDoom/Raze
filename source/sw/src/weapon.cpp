@@ -25,7 +25,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "build.h"
-#include "common.h"
 
 #include "names2.h"
 #include "panel.h"

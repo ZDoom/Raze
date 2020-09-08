@@ -354,13 +354,13 @@ void fxSpawnEjectingShell(spritetype *pSprite, int z, int a3, int a4)
     }
 }
 
-void fxPrecache(void)
+void fxPrecache(HitList &hits)
 {
     for (int i = 0; i < kFXMax; i++)
     {
-        tilePrecacheTile(gFXData[i].at12, 0);
+        tilePrecacheTile(gFXData[i].at12, 0, hits);
         if (gFXData[i].at2)
-            seqPrecacheId(gFXData[i].at2);
+            seqPrecacheId(gFXData[i].at2, hits);
     }
 }
 

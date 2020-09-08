@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "compat.h"
-#include "common.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "sequence.h"
@@ -54,8 +53,6 @@ BEGIN_PS_NS
 extern short bPlayerPan;
 extern short bLockPan;
 
-    extern const char* s_buildRev;
-    extern const char* s_buildTimestamp;
 
 
 void uploadCinemaPalettes();

@@ -176,6 +176,7 @@ CCMD(give)
 	if (found == -1)
 	{
 		Printf("Unable to give %s\n", argv[1]);
+		return;
 	}
 	if (!CheckCheatmode(true, true))
 	{

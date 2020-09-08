@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #pragma once
 
+#include "misc.h"
 BEGIN_BLD_NS
 
 
@@ -58,7 +59,7 @@ struct Seq {
     int atc;
     SEQFRAME frames[1];
     void Preload(void);
-    void Precache(void);
+    void Precache(HitList &);
 };
 
 struct ACTIVE
@@ -84,7 +85,7 @@ inline int seqGetTile(SEQFRAME* pFrame)
 }
 
 int seqRegisterClient(void(*pClient)(int, int));
-void seqPrecacheId(int id);
+void seqPrecacheId(int id, HitList &hits);
 SEQINST * GetInstance(int a1, int a2);
 void UnlockInstance(SEQINST *pInst);
 void seqSpawn(int a1, int a2, int a3, int a4 = -1);

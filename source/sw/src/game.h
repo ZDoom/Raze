@@ -523,7 +523,7 @@ int StdRandomRange(int range);
     )
 
 
-#define SIZ ARRAY_SIZE
+#define SIZ countof
 
 
 //

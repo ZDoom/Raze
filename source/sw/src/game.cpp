@@ -43,6 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "network.h"
 #include "pal.h"
 #include "automap.h"
+#include "statusbar.h"
 
 
 #include "mytypes.h"
@@ -59,7 +60,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "misc.h"
 #include "jsector.h"
 
-#include "common.h"
 #include "gameconfigfile.h"
 #include "printf.h"
 #include "m_argv.h"
@@ -391,6 +391,7 @@ void InitLevel(MapRecord *maprec)
 
     // reset NewGame
     NewGame = false;
+	setLevelStarted(maprec);
 }
 
 //---------------------------------------------------------------------------

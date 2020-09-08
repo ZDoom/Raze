@@ -8,7 +8,6 @@
 #include "compat.h"
 #include "scriptfile.h"
 #include "compat.h"
-#include "common.h"
 #include "filesystem.h"
 #include "printf.h"
 
@@ -137,7 +136,7 @@ int scriptfile_getsymbol(scriptfile *sf, int32_t *num)
     if (!t) return -1;
 
     char *  e;
-    int32_t v = Bstrtol(t, &e, 10);
+    int32_t v = strtol(t, &e, 10);
 
     if (*e)
     {
@@ -322,12 +321,12 @@ scriptfile *scriptfile_fromstring(const char *string)
 {
     if (!string) return nullptr;
 
-    uint32_t flen = Bstrlen(string);
+    uint32_t flen = strlen(string);
     char *   tx   = (char *)Xmalloc(flen + 2);
 
     scriptfile *sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
-    Bmemcpy(tx, string, flen);
+    memcpy(tx, string, flen);
     tx[flen] = tx[flen+1] = 0;
 
     scriptfile_preparse(sf,tx,flen);
@@ -374,7 +373,7 @@ static char *getsymbtabspace(int32_t reqd)
 
 int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
 {
-    if (Bstrlen(name) > 2)
+    if (strlen(name) > 2)
     {
         if (name[0] == '0' && tolower(name[1]) == 'x')  // hex constants
         {

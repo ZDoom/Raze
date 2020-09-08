@@ -7,7 +7,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 #include "build.h"
 #include "automap.h"
-#include "common.h"
 #include "engine_priv.h"
 #include "mdsprite.h"
 #include "polymost.h"
@@ -145,7 +144,7 @@ static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
     multMatrix4RowCol(3, 2);
     multMatrix4RowCol(3, 3);
 
-    Bmemcpy(m0, mR, sizeof(float)*4*4);
+    memcpy(m0, mR, sizeof(float)*4*4);
 
     return m0;
 
@@ -1125,7 +1124,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
         if (globalorientation&64) //Hack for relative alignment on slopes
         {
             float r = global_cf_heinum * (1.0f / 4096.f);
-            r = Bsqrtf(r*r+1);
+            r = sqrtf(r*r+1);
             if (!(globalorientation&4)) { xtex.v *= r; ytex.v *= r; otex.v *= r; }
             else { xtex.u *= r; ytex.u *= r; otex.u *= r; }
         }
@@ -2499,8 +2498,8 @@ void polymost_drawrooms()
     else
     {
         float r = (float)(ydimen >> 1) - (ghoriz + ghorizcorrect);
-        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
-        gchang  = Bsqrtf(1.f - gshang * gshang);
+        gshang  = r / sqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
+        gchang  = sqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
 
@@ -2611,7 +2610,7 @@ void polymost_drawrooms()
 
     while (numbunches > 0)
     {
-        Bmemset(ptempbuf,0,numbunches+3); ptempbuf[0] = 1;
+        memset(ptempbuf,0,numbunches+3); ptempbuf[0] = 1;
 
         int32_t closest = 0;              //Almost works, but not quite :(
 
@@ -2896,8 +2895,8 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     else
     {
         float r = (float)(ydimen >> 1) - (ghoriz+ghorizcorrect);
-        gshang  = r / Bsqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
-        gchang  = Bsqrtf(1.f - gshang * gshang);
+        gshang  = r / sqrtf(r * r + ghalfx * ghalfx / (gvrcorrection * gvrcorrection));
+        gchang  = sqrtf(1.f - gshang * gshang);
         ghoriz2 = 0.f;
     }
     ghoriz = (float)(ydimen>>1);
@@ -2942,7 +2941,7 @@ static wallspriteinfo_t wsprinfo[MAXSPRITES];
 
 void Polymost_prepare_loadboard(void)
 {
-    Bmemset(wsprinfo, 0, sizeof(wsprinfo));
+    memset(wsprinfo, 0, sizeof(wsprinfo));
 }
 
 void polymost_deletesprite(int num)

@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "build.h"
 #include "mmulti.h"
 #include "compat.h"
-#include "common.h"
 #include "common_game.h"
 #include "g_input.h"
 #include "automap.h"
@@ -63,6 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "choke.h"
 #include "d_net.h"
 #include "v_video.h"
+#include "statusbar.h"
 
 BEGIN_BLD_NS
 
@@ -242,7 +242,7 @@ void StartLevel(MapRecord* level)
 	paused = 0;
 	levelTryPlayMusic();
 	gChoke.reset();
-    Printf(TEXTCOLOR_GOLD "%s: %s\n", level->LabelName(), level->DisplayName());
+	setLevelStarted(level);
 }
 
 

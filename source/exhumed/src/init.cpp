@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "status.h"
 #include <stdio.h>
 #include <string.h>
+#include "statusbar.h"
 
 BEGIN_PS_NS
 
@@ -78,7 +79,6 @@ uint8_t LoadLevel(int nMap)
 
     initspritelists();
 
-    currentLevel = FindMapByLevelNum(nMap);
 
     // init stuff
     {
@@ -177,10 +177,10 @@ uint8_t LoadLevel(int nMap)
 void InitLevel(int level) // todo: use a map record
 {
     StopCD();
+    currentLevel = FindMapByLevelNum(level);
     if (!LoadLevel(level)) {
         I_Error("Can't load level %d...\n", level);
     }
-    currentLevel = FindMapByLevelNum(level);
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
@@ -207,7 +207,7 @@ void InitLevel(int level) // todo: use a map record
     if (nTrack != 0) nTrack--;
 
     playCDtrack((nTrack % 8) + 11, true);
-
+	setLevelStarted(currentLevel);
 }
 
 void InitNewGame()

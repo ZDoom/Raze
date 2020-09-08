@@ -54,7 +54,7 @@ void engineInitClipMaps()
     DO_FREE_AND_NULL(loadsprite);
 
     // two's complement trick, -1 = 0xff
-    Bmemset(&pictoidx, -1, sizeof(pictoidx));
+    memset(&pictoidx, -1, sizeof(pictoidx));
 
     numsectors = 0;
     numwalls = 0;
@@ -334,7 +334,7 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
             topu--;
         } while (area.x*(n.y-p1.y) <= (n.x-p1.x)*area.y);
 
-        if (klabs(pos.x-n.x)+klabs(pos.y-n.y) < klabs(pos.x-goal->x)+klabs(pos.y-goal->y))
+        if (abs(pos.x-n.x)+abs(pos.y-n.y) < abs(pos.x-goal->x)+abs(pos.y-goal->y))
         {
             *goal = n;
             hitwall = z;
@@ -412,7 +412,7 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int wall
 
     if (nsecs > (walldist + 8))
     {
-        Printf("%s(): initial position (%d, %d) not within initial sector %d; shortest distance %d.\n", EDUKE32_FUNCTION, pos.x, pos.y, *sectnum, nsecs);
+        Printf("%s(): initial position (%d, %d) not within initial sector %d; shortest distance %d.\n", __func__, pos.x, pos.y, *sectnum, nsecs);
         walldist = 0x7fff;
     }
 
@@ -505,7 +505,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 
     clipmove_warned = 0;
 
-    Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+    memset(clipsectormap, 0, (numsectors+7)>>3);
     bitmap_set(clipsectormap, *sectnum);
 
     do
@@ -875,7 +875,7 @@ int pushmove(vec3_t *const vect, int16_t *const sectnum,
             clipsectorlist[0] = *sectnum;
             clipsectnum = 1;
 
-            Bmemset(clipsectormap, 0, (numsectors + 7) >> 3);
+            memset(clipsectormap, 0, (numsectors + 7) >> 3);
             bitmap_set(clipsectormap, *sectnum);
         }
 
@@ -1029,7 +1029,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
     clipspritenum = 0;
-    Bmemset(clipsectormap, 0, (numsectors+7)>>3);
+    memset(clipsectormap, 0, (numsectors+7)>>3);
     bitmap_set(clipsectormap, sectnum);
 
     do  //Collect sectors inside your square first

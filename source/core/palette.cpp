@@ -36,7 +36,6 @@
 
 #include "palette.h"
 #include "superfasthash.h"
-#include "common.h"
 #include "memarena.h"
 #include "palettecontainer.h"
 #include "palutil.h"

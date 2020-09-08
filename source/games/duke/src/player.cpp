@@ -1007,7 +1007,7 @@ void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment)
 	auto p = &ps[snum];
 
 	// Calculate adjustment as true pitch (Fixed point math really sucks...)
-	double horizAngle = clamp2(atan2(p->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
+	double horizAngle = clamp(atan2(p->q16horiz - IntToFixed(100), IntToFixed(128)) * (512. / pi::pi()) + (factor * p->pitchAdjust) + (adjustment / 65536.), -180, 180);
 
 	if (p->return_to_center > 0 && (actions & (SB_LOOK_UP | SB_LOOK_DOWN)) == 0) // only snap back if no relevant button is pressed.
 	{

@@ -83,7 +83,6 @@ extern int SectDepth[];
 extern short SectSoundSect[];
 extern int SectAbove[];
 
-uint8_t LoadLevel(int nMap);
 void LoadObjects();
 
 // light

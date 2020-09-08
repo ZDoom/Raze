@@ -107,9 +107,9 @@ int32_t engineLoadMHK(const char *filename)
 
     if (filename)
     {
-        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
-        Bstrcpy(fn, filename);
+        memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+        memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+        strcpy(fn, filename);
         script = scriptfile_fromfile(filename);
     }
     else if (fn[0])

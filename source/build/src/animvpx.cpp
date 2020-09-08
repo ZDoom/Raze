@@ -21,6 +21,11 @@
 #include <vpx/vp8dx.h>
 #include "animvpx.h"
 
+struct vec2u_t
+{
+    uint32_t x, y;
+} ;
+
 const char *animvpx_read_ivf_header_errmsg[] = {
     "All OK",
     "couldn't read 32-byte IVF header",
@@ -145,8 +150,8 @@ int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, FileReader & inhand
     codec->errmsg_detail = codec->errmsg = NULL;
 
     codec->numframes = 0;
-    Bmemset(codec->sumtimes, 0, sizeof(codec->sumtimes));
-    Bmemset(codec->maxtimes, 0, sizeof(codec->maxtimes));
+    memset(codec->sumtimes, 0, sizeof(codec->sumtimes));
+    memset(codec->maxtimes, 0, sizeof(codec->maxtimes));
 
     return 0;
 }

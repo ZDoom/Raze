@@ -514,12 +514,13 @@ void MoveStatus()
 
 class DExhumedStatusBar : public DBaseStatusBar
 {
-    DHUDFont textfont;
+    DHUDFont textfont, numberFont;
 
 public:
     DExhumedStatusBar()
     {
         textfont = { SmallFont, 1, Off, 1, 1 };
+        numberFont = { BigFont, 0, Off, 1, 1 };
     }
 
 private:
@@ -587,6 +588,19 @@ private:
             DrawGraphic(tileGetTexture(tile), x, y, flags, 1, -1, -1, 1, 1);
             nFrameBase++;
         }
+    }
+
+    //---------------------------------------------------------------------------
+    //
+    // draws a sequence animation to the status bar
+    //
+    //---------------------------------------------------------------------------
+
+    FGameTexture * GetStatusSequencePic(short nSequence, uint16_t edx)
+    {
+        edx += SeqBase[nSequence];
+        int nFrameBase = FrameBase[edx];
+        return tileGetTexture(ChunkPict[nFrameBase]);
     }
 
     //---------------------------------------------------------------------------
@@ -698,6 +712,132 @@ private:
         }
     }
 
+    //==========================================================================
+    //
+    // Fullscreen HUD variant #1
+    //
+    //==========================================================================
+
+    void DrawHUD2()
+    {
+        BeginHUD(320, 200, 1);
+
+        auto pp = &PlayerList[nLocalPlayer];
+
+        FString format;
+        FGameTexture* img;
+        double imgScale;
+        double baseScale = numberFont.mFont->GetHeight() * 0.9375;
+
+        
+        //
+        // Health
+        //
+        img = GetStatusSequencePic(nStatusSeqOffset + 125, 0);
+        imgScale = baseScale / img->GetDisplayHeight();
+        DrawGraphic(img, 1.5, -1, DI_ITEM_LEFT_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+        if (!althud_flashing || pp->nHealth > 150 || (leveltime & 8))
+        {
+            int s = -8;
+            if (althud_flashing && pp->nHealth > 800)
+                s += (sintable[(leveltime << 7) & 2047] >> 10);
+            int intens = clamp(255 - 4 * s, 0, 255);
+            auto pe = PalEntry(255, intens, intens, intens);
+            format.Format("%d", pp->nHealth >> 3);
+            SBar_DrawString(this, &numberFont, format, 20, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+
+        //
+        // Magic
+        //
+        if (nItemSeq >= 0)
+        {
+            img = GetStatusSequencePic(nItemSeq + nStatusSeqOffset, nItemFrame);
+            imgScale = baseScale / img->GetDisplayHeight();
+            DrawGraphic(img, 70, -1, DI_ITEM_CENTER_BOTTOM, 1., -1, -1, imgScale, imgScale);
+
+            format.Format("%d", pp->nMagic / 10);
+            SBar_DrawString(this, &numberFont, format, 87, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+        }
+        //
+        // Weapon
+        //
+        const short ammo_sprites[] = { -1, -1 };
+
+        int weapon = pp->nCurrentWeapon;
+        int wicon = 0;// ammo_sprites[weapon];
+        int ammo = nCounterDest;// pp->WpnAmmo[weapon];
+        if (ammo > 0) // wicon > 0
+        {
+            format.Format("%d", ammo);
+            img = tileGetTexture(wicon);
+            imgScale = baseScale / img->GetDisplayHeight();
+            auto imgX = 21.125;
+            auto strlen = format.Len();
+
+            if (strlen > 1)
+            {
+                imgX += (imgX * 0.855) * (strlen - 1);
+            }
+
+            if ((!althud_flashing || leveltime & 8 || ammo > 10))// (DamageData[weapon].max_ammo / 10)))
+            {
+                SBar_DrawString(this, &numberFont, format, -4, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_RIGHT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
+            }
+
+            //DrawGraphic(img, -imgX, -1, DI_ITEM_RIGHT_BOTTOM, 1, -1, -1, imgScale, imgScale);
+        }
+
+#if 0
+        //
+        // Selected inventory item
+        //
+        img = tileGetTexture(icons[pp->InventoryNum]);
+        imgScale = baseScale / img->GetDisplayHeight();
+        int x = 165;
+        DrawGraphic(img, x, -1, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, imgScale, imgScale);
+
+        PlayerUpdateInventoryState(pp, x + 3.0, -18.0, 1, 1);
+        PlayerUpdateInventoryPercent(pp, x + 3.5, -20.5, 1, 1);
+#endif
+
+
+        //
+        // keys
+        //
+
+        uint16_t nKeys = PlayerList[nLocalPlayer].keys;
+
+        int val = 675;
+        int x = -134;
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (nKeys & 0x1000) 
+            {
+                auto tex = tileGetTexture(val);
+                if (tex && tex->isValid())
+                {
+                    DrawGraphic(tex, x, -2, DI_ITEM_LEFT_BOTTOM, 1, -1, -1, 1, 1);
+                }
+            }
+
+            nKeys >>= 1;
+            val += 4;
+            x += 20;
+        }
+
+#if 0
+
+
+        DisplayKeys(pp, -25, -38, 0.8625, 0.8625);
+        PrintLevelStats(int(baseScale + 4));
+#endif
+    }
+
+
+
     //---------------------------------------------------------------------------
     //
     // draw the full status bar
@@ -706,11 +846,6 @@ private:
 
     void DrawStatus()
     {
-        BeginStatusBar(320, 200, 40);
-        char numberBuf[10] = { 0 };
-        char stringBuf[20] = { 0 };
-        char coordBuf[50] = { 0 }; // not sure of the size for this?
-
         if (hud_size <= Hud_StbarOverlay)
         {
             // draw the main bar itself
@@ -727,7 +862,8 @@ private:
         }
         else if (hud_size == Hud_full)
         {
-            BeginHUD(320, 200, 1);
+            DrawHUD2();
+            return;
         }
 
         if (/*!bFullScreen &&*/ nNetTime)

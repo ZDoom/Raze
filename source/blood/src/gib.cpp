@@ -511,7 +511,7 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     }
 }
 
-void gibPrecache(void)
+void gibPrecache(HitList &hits)
 {
     for (int i = 0; i < kGibMax; i++)
     {
@@ -521,7 +521,7 @@ void gibPrecache(void)
             for (int j = 0; j < gibList[i].atc; j++)
             {
                 if (pThing[j].Kills >= 0)
-                    tilePrecacheTile(pThing[j].Kills);
+                    tilePrecacheTile(pThing[j].Kills, -1, hits);
             }
         }
     }

@@ -78,7 +78,7 @@ static inline float polymost_invsqrt_approximation(float x)
     return n.f * (1.5f - haf * (n.f * n.f));
 #else
     // this is the comment
-    return 1.f / Bsqrtf(x);
+    return 1.f / sqrtf(x);
 #endif
 }
 

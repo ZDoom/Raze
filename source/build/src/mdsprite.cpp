@@ -9,7 +9,6 @@
 #include "polymost.h"
 #include "mdsprite.h"
 
-#include "common.h"
 #include "palette.h"
 #include "textures.h"
 #include "bitmap.h"
@@ -104,9 +103,9 @@ void freeallmodels()
         nextmodelid = 0;
     }
 
-    Bmemset(tile2model,-1,sizeof(tile2model));
+    memset(tile2model,-1,sizeof(tile2model));
     for (i=0; i<MAXTILES; i++)
-        Bmemset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
+        memset(tile2model[i].hudmem, 0, sizeof(tile2model[i].hudmem));
 
     curextra=MAXTILES;
 
@@ -175,7 +174,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
         for (i=0; i<m->numframes; i++)
         {
             fr = (md2frame_t *)&m->frames[i*m->framebytes];
-            if (!Bstrcmp(fr->name, nam)) break;
+            if (!strcmp(fr->name, nam)) break;
         }
     }
     break;
@@ -183,7 +182,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
     {
         md3model_t *m = (md3model_t *)vm;
         for (i=0; i<m->numframes; i++)
-            if (!Bstrcmp(m->head.frames[i].nam,nam)) break;
+            if (!strcmp(m->head.frames[i].nam,nam)) break;
     }
     break;
     }
@@ -231,7 +230,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
 
-    Bmemset(&ma, 0, sizeof(ma));
+    memset(&ma, 0, sizeof(ma));
     m = (md2model_t *)models[modelid];
     if (m->mdnum < 2) return 0;
 
@@ -250,7 +249,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     map = (mdanim_t *)Xmalloc(sizeof(mdanim_t));
 
-    Bmemcpy(map, &ma, sizeof(ma));
+    memcpy(map, &ma, sizeof(ma));
 
     map->next = m->animations;
     m->animations = map;
@@ -308,8 +307,8 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
         if (otonframe[i]>=0 && otonframe[i] != i)
         {
             if (m->muladdframes)
-                Bmemcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
-            Bmemcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
+                memcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(vec3f_t));
+            memcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
         }
     }
 
@@ -319,7 +318,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
 
         for (i=0; i<m->numframes; i++)
             if (otonframe[i]>=0 && otonframe[i] != i)
-                Bmemcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
+                memcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
     }
 
     ////// tweak frame indices in various places
@@ -757,13 +756,13 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     }
 #endif
 
-    Bstrcpy(st,filnam);
+    strcpy(st,filnam);
     for (i=strlen(st)-1; i>0; i--)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
     m->basepath = (char *)Xmalloc(i+1);
-    Bstrcpy(m->basepath, st);
+    strcpy(m->basepath, st);
 
     m->skinfn = (char *)Xmalloc(ournumskins*64);
     if (m->numskins > 0)
@@ -803,7 +802,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     while (i < m->numframes)
     {
         f = (md2frame_t *)&m->frames[i*m->framebytes];
-        Bstrcpy(m3->head.frames[i].nam, f->name);
+        strcpy(m3->head.frames[i].nam, f->name);
         //Printf("Copied frame %s.\n", m3->head.frames[i].nam);
         m3->muladdframes[i*2] = f->mul;
         m3->muladdframes[i*2+1] = f->add;
@@ -825,7 +824,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
 
     maxmodelverts = max(maxmodelverts, s->numverts);
 
-    Bstrcpy(s->nam, "Dummy surface from MD2");
+    strcpy(s->nam, "Dummy surface from MD2");
 
     s->shaders = NULL;
 
@@ -1105,8 +1104,8 @@ static void      md3postload_common(md3model_t *m)
     {
         frame = &m->head.frames[framei];
 
-        Bmemset(&frame->min, 0, sizeof(vec3f_t));
-        Bmemset(&frame->max, 0, sizeof(vec3f_t));
+        memset(&frame->min, 0, sizeof(vec3f_t));
+        memset(&frame->max, 0, sizeof(vec3f_t));
 
         frame->r        = 0.0f;
 
@@ -1185,7 +1184,7 @@ static void      md3postload_common(md3model_t *m)
             ++surfi;
         }
 
-        frame->r = Bsqrtf(frame->r);
+        frame->r = sqrtf(frame->r);
 
         ++framei;
     }
@@ -1393,7 +1392,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     if (sext->pitch || sext->roll)
     {
         float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x));
-        Bmemset(&a0, 0, sizeof(a0));
+        memset(&a0, 0, sizeof(a0));
 
         if (sext->pivot_offset.x)
             a0.x = (float) sext->pivot_offset.x * f;
@@ -1644,8 +1643,8 @@ static mdmodel_t *mdload(const char *filnam)
 
         // smuggle the file name into the model struct.
         // head.nam is unused as far as I can tell
-        Bstrncpyz(vm3->head.nam, filnam, sizeof(vm3->head.nam));
-
+        strncpy(vm3->head.nam, filnam, sizeof(vm3->head.nam));
+		vm3->head.nam[sizeof(vm3->head.nam)-1] = 0;
         md3postload_common(vm3);
 
     }

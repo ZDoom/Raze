@@ -62,7 +62,6 @@ extern int rtsplaying;
 extern int tempwallptr;
 extern weaponhit hittype[MAXSPRITES];
 extern bool sound445done;
-extern int levelTextTime;
 extern uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;

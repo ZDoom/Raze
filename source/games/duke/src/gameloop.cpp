@@ -84,9 +84,6 @@ void GameInterface::Ticker()
 			}
 		}
 		
-		if (levelTextTime > 0)
-			levelTextTime--;
-
 		fi.think();
 
 		if ((everyothertime & 1) == 0)

@@ -52,6 +52,7 @@
 #include "raze_sound.h"
 #include "gamestruct.h"
 #include "automap.h"
+#include "statusbar.h"
 
 static CompositeSavegameWriter savewriter;
 static FResourceFile *savereader;
@@ -75,6 +76,7 @@ static void SerializeSession(FSerializer& arc)
 	quoteMgr.Serialize(arc);
 	S_SerializeSounds(arc);
 	SerializeAutomap(arc);
+	SerializeHud(arc);
 }
 
 //=============================================================================
@@ -189,16 +191,17 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 	auto savesig = gi->GetSaveSig();
 	auto gs = gi->getStats();
 	FStringf timeStr("%02d:%02d", gs.timesecnd / 60, gs.timesecnd % 60);
+	auto lev = currentLevel;
 
 	savegameinfo.AddString("Software", buf)
 		("Save Version", savesig.currentsavever)
 		.AddString("Engine", savesig.savesig)
 		.AddString("Game Resource", fileSystem.GetResourceFileName(1))
-		.AddString("Map Name", currentLevel->DisplayName())
+		.AddString("Map Name", lev->DisplayName())
 		.AddString("Creation Time", myasctime())
 		.AddString("Title", name)
-		.AddString("Map File", currentLevel->fileName)
-		.AddString("Map Label", currentLevel->labelName)
+		.AddString("Map File", lev->fileName)
+		.AddString("Map Label", lev->labelName)
 		.AddString("Map Time", timeStr);
 
 	const char *fn = currentLevel->fileName;

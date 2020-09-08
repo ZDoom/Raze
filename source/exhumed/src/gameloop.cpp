@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "compat.h"
-#include "common.h"
 #include "engine.h"
 #include "exhumed.h"
 #include "sequence.h"
@@ -86,7 +85,7 @@ static void FinishLevel(int lnum, TArray<JobDesc> &jobs)
     }
     else nPlayerLives[0] = 0;
 
-    DoAfterCinemaScene(lnum, jobs);
+    DoAfterCinemaScene(lnum-1, jobs);
 }
 
 

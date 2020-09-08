@@ -898,6 +898,33 @@ bool TextOverlay::AdvanceCinemaText(double clock)
 //
 //---------------------------------------------------------------------------
 
+enum EScenes
+{
+    CINEMA_BEFORE_LEVEL_5,
+    CINEMA_AFTER_LEVEL_10,
+    CINEMA_BEFORE_LEVEL_11,
+    CINEMA_AFTER_LEVEL_15,
+    CINEMA_LOSE_SCENE,
+    CINEMA_AFTER_LEVEL_20,
+};
+
+struct CinemaDef
+{
+    short tile;
+    short palette;
+    short text;
+    short track;
+};
+
+static CinemaDef cinemas[] = {
+    { 3449, 3, 2, 2},
+    { 3451, 5, 4, 3},
+    { 3454, 1, 3, 4},
+    { 3446, 7, 6, 6},
+    { 3445, 4, 7, 7},
+    { 3448, 6, 8, 8}
+};
+
 static const char * const cinpalfname[] = {
     "3454.pal",
     "3452.pal",
@@ -948,17 +975,13 @@ class DCinema : public DScreenJob
 public:
 	DCinema(int nVal, int checklevel = -1) : DScreenJob(fadein|fadeout)
 	{
-		static const short cinematiles[] = { 3454, 3452, 3449, 3445, 3451, 3448, 3446};
-        static const int8_t bxvals[] = { 4, 0, 2, 7, 3, 8, 6 };
-        static const int8_t dxvals[] = { 4, -1, 2, -1, 3, 8, 6 };
-
-		if (nVal < 1 || nVal >7) return;
-		cinematile = cinematiles[nVal-1];
-		currentCinemaPalette = nVal;
-        edx = dxvals[nVal - 1];
+		if (nVal < 0 || nVal >5) return;
+		cinematile = cinemas[nVal].tile;
+		currentCinemaPalette = cinemas[nVal].palette;
         text.Start(0);
-        text.ReadyCinemaText(bxvals[nVal - 1]);
-        text.SetPalette(nVal);
+        text.ReadyCinemaText(cinemas[nVal].text);
+        text.SetPalette(currentCinemaPalette);
+        edx = cinemas[nVal].track;
         check = checklevel;
     }
 	
@@ -1273,9 +1296,7 @@ void DoGameOverScene(bool finallevel)
 
     if (finallevel)
     {
-        playCDtrack(9, false);
-        //FadeToWhite();
-        job = { Create<DCinema>(4) };
+        job = { Create<DCinema>(CINEMA_LOSE_SCENE) };
     }
     else
     {
@@ -1289,15 +1310,19 @@ void DoGameOverScene(bool finallevel)
 
 void DoAfterCinemaScene(int nLevel, TArray<JobDesc>& jobs)
 {
-    static const uint8_t nAfterScene[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 7, 0, 0, 0, 0, 6 };
-    if (nAfterScene[nLevel]) jobs.Push({ Create<DCinema>(nAfterScene[nLevel]) });
+    int scene = -1;
+    if (nLevel == 10) scene = CINEMA_AFTER_LEVEL_10;
+    if (nLevel == 15) scene = CINEMA_AFTER_LEVEL_15;
+    if (nLevel == 20) scene = CINEMA_AFTER_LEVEL_20;
+    if (scene > 0) jobs.Push({ Create<DCinema>(scene) });
+    if (nLevel == 19) jobs.Push({ Create<DLastLevelCinema>() });
     if (nLevel == 20) jobs.Push({ Create<DExCredits>() });
 }
 
 void DoBeforeCinemaScene(int nLevel, TArray<JobDesc>& jobs)
 {
-    if (nLevel == 5) jobs.Push({ Create<DCinema>(3) });
-    else if (nLevel == 11) jobs.Push({ Create<DCinema>(1, 11) });
+    if (nLevel == 5) jobs.Push({ Create<DCinema>(CINEMA_BEFORE_LEVEL_5) });
+    else if (nLevel == 11) jobs.Push({ Create<DCinema>(CINEMA_BEFORE_LEVEL_11, 11) });
 }
 
 END_PS_NS

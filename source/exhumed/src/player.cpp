@@ -183,7 +183,7 @@ void feebtag(int x, int y, int z, int nSector, short *nSprite, int nVal2, int nV
 
                         if (diff > INT_MAX)
                         {
-                            Printf("%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                            Printf("%s %d: overflow\n", __func__, __LINE__);
                             diff = INT_MAX; 
                         }
 
@@ -708,6 +708,7 @@ void FuncPlayer(int a, int nDamage, int nRun)
 {
     int var_48 = 0;
     int var_40;
+	bool mplevel = currentLevel->levelNumber > 20;
 
     short nPlayer = RunData[nRun].nVal;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
@@ -1211,7 +1212,7 @@ loc_1AB8E:
 
             if (sqrtNum > INT_MAX)
             {
-                DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+                DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
                 sqrtNum = INT_MAX;
             }
 
@@ -1485,7 +1486,7 @@ do_default:
                                 // loc_1B3C7
 
                                 // CHECKME - is order of evaluation correct?
-                                if (currentLevel->levelNumber <= 20 || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
+                                if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                                 {
                                     DestroyItemAnim(nValB);
                                     mydeletesprite(nValB);
@@ -1941,7 +1942,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2003,7 +2004,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2065,7 +2066,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2127,7 +2128,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2189,7 +2190,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2251,7 +2252,7 @@ do_default_b:
 
                                 if (weapons & var_18)
                                 {
-                                    if (currentLevel->levelNumber > 20)
+                                    if (mplevel)
                                     {
                                         AddAmmo(nPlayer, WeaponInfo[var_40].nAmmoType, ebx);
                                     }
@@ -2708,7 +2709,7 @@ loc_1BD2E:
                         }
                         else
                         {
-                            DoGameOverScene((currentLevel->levelNumber == 20));
+                            DoGameOverScene(mplevel);
                             return;
                         }
                     }

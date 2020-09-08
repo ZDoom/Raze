@@ -158,6 +158,7 @@ static const gamefilter games[] = {
 	{ "Blood", GAMEFLAG_BLOOD},
 	{ "ShadowWarrior", GAMEFLAG_SW},
 	{ "Exhumed", GAMEFLAG_POWERSLAVE|GAMEFLAG_EXHUMED},
+	{ "Worldtour", GAMEFLAG_WORLDTOUR},
 };
 
 // for other parts that need to filter by game name.

@@ -96,7 +96,6 @@ void addspritetodelete(int spnum)
 // 
 //
 //---------------------------------------------------------------------------
-void VM_Execute(native_t loop);
 
 void ParseState::parseifelse(int condition)
 {

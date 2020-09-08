@@ -84,6 +84,8 @@
 #include "build.h"
 #include "g_input.h"
 #include "mapinfo.h"
+#include "automap.h"
+#include "statusbar.h"
 
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -292,6 +294,7 @@ static void GameTicker()
 		gameupdatetime.Reset();
 		gameupdatetime.Clock();
 		gi->Ticker();
+		levelTextTime--;
 		gameupdatetime.Unclock();
 		break;
 
@@ -348,6 +351,7 @@ void Display()
 			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			gi->Render();
 			DrawFullscreenBlends();
+			drawMapTitle();
 			break;
 		}
 		[[fallthrough]];

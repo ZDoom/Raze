@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include "compat.h"
 #include "build.h"
-#include "common.h"
 #include "common_game.h"
 
 #include "blood.h"
@@ -111,105 +110,6 @@ void tileProcessGLVoxels(void)
     }
 }
 #endif
-
-void tilePreloadTile(int nTile)
-{
-	if (!r_precache) return;
-    int n = 1;
-    switch (picanm[nTile].extra&7)
-    {
-    case 0:
-        n = 1;
-        break;
-    case 1:
-        n = 5;
-        break;
-    case 2:
-        n = 8;
-        break;
-    case 3:
-        n = 2;
-        break;
-    case 6:
-    case 7:
-        if (voxelIndex[nTile] < 0 || voxelIndex[nTile] >= kMaxVoxels)
-        {
-            voxelIndex[nTile] = -1;
-            picanm[nTile].extra &= ~7;
-        }
-        break;
-    }
-
-    while(n--)
-    {
-        if (picanm[nTile].sf&PICANM_ANIMTYPE_MASK)
-        {
-            for (int frame = picanm[nTile].num; frame >= 0; frame--)
-            {
-                if ((picanm[nTile].sf&PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-                    PrecacheHardwareTextures(nTile-frame);
-                else
-                    PrecacheHardwareTextures(nTile+frame);
-            }
-        }
-        else
-            PrecacheHardwareTextures(nTile);
-        nTile += 1+picanm[nTile].num;
-    }
-}
-
-int nPrecacheCount;
-char precachehightile[2][(MAXTILES+7)>>3];
-
-void tilePrecacheTile(int nTile, int nType)
-{
-    int n = 1;
-    switch (picanm[nTile].extra&7)
-    {
-    case 0:
-        n = 1;
-        break;
-    case 1:
-        n = 5;
-        break;
-    case 2:
-        n = 8;
-        break;
-    case 3:
-        n = 2;
-        break;
-    }
-    while(n--)
-    {
-        if (picanm[nTile].sf&PICANM_ANIMTYPE_MASK)
-        {
-            for (int frame = picanm[nTile].num; frame >= 0; frame--)
-            {
-                int tile;
-                if ((picanm[nTile].sf&PICANM_ANIMTYPE_MASK) == PICANM_ANIMTYPE_BACK)
-                    tile = nTile-frame;
-                else
-                    tile = nTile+frame;
-                if (!TestBitString(gotpic, tile))
-                {
-                    nPrecacheCount++;
-                    SetBitString(gotpic, tile);
-                }
-                SetBitString(precachehightile[nType], tile);
-            }
-        }
-        else
-        {
-            if (!TestBitString(gotpic, nTile))
-            {
-                nPrecacheCount++;
-                SetBitString(gotpic, nTile);
-            }
-            SetBitString(precachehightile[nType], nTile);
-        }
-        nTile += 1+picanm[nTile].num;
-    }
-}
 
 char tileGetSurfType(int hit)
 {

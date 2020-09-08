@@ -749,7 +749,6 @@ void resettimevars(void)
 {
     cloudclock = 0;
 	ud.levelclock = 0;
-    levelTextTime = 85;
     if (camsprite >= 0)
         hittype[camsprite].temp_data[0] = 0;
 }
@@ -872,7 +871,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
         return 1;
     }
     currentLevel = mi;
-    SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
+    SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
     G_LoadMapHack(mi->fileName);
 
@@ -990,7 +989,7 @@ int enterlevel(MapRecord *mi, int gamemode)
     ps[myconnectindex].over_shoulder_on = 0;
     clearfrags();
     resettimevars();  // Here we go
-    Printf(TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
+	setLevelStarted(mi);
     return 0;
 }
 

@@ -152,7 +152,7 @@ int BuildSnake(short nPlayer, short zVal)
 
     if (sqrtNum > INT_MAX)
     {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         sqrtNum = INT_MAX;
     }
 

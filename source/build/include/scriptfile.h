@@ -30,4 +30,21 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val);
 int32_t scriptfile_addsymbolvalue(char const *name, int32_t val);
 void scriptfile_clearsymbols(void);
 
+typedef struct
+{
+    const char *text;
+    int32_t tokenid;
+}
+tokenlist;
+
+
+enum
+{
+    T_EOF = -2,
+    T_ERROR = -1,
+};
+
+
+int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
+
 #endif
