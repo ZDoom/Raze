@@ -578,10 +578,6 @@ OptionMenu "WeaponsControlMenu"// protected
 		Control "$CNTRLMNU_QUICKKICK"     , "+quick_kick"
 	}
 
-	ifgame(Redneck, RedneckRides)
-	{
-		Control "$CNTRLMNU_PEE"           , "+quick_kick"
-	}
 	ifgame(Blood)
 	{
 		Control "$CNTRLMNU_PROXIMITYBOMBS","slot 11"
@@ -645,6 +641,7 @@ OptionMenu "InventoryControlsMenu"// protected
 		Control    "$CNTRLMNU_YEEHAA" , "useitem 5"
 		Control    "$CNTRLMNU_WHISKEY" , "useitem 1"
 		Control    "$CNTRLMNU_MOONSHINE" , "useitem 2"
+		Control    "$CNTRLMNU_PEE", "+quick_kick"
 	}
 	ifgame(Blood)
 	{
