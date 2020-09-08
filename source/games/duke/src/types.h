@@ -137,7 +137,7 @@ struct player_struct
 	short ammo_amount[MAX_WEAPONS], wackedbyactor, frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
-	short holoduke_amount, newowner, hurt_delay, hbomb_hold_delay;
+	short holoduke_amount, newowner, oldowner, camchangecnt, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq, access_wallnum, access_spritenum;
 	short got_access, weapon_ang, firstaid_amount;
