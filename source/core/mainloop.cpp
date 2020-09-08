@@ -121,6 +121,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 //
 //
 //==========================================================================
+bool newGameStarted;
 
 static void GameTicker()
 {
@@ -171,6 +172,7 @@ static void GameTicker()
 			break;
 
 		case ga_newgame:
+			newGameStarted = true;
 			FX_StopAllSounds();
 			FX_SetReverb(0);
 			gi->FreeLevelData();
@@ -210,7 +212,8 @@ static void GameTicker()
 			break;
 
 		case ga_autosave:
-			if (gamestate == GS_LEVEL) M_Autosave();
+			if (gamestate == GS_LEVEL && !newGameStarted) M_Autosave();
+			newGameStarted = false;
 			break;
 
 		case ga_level:
