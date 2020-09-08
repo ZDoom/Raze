@@ -1713,13 +1713,12 @@ struct SECTOR_OBJECTstruct
            morph_z_max,
            bob_amt,        // bob amount max in z coord
     // variables set by mappers for drivables
+           drive_angspeed,
            drive_angslide,
            drive_speed,
            drive_slide,
            crush_z,
            flags;
-
-    fixed_t drive_angspeed;
 
     short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
             sp_num[MAX_SO_SPRITE],     // hold the sprite numbers of the object

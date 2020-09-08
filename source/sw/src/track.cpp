@@ -1273,7 +1273,8 @@ SetupSectorObject(short sectnum, short tag)
 
                 case SO_DRIVABLE_ATTRIB:
 
-                    sop->drive_angspeed = SP_TAG2(sp) << 21;
+                    sop->drive_angspeed = SP_TAG2(sp);
+                    sop->drive_angspeed <<= 5;
                     sop->drive_angslide = SP_TAG3(sp);
                     if (sop->drive_angslide <= 0 || sop->drive_angslide == 32)
                         sop->drive_angslide = 1;
