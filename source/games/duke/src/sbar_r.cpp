@@ -457,15 +457,6 @@ void drawstatusbar_r(int snum)
 	{
 		dsb.Statusbar(snum);
 	}
-
-	if (hud_showmapname && levelTextTime > 1 && !M_Active())
-	{
-		double alpha;
-		if (levelTextTime > 16) alpha = 1.;
-		else alpha = (levelTextTime) / 16.;
-		PrintLevelName_r(alpha);
-	}
-
 }
 
 END_DUKE_NS

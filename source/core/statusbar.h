@@ -344,5 +344,11 @@ enum DI_Flags
 
 void SBar_DrawString(DBaseStatusBar* self, DHUDFont* font, const FString& string, double x, double y, int flags, int trans, double alpha, int wrapwidth, int linespacing, double scaleX, double scaleY);
 void setViewport(int viewSize);
+struct MapRecord;
+void setLevelStarted(MapRecord *);
+void drawMapTitle();
+class FSerializer;
+void SerializeHud(FSerializer &arc);
+extern int levelTextTime;
 
 #endif /* __SBAR_H__ */

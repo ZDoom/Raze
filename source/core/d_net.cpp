@@ -1017,12 +1017,12 @@ void NetUpdate (void)
 				int mod = maketic - ticdup;
 				int modp, j;
 
-				int svel;
-				int fvel;
-				int64_t q16avel;
-				int64_t q16horz;
-				int64_t q16horiz;	// only used by SW
-				int64_t q16ang;		// only used by SW
+				int svel = 0;
+				int fvel = 0;
+				int64_t q16avel = 0;
+				int64_t q16horz = 0;
+				int64_t q16horiz = 0;	// only used by SW
+				int64_t q16ang = 0;		// only used by SW
 
 				for (j = 0; j < ticdup; ++j)
 				{

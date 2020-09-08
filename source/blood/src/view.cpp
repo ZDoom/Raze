@@ -228,23 +228,6 @@ GameStats GameInterface::getStats()
 	return { gKillMgr.Kills, gKillMgr.TotalKills, gSecretMgr.Founds, gSecretMgr.Total, gFrameCount / kTicsPerSec, gPlayer[myconnectindex].fragCount };
 }
 
-void viewDrawMapTitle(void)
-{
-    if (!hud_showmapname || M_Active())
-        return;
-
-    int const fadeStartTic = kTicsPerSec;
-    int const fadeEndTic = int(1.5f*kTicsPerSec);
-    if (gFrameCount > fadeEndTic)
-        return;
-    int const alpha = 255 - clamp((gFrameCount-fadeStartTic)*255/(fadeEndTic-fadeStartTic), 0, 255);
-
-    if (alpha != 0)
-    {
-        viewDrawText(1, currentLevel->DisplayName(), 160, 50, -128, 0, 1, 1, 0, alpha);
-    }
-}
-
 void viewDrawAimedPlayerName(void)
 {
     if (!cl_idplayers || (gView->aim.dx == 0 && gView->aim.dy == 0))
@@ -411,19 +394,9 @@ void viewSetMessage(const char *pMessage, const int pal, const MESSAGE_PRIORITY 
     Printf(printlevel|PRINT_NOTIFY, "%s\n", pMessage);
 }
 
-
-char errMsg[256];
-
 void viewSetErrorMessage(const char *pMessage)
 {
-    if (!pMessage)
-    {
-        strcpy(errMsg, "");
-    }
-    else
-    {
-        strcpy(errMsg, pMessage);
-    }
+	Printf(PRINT_BOLD|PRINT_NOTIFY, "%s\n", pMessage);
 }
 
 void DoLensEffect(void)
@@ -1014,7 +987,6 @@ void viewDrawScreen(bool sceneonly)
     }
 #endif
 
-    viewDrawMapTitle();
     viewDrawAimedPlayerName();
     if (paused)
     {
@@ -1024,10 +996,6 @@ void viewDrawScreen(bool sceneonly)
     {
         FStringf gTempStr("] %s [", gProfile[gView->nPlayer].name);
         viewDrawText(0, gTempStr, 160, 10, 0, 0, 1, 0);
-    }
-    if (errMsg[0])
-    {
-        viewDrawText(0, errMsg, 160, 20, 0, 0, 1, 0);
     }
     if (cl_interpolate)
     {
@@ -1041,22 +1009,12 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-
-#define LOW_FPS 60
-#define SLOW_FRAME_TIME 20
-
-#if defined GEKKO
-# define FPS_YOFFSET 16
-#else
-# define FPS_YOFFSET 0
-#endif
-
 FString GameInterface::GetCoordString()
 {
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang);
+        gMe->pSprite->x, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * (360./2048));
 
     return out;
 }

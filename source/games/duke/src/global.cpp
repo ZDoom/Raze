@@ -76,7 +76,6 @@ int rtsplaying;
 int tempwallptr;
 weaponhit hittype[MAXSPRITES];
 bool sound445done; // this was local state inside a function, but this must be maintained globally and serialized
-int levelTextTime; // must be serialized
 uint16_t frags[MAXPLAYERS][MAXPLAYERS];
 player_struct ps[MAXPLAYERS];
 int spriteqamount = 64;

@@ -641,10 +641,5 @@ void PrintPaused_r()
 	BigText(160, 100, GStrings("Game Paused"), 0);
 }
 
-void PrintLevelName_r(double alpha)
-{
-	BigText(160, 114, currentLevel->DisplayName(), 0, alpha);
-}
-
 
 END_DUKE_NS
