@@ -36,7 +36,6 @@ BEGIN_SW_NS
 
 void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
 void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
-// void DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel);
 void DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
 void DoPlayerMoveTurret(PLAYERp pp, fixed_t q16avel, fixed_t q16horz, double const scaleAdjust);
 
@@ -289,19 +288,14 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
             DoPlayerTurn(pp, q16avel, scaleAdjust);
 
-#if 0
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_BOAT))
-            DoPlayerTurnBoat(pp, q16avel);
-#endif
+        if (pp->angAdjust)
+            pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
             DoPlayerTurnVehicle(pp, q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
 
         if (TEST(pp->Flags2, PF2_INPUT_CAN_MOVE_TURRET))
             DoPlayerMoveTurret(pp, q16avel, q16horz, scaleAdjust);
-
-        if (pp->angAdjust)
-            pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
     }
 
     loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);

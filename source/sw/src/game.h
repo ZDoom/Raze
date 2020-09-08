@@ -1057,9 +1057,8 @@ enum
     PF2_TELEPORTED              = (BIT(0)),
     PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()
     PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn() from processMovement()
-    PF2_INPUT_CAN_TURN_BOAT     = (BIT(3)), // Allow calling DoPlayerTurnBoat() from processMovement()
-    PF2_INPUT_CAN_TURN_VEHICLE  = (BIT(4)), // Allow calling DoPlayerTurnVehicle() from processMovement()
-    PF2_INPUT_CAN_MOVE_TURRET   = (BIT(5)), // Allow calling DoPlayerMoveTurret() from processMovement()
+    PF2_INPUT_CAN_TURN_VEHICLE  = (BIT(3)), // Allow calling DoPlayerTurnVehicle() from processMovement()
+    PF2_INPUT_CAN_MOVE_TURRET   = (BIT(4)), // Allow calling DoPlayerMoveTurret() from processMovement()
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////

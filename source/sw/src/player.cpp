@@ -7439,7 +7439,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_MOVE_TURRET);
+        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_MOVE_TURRET);
         resetinputhelpers(pp);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
