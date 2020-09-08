@@ -1281,6 +1281,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayshrinker = [&]
 		{
+			auto shrinker = isWorldTour() ? SHRINKERWIDE : SHRINKER;
 			weapon_xoffset += 28;
 			looking_arc += 18;
 			if (sprite[p->i].pal == 1)
@@ -1297,7 +1298,7 @@ void displayweapon_d(int snum, double smoothratio)
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER - 2, gs, o, pal);
+						looking_arc + 240 - gun_pos, shrinker - 2, gs, o, pal);
 				}
 				else
 				{
@@ -1307,7 +1308,7 @@ void displayweapon_d(int snum, double smoothratio)
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER, gs, o, pal);
+						looking_arc + 240 - gun_pos, shrinker, gs, o, pal);
 				}
 			}
 			else
@@ -1325,7 +1326,7 @@ void displayweapon_d(int snum, double smoothratio)
 						o, 2);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER - 1, gs, o, pal);
+						looking_arc + 240 - gun_pos, shrinker - 1, gs, o, pal);
 
 				}
 				else
@@ -1335,7 +1336,7 @@ void displayweapon_d(int snum, double smoothratio)
 						o, 0);
 
 					hud_drawpal(weapon_xoffset + 188 - look_anghalf,
-						looking_arc + 240 - gun_pos, SHRINKER + 1, gs, o, pal);
+						looking_arc + 240 - gun_pos, shrinker + 1, gs, o, pal);
 				}
 			}
 		};
@@ -1372,7 +1373,7 @@ void displayweapon_d(int snum, double smoothratio)
 					looking_arc += krand() & 1;
 				}
 				gun_pos -= 16;
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, FLAMETHROWER + 1, 32, o, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, FLAMETHROWER + 1, -32, o, pal);
 				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, FLAMETHROWER + 2 + cat_frames[*kb % 6], -32, o, pal);
 			}
 		};
