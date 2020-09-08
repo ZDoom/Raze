@@ -1058,9 +1058,8 @@ enum
     PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()
     PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn() from processMovement()
     PF2_INPUT_CAN_TURN_BOAT     = (BIT(3)), // Allow calling DoPlayerTurnBoat() from processMovement()
-    PF2_INPUT_CAN_TURN_TANK     = (BIT(4)), // Allow calling DoPlayerTurnTank() from processMovement()
-    PF2_INPUT_CAN_TURN_TANKRECT = (BIT(5)), // Allow calling DoPlayerTurnTankRect() from processMovement()
-    PF2_INPUT_CAN_MOVE_TURRET   = (BIT(6)), // Allow calling DoPlayerMoveTurret() from processMovement()
+    PF2_INPUT_CAN_TURN_VEHICLE  = (BIT(4)), // Allow calling DoPlayerTurnVehicle() from processMovement()
+    PF2_INPUT_CAN_MOVE_TURRET   = (BIT(5)), // Allow calling DoPlayerMoveTurret() from processMovement()
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1831,7 +1830,7 @@ struct SECTOR_OBJECTstruct
 #define SO_OPERATE_TRACK_START 90
 #define SO_TURRET_MGUN 96 // machine gun
 #define SO_TURRET 97
-#define SO_TANK 98
+#define SO_VEHICLE 98
 // #define SO_SPEED_BOAT 99
 
 #define SO_EMPTY(sop) ((sop)->xmid == INT32_MAX)

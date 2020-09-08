@@ -457,7 +457,7 @@ int WeaponOperate(PLAYERp pp)
     {
         switch (pp->sop->track)
         {
-        case SO_TANK:
+        case SO_VEHICLE:
         case SO_TURRET:
         case SO_TURRET_MGUN:
         // case SO_SPEED_BOAT:

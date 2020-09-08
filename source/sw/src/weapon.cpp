@@ -5948,7 +5948,7 @@ DoDamage(short SpriteNum, short Weapon)
     {
         switch (wu->PlayerP->sop->track)
         {
-        case SO_TANK:
+        case SO_VEHICLE:
             damage = -200;
 
             if (u->sop_parent)

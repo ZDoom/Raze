@@ -1390,7 +1390,7 @@ SetupSectorObject(short sectnum, short tag)
             {
             case SO_TURRET_MGUN:
             case SO_TURRET:
-            case SO_TANK:
+            case SO_VEHICLE:
                 sop->vel = 0;
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;

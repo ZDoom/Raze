@@ -164,10 +164,10 @@ void DoPlayerClimb(PLAYERp pp);
 void DoPlayerBeginDie(PLAYERp pp);
 void DoPlayerDie(PLAYERp pp);
 // void DoPlayerBeginOperateBoat(PLAYERp pp);
-void DoPlayerBeginOperateTank(PLAYERp pp);
+void DoPlayerBeginOperateVehicle(PLAYERp pp);
 void DoPlayerBeginOperate(PLAYERp pp);
 // void DoPlayerOperateBoat(PLAYERp pp);
-void DoPlayerOperateTank(PLAYERp pp);
+void DoPlayerOperateVehicle(PLAYERp pp);
 void DoPlayerOperateTurret(PLAYERp pp);
 void DoPlayerBeginDive(PLAYERp pp);
 void DoPlayerDive(PLAYERp pp);
@@ -1646,7 +1646,7 @@ DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel)
 #endif
 
 void
-DoPlayerTurnTank(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
+DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
 {
     SECTOR_OBJECTp sop = pp->sop;
 
@@ -1673,7 +1673,7 @@ DoPlayerTurnTank(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
 }
 
 void
-DoPlayerTurnTankRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
+DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
 {
     fixed_t q16avel;
     SECTOR_OBJECTp sop = pp->sop;
@@ -2949,7 +2949,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
 }
 
 void
-DoPlayerMoveTank(PLAYERp pp)
+DoPlayerMoveVehicle(PLAYERp pp)
 {
     int z;
     int floor_dist;
@@ -3057,7 +3057,7 @@ DoPlayerMoveTank(PLAYERp pp)
 
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
-        DoPlayerTurnTankRect(pp, x, y, ox, oy);
+        DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
 
         ret = RectClipMove(pp, x, y);
         DriveCrush(pp, x, y);
@@ -3107,11 +3107,11 @@ DoPlayerMoveTank(PLAYERp pp)
     {
         if (!cl_syncinput)
         {
-            SET(pp->Flags2, PF2_INPUT_CAN_TURN_TANK);
+            SET(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE);
         }
         else
         {
-            DoPlayerTurnTank(pp, pp->input.q16avel, z, floor_dist);
+            DoPlayerTurnVehicle(pp, pp->input.q16avel, z, floor_dist);
         }
 
         save_cstat = pp->SpriteP->cstat;
@@ -5361,13 +5361,13 @@ DoPlayerBeginOperateBoat(PLAYERp pp)
 #endif
 
 void
-DoPlayerBeginOperateTank(PLAYERp pp)
+DoPlayerBeginOperateVehicle(PLAYERp pp)
 {
     USERp u = User[pp->PlayerSprite];
 
     pp->floor_dist = PLAYER_RUN_FLOOR_DIST;
     pp->ceiling_dist = PLAYER_RUN_CEILING_DIST;
-    pp->DoPlayerAction = DoPlayerOperateTank;
+    pp->DoPlayerAction = DoPlayerOperateVehicle;
 
     // temporary set to get weapons down
     if (TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
@@ -5523,13 +5523,13 @@ DoPlayerBeginOperate(PLAYERp pp)
 
     switch (sop->track)
     {
-    case SO_TANK:
+    case SO_VEHICLE:
         if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
         pp->posz = fz - PLAYER_HEIGHT;
-        DoPlayerBeginOperateTank(pp);
+        DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
@@ -5613,13 +5613,13 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     switch (sop->track)
     {
-    case SO_TANK:
+    case SO_VEHICLE:
         if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
         else
             PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
         pp->posz = fz - PLAYER_HEIGHT;
-        DoPlayerBeginOperateTank(pp);
+        DoPlayerBeginOperateVehicle(pp);
         break;
     case SO_TURRET_MGUN:
     case SO_TURRET:
@@ -5829,7 +5829,7 @@ DoPlayerOperateBoat(PLAYERp pp)
 #endif
 
 void
-DoPlayerOperateTank(PLAYERp pp)
+DoPlayerOperateVehicle(PLAYERp pp)
 {
     short save_sectnum;
 
@@ -5858,7 +5858,7 @@ DoPlayerOperateTank(PLAYERp pp)
     if (pp->sop_remote)
         RemoteToPlayer(pp);
 
-    DoPlayerMoveTank(pp);
+    DoPlayerMoveVehicle(pp);
 
     if (pp->sop_remote)
     {
@@ -7439,7 +7439,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_TANK|PF2_INPUT_CAN_TURN_TANKRECT|PF2_INPUT_CAN_MOVE_TURRET);
+        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_MOVE_TURRET);
         resetinputhelpers(pp);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);
@@ -7866,10 +7866,10 @@ static saveable_code saveable_player_code[] =
     SAVE_CODE(DoPlayerBeginDie),
     //SAVE_CODE(DoPlayerDie),
     //SAVE_CODE(DoPlayerBeginOperateBoat),
-    SAVE_CODE(DoPlayerBeginOperateTank),
+    SAVE_CODE(DoPlayerBeginOperateVehicle),
     SAVE_CODE(DoPlayerBeginOperate),
     //SAVE_CODE(DoPlayerOperateBoat),
-    SAVE_CODE(DoPlayerOperateTank),
+    SAVE_CODE(DoPlayerOperateVehicle),
     SAVE_CODE(DoPlayerOperateTurret),
     SAVE_CODE(DoPlayerBeginDive),
     SAVE_CODE(DoPlayerDive),
