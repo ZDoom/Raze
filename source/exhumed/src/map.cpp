@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "view.h"
 #include "v_2ddrawer.h"
 #include "automap.h"
+#include "mmulti.h"
+#include "v_draw.h"
 
 BEGIN_PS_NS
 
@@ -51,4 +53,54 @@ void DrawMap()
         DrawOverheadMap(initx, inity, inita);
     }
 }
+
+template<typename T> void GetSpriteExtents(T const* const pSprite, int* top, int* bottom)
+{
+    *top = *bottom = pSprite->z;
+    if ((pSprite->cstat & 0x30) != 0x20)
+    {
+        int height = tileHeight(pSprite->picnum);
+        int center = height / 2 + tileTopOffset(pSprite->picnum);
+        *top -= (pSprite->yrepeat << 2) * center;
+        *bottom += (pSprite->yrepeat << 2) * (height - center);
+    }
+}
+
+bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a)
+{
+    int nCos = z * sintable[(0 - a) & 2047];
+    int nSin = z * sintable[(1536 - a) & 2047];
+    int nCos2 = mulscale16(nCos, yxaspect);
+    int nSin2 = mulscale16(nSin, yxaspect);
+
+    for (int i = connecthead; i >= 0; i = connectpoint2[i])
+    {
+        int nPSprite = PlayerList[i].nSprite;
+        spritetype* pSprite = &sprite[nPSprite];
+        int px = pSprite->x - x;
+        int py = pSprite->y - y;
+        int pa = (pSprite->ang - a) & 2047;
+        int x1 = dmulscale16(px, nCos, -py, nSin);
+        int y1 = dmulscale16(py, nCos2, px, nSin2);
+        if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
+        {
+            int nTile = pSprite->picnum;
+            int ceilZ, ceilHit, floorZ, floorHit;
+            getzrange_old(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
+            int nTop, nBottom;
+            GetSpriteExtents(pSprite, &nTop, &nBottom);
+            int nScale = mulscale((pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z, yxaspect, 16);
+            nScale = clamp(nScale, 8000, 65536 << 1);
+            // Players on automap
+            double x = xdim / 2. + x1 / double(1 << 12);
+            double y = ydim / 2. + y1 / double(1 << 12);
+            // This very likely needs fixing later
+            DrawTexture(twod, tileGetTexture(nTile /*+ ((leveltime >> 2) & 3)*/, true), x, y, DTA_ClipLeft, windowxy1.x, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z / 1536., DTA_ScaleY, z / 1536., DTA_CenterOffset, true,
+                DTA_ClipRight, windowxy2.x + 1, DTA_ClipBottom, windowxy2.y + 1, DTA_Alpha, (pSprite->cstat & 2 ? 0.5 : 1.), TAG_DONE);
+            break;
+        }
+    }
+    return true;
+}
+
 END_PS_NS
