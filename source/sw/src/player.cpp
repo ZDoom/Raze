@@ -1704,14 +1704,6 @@ DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
     fixed_t new_ang, diff;
     SECTOR_OBJECTp sop = pp->sop;
 
-    if (!Prediction)
-    {
-        if (q16avel && !pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!q16avel && pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-    }
-
     if (sop->drive_angspeed)
     {
         fixed_t drive_oq16avel = pp->drive_q16avel;
@@ -3169,6 +3161,14 @@ DoPlayerMoveTank(PLAYERp pp)
 void
 DoPlayerMoveTurret(PLAYERp pp)
 {
+    if (!Prediction)
+    {
+        if (pp->input.q16avel && !pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
+        else if (!pp->input.q16avel && pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
+    }
+
     if (!cl_syncinput)
     {
         SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
