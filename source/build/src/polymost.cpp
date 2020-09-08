@@ -7,7 +7,6 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 #include "build.h"
 #include "automap.h"
-#include "common.h"
 #include "engine_priv.h"
 #include "mdsprite.h"
 #include "polymost.h"

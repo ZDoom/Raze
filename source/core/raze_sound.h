@@ -1,5 +1,18 @@
 #pragma once
 #include "s_soundinternal.h"
+#include "m_fixed.h"
+#include "vectors.h"
+#include "build.h"
+
+inline FVector3 GetSoundPos(const vec3_t *pos)
+{
+    // converts a Build coordinate to a sound system coordinate
+    const float xmul = 1 / 16.f;
+    const float ymul = -1 / 16.f;
+    const float zmul = -1 / 256.f;
+    return { pos->x* xmul, pos->z* zmul, pos->y* ymul };
+}
+
 
 enum
 {

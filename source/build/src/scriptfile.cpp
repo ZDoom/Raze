@@ -8,7 +8,6 @@
 #include "compat.h"
 #include "scriptfile.h"
 #include "compat.h"
-#include "common.h"
 #include "filesystem.h"
 #include "printf.h"
 

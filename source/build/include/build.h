@@ -31,6 +31,8 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #include "buildtiles.h"
 #include "c_cvars.h"
 #include "cmdlib.h"
+#include "m_fixed.h"
+#include "mathutil.h"
 
 typedef int64_t coord_t;
 

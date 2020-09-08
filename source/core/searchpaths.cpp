@@ -41,7 +41,6 @@
 #include "sc_man.h"
 #include "resourcefile.h"
 #include "printf.h"
-#include "common.h"
 #include "version.h"
 #include "gamecontrol.h"
 #include "m_argv.h"

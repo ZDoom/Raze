@@ -13,7 +13,6 @@
 #include "automap.h"
 
 #include "imagehelpers.h"
-#include "common.h"
 #include "compat.h"
 #include "engine_priv.h"
 #include "palette.h"

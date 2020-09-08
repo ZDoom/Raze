@@ -285,10 +285,6 @@ typedef struct MAY_ALIAS {
 } vec2_t;
 
 typedef struct {
-    uint32_t x, y;
-} vec2u_t;
-
-typedef struct {
     float x, y;
 } vec2f_t;
 
@@ -423,18 +419,6 @@ static FORCE_INLINE char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 #define Xfree(ptr) (M_Free(ptr))
 
 ////////// Inlined external libraries //////////
-
-#include "m_fixed.h"
-#include "vectors.h"
-
-inline FVector3 GetSoundPos(const vec3_t *pos)
-{
-    // converts a Build coordinate to a sound system coordinate
-    const float xmul = 1 / 16.f;
-    const float ymul = -1 / 16.f;
-    const float zmul = -1 / 256.f;
-    return { pos->x* xmul, pos->z* zmul, pos->y* ymul };
-}
 
 /* End dependence on compat.o object. */
 

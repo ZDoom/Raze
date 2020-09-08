@@ -9,7 +9,6 @@
 #include "polymost.h"
 #include "mdsprite.h"
 
-#include "common.h"
 #include "palette.h"
 #include "textures.h"
 #include "bitmap.h"

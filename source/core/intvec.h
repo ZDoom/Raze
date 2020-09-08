@@ -12,11 +12,6 @@ struct vec2_t
     int32_t x, y;
 };
 
-struct vec2u_t
-{
-    uint32_t x, y;
-};
-
 struct vec2f_t
 {
     float x, y;

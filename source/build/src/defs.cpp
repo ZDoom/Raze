@@ -10,7 +10,6 @@
 #include "engine_priv.h"
 #include "scriptfile.h"
 
-#include "common.h"
 #include "mdsprite.h"  // md3model_t
 #include "buildtiles.h"
 #include "bitmap.h"

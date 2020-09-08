@@ -35,7 +35,6 @@
 */ 
 
 #include "c_cvars.h"
-#include "common.h"
 #include "gameconfigfile.h"
 #include "gamecontrol.h"
 #include "m_argv.h"
