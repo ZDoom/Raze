@@ -3159,24 +3159,9 @@ DoPlayerMoveTank(PLAYERp pp)
 }
 
 void
-DoPlayerMoveTurret(PLAYERp pp)
+DoPlayerMoveTurret(PLAYERp pp, fixed_t q16avel, fixed_t q16horz, double const scaleAdjust)
 {
-    if (!Prediction)
-    {
-        if (pp->input.q16avel && !pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-    }
-
-    if (!cl_syncinput)
-    {
-        SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
-    }
-    else
-    {
-        DoPlayerTurnTurret(pp, pp->input.q16avel);
-    }
+    DoPlayerTurnTurret(pp, q16avel);
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -3185,14 +3170,7 @@ DoPlayerMoveTurret(PLAYERp pp)
 
     OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 
-    if (!cl_syncinput)
-    {
-        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
-    }
-    else
-    {
-        DoPlayerHorizon(pp, pp->input.q16horz, 1);
-    }
+    DoPlayerHorizon(pp, q16horz, scaleAdjust);
 }
 
 void
@@ -5774,7 +5752,22 @@ DoPlayerOperateTurret(PLAYERp pp)
     if (pp->sop_remote)
         RemoteToPlayer(pp);
 
-    DoPlayerMoveTurret(pp);
+    if (!Prediction)
+    {
+        if (pp->input.q16avel && !pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
+        else if (!pp->input.q16avel && pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
+    }
+
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_MOVE_TURRET);
+    }
+    else
+    {
+        DoPlayerMoveTurret(pp, pp->input.q16avel, pp->input.q16horz, 1);
+    }
 
     if (pp->sop_remote)
     {
@@ -7434,7 +7427,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_TANK|PF2_INPUT_CAN_TURN_TANKRECT|PF2_INPUT_CAN_TURN_TURRET);
+        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_BOAT|PF2_INPUT_CAN_TURN_TANK|PF2_INPUT_CAN_TURN_TANKRECT|PF2_INPUT_CAN_MOVE_TURRET);
         resetinputhelpers(pp);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);

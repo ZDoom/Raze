@@ -1060,7 +1060,7 @@ enum
     PF2_INPUT_CAN_TURN_BOAT     = (BIT(3)), // Allow calling DoPlayerTurnBoat() from processMovement()
     PF2_INPUT_CAN_TURN_TANK     = (BIT(4)), // Allow calling DoPlayerTurnTank() from processMovement()
     PF2_INPUT_CAN_TURN_TANKRECT = (BIT(5)), // Allow calling DoPlayerTurnTankRect() from processMovement()
-    PF2_INPUT_CAN_TURN_TURRET   = (BIT(6)), // Allow calling DoPlayerTurnTurret() from processMovement()
+    PF2_INPUT_CAN_MOVE_TURRET   = (BIT(6)), // Allow calling DoPlayerMoveTurret() from processMovement()
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
