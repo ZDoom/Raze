@@ -1723,7 +1723,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 
 			if ((p->posz + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
-				S_StopSound(DUKE_SCREAM, pi);
+				//S_StopSound(DUKE_SCREAM, pi);
 				if (sector[p->cursectnum].lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);

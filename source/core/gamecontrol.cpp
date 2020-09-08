@@ -909,7 +909,6 @@ int RunGame()
 	S_ParseSndInfo();
 	InitStatistics();
 	LoadScripts();
-	M_Init();
 	SetDefaultStrings();
 	if (Args->CheckParm("-sounddebug"))
 		C_DoCommand("stat sounddebug");
@@ -924,6 +923,7 @@ int RunGame()
 
 	SetupGameButtons();
 	gi->app_init();
+	M_Init();
 	enginePostInit(); // This must not be done earlier!
 	videoInit();
 

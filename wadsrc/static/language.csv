@@ -334,7 +334,7 @@ Yeehaa,CNTRLMNU_YEEHAA,not translatable,,,,,,,,,,,,,,,,,,,,,
 Whiskey,CNTRLMNU_WHISKEY,,,,,Whisky,,,,,,,,,,,,,,,,,
 Moonshine,CNTRLMNU_MOONSHINE,,,,,Schwarzgebrannter,,,,,,,,,,,,,,,Whiskey ilegal,,
 Crystal Ball,CNTRLMNU_CRYSTALBALL,,,,,Kristallkugel,,,,,,,,,,,,,,,Bilă de cristal,,
-Jump Boots,CNTRLMNU_JUMPBOOTS,,,,,Sprungstiefel,,,,,,,,,,,,,,,Cizme sărituri,,
+Jump Boots,CNTRLMNU_JUMPBOOTS,,,,,Sprungstiefel,,,,,,,,,,,,,,,Cizme pentru sărituri,,
 Beast Vision,CNTRLMNU_BEASTVISION,,,,,,,,,,,,,,,,,,,,Vedere de bestie,,
 Tank Mode,CNTRLMNU_TANKMODE,,,,,Panzermodus,,,,,,,,,,,,,,,Mod Tanc,,
 Smokes,CNTRLMNU_SMOKES,What precisely is this?,,,,,,,,,,,,,,,,,,,,,
@@ -434,115 +434,115 @@ Moving Up/Down,OPTVAL_MOVINGUPDOWN,,,,Pohyb nahoru/dolů,Auf/abwärtsbewegung,,M
 Inverted,OPTVAL_INVERTED,,,,Inverzní,Invertiert,,Inversigita,Invertido,,Käännetty,Inversé,,Invertito,反転する,반전,Omgekeerd,Odwrócony,Invertido,,Inversat,Инвертировано,Обрнуто
 Not Inverted,OPTVAL_NOTINVERTED,,,,Nikoliv inverzní,nicht invertiert,,Ne Inversigita,No invertido,,Ei käännetty,Non Inversé,,Non invertito,反転しない,반전되지 않음,Niet omgekeerd,Nieodwrócony,Não Invertido,,Neinversat,Прямо,Не обрнуто
 ,PLayer Menu,,,,,,,,,,,,,,,,,,,,,,
-Player Setup,MNU_PLAYERSETUP,,,,Nastavení hráče,Spielereinstellungen,,Ludanto Agordaĵo,Config. del jugador,,Pelaaja-asetukset,Options Joueur,Játékos testreszabása,Settaggio giocatore,プレイヤーの特徴,플레이어 설정,Speler instellen,Ustawienia Gracza,Definições de Jogador,,,Настройки игрока,Подешавања играча
-Blue,TXT_COLOR_BLUE,,,,Modrá,Blau,,Blua,Azul,,Sininen,Bleu,Kék,Blu,青,청색,Blauw,Niebieski,Azul,,,Синий,Плава
-Red,TXT_COLOR_RED,,,,Červená,Rot,,Ruĝa,Rojo,,Punainen,Rouge,Vörös,Rosso,赤,적색,Rood,Czerwony,Vermelho,,,Красный,Црвена
-Green,TXT_COLOR_GREEN,,,,Zelená,Grün,,Verda,Verde,,Vihreä,Vert,Zöld,Verde,緑,녹색,Groen,Zielony,Verde,,,Зелёный,Зелена
-Gray,TXT_COLOR_GRAY,,,Grey,Šedá,Grau,,Griza,Gris,,Harmaa,Gris,Szürke,Grigio,灰,회색,Grijs,Szary,Cinza,,,Серый,Сива
+Player Setup,MNU_PLAYERSETUP,,,,Nastavení hráče,Spielereinstellungen,,Ludanto Agordaĵo,Config. del jugador,,Pelaaja-asetukset,Options Joueur,Játékos testreszabása,Settaggio giocatore,プレイヤーの特徴,플레이어 설정,Speler instellen,Ustawienia Gracza,Definições de Jogador,,Configurare jucător,Настройки игрока,Подешавања играча
+Blue,TXT_COLOR_BLUE,,,,Modrá,Blau,,Blua,Azul,,Sininen,Bleu,Kék,Blu,青,청색,Blauw,Niebieski,Azul,,Albastru,Синий,Плава
+Red,TXT_COLOR_RED,,,,Červená,Rot,,Ruĝa,Rojo,,Punainen,Rouge,Vörös,Rosso,赤,적색,Rood,Czerwony,Vermelho,,Roșu,Красный,Црвена
+Green,TXT_COLOR_GREEN,,,,Zelená,Grün,,Verda,Verde,,Vihreä,Vert,Zöld,Verde,緑,녹색,Groen,Zielony,Verde,,Verde,Зелёный,Зелена
+Gray,TXT_COLOR_GRAY,,,Grey,Šedá,Grau,,Griza,Gris,,Harmaa,Gris,Szürke,Grigio,灰,회색,Grijs,Szary,Cinza,,Gri,Серый,Сива
 Dark gray,TXT_COLOR_DARKGRAY,,,"Dark grey
-",Tmavě šedá,Dunkelgrau,,Grizeta,gris oscuro,,Tummanharmaa,Gris sombre,Sötétszürke,Grigio scuro,鉛,치색,Donkergrijs,Ciemnoszary,Cinza escuro,,,Тёмно-серый,Тамно сива
-Dark Green,TXT_COLOR_DARKGREEN,,,,Tmavě zelená,Dunkelgrün,,Malhelverda,Verde oscuro,,Tummanvihreä,Vert sombre,Sötétzöld,Verde scuro,深,흑녹색,Donkergroen,Ciemnozielony,Verde escuro,,,Тёмно-зелёный,Тамна зелена
-Brown,TXT_COLOR_BROWN,,,,Hnědá,Braun,,Bruna,Marrón,,Ruskea,Brun,Barna,Marrone,茶,갈색,Bruin,Brązowy,Marrom,,,Коричневый,Браон
-Dark Blue,TXT_COLOR_DARKBLUE,,,,Tmavě modrá,Dunkelblau,,Malhelblua,Azul oscuro,,Tummansininen,Bleu sombre,Sötétkék,Blu scuro,,,Donkerblauw,,Azul escuro,,,Тёмно-Синий,Тамна Плава
-Light Red,TXT_COLOR_LIGHTRED,,,,Světle červená,Hellrot,,Ruĝeta,Rojo claro,,Vaaleanpunainen,Rouge clair,,Rosso chiaro,丹,옅은 적색,Licht Rood,Jasnoczerwony,Vermelho claro,,,Светло-красный,Светло црвена
-Yellow,TXT_COLOR_YELLOW,,,,Žlutá,Gelb,,Flava,Amarillo,,Keltainen,Jaune,Sárga,Giallo,黄,노란색,Geel,Żółty,Amarelo,,,Жёлтый,Жута
-Purple,TXT_COLOR_PURPLE,,,,Fialová,Violett,,Purpura,Morado,,Purppura,Violet,Lila,Viola,紫,보라색,Paars,Fioletowy,Roxo,,,Фиолетовый,Љубичаста
-Olive,TXT_COLOR_DULLGREEN,,,,Bledě zelená,Blassgrün,,Gris-Verda,Verde pálido,,Haaleanvihreä,Vert pâle,,Verde pallido,苔,암녹색,Saaie groen,Matowa Zieleń,Verde pálido,,,Мутно-зелёный,Тупа зелена
+",Tmavě šedá,Dunkelgrau,,Grizeta,gris oscuro,,Tummanharmaa,Gris sombre,Sötétszürke,Grigio scuro,鉛,치색,Donkergrijs,Ciemnoszary,Cinza escuro,,Gri închis,Тёмно-серый,Тамно сива
+Dark Green,TXT_COLOR_DARKGREEN,,,,Tmavě zelená,Dunkelgrün,,Malhelverda,Verde oscuro,,Tummanvihreä,Vert sombre,Sötétzöld,Verde scuro,深,흑녹색,Donkergroen,Ciemnozielony,Verde escuro,,Verde închis,Тёмно-зелёный,Тамна зелена
+Brown,TXT_COLOR_BROWN,,,,Hnědá,Braun,,Bruna,Marrón,,Ruskea,Brun,Barna,Marrone,茶,갈색,Bruin,Brązowy,Marrom,,Maro,Коричневый,Браон
+Dark Blue,TXT_COLOR_DARKBLUE,,,,Tmavě modrá,Dunkelblau,,Malhelblua,Azul oscuro,,Tummansininen,Bleu sombre,Sötétkék,Blu scuro,,,Donkerblauw,,Azul escuro,,Albastru închis,Тёмно-Синий,Тамна Плава
+Light Red,TXT_COLOR_LIGHTRED,,,,Světle červená,Hellrot,,Ruĝeta,Rojo claro,,Vaaleanpunainen,Rouge clair,,Rosso chiaro,丹,옅은 적색,Licht Rood,Jasnoczerwony,Vermelho claro,,Roșu deschis,Светло-красный,Светло црвена
+Yellow,TXT_COLOR_YELLOW,,,,Žlutá,Gelb,,Flava,Amarillo,,Keltainen,Jaune,Sárga,Giallo,黄,노란색,Geel,Żółty,Amarelo,,Galben,Жёлтый,Жута
+Purple,TXT_COLOR_PURPLE,,,,Fialová,Violett,,Purpura,Morado,,Purppura,Violet,Lila,Viola,紫,보라색,Paars,Fioletowy,Roxo,,Mov,Фиолетовый,Љубичаста
+Olive,TXT_COLOR_DULLGREEN,,,,Bledě zelená,Blassgrün,,Gris-Verda,Verde pálido,,Haaleanvihreä,Vert pâle,,Verde pallido,苔,암녹색,Saaie groen,Matowa Zieleń,Verde pálido,,Măsliniu,Мутно-зелёный,Тупа зелена
 Auto,OPTVAL_AUTO,,,,,,,Aŭtomata,Automático,,Automaattinen,,,Automatico,自動,자동,,Automatycznie,Automático,,,Авто,Аутоматски
-Name,PLYRMNU_NAME,,,,Jméno,,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam,Imię,Nome,,,Имя,Надимак
-Team,PLYRMNU_TEAM,,,,Tým,,,Teamo,Equipo,,Joukkue,Equipe,Csapat,Squadra,チーム,팀,Team,Drużyna,Equipe,Equipa,,Команда,Тим
-Color,PLYRMNU_PLAYERCOLOR,,,Colour,Barva,Farbe,,Koloro,,,Väri,Couleur,Szín,Colore,色,색상,Kleur,Kolor,Cor,,,Цвет,Боја
-Multiplayer taunts,PLRMNU_TAUNTS,,,,,Mehrspieler-Spott,,,,,,,,,,,,,,,,,
-Gender,PLYRMNU_PLAYERGENDER,,,,Pohlaví,Geschlecht,,Genro,Género,,Sukupuoli,Genre,Nem,Sesso,性別,성별,Geslacht,Płeć,Gênero,,,Пол,Пол
-Male,OPTVAL_MALE,,,,Muž,Männlich,,Vira (Li),Masculino,,Miespuolinen,Masculin,,Maschio,男,남성,Man,Mężczyzna,Masculino,,,Мужской,Мушко
-Female,OPTVAL_FEMALE,,,,Žena,Weiblich,,Ina (Ŝi),Femenino,,Naispuolinen,Féminin,,Femmina,女,여성,Vrouw,Kobieta,Feminino,,,Женский,Женско
-Neutral,OPTVAL_NEUTRAL,,,,Neutrální,Neutral,,Neŭtrala (Ri),Neutro,,Sukupuoleton,Neutre,,Neutrale,中間,중성,Neutraal,Neutralne,Neutro,,,Нейтральный,Неутрално
-Object,OPTVAL_OTHER,,,,Objekt,Objekt,,Objekto (Ĝi),Objeto,,Olio,Objet,,Oggetto,物体,기타,Doel,Obiekt,Objeto,,,Предмет,Предмет
+Name,PLYRMNU_NAME,,,,Jméno,,,Nomo,Nombre,,Nimi,Nom,Név,Nome,名前,이름,Naam,Imię,Nome,,Nume,Имя,Надимак
+Team,PLYRMNU_TEAM,,,,Tým,,,Teamo,Equipo,,Joukkue,Equipe,Csapat,Squadra,チーム,팀,Team,Drużyna,Equipe,Equipa,Echipă,Команда,Тим
+Color,PLYRMNU_PLAYERCOLOR,,,Colour,Barva,Farbe,,Koloro,,,Väri,Couleur,Szín,Colore,色,색상,Kleur,Kolor,Cor,,Culoare,Цвет,Боја
+Multiplayer taunts,PLRMNU_TAUNTS,,,,,Mehrspieler-Spott,,,,,,,,,,,,,,,Tachinări online,,
+Gender,PLYRMNU_PLAYERGENDER,,,,Pohlaví,Geschlecht,,Genro,Género,,Sukupuoli,Genre,Nem,Sesso,性別,성별,Geslacht,Płeć,Gênero,,Sex,Пол,Пол
+Male,OPTVAL_MALE,,,,Muž,Männlich,,Vira (Li),Masculino,,Miespuolinen,Masculin,,Maschio,男,남성,Man,Mężczyzna,Masculino,,Masculin,Мужской,Мушко
+Female,OPTVAL_FEMALE,,,,Žena,Weiblich,,Ina (Ŝi),Femenino,,Naispuolinen,Féminin,,Femmina,女,여성,Vrouw,Kobieta,Feminino,,Feminin,Женский,Женско
+Neutral,OPTVAL_NEUTRAL,,,,Neutrální,Neutral,,Neŭtrala (Ri),Neutro,,Sukupuoleton,Neutre,,Neutrale,中間,중성,Neutraal,Neutralne,Neutro,,Neutru,Нейтральный,Неутрално
+Object,OPTVAL_OTHER,,,,Objekt,Objekt,,Objekto (Ĝi),Objeto,,Olio,Objet,,Oggetto,物体,기타,Doel,Obiekt,Objeto,,Obiect,Предмет,Предмет
 ,Multiplayer,,,,,,,,,,,,,,,,,,,,,,
-Game Options,NETMNU_OPTIONS,,,,,Spieleinstellungen,,,,,,,,,,,,,,,,,
-Launch Game,NETMNU_LAUNCH,,,,,Spiel starten,,,,,,,,,,,,,,,,,
-Game Type,NETMNU_GAMETYPE,,,,,,,,,,,,,,,,,,,,,,
-Deathmatch (Spawn),NETMNU_GAMETYPE1,,,,,,,,,,,,,,,,,,,,,,
-DukeMatch (Spawn),NETMNU_GAMETYPE1,Duke,,,,,,,,,,,,,,,,,,,,,
-GI Match (Spawn),NETMNU_GAMETYPE1,Nam,,,,,,,,,,,,,,,,,,,,,
-GruntMatch (Spawn),NETMNU_GAMETYPE1,WW2GI,,,,,,,,,,,,,,,,,,,,,
-Cooperative Play,NETMNU_GAMETYPE2,,,,,,,,,,,,,,,,,,,,,,
-Deathmatch (No Spawn),NETMNU_GAMETYPE3,,,,,,,,,,,,,,,,,,,,,,
-DukeMatch (No Spawn),NETMNU_GAMETYPE3,Duke,,,,,,,,,,,,,,,,,,,,,
-GI Match (No Spawn),NETMNU_GAMETYPE3,Nam,,,,,,,,,,,,,,,,,,,,,
-GruntMatch (No Spawn),NETMNU_GAMETYPE3,WW2GI,,,,,,,,,,,,,,,,,,,,,
-Team DM (Spawn),NETMNU_GAMETYPE4,,,,,,,,,,,,,,,,,,,,,,
-Team DM (No Spawn),NETMNU_GAMETYPE5,,,,,,,,,,,,,,,,,,,,,,
-Episode,NETMNU_EPISODE,,,,,,,,,,,,,,,,,,,,,,
-Level,NETMNU_LEVEL,,,,,,,,,,,,,,,,,,,,,,
-Monsters,NETMNU_MONSTERS,,,,,,,,,,,,,,,,,,,,,,
-Markers,NETMNU_MARKERS,,,,,,,,,,,,,,,,,,,,,,
-Map Exits,NETMNU_MAPEXITS,,,,,,,,,,,,,,,,,,,,,,
-Friendly Fire,NETMNU_FFIRE,,,,,,,,,,,,,,,,,,,,,,
+Game Options,NETMNU_OPTIONS,,,,,Spieleinstellungen,,,,,,,,,,,,,,,Setări joc,,
+Launch Game,NETMNU_LAUNCH,,,,,Spiel starten,,,,,,,,,,,,,,,Pornire joc,,
+Game Type,NETMNU_GAMETYPE,,,,,,,,,,,,,,,,,,,,Tip joc,,
+Deathmatch (Spawn),NETMNU_GAMETYPE1,,,,,,,,,,,,,,,,,,,,Deathmatch (doar spawn),,
+DukeMatch (Spawn),NETMNU_GAMETYPE1,Duke,,,,,,,,,,,,,,,,,,,DukeMatch (doar spawn),,
+GI Match (Spawn),NETMNU_GAMETYPE1,Nam,,,,,,,,,,,,,,,,,,,Meci GI (doar spawn),,
+GruntMatch (Spawn),NETMNU_GAMETYPE1,WW2GI,,,,,,,,,,,,,,,,,,,GruntMatch (doar spawn),,
+Cooperative Play,NETMNU_GAMETYPE2,,,,,,,,,,,,,,,,,,,,Joc Cooperativ,,
+Deathmatch (No Spawn),NETMNU_GAMETYPE3,,,,,,,,,,,,,,,,,,,,Deathmatch (fără spawn),,
+DukeMatch (No Spawn),NETMNU_GAMETYPE3,Duke,,,,,,,,,,,,,,,,,,,DukeMatch (fără spawn),,
+GI Match (No Spawn),NETMNU_GAMETYPE3,Nam,,,,,,,,,,,,,,,,,,,Meci GI (fără spawn),,
+GruntMatch (No Spawn),NETMNU_GAMETYPE3,WW2GI,,,,,,,,,,,,,,,,,,,GruntMatch (fără spawn),,
+Team DM (Spawn),NETMNU_GAMETYPE4,,,,,,,,,,,,,,,,,,,,DM în echipă (doar spawn),,
+Team DM (No Spawn),NETMNU_GAMETYPE5,,,,,,,,,,,,,,,,,,,,DM în echipă (fără spawn),,
+Episode,NETMNU_EPISODE,,,,,,,,,,,,,,,,,,,,Episod,,
+Level,NETMNU_LEVEL,,,,,,,,,,,,,,,,,,,,Nivel,,
+Monsters,NETMNU_MONSTERS,,,,,,,,,,,,,,,,,,,,Monștri,,
+Markers,NETMNU_MARKERS,,,,,,,,,,,,,,,,,,,,Markere,,
+Map Exits,NETMNU_MAPEXITS,,,,,,,,,,,,,,,,,,,,Ieșiri Hartă,,
+Friendly Fire,NETMNU_FFIRE,,,,,,,,,,,,,,,,,,,,Accidente,,
 Accept,NETMNU_ACCEPT,,,,,,,,,,,,,,,,,,,,,,
 Server,NETMNU_SERVER,,,,,,,,,,,,,,,,,,,,,,
 Port,NETMNU_PORT,Network port!,,,,,,,,,,,,,,,,,,,,,
-Connect,NETMNU_CONNECT,,,,,,,,,,,,,,,,,,,,,,
+Connect,NETMNU_CONNECT,,,,,,,,,,,,,,,,,,,,Conectare,,
 ,Gameplay options,,,,,,,,,,,,,,,,,,,,,,
-Gameplay Options,GMPLYMNU_TITLE,,,,Nastavení herních mechanik,Gameplay-Optionen,,Ludadagordoj,Opciones de jugabilidad,,Pelattavuusasetukset,Options Gameplay,,Opzioni gameplay,ゲームプレイ オプション,게임플레이 설정,Gameplay-opties,Opcje Rozgrywki,Opções de Jogabilidade,,,Настройки геймплея,Подешавања гејмплеја
-Always,OPTVAL_ALWAYS,,,,Vždy,Immer,,Ĉiam,Siempre,,Aina,Toujours,,Sempre,常に,언제나,Altijd,Zawsze,Sempre,,,Всегда,Увек
-Never,OPTVAL_NEVER,,,,Nikdy,Nie,,Neniam,Nunca,,Ei koskaan,Jamais,,Mai,しない,없음,Nooit,Nigdy,Nunca,,,Никогда,Никад
-Hitscan only,OPTVAL_HITSCAN,,,,,Nur Hitscan,,,,,,,,,,,,,,,,,
-Autoaim,PLYRMNU_AUTOAIM,,,,Automatické míření,Automatisch zielen,,Aŭtomate-celi,Autoapuntar,,Automaattitähtäys,Auto-visée,Auto célzás,Mira automatica,自動照準,자동 조준,Autoaim,Automatyczne Celowanie,Mira Automática,,,Автоприцеливание,Аутоматско циљање
-Always Run,PLYRMNU_ALWAYSRUN,,,,Vždy běžet,Immer Rennen,,Ĉiam Kuri,Siempre correr,,Jatkuva juoksu,Toujours courir,Mindig fusson,Corri sempre,常に駆け足,달리기 토글,Altijd lopen,Zawsze Biegaj,Sempre Correr,Correr Sempre,,Постоянный бег,Увек трчи
-Run Mode,PLRMNU_RUNMODE,,,,,Rennmodus,,,,,,,,,,,,,,,,,
-Allow Toggle,PLRMNU_TOGGLE,,,,,Umschalten erlauben,,,,,,,,,,,,,,,,,
-Override Toggle,PLRMNU_OVERRIDE,,,,,Umschalten blockieren,,,,,,,,,,,,,,,,,
-If New,PLRMNU_IFNEW,,,,,Wenn neu,,,,,,,,,,,,,,,,,
-Equip Weapon Pickups,PLRMNU_EQUIP,,,,,Waffen sofort aktivieren,,,,,,,,,,,,,,,,,
-Parental Lock,PLRMNU_PLOCK,,,,,Kindersicherung,,,,,,,,,,,,,,,,,
-Only preferred,PLRMNU_PREFERRED,,,,,Nur bevorzugte,,,,,,,,,,,,,,,,,
+Gameplay Options,GMPLYMNU_TITLE,,,,Nastavení herních mechanik,Gameplay-Optionen,,Ludadagordoj,Opciones de jugabilidad,,Pelattavuusasetukset,Options Gameplay,,Opzioni gameplay,ゲームプレイ オプション,게임플레이 설정,Gameplay-opties,Opcje Rozgrywki,Opções de Jogabilidade,,Setări pe timp de joc,Настройки геймплея,Подешавања гејмплеја
+Always,OPTVAL_ALWAYS,,,,Vždy,Immer,,Ĉiam,Siempre,,Aina,Toujours,,Sempre,常に,언제나,Altijd,Zawsze,Sempre,,Mereu,Всегда,Увек
+Never,OPTVAL_NEVER,,,,Nikdy,Nie,,Neniam,Nunca,,Ei koskaan,Jamais,,Mai,しない,없음,Nooit,Nigdy,Nunca,,Niciodată,Никогда,Никад
+Hitscan only,OPTVAL_HITSCAN,,,,,Nur Hitscan,,,,,,,,,,,,,,,Doar hitscan,,
+Autoaim,PLYRMNU_AUTOAIM,,,,Automatické míření,Automatisch zielen,,Aŭtomate-celi,Autoapuntar,,Automaattitähtäys,Auto-visée,Auto célzás,Mira automatica,自動照準,자동 조준,Autoaim,Automatyczne Celowanie,Mira Automática,,Autoțintire,Автоприцеливание,Аутоматско циљање
+Always Run,PLYRMNU_ALWAYSRUN,,,,Vždy běžet,Immer Rennen,,Ĉiam Kuri,Siempre correr,,Jatkuva juoksu,Toujours courir,Mindig fusson,Corri sempre,常に駆け足,달리기 토글,Altijd lopen,Zawsze Biegaj,Sempre Correr,Correr Sempre,Fugă în permanență,Постоянный бег,Увек трчи
+Run Mode,PLRMNU_RUNMODE,,,,,Rennmodus,,,,,,,,,,,,,,,Mod fugă,,
+Allow Toggle,PLRMNU_TOGGLE,,,,,Umschalten erlauben,,,,,,,,,,,,,,,Permite comutare,,
+Override Toggle,PLRMNU_OVERRIDE,,,,,Umschalten blockieren,,,,,,,,,,,,,,,Suprascriere comutare,,
+If New,PLRMNU_IFNEW,,,,,Wenn neu,,,,,,,,,,,,,,,Dacă e nouă,,
+Equip Weapon Pickups,PLRMNU_EQUIP,,,,,Waffen sofort aktivieren,,,,,,,,,,,,,,,Echipează armele ridicate,,
+Parental Lock,PLRMNU_PLOCK,,,,,Kindersicherung,,,,,,,,,,,,,,,Control Parental,,
+Only preferred,PLRMNU_PREFERRED,,,,,Nur bevorzugte,,,,,,,,,,,,,,,Doar preferate,,
 ,Display/HUD,,,,,,,,,,,,,,,,,,,,,,
-Display Options,DSPLYMNU_TITLE,,,,Nastavení grafiky,Anzeigeoptionen,,Ekranagordoj,Opciones de visualización,,Näyttöasetukset,Options Affichage,Megjelenítés beállítások,Opzioni display,ディスプレイ オプション,디스플레이 설정,Weergaveopties,Opcje Wyświetlania,Opções de Vídeo,,,Настройки экрана,Подешавања приказа
-Screen size,DSPLYMNU_SCREENSIZE,,,,Velikost obrazovky,Bildschirmgröße,,Ekrano-grandeco,Tamaño de pantalla,,Näytön koko,Taille de l'écran,Képernyő mérete,Dimensione della schermata,画面サイズ,화면 크기,Schermgrootte,Rozmiar Ekranu,Tamanho de tela,Tamanho do ecrã,,Размер экрана,Величина екрана
-Vertical Sync,DSPLYMNU_VSYNC,,,,Vertikální synchronizace,Vertikale Synchronisation,,Vertikala-sinkronigo,Sincr. vertical,,Pystytahdistys,Synchronisation Verticale,Függőleges szinkronizálás,Sync verticale,垂直同期,수직 동기화,Verticale Sync,Synchronizacja Pionowa,Sincronização Vertical,,,Вертикальная синхронизация,Вертикална синхорнизација
-Models,DSPLYMNU_MODELS,,,,Modely,Modelle,,Modeloj,Modelos,,Mallit,Modèles,3D modellek,Modelli,モデル,모델,Modellen,Modele,Modelos,,,Модели,Модели
-Voxels,DSPLYMNU_VOXELS,,,,,Voxel,,,,,,,,,,,,,,,,,
-Shadows,DSPLYMNU_SHADOWS,,,,,Schatten,,,,,,,,,,,,,,,,,
-Slope Tilting,DSPLYMNU_SLOPETILT,,,,,,,,,,,,,,,,,,,,,,
-View Bobbing,DSPLYMNU_VIEWBOB,,,,,,,,,,,,,,,,,,,,,,
-View Sway,DSPLYMNU_VIEWSWAY,,,,,,,,,,,,,,,,,,,,,,
-Scale crosshair,DSPLYMNU_CROSSHAIRSCALE,,,,Velikost zaměřovače,Fadenkreuz skalieren,,Skali translinion,Escalar retícula,,Skaalaa tähtäintä,Mise à l'échelle du viseur,,Scala del mirino,照準サイズ,조준점 크기,Dradenkruis schalen,Skala celownika,Escala da mira,,,Масштабирование прицела,Размера нишана
-Brightness,DSPLYMNU_BRIGHTNESS,,,,Jas,Helligkeit,,Brileco,Brillo,,Kirkkaus,Luminosité,Fényerő,Luminosità,明るさ,밝기,Helderheid,Jasność,Brilho,,,Яркость,Осветљење
-Gamma correction,DSPLYMNU_GAMMA,,,,Korekce gama,Gammakorrektur,,Gamaa korektado,Corrección gamma,,Gammakorjaus,Correction Gamma,,Correzione gamma,ガンマ値,감마 조정,Gamma correctie,Korekta gammy,Correção gama,,,Гамма-коррекция,Корекција светлости
+Display Options,DSPLYMNU_TITLE,,,,Nastavení grafiky,Anzeigeoptionen,,Ekranagordoj,Opciones de visualización,,Näyttöasetukset,Options Affichage,Megjelenítés beállítások,Opzioni display,ディスプレイ オプション,디스플레이 설정,Weergaveopties,Opcje Wyświetlania,Opções de Vídeo,,Setări afișare,Настройки экрана,Подешавања приказа
+Screen size,DSPLYMNU_SCREENSIZE,,,,Velikost obrazovky,Bildschirmgröße,,Ekrano-grandeco,Tamaño de pantalla,,Näytön koko,Taille de l'écran,Képernyő mérete,Dimensione della schermata,画面サイズ,화면 크기,Schermgrootte,Rozmiar Ekranu,Tamanho de tela,Tamanho do ecrã,Mărime ecran,Размер экрана,Величина екрана
+Vertical Sync,DSPLYMNU_VSYNC,,,,Vertikální synchronizace,Vertikale Synchronisation,,Vertikala-sinkronigo,Sincr. vertical,,Pystytahdistys,Synchronisation Verticale,Függőleges szinkronizálás,Sync verticale,垂直同期,수직 동기화,Verticale Sync,Synchronizacja Pionowa,Sincronização Vertical,,Sincronizare Verticală,Вертикальная синхронизация,Вертикална синхорнизација
+Models,DSPLYMNU_MODELS,,,,Modely,Modelle,,Modeloj,Modelos,,Mallit,Modèles,3D modellek,Modelli,モデル,모델,Modellen,Modele,Modelos,,Modele,Модели,Модели
+Voxels,DSPLYMNU_VOXELS,,,,,Voxel,,,,,,,,,,,,,,,Voxele,,
+Shadows,DSPLYMNU_SHADOWS,,,,,Schatten,,,,,,,,,,,,,,,Umbre,,
+Slope Tilting,DSPLYMNU_SLOPETILT,,,,,,,,,,,,,,,,,,,,Înclinare pe pante,,
+View Bobbing,DSPLYMNU_VIEWBOB,,,,,,,,,,,,,,,,,,,,Mișcare vedere sus-jos,,
+View Sway,DSPLYMNU_VIEWSWAY,,,,,,,,,,,,,,,,,,,,Mișcare ritmică vedere,,
+Scale crosshair,DSPLYMNU_CROSSHAIRSCALE,,,,Velikost zaměřovače,Fadenkreuz skalieren,,Skali translinion,Escalar retícula,,Skaalaa tähtäintä,Mise à l'échelle du viseur,,Scala del mirino,照準サイズ,조준점 크기,Dradenkruis schalen,Skala celownika,Escala da mira,,Scară țintă,Масштабирование прицела,Размера нишана
+Brightness,DSPLYMNU_BRIGHTNESS,,,,Jas,Helligkeit,,Brileco,Brillo,,Kirkkaus,Luminosité,Fényerő,Luminosità,明るさ,밝기,Helderheid,Jasność,Brilho,,Luminozitate,Яркость,Осветљење
+Gamma correction,DSPLYMNU_GAMMA,,,,Korekce gama,Gammakorrektur,,Gamaa korektado,Corrección gamma,,Gammakorjaus,Correction Gamma,,Correzione gamma,ガンマ値,감마 조정,Gamma correctie,Korekta gammy,Correção gama,,Gamma,Гамма-коррекция,Корекција светлости
 Contrast,DSPLYMNU_CONTRAST,,,,Kontrast,Kontrast,,Kontrasto,Contraste,,Sävykkyys,Contraste,,Contrasto,コントラスト,대비,,Kontrast,Contraste,,,Контраст,Контраст
-Saturation,DSPLYMNU_SATURATION,,,,Sytost,Sättigung,,Satureco,Saturación,,Värikylläisyys,,,Saturazione,サチュレーション,채도,Verzadiging,Nasycenie,Saturação,,,Насыщенность,Сатурација
-Status Bar Scale,DSPLYMNU_SBSCALE,,,,,Statusleistengröße,,,,,,,,,,,,,,,,,
-Show clip amount in fullscreen HUD,DSPLYMNU_CLIPAMT,,,,,Zeige Magazin im Vollbild-HUD,,,,,,,,,,,,,,,,,
-Level Statistics,DSPLYMNU_LEVELSTATS,,,,,Levelstatistik,,,,,,,,,,,,,,,,,
-Level Statistics Scale,DSPLYMNU_STATSCALE,,,,,Textgröße für Levelstatistik,,,,,,,,,,,,,,,,,
-Text Scale,DSPLYMNU_TEXTSCALE,,,,,Textgröße,,,,,,,,,,,,,,,,,
-Messages,DSPLYMNU_MESSAGES,,,,Zprávy,Nachrichten,,Mesaĝoj,Mensajes,,Viestit,Messages,,Messaggi,メッセージ類,메시지,Berichten,Wiadomości,Mensagens,,,Сообщения,Поруке
+Saturation,DSPLYMNU_SATURATION,,,,Sytost,Sättigung,,Satureco,Saturación,,Värikylläisyys,,,Saturazione,サチュレーション,채도,Verzadiging,Nasycenie,Saturação,,Saturație,Насыщенность,Сатурација
+Status Bar Scale,DSPLYMNU_SBSCALE,,,,,Statusleistengröße,,,,,,,,,,,,,,,Scară bară de stare,,
+Show clip amount in fullscreen HUD,DSPLYMNU_CLIPAMT,,,,,Zeige Magazin im Vollbild-HUD,,,,,,,,,,,,,,,Afișare muniție cartuș,,
+Level Statistics,DSPLYMNU_LEVELSTATS,,,,,Levelstatistik,,,,,,,,,,,,,,,Statistici Nivel,,
+Level Statistics Scale,DSPLYMNU_STATSCALE,,,,,Textgröße für Levelstatistik,,,,,,,,,,,,,,,Scară Statistici Nivel,,
+Text Scale,DSPLYMNU_TEXTSCALE,,,,,Textgröße,,,,,,,,,,,,,,,Scară Text,,
+Messages,DSPLYMNU_MESSAGES,,,,Zprávy,Nachrichten,,Mesaĝoj,Mensajes,,Viestit,Messages,,Messaggi,メッセージ類,메시지,Berichten,Wiadomości,Mensagens,,Mesaje,Сообщения,Поруке
 Generic,DSPLYMNU_GENERIC,,,,,Generisch,,,,,,,,,,,,,,,,,
 Show Map Name,DSPLYMNU_SHOWMAPNAME,,,,,"Levelnamen anzeigen
-",,,,,,,,,,,,,,,,,
-FOV,DSPLYMNU_FOV,,,,,Gesichtsfeld,,,,,,,,,,,,,,,,,
-Crosshair,DSPLYMNU_CROSSHAIR,,,,Křížek,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,,Прицел,Нишан
+",,,,,,,,,,,,,,,Afișare nume hartă,,
+FOV,DSPLYMNU_FOV,,,,,Gesichtsfeld,,,,,,,,,,,,,,,Câmp vizual,,
+Crosshair,DSPLYMNU_CROSSHAIR,,,,Křížek,Fadenkreuz,,Reteto,Retícula,,Tähtäin,Viseur,,Mirino,クロスヘア,조준점,Draadkruis,Celownik,Mira,,Țintă,Прицел,Нишан
 Default Crosshair,HUDMNU_CROSSHAIR,,,,Výchozí zaměřovač,Standard-Fadenkreuz,,Defaŭlta Translinio,Retícula por defecto,,Oletustähtäin,Viseur par défaut,Alapcélkereszt,Mirino di default,デフォルトの照準,기본 조준점,Standaard dradenkruis,Domyślny celownik,Mira padrão,,Țintă implicită,Тип прицела,Уобичајени нишан
 Crosshair color,HUDMNU_CROSSHAIRCOLOR,,,Crosshair colour,Barva zaměřovače,Fadenkreuzfarbe,,Translinikoloro,Color de la retícula,,Tähtäimen väri,Couleur Viseur,Célkereszt színe,Colore mirino,照準色,조준점 색깔,Dradenkruis kleur,Kolor celownika,Cor da mira,,Culoare țintă,Цвет прицела,Боја нишана
 Crosshair shows health,HUDMNU_CROSSHAIRHEALTH,,,,Zaměřovač zobrazuje zdraví,Fadenkreuz zeigt Gesundheit,,Translinio montri sanon,Mostrar salud en retícula,,Tähtäin näyttää terveyden,Couleur Viseur selon santé,Életerő jelzése a célkereszten,Il mirino mostra la salute,照準のヘルス表示,조준점과 체력 연동,Draadenkruis toont gezondheid,Celownik pokazuje zdrowie,Mostrar saúde na mira,Mostra vida na mira,Ținta afișează starea sănătății,Цвет прицела по состоянию здоровья,Нишан приказује здравље
 Standard,OPTVAL_YES_STANDARD,copied from elsewhere,,,Standardní,,Πρότυπο,Norma,Estándar,,Normaali,,,,標準,기본,Standaard,Standard,Padrão,,,Стандартный,Стандардни
 Enhanced,OPTVAL_YES_ENHANCED,,,,Vylepšené,Verbessert,Ενισχυομένο,Bonigita,Mejorado,,Paranneltu,Amélioré,,Migliorata,強調,고급,Verbeterd,Ulepszone,Melhorado,,Îmbunătățit(ă),Улучшенный,Побољшани
-HUD Options,OPTMNU_HUD,,,,Nastavení HUD,HUD Einstellungen,,Agordoj de HUD,Opciones del HUD,,Tilanäytön asetukset,Options de l'ATH,HUD beállítások,Opzioni HUD,HUD オプション,HUD 설정,HUD opties,Opcje Paska HUD,Opções de HUD,,,HUD,HUD
-Polymost Options,OPTMNU_POLYMOST,,,,,Polymost Einstellungen,,,,,,,,,,,,,,,,,
-Texture Filter mode,GLTEXMNU_TEXFILTER,,,,Režim filtrování textur,Texturfiltermodus,,Reĝimo por Teksturfiltrado,Modo de filtro de texturas,,Pintakuviointien suodatustapa,Mode de Filtrage Texture,,Modalità filtro texture,テクスチャーフィルター モード,텍스쳐 필터 모드,Textuur Filter mode,Tryb Filtrowania Tekstur,Modo de filtragem de textura,,,Фильтрация текстур,Текстурни филтер мод
-Anisotropic filter,GLTEXMNU_ANISOTROPIC,,,,Anisotropické filtrování,Anisotropische Filterung,,Anizotropa Filtro,Filtro anisotrópico,,Anisotrooppinen suodatus,Filtre Anisotropique,,Filtro anisotropico,異方性フィルター,이방성 필터,Anisotroop filter,Filtr anizotropowy,Filtragem anisotrópica,,,Анизотропная фильтрация,Анизотропни фолтер
-None (nearest mipmap),OPTVAL_NONENEARESTMIPMAP,,,,Žádné (nejbližší mipmapa),Aus (nächste Mipmap),,Nenio (plej proksima mipmapo),Ninguno (mipmap cercano),,Ei mitään (lähin mipkartta),Aucun (mipmap proche voisin),,Nessuno (mipmap più vicina),なし(最寄りミップマップ),없음 (밉멥에 가까움),Geen (dichtstbijzijnde mipmap),Brak (najbliższa mipmapa),Nenhum (mipmap vizinho mais próximo),,,Нет (ближайший мипмап),Ништа (најближи мипмап)
-None (linear mipmap),OPTVAL_NONELINEARMIPMAP,,,,Žádné (lineární mipmapa),Aus (lineare Mipmap),,Nenio (linia mipmapo),Ninguno (mipmap lineal),,Ei mitään (lin. mipkartta),Aucun (mipmap linéaire),,Nessuno (mipmap lineare),なし(リニアミップマップ),없음 (선형 밉맵),Geen (lineaire mipmap),Brak (liniowa mipmapa),Nenhum (mipmap linear),,,Нет (линейный мипмап),Ништа (линеаран мипмап)
-None (trilinear),OPTVAL_NONETRILINEAR,,,,Žádné (trilineární),Aus (trilinear),,Nenio (trilinia),Ninguno (trilineal),,Ei mitään (trilineaarinen),Aucun (mipmap trilinéaire),,Nessuno (mipmap trilineare),なし(トライリニア),없음 (삼선형),Geen (trilineair),Brak (trzyliniowe),Nenhum (trilinear),,,Нет (трилинейная),Ништа (трилинеарно)
-Bilinear,OPTVAL_BILINEAR,,,,Bilineární,,,Dulinia,Bilineal,,Bilineaarinen,Bilinéaire,,Bilineare,バイリニア,쌍선형,Bilineair,Dwuliniowe,,,,Билинейная,Билинеарно
+HUD Options,OPTMNU_HUD,,,,Nastavení HUD,HUD Einstellungen,,Agordoj de HUD,Opciones del HUD,,Tilanäytön asetukset,Options de l'ATH,HUD beállítások,Opzioni HUD,HUD オプション,HUD 설정,HUD opties,Opcje Paska HUD,Opções de HUD,,Setări HUD,HUD,HUD
+Polymost Options,OPTMNU_POLYMOST,,,,,Polymost Einstellungen,,,,,,,,,,,,,,,Setări Polymost,,
+Texture Filter mode,GLTEXMNU_TEXFILTER,,,,Režim filtrování textur,Texturfiltermodus,,Reĝimo por Teksturfiltrado,Modo de filtro de texturas,,Pintakuviointien suodatustapa,Mode de Filtrage Texture,,Modalità filtro texture,テクスチャーフィルター モード,텍스쳐 필터 모드,Textuur Filter mode,Tryb Filtrowania Tekstur,Modo de filtragem de textura,,Mod Filtrare Texturi,Фильтрация текстур,Текстурни филтер мод
+Anisotropic filter,GLTEXMNU_ANISOTROPIC,,,,Anisotropické filtrování,Anisotropische Filterung,,Anizotropa Filtro,Filtro anisotrópico,,Anisotrooppinen suodatus,Filtre Anisotropique,,Filtro anisotropico,異方性フィルター,이방성 필터,Anisotroop filter,Filtr anizotropowy,Filtragem anisotrópica,,Filtrare Anizotropică,Анизотропная фильтрация,Анизотропни фолтер
+None (nearest mipmap),OPTVAL_NONENEARESTMIPMAP,,,,Žádné (nejbližší mipmapa),Aus (nächste Mipmap),,Nenio (plej proksima mipmapo),Ninguno (mipmap cercano),,Ei mitään (lähin mipkartta),Aucun (mipmap proche voisin),,Nessuno (mipmap più vicina),なし(最寄りミップマップ),없음 (밉멥에 가까움),Geen (dichtstbijzijnde mipmap),Brak (najbliższa mipmapa),Nenhum (mipmap vizinho mais próximo),,Niciuna (mipmap de apropriere),Нет (ближайший мипмап),Ништа (најближи мипмап)
+None (linear mipmap),OPTVAL_NONELINEARMIPMAP,,,,Žádné (lineární mipmapa),Aus (lineare Mipmap),,Nenio (linia mipmapo),Ninguno (mipmap lineal),,Ei mitään (lin. mipkartta),Aucun (mipmap linéaire),,Nessuno (mipmap lineare),なし(リニアミップマップ),없음 (선형 밉맵),Geen (lineaire mipmap),Brak (liniowa mipmapa),Nenhum (mipmap linear),,Niciuna (mipmap liniar),Нет (линейный мипмап),Ништа (линеаран мипмап)
+None (trilinear),OPTVAL_NONETRILINEAR,,,,Žádné (trilineární),Aus (trilinear),,Nenio (trilinia),Ninguno (trilineal),,Ei mitään (trilineaarinen),Aucun (mipmap trilinéaire),,Nessuno (mipmap trilineare),なし(トライリニア),없음 (삼선형),Geen (trilineair),Brak (trzyliniowe),Nenhum (trilinear),,Niciuna (trilinar),Нет (трилинейная),Ништа (трилинеарно)
+Bilinear,OPTVAL_BILINEAR,,,,Bilineární,,,Dulinia,Bilineal,,Bilineaarinen,Bilinéaire,,Bilineare,バイリニア,쌍선형,Bilineair,Dwuliniowe,,,Biliniar,Билинейная,Билинеарно
 Trilinear,OPTVAL_TRILINEAR,,,,Trilineární,,,Trilinia,Trilineal,,Trilineaarinen,Trilinéaire,,Trilineare,トライリニア,삼선형,Trilineair,Trzyliniowe,,,,Трилинейная,Трилинеарно
-Message Display Style,DSPLYMNU_MESSAGEDISP,,,,,Nachrichtenstil,,,,,,,,,,,,,,,,,
-Classic,OPTVAL_CLASSIC,,,,,Klassisch,,,,,,,,,,,,,,,,,
+Message Display Style,DSPLYMNU_MESSAGEDISP,,,,,Nachrichtenstil,,,,,,,,,,,,,,,Triliniar,,
+Classic,OPTVAL_CLASSIC,,,,,Klassisch,,,,,,,,,,,,,,,Clasic,,
 Advanced,OPTVAL_ADVANCED,,,,,Erweitert,,,,,,,,,,,,,,,,,
 Center messages,MSGMNU_CENTERMESSAGES,,,Centre messages,Vycentrovat zprávy,Nachrichten zentrieren,,Centrigi mesaĝoj,Centrar mensajes,,Keskitä viestit,Messages centrés,,Messaggi centrati,メッセージを中央に,메시지 중간에 위치,Berichten centreren,Wyśrodkuj wiadomości,Centralizar mensagens,Centrar mensagens,Mesaje centrate,Центрирование сообщений,Централне поруке
-Pulsating message Display,MSGMNU_PULSEMESSAGES,,,,,Pulsierende Nachrichtenanzeige,,,,,,,,,,,,,,,,,
-Message Scale,MSGMNU_MESSAGESCALE,,,,,Nachrichtengröße,,,,,,,,,,,,,,,,,
+Pulsating message Display,MSGMNU_PULSEMESSAGES,,,,,Pulsierende Nachrichtenanzeige,,,,,,,,,,,,,,,Afișare Mesaje Pulsante,,
+Message Scale,MSGMNU_MESSAGESCALE,,,,,Nachrichtengröße,,,,,,,,,,,,,,,Scară Mesaje,,
 Automap Options,AUTOMAPMNU_TITLE,,,,Nastavení automapy,Automapoptionen,,Aŭtomapagordoj,Opciones del Automapa,,Automaattikartan asetukset,Options Carte,,Opzioni automappa,オートマップ オプション,오토맵 설정,Automap-opties,Opcje Mapy,Opções de Automapa,,Setări Hartă Computerizată,Настройки автокарты,Подешавања аутомапе
 Rotate automap,AUTOMAPMNU_ROTATE,,,,Otáčet automapu,Rotiere Automap,,Rotacii aŭtomapon,Rotar automapa,,Kiertyvä automaattikartta,Rotation de la Carte,,Ruota l'automappa,オートマップの回転表示,오토맵 회전,Automatisch roteren,Obracaj mapę,Girar automapa,,Rotire hartă computerizată,Вращающаяся автокарта,Ротирај аутомапу
 Follow player,AUTOMAPMNU_FOLLOW,,,,Následovat hráče,Folge dem Spieler,,Sekvi ludanton,Seguir jugador,,Seuraa pelaajaa,Suivre le joueur,,Segui il giocatore,プレイヤー追従,플레이어 추적,Volg de speler,Podążaj za graczem,Seguir jogador,,Urmărire jucător,Привязка к игроку,Прати играча
@@ -555,15 +555,15 @@ Follow player,AUTOMAPMNU_FOLLOW,,,,Následovat hráče,Folge dem Spieler,,Sekvi 
 16x,OPTVAL_16X,,,,,,,16-oble,,,,,,,,,,,,,,,
 32x,OPTVAL_32X,,,,,,,32-oble,,,,,,,,,,,,,,,
 ,Polymost,,,,,,,,,,,,,,,,,,,,,,
-True Color Textures,POLYMOST_TC,,,True Colour Textures,,True Color Texturen,,,,,,,,,,,,,,,,,
-Pre-load map textures,POLYMOST_CACHE,,,,,Texturen cachen,,,,,,,,,,,,,,,,,
-Detail Textures,POLYMOST_DETAIL,,,,,Detailtexturen,,,,,,,,,,,,,,,,,
-Glow Textures,POLYMOST_GLOW,,,,,Leucht-Texturen,,,,,,,,,,,,,,,,,
-3D-Models,POLYMOST_MODELS,,,,,3D Modelle,,,,,,,,,,,,,,,,,
+True Color Textures,POLYMOST_TC,,,True Colour Textures,,True Color Texturen,,,,,,,,,,,,,,,Texturi Naturale,,
+Pre-load map textures,POLYMOST_CACHE,,,,,Texturen cachen,,,,,,,,,,,,,,,Preîncărcare Texturi Hartă,,
+Detail Textures,POLYMOST_DETAIL,,,,,Detailtexturen,,,,,,,,,,,,,,,Detalii Texturi,,
+Glow Textures,POLYMOST_GLOW,,,,,Leucht-Texturen,,,,,,,,,,,,,,,Strălucire Texturi,,
+3D-Models,POLYMOST_MODELS,,,,,3D Modelle,,,,,,,,,,,,,,,Modele 3D,,
 "Polymost Options
-",POLYMOST_OPTIONS,,,,,Polymost-Optionen,,,,,,,,,,,,,,,,,
-Palette Emulation,POLYMOST_PALETTEEMU,,,,,Palettenemulation,,,,,,,,,,,,,,,,,
-Palette Interpolation,POLYMOST_PALINTER,,,,,Paletteninterpolation,,,,,,,,,,,,,,,,,
+",POLYMOST_OPTIONS,,,,,Polymost-Optionen,,,,,,,,,,,,,,,Setări Polymost,,
+Palette Emulation,POLYMOST_PALETTEEMU,,,,,Palettenemulation,,,,,,,,,,,,,,,Emulare Paletă,,
+Palette Interpolation,POLYMOST_PALINTER,,,,,Paletteninterpolation,,,,,,,,,,,,,,,Interpolare Paletă,,
 ,Sound,,,,,,,,,,,,,,,,,,,,,,
 4000 Hz,OPTVAL_4000HZ,,,,,,,,,,,,,,,,,,,,,4000 Гц,
 8000 Hz,OPTVAL_8000HZ,,,,,,,,,,,,,,,,,,,,,8000 Гц,
@@ -675,6 +675,7 @@ Timidity++,ADVSNDMNU_TIMIDITY,,,,,,,,,,,,,,,,,,,,,,
 Sound enabled,SNDMNU_SNDENABLED,,,,,Sound aktiv,,,,,,,,,,,,,,,,,
 Music enabled,SNDMNU_MUSENABLED,,,,,Musik aktiv,,,,,,,,,,,,,,,,,
 CD Music Emulation,SNDMNU_CDEMU,,,,,CD-Musik-Emulation,,,,,,,,,,,,,,,,,
+Play original MIDI music,SNDMNU_WTMUSIC,,,,,Original-MIDI-Musik spielen,,,,,,,,,,,,,,,,,
 Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,,,,,,,,,,,,,
 "Player Speech
 ",SNDMNU_SPEECH,,,,,Spielerkommentare,,,,,,,,,,,,,,,,,
@@ -2220,7 +2221,7 @@ into the heart of karnak...
 Home to the celebrated
 burial crypt of the great
 King Ramses.
-",TXT_EX_CINEMA1,Intro movie subtitles,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_INTRO,Intro movie subtitles,,,,,,,,,,,,,,,,,,,,,
 "An evil force known as the
 Kilmaat has besieged the
 sanctity of my palace and
@@ -2245,7 +2246,7 @@ your hands. Find the
 gauntlet and cross the aswan
 high dam to defeat the evil
 beast set.
-",TXT_EX_CINEMA2,,,,,,,,,,,,,,,,,,,,,,
+",TXT_EX_CINEMA2,After Level 4,,,,,,,,,,,,,,,,,,,,,
 "You've made it halfway toward
 fullfilling your destiny.
 The Kilmaat are growing

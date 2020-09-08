@@ -1098,6 +1098,10 @@ SoundHandle OpenALSoundRenderer::LoadSound(uint8_t *sfxdata, int length)
 		data.resize(total * 2);
 	}
 	data.resize(total);
+	if (total == 0)
+	{
+		return retval;
+	}
 	SoundDecoder_Close(decoder);
 
 	ALenum err;
