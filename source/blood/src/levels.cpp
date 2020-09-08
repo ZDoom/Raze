@@ -64,7 +64,7 @@ void levelInitINI(const char *pzIni)
 	if (!fileSystem.FileExists(pzIni))
         ThrowError("Initialization: %s does not exist", pzIni);
     BloodINI = new IniFile(pzIni);
-    Bstrncpy(BloodIniFile, pzIni, BMAX_PATH);
+    strncpy(BloodIniFile, pzIni, BMAX_PATH);
 }
 
 

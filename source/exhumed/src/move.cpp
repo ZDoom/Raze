@@ -692,7 +692,7 @@ int PlotCourseToSprite(int nSprite1, int nSprite2)
 
     if (diff > INT_MAX)
     {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         diff = INT_MAX;
     }
 
@@ -854,7 +854,7 @@ void CreatePushBlock(int nSector)
 
         if (sqrtNum > INT_MAX)
         {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
             sqrtNum = INT_MAX;
         }
 
@@ -1127,7 +1127,7 @@ void SetQuake(short nSprite, int nVal)
 
         if (sqrtNum > INT_MAX)
         {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
             sqrtNum = INT_MAX;
         }
 
@@ -1189,7 +1189,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
         if (sqrtNum > INT_MAX)
         {
-            DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+            DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
             sqrtNum = INT_MAX;
         }
 
@@ -1241,7 +1241,7 @@ int AngleChase(int nSprite, int nSprite2, int ebx, int ecx, int push1)
 
     if (sqrtNum > INT_MAX)
     {
-        DPrintf(DMSG_WARNING, "%s %d: overflow\n", EDUKE32_FUNCTION, __LINE__);
+        DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         sqrtNum = INT_MAX;
     }
 
