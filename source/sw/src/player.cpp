@@ -163,10 +163,10 @@ void DoPlayerBeginClimb(PLAYERp pp);
 void DoPlayerClimb(PLAYERp pp);
 void DoPlayerBeginDie(PLAYERp pp);
 void DoPlayerDie(PLAYERp pp);
-void DoPlayerBeginOperateBoat(PLAYERp pp);
+// void DoPlayerBeginOperateBoat(PLAYERp pp);
 void DoPlayerBeginOperateTank(PLAYERp pp);
 void DoPlayerBeginOperate(PLAYERp pp);
-void DoPlayerOperateBoat(PLAYERp pp);
+// void DoPlayerOperateBoat(PLAYERp pp);
 void DoPlayerOperateTank(PLAYERp pp);
 void DoPlayerOperateTurret(PLAYERp pp);
 void DoPlayerBeginDive(PLAYERp pp);
@@ -1619,6 +1619,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
     }
 }
 
+#if 0
 void
 DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel)
 {
@@ -1638,10 +1639,11 @@ DoPlayerTurnBoat(PLAYERp pp, fixed_t q16avel)
 
     if (q16avel != 0)
     {
-        pp->q16ang = (pp->q16ang * q16avel) & 0x7FFFFFF;
+        pp->q16ang = (pp->q16ang + q16avel) & 0x7FFFFFF;
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
 }
+#endif
 
 void
 DoPlayerTurnTank(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
@@ -2585,6 +2587,7 @@ void StopSOsound(short sectnum)
     }
 }
 
+#if 0
 void
 DoPlayerMoveBoat(PLAYERp pp)
 {
@@ -2668,6 +2671,7 @@ DoPlayerMoveBoat(PLAYERp pp)
         DoPlayerHorizon(pp, pp->input.q16horz, 1);
     }
 }
+#endif
 
 void DoTankTreads(PLAYERp pp)
 {
@@ -5334,6 +5338,7 @@ DoPlayerWade(PLAYERp pp)
 }
 
 
+#if 0
 void
 DoPlayerBeginOperateBoat(PLAYERp pp)
 {
@@ -5353,6 +5358,7 @@ DoPlayerBeginOperateBoat(PLAYERp pp)
 
     NewStateGroup(pp->PlayerSprite, u->ActorActionSet->Run);
 }
+#endif
 
 void
 DoPlayerBeginOperateTank(PLAYERp pp)
@@ -5534,6 +5540,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         pp->posz = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateTurret(pp);
         break;
+#if 0
     case SO_SPEED_BOAT:
         if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
@@ -5542,6 +5549,7 @@ DoPlayerBeginOperate(PLAYERp pp)
         pp->posz = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateBoat(pp);
         break;
+#endif
     default:
         return;
     }
@@ -5622,6 +5630,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         pp->posz = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateTurret(pp);
         break;
+#if 0
     case SO_SPEED_BOAT:
         if (pp->input.fvel|pp->input.svel)
             PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
@@ -5630,6 +5639,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         pp->posz = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateBoat(pp);
         break;
+#endif
     default:
         return;
     }
@@ -5777,6 +5787,7 @@ DoPlayerOperateTurret(PLAYERp pp)
 }
 
 
+#if 0
 void
 DoPlayerOperateBoat(PLAYERp pp)
 {
@@ -5815,6 +5826,7 @@ DoPlayerOperateBoat(PLAYERp pp)
         PlayerRemoteReset(pp, save_sectnum);
     }
 }
+#endif
 
 void
 DoPlayerOperateTank(PLAYERp pp)
@@ -7853,10 +7865,10 @@ static saveable_code saveable_player_code[] =
     SAVE_CODE(DoPlayerClimb),
     SAVE_CODE(DoPlayerBeginDie),
     //SAVE_CODE(DoPlayerDie),
-    SAVE_CODE(DoPlayerBeginOperateBoat),
+    //SAVE_CODE(DoPlayerBeginOperateBoat),
     SAVE_CODE(DoPlayerBeginOperateTank),
     SAVE_CODE(DoPlayerBeginOperate),
-    SAVE_CODE(DoPlayerOperateBoat),
+    //SAVE_CODE(DoPlayerOperateBoat),
     SAVE_CODE(DoPlayerOperateTank),
     SAVE_CODE(DoPlayerOperateTurret),
     SAVE_CODE(DoPlayerBeginDive),

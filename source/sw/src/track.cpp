@@ -1394,12 +1394,14 @@ SetupSectorObject(short sectnum, short tag)
                 sop->vel = 0;
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;
+#if 0
             case SO_SPEED_BOAT:
                 sop->vel = 0;
                 sop->bob_amt = Z(2);
                 sop->bob_speed = 4;
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;
+#endif
             default:
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;

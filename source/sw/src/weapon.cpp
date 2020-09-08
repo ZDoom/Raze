@@ -5985,6 +5985,7 @@ DoDamage(short SpriteNum, short Weapon)
             }
             break;
 
+#if 0
         case SO_SPEED_BOAT:
             damage = -100;
 
@@ -6010,6 +6011,7 @@ DoDamage(short SpriteNum, short Weapon)
 
             SpawnBlood(SpriteNum, Weapon, 0, 0, 0, 0);
             break;
+#endif
         }
     }
 

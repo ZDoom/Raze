@@ -460,7 +460,7 @@ int WeaponOperate(PLAYERp pp)
         case SO_TANK:
         case SO_TURRET:
         case SO_TURRET_MGUN:
-        case SO_SPEED_BOAT:
+        // case SO_SPEED_BOAT:
 
             if (!TEST(pp->sop->flags, SOBJ_HAS_WEAPON))
                 break;
