@@ -1593,12 +1593,14 @@ OptionMenu "EngineCredits"
 	Submenu " ---->", "EngineCredits1a"
 	StaticText "Developers"
 	StaticText "Christoph Oelckers", 0
+	StaticText "Mitchell Richters", 0
+	StaticText ""
+	StaticText "Additional Developers"
 	StaticText "Rachael Alexanderson", 0
 	StaticText "Magnus Norddahl", 0
 	StaticText "Alexey Lysiuk", 0
 	StaticText ""
 	StaticText "The Raze team thanks the following contributors"
-	StaticText "Mitchell Richters", 0
 	StaticText "Nash Muhandes", 0
 	StaticText "Dynamo", 0
 }
@@ -1609,17 +1611,17 @@ OptionMenu "EngineCredits1a"
 	Submenu " ---->", "EngineCredits1b"
 	StaticText "Raze QA"
 	
+	StaticText "sinisterseed                        ", 0
+	StaticText "Major Cooke       Dynamo            ", 0
 	StaticText "Nash Muhandes     Martin Howe       ", 0
-	StaticText "sinisterseed      Dynamo            ", 0
 	StaticText "SanyaWaffles      Nigel Rowand      ", 0
-	StaticText "Major Cooke                         ", 0
 }
 
 OptionMenu "EngineCredits1b"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2"
-	StaticText "ZDoom / GZDoom"
+	StaticText "ZDoom / GZDoom / ZDuke"
 	StaticText "Marisa \"Randi\" Heit", 0
 	StaticText "Braden \"Blzut3\" Obrzut", 0
 	StaticText ""
@@ -1633,6 +1635,12 @@ OptionMenu "EngineCredits2"
 {
 	title "$MNU_CREDITS"
 	Submenu " ---->", "EngineCredits2a"
+	StaticText "EDuke 2.0"
+	StaticText "Matt Saettler", 0
+	StaticText ""
+	StaticText "JFDuke / JFSW", 0
+    StaticText "Jonathon \"JonoF\" Fowler", 0
+	StaticText ""
 	StaticText "EDuke32 / VoidSW"
 	StaticText "Richard \"TerminX\" Gobeille", 0
 	StaticText "Evan \"Hendricks266\" Ramos", 0
@@ -1656,9 +1664,6 @@ OptionMenu "EngineCredits2a"
 	StaticText "PCExhumed"
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
-	StaticText ""
-	StaticText "Special thanks to"
-    StaticText "Jonathon \"JonoF\" Fowler", 0
 }
 	
 OptionMenu "EngineCredits3"
