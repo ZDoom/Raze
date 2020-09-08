@@ -6278,20 +6278,14 @@ DoPlayerBeginDie(PLAYERp pp)
 void
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if (pp->q16horiz > IntToFixed(target))
+    if ((pp->q16horiz - IntToFixed(target)) > FRACUNIT)
     {   
         playerAddHoriz(pp, -speed);
-
-        if (pp->q16horiz <= IntToFixed(target))
-            playerSetHoriz(pp, target);
     }
 
-    if (pp->q16horiz < IntToFixed(target))
+    if ((IntToFixed(target) - pp->q16horiz) > FRACUNIT)
     {
         playerAddHoriz(pp, speed);
-
-        if (pp->q16horiz >= IntToFixed(target))
-            playerSetHoriz(pp, target);
     }
 }
 
