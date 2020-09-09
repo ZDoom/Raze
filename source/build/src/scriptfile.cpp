@@ -136,7 +136,7 @@ int scriptfile_getsymbol(scriptfile *sf, int32_t *num)
     if (!t) return -1;
 
     char *  e;
-    int32_t v = strtol(t, &e, 10);
+    int32_t v = (int)strtoll(t, &e, 10);    // beware of overflows! strtol can have quite unexpected behavior!.
 
     if (*e)
     {

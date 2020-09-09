@@ -301,9 +301,9 @@ public:
 	}
 };
 
-void loadscreen(MapRecord* rec, CompletionFunc func)
+void loadscreen(const char *caption, MapRecord* rec, CompletionFunc func)
 {
-	JobDesc job = { Create<DBloodLoadScreen>(rec) };
+	JobDesc job = { Create<DBloodLoadScreen>(caption, rec) };
 	RunScreenJob(&job, 1, func);
 }
 

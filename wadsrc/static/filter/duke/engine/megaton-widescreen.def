@@ -1,0 +1,39 @@
+// HUD Knuckle Crack
+tilefromtexture 2325 { file "tiles/duke3d/2325.png" xoffset 24 ifcrc -1031049892 }
+tilefromtexture 2326 { file "tiles/duke3d/2326.png" xoffset 16 ifcrc -1415291705 }
+
+// HUD Pistol
+tilefromtexture 2529 { file "tiles/duke3d/2529.png" xoffset -70 yoffset 8 ifcrc 3581292866 }
+
+// HUD RPG
+tilefromtexture 2544 { file "tiles/duke3d/2544.png" xoffset -115 yoffset -67 ifcrc 260236986 }
+
+// HUD Freezer
+tilefromtexture 2548 { file "tiles/duke3d/2548.png" xoffset -60 yoffset 15 ifcrc 3417956724 }
+tilefromtexture 2550 { file "tiles/duke3d/2550.png" xoffset -13 yoffset 25 ifcrc 1899181281 }
+
+// HUD Expander
+tilefromtexture 2554 { file "tiles/duke3d/2554.png" xoffset -4 ifcrc 72450690 }
+tilefromtexture 2555 { file "tiles/duke3d/2555.png" xoffset -4 ifcrc 1675835376 }
+
+// HUD Shrinker
+tilefromtexture 2556 { file "tiles/duke3d/2556.png" xoffset -1 yoffset -2 ifcrc 3227576907 }
+tilefromtexture 2557 { file "tiles/duke3d/2557.png" xoffset -1 yoffset -2 ifcrc 3133384900 }
+
+
+// VACATION
+
+// HUD Water Pistol
+tilefromtexture 2529 { file "tiles/caribbean/2529.png" xoffset -70 ifcrc 616478591 }
+
+// HUD Coconut Launcher
+tilefromtexture 2544 { file "tiles/caribbean/2544.png" xoffset -98 yoffset -67 ifcrc 2729897970 }
+
+// HUD Icemaker
+tilefromtexture 2548 { file "tiles/caribbean/2548.png" xoffset -62 yoffset 15 ifcrc 2472520901 }
+tilefromtexture 2550 { file "tiles/caribbean/2550.png" xoffset 1 yoffset 25 ifcrc 1768259669 }
+
+// HUD Super Soak'em
+tilefromtexture 2613 { file "tiles/caribbean/2613.png" xoffset -76 yoffset -45 ifcrc 518391601 }
+tilefromtexture 2616 { file "tiles/caribbean/2616.png" xoffset -56 yoffset -40 ifcrc 487633089 }
+

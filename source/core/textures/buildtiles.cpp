@@ -44,6 +44,7 @@
 #include "gamecontrol.h"
 #include "palettecontainer.h"
 #include "texturemanager.h"
+#include "c_dispatch.h"
 
 enum
 {
@@ -586,6 +587,14 @@ int32_t tileGetCRC32(int tileNum)
 	return crc;
 }
 
+CCMD(tilecrc)
+{
+	if (argv.argc() > 1)
+	{
+		int tile = atoi(argv[1]);
+		Printf("%d\n", tileGetCRC32(tile));
+	}
+}
 
 //==========================================================================
 //
@@ -605,13 +614,9 @@ int tileImportFromTexture(const char* fn, int tilenum, int alphacut, int istextu
 	if (xsiz <= 0 || ysiz <= 0)
 		return -2;
 
-	TileFiles.tiledata[tilenum].texture = tex;
-#pragma message("tileImportFromTexture needs rework!")	// Reminder so that this place isn't forgotten.
-//#if 0
-	// Does this make any difference when the texture gets *properly* inserted into the tile array? Answer: Yes, it affects how translations affect it.
-	//if (istexture)
-		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);	// At the moment this is the only way to load the texture. The texture creation code is not ready yet for downconverting an image.
-//#endif
+	TileFiles.tiledata[tilenum].backup = TileFiles.tiledata[tilenum].texture = tex;
+	if (istexture)
+		tileSetHightileReplacement(tilenum, 0, fn, (float)(255 - alphacut) * (1.f / 255.f), 1.0f, 1.0f, 1.0, 1.0, 0);
 	return 0;
 
 }

@@ -233,6 +233,13 @@ static void loaddefs()
 	cycle_t deftimer;
 	deftimer.Reset();
 	deftimer.Clock();
+	if (fileSystem.FindFile("duke3d-megaton.def") >= 0)
+	{
+		// We do not load the Megaton .defs because they do not have any CRC checks and also override other assets than the weapons.
+		// This engine provided .def uses CRCs to protect user replacements.
+		if (!loaddefinitionsfile("engine/megaton-widescreen.def"))
+			duke3d_globalflags |= DUKE3D_NO_WIDESCREEN_PINNING;	// fixme - this needs to be smarter and done on a per-weapon basis.
+	}
 	if (!loaddefinitionsfile(defsfile))
 	{
 		deftimer.Unclock();
