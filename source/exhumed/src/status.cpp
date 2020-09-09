@@ -954,7 +954,7 @@ public:
         {
             DrawStatus();
        }
-        PrintLevelStats(hud_size == Hud_Nothing ? 0 : 40);
+        PrintLevelStats(hud_size == Hud_Nothing ? 0 : hud_size == Hud_full? 22 : 40);
     }
 };
 

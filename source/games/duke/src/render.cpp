@@ -581,17 +581,37 @@ void displayrooms(int snum, double smoothratio)
 
 		if (p->newowner >= 0)
 		{
-			fixed_t oang = hittype[p->newowner].oq16ang;
-			cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((p->q16ang + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
+			fixed_t a = IntToFixed(sprite[p->newowner].ang);
+			if (p->newowner != p->oldowner)
+			{
+				p->oldowner = p->newowner;
+				hittype[p->newowner].oq16ang = a;
+				cang = q16ang(a);
+				p->camchangecnt = 3;
+			}
+			else if (p->camchangecnt > 0)
+			{
+				hittype[p->newowner].oq16ang = a;
+				cang = q16ang(a);
+				p->camchangecnt--;
+			}
+			else
+			{
+				fixed_t oang = hittype[p->newowner].oq16ang;
+				cang = q16ang(oang + xs_CRoundToInt(fmulscale16(((a + dang - oang) & 0x7FFFFFF) - dang, smoothratio)));
+			}
+			cang = q16ang(a);
 			choriz = q16horiz(p->q16horiz + p->q16horizoff);
-			cposx = p->posx;
-			cposy = p->posy;
-			cposz = p->posz;
+			cposx = sprite[p->newowner].pos.x;
+			cposy = sprite[p->newowner].pos.y;
+			cposz = sprite[p->newowner].pos.z;
 			sect = sprite[p->newowner].sectnum;
 			smoothratio = MaxSmoothRatio;
 		}
 		else if (p->over_shoulder_on == 0)
 		{
+			p->camchangecnt = 0;
+			p->oldowner = -1;
 			if (cl_viewbob) cposz += p->opyoff + xs_CRoundToInt(fmulscale16(p->pyoff - p->opyoff, smoothratio));
 		}
 		else view(p, &cposx, &cposy, &cposz, &sect, cang.asbuild(), choriz.asbuild(), smoothratio);
