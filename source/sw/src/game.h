@@ -1009,6 +1009,7 @@ struct PLAYERstruct
 
     // Input helper variables and setters.
     double horizAdjust, angAdjust, pitchAdjust;
+    fixed_t angTarget;
     void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
     void setang(int v) { q16ang = IntToFixed(v); }
     void addhoriz(int v) { q16horiz += (IntToFixed(v)); }

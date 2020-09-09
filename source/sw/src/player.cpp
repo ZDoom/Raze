@@ -4258,7 +4258,7 @@ PlayerOnLadder(PLAYERp pp)
     pp->lx = lsp->x + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
-    playerAddAngle(pp, FixedToFloat(GetDeltaQ16Angle(IntToFixed(pp->LadderAngle), pp->q16ang)));
+    playerSetAngle(pp, pp->LadderAngle);
 
     return TRUE;
 }
@@ -7801,7 +7801,16 @@ void playerSetAngle(PLAYERp pp, double ang)
 {
     if (!cl_syncinput)
     {
-        pp->angAdjust += -1. * ((pp->q16ang / 65536.) - ang);
+        // Cancel out any angle adjustments as we're setting angle now.
+        pp->angAdjust = 0;
+
+        // Add slight offset if input angle is coming in as absolute 0.
+        if (ang == 0)
+        {
+            ang += 0.1;
+        }
+
+        pp->angTarget = pp->q16ang + GetDeltaQ16Angle(ang, pp->q16ang);
     }
     else
     {
