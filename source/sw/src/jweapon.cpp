@@ -401,7 +401,7 @@ DoBloodSpray(int16_t Weapon)
             sp->z = fz;
             SpawnFloorSplash(Weapon);
             KillSprite((short) Weapon);
-            return TRUE;
+            return true;
         }
     }
     else
@@ -419,7 +419,7 @@ DoBloodSpray(int16_t Weapon)
         {
         case HIT_PLAX_WALL:
             KillSprite(Weapon);
-            return TRUE;
+            return true;
         case HIT_SPRITE:
         {
             short wall_ang;
@@ -440,7 +440,7 @@ DoBloodSpray(int16_t Weapon)
                 SpawnMidSplash(Weapon);
                 QueueWallBlood(Weapon, hsp->ang);
                 KillSprite((short) Weapon);
-                return TRUE;
+                return true;
             }
 
 
@@ -540,7 +540,7 @@ DoBloodSpray(int16_t Weapon)
                     u->xchange = u->ychange = 0;
                     SpawnFloorSplash(Weapon);
                     KillSprite((short) Weapon);
-                    return TRUE;
+                    return true;
                 }
             }
             else
@@ -594,7 +594,7 @@ DoBloodSpray(int16_t Weapon)
             SET(nu->Flags, SPR_UNDERWATER);
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -631,7 +631,7 @@ DoPhosphorus(int16_t Weapon)
         {
         case HIT_PLAX_WALL:
             KillSprite(Weapon);
-            return TRUE;
+            return true;
         case HIT_SPRITE:
         {
             short wall_ang;
@@ -663,7 +663,7 @@ DoPhosphorus(int16_t Weapon)
                 }
                 u->xchange = u->ychange = 0;
                 KillSprite((short) Weapon);
-                return TRUE;
+                return true;
             }
 
 
@@ -726,7 +726,7 @@ DoPhosphorus(int16_t Weapon)
                             u->xchange = u->ychange = 0;
                             SpawnFireballExp(Weapon);
                             KillSprite((short) Weapon);
-                            return TRUE;
+                            return true;
                         }
                     }
                     else
@@ -763,7 +763,7 @@ DoPhosphorus(int16_t Weapon)
                         u->xchange = u->ychange = 0;
                         SpawnFireballExp(Weapon);
                         KillSprite((short) Weapon);
-                        return TRUE;
+                        return true;
                     }
                 }
                 else
@@ -821,7 +821,7 @@ DoPhosphorus(int16_t Weapon)
             SET(nu->Flags, SPR_UNDERWATER);
     }
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -857,7 +857,7 @@ DoChemBomb(int16_t Weapon)
         {
         case HIT_PLAX_WALL:
             KillSprite(Weapon);
-            return TRUE;
+            return true;
         case HIT_SPRITE:
         {
             short wall_ang;
@@ -889,7 +889,7 @@ DoChemBomb(int16_t Weapon)
                 u->WaitTics -= (MISSILEMOVETICS * 2);
                 if (u->WaitTics <= 0)
                     KillSprite((short) Weapon);
-                return TRUE;
+                return true;
             }
 
 
@@ -965,7 +965,7 @@ DoChemBomb(int16_t Weapon)
                             u->WaitTics -= (MISSILEMOVETICS * 2);
                             if (u->WaitTics <= 0)
                                 KillSprite((short) Weapon);
-                            return TRUE;
+                            return true;
                         }
                     }
                     else
@@ -1014,7 +1014,7 @@ DoChemBomb(int16_t Weapon)
                         u->WaitTics -= (MISSILEMOVETICS * 2);
                         if (u->WaitTics <= 0)
                             KillSprite((short) Weapon);
-                        return TRUE;
+                        return true;
                     }
                 }
                 else
@@ -1069,7 +1069,7 @@ DoChemBomb(int16_t Weapon)
             SET(nu->Flags, SPR_UNDERWATER);
     }
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -1115,7 +1115,7 @@ DoCaltrops(int16_t Weapon)
         {
         case HIT_PLAX_WALL:
             KillSprite(Weapon);
-            return TRUE;
+            return true;
         case HIT_SPRITE:
         {
             short wall_ang;
@@ -1201,7 +1201,7 @@ DoCaltrops(int16_t Weapon)
                             SET(sp->extra, SPRX_BREAKABLE);
                             SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
                             ChangeState(Weapon, s_CaltropsStick);
-                            return TRUE;
+                            return true;
                         }
                     }
                     else
@@ -1239,7 +1239,7 @@ DoCaltrops(int16_t Weapon)
                         SET(sp->extra, SPRX_BREAKABLE);
                         SET(sp->cstat,CSTAT_SPRITE_BREAKABLE);
                         ChangeState(Weapon, s_CaltropsStick);
-                        return TRUE;
+                        return true;
                     }
                 }
                 else
@@ -1255,7 +1255,7 @@ DoCaltrops(int16_t Weapon)
     }
 
 
-    return FALSE;
+    return false;
 }
 
 /////////////////////////////
@@ -1272,7 +1272,7 @@ SpawnRadiationCloud(short SpriteNum)
 
 
     if (!MoveSkip4)
-        return FALSE;
+        return false;
 
     // This basically works like a MoveSkip8, if one existed
 //  u->Counter2 = !u->Counter2;
@@ -1281,14 +1281,14 @@ SpawnRadiationCloud(short SpriteNum)
         if ((u->Counter2++) > 16)
             u->Counter2 = 0;
         if (u->Counter2)
-            return FALSE;
+            return false;
     }
     else
     {
         if ((u->Counter2++) > 2)
             u->Counter2 = 0;
         if (u->Counter2)
-            return FALSE;
+            return false;
     }
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -1338,7 +1338,7 @@ SpawnRadiationCloud(short SpriteNum)
         nu->Radius = 4000;
     }
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -1357,7 +1357,7 @@ DoRadiationCloud(short SpriteNum)
         DoFlamesDamageTest(SpriteNum);
     }
 
-    return FALSE;
+    return false;
 }
 
 //////////////////////////////////////////////
@@ -1733,7 +1733,7 @@ SpawnFlashBombOnActor(int16_t enemy)
     {
         if (!eu)
         {
-            ASSERT(TRUE == FALSE);
+            ASSERT(true == false);
         }
 
         if (eu->flame >= 0)
@@ -2200,7 +2200,7 @@ DoCarryFlag(int16_t Weapon)
     if (!TEST(u->Flags, SPR_ACTIVE))
     {
         if ((u->WaitTics -= (MISSILEMOVETICS * 2)) > 0)
-            return FALSE;
+            return false;
 
         // activate it
         u->WaitTics = SEC(30);          // You have 30 seconds to get it to
@@ -2324,11 +2324,11 @@ DoCarryFlag(int16_t Weapon)
     case FLAG_DETONATE_STATE + 1:
         SpawnGrenadeExp(Weapon);
         SetSuicide(Weapon);
-        return FALSE;
+        return false;
         break;
     }
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -2362,7 +2362,7 @@ DoCarryFlagNoDet(int16_t Weapon)
         if (u->FlagOwner >= 0)
             fu->WaitTics = 0;           // Tell it to respawn
         SetSuicide(Weapon);
-        return FALSE;
+        return false;
     }
 
     // if in score box, score.
@@ -2395,7 +2395,7 @@ DoCarryFlagNoDet(int16_t Weapon)
         SetSuicide(Weapon);             // Kill the flag, you scored!
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -2418,7 +2418,7 @@ SetCarryFlag(int16_t Weapon)
     else
         ChangeState(Weapon, s_CarryFlag);
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -2447,7 +2447,7 @@ DoFlag(int16_t Weapon)
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 

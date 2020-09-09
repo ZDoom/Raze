@@ -197,7 +197,7 @@ void CopySectorMatch(short match)
                             // update sprites postions so they aren't in the
                             // wrong place for one frame
                             GlobSpeedSO = 0;
-                            RefreshPoints(sop, 0, 0, TRUE);
+                            RefreshPoints(sop, 0, 0, true);
                         }
                     }
                 }

@@ -77,7 +77,7 @@ SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -85,7 +85,7 @@ SpikeSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -231,11 +231,11 @@ TestSpikeMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 int DoSpikeMove(short SpriteNum, int *lptr)
@@ -397,7 +397,7 @@ int DoSpike(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = FALSE;
+            SWBOOL found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
@@ -407,7 +407,7 @@ int DoSpike(short SpriteNum)
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     ReverseSpike(SpriteNum);
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -425,7 +425,7 @@ int DoSpike(short SpriteNum)
                         pp->hi_sectp == &sector[sp->sectnum])
                     {
                         ReverseSpike(SpriteNum);
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }

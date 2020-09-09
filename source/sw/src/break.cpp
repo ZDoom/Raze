@@ -590,11 +590,11 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
 
     if (!break_info)
     {
-        return FALSE;
+        return false;
     }
 
     // Check to see if it should break with current weapon type
-    if (!CheckBreakToughness(break_info, type)) return FALSE;
+    if (!CheckBreakToughness(break_info, type)) return false;
 
     if (hit_x != INT32_MAX)
     {
@@ -657,7 +657,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     }
 
 
-    return TRUE;
+    return true;
 }
 
 SWBOOL UserBreakWall(WALLp wp, short)
@@ -668,7 +668,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
     int flags = block_flags|type_flags;
-    short ret = FALSE;
+    short ret = false;
 
     SpriteNum = FindBreakSpriteMatch(match);
 
@@ -684,13 +684,13 @@ SWBOOL UserBreakWall(WALLp wp, short)
         wp->hitag = wp->lotag = 0;
         if (wp->nextwall >= 0)
             wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
-        return TRUE;
+        return true;
     }
 
     sp = &sprite[SpriteNum];
 
     if (wp->picnum == SP_TAG5(sp))
-        return TRUE;
+        return true;
 
     // make it BROKEN
     if (SP_TAG7(sp) <= 1)
@@ -705,7 +705,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
             wp->hitag = wp->lotag = 0;
             if (wp->nextwall >= 0)
                 wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
-            ret = FALSE;
+            ret = false;
         }
         else if (SP_TAG8(sp) == 1)
         {
@@ -718,7 +718,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
             if (wp->nextwall >= 0)
                 wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
 
-            ret = TRUE;
+            ret = true;
         }
         else if (SP_TAG8(sp) == 2)
         {
@@ -735,7 +735,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
             if (wp->nextwall >= 0)
                 wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
 
-            ret = FALSE;
+            ret = false;
         }
 
         return ret;
@@ -748,7 +748,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
         DoSpawnSpotsForDamage(match);
     }
 
-    return FALSE;
+    return false;
 }
 
 int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang)
@@ -810,10 +810,10 @@ int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, sh
     if (*sectnum < 0)
     {
         *x = INT32_MAX;  // don't spawn shrap, just change wall
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
@@ -824,7 +824,7 @@ SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short 
     if (match > 0)
     {
         UserBreakWall(wp, ang);
-        return TRUE;
+        return true;
     }
 
     //if (hit_x == INT32_MAX)
@@ -834,7 +834,7 @@ SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short 
     }
 
     AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
-    return TRUE;
+    return true;
 }
 
 //
@@ -891,14 +891,14 @@ int UserBreakSprite(short BreakSprite)
         DeleteNoSoundOwner(BreakSprite);
         //change_sprite_stat(BreakSprite, STAT_SUICIDE);
         KillBreakSprite(BreakSprite);
-        return TRUE;
+        return true;
     }
 
     sp = &sprite[SpriteNum];
     match_extra = SP_TAG6(bp);
 
     if (bp->picnum == SP_TAG5(sp))
-        return TRUE;
+        return true;
 
     // make it BROKEN
     if (SP_TAG7(sp) <= 1)
@@ -921,7 +921,7 @@ int UserBreakSprite(short BreakSprite)
             KillBreakSprite(BreakSprite);
             //KillSprite(BreakSprite);
             //change_sprite_stat(BreakSprite, STAT_SUICIDE);
-            return TRUE;
+            return true;
         }
         else if (SP_TAG8(sp) == 2)
         // leave it
@@ -946,7 +946,7 @@ int UserBreakSprite(short BreakSprite)
         DoSpawnSpotsForDamage(match_extra);
     }
 
-    return FALSE;
+    return false;
 }
 
 int AutoBreakSprite(short BreakSprite, short type)
@@ -965,7 +965,7 @@ int AutoBreakSprite(short BreakSprite, short type)
     {
         //DSPRINTF(ds,"Break Info not found - sprite %d", bp - sprite);
         MONO_PRINT(ds);
-        return FALSE;
+        return false;
     }
 
     // Check to see if it should break with current weapon type
@@ -988,7 +988,7 @@ int AutoBreakSprite(short BreakSprite, short type)
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
 
-        return FALSE;
+        return false;
     }
 
     RESET(bp->extra, SPRX_BREAKABLE);
@@ -1012,7 +1012,7 @@ int AutoBreakSprite(short BreakSprite, short type)
         KillBreakSprite(BreakSprite);
         //change_sprite_stat(BreakSprite, STAT_SUICIDE);
         //KillSprite(BreakSprite);
-        return TRUE;
+        return true;
     }
     else
     {
@@ -1021,7 +1021,7 @@ int AutoBreakSprite(short BreakSprite, short type)
             RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     }
 
-    return FALSE;
+    return false;
 }
 
 SWBOOL NullActor(USERp u)
@@ -1030,17 +1030,17 @@ SWBOOL NullActor(USERp u)
 
     // check to see if attached to SO
     if (TEST(u->Flags, SPR_SO_ATTACHED))
-        return TRUE;
+        return true;
 
     // does not have a STATE or FUNC to control it
     if (!u->State)
-        return TRUE;
+        return true;
 
     // does not have a STATE or FUNC to control it
     if (!u->ActorActionFunc)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 int HitBreakSprite(short BreakSprite, short type)
@@ -1051,12 +1051,12 @@ int HitBreakSprite(short BreakSprite, short type)
     //SPRITEp sp;
     // ignore as a breakable if true
     //if (sp->lotag == TAG_SPRITE_HIT_MATCH)
-    //    return(FALSE);
+    //    return(false);
 
     if (TEST_BOOL1(bp))
     {
         if (TEST_BOOL2(bp))
-            return FALSE;
+            return false;
 
         return UserBreakSprite(BreakSprite);
     }
@@ -1069,7 +1069,7 @@ int HitBreakSprite(short BreakSprite, short type)
 
         SpawnShrap(BreakSprite, -1);
         RESET(bp->extra, SPRX_BREAKABLE);
-        return FALSE;
+        return false;
     }
 
     return AutoBreakSprite(BreakSprite,type);

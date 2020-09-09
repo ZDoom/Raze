@@ -202,7 +202,7 @@ void GameInterface::StartGame(FNewGameStartup& gs)
 		map = FindMapByLevelNum(1);
 
 	if (!map) return;
-    CameraTestMode = FALSE;
+    CameraTestMode = false;
 	StopFX();
 
     //InitNewGame();

@@ -158,11 +158,11 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
             //ang = NORM_ANGLE(ang + 1024);
             //pp->xvect += 20 * sintable[NORM_ANGLE(ang + 512)];
             //pp->yvect += 20 * sintable[ang];
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
@@ -177,7 +177,7 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
         {
             *point_num = i;
 
-            return FALSE;
+            return false;
         }
     }
 
@@ -187,11 +187,11 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
         if (!cansee(q[i].x, q[i].y,0x3fffffff, sectnum,
                     q[next_i].x, q[next_i].y,0x3fffffff, sectnum))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -213,11 +213,11 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         pp->posx += (pp->xvect>>14);
         pp->posy += (pp->yvect>>14);
-        return TRUE;
+        return true;
     }
 
     if (point_num < 0)
-        return FALSE;
+        return false;
 
     if ((point_num == 0) || (point_num == 3))   //Left side bad - strafe right
     {
@@ -232,7 +232,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
             pp->posy += (pp->xvect>>15);
         }
 
-        return FALSE;
+        return false;
     }
 
     if ((point_num == 1) || (point_num == 2))   //Right side bad - strafe left
@@ -248,10 +248,10 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
             pp->posy -= (pp->xvect>>15);
         }
 
-        return FALSE;
+        return false;
     }
 
-    return FALSE;
+    return false;
 }
 
 int testpointinquad(int x, int y, int *qx, int *qy)
@@ -301,12 +301,12 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
             qx[i] = xy[i].x;
             qy[i] = xy[i].y;
         }
-        return TRUE;
+        return true;
     }
 
     if (point_num < 0)
-        return FALSE;
+        return false;
 
-    return FALSE;
+    return false;
 }
 END_SW_NS

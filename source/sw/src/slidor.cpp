@@ -73,7 +73,7 @@ SlidorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -81,7 +81,7 @@ SlidorSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -138,7 +138,7 @@ short DoSlidorOperate(PLAYERp pp, short sectnum)
         if (TestSlidorMatchActive(match))
             return -1;
         else
-            return DoSlidorMatch(pp, match, TRUE);
+            return DoSlidorMatch(pp, match, true);
     }
 
     return -1;
@@ -247,11 +247,11 @@ TestSlidorMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void DoSlidorInterp(short SpriteNum, INTERP_FUNCp interp_func)
@@ -538,7 +538,7 @@ int DoSlidorMove(short SpriteNum)
     SPRITEp sp = u->SpriteP;
     ROTATORp r;
     int old_pos;
-    SWBOOL kill = FALSE;
+    SWBOOL kill = false;
 
     r = u->rotator;
 
@@ -613,7 +613,7 @@ int DoSlidorMove(short SpriteNum)
         }
 
         if (TEST_BOOL2(sp))
-            kill = TRUE;
+            kill = true;
     }
     else
     {
@@ -623,7 +623,7 @@ int DoSlidorMove(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = FALSE;
+            SWBOOL found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
@@ -635,7 +635,7 @@ int DoSlidorMove(short SpriteNum)
                     // found something blocking so reverse to ON position
                     ReverseSlidor(SpriteNum);
                     SET_BOOL8(sp); // tell vator that something blocking door
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -655,7 +655,7 @@ int DoSlidorMove(short SpriteNum)
                         ReverseSlidor(SpriteNum);
 
                         u->vel_rate = -u->vel_rate;
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }

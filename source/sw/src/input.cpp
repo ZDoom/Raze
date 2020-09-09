@@ -134,7 +134,7 @@ static void processWeapon(PLAYERp const pp)
         else
         {
             next_weapon = -1;
-            for (i = start_weapon; TRUE; i++)
+            for (i = start_weapon; true; i++)
             {
                 if (i >= MAX_WEAPONS_KEYS)
                 {
@@ -171,7 +171,7 @@ static void processWeapon(PLAYERp const pp)
         else
         {
             prev_weapon = -1;
-            for (i = start_weapon; TRUE; i--)
+            for (i = start_weapon; true; i--)
             {
                 if (i <= -1)
                     i = WPN_HEART;

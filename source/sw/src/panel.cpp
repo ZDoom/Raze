@@ -156,7 +156,7 @@ PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pr
 SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
     PANEL_SPRITEp psp=NULL, next;
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
 
     // Kill ALL sprites with the correct id
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -164,7 +164,7 @@ SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id)
         if (psp->ID == id)
         {
             pKillSprite(psp);
-            found = TRUE;
+            found = true;
         }
     }
 
@@ -238,13 +238,13 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
     if (value < 0)
     {
-        SWBOOL IsChem = FALSE;
-        SWBOOL NoArmor = FALSE;
+        SWBOOL IsChem = false;
+        SWBOOL NoArmor = false;
 
         if (value <= -2000)
         {
             value += 2000;
-            NoArmor = TRUE;
+            NoArmor = true;
         }
         else if (value <= -1000)
         {
@@ -252,7 +252,7 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
             MONO_PRINT(ds);
 
             value += 1000;
-            IsChem = TRUE;
+            IsChem = true;
         }
 
         // TAKE SOME DAMAGE
@@ -440,7 +440,7 @@ int WeaponOperate(PLAYERp pp)
     InventoryKeys(pp);
 
     // UziType >= 3 means they are reloading
-    if (pp->WpnUziType >= 3) return TRUE;
+    if (pp->WpnUziType >= 3) return true;
 
     //if (CheatInputMode)
     //    return (0);
@@ -544,9 +544,9 @@ int WeaponOperate(PLAYERp pp)
                     if (pp->WpnRocketType == 2 && pp->WpnRocketNuke == 0)
                         pp->WpnRocketType = 0;
                     if (pp->WpnRocketType == 2)
-                        pp->TestNukeInit = TRUE; // Init the nuke
+                        pp->TestNukeInit = true; // Init the nuke
                     else
-                        pp->TestNukeInit = FALSE;
+                        pp->TestNukeInit = false;
                 }
                 InitWeaponMicro(pp);
                 break;
@@ -639,7 +639,7 @@ int WeaponOperate(PLAYERp pp)
     // This really should be handled better, but since there's no usable tracking state for the sounds, the easiest way to handle them is to play on otherwise unused channels.
     if (pp->WpnRocketType != 2 || pp->CurWpn != pp->Wpn[WPN_MICRO])
     {
-        pp->InitingNuke = FALSE;
+        pp->InitingNuke = false;
         soundEngine->StopSound(SOURCE_Player, pp, CHAN_WEAPON);
     }
     if (pp->CurWpn != pp->Wpn[WPN_RAIL])
@@ -659,16 +659,16 @@ WeaponOK(PLAYERp pp)
     unsigned wpn_ndx=0;
 
     if ((unsigned)pp->PlayerSprite >= MAXSPRITES)
-        return(FALSE);
+        return(false);
 
     u = User[pp->PlayerSprite];
 
     if (u == NULL)
-        return(FALSE);
+        return(false);
 
     // sword
     if (DamageData[u->WeaponNum].max_ammo == -1)
-        return TRUE;
+        return true;
 
     WeaponNum = u->WeaponNum;
     FindWeaponNum = u->WeaponNum;
@@ -684,19 +684,19 @@ WeaponOK(PLAYERp pp)
         if (WeaponNum == WPN_MICRO && pp->WpnRocketNuke)
         {
             //pp->WpnRocketType = 2; // Set it to Nuke
-            if (!pp->NukeInitialized) pp->TestNukeInit = TRUE;
+            if (!pp->NukeInitialized) pp->TestNukeInit = true;
 
             u->WeaponNum = WPN_MICRO;
             (*DamageData[u->WeaponNum].Init)(pp);
 
-            return TRUE;
+            return true;
         }
 
         pp->KeyPressBits &= ~SB_FIRE;
 
         FindWeaponNum = WPN_SHOTGUN; // Start at the top
 
-        while (TRUE)
+        while (true)
         {
             // ran out of weapons - choose SWORD
             if (wpn_ndx > sizeof(wpn_order))
@@ -723,10 +723,10 @@ WeaponOK(PLAYERp pp)
 
         (*DamageData[u->WeaponNum].Init)(pp);
 
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2384,7 +2384,7 @@ void
 pUziAction(PANEL_SPRITEp psp)
 {
     char shooting;
-    static SWBOOL alternate = FALSE;
+    static SWBOOL alternate = false;
 
     shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
@@ -2978,13 +2978,13 @@ pShotgunOverlays(PANEL_SPRITEp psp)
     case 0:
         psp->over[SHOTGUN_AUTO_NUM].pic = -1;
         SET(psp->over[SHOTGUN_AUTO_NUM].flags, psf_ShadeNone);
-        return FALSE;
+        return false;
     case 1:
         psp->over[SHOTGUN_AUTO_NUM].pic = SHOTGUN_AUTO;
         SET(psp->over[SHOTGUN_AUTO_NUM].flags, psf_ShadeNone);
-        return FALSE;
+        return false;
     }
-    return FALSE;
+    return false;
 }
 
 PANEL_STATE ps_ShotgunFlash[] =
@@ -3031,10 +3031,10 @@ pShotgunReloadTest(PANEL_SPRITEp psp)
         // clip has run out
         RESET(psp->flags, PANF_REST_POS);
         pSetState(psp, ps_ShotgunReload);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 #endif
 
@@ -3051,7 +3051,7 @@ pShotgunRest(PANEL_SPRITEp psp)
 
     if (psp->PlayerP->WpnShotgunType == 1 && ammo > 0 && ((ammo % 4) != 0) && lastammo != ammo && TEST(psp->flags, PANF_REST_POS))
     {
-        force = TRUE;
+        force = true;
     }
 
     pShotgunOverlays(psp);
@@ -3093,7 +3093,7 @@ pShotgunRestTest(PANEL_SPRITEp psp)
     SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (psp->PlayerP->WpnShotgunType == 1 && !pShotgunReloadTest(psp))
-        force = TRUE;
+        force = true;
 
     if (pShotgunReloadTest(psp))
         return;
@@ -4191,8 +4191,8 @@ InitWeaponMicro(PLAYERp pp)
     {
         if (pp->TestNukeInit && pp->WpnRocketType == 2 && !pp->InitingNuke && pp->WpnRocketNuke && !pp->NukeInitialized)
         {
-            pp->TestNukeInit = FALSE;
-            pp->InitingNuke = TRUE;
+            pp->TestNukeInit = false;
+            pp->InitingNuke = true;
             psp = pp->Wpn[WPN_MICRO];
             pSetState(psp, !cl_swaltnukeinit ? ps_InitNuke : ps_InitNukeAlt);
         }
@@ -4214,7 +4214,7 @@ InitWeaponMicro(PLAYERp pp)
     pSetState(psp, psp->PresentState);
 
     if (pp->WpnRocketType == 2 && !pp->InitingNuke && !pp->NukeInitialized)
-        pp->TestNukeInit = pp->InitingNuke = TRUE;
+        pp->TestNukeInit = pp->InitingNuke = true;
 
     PlaySound(DIGI_ROCKET_UP, pp, v3df_follow);
 
@@ -4304,7 +4304,7 @@ pMicroPresent(PANEL_SPRITEp psp)
         psp->yorig = psp->y;
         if (pp->WpnRocketType == 2 && !pp->NukeInitialized)
         {
-            pp->TestNukeInit = FALSE;
+            pp->TestNukeInit = false;
             pSetState(psp, !cl_swaltnukeinit ? ps_InitNuke : ps_InitNukeAlt);
         }
         else
@@ -4376,7 +4376,7 @@ pMicroOverlays(PANEL_SPRITEp psp)
         psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_1;
         SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
         psp->over[MICRO_HEAT_NUM].pic = -1;
-        return FALSE;
+        return false;
     case 1:
         if (psp->PlayerP->WpnRocketHeat)
         {
@@ -4396,7 +4396,7 @@ pMicroOverlays(PANEL_SPRITEp psp)
             psp->over[MICRO_HEAT_NUM].pic = -1;
         }
 
-        return FALSE;
+        return false;
     case 2:
         psp->over[MICRO_SIGHT_NUM].pic = -1;
         psp->over[MICRO_HEAT_NUM].pic = -1;
@@ -4404,9 +4404,9 @@ pMicroOverlays(PANEL_SPRITEp psp)
         psp->over[MICRO_SHOT_NUM].pic = MICRO_SHOT_20;
         SET(psp->over[MICRO_SHOT_NUM].flags, psf_ShadeNone);
         SET(psp->over[MICRO_HEAT_NUM].flags, psf_ShadeNone);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 PANEL_STATE ps_MicroHeatFlash[] =
@@ -4455,8 +4455,8 @@ pMicroRest(PANEL_SPRITEp psp)
     {
         int choose_voc=0;
 
-        pp->InitingNuke = FALSE;
-        pp->NukeInitialized = TRUE;
+        pp->InitingNuke = false;
+        pp->NukeInitialized = true;
 
         if (pp == Player+myconnectindex)
         {
@@ -4532,7 +4532,7 @@ pMicroFire(PANEL_SPRITEp psp)
     case 2:
         PlaySound(DIGI_WARNING,psp->PlayerP,v3df_dontpan|v3df_follow);
         InitNuke(psp->PlayerP);
-        psp->PlayerP->NukeInitialized = FALSE;
+        psp->PlayerP->NukeInitialized = false;
         break;
     }
 }
@@ -4616,7 +4616,7 @@ pMicroReady(PANEL_SPRITEp psp)
     PLAYERp pp = psp->PlayerP;
 
     PlaySound(DIGI_NUKEREADY, pp, v3df_follow|v3df_dontpan, CHAN_WEAPON);
-    pp->NukeInitialized = TRUE;
+    pp->NukeInitialized = true;
 
     pMicroAction(psp);
 }
@@ -6607,7 +6607,7 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     // initing the other weapon will take care of this
     if (TEST(psp->flags, PANF_DEATH_HIDE))
     {
-        return FALSE;
+        return false;
     }
 
     if (TEST(psp->flags, PANF_WEAPON_HIDE))
@@ -6616,10 +6616,10 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         {
             RESET(psp->flags, PANF_WEAPON_HIDE);
             pSetState(psp, state);
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     if (psp->PlayerP->input.actions & SB_HOLSTER)
@@ -6628,7 +6628,7 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         {
             psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             pSetState(psp, state);
-            return TRUE;
+            return true;
         }
     }
     else
@@ -6642,11 +6642,11 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         {
             SET(psp->flags, PANF_UNHIDE_SHOOT);
             pSetState(psp, state);
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 SWBOOL
@@ -6656,14 +6656,14 @@ pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     {
         SET(psp->flags, PANF_DEATH_HIDE);
         pSetState(psp, state);
-        return TRUE;
+        return true;
     }
 
     if (TEST(psp->PlayerP->Flags, PF_WEAPON_DOWN))
     {
         SET(psp->flags, PANF_WEAPON_HIDE);
         pSetState(psp, state);
-        return TRUE;
+        return true;
     }
 
     if (psp->PlayerP->input.actions & SB_HOLSTER)
@@ -6673,7 +6673,7 @@ pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
             psp->PlayerP->KeyPressBits &= ~SB_HOLSTER;
             PutStringInfo(psp->PlayerP,"Weapon Holstered");
             pSetState(psp, state);
-            return TRUE;
+            return true;
         }
     }
     else
@@ -6681,7 +6681,7 @@ pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
         psp->PlayerP->KeyPressBits |= SB_HOLSTER;
     }
 
-    return FALSE;
+    return false;
 
 }
 
@@ -6875,7 +6875,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-SWBOOL DrawBeforeView = FALSE;
+SWBOOL DrawBeforeView = false;
 void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {
@@ -7273,7 +7273,7 @@ void
 PreUpdatePanel(double smoothratio)
 {
     short pnum;
-    DrawBeforeView = TRUE;
+    DrawBeforeView = true;
 
     //if (DrawBeforeView)
     TRAVERSE_CONNECT(pnum)
@@ -7282,7 +7282,7 @@ PreUpdatePanel(double smoothratio)
             pDisplaySprites(Player + pnum, smoothratio);
     }
 
-    DrawBeforeView = FALSE;
+    DrawBeforeView = false;
 }
 
 #define EnvironSuit_RATE 10

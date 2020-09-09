@@ -716,7 +716,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
         INITLIST(&pp->PanelSpriteList);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -942,7 +942,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     {
         INITLIST(otlist[i]);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -1069,13 +1069,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 
     // this is not a new game
-    ShadowWarrior::NewGame = FALSE;
+    ShadowWarrior::NewGame = false;
 
 
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-    SavegameLoaded = TRUE;
+    SavegameLoaded = true;
     return true;
 }
 

@@ -78,7 +78,7 @@ RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -86,7 +86,7 @@ RotatorSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -142,7 +142,7 @@ short DoRotatorOperate(PLAYERp pp, short sectnum)
         if (TestRotatorMatchActive(match))
             return -1;
         else
-            return DoRotatorMatch(pp, match, TRUE);
+            return DoRotatorMatch(pp, match, true);
     }
 
     return -1;
@@ -251,11 +251,11 @@ TestRotatorMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -315,7 +315,7 @@ int DoRotatorMove(short SpriteNum)
     int i, nexti;
     vec2_t nxy;
     int dist,closest;
-    SWBOOL kill = FALSE;
+    SWBOOL kill = false;
 
     r = u->rotator;
 
@@ -386,7 +386,7 @@ int DoRotatorMove(short SpriteNum)
         }
 
         if (TEST_BOOL2(sp))
-            kill = TRUE;
+            kill = true;
     }
 
     closest = 99999;

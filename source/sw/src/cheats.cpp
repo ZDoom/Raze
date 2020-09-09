@@ -45,8 +45,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL CheatInputMode = FALSE;
-SWBOOL EveryCheat = FALSE;
+SWBOOL CheatInputMode = false;
+SWBOOL EveryCheat = false;
 SWBOOL mapcheat = false;
 extern SWBOOL FAF_DebugView;
 
@@ -219,7 +219,7 @@ static void ItemCheat(int player)
 {
     auto p = &Player[player];
     PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
-    memset(p->HasKey, TRUE, sizeof(p->HasKey));
+    memset(p->HasKey, true, sizeof(p->HasKey));
 
     p->WpnShotgunAuto = 50;
     p->WpnRocketHeat = 5;
@@ -299,7 +299,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
 
     case GIVE_KEYS:
-        memset(Player[player].HasKey, TRUE, sizeof(Player[player].HasKey));
+        memset(Player[player].HasKey, true, sizeof(Player[player].HasKey));
         PutStringInfo(&Player[player], GStrings("TXTS_GIVEKEY"));
         break;
 

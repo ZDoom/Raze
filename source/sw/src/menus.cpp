@@ -244,7 +244,7 @@ SWBOOL MNU_ShareWareMessage()
 		MNU_DrawString(160, 160, extra_text, 1, 16, 0);
 		//SET(item->flags, mf_disabled);
 	}
-	return TRUE;
+	return true;
 }
 
 

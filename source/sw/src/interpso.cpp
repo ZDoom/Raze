@@ -118,7 +118,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 
     so_interp *interp = &so_interpdata[sop - SectorObject];
     interp->numinterpolations = 0;
-    interp->hasvator = FALSE;
+    interp->hasvator = false;
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
@@ -349,7 +349,7 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
     int32_t i;
     SECTOR_OBJECTp sop;
     so_interp *interp;
-    SWBOOL saveisshot = FALSE;
+    SWBOOL saveisshot = false;
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
@@ -374,7 +374,7 @@ SWBOOL so_readinterpolations(MFILE_READ fil)
     int32_t i;
     SECTOR_OBJECTp sop;
     so_interp *interp;
-    SWBOOL saveisshot = FALSE;
+    SWBOOL saveisshot = false;
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)

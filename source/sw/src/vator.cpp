@@ -82,7 +82,7 @@ VatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -90,7 +90,7 @@ VatorSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -198,7 +198,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
 #endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
-                    return FALSE;
+                    return false;
                 }
             }
 
@@ -308,11 +308,11 @@ TestVatorMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void InterpSectorSprites(short sectnum, SWBOOL state)
@@ -344,7 +344,7 @@ void MoveSpritesWithSector(short sectnum, int z_amt, SWBOOL type)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL both = FALSE;
+    SWBOOL both = false;
 
     if (SectUser[sectnum])
         both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
@@ -538,7 +538,7 @@ int DoVator(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = FALSE;
+            SWBOOL found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
@@ -549,7 +549,7 @@ int DoVator(short SpriteNum)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, TRUE, -1);
+                        InitBloodSpray(i, true, -1);
                         UpdateSinglePlayKills(i);
                         KillSprite(i);
                         continue;
@@ -561,7 +561,7 @@ int DoVator(short SpriteNum)
                     // found something blocking so reverse to ON position
                     ReverseVator(SpriteNum);
                     SET_BOOL8(sp); // tell vator that something blocking door
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -581,7 +581,7 @@ int DoVator(short SpriteNum)
                         ReverseVator(SpriteNum);
 
                         u->vel_rate = -u->vel_rate;
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }
@@ -599,7 +599,7 @@ int DoVator(short SpriteNum)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, TRUE, -1);
+                        InitBloodSpray(i, true, -1);
                         UpdateSinglePlayKills(i);
                         KillSprite(i);
                         continue;

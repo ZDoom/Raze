@@ -80,7 +80,7 @@ extern SWBOOL NoMeters;
 USER puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
-SWBOOL NightVision = FALSE;
+SWBOOL NightVision = false;
 extern SWBOOL FinishAnim;
 
 
@@ -2275,7 +2275,7 @@ void PlayerCheckValidMove(PLAYERp pp)
         // if stuck here for more than 10 seconds
         if (count++ > 40 * 10)
         {
-            ASSERT(TRUE == FALSE);
+            ASSERT(true == false);
         }
     }
 }
@@ -2687,7 +2687,7 @@ void DoTankTreads(PLAYERp pp)
     SECTORp *sectp;
     int j;
     int dot;
-    SWBOOL reverse = FALSE;
+    SWBOOL reverse = false;
 
     if (Prediction)
         return;
@@ -2695,7 +2695,7 @@ void DoTankTreads(PLAYERp pp)
     vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
     dot = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(FixedToInt(pp->q16ang)+512)], sintable[FixedToInt(pp->q16ang)]);
     if (dot < 0)
-        reverse = TRUE;
+        reverse = true;
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -3618,7 +3618,7 @@ DoPlayerClimb(PLAYERp pp)
     int dot;
     short sec,wal,spr;
     int dist;
-    SWBOOL LadderUpdate = FALSE;
+    SWBOOL LadderUpdate = false;
 
     if (Prediction)
         return;
@@ -3792,13 +3792,13 @@ DoPlayerClimb(PLAYERp pp)
     if (FAF_ConnectArea(pp->cursectnum))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
-        LadderUpdate = TRUE;
+        LadderUpdate = true;
     }
 
     if (WarpPlane(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum))
     {
         PlayerWarpUpdatePos(pp);
-        LadderUpdate = TRUE;
+        LadderUpdate = true;
     }
 
     if (LadderUpdate)
@@ -3848,7 +3848,7 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     static short angs[3] = {0, 0, 0};
     int zh = sector[pp->cursectnum].floorz - Z(pp->WadeDepth) - Z(2);
 
-    if (Prediction) return FALSE;   // !JIM! 8/5/97 Teleporter FAFhitscan SuperJump bug.
+    if (Prediction) return false;   // !JIM! 8/5/97 Teleporter FAFhitscan SuperJump bug.
 
     for (i = 0; i < SIZ(angs); i++)
     {
@@ -3865,12 +3865,12 @@ DoPlayerWadeSuperJump(PLAYERp pp)
             if (hitinfo.sect >= 0 && labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
             {
                 if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
-                    return TRUE;
+                    return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 SWBOOL PlayerFlyKey(void)
@@ -3878,7 +3878,7 @@ SWBOOL PlayerFlyKey(void)
     SWBOOL key = false;
 
     if (!GodMode)
-        return FALSE;
+        return false;
 
 #if 0
     // Cheat or not, this simply won't do.
@@ -3919,15 +3919,15 @@ SWBOOL PlayerFallTest(PLAYERp pp, int player_height)
             TEST(pp->lo_sectp->floorstat, FLOOR_STAT_SLOPE) &&
             pp->lo_sectp == &sector[pp->lastcursectnum])
         {
-            return FALSE;
+            return false;
         }
         else
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -4093,20 +4093,20 @@ SWBOOL PlayerCeilingHit(PLAYERp pp, int zlimit)
 {
     if (pp->posz < zlimit)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 SWBOOL PlayerFloorHit(PLAYERp pp, int zlimit)
 {
     if (pp->posz > zlimit)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -4221,10 +4221,10 @@ PlayerOnLadder(PLAYERp pp)
     dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(FixedToInt(pp->q16ang)+512)], sintable[FixedToInt(pp->q16ang)]);
 
     if (dir < 0)
-        return FALSE;
+        return false;
 
     if (neartagwall < 0 || wall[neartagwall].lotag != TAG_WALL_CLIMB)
-        return FALSE;
+        return false;
 
     for (i = 0; i < SIZ(angles); i++)
     {
@@ -4233,7 +4233,7 @@ PlayerOnLadder(PLAYERp pp)
                 &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
         if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
-            return FALSE;
+            return false;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
                    sintable[NORM_ANGLE(FixedToInt(pp->q16ang)  + angles[i] + 512)],
@@ -4250,14 +4250,14 @@ PlayerOnLadder(PLAYERp pp)
             if (TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_BLOCK) &&
                 !TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                return FALSE;
+                return false;
             }
         }
         else
         {
             // if you hit a wall and it is not a climb wall - forget it
             if (hitinfo.wall >= 0 && wall[hitinfo.wall].lotag != TAG_WALL_CLIMB)
-                return FALSE;
+                return false;
         }
     }
 
@@ -4265,7 +4265,7 @@ PlayerOnLadder(PLAYERp pp)
     lsp = FindNearSprite(pp->SpriteP, STAT_CLIMB_MARKER);
 
     if (!lsp)
-        return FALSE;
+        return false;
 
     // determine where the player is supposed to be in relation to the ladder
     // move out in front of the ladder
@@ -4294,15 +4294,15 @@ PlayerOnLadder(PLAYERp pp)
 
     playerSetAngle(pp, pp->LadderAngle);
 
-    return TRUE;
+    return true;
 }
 
 SWBOOL DoPlayerTestCrawl(PLAYERp pp)
 {
     if (labs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM)
-        return TRUE;
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -4319,22 +4319,22 @@ PlayerInDiveArea(PLAYERp pp)
         //sectp = pp->lo_sectp;
     }
     else
-        return FALSE;
+        return false;
 
     if (TEST(sectp->extra, SECTFX_DIVE_AREA))
     {
         CheckFootPrints(pp);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 int
 PlayerCanDive(PLAYERp pp)
 {
     if (Prediction)
-        return FALSE;
+        return false;
 
     // Crawl - check for diving
     if ((pp->input.actions & SB_CROUCH) || pp->jump_speed > 0)
@@ -4350,18 +4350,18 @@ PlayerCanDive(PLAYERp pp)
                 DoPlayerBeginDive(pp);
             }
 
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 int
 PlayerCanDiveNoWarp(PLAYERp pp)
 {
     if (Prediction)
-        return FALSE;
+        return false;
 
     // check for diving
     if (pp->jump_speed > 1400)
@@ -4383,12 +4383,12 @@ PlayerCanDiveNoWarp(PLAYERp pp)
 
                 PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
                 DoPlayerBeginDiveNoWarp(pp);
-                return TRUE;
+                return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -4556,7 +4556,7 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
     short i, nexti;
     SECT_USERp sectu = SectUser[pp->cursectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = FALSE;
+    bool Found = false;
     short over, under;
 
     if (Prediction)
@@ -4572,13 +4572,13 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
             SectUser[over_sp->sectnum] &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
-            Found = TRUE;
+            Found = true;
             break;
         }
     }
 
-    PRODUCTION_ASSERT(Found == TRUE);
-    Found = FALSE;
+    PRODUCTION_ASSERT(Found == true);
+    Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_UNDERWATER], i, nexti)
@@ -4589,12 +4589,12 @@ DoPlayerWarpToUnderwater(PLAYERp pp)
             SectUser[under_sp->sectnum] &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
-            Found = TRUE;
+            Found = true;
             break;
         }
     }
 
-    PRODUCTION_ASSERT(Found == TRUE);
+    PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
     u->sx = over_sp->x - pp->posx;
@@ -4633,7 +4633,7 @@ DoPlayerWarpToSurface(PLAYERp pp)
     short over, under;
 
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = FALSE;
+    bool Found = false;
 
     if (Prediction)
         return;
@@ -4647,13 +4647,13 @@ DoPlayerWarpToSurface(PLAYERp pp)
             SectUser[under_sp->sectnum] &&
             SectUser[under_sp->sectnum]->number == sectu->number)
         {
-            Found = TRUE;
+            Found = true;
             break;
         }
     }
 
-    PRODUCTION_ASSERT(Found == TRUE);
-    Found = FALSE;
+    PRODUCTION_ASSERT(Found == true);
+    Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DIVE_AREA], i, nexti)
@@ -4664,12 +4664,12 @@ DoPlayerWarpToSurface(PLAYERp pp)
             SectUser[over_sp->sectnum] &&
             SectUser[over_sp->sectnum]->number == sectu->number)
         {
-            Found = TRUE;
+            Found = true;
             break;
         }
     }
 
-    PRODUCTION_ASSERT(Found == TRUE);
+    PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
     u->sx = under_sp->x - pp->posx;
@@ -4735,7 +4735,7 @@ DoPlayerBeginDive(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
+    if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
 
     SET(pp->Flags, PF_DIVING);
     DoPlayerDivePalette(pp);
@@ -4786,7 +4786,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
         return;
 
-    if (pp->Bloody) pp->Bloody = FALSE; // Water washes away the blood
+    if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
 
     if (pp == Player + screenpeek)
     {
@@ -5115,10 +5115,10 @@ DoPlayerTestPlaxDeath(PLAYERp pp)
     {
         PlayerUpdateHealth(pp, -u->Health);
         PlayerCheckDeath(pp, -1);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -5540,7 +5540,7 @@ DoPlayerBeginOperate(PLAYERp pp)
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
-    DoPlayerOperateMatch(pp, TRUE);
+    DoPlayerOperateMatch(pp, true);
 
     // look for gun before trying to using it
     for (i = 0; sop->sp_num[i] != -1; i++)
@@ -5627,7 +5627,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
 
-    DoPlayerOperateMatch(pp, TRUE);
+    DoPlayerOperateMatch(pp, true);
 
     // look for gun before trying to using it
     for (i = 0; sop->sp_num[i] != -1; i++)
@@ -5743,7 +5743,7 @@ DoPlayerStopOperate(PLAYERp pp)
     RESET(pp->Flags, PF_WEAPON_DOWN);
     DoPlayerResetMovement(pp);
     DoTankTreads(pp);
-    DoPlayerOperateMatch(pp, FALSE);
+    DoPlayerOperateMatch(pp, false);
     StopSOsound(pp->sop->mid_sector);
 
     if (pp->sop_remote)
@@ -6052,21 +6052,21 @@ void
 DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
 {
     int pnum;
-    SWBOOL SEND_OK = FALSE;
+    SWBOOL SEND_OK = false;
 
     killer->KilledPlayer[pp-Player]++;
 
     if (pp == killer && pp == Player + myconnectindex)
     {
         sprintf(ds,"%s %s",pp->PlayerName,SuicideNote[STD_RANDOM_RANGE(MAX_SUICIDE)]);
-        SEND_OK = TRUE;
+        SEND_OK = true;
     }
     else
     // I am being killed
     if (killer == Player + myconnectindex)
     {
         sprintf(ds,"%s",KilledPlayerMessage(pp,killer));
-        SEND_OK = TRUE;
+        SEND_OK = true;
     }
 
     if (SEND_OK)
@@ -6255,7 +6255,7 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,TRUE,105);
+        InitBloodSpray(pp->PlayerSprite,true,105);
         break;
     case PLAYER_DEATH_EXPLODE:
 
@@ -6270,9 +6270,9 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,TRUE,-1);
-        InitBloodSpray(pp->PlayerSprite,TRUE,-1);
-        InitBloodSpray(pp->PlayerSprite,TRUE,-1);
+        InitBloodSpray(pp->PlayerSprite,true,-1);
+        InitBloodSpray(pp->PlayerSprite,true,-1);
+        InitBloodSpray(pp->PlayerSprite,true,-1);
         break;
     case PLAYER_DEATH_SQUISH:
 
@@ -6288,7 +6288,7 @@ DoPlayerBeginDie(PLAYERp pp)
         pp->SpriteP->xrepeat = 48;
         pp->SpriteP->yrepeat = 48;
         // Blood fountains
-        InitBloodSpray(pp->PlayerSprite,TRUE,105);
+        InitBloodSpray(pp->PlayerSprite,true,105);
         break;
 
     }
@@ -6427,9 +6427,9 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         else
         {
             // If he's not on the floor, then gib like a mo-fo!
-            InitBloodSpray(pp->PlayerSprite,TRUE,-1);
-            InitBloodSpray(pp->PlayerSprite,TRUE,-1);
-            InitBloodSpray(pp->PlayerSprite,TRUE,-1);
+            InitBloodSpray(pp->PlayerSprite,true,-1);
+            InitBloodSpray(pp->PlayerSprite,true,-1);
+            InitBloodSpray(pp->PlayerSprite,true,-1);
         }
 
         PlayerSpawnPosition(pp);
@@ -6472,7 +6472,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
             videoFadePalette(0,0,0,0);
         }
 
-        pp->NightVision = FALSE;
+        pp->NightVision = false;
         pp->FadeAmt = 0;
         DoPlayerDivePalette(pp);
         DoPlayerNightVisionPalette(pp);
@@ -7299,7 +7299,7 @@ void MultiPlayLimits(void)
 {
     short pnum;
     PLAYERp pp;
-    SWBOOL Done = FALSE;
+    SWBOOL Done = false;
 
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
         return;
@@ -7311,7 +7311,7 @@ void MultiPlayLimits(void)
             pp = Player + pnum;
             if (pp->Kills >= gNet.KillLimit)
             {
-                Done = TRUE;
+                Done = true;
             }
         }
     }
@@ -7321,7 +7321,7 @@ void MultiPlayLimits(void)
         gNet.TimeLimitClock -= synctics;
 
         if (gNet.TimeLimitClock <= 0)
-            Done = TRUE;
+            Done = true;
     }
 
     if (Done)
@@ -7359,7 +7359,7 @@ void PauseMultiPlay(void)
                 if (paused)
                 {
                     SavePrediction = PredictionOn;
-                    PredictionOn = FALSE;
+                    PredictionOn = false;
                 }
                 else
                 {
@@ -7577,7 +7577,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
         sp = &sprite[spawn_sprite];
 
-        blocked = FALSE;
+        blocked = false;
 
         // check to see if anyone else is blocking this spot
         TRAVERSE_CONNECT(pnum)
@@ -7588,7 +7588,7 @@ int SearchSpawnPosition(PLAYERp pp)
             {
                 if (FindDistance3D(sp->x - opp->posx, sp->y - opp->posy, sp->z - opp->posz) < 1000)
                 {
-                    blocked = TRUE;
+                    blocked = true;
                     break;
                 }
             }
@@ -7647,7 +7647,7 @@ PlayerSpawnPosition(PLAYERp pp)
         break;
     }
 
-    SpawnPositionUsed[pos_num] = TRUE;
+    SpawnPositionUsed[pos_num] = true;
 
     if (spawn_sprite < 0)
     {

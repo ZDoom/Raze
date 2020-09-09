@@ -58,7 +58,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-static int OverlapDraw = FALSE;
+static int OverlapDraw = false;
 extern SWBOOL QuitFlag, SpriteInfo;
 extern SWBOOL Voxel;
 extern char buffer[];
@@ -253,7 +253,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
         break;
 
     default:
-        ASSERT(TRUE == FALSE);
+        ASSERT(true == false);
         break;
     }
 
@@ -708,13 +708,13 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum];
                     uint8_t pal = sector[tsp->sectnum].floorpal;
-                    SWBOOL nosectpal=FALSE;
+                    SWBOOL nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
                     if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
                     {
                         pal = PALETTE_DEFAULT;
-                        nosectpal = TRUE;
+                        nosectpal = true;
                     }
 
                     //if(tu->spal == PALETTE_DEFAULT)
@@ -1271,8 +1271,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
     int i,nexti;
     short ang;
     SPRITEp sp;
-    SWBOOL found_camera = FALSE;
-    SWBOOL player_in_camera = FALSE;
+    SWBOOL found_camera = false;
+    SWBOOL player_in_camera = false;
     SWBOOL FAFcansee_test;
     SWBOOL ang_test;
 
@@ -1308,7 +1308,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                 case 1:
                     pp->last_camera_sp = sp;
                     CircleCamera(tx, ty, tz, tsectnum, tq16ang, 100);
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
 
                 default:
@@ -1346,7 +1346,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                     *tz = sp->z;
                     *tsectnum = sp->sectnum;
 
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
                 }
                 }
@@ -1601,7 +1601,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
     }
 }
 
-short ScreenSavePic = FALSE;
+short ScreenSavePic = false;
 
 SWBOOL PicInView(short, SWBOOL);
 void DoPlayerDiveMeter(PLAYERp pp);
@@ -1626,7 +1626,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     int const viewingRange = viewingrange;
 
-    DrawScreen = TRUE;
+    DrawScreen = true;
     PreDraw();
 
     PreUpdatePanel(smoothratio);
@@ -1743,9 +1743,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
-    OverlapDraw = TRUE;
+    OverlapDraw = true;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-    OverlapDraw = FALSE;
+    OverlapDraw = false;
 
     if (automapMode != am_full)// && !ScreenSavePic)
     {
@@ -1759,7 +1759,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (!FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
 
-    analyzesprites(tx, ty, tz, FALSE);
+    analyzesprites(tx, ty, tz, false);
     post_analyzesprites();
     renderDrawMasks();
 
@@ -1812,7 +1812,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)
     {
-        DrawScreen = FALSE;
+        DrawScreen = false;
         return;
     }
 
@@ -1848,19 +1848,19 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         if (ReloadPrompt)
         {
-            ReloadPrompt = FALSE;
+            ReloadPrompt = false;
         }
     }
 
     PostDraw();
-    DrawScreen = FALSE;
+    DrawScreen = false;
 }
 
 bool GameInterface::GenerateSavePic()
 {
-    ScreenSavePic = TRUE;
+    ScreenSavePic = true;
     drawscreen(Player + myconnectindex, 65536);
-    ScreenSavePic = FALSE;
+    ScreenSavePic = false;
     return true;
 }
 
@@ -1897,7 +1897,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                 {
                     if (sprite[Player[p].PlayerSprite].xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
-                    sprisplayer = TRUE;
+                    sprisplayer = true;
 
                     goto SHOWSPRITE;
                 }

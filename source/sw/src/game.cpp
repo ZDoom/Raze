@@ -105,7 +105,7 @@ SWBOOL SavegameLoaded = false;
 SWBOOL FinishedLevel = false;
 short screenpeek = 0;
 
-SWBOOL PreCaching = TRUE;
+SWBOOL PreCaching = true;
 int GodMode = false;
 short Skill = 2;
 short TotalKillable;
@@ -116,12 +116,12 @@ const GAME_SET gs_defaults =
     0, // GameType
     0, // Monsters
     false, // HurtTeammate
-    TRUE, // SpawnMarkers Markers
+    true, // SpawnMarkers Markers
     false, // TeamPlay
     0, // Kill Limit
     0, // Time Limit
     0, // Color
-    TRUE, // nuke
+    true, // nuke
 };
 GAME_SET gs;
 
@@ -175,7 +175,7 @@ void GameInterface::app_init()
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&Player[i].PanelSpriteList);
 
-    DebugOperate = TRUE;
+    DebugOperate = true;
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
     if (SW_SHAREWARE)

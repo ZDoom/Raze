@@ -945,7 +945,7 @@ InitRipper2Hang(short SpriteNum)
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
-    SWBOOL Found = FALSE;
+    SWBOOL Found = false;
     short dang, tang;
 
     for (dang = 0; dang < 2048; dang += 128)
@@ -968,7 +968,7 @@ InitRipper2Hang(short SpriteNum)
             continue;
         }
 
-        Found = TRUE;
+        Found = true;
         sp->ang = tang;
         break;
     }
@@ -1179,11 +1179,11 @@ DoRipper2QuickJump(short SpriteNum)
             NewStateGroup(SpriteNum, sg_Ripper2JumpAttack);
             // move past the first state
             u->Tics = 30;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 

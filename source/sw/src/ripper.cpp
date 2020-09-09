@@ -889,7 +889,7 @@ PickJumpSpeed(short SpriteNum, int pix_height)
     u->jump_speed = -600;
     u->jump_grav = 8;
 
-    while (TRUE)
+    while (true)
     {
         if (GetJumpHeight(u->jump_speed, u->jump_grav) > pix_height + 20)
             break;
@@ -917,7 +917,7 @@ PickJumpMaxSpeed(short SpriteNum, short max_speed)
 
     zh = SPRITEp_TOS(sp);
 
-    while (TRUE)
+    while (true)
     {
         if (zh - Z(GetJumpHeight(u->jump_speed, u->jump_grav)) - Z(16) > u->hiz)
             break;
@@ -945,7 +945,7 @@ InitRipperHang(short SpriteNum)
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
-    SWBOOL Found = FALSE;
+    SWBOOL Found = false;
     short dang, tang;
 
     for (dang = 0; dang < 2048; dang += 128)
@@ -969,7 +969,7 @@ InitRipperHang(short SpriteNum)
             continue;
         }
 
-        Found = TRUE;
+        Found = true;
         sp->ang = tang;
         break;
     }
@@ -1165,11 +1165,11 @@ DoRipperQuickJump(short SpriteNum)
             NewStateGroup(SpriteNum, sg_RipperJumpAttack);
             // move past the first state
             u->Tics = 30;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 

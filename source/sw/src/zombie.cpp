@@ -886,9 +886,9 @@ DoZombieMove(short SpriteNum)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
         SetSuicide(SpriteNum);
         return 0;
     }
@@ -936,9 +936,9 @@ NullZombie(short SpriteNum)
 
     if (u->Counter3++ >= ZOMBIE_TIME_LIMIT)
     {
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
-        InitBloodSpray(SpriteNum,TRUE,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
+        InitBloodSpray(SpriteNum,true,105);
         SetSuicide(SpriteNum);
         return 0;
     }

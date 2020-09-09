@@ -463,7 +463,7 @@ SectorSetup(void)
             break;
 
         case TAG_DOOR_SLIDING:
-            SetSectorWallBits(i, WALLFX_DONT_STICK, TRUE, TRUE);
+            SetSectorWallBits(i, WALLFX_DONT_STICK, true, true);
             break;
 
         case TAG_SINE_WAVE_FLOOR:
@@ -517,7 +517,7 @@ SectorSetup(void)
             swf->ceiling_origz = sector[swf->sector].ceilingz - (range >> 2);
 
             // look for the rest by distance
-            for (swf_ndx = 1, sector_cnt = 1; TRUE; swf_ndx++)
+            for (swf_ndx = 1, sector_cnt = 1; true; swf_ndx++)
             {
                 // near_sect = FindNextSectorByTag(base_sect,
                 // TAG_SINE_WAVE_FLOOR + swf_ndx);
@@ -867,21 +867,21 @@ OperateSector(short sectnum, short player_is_operating)
 
 
         if (SectUser[sectnum] && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
-            return FALSE;
+            return false;
 
         TRAVERSE_SPRITE_SECT(headspritesect[sectnum], i, nexti)
         {
             fsp = &sprite[i];
 
             if (SectUser[fsp->sectnum] && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
-                return FALSE;
+                return false;
 
             if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && TEST_BOOL7(fsp))
-                return FALSE;
+                return false;
             if (fsp->statnum == STAT_ROTATOR && SP_TAG1(fsp) == SECT_ROTATOR && TEST_BOOL7(fsp))
-                return FALSE;
+                return false;
             if (fsp->statnum == STAT_SLIDOR && SP_TAG1(fsp) == SECT_SLIDOR && TEST_BOOL7(fsp))
-                return FALSE;
+                return false;
 
         }
     }
@@ -894,18 +894,18 @@ OperateSector(short sectnum, short player_is_operating)
 
     case TAG_VATOR:
         DoVatorOperate(pp, sectnum);
-        return TRUE;
+        return true;
 
     case TAG_ROTATOR:
         DoRotatorOperate(pp, sectnum);
-        return TRUE;
+        return true;
 
     case TAG_SLIDOR:
         DoSlidorOperate(pp, sectnum);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 int
@@ -919,7 +919,7 @@ OperateWall(short wallnum, short player_is_operating)
     }
 	*/
 
-    return FALSE;
+    return false;
 }
 
 short
@@ -950,7 +950,7 @@ AnimateSwitch(SPRITEp sp, short tgt_value)
 
     switch (sp->picnum)
     {
-    // set to TRUE/ON
+    // set to true/ON
     case SWITCH_SKULL:
     case SWITCH_LEVER:
     case SWITCH_LIGHT:
@@ -1317,10 +1317,10 @@ SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop)
         CollapseSectorObject(sop, sop->xmid, sop->ymid);
         DoSpawnSpotsForKill(sop->match_event);
         KillSectorObjectSprites(sop);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 short
@@ -1337,7 +1337,7 @@ DoSectorObjectKillMatch(short match)
             return TestKillSectorObject(sop);
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -1355,11 +1355,11 @@ SearchExplodeSectorMatch(short match)
         {
             KillMatchingCrackSprites(match);
             DoExplodeSector(match);
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -1437,13 +1437,13 @@ ShootableSwitch(short SpriteNum)
     {
     case SWITCH_SHOOTABLE_1:
         //RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, FALSE);
+        OperateSprite(SpriteNum, false);
         sp->picnum = SWITCH_SHOOTABLE_1 + 1;
         break;
     case SWITCH_FUSE:
     case SWITCH_FUSE + 1:
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, FALSE);
+        OperateSprite(SpriteNum, false);
         sp->picnum = SWITCH_FUSE + 2;
         break;
     }
@@ -1469,7 +1469,7 @@ void DoDeleteSpriteMatch(short match)
     unsigned stat;
     short found;
 
-    while (TRUE)
+    while (true)
     {
         found = -1;
 
@@ -1595,10 +1595,10 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
         DoSpikeMatch(match);
 
     if (!TestRotatorMatchActive(match))
-        DoRotatorMatch(pp, match, FALSE);
+        DoRotatorMatch(pp, match, false);
 
     if (!TestSlidorMatchActive(match))
-        DoSlidorMatch(pp, match, FALSE);
+        DoSlidorMatch(pp, match, false);
 
     DoSectorObjectKillMatch(match);
     DoSectorObjectSetScale(match);
@@ -1639,12 +1639,12 @@ SWBOOL ComboSwitchTest(short combo_type, short match)
             // if any one is not set correctly then switch is not set
             if (state != SP_TAG3(sp))
             {
-                return FALSE;
+                return false;
             }
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 // NOTE: switches are always wall sprites
@@ -1662,17 +1662,17 @@ OperateSprite(short SpriteNum, short player_is_operating)
     extern STATE s_Pachinko4Operate[];
 
     if (Prediction)
-        return FALSE;
+        return false;
 
     if (sp->picnum == ST1)
-        return FALSE;
+        return false;
 
     if (player_is_operating)
     {
         pp = GlobPlayerP;
 
         if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursectnum, sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum))
-            return FALSE;
+            return false;
     }
 
     switch (sp->lotag)
@@ -1683,7 +1683,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case MECHANICGIRL_R0:
     case SAILORGIRL_R0:
     case PRUNEGIRL_R0:
-        //if(RANDOM_RANGE(1000) < 500) return(TRUE);
+        //if(RANDOM_RANGE(1000) < 500) return(true);
         //if(u->FlagOwner == 0)
     {
         short choose_snd;
@@ -1691,7 +1691,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         u->FlagOwner = 1;
         u->WaitTics = SEC(4);
 
-        if (pp != Player+myconnectindex) return TRUE;
+        if (pp != Player+myconnectindex) return true;
 
         choose_snd = STD_RANDOM_RANGE(1000);
         if (sp->lotag == CARGIRL_R0)
@@ -1761,51 +1761,51 @@ OperateSprite(short SpriteNum, short player_is_operating)
                 PlayerSound(DIGI_REALTITS, v3df_dontpan|v3df_follow,pp);
         }
     }
-        return TRUE;
+        return true;
 
     case PACHINKO1:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return TRUE;
+        if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko1Operate);
 
-        return TRUE;
+        return true;
 
     case PACHINKO2:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return TRUE;
+        if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko2Operate);
 
-        return TRUE;
+        return true;
 
     case PACHINKO3:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return TRUE;
+        if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko3Operate);
 
-        return TRUE;
+        return true;
 
     case PACHINKO4:
 
         // Don't mess with it if it's already going
-        if (u->WaitTics > 0) return TRUE;
+        if (u->WaitTics > 0) return true;
 
         PlaySound(DIGI_PFLIP, sp, v3df_none);
         u->WaitTics = SEC(3) + SEC(RANDOM_RANGE(10));
         ChangeState(SpriteNum,s_Pachinko4Operate);
 
-        return TRUE;
+        return true;
 
     case SWITCH_LOCKED:
         key_num = sp->hitag;
@@ -1820,7 +1820,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             UnlockKeyLock(key_num, SpriteNum);
         }
 
-        return TRUE;
+        return true;
 
     case TAG_COMBO_SWITCH_EVERYTHING:
 
@@ -1833,7 +1833,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             DoMatchEverything(pp, sp->hitag, ON);
         }
 
-        return TRUE;
+        return true;
 
     case TAG_COMBO_SWITCH_EVERYTHING_ONCE:
 
@@ -1848,25 +1848,25 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         sp->lotag = 0;
         sp->hitag = 0;
-        return TRUE;
+        return true;
 
     case TAG_SWITCH_EVERYTHING:
         state = AnimateSwitch(sp, -1);
         DoMatchEverything(pp, sp->hitag, state);
-        return TRUE;
+        return true;
 
     case TAG_SWITCH_EVERYTHING_ONCE:
         state = AnimateSwitch(sp, -1);
         DoMatchEverything(pp, sp->hitag, state);
         sp->lotag = 0;
         sp->hitag = 0;
-        return TRUE;
+        return true;
 
     case TAG_LIGHT_SWITCH:
 
         state = AnimateSwitch(sp, -1);
         DoLightingMatch(sp->hitag, state);
-        return TRUE;
+        return true;
 
     case TAG_SPRITE_SWITCH_VATOR:
     {
@@ -1879,12 +1879,12 @@ OperateSprite(short SpriteNum, short player_is_operating)
             DoSpikeMatch(sp->hitag);
 
         if (!TestRotatorMatchActive(sp->hitag))
-            DoRotatorMatch(pp, sp->hitag, FALSE);
+            DoRotatorMatch(pp, sp->hitag, false);
 
         if (!TestSlidorMatchActive(sp->hitag))
-            DoSlidorMatch(pp, sp->hitag, FALSE);
+            DoSlidorMatch(pp, sp->hitag, false);
 
-        return TRUE;
+        return true;
     }
 
     case TAG_LEVEL_EXIT_SWITCH:
@@ -1900,7 +1900,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
             map = FindMapByLevelNum(currentLevel->levelNumber + 1);
 		ChangeLevel(map, -1);
 
-        return TRUE;
+        return true;
     }
 
     case TAG_SPRITE_GRATING:
@@ -1916,20 +1916,20 @@ OperateSprite(short SpriteNum, short player_is_operating)
         sp->lotag = 0;
         sp->hitag /= 2;
 
-        return TRUE;
+        return true;
     }
 
     case TAG_SO_SCALE_SWITCH:
         AnimateSwitch(sp, -1);
         DoSectorObjectSetScale(sp->hitag);
-        return TRUE;
+        return true;
 
     case TAG_SO_SCALE_ONCE_SWITCH:
         AnimateSwitch(sp, -1);
         DoSectorObjectSetScale(sp->hitag);
         sp->lotag = 0;
         sp->hitag = 0;
-        return TRUE;
+        return true;
 
     case TAG_SO_EVENT_SWITCH:
     {
@@ -1962,13 +1962,13 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
 
-        return TRUE;
+        return true;
 
         break;
     }
     }
 
-    return FALSE;
+    return false;
 }
 
 int DoTrapReset(short match)
@@ -2134,9 +2134,9 @@ OperateTripTrigger(PLAYERp pp)
         if (!TestSpikeMatchActive(sectp->hitag))
             DoSpikeMatch(sectp->hitag);
         if (!TestRotatorMatchActive(sectp->hitag))
-            DoRotatorMatch(pp, sectp->hitag, FALSE);
+            DoRotatorMatch(pp, sectp->hitag, false);
         if (!TestSlidorMatchActive(sectp->hitag))
-            DoSlidorMatch(pp, sectp->hitag, FALSE);
+            DoSlidorMatch(pp, sectp->hitag, false);
         break;
 
     case TAG_LIGHT_TRIGGER:
@@ -2314,7 +2314,7 @@ SWBOOL NearThings(PLAYERp pp)
     {
         if (pp == Player+myconnectindex)
             PlayerSound(sector[pp->cursectnum].lotag, v3df_follow|v3df_dontpan,pp);
-        return FALSE;
+        return false;
     }
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, FixedToInt(pp->q16ang),
@@ -2334,7 +2334,7 @@ SWBOOL NearThings(PLAYERp pp)
             if (pp == Player+myconnectindex)
                 PlayerSound(sp->lotag, v3df_follow|v3df_dontpan,pp);
         }
-        return FALSE;   // Return false so he doesn't grunt
+        return false;   // Return false so he doesn't grunt
     }
 
     if (neartagwall >= 0)
@@ -2344,9 +2344,9 @@ SWBOOL NearThings(PLAYERp pp)
         {
             if (pp == Player+myconnectindex)
                 PlayerSound(wall[neartagwall].lotag, v3df_follow|v3df_dontpan,pp);
-            return FALSE;   // We are playing a sound so don't return true
+            return false;   // We are playing a sound so don't return true
         }
-        return TRUE;
+        return true;
     }
     // This only gets called if nothing else worked, check for nearness to a wall
     {
@@ -2360,17 +2360,17 @@ SWBOOL NearThings(PLAYERp pp)
                    &hitinfo, CLIPMASK_MISSILE);
 
         if (hitinfo.sect < 0)
-            return FALSE;
+            return false;
 
         if (Distance(hitinfo.pos.x, hitinfo.pos.y, pp->posx, pp->posy) > 1500)
-            return FALSE;
+            return false;
 
         // hit a sprite?
         if (hitinfo.sprite >= 0)
-            return FALSE;
+            return false;
 
         if (neartagsect >= 0)
-            return TRUE;
+            return true;
 
         if (hitinfo.wall >= 0)
         {
@@ -2387,10 +2387,10 @@ SWBOOL NearThings(PLAYERp pp)
                     PlayerSound(DIGI_SEARCHWALL, v3df_follow|v3df_dontpan,pp);
             }
 
-            return TRUE;
+            return true;
         }
 
-        return FALSE;
+        return false;
     }
 
 }
@@ -2547,13 +2547,13 @@ int DoPlayerGrabStar(PLAYERp pp)
         KillSprite(StarQueue[i]);
         StarQueue[i] = -1;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
-            return TRUE;
+            return true;
         SET(pp->WpnFlags, BIT(WPN_STAR));
         InitWeaponStar(pp);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -2592,17 +2592,17 @@ PlayerOperateEnv(PLAYERp pp)
 
             BuildNearTagList(nti, sizeof(nti), pp, pp->posz, 2048L, NTAG_SEARCH_LO_HI, 8);
 
-            found = FALSE;
+            found = false;
 
             // try and find a sprite
             for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
             {
                 if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
                 {
-                    if (OperateSprite(nti[nt_ndx].spritenum, TRUE))
+                    if (OperateSprite(nti[nt_ndx].spritenum, true))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }
@@ -2628,7 +2628,7 @@ PlayerOperateEnv(PLAYERp pp)
                     {
                         if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
                         {
-                            if (OperateSprite(nti[nt_ndx].spritenum, TRUE))
+                            if (OperateSprite(nti[nt_ndx].spritenum, true))
                             {
                                 pp->KeyPressBits &= ~SB_OPEN;
                                 break;
@@ -2648,7 +2648,7 @@ PlayerOperateEnv(PLAYERp pp)
 
                 if (neartagsector >= 0 && neartaghitdist < 1024)
                 {
-                    if (OperateSector(neartagsector, TRUE))
+                    if (OperateSector(neartagsector, true))
                     {
                         // Release the key
                         pp->KeyPressBits &= ~SB_OPEN;
@@ -2657,7 +2657,7 @@ PlayerOperateEnv(PLAYERp pp)
 
                 if (neartagwall >= 0 && neartaghitdist < 1024)
                 {
-                    if (OperateWall(neartagwall, TRUE))
+                    if (OperateWall(neartagwall, true))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                     }
@@ -2681,7 +2681,7 @@ PlayerOperateEnv(PLAYERp pp)
                 pp->KeyPressBits &= ~SB_OPEN;
                 break;
             case TAG_DOOR_ROTATE:
-                if (OperateSector(pp->cursectnum, TRUE))
+                if (OperateSector(pp->cursectnum, true))
                     pp->KeyPressBits &= ~SB_OPEN;
                 break;
             }
@@ -3269,7 +3269,7 @@ DoSector(void)
             continue;
 
 
-        riding = FALSE;
+        riding = false;
         min_dist = 999999;
 
         TRAVERSE_CONNECT(pnum)
@@ -3278,7 +3278,7 @@ DoSector(void)
 
             if (pp->sop_riding == sop)
             {
-                riding = TRUE;
+                riding = true;
                 pp->sop_riding = NULL;
                 break;
             }

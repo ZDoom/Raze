@@ -99,11 +99,11 @@ FAF_Sector(short sectnum)
         if (sp->statnum == STAT_FAF &&
             (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 void SetWallWarpHitscan(short sectnum)
@@ -155,7 +155,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     int loz, hiz;
     short newsectnum = sectnum;
     int startclipmask = 0;
-    SWBOOL plax_found = FALSE;
+    SWBOOL plax_found = false;
 
     if (clipmask == CLIPMASK_MISSILE)
         startclipmask = CLIPMASK_WARP_HITSCAN;
@@ -202,7 +202,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             {
                 //DSPRINTF(ds,"hitinfo->pos.x %d, hitinfo->pos.y %d, hitinfo->pos.z %d",hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z);
                 MONO_PRINT(ds);
-                ASSERT(TRUE == FALSE);
+                ASSERT(true == false);
             }
         }
     }
@@ -243,7 +243,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             if (FAF_ConnectFloor(hitinfo->sect) && !TEST(sector[hitinfo->sect].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z + Z(12), &newsectnum);
-                plax_found = TRUE;
+                plax_found = true;
             }
         }
         else if (labs(hitinfo->pos.z - hiz) < Z(4))
@@ -251,7 +251,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             if (FAF_ConnectCeiling(hitinfo->sect) && !TEST(sector[hitinfo->sect].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z - Z(12), &newsectnum);
-                plax_found = TRUE;
+                plax_found = true;
             }
         }
     }
@@ -274,7 +274,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     short ang;
     hitdata_t hitinfo;
     int dist;
-    SWBOOL plax_found = FALSE;
+    SWBOOL plax_found = false;
     vec3_t s = { xs, ys, zs };
 
     // ASSERT(sects >= 0 && secte >= 0);
@@ -311,7 +311,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
             &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
-        return FALSE;
+        return false;
 
     // make sure it hit JUST a sector before doing a check
     if (hitinfo.wall < 0 && hitinfo.sprite < 0)
@@ -322,7 +322,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
             if (FAF_ConnectFloor(hitinfo.sect))
             {
                 updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsectnum);
-                plax_found = TRUE;
+                plax_found = true;
             }
         }
         else if (labs(hitinfo.pos.z - hiz) < Z(4))
@@ -330,7 +330,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
             if (FAF_ConnectCeiling(hitinfo.sect))
             {
                 updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsectnum);
-                plax_found = TRUE;
+                plax_found = true;
             }
         }
     }
@@ -342,7 +342,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     if (plax_found)
         return cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsectnum,xe,ye,ze,secte);
 
-    return FALSE;
+    return false;
 }
 
 
@@ -373,7 +373,7 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
     extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
     int z_amt = 0;
 
-    SWBOOL SkipFAFcheck = FALSE;
+    SWBOOL SkipFAFcheck = false;
 
     if ((int)florhit != -1)
     {
@@ -399,7 +399,7 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
                     {
                         // explicit z adjust overrides Connect Floor
                         *loz += z_amt;
-                        SkipFAFcheck = TRUE;
+                        SkipFAFcheck = true;
                     }
                 }
 
@@ -449,7 +449,7 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
                     {
                         // explicit z adjust overrides Connect Floor
                         *loz += z_amt;
-                        SkipFAFcheck = TRUE;
+                        SkipFAFcheck = true;
                     }
                 }
 
@@ -641,10 +641,10 @@ PicInView(short tile_num, SWBOOL reset)
         if (reset)
             RESET(gotpic[tile_num >> 3], 1 << (tile_num & 7));
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -696,7 +696,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         // will not hurt if GlobStackSect is invalid - inside checks for this
         if (inside(x, y, GlobStackSect[i]) == 1)
         {
-            SWBOOL found = FALSE;
+            SWBOOL found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[GlobStackSect[i]], SpriteNum, Next)
             {
@@ -706,7 +706,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
                     (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
                     && sp->lotag == match)
                 {
-                    found = TRUE;
+                    found = true;
                 }
             }
 
@@ -726,7 +726,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         {
             if (inside(x, y, (short) i) == 1)
             {
-                SWBOOL found = FALSE;
+                SWBOOL found = false;
 
                 TRAVERSE_SPRITE_SECT(headspritesect[i], SpriteNum, Next)
                 {
@@ -736,7 +736,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
                         (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
                         && sp->lotag == match)
                     {
-                        found = TRUE;
+                        found = true;
                     }
                 }
 
@@ -844,7 +844,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     }
 
     if (*sectnum < 0)
-        return FALSE;
+        return false;
 
     ASSERT(sp);
     ASSERT(sp->hitag == VIEW_THRU_FLOOR);
@@ -879,7 +879,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 SWBOOL
@@ -932,7 +932,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     }
 
     if (*sectnum < 0)
-        return FALSE;
+        return false;
 
     ASSERT(sp);
     ASSERT(sp->hitag == VIEW_THRU_CEILING);
@@ -969,7 +969,7 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 short
@@ -996,7 +996,7 @@ ViewSectorInScene(short cursectnum, short level)
                 // found a potential match
                 match = sp->lotag;
 
-                if (!PicInView(FAF_MIRROR_PIC, TRUE))
+                if (!PicInView(FAF_MIRROR_PIC, true))
                     return -1;
 
                 return match;
@@ -1034,7 +1034,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
             sector[save.sectnum[i]].floorheinum = save.slope[i];
         }
 
-        analyzesprites(tx, ty, tz, FALSE);
+        analyzesprites(tx, ty, tz, false);
         post_analyzesprites();
         renderDrawMasks();
 
@@ -1060,7 +1060,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
                 sector[save.sectnum[i]].ceilingheinum = save.slope[i];
             }
 
-            analyzesprites(tx, ty, tz, FALSE);
+            analyzesprites(tx, ty, tz, false);
             post_analyzesprites();
             renderDrawMasks();
 

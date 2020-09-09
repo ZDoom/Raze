@@ -50,10 +50,10 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     *sp_ceiling = NULL;
 
     if (Prediction)
-        return FALSE;
+        return false;
 
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
-        return FALSE;
+        return false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)
     {
@@ -76,7 +76,7 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 SPRITEp
@@ -219,7 +219,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
     *sp_warp = NULL;
 
     if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
-        return FALSE;
+        return false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WARP], i, nexti)
     {
@@ -238,7 +238,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 SPRITEp

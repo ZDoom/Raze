@@ -293,7 +293,7 @@ void UseInventoryCloak(PLAYERp pp)
         return;
     }
 
-    pp->InventoryActive[pp->InventoryNum] = TRUE;
+    pp->InventoryActive[pp->InventoryNum] = true;
 
     AutoPickInventory(pp);
 
@@ -313,7 +313,7 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 {
     SPRITEp sp = pp->SpriteP;
 
-    pp->InventoryActive[InventoryNum] = FALSE;
+    pp->InventoryActive[InventoryNum] = false;
 
     if (pp->InventoryPercent[InventoryNum] <= 0)
     {
@@ -350,7 +350,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
 //        if (pp->NightVision && pp->StartColor == 148)
 //            return;
         SetFadeAmt(pp,-1005,148); // Night vision green tint
-        pp->NightVision = TRUE;
+        pp->NightVision = true;
     }
     else
     {
@@ -360,7 +360,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
             pp->FadeAmt = 0;
             videoFadePalette(0,0,0,0);
         }
-        pp->NightVision = FALSE;
+        pp->NightVision = false;
     }
 }
 
@@ -373,7 +373,7 @@ UseInventoryNightVision(PLAYERp pp)
         return;
     }
 
-    pp->InventoryActive[pp->InventoryNum] = TRUE;
+    pp->InventoryActive[pp->InventoryNum] = true;
 
     // on/off
     PlayerUpdateInventory(pp, pp->InventoryNum);
@@ -385,7 +385,7 @@ UseInventoryNightVision(PLAYERp pp)
 void
 StopInventoryNightVision(PLAYERp pp, short InventoryNum)
 {
-    pp->InventoryActive[InventoryNum] = FALSE;
+    pp->InventoryActive[InventoryNum] = false;
 
     if (pp->InventoryPercent[InventoryNum] <= 0)
     {
@@ -531,7 +531,7 @@ void InventoryTimer(PLAYERp pp)
                     // ALL USED UP
                     pp->InventoryPercent[inv] = 0;
                     InventoryStop(pp, inv);
-                    pp->InventoryActive[inv] = FALSE;
+                    pp->InventoryActive[inv] = false;
                 }
                 else
                 {
@@ -566,7 +566,7 @@ void InventoryTimer(PLAYERp pp)
                     // reset 1 sec tic clock
                     pp->InventoryTics[inv] = SEC(1);
                     // set to InActive EVERY TIME THROUGH THE LOOP!
-                    pp->InventoryActive[inv] = FALSE;
+                    pp->InventoryActive[inv] = false;
                 }
 
                 PlayerUpdateInventory(pp, pp->InventoryNum);

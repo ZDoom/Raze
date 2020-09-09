@@ -246,11 +246,11 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16((short)val)
 
 // OVER and UNDER water macros
-#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
-#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)
+#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
+#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
 
-#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
-#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)
+#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false)
+#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
 
 #define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
 #define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))

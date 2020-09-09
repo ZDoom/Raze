@@ -269,14 +269,4 @@ void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr,
 /* End dependence on compat.o object. */
 
 
-////////// EDuke32-specific features //////////
-
-#ifndef TRUE
-# define TRUE 1
-#endif
-
-#ifndef FALSE
-# define FALSE 0
-#endif
-
 #endif // compat_h_

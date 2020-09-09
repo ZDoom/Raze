@@ -640,8 +640,8 @@ int DoCoolgMatchPlayerZ(short SpriteNum)
     // If blocking bits get unset, just die
     if (!TEST(sp->cstat,CSTAT_SPRITE_BLOCK) || !TEST(sp->cstat,CSTAT_SPRITE_BLOCK_HITSCAN))
     {
-        InitBloodSpray(SpriteNum, TRUE, 105);
-        InitBloodSpray(SpriteNum, TRUE, 105);
+        InitBloodSpray(SpriteNum, true, 105);
+        InitBloodSpray(SpriteNum, true, 105);
         UpdateSinglePlayKills(SpriteNum);
         SetSuicide(SpriteNum);
     }

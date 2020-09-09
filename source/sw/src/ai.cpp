@@ -118,7 +118,7 @@ SWBOOL ActorMoveHitReact(short SpriteNum)
 {
     USERp u = User[SpriteNum];
 
-    // Should only return TRUE if there is a reaction to what was hit that
+    // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
 
     switch (TEST(u->ret, HIT_MASK))
@@ -140,7 +140,7 @@ SWBOOL ActorMoveHitReact(short SpriteNum)
             if (action)
             {
                 (*action)(SpriteNum);
-                return TRUE;
+                return true;
             }
         }
         break;
@@ -157,7 +157,7 @@ SWBOOL ActorMoveHitReact(short SpriteNum)
     }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -177,10 +177,10 @@ SWBOOL ActorFlaming(short SpriteNum)
         MONO_PRINT(ds);
 
         if (SPRITEp_SIZE_Z(fp) > size)
-            return TRUE;
+            return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void
@@ -217,7 +217,7 @@ ChooseAction(DECISION decision[])
     // !JIM! Here is an opportunity for some AI, instead of randomness!
     random_value = RANDOM_P2(1024<<5)>>5;
 
-    for (i = 0; TRUE; i++)
+    for (i = 0; true; i++)
     {
         ASSERT(i < 10);
 
@@ -240,7 +240,7 @@ ChooseActionNumber(short decision[])
 
     random_value = RANDOM_P2(1024<<5)>>5;
 
-    for (i = 0; TRUE; i++)
+    for (i = 0; true; i++)
     {
         if (random_value <= decision[i])
         {
@@ -318,12 +318,12 @@ CanSeePlayer(short SpriteNum)
     int look_height = SPRITEp_TOS(sp);
 
     //if (FAF_Sector(sp->sectnum))
-    //    return(TRUE);
+    //    return(true);
 
     if (u->tgt_sp && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->tgt_sp->x, u->tgt_sp->y, SPRITEp_UPPER(u->tgt_sp), u->tgt_sp->sectnum))
-        return TRUE;
+        return true;
     else
-        return FALSE;
+        return false;
 }
 
 int
@@ -333,12 +333,12 @@ CanHitPlayer(short SpriteNum)
     SPRITEp sp = User[SpriteNum]->SpriteP, hp;
     hitdata_t hitinfo;
     int xvect,yvect,zvect;
-    short ang,ret=FALSE;
+    short ang,ret=false;
     // if actor can still see the player
     int zhs, zhh;
 
     //if (FAF_Sector(sp->sectnum))
-    //    return(TRUE);
+    //    return(true);
 
     zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
@@ -358,13 +358,13 @@ CanHitPlayer(short SpriteNum)
     else if (hp->y - sp->y != 0)
         zvect = yvect * ((zhh - zhs)/(hp->y - sp->y));
     else
-        return FALSE;
+        return false;
 
     // so actors won't shoot straight up at you
     // need to be a bit of a distance away
     // before they have a valid shot
 //    if (labs(zvect / FindDistance2D(hp->x - sp->x, hp->y - sp->y)) > 200)
-//       return(FALSE);
+//       return(false);
 
     FAFhitscan(sp->x, sp->y, zhs, sp->sectnum,
                xvect,
@@ -373,15 +373,15 @@ CanHitPlayer(short SpriteNum)
                &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
-        return FALSE;
+        return false;
 
     if (hitinfo.sprite == u->tgt_sp - sprite)
-        return TRUE;
+        return true;
 
-    ////DSPRINTF(ds,"CanHit %s",ret ? "TRUE" : "FALSE");
+    ////DSPRINTF(ds,"CanHit %s",ret ? "true" : "false");
     //MONO_PRINT(ds);
 
-    return FALSE;
+    return false;
 }
 
 /*
@@ -399,7 +399,7 @@ DoActorPickClosePlayer(short SpriteNum)
     PLAYERp pp;
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    SWBOOL found = FALSE;
+    SWBOOL found = false;
     int i,nexti;
 
     if (u->ID == ZOMBIE_RUN_R0 && gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
@@ -454,7 +454,7 @@ DoActorPickClosePlayer(short SpriteNum)
 
     // see if you can find someone close that you can SEE
     near_dist = MAX_ACTIVE_RANGE;
-    found = FALSE;
+    found = false;
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
@@ -480,7 +480,7 @@ DoActorPickClosePlayer(short SpriteNum)
         {
             near_dist = dist;
             u->tgt_sp = pp->SpriteP;
-            found = TRUE;
+            found = true;
         }
     }
 
@@ -553,13 +553,13 @@ int DoActorOperate(short SpriteNum)
     unsigned int i;
 
     if (u->ID == HORNET_RUN_R0 || u->ID == EEL_RUN_R0 || u->ID == BUNNY_RUN_R0)
-        return FALSE;
+        return false;
 
     if (u->Rot == u->ActorActionSet->Sit || u->Rot == u->ActorActionSet->Stand)
-        return FALSE;
+        return false;
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
-        return FALSE;
+        return false;
 
     //DSPRINTF(ds,"sp->x = %ld, sp->y = %ld, sp->sector = %d, tp->x = %ld, tp->y = %ld, tp->ang = %d\n",sp->x,sp->y,sp->sectnum,tpoint->x,tpoint->y,tpoint->ang);
     //MONO_PRINT(ds);
@@ -579,7 +579,7 @@ int DoActorOperate(short SpriteNum)
 #if 0  // Actors don't hit switches on a whim
         if (nearsprite >= 0 && nearhitdist < 1024)
         {
-            if (OperateSprite(nearsprite, FALSE))
+            if (OperateSprite(nearsprite, false))
             {
                 u->WaitTics = 2 * 120;
 
@@ -592,7 +592,7 @@ int DoActorOperate(short SpriteNum)
 
     if (nearsector >= 0 && nearhitdist < 1024)
     {
-        if (OperateSector(nearsector, FALSE))
+        if (OperateSector(nearsector, false))
         {
             u->WaitTics = 2 * 120;
 
@@ -602,14 +602,14 @@ int DoActorOperate(short SpriteNum)
 
     if (nearwall >= 0 && nearhitdist < 1024)
     {
-        if (OperateWall(nearwall, FALSE))
+        if (OperateWall(nearwall, false))
         {
             u->WaitTics = 2 * 120;
 
             NewStateGroup(SpriteNum, u->ActorActionSet->Stand);
         }
     }
-    return TRUE;
+    return true;
 
 }
 
@@ -639,7 +639,7 @@ DoActorActionDecide(short SpriteNum)
     int dist;
     ANIMATORp action;
     USERp pu=NULL;
-    SWBOOL ICanSee=FALSE;
+    SWBOOL ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
     // it get called
@@ -794,7 +794,7 @@ DoActorActionDecide(short SpriteNum)
                 if (!u->DidAlert && ICanSee)
                 {
                     DoActorNoise(InitActorAlertNoise, SpriteNum);
-                    u->DidAlert = TRUE;
+                    u->DidAlert = true;
                 }
                 return action;
 
