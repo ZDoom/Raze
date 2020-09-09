@@ -308,8 +308,7 @@ DoActorNoise(ANIMATORp Action, short SpriteNum)
     return 0;
 }
 
-int
-CanSeePlayer(short SpriteNum)
+bool CanSeePlayer(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;

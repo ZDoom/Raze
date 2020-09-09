@@ -349,7 +349,7 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
     int32_t i;
     SECTOR_OBJECTp sop;
     so_interp *interp;
-    SWBOOL saveisshot = false;
+    int saveisshot = 0;
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
@@ -364,17 +364,17 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
             MWRITE(&data->spriteofang,sizeof(data->spriteofang),1,fil);
         }
     }
-    return saveisshot;
+    return !!saveisshot;
 }
 
-int LoadSymDataInfo(MFILE_READ fil, void **ptr);
+int LoadSymDataInfo(MFILE_READ fil, void** ptr);
 
 SWBOOL so_readinterpolations(MFILE_READ fil)
 {
     int32_t i;
     SECTOR_OBJECTp sop;
     so_interp *interp;
-    SWBOOL saveisshot = false;
+    int saveisshot = 0;
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
@@ -393,7 +393,7 @@ SWBOOL so_readinterpolations(MFILE_READ fil)
         interp->tic = 0;
         interp->lasttic = synctics;
     }
-    return saveisshot;
+    return !!saveisshot;
 }
 
 END_SW_NS

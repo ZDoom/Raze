@@ -53,7 +53,7 @@ typedef struct
 
 SAVE save;
 
-SWBOOL FAF_DebugView = 0;
+SWBOOL FAF_DebugView = false;
 
 void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector)
 {
@@ -282,7 +282,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     // early out to regular routine
     if ((sects < 0 || !FAF_Sector(sects)) && (secte < 0 || !FAF_Sector(secte)))
     {
-        return cansee(xs,ys,zs,sects,xe,ye,ze,secte);
+        return !!cansee(xs,ys,zs,sects,xe,ye,ze,secte);
     }
 
     // get angle
@@ -336,11 +336,11 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     }
     else
     {
-        return cansee(xs,ys,zs,sects,xe,ye,ze,secte);
+        return !!cansee(xs,ys,zs,sects,xe,ye,ze,secte);
     }
 
     if (plax_found)
-        return cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsectnum,xe,ye,ze,secte);
+        return !!cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsectnum,xe,ye,ze,secte);
 
     return false;
 }

@@ -5320,7 +5320,7 @@ ActorHealth(short SpriteNum, short amt)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    extern SWBOOL FinishAnim;
+    extern int FinishAnim;
 
     if (u->ID == TRASHCAN && amt > -75)
     {
@@ -12675,7 +12675,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     USERp wu = User[Weapon];
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
-    char retval = false;
+    bool retval = false;
 
     // backup values
     oldxc = wu->xchange;
@@ -12721,7 +12721,7 @@ TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
     USERp wu = User[Weapon];
     int oldvel, oldzvel;
     int oldxc, oldyc, oldzc;
-    char retval = false;
+    bool retval = false;
 
     // backup values
     oldxc = wu->xchange;
@@ -16113,7 +16113,7 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     y1 -= mulscale16(day, mid_dist);
     y2 = y1 + mulscale16(day, xsiz);
 
-    return clipinsideboxline(sp->x, sp->y, x1, y1, x2, y2, ((int) sp->clipdist) << 2);
+    return !!clipinsideboxline(sp->x, sp->y, x1, y1, x2, y2, ((int) sp->clipdist) << 2);
 }
 
 

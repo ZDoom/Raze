@@ -857,7 +857,7 @@ BossHealthMeter(void)
 
     // Frank, good optimization for other levels, but it broke level 20. :(
     // I kept this but had to add a fix.
-    bosswasseen = serpwasseen|sumowasseen|zillawasseen;
+    bosswasseen = serpwasseen || sumowasseen || zillawasseen;
 
     // Only show the meter when you can see the boss
     if ((currentLevel->levelNumber == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)

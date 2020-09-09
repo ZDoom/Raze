@@ -73,7 +73,7 @@ extern short Bunny_Count;
 extern SWBOOL NewGame;
 extern int GodMode;
 extern int FinishTimer;
-extern SWBOOL FinishAnim;
+extern int FinishAnim;
 extern int GameVersion;
 //extern short Zombies;
 

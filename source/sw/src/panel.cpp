@@ -2384,7 +2384,7 @@ void
 pUziAction(PANEL_SPRITEp psp)
 {
     char shooting;
-    static SWBOOL alternate = false;
+    static int alternate = 0;
 
     shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 

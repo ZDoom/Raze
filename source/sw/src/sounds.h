@@ -78,7 +78,7 @@ void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags);
 void DeleteNoSoundOwner(short spritenum);
 void DeleteNoFollowSoundOwner(short spritenum);
 
-inline SWBOOL CacheSound(int num, int type) { return false; }
+inline bool CacheSound(int num, int type) { return false; }
 void COVER_SetReverb(int amt);
 void UnInitSound(void);
 void InitFX(void);

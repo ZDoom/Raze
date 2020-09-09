@@ -1625,7 +1625,7 @@ SWBOOL ComboSwitchTest(short combo_type, short match)
 {
     short i,nexti;
     SPRITEp sp;
-    SWBOOL state;
+    int state;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {

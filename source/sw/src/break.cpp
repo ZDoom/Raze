@@ -668,7 +668,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
     int flags = block_flags|type_flags;
-    short ret = false;
+    SWBOOL ret = false;
 
     SpriteNum = FindBreakSpriteMatch(match);
 

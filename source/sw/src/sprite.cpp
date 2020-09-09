@@ -91,7 +91,7 @@ void InitWeaponRocket(PLAYERp);
 void InitWeaponUzi(PLAYERp);
 
 SWBOOL FAF_Sector(short sectnum);
-SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
+int MoveSkip4, MoveSkip2, MoveSkip8;
 
 extern STATE s_CarryFlag[];
 extern STATE s_CarryFlagNoDet[];
@@ -1128,7 +1128,7 @@ void PreCachePachinko(void);
 SWBOOL
 ActorSpawn(SPRITEp sp)
 {
-    int ret = true;
+    bool ret = true;
     short SpriteNum = sp - sprite;
 
     switch (sp->picnum)
@@ -2329,7 +2329,7 @@ SpriteSetup(void)
                             sectp->floorz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sectnum, amt, 0); // floor
+                            MoveSpritesWithSector(sp->sectnum, amt, false); // floor
                         }
 
                         // set orig z
@@ -2350,7 +2350,7 @@ SpriteSetup(void)
                             sectp->ceilingz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sectnum, amt, 1); // ceiling
+                            MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
                         }
 
                         // set orig z

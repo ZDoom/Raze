@@ -560,7 +560,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
             if (TEST_GOTPIC(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && TEST_GOTPIC(mirror[cnt].campic)))
             {
                 // Do not change any global state here!
-                bIsWallMirror = (TEST_GOTPIC(cnt + MIRRORLABEL));
+                bIsWallMirror = !!(TEST_GOTPIC(cnt + MIRRORLABEL));
                 dist = 0x7fffffff;
 
                 if (bIsWallMirror)

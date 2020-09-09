@@ -97,7 +97,7 @@ extern int sw_snd_scratch;
 int GameVersion = 20;
 
 SWBOOL NoMeters = false;
-SWBOOL FinishAnim = 0;
+int FinishAnim = 0;
 SWBOOL ReloadPrompt = false;
 SWBOOL NewGame = false;
 SWBOOL SavegameLoaded = false;
@@ -127,7 +127,6 @@ GAME_SET gs;
 
 SWBOOL PlayerTrackingMode = false;
 SWBOOL SlowMode = false;
-SWBOOL FrameAdvanceTics = 3;
 
 SWBOOL DebugOperate = false;
 void LoadingLevelScreen(void);
@@ -292,7 +291,7 @@ void InitLevelGlobals2(void)
     InitTimingVars();
     TotalKillable = 0;
     Bunny_Count = 0;
-    FinishAnim = 0;
+    FinishAnim = false;
 }
 
 //---------------------------------------------------------------------------
@@ -576,7 +575,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 			if (map == nullptr)
 			{
 				STAT_Update(true);
-				FinishAnim = 0;
+				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
 				else gameaction = ga_mainmenu;
@@ -687,7 +686,7 @@ void GameInterface::ErrorCleanup()
     // Make sure we do not leave the game in an unstable state
     TerminateLevel();
     SavegameLoaded = false;
-    FinishAnim = 0;
+    FinishAnim = false;
 }
 //---------------------------------------------------------------------------
 //

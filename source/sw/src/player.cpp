@@ -81,7 +81,7 @@ USER puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
 SWBOOL NightVision = false;
-extern SWBOOL FinishAnim;
+extern int FinishAnim;
 
 
 // the smaller the number the slower the going
@@ -1180,7 +1180,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
 int
-DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets)
+DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
 {
 #define PICK_DIST 40000L
 
@@ -4212,7 +4212,7 @@ PlayerOnLadder(PLAYERp pp)
     };
 
     if (Prediction)
-        return 0;
+        return false;
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, FixedToInt(pp->q16ang),
             &neartagsector, &neartagwall, &neartagsprite,

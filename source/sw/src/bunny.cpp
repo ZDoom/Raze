@@ -855,7 +855,6 @@ DoBunnyBeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int CanSeePlayer(short SpriteNum);
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);

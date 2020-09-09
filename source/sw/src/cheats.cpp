@@ -103,7 +103,7 @@ bool RestartCheat(cheatseq_t* c)
 
 bool RoomCheat(cheatseq_t* c)
 {
-    FAF_DebugView ^= 1;
+    FAF_DebugView = !FAF_DebugView;
     return true;
 }
 
@@ -161,7 +161,7 @@ bool WarpCheat(cheatseq_t* c)
 
 bool EveryCheatToggle(cheatseq_t* c)
 {
-    EveryCheat ^= 1;
+    EveryCheat = !EveryCheat;
     C_DoCommand("god");
     C_DoCommand("give weapons");
     C_DoCommand("give items");

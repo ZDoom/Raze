@@ -109,7 +109,7 @@ void SetVatorActive(short SpriteNum)
     else
         setinterpolation(&sectp->floorz);
 
-    InterpSectorSprites(sp->sectnum, ON);
+    InterpSectorSprites(sp->sectnum, true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -137,7 +137,7 @@ void SetVatorInactive(short SpriteNum)
     else
         stopinterpolation(&sectp->floorz);
 
-    InterpSectorSprites(sp->sectnum, OFF);
+    InterpSectorSprites(sp->sectnum, false);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -465,13 +465,13 @@ int DoVator(short SpriteNum)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 1); // ceiling
+        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 0); // floor
+        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -626,13 +626,13 @@ int DoVatorAuto(short SpriteNum)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 1); // ceiling
+        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 0); // floor
+        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
     }
 
     // EQUAL this entry has finished

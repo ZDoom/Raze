@@ -76,7 +76,7 @@ SWBOOL ActorFlaming(short SpriteNum);
 void DoActorSetSpeed(short SpriteNum,uint8_t speed);
 short ChooseActionNumber(short decision[]);
 int DoActorNoise(ANIMATORp Action,short SpriteNum);
-int CanSeePlayer(short SpriteNum);
+bool CanSeePlayer(short SpriteNum);
 int CanHitPlayer(short SpriteNum);
 int DoActorPickClosePlayer(short SpriteNum);
 int CloseRangeDist(SPRITEp sp1,SPRITEp sp2);

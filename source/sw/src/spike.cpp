@@ -104,7 +104,7 @@ void SetSpikeActive(short SpriteNum)
     else
         short_setinterpolation(&sectp->floorheinum);
 
-    InterpSectorSprites(sp->sectnum, ON);
+    InterpSectorSprites(sp->sectnum, true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -132,7 +132,7 @@ void SetSpikeInactive(short SpriteNum)
     else
         short_stopinterpolation(&sectp->floorheinum);
 
-    InterpSectorSprites(sp->sectnum, OFF);
+    InterpSectorSprites(sp->sectnum, false);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
