@@ -630,11 +630,10 @@ void SybexScreen(CompletionFunc completion)
 
 class DSWLoadScreen : public DScreenJob
 {
-    std::function<int(void)> callback;
     MapRecord* rec;
 
 public:
-    DSWLoadScreen(MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec) {}
+    DSWLoadScreen(MapRecord* maprec) : DScreenJob(0), rec(maprec) {}
 
     int Frame(uint64_t clock, bool skiprequest)
     {
@@ -645,15 +644,14 @@ public:
         MNU_DrawString(160, 170, /*DemoMode ? GStrings("TXT_LBDEMO") :*/ GStrings("TXT_ENTERING"), 1, 16, 0);
         MNU_DrawString(160, 180, rec->DisplayName(), 1, 16, 0);
 
-        // Initiate the level load once the page has been faded in completely.
-        if (callback && GetFadeState() == visible)
-        {
-            callback();
-            callback = nullptr;
-        }
-        if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
-        return skiprequest ? -1 : 1;
+        return 0;
     }
 };
+
+void loadscreen(MapRecord* rec, CompletionFunc func)
+{
+    JobDesc job = { Create<DSWLoadScreen>(rec) };
+    RunScreenJob(&job, 1, func);
+}
 
 END_SW_NS
