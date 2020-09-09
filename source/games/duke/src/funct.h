@@ -221,7 +221,7 @@ void prelevel_d(int g);
 void prelevel_r(int g);
 void e4intro(const CompletionFunc& completion);
 void exitlevel(MapRecord *next);
-int enterlevel(MapRecord* mi, int gm);
+void enterlevel(MapRecord* mi, int gm);
 void donewgame(MapRecord* map, int sk);
 void startnewgame(MapRecord* map, int skill);
 void setlocalplayerinput(player_struct *pp);

@@ -158,12 +158,23 @@ void GameInterface::Render()
 // 
 //
 //---------------------------------------------------------------------------
+void loadscreen_d(MapRecord* rec, CompletionFunc func);
+void loadscreen_r(MapRecord* rec, CompletionFunc func);
 
 void GameInterface::NextLevel(MapRecord* map, int skill)
 {
 	if (skill != -1) ud.player_skill = skill + 1;
-	int res = enterlevel(map, 0);
-	if (res) gameaction = ga_startup;
+
+#if 0
+	// Loading is so fast on modern system so that this only serves as an irritant, not an asset.
+	auto loadscreen = isRR() ? loadscreen_r : loadscreen_d;
+	loadscreen_d(map, [=](bool)
+		{
+			enterlevel(map, 0);
+			gameaction = ga_level;
+		});
+#endif
+	enterlevel(map, 0);
 }
 
 //---------------------------------------------------------------------------

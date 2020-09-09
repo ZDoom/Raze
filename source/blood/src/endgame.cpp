@@ -280,12 +280,11 @@ void EndGameLoadSaveConstruct(void)
 
 class DBloodLoadScreen : public DScreenJob
 {
-	std::function<int(void)> callback;
 	const char* pzLoadingScreenText1;
 	MapRecord* rec;
 
 public:
-	DBloodLoadScreen(const char* caption, MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec)
+	DBloodLoadScreen(const char* caption, MapRecord* maprec) : DScreenJob(), rec(maprec)
 	{
 		if (gGameOptions.nGameType == 0) pzLoadingScreenText1 = GStrings("TXTB_LLEVEL");
 		else pzLoadingScreenText1 = GStrings(FStringf("TXTB_NETGT%d", gGameOptions.nGameType));
@@ -298,16 +297,15 @@ public:
 		DrawMenuCaption(pzLoadingScreenText1);
 		viewDrawText(1, rec->DisplayName(), 160, 50, -128, 0, 1, 1);
 		viewDrawText(3, GStrings("TXTB_PLSWAIT"), 160, 134, -128, 0, 1, 1);
-
-		// Initiate the level load once the page has been faded in completely.
-		if (callback && GetFadeState() == visible)
-		{
-			callback();
-			callback = nullptr;
-		}
-		if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
-		return skiprequest ? -1 : 1;
+		return 0;
 	}
 };
+
+void loadscreen(MapRecord* rec, CompletionFunc func)
+{
+	JobDesc job = { Create<DBloodLoadScreen>(rec) };
+	RunScreenJob(&job, 1, func);
+}
+
 
 END_BLD_NS

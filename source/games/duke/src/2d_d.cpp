@@ -1053,29 +1053,27 @@ void e4intro(const CompletionFunc& completion)
 
 class DDukeLoadScreen : public DScreenJob
 {
-	std::function<int(void)> callback;
 	MapRecord* rec;
 	
 public:
-	DDukeLoadScreen(MapRecord *maprec, std::function<int(void)> callback_) : DScreenJob(fadein|fadeout),  callback(callback_), rec(maprec) {}
+	DDukeLoadScreen(MapRecord *maprec) : DScreenJob(0), rec(maprec) {}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
+		twod->ClearScreen();
 		DrawTexture(twod, tileGetTexture(LOADSCREEN), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, DTA_LegacyRenderStyle, STYLE_Normal, TAG_DONE);
 		
 		BigText(160, 90, (rec->flags & MI_USERMAP)? GStrings("TXT_LOADUM") :  GStrings("TXT_LOADING"));
 		BigText(160, 114, rec->DisplayName());
-
-		// Initiate the level load once the page has been faded in completely.
-		if (callback && GetFadeState() == visible)
-		{
-			callback();
-			callback = nullptr;
-		}
-		if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
-		return skiprequest? -1 : 1;
+		return 0;
 	}
 };
+
+void loadscreen_d(MapRecord *rec, CompletionFunc func)
+{
+	JobDesc job = { Create<DDukeLoadScreen>(rec) };
+	RunScreenJob(&job, 1, func);
+}
 
 void PrintPaused_d()
 {

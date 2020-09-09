@@ -611,11 +611,10 @@ void dobonus_r(int bonusonly, const CompletionFunc& completion)
 
 class DRRLoadScreen : public DScreenJob
 {
-	std::function<int(void)> callback;
 	MapRecord* rec;
 
 public:
-	DRRLoadScreen(MapRecord* maprec, std::function<int(void)> callback_) : DScreenJob(fadein | fadeout), callback(callback_), rec(maprec) {}
+	DRRLoadScreen(MapRecord* maprec) : DScreenJob(0), rec(maprec) {}
 
 	int Frame(uint64_t clock, bool skiprequest)
 	{
@@ -624,17 +623,15 @@ public:
 		int y = isRRRA()? 140 : 90;
 		BigText(160, y, (rec->flags & MI_USERMAP) ? GStrings("TXT_ENTRUM") : GStrings("TXT_ENTERIN"), 0);
 		BigText(160, y+24, rec->DisplayName(), 0);
-		
-		// Initiate the level load once the page has been faded in completely.
-		if (callback && GetFadeState() == visible)
-		{
-			callback();
-			callback = nullptr;
-		}
-		if (clock > 5'000'000'000) return 0;	// make sure the screen stays long enough to be seen.
-		return skiprequest? -1 : 1;
+		return 0;
 	}
 };
+
+void loadscreen_r(MapRecord* rec, CompletionFunc func)
+{
+	JobDesc job = { Create<DRRLoadScreen>(rec) };
+	RunScreenJob(&job, 1, func);
+}
 
 void PrintPaused_r()
 {

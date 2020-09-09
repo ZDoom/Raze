@@ -861,14 +861,12 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     int16_t lbang;
     if (VOLUMEONE && (mi->flags & MI_USERMAP))
     {
-        Printf(TEXTCOLOR_RED "Cannot load user maps with shareware version!\n");
-        return 1;
+        I_Error("Cannot load user maps with shareware version!\n");
     }
 
     if (engineLoadBoard(mi->fileName, VOLUMEONE, &p->pos, &lbang, &p->cursectnum) < 0)
     {
-        Printf(TEXTCOLOR_RED "Map \"%s\" not found or invalid map version!\n", mi->fileName.GetChars());
-        return 1;
+        I_Error("Map \"%s\" not found or invalid map version!\n", mi->fileName.GetChars());
     }
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
@@ -926,7 +924,7 @@ static void clearfrags(void)
 //
 //---------------------------------------------------------------------------
 
-int enterlevel(MapRecord *mi, int gamemode)
+void enterlevel(MapRecord *mi, int gamemode)
 {
 //    flushpackets();
 //    waitforeverybody();
@@ -947,12 +945,7 @@ int enterlevel(MapRecord *mi, int gamemode)
 
     auto p = &ps[0];
 
-
-    /*
-    G_DoLoadScreen(msg, -1); // this should be done outside of this function later.
-    */
-    int res = LoadTheMap(mi, p, gamemode);
-    if (res != 0) return res;
+    LoadTheMap(mi, p, gamemode);
 
     // Try this first so that it can disable the CD player if no tracks are found.
     if (isRR())
@@ -990,7 +983,6 @@ int enterlevel(MapRecord *mi, int gamemode)
     clearfrags();
     resettimevars();  // Here we go
 	setLevelStarted(mi);
-    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -1010,18 +1002,12 @@ void startnewgame(MapRecord* map, int skill)
 
     newgame(map, skill, [=](bool)
         {
-            if (enterlevel(map, 0))
-            {
-                gameaction = ga_mainmenu;
-            }
-            else
-            {
-                ud.showweapons = cl_showweapon;
-                setlocalplayerinput(&ps[myconnectindex]);
-                PlayerColorChanged();
-                inputState.ClearAllInput();
-                gameaction = ga_level;
-            }
+            enterlevel(map, 0);
+            ud.showweapons = cl_showweapon;
+            setlocalplayerinput(&ps[myconnectindex]);
+            PlayerColorChanged();
+            inputState.ClearAllInput();
+            gameaction = ga_level;
         });
 }
 
