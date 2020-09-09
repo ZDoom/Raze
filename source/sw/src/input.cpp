@@ -284,7 +284,18 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
             DoPlayerHorizon(pp, q16horz, scaleAdjust);
         }
 
-        if (pp->horizAdjust)
+        if (pp->horizTarget)
+        {
+            fixed_t horizDelta = pp->horizTarget - pp->q16horiz;
+            pp->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
+
+            if (abs(pp->q16horiz) >= abs(horizDelta))
+            {
+                pp->q16horiz = pp->horizTarget;
+                pp->horizTarget = 0;
+            }
+        }
+        else if (pp->horizAdjust)
         {
             pp->q16horiz += FloatToFixed(scaleAdjust * pp->horizAdjust);
         }

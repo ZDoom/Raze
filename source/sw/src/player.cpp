@@ -7834,7 +7834,16 @@ void playerSetHoriz(PLAYERp pp, double horiz)
 {
     if (!cl_syncinput)
     {
-        pp->horizAdjust += -1. * ((pp->q16horiz / 65536.) - horiz);
+        // Cancel out any horizon adjustments as we're setting horizon now.
+        pp->horizAdjust = 0;
+
+        // Add slight offset if input horizon is coming in as absolute 0.
+        if (horiz == 0)
+        {
+            horiz += 0.1;
+        }
+
+        pp->horizTarget = FloatToFixed(horiz);
     }
     else
     {
