@@ -1669,6 +1669,11 @@ DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist)
             sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
         }
     }
+
+    if (!cl_syncinput)
+    {
+        OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio), pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio));
+    }
 }
 
 void
@@ -3042,7 +3047,10 @@ DoPlayerMoveVehicle(PLAYERp pp)
     }
 
     save_sectnum = pp->cursectnum;
-    OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), MAXSO, MAXSO);
+    if (cl_syncinput)
+    {
+        OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), MAXSO, MAXSO);
+    }
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
@@ -3146,7 +3154,11 @@ DoPlayerMoveVehicle(PLAYERp pp)
         }
     }
 
-    OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->posx, pp->posy);
+    if (cl_syncinput)
+    {
+        OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->posx, pp->posy);
+    }
+
     pp->cursectnum = save_sectnum; // for speed
 
     if (!cl_syncinput)

@@ -191,6 +191,11 @@ void so_setinterpolationtics(SECTOR_OBJECTp sop, int16_t locktics)
     interp->lasttic = locktics;
 }
 
+static inline bool so_nointerpolations(short track)
+{
+    return !cl_syncinput && (track >= SO_TURRET_MGUN && track <= SO_VEHICLE);
+}
+
 void so_updateinterpolations(void) // Stick at beginning of domovethings
 {
     int32_t i;
@@ -202,8 +207,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
-        if (SO_EMPTY(sop) || skip)
+        if (SO_EMPTY(sop) || so_nointerpolations(sop->track))
             continue;
         if (interp->tic < interp->lasttic)
             interp->tic += synctics;
@@ -241,8 +245,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
-        if (SO_EMPTY(sop) || skip)
+        if (SO_EMPTY(sop) || so_nointerpolations(sop->track))
             continue;
 
         for (i = 0; i < interp->numinterpolations; i++)
@@ -268,8 +271,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
-        if (SO_EMPTY(sop) || skip)
+        if (SO_EMPTY(sop) || so_nointerpolations(sop->track))
             continue;
 
         // Check if interpolation has been explicitly disabled
@@ -329,8 +331,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
     {
-        bool skip = !cl_syncinput && (sop->track == SO_TURRET);
-        if (SO_EMPTY(sop) || skip)
+        if (SO_EMPTY(sop) || so_nointerpolations(sop->track))
             continue;
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
