@@ -1742,6 +1742,8 @@ DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
         pp->q16ang = new_ang;
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
     }
+
+    OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
 }
 
 void SlipSlope(PLAYERp pp)
@@ -3174,18 +3176,38 @@ DoPlayerMoveVehicle(PLAYERp pp)
 }
 
 void
-DoPlayerMoveTurret(PLAYERp pp, fixed_t q16avel, fixed_t q16horz, double const scaleAdjust)
+DoPlayerMoveTurret(PLAYERp pp)
 {
-    DoPlayerTurnTurret(pp, q16avel);
+    if (!Prediction)
+    {
+        if (pp->input.q16avel && !pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
+        else if (!pp->input.q16avel && pp->lastinput.q16avel)
+            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
+    }
+
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET);
+    }
+    else
+    {
+        DoPlayerTurnTurret(pp, pp->input.q16avel);
+    }
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
     else
         SET(pp->Flags, PF_PLAYER_MOVED);
 
-    OperateSectorObject(pp->sop, FixedToInt(pp->q16ang), pp->sop->xmid, pp->sop->ymid);
-
-    DoPlayerHorizon(pp, q16horz, scaleAdjust);
+    if (!cl_syncinput)
+    {
+        SET(pp->Flags2, PF2_INPUT_CAN_AIM);
+    }
+    else
+    {
+        DoPlayerHorizon(pp, pp->input.q16horz, 1);
+    }
 }
 
 void
@@ -5773,22 +5795,7 @@ DoPlayerOperateTurret(PLAYERp pp)
     if (pp->sop_remote)
         RemoteToPlayer(pp);
 
-    if (!Prediction)
-    {
-        if (pp->input.q16avel && !pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else if (!pp->input.q16avel && pp->lastinput.q16avel)
-            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-    }
-
-    if (!cl_syncinput)
-    {
-        SET(pp->Flags2, PF2_INPUT_CAN_MOVE_TURRET);
-    }
-    else
-    {
-        DoPlayerMoveTurret(pp, pp->input.q16avel, pp->input.q16horz, 1);
-    }
+    DoPlayerMoveTurret(pp);
 
     if (pp->sop_remote)
     {
@@ -7450,7 +7457,7 @@ domovethings(void)
         ChopsCheck(pp);
 
         // Reset flags used while tying input to framerate
-        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_MOVE_TURRET);
+        RESET(pp->Flags2, PF2_INPUT_CAN_AIM|PF2_INPUT_CAN_TURN_GENERAL|PF2_INPUT_CAN_TURN_VEHICLE|PF2_INPUT_CAN_TURN_TURRET);
         resetinputhelpers(pp);
 
         if (pp->DoPlayerAction) pp->DoPlayerAction(pp);

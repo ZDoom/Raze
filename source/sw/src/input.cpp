@@ -37,7 +37,7 @@ BEGIN_SW_NS
 void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
 void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
 void DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
-void DoPlayerMoveTurret(PLAYERp pp, fixed_t q16avel, fixed_t q16horz, double const scaleAdjust);
+void DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel);
 
 static InputPacket loc;
 static int32_t turnheldtime;
@@ -326,9 +326,9 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
             DoPlayerTurnVehicle(pp, q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
         }
 
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_MOVE_TURRET))
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
         {
-            DoPlayerMoveTurret(pp, q16avel, q16horz, scaleAdjust);
+            DoPlayerTurnTurret(pp, q16avel);
         }
     }
 
