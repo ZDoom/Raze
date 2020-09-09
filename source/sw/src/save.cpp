@@ -70,16 +70,16 @@ extern int lastUpdate;
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
 extern short Bunny_Count;
-extern SWBOOL NewGame;
+extern bool NewGame;
 extern int GodMode;
 extern int FinishTimer;
 extern int FinishAnim;
 extern int GameVersion;
 //extern short Zombies;
 
-extern SWBOOL serpwasseen;
-extern SWBOOL sumowasseen;
-extern SWBOOL zillawasseen;
+extern bool serpwasseen;
+extern bool sumowasseen;
+extern bool zillawasseen;
 extern short BossSpriteNum[3];
 
 #define PANEL_SAVE 1
@@ -641,7 +641,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 }
 
 
-extern SWBOOL SavegameLoaded;
+extern bool SavegameLoaded;
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {

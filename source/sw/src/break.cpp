@@ -660,7 +660,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     return true;
 }
 
-SWBOOL UserBreakWall(WALLp wp, short)
+bool UserBreakWall(WALLp wp, short)
 {
     short SpriteNum;
     SPRITEp sp;
@@ -668,7 +668,7 @@ SWBOOL UserBreakWall(WALLp wp, short)
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
     int flags = block_flags|type_flags;
-    SWBOOL ret = false;
+    bool ret = false;
 
     SpriteNum = FindBreakSpriteMatch(match);
 
@@ -817,7 +817,7 @@ int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, sh
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
-SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short type)
+bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
     short match = wp->hitag;
 
@@ -1024,7 +1024,7 @@ int AutoBreakSprite(short BreakSprite, short type)
     return false;
 }
 
-SWBOOL NullActor(USERp u)
+bool NullActor(USERp u)
 {
     // a Null Actor is defined as an actor that has no real controlling programming attached
 

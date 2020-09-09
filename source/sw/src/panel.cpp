@@ -89,8 +89,8 @@ int DoBeginPanelJump(PANEL_SPRITEp psp);
 void SpawnHeartBlood(PANEL_SPRITEp psp);
 void SpawnUziShell(PANEL_SPRITEp psp);
 
-SWBOOL pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
-SWBOOL pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
+bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
+bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
 char UziRecoilYadj = 0;
@@ -153,10 +153,10 @@ PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pr
     return NULL;
 }
 
-SWBOOL pKillScreenSpiteIDs(PLAYERp pp, short id)
+bool pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
     PANEL_SPRITEp psp=NULL, next;
-    SWBOOL found = false;
+    bool found = false;
 
     // Kill ALL sprites with the correct id
     TRAVERSE(&pp->PanelSpriteList, psp, next)
@@ -238,8 +238,8 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
     if (value < 0)
     {
-        SWBOOL IsChem = false;
-        SWBOOL NoArmor = false;
+        bool IsChem = false;
+        bool NoArmor = false;
 
         if (value <= -2000)
         {
@@ -650,7 +650,7 @@ int WeaponOperate(PLAYERp pp)
     return 0;
 }
 
-SWBOOL
+bool
 WeaponOK(PLAYERp pp)
 {
     USERp u;
@@ -1208,7 +1208,7 @@ pSwordHide(PANEL_SPRITEp psp)
 void
 pSwordRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_SwordHide))
         return;
@@ -1507,7 +1507,7 @@ pStarHide(PANEL_SPRITEp psp)
 void
 pStarRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_StarHide))
         return;
@@ -2331,8 +2331,8 @@ pUziHide(PANEL_SPRITEp psp)
 void
 pUziRest(PANEL_SPRITEp psp)
 {
-    char shooting;
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool shooting;
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
 
     // If you have two uzi's, but one didn't come up, spawn it
@@ -2666,7 +2666,7 @@ void pShotgunBobSetup(PANEL_SPRITEp psp);
 void pShotgunRecoilUp(PANEL_SPRITEp psp);
 void pShotgunRecoilDown(PANEL_SPRITEp psp);
 
-SWBOOL pShotgunReloadTest(PANEL_SPRITEp psp);
+bool pShotgunReloadTest(PANEL_SPRITEp psp);
 
 extern PANEL_STATE ps_ShotgunReload[];
 
@@ -2958,7 +2958,7 @@ pShotgunBobSetup(PANEL_SPRITEp psp)
     psp->bob_height_divider = 8;
 }
 
-SWBOOL
+bool
 pShotgunOverlays(PANEL_SPRITEp psp)
 {
 #define SHOTGUN_AUTO_XOFF 28
@@ -3019,7 +3019,7 @@ pShotgunHide(PANEL_SPRITEp psp)
 }
 
 #if 1
-SWBOOL
+bool
 pShotgunReloadTest(PANEL_SPRITEp psp)
 {
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
@@ -3041,7 +3041,7 @@ pShotgunReloadTest(PANEL_SPRITEp psp)
 void
 pShotgunRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
     short ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
     char lastammo = psp->PlayerP->WpnShotgunLastShell;
@@ -3090,7 +3090,7 @@ pShotgunRest(PANEL_SPRITEp psp)
 void
 pShotgunRestTest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (psp->PlayerP->WpnShotgunType == 1 && !pShotgunReloadTest(psp))
         force = true;
@@ -3172,7 +3172,7 @@ void pRailRecoilDown(PANEL_SPRITEp psp);
 
 void pRailBobSetup(PANEL_SPRITEp psp);
 
-SWBOOL pRailReloadTest(PANEL_SPRITEp psp);
+bool pRailReloadTest(PANEL_SPRITEp psp);
 
 #define Rail_BEAT_RATE 24
 #define Rail_ACTION_RATE 3  // !JIM! Was 10
@@ -3453,7 +3453,7 @@ void
 pRailRest(PANEL_SPRITEp psp)
 {
     int InitLaserSight(PLAYERp pp);
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -3488,7 +3488,7 @@ pRailRest(PANEL_SPRITEp psp)
 void
 pRailRestTest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_RailHide))
         return;
@@ -3868,7 +3868,7 @@ pHotheadHide(PANEL_SPRITEp psp)
 void
 pHotheadRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
 
@@ -4343,7 +4343,7 @@ pMicroHide(PANEL_SPRITEp psp)
     }
 }
 
-SWBOOL
+bool
 pMicroOverlays(PANEL_SPRITEp psp)
 {
 #define MICRO_SIGHT_XOFF 29
@@ -4441,7 +4441,7 @@ void
 pMicroRest(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MicroHide))
         return;
@@ -4783,7 +4783,7 @@ pHeartHide(PANEL_SPRITEp psp)
 void
 pHeartRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_HeartHide))
         return;
@@ -5371,7 +5371,7 @@ pGrenadeHide(PANEL_SPRITEp psp)
 void
 pGrenadeRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_GrenadeHide))
         return;
@@ -5620,7 +5620,7 @@ pMineHide(PANEL_SPRITEp psp)
 void
 pMineRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_MineHide))
         return;
@@ -6494,7 +6494,7 @@ pFistHide(PANEL_SPRITEp psp)
 void
 pFistRest(PANEL_SPRITEp psp)
 {
-    SWBOOL force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
+    bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (pWeaponHideKeys(psp, ps_FistHide))
         return;
@@ -6601,7 +6601,7 @@ pWeaponForceRest(PLAYERp pp)
     pSetState(pp->CurWpn, pp->CurWpn->RestState);
 }
 
-SWBOOL
+bool
 pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     // initing the other weapon will take care of this
@@ -6649,7 +6649,7 @@ pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
     return false;
 }
 
-SWBOOL
+bool
 pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state)
 {
     if (TEST(psp->PlayerP->Flags, PF_DEAD))
@@ -6875,7 +6875,7 @@ pWeaponBob(PANEL_SPRITEp psp, short condition)
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-SWBOOL DrawBeforeView = false;
+bool DrawBeforeView = false;
 void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {

@@ -47,7 +47,7 @@ BEGIN_SW_NS
 // It will save out the tile and sound number every time one caches.
 //
 // sw -map $bullet -cacheprint > foofile
-extern SWBOOL PreCaching;
+extern bool PreCaching;
 
 void PreCacheTable(short table[], int num);
 void PreCacheGhost(void);

@@ -53,7 +53,7 @@ static struct so_interp
 
     int32_t numinterpolations;
     int32_t tic, lasttic;
-    SWBOOL hasvator;
+    bool hasvator;
 } so_interpdata[MAX_SECTOR_OBJECTS];
 
 static void so_setpointinterpolation(so_interp *interp, int32_t *posptr)
@@ -202,7 +202,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
     SECTOR_OBJECTp sop;
     so_interp *interp;
     so_interp::interp_data *data;
-    SWBOOL interpolating = cl_sointerpolation && !CommEnabled; // If changing from menu
+    bool interpolating = cl_sointerpolation && !CommEnabled; // If changing from menu
 
     for (sop = SectorObject, interp = so_interpdata;
          sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
@@ -344,7 +344,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
 
 int SaveSymDataInfo(MFILE_WRITE fil, void *ptr);
 
-SWBOOL so_writeinterpolations(MFILE_WRITE fil)
+int so_writeinterpolations(MFILE_WRITE fil)
 {
     int32_t i;
     SECTOR_OBJECTp sop;
@@ -364,12 +364,12 @@ SWBOOL so_writeinterpolations(MFILE_WRITE fil)
             MWRITE(&data->spriteofang,sizeof(data->spriteofang),1,fil);
         }
     }
-    return !!saveisshot;
+    return saveisshot;
 }
 
 int LoadSymDataInfo(MFILE_READ fil, void** ptr);
 
-SWBOOL so_readinterpolations(MFILE_READ fil)
+int so_readinterpolations(MFILE_READ fil)
 {
     int32_t i;
     SECTOR_OBJECTp sop;
@@ -393,7 +393,7 @@ SWBOOL so_readinterpolations(MFILE_READ fil)
         interp->tic = 0;
         interp->lasttic = synctics;
     }
-    return !!saveisshot;
+    return saveisshot;
 }
 
 END_SW_NS

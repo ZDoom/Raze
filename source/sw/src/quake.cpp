@@ -276,7 +276,7 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     return SpriteNum;
 }
 
-SWBOOL
+bool
 SetQuake(PLAYERp pp, short tics, short amt)
 {
     SpawnQuake(pp->cursectnum, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);

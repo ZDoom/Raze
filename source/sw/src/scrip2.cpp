@@ -59,8 +59,8 @@ static char* script_p, * scriptend_p;
 static char    token[MAXTOKEN];
 static int     grabbed;
 static int     scriptline;
-static SWBOOL    endofscript;
-static SWBOOL    tokenready;                     // only true if UnGetToken was just called
+static bool    endofscript;
+static bool    tokenready;                     // only true if UnGetToken was just called
 
 /*
 ==============
@@ -101,7 +101,7 @@ TArray<uint8_t> LoadScriptFile(const char *filename)
 ==============
 */
 
-void GetToken(SWBOOL crossline)
+void GetToken(bool crossline)
 {
     char    *token_p;
 

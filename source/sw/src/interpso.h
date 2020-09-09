@@ -41,8 +41,8 @@ void so_setinterpolationtics(SECTOR_OBJECTp sop, int16_t locktics);
 void so_updateinterpolations(void);
 void so_dointerpolations(int32_t smoothratio);
 void so_restoreinterpolations(void);
-SWBOOL so_writeinterpolations(MFILE_WRITE fil);
-SWBOOL so_readinterpolations(MFILE_READ fil);
+int so_writeinterpolations(MFILE_WRITE fil);
+int so_readinterpolations(MFILE_READ fil);
 
 END_SW_NS
 

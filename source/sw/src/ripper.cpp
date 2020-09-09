@@ -945,7 +945,7 @@ InitRipperHang(short SpriteNum)
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
-    SWBOOL Found = false;
+    bool Found = false;
     short dang, tang;
 
     for (dang = 0; dang < 2048; dang += 128)

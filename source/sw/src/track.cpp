@@ -726,8 +726,8 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     short sp_num, next_sp_num, startwall, endwall;
     int i, k, j;
     SPRITEp BoundSprite;
-    SWBOOL FoundOutsideLoop = false;
-    SWBOOL SectorInBounds;
+    bool FoundOutsideLoop = false;
+    bool SectorInBounds;
     SECTORp *sectp;
     USERp u = User[sop->sp_child - sprite];
 
@@ -1468,7 +1468,7 @@ void
 PlaceSectorObjectsOnTracks(void)
 {
     short i, j, k, startwall, endwall;
-    SWBOOL found;
+    bool found;
 
     // place each sector object on the track
     for (i = 0; i < MAX_SECTOR_OBJECTS; i++)
@@ -1695,7 +1695,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     WALLp wp;
     USERp u;
     short i, rot_ang;
-    SWBOOL PlayerMove = true;
+    bool PlayerMove = true;
 
     if (sop->xmid >= MAXSO)
         PlayerMove = false;
@@ -1783,7 +1783,7 @@ PlayerPart:
             {
 #if 0
                 short nr, nextnr;
-                SWBOOL skip = true;
+                bool skip = true;
                 TRAVERSE_SPRITE_STAT(headspritestat[STAT_NO_RIDE], nr, nextnr)
                 {
                     if (sprite[nr].lotag == sop - SectorObject)
@@ -1943,7 +1943,7 @@ PlayerPart:
     }
 }
 
-void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
+void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 {
     short wallcount = 0, j, k, startwall, endwall, delta_ang_from_orig;
     SECTORp *sectp;
@@ -3136,7 +3136,7 @@ ScanToWall
 */
 
 
-SWBOOL
+bool
 ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 {
     SPRITEp sp;

@@ -932,7 +932,7 @@ int PlayerYellVocs[] =
 //
 //==========================================================================
 
-SWBOOL PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char* mapname, const char* song_file_name, int cdaudio_track, bool isThemeTrack) //(nullptr, nullptr, -1, false) starts the normal level music.
 {
     // Play  CD audio if enabled.
     if (cdaudio_track >= 0 && (mus_redbook || *song_file_name == 0))

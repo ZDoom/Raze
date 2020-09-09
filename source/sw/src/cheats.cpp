@@ -45,10 +45,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL CheatInputMode = false;
-SWBOOL EveryCheat = false;
-SWBOOL mapcheat = false;
-extern SWBOOL FAF_DebugView;
+bool CheatInputMode = false;
+bool EveryCheat = false;
+bool mapcheat = false;
+extern bool FAF_DebugView;
 
 const char *CheatKeyType;
 void KeysCheat(PLAYERp pp, const char *cheat_string);

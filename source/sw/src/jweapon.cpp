@@ -52,7 +52,7 @@ extern STATE s_Puff[];
 extern STATE s_FireballFlames[];
 extern STATE s_GoreFloorSplash[];
 extern STATE s_GoreSplash[];
-extern SWBOOL GlobalSkipZrange;
+extern bool GlobalSkipZrange;
 
 #define CHEMTICS SEC(40)
 
@@ -696,7 +696,7 @@ DoPhosphorus(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
 
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
@@ -924,7 +924,7 @@ DoChemBomb(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
 
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
@@ -1170,7 +1170,7 @@ DoCaltrops(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
 
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
@@ -2000,7 +2000,7 @@ InitPhosphorus(int16_t SpriteNum)
 }
 
 int
-InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity)
+InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];

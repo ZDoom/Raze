@@ -39,7 +39,7 @@ void MNU_DrawSmallString(int x, int y, const char* string, int shade, int pal, i
 #define pic_shadow_warrior 2366
 
 #define m_defshade      2
-extern SWBOOL SavegameLoaded;
+extern bool SavegameLoaded;
 
 
 END_SW_NS

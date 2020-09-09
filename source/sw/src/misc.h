@@ -22,10 +22,10 @@ void MapColors(short num,COLOR_MAP cm,short create);
 void InitPalette(void); 
 int32_t CONFIG_ReadSetup(void);
 
-SWBOOL WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);
+bool WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);
 SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
 SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
-SWBOOL WarpSectorInfo(short sectnum, SPRITEp* sp_warp);
+bool WarpSectorInfo(short sectnum, SPRITEp* sp_warp);
 SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
 
 void ProcessVisOn(void);
@@ -36,7 +36,7 @@ enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
 int ActorFollowTrack(short SpriteNum, short locktics);
 void ActorLeaveTrack(short SpriteNum);
-void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic);
+void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic);
 void TrackSetup(void);
 void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy);
 void PlaceSectorObjectsOnTracks(void);
@@ -56,9 +56,9 @@ inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TE
 void PutStringInfo(PLAYERp pp, const char* string);
 
 
-short DoSlidorMatch(PLAYERp pp, short match, SWBOOL);
-SWBOOL TestSlidorMatchActive(short match);
-void InterpSectorSprites(short sectnum, SWBOOL state);
+short DoSlidorMatch(PLAYERp pp, short match, bool);
+bool TestSlidorMatchActive(short match);
+void InterpSectorSprites(short sectnum, bool state);
 
 typedef void INTERP_FUNC(int*);
 typedef INTERP_FUNC* INTERP_FUNCp;
@@ -86,7 +86,7 @@ void ProcessQuakeOn(void);
 void ProcessQuakeSpot(void);
 void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
 void DoQuake(PLAYERp pp);
-SWBOOL SetQuake(PLAYERp pp, short tics, short amt);
+bool SetQuake(PLAYERp pp, short tics, short amt);
 int SetExpQuake(int16_t Weapon);
 int SetGunQuake(int16_t SpriteNum);
 int SetPlayerQuake(PLAYERp mpp);

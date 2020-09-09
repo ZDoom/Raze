@@ -96,16 +96,16 @@ extern int sw_snd_scratch;
 
 int GameVersion = 20;
 
-SWBOOL NoMeters = false;
+bool NoMeters = false;
 int FinishAnim = 0;
-SWBOOL ReloadPrompt = false;
-SWBOOL NewGame = false;
-SWBOOL SavegameLoaded = false;
+bool ReloadPrompt = false;
+bool NewGame = false;
+bool SavegameLoaded = false;
 //Miscellaneous variables
-SWBOOL FinishedLevel = false;
+bool FinishedLevel = false;
 short screenpeek = 0;
 
-SWBOOL PreCaching = true;
+bool PreCaching = true;
 int GodMode = false;
 short Skill = 2;
 short TotalKillable;
@@ -125,10 +125,10 @@ const GAME_SET gs_defaults =
 };
 GAME_SET gs;
 
-SWBOOL PlayerTrackingMode = false;
-SWBOOL SlowMode = false;
+bool PlayerTrackingMode = false;
+bool SlowMode = false;
 
-SWBOOL DebugOperate = false;
+bool DebugOperate = false;
 void LoadingLevelScreen(void);
 
 uint8_t FakeMultiNumPlayers;
@@ -137,14 +137,14 @@ int totalsynctics;
 
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
-extern SWBOOL CommEnabled;
+extern bool CommEnabled;
 
-SWBOOL CameraTestMode = false;
+bool CameraTestMode = false;
 
 char ds[645];                           // debug string
 
 extern short NormalVisibility;
-SWBOOL CommandSetup = false;
+bool CommandSetup = false;
 
 char buffer[80], ch;
 

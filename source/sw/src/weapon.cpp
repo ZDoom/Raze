@@ -68,7 +68,7 @@ DAMAGE_DATA DamageData[] =
 short ADJUST=120;
 
 FOOT_TYPE FootMode=WATER_FOOT;
-SWBOOL left_foot = false;
+bool left_foot = false;
 int FinishTimer = 0;
 
 // This is how many bullet shells have been spawned since the beginning of the game.
@@ -89,7 +89,7 @@ short LoWangsQueueHead=0;
 short LoWangsQueue[MAX_LOWANGS_QUEUE];
 int SpawnBreakStaticFlames(short);
 
-SWBOOL GlobalSkipZrange = false;
+bool GlobalSkipZrange = false;
 
 int WeaponIsAmmo = BIT(WPN_STAR) | BIT(WPN_SWORD) | BIT(WPN_MINE) | BIT(WPN_FIST);
 
@@ -103,13 +103,13 @@ ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
 int SpawnSmokePuff(short SpriteNum);
-SWBOOL WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
-SWBOOL WarpToSurface(short *sectnum, int *x, int *y, int *z);
+bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
+bool WarpToSurface(short *sectnum, int *x, int *y, int *z);
 short ElectroFindClosestEnemy(short SpriteNum);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
-SWBOOL TestDontStickSector(short hit_sect);
+bool TestDontStickSector(short hit_sect);
 int SpawnShrapX(short SpriteNum);
-SWBOOL WeaponMoveHit(short SpriteNum);
+bool WeaponMoveHit(short SpriteNum);
 int HelpMissileLateral(int16_t Weapon, int dist);
 void SpawnMidSplash(short SpriteNum);
 
@@ -2644,7 +2644,7 @@ STATE s_PaperShrapC[] =
 };
 
 #if 1
-SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
+bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 {
     SPRITEp hsp = &sprite[hit_sprite];
 
@@ -2763,7 +2763,7 @@ int DoLavaErupt(short SpriteNum)
     short i,nexti,pnum;
     PLAYERp pp;
     SPRITEp tsp;
-    SWBOOL found = false;
+    bool found = false;
 
     if (TEST_BOOL1(sp))
     {
@@ -4366,14 +4366,14 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 }
 
 
-SWBOOL
+bool
 VehicleMoveHit(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp cp;
     SECTOR_OBJECTp sop;
     SECTOR_OBJECTp hsop;
-    SWBOOL TestKillSectorObject(SECTOR_OBJECTp);
+    bool TestKillSectorObject(SECTOR_OBJECTp);
     short controller;
 
     if (!u->ret)
@@ -4473,7 +4473,7 @@ VehicleMoveHit(short SpriteNum)
 }
 
 
-SWBOOL
+bool
 WeaponMoveHit(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -4762,7 +4762,7 @@ DoFireballFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],ap;
     USERp u = User[SpriteNum];
-    SWBOOL jumping = false;
+    bool jumping = false;
 
     // if no owner then stay where you are
     if (u->Attach >= 0)
@@ -4859,7 +4859,7 @@ DoBreakFlames(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    SWBOOL jumping = false;
+    bool jumping = false;
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -5439,7 +5439,7 @@ SopDamage(SECTOR_OBJECTp sop, short amt)
 int
 SopCheckKill(SECTOR_OBJECTp sop)
 {
-    SWBOOL killed = false;
+    bool killed = false;
 
     if (TEST(sop->flags, SOBJ_BROKEN))
         return false;
@@ -5792,7 +5792,7 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
     return false;
 }
 
-SWBOOL
+bool
 PlayerTakeDamage(PLAYERp pp, short Weapon)
 {
     if (Weapon < 0)
@@ -8076,7 +8076,7 @@ DoStar(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
             short hit_sect = NORM_SECTOR(u->ret);
 
             if (sp->z > DIV2(u->hiz + u->loz))
@@ -8846,7 +8846,7 @@ void WallBounce(short SpriteNum, short ang)
 }
 
 
-SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hit_wall)
+bool SlopeBounce(short SpriteNum, bool *hit_wall)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -9028,7 +9028,7 @@ DoGrenade(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
                 if (did_hit_wall)
@@ -9251,7 +9251,7 @@ DoVulcanBoulder(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
 
             if (SlopeBounce(Weapon, &did_hit_wall))
             {
@@ -9322,7 +9322,7 @@ DoVulcanBoulder(int16_t Weapon)
     return false;
 }
 
-SWBOOL
+bool
 OwnerIsPlayer(short Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
@@ -9346,7 +9346,7 @@ DoMineRangeTest(short Weapon, short range)
     unsigned stat;
     int dist, tx, ty;
     int tmin;
-    SWBOOL ownerisplayer = false;
+    bool ownerisplayer = false;
 
     ownerisplayer = OwnerIsPlayer(Weapon);
 
@@ -11396,7 +11396,7 @@ SpawnBigGunFlames(int16_t Weapon, int16_t Operator, SECTOR_OBJECTp sop)
     USERp eu;
     short explosion;
     unsigned sn;
-    SWBOOL smallflames = false;
+    bool smallflames = false;
 
     if (Weapon < 0)
     {
@@ -12668,7 +12668,7 @@ DoMirv(int16_t Weapon)
     return false;
 }
 
-SWBOOL
+bool
 MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
 {
     SPRITEp wp = &sprite[Weapon];
@@ -12714,7 +12714,7 @@ MissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist)
     return retval;
 }
 
-SWBOOL
+bool
 TestMissileSetPos(short Weapon, ANIMATORp DoWeapon, int dist, int zvel)
 {
     SPRITEp wp = &sprite[Weapon];
@@ -14284,7 +14284,7 @@ InitMiniSumoClap(short SpriteNum)
 }
 
 int
-WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
+WeaponAutoAim(SPRITEp sp, short Missile, short ang, bool test)
 {
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
@@ -14354,7 +14354,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
 }
 
 int
-WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
+WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 {
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
@@ -14482,7 +14482,7 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 }
 
 int
-WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, SWBOOL test)
+WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, bool test)
 {
     USERp u = User[sp - sprite];
     short hit_sprite = -1;
@@ -16081,7 +16081,7 @@ InitSerpSlash(short SpriteNum)
     return 0;
 }
 
-SWBOOL
+bool
 WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
 {
     int x1, y1, x2, y2;
@@ -17730,7 +17730,7 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
     return SpriteNum;
 }
 
-SWBOOL
+bool
 HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -17788,7 +17788,7 @@ InitUzi(PLAYERp pp)
     //static char alternate=0;
     static int uziclock=0;
     int clockdiff=0;
-    SWBOOL FireSnd = false;
+    bool FireSnd = false;
     #define UZIFIRE_WAIT 20
 
     void InitUziShell(PLAYERp);
@@ -18648,7 +18648,7 @@ InitSobjGun(PLAYERp pp)
 {
     short i;
     SPRITEp sp;
-    SWBOOL first = false;
+    bool first = false;
 
     for (i = 0; pp->sop->sp_num[i] != -1; i++)
     {
@@ -19252,7 +19252,7 @@ InitGrenade(PLAYERp pp)
     short w;
     short oclipdist;
     int zvel;
-    SWBOOL auto_aim = false;
+    bool auto_aim = false;
 
     DoPlayerBeginRecoil(pp, GRENADE_RECOIL_AMT);
 
@@ -19755,7 +19755,7 @@ InitEnemyFireball(short SpriteNum)
 // for hitscans or other uses
 ///////////////////////////////////////////////////////////////////////////////
 
-SWBOOL
+bool
 WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     short i, nexti;
@@ -19827,7 +19827,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     return true;
 }
 
-SWBOOL
+bool
 WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     short i, nexti;
@@ -19899,7 +19899,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
 }
 
 
-SWBOOL
+bool
 SpriteWarpToUnderwater(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
@@ -19977,7 +19977,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     return true;
 }
 
-SWBOOL
+bool
 SpriteWarpToSurface(SPRITEp sp)
 {
     USERp u = User[sp - sprite];
@@ -20172,7 +20172,7 @@ SpawnUnderSplash(short SpriteNum)
     return 0;
 }
 
-SWBOOL
+bool
 MissileHitDiveArea(short SpriteNum)
 {
     USERp u = User[SpriteNum];
@@ -20499,7 +20499,7 @@ void QueueReset(void)
         LoWangsQueue[i] = -1;
 }
 
-SWBOOL TestDontStick(short SpriteNum, short hit_wall)
+bool TestDontStick(short SpriteNum, short hit_wall)
 {
     WALLp wp;
 
@@ -20522,7 +20522,7 @@ SWBOOL TestDontStick(short SpriteNum, short hit_wall)
     return false;
 }
 
-SWBOOL TestDontStickSector(short hit_sect)
+bool TestDontStickSector(short hit_sect)
 {
     if (TEST(sector[hit_sect].extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
         return true;
@@ -20718,7 +20718,7 @@ int QueueFootPrint(short hit_sprite)
     USERp u = User[hit_sprite];
     USERp nu;
     short rnd_num=0;
-    SWBOOL Found=false;
+    bool Found=false;
     SECTORp sectp = &sector[hsp->sectnum];
 
 
@@ -21235,7 +21235,7 @@ DoShrapVelocity(int16_t SpriteNum)
 
         case HIT_SECTOR:
         {
-            SWBOOL did_hit_wall;
+            bool did_hit_wall;
 
             if (SlopeBounce(SpriteNum, &did_hit_wall))
             {
@@ -21469,7 +21469,7 @@ ShrapKillSprite(short SpriteNum)
     return 0;
 }
 
-SWBOOL CheckBreakToughness(BREAK_INFOp break_info, short ID)
+bool CheckBreakToughness(BREAK_INFOp break_info, short ID)
 {
     ////DSPRINTF(ds,"CheckBreakToughness called with %d",ID);
     //CON_Message(ds);

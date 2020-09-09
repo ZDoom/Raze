@@ -223,7 +223,7 @@ void DoPaletteFlash(PLAYERp pp)
 }
 
 
-SWBOOL MNU_ShareWareMessage()
+bool MNU_ShareWareMessage()
 {
 	const char* extra_text;
 	short w, h;

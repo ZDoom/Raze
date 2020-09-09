@@ -57,17 +57,17 @@ void DoPlayerBeginForceJump(PLAYERp);
 
 short FindNextSectorByTag(short sectnum, int tag);
 short LevelSecrets;
-SWBOOL TestVatorMatchActive(short match);
-SWBOOL TestSpikeMatchActive(short match);
-SWBOOL TestRotatorMatchActive(short match);
-SWBOOL TestSlidorMatchActive(short match);
+bool TestVatorMatchActive(short match);
+bool TestSpikeMatchActive(short match);
+bool TestRotatorMatchActive(short match);
+bool TestSlidorMatchActive(short match);
 int PlayerCheckDeath(PLAYERp, short);
 short DoVatorOperate(PLAYERp, short);
 short DoVatorMatch(PLAYERp pp, short match);
 short DoRotatorOperate(PLAYERp, short);
-short DoRotatorMatch(PLAYERp pp, short match, SWBOOL);
+short DoRotatorMatch(PLAYERp pp, short match, bool);
 short DoSlidorOperate(PLAYERp, short);
-short DoSlidorMatch(PLAYERp pp, short match, SWBOOL);
+short DoSlidorMatch(PLAYERp pp, short match, bool);
 
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
@@ -92,7 +92,7 @@ SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 SPRING_BOARD SpringBoard[20];
 
-void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL set_nextwall)
+void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall)
 {
     short wall_num, start_wall;
 
@@ -1308,7 +1308,7 @@ DoStopSoundSpotMatch(short match)
 }
 
 
-SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop)
+bool TestKillSectorObject(SECTOR_OBJECTp sop)
 {
     if (TEST(sop->flags, SOBJ_KILLABLE))
     {
@@ -1341,7 +1341,7 @@ DoSectorObjectKillMatch(short match)
 }
 
 
-SWBOOL
+bool
 SearchExplodeSectorMatch(short match)
 {
     short i,nexti;
@@ -1621,7 +1621,7 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
     DoDeleteSpriteMatch(match);
 }
 
-SWBOOL ComboSwitchTest(short combo_type, short match)
+bool ComboSwitchTest(short combo_type, short match)
 {
     short i,nexti;
     SPRITEp sp;
@@ -2303,7 +2303,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
 #define PLAYER_SOUNDEVENT_TAG 900
-SWBOOL NearThings(PLAYERp pp)
+bool NearThings(PLAYERp pp)
 {
     short neartagsect, neartagwall, neartagsprite;
     int neartaghitdist;
@@ -2561,7 +2561,7 @@ int DoPlayerGrabStar(PLAYERp pp)
 void
 PlayerOperateEnv(PLAYERp pp)
 {
-    SWBOOL found;
+    bool found;
 
     if (Prediction || !pp->SpriteP)
         return;
@@ -3255,7 +3255,7 @@ void
 DoSector(void)
 {
     SECTOR_OBJECTp sop;
-    SWBOOL riding;
+    bool riding;
     int sync_flag;
     short pnum;
     int min_dist,dist,a,b,c;

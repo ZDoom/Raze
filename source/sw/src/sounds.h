@@ -86,7 +86,7 @@ void StopFX(void);
 void StopSound(void);
 void StartAmbientSound(void);
 void StopAmbientSound(void);
-SWBOOL PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
+bool PlaySong(const char *mapname, const char *song_file_name, int cdaudio_track, bool isThemeTrack = false); //(nullptr, nullptr, -1, false) starts the normal level music.
 void PlaySoundRTS(int rts_num);
 
 //
@@ -170,8 +170,8 @@ struct VOC3Dstruct
     int tics;                          // Tics used to count to next sound occurance
     int maxtics;                       // Tics until next sound occurance
     // for intermittent sounds
-    SWBOOL deleted;                       // Has sound been marked for deletion?
-    SWBOOL FX_Ok;                         // Did this sound play ok?
+    bool deleted;                       // Has sound been marked for deletion?
+    bool FX_Ok;                         // Did this sound play ok?
 };
 #endif
 

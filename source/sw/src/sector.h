@@ -67,12 +67,12 @@ extern short nti_cnt;
 void DoSpawnSpotsForKill(short match);
 void DoSpawnSpotsForDamage(short match);
 void DoMatchEverything(PLAYERp pp, short match, short state);
-SWBOOL ComboSwitchTest(short combo_type,short match);
+bool ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);
 short AnimateSwitch(SPRITEp sp,short tgt_value);
 void ShootableSwitch(short SpriteNum);
-SWBOOL TestKillSectorObject(SECTOR_OBJECTp sop);
+bool TestKillSectorObject(SECTOR_OBJECTp sop);
 void WeaponExplodeSectorInRange(short weapon);
 
 void initlava(void);

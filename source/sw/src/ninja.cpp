@@ -2393,7 +2393,7 @@ InitPlayerSprite(PLAYERp pp)
     SPRITE *sp;
     USERp u;
     int pnum = pp - Player;
-    extern SWBOOL NewGame;
+    extern bool NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;

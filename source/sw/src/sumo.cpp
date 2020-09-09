@@ -41,9 +41,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 extern uint8_t playTrack;
-SWBOOL serpwasseen = false;
-SWBOOL sumowasseen = false;
-SWBOOL zillawasseen = false;
+bool serpwasseen = false;
+bool sumowasseen = false;
+bool zillawasseen = false;
 
 short BossSpriteNum[3] = {-1,-1,-1};
 
@@ -816,10 +816,10 @@ BossHealthMeter(void)
     PLAYERp pp = Player + myconnectindex;
     short color=0,i=0,nexti,metertics,meterunit;
     int y;
-    extern SWBOOL NoMeters;
+    extern bool NoMeters;
     short health;
-    SWBOOL bosswasseen;
-    static SWBOOL triedplay = false;
+    bool bosswasseen;
+    static bool triedplay = false;
 
     if (NoMeters) return;
 

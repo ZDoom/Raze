@@ -71,8 +71,8 @@ SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
 void ScaleSpriteVector(short SpriteNum, int scale);
 int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z);
 int QueueWallBlood(short hit_sprite, short ang);
-SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hit_wall);
-SWBOOL HitscanSpriteAdjust(short SpriteNum, short hit_wall);
+bool SlopeBounce(short SpriteNum, bool *hit_wall);
+bool HitscanSpriteAdjust(short SpriteNum, short hit_wall);
 int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int SpawnBubble(short SpriteNum);
 int SpawnFireballExp(int16_t Weapon);
@@ -82,7 +82,7 @@ int SpawnGrenadeExp(int16_t Weapon);
 int SpawnSectorExp(int16_t Weapon);
 int DoShrapVelocity(int16_t SpriteNum);
 int ShrapKillSprite(short SpriteNum);
-SWBOOL MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
+bool MissileSetPos(short Weapon,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
 int SpawnBreakFlames(int16_t SpriteNum);
 const char *DeathString(short SpriteNum);
@@ -154,12 +154,12 @@ extern int WeaponIsAmmo;
 
 extern short target_ang;
 
-SWBOOL SpriteOverlap(short, short);
+bool SpriteOverlap(short, short);
 
 int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int DoActorBeginSlide(short SpriteNum, short ang, short vel, short dec);
 int GetOverlapSector(int x, int y, short *over, short *under);
-SWBOOL MissileHitDiveArea(short SpriteNum);
+bool MissileHitDiveArea(short SpriteNum);
 
 int DoDamageTest(short);
 
@@ -178,7 +178,7 @@ void WallBounce(short SpriteNum, short ang);
 int PlayerInitChemBomb(PLAYERp pp);
 int InitChemBomb(short SpriteNum);
 int PlayerInitCaltrops(PLAYERp pp);
-int InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity);
+int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
 int SpawnBunnyExp(int16_t Weapon);
 int InitBunnyRocket(PLAYERp pp);
 
@@ -221,9 +221,9 @@ int HelpMissileLateral(int16_t Weapon,int dist);
 int AddSpriteToSectorObject(short SpriteNum,SECTOR_OBJECTp sop);
 void QueueReset(void);
 int PlayerCheckDeath(PLAYERp pp,short Weapon);
-SWBOOL SpriteWarpToUnderwater(SPRITEp sp);
+bool SpriteWarpToUnderwater(SPRITEp sp);
 int PlayerDamageSlide(PLAYERp pp,short damage,short ang);
-SWBOOL VehicleMoveHit(short SpriteNum);
+bool VehicleMoveHit(short SpriteNum);
 int SpawnSplash(short SpriteNum);
 int SpawnMineExp(int16_t Weapon);
 int SpawnLittleExp(int16_t Weapon);
@@ -232,7 +232,7 @@ int SpawnNuclearExp(int16_t Weapon);
 int SpawnBoltExp(int16_t Weapon);
 int SpawnTracerExp(int16_t Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
-SWBOOL MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
+bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
 int DoItemFly(int16_t SpriteNum);
 int SpawnVehicleSmoke(short SpriteNum);
 short PrevWall(short wall_num);

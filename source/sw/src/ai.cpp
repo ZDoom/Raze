@@ -40,10 +40,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL PlayerTakeDamage(PLAYERp, short);
+bool PlayerTakeDamage(PLAYERp, short);
 ANIMATOR InitActorRunToward;
-SWBOOL FAF_Sector(short);
-SWBOOL DropAhead(short SpriteNum, short min_height);
+bool FAF_Sector(short);
+bool DropAhead(short SpriteNum, short min_height);
 
 short FindTrackToPlayer(USERp u);
 ANIMATORp ChooseAction(DECISION decision[]);
@@ -114,7 +114,7 @@ void DebugMoveHit(short SpriteNum)
 }
 
 
-SWBOOL ActorMoveHitReact(short SpriteNum)
+bool ActorMoveHitReact(short SpriteNum)
 {
     USERp u = User[SpriteNum];
 
@@ -161,7 +161,7 @@ SWBOOL ActorMoveHitReact(short SpriteNum)
 }
 
 
-SWBOOL ActorFlaming(short SpriteNum)
+bool ActorFlaming(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
@@ -398,7 +398,7 @@ DoActorPickClosePlayer(short SpriteNum)
     PLAYERp pp;
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    SWBOOL found = false;
+    bool found = false;
     int i,nexti;
 
     if (u->ID == ZOMBIE_RUN_R0 && gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
@@ -474,7 +474,7 @@ DoActorPickClosePlayer(short SpriteNum)
 
         DISTANCE(sp->x, sp->y, pp->posx, pp->posy, dist, a, b, c);
 
-        //SWBOOL ICanSee = FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum);
+        //bool ICanSee = FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum);
         if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, pp->SpriteP->x, pp->SpriteP->y, SPRITEp_UPPER(pp->SpriteP), pp->SpriteP->sectnum))
         {
             near_dist = dist;
@@ -638,7 +638,7 @@ DoActorActionDecide(short SpriteNum)
     int dist;
     ANIMATORp action;
     USERp pu=NULL;
-    SWBOOL ICanSee=false;
+    bool ICanSee=false;
 
     // REMINDER: This function is not even called if SpriteControl doesn't let
     // it get called

@@ -38,9 +38,9 @@ BEGIN_SW_NS
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-extern SWBOOL Prediction;
+extern bool Prediction;
 
-SWBOOL
+bool
 WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 {
     int i,nexti;
@@ -210,7 +210,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-SWBOOL
+bool
 WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 {
     int i,nexti;

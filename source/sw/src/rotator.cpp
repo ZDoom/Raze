@@ -38,9 +38,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short DoRotatorMatch(PLAYERp pp, short match, SWBOOL);
-SWBOOL TestRotatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, SWBOOL state);
+short DoRotatorMatch(PLAYERp pp, short match, bool);
+bool TestRotatorMatchActive(short match);
+void InterpSectorSprites(short sectnum, bool state);
 void DoMatchEverything(PLAYERp pp, short match, short state);
 void DoRotatorSetInterp(short SpriteNum);
 void DoRotatorStopInterp(short SpriteNum);
@@ -73,12 +73,12 @@ void ReverseRotator(short SpriteNum)
     r->vel = -r->vel;
 }
 
-SWBOOL
+bool
 RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = false;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -151,7 +151,7 @@ short DoRotatorOperate(PLAYERp pp, short sectnum)
 // called from switches and triggers
 // returns first vator found
 short
-DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
+DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
@@ -171,7 +171,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
             fu = User[i];
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXT_SPONLY"));
@@ -230,7 +230,7 @@ DoRotatorMatch(PLAYERp pp, short match, SWBOOL manual)
 }
 
 
-SWBOOL
+bool
 TestRotatorMatchActive(short match)
 {
     USERp fu;
@@ -315,7 +315,7 @@ int DoRotatorMove(short SpriteNum)
     int i, nexti;
     vec2_t nxy;
     int dist,closest;
-    SWBOOL kill = false;
+    bool kill = false;
 
     r = u->rotator;
 

@@ -53,14 +53,14 @@ MIRRORTYPE mirror[MAXMIRRORS];
 
 short mirrorcnt; //, floormirrorcnt;
 //short floormirrorsector[MAXMIRRORS];
-SWBOOL mirrorinview;
+bool mirrorinview;
 uint32_t oscilationclock;
 
 // Voxel stuff
-//SWBOOL bVoxelsOn = true;                  // Turn voxels on by default
-SWBOOL bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
+//bool bVoxelsOn = true;                  // Turn voxels on by default
+bool bSpinBobVoxels = false;            // Do twizzly stuff to voxels, but
 // not by default
-SWBOOL bAutoSize = true;                  // Autosizing on/off
+bool bAutoSize = true;                  // Autosizing on/off
 
 //extern int chainnumpages;
 extern AMB_INFO ambarray[];
@@ -288,7 +288,7 @@ void JS_InitMirrors(void)
     short startwall, endwall;
     int i, j, s;
     short SpriteNum = 0, NextSprite;
-    SWBOOL Found_Cam = false;
+    bool Found_Cam = false;
 
 
     // Set all the mirror struct values to -1
@@ -482,7 +482,7 @@ JS_ProcessEchoSpot()
     int j,dist;
     PLAYERp pp = Player+screenpeek;
     int16_t reverb;
-    SWBOOL reverb_set = false;
+    bool reverb_set = false;
 
     // Process echo sprites
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ECHO], i, nexti)
@@ -531,7 +531,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
     int tposx, tposy; // Camera
     int* longptr;
 
-    SWBOOL bIsWallMirror = false;
+    bool bIsWallMirror = false;
     int camclock = I_GetBuildTime();
 
     camloopcnt += camclock - lastcamclock;
@@ -634,7 +634,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz)
                 // you are outside of it!
                 if (mirror[cnt].mstate == m_viewon)
                 {
-                    SWBOOL DoCam = false;
+                    bool DoCam = false;
 
                     if (mirror[cnt].campic == -1)
                     {
@@ -733,7 +733,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
 //    int tx, ty, tz, tpang;             // Interpolate so mirror doesn't
     // drift!
-    SWBOOL bIsWallMirror = false;
+    bool bIsWallMirror = false;
 
     // WARNING!  Assuming (MIRRORLABEL&31) = 0 and MAXMIRRORS = 64 <-- JBF: wrong
     longptr = (int *)&gotpic[MIRRORLABEL >> 3];

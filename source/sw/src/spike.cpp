@@ -36,9 +36,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 short DoSpikeMatch(short match);
-SWBOOL TestSpikeMatchActive(short match);
+bool TestSpikeMatchActive(short match);
 int DoVatorMove(short SpriteNum, int *lptr);
-void InterpSectorSprites(short sectnum, SWBOOL state);
+void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseSpike(short SpriteNum)
 {
@@ -72,12 +72,12 @@ void ReverseSpike(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-SWBOOL
+bool
 SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = false;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -210,7 +210,7 @@ DoSpikeMatch(short match)
 }
 
 
-SWBOOL
+bool
 TestSpikeMatchActive(short match)
 {
     USERp fu;
@@ -397,7 +397,7 @@ int DoSpike(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = false;
+            bool found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {

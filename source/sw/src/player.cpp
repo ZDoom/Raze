@@ -68,7 +68,7 @@ void pWeaponForceRest(PLAYERp pp);
 #define SO_DRIVE_SOUND 2
 #define SO_IDLE_SOUND 1
 
-extern SWBOOL NoMeters;
+extern bool NoMeters;
 
 #define TEST_UNDERWATER(pp) (TEST(sector[(pp)->cursectnum].extra, SECTFX_UNDERWATER))
 
@@ -80,7 +80,7 @@ extern SWBOOL NoMeters;
 USER puser[MAX_SW_PLAYERS_REG];
 
 //int16_t gNet.MultiGameType = MULTI_GAME_NONE;
-SWBOOL NightVision = false;
+bool NightVision = false;
 extern int FinishAnim;
 
 
@@ -118,7 +118,7 @@ extern int FinishAnim;
 char PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
-extern SWBOOL DebugOperate;
+extern bool DebugOperate;
 
 enum
 {
@@ -138,10 +138,10 @@ PLAYER Player[MAX_SW_PLAYERS_REG + 1];
 
 short NormalVisibility;
 
-int InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity);
+int InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity);
 
 SPRITEp FindNearSprite(SPRITEp sp, short stat);
-SWBOOL PlayerOnLadder(PLAYERp pp);
+bool PlayerOnLadder(PLAYERp pp);
 void DoPlayerSlide(PLAYERp pp);
 void DoPlayerBeginSwim(PLAYERp pp);
 void DoPlayerSwim(PLAYERp pp);
@@ -171,10 +171,10 @@ void DoPlayerOperateTurret(PLAYERp pp);
 void DoPlayerBeginDive(PLAYERp pp);
 void DoPlayerDive(PLAYERp pp);
 void DoPlayerTeleportPause(PLAYERp pp);
-SWBOOL PlayerFlyKey(void);
+bool PlayerFlyKey(void);
 void OperateSectorObject(SECTOR_OBJECTp sop, short newang, int newx, int newy);
 void CheckFootPrints(PLAYERp pp);
-SWBOOL DoPlayerTestCrawl(PLAYERp pp);
+bool DoPlayerTestCrawl(PLAYERp pp);
 void DoPlayerDeathFlip(PLAYERp pp);
 void DoPlayerDeathCrumble(PLAYERp pp);
 void DoPlayerDeathExplode(PLAYERp pp);
@@ -1175,7 +1175,7 @@ static int CompareTarget(void const * a, void const * b)
     return tgt2->weight - tgt1->weight;
 }
 
-SWBOOL
+bool
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
@@ -2007,7 +2007,7 @@ UpdatePlayerUnderSprite(PLAYERp pp)
     short SpriteNum;
 
     int water_level_z, zdiff;
-    SWBOOL above_water, in_dive_area;
+    bool above_water, in_dive_area;
 
     if (Prediction)
         return;
@@ -2318,7 +2318,7 @@ DoPlayerMove(PLAYERp pp)
     // turning and movement still get appropriately interpolated.
     // We do this from here instead of MovePlayer, covering the case
     // the player gets pushed by a wall (e.g., on the boat in level 5).
-    SWBOOL interpolate_ride = pp->sop_riding && (!cl_sointerpolation || CommEnabled);
+    bool interpolate_ride = pp->sop_riding && (!cl_sointerpolation || CommEnabled);
 
     void SlipSlope(PLAYERp pp);
 
@@ -2687,7 +2687,7 @@ void DoTankTreads(PLAYERp pp)
     SECTORp *sectp;
     int j;
     int dot;
-    SWBOOL reverse = false;
+    bool reverse = false;
 
     if (Prediction)
         return;
@@ -2973,7 +2973,7 @@ DoPlayerMoveVehicle(PLAYERp pp)
     int j,k;
     short startwall,endwall;
 
-    SWBOOL RectClip = !!TEST(sop->flags, SOBJ_RECT_CLIP);
+    bool RectClip = !!TEST(sop->flags, SOBJ_RECT_CLIP);
 
     if (Prediction)
         return;
@@ -3618,7 +3618,7 @@ DoPlayerClimb(PLAYERp pp)
     int dot;
     short sec,wal,spr;
     int dist;
-    SWBOOL LadderUpdate = false;
+    bool LadderUpdate = false;
 
     if (Prediction)
         return;
@@ -3873,9 +3873,9 @@ DoPlayerWadeSuperJump(PLAYERp pp)
     return false;
 }
 
-SWBOOL PlayerFlyKey(void)
+bool PlayerFlyKey(void)
 {
-    SWBOOL key = false;
+    bool key = false;
 
     if (!GodMode)
         return false;
@@ -3908,7 +3908,7 @@ DoPlayerBeginCrawl(PLAYERp pp)
     NewStateGroup(pp->PlayerSprite, u->ActorActionSet->Crawl);
 }
 
-SWBOOL PlayerFallTest(PLAYERp pp, int player_height)
+bool PlayerFallTest(PLAYERp pp, int player_height)
 {
     // If the floor is far below you, fall hard instead of adjusting height
     if (labs(pp->posz - pp->loz) > player_height + PLAYER_FALL_HEIGHT)
@@ -4089,7 +4089,7 @@ void PlayerWarpUpdatePos(PLAYERp pp)
     UpdatePlayerSprite(pp);
 }
 
-SWBOOL PlayerCeilingHit(PLAYERp pp, int zlimit)
+bool PlayerCeilingHit(PLAYERp pp, int zlimit)
 {
     if (pp->posz < zlimit)
     {
@@ -4099,7 +4099,7 @@ SWBOOL PlayerCeilingHit(PLAYERp pp, int zlimit)
     return false;
 }
 
-SWBOOL PlayerFloorHit(PLAYERp pp, int zlimit)
+bool PlayerFloorHit(PLAYERp pp, int zlimit)
 {
     if (pp->posz > zlimit)
     {
@@ -4193,7 +4193,7 @@ FindNearSprite(SPRITEp sp, short stat)
     return near_fp;
 }
 
-SWBOOL
+bool
 PlayerOnLadder(PLAYERp pp)
 {
     short sec, wal, spr;
@@ -4297,7 +4297,7 @@ PlayerOnLadder(PLAYERp pp)
     return true;
 }
 
-SWBOOL DoPlayerTestCrawl(PLAYERp pp)
+bool DoPlayerTestCrawl(PLAYERp pp)
 {
     if (labs(pp->loz - pp->hiz) < PLAYER_STANDING_ROOM)
         return true;
@@ -5460,7 +5460,7 @@ void FindMainSector(SECTOR_OBJECTp sop)
     }
 }
 
-void DoPlayerOperateMatch(PLAYERp pp, SWBOOL starting)
+void DoPlayerOperateMatch(PLAYERp pp, bool starting)
 {
     SPRITEp sp;
     short i,nexti;
@@ -6052,7 +6052,7 @@ void
 DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
 {
     int pnum;
-    SWBOOL SEND_OK = false;
+    bool SEND_OK = false;
 
     killer->KilledPlayer[pp-Player]++;
 
@@ -6086,7 +6086,7 @@ DoPlayerDeathMessage(PLAYERp pp, PLAYERp killer)
 void
 DoPlayerBeginDie(PLAYERp pp)
 {
-    extern SWBOOL ReloadPrompt;
+    extern bool ReloadPrompt;
     short bak;
     int choosesnd = 0;
 
@@ -7299,7 +7299,7 @@ void MultiPlayLimits(void)
 {
     short pnum;
     PLAYERp pp;
-    SWBOOL Done = false;
+    bool Done = false;
 
     if (gNet.MultiGameType != MULTI_GAME_COMMBAT)
         return;
@@ -7339,7 +7339,7 @@ void MultiPlayLimits(void)
 void PauseMultiPlay(void)
 {
 #if 0
-    static SWBOOL SavePrediction;
+    static bool SavePrediction;
     PLAYERp pp;
     short pnum,p;
 
@@ -7424,7 +7424,7 @@ domovethings(void)
     TRAVERSE_CONNECT(pnum)
     {
         extern short screenpeek;
-        extern SWBOOL PlayerTrackingMode;
+        extern bool PlayerTrackingMode;
         extern PLAYERp GlobPlayerP;
 
         pp = Player + pnum;
@@ -7501,7 +7501,7 @@ InitAllPlayers(void)
     PLAYERp pp;
     PLAYERp pfirst = Player;
     int i;
-    extern SWBOOL NewGame;
+    extern bool NewGame;
     //int fz,cz;
 
     //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
@@ -7565,7 +7565,7 @@ int SearchSpawnPosition(PLAYERp pp)
     SPRITEp sp;
     short pos_num;
     short pnum,spawn_sprite;
-    SWBOOL blocked;
+    bool blocked;
 
     do
     {
@@ -7599,7 +7599,7 @@ int SearchSpawnPosition(PLAYERp pp)
     return pos_num;
 }
 
-SWBOOL SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
+bool SpawnPositionUsed[MAX_SW_PLAYERS_REG+1];
 
 void
 PlayerSpawnPosition(PLAYERp pp)

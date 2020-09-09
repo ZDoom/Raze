@@ -90,7 +90,7 @@ int DoSlidorInstantClose(short SpriteNum);
 void InitWeaponRocket(PLAYERp);
 void InitWeaponUzi(PLAYERp);
 
-SWBOOL FAF_Sector(short sectnum);
+bool FAF_Sector(short sectnum);
 int MoveSkip4, MoveSkip2, MoveSkip8;
 
 extern STATE s_CarryFlag[];
@@ -99,7 +99,7 @@ extern STATE s_CarryFlagNoDet[];
 static int globhiz, globloz, globhihit, globlohit;
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-void SetSectorWallBits(short sectnum, int bit_mask, SWBOOL set_sectwall, SWBOOL set_nextwall);
+void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
 int DoActorDebris(short SpriteNum);
 void ActorWarpUpdatePos(short SpriteNum,short sectnum);
 void ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
@@ -1036,7 +1036,7 @@ PicAnimOff(short picnum)
     RESET(picanm[picnum].sf, PICANM_ANIMTYPE_MASK);
 }
 
-SWBOOL
+bool
 IconSpawn(SPRITEp sp)
 {
     // if multi item and not a modem game
@@ -1049,7 +1049,7 @@ IconSpawn(SPRITEp sp)
     return true;
 }
 
-SWBOOL
+bool
 ActorTestSpawn(SPRITEp sp)
 {
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
@@ -1125,7 +1125,7 @@ void PreCacheSkull(void);
 void PreCacheBetty(void);
 void PreCachePachinko(void);
 
-SWBOOL
+bool
 ActorSpawn(SPRITEp sp)
 {
     bool ret = true;
@@ -3810,9 +3810,9 @@ NUKE_REPLACEMENT:
     }
 }
 
-SWBOOL ItemSpotClear(SPRITEp sip, short statnum, short id)
+bool ItemSpotClear(SPRITEp sip, short statnum, short id)
 {
-    SWBOOL found = false;
+    bool found = false;
     short i,nexti;
 
     if (TEST_BOOL2(sip))
@@ -4649,7 +4649,7 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
 }
 
 
-SWBOOL
+bool
 SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
@@ -4690,7 +4690,7 @@ SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
 
 }
 
-SWBOOL
+bool
 SpriteOverlapZ(int16_t spritenum_a, int16_t spritenum_b, int z_overlap)
 {
     SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
@@ -4926,7 +4926,7 @@ DoActorGlobZ(short SpriteNum)
 }
 
 
-SWBOOL
+bool
 ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_height)
 {
     SPRITEp sp = &sprite[SpriteNum];
@@ -4983,7 +4983,7 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 }
 
 // Primarily used in ai.c for now - need to get rid of
-SWBOOL
+bool
 DropAhead(short SpriteNum, short min_height)
 {
 
@@ -5469,7 +5469,7 @@ void ChoosePlayerGetSound(PLAYERp pp)
     PlayerSound(PlayerGetItemVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
 
-SWBOOL CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
+bool CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
 {
     USERp u = User[SpriteNum];
 
@@ -5528,7 +5528,7 @@ DoGet(short SpriteNum)
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
-    SWBOOL can_see;
+    bool can_see;
     int cstat_bak;
 
     // For flag stuff
@@ -5684,7 +5684,7 @@ KeyMain:
         case ICON_SM_MEDKIT:
             if (pu->Health < 100)
             {
-                SWBOOL putbackmax=false;
+                bool putbackmax=false;
 
                 PutStringInfo(Player+pnum, quoteMgr.GetQuote(QUOTE_INVENTORY + InvDecl_SmMedkit));
 

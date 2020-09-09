@@ -53,7 +53,7 @@ typedef struct
 
 SAVE save;
 
-SWBOOL FAF_DebugView = false;
+bool FAF_DebugView = false;
 
 void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector)
 {
@@ -86,7 +86,7 @@ int COVERinsertsprite(short sectnum, short stat)
     return spnum;
 }
 
-SWBOOL
+bool
 FAF_Sector(short sectnum)
 {
     short SpriteNum, Next;
@@ -155,7 +155,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     int loz, hiz;
     short newsectnum = sectnum;
     int startclipmask = 0;
-    SWBOOL plax_found = false;
+    bool plax_found = false;
 
     if (clipmask == CLIPMASK_MISSILE)
         startclipmask = CLIPMASK_WARP_HITSCAN;
@@ -264,7 +264,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-SWBOOL
+bool
 FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte)
 {
@@ -274,7 +274,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     short ang;
     hitdata_t hitinfo;
     int dist;
-    SWBOOL plax_found = false;
+    bool plax_found = false;
     vec3_t s = { xs, ys, zs };
 
     // ASSERT(sects >= 0 && secte >= 0);
@@ -368,12 +368,12 @@ GetZadjustment(short sectnum, short hitag)
     return 0L;
 }
 
-SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
+bool SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
 {
     extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
     int z_amt = 0;
 
-    SWBOOL SkipFAFcheck = false;
+    bool SkipFAFcheck = false;
 
     if ((int)florhit != -1)
     {
@@ -506,7 +506,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 {
     int foo1;
     int foo2;
-    SWBOOL SkipFAFcheck;
+    bool SkipFAFcheck;
 
     // IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // This will return invalid FAF ceiling and floor heights inside of analyzesprite
@@ -576,7 +576,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 {
     int foo1;
     int foo2;
-    SWBOOL SkipFAFcheck;
+    bool SkipFAFcheck;
 
     // IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // This will return invalid FAF ceiling and floor heights inside of analyzesprite
@@ -633,8 +633,8 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 }
 
 // doesn't work for blank pics
-SWBOOL
-PicInView(short tile_num, SWBOOL reset)
+bool
+PicInView(short tile_num, bool reset)
 {
     if (TEST(gotpic[tile_num >> 3], 1 << (tile_num & 7)))
     {
@@ -696,7 +696,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         // will not hurt if GlobStackSect is invalid - inside checks for this
         if (inside(x, y, GlobStackSect[i]) == 1)
         {
-            SWBOOL found = false;
+            bool found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[GlobStackSect[i]], SpriteNum, Next)
             {
@@ -726,7 +726,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
         {
             if (inside(x, y, (short) i) == 1)
             {
-                SWBOOL found = false;
+                bool found = false;
 
                 TRAVERSE_SPRITE_SECT(headspritesect[i], SpriteNum, Next)
                 {
@@ -795,7 +795,7 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     }
 }
 
-SWBOOL
+bool
 FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
@@ -882,7 +882,7 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     return true;
 }
 
-SWBOOL
+bool
 FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;

@@ -59,10 +59,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 static int OverlapDraw = false;
-extern SWBOOL QuitFlag, SpriteInfo;
-extern SWBOOL Voxel;
+extern bool QuitFlag, SpriteInfo;
+extern bool Voxel;
 extern char buffer[];
-SWBOOL DrawScreen;
+bool DrawScreen;
 extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
@@ -261,7 +261,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
+DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -560,7 +560,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 }
 
 void
-analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
+analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -708,7 +708,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum];
                     uint8_t pal = sector[tsp->sectnum].floorpal;
-                    SWBOOL nosectpal=false;
+                    bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
                     if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
@@ -1257,7 +1257,7 @@ void SpriteSortList2D(int tx, int ty)
 
 void DrawCrosshair(PLAYERp pp)
 {
-    extern SWBOOL CameraTestMode;
+    extern bool CameraTestMode;
 
     if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
@@ -1271,10 +1271,10 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
     int i,nexti;
     short ang;
     SPRITEp sp;
-    SWBOOL found_camera = false;
-    SWBOOL player_in_camera = false;
-    SWBOOL FAFcansee_test;
-    SWBOOL ang_test;
+    bool found_camera = false;
+    bool player_in_camera = false;
+    bool FAFcansee_test;
+    bool ang_test;
 
     if (pp == &Player[screenpeek])
     {
@@ -1603,13 +1603,13 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
 
 short ScreenSavePic = false;
 
-SWBOOL PicInView(short, SWBOOL);
+bool PicInView(short, bool);
 void DoPlayerDiveMeter(PLAYERp pp);
 
 void
 drawscreen(PLAYERp pp, double smoothratio)
 {
-    extern SWBOOL CameraTestMode;
+    extern bool CameraTestMode;
     int tx, ty, tz;
     fixed_t tq16horiz, tq16ang;
     short tsectnum;
@@ -1617,7 +1617,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
-    extern SWBOOL FAF_DebugView;
+    extern bool FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
 
     // last valid stuff

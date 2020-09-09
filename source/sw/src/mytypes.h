@@ -34,47 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define OFF     0
 #define ON     1
 
-class SWBOOL
-{
-	bool value;
-
-public:
-	SWBOOL(bool val) { value = val; }
-	SWBOOL() = default;
-	SWBOOL(unsigned char) = delete;
-	SWBOOL(signed char) = delete;
-	SWBOOL(char) = delete;
-	SWBOOL(unsigned short) = delete;
-	SWBOOL(short) = delete;
-	SWBOOL(unsigned int) = delete;
-	SWBOOL(int) = delete;
-	SWBOOL(double) = delete;
-	SWBOOL(float) = delete;
-	SWBOOL(const void *) = delete;
-	SWBOOL& operator=(bool v) { value = v; return *this; }
-	SWBOOL& operator=(char v) = delete;
-	SWBOOL& operator=(signed char v) = delete;
-	SWBOOL& operator=(unsigned char v) = delete;
-	SWBOOL& operator=(signed short v) = delete;
-	SWBOOL& operator=(unsigned short v) = delete;
-	SWBOOL& operator=(signed int v) = delete;
-	SWBOOL& operator=(unsigned int v) = delete;
-	SWBOOL& operator=(float v) = delete;
-	SWBOOL& operator=(double v) = delete;
-	SWBOOL& operator=(const void *v) = delete;
-	operator bool() { return value; }
-	SWBOOL& operator |=(bool b) { value |= b; return*this; }
-	SWBOOL& operator|=(char v) = delete;
-	SWBOOL& operator|=(signed char v) = delete;
-	SWBOOL& operator|=(unsigned char v) = delete;
-	SWBOOL& operator|=(signed short v) = delete;
-	SWBOOL& operator|=(unsigned short v) = delete;
-	SWBOOL& operator|=(signed int v) = delete;
-	SWBOOL& operator|=(unsigned int v) = delete;
-	SWBOOL& operator|=(float v) = delete;
-	SWBOOL& operator|=(double v) = delete;
-	SWBOOL& operator|=(const void* v) = delete;
-};
 
 /*
 ===========================

@@ -41,9 +41,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 short DoVatorMatch(PLAYERp pp, short match);
-SWBOOL TestVatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, SWBOOL state);
-int InitBloodSpray(short, SWBOOL, short);
+bool TestVatorMatchActive(short match);
+void InterpSectorSprites(short sectnum, bool state);
+int InitBloodSpray(short, bool, short);
 
 void ReverseVator(short SpriteNum)
 {
@@ -77,12 +77,12 @@ void ReverseVator(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-SWBOOL
+bool
 VatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = false;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -161,7 +161,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
             sectnum = fsp->sectnum;
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
@@ -236,7 +236,7 @@ DoVatorMatch(PLAYERp pp, short match)
                 first_vator = i;
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXTS_SPONLY"));
@@ -287,7 +287,7 @@ DoVatorMatch(PLAYERp pp, short match)
 }
 
 
-SWBOOL
+bool
 TestVatorMatchActive(short match)
 {
     USERp fu;
@@ -315,7 +315,7 @@ TestVatorMatchActive(short match)
     return false;
 }
 
-void InterpSectorSprites(short sectnum, SWBOOL state)
+void InterpSectorSprites(short sectnum, bool state)
 {
     SPRITEp sp;
     short i,nexti;
@@ -340,11 +340,11 @@ void InterpSectorSprites(short sectnum, SWBOOL state)
     }
 }
 
-void MoveSpritesWithSector(short sectnum, int z_amt, SWBOOL type)
+void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL both = false;
+    bool both = false;
 
     if (SectUser[sectnum])
         both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
@@ -538,7 +538,7 @@ int DoVator(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = false;
+            bool found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
