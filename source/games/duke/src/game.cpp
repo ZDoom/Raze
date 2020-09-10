@@ -198,7 +198,7 @@ static void setupbackdrop()
 		defineSky(5412, 65536, 3, defoff, 48);
 		defineSky(5420, 65536, 3, defoff, 48);
 		defineSky(5450, 65536, 3, defoff7, 48);
-		defineSky(5548, 65536, 3, defoff, 48);
+		defineSky(5540, 65536, 3, defoff, 48);
 		defineSky(5556, 65536, 3, defoff1, 48);
 		defineSky(5720, 65536, 3, defoff4, 48);
 		defineSky(5814, 65536, 3, defoff, 48);
