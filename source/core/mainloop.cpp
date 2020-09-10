@@ -90,6 +90,7 @@
 CVAR(Bool, vid_activeinbackground, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, r_ticstability, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, cl_capfps, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+CVAR(Bool, cl_resumesavegame, true, CVAR_ARCHIVE)
 
 ticcmd_t playercmds[MAXPLAYERS];
 
@@ -101,6 +102,10 @@ bool r_NoInterpolate;
 int entertic;
 int oldentertics;
 int gametic;
+
+extern FString BackupSaveGame;
+
+void DoLoadGame(const char* name);
 
 
 //==========================================================================
@@ -137,14 +142,21 @@ static void GameTicker()
 		switch (ga)
 		{
 		case ga_autoloadgame:
-			// todo: for now just handle the restart case
-			g_nextmap = currentLevel;
-			FX_StopAllSounds();
-			FX_SetReverb(0);
-			gi->FreeLevelData();
-			C_ClearMessages();
-			gameaction = ga_level;
-			gi->NewGame(g_nextmap, -1);
+			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
+			{
+				DoLoadGame(BackupSaveGame);
+			}
+			else
+			{
+				g_nextmap = currentLevel;
+				FX_StopAllSounds();
+				FX_SetReverb(0);
+				gi->FreeLevelData();
+				C_ClearMessages();
+				gameaction = ga_level;
+				gi->NewGame(g_nextmap, -1);
+				BackupSaveGame = "";
+			}
 			break;
 
 		case ga_completed:
@@ -178,6 +190,7 @@ static void GameTicker()
 			gi->FreeLevelData();
 			C_ClearMessages();
 			gameaction = ga_level;
+			BackupSaveGame = "";
 			gi->NewGame(g_nextmap, g_nextskill);
 			break;
 

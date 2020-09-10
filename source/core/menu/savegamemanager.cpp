@@ -57,26 +57,33 @@
 
 
 FSavegameManager savegameManager;
+FString BackupSaveGame;
 
-void FSavegameManager::LoadGame(FSaveGameNode* node)
+void DoLoadGame(const char* name)
 {
-	inputState.ClearAllInput();
-	gi->FreeLevelData();
-	if (OpenSaveGameForRead(node->Filename))
+	if (OpenSaveGameForRead(name))
 	{
-		if (gi->LoadGame(node))
+		if (gi->LoadGame(nullptr))
 		{
 			gameaction = ga_level;
 		}
 		else
 		{
-			I_Error("%s: Failed to load savegame", node->Filename.GetChars());
+			I_Error("%s: Failed to load savegame", name);
 		}
 	}
 	else
 	{
-		I_Error("%s: Failed to open savegame", node->Filename.GetChars());
+		I_Error("%s: Failed to open savegame", name);
 	}
+}
+
+void FSavegameManager::LoadGame(FSaveGameNode* node)
+{
+	inputState.ClearAllInput();
+	gi->FreeLevelData();
+	DoLoadGame(node->Filename);
+	BackupSaveGame = node->Filename;
 }
 
 void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
@@ -89,6 +96,7 @@ void FSavegameManager::SaveGame(FSaveGameNode* node, bool ok4q, bool forceq)
 			FString desc = node->SaveTitle;
 			NotifyNewSave(fn, desc, ok4q, forceq);
 			Printf(PRINT_NOTIFY, "%s\n", GStrings("GAME SAVED"));
+			BackupSaveGame = node->Filename;
 		}
 	}
 }
