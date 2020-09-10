@@ -19761,7 +19761,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
     short i, nexti;
     SECT_USERp sectu = SectUser[*sectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = false;
+    bool Found = false;
     short over, under;
     int sx, sy;
 
@@ -19783,7 +19783,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
@@ -19800,7 +19800,7 @@ WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
 
     // get the offset from the sprite
     sx = over_sp->x - *x;
@@ -19836,7 +19836,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
     int sx, sy;
 
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = false;
+    bool Found = false;
 
     // 0 not valid for water match tags
     if (sectu->number == 0)
@@ -19856,7 +19856,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
     Found = false;
 
     // search for DIVE_AREA "over" sprite for reference point
@@ -19873,7 +19873,7 @@ WarpToSurface(short *sectnum, int *x, int *y, int *z)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
 
     // get the offset from the under sprite
     sx = under_sp->x - *x;
@@ -19906,7 +19906,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
     short i, nexti;
     SECT_USERp sectu = SectUser[sp->sectnum];
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = false;
+    bool Found = false;
     short over, under;
     int sx, sy;
 
@@ -19928,7 +19928,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
     Found = false;
 
     // search for UNDERWATER "under" sprite for reference point
@@ -19945,7 +19945,7 @@ SpriteWarpToUnderwater(SPRITEp sp)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
 
     // get the offset from the sprite
     sx = over_sp->x - sp->x;
@@ -19987,7 +19987,7 @@ SpriteWarpToSurface(SPRITEp sp)
     int sx, sy;
 
     SPRITEp under_sp = NULL, over_sp = NULL;
-    char Found = false;
+    bool Found = false;
 
     // 0 not valid for water match tags
     if (sectu->number == 0)
@@ -20007,7 +20007,7 @@ SpriteWarpToSurface(SPRITEp sp)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
 
     if (under_sp->lotag == 0)
         return false;
@@ -20028,7 +20028,7 @@ SpriteWarpToSurface(SPRITEp sp)
         }
     }
 
-    ASSERT(Found == true);
+    ASSERT(Found);
 
     // get the offset from the under sprite
     sx = under_sp->x - sp->x;
