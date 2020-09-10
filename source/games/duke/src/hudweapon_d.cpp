@@ -461,8 +461,8 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayrpg = [&]()
 		{
-			pin = (isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-			auto rpgpic = isWorldTour() ? RPGGUNWIDE : RPGGUN;
+			//pin = (isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+			auto rpgpic = /*isWorldTour() ? RPGGUNWIDE :*/ RPGGUN;
 
 			if (sprite[p->i].pal == 1)
 				pal = 1;
@@ -850,8 +850,8 @@ void displayweapon_d(int snum, double smoothratio)
 			}
 			else
 			{
-				pin = (isWW2GI() || isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-				auto pic_5 = isWorldTour() ? FIRSTGUNRELOADWIDE : FIRSTGUN+5;
+				//pin = 0; (isWW2GI() || isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+				auto pic_5 = /*isWorldTour() ? FIRSTGUNRELOADWIDE :*/ FIRSTGUN+5;
 
 				const int WEAPON2_RELOAD_TIME = 50;
 				auto reload_time = isWW2GI() ? aplWeaponReload[PISTOL_WEAPON][snum] : WEAPON2_RELOAD_TIME;
@@ -1081,8 +1081,8 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayfreezer = [&]
 		{
-			pin = (isWW2GI() || isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
-			auto pic = isWorldTour() ? FREEZEWIDE : FREEZE;
+			//pin = (isWW2GI() || isWorldTour() || (duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING)) ? 0 : RS_ALIGN_R;
+			auto pic = /*isWorldTour() ? FREEZEWIDE :*/ FREEZE;
 
 			if (sprite[p->i].pal == 1)
 				pal = 1;
@@ -1099,10 +1099,10 @@ void displayweapon_d(int snum, double smoothratio)
 					looking_arc += rand() & 3;
 				}
 				gun_pos -= 16;
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, isWorldTour() ? FREEZEFIREWIDE : FREEZE + 2, -32, o|pin, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEFIREWIDE :*/ FREEZE + 2, -32, o|pin, pal);
 				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
 			}
-			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, isWorldTour() ? FREEZEWIDE : FREEZE, gs, o | pin, pal);
+			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEWIDE :*/ FREEZE, gs, o | pin, pal);
 		};
 
 		//---------------------------------------------------------------------------
@@ -1281,7 +1281,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayshrinker = [&]
 		{
-			auto shrinker = isWorldTour() ? SHRINKERWIDE : SHRINKER;
+			auto shrinker = /*isWorldTour() ? SHRINKERWIDE :*/ SHRINKER;
 			weapon_xoffset += 28;
 			looking_arc += 18;
 			if (sprite[p->i].pal == 1)
