@@ -289,7 +289,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
             fixed_t horizDelta = pp->horizTarget - pp->q16horiz;
             pp->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
 
-            if (abs(pp->q16horiz) >= abs(horizDelta))
+            if (abs(pp->q16horiz - pp->horizTarget) < FRACUNIT)
             {
                 pp->q16horiz = pp->horizTarget;
                 pp->horizTarget = 0;
@@ -310,7 +310,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
             fixed_t angDelta = GetDeltaQ16Angle(pp->angTarget, pp->q16ang);
             pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
 
-            if (pp->q16ang >= pp->angTarget)
+            if (abs(pp->q16ang - pp->angTarget) < FRACUNIT)
             {
                 pp->q16ang = pp->angTarget;
                 pp->angTarget = 0;

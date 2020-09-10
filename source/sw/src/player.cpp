@@ -7817,7 +7817,7 @@ void playerSetAngle(PLAYERp pp, double ang)
             ang += 0.1;
         }
 
-        pp->angTarget = pp->q16ang + GetDeltaQ16Angle(ang, pp->q16ang);
+        pp->angTarget = pp->q16ang + GetDeltaQ16Angle(FloatToFixed(ang), pp->q16ang);
     }
     else
     {
