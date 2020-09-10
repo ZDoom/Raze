@@ -917,8 +917,8 @@ static int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
             down--;
         if (up < down)
         {
-            swapfloat(&depths[up], &depths[down]);
-            swapshort(&indexes[up], &indexes[down]);
+            std::swap(depths[up], depths[down]);
+            std::swap(indexes[up], indexes[down]);
         }
     }
     while (down > up);

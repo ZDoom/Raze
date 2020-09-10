@@ -79,29 +79,6 @@ EDUKE32_GENERATE_PRAGMAS
 #undef EDUKE32_SCALER_PRAGMA
 
 
-template <typename T>
-static FORCE_INLINE void swapptr(T * const a, T * const b)
-{
-    T const t = *a;
-    *a = *b;
-    *b = t;
-}
-
-#ifndef pragmas_have_swaps
-#define swapchar swapptr
-#define swapshort swapptr
-#define swaplong swapptr
-#define swapfloat swapptr
-#define swapdouble swapptr
-#define swap64bit swapptr
-
-static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
-{
-    swapchar((char *)a, (char *)b);
-    swapchar((char *)a + 1, (char *)b + s);
-}
-#endif
-
 #define klabs(x) abs(x)
 static inline constexpr int ksgn(int32_t a) { return (a > 0) - (a < 0); }
 

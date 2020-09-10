@@ -234,7 +234,7 @@ static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *t
     {
         Printf("Warning: %s: backwards tile range on line %s:%d\n", defcmd,
                    script->filename, scriptfile_getlinum(script,cmdtokptr));
-        swaplong(tilebeg, tileend);
+        std::swap(*tilebeg, *tileend);
     }
 
     if ((unsigned)*tilebeg >= MAXUSERTILES || (unsigned)*tileend >= MAXUSERTILES)

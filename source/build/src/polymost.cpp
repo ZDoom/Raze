@@ -635,10 +635,10 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
     else //clip umost (ceiling)
     {
         if (x0 == x1) return;
-        swapfloat(&x0, &x1);
-        swapfloat(&y0, &y1);
-        swapfloat(&y0top, &y1top);
-        swapfloat(&y0bot, &y1bot);
+       std::swap(x0, x1);
+       std::swap(y0, y1);
+       std::swap(y0top, y1top);
+       std::swap(y0bot, y1bot);
         y0 += DOMOST_OFFSET;
         y1 += DOMOST_OFFSET; //necessary?
     }
@@ -715,17 +715,17 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
         float const fnx[2] = { dm0.x + ((n[0] / d[0]) * (dm1.x - dm0.x)),
                                dm0.x + ((n[1] / d[1]) * (dm1.x - dm0.x)) };
 
-        if ((Bfabsf(d[0]) > Bfabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.x) && (fnx[0] < n1.x))
+        if ((fabsf(d[0]) > fabsf(n[0])) && (d[0] * n[0] >= 0.f) && (fnx[0] > n0.x) && (fnx[0] < n1.x))
             spx[scnt] = fnx[0], spt[scnt++] = 0;
 
-        if ((Bfabsf(d[1]) > Bfabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.x) && (fnx[1] < n1.x))
+        if ((fabsf(d[1]) > fabsf(n[1])) && (d[1] * n[1] >= 0.f) && (fnx[1] > n0.x) && (fnx[1] < n1.x))
             spx[scnt] = fnx[1], spt[scnt++] = 1;
 
         //Nice hack to avoid full sort later :)
         if ((scnt >= 2) && (spx[scnt-1] < spx[scnt-2]))
         {
-            swapfloat(&spx[scnt-1], &spx[scnt-2]);
-            swaplong(&spt[scnt-1], &spt[scnt-2]);
+            std::swap(spx[scnt-1], spx[scnt-2]);
+            std::swap(spt[scnt-1], spt[scnt-2]);
         }
 
         //Test if right edge requires split
@@ -1039,9 +1039,9 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     //Texture flipping
     if (globalorientation&4)
     {
-        swapdouble(&xtex.u, &xtex.v);
-        swapdouble(&ytex.u, &ytex.v);
-        swapdouble(&otex.u, &otex.v);
+        std::swap(xtex.u, xtex.v);
+        std::swap(ytex.u, ytex.v);
+        std::swap(otex.u, otex.v);
     }
 
     if (globalorientation&16) { xtex.u = -xtex.u; ytex.u = -ytex.u; otex.u = -otex.u; }
@@ -3431,9 +3431,9 @@ void polymost_drawsprite(int32_t snum)
                 if (globalorientation & 64)
                     goto _drawsprite_return;  // 1-sided sprite
 
-                swapfloat(&sx0, &sx1);
-                swapfloat(&sc0, &sc1);
-                swapfloat(&sf0, &sf1);
+                std::swap(sx0, sx1);
+                std::swap(sc0, sc1);
+                std::swap(sf0, sf1);
             }
 
             vec2f_t const pxy[4] = { { sx0, sc0 }, { sx1, sc1 }, { sx1, sf1 }, { sx0, sf0 } };
@@ -3502,8 +3502,8 @@ void polymost_drawsprite(int32_t snum)
                 {
                     static_assert(sizeof(uint64_t) == sizeof(vec2f_t));
 
-                    swap64bit(&pxy[0], &pxy[1]);
-                    swap64bit(&pxy[2], &pxy[3]);
+                    std::swap(pxy[0], pxy[1]);
+                    std::swap(pxy[2], pxy[3]);
                 }
 
                 // Clip to SCISDIST plane

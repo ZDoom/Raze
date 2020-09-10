@@ -187,9 +187,9 @@ void setslope(int32_t sectnum, int32_t cf, int16_t slope)
 static int32_t getscore(int32_t w1c, int32_t w1f, int32_t w2c, int32_t w2f)
 {
     if (w1c > w1f)
-        swaplong(&w1c, &w1f);
+        std::swap(w1c, w1f);
     if (w2c > w2f)
-        swaplong(&w2c, &w2f);
+        std::swap(w2c, w2f);
 
     // now: c <= f for each "wall-vline"
 
@@ -1429,9 +1429,9 @@ static void sortsprites(int const start, int const end)
             for (bssize_t l=i; l>=start; l-=gap)
             {
                 if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
-                swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
-                swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
+                std::swap(tspriteptr[l],tspriteptr[l+gap]);
+                std::swap(spritesxyz[l].x,spritesxyz[l+gap].x);
+                std::swap(spritesxyz[l].y,spritesxyz[l+gap].y);
             }
 
     ys = spritesxyz[start].y; i = start;
@@ -1471,7 +1471,7 @@ static void sortsprites(int const start, int const end)
                 for (bssize_t l=i; l<k; l++)
                     if (comparetsprites(k, l) < 0)
                     {
-                        swapptr(&tspriteptr[k],&tspriteptr[l]);
+                        std::swap(tspriteptr[k], tspriteptr[l]);
                         vec3_t tv3 = spritesxyz[k];
                         spritesxyz[k] = spritesxyz[l];
                         spritesxyz[l] = tv3;
@@ -2025,7 +2025,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             for (j=i; j>=0; j-=gap)
             {
                 if (sprite[tsprite[j].owner].z <= sprite[tsprite[j+gap].owner].z) break;
-                swapshort(&tsprite[j].owner,&tsprite[j+gap].owner);
+                std::swap(tsprite[j].owner, tsprite[j+gap].owner);
             }
 
     for (s=sortnum-1; s>=0; s--)
@@ -3430,7 +3430,7 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*=
 int findwallbetweensectors(int sect1, int sect2)
 {
     if (sector[sect1].wallnum > sector[sect2].wallnum)
-        swaplong(&sect1, &sect2);
+        std::swap(sect1, sect2);
 
     auto const sec  = (usectorptr_t)&sector[sect1];
     int const  last = sec->wallptr + sec->wallnum;
