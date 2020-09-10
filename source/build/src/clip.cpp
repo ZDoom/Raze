@@ -399,11 +399,13 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
 
 static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int walldist)
 {
+#if 0
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
         updatesector(pos.x, pos.y, sectnum);
         return;
     }
+#endif
 
     if (inside_p(pos.x, pos.y, *sectnum))
         return;

@@ -1046,8 +1046,16 @@ bool setnextmap(bool checksecretexit)
         map = FindNextMap(currentLevel);
     }
 
+    // Make sure these two are cleared in case the map check errors out.
+    ud.from_bonus = 0;
+    ud.secretlevel = 0;
     if (map)
     {
+        // If the map doesn't exist, abort with a meaningful message instead of crashing.
+        if (fileSystem.FindFile(map->fileName) < 0)
+        {
+            I_Error("Trying to open non-existent %s", map->fileName.GetChars());
+        }
         ud.from_bonus = from_bonus;
     }
     CompleteLevel(map);
