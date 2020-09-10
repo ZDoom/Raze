@@ -43,7 +43,6 @@ BEGIN_DUKE_NS
 // State timer counters. 
 static int turnheldtime;
 static int lastcontroltime;
-static double lastCheck;
 static InputPacket loc; // input accumulation buffer.
 
 //---------------------------------------------------------------------------
@@ -1068,7 +1067,6 @@ void GameInterface::clearlocalinputstate()
 	loc = {};
 	turnheldtime = 0;
 	lastcontroltime = 0;
-	lastCheck = 0;
 }
 
 
