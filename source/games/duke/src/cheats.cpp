@@ -149,7 +149,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 	case CHT_NOCLIP:
 		ud.clipping = 1 - ud.clipping;
-		return quoteMgr.GetQuote(ud.clipping ? QUOTE_CHEAT_NOCLIP : QUOTE_CHEAT_NOCLIP);
+		return quoteMgr.GetQuote(ud.clipping ? QUOTE_CHEAT_NOCLIP : QUOTE_CHEAT_CLIP);
 
 	case CHT_UNLOCK:
 		return cheatUnlock();

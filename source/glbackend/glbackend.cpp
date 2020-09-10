@@ -235,7 +235,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		oldState.DepthFunc = DepthFunc;
 	}
 	// Disable brightmaps if non-black fog is used.
-	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f)
+	if (!(Flags & RF_FogDisabled) && ShadeDiv >= 1 / 1000.f && (GLInterface.useMapFog || FogColor))
 	{
 		state.EnableFog(1);
 	}
