@@ -1099,6 +1099,7 @@ private:
 
         auto tex = dynamic_cast<FRestorableTile*>(tileGetTexture(kTileLoboLaptop)->GetTexture()->GetImage());
         if (tex) tex->Reload();
+        TileFiles.InvalidateTile(kTileLoboLaptop);
         return true;
     }
 
@@ -1120,7 +1121,6 @@ private:
 
     void DisplayPhase2()
     {
-        DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
         int yy = ebp;
         for (int i = 0; i < nStringTypeOn; i++, yy += 8)
         {
@@ -1138,6 +1138,7 @@ private:
         }
         int currentclock = clock * 120 / 1'000'000'000;
         twod->ClearScreen();
+        DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
         switch (phase)
         {
         case 1:
@@ -1146,7 +1147,6 @@ private:
                 Phase1();
                 nextclock += 4;
             }
-            DrawTexture(twod, tileGetTexture(kTileLoboLaptop), 0, 0, DTA_FullscreenEx, FSMode_ScaleToFit43, TAG_DONE);
             if (skiprequest || currentclock >= 240)
             {
                 InitPhase2();
@@ -1179,7 +1179,7 @@ private:
             if (skiprequest)
             {
                 nextclock = (kTimerTicks * (screentext.Size() + 2)) + currentclock;
-                phase = 3;
+                phase = 4;
             }
             break;
 
