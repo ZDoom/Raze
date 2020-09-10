@@ -36,7 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "sprite.h"
 #include "jsector.h"
 #include "parent.h"
-#include "scriptfile.h"
+#include "sc_man.h"
 #include "menu.h"
 #include "quotemgr.h"
 #include "mapinfo.h"
@@ -456,108 +456,94 @@ static struct
 // FIXME: yes, we are leaking memory here at the end of the program by not freeing anything
 void LoadCustomInfoFromScript(const char *filename)
 {
-    scriptfile *script;
-    char *token;
-    char *braceend;
+    FScanner sc;
 
-    script = scriptfile_fromfile(filename);
-    if (!script) return;
+    int lump = fileSystem.FindFile(filename);
+    if (lump < 0) return;
+
+    sc.OpenLumpNum(lump);
+    sc.SetNoOctals(true);
 
     // predefine constants for some stuff to give convenience and eliminate the need for a 'define' directive
-    scriptfile_addsymbolvalue("INV_ARMOR",      1+InvDecl_Armor);
-    scriptfile_addsymbolvalue("INV_KEVLAR",     1+InvDecl_Kevlar);
-    scriptfile_addsymbolvalue("INV_SM_MEDKIT",  1+InvDecl_SmMedkit);
-    scriptfile_addsymbolvalue("INV_FORTUNE",    1+InvDecl_Booster);
-    scriptfile_addsymbolvalue("INV_MEDKIT",     1+InvDecl_Medkit);
-    scriptfile_addsymbolvalue("INV_GAS_BOMB",   1+InvDecl_ChemBomb);
-    scriptfile_addsymbolvalue("INV_FLASH_BOMB", 1+InvDecl_FlashBomb);
-    scriptfile_addsymbolvalue("INV_CALTROPS",   1+InvDecl_Caltrops);
-    scriptfile_addsymbolvalue("INV_NIGHT_VIS",  1+InvDecl_NightVision);
-    scriptfile_addsymbolvalue("INV_REPAIR_KIT", 1+InvDecl_RepairKit);
-    scriptfile_addsymbolvalue("INV_SMOKE_BOMB", 1+InvDecl_Cloak);
+    sc.AddSymbol("INV_ARMOR",      1+InvDecl_Armor);
+    sc.AddSymbol("INV_KEVLAR",     1+InvDecl_Kevlar);
+    sc.AddSymbol("INV_SM_MEDKIT",  1+InvDecl_SmMedkit);
+    sc.AddSymbol("INV_FORTUNE",    1+InvDecl_Booster);
+    sc.AddSymbol("INV_MEDKIT",     1+InvDecl_Medkit);
+    sc.AddSymbol("INV_GAS_BOMB",   1+InvDecl_ChemBomb);
+    sc.AddSymbol("INV_FLASH_BOMB", 1+InvDecl_FlashBomb);
+    sc.AddSymbol("INV_CALTROPS",   1+InvDecl_Caltrops);
+    sc.AddSymbol("INV_NIGHT_VIS",  1+InvDecl_NightVision);
+    sc.AddSymbol("INV_REPAIR_KIT", 1+InvDecl_RepairKit);
+    sc.AddSymbol("INV_SMOKE_BOMB", 1+InvDecl_Cloak);
 
     {
         unsigned i;
         for (i=0; i<SIZ(weaponmap); i++)
-            scriptfile_addsymbolvalue(weaponmap[i].sym, 1+i);
+            sc.AddSymbol(weaponmap[i].sym, 1+i);
     }
 
     MapRecord* curMap = nullptr;
-    while ((token = scriptfile_gettoken(script)))
+    while (sc.GetToken())
     {
-        switch (cm_transtok(token, cm_tokens, cm_numtokens))
+        sc.TokenMustBe(TK_Identifier);
+        switch (cm_transtok(sc.String, cm_tokens, cm_numtokens))
         {
         case CM_MAP:
         {
-            char *mapnumptr;
-            int mapno;
-            if (scriptfile_getnumber(script, &mapno)) break;
-            mapnumptr = script->ltextptr;
-            if (scriptfile_getbraces(script, &braceend)) break;
+            sc.MustGetValue(false, true);
+            int mapno = sc.Number;
             curMap = FindMapByLevelNum(mapno);
             if (!curMap)
             {
                 curMap = AllocateMap();
                 curMap->levelNumber = mapno;
             }
+            sc.MustGetToken('{');
 
-            while (script->textptr < braceend)
+            while (!sc.CheckToken('}'))
             {
-                if (!(token = scriptfile_gettoken(script))) break;
-                if (token == braceend) break;
-                switch (cm_transtok(token, cm_map_tokens, cm_map_numtokens))
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_map_tokens, cm_map_numtokens))
                 {
                 case CM_FILENAME:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-
-					curMap->SetFileName(t);
+                    sc.MustGetToken(TK_StringConst, true);
+					curMap->SetFileName(sc.String);
                     break;
                 }
                 case CM_SONG:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-
-                    curMap->music = t;
+                    sc.MustGetToken(TK_StringConst, true);
+                    curMap->music = sc.String;
                     break;
                 }
                 case CM_TITLE:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-
-                    curMap->SetName(t);
+                    sc.MustGetToken(TK_StringConst, true);
+                    curMap->SetName(sc.String);
                     break;
                 }
                 case CM_BESTTIME:
                 {
-                    int n;
-                    if (scriptfile_getnumber(script, &n)) break;
-
-                    curMap->designerTime = n;
+                    sc.MustGetValue(false);
+                    curMap->designerTime = sc.Number;
                     break;
                 }
                 case CM_PARTIME:
                 {
-                    int n;
-                    if (scriptfile_getnumber(script, &n)) break;
-
-                    curMap->parTime = n;
+                    sc.MustGetValue(false);
+                    curMap->parTime = sc.Number;
                     break;
                 }
                 case CM_CDATRACK:
                 {
-                    int n;
-                    if (scriptfile_getnumber(script, &n)) break;
-                    curMap->cdSongId = n;
+                    sc.MustGetValue(false);
+                    curMap->cdSongId = sc.Number;
                     break;
                 }
                 default:
-                    Printf("Error on line %s:%d\n",
-                                script->filename,
-                                scriptfile_getlinum(script,script->ltextptr));
+                    sc.ScriptError("Unknown keyword %d", sc.String);
                     break;
                 }
             }
@@ -566,45 +552,38 @@ void LoadCustomInfoFromScript(const char *filename)
 
         case CM_EPISODE:
         {
-            char *epnumptr;
             int curep;
-            if (scriptfile_getnumber(script, &curep)) break;
-            epnumptr = script->ltextptr;
-            if (scriptfile_getbraces(script, &braceend)) break;
+
+            sc.MustGetValue(false, true);
+            curep = sc.Number;
 
             if ((unsigned)--curep >= 2u)
             {
-                Printf("Error: episode number %d not in range 1-2 on line %s:%d\n",
-                            curep, script->filename,
-                            scriptfile_getlinum(script,epnumptr));
-                script->textptr = braceend;
+                sc.ScriptMessage("Episode number %d not in range 1-2\n", curep + 1);
+                curep = -1;
                 break;
             }
 
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (!(token = scriptfile_gettoken(script))) break;
-                if (token == braceend) break;
-                switch (cm_transtok(token, cm_episode_tokens, cm_episode_numtokens))
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_episode_tokens, cm_episode_numtokens))
                 {
                 case CM_TITLE:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-					gVolumeNames[curep] = t;
+                    sc.MustGetToken(TK_StringConst, true);
+                    if (curep != -1) gVolumeNames[curep] = sc.String;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-					gVolumeSubtitles[curep] = t;
+                    sc.MustGetToken(TK_StringConst, true);
+                    if (curep != -1) gVolumeSubtitles[curep] = sc.String;
                     break;
                 }
                 default:
-                    Printf("Error on line %s:%d\n",
-                                script->filename,
-                                scriptfile_getlinum(script,script->ltextptr));
+                    sc.ScriptError("Unknown keyword %d", sc.String);
                     break;
                 }
             }
@@ -614,38 +593,29 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SKILL:
         {
             int curskill;
-            char *epnumptr;
-            if (scriptfile_getnumber(script, &curskill)) break;
-            epnumptr = script->ltextptr;
-            if (scriptfile_getbraces(script, &braceend)) break;
-
+            sc.MustGetValue(false, true);
+            curskill = sc.Number;
             if ((unsigned)--curskill >= 4u)
             {
-                Printf("Error: skill number %d not in range 1-4 on line %s:%d\n",
-                            curskill, script->filename,
-                            scriptfile_getlinum(script,epnumptr));
-                script->textptr = braceend;
+                sc.ScriptMessage("Skill number %d not in range 1-4 on line %s:%d\n", curskill + 1);
+                curskill = -1;
                 break;
             }
 
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (!(token = scriptfile_gettoken(script))) break;
-                if (token == braceend) break;
-                switch (cm_transtok(token, cm_skill_tokens, cm_skill_numtokens))
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_skill_tokens, cm_skill_numtokens))
                 {
                 case CM_TITLE:
                 {
-                    char *t;
-                    if (scriptfile_getstring(script, &t)) break;
-
-					gSkillNames[curskill] = t;
+                    sc.MustGetToken(TK_StringConst, true);
+                    if (curskill != -1) gSkillNames[curskill] = sc.String;
                     break;
                 }
                 default:
-                    Printf("Error on line %s:%d\n",
-                                script->filename,
-                                scriptfile_getlinum(script,script->ltextptr));
+                    sc.ScriptError("Unknown keyword %d", sc.String);
                     break;
                 }
             }
@@ -654,98 +624,86 @@ void LoadCustomInfoFromScript(const char *filename)
 
         case CM_COOKIE:
         {
-            char *t;
             int fc = 0;
-
-            if (scriptfile_getbraces(script, &braceend)) break;
-
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (scriptfile_getstring(script, &t)) break;
-
-                if (fc == MAX_FORTUNES) continue;
-
-                quoteMgr.InitializeQuote(QUOTE_COOKIE + fc, t);
+                sc.MustGetToken(TK_StringConst, true);
+                if (fc < MAX_FORTUNES)
+                {
+                    quoteMgr.InitializeQuote(QUOTE_COOKIE + fc, sc.String);
+                }
                 fc++;
             }
             break;
         }
         case CM_GOTKEY:
         {
-            char *t;
             int fc = 0;
-
-            if (scriptfile_getbraces(script, &braceend)) break;
-
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (scriptfile_getstring(script, &t)) break;
-
-                if (fc == MAX_KEYS) continue;
-
-                quoteMgr.InitializeQuote(QUOTE_KEYMSG + fc, t);
+                sc.MustGetToken(TK_StringConst, true);
+                if (fc < MAX_KEYS)
+                {
+                    quoteMgr.InitializeQuote(QUOTE_KEYMSG + fc, sc.String);
+                }
                 fc++;
             }
             break;
         }
         case CM_NEEDKEY:
         {
-            char *t;
             int fc = 0;
-
-            if (scriptfile_getbraces(script, &braceend)) break;
-
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (scriptfile_getstring(script, &t)) break;
-
-                if (fc == MAX_KEYS) continue;
-
-                quoteMgr.InitializeQuote(QUOTE_DOORMSG + fc, t);
+                sc.MustGetToken(TK_StringConst, true);
+                if (fc < MAX_KEYS)
+                {
+                    quoteMgr.InitializeQuote(QUOTE_DOORMSG + fc, sc.String);
+                }
                 fc++;
             }
             break;
         }
         case CM_INVENTORY:
         {
-            char *invnumptr;
             int in;
-            char *name = NULL;
+            FString name;
             int amt = -1;
 
-            if (scriptfile_getsymbol(script, &in)) break;
-            invnumptr = script->ltextptr;
-            if (scriptfile_getbraces(script, &braceend)) break;
+            sc.MustGetValue(false, true);
+            in = sc.Number;
 
             if ((unsigned)--in >= (unsigned)InvDecl_TOTAL)
             {
-                Printf("Error: inventory item number not in range 1-%d on line %s:%d\n",
-                            InvDecl_TOTAL, script->filename,
-                            scriptfile_getlinum(script,invnumptr));
-                script->textptr = braceend;
+                sc.ScriptMessage("Inventory item number %d not in range 1-%d\n", in, InvDecl_TOTAL);
+                in = -1;
                 break;
             }
 
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (!(token = scriptfile_gettoken(script))) break;
-                if (token == braceend) break;
-                switch (cm_transtok(token, cm_inventory_tokens, cm_inventory_numtokens))
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_inventory_tokens, cm_inventory_numtokens))
                 {
                 case CM_TITLE:
-                    if (scriptfile_getstring(script, &name)) break;
+                    sc.MustGetToken(TK_StringConst);
+                    name = sc.String;
                     break;
                 case CM_AMOUNT:
-                    if (scriptfile_getnumber(script, &amt)) break;
+                    sc.MustGetValue(false, true);
+                    amt = sc.Number;
                     break;
                 default:
-                    Printf("Error on line %s:%d\n",
-                                script->filename,
-                                scriptfile_getlinum(script,script->ltextptr));
+                    sc.ScriptError("Unknown keyword %d", sc.String);
                     break;
                 }
             }
 
+            if (in == -1) break;
             if (name)
             {
                 quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name);
@@ -758,58 +716,60 @@ void LoadCustomInfoFromScript(const char *filename)
         }
         case CM_WEAPON:
         {
-            char *wpnnumptr;
-            char *name = NULL, *ammo = NULL;
+            FString name, ammo;
             int maxammo = -1, damagemin = -1, damagemax = -1, pickup = -1, wpickup = -1;
             int in,id;
 
-            if (scriptfile_getsymbol(script, &in)) break;
-            wpnnumptr = script->ltextptr;
-            if (scriptfile_getbraces(script, &braceend)) break;
+            sc.MustGetValue(false, true);
+            in = sc.Number;
 
             if ((unsigned)--in >= (unsigned)SIZ(weaponmap))
             {
-                Printf("Error: weapon number not in range 1-%d on line %s:%d\n",
-                            (int)SIZ(weaponmap), script->filename,
-                            scriptfile_getlinum(script,wpnnumptr));
-                script->textptr = braceend;
+                sc.ScriptMessage("Error: weapon number %d not in range 1-%d", in+1, (int)SIZ(weaponmap));
+                in = -1;
                 break;
             }
 
-            while (script->textptr < braceend)
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
             {
-                if (!(token = scriptfile_gettoken(script))) break;
-                if (token == braceend) break;
-                switch (cm_transtok(token, cm_weapons_tokens, cm_weapons_numtokens))
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_weapons_tokens, cm_weapons_numtokens))
                 {
                 case CM_TITLE:
-                    if (scriptfile_getstring(script, &name)) break;
+                    sc.MustGetToken(TK_StringConst);
+                    name = sc.String;
                     break;
                 case CM_AMMONAME:
-                    if (scriptfile_getstring(script, &ammo)) break;
+                    sc.MustGetToken(TK_StringConst);
+                    ammo = sc.String;
                     break;
                 case CM_MAXAMMO:
-                    if (scriptfile_getnumber(script, &maxammo)) break;
+                    sc.MustGetValue(false, true);
+                    maxammo = sc.Number;
                     break;
-                case CM_DAMAGEMIN:
-                    if (scriptfile_getnumber(script, &damagemin)) break;
+               case CM_DAMAGEMIN:
+                    sc.MustGetValue(false, true);
+                    damagemin = sc.Number;
                     break;
                 case CM_DAMAGEMAX:
-                    if (scriptfile_getnumber(script, &damagemax)) break;
+                    sc.MustGetValue(false, true);
+                    damagemax = sc.Number;
                     break;
                 case CM_AMOUNT:
-                    if (scriptfile_getnumber(script, &pickup)) break;
+                    sc.MustGetValue(false, true);
+                    pickup = sc.Number;
                     break;
                 case CM_WEAPON:
-                    if (scriptfile_getnumber(script, &wpickup)) break;
+                    sc.MustGetValue(false, true);
+                    wpickup = sc.Number;
                     break;
                 default:
-                    Printf("Error on line %s:%d\n",
-                                script->filename,
-                                scriptfile_getlinum(script,script->ltextptr));
+                    sc.ScriptError("Unknown keyword %d", sc.String);
                     break;
                 }
             }
+            if (in == -1) break;
             id = weaponmap[in].dmgid;
             if (weaponmap[in].editable & WM_DAMAGE)
             {
@@ -837,40 +797,38 @@ void LoadCustomInfoFromScript(const char *filename)
         }
 		case CM_THEME:
 		{
-			char *epnumptr;
-			char *name = NULL;
+			FString name;
 			int trak = -1;
             int curtheme;
 
-			if (scriptfile_getnumber(script, &curtheme)) break; epnumptr = script->ltextptr;
-			if (scriptfile_getbraces(script, &braceend)) break;
+            sc.MustGetValue(false, true);
+            curtheme = sc.Number;
+
 			if ((unsigned)--curtheme >= 6u)
 			{
-				Printf("Error: theme number %d not in range 1-6 on line %s:%d\n",
-						curtheme, script->filename,
-						scriptfile_getlinum(script,epnumptr));
-				script->textptr = braceend;
-			break;
+				sc.ScriptMessage("Theme number %d not in range 1-6", curtheme+1);
+                curtheme = -1;
 		    }
-			while (script->textptr < braceend)
-			{
-				if (!(token = scriptfile_gettoken(script))) break;
-				if (token == braceend) break;
-				switch (cm_transtok(token, cm_theme_tokens, cm_theme_numtokens))
+            sc.MustGetToken('{');
+            while (!sc.CheckToken('}'))
+            {
+                sc.MustGetToken(TK_Identifier);
+                switch (cm_transtok(sc.String, cm_theme_tokens, cm_theme_numtokens))
 				{
 					case CM_SONG:
-						if (scriptfile_getstring(script, &name)) break;
-						break;
+                        sc.MustGetToken(TK_StringConst);
+                        name = sc.String;
+                        break;
 					case CM_CDATRACK:
-						if (scriptfile_getnumber(script, &trak)) break;
+                        sc.MustGetValue(false, true);
+                        trak = sc.Number;
 						break;
 					default:
-						Printf("Error on line %s:%d\n",
-								script->filename,
-							scriptfile_getlinum(script,script->ltextptr));
-						break;
+                        sc.ScriptError("Unknown keyword %d", sc.String);
+                        break;
 				}
 			}
+            if (curtheme == -1) break;
 			if (name)
             {
                ThemeSongs[curtheme] = name;
@@ -884,15 +842,10 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SECRET:
         case CM_QUIT:
         default:
-            Printf("Error on line %s:%d\n",
-                        script->filename,
-                        scriptfile_getlinum(script,script->ltextptr));
+            sc.ScriptError("Unknown keyword %d", sc.String);
             break;
         }
     }
-
-    scriptfile_close(script);
-    scriptfile_clearsymbols();
 }
 
 END_SW_NS

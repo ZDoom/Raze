@@ -47,6 +47,16 @@ public:
 		int SavedScriptLine;
 	};
 
+	struct Symbol
+	{
+		int tokenType;
+		int64_t Number;
+		double Float;
+	};
+
+
+	TMap<FName, Symbol> symbols;
+
 	// Methods ------------------------------------------------------
 	FScanner();
 	FScanner(const FScanner &other);
@@ -71,11 +81,17 @@ public:
 	}
 
 	void SetCMode(bool cmode);
+	void SetNoOctals(bool cmode) { NoOctals = cmode; }
 	void SetEscape(bool esc);
 	void SetStateMode(bool stately);
 	void DisableStateOptions();
 	const SavedPos SavePos();
 	void RestorePos(const SavedPos &pos);
+	void AddSymbol(const char* name, int64_t value);
+	void AddSymbol(const char* name, uint64_t value);
+	inline void AddSymbol(const char* name, int32_t value) { return AddSymbol(name, int64_t(value)); }
+	inline void AddSymbol(const char* name, uint32_t value) { return AddSymbol(name, uint64_t(value)); }
+	void AddSymbol(const char* name, double value);
 
 	static FString TokenName(int token, const char *string=NULL);
 
@@ -84,11 +100,11 @@ public:
 	void MustGetStringName(const char *name);
 	bool CheckString(const char *name);
 
-	bool GetToken();
-	void MustGetAnyToken();
+	bool GetToken(bool evaluate = false);
+	void MustGetAnyToken(bool evaluate = false);
 	void TokenMustBe(int token);
-	void MustGetToken(int token);
-	bool CheckToken(int token);
+	void MustGetToken(int token, bool evaluate = false);
+	bool CheckToken(int token, bool evaluate = false);
 	bool CheckTokenId(ENamedName id);
 
 	bool GetNumber();
@@ -105,8 +121,8 @@ public:
 	}
 	
 	// Token based variant
-	bool CheckValue(bool allowfloat);
-	void MustGetValue(bool allowfloat);
+	bool CheckValue(bool allowfloat, bool evaluate = true);
+	void MustGetValue(bool allowfloat, bool evaluate = true);
 	bool CheckBoolToken();
 	void MustGetBoolToken();
 
@@ -136,6 +152,7 @@ public:
 	FString ScriptName;
 
 protected:
+	long long mystrtoll(const char* p, char** endp, int base);
 	void PrepareScript();
 	void CheckOpen();
 	bool ScanString(bool tokens);
@@ -157,13 +174,14 @@ protected:
 	const char *LastGotPtr;
 	int LastGotLine;
 	bool CMode;
+	bool NoOctals = false;
 	uint8_t StateMode;
 	bool StateOptions;
 	bool Escape;
 	VersionInfo ParseVersion = { 0, 0, 0 };	// no ZScript extensions by default
 
 
-	bool ScanValue(bool allowfloat);
+	bool ScanValue(bool allowfloat, bool evaluate);
 };
 
 enum
