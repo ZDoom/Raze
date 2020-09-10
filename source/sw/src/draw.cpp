@@ -1649,9 +1649,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     tx = camerapp->oposx + xs_CRoundToInt(fmulscale16(camerapp->posx - camerapp->oposx, smoothratio));
     ty = camerapp->oposy + xs_CRoundToInt(fmulscale16(camerapp->posy - camerapp->oposy, smoothratio));
     tz = camerapp->oposz + xs_CRoundToInt(fmulscale16(camerapp->posz - camerapp->oposz, smoothratio));
-    // TODO: It'd be better to check pp->input.q16angvel instead, problem is that
-    // it's been repurposed for the q16ang diff while tying input to framerate
-    if (cl_syncinput || pp != Player+myconnectindex)
+
+    // Interpolate the player's angle while on a sector object, just like VoidSW.
+    // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
+    if (cl_syncinput || pp != Player+myconnectindex || (!cl_syncinput && pp->sop && !TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET)))
     {
         tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
