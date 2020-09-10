@@ -48,7 +48,8 @@
 #include "SmackerDecoder.h"
 #include "movie/playmve.h"
 #include "gamecontrol.h"
-#include "animvpx.h"
+#include <vpx/vpx_decoder.h>
+#include <vpx/vp8dx.h>
 #include "raze_music.h"
 
 
@@ -240,16 +241,23 @@ class DVpxPlayer : public DScreenJob
 	bool failed = false;
 	FileReader fr;
 	AnimTextures animtex;
-	animvpx_codec_ctx codec;
 	const AnimSound* animSnd;
+
+	unsigned width, height;
+	TArray<uint8_t> Pic;
+	TArray<uint8_t> readBuf;
+	vpx_codec_ctx_t codec{};
+	vpx_codec_iter_t iter = nullptr;
 
 	uint32_t convnumer;
 	uint32_t convdenom;
 
-	uint32_t msecsperframe;
+	uint64_t nsecsperframe;
 	uint64_t nextframetime;
 
+	int decstate = 0;
 	int framenum = 0;
+	int numframes;
 	int lastsoundframe = -1;
 public:
 	int soundtrack = -1;
@@ -263,27 +271,23 @@ public:
 		fr = std::move(fr_);
 		animSnd = animSnd_;
 
-		animvpx_ivf_header_t info;
-
-		int err = animvpx_read_ivf_header(fr, &info);
-
-		if (err)
+		if (!ReadIVFHeader(origframedelay))
 		{
-			Printf(PRINT_BOLD, "Failed reading IVF file: %s\n", animvpx_read_ivf_header_errmsg[err]);
+			// We should never get here, because any file failing this has been eliminated before this constructor got called.
+			Printf(PRINT_BOLD, "Failed reading IVF header\n");
 			failed = true;
 		}
 
-		if (animvpx_init_codec(&info, fr, &codec))
+		Pic.Resize(width * height * 4);
+
+
+		// Todo: Support VP9 as well?
+		vpx_codec_dec_cfg_t cfg = { 1, width, height };
+		if (vpx_codec_dec_init(&codec, &vpx_codec_vp8_dx_algo, &cfg, 0))
 		{
 			Printf(PRINT_BOLD, "Error initializing VPX codec.\n");
 			failed = true;
 		}
-
-		convnumer = 120 * info.fpsdenom;
-		convdenom = info.fpsnumer * origframedelay;
-
-		msecsperframe = scale(info.fpsdenom, 1000, info.fpsnumer);
-		nextframetime = 0;
 	}
 
 	//---------------------------------------------------------------------------
@@ -292,6 +296,140 @@ public:
 	//
 	//---------------------------------------------------------------------------
 
+	bool ReadIVFHeader(int origframedelay)
+	{
+		// IVF format: http://wiki.multimedia.cx/index.php?title=IVF
+		uint32_t magic; fr.Read(&magic, 4); // do not byte swap!
+		if (magic != MAKE_ID('D', 'K', 'I', 'F')) return false;
+		uint16_t version = fr.ReadUInt16();
+		if (version != 0) return false;
+		uint16_t length = fr.ReadUInt16();
+		if (length != 32) return false;
+		fr.Read(&magic, 4);
+		if (magic != MAKE_ID('V', 'P', '8', '0')) return false;
+
+		width = fr.ReadUInt16();
+		height = fr.ReadUInt16();
+		uint32_t fpsdenominator = fr.ReadUInt32();
+		uint32_t fpsnumerator = fr.ReadUInt32();
+		numframes = fr.ReadUInt32();
+		if (numframes == 0) return false;
+		fr.Seek(4, FileReader::SeekCur);
+
+		if (fpsdenominator > 1000 || fpsnumerator == 0 || fpsdenominator == 0)
+		{
+			// default to 30 fps if the header does not provide useful info.
+			fpsdenominator = 30;
+			fpsnumerator = 1;
+		}
+
+		convnumer = 120 * fpsnumerator;
+		convdenom = fpsdenominator * origframedelay;
+
+		nsecsperframe = int64_t(fpsnumerator) * 1'000'000'000 / fpsdenominator;
+		nextframetime = 0;
+
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	bool ReadFrame()
+	{
+		int corrupted = 0;
+		int framesize = fr.ReadInt32();
+		fr.Seek(8, FileReader::SeekCur);
+		if (framesize == 0) return false;
+
+		readBuf.Resize(framesize);
+		if (fr.Read(readBuf.Data(), framesize) != framesize) return false;
+		if (vpx_codec_decode(&codec, readBuf.Data(), readBuf.Size(), NULL, 0) != VPX_CODEC_OK) return false;
+		if (vpx_codec_control(&codec, VP8D_GET_FRAME_CORRUPTED, &corrupted) != VPX_CODEC_OK) return false;
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	vpx_image_t *GetFrameData()
+	{
+		vpx_image_t *img;
+		do
+		{
+			if (decstate == 0)  // first time / begin
+			{
+				if (!ReadFrame()) return nullptr;
+				decstate = 1;
+			}
+
+			img = vpx_codec_get_frame(&codec, &iter);
+			if (img == nullptr)
+			{
+				decstate = 0;
+				iter = nullptr;
+			}
+		} while (img == nullptr);
+
+		return img->d_w == width && img->d_h == height? img : nullptr;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
+
+	void SetPixel(uint8_t* dest, uint8_t y, uint8_t u, uint8_t v)
+	{
+		dest[0] = y;
+		dest[1] = u;
+		dest[2] = v;
+	}
+
+	bool CreateNextFrame()
+	{
+		auto img = GetFrameData();
+		if (!img) return false;
+		uint8_t const* const yplane = img->planes[VPX_PLANE_Y];
+		uint8_t const* const uplane = img->planes[VPX_PLANE_U];
+		uint8_t const* const vplane = img->planes[VPX_PLANE_V];
+
+		const int ystride = img->stride[VPX_PLANE_Y];
+		const int ustride = img->stride[VPX_PLANE_U];
+		const int vstride = img->stride[VPX_PLANE_V];
+
+		for (unsigned int y = 0; y < height; y += 2)
+		{
+			unsigned int y1 = y + 1;
+			unsigned int wy = width * y;
+			unsigned int wy1 = width * y1;
+
+			for (unsigned int x = 0; x < width; x += 2)
+			{
+				uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
+				uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
+
+				SetPixel(&Pic[(wy + x) << 2], yplane[ystride * y + x], u, v);
+				SetPixel(&Pic[(wy + x + 1) << 2], yplane[ystride * y + x + 1], u, v);
+				SetPixel(&Pic[(wy1 + x) << 2], yplane[ystride * y1 + x], u, v);
+				SetPixel(&Pic[(wy1 + x + 1) << 2], yplane[ystride * y1 + x + 1], u, v);
+			}
+		}
+		return true;
+	}
+
+	//---------------------------------------------------------------------------
+	//
+	// 
+	//
+	//---------------------------------------------------------------------------
 
 	int Frame(uint64_t clock, bool skiprequest) override
 	{
@@ -301,34 +439,24 @@ public:
 			{
 				Mus_Play(nullptr, fileSystem.GetFileFullName(soundtrack, false), false);
 			}
-			animtex.SetSize(AnimTexture::YUV, codec.width, codec.height);
+			animtex.SetSize(AnimTexture::YUV, width, height);
 		}
 		bool stop = false;
 		if (clock > nextframetime)
 		{
-			nextframetime += 1'000'000 * msecsperframe;
+			nextframetime += nsecsperframe;
 
-			uint8_t* pic;
-			int i = animvpx_nextpic(&codec, &pic);
-			if (i)
+			if (!CreateNextFrame())
 			{
-				Printf(PRINT_BOLD, "Failed getting next pic: %s\n", animvpx_nextpic_errmsg[i]);
-				if (codec.errmsg)
-				{
-					Printf(PRINT_BOLD, "  %s\n", codec.errmsg);
-					if (codec.errmsg_detail)
-						Printf(PRINT_BOLD, "  detail: %s\n", codec.errmsg_detail);
-				}
+				Printf(PRINT_BOLD, "Failed reading next frame\n");
 				stop = true;
 			}
-			if (!pic) stop = true;
-
-			if (!stop)
+			else
 			{
-				animtex.SetFrame(nullptr, pic);
+				animtex.SetFrame(nullptr, Pic.Data());
 			}
-
 			framenum++;
+			if (framenum >= numframes) stop = true;
 
 			int soundframe = convdenom ? scale(framenum, convnumer, convdenom) : framenum;
 			if (soundframe > lastsoundframe)
@@ -355,7 +483,7 @@ public:
 
 	void OnDestroy() override
 	{
-		animvpx_uninit_codec(&codec);
+		vpx_codec_destroy(&codec);
 	}
 };
 
