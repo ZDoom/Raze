@@ -1006,7 +1006,6 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 	if (picnum == -1) picnum = TileFiles.GetTileIndex(tex);	// Allow getting replacements also when the texture is not passed by its tile number.
 
 	if (!tex->isValid() || tex->GetTexelWidth() <= 0 || tex->GetTexelHeight() <= 0) return false;
-	pick.texture = tex;
 	int usepalette = GetTranslationType(paletteid) - Translation_Remap;
 	int usepalswap = GetTranslationIndex(paletteid);
 	int TextureType = hw_int_useindexedcolortextures && picnum >= 0 ? TT_INDEXED : TT_TRUECOLOR;
@@ -1061,6 +1060,7 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 		pick.tintFlags = -1;
 		pick.tintColor = 0xffffff;
 	}
+	pick.texture = tex;
 
 	return true;
 }
