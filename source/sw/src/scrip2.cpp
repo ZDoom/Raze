@@ -59,8 +59,8 @@ static char* script_p, * scriptend_p;
 static char    token[MAXTOKEN];
 static int     grabbed;
 static int     scriptline;
-static SWBOOL    endofscript;
-static SWBOOL    tokenready;                     // only TRUE if UnGetToken was just called
+static bool    endofscript;
+static bool    tokenready;                     // only true if UnGetToken was just called
 
 /*
 ==============
@@ -86,8 +86,8 @@ TArray<uint8_t> LoadScriptFile(const char *filename)
     {
         scriptbuffer.Push(0);
         scriptline = 1;
-        endofscript = FALSE;
-        tokenready = FALSE;
+        endofscript = false;
+        tokenready = false;
     }
     return scriptbuffer;
 }
@@ -101,13 +101,13 @@ TArray<uint8_t> LoadScriptFile(const char *filename)
 ==============
 */
 
-void GetToken(SWBOOL crossline)
+void GetToken(bool crossline)
 {
     char    *token_p;
 
     if (tokenready)                         // is a token already waiting?
     {
-        tokenready = FALSE;
+        tokenready = false;
         return;
     }
 
@@ -115,7 +115,7 @@ void GetToken(SWBOOL crossline)
     {
         if (!crossline)
             Printf("Error: Line %i is incomplete\n",scriptline);
-        endofscript = TRUE;
+        endofscript = true;
         return;
     }
 
@@ -129,7 +129,7 @@ skipspace:
         {
             if (!crossline)
                 Printf("Error: Line %i is incomplete\n",scriptline);
-            endofscript = TRUE;
+            endofscript = true;
             return;
         }
         if (*script_p++ == '\n')
@@ -144,7 +144,7 @@ skipspace:
     {
         if (!crossline)
 Printf("Error: Line %i is incomplete\n", scriptline);
-endofscript = TRUE;
+endofscript = true;
 return;
     }
 
@@ -155,7 +155,7 @@ return;
         while (*script_p++ != '\n')
             if (script_p >= scriptend_p)
             {
-                endofscript = TRUE;
+                endofscript = true;
                 return;
             }
         goto skipspace;
@@ -218,17 +218,17 @@ void LoadKVXFromScript(const char* filename)
 
     do
     {
-        GetToken(TRUE);     // Crossing a line boundary on the end of line to first token
+        GetToken(true);     // Crossing a line boundary on the end of line to first token
         // of a new line is permitted (and expected)
         if (endofscript)
             break;
 
         lTile = atol(token);
 
-        GetToken(FALSE);
+        GetToken(false);
         lNumber = atol(token);
 
-        GetToken(FALSE);
+        GetToken(false);
 
         // Load the voxel file into memory
         if (!qloadkvx(lNumber,token))
@@ -273,14 +273,14 @@ void LoadPLockFromScript(const char *filename)
 
     do
     {
-        GetToken(TRUE);     // Crossing a line boundary on the end of line to first token
+        GetToken(true);     // Crossing a line boundary on the end of line to first token
         // of a new line is permitted (and expected)
         if (endofscript)
             break;
 
         lTile = atoi(token);
 
-        GetToken(FALSE);
+        GetToken(false);
         lNumber = atoi(token);
 
         // Store the sprite and voxel numbers for later use

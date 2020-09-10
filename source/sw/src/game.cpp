@@ -96,16 +96,16 @@ extern int sw_snd_scratch;
 
 int GameVersion = 20;
 
-SWBOOL NoMeters = false;
-SWBOOL FinishAnim = 0;
-SWBOOL ReloadPrompt = false;
-SWBOOL NewGame = false;
-SWBOOL SavegameLoaded = false;
+bool NoMeters = false;
+int FinishAnim = 0;
+bool ReloadPrompt = false;
+bool NewGame = false;
+bool SavegameLoaded = false;
 //Miscellaneous variables
-SWBOOL FinishedLevel = false;
+bool FinishedLevel = false;
 short screenpeek = 0;
 
-SWBOOL PreCaching = TRUE;
+bool PreCaching = true;
 int GodMode = false;
 short Skill = 2;
 short TotalKillable;
@@ -116,20 +116,19 @@ const GAME_SET gs_defaults =
     0, // GameType
     0, // Monsters
     false, // HurtTeammate
-    TRUE, // SpawnMarkers Markers
+    true, // SpawnMarkers Markers
     false, // TeamPlay
     0, // Kill Limit
     0, // Time Limit
     0, // Color
-    TRUE, // nuke
+    true, // nuke
 };
 GAME_SET gs;
 
-SWBOOL PlayerTrackingMode = false;
-SWBOOL SlowMode = false;
-SWBOOL FrameAdvanceTics = 3;
+bool PlayerTrackingMode = false;
+bool SlowMode = false;
 
-SWBOOL DebugOperate = false;
+bool DebugOperate = false;
 void LoadingLevelScreen(void);
 
 uint8_t FakeMultiNumPlayers;
@@ -138,14 +137,14 @@ int totalsynctics;
 
 int OrigCommPlayers=0;
 extern uint8_t CommPlayers;
-extern SWBOOL CommEnabled;
+extern bool CommEnabled;
 
-SWBOOL CameraTestMode = false;
+bool CameraTestMode = false;
 
 char ds[645];                           // debug string
 
 extern short NormalVisibility;
-SWBOOL CommandSetup = false;
+bool CommandSetup = false;
 
 char buffer[80], ch;
 
@@ -175,7 +174,7 @@ void GameInterface::app_init()
     for (int i = 0; i < MAX_SW_PLAYERS; i++)
         INITLIST(&Player[i].PanelSpriteList);
 
-    DebugOperate = TRUE;
+    DebugOperate = true;
     enginecompatibility_mode = ENGINECOMPATIBILITY_19961112;
 
     if (SW_SHAREWARE)
@@ -292,7 +291,7 @@ void InitLevelGlobals2(void)
     InitTimingVars();
     TotalKillable = 0;
     Bunny_Count = 0;
-    FinishAnim = 0;
+    FinishAnim = false;
 }
 
 //---------------------------------------------------------------------------
@@ -576,7 +575,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 			if (map == nullptr)
 			{
 				STAT_Update(true);
-				FinishAnim = 0;
+				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
 				else gameaction = ga_mainmenu;
@@ -687,7 +686,7 @@ void GameInterface::ErrorCleanup()
     // Make sure we do not leave the game in an unstable state
     TerminateLevel();
     SavegameLoaded = false;
-    FinishAnim = 0;
+    FinishAnim = false;
 }
 //---------------------------------------------------------------------------
 //

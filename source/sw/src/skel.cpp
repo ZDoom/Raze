@@ -552,7 +552,7 @@ int DoSkelTeleport(short SpriteNum)
     x = sp->x;
     y = sp->y;
 
-    while (TRUE)
+    while (true)
     {
         sp->x = x;
         sp->y = y;

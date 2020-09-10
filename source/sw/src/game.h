@@ -62,13 +62,13 @@ typedef struct
     // Net Options from Menus
     uint8_t NetGameType;   // 0=DeathMatch [spawn], 1=Cooperative 2=DeathMatch [no spawn]
     uint8_t NetMonsters;   // Cycle skill levels
-    SWBOOL NetHurtTeammate;  // Allow friendly kills
-    SWBOOL NetSpawnMarkers;    // Respawn markers on/off
-    SWBOOL NetTeamPlay;   // Team play
+    bool NetHurtTeammate;  // Allow friendly kills
+    bool NetSpawnMarkers;    // Respawn markers on/off
+    bool NetTeamPlay;   // Team play
     uint8_t NetKillLimit;  // Number of frags at which game ends
     uint8_t NetTimeLimit;  // Limit time of game
     uint8_t NetColor;      // Chosen color for player
-    SWBOOL NetNuke;
+    bool NetNuke;
 } GAME_SET, * GAME_SETp;
 
 extern const GAME_SET gs_defaults;
@@ -155,7 +155,7 @@ y++
 //
 //////////////////////////////////////////////////////
 
-extern SWBOOL MenuInputMode;
+extern bool MenuInputMode;
 
 //
 // Defines
@@ -246,11 +246,11 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SET_SPRITE_TAG14(sp,val) (*((short*)&sprite[sp].xrepeat)) = B_LITTLE16((short)val)
 
 // OVER and UNDER water macros
-#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
-#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)
+#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
+#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
 
-#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? TRUE : FALSE)
-#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? TRUE : FALSE)
+#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false)
+#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
 
 #define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritesect[o], (o) != -1; (o) = (n))
 #define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); (n) = (o) == -1 ? -1 : nextspritestat[o], (o) != -1; (o) = (n))
@@ -683,8 +683,8 @@ extern int DLL_Handle; // Global DLL handle
 extern char *DLL_path; // DLL path name
 
 int DLL_Load(char *DLLpathname);
-SWBOOL DLL_Unload(int procHandle);
-SWBOOL DLL_ExecFunc(int procHandle, char *fName);
+bool DLL_Unload(int procHandle);
+bool DLL_ExecFunc(int procHandle, char *fName);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -803,11 +803,9 @@ enum
 
 };
 
-extern InputPacket loc;
-
 #define PACK 1
 
-extern SWBOOL CameraTestMode;
+extern bool CameraTestMode;
 
 enum PlayerDeathTypes
 {
@@ -865,7 +863,7 @@ struct PLAYERstruct
     int slide_xvect, slide_yvect;
     short slide_ang;
     int slide_dec;
-    int drive_angvel;
+    int drive_q16avel;
 
 
 
@@ -879,17 +877,15 @@ struct PLAYERstruct
     short camera_check_time_delay;
 
     short cursectnum,lastcursectnum;
-    short turn180_target; // 180 degree turn
+    fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
     int hvel,tilt,tilt_dest;
-    bool centering;
     fixed_t q16horiz, q16horizbase, q16horizoff, q16ang;
-    fixed_t camq16horiz, camq16ang;
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
-    short recoil_horizoff;
+    fixed_t recoil_horizoff;
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
@@ -958,7 +954,7 @@ struct PLAYERstruct
     short InventoryTics[MAX_INVENTORY];
     short InventoryPercent[MAX_INVENTORY];
     int8_t InventoryAmount[MAX_INVENTORY];
-    SWBOOL InventoryActive[MAX_INVENTORY];
+    bool InventoryActive[MAX_INVENTORY];
 
     short DiveTics;
     short DiveDamageTics;
@@ -984,10 +980,10 @@ struct PLAYERstruct
     // palette fading up and down for player hit and get items
     short FadeTics;                 // Tics between each fade cycle
     short FadeAmt;                  // Current intensity of fade
-    SWBOOL NightVision;               // Is player's night vision active?
+    bool NightVision;               // Is player's night vision active?
     unsigned char StartColor;       // Darkest color in color range being used
     //short electro[64];
-    SWBOOL IsAI;                      // Is this and AI character?
+    bool IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
     unsigned char WpnUziType;                // Toggle between single or double uzi's if you own 2.
@@ -995,10 +991,10 @@ struct PLAYERstruct
     unsigned char WpnShotgunAuto;            // 50-0 automatic shotgun rounds
     unsigned char WpnShotgunLastShell;       // Number of last shell fired
     unsigned char WpnRailType;               // Normal Rail Gun or EMP Burst Mode
-    SWBOOL Bloody;                    // Is player gooey from the slaughter?
-    SWBOOL InitingNuke;
-    SWBOOL TestNukeInit;
-    SWBOOL NukeInitialized;           // Nuke already has counted down
+    bool Bloody;                    // Is player gooey from the slaughter?
+    bool InitingNuke;
+    bool TestNukeInit;
+    bool NukeInitialized;           // Nuke already has counted down
     short FistAng;                  // KungFu attack angle
     unsigned char WpnKungFuMove;             // KungFu special moves
     short HitBy;                    // SpriteNum of whatever player was last hit by
@@ -1010,6 +1006,14 @@ struct PLAYERstruct
     int cookieTime;
 
     char WpnReloadState;
+
+    // Input helper variables and setters.
+    double horizAdjust, angAdjust, pitchAdjust;
+    fixed_t horizTarget, angTarget;
+    void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
+    void setang(int v) { q16ang = IntToFixed(v); }
+    void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
+    void sethoriz(int v) { q16horiz = IntToFixed(v); }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1021,39 +1025,41 @@ extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
 
 enum
 {
-    PF_DEAD             = (BIT(1)),
-    PF_JUMPING          = (BIT(2)),
-    PF_FALLING          = (BIT(3)),
-    PF_LOCK_CRAWL       = (BIT(4)),
-    PF_LOCK_HORIZ       = (BIT(5)),
-    PF_LOOKING          = (BIT(6)),
-    PF_PLAYER_MOVED     = (BIT(7)),
-    PF_PLAYER_RIDING    = (BIT(8)),
-    PF_AUTO_AIM         = (BIT(9)),
-    PF_RECOIL           = (BIT(10)),
-    PF_FLYING           = (BIT(11)),
-    PF_WEAPON_RETRACT   = (BIT(12)),
-    PF_PICKED_UP_AN_UZI = (BIT(13)),
-    PF_CRAWLING         = (BIT(14)),
-    PF_CLIMBING         = (BIT(15)),
-    PF_SWIMMING         = (BIT(16)),
-    PF_DIVING           = (BIT(17)),
-    PF_DIVING_IN_LAVA   = (BIT(18)),
-    PF_TWO_UZI          = (BIT(19)),
-    PF_TURN_180         = (BIT(21)),
-    PF_DEAD_HEAD        = (BIT(22)), // are your a dead head
-    PF_HEAD_CONTROL     = (BIT(23)), // have control of turning when a head?
-    PF_CLIP_CHEAT       = (BIT(24)), // cheat for wall clipping
-    PF_SLIDING          = (BIT(25)), // cheat for wall clipping
-    PF_VIEW_FROM_OUTSIDE  = (BIT(26)),
-    PF_VIEW_OUTSIDE_WEAPON= (BIT(27)),
-    PF_VIEW_FROM_CAMERA  = (BIT(28)),
-    PF_TANK            = (BIT(29)), // Doin the tank thang
-    PF_MOUSE_AIMING_ON = (BIT(30)),
-    PF_WEAPON_DOWN     = (BIT(31)),
-    PF2_TELEPORTED       = (BIT(0)),
-    PF2_INPUT_CAN_TURN   = (BIT(1)), // Allow calling DoPlayerTurn from getinput
-    PF2_INPUT_CAN_AIM    = (BIT(2)), // Allow calling DoPlayerHorizon from getinput
+    PF_DEAD                     = (BIT(1)),
+    PF_JUMPING                  = (BIT(2)),
+    PF_FALLING                  = (BIT(3)),
+    PF_LOCK_CRAWL               = (BIT(4)),
+    PF_LOCK_HORIZ               = (BIT(5)),
+    PF_LOOKING                  = (BIT(6)),
+    PF_PLAYER_MOVED             = (BIT(7)),
+    PF_PLAYER_RIDING            = (BIT(8)),
+    PF_AUTO_AIM                 = (BIT(9)),
+    PF_RECOIL                   = (BIT(10)),
+    PF_FLYING                   = (BIT(11)),
+    PF_WEAPON_RETRACT           = (BIT(12)),
+    PF_PICKED_UP_AN_UZI         = (BIT(13)),
+    PF_CRAWLING                 = (BIT(14)),
+    PF_CLIMBING                 = (BIT(15)),
+    PF_SWIMMING                 = (BIT(16)),
+    PF_DIVING                   = (BIT(17)),
+    PF_DIVING_IN_LAVA           = (BIT(18)),
+    PF_TWO_UZI                  = (BIT(19)),
+    PF_TURN_180                 = (BIT(21)),
+    PF_DEAD_HEAD                = (BIT(22)), // are your a dead head
+    PF_HEAD_CONTROL             = (BIT(23)), // have control of turning when a head?
+    PF_CLIP_CHEAT               = (BIT(24)), // cheat for wall clipping
+    PF_SLIDING                  = (BIT(25)), // cheat for wall clipping
+    PF_VIEW_FROM_OUTSIDE        = (BIT(26)),
+    PF_VIEW_OUTSIDE_WEAPON      = (BIT(27)),
+    PF_VIEW_FROM_CAMERA         = (BIT(28)),
+    PF_TANK                     = (BIT(29)), // Doin the tank thang
+    PF_MOUSE_AIMING_ON          = (BIT(30)),
+    PF_WEAPON_DOWN              = (BIT(31)),
+    PF2_TELEPORTED              = (BIT(0)),
+    PF2_INPUT_CAN_AIM           = (BIT(1)), // Allow calling DoPlayerHorizon() from processMovement()
+    PF2_INPUT_CAN_TURN_GENERAL  = (BIT(2)), // Allow calling DoPlayerTurn() from processMovement()
+    PF2_INPUT_CAN_TURN_VEHICLE  = (BIT(3)), // Allow calling DoPlayerTurnVehicle() from processMovement()
+    PF2_INPUT_CAN_TURN_TURRET   = (BIT(4)), // Allow calling DoPlayerTurnTurret() from processMovement()
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -1285,7 +1291,7 @@ typedef struct
     // Shell gets deleted when ShellNum < (ShellCount - MAXSHELLS)
     short FlagOwner;        // The spritenum of the original flag
     short Vis;              // Shading upgrade, for shooting, etc...
-    SWBOOL DidAlert;          // Has actor done his alert noise before?
+    bool DidAlert;          // Has actor done his alert noise before?
 
     int16_t oangdiff;      // Used for interpolating sprite angles
 
@@ -1824,8 +1830,8 @@ struct SECTOR_OBJECTstruct
 #define SO_OPERATE_TRACK_START 90
 #define SO_TURRET_MGUN 96 // machine gun
 #define SO_TURRET 97
-#define SO_TANK 98
-#define SO_SPEED_BOAT 99
+#define SO_VEHICLE 98
+// #define SO_SPEED_BOAT 99
 
 #define SO_EMPTY(sop) ((sop)->xmid == INT32_MAX)
 
@@ -1920,18 +1926,18 @@ void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp perso
 void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
 int move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 int move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, SWBOOL skip_targets);
+int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
 
 void change_sprite_stat(short, short);
 void SetOwner(short, short);
 void SetAttach(short, short);
-void analyzesprites(int,int,int,SWBOOL);
+void analyzesprites(int,int,int,bool);
 void ChangeState(short SpriteNum, STATEp statep);
 
 void UpdateSectorFAF_Connect(short SpriteNum, int newz);
 #if 0
-SWBOOL FAF_ConnectCeiling(short sectnum);
-SWBOOL FAF_ConnectFloor(short sectnum);
+bool FAF_ConnectCeiling(short sectnum);
+bool FAF_ConnectFloor(short sectnum);
 #else
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
@@ -1942,14 +1948,14 @@ SWBOOL FAF_ConnectFloor(short sectnum);
 //void updatesectorz(int, int, int, short *);
 void FAF_ConnectPlayerCeiling(PLAYERp pp);
 void FAF_ConnectPlayerFloor(PLAYERp pp);
-SWBOOL PlayerCeilingHit(PLAYERp pp, int zlimit);
-SWBOOL PlayerFloorHit(PLAYERp pp, int zlimit);
+bool PlayerCeilingHit(PLAYERp pp, int zlimit);
+bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
 void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                 int32_t xvect, int32_t yvect, int32_t zvect,
                 hitdata_t* hitinfo, int32_t clipmask);
 
-SWBOOL FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
+bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
 void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
@@ -1985,15 +1991,15 @@ void DoSoundSpotMatch(short match, short sound_num, short sound_type);
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-extern SWBOOL NewGame;
+extern bool NewGame;
 extern uint8_t CommPlayers;
-extern SWBOOL CommEnabled;
+extern bool CommEnabled;
 extern int LastFrameTics;
 extern char ds[];
 extern short Skill;
 extern int GodMode;
 
-extern SWBOOL ReloadPrompt;
+extern bool ReloadPrompt;
 
 //extern unsigned char synctics, lastsynctics;
 extern short snum;
@@ -2038,7 +2044,7 @@ extern USER puser[MAX_SW_PLAYERS_REG];
 ///////////////////////////
 
 extern double smoothratio;
-extern SWBOOL MoveSkip4, MoveSkip2, MoveSkip8;
+extern int MoveSkip4, MoveSkip2, MoveSkip8;
 
 #define MASTER_SWITCHING 1
 
@@ -2059,7 +2065,7 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 #define COLOR_PAIN  128  // Light red range
 extern void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
-extern SWBOOL NightVision;
+extern bool NightVision;
 
 
 
@@ -2094,7 +2100,7 @@ void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
-SWBOOL FAF_Sector(short sectnum); // rooms.c
+bool FAF_Sector(short sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c
@@ -2116,8 +2122,8 @@ void LoadGameDescr(short save_num, char *descr);    // save.c
 
 void SetRotatorActive(short SpriteNum); // rotator.c
 
-SWBOOL VatorSwitch(short match, short setting); // vator.c
-void MoveSpritesWithSector(short sectnum,int z_amt,SWBOOL type);  // vator.c
+bool VatorSwitch(short match, short setting); // vator.c
+void MoveSpritesWithSector(short sectnum,int z_amt,bool type);  // vator.c
 void SetVatorActive(short SpriteNum);   // vator.c
 
 short DoSpikeMatch(short match); // spike.c
@@ -2136,7 +2142,7 @@ void CopySectorMatch(short match);  // copysect.c
 
 int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(SPRITEp sp); // wallmove.c
-SWBOOL CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
+bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
 short DoSpikeOperate(short sectnum); // spike.c
 void SetSpikeActive(short SpriteNum);   // spike.c
@@ -2166,10 +2172,10 @@ extern char PlayerGravity;
 extern short wait_active_check_offset;
 //extern short Zombies;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-extern SWBOOL left_foot;
-extern SWBOOL serpwasseen;
-extern SWBOOL sumowasseen;
-extern SWBOOL zillawasseen;
+extern bool left_foot;
+extern bool serpwasseen;
+extern bool sumowasseen;
+extern bool zillawasseen;
 extern short BossSpriteNum[3];
 extern int ChopTics;
 extern short Bunny_Count;
@@ -2202,7 +2208,7 @@ struct GameInterface : ::GameInterface
     void QuitToTitle() override;
 	void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(InputPacket* input) override;
+    void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;

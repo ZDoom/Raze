@@ -520,9 +520,9 @@ enum
 //
 //---------------------------------------------------------------------------
 
-static void processInputBits(player_struct *p, ControlInfo &info)
+static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 {
-	ApplyGlobalInput(loc, &info);
+	ApplyGlobalInput(loc, hidInput);
 	if (isRR() && (loc.actions & SB_CROUCH)) loc.actions &= ~SB_JUMP;
 
 	if (p->OnMotorcycle || p->OnBoat)
@@ -587,7 +587,7 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(player_struct *p, InputPacket &input, ControlInfo &info, double scaleFactor)
+static void processMovement(player_struct *p, InputPacket &input, ControlInfo* const hidInput, double scaleFactor)
 {
 	bool mouseaim = !(loc.actions & SB_AIMMODE);
 
@@ -597,20 +597,20 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo &i
 	int keymove = NORMALKEYMOVE << running;
 
 	if (buttonMap.ButtonDown(gamefunc_Strafe))
-		input.svel -= info.mousex * 4.f + scaleFactor * info.dyaw * keymove;
+		input.svel -= hidInput->mousex * 4.f + scaleFactor * hidInput->dyaw * keymove;
 	else
-		input.q16avel += FloatToFixed(info.mousex + scaleFactor * info.dyaw);
+		input.q16avel += FloatToFixed(hidInput->mousex + scaleFactor * hidInput->dyaw);
 
 	if (mouseaim)
-		input.q16horz += FloatToFixed(info.mousey);
+		input.q16horz += FloatToFixed(hidInput->mousey);
 	else
-		input.fvel -= info.mousey * 8.f;
+		input.fvel -= hidInput->mousey * 8.f;
 
 	if (!in_mouseflip) input.q16horz = -input.q16horz;
 
-	input.q16horz -= FloatToFixed(scaleFactor * (info.dpitch));
-	input.svel -= scaleFactor * (info.dx * keymove);
-	input.fvel -= scaleFactor * (info.dz * keymove);
+	input.q16horz -= FloatToFixed(scaleFactor * (hidInput->dpitch));
+	input.svel -= scaleFactor * (hidInput->dx * keymove);
+	input.fvel -= scaleFactor * (hidInput->dz * keymove);
 
 	if (buttonMap.ButtonDown(gamefunc_Strafe))
 	{
@@ -865,9 +865,9 @@ static double boatApplyTurn(player_struct *p, int turnl, int turnr, int boat_tur
 //
 //---------------------------------------------------------------------------
 
-static void processVehicleInput(player_struct *p, ControlInfo& info, InputPacket& input, double scaleAdjust)
+static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, InputPacket& input, double scaleAdjust)
 {
-	auto turnspeed = info.mousex + scaleAdjust * info.dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
+	auto turnspeed = hidInput->mousex + scaleAdjust * hidInput->dyaw * (1. / 32); // originally this was 64, not 32. Why the change?
 	int turnl = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	int turnr = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
 
@@ -983,17 +983,9 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 //
 //---------------------------------------------------------------------------
 
-static void GetInputInternal(InputPacket &locInput)
+static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 {
-	double elapsedInputTicks;
 	auto const p = &ps[myconnectindex];
-
-	auto now = I_msTimeF();
-	// do not let this become too large - it would create overflows resulting in undefined behavior. The very first tic must not use the timer difference at all because the timer has not been set yet.
-	// This really needs to have the timer fixed to be robust, doing it ad-hoc here is not really safe.
-	if (lastCheck > 0) elapsedInputTicks = min(now - lastCheck, 1000.0 / REALGAMETICSPERSEC);
-	else elapsedInputTicks = 1;
-	lastCheck = now;
 
 	if (paused)
 	{
@@ -1006,16 +998,14 @@ static void GetInputInternal(InputPacket &locInput)
 		setlocalplayerinput(p);
 	}
 
-	double scaleAdjust = !cl_syncinput ? elapsedInputTicks * REALGAMETICSPERSEC / 1000.0 : 1;
-	ControlInfo info;
-	CONTROL_GetInput(&info);
+	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
 	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
 		p->crouch_toggle = 0;
-		processInputBits(p, info);
-		processVehicleInput(p, info, input, scaleAdjust);
+		processInputBits(p, hidInput);
+		processVehicleInput(p, hidInput, input, scaleAdjust);
 		FinalizeInput(myconnectindex, input, true);
 
 		if (!cl_syncinput && sprite[p->i].extra > 0)
@@ -1025,8 +1015,8 @@ static void GetInputInternal(InputPacket &locInput)
 	}
 	else
 	{
-		processInputBits(p, info);
-		processMovement(p, input, info, scaleAdjust);
+		processInputBits(p, hidInput);
+		processMovement(p, input, hidInput, scaleAdjust);
 		checkCrouchToggle(p);
 		FinalizeInput(myconnectindex, input, false);
 	}
@@ -1046,9 +1036,9 @@ static void GetInputInternal(InputPacket &locInput)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(InputPacket* packet)
+void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-	GetInputInternal(loc);
+	GetInputInternal(loc, hidInput);
 	if (packet)
 	{
 		auto const pPlayer = &ps[myconnectindex];

@@ -58,11 +58,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-static int OverlapDraw = FALSE;
-extern SWBOOL QuitFlag, SpriteInfo;
-extern SWBOOL Voxel;
+static int OverlapDraw = false;
+extern bool QuitFlag, SpriteInfo;
+extern bool Voxel;
 extern char buffer[];
-SWBOOL DrawScreen;
+bool DrawScreen;
 extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
@@ -253,7 +253,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
         break;
 
     default:
-        ASSERT(TRUE == FALSE);
+        ASSERT(true == false);
         break;
     }
 
@@ -261,7 +261,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(tspriteptr_t tsp, int viewz, SWBOOL mirror)
+DoShadows(tspriteptr_t tsp, int viewz, bool mirror)
 {
     tspriteptr_t New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
@@ -560,7 +560,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 }
 
 void
-analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
+analyzesprites(int viewx, int viewy, int viewz, bool mirror)
 {
     int tSpriteNum;
     short SpriteNum;
@@ -708,13 +708,13 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum];
                     uint8_t pal = sector[tsp->sectnum].floorpal;
-                    SWBOOL nosectpal=FALSE;
+                    bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
                     if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
                     {
                         pal = PALETTE_DEFAULT;
-                        nosectpal = TRUE;
+                        nosectpal = true;
                     }
 
                     //if(tu->spal == PALETTE_DEFAULT)
@@ -1176,7 +1176,7 @@ FString GameInterface::GetCoordString()
     out.AppendFormat("POSX:%d ", pp->posx);
     out.AppendFormat("POSY:%d ", pp->posy);
     out.AppendFormat("POSZ:%d ", pp->posz);
-    out.AppendFormat("ANG:%d\n", FixedToInt(pp->camq16ang));
+    out.AppendFormat("ANG:%d\n", FixedToInt(pp->q16ang));
 
     return out;
 }
@@ -1257,7 +1257,7 @@ void SpriteSortList2D(int tx, int ty)
 
 void DrawCrosshair(PLAYERp pp)
 {
-    extern SWBOOL CameraTestMode;
+    extern bool CameraTestMode;
 
     if (!(CameraTestMode) && !TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
@@ -1271,10 +1271,10 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
     int i,nexti;
     short ang;
     SPRITEp sp;
-    SWBOOL found_camera = FALSE;
-    SWBOOL player_in_camera = FALSE;
-    SWBOOL FAFcansee_test;
-    SWBOOL ang_test;
+    bool found_camera = false;
+    bool player_in_camera = false;
+    bool FAFcansee_test;
+    bool ang_test;
 
     if (pp == &Player[screenpeek])
     {
@@ -1308,7 +1308,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                 case 1:
                     pp->last_camera_sp = sp;
                     CircleCamera(tx, ty, tz, tsectnum, tq16ang, 100);
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
 
                 default:
@@ -1346,7 +1346,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
                     *tz = sp->z;
                     *tsectnum = sp->sectnum;
 
-                    found_camera = TRUE;
+                    found_camera = true;
                     break;
                 }
                 }
@@ -1601,16 +1601,15 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
     }
 }
 
-short ScreenSavePic = FALSE;
+short ScreenSavePic = false;
 
-SWBOOL PicInView(short, SWBOOL);
+bool PicInView(short, bool);
 void DoPlayerDiveMeter(PLAYERp pp);
-void MoveScrollMode2D(PLAYERp pp);
 
 void
 drawscreen(PLAYERp pp, double smoothratio)
 {
-    extern SWBOOL CameraTestMode;
+    extern bool CameraTestMode;
     int tx, ty, tz;
     fixed_t tq16horiz, tq16ang;
     short tsectnum;
@@ -1618,7 +1617,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
-    extern SWBOOL FAF_DebugView;
+    extern bool FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
 
     // last valid stuff
@@ -1627,7 +1626,7 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     int const viewingRange = viewingrange;
 
-    DrawScreen = TRUE;
+    DrawScreen = true;
     PreDraw();
 
     PreUpdatePanel(smoothratio);
@@ -1650,23 +1649,18 @@ drawscreen(PLAYERp pp, double smoothratio)
     tx = camerapp->oposx + xs_CRoundToInt(fmulscale16(camerapp->posx - camerapp->oposx, smoothratio));
     ty = camerapp->oposy + xs_CRoundToInt(fmulscale16(camerapp->posy - camerapp->oposy, smoothratio));
     tz = camerapp->oposz + xs_CRoundToInt(fmulscale16(camerapp->posz - camerapp->oposz, smoothratio));
-    // TODO: It'd be better to check pp->input.q16angvel instead, problem is that
-    // it's been repurposed for the q16ang diff while tying input to framerate
-    if (cl_syncinput || (pp != Player+myconnectindex) ||
-        (TEST(pp->Flags, PF_DEAD) && (loc.q16avel == 0)))
+
+    // Interpolate the player's angle while on a sector object, just like VoidSW.
+    // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
+    if (cl_syncinput || pp != Player+myconnectindex || (!cl_syncinput && pp->sop && !TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET)))
     {
         tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(NORM_Q16ANGLE(camerapp->q16ang + IntToFixed(1024) - camerapp->oq16ang) - IntToFixed(1024), smoothratio));
         tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(camerapp->q16horiz - camerapp->oq16horiz, smoothratio));
     }
-    else if (cl_sointerpolation && !CommEnabled)
-    {
-        tq16ang = camerapp->oq16ang + xs_CRoundToInt(fmulscale16(((pp->camq16ang + IntToFixed(1024) - camerapp->oq16ang) & 0x7FFFFFF) - IntToFixed(1024), smoothratio));
-        tq16horiz = camerapp->oq16horiz + xs_CRoundToInt(fmulscale16(pp->camq16horiz - camerapp->oq16horiz, smoothratio));
-    }
     else
     {
-        tq16ang = pp->camq16ang;
-        tq16horiz = pp->camq16horiz;
+        tq16ang = pp->q16ang;
+        tq16horiz = pp->q16horiz;
     }
     tsectnum = camerapp->cursectnum;
 
@@ -1706,7 +1700,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     tx = tx + quake_x;
     ty = ty + quake_y;
     //tq16horiz = tq16horiz + IntToFixed(quake_x);
-    tq16ang = IntToFixed(NORM_ANGLE(FixedToInt(tq16ang) + quake_ang));
+    tq16ang = NORM_Q16ANGLE(tq16ang + quake_ang);
 
     if (pp->sop_remote)
     {
@@ -1736,7 +1730,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         tz += pp->obob_z + xs_CRoundToInt(fmulscale16(pp->bob_z - pp->obob_z, smoothratio));
 
         // recoil only when not in camera
-        tq16horiz = tq16horiz + IntToFixed(pp->recoil_horizoff);
+        tq16horiz = tq16horiz + pp->recoil_horizoff;
         tq16horiz = max(tq16horiz, IntToFixed(PLAYER_HORIZ_MIN));
         tq16horiz = min(tq16horiz, IntToFixed(PLAYER_HORIZ_MAX));
     }
@@ -1750,9 +1744,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange)* tan(r_fov* (PI / 360.))), yxaspect);
-    OverlapDraw = TRUE;
+    OverlapDraw = true;
     DrawOverlapRoom(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
-    OverlapDraw = FALSE;
+    OverlapDraw = false;
 
     if (automapMode != am_full)// && !ScreenSavePic)
     {
@@ -1766,7 +1760,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (!FAF_DebugView)
         FAF_DrawRooms(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
 
-    analyzesprites(tx, ty, tz, FALSE);
+    analyzesprites(tx, ty, tz, false);
     post_analyzesprites();
     renderDrawMasks();
 
@@ -1819,7 +1813,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     // if doing a screen save don't need to process the rest
     if (ScreenSavePic)
     {
-        DrawScreen = FALSE;
+        DrawScreen = false;
         return;
     }
 
@@ -1855,19 +1849,19 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         if (ReloadPrompt)
         {
-            ReloadPrompt = FALSE;
+            ReloadPrompt = false;
         }
     }
 
     PostDraw();
-    DrawScreen = FALSE;
+    DrawScreen = false;
 }
 
 bool GameInterface::GenerateSavePic()
 {
-    ScreenSavePic = TRUE;
+    ScreenSavePic = true;
     drawscreen(Player + myconnectindex, 65536);
-    ScreenSavePic = FALSE;
+    ScreenSavePic = false;
     return true;
 }
 
@@ -1904,7 +1898,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang)
                 {
                     if (sprite[Player[p].PlayerSprite].xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
-                    sprisplayer = TRUE;
+                    sprisplayer = true;
 
                     goto SHOWSPRITE;
                 }

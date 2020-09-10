@@ -98,12 +98,8 @@ void CheckKeys2()
 }
 
 
-void PlayerInterruptKeys(bool after)
+static void PlayerInterruptKeys(bool after, ControlInfo* const hidInput)
 {
-    ControlInfo info;
-    memset(&info, 0, sizeof(ControlInfo)); // this is done within CONTROL_GetInput() anyway
-    CONTROL_GetInput(&info);
-
     static double lastInputTicks;
     auto const    currentHiTicks = I_msTimeF();
     double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
@@ -121,7 +117,7 @@ void PlayerInterruptKeys(bool after)
     if (!after)
     {
         localInput = {};
-        ApplyGlobalInput(localInput, &info);
+        ApplyGlobalInput(localInput, hidInput);
         if (PlayerList[nLocalPlayer].nHealth == 0) localInput.actions &= SB_OPEN;
     }
 
@@ -140,26 +136,26 @@ void PlayerInterruptKeys(bool after)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        tempinput.svel -= info.mousex * 4.f;
-        tempinput.svel -= info.dyaw * keyMove;
+        tempinput.svel -= hidInput->mousex * 4.f;
+        tempinput.svel -= hidInput->dyaw * keyMove;
     }
     else
     {
-        input_angle += FloatToFixed(info.mousex + scaleAdjustmentToInterval(info.dyaw));
+        input_angle += FloatToFixed(hidInput->mousex + scaleAdjustmentToInterval(hidInput->dyaw));
     }
 
     bool mouseaim = !(localInput.actions & SB_AIMMODE);
 
     if (mouseaim)
-        tempinput.q16horz += FloatToFixed(info.mousey);
+        tempinput.q16horz += FloatToFixed(hidInput->mousey);
     else
-        tempinput.fvel -= info.mousey * 8.f;
+        tempinput.fvel -= hidInput->mousey * 8.f;
 
     if (!in_mouseflip) tempinput.q16horz = -tempinput.q16horz;
 
-    tempinput.q16horz -= FloatToFixed(scaleAdjustmentToInterval(info.dpitch));
-    tempinput.svel -= info.dx * keyMove;
-    tempinput.fvel -= info.dz * keyMove;
+    tempinput.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch));
+    tempinput.svel -= hidInput->dx * keyMove;
+    tempinput.fvel -= hidInput->dz * keyMove;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
@@ -294,9 +290,9 @@ void PlayerInterruptKeys(bool after)
 }
 
 
-void GameInterface::GetInput(InputPacket* packet)
+void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    PlayerInterruptKeys(packet == nullptr);
+    PlayerInterruptKeys(packet == nullptr, hidInput);
     if (packet) *packet = localInput;
 }
 

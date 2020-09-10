@@ -29,12 +29,12 @@ BEGIN_SW_NS
 #define SYNC_TEST 0
 #define MAXSYNCBYTES 16
 
-extern SWBOOL PredictionOn;
+extern bool PredictionOn;
 extern PLAYER PredictPlayer;
 extern PLAYERp ppp;
 extern short predictangpos[];
 extern int predictmovefifoplc;
-extern SWBOOL Prediction;
+extern bool Prediction;
 
 void InitPrediction(PLAYERp pp);
 void DoPrediction(PLAYERp ppp);
@@ -61,12 +61,12 @@ typedef struct
     int32_t TimeLimit;
     int32_t TimeLimitClock;
     int16_t MultiGameType; // used to be a stand alone global
-    SWBOOL TeamPlay;
-    SWBOOL HurtTeammate;
-    SWBOOL SpawnMarkers;
-    SWBOOL AutoAim;
-    SWBOOL NoRespawn; // for commbat type games
-    SWBOOL Nuke;
+    bool TeamPlay;
+    bool HurtTeammate;
+    bool SpawnMarkers;
+    bool AutoAim;
+    bool NoRespawn; // for commbat type games
+    bool Nuke;
 } gNET,*gNETp;
 
 extern gNET gNet;

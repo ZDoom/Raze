@@ -36,9 +36,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 short DoSpikeMatch(short match);
-SWBOOL TestSpikeMatchActive(short match);
+bool TestSpikeMatchActive(short match);
 int DoVatorMove(short SpriteNum, int *lptr);
-void InterpSectorSprites(short sectnum, SWBOOL state);
+void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseSpike(short SpriteNum)
 {
@@ -72,12 +72,12 @@ void ReverseSpike(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-SWBOOL
+bool
 SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -85,7 +85,7 @@ SpikeSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -104,7 +104,7 @@ void SetSpikeActive(short SpriteNum)
     else
         short_setinterpolation(&sectp->floorheinum);
 
-    InterpSectorSprites(sp->sectnum, ON);
+    InterpSectorSprites(sp->sectnum, true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -132,7 +132,7 @@ void SetSpikeInactive(short SpriteNum)
     else
         short_stopinterpolation(&sectp->floorheinum);
 
-    InterpSectorSprites(sp->sectnum, OFF);
+    InterpSectorSprites(sp->sectnum, false);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -210,7 +210,7 @@ DoSpikeMatch(short match)
 }
 
 
-SWBOOL
+bool
 TestSpikeMatchActive(short match)
 {
     USERp fu;
@@ -231,11 +231,11 @@ TestSpikeMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 int DoSpikeMove(short SpriteNum, int *lptr)
@@ -397,7 +397,7 @@ int DoSpike(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = FALSE;
+            bool found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
@@ -407,7 +407,7 @@ int DoSpike(short SpriteNum)
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     ReverseSpike(SpriteNum);
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -425,7 +425,7 @@ int DoSpike(short SpriteNum)
                         pp->hi_sectp == &sector[sp->sectnum])
                     {
                         ReverseSpike(SpriteNum);
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }

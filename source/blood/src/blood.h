@@ -88,7 +88,7 @@ struct GameInterface : ::GameInterface
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
-	void GetInput(InputPacket* gInput) override;
+	void GetInput(InputPacket* gInput, ControlInfo* const hidInput) override;
 	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;

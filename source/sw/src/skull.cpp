@@ -39,7 +39,7 @@ int InitSpriteChemBomb(short SpriteNum);
 int InitFlashBomb(short SpriteNum);
 int InitCaltrops(short SpriteNum);
 int InitPhosphorus(int16_t SpriteNum);
-SWBOOL SpriteOverlapZ(int16_t, int16_t, int);
+bool SpriteOverlapZ(int16_t, int16_t, int);
 
 //////////////////////
 //

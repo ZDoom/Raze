@@ -70,22 +70,21 @@ extern int lastUpdate;
 extern char SaveGameDescr[10][80];
 extern int PlayClock;
 extern short Bunny_Count;
-extern SWBOOL NewGame;
+extern bool NewGame;
 extern int GodMode;
 extern int FinishTimer;
-extern SWBOOL FinishAnim;
+extern int FinishAnim;
 extern int GameVersion;
 //extern short Zombies;
 
-extern SWBOOL serpwasseen;
-extern SWBOOL sumowasseen;
-extern SWBOOL zillawasseen;
+extern bool serpwasseen;
+extern bool sumowasseen;
+extern bool zillawasseen;
 extern short BossSpriteNum[3];
 
 #define PANEL_SAVE 1
 #define ANIM_SAVE 1
 
-extern InputPacket loc;
 extern STATE s_NotRestored[];
 
 OrgTileListP otlist[] = {&orgwalllist, &orgwalloverlist, &orgsectorceilinglist, &orgsectorfloorlist};
@@ -463,7 +462,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
             MWRITE(Track[i].TrackPoint, Track[i].NumPoints * sizeof(TRACK_POINT),1,fil);
     }
 
-    MWRITE(&loc,sizeof(loc),1,fil);
+    // MWRITE(&loc,sizeof(loc),1,fil);
     MWRITE(&screenpeek,sizeof(screenpeek),1,fil);
     MWRITE(&randomseed, sizeof(randomseed), 1, fil);
 
@@ -642,7 +641,7 @@ bool GameInterface::SaveGame(FSaveGameNode *sv)
 }
 
 
-extern SWBOOL SavegameLoaded;
+extern bool SavegameLoaded;
 
 bool GameInterface::LoadGame(FSaveGameNode* sv)
 {
@@ -717,7 +716,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
 
         INITLIST(&pp->PanelSpriteList);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -848,7 +847,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
         }
     }
 
-    MREAD(&loc,sizeof(loc),1,fil);
+    // MREAD(&loc,sizeof(loc),1,fil);
 
     MREAD(&screenpeek,sizeof(screenpeek),1,fil);
     MREAD(&randomseed, sizeof(randomseed), 1, fil);
@@ -943,7 +942,7 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     {
         INITLIST(otlist[i]);
 
-        while (TRUE)
+        while (true)
         {
             MREAD(&ndx, sizeof(ndx),1,fil);
 
@@ -1070,13 +1069,13 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 
     // this is not a new game
-    ShadowWarrior::NewGame = FALSE;
+    ShadowWarrior::NewGame = false;
 
 
     DoPlayerDivePalette(Player+myconnectindex);
     DoPlayerNightVisionPalette(Player+myconnectindex);
 
-    SavegameLoaded = TRUE;
+    SavegameLoaded = true;
     return true;
 }
 

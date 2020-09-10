@@ -54,7 +54,7 @@ gNET gNet;
 //Local multiplayer variables
 // should move this to a local scope of faketimerhandler - do it when able to test
 
-SWBOOL CommEnabled = FALSE;
+bool CommEnabled = false;
 uint8_t CommPlayers = 0;
 
 double smoothratio;

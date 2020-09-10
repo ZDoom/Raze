@@ -41,9 +41,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 extern uint8_t playTrack;
-SWBOOL serpwasseen = FALSE;
-SWBOOL sumowasseen = FALSE;
-SWBOOL zillawasseen = FALSE;
+bool serpwasseen = false;
+bool sumowasseen = false;
+bool zillawasseen = false;
 
 short BossSpriteNum[3] = {-1,-1,-1};
 
@@ -816,10 +816,10 @@ BossHealthMeter(void)
     PLAYERp pp = Player + myconnectindex;
     short color=0,i=0,nexti,metertics,meterunit;
     int y;
-    extern SWBOOL NoMeters;
+    extern bool NoMeters;
     short health;
-    SWBOOL bosswasseen;
-    static SWBOOL triedplay = FALSE;
+    bool bosswasseen;
+    static bool triedplay = false;
 
     if (NoMeters) return;
 
@@ -857,7 +857,7 @@ BossHealthMeter(void)
 
     // Frank, good optimization for other levels, but it broke level 20. :(
     // I kept this but had to add a fix.
-    bosswasseen = serpwasseen|sumowasseen|zillawasseen;
+    bosswasseen = serpwasseen || sumowasseen || zillawasseen;
 
     // Only show the meter when you can see the boss
     if ((currentLevel->levelNumber == 20 && (!serpwasseen || !sumowasseen || !zillawasseen)) || !bosswasseen)
@@ -873,7 +873,7 @@ BossHealthMeter(void)
                 {
                     if (i == 0 && !serpwasseen)
                     {
-                        serpwasseen = TRUE;
+                        serpwasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[2], ThemeTrack[2], true);
@@ -881,7 +881,7 @@ BossHealthMeter(void)
                     }
                     else if (i == 1 && !sumowasseen)
                     {
-                        sumowasseen = TRUE;
+                        sumowasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[3], ThemeTrack[3], true);
@@ -889,7 +889,7 @@ BossHealthMeter(void)
                     }
                     else if (i == 2 && !zillawasseen)
                     {
-                        zillawasseen = TRUE;
+                        zillawasseen = true;
                         if (!SW_SHAREWARE)
                         {
                             PlaySong(nullptr, ThemeSongs[4], ThemeTrack[4], true);

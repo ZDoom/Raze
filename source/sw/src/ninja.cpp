@@ -1967,7 +1967,7 @@ DoNinjaHariKari(short SpriteNum)
 
     cnt = RANDOM_RANGE(4)+1;
     for (i=0; i<=cnt; i++)
-        InitBloodSpray(SpriteNum,TRUE,-2);
+        InitBloodSpray(SpriteNum,true,-2);
 
     return 0;
 }
@@ -2206,7 +2206,7 @@ PlayerLevelReset(PLAYERp pp)
     //PlayerUpdateArmor(pp, 0);
     pp->Kills = 0;
     pp->Killer = -1;
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
@@ -2245,10 +2245,10 @@ PlayerDeathReset(PLAYERp pp)
     pp->WpnShotgunType = 0;            // Shotgun has normal or fully automatic fire
     pp->WpnShotgunAuto = 0;            // 50-0 automatic shotgun rounds
     pp->WpnShotgunLastShell = 0;       // Number of last shell fired
-    pp->Bloody = FALSE;
-    pp->TestNukeInit = FALSE;
-    pp->InitingNuke = FALSE;
-    pp->NukeInitialized = FALSE;
+    pp->Bloody = false;
+    pp->TestNukeInit = false;
+    pp->InitingNuke = false;
+    pp->NukeInitialized = false;
     pp->WpnReloadState = 2;
 
     memset(pp->WpnAmmo,0,sizeof(pp->WpnAmmo));
@@ -2273,7 +2273,7 @@ PlayerDeathReset(PLAYERp pp)
     pp->Armor = 0;
     PlayerUpdateArmor(pp, 0);
     pp->Killer = -1;
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
@@ -2333,10 +2333,10 @@ PlayerGameReset(PLAYERp pp)
     pp->WpnShotgunType = 0;            // Shotgun has normal or fully automatic fire
     pp->WpnShotgunAuto = 0;            // 50-0 automatic shotgun rounds
     pp->WpnShotgunLastShell = 0;       // Number of last shell fired
-    pp->Bloody = FALSE;
-    pp->TestNukeInit = FALSE;
-    pp->InitingNuke = FALSE;
-    pp->NukeInitialized = FALSE;
+    pp->Bloody = false;
+    pp->TestNukeInit = false;
+    pp->InitingNuke = false;
+    pp->NukeInitialized = false;
     pp->SecretsFound = 0;
     pp->WpnReloadState = 2;
 
@@ -2359,7 +2359,7 @@ PlayerGameReset(PLAYERp pp)
     {
         videoFadePalette(0,0,0,0);
     }
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;
@@ -2393,7 +2393,7 @@ InitPlayerSprite(PLAYERp pp)
     SPRITE *sp;
     USERp u;
     int pnum = pp - Player;
-    extern SWBOOL NewGame;
+    extern bool NewGame;
 
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
@@ -2458,7 +2458,7 @@ InitPlayerSprite(PLAYERp pp)
         videoFadePalette(0,0,0,0);
     }
 
-    pp->NightVision = FALSE;
+    pp->NightVision = false;
     pp->StartColor = 0;
     pp->FadeAmt = 0;
     pp->DeathType = 0;

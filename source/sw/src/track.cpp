@@ -79,10 +79,10 @@ TrackTowardPlayer(SPRITEp sp, TRACKp t, TRACK_POINTp start_point)
 
     if (end_dist < start_dist)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 
 }
 
@@ -109,10 +109,10 @@ TrackStartCloserThanEnd(short SpriteNum, TRACKp t, TRACK_POINTp start_point)
 
     if (start_dist < end_dist)
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 
 }
 
@@ -726,8 +726,8 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     short sp_num, next_sp_num, startwall, endwall;
     int i, k, j;
     SPRITEp BoundSprite;
-    SWBOOL FoundOutsideLoop = FALSE;
-    SWBOOL SectorInBounds;
+    bool FoundOutsideLoop = false;
+    bool SectorInBounds;
     SECTORp *sectp;
     USERp u = User[sop->sp_child - sprite];
 
@@ -806,14 +806,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         startwall = sector[k].wallptr;
         endwall = startwall + sector[k].wallnum - 1;
 
-        SectorInBounds = TRUE;
+        SectorInBounds = true;
 
         for (j = startwall; j <= endwall; j++)
         {
             // all walls have to be in bounds to be in sector object
             if (!(wall[j].x > xlow && wall[j].x < xhigh && wall[j].y > ylow && wall[j].y < yhigh))
             {
-                SectorInBounds = FALSE;
+                SectorInBounds = false;
                 break;
             }
         }
@@ -850,7 +850,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     // Make sure every sector object has an outer loop tagged - important
     //
 
-    FoundOutsideLoop = FALSE;
+    FoundOutsideLoop = false;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -865,7 +865,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 sop->morph_wall_point = k;
 
             if (wall[k].extra && TEST(wall[k].extra, WALLFX_LOOP_OUTER))
-                FoundOutsideLoop = TRUE;
+                FoundOutsideLoop = true;
 
             // each wall has this set - for collision detection
             SET(wall[k].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
@@ -1390,16 +1390,18 @@ SetupSectorObject(short sectnum, short tag)
             {
             case SO_TURRET_MGUN:
             case SO_TURRET:
-            case SO_TANK:
+            case SO_VEHICLE:
                 sop->vel = 0;
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;
+#if 0
             case SO_SPEED_BOAT:
                 sop->vel = 0;
                 sop->bob_amt = Z(2);
                 sop->bob_speed = 4;
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;
+#endif
             default:
                 SET(sop->flags, SOBJ_OPERATIONAL);
                 break;
@@ -1466,7 +1468,7 @@ void
 PlaceSectorObjectsOnTracks(void)
 {
     short i, j, k, startwall, endwall;
-    SWBOOL found;
+    bool found;
 
     // place each sector object on the track
     for (i = 0; i < MAX_SECTOR_OBJECTS; i++)
@@ -1503,7 +1505,7 @@ PlaceSectorObjectsOnTracks(void)
         if (sop->track >= SO_OPERATE_TRACK_START)
             continue;
 
-        found = FALSE;
+        found = false;
         // find the closest point on the track and put SOBJ on it
         for (j = 0; j < Track[sop->track].NumPoints; j++)
         {
@@ -1515,7 +1517,7 @@ PlaceSectorObjectsOnTracks(void)
             {
                 low_dist = dist;
                 sop->point = j;
-                found = TRUE;
+                found = true;
                 ////DSPRINTF(ds,"point = %d, dist = %d, x1=%d, y1=%d",j,low_dist,(tpoint +j)->x,(tpoint+j)->y);
                 //MONO_PRINT(ds);
             }
@@ -1676,9 +1678,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    pp->camq16ang += NORM_Q16ANGLE(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng)) - pp->q16ang;
-    pp->camq16ang = NORM_Q16ANGLE(pp->camq16ang);
-    pp->q16ang = NORM_Q16ANGLE(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng));
+    playerAddAngle(pp, GetDeltaQ16Angle(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng), pp->q16ang));
 
     UpdatePlayerSprite(pp);
 }
@@ -1695,17 +1695,17 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     WALLp wp;
     USERp u;
     short i, rot_ang;
-    SWBOOL PlayerMove = TRUE;
+    bool PlayerMove = true;
 
     if (sop->xmid >= MAXSO)
-        PlayerMove = FALSE;
+        PlayerMove = false;
 
     // move along little midpoint
     sop->xmid += BOUND_4PIX(nx);
     sop->ymid += BOUND_4PIX(ny);
 
     if (sop->xmid >= MAXSO)
-        PlayerMove = FALSE;
+        PlayerMove = false;
 
     // move child sprite along also
     sop->sp_child->x = sop->xmid;
@@ -1783,13 +1783,13 @@ PlayerPart:
             {
 #if 0
                 short nr, nextnr;
-                SWBOOL skip = TRUE;
+                bool skip = true;
                 TRAVERSE_SPRITE_STAT(headspritestat[STAT_NO_RIDE], nr, nextnr)
                 {
                     if (sprite[nr].lotag == sop - SectorObject)
-                        skip = TRUE;
+                        skip = true;
                     else
-                        skip = FALSE;
+                        skip = false;
                 }
 
                 if (skip)
@@ -1943,7 +1943,7 @@ PlayerPart:
     }
 }
 
-void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
+void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 {
     short wallcount = 0, j, k, startwall, endwall, delta_ang_from_orig;
     SECTORp *sectp;
@@ -2238,7 +2238,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     short dest_sector = -1;
     short src_sector = -1;
     short i, nexti, ndx;
-    char found = FALSE;
+    char found = false;
     int tgt_depth;
 
     sop = (SECTOR_OBJECTp)data;
@@ -2294,7 +2294,7 @@ void CallbackSOsink(ANIMp ap, void *data)
             ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
             AnimSetVelAdj(ndx, ap->vel_adj);
 
-            found = TRUE;
+            found = true;
             break;
         }
     }
@@ -2311,7 +2311,7 @@ void CallbackSOsink(ANIMp ap, void *data)
                 // in a more precise way
                 ndx = AnimSet((int *)&su->depth_fract, IntToFixed(tgt_depth), (ap->vel<<8)>>8);
                 AnimSetVelAdj(ndx, ap->vel_adj);
-                found = TRUE;
+                found = true;
                 break;
             }
         }
@@ -2360,7 +2360,7 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
         if (TEST(sop->flags, SOBJ_UPDATE_ONCE))
         {
             RESET(sop->flags, SOBJ_UPDATE_ONCE);
-            RefreshPoints(sop, 0, 0, FALSE);
+            RefreshPoints(sop, 0, 0, false);
         }
         return;
     }
@@ -2412,7 +2412,7 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
     if (TEST(sop->flags, SOBJ_DYNAMIC))
     {
         // trick tricks
-        RefreshPoints(sop, nx, ny, TRUE);
+        RefreshPoints(sop, nx, ny, true);
     }
     else
     {
@@ -2423,7 +2423,7 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
             GlobSpeedSO)
         {
             RESET(sop->flags, SOBJ_UPDATE_ONCE);
-            RefreshPoints(sop, nx, ny, FALSE);
+            RefreshPoints(sop, nx, ny, false);
         }
     }
 }
@@ -2811,7 +2811,7 @@ OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int newy,
     sop->spin_ang = 0;
     sop->ang = newang;
 
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
+    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
 void
@@ -2824,7 +2824,7 @@ void
 PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy)
 {
     so_setinterpolationtics(sop, synctics);
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
+    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
@@ -2886,7 +2886,7 @@ KillSectorObject(SECTOR_OBJECTp sop)
     sop->spin_ang = 0;
     sop->ang = sop->ang_tgt;
 
-    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, FALSE);
+    RefreshPoints(sop, newx - sop->xmid, newy - sop->ymid, false);
 }
 
 
@@ -2952,7 +2952,7 @@ DoTornadoObject(SECTOR_OBJECTp sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos.x - sop->xmid, pos.y - sop->ymid, TRUE);
+    RefreshPoints(sop, pos.x - sop->xmid, pos.y - sop->ymid, true);
 }
 
 void
@@ -3136,7 +3136,7 @@ ScanToWall
 */
 
 
-SWBOOL
+bool
 ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 {
     SPRITEp sp;
@@ -3158,7 +3158,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             if (u->track_dir == -1)
             {
                 DoActorHitTrackEndPoint(u);
-                return FALSE;
+                return false;
             }
         }
 
@@ -3172,7 +3172,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             if (u->track_dir == 1)
             {
                 DoActorHitTrackEndPoint(u);
-                return FALSE;
+                return false;
             }
         }
 
@@ -3286,10 +3286,10 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                 ASSERT(hitinfo.sect >= 0);
 
                 if (hitinfo.sprite >= 0)
-                    return FALSE;
+                    return false;
 
                 if (hitinfo.wall < 0)
-                    return FALSE;
+                    return false;
 
                 zdiff = labs(sp->z - sector[wall[hitinfo.wall].nextsector].floorz) >> 8;
 
@@ -3299,7 +3299,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             DoActorBeginJump(SpriteNum);
             u->ActorActionFunc = DoActorMoveJump;
 
-            return FALSE;
+            return false;
         }
 
         break;
@@ -3325,7 +3325,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
             DoActorBeginJump(SpriteNum);
             u->ActorActionFunc = DoActorMoveJump;
-            return FALSE;
+            return false;
         }
 
         break;
@@ -3335,7 +3335,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         if (u->ActorActionSet->Jump)
         {
             ActorLeaveTrack(SpriteNum);
-            return FALSE;
+            return false;
         }
 
         break;
@@ -3357,7 +3357,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
             InitActorDuck(SpriteNum);
             u->ActorActionFunc = DoActorDuck;
-            return FALSE;
+            return false;
         }
 
         break;
@@ -3371,7 +3371,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         int i;
 
         if (u->Rot == u->ActorActionSet->Sit || u->Rot == u->ActorActionSet->Stand)
-            return FALSE;
+            return false;
 
         sp->ang = tpoint->ang;
 
@@ -3392,7 +3392,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
             if (nearsprite >= 0 && nearhitdist < 1024)
             {
-                if (OperateSprite(nearsprite, FALSE))
+                if (OperateSprite(nearsprite, false))
                 {
                     if (!tpoint->tag_high)
                         u->WaitTics = 2 * 120;
@@ -3406,7 +3406,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
         if (nearsector >= 0 && nearhitdist < 1024)
         {
-            if (OperateSector(nearsector, FALSE))
+            if (OperateSector(nearsector, false))
             {
                 if (!tpoint->tag_high)
                     u->WaitTics = 2 * 120;
@@ -3419,7 +3419,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
         if (nearwall >= 0 && nearhitdist < 1024)
         {
-            if (OperateWall(nearwall, FALSE))
+            if (OperateWall(nearwall, false))
             {
                 if (!tpoint->tag_high)
                     u->WaitTics = 2 * 120;
@@ -3603,7 +3603,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             if (!lsp)
             {
                 ActorLeaveTrack(SpriteNum);
-                return FALSE;
+                return false;
             }
 
             // determine where the player is supposed to be in relation to the ladder
@@ -3628,7 +3628,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             if (hit_wall < 0)
             {
                 ActorLeaveTrack(SpriteNum);
-                return FALSE;
+                return false;
             }
 
 #if DEBUG
@@ -3672,7 +3672,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         break;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -3701,7 +3701,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
 
     // if not on a track then better not go here
     if (u->track == -1)
-        return TRUE;
+        return true;
 
     // if lying in wait for player
     if (TEST(u->Flags, SPR_WAIT_FOR_PLAYER | SPR_WAIT_FOR_TRIGGER))
@@ -3716,13 +3716,13 @@ ActorFollowTrack(short SpriteNum, short locktics)
                 {
                     u->tgt_sp = pp->SpriteP;
                     RESET(u->Flags, SPR_WAIT_FOR_PLAYER);
-                    return TRUE;
+                    return true;
                 }
             }
         }
 
         u->Tics = 0;
-        return TRUE;
+        return true;
     }
 
     // if pausing the return
@@ -3736,7 +3736,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
             u->WaitTics = 0;
         }
 
-        return TRUE;
+        return true;
     }
 
     tpoint = Track[u->track].TrackPoint + u->point;
@@ -3749,7 +3749,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
     if ((dist = Distance(sp->x, sp->y, tpoint->x, tpoint->y)) < 200) // 64
     {
         if (!ActorTrackDecide(tpoint, SpriteNum))
-            return TRUE;
+            return true;
 
         // get the next point
         NextActorTrackPoint(SpriteNum);
@@ -3825,7 +3825,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
                 u->jump_speed = -650;
                 DoActorBeginJump(SpriteNum);
 
-                return TRUE;
+                return true;
             }
         }
         else
@@ -3851,7 +3851,7 @@ ActorFollowTrack(short SpriteNum, short locktics)
     }
 
 
-    return TRUE;
+    return true;
 }
 
 

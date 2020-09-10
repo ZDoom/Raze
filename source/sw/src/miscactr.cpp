@@ -153,7 +153,7 @@ int DoToiletGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -211,7 +211,7 @@ int NullToiletGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -392,7 +392,7 @@ int DoWashGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -456,7 +456,7 @@ int NullWashGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -1263,7 +1263,7 @@ int DoCarGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1312,7 +1312,7 @@ int NullCarGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -1482,7 +1482,7 @@ int DoMechanicGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1531,7 +1531,7 @@ int NullMechanicGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);
@@ -1702,7 +1702,7 @@ int DoSailorGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1755,7 +1755,7 @@ int NullSailorGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
     static short alreadythrew = 0;
 
     DoActorPickClosePlayer(SpriteNum);
@@ -1914,7 +1914,7 @@ int DoPruneGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,SPRITEp_MID(u->tgt_sp),u->tgt_sp->sectnum);
@@ -1979,7 +1979,7 @@ int NullPruneGirl(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     DoActorPickClosePlayer(SpriteNum);
     ICanSee = FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,u->tgt_sp->x,u->tgt_sp->y,u->tgt_sp->z,u->tgt_sp->sectnum);

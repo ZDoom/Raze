@@ -41,9 +41,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 short DoVatorMatch(PLAYERp pp, short match);
-SWBOOL TestVatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, SWBOOL state);
-int InitBloodSpray(short, SWBOOL, short);
+bool TestVatorMatchActive(short match);
+void InterpSectorSprites(short sectnum, bool state);
+int InitBloodSpray(short, bool, short);
 
 void ReverseVator(short SpriteNum)
 {
@@ -77,12 +77,12 @@ void ReverseVator(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-SWBOOL
+bool
 VatorSwitch(short match, short setting)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    bool found = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_DEFAULT], i, nexti)
     {
@@ -90,7 +90,7 @@ VatorSwitch(short match, short setting)
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
-            found = TRUE;
+            found = true;
             AnimateSwitch(sp, setting);
         }
     }
@@ -109,7 +109,7 @@ void SetVatorActive(short SpriteNum)
     else
         setinterpolation(&sectp->floorz);
 
-    InterpSectorSprites(sp->sectnum, ON);
+    InterpSectorSprites(sp->sectnum, true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -137,7 +137,7 @@ void SetVatorInactive(short SpriteNum)
     else
         stopinterpolation(&sectp->floorz);
 
-    InterpSectorSprites(sp->sectnum, OFF);
+    InterpSectorSprites(sp->sectnum, false);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -161,7 +161,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
             sectnum = fsp->sectnum;
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp,"This only opens in single play.");
@@ -198,7 +198,7 @@ short DoVatorOperate(PLAYERp pp, short sectnum)
 #endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
-                    return FALSE;
+                    return false;
                 }
             }
 
@@ -236,7 +236,7 @@ DoVatorMatch(PLAYERp pp, short match)
                 first_vator = i;
 
             // single play only vator
-            // SWBOOL 8 must be set for message to display
+            // bool 8 must be set for message to display
             if (TEST_BOOL4(fsp) && (gNet.MultiGameType == MULTI_GAME_COMMBAT || gNet.MultiGameType == MULTI_GAME_AI_BOTS))
             {
                 if (pp && TEST_BOOL11(fsp)) PutStringInfo(pp, GStrings("TXTS_SPONLY"));
@@ -287,7 +287,7 @@ DoVatorMatch(PLAYERp pp, short match)
 }
 
 
-SWBOOL
+bool
 TestVatorMatchActive(short match)
 {
     USERp fu;
@@ -308,14 +308,14 @@ TestVatorMatchActive(short match)
                 continue;
 
             if (TEST(fu->Flags, SPR_ACTIVE) || fu->Tics)
-                return TRUE;
+                return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-void InterpSectorSprites(short sectnum, SWBOOL state)
+void InterpSectorSprites(short sectnum, bool state)
 {
     SPRITEp sp;
     short i,nexti;
@@ -340,11 +340,11 @@ void InterpSectorSprites(short sectnum, SWBOOL state)
     }
 }
 
-void MoveSpritesWithSector(short sectnum, int z_amt, SWBOOL type)
+void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL both = FALSE;
+    bool both = false;
 
     if (SectUser[sectnum])
         both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
@@ -465,13 +465,13 @@ int DoVator(short SpriteNum)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 1); // ceiling
+        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 0); // floor
+        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -538,7 +538,7 @@ int DoVator(short SpriteNum)
             int i,nexti;
             SPRITEp bsp;
             USERp bu;
-            SWBOOL found = FALSE;
+            bool found = false;
 
             TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], i, nexti)
             {
@@ -549,7 +549,7 @@ int DoVator(short SpriteNum)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, TRUE, -1);
+                        InitBloodSpray(i, true, -1);
                         UpdateSinglePlayKills(i);
                         KillSprite(i);
                         continue;
@@ -561,7 +561,7 @@ int DoVator(short SpriteNum)
                     // found something blocking so reverse to ON position
                     ReverseVator(SpriteNum);
                     SET_BOOL8(sp); // tell vator that something blocking door
-                    found = TRUE;
+                    found = true;
                     break;
                 }
             }
@@ -581,7 +581,7 @@ int DoVator(short SpriteNum)
                         ReverseVator(SpriteNum);
 
                         u->vel_rate = -u->vel_rate;
-                        found = TRUE;
+                        found = true;
                     }
                 }
             }
@@ -599,7 +599,7 @@ int DoVator(short SpriteNum)
                 {
                     if (labs(sectp->ceilingz - sectp->floorz) < SPRITEp_SIZE_Z(bsp))
                     {
-                        InitBloodSpray(i, TRUE, -1);
+                        InitBloodSpray(i, true, -1);
                         UpdateSinglePlayKills(i);
                         KillSprite(i);
                         continue;
@@ -626,13 +626,13 @@ int DoVatorAuto(short SpriteNum)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 1); // ceiling
+        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(SpriteNum, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, 0); // floor
+        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
     }
 
     // EQUAL this entry has finished

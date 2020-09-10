@@ -117,7 +117,7 @@ void DoLoadGame(const char* name);
 void G_BuildTiccmd(ticcmd_t* cmd) 
 {
 	I_GetEvent();
-	gi->GetInput(&cmd->ucmd);
+	gi->GetInput(&cmd->ucmd, &CONTROL_GetInput());
 	cmd->consistancy = consistancy[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -511,7 +511,7 @@ void TryRunTics (void)
 		if (!cl_syncinput)
 		{
 			I_GetEvent();
-			gi->GetInput(nullptr);
+			gi->GetInput(nullptr, &CONTROL_GetInput());
 		}
 		return;
 	}

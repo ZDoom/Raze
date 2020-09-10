@@ -252,7 +252,7 @@ struct GameInterface : ::GameInterface
     void Ticker() override;
     void DrawBackground() override;
     void Render() override;
-    void GetInput(InputPacket* packet) override;
+    void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
     void Startup() override;
     const char* GenericCheat(int player, int cheat) override;
 	void NewGame(MapRecord *map, int skill) override;

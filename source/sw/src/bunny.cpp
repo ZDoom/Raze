@@ -832,7 +832,7 @@ PickBunnyJumpSpeed(short SpriteNum, int pix_height)
     u->jump_speed = -600;
     u->jump_grav = 8;
 
-    while (TRUE)
+    while (true)
     {
         if (GetBunnyJumpHeight(u->jump_speed, u->jump_grav) > pix_height + 20)
             break;
@@ -855,7 +855,6 @@ DoBunnyBeginJumpAttack(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     SPRITEp psp = User[SpriteNum]->tgt_sp;
-    int CanSeePlayer(short SpriteNum);
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
@@ -931,7 +930,7 @@ DoPickCloseBunny(short SpriteNum)
 
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
-    SWBOOL ICanSee = FALSE;
+    bool ICanSee = false;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_ENEMY], i, nexti)
     {
@@ -965,7 +964,7 @@ DoBunnyQuickJump(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
 
-    if (u->spal != PALETTE_PLAYER8) return FALSE;
+    if (u->spal != PALETTE_PLAYER8) return false;
 
     if (!u->lo_sp && u->spal == PALETTE_PLAYER8 && MoveSkip4)
         DoPickCloseBunny(SpriteNum);
@@ -977,12 +976,12 @@ DoBunnyQuickJump(short SpriteNum)
         SPRITEp tsp = u->lo_sp;
         USERp tu = User[hit_sprite];
 
-        if (!tu || tu->ID != BUNNY_RUN_R0) return FALSE;
+        if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
 
         // Not mature enough yet
-        if (sp->xrepeat != 64 || sp->yrepeat != 64) return FALSE;
-        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return FALSE;
+        if (sp->xrepeat != 64 || sp->yrepeat != 64) return false;
+        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
 
         // Kill a rival
         // Only males fight
@@ -995,7 +994,7 @@ DoBunnyQuickJump(short SpriteNum)
                 tu->Health = 0;
 
                 // Blood fountains
-                InitBloodSpray(hit_sprite,TRUE,-1);
+                InitBloodSpray(hit_sprite,true,-1);
 
                 if (SpawnShrap(hit_sprite, SpriteNum))
                 {
@@ -1007,7 +1006,7 @@ DoBunnyQuickJump(short SpriteNum)
                 Bunny_Count--; // Bunny died
 
                 u->lo_sp = NULL;
-                return TRUE;
+                return true;
             }
         }
     }
@@ -1020,11 +1019,11 @@ DoBunnyQuickJump(short SpriteNum)
         USERp tu = User[hit_sprite];
 
 
-        if (!tu || tu->ID != BUNNY_RUN_R0) return FALSE;
+        if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
         // Not mature enough to mate yet
-        if (sp->xrepeat != 64 || sp->yrepeat != 64) return FALSE;
-        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return FALSE;
+        if (sp->xrepeat != 64 || sp->yrepeat != 64) return false;
+        if (tsp->xrepeat != 64 || tsp->yrepeat != 64) return false;
 
         if (tu->ShellNum <= 0 && tu->WaitTics <= 0 && u->WaitTics <= 0)
         {
@@ -1032,7 +1031,7 @@ DoBunnyQuickJump(short SpriteNum)
             {
                 PLAYERp pp = NULL;
 
-                if (RANDOM_RANGE(1000) < 995 && tu->spal != PALETTE_PLAYER0) return FALSE;
+                if (RANDOM_RANGE(1000) < 995 && tu->spal != PALETTE_PLAYER0) return false;
 
                 DoActorPickClosePlayer(SpriteNum);
 
@@ -1041,7 +1040,7 @@ DoBunnyQuickJump(short SpriteNum)
 
                 if (tu->spal != PALETTE_PLAYER0)
                 {
-                    if (tu->Flag1 > 0) return FALSE;
+                    if (tu->Flag1 > 0) return false;
                     tu->FlagOwner = 1; // FAG!
                     tu->Flag1 = SEC(10);
                     if (pp)
@@ -1091,12 +1090,12 @@ DoBunnyQuickJump(short SpriteNum)
                     SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible
                 }
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
-                return TRUE;
+                return true;
             }
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 
@@ -1215,7 +1214,7 @@ void BunnyHatch(short Weapon)
                 Bunny_Count--; // Bunny died
 
                 // Blood fountains
-                InitBloodSpray(Weapon,TRUE,-1);
+                InitBloodSpray(Weapon,true,-1);
 
                 if (SpawnShrap(Weapon, New))
                 {
@@ -1394,8 +1393,8 @@ DoBunnyMove(short SpriteNum)
 int
 BunnySpew(short SpriteNum)
 {
-    //InitBloodSpray(SpriteNum,TRUE,-1);
-    InitBloodSpray(SpriteNum,TRUE,-1);
+    //InitBloodSpray(SpriteNum,true,-1);
+    InitBloodSpray(SpriteNum,true,-1);
     return 0;
 }
 

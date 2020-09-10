@@ -86,9 +86,9 @@ int DoWallMove(SPRITEp sp)
     short shade1,shade2,ang,picnum1,picnum2;
     WALLp wallp;
     short prev_wall;
-    SWBOOL found = FALSE;
+    bool found = false;
     short dang;
-    SWBOOL SOsprite = FALSE;
+    bool SOsprite = false;
 
     dist = SP_TAG13(sp);
     ang = SP_TAG4(sp);
@@ -108,7 +108,7 @@ int DoWallMove(SPRITEp sp)
     {
         if (wallp->x == sp->x && wallp->y == sp->y)
         {
-            found = TRUE;
+            found = true;
 
             if (TEST(wallp->extra, WALLFX_SECTOR_OBJECT))
             {
@@ -117,7 +117,7 @@ int DoWallMove(SPRITEp sp)
                 ASSERT(sop);
                 SOwallmove(sop, sp, wallp, dist, &nx, &ny);
 
-                SOsprite = TRUE;
+                SOsprite = true;
             }
             else
             {
@@ -162,10 +162,10 @@ int DoWallMove(SPRITEp sp)
     return found;
 }
 
-SWBOOL CanSeeWallMove(SPRITEp wp, short match)
+bool CanSeeWallMove(SPRITEp wp, short match)
 {
     short i,nexti;
-    SWBOOL found = FALSE;
+    bool found = false;
     SPRITEp sp;
 
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE_CANSEE], i, nexti)
@@ -174,26 +174,26 @@ SWBOOL CanSeeWallMove(SPRITEp wp, short match)
 
         if (SP_TAG2(sp) == match)
         {
-            found = TRUE;
+            found = true;
 
             if (cansee(wp->x,wp->y,wp->z,wp->sectnum,sp->x,sp->y,sp->z,sp->sectnum))
             {
-                return TRUE;
+                return true;
             }
         }
     }
 
     if (found)
-        return FALSE;
+        return false;
     else
-        return TRUE;
+        return true;
 }
 
 int DoWallMoveMatch(short match)
 {
     SPRITEp sp;
     short i,nexti;
-    SWBOOL found = FALSE;
+    bool found = false;
 
     // just all with the same matching tags
     TRAVERSE_SPRITE_STAT(headspritestat[STAT_WALL_MOVE], i, nexti)
@@ -202,7 +202,7 @@ int DoWallMoveMatch(short match)
 
         if (SP_TAG2(sp) == match)
         {
-            found = TRUE;
+            found = true;
             DoWallMove(sp);
         }
     }

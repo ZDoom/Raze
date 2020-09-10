@@ -47,30 +47,32 @@ ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
 bool sendPause;
 
+static double lastCheck;
+
 //==========================================================================
 //
 //
 //
 //==========================================================================
 
-void InputState::GetMouseDelta(ControlInfo * info)
+void InputState::GetMouseDelta(ControlInfo * hidInput)
 {
     vec2f_t finput = g_mousePos;
 	g_mousePos = {};
 
-    info->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
-    info->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
+    hidInput->mousex = finput.x * (16.f / 32.f) * in_mousesensitivity * in_mousescalex / 3.f;
+    hidInput->mousey = finput.y * (16.f / 64.f) * in_mousesensitivity * in_mousescaley;
 
 	// todo: Use these when the mouse is used for moving instead of turning.
-	//info->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
-	//info->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
+	//hidInput->mousex = int(finput.x * (4.f) * in_mousesensitivity * in_mouseside);
+	//hidInput->mousey = int(finput.y * (4.f) * in_mousesensitivity * in_mouseforward);
 
 	if (in_mousebias)
 	{
-		if (fabs(info->mousex) > fabs(info->mousey))
-			info->mousey /= in_mousebias;
+		if (fabs(hidInput->mousex) > fabs(hidInput->mousey))
+			hidInput->mousey /= in_mousebias;
 		else
-			info->mousex /= in_mousebias;
+			hidInput->mousex /= in_mousebias;
 	}
 
 }
@@ -175,11 +177,11 @@ int32_t handleevents(void)
 //
 //==========================================================================
 
-void CONTROL_GetInput(ControlInfo* info)
+ControlInfo CONTROL_GetInput()
 {
-	memset(info, 0, sizeof(ControlInfo));
+	ControlInfo hidInput {};
 
-	inputState.GetMouseDelta(info);
+	inputState.GetMouseDelta(&hidInput);
 
 	if (use_joystick)
 	{
@@ -188,11 +190,13 @@ void CONTROL_GetInput(ControlInfo* info)
 
 		I_GetAxes(joyaxes);
 
-		info->dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
-		info->dx += -joyaxes[JOYAXIS_Side] * 0.75f;
-		info->dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
-		info->dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
+		hidInput.dyaw += -joyaxes[JOYAXIS_Yaw] * 45.f;
+		hidInput.dx += -joyaxes[JOYAXIS_Side] * 0.75f;
+		hidInput.dz += -joyaxes[JOYAXIS_Forward] * 0.75f;
+		hidInput.dpitch += -joyaxes[JOYAXIS_Pitch] * 22.5f;
 	}
+
+	return hidInput;
 }
 
 //---------------------------------------------------------------------------
@@ -333,40 +337,40 @@ CCMD(pause)
 
 
 
-void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
+void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput)
 {
 	if (WeaponToSend != 0) input.setNewWeapon(WeaponToSend);
 	WeaponToSend = 0;
-	if (info && buttonMap.ButtonDown(gamefunc_Dpad_Select))
+	if (hidInput && buttonMap.ButtonDown(gamefunc_Dpad_Select))
 	{
 		// These buttons should not autorepeat. The game handlers are not really equipped for that.
-		if (info->dz > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
+		if (hidInput->dz > 0 && !(dpad_lock & 1)) { dpad_lock |= 1;  input.setNewWeapon(WeaponSel_Prev); }
 		else dpad_lock &= ~1;
-		if (info->dz < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
+		if (hidInput->dz < 0 && !(dpad_lock & 2)) { dpad_lock |= 2;  input.setNewWeapon(WeaponSel_Next); }
 		else dpad_lock &= ~2;
-		if ((info->dx < 0 || info->dyaw < 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
+		if ((hidInput->dx < 0 || hidInput->dyaw < 0) && !(dpad_lock & 4)) { dpad_lock |= 4;  input.actions |= SB_INVPREV; }
 		else dpad_lock &= ~4;
-		if ((info->dx > 0 || info->dyaw > 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
+		if ((hidInput->dx > 0 || hidInput->dyaw > 0) && !(dpad_lock & 8)) { dpad_lock |= 8;  input.actions |= SB_INVNEXT; }
 		else dpad_lock &= ~8;
 
 		// This eats the controller input for regular use
-		info->dx = 0;
-		info->dz = 0;
-		info->dyaw = 0;
+		hidInput->dx = 0;
+		hidInput->dz = 0;
+		hidInput->dyaw = 0;
 	}
 	else dpad_lock = 0;
 
 	input.actions |= ActionsToSend;
 	ActionsToSend = 0;
 
-	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info->dz > 0)) 
+	if (buttonMap.ButtonDown(gamefunc_Aim_Up) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dz > 0)) 
 		input.actions |= SB_AIM_UP;
 
-	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && info->dz < 0))) 
+	if ((buttonMap.ButtonDown(gamefunc_Aim_Down) || (buttonMap.ButtonDown(gamefunc_Dpad_Aiming) && hidInput->dz < 0))) 
 		input.actions |= SB_AIM_DOWN;
 
 	if (buttonMap.ButtonDown(gamefunc_Dpad_Aiming))
-		info->dz = 0;
+		hidInput->dz = 0;
 
 	if (buttonMap.ButtonDown(gamefunc_Jump))
 		input.actions |= SB_JUMP;
@@ -403,5 +407,20 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo *info)
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
 		input.actions |= SB_LOOK_RIGHT;
 
+}
+
+double InputScale()
+{
+	if (!cl_syncinput)
+	{
+		double now = I_msTimeF();
+		double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, 1000.0 / GameTicRate) : 1;
+		lastCheck = now;
+		return elapsedInputTicks * GameTicRate / 1000.0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 

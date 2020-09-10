@@ -45,10 +45,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL CheatInputMode = FALSE;
-SWBOOL EveryCheat = FALSE;
-SWBOOL mapcheat = false;
-extern SWBOOL FAF_DebugView;
+bool CheatInputMode = false;
+bool EveryCheat = false;
+bool mapcheat = false;
+extern bool FAF_DebugView;
 
 const char *CheatKeyType;
 void KeysCheat(PLAYERp pp, const char *cheat_string);
@@ -103,7 +103,7 @@ bool RestartCheat(cheatseq_t* c)
 
 bool RoomCheat(cheatseq_t* c)
 {
-    FAF_DebugView ^= 1;
+    FAF_DebugView = !FAF_DebugView;
     return true;
 }
 
@@ -161,7 +161,7 @@ bool WarpCheat(cheatseq_t* c)
 
 bool EveryCheatToggle(cheatseq_t* c)
 {
-    EveryCheat ^= 1;
+    EveryCheat = !EveryCheat;
     C_DoCommand("god");
     C_DoCommand("give weapons");
     C_DoCommand("give items");
@@ -219,7 +219,7 @@ static void ItemCheat(int player)
 {
     auto p = &Player[player];
     PutStringInfo(p, GStrings("GIVING EVERYTHING!"));
-    memset(p->HasKey, TRUE, sizeof(p->HasKey));
+    memset(p->HasKey, true, sizeof(p->HasKey));
 
     p->WpnShotgunAuto = 50;
     p->WpnRocketHeat = 5;
@@ -299,7 +299,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
 
     case GIVE_KEYS:
-        memset(Player[player].HasKey, TRUE, sizeof(Player[player].HasKey));
+        memset(Player[player].HasKey, true, sizeof(Player[player].HasKey));
         PutStringInfo(&Player[player], GStrings("TXTS_GIVEKEY"));
         break;
 

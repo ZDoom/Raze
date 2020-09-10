@@ -34,7 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define OFF     0
 #define ON     1
 
-typedef unsigned char SWBOOL;
 
 /*
 ===========================

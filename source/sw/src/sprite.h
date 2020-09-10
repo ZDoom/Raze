@@ -43,8 +43,8 @@ short SpriteCanGoForward(short SpriteNum, short range);
 void  SpriteFindNewDirection(short SpriteNum, short range);
 int DoWalk(short SpriteNum);
 int DoBody(short SpriteNum);
-SWBOOL CanMoveHere(int16_t spritenum);
-SWBOOL SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
+bool CanMoveHere(int16_t spritenum);
+bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
 int DoActorDie(short SpriteNum, short weapon);
 int DoGet(short SpriteNum);
 void SpriteControl(void);
@@ -53,11 +53,11 @@ void DoActorZrange(short SpriteNum);
 void PreMapCombineFloors(void);
 void SpriteSetupPost(void);
 int ActorCoughItem(short SpriteNum);
-SWBOOL ActorSpawn(SPRITEp sp);
+bool ActorSpawn(SPRITEp sp);
 int SpawnItemsMatch(short match);
 void PicAnimOff(short picnum);
 int MissileWaterAdjust(short SpriteNum);
-SWBOOL SpriteOverlapZ(int16_t spritenum_a,int16_t spritenum_b,int z_overlap);
+bool SpriteOverlapZ(int16_t spritenum_a,int16_t spritenum_b,int z_overlap);
 
 enum
 {

@@ -591,7 +591,7 @@ int DoCheckSwarm(short SpriteNum)
         }
     }
 
-    return TRUE;
+    return true;
 
 }
 

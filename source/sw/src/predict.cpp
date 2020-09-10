@@ -36,8 +36,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-SWBOOL PredictionOn = TRUE;
-SWBOOL Prediction = FALSE;
+bool PredictionOn = true;
+bool Prediction = false;
 PLAYER PredictPlayer;
 USER PredictUser;
 PLAYERp ppp = &PredictPlayer;
@@ -102,11 +102,11 @@ DoPrediction(PLAYERp ppp)
     ppp->oq16horiz = ppp->q16horiz;
 
     // go through the player MOVEMENT code only
-    Prediction = TRUE;
+    Prediction = true;
     DoPlayerSectorUpdatePreMove(ppp);
     (*ppp->DoPlayerAction)(ppp);
     DoPlayerSectorUpdatePostMove(ppp);
-    Prediction = FALSE;
+    Prediction = false;
 
     // restore things
     User[ppp->PlayerSprite] = u;

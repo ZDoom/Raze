@@ -34,13 +34,13 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-double elapsedInputTicks;
-double scaleAdjustmentToInterval(double x) { return x * (120 / synctics) / (1000.0 / elapsedInputTicks); }
+void DoPlayerHorizon(PLAYERp pp, fixed_t const q16horz, double const scaleAdjust);
+void DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust);
+void DoPlayerTurnVehicle(PLAYERp pp, fixed_t q16avel, int z, int floor_dist);
+void DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel);
 
-void DoPlayerTurn(PLAYERp pp, fixed_t *pq16ang, fixed_t q16angvel);
-void DoPlayerHorizon(PLAYERp pp, fixed_t *pq16horiz, fixed_t q16horz);
-
-InputPacket loc;
+static InputPacket loc;
+static int32_t turnheldtime;
 
 void
 InitNetVars(void)
@@ -59,62 +59,29 @@ InitTimingVars(void)
 }
 
 
-
-static void getinput(InputPacket *loc)
+enum
 {
-    int i;
-    PLAYERp pp = Player + myconnectindex;
-    PLAYERp newpp = Player + myconnectindex;
+    TURBOTURNTIME = (120 / 8),
+    NORMALTURN = (12 + 6),
+    RUNTURN = (28),
+    PREAMBLETURN = 3,
+    NORMALKEYMOVE = 35,
+    MAXFVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXSVEL = ((NORMALKEYMOVE * 2) + 10),
+    MAXANGVEL = 100,
+    MAXHORIZVEL = 128
+};
 
-#define TURBOTURNTIME (120/8)
-#define NORMALTURN   (12+6)
-#define RUNTURN      (28)
-#define PREAMBLETURN 3
-#define NORMALKEYMOVE 35
-#define MAXVEL       ((NORMALKEYMOVE*2)+10)
-#define MAXSVEL      ((NORMALKEYMOVE*2)+10)
-#define MAXANGVEL    100
-#define MAXHORIZVEL  128
-#define SET_LOC_KEY(loc, sync_num, key_test) SET(loc, ((!!(key_test)) << (sync_num)))
+//---------------------------------------------------------------------------
+//
+// handles the input bits
+//
+//---------------------------------------------------------------------------
 
-    static int32_t turnheldtime;
-    int32_t momx, momy;
-
-    extern SWBOOL MenuButtonAutoAim;
-
-    if (Prediction && CommEnabled)
-    {
-        newpp = ppp;
-    }
-
-    static double lastInputTicks;
-
-    auto const currentHiTicks = I_msTimeF();
-    elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    ControlInfo info;
-    CONTROL_GetInput(&info);
-
-    if (paused)
-        return;
-
-    int32_t turnamount;
-    int32_t keymove;
-
-    // The function DoPlayerTurn() scales the player's q16angvel by 1.40625, so store as constant
-    // and use to scale back player's aim and ang values for a consistent feel between games.
-    float const angvelScale = 1.40625f;
-    float const aimvelScale = 1.203125f;
-
-    // Shadow Warrior has a ticrate of 40, 25% more than the other games, so store below constant
-    // for dividing controller input to match speed input speed of other games.
-    float const ticrateScale = 0.75f;
-
-    ApplyGlobalInput(*loc, &info);
-
-    bool mouseaim = !(loc->actions & SB_AIMMODE);
+static void processInputBits(PLAYERp const pp, ControlInfo* const hidInput, bool* mouseaim)
+{
+    ApplyGlobalInput(loc, hidInput);
+    *mouseaim = !(loc.actions & SB_AIMMODE);
 
     if (!CommEnabled)
     {
@@ -132,142 +99,26 @@ static void getinput(InputPacket *loc)
             RESET(Player[myconnectindex].Flags, PF_AUTO_AIM);
     }
 
-
-
-    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch)) // this shares a bit with another function so cannot be in the common code.
-        loc->actions |= SB_CROUCH_LOCK;
-
-
-    if (loc->actions & SB_RUN)
+    if (buttonMap.ButtonDown(gamefunc_Toggle_Crouch))
     {
-        if (pp->sop_control)
-            turnamount = RUNTURN * 3;
-        else
-            turnamount = RUNTURN;
-
-        keymove = NORMALKEYMOVE << 1;
+        // this shares a bit with another function so cannot be in the common code.
+        loc.actions |= SB_CROUCH_LOCK;
     }
-    else
+}
+
+//---------------------------------------------------------------------------
+//
+// handles movement
+//
+//---------------------------------------------------------------------------
+
+static void processWeapon(PLAYERp const pp)
+{
+    USERp u = User[pp->PlayerSprite];
+    int i;
+
+    if (loc.getNewWeapon() == WeaponSel_Next)
     {
-        if (pp->sop_control)
-            turnamount = NORMALTURN * 3;
-        else
-            turnamount = NORMALTURN;
-
-        keymove = NORMALKEYMOVE;
-    }
-
-    int32_t svel = 0, vel = 0;
-    fixed_t q16horz = 0, q16angvel = 0;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
-    {
-        svel -= (info.mousex * ticrateScale) * 4.f;
-        svel -= info.dyaw * keymove;
-    }
-    else
-    {
-        q16angvel += FloatToFixed((info.mousex / angvelScale) + scaleAdjustmentToInterval((info.dyaw * ticrateScale) / angvelScale));
-    }
-
-    if (mouseaim)
-        q16horz -= FloatToFixed(info.mousey / aimvelScale);
-    else
-        vel -= (info.mousey * ticrateScale) * 8.f;
-
-    if (in_mouseflip)
-        q16horz = -q16horz;
-
-    q16horz -= FloatToFixed(scaleAdjustmentToInterval((info.dpitch * ticrateScale) / aimvelScale));
-    svel -= info.dx * keymove;
-    vel -= info.dz * keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop)
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            svel -= -keymove;
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            svel -= keymove;
-    }
-    else
-    {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
-        {
-            turnheldtime += synctics;
-            if (cl_syncinput)
-            {
-                if (turnheldtime >= TURBOTURNTIME)
-                    q16angvel -= IntToFixed(turnamount);
-                else
-                    q16angvel -= IntToFixed(PREAMBLETURN);
-            }
-            else
-                q16angvel -= FloatToFixed(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN));
-        }
-        else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
-        {
-            turnheldtime += synctics;
-            if (cl_syncinput)
-            {
-                if (turnheldtime >= TURBOTURNTIME)
-                    q16angvel += IntToFixed(turnamount);
-                else
-                    q16angvel += IntToFixed(PREAMBLETURN);
-            }
-            else
-                q16angvel += FloatToFixed(scaleAdjustmentToInterval((turnheldtime >= TURBOTURNTIME) ? turnamount : PREAMBLETURN));
-        }
-        else
-        {
-            turnheldtime = 0;
-        }
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
-        svel += keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-        svel += -keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-    {
-        vel += keymove;
-    }
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        vel += -keymove;
-
-    q16angvel = clamp(q16angvel, -IntToFixed(MAXANGVEL), IntToFixed(MAXANGVEL));
-    q16horz = clamp(q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
-
-    void DoPlayerTeleportPause(PLAYERp pp);
-    if (cl_syncinput)
-    {
-        q16angvel = q16angvel;
-        q16horz = q16horz;
-    }
-    else
-    {
-        fixed_t prevcamq16ang = pp->camq16ang, prevcamq16horiz = pp->camq16horiz;
-
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN))
-            DoPlayerTurn(pp, &pp->camq16ang, q16angvel);
-        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
-            DoPlayerHorizon(pp, &pp->camq16horiz, q16horz);
-        pp->oq16ang += pp->camq16ang - prevcamq16ang;
-        pp->oq16horiz += pp->camq16horiz - prevcamq16horiz;
-    }
-
-    loc->fvel = clamp(loc->fvel + vel, -MAXVEL, MAXVEL);
-    loc->svel = clamp(loc->svel + svel, -MAXSVEL, MAXSVEL);
-
-    loc->q16avel += q16angvel;
-    loc->q16horz += q16horz;
-
-
-    if (loc->getNewWeapon() == WeaponSel_Next)
-    {
-        USERp u = User[pp->PlayerSprite];
         short next_weapon = u->WeaponNum + 1;
         short start_weapon;
 
@@ -283,7 +134,7 @@ static void getinput(InputPacket *loc)
         else
         {
             next_weapon = -1;
-            for (i = start_weapon; TRUE; i++)
+            for (i = start_weapon; true; i++)
             {
                 if (i >= MAX_WEAPONS_KEYS)
                 {
@@ -299,9 +150,9 @@ static void getinput(InputPacket *loc)
             }
         }
 
-        loc->setNewWeapon(next_weapon + 1);
+        loc.setNewWeapon(next_weapon + 1);
     }
-    else if (loc->getNewWeapon() == WeaponSel_Prev)
+    else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
         USERp u = User[pp->PlayerSprite];
         short prev_weapon = u->WeaponNum - 1;
@@ -320,7 +171,7 @@ static void getinput(InputPacket *loc)
         else
         {
             prev_weapon = -1;
-            for (i = start_weapon; TRUE; i--)
+            for (i = start_weapon; true; i--)
             {
                 if (i <= -1)
                     i = WPN_HEART;
@@ -332,32 +183,186 @@ static void getinput(InputPacket *loc)
                 }
             }
         }
-        loc->setNewWeapon(prev_weapon + 1);
+        loc.setNewWeapon(prev_weapon + 1);
     }
-    else if (loc->getNewWeapon() == WeaponSel_Alt)
+    else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
         USERp u = User[pp->PlayerSprite];
         short const which_weapon = u->WeaponNum + 1;
-        loc->setNewWeapon(which_weapon);
+        loc.setNewWeapon(which_weapon);
     }
 }
 
-void GameInterface::GetInput(InputPacket *packet)
+//---------------------------------------------------------------------------
+//
+// handles movement
+//
+//---------------------------------------------------------------------------
+
+static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
 {
-    getinput(&loc);
+    double const scaleAdjust = InputScale();
+    bool const strafeKey = buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop;
+    int32_t turnamount, keymove;
+    int32_t fvel = 0, svel = 0;
+    fixed_t q16avel = 0, q16horz = 0;
+
+    if (loc.actions & SB_RUN)
+    {
+        turnamount = pp->sop_control ? RUNTURN * 3 : RUNTURN;
+        keymove = NORMALKEYMOVE << 1;
+    }
+    else
+    {
+        turnamount = pp->sop_control ? NORMALTURN * 3 : NORMALTURN;
+        keymove = NORMALKEYMOVE;
+    }
+
+    if (strafeKey)
+    {
+        svel -= xs_CRoundToInt(hidInput->mousex * 4.);
+        svel -= hidInput->dyaw * keymove;
+    }
+    else
+    {
+        q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * hidInput->dyaw));
+    }
+
+    if (mouseaim)
+        q16horz -= FloatToFixed(hidInput->mousey);
+    else
+        fvel -= xs_CRoundToInt(hidInput->mousey * 8.);
+
+    if (in_mouseflip)
+        q16horz = -q16horz;
+
+    q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
+    svel -= hidInput->dx * keymove;
+    fvel -= hidInput->dz * keymove;
+
+    if (strafeKey)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+            svel += keymove;
+        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+            svel -= keymove;
+    }
+    else
+    {
+        if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
+        {
+            turnheldtime += synctics;
+            q16avel -= FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+        }
+        else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && pp->sop))
+        {
+            turnheldtime += synctics;
+            q16avel += FloatToFixed(scaleAdjust * (turnheldtime >= TURBOTURNTIME ? turnamount : PREAMBLETURN));
+        }
+        else
+        {
+            turnheldtime = 0;
+        }
+    }
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
+        svel += keymove;
+
+    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
+        svel -= keymove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+        fvel += keymove;
+
+    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+        fvel -= keymove;
+
+    if (!cl_syncinput)
+    {
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_AIM))
+        {
+            DoPlayerHorizon(pp, q16horz, scaleAdjust);
+        }
+
+        if (pp->horizTarget)
+        {
+            fixed_t horizDelta = pp->horizTarget - pp->q16horiz;
+            pp->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
+
+            if (abs(pp->q16horiz - pp->horizTarget) < FRACUNIT)
+            {
+                pp->q16horiz = pp->horizTarget;
+                pp->horizTarget = 0;
+            }
+        }
+        else if (pp->horizAdjust)
+        {
+            pp->q16horiz += FloatToFixed(scaleAdjust * pp->horizAdjust);
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_GENERAL))
+        {
+            DoPlayerTurn(pp, q16avel, scaleAdjust);
+        }
+
+        if (pp->angTarget)
+        {
+            fixed_t angDelta = GetDeltaQ16Angle(pp->angTarget, pp->q16ang);
+            pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
+
+            if (abs(pp->q16ang - pp->angTarget) < FRACUNIT)
+            {
+                pp->q16ang = pp->angTarget;
+                pp->angTarget = 0;
+            }
+        }
+        else if (pp->angAdjust)
+        {
+            pp->q16ang = (pp->q16ang + FloatToFixed(scaleAdjust * pp->angAdjust)) & 0x7FFFFFF;
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_VEHICLE))
+        {
+            DoPlayerTurnVehicle(pp, q16avel, pp->posz + Z(10), labs(pp->posz + Z(10) - pp->sop->floor_loz));
+        }
+
+        if (TEST(pp->Flags2, PF2_INPUT_CAN_TURN_TURRET))
+        {
+            DoPlayerTurnTurret(pp, q16avel);
+        }
+    }
+
+    loc.fvel = clamp(loc.fvel + fvel, -MAXFVEL, MAXFVEL);
+    loc.svel = clamp(loc.svel + svel, -MAXSVEL, MAXSVEL);
+
+    loc.q16avel = clamp(loc.q16avel + q16avel, -IntToFixed(MAXANGVEL), IntToFixed(MAXANGVEL));
+    loc.q16horz = clamp(loc.q16horz + q16horz, -IntToFixed(MAXHORIZVEL), IntToFixed(MAXHORIZVEL));
+}
+
+void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
+{
+    if (paused || M_Active())
+    {
+        loc = {};
+        return;
+    }
+
+    PLAYERp pp = &Player[myconnectindex];
+    bool mouseaim;
+
+    processInputBits(pp, hidInput, &mouseaim);
+    processMovement(pp, hidInput, mouseaim);
+    processWeapon(pp);
+
     if (packet)
     {
-        PLAYERp pp = &Player[myconnectindex];
+        auto const ang = FixedToInt(pp->q16ang);
 
-        auto fvel = loc.fvel;
-        auto svel = loc.svel;
-        auto ang  = FixedToInt(pp->q16ang);
-
-        loc.fvel = mulscale9(fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(svel, sintable[NORM_ANGLE(ang)]);
-        loc.svel = mulscale9(fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(svel, sintable[NORM_ANGLE(ang + 1536)]);
-        loc.q16ang = pp->camq16ang;
-        loc.q16horiz = pp->camq16horiz;
         *packet = loc;
+
+        packet->fvel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang + 512)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang)]);
+        packet->svel = mulscale9(loc.fvel, sintable[NORM_ANGLE(ang)]) + mulscale9(loc.svel, sintable[NORM_ANGLE(ang + 1536)]);
+
         loc = {};
     }
 }
