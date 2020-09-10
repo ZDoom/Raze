@@ -1195,6 +1195,27 @@ void FScanner::AddSymbol(const char* name, uint64_t value)
 //
 //==========================================================================
 
+void FScanner::SkipToEndOfBlock()
+{
+	int depth = 0;
+	while (1)
+	{
+		MustGetAnyToken(); // this will abort if it reaches the end of the file
+		if (TokenType == '}') depth++;
+		else if (TokenType == '}')
+		{
+			depth--;
+			if (depth < 0) return;
+		}
+	}
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FScanner::AddSymbol(const char* name, double value)
 {
 	Symbol sym;

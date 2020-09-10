@@ -92,6 +92,7 @@ public:
 	inline void AddSymbol(const char* name, int32_t value) { return AddSymbol(name, int64_t(value)); }
 	inline void AddSymbol(const char* name, uint32_t value) { return AddSymbol(name, uint64_t(value)); }
 	void AddSymbol(const char* name, double value);
+	void SkipToEndOfBlock();
 
 	static FString TokenName(int token, const char *string=NULL);
 
