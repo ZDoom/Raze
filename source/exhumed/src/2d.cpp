@@ -1137,6 +1137,7 @@ private:
             phase = 1;
         }
         int currentclock = clock * 120 / 1'000'000'000;
+        twod->ClearScreen();
         switch (phase)
         {
         case 1:
@@ -1315,7 +1316,7 @@ void DoAfterCinemaScene(int nLevel, TArray<JobDesc>& jobs)
     if (nLevel == 15) scene = CINEMA_AFTER_LEVEL_15;
     if (nLevel == 20) scene = CINEMA_AFTER_LEVEL_20;
     if (scene > 0) jobs.Push({ Create<DCinema>(scene) });
-    if (nLevel == 19) jobs.Push({ Create<DLastLevelCinema>() });
+    if (nLevel == 19) { jobs.Push({ Create<DLastLevelCinema>() }); selectedlevelnew = 20; }
     if (nLevel == 20) jobs.Push({ Create<DExCredits>() });
 }
 
