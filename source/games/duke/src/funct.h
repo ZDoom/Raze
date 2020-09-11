@@ -232,6 +232,7 @@ void calcviewpitch(player_struct* p, double factor);
 void sethorizon(int snum, ESyncBits actions, double factor, fixed_t adjustment);
 bool movementBlocked(int snum);
 void loadcons();
+void recordoldspritepos();
 
 void updateinterpolations();
 void restoreinterpolations();

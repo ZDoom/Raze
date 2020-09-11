@@ -5080,6 +5080,12 @@ void fall_common(int g_i, int g_p, int JIBS6, int DRONE, int BLOODPOOL, int SHOT
 	}
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 int LocateTheLocator(int n, int sn)
 {
 	int i;
@@ -5092,6 +5098,31 @@ int LocateTheLocator(int n, int sn)
 		i = nextspritestat[i];
 	}
 	return -1;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void recordoldspritepos()
+{
+	
+	for (int statNum = 0; statNum < MAXSTATUS; statNum++)
+	{
+		int spriteNum = headspritestat[statNum];
+
+		while (spriteNum >= 0)
+		{
+			int const nextSprite = nextspritestat[spriteNum];
+			hittype[spriteNum].bposx = sprite[spriteNum].x;
+			hittype[spriteNum].bposy = sprite[spriteNum].y;
+			hittype[spriteNum].bposz = sprite[spriteNum].z;
+
+			spriteNum = nextSprite;
+		}
+	}
 }
 
 

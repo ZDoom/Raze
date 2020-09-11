@@ -162,8 +162,7 @@ void animatesprites_r(int x,int y,int a,int smoothratio)
             s->xrepeat = 24;
             s->yrepeat = 17;
         }
-        else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
-            s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
+        else if (s->picnum != CRANEPOLE)
         {
             t->x -= mulscale16(MaxSmoothRatio-smoothratio,s->x-hittype[i].bposx);
             t->y -= mulscale16(MaxSmoothRatio-smoothratio,s->y-hittype[i].bposy);

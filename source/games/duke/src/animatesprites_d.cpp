@@ -60,7 +60,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
         {
 			case DEVELOPERCOMMENTARY:
 			case DEVELOPERCOMMENTARY + 1:
-				if(!isWorldTour() || !dukewt_commentary)
+				if(isWorldTour() && !dukewt_commentary)
 					 t->xrepeat = t->yrepeat = 0;
 				break;
             case BLOODPOOL:
@@ -175,8 +175,7 @@ void animatesprites_d(int x,int y,int a,int smoothratio)
             t->z = ps[s->yvel].oposz + mulscale16(smoothratio,ps[s->yvel].posz-ps[s->yvel].oposz);
             t->z += (40<<8);
         }
-        else if( ( s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER || 
-            s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR )
+        else if(s->picnum != CRANEPOLE)
         {
             t->x -= mulscale16(MaxSmoothRatio-smoothratio,s->x-hittype[i].bposx);
             t->y -= mulscale16(MaxSmoothRatio-smoothratio,s->y-hittype[i].bposy);
