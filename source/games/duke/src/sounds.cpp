@@ -193,6 +193,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	sndinf[kPitchEnd] = clamp(maxpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPriority] = priority & 255;
 	sndinf[kVolAdjust] = clamp(distance, INT16_MIN, INT16_MAX);
+	sndinf[kWorldTourMapping] = 0;
 	sfx->Volume = volume;
 	sfx->NearLimit = 6;
 	sfx->bTentative = false;
