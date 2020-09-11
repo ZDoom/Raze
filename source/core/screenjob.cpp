@@ -791,7 +791,11 @@ public:
 	{
 		auto now = I_GetTimeNS();
 
-		if (!M_Active())
+		if (startTime == -1)
+		{
+			lastTime = startTime = now;
+		}
+		else if (!M_Active())
 		{
 			clock += now - lastTime;
 			if (clock == 0) clock = 1;
@@ -833,7 +837,8 @@ public:
 				if (jobs[index].job->fadestyle & DScreenJob::fadeout)
 				{
 					twod->Lock();
-					startTime = I_nsTime();
+					startTime = -1;
+					clock = 0;
 					jobs[index].job->fadestate = DScreenJob::fadeout;
 					actionState = State_Fadeout;
 				}
@@ -846,6 +851,7 @@ public:
 		else if (actionState == State_Fadeout)
 		{
 			int ended = FadeoutFrame();
+			Printf("fadeout = %d\n", ended);
 			if (ended < 1)
 			{
 				AdvanceJob(terminateState < 0);
