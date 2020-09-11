@@ -638,7 +638,7 @@ private:
 
     //---------------------------------------------------------------------------
     //
-    // Frag display - very ugly and may have to be redone if multiplayer suppoer gets added.
+    // Frag display - very ugly and may have to be redone if multiplayer support gets added.
     //
     //---------------------------------------------------------------------------
 
@@ -747,6 +747,17 @@ private:
             format.Format("%d", pp->nHealth >> 3);
             SBar_DrawString(this, &numberFont, format, 20, -numberFont.mFont->GetHeight()+2, DI_TEXT_ALIGN_LEFT, CR_UNTRANSLATED, 1, 0, 0, 1, 1);
         }
+		
+		//
+		// Air
+		//
+		if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
+		{
+			img = GetStatusSequencePic(nStatusSeqOffset + 133, airframe);
+            imgScale = baseScale / img->GetDisplayHeight();
+            DrawGraphic(img, -4, -22, DI_ITEM_RIGHT_BOTTOM, 1., -1, -1, imgScale, imgScale);
+		}
+
 
         //
         // Magic
@@ -827,13 +838,6 @@ private:
             val += 4;
             x += 20;
         }
-
-#if 0
-
-
-        DisplayKeys(pp, -25, -38, 0.8625, 0.8625);
-        PrintLevelStats(int(baseScale + 4));
-#endif
     }
 
 
@@ -880,11 +884,15 @@ private:
             if (nItemSeq >= 0) {
                 DrawStatusSequence(nItemSeq + nStatusSeqOffset, nItemFrame, 0);
             }
-            // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
-            DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, -32);
 
             // draws health level dots, animates breathing lungs and other things
             DrawStatusAnims();
+
+            // draw the blue air level meter when underwater (but not responsible for animating the breathing lungs otherwise)
+			if (SectFlag[nPlayerViewSect[nLocalPlayer]] & kSectUnderwater)
+			{
+				DrawStatusSequence(nStatusSeqOffset + 133, airframe, 0, -32);
+			}
 
 
             // draw compass
