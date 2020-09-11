@@ -1208,6 +1208,7 @@ OptionMenu SoundOptions //protected
 	}
 	ifgame(Worldtour)
 	{
+		Option "$SNDMNU_WTSOUND",			"wt_forcevoc", "OnOff"
 		Option "$SNDMNU_WTMUSIC",			"wt_forcemidi", "OnOff"
 	}
 	ifgame(Duke, Nam, WW2GI, Redneck, RedneckRides, ShadowWarrior)

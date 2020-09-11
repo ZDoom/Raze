@@ -32,12 +32,14 @@ enum esound_t
 	kVolAdjust,
 	kPriority,
 	kFlags,
+	kWorldTourMapping,
 	kMaxUserData
 };
 
 void S_InitSound();
 void S_CacheAllSounds(void);
 int S_DefineSound(unsigned index, const char* filename, int ps, int pe, int pr, int m, int vo, float vol);
+void S_WorldTourMappingsForOldSounds();
 
 int S_PlaySound(int num, int channel = CHAN_AUTO, EChanFlags flags = 0, float vol =0.8f);
 int S_PlaySound3D(int num, int spriteNum, const vec3_t* pos, int channel = CHAN_AUTO, EChanFlags flags = 0);

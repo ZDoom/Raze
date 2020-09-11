@@ -1964,6 +1964,7 @@ void loadcons()
 	// These can only be retrieved AFTER loading the scripts.
 	InitGameVarPointers();
 	ResetSystemDefaults();
+	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
 	if (isRRRA())
 	{
 		// RRRA goes directly to the second episode after E1L7 to continue the game.

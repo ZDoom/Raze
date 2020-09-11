@@ -44,6 +44,8 @@ source as it is released.
 #include "raze_sound.h"
 #include "gamestate.h"
 
+CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
+CVAR(Bool, wt_forcevoc, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // The same for sound effects. The re-recordings are rather poor and disliked
 BEGIN_DUKE_NS
 
 TArray<FString> specialmusic;
@@ -77,6 +79,17 @@ public:
 void S_InitSound()
 {
 	soundEngine = new DukeSoundEngine;
+}
+
+static int GetReplacementSound(int soundNum)
+{
+	if (wt_forcevoc && isWorldTour() && soundEngine->isValidSoundId(soundNum+1))
+	{
+		auto const* snd = soundEngine->GetUserData(soundNum + 1);
+		int sndx = snd[kWorldTourMapping];
+		if (sndx > 0) soundNum = sndx-1;
+	}
+	return soundNum;
 }
 
 //==========================================================================
@@ -372,6 +385,7 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled() || (unsigned)spriteNum >= MAXSPRITES || !playrunning() ||
 		(pl->timebeforeexit > 0 && pl->timebeforeexit <= REALGAMETICSPERSEC * 3)) return -1;
 
+	sndnum = GetReplacementSound(sndnum);
 	int userflags = S_GetUserFlags(sndnum);
 
 	auto sp = &sprite[spriteNum];
@@ -462,6 +476,8 @@ int S_PlaySound3D(int sndnum, int spriteNum, const vec3_t* pos, int channel, ECh
 int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 {
 	if (!soundEngine->isValidSoundId(sndnum+1) || !SoundEnabled()) return -1;
+	
+	sndnum = GetReplacementSound(sndnum);
 
 	int userflags = S_GetUserFlags(sndnum);
 	if ((!(snd_speech & 1) && (userflags & SF_TALK)))
@@ -495,6 +511,9 @@ void S_RelinkActorSound(int from, int to)
 void S_StopSound(int sndNum, int sprNum, int channel)
 {
 	if (sprNum < -1 || sprNum >= MAXSPRITES) return;
+	
+	sndNum = GetReplacementSound(sndNum);
+
 
 	if (sprNum == -1) soundEngine->StopSoundID(sndNum+1);
 	else
@@ -511,6 +530,9 @@ void S_StopSound(int sndNum, int sprNum, int channel)
 void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 {
 	if (spriteNum < -1 || spriteNum >= MAXSPRITES) return;
+	
+	soundNum = GetReplacementSound(soundNum);
+
 	double expitch = pow(2, pitchoffset / 1200.);   // I hope I got this right that ASS uses a linear scale where 1200 is a full octave.
 	if (spriteNum == -1)
 	{
@@ -530,6 +552,8 @@ void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset)
 
 int S_CheckActorSoundPlaying(int spriteNum, int soundNum, int channel)
 {
+	soundNum = GetReplacementSound(soundNum);
+
 	if (spriteNum == -1) return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
 	if ((unsigned)spriteNum >= MAXSPRITES) return false;
 	return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, &sprite[spriteNum], channel, soundNum+1);
@@ -544,6 +568,7 @@ int S_CheckAnyActorSoundPlaying(int spriteNum)
 
 int S_CheckSoundPlaying(int soundNum)
 {
+	soundNum = GetReplacementSound(soundNum);
 	return soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, soundNum+1);
 }
 
@@ -586,8 +611,6 @@ void S_MenuSound(void)
 // Music
 //
 //==========================================================================
-
-CVAR(Bool, wt_forcemidi, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG) // quick hack to disable the oggs, which are of lower quality than playing the MIDIs with a good synth and sound font.
 
 static bool cd_disabled = false;    // This is in case mus_redbook is enabled but no tracks found so that the regular music system can be switched on.
 
@@ -669,6 +692,36 @@ void S_PlayBonusMusic()
 {
 	if (MusicEnabled() && mus_enabled)
 		S_PlaySound(BONUSMUSIC, CHAN_AUTO, CHANF_UI);
+}
+
+
+void S_WorldTourMappingsForOldSounds()
+{
+	// This tries to retrieve the original sounds for World Tour's often inferior replacements.
+	// It's really ironic that despite their low quality they often sound a lot better than the new ones.
+	if (!isWorldTour()) return;
+	auto &s_sfx = soundEngine->GetSounds();
+	int maxorig = s_sfx.Size();
+	for(unsigned i = 1; i < s_sfx.Size(); i++)
+	{
+		auto fname = s_sfx[i].name;
+		if (!fname.Right(4).CompareNoCase(".ogg"))
+		{
+			// All names here follow the same convention. We must strip the "sound/" folder and replace the extension to get the original VOCs.
+			fname.ToLower();
+			fname.Substitute("sound/", "");
+			fname.Substitute(".ogg", ".voc");
+			int lump = fileSystem.FindFile(fname); // in this case we absolutely do not want the extended lookup that's optionally performed by S_LookupSound.
+			if (lump >= 0)
+			{
+				s_sfx.Reserve(1);
+				s_sfx.Last() = s_sfx[i];
+				s_sfx.Last().name = fname;
+				s_sfx.Last().lumpnum = lump;
+				s_sfx[i].UserData[kWorldTourMapping] = s_sfx.Size() - 1;
+			}
+		}
+	}
 }
 
 END_DUKE_NS
