@@ -56,6 +56,7 @@ F2DDrawer twodpsp;
 static int BufferLock = 0;
 
 TArray<VSMatrix> matrixArray;
+void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 FileReader GetResource(const char* fn)
 {
@@ -344,7 +345,13 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	RenderState.SetPassType(NORMAL_PASS);
 	RenderState.EnableDrawBuffers(1, true);
 
+	screen->SetViewportRects(&bounds);
 	bool didit = gi->GenerateSavePic();
+
+	float Brightness = 8.f / (r_scenebrightness + 8.f);
+	screen->PostProcessScene(false, 0, Brightness, []() {
+		Draw2D(&twodpsp, *screen->RenderState()); // draws the weapon sprites
+		});
 
 	xdim = oldx;
 	ydim = oldy;
@@ -475,8 +482,6 @@ void DrawRateStuff()
 int32_t r_scenebrightness = 0;
 
 
-
-void Draw2D(F2DDrawer* drawer, FRenderState& state);
 
 void videoShowFrame(int32_t w)
 {

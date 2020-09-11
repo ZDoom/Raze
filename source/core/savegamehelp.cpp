@@ -233,6 +233,13 @@ bool OpenSaveGameForWrite(const char* filename, const char *name)
 
 	auto picfile = WriteSavegameChunk("savepic.png");
 	WriteSavePic(picfile, 240, 180);
+	mysnprintf(buf, countof(buf), GAMENAME " %s", GetVersionString());
+	// put some basic info into the PNG so that this isn't lost when the image gets extracted.
+	M_AppendPNGText(picfile, "Software", buf);
+	M_AppendPNGText(picfile, "Title", name);
+	M_AppendPNGText(picfile, "Current Map", lev->labelName);
+	M_FinishPNG(picfile);
+
 	return true;
 }
 
