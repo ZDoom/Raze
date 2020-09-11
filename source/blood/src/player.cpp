@@ -502,6 +502,8 @@ void packUseItem(PLAYER *pPlayer, int nPack)
     int nPowerUp = -1;
     if (pPlayer->packSlots[nPack].curAmount > 0)
     {
+		pPlayer->packItemId = nPack;
+
         switch (nPack)
         {
         case 0:
