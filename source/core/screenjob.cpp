@@ -851,7 +851,6 @@ public:
 		else if (actionState == State_Fadeout)
 		{
 			int ended = FadeoutFrame();
-			Printf("fadeout = %d\n", ended);
 			if (ended < 1)
 			{
 				AdvanceJob(terminateState < 0);
