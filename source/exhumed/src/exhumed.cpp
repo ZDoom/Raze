@@ -54,6 +54,7 @@ extern short bPlayerPan;
 extern short bLockPan;
 
 
+static MapRecord* NextMap;
 
 void uploadCinemaPalettes();
 int32_t registerosdcommands(void);
@@ -457,14 +458,30 @@ void GameInterface::Ticker()
 	else
 	{
 		// Wait for the end of level sound to play out, but stop updating the playsim.
-		EndLevel--;
+        if (EndLevel == 13)
+            PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
+
+        if (EndLevel > 1) EndLevel--;
 		r_NoInterpolate = false;
-		if (EndLevel == 0)
-		{
-			auto map = currentLevel->levelNumber == 20? nullptr : FindMapByLevelNum(currentLevel->levelNumber+1); // todo: Use the map record for progression
-			CompleteLevel(map);
-		}
+        int flash = 7 - abs(EndLevel - 7);
+        videoTintBlood(flash * 30, flash * 30, flash * 30);
+        if (EndLevel == 1)
+        {
+            if (!soundEngine->GetSoundPlayingInfo(SOURCE_None, nullptr, StaticSound[59] + 1))
+            {
+                videoTintBlood(0, 0, 0);
+                CompleteLevel(NextMap);
+                NextMap = nullptr;
+                EndLevel = 0;
+            }
+        }
 	}
+}
+
+void LevelFinished()
+{
+    NextMap = currentLevel->levelNumber == 20 ? nullptr : FindMapByLevelNum(currentLevel->levelNumber + 1); // todo: Use the map record for progression
+    EndLevel = 13;
 }
 
 void ExitGame()
@@ -682,4 +699,9 @@ void LoadTextureState()
     TileFiles.InvalidateTile(kEnergy2);
 }
 
+
+CCMD(endit)
+{
+    LevelFinished();
+}
 END_PS_NS

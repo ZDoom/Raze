@@ -1544,7 +1544,7 @@ void DoFinale()
             }
             else if (nFinaleStage == 3 && leveltime*4 >= nextstage)
             {
-                EndLevel = 13;
+                LevelFinished();
             }
         }
         else
