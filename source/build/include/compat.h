@@ -31,14 +31,6 @@
 # define UNREFERENCED_PARAMETER(x) (x) = (x)
 #endif
 
-#ifndef UNREFERENCED_CONST_PARAMETER
-# ifdef _MSC_VER
-#  define UNREFERENCED_CONST_PARAMETER(x) ((void)(x))
-# else
-#  define UNREFERENCED_CONST_PARAMETER(x)
-# endif
-#endif
-
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
 #else
@@ -74,22 +66,6 @@
 #  define B_BIG_ENDIAN    1
 #else
 #  define B_BIG_ENDIAN    0
-#endif
-
-
-////////// Standard library headers //////////
-
-#undef __USE_MINGW_ANSI_STDIO // Workaround for MinGW-w64.
-
-#ifndef __STDC_FORMAT_MACROS
-# define __STDC_FORMAT_MACROS
-#endif
-#ifndef __STDC_LIMIT_MACROS
-# define __STDC_LIMIT_MACROS
-#endif
-
-#ifndef _USE_MATH_DEFINES
-# define _USE_MATH_DEFINES
 #endif
 
 #include <inttypes.h>
@@ -130,7 +106,6 @@
 
 typedef intptr_t ssize_t;
 
-typedef size_t bsize_t;
 typedef ssize_t bssize_t;
 
 #define BMAX_PATH 256
