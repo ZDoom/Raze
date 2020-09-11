@@ -181,6 +181,14 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 	fn.Substitute("\\\\", "\\");
 	FixPathSeperator(fn);
 	sfx->lumpnum = S_LookupSound(fn);
+	// For World Tour allow falling back on the classic sounds if the Oggs cannot be found
+	if (isWorldTour() && sfx->lumpnum == -1)
+	{
+		fn.ToLower();
+		fn.Substitute("sound/", "");
+		fn.Substitute(".ogg", ".voc");
+		sfx->lumpnum = S_LookupSound(fn);
+	}
 	sndinf[kPitchStart] = clamp(minpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPitchEnd] = clamp(maxpitch, INT16_MIN, INT16_MAX);
 	sndinf[kPriority] = priority & 255;

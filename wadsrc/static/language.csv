@@ -675,6 +675,7 @@ Timidity++,ADVSNDMNU_TIMIDITY,,,,,,,,,,,,,,,,,,,,,,
 Sound enabled,SNDMNU_SNDENABLED,,,,,Sound aktiv,,,,,,,,,,,,,,,,,
 Music enabled,SNDMNU_MUSENABLED,,,,,Musik aktiv,,,,,,,,,,,,,,,,,
 CD Music Emulation,SNDMNU_CDEMU,,,,,CD-Musik-Emulation,,,,,,,,,,,,,,,,,
+Play original Sounds,SNDMNU_WTSOUND,,,,,Original-Soundeffekte spielen,,,,,,,,,,,,,,,,,
 Play original MIDI music,SNDMNU_WTMUSIC,,,,,Original-MIDI-Musik spielen,,,,,,,,,,,,,,,,,
 Sound Ambience,SNDMNU_AMBIENCE,,,,,Umgebungsgeräusche,,,,,,,,,,,,,,,,,
 "Player Speech
