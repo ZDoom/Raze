@@ -410,7 +410,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&fnoo)) break; //y-size
             if (scriptfile_getstring(script,&fn))  break;
 
-            if (fileSystem.FileExists(fn))
+            if (!fileSystem.FileExists(fn))
                 break;
 
             tileSetHightileReplacement(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
@@ -428,7 +428,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
 
-                if (fileSystem.FileExists(fn[i]))
+                if (!fileSystem.FileExists(fn[i]))
                     happy = 0;
             }
             if (i < 6 || !happy) break;
@@ -455,7 +455,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
             if ((uint32_t)tile < MAXTILES)
-                TileFiles.tiledata[tile].alphaThreshold = (float)alpha;
+                TileFiles.tiledata[tile].texture->alphaThreshold = (float)alpha;
         }
         break;
         case T_ALPHAHACKRANGE:
@@ -471,7 +471,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             for (int i=tilenume1; i<=tilenume2; i++)
-                TileFiles.tiledata[i].alphaThreshold = (float)alpha;
+                TileFiles.tiledata[i].texture->alphaThreshold = (float)alpha;
         }
         break;
         case T_SPRITECOL:
@@ -1191,7 +1191,7 @@ static int32_t defsparser(scriptfile *script)
             if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
 
-            if (fileSystem.FileExists(skinfn))
+            if (!fileSystem.FileExists(skinfn))
                 break;
 
 #ifdef USE_OPENGL
@@ -1556,7 +1556,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (fileSystem.FileExists(skinfn))
+                    if (!fileSystem.FileExists(skinfn))
                         break;
 
 #ifdef USE_OPENGL
@@ -1839,7 +1839,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (!fn[i]) Printf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
-                if (fileSystem.FileExists(fn[i]))
+                if (!fileSystem.FileExists(fn[i]))
                     happy = 0;
             }
             if (!happy) break;
@@ -1894,7 +1894,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (fileSystem.FileExists(fn))
+            if (!fileSystem.FileExists(fn))
                 break;
 
         }
@@ -2213,7 +2213,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    if (fileSystem.FileExists(fn))
+                    if (!fileSystem.FileExists(fn))
                         break;
 
                     switch (token)
@@ -2371,7 +2371,7 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&dummy2);
                     break;
                 case T_FILE:
-                    scriptfile_getstring(script,&dummy2);
+                    scriptfile_getstring(script,&dummy);
                     break;
                 }
             }
