@@ -61,7 +61,7 @@ int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
     {
         char *p = sf->textptr;
         skipovertoken(sf);
-        Printf("Error on line %s:%d: expecting int32_t, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
+        Printf("Error on line %s:%d: expecting int, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),p);
         return -2;
     }
     return 0;

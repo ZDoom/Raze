@@ -82,6 +82,7 @@ public:
 
 	void SetCMode(bool cmode);
 	void SetNoOctals(bool cmode) { NoOctals = cmode; }
+	void SetNoFatalErrors(bool cmode) { NoFatalErrors = cmode; }
 	void SetEscape(bool esc);
 	void SetStateMode(bool stately);
 	void DisableStateOptions();
@@ -108,13 +109,13 @@ public:
 	bool CheckToken(int token, bool evaluate = false);
 	bool CheckTokenId(ENamedName id);
 
-	bool GetNumber();
-	void MustGetNumber();
-	bool CheckNumber();
+	bool GetNumber(bool evaluate = false);
+	void MustGetNumber(bool evaluate = false);
+	bool CheckNumber(bool evaluate = false);
 
-	bool GetFloat();
-	void MustGetFloat();
-	bool CheckFloat();
+	bool GetFloat(bool evaluate = false);
+	void MustGetFloat(bool evaluate = false);
+	bool CheckFloat(bool evaluate = false);
 
 	double *LookupConstant(FName name)
 	{
@@ -148,6 +149,7 @@ public:
 	double Float;
 	int Line;
 	bool End;
+	bool ParseError = false;
 	bool Crossed;
 	int LumpNum;
 	FString ScriptName;
@@ -176,6 +178,7 @@ protected:
 	int LastGotLine;
 	bool CMode;
 	bool NoOctals = false;
+	bool NoFatalErrors = false;
 	uint8_t StateMode;
 	bool StateOptions;
 	bool Escape;

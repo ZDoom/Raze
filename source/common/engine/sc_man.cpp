@@ -505,6 +505,7 @@ bool FScanner::ScanString (bool tokens)
 	const char *marker, *tok;
 	bool return_val;
 
+	ParseError = false;
 	CheckOpen();
 	if (AlreadyGot)
 	{
@@ -545,7 +546,7 @@ bool FScanner::GetString ()
 	return ScanString (false);
 }
 
-//==========================================================================
+//============================================	==============================
 //
 // FScanner :: MustGetString
 //
@@ -723,7 +724,7 @@ bool FScanner::CheckToken (int token, bool evaluate)
 //
 //==========================================================================
 
-bool FScanner::GetNumber ()
+bool FScanner::GetNumber (bool evaluate)
 {
 	char *stopper;
 
@@ -740,6 +741,19 @@ bool FScanner::GetNumber ()
 			Number = (int)BigNumber;// clamp<int64_t>(BigNumber, 0, UINT_MAX);
 			if (*stopper != 0)
 			{
+				if (evaluate && symbols.CountUsed())
+				{
+					auto sym = symbols.CheckKey(String);
+					if (sym && sym->tokenType == TK_IntConst)
+					{
+						BigNumber = sym->Number;
+						Number = (int)sym->Number;
+						Float = sym->Float;
+						// String will retain the actual symbol name.
+						return true;
+					}
+
+				}
 				ScriptError ("SC_GetNumber: Bad numeric constant \"%s\".", String);
 			}
 		}
@@ -758,9 +772,9 @@ bool FScanner::GetNumber ()
 //
 //==========================================================================
 
-void FScanner::MustGetNumber ()
+void FScanner::MustGetNumber (bool evaluate)
 {
-	if (GetNumber() == false)
+	if (GetNumber(evaluate) == false)
 	{
 		ScriptError ("Missing integer (unexpected end of file).");
 	}
@@ -775,7 +789,7 @@ void FScanner::MustGetNumber ()
 //
 //==========================================================================
 
-bool FScanner::CheckNumber ()
+bool FScanner::CheckNumber (bool evaluate)
 {
 	char *stopper;
 
@@ -797,6 +811,19 @@ bool FScanner::CheckNumber ()
 			Number = (int)BigNumber;// clamp<int64_t>(BigNumber, 0, UINT_MAX);
 			if (*stopper != 0)
 			{
+				if (evaluate && symbols.CountUsed())
+				{
+					auto sym = symbols.CheckKey(String);
+					if (sym && sym->tokenType == TK_IntConst)
+					{
+						BigNumber = sym->Number;
+						Number = (int)sym->Number;
+						Float = sym->Float;
+						// String will retain the actual symbol name.
+						return true;
+					}
+
+				}
 				UnGet();
 				return false;
 			}
@@ -818,7 +845,7 @@ bool FScanner::CheckNumber ()
 //
 //==========================================================================
 
-bool FScanner::CheckFloat ()
+bool FScanner::CheckFloat (bool evaluate)
 {
 	char *stopper;
 
@@ -833,6 +860,20 @@ bool FScanner::CheckFloat ()
 		Float = strtod (String, &stopper);
 		if (*stopper != 0)
 		{
+			if (evaluate && symbols.CountUsed())
+			{
+				auto sym = symbols.CheckKey(String);
+				if (sym && sym->tokenType == TK_IntConst && sym->tokenType != TK_FloatConst)
+				{
+					BigNumber = sym->Number;
+					Number = (int)sym->Number;
+					Float = sym->Float;
+					// String will retain the actual symbol name.
+					return true;
+				}
+
+			}
+
 			UnGet();
 			return false;
 		}
@@ -851,7 +892,7 @@ bool FScanner::CheckFloat ()
 //
 //==========================================================================
 
-bool FScanner::GetFloat ()
+bool FScanner::GetFloat (bool evaluate)
 {
 	char *stopper;
 
@@ -861,6 +902,19 @@ bool FScanner::GetFloat ()
 		Float = strtod (String, &stopper);
 		if (*stopper != 0)
 		{
+			if (evaluate && symbols.CountUsed())
+			{
+				auto sym = symbols.CheckKey(String);
+				if (sym && sym->tokenType == TK_IntConst && sym->tokenType != TK_FloatConst)
+				{
+					BigNumber = sym->Number;
+					Number = (int)sym->Number;
+					Float = sym->Float;
+					// String will retain the actual symbol name.
+					return true;
+				}
+			}
+
 			ScriptError ("SC_GetFloat: Bad numeric constant \"%s\".", String);
 		}
 		Number = (int)Float;
@@ -878,9 +932,9 @@ bool FScanner::GetFloat ()
 //
 //==========================================================================
 
-void FScanner::MustGetFloat ()
+void FScanner::MustGetFloat (bool evaluate)
 {
-	if (GetFloat() == false)
+	if (GetFloat(evaluate) == false)
 	{
 		ScriptError ("Missing floating-point number (unexpected end of file).");
 	}
@@ -1115,6 +1169,12 @@ void FScanner::ScriptError (const char *message, ...)
 		va_end (arglist);
 	}
 
+	if (NoFatalErrors)
+	{
+		Printf(TEXTCOLOR_RED "Script error, \"%s\"" TEXTCOLOR_RED " line %d:\n" TEXTCOLOR_RED "%s\n", ScriptName.GetChars(),
+			AlreadyGot ? AlreadyGotLine : Line, composed.GetChars());
+		return;
+	}
 	I_Error ("Script error, \"%s\" line %d:\n%s\n", ScriptName.GetChars(),
 		AlreadyGot? AlreadyGotLine : Line, composed.GetChars());
 }

@@ -463,6 +463,8 @@ void LoadCustomInfoFromScript(const char *filename)
 
     sc.OpenLumpNum(lump);
     sc.SetNoOctals(true);
+    sc.SetCMode(true);
+    sc.SetNoFatalErrors(true);
 
     // predefine constants for some stuff to give convenience and eliminate the need for a 'define' directive
     sc.AddSymbol("INV_ARMOR",      1+InvDecl_Armor);
@@ -484,61 +486,60 @@ void LoadCustomInfoFromScript(const char *filename)
     }
 
     MapRecord* curMap = nullptr;
-    while (sc.GetToken())
+    while (sc.GetString())
     {
-        sc.TokenMustBe(TK_Identifier);
         switch (cm_transtok(sc.String, cm_tokens, cm_numtokens))
         {
         case CM_MAP:
         {
-            sc.MustGetValue(false, true);
-            int mapno = sc.Number;
+            sc.MustGetNumber(true);
+            int mapno = sc.ParseError? -1 : sc.Number;
             curMap = FindMapByLevelNum(mapno);
             if (!curMap)
             {
                 curMap = AllocateMap();
                 curMap->levelNumber = mapno;
             }
-            sc.MustGetToken('{');
+            if (sc.CheckString("{"))
 
-            while (!sc.CheckToken('}'))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_map_tokens, cm_map_numtokens))
                 {
                 case CM_FILENAME:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
 					curMap->SetFileName(sc.String);
                     break;
                 }
                 case CM_SONG:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
                     curMap->music = sc.String;
                     break;
                 }
                 case CM_TITLE:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
                     curMap->SetName(sc.String);
                     break;
                 }
                 case CM_BESTTIME:
                 {
-                    sc.MustGetValue(false);
+                    sc.MustGetNumber();
                     curMap->designerTime = sc.Number;
                     break;
                 }
                 case CM_PARTIME:
                 {
-                    sc.MustGetValue(false);
+                    sc.MustGetNumber();
                     curMap->parTime = sc.Number;
                     break;
                 }
                 case CM_CDATRACK:
                 {
-                    sc.MustGetValue(false);
+                    sc.MustGetNumber();
                     curMap->cdSongId = sc.Number;
                     break;
                 }
@@ -554,31 +555,32 @@ void LoadCustomInfoFromScript(const char *filename)
         {
             int curep;
 
-            sc.MustGetValue(false, true);
+            sc.MustGetNumber();
             curep = sc.Number;
 
-            if ((unsigned)--curep >= 2u)
+            if (sc.ParseError) curep = -1;
+            else if ((unsigned)--curep >= 2u)
             {
                 sc.ScriptMessage("Episode number %d not in range 1-2\n", curep + 1);
                 curep = -1;
                 break;
             }
 
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_episode_tokens, cm_episode_numtokens))
                 {
                 case CM_TITLE:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
                     if (curep != -1) gVolumeNames[curep] = sc.String;
                     break;
                 }
                 case CM_SUBTITLE:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
                     if (curep != -1) gVolumeSubtitles[curep] = sc.String;
                     break;
                 }
@@ -593,8 +595,9 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SKILL:
         {
             int curskill;
-            sc.MustGetValue(false, true);
+            sc.MustGetNumber();
             curskill = sc.Number;
+            if (sc.ParseError) curskill = -1;
             if ((unsigned)--curskill >= 4u)
             {
                 sc.ScriptMessage("Skill number %d not in range 1-4 on line %s:%d\n", curskill + 1);
@@ -602,15 +605,15 @@ void LoadCustomInfoFromScript(const char *filename)
                 break;
             }
 
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_skill_tokens, cm_skill_numtokens))
                 {
                 case CM_TITLE:
                 {
-                    sc.MustGetToken(TK_StringConst, true);
+                    sc.MustGetString();
                     if (curskill != -1) gSkillNames[curskill] = sc.String;
                     break;
                 }
@@ -625,10 +628,10 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_COOKIE:
         {
             int fc = 0;
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_StringConst, true);
+                sc.MustGetString();
                 if (fc < MAX_FORTUNES)
                 {
                     quoteMgr.InitializeQuote(QUOTE_COOKIE + fc, sc.String);
@@ -640,10 +643,10 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_GOTKEY:
         {
             int fc = 0;
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_StringConst, true);
+                sc.MustGetString();
                 if (fc < MAX_KEYS)
                 {
                     quoteMgr.InitializeQuote(QUOTE_KEYMSG + fc, sc.String);
@@ -655,10 +658,10 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_NEEDKEY:
         {
             int fc = 0;
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_StringConst, true);
+                sc.MustGetString();
                 if (fc < MAX_KEYS)
                 {
                     quoteMgr.InitializeQuote(QUOTE_DOORMSG + fc, sc.String);
@@ -673,9 +676,10 @@ void LoadCustomInfoFromScript(const char *filename)
             FString name;
             int amt = -1;
 
-            sc.MustGetValue(false, true);
+            sc.MustGetNumber();
             in = sc.Number;
 
+            if (sc.ParseError) in = -1;
             if ((unsigned)--in >= (unsigned)InvDecl_TOTAL)
             {
                 sc.ScriptMessage("Inventory item number %d not in range 1-%d\n", in, InvDecl_TOTAL);
@@ -683,10 +687,10 @@ void LoadCustomInfoFromScript(const char *filename)
                 break;
             }
 
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_inventory_tokens, cm_inventory_numtokens))
                 {
                 case CM_TITLE:
@@ -694,7 +698,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     name = sc.String;
                     break;
                 case CM_AMOUNT:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     amt = sc.Number;
                     break;
                 default:
@@ -720,9 +724,10 @@ void LoadCustomInfoFromScript(const char *filename)
             int maxammo = -1, damagemin = -1, damagemax = -1, pickup = -1, wpickup = -1;
             int in,id;
 
-            sc.MustGetValue(false, true);
+            sc.MustGetNumber();
             in = sc.Number;
 
+            if (sc.ParseError) in = -1;
             if ((unsigned)--in >= (unsigned)SIZ(weaponmap))
             {
                 sc.ScriptMessage("Error: weapon number %d not in range 1-%d", in+1, (int)SIZ(weaponmap));
@@ -730,10 +735,10 @@ void LoadCustomInfoFromScript(const char *filename)
                 break;
             }
 
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_weapons_tokens, cm_weapons_numtokens))
                 {
                 case CM_TITLE:
@@ -745,23 +750,23 @@ void LoadCustomInfoFromScript(const char *filename)
                     ammo = sc.String;
                     break;
                 case CM_MAXAMMO:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     maxammo = sc.Number;
                     break;
                case CM_DAMAGEMIN:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     damagemin = sc.Number;
                     break;
                 case CM_DAMAGEMAX:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     damagemax = sc.Number;
                     break;
                 case CM_AMOUNT:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     pickup = sc.Number;
                     break;
                 case CM_WEAPON:
-                    sc.MustGetValue(false, true);
+                    sc.MustGetNumber();
                     wpickup = sc.Number;
                     break;
                 default:
@@ -801,18 +806,19 @@ void LoadCustomInfoFromScript(const char *filename)
 			int trak = -1;
             int curtheme;
 
-            sc.MustGetValue(false, true);
+            sc.MustGetNumber();
             curtheme = sc.Number;
 
-			if ((unsigned)--curtheme >= 6u)
+            if (sc.ParseError) curtheme = -1;
+            if ((unsigned)--curtheme >= 6u)
 			{
 				sc.ScriptMessage("Theme number %d not in range 1-6", curtheme+1);
                 curtheme = -1;
 		    }
-            sc.MustGetToken('{');
-            while (!sc.CheckToken('}'))
+            if (sc.CheckString("{"))
+            while (!sc.CheckString("}"))
             {
-                sc.MustGetToken(TK_Identifier);
+                sc.MustGetString();
                 switch (cm_transtok(sc.String, cm_theme_tokens, cm_theme_numtokens))
 				{
 					case CM_SONG:
@@ -820,7 +826,7 @@ void LoadCustomInfoFromScript(const char *filename)
                         name = sc.String;
                         break;
 					case CM_CDATRACK:
-                        sc.MustGetValue(false, true);
+                        sc.MustGetNumber();
                         trak = sc.Number;
 						break;
 					default:
