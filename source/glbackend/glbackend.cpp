@@ -96,13 +96,6 @@ void GLInstance::Init(int ydim)
 	new(&renderState) PolymostRenderState;	// reset to defaults.
 }
 
-void GLInstance::InitGLState(int fogmode, int multisample)
-{
-	// This is a bad place to call this but without deconstructing the entire render loops in all front ends there is no way to have a well defined spot for this stuff.
-	// Before doing that the backend needs to work in some fashion, so we have to make sure everything is set up when the first render call is performed.
-	screen->BeginFrame();	
-}
-
 void GLInstance::Deinit()
 {
 	palmanager.DeleteAll();
@@ -241,6 +234,7 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.EnableFog(1);
 	}
 	else state.EnableFog(0);
+
 	state.SetFog((GLInterface.useMapFog) ? PalEntry(0x999999) : FogColor, 350.f);	// Fixme: The real density still needs to be implemented. 350 is a reasonable default only.
 
 	state.SetSoftLightLevel(ShadeDiv >= 1 / 1000.f ? 255 - Scale(Shade, 255, numshades) : 255);

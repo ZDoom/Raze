@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include "c_cvars.h"
 #include "gl_samplers.h"
 #include "gl_hwtexture.h"
 #include "matrix.h"
@@ -94,7 +95,6 @@ public:
 	glinfo_t glinfo;
 	
 	void Init(int y);
-	void InitGLState(int fogmode, int multisample);
 	
 	void Deinit();
 	

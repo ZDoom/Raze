@@ -87,7 +87,7 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 	mat.mMaterial = FMaterial::ValidateTexture(texpick.texture, flags); // todo allow scaling
 	mat.mClampMode = sampler;
 	mat.mTranslation = texpick.translation;
-	mat.mOverrideShader = 0;
+	mat.mOverrideShader = -1;
 	mat.mChanged = true;
 	if (TextureType == TT_INDEXED) renderState.Flags |= RF_UsePalette;
 	else renderState.Flags &= ~RF_UsePalette;

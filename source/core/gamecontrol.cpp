@@ -1002,7 +1002,7 @@ void videoInit()
 
 	PolymostProcessVoxels();
 	GLInterface.Init(screen->GetWidth());
-	GLInterface.InitGLState(4, 4/*glmultisample*/);
+	screen->BeginFrame();
 	screen->SetTextureFilterMode();
 	setViewport(hud_size);
 }
