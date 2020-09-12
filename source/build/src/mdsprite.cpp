@@ -1376,7 +1376,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         // PLAG : default cutoff removed
         GLInterface.EnableBlend(true);
         GLInterface.EnableAlphaTest(true);
-		GLInterface.SetAlphaThreshold(TileFiles.tiledata[globalpicnum].alphaThreshold);
+		GLInterface.SetAlphaThreshold(TileFiles.tiledata[globalpicnum].texture->alphaThreshold);
     }
     else
     {
