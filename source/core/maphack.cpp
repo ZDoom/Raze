@@ -88,7 +88,7 @@ static int32_t LoadMapHack(const char *filename)
             if (sc.CheckNumber() && validateSprite())
                 spriteext[currentsprite].angoff = (int16_t)sc.Number;
         }
-        else if (sc.Compare("notmd") || sc.Compare("motmd2") || sc.Compare("motmd3"))
+        else if (sc.Compare("notmd") || sc.Compare("notmd2") || sc.Compare("notmd3"))
         {
             if (validateSprite())
                 spriteext[currentsprite].flags |= SPREXT_NOTMD;
