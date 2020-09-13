@@ -1025,14 +1025,6 @@ void engineUnInit(void)
 # endif
 
 	TileFiles.CloseAll();
-
-    for (bssize_t i = 0; i < num_usermaphacks; i++)
-    {
-        Xfree(usermaphacks[i].mhkfile);
-        Xfree(usermaphacks[i].title);
-    }
-    DO_FREE_AND_NULL(usermaphacks);
-    num_usermaphacks = 0;
 }
 
 
@@ -1987,6 +1979,9 @@ static FORCE_INLINE int32_t have_maptext(void)
 
 static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
+    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+    memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
+
     initspritelists();
     ClearAutomap();
 
@@ -2004,7 +1999,7 @@ static void enginePrepareLoadBoard(FileReader & fr, vec3_t *dapos, int16_t *daan
     }
 }
 
-static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
+static int32_t engineFinishLoadBoard(const char *filename, const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
 {
     int32_t i, realnumsprites=numsprites, numremoved;
 
@@ -2076,6 +2071,8 @@ static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum,
     }
 
     guniqhudid = 0;
+
+    G_LoadMapHack(filename);
 
     return numremoved;
 }
@@ -2299,7 +2296,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
         artSetupMapArt(filename);
     }
 
-    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, myflags);
+    return engineFinishLoadBoard(filename, dapos, dacursectnum, numsprites, myflags);
 }
 
 
@@ -2487,7 +2484,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 
     g_loadedMapVersion = mapversion;
 
-    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, 0);
+    return engineFinishLoadBoard(filename, dapos, dacursectnum, numsprites, 0);
 }
 
 

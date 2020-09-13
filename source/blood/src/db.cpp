@@ -1049,6 +1049,8 @@ int dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short
     fr.Seek(0, FileReader::SeekSet);
     auto buffer = fr.Read();
     md4once(buffer.Data(), buffer.Size(), g_loadedMapHack.md4);
+    G_LoadMapHack(mapname);
+
     if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
     {
         Printf("%s: Map File does not match CRC", mapname.GetChars());

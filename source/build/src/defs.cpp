@@ -18,6 +18,7 @@
 #include "palettecontainer.h"
 #include "mapinfo.h"
 
+void AddUserMapHack(usermaphack_t&);
 #if 0
 // For later
 {
@@ -2395,8 +2396,9 @@ static int32_t defsparser(scriptfile *script)
 
         case T_MAPINFO:
         {
-            FString mapmd4string, title, mhkfile, dummy;
+            FString mapmd4string;
             FScanner::SavedPos mapinfoend;
+            usermaphack_t mhk;
             static const tokenlist mapinfotokens[] =
             {
                 { "mapfile",    T_MAPFILE },
@@ -2404,7 +2406,6 @@ static int32_t defsparser(scriptfile *script)
                 { "mapmd4",     T_MAPMD4 },
                 { "mhkfile",    T_MHKFILE },
             };
-            int32_t previous_usermaphacks = num_usermaphacks;
 
             if (scriptfile_getbraces(script,&mapinfoend)) break;
             while (script->textptr < mapinfoend.SavedScriptPtr)
@@ -2412,38 +2413,29 @@ static int32_t defsparser(scriptfile *script)
                 switch (getatoken(script,mapinfotokens,countof(mapinfotokens)))
                 {
                 case T_MAPFILE:
-                    scriptfile_getstring(script,&dummy);
+                    scriptfile_getstring(script,nullptr);
                     break;
                 case T_MAPTITLE:
-                    scriptfile_getstring(script,&title);
+                    scriptfile_getstring(script,&mhk.title);
                     break;
                 case T_MAPMD4:
                 {
                     scriptfile_getstring(script,&mapmd4string);
 
-                    num_usermaphacks++;
-                    usermaphacks = (usermaphack_t *)Xrealloc(usermaphacks, num_usermaphacks*sizeof(usermaphack_t));
-                    usermaphack_t *newusermaphack = &usermaphacks[num_usermaphacks - 1];
-
                     for (int i = 0; i < 16; i++)
                     {
                         char smallbuf[3] = { mapmd4string[2 * i], mapmd4string[2 * i + 1], 0 };
-                        newusermaphack->md4[i] = strtol(smallbuf, NULL, 16);
+                        mhk.md4[i] = strtol(smallbuf, NULL, 16);
                     }
 
                     break;
                 }
                 case T_MHKFILE:
-                    scriptfile_getstring(script,&mhkfile);
+                    scriptfile_getstring(script,&mhk.mhkfile);
                     break;
                 }
             }
-
-            for (; previous_usermaphacks < num_usermaphacks; previous_usermaphacks++)
-            {
-                usermaphacks[previous_usermaphacks].mhkfile = mhkfile.IsNotEmpty() ? Xstrdup(mhkfile) : NULL;
-                usermaphacks[previous_usermaphacks].title = title.IsNotEmpty() ? Xstrdup(title) : NULL;
-            }
+            AddUserMapHack(mhk);
         }
         break;
 
@@ -3451,9 +3443,6 @@ int32_t loaddefinitionsfile(const char *fn)
 
     DO_FREE_AND_NULL(faketilebuffer);
     faketilebuffersiz = 0;
-
-    if (usermaphacks != NULL)
-        qsort(usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
 
     if (!script) return -1;
 

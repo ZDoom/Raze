@@ -267,16 +267,14 @@ EXTERN int32_t guniqhudid;
 EXTERN int32_t spritesortcnt;
 extern int32_t g_loadedMapVersion;
 
-typedef struct {
-    char *mhkfile;
-    char *title;
-    uint8_t md4[16];
-} usermaphack_t;
+struct usermaphack_t 
+{
+    FString mhkfile;
+    FString title;
+    uint8_t md4[16]{};
+};
 
 extern usermaphack_t g_loadedMapHack;
-extern int compare_usermaphacks(const void *, const void *);
-extern usermaphack_t *usermaphacks;
-extern int32_t num_usermaphacks;
 
 #if !defined DEBUG_MAIN_ARRAYS
 EXTERN spriteext_t *spriteext;
@@ -597,7 +595,6 @@ void   initspritelists(void);
 int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   engineLoadMHK(const char *filename);
 void G_LoadMapHack(const char* filename);
-void engineClearLightsFromMHK();
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);

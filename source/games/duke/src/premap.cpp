@@ -871,7 +871,6 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     currentLevel = mi;
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);
-    G_LoadMapHack(mi->fileName);
 
     if (isRR() && !isRRRA() && mi->levelNumber == levelnum(1, 1))
     {

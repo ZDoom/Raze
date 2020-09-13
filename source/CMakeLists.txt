@@ -771,7 +771,6 @@ set (PCH_SOURCES
 	build/src/defs.cpp
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
-	build/src/mhk.cpp
 	build/src/polymost.cpp
 	build/src/scriptfile.cpp
 	build/src/voxmodel.cpp
@@ -790,6 +789,7 @@ set (PCH_SOURCES
 	core/gamecvars.cpp
 	core/gamecontrol.cpp
 	core/inputstate.cpp
+	core/maphack.cpp
 	core/mapinfo.cpp
 	core/searchpaths.cpp
 	core/screenjob.cpp

@@ -135,7 +135,6 @@ void StartLevel(MapRecord* level)
 	}
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
-	G_LoadMapHack(currentLevel->fileName);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
 	gKillMgr.Clear();
 	gSecretMgr.Clear();
