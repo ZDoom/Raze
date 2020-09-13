@@ -78,7 +78,7 @@ extern bool			hadlate;
 extern uint64_t		lastglobalrecvtime;						// Identify the last time a packet was received.
 extern bool playeringame[MAXPLAYERS]; // as long as network isn't working - true for the first player, false for all others.
 extern ticcmd_t playercmds[MAXPLAYERS];
-extern short consistancy[MAXPLAYERS][BACKUPTICS];
+extern short consistency[MAXPLAYERS][BACKUPTICS];
 
 
 #endif

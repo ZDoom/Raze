@@ -76,7 +76,7 @@ extern uint8_t		*demo_p;		// [RH] Special "ticcmds" get recorded in demos
 extern FString	savedescription;
 extern FString	savegamefile;
 
-short consistancy[MAXPLAYERS][BACKUPTICS];
+short consistency[MAXPLAYERS][BACKUPTICS];
 
 #define netbuffer (doomcom.data)
 
@@ -318,7 +318,7 @@ void Net_ClearBuffers ()
 	memset (resendcount, 0, sizeof(resendcount));
 	memset (lastrecvtime, 0, sizeof(lastrecvtime));
 	memset (currrecvtime, 0, sizeof(currrecvtime));
-	memset (consistancy, 0, sizeof(consistancy));
+	memset (consistency, 0, sizeof(consistency));
 	nodeingame[0] = true;
 
 	for (i = 0; i < MAXPLAYERS; i++)
@@ -637,7 +637,7 @@ bool HGetPacket (void)
 				fprintf (debugfile, "%c%2x", i==k?'|':' ', ((uint8_t *)netbuffer)[i]);
 			if (numtics)
 				fprintf (debugfile, " <<%4x>>\n",
-					consistancy[playerfornode[doomcom.remotenode]][nettics[doomcom.remotenode]%BACKUPTICS] & 0xFFFF);
+					consistency[playerfornode[doomcom.remotenode]][nettics[doomcom.remotenode]%BACKUPTICS] & 0xFFFF);
 			else
 				fprintf (debugfile, "\n");
 		}
@@ -1239,7 +1239,7 @@ void NetUpdate (void)
 					// the other players.
 					if (l == 0)
 					{
-						WriteWord (localcmds[localstart].consistancy, &cmddata);
+						WriteWord (localcmds[localstart].consistency, &cmddata);
 						// [RH] Write out special "ticcmds" before real ticcmd
 						if (specials.used[start])
 						{
@@ -1254,7 +1254,7 @@ void NetUpdate (void)
 						int len;
 						uint8_t *spec;
 
-						WriteWord (netcmds[playerbytes[l]][start].consistancy, &cmddata);
+						WriteWord (netcmds[playerbytes[l]][start].consistency, &cmddata);
 						spec = NetSpecs[playerbytes[l]][start].GetData (&len);
 						if (spec != NULL)
 						{

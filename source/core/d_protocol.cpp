@@ -224,7 +224,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, ticcmd_t &cmd, ticcmd_
 {
 	if (arc.BeginObject(key))
 	{
-		arc("consistency", cmd.consistancy)
+		arc("consistency", cmd.consistency)
 			("ucmd", cmd.ucmd)
 			.EndObject();
 	}
@@ -319,7 +319,7 @@ int SkipTicCmd (uint8_t **stream, int count)
 	return skip;
 }
 
-extern short consistancy[MAXPLAYERS][BACKUPTICS];
+extern short consistency[MAXPLAYERS][BACKUPTICS];
 void ReadTicCmd (uint8_t **stream, int player, int tic)
 {
 	int type;
@@ -329,7 +329,7 @@ void ReadTicCmd (uint8_t **stream, int player, int tic)
 	int ticmod = tic % BACKUPTICS;
 
 	tcmd = &netcmds[player][ticmod];
-	tcmd->consistancy = ReadWord (stream);
+	tcmd->consistency = ReadWord (stream);
 
 	start = *stream;
 

@@ -118,7 +118,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 {
 	I_GetEvent();
 	gi->GetInput(&cmd->ucmd, &CONTROL_GetInput());
-	cmd->consistancy = consistancy[myconnectindex][(maketic / ticdup) % BACKUPTICS];
+	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
 //==========================================================================
@@ -290,7 +290,7 @@ static void GameTicker()
 					players[i].inconsistant = gametic - BACKUPTICS * ticdup;
 				}
 #endif
-				consistancy[i][buf] = gi->GetPlayerChecksum(i);
+				consistency[i][buf] = gi->GetPlayerChecksum(i);
 			}
 		}
 	}
