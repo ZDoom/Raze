@@ -351,7 +351,7 @@ public:
 		renderState.AlphaThreshold = al;
 	}
 
-	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride);
+	bool SetTexture(int globalpicnum, FGameTexture* tex, int palette, int sampleroverride, bool notindexed = false);
 };
 
 extern GLInstance GLInterface;

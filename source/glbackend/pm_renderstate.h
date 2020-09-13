@@ -16,7 +16,6 @@ enum EMatrixType
 enum PRSFlags
 {
 	RF_ColorOnly = 1,
-	RF_UsePalette = 2,
 	RF_ShadeInterpolate = 64,
 	RF_FogDisabled = 128,
 	RF_MapFog = 256,	// RRRA E2L1.
