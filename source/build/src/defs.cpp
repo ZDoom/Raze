@@ -574,7 +574,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&blockend)) break;
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,artfiletokens,countof(artfiletokens));
                 switch (token)
@@ -687,7 +687,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
-            while (script->textptr < textureend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, textureend))
             {
                 int32_t token = getatoken(script,tilefromtexturetokens,countof(tilefromtexturetokens));
                 switch (token)
@@ -724,7 +724,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&ifmatchend)) break;
-                    while (script->textptr < ifmatchend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, ifmatchend))
                     {
                         int32_t token = getatoken(script,ifmatchtokens,countof(ifmatchtokens));
                         switch (token)
@@ -903,7 +903,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             source = tile; // without a "tile" token, we still palettize self by default
             if (scriptfile_getbraces(script,&blockend)) break;
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,copytiletokens,countof(copytiletokens));
                 switch (token)
@@ -1316,7 +1316,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 #endif
-            while (script->textptr < modelend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, modelend))
             {
                 int32_t token = getatoken(script,modeltokens,countof(modeltokens));
                 switch (token)
@@ -1356,7 +1356,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, frameend))
                     {
                         switch (getatoken(script,modelframetokens,countof(modelframetokens)))
                         {
@@ -1443,7 +1443,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&animend)) break;
-                    while (script->textptr < animend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, animend))
                     {
                         switch (getatoken(script,modelanimtokens,countof(modelanimtokens)))
                         {
@@ -1519,7 +1519,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
-                    while (script->textptr < skinend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, skinend))
                     {
                         switch (getatoken(script,modelskintokens,countof(modelskintokens)))
                         {
@@ -1622,7 +1622,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, frameend))
                     {
                         switch (getatoken(script,modelhudtokens,countof(modelhudtokens)))
                         {
@@ -1746,7 +1746,7 @@ static int32_t defsparser(scriptfile *script)
             lastvoxid = nextvoxid++;
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, modelend))
             {
                 switch (getatoken(script, voxeltokens, countof(voxeltokens)))
                 {
@@ -1819,7 +1819,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, modelend))
             {
                 switch (getatoken(script,skyboxtokens,countof(skyboxtokens)))
                 {
@@ -1872,7 +1872,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&highpalend)) break;
-            while (script->textptr < highpalend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, highpalend))
             {
                 switch (getatoken(script,highpaltokens,countof(highpaltokens)))
                 {
@@ -1929,7 +1929,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&tintend)) break;
-            while (script->textptr < tintend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, tintend))
             {
                 switch (getatoken(script,tinttokens,countof(tinttokens)))
                 {
@@ -1991,7 +1991,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&endtextptr)) break;
-            while (script->textptr < endtextptr.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, endtextptr))
             {
                 switch (getatoken(script, palookuptokens, countof(palookuptokens)))
                 {
@@ -2088,7 +2088,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
-            while (script->textptr < textureend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, textureend))
             {
                 token = getatoken(script,texturetokens,countof(texturetokens));
                 switch (token)
@@ -2119,7 +2119,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (scriptfile_getsymbol(script,&pal)) break;
                     if (scriptfile_getbraces(script,&palend)) break;
-                    while (script->textptr < palend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, palend))
                     {
                         switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
@@ -2200,7 +2200,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&detailend)) break;
-                    while (script->textptr < detailend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, detailend))
                     {
                         switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
@@ -2341,7 +2341,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script, nullptr)) break;
             if (scriptfile_getbraces(script,&dummy)) break;
-            while (script->textptr < dummy.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, dummy))
             {
                 // XXX?
                 getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
@@ -2378,7 +2378,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&p)) break;
-            while (script->textptr < p.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, p))
             {
                 switch (getatoken(script,sound_musictokens,countof(sound_musictokens)))
                 {
@@ -2408,7 +2408,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&mapinfoend)) break;
-            while (script->textptr < mapinfoend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, mapinfoend))
             {
                 switch (getatoken(script,mapinfotokens,countof(mapinfotokens)))
                 {
@@ -2488,7 +2488,7 @@ static int32_t defsparser(scriptfile *script)
 
             psky_t * const newpsky = tileSetupSky(tile);
 
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
@@ -2576,7 +2576,7 @@ static int32_t defsparser(scriptfile *script)
 
             int didLoadPal = 0;
 
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
@@ -2599,7 +2599,7 @@ static int32_t defsparser(scriptfile *script)
                     int32_t offset = 0;
                     int32_t shiftleft = 0;
 
-                    while (script->textptr < rawblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, rawblockend))
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -2755,7 +2755,7 @@ static int32_t defsparser(scriptfile *script)
 
             int didLoadShade = 0;
 
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
@@ -2778,7 +2778,7 @@ static int32_t defsparser(scriptfile *script)
                     int32_t offset = 0;
                     int32_t length = 256*32; // hardcoding 32 instead of numshades
 
-                    while (script->textptr < subblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, subblockend))
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -2899,7 +2899,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&subblockend))
                         break;
 
-                    while (script->textptr < subblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, subblockend))
                     {
                         switch (getatoken(script, fogpaltokens, countof(fogpaltokens)))
                         {
@@ -2947,7 +2947,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&subblockend))
                         break;
 
-                    while (script->textptr < subblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, subblockend))
                     {
                         switch (getatoken(script, makepalookuptokens, countof(makepalookuptokens)))
                         {
@@ -3047,7 +3047,7 @@ static int32_t defsparser(scriptfile *script)
 
             int didLoadTransluc = 0;
 
-            while (script->textptr < blockend.SavedScriptPtr)
+            while (!scriptfile_endofblock(script, blockend))
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
@@ -3068,7 +3068,7 @@ static int32_t defsparser(scriptfile *script)
                     FString fn;
                     int32_t offset = 0;
 
-                    while (script->textptr < rawblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, rawblockend))
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -3171,7 +3171,7 @@ static int32_t defsparser(scriptfile *script)
                     glblend_t * const glb = glblend + id;
                     *glb = nullglblend;
 
-                    while (script->textptr < glblendblockend.SavedScriptPtr)
+                    while (!scriptfile_endofblock(script, glblendblockend))
                     {
                         int32_t glblendtoken = getatoken(script,glblendtokens,countof(glblendtokens));
                         switch (glblendtoken)
@@ -3202,7 +3202,7 @@ static int32_t defsparser(scriptfile *script)
                             glblenddef_t * const glbdef = glb->def + (glblendtoken == T_REVERSE);
 #endif
 
-                            while (script->textptr < glblenddefblockend.SavedScriptPtr)
+                            while (!scriptfile_endofblock(script, glblenddefblockend))
                             {
                                 int32_t glblenddeftoken = getatoken(script,glblenddeftokens,countof(glblenddeftokens));
                                 switch (glblenddeftoken)

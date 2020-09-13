@@ -22,6 +22,10 @@ int32_t scriptfile_getstring(scriptfile *sf, FString *st);
 int scriptfile_getsymbol(scriptfile *sf, int32_t *num);
 int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr);
 int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend);
+inline bool scriptfile_endofblock(scriptfile* sf, FScanner::SavedPos& braceend)
+{
+	return sf->textptr >= braceend.SavedScriptPtr;
+}
 void scriptfile_setposition(scriptfile* sf, const FScanner::SavedPos& pos);
 
 scriptfile *scriptfile_fromfile(const char *fn);
