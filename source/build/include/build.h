@@ -840,8 +840,6 @@ int32_t wallvisible(int32_t const x, int32_t const y, int16_t const wallnum);
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26
 
-int32_t   videoSetRenderMode(int32_t renderer);
-
 #ifdef USE_OPENGL
 void    renderSetRollAngle(float rolla);
 #endif
