@@ -343,7 +343,7 @@ void FGLRenderState::ApplyMaterial(FMaterial *mat, int clampmode, int translatio
 		{
 			for (int i = 1; i < 3; i++)
 			{
-				auto systex = static_cast<FHardwareTexture*>(mat->GetLayer(i, 0, &layer));
+				auto systex = static_cast<FHardwareTexture*>(mat->GetLayer(i, translation, &layer));
 				systex->Bind(i, false);
 				maxbound = i;
 			}
