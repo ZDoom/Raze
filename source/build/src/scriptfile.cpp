@@ -317,24 +317,6 @@ scriptfile *scriptfile_fromfile(const char *fn)
     return sf;
 }
 
-scriptfile *scriptfile_fromstring(const char *string)
-{
-    if (!string) return nullptr;
-
-    uint32_t flen = strlen(string);
-    char *   tx   = (char *)Xmalloc(flen + 2);
-
-    scriptfile *sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
-
-    memcpy(tx, string, flen);
-    tx[flen] = tx[flen+1] = 0;
-
-    scriptfile_preparse(sf,tx,flen);
-    sf->filename = NULL;
-
-    return sf;
-}
-
 void scriptfile_close(scriptfile *sf)
 {
     if (!sf) return;
