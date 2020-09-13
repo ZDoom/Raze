@@ -37,14 +37,15 @@ static int scriptfile_eof_error(scriptfile *sf)
     return 0;
 }
 
-int32_t scriptfile_getstring(scriptfile *sf, char **retst)
+int32_t scriptfile_getstring(scriptfile *sf, FString *retst)
 {
-    (*retst) = scriptfile_gettoken(sf);
-    if (*retst == NULL)
+    auto p = scriptfile_gettoken(sf);
+    if (p == NULL)
     {
         Printf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
         return -2;
     }
+    if (retst) *retst = p;
     return 0;
 }
 
@@ -56,7 +57,7 @@ int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
         sf->textptr++; //hack to treat octal numbers like decimal
 
     sf->ltextptr = sf->textptr;
-    (*num) = strtol((const char *)sf->textptr,&sf->textptr,0);
+    (*num) = (int)strtoll((const char *)sf->textptr,&sf->textptr,0);
     if (!ISWS(*sf->textptr) && *sf->textptr)
     {
         char *p = sf->textptr;

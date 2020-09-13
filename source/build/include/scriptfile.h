@@ -16,7 +16,7 @@ typedef struct {
 char *scriptfile_gettoken(scriptfile *sf);
 int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num);
 int32_t scriptfile_getdouble(scriptfile *sf, double *num);
-int32_t scriptfile_getstring(scriptfile *sf, char **st);
+int32_t scriptfile_getstring(scriptfile *sf, FString *st);
 int scriptfile_getsymbol(scriptfile *sf, int32_t *num);
 int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr);
 int32_t scriptfile_getbraces(scriptfile *sf, char **braceend);

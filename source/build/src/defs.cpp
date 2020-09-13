@@ -372,7 +372,7 @@ static int32_t defsparser(scriptfile *script)
             return 0;
         case T_INCLUDE:
         {
-            char *fn;
+            FString fn;
             if (!scriptfile_getstring(script,&fn))
                 defsparser_include(fn, script, cmdtokptr);
             break;
@@ -384,7 +384,7 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_DEFINE:
         {
-            char *name;
+            FString name;
             int32_t number;
 
             if (scriptfile_getstring(script,&name)) break;
@@ -392,7 +392,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_addsymbolvalue(name,number) < 0)
                 Printf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
-                           name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+                           name.GetChars(),number,script->filename,scriptfile_getlinum(script,cmdtokptr));
             break;
         }
 
@@ -400,7 +400,7 @@ static int32_t defsparser(scriptfile *script)
         case T_DEFINETEXTURE:
         {
             int32_t tile,pal,fnoo;
-            char *fn;
+            FString fn;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal))  break;
@@ -419,7 +419,8 @@ static int32_t defsparser(scriptfile *script)
         case T_DEFINESKYBOX:
         {
             int32_t tile,pal,i;
-            char *fn[6],happy=1;
+            FString fn[6];
+            int happy = 1;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal)) break;
@@ -539,8 +540,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_LOADGRP:
         {
-            char *bs;
-            scriptfile_getstring(script,&bs);
+            scriptfile_getstring(script,nullptr);
 #if 0
             if (!scriptfile_getstring(pScript, &fileName) && firstPass)
             {
@@ -562,7 +562,8 @@ static int32_t defsparser(scriptfile *script)
             break;
         case T_ARTFILE:
         {
-            char *blockend, *fn = NULL;
+            char* blockend;
+            FString fn;
             int32_t tile = -1, havetile = 0;
 
             static const tokenlist artfiletokens[] =
@@ -589,7 +590,7 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-            if (!fn)
+            if (fn.IsEmpty())
             {
                 Printf("Error: missing 'file name' for artfile definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -645,7 +646,8 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_TILEFROMTEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
+            char* texturetokptr = script->ltextptr, * textureend;
+            FString fn;
             int32_t tile = -1;
             int32_t alphacut = 255, flags = 0;
             int32_t havexoffset = 0, haveyoffset = 0, haveextra = 0;
@@ -811,7 +813,7 @@ static int32_t defsparser(scriptfile *script)
             if (haveview)
                 picanm[tile].extra = view & 7;
 
-            if (!fn)
+            if (fn.IsEmpty())
             {
                 // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 picanm[tile].sf |= flags;
@@ -968,7 +970,7 @@ static int32_t defsparser(scriptfile *script)
         case T_IMPORTTILE:
         {
             int32_t tile;
-            char *fn;
+            FString fn;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getstring(script,&fn))  break;
@@ -1059,7 +1061,7 @@ static int32_t defsparser(scriptfile *script)
 
         case T_DEFINEMODEL:
         {
-            char *modelfn;
+            FString modelfn;
             double scale;
             int32_t shadeoffs;
 
@@ -1070,7 +1072,7 @@ static int32_t defsparser(scriptfile *script)
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
-                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn.GetChars());
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
@@ -1081,7 +1083,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELFRAME:
         {
-            char *framename;
+            FString framename;
 #ifdef USE_OPENGL
             char happy=1;
             int32_t tilex;
@@ -1129,7 +1131,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELANIM:
         {
-            char *startframe, *endframe;
+            FString startframe, endframe;
             int32_t flags;
             double dfps;
 
@@ -1171,7 +1173,7 @@ static int32_t defsparser(scriptfile *script)
         case T_DEFINEMODELSKIN:
         {
             int32_t palnum;
-            char *skinfn;
+            FString skinfn;
 
             if (scriptfile_getsymbol(script,&palnum)) break;
             if (scriptfile_getstring(script,&skinfn)) break; //skin filename
@@ -1224,7 +1226,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINEVOXEL:
         {
-            char *fn;
+            FString fn;
 
             if (scriptfile_getstring(script,&fn))
                 break; //voxel filename
@@ -1240,7 +1242,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (qloadkvx(nextvoxid, fn))
             {
-                Printf("Failure loading voxel file \"%s\"\n",fn);
+                Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
                 break;
             }
 
@@ -1271,7 +1273,8 @@ static int32_t defsparser(scriptfile *script)
         // NEW (ENCOURAGED) DEFINITION SYNTAX
         case T_MODEL:
         {
-            char *modelend, *modelfn;
+            char* modelend;
+            FString modelfn;
             double scale=1.0, mzadd=0.0, myoffset=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
             uint8_t usedframebitmap[(1024+7)>>3];
@@ -1306,7 +1309,7 @@ static int32_t defsparser(scriptfile *script)
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
-                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
+                Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn.GetChars());
                 script->textptr = modelend+1;
                 break;
             }
@@ -1330,7 +1333,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_FRAME:
                 {
                     char *frametokptr = script->ltextptr;
-                    char *frameend, *framename = 0;
+                    char* frameend;
+                    FString framename;
 #ifdef USE_OPENGL
                     char happy=1;
                     int32_t tilex = 0, framei;
@@ -1422,7 +1426,9 @@ static int32_t defsparser(scriptfile *script)
                 case T_ANIM:
                 {
                     char *animtokptr = script->ltextptr;
-                    char *animend, *startframe = 0, *endframe = 0, happy=1;
+                    char* animend;
+                    FString startframe, endframe;
+                    int happy=1;
                     int32_t flags = 0;
                     double dfps = 1.0;
 
@@ -1450,8 +1456,8 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (!startframe) Printf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
-                    if (!endframe) Printf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
+                    if (startframe.IsEmpty()) Printf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
+                    if (endframe.IsEmpty()) Printf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
                     model_ok &= happy;
                     if (!happy) break;
 
@@ -1487,7 +1493,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_SKIN: case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *skintokptr = script->ltextptr;
-                    char *skinend, *skinfn = 0;
+                    char* skinend;
+                    FString skinfn;
                     int32_t palnum = 0, surfnum = 0;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
                     int32_t flags = 0;
@@ -1529,7 +1536,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (!skinfn)
+                    if (skinfn.IsEmpty())
                     {
                         Printf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
                         model_ok = 0;
@@ -1702,8 +1709,8 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_VOXEL:
         {
-            char *voxeltokptr = script->ltextptr;
-            char *fn, *modelend;
+            char *voxeltokptr = script->ltextptr, * modelend;
+            FString fn;
             int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
 
             static const tokenlist voxeltokens[] =
@@ -1729,7 +1736,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (qloadkvx(nextvoxid, fn))
             {
-                Printf("Failure loading voxel file \"%s\"\n",fn);
+                Printf("Failure loading voxel file \"%s\"\n",fn.GetChars());
                 break;
             }
 
@@ -1787,7 +1794,7 @@ static int32_t defsparser(scriptfile *script)
         case T_SKYBOX:
         {
             char *skyboxtokptr = script->ltextptr;
-            char *fn[6] = {0,0,0,0,0,0};
+            FString fn[6];
             char *modelend;
             int32_t i, tile = -1, pal = 0, happy = 1;
 			int flags = 0;
@@ -1837,21 +1844,22 @@ static int32_t defsparser(scriptfile *script)
             if (tile < 0) Printf("Error: skybox: missing 'tile number' near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
             for (i=0; i<6; i++)
             {
-                if (!fn[i]) Printf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
+                if (fn[i].IsEmpty()) Printf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
                 if (!fileSystem.FileExists(fn[i]))
                     happy = 0;
             }
             if (!happy) break;
 
-			tileSetSkybox(tile, pal, (const char **)fn, flags);
+            const char* fns[] = { fn[0].GetChars(), fn[1].GetChars(), fn[2].GetChars(), fn[3].GetChars(), fn[4].GetChars(), fn[5].GetChars() };
+			tileSetSkybox(tile, pal, fns, flags);
         }
         break;
         case T_HIGHPALOOKUP:
         {
             char *highpaltokptr = script->ltextptr;
             int32_t basepal=-1, pal=-1;
-            char *fn = NULL;
+            FString fn;
             char *highpalend;
             static const tokenlist highpaltokens[] =
             {
@@ -1887,7 +1895,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (!fn)
+            if (fn.IsEmpty())
             {
                 Printf("Error: missing 'file name' for highpalookup definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,highpaltokptr));
@@ -2085,7 +2093,7 @@ static int32_t defsparser(scriptfile *script)
                 {
                     char *paltokptr = script->ltextptr, *palend;
                     int32_t pal=-1, xsiz = 0, ysiz = 0;
-                    char *fn = NULL;
+                    FString fn;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     uint8_t flags = 0;
 
@@ -2140,7 +2148,7 @@ static int32_t defsparser(scriptfile *script)
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
                         break;
                     }
-                    if (!fn)
+                    if (fn.IsEmpty())
                     {
                         Printf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,paltokptr));
@@ -2149,7 +2157,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (!fileSystem.FileExists(fn))
                     {
-                        Printf("Error: %s not found in replacement for tile %d\n", fn, tile);
+                        Printf("Error: %s not found in replacement for tile %d\n", fn.GetChars(), tile);
                         break;
                     }
 
@@ -2168,7 +2176,7 @@ static int32_t defsparser(scriptfile *script)
                     char *detailtokptr = script->ltextptr, *detailend;
                     int32_t pal = 0;
                     char flags = 0;
-                    char *fn = NULL;
+                    FString fn;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
 
                     static const tokenlist texturetokens_pal[] =
@@ -2206,7 +2214,7 @@ static int32_t defsparser(scriptfile *script)
                     }
 
                     if ((unsigned)tile >= MAXUSERTILES) break;	// message is printed later
-                    if (!fn)
+                    if (fn.IsEmpty())
                     {
                         Printf("Error: missing 'file name' for texture definition near line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,detailtokptr));
@@ -2325,7 +2333,7 @@ static int32_t defsparser(scriptfile *script)
 
             static const tokenlist dummytokens[] = { { "id",   T_ID  }, };
 
-            if (scriptfile_getstring(script, &dummy)) break;
+            if (scriptfile_getstring(script, nullptr)) break;
             if (scriptfile_getbraces(script,&dummy)) break;
             while (script->textptr < dummy)
             {
@@ -2355,15 +2363,16 @@ static int32_t defsparser(scriptfile *script)
         case T_SOUND:
         case T_MUSIC:
         {
-            char *dummy, *dummy2;
+            char* p;
+            FString dummy, dummy2;
             static const tokenlist sound_musictokens[] =
             {
                 { "id",   T_ID  },
                 { "file", T_FILE },
             };
 
-            if (scriptfile_getbraces(script,&dummy)) break;
-            while (script->textptr < dummy)
+            if (scriptfile_getbraces(script,&p)) break;
+            while (script->textptr < p)
             {
                 switch (getatoken(script,sound_musictokens,countof(sound_musictokens)))
                 {
@@ -2381,7 +2390,8 @@ static int32_t defsparser(scriptfile *script)
 
         case T_MAPINFO:
         {
-            char *mapmd4string = NULL, *title = NULL, *mhkfile = NULL, *mapinfoend, *dummy;
+            FString mapmd4string, title, mhkfile, dummy;
+            char* mapinfoend;
             static const tokenlist mapinfotokens[] =
             {
                 { "mapfile",    T_MAPFILE },
@@ -2410,11 +2420,9 @@ static int32_t defsparser(scriptfile *script)
                     usermaphacks = (usermaphack_t *)Xrealloc(usermaphacks, num_usermaphacks*sizeof(usermaphack_t));
                     usermaphack_t *newusermaphack = &usermaphacks[num_usermaphacks - 1];
 
-                    for (bssize_t i = 0; i < 16; i++)
+                    for (int i = 0; i < 16; i++)
                     {
-                        char smallbuf[3] = { 0, 0, 0 };
-                        smallbuf[0] = mapmd4string[2*i];
-                        smallbuf[1] = mapmd4string[2*i+1];
+                        char smallbuf[3] = { mapmd4string[2 * i], mapmd4string[2 * i + 1], 0 };
                         newusermaphack->md4[i] = strtol(smallbuf, NULL, 16);
                     }
 
@@ -2428,17 +2436,17 @@ static int32_t defsparser(scriptfile *script)
 
             for (; previous_usermaphacks < num_usermaphacks; previous_usermaphacks++)
             {
-                usermaphacks[previous_usermaphacks].mhkfile = mhkfile ? Xstrdup(mhkfile) : NULL;
-                usermaphacks[previous_usermaphacks].title = title ? Xstrdup(title) : NULL;
+                usermaphacks[previous_usermaphacks].mhkfile = mhkfile.IsNotEmpty() ? Xstrdup(mhkfile) : NULL;
+                usermaphacks[previous_usermaphacks].title = title.IsNotEmpty() ? Xstrdup(title) : NULL;
             }
         }
         break;
 
         case T_ECHO:
         {
-            char *string = NULL;
+            FString string;
             scriptfile_getstring(script,&string);
-            Printf("%s\n",string);
+            Printf("%s\n",string.GetChars());
         }
         break;
 
@@ -2590,7 +2598,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&rawblockend))
                         break;
 
-                    char * fn = NULL;
+                    FString fn;
                     int32_t offset = 0;
                     int32_t shiftleft = 0;
 
@@ -2619,7 +2627,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (fn == NULL)
+                    if (fn.IsEmpty())
                     {
                         Printf("Error: basepalette: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -2769,7 +2777,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&subblockend))
                         break;
 
-                    char * fn = NULL;
+                    FString fn;
                     int32_t offset = 0;
                     int32_t length = 256*32; // hardcoding 32 instead of numshades
 
@@ -2798,7 +2806,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (fn == NULL)
+                    if (fn.IsEmpty())
                     {
                         Printf("Error: palookup: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -3060,7 +3068,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&rawblockend))
                         break;
 
-                    char * fn = NULL;
+                    FString fn;
                     int32_t offset = 0;
 
                     while (script->textptr < rawblockend)
@@ -3083,7 +3091,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (fn == NULL)
+                    if (fn.IsEmpty())
                     {
                         Printf("Error: blendtable: No filename provided on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -3383,9 +3391,9 @@ static int32_t defsparser(scriptfile *script)
 
         case T_RFFDEFINEID:
         {
-            char* resName = NULL;
-            char* resType = NULL;
-            char* rffName = NULL;
+            FString resName;
+            FString resType;
+            FString rffName;
             int resID;
 
             if (scriptfile_getstring(script, &resName))
@@ -3400,7 +3408,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getstring(script, &rffName))
                 break;
 
-            FStringf name("%s.%s", resName, resType);
+            FStringf name("%s.%s", resName.GetChars(), resType.GetChars());
             fileSystem.CreatePathlessCopy(resName, resID, 0);
         }
         break;

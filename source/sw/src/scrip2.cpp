@@ -708,7 +708,7 @@ void LoadCustomInfoFromScript(const char *filename)
             }
 
             if (in == -1) break;
-            if (name)
+            if (name.IsNotEmpty())
             {
                 quoteMgr.InitializeQuote(QUOTE_INVENTORY + in, name);
             }
@@ -784,7 +784,7 @@ void LoadCustomInfoFromScript(const char *filename)
             if (weaponmap[in].editable & WM_WEAP)
             {
                 if (maxammo >= 0) DamageData[id].max_ammo = maxammo;
-                if (name)
+                if (name.IsNotEmpty())
                 {
                     quoteMgr.InitializeQuote(QUOTE_WPNFIST + in, name);
                 }
@@ -792,7 +792,7 @@ void LoadCustomInfoFromScript(const char *filename)
             }
             if (weaponmap[in].editable & WM_AMMO)
             {
-                if (ammo)
+                if (ammo.IsNotEmpty())
                 {
                     quoteMgr.InitializeQuote(QUOTE_AMMOFIST + in, ammo);
                 }
@@ -835,7 +835,7 @@ void LoadCustomInfoFromScript(const char *filename)
 				}
 			}
             if (curtheme == -1) break;
-			if (name)
+			if (name.IsNotEmpty())
             {
                ThemeSongs[curtheme] = name;
 			}
