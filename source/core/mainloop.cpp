@@ -34,7 +34,6 @@
 
 
 // For TryRunTics the following applies:
-// For TryRunTics the following applies:
 //-----------------------------------------------------------------------------
 //
 // $Id:$

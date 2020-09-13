@@ -924,7 +924,12 @@ int RunGame()
 	SetupGameButtons();
 	gi->app_init();
 	M_Init();
-	enginePostInit(); // This must not be done earlier!
+	if (!(paletteloaded & PALETTE_MAIN))
+		I_FatalError("No palette found.");
+
+	V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
+	lookups.postLoadTables();
+	TileFiles.PostLoadSetup();
 	videoInit();
 
 	D_CheckNetGame();

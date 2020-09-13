@@ -503,6 +503,8 @@ uint8_t* BuildTiles::tileMakeWritable(int num)
 
 void BuildTiles::PostLoadSetup()
 {
+	SetupReverseTileMap();
+
 	for (auto& tile : tiledata)
 	{
 		FGameTexture* detailTex = nullptr, * glowTex = nullptr, * normalTex = nullptr, *specTex = nullptr;

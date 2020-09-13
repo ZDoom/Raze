@@ -67,11 +67,6 @@ enum rendmode_t {
 # define MINXDIM 640
 # define MINYDIM 480
 
-// additional space beyond wall, in walltypes:
-# define M32_FIXME_WALLS 512
-# define M32_FIXME_SECTORS 2
-
-
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 
 #define MAXVOXELS 1024
@@ -588,7 +583,6 @@ typedef struct artheader_t {
 
 int32_t    enginePreInit(void);	// a partial setup of the engine used for launch windows
 int32_t    engineInit(void);
-int32_t enginePostInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 

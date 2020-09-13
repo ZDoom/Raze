@@ -326,7 +326,6 @@ void GameInterface::app_init()
 	initTiles();
 	fi.InitFonts();
 	genspriteremaps();
-	TileFiles.PostLoadSetup();
 	SetupGameButtons();
 	InitCheats();
 	checkcommandline();

@@ -69,11 +69,6 @@ char g_haveVoxels;
 
 int32_t novoxmips = 1;
 
-//These variables need to be copied into BUILD
-#define MAXXSIZ 256
-#define MAXYSIZ 256
-#define MAXZSIZ 255
-
 int32_t voxscale[MAXVOXELS];
 
 static int32_t beforedrawrooms = 1;
@@ -834,12 +829,12 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
         return -1;
 
-    int64_t t = IntToFixed(topt) / bot;
-    *intx = x1 + FixedToInt(vx*t);
-    *inty = y1 + FixedToInt(vy*t);
-    *intz = z1 + FixedToInt(vz*t);
+    int64_t t = (topt << 16) / bot;
+    *intx = x1 + ((vx*t) >> 16);
+    *inty = y1 + ((vy*t) >> 16);
+    *intz = z1 + ((vz*t) >> 16);
 
-    t = IntToFixed(topu) / bot;
+    t = (topu << 16) / bot;
 
     assert((unsigned)t < 65536);
 
@@ -908,33 +903,25 @@ const int16_t* getpsky(int32_t picnum, int32_t* dapyscale, int32_t* dapskybits, 
 //
 static int32_t preinitcalled = 0;
 
-#if !defined DEBUG_MAIN_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
-static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
-static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
-#ifndef NEW_MAP_FORMAT
+static sectortype sector_s[MAXSECTORS];
+static walltype wall_s[MAXWALLS];
 static wallext_t wallext_s[MAXWALLS];
-#endif
 static spritetype sprite_s[MAXSPRITES];
 static tspritetype tsprite_s[MAXSPRITESONSCREEN];
-#endif
 
 int32_t enginePreInit(void)
 {
 	polymost_initosdfuncs();
 
-#if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
-# ifndef NEW_MAP_FORMAT
     wallext = wallext_s;
-# endif
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
-#endif
 
 
     preinitcalled = 1;
@@ -994,21 +981,6 @@ int32_t engineInit(void)
     if (!mdinited) mdinit();
 #endif
 
-    return 0;
-}
-
-//
-// E_PostInit
-//
-int32_t enginePostInit(void)
-{
-    if (!(paletteloaded & PALETTE_MAIN))
-        I_FatalError("No palette found.");
-
-    V_LoadTranslations();   // loading the translations must be delayed until the palettes have been fully set up.
-    lookups.postLoadTables();
-    TileFiles.SetupReverseTileMap();
-    TileFiles.PostLoadSetup();
     return 0;
 }
 
@@ -1224,14 +1196,6 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
     return (sign1 * sign2) > 0.f;
 }
 
-// x1, y1: in/out
-// rest x/y: out
-
-
-
-#ifdef DEBUG_MASK_DRAWING
-int32_t g_maskDrawMode = 0;
-#endif
 
 static inline int comparetsprites(int const k, int const l)
 {
@@ -2053,21 +2017,8 @@ static int32_t engineFinishLoadBoard(const char *filename, const vec3_t *dapos, 
 
     {
         memset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
-#ifndef NEW_MAP_FORMAT
         memset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
-#endif
-
-#ifdef USE_OPENGL
         memset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
-
-# ifdef POLYMER
-        if (videoGetRenderMode() == REND_POLYMER)
-        {
-            if ((myflags&4)==0)
-                polymer_loadboard();
-        }
-# endif
-#endif
     }
 
     guniqhudid = 0;
@@ -2162,15 +2113,6 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     {
         int32_t ok = 0;
 
-#ifdef NEW_MAP_FORMAT
-        // Check for map-text first.
-        if (!memcmp(&mapversion, "--ED", 4))
-        {
-            mapversion = 10;
-            ok = 1;
-        }
-        else
-#endif
         {
             // Not map-text. We expect a little-endian version int now.
             mapversion = B_LITTLE32(mapversion);
@@ -3814,26 +3756,6 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 }
 
 
-
-//
-// setrendermode
-//
-int32_t videoSetRenderMode(int32_t renderer)
-{
-    UNREFERENCED_PARAMETER(renderer);
-
-#ifdef USE_OPENGL
-
-    renderer = REND_POLYMOST;
-
-    rendmode = renderer;
-    if (videoGetRenderMode() >= REND_POLYMOST)
-        glrendmode = rendmode;
-
-#endif
-
-    return 0;
-}
 
 //
 // setrollangle
