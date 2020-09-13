@@ -410,9 +410,15 @@ void F2DDrawer::AddTexture(FGameTexture* img, DrawParms& parms)
 	dg.mVertCount = 4;
 	dg.mTexture = img;
 	if (img->isWarped()) dg.mFlags |= DTF_Wrap;
+	if (parms.indexed) dg.mFlags |= DTF_Indexed;
 
 	dg.mTranslationId = 0;
 	SetStyle(img, parms, vertexcolor, dg);
+	if (parms.indexed)
+	{
+		dg.mLightLevel = vertexcolor.Luminance();
+		vertexcolor = 0xffffffff;
+	}
 
 	if (!img->isHardwareCanvas() && parms.TranslationId != -1)
 	{

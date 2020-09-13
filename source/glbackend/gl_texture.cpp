@@ -83,7 +83,7 @@ bool GLInstance::SetTexture(int picnum, FGameTexture* tex, int paletteid, int sa
 
 	SetBasepalTint(texpick.basepalTint);
 	auto &mat = renderState.mMaterial;
-	int flags = (!notindexed && hw_useindexedcolortextures) ? CTF_Indexed : 0;
+	int flags = (TextureType == TT_INDEXED) ? CTF_Indexed : 0;
 	mat.mMaterial = FMaterial::ValidateTexture(texpick.texture, flags); // todo allow scaling
 	mat.mClampMode = sampler;
 	mat.mTranslation = texpick.translation;

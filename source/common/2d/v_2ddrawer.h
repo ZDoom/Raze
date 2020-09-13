@@ -84,6 +84,7 @@ public:
 		DTF_Wrap = 1,
 		DTF_Scissor = 2,
         DTF_Burn = 4,
+		DTF_Indexed = 8,
 	};
 
 

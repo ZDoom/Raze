@@ -674,6 +674,7 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 	parms->viewport = { 0,0,drawer->GetWidth(), drawer->GetHeight() };
 	parms->rotateangle = 0;
 	parms->flipoffsets = false;
+	parms->indexed = false;
 
 	// Parse the tag list for attributes. (For floating point attributes,
 	// consider that the C ABI dictates that all floats be promoted to
@@ -1125,6 +1126,10 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 			assert(fortext == false);
 			if (fortext) return false;
 			parms->rotateangle = ListGetDouble(tags);
+			break;
+
+		case DTA_Indexed:
+			parms->indexed = !!ListGetInt(tags);
 			break;
 		}
 		tag = ListGetInt(tags);

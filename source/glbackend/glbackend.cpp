@@ -166,7 +166,6 @@ void PolymostRenderState::Apply(FRenderState& state, GLState& oldState)
 		state.EnableTexture(gl_texture);
 		state.SetMaterial(mMaterial.mMaterial, mMaterial.mClampMode, mMaterial.mTranslation, mMaterial.mOverrideShader);
 	}
-	/* todo: bind indexed textures */
 
 	state.SetColor(Color[0], Color[1], Color[2], Color[3]);
 	if (StateFlags != oldState.Flags)
@@ -548,11 +547,14 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 {
 	double dz = z / 65536.;
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
+	TexturePick pick;
+	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+	if (!PickTexture(picnum, nullptr, palid, pick)) return;
 
-	DrawTexture(&twodpsp, tileGetTexture(picnum, true), sx, sy,
+	DrawTexture(&twodpsp, pick.texture, sx, sy,
 		DTA_ScaleX, dz, DTA_ScaleY, dz,
 		DTA_Color, shadeToLight(dashade),
-		DTA_TranslationIndex, TRANSLATION(Translation_Remap + curbasepal, dapalnum),
+		DTA_TranslationIndex, pick.translation,
 		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
 		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
 		DTA_FullscreenScale, (dastat & RS_STRETCH)? FSMode_ScaleToScreen: FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
@@ -565,6 +567,8 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 		DTA_Rotate, a * (-360./2048),
 		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
 		DTA_Alpha, alpha,
+		DTA_Indexed, !!(pick.translation & 0x80000000),
+		// todo: pass pick.tintFlags and pick.tintColor
 		TAG_DONE);
 }
 

@@ -129,6 +129,7 @@ enum
 	DTA_Pin,				// Pin a non-widescreen image to the left/right edge of the screen.
 	DTA_Rotate,
 	DTA_FlipOffsets,		// Flips offsets when using DTA_FlipX and DTA_FlipY, this cannot be automatic due to unexpected behavior with unoffsetted graphics.
+	DTA_Indexed,			// Use an indexed texture combined with the given translation.
 
 };
 
@@ -195,6 +196,7 @@ struct DrawParms
 	bool virtBottom;
 	bool burn;
 	bool flipoffsets;
+	bool indexed;
 	int8_t fsscalemode;
 	double srcx, srcy;
 	double srcwidth, srcheight;
