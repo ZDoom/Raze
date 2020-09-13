@@ -562,7 +562,7 @@ static int32_t defsparser(scriptfile *script)
             break;
         case T_ARTFILE:
         {
-            char* blockend;
+            FScanner::SavedPos blockend;
             FString fn;
             int32_t tile = -1, havetile = 0;
 
@@ -573,7 +573,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&blockend)) break;
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,artfiletokens,countof(artfiletokens));
                 switch (token)
@@ -646,7 +646,8 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_TILEFROMTEXTURE:
         {
-            char* texturetokptr = script->ltextptr, * textureend;
+            char* texturetokptr = script->ltextptr;
+            FScanner::SavedPos textureend;
             FString fn;
             int32_t tile = -1;
             int32_t alphacut = 255, flags = 0;
@@ -685,7 +686,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
-            while (script->textptr < textureend)
+            while (script->textptr < textureend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,tilefromtexturetokens,countof(tilefromtexturetokens));
                 switch (token)
@@ -713,7 +714,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 case T_IFMATCH:
                 {
-                    char *ifmatchend;
+                    FScanner::SavedPos ifmatchend;
 
                     static const tokenlist ifmatchtokens[] =
                     {
@@ -722,7 +723,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&ifmatchend)) break;
-                    while (script->textptr < ifmatchend)
+                    while (script->textptr < ifmatchend.SavedScriptPtr)
                     {
                         int32_t token = getatoken(script,ifmatchtokens,countof(ifmatchtokens));
                         switch (token)
@@ -877,7 +878,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_COPYTILE:
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             int32_t tile = -1, source;
             int32_t havetile = 0, havexoffset = 0, haveyoffset = 0;
             int32_t xoffset = -1024, yoffset = -1024;
@@ -901,7 +902,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             source = tile; // without a "tile" token, we still palettize self by default
             if (scriptfile_getbraces(script,&blockend)) break;
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,copytiletokens,countof(copytiletokens));
                 switch (token)
@@ -1273,7 +1274,7 @@ static int32_t defsparser(scriptfile *script)
         // NEW (ENCOURAGED) DEFINITION SYNTAX
         case T_MODEL:
         {
-            char* modelend;
+            FScanner::SavedPos modelend;
             FString modelfn;
             double scale=1.0, mzadd=0.0, myoffset=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
@@ -1310,11 +1311,11 @@ static int32_t defsparser(scriptfile *script)
             if (lastmodelid < 0)
             {
                 Printf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn.GetChars());
-                script->textptr = modelend+1;
+                scriptfile_setposition(script, modelend);
                 break;
             }
 #endif
-            while (script->textptr < modelend)
+            while (script->textptr < modelend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,modeltokens,countof(modeltokens));
                 switch (token)
@@ -1333,7 +1334,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_FRAME:
                 {
                     char *frametokptr = script->ltextptr;
-                    char* frameend;
+                    FScanner::SavedPos frameend;
                     FString framename;
 #ifdef USE_OPENGL
                     char happy=1;
@@ -1354,7 +1355,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend)
+                    while (script->textptr < frameend.SavedScriptPtr)
                     {
                         switch (getatoken(script,modelframetokens,countof(modelframetokens)))
                         {
@@ -1426,7 +1427,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_ANIM:
                 {
                     char *animtokptr = script->ltextptr;
-                    char* animend;
+                    FScanner::SavedPos animend;
                     FString startframe, endframe;
                     int happy=1;
                     int32_t flags = 0;
@@ -1441,7 +1442,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&animend)) break;
-                    while (script->textptr < animend)
+                    while (script->textptr < animend.SavedScriptPtr)
                     {
                         switch (getatoken(script,modelanimtokens,countof(modelanimtokens)))
                         {
@@ -1493,7 +1494,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_SKIN: case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *skintokptr = script->ltextptr;
-                    char* skinend;
+                    FScanner::SavedPos skinend;
                     FString skinfn;
                     int32_t palnum = 0, surfnum = 0;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
@@ -1517,7 +1518,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
-                    while (script->textptr < skinend)
+                    while (script->textptr < skinend.SavedScriptPtr)
                     {
                         switch (getatoken(script,modelskintokens,countof(modelskintokens)))
                         {
@@ -1595,7 +1596,7 @@ static int32_t defsparser(scriptfile *script)
                 case T_HUD:
                 {
                     char *hudtokptr = script->ltextptr;
-                    char *frameend;
+                    FScanner::SavedPos frameend;
 #ifdef USE_OPENGL
                     char happy=1;
                     int32_t tilex = 0;
@@ -1620,7 +1621,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
-                    while (script->textptr < frameend)
+                    while (script->textptr < frameend.SavedScriptPtr)
                     {
                         switch (getatoken(script,modelhudtokens,countof(modelhudtokens)))
                         {
@@ -1709,7 +1710,8 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_VOXEL:
         {
-            char *voxeltokptr = script->ltextptr, * modelend;
+            char* voxeltokptr = script->ltextptr;
+            FScanner::SavedPos modelend;
             FString fn;
             int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
 
@@ -1743,7 +1745,7 @@ static int32_t defsparser(scriptfile *script)
             lastvoxid = nextvoxid++;
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend)
+            while (script->textptr < modelend.SavedScriptPtr)
             {
                 switch (getatoken(script, voxeltokens, countof(voxeltokens)))
                 {
@@ -1795,7 +1797,7 @@ static int32_t defsparser(scriptfile *script)
         {
             char *skyboxtokptr = script->ltextptr;
             FString fn[6];
-            char *modelend;
+            FScanner::SavedPos modelend;
             int32_t i, tile = -1, pal = 0, happy = 1;
 			int flags = 0;
 
@@ -1816,7 +1818,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&modelend)) break;
-            while (script->textptr < modelend)
+            while (script->textptr < modelend.SavedScriptPtr)
             {
                 switch (getatoken(script,skyboxtokens,countof(skyboxtokens)))
                 {
@@ -1860,7 +1862,7 @@ static int32_t defsparser(scriptfile *script)
             char *highpaltokptr = script->ltextptr;
             int32_t basepal=-1, pal=-1;
             FString fn;
-            char *highpalend;
+            FScanner::SavedPos highpalend;
             static const tokenlist highpaltokens[] =
             {
                 { "basepal",   T_BASEPAL },
@@ -1869,7 +1871,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&highpalend)) break;
-            while (script->textptr < highpalend)
+            while (script->textptr < highpalend.SavedScriptPtr)
             {
                 switch (getatoken(script,highpaltokens,countof(highpaltokens)))
                 {
@@ -1911,7 +1913,7 @@ static int32_t defsparser(scriptfile *script)
         {
             char *tinttokptr = script->ltextptr;
             int32_t red=255, green=255, blue=255, shadered=0, shadegreen=0, shadeblue=0, pal=-1, flags=0;
-            char *tintend;
+            FScanner::SavedPos tintend;
 
             static const tokenlist tinttokens[] =
             {
@@ -1926,7 +1928,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&tintend)) break;
-            while (script->textptr < tintend)
+            while (script->textptr < tintend.SavedScriptPtr)
             {
                 switch (getatoken(script,tinttokens,countof(tinttokens)))
                 {
@@ -1965,7 +1967,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t red=0, green=0, blue=0, pal=-1;
             int32_t havepal=0, remappal=0;
             int32_t nofloorpal=-1;
-            char *endtextptr;
+            FScanner::SavedPos endtextptr;
 
             static const tokenlist palookuptokens[] =
             {
@@ -1988,7 +1990,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&endtextptr)) break;
-            while (script->textptr < endtextptr)
+            while (script->textptr < endtextptr.SavedScriptPtr)
             {
                 switch (getatoken(script, palookuptokens, countof(palookuptokens)))
                 {
@@ -2070,7 +2072,8 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_TEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend;
+            char* texturetokptr = script->ltextptr;
+            FScanner::SavedPos textureend;
             int32_t tile=-1, token;
 
             static const tokenlist texturetokens[] =
@@ -2084,14 +2087,15 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
-            while (script->textptr < textureend)
+            while (script->textptr < textureend.SavedScriptPtr)
             {
                 token = getatoken(script,texturetokens,countof(texturetokens));
                 switch (token)
                 {
                 case T_PAL:
                 {
-                    char *paltokptr = script->ltextptr, *palend;
+                    char* paltokptr = script->ltextptr;
+                    FScanner::SavedPos palend;
                     int32_t pal=-1, xsiz = 0, ysiz = 0;
                     FString fn;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
@@ -2114,7 +2118,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (scriptfile_getsymbol(script,&pal)) break;
                     if (scriptfile_getbraces(script,&palend)) break;
-                    while (script->textptr < palend)
+                    while (script->textptr < palend.SavedScriptPtr)
                     {
                         switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
@@ -2173,7 +2177,8 @@ static int32_t defsparser(scriptfile *script)
                 break;
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
-                    char *detailtokptr = script->ltextptr, *detailend;
+                    char* detailtokptr = script->ltextptr;
+                    FScanner::SavedPos detailend;
                     int32_t pal = 0;
                     char flags = 0;
                     FString fn;
@@ -2194,7 +2199,7 @@ static int32_t defsparser(scriptfile *script)
                     };
 
                     if (scriptfile_getbraces(script,&detailend)) break;
-                    while (script->textptr < detailend)
+                    while (script->textptr < detailend.SavedScriptPtr)
                     {
                         switch (getatoken(script,texturetokens_pal,countof(texturetokens_pal)))
                         {
@@ -2329,13 +2334,13 @@ static int32_t defsparser(scriptfile *script)
         case T_CUTSCENE:
         case T_ANIMSOUNDS:
         {
-            char *dummy;
+            FScanner::SavedPos dummy;
 
             static const tokenlist dummytokens[] = { { "id",   T_ID  }, };
 
             if (scriptfile_getstring(script, nullptr)) break;
             if (scriptfile_getbraces(script,&dummy)) break;
-            while (script->textptr < dummy)
+            while (script->textptr < dummy.SavedScriptPtr)
             {
                 // XXX?
                 getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
@@ -2363,7 +2368,7 @@ static int32_t defsparser(scriptfile *script)
         case T_SOUND:
         case T_MUSIC:
         {
-            char* p;
+            FScanner::SavedPos p;
             FString dummy, dummy2;
             static const tokenlist sound_musictokens[] =
             {
@@ -2372,7 +2377,7 @@ static int32_t defsparser(scriptfile *script)
             };
 
             if (scriptfile_getbraces(script,&p)) break;
-            while (script->textptr < p)
+            while (script->textptr < p.SavedScriptPtr)
             {
                 switch (getatoken(script,sound_musictokens,countof(sound_musictokens)))
                 {
@@ -2391,7 +2396,7 @@ static int32_t defsparser(scriptfile *script)
         case T_MAPINFO:
         {
             FString mapmd4string, title, mhkfile, dummy;
-            char* mapinfoend;
+            FScanner::SavedPos mapinfoend;
             static const tokenlist mapinfotokens[] =
             {
                 { "mapfile",    T_MAPFILE },
@@ -2402,7 +2407,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t previous_usermaphacks = num_usermaphacks;
 
             if (scriptfile_getbraces(script,&mapinfoend)) break;
-            while (script->textptr < mapinfoend)
+            while (script->textptr < mapinfoend.SavedScriptPtr)
             {
                 switch (getatoken(script,mapinfotokens,countof(mapinfotokens)))
                 {
@@ -2465,7 +2470,7 @@ static int32_t defsparser(scriptfile *script)
 
         case T_MULTIPSKY:
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             int32_t tile;
 
             static const tokenlist subtokens[] =
@@ -2485,13 +2490,13 @@ static int32_t defsparser(scriptfile *script)
 
             if (tile != DEFAULTPSKY && (unsigned)tile >= MAXUSERTILES)
             {
-                script->textptr = blockend+1;
+                scriptfile_setposition(script, blockend);
                 break;
             }
 
             psky_t * const newpsky = tileSetupSky(tile);
 
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
@@ -2554,7 +2559,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_BASEPALETTE:
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             int32_t id;
 
             static const tokenlist subtokens[] =
@@ -2573,20 +2578,20 @@ static int32_t defsparser(scriptfile *script)
             {
                 Printf("Error: basepalette: Invalid basepal number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                script->textptr = blockend+1;
+                scriptfile_setposition(script, blockend);
                 break;
             }
 
             int didLoadPal = 0;
 
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
                 {
-                    char *rawblockend;
+                    FScanner::SavedPos rawblockend;
 
                     static const tokenlist rawsubtokens[] =
                     {
@@ -2602,7 +2607,7 @@ static int32_t defsparser(scriptfile *script)
                     int32_t offset = 0;
                     int32_t shiftleft = 0;
 
-                    while (script->textptr < rawblockend)
+                    while (script->textptr < rawblockend.SavedScriptPtr)
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -2727,7 +2732,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_PALOOKUP:
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             int32_t id;
 
             static const tokenlist subtokens[] =
@@ -2752,20 +2757,20 @@ static int32_t defsparser(scriptfile *script)
             {
                 Printf("Error: palookup: Invalid pal number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                script->textptr = blockend+1;
+                scriptfile_setposition(script, blockend);
                 break;
             }
 
             int didLoadShade = 0;
 
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
                 {
-                    char *subblockend;
+                    FScanner::SavedPos subblockend;
 
                     static const tokenlist rawsubtokens[] =
                     {
@@ -2781,7 +2786,7 @@ static int32_t defsparser(scriptfile *script)
                     int32_t offset = 0;
                     int32_t length = 256*32; // hardcoding 32 instead of numshades
 
-                    while (script->textptr < subblockend)
+                    while (script->textptr < subblockend.SavedScriptPtr)
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -2888,7 +2893,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_FOGPAL:
                 {
-                    char *subblockend;
+                    FScanner::SavedPos subblockend;
 
                     static const tokenlist fogpaltokens[] =
                     {
@@ -2902,7 +2907,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&subblockend))
                         break;
 
-                    while (script->textptr < subblockend)
+                    while (script->textptr < subblockend.SavedScriptPtr)
                     {
                         switch (getatoken(script, fogpaltokens, countof(fogpaltokens)))
                         {
@@ -2933,7 +2938,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_MAKEPALOOKUP:
                 {
-                    char *subblockend;
+                    FScanner::SavedPos subblockend;
 
                     static const tokenlist makepalookuptokens[] =
                     {
@@ -2950,7 +2955,7 @@ static int32_t defsparser(scriptfile *script)
                     if (scriptfile_getbraces(script,&subblockend))
                         break;
 
-                    while (script->textptr < subblockend)
+                    while (script->textptr < subblockend.SavedScriptPtr)
                     {
                         switch (getatoken(script, makepalookuptokens, countof(makepalookuptokens)))
                         {
@@ -3024,7 +3029,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_BLENDTABLE:
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             int32_t id;
 
             static const tokenlist subtokens[] =
@@ -3044,20 +3049,20 @@ static int32_t defsparser(scriptfile *script)
             {
                 Printf("Error: blendtable: Invalid blendtable number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                script->textptr = blockend+1;
+                scriptfile_setposition(script, blockend);
                 break;
             }
 
             int didLoadTransluc = 0;
 
-            while (script->textptr < blockend)
+            while (script->textptr < blockend.SavedScriptPtr)
             {
                 int32_t token = getatoken(script,subtokens,countof(subtokens));
                 switch (token)
                 {
                 case T_RAW:
                 {
-                    char *rawblockend;
+                    FScanner::SavedPos rawblockend;
 
                     static const tokenlist rawsubtokens[] =
                     {
@@ -3071,7 +3076,7 @@ static int32_t defsparser(scriptfile *script)
                     FString fn;
                     int32_t offset = 0;
 
-                    while (script->textptr < rawblockend)
+                    while (script->textptr < rawblockend.SavedScriptPtr)
                     {
                         int32_t token = getatoken(script,rawsubtokens,countof(rawsubtokens));
                         switch (token)
@@ -3159,7 +3164,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_GLBLEND:
                 {
-                    char *glblendblockend;
+                    FScanner::SavedPos glblendblockend;
 
                     static const tokenlist glblendtokens[] =
                     {
@@ -3174,7 +3179,7 @@ static int32_t defsparser(scriptfile *script)
                     glblend_t * const glb = glblend + id;
                     *glb = nullglblend;
 
-                    while (script->textptr < glblendblockend)
+                    while (script->textptr < glblendblockend.SavedScriptPtr)
                     {
                         int32_t glblendtoken = getatoken(script,glblendtokens,countof(glblendtokens));
                         switch (glblendtoken)
@@ -3183,7 +3188,7 @@ static int32_t defsparser(scriptfile *script)
                         case T_REVERSE:
                         case T_BOTH:
                         {
-                            char *glblenddefblockend;
+                            FScanner::SavedPos glblenddefblockend;
 
                             static const tokenlist glblenddeftokens[] =
                             {
@@ -3205,7 +3210,7 @@ static int32_t defsparser(scriptfile *script)
                             glblenddef_t * const glbdef = glb->def + (glblendtoken == T_REVERSE);
 #endif
 
-                            while (script->textptr < glblenddefblockend)
+                            while (script->textptr < glblenddefblockend.SavedScriptPtr)
                             {
                                 int32_t glblenddeftoken = getatoken(script,glblenddeftokens,countof(glblenddeftokens));
                                 switch (glblenddeftoken)
@@ -3382,11 +3387,11 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_NEWGAMECHOICES: // stub
         {
-            char *blockend;
+            FScanner::SavedPos blockend;
             if (scriptfile_getbraces(script,&blockend))
                 break;
-            script->textptr = blockend+1;
-            break;
+            scriptfile_setposition(script, blockend);
+             break;
         }
 
         case T_RFFDEFINEID:

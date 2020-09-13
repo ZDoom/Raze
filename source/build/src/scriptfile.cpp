@@ -151,7 +151,7 @@ int scriptfile_getsymbol(scriptfile *sf, int32_t *num)
     return 0;
 }
 
-int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
+int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend)
 {
     if (scriptfile_eof_error(sf))
         return -1;
@@ -177,9 +177,14 @@ int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
         sf->textptr++;
     } while (1);
 
-    (*braceend) = sf->textptr;
+    braceend->SavedScriptPtr = sf->textptr;
     sf->textptr = bracestart;
     return 0;
+}
+
+void scriptfile_setposition(scriptfile* sf, const FScanner::SavedPos& pos)
+{
+    sf->textptr = const_cast<char*>(pos.SavedScriptPtr+1);
 }
 
 
