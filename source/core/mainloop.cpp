@@ -33,7 +33,8 @@
 */
 
 
-// For G_Ticker and TryRunTics the following applies:
+// For TryRunTics the following applies:
+// For TryRunTics the following applies:
 //-----------------------------------------------------------------------------
 //
 // $Id:$
