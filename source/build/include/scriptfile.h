@@ -21,6 +21,7 @@ int32_t scriptfile_getdouble(scriptfile *sf, double *num);
 int32_t scriptfile_getstring(scriptfile *sf, FString *st);
 int scriptfile_getsymbol(scriptfile *sf, int32_t *num);
 int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr);
+FScriptPosition scriptfile_getposition(const scriptfile *sf);
 int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend);
 inline bool scriptfile_endofblock(scriptfile* sf, FScanner::SavedPos& braceend)
 {

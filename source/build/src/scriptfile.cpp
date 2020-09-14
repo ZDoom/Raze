@@ -151,6 +151,15 @@ int scriptfile_getsymbol(scriptfile *sf, int32_t *num)
     return 0;
 }
 
+FScriptPosition scriptfile_getposition(const scriptfile *sf)
+{
+	FScriptPosition pos;
+	
+	pos.FileName = sf->filename;
+	pos.ScriptLine = scriptfile_getlinum(sf, sf->ltextptr);
+	return pos;
+}
+
 int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend)
 {
     if (scriptfile_eof_error(sf))
