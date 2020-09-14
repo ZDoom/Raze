@@ -878,7 +878,7 @@ void SerializeHud(FSerializer &arc)
 void setLevelStarted(MapRecord *mi)
 {
 	levelTextTime = 85;
-	Printf(TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
+	Printf(PRINT_NONOTIFY, TEXTCOLOR_GOLD "%s: %s\n", mi->LabelName(), mi->DisplayName());
 }
 
 void drawMapTitle()

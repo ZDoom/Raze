@@ -142,6 +142,7 @@ static void GameTicker()
 		switch (ga)
 		{
 		case ga_autoloadgame:
+			C_ClearMessages();
 			if (BackupSaveGame.IsNotEmpty() && cl_resumesavegame)
 			{
 				DoLoadGame(BackupSaveGame);
@@ -152,7 +153,6 @@ static void GameTicker()
 				FX_StopAllSounds();
 				FX_SetReverb(0);
 				gi->FreeLevelData();
-				C_ClearMessages();
 				gameaction = ga_level;
 				gi->NewGame(g_nextmap, -1);
 				BackupSaveGame = "";
