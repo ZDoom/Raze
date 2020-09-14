@@ -265,17 +265,22 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         }
     }
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
-        svel += keymove;
+    if (abs(loc.svel) < keymove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
+            svel += keymove;
 
-    if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
-        svel -= keymove;
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
+            svel -= keymove;
+    }
+    if (abs(loc.fvel) < keymove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+            fvel += keymove;
 
-    if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-        fvel += keymove;
-
-    if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-        fvel -= keymove;
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+            fvel -= keymove;
+    }
 
     if (!cl_syncinput)
     {
