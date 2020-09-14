@@ -119,15 +119,8 @@ IHardwareTexture* PaletteManager::GetLookup(int index)
 		{
 			auto p = screen->CreateHardwareTexture(1);
 
-			// Perform a 0<->255 index swap. The lookup tables are still the original data.
 			TArray<uint8_t> lookup(numshades * 256, true);
 			memcpy(lookup.Data(), lookups.getTable(index), lookup.Size());
-			for (int i = 0; i < numshades; i++)
-			{
-				auto p = &lookup[i * 256];
-				p[255] = p[0];
-				p[0] = 0;
-			}
 			p->CreateTexture(lookup.Data(), 256, numshades, 15, false, "PaletteLookup");
 			lookuptextures[index] = p;
 		}
