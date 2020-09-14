@@ -755,6 +755,7 @@ bool FScanner::GetNumber (bool evaluate)
 
 				}
 				ScriptError ("SC_GetNumber: Bad numeric constant \"%s\".", String);
+				return false;
 			}
 		}
 		Float = Number;
@@ -916,6 +917,7 @@ bool FScanner::GetFloat (bool evaluate)
 			}
 
 			ScriptError ("SC_GetFloat: Bad numeric constant \"%s\".", String);
+			return false;
 		}
 		Number = (int)Float;
 		return true;
@@ -1260,9 +1262,9 @@ void FScanner::SkipToEndOfBlock()
 	int depth = 0;
 	while (1)
 	{
-		MustGetAnyToken(); // this will abort if it reaches the end of the file
-		if (TokenType == '}') depth++;
-		else if (TokenType == '}')
+		MustGetString(); // this will abort if it reaches the end of the file
+		if (Compare("{")) depth++;
+		else if (Compare("}"))
 		{
 			depth--;
 			if (depth < 0) return;

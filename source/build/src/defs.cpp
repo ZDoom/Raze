@@ -18,6 +18,22 @@
 #include "palettecontainer.h"
 #include "mapinfo.h"
 
+
+int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
+{
+    int32_t i;
+
+    if (!sf) return T_ERROR;
+	if (!sf->GetString()) return T_EOF;
+
+    for (i=ntokens-1; i>=0; i--)
+    {
+        if (sf->Compare(tl[i].text))
+            return tl[i].tokenid;
+    }
+    return T_ERROR;
+}
+
 void AddUserMapHack(usermaphack_t&);
 #if 0
 // For later
@@ -201,7 +217,7 @@ static const char *skyfaces[6] =
 
 static int32_t defsparser(scriptfile *script);
 
-static void defsparser_include(const char *fn, const scriptfile *script, FScriptPosition *pos)
+static void defsparser_include(const char *fn, scriptfile *script, FScriptPosition *pos)
 {
     scriptfile *included;
 
@@ -215,12 +231,9 @@ static void defsparser_include(const char *fn, const scriptfile *script, FScript
     }
     else
     {
-        if (!pos)
-        {
-            Printf("Loading module \"%s\"\n",fn);
-        }
-
+		if (script) included->symbols = std::move(script->symbols);
         defsparser(included);
+		if (script) script->symbols = std::move(included->symbols);
         scriptfile_close(included);
     }
 }
@@ -384,7 +397,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getsymbol(script,&number)) break;
 
-            if (scriptfile_addsymbolvalue(name,number) < 0)
+            if (scriptfile_addsymbolvalue(script, name,number) < 0)
                 pos.Message(MSG_WARNING, "Warning: Symbol %s was NOT redefined to %d", name.GetChars(),number);
             break;
         }
@@ -3353,12 +3366,13 @@ int32_t loaddefinitionsfile(const char *fn)
     }
 
     if (userConfig.AddDefs) for (auto& m : *userConfig.AddDefs)
-        defsparser_include(m, NULL, NULL);
+	{
+		Printf("Loading module \"%s\"\n",m.GetChars());
+        defsparser_include(m, NULL, NULL); // Q: should we let the external script see our symbol table?
+	}
 
     if (script)
         scriptfile_close(script);
-
-    scriptfile_clearsymbols();
 
     DO_FREE_AND_NULL(faketilebuffer);
     faketilebuffersiz = 0;

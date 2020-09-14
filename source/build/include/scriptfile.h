@@ -3,39 +3,98 @@
 #define BUILD_SCRIPTFILE_H_
 
 #include "sc_man.h"
+#include "filesystem.h"
 
-typedef struct {
-	char *textbuf;
-	uint32_t textlength;
-	char *ltextptr;		// pointer to start of the last token fetched (use this for line numbers)
-	char *textptr;
-	char *eof;
-	char *filename;
-	int32_t linenum;
-	int32_t *lineoffs;
-} scriptfile;
 
-char *scriptfile_gettoken(scriptfile *sf);
-int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num);
-int32_t scriptfile_getdouble(scriptfile *sf, double *num);
-int32_t scriptfile_getstring(scriptfile *sf, FString *st);
-int scriptfile_getsymbol(scriptfile *sf, int32_t *num);
-int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr);
-FScriptPosition scriptfile_getposition(const scriptfile *sf);
-int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend);
+
+using scriptfile = FScanner;
+
+
+inline int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
+{
+	bool res = sf->GetNumber();
+	if (res) *num = sf->Number;
+	else *num = 0;
+	return !res;
+}
+
+inline int32_t scriptfile_getdouble(scriptfile *sf, double *num)
+{
+	bool res = sf->GetFloat();
+	if (res) *num = sf->Float;
+	else *num = 0;
+	return !res;
+}
+
+inline int32_t scriptfile_getstring(scriptfile *sf, FString *st)
+{
+	bool res = sf->GetString();
+	if (res) *st = sf->String;
+	else *st = "";
+	return !res;
+}
+
+inline int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
+{
+	bool res = sf->GetNumber(true);
+	if (res) *num = sf->Number;
+	else *num = 0;
+	return !res;
+}
+
+inline FScriptPosition scriptfile_getposition(scriptfile *sf)
+{
+	return FScriptPosition(*sf);
+}
+
+inline int32_t scriptfile_getbraces(scriptfile *sf, FScanner::SavedPos *braceend)
+{
+	if (sf->CheckString("{"))
+	{
+		auto here = sf->SavePos();
+		sf->SkipToEndOfBlock();
+		*braceend = sf->SavePos();
+		sf->RestorePos(here);
+		return 0;
+	}
+	else
+	{
+		sf->ScriptError("'{' expected");
+		return -1;
+	}
+}
 inline bool scriptfile_endofblock(scriptfile* sf, FScanner::SavedPos& braceend)
 {
-	return sf->textptr >= braceend.SavedScriptPtr;
+	auto here = sf->SavePos();
+ 	return here.SavedScriptPtr >= braceend.SavedScriptPtr;
 }
-void scriptfile_setposition(scriptfile* sf, const FScanner::SavedPos& pos);
 
-scriptfile *scriptfile_fromfile(const char *fn);
-void scriptfile_close(scriptfile *sf);
-int scriptfile_eof(scriptfile *sf);
+inline void scriptfile_setposition(scriptfile* sf, const FScanner::SavedPos& pos)
+{
+	sf->RestorePos(pos);
+}
 
-int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val);
-int32_t scriptfile_addsymbolvalue(char const *name, int32_t val);
-void scriptfile_clearsymbols(void);
+inline scriptfile *scriptfile_fromfile(const char *fn)
+{
+	int lump = fileSystem.FindFile(fn);
+	if (lump < 0) return nullptr;
+	auto sc = new FScanner;
+	sc->OpenLumpNum(lump);
+	sc->SetNoOctals(true);
+	sc->SetNoFatalErrors(true);
+	return sc;
+}
+
+inline void scriptfile_close(scriptfile *sf)
+{
+	delete sf;
+}
+
+inline int32_t scriptfile_addsymbolvalue(scriptfile *sf, char const *name, int32_t val)
+{
+	sf->AddSymbol(name, val);
+	return 1;
+}
 
 typedef struct
 {
@@ -50,8 +109,5 @@ enum
     T_EOF = -2,
     T_ERROR = -1,
 };
-
-
-int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 #endif

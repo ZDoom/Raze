@@ -772,7 +772,6 @@ set (PCH_SOURCES
 	build/src/engine.cpp
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
-	build/src/scriptfile.cpp
 	build/src/voxmodel.cpp
 
 	core/movie/playmve.cpp
