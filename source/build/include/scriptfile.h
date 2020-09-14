@@ -42,6 +42,14 @@ inline int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
 	return !res;
 }
 
+inline int32_t scriptfile_getsymbol(scriptfile* sf, int64_t* num)
+{
+	bool res = sf->GetNumber(true);
+	if (res) *num = sf->BigNumber;
+	else *num = 0;
+	return !res;
+}
+
 inline FScriptPosition scriptfile_getposition(scriptfile *sf)
 {
 	return FScriptPosition(*sf);

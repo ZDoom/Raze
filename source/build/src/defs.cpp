@@ -651,18 +651,7 @@ static int32_t defsparser(scriptfile *script)
         {
             auto texturepos = scriptfile_getposition(script);
             FScanner::SavedPos textureend;
-            FString fn;
-            int32_t tile = -1;
-            int32_t alphacut = 255, flags = 0;
-            int32_t havexoffset = 0, haveyoffset = 0, haveextra = 0;
-            int32_t xoffset = 0, yoffset = 0;
-            int32_t istexture = 0;
-            int32_t tile_crc32 = 0;
-            vec2_t  tile_size{};
-            uint8_t have_crc32 = 0;
-            uint8_t have_size = 0;
-            int32_t extra = 0;
-            int havesurface = 0, surface = 0, havevox = 0, vox = 0, haveview = 0, view = 0, haveshade = 0, shade = 0;
+            TileImport imp;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -687,7 +676,7 @@ static int32_t defsparser(scriptfile *script)
 
             };
 
-            if (scriptfile_getsymbol(script,&tile)) break;
+            if (scriptfile_getsymbol(script,&imp.tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
             while (!scriptfile_endofblock(script, textureend))
             {
@@ -695,25 +684,22 @@ static int32_t defsparser(scriptfile *script)
                 switch (token)
                 {
                 case T_FILE:
-                    scriptfile_getstring(script,&fn);
+                    scriptfile_getstring(script,&imp.fn);
                     break;
                 case T_ALPHACUT:
-                    scriptfile_getsymbol(script,&alphacut);
-                    alphacut = clamp(alphacut, 0, 255);
+                    scriptfile_getsymbol(script,&imp.alphacut);
+                    imp.alphacut = clamp(imp.alphacut, 0, 255);
                     break;
                 case T_XOFFSET:
-                    havexoffset = 1;
-                    scriptfile_getsymbol(script,&xoffset);
-                    xoffset = clamp(xoffset, -128, 127);
+                    scriptfile_getsymbol(script,&imp.xoffset);
+                    imp.xoffset = clamp(imp.xoffset, -128, 127);
                     break;
                 case T_YOFFSET:
-                    haveyoffset = 1;
-                    scriptfile_getsymbol(script,&yoffset);
-                    yoffset = clamp(yoffset, -128, 127);
+                    scriptfile_getsymbol(script,&imp.yoffset);
+                    imp.yoffset = clamp(imp.yoffset, -128, 127);
                     break;
                 case T_IFCRC:
-                    scriptfile_getsymbol(script, &tile_crc32);
-                    have_crc32 = 1;
+                    scriptfile_getsymbol(script, &imp.crc32);
                     break;
                 case T_IFMATCH:
                 {
@@ -732,13 +718,11 @@ static int32_t defsparser(scriptfile *script)
                         switch (token)
                         {
                         case T_CRC32:
-                            scriptfile_getsymbol(script, &tile_crc32);
-                            have_crc32 = 1;
+                            scriptfile_getsymbol(script, &imp.crc32);
                             break;
                         case T_SIZE:
-                            scriptfile_getsymbol(script, &tile_size.x);
-                            scriptfile_getsymbol(script, &tile_size.y);
-                            have_size = 1;
+                            scriptfile_getsymbol(script, &imp.sizex);
+                            scriptfile_getsymbol(script, &imp.sizey);
                             break;
                         default:
                             break;
@@ -747,132 +731,36 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
                 case T_TEXHITSCAN:
-                    flags |= PICANM_TEXHITSCAN_BIT;
+                    imp.flags |= PICANM_TEXHITSCAN_BIT;
                     break;
                 case T_NOFULLBRIGHT:
-                    flags |= PICANM_NOFULLBRIGHT_BIT;
+                    imp.flags |= PICANM_NOFULLBRIGHT_BIT;
                     break;
                 case T_TEXTURE:
-                    istexture = 1;
+                    imp.istexture = 1;
                     break;
                 case T_EXTRA:
-                    haveextra = 1;
-                    scriptfile_getsymbol(script, &extra);
+                    scriptfile_getsymbol(script, &imp.extra);
                     break;
                 case T_SURFACE:
-                    havesurface = 1;
-                    scriptfile_getsymbol(script, &surface);
+                    scriptfile_getsymbol(script, &imp.surface);
                     break;
                 case T_VOXEL:
-                    havevox = 1;
-                    scriptfile_getsymbol(script, &vox);
+                    scriptfile_getsymbol(script, &imp.vox);
                     break;
                 case T_VIEW:
-                    haveview = 1;
-                    scriptfile_getsymbol(script, &view);
+                    scriptfile_getsymbol(script, &imp.extra);
+                    imp.extra &= 7;
                     break;
                 case T_SHADE:
-                    haveshade = 1;
-                    scriptfile_getsymbol(script, &shade);
+                    scriptfile_getsymbol(script, &imp.shade);
                     break;
 
                 default:
                     break;
                 }
             }
-
-            if ((unsigned)tile >= MAXUSERTILES)
-            {
-                pos.Message(MSG_ERROR, "missing or invalid 'tile number' for texture definition");
-                break;
-            }
-
-            if (have_crc32)
-            {
-                int32_t const orig_crc32 = tileGetCRC32(tile);
-                if (orig_crc32 != tile_crc32)
-                {
-                     pos.Message(MSG_DEBUGMSG, "CRC32 of tile %d doesn't match! CRC32: %d, Expected: %d\n", tile, orig_crc32, tile_crc32);
-                    break;
-                }
-            }
-
-            if (have_size)
-            {
-                vec2_16_t const orig_size = tilesiz[tile];
-                if (orig_size.x != tile_size.x && orig_size.y != tile_size.y)
-                {
-                    pos.Message(MSG_DEBUGMSG, "Size of tile %d doesn't match! Size: (%d, %d), Expected: (%d, %d)\n", tile, orig_size.x, orig_size.y, tile_size.x, tile_size.y);
-                    break;
-                }
-            }
-            // fixme - forward to the game code. These are Blood specific.
-            if (havesurface)
-                ;// gi->SetSurfType(tile, surface);
-            if (havevox)
-                ;// gi->SetVoxel(tile, vox);
-            if (haveshade)
-                ;// gi->SetShade(tile, shade);
-            if (haveview)
-                picanm[tile].extra = view & 7;
-
-            if (fn.IsEmpty())
-            {
-                // tilefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
-                picanm[tile].sf |= flags;
-                int xo, yo;
-                if (havexoffset)
-                    xo = xoffset;
-                else
-                    xo = tileLeftOffset(tile);
-                if (haveyoffset)
-                    yo = yoffset;
-                else
-                    yo = tileTopOffset(tile);
-
-                auto tex = tileGetTexture(tile);
-                if (tex) tex->SetOffsets(xo, yo);
-
-                if (haveextra)
-                    picanm[tile].extra = extra;
-
-                if (flags == 0 && !havexoffset && !haveyoffset && !haveextra)
-                    pos.Message(MSG_ERROR, "missing 'file name' for tilefromtexture definitiond");
-                break;
-            }
-
-            int32_t const texstatus = tileImportFromTexture(fn, tile, alphacut, istexture);
-            if (texstatus == -3)
-				pos.Message(MSG_ERROR, "No palette loaded, in tilefromtexture definition");
-            if (texstatus == -(3<<8))
-                pos.Message(MSG_ERROR, "\"%s\" has more than one tile, in tilefromtexture definition", fn.GetChars());
-            if (texstatus < 0)
-                break;
-
-            picanm[tile].sf |= flags;
-
-            int xo;
-            if (havexoffset)
-                xo = xoffset;
-            else if (texstatus == 0)
-                xo = 0;
-            else
-                xo = tileLeftOffset(tile);
-
-
-            int yo;
-            if (haveyoffset)
-                yo = yoffset;
-            else if (texstatus == 0)
-                yo = 0;
-            else
-                yo = tileTopOffset(tile);
-
-            auto tex = tileGetTexture(tile);
-            if (tex) tex->SetOffsets(xo, yo);
-
-            if (haveextra)
-                picanm[tile].extra = extra;
+            tileImport(pos, imp);
         }
         break;
         case T_COPYTILE:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits.h>
 #include "textures.h"
 #include "image.h"
 #include "i_time.h"
@@ -500,3 +501,21 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 }
 
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
+
+
+struct TileImport
+{
+	FString fn;
+	int tile = -1;
+	int alphacut = 128, flags = 0;
+	int haveextra = 0;
+	int xoffset = INT_MAX, yoffset = INT_MAX;
+	int istexture = 0, extra = INT_MAX;
+	int64_t crc32 = INT64_MAX;
+	int sizex = INT_MAX, sizey;
+	// Blood extensions
+	int surface = INT_MAX, vox = INT_MAX, shade = INT_MAX;
+
+};
+
+void tileImport(FScriptPosition& pos, TileImport& imp);

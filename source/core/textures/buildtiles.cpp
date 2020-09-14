@@ -45,6 +45,7 @@
 #include "palettecontainer.h"
 #include "texturemanager.h"
 #include "c_dispatch.h"
+#include "sc_man.h"
 
 enum
 {
@@ -1067,7 +1068,60 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 	return true;
 }
 
+//===========================================================================
+// 
+//	Internal worker for tileImportTexture
+//
+//===========================================================================
 
+void tileImport(FScriptPosition& pos, TileImport& imp)
+{
+	if (imp.tile == -1)
+	{
+		pos.Message(MSG_ERROR, "missing tile number in import declaration");
+		return;
+	}
+	if ((unsigned)imp.tile >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "Invalid tile number %d in import declaration", imp.tile);
+		return;
+	}
+
+	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
+	{
+		// Only print as developer diagnostic if that mode is enabled.
+		pos.Message(MSG_DEBUGMSG, "CRC32 mismatch for tile %d.", imp.tile);
+		return;
+	}
+
+	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
+	{
+		pos.Message(MSG_DEBUGMSG, "Size mismatch for tile %d", imp.tile);
+		return;
+	}
+#if 0
+	// fixme - forward to the game code. These are Blood specific.
+	if (imp.havesurface)
+		;// gi->SetSurfType(tile, surface);
+	if (imp.havevox)
+		;// gi->SetVoxel(tile, vox);
+	if (imp.haveshade)
+		;// gi->SetShade(tile, shade);
+#endif
+
+	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
+
+	picanm[imp.tile].sf |= imp.flags;
+	// This is not quite the same as originally, for two reasons:
+	// 1: Since these are texture properties now, there's no need to clear them.
+	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
+	if (imp.xoffset == INT_MAX) imp.xoffset = tileLeftOffset(imp.tile);
+	if (imp.yoffset == INT_MAX) imp.yoffset = tileTopOffset(imp.tile);
+
+	auto tex = tileGetTexture(imp.tile);
+	if (tex) tex->SetOffsets(imp.xoffset, imp.yoffset);
+	if (imp.extra != INT_MAX) picanm[imp.tile].extra = imp.extra;
+}
 
 TileSiz tilesiz;
 PicAnm picanm;
