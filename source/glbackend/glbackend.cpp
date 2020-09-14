@@ -549,6 +549,10 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 	alpha *= (dastat & RS_TRANS1)? glblend[0].def[!!(dastat & RS_TRANS2)].alpha : 1.;
 	TexturePick pick;
 	int palid = TRANSLATION(Translation_Remap + curbasepal, dapalnum);
+
+	if (picanm[picnum].sf & PICANM_ANIMTYPE_MASK)
+		picnum += animateoffs(picnum, 0);
+
 	if (!PickTexture(picnum, nullptr, palid, pick)) return;
 
 	DrawTexture(&twodpsp, pick.texture, sx, sy,
@@ -567,7 +571,7 @@ void hud_drawsprite(double sx, double sy, int z, double a, int picnum, int dasha
 		DTA_Rotate, a * (-360./2048),
 		DTA_FlipOffsets, !(dastat & (/*RS_TOPLEFT |*/ RS_CENTER)),
 		DTA_Alpha, alpha,
-		DTA_Indexed, !!(pick.translation & 0x80000000),
+		DTA_Indexed, false,// !!(pick.translation & 0x80000000),
 		// todo: pass pick.tintFlags and pick.tintColor
 		TAG_DONE);
 }
