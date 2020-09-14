@@ -220,8 +220,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
     if (strafeKey)
     {
-        svel -= xs_CRoundToInt(hidInput->mousex * 4.);
-        svel -= hidInput->dyaw * keymove;
+        svel -= xs_CRoundToInt((hidInput->mousex * 4.) + (scaleAdjust * (hidInput->dyaw * keymove)));
     }
     else
     {
@@ -237,15 +236,18 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         q16horz = -q16horz;
 
     q16horz -= FloatToFixed(scaleAdjust * hidInput->dpitch);
-    svel -= hidInput->dx * keymove;
-    fvel -= hidInput->dz * keymove;
+    svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keymove));
+    fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keymove));
 
     if (strafeKey)
     {
-        if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-            svel += keymove;
-        if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-            svel -= keymove;
+        if (abs(svel) < keymove)
+        {
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+                svel += keymove;
+            if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+                svel -= keymove;
+        }
     }
     else
     {
