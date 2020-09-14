@@ -100,7 +100,6 @@ void StartLevel(MapRecord* level)
 	gFrameClock = 0;
 	STAT_Update(0);
 	EndLevel();
-	gInput = {};
 	currentLevel = level;
 
 	if (gGameOptions.nGameType == 0)

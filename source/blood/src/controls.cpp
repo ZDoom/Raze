@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-InputPacket gInput;
+static InputPacket gInput;
 bool bSilentAim = false;
 
 int iTurnCount = 0;
@@ -50,7 +50,7 @@ float gViewAngleAdjust;
 float gViewLookAdjust;
 int gViewLookRecenter;
 
-void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
+static void GetInputInternal(ControlInfo* const hidInput)
 {
     int prevPauseState = paused;
 
@@ -64,22 +64,22 @@ void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
 
     InputPacket input = {};
 
-    ApplyGlobalInput(inputParm, hidInput);
+    ApplyGlobalInput(gInput, hidInput);
 
-    bool mouseaim = !(inputParm.actions & SB_AIMMODE);
-    if (!mouseaim) inputParm.actions |= SB_CENTERVIEW;
+    bool mouseaim = !(gInput.actions & SB_AIMMODE);
+    if (!mouseaim) gInput.actions |= SB_CENTERVIEW;
 
     if (gPlayer[myconnectindex].nextWeapon == 0)
     {
     }
 
-    if (inputParm.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-        inputParm.actions |= SB_CENTERVIEW;
+    if (gInput.actions & (SB_LOOK_UP|SB_LOOK_DOWN))
+        gInput.actions |= SB_CENTERVIEW;
 
-    int const run = !!(inputParm.actions & SB_RUN);
+    int const run = !!(gInput.actions & SB_RUN);
     int const keyMove = (1 + run) << 10;
 
-    if (inputParm.fvel < keyMove && inputParm.fvel > -keyMove)
+    if (gInput.fvel < keyMove && gInput.fvel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Move_Forward))
             input.fvel += keyMove;
@@ -88,7 +88,7 @@ void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
             input.fvel -= keyMove;
     }
 
-    if (inputParm.svel < keyMove && inputParm.svel > -keyMove)
+    if (gInput.svel < keyMove && gInput.svel > -keyMove)
     {
         if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
             input.svel += keyMove;
@@ -101,7 +101,7 @@ void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        if (inputParm.svel < keyMove && inputParm.svel > -keyMove)
+        if (gInput.svel < keyMove && gInput.svel > -keyMove)
         {
             if (buttonMap.ButtonDown(gamefunc_Turn_Left))
                 input.svel += keyMove;
@@ -163,10 +163,10 @@ void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
 
     input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch / mlookScale));
 
-    inputParm.fvel = clamp(inputParm.fvel + input.fvel, -2048, 2048);
-    inputParm.svel = clamp(inputParm.svel + input.svel, -2048, 2048);
-    inputParm.q16avel += input.q16avel;
-    inputParm.q16horz = clamp(inputParm.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
+    gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
+    gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
+    gInput.q16avel += input.q16avel;
+    gInput.q16horz = clamp(gInput.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
 
     if (gMe && gMe->pXSprite && gMe->pXSprite->health != 0 && !paused)
     {
@@ -192,7 +192,7 @@ void GetInputInternal(InputPacket &inputParm, ControlInfo* const hidInput)
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    GetInputInternal(gInput, hidInput);
+    GetInputInternal(hidInput);
     if (packet)
     {
         *packet = gInput;
