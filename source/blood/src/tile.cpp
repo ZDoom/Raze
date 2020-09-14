@@ -128,4 +128,11 @@ char tileGetSurfType(int hit)
     return 0;
 }
 
+void GameInterface::SetTileProps(int tile, int surf, int vox, int shade)
+{
+    if (surf != INT_MAX) surfType[tile] = surf;
+    if (vox != INT_MAX) voxelIndex[tile] = vox;
+    if (shade != INT_MAX) tileShade[tile] = shade;
+}
+
 END_BLD_NS

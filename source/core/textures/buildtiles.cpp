@@ -46,6 +46,7 @@
 #include "texturemanager.h"
 #include "c_dispatch.h"
 #include "sc_man.h"
+#include "gamestruct.h"
 
 enum
 {
@@ -1099,15 +1100,7 @@ void tileImport(FScriptPosition& pos, TileImport& imp)
 		pos.Message(MSG_DEBUGMSG, "Size mismatch for tile %d", imp.tile);
 		return;
 	}
-#if 0
-	// fixme - forward to the game code. These are Blood specific.
-	if (imp.havesurface)
-		;// gi->SetSurfType(tile, surface);
-	if (imp.havevox)
-		;// gi->SetVoxel(tile, vox);
-	if (imp.haveshade)
-		;// gi->SetShade(tile, shade);
-#endif
+	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
 
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
