@@ -462,7 +462,7 @@ void GameInterface::Ticker()
             PlayLocalSound(StaticSound[59], 0, true, CHANF_UI);
 
         if (EndLevel > 1) EndLevel--;
-		r_NoInterpolate = false;
+		r_NoInterpolate = true;
         int flash = 7 - abs(EndLevel - 7);
         videoTintBlood(flash * 30, flash * 30, flash * 30);
         if (EndLevel == 1)
