@@ -1104,7 +1104,7 @@ void tileImport(FScriptPosition& pos, TileImport& imp)
 
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;
 
-	picanm[imp.tile].sf |= imp.flags;
+	TileFiles.tiledata[imp.tile].picanm.sf |= imp.flags;
 	// This is not quite the same as originally, for two reasons:
 	// 1: Since these are texture properties now, there's no need to clear them.
 	// 2: The original code assumed that an imported texture cannot have an offset. But this can import Doom patches and PNGs with grAb, so the situation is very different.
@@ -1113,7 +1113,7 @@ void tileImport(FScriptPosition& pos, TileImport& imp)
 
 	auto tex = tileGetTexture(imp.tile);
 	if (tex) tex->SetOffsets(imp.xoffset, imp.yoffset);
-	if (imp.extra != INT_MAX) picanm[imp.tile].extra = imp.extra;
+	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
 }
 
 TileSiz tilesiz;
