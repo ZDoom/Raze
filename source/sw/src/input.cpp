@@ -199,7 +199,7 @@ static void processWeapon(PLAYERp const pp)
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim, bool allowkeys)
+static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool const mouseaim)
 {
     double const scaleAdjust = InputScale();
     bool const strafeKey = buttonMap.ButtonDown(gamefunc_Strafe) && !pp->sop;
@@ -239,7 +239,17 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
     svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keymove));
     fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keymove));
 
-    if (strafeKey || pp->sop)
+    if (strafeKey)
+    {
+        if (abs(svel) < keymove)
+        {
+            if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+                svel += keymove;
+            if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+                svel -= keymove;
+        }
+    }
+    else
     {
         if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && pp->sop))
         {
@@ -257,39 +267,21 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
         }
     }
 
-    if (allowkeys)
+    if (abs(loc.svel) < keymove)
     {
-        if (!pp->sop)
-        {
-            if (strafeKey)
-            {
-                if (abs(svel) < keymove)
-                {
-                    if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-                        svel += keymove;
-                    if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-                        svel -= keymove;
-                }
-            }
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !pp->sop)
+            svel += keymove;
 
-            if (abs(loc.svel) < keymove)
-            {
-                if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-                    svel += keymove;
+        if (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !pp->sop)
+            svel -= keymove;
+    }
+    if (abs(loc.fvel) < keymove)
+    {
+        if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+            fvel += keymove;
 
-                if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-                    svel -= keymove;
-            }
-        }
-
-        if (abs(loc.fvel) < keymove)
-        {
-            if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-                fvel += keymove;
-
-            if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-                fvel -= keymove;
-        }
+        if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+            fvel -= keymove;
     }
 
     if (!cl_syncinput)
@@ -366,7 +358,7 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
     bool mouseaim;
 
     processInputBits(pp, hidInput, &mouseaim);
-    processMovement(pp, hidInput, mouseaim, packet != nullptr);
+    processMovement(pp, hidInput, mouseaim);
     processWeapon(pp);
 
     if (packet)

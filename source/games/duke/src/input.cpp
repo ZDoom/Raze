@@ -586,7 +586,7 @@ int getticssincelastupdate()
 //
 //---------------------------------------------------------------------------
 
-static void processMovement(player_struct *p, InputPacket &input, ControlInfo* const hidInput, double scaleFactor, bool allowkeys)
+static void processMovement(player_struct *p, InputPacket &input, ControlInfo* const hidInput, double scaleFactor)
 {
 	bool mouseaim = !(loc.actions & SB_AIMMODE);
 
@@ -608,10 +608,21 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo* c
 	if (!in_mouseflip) input.q16horz = -input.q16horz;
 
 	input.q16horz -= FloatToFixed(scaleFactor * (hidInput->dpitch));
-	input.svel -= xs_CRoundToInt(scaleFactor * hidInput->dx * keymove);
-	input.fvel -= xs_CRoundToInt(scaleFactor * hidInput->dz * keymove);
+	input.svel -= scaleFactor * (hidInput->dx * keymove);
+	input.fvel -= scaleFactor * (hidInput->dz * keymove);
 
-	if (!buttonMap.ButtonDown(gamefunc_Strafe))
+	if (buttonMap.ButtonDown(gamefunc_Strafe))
+	{
+		if (!loc.svel)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Turn_Left))
+				input.svel = keymove;
+
+			if (buttonMap.ButtonDown(gamefunc_Turn_Right))
+				input.svel = -keymove;
+		}
+	}
+	else
 	{
 		int tics = getticssincelastupdate();
 
@@ -633,59 +644,44 @@ static void processMovement(player_struct *p, InputPacket &input, ControlInfo* c
 
 	}
 
-	if (allowkeys)
+	if (abs(loc.svel) < keymove)
 	{
-		if (buttonMap.ButtonDown(gamefunc_Strafe))
-		{
-			if (abs(loc.svel) < keymove)
-			{
-				if (buttonMap.ButtonDown(gamefunc_Turn_Left))
-					input.svel = keymove;
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
+			input.svel += keymove;
 
-				if (buttonMap.ButtonDown(gamefunc_Turn_Right))
-					input.svel = -keymove;
+		if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
+			input.svel += -keymove;
+	}
+
+	if (abs(loc.fvel) < keymove)
+	{
+		if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
+		{
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+			{
+				input.fvel += keymove;
+				if (p->drink_amt & 1)
+					input.svel += keymove;
+				else
+					input.svel -= keymove;
+			}
+
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+			{
+				input.fvel += -keymove;
+				if (p->drink_amt & 1)
+					input.svel -= keymove;
+				else
+					input.svel += keymove;
 			}
 		}
-
-		if (abs(loc.svel) < keymove)
+		else
 		{
-			if (buttonMap.ButtonDown(gamefunc_Strafe_Left))
-				input.svel = keymove;
+			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
+				input.fvel += keymove;
 
-			if (buttonMap.ButtonDown(gamefunc_Strafe_Right))
-				input.svel = -keymove;
-		}
-
-		if (abs(loc.fvel) < keymove)
-		{
-			if (isRR() && p->drink_amt >= 66 && p->drink_amt <= 87)
-			{
-				if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-				{
-					input.fvel += keymove;
-					if (p->drink_amt & 1)
-						input.svel += keymove;
-					else
-						input.svel -= keymove;
-				}
-
-				if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-				{
-					input.fvel += -keymove;
-					if (p->drink_amt & 1)
-						input.svel -= keymove;
-					else
-						input.svel += keymove;
-				}
-			}
-			else
-			{
-				if (buttonMap.ButtonDown(gamefunc_Move_Forward))
-					input.fvel += keymove;
-
-				if (buttonMap.ButtonDown(gamefunc_Move_Backward))
-					input.fvel -= keymove;
-			}
+			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
+				input.fvel += -keymove;
 		}
 	}
 }
@@ -986,7 +982,7 @@ static void FinalizeInput(int playerNum, InputPacket& input, bool vehicle)
 //
 //---------------------------------------------------------------------------
 
-static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput, bool allowkeys)
+static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput)
 {
 	auto const p = &ps[myconnectindex];
 
@@ -996,7 +992,6 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput,
 		return;
 	}
 
-	// Todo: Handle this through SERVERINFO CVARs.
 	if (numplayers == 1)
 	{
 		setlocalplayerinput(p);
@@ -1020,7 +1015,7 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput,
 	else
 	{
 		processInputBits(p, hidInput);
-		processMovement(p, input, hidInput, scaleAdjust, allowkeys);
+		processMovement(p, input, hidInput, scaleAdjust);
 		checkCrouchToggle(p);
 		FinalizeInput(myconnectindex, input, false);
 	}
@@ -1042,7 +1037,7 @@ static void GetInputInternal(InputPacket &locInput, ControlInfo* const hidInput,
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-	GetInputInternal(loc, hidInput, packet != nullptr);
+	GetInputInternal(loc, hidInput);
 	if (packet)
 	{
 		auto const pPlayer = &ps[myconnectindex];
