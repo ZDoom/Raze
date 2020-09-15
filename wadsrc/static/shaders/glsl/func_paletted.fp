@@ -20,7 +20,7 @@ vec4 ProcessTexel()
 	float z;
 	if (((uPalLightLevels >> 8)  & 0xff) == 2)
 	{
-		z = distance(pixelpos.xyz, uCameraPos.xyz);
+		z = distance(pixelpos.xyz, uCameraPos.xyz)*0.7;
 	}
 	else 
 	{
