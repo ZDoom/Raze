@@ -341,7 +341,11 @@ void Display()
 
 	screen->FrameTime = I_msTimeFS();
 	screen->BeginFrame();
+	twodpsp.Clear();
+	twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 	twodpsp.ClearClipRect();
+	twod->Clear();
+	twod->SetSize(screen->GetWidth(), screen->GetHeight());
 	twod->ClearClipRect();
 	switch (gamestate)
 	{
@@ -362,10 +366,6 @@ void Display()
 			screen->FrameTime = I_msTimeFS();
 			screen->BeginFrame();
 			screen->SetSceneRenderTarget(gl_ssao != 0);
-			twodpsp.Clear();
-			twod->Clear();
-			twod->SetSize(screen->GetWidth(), screen->GetHeight());
-			twodpsp.SetSize(screen->GetWidth(), screen->GetHeight());
 			gi->Render();
 			DrawFullscreenBlends();
 			drawMapTitle();
