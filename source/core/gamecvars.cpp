@@ -81,6 +81,7 @@ CVARD(Bool, cl_swaltnukeinit, false, CVAR_ARCHIVE, "enable/disable SW alternativ
 CVARD(Bool, cl_dukefixrpgrecoil, false, CVAR_ARCHIVE, "soften recoil of Duke 3D's RPG")
 CVARD(Bool, cl_smoothsway, false, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CVARD(Bool, cl_showmagamt, false, CVAR_ARCHIVE, "show the amount of rounds left in the magazine of your weapon on the modern HUD")
+CVARD(Bool, cl_nomeleeblur, false, CVAR_ARCHIVE, "enable/disable blur effect with melee weapons in SW")
 CUSTOM_CVARD(Int, cl_crosshairscale, 50, CVAR_ARCHIVE, "changes the size of the crosshair")
 {
 	if (self < 1) self = 1;

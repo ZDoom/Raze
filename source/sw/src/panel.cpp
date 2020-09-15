@@ -1017,7 +1017,11 @@ pSwordSlide(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnSwordBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnSwordBlur(psp);
+    }
+
     vel_adj = 24;
 
     nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 512)) / 64.;
@@ -1043,7 +1047,11 @@ pSwordSlideDown(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnSwordBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnSwordBlur(psp);
+    }
+
     vel_adj = 20;
     vel = 2500;
 
@@ -1102,7 +1110,11 @@ pSwordSlideR(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnSwordBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnSwordBlur(psp);
+    }
+
     vel_adj = 24;
 
     nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang + 1024 + 512)) / 64.;
@@ -1128,7 +1140,11 @@ pSwordSlideDownR(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnSwordBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnSwordBlur(psp);
+    }
+
     vel_adj = 24;
     vel = 2500;
 
@@ -6244,7 +6260,11 @@ pFistSlide(PANEL_SPRITEp psp)
     //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnFistBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnFistBlur(psp);
+    }
+
     vel_adj = 68;
 
     //nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang)) / 64.;
@@ -6270,7 +6290,11 @@ pFistSlideDown(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnFistBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnFistBlur(psp);
+    }
+
     vel_adj = 48;
     vel = 3500;
 
@@ -6363,7 +6387,11 @@ pFistSlideR(PANEL_SPRITEp psp)
     //nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnFistBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnFistBlur(psp);
+    }
+
     vel_adj = 68;
 
     //nx += psp->vel * synctics * calcSinTableValue(NORM_ANGLE(psp->ang)) / 64.;
@@ -6389,7 +6417,11 @@ pFistSlideDownR(PANEL_SPRITEp psp)
     nx = xs_CRoundToInt(psp->x * FRACUNIT) | psp->xfract;
     ny = xs_CRoundToInt(psp->y * FRACUNIT) | psp->yfract;
 
-    SpawnFistBlur(psp);
+    if (!cl_nomeleeblur)
+    {
+        SpawnFistBlur(psp);
+    }
+
     vel_adj = 48;
     vel = 3500;
 
