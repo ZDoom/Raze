@@ -1071,35 +1071,61 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 
 //===========================================================================
 // 
+//	Parsing stuff for tile data comes below.
+//
+//===========================================================================
+
+//===========================================================================
+// 
+//	Helpers for tile parsing
+//
+//===========================================================================
+
+bool ValidateTileRange(const char* cmd, int &begin, int& end, FScriptPosition pos)
+{
+	if (end < begin)
+	{
+		pos.Message(MSG_WARNING, "%s: tile range [%d..%d] is backwards. Indices were swapped.", cmd, begin, end);
+		std::swap(begin, end);
+	}
+
+	if ((unsigned)begin >= MAXUSERTILES || (unsigned)end >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile range [%d..%d]", cmd, begin, end);
+		return false;
+	}
+
+	return true;
+}
+
+bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos)
+{
+	if ((unsigned)tile >= MAXUSERTILES)
+	{
+		pos.Message(MSG_ERROR, "%s: Invalid tile number %d", cmd, tile);
+		return false;
+	}
+
+	return true;
+}
+
+//===========================================================================
+// 
 //	Internal worker for tileImportTexture
 //
 //===========================================================================
 
-void tileImport(FScriptPosition& pos, TileImport& imp)
+void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
 {
-	if (imp.tile == -1)
-	{
-		pos.Message(MSG_ERROR, "missing tile number in import declaration");
+	if (!ValidateTilenum(cmd, imp.tile, pos))
 		return;
-	}
-	if ((unsigned)imp.tile >= MAXUSERTILES)
-	{
-		pos.Message(MSG_ERROR, "Invalid tile number %d in import declaration", imp.tile);
-		return;
-	}
 
 	if (imp.crc32 != INT64_MAX && int(imp.crc32) != tileGetCRC32(imp.tile))
-	{
-		// Only print as developer diagnostic if that mode is enabled.
-		pos.Message(MSG_DEBUGMSG, "CRC32 mismatch for tile %d.", imp.tile);
 		return;
-	}
 
 	if (imp.sizex != INT_MAX && tileWidth(imp.tile) != imp.sizex && tileHeight(imp.tile) != imp.sizey)
-	{
-		pos.Message(MSG_DEBUGMSG, "Size mismatch for tile %d", imp.tile);
 		return;
-	}
+
 	gi->SetTileProps(imp.tile, imp.surface, imp.vox, imp.shade);
 
 	if (imp.fn.IsNotEmpty() && tileImportFromTexture(imp.fn, imp.tile, imp.alphacut, imp.istexture) < 0) return;

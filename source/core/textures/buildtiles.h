@@ -518,4 +518,4 @@ struct TileImport
 
 };
 
-void tileImport(FScriptPosition& pos, TileImport& imp);
+void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp);

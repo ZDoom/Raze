@@ -760,7 +760,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
-            tileImport(pos, imp);
+            processTileImport("tileimporttexture", pos, imp);
         }
         break;
         case T_COPYTILE:
