@@ -544,7 +544,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    sc.ScriptError("Unknown keyword %d", sc.String);
+                    sc.ScriptError("Unknown keyword %s", sc.String);
                     break;
                 }
             }
@@ -585,7 +585,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    sc.ScriptError("Unknown keyword %d", sc.String);
+                    sc.ScriptError("Unknown keyword %s", sc.String);
                     break;
                 }
             }
@@ -600,7 +600,7 @@ void LoadCustomInfoFromScript(const char *filename)
             if (sc.ParseError) curskill = -1;
             if ((unsigned)--curskill >= 4u)
             {
-                sc.ScriptMessage("Skill number %d not in range 1-4 on line %s:%d\n", curskill + 1);
+                sc.ScriptMessage("Skill number %d not in range 1-4", curskill + 1);
                 curskill = -1;
                 break;
             }
@@ -618,7 +618,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     break;
                 }
                 default:
-                    sc.ScriptError("Unknown keyword %d", sc.String);
+                    sc.ScriptError("Unknown keyword %s", sc.String);
                     break;
                 }
             }
@@ -702,7 +702,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     amt = sc.Number;
                     break;
                 default:
-                    sc.ScriptError("Unknown keyword %d", sc.String);
+                    sc.ScriptError("Unknown keyword %s", sc.String);
                     break;
                 }
             }
@@ -770,7 +770,7 @@ void LoadCustomInfoFromScript(const char *filename)
                     wpickup = sc.Number;
                     break;
                 default:
-                    sc.ScriptError("Unknown keyword %d", sc.String);
+                    sc.ScriptError("Unknown keyword %s", sc.String);
                     break;
                 }
             }
@@ -830,7 +830,7 @@ void LoadCustomInfoFromScript(const char *filename)
                         trak = sc.Number;
 						break;
 					default:
-                        sc.ScriptError("Unknown keyword %d", sc.String);
+                        sc.ScriptError("Unknown keyword %s", sc.String);
                         break;
 				}
 			}
@@ -848,7 +848,7 @@ void LoadCustomInfoFromScript(const char *filename)
         case CM_SECRET:
         case CM_QUIT:
         default:
-            sc.ScriptError("Unknown keyword %d", sc.String);
+            sc.ScriptError("Unknown keyword %s", sc.String);
             break;
         }
     }
