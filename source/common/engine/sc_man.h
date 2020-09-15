@@ -131,6 +131,11 @@ public:
 	void UnGet();
 
 	bool Compare(const char *text);
+	inline bool Compare(const std::initializer_list<const char*>& list)
+	{
+		for (auto c : list) if (Compare(c)) return true;
+		return false;
+	}
 	int MatchString(const char * const *strings, size_t stride = sizeof(char*));
 	int MustMatchString(const char * const *strings, size_t stride = sizeof(char*));
 	int GetMessageLine();
