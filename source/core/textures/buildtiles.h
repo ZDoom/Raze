@@ -51,7 +51,7 @@ enum class ReplacementType : int
 // accordingly.
 struct picanm_t 
 {
-	uint8_t num;  // animate number
+	uint16_t num;  // animate number
 	uint8_t sf;  // anim. speed and flags
 	uint8_t extra;
 
@@ -344,6 +344,15 @@ struct BuildTiles
 		}
 
 	}
+
+	void setAnim(int tile, int type, int speed, int frames)
+	{
+		auto& anm = tiledata[tile].picanm;
+		anm.sf &= ~(PICANM_ANIMTYPE_MASK | PICANM_ANIMSPEED_MASK);
+		anm.sf |= clamp(speed, 0, 15) | (type << PICANM_ANIMTYPE_SHIFT);
+		anm.num = frames;
+	}
+
 	FGameTexture* ValidateCustomTile(int tilenum, ReplacementType type);
 	int32_t artLoadFiles(const char* filename);
 	uint8_t* tileMakeWritable(int num);
@@ -374,7 +383,6 @@ void tileRemoveReplacement(int tile);
 bool tileLoad(int tileNum);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char* filename);
-void tileSetAnim(int tile, const picanm_t& anm);
 int tileSetHightileReplacement(int picnum, int palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, uint8_t flags);
 int tileSetSkybox(int picnum, int palnum, const char **facenames, int flags );
 int tileDeleteReplacement(int picnum, int palnum);
@@ -503,6 +511,10 @@ inline FGameTexture* tileGetTexture(int tile, bool animate = false)
 bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick);
 
 
+bool ValidateTileRange(const char* cmd, int& begin, int& end, FScriptPosition pos, bool allowswap = true);
+bool ValidateTilenum(const char* cmd, int tile, FScriptPosition pos);
+
+
 struct TileImport
 {
 	FString fn;
@@ -519,3 +531,10 @@ struct TileImport
 };
 
 void processTileImport(const char* cmd, FScriptPosition& pos, TileImport& imp);
+
+struct SetAnim
+{
+	int tile1, tile2, speed, type;
+};
+
+void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp);

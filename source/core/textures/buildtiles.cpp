@@ -1081,7 +1081,7 @@ bool PickTexture(int picnum, FGameTexture* tex, int paletteid, TexturePick& pick
 //
 //===========================================================================
 
-bool ValidateTileRange(const char* cmd, int &begin, int& end, FScriptPosition pos)
+bool ValidateTileRange(const char* cmd, int &begin, int& end, FScriptPosition pos, bool allowswap)
 {
 	if (end < begin)
 	{
@@ -1140,6 +1140,31 @@ void processTileImport(const char *cmd, FScriptPosition& pos, TileImport& imp)
 	auto tex = tileGetTexture(imp.tile);
 	if (tex) tex->SetOffsets(imp.xoffset, imp.yoffset);
 	if (imp.extra != INT_MAX) TileFiles.tiledata[imp.tile].picanm.extra = imp.extra;
+}
+
+//===========================================================================
+// 
+//	Internal worker for tileSetAnim
+//
+//===========================================================================
+
+void processSetAnim(const char* cmd, FScriptPosition& pos, SetAnim& imp) 
+{
+	if (!ValidateTilenum(cmd, imp.tile1, pos) ||
+	    !ValidateTilenum(cmd, imp.tile2, pos))
+		return;
+
+	if (imp.type < 0 || imp.type > 3)
+	{
+		pos.Message(MSG_ERROR, "%s: animation type must be 0-3, got %d", cmd, imp.type);
+		return;
+	}
+
+	int count = imp.tile2 - imp.tile1;
+	if (imp.type == (PICANM_ANIMTYPE_BACK >> PICANM_ANIMTYPE_SHIFT) && imp.tile1 > imp.tile2)
+		count = -count;
+
+	TileFiles.setAnim(imp.tile1, imp.type, imp.speed, count);
 }
 
 TileSiz tilesiz;

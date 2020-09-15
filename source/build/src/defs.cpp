@@ -607,44 +607,12 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_ANIMTILERANGE:
         {
-            int32_t tile1, tile2, spd, type;
-
-            if (scriptfile_getsymbol(script,&tile1)) break;
-            if (scriptfile_getsymbol(script,&tile2)) break;
-            if (scriptfile_getsymbol(script,&spd)) break;
-            if (scriptfile_getsymbol(script,&type)) break;
-
-            if (check_tile("animtilerange", tile1, script, pos))
-                break;
-            if (check_tile("animtilerange", tile2, script, pos))
-                break;
-
-            spd = clamp(spd, 0, 15);
-            if (type&~3)
-            {
-                pos.Message(MSG_ERROR, "animtilerange: animation type must be 0, 1, 2 or 3");
-                break;
-            }
-
-            int32_t num = tile2-tile1;
-            if (type == 3 && tile1 > tile2) // PICANM_ANIMTYPE_BACK
-                num = -num;
-
-            if ((unsigned)num > 255)
-            {
-                pos.Message(MSG_ERROR, "animtilerange: tile difference can be at most 255");
-                break;
-            }
-
-            // set anim speed
-            picanm[tile1].sf &= ~PICANM_ANIMSPEED_MASK;
-            picanm[tile1].sf |= spd;
-            // set anim type
-            picanm[tile1].sf &= ~PICANM_ANIMTYPE_MASK;
-            picanm[tile1].sf |= type<<PICANM_ANIMTYPE_SHIFT;
-            // set anim number
-            picanm[tile1].num = num;
-
+            SetAnim set;
+            if (scriptfile_getsymbol(script,&set.tile1)) break;
+            if (scriptfile_getsymbol(script,&set.tile2)) break;
+            if (scriptfile_getsymbol(script,&set.speed)) break;
+            if (scriptfile_getsymbol(script,&set.type)) break;
+            processSetAnim("animtilerange", pos, set);
             break;
         }
         case T_TILEFROMTEXTURE:
@@ -867,10 +835,6 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             int32_t const texstatus = tileImportFromTexture(fn, tile, 255, 0);
-            if (texstatus == -3)
-                pos.Message(MSG_ERROR, "No palette loaded, in importtile definition");
-            if (texstatus == -(3<<8))
-                pos.Message(MSG_ERROR, "\"%s\" has more than one tile, in importtile definition", fn.GetChars());
             if (texstatus < 0)
                 break;
 
