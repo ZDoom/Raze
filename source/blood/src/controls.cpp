@@ -52,15 +52,8 @@ int gViewLookRecenter;
 
 static void GetInputInternal(ControlInfo* const hidInput)
 {
+    double const scaleAdjust = InputScale();
     int prevPauseState = paused;
-
-    static double lastInputTicks;
-    auto const    currentHiTicks    = I_msTimeF();
-    double const  elapsedInputTicks = currentHiTicks - lastInputTicks;
-
-    lastInputTicks = currentHiTicks;
-
-    auto scaleAdjustmentToInterval = [=](double x) { return x * kTicsPerSec / (1000.0 / elapsedInputTicks); };
 
     InputPacket input = {};
 
@@ -133,35 +126,34 @@ static void GetInputInternal(ControlInfo* const hidInput)
         turnHeldTime = 0;
 
     if (turnLeft)
-        input.q16avel -= FloatToFixed(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2));
+        input.q16avel -= FloatToFixed(scaleAdjust * (ClipHigh(12 * turnHeldTime, gTurnSpeed) >> 2));
     if (turnRight)
-        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(ClipHigh(12 * turnHeldTime, gTurnSpeed)>>2));
+        input.q16avel += FloatToFixed(scaleAdjust * (ClipHigh(12 * turnHeldTime, gTurnSpeed) >> 2));
 
     if (run && turnHeldTime > 24)
         input.q16avel <<= 1;
 
     if (buttonMap.ButtonDown(gamefunc_Strafe))
     {
-        input.svel -= hidInput->mousex * 32.f;
-        input.svel -= scaleAdjustmentToInterval(hidInput->dyaw * keyMove);
+        input.svel -= xs_CRoundToInt((hidInput->mousex * 32.) + (scaleAdjust * (hidInput->dyaw * keyMove)));
     }
     else
     {
-        input.q16avel += FloatToFixed(hidInput->mousex);
-        input.q16avel += FloatToFixed(scaleAdjustmentToInterval(hidInput->dyaw));
+        input.q16avel += FloatToFixed(hidInput->mousex + (scaleAdjust * (hidInput->dyaw)));
     }
 
-    input.svel  -= scaleAdjustmentToInterval(hidInput->dx * keyMove);
-    input.fvel -= scaleAdjustmentToInterval(hidInput->dz * keyMove);
+    input.svel -= xs_CRoundToInt(scaleAdjust * (hidInput->dx * keyMove));
+    input.fvel -= xs_CRoundToInt(scaleAdjust * (hidInput->dz * keyMove));
 
     if (mouseaim)
         input.q16horz += FloatToFixed(hidInput->mousey / mlookScale);
     else
-        input.fvel -= hidInput->mousey * 64.f;
+        input.fvel -= xs_CRoundToInt(hidInput->mousey * 64.);
+
     if (!in_mouseflip)
         input.q16horz = -input.q16horz;
 
-    input.q16horz -= FloatToFixed(scaleAdjustmentToInterval(hidInput->dpitch / mlookScale));
+    input.q16horz -= FloatToFixed(scaleAdjust * (hidInput->dpitch / mlookScale));
 
     gInput.fvel = clamp(gInput.fvel + input.fvel, -2048, 2048);
     gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
@@ -174,19 +166,19 @@ static void GetInputInternal(ControlInfo* const hidInput)
         int downAngle = -347;
         double lookStepUp = 4.0*upAngle/60.0;
         double lookStepDown = -4.0*downAngle/60.0;
-        gViewAngle = (gViewAngle + input.q16avel + FloatToFixed(scaleAdjustmentToInterval(gViewAngleAdjust))) & 0x7ffffff;
+        gViewAngle = (gViewAngle + input.q16avel + FloatToFixed(scaleAdjust * gViewAngleAdjust)) & 0x7ffffff;
         if (gViewLookRecenter)
         {
             if (gViewLook < 0)
-                gViewLook = min(gViewLook+FloatToFixed(scaleAdjustmentToInterval(lookStepDown)), 0);
+                gViewLook = min(gViewLook + FloatToFixed(scaleAdjust * lookStepDown), 0);
             if (gViewLook > 0)
-                gViewLook = max(gViewLook-FloatToFixed(scaleAdjustmentToInterval(lookStepUp)), 0);
+                gViewLook = max(gViewLook - FloatToFixed(scaleAdjust * lookStepUp), 0);
         }
         else
         {
-            gViewLook = clamp(gViewLook+FloatToFixed(scaleAdjustmentToInterval(gViewLookAdjust)), IntToFixed(downAngle), IntToFixed(upAngle));
+            gViewLook = clamp(gViewLook + FloatToFixed(scaleAdjust * gViewLookAdjust), IntToFixed(downAngle), IntToFixed(upAngle));
         }
-        gViewLook = clamp(gViewLook+(input.q16horz << 3), IntToFixed(downAngle), IntToFixed(upAngle));
+        gViewLook = clamp(gViewLook + (input.q16horz << 3), IntToFixed(downAngle), IntToFixed(upAngle));
     }
 }
 
