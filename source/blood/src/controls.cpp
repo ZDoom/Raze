@@ -40,6 +40,7 @@ BEGIN_BLD_NS
 static InputPacket gInput;
 
 void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust);
+void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust);
 
 static void GetInputInternal(ControlInfo* const hidInput)
 {
@@ -154,6 +155,7 @@ static void GetInputInternal(ControlInfo* const hidInput)
     if (!cl_syncinput && gamestate == GS_LEVEL)
     {
         applylook(&gPlayer[myconnectindex], input.q16avel, scaleAdjust);
+        sethorizon(&gPlayer[myconnectindex], input.q16horz, scaleAdjust);
     }
 }
 

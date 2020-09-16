@@ -1339,6 +1339,46 @@ void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
     pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
 }
 
+void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust)
+{
+    InputPacket *pInput = &pPlayer->input;
+
+    if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
+    {
+        if (pPlayer->q16look < 0)
+            pPlayer->q16look = min(pPlayer->q16look + FloatToFixed(scaleAdjust * 4.), 0);
+
+        if (pPlayer->q16look > 0)
+            pPlayer->q16look = max(pPlayer->q16look - FloatToFixed(scaleAdjust * 4.), 0);
+
+        if (!pPlayer->q16look)
+            pInput->actions &= ~SB_CENTERVIEW;
+    }
+    else
+    {
+        if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
+            pPlayer->q16look = min(pPlayer->q16look + FloatToFixed(scaleAdjust * 4.), IntToFixed(60));
+
+        if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
+            pPlayer->q16look = max(pPlayer->q16look - FloatToFixed(scaleAdjust * 4.), IntToFixed(-60));
+    }
+
+    pPlayer->q16look = clamp(pPlayer->q16look + q16horz, IntToFixed(-60), IntToFixed(60));
+
+    if (pPlayer->q16look > 0)
+    {
+        pPlayer->q16horiz = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
+    }
+    else if (pPlayer->q16look < 0)
+    {
+        pPlayer->q16horiz = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
+    }
+    else
+    {
+        pPlayer->q16horiz = 0;
+    }
+}
+
 void ProcessInput(PLAYER *pPlayer)
 {
     enum
@@ -1561,29 +1601,12 @@ void ProcessInput(PLAYER *pPlayer)
         }
         pInput->actions &= ~SB_OPEN;
     }
-    if ((pInput->actions & SB_CENTERVIEW) && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
+
+    if (cl_syncinput)
     {
-        if (pPlayer->q16look < 0)
-            pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), 0);
-        if (pPlayer->q16look > 0)
-            pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), 0);
-        if (!pPlayer->q16look)
-            pInput->actions &= ~SB_CENTERVIEW;
+        sethorizon(pPlayer, pInput->q16horz, 1);
     }
-    else
-    {
-        if (pInput->actions & (SB_LOOK_UP|SB_AIM_UP))
-            pPlayer->q16look = min(pPlayer->q16look+IntToFixed(4), IntToFixed(60));
-        if (pInput->actions & (SB_LOOK_DOWN|SB_AIM_DOWN))
-            pPlayer->q16look = max(pPlayer->q16look-IntToFixed(4), IntToFixed(-60));
-    }
-    pPlayer->q16look = clamp(pPlayer->q16look+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
-    if (pPlayer->q16look > 0)
-        pPlayer->q16horiz = FloatToFixed(fmulscale30(120., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
-    else if (pPlayer->q16look < 0)
-        pPlayer->q16horiz = FloatToFixed(fmulscale30(180., Sinf(FixedToFloat(pPlayer->q16look) * 8.)));
-    else
-        pPlayer->q16horiz = 0;
+
     int nSector = pSprite->sectnum;
     int florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
     char va;
