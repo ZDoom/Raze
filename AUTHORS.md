@@ -2,7 +2,7 @@
   * Christoph Oelckers, Mitchell Richters
 
 ### Raze special thanks:
-  * sinisterseed, Rachael, dpJudas, Enjay, Nash
+  * sinisterseed, Rachael, dpJudas, Enjay, Nash Muhandes
   
 ### EDuke32 engine:
   * TerminX, Hendricks266, pogokeen, Plagman
