@@ -185,6 +185,14 @@ struct PLAYER
     int                 player_par;
     int                 nWaterPal;
     POSTURE             pPosture[kModeMax][kPostureMax];
+
+    // Input helper variables and setters.
+    double horizAdjust, angAdjust, pitchAdjust;
+    fixed_t horizTarget, angTarget;
+    void addang(int v) { q16ang = (q16ang + IntToFixed(v)) & 0x7FFFFFF; }
+    void setang(int v) { q16ang = IntToFixed(v); }
+    void addhoriz(int v) { q16horiz += (IntToFixed(v)); }
+    void sethoriz(int v) { q16horiz = IntToFixed(v); }    
 };
 
 struct PROFILE

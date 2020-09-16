@@ -1304,6 +1304,12 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     return -1;
 }
 
+//---------------------------------------------------------------------------
+//
+// Player's angle function, called in processInput() or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
+
 void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
 {
     spritetype *pSprite = pPlayer->pSprite;
@@ -1338,6 +1344,12 @@ void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
     pPlayer->q16ang = (pPlayer->q16ang + IntToFixed(pSprite->ang - pPlayer->angold)) & 0x7FFFFFF;
     pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
 }
+
+//---------------------------------------------------------------------------
+//
+// Player's horizon function, called in processInput() or from gi->GetInput() as required.
+//
+//---------------------------------------------------------------------------
 
 void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust)
 {
@@ -1376,6 +1388,85 @@ void sethorizon(PLAYER *pPlayer, fixed_t const q16horz, double const scaleAdjust
     else
     {
         pPlayer->q16horiz = clamp(pPlayer->q16horiz + q16horz, IntToFixed(-179), IntToFixed(119));
+    }
+}
+
+//---------------------------------------------------------------------------
+//
+// Unsynchronised input helpers.
+//
+//---------------------------------------------------------------------------
+
+void resetinputhelpers(PLAYER* pPlayer)
+{
+    pPlayer->horizAdjust = 0;
+    pPlayer->angAdjust = 0;
+    pPlayer->pitchAdjust = 0;
+}
+
+void playerAddAngle(PLAYER* pPlayer, double ang)
+{
+    if (!cl_syncinput)
+    {
+        pPlayer->angAdjust += ang;
+    }
+    else
+    {
+        pPlayer->addang(ang);
+    }
+}
+
+void playerSetAngle(PLAYER* pPlayer, double ang)
+{
+    if (!cl_syncinput)
+    {
+        // Cancel out any angle adjustments as we're setting angle now.
+        pPlayer->angAdjust = 0;
+
+        // Add slight offset if input angle is coming in as absolute 0.
+        if (ang == 0)
+        {
+            ang += 0.1;
+        }
+
+        pPlayer->angTarget = pPlayer->q16ang + getincangleq16(pPlayer->q16ang, FloatToFixed(ang));
+    }
+    else
+    {
+        pPlayer->setang(ang);
+    }
+}
+
+void playerAddHoriz(PLAYER* pPlayer, double horiz)
+{
+    if (!cl_syncinput)
+    {
+        pPlayer->horizAdjust += horiz;
+    }
+    else
+    {
+        pPlayer->addhoriz(horiz);
+    }
+}
+
+void playerSetHoriz(PLAYER* pPlayer, double horiz)
+{
+    if (!cl_syncinput)
+    {
+        // Cancel out any horizon adjustments as we're setting horizon now.
+        pPlayer->horizAdjust = 0;
+
+        // Add slight offset if input horizon is coming in as absolute 0.
+        if (horiz == 0)
+        {
+            horiz += 0.1;
+        }
+
+        pPlayer->horizTarget = FloatToFixed(horiz);
+    }
+    else
+    {
+        pPlayer->sethoriz(horiz);
     }
 }
 

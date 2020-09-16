@@ -152,8 +152,42 @@ static void processMovement(ControlInfo* const hidInput, bool const mouseaim)
     if (!cl_syncinput && gamestate == GS_LEVEL)
     {
         PLAYER* pPlayer = &gPlayer[myconnectindex];
+
         applylook(pPlayer, input.q16avel, scaleAdjust);
+
+        if (pPlayer->angTarget)
+        {
+            fixed_t angDelta = getincangleq16(pPlayer->q16ang, pPlayer->angTarget);
+            pPlayer->q16ang = (pPlayer->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
+
+            if (abs(pPlayer->q16ang - pPlayer->angTarget) < FRACUNIT)
+            {
+                pPlayer->q16ang = pPlayer->angTarget;
+                pPlayer->angTarget = 0;
+            }
+        }
+        else if (pPlayer->angAdjust)
+        {
+            pPlayer->q16ang = (pPlayer->q16ang + FloatToFixed(scaleAdjust * pPlayer->angAdjust)) & 0x7FFFFFF;
+        }
+
         sethorizon(pPlayer, input.q16horz, scaleAdjust);
+
+        if (pPlayer->horizTarget)
+        {
+            fixed_t horizDelta = pPlayer->horizTarget - pPlayer->q16horiz;
+            pPlayer->q16horiz += xs_CRoundToInt(scaleAdjust * horizDelta);
+
+            if (abs(pPlayer->q16horiz - pPlayer->horizTarget) < FRACUNIT)
+            {
+                pPlayer->q16horiz = pPlayer->horizTarget;
+                pPlayer->horizTarget = 0;
+            }
+        }
+        else if (pPlayer->horizAdjust)
+        {
+            pPlayer->q16horiz += FloatToFixed(scaleAdjust * pPlayer->horizAdjust);
+        }
     }
 
     gInput.fvel = clamp(gInput.fvel + input.fvel, -MAXFVEL, MAXFVEL);
