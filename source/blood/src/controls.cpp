@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamecontrol.h"
 #include "common_game.h"
 #include "blood.h"
-#include "controls.h"
 #include "globals.h"
 #include "levels.h"
 #include "view.h"
@@ -39,16 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 static InputPacket gInput;
-bool bSilentAim = false;
-
-int iTurnCount = 0;
-
-int32_t mouseyaxismode = -1;
-
-fixed_t gViewLook, gViewAngle;
-float gViewAngleAdjust;
-float gViewLookAdjust;
-int gViewLookRecenter;
 
 static void GetInputInternal(ControlInfo* const hidInput)
 {
@@ -159,27 +148,6 @@ static void GetInputInternal(ControlInfo* const hidInput)
     gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
     gInput.q16avel += input.q16avel;
     gInput.q16horz = clamp(gInput.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
-
-    if (gMe && gMe->pXSprite && gMe->pXSprite->health != 0 && !paused)
-    {
-        int upAngle = 289;
-        int downAngle = -347;
-        double lookStepUp = 4.0*upAngle/60.0;
-        double lookStepDown = -4.0*downAngle/60.0;
-        gViewAngle = (gViewAngle + input.q16avel + FloatToFixed(scaleAdjust * gViewAngleAdjust)) & 0x7ffffff;
-        if (gViewLookRecenter)
-        {
-            if (gViewLook < 0)
-                gViewLook = min(gViewLook + FloatToFixed(scaleAdjust * lookStepDown), 0);
-            if (gViewLook > 0)
-                gViewLook = max(gViewLook - FloatToFixed(scaleAdjust * lookStepUp), 0);
-        }
-        else
-        {
-            gViewLook = clamp(gViewLook + FloatToFixed(scaleAdjust * gViewLookAdjust), IntToFixed(downAngle), IntToFixed(upAngle));
-        }
-        gViewLook = clamp(gViewLook + (input.q16horz << 3), IntToFixed(downAngle), IntToFixed(upAngle));
-    }
 }
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)

@@ -681,15 +681,6 @@ void viewDrawScreen(bool sceneonly)
                 v48 = finterpolate(pView->at18, v48, gInterpolate);
             }
         }
-        if (!cl_syncinput && gView == gMe && (numplayers <= 1 || gPrediction) && gView->pXSprite->health != 0 && !VanillaMode())
-        {
-            int upAngle = 289;
-            int downAngle = -347;
-            fixed_t q16look;
-            cA = gViewAngle;
-            q16look = gViewLook;
-            q16horiz = FloatToFixed(100.f * tanf(FixedToFloat(q16look) * fPI / 1024.f));
-        }
         viewUpdateShake();
         q16horiz += IntToFixed(shakeHoriz);
         cA += IntToFixed(shakeAngle);

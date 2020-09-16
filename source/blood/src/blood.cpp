@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "db.h"
 #include "blood.h"
 #include "choke.h"
-#include "controls.h"
 #include "dude.h"
 #include "endgame.h"
 #include "eventq.h"

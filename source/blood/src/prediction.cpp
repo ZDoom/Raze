@@ -93,11 +93,6 @@ void viewInitializePrediction(void)
 	predict.at40 = gMe->zWeapon;
 	predict.at44 = gMe->zWeaponVel;
     predictOld = predict;
-    if (numplayers != 1)
-    {
-        gViewAngle = predict.at30;
-        gViewLook = predict.at20;
-    }
 }
 
 void viewUpdatePrediction(InputPacket *pInput)
@@ -110,11 +105,6 @@ void viewUpdatePrediction(InputPacket *pInput)
     gMe->pSprite->cstat = bakCstat;
     //predictFifo[gPredictTail&255] = predict;
     //gPredictTail++;
-    if (numplayers != 1)
-    {
-        gViewAngle = predict.at30;
-        gViewLook = predict.at20;
-    }
 }
 
 static void sub_158B4(PLAYER *pPlayer)
@@ -126,13 +116,6 @@ static void sub_158B4(PLAYER *pPlayer)
 static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 {
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
-
-    if (numplayers > 1 && gPrediction)
-    {
-        gViewAngleAdjust = 0.f;
-        gViewLookRecenter = false;
-        gViewLookAdjust = 0.f;
-    }
 
     predict.at70 = !!(gMe->input.actions & SB_RUN);
     predict.at71 = !!(gMe->input.actions & SB_JUMP);
@@ -202,8 +185,6 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 
         predict.at4c = min(predict.at4c+speed, 0);
         predict.at30 += IntToFixed(speed);
-        if (numplayers > 1 && gPrediction)
-            gViewAngleAdjust += float(speed);
     }
 
     if (!predict.at71)
@@ -231,8 +212,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             predict.at48 = 2;
         break;
     }
-#if 0
-    if (predict.at6e && !pInput->syncFlags.lookUp && !pInput->syncFlags.lookDown)
+
+    if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
     {
         if (predict.at20 < 0)
             predict.at20 = min(predict.at20+IntToFixed(4), 0);
@@ -243,12 +224,12 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
     }
     else
     {
-        if (pInput->syncFlags.lookUp)
+        if (pInput->actions & SB_LOOK_UP)
             predict.at20 = min(predict.at20+IntToFixed(4), IntToFixed(60));
-        if (pInput->syncFlags.lookDown)
+        if (pInput->actions & SB_LOOK_DOWN)
             predict.at20 = max(predict.at20-IntToFixed(4), IntToFixed(-60));
     }
-    predict.at20 = clamp(predict.at20+pInput->q16mlook, IntToFixed(-60), IntToFixed(60));
+    predict.at20 = clamp(predict.at20+pInput->q16horz, IntToFixed(-60), IntToFixed(60));
 
     if (predict.at20 > 0)
         predict.at24 = mulscale30(IntToFixed(120), Sin(FixedToInt(predict.at20<<3)));
@@ -256,41 +237,6 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         predict.at24 = mulscale30(IntToFixed(180), Sin(FixedToInt(predict.at20<<3)));
     else
         predict.at24 = 0;
-#endif
-    int upAngle = 289;
-    int downAngle = -347;
-    double lookStepUp = 4.0*upAngle/60.0;
-    double lookStepDown = -4.0*downAngle/60.0;
-    if (predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN)))
-    {
-        if (predict.at20 < 0)
-            predict.at20 = min(predict.at20+FloatToFixed(lookStepDown), 0);
-        if (predict.at20 > 0)
-            predict.at20 = max(predict.at20-FloatToFixed(lookStepUp), 0);
-        if (predict.at20 == 0)
-            predict.at6e = 0;
-    }
-    else
-    {
-        if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
-            predict.at20 = min(predict.at20+FloatToFixed(lookStepUp), IntToFixed(upAngle));
-        if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
-            predict.at20 = max(predict.at20-FloatToFixed(lookStepDown), IntToFixed(downAngle));
-    }
-    if (numplayers > 1 && gPrediction)
-    {
-        if (pInput->actions & (SB_LOOK_UP | SB_AIM_UP))
-        {
-            gViewLookAdjust += float(lookStepUp);
-        }
-        if (pInput->actions & (SB_LOOK_DOWN | SB_AIM_DOWN))
-        {
-            gViewLookAdjust -= float(lookStepDown);
-        }
-        gViewLookRecenter = predict.at6e && !(pInput->actions & (SB_LOOK_UP | SB_LOOK_DOWN));
-    }
-    predict.at20 = clamp(predict.at20+(pInput->q16horz<<3), IntToFixed(downAngle), IntToFixed(upAngle));
-    predict.at24 = FloatToFixed(100.f*tanf(FixedToFloat(predict.at20)*fPI/1024.f));
 
     int nSector = predict.at68;
     int florhit = predict.at75.florhit & 0xc000;
@@ -706,12 +652,6 @@ void fakeActProcessSprites(void)
 void viewCorrectPrediction(void)
 {
 #if 0
-    if (numplayers == 1)
-    {
-        gViewLook = gMe->q16look;
-        gViewAngle = gMe->q16ang;
-        return;
-    }
     spritetype *pSprite = gMe->pSprite;
     VIEW *pView = &predictFifo[(gNetFifoTail-1)&255];
     if (gMe->q16ang != pView->at30 || pView->at24 != gMe->q16horiz || pView->at50 != pSprite->x || pView->at54 != pSprite->y || pView->at58 != pSprite->z)
