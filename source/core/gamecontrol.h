@@ -63,6 +63,9 @@ void DeferedStartGame(MapRecord* map, int skill);
 void ChangeLevel(MapRecord* map, int skill);
 void CompleteLevel(MapRecord* map);
 
+int getincangle(int c, int n);
+fixed_t getincangleq16(fixed_t c, fixed_t n);
+
 struct UserConfig
 {
 	FString gamegrp;

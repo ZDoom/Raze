@@ -355,13 +355,13 @@ int StdRandomRange(int range);
 #define SQ(val) ((val) * (val))
 
 #define KENFACING_PLAYER(pp,sp) (sintable[NORM_ANGLE(sp->ang+512)]*(pp->posy-sp->y) >= sintable[NORM_ANGLE(sp-ang)]*(pp->posx-sp->x))
-#define FACING_PLAYER(pp,sp) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < 512)
-#define PLAYER_FACING(pp,sp) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < 320)
-#define FACING(sp1,sp2) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < 512)
+#define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
+#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < 320)
+#define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
 
-#define FACING_PLAYER_RANGE(pp,sp,range) (abs(GetDeltaAngle((sp)->ang, NORM_ANGLE(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y)))) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(GetDeltaAngle(FixedToInt((pp)->q16ang), NORM_ANGLE(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy)))) < (range))
-#define FACING_RANGE(sp1,sp2,range) (abs(GetDeltaAngle((sp2)->ang, NORM_ANGLE(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y)))) < (range))
+#define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), FixedToInt((pp)->q16ang))) < (range))
+#define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < (range))
 
 // two vectors
 // can determin direction
@@ -1846,8 +1846,6 @@ extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
-short GetDeltaAngle(short, short);
-fixed_t GetDeltaQ16Angle(fixed_t, fixed_t);
 
 int SetActorRotation(short SpriteNum,int,int);
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);

@@ -1283,7 +1283,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, fixed_t 
             sp = &sprite[i];
 
             ang = getangle(*tx - sp->x, *ty - sp->y);
-            ang_test  = GetDeltaAngle(sp->ang, ang) < sp->lotag;
+            ang_test = getincangle(ang, sp->ang) < sp->lotag;
 
             FAFcansee_test =
                 (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||

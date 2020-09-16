@@ -108,7 +108,6 @@ int MissileZrange(short SpriteNum);
 #define ACTIVE_CHECK_TIME (3*120)
 
 /*
-short GetDeltaAngle(short ang1, short ang2);
 short GetRotation(short sn);
 int StateControl(int16_t SpriteNum);
 void PreCacheRange(short, short);

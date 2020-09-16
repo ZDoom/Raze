@@ -314,7 +314,7 @@ static void processMovement(PLAYERp const pp, ControlInfo* const hidInput, bool 
 
         if (pp->angTarget)
         {
-            fixed_t angDelta = GetDeltaQ16Angle(pp->angTarget, pp->q16ang);
+            fixed_t angDelta = getincangleq16(pp->q16ang, pp->angTarget);
             pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * angDelta));
 
             if (abs(pp->q16ang - pp->angTarget) < FRACUNIT)

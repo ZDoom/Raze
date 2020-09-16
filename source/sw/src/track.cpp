@@ -931,7 +931,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         sop->clipbox_vdist[sop->clipbox_num] = ksqrt(SQ(sop->xmid - sp->x) + SQ(sop->ymid - sp->y));
 
                         ang2 = getangle(sp->x - sop->xmid, sp->y - sop->ymid);
-                        sop->clipbox_ang[sop->clipbox_num] = GetDeltaAngle(sop->ang, ang2);
+                        sop->clipbox_ang[sop->clipbox_num] = getincangle(ang2, sop->ang);
 
                         sop->clipbox_num++;
                         KillSprite(sp_num);
@@ -1678,7 +1678,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
-    playerAddAngle(pp, GetDeltaQ16Angle(pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng), pp->q16ang));
+    playerAddAngle(pp, getincangleq16(pp->q16ang, pp->RevolveQ16Ang + IntToFixed(pp->RevolveDeltaAng)));
 
     UpdatePlayerSprite(pp);
 }
@@ -1891,7 +1891,7 @@ PlayerPart:
                 setspritez(sop->sp_num[i], (vec3_t *)sp);
         }
 
-        u->oangdiff += GetDeltaAngle(sp->ang, oldang);
+        u->oangdiff += getincangle(oldang, sp->ang);
 
         if (TEST(sp->extra, SPRX_BLADE))
         {
@@ -2384,7 +2384,7 @@ MoveSectorObjects(SECTOR_OBJECTp sop, short locktics)
         DoTrack(sop, locktics, &nx, &ny);
 
     // get delta to target angle
-    delta_ang = GetDeltaAngle(sop->ang_tgt, sop->ang);
+    delta_ang = getincangle(sop->ang, sop->ang_tgt);
 
     sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
@@ -2896,7 +2896,7 @@ void TornadoSpin(SECTOR_OBJECTp sop)
     short locktics = synctics;
 
     // get delta to target angle
-    delta_ang = GetDeltaAngle(sop->ang_tgt, sop->ang);
+    delta_ang = getincangle(sop->ang, sop->ang_tgt);
 
     sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> sop->turn_speed));
     delta_ang = delta_ang >> sop->turn_speed;
@@ -3026,7 +3026,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
         sop->ang_tgt = getangle(u->tgt_sp->x - sop->xmid,  u->tgt_sp->y - sop->ymid);
 
         // get delta to target angle
-        delta_ang = GetDeltaAngle(sop->ang_tgt, sop->ang);
+        delta_ang = getincangle(sop->ang, sop->ang_tgt);
 
         //sop->ang += delta_ang >> 4;
         sop->ang = NORM_ANGLE(sop->ang + (delta_ang >> 3));
@@ -3034,7 +3034,7 @@ DoAutoTurretObject(SECTOR_OBJECTp sop)
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = GetDeltaAngle(sop->ang, sop->limit_ang_center);
+            diff = getincangle(sop->limit_ang_center, sop->ang);
 
             if (labs(diff) >= sop->limit_ang_delta)
             {

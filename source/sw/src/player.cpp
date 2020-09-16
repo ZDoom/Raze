@@ -1124,45 +1124,6 @@ void pSetVisNorm(PANEL_SPRITEp psp)
 //    SetVisNorm();
 }
 
-short
-GetDeltaAngle(short ang1, short ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (labs(ang1 - ang2) > 1024)
-    {
-        if (ang1 <= 1024)
-            ang1 += 2048;
-
-        if (ang2 <= 1024)
-            ang2 += 2048;
-    }
-
-    //if (ang1 - ang2 == -1024)
-    //    return(1024);
-
-    return ang1 - ang2;
-
-}
-
-fixed_t
-GetDeltaQ16Angle(fixed_t ang1, fixed_t ang2)
-{
-    // Look at the smaller angle if > 1024 (180 degrees)
-    if (abs(ang1 - ang2) > IntToFixed(1024))
-    {
-        if (ang1 <= IntToFixed(1024))
-            ang1 += IntToFixed(2048);
-
-        if (ang2 <= IntToFixed(1024))
-            ang2 += IntToFixed(2048);
-    }
-
-    //if (ang1 - ang2 == -IntToFixed(1024))
-    //    return(IntToFixed(1024));
-
-    return ang1 - ang2;
-}
-
 TARGET_SORT TargetSort[MAX_TARGET_SORT];
 unsigned TargetSortCount;
 
@@ -1240,7 +1201,7 @@ DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets)
             // Get the angle difference
             // delta_ang = labs(FixedToInt(pp->q16ang) - angle2);
 
-            delta_ang = labs(GetDeltaAngle(sp->ang, angle2));
+            delta_ang = labs(getincangle(angle2, sp->ang));
 
             // If delta_ang not in the range skip this one
             if (delta_ang > (int)max_delta_ang)
@@ -1561,7 +1522,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
 
                 // make the first turn in the clockwise direction
                 // the rest will follow
-                delta_ang = labs(GetDeltaQ16Angle(pp->turn180_target, pp->q16ang)) >> TURN_SHIFT;
+                delta_ang = labs(getincangleq16(pp->q16ang, pp->turn180_target)) >> TURN_SHIFT;
                 pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
 
                 SET(pp->Flags, PF_TURN_180);
@@ -1577,7 +1538,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
     {
         fixed_t delta_ang;
 
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang) >> TURN_SHIFT;
+        delta_ang = getincangleq16(pp->q16ang, pp->turn180_target) >> TURN_SHIFT;
         pp->q16ang = (pp->q16ang + xs_CRoundToInt(scaleAdjust * delta_ang)) & 0x7FFFFFF;
 
         sprite[pp->PlayerSprite].ang = FixedToInt(pp->q16ang);
@@ -1588,7 +1549,7 @@ DoPlayerTurn(PLAYERp pp, fixed_t const q16avel, double const scaleAdjust)
         }
 
         // get new delta to see how close we are
-        delta_ang = GetDeltaQ16Angle(pp->turn180_target, pp->q16ang);
+        delta_ang = getincangleq16(pp->q16ang, pp->turn180_target);
 
         if (labs(delta_ang) < (IntToFixed(3) << TURN_SHIFT))
         {
@@ -1723,7 +1684,7 @@ DoPlayerTurnTurret(PLAYERp pp, fixed_t q16avel)
 
         if (sop->limit_ang_center >= 0)
         {
-            diff = GetDeltaQ16Angle(new_ang, IntToFixed(sop->limit_ang_center));
+            diff = getincangleq16(IntToFixed(sop->limit_ang_center), new_ang);
 
             if (labs(diff) >= IntToFixed(sop->limit_ang_delta))
             {
@@ -6393,7 +6354,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            playerAddAngle(pp, GetDeltaQ16Angle(gethiq16angle(kp->x - pp->posx, kp->y - pp->posy), pp->q16ang) / (double)(FRACUNIT << 4));
+            playerAddAngle(pp, getincangleq16(pp->q16ang, gethiq16angle(kp->x - pp->posx, kp->y - pp->posy)) / (double)(FRACUNIT << 4));
         }
     }
 }
@@ -6585,7 +6546,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
 
             wall_ang = NORM_ANGLE(hsp->ang);
-            dang = GetDeltaAngle(u->slide_ang, wall_ang);
+            dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->PlayerSprite, -1);
@@ -6602,7 +6563,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             nw = wall[w].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
 
-            dang = GetDeltaAngle(u->slide_ang, wall_ang);
+            dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->PlayerSprite, -1);
@@ -7817,7 +7778,7 @@ void playerSetAngle(PLAYERp pp, double ang)
             ang += 0.1;
         }
 
-        pp->angTarget = pp->q16ang + GetDeltaQ16Angle(FloatToFixed(ang), pp->q16ang);
+        pp->angTarget = pp->q16ang + getincangleq16(pp->q16ang, FloatToFixed(ang));
     }
     else
     {

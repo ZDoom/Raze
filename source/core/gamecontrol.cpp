@@ -1446,3 +1446,44 @@ void LoadDefinitions()
 
 }
 
+//---------------------------------------------------------------------------
+//
+// code fron gameexec/conrun
+//
+//---------------------------------------------------------------------------
+
+int getincangle(int a, int na)
+{
+	a &= 2047;
+	na &= 2047;
+
+	if(abs(a-na) < 1024)
+		return (na-a);
+	else
+	{
+		if(na > 1024) na -= 2048;
+		if(a > 1024) a -= 2048;
+
+		na -= 2048;
+		a -= 2048;
+		return (na-a);
+	}
+}
+
+fixed_t getincangleq16(fixed_t a, fixed_t na)
+{
+	a &= 0x7FFFFFF;
+	na &= 0x7FFFFFF;
+
+	if(abs(a-na) < IntToFixed(1024))
+		return (na-a);
+	else
+	{
+		if(na > IntToFixed(1024)) na -= IntToFixed(2048);
+		if(a > IntToFixed(1024)) a -= IntToFixed(2048);
+
+		na -= IntToFixed(2048);
+		a -= IntToFixed(2048);
+		return (na-a);
+	}
+}
