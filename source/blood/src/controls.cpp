@@ -153,8 +153,14 @@ static void processMovement(ControlInfo* const hidInput, bool const mouseaim)
     {
         PLAYER* pPlayer = &gPlayer[myconnectindex];
 
-        applylook(pPlayer, input.q16avel, scaleAdjust);
+        // Perform unsynchronised angle/horizon if not dead.
+        if (gView->pXSprite->health != 0)
+        {
+            applylook(pPlayer, input.q16avel, scaleAdjust);
+            sethorizon(pPlayer, input.q16horz, scaleAdjust);
+        }
 
+        // Process angle amendments from the game's ticker.
         if (pPlayer->angTarget)
         {
             fixed_t angDelta = getincangleq16(pPlayer->q16ang, pPlayer->angTarget);
@@ -171,8 +177,7 @@ static void processMovement(ControlInfo* const hidInput, bool const mouseaim)
             pPlayer->q16ang = (pPlayer->q16ang + FloatToFixed(scaleAdjust * pPlayer->angAdjust)) & 0x7FFFFFF;
         }
 
-        sethorizon(pPlayer, input.q16horz, scaleAdjust);
-
+        // Process horizon amendments from the game's ticker.
         if (pPlayer->horizTarget)
         {
             fixed_t horizDelta = pPlayer->horizTarget - pPlayer->q16horiz;
