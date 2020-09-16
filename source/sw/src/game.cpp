@@ -188,14 +188,14 @@ void GameInterface::app_init()
     registerosdcommands();
 
     engineInit();
-        auto pal = fileSystem.LoadFile("3drealms.pal", 0);
-        if (pal.Size() >= 768)
-        {
-            for (auto& c : pal)
-                c <<= 2;
+    auto pal = fileSystem.LoadFile("3drealms.pal", 0);
+    if (pal.Size() >= 768)
+    {
+        for (auto& c : pal)
+            c <<= 2;
 
-            paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
-        }
+        paletteSetColorTable(DREALMSPAL, pal.Data(), true, true);
+    }
     InitPalette();
     // sets numplayers, connecthead, connectpoint2, myconnectindex
 
@@ -208,7 +208,7 @@ void GameInterface::app_init()
             "the full version.  Read the Ordering Info screens for details.");
     }
 
-	TileFiles.LoadArtSet("tiles%03d.art");
+    TileFiles.LoadArtSet("tiles%03d.art");
     InitFonts();
 
     //Connect();
@@ -229,7 +229,7 @@ void GameInterface::app_init()
  
     LoadDefinitions();
     TileFiles.SetBackup();
-	userConfig.AddDefs.reset();
+    userConfig.AddDefs.reset();
     InitFX();
 }
 
@@ -307,17 +307,17 @@ void InitLevel(MapRecord *maprec)
     // A few IMPORTANT GLOBAL RESETS
     InitLevelGlobals();
 
-        Mus_Stop();
+    Mus_Stop();
 
     if (!maprec)
     {
         I_Error("Attempt to start game without level");
         return;
-        }
+    }
     InitLevelGlobals2();
 
-        if (NewGame)
-        {
+    if (NewGame)
+    {
         for (int i = 0; i < MAX_SW_PLAYERS; i++)
         {
             // don't jack with the playerreadyflag
@@ -330,19 +330,19 @@ void InitLevel(MapRecord *maprec)
         }
 
         memset(puser, 0, sizeof(puser));
-            }
+    }
 
     int16_t ang;
     if (engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, (vec3_t*)&Player[0], &ang, &Player[0].cursectnum) == -1)
-	{
+    {
         I_Error("Map not found: %s", maprec->fileName.GetChars());
-	}
+    }
     currentLevel = maprec;
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
     Player[0].q16ang = IntToFixed(ang);
 
-        SetupPreCache();
+    SetupPreCache();
 
     if (sector[0].extra != -1)
     {
@@ -412,7 +412,7 @@ void InitPlayerGameSettings(void)
                 SET(Player[pnum].Flags, PF_AUTO_AIM);
             else
                 RESET(Player[pnum].Flags, PF_AUTO_AIM);
-    }
+        }
     }
     else
     {
@@ -516,8 +516,8 @@ void TerminateLevel(void)
 
     // Free SectUser memory
     for (sectu = &SectUser[0];
-         sectu < &SectUser[MAXSECTORS];
-         sectu++)
+        sectu < &SectUser[MAXSECTORS];
+        sectu++)
     {
         if (*sectu)
         {
@@ -565,21 +565,21 @@ void TerminateLevel(void)
 
 void GameInterface::LevelCompleted(MapRecord *map, int skill)
 {
-    //ResetPalette(mpp);
-    COVER_SetReverb(0); // Reset reverb
+	//ResetPalette(mpp);
+	COVER_SetReverb(0); // Reset reverb
 	Player[myconnectindex].Reverb = 0;
-    StopSound();
+	StopSound();
 
 	StatScreen(FinishAnim, [=](bool)
-    {
+		{
 			if (map == nullptr)
-    {
+			{
 				STAT_Update(true);
 				FinishAnim = false;
 				PlaySong(nullptr, ThemeSongs[0], ThemeTrack[0]);
 				if (SW_SHAREWARE) gameaction = ga_creditsmenu;
 				else gameaction = ga_mainmenu;
-    }
+			}
 			else gameaction = ga_nextlevel;
 		});
 
@@ -621,13 +621,13 @@ void GameInterface::NewGame(MapRecord *map, int skill)
 void GameInterface::Ticker(void)
 {
 	if (SavegameLoaded)
-    {
+	{
 		InitLevelGlobals();
 		SavegameLoaded = false;
-        // contains what is needed from calls below
-        if (snd_ambience)
-            StartAmbientSound();
-    }
+		// contains what is needed from calls below
+		if (snd_ambience)
+			StartAmbientSound();
+	}
 
     int i;
     TRAVERSE_CONNECT(i)
@@ -635,7 +635,7 @@ void GameInterface::Ticker(void)
         auto pp = Player + i;
         pp->lastinput = pp->input;
         pp->input = playercmds[i].ucmd;
-        }
+    }
 
     domovethings();
     r_NoInterpolate = paused;
@@ -649,14 +649,14 @@ void GameInterface::Ticker(void)
 
 void GameInterface::Render()
 {
-        if (paused)
-        {
+    if (paused)
+    {
         smoothratio = MaxSmoothRatio;
-        }
-        else
-        {
+    }
+    else
+    {
         smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
-            }
+    }
 
     drawtime.Reset();
     drawtime.Clock();

@@ -1025,8 +1025,8 @@ bool GameInterface::LoadGame(FSaveGameNode* sv)
     }
 #endif
 
-        SetupPreCache();
-        DoTheCache();
+    SetupPreCache();
+    DoTheCache();
 
     // this is ok - just duplicating sector list with pointers
     for (sop = SectorObject; sop < &SectorObject[SIZ(SectorObject)]; sop++)
