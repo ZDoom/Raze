@@ -178,7 +178,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 		p->last_weapon = -1;
 	}
 
-	p->kickback_pic = 0;
+	p->okickback_pic = p->kickback_pic = 0;
 	p->curr_weapon = cw;
 
 	switch (weapon)

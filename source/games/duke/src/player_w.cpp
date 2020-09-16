@@ -151,7 +151,7 @@ void fireweapon_ww(int snum)
 		if (p->last_pissed_time <= (26 * 218) && p->weapon_pos == -9)
 		{
 			p->holster_weapon = 0;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 			FTA(74, p);
 		}
 	}
@@ -380,7 +380,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 		}
 		else if (p->kickback_pic > aplWeaponTotalTime[p->curr_weapon][snum])
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			// don't change to remote when in NAM: grenades are timed
 			checkavailweapon(p);
 		}
@@ -411,7 +411,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 
 		if (p->kickback_pic >= aplWeaponTotalTime[p->curr_weapon][snum])
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			/// WHAT THE HELL DOES THIS DO....?????????????
 			if (p->ammo_amount[TRIPBOMB_WEAPON] > 0)
 				fi.addweapon(p, TRIPBOMB_WEAPON);
@@ -510,7 +510,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 
 				if (p->kickback_pic >= (aplWeaponReload[p->curr_weapon][snum]))
 				{
-					p->kickback_pic = 0;
+					p->okickback_pic = p->kickback_pic = 0;
 				}
 
 			}
@@ -532,12 +532,12 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 					}
 					else
 					{
-						p->kickback_pic = 0;
+						p->okickback_pic = p->kickback_pic = 0;
 					}
 				}
 				else
 				{ // not 'automatic' and >totaltime
-					p->kickback_pic = 0;
+					p->okickback_pic = p->kickback_pic = 0;
 				}
 			}
 		}

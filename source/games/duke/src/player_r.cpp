@@ -1097,7 +1097,7 @@ void selectweapon_r(int snum, int weap)
 			if (p->holster_weapon)
 			{
 				PlayerSetInput(snum, SB_HOLSTER);
-				p->weapon_pos = -9;
+				p->oweapon_pos = p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && p->curr_weapon != j) switch (j)
 			{
@@ -1158,7 +1158,7 @@ void selectweapon_r(int snum, int weap)
 				{
 					p->curr_weapon = THROWINGDYNAMITE_WEAPON;
 					p->last_weapon = -1;
-					p->weapon_pos = 10;
+					p->oweapon_pos = p->weapon_pos = 10;
 				}
 				break;
 			case DYNAMITE_WEAPON:
@@ -1305,7 +1305,7 @@ int doincrements_r(struct player_struct* p)
 		if (p->last_pissed_time == 5668)
 		{
 			p->holster_weapon = 0;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 		}
 	}
 
@@ -1366,8 +1366,8 @@ int doincrements_r(struct player_struct* p)
 		if (p->access_incs > 20)
 		{
 			p->access_incs = 0;
-			p->weapon_pos = 10;
-			p->kickback_pic = 0;
+			p->oweapon_pos = p->weapon_pos = 10;
+			p->okickback_pic = p->kickback_pic = 0;
 		}
 	}
 
@@ -2650,7 +2650,7 @@ static void fireweapon(int snum)
 		if (p->last_pissed_time <= (26 * 218) && p->weapon_pos == -9)
 		{
 			p->holster_weapon = 0;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 			FTA(74, p);
 		}
 	}
@@ -2790,10 +2790,10 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		p->kickback_pic++;
 		if (p->kickback_pic > 19)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			p->curr_weapon = THROWINGDYNAMITE_WEAPON;
 			p->last_weapon = -1;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 			p->detonate_time = 45;
 			p->detonate_count = 1;
 			S_PlaySound(402);
@@ -2860,7 +2860,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 		if (p->kickback_pic == 40)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			p->curr_weapon = DYNAMITE_WEAPON;
 			p->last_weapon = -1;
 			p->detonate_count = 0;
@@ -2868,7 +2868,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			if (p->ammo_amount[DYNAMITE_WEAPON] > 0)
 			{
 				fi.addweapon(p, DYNAMITE_WEAPON);
-				p->weapon_pos = -9;
+				p->oweapon_pos = p->weapon_pos = -9;
 			}
 			else checkavailweapon(p);
 		}
@@ -2893,7 +2893,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		else if (p->kickback_pic == 2)
 			if (p->ammo_amount[PISTOL_WEAPON] <= 0)
 			{
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				checkavailweapon(p);
 			}
 
@@ -2903,7 +2903,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		{
 			if (p->ammo_amount[PISTOL_WEAPON] <= 0)
 			{
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				checkavailweapon(p);
 				break;
 			}
@@ -2925,7 +2925,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 		if (p->kickback_pic == 38)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
 		}
 
@@ -3008,7 +3008,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				S_PlayActorSound(SHOTGUN_COCK, pi);
 				break;
 			case 28:
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 				p->shotgun_state[0] = 0;
 				p->shotgun_state[1] = 0;
 				return;
@@ -3084,7 +3084,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 				if ((actions & SB_FIRE) == 0)
 				{
-					p->kickback_pic = 0;
+					p->okickback_pic = p->kickback_pic = 0;
 					break;
 				}
 			}
@@ -3092,7 +3092,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		else if (p->kickback_pic > 10)
 		{
 			if (actions & SB_FIRE) p->kickback_pic = 1;
-			else p->kickback_pic = 0;
+			else p->okickback_pic = p->kickback_pic = 0;
 		}
 
 		break;
@@ -3101,7 +3101,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 
 		if (p->kickback_pic > 3)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			fi.shoot(pi, GROWSPARK);
 			p->noise_radius = 1024;
 			madenoise(snum);
@@ -3120,7 +3120,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		}
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 
 	case TIT_WEAPON:
@@ -3147,7 +3147,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
 		if (!(actions & SB_FIRE))
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 
 	case MOTORCYCLE_WEAPON:
@@ -3162,7 +3162,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			madenoise(snum);
 			p->ammo_amount[MOTORCYCLE_WEAPON]--;
 			if (p->ammo_amount[MOTORCYCLE_WEAPON] <= 0)
-				p->kickback_pic = 0;
+				p->okickback_pic = p->kickback_pic = 0;
 			else
 				checkavailweapon(p);
 		}
@@ -3177,7 +3177,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		if (p->kickback_pic > 4)
 			p->kickback_pic = 1;
 		if (!(actions & SB_FIRE))
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 	case BOAT_WEAPON:
 		if (p->kickback_pic == 3)
@@ -3189,11 +3189,11 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
 		}
 		if (p->ammo_amount[BOAT_WEAPON] <= 0)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		else
 			checkavailweapon(p);
 		break;
@@ -3224,7 +3224,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			p->recoil += 20;
 		}
 		if (p->kickback_pic > 20)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 
 	case POWDERKEG_WEAPON:
@@ -3252,7 +3252,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		p->kickback_pic++;
 		if (p->kickback_pic > 20)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			checkavailweapon(p);
 		}
 		break;
@@ -3274,7 +3274,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		p->kickback_pic++;
 		if (p->kickback_pic > 40)
 		{
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 			p->gotweapon.Clear(BOWLING_WEAPON);
 			checkavailweapon(p);
 		}
@@ -3291,7 +3291,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			madenoise(snum);
 		}
 		else if (p->kickback_pic == 16)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 
 		if (p->wantweaponfire >= 0)
 			checkavailweapon(p);
@@ -3309,7 +3309,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 			madenoise(snum);
 		}
 		else if (p->kickback_pic == 16)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 
 		if (p->wantweaponfire >= 0)
 			checkavailweapon(p);
@@ -3332,7 +3332,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		else if (p->kickback_pic == 16)
 			S_PlayActorSound(450, pi);
 		else if (p->kickback_pic == 34)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 
 	case CHICKEN_WEAPON:
@@ -3350,7 +3350,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		else if (p->kickback_pic == 16)
 			S_PlayActorSound(450, pi);
 		else if (p->kickback_pic == 34)
-			p->kickback_pic = 0;
+			p->okickback_pic = p->kickback_pic = 0;
 		break;
 
 	}
@@ -4109,12 +4109,12 @@ HORIZONLY:
 		{
 			if (p->last_weapon >= 0)
 			{
-				p->weapon_pos = 10;
+				p->oweapon_pos = p->weapon_pos = 10;
 				//                if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
 				p->last_weapon = -1;
 			}
 			else if (p->holster_weapon == 0)
-				p->weapon_pos = 10;
+				p->oweapon_pos = p->weapon_pos = 10;
 		}
 		else p->weapon_pos--;
 	}

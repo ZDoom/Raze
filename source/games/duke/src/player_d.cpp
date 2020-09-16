@@ -1299,7 +1299,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 			if (p->holster_weapon)
 			{
 				PlayerSetInput(snum, SB_HOLSTER);
-				p->weapon_pos = -9;
+				p->oweapon_pos = p->weapon_pos = -9;
 			}
 			else if (j >= MIN_WEAPON && p->gotweapon[j] && (unsigned int)p->curr_weapon != j) switch (j)
 			{
@@ -1329,7 +1329,7 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 				{
 					p->curr_weapon = HANDREMOTE_WEAPON;
 					p->last_weapon = -1;
-					p->weapon_pos = 10;
+					p->oweapon_pos = p->weapon_pos = 10;
 				}
 				break;
 			case HANDBOMB_WEAPON:
@@ -1378,7 +1378,7 @@ int doincrements_d(struct player_struct* p)
 		if (p->last_pissed_time == (26 * 218))
 		{
 			p->holster_weapon = 0;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 		}
 	}
 
@@ -1481,8 +1481,8 @@ int doincrements_d(struct player_struct* p)
 		if (p->access_incs > 20)
 		{
 			p->access_incs = 0;
-			p->weapon_pos = 10;
-			p->kickback_pic = 0;
+			p->oweapon_pos = p->weapon_pos = 10;
+			p->okickback_pic = p->kickback_pic = 0;
 		}
 	}
 
@@ -1988,7 +1988,7 @@ static void fireweapon(int snum)
 		if (p->last_pissed_time <= (26 * 218) && p->weapon_pos == -9)
 		{
 			p->holster_weapon = 0;
-			p->weapon_pos = 10;
+			p->oweapon_pos = p->weapon_pos = 10;
 			FTA(74, p);
 		}
 	}
@@ -2425,7 +2425,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 					p->ammo_amount[DEVISTATOR_WEAPON]--;
 					checkavailweapon(p);
 				}
-				if (p->kickback_pic > 5) p->kickback_pic = 0;
+				if (p->kickback_pic > 5) p->okickback_pic = p->kickback_pic = 0;
 			}
 			else if (p->kickback_pic & 1)
 			{
@@ -2434,9 +2434,9 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				fi.shoot(pi, RPG);
 				p->ammo_amount[DEVISTATOR_WEAPON]--;
 				checkavailweapon(p);
-				if (p->ammo_amount[DEVISTATOR_WEAPON] <= 0) p->kickback_pic = 0;
+				if (p->ammo_amount[DEVISTATOR_WEAPON] <= 0) p->okickback_pic = p->kickback_pic = 0;
 			}
-			if (p->kickback_pic > 5) p->kickback_pic = 0;
+			if (p->kickback_pic > 5) p->okickback_pic = p->kickback_pic = 0;
 		}
 		break;
 	case FREEZE_WEAPON:
@@ -2466,7 +2466,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				p->okickback_pic = p->kickback_pic = 1;
 				S_PlayActorSound(CAT_FIRE, pi);
 			}
-			else p->kickback_pic = 0;
+			else p->okickback_pic = p->kickback_pic = 0;
 		}
 		break;
 
@@ -3106,12 +3106,12 @@ HORIZONLY:
 		{
 			if (p->last_weapon >= 0)
 			{
-				p->weapon_pos = 10;
+				p->oweapon_pos = p->weapon_pos = 10;
 				//                if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
 				p->last_weapon = -1;
 			}
 			else if (p->holster_weapon == 0)
-				p->weapon_pos = 10;
+				p->oweapon_pos = p->weapon_pos = 10;
 		}
 		else p->weapon_pos--;
 	}

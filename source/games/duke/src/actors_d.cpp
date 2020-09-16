@@ -238,7 +238,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 		p->last_weapon = -1;
 	}
 
-	p->kickback_pic = 0;
+	p->okickback_pic = p->kickback_pic = 0;
 #ifdef EDUKE
 	if(p->curr_weapon != weapon)
 	{

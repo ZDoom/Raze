@@ -182,7 +182,7 @@ void checkavailweapon(struct player_struct* p)
 		OnEvent(EVENT_CHANGEWEAPON, p->i, snum, -1);
 	}
 
-	p->kickback_pic = 0;
+	p->okickback_pic = p->kickback_pic = 0;
 	if (p->holster_weapon == 1)
 	{
 		p->holster_weapon = 0;
