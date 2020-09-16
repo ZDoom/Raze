@@ -631,51 +631,60 @@ void viewDrawScreen(bool sceneonly)
         int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (PI / 360.)));
 
         renderSetAspect(v1, yxaspect);
-        int cX = gView->pSprite->x;
-        int cY = gView->pSprite->y;
-        int cZ = gView->zView;
-        double zDelta = gView->zWeapon - gView->zView - (12 << 8);
-        fixed_t cA = gView->q16ang;
-        fixed_t q16horiz = gView->q16horiz;
-        fixed_t q16slopehoriz = gView->q16slopehoriz;
-        int v74 = gView->bobWidth;
-        int v8c = gView->bobHeight;
-        double v4c = gView->swayWidth;
-        double v48 = gView->swayHeight;
+
+        int cX, cY, cZ, v74, v8c;
+        fixed_t cA, q16horiz, q16slopehoriz;
+        double zDelta, v4c, v48;
         int nSectnum = gView->pSprite->sectnum;
-        if (cl_interpolate)
+        if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
         {
-            if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
+            nSectnum = predict.at68;
+            cX = interpolate(predictOld.at50, predict.at50, gInterpolate);
+            cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
+            cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
+            zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
+            q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
+            v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
+            v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
+            v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
+            v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
+
+            if (!cl_syncinput)
             {
-                nSectnum = predict.at68;
-                cX = interpolate(predictOld.at50, predict.at50, gInterpolate);
-                cY = interpolate(predictOld.at54, predict.at54, gInterpolate);
-                cZ = interpolate(predictOld.at38, predict.at38, gInterpolate);
-                zDelta = finterpolate(predictOld.at34, predict.at34, gInterpolate);
-                cA = interpolateangfix16(predictOld.at30, predict.at30, gInterpolate);
-                q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
-                q16slopehoriz = interpolate(predictOld.at28, predict.at28, gInterpolate);
-                v74 = interpolate(predictOld.atc, predict.atc, gInterpolate);
-                v8c = interpolate(predictOld.at8, predict.at8, gInterpolate);
-                v4c = finterpolate(predictOld.at1c, predict.at1c, gInterpolate);
-                v48 = finterpolate(predictOld.at18, predict.at18, gInterpolate);
+                cA = predict.at30;
+                q16horiz = predict.at24;
             }
             else
             {
-                VIEW* pView = &gPrevView[gViewIndex];
-                cX = interpolate(pView->at50, cX, gInterpolate);
-                cY = interpolate(pView->at54, cY, gInterpolate);
-                cZ = interpolate(pView->at38, cZ, gInterpolate);
-                zDelta = finterpolate(pView->at34, zDelta, gInterpolate);
-                cA = interpolateangfix16(pView->at30, cA, gInterpolate);
-                q16horiz = interpolate(pView->at24, q16horiz, gInterpolate);
-                q16slopehoriz = interpolate(pView->at28, q16slopehoriz, gInterpolate);
-                v74 = interpolate(pView->atc, v74, gInterpolate);
-                v8c = interpolate(pView->at8, v8c, gInterpolate);
-                v4c = finterpolate(pView->at1c, v4c, gInterpolate);
-                v48 = finterpolate(pView->at18, v48, gInterpolate);
+                cA = interpolateangfix16(predictOld.at30, predict.at30, gInterpolate);
+                q16horiz = interpolate(predictOld.at24, predict.at24, gInterpolate);
             }
         }
+        else
+        {
+            VIEW* pView = &gPrevView[gViewIndex];
+            cX = interpolate(pView->at50, gView->pSprite->x, gInterpolate);
+            cY = interpolate(pView->at54, gView->pSprite->y, gInterpolate);
+            cZ = interpolate(pView->at38, gView->zView, gInterpolate);
+            zDelta = finterpolate(pView->at34, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
+            q16slopehoriz = interpolate(pView->at28, gView->q16slopehoriz, gInterpolate);
+            v74 = interpolate(pView->atc, gView->bobWidth, gInterpolate);
+            v8c = interpolate(pView->at8, gView->bobHeight, gInterpolate);
+            v4c = finterpolate(pView->at1c, gView->swayWidth, gInterpolate);
+            v48 = finterpolate(pView->at18, gView->swayHeight, gInterpolate);
+
+            if (!cl_syncinput)
+            {
+                cA = gView->q16ang;
+                q16horiz = gView->q16horiz;
+            }
+            else
+            {
+                cA = interpolateangfix16(pView->at30, gView->q16ang, gInterpolate);
+                q16horiz = interpolate(pView->at24, gView->q16horiz, gInterpolate);
+            }
+        }
+
         viewUpdateShake();
         q16horiz += IntToFixed(shakeHoriz);
         cA += IntToFixed(shakeAngle);
