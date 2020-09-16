@@ -39,6 +39,8 @@ BEGIN_BLD_NS
 
 static InputPacket gInput;
 
+void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust);
+
 static void GetInputInternal(ControlInfo* const hidInput)
 {
     double const scaleAdjust = InputScale();
@@ -148,6 +150,11 @@ static void GetInputInternal(ControlInfo* const hidInput)
     gInput.svel = clamp(gInput.svel + input.svel, -2048, 2048);
     gInput.q16avel += input.q16avel;
     gInput.q16horz = clamp(gInput.q16horz + input.q16horz, IntToFixed(-127) >> 2, IntToFixed(127) >> 2);
+
+    if (!cl_syncinput && gamestate == GS_LEVEL)
+    {
+        applylook(&gPlayer[myconnectindex], input.q16avel, scaleAdjust);
+    }
 }
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)

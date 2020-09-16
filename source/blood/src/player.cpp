@@ -1304,6 +1304,41 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     return -1;
 }
 
+void applylook(PLAYER *pPlayer, fixed_t const q16avel, double const scaleAdjust)
+{
+    spritetype *pSprite = pPlayer->pSprite;
+    InputPacket *pInput = &pPlayer->input;
+
+    if (q16avel)
+    {
+        pPlayer->q16ang = (pPlayer->q16ang + q16avel) & 0x7FFFFFF;
+    }
+
+    if (pInput->actions & SB_TURNAROUND)
+    {
+        if (pPlayer->spin == 0.)
+        {
+            pPlayer->spin = -1024.;
+        }
+        pInput->actions &= ~SB_TURNAROUND;
+    }
+
+    if (pPlayer->spin < 0.)
+    {
+        double const speed = scaleAdjust * (pPlayer->posture == 1 ? 64. : 128.);
+        pPlayer->spin = min(pPlayer->spin + speed, 0.);
+        pPlayer->q16ang += FloatToFixed(speed);
+
+        if (pPlayer->spin > -1.)
+        {
+            pPlayer->spin = 0.;
+        }
+    }
+
+    pPlayer->q16ang = (pPlayer->q16ang + IntToFixed(pSprite->ang - pPlayer->angold)) & 0x7FFFFFF;
+    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
+}
+
 void ProcessInput(PLAYER *pPlayer)
 {
     enum
@@ -1415,26 +1450,12 @@ void ProcessInput(PLAYER *pPlayer)
             yvel[nSprite] -= mulscale30(strafe, x);
         }
     }
-    if (pInput->q16avel)
-        pPlayer->q16ang = (pPlayer->q16ang+pInput->q16avel)&0x7ffffff;
-    if (pInput->actions & SB_TURNAROUND)
+
+    if (cl_syncinput)
     {
-        if (!pPlayer->spin)
-            pPlayer->spin = -1024;
-        pInput->actions &= ~SB_TURNAROUND;
+        applylook(pPlayer, pInput->q16avel, 1);
     }
-    if (pPlayer->spin < 0)
-    {
-        int speed;
-        if (pPlayer->posture == 1)
-            speed = 64;
-        else
-            speed = 128;
-        pPlayer->spin = min(pPlayer->spin+speed, 0);
-        pPlayer->q16ang += IntToFixed(speed);
-    }
-    pPlayer->q16ang = (pPlayer->q16ang+IntToFixed(pSprite->ang-pPlayer->angold))&0x7ffffff;
-    pPlayer->angold = pSprite->ang = FixedToInt(pPlayer->q16ang);
+
     if (!(pInput->actions & SB_JUMP))
         pPlayer->cantJump = 0;
 
