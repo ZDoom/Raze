@@ -772,14 +772,18 @@ public:
 		}
 		lastTime = now;
 
-		if (screenfade < 1.f)
+		if (screenfade < 1.f && !M_Active())
 		{
 			float ms = (clock / 1'000'000) / job.job->fadetime;
 			screenfade = clamp(ms, 0.f, 1.f);
-			if (!M_Active()) twod->SetScreenFade(screenfade);
+			twod->SetScreenFade(screenfade);
 			job.job->fadestate = DScreenJob::fadein;
 		}
-		else job.job->fadestate = DScreenJob::visible;
+		else
+		{
+			job.job->fadestate = DScreenJob::visible;
+			screenfade = 1.f;
+		}
 		job.job->SetClock(clock);
 		int state = job.job->Frame(clock, skiprequest);
 		clock = job.job->GetClock();
