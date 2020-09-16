@@ -2,7 +2,7 @@
 // HUD (by Dzierzan)
 tilefromtexture 657 { file "tiles/657.png" xoff 2 yoff 1 ifcrc 1066640818 }
 
-// Weapons (by Dzierzan, fgsfds)
+// Weapons (by Dzierzan, MaxED, fgsfds)
 tilefromtexture 1214 { file "tiles/1214.png" xoffset -14 ifcrc -2108308743 }
 tilefromtexture 1215 { file "tiles/1215.png" xoffset 12 ifcrc 737730009 }
 tilefromtexture 1216 { file "tiles/1216.png" xoffset 18 ifcrc 1120051860 }
@@ -12,7 +12,6 @@ tilefromtexture 1218 { file "tiles/1218.png" xoffset -14 ifcrc -1493401675 }
 tilefromtexture 1261 { file "tiles/1261.png" xoffset 52 ifcrc 817041329 }
 tilefromtexture 1262 { file "tiles/1262.png" xoffset -53 ifcrc -746819462 }
 
-/* this one is left out because we were not able yet to clear permissions with one contributor, MaxED.
 tilefromtexture 2150 { file "tiles/2150.png" xoff 40 yoff 56 ifcrc -1544301210 }
 tilefromtexture 2151 { file "tiles/2151.png" xoff 40 yoff 56 ifcrc 561751025 }
 tilefromtexture 2152 { file "tiles/2152.png" xoff 25 yoff 56 ifcrc -628399723 }
@@ -24,7 +23,6 @@ tilefromtexture 2157 { file "tiles/2157.png" xoff -4 yoff 56 ifcrc 77589986 }
 tilefromtexture 2158 { file "tiles/2158.png" xoff -18 yoff 21 ifcrc 2134811032 }
 tilefromtexture 2159 { file "tiles/2159.png" xoff 45 yoff -21 ifcrc -607574116 }  //fgsfds
 tilefromtexture 2160 { file "tiles/2160.png" xoff 41 yoff -21 ifcrc 10342541 }  //fgsfds
-*/
 
 tilefromtexture 2224 { file "tiles/2224.png" xoffset -2 ifcrc 1098340635 }
 
