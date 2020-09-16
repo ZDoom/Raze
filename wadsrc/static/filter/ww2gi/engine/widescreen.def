@@ -1,0 +1,8 @@
+// HUD Knuckle Crack (by James Manning)
+tilefromtexture 2325 { file "duke3d/2325.png" xoffset 23 ifcrc -1031049892 }
+tilefromtexture 2326 { file "duke3d/2326.png" xoffset 15 ifcrc -1415291705 }
+
+// tiles by fgsfds
+
+// Bazooka
+tilefromtexture 2544 { file "wwii/2544.png" xoffset -124 yoffset -68 ifcrc -30125804 }

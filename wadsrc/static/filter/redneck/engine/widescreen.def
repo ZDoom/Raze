@@ -1,0 +1,50 @@
+// Status Bar (by fgsfds)
+tilefromtexture 1647 { file "tiles/1647.png" ifcrc 2267188214 }
+
+// TNT (by phredreeke)
+tilefromtexture 3363 { file "tiles/3363.png" xoffset -54 yoffset 4 ifcrc 2109729665 }
+tilefromtexture 3364 { file "tiles/3364.png" xoffset -28 yoffset 9 ifcrc 751040201 }
+
+// Alien Hand (by phredreeke)
+tilefromtexture 3415 { file "tiles/3415.png" xoffset -18 yoffset -2 ifcrc 3240298343 }
+tilefromtexture 3416 { file "tiles/3416.png" xoffset -64 yoffset -3 ifcrc 2896864412 }
+tilefromtexture 3417 { file "tiles/3417.png" xoffset -70 yoffset 0 ifcrc 595565443 }
+tilefromtexture 3418 { file "tiles/3418.png" xoffset -44 yoffset -2 ifcrc 1963500985 }
+
+// Crossbow (by fgsfds and Dzierzan)
+tilefromtexture 3453 { file "tiles/3453.png" xoffset -17 yoffset -4 ifcrc 1082592744 }
+tilefromtexture 3454 { file "tiles/3454_3484.png" xoffset -10 yoffset 0 ifcrc 1564923154 }
+tilefromtexture 3455 { file "tiles/3455_3485.png" xoffset -17 yoffset -26 ifcrc 3693621999 }
+tilefromtexture 3456 { file "tiles/3456.png" xoffset -38 yoffset -13 ifcrc 2465082077 }
+tilefromtexture 3457 { file "tiles/3457.png" xoffset -118 yoffset -3 ifcrc 1878101784 } // Dzierzan
+tilefromtexture 3458 { file "tiles/3458.png" xoffset -54 yoffset -10 ifcrc 3567627930 }
+
+// Chicken Crossbow (by fgsfds and Dzierzan)
+tilefromtexture 3483 { file "tiles/3483.png" xoffset -15 yoffset 10 ifcrc 3567627930 }
+tilefromtexture 3484 { file "tiles/3454_3484.png" xoffset -10 yoffset 0 ifcrc 1564923154 }
+tilefromtexture 3485 { file "tiles/3455_3485.png" xoffset -10 yoffset 0 ifcrc 3693621999 }
+tilefromtexture 3486 { file "tiles/3486.png" xoffset -10 yoffset -22 ifcrc 3671375655 }
+tilefromtexture 3487 { file "tiles/3487.png" xoffset -76 yoffset -40 ifcrc 3020369117 } // Dzierzan
+tilefromtexture 3488 { file "tiles/3488.png" xoffset -43 yoffset -7 ifcrc 1957550750 }
+
+// Rake (by phredreeke and Dzierzan)
+tilefromtexture 3511 { file "tiles/3511.png" xoffset 76 yoffset 97 ifcrc 2127529063 }
+tilefromtexture 3515 { file "tiles/3515.png" xoffset 35 yoffset 117 ifcrc 1543995399 }
+
+// Bike (by Dzierzan)
+tilefromtexture 7170 { file "tiles/7170.png" xoffset 59 yoffset -56 ifcrc 1052911090 }
+tilefromtexture 7171 { file "tiles/7171.png" xoffset 59 yoffset -52 ifcrc 2916638770 }
+tilefromtexture 7172 { file "tiles/7172.png" xoffset 59 yoffset -45 ifcrc 1218849305 }
+tilefromtexture 7173 { file "tiles/7173.png" xoffset 59 yoffset -52 ifcrc 2657976815 }
+tilefromtexture 7174 { file "tiles/7174.png" xoffset 59 yoffset -45 ifcrc 1966325639 }
+
+// Boat (by Dzierzan)
+tilefromtexture 7175 { file "tiles/7175.png" xoffset 0 yoffset 4 ifcrc 1211753848 }
+tilefromtexture 7176 { file "tiles/7176.png" xoffset 4 yoffset 5 ifcrc 3275101730 }
+tilefromtexture 7177 { file "tiles/7177.png" xoffset -7 yoffset 5 ifcrc 4060233362 }
+tilefromtexture 7178 { file "tiles/7178.png" xoffset 0 yoffset 10 ifcrc 110939592 }
+tilefromtexture 7179 { file "tiles/7179.png" xoffset 0 yoffset 29 ifcrc 1334152431 }
+tilefromtexture 7180 { file "tiles/7180.png" xoffset 4 yoffset 11 ifcrc 3806518487 }
+tilefromtexture 7181 { file "tiles/7181.png" xoffset 1 yoffset 32 ifcrc 1889079703 }
+tilefromtexture 7182 { file "tiles/7182.png" xoffset -7 yoffset 11 ifcrc 1350194293 }
+tilefromtexture 7183 { file "tiles/7183.png" xoffset -7 yoffset 30 ifcrc 2837062008 }

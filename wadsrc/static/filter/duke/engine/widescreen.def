@@ -1,6 +1,11 @@
-// HUD Knuckle Crack
+// HUD Knuckle Crack (by James Manning)
 tilefromtexture 2325 { file "tiles/duke3d/2325.png" xoffset 24 ifcrc -1031049892 }
 tilefromtexture 2326 { file "tiles/duke3d/2326.png" xoffset 16 ifcrc -1415291705 }
+
+// Status Bar (by fgsfds)
+tilefromtexture 2462 { file "tiles/duke3d/2462.png" xoffset 0 yoffset 14 ifcrc 126028789 }
+
+// all weapon graphics from Megaton edition.
 
 // HUD Pistol
 tilefromtexture 2529 { file "tiles/duke3d/2529.png" xoffset -70 yoffset 8 ifcrc 3581292866 }
